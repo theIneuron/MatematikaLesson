@@ -71,9 +71,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -244,7 +272,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -285,7 +313,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -897,8 +926,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'perim-2-29-v1',
-  lessonTitle: { ru: 'Урок 28. Периметр', uz: "28-dars. Perimetr" }
+  lessonId: 'grade2-28',
+  lessonTitle: { ru: 'Урок 28. Периметр', uz: "28-dars. Perimetr", en: 'Lesson 28. Perimeter' }
 };
 // STRUKTURA (Б5 URAN YO'LDOSHI yig'ish-panjarasi, perimetr; yuza YO'Q): s0 hook (panel chetiga lenta → perimetr, distr yuza) · s1 perimetr nima (chetni bo'ylab tomonlar yig'indisi) · s2 geoboardда birlik-sanash · s3 QOIDA (perimetr=tomonlar yig'indisi) + check sum · s4 raqamlangan tomonlar yig'indisi + check + warn(yuza EMAS) · sTBL misollar (tri/rect) · s5–s11 mashq (geoboard-sanash + raqamlangan-yig'indi aralash) · s13 masala (panel chetiga lenta) · s14 final · s15 xulosa (→ shakl yasash).
 // MEXANIKA: PerimStage (round.mode: 'geo' geoboardда chetdagi birlik-kesmalarni sanash / 'sum' raqamlangan tomonlar yig'indisi, MC son). Distraktor = qo'shni son (±2). Yuza (ichi) YO'Q — faqat chet.
@@ -945,13 +974,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): to'rtburchak panel chetiga lenta → perimetr 10 (distraktor 6)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Периметр', uz: "Mavzu: Perimetr" },
-    lead: { ru: 'Сколько нужно на край?', uz: "Chetiga necha katak kerak?" },
-    q: { ru: 'Панель: ширина 3, высота 2. Сколько ленты на весь край?', uz: "Panel: eni 3, bo'yi 2. Butun chetga necha katak lenta?" },
-    opt0: { ru: '6', uz: '6' },     // distraktor (yuza / faqat ikki tomon)
-    opt1: { ru: '10', uz: '10' },   // to'g'ri (3+2+3+2)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Периметр', uz: "Mavzu: Perimetr", en: 'Topic: Perimeter' },
+    lead: { ru: 'Сколько нужно на край?', uz: "Chetiga necha katak kerak?", en: 'How much do you need for the edge?' },
+    q: { ru: 'Панель: ширина 3, высота 2. Сколько ленты на весь край?', uz: "Panel: eni 3, bo'yi 2. Butun chetga necha katak lenta?", en: 'A panel 3 wide and 2 high. How much tape goes round the whole edge?' },
+    opt0: { ru: '6', uz: '6', en: '6' },     // distraktor (yuza / faqat ikki tomon)
+    opt1: { ru: '10', uz: '10', en: '10' },   // to'g'ri (3+2+3+2)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -965,21 +994,22 @@ const CONTENT = {
           "To'rtburchak panelning eni uch katak, bo'yi esa ikki katak.",
           "Lenta butun chet bo'ylab, to'rtala tomon bo'ylab ketadi. Necha katak lenta kerak?",
           "Ikki javobni tinglang. Birinchi, olti. Ikkinchi, o'n. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['We are at the assembly grid on a moon of Uranus. The crew is taping the edges of the panels.', 'The rectangular panel is three squares wide and two squares high.', 'The tape goes all the way round the edge, along all four sides. How many squares of tape are needed?', 'Listen to two answers. First, six. Second, ten. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Лента идёт по всем сторонам, три плюс два плюс три плюс два, это десять клеток. Каждые две клетки, это один сантиметр, значит пять сантиметров. Это периметр. Сейчас разберём.', uz: "To'g'ri. Lenta barcha tomonlar bo'ylab, uch qo'shuv ikki qo'shuv uch qo'shuv ikki, o'n katak. Har ikki katak bir santimetrga teng, demak besh santimetr. Bu perimetr. Hozir ko'ramiz." },
-      on_wrong: { ru: 'Лента идёт по всем четырём сторонам, а не по двум. Три плюс два плюс три плюс два, это десять клеток, пять сантиметров. Сейчас разберём.', uz: "Lenta faqat ikki emas, to'rtala tomon bo'ylab ketadi. Uch qo'shuv ikki qo'shuv uch qo'shuv ikki, o'n katak, besh santimetr. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём, как считать край, периметр.', uz: "Hechqisi yo'q. Chetni, perimetrni qanday sanashni ko'ramiz." }
+      on_correct: { ru: 'Верно. Лента идёт по всем сторонам, три плюс два плюс три плюс два, это десять клеток. Каждые две клетки, это один сантиметр, значит пять сантиметров. Это периметр. Сейчас разберём.', uz: "To'g'ri. Lenta barcha tomonlar bo'ylab, uch qo'shuv ikki qo'shuv uch qo'shuv ikki, o'n katak. Har ikki katak bir santimetrga teng, demak besh santimetr. Bu perimetr. Hozir ko'ramiz.", en: 'That is right. The tape goes along all the sides, three plus two plus three plus two, which is ten squares. Every two squares make one centimetre, so that is five centimetres. That is the perimeter. Now let us look at it.' },
+      on_wrong: { ru: 'Лента идёт по всем четырём сторонам, а не по двум. Три плюс два плюс три плюс два, это десять клеток, пять сантиметров. Сейчас разберём.', uz: "Lenta faqat ikki emas, to'rtala tomon bo'ylab ketadi. Uch qo'shuv ikki qo'shuv uch qo'shuv ikki, o'n katak, besh santimetr. Hozir ko'ramiz.", en: 'The tape goes along all four sides, not just two. Three plus two plus three plus two is ten squares, five centimetres. Now let us look at it.' },
+      on_unknown: { ru: 'Ничего. Разберём, как считать край, периметр.', uz: "Hechqisi yo'q. Chetni, perimetrni qanday sanashni ko'ramiz.", en: 'No problem. Let us see how to work out the edge, the perimeter.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: PERIMETR — shakl chetini bo'ylab barcha tomonlarni qo'shish
   s1: {
-    eyebrow: { ru: 'Периметр', uz: 'Perimetr' },
-    lead: { ru: 'Периметр — длина края.', uz: "Perimetr — chetning uzunligi." },
-    body: { ru: 'Периметр — это длина всего края фигуры. Пройди по краю и сосчитай клетки. У этого прямоугольника: три плюс два плюс три плюс два — десять клеток. Каждые две клетки равны одному сантиметру, значит пять сантиметров.', uz: "Perimetr — shaklning butun chetining uzunligi. Chet bo'ylab yuring va kataklarni sanang. Bu to'rtburchakda: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n katak. Har ikki katak bir santimetrga teng, demak besh santimetr." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Периметр — сумма всех сторон. Две клетки — один сантиметр.', uz: "Perimetr — barcha tomonlar yig'indisi. Ikki katak — bir santimetr." },
+    eyebrow: { ru: 'Периметр', uz: 'Perimetr', en: 'Perimeter' },
+    lead: { ru: 'Периметр — длина края.', uz: "Perimetr — chetning uzunligi.", en: 'The perimeter is the length of the edge.' },
+    body: { ru: 'Периметр — это длина всего края фигуры. Пройди по краю и сосчитай клетки. У этого прямоугольника: три плюс два плюс три плюс два — десять клеток. Каждые две клетки равны одному сантиметру, значит пять сантиметров.', uz: "Perimetr — shaklning butun chetining uzunligi. Chet bo'ylab yuring va kataklarni sanang. Bu to'rtburchakda: uch qo'shuv ikki qo'shuv uch qo'shuv ikki — o'n katak. Har ikki katak bir santimetrga teng, demak besh santimetr.", en: 'The perimeter is the length of the whole edge of a shape. Go round the edge and count the squares. For this rectangle: three plus two plus three plus two is ten squares. Every two squares make one centimetre, so that is five centimetres.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Периметр — сумма всех сторон. Две клетки — один сантиметр.', uz: "Perimetr — barcha tomonlar yig'indisi. Ikki katak — bir santimetr.", en: 'The perimeter is the sum of all the sides. Two squares make one centimetre.' },
     audio: {
       ru: [
         'Периметр, это длина всего края фигуры.',
@@ -990,16 +1020,17 @@ const CONTENT = {
         "Perimetr, shaklning butun chetining uzunligi.",
         "Chet bo'ylab yuring va kataklarni sanang.",
         "Uch qo'shuv ikki qo'shuv uch qo'shuv ikki, o'n katak. Har ikki katak bir santimetrga teng, demak besh santimetr."
-      ]
+      ],
+      en: ['The perimeter is the length of the whole edge of a shape.', 'Go round the edge and count the squares.', 'Three plus two plus three plus two is ten squares. Every two squares make one centimetre, so that is five centimetres.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: GEOBOARD — chetni aylanib birlik-kesmalarni sana
   s2: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Считай клетки по краю.', uz: "Chet bo'ylab kataklarni sanang." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Обойди край, посчитай клетки — две клетки равны одному сантиметру.', uz: "Chetni aylaning, kataklarni sanang — ikki katak bir santimetr." },
+    eyebrow: { ru: 'На решётке', uz: 'Panjarada', en: 'On the grid' },
+    lead: { ru: 'Считай клетки по краю.', uz: "Chet bo'ylab kataklarni sanang.", en: 'Count the squares along the edge.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Обойди край, посчитай клетки — две клетки равны одному сантиметру.', uz: "Chetni aylaning, kataklarni sanang — ikki katak bir santimetr.", en: 'Go round the edge and count the squares. Two squares make one centimetre.' },
     audio: {
       ru: [
         'На решётке периметр удобно считать по клеткам.',
@@ -1012,18 +1043,19 @@ const CONTENT = {
         "Shaklni chet bo'ylab aylaning, ichini sanamay.",
         "Chetning har katagini sanang.",
         "Ularning hammasini qo'shing, bu perimetr. Har ikki katak bir santimetrga teng."
-      ]
+      ],
+      en: ['On a grid the perimeter is easy to work out square by square.', 'Go round the edge of the shape without counting inside it.', 'Count every square of the edge.', 'Add them all up and that is the perimeter. Every two squares make one centimetre.']
     }
   },
 
   // s3 — QOIDA: perimetr = tomonlar yig'indisi + check SUM (rect 3×2 → 10)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Периметр = сумма сторон: a + b + a + b. Две клетки = один сантиметр.', uz: "Perimetr = tomonlar yig'indisi: a + b + a + b. Ikki katak = bir santimetr." },
-    check_q: { ru: 'Периметр в сантиметрах? (2 клетки = 1 см)', uz: "Perimetr necha santimetr? (2 katak = 1 sm)" },
-    opts: [{ ru: '4', uz: '4' }, { ru: '5', uz: '5', ok: true }, { ru: '6', uz: '6' }],
-    wrong: { ru: 'Сложи стороны: 3 + 2 + 3 + 2 = 10 клеток, это 5 см.', uz: "Tomonlarni qo'shing: 3 + 2 + 3 + 2 = 10 katak, bu 5 sm." },
-    check_ok: { ru: 'Верно! 3 + 2 + 3 + 2 = 10 клеток = 5 см.', uz: "To'g'ri! 3 + 2 + 3 + 2 = 10 katak = 5 sm." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Периметр = сумма сторон: a + b + a + b. Две клетки = один сантиметр.', uz: "Perimetr = tomonlar yig'indisi: a + b + a + b. Ikki katak = bir santimetr.", en: 'Perimeter = the sum of the sides: a + b + a + b. Two squares = one centimetre.' },
+    check_q: { ru: 'Периметр в сантиметрах? (2 клетки = 1 см)', uz: "Perimetr necha santimetr? (2 katak = 1 sm)", en: 'What is the perimeter in centimetres? (2 squares = 1 cm)' },
+    opts: [{ ru: '4', uz: '4', en: '4' }, { ru: '5', uz: '5', en: '5', ok: true }, { ru: '6', uz: '6', en: '6' }],
+    wrong: { ru: 'Сложи стороны: 3 + 2 + 3 + 2 = 10 клеток, это 5 см.', uz: "Tomonlarni qo'shing: 3 + 2 + 3 + 2 = 10 katak, bu 5 sm.", en: 'Add the sides: 3 + 2 + 3 + 2 = 10 squares, which is 5 cm.' },
+    check_ok: { ru: 'Верно! 3 + 2 + 3 + 2 = 10 клеток = 5 см.', uz: "To'g'ri! 3 + 2 + 3 + 2 = 10 katak = 5 sm.", en: 'That is right! 3 + 2 + 3 + 2 = 10 squares = 5 cm.' },
     audio: {
       ru: [
         'Запишем правило. Слушай и запомни.',
@@ -1036,20 +1068,21 @@ const CONTENT = {
         "Perimetr, shaklning barcha tomonlari yig'indisi.",
         "To'rtburchakda ikki eni va ikki bo'yi bor, hammasini kataklarda qo'shing.",
         "Har ikki katak bir santimetrga teng. Tekshiring, bu to'rtburchakning perimetri necha santimetr?"
-      ]
+      ],
+      en: ['Let us write down the rule. Listen and remember.', 'The perimeter is the sum of all the sides of a shape.', 'A rectangle has two widths and two heights, so add them all up in squares.', 'Every two squares make one centimetre. Check it: how many centimetres is the perimeter of this rectangle?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3: RAQAMLANGAN TOMONLAR — qo'shib perimetr + check (tri 2,3,4 → 9)
   s4: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Стороны подписаны — сложи их.', uz: "Tomonlar raqamlangan — ularni qo'shing." },
-    body: { ru: 'Если длины сторон подписаны, просто сложи их все. У этого треугольника: три плюс четыре плюс пять — двенадцать клеток. Каждые две клетки — один сантиметр, значит шесть сантиметров.', uz: "Agar tomonlar uzunligi raqamlangan bo'lsa, ularning hammasini qo'shing. Bu uchburchakda: uch qo'shuv to'rt qo'shuv besh — o'n ikki katak. Har ikki katak bir santimetr, demak olti santimetr." },
-    warn: { ru: 'Периметр — это край фигуры, а не то, что внутри.', uz: "Perimetr — shaklning cheti, ichidagi narsa emas." },
-    check_q: { ru: 'Периметр в сантиметрах? (2 клетки = 1 см)', uz: "Perimetr necha santimetr? (2 katak = 1 sm)" },
-    opts: [{ ru: '5', uz: '5' }, { ru: '6', uz: '6', ok: true }, { ru: '7', uz: '7' }],
-    wrong: { ru: 'Сложи три стороны: 3 + 4 + 5 = 12 клеток, это 6 см.', uz: "Uch tomonni qo'shing: 3 + 4 + 5 = 12 katak, bu 6 sm." },
-    check_ok: { ru: 'Верно! 3 + 4 + 5 = 12 клеток = 6 см.', uz: "To'g'ri! 3 + 4 + 5 = 12 katak = 6 sm." },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing", en: 'Add the sides' },
+    lead: { ru: 'Стороны подписаны — сложи их.', uz: "Tomonlar raqamlangan — ularni qo'shing.", en: 'The sides are labelled, so add them up.' },
+    body: { ru: 'Если длины сторон подписаны, просто сложи их все. У этого треугольника: три плюс четыре плюс пять — двенадцать клеток. Каждые две клетки — один сантиметр, значит шесть сантиметров.', uz: "Agar tomonlar uzunligi raqamlangan bo'lsa, ularning hammasini qo'shing. Bu uchburchakda: uch qo'shuv to'rt qo'shuv besh — o'n ikki katak. Har ikki katak bir santimetr, demak olti santimetr.", en: 'If the side lengths are labelled, just add them all up. For this triangle: three plus four plus five is twelve squares. Every two squares make one centimetre, so that is six centimetres.' },
+    warn: { ru: 'Периметр — это край фигуры, а не то, что внутри.', uz: "Perimetr — shaklning cheti, ichidagi narsa emas.", en: 'The perimeter is the edge of the shape, not what is inside it.' },
+    check_q: { ru: 'Периметр в сантиметрах? (2 клетки = 1 см)', uz: "Perimetr necha santimetr? (2 katak = 1 sm)", en: 'What is the perimeter in centimetres? (2 squares = 1 cm)' },
+    opts: [{ ru: '5', uz: '5', en: '5' }, { ru: '6', uz: '6', en: '6', ok: true }, { ru: '7', uz: '7', en: '7' }],
+    wrong: { ru: 'Сложи три стороны: 3 + 4 + 5 = 12 клеток, это 6 см.', uz: "Uch tomonni qo'shing: 3 + 4 + 5 = 12 katak, bu 6 sm.", en: 'Add the three sides: 3 + 4 + 5 = 12 squares, which is 6 cm.' },
+    check_ok: { ru: 'Верно! 3 + 4 + 5 = 12 клеток = 6 см.', uz: "To'g'ri! 3 + 4 + 5 = 12 katak = 6 sm.", en: 'That is right! 3 + 4 + 5 = 12 squares = 6 cm.' },
     audio: {
       ru: [
         'Когда стороны подписаны, просто сложи их все.',
@@ -1062,16 +1095,17 @@ const CONTENT = {
         "Bu uchburchakning tomonlari uch, to'rt va besh.",
         "Uch qo'shuv to'rt qo'shuv besh, o'n ikki katak. Har ikki katak bir santimetrga teng, demak olti santimetr.",
         "Tekshiring. Bu uchburchakning perimetri necha santimetr?"
-      ]
+      ],
+      en: ['When the sides are labelled, just add them all up.', 'This triangle has sides of three, four and five.', 'Three plus four plus five is twelve squares, and every two squares make one centimetre, so that is six centimetres.', 'Check it. How many centimetres is the perimeter of this triangle?']
     }
   },
 
   // sTBL — TUSHUNTIRISH: KALIT (perimetr = tomonlar yig'indisi; misollar)
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Периметр — сумма сторон', uz: "Perimetr — tomonlar yig'indisi" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Сложи все стороны — это периметр в клетках. Две клетки — один сантиметр. Площадь не считаем.', uz: "Barcha tomonlarni qo'shing — bu perimetr, kataklarda. Ikki katak — bir santimetr. Yuzani sanamaymiz." },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Периметр — сумма сторон', uz: "Perimetr — tomonlar yig'indisi", en: 'The perimeter is the sum of the sides' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Сложи все стороны — это периметр в клетках. Две клетки — один сантиметр. Площадь не считаем.', uz: "Barcha tomonlarni qo'shing — bu perimetr, kataklarda. Ikki katak — bir santimetr. Yuzani sanamaymiz.", en: 'Add all the sides and that is the perimeter in squares. Two squares make one centimetre. We are not working out the area.' },
     audio: {
       ru: [
         'Запомни ключ. Периметр, это сумма всех сторон.',
@@ -1082,199 +1116,203 @@ const CONTENT = {
         "Kalitni yodlang. Perimetr, barcha tomonlar yig'indisi.",
         "Uchburchakda uch tomonni, to'rtburchakda to'rttasini qo'shing.",
         "Faqat chetni sanaymiz, shakl ichidagini emas. Har ikki katak bir santimetrga teng."
-      ]
+      ],
+      en: ['Remember the key. The perimeter is the sum of all the sides.', 'For a triangle add three sides, for a rectangle four.', 'We count only the edge, not what is inside. Every two squares make one centimetre.']
     }
   },
 
   // s5 — MASHQ single GEOBOARD (rect 3×2 → 10)
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
-    transition: { ru: 'Объяснение закончили. Теперь считай периметр сам.', uz: "Tushuntirishni tugatdik. Endi perimetrni o'zingiz sanang." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
+    transition: { ru: 'Объяснение закончили. Теперь считай периметр сам.', uz: "Tushuntirishni tugatdik. Endi perimetrni o'zingiz sanang.", en: 'We have finished explaining. Now work out the perimeter yourself.' },
     mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]],
-    wrong: { ru: 'Обойди край и посчитай клетки.', uz: "Chetni aylanib, kataklarni sanang." },
-    done_text: { ru: 'Верно! По краю десять клеток, это пять сантиметров.', uz: "To'g'ri! Chet bo'ylab o'n katak, bu besh santimetr." },
+    wrong: { ru: 'Обойди край и посчитай клетки.', uz: "Chetni aylanib, kataklarni sanang.", en: 'Go round the edge and count the squares.' },
+    done_text: { ru: 'Верно! По краю десять клеток, это пять сантиметров.', uz: "To'g'ri! Chet bo'ylab o'n katak, bu besh santimetr.", en: 'That is right! There are ten squares round the edge, which is five centimetres.' },
     audio: {
-      intro: { ru: 'Тренировка. Обойди фигуру по краю и посчитай клетки.', uz: "Mashq. Shaklni chet bo'ylab aylanib, kataklarni sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждую клетку края, не пропуская.', uz: "Chetning har katagini o'tkazib yubormay sanang." }
+      intro: { ru: 'Тренировка. Обойди фигуру по краю и посчитай клетки.', uz: "Mashq. Shaklni chet bo'ylab aylanib, kataklarni sanang.", en: 'Practice. Go round the edge of the shape and count the squares.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай каждую клетку края, не пропуская.', uz: "Chetning har katagini o'tkazib yubormay sanang.", en: 'Count every square of the edge without skipping any.' }
     }
   },
 
   // s6 — MASHQ GEOBOARD (3 round)
   s6: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'На решётке', uz: 'Panjarada', en: 'On the grid' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'geo', verts: [[0, 0], [2, 0], [2, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 1], [1, 1], [1, 2], [0, 2]] } ],
-    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning.", en: 'Go round the edge square by square.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Считай периметр по клеткам края.', uz: "Perimetrni chet kataklari bo'yicha sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не забудь все стороны фигуры.', uz: "Shaklning barcha tomonlarini unutmang." }
+      intro: { ru: 'Считай периметр по клеткам края.', uz: "Perimetrni chet kataklari bo'yicha sanang.", en: 'Work out the perimeter from the squares along the edge.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не забудь все стороны фигуры.', uz: "Shaklning barcha tomonlarini unutmang.", en: 'Do not forget any of the sides of the shape.' }
     }
   },
 
   // s7 — MASHQ RAQAMLANGAN TOMONLAR (3 round: yig'indi)
   s7: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing", en: 'Add the sides' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'sum', shape: 'rect', sides: [3, 3] }, { mode: 'sum', shape: 'tri', sides: [4, 6, 6] } ],
-    wrong: { ru: 'Сложи все подписанные стороны.', uz: "Barcha raqamlangan tomonlarni qo'shing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сложи все подписанные стороны.', uz: "Barcha raqamlangan tomonlarni qo'shing.", en: 'Add up all the labelled sides.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Стороны подписаны, сложи их все.', uz: "Tomonlar raqamlangan, hammasini qo'shing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У прямоугольника сложи четыре стороны, у треугольника, три.', uz: "To'rtburchakda to'rt tomonni, uchburchakda uch tomonni qo'shing." }
+      intro: { ru: 'Стороны подписаны, сложи их все.', uz: "Tomonlar raqamlangan, hammasini qo'shing.", en: 'The sides are labelled, so add them all up.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'У прямоугольника сложи четыре стороны, у треугольника, три.', uz: "To'rtburchakda to'rt tomonni, uchburchakda uch tomonni qo'shing.", en: 'For a rectangle add four sides, for a triangle three.' }
     }
   },
 
   // s8 — MASHQ GEOBOARD (3 round)
   s8: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'На решётке', uz: 'Panjarada', en: 'On the grid' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'geo', verts: [[0, 0], [3, 0], [3, 3], [0, 3]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [2, 0], [2, 1], [1, 1], [1, 3], [0, 3]] } ],
-    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning.", en: 'Go round the edge square by square.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова считай периметр по краю.', uz: "Yana perimetrni chet bo'ylab sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай только край фигуры.', uz: "Faqat shakl chetini sanang." }
+      intro: { ru: 'Снова считай периметр по краю.', uz: "Yana perimetrni chet bo'ylab sanang.", en: 'Work out the perimeter round the edge again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай только край фигуры.', uz: "Faqat shakl chetini sanang.", en: 'Count only the edge of the shape.' }
     }
   },
 
   // s9 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
   s9: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing", en: 'Add the sides' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'sum', shape: 'rect', sides: [4, 3] }, { mode: 'sum', shape: 'tri', sides: [6, 6, 6] }, { mode: 'sum', shape: 'rect', sides: [6, 2] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing.", en: 'Add up all the sides of the shape.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова сложи все подписанные стороны.', uz: "Yana barcha raqamlangan tomonlarni qo'shing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не пропусти ни одной стороны.', uz: "Birorta tomonni o'tkazib yubormang." }
+      intro: { ru: 'Снова сложи все подписанные стороны.', uz: "Yana barcha raqamlangan tomonlarni qo'shing.", en: 'Add up all the labelled sides again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не пропусти ни одной стороны.', uz: "Birorta tomonni o'tkazib yubormang.", en: 'Do not miss a single side.' }
     }
   },
 
   // s10 — MASHQ GEOBOARD (3 round)
   s10: {
-    eyebrow: { ru: 'На решётке', uz: 'Panjarada' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'На решётке', uz: 'Panjarada', en: 'On the grid' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'geo', verts: [[0, 0], [4, 0], [4, 1], [0, 1]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [2, 2], [2, 1], [0, 1]] } ],
-    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Обойди край по клеткам.', uz: "Chetni katak-katak aylaning.", en: 'Go round the edge square by square.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова считай периметр на решётке.', uz: "Yana panjarada perimetrni sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай каждую клетку края.', uz: "Chetning har katagini sanang." }
+      intro: { ru: 'Снова считай периметр на решётке.', uz: "Yana panjarada perimetrni sanang.", en: 'Work out the perimeter on the grid again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай каждую клетку края.', uz: "Chetning har katagini sanang.", en: 'Count every square of the edge.' }
     }
   },
 
   // s11 — MASHQ RAQAMLANGAN TOMONLAR (3 round)
   s11: {
-    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing" },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'Сложи стороны', uz: "Tomonlarni qo'shing", en: 'Add the sides' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [6, 4, 6] }, { mode: 'sum', shape: 'rect', sides: [5, 4] }, { mode: 'sum', shape: 'tri', sides: [3, 3, 6] } ],
-    wrong: { ru: 'Сложи все стороны.', uz: "Barcha tomonlarni qo'shing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сложи все стороны.', uz: "Barcha tomonlarni qo'shing.", en: 'Add up all the sides.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Сложи стороны.', uz: "Masaladan oldingi oxirgi mashq. Tomonlarni qo'shing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У треугольника три стороны, у прямоугольника четыре.', uz: "Uchburchakda uch tomon, to'rtburchakda to'rt tomon." }
+      intro: { ru: 'Последняя тренировка перед задачей. Сложи стороны.', uz: "Masaladan oldingi oxirgi mashq. Tomonlarni qo'shing.", en: 'The last practice before the task. Add up the sides.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'У треугольника три стороны, у прямоугольника четыре.', uz: "Uchburchakda uch tomon, to'rtburchakda to'rt tomon.", en: 'A triangle has three sides and a rectangle has four.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi." },
-    manifest_label: { ru: 'панель', uz: 'panel' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi.", en: 'The crew is taping a panel.' },
+    manifest_label: { ru: 'панель', uz: 'panel', en: 'panel' },
     audio: {
       ru: 'Экипаж обклеивает лентой край панели станции.',
-      uz: "Ekipaj stansiya paneli chetiga lenta yopishtiradi."
+      uz: "Ekipaj stansiya paneli chetiga lenta yopishtiradi.",
+      en: 'The crew is taping round the edge of a station panel.'
     }
   },
 
   // s13 — MASALA (scored, PerimStage geo): panel chetiga lenta → perimetr necha birlik?
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
     mode: 'geo', verts: [[0, 0], [4, 0], [4, 2], [0, 2]],
-    story: { ru: 'Лента идёт по краю панели. Найди периметр.', uz: "Panel cheti bo'ylab lenta. Perimetrni toping." },
-    wrong: { ru: 'Обойди край панели по клеткам.', uz: "Panel chetini katak-katak aylaning." },
-    done_text: { ru: 'Верно! По краю двенадцать клеток, это шесть сантиметров.', uz: "To'g'ri! Chet bo'ylab o'n ikki katak, bu olti santimetr." },
+    story: { ru: 'Лента идёт по краю панели. Найди периметр.', uz: "Panel cheti bo'ylab lenta. Perimetrni toping.", en: 'The tape goes round the edge of the panel. Find the perimeter.' },
+    wrong: { ru: 'Обойди край панели по клеткам.', uz: "Panel chetini katak-katak aylaning.", en: 'Go round the edge of the panel square by square.' },
+    done_text: { ru: 'Верно! По краю двенадцать клеток, это шесть сантиметров.', uz: "To'g'ri! Chet bo'ylab o'n ikki katak, bu olti santimetr.", en: 'That is right! There are twelve squares round the edge, which is six centimetres.' },
     audio: {
-      intro: { ru: 'Экипаж обклеивает край панели. Обойди край и посчитай клетки.', uz: "Ekipaj panel chetini bezaydi. Chetni aylanib, kataklarni sanang." },
-      on_correct: { ru: 'Верно. По краю двенадцать клеток, шесть сантиметров.', uz: "To'g'ri. Chet bo'ylab o'n ikki katak, olti santimetr." },
-      on_wrong: { ru: 'Считай каждую клетку края, не пропуская.', uz: "Chetning har katagini o'tkazib yubormay sanang." }
+      intro: { ru: 'Экипаж обклеивает край панели. Обойди край и посчитай клетки.', uz: "Ekipaj panel chetini bezaydi. Chetni aylanib, kataklarni sanang.", en: 'The crew is taping round the edge of the panel. Go round the edge and count the squares.' },
+      on_correct: { ru: 'Верно. По краю двенадцать клеток, шесть сантиметров.', uz: "To'g'ri. Chet bo'ylab o'n ikki katak, olti santimetr.", en: 'That is right. Twelve squares round the edge, six centimetres.' },
+      on_wrong: { ru: 'Считай каждую клетку края, не пропуская.', uz: "Chetning har katagini o'tkazib yubormay sanang.", en: 'Count every square of the edge without skipping any.' }
     }
   },
 
   // s14 — FINAL (scored, 3 round tomonlar-yig'indisi + FactCard Uran)
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' },
     rounds: [ { mode: 'sum', shape: 'tri', sides: [3, 4, 5] }, { mode: 'geo', verts: [[0, 0], [3, 0], [3, 2], [0, 2]] }, { mode: 'sum', shape: 'rect', sides: [5, 3] } ],
-    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
-    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
+    wrong: { ru: 'Сложи все стороны фигуры.', uz: "Shaklning barcha tomonlarini qo'shing.", en: 'Add up all the sides of the shape.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta.", en: 'Uranus is huge: across, it is about four times bigger than the Earth.' },
+    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta.", en: 'Uranus is very big: across, it is about four times bigger than our Earth.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Считай периметр, сумму сторон.', uz: "Yakuniy tekshiruv. Perimetrni, tomonlar yig'indisini sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сложи все стороны, обойди весь край.', uz: "Barcha tomonlarni qo'shing, butun chetni aylaning." }
+      intro: { ru: 'Финальная проверка. Считай периметр, сумму сторон.', uz: "Yakuniy tekshiruv. Perimetrni, tomonlar yig'indisini sanang.", en: 'The final check. Work out the perimeter, the sum of the sides.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сложи все стороны, обойди весь край.', uz: "Barcha tomonlarni qo'shing, butun chetni aylaning.", en: 'Add up all the sides and go round the whole edge.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: shakl yasash)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты считаешь периметр — сумму сторон!', uz: "Endi siz perimetrni — tomonlar yig'indisini sanaysiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты считаешь периметр — сумму сторон!', uz: "Endi siz perimetrni — tomonlar yig'indisini sanaysiz!", en: 'Now you can work out the perimeter, the sum of the sides!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Периметр = сумма всех сторон. Две клетки = один сантиметр.', uz: "Perimetr = barcha tomonlar yig'indisi. Ikki katak = bir santimetr." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'многоугольник и длина', uz: "ko'pburchak va uzunlik" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: построение фигур', uz: "keyingi: shakl yasash" },
+    rule_recap: { ru: 'Периметр = сумма всех сторон. Две клетки = один сантиметр.', uz: "Perimetr = barcha tomonlar yig'indisi. Ikki katak = bir santimetr.", en: 'Perimeter = the sum of all the sides. Two squares = one centimetre.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'многоугольник и длина', uz: "ko'pburchak va uzunlik", en: 'polygons and length' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: построение фигур', uz: "keyingi: shakl yasash", en: 'next: drawing shapes' },
     audio: {
       ru: 'Миссия выполнена. Мы научились считать периметр, сумму всех сторон. Можно обойти край по клеткам или сложить подписанные стороны. Каждые две клетки, это один сантиметр. У сборочной решётки на спутнике Урана экипаж обклеил края панелей. Дальше научимся строить фигуры по заданным сторонам.',
-      uz: "Missiya bajarildi. Perimetrni, barcha tomonlar yig'indisini sanashni o'rgandik. Chetni katak bo'yicha aylanish yoki raqamlangan tomonlarni qo'shish mumkin. Har ikki katak bir santimetrga teng. Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini bezadi. Keyin berilgan tomonlarga qarab shakl yasashni o'rganamiz."
+      uz: "Missiya bajarildi. Perimetrni, barcha tomonlar yig'indisini sanashni o'rgandik. Chetni katak bo'yicha aylanish yoki raqamlangan tomonlarni qo'shish mumkin. Har ikki katak bir santimetrga teng. Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini bezadi. Keyin berilgan tomonlarga qarab shakl yasashni o'rganamiz.",
+      en: 'Mission complete. We learned to work out the perimeter, the sum of all the sides. You can go round the edge square by square or add up the labelled sides. Every two squares make one centimetre. At the assembly grid on the moon of Uranus the crew taped the edges of the panels. Next we will learn to draw shapes from given sides.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Что такое периметр?', uz: "Perimetr nima?" },
-  s2:  { ru: 'Считаем на решётке.', uz: "Panjarada sanaymiz." },
-  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Складываем стороны.', uz: "Tomonlarni qo'shamiz." },
-  sTBL: { ru: 'Запомним правило.', uz: 'Qoidani yodlaymiz.' },
-  s5:  { ru: 'Теперь считай сам.', uz: "Endi o'zingiz sanang." },
-  s6:  { ru: 'Считай на решётке.', uz: "Panjarada sanang." },
-  s7:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing." },
-  s8:  { ru: 'Снова на решётке.', uz: "Yana panjarada." },
-  s9:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing." },
-  s10: { ru: 'Снова на решётке.', uz: "Yana panjarada." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi." },
-  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Края панелей обклеены!', uz: "Panellar cheti bezaldi!" }
+  s1:  { ru: 'Что такое периметр?', uz: "Perimetr nima?", en: 'What is the perimeter?' },
+  s2:  { ru: 'Считаем на решётке.', uz: "Panjarada sanaymiz.", en: 'Working it out on the grid.' },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz.", en: 'Let us write down the rule.' },
+  s4:  { ru: 'Складываем стороны.', uz: "Tomonlarni qo'shamiz.", en: 'Adding up the sides.' },
+  sTBL: { ru: 'Запомним правило.', uz: 'Qoidani yodlaymiz.', en: 'Let us remember the rule.' },
+  s5:  { ru: 'Теперь считай сам.', uz: "Endi o'zingiz sanang.", en: 'Now count on your own.' },
+  s6:  { ru: 'Считай на решётке.', uz: "Panjarada sanang.", en: 'Work it out on the grid.' },
+  s7:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing.", en: 'Add up the sides.' },
+  s8:  { ru: 'Снова на решётке.', uz: "Yana panjarada.", en: 'On the grid again.' },
+  s9:  { ru: 'Сложи стороны.', uz: "Tomonlarni qo'shing.", en: 'Add up the sides.' },
+  s10: { ru: 'Снова на решётке.', uz: "Yana panjarada.", en: 'On the grid again.' },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.', en: 'The last practice.' },
+  s12: { ru: 'Экипаж обклеивает панель.', uz: "Ekipaj panelni bezaydi.", en: 'The crew is taping a panel.' },
+  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Края панелей обклеены!', uz: "Panellar cheti bezaldi!", en: 'The edges of the panels are taped!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'У сборочной решётки на спутнике Урана экипаж обклеил лентой края панелей — по периметру. Всё готово! Спасибо за помощь.',
-  uz: "Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini — perimetr bo'ylab lenta bilan bezadi. Hammasi tayyor! Yordamingiz uchun rahmat."
+  uz: "Uran yo'ldoshidagi yig'ish panjarasi oldida ekipaj panellar chetini — perimetr bo'ylab lenta bilan bezadi. Hammasi tayyor! Yordamingiz uchun rahmat.",
+  en: 'At the assembly grid on the moon of Uranus the crew taped the edges of the panels all the way round the perimeter. Everything is ready! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1383,7 +1421,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1400,7 +1438,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2157,7 +2196,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2633,7 +2678,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3265,8 +3310,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3312,9 +3357,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3844,12 +3889,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4197,9 +4244,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4207,15 +4254,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4229,8 +4276,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4239,14 +4286,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4262,16 +4309,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4279,14 +4326,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4363,8 +4410,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4538,7 +4585,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi' }}/>
+          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi', en: 'The lines are told apart' }}/>
         </div>
       </div>
     </Stage>
@@ -4549,14 +4596,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4866,7 +4913,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -4896,8 +4943,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5026,8 +5073,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5296,7 +5343,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5425,7 +5472,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5499,7 +5546,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5588,7 +5635,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5768,8 +5815,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5912,7 +5959,7 @@ const SumFig = ({ shape, sides, reveal = false }) => {
   );
 };
 const sumPerim = (sides, shape) => shape === 'rect' ? 2 * (sides[0] + sides[1]) : sides[0] + sides[1] + sides[2];
-const PERIM_Q = { ru: 'Периметр в сантиметрах?', uz: "Perimetr necha santimetr?" };
+const PERIM_Q = { ru: 'Периметр в сантиметрах?', uz: "Perimetr necha santimetr?", en: 'What is the perimeter in centimetres?' };
 // PerimStage — round.mode: 'geo' {verts} / 'sum' {shape,sides}. MC son. Distraktor = qo'shni son.
 const PerimStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5981,14 +6028,14 @@ const PerimStage = ({ props, cKey, fact = false }) => {
 };
 // ============================================================
 // --- LEN (Dars28) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
-const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
-const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm', en: 'cm' }, dm: { ru: 'дм', uz: 'dm', en: 'dm' }, m: { ru: 'м', uz: 'm', en: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr', en: 'centimetre' }, dm: { ru: 'дециметр', uz: 'detsimetr', en: 'decimetre' }, m: { ru: 'метр', uz: 'metr', en: 'metre' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
 const RUL_STEP = 26, RUL_PAD = 16;
 const LEN_Q = {
-  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' }
 };
 const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
@@ -6143,7 +6190,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
   );
 };
 // --- POLY (Dars27) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
-const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak', en: 'A triangle' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak", en: 'A quadrilateral' }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak', en: 'A pentagon' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak', en: 'A hexagon' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
   <g>
@@ -6196,13 +6243,13 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
     </svg>
   );
 };
-const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
-const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
-const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
-const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?", en: 'Which polygon is this?' };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?", en: 'How many sides?' };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?", en: 'Is this a polygon?' };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak", en: 'A polygon' } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas", en: 'No' } }];
 const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
-const TOMON = { ru: 'стор.', uz: 'tomon' };
+const TOMON = { ru: 'стор.', uz: 'tomon', en: 'sides' };
 // deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
 const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 // PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
@@ -6252,7 +6299,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
           <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas", en: 'Not a polygon' })}</div>}
         </div>
         {!solved && (
           <>
@@ -6281,7 +6328,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
   );
 };
 // PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
-const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi", en: 'Draw a thread from a shape to its name and the hatch will open' };
 const PolyMatchStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6456,7 +6503,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -6544,8 +6591,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -7638,7 +7685,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

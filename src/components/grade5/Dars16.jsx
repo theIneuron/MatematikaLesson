@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -180,7 +205,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -215,7 +240,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -596,12 +622,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -717,7 +743,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -766,9 +792,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК + анимации (CSS-only loop, синяя тема)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -858,8 +884,8 @@ const DivLadder = ({ steps }) => (
 // --- POD UROK: frac_5_08 — Сокращение дробей ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-08-v1',
-  lessonTitle: { ru: 'Сокращение дробей', uz: "Kasrlarni qisqartirish" }
+  lessonId: 'grade5-16',
+  lessonTitle: { ru: 'Сокращение дробей', uz: "Kasrlarni qisqartirish", en: 'Simplifying fractions' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -883,23 +909,24 @@ const SCREEN_META = [
 // === CONTENT BELOW ===
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title: { ru: 'Ответ <b>6/8</b> — верный. Но можно ли записать его проще?', uz: "Javob <b>6/8</b> — to'g'ri. Lekin uni soddaroq yozsa bo'ladimi?" },
-    opt_a: { ru: 'Это одно и то же число; пишем проще', uz: 'Bu bitta son; soddaroq yozamiz' },
-    opt_b: { ru: 'Это разные числа; 3/4 меньше 6/8', uz: "Bu har xil sonlar; 3/4 6/8 dan kichik" },
-    opt_c: { ru: 'Пока не уверен(а)', uz: 'Hozircha aniq emas' },
+    eyebrow: { ru: 'Загадка', uz: 'Topishmoq', en: 'A puzzle' },
+    title: { ru: 'Ответ <b>6/8</b> — верный. Но можно ли записать его проще?', uz: "Javob <b>6/8</b> — to'g'ri. Lekin uni soddaroq yozsa bo'ladimi?", en: 'The answer <b>6/8</b> is right. But can it be written more simply?' },
+    opt_a: { ru: 'Это одно и то же число; пишем проще', uz: 'Bu bitta son; soddaroq yozamiz', en: 'It is the same number, we just write it more simply' },
+    opt_b: { ru: 'Это разные числа; 3/4 меньше 6/8', uz: "Bu har xil sonlar; 3/4 6/8 dan kichik", en: 'They are different numbers, 3/4 is less than 6/8' },
+    opt_c: { ru: 'Пока не уверен(а)', uz: 'Hozircha aniq emas', en: 'I am not sure yet' },
     audio: {
       ru: 'Ответ шесть восьмых верный. Но шесть восьмых и три четвёртых закрашивают одинаковую длину — это одно и то же число. А три четвёртых записать проще: меньше частей, легче читать. Зачем и как сокращать дробь до простого вида? Как думаешь, выбери ответ.',
-      uz: "Javob sakkizdan olti to'g'ri. Lekin sakkizdan olti va to'rtdan uch bir xil uzunlikni bo'yaydi — bu bitta son. To'rtdan uch yozish esa soddaroq: bo'laklar kam, o'qish oson. Kasrni sodda holatga qisqartirish nima uchun va qanday kerak? Sizningcha qanday, javobni tanlang."
+      uz: "Javob sakkizdan olti to'g'ri. Lekin sakkizdan olti va to'rtdan uch bir xil uzunlikni bo'yaydi — bu bitta son. To'rtdan uch yozish esa soddaroq: bo'laklar kam, o'qish oson. Kasrni sodda holatga qisqartirish nima uchun va qanday kerak? Sizningcha qanday, javobni tanlang.",
+      en: 'The answer six eighths is right. But six eighths and three quarters colour in the same length, so they are the same number. And three quarters is simpler to write: fewer parts and easier to read. Why and how do we simplify a fraction? What do you think? Choose an answer.'
     }
   },
   s1: {
-    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot' },
-    bridge: { ru: 'Проверим на полоске: 6/8 и 3/4 — это одна длина?', uz: "Chiziqda tekshiramiz: 6/8 va 3/4 — bir uzunlikmi?" },
-    title: { ru: 'Объединим мелкие доли: <b>6/8 → 3/4</b>', uz: "Mayda ulushlarni birlashtiramiz: <b>6/8 → 3/4</b>" },
-    step1: { ru: 'Полоса поделена на 8 частей, закрашено 6 — это 6/8.', uz: "Polosa 8 bo'lakka bo'lingan, 6 tasi bo'yalgan — bu 6/8." },
-    step2: { ru: 'Группируем доли по 2 — соседние линии исчезают, 8 долей становятся 4.', uz: "Ulushlarni 2 tadan guruhlaymiz — yondosh chiziqlar yo'qoladi, 8 ulush 4 ga aylanadi." },
-    step3: { ru: 'Закрашено 3 части из 4 — это 3/4. Разделили верх и низ на 2: <b>6÷2=3, 8÷2=4</b>. Длина та же.', uz: "4 tadan 3 tasi bo'yalgan — bu 3/4. Surat va maxrajni 2 ga bo'ldik: <b>6÷2=3, 8÷2=4</b>. Uzunlik o'sha." },
+    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot', en: 'Investigation' },
+    bridge: { ru: 'Проверим на полоске: 6/8 и 3/4 — это одна длина?', uz: "Chiziqda tekshiramiz: 6/8 va 3/4 — bir uzunlikmi?", en: 'Let us check on the bar: are 6/8 and 3/4 the same length?' },
+    title: { ru: 'Объединим мелкие доли: <b>6/8 → 3/4</b>', uz: "Mayda ulushlarni birlashtiramiz: <b>6/8 → 3/4</b>", en: 'Let us join the small parts together: <b>6/8 → 3/4</b>' },
+    step1: { ru: 'Полоса поделена на 8 частей, закрашено 6 — это 6/8.', uz: "Polosa 8 bo'lakka bo'lingan, 6 tasi bo'yalgan — bu 6/8.", en: 'The bar is split into 8 parts with 6 coloured in, which is 6/8.' },
+    step2: { ru: 'Группируем доли по 2 — соседние линии исчезают, 8 долей становятся 4.', uz: "Ulushlarni 2 tadan guruhlaymiz — yondosh chiziqlar yo'qoladi, 8 ulush 4 ga aylanadi.", en: 'We group the parts in 2s, the lines between them disappear and 8 parts become 4.' },
+    step3: { ru: 'Закрашено 3 части из 4 — это 3/4. Разделили верх и низ на 2: <b>6÷2=3, 8÷2=4</b>. Длина та же.', uz: "4 tadan 3 tasi bo'yalgan — bu 3/4. Surat va maxrajni 2 ga bo'ldik: <b>6÷2=3, 8÷2=4</b>. Uzunlik o'sha.", en: '3 parts out of 4 are coloured, which is 3/4. We divided the top and the bottom by 2: <b>6÷2=3, 8÷2=4</b>. The length is the same.' },
     audio: {
       ru: [
         'Объединим мелкие доли. Нажимай кнопку дальше.',
@@ -912,15 +939,16 @@ const CONTENT = {
         "Mana sakkiz bo'lakka bo'lingan polosa, oltitasi bo'yalgan — bu sakkizdan olti. Davom etish tugmasini bosing.",
         "Ulushlarni ikkitadan guruhlaymiz: yondosh chiziqlar yo'qoladi va sakkizta ulush to'rttaga aylanadi. Bo'yalgan uzunlik o'zgarmaydi. Davom etish tugmasini bosing.",
         "Endi to'rttadan uchtasi bo'yalgan — bu to'rtdan uch. Biz yuqorini ham, pastni ham ikkiga bo'ldik: olti bo'lib ikki uch, sakkiz bo'lib ikki to'rt. Sakkizdan olti to'rtdan uchga teng, faqat soddaroq yozilgan."
-      ]
+      ],
+      en: ['Let us join the small parts together. Tap the next button.', 'Here is a bar split into eight parts with six coloured in, which is six eighths. Tap the next button.', 'Let us group the parts in twos: the lines between them disappear and eight parts turn into four. The coloured length does not change. Tap the next button.', 'Now three parts out of four are coloured, which is three quarters. We divided both the top and the bottom by two: six divided by two is three and eight divided by two is four. Six eighths equals three quarters, just written more simply.']
     }
   },
   s2: {
-    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot' },
-    title: { ru: 'Сократи <b>8/12</b> до конца', uz: "<b>8/12</b> ni oxirigacha qisqartiring" },
-    step1: { ru: 'Найдём число, на которое делятся и 8, и 12. Это <b>4</b> — их общий делитель.', uz: "8 ham, 12 ham bo'linadigan sonni topamiz. Bu <b>4</b> — ularning umumiy bo'luvchisi." },
-    step2: { ru: 'Делим оба на 4: <b>8÷4=2</b>, <b>12÷4=3</b>.', uz: "Ikkalasini 4 ga bo'lamiz: <b>8÷4=2</b>, <b>12÷4=3</b>." },
-    step3: { ru: 'Вышло <b>2/3</b>. Проще уже не сократить — 2 и 3 общего делителя не имеют.', uz: "<b>2/3</b> chiqdi. Bundan sodda qisqarmaydi — 2 va 3 umumiy bo'luvchiga ega emas." },
+    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot', en: 'Investigation' },
+    title: { ru: 'Сократи <b>8/12</b> до конца', uz: "<b>8/12</b> ni oxirigacha qisqartiring", en: 'Simplify <b>8/12</b> as far as it will go' },
+    step1: { ru: 'Найдём число, на которое делятся и 8, и 12. Это <b>4</b> — их общий делитель.', uz: "8 ham, 12 ham bo'linadigan sonni topamiz. Bu <b>4</b> — ularning umumiy bo'luvchisi.", en: 'Let us find a number that both 8 and 12 divide by. It is <b>4</b>, their common factor.' },
+    step2: { ru: 'Делим оба на 4: <b>8÷4=2</b>, <b>12÷4=3</b>.', uz: "Ikkalasini 4 ga bo'lamiz: <b>8÷4=2</b>, <b>12÷4=3</b>.", en: 'We divide both by 4: <b>8÷4=2</b>, <b>12÷4=3</b>.' },
+    step3: { ru: 'Вышло <b>2/3</b>. Проще уже не сократить — 2 и 3 общего делителя не имеют.', uz: "<b>2/3</b> chiqdi. Bundan sodda qisqarmaydi — 2 va 3 umumiy bo'luvchiga ega emas.", en: 'That gives <b>2/3</b>. It cannot be simplified any further, because 2 and 3 have no common factor.' },
     audio: {
       ru: [
         'Сократим восемь двенадцатых до конца. Нажми кнопку дальше.',
@@ -933,208 +961,213 @@ const CONTENT = {
         "Avval sakkiz ham, o'n ikki ham bo'linadigan sonni topamiz. Bu to'rt — ularning umumiy bo'luvchisi. Davom etish tugmasini bosing.",
         "Ikkalasini to'rtga bo'lamiz: sakkiz bo'lib to'rt ikki, o'n ikki bo'lib to'rt uch. Davom etish tugmasini bosing.",
         "Uchdan ikki chiqdi. Bundan sodda qisqarmaydi: ikki va uchda birdan boshqa umumiy bo'luvchi yo'q."
-      ]
+      ],
+      en: ['Let us simplify eight twelfths fully. Tap the next button.', 'First let us find a number that both eight and twelve divide by. It is four, their common factor. Tap the next button.', 'We divide them both by four: eight divided by four is two and twelve divided by four is three. Tap the next button.', 'That gives two thirds. It cannot be simplified any further: two and three have no common factor except one.']
     }
   },
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    bridge: { ru: 'Это работает для любой дроби. Вот правило.', uz: "Bu har qanday kasr uchun ishlaydi. Mana qoida." },
-    title: { ru: 'Правило сокращения дроби', uz: 'Kasrni qisqartirish qoidasi' },
-    rule_main: { ru: 'Найди число, на которое делятся <b>и числитель, и знаменатель</b>, и раздели на него оба.', uz: "<b>Surat ham, maxraj ham</b> bo'linadigan sonni toping va ikkalasini unga bo'ling." },
-    rule_div: { ru: 'Длина дроби не меняется — меняется только запись. Это обратное к умножению из прошлого урока.', uz: "Kasr uzunligi o'zgarmaydi — faqat yozuv. Bu o'tgan darsdagi ko'paytirishning teskarisi." },
-    outro: { ru: 'Делишь на <b>наибольший общий делитель</b> — дробь сразу самая простая.', uz: "<b>Eng katta umumiy bo'luvchiga</b> bo'lsangiz — kasr darrov eng sodda." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    bridge: { ru: 'Это работает для любой дроби. Вот правило.', uz: "Bu har qanday kasr uchun ishlaydi. Mana qoida.", en: 'This works for any fraction. Here is the rule.' },
+    title: { ru: 'Правило сокращения дроби', uz: 'Kasrni qisqartirish qoidasi', en: 'The rule for simplifying a fraction' },
+    rule_main: { ru: 'Найди число, на которое делятся <b>и числитель, и знаменатель</b>, и раздели на него оба.', uz: "<b>Surat ham, maxraj ham</b> bo'linadigan sonni toping va ikkalasini unga bo'ling.", en: 'Find a number that <b>both the numerator and the denominator</b> divide by and divide them both by it.' },
+    rule_div: { ru: 'Длина дроби не меняется — меняется только запись. Это обратное к умножению из прошлого урока.', uz: "Kasr uzunligi o'zgarmaydi — faqat yozuv. Bu o'tgan darsdagi ko'paytirishning teskarisi.", en: 'The length of the fraction does not change, only the way it is written. It is the opposite of the multiplying from the last lesson.' },
+    outro: { ru: 'Делишь на <b>наибольший общий делитель</b> — дробь сразу самая простая.', uz: "<b>Eng katta umumiy bo'luvchiga</b> bo'lsangiz — kasr darrov eng sodda.", en: 'Divide by the <b>highest common factor</b> and the fraction is in its simplest form straight away.' },
     audio: {
       ru: 'Запомни правило. Чтобы сократить дробь, найди число, на которое делятся и числитель, и знаменатель, и раздели на него оба. Длина дроби не меняется, меняется только запись. Это обратное действие к умножению из прошлого урока. Если разделить на наибольший общий делитель, дробь сразу станет самой простой.',
-      uz: "Qoidani eslab qoling. Kasrni qisqartirish uchun surat ham, maxraj ham bo'linadigan sonni toping va ikkalasini unga bo'ling. Kasr uzunligi o'zgarmaydi, faqat yozuv o'zgaradi. Bu o'tgan darsdagi ko'paytirishning teskarisi. Eng katta umumiy bo'luvchiga bo'linsa, kasr darrov eng sodda bo'ladi."
+      uz: "Qoidani eslab qoling. Kasrni qisqartirish uchun surat ham, maxraj ham bo'linadigan sonni toping va ikkalasini unga bo'ling. Kasr uzunligi o'zgarmaydi, faqat yozuv o'zgaradi. Bu o'tgan darsdagi ko'paytirishning teskarisi. Eng katta umumiy bo'luvchiga bo'linsa, kasr darrov eng sodda bo'ladi.",
+      en: 'Remember the rule. To simplify a fraction, find a number that both the numerator and the denominator divide by and divide them both by it. The length of the fraction does not change, only the way it is written. It is the opposite of the multiplying from the last lesson. If you divide by the highest common factor, the fraction is in its simplest form straight away.'
     }
   },
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    bridge: { ru: 'Применим правило.', uz: "Qoidani qo'llaymiz." },
-    title: { ru: 'Сократи <b>6/9</b> до простого вида', uz: "<b>6/9</b> ni sodda holgacha qisqartiring" },
-    question: { ru: 'На какое число делятся и 6, и 9? Раздели оба. Что получится?', uz: "6 ham, 9 ham qaysi songa bo'linadi? Ikkalasini bo'ling. Nima chiqadi?" },
-    opt_a: { ru: '2/3', uz: '2/3' },
-    opt_b: { ru: '3/4', uz: '3/4' },
-    opt_c: { ru: '2/4', uz: '2/4' },
-    opt_d: { ru: '6/9', uz: '6/9' },
-    correct_text: { ru: 'Верно: 6 и 9 делятся на 3. 6÷3=2, 9÷3=3. Получается 2/3.', uz: "To'g'ri: 6 ham, 9 ham 3 ga bo'linadi. 6÷3=2, 9÷3=3. 2/3 chiqadi." },
-    wrong_0: { ru: 'Да: оба делятся на 3. 6÷3=2, 9÷3=3. Значит 6/9 = 2/3.', uz: "Ha: ikkalasi 3 ga bo'linadi. 6÷3=2, 9÷3=3. Demak 6/9 = 2/3." },
-    wrong_1: { ru: '3/4 — другая дробь. 6/9 делим на 3, выйдет 2/3.', uz: "3/4 — boshqa kasr. 6/9 ni 3 ga bo'lamiz, 2/3 chiqadi." },
-    wrong_2: { ru: '2/4 не равно 6/9. На 3 делятся оба: выйдет 2/3.', uz: "2/4 6/9 ga teng emas. 3 ga ikkalasi bo'linadi: 2/3 chiqadi." },
-    wrong_3: { ru: '6/9 — ещё не сокращено. Раздели оба на 3.', uz: "6/9 — hali qisqarmagan. Ikkalasini 3 ga bo'ling." },
-    fact: { ru: 'Повара веками уменьшают рецепты: блюдо на 4 человек делают на 2, и все количества делят пополам. Это то же сокращение — соотношение упрощается, а вкус тот же.', uz: "Oshpazlar asrlar davomida retseptni kichraytiradi: 4 kishilik taom 2 kishiga qilinadi, barcha miqdor ikkiga bo'linadi. Bu — o'sha qisqartirish, nisbat soddalashadi, ta'm o'sha." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    bridge: { ru: 'Применим правило.', uz: "Qoidani qo'llaymiz.", en: 'Let us use the rule.' },
+    title: { ru: 'Сократи <b>6/9</b> до простого вида', uz: "<b>6/9</b> ni sodda holgacha qisqartiring", en: 'Simplify <b>6/9</b> to its simplest form' },
+    question: { ru: 'На какое число делятся и 6, и 9? Раздели оба. Что получится?', uz: "6 ham, 9 ham qaysi songa bo'linadi? Ikkalasini bo'ling. Nima chiqadi?", en: 'What number do both 6 and 9 divide by? Divide them both by it. What do you get?' },
+    opt_a: { ru: '2/3', uz: '2/3', en: '2/3' },
+    opt_b: { ru: '3/4', uz: '3/4', en: '3/4' },
+    opt_c: { ru: '2/4', uz: '2/4', en: '2/4' },
+    opt_d: { ru: '6/9', uz: '6/9', en: '6/9' },
+    correct_text: { ru: 'Верно: 6 и 9 делятся на 3. 6÷3=2, 9÷3=3. Получается 2/3.', uz: "To'g'ri: 6 ham, 9 ham 3 ga bo'linadi. 6÷3=2, 9÷3=3. 2/3 chiqadi.", en: 'That is right: 6 and 9 both divide by 3. 6÷3=2 and 9÷3=3. That gives 2/3.' },
+    wrong_0: { ru: 'Да: оба делятся на 3. 6÷3=2, 9÷3=3. Значит 6/9 = 2/3.', uz: "Ha: ikkalasi 3 ga bo'linadi. 6÷3=2, 9÷3=3. Demak 6/9 = 2/3.", en: 'Yes: they both divide by 3. 6÷3=2 and 9÷3=3. So 6/9 = 2/3.' },
+    wrong_1: { ru: '3/4 — другая дробь. 6/9 делим на 3, выйдет 2/3.', uz: "3/4 — boshqa kasr. 6/9 ni 3 ga bo'lamiz, 2/3 chiqadi.", en: '3/4 is a different fraction. Divide 6/9 by 3 and you get 2/3.' },
+    wrong_2: { ru: '2/4 не равно 6/9. На 3 делятся оба: выйдет 2/3.', uz: "2/4 6/9 ga teng emas. 3 ga ikkalasi bo'linadi: 2/3 chiqadi.", en: '2/4 is not equal to 6/9. They both divide by 3, which gives 2/3.' },
+    wrong_3: { ru: '6/9 — ещё не сокращено. Раздели оба на 3.', uz: "6/9 — hali qisqarmagan. Ikkalasini 3 ga bo'ling.", en: '6/9 has not been simplified yet. Divide them both by 3.' },
+    fact: { ru: 'Повара веками уменьшают рецепты: блюдо на 4 человек делают на 2, и все количества делят пополам. Это то же сокращение — соотношение упрощается, а вкус тот же.', uz: "Oshpazlar asrlar davomida retseptni kichraytiradi: 4 kishilik taom 2 kishiga qilinadi, barcha miqdor ikkiga bo'linadi. Bu — o'sha qisqartirish, nisbat soddalashadi, ta'm o'sha.", en: 'For centuries cooks have been scaling recipes down: a dish for 4 people is made for 2 and every amount is halved. That is the same simplifying, the ratio gets simpler and the taste stays the same.' },
     audio: {
-      intro: { ru: 'Сократи шесть девятых до простого вида. На какое число делятся оба? Выбери ответ.', uz: "To'qqizdan oltini sodda holgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на три: вышло две третьих.', uz: "To'g'ri. Uchga bo'ldik: uchdan ikki chiqdi." },
-      on_wrong: { ru: 'Пока нет. И шесть, и девять делятся на три. Раздели оба.', uz: "Hali emas. Olti ham, to'qqiz ham uchga bo'linadi. Ikkalasini bo'ling." }
+      intro: { ru: 'Сократи шесть девятых до простого вида. На какое число делятся оба? Выбери ответ.', uz: "To'qqizdan oltini sodda holgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang.", en: 'Simplify six ninths to its simplest form. What number do they both divide by? Choose an answer.' },
+      on_correct: { ru: 'Верно. Разделили на три: вышло две третьих.', uz: "To'g'ri. Uchga bo'ldik: uchdan ikki chiqdi.", en: 'That is right. We divided by three and got two thirds.' },
+      on_wrong: { ru: 'Пока нет. И шесть, и девять делятся на три. Раздели оба.', uz: "Hali emas. Olti ham, to'qqiz ham uchga bo'linadi. Ikkalasini bo'ling.", en: 'Not yet. Both six and nine divide by three. Divide them both.' }
     }
   },
   s5: {
-    eyebrow: { ru: 'Важно', uz: 'Muhim' },
-    title: { ru: 'Частая ошибка: делить <b>только одно</b> число', uz: "Ko'p uchraydigan xato: <b>faqat bitta</b> sonni bo'lish" },
-    rule_main: { ru: 'Если у <b>6/8</b> разделить только верх → <b>3/8</b>. Закрашено стало короче — дробь <b>другая, меньше</b>!', uz: "<b>6/8</b> da faqat surat bo'linsa → <b>3/8</b>. Bo'yoq qisqaradi — kasr <b>boshqa, kichik</b>!" },
-    rule_div: { ru: 'Правильно — делить <b>и верх, и низ</b> на 2: 6/8 = 3/4. Длина та же, дробь равна.', uz: "To'g'risi — <b>suratni ham, maxrajni ham</b> 2 ga bo'lish: 6/8 = 3/4. Uzunlik o'sha, kasr teng." },
-    outro: { ru: 'Сокращение не меняет величину дроби — но только если делить оба числа на одно.', uz: "Qisqartirish kasr qiymatini o'zgartirmaydi — lekin faqat ikkala son bitta songa bo'linsa." },
+    eyebrow: { ru: 'Важно', uz: 'Muhim', en: 'This matters' },
+    title: { ru: 'Частая ошибка: делить <b>только одно</b> число', uz: "Ko'p uchraydigan xato: <b>faqat bitta</b> sonni bo'lish", en: 'A common mistake: dividing <b>only one</b> of the numbers' },
+    rule_main: { ru: 'Если у <b>6/8</b> разделить только верх → <b>3/8</b>. Закрашено стало короче — дробь <b>другая, меньше</b>!', uz: "<b>6/8</b> da faqat surat bo'linsa → <b>3/8</b>. Bo'yoq qisqaradi — kasr <b>boshqa, kichik</b>!", en: 'If only the top of <b>6/8</b> is divided you get <b>3/8</b>. The coloured part has got shorter, so the fraction is <b>different and smaller</b>!' },
+    rule_div: { ru: 'Правильно — делить <b>и верх, и низ</b> на 2: 6/8 = 3/4. Длина та же, дробь равна.', uz: "To'g'risi — <b>suratni ham, maxrajni ham</b> 2 ga bo'lish: 6/8 = 3/4. Uzunlik o'sha, kasr teng.", en: 'The right way is to divide <b>both the top and the bottom</b> by 2: 6/8 = 3/4. The length is the same and the fraction is equal.' },
+    outro: { ru: 'Сокращение не меняет величину дроби — но только если делить оба числа на одно.', uz: "Qisqartirish kasr qiymatini o'zgartirmaydi — lekin faqat ikkala son bitta songa bo'linsa.", en: 'Simplifying does not change the size of a fraction, but only if both numbers are divided by the same thing.' },
     audio: {
       ru: 'Внимание, частая ошибка. Сокращать нужно и числитель, и знаменатель. Если у шести восьмых разделить только верх, выйдет три восьмых — закрашено станет короче, дробь стала другой, меньше. Правильно делить и верх, и низ на два, тогда выйдет три четвёртых, длина та же. Сокращение не меняет величину дроби, но только если делить оба числа на одно и то же.',
-      uz: "Diqqat, ko'p uchraydigan xato. Qisqartirishda surat ham, maxraj ham bo'linadi. Sakkizdan oltida faqat surat bo'linsa, sakkizdan uch chiqadi — bo'yoq qisqaradi, kasr boshqa, kichik bo'ladi. To'g'risi suratni ham, maxrajni ham ikkiga bo'lish, shunda to'rtdan uch chiqadi, uzunlik o'sha. Qisqartirish kasr qiymatini o'zgartirmaydi, lekin faqat ikkala son bir songa bo'linsa."
+      uz: "Diqqat, ko'p uchraydigan xato. Qisqartirishda surat ham, maxraj ham bo'linadi. Sakkizdan oltida faqat surat bo'linsa, sakkizdan uch chiqadi — bo'yoq qisqaradi, kasr boshqa, kichik bo'ladi. To'g'risi suratni ham, maxrajni ham ikkiga bo'lish, shunda to'rtdan uch chiqadi, uzunlik o'sha. Qisqartirish kasr qiymatini o'zgartirmaydi, lekin faqat ikkala son bir songa bo'linsa.",
+      en: 'Watch out for a common mistake. Both the numerator and the denominator have to be simplified. If only the top of six eighths is divided, you get three eighths, the coloured part gets shorter and the fraction has become a different, smaller one. The right way is to divide both the top and the bottom by two, which gives three quarters and the same length. Simplifying does not change the size of a fraction, but only if both numbers are divided by the same thing.'
     }
   },
   s6: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    title: { ru: 'Разложи дроби: <b>сокращена до конца</b> или ещё нет', uz: "Kasrlarni ajrating: <b>oxirigacha qisqargan</b> yoki yo'q" },
-    lead: { ru: 'Нажми на дробь. Можно ли её ещё сократить (у верха и низа есть общий делитель)?', uz: "Kasrni bosing. Uni yana qisqartirsa bo'ladimi (surat va maxrajda umumiy bo'luvchi bormi)?" },
-    ask: { ru: 'сокращена до конца?', uz: "oxirigacha qisqarganmi?" },
-    bin_eq: { ru: 'до конца', uz: 'oxirigacha' },
-    bin_uneq: { ru: 'можно ещё', uz: "yana bo'ladi" },
-    hint_wrong: { ru: 'Проверь: есть ли число, на которое делятся и верх, и низ? Если да — можно ещё сократить.', uz: "Tekshiring: surat ham, maxraj ham bo'linadigan son bormi? Bo'lsa — yana qisqartirsa bo'ladi." },
-    correct_text: { ru: 'Готово. «До конца» — когда у верха и низа нет общего делителя, кроме 1: 2/3, 3/4, 5/7, 4/9, 7/10.', uz: "Tayyor. «Oxirigacha» — surat va maxrajda 1 dan boshqa umumiy bo'luvchi bo'lmaganda: 2/3, 3/4, 5/7, 4/9, 7/10." },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    title: { ru: 'Разложи дроби: <b>сокращена до конца</b> или ещё нет', uz: "Kasrlarni ajrating: <b>oxirigacha qisqargan</b> yoki yo'q", en: 'Sort the fractions: <b>fully simplified</b> or not yet' },
+    lead: { ru: 'Нажми на дробь. Можно ли её ещё сократить (у верха и низа есть общий делитель)?', uz: "Kasrni bosing. Uni yana qisqartirsa bo'ladimi (surat va maxrajda umumiy bo'luvchi bormi)?", en: 'Tap a fraction. Can it be simplified any further (do the top and the bottom have a common factor)?' },
+    ask: { ru: 'сокращена до конца?', uz: "oxirigacha qisqarganmi?", en: 'fully simplified?' },
+    bin_eq: { ru: 'до конца', uz: 'oxirigacha', en: 'fully simplified' },
+    bin_uneq: { ru: 'можно ещё', uz: "yana bo'ladi", en: 'can go further' },
+    hint_wrong: { ru: 'Проверь: есть ли число, на которое делятся и верх, и низ? Если да — можно ещё сократить.', uz: "Tekshiring: surat ham, maxraj ham bo'linadigan son bormi? Bo'lsa — yana qisqartirsa bo'ladi.", en: 'Check: is there a number that both the top and the bottom divide by? If so, it can be simplified further.' },
+    correct_text: { ru: 'Готово. «До конца» — когда у верха и низа нет общего делителя, кроме 1: 2/3, 3/4, 5/7, 4/9, 7/10.', uz: "Tayyor. «Oxirigacha» — surat va maxrajda 1 dan boshqa umumiy bo'luvchi bo'lmaganda: 2/3, 3/4, 5/7, 4/9, 7/10.", en: 'Done. Fully simplified means the top and the bottom have no common factor except 1: 2/3, 3/4, 5/7, 4/9, 7/10.' },
     audio: {
-      intro: { ru: 'Перед тобой дроби. Разложи их по корзинам: сокращена до конца или можно ещё сократить. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni savatga ajrating: oxirigacha qisqargan yoki yana qisqartirsa bo'ladi. Kasrni bosing — u savatga uchadi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Есть ли у верха и низа общий делитель?', uz: "Surat va maxrajda umumiy bo'luvchi bormi?" }
+      intro: { ru: 'Перед тобой дроби. Разложи их по корзинам: сокращена до конца или можно ещё сократить. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni savatga ajrating: oxirigacha qisqargan yoki yana qisqartirsa bo'ladi. Kasrni bosing — u savatga uchadi.", en: 'Here are some fractions. Sort them into baskets: fully simplified or can go further. Tap a fraction and it will fly into a basket.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Есть ли у верха и низа общий делитель?', uz: "Surat va maxrajda umumiy bo'luvchi bormi?", en: 'Do the top and the bottom have a common factor?' }
     }
   },
   s7: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    title: { ru: 'Оба числа или одно?', uz: 'Ikkala sonmi yoki bitta?' },
-    question: { ru: 'Кто-то «сократил» 6/8, разделив только числитель: 6÷2=3, и написал 3/8. Верно?', uz: "Kimdir 6/8 ni faqat suratni bo'lib «qisqartirdi»: 6÷2=3, va 3/8 deb yozdi. To'g'rimi?" },
-    opt_a: { ru: 'Неверно — надо разделить и знаменатель: 6/8 = 3/4', uz: "Noto'g'ri — maxrajni ham bo'lish kerak: 6/8 = 3/4" },
-    opt_b: { ru: 'Верно — числитель сократили, значит 3/8', uz: "To'g'ri — suratni qisqartirdik, demak 3/8" },
-    opt_c: { ru: 'Верно, но только если дробь меньше 1', uz: "To'g'ri, lekin faqat kasr 1 dan kichik bo'lsa" },
-    opt_d: { ru: 'Так дробь вообще не сократить', uz: "Bunday kasrni umuman qisqartirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: разделили только верх — дробь уменьшилась. Надо делить оба: 6÷2=3, 8÷2=4 → 3/4.', uz: "To'g'ri: faqat suratni bo'ldik — kasr kichraydi. Ikkalasini bo'lish kerak: 6÷2=3, 8÷2=4 → 3/4." },
-    wrong_0: { ru: 'Да: 3/8 меньше 6/8. Знаменатель тоже надо разделить на 2 → 3/4.', uz: "Ha: 3/8 6/8 dan kichik. Maxrajni ham 2 ga bo'lish kerak → 3/4." },
-    wrong_1: { ru: 'Это ошибка: 3/8 меньше 6/8. Делить надо оба числа.', uz: "Bu xato: 3/8 6/8 dan kichik. Ikkala sonni bo'lish kerak." },
-    wrong_2: { ru: 'Нет: делить только верх нельзя ни для какой дроби. Нужно 3/4.', uz: "Yo'q: faqat suratni bo'lish hech qaysi kasr uchun mumkin emas. 3/4 kerak." },
-    wrong_3: { ru: 'Сократить можно: раздели оба числа на 2 → 3/4.', uz: "Qisqartirsa bo'ladi: ikkala sonni 2 ga bo'ling → 3/4." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    title: { ru: 'Оба числа или одно?', uz: 'Ikkala sonmi yoki bitta?', en: 'Both numbers or just one?' },
+    question: { ru: 'Кто-то «сократил» 6/8, разделив только числитель: 6÷2=3, и написал 3/8. Верно?', uz: "Kimdir 6/8 ni faqat suratni bo'lib «qisqartirdi»: 6÷2=3, va 3/8 deb yozdi. To'g'rimi?", en: 'Someone simplified 6/8 by dividing only the numerator, 6÷2=3, and wrote 3/8. Is that right?' },
+    opt_a: { ru: 'Неверно — надо разделить и знаменатель: 6/8 = 3/4', uz: "Noto'g'ri — maxrajni ham bo'lish kerak: 6/8 = 3/4", en: 'Wrong, the denominator has to be divided too: 6/8 = 3/4' },
+    opt_b: { ru: 'Верно — числитель сократили, значит 3/8', uz: "To'g'ri — suratni qisqartirdik, demak 3/8", en: 'Right, the numerator was simplified, so it is 3/8' },
+    opt_c: { ru: 'Верно, но только если дробь меньше 1', uz: "To'g'ri, lekin faqat kasr 1 dan kichik bo'lsa", en: 'Right, but only if the fraction is less than 1' },
+    opt_d: { ru: 'Так дробь вообще не сократить', uz: "Bunday kasrni umuman qisqartirib bo'lmaydi", en: 'A fraction cannot be simplified at all like that' },
+    correct_text: { ru: 'Верно: разделили только верх — дробь уменьшилась. Надо делить оба: 6÷2=3, 8÷2=4 → 3/4.', uz: "To'g'ri: faqat suratni bo'ldik — kasr kichraydi. Ikkalasini bo'lish kerak: 6÷2=3, 8÷2=4 → 3/4.", en: 'That is right: only the top was divided, so the fraction got smaller. Both have to be divided: 6÷2=3, 8÷2=4, giving 3/4.' },
+    wrong_0: { ru: 'Да: 3/8 меньше 6/8. Знаменатель тоже надо разделить на 2 → 3/4.', uz: "Ha: 3/8 6/8 dan kichik. Maxrajni ham 2 ga bo'lish kerak → 3/4.", en: 'Yes: 3/8 is less than 6/8. The denominator has to be divided by 2 as well, giving 3/4.' },
+    wrong_1: { ru: 'Это ошибка: 3/8 меньше 6/8. Делить надо оба числа.', uz: "Bu xato: 3/8 6/8 dan kichik. Ikkala sonni bo'lish kerak.", en: 'That is a mistake: 3/8 is less than 6/8. Both numbers have to be divided.' },
+    wrong_2: { ru: 'Нет: делить только верх нельзя ни для какой дроби. Нужно 3/4.', uz: "Yo'q: faqat suratni bo'lish hech qaysi kasr uchun mumkin emas. 3/4 kerak.", en: 'No: dividing only the top is not allowed for any fraction. It should be 3/4.' },
+    wrong_3: { ru: 'Сократить можно: раздели оба числа на 2 → 3/4.', uz: "Qisqartirsa bo'ladi: ikkala sonni 2 ga bo'ling → 3/4.", en: 'It can be simplified: divide both numbers by 2, giving 3/4.' },
     audio: {
-      intro: { ru: 'Кто-то сократил шесть восьмых, разделив только числитель, и написал три восьмых. Верно ли это? Выбери ответ.', uz: "Kimdir sakkizdan oltini faqat suratni bo'lib qisqartirdi va sakkizdan uch deb yozdi. Bu to'g'rimi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Надо разделить и знаменатель — вышло бы три четвёртых.', uz: "To'g'ri. Maxrajni ham bo'lish kerak — to'rtdan uch chiqardi." },
-      on_wrong: { ru: 'Делишь верх — дели и низ на то же число.', uz: "Suratni bo'lsangiz — maxrajni ham shu songa bo'ling." }
+      intro: { ru: 'Кто-то сократил шесть восьмых, разделив только числитель, и написал три восьмых. Верно ли это? Выбери ответ.', uz: "Kimdir sakkizdan oltini faqat suratni bo'lib qisqartirdi va sakkizdan uch deb yozdi. Bu to'g'rimi? Javobni tanlang.", en: 'Someone simplified six eighths by dividing only the numerator and wrote three eighths. Is that right? Choose an answer.' },
+      on_correct: { ru: 'Верно. Надо разделить и знаменатель — вышло бы три четвёртых.', uz: "To'g'ri. Maxrajni ham bo'lish kerak — to'rtdan uch chiqardi.", en: 'That is right. The denominator had to be divided too, which would give three quarters.' },
+      on_wrong: { ru: 'Делишь верх — дели и низ на то же число.', uz: "Suratni bo'lsangiz — maxrajni ham shu songa bo'ling.", en: 'If you divide the top, divide the bottom by the same number.' }
     }
   },
   s_seq: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar' },
-    title: { ru: 'Сократи до конца: <b>5 примеров подряд</b>', uz: "Oxirigacha qisqartiring: <b>5 ta misol ketma-ket</b>" },
-    lead: { ru: 'Числа растут. Дели верх и низ на их наибольший общий делитель.', uz: "Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar', en: 'Trainer' },
+    title: { ru: 'Сократи до конца: <b>5 примеров подряд</b>', uz: "Oxirigacha qisqartiring: <b>5 ta misol ketma-ket</b>", en: 'Simplify fully: <b>5 examples in a row</b>' },
+    lead: { ru: 'Числа растут. Дели верх и низ на их наибольший общий делитель.', uz: "Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling.", en: 'The numbers grow. Divide the top and the bottom by their highest common factor.' },
     questions: [
       {
         q: '4/8', opts: ['1/2', '2/4', '1/4'], correct: 0,
-        ok: { ru: 'Верно. 4 и 8 делятся на 4: 4/8 = 1/2.', uz: "To'g'ri. 4 va 8 4 ga bo'linadi: 4/8 = 1/2." },
-        no: { ru: 'Дели оба на наибольший общий делитель — на 4. Выйдет 1/2.', uz: "Ikkalasini eng katta umumiy bo'luvchiga — 4 ga bo'ling. 1/2 chiqadi." }
+        ok: { ru: 'Верно. 4 и 8 делятся на 4: 4/8 = 1/2.', uz: "To'g'ri. 4 va 8 4 ga bo'linadi: 4/8 = 1/2.", en: 'That is right. 4 and 8 both divide by 4: 4/8 = 1/2.' },
+        no: { ru: 'Дели оба на наибольший общий делитель — на 4. Выйдет 1/2.', uz: "Ikkalasini eng katta umumiy bo'luvchiga — 4 ga bo'ling. 1/2 chiqadi.", en: 'Divide them both by the highest common factor, 4. That gives 1/2.' }
       },
       {
         q: '9/12', opts: ['6/8', '3/4', '9/12'], correct: 1,
-        ok: { ru: 'Верно. 9 и 12 делятся на 3: 9/12 = 3/4.', uz: "To'g'ri. 9 va 12 3 ga bo'linadi: 9/12 = 3/4." },
-        no: { ru: 'Общий делитель 9 и 12 — это 3. Раздели оба на 3.', uz: "9 va 12 ning umumiy bo'luvchisi — 3. Ikkalasini 3 ga bo'ling." }
+        ok: { ru: 'Верно. 9 и 12 делятся на 3: 9/12 = 3/4.', uz: "To'g'ri. 9 va 12 3 ga bo'linadi: 9/12 = 3/4.", en: 'That is right. 9 and 12 both divide by 3: 9/12 = 3/4.' },
+        no: { ru: 'Общий делитель 9 и 12 — это 3. Раздели оба на 3.', uz: "9 va 12 ning umumiy bo'luvchisi — 3. Ikkalasini 3 ga bo'ling.", en: 'The common factor of 9 and 12 is 3. Divide them both by 3.' }
       },
       {
         q: '15/25', opts: ['5/3', '3/5', '3/4'], correct: 1,
-        ok: { ru: 'Верно. 15 и 25 делятся на 5: 15/25 = 3/5.', uz: "To'g'ri. 15 va 25 5 ga bo'linadi: 15/25 = 3/5." },
-        no: { ru: 'Оба делятся на 5: 15÷5=3, 25÷5=5. Порядок не меняй: 3/5.', uz: "Ikkalasi 5 ga bo'linadi: 15÷5=3, 25÷5=5. Tartibni o'zgartirmang: 3/5." }
+        ok: { ru: 'Верно. 15 и 25 делятся на 5: 15/25 = 3/5.', uz: "To'g'ri. 15 va 25 5 ga bo'linadi: 15/25 = 3/5.", en: 'That is right. 15 and 25 both divide by 5: 15/25 = 3/5.' },
+        no: { ru: 'Оба делятся на 5: 15÷5=3, 25÷5=5. Порядок не меняй: 3/5.', uz: "Ikkalasi 5 ga bo'linadi: 15÷5=3, 25÷5=5. Tartibni o'zgartirmang: 3/5.", en: 'They both divide by 5: 15÷5=3 and 25÷5=5. Do not change the order: 3/5.' }
       },
       {
         q: '24/36', opts: ['2/3', '6/9', '12/18'], correct: 0,
-        ok: { ru: 'Верно. Наибольший общий делитель 24 и 36 — это 12: 24/36 = 2/3.', uz: "To'g'ri. 24 va 36 ning eng katta umumiy bo'luvchisi — 12: 24/36 = 2/3." },
-        no: { ru: 'До конца: дели на наибольший общий делитель — на 12. Выйдет 2/3.', uz: "Oxirigacha: eng katta umumiy bo'luvchiga — 12 ga bo'ling. 2/3 chiqadi." },
-        say: { ru: 'Числа больше. Найди самый большой общий делитель и раздели оба на него.', uz: "Sonlar kattaroq. Eng katta umumiy bo'luvchini toping va ikkalasini unga bo'ling." }
+        ok: { ru: 'Верно. Наибольший общий делитель 24 и 36 — это 12: 24/36 = 2/3.', uz: "To'g'ri. 24 va 36 ning eng katta umumiy bo'luvchisi — 12: 24/36 = 2/3.", en: 'That is right. The highest common factor of 24 and 36 is 12: 24/36 = 2/3.' },
+        no: { ru: 'До конца: дели на наибольший общий делитель — на 12. Выйдет 2/3.', uz: "Oxirigacha: eng katta umumiy bo'luvchiga — 12 ga bo'ling. 2/3 chiqadi.", en: 'Go all the way: divide by the highest common factor, 12. That gives 2/3.' },
+        say: { ru: 'Числа больше. Найди самый большой общий делитель и раздели оба на него.', uz: "Sonlar kattaroq. Eng katta umumiy bo'luvchini toping va ikkalasini unga bo'ling.", en: 'The numbers are bigger. Find the highest common factor and divide them both by it.' }
       },
       {
         q: '250/1000', opts: ['1/4', '25/100', '5/20'], correct: 0,
-        ok: { ru: 'Верно. 250 и 1000 делятся на 250: 250/1000 = 1/4.', uz: "To'g'ri. 250 va 1000 250 ga bo'linadi: 250/1000 = 1/4." },
-        no: { ru: 'До конца! 25/100 и 5/20 ещё сокращаются. Раздели до 1/4.', uz: "Oxirigacha! 25/100 va 5/20 hali qisqaradi. 1/4 gacha bo'ling." },
-        say: { ru: 'Числа большие, но правило то же: дели на наибольший общий делитель.', uz: "Sonlar katta, lekin qoida o'sha: eng katta umumiy bo'luvchiga bo'ling." }
+        ok: { ru: 'Верно. 250 и 1000 делятся на 250: 250/1000 = 1/4.', uz: "To'g'ri. 250 va 1000 250 ga bo'linadi: 250/1000 = 1/4.", en: 'That is right. 250 and 1000 both divide by 250: 250/1000 = 1/4.' },
+        no: { ru: 'До конца! 25/100 и 5/20 ещё сокращаются. Раздели до 1/4.', uz: "Oxirigacha! 25/100 va 5/20 hali qisqaradi. 1/4 gacha bo'ling.", en: 'All the way! 25/100 and 5/20 can still be simplified. Take it down to 1/4.' },
+        say: { ru: 'Числа большие, но правило то же: дели на наибольший общий делитель.', uz: "Sonlar katta, lekin qoida o'sha: eng katta umumiy bo'luvchiga bo'ling.", en: 'The numbers are big, but the rule is the same: divide by the highest common factor.' }
       }
     ],
     audio: {
-      intro: { ru: 'Пять примеров подряд. В каждом сократи дробь до конца. Числа будут расти. Дели верх и низ на их наибольший общий делитель.', uz: "Besh misol ketma-ket. Har birida kasrni oxirigacha qisqartiring. Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling." },
-      on_wrong: { ru: 'Дели оба на наибольший общий делитель.', uz: "Ikkalasini eng katta umumiy bo'luvchiga bo'ling." },
-      on_done: { ru: 'Готово. Ты доводил дробь до самого простого вида даже на больших числах.', uz: "Tayyor. Katta sonlarda ham kasrni eng sodda holga keltirdingiz." }
+      intro: { ru: 'Пять примеров подряд. В каждом сократи дробь до конца. Числа будут расти. Дели верх и низ на их наибольший общий делитель.', uz: "Besh misol ketma-ket. Har birida kasrni oxirigacha qisqartiring. Sonlar o'sib boradi. Surat va maxrajni eng katta umumiy bo'luvchiga bo'ling.", en: 'Five examples in a row. Simplify each fraction fully. The numbers will grow. Divide the top and the bottom by their highest common factor.' },
+      on_wrong: { ru: 'Дели оба на наибольший общий делитель.', uz: "Ikkalasini eng katta umumiy bo'luvchiga bo'ling.", en: 'Divide them both by the highest common factor.' },
+      on_done: { ru: 'Готово. Ты доводил дробь до самого простого вида даже на больших числах.', uz: "Tayyor. Katta sonlarda ham kasrni eng sodda holga keltirdingiz.", en: 'Done. You took every fraction to its simplest form, even with big numbers.' }
     }
   },
   s8: {
-    eyebrow: { ru: 'Случай', uz: 'Vaziyat' },
-    bridge: { ru: 'Сокращение нужно не только в тетради. Вот кухня.', uz: "Qisqartirish faqat daftarda emas. Mana oshxona." },
-    title: { ru: 'Санжар печёт по рецепту', uz: "Sanjar retsept bo'yicha pishiradi" },
-    fact1: { ru: 'В рецепте странно записано: <b>8/12</b> стакана сахара.', uz: "Retseptda g'alati yozilgan: <b>8/12</b> stakan shakar." },
-    fact2: { ru: 'Мерный стакан у Санжара делится на <b>трети</b>.', uz: "Sanjarning o'lchov stakani <b>uchdanlarga</b> bo'lingan." },
-    fact3: { ru: 'До какой простой дроби (со знаменателем 3) сократить 8/12?', uz: "8/12 ni qaysi sodda kasrgacha (maxraji 3) qisqartirish kerak?" },
-    cta: { ru: 'Помочь Санжару', uz: 'Sanjarga yordam berish' },
+    eyebrow: { ru: 'Случай', uz: 'Vaziyat', en: 'A real case' },
+    bridge: { ru: 'Сокращение нужно не только в тетради. Вот кухня.', uz: "Qisqartirish faqat daftarda emas. Mana oshxona.", en: 'Simplifying is not only needed in an exercise book. Here is a kitchen.' },
+    title: { ru: 'Санжар печёт по рецепту', uz: "Sanjar retsept bo'yicha pishiradi", en: 'Sanjar is baking from a recipe' },
+    fact1: { ru: 'В рецепте странно записано: <b>8/12</b> стакана сахара.', uz: "Retseptda g'alati yozilgan: <b>8/12</b> stakan shakar.", en: 'The recipe says something odd: <b>8/12</b> of a cup of sugar.' },
+    fact2: { ru: 'Мерный стакан у Санжара делится на <b>трети</b>.', uz: "Sanjarning o'lchov stakani <b>uchdanlarga</b> bo'lingan.", en: "Sanjar's measuring cup is marked in <b>thirds</b>." },
+    fact3: { ru: 'До какой простой дроби (со знаменателем 3) сократить 8/12?', uz: "8/12 ni qaysi sodda kasrgacha (maxraji 3) qisqartirish kerak?", en: 'Which simple fraction (with 3 underneath) does 8/12 simplify to?' },
+    cta: { ru: 'Помочь Санжару', uz: 'Sanjarga yordam berish', en: 'Help Sanjar' },
     audio: {
       ru: 'Санжар печёт по рецепту. Там странно записано: восемь двенадцатых стакана сахара. А мерный стакан делится на трети. До какой простой дроби со знаменателем три сократить восемь двенадцатых? Нажми кнопку помочь Санжару.',
-      uz: "Sanjar retsept bo'yicha pishiradi. U yerda g'alati yozilgan: o'n ikkidan sakkiz stakan shakar. O'lchov stakani esa uchdanlarga bo'lingan. O'n ikkidan sakkizni maxraji uch bo'lgan qaysi sodda kasrgacha qisqartirish kerak? Sanjarga yordam berish tugmasini bosing."
+      uz: "Sanjar retsept bo'yicha pishiradi. U yerda g'alati yozilgan: o'n ikkidan sakkiz stakan shakar. O'lchov stakani esa uchdanlarga bo'lingan. O'n ikkidan sakkizni maxraji uch bo'lgan qaysi sodda kasrgacha qisqartirish kerak? Sanjarga yordam berish tugmasini bosing.",
+      en: 'Sanjar is baking from a recipe. It says something odd: eight twelfths of a cup of sugar. But his measuring cup is marked in thirds. Which simple fraction with three underneath does eight twelfths simplify to? Tap the help Sanjar button.'
     }
   },
   s9: {
-    eyebrow: { ru: 'Случай', uz: 'Vaziyat' },
-    title: { ru: 'До чего сократить <b>8/12</b>?', uz: "<b>8/12</b> ni nimagacha qisqartiramiz?" },
-    question: { ru: 'Сократи 8/12 до знаменателя 3. На что делятся 8 и 12? Что получится?', uz: "8/12 ni maxraji 3 gacha qisqartiring. 8 va 12 qaysi songa bo'linadi? Nima chiqadi?" },
-    opt_a: { ru: '2/3', uz: '2/3' },
-    opt_b: { ru: '4/6', uz: '4/6' },
-    opt_c: { ru: '2/4', uz: '2/4' },
-    opt_d: { ru: '8/12', uz: '8/12' },
-    correct_text: { ru: 'Верно: 8 и 12 делятся на 4. 8÷4=2, 12÷4=3. Получается 2/3 — Санжар отмерит две трети.', uz: "To'g'ri: 8 va 12 4 ga bo'linadi. 8÷4=2, 12÷4=3. 2/3 chiqadi — Sanjar uchdan ikkini o'lchaydi." },
-    wrong_0: { ru: 'Да: оба делятся на 4. 8÷4=2, 12÷4=3 → 2/3.', uz: "Ha: ikkalasi 4 ga bo'linadi. 8÷4=2, 12÷4=3 → 2/3." },
-    wrong_1: { ru: '4/6 ещё не до конца: 4 и 6 делятся на 2. Дойди до 2/3.', uz: "4/6 hali oxirigacha emas: 4 va 6 2 ga bo'linadi. 2/3 gacha yetkazing." },
-    wrong_2: { ru: '2/4 не равно 8/12. На 4 делятся оба: выйдет 2/3.', uz: "2/4 8/12 ga teng emas. 4 ga ikkalasi bo'linadi: 2/3 chiqadi." },
-    wrong_3: { ru: '8/12 — ещё не сокращено. Раздели оба на 4.', uz: "8/12 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
-    fact: { ru: 'У шестерёнок передаточное число пишут так же: 8 зубьев к 4 записывают как 2 к 1 — то же отношение проще, суть передачи не меняется.', uz: "Tishli g'ildiraklarda uzatma nisbati ham shunday yoziladi: 8 tishdan 4 ga 2 dan 1 deb yoziladi — o'sha nisbat soddaroq, uzatma mohiyati o'zgarmaydi." },
+    eyebrow: { ru: 'Случай', uz: 'Vaziyat', en: 'A real case' },
+    title: { ru: 'До чего сократить <b>8/12</b>?', uz: "<b>8/12</b> ni nimagacha qisqartiramiz?", en: 'What does <b>8/12</b> simplify to?' },
+    question: { ru: 'Сократи 8/12 до знаменателя 3. На что делятся 8 и 12? Что получится?', uz: "8/12 ni maxraji 3 gacha qisqartiring. 8 va 12 qaysi songa bo'linadi? Nima chiqadi?", en: 'Simplify 8/12 to a denominator of 3. What do 8 and 12 both divide by? What do you get?' },
+    opt_a: { ru: '2/3', uz: '2/3', en: '2/3' },
+    opt_b: { ru: '4/6', uz: '4/6', en: '4/6' },
+    opt_c: { ru: '2/4', uz: '2/4', en: '2/4' },
+    opt_d: { ru: '8/12', uz: '8/12', en: '8/12' },
+    correct_text: { ru: 'Верно: 8 и 12 делятся на 4. 8÷4=2, 12÷4=3. Получается 2/3 — Санжар отмерит две трети.', uz: "To'g'ri: 8 va 12 4 ga bo'linadi. 8÷4=2, 12÷4=3. 2/3 chiqadi — Sanjar uchdan ikkini o'lchaydi.", en: 'That is right: 8 and 12 both divide by 4. 8÷4=2 and 12÷4=3. That gives 2/3, so Sanjar measures out two thirds.' },
+    wrong_0: { ru: 'Да: оба делятся на 4. 8÷4=2, 12÷4=3 → 2/3.', uz: "Ha: ikkalasi 4 ga bo'linadi. 8÷4=2, 12÷4=3 → 2/3.", en: 'Yes: they both divide by 4. 8÷4=2 and 12÷4=3, giving 2/3.' },
+    wrong_1: { ru: '4/6 ещё не до конца: 4 и 6 делятся на 2. Дойди до 2/3.', uz: "4/6 hali oxirigacha emas: 4 va 6 2 ga bo'linadi. 2/3 gacha yetkazing.", en: '4/6 is not fully simplified: 4 and 6 both divide by 2. Take it down to 2/3.' },
+    wrong_2: { ru: '2/4 не равно 8/12. На 4 делятся оба: выйдет 2/3.', uz: "2/4 8/12 ga teng emas. 4 ga ikkalasi bo'linadi: 2/3 chiqadi.", en: '2/4 is not equal to 8/12. They both divide by 4, which gives 2/3.' },
+    wrong_3: { ru: '8/12 — ещё не сокращено. Раздели оба на 4.', uz: "8/12 — hali qisqarmagan. Ikkalasini 4 ga bo'ling.", en: '8/12 has not been simplified yet. Divide them both by 4.' },
+    fact: { ru: 'У шестерёнок передаточное число пишут так же: 8 зубьев к 4 записывают как 2 к 1 — то же отношение проще, суть передачи не меняется.', uz: "Tishli g'ildiraklarda uzatma nisbati ham shunday yoziladi: 8 tishdan 4 ga 2 dan 1 deb yoziladi — o'sha nisbat soddaroq, uzatma mohiyati o'zgarmaydi.", en: 'Gear ratios are written the same way: 8 teeth to 4 is written as 2 to 1, the same ratio written more simply, and the gearing itself does not change.' },
     audio: {
-      intro: { ru: 'Сократи восемь двенадцатых до дроби со знаменателем три. На что делятся оба? Выбери ответ.', uz: "O'n ikkidan sakkizni maxraji uch bo'lgan kasrgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi." },
-      on_wrong: { ru: 'Пока нет. И восемь, и двенадцать делятся на четыре. Раздели оба.', uz: "Hali emas. Sakkiz ham, o'n ikki ham to'rtga bo'linadi. Ikkalasini bo'ling." }
+      intro: { ru: 'Сократи восемь двенадцатых до дроби со знаменателем три. На что делятся оба? Выбери ответ.', uz: "O'n ikkidan sakkizni maxraji uch bo'lgan kasrgacha qisqartiring. Ikkalasi qaysi songa bo'linadi? Javobni tanlang.", en: 'Simplify eight twelfths to a fraction with three underneath. What do they both divide by? Choose an answer.' },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло две третьих.', uz: "To'g'ri. To'rtga bo'ldik: uchdan ikki chiqdi.", en: 'That is right. We divided by four and got two thirds.' },
+      on_wrong: { ru: 'Пока нет. И восемь, и двенадцать делятся на четыре. Раздели оба.', uz: "Hali emas. Sakkiz ham, o'n ikki ham to'rtga bo'linadi. Ikkalasini bo'ling.", en: 'Not yet. Both eight and twelve divide by four. Divide them both.' }
     }
   },
   s10: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    title: { ru: 'Где сокращение <b>неверно</b>?', uz: "Qaysi qisqartirish <b>noto'g'ri</b>?" },
-    question: { ru: 'Три сокращения верны, одно — с ошибкой. Найди ошибочное.', uz: "Uchta qisqartirish to'g'ri, bittasi xato. Xatosini toping." },
-    opt_a: { ru: '6/8 = 3/8', uz: '6/8 = 3/8' },
-    opt_b: { ru: '10/15 = 2/3', uz: '10/15 = 2/3' },
-    opt_c: { ru: '6/9 = 2/3', uz: '6/9 = 2/3' },
-    opt_d: { ru: '12/16 = 3/4', uz: '12/16 = 3/4' },
-    correct_text: { ru: 'Верно. 6/8 = 3/8 — ошибка: разделили только верх. Надо и низ: 6/8 = 3/4.', uz: "To'g'ri. 6/8 = 3/8 — xato: faqat surat bo'lingan. Maxrajni ham: 6/8 = 3/4." },
-    wrong_0: { ru: 'Да: тут разделили только числитель. Надо оба → 6/8 = 3/4.', uz: "Ha: bu yerda faqat surat bo'lingan. Ikkalasi kerak → 6/8 = 3/4." },
-    wrong_1: { ru: '10/15 = 2/3 верно: оба разделили на 5.', uz: "10/15 = 2/3 to'g'ri: ikkalasi 5 ga bo'lingan." },
-    wrong_2: { ru: '6/9 = 2/3 верно: оба разделили на 3.', uz: "6/9 = 2/3 to'g'ri: ikkalasi 3 ga bo'lingan." },
-    wrong_3: { ru: '12/16 = 3/4 верно: оба разделили на 4.', uz: "12/16 = 3/4 to'g'ri: ikkalasi 4 ga bo'lingan." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    title: { ru: 'Где сокращение <b>неверно</b>?', uz: "Qaysi qisqartirish <b>noto'g'ri</b>?", en: 'Which one is simplified <b>wrongly</b>?' },
+    question: { ru: 'Три сокращения верны, одно — с ошибкой. Найди ошибочное.', uz: "Uchta qisqartirish to'g'ri, bittasi xato. Xatosini toping.", en: 'Three of these are simplified correctly and one has a mistake. Find the wrong one.' },
+    opt_a: { ru: '6/8 = 3/8', uz: '6/8 = 3/8', en: '6/8 = 3/8' },
+    opt_b: { ru: '10/15 = 2/3', uz: '10/15 = 2/3', en: '10/15 = 2/3' },
+    opt_c: { ru: '6/9 = 2/3', uz: '6/9 = 2/3', en: '6/9 = 2/3' },
+    opt_d: { ru: '12/16 = 3/4', uz: '12/16 = 3/4', en: '12/16 = 3/4' },
+    correct_text: { ru: 'Верно. 6/8 = 3/8 — ошибка: разделили только верх. Надо и низ: 6/8 = 3/4.', uz: "To'g'ri. 6/8 = 3/8 — xato: faqat surat bo'lingan. Maxrajni ham: 6/8 = 3/4.", en: 'That is right. 6/8 = 3/8 is a mistake: only the top was divided. The bottom had to be divided too: 6/8 = 3/4.' },
+    wrong_0: { ru: 'Да: тут разделили только числитель. Надо оба → 6/8 = 3/4.', uz: "Ha: bu yerda faqat surat bo'lingan. Ikkalasi kerak → 6/8 = 3/4.", en: 'Yes: only the numerator was divided here. Both had to be, giving 6/8 = 3/4.' },
+    wrong_1: { ru: '10/15 = 2/3 верно: оба разделили на 5.', uz: "10/15 = 2/3 to'g'ri: ikkalasi 5 ga bo'lingan.", en: '10/15 = 2/3 is right: both were divided by 5.' },
+    wrong_2: { ru: '6/9 = 2/3 верно: оба разделили на 3.', uz: "6/9 = 2/3 to'g'ri: ikkalasi 3 ga bo'lingan.", en: '6/9 = 2/3 is right: both were divided by 3.' },
+    wrong_3: { ru: '12/16 = 3/4 верно: оба разделили на 4.', uz: "12/16 = 3/4 to'g'ri: ikkalasi 4 ga bo'lingan.", en: '12/16 = 3/4 is right: both were divided by 4.' },
     audio: {
-      intro: { ru: 'Три сокращения сделаны правильно, одно — с ошибкой. Найди то, где сокращение неверно.', uz: "Uchta qisqartirish to'g'ri, bittasi xato. Qisqartirish noto'g'ri bo'lganini toping." },
-      on_correct: { ru: 'Верно, тут разделили только числитель.', uz: "To'g'ri, bu yerda faqat suratni bo'lgan." },
-      on_wrong: { ru: 'Проверь каждое: оба числа разделили на одно?', uz: "Har birini tekshiring: ikkala son bitta songa bo'linganmi?" }
+      intro: { ru: 'Три сокращения сделаны правильно, одно — с ошибкой. Найди то, где сокращение неверно.', uz: "Uchta qisqartirish to'g'ri, bittasi xato. Qisqartirish noto'g'ri bo'lganini toping.", en: 'Three of these are simplified correctly and one has a mistake. Find the one that is simplified wrongly.' },
+      on_correct: { ru: 'Верно, тут разделили только числитель.', uz: "To'g'ri, bu yerda faqat suratni bo'lgan.", en: 'That is right, only the numerator was divided here.' },
+      on_wrong: { ru: 'Проверь каждое: оба числа разделили на одно?', uz: "Har birini tekshiring: ikkala son bitta songa bo'linganmi?", en: 'Check each one: were both numbers divided by the same thing?' }
     }
   },
   s11: {
-    eyebrow: { ru: 'Итоговая проверка', uz: 'Yakuniy tekshiruv' },
-    title: { ru: 'Сократи <b>12/16</b> до конца', uz: "<b>12/16</b> ni oxirigacha qisqartiring" },
-    question: { ru: 'На какой наибольший делитель делятся 12 и 16? Раздели оба. Что получится?', uz: "12 va 16 qaysi eng katta songa bo'linadi? Ikkalasini bo'ling. Nima chiqadi?" },
-    opt_a: { ru: '3/4', uz: '3/4' },
-    opt_b: { ru: '6/8', uz: '6/8' },
-    opt_c: { ru: '4/4', uz: '4/4' },
-    opt_d: { ru: '12/16', uz: '12/16' },
-    correct_text: { ru: 'Верно: 12 и 16 делятся на 4. 12÷4=3, 16÷4=4. Получается 3/4.', uz: "To'g'ri: 12 va 16 4 ga bo'linadi. 12÷4=3, 16÷4=4. 3/4 chiqadi." },
-    wrong_0: { ru: 'Да: наибольший общий делитель 4. 12÷4=3, 16÷4=4 → 3/4.', uz: "Ha: eng katta umumiy bo'luvchi 4. 12÷4=3, 16÷4=4 → 3/4." },
-    wrong_1: { ru: '6/8 ещё не до конца: оба делятся на 2. Дойди до 3/4.', uz: "6/8 hali oxirigacha emas: ikkalasi 2 ga bo'linadi. 3/4 gacha yetkazing." },
-    wrong_2: { ru: '4/4 — это целое (1), а 12/16 меньше 1. Раздели оба на 4 → 3/4.', uz: "4/4 — bu butun (1), 12/16 esa 1 dan kichik. Ikkalasini 4 ga bo'ling → 3/4." },
-    wrong_3: { ru: '12/16 — ещё не сокращено. Раздели оба на 4.', uz: "12/16 — hali qisqarmagan. Ikkalasini 4 ga bo'ling." },
-    fact: { ru: 'Сжатие файлов работает по той же идее: программа пишет данные короче, но картинка или текст остаются прежними. Как у дроби: запись короче, значение то же.', uz: "Fayllarni siqish ham shu g'oyada: dastur ma'lumotni qisqaroq yozadi, lekin rasm yoki matn o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha." },
+    eyebrow: { ru: 'Итоговая проверка', uz: 'Yakuniy tekshiruv', en: 'Final check' },
+    title: { ru: 'Сократи <b>12/16</b> до конца', uz: "<b>12/16</b> ni oxirigacha qisqartiring", en: 'Simplify <b>12/16</b> fully' },
+    question: { ru: 'На какой наибольший делитель делятся 12 и 16? Раздели оба. Что получится?', uz: "12 va 16 qaysi eng katta songa bo'linadi? Ikkalasini bo'ling. Nima chiqadi?", en: 'What is the highest factor that both 12 and 16 divide by? Divide them both by it. What do you get?' },
+    opt_a: { ru: '3/4', uz: '3/4', en: '3/4' },
+    opt_b: { ru: '6/8', uz: '6/8', en: '6/8' },
+    opt_c: { ru: '4/4', uz: '4/4', en: '4/4' },
+    opt_d: { ru: '12/16', uz: '12/16', en: '12/16' },
+    correct_text: { ru: 'Верно: 12 и 16 делятся на 4. 12÷4=3, 16÷4=4. Получается 3/4.', uz: "To'g'ri: 12 va 16 4 ga bo'linadi. 12÷4=3, 16÷4=4. 3/4 chiqadi.", en: 'That is right: 12 and 16 both divide by 4. 12÷4=3 and 16÷4=4. That gives 3/4.' },
+    wrong_0: { ru: 'Да: наибольший общий делитель 4. 12÷4=3, 16÷4=4 → 3/4.', uz: "Ha: eng katta umumiy bo'luvchi 4. 12÷4=3, 16÷4=4 → 3/4.", en: 'Yes: the highest common factor is 4. 12÷4=3 and 16÷4=4, giving 3/4.' },
+    wrong_1: { ru: '6/8 ещё не до конца: оба делятся на 2. Дойди до 3/4.', uz: "6/8 hali oxirigacha emas: ikkalasi 2 ga bo'linadi. 3/4 gacha yetkazing.", en: '6/8 is not fully simplified: they both divide by 2. Take it down to 3/4.' },
+    wrong_2: { ru: '4/4 — это целое (1), а 12/16 меньше 1. Раздели оба на 4 → 3/4.', uz: "4/4 — bu butun (1), 12/16 esa 1 dan kichik. Ikkalasini 4 ga bo'ling → 3/4.", en: '4/4 is a whole one (1), and 12/16 is less than 1. Divide them both by 4, giving 3/4.' },
+    wrong_3: { ru: '12/16 — ещё не сокращено. Раздели оба на 4.', uz: "12/16 — hali qisqarmagan. Ikkalasini 4 ga bo'ling.", en: '12/16 has not been simplified yet. Divide them both by 4.' },
+    fact: { ru: 'Сжатие файлов работает по той же идее: программа пишет данные короче, но картинка или текст остаются прежними. Как у дроби: запись короче, значение то же.', uz: "Fayllarni siqish ham shu g'oyada: dastur ma'lumotni qisqaroq yozadi, lekin rasm yoki matn o'sha bo'lib qoladi. Xuddi kasrdek: yozuv qisqaroq, qiymat o'sha.", en: 'Compressing files works on the same idea: the program writes the data more shortly, but the picture or the text stays the same. Just like a fraction: shorter to write, the same value.' },
     audio: {
-      intro: { ru: 'Последнее задание. Сократи двенадцать шестнадцатых до конца. На какой наибольший делитель делятся оба? Выбери ответ.', uz: "Oxirgi topshiriq. O'n oltidan o'n ikkini oxirigacha qisqartiring. Ikkalasi qaysi eng katta songa bo'linadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi." },
-      on_wrong: { ru: 'Пока нет. И двенадцать, и шестнадцать делятся на четыре. Раздели оба.', uz: "Hali emas. O'n ikki ham, o'n olti ham to'rtga bo'linadi. Ikkalasini bo'ling." }
+      intro: { ru: 'Последнее задание. Сократи двенадцать шестнадцатых до конца. На какой наибольший делитель делятся оба? Выбери ответ.', uz: "Oxirgi topshiriq. O'n oltidan o'n ikkini oxirigacha qisqartiring. Ikkalasi qaysi eng katta songa bo'linadi? Javobni tanlang.", en: 'The last task. Simplify twelve sixteenths fully. What is the highest factor they both divide by? Choose an answer.' },
+      on_correct: { ru: 'Верно. Разделили на четыре: вышло три четвёртых.', uz: "To'g'ri. To'rtga bo'ldik: to'rtdan uch chiqdi.", en: 'That is right. We divided by four and got three quarters.' },
+      on_wrong: { ru: 'Пока нет. И двенадцать, и шестнадцать делятся на четыре. Раздели оба.', uz: "Hali emas. O'n ikki ham, o'n olti ham to'rtga bo'linadi. Ikkalasini bo'ling.", en: 'Not yet. Both twelve and sixteen divide by four. Divide them both.' }
     }
   },
   s12: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
-    point1: { ru: 'Сократить дробь — записать её <b>проще, не меняя величину</b>.', uz: "Kasrni qisqartirish — <b>qiymatini o'zgartirmasdan soddaroq</b> yozish." },
-    point2: { ru: 'Дели <b>числитель и знаменатель на их общий делитель</b> (лучше — на наибольший).', uz: "<b>Surat va maxrajni umumiy bo'luvchiga</b> bo'ling (eng kattasiga — yaxshiroq)." },
-    point3: { ru: 'Делить нужно <b>оба числа на одно</b> — иначе дробь изменится.', uz: "<b>Ikkala sonni bitta songa</b> bo'lish kerak — aks holda kasr o'zgaradi." },
-    score_caption: { ru: 'Правильных ответов', uz: "To'g'ri javoblar" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz', en: 'What you can do now' },
+    point1: { ru: 'Сократить дробь — записать её <b>проще, не меняя величину</b>.', uz: "Kasrni qisqartirish — <b>qiymatini o'zgartirmasdan soddaroq</b> yozish.", en: 'Simplifying a fraction means writing it <b>more simply without changing its size</b>.' },
+    point2: { ru: 'Дели <b>числитель и знаменатель на их общий делитель</b> (лучше — на наибольший).', uz: "<b>Surat va maxrajni umumiy bo'luvchiga</b> bo'ling (eng kattasiga — yaxshiroq).", en: 'Divide <b>the numerator and the denominator by their common factor</b> (best of all by the highest one).' },
+    point3: { ru: 'Делить нужно <b>оба числа на одно</b> — иначе дробь изменится.', uz: "<b>Ikkala sonni bitta songa</b> bo'lish kerak — aks holda kasr o'zgaradi.", en: '<b>Both numbers must be divided by the same thing</b>, otherwise the fraction changes.' },
+    score_caption: { ru: 'Правильных ответов', uz: "To'g'ri javoblar", en: 'Right answers' },
     audio: {
       ru: 'Подведём итог. Сократить дробь значит записать её проще, не меняя величину. Для этого дели числитель и знаменатель на их общий делитель, лучше на наибольший. Делить нужно оба числа на одно, иначе дробь изменится. Дальше начнём складывать дроби. Ты молодец.',
-      uz: "Xulosa qilamiz. Kasrni qisqartirish — qiymatini o'zgartirmasdan soddaroq yozish. Buning uchun surat va maxrajni umumiy bo'luvchiga, eng kattasiga bo'ling. Ikkala sonni bitta songa bo'lish kerak, aks holda kasr o'zgaradi. Keyin kasrlarni qo'shishni boshlaymiz. Ofarin."
+      uz: "Xulosa qilamiz. Kasrni qisqartirish — qiymatini o'zgartirmasdan soddaroq yozish. Buning uchun surat va maxrajni umumiy bo'luvchiga, eng kattasiga bo'ling. Ikkala sonni bitta songa bo'lish kerak, aks holda kasr o'zgaradi. Keyin kasrlarni qo'shishni boshlaymiz. Ofarin.",
+      en: 'Let us sum up. Simplifying a fraction means writing it more simply without changing its size. To do that, divide the numerator and the denominator by their common factor, best of all by the highest one. Both numbers must be divided by the same thing, otherwise the fraction changes. Next we will start adding fractions. Good work.'
     }
   }
 };
@@ -1233,7 +1266,7 @@ const ClassifyReduce = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1303,12 +1336,12 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
             <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
-              <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? 'qisqartiring:' : 'сократи:'}</span>
+              <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? 'qisqartiring:' : lang === 'en' ? "simplify:" : 'сократи:'}</span>
               <div className="dm-prob">{mt(tx(q.q))}</div>
             </div>
             <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 10 }}>
@@ -1327,7 +1360,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1393,7 +1426,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const steps = [c.step1, c.step2, c.step3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : lang === 'en' ? "Next" : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
@@ -1420,7 +1453,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const steps = [c.step1, c.step2, c.step3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : lang === 'en' ? "Next" : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
@@ -1577,7 +1610,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.point1, c.point2, c.point3];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Boshidan' : 'Заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Boshidan' : lang === 'en' ? "Start over" : 'Заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1614,7 +1647,7 @@ export default function FractionReduceLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1682,7 +1715,7 @@ export default function FractionReduceLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -74,9 +74,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -247,7 +275,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -288,7 +316,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -900,8 +929,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'vaqt-2-33-v1',
-  lessonTitle: { ru: 'Урок 33. Время', uz: "33-dars. Vaqt" }
+  lessonId: 'grade2-33',
+  lessonTitle: { ru: 'Урок 33. Время', uz: "33-dars. Vaqt", en: 'Lesson 33. Telling the time' }
 };
 // STRUKTURA (Б6 NEPTUN, vaqt): s0 hook (3:00, «12:15»mi? — strelka almashtirish) · s1 ClockFace teach (ikki strelka, 3:00) ·
 // s2 yarim soat (uzun 6 da, 3:30) · s3 QOIDA (kalta→soat, uzun→daqiqa) + check (6:00) · s4 CHORAK + warn (3 da=15) + check
@@ -952,13 +981,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK: soat 3:00 (kalta strelka 3 da, uzun 12 da). Kimdir «12:15» deb o'qidi (strelkalarni almashtirdi). To'g'rimi? Yo'q.
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Время', uz: "Mavzu: Vaqt" },
-    lead: { ru: 'Сколько на часах?', uz: "Soat nechada?" },
-    q: { ru: 'Кто-то прочитал это как двенадцать пятнадцать. Верно?', uz: "Kimdir buni o'n ikki o'n besh deb o'qidi. To'g'rimi?" },
-    opt0: { ru: 'Да', uz: 'Ha' },
-    opt1: { ru: 'Нет', uz: "Yo'q" },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Время', uz: "Mavzu: Vaqt", en: 'Topic: Telling the time' },
+    lead: { ru: 'Сколько на часах?', uz: "Soat nechada?", en: 'What time is it?' },
+    q: { ru: 'Кто-то прочитал это как двенадцать пятнадцать. Верно?', uz: "Kimdir buni o'n ikki o'n besh deb o'qidi. To'g'rimi?", en: 'Someone read this as twelve fifteen. Is that right?' },
+    opt0: { ru: 'Да', uz: 'Ha', en: 'Yes' },
+    opt1: { ru: 'Нет', uz: "Yo'q", en: 'No' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -972,20 +1001,21 @@ const CONTENT = {
           "Soatda kalta strelka uchda turibdi, uzun strelka esa o'n ikkida.",
           "Kimdir buni soat o'n ikki, o'n besh daqiqa deb o'qidi. U strelkalarni chalkashtirdi.",
           "Sizningcha, bu to'g'rimi? Javoblarni tinglang: ha yoki yo'q. Yoki hali bilmaysiz."
-        ]
+        ],
+        en: ['We are at the station by Neptune. The crew is checking the time on the clock.', 'On the clock the short hand is on three and the long hand is on twelve.', 'Someone read that as twelve fifteen. They mixed up the hands.', 'Do you think that is right? Listen to the answers: yes or no. Or maybe you do not know yet.']
       },
-      on_correct: { ru: 'Верно. Короткая стрелка, это часы: сейчас три. А длинная, минуты.', uz: "To'g'ri. Kalta strelka, bu soat: hozir uch. Uzun strelka esa, daqiqa." },
-      on_wrong: { ru: 'Он перепутал стрелки. Короткая показывает часы, длинная, минуты. Сейчас разберём.', uz: "U strelkalarni chalkashtirdi. Kalta strelka soatni, uzun daqiqani ko'rsatadi. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Сегодня научимся читать время по часам.', uz: "Hechqisi yo'q. Bugun soatga qarab vaqtni o'qishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Короткая стрелка, это часы: сейчас три. А длинная, минуты.', uz: "To'g'ri. Kalta strelka, bu soat: hozir uch. Uzun strelka esa, daqiqa.", en: 'That is right. The short hand shows the hours, and it is on three. The long hand shows the minutes.' },
+      on_wrong: { ru: 'Он перепутал стрелки. Короткая показывает часы, длинная, минуты. Сейчас разберём.', uz: "U strelkalarni chalkashtirdi. Kalta strelka soatni, uzun daqiqani ko'rsatadi. Hozir ko'ramiz.", en: 'They mixed up the hands. The short hand shows the hours and the long hand shows the minutes. Now let us look at it.' },
+      on_unknown: { ru: 'Ничего. Сегодня научимся читать время по часам.', uz: "Hechqisi yo'q. Bugun soatga qarab vaqtni o'qishni o'rganamiz.", en: 'No problem. Today we will learn to tell the time on a clock.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: ClockFace, ikki strelka. Kalta=soat (soat strelkasi), uzun=daqiqa. Butun soat 3:00. 4 seg step.
   s1: {
-    eyebrow: { ru: 'Часы', uz: 'Soat' },
-    lead: { ru: 'Две стрелки', uz: "Ikki strelka" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Короткая стрелка — часы, длинная — минуты.', uz: "Kalta strelka — soat, uzun — daqiqa." },
+    eyebrow: { ru: 'Часы', uz: 'Soat', en: 'The clock' },
+    lead: { ru: 'Две стрелки', uz: "Ikki strelka", en: 'Two hands' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Короткая стрелка — часы, длинная — минуты.', uz: "Kalta strelka — soat, uzun — daqiqa.", en: 'The short hand is the hours and the long hand is the minutes.' },
     audio: {
       ru: [
         'Посмотри на часы. У них две стрелки.',
@@ -998,16 +1028,17 @@ const CONTENT = {
         "Kalta strelka soatni ko'rsatadi. Hozir u uchda, demak, soat uch.",
         "Uzun strelka daqiqani ko'rsatadi. Hozir u o'n ikkida, demak, daqiqa nol.",
         "Birga o'qiymiz: roppa-rosa soat uch."
-      ]
+      ],
+      en: ['Look at the clock. It has two hands.', "The short hand shows the hours. It is on three now, so it is three o'clock.", 'The long hand shows the minutes. It is on twelve now, so there are no minutes.', "Let us read it together: three o'clock exactly."]
     }
   },
 
   // s2 — TUSHUNTIRISH-2: yarim soat. Uzun strelka 6 da = 30 daqiqa = yarim soat (ulush ko'prigi). 4 seg.
   s2: {
-    eyebrow: { ru: 'Полчаса', uz: 'Yarim soat' },
-    lead: { ru: 'Длинная на шести — полчаса', uz: "Uzun oltida — yarim soat" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Длинная на шести — тридцать минут, полчаса.', uz: "Uzun oltida — o'ttiz daqiqa, yarim soat." },
+    eyebrow: { ru: 'Полчаса', uz: 'Yarim soat', en: 'Half an hour' },
+    lead: { ru: 'Длинная на шести — полчаса', uz: "Uzun oltida — yarim soat", en: 'The long hand on six is half an hour' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Длинная на шести — тридцать минут, полчаса.', uz: "Uzun oltida — o'ttiz daqiqa, yarim soat.", en: 'The long hand on six means thirty minutes, half an hour.' },
     audio: {
       ru: [
         'Теперь длинная стрелка прошла полкруга и стоит на шести.',
@@ -1020,19 +1051,20 @@ const CONTENT = {
         "Doiraning yarmi, bu o'ttiz daqiqa. Soatning roppa-rosa yarmi.",
         "Kalta strelka uchdan sal nariga o'tdi, soat hali ham uch.",
         "O'qiymiz: soat uch, o'ttiz daqiqa. Bu, yarim soat, o'tgan darsdagi yarim kabi."
-      ]
+      ],
+      en: ['Now the long hand has gone half way round and is on six.', 'Half way round is thirty minutes. Exactly half an hour.', 'The short hand has moved a little past three, but the hour is still three.', 'We read it as three thirty. That is half an hour, like the half from the last lesson.']
     }
   },
 
   // s3 — QOIDA: kalta→qaysi soat, uzun→daqiqa (raqam×5) + check (soat 6:00).
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Сначала короткая — час, потом длинная — минуты.', uz: "Avval kalta — soat, keyin uzun — daqiqa." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Сначала короткая — час, потом длинная — минуты.', uz: "Avval kalta — soat, keyin uzun — daqiqa.", en: 'First the short hand for the hour, then the long hand for the minutes.' },
     fig: { h: 6, m: 0 },
-    check_q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-    opts: [{ ru: '6:00', uz: '6:00', ok: true }, { ru: '12:30', uz: '12:30' }, { ru: '6:12', uz: '6:12' }],
-    wrong: { ru: 'Короткая стрелка — часы: она на шести. Длинная на двенадцати — минут ноль. Значит, шесть часов.', uz: "Kalta strelka — soat: u oltida. Uzun o'n ikkida — daqiqa nol. Demak, soat olti." },
-    check_ok: { ru: 'Верно! Шесть часов ровно.', uz: "To'g'ri! Roppa-rosa soat olti." },
+    check_q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+    opts: [{ ru: '6:00', uz: '6:00', en: '6:00', ok: true }, { ru: '12:30', uz: '12:30', en: '12:30' }, { ru: '6:12', uz: '6:12', en: '6:12' }],
+    wrong: { ru: 'Короткая стрелка — часы: она на шести. Длинная на двенадцати — минут ноль. Значит, шесть часов.', uz: "Kalta strelka — soat: u oltida. Uzun o'n ikkida — daqiqa nol. Demak, soat olti.", en: "The short hand shows the hours and it is on six. The long hand is on twelve, so there are no minutes. That makes six o'clock." },
+    check_ok: { ru: 'Верно! Шесть часов ровно.', uz: "To'g'ri! Roppa-rosa soat olti.", en: "That is right! Six o'clock exactly." },
     audio: {
       ru: [
         'Запомним правило. Слушай.',
@@ -1045,20 +1077,21 @@ const CONTENT = {
         "Avval kalta strelka, qaysi soat.",
         "Keyin uzun strelka, necha daqiqa.",
         "Tekshiring. Kalta oltida, uzun o'n ikkida. Soat nechada?"
-      ]
+      ],
+      en: ['Let us remember the rule. Listen.', 'The short hand first, for the hour.', 'Then the long hand, for the minutes.', 'Check it. The short hand is on six and the long hand is on twelve. What time is it?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (CHORAK + WARN): uzun 3 da = 15 daqiqa (chorak). warn: 3 da → «3 daqiqa» EMAS, 15. check (2:15).
   s4: {
-    eyebrow: { ru: 'Четверть', uz: 'Chorak' },
-    lead: { ru: 'Длинная на трёх — пятнадцать минут', uz: "Uzun uchda — o'n besh daqiqa" },
+    eyebrow: { ru: 'Четверть', uz: 'Chorak', en: 'Quarter past' },
+    lead: { ru: 'Длинная на трёх — пятнадцать минут', uz: "Uzun uchda — o'n besh daqiqa", en: 'The long hand on three is fifteen minutes' },
     fig: { h: 2, m: 15 },
-    warn: { ru: 'Длинная стрелка на трёх — это не три минуты, а пятнадцать. Каждый номер — это по пять минут.', uz: "Uzun strelka uchda — bu uch daqiqa emas, o'n besh. Har bir raqam — besh daqiqadan." },
-    check_q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-    opts: [{ ru: '2:15', uz: '2:15', ok: true }, { ru: '2:03', uz: '2:03' }, { ru: '3:15', uz: '3:15' }],
-    wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Часы — по короткой: два. Значит, два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Soat — kalta bo'yicha: ikki. Demak, ikki o'n besh." },
-    check_ok: { ru: 'Верно! Два часа пятнадцать минут — четверть.', uz: "To'g'ri! Soat ikki, o'n besh daqiqa — chorak." },
+    warn: { ru: 'Длинная стрелка на трёх — это не три минуты, а пятнадцать. Каждый номер — это по пять минут.', uz: "Uzun strelka uchda — bu uch daqiqa emas, o'n besh. Har bir raqam — besh daqiqadan.", en: 'The long hand on three does not mean three minutes, it means fifteen. Each number counts five minutes.' },
+    check_q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+    opts: [{ ru: '2:15', uz: '2:15', en: '2:15', ok: true }, { ru: '2:03', uz: '2:03', en: '2:03' }, { ru: '3:15', uz: '3:15', en: '3:15' }],
+    wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Часы — по короткой: два. Значит, два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Soat — kalta bo'yicha: ikki. Demak, ikki o'n besh.", en: 'The long hand on three means fifteen minutes, not three. The hour comes from the short hand: two. So it is two fifteen.' },
+    check_ok: { ru: 'Верно! Два часа пятнадцать минут — четверть.', uz: "To'g'ri! Soat ikki, o'n besh daqiqa — chorak.", en: 'That is right! Two fifteen, a quarter past.' },
     audio: {
       ru: [
         'Длинная стрелка встала на три. Но это не три минуты.',
@@ -1071,18 +1104,19 @@ const CONTENT = {
         "Soatdagi har bir raqam, besh daqiqa. Uch raqam, o'n besh daqiqa.",
         "O'n besh daqiqa, bu chorak soat.",
         "Tekshiring. Kalta ikkida, uzun uchda. Soat nechada?"
-      ]
+      ],
+      en: ['The long hand has stopped on three. But that is not three minutes.', 'Each number on the clock counts five minutes. Three numbers make fifteen minutes.', 'Fifteen minutes is a quarter of an hour.', 'Check it. The short hand is on two and the long hand is on three. What time is it?']
     }
   },
 
   // sTBL — KALIT: soat · soat(raqam) · daqiqa · yozuv. 3 qator (3:00, 4:30, 2:15). done sTBL_2 (3 seg).
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Читаем часы', uz: "Soatni o'qiymiz" },
-    caption: { ru: 'Часы · время', uz: "Soat · vaqt" },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Читаем часы', uz: "Soatni o'qiymiz", en: 'Reading the clock' },
+    caption: { ru: 'Часы · время', uz: "Soat · vaqt", en: 'Clock · time' },
     rows: [{ h: 3, m: 0 }, { h: 4, m: 30 }, { h: 2, m: 15 }],
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Короткая — час, длинная — минуты. Каждый номер — пять минут.', uz: "Kalta — soat, uzun — daqiqa. Har raqam — besh daqiqa." },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Короткая — час, длинная — минуты. Каждый номер — пять минут.', uz: "Kalta — soat, uzun — daqiqa. Har raqam — besh daqiqa.", en: 'The short hand is the hour, the long hand is the minutes. Each number counts five minutes.' },
     audio: {
       ru: [
         'Соберём ключ. Читаем по короткой, потом по длинной стрелке.',
@@ -1093,271 +1127,274 @@ const CONTENT = {
         "Kalitni yig'amiz. Avval kalta, keyin uzun strelka bo'yicha o'qiymiz.",
         "Roppa-rosa soat uch. Soat to'rt, o'ttiz daqiqa, yarim soat.",
         "Soat ikki, o'n besh daqiqa, chorak. Har raqam, besh daqiqa."
-      ]
+      ],
+      en: ['Let us put the key together. We read the short hand first, then the long one.', "Three o'clock exactly. Four thirty, half past.", 'Two fifteen, a quarter past. Each number counts five minutes.']
     }
   },
 
   // s5 — MASHQ ReadClockStage: butun soatlar. distraktor = strelkalar almashgan (M1).
   s5: {
-    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1', en: 'Practice · 1' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing", en: 'Read the time' },
     mode: 'read',
     rounds: [
-      { h: 5, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '5:00', uz: '5:00', ok: true }, { ru: '12:25', uz: '12:25', wrong: { ru: 'Ты перепутал стрелки. Короткая на пяти — это часы. Длинная на двенадцати — минут ноль. Пять часов.', uz: "Strelkalarni chalkashtirdingiz. Kalta beshda — bu soat. Uzun o'n ikkida — daqiqa nol. Soat besh." } }, { ru: '5:12', uz: '5:12', wrong: { ru: 'Длинная на двенадцати — это ноль минут, не двенадцать. Пять часов ровно.', uz: "Uzun o'n ikkida — bu nol daqiqa, o'n ikki emas. Roppa-rosa soat besh." } }],
-        correct_text: { ru: 'Верно. Пять часов ровно.', uz: "To'g'ri. Roppa-rosa soat besh." } },
-      { h: 9, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '9:00', uz: '9:00', ok: true }, { ru: '12:45', uz: '12:45', wrong: { ru: 'Короткая стрелка — часы, она на девяти. Длинная на двенадцати — минут ноль. Девять часов.', uz: "Kalta strelka — soat, u to'qqizda. Uzun o'n ikkida — daqiqa nol. Soat to'qqiz." } }, { ru: '9:12', uz: '9:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Девять часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat to'qqiz." } }],
-        correct_text: { ru: 'Верно. Девять часов ровно.', uz: "To'g'ri. Roppa-rosa soat to'qqiz." } },
-      { h: 7, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '7:00', uz: '7:00', ok: true }, { ru: '12:35', uz: '12:35', wrong: { ru: 'Не путай стрелки. Короткая на семи — часы. Семь часов.', uz: "Strelkalarni chalkashtirmang. Kalta yettida — soat. Soat yetti." } }, { ru: '7:12', uz: '7:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Семь часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat yetti." } }],
-        correct_text: { ru: 'Верно. Семь часов ровно.', uz: "To'g'ri. Roppa-rosa soat yetti." } }
+      { h: 5, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '5:00', uz: '5:00', en: '5:00', ok: true }, { ru: '12:25', uz: '12:25', en: '12:25', wrong: { ru: 'Ты перепутал стрелки. Короткая на пяти — это часы. Длинная на двенадцати — минут ноль. Пять часов.', uz: "Strelkalarni chalkashtirdingiz. Kalta beshda — bu soat. Uzun o'n ikkida — daqiqa nol. Soat besh.", en: "You mixed up the hands. The short hand on five is the hour. The long hand on twelve means no minutes. Five o'clock." } }, { ru: '5:12', uz: '5:12', en: '5:12', wrong: { ru: 'Длинная на двенадцати — это ноль минут, не двенадцать. Пять часов ровно.', uz: "Uzun o'n ikkida — bu nol daqiqa, o'n ikki emas. Roppa-rosa soat besh.", en: "The long hand on twelve means no minutes, not twelve. Five o'clock exactly." } }],
+        correct_text: { ru: 'Верно. Пять часов ровно.', uz: "To'g'ri. Roppa-rosa soat besh.", en: "That is right. Five o'clock exactly." } },
+      { h: 9, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '9:00', uz: '9:00', en: '9:00', ok: true }, { ru: '12:45', uz: '12:45', en: '12:45', wrong: { ru: 'Короткая стрелка — часы, она на девяти. Длинная на двенадцати — минут ноль. Девять часов.', uz: "Kalta strelka — soat, u to'qqizda. Uzun o'n ikkida — daqiqa nol. Soat to'qqiz.", en: "The short hand shows the hours and it is on nine. The long hand on twelve means no minutes. Nine o'clock." } }, { ru: '9:12', uz: '9:12', en: '9:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Девять часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat to'qqiz.", en: "The long hand on twelve means no minutes. Nine o'clock exactly." } }],
+        correct_text: { ru: 'Верно. Девять часов ровно.', uz: "To'g'ri. Roppa-rosa soat to'qqiz.", en: "That is right. Nine o'clock exactly." } },
+      { h: 7, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '7:00', uz: '7:00', en: '7:00', ok: true }, { ru: '12:35', uz: '12:35', en: '12:35', wrong: { ru: 'Не путай стрелки. Короткая на семи — часы. Семь часов.', uz: "Strelkalarni chalkashtirmang. Kalta yettida — soat. Soat yetti.", en: "Do not mix up the hands. The short hand on seven is the hour. Seven o'clock." } }, { ru: '7:12', uz: '7:12', en: '7:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Семь часов ровно.', uz: "Uzun o'n ikkida — nol daqiqa. Roppa-rosa soat yetti.", en: "The long hand on twelve means no minutes. Seven o'clock exactly." } }],
+        correct_text: { ru: 'Верно. Семь часов ровно.', uz: "To'g'ri. Roppa-rosa soat yetti.", en: "That is right. Seven o'clock exactly." } }
     ],
     audio: {
-      intro: { ru: 'Прочитай время: сначала короткая стрелка, потом длинная.', uz: "Vaqtni o'qing: avval kalta strelka, keyin uzun." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Прочитай время: сначала короткая стрелка, потом длинная.', uz: "Vaqtni o'qing: avval kalta strelka, keyin uzun.", en: 'Read the time: the short hand first, then the long one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s6 — MASHQ MatchClockStage toDigital: analog → raqamli yozuvni tanla. distraktor = noto'g'ri daqiqa (M4).
   s6: {
-    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    label: { ru: 'Какая запись подходит?', uz: "Qaysi yozuv mos keladi?" },
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2', en: 'Practice · 2' },
+    label: { ru: 'Какая запись подходит?', uz: "Qaysi yozuv mos keladi?", en: 'Which line fits?' },
     mode: 'toDigital',
     rounds: [
-      { h: 6, m: 30, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
-        opts: [{ ru: '6:30', uz: '6:30', ok: true }, { ru: '6:06', uz: '6:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Шесть тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Olti o'ttiz." } }, { ru: '7:30', uz: '7:30', wrong: { ru: 'Короткая ещё у шести, не у семи. Шесть тридцать.', uz: "Kalta hali oltida, yettida emas. Olti o'ttiz." } }],
-        correct_text: { ru: 'Верно. Шесть тридцать — полчаса.', uz: "To'g'ri. Olti o'ttiz — yarim soat." } },
-      { h: 10, m: 0, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
-        opts: [{ ru: '10:00', uz: '10:00', ok: true }, { ru: '12:50', uz: '12:50', wrong: { ru: 'Стрелки перепутаны. Короткая на десяти — часы. Десять часов.', uz: "Strelkalar chalkash. Kalta o'nda — soat. Soat o'n." } }, { ru: '10:12', uz: '10:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Десять часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat o'n." } }],
-        correct_text: { ru: 'Верно. Десять часов ровно.', uz: "To'g'ri. Roppa-rosa soat o'n." } },
-      { h: 8, m: 15, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang." },
-        opts: [{ ru: '8:15', uz: '8:15', ok: true }, { ru: '8:03', uz: '8:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут, не три. Восемь пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa, uch emas. Sakkiz o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой стрелке: восемь. Восемь пятнадцать.', uz: "Soat — kalta strelka bo'yicha: sakkiz. Sakkiz o'n besh." } }],
-        correct_text: { ru: 'Верно. Восемь пятнадцать — четверть.', uz: "To'g'ri. Sakkiz o'n besh — chorak." } }
+      { h: 6, m: 30, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang.", en: "Choose the way of writing this clock's time." },
+        opts: [{ ru: '6:30', uz: '6:30', en: '6:30', ok: true }, { ru: '6:06', uz: '6:06', en: '6:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Шесть тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Olti o'ttiz.", en: 'The long hand on six means thirty minutes, not six. Six thirty.' } }, { ru: '7:30', uz: '7:30', en: '7:30', wrong: { ru: 'Короткая ещё у шести, не у семи. Шесть тридцать.', uz: "Kalta hali oltida, yettida emas. Olti o'ttiz.", en: 'The short hand is still by six, not by seven. Six thirty.' } }],
+        correct_text: { ru: 'Верно. Шесть тридцать — полчаса.', uz: "To'g'ri. Olti o'ttiz — yarim soat.", en: 'That is right. Six thirty, half past.' } },
+      { h: 10, m: 0, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang.", en: "Choose the way of writing this clock's time." },
+        opts: [{ ru: '10:00', uz: '10:00', en: '10:00', ok: true }, { ru: '12:50', uz: '12:50', en: '12:50', wrong: { ru: 'Стрелки перепутаны. Короткая на десяти — часы. Десять часов.', uz: "Strelkalar chalkash. Kalta o'nda — soat. Soat o'n.", en: "The hands are mixed up. The short hand on ten is the hour. Ten o'clock." } }, { ru: '10:12', uz: '10:12', en: '10:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Десять часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat o'n.", en: "The long hand on twelve means no minutes. Ten o'clock." } }],
+        correct_text: { ru: 'Верно. Десять часов ровно.', uz: "To'g'ri. Roppa-rosa soat o'n.", en: "That is right. Ten o'clock exactly." } },
+      { h: 8, m: 15, q: { ru: 'Выбери запись для этих часов.', uz: "Shu soat uchun yozuvni tanlang.", en: "Choose the way of writing this clock's time." },
+        opts: [{ ru: '8:15', uz: '8:15', en: '8:15', ok: true }, { ru: '8:03', uz: '8:03', en: '8:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут, не три. Восемь пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa, uch emas. Sakkiz o'n besh.", en: 'The long hand on three means fifteen minutes, not three. Eight fifteen.' } }, { ru: '3:15', uz: '3:15', en: '3:15', wrong: { ru: 'Часы — по короткой стрелке: восемь. Восемь пятнадцать.', uz: "Soat — kalta strelka bo'yicha: sakkiz. Sakkiz o'n besh.", en: 'The hour comes from the short hand: eight. Eight fifteen.' } }],
+        correct_text: { ru: 'Верно. Восемь пятнадцать — четверть.', uz: "To'g'ri. Sakkiz o'n besh — chorak.", en: 'That is right. Eight fifteen, a quarter past.' } }
     ],
     audio: {
-      intro: { ru: 'Посмотри на часы и выбери верную запись времени.', uz: "Soatga qarang va to'g'ri vaqt yozuvini tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Посмотри на часы и выбери верную запись времени.', uz: "Soatga qarang va to'g'ri vaqt yozuvini tanlang.", en: 'Look at the clock and choose the right way of writing the time.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s7 — MASHQ ReadClockStage: yarim soat. distraktor = daqiqa=6 (M2) yoki soat yaxlitlangan (M3).
   s7: {
-    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3', en: 'Practice · 3' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing", en: 'Read the time' },
     mode: 'read',
     rounds: [
-      { h: 4, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '4:30', uz: '4:30', ok: true }, { ru: '4:06', uz: '4:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Четыре тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. To'rt o'ttiz." } }, { ru: '5:30', uz: '5:30', wrong: { ru: 'Короткая ещё не дошла до пяти, она у четырёх. Четыре тридцать.', uz: "Kalta hali beshga yetmagan, u to'rtda. To'rt o'ttiz." } }],
-        correct_text: { ru: 'Верно. Четыре тридцать — полчаса.', uz: "To'g'ri. To'rt o'ttiz — yarim soat." } },
-      { h: 8, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '8:30', uz: '8:30', ok: true }, { ru: '9:30', uz: '9:30', wrong: { ru: 'Короткая между восемью и девятью, но час ещё восемь. Восемь тридцать.', uz: "Kalta sakkiz bilan to'qqiz orasida, ammo soat hali sakkiz. Sakkiz o'ttiz." } }, { ru: '8:06', uz: '8:06', wrong: { ru: 'Длинная на шести — тридцать минут. Восемь тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. Sakkiz o'ttiz." } }],
-        correct_text: { ru: 'Верно. Восемь тридцать.', uz: "To'g'ri. Sakkiz o'ttiz." } },
-      { h: 11, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '11:30', uz: '11:30', ok: true }, { ru: '12:30', uz: '12:30', wrong: { ru: 'Короткая ещё у одиннадцати, не у двенадцати. Одиннадцать тридцать.', uz: "Kalta hali o'n birda, o'n ikkida emas. O'n bir o'ttiz." } }, { ru: '11:06', uz: '11:06', wrong: { ru: 'Длинная на шести — тридцать минут. Одиннадцать тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. O'n bir o'ttiz." } }],
-        correct_text: { ru: 'Верно. Одиннадцать тридцать.', uz: "To'g'ri. O'n bir o'ttiz." } }
+      { h: 4, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '4:30', uz: '4:30', en: '4:30', ok: true }, { ru: '4:06', uz: '4:06', en: '4:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Четыре тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. To'rt o'ttiz.", en: 'The long hand on six means thirty minutes, not six. Four thirty.' } }, { ru: '5:30', uz: '5:30', en: '5:30', wrong: { ru: 'Короткая ещё не дошла до пяти, она у четырёх. Четыре тридцать.', uz: "Kalta hali beshga yetmagan, u to'rtda. To'rt o'ttiz.", en: 'The short hand has not reached five yet, it is by four. Four thirty.' } }],
+        correct_text: { ru: 'Верно. Четыре тридцать — полчаса.', uz: "To'g'ri. To'rt o'ttiz — yarim soat.", en: 'That is right. Four thirty, half past.' } },
+      { h: 8, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '8:30', uz: '8:30', en: '8:30', ok: true }, { ru: '9:30', uz: '9:30', en: '9:30', wrong: { ru: 'Короткая между восемью и девятью, но час ещё восемь. Восемь тридцать.', uz: "Kalta sakkiz bilan to'qqiz orasida, ammo soat hali sakkiz. Sakkiz o'ttiz.", en: 'The short hand is between eight and nine, but the hour is still eight. Eight thirty.' } }, { ru: '8:06', uz: '8:06', en: '8:06', wrong: { ru: 'Длинная на шести — тридцать минут. Восемь тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. Sakkiz o'ttiz.", en: 'The long hand on six means thirty minutes. Eight thirty.' } }],
+        correct_text: { ru: 'Верно. Восемь тридцать.', uz: "To'g'ri. Sakkiz o'ttiz.", en: 'That is right. Eight thirty.' } },
+      { h: 11, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '11:30', uz: '11:30', en: '11:30', ok: true }, { ru: '12:30', uz: '12:30', en: '12:30', wrong: { ru: 'Короткая ещё у одиннадцати, не у двенадцати. Одиннадцать тридцать.', uz: "Kalta hali o'n birda, o'n ikkida emas. O'n bir o'ttiz.", en: 'The short hand is still by eleven, not by twelve. Eleven thirty.' } }, { ru: '11:06', uz: '11:06', en: '11:06', wrong: { ru: 'Длинная на шести — тридцать минут. Одиннадцать тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. O'n bir o'ttiz.", en: 'The long hand on six means thirty minutes. Eleven thirty.' } }],
+        correct_text: { ru: 'Верно. Одиннадцать тридцать.', uz: "To'g'ri. O'n bir o'ttiz.", en: 'That is right. Eleven thirty.' } }
     ],
     audio: {
-      intro: { ru: 'Половина часа: длинная стрелка на шести. Прочитай время.', uz: "Yarim soat: uzun strelka oltida. Vaqtni o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Половина часа: длинная стрелка на шести. Прочитай время.', uz: "Yarim soat: uzun strelka oltida. Vaqtni o'qing.", en: 'Half an hour: the long hand is on six. Read the time.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s8 — MASHQ MatchClockStage toClock: raqamli yozuv → mos soatni tanla (mini ClockFace choices).
   s8: {
-    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    label: { ru: 'Выбери часы', uz: "Soatni tanlang" },
+    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4', en: 'Practice · 4' },
+    label: { ru: 'Выбери часы', uz: "Soatni tanlang", en: 'Choose the clock' },
     mode: 'toClock',
     rounds: [
-      { name: { ru: '3:00', uz: '3:00' }, q: { ru: 'Где показано три часа?', uz: "Qayerda soat uch ko'rsatilgan?" },
+      { name: { ru: '3:00', uz: '3:00', en: '3:00' }, q: { ru: 'Где показано три часа?', uz: "Qayerda soat uch ko'rsatilgan?", en: "Which one shows three o'clock?" },
         choices: [{ h: 3, m: 0, ok: true }, { h: 12, m: 15 }, { h: 3, m: 30 }],
-        wrong: { ru: 'Три часа: короткая на трёх, длинная на двенадцати.', uz: "Soat uch: kalta uchda, uzun o'n ikkida." },
-        correct_text: { ru: 'Верно. Три часа ровно.', uz: "To'g'ri. Roppa-rosa soat uch." } },
-      { name: { ru: '6:30', uz: '6:30' }, q: { ru: 'Где показано шесть тридцать?', uz: "Qayerda olti o'ttiz ko'rsatilgan?" },
+        wrong: { ru: 'Три часа: короткая на трёх, длинная на двенадцати.', uz: "Soat uch: kalta uchda, uzun o'n ikkida.", en: "Three o'clock: the short hand on three, the long hand on twelve." },
+        correct_text: { ru: 'Верно. Три часа ровно.', uz: "To'g'ri. Roppa-rosa soat uch.", en: "That is right. Three o'clock exactly." } },
+      { name: { ru: '6:30', uz: '6:30', en: '6:30' }, q: { ru: 'Где показано шесть тридцать?', uz: "Qayerda olti o'ttiz ko'rsatilgan?", en: 'Which one shows six thirty?' },
         choices: [{ h: 6, m: 30, ok: true }, { h: 6, m: 0 }, { h: 7, m: 30 }],
-        wrong: { ru: 'Шесть тридцать: короткая между шестью и семью, длинная на шести.', uz: "Olti o'ttiz: kalta olti bilan yetti orasida, uzun oltida." },
-        correct_text: { ru: 'Верно. Шесть тридцать.', uz: "To'g'ri. Olti o'ttiz." } },
-      { name: { ru: '9:15', uz: '9:15' }, q: { ru: 'Где показано девять пятнадцать?', uz: "Qayerda to'qqiz o'n besh ko'rsatilgan?" },
+        wrong: { ru: 'Шесть тридцать: короткая между шестью и семью, длинная на шести.', uz: "Olti o'ttiz: kalta olti bilan yetti orasida, uzun oltida.", en: 'Six thirty: the short hand between six and seven, the long hand on six.' },
+        correct_text: { ru: 'Верно. Шесть тридцать.', uz: "To'g'ri. Olti o'ttiz.", en: 'That is right. Six thirty.' } },
+      { name: { ru: '9:15', uz: '9:15', en: '9:15' }, q: { ru: 'Где показано девять пятнадцать?', uz: "Qayerda to'qqiz o'n besh ko'rsatilgan?", en: 'Which one shows nine fifteen?' },
         choices: [{ h: 9, m: 15, ok: true }, { h: 9, m: 0 }, { h: 3, m: 45 }],
-        wrong: { ru: 'Девять пятнадцать: короткая на девяти, длинная на трёх.', uz: "To'qqiz o'n besh: kalta to'qqizda, uzun uchda." },
-        correct_text: { ru: 'Верно. Девять пятнадцать.', uz: "To'g'ri. To'qqiz o'n besh." } }
+        wrong: { ru: 'Девять пятнадцать: короткая на девяти, длинная на трёх.', uz: "To'qqiz o'n besh: kalta to'qqizda, uzun uchda.", en: 'Nine fifteen: the short hand on nine, the long hand on three.' },
+        correct_text: { ru: 'Верно. Девять пятнадцать.', uz: "To'g'ri. To'qqiz o'n besh.", en: 'That is right. Nine fifteen.' } }
     ],
     audio: {
-      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang.", en: 'Choose the clock that shows this time.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s9 — MASHQ ReadClockStage: chorak. distraktor = daqiqa=3 (M2), 9→«9».
   s9: {
-    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5', en: 'Practice · 5' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing", en: 'Read the time' },
     mode: 'read',
     rounds: [
-      { h: 2, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '2:15', uz: '2:15', ok: true }, { ru: '2:03', uz: '2:03', wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Каждый номер — пять минут. Два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Har raqam — besh daqiqa. Ikki o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: два. Два пятнадцать.', uz: "Soat — kalta bo'yicha: ikki. Ikki o'n besh." } }],
-        correct_text: { ru: 'Верно. Два пятнадцать — четверть.', uz: "To'g'ri. Ikki o'n besh — chorak." } },
-      { h: 7, m: 45, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '7:45', uz: '7:45', ok: true }, { ru: '7:09', uz: '7:09', wrong: { ru: 'Длинная на девяти — это сорок пять минут, не девять. Девять номеров по пять. Семь сорок пять.', uz: "Uzun to'qqizda — bu qirq besh daqiqa, to'qqiz emas. To'qqiz raqam beshdan. Yetti qirq besh." } }, { ru: '8:45', uz: '8:45', wrong: { ru: 'Короткая ещё у семи. Семь сорок пять.', uz: "Kalta hali yettida. Yetti qirq besh." } }],
-        correct_text: { ru: 'Верно. Семь сорок пять.', uz: "To'g'ri. Yetti qirq besh." } },
-      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '4:15', uz: '4:15', ok: true }, { ru: '4:03', uz: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh." } }],
-        correct_text: { ru: 'Верно. Четыре пятнадцать.', uz: "To'g'ri. To'rt o'n besh." } }
+      { h: 2, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '2:15', uz: '2:15', en: '2:15', ok: true }, { ru: '2:03', uz: '2:03', en: '2:03', wrong: { ru: 'Длинная на трёх — это пятнадцать минут, не три. Каждый номер — пять минут. Два пятнадцать.', uz: "Uzun uchda — bu o'n besh daqiqa, uch emas. Har raqam — besh daqiqa. Ikki o'n besh.", en: 'The long hand on three means fifteen minutes, not three. Each number counts five minutes. Two fifteen.' } }, { ru: '3:15', uz: '3:15', en: '3:15', wrong: { ru: 'Часы — по короткой: два. Два пятнадцать.', uz: "Soat — kalta bo'yicha: ikki. Ikki o'n besh.", en: 'The hour comes from the short hand: two. Two fifteen.' } }],
+        correct_text: { ru: 'Верно. Два пятнадцать — четверть.', uz: "To'g'ri. Ikki o'n besh — chorak.", en: 'That is right. Two fifteen, a quarter past.' } },
+      { h: 7, m: 45, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '7:45', uz: '7:45', en: '7:45', ok: true }, { ru: '7:09', uz: '7:09', en: '7:09', wrong: { ru: 'Длинная на девяти — это сорок пять минут, не девять. Девять номеров по пять. Семь сорок пять.', uz: "Uzun to'qqizda — bu qirq besh daqiqa, to'qqiz emas. To'qqiz raqam beshdan. Yetti qirq besh.", en: 'The long hand on nine means forty five minutes, not nine. Nine numbers of five each. Seven forty five.' } }, { ru: '8:45', uz: '8:45', en: '8:45', wrong: { ru: 'Короткая ещё у семи. Семь сорок пять.', uz: "Kalta hali yettida. Yetti qirq besh.", en: 'The short hand is still by seven. Seven forty five.' } }],
+        correct_text: { ru: 'Верно. Семь сорок пять.', uz: "To'g'ri. Yetti qirq besh.", en: 'That is right. Seven forty five.' } },
+      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '4:15', uz: '4:15', en: '4:15', ok: true }, { ru: '4:03', uz: '4:03', en: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh.", en: 'The long hand on three means fifteen minutes. Four fifteen.' } }, { ru: '3:15', uz: '3:15', en: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh.", en: 'The hour comes from the short hand: four. Four fifteen.' } }],
+        correct_text: { ru: 'Верно. Четыре пятнадцать.', uz: "To'g'ri. To'rt o'n besh.", en: 'That is right. Four fifteen.' } }
     ],
     audio: {
-      intro: { ru: 'Четверть часа. Помни: каждый номер, это пять минут.', uz: "Chorak soat. Yodda tuting: har raqam, besh daqiqa." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Четверть часа. Помни: каждый номер, это пять минут.', uz: "Chorak soat. Yodda tuting: har raqam, besh daqiqa.", en: 'A quarter of an hour. Remember, each number counts five minutes.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s10 — MASHQ ReadClockStage: 5-daqiqalik. distraktor = raqamni ×5 qilmaslik (M2).
   s10: {
-    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6' },
-    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6', en: 'Practice · 6' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing", en: 'Read the time' },
     mode: 'read',
     rounds: [
-      { h: 3, m: 20, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '3:20', uz: '3:20', ok: true }, { ru: '3:04', uz: '3:04', wrong: { ru: 'Длинная на четырёх — это двадцать минут: четыре номера по пять. Три двадцать.', uz: "Uzun to'rtda — bu yigirma daqiqa: to'rt raqam beshdan. Uch yigirma." } }, { ru: '4:20', uz: '4:20', wrong: { ru: 'Часы — по короткой: три. Три двадцать.', uz: "Soat — kalta bo'yicha: uch. Uch yigirma." } }],
-        correct_text: { ru: 'Верно. Три двадцать.', uz: "To'g'ri. Uch yigirma." } },
-      { h: 7, m: 5, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '7:05', uz: '7:05', ok: true }, { ru: '7:01', uz: '7:01', wrong: { ru: 'Длинная на одном — это пять минут: один номер по пять. Семь ноль пять.', uz: "Uzun birda — bu besh daqiqa: bitta raqam beshdan. Yetti nol besh." } }, { ru: '1:35', uz: '1:35', wrong: { ru: 'Стрелки перепутаны. Часы — по короткой: семь. Семь ноль пять.', uz: "Strelkalar chalkash. Soat — kalta bo'yicha: yetti. Yetti nol besh." } }],
-        correct_text: { ru: 'Верно. Семь ноль пять.', uz: "To'g'ri. Yetti nol besh." } },
-      { h: 10, m: 25, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '10:25', uz: '10:25', ok: true }, { ru: '10:05', uz: '10:05', wrong: { ru: 'Длинная на пяти — это двадцать пять минут: пять номеров по пять. Десять двадцать пять.', uz: "Uzun beshda — bu yigirma besh daqiqa: besh raqam beshdan. O'n yigirma besh." } }, { ru: '5:50', uz: '5:50', wrong: { ru: 'Часы — по короткой: десять. Десять двадцать пять.', uz: "Soat — kalta bo'yicha: o'n. O'n yigirma besh." } }],
-        correct_text: { ru: 'Верно. Десять двадцать пять.', uz: "To'g'ri. O'n yigirma besh." } }
+      { h: 3, m: 20, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '3:20', uz: '3:20', en: '3:20', ok: true }, { ru: '3:04', uz: '3:04', en: '3:04', wrong: { ru: 'Длинная на четырёх — это двадцать минут: четыре номера по пять. Три двадцать.', uz: "Uzun to'rtda — bu yigirma daqiqa: to'rt raqam beshdan. Uch yigirma.", en: 'The long hand on four means twenty minutes: four numbers of five each. Three twenty.' } }, { ru: '4:20', uz: '4:20', en: '4:20', wrong: { ru: 'Часы — по короткой: три. Три двадцать.', uz: "Soat — kalta bo'yicha: uch. Uch yigirma.", en: 'The hour comes from the short hand: three. Three twenty.' } }],
+        correct_text: { ru: 'Верно. Три двадцать.', uz: "To'g'ri. Uch yigirma.", en: 'That is right. Three twenty.' } },
+      { h: 7, m: 5, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '7:05', uz: '7:05', en: '7:05', ok: true }, { ru: '7:01', uz: '7:01', en: '7:01', wrong: { ru: 'Длинная на одном — это пять минут: один номер по пять. Семь ноль пять.', uz: "Uzun birda — bu besh daqiqa: bitta raqam beshdan. Yetti nol besh.", en: 'The long hand on one means five minutes: one number of five. Seven oh five.' } }, { ru: '1:35', uz: '1:35', en: '1:35', wrong: { ru: 'Стрелки перепутаны. Часы — по короткой: семь. Семь ноль пять.', uz: "Strelkalar chalkash. Soat — kalta bo'yicha: yetti. Yetti nol besh.", en: 'The hands are mixed up. The hour comes from the short hand: seven. Seven oh five.' } }],
+        correct_text: { ru: 'Верно. Семь ноль пять.', uz: "To'g'ri. Yetti nol besh.", en: 'That is right. Seven oh five.' } },
+      { h: 10, m: 25, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '10:25', uz: '10:25', en: '10:25', ok: true }, { ru: '10:05', uz: '10:05', en: '10:05', wrong: { ru: 'Длинная на пяти — это двадцать пять минут: пять номеров по пять. Десять двадцать пять.', uz: "Uzun beshda — bu yigirma besh daqiqa: besh raqam beshdan. O'n yigirma besh.", en: 'The long hand on five means twenty five minutes: five numbers of five each. Ten twenty five.' } }, { ru: '5:50', uz: '5:50', en: '5:50', wrong: { ru: 'Часы — по короткой: десять. Десять двадцать пять.', uz: "Soat — kalta bo'yicha: o'n. O'n yigirma besh.", en: 'The hour comes from the short hand: ten. Ten twenty five.' } }],
+        correct_text: { ru: 'Верно. Десять двадцать пять.', uz: "To'g'ri. O'n yigirma besh.", en: 'That is right. Ten twenty five.' } }
     ],
     audio: {
-      intro: { ru: 'Каждый номер, пять минут. Посчитай минуты по длинной стрелке.', uz: "Har raqam, besh daqiqa. Uzun strelka bo'yicha daqiqani sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Каждый номер, пять минут. Посчитай минуты по длинной стрелке.', uz: "Har raqam, besh daqiqa. Uzun strelka bo'yicha daqiqani sanang.", en: 'Each number counts five minutes. Work out the minutes from the long hand.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s11 — MASHQ MatchClockStage toClock aralash.
   s11: {
-    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7' },
-    label: { ru: 'Выбери часы', uz: "Soatni tanlang" },
+    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7', en: 'Practice · 7' },
+    label: { ru: 'Выбери часы', uz: "Soatni tanlang", en: 'Choose the clock' },
     mode: 'toClock',
     rounds: [
-      { name: { ru: '5:30', uz: '5:30' }, q: { ru: 'Где показано пять тридцать?', uz: "Qayerda besh o'ttiz ko'rsatilgan?" },
+      { name: { ru: '5:30', uz: '5:30', en: '5:30' }, q: { ru: 'Где показано пять тридцать?', uz: "Qayerda besh o'ttiz ko'rsatilgan?", en: 'Which one shows five thirty?' },
         choices: [{ h: 5, m: 30, ok: true }, { h: 5, m: 0 }, { h: 6, m: 30 }],
-        wrong: { ru: 'Пять тридцать: короткая между пятью и шестью, длинная на шести.', uz: "Besh o'ttiz: kalta besh bilan olti orasida, uzun oltida." },
-        correct_text: { ru: 'Верно. Пять тридцать.', uz: "To'g'ri. Besh o'ttiz." } },
-      { name: { ru: '8:00', uz: '8:00' }, q: { ru: 'Где показано восемь часов?', uz: "Qayerda soat sakkiz ko'rsatilgan?" },
+        wrong: { ru: 'Пять тридцать: короткая между пятью и шестью, длинная на шести.', uz: "Besh o'ttiz: kalta besh bilan olti orasida, uzun oltida.", en: 'Five thirty: the short hand between five and six, the long hand on six.' },
+        correct_text: { ru: 'Верно. Пять тридцать.', uz: "To'g'ri. Besh o'ttiz.", en: 'That is right. Five thirty.' } },
+      { name: { ru: '8:00', uz: '8:00', en: '8:00' }, q: { ru: 'Где показано восемь часов?', uz: "Qayerda soat sakkiz ko'rsatilgan?", en: "Which one shows eight o'clock?" },
         choices: [{ h: 8, m: 0, ok: true }, { h: 12, m: 40 }, { h: 8, m: 15 }],
-        wrong: { ru: 'Восемь часов: короткая на восьми, длинная на двенадцати.', uz: "Soat sakkiz: kalta sakkizda, uzun o'n ikkida." },
-        correct_text: { ru: 'Верно. Восемь часов.', uz: "To'g'ri. Soat sakkiz." } },
-      { name: { ru: '2:45', uz: '2:45' }, q: { ru: 'Где показано два сорок пять?', uz: "Qayerda ikki qirq besh ko'rsatilgan?" },
+        wrong: { ru: 'Восемь часов: короткая на восьми, длинная на двенадцати.', uz: "Soat sakkiz: kalta sakkizda, uzun o'n ikkida.", en: "Eight o'clock: the short hand on eight, the long hand on twelve." },
+        correct_text: { ru: 'Верно. Восемь часов.', uz: "To'g'ri. Soat sakkiz.", en: "That is right. Eight o'clock." } },
+      { name: { ru: '2:45', uz: '2:45', en: '2:45' }, q: { ru: 'Где показано два сорок пять?', uz: "Qayerda ikki qirq besh ko'rsatilgan?", en: 'Which one shows two forty five?' },
         choices: [{ h: 2, m: 45, ok: true }, { h: 9, m: 10 }, { h: 2, m: 15 }],
-        wrong: { ru: 'Два сорок пять: короткая почти у трёх, длинная на девяти.', uz: "Ikki qirq besh: kalta deyarli uchda, uzun to'qqizda." },
-        correct_text: { ru: 'Верно. Два сорок пять.', uz: "To'g'ri. Ikki qirq besh." } }
+        wrong: { ru: 'Два сорок пять: короткая почти у трёх, длинная на девяти.', uz: "Ikki qirq besh: kalta deyarli uchda, uzun to'qqizda.", en: 'Two forty five: the short hand almost at three, the long hand on nine.' },
+        correct_text: { ru: 'Верно. Два сорок пять.', uz: "To'g'ri. Ikki qirq besh.", en: 'That is right. Two forty five.' } }
     ],
     audio: {
-      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Выбери часы, которые показывают это время.', uz: "Shu vaqtni ko'rsatayotgan soatni tanlang.", en: 'Choose the clock that shows this time.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s12 — MASALA konteksti (ishlatilmaydi, klon an'anasi bo'yicha saqlanadi)
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi." },
-    audio: { ru: 'Бит смотрит на часы станции.', uz: "Bit stansiya soatiga qaraydi." }
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi.", en: 'Bit is checking the schedule.' },
+    audio: { ru: 'Бит смотрит на часы станции.', uz: "Bit stansiya soatiga qaraydi.", en: 'Bit is looking at the station clock.' }
   },
 
   // s13 — MASALA (ReadClockStage single): stansiya voqeasi 7:30 (yarim).
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    label: { ru: 'Расписание станции', uz: "Stansiya jadvali" },
-    story: { ru: 'Бит смотрит на часы станции.', uz: "Bit stansiya soatiga qaraydi." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    label: { ru: 'Расписание станции', uz: "Stansiya jadvali", en: 'The station timetable' },
+    story: { ru: 'Бит смотрит на часы станции.', uz: "Bit stansiya soatiga qaraydi.", en: 'Bit is looking at the station clock.' },
     mode: 'read',
     h: 7, m: 30,
-    q: { ru: 'Сколько времени на часах?', uz: "Soatda vaqt nechada?" },
+    q: { ru: 'Сколько времени на часах?', uz: "Soatda vaqt nechada?", en: 'What time does the clock say?' },
     opts: [
-      { ru: '7:30', uz: '7:30', ok: true },
-      { ru: '8:30', uz: '8:30', wrong: { ru: 'Короткая ещё у семи, не у восьми. Семь тридцать.', uz: "Kalta hali yettida, sakkizda emas. Yetti o'ttiz." } },
-      { ru: '7:06', uz: '7:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Семь тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Yetti o'ttiz." } }
+      { ru: '7:30', uz: '7:30', en: '7:30', ok: true },
+      { ru: '8:30', uz: '8:30', en: '8:30', wrong: { ru: 'Короткая ещё у семи, не у восьми. Семь тридцать.', uz: "Kalta hali yettida, sakkizda emas. Yetti o'ttiz.", en: 'The short hand is still by seven, not by eight. Seven thirty.' } },
+      { ru: '7:06', uz: '7:06', en: '7:06', wrong: { ru: 'Длинная на шести — это тридцать минут, не шесть. Семь тридцать.', uz: "Uzun oltida — bu o'ttiz daqiqa, olti emas. Yetti o'ttiz.", en: 'The long hand on six means thirty minutes, not six. Seven thirty.' } }
     ],
-    correct_text: { ru: 'Верно. Семь тридцать — время связи с Землёй.', uz: "To'g'ri. Yetti o'ttiz — Yer bilan aloqa vaqti." },
+    correct_text: { ru: 'Верно. Семь тридцать — время связи с Землёй.', uz: "To'g'ri. Yetti o'ttiz — Yer bilan aloqa vaqti.", en: 'That is right. Seven thirty, time for the call to Earth.' },
     audio: {
-      intro: { ru: 'Связь с Землёй по расписанию. Прочитай время на часах станции.', uz: "Jadval bo'yicha Yer bilan aloqa. Stansiya soatidagi vaqtni o'qing." },
-      on_correct: { ru: 'Верно. Семь тридцать.', uz: "To'g'ri. Yetti o'ttiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Связь с Землёй по расписанию. Прочитай время на часах станции.', uz: "Jadval bo'yicha Yer bilan aloqa. Stansiya soatidagi vaqtni o'qing.", en: 'The call to Earth is on the schedule. Read the time on the station clock.' },
+      on_correct: { ru: 'Верно. Семь тридцать.', uz: "To'g'ri. Yetti o'ttiz.", en: 'That is right. Seven thirty.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s14 — FINAL (ReadClockStage ×3 + FactCard Neptun): 6:00, 9:30, 4:15.
   s14: {
-    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv' },
-    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing" },
+    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv', en: 'Result · check' },
+    label: { ru: 'Прочитай время', uz: "Vaqtni o'qing", en: 'Read the time' },
     mode: 'read',
     rounds: [
-      { h: 6, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '6:00', uz: '6:00', ok: true }, { ru: '12:30', uz: '12:30', wrong: { ru: 'Стрелки перепутаны. Короткая на шести — часы. Шесть часов.', uz: "Strelkalar chalkash. Kalta oltida — soat. Soat olti." } }, { ru: '6:12', uz: '6:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Шесть часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat olti." } }],
-        correct_text: { ru: 'Верно. Шесть часов ровно.', uz: "To'g'ri. Roppa-rosa soat olti." } },
-      { h: 9, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '9:30', uz: '9:30', ok: true }, { ru: '10:30', uz: '10:30', wrong: { ru: 'Короткая ещё у девяти. Девять тридцать.', uz: "Kalta hali to'qqizda. To'qqiz o'ttiz." } }, { ru: '9:06', uz: '9:06', wrong: { ru: 'Длинная на шести — тридцать минут. Девять тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. To'qqiz o'ttiz." } }],
-        correct_text: { ru: 'Верно. Девять тридцать — полчаса.', uz: "To'g'ri. To'qqiz o'ttiz — yarim soat." } },
-      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?" },
-        opts: [{ ru: '4:15', uz: '4:15', ok: true }, { ru: '4:03', uz: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh." } }, { ru: '3:15', uz: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh." } }],
-        correct_text: { ru: 'Верно. Четыре пятнадцать — четверть.', uz: "To'g'ri. To'rt o'n besh — chorak." } }
+      { h: 6, m: 0, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '6:00', uz: '6:00', en: '6:00', ok: true }, { ru: '12:30', uz: '12:30', en: '12:30', wrong: { ru: 'Стрелки перепутаны. Короткая на шести — часы. Шесть часов.', uz: "Strelkalar chalkash. Kalta oltida — soat. Soat olti.", en: "The hands are mixed up. The short hand on six is the hour. Six o'clock." } }, { ru: '6:12', uz: '6:12', en: '6:12', wrong: { ru: 'Длинная на двенадцати — ноль минут. Шесть часов.', uz: "Uzun o'n ikkida — nol daqiqa. Soat olti.", en: "The long hand on twelve means no minutes. Six o'clock." } }],
+        correct_text: { ru: 'Верно. Шесть часов ровно.', uz: "To'g'ri. Roppa-rosa soat olti.", en: "That is right. Six o'clock exactly." } },
+      { h: 9, m: 30, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '9:30', uz: '9:30', en: '9:30', ok: true }, { ru: '10:30', uz: '10:30', en: '10:30', wrong: { ru: 'Короткая ещё у девяти. Девять тридцать.', uz: "Kalta hali to'qqizda. To'qqiz o'ttiz.", en: 'The short hand is still by nine. Nine thirty.' } }, { ru: '9:06', uz: '9:06', en: '9:06', wrong: { ru: 'Длинная на шести — тридцать минут. Девять тридцать.', uz: "Uzun oltida — o'ttiz daqiqa. To'qqiz o'ttiz.", en: 'The long hand on six means thirty minutes. Nine thirty.' } }],
+        correct_text: { ru: 'Верно. Девять тридцать — полчаса.', uz: "To'g'ri. To'qqiz o'ttiz — yarim soat.", en: 'That is right. Nine thirty, half past.' } },
+      { h: 4, m: 15, q: { ru: 'Сколько времени?', uz: "Soat nechada?", en: 'What time is it?' },
+        opts: [{ ru: '4:15', uz: '4:15', en: '4:15', ok: true }, { ru: '4:03', uz: '4:03', en: '4:03', wrong: { ru: 'Длинная на трёх — пятнадцать минут. Четыре пятнадцать.', uz: "Uzun uchda — o'n besh daqiqa. To'rt o'n besh.", en: 'The long hand on three means fifteen minutes. Four fifteen.' } }, { ru: '3:15', uz: '3:15', en: '3:15', wrong: { ru: 'Часы — по короткой: четыре. Четыре пятнадцать.', uz: "Soat — kalta bo'yicha: to'rt. To'rt o'n besh.", en: 'The hour comes from the short hand: four. Four fifteen.' } }],
+        correct_text: { ru: 'Верно. Четыре пятнадцать — четверть.', uz: "To'g'ri. To'rt o'n besh — chorak.", en: 'That is right. Four fifteen, a quarter past.' } }
     ],
-    fact_badge: { ru: 'Нептун', uz: 'Neptun' },
-    fact_text: { ru: 'Сутки на Нептуне — всего шестнадцать часов: планета крутится быстрее Земли.', uz: "Neptunda bir sutka — atigi o'n olti soat: sayyora Yerdan tezroq aylanadi." },
-    fact_audio: { ru: 'Сутки на Нептуне длятся всего шестнадцать часов. Планета крутится быстрее Земли.', uz: "Neptunda bir sutka atigi o'n olti soat davom etadi. Sayyora Yerdan tezroq aylanadi." },
+    fact_badge: { ru: 'Нептун', uz: 'Neptun', en: 'Neptune' },
+    fact_text: { ru: 'Сутки на Нептуне — всего шестнадцать часов: планета крутится быстрее Земли.', uz: "Neptunda bir sutka — atigi o'n olti soat: sayyora Yerdan tezroq aylanadi.", en: 'A day on Neptune is only sixteen hours: the planet spins faster than the Earth.' },
+    fact_audio: { ru: 'Сутки на Нептуне длятся всего шестнадцать часов. Планета крутится быстрее Земли.', uz: "Neptunda bir sutka atigi o'n olti soat davom etadi. Sayyora Yerdan tezroq aylanadi.", en: 'A day on Neptune lasts only sixteen hours. The planet spins faster than the Earth.' },
     audio: {
-      intro: { ru: 'Последняя проверка. Сначала короткая стрелка, потом длинная.', uz: "Oxirgi tekshiruv. Avval kalta strelka, keyin uzun." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Последняя проверка. Сначала короткая стрелка, потом длинная.', uz: "Oxirgi tekshiruv. Avval kalta strelka, keyin uzun.", en: 'The last check. The short hand first, then the long one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.39)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь читать время по часам!', uz: "Endi siz soatga qarab vaqtni o'qiy olasiz!" },
-    rule_recap: { ru: 'Короткая стрелка — часы, длинная — минуты. Каждый номер — пять минут. Половина часа — на шести, четверть — на трёх.', uz: "Kalta strelka — soat, uzun — daqiqa. Har raqam — besh daqiqa. Yarim soat — oltida, chorak — uchda." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты умеешь читать время по часам!', uz: "Endi siz soatga qarab vaqtni o'qiy olasiz!", en: 'Now you can tell the time on a clock!' },
+    rule_recap: { ru: 'Короткая стрелка — часы, длинная — минуты. Каждый номер — пять минут. Половина часа — на шести, четверть — на трёх.', uz: "Kalta strelka — soat, uzun — daqiqa. Har raqam — besh daqiqa. Yarim soat — oltida, chorak — uchda.", en: 'The short hand is the hours and the long hand is the minutes. Each number counts five minutes. Half past is on six and quarter past is on three.' },
     audio: {
       ru: 'Миссия выполнена. Мы научились читать время по часам. Короткая стрелка показывает часы, длинная, минуты, а каждый номер, это пять минут. Половина часа, длинная на шести, четверть, на трёх. Дальше мы продолжим путь домой.',
-      uz: "Missiya bajarildi. Soatga qarab vaqtni o'qishni o'rgandik. Kalta strelka soatni, uzun daqiqani ko'rsatadi, har bir raqam esa, besh daqiqa. Yarim soat, uzun oltida, chorak, uchda. Keyin uyga yo'lni davom ettiramiz."
+      uz: "Missiya bajarildi. Soatga qarab vaqtni o'qishni o'rgandik. Kalta strelka soatni, uzun daqiqani ko'rsatadi, har bir raqam esa, besh daqiqa. Yarim soat, uzun oltida, chorak, uchda. Keyin uyga yo'lni davom ettiramiz.",
+      en: 'Mission complete. We learned to tell the time on a clock. The short hand shows the hours, the long hand shows the minutes, and each number counts five minutes. Half past is the long hand on six, quarter past is on three. Next we carry on our way home.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Две стрелки.', uz: "Ikki strelka." },
-  s2:  { ru: 'А теперь полчаса.', uz: "Endi yarim soat." },
-  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Четверть часа.', uz: "Chorak soat." },
-  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti." },
-  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz." },
-  s6:  { ru: 'Выбери запись.', uz: "Yozuvni tanlang." },
-  s7:  { ru: 'Полчаса.', uz: "Yarim soat." },
-  s8:  { ru: 'Выбери часы.', uz: "Soatni tanlang." },
-  s9:  { ru: 'Четверть.', uz: "Chorak." },
-  s10: { ru: 'Каждый номер — пять минут.', uz: "Har raqam — besh daqiqa." },
-  s11: { ru: 'Снова выбери часы.', uz: "Yana soatni tanlang." },
-  s12: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi." },
-  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Путь домой продолжается!', uz: "Uyga yo'l davom etadi!" }
+  s1:  { ru: 'Две стрелки.', uz: "Ikki strelka.", en: 'Two hands.' },
+  s2:  { ru: 'А теперь полчаса.', uz: "Endi yarim soat.", en: 'And now half an hour.' },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz.", en: 'Let us write down the rule.' },
+  s4:  { ru: 'Четверть часа.', uz: "Chorak soat.", en: 'A quarter of an hour.' },
+  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti.", en: 'The key of the last planet.' },
+  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz.", en: 'Now on your own.' },
+  s6:  { ru: 'Выбери запись.', uz: "Yozuvni tanlang.", en: 'Choose the way of writing it.' },
+  s7:  { ru: 'Полчаса.', uz: "Yarim soat.", en: 'Half an hour.' },
+  s8:  { ru: 'Выбери часы.', uz: "Soatni tanlang.", en: 'Choose the clock.' },
+  s9:  { ru: 'Четверть.', uz: "Chorak.", en: 'Quarter past.' },
+  s10: { ru: 'Каждый номер — пять минут.', uz: "Har raqam — besh daqiqa.", en: 'Each number counts five minutes.' },
+  s11: { ru: 'Снова выбери часы.', uz: "Yana soatni tanlang.", en: 'Choose the clock again.' },
+  s12: { ru: 'Бит сверяет расписание.', uz: "Bit jadvalni tekshiradi.", en: 'Bit is checking the schedule.' },
+  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering.", en: 'Help Bit.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Путь домой продолжается!', uz: "Uyga yo'l davom etadi!", en: 'The way home carries on!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'На станции у Нептуна экипаж сверил время по часам. Путь домой продолжается! Спасибо за помощь.',
-  uz: "Neptun yonidagi stansiyada ekipaj soatga qarab vaqtni tekshirdi. Uyga yo'l davom etadi! Yordamingiz uchun rahmat."
+  uz: "Neptun yonidagi stansiyada ekipaj soatga qarab vaqtni tekshirdi. Uyga yo'l davom etadi! Yordamingiz uchun rahmat.",
+  en: 'At the station by Neptune the crew checked the time on the clock. The way home carries on! Thank you for your help.'
 };
 
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1466,7 +1503,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1483,7 +1520,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2240,7 +2278,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2716,7 +2760,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3009,8 +3053,8 @@ const Screen1 = (props) => {
           {/* ikki strelka: kalta=soat (accent), uzun=daqiqa (blue); 3:00 */}
           <ClockFace h={3} m={0}/>
           <div style={{ display: 'flex', gap: 'clamp(10px,3vw,22px)', flexWrap: 'wrap', justifyContent: 'center' }}>
-            {step >= 1 && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'короткая — часы', uz: 'kalta — soat' })}</span>}
-            {revealSol && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.blue, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'длинная — минуты', uz: 'uzun — daqiqa' })}</span>}
+            {step >= 1 && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'короткая — часы', uz: 'kalta — soat', en: 'short hand, hours' })}</span>}
+            {revealSol && <span className="g1-pop-in" style={{ fontWeight: 800, color: T.blue, fontSize: 'clamp(13px,2.1vw,16px)' }}>{t({ ru: 'длинная — минуты', uz: 'uzun — daqiqa', en: 'long hand, minutes' })}</span>}
           </div>
           {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(18px,3.2vw,24px)', fontFamily: "'JetBrains Mono',monospace" }}>3:00</div>}
         </div>
@@ -3100,7 +3144,7 @@ const Screen2 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
           {/* yarim soat: uzun strelka 6 da = 30 daqiqa = siferblat yarmi (3:30) */}
           <ClockFace h={3} m={30}/>
-          {reveal >= 1 && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'полчаса — тридцать минут', uz: "yarim soat — o'ttiz daqiqa" })}</div>}
+          {reveal >= 1 && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'полчаса — тридцать минут', uz: "yarim soat — o'ttiz daqiqa", en: 'half an hour, thirty minutes' })}</div>}
           {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(18px,3.2vw,24px)', fontFamily: "'JetBrains Mono',monospace" }}>3:30</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
@@ -3392,8 +3436,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3439,9 +3483,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3644,7 +3688,7 @@ const Screen4 = (props) => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.4vw,10px)' }}>
             {/* CHORAK: uzun strelka 3 da = 15 daqiqa (2:15) */}
             <ClockFace h={c.fig.h} m={c.fig.m}/>
-            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'на трёх — пятнадцать минут', uz: "uchda — o'n besh daqiqa" })}</div>}
+            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'на трёх — пятнадцать минут', uz: "uchda — o'n besh daqiqa", en: 'on three, fifteen minutes' })}</div>}
           </div>
         </div>
         <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
@@ -3973,12 +4017,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4326,9 +4372,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4336,15 +4382,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4358,8 +4404,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4368,14 +4414,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4391,16 +4437,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4408,14 +4454,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4492,8 +4538,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4667,7 +4713,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <NeptunField label={{ ru: 'Время освоено', uz: "Vaqt o'qildi" }}/>
+          <NeptunField label={{ ru: 'Время освоено', uz: "Vaqt o'qildi", en: 'Telling the time is sorted' }}/>
         </div>
       </div>
     </Stage>
@@ -4678,14 +4724,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4995,7 +5041,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -5025,8 +5071,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5155,8 +5201,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5425,7 +5471,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5554,7 +5600,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5628,7 +5674,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5717,7 +5763,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5897,8 +5943,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6056,7 +6102,7 @@ const SumFig = ({ shape, sides, reveal = false, labels = true, hi = null }) => {
   );
 };
 const sumPerim = (sides, shape) => shape === 'rect' ? 2 * (sides[0] + sides[1]) : sides[0] + sides[1] + sides[2];
-const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" };
+const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' };
 // PerimStage — round.mode: 'geo' {verts} / 'sum' {shape,sides}. MC son. Distraktor = qo'shni son.
 const PerimStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -6127,10 +6173,10 @@ const PerimStage = ({ props, cKey, fact = false }) => {
 //  BuildStage — eni/bo'yi stepperlari bilan to'rtburchak yasab, «Tekshir» bosiladi (geoboard jonli preview).
 //  PickStage — berilgan o'lchamga (spec) mos shaklni 3 tadan tanlash (GeoFig previewlar).
 // ============================================================
-const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:" };
-const B_ENI = { ru: 'ширина', uz: 'eni' };
-const B_BOYI = { ru: 'высота', uz: "bo'yi" };
-const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring' };
+const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:", en: 'Draw a rectangle:' };
+const B_ENI = { ru: 'ширина', uz: 'eni', en: 'width' };
+const B_BOYI = { ru: 'высота', uz: "bo'yi", en: 'height' };
+const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring', en: 'Check' };
 const rectVerts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
 const STEP_BTN = { width: 'clamp(36px,8vw,44px)', height: 'clamp(36px,8vw,44px)', borderRadius: 10, border: `2px solid ${T.accent}`, background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(20px,3.4vw,26px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 };
 const Stepper = ({ label, value, onDec, onInc, disabled }) => (
@@ -6207,7 +6253,7 @@ const RectBuildStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" };
+const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?", en: 'Which shape fits?' };
 const PickStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6260,14 +6306,14 @@ const PickStage = ({ props, cKey, fact = false }) => {
 };
 // ============================================================
 // --- Geometriya mexanikalari (LEN/POLY/PERIM/CHAIN) — Dars32 da hammasi O'LIK KOD (klon an'anasi) ---
-const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
-const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm', en: 'cm' }, dm: { ru: 'дм', uz: 'dm', en: 'dm' }, m: { ru: 'м', uz: 'm', en: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr', en: 'centimetre' }, dm: { ru: 'дециметр', uz: 'detsimetr', en: 'decimetre' }, m: { ru: 'метр', uz: 'metr', en: 'metre' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
 const RUL_STEP = 26, RUL_PAD = 16;
 const LEN_Q = {
-  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' }
 };
 const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
@@ -6422,7 +6468,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
   );
 };
 // --- POLY (Dars27) mexanikasi — Dars31 da JONLI (s7: name/ispoly/count) ---
-const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak', en: 'A triangle' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak", en: 'A quadrilateral' }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak', en: 'A pentagon' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak', en: 'A hexagon' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
   <g>
@@ -6475,13 +6521,13 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
     </svg>
   );
 };
-const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
-const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
-const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
-const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?", en: 'Which polygon is this?' };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?", en: 'How many sides?' };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?", en: 'Is this a polygon?' };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak", en: 'A polygon' } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas", en: 'No' } }];
 const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
-const TOMON = { ru: 'стор.', uz: 'tomon' };
+const TOMON = { ru: 'стор.', uz: 'tomon', en: 'sides' };
 // deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
 const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 // PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
@@ -6531,7 +6577,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
           <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas", en: 'Not a polygon' })}</div>}
         </div>
         {!solved && (
           <>
@@ -6560,7 +6606,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
   );
 };
 // PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
-const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi", en: 'Draw a thread from a shape to its name and the hatch will open' };
 const PolyMatchStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6697,7 +6743,7 @@ const PolyMatchStage = ({ props, cKey }) => {
 //  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
 //  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
 // ============================================================
-const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
+const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' }, ray: { ru: 'Луч', uz: 'Nur', en: 'A ray' }, segment: { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' } };
 const LT_ENDS = { line: 0, ray: 1, segment: 2 };
 // Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
 const LineEnd = ({ x, y, big }) => (
@@ -6801,8 +6847,8 @@ const RealObj = ({ kind }) => {
     </svg>
   );
 };
-const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
-const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
+const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?", en: 'What is this?' };
+const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' };
 const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 const LineTypeStage = ({ props, cKey, fact = false }) => {
@@ -6916,7 +6962,7 @@ const ExprText = ({ left, op, right, size = 'mid' }) => {
   );
 };
 
-const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?" };
+const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?", en: 'What is the value?' };
 const evalVal = (r) => (r.op === '+' ? r.val + r.n : r.val - r.n);
 const evalOpts = (r, seed) => {
   const c = evalVal(r);
@@ -6991,8 +7037,8 @@ const EvalStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?" };
-const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli' } }];
+const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?", en: 'A number one or a letter one?' };
+const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli', en: 'A number one' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli', en: 'A letter one' } }];
 // ClassifyStage — ifoda sonli yoki harfli? (harf bo'lsa harfli).
 const ClassifyStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7052,7 +7098,7 @@ const PICK_PROMPT = {
   '+': { ru: (l, n) => `Прибавить к ${l} число ${n}`, uz: (l, n) => `${l} ga ${n} sonini qo'shish` },
   '−': { ru: (l, n) => `Вычесть из ${l} число ${n}`, uz: (l, n) => `${l} dan ${n} sonini ayirish` }
 };
-const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?" };
+const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?", en: 'Which expression fits?' };
 // PickExprStage — so'zga mos ifodani tanla. Variantlar: to'g'ri (letter op n), teskari amal, yopishtirilgan (letter n).
 const PickExprStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7306,7 +7352,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -7394,8 +7440,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -8380,7 +8426,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

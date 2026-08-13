@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -180,7 +205,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -215,7 +240,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -582,12 +608,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -703,7 +729,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -752,9 +778,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК + анимации (CSS-only loop, синяя тема)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -836,8 +862,8 @@ const NumberLine = ({ den = 4, max = 1, mark = null, showMark = true, interactiv
 // --- POD UROK: frac_5_02 — Дробь на числовой прямой / Kasr sonlar nurida ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-02-v1',
-  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr sonlar nurida" }
+  lessonId: 'grade5-10',
+  lessonTitle: { ru: 'Дробь на числовой прямой', uz: "Kasr sonlar nurida", en: 'Fractions on the number line' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -861,24 +887,24 @@ const SCREEN_META = [
 const CONTENT = {
   // ---- s0 HOOK: Малика хочет отметить 3/4 на линии, Жасур: «это просто кусок, не место» ----
   s0: {
-    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr sonlar nurida · kirish" },
-    title: { ru: 'Малика чертит линейку от 0 до 1 и хочет отметить на ней три четвёртых.', uz: "Malika 0 dan 1 gacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi." },
-    body: { ru: 'Жасур качает головой: «три четвёртых — это же просто кусок, его нельзя поставить точкой на линии. Это не настоящее число с местом».', uz: "Jasur bosh chayqaydi: «to'rtdan uch — bu shunchaki bir bo'lak-ku, uni chiziqqa nuqta qilib qo'yib bo'lmaydi. Bu o'z joyi bor haqiqiy son emas»." },
-    question: { ru: 'А ты как думаешь: можно ли поставить три четвёртых одной точкой на линии между 0 и 1?', uz: "Sizningcha-chi: to'rtdan uchni 0 va 1 orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi?" },
-    opt0: { ru: 'Да — у дроби есть своё место на линии', uz: "Ha — kasrning chiziqda o'z joyi bor" },
-    opt1: { ru: 'Нет — дробь это только кусок, а не место', uz: "Yo'q — kasr faqat bo'lak, joy emas" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Малика чертит линейку от нуля до единицы и хочет отметить на ней три четвёртых. Жасур говорит, что три четвёртых это просто кусок, его нельзя поставить точкой. А ты как думаешь — можно ли поставить три четвёртых одной точкой на линии между нулём и единицей? Выбери ответ.', uz: "Malika noldan birgacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi. Jasur aytadiki, to'rtdan uch shunchaki bo'lak, uni nuqta qilib qo'yib bo'lmaydi. Sizningcha, to'rtdan uchni nol va bir orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi? Javobni tanlang." }
+    eyebrow: { ru: 'Дробь на прямой · вступление', uz: "Kasr sonlar nurida · kirish", en: 'Fractions on the line · introduction' },
+    title: { ru: 'Малика чертит линейку от 0 до 1 и хочет отметить на ней три четвёртых.', uz: "Malika 0 dan 1 gacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi.", en: 'Malika is drawing a scale from 0 to 1 and wants to mark three quarters on it.' },
+    body: { ru: 'Жасур качает головой: «три четвёртых — это же просто кусок, его нельзя поставить точкой на линии. Это не настоящее число с местом».', uz: "Jasur bosh chayqaydi: «to'rtdan uch — bu shunchaki bir bo'lak-ku, uni chiziqqa nuqta qilib qo'yib bo'lmaydi. Bu o'z joyi bor haqiqiy son emas».", en: 'Jasur shakes his head: three quarters is just a piece, you cannot put it on a line as a point. It is not a real number with a place of its own.' },
+    question: { ru: 'А ты как думаешь: можно ли поставить три четвёртых одной точкой на линии между 0 и 1?', uz: "Sizningcha-chi: to'rtdan uchni 0 va 1 orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi?", en: 'What do you think: can three quarters be put as a single point on the line between 0 and 1?' },
+    opt0: { ru: 'Да — у дроби есть своё место на линии', uz: "Ha — kasrning chiziqda o'z joyi bor", en: 'Yes, a fraction has its own place on the line' },
+    opt1: { ru: 'Нет — дробь это только кусок, а не место', uz: "Yo'q — kasr faqat bo'lak, joy emas", en: 'No, a fraction is only a piece, not a place' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    audio: { ru: 'Малика чертит линейку от нуля до единицы и хочет отметить на ней три четвёртых. Жасур говорит, что три четвёртых это просто кусок, его нельзя поставить точкой. А ты как думаешь — можно ли поставить три четвёртых одной точкой на линии между нулём и единицей? Выбери ответ.', uz: "Malika noldan birgacha chizg'ich chizadi va unda to'rtdan uchni belgilamoqchi. Jasur aytadiki, to'rtdan uch shunchaki bo'lak, uni nuqta qilib qo'yib bo'lmaydi. Sizningcha, to'rtdan uchni nol va bir orasidagi chiziqqa bitta nuqta bilan qo'yish mumkinmi? Javobni tanlang.", en: 'Malika is drawing a scale from zero to one and wants to mark three quarters on it. Jasur says that three quarters is just a piece and cannot be put as a point. What do you think, can three quarters be put as a single point on the line between zero and one? Choose an answer.' }
   },
 
   // ---- s1 EXPLORATION (step-by-step): ставим 3/4 на отрезок 0..1 ----
   s1: {
-    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr sonlar nurida" },
-    title: { ru: 'Поставим 3/4 на линию по шагам', uz: "3/4 ni chiziqqa bosqichma-bosqich qo'yamiz" },
-    bridge: { ru: 'Жасур сказал «нельзя». Давай проверим — поставим три четвёртых на линию по шагам.', uz: "Jasur «bo'lmaydi» dedi. Keling, tekshiramiz — to'rtdan uchni chiziqqa bosqichma-bosqich qo'yamiz." },
-    conclusion: { ru: 'Три четвёртых — это точка: 3 шага из 4 от нуля.', uz: "To'rtdan uch — bu nuqta: noldan 4 qadamdan 3 tasi." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
+    eyebrow: { ru: 'Дробь на прямой', uz: "Kasr sonlar nurida", en: 'Fractions on the line' },
+    title: { ru: 'Поставим 3/4 на линию по шагам', uz: "3/4 ni chiziqqa bosqichma-bosqich qo'yamiz", en: 'Let us put 3/4 on the line step by step' },
+    bridge: { ru: 'Жасур сказал «нельзя». Давай проверим — поставим три четвёртых на линию по шагам.', uz: "Jasur «bo'lmaydi» dedi. Keling, tekshiramiz — to'rtdan uchni chiziqqa bosqichma-bosqich qo'yamiz.", en: 'Jasur said it cannot be done. Let us check by putting three quarters on the line step by step.' },
+    conclusion: { ru: 'Три четвёртых — это точка: 3 шага из 4 от нуля.', uz: "To'rtdan uch — bu nuqta: noldan 4 qadamdan 3 tasi.", en: 'Three quarters is a point: 3 steps out of 4 from zero.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?", en: 'Got it. Is there a rule?' },
     audio: {
       ru: [
         'Поставим три четвёртых на линию по шагам. Нажимай кнопку Дальше.',
@@ -891,47 +917,48 @@ const CONTENT = {
         "Mana noldan birgacha kesma. Bu — bizning butunimiz, o'tgan darsdagi chiziqdek, faqat uzunasiga cho'zilgan.",
         "Maxraj to'rt. Demak, noldan birgacha kesmani to'rtta teng bo'lakka bo'lamiz. Belgilar paydo bo'ldi: to'rtdan bir, to'rtdan ikki, to'rtdan uch.",
         "Surat uch. Noldan uch qadam sanab, nuqta qo'yamiz. Mana shu nuqta — to'rtdan uch. Kasr chiziqda o'z joyini topdi."
-      ]
+      ],
+      en: ['Let us put three quarters on the line step by step. Tap the next button.', 'Here is the piece from zero to one. This is our whole, like the bar in the last lesson but stretched out into a line.', 'The denominator is four, so we split the piece from zero to one into four equal parts. Marks appear: one quarter, two quarters, three quarters.', 'The numerator is three, so we count three steps from zero and put the point there. That point is three quarters, and the fraction has found its own place on the line.']
     }
   },
 
   // ---- s2 EXPLORATION (slider + tap): поставь 2/5 сам ----
   s2: {
-    eyebrow: { ru: 'Поставь сам', uz: "O'zingiz qo'ying" },
-    title: { ru: 'Поставь дробь на линию сам', uz: "Kasrni chiziqqa o'zingiz qo'ying" },
-    intro: { ru: 'Двигай ползунок — меняй, на сколько равных частей делим отрезок от 0 до 1. Нажми на нужную метку, чтобы поставить точку.', uz: "Slayderni suring — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lishni o'zgartiring. Nuqta qo'yish uchun kerakli belgini bosing." },
-    target_text: { ru: 'Цель: поставь две пятых — раздели на 5 частей и отметь вторую метку от нуля.', uz: "Maqsad: beshdan ikkini qo'ying — 5 ta bo'lakka bo'ling va noldan ikkinchi belgini belgilang." },
-    eyebrow_slider: { ru: 'Равных частей:', uz: "Teng bo'laklar:" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала поставь', uz: "Avval qo'ying" },
-    fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Это две пятых: отрезок поделён на 5 равных частей, точка на второй метке от нуля.', uz: "Bu — beshdan ikki: kesma 5 ta teng bo'lakka bo'lingan, nuqta noldan ikkinchi belgida." },
-    fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужно 5 равных частей и точка на второй метке. Поставь ползунок на 5 и нажми вторую метку от нуля.', uz: "5 ta teng bo'lak va ikkinchi belgida nuqta kerak. Slayderni 5 ga qo'ying va noldan ikkinchi belgini bosing." },
-    audio: { ru: 'Поставь дробь на линию сам. Двигай ползунок, чтобы выбрать число равных частей, и нажми на метку, чтобы поставить точку. Твоя цель — две пятых: пять равных частей, точка на второй метке от нуля.', uz: "Kasrni chiziqqa o'zingiz qo'ying. Teng bo'laklar sonini tanlash uchun slayderni suring va nuqta qo'yish uchun belgini bosing. Maqsadingiz — beshdan ikki: beshta teng bo'lak, nuqta noldan ikkinchi belgida." }
+    eyebrow: { ru: 'Поставь сам', uz: "O'zingiz qo'ying", en: 'Do it yourself' },
+    title: { ru: 'Поставь дробь на линию сам', uz: "Kasrni chiziqqa o'zingiz qo'ying", en: 'Put the fraction on the line yourself' },
+    intro: { ru: 'Двигай ползунок — меняй, на сколько равных частей делим отрезок от 0 до 1. Нажми на нужную метку, чтобы поставить точку.', uz: "Slayderni suring — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lishni o'zgartiring. Nuqta qo'yish uchun kerakli belgini bosing.", en: 'Move the slider to change how many equal parts the piece from 0 to 1 is split into. Tap the right mark to put the point there.' },
+    target_text: { ru: 'Цель: поставь две пятых — раздели на 5 частей и отметь вторую метку от нуля.', uz: "Maqsad: beshdan ikkini qo'ying — 5 ta bo'lakka bo'ling va noldan ikkinchi belgini belgilang.", en: 'Your goal: put two fifths there, so split it into 5 parts and mark the second mark from zero.' },
+    eyebrow_slider: { ru: 'Равных частей:', uz: "Teng bo'laklar:", en: 'Equal parts:' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    btn_disabled_label: { ru: 'Сначала поставь', uz: "Avval qo'ying", en: 'Put the point first' },
+    fb_success_title: { ru: 'Верно', uz: "To'g'ri", en: 'Correct' },
+    fb_success: { ru: 'Это две пятых: отрезок поделён на 5 равных частей, точка на второй метке от нуля.', uz: "Bu — beshdan ikki: kesma 5 ta teng bo'lakka bo'lingan, nuqta noldan ikkinchi belgida.", en: 'This is two fifths: the piece is split into 5 equal parts and the point is on the second mark from zero.' },
+    fb_wrong_title: { ru: 'Почти', uz: "Deyarli", en: 'Almost' },
+    fb_wrong: { ru: 'Нужно 5 равных частей и точка на второй метке. Поставь ползунок на 5 и нажми вторую метку от нуля.', uz: "5 ta teng bo'lak va ikkinchi belgida nuqta kerak. Slayderni 5 ga qo'ying va noldan ikkinchi belgini bosing.", en: 'You need 5 equal parts with the point on the second mark. Set the slider to 5 and tap the second mark from zero.' },
+    audio: { ru: 'Поставь дробь на линию сам. Двигай ползунок, чтобы выбрать число равных частей, и нажми на метку, чтобы поставить точку. Твоя цель — две пятых: пять равных частей, точка на второй метке от нуля.', uz: "Kasrni chiziqqa o'zingiz qo'ying. Teng bo'laklar sonini tanlash uchun slayderni suring va nuqta qo'yish uchun belgini bosing. Maqsadingiz — beshdan ikki: beshta teng bo'lak, nuqta noldan ikkinchi belgida.", en: 'Put the fraction on the line yourself. Move the slider to choose the number of equal parts and tap a mark to put the point there. Your goal is two fifths: five equal parts with the point on the second mark from zero.' }
   },
 
   // ---- s3 RULE: как поставить дробь на прямую ----
   s3: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Ты поставил точку сам. Теперь соберём это в правило.', uz: "Nuqtani o'zingiz qo'ydingiz. Endi buni qoidaga yig'amiz." },
-    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni sonlar nuriga qanday qo'yish" },
-    title: { ru: 'Дробь — это число, у него есть место на линии.', uz: "Kasr — bu son, uning chiziqda joyi bor." },
-    card_bottom: { ru: 'Знаменатель — на сколько равных частей делим отрезок от 0 до 1.', uz: "Maxraj — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lamiz." },
-    card_top: { ru: 'Числитель — сколько шагов отсчитываем от нуля.', uz: "Surat — noldan nechta qadam sanaymiz." },
-    card_line: { ru: 'Метка, на которой остановились, — это и есть место дроби.', uz: "To'xtagan belgimiz — kasrning o'sha joyi." },
-    outro: { ru: 'Знаменатель 4 делит отрезок на 4 части, числитель 3 отсчитывает 3 шага — и точка три четвёртых готова.', uz: "Maxraj 4 kesmani 4 bo'lakka bo'ladi, surat 3 esa 3 qadam sanaydi — va to'rtdan uch nuqtasi tayyor." },
-    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni sonlar nuriga qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Ты поставил точку сам. Теперь соберём это в правило.', uz: "Nuqtani o'zingiz qo'ydingiz. Endi buni qoidaga yig'amiz.", en: 'You have put the point there yourself. Now let us turn it into a rule.' },
+    label: { ru: 'Как поставить дробь на прямую', uz: "Kasrni sonlar nuriga qanday qo'yish", en: 'How to put a fraction on the line' },
+    title: { ru: 'Дробь — это число, у него есть место на линии.', uz: "Kasr — bu son, uning chiziqda joyi bor.", en: 'A fraction is a number, and it has a place on the line.' },
+    card_bottom: { ru: 'Знаменатель — на сколько равных частей делим отрезок от 0 до 1.', uz: "Maxraj — 0 dan 1 gacha kesmani nechta teng bo'lakka bo'lamiz.", en: 'The denominator is how many equal parts the piece from 0 to 1 is split into.' },
+    card_top: { ru: 'Числитель — сколько шагов отсчитываем от нуля.', uz: "Surat — noldan nechta qadam sanaymiz.", en: 'The numerator is how many steps we count from zero.' },
+    card_line: { ru: 'Метка, на которой остановились, — это и есть место дроби.', uz: "To'xtagan belgimiz — kasrning o'sha joyi.", en: 'The mark you stop on is the place of the fraction.' },
+    outro: { ru: 'Знаменатель 4 делит отрезок на 4 части, числитель 3 отсчитывает 3 шага — и точка три четвёртых готова.', uz: "Maxraj 4 kesmani 4 bo'lakka bo'ladi, surat 3 esa 3 qadam sanaydi — va to'rtdan uch nuqtasi tayyor.", en: 'The denominator 4 splits the piece into 4 parts and the numerator 3 counts 3 steps, and the point for three quarters is ready.' },
+    audio: { ru: 'Чтобы поставить дробь на прямую, смотри на знаменатель и числитель. Знаменатель показывает, на сколько равных частей разделить отрезок от нуля до единицы. Числитель показывает, сколько шагов отсчитать от нуля. Метка, на которой остановились, и есть место дроби. Для трёх четвёртых делим на четыре части и отсчитываем три шага.', uz: "Kasrni sonlar nuriga qo'yish uchun maxraj va suratga qarang. Maxraj noldan birgacha kesmani nechta teng bo'lakka bo'lishni ko'rsatadi. Surat noldan nechta qadam sanashni ko'rsatadi. To'xtagan belgimiz — kasrning joyi. To'rtdan uch uchun to'rt bo'lakka bo'lib, uch qadam sanaymiz.", en: 'To put a fraction on the line, look at the denominator and the numerator. The denominator shows how many equal parts to split the piece from zero to one into. The numerator shows how many steps to count from zero. The mark you stop on is the place of the fraction. For three quarters we split it into four parts and count three steps.' }
   },
 
   // ---- s4 TEST (tap-on-line, ketma-ket): поставь точку — 5 примеров от простого к сложному ----
   s4: {
-    eyebrow: { ru: 'Тренировка · поставь точку', uz: "Mashq · nuqta qo'ying" },
-    bridge: { ru: 'Правило знаем — теперь поставь точки сам, от простого к сложному.', uz: "Qoidani bilamiz — endi nuqtalarni o'zingiz qo'ying, osondan qiyinga." },
-    title: { ru: 'Поставь точку на прямой', uz: "Nuqtani sonlar nuriga qo'ying" },
-    lead: { ru: 'Пять дробей по очереди. Нажми метку, где стоит дробь. От простого к сложному.', uz: "Beshta kasr navbatma-navbat. Kasr turgan belgini bosing. Osondan qiyinga." },
-    ask: { ru: 'Поставь точку на:', uz: "Nuqtani shu yerga qo'ying:" },
-    hint: { ru: 'Знаменатель — на сколько частей делим каждый отрезок от целого к целому. Числитель — сколько шагов от нуля.', uz: "Maxraj — har bir butun oralig'ini nechta bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
+    eyebrow: { ru: 'Тренировка · поставь точку', uz: "Mashq · nuqta qo'ying", en: 'Practice · put the point' },
+    bridge: { ru: 'Правило знаем — теперь поставь точки сам, от простого к сложному.', uz: "Qoidani bilamiz — endi nuqtalarni o'zingiz qo'ying, osondan qiyinga.", en: 'We know the rule, so now put the points there yourself, from easy to hard.' },
+    title: { ru: 'Поставь точку на прямой', uz: "Nuqtani sonlar nuriga qo'ying", en: 'Put the point on the line' },
+    lead: { ru: 'Пять дробей по очереди. Нажми метку, где стоит дробь. От простого к сложному.', uz: "Beshta kasr navbatma-navbat. Kasr turgan belgini bosing. Osondan qiyinga.", en: 'Five fractions one by one. Tap the mark where the fraction goes. From easy to hard.' },
+    ask: { ru: 'Поставь точку на:', uz: "Nuqtani shu yerga qo'ying:", en: 'Put the point on:' },
+    hint: { ru: 'Знаменатель — на сколько частей делим каждый отрезок от целого к целому. Числитель — сколько шагов от нуля.', uz: "Maxraj — har bir butun oralig'ini nechta bo'lakka bo'lamiz. Surat — noldan nechta qadam.", en: 'The denominator is how many parts each piece from one whole number to the next is split into. The numerator is how many steps from zero.' },
     items: [
       { num: 1, den: 2, max: 1 },
       { num: 1, den: 4, max: 1 },
@@ -940,210 +967,210 @@ const CONTENT = {
       { num: 3, den: 2, max: 2 }
     ],
     audio: {
-      intro: { ru: 'Поставь точки сам, от простого к сложному. Нажимай метку, где стоит дробь. Знаменатель показывает число частей, числитель — число шагов от нуля.', uz: "Nuqtalarni o'zingiz qo'ying, osondan qiyinga. Kasr turgan belgini bosing. Maxraj bo'laklar sonini, surat noldan qadamlar sonini ko'rsatadi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пока нет. Числитель — сколько шагов от нуля. Отсчитай заново.', uz: "Hali emas. Surat — noldan nechta qadam. Qaytadan sanang." },
-      on_done: { ru: 'Отлично, все пять точек на месте.', uz: "Zo'r, beshala nuqta joyida." }
+      intro: { ru: 'Поставь точки сам, от простого к сложному. Нажимай метку, где стоит дробь. Знаменатель показывает число частей, числитель — число шагов от нуля.', uz: "Nuqtalarni o'zingiz qo'ying, osondan qiyinga. Kasr turgan belgini bosing. Maxraj bo'laklar sonini, surat noldan qadamlar sonini ko'rsatadi.", en: 'Put the points there yourself, from easy to hard. Tap the mark where the fraction goes. The denominator shows the number of parts and the numerator the number of steps from zero.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Пока нет. Числитель — сколько шагов от нуля. Отсчитай заново.', uz: "Hali emas. Surat — noldan nechta qadam. Qaytadan sanang.", en: 'Not yet. The numerator is how many steps from zero. Count them again.' },
+      on_done: { ru: 'Отлично, все пять точек на месте.', uz: "Zo'r, beshala nuqta joyida.", en: 'Well done, all five points are in place.' }
     }
   },
 
   // ---- s5 RULE: линия не кончается на 1 — отрезок 0..2, точка 3/2 ----
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'За единицей', uz: "Birdan keyin" },
-    title: { ru: 'Линия не кончается на 1.', uz: "Chiziq 1 da tugamaydi." },
-    card_ok: { ru: 'После 1 линия продолжается: те же равные части идут дальше — к 2 и больше.', uz: "1 dan keyin chiziq davom etadi: o'sha teng bo'laklar yana ketadi — 2 ga va undan nariga." },
-    card_bad: { ru: 'Три вторых — это три половинки: один целый и ещё половина. Точка стоит за единицей.', uz: "Ikkidan uch — bu uchta yarim: bitta butun va yana yarim. Nuqta birdan keyin turadi." },
-    outro: { ru: 'Знаменатель 2 делит каждую единицу пополам. Отсчитываем 3 половинки от нуля — попадаем между 1 и 2.', uz: "Maxraj 2 har bir birlikni teng ikkiga bo'ladi. Noldan 3 ta yarimni sanaymiz — 1 va 2 orasiga tushamiz." },
-    audio: { ru: 'Линия не кончается на единице. После единицы те же равные части продолжаются дальше, к двойке. Три вторых — это три половинки: целое и ещё половина. Знаменатель два делит каждую единицу пополам, а числитель три отсчитывает три половинки. Точка три вторых стоит между единицей и двойкой.', uz: "Chiziq birda tugamaydi. Birdan keyin o'sha teng bo'laklar ikki tomon davom etadi. Ikkidan uch — bu uchta yarim: butun va yana yarim. Maxraj ikki har bir birlikni yarimga bo'ladi, surat uch esa uchta yarimni sanaydi. Ikkidan uch nuqtasi bir va ikki orasida turadi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    label: { ru: 'За единицей', uz: "Birdan keyin", en: 'Past one' },
+    title: { ru: 'Линия не кончается на 1.', uz: "Chiziq 1 da tugamaydi.", en: 'The line does not stop at 1.' },
+    card_ok: { ru: 'После 1 линия продолжается: те же равные части идут дальше — к 2 и больше.', uz: "1 dan keyin chiziq davom etadi: o'sha teng bo'laklar yana ketadi — 2 ga va undan nariga.", en: 'After 1 the line carries on: the same equal parts go further, on to 2 and beyond.' },
+    card_bad: { ru: 'Три вторых — это три половинки: один целый и ещё половина. Точка стоит за единицей.', uz: "Ikkidan uch — bu uchta yarim: bitta butun va yana yarim. Nuqta birdan keyin turadi.", en: 'Three halves is three half pieces: one whole and another half. The point is past one.' },
+    outro: { ru: 'Знаменатель 2 делит каждую единицу пополам. Отсчитываем 3 половинки от нуля — попадаем между 1 и 2.', uz: "Maxraj 2 har bir birlikni teng ikkiga bo'ladi. Noldan 3 ta yarimni sanaymiz — 1 va 2 orasiga tushamiz.", en: 'The denominator 2 splits every unit in half. We count 3 halves from zero and land between 1 and 2.' },
+    audio: { ru: 'Линия не кончается на единице. После единицы те же равные части продолжаются дальше, к двойке. Три вторых — это три половинки: целое и ещё половина. Знаменатель два делит каждую единицу пополам, а числитель три отсчитывает три половинки. Точка три вторых стоит между единицей и двойкой.', uz: "Chiziq birda tugamaydi. Birdan keyin o'sha teng bo'laklar ikki tomon davom etadi. Ikkidan uch — bu uchta yarim: butun va yana yarim. Maxraj ikki har bir birlikni yarimga bo'ladi, surat uch esa uchta yarimni sanaydi. Ikkidan uch nuqtasi bir va ikki orasida turadi.", en: 'The line does not stop at one. After one the same equal parts carry on further, on to two. Three halves is three half pieces: a whole and another half. The denominator two splits every unit in half and the numerator three counts three halves. The point for three halves is between one and two.' }
   },
 
   // ---- s6 TEST (MC, дроби): линия 0..2 в половинках, точка на 3/2 (correct idx 0) ----
   s6: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Точка за единицей', uz: "Birdan keyingi nuqta" },
-    question: { ru: 'Линия от 0 до 2 разделена на половинки. Точка стоит между 1 и 2, на третьей метке от нуля. Какая это дробь?', uz: "0 dan 2 gacha chiziq yarimlarga bo'lingan. Nuqta 1 va 2 orasida, noldan uchinchi belgida turibdi. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых, между 1 и 2.', uz: "To'g'ri: yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch, 1 va 2 orasida." },
-    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 3, а делим на 2.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'lamiz esa 2 ga." },
-    hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq." },
-    hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas." },
-    wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch." },
-    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu sonlar nurining uzoq ajdodi." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    label: { ru: 'Точка за единицей', uz: "Birdan keyingi nuqta", en: 'A point past one' },
+    question: { ru: 'Линия от 0 до 2 разделена на половинки. Точка стоит между 1 и 2, на третьей метке от нуля. Какая это дробь?', uz: "0 dan 2 gacha chiziq yarimlarga bo'lingan. Nuqta 1 va 2 orasida, noldan uchinchi belgida turibdi. Bu qaysi kasr?", en: 'The line from 0 to 2 is split into halves. The point is between 1 and 2, on the third mark from zero. Which fraction is it?' },
+    correct_text: { ru: 'Верно: половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых, между 1 и 2.', uz: "To'g'ri: yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch, 1 va 2 orasida.", en: 'That is right: halves mean a denominator of 2, and three steps from zero mean a numerator of 3. It is three halves, between 1 and 2.' },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 3, а делим на 2.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'lamiz esa 2 ga.", en: 'The numerator and denominator are swapped: there are 3 steps and we split into 2.' },
+    hint_2: { ru: 'Одна вторая стоит между 0 и 1, а наша точка — за единицей. Шагов больше.', uz: "Ikkidan bir 0 va 1 orasida turadi, bizning nuqta esa birdan keyin. Qadamlar ko'proq.", en: 'One half is between 0 and 1, but our point is past one. There are more steps than that.' },
+    hint_3: { ru: 'Здесь делим на половинки, знаменатель 2, а не 4.', uz: "Bu yerda yarimlarga bo'lamiz, maxraj 2, 4 emas.", en: 'Here we split into halves, so the denominator is 2, not 4.' },
+    wrong_default: { ru: 'Половинки — знаменатель 2, три шага от нуля — числитель 3. Это три вторых.', uz: "Yarimlar — maxraj 2, noldan uch qadam — surat 3. Bu ikkidan uch.", en: 'Halves mean a denominator of 2, and three steps from zero mean a numerator of 3. It is three halves.' },
+    fact: { ru: 'В древности расстояние мерили верёвкой с равными узлами: между узлами — одинаковые доли. Это далёкий предок числовой прямой.', uz: "Qadimda masofa teng tugunli arqon bilan o'lchangan: tugunlar orasi — bir xil ulushlar. Bu sonlar nurining uzoq ajdodi.", en: 'Long ago distances were measured with a rope tied with knots at equal spaces, so the gaps between the knots were equal parts. That is a distant ancestor of the number line.' },
     audio: {
-      intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu sonlar nurining uzoq ajdodi." },
-      on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3." }
+      intro: { ru: 'Линия от нуля до двух разделена на половинки. Точка стоит на третьей метке, между единицей и двойкой. Выбери нужную дробь.', uz: "Noldan ikkigacha chiziq yarimlarga bo'lingan. Nuqta uchinchi belgida, bir va ikki orasida turibdi. Kerakli kasrni tanlang.", en: 'The line from zero to two is split into halves. The point is on the third mark, between one and two. Choose the right fraction.' },
+      on_correct: { ru: 'Верно. Три половинки от нуля — это три вторых. Кстати, в древности расстояние мерили верёвкой с равными узлами — это далёкий предок числовой прямой.', uz: "To'g'ri. Noldan uchta yarim — bu ikkidan uch. Aytgancha, qadimda masofa teng tugunli arqon bilan o'lchangan — bu sonlar nurining uzoq ajdodi.", en: 'That is right. Three halves from zero is three halves. By the way, long ago distances were measured with a rope tied with knots at equal spaces, a distant ancestor of the number line.' },
+      on_wrong: { ru: 'Пока нет. Делим на половинки — знаменатель 2, считаем три шага — числитель 3.', uz: "Hali emas. Yarimlarga bo'lamiz — maxraj 2, uch qadam sanaymiz — surat 3.", en: 'Not yet. We split into halves, so the denominator is 2, and we count three steps, so the numerator is 3.' }
     }
   },
 
   // ---- s7 TEST (MC, текст): 1/2 и 2/4 — одна точка (correct idx 0) ----
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Одна точка или разные?', uz: "Bir nuqtami yoki har xilmi?" },
-    question: { ru: 'На верхней линии отмечена 1/2, на нижней — 2/4. Что про эти точки верно?', uz: "Yuqori chiziqda 1/2, pastkisida — 2/4 belgilangan. Bu nuqtalar haqida nima to'g'ri?" },
-    opt0: { ru: 'Это одна и та же точка — 1/2 и 2/4 стоят на одном месте', uz: "Bu bitta nuqta — 1/2 va 2/4 bir joyda turadi" },
-    opt1: { ru: 'Это разные точки — у них разные числа', uz: "Bu har xil nuqta — ularning sonlari har xil" },
-    opt2: { ru: '1/2 стоит левее, потому что знаменатель меньше', uz: "1/2 chaproqda, chunki maxraji kichik" },
-    opt3: { ru: '2/4 стоит правее, потому что цифры больше', uz: "2/4 o'ngroqda, chunki raqamlari katta" },
-    correct_text: { ru: 'Верно: 1/2 и 2/4 — это одно и то же место на линии. Две дроби, а точка одна — они равны.', uz: "To'g'ri: 1/2 va 2/4 — chiziqda bir xil joy. Ikkita kasr, nuqta esa bitta — ular teng." },
-    hint_1: { ru: 'Посмотри на линии: обе точки ровно посередине между 0 и 1. Место одно.', uz: "Chiziqlarga qarang: ikkala nuqta ham 0 va 1 ning aniq o'rtasida. Joyi bitta." },
-    hint_2: { ru: 'Знаменатель меняет число меток, но место точки то же — ровно посередине.', uz: "Maxraj belgilar sonini o'zgartiradi, lekin nuqtaning joyi o'sha — aniq o'rtada." },
-    hint_3: { ru: 'Больше цифр не значит правее. Обе точки в середине отрезка.', uz: "Raqamlar ko'p bo'lsa, o'ngroq degani emas. Ikkala nuqta ham kesmaning o'rtasida." },
-    wrong_default: { ru: '1/2 и 2/4 стоят на одном месте — это одна точка, дроби равны.', uz: "1/2 va 2/4 bir joyda turadi — bu bitta nuqta, kasrlar teng." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Одна точка или разные?', uz: "Bir nuqtami yoki har xilmi?", en: 'One point or two different ones?' },
+    question: { ru: 'На верхней линии отмечена 1/2, на нижней — 2/4. Что про эти точки верно?', uz: "Yuqori chiziqda 1/2, pastkisida — 2/4 belgilangan. Bu nuqtalar haqida nima to'g'ri?", en: 'On the top line 1/2 is marked and on the bottom one 2/4. What is true about these points?' },
+    opt0: { ru: 'Это одна и та же точка — 1/2 и 2/4 стоят на одном месте', uz: "Bu bitta nuqta — 1/2 va 2/4 bir joyda turadi", en: 'It is the same point, 1/2 and 2/4 are in the same place' },
+    opt1: { ru: 'Это разные точки — у них разные числа', uz: "Bu har xil nuqta — ularning sonlari har xil", en: 'They are different points, their numbers are different' },
+    opt2: { ru: '1/2 стоит левее, потому что знаменатель меньше', uz: "1/2 chaproqda, chunki maxraji kichik", en: '1/2 is further left because its denominator is smaller' },
+    opt3: { ru: '2/4 стоит правее, потому что цифры больше', uz: "2/4 o'ngroqda, chunki raqamlari katta", en: '2/4 is further right because its figures are bigger' },
+    correct_text: { ru: 'Верно: 1/2 и 2/4 — это одно и то же место на линии. Две дроби, а точка одна — они равны.', uz: "To'g'ri: 1/2 va 2/4 — chiziqda bir xil joy. Ikkita kasr, nuqta esa bitta — ular teng.", en: 'That is right: 1/2 and 2/4 are the same place on the line. Two fractions but one point, so they are equal.' },
+    hint_1: { ru: 'Посмотри на линии: обе точки ровно посередине между 0 и 1. Место одно.', uz: "Chiziqlarga qarang: ikkala nuqta ham 0 va 1 ning aniq o'rtasida. Joyi bitta.", en: 'Look at the lines: both points are exactly halfway between 0 and 1. It is one place.' },
+    hint_2: { ru: 'Знаменатель меняет число меток, но место точки то же — ровно посередине.', uz: "Maxraj belgilar sonini o'zgartiradi, lekin nuqtaning joyi o'sha — aniq o'rtada.", en: 'The denominator changes the number of marks, but the place of the point is the same, exactly halfway.' },
+    hint_3: { ru: 'Больше цифр не значит правее. Обе точки в середине отрезка.', uz: "Raqamlar ko'p bo'lsa, o'ngroq degani emas. Ikkala nuqta ham kesmaning o'rtasida.", en: 'Bigger figures do not mean further right. Both points are in the middle of the piece.' },
+    wrong_default: { ru: '1/2 и 2/4 стоят на одном месте — это одна точка, дроби равны.', uz: "1/2 va 2/4 bir joyda turadi — bu bitta nuqta, kasrlar teng.", en: '1/2 and 2/4 are in the same place, so it is one point and the fractions are equal.' },
     audio: {
-      intro: { ru: 'На верхней линии отмечена одна вторая, на нижней — две четвёртых. Посмотри, где стоят точки, и выбери, что про них верно.', uz: "Yuqori chiziqda ikkidan bir, pastkisida — to'rtdan ikki belgilangan. Nuqtalar qayerda turganiga qarang va ular haqida nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Обе точки в одном месте — одна вторая и две четвёртых равны.', uz: "To'g'ri. Ikkala nuqta bir joyda — ikkidan bir va to'rtdan ikki teng." },
-      on_wrong: { ru: 'Посмотри ещё раз: обе точки ровно посередине между нулём и единицей. Это одно место.', uz: "Yana qarang: ikkala nuqta ham nol va bir orasining aniq o'rtasida. Bu bitta joy." }
+      intro: { ru: 'На верхней линии отмечена одна вторая, на нижней — две четвёртых. Посмотри, где стоят точки, и выбери, что про них верно.', uz: "Yuqori chiziqda ikkidan bir, pastkisida — to'rtdan ikki belgilangan. Nuqtalar qayerda turganiga qarang va ular haqida nima to'g'ri ekanini tanlang.", en: 'On the top line one half is marked and on the bottom one two quarters. Look at where the points are and choose what is true about them.' },
+      on_correct: { ru: 'Верно. Обе точки в одном месте — одна вторая и две четвёртых равны.', uz: "To'g'ri. Ikkala nuqta bir joyda — ikkidan bir va to'rtdan ikki teng.", en: 'That is right. Both points are in the same place, so one half and two quarters are equal.' },
+      on_wrong: { ru: 'Посмотри ещё раз: обе точки ровно посередине между нулём и единицей. Это одно место.', uz: "Yana qarang: ikkala nuqta ham nol va bir orasining aniq o'rtasida. Bu bitta joy.", en: 'Look again: both points are exactly halfway between zero and one. It is one place.' }
     }
   },
 
   // ---- s_seq TEST (SeqMC): 5 примеров — между какими целыми стоит дробь (proper + improper, сложнее) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · где на линии', uz: "Mashq · sonlar nurida qayerda" },
-    title: { ru: 'Между какими целыми?', uz: "Qaysi butunlar orasida?" },
-    lead: { ru: 'Пять дробей. Для каждой выбери, между какими целыми числами стоит её точка.', uz: "Beshta kasr. Har biri uchun nuqtasi qaysi butun sonlar orasida turishini tanlang." },
-    bridge: { ru: 'Точку ставить умеем. Теперь прикинем, где дробь живёт на линии.', uz: "Nuqta qo'yishni bilamiz. Endi kasr chiziqda qayerda yashashini chamalaymiz." },
+    eyebrow: { ru: 'Тренировка · где на линии', uz: "Mashq · sonlar nurida qayerda", en: 'Practice · where on the line' },
+    title: { ru: 'Между какими целыми?', uz: "Qaysi butunlar orasida?", en: 'Between which whole numbers?' },
+    lead: { ru: 'Пять дробей. Для каждой выбери, между какими целыми числами стоит её точка.', uz: "Beshta kasr. Har biri uchun nuqtasi qaysi butun sonlar orasida turishini tanlang.", en: 'Five fractions. For each one choose which whole numbers its point lies between.' },
+    bridge: { ru: 'Точку ставить умеем. Теперь прикинем, где дробь живёт на линии.', uz: "Nuqta qo'yishni bilamiz. Endi kasr chiziqda qayerda yashashini chamalaymiz.", en: 'We can put the point there. Now let us work out roughly where a fraction lives on the line.' },
     questions: [
       {
-        q: { ru: '7/8', uz: '7/8' },
-        say: { ru: 'Где стоит эта дробь? Она близко к границе.', uz: "Bu kasr qayerda turadi? U chegaraga yaqin." },
-        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
+        q: { ru: '7/8', uz: '7/8', en: '7/8' },
+        say: { ru: 'Где стоит эта дробь? Она близко к границе.', uz: "Bu kasr qayerda turadi? U chegaraga yaqin.", en: 'Where does this fraction go? It is close to the border.' },
+        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida", en: 'between 0 and 1' }, { ru: 'между 1 и 2', uz: "1 va 2 orasida", en: 'between 1 and 2' }, { ru: 'между 2 и 3', uz: "2 va 3 orasida", en: 'between 2 and 3' }],
         correct: 0,
-        ok: { ru: 'Верно: семь восьмых чуть меньше 1.', uz: "To'g'ri: sakkizdan yetti birdan sal kichik." },
-        no: { ru: 'Числитель меньше знаменателя, значит дробь меньше единицы.', uz: "Surat maxrajdan kichik, demak kasr birdan kichik." }
+        ok: { ru: 'Верно: семь восьмых чуть меньше 1.', uz: "To'g'ri: sakkizdan yetti birdan sal kichik.", en: 'That is right: seven eighths is just under 1.' },
+        no: { ru: 'Числитель меньше знаменателя, значит дробь меньше единицы.', uz: "Surat maxrajdan kichik, demak kasr birdan kichik.", en: 'The numerator is smaller than the denominator, so the fraction is less than one.' }
       },
       {
-        q: { ru: '9/8', uz: '9/8' },
-        say: { ru: 'А эта? Она почти такая же, но не совсем.', uz: "Bu-chi? U deyarli o'shanday, lekin to'liq emas." },
-        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
+        q: { ru: '9/8', uz: '9/8', en: '9/8' },
+        say: { ru: 'А эта? Она почти такая же, но не совсем.', uz: "Bu-chi? U deyarli o'shanday, lekin to'liq emas.", en: 'And this one? It is nearly the same, but not quite.' },
+        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida", en: 'between 0 and 1' }, { ru: 'между 1 и 2', uz: "1 va 2 orasida", en: 'between 1 and 2' }, { ru: 'между 2 и 3', uz: "2 va 3 orasida", en: 'between 2 and 3' }],
         correct: 1,
-        ok: { ru: 'Верно: девять восьмых чуть больше 1.', uz: "To'g'ri: sakkizdan to'qqiz birdan sal katta." },
-        no: { ru: 'Числитель на единицу больше знаменателя, дробь чуть больше единицы.', uz: "Surat maxrajdan bittaga ko'p, kasr birdan sal katta." }
+        ok: { ru: 'Верно: девять восьмых чуть больше 1.', uz: "To'g'ri: sakkizdan to'qqiz birdan sal katta.", en: 'That is right: nine eighths is just over 1.' },
+        no: { ru: 'Числитель на единицу больше знаменателя, дробь чуть больше единицы.', uz: "Surat maxrajdan bittaga ko'p, kasr birdan sal katta.", en: 'The numerator is one more than the denominator, so the fraction is just over one.' }
       },
       {
-        q: { ru: '11/5', uz: '11/5' },
-        say: { ru: 'Эта дробь побольше. Где её место?', uz: "Bu kasr kattaroq. Uning joyi qayerda?" },
-        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
+        q: { ru: '11/5', uz: '11/5', en: '11/5' },
+        say: { ru: 'Эта дробь побольше. Где её место?', uz: "Bu kasr kattaroq. Uning joyi qayerda?", en: 'This fraction is bigger. Where does it go?' },
+        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida", en: 'between 0 and 1' }, { ru: 'между 1 и 2', uz: "1 va 2 orasida", en: 'between 1 and 2' }, { ru: 'между 2 и 3', uz: "2 va 3 orasida", en: 'between 2 and 3' }],
         correct: 2,
-        ok: { ru: 'Верно: одиннадцать пятых — это два целых и ещё одна пятая.', uz: "To'g'ri: beshdan o'n bir — ikki butun va yana beshdan bir." },
-        no: { ru: 'Раздели одиннадцать на пять: получается чуть больше двух.', uz: "O'n birni beshga bo'lsa, ikkidan sal ko'p chiqadi." }
+        ok: { ru: 'Верно: одиннадцать пятых — это два целых и ещё одна пятая.', uz: "To'g'ri: beshdan o'n bir — ikki butun va yana beshdan bir.", en: 'That is right: eleven fifths is two wholes and one fifth more.' },
+        no: { ru: 'Раздели одиннадцать на пять: получается чуть больше двух.', uz: "O'n birni beshga bo'lsa, ikkidan sal ko'p chiqadi.", en: 'Divide eleven by five: it comes to just over two.' }
       },
       {
-        q: { ru: '8/3', uz: '8/3' },
-        say: { ru: 'Прикинь, между какими целыми эта дробь.', uz: "Bu kasr qaysi butunlar orasida ekanini chamala." },
-        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
+        q: { ru: '8/3', uz: '8/3', en: '8/3' },
+        say: { ru: 'Прикинь, между какими целыми эта дробь.', uz: "Bu kasr qaysi butunlar orasida ekanini chamala.", en: 'Work out roughly which whole numbers this fraction lies between.' },
+        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida", en: 'between 0 and 1' }, { ru: 'между 1 и 2', uz: "1 va 2 orasida", en: 'between 1 and 2' }, { ru: 'между 2 и 3', uz: "2 va 3 orasida", en: 'between 2 and 3' }],
         correct: 2,
-        ok: { ru: 'Верно: восемь третьих — это два целых и ещё две третьих.', uz: "To'g'ri: uchdan sakkiz — ikki butun va yana uchdan ikki." },
-        no: { ru: 'Восемь разделить на три — это больше двух, но меньше трёх.', uz: "Sakkizni uchga bo'lsa — ikkidan katta, uchdan kichik." }
+        ok: { ru: 'Верно: восемь третьих — это два целых и ещё две третьих.', uz: "To'g'ri: uchdan sakkiz — ikki butun va yana uchdan ikki.", en: 'That is right: eight thirds is two wholes and two thirds more.' },
+        no: { ru: 'Восемь разделить на три — это больше двух, но меньше трёх.', uz: "Sakkizni uchga bo'lsa — ikkidan katta, uchdan kichik.", en: 'Eight divided by three is more than two but less than three.' }
       },
       {
-        q: { ru: '7/4', uz: '7/4' },
-        say: { ru: 'Последняя дробь. Где она стоит?', uz: "Oxirgi kasr. U qayerda turadi?" },
-        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida" }, { ru: 'между 1 и 2', uz: "1 va 2 orasida" }, { ru: 'между 2 и 3', uz: "2 va 3 orasida" }],
+        q: { ru: '7/4', uz: '7/4', en: '7/4' },
+        say: { ru: 'Последняя дробь. Где она стоит?', uz: "Oxirgi kasr. U qayerda turadi?", en: 'The last fraction. Where does it go?' },
+        opts: [{ ru: 'между 0 и 1', uz: "0 va 1 orasida", en: 'between 0 and 1' }, { ru: 'между 1 и 2', uz: "1 va 2 orasida", en: 'between 1 and 2' }, { ru: 'между 2 и 3', uz: "2 va 3 orasida", en: 'between 2 and 3' }],
         correct: 1,
-        ok: { ru: 'Верно: семь четвёртых — это один целый и ещё три четвёртых.', uz: "To'g'ri: to'rtdan yetti — bir butun va yana to'rtdan uch." },
-        no: { ru: 'Семь разделить на четыре — это чуть меньше двух.', uz: "Yettini to'rtga bo'lsa — ikkidan sal kichik." }
+        ok: { ru: 'Верно: семь четвёртых — это один целый и ещё три четвёртых.', uz: "To'g'ri: to'rtdan yetti — bir butun va yana to'rtdan uch.", en: 'That is right: seven quarters is one whole and three quarters more.' },
+        no: { ru: 'Семь разделить на четыре — это чуть меньше двух.', uz: "Yettini to'rtga bo'lsa — ikkidan sal kichik.", en: 'Seven divided by four is just under two.' }
       }
     ],
     audio: {
-      intro: { ru: 'Прикинем, где дробь стоит на линии. Если числитель меньше знаменателя — дробь меньше единицы. Если больше — заходит за единицу. Выбери, между какими целыми стоит каждая.', uz: "Kasr chiziqda qayerda turishini chamalaymiz. Surat maxrajdan kichik bo'lsa — kasr birdan kichik. Katta bo'lsa — birdan o'tadi. Har biri qaysi butunlar orasida ekanini tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Почти. Сравни числитель и знаменатель.', uz: "Deyarli. Surat va maxrajni solishtiring." },
-      on_done: { ru: 'Отлично, все пять дробей нашли своё место.', uz: "Zo'r, beshala kasr o'z joyini topdi." }
+      intro: { ru: 'Прикинем, где дробь стоит на линии. Если числитель меньше знаменателя — дробь меньше единицы. Если больше — заходит за единицу. Выбери, между какими целыми стоит каждая.', uz: "Kasr chiziqda qayerda turishini chamalaymiz. Surat maxrajdan kichik bo'lsa — kasr birdan kichik. Katta bo'lsa — birdan o'tadi. Har biri qaysi butunlar orasida ekanini tanlang.", en: 'Let us work out roughly where a fraction goes on the line. If the numerator is smaller than the denominator, the fraction is less than one. If it is bigger, the fraction goes past one. Choose which whole numbers each one lies between.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Почти. Сравни числитель и знаменатель.', uz: "Deyarli. Surat va maxrajni solishtiring.", en: 'Almost. Compare the numerator with the denominator.' },
+      on_done: { ru: 'Отлично, все пять дробей нашли своё место.', uz: "Zo'r, beshala kasr o'z joyini topdi.", en: 'Well done, all five fractions have found their place.' }
     }
   },
 
   // ---- s8 CASE setup: Сардор, измерительная линейка (метр), отметка 3/4 м ----
   s8: {
-    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
-    bridge: { ru: 'Числовая прямая — это и линейка в жизни. Поможем Сардору.', uz: "Sonlar nuri — bu hayotdagi chizg'ich ham. Sardorga yordam beramiz." },
-    title: { ru: 'Сардор размечает метровую планку.', uz: "Sardor bir metrli reykani belgilaydi." },
-    body_p1: { ru: 'Планка длиной 1 метр. Сардор разделил её на 4 равные части и хочет поставить отметку на трёх четвёртых метра.', uz: "Reyka uzunligi 1 metr. Sardor uni 4 ta teng bo'lakka bo'lib, metrning to'rtdan uchiga belgi qo'ymoqchi." },
-    card_line_label: { ru: 'Длина планки', uz: "Reyka uzunligi" },
-    card_line_value: { ru: 'от 0 до 1 метра', uz: "0 dan 1 metrgacha" },
-    card_parts_label: { ru: 'Делений', uz: "Bo'limlar" },
-    card_parts_value: { ru: '4 равные части', uz: "4 ta teng bo'lak" },
-    outro: { ru: 'Где на планке стоит отметка три четвёртых метра? Помоги Сардору на следующем шаге.', uz: "Metrning to'rtdan uch belgisi reykada qayerda turadi? Keyingi bosqichda Sardorga yordam bering." },
-    btn_help: { ru: 'Помочь Сардору', uz: "Sardorga yordam berish" },
-    audio: { ru: 'Сардор размечает метровую планку. Её длина один метр, и он разделил планку на четыре равные части. Сардор хочет поставить отметку на трёх четвёртых метра. Подумай, где на планке стоит эта точка.', uz: "Sardor bir metrli reykani belgilaydi. Uning uzunligi bir metr va u reykani to'rtta teng bo'lakka bo'ldi. Sardor metrning to'rtdan uchiga belgi qo'ymoqchi. Bu nuqta reykada qayerda turishini o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich", en: 'Problem · a measuring stick' },
+    bridge: { ru: 'Числовая прямая — это и линейка в жизни. Поможем Сардору.', uz: "Sonlar nuri — bu hayotdagi chizg'ich ham. Sardorga yordam beramiz.", en: 'The number line is a measuring stick in real life too. Let us help Sardor.' },
+    title: { ru: 'Сардор размечает метровую планку.', uz: "Sardor bir metrli reykani belgilaydi.", en: 'Sardor is marking up a one metre stick.' },
+    body_p1: { ru: 'Планка длиной 1 метр. Сардор разделил её на 4 равные части и хочет поставить отметку на трёх четвёртых метра.', uz: "Reyka uzunligi 1 metr. Sardor uni 4 ta teng bo'lakka bo'lib, metrning to'rtdan uchiga belgi qo'ymoqchi.", en: 'The stick is 1 metre long. Sardor has split it into 4 equal parts and wants to put a mark at three quarters of a metre.' },
+    card_line_label: { ru: 'Длина планки', uz: "Reyka uzunligi", en: 'Length of the stick' },
+    card_line_value: { ru: 'от 0 до 1 метра', uz: "0 dan 1 metrgacha", en: 'from 0 to 1 metre' },
+    card_parts_label: { ru: 'Делений', uz: "Bo'limlar", en: 'Divisions' },
+    card_parts_value: { ru: '4 равные части', uz: "4 ta teng bo'lak", en: '4 equal parts' },
+    outro: { ru: 'Где на планке стоит отметка три четвёртых метра? Помоги Сардору на следующем шаге.', uz: "Metrning to'rtdan uch belgisi reykada qayerda turadi? Keyingi bosqichda Sardorga yordam bering.", en: 'Where on the stick does the three quarters of a metre mark go? Help Sardor on the next step.' },
+    btn_help: { ru: 'Помочь Сардору', uz: "Sardorga yordam berish", en: 'Help Sardor' },
+    audio: { ru: 'Сардор размечает метровую планку. Её длина один метр, и он разделил планку на четыре равные части. Сардор хочет поставить отметку на трёх четвёртых метра. Подумай, где на планке стоит эта точка.', uz: "Sardor bir metrli reykani belgilaydi. Uning uzunligi bir metr va u reykani to'rtta teng bo'lakka bo'ldi. Sardor metrning to'rtdan uchiga belgi qo'ymoqchi. Bu nuqta reykada qayerda turishini o'ylab ko'ring.", en: 'Sardor is marking up a one metre stick. It is one metre long and he has split it into four equal parts. Sardor wants to put a mark at three quarters of a metre. Think where that point goes on the stick.' }
   },
 
   // ---- s9 CASE step (MC, дроби): отметка на 3/4 (correct idx 2) ----
   s9: {
-    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
-    label: { ru: 'Где отметка?', uz: "Belgi qayerda?" },
-    question: { ru: 'Планка от 0 до 1 метра разделена на 4 части. Отметка стоит на третьей метке от нуля. Какая это дробь метра?', uz: "0 dan 1 metrgacha reyka 4 bo'lakka bo'lingan. Belgi noldan uchinchi metkada turibdi. Bu metrning qaysi kasri?" },
-    correct_text: { ru: 'Верно: 4 части — знаменатель 4, три шага — числитель 3. Отметка на трёх четвёртых метра.', uz: "To'g'ri: 4 bo'lak — maxraj 4, uch qadam — surat 3. Belgi metrning to'rtdan uchida." },
-    hint_0: { ru: 'Числитель и знаменатель перепутаны: шагов 3, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'laklar 4 ta." },
-    hint_1: { ru: 'Снизу — на сколько частей разделили планку. Их 4.', uz: "Pastda — reyka nechta bo'lakka bo'lingani. Ular to'rtta." },
-    hint_3: { ru: 'Сверху — сколько шагов от нуля. Их 3, а не 1.', uz: "Yuqorida — noldan nechta qadam. Ular uchta, bir emas." },
-    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов до отметки (3).', uz: "Maxraj — bo'laklar soni (to'rt), surat — belgigacha qadamlar soni (uch)." },
-    fact: { ru: 'В музыке длительности нот — это дроби, как метки на линии: целая нота, половинная, четвертная. Четвертная звучит вдвое короче половинной.', uz: "Musiqada nota cho'zimlari — chiziqdagi belgilar kabi kasrlar: butun nota, yarim nota, chorak nota. Chorak nota yarim notadan ikki barobar qisqa yangraydi." },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich", en: 'Problem · a measuring stick' },
+    label: { ru: 'Где отметка?', uz: "Belgi qayerda?", en: 'Where is the mark?' },
+    question: { ru: 'Планка от 0 до 1 метра разделена на 4 части. Отметка стоит на третьей метке от нуля. Какая это дробь метра?', uz: "0 dan 1 metrgacha reyka 4 bo'lakka bo'lingan. Belgi noldan uchinchi metkada turibdi. Bu metrning qaysi kasri?", en: 'The stick from 0 to 1 metre is split into 4 parts. The mark is on the third division from zero. Which fraction of a metre is it?' },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, три шага — числитель 3. Отметка на трёх четвёртых метра.', uz: "To'g'ri: 4 bo'lak — maxraj 4, uch qadam — surat 3. Belgi metrning to'rtdan uchida.", en: 'That is right: 4 parts mean a denominator of 4 and three steps mean a numerator of 3. The mark is at three quarters of a metre.' },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: шагов 3, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 3 ta, bo'laklar 4 ta.", en: 'The numerator and denominator are swapped: there are 3 steps and 4 parts.' },
+    hint_1: { ru: 'Снизу — на сколько частей разделили планку. Их 4.', uz: "Pastda — reyka nechta bo'lakka bo'lingani. Ular to'rtta.", en: 'Underneath goes how many parts the stick was split into. There are 4 of them.' },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля. Их 3, а не 1.', uz: "Yuqorida — noldan nechta qadam. Ular uchta, bir emas.", en: 'On top goes how many steps from zero. There are 3 of them, not 1.' },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов до отметки (3).', uz: "Maxraj — bo'laklar soni (to'rt), surat — belgigacha qadamlar soni (uch).", en: 'The denominator is the number of parts (4) and the numerator is the number of steps to the mark (3).' },
+    fact: { ru: 'В музыке длительности нот — это дроби, как метки на линии: целая нота, половинная, четвертная. Четвертная звучит вдвое короче половинной.', uz: "Musiqada nota cho'zimlari — chiziqdagi belgilar kabi kasrlar: butun nota, yarim nota, chorak nota. Chorak nota yarim notadan ikki barobar qisqa yangraydi.", en: 'In music the lengths of notes are fractions, like marks on a line: a whole note, a half note, a quarter note. A quarter note lasts half as long as a half note.' },
     audio: {
-      intro: { ru: 'Планка от нуля до одного метра разделена на четыре части, отметка стоит на третьей метке. Выбери дробь метра, которая показывает её место.', uz: "Noldan bir metrgacha reyka to'rtta bo'lakka bo'lingan, belgi uchinchi metkada turibdi. Uning joyini ko'rsatadigan metr kasrini tanlang." },
-      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра. А ещё в музыке длительности нот — это тоже дроби: половинная нота вдвое короче целой, а четвертная — ещё вдвое короче.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi. Musiqada ham nota cho'zimlari — bu kasrlar: yarim nota butundan ikki barobar qisqa, chorak nota esa yana ikki barobar qisqa." },
-      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов от нуля.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — noldan qadamlar soni." }
+      intro: { ru: 'Планка от нуля до одного метра разделена на четыре части, отметка стоит на третьей метке. Выбери дробь метра, которая показывает её место.', uz: "Noldan bir metrgacha reyka to'rtta bo'lakka bo'lingan, belgi uchinchi metkada turibdi. Uning joyini ko'rsatadigan metr kasrini tanlang.", en: 'The stick from zero to one metre is split into four parts and the mark is on the third division. Choose the fraction of a metre that shows where it is.' },
+      on_correct: { ru: 'Верно. Четыре части и три шага — три четвёртых метра. А ещё в музыке длительности нот — это тоже дроби: половинная нота вдвое короче целой, а четвертная — ещё вдвое короче.', uz: "To'g'ri. To'rt bo'lak va uch qadam — metrning to'rtdan uchi. Musiqada ham nota cho'zimlari — bu kasrlar: yarim nota butundan ikki barobar qisqa, chorak nota esa yana ikki barobar qisqa.", en: 'That is right. Four parts and three steps make three quarters of a metre. And in music the lengths of notes are fractions too: a half note lasts half as long as a whole note and a quarter note half as long again.' },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов от нуля.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — noldan qadamlar soni.", en: 'Not yet. Underneath goes the number of parts and on top the number of steps from zero.' }
     }
   },
 
   // ---- s10 TEST (error-spotting): какое утверждение про 3/4 метра НЕВЕРНО (correct idx 2 = ложное) ----
   s10: {
-    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich" },
-    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
-    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri" },
-    question: { ru: 'Отметка на трёх четвёртых метра. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Belgi metrning to'rtdan uchida. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?" },
-    opt0: { ru: 'Метр разделён на 4 равные части.', uz: "Metr 4 ta teng bo'lakka bo'lingan." },
-    opt1: { ru: 'Точка стоит после третьего шага от нуля.', uz: "Nuqta noldan uchinchi qadamdan keyin turadi." },
-    opt2: { ru: 'На планке ровно 3 метра.', uz: "Reykada aniq 3 metr bor." },
-    opt3: { ru: 'Точка ближе к 1, чем к 0.', uz: "Nuqta 0 dan ko'ra 1 ga yaqinroq." },
-    correct_text: { ru: 'Верно, это утверждение неверно: дробь показывает место внутри одного метра, а не число метров. Планка всего 1 метр длиной.', uz: "To'g'ri, bu izoh noto'g'ri: kasr bir metr ichidagi joyni ko'rsatadi, metrlar sonini emas. Reyka bor-yo'g'i 1 metr uzunlikda." },
-    wrong_0: { ru: 'Это утверждение верно: планку и правда разделили на 4 равные части. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: reyka haqiqatan 4 ta teng bo'lakka bo'lingan. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: три четвёртых — это три шага от нуля. Ищи неверное дальше.', uz: "Bu to'g'ri: to'rtdan uch — noldan uch qadam. Noto'g'risini boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: 3 из 4 частей пройдены, точка ближе к 1. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 bo'lakdan 3 tasi o'tilgan, nuqta 1 ga yaqinroq. Noto'g'risini boshqasidan qidiring." },
-    wrong_default: { ru: 'Дробь показывает место внутри метра, а не число метров. Ищи такое утверждение.', uz: "Kasr metr ichidagi joyni ko'rsatadi, metrlar sonini emas. Shunday izohni qidiring." },
+    eyebrow: { ru: 'Задача · линейка', uz: "Masala · chizg'ich", en: 'Problem · a measuring stick' },
+    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping", en: 'Find the one that is wrong' },
+    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri", en: 'One of these is wrong' },
+    question: { ru: 'Отметка на трёх четвёртых метра. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Belgi metrning to'rtdan uchida. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?", en: 'The mark is at three quarters of a metre. Three of these are true and one is not. Which one is WRONG?' },
+    opt0: { ru: 'Метр разделён на 4 равные части.', uz: "Metr 4 ta teng bo'lakka bo'lingan.", en: 'The metre is split into 4 equal parts.' },
+    opt1: { ru: 'Точка стоит после третьего шага от нуля.', uz: "Nuqta noldan uchinchi qadamdan keyin turadi.", en: 'The point is after the third step from zero.' },
+    opt2: { ru: 'На планке ровно 3 метра.', uz: "Reykada aniq 3 metr bor.", en: 'The stick is exactly 3 metres long.' },
+    opt3: { ru: 'Точка ближе к 1, чем к 0.', uz: "Nuqta 0 dan ko'ra 1 ga yaqinroq.", en: 'The point is closer to 1 than to 0.' },
+    correct_text: { ru: 'Верно, это утверждение неверно: дробь показывает место внутри одного метра, а не число метров. Планка всего 1 метр длиной.', uz: "To'g'ri, bu izoh noto'g'ri: kasr bir metr ichidagi joyni ko'rsatadi, metrlar sonini emas. Reyka bor-yo'g'i 1 metr uzunlikda.", en: 'Right, that one is wrong: the fraction shows a place inside one metre, not a number of metres. The stick is only 1 metre long.' },
+    wrong_0: { ru: 'Это утверждение верно: планку и правда разделили на 4 равные части. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: reyka haqiqatan 4 ta teng bo'lakka bo'lingan. Noto'g'risini boshqasidan qidiring.", en: 'That one is true: the stick really was split into 4 equal parts. Keep looking for the wrong one.' },
+    wrong_1: { ru: 'Это верно: три четвёртых — это три шага от нуля. Ищи неверное дальше.', uz: "Bu to'g'ri: to'rtdan uch — noldan uch qadam. Noto'g'risini boshqasidan qidiring.", en: 'That is true: three quarters is three steps from zero. Keep looking for the wrong one.' },
+    wrong_3: { ru: 'Это верно: 3 из 4 частей пройдены, точка ближе к 1. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 bo'lakdan 3 tasi o'tilgan, nuqta 1 ga yaqinroq. Noto'g'risini boshqasidan qidiring.", en: 'That is true: 3 of the 4 parts have been passed, so the point is closer to 1. Keep looking for the wrong one.' },
+    wrong_default: { ru: 'Дробь показывает место внутри метра, а не число метров. Ищи такое утверждение.', uz: "Kasr metr ichidagi joyni ko'rsatadi, metrlar sonini emas. Shunday izohni qidiring.", en: 'The fraction shows a place inside a metre, not a number of metres. Look for the one that says that.' },
     audio: {
-      intro: { ru: 'Три утверждения про отметку три четвёртых метра верны, а одно неверно. Найди то, которое говорит неправду про планку.', uz: "Metrning to'rtdan uch belgisi haqida uchta izoh to'g'ri, bittasi noto'g'ri. Reyka haqida yolg'on aytayotganini toping." },
-      on_correct: { ru: 'Верно. Дробь показывает место внутри метра. Планка всего один метр, а не три.', uz: "To'g'ri. Kasr metr ichidagi joyni ko'rsatadi. Reyka bor-yo'g'i bir metr, uch emas." },
-      on_wrong: { ru: 'Это утверждение верно. Ищи то, что говорит про целые метры вместо места внутри метра.', uz: "Bu izoh to'g'ri. Metr ichidagi joy o'rniga butun metrlar haqida gapirayotganini qidiring." }
+      intro: { ru: 'Три утверждения про отметку три четвёртых метра верны, а одно неверно. Найди то, которое говорит неправду про планку.', uz: "Metrning to'rtdan uch belgisi haqida uchta izoh to'g'ri, bittasi noto'g'ri. Reyka haqida yolg'on aytayotganini toping.", en: 'Three of these about the three quarters of a metre mark are true and one is wrong. Find the one that says something untrue about the stick.' },
+      on_correct: { ru: 'Верно. Дробь показывает место внутри метра. Планка всего один метр, а не три.', uz: "To'g'ri. Kasr metr ichidagi joyni ko'rsatadi. Reyka bor-yo'g'i bir metr, uch emas.", en: 'That is right. The fraction shows a place inside a metre. The stick is only one metre long, not three.' },
+      on_wrong: { ru: 'Это утверждение верно. Ищи то, что говорит про целые метры вместо места внутри метра.', uz: "Bu izoh to'g'ri. Metr ichidagi joy o'rniga butun metrlar haqida gapirayotganini qidiring.", en: 'That one is true. Look for the one that talks about whole metres instead of a place inside a metre.' }
     }
   },
 
   // ---- s11 TEST (MC, дроби): линия 0..1, 4 части, точка на 2-й → 2/4 (= 1/2) (correct idx 0) ----
   s11: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting" },
-    question: { ru: 'Отрезок от 0 до 1 разделён на 4 части. Точка стоит на второй метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 4 bo'lakka bo'lingan. Nuqta noldan ikkinchi belgida turibdi. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: 4 части — знаменатель 4, два шага — числитель 2. Это две четвёртых, и это ровно середина — то же место, что и одна вторая.', uz: "To'g'ri: 4 bo'lak — maxraj 4, ikki qadam — surat 2. Bu to'rtdan ikki, va bu aniq o'rta — ikkidan bir bilan bir xil joy." },
-    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 2, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 2 ta, bo'laklar 4 ta." },
-    hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta." },
-    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas." },
-    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki." },
-    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan sonlar nuri: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting", en: 'The last one, name the fraction' },
+    question: { ru: 'Отрезок от 0 до 1 разделён на 4 части. Точка стоит на второй метке от нуля. Какая это дробь?', uz: "0 dan 1 gacha kesma 4 bo'lakka bo'lingan. Nuqta noldan ikkinchi belgida turibdi. Bu qaysi kasr?", en: 'The piece from 0 to 1 is split into 4 parts. The point is on the second mark from zero. Which fraction is it?' },
+    correct_text: { ru: 'Верно: 4 части — знаменатель 4, два шага — числитель 2. Это две четвёртых, и это ровно середина — то же место, что и одна вторая.', uz: "To'g'ri: 4 bo'lak — maxraj 4, ikki qadam — surat 2. Bu to'rtdan ikki, va bu aniq o'rta — ikkidan bir bilan bir xil joy.", en: 'That is right: 4 parts mean a denominator of 4 and two steps mean a numerator of 2. It is two quarters, and that is exactly halfway, the same place as one half.' },
+    hint_1: { ru: 'Числитель и знаменатель перепутаны: шагов 2, частей 4.', uz: "Surat va maxraj almashgan: qadamlar 2 ta, bo'laklar 4 ta.", en: 'The numerator and denominator are swapped: there are 2 steps and 4 parts.' },
+    hint_2: { ru: 'Снизу — на сколько частей разделили отрезок. Их 4.', uz: "Pastda — kesma nechta bo'lakka bo'lingani. Ular to'rtta.", en: 'Underneath goes how many parts the piece was split into. There are 4 of them.' },
+    hint_3: { ru: 'Сверху — сколько шагов от нуля до точки. Их 2, а не 3.', uz: "Yuqorida — noldan nuqtagacha nechta qadam. Ular ikkita, uch emas.", en: 'On top goes how many steps from zero to the point. There are 2 of them, not 3.' },
+    wrong_default: { ru: 'Знаменатель — число частей (4), числитель — число шагов (2). Это две четвёртых.', uz: "Maxraj — bo'laklar soni (to'rt), surat — qadamlar soni (ikki). Bu to'rtdan ikki.", en: 'The denominator is the number of parts (4) and the numerator is the number of steps (2). It is two quarters.' },
+    fact: { ru: 'Полоса времени видеоплеера — это и есть числовая прямая: начало 0, конец 1. Точка 1/2 на ней — ровно середина видео.', uz: "Video pleyerning vaqt chizig'i — bu aynan sonlar nuri: boshi 0, oxiri 1. Undagi 1/2 nuqta — videoning aniq yarmi.", en: 'The time bar of a video player is a number line: the start is 0 and the end is 1. The point 1/2 on it is exactly the middle of the video.' },
     audio: {
-      intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha sonlar nuri, undagi ikkidan bir nuqta — videoning aniq yarmi." },
-      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni." }
+      intro: { ru: 'Последнее задание. Отрезок от нуля до единицы разделён на четыре части, точка на второй метке. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Noldan birgacha kesma to'rtta bo'lakka bo'lingan, nuqta ikkinchi belgida. Kerakli kasrni tanlang.", en: 'The last task. The piece from zero to one is split into four parts and the point is on the second mark. Choose the right fraction.' },
+      on_correct: { ru: 'Верно. Две четвёртых — это ровно середина, то же место, что и одна вторая. Кстати, полоса времени видеоплеера — это та же числовая прямая, и точка одна вторая на ней — ровно середина видео.', uz: "To'g'ri. To'rtdan ikki — aniq o'rta, ikkidan bir bilan bir xil joy. Aytgancha, video pleyerning vaqt chizig'i — o'sha sonlar nuri, undagi ikkidan bir nuqta — videoning aniq yarmi.", en: 'That is right. Two quarters is exactly halfway, the same place as one half. By the way, the time bar of a video player is the same number line, and the point one half on it is exactly the middle of the video.' },
+      on_wrong: { ru: 'Пока нет. Снизу — число частей, сверху — число шагов до точки.', uz: "Hali emas. Pastda — bo'laklar soni, yuqorida — nuqtagacha qadamlar soni.", en: 'Not yet. Underneath goes the number of parts and on top the number of steps to the point.' }
     }
   },
 
   // ---- s12 SUMMARY: закрывает крючок ----
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz" },
-    title: { ru: 'Теперь дробь для тебя — число со своим местом на линии.', uz: "Endi kasr siz uchun — chiziqda o'z joyi bor son." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning sonlar nurida nuqtasi bor." },
-    main_2: { ru: 'Знаменатель — на сколько равных частей делим отрезок 0…1. Числитель — сколько шагов от нуля.', uz: "Maxraj — 0…1 kesmani nechta teng bo'lakka bo'lamiz. Surat — noldan nechta qadam." },
-    main_3: { ru: 'Линия не кончается на 1: за единицей те же части идут к 2 и дальше.', uz: "Chiziq 1 da tugamaydi: birdan keyin o'sha bo'laklar 2 ga va nariga ketadi." },
-    main_4: { ru: '1/2 и 2/4 — одна и та же точка. Равные дроби стоят на одном месте.', uz: "1/2 va 2/4 — bitta nuqta. Teng kasrlar bir joyda turadi." },
-    back_to_hook: { ru: 'Три четвёртых нашлись на линии точкой между 0 и 1. У дроби есть место. Жасур ошибался.', uz: "To'rtdan uch chiziqda 0 va 1 orasidagi nuqta bo'lib topildi. Kasrning joyi bor. Jasur xato qilgan ekan." },
-    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'урок «Что такое дробь».', uz: "«Kasr nima» darsi." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'дробь как деление: a/b это a разделить на b.', uz: "kasr — bo'lish natijasi: a/b bu a ni b ga bo'lish." },
-    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning sonlar nurida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi", en: 'Lesson finished' },
+    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz", en: 'questions answered correctly first time' },
+    title: { ru: 'Теперь дробь для тебя — число со своим местом на линии.', uz: "Endi kasr siz uchun — chiziqda o'z joyi bor son.", en: 'Now a fraction is a number with its own place on the line to you.' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Дробь — это число, и у неё есть точка на числовой прямой.', uz: "Kasr — bu son, va uning sonlar nurida nuqtasi bor.", en: 'A fraction is a number and it has a point on the number line.' },
+    main_2: { ru: 'Знаменатель — на сколько равных частей делим отрезок 0…1. Числитель — сколько шагов от нуля.', uz: "Maxraj — 0…1 kesmani nechta teng bo'lakka bo'lamiz. Surat — noldan nechta qadam.", en: 'The denominator is how many equal parts the piece from 0 to 1 is split into. The numerator is how many steps from zero.' },
+    main_3: { ru: 'Линия не кончается на 1: за единицей те же части идут к 2 и дальше.', uz: "Chiziq 1 da tugamaydi: birdan keyin o'sha bo'laklar 2 ga va nariga ketadi.", en: 'The line does not stop at 1: past one the same parts carry on to 2 and beyond.' },
+    main_4: { ru: '1/2 и 2/4 — одна и та же точка. Равные дроби стоят на одном месте.', uz: "1/2 va 2/4 — bitta nuqta. Teng kasrlar bir joyda turadi.", en: '1/2 and 2/4 are the same point. Equal fractions stand in the same place.' },
+    back_to_hook: { ru: 'Три четвёртых нашлись на линии точкой между 0 и 1. У дроби есть место. Жасур ошибался.', uz: "To'rtdan uch chiziqda 0 va 1 orasidagi nuqta bo'lib topildi. Kasrning joyi bor. Jasur xato qilgan ekan.", en: 'Three quarters turned out to be a point on the line between 0 and 1. A fraction does have a place. Jasur was wrong.' },
+    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'урок «Что такое дробь».', uz: "«Kasr nima» darsi.", en: 'the lesson on what a fraction is.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'дробь как деление: a/b это a разделить на b.', uz: "kasr — bo'lish natijasi: a/b bu a ni b ga bo'lish.", en: 'a fraction as a division: a/b means a divided by b.' },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это число, и у неё есть своё место на числовой прямой. Знаменатель делит отрезок от нуля до единицы на равные части, а числитель отсчитывает шаги от нуля. Линия не кончается на единице — за ней те же части идут к двойке. А равные дроби, например одна вторая и две четвёртых, стоят на одном месте. Три четвёртых нашли точку между нулём и единицей. Жасур ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu son, va uning sonlar nurida o'z joyi bor. Maxraj noldan birgacha kesmani teng bo'laklarga bo'ladi, surat esa noldan qadamlarni sanaydi. Chiziq birda tugamaydi — undan keyin o'sha bo'laklar ikki tomon ketadi. Teng kasrlar esa, masalan ikkidan bir va to'rtdan ikki, bir joyda turadi. To'rtdan uch nol va bir orasidan nuqta topdi. Jasur xato qilgan ekan.", en: 'Well done! Now you know that a fraction is a number and it has its own place on the number line. The denominator splits the piece from zero to one into equal parts and the numerator counts the steps from zero. The line does not stop at one, because past it the same parts carry on to two. And equal fractions, like one half and two quarters, stand in the same place. Three quarters found its point between zero and one. Jasur was wrong.' }
   }
 };
 
@@ -1206,7 +1233,7 @@ const PlaceSeq = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         {done ? (
           <div className="frame-success fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Beshala nuqta joyida." : 'Все пять точек на месте.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Beshala nuqta joyida." : lang === 'en' ? "All five points are in place." : 'Все пять точек на месте.'}</p>
           </div>
         ) : (
           <>
@@ -1291,7 +1318,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1316,7 +1343,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1607,7 +1634,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1645,7 +1672,7 @@ export default function FractionsLineLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1713,7 +1740,7 @@ export default function FractionsLineLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

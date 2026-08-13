@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -127,8 +127,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-18',
-  lessonTitle: { ru: 'Урок 18. Деление двузначного на однозначное', uz: "18-dars. Ikki xonali sonni bir xonaliga bo'lish" }
+  lessonId: 'grade3-18',
+  lessonTitle: { ru: 'Урок 18. Деление двузначного на однозначное', uz: "18-dars. Ikki xonali sonni bir xonaliga bo'lish", en: 'Lesson 18. Dividing a two-digit number by a one-digit number' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 18»): s0 xuk 86:2 · s1 ajratish 80+6 · s2 burilish
 // 42:3 · s3 savol-oldin-QOIDA · s4 konsol 84:6 · s5 yozuvni tanlash 48:3 · s6 saralash ·
@@ -162,15 +162,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Деление двузначного на однозначное', uz: "Ikki xonalini bir xonaliga bo'lish" },
-    lead: { ru: 'В мастерскую привезли 86 деталей на 2 полки', uz: "Ustaxonaga 2 tokcha uchun 86 ta detal keldi" },
-    order_cap: { ru: 'заказ: 86 деталей, 2 полки поровну', uz: 'buyurtma: 86 detal, 2 tokchaga tengdan' },
-    q: { ru: 'Сколько деталей окажется на каждой полке?', uz: "Har bir tokchada nechta detal bo'ladi?" },
-    opt0: { ru: '43', uz: '43' },
-    opt1: { ru: '40', uz: '40' },
-    opt2: { ru: '44', uz: '44' },
-    opt3: { ru: '806', uz: '806' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Деление двузначного на однозначное', uz: "Ikki xonalini bir xonaliga bo'lish", en: 'Dividing a two-digit number by a one-digit number' },
+    lead: { ru: 'В мастерскую привезли 86 деталей на 2 полки', uz: "Ustaxonaga 2 tokcha uchun 86 ta detal keldi", en: 'The workshop received 86 parts for 2 shelves' },
+    order_cap: { ru: 'заказ: 86 деталей, 2 полки поровну', uz: 'buyurtma: 86 detal, 2 tokchaga tengdan', en: 'order: 86 parts, 2 shelves, equal shares' },
+    q: { ru: 'Сколько деталей окажется на каждой полке?', uz: "Har bir tokchada nechta detal bo'ladi?", en: 'How many parts will end up on each shelf?' },
+    opt0: { ru: '43', uz: '43', en: '43' },
+    opt1: { ru: '40', uz: '40', en: '40' },
+    opt2: { ru: '44', uz: '44', en: '44' },
+    opt3: { ru: '806', uz: '806', en: '806' },
     audio: {
       intro: {
         ru: [
@@ -184,40 +184,45 @@ const CONTENT = {
           "Ustaxonaga sakson oltita detal keldi. Ularni ikki tokchaga teng qilib terish kerak.",
           "Bo'lish jadvali bunday sonni bilmaydi. Demak, qismlarga bo'lib bo'lamiz.",
           "Sizningcha, har bir tokchada nechta detal bo'ladi?"
-        ]
+        ],
+        en: ['The topic of the lesson is called dividing a two-digit number by a one-digit number.', 'The workshop received eighty six parts. They must be laid out equally on two shelves.', 'The division table does not know such a number. So we will divide by parts.', 'How many parts do you think will end up on each shelf?']
       },
       on_correct: {
         ru: 'Верно! А сейчас увидишь, как это считают быстро и без подбора.',
-        uz: "To'g'ri! Endi buni tez va taxminsiz qanday hisoblashni ko'rasiz."
+        uz: "To'g'ri! Endi buni tez va taxminsiz qanday hisoblashni ko'rasiz.",
+        en: 'Right! And now you will see how this is counted quickly and without guessing.'
       },
       on_wrong1: {
         ru: 'Разделили только восемьдесят. Шесть деталей остались лежать в ящике.',
-        uz: "Faqat sakson bo'lindi. Oltita detal yashikda qolib ketdi."
+        uz: "Faqat sakson bo'lindi. Oltita detal yashikda qolib ketdi.",
+        en: 'Only eighty was divided. Six parts stayed lying in the box.'
       },
       on_wrong2: {
         ru: 'На две полки поровну это половина. Половина восьмидесяти шести меньше сорока четырёх.',
-        uz: "Ikki tokchaga tengdan bu yarmi. Sakson oltining yarmi qirq to'rtdan kichik."
+        uz: "Ikki tokchaga tengdan bu yarmi. Sakson oltining yarmi qirq to'rtdan kichik.",
+        en: 'Equally onto two shelves means a half. Half of eighty six is less than forty four.'
       },
       on_idk: {
         ru: 'Каждая цифра разделена отдельно, а ответы склеены. Так число рассыпается.',
-        uz: "Har bir raqam alohida bo'lingan, javoblar esa yelimlangan. Bunda son buzilib ketadi."
+        uz: "Har bir raqam alohida bo'lingan, javoblar esa yelimlangan. Bunda son buzilib ketadi.",
+        en: 'Each digit was divided separately and the answers glued together. A number falls apart that way.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz' },
-    lead: { ru: 'Разберём 86 на удобные части', uz: "86 ni qulay qismlarga ajratamiz" },
+    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz', en: 'Taking it apart' },
+    lead: { ru: 'Разберём 86 на удобные части', uz: "86 ni qulay qismlarga ajratamiz", en: 'Let us take 86 into handy parts' },
     plate: '86',
     part1: '80',
     part2: '6',
     res1: '80 : 2 = 40',
     res2: '6 : 2 = 3',
     formula: '86 : 2 = 40 + 3 = 43',
-    btn1: { ru: 'Разделить число', uz: 'Sonni ajratish' },
-    btn2: { ru: 'Разделить каждую часть', uz: "Har qismni bo'lish" },
-    btn3: { ru: 'Сложить', uz: "Qo'shish" },
-    done_text: { ru: 'Части делятся легко, а вместе они дают ответ.', uz: "Qismlar oson bo'linadi, birgalikda esa javobni beradi." },
+    btn1: { ru: 'Разделить число', uz: 'Sonni ajratish', en: 'Split the number' },
+    btn2: { ru: 'Разделить каждую часть', uz: "Har qismni bo'lish", en: 'Divide each part' },
+    btn3: { ru: 'Сложить', uz: "Qo'shish", en: 'Add' },
+    done_text: { ru: 'Части делятся легко, а вместе они дают ответ.', uz: "Qismlar oson bo'linadi, birgalikda esa javobni beradi.", en: 'The parts divide easily, and together they give the answer.' },
     audio: {
       ru: [
         'Разберём восемьдесят шесть на удобные части.',
@@ -230,22 +235,23 @@ const CONTENT = {
         "Sakson va olti. Ikkala qism ham ikkiga bo'linadi.",
         "Saksonni ikkiga bo'lsak, qirq. Oltini ikkiga bo'lsak, uch.",
         "Bo'linmalarni qo'shamiz. Qirq va uch, qirq uch. Har bir tokchada qirq uchta detal."
-      ]
+      ],
+      en: ['Let us take eighty six into handy parts.', 'Eighty and six. Both parts divide by two.', 'Eighty by two, forty. Six by two, three.', 'We add the quotients. Forty and three, forty three. Each shelf has forty three parts.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Поворот', uz: 'Burilish' },
-    lead: { ru: 'А теперь 42 : 3 — разряды не подойдут', uz: "Endi 42 : 3 — xonalar to'g'ri kelmaydi" },
+    eyebrow: { ru: 'Поворот', uz: 'Burilish', en: 'A turn' },
+    lead: { ru: 'А теперь 42 : 3 — разряды не подойдут', uz: "Endi 42 : 3 — xonalar to'g'ri kelmaydi", en: 'And now 42 : 3 — the places will not do' },
     try_line: '42 = 40 + 2',
-    try_cap: { ru: '40 на 3 не делится', uz: "40 uchga bo'linmaydi" },
+    try_cap: { ru: '40 на 3 не делится', uz: "40 uchga bo'linmaydi", en: '40 does not divide by 3' },
     good_line: '42 = 30 + 12',
-    good_cap: { ru: 'обе части делятся на 3', uz: "ikkala qism ham 3 ga bo'linadi" },
+    good_cap: { ru: 'обе части делятся на 3', uz: "ikkala qism ham 3 ga bo'linadi", en: 'both parts divide by 3' },
     res: '42 : 3 = 10 + 4 = 14',
-    btn1: { ru: 'Взять разряды', uz: 'Xonalarni olish' },
-    btn2: { ru: 'Искать другие части', uz: 'Boshqa qismlarni qidirish' },
-    btn3: { ru: 'Сосчитать', uz: 'Hisoblash' },
-    done_text: { ru: 'Части выбирают не по разрядам, а по тому, что делится.', uz: "Qismlar xonalarga qarab emas, bo'linishiga qarab tanlanadi." },
+    btn1: { ru: 'Взять разряды', uz: 'Xonalarni olish', en: 'Take the places' },
+    btn2: { ru: 'Искать другие части', uz: 'Boshqa qismlarni qidirish', en: 'Look for other parts' },
+    btn3: { ru: 'Сосчитать', uz: 'Hisoblash', en: 'Count' },
+    done_text: { ru: 'Части выбирают не по разрядам, а по тому, что делится.', uz: "Qismlar xonalarga qarab emas, bo'linishiga qarab tanlanadi.", en: 'The parts are chosen not by place, but by what divides.' },
     audio: {
       ru: [
         'А теперь сорок два разделить на три. Возьмём разряды, как привыкли.',
@@ -258,26 +264,27 @@ const CONTENT = {
         "Qirqni uchga bo'lib bo'lmaydi. Xonalar bu yerda yordam bermadi.",
         "Boshqa qismlarni qidiramiz. O'ttiz va o'n ikki. Ikkalasi ham uchga bo'linadi.",
         "O'ttizni uchga bo'lsak, o'n. O'n ikkini uchga bo'lsak, to'rt. Birgalikda o'n to'rt."
-      ]
+      ],
+      en: ['And now forty two divided by three. Let us take the places, as usual.', 'Forty does not divide by three. The places did not help here.', 'We look for other parts. Thirty and twelve. Both divide by three.', 'Thirty by three, ten. Twelve by three, four. Together fourteen.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Как выбрать части, на которые разбиваем число?', uz: 'Sonni qaysi qismlarga ajratishni qanday tanlaymiz?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Как выбрать части, на которые разбиваем число?', uz: 'Sonni qaysi qismlarga ajratishni qanday tanlaymiz?', en: 'How do we choose the parts to split the number into?' },
     opts: [
-      { ru: 'чтобы каждая часть делилась на делитель', uz: "har bir qism bo'luvchiga bo'linsin" },
-      { ru: 'всегда по разрядам, десятки и единицы', uz: "doim xonalarga, o'nlik va birlik" },
-      { ru: 'чтобы части были одинаковыми', uz: "qismlar bir xil bo'lsin" },
-      { ru: 'чтобы первая часть была больше', uz: "birinchi qism kattaroq bo'lsin" }
+      { ru: 'чтобы каждая часть делилась на делитель', uz: "har bir qism bo'luvchiga bo'linsin", en: 'so that each part divides by the divisor' },
+      { ru: 'всегда по разрядам, десятки и единицы', uz: "doim xonalarga, o'nlik va birlik", en: 'always by place, tens and units' },
+      { ru: 'чтобы части были одинаковыми', uz: "qismlar bir xil bo'lsin", en: 'so that the parts are the same' },
+      { ru: 'чтобы первая часть была больше', uz: "birinchi qism kattaroq bo'lsin", en: 'so that the first part is bigger' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'В сорок два разряды дали сорок, а сорок на три не делится. Значит, не всегда.', uz: "Qirq ikkida xonalar qirqni berdi, qirq esa uchga bo'linmaydi. Demak, doim emas." },
-      2: { ru: 'Тридцать и двенадцать разные, а приём сработал.', uz: "O'ttiz va o'n ikki har xil, usul esa ishladi." },
-      3: { ru: 'Размер частей не решает. Решает то, делятся они или нет.', uz: "Qismlarning kattaligi hal qilmaydi. Bo'linadimi yoki yo'qmi, asosiysi shu." }
+      1: { ru: 'В сорок два разряды дали сорок, а сорок на три не делится. Значит, не всегда.', uz: "Qirq ikkida xonalar qirqni berdi, qirq esa uchga bo'linmaydi. Demak, doim emas.", en: 'In forty two the places gave forty, and forty does not divide by three. So not always.' },
+      2: { ru: 'Тридцать и двенадцать разные, а приём сработал.', uz: "O'ttiz va o'n ikki har xil, usul esa ishladi.", en: 'Thirty and twelve are different, and the method worked.' },
+      3: { ru: 'Размер частей не решает. Решает то, делятся они или нет.', uz: "Qismlarning kattaligi hal qilmaydi. Bo'linadimi yoki yo'qmi, asosiysi shu.", en: 'The size of the parts does not decide it. What decides is whether they divide.' }
     },
-    on_correct: { ru: 'Верно! Части выбираем по делимости.', uz: "To'g'ri! Qismlarni bo'linishiga qarab tanlaymiz." },
+    on_correct: { ru: 'Верно! Части выбираем по делимости.', uz: "To'g'ri! Qismlarni bo'linishiga qarab tanlaymiz.", en: 'Right! We choose the parts by divisibility.' },
     rule_lines: {
       ru: [
         'разбей число на два слагаемых',
@@ -288,140 +295,143 @@ const CONTENT = {
         "sonni ikki qo'shiluvchiga ajrating",
         "har biri bo'luvchiga bo'linsin",
         "har birini bo'lib, bo'linmalarni qo'shing"
-      ]
+      ],
+      en: ['split the number into two addends', 'each one must divide by the divisor', 'divide each one and add the quotients']
     },
     rule_ex: '86 : 2 = 40 + 3 = 43 · 42 : 3 = 10 + 4 = 14',
     rule_speech: {
       ru: 'Правило такое. Разбиваем число на две части, но не как попало, а так, чтобы каждая делилась. Делим каждую часть и складываем то, что вышло.',
-      uz: "Qoida shunday. Sonni ikki qismga ajratamiz, lekin qanday bo'lsa unday emas, har biri bo'linadigan qilib. Har qismni bo'lamiz va chiqqanini qo'shamiz."
+      uz: "Qoida shunday. Sonni ikki qismga ajratamiz, lekin qanday bo'lsa unday emas, har biri bo'linadigan qilib. Har qismni bo'lamiz va chiqqanini qo'shamiz.",
+      en: 'The rule is this. We split the number into two parts, but not just any way, so that each one divides. We divide each part and add what came out.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.' }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.', en: 'Now the main question of the lesson.' }
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: '84 : 6 — заполни консоль по частям', uz: "84 : 6 — konsolni qismlab to'ldiring" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: '84 : 6 — заполни консоль по частям', uz: "84 : 6 — konsolni qismlab to'ldiring", en: '84 : 6 — fill the console part by part' },
     swap_line: '84 = 60 + 24',
     cells: [
-      { head: { ru: 'первая часть', uz: 'birinchi qism' }, label: '60 : 6', ans: 10, hint: { ru: 'Шестьдесят разделить на шесть.', uz: "Oltmishni oltiga bo'ling." } },
-      { head: { ru: 'вторая часть', uz: 'ikkinchi qism' }, label: '24 : 6', ans: 4, hint: { ru: 'Двадцать четыре разделить на шесть.', uz: "Yigirma to'rtni oltiga bo'ling." } },
-      { head: { ru: 'вместе', uz: 'birgalikda' }, label: '10 + 4', ans: 14, hint: { ru: 'Сложи десять и четыре.', uz: "O'n bilan to'rtni qo'shing." } }
+      { head: { ru: 'первая часть', uz: 'birinchi qism', en: 'the first part' }, label: '60 : 6', ans: 10, hint: { ru: 'Шестьдесят разделить на шесть.', uz: "Oltmishni oltiga bo'ling.", en: 'Sixty divided by six.' } },
+      { head: { ru: 'вторая часть', uz: 'ikkinchi qism', en: 'the second part' }, label: '24 : 6', ans: 4, hint: { ru: 'Двадцать четыре разделить на шесть.', uz: "Yigirma to'rtni oltiga bo'ling.", en: 'Twenty four divided by six.' } },
+      { head: { ru: 'вместе', uz: 'birgalikda', en: 'together' }, label: '10 + 4', ans: 14, hint: { ru: 'Сложи десять и четыре.', uz: "O'n bilan to'rtni qo'shing.", en: 'Add ten and four.' } }
     ],
     check: '10 + 4 = 14',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Восемьдесят четыре разделить на шесть. Восемьдесят на шесть не делится, поэтому части взяли другие, шестьдесят и двадцать четыре.', uz: "Sakson to'rtni oltiga bo'lamiz. Saksonni oltiga bo'lib bo'lmaydi, shuning uchun qismlar boshqa olindi, oltmish va yigirma to'rt." },
-      on_correct: { ru: 'Верно! Десять и четыре, четырнадцать.', uz: "To'g'ri! O'n va to'rt, o'n to'rt." }
+      intro: { ru: 'Восемьдесят четыре разделить на шесть. Восемьдесят на шесть не делится, поэтому части взяли другие, шестьдесят и двадцать четыре.', uz: "Sakson to'rtni oltiga bo'lamiz. Saksonni oltiga bo'lib bo'lmaydi, shuning uchun qismlar boshqa olindi, oltmish va yigirma to'rt.", en: 'Eighty four divided by six. Eighty does not divide by six, so other parts were taken, sixty and twenty four.' },
+      on_correct: { ru: 'Верно! Десять и четыре, четырнадцать.', uz: "To'g'ri! O'n va to'rt, o'n to'rt.", en: 'Right! Ten and four, fourteen.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '48 : 3. Какое разбиение подходит?', uz: "48 : 3. Qaysi ajratish to'g'ri keladi?" },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '48 : 3. Какое разбиение подходит?', uz: "48 : 3. Qaysi ajratish to'g'ri keladi?", en: '48 : 3. Which split fits?' },
     opts: [
-      { ru: '(30 + 18) : 3', uz: '(30 + 18) : 3' },
-      { ru: '(40 + 8) : 3', uz: '(40 + 8) : 3' },
-      { ru: '(45 + 3) : 3', uz: '(45 + 3) : 3' },
-      { ru: '48 : (1 + 2)', uz: '48 : (1 + 2)' }
+      { ru: '(30 + 18) : 3', uz: '(30 + 18) : 3', en: '(30 + 18) : 3' },
+      { ru: '(40 + 8) : 3', uz: '(40 + 8) : 3', en: '(40 + 8) : 3' },
+      { ru: '(45 + 3) : 3', uz: '(45 + 3) : 3', en: '(45 + 3) : 3' },
+      { ru: '48 : (1 + 2)', uz: '48 : (1 + 2)', en: '48 : (1 + 2)' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сорок на три не делится, и восемь тоже. Обе части не подошли.', uz: "Qirq uchga bo'linmaydi, sakkiz ham. Ikkala qism ham to'g'ri kelmadi." },
-      2: { ru: 'Обе части и правда делятся. Но сорок пять на три в уме считать долго, возьми части попроще.', uz: "Ikkala qism ham bo'linadi, bu to'g'ri. Lekin qirq beshni uchga og'zaki hisoblash uzoq, soddaroq qismlarni oling." },
-      3: { ru: 'Здесь разделили делитель, а не делимое. Делят то, что раздают.', uz: "Bu yerda bo'luvchi ajratilgan, bo'linuvchi emas. Taqsimlanadigan narsa bo'linadi." }
+      1: { ru: 'Сорок на три не делится, и восемь тоже. Обе части не подошли.', uz: "Qirq uchga bo'linmaydi, sakkiz ham. Ikkala qism ham to'g'ri kelmadi.", en: 'Forty does not divide by three, and neither does eight. Neither part fitted.' },
+      2: { ru: 'Обе части и правда делятся. Но сорок пять на три в уме считать долго, возьми части попроще.', uz: "Ikkala qism ham bo'linadi, bu to'g'ri. Lekin qirq beshni uchga og'zaki hisoblash uzoq, soddaroq qismlarni oling.", en: 'Both parts really do divide. But forty five by three takes long in your head, take simpler parts.' },
+      3: { ru: 'Здесь разделили делитель, а не делимое. Делят то, что раздают.', uz: "Bu yerda bo'luvchi ajratilgan, bo'linuvchi emas. Taqsimlanadigan narsa bo'linadi.", en: 'Here the divisor was split, not the dividend. What is divided is what is handed out.' }
     },
     audio: {
-      intro: { ru: 'Сорок восемь разделить на три. Выбери удобное разбиение.', uz: "Qirq sakkizni uchga bo'lamiz. Qulay ajratishni tanlang." },
-      on_correct: { ru: 'Верно! Тридцать на три, десять. Восемнадцать на три, шесть. Всего шестнадцать.', uz: "To'g'ri! O'ttizni uchga, o'n. O'n sakkizni uchga, olti. Jami o'n olti." },
-      on_wrong: { ru: 'Проверь обе части. Каждая должна делиться на три.', uz: "Ikkala qismni tekshiring. Har biri uchga bo'linishi kerak." }
+      intro: { ru: 'Сорок восемь разделить на три. Выбери удобное разбиение.', uz: "Qirq sakkizni uchga bo'lamiz. Qulay ajratishni tanlang.", en: 'Forty eight divided by three. Choose a handy split.' },
+      on_correct: { ru: 'Верно! Тридцать на три, десять. Восемнадцать на три, шесть. Всего шестнадцать.', uz: "To'g'ri! O'ttizni uchga, o'n. O'n sakkizni uchga, olti. Jami o'n olti.", en: 'Right! Thirty by three, ten. Eighteen by three, six. Sixteen in all.' },
+      on_wrong: { ru: 'Проверь обе части. Каждая должна делиться на три.', uz: "Ikkala qismni tekshiring. Har biri uchga bo'linishi kerak.", en: 'Check both parts. Each one must divide by three.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи примеры по полкам', uz: 'Misollarni tokchalarga ajrating' },
-    bin_a: { ru: 'разряды подходят', uz: "xonalar to'g'ri keladi" },
-    bin_b: { ru: 'нужны другие части', uz: 'boshqa qismlar kerak' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи примеры по полкам', uz: 'Misollarni tokchalarga ajrating', en: 'Lay the examples out on the shelves' },
+    bin_a: { ru: 'разряды подходят', uz: "xonalar to'g'ri keladi", en: 'the places fit' },
+    bin_b: { ru: 'нужны другие части', uz: 'boshqa qismlar kerak', en: 'other parts are needed' },
     items: [
-      { n: '66 : 6', a: true, hint: { ru: 'Шестьдесят на шесть делится, и шесть тоже. Разряды подошли.', uz: "Oltmish oltiga bo'linadi, olti ham. Xonalar to'g'ri keldi." } },
-      { n: '91 : 7', a: false, hint: { ru: 'Девяносто на семь не делится. Нужны другие части, семьдесят и двадцать один.', uz: "To'qsonni yettiga bo'lib bo'lmaydi. Boshqa qismlar kerak, yetmish va yigirma bir." } },
-      { n: '84 : 4', a: true, hint: { ru: 'Восемьдесят на четыре делится, и четыре тоже.', uz: "Sakson to'rtga bo'linadi, to'rt ham." } },
-      { n: '72 : 3', a: false, hint: { ru: 'Семьдесят на три не делится. Возьми шестьдесят и двенадцать.', uz: "Yetmishni uchga bo'lib bo'lmaydi. Oltmish va o'n ikkini oling." } }
+      { n: '66 : 6', a: true, hint: { ru: 'Шестьдесят на шесть делится, и шесть тоже. Разряды подошли.', uz: "Oltmish oltiga bo'linadi, olti ham. Xonalar to'g'ri keldi.", en: 'Sixty divides by six, and six does too. The places fitted.' } },
+      { n: '91 : 7', a: false, hint: { ru: 'Девяносто на семь не делится. Нужны другие части, семьдесят и двадцать один.', uz: "To'qsonni yettiga bo'lib bo'lmaydi. Boshqa qismlar kerak, yetmish va yigirma bir.", en: 'Ninety does not divide by seven. Other parts are needed, seventy and twenty one.' } },
+      { n: '84 : 4', a: true, hint: { ru: 'Восемьдесят на четыре делится, и четыре тоже.', uz: "Sakson to'rtga bo'linadi, to'rt ham.", en: 'Eighty divides by four, and four does too.' } },
+      { n: '72 : 3', a: false, hint: { ru: 'Семьдесят на три не делится. Возьми шестьдесят и двенадцать.', uz: "Yetmishni uchga bo'lib bo'lmaydi. Oltmish va o'n ikkini oling.", en: 'Seventy does not divide by three. Take sixty and twelve.' } }
     ],
     audio: {
-      intro: { ru: 'Разложи примеры по полкам. Слева те, где разряды подходят, справа те, где нужны другие части.', uz: "Misollarni tokchalarga ajrating. Chapda xonalar to'g'ri keladiganlari, o'ngda boshqa qism kerak bo'lganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь первую часть. Делится ли она нацело.', uz: "Birinchi qismni tekshiring. U butun bo'linadimi." }
+      intro: { ru: 'Разложи примеры по полкам. Слева те, где разряды подходят, справа те, где нужны другие части.', uz: "Misollarni tokchalarga ajrating. Chapda xonalar to'g'ri keladiganlari, o'ngda boshqa qism kerak bo'lganlari.", en: 'Lay the examples out on the shelves. On the left those where the places fit, on the right those that need other parts.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь первую часть. Делится ли она нацело.', uz: "Birinchi qismni tekshiring. U butun bo'linadimi.", en: 'Check the first part. Does it divide with nothing left over?' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '91 : 7. Набери ответ.', uz: "91 : 7. Javobni tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '91 : 7. Набери ответ.', uz: "91 : 7. Javobni tering.", en: '91 : 7. Type the answer.' },
     ans: 13,
     check: '70 : 7 + 21 : 7 = 10 + 3',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Девяносто на семь не делится. Возьми семьдесят и двадцать один.', uz: "To'qsonni yettiga bo'lib bo'lmaydi. Yetmish va yigirma birni oling." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Девяносто на семь не делится. Возьми семьдесят и двадцать один.', uz: "To'qsonni yettiga bo'lib bo'lmaydi. Yetmish va yigirma birni oling.", en: 'Ninety does not divide by seven. Take seventy and twenty one.' },
     audio: {
-      intro: { ru: 'Девяносто один разделить на семь. Части ты только что нашёл на полке.', uz: "To'qson birni yettiga bo'ling. Qismlarni hozirgina tokchada topdingiz." },
-      on_correct: { ru: 'Верно! Десять и три, тринадцать.', uz: "To'g'ri! O'n va uch, o'n uch." }
+      intro: { ru: 'Девяносто один разделить на семь. Части ты только что нашёл на полке.', uz: "To'qson birni yettiga bo'ling. Qismlarni hozirgina tokchada topdingiz.", en: 'Ninety one divided by seven. You have just found the parts on the shelf.' },
+      on_correct: { ru: 'Верно! Десять и три, тринадцать.', uz: "To'g'ri! O'n va uch, o'n uch.", en: 'Right! Ten and three, thirteen.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Здесь начали делить и застряли. В чём ошибка?', uz: "Bu yerda bo'la boshlab, to'xtab qolishdi. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Здесь начали делить и застряли. В чём ошибка?', uz: "Bu yerda bo'la boshlab, to'xtab qolishdi. Xato nimada?", en: 'Here the dividing started and got stuck. What is the mistake?' },
     fig_line: '96 : 8 = (90 + 6) : 8',
     opts: [
-      { ru: 'девяносто на восемь не делится', uz: "to'qson sakkizga bo'linmaydi" },
-      { ru: 'шесть на восемь не делится', uz: "olti sakkizga bo'linmaydi" },
-      { ru: 'части сложили неверно', uz: "qismlar noto'g'ri qo'shilgan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'девяносто на восемь не делится', uz: "to'qson sakkizga bo'linmaydi", en: 'ninety does not divide by eight' },
+      { ru: 'шесть на восемь не делится', uz: "olti sakkizga bo'linmaydi", en: 'six does not divide by eight' },
+      { ru: 'части сложили неверно', uz: "qismlar noto'g'ri qo'shilgan", en: 'the parts were added wrongly' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Шесть и правда меньше восьми, но первая часть мешает раньше. Смотри на девяносто.', uz: "Olti haqiqatan sakkizdan kichik, lekin birinchi qism oldinroq xalaqit beradi. To'qsonga qarang." },
-      2: { ru: 'До сложения дело не дошло, части ещё не поделены.', uz: "Qo'shishgacha ish yetmadi, qismlar hali bo'linmagan." },
-      3: { ru: 'Проверь первую часть. Девяносто на восемь не делится нацело.', uz: "Birinchi qismni tekshiring. To'qson sakkizga butun bo'linmaydi." }
+      1: { ru: 'Шесть и правда меньше восьми, но первая часть мешает раньше. Смотри на девяносто.', uz: "Olti haqiqatan sakkizdan kichik, lekin birinchi qism oldinroq xalaqit beradi. To'qsonga qarang.", en: 'Six really is smaller than eight, but the first part gets in the way earlier. Look at ninety.' },
+      2: { ru: 'До сложения дело не дошло, части ещё не поделены.', uz: "Qo'shishgacha ish yetmadi, qismlar hali bo'linmagan.", en: 'It never got as far as adding, the parts are not divided yet.' },
+      3: { ru: 'Проверь первую часть. Девяносто на восемь не делится нацело.', uz: "Birinchi qismni tekshiring. To'qson sakkizga butun bo'linmaydi.", en: 'Check the first part. Ninety does not divide by eight with nothing left over.' }
     },
     audio: {
       intro: {
         ru: ['Девяносто шесть разделить на восемь. Кто-то взял разряды и остановился.', 'Найди, почему так вышло.'],
-        uz: ["To'qson oltini sakkizga bo'lish kerak. Kimdir xonalarni olib, to'xtab qoldi.", "Nega bunday bo'lganini toping."]
+        uz: ["To'qson oltini sakkizga bo'lish kerak. Kimdir xonalarni olib, to'xtab qoldi.", "Nega bunday bo'lganini toping."],
+        en: ['Ninety six divided by eight. Someone took the places and stopped.', 'Find out why it turned out that way.']
       },
-      on_correct: { ru: 'Точно! Нужны другие части, восемьдесят и шестнадцать. Десять и два, двенадцать.', uz: "Aniq! Boshqa qismlar kerak, sakson va o'n olti. O'n va ikki, o'n ikki." },
-      on_wrong: { ru: 'Проверь каждую часть по очереди.', uz: 'Har bir qismni navbat bilan tekshiring.' }
+      on_correct: { ru: 'Точно! Нужны другие части, восемьдесят и шестнадцать. Десять и два, двенадцать.', uz: "Aniq! Boshqa qismlar kerak, sakson va o'n olti. O'n va ikki, o'n ikki.", en: 'Exactly! Other parts are needed, eighty and sixteen. Ten and two, twelve.' },
+      on_wrong: { ru: 'Проверь каждую часть по очереди.', uz: 'Har bir qismni navbat bilan tekshiring.', en: 'Check each part in turn.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'А если делитель сам двузначный?', uz: "Bo'luvchining o'zi ikki xonali bo'lsa-chi?" },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'А если делитель сам двузначный?', uz: "Bo'luvchining o'zi ikki xonali bo'lsa-chi?", en: 'And what if the divisor itself is two-digit?' },
     task_line: '36 : 12',
-    task_cap: { ru: 'частей поровну по двенадцать', uz: "o'n ikkitadan teng qismlar" },
+    task_cap: { ru: 'частей поровну по двенадцать', uz: "o'n ikkitadan teng qismlar", en: 'equal parts of twelve each' },
     step1: '12 · 2 = 24',
-    step1_cap: { ru: 'мало', uz: 'kam' },
+    step1_cap: { ru: 'мало', uz: 'kam', en: 'too few' },
     step2: '12 · 3 = 36',
-    step2_cap: { ru: 'столько и есть', uz: 'roppa-rosa shuncha' },
+    step2_cap: { ru: 'столько и есть', uz: 'roppa-rosa shuncha', en: 'that is exactly it' },
     res: '36 : 12 = 3',
-    btn1: { ru: 'Взять два раза', uz: 'Ikki marta olish' },
-    btn2: { ru: 'Взять три раза', uz: 'Uch marta olish' },
-    mc_q: { ru: 'Почему здесь не разбивают на части?', uz: 'Nega bu yerda qismlarga ajratilmaydi?' },
+    btn1: { ru: 'Взять два раза', uz: 'Ikki marta olish', en: 'Take it twice' },
+    btn2: { ru: 'Взять три раза', uz: 'Uch marta olish', en: 'Take it three times' },
+    mc_q: { ru: 'Почему здесь не разбивают на части?', uz: 'Nega bu yerda qismlarga ajratilmaydi?', en: 'Why do we not split into parts here?' },
     mc_opts: [
-      { ru: 'делитель двузначный, части на него не делятся', uz: "bo'luvchi ikki xonali, qismlar unga bo'linmaydi" },
-      { ru: 'число слишком маленькое', uz: 'son juda kichik' },
-      { ru: 'так быстрее считать', uz: 'bunday hisoblash tezroq' },
-      { ru: 'на двенадцать делить нельзя', uz: "o'n ikkiga bo'lib bo'lmaydi" }
+      { ru: 'делитель двузначный, части на него не делятся', uz: "bo'luvchi ikki xonali, qismlar unga bo'linmaydi", en: 'the divisor is two-digit, the parts do not divide by it' },
+      { ru: 'число слишком маленькое', uz: 'son juda kichik', en: 'the number is too small' },
+      { ru: 'так быстрее считать', uz: 'bunday hisoblash tezroq', en: 'it is faster to count that way' },
+      { ru: 'на двенадцать делить нельзя', uz: "o'n ikkiga bo'lib bo'lmaydi", en: 'you cannot divide by twelve' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Размер тут ни при чём. Дело в делителе.', uz: "Kattalikning aloqasi yo'q. Gap bo'luvchida." },
-      2: { ru: 'Иногда и правда быстрее. Но причина в другом. Тридцать и шесть на двенадцать не делятся.', uz: "Ba'zan haqiqatan tezroq. Lekin sabab boshqa. O'ttiz ham, olti ham o'n ikkiga bo'linmaydi." },
-      3: { ru: 'Делить на двенадцать можно. Просто способ другой.', uz: "O'n ikkiga bo'lish mumkin. Faqat usul boshqa." }
+      1: { ru: 'Размер тут ни при чём. Дело в делителе.', uz: "Kattalikning aloqasi yo'q. Gap bo'luvchida.", en: 'Size has nothing to do with it. It is about the divisor.' },
+      2: { ru: 'Иногда и правда быстрее. Но причина в другом. Тридцать и шесть на двенадцать не делятся.', uz: "Ba'zan haqiqatan tezroq. Lekin sabab boshqa. O'ttiz ham, olti ham o'n ikkiga bo'linmaydi.", en: 'Sometimes it really is faster. But the reason is different. Thirty and six do not divide by twelve.' },
+      3: { ru: 'Делить на двенадцать можно. Просто способ другой.', uz: "O'n ikkiga bo'lish mumkin. Faqat usul boshqa.", en: 'You can divide by twelve. The method is simply different.' }
     },
-    mc_ok: { ru: 'Верно! На двузначный делитель части не делятся, поэтому подбираем умножением.', uz: "To'g'ri! Ikki xonali bo'luvchiga qismlar bo'linmaydi, shuning uchun ko'paytirib tanlaymiz." },
+    mc_ok: { ru: 'Верно! На двузначный делитель части не делятся, поэтому подбираем умножением.', uz: "To'g'ri! Ikki xonali bo'luvchiga qismlar bo'linmaydi, shuning uchun ko'paytirib tanlaymiz.", en: 'Right! The parts do not divide by a two-digit divisor, so we find it by multiplying.' },
     audio: {
       ru: [
         'Небольшой бонус. А если делитель сам двузначный?',
@@ -434,178 +444,184 @@ const CONTENT = {
         "O'n ikki o'ttiz oltiga necha marta sig'ishini qaraymiz. Ikki karra o'n ikki, yigirma to'rt. Kam.",
         "Uch karra o'n ikki, o'ttiz olti. Roppa-rosa shuncha edi.",
         "Demak, o'ttiz oltini o'n ikkiga bo'lsak, uch. Bu usul keyingi darsdayoq asqotadi."
-      ]
+      ],
+      en: ['A small bonus. And what if the divisor itself is two-digit?', 'We look at how many times twelve fits into thirty six. Twice twelve, twenty four. Too few.', 'Three times twelve, thirty six. That is exactly what there was.', 'So thirty six divided by twelve is three. This method will come in handy in the very next lesson.']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '88 : 8. Набери ответ.', uz: "88 : 8. Javobni tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '88 : 8. Набери ответ.', uz: "88 : 8. Javobni tering.", en: '88 : 8. Type the answer.' },
     ans: 11,
     check: '80 : 8 + 8 : 8 = 10 + 1',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Восемьдесят и восемь. Обе части делятся на восемь.', uz: "Sakson va sakkiz. Ikkala qism ham sakkizga bo'linadi." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Восемьдесят и восемь. Обе части делятся на восемь.', uz: "Sakson va sakkiz. Ikkala qism ham sakkizga bo'linadi.", en: 'Eighty and eight. Both parts divide by eight.' },
     audio: {
-      intro: { ru: 'Восемьдесят восемь разделить на восемь. Здесь разряды подходят.', uz: "Sakson sakkizni sakkizga bo'ling. Bu yerda xonalar to'g'ri keladi." },
-      on_correct: { ru: 'Верно! Десять и один, одиннадцать.', uz: "To'g'ri! O'n va bir, o'n bir." }
+      intro: { ru: 'Восемьдесят восемь разделить на восемь. Здесь разряды подходят.', uz: "Sakson sakkizni sakkizga bo'ling. Bu yerda xonalar to'g'ri keladi.", en: 'Eighty eight divided by eight. The places fit here.' },
+      on_correct: { ru: 'Верно! Десять и один, одиннадцать.', uz: "To'g'ri! O'n va bir, o'n bir.", en: 'Right! Ten and one, eleven.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '63 : 3 = ?', uz: '63 : 3 = ?' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '63 : 3 = ?', uz: '63 : 3 = ?', en: '63 : 3 = ?' },
     opts: [
-      { ru: '21', uz: '21' },
-      { ru: '20', uz: '20' },
-      { ru: '23', uz: '23' },
-      { ru: '12', uz: '12' }
+      { ru: '21', uz: '21', en: '21' },
+      { ru: '20', uz: '20', en: '20' },
+      { ru: '23', uz: '23', en: '23' },
+      { ru: '12', uz: '12', en: '12' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Разделили только шестьдесят. Три единицы остались.', uz: "Faqat oltmish bo'lindi. Uch birlik qoldi." },
-      2: { ru: 'Шестьдесят разделили, а три приписали. Три тоже делится, три на три, один.', uz: "Oltmish bo'lindi, uch esa yozib qo'yildi. Uch ham bo'linadi, uchni uchga, bir." },
-      3: { ru: 'Цифры ответа переставлены местами. Двадцать один, а не двенадцать.', uz: "Javob raqamlari o'rin almashgan. Yigirma bir, o'n ikki emas." }
+      1: { ru: 'Разделили только шестьдесят. Три единицы остались.', uz: "Faqat oltmish bo'lindi. Uch birlik qoldi.", en: 'Only sixty was divided. Three units were left.' },
+      2: { ru: 'Шестьдесят разделили, а три приписали. Три тоже делится, три на три, один.', uz: "Oltmish bo'lindi, uch esa yozib qo'yildi. Uch ham bo'linadi, uchni uchga, bir.", en: 'Sixty was divided and three was written on. Three divides too, three by three, one.' },
+      3: { ru: 'Цифры ответа переставлены местами. Двадцать один, а не двенадцать.', uz: "Javob raqamlari o'rin almashgan. Yigirma bir, o'n ikki emas.", en: 'The digits of the answer were swapped round. Twenty one, not twelve.' }
     },
     audio: {
-      intro: { ru: 'Шестьдесят три разделить на три.', uz: "Oltmish uchni uchga bo'ling." },
-      on_correct: { ru: 'Верно! Двадцать и один, двадцать один.', uz: "To'g'ri! Yigirma va bir, yigirma bir." },
-      on_wrong: { ru: 'Раздели шестьдесят, потом три, и сложи.', uz: "Oltmishni, keyin uchni bo'ling va qo'shing." }
+      intro: { ru: 'Шестьдесят три разделить на три.', uz: "Oltmish uchni uchga bo'ling.", en: 'Sixty three divided by three.' },
+      on_correct: { ru: 'Верно! Двадцать и один, двадцать один.', uz: "To'g'ri! Yigirma va bir, yigirma bir.", en: 'Right! Twenty and one, twenty one.' },
+      on_wrong: { ru: 'Раздели шестьдесят, потом три, и сложи.', uz: "Oltmishni, keyin uchni bo'ling va qo'shing.", en: 'Divide sixty, then three, and add.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-    q: { ru: 'Привезли 32 детали в первой партии и 34 во второй. Их разложили поровну на 3 полки. Сколько деталей на одной полке?', uz: "Birinchi partiyada 32 ta, ikkinchisida 34 ta detal keldi. Ular 3 tokchaga teng taqsimlandi. Bitta tokchada nechta detal bor?" },
-    q_speech: { ru: 'Тридцать две детали и тридцать четыре разложили на три полки поровну. Сколько на одной?', uz: "O'ttiz ikkita va o'ttiz to'rtta detal uch tokchaga tengdan terildi. Bittasida nechta?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+    q: { ru: 'Привезли 32 детали в первой партии и 34 во второй. Их разложили поровну на 3 полки. Сколько деталей на одной полке?', uz: "Birinchi partiyada 32 ta, ikkinchisida 34 ta detal keldi. Ular 3 tokchaga teng taqsimlandi. Bitta tokchada nechta detal bor?", en: 'They received 32 parts in the first batch and 34 in the second. They were laid out equally on 3 shelves. How many parts on one shelf?' },
+    q_speech: { ru: 'Тридцать две детали и тридцать четыре разложили на три полки поровну. Сколько на одной?', uz: "O'ttiz ikkita va o'ttiz to'rtta detal uch tokchaga tengdan terildi. Bittasida nechta?", en: 'Thirty two parts and thirty four were laid out equally on three shelves. How many on one?' },
     tbl_heads: [
-      { ru: 'Первая партия', uz: 'Birinchi partiya' },
-      { ru: 'Вторая партия', uz: 'Ikkinchi partiya' },
-      { ru: 'Полок', uz: 'Tokchalar' }
+      { ru: 'Первая партия', uz: 'Birinchi partiya', en: 'The first batch' },
+      { ru: 'Вторая партия', uz: 'Ikkinchi partiya', en: 'The second batch' },
+      { ru: 'Полок', uz: 'Tokchalar', en: 'Shelves' }
     ],
     tbl_cells: ['32', '34', '3'],
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '(32 + 34) : 3', uz: '(32 + 34) : 3' },
-      { ru: '32 + 34 : 3', uz: '32 + 34 : 3' },
-      { ru: '32 : 3 + 34', uz: '32 : 3 + 34' },
-      { ru: '(34 − 32) : 3', uz: '(34 − 32) : 3' }
+      { ru: '(32 + 34) : 3', uz: '(32 + 34) : 3', en: '(32 + 34) : 3' },
+      { ru: '32 + 34 : 3', uz: '32 + 34 : 3', en: '32 + 34 : 3' },
+      { ru: '32 : 3 + 34', uz: '32 : 3 + 34', en: '32 : 3 + 34' },
+      { ru: '(34 − 32) : 3', uz: '(34 − 32) : 3', en: '(34 − 32) : 3' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Без скобок разделится только вторая партия. А раскладывают обе вместе.', uz: "Qavssiz faqat ikkinchi partiya bo'linadi. Ular esa birga taqsimlanadi." },
-      2: { ru: 'Тридцать два на три поровну не делится, да и вторую партию тут забыли разделить.', uz: "O'ttiz ikki uchga teng bo'linmaydi, ikkinchi partiyani bo'lish ham unutilgan." },
-      3: { ru: 'Вычитание нашло бы разницу партий. А нам нужно всё вместе.', uz: "Ayirish partiyalar farqini topadi. Bizga esa hammasi birga kerak." }
+      1: { ru: 'Без скобок разделится только вторая партия. А раскладывают обе вместе.', uz: "Qavssiz faqat ikkinchi partiya bo'linadi. Ular esa birga taqsimlanadi.", en: 'Without brackets only the second batch gets divided. And both are laid out together.' },
+      2: { ru: 'Тридцать два на три поровну не делится, да и вторую партию тут забыли разделить.', uz: "O'ttiz ikki uchga teng bo'linmaydi, ikkinchi partiyani bo'lish ham unutilgan.", en: 'Thirty two does not divide by three equally, and the second batch was forgotten here too.' },
+      3: { ru: 'Вычитание нашло бы разницу партий. А нам нужно всё вместе.', uz: "Ayirish partiyalar farqini topadi. Bizga esa hammasi birga kerak.", en: 'Subtraction would find the difference between the batches. And we need everything together.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang." },
+    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang.", en: 'The line is correct. Now count step by step.' },
     step1_q: '32 + 34 = ?',
     ans1: 66,
-    hint1: { ru: 'Сложи обе партии.', uz: "Ikkala partiyani qo'shing." },
+    hint1: { ru: 'Сложи обе партии.', uz: "Ikkala partiyani qo'shing.", en: 'Add both batches.' },
     step2_q: '66 : 3 = ?',
     ans2: 22,
-    hint2: { ru: 'Шестьдесят и шесть. Обе части делятся на три.', uz: "Oltmish va olti. Ikkala qism ham uchga bo'linadi." },
+    hint2: { ru: 'Шестьдесят и шесть. Обе части делятся на три.', uz: "Oltmish va olti. Ikkala qism ham uchga bo'linadi.", en: 'Sixty and six. Both parts divide by three.' },
     check: '22 · 3 = 66',
-    setup_audio: { ru: 'Задача из мастерской. Две партии деталей и три полки. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Ikki partiya detal va uchta tokcha. Avval yozuvni tanlang, keyin qadamlab hisoblang." },
+    setup_audio: { ru: 'Задача из мастерской. Две партии деталей и три полки. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Ikki partiya detal va uchta tokcha. Avval yozuvni tanlang, keyin qadamlab hisoblang.", en: 'A problem from the workshop. Two batches of parts and three shelves. First choose the line, then count step by step.' },
     audio: {
-      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi." },
-      on_correct: { ru: 'Двадцать две детали на полке! И проверка сошлась, двадцать два на три, шестьдесят шесть.', uz: "Tokchada yigirma ikkita detal! Tekshirish ham mos keldi, yigirma ikki karra uch, oltmish olti." },
-      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.' }
+      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi.", en: 'The whole rule comes in handy here.' },
+      on_correct: { ru: 'Двадцать две детали на полке! И проверка сошлась, двадцать два на три, шестьдесят шесть.', uz: "Tokchada yigirma ikkita detal! Tekshirish ham mos keldi, yigirma ikki karra uch, oltmish olti.", en: 'Twenty two parts on a shelf! And the check adds up, twenty two times three, sixty six.' },
+      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.', en: 'Count it again, step by step.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Три примера — и приём твой', uz: 'Uch misol va usul sizniki' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Три примера — и приём твой', uz: 'Uch misol va usul sizniki', en: 'Three examples and the method is yours' },
     items: [
       {
         kind: 'num',
-        q: { ru: '78 : 6. Набери ответ.', uz: "78 : 6. Javobni tering." },
-        q_speech: { ru: 'Семьдесят восемь разделить на шесть.', uz: "Yetmish sakkizni oltiga bo'lish." },
+        q: { ru: '78 : 6. Набери ответ.', uz: "78 : 6. Javobni tering.", en: '78 : 6. Type the answer.' },
+        q_speech: { ru: 'Семьдесят восемь разделить на шесть.', uz: "Yetmish sakkizni oltiga bo'lish.", en: 'Seventy eight divided by six.' },
         ans: 13,
-        hint: { ru: 'Шестьдесят и восемнадцать.', uz: "Oltmish va o'n sakkiz." }
+        hint: { ru: 'Шестьдесят и восемнадцать.', uz: "Oltmish va o'n sakkiz.", en: 'Sixty and eighteen.' }
       },
       {
         kind: 'mc',
-        q: { ru: '92 : 4 = ?', uz: '92 : 4 = ?' },
-        q_speech: { ru: 'Девяносто два разделить на четыре.', uz: "To'qson ikkini to'rtga bo'lish." },
-        opt0: { ru: '23', uz: '23' },
-        opt1: { ru: '22', uz: '22' },
-        opt2: { ru: '24', uz: '24' },
-        opt3: { ru: '20', uz: '20' },
-        wrong_1: { ru: 'Восемьдесят на четыре, двадцать. Двенадцать на четыре, три. Сложи ещё раз.', uz: "Saksonni to'rtga, yigirma. O'n ikkini to'rtga, uch. Yana qo'shing." },
-        wrong_2: { ru: 'Проверь вторую часть. Двенадцать на четыре это три, а не четыре.', uz: "Ikkinchi qismni tekshiring. O'n ikkini to'rtga bo'lsak uch, to'rt emas." },
-        wrong_3: { ru: 'Это только восемьдесят на четыре. Двенадцать остались.', uz: "Bu faqat sakson to'rtga. O'n ikki qolib ketdi." }
+        q: { ru: '92 : 4 = ?', uz: '92 : 4 = ?', en: '92 : 4 = ?' },
+        q_speech: { ru: 'Девяносто два разделить на четыре.', uz: "To'qson ikkini to'rtga bo'lish.", en: 'Ninety two divided by four.' },
+        opt0: { ru: '23', uz: '23', en: '23' },
+        opt1: { ru: '22', uz: '22', en: '22' },
+        opt2: { ru: '24', uz: '24', en: '24' },
+        opt3: { ru: '20', uz: '20', en: '20' },
+        wrong_1: { ru: 'Восемьдесят на четыре, двадцать. Двенадцать на четыре, три. Сложи ещё раз.', uz: "Saksonni to'rtga, yigirma. O'n ikkini to'rtga, uch. Yana qo'shing.", en: 'Eighty by four, twenty. Twelve by four, three. Add again.' },
+        wrong_2: { ru: 'Проверь вторую часть. Двенадцать на четыре это три, а не четыре.', uz: "Ikkinchi qismni tekshiring. O'n ikkini to'rtga bo'lsak uch, to'rt emas.", en: 'Check the second part. Twelve by four is three, not four.' },
+        wrong_3: { ru: 'Это только восемьдесят на четыре. Двенадцать остались.', uz: "Bu faqat sakson to'rtga. O'n ikki qolib ketdi.", en: 'That is only eighty by four. Twelve were left.' }
       },
       {
         kind: 'mc',
-        q: { ru: '75 : 3 = ?', uz: '75 : 3 = ?' },
-        q_speech: { ru: 'Семьдесят пять разделить на три.', uz: "Yetmish beshni uchga bo'lish." },
-        opt0: { ru: '25', uz: '25' },
-        opt1: { ru: '24', uz: '24' },
-        opt2: { ru: '21', uz: '21' },
-        opt3: { ru: '35', uz: '35' },
-        wrong_1: { ru: 'Шестьдесят на три, двадцать. Пятнадцать на три, пять. Вместе больше.', uz: "Oltmishni uchga, yigirma. O'n beshni uchga, besh. Birgalikda ko'proq." },
-        wrong_2: { ru: 'Это ответ для шестидесяти трёх. Здесь число другое.', uz: "Bu oltmish uch uchun javob. Bu yerda son boshqa." },
-        wrong_3: { ru: 'Слишком много, трижды тридцать пять это больше ста.', uz: "Juda ko'p, uch karra o'ttiz besh yuzdan katta." }
+        q: { ru: '75 : 3 = ?', uz: '75 : 3 = ?', en: '75 : 3 = ?' },
+        q_speech: { ru: 'Семьдесят пять разделить на три.', uz: "Yetmish beshni uchga bo'lish.", en: 'Seventy five divided by three.' },
+        opt0: { ru: '25', uz: '25', en: '25' },
+        opt1: { ru: '24', uz: '24', en: '24' },
+        opt2: { ru: '21', uz: '21', en: '21' },
+        opt3: { ru: '35', uz: '35', en: '35' },
+        wrong_1: { ru: 'Шестьдесят на три, двадцать. Пятнадцать на три, пять. Вместе больше.', uz: "Oltmishni uchga, yigirma. O'n beshni uchga, besh. Birgalikda ko'proq.", en: 'Sixty by three, twenty. Fifteen by three, five. Together it is more.' },
+        wrong_2: { ru: 'Это ответ для шестидесяти трёх. Здесь число другое.', uz: "Bu oltmish uch uchun javob. Bu yerda son boshqa.", en: 'That is the answer for sixty three. The number here is different.' },
+        wrong_3: { ru: 'Слишком много, трижды тридцать пять это больше ста.', uz: "Juda ko'p, uch karra o'ttiz besh yuzdan katta.", en: 'Too many, three times thirty five is more than a hundred.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Части можно выбирать по-разному, а ответ будет один и тот же. Восемьдесят шесть на два можно считать как восемьдесят и шесть, а можно как шестьдесят и двадцать шесть, и даже как сорок и сорок шесть. Каждый раз получится сорок три. Математики проверили это сразу для всех чисел и доказали, что иначе не бывает. Поэтому смело выбирай те части, которые тебе удобнее.',
-      uz: "Qismlarni har xil tanlash mumkin, javob esa bir xil chiqadi. Sakson oltini ikkiga bo'lishda sakson va olti deb ham, oltmish va yigirma olti deb ham, hatto qirq va qirq olti deb ham olish mumkin. Har safar qirq uch chiqadi. Matematiklar buni hamma sonlar uchun tekshirib, boshqacha bo'lmasligini isbotlashgan. Shuning uchun o'zingizga qulay qismlarni bemalol tanlang."
+      uz: "Qismlarni har xil tanlash mumkin, javob esa bir xil chiqadi. Sakson oltini ikkiga bo'lishda sakson va olti deb ham, oltmish va yigirma olti deb ham, hatto qirq va qirq olti deb ham olish mumkin. Har safar qirq uch chiqadi. Matematiklar buni hamma sonlar uchun tekshirib, boshqacha bo'lmasligini isbotlashgan. Shuning uchun o'zingizga qulay qismlarni bemalol tanlang.",
+      en: 'The parts can be chosen in different ways, and the answer will be the same. Eighty six by two can be counted as eighty and six, or as sixty and twenty six, and even as forty and forty six. Every time you get forty three. Mathematicians checked this for all numbers at once and proved that it cannot be otherwise. So choose the parts that suit you best.'
     },
     fact_audio: {
       ru: 'Части можно выбирать по-разному, а ответ будет один и тот же. Восемьдесят шесть на два можно считать как восемьдесят и шесть, а можно как шестьдесят и двадцать шесть, и даже как сорок и сорок шесть. Каждый раз получится сорок три. Математики проверили это сразу для всех чисел и доказали, что иначе не бывает. Мы весь урок искали удобные части, и вот почему это можно делать смело.',
-      uz: "Qismlarni har xil tanlash mumkin, javob esa bir xil chiqadi. Sakson oltini ikkiga bo'lishda sakson va olti deb ham, oltmish va yigirma olti deb ham, hatto qirq va qirq olti deb ham olish mumkin. Har safar qirq uch chiqadi. Matematiklar buni hamma sonlar uchun tekshirib, boshqacha bo'lmasligini isbotlashgan. Butun dars qulay qismlarni qidirdik, mana nega buni bemalol qilish mumkin."
+      uz: "Qismlarni har xil tanlash mumkin, javob esa bir xil chiqadi. Sakson oltini ikkiga bo'lishda sakson va olti deb ham, oltmish va yigirma olti deb ham, hatto qirq va qirq olti deb ham olish mumkin. Har safar qirq uch chiqadi. Matematiklar buni hamma sonlar uchun tekshirib, boshqacha bo'lmasligini isbotlashgan. Butun dars qulay qismlarni qidirdik, mana nega buni bemalol qilish mumkin.",
+      en: 'The parts can be chosen in different ways, and the answer will be the same. Eighty six by two can be counted as eighty and six, or as sixty and twenty six, and even as forty and forty six. Every time you get forty three. Mathematicians checked this for all numbers at once and proved that it cannot be otherwise. All lesson we looked for handy parts, and this is why it can be done without worry.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Разбей число на части, которые делятся, и сложи частные.', uz: "Sonni bo'linadigan qismlarga ajrating va bo'linmalarni qo'shing." }
+      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.', en: 'The final check, three examples.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Разбей число на части, которые делятся, и сложи частные.', uz: "Sonni bo'linadigan qismlarga ajrating va bo'linmalarni qo'shing.", en: 'Split the number into parts that divide and add the quotients.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Полки заполнены поровну!', uz: "Tokchalar tengdan to'ldi!" },
-    cando: { ru: 'Теперь ты делишь двузначное число на однозначное без таблицы.', uz: "Endi siz ikki xonali sonni bir xonaliga jadvalsiz bo'lasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Полки заполнены поровну!', uz: "Tokchalar tengdan to'ldi!", en: 'The shelves are filled equally!' },
+    cando: { ru: 'Теперь ты делишь двузначное число на однозначное без таблицы.', uz: "Endi siz ikki xonali sonni bir xonaliga jadvalsiz bo'lasiz.", en: 'Now you divide a two-digit number by a one-digit number without a table.' },
     rule_recap: {
       ru: '86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Части выбирай по делимости, а не по разрядам.',
-      uz: "86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Qismlarni xonaga emas, bo'linishiga qarab tanlang."
+      uz: "86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Qismlarni xonaga emas, bo'linishiga qarab tanlang.",
+      en: '86 : 2 = (80 + 6) : 2 = 40 + 3 = 43. Choose the parts by divisibility, not by place.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 12: деление суммы; урок 17: умножение по частям', uz: "12-dars: yig'indini bo'lish; 17-dars: qismlab ko'paytirish" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'деление с остатком', uz: "qoldiqli bo'lish" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 12: деление суммы; урок 17: умножение по частям', uz: "12-dars: yig'indini bo'lish; 17-dars: qismlab ko'paytirish", en: 'lesson 12: dividing a sum; lesson 17: multiplying by parts' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'деление с остатком', uz: "qoldiqli bo'lish", en: 'division with a remainder' },
     audio: {
       ru: 'Полки заполнены поровну, и ни одна деталь не потерялась. Запомни главное. Разбей число на части, которые делятся, раздели каждую и сложи. А если поровну не выходит и что-то остаётся? В следующий раз узнаем, как это записывают!',
-      uz: "Tokchalar tengdan to'ldi, birorta detal yo'qolmadi. Asosiysini eslab qoling. Sonni bo'linadigan qismlarga ajrating, har birini bo'ling va qo'shing. Teng chiqmasa va biror narsa ortib qolsa-chi? Keyingi safar buni qanday yozishni bilib olamiz!"
+      uz: "Tokchalar tengdan to'ldi, birorta detal yo'qolmadi. Asosiysini eslab qoling. Sonni bo'linadigan qismlarga ajrating, har birini bo'ling va qo'shing. Teng chiqmasa va biror narsa ortib qolsa-chi? Keyingi safar buni qanday yozishni bilib olamiz!",
+      en: 'The shelves are filled equally and not a single part was lost. Remember the main thing. Split the number into parts that divide, divide each one and add. And what if it does not come out equally and something is left? Next time we will find out how that is written!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Разберём заказ по частям.', uz: 'Buyurtmani qismlarga ajratamiz.' },
-  s2:  { ru: 'А теперь случай похитрее.', uz: 'Endi biroz qiyinroq holat.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz." },
-  s5:  { ru: 'Проверим приём.', uz: 'Usulni tekshiramiz.' },
-  s6:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s7:  { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s8:  { ru: 'Кто-то застрял на середине.', uz: "Kimdir yarmida to'xtab qoldi." },
-  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s10: { ru: 'И ещё один сам.', uz: "Yana bittasini o'zingiz." },
-  s11: { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Заказ выполнен. Идём дальше!', uz: 'Buyurtma bajarildi. Davom etamiz!' }
+  s1:  { ru: 'Разберём заказ по частям.', uz: 'Buyurtmani qismlarga ajratamiz.', en: 'Let us take the order apart.' },
+  s2:  { ru: 'А теперь случай похитрее.', uz: 'Endi biroz qiyinroq holat.', en: 'And now a trickier case.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz.", en: 'Let us put it together part by part.' },
+  s5:  { ru: 'Проверим приём.', uz: 'Usulni tekshiramiz.', en: 'Let us test the method.' },
+  s6:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s7:  { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s8:  { ru: 'Кто-то застрял на середине.', uz: "Kimdir yarmida to'xtab qoldi.", en: 'Someone got stuck halfway.' },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s10: { ru: 'И ещё один сам.', uz: "Yana bittasini o'zingiz.", en: 'And one more on your own.' },
+  s11: { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Заказ выполнен. Идём дальше!', uz: 'Buyurtma bajarildi. Davom etamiz!', en: 'The order is done. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Полки заполнены поровну, и теперь ты делишь двузначное число без таблицы. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Tokchalar tengdan to'ldi, endi siz ikki xonali sonni jadvalsiz bo'lasiz. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Tokchalar tengdan to'ldi, endi siz ikki xonali sonni jadvalsiz bo'lasiz. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The shelves are filled equally, and now you divide a two-digit number without a table. Thank you for your help!'
 };
 
 // ============================================================
@@ -961,7 +977,7 @@ const SplitFig = () => {
     ))}
     <rect x="166" y="38" width="42" height="40" rx="9" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2.4"/>
     <text x="187" y="64" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">43</text>
-    <text x="110" y="112" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'один и тот же ответ' : 'bir xil javob'}</text>
+    <text x="110" y="112" textAnchor="middle" fontSize="8.5" fontWeight="700" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'один и тот же ответ', 'bir xil javob', 'the same answer')}</text>
   </svg>
   );
 };
@@ -1094,7 +1110,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1441,7 +1457,7 @@ const Screen4 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1779,7 +1795,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="mono d18-steplabel lm-reveal">{stepNum === 0 ? c.step1_q : c.step2_q}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d18-res lm-reveal">{c.ans2}</span>}
@@ -1894,7 +1910,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1965,7 +1981,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d18-final-scene fade-up delay-1"><RackScene gathered/></div>
@@ -1986,7 +2002,7 @@ export default function TwoDigitDivLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2053,7 +2069,7 @@ export default function TwoDigitDivLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

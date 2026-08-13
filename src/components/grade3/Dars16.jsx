@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -152,8 +152,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-16',
-  lessonTitle: { ru: 'Урок 16. Делители и кратные числа', uz: "16-dars. Bo'luvchilar va karrali sonlar" }
+  lessonId: 'grade3-16',
+  lessonTitle: { ru: 'Урок 16. Делители и кратные числа', uz: "16-dars. Bo'luvchilar va karrali sonlar", en: 'Lesson 16. Divisors and multiples' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 16»): s0 xuk (12 lampa) · s1 ko'prik (tekis bo'linadi va
 // bo'linmaydi) · s2 BO'LUVCHILAR modeli (qatorlar) · s3 SONLAR O'QIDA belgilash (darslik) ·
@@ -193,15 +193,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Делители и кратные числа', uz: "Bo'luvchilar va karrali sonlar" },
-    lead: { ru: 'Двенадцать ламп надо разложить в равные ряды', uz: "O'n ikkita lampani teng qatorlarga terish kerak" },
-    rail_cap: { ru: 'сегодня работаем с числом 12', uz: 'bugun 12 soni bilan ishlaymiz' },
-    q: { ru: 'По сколько ламп можно разложить 12 ровно, без остатка?', uz: "12 lampani nechtadan qilib qoldiqsiz terish mumkin?" },
-    opt0: { ru: 'по 4', uz: '4 tadan' },
-    opt1: { ru: 'по 5', uz: '5 tadan' },
-    opt2: { ru: 'по 7', uz: '7 tadan' },
-    opt3: { ru: 'по 8', uz: '8 tadan' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Делители и кратные числа', uz: "Bo'luvchilar va karrali sonlar", en: 'Divisors and multiples' },
+    lead: { ru: 'Двенадцать ламп надо разложить в равные ряды', uz: "O'n ikkita lampani teng qatorlarga terish kerak", en: 'Twelve lamps must be laid out in equal rows' },
+    rail_cap: { ru: 'сегодня работаем с числом 12', uz: 'bugun 12 soni bilan ishlaymiz', en: 'today we work with the number 12' },
+    q: { ru: 'По сколько ламп можно разложить 12 ровно, без остатка?', uz: "12 lampani nechtadan qilib qoldiqsiz terish mumkin?", en: 'How many lamps per row can 12 be laid out in exactly, with none left over?' },
+    opt0: { ru: 'по 4', uz: '4 tadan', en: '4 each' },
+    opt1: { ru: 'по 5', uz: '5 tadan', en: '5 each' },
+    opt2: { ru: 'по 7', uz: '7 tadan', en: '7 each' },
+    opt3: { ru: 'по 8', uz: '8 tadan', en: '8 each' },
     audio: {
       intro: {
         ru: [
@@ -215,35 +215,40 @@ const CONTENT = {
           "Bit o'n ikkita lampa keltirdi va ularni teng qatorlarga terishni so'rayapti.",
           "Qatorlar tekis chiqishi kerak. Ortiqcha lampa qolmasligi lozim.",
           "Sizningcha, nechtadan qilib tersak, tekis chiqadi?"
-        ]
+        ],
+        en: ['The topic of the lesson is called divisors and multiples. We will find out which numbers divide a number exactly and which do not.', 'Bit has brought twelve lamps and asks us to lay them out in equal rows.', 'The rows must come out even. No lamps should be left over.', 'How many lamps per row do you think will lay out exactly?']
       },
       on_correct: {
         ru: 'Верно! По четыре получится ровно три ряда, и ни одной лампы не останется.',
-        uz: "To'g'ri! To'rttadan olsak, roppa-rosa uch qator chiqadi, birorta lampa ortmaydi."
+        uz: "To'g'ri! To'rttadan olsak, roppa-rosa uch qator chiqadi, birorta lampa ortmaydi.",
+        en: 'Right! Four each gives exactly three rows, and not a single lamp is left.'
       },
       on_wrong1: {
         ru: 'По пять уложится два ряда, и две лампы останутся лишними. Значит, ровно не вышло.',
-        uz: "Beshtadan olsak, ikki qator chiqadi, ikkita lampa ortib qoladi. Demak, tekis chiqmadi."
+        uz: "Beshtadan olsak, ikki qator chiqadi, ikkita lampa ortib qoladi. Demak, tekis chiqmadi.",
+        en: 'Five each fits two rows, and two lamps are left over. So it did not come out exactly.'
       },
       on_wrong2: {
         ru: 'Семь уложится один раз, и пять ламп останутся.',
-        uz: "Yettita bir marta joylashadi, beshta lampa ortib qoladi."
+        uz: "Yettita bir marta joylashadi, beshta lampa ortib qoladi.",
+        en: 'Seven fits once, and five lamps are left.'
       },
       on_idk: {
         ru: 'Восемь тоже уложится один раз, останутся четыре лампы.',
-        uz: "Sakkizta ham bir marta joylashadi, to'rtta lampa ortib qoladi."
+        uz: "Sakkizta ham bir marta joylashadi, to'rtta lampa ortib qoladi.",
+        en: 'Eight also fits once, and four lamps are left.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz' },
-    lead: { ru: 'Одно число, а два разных случая', uz: 'Bitta son, lekin ikki xil holat' },
-    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing' },
-    card1: { ru: '12 : 4 = 3', uz: '12 : 4 = 3' },
-    card1_cap: { ru: 'делится ровно', uz: "qoldiqsiz bo'linadi" },
-    card2: { ru: '12 : 5', uz: '12 : 5' },
-    card2_cap: { ru: 'два ряда и 2 лампы лишние', uz: 'ikki qator va 2 lampa ortadi' },
+    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz', en: 'Recalling' },
+    lead: { ru: 'Одно число, а два разных случая', uz: 'Bitta son, lekin ikki xil holat', en: 'One number, but two different cases' },
+    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing', en: 'Tap a card' },
+    card1: { ru: '12 : 4 = 3', uz: '12 : 4 = 3', en: '12 : 4 = 3' },
+    card1_cap: { ru: 'делится ровно', uz: "qoldiqsiz bo'linadi", en: 'divides exactly' },
+    card2: { ru: '12 : 5', uz: '12 : 5', en: '12 : 5' },
+    card2_cap: { ru: 'два ряда и 2 лампы лишние', uz: 'ikki qator va 2 lampa ortadi', en: 'two rows and 2 lamps left over' },
     audio: {
       ru: [
         'Одно и то же число, а два разных случая. Открой первую карточку.',
@@ -256,13 +261,14 @@ const CONTENT = {
         "O'n ikkini to'rtga bo'lsak, uch. Tekis, hech narsa qolmadi.",
         "O'n ikkini beshga esa qoldiqsiz bo'lib bo'lmaydi. Ikki qator bor, ikkita lampa ortiqcha.",
         "Bugun asosiysi ana shu farq. Qoldiqsiz bo'ladimi yoki yo'qmi."
-      ]
+      ],
+      en: ['The same number, but two different cases. Open the first card.', 'Twelve divided by four, three. Exactly, nothing left.', 'And twelve does not divide by five exactly. There are two rows, and two lamps left over.', 'That difference is the main thing today. Does it divide exactly or not.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Разложим 12 всеми ровными способами', uz: "12 ni barcha tekis usullarda teramiz" },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Разложим 12 всеми ровными способами', uz: "12 ni barcha tekis usullarda teramiz", en: 'Let us lay 12 out in every exact way' },
     rows: [
       { by: 1, rows: 12 },
       { by: 2, rows: 6 },
@@ -271,11 +277,11 @@ const CONTENT = {
       { by: 6, rows: 2 },
       { by: 12, rows: 1 }
     ],
-    list_cap: { ru: 'делители 12', uz: "12 ning bo'luvchilari" },
-    btn1: { ru: 'Разложить по одному', uz: 'Bittadan terish' },
-    btn2: { ru: 'Дальше по два и по три', uz: 'Keyin ikkitadan va uchtadan' },
-    btn3: { ru: 'И остальные способы', uz: 'Qolgan usullar ham' },
-    done_text: { ru: 'Шесть способов, шесть чисел. Двенадцать делится ровно на каждое из них.', uz: "Olti usul, olti son. O'n ikki ularning har biriga qoldiqsiz bo'linadi." },
+    list_cap: { ru: 'делители 12', uz: "12 ning bo'luvchilari", en: 'divisors of 12' },
+    btn1: { ru: 'Разложить по одному', uz: 'Bittadan terish', en: 'Lay out one each' },
+    btn2: { ru: 'Дальше по два и по три', uz: 'Keyin ikkitadan va uchtadan', en: 'Then two each and three each' },
+    btn3: { ru: 'И остальные способы', uz: 'Qolgan usullar ham', en: 'And the other ways' },
+    done_text: { ru: 'Шесть способов, шесть чисел. Двенадцать делится ровно на каждое из них.', uz: "Olti usul, olti son. O'n ikki ularning har biriga qoldiqsiz bo'linadi.", en: 'Six ways, six numbers. Twelve divides exactly by each of them.' },
     audio: {
       ru: [
         'Разложим двенадцать всеми способами, какие получаются ровно.',
@@ -290,19 +296,20 @@ const CONTENT = {
         "Ikkitadan, olti qator. Uchtadan, to'rt qator. Bu ham tekis.",
         "To'rttadan, oltitadan. Va nihoyat, hammasi bitta qatorga.",
         "Ro'yxatga qarang. Bir, ikki, uch, to'rt, olti, o'n ikki. Bular o'n ikkini qoldiqsiz bo'ladigan barcha sonlar."
-      ]
+      ],
+      en: ['Let us lay twelve out in every way that comes out exactly.', 'One each. Twelve rows. Exactly.', 'Two each, six rows. Three each, four rows. Exactly too.', 'Four each, six each. And finally all twelve in one row.', 'Look at the list. One, two, three, four, six, twelve. These are all the numbers that divide twelve exactly.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Числовая ось', uz: "Sonlar o'qi" },
-    lead: { ru: 'Отметим делители 12 на числовой оси', uz: "12 ning bo'luvchilarini sonlar o'qida belgilaymiz" },
-    book_note: { ru: 'задание из учебника, стр. 59', uz: 'kitobdagi topshiriq, 59-bet' },
+    eyebrow: { ru: 'Числовая ось', uz: "Sonlar o'qi", en: 'The number line' },
+    lead: { ru: 'Отметим делители 12 на числовой оси', uz: "12 ning bo'luvchilarini sonlar o'qida belgilaymiz", en: 'Let us mark the divisors of 12 on the number line' },
+    book_note: { ru: 'задание из учебника, стр. 59', uz: 'kitobdagi topshiriq, 59-bet', en: 'a task from the textbook, page 59' },
     divisors: [1, 2, 3, 4, 6, 12],
     others: [5, 7, 8, 9, 10, 11],
-    btn1: { ru: 'Зажечь делители', uz: "Bo'luvchilarni yoqish" },
-    btn2: { ru: 'А остальные?', uz: 'Qolganlari-chi?' },
-    done_text: { ru: 'Шесть отметок из двенадцати. Остальные числа делят двенадцать с остатком.', uz: "O'n ikkitadan oltitasi belgilandi. Qolgan sonlar o'n ikkini qoldiq bilan bo'ladi." },
+    btn1: { ru: 'Зажечь делители', uz: "Bo'luvchilarni yoqish", en: 'Light up the divisors' },
+    btn2: { ru: 'А остальные?', uz: 'Qolganlari-chi?', en: 'And the rest?' },
+    done_text: { ru: 'Шесть отметок из двенадцати. Остальные числа делят двенадцать с остатком.', uz: "O'n ikkitadan oltitasi belgilandi. Qolgan sonlar o'n ikkini qoldiq bilan bo'ladi.", en: 'Six marks out of twelve. The other numbers divide twelve with a remainder.' },
     audio: {
       ru: [
         'В учебнике это задание есть. Отметить делители двенадцати на числовой оси.',
@@ -315,26 +322,27 @@ const CONTENT = {
         "Bir, ikki, uch, to'rt, olti va o'n ikki yonadi.",
         "Besh, yetti, sakkiz, to'qqiz, o'n va o'n bir esa kulrang qoladi. Ular o'n ikkini qoldiqsiz bo'lmaydi.",
         "Chekkalarga e'tibor bering. Bir har qanday sonni bo'ladi, sonning o'zi ham o'zini bo'ladi. Ularni ko'pincha unutishadi."
-      ]
+      ],
+      en: ['The textbook has this task. Mark the divisors of twelve on the number line.', 'One, two, three, four, six and twelve light up.', 'And five, seven, eight, nine, ten and eleven stay grey. They do not divide twelve exactly.', 'Notice the edges. One divides any number, and a number divides itself. They are often forgotten.']
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Как проверить, делитель ли 5 для числа 12?', uz: "5 soni 12 ning bo'luvchisimi, qanday tekshiramiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Как проверить, делитель ли 5 для числа 12?', uz: "5 soni 12 ning bo'luvchisimi, qanday tekshiramiz?", en: 'How do we check whether 5 is a divisor of 12?' },
     opts: [
-      { ru: 'Разделить и посмотреть на остаток', uz: "Bo'lib ko'rib, qoldiqqa qarash" },
-      { ru: 'Сравнить, какое число больше', uz: 'Qaysi son katta ekanini taqqoslash' },
-      { ru: 'Сложить их', uz: "Ularni qo'shish" },
-      { ru: 'Умножить их', uz: "Ularni ko'paytirish" }
+      { ru: 'Разделить и посмотреть на остаток', uz: "Bo'lib ko'rib, qoldiqqa qarash", en: 'Divide and look at the remainder' },
+      { ru: 'Сравнить, какое число больше', uz: 'Qaysi son katta ekanini taqqoslash', en: 'Compare which number is bigger' },
+      { ru: 'Сложить их', uz: "Ularni qo'shish", en: 'Add them' },
+      { ru: 'Умножить их', uz: "Ularni ko'paytirish", en: 'Multiply them' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Больше или меньше тут не решает. Пять меньше двенадцати, но делителем не стало.', uz: "Katta yoki kichikligi bu yerda hal qilmaydi. Besh o'n ikkidan kichik, lekin bo'luvchi bo'lmadi." },
-      2: { ru: 'Сложение не проверяет деление.', uz: "Qo'shish bo'lishni tekshirmaydi." },
-      3: { ru: 'Умножение помогает искать кратные, а не проверять делителя.', uz: "Ko'paytirish karralilarni topishga yordam beradi, bo'luvchini tekshirishga emas." }
+      1: { ru: 'Больше или меньше тут не решает. Пять меньше двенадцати, но делителем не стало.', uz: "Katta yoki kichikligi bu yerda hal qilmaydi. Besh o'n ikkidan kichik, lekin bo'luvchi bo'lmadi.", en: 'Bigger or smaller does not decide it. Five is smaller than twelve, but it did not become a divisor.' },
+      2: { ru: 'Сложение не проверяет деление.', uz: "Qo'shish bo'lishni tekshirmaydi.", en: 'Addition does not check division.' },
+      3: { ru: 'Умножение помогает искать кратные, а не проверять делителя.', uz: "Ko'paytirish karralilarni topishga yordam beradi, bo'luvchini tekshirishga emas.", en: 'Multiplication helps to look for multiples, not to check a divisor.' }
     },
-    on_correct: { ru: 'Верно! Делим и смотрим на остаток.', uz: "To'g'ri! Bo'lamiz va qoldiqqa qaraymiz." },
+    on_correct: { ru: 'Верно! Делим и смотрим на остаток.', uz: "To'g'ri! Bo'lamiz va qoldiqqa qaraymiz.", en: 'Right! We divide and look at the remainder.' },
     rule_lines: {
       ru: [
         'делитель — на него делится без остатка',
@@ -345,33 +353,37 @@ const CONTENT = {
         "bo'luvchi — songa qoldiqsiz bo'linadi",
         "karrali — ko'paytirishdan chiqadi",
         "har sonda 1 va sonning o'zi bo'luvchi"
-      ]
+      ],
+      en: ['divisor — the number divides by it with no remainder', 'multiple — it comes out by multiplying', 'every number has 1 and itself as divisors']
     },
     rule_ex: '12 : 4 = 3 · 3 · 6 · 9 · 12',
     rule_speech: {
       ru: 'Правило такое. Делитель это число, на которое делится без остатка. Кратное это то, что получается, когда умножаешь. И запомни края. Единица и само число всегда делители.',
-      uz: "Qoida shunday. Bo'luvchi bu son unga qoldiqsiz bo'linadigan son. Karrali bu ko'paytirganda chiqadigan son. Chekkalarni ham eslab qoling. Bir va sonning o'zi doim bo'luvchi bo'ladi."
+      uz: "Qoida shunday. Bo'luvchi bu son unga qoldiqsiz bo'linadigan son. Karrali bu ko'paytirganda chiqadigan son. Chekkalarni ham eslab qoling. Bir va sonning o'zi doim bo'luvchi bo'ladi.",
+      en: 'The rule is this. A divisor is a number that divides with no remainder. A multiple is what you get when you multiply. And remember the edges. One and the number itself are always divisors.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: "Endi darsning asosiy savoli." }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: "Endi darsning asosiy savoli.", en: 'Now the main question of the lesson.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит считает, что пять почти подходит', uz: "Bit besh deyarli to'g'ri keladi deb o'ylaydi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит считает, что пять почти подходит', uz: "Bit besh deyarli to'g'ri keladi deb o'ylaydi", en: 'Bit thinks that five almost fits' },
     lines: ['12 : 5', '2 + 2'],
-    line_cap: { ru: 'два ряда и две лампы лишние', uz: 'ikki qator va ikkita lampa ortiqcha' },
-    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    line_cap: { ru: 'два ряда и две лампы лишние', uz: 'ikki qator va ikkita lampa ortiqcha', en: 'two rows and two lamps left over' },
+    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?', en: 'Is Bit right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Почти не считается. Делитель делит без остатка, а две лишние лампы это уже остаток.',
-      uz: "Aniq! Deyarli hisoblanmaydi. Bo'luvchi qoldiqsiz bo'ladi, ikkita ortiqcha lampa esa qoldiq."
+      uz: "Aniq! Deyarli hisoblanmaydi. Bo'luvchi qoldiqsiz bo'ladi, ikkita ortiqcha lampa esa qoldiq.",
+      en: 'Exactly! Almost does not count. A divisor divides with no remainder, and two spare lamps are already a remainder.'
     },
     trap_wrong: {
       ru: 'Посмотри на ряды. Две лампы лежат отдельно, ряд неполный. Значит, ровно не разделилось.',
-      uz: "Qatorlarga qarang. Ikkita lampa alohida yotibdi, qator to'liq emas. Demak, tekis bo'linmadi."
+      uz: "Qatorlarga qarang. Ikkita lampa alohida yotibdi, qator to'liq emas. Demak, tekis bo'linmadi.",
+      en: 'Look at the rows. Two lamps lie separately, the row is not full. So it did not divide exactly.'
     },
     audio: {
       ru: [
@@ -381,36 +393,37 @@ const CONTENT = {
       uz: [
         "Bit shunday fikr yuritadi. O'n ikki beshga deyarli bo'linadi, bor-yo'g'i ikkita lampa qoladi. Demak, besh to'g'ri keladi!",
         "Bit haqmi?"
-      ]
+      ],
+      en: ['Bit reasons like this. Twelve almost divides by five, only two lamps are left. So five fits!', 'Is Bit right?']
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Делители и кратные', uz: "Bo'luvchi va karrali" },
-    lead: { ru: 'Два списка смотрят в разные стороны', uz: "Ikki ro'yxat turli tomonga qaraydi" },
-    left_title: { ru: 'делители 12', uz: "12 ning bo'luvchilari" },
+    eyebrow: { ru: 'Делители и кратные', uz: "Bo'luvchi va karrali", en: 'Divisors and multiples' },
+    lead: { ru: 'Два списка смотрят в разные стороны', uz: "Ikki ro'yxat turli tomonga qaraydi", en: 'Two lists look in opposite directions' },
+    left_title: { ru: 'делители 12', uz: "12 ning bo'luvchilari", en: 'divisors of 12' },
     left_lines: ['1 · 2 · 3', '4 · 6 · 12', '12 : 4 = 3'],
-    left_cap: { ru: 'это те, кто делит 12', uz: "12 ni bo'ladiganlar" },
-    right_title: { ru: 'кратные 3', uz: "3 ning karralilari" },
+    left_cap: { ru: 'это те, кто делит 12', uz: "12 ni bo'ladiganlar", en: 'these are the ones that divide 12' },
+    right_title: { ru: 'кратные 3', uz: "3 ning karralilari", en: 'multiples of 3' },
     right_lines: ['3 · 6 · 9', '12 · 15 · 18', '3 × 4 = 12'],
-    right_cap: { ru: 'это то, что получается из 3', uz: '3 dan chiqadiganlar' },
-    btn1: { ru: 'Делители', uz: "Bo'luvchilar" },
-    btn2: { ru: 'Кратные', uz: 'Karralilar' },
-    mc_q: { ru: '12 — это кратное трёх или делитель трёх?', uz: "12 soni 3 ning karralisimi yoki bo'luvchisimi?" },
-    mc_q_speech: { ru: 'Двенадцать это кратное трёх или делитель трёх?', uz: "O'n ikki uchning karralisimi yoki bo'luvchisimi?" },
+    right_cap: { ru: 'это то, что получается из 3', uz: '3 dan chiqadiganlar', en: 'this is what comes out of 3' },
+    btn1: { ru: 'Делители', uz: "Bo'luvchilar", en: 'Divisors' },
+    btn2: { ru: 'Кратные', uz: 'Karralilar', en: 'Multiples' },
+    mc_q: { ru: '12 — это кратное трёх или делитель трёх?', uz: "12 soni 3 ning karralisimi yoki bo'luvchisimi?", en: '12 — is it a multiple of three or a divisor of three?' },
+    mc_q_speech: { ru: 'Двенадцать это кратное трёх или делитель трёх?', uz: "O'n ikki uchning karralisimi yoki bo'luvchisimi?", en: 'Is twelve a multiple of three or a divisor of three?' },
     mc_opts: [
-      { ru: 'кратное трёх', uz: "3 ning karralisi" },
-      { ru: 'делитель трёх', uz: "3 ning bo'luvchisi" },
-      { ru: 'и то, и другое', uz: 'ikkalasi ham' },
-      { ru: 'ни то, ни другое', uz: 'ikkalasi ham emas' }
+      { ru: 'кратное трёх', uz: "3 ning karralisi", en: 'a multiple of three' },
+      { ru: 'делитель трёх', uz: "3 ning bo'luvchisi", en: 'a divisor of three' },
+      { ru: 'и то, и другое', uz: 'ikkalasi ham', en: 'both' },
+      { ru: 'ни то, ни другое', uz: 'ikkalasi ham emas', en: 'neither' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Делитель не больше самого числа. Двенадцать больше трёх, оно не может делить тройку.', uz: "Bo'luvchi sondan katta bo'lmaydi. O'n ikki uchdan katta, u uchni bo'la olmaydi." },
-      2: { ru: 'Так бывает только у числа с самим собой. Здесь числа разные.', uz: "Bunday faqat sonning o'zi bilan bo'ladi. Bu yerda sonlar boshqa." },
-      3: { ru: 'Связь есть. Три умножить на четыре, двенадцать, значит двенадцать кратно трём.', uz: "Bog'lanish bor. Uch karra to'rt, o'n ikki, demak o'n ikki uchga karrali." }
+      1: { ru: 'Делитель не больше самого числа. Двенадцать больше трёх, оно не может делить тройку.', uz: "Bo'luvchi sondan katta bo'lmaydi. O'n ikki uchdan katta, u uchni bo'la olmaydi.", en: 'A divisor is not bigger than the number itself. Twelve is bigger than three, it cannot divide three.' },
+      2: { ru: 'Так бывает только у числа с самим собой. Здесь числа разные.', uz: "Bunday faqat sonning o'zi bilan bo'ladi. Bu yerda sonlar boshqa.", en: 'That happens only for a number with itself. Here the numbers are different.' },
+      3: { ru: 'Связь есть. Три умножить на четыре, двенадцать, значит двенадцать кратно трём.', uz: "Bog'lanish bor. Uch karra to'rt, o'n ikki, demak o'n ikki uchga karrali.", en: 'There is a link. Three times four is twelve, so twelve is a multiple of three.' }
     },
-    mc_ok: { ru: 'Верно! Двенадцать получается из тройки умножением, значит оно кратное.', uz: "To'g'ri! O'n ikki uchdan ko'paytirish bilan chiqadi, demak u karrali." },
+    mc_ok: { ru: 'Верно! Двенадцать получается из тройки умножением, значит оно кратное.', uz: "To'g'ri! O'n ikki uchdan ko'paytirish bilan chiqadi, demak u karrali.", en: 'Right! Twelve comes out of three by multiplying, so it is a multiple.' },
     audio: {
       ru: [
         'Два списка похожи, но смотрят в разные стороны. Нажми и сравни.',
@@ -423,125 +436,126 @@ const CONTENT = {
         "O'n ikkining bo'luvchilari. Bular o'n ikkini bo'ladigan sonlar. Ular sonning o'zidan katta emas.",
         "Uchning karralilari. Ular bir, ikki, uch, to'rtga ko'paytirib olinadi. Ro'yxatni yana davom ettirsa bo'ladi.",
         "Bitta son biri uchun karrali, boshqasi uchun bo'luvchi bo'lishi mumkin. Hammasi kimni kim bilan solishtirishga bog'liq."
-      ]
+      ],
+      en: ['The two lists look alike, but they look in opposite directions. Tap and compare.', 'Divisors of twelve. These are the ones that divide twelve. They are not bigger than the number itself.', 'Multiples of three. They are made by multiplying by one, two, three, four. And the list can go on.', 'The very same number can be a multiple for one number and a divisor for another. It all depends on which we compare with which.']
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya' },
-    q: { ru: 'Какое число кратно 4?', uz: "Qaysi son 4 ga karrali?" },
-    q_speech: { ru: 'Какое число кратно четырём?', uz: "Qaysi son to'rtga karrali?" },
+    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya', en: 'Five seconds' },
+    q: { ru: 'Какое число кратно 4?', uz: "Qaysi son 4 ga karrali?", en: 'Which number is a multiple of 4?' },
+    q_speech: { ru: 'Какое число кратно четырём?', uz: "Qaysi son to'rtga karrali?", en: 'Which number is a multiple of four?' },
     items: [
       {
-        opts: [{ ru: '20', uz: '20' }, { ru: '14', uz: '14' }, { ru: '18', uz: '18' }, { ru: '22', uz: '22' }],
+        opts: [{ ru: '20', uz: '20', en: '20' }, { ru: '14', uz: '14', en: '14' }, { ru: '18', uz: '18', en: '18' }, { ru: '22', uz: '22', en: '22' }],
         hints: [
           null,
-          { ru: 'Четырнадцать на четыре ровно не делится, останутся две единицы.', uz: "O'n to'rt to'rtga qoldiqsiz bo'linmaydi, ikkita ortadi." },
-          { ru: 'Восемнадцать на четыре тоже не делится ровно.', uz: "O'n sakkiz ham to'rtga tekis bo'linmaydi." },
-          { ru: 'Двадцать два на четыре не делится, останутся две единицы.', uz: "Yigirma ikki to'rtga bo'linmaydi, ikkita ortadi." }
+          { ru: 'Четырнадцать на четыре ровно не делится, останутся две единицы.', uz: "O'n to'rt to'rtga qoldiqsiz bo'linmaydi, ikkita ortadi.", en: 'Fourteen does not divide by four exactly, two ones will be left.' },
+          { ru: 'Восемнадцать на четыре тоже не делится ровно.', uz: "O'n sakkiz ham to'rtga tekis bo'linmaydi.", en: 'Eighteen does not divide by four exactly either.' },
+          { ru: 'Двадцать два на четыре не делится, останутся две единицы.', uz: "Yigirma ikki to'rtga bo'linmaydi, ikkita ortadi.", en: 'Twenty two does not divide by four, two ones will be left.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Пять секунд на подумать. Кратное числа четыре получается умножением четвёрки.', uz: "O'ylash uchun besh soniya. To'rtning karralisi to'rtni ko'paytirish bilan chiqadi." },
-      on_correct: { ru: 'Успел! Четыре умножить на пять, двадцать.', uz: "Ulguribsiz! To'rt karra besh, yigirma." },
-      on_wrong: { ru: 'Умножай четвёрку по порядку и смотри, какое число встретится.', uz: "To'rtni tartib bilan ko'paytiring va qaysi son uchrashini ko'ring." }
+      intro: { ru: 'Пять секунд на подумать. Кратное числа четыре получается умножением четвёрки.', uz: "O'ylash uchun besh soniya. To'rtning karralisi to'rtni ko'paytirish bilan chiqadi.", en: 'Five seconds to think. A multiple of four comes out by multiplying the four.' },
+      on_correct: { ru: 'Успел! Четыре умножить на пять, двадцать.', uz: "Ulguribsiz! To'rt karra besh, yigirma.", en: 'Made it! Four times five, twenty.' },
+      on_wrong: { ru: 'Умножай четвёрку по порядку и смотри, какое число встретится.', uz: "To'rtni tartib bilan ko'paytiring va qaysi son uchrashini ko'ring.", en: 'Multiply the four in order and see which number turns up.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи числа по полкам', uz: 'Sonlarni tokchalarga ajrating' },
-    bin_a: { ru: 'делится на 3', uz: "3 ga bo'linadi" },
-    bin_b: { ru: 'не делится', uz: "bo'linmaydi" },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи числа по полкам', uz: 'Sonlarni tokchalarga ajrating', en: 'Lay the numbers out on the shelves' },
+    bin_a: { ru: 'делится на 3', uz: "3 ga bo'linadi", en: 'divides by 3' },
+    bin_b: { ru: 'не делится', uz: "bo'linmaydi", en: 'does not divide' },
     items: [
-      { n: 9, a: true, hint: { ru: 'Проверь делением. Девять на три, три ряда ровно.', uz: "Bo'lib tekshiring. To'qqizni uchga bo'lsak, uch qator tekis." } },
-      { n: 16, a: false, hint: { ru: 'Шестнадцать на три не делится, одна единица лишняя.', uz: "O'n oltini uchga bo'lib bo'lmaydi, bittasi ortadi." } },
-      { n: 21, a: true, hint: { ru: 'Двадцать один на три, семь рядов ровно.', uz: "Yigirma birni uchga bo'lsak, yetti qator tekis." } },
-      { n: 22, a: false, hint: { ru: 'Двадцать два на три не делится, одна единица лишняя.', uz: "Yigirma ikkini uchga bo'lib bo'lmaydi, bittasi ortadi." } }
+      { n: 9, a: true, hint: { ru: 'Проверь делением. Девять на три, три ряда ровно.', uz: "Bo'lib tekshiring. To'qqizni uchga bo'lsak, uch qator tekis.", en: 'Check by dividing. Nine by three, three rows exactly.' } },
+      { n: 16, a: false, hint: { ru: 'Шестнадцать на три не делится, одна единица лишняя.', uz: "O'n oltini uchga bo'lib bo'lmaydi, bittasi ortadi.", en: 'Sixteen does not divide by three, one unit is left over.' } },
+      { n: 21, a: true, hint: { ru: 'Двадцать один на три, семь рядов ровно.', uz: "Yigirma birni uchga bo'lsak, yetti qator tekis.", en: 'Twenty one by three, seven rows exactly.' } },
+      { n: 22, a: false, hint: { ru: 'Двадцать два на три не делится, одна единица лишняя.', uz: "Yigirma ikkini uchga bo'lib bo'lmaydi, bittasi ortadi.", en: 'Twenty two does not divide by three, one unit is left over.' } }
     ],
     audio: {
-      intro: { ru: 'Разложи числа по полкам. Слева те, что делятся на три ровно, справа остальные.', uz: "Sonlarni tokchalarga ajrating. Chapda uchga tekis bo'linadiganlar, o'ngda qolganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Раздели на три и посмотри, остаётся ли что-нибудь.', uz: "Uchga bo'lib ko'ring va biror narsa qoladimi, qarang." }
+      intro: { ru: 'Разложи числа по полкам. Слева те, что делятся на три ровно, справа остальные.', uz: "Sonlarni tokchalarga ajrating. Chapda uchga tekis bo'linadiganlar, o'ngda qolganlari.", en: 'Lay the numbers out on the shelves. On the left those that divide by three exactly, on the right the rest.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Раздели на три и посмотри, остаётся ли что-нибудь.', uz: "Uchga bo'lib ko'ring va biror narsa qoladimi, qarang.", en: 'Divide by three and see whether anything is left.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
     items: [
       {
-        q: { ru: 'Сколько делителей у числа 10?', uz: "10 sonining nechta bo'luvchisi bor?" },
-        q_speech: { ru: 'Сколько делителей у числа десять?', uz: "O'n sonining nechta bo'luvchisi bor?" },
-        opts: [{ ru: '4', uz: '4' }, { ru: '2', uz: '2' }, { ru: '5', uz: '5' }, { ru: '10', uz: '10' }],
+        q: { ru: 'Сколько делителей у числа 10?', uz: "10 sonining nechta bo'luvchisi bor?", en: 'How many divisors does the number 10 have?' },
+        q_speech: { ru: 'Сколько делителей у числа десять?', uz: "O'n sonining nechta bo'luvchisi bor?", en: 'How many divisors does the number ten have?' },
+        opts: [{ ru: '4', uz: '4', en: '4' }, { ru: '2', uz: '2', en: '2' }, { ru: '5', uz: '5', en: '5' }, { ru: '10', uz: '10', en: '10' }],
         hints: [
           null,
-          { ru: 'Ты посчитал только два и пять. Единица и само десять тоже делители.', uz: "Faqat ikki va beshni sanadingiz. Bir va o'nning o'zi ham bo'luvchi." },
-          { ru: 'Пять это один из делителей, а вопрос про их количество.', uz: "Besh bu bo'luvchilardan biri, savol esa ularning soni haqida." },
-          { ru: 'Десять это само число. Делителей у него четыре.', uz: "O'n bu sonning o'zi. Uning bo'luvchilari to'rtta." }
+          { ru: 'Ты посчитал только два и пять. Единица и само десять тоже делители.', uz: "Faqat ikki va beshni sanadingiz. Bir va o'nning o'zi ham bo'luvchi.", en: 'You counted only two and five. One and ten itself are divisors too.' },
+          { ru: 'Пять это один из делителей, а вопрос про их количество.', uz: "Besh bu bo'luvchilardan biri, savol esa ularning soni haqida.", en: 'Five is one of the divisors, and the question is about how many there are.' },
+          { ru: 'Десять это само число. Делителей у него четыре.', uz: "O'n bu sonning o'zi. Uning bo'luvchilari to'rtta.", en: 'Ten is the number itself. It has four divisors.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Какое число кратно 6?', uz: "Qaysi son 6 ga karrali?" },
-        q_speech: { ru: 'Какое число кратно шести?', uz: "Qaysi son oltiga karrali?" },
-        opts: [{ ru: '18', uz: '18' }, { ru: '20', uz: '20' }, { ru: '22', uz: '22' }, { ru: '26', uz: '26' }],
+        q: { ru: 'Какое число кратно 6?', uz: "Qaysi son 6 ga karrali?", en: 'Which number is a multiple of 6?' },
+        q_speech: { ru: 'Какое число кратно шести?', uz: "Qaysi son oltiga karrali?", en: 'Which number is a multiple of six?' },
+        opts: [{ ru: '18', uz: '18', en: '18' }, { ru: '20', uz: '20', en: '20' }, { ru: '22', uz: '22', en: '22' }, { ru: '26', uz: '26', en: '26' }],
         hints: [
           null,
-          { ru: 'Двадцать на шесть не делится ровно.', uz: "Yigirma oltiga tekis bo'linmaydi." },
-          { ru: 'Двадцать два тоже не делится на шесть.', uz: "Yigirma ikki ham oltiga bo'linmaydi." },
-          { ru: 'Двадцать шесть на шесть не делится, останутся две единицы.', uz: "Yigirma olti oltiga bo'linmaydi, ikkita ortadi." }
+          { ru: 'Двадцать на шесть не делится ровно.', uz: "Yigirma oltiga tekis bo'linmaydi.", en: 'Twenty does not divide by six exactly.' },
+          { ru: 'Двадцать два тоже не делится на шесть.', uz: "Yigirma ikki ham oltiga bo'linmaydi.", en: 'Twenty two does not divide by six either.' },
+          { ru: 'Двадцать шесть на шесть не делится, останутся две единицы.', uz: "Yigirma olti oltiga bo'linmaydi, ikkita ortadi.", en: 'Twenty six does not divide by six, two ones will be left.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Какой самый большой делитель числа 15?', uz: "15 sonining eng katta bo'luvchisi qaysi?" },
-        q_speech: { ru: 'Какой самый большой делитель числа пятнадцать?', uz: "O'n besh sonining eng katta bo'luvchisi qaysi?" },
-        opts: [{ ru: '15', uz: '15' }, { ru: '5', uz: '5' }, { ru: '3', uz: '3' }, { ru: '1', uz: '1' }],
+        q: { ru: 'Какой самый большой делитель числа 15?', uz: "15 sonining eng katta bo'luvchisi qaysi?", en: 'What is the greatest divisor of the number 15?' },
+        q_speech: { ru: 'Какой самый большой делитель числа пятнадцать?', uz: "O'n besh sonining eng katta bo'luvchisi qaysi?", en: 'What is the greatest divisor of the number fifteen?' },
+        opts: [{ ru: '15', uz: '15', en: '15' }, { ru: '5', uz: '5', en: '5' }, { ru: '3', uz: '3', en: '3' }, { ru: '1', uz: '1', en: '1' }],
         hints: [
           null,
-          { ru: 'Пять делитель, но есть больше.', uz: "Besh bo'luvchi, lekin undan kattasi bor." },
-          { ru: 'Три тоже делитель, но не самый большой.', uz: "Uch ham bo'luvchi, lekin eng kattasi emas." },
-          { ru: 'Единица самый маленький делитель, а спрашивают про самый большой.', uz: "Bir eng kichik bo'luvchi, savol esa eng katta haqida." }
+          { ru: 'Пять делитель, но есть больше.', uz: "Besh bo'luvchi, lekin undan kattasi bor.", en: 'Five is a divisor, but there is a bigger one.' },
+          { ru: 'Три тоже делитель, но не самый большой.', uz: "Uch ham bo'luvchi, lekin eng kattasi emas.", en: 'Three is a divisor too, but not the greatest.' },
+          { ru: 'Единица самый маленький делитель, а спрашивают про самый большой.', uz: "Bir eng kichik bo'luvchi, savol esa eng katta haqida.", en: 'One is the smallest divisor, and the question is about the greatest.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Три вопроса. Помни про края списка, единицу и само число.', uz: "Uch savol. Ro'yxat chekkalarini, bir va sonning o'zini unutmang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перебери делители по порядку.', uz: "Bo'luvchilarni tartib bilan sanang." }
+      intro: { ru: 'Три вопроса. Помни про края списка, единицу и само число.', uz: "Uch savol. Ro'yxat chekkalarini, bir va sonning o'zini unutmang.", en: 'Three questions. Remember the edges of the list, one and the number itself.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перебери делители по порядку.', uz: "Bo'luvchilarni tartib bilan sanang.", en: 'Go through the divisors in order.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'У разных чисел делителей разное количество', uz: "Turli sonlarning bo'luvchilari soni har xil" },
-    left_title: { ru: 'делители 12', uz: "12 ning bo'luvchilari" },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'У разных чисел делителей разное количество', uz: "Turli sonlarning bo'luvchilari soni har xil", en: 'Different numbers have different counts of divisors' },
+    left_title: { ru: 'делители 12', uz: "12 ning bo'luvchilari", en: 'divisors of 12' },
     left_list: '1 · 2 · 3 · 4 · 6 · 12',
-    left_count: { ru: 'шесть делителей', uz: "olti bo'luvchi" },
-    right_title: { ru: 'делители 7', uz: "7 ning bo'luvchilari" },
+    left_count: { ru: 'шесть делителей', uz: "olti bo'luvchi", en: 'six divisors' },
+    right_title: { ru: 'делители 7', uz: "7 ning bo'luvchilari", en: 'divisors of 7' },
     right_list: '1 · 7',
-    right_count: { ru: 'два делителя', uz: "ikki bo'luvchi" },
-    book_note: { ru: 'в учебнике так же сравнивают 48 и 54', uz: "kitobda ham qirq sakkiz va ellik to'rt solishtiriladi" },
-    btn1: { ru: 'Делители 12', uz: "12 ning bo'luvchilari" },
-    btn2: { ru: 'Делители 7', uz: "7 ning bo'luvchilari" },
-    mc_q: { ru: 'У какого числа делителей больше?', uz: "Qaysi sonning bo'luvchilari ko'p?" },
-    mc_q_speech: { ru: 'У какого числа делителей больше, у двенадцати или у семи?', uz: "Qaysi sonning bo'luvchilari ko'p, o'n ikkidami yoki yettidami?" },
+    right_count: { ru: 'два делителя', uz: "ikki bo'luvchi", en: 'two divisors' },
+    book_note: { ru: 'в учебнике так же сравнивают 48 и 54', uz: "kitobda ham qirq sakkiz va ellik to'rt solishtiriladi", en: 'the textbook compares 48 and 54 the same way' },
+    btn1: { ru: 'Делители 12', uz: "12 ning bo'luvchilari", en: 'Divisors of 12' },
+    btn2: { ru: 'Делители 7', uz: "7 ning bo'luvchilari", en: 'Divisors of 7' },
+    mc_q: { ru: 'У какого числа делителей больше?', uz: "Qaysi sonning bo'luvchilari ko'p?", en: 'Which number has more divisors?' },
+    mc_q_speech: { ru: 'У какого числа делителей больше, у двенадцати или у семи?', uz: "Qaysi sonning bo'luvchilari ko'p, o'n ikkidami yoki yettidami?", en: 'Which number has more divisors, twelve or seven?' },
     mc_opts: [
-      { ru: 'у 12', uz: '12 da' },
-      { ru: 'у 7', uz: '7 da' },
-      { ru: 'поровну', uz: 'teng' },
-      { ru: 'у обоих по одному', uz: 'ikkisida bittadan' }
+      { ru: 'у 12', uz: '12 da', en: 'has 12' },
+      { ru: 'у 7', uz: '7 da', en: 'has 7' },
+      { ru: 'поровну', uz: 'teng', en: 'the same' },
+      { ru: 'у обоих по одному', uz: 'ikkisida bittadan', en: 'both have one' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'У семёрки только единица и сама семёрка. Это два делителя.', uz: "Yettida faqat bir va yettining o'zi bor. Bu ikki bo'luvchi." },
-      2: { ru: 'Посчитай столбики. Слева шесть чисел, справа два.', uz: "Ustunlarni sanang. Chapda olti son, o'ngda ikki." },
-      3: { ru: 'По одному делителю не бывает. Единица и само число уже двое.', uz: "Bitta bo'luvchi bo'lmaydi. Bir va sonning o'zi allaqachon ikkita." }
+      1: { ru: 'У семёрки только единица и сама семёрка. Это два делителя.', uz: "Yettida faqat bir va yettining o'zi bor. Bu ikki bo'luvchi.", en: 'Seven has only one and seven itself. That is two divisors.' },
+      2: { ru: 'Посчитай столбики. Слева шесть чисел, справа два.', uz: "Ustunlarni sanang. Chapda olti son, o'ngda ikki.", en: 'Count the columns. Six numbers on the left, two on the right.' },
+      3: { ru: 'По одному делителю не бывает. Единица и само число уже двое.', uz: "Bitta bo'luvchi bo'lmaydi. Bir va sonning o'zi allaqachon ikkita.", en: 'A number cannot have just one divisor. One and the number itself are already two.' }
     },
-    mc_ok: { ru: 'Верно! У двенадцати шесть делителей, у семёрки только два.', uz: "To'g'ri! O'n ikkida olti bo'luvchi, yettida esa faqat ikkita." },
+    mc_ok: { ru: 'Верно! У двенадцати шесть делителей, у семёрки только два.', uz: "To'g'ri! O'n ikkida olti bo'luvchi, yettida esa faqat ikkita.", en: 'Right! Twelve has six divisors, and seven has only two.' },
     audio: {
       ru: [
         'Небольшой бонус. У разных чисел делителей бывает разное количество.',
@@ -554,165 +568,171 @@ const CONTENT = {
         "O'n ikkining olti bo'luvchisi bor. Bir, ikki, uch, to'rt, olti, o'n ikki.",
         "Yettida esa faqat ikkita. Bir va yettining o'zi.",
         "Kitobda ham shunday topshiriq bor. U yerda qirq sakkiz va ellik to'rt solishtiriladi."
-      ]
+      ],
+      en: ['A small bonus. Different numbers have different counts of divisors.', 'Twelve has six divisors. One, two, three, four, six, twelve.', 'And seven has only two. One and seven itself.', 'The textbook has such a task too. There they compare forty eight and fifty four.']
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
     items: [
-      { q: { ru: 'Сколько делителей у числа 14? Набери ответ.', uz: "14 sonining nechta bo'luvchisi bor? Javobni tering." }, q_speech: { ru: 'Сколько делителей у числа четырнадцать?', uz: "O'n to'rt sonining nechta bo'luvchisi bor?" }, ans: 4, check: '1 · 2 · 7 · 14', hint: { ru: 'Перебери по порядку. Единица, два, семь и само четырнадцать.', uz: "Tartib bilan ko'ring. Bir, ikki, yetti va o'n to'rtning o'zi." } },
-      { q: { ru: 'Третье кратное числа 5. Набери ответ.', uz: "5 ning uchinchi karralisi. Javobni tering." }, q_speech: { ru: 'Третье кратное числа пять.', uz: "Beshning uchinchi karralisi." }, ans: 15, check: '5 × 3 = 15', hint: { ru: 'Умножай пятёрку по порядку. Пять, десять, пятнадцать.', uz: "Beshni tartib bilan ko'paytiring. Besh, o'n, o'n besh." } },
-      { q: { ru: 'Самый маленький делитель числа 9. Набери ответ.', uz: "9 sonining eng kichik bo'luvchisi. Javobni tering." }, q_speech: { ru: 'Самый маленький делитель числа девять.', uz: "To'qqiz sonining eng kichik bo'luvchisi." }, ans: 1, check: '9 : 1 = 9', hint: { ru: 'Единица делит любое число.', uz: "Bir har qanday sonni bo'ladi." } }
+      { q: { ru: 'Сколько делителей у числа 14? Набери ответ.', uz: "14 sonining nechta bo'luvchisi bor? Javobni tering.", en: 'How many divisors does the number 14 have? Type the answer.' }, q_speech: { ru: 'Сколько делителей у числа четырнадцать?', uz: "O'n to'rt sonining nechta bo'luvchisi bor?", en: 'How many divisors does the number fourteen have?' }, ans: 4, check: '1 · 2 · 7 · 14', hint: { ru: 'Перебери по порядку. Единица, два, семь и само четырнадцать.', uz: "Tartib bilan ko'ring. Bir, ikki, yetti va o'n to'rtning o'zi.", en: 'Go through them in order. One, two, seven and fourteen itself.' } },
+      { q: { ru: 'Третье кратное числа 5. Набери ответ.', uz: "5 ning uchinchi karralisi. Javobni tering.", en: 'The third multiple of the number 5. Type the answer.' }, q_speech: { ru: 'Третье кратное числа пять.', uz: "Beshning uchinchi karralisi.", en: 'The third multiple of the number five.' }, ans: 15, check: '5 × 3 = 15', hint: { ru: 'Умножай пятёрку по порядку. Пять, десять, пятнадцать.', uz: "Beshni tartib bilan ko'paytiring. Besh, o'n, o'n besh.", en: 'Multiply the five in order. Five, ten, fifteen.' } },
+      { q: { ru: 'Самый маленький делитель числа 9. Набери ответ.', uz: "9 sonining eng kichik bo'luvchisi. Javobni tering.", en: 'The smallest divisor of the number 9. Type the answer.' }, q_speech: { ru: 'Самый маленький делитель числа девять.', uz: "To'qqiz sonining eng kichik bo'luvchisi.", en: 'The smallest divisor of the number nine.' }, ans: 1, check: '9 : 1 = 9', hint: { ru: 'Единица делит любое число.', uz: "Bir har qanday sonni bo'ladi.", en: 'One divides any number.' } }
     ],
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Три задания, и после каждого проверка.', uz: "Uch topshiriq, har biridan keyin tekshirish." },
-      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi." }
+      intro: { ru: 'Три задания, и после каждого проверка.', uz: "Uch topshiriq, har biridan keyin tekshirish.", en: 'Three tasks, and a check after each one.' },
+      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi.", en: 'Correct, and the check confirmed it.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из теплицы.', uz: 'Issiqxonadan masala.' },
-    q: { ru: 'В теплице 36 ламп. Их ставят в ряды по 9. Сколько рядов?', uz: "Issiqxonada 36 lampa bor. Ular 9 tadan qatorlarga qo'yiladi. Nechta qator bo'ladi?" },
-    q_speech: { ru: 'В теплице тридцать шесть ламп. Их ставят в ряды по девять. Сколько рядов?', uz: "Issiqxonada o'ttiz olti lampa bor. Ular to'qqiztadan qatorlarga qo'yiladi. Nechta qator bo'ladi?" },
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из теплицы.', uz: 'Issiqxonadan masala.', en: 'A problem from the greenhouse.' },
+    q: { ru: 'В теплице 36 ламп. Их ставят в ряды по 9. Сколько рядов?', uz: "Issiqxonada 36 lampa bor. Ular 9 tadan qatorlarga qo'yiladi. Nechta qator bo'ladi?", en: 'The greenhouse has 36 lamps. They are put in rows of 9. How many rows?' },
+    q_speech: { ru: 'В теплице тридцать шесть ламп. Их ставят в ряды по девять. Сколько рядов?', uz: "Issiqxonada o'ttiz olti lampa bor. Ular to'qqiztadan qatorlarga qo'yiladi. Nechta qator bo'ladi?", en: 'The greenhouse has thirty six lamps. They are put in rows of nine. How many rows?' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '36 : 9', uz: '36 : 9' },
-      { ru: '36 × 9', uz: '36 × 9' },
-      { ru: '36 − 9', uz: '36 − 9' },
-      { ru: '9 : 36', uz: '9 : 36' }
+      { ru: '36 : 9', uz: '36 : 9', en: '36 : 9' },
+      { ru: '36 × 9', uz: '36 × 9', en: '36 × 9' },
+      { ru: '36 − 9', uz: '36 − 9', en: '36 − 9' },
+      { ru: '9 : 36', uz: '9 : 36', en: '9 : 36' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение соберёт ещё больше ламп, а их всего тридцать шесть.', uz: "Ko'paytirish yana ko'p lampa yig'adi, ular esa jami o'ttiz oltita." },
-      2: { ru: 'Вычитание уберёт один ряд, а нужно число рядов.', uz: "Ayirish bitta qatorni olib qo'yadi, bizga esa qatorlar soni kerak." },
-      3: { ru: 'Делят большее на меньшее.', uz: "Kattani kichigiga bo'ladilar." }
+      1: { ru: 'Умножение соберёт ещё больше ламп, а их всего тридцать шесть.', uz: "Ko'paytirish yana ko'p lampa yig'adi, ular esa jami o'ttiz oltita.", en: 'Multiplication will gather even more lamps, and there are only thirty six.' },
+      2: { ru: 'Вычитание уберёт один ряд, а нужно число рядов.', uz: "Ayirish bitta qatorni olib qo'yadi, bizga esa qatorlar soni kerak.", en: 'Subtraction takes away one row, and we need the number of rows.' },
+      3: { ru: 'Делят большее на меньшее.', uz: "Kattani kichigiga bo'ladilar.", en: 'The bigger one is divided by the smaller one.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering." },
+    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering.", en: 'The line is correct. Now type the answer.' },
     ans: 4,
     check: '4 × 9 = 36',
-    setup_audio: { ru: 'Задача из теплицы. Тридцать шесть ламп, в ряду по девять. Сначала выбери запись, потом посчитай.', uz: "Issiqxonadan masala. O'ttiz olti lampa, qatorda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang." },
+    setup_audio: { ru: 'Задача из теплицы. Тридцать шесть ламп, в ряду по девять. Сначала выбери запись, потом посчитай.', uz: "Issiqxonadan masala. O'ttiz olti lampa, qatorda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang.", en: 'A problem from the greenhouse. Thirty six lamps, nine in a row. First choose the line, then count.' },
     audio: {
-      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi." },
-      on_correct: { ru: 'Четыре ряда! И проверка сошлась, четыре умножить на девять, тридцать шесть. Значит, девять делитель тридцати шести.', uz: "To'rt qator! Tekshirish ham mos keldi, to'rt karra to'qqiz, o'ttiz olti. Demak, to'qqiz o'ttiz oltining bo'luvchisi." },
-      on_wrong: { ru: 'Тридцать шесть разделить на девять. Сколько рядов уложится?', uz: "O'ttiz oltini to'qqizga bo'ling. Nechta qator joylashadi?" }
+      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi.", en: 'The whole rule comes in handy here.' },
+      on_correct: { ru: 'Четыре ряда! И проверка сошлась, четыре умножить на девять, тридцать шесть. Значит, девять делитель тридцати шести.', uz: "To'rt qator! Tekshirish ham mos keldi, to'rt karra to'qqiz, o'ttiz olti. Demak, to'qqiz o'ttiz oltining bo'luvchisi.", en: 'Four rows! And the check adds up, four times nine, thirty six. So nine is a divisor of thirty six.' },
+      on_wrong: { ru: 'Тридцать шесть разделить на девять. Сколько рядов уложится?', uz: "O'ttiz oltini to'qqizga bo'ling. Nechta qator joylashadi?", en: 'Thirty six divided by nine. How many rows will fit?' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Пять вопросов — и блок закрыт', uz: "Besh savol va bo'lim yopiladi" },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Пять вопросов — и блок закрыт', uz: "Besh savol va bo'lim yopiladi", en: 'Five questions and the block is closed' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Сколько делителей у числа 8? Набери ответ.', uz: "8 sonining nechta bo'luvchisi bor? Javobni tering." },
-        q_speech: { ru: 'Сколько делителей у числа восемь?', uz: "Sakkiz sonining nechta bo'luvchisi bor?" },
+        q: { ru: 'Сколько делителей у числа 8? Набери ответ.', uz: "8 sonining nechta bo'luvchisi bor? Javobni tering.", en: 'How many divisors does the number 8 have? Type the answer.' },
+        q_speech: { ru: 'Сколько делителей у числа восемь?', uz: "Sakkiz sonining nechta bo'luvchisi bor?", en: 'How many divisors does the number eight have?' },
         ans: 4,
-        hint: { ru: 'Один, два, четыре и само восемь.', uz: "Bir, ikki, to'rt va sakkizning o'zi." }
+        hint: { ru: 'Один, два, четыре и само восемь.', uz: "Bir, ikki, to'rt va sakkizning o'zi.", en: 'One, two, four and eight itself.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число кратно 7?', uz: "Qaysi son 7 ga karrali?" },
-        q_speech: { ru: 'Какое число кратно семи?', uz: "Qaysi son yettiga karrali?" },
-        opt0: { ru: '28', uz: '28' },
-        opt1: { ru: '30', uz: '30' },
-        opt2: { ru: '32', uz: '32' },
-        opt3: { ru: '34', uz: '34' },
-        wrong_1: { ru: 'Тридцать на семь не делится ровно.', uz: "O'ttiz yettiga tekis bo'linmaydi." },
-        wrong_2: { ru: 'Тридцать два тоже не делится на семь.', uz: "O'ttiz ikki ham yettiga bo'linmaydi." },
-        wrong_3: { ru: 'Тридцать четыре на семь не делится.', uz: "O'ttiz to'rt yettiga bo'linmaydi." }
+        q: { ru: 'Какое число кратно 7?', uz: "Qaysi son 7 ga karrali?", en: 'Which number is a multiple of 7?' },
+        q_speech: { ru: 'Какое число кратно семи?', uz: "Qaysi son yettiga karrali?", en: 'Which number is a multiple of seven?' },
+        opt0: { ru: '28', uz: '28', en: '28' },
+        opt1: { ru: '30', uz: '30', en: '30' },
+        opt2: { ru: '32', uz: '32', en: '32' },
+        opt3: { ru: '34', uz: '34', en: '34' },
+        wrong_1: { ru: 'Тридцать на семь не делится ровно.', uz: "O'ttiz yettiga tekis bo'linmaydi.", en: 'Thirty does not divide by seven exactly.' },
+        wrong_2: { ru: 'Тридцать два тоже не делится на семь.', uz: "O'ttiz ikki ham yettiga bo'linmaydi.", en: 'Thirty two does not divide by seven either.' },
+        wrong_3: { ru: 'Тридцать четыре на семь не делится.', uz: "O'ttiz to'rt yettiga bo'linmaydi.", en: 'Thirty four does not divide by seven.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какой самый большой делитель числа 24?', uz: "24 sonining eng katta bo'luvchisi qaysi?" },
-        q_speech: { ru: 'Какой самый большой делитель числа двадцать четыре?', uz: "Yigirma to'rt sonining eng katta bo'luvchisi qaysi?" },
-        opt0: { ru: '24', uz: '24' },
-        opt1: { ru: '12', uz: '12' },
-        opt2: { ru: '8', uz: '8' },
-        opt3: { ru: '6', uz: '6' },
-        wrong_1: { ru: 'Двенадцать делитель, но само число больше.', uz: "O'n ikki bo'luvchi, lekin sonning o'zi kattaroq." },
-        wrong_2: { ru: 'Восемь делитель, но не самый большой.', uz: "Sakkiz bo'luvchi, lekin eng kattasi emas." },
-        wrong_3: { ru: 'Шесть тоже делитель, и тоже не самый большой.', uz: "Olti ham bo'luvchi, u ham eng kattasi emas." }
+        q: { ru: 'Какой самый большой делитель числа 24?', uz: "24 sonining eng katta bo'luvchisi qaysi?", en: 'What is the greatest divisor of the number 24?' },
+        q_speech: { ru: 'Какой самый большой делитель числа двадцать четыре?', uz: "Yigirma to'rt sonining eng katta bo'luvchisi qaysi?", en: 'What is the greatest divisor of the number twenty four?' },
+        opt0: { ru: '24', uz: '24', en: '24' },
+        opt1: { ru: '12', uz: '12', en: '12' },
+        opt2: { ru: '8', uz: '8', en: '8' },
+        opt3: { ru: '6', uz: '6', en: '6' },
+        wrong_1: { ru: 'Двенадцать делитель, но само число больше.', uz: "O'n ikki bo'luvchi, lekin sonning o'zi kattaroq.", en: 'Twelve is a divisor, but the number itself is bigger.' },
+        wrong_2: { ru: 'Восемь делитель, но не самый большой.', uz: "Sakkiz bo'luvchi, lekin eng kattasi emas.", en: 'Eight is a divisor, but not the greatest.' },
+        wrong_3: { ru: 'Шесть тоже делитель, и тоже не самый большой.', uz: "Olti ham bo'luvchi, u ham eng kattasi emas.", en: 'Six is a divisor too, and also not the greatest.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Четвёртое кратное числа 8. Набери ответ.', uz: "8 ning to'rtinchi karralisi. Javobni tering." },
-        q_speech: { ru: 'Четвёртое кратное числа восемь.', uz: "Sakkizning to'rtinchi karralisi." },
+        q: { ru: 'Четвёртое кратное числа 8. Набери ответ.', uz: "8 ning to'rtinchi karralisi. Javobni tering.", en: 'The fourth multiple of the number 8. Type the answer.' },
+        q_speech: { ru: 'Четвёртое кратное числа восемь.', uz: "Sakkizning to'rtinchi karralisi.", en: 'The fourth multiple of the number eight.' },
         ans: 32,
-        hint: { ru: 'Восемь, шестнадцать, двадцать четыре, тридцать два.', uz: "Sakkiz, o'n olti, yigirma to'rt, o'ttiz ikki." }
+        hint: { ru: 'Восемь, шестнадцать, двадцать четыре, тридцать два.', uz: "Sakkiz, o'n olti, yigirma to'rt, o'ttiz ikki.", en: 'Eight, sixteen, twenty four, thirty two.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число НЕ кратно 5?', uz: "Qaysi son 5 ga karrali EMAS?" },
-        q_speech: { ru: 'Какое число не кратно пяти?', uz: "Qaysi son beshga karrali emas?" },
-        opt0: { ru: '13', uz: '13' },
-        opt1: { ru: '30', uz: '30' },
-        opt2: { ru: '45', uz: '45' },
-        opt3: { ru: '25', uz: '25' },
-        wrong_1: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring." },
-        wrong_2: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring." },
-        wrong_3: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring." }
+        q: { ru: 'Какое число НЕ кратно 5?', uz: "Qaysi son 5 ga karrali EMAS?", en: 'Which number is NOT a multiple of 5?' },
+        q_speech: { ru: 'Какое число не кратно пяти?', uz: "Qaysi son beshga karrali emas?", en: 'Which number is not a multiple of five?' },
+        opt0: { ru: '13', uz: '13', en: '13' },
+        opt1: { ru: '30', uz: '30', en: '30' },
+        opt2: { ru: '45', uz: '45', en: '45' },
+        opt3: { ru: '25', uz: '25', en: '25' },
+        wrong_1: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring.", en: 'This number divides by five exactly. Look for another one.' },
+        wrong_2: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring.", en: 'This number divides by five exactly. Look for another one.' },
+        wrong_3: { ru: 'Это число делится на пять ровно. Ищи другое.', uz: "Bu son beshga tekis bo'linadi. Boshqasini qidiring.", en: 'This number divides by five exactly. Look for another one.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'В часе шестьдесят минут, а в году двенадцать месяцев не случайно. У этих чисел очень много делителей: шестьдесят делится на два, три, четыре, пять, шесть, десять, двенадцать, пятнадцать, двадцать и тридцать. Такое число удобно делить на равные части, поэтому его выбрали для времени ещё в древности.',
-      uz: "Bir soatda oltmish daqiqa, bir yilda o'n ikki oy bo'lishi tasodif emas. Bu sonlarning bo'luvchilari juda ko'p: oltmish ikkiga, uchga, to'rtga, beshga, oltiga, o'nga, o'n ikkiga, o'n beshga, yigirmaga va o'ttizga bo'linadi. Bunday sonni teng qismlarga bo'lish qulay, shuning uchun uni qadimda vaqt uchun tanlashgan."
+      uz: "Bir soatda oltmish daqiqa, bir yilda o'n ikki oy bo'lishi tasodif emas. Bu sonlarning bo'luvchilari juda ko'p: oltmish ikkiga, uchga, to'rtga, beshga, oltiga, o'nga, o'n ikkiga, o'n beshga, yigirmaga va o'ttizga bo'linadi. Bunday sonni teng qismlarga bo'lish qulay, shuning uchun uni qadimda vaqt uchun tanlashgan.",
+      en: 'An hour has sixty minutes and a year has twelve months, and that is no accident. These numbers have very many divisors: sixty divides by two, three, four, five, six, ten, twelve, fifteen, twenty and thirty. Such a number is handy to split into equal parts, so it was chosen for time back in ancient days.'
     },
     fact_audio: {
       ru: 'В часе шестьдесят минут, а в году двенадцать месяцев не случайно. У этих чисел очень много делителей. Шестьдесят делится на два, на три, на четыре, на пять, на шесть, на десять, на двенадцать, на пятнадцать, на двадцать и на тридцать. Такое число удобно делить на равные части, поэтому его выбрали для времени ещё в древности. Мы весь урок искали делители, и часы с календарём построены на том же.',
-      uz: "Bir soatda oltmish daqiqa, bir yilda o'n ikki oy bo'lishi tasodif emas. Bu sonlarning bo'luvchilari juda ko'p. Oltmish ikkiga, uchga, to'rtga, beshga, oltiga, o'nga, o'n ikkiga, o'n beshga, yigirmaga va o'ttizga bo'linadi. Bunday sonni teng qismlarga bo'lish qulay, shuning uchun uni qadimda vaqt uchun tanlashgan. Butun dars bo'luvchilarni qidirdik, soat va taqvim ham xuddi shunga qurilgan."
+      uz: "Bir soatda oltmish daqiqa, bir yilda o'n ikki oy bo'lishi tasodif emas. Bu sonlarning bo'luvchilari juda ko'p. Oltmish ikkiga, uchga, to'rtga, beshga, oltiga, o'nga, o'n ikkiga, o'n beshga, yigirmaga va o'ttizga bo'linadi. Bunday sonni teng qismlarga bo'lish qulay, shuning uchun uni qadimda vaqt uchun tanlashgan. Butun dars bo'luvchilarni qidirdik, soat va taqvim ham xuddi shunga qurilgan.",
+      en: 'An hour has sixty minutes and a year has twelve months, and that is no accident. These numbers have very many divisors. Sixty divides by two, by three, by four, by five, by six, by ten, by twelve, by fifteen, by twenty and by thirty. Such a number is handy to split into equal parts, so it was chosen for time back in ancient days. All lesson we looked for divisors, and clocks and calendars are built on the same thing.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Перебери делители по порядку и проверь остаток.', uz: "Bo'luvchilarni tartib bilan sanang va qoldiqni tekshiring." }
+      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.', en: 'The final check, five questions.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Перебери делители по порядку и проверь остаток.', uz: "Bo'luvchilarni tartib bilan sanang va qoldiqni tekshiring.", en: 'Go through the divisors in order and check the remainder.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Ряды разложены, полки заполнены!', uz: "Qatorlar terildi, tokchalar to'ldi!" },
-    cando: { ru: 'Теперь ты находишь делители числа и его кратные.', uz: "Endi siz sonning bo'luvchilarini va karralilarini topasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Ряды разложены, полки заполнены!', uz: "Qatorlar terildi, tokchalar to'ldi!", en: 'The rows are laid out, the shelves are filled!' },
+    cando: { ru: 'Теперь ты находишь делители числа и его кратные.', uz: "Endi siz sonning bo'luvchilarini va karralilarini topasiz.", en: 'Now you find the divisors of a number and its multiples.' },
     rule_recap: {
       ru: 'Делитель делит без остатка: 12 : 4 = 3. Кратное получается умножением: 3, 6, 9, 12. У любого числа делители 1 и оно само.',
-      uz: "Bo'luvchi qoldiqsiz bo'ladi: 12 : 4 = 3. Karrali ko'paytirishdan chiqadi: 3, 6, 9, 12. Har qanday sonda 1 va sonning o'zi bo'luvchi."
+      uz: "Bo'luvchi qoldiqsiz bo'ladi: 12 : 4 = 3. Karrali ko'paytirishdan chiqadi: 3, 6, 9, 12. Har qanday sonda 1 va sonning o'zi bo'luvchi.",
+      en: 'A divisor divides with no remainder: 12 : 4 = 3. A multiple comes from multiplying: 3, 6, 9, 12. Every number has 1 and itself as divisors.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления; урок 15: задачи', uz: "9-dars: ko'paytirish jadvali; 14-dars: bog'lanish; 15-dars: masalalar" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'умножение двузначного на однозначное', uz: "ikki xonalini bir xonaliga ko'paytirish" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления; урок 15: задачи', uz: "9-dars: ko'paytirish jadvali; 14-dars: bog'lanish; 15-dars: masalalar", en: 'lesson 9: the multiplication table; lesson 14: the link between multiplication and division; lesson 15: word problems' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'умножение двузначного на однозначное', uz: "ikki xonalini bir xonaliga ko'paytirish", en: 'multiplying a two-digit number by a one-digit number' },
     audio: {
       ru: 'Ряды разложены, полки заполнены. И у тебя новое слово. Делитель. Запомни главное. Делитель делит без остатка, кратное получается умножением, а единица и само число делители всегда. Блок про умножение и деление мы прошли. В следующий раз научимся умножать двузначное число!',
-      uz: "Qatorlar terildi, tokchalar to'ldi. Sizda esa yangi so'z bor. Bo'luvchi. Asosiysini eslab qoling. Bo'luvchi qoldiqsiz bo'ladi, karrali ko'paytirishdan chiqadi, bir va sonning o'zi esa doim bo'luvchi. Ko'paytirish va bo'lish bo'limini o'tdik. Keyingi safar ikki xonali sonni ko'paytirishni o'rganamiz!"
+      uz: "Qatorlar terildi, tokchalar to'ldi. Sizda esa yangi so'z bor. Bo'luvchi. Asosiysini eslab qoling. Bo'luvchi qoldiqsiz bo'ladi, karrali ko'paytirishdan chiqadi, bir va sonning o'zi esa doim bo'luvchi. Ko'paytirish va bo'lish bo'limini o'tdik. Keyingi safar ikki xonali sonni ko'paytirishni o'rganamiz!",
+      en: 'The rows are laid out, the shelves are filled. And you have a new word. Divisor. Remember the main thing. A divisor divides with no remainder, a multiple comes from multiplying, and one and the number itself are always divisors. We have finished the block about multiplication and division. Next time we will learn to multiply a two digit number!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'Теперь разложим сами.', uz: "Endi o'zimiz teramiz." },
-  s3:  { ru: 'Перенесём это на числовую ось.', uz: "Buni sonlar o'qiga ko'chiramiz." },
-  s4:  { ru: 'Соберём это в правило.', uz: "Buni qoidaga yig'amiz." },
-  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
-  s6:  { ru: 'Теперь про кратные.', uz: 'Endi karralilar haqida.' },
-  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s8:  { ru: 'Разложим числа по полкам.', uz: 'Sonlarni tokchalarga ajratamiz.' },
-  s9:  { ru: 'Теперь вопросы.', uz: 'Endi savollar.' },
-  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s12: { ru: 'Задача из теплицы.', uz: 'Issiqxonadan masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Блок закрыт. Идём дальше!', uz: "Bo'lim yopildi. Davom etamiz!" }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'Теперь разложим сами.', uz: "Endi o'zimiz teramiz.", en: 'Now let us lay them out ourselves.' },
+  s3:  { ru: 'Перенесём это на числовую ось.', uz: "Buni sonlar o'qiga ko'chiramiz.", en: 'Let us carry this over to the number line.' },
+  s4:  { ru: 'Соберём это в правило.', uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan.", en: 'And here is Bit with his counting.' },
+  s6:  { ru: 'Теперь про кратные.', uz: 'Endi karralilar haqida.', en: 'Now about multiples.' },
+  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s8:  { ru: 'Разложим числа по полкам.', uz: 'Sonlarni tokchalarga ajratamiz.', en: 'Let us lay the numbers out on the shelves.' },
+  s9:  { ru: 'Теперь вопросы.', uz: 'Endi savollar.', en: 'Now the questions.' },
+  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s12: { ru: 'Задача из теплицы.', uz: 'Issiqxonadan masala.', en: 'A problem from the greenhouse.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Блок закрыт. Идём дальше!', uz: "Bo'lim yopildi. Davom etamiz!", en: 'The block is closed. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Ряды разложены, полки заполнены, и теперь ты знаешь, какие числа делят число ровно. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Qatorlar terildi, tokchalar to'ldi, endi qaysi sonlar sonni tekis bo'lishini bilasiz. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Qatorlar terildi, tokchalar to'ldi, endi qaysi sonlar sonni tekis bo'lishini bilasiz. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The rows are laid out, the shelves are filled, and now you know which numbers divide a number exactly. Thank you for your help!'
 };
 
 
@@ -1088,7 +1108,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -2051,7 +2071,7 @@ const Screen11 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
               {(showCheck || done) && <CheckStrip expr={it.check} cap={t(c.check_label)} ok/>}
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
@@ -2156,7 +2176,7 @@ const Screen12 = (props) => {
               {!solved && (
                 <>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d17-res lm-reveal">{c.ans}</span>}
@@ -2271,7 +2291,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -2342,7 +2362,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d17-final-scene fade-up delay-1"><SortScene gathered/></div>
@@ -2363,7 +2383,7 @@ export default function DivisorsLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2430,7 +2450,7 @@ export default function DivisorsLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

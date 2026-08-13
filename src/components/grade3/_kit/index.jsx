@@ -28,7 +28,7 @@ const T = {
   shadowBase: '58, 53, 48'
 };
 
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f' };
+let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'f', lessonId: '', lessonTitle: null };
 
 const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
 
@@ -43,6 +43,9 @@ const LANG_TAG = {
 const END_TAG = '[end]';
 
 const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
+// У TAG_RE стоит флаг g, поэтому её .test() помнит позицию и через раз врёт.
+// Для проверки «маркер уже стоит в начале» — своя копия без флага и с якорем.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
 
 const stripAudioTags = (s) => typeof s === 'string'
   ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
@@ -50,11 +53,30 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-function buildTtsUrl(base, text, gender) {
-  const raw = String(text);
-  const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
+// Метка урока в запросе озвучки: по ней сервер отделяет кэш одного урока от другого.
+// Без неё ключ — только текст, и озвучка всех уроков лежит вперемешку.
+// student_uuid не шлём: LMS не передаёт его уроку (в пропсах только имя ученика).
+const lessonMetaQuery = (lang) => {
+  const id = ttsConfig.lessonId || '';
+  if (!id) return '';
+  const title = ttsConfig.lessonTitle || {};
+  const name = (typeof title === 'string' ? title : (title[lang] || title.ru)) || '';
+  return '&lesson_id=' + encodeURIComponent(id)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// В запрос уходят text и g (контракт v5.2) плюс метка урока.
+// Язык — ведущим маркером в начале текста, для ВСЕХ языков (решение методиста 2026-08-12).
+// Прежнее решение (2026-08-10) ставило маркер только английскому: считалось, что русский и
+// узбекский сервер различает по алфавиту. Платформа требует маркер на каждой строке — без
+// него голос читает базовый язык неправильно. В CONTENT маркер не пишется: строки
+// склеиваются и уходят через pushOneOff, там он попал бы в середину. Место одно — здесь.
+function buildTtsUrl(base, text, gender, lang) {
+  const body = String(text).slice(0, 1000);
+  const tagged = LEAD_TAG_RE.test(body) ? body : `${LANG_TAG[lang] || LANG_TAG.ru} ${body}`;
+  const enc = encodeURIComponent(tagged).replace(/%5B/g, '[').replace(/%5D/g, ']');
   const g = gender === 'f' ? 'f' : 'm';
-  return `${base}/api/tts?text=${enc}&g=${g}`;
+  return `${base}/api/tts?text=${enc}&g=${g}${lessonMetaQuery(lang)}`;
 }
 
 function useSfx() {
@@ -175,7 +197,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // и Web Speech, и языковой маркер для HTTP
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -216,7 +238,7 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    el.src = buildTtsUrl(base, segment.text, gender, segment.lang || this.currentLang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -803,7 +825,25 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 // две, и тройка вставала «2 + 1» с висящей плиткой под первой.
 const gridCols = (n) => (n === 4 ? 2 : (n <= 5 ? n : 3));
 
-const READY_LABEL = { ru: 'Планета Лумо', uz: "Lumo sayyorasi" };
+const READY_LABEL = { ru: 'Планета Лумо', uz: "Lumo sayyorasi", en: 'Planet Lumo' };
+
+// Подписи интерфейса — там, где раньше стоял тернарник «ru или uz». С третьим языком
+// тернарник больше не годится: берём из словаря, недостающий язык падает на русский.
+const UI = {
+  check: { ru: 'Проверить', uz: 'Tekshiring', en: 'Check' },
+  remember: { ru: 'Помни', uz: 'Yodda tuting', en: 'Remember' },
+  again: { ru: 'Ещё раз', uz: "Yana ko'ring", en: 'Try again' },
+  student: { ru: 'Ученик', uz: "O'quvchi", en: 'Student' }
+};
+const ui = (key, lang) => (UI[key] || {})[lang] || (UI[key] || {}).ru || '';
+// «Задание 2 из 5» — в каждом языке свой порядок слов, поэтому не склейка, а три шаблона.
+const taskLabel = (lang, i, n) => (lang === 'uz' ? `${i}-topshiriq, jami ${n}`
+  : (lang === 'en' ? `Task ${i} of ${n}` : `Задание ${i} из ${n}`));
+const scoreLabel = (lang, got, n) => (lang === 'uz' ? `To'g'ri: ${n} tadan ${got} ta`
+  : (lang === 'en' ? `Correct: ${got} of ${n}` : `Верно: ${got} из ${n}`));
+// Пара «ключ» и «ключ_uz» / «ключ_en» в данных урока: выбираем по языку.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+const pickSib = (c, key, lang) => (lang === 'ru' ? c[key] : (c[`${key}_${lang}`] !== undefined ? c[`${key}_${lang}`] : c[key]));
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(false);
@@ -897,7 +937,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
   </div>
 );
 
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Nice work!'] };
 
 const ENCOURAGE = {
   ru: [
@@ -913,6 +953,13 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
+  ],
+  en: [
+    'Almost! Count again, one by one.',
+    'Very close! Look carefully and count once more.',
+    'Good try! Count slowly, in order.',
+    'Just a little more! Touch each one and count.',
+    'Nice effort! Start the count again, calmly.'
   ]
 };
 
@@ -2327,7 +2374,7 @@ const LgNumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <LgNumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={String(c.ans).length} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{ui('check', lang)}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -2453,7 +2500,7 @@ const LgScreen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono lg3-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono lg3-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono lg3-expr">{t(c.step1)}</span>
@@ -2698,7 +2745,7 @@ const LgScreen5 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.8vw, 12px)' }}>
         {it && (
           <>
-            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, c.items.length)} из ${c.items.length}` : `${Math.min(idx + 1, c.items.length)}-topshiriq, jami ${c.items.length}`}</div>
+            <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{taskLabel(lang, Math.min(idx + 1, c.items.length), c.items.length)}</div>
             <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.8vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
@@ -2717,7 +2764,7 @@ const LgScreen5 = (props) => {
         )}
         {done && (
           <div ref={revealRef} className="frame-success reveal-soft">
-            <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${c.items.length}` : `To'g'ri: ${c.items.length} tadan ${score} ta`}/>
+            <Reaction state="correct" praise={scoreLabel(lang, score, c.items.length)}/>
           </div>
         )}
       </div>
@@ -2798,7 +2845,7 @@ const LgScreen7 = (props) => {
           {!solved && (
             <>
               <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(c.cells[Math.min(phase, c.cells.length - 1)].ans).length} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{ui('check', lang)}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -2867,7 +2914,7 @@ const LgScreen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -3004,7 +3051,7 @@ const LgScreen12 = (props) => {
                 <>
                   <span className="lg3-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(stepNum === 0 ? c.ans1 : c.ans2).length} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{ui('check', lang)}</button>
                 </>
               )}
               {solved && <span className="mono lg3-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -3112,7 +3159,7 @@ const LgScreen13 = (props) => {
         {!done && it && (
           <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
             <FrameFx/>
-            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${idx + 1} из ${items.length}` : `${idx + 1}-topshiriq, jami ${items.length}`}</div>
+            <div className="mono" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{taskLabel(lang, idx + 1, items.length)}</div>
             <h2 className="title h-sub" style={{ textAlign: 'center' }}>{t(it.q)}</h2>
             {it.kind === 'num' ? (
               <>
@@ -3120,7 +3167,7 @@ const LgScreen13 = (props) => {
                   <LgNumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={String(it.ans).length} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{ui('check', lang)}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -3144,7 +3191,7 @@ const LgScreen13 = (props) => {
         {done && (
           <div ref={factRef}>
             <div className="frame-success reveal-soft" style={{ marginBottom: 12 }}>
-              <Reaction state="correct" praise={lang === 'ru' ? `Верно: ${score} из ${items.length}` : `To'g'ri: ${items.length} tadan ${score} ta`}/>
+              <Reaction state="correct" praise={scoreLabel(lang, score, items.length)}/>
             </div>
             <div className="d2-factcard fade-up">
               <span className="d2-factcard-badge mono">{t(c.fact_badge)}</span>
@@ -3192,7 +3239,7 @@ const LgScreen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{ui('remember', lang)}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="lg3-final-scene fade-up delay-1"><Scene gathered/></div>
@@ -3214,8 +3261,13 @@ const LessonRoot = ({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  const safeName = studentName || ui('student', lang);
+  // В превью базы озвучки нет, и урок идёт по ветке Web Speech. Чтобы проверить БОЕВОЙ путь
+  // (тот, по которому работает LMS), базу можно подставить в адресе: ?tts=https://…
+  // На платформе это не влияет ни на что: там база приходит пропом.
+  const previewTts = (isPreview && typeof window !== 'undefined')
+    ? (new URLSearchParams(window.location.search).get('tts') || '') : '';
+  configureLesson({ ttsApiBase: ttsApiBase || previewTts || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -3282,7 +3334,7 @@ const LessonRoot = ({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
@@ -3358,6 +3410,11 @@ export {
   shuffleMC,
   shuffleArr,
   gridCols,
+  ui,
+  tri,
+  taskLabel,
+  scoreLabel,
+  pickSib,
   READY_LABEL,
   usePrefersReducedMotion,
   useCountOnce,

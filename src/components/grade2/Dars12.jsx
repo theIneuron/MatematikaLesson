@@ -76,9 +76,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -249,7 +277,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -290,7 +318,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -902,8 +931,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'twostep-2-12-v1',
-  lessonTitle: { ru: 'Урок 12. Задача в два действия', uz: "12-dars. Ikki amalli masala" }
+  lessonId: 'grade2-12',
+  lessonTitle: { ru: 'Урок 12. Задача в два действия', uz: "12-dars. Ikki amalli masala", en: 'Lesson 12. A two step problem' }
 };
 // STRUKTURA: s0–s4 tushuntirish (5) · s5–s6 zanjir-single · s7–s9 zanjir-rounds · s10 oraliq-INPUT · s11 XATONI-TOP · s12/s13 masala(zanjir) · s14 aralash final · s15 xulosa.
 // MEXANIKA: «Oraliq-natija zanjiri» DOMINANT (s5–s9, sCASE, s14-r1) — 1-qadam natijasi ko'rinadigan zanjir bilan 2-qadamga oqadi.
@@ -950,13 +979,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): Mars bazasi — 40 quti; kema 15 oldi, rover 12 keltirdi → 37 (oraliq 25)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Задача в два действия', uz: "Mavzu: Ikki amalli masala" },
-    lead: { ru: 'Сколько еды в корабле?', uz: "Kemada nechta oziq-ovqat bor?" },
-    q: { ru: 'В корабле было 40. Потратили 15, загрузили 12. Сколько теперь?', uz: "Kemada 40 ta edi. 15 sarflandi, 12 ortildi. Endi nechta?" },
-    opt0: { ru: '25', uz: '25' },   // distraktor = oraliq natija (2-amalni unutish)
-    opt1: { ru: '37', uz: '37' },   // to'g'ri (idx1 = correct-key)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Задача в два действия', uz: "Mavzu: Ikki amalli masala", en: 'Topic: A two step problem' },
+    lead: { ru: 'Сколько еды в корабле?', uz: "Kemada nechta oziq-ovqat bor?", en: 'How much food is on the ship?' },
+    q: { ru: 'В корабле было 40. Потратили 15, загрузили 12. Сколько теперь?', uz: "Kemada 40 ta edi. 15 sarflandi, 12 ortildi. Endi nechta?", en: 'The ship had 40. They used 15 and loaded 12. How many are there now?' },
+    opt0: { ru: '25', uz: '25', en: '25' },   // distraktor = oraliq natija (2-amalni unutish)
+    opt1: { ru: '37', uz: '37', en: '37' },   // to'g'ri (idx1 = correct-key)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -970,21 +999,22 @@ const CONTENT = {
           "Uchish uchun kemaga bazadan oziq-ovqat ortiladi. Kemada qirq quti oziq-ovqat bor edi.",
           "Avval yo'lda o'n besh quti sarflandi. Keyin bazadan o'n ikki quti ortildi. Endi nechta quti bor?",
           "Ikki javobni tinglang. Birinchi, yigirma besh. Ikkinchi, o'ttiz yetti. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['Today the topic is a two step problem. Bit is getting ready to fly from Mars to the next planet.', 'Food from the base is being loaded onto the ship for lift off. The ship had forty boxes of food.', 'First fifteen boxes were eaten on the way. Then twelve were loaded from the base. How many boxes are there now?', 'Listen to two answers. First, twenty five. Second, thirty seven. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Сначала сорок минус пятнадцать это двадцать пять. Потом двадцать пять плюс двенадцать это тридцать семь.', uz: "To'g'ri. Avval qirq ayirish o'n besh, yigirma besh. Keyin yigirma besh qo'shuv o'n ikki, o'ttiz yetti." },
-      on_wrong: { ru: 'Тут два изменения, значит два действия. Сейчас научимся решать по шагам.', uz: "Bu yerda ikki o'zgarish bor, demak ikki amal. Hozir qadamba-qadam yechishni o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Тут два действия. Сейчас научимся решать по шагам.', uz: "Hechqisi yo'q. Bu yerda ikki amal. Hozir qadamba-qadam yechishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Сначала сорок минус пятнадцать это двадцать пять. Потом двадцать пять плюс двенадцать это тридцать семь.', uz: "To'g'ri. Avval qirq ayirish o'n besh, yigirma besh. Keyin yigirma besh qo'shuv o'n ikki, o'ttiz yetti.", en: 'That is right. First forty minus fifteen is twenty five. Then twenty five plus twelve is thirty seven.' },
+      on_wrong: { ru: 'Тут два изменения, значит два действия. Сейчас научимся решать по шагам.', uz: "Bu yerda ikki o'zgarish bor, demak ikki amal. Hozir qadamba-qadam yechishni o'rganamiz.", en: 'There are two changes here, so there are two steps. We will learn to solve it step by step.' },
+      on_unknown: { ru: 'Ничего. Тут два действия. Сейчас научимся решать по шагам.', uz: "Hechqisi yo'q. Bu yerda ikki amal. Hozir qadamba-qadam yechishni o'rganamiz.", en: 'No problem. There are two steps here. We will learn to solve it step by step.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: NEGA ikki amal — ikki o'zgarish bor, demak ikki qadam (oraliq natija)
   s1: {
-    eyebrow: { ru: 'Почему два действия?', uz: 'Nega ikki amal?' },
-    lead: { ru: 'Почему нельзя решить сразу?', uz: "Nega birdaniga yechib bo'lmaydi?" },
-    body: { ru: 'При сборах два изменения: сначала еду потратили, потом загрузили. Значит и действий два. Сначала находим, сколько осталось после первого изменения — это промежуточный ответ. Потом с ним делаем второе действие.', uz: "Oziq-ovqat ortishda ikki o'zgarish bor: avval oziq-ovqat sarflandi, keyin ortildi. Demak amal ham ikkita. Avval birinchi o'zgarishdan keyin nechta qolganini topamiz — bu oraliq natija. Keyin u bilan ikkinchi amalni bajaramiz." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Два изменения — два действия.', uz: "Ikki o'zgarish — ikki amal." },
+    eyebrow: { ru: 'Почему два действия?', uz: 'Nega ikki amal?', en: 'Why two steps?' },
+    lead: { ru: 'Почему нельзя решить сразу?', uz: "Nega birdaniga yechib bo'lmaydi?", en: 'Why can we not do it in one go?' },
+    body: { ru: 'При сборах два изменения: сначала еду потратили, потом загрузили. Значит и действий два. Сначала находим, сколько осталось после первого изменения — это промежуточный ответ. Потом с ним делаем второе действие.', uz: "Oziq-ovqat ortishda ikki o'zgarish bor: avval oziq-ovqat sarflandi, keyin ortildi. Demak amal ham ikkita. Avval birinchi o'zgarishdan keyin nechta qolganini topamiz — bu oraliq natija. Keyin u bilan ikkinchi amalni bajaramiz.", en: 'While getting ready there are two changes: first the food was used, then more was loaded. So there are two steps. First we find how much is left after the first change, and that is the in between answer. Then we do the second step with it.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Два изменения — два действия.', uz: "Ikki o'zgarish — ikki amal.", en: 'Two changes mean two steps.' },
     audio: {
       ru: [
         'Почему эту задачу нельзя решить в одно действие? Посмотри: тут два изменения.',
@@ -995,16 +1025,17 @@ const CONTENT = {
         "Nega bu masalani bir amalda yechib bo'lmaydi? Qarang: bu yerda ikki o'zgarish bor.",
         "Avval o'n besh quti sarflandi. Qirq ayirish o'n besh, yigirma besh. Bu oraliq natija.",
         "Keyin o'n ikkitasi ortildi. Yigirma besh qo'shuv o'n ikki, o'ttiz yetti. Ikki o'zgarish, ikki amal."
-      ]
+      ],
+      en: ['Why can this problem not be solved in one step? Look, there are two changes here.', 'First fifteen boxes were used. Forty minus fifteen is twenty five. That is the in between answer.', 'Then twelve were loaded. Twenty five plus twelve is thirty seven. Two changes, two steps.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2 (ishlab ko'rsatish): 50 − 20 → 30 (oraliq) → +13 = 43
   s2: {
-    eyebrow: { ru: 'Решаем по шагам', uz: 'Qadamba-qadam' },
-    lead: { ru: 'Было 50 запасов. Сняли 20, погрузили 13.', uz: "50 zaxira edi. 20 tushirildi, 13 ortildi." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Шаг 1: 50 − 20 = 30 (промежуточный). Шаг 2: 30 + 13 = 43.', uz: "1-qadam: 50 − 20 = 30 (oraliq). 2-qadam: 30 + 13 = 43." },
+    eyebrow: { ru: 'Решаем по шагам', uz: 'Qadamba-qadam', en: 'Solving it step by step' },
+    lead: { ru: 'Было 50 запасов. Сняли 20, погрузили 13.', uz: "50 zaxira edi. 20 tushirildi, 13 ortildi.", en: 'There were 50 supplies. 20 were taken off and 13 were loaded.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Шаг 1: 50 − 20 = 30 (промежуточный). Шаг 2: 30 + 13 = 43.', uz: "1-qadam: 50 − 20 = 30 (oraliq). 2-qadam: 30 + 13 = 43.", en: 'Step 1: 50 − 20 = 30 (in between). Step 2: 30 + 13 = 43.' },
     audio: {
       ru: [
         'Решим задачу в два действия. В корабле было пятьдесят ящиков запасов.',
@@ -1017,18 +1048,19 @@ const CONTENT = {
         "Birinchi amal. Yigirma eski quti tushirildi. Ellik ayirish yigirma, o'ttiz. Bu oraliq natija.",
         "Ikkinchi amal. O'n uch yangi quti ortildi. O'ttiz qo'shuv o'n uch, qirq uch.",
         "Jami qirq uch quti. Ikki amal, ikki qadam."
-      ]
+      ],
+      en: ['Let us solve a two step problem. The ship had fifty boxes of supplies.', 'The first step. Twenty old boxes were taken off. Fifty minus twenty is thirty. That is the in between answer.', 'The second step. Thirteen new ones were loaded. Thirty plus thirteen is forty three.', 'That is forty three boxes in all. Two steps, one after the other.']
     }
   },
 
   // s3 — QOIDA: avval oraliq natija, keyin ikkinchi amal + check (1-amalni topish)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Сначала 1-е действие → промежуточный ответ. Потом 2-е действие → ответ.', uz: "Avval 1-amal → oraliq natija. Keyin u bilan 2-amal → javob." },
-    check_q: { ru: 'Первое действие: 35 − 10 = ?', uz: "1-amal: 35 − 10 = ?" },
-    opts: [{ ru: '25', uz: '25', ok: true }, { ru: '45', uz: '45' }, { ru: '20', uz: '20' }],
-    wrong: { ru: 'Делаем только первое действие: тридцать пять минус десять.', uz: "Faqat birinchi amalni bajaramiz: o'ttiz besh ayirish o'n." },
-    check_ok: { ru: 'Верно! 35 − 10 = 25. Это промежуточный ответ.', uz: "To'g'ri! 35 − 10 = 25. Bu oraliq natija." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Сначала 1-е действие → промежуточный ответ. Потом 2-е действие → ответ.', uz: "Avval 1-amal → oraliq natija. Keyin u bilan 2-amal → javob.", en: 'First step 1 → the in between answer. Then step 2 → the answer.' },
+    check_q: { ru: 'Первое действие: 35 − 10 = ?', uz: "1-amal: 35 − 10 = ?", en: 'The first step: 35 − 10 = ?' },
+    opts: [{ ru: '25', uz: '25', en: '25', ok: true }, { ru: '45', uz: '45', en: '45' }, { ru: '20', uz: '20', en: '20' }],
+    wrong: { ru: 'Делаем только первое действие: тридцать пять минус десять.', uz: "Faqat birinchi amalni bajaramiz: o'ttiz besh ayirish o'n.", en: 'We do only the first step: thirty five minus ten.' },
+    check_ok: { ru: 'Верно! 35 − 10 = 25. Это промежуточный ответ.', uz: "To'g'ri! 35 − 10 = 25. Bu oraliq natija.", en: 'That is right! 35 − 10 = 25. That is the in between answer.' },
     audio: {
       ru: [
         'Запишем правило задачи в два действия. Слушай и запомни.',
@@ -1043,20 +1075,21 @@ const CONTENT = {
         "Avval birinchi amalni bajaramiz va oraliq natijani topamiz.",
         "Keyin oraliq natija bilan ikkinchi amalni bajaramiz.",
         "Endi o'zingiz. Birinchi amalni bajaring: o'ttiz besh ayirish o'n."
-      ]
+      ],
+      en: ['Let us write down the rule for a two step problem. Listen and remember.', 'In a problem each change is one step.', 'First we do the first step and find the in between answer.', 'Then we do the second step with that in between answer.', 'And now on your own. Do the first step: thirty five minus ten.']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (yana misol + ogohlantirish): 30 + 25 → 55 (oraliq) → −15 = 40
   s4: {
-    eyebrow: { ru: 'Ещё пример', uz: 'Yana misol' },
-    lead: { ru: 'Было 30 ящиков. Погрузили 25, сняли 15.', uz: "30 quti edi. 25 ortildi, 15 tushirildi." },
-    body: { ru: 'Шаг 1: 30 + 25 = 55 (промежуточный). Шаг 2: 55 − 15 = 40.', uz: "1-qadam: 30 + 25 = 55 (oraliq). 2-qadam: 55 − 15 = 40." },
-    warn: { ru: 'Во втором действии бери промежуточный ответ 55, а не первое число 30!', uz: "Ikkinchi amalda oraliq natija 55 ni ol, birinchi son 30 ni emas!" },
-    check_q: { ru: 'Второе действие: 55 − 15 = ?', uz: "2-amal: 55 − 15 = ?" },
-    opts: [{ ru: '40', uz: '40', ok: true }, { ru: '20', uz: '20' }, { ru: '45', uz: '45' }],
-    wrong: { ru: 'Бери промежуточный ответ: пятьдесят пять минус пятнадцать.', uz: "Oraliq natija bilan: ellik besh ayirish o'n besh." },
-    check_ok: { ru: 'Верно! 55 − 15 = 40.', uz: "To'g'ri! 55 − 15 = 40." },
+    eyebrow: { ru: 'Ещё пример', uz: 'Yana misol', en: 'One more example' },
+    lead: { ru: 'Было 30 ящиков. Погрузили 25, сняли 15.', uz: "30 quti edi. 25 ortildi, 15 tushirildi.", en: 'There were 30 boxes. 25 were loaded and 15 were taken off.' },
+    body: { ru: 'Шаг 1: 30 + 25 = 55 (промежуточный). Шаг 2: 55 − 15 = 40.', uz: "1-qadam: 30 + 25 = 55 (oraliq). 2-qadam: 55 − 15 = 40.", en: 'Step 1: 30 + 25 = 55 (in between). Step 2: 55 − 15 = 40.' },
+    warn: { ru: 'Во втором действии бери промежуточный ответ 55, а не первое число 30!', uz: "Ikkinchi amalda oraliq natija 55 ni ol, birinchi son 30 ni emas!", en: 'In the second step take the in between answer 55, not the first number 30!' },
+    check_q: { ru: 'Второе действие: 55 − 15 = ?', uz: "2-amal: 55 − 15 = ?", en: 'The second step: 55 − 15 = ?' },
+    opts: [{ ru: '40', uz: '40', en: '40', ok: true }, { ru: '20', uz: '20', en: '20' }, { ru: '45', uz: '45', en: '45' }],
+    wrong: { ru: 'Бери промежуточный ответ: пятьдесят пять минус пятнадцать.', uz: "Oraliq natija bilan: ellik besh ayirish o'n besh.", en: 'Take the in between answer: fifty five minus fifteen.' },
+    check_ok: { ru: 'Верно! 55 − 15 = 40.', uz: "To'g'ri! 55 − 15 = 40.", en: 'That is right! 55 − 15 = 40.' },
     audio: {
       ru: [
         'Возьмём ещё пример. В корабле было тридцать ящиков, потом погрузили двадцать пять и сняли пятнадцать.',
@@ -1069,227 +1102,231 @@ const CONTENT = {
         "Birinchi amal. O'ttiz qo'shuv yigirma besh, ellik besh. Bu oraliq natija.",
         "Ikkinchi amalda oraliq natijani olamiz, birinchi sonni emas. Ellik besh ayirish o'n besh, qirq.",
         "Ikkinchi amalni o'zingiz bajaring: ellik besh ayirish o'n besh."
-      ]
+      ],
+      en: ['Let us take one more example. The ship had thirty boxes, then twenty five were loaded and fifteen were taken off.', 'The first step. Thirty plus twenty five is fifty five. That is the in between answer.', 'In the second step we take the in between answer, not the first number. Fifty five minus fifteen is forty.', 'Do the second step yourself: fifty five minus fifteen.']
     }
   },
 
   // s5 — MASHQ-single (two-step): 45 + 20 − 30 = 35 (oraliq 65)
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
-    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: решай задачи в два действия.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: masalalarni ikki amalda yeching." },
-    story: { ru: 'В корабле 45 ящиков еды. Загрузили 20, потом в пути потратили 30.', uz: "Kemada 45 quti oziq-ovqat bor. 20 ortildi, keyin yo'lda 30 sarflandi." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
+    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: решай задачи в два действия.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: masalalarni ikki amalda yeching.", en: 'We have finished explaining. Now practise on your own: solve two step problems.' },
+    story: { ru: 'В корабле 45 ящиков еды. Загрузили 20, потом в пути потратили 30.', uz: "Kemada 45 quti oziq-ovqat bor. 20 ortildi, keyin yo'lda 30 sarflandi.", en: 'The ship has 45 boxes of food. 20 were loaded, then 30 were used on the way.' },
     a: 45, op1: '+', b: 20, op2: '−', c: 30,
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно! 45 + 20 = 65, потом 65 − 30 = 35.', uz: "To'g'ri! 45 + 20 = 65, keyin 65 − 30 = 35." },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно! 45 + 20 = 65, потом 65 − 30 = 35.', uz: "To'g'ri! 45 + 20 = 65, keyin 65 − 30 = 35.", en: 'That is right! 45 + 20 = 65, then 65 − 30 = 35.' },
     audio: {
-      intro: { ru: 'Объяснение закончили, теперь тренировка. В корабле сорок пять ящиков еды. Загрузили двадцать, потом потратили тридцать. Сделай первое действие.', uz: "Tushuntirishni tugatdik, endi mashq. Kemada qirq besh quti oziq-ovqat bor. Yigirma ortildi, keyin o'ttiz sarflandi. Birinchi amalni bajaring." },
-      on_correct: { ru: 'Верно. Тридцать пять ящиков.', uz: "To'g'ri. O'ttiz besh quti." },
-      on_wrong: { ru: 'Сначала найди промежуточный ответ, потом сделай второе действие.', uz: "Avval oraliq natijani toping, keyin ikkinchi amalni bajaring." }
+      intro: { ru: 'Объяснение закончили, теперь тренировка. В корабле сорок пять ящиков еды. Загрузили двадцать, потом потратили тридцать. Сделай первое действие.', uz: "Tushuntirishni tugatdik, endi mashq. Kemada qirq besh quti oziq-ovqat bor. Yigirma ortildi, keyin o'ttiz sarflandi. Birinchi amalni bajaring.", en: 'We have finished explaining, now it is practice. The ship has forty five boxes of food. Twenty were loaded, then thirty were used. Do the first step.' },
+      on_correct: { ru: 'Верно. Тридцать пять ящиков.', uz: "To'g'ri. O'ttiz besh quti.", en: 'That is right. Thirty five boxes.' },
+      on_wrong: { ru: 'Сначала найди промежуточный ответ, потом сделай второе действие.', uz: "Avval oraliq natijani toping, keyin ikkinchi amalni bajaring.", en: 'First find the in between answer, then do the second step.' }
     }
   },
 
   // s6 — MASHQ-single (two-step): 60 − 40 + 15 = 35 (oraliq 20)
   s6: {
-    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
-    story: { ru: 'В корабле 60 буханок хлеба. В пути съели 40, потом принесли 15.', uz: "Kemada 60 non bor. Yo'lda 40 yeyildi, keyin 15 keltirildi." },
+    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang", en: 'Check yourself' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
+    story: { ru: 'В корабле 60 буханок хлеба. В пути съели 40, потом принесли 15.', uz: "Kemada 60 non bor. Yo'lda 40 yeyildi, keyin 15 keltirildi.", en: 'The ship has 60 loaves of bread. 40 were eaten on the way, then 15 were brought in.' },
     a: 60, op1: '−', b: 40, op2: '+', c: 15,
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно! 60 − 40 = 20, потом 20 + 15 = 35.', uz: "To'g'ri! 60 − 40 = 20, keyin 20 + 15 = 35." },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно! 60 − 40 = 20, потом 20 + 15 = 35.', uz: "To'g'ri! 60 − 40 = 20, keyin 20 + 15 = 35.", en: 'That is right! 60 − 40 = 20, then 20 + 15 = 35.' },
     audio: {
-      intro: { ru: 'Проверь себя перед практикой. В корабле шестьдесят буханок. В пути съели сорок, потом принесли пятнадцать. Сделай первое действие.', uz: "Mashqdan oldin o'zingizni sinang. Kemada oltmish non bor. Yo'lda qirq yeyildi, keyin o'n besh keltirildi. Birinchi amalni bajaring."},
-      on_correct: { ru: 'Верно. Тридцать пять буханок.', uz: "To'g'ri. O'ttiz besh non." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Проверь себя перед практикой. В корабле шестьдесят буханок. В пути съели сорок, потом принесли пятнадцать. Сделай первое действие.', uz: "Mashqdan oldin o'zingizni sinang. Kemada oltmish non bor. Yo'lda qirq yeyildi, keyin o'n besh keltirildi. Birinchi amalni bajaring.", en: 'Check yourself before the practice. The ship has sixty loaves. Forty were eaten on the way, then fifteen were brought in. Do the first step.'},
+      on_correct: { ru: 'Верно. Тридцать пять буханок.', uz: "To'g'ri. O'ttiz besh non.", en: 'That is right. Thirty five loaves.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s7 — MASHQ-1 (scored, 3 round two-step)
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
     rounds: [
-      { story: { ru: 'В корабль грузят запасы. Было 30 ящиков, добавили 15, потом ещё 20.', uz: "Kemaga zaxira ortiladi. 30 quti edi, 15 qo'shildi, yana 20 qo'shildi." }, a: 30, op1: '+', b: 15, op2: '+', c: 20 },
-      { story: { ru: 'В корабле 50 буханок. В пути съели 20, потом загрузили 10.', uz: "Kemada 50 non. Yo'lda 20 yeyildi, keyin 10 ortildi." }, a: 50, op1: '−', b: 20, op2: '+', c: 10 },
-      { story: { ru: 'В корабле 40 фруктов. Принесли 25, потом съели 30.', uz: "Kemada 40 meva. 25 keltirildi, keyin 30 yeyildi." }, a: 40, op1: '+', b: 25, op2: '−', c: 30 }
+      { story: { ru: 'В корабль грузят запасы. Было 30 ящиков, добавили 15, потом ещё 20.', uz: "Kemaga zaxira ortiladi. 30 quti edi, 15 qo'shildi, yana 20 qo'shildi.", en: 'Supplies are being loaded onto the ship. There were 30 boxes, 15 were added, then 20 more.' }, a: 30, op1: '+', b: 15, op2: '+', c: 20 },
+      { story: { ru: 'В корабле 50 буханок. В пути съели 20, потом загрузили 10.', uz: "Kemada 50 non. Yo'lda 20 yeyildi, keyin 10 ortildi.", en: 'The ship has 50 loaves. 20 were eaten on the way, then 10 were loaded.' }, a: 50, op1: '−', b: 20, op2: '+', c: 10 },
+      { story: { ru: 'В корабле 40 фруктов. Принесли 25, потом съели 30.', uz: "Kemada 40 meva. 25 keltirildi, keyin 30 yeyildi.", en: 'The ship has 40 pieces of fruit. 25 were brought in, then 30 were eaten.' }, a: 40, op1: '+', b: 25, op2: '−', c: 30 }
     ],
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Тренировка. Решай в два действия: сначала промежуточный ответ, потом второе действие.', uz: "Mashq. Ikki amalda yeching: avval oraliq natija, keyin ikkinchi amal." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Тренировка. Решай в два действия: сначала промежуточный ответ, потом второе действие.', uz: "Mashq. Ikki amalda yeching: avval oraliq natija, keyin ikkinchi amal.", en: 'Practice. Solve it in two steps: first the in between answer, then the second step.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s8 — MASHQ-2 (scored, 3 round two-step)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
     rounds: [
-      { story: { ru: 'В корабле 70 ящиков. Сняли лишние 30, потом ещё 20.', uz: "Kemada 70 quti. Ortiqcha 30 tushirildi, yana 20 tushirildi." }, a: 70, op1: '−', b: 30, op2: '−', c: 20 },
-      { story: { ru: 'В корабле 25 буханок. Загрузили 25, потом ещё 15.', uz: "Kemada 25 non. 25 ortildi, yana 15 ortildi." }, a: 25, op1: '+', b: 25, op2: '+', c: 15 },
-      { story: { ru: 'В корабле 60 фруктов. Съели 15, потом принесли 20.', uz: "Kemada 60 meva. 15 yeyildi, keyin 20 keltirildi." }, a: 60, op1: '−', b: 15, op2: '+', c: 20 }
+      { story: { ru: 'В корабле 70 ящиков. Сняли лишние 30, потом ещё 20.', uz: "Kemada 70 quti. Ortiqcha 30 tushirildi, yana 20 tushirildi.", en: 'The ship has 70 boxes. 30 spare ones were taken off, then 20 more.' }, a: 70, op1: '−', b: 30, op2: '−', c: 20 },
+      { story: { ru: 'В корабле 25 буханок. Загрузили 25, потом ещё 15.', uz: "Kemada 25 non. 25 ortildi, yana 15 ortildi.", en: 'The ship has 25 loaves. 25 were loaded, then 15 more.' }, a: 25, op1: '+', b: 25, op2: '+', c: 15 },
+      { story: { ru: 'В корабле 60 фруктов. Съели 15, потом принесли 20.', uz: "Kemada 60 meva. 15 yeyildi, keyin 20 keltirildi.", en: 'The ship has 60 pieces of fruit. 15 were eaten, then 20 were brought in.' }, a: 60, op1: '−', b: 15, op2: '+', c: 20 }
     ],
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Ещё задачи в два действия. Не забывай про второе действие.', uz: "Yana ikki amalli masalalar. Ikkinchi amalni unutmang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Ещё задачи в два действия. Не забывай про второе действие.', uz: "Yana ikki amalli masalalar. Ikkinchi amalni unutmang.", en: 'A few more two step problems. Do not forget the second step.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s9 — MASHQ-3 (scored, 3 round two-step)
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
     rounds: [
-      { story: { ru: 'В корабле 35 ящиков запасов. Загрузили 20, потом потратили 15.', uz: "Kemada 35 quti zaxira. 20 ortildi, keyin 15 sarflandi." }, a: 35, op1: '+', b: 20, op2: '−', c: 15 },
-      { story: { ru: 'В корабле 80 буханок. Съели 40, потом ещё 10.', uz: "Kemada 80 non. Yo'lda 40 yeyildi, yana 10 yeyildi." }, a: 80, op1: '−', b: 40, op2: '−', c: 10 },
-      { story: { ru: 'В корабле 20 фруктов. Принесли 30, потом ещё 25.', uz: "Kemada 20 meva. 30 keltirildi, yana 25 keltirildi." }, a: 20, op1: '+', b: 30, op2: '+', c: 25 }
+      { story: { ru: 'В корабле 35 ящиков запасов. Загрузили 20, потом потратили 15.', uz: "Kemada 35 quti zaxira. 20 ortildi, keyin 15 sarflandi.", en: 'The ship has 35 boxes of supplies. 20 were loaded, then 15 were used.' }, a: 35, op1: '+', b: 20, op2: '−', c: 15 },
+      { story: { ru: 'В корабле 80 буханок. Съели 40, потом ещё 10.', uz: "Kemada 80 non. Yo'lda 40 yeyildi, yana 10 yeyildi.", en: 'The ship has 80 loaves. 40 were eaten, then 10 more.' }, a: 80, op1: '−', b: 40, op2: '−', c: 10 },
+      { story: { ru: 'В корабле 20 фруктов. Принесли 30, потом ещё 25.', uz: "Kemada 20 meva. 30 keltirildi, yana 25 keltirildi.", en: 'The ship has 20 pieces of fruit. 30 were brought in, then 25 more.' }, a: 20, op1: '+', b: 30, op2: '+', c: 25 }
     ],
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Задачи разные, но правило одно: два действия по шагам.', uz: "Masalalar har xil, lekin qoida bitta: ikki amal, qadamba-qadam." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Задачи разные, но правило одно: два действия по шагам.', uz: "Masalalar har xil, lekin qoida bitta: ikki amal, qadamba-qadam.", en: 'The problems are different but the rule is the same: two steps, one after the other.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s10 — MASHQ-4 (scored, 3 round two-step)
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching."},
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Реши по шагам.', uz: "Qadamba-qadam yeching.", en: 'Solve it step by step.'},
     rounds: [
-      { story: { ru: 'В корабле 55 ящиков. Сняли 25, потом загрузили 30.', uz: "Kemada 55 quti. 25 tushirildi, keyin 30 ortildi." }, a: 55, op1: '−', b: 25, op2: '+', c: 30 },
-      { story: { ru: 'В корабле 40 буханок. Загрузили 40, потом съели 20.', uz: "Kemada 40 non. 40 ortildi, keyin yo'lda 20 yeyildi." }, a: 40, op1: '+', b: 40, op2: '−', c: 20 },
-      { story: { ru: 'В корабле 90 фруктов. Съели 30, потом ещё 30.', uz: "Kemada 90 meva. 30 yeyildi, yana 30 yeyildi." }, a: 90, op1: '−', b: 30, op2: '−', c: 30 }
+      { story: { ru: 'В корабле 55 ящиков. Сняли 25, потом загрузили 30.', uz: "Kemada 55 quti. 25 tushirildi, keyin 30 ortildi.", en: 'The ship has 55 boxes. 25 were taken off, then 30 were loaded.' }, a: 55, op1: '−', b: 25, op2: '+', c: 30 },
+      { story: { ru: 'В корабле 40 буханок. Загрузили 40, потом съели 20.', uz: "Kemada 40 non. 40 ortildi, keyin yo'lda 20 yeyildi.", en: 'The ship has 40 loaves. 40 were loaded, then 20 were eaten.' }, a: 40, op1: '+', b: 40, op2: '−', c: 20 },
+      { story: { ru: 'В корабле 90 фруктов. Съели 30, потом ещё 30.', uz: "Kemada 90 meva. 30 yeyildi, yana 30 yeyildi.", en: 'The ship has 90 pieces of fruit. 30 were eaten, then 30 more.' }, a: 90, op1: '−', b: 30, op2: '−', c: 30 }
     ],
-    wrong: { ru: 'Посчитай первое действие ещё раз и набери ответ.', uz: "Birinchi amalni yana sanang va javobni tering." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Посчитай первое действие ещё раз и набери ответ.', uz: "Birinchi amalni yana sanang va javobni tering.", en: 'Work out the first step again and type the answer.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Теперь промежуточный ответ набери сам. Нажимай цифры, потом проверь. После выбери второе действие.', uz: "Endi oraliq natijani o'zingiz tering. Raqamlarni bosing, keyin tekshiring. So'ng ikkinchi amalni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай первое действие ещё раз.', uz: "Birinchi amalni yana bir bor sanang." }
+      intro: { ru: 'Теперь промежуточный ответ набери сам. Нажимай цифры, потом проверь. После выбери второе действие.', uz: "Endi oraliq natijani o'zingiz tering. Raqamlarni bosing, keyin tekshiring. So'ng ikkinchi amalni tanlang.", en: 'Now type the in between answer yourself. Tap the digits, then check it. After that choose the second step.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посчитай первое действие ещё раз.', uz: "Birinchi amalni yana bir bor sanang.", en: 'Work out the first step again.' }
     }
   },
 
   // s11 — XATONI TOP (scored, 3 round): tayyor yechimda oraliq noto'g'ri (badMid), xato katakni bosish
   s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    lead: { ru: 'Проверь решение.', uz: "Yechimni tekshiring." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    lead: { ru: 'Проверь решение.', uz: "Yechimni tekshiring.", en: 'Check the working.' },
     rounds: [
-      { story: { ru: 'Робот считал ящики с едой. Проверь его решение.', uz: "Robot oziq-ovqat qutilarini sanadi. Yechimini tekshiring." }, a: 45, op1: '+', b: 20, op2: '−', c: 30, badMid: 60 },
-      { story: { ru: 'Робот считал хлеб. Проверь его решение.', uz: "Robot nonlarni sanadi. Yechimini tekshiring." }, a: 60, op1: '−', b: 40, op2: '+', c: 15, badMid: 30 },
-      { story: { ru: 'Робот считал фрукты. Проверь его решение.', uz: "Robot mevalarni sanadi. Yechimini tekshiring." }, a: 50, op1: '+', b: 30, op2: '−', c: 40, badMid: 70 }
+      { story: { ru: 'Робот считал ящики с едой. Проверь его решение.', uz: "Robot oziq-ovqat qutilarini sanadi. Yechimini tekshiring.", en: 'The robot counted the boxes of food. Check its working.' }, a: 45, op1: '+', b: 20, op2: '−', c: 30, badMid: 60 },
+      { story: { ru: 'Робот считал хлеб. Проверь его решение.', uz: "Robot nonlarni sanadi. Yechimini tekshiring.", en: 'The robot counted the bread. Check its working.' }, a: 60, op1: '−', b: 40, op2: '+', c: 15, badMid: 30 },
+      { story: { ru: 'Робот считал фрукты. Проверь его решение.', uz: "Robot mevalarni sanadi. Yechimini tekshiring.", en: 'The robot counted the fruit. Check its working.' }, a: 50, op1: '+', b: 30, op2: '−', c: 40, badMid: 70 }
     ],
-    wrong: { ru: 'Это окошко посчитано верно. Проверь промежуточный ответ.', uz: "Bu katak to'g'ri sanalgan. Oraliq natijani tekshiring." },
-    done_text: { ru: 'Верно! Ошибка была в промежуточном ответе.', uz: "To'g'ri! Xato oraliq natijada edi." },
+    wrong: { ru: 'Это окошко посчитано верно. Проверь промежуточный ответ.', uz: "Bu katak to'g'ri sanalgan. Oraliq natijani tekshiring.", en: 'This box is worked out correctly. Check the in between answer.' },
+    done_text: { ru: 'Верно! Ошибка была в промежуточном ответе.', uz: "To'g'ri! Xato oraliq natijada edi.", en: 'That is right! The mistake was in the in between answer.' },
     audio: {
-      intro: { ru: 'Робот решил задачи, но в промежуточном ответе ошибся. Найди окошко, где ошибка.', uz: "Robot masalalarni yechdi, lekin oraliq natijada xato qildi. Xato bo'lgan katakni toping." },
-      on_correct: { ru: 'Верно. Ошибка была в промежуточном ответе.', uz: "To'g'ri. Xato oraliq natijada edi." },
-      on_wrong: { ru: 'Это окошко верное. Посмотри на промежуточный ответ.', uz: "Bu katak to'g'ri. Oraliq natijaga qarang." }
+      intro: { ru: 'Робот решил задачи, но в промежуточном ответе ошибся. Найди окошко, где ошибка.', uz: "Robot masalalarni yechdi, lekin oraliq natijada xato qildi. Xato bo'lgan katakni toping.", en: 'The robot solved the problems but made a mistake in the in between answer. Find the box with the mistake.' },
+      on_correct: { ru: 'Верно. Ошибка была в промежуточном ответе.', uz: "To'g'ri. Xato oraliq natijada edi.", en: 'That is right. The mistake was in the in between answer.' },
+      on_wrong: { ru: 'Это окошко верное. Посмотри на промежуточный ответ.', uz: "Bu katak to'g'ri. Oraliq natijaga qarang.", en: 'This box is right. Look at the in between answer.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Анвар считает ящики.', uz: "Anvar qutilarni sanaydi." },
-    manifest_label: { ru: 'груз', uz: 'yuk' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Анвар считает ящики.', uz: "Anvar qutilarni sanaydi.", en: 'Anvar is counting boxes.' },
+    manifest_label: { ru: 'груз', uz: 'yuk', en: 'cargo' },
     audio: {
       ru: 'Анвар решает задачу в два действия.',
-      uz: "Anvar ikki amalli masalani yechadi."
+      uz: "Anvar ikki amalli masalani yechadi.",
+      en: 'Anvar is solving a two step problem.'
     }
   },
 
   // s13 — MASALA (scored, two-step): Anvar 42 − 20 + 15 = 37 (oraliq 22)
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги Анвару.', uz: "Anvarga yordam bering." },
-    story: { ru: 'Было 42 ящика, 20 сняли, потом загрузили 15.', uz: "42 quti bor edi, 20 tushirildi, keyin 15 ortildi." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги Анвару.', uz: "Anvarga yordam bering.", en: 'Help Anvar.' },
+    story: { ru: 'Было 42 ящика, 20 сняли, потом загрузили 15.', uz: "42 quti bor edi, 20 tushirildi, keyin 15 ortildi.", en: 'There were 42 boxes, 20 were taken off, then 15 were loaded.' },
     a: 42, op1: '−', b: 20, op2: '+', c: 15,
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно! 42 − 20 = 22, потом 22 + 15 = 37.', uz: "To'g'ri! 42 − 20 = 22, keyin 22 + 15 = 37." },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно! 42 − 20 = 22, потом 22 + 15 = 37.', uz: "To'g'ri! 42 − 20 = 22, keyin 22 + 15 = 37.", en: 'That is right! 42 − 20 = 22, then 22 + 15 = 37.' },
     audio: {
-      intro: { ru: 'Помоги Анвару подготовить корабль к старту. Было сорок два ящика. Двадцать он снял, потом загрузил с базы пятнадцать. Сделай первое действие.', uz: "Anvarga kemani uchishga tayyorlashda yordam bering. Qirq ikki quti bor edi. Yigirmatasini tushirdi, keyin bazadan o'n besh ortdi. Birinchi amalni bajaring."},
-      on_correct: { ru: 'Верно. У Анвара тридцать семь ящиков.', uz: "To'g'ri. Anvarda o'ttiz yetti quti." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Помоги Анвару подготовить корабль к старту. Было сорок два ящика. Двадцать он снял, потом загрузил с базы пятнадцать. Сделай первое действие.', uz: "Anvarga kemani uchishga tayyorlashda yordam bering. Qirq ikki quti bor edi. Yigirmatasini tushirdi, keyin bazadan o'n besh ortdi. Birinchi amalni bajaring.", en: 'Help Anvar get the ship ready for lift off. There were forty two boxes. He took twenty off, then loaded fifteen from the base. Do the first step.'},
+      on_correct: { ru: 'Верно. У Анвара тридцать семь ящиков.', uz: "To'g'ri. Anvarda o'ttiz yetti quti.", en: 'That is right. Anvar has thirty seven boxes.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s14 — FINAL (scored, 3 round two-step + FactCard)
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Финальная проверка.', uz: "Yakuniy tekshiruv." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Финальная проверка.', uz: "Yakuniy tekshiruv.", en: 'The final check.' },
     rounds: [
-      { kind: 'chain', story: { ru: 'В корабле 30 ящиков. Загрузили 20, потом сняли 15.', uz: "Kemada 30 quti. 20 ortildi, keyin 15 tushirildi." }, a: 30, op1: '+', b: 20, op2: '−', c: 15 },
-      { kind: 'input', story: { ru: 'В корабле 60 буханок. Съели 20, потом ещё 15.', uz: "Kemada 60 non. Yo'lda 20 yeyildi, yana 15 yeyildi." }, a: 60, op1: '−', b: 20, op2: '−', c: 15,
-        wrong: { ru: 'Посчитай первое действие ещё раз.', uz: "Birinchi amalni yana sanang." } },
-      { kind: 'error', story: { ru: 'Робот считал фрукты. Проверь его решение.', uz: "Robot mevalarni sanadi. Yechimini tekshiring." }, a: 45, op1: '+', b: 15, op2: '+', c: 25, badMid: 50,
-        wrong: { ru: 'Это окошко верное. Проверь промежуточный ответ.', uz: "Bu katak to'g'ri. Oraliq natijani tekshiring." },
-        done_text: { ru: 'Верно! Ошибка была в промежуточном ответе.', uz: "To'g'ri! Xato oraliq natijada edi." } }
+      { kind: 'chain', story: { ru: 'В корабле 30 ящиков. Загрузили 20, потом сняли 15.', uz: "Kemada 30 quti. 20 ortildi, keyin 15 tushirildi.", en: 'The ship has 30 boxes. 20 were loaded, then 15 were taken off.' }, a: 30, op1: '+', b: 20, op2: '−', c: 15 },
+      { kind: 'input', story: { ru: 'В корабле 60 буханок. Съели 20, потом ещё 15.', uz: "Kemada 60 non. Yo'lda 20 yeyildi, yana 15 yeyildi.", en: 'The ship has 60 loaves. 20 were eaten, then 15 more.' }, a: 60, op1: '−', b: 20, op2: '−', c: 15,
+        wrong: { ru: 'Посчитай первое действие ещё раз.', uz: "Birinchi amalni yana sanang.", en: 'Work out the first step again.' } },
+      { kind: 'error', story: { ru: 'Робот считал фрукты. Проверь его решение.', uz: "Robot mevalarni sanadi. Yechimini tekshiring.", en: 'The robot counted the fruit. Check its working.' }, a: 45, op1: '+', b: 15, op2: '+', c: 25, badMid: 50,
+        wrong: { ru: 'Это окошко верное. Проверь промежуточный ответ.', uz: "Bu katak to'g'ri. Oraliq natijani tekshiring.", en: 'This box is right. Check the in between answer.' },
+        done_text: { ru: 'Верно! Ошибка была в промежуточном ответе.', uz: "To'g'ri! Xato oraliq natijada edi.", en: 'That is right! The mistake was in the in between answer.' } }
     ],
-    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Задачу в два действия нельзя решить сразу: сначала промежуточный ответ, потом окончательный. Так решают и взрослые!', uz: "Ikki amalli masalani birdaniga yechib bo'lmaydi: avval oraliq javob, keyin oxirgi javob. Kattalar ham shunday yechadi!" },
-    fact_audio: { ru: 'В задаче в два действия всегда сначала находят промежуточный ответ. Потом с ним делают последнее действие. Так решать удобно и по порядку.', uz: "Ikki amalli masalada har doim avval oraliq natija topiladi. Keyin u bilan oxirgi amal bajariladi. Bunday yechish oson va tartibli." },
+    wrong: { ru: 'Сначала первое действие, найди промежуточный ответ. Потом второе.', uz: "Avval birinchi amal, oraliq natijani toping. Keyin ikkinchisi.", en: 'First do step one and find the in between answer. Then do step two.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Задачу в два действия нельзя решить сразу: сначала промежуточный ответ, потом окончательный. Так решают и взрослые!', uz: "Ikki amalli masalani birdaniga yechib bo'lmaydi: avval oraliq javob, keyin oxirgi javob. Kattalar ham shunday yechadi!", en: 'A two step problem cannot be solved in one go: first the in between answer, then the final one. That is how grown ups solve it too!' },
+    fact_audio: { ru: 'В задаче в два действия всегда сначала находят промежуточный ответ. Потом с ним делают последнее действие. Так решать удобно и по порядку.', uz: "Ikki amalli masalada har doim avval oraliq natija topiladi. Keyin u bilan oxirgi amal bajariladi. Bunday yechish oson va tartibli.", en: 'In a two step problem you always find the in between answer first. Then you do the last step with it. That way you solve it neatly and in order.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Решай в два действия: сначала промежуточный ответ, потом второе действие.', uz: "Yakuniy tekshiruv. Ikki amalda yeching: avval oraliq natija, keyin ikkinchi amal." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal." }
+      intro: { ru: 'Финальная проверка. Решай в два действия: сначала промежуточный ответ, потом второе действие.', uz: "Yakuniy tekshiruv. Ikki amalda yeching: avval oraliq natija, keyin ikkinchi amal.", en: 'The final check. Solve it in two steps: first the in between answer, then the second step.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала промежуточный ответ, потом второе действие.', uz: "Avval oraliq natija, keyin ikkinchi amal.", en: 'First the in between answer, then the second step.' }
     }
   },
 
   // s15 — YAKUN: uchish + QOIDA recap + bog'lanishlar
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты решаешь задачи в два действия по шагам!', uz: "Endi siz ikki amalli masalani qadamba-qadam yechasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты решаешь задачи в два действия по шагам!', uz: "Endi siz ikki amalli masalani qadamba-qadam yechasiz!", en: 'Now you can solve two step problems step by step!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Сначала первое действие → промежуточный ответ. Потом с ним второе действие → ответ. 40 − 15 + 12 = 37.', uz: "Avval 1-amal → oraliq natija. Keyin u bilan 2-amal → javob. 40 − 15 + 12 = 37." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 7: сложение; урок 8: вычитание', uz: "7-dars: qo'shish; 8-dars: ayirish" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: умножение', uz: "keyingi: ko'paytirish" },
+    rule_recap: { ru: 'Сначала первое действие → промежуточный ответ. Потом с ним второе действие → ответ. 40 − 15 + 12 = 37.', uz: "Avval 1-amal → oraliq natija. Keyin u bilan 2-amal → javob. 40 − 15 + 12 = 37.", en: 'First step one → the in between answer. Then step two with it → the answer. 40 − 15 + 12 = 37.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'урок 7: сложение; урок 8: вычитание', uz: "7-dars: qo'shish; 8-dars: ayirish", en: 'lesson 7: adding; lesson 8: subtracting' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: умножение', uz: "keyingi: ko'paytirish", en: 'next: multiplying' },
     audio: {
       ru: 'Миссия выполнена. На Марсе мы научились решать задачи в два действия. Запомни правило. Сначала делаем первое действие и находим промежуточный ответ. Потом с промежуточным ответом делаем второе действие. Еда загружена, корабль стартует с Марса. Впереди новая планета. В следующий раз узнаем, что такое умножение.',
-      uz: "Missiya bajarildi. Marsda ikki amalli masalani yechishni o'rgandik. Qoidani yodda tuting. Avval birinchi amalni bajaramiz va oraliq natijani topamiz. Keyin oraliq natija bilan ikkinchi amalni bajaramiz. Oziq-ovqat ortildi, kema Marsdan uchadi. Oldinda yangi sayyora. Keyingi safar ko'paytirish nima ekanini bilib olamiz."
+      uz: "Missiya bajarildi. Marsda ikki amalli masalani yechishni o'rgandik. Qoidani yodda tuting. Avval birinchi amalni bajaramiz va oraliq natijani topamiz. Keyin oraliq natija bilan ikkinchi amalni bajaramiz. Oziq-ovqat ortildi, kema Marsdan uchadi. Oldinda yangi sayyora. Keyingi safar ko'paytirish nima ekanini bilib olamiz.",
+      en: 'Mission complete. On Mars we learned to solve two step problems. Remember the rule. First we do the first step and find the in between answer. Then we do the second step with that in between answer. The food is loaded and the ship lifts off from Mars. A new planet lies ahead. Next time we will find out what multiplying is.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала разберёмся, почему тут два действия.', uz: "Avval nega bu yerda ikki amal ekanini tushunamiz." },
-  s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz." },
-  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
-  s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling." },
-  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
-  s7:  { ru: 'Переходим к тренировке.', uz: "Trenirovkaga o'tamiz." },
-  s8:  { ru: 'Ещё задачи в два действия.', uz: "Yana ikki amalli masalalar." },
-  s9:  { ru: 'Задачи разные, правило одно.', uz: 'Masalalar har xil, qoida bitta.' },
-  s10: { ru: 'Теперь промежуточный ответ набери сам.', uz: "Endi oraliq natijani o'zingiz tering." },
-  s11: { ru: 'Проверь чужое решение и найди ошибку.', uz: "Birovning yechimini tekshirib, xatoni toping." },
-  s12: { ru: 'Анвар решает задачу.', uz: 'Anvar masalani yechadi.' },
-  s13: { ru: 'Помоги Анвару.', uz: "Anvarga yordam bering." },
-  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Груз на базе посчитан, база довольна!', uz: "Bazadagi yuk sanaldi, baza mamnun!" }
+  s1:  { ru: 'Сначала разберёмся, почему тут два действия.', uz: "Avval nega bu yerda ikki amal ekanini tushunamiz.", en: 'First let us see why there are two steps here.' },
+  s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz.", en: 'Let us work through an example.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.', en: 'Let us take one more example.' },
+  s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling.", en: 'Now practise on your own.' },
+  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang.", en: 'Check yourself before the practice.' },
+  s7:  { ru: 'Переходим к тренировке.', uz: "Trenirovkaga o'tamiz.", en: 'Now we move on to practice.' },
+  s8:  { ru: 'Ещё задачи в два действия.', uz: "Yana ikki amalli masalalar.", en: 'A few more two step problems.' },
+  s9:  { ru: 'Задачи разные, правило одно.', uz: 'Masalalar har xil, qoida bitta.', en: 'The problems are different, the rule is the same.' },
+  s10: { ru: 'Теперь промежуточный ответ набери сам.', uz: "Endi oraliq natijani o'zingiz tering.", en: 'Now type the in between answer yourself.' },
+  s11: { ru: 'Проверь чужое решение и найди ошибку.', uz: "Birovning yechimini tekshirib, xatoni toping.", en: "Check someone else's working and find the mistake." },
+  s12: { ru: 'Анвар решает задачу.', uz: 'Anvar masalani yechadi.', en: 'Anvar is solving a problem.' },
+  s13: { ru: 'Помоги Анвару.', uz: "Anvarga yordam bering.", en: 'Help Anvar.' },
+  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.', en: 'The launch computer will run the final check.' },
+  s15: { ru: 'Груз на базе посчитан, база довольна!', uz: "Bazadagi yuk sanaldi, baza mamnun!", en: 'The cargo at the base is counted and the base is happy!' }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Задачи на Марсе решены в два действия, база довольна. Впереди новая планета! Спасибо за помощь.',
-  uz: "Marsdagi masalalar ikki amalda yechildi, baza mamnun. Oldinda yangi sayyora! Yordamingiz uchun rahmat."
+  uz: "Marsdagi masalalar ikki amalda yechildi, baza mamnun. Oldinda yangi sayyora! Yordamingiz uchun rahmat.",
+  en: 'The problems on Mars are solved in two steps and the base is happy. A new planet lies ahead! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1398,7 +1435,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1415,7 +1452,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2172,7 +2210,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2648,7 +2692,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3035,7 +3079,7 @@ const Screen3 = (props) => {
           <p style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(15px,2.3vw,19px)', color: T.ink, lineHeight: 1.5 }}>{t(c.rule)}</p>
         </div>
         <div style={{ display: 'flex', justifyContent: 'center', width: 'min(300px,100%)', margin: '0 auto' }}>
-          <StepCard label={t({ ru: 'Первое действие', uz: '1-amal' })} xNode={<span style={STEP_NUM}>35</span>} op="−" y={10} res={<ResBox v={25} ok={done}/>} active={!done} done={done}/>
+          <StepCard label={t({ ru: 'Первое действие', uz: '1-amal', en: 'The first step' })} xNode={<span style={STEP_NUM}>35</span>} op="−" y={10} res={<ResBox v={25} ok={done}/>} active={!done} done={done}/>
         </div>
         <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.ink2, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(c.check_q)}</p>
         <div className="fade-up" style={{ display: 'grid', gridTemplateColumns: c.opts.length === 3 ? '1fr 1fr 1fr' : '1fr 1fr', gap: 10, width: '100%' }}>
@@ -3280,8 +3324,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3327,9 +3371,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3859,12 +3903,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4212,9 +4258,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4222,15 +4268,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4244,8 +4290,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4254,14 +4300,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4277,16 +4323,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4294,14 +4340,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4378,8 +4424,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4614,7 +4660,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Mars bazasida yuk ustunlab sanaldi — natija (jami 59) + ✓ */}
         <div className="fade-up delay-1">
-          <MarsLiftoff label={{ ru: 'Старт с Марса!', uz: "Marsdan uchamiz!" }}/>
+          <MarsLiftoff label={{ ru: 'Старт с Марса!', uz: "Marsdan uchamiz!", en: 'Lift off from Mars!' }}/>
         </div>
       </div>
     </Stage>
@@ -4625,14 +4671,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4859,21 +4905,21 @@ const ChainViz = ({ a, op1, b, op2, c, reveal, activeStep = 0 }) => {
   const total = compute(mid, op2, c);
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px,1.4vw,8px)', width: 'min(320px,100%)' }}>
-      <StepCard label={t({ ru: 'Шаг 1', uz: '1-qadam' })}
+      <StepCard label={t({ ru: 'Шаг 1', uz: '1-qadam', en: 'Step 1' })}
         xNode={<span style={STEP_NUM}>{a}</span>} op={op1} y={b}
         res={<ResBox v={mid} ok={reveal >= 1}/>}
         active={activeStep === 1 && reveal < 1} done={reveal >= 1}/>
       <span style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', color: reveal >= 1 ? '#E8891C' : T.ink3, transition: 'color .3s', lineHeight: 1 }}>
         <span style={{ fontSize: 'clamp(17px,3.8vw,24px)' }}>↓</span>
-        <span style={{ fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, letterSpacing: '.02em' }}>{t({ ru: 'промеж. ответ', uz: 'oraliq natija' })}</span>
+        <span style={{ fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, letterSpacing: '.02em' }}>{t({ ru: 'промеж. ответ', uz: 'oraliq natija', en: 'in between' })}</span>
       </span>
-      <StepCard label={t({ ru: 'Шаг 2', uz: '2-qadam' })}
+      <StepCard label={t({ ru: 'Шаг 2', uz: '2-qadam', en: 'Step 2' })}
         xNode={<OraliqChip v={mid} shown={reveal >= 1}/>} op={op2} y={c}
         res={<ResBox v={total} ok={reveal >= 2}/>}
         active={activeStep === 2 && reveal < 2} done={reveal >= 2}/>
       {reveal >= 2 && (
         <div className="g1-pop-in" style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 4 }}>
-          <span style={{ fontWeight: 800, fontSize: 'clamp(12px,2vw,15px)', color: T.success, textTransform: 'uppercase', letterSpacing: '.04em' }}>{t({ ru: 'Ответ', uz: 'Javob' })}</span>
+          <span style={{ fontWeight: 800, fontSize: 'clamp(12px,2vw,15px)', color: T.success, textTransform: 'uppercase', letterSpacing: '.04em' }}>{t({ ru: 'Ответ', uz: 'Javob', en: 'Answer' })}</span>
           <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', color: T.success }}>{total}</span>
         </div>
       )}
@@ -4903,9 +4949,9 @@ const step2Opts = (a, op1, b, op2, c, seed) => {
   const wrongOp = compute(mid, op2 === '+' ? '−' : '+', c);   // amalni almashtirish
   return uniqOpts(total, [mid, usedOrig, wrongOp, total + 10], seed);   // mid = oraliqda to'xtash
 };
-const STEP1_Q = { ru: 'Первое действие. Найди промежуточный ответ:', uz: '1-amal. Oraliq natijani toping:' };
-const STEP2_Q = { ru: 'Второе действие. Возьми промежуточный ответ:', uz: '2-amal. Oraliq natija bilan hisoblang:' };
-const STEP1_OK = { ru: 'Промежуточный ответ найден. Теперь второе действие.', uz: "Oraliq natija topildi. Endi ikkinchi amal." };
+const STEP1_Q = { ru: 'Первое действие. Найди промежуточный ответ:', uz: '1-amal. Oraliq natijani toping:', en: 'The first step. Find the in between answer:' };
+const STEP2_Q = { ru: 'Второе действие. Возьми промежуточный ответ:', uz: '2-amal. Oraliq natija bilan hisoblang:', en: 'The second step. Take the in between answer:' };
+const STEP1_OK = { ru: 'Промежуточный ответ найден. Теперь второе действие.', uz: "Oraliq natija topildi. Endi ikkinchi amal.", en: 'The in between answer is found. Now the second step.' };
 const TwoStepStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5023,9 +5069,9 @@ const TwoStepStage = ({ props, cKey, fact = false }) => {
 //  · OraliqInputBody — «BO'SH ORALIQ-KATAK»: 1-qadam oraliqni TERISH (raqam-plita), 2-qadam MC.
 //  · OraliqErrorBody — «XATONI TOP»: tayyor yechim, oraliq noto'g'ri hisoblangan, xato katakni bosish.
 // ============================================================
-const STEP1_TYPE_Q = { ru: 'Первое действие. Набери промежуточный ответ:', uz: '1-amal. Oraliq natijani tering:' };
-const ERR_Q = { ru: 'Проверь решение. Найди окошко с ошибкой.', uz: "Yechimni tekshiring. Xato katakni toping." };
-const KEY_CHECK = { ru: 'Проверить', uz: 'Tekshirish' };
+const STEP1_TYPE_Q = { ru: 'Первое действие. Набери промежуточный ответ:', uz: '1-amal. Oraliq natijani tering:', en: 'The first step. Type the in between answer:' };
+const ERR_Q = { ru: 'Проверь решение. Найди окошко с ошибкой.', uz: "Yechimni tekshiring. Xato katakni toping.", en: 'Check the working. Find the box with the mistake.' };
+const KEY_CHECK = { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' };
 const KEYPAD = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
 const KEY_BTN = { padding: 'clamp(8px,1.6vw,12px)', fontSize: 'clamp(20px,4.4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(44px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 const OPT_BTN2 = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
@@ -5258,11 +5304,11 @@ const OraliqErrorBody = ({ round, canAct, onSolved, onWrongTry, revealRef, wrong
       <p className="mono fade-up" style={{ margin: 0, fontWeight: 700, color: T.accent, fontSize: 'clamp(13px,1.9vw,15px)', textAlign: 'center' }}>{t(ERR_Q)}</p>
       <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.6vw,10px)', padding: 'clamp(16px,3vw,22px) clamp(14px,2.6vw,20px)' }}>
         <div style={{ width: 'min(320px,100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(4px,1.4vw,8px)' }}>
-          <EStep label={t({ ru: 'Шаг 1', uz: '1-qadam' })}>
+          <EStep label={t({ ru: 'Шаг 1', uz: '1-qadam', en: 'Step 1' })}>
             <span style={STEP_NUM}>{a}</span><span style={STEP_NUM}>{op1}</span><span style={STEP_NUM}>{b}</span><span style={{ ...STEP_NUM, color: T.ink3 }}>=</span>{errCell('mid', badMid, mid)}
           </EStep>
           <span style={{ color: T.ink3, fontSize: 'clamp(17px,3.8vw,24px)', lineHeight: 1 }}>↓</span>
-          <EStep label={t({ ru: 'Шаг 2', uz: '2-qadam' })}>
+          <EStep label={t({ ru: 'Шаг 2', uz: '2-qadam', en: 'Step 2' })}>
             <OraliqChip v={badMid} shown/><span style={STEP_NUM}>{op2}</span><span style={STEP_NUM}>{cc}</span><span style={{ ...STEP_NUM, color: T.ink3 }}>=</span>{errCell('total', shownTotal, shownTotal)}
           </EStep>
         </div>
@@ -5383,7 +5429,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

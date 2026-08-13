@@ -79,9 +79,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -252,7 +277,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -293,7 +318,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -905,8 +931,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-2-01-v1',
-  lessonTitle: { ru: 'Урок 1. Десятки и единицы', uz: "1-dars. O'nliklar va birliklar" }
+  lessonId: 'grade2-01',
+  lessonTitle: { ru: 'Урок 1. Десятки и единицы', uz: "1-dars. O'nliklar va birliklar", en: 'Lesson 1. Tens and ones' }
 };
 // STRUKTURA (metodist 2026-07-07): 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa.
 // Prerekvizit-recall (s1) tushuntirishdan mashqqa ko'chdi (endi razryad-tekshiruv, scored).
@@ -940,6 +966,10 @@ const shuffleMC = (c, options, correctIdx, order) => {
 // Fisher-Yates (brauzerda Math.random — faqat hodisalarda/effektda, render'da emas).
 const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j = Math.floor(Math.random() * (i + 1)); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+
 // ============================================================
 // CONTENT — Dars01_CONTENT.md v3 «KEMA ICHIDA» (metodist tasdiqlagan). RU + UZ to'liq.
 // Audio TTS-toza: sonlar so'z bilan, «» va matematik belgilar yo'q, bir segment = bir fikr.
@@ -952,13 +982,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): sayyoraga qo'nish, ucholmaydi, o'ntadan quvvat
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Десятки и единицы', uz: "Mavzu: O'nliklar va birliklar" },
-    lead: { ru: 'Корабль застрял в космосе!', uz: "Kema koinotda to'xtab qoldi!" },
-    q: { ru: 'Как быстро подготовить заряд?', uz: "Quvvatni qanday tez tayyorlaymiz?" },
-    opt0: { ru: 'По одной', uz: 'Bittalab' },
-    opt1: { ru: 'По десять в кассету', uz: "O'ntadan kassetaga" },   // yetakchi (correct-key)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Десятки и единицы', uz: "Mavzu: O'nliklar va birliklar", en: 'Topic: Tens and ones' },
+    lead: { ru: 'Корабль застрял в космосе!', uz: "Kema koinotda to'xtab qoldi!", en: 'The ship is stuck in space!' },
+    q: { ru: 'Как быстро подготовить заряд?', uz: "Quvvatni qanday tez tayyorlaymiz?", en: 'How can we get the charge ready fast?' },
+    opt0: { ru: 'По одной', uz: 'Bittalab', en: 'One by one' },
+    opt1: { ru: 'По десять в кассету', uz: "O'ntadan kassetaga", en: 'Ten at a time into a cassette' },   // yetakchi (correct-key)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -972,36 +1002,37 @@ const CONTENT = {
           "Bit va do'stlar Yerdan uchib, Bitni uyiga olib ketmoqda. Kemasi ochiq koinotda quvvatsiz to'xtab qoldi.",
           "Dvigatel quvvatni faqat o'ntadan oladi. Batareyalar esa kema bo'ylab tarqalib ketdi.",
           "Bitga ularni o'ntadan yig'ishga yordam beramiz, va kema Bitning uyiga tomon uchadi."
-        ]
+        ],
+        en: ['Today the topic is tens and ones. We will learn to see how many tens and how many ones there are in a number.', 'Bit and his friends have left the Earth and are taking Bit home. Their ship is stuck in open space with no charge.', 'The engine takes charge only in tens. And the batteries are scattered all over the ship.', "Let us help Bit gather them in tens, and the ship will fly on, to Bit's home."]
       },
-      on_correct: { ru: 'Отличная мысль. Соберём по десять, и станет видно.', uz: "Zo'r fikr. O'ntadan yig'amiz, va ko'rinadi." },
-      on_wrong: { ru: 'Так можно, но это долго. На корабле есть способ быстрее.', uz: "Bunday bo'ladi, lekin uzoq. Kemada tezroq yo'l bor." },
-      on_unknown: { ru: 'Ничего. Сейчас увидим способ корабля.', uz: "Hechqisi yo'q. Hozir kemaning yo'lini ko'ramiz." }
+      on_correct: { ru: 'Отличная мысль. Соберём по десять, и станет видно.', uz: "Zo'r fikr. O'ntadan yig'amiz, va ko'rinadi.", en: 'Great thinking. We will gather them in tens and it will be easy to see.' },
+      on_wrong: { ru: 'Так можно, но это долго. На корабле есть способ быстрее.', uz: "Bunday bo'ladi, lekin uzoq. Kemada tezroq yo'l bor.", en: 'You can do that, but it takes long. The ship has a faster way.' },
+      on_unknown: { ru: 'Ничего. Сейчас увидим способ корабля.', uz: "Hechqisi yo'q. Hozir kemaning yo'lini ko'ramiz.", en: 'No problem. Now we will see the way the ship does it.' }
     }
   },
 
   // s1 — PREREKVIZIT-RECALL (ballsiz): 10 birlik = 1 o'nlik
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz' },
-    lead: { ru: 'Проверь себя.', uz: "O'zingizni sinang." },
-    q: { ru: 'Сколько единиц нужно, чтобы получился один десяток?', uz: "Bitta o'nlik hosil bo'lishi uchun nechta birlik kerak?" },
-    opt0: { ru: 'Десять', uz: "O'n" },   // correct (idx 0)
-    opt1: { ru: 'Один', uz: 'Bir' },
-    opt2: { ru: 'Сто', uz: 'Yuz' },
-    wrong_1: { ru: 'Один — это одна батарейка. А в десяток их собирается больше.', uz: "Bir — bitta batareya. O'nlikka esa ko'proq yig'iladi." },
-    wrong_2: { ru: 'Сто — это очень много. Десяток собирается из меньшего числа.', uz: "Yuz — juda ko'p. O'nlik kamroq sondan yig'iladi." },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Let us remember' },
+    lead: { ru: 'Проверь себя.', uz: "O'zingizni sinang.", en: 'Check yourself.' },
+    q: { ru: 'Сколько единиц нужно, чтобы получился один десяток?', uz: "Bitta o'nlik hosil bo'lishi uchun nechta birlik kerak?", en: 'How many ones make one ten?' },
+    opt0: { ru: 'Десять', uz: "O'n", en: 'Ten' },   // correct (idx 0)
+    opt1: { ru: 'Один', uz: 'Bir', en: 'One' },
+    opt2: { ru: 'Сто', uz: 'Yuz', en: 'One hundred' },
+    wrong_1: { ru: 'Один — это одна батарейка. А в десяток их собирается больше.', uz: "Bir — bitta batareya. O'nlikka esa ko'proq yig'iladi.", en: 'One is a single battery. A ten holds more of them.' },
+    wrong_2: { ru: 'Сто — это очень много. Десяток собирается из меньшего числа.', uz: "Yuz — juda ko'p. O'nlik kamroq sondan yig'iladi.", en: 'One hundred is far too many. A ten is made from a smaller number.' },
     audio: {
-      intro: { ru: 'Вспомним. Десяток собирается из отдельных единиц.', uz: "Eslaymiz. O'nlik alohida birliklardan yig'iladi." },
-      on_correct: { ru: 'Верно. Десять единиц, это один десяток.', uz: "To'g'ri. O'n birlik, bitta o'nlik." },
-      on_wrong: { ru: 'Их ровно десять. Посчитай ещё раз.', uz: "Ular roppa-rosa o'nta. Yana bir sanang." }
+      intro: { ru: 'Вспомним. Десяток собирается из отдельных единиц.', uz: "Eslaymiz. O'nlik alohida birliklardan yig'iladi.", en: 'Let us remember. A ten is made from separate ones.' },
+      on_correct: { ru: 'Верно. Десять единиц, это один десяток.', uz: "To'g'ri. O'n birlik, bitta o'nlik.", en: 'That is right. Ten ones make one ten.' },
+      on_wrong: { ru: 'Их ровно десять. Посчитай ещё раз.', uz: "Ular roppa-rosa o'nta. Yana bir sanang.", en: 'There are exactly ten. Count them again.' }
     }
   },
 
   // s2 — OCHILISH-1 (unitizing): 10 batareya -> 1 kasseta
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Уложи батарейки в кассету.', uz: 'Batareyalarni kassetaga joylang.' },
-    done_text: { ru: 'Одна кассета — это один десяток. Теперь считать удобно.', uz: "Bitta kasseta — bu bitta o'nlik. Endi sanash qulay." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Уложи батарейки в кассету.', uz: 'Batareyalarni kassetaga joylang.', en: 'Put the batteries into the cassette.' },
+    done_text: { ru: 'Одна кассета — это один десяток. Теперь считать удобно.', uz: "Bitta kasseta — bu bitta o'nlik. Endi sanash qulay.", en: 'One cassette is one ten. Now counting is easy.' },
     audio: {
       ru: [
         'Смотри. Считать батарейки по одной долго, и легко ошибиться. Поэтому придумали удобный способ, собирать их по десять. Переноси батарейки в кассету.',
@@ -1012,19 +1043,20 @@ const CONTENT = {
         "Qarang. Batareyalarni bittalab sanash uzoq, oson adashiladi. Shuning uchun qulay yo'l o'ylab topilgan, ularni o'ntalab yig'ish. Batareyalarni kassetaga o'tkazing.",
         "Batareyalar roppa-rosa o'nta bo'lganda kasseta yopiladi, va chiroq yonadi.",
         "Mana. O'nta batareya bitta kasseta bo'ldi. Bitta shunday kassetani o'nlik deymiz. Shu so'zni yodda tuting. O'nlik bu o'nta birga."
-      ]
+      ],
+      en: ['Look. Counting batteries one by one takes long and it is easy to make a mistake. So people found a handy way, to gather them in tens. Move the batteries into the cassette.', 'When there are exactly ten batteries, the cassette will close and a light will come on.', 'There. Ten batteries became one cassette. One cassette like this we call a ten. Remember this word. A ten is ten together.']
     }
   },
 
   // s3 — OCHILISH-2: 24 ni yig'ish
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Собери 24.', uz: "24 ni yig'ing." },
-    src_tens: { ru: 'кассета +', uz: 'kasseta +' },
-    src_ones: { ru: 'батарейка +', uz: 'batareya +' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    done_text: { ru: 'Два десятка и четыре единицы — двадцать четыре.', uz: "Ikki o'nlik va to'rt birlik — yigirma to'rt." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Собери 24.', uz: "24 ni yig'ing.", en: 'Build 24.' },
+    src_tens: { ru: 'кассета +', uz: 'kasseta +', en: 'cassette +' },
+    src_ones: { ru: 'батарейка +', uz: 'batareya +', en: 'battery +' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    done_text: { ru: 'Два десятка и четыре единицы — двадцать четыре.', uz: "Ikki o'nlik va to'rt birlik — yigirma to'rt.", en: 'Two tens and four ones make twenty four.' },
     audio: {
       ru: [
         'Теперь соберём число сами. Возьми две кассеты. В каждой по десять, значит вместе это два десятка, двадцать.',
@@ -1035,18 +1067,19 @@ const CONTENT = {
         "Endi sonni o'zimiz yig'amiz. Ikkita kasseta oling. Har birida o'ntadan, demak birga bu ikki o'nlik, yigirma.",
         "To'rtta alohida batareya qo'shing. Ular yana bir o'nlik yig'ishga yetmadi, shuning uchun birlik bo'lib qoladi.",
         "Displeyga qarang, va o'zingiz sanang. Jami nechta bo'ldi?"
-      ]
+      ],
+      en: ['Now we will build a number ourselves. Take two cassettes. Each one holds ten, so together that is two tens, twenty.', 'Add four separate batteries. There were not enough of them to make one more ten, so they stay as ones.', 'Look at the board and count it yourself. How many are there in all?']
     }
   },
 
   // s4 — OCHILISH-3 (razryad kartasi): 34 -> o'nlik|birlik; 34 = 30 + 4
   s4: {
-    eyebrow: { ru: 'Разбор числа', uz: 'Sonni ochamiz' },
-    lead: { ru: 'Разложим число 34.', uz: "34 ni ochamiz." },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'Десятки — слева, единицы — справа.', uz: "O'nliklar — chapda, birliklar — o'ngda." },
+    eyebrow: { ru: 'Разбор числа', uz: 'Sonni ochamiz', en: 'Taking a number apart' },
+    lead: { ru: 'Разложим число 34.', uz: "34 ni ochamiz.", en: 'Let us take the number 34 apart.' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    info_badge: { ru: 'Полезно', uz: 'Foydali', en: 'Useful' },
+    info: { ru: 'Десятки — слева, единицы — справа.', uz: "O'nliklar — chapda, birliklar — o'ngda.", en: 'Tens on the left, ones on the right.' },
     // ekranda yozma anchor: 34 = 30 + 4
     audio: {
       ru: [
@@ -1060,20 +1093,21 @@ const CONTENT = {
         "Chapda uch kasseta. Uch o'nlik bu o'ttiz.",
         "O'ngda to'rtta alohida batareya. Ular o'nlikka yig'ilmagan, bu to'rt birlik.",
         "Birga o'ttiz va yana to'rt. O'ttizga to'rtni qo'shamiz bu o'ttiz to'rt. Demak o'ttiz to'rt bu o'ttiz va to'rt."
-      ]
+      ],
+      en: ['Let us take the number thirty four apart. Every number has two places, two columns. Tens on the left, ones on the right.', 'On the left there are three cassettes. Three tens is thirty.', 'On the right there are four separate batteries. They did not make a ten, so that is four ones.', 'Together thirty and four more. Thirty plus four is thirty four. So thirty four is thirty and four.']
     }
   },
 
   // s5 — OCHILISH-4 (o'rin hal qiladi): 45 va 54, kod terish
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Одни и те же цифры — а коды разные.', uz: 'Bir xil raqamlar — lekin kodlar har xil.' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    round1: { ru: 'Код: четыре десятка и пять единиц.', uz: "Kod: to'rt o'nlik va besh birlik." },
-    round2: { ru: 'Код: пять десятков и четыре единицы.', uz: "Kod: besh o'nlik va to'rt birlik." },
-    wrong: { ru: 'Десятки ставим слева, единицы справа. Попробуй ещё.', uz: "O'nliklarni chapga, birliklarni o'ngga qo'ying. Yana urinib ko'ring." },
-    done_text: { ru: 'Место цифры решает. Слева десятки, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda o'nliklar, o'ngda birliklar." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Одни и те же цифры — а коды разные.', uz: 'Bir xil raqamlar — lekin kodlar har xil.', en: 'The same digits, but the codes are different.' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    round1: { ru: 'Код: четыре десятка и пять единиц.', uz: "Kod: to'rt o'nlik va besh birlik.", en: 'Code: four tens and five ones.' },
+    round2: { ru: 'Код: пять десятков и четыре единицы.', uz: "Kod: besh o'nlik va to'rt birlik.", en: 'Code: five tens and four ones.' },
+    wrong: { ru: 'Десятки ставим слева, единицы справа. Попробуй ещё.', uz: "O'nliklarni chapga, birliklarni o'ngga qo'ying. Yana urinib ko'ring.", en: 'Tens go on the left, ones on the right. Try again.' },
+    done_text: { ru: 'Место цифры решает. Слева десятки, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda o'nliklar, o'ngda birliklar.", en: 'The place of a digit decides. Tens on the left, ones on the right.' },
     audio: {
       ru: [
         'Этот люк заперт. Его код, четыре десятка и пять единиц. Поставь цифру в разряд десятков, слева, а потом в разряд единиц.',
@@ -1084,19 +1118,20 @@ const CONTENT = {
         "Bu lyuk qulflangan. Kodi, to'rt o'nlik va besh birlik. Raqamni o'nliklar xonasiga, chapga qo'ying, keyin birliklar xonasiga.",
         "Ochildi. Endi ikkinchi lyuk, besh o'nlik va to'rt birlik. Raqamlar aynan o'sha, lekin o'rni almashdi.",
         "Qarang. Ikkala kod ham to'rt va besh raqamlaridan. Lekin o'rni har xil, shuning uchun kodlar ham har xil. Raqamning o'rni hal qiladi."
-      ]
+      ],
+      en: ['This hatch is locked. Its code is four tens and five ones. Put the digit into the tens place on the left, and then into the ones place.', 'It opened. Now the second hatch, five tens and four ones. The digits are the same, but their places have swapped.', 'Look. Both codes are made of the digits four and five. But the places are different, so the codes are different too. The place of a digit decides.']
     }
   },
 
   // s6 — OCHILISH-5 (son o'qi): 34 qayerda
   s6: {
-    eyebrow: { ru: 'Число на прямой', uz: "Son o'qida" },
-    lead: { ru: 'Где стоит 34?', uz: "34 qayerda turadi?" },
-    q: { ru: 'Как думаешь, где стоит 34? Нажми на линии.', uz: "Sizningcha, 34 qayerda turadi? Chiziqda bosing." },
-    q_audio: { ru: 'Как думаешь, где на этой линии стоит тридцать четыре? Нажми туда, где считаешь.', uz: "Sizningcha, bu chiziqda o'ttiz to'rt qayerda turadi? O'zingiz o'ylagan joyni bosing." },
-    done_text: { ru: 'Тридцать четыре стоит между тридцатью и сорока.', uz: "O'ttiz to'rt o'ttiz bilan qirq orasida turadi." },
-    info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'Правее — больше. Прыжок — десять, шаг — один.', uz: "O'ngda — kattaroq. Sakrash — o'n, qadam — bir." },
+    eyebrow: { ru: 'Число на прямой', uz: "Son o'qida", en: 'The number on a line' },
+    lead: { ru: 'Где стоит 34?', uz: "34 qayerda turadi?", en: 'Where does 34 stand?' },
+    q: { ru: 'Как думаешь, где стоит 34? Нажми на линии.', uz: "Sizningcha, 34 qayerda turadi? Chiziqda bosing.", en: 'Where do you think 34 stands? Tap on the line.' },
+    q_audio: { ru: 'Как думаешь, где на этой линии стоит тридцать четыре? Нажми туда, где считаешь.', uz: "Sizningcha, bu chiziqda o'ttiz to'rt qayerda turadi? O'zingiz o'ylagan joyni bosing.", en: 'Where do you think thirty four stands on this line? Tap the spot you think is right.' },
+    done_text: { ru: 'Тридцать четыре стоит между тридцатью и сорока.', uz: "O'ttiz to'rt o'ttiz bilan qirq orasida turadi.", en: 'Thirty four stands between thirty and forty.' },
+    info_badge: { ru: 'Полезно', uz: 'Foydali', en: 'Useful' },
+    info: { ru: 'Правее — больше. Прыжок — десять, шаг — один.', uz: "O'ngda — kattaroq. Sakrash — o'n, qadam — bir.", en: 'Further right means bigger. A jump is ten, a step is one.' },
     audio: {
       ru: [
         'Покажем тридцать четыре на числовой прямой. Десятки это большие прыжки, единицы это маленькие шаги.',
@@ -1107,20 +1142,21 @@ const CONTENT = {
         "O'ttiz to'rtni son o'qida ko'rsatamiz. O'nliklar bu katta sakrashlar, birliklar bu kichik qadamlar.",
         "Uch marta o'ntadan katta sakrash, o'ttizgacha yetamiz.",
         "Va yana to'rt kichik qadam, o'ttiz to'rtgacha yetamiz."
-      ]
+      ],
+      en: ['Let us show thirty four on the number line. Tens are big jumps, ones are small steps.', 'Three big jumps of ten, and we reach thirty.', 'And four small steps more, and we reach thirty four.']
     }
   },
 
   // s7 — QOIDA / QONUN (asosiy tushuntirish momenti): ko'rinadigan qoida-karta + farqlash-cheki
   s7: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
     // ekranda YOZMA qonun (rang-kodli karta):
-    rule: { ru: 'В двузначном числе левая цифра — десятки, правая — единицы.', uz: "Ikki xonali sonda chap raqam — o'nliklar, o'ng raqam — birliklar." },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    check_q: { ru: 'Нажми цифру десятков.', uz: "O'nliklar raqamini bosing." },
-    check_ok: { ru: 'Верно! Слева — десятки.', uz: "To'g'ri! Chapda — o'nliklar." },
-    check_no: { ru: 'Десятки стоят слева. Нажми левую цифру.', uz: "O'nliklar chapda turadi. Chap raqamni bosing." },
+    rule: { ru: 'В двузначном числе левая цифра — десятки, правая — единицы.', uz: "Ikki xonali sonda chap raqam — o'nliklar, o'ng raqam — birliklar.", en: 'In a two digit number the left digit is the tens and the right digit is the ones.' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    check_q: { ru: 'Нажми цифру десятков.', uz: "O'nliklar raqamini bosing.", en: 'Tap the tens digit.' },
+    check_ok: { ru: 'Верно! Слева — десятки.', uz: "To'g'ri! Chapda — o'nliklar.", en: 'That is right! The tens are on the left.' },
+    check_no: { ru: 'Десятки стоят слева. Нажми левую цифру.', uz: "O'nliklar chapda turadi. Chap raqamni bosing.", en: 'The tens stand on the left. Tap the left digit.' },
     audio: {
       ru: [
         'Теперь запомним самое главное правило. Слушай внимательно и запомни.',
@@ -1141,157 +1177,161 @@ const CONTENT = {
         "Va yana yodda tuting. Yonma-yon bu qo'shish emas. Uch va to'rt yonma-yon o'ttiz to'rt beradi, yetti emas.",
         "Shuning uchun qirq besh va ellik to'rt boshqa-boshqa sonlar. Raqamlar bir xil, lekin o'rni har xil. Raqamning o'rni hal qiladi.",
         "Endi o'zingiz. O'nliklarni ko'rsatadigan raqamni bosing."
-      ]
+      ],
+      en: ['Now let us learn the most important rule. Listen carefully and remember it.', 'A two digit number has two digits. How do you tell where the tens are and where the ones are? Only by their place.', 'The left digit is always the tens. It counts the cassettes, the whole tens. Here on the left there is four, so that is four tens.', 'The right digit is always the ones. It counts the separate batteries, one by one. Here on the right there is five, so that is five ones.', 'Here is our rule. Tens on the left, ones on the right. Remember it.', 'And remember this too. Side by side does not mean adding. Three and four side by side give thirty four, not seven.', 'That is why forty five and fifty four are different numbers. The digits are the same, but the places are different. The place of a digit decides.', 'And now on your own. Tap the digit that shows the tens.']
     }
   },
 
   // s8 — MASHQ-1 (scored, build+check): 45 ni yig'ish
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Собери 45.', uz: "45 ni yig'ing." },
-    src_tens: { ru: 'кассета +', uz: 'kasseta +' },
-    src_ones: { ru: 'батарейка +', uz: 'batareya +' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Собери 45.', uz: "45 ni yig'ing.", en: 'Build 45.' },
+    src_tens: { ru: 'кассета +', uz: 'kasseta +', en: 'cassette +' },
+    src_ones: { ru: 'батарейка +', uz: 'batareya +', en: 'battery +' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    check_label: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     audio: {
-      intro: { ru: 'Собирай числа на пульте из кассет и батареек. После каждого нажимай проверить.', uz: "Pultda sonlarni kasseta va batareyalardan yig'ing. Har biridan keyin tekshirishni bosing." },
-      on_correct: { ru: 'Отлично! Ты собрал каждое число правильно, из десятков и единиц.', uz: "Zo'r! Har sonni o'nlik va birlikdan to'g'ri yig'dingiz." },
-      on_wrong: { ru: 'Проверь. Сначала набери десятки, потом единицы.', uz: "Tekshiring. Avval o'nliklarni, keyin birliklarni yig'ing." }
+      intro: { ru: 'Собирай числа на пульте из кассет и батареек. После каждого нажимай проверить.', uz: "Pultda sonlarni kasseta va batareyalardan yig'ing. Har biridan keyin tekshirishni bosing.", en: 'Build the numbers on the panel from cassettes and batteries. After each one tap check.' },
+      on_correct: { ru: 'Отлично! Ты собрал каждое число правильно, из десятков и единиц.', uz: "Zo'r! Har sonni o'nlik va birlikdan to'g'ri yig'dingiz.", en: 'Excellent! You built every number correctly, from tens and ones.' },
+      on_wrong: { ru: 'Проверь. Сначала набери десятки, потом единицы.', uz: "Tekshiring. Avval o'nliklarni, keyin birliklarni yig'ing.", en: 'Check it. First set the tens, then the ones.' }
     }
   },
 
   // s9 — MASHQ-2 (scored, tasniflash): kasseta->o'nlik, batareya->birlik
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Разложи груз по отсекам.', uz: 'Yukni tryumlarga ajrating.' },
-    hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR" },
-    hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Разложи груз по отсекам.', uz: 'Yukni tryumlarga ajrating.', en: 'Sort the cargo into the bays.' },
+    hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR", en: 'TENS' },
+    hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR', en: 'ONES' },
     audio: {
-      intro: { ru: 'Бортовой сортировщик. Кассеты в одну сторону, отдельные батарейки в другую.', uz: "Bort saralagichi. Kassetalar bir tomonga, alohida batareyalar boshqa tomonga." },
-      on_correct: { ru: 'Верно. Кассеты десятки, батарейки единицы.', uz: "To'g'ri. Kassetalar o'nliklar, batareyalar birliklar." },
-      on_wrong: { ru: 'Кассета это десять батареек, значит десяток. Одна батарейка единица.', uz: "Kasseta o'nta batareya, demak o'nlik. Yolg'iz batareya birlik." }
+      intro: { ru: 'Бортовой сортировщик. Кассеты в одну сторону, отдельные батарейки в другую.', uz: "Bort saralagichi. Kassetalar bir tomonga, alohida batareyalar boshqa tomonga.", en: 'The ship sorter. Cassettes go one way, separate batteries go the other way.' },
+      on_correct: { ru: 'Верно. Кассеты десятки, батарейки единицы.', uz: "To'g'ri. Kassetalar o'nliklar, batareyalar birliklar.", en: 'That is right. Cassettes are tens, batteries are ones.' },
+      on_wrong: { ru: 'Кассета это десять батареек, значит десяток. Одна батарейка единица.', uz: "Kasseta o'nta batareya, demak o'nlik. Yolg'iz batareya birlik.", en: 'A cassette is ten batteries, so it is a ten. One battery is a one.' }
     }
   },
 
   // s10 — MASHQ-3 (scored MC): 5 o'nlik 2 birlik -> 52
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое число — пять десятков и две единицы?', uz: "Qaysi son — besh o'nlik va ikki birlik?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какое число — пять десятков и две единицы?', uz: "Qaysi son — besh o'nlik va ikki birlik?", en: 'Which number is five tens and two ones?' },
     // ASL variantlar: [52(correct), 25, 7, 502]
-    wrong_1: { ru: 'Здесь два десятка и пять единиц. Поменяй местами.', uz: "Bu yerda ikki o'nlik va besh birlik. O'rnini almashtiring." },
-    wrong_2: { ru: 'Семь получится, если сложить. А десятки и единицы стоят отдельно.', uz: "Yetti — qo'shsak chiqadi. O'nlik va birlik alohida turadi." },
-    wrong_3: { ru: 'Это слишком большое число. У нас только десятки и единицы.', uz: "Bu juda katta son. Bizda faqat o'nlik va birlik." },
+    wrong_1: { ru: 'Здесь два десятка и пять единиц. Поменяй местами.', uz: "Bu yerda ikki o'nlik va besh birlik. O'rnini almashtiring.", en: 'This is two tens and five ones. Swap them around.' },
+    wrong_2: { ru: 'Семь получится, если сложить. А десятки и единицы стоят отдельно.', uz: "Yetti — qo'shsak chiqadi. O'nlik va birlik alohida turadi.", en: 'Seven is what you get if you add them. But tens and ones stand apart.' },
+    wrong_3: { ru: 'Это слишком большое число. У нас только десятки и единицы.', uz: "Bu juda katta son. Bizda faqat o'nlik va birlik.", en: 'That number is far too big. We only have tens and ones.' },
     audio: {
-      intro: { ru: 'Бортовой тест. На дисплее двигателя загораются числа. Скажи, какое число ты видишь.', uz: "Bort testi. Dvigatel displeyida sonlar yonadi. Qaysi sonni ko'ryapsiz, ayting." },
-      on_correct: { ru: 'Верно. Пять десятков и две единицы, пятьдесят два.', uz: "To'g'ri. Besh o'nlik va ikki birlik, ellik ikki." },
-      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda." }
+      intro: { ru: 'Бортовой тест. На дисплее двигателя загораются числа. Скажи, какое число ты видишь.', uz: "Bort testi. Dvigatel displeyida sonlar yonadi. Qaysi sonni ko'ryapsiz, ayting.", en: 'Ship test. Numbers light up on the engine display. Say which number you see.' },
+      on_correct: { ru: 'Верно. Пять десятков и две единицы, пятьдесят два.', uz: "To'g'ri. Besh o'nlik va ikki birlik, ellik ikki.", en: 'That is right. Five tens and two ones, fifty two.' },
+      on_wrong: { ru: 'Посмотри разбор. Десятки слева, единицы справа.', uz: "Tushuntirishga qarang. O'nliklar chapda, birliklar o'ngda.", en: 'Look at how it is taken apart. Tens on the left, ones on the right.' }
     }
   },
 
   // s11 — MASHQ-4 (scored MC): taqqoslash 45 va 54
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'У какого корабля заряда больше?', uz: "Qaysi kemada quvvat ko'p?" },
-    opt0: { ru: 'Корабль сорок пять', uz: 'Qirq besh kemasi' },
-    opt1: { ru: 'Корабль пятьдесят четыре', uz: "Ellik to'rt kemasi" },   // correct (idx 1)
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'У какого корабля заряда больше?', uz: "Qaysi kemada quvvat ko'p?", en: 'Which ship has more charge?' },
+    opt0: { ru: 'Корабль сорок пять', uz: 'Qirq besh kemasi', en: 'Ship forty five' },
+    opt1: { ru: 'Корабль пятьдесят четыре', uz: "Ellik to'rt kemasi", en: 'Ship fifty four' },   // correct (idx 1)
     audio: {
-      intro: { ru: 'Бортовой тест. Сравниваем энергоблоки с зарядом. В каком больше? Сначала сравни десятки.', uz: "Bort testi. Quvvat bloklarini solishtiramiz. Qaysida ko'p? Avval o'nliklarni solishtiring." },
-      on_correct: { ru: 'Верно. Пять десятков больше четырёх десятков.', uz: "To'g'ri. Besh o'nlik to'rt o'nlikdan katta." },
-      on_wrong: { ru: 'Сначала сравни десятки. У кого кассет больше, у того заряда больше.', uz: "Avval o'nliklarni solishtiring. Kimda kasseta ko'p, o'shanda quvvat ko'p." }
+      intro: { ru: 'Бортовой тест. Сравниваем энергоблоки с зарядом. В каком больше? Сначала сравни десятки.', uz: "Bort testi. Quvvat bloklarini solishtiramiz. Qaysida ko'p? Avval o'nliklarni solishtiring.", en: 'Ship test. We are comparing the power blocks with charge. Which one has more? First compare the tens.' },
+      on_correct: { ru: 'Верно. Пять десятков больше четырёх десятков.', uz: "To'g'ri. Besh o'nlik to'rt o'nlikdan katta.", en: 'That is right. Five tens is more than four tens.' },
+      on_wrong: { ru: 'Сначала сравни десятки. У кого кассет больше, у того заряда больше.', uz: "Avval o'nliklarni solishtiring. Kimda kasseta ko'p, o'shanda quvvat ko'p.", en: 'First compare the tens. The one with more cassettes has more charge.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst): yuk xati, ekipajdan Anvar
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Накладная: 6 кассет и 3 батарейки.', uz: 'Yuk xati: 6 kasseta va 3 batareya.' },
-    manifest_label: { ru: 'накладная', uz: 'yuk xati' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Накладная: 6 кассет и 3 батарейки.', uz: 'Yuk xati: 6 kasseta va 3 batareya.', en: 'Delivery note: 6 cassettes and 3 batteries.' },
+    manifest_label: { ru: 'накладная', uz: 'yuk xati', en: 'delivery note' },
     audio: {
       ru: 'Анвар принёс накладную. Шесть кассет по десять это шесть десятков. И три отдельные батарейки это три единицы.',
-      uz: "Anvar yuk xatini keltirdi. Oltita kasseta o'ntadan bu olti o'nlik. Va uchta alohida batareya bu uch birlik."
+      uz: "Anvar yuk xatini keltirdi. Oltita kasseta o'ntadan bu olti o'nlik. Va uchta alohida batareya bu uch birlik.",
+      en: 'Anvar brought the delivery note. Six cassettes of ten each, that is six tens. And three separate batteries, that is three ones.'
     }
   },
 
   // s13 — MASALA (savol, scored MC): jami 63
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    q: { ru: 'Сколько всего?', uz: 'Jami nechta?' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    q: { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' },
     // ASL variantlar: [63(correct), 36, 9, 60]
-    wrong_1: { ru: 'Кассеты это десятки, их шесть. Поставь десятки слева.', uz: "Kassetalar — o'nliklar, ular oltita. O'nliklarni chapga qo'ying." },
-    wrong_2: { ru: 'Девять, если сложить шесть и три. А в кассетах по десять.', uz: "To'qqiz — olti va uchni qo'shsak. Kassetalarda esa o'ntadan." },
-    wrong_3: { ru: 'Не забудь три отдельные батарейки.', uz: 'Uchta alohida batareyani unutmang.' },
+    wrong_1: { ru: 'Кассеты это десятки, их шесть. Поставь десятки слева.', uz: "Kassetalar — o'nliklar, ular oltita. O'nliklarni chapga qo'ying.", en: 'Cassettes are tens, and there are six of them. Put the tens on the left.' },
+    wrong_2: { ru: 'Девять, если сложить шесть и три. А в кассетах по десять.', uz: "To'qqiz — olti va uchni qo'shsak. Kassetalarda esa o'ntadan.", en: 'Nine is what you get if you add six and three. But each cassette holds ten.' },
+    wrong_3: { ru: 'Не забудь три отдельные батарейки.', uz: 'Uchta alohida batareyani unutmang.', en: 'Do not forget the three separate batteries.' },
     audio: {
-      intro: { ru: 'Посчитаем, сколько всего. Кассеты десятки, отдельные батарейки единицы.', uz: "Jami qanchaligini sanaymiz. Kassetalar o'nliklar, alohida batareyalar birliklar." },
-      on_correct: { ru: 'Верно. Шесть десятков и три единицы, шестьдесят три.', uz: "To'g'ri. Olti o'nlik va uch birlik, oltmish uch." },
-      on_wrong: { ru: 'Посмотри разбор. Кассеты десятки, их шесть.', uz: "Tushuntirishga qarang. Kassetalar o'nliklar, ular oltita." }
+      intro: { ru: 'Посчитаем, сколько всего. Кассеты десятки, отдельные батарейки единицы.', uz: "Jami qanchaligini sanaymiz. Kassetalar o'nliklar, alohida batareyalar birliklar.", en: 'Let us count how many there are in all. Cassettes are tens, separate batteries are ones.' },
+      on_correct: { ru: 'Верно. Шесть десятков и три единицы, шестьдесят три.', uz: "To'g'ri. Olti o'nlik va uch birlik, oltmish uch.", en: 'That is right. Six tens and three ones, sixty three.' },
+      on_wrong: { ru: 'Посмотри разбор. Кассеты десятки, их шесть.', uz: "Tushuntirishga qarang. Kassetalar o'nliklar, ular oltita.", en: 'Look at how it is taken apart. Cassettes are tens, and there are six of them.' }
     }
   },
 
   // s14 — FINAL (scored MC + FactCard): 4 kasseta + 7 batareya -> 47
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    q: { ru: 'Какое число на табло?', uz: 'Displeyda qaysi son?' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    q: { ru: 'Какое число на табло?', uz: 'Displeyda qaysi son?', en: 'Which number is on the board?' },
     // ASL variantlar: [47(correct), 74, 11, 407]
-    wrong_1: { ru: 'Считай: кассет четыре — это десятки, слева.', uz: "Sanang: kasseta to'rtta — o'nliklar, chapda." },
-    wrong_2: { ru: 'Одиннадцать, если сложить. А десятки и единицы пишут рядом.', uz: "O'n bir — qo'shsak. O'nlik va birlik yonma-yon yoziladi." },
-    wrong_3: { ru: 'Это слишком большое. Только десятки и единицы.', uz: "Bu juda katta. Faqat o'nlik va birlik." },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Перед стартом ракеты ведут обратный отсчёт: десять, девять, восемь… Старт!', uz: "Raketa uchishidan oldin teskari sanaladi: o'n, to'qqiz, sakkiz… Start!" },
-    fact_audio: { ru: 'Перед стартом ракеты ведут обратный отсчёт. Десять, девять, восемь и в конце старт.', uz: "Raketa uchishidan oldin teskari sanaladi. O'n, to'qqiz, sakkiz va oxirida start." },
+    wrong_1: { ru: 'Считай: кассет четыре — это десятки, слева.', uz: "Sanang: kasseta to'rtta — o'nliklar, chapda.", en: 'Count it. There are four cassettes, that is the tens, on the left.' },
+    wrong_2: { ru: 'Одиннадцать, если сложить. А десятки и единицы пишут рядом.', uz: "O'n bir — qo'shsak. O'nlik va birlik yonma-yon yoziladi.", en: 'Eleven is what you get if you add them. But tens and ones are written side by side.' },
+    wrong_3: { ru: 'Это слишком большое. Только десятки и единицы.', uz: "Bu juda katta. Faqat o'nlik va birlik.", en: 'That is far too big. Only tens and ones here.' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Перед стартом ракеты ведут обратный отсчёт: десять, девять, восемь… Старт!', uz: "Raketa uchishidan oldin teskari sanaladi: o'n, to'qqiz, sakkiz… Start!", en: 'Before a rocket lifts off they count backwards: ten, nine, eight… Lift off!' },
+    fact_audio: { ru: 'Перед стартом ракеты ведут обратный отсчёт. Десять, девять, восемь и в конце старт.', uz: "Raketa uchishidan oldin teskari sanaladi. O'n, to'qqiz, sakkiz va oxirida start.", en: 'Before a rocket lifts off they count backwards. Ten, nine, eight and at the end, lift off.' },
     audio: {
-      intro: { ru: 'Финальный тест. На загрузочном табло загораются числа. Прочитай каждое.', uz: "Yakuniy test. Yuklash tablosida sonlar yonadi. Har birini o'qing." },
-      on_correct: { ru: 'Верно. Четыре десятка и семь единиц, сорок семь.', uz: "To'g'ri. To'rt o'nlik va yetti birlik, qirq yetti." },
-      on_wrong: { ru: 'Посмотри разбор. Кассет четыре, это десятки, слева.', uz: "Tushuntirishga qarang. Kasseta to'rtta, o'nliklar, chapda." }
+      intro: { ru: 'Финальный тест. На загрузочном табло загораются числа. Прочитай каждое.', uz: "Yakuniy test. Yuklash tablosida sonlar yonadi. Har birini o'qing.", en: 'Final test. Numbers light up on the loading board. Read each one.' },
+      on_correct: { ru: 'Верно. Четыре десятка и семь единиц, сорок семь.', uz: "To'g'ri. To'rt o'nlik va yetti birlik, qirq yetti.", en: 'That is right. Four tens and seven ones, forty seven.' },
+      on_wrong: { ru: 'Посмотри разбор. Кассет четыре, это десятки, слева.', uz: "Tushuntirishga qarang. Kasseta to'rtta, o'nliklar, chapda.", en: 'Look at how it is taken apart. There are four cassettes, that is the tens, on the left.' }
     }
   },
 
   // s15 — YAKUN: uchish + QOIDA recap + bog'lanishlar
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Заряд на борту! Теперь ты умеешь видеть в числе десятки и единицы.', uz: "Quvvat bortda! Endi siz sonda o'nlik va birlikni ko'ra olasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Заряд на борту! Теперь ты умеешь видеть в числе десятки и единицы.', uz: "Quvvat bortda! Endi siz sonda o'nlik va birlikni ko'ra olasiz.", en: 'The charge is on board! Now you can see the tens and the ones in a number.' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Левая цифра — десятки, правая — единицы.', uz: "Chap raqam — o'nliklar, o'ng — birliklar." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'первый класс: счёт, десять единиц — один десяток', uz: "birinchi sinf: sanash, o'nta birlik — bitta o'nlik" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 2: чтение и запись бортовых кодов', uz: "2-dars: bort kodlarini o'qish va yozish" },
+    rule_recap: { ru: 'Левая цифра — десятки, правая — единицы.', uz: "Chap raqam — o'nliklar, o'ng — birliklar.", en: 'The left digit is the tens, the right digit is the ones.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'первый класс: счёт, десять единиц — один десяток', uz: "birinchi sinf: sanash, o'nta birlik — bitta o'nlik", en: 'grade one: counting, ten ones make one ten' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 2: чтение и запись бортовых кодов', uz: "2-dars: bort kodlarini o'qish va yozish", en: 'Lesson 2: reading and writing ship codes' },
     audio: {
       ru: 'Миссия выполнена. Заряд собран десятками, двигатель заряжен, корабль летит дальше. Запомни правило. Десять единиц это один десяток. Левая цифра десятки, правая единицы. Мы стали ближе к дому Бита. В следующий раз научимся читать и записывать бортовые числа.',
-      uz: "Missiya bajarildi. Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi, kema uchdi. Qoidani yodda tuting. O'n birlik bu bitta o'nlik. Chap raqam o'nliklar, o'ng birliklar. Biz Bitning uyiga yaqinlashdik. Keyingi safar bort sonlarini o'qish va yozishni o'rganamiz."
+      uz: "Missiya bajarildi. Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi, kema uchdi. Qoidani yodda tuting. O'n birlik bu bitta o'nlik. Chap raqam o'nliklar, o'ng birliklar. Biz Bitning uyiga yaqinlashdik. Keyingi safar bort sonlarini o'qish va yozishni o'rganamiz.",
+      en: "Mission complete. The charge was gathered in tens, the engine is charged, and the ship flies on. Remember the rule. Ten ones make one ten. The left digit is the tens, the right digit is the ones. We have come closer to Bit's home. Next time we will learn to read and write ship numbers."
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Теперь проверим, как ты понял.', uz: 'Endi qanday tushunganingizni tekshiramiz.' },
-  s2:  { ru: 'Готовим заряд. Сначала посмотрим, что такое десяток.', uz: "Quvvatni tayyorlaymiz. Avval o'nlik nima, ko'ramiz." },
-  s3:  { ru: 'Десяток понятен. Теперь соберём из них числа.', uz: "O'nlikni bildik. Endi undan sonlarni yig'amiz." },
-  s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz." },
-  s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim." },
-  s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz." },
-  s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s8:  { ru: 'Правило знаем. Теперь готовь заряд сам.', uz: "Qoidani bilamiz. Endi quvvatni o'zingiz tayyorlang." },
-  s9:  { ru: 'Разложим груз по отсекам.', uz: 'Yukni tryumlarga ajratamiz.' },
-  s10: { ru: 'Проверим ещё раз.', uz: 'Yana bir tekshiramiz.' },
-  s11: { ru: 'Два корабля встретились.', uz: 'Ikki kema uchrashdi.' },
-  s12: { ru: 'Последний груз. Сколько по накладной?', uz: "Oxirgi yuk. Xatda nechta?" },
-  s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.' },
-  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Заряд готов. Взлетаем!', uz: "Quvvat tayyor. Uchamiz!" }
+  s1:  { ru: 'Теперь проверим, как ты понял.', uz: 'Endi qanday tushunganingizni tekshiramiz.', en: 'Now let us check what you understood.' },
+  s2:  { ru: 'Готовим заряд. Сначала посмотрим, что такое десяток.', uz: "Quvvatni tayyorlaymiz. Avval o'nlik nima, ko'ramiz.", en: 'We are getting the charge ready. First let us see what a ten is.' },
+  s3:  { ru: 'Десяток понятен. Теперь соберём из них числа.', uz: "O'nlikni bildik. Endi undan sonlarni yig'amiz.", en: 'A ten is clear now. Let us build numbers out of them.' },
+  s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz.", en: 'Built it. Now let us look inside the number.' },
+  s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim.", en: 'Attention. The place of a digit decides.' },
+  s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz.", en: 'Let us show this number on a line.' },
+  s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s8:  { ru: 'Правило знаем. Теперь готовь заряд сам.', uz: "Qoidani bilamiz. Endi quvvatni o'zingiz tayyorlang.", en: 'We know the rule. Now get the charge ready yourself.' },
+  s9:  { ru: 'Разложим груз по отсекам.', uz: 'Yukni tryumlarga ajratamiz.', en: 'Let us sort the cargo into the bays.' },
+  s10: { ru: 'Проверим ещё раз.', uz: 'Yana bir tekshiramiz.', en: 'Let us check once more.' },
+  s11: { ru: 'Два корабля встретились.', uz: 'Ikki kema uchrashdi.', en: 'Two ships have met.' },
+  s12: { ru: 'Последний груз. Сколько по накладной?', uz: "Oxirgi yuk. Xatda nechta?", en: 'The last load. How many does the delivery note say?' },
+  s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.', en: 'We count it all together.' },
+  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.', en: 'The launch computer will run the final check.' },
+  s15: { ru: 'Заряд готов. Взлетаем!', uz: "Quvvat tayyor. Uchamiz!", en: 'The charge is ready. Lift off!' }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Заряд собран десятками, двигатель заряжен. Корабль летит дальше, к дому Бита! Спасибо за помощь.',
-  uz: "Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat."
+  uz: "Quvvat o'nliklarga yig'ildi, dvigatel zaryadlandi. Kema Bitning uyiga tomon uchadi! Yordamingiz uchun rahmat.",
+  en: "The charge was gathered in tens and the engine is charged. The ship flies on, to Bit's home! Thank you for your help."
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1400,7 +1440,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1417,7 +1457,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2180,7 +2221,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2565,7 +2612,7 @@ const Screen2 = (props) => {
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: T.ink2 }}>=</span>
               <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                 <CassetteSvg lit/>
-                <b style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(12px, 1.9vw, 14px)', color: T.accent }}>{lang === 'ru' ? '1 десяток' : "1 o'nlik"}</b>
+                <b style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(12px, 1.9vw, 14px)', color: T.accent }}>{tri(lang, '1 десяток', "1 o'nlik", '1 ten')}</b>
               </span>
             </div>
             <Reaction state="correct" praise={t(c.done_text)}/>
@@ -2983,12 +3030,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>В двузначном числе <b style={{ color: '#fe5b1a' }}>левая</b> цифра — <b style={{ color: '#fe5b1a' }}>десятки</b>, <b style={{ color: '#019ACB' }}>правая</b> — <b style={{ color: '#019ACB' }}>единицы</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Ikki xonali sonda <b style={{ color: '#fe5b1a' }}>chap</b> raqam — <b style={{ color: '#fe5b1a' }}>o'nliklar</b>, <b style={{ color: '#019ACB' }}>o'ng</b> raqam — <b style={{ color: '#019ACB' }}>birliklar</b>.</>
+            ) : lang === 'en' ? (
+              <>In a two digit number the <b style={{ color: '#fe5b1a' }}>left</b> digit is the <b style={{ color: '#fe5b1a' }}>tens</b>, the <b style={{ color: '#019ACB' }}>right</b> digit is the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>В двузначном числе <b style={{ color: '#fe5b1a' }}>левая</b> цифра — <b style={{ color: '#fe5b1a' }}>десятки</b>, <b style={{ color: '#019ACB' }}>правая</b> — <b style={{ color: '#019ACB' }}>единицы</b>.</>
             )}
           </p>
         </div>
@@ -3346,9 +3395,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -3356,14 +3405,14 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты видишь десятки и единицы в любом числе.', uz: "Zo'r! Har sonda o'nlik va birlikni ko'ryapsiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты видишь десятки и единицы в любом числе.', uz: "Zo'r! Har sonda o'nlik va birlikni ko'ryapsiz.", en: 'Excellent! You can see tens and ones in any number.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE}
     subs={[razryadSub(5, 2, [1, 2, 0, 3]), razryadSub(3, 7, [2, 0, 3, 1]), razryadSub(6, 1, [0, 3, 1, 2]), razryadSub(4, 8, [3, 1, 2, 0])]}/>
@@ -3379,13 +3428,13 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
-const S11_LABEL = { ru: 'Сравнение', uz: 'Taqqoslash' };
-const S11_DONE = { ru: 'Верно! Больше десятков — больше число.', uz: "To'g'ri! Ko'proq o'nlik — kattaroq son." };
+const S11_LABEL = { ru: 'Сравнение', uz: 'Taqqoslash', en: 'Comparing' };
+const S11_DONE = { ru: 'Верно! Больше десятков — больше число.', uz: "To'g'ri! Ko'proq o'nlik — kattaroq son.", en: 'That is right! More tens means a bigger number.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={2}
     subs={[compareSub(45, 54), compareSub(41, 38), compareSub(59, 60), compareSub(72, 27)]}/>
@@ -3460,8 +3509,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты видишь десятки и единицы в любом числе.', uz: "Test o'tdi! Har sonda o'nlik va birlikni ko'ryapsiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты видишь десятки и единицы в любом числе.', uz: "Test o'tdi! Har sonda o'nlik va birlikni ko'ryapsiz.", en: 'Test passed! You can see tens and ones in any number.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -3649,7 +3698,7 @@ export default function TensUnitsLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

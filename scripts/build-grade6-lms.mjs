@@ -14,7 +14,8 @@ import { GRADE6_THEORY_27_46 } from '../src/components/grade6/Grade6TheoryData27
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, '..');
 const sourceDir = path.join(rootDir, 'src', 'components', 'grade6');
-const outputDir = path.join(rootDir, 'lms-grade6-standalone');
+// Собранные файлы лежат рядом с уроками класса (перенесены из корня 2026-08-12).
+const outputDir = path.join(sourceDir, 'lms-grade6-standalone');
 const themePath = path.join(sourceDir, 'Grade6TheoryTheme.css');
 const fractionHostPath = path.join(sourceDir, 'FractionTheoryLesson.jsx');
 const ttsMathColonPath = path.join(sourceDir, 'ttsMathColon.js');

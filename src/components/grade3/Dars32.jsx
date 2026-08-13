@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -121,8 +121,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-32',
-  lessonTitle: { ru: 'Урок 32. Задачи о долях', uz: "32-dars. Ulushga doir masalalar" }
+  lessonId: 'grade3-32',
+  lessonTitle: { ru: 'Урок 32. Задачи о долях', uz: "32-dars. Ulushga doir masalalar", en: 'Lesson 32. Word problems about fractions' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 32»): s0 xuk teskari masala · s1 ikki yo'nalish ·
 // s2 model bitta bo'lakdan butun · s3 savol-oldin-QOIDA · s4 rasm bo'yicha (bitta bo'lak
@@ -159,15 +159,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: teskari masala (darslik 151-bet 1-topshiriq, b bandi).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Задачи о долях', uz: 'Ulushga doir masalalar' },
-    lead: { ru: 'Четверть дыни весит 3 кг', uz: "Qovunning choragi 3 kg keladi" },
-    order_cap: { ru: 'известна доля, а не целое', uz: "ulush ma'lum, butun emas" },
-    q: { ru: 'Сколько весит вся дыня?', uz: "Butun qovun necha kilogramm keladi?" },
-    opt0: { ru: '12 кг', uz: '12 kg' },
-    opt1: { ru: '3 кг', uz: '3 kg' },
-    opt2: { ru: '7 кг', uz: '7 kg' },
-    opt3: { ru: '4 кг', uz: '4 kg' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Задачи о долях', uz: 'Ulushga doir masalalar', en: 'Word problems about fractions' },
+    lead: { ru: 'Четверть дыни весит 3 кг', uz: "Qovunning choragi 3 kg keladi", en: 'A quarter of a melon weighs 3 kg' },
+    order_cap: { ru: 'известна доля, а не целое', uz: "ulush ma'lum, butun emas", en: 'the fraction is known, not the whole' },
+    q: { ru: 'Сколько весит вся дыня?', uz: "Butun qovun necha kilogramm keladi?", en: 'How much does the whole melon weigh?' },
+    opt0: { ru: '12 кг', uz: '12 kg', en: '12 kg' },
+    opt1: { ru: '3 кг', uz: '3 kg', en: '3 kg' },
+    opt2: { ru: '7 кг', uz: '7 kg', en: '7 kg' },
+    opt3: { ru: '4 кг', uz: '4 kg', en: '4 kg' },
     audio: {
       intro: {
         ru: [
@@ -181,29 +181,31 @@ const CONTENT = {
           "Qovunning choragi uch kilogramm keladi.",
           "Ulush ma'lum, butun qovunning og'irligini esa topish kerak.",
           "Sizningcha, butun qovun necha kilogramm keladi?"
-        ]
+        ],
+        en: ['All region long we divided a whole into parts. Today we will go the other way.', 'A quarter of a melon weighs three kilograms.', 'The fraction is known, and the weight of the whole melon has to be found.', 'How much do you think the whole melon weighs?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, почему тут умножают.', uz: "To'g'ri! Endi nega bu yerda ko'paytirilishini ko'rasiz." },
-      on_wrong1: { ru: 'Три килограмма это только одна четвертинка. Целое больше.', uz: "Uch kilogramm bu faqat bitta chorak. Butun kattaroq." },
-      on_wrong2: { ru: 'Складывать долю с числом частей не нужно, их надо перемножить.', uz: "Ulushni bo'laklar soni bilan qo'shish emas, ko'paytirish kerak." },
-      on_idk: { ru: 'Ничего. Сейчас соберём дыню из четвертинок.', uz: "Hechqisi yo'q. Hozir qovunni choraklardan yig'amiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, почему тут умножают.', uz: "To'g'ri! Endi nega bu yerda ko'paytirilishini ko'rasiz.", en: 'Right! And now you will see why we multiply here.' },
+      on_wrong1: { ru: 'Три килограмма это только одна четвертинка. Целое больше.', uz: "Uch kilogramm bu faqat bitta chorak. Butun kattaroq.", en: 'Three kilograms is only one quarter. The whole is bigger.' },
+      on_wrong2: { ru: 'Складывать долю с числом частей не нужно, их надо перемножить.', uz: "Ulushni bo'laklar soni bilan qo'shish emas, ko'paytirish kerak.", en: 'There is no need to add the fraction to the number of parts, they have to be multiplied.' },
+      on_idk: { ru: 'Ничего. Сейчас соберём дыню из четвертинок.', uz: "Hechqisi yo'q. Hozir qovunni choraklardan yig'amiz.", en: 'Never mind. Let us gather the melon out of quarters.' }
     }
   },
 
   // s1 — IKKI YO'NALISH: butundan ulushga va ulushdan butunga (darslik 151-bet).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Одна и та же задача идёт в две стороны', uz: "Bitta masala ikki tomonga boradi" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Одна и та же задача идёт в две стороны', uz: "Bitta masala ikki tomonga boradi", en: 'The very same problem goes in two directions' },
     task_line: 'целое 12, доля одна четвёртая',
     task_line_uz: "butun 12, ulush to'rtdan bir",
+    task_line_en: 'the whole is 12, the fraction is one fourth',
     step1: '12 : 4 = 3',
-    step1_cap: { ru: 'от целого к доле, делим на знаменатель', uz: "butundan ulushga, maxrajga bo'lamiz" },
+    step1_cap: { ru: 'от целого к доле, делим на знаменатель', uz: "butundan ulushga, maxrajga bo'lamiz", en: 'from the whole to the fraction, we divide by the denominator' },
     step2: '3 · 4 = 12',
-    step2_cap: { ru: 'от доли к целому, умножаем на знаменатель', uz: "ulushdan butunga, maxrajga ko'paytiramiz" },
-    res: { ru: 'два действия смотрят в разные стороны', uz: 'ikki amal qarama-qarshi tomonga qaraydi' },
-    btn1: { ru: 'Найти долю', uz: 'Ulushni topish' },
-    btn2: { ru: 'Собрать целое', uz: "Butunni yig'ish" },
-    done_text: { ru: 'Вопрос решает, делить или умножать', uz: "Savol bo'lish yoki ko'paytirishni hal qiladi" },
+    step2_cap: { ru: 'от доли к целому, умножаем на знаменатель', uz: "ulushdan butunga, maxrajga ko'paytiramiz", en: 'from the fraction to the whole, we multiply by the denominator' },
+    res: { ru: 'два действия смотрят в разные стороны', uz: 'ikki amal qarama-qarshi tomonga qaraydi', en: 'two operations look in opposite directions' },
+    btn1: { ru: 'Найти долю', uz: 'Ulushni topish', en: 'Find the fraction' },
+    btn2: { ru: 'Собрать целое', uz: "Butunni yig'ish", en: 'Gather the whole' },
+    done_text: { ru: 'Вопрос решает, делить или умножать', uz: "Savol bo'lish yoki ko'paytirishni hal qiladi", en: 'The question decides whether to divide or multiply' },
     audio: {
       ru: [
         'Возьмём целое двенадцать и долю одну четвёртую.',
@@ -214,25 +216,26 @@ const CONTENT = {
         "Butun o'n ikkini va to'rtdan bir ulushni olamiz.",
         "Butun ma'lum bo'lsa, maxrajga bo'lamiz. O'n ikkini to'rtga bo'lsak, uch chiqadi. Bu ulush.",
         "Ulush ma'lum bo'lsa, teskari yo'l bilan boramiz. Uchni to'rtga ko'paytiramiz, yana o'n ikki. Bu butun."
-      ]
+      ],
+      en: ['Let us take a whole of twelve and a fraction of one fourth.', 'If the whole is known, we divide by the denominator. Twelve divided by four gives three. That is the fraction.', 'And if the fraction is known, we go back. Three times four, twelve again. That is the whole.']
     }
   },
 
   // s2 — MODEL: to'rtta bo'lakning bittasi ma'lum.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     shape: 'bar',
     parts: 4,
     filled: 1,
-    lead: { ru: 'Если знаешь одну часть, целое собирается из таких же', uz: "Bitta bo'lakni bilsang, butun shundaylardan yig'iladi" },
-    capA: { ru: 'одна часть это 3 кг', uz: "bitta bo'lak 3 kg" },
-    capB: { ru: 'таких частей 4, всего 12 кг', uz: "shunday bo'lak 4 ta, jami 12 kg" },
+    lead: { ru: 'Если знаешь одну часть, целое собирается из таких же', uz: "Bitta bo'lakni bilsang, butun shundaylardan yig'iladi", en: 'If you know one part, the whole is gathered out of parts like it' },
+    capA: { ru: 'одна часть это 3 кг', uz: "bitta bo'lak 3 kg", en: 'one part is 3 kg' },
+    capB: { ru: 'таких частей 4, всего 12 кг', uz: "shunday bo'lak 4 ta, jami 12 kg", en: 'there are 4 such parts, 12 kg in all' },
     res: '3 · 4 = 12',
-    name_a: { ru: 'доля', uz: 'ulush' },
-    name_b: { ru: 'целое', uz: 'butun' },
-    btn1: { ru: 'Показать одну часть', uz: "Bitta bo'lakni ko'rsatish" },
-    btn2: { ru: 'Собрать все части', uz: "Hamma bo'lakni yig'ish" },
-    done_text: { ru: 'Целое это доля, взятая столько раз, каков знаменатель', uz: "Butun bu maxraj martasiga olingan ulush" },
+    name_a: { ru: 'доля', uz: 'ulush', en: 'the fraction' },
+    name_b: { ru: 'целое', uz: 'butun', en: 'the whole' },
+    btn1: { ru: 'Показать одну часть', uz: "Bitta bo'lakni ko'rsatish", en: 'Show one part' },
+    btn2: { ru: 'Собрать все части', uz: "Hamma bo'lakni yig'ish", en: 'Gather all the parts' },
+    done_text: { ru: 'Целое это доля, взятая столько раз, каков знаменатель', uz: "Butun bu maxraj martasiga olingan ulush", en: 'The whole is the fraction taken as many times as the denominator says' },
     audio: {
       ru: [
         'Посмотри на дыню из четырёх одинаковых частей.',
@@ -243,163 +246,167 @@ const CONTENT = {
         "To'rtta bir xil bo'lakdan iborat qovunga qarang.",
         "Bitta bo'lak uch kilogramm keladi.",
         "Shunday bo'lak to'rtta. Uchni to'rtga ko'paytiramiz, o'n ikki kilogramm. Bu butun qovun."
-      ]
+      ],
+      en: ['Look at the melon of four identical parts.', 'One part weighs three kilograms.', 'There are four such parts. Three times four, twelve kilograms. That is the whole melon.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: ulush ma'lum bo'lsa nima qilamiz.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Известна доля, а найти надо целое. Что делаем?', uz: "Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Известна доля, а найти надо целое. Что делаем?', uz: "Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?", en: 'The fraction is known and the whole has to be found. What do we do?' },
     opts: [
-      { ru: 'умножаем на знаменатель', uz: "maxrajga ko'paytiramiz" },
-      { ru: 'делим на знаменатель', uz: "maxrajga bo'lamiz" },
-      { ru: 'умножаем на числитель', uz: "suratga ko'paytiramiz" },
-      { ru: 'ничего не делаем', uz: 'hech nima qilmaymiz' }
+      { ru: 'умножаем на знаменатель', uz: "maxrajga ko'paytiramiz", en: 'we multiply by the denominator' },
+      { ru: 'делим на знаменатель', uz: "maxrajga bo'lamiz", en: 'we divide by the denominator' },
+      { ru: 'умножаем на числитель', uz: "suratga ko'paytiramiz", en: 'we multiply by the numerator' },
+      { ru: 'ничего не делаем', uz: 'hech nima qilmaymiz', en: 'we do nothing' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Делят, когда целое известно. Тут наоборот.', uz: "Butun ma'lum bo'lganda bo'linadi. Bu yerda aksincha." },
-      2: { ru: 'Числитель у доли единица, умножение на него ничего не изменит.', uz: "Ulushning surati bir, unga ko'paytirish hech nimani o'zgartirmaydi." },
-      3: { ru: 'Целое само не появится, его надо собрать из частей.', uz: "Butun o'zi paydo bo'lmaydi, uni bo'laklardan yig'ish kerak." }
+      1: { ru: 'Делят, когда целое известно. Тут наоборот.', uz: "Butun ma'lum bo'lganda bo'linadi. Bu yerda aksincha.", en: 'We divide when the whole is known. Here it is the other way round.' },
+      2: { ru: 'Числитель у доли единица, умножение на него ничего не изменит.', uz: "Ulushning surati bir, unga ko'paytirish hech nimani o'zgartirmaydi.", en: 'The numerator of the fraction is one, multiplying by it will change nothing.' },
+      3: { ru: 'Целое само не появится, его надо собрать из частей.', uz: "Butun o'zi paydo bo'lmaydi, uni bo'laklardan yig'ish kerak.", en: 'The whole will not appear by itself, it has to be gathered out of parts.' }
     },
-    on_correct: { ru: 'Да. Частей столько, каков знаменатель, поэтому умножаем.', uz: "Ha. Bo'lak soni maxrajcha, shuning uchun ko'paytiramiz." },
+    on_correct: { ru: 'Да. Частей столько, каков знаменатель, поэтому умножаем.', uz: "Ha. Bo'lak soni maxrajcha, shuning uchun ko'paytiramiz.", en: 'Yes. There are as many parts as the denominator says, so we multiply.' },
     rule_lines: {
       ru: ['Если известно целое, делим его на знаменатель и находим долю.', 'Если известна доля, умножаем её на знаменатель и находим целое. Вопрос задачи выбирает действие.'],
-      uz: ["Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz.", "Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni topamiz. Amalni masala savoli tanlaydi."]
+      uz: ["Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz.", "Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni topamiz. Amalni masala savoli tanlaydi."],
+      en: ['If the whole is known, we divide it by the denominator and find the fraction.', 'If the fraction is known, we multiply it by the denominator and find the whole. The question of the problem chooses the operation.']
     },
     rule_ex: '3 · 4 = 12',
-    rule_speech: { ru: 'три умножить на четыре, двенадцать', uz: "uchni to'rtga ko'paytirsak, o'n ikki" },
+    rule_speech: { ru: 'три умножить на четыре, двенадцать', uz: "uchni to'rtga ko'paytirsak, o'n ikki", en: 'three times four, twelve' },
     audio: {
       intro: {
         ru: 'Всё решает вопрос задачи. Известна доля, а найти надо целое. Что делаем?',
-        uz: "Hammasini masala savoli hal qiladi. Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?"
+        uz: "Hammasini masala savoli hal qiladi. Ulush ma'lum, topish kerak bo'lgani butun. Nima qilamiz?",
+        en: 'Everything is decided by the question of the problem. The fraction is known and the whole has to be found. What do we do?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: bitta bo'lak ma'lum, butun so'raladi.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Одна закрашенная часть это 4 монеты. Сколько монет всего?', uz: "Bitta bo'yalgan bo'lak 4 ta tanga. Jami nechta tanga bor?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Одна закрашенная часть это 4 монеты. Сколько монет всего?', uz: "Bitta bo'yalgan bo'lak 4 ta tanga. Jami nechta tanga bor?", en: 'One shaded part is 4 coins. How many coins are there in all?' },
     fig_shape: 'bar',
     fig_parts: 5,
     fig_filled: 1,
     opts: [
-      { ru: '20', uz: '20' },
-      { ru: '5', uz: '5' },
-      { ru: '4', uz: '4' },
-      { ru: '9', uz: '9' }
+      { ru: '20', uz: '20', en: '20' },
+      { ru: '5', uz: '5', en: '5' },
+      { ru: '4', uz: '4', en: '4' },
+      { ru: '9', uz: '9', en: '9' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Пять это число частей, а не монет.', uz: "Besh bu bo'laklar soni, tanga soni emas." },
-      2: { ru: 'Четыре монеты это только одна часть.', uz: "To'rtta tanga bu faqat bitta bo'lak." },
-      3: { ru: 'Складывать части и монеты нельзя, их перемножают.', uz: "Bo'lak bilan tangani qo'shib bo'lmaydi, ular ko'paytiriladi." }
+      1: { ru: 'Пять это число частей, а не монет.', uz: "Besh bu bo'laklar soni, tanga soni emas.", en: 'Five is the number of parts, not of coins.' },
+      2: { ru: 'Четыре монеты это только одна часть.', uz: "To'rtta tanga bu faqat bitta bo'lak.", en: 'Four coins is only one part.' },
+      3: { ru: 'Складывать части и монеты нельзя, их перемножают.', uz: "Bo'lak bilan tangani qo'shib bo'lmaydi, ular ko'paytiriladi.", en: 'Parts and coins cannot be added, they are multiplied.' }
     },
     audio: {
-      intro: { ru: 'Полоса разделена на пять равных частей. В одной части четыре монеты. Сколько монет всего?', uz: "Tasma beshta teng bo'lakka bo'lingan. Bitta bo'lakda to'rtta tanga. Jami nechta tanga bor?" },
-      on_correct: { ru: 'Верно. Четыре монеты пять раз, двадцать.', uz: "To'g'ri. To'rtta tangadan besh marta, yigirma." },
-      on_wrong: { ru: 'Возьми одну часть столько раз, сколько всего частей.', uz: "Bitta bo'lakni bo'laklar soni martasiga oling." }
+      intro: { ru: 'Полоса разделена на пять равных частей. В одной части четыре монеты. Сколько монет всего?', uz: "Tasma beshta teng bo'lakka bo'lingan. Bitta bo'lakda to'rtta tanga. Jami nechta tanga bor?", en: 'A strip is divided into five equal parts. One part has four coins. How many coins are there in all?' },
+      on_correct: { ru: 'Верно. Четыре монеты пять раз, двадцать.', uz: "To'g'ri. To'rtta tangadan besh marta, yigirma.", en: 'Right. Four coins five times, twenty.' },
+      on_wrong: { ru: 'Возьми одну часть столько раз, сколько всего частей.', uz: "Bitta bo'lakni bo'laklar soni martasiga oling.", en: 'Take one part as many times as there are parts in all.' }
     }
   },
 
   // s5 — SARALASH: savol ulushni so'rayaptimi yoki butunni.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи вопросы: где ищут долю, а где целое', uz: "Savollarni ajrating: qayerda ulush, qayerda butun qidiriladi" },
-    bin_a: { ru: 'ищем долю', uz: 'ulushni qidiramiz' },
-    bin_b: { ru: 'ищем целое', uz: 'butunni qidiramiz' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи вопросы: где ищут долю, а где целое', uz: "Savollarni ajrating: qayerda ulush, qayerda butun qidiriladi", en: 'Sort the questions: where a fraction is looked for and where a whole' },
+    bin_a: { ru: 'ищем долю', uz: 'ulushni qidiramiz', en: 'we look for the fraction' },
+    bin_b: { ru: 'ищем целое', uz: 'butunni qidiramiz', en: 'we look for the whole' },
     items: [
-      { n: { ru: 'сколько будет 1/3 от 24', uz: "24 ning 1/3 qismi qancha" }, a: true, hint: { ru: 'Целое известно, значит ищем часть.', uz: "Butun ma'lum, demak bo'lak qidiriladi." } },
-      { n: { ru: 'треть равна 8, сколько всего', uz: "uchdan biri 8, jami qancha" }, a: false, hint: { ru: 'Дана часть, спрашивают целое.', uz: "Bo'lak berilgan, butun so'ralyapti." } },
-      { n: { ru: 'половина 6 кг, сколько весь', uz: "yarmi 6 kg, butuni qancha" }, a: false, hint: { ru: 'Половина известна, целое нет.', uz: "Yarmi ma'lum, butuni yo'q." } },
-      { n: { ru: 'сколько будет 1/5 от 35', uz: "35 ning 1/5 qismi qancha" }, a: true, hint: { ru: 'Всё число дано, нужна его часть.', uz: "Butun son berilgan, uning bo'lagi kerak." } }
+      { n: { ru: 'сколько будет 1/3 от 24', uz: "24 ning 1/3 qismi qancha", en: 'what is 1/3 of 24' }, a: true, hint: { ru: 'Целое известно, значит ищем часть.', uz: "Butun ma'lum, demak bo'lak qidiriladi.", en: 'The whole is known, so we look for a part.' } },
+      { n: { ru: 'треть равна 8, сколько всего', uz: "uchdan biri 8, jami qancha", en: 'a third is 8, how many in all' }, a: false, hint: { ru: 'Дана часть, спрашивают целое.', uz: "Bo'lak berilgan, butun so'ralyapti.", en: 'A part is given, the whole is asked for.' } },
+      { n: { ru: 'половина 6 кг, сколько весь', uz: "yarmi 6 kg, butuni qancha", en: 'a half is 6 kg, how much is all of it' }, a: false, hint: { ru: 'Половина известна, целое нет.', uz: "Yarmi ma'lum, butuni yo'q.", en: 'The half is known, the whole is not.' } },
+      { n: { ru: 'сколько будет 1/5 от 35', uz: "35 ning 1/5 qismi qancha", en: 'what is 1/5 of 35' }, a: true, hint: { ru: 'Всё число дано, нужна его часть.', uz: "Butun son berilgan, uning bo'lagi kerak.", en: 'The whole number is given, its part is needed.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре вопроса. Отправь каждый на свою полку по тому, что в нём ищут.', uz: "To'rtta savol. Har birini nimani qidirishiga qarab o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Если целое дано, ищем долю. Если дана доля, ищем целое.', uz: "Hammasi joyida. Butun berilgan bo'lsa ulushni, ulush berilgan bo'lsa butunni qidiramiz." },
-      on_wrong: { ru: 'Посмотри, что в вопросе уже известно.', uz: "Savolda nima allaqachon ma'lum ekaniga qarang." }
+      intro: { ru: 'Четыре вопроса. Отправь каждый на свою полку по тому, что в нём ищут.', uz: "To'rtta savol. Har birini nimani qidirishiga qarab o'z tokchasiga yuboring.", en: 'Four questions. Send each one to its shelf by what it looks for.' },
+      on_correct: { ru: 'Все на месте. Если целое дано, ищем долю. Если дана доля, ищем целое.', uz: "Hammasi joyida. Butun berilgan bo'lsa ulushni, ulush berilgan bo'lsa butunni qidiramiz.", en: 'All in place. If the whole is given, we look for the fraction. If the fraction is given, we look for the whole.' },
+      on_wrong: { ru: 'Посмотри, что в вопросе уже известно.', uz: "Savolda nima allaqachon ma'lum ekaniga qarang.", en: 'Look at what is already known in the question.' }
     }
   },
 
   // s6 — TEST: teskari masala.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Половина числа равна 9. Какое это число?', uz: "Sonning yarmi 9 ga teng. Bu qanday son?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Половина числа равна 9. Какое это число?', uz: "Sonning yarmi 9 ga teng. Bu qanday son?", en: 'Half of a number equals 9. What is the number?' },
     opts: [
-      { ru: '18', uz: '18' },
-      { ru: '4', uz: '4' },
-      { ru: '9', uz: '9' },
-      { ru: '11', uz: '11' }
+      { ru: '18', uz: '18', en: '18' },
+      { ru: '4', uz: '4', en: '4' },
+      { ru: '9', uz: '9', en: '9' },
+      { ru: '11', uz: '11', en: '11' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Делить не надо, половина уже известна.', uz: "Bo'lish shart emas, yarim allaqachon ma'lum." },
-      2: { ru: 'Девять это только половина числа.', uz: "To'qqiz bu sonning faqat yarmi." },
-      3: { ru: 'Складывать двойку с девяткой не нужно, их перемножают.', uz: "Ikki bilan to'qqizni qo'shish emas, ko'paytirish kerak." }
+      1: { ru: 'Делить не надо, половина уже известна.', uz: "Bo'lish shart emas, yarim allaqachon ma'lum.", en: 'There is no need to divide, the half is already known.' },
+      2: { ru: 'Девять это только половина числа.', uz: "To'qqiz bu sonning faqat yarmi.", en: 'Nine is only half of the number.' },
+      3: { ru: 'Складывать двойку с девяткой не нужно, их перемножают.', uz: "Ikki bilan to'qqizni qo'shish emas, ko'paytirish kerak.", en: 'There is no need to add two to nine, they are multiplied.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Половина числа равна девяти. Какое это число?', uz: "Tez savol. Sonning yarmi to'qqizga teng. Bu qanday son?" },
-      on_correct: { ru: 'Верно. Половин в целом две, девять умножить на два, восемнадцать.', uz: "To'g'ri. Butunda ikkita yarim bor, to'qqizni ikkiga ko'paytirsak, o'n sakkiz." },
-      on_wrong: { ru: 'Половина известна, значит целое собираем умножением.', uz: "Yarim ma'lum, demak butunni ko'paytirish bilan yig'amiz." }
+      intro: { ru: 'Быстрый вопрос. Половина числа равна девяти. Какое это число?', uz: "Tez savol. Sonning yarmi to'qqizga teng. Bu qanday son?", en: 'A quick question. Half of a number equals nine. What is the number?' },
+      on_correct: { ru: 'Верно. Половин в целом две, девять умножить на два, восемнадцать.', uz: "To'g'ri. Butunda ikkita yarim bor, to'qqizni ikkiga ko'paytirsak, o'n sakkiz.", en: 'Right. A whole has two halves, nine times two, eighteen.' },
+      on_wrong: { ru: 'Половина известна, значит целое собираем умножением.', uz: "Yarim ma'lum, demak butunni ko'paytirish bilan yig'amiz.", en: 'The half is known, so we gather the whole by multiplying.' }
     }
   },
 
   // s7 — KONSOL: bir yo'nalish va teskarisi.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Пройди задачу туда и обратно', uz: "Masalani u yoqqa va bu yoqqa yuring" },
-    swap_line: { ru: 'целое 24, доля 1/3', uz: 'butun 24, ulush 1/3' },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Пройди задачу туда и обратно', uz: "Masalani u yoqqa va bu yoqqa yuring", en: 'Go through the problem there and back' },
+    swap_line: { ru: 'целое 24, доля 1/3', uz: 'butun 24, ulush 1/3', en: 'the whole is 24, the fraction is 1/3' },
     cells: [
-      { head: { ru: 'туда', uz: 'u yoqqa' }, label: '24 : 3', ans: 8, hint: { ru: 'Целое делим на знаменатель.', uz: "Butunni maxrajga bo'lamiz." } },
-      { head: { ru: 'обратно', uz: 'bu yoqqa' }, label: '8 · 3', ans: 24, hint: { ru: 'Долю умножаем на знаменатель.', uz: "Ulushni maxrajga ko'paytiramiz." } },
-      { head: { ru: 'осталось', uz: 'qoldi' }, label: '24 − 8', ans: 16, hint: { ru: 'Из целого убери найденную часть.', uz: "Butundan topilgan bo'lakni olib tashlang." } }
+      { head: { ru: 'туда', uz: 'u yoqqa', en: 'there' }, label: '24 : 3', ans: 8, hint: { ru: 'Целое делим на знаменатель.', uz: "Butunni maxrajga bo'lamiz.", en: 'We divide the whole by the denominator.' } },
+      { head: { ru: 'обратно', uz: 'bu yoqqa', en: 'back' }, label: '8 · 3', ans: 24, hint: { ru: 'Долю умножаем на знаменатель.', uz: "Ulushni maxrajga ko'paytiramiz.", en: 'We multiply the fraction by the denominator.' } },
+      { head: { ru: 'осталось', uz: 'qoldi', en: 'left' }, label: '24 − 8', ans: 16, hint: { ru: 'Из целого убери найденную часть.', uz: "Butundan topilgan bo'lakni olib tashlang.", en: 'Take the part you found away from the whole.' } }
     ],
     check: '24 : 3 = 8, 8 · 3 = 24',
-    check_label: { ru: 'проверка обратным действием', uz: 'teskari amal bilan tekshirish' },
+    check_label: { ru: 'проверка обратным действием', uz: 'teskari amal bilan tekshirish', en: 'a check by the opposite operation' },
     audio: {
-      intro: { ru: 'Заполни три окна. Сначала от целого к доле, потом обратно, потом сколько осталось.', uz: "Uchta oynani to'ldiring. Avval butundan ulushga, keyin teskarisiga, keyin nechtasi qolgani." },
-      on_correct: { ru: 'Обратное действие вернуло целое. Так себя и проверяют.', uz: "Teskari amal butunni qaytardi. O'zini shunday tekshiriladi." }
+      intro: { ru: 'Заполни три окна. Сначала от целого к доле, потом обратно, потом сколько осталось.', uz: "Uchta oynani to'ldiring. Avval butundan ulushga, keyin teskarisiga, keyin nechtasi qolgani.", en: 'Fill three windows. First from the whole to the fraction, then back, then how many are left.' },
+      on_correct: { ru: 'Обратное действие вернуло целое. Так себя и проверяют.', uz: "Teskari amal butunni qaytardi. O'zini shunday tekshiriladi.", en: 'The opposite operation brought the whole back. That is how you check yourself.' }
     }
   },
 
   // s8 — XATONI TOP: teskari masalada bo'lish (M2).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Треть числа равна 7. Записали 7 : 3. В чём ошибка?', uz: "Sonning uchdan biri 7 ga teng. 7 : 3 deb yozilgan. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Треть числа равна 7. Записали 7 : 3. В чём ошибка?', uz: "Sonning uchdan biri 7 ga teng. 7 : 3 deb yozilgan. Xato nimada?", en: 'A third of a number equals 7. They wrote 7 : 3. What is the mistake?' },
     fig_line: '7 : 3',
     opts: [
-      { ru: 'здесь надо умножать, а не делить', uz: "bu yerda bo'lish emas, ko'paytirish kerak" },
-      { ru: 'делить надо было на 7', uz: "7 ga bo'lish kerak edi" },
-      { ru: 'треть числа найти нельзя', uz: "sonning uchdan birini topib bo'lmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'здесь надо умножать, а не делить', uz: "bu yerda bo'lish emas, ko'paytirish kerak", en: 'here we have to multiply, not divide' },
+      { ru: 'делить надо было на 7', uz: "7 ga bo'lish kerak edi", en: 'it should have been divided by 7' },
+      { ru: 'треть числа найти нельзя', uz: "sonning uchdan birini topib bo'lmaydi", en: 'a third of a number cannot be found' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Семь это уже часть. Делить её ещё раз незачем.', uz: "Yetti bu allaqachon bo'lak. Uni yana bo'lishning hojati yo'q." },
-      2: { ru: 'Треть найти можно всегда, вопрос только в действии.', uz: "Uchdan birni topish har doim mumkin, gap faqat amalda." },
-      3: { ru: 'Ошибка есть. Целое всегда больше своей трети.', uz: "Xato bor. Butun har doim o'z uchdan biridan katta." }
+      1: { ru: 'Семь это уже часть. Делить её ещё раз незачем.', uz: "Yetti bu allaqachon bo'lak. Uni yana bo'lishning hojati yo'q.", en: 'Seven is already a part. There is no need to divide it again.' },
+      2: { ru: 'Треть найти можно всегда, вопрос только в действии.', uz: "Uchdan birni topish har doim mumkin, gap faqat amalda.", en: 'A third can always be found, the question is only which operation.' },
+      3: { ru: 'Ошибка есть. Целое всегда больше своей трети.', uz: "Xato bor. Butun har doim o'z uchdan biridan katta.", en: 'There is a mistake. A whole is always bigger than its third.' }
     },
     audio: {
-      intro: { ru: 'Здесь искали целое по доле и получили меньше самой доли. Найди ошибку.', uz: "Bu yerda ulushdan butun qidirilib, ulushning o'zidan kam chiqqan. Xatoni toping." },
-      on_correct: { ru: 'Точно. Семь умножить на три, двадцать один.', uz: "Aniq. Yettini uchga ko'paytirsak, yigirma bir." },
-      on_wrong: { ru: 'Целое больше части. Значит действие выбрано не то.', uz: "Butun bo'lakdan katta. Demak amal noto'g'ri tanlangan." }
+      intro: { ru: 'Здесь искали целое по доле и получили меньше самой доли. Найди ошибку.', uz: "Bu yerda ulushdan butun qidirilib, ulushning o'zidan kam chiqqan. Xatoni toping.", en: 'Here they looked for the whole from a fraction and got less than the fraction itself. Find the mistake.' },
+      on_correct: { ru: 'Точно. Семь умножить на три, двадцать один.', uz: "Aniq. Yettini uchga ko'paytirsak, yigirma bir.", en: 'Exactly. Seven times three, twenty one.' },
+      on_wrong: { ru: 'Целое больше части. Значит действие выбрано не то.', uz: "Butun bo'lakdan katta. Demak amal noto'g'ri tanlangan.", en: 'The whole is bigger than a part. So the wrong operation was chosen.' }
     }
   },
 
   // s9 — BIT TUZOG'I: har doim bo'lish deb o'ylash (M1, yopiq maydon).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит вывел себе короткое правило', uz: "Bit o'ziga qisqa qoida chiqardi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит вывел себе короткое правило', uz: "Bit o'ziga qisqa qoida chiqardi", en: 'Bit has made himself a short rule' },
     lines: ['в задаче про доли', 'Бит: всегда делим на знаменатель'],
     lines_uz: ["ulushga doir masalada", "Bit: har doim maxrajga bo'lamiz"],
-    line_cap: { ru: 'Бит: доля значит деление, других вариантов нет', uz: "Bit: ulush demak bo'lish, boshqa variant yo'q" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, иногда надо умножать', 'да, всегда деление'], uz: ["yo'q, ba'zan ko'paytirish kerak", "ha, har doim bo'lish"] },
+    lines_en: ['in a problem about fractions', 'Bit: we always divide by the denominator'],
+    line_cap: { ru: 'Бит: доля значит деление, других вариантов нет', uz: "Bit: ulush demak bo'lish, boshqa variant yo'q", en: 'Bit: a fraction means division, there are no other options' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, иногда надо умножать', 'да, всегда деление'], uz: ["yo'q, ba'zan ko'paytirish kerak", "ha, har doim bo'lish"], en: ['no, sometimes you have to multiply', 'yes, always division'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Делим, когда известно целое. А если известна доля и ищут целое, надо умножать на знаменатель.', uz: "Ha. Butun ma'lum bo'lganda bo'lamiz. Ulush ma'lum bo'lib, butun qidirilsa, maxrajga ko'paytirish kerak." },
-    trap_wrong: { ru: 'Вспомни дыню. Четверть три килограмма, и целое нашли умножением, а не делением.', uz: "Qovunni eslang. Choragi uch kilogramm, butunni bo'lish bilan emas, ko'paytirish bilan topdik." },
+    trap_correct: { ru: 'Да. Делим, когда известно целое. А если известна доля и ищут целое, надо умножать на знаменатель.', uz: "Ha. Butun ma'lum bo'lganda bo'lamiz. Ulush ma'lum bo'lib, butun qidirilsa, maxrajga ko'paytirish kerak.", en: 'Yes. We divide when the whole is known. And if the fraction is known and the whole is asked for, we have to multiply by the denominator.' },
+    trap_wrong: { ru: 'Вспомни дыню. Четверть три килограмма, и целое нашли умножением, а не делением.', uz: "Qovunni eslang. Choragi uch kilogramm, butunni bo'lish bilan emas, ko'paytirish bilan topdik.", en: 'Remember the melon. A quarter was three kilograms, and the whole was found by multiplying, not dividing.' },
     audio: {
       ru: [
         'Бит вывел себе короткое правило.',
@@ -410,164 +417,170 @@ const CONTENT = {
         "Bit o'ziga qisqa qoida chiqardi.",
         "Masalada ulush bo'lsa, demak maxrajga bo'lish kerak. Boshqa variant bo'lmaydi.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit has made himself a short rule.', 'If a problem has a fraction, then you have to divide by the denominator. There are no other options.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: butundan ulushga, ikki qadam.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Сколько будет 2/7 от 21?', uz: "21 ning 2/7 qismi nechaga teng?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Сколько будет 2/7 от 21?', uz: "21 ning 2/7 qismi nechaga teng?", en: 'What is 2/7 of 21?' },
     ans: 6,
     check: '21 : 7 · 2 = 6',
-    check_label: { ru: 'сначала одна часть, потом две', uz: "avval bitta bo'lak, keyin ikkita" },
-    hint: { ru: 'Раздели двадцать один на семь и возьми две части.', uz: "Yigirma birni yettiga bo'lib, ikkita bo'lak oling." },
+    check_label: { ru: 'сначала одна часть, потом две', uz: "avval bitta bo'lak, keyin ikkita", en: 'first one part, then two' },
+    hint: { ru: 'Раздели двадцать один на семь и возьми две части.', uz: "Yigirma birni yettiga bo'lib, ikkita bo'lak oling.", en: 'Divide twenty one by seven and take two parts.' },
     audio: {
-      intro: { ru: 'Сколько будет две седьмых от двадцати одного?', uz: "Yigirma birning yettidan ikki qismi nechaga teng?" },
-      on_correct: { ru: 'Шесть. Одна часть три, а взяли две.', uz: "Olti. Bitta bo'lak uch, olingani esa ikkita." }
+      intro: { ru: 'Сколько будет две седьмых от двадцати одного?', uz: "Yigirma birning yettidan ikki qismi nechaga teng?", en: 'What is two sevenths of twenty one?' },
+      on_correct: { ru: 'Шесть. Одна часть три, а взяли две.', uz: "Olti. Bitta bo'lak uch, olingani esa ikkita.", en: 'Six. One part is three, and two were taken.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: ulushdan butunga.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Пятая часть числа равна 7. Какое это число?', uz: "Sonning beshdan bir qismi 7 ga teng. Bu qanday son?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Пятая часть числа равна 7. Какое это число?', uz: "Sonning beshdan bir qismi 7 ga teng. Bu qanday son?", en: 'A fifth of a number equals 7. What is the number?' },
     ans: 35,
     check: '7 · 5 = 35',
-    check_label: { ru: 'собрали целое из пяти частей', uz: "butunni beshta bo'lakdan yig'dik" },
-    hint: { ru: 'Возьми семь пять раз.', uz: "Yettini besh marta oling." },
+    check_label: { ru: 'собрали целое из пяти частей', uz: "butunni beshta bo'lakdan yig'dik", en: 'we gathered the whole out of five parts' },
+    hint: { ru: 'Возьми семь пять раз.', uz: "Yettini besh marta oling.", en: 'Take seven five times.' },
     audio: {
-      intro: { ru: 'Пятая часть числа равна семи. Какое это число?', uz: "Sonning beshdan bir qismi yettiga teng. Bu qanday son?" },
-      on_correct: { ru: 'Тридцать пять. Пять частей по семь.', uz: "O'ttiz besh. Yettitadan beshta bo'lak." }
+      intro: { ru: 'Пятая часть числа равна семи. Какое это число?', uz: "Sonning beshdan bir qismi yettiga teng. Bu qanday son?", en: 'A fifth of a number equals seven. What is the number?' },
+      on_correct: { ru: 'Тридцать пять. Пять частей по семь.', uz: "O'ttiz besh. Yettitadan beshta bo'lak.", en: 'Thirty five. Five parts of seven.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam (butunni yig'ish va qoldiq).
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Опись находок', uz: "Topilmalar ro'yxati" },
-    q: { ru: 'В сундуке монеты. Шестая часть это 8 монет. Сколько монет всего и сколько останется, если 8 забрать в музей?', uz: "Sandiqda tangalar bor. Oltidan bir qismi 8 ta tanga. Jami nechta tanga bor va 8 tasi muzeyga olinsa, nechtasi qoladi?" },
-    q_speech: { ru: 'в сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать в музей?', uz: "sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi muzeyga olinsa, nechtasi qoladi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Опись находок', uz: "Topilmalar ro'yxati", en: 'The list of finds' },
+    q: { ru: 'В сундуке монеты. Шестая часть это 8 монет. Сколько монет всего и сколько останется, если 8 забрать в музей?', uz: "Sandiqda tangalar bor. Oltidan bir qismi 8 ta tanga. Jami nechta tanga bor va 8 tasi muzeyga olinsa, nechtasi qoladi?", en: 'A chest has coins. A sixth of them is 8 coins. How many coins are there in all and how many will be left if 8 are taken to the museum?' },
+    q_speech: { ru: 'в сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать в музей?', uz: "sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi muzeyga olinsa, nechtasi qoladi?", en: 'a chest has coins. A sixth of them is eight coins. How many coins are there in all and how many will be left if eight are taken to the museum?' },
     tbl_heads: [
-      { ru: 'частей', uz: "bo'lak" },
-      { ru: 'в одной части', uz: "bitta bo'lakda" },
-      { ru: 'забрали', uz: 'olindi' }
+      { ru: 'частей', uz: "bo'lak", en: 'parts' },
+      { ru: 'в одной части', uz: "bitta bo'lakda", en: 'in one part' },
+      { ru: 'забрали', uz: 'olindi', en: 'taken' }
     ],
     tbl_cells: ['6', '8', '8'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '8 · 6', uz: '8 · 6' },
-      { ru: '8 : 6', uz: '8 : 6' },
-      { ru: '8 + 6', uz: '8 + 6' },
-      { ru: '8 − 6', uz: '8 − 6' }
+      { ru: '8 · 6', uz: '8 · 6', en: '8 · 6' },
+      { ru: '8 : 6', uz: '8 : 6', en: '8 : 6' },
+      { ru: '8 + 6', uz: '8 + 6', en: '8 + 6' },
+      { ru: '8 − 6', uz: '8 − 6', en: '8 − 6' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Известна часть, значит целое собираем умножением.', uz: "Bo'lak ma'lum, demak butunni ko'paytirish bilan yig'amiz." },
-      2: { ru: 'Восемь это уже одна часть, делить её незачем.', uz: "Sakkiz bu allaqachon bitta bo'lak, uni bo'lishning hojati yo'q." },
-      3: { ru: 'Складывать части и монеты нельзя.', uz: "Bo'lak bilan tangani qo'shib bo'lmaydi." }
+      1: { ru: 'Известна часть, значит целое собираем умножением.', uz: "Bo'lak ma'lum, demak butunni ko'paytirish bilan yig'amiz.", en: 'A part is known, so we gather the whole by multiplying.' },
+      2: { ru: 'Восемь это уже одна часть, делить её незачем.', uz: "Sakkiz bu allaqachon bitta bo'lak, uni bo'lishning hojati yo'q.", en: 'Eight is already one part, there is no need to divide it.' },
+      3: { ru: 'Складывать части и монеты нельзя.', uz: "Bo'lak bilan tangani qo'shib bo'lmaydi.", en: 'Parts and coins cannot be added.' }
     },
-    pick_ok: { ru: 'Верно. Сначала собираем целое, потом убираем взятое.', uz: "To'g'ri. Avval butunni yig'amiz, keyin olinganini olib tashlaymiz." },
-    step1_q: { ru: 'Сколько монет всего?', uz: 'Jami nechta tanga bor?' },
+    pick_ok: { ru: 'Верно. Сначала собираем целое, потом убираем взятое.', uz: "To'g'ri. Avval butunni yig'amiz, keyin olinganini olib tashlaymiz.", en: 'Right. First we gather the whole, then we take away what was taken.' },
+    step1_q: { ru: 'Сколько монет всего?', uz: 'Jami nechta tanga bor?', en: 'How many coins are there in all?' },
     ans1: 48,
-    hint1: { ru: 'Восемь возьми шесть раз.', uz: "Sakkizni olti marta oling." },
-    step2_q: { ru: 'Сколько монет останется?', uz: 'Nechta tanga qoladi?' },
+    hint1: { ru: 'Восемь возьми шесть раз.', uz: "Sakkizni olti marta oling.", en: 'Take eight six times.' },
+    step2_q: { ru: 'Сколько монет останется?', uz: 'Nechta tanga qoladi?', en: 'How many coins will be left?' },
     ans2: 40,
-    hint2: { ru: 'Из сорока восьми убери восемь.', uz: "Qirq sakkizdan sakkizni olib tashlang." },
+    hint2: { ru: 'Из сорока восьми убери восемь.', uz: "Qirq sakkizdan sakkizni olib tashlang.", en: 'Take eight away from forty eight.' },
     check: '8 · 6 = 48',
-    setup_audio: { ru: 'Находки у стелы описывают. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidagi topilmalar ro'yxatga olinyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'Находки у стелы описывают. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidagi topilmalar ro'yxatga olinyapti. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'The finds at the stele are being listed. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'В сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать?', uz: "Sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi olinsa nechtasi qoladi?" },
-      on_correct: { ru: 'Сорок восемь монет всего, останется сорок.', uz: "Jami qirq sakkizta tanga, qirqtasi qoladi." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько монет во всём сундуке.', uz: "Birinchi qadamga qayting. Butun sandiqda nechta tanga bor." }
+      intro: { ru: 'В сундуке монеты. Шестая часть это восемь монет. Сколько монет всего и сколько останется, если восемь забрать?', uz: "Sandiqda tangalar bor. Oltidan bir qismi sakkizta tanga. Jami nechta tanga bor va sakkiztasi olinsa nechtasi qoladi?", en: 'A chest has coins. A sixth of them is eight coins. How many coins are there in all and how many will be left if eight are taken?' },
+      on_correct: { ru: 'Сорок восемь монет всего, останется сорок.', uz: "Jami qirq sakkizta tanga, qirqtasi qoladi.", en: 'Forty eight coins in all, forty will be left.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько монет во всём сундуке.', uz: "Birinchi qadamga qayting. Butun sandiqda nechta tanga bor.", en: 'Go back to the first step. How many coins there are in the whole chest.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, ikki yo'nalish aralash.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Смотри, что уже известно', uz: "Uchta topshiriq. Nima allaqachon ma'lumligiga qarang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Смотри, что уже известно', uz: "Uchta topshiriq. Nima allaqachon ma'lumligiga qarang", en: 'Three tasks. Look at what is already known' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Сколько будет 1/4 от 36?', uz: "36 ning 1/4 qismi nechaga teng?" },
-        q_speech: { ru: 'сколько будет одна четвёртая от тридцати шести?', uz: "o'ttiz oltining to'rtdan bir qismi nechaga teng?" },
+        q: { ru: 'Сколько будет 1/4 от 36?', uz: "36 ning 1/4 qismi nechaga teng?", en: 'What is 1/4 of 36?' },
+        q_speech: { ru: 'сколько будет одна четвёртая от тридцати шести?', uz: "o'ttiz oltining to'rtdan bir qismi nechaga teng?", en: 'what is one fourth of thirty six?' },
         ans: 9,
-        hint: { ru: 'Целое известно, значит делим.', uz: "Butun ma'lum, demak bo'lamiz." }
+        hint: { ru: 'Целое известно, значит делим.', uz: "Butun ma'lum, demak bo'lamiz.", en: 'The whole is known, so we divide.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Треть числа равна 11. Какое это число?', uz: "Sonning uchdan biri 11 ga teng. Bu qanday son?" },
-        q_speech: { ru: 'треть числа равна одиннадцати. Какое это число?', uz: "sonning uchdan biri o'n birga teng. Bu qanday son?" },
+        q: { ru: 'Треть числа равна 11. Какое это число?', uz: "Sonning uchdan biri 11 ga teng. Bu qanday son?", en: 'A third of a number equals 11. What is the number?' },
+        q_speech: { ru: 'треть числа равна одиннадцати. Какое это число?', uz: "sonning uchdan biri o'n birga teng. Bu qanday son?", en: 'a third of a number equals eleven. What is the number?' },
         ans: 33,
-        hint: { ru: 'Дана часть, значит умножаем.', uz: "Bo'lak berilgan, demak ko'paytiramiz." }
+        hint: { ru: 'Дана часть, значит умножаем.', uz: "Bo'lak berilgan, demak ko'paytiramiz.", en: 'A part is given, so we multiply.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Сколько будет 3/5 от 25?', uz: "25 ning 3/5 qismi nechaga teng?" },
-        q_speech: { ru: 'сколько будет три пятых от двадцати пяти?', uz: "yigirma beshning beshdan uch qismi nechaga teng?" },
+        q: { ru: 'Сколько будет 3/5 от 25?', uz: "25 ning 3/5 qismi nechaga teng?", en: 'What is 3/5 of 25?' },
+        q_speech: { ru: 'сколько будет три пятых от двадцати пяти?', uz: "yigirma beshning beshdan uch qismi nechaga teng?", en: 'what is three fifths of twenty five?' },
         ans: 15,
-        hint: { ru: 'Сначала одна часть, потом три.', uz: "Avval bitta bo'lak, keyin uchta." }
+        hint: { ru: 'Сначала одна часть, потом три.', uz: "Avval bitta bo'lak, keyin uchta.", en: 'First one part, then three.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Себя легко проверить. Нашёл целое по доле — возьми от него эту же долю и сравни с тем, что было дано. Если совпало, ответ верный. Это та же проверка обратным действием, что и у деления.',
-      uz: "O'zini tekshirish oson. Ulushdan butunni topdingizmi, undan o'sha ulushni olib, berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu bo'lishdagi teskari amal bilan tekshirishning o'zi."
+      uz: "O'zini tekshirish oson. Ulushdan butunni topdingizmi, undan o'sha ulushni olib, berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu bo'lishdagi teskari amal bilan tekshirishning o'zi.",
+      en: 'It is easy to check yourself. You found the whole from a fraction — now take that same fraction of it and compare with what was given. If it matched, the answer is right. It is the same check by the opposite operation as for division.'
     },
     fact_audio: {
       ru: 'Себя легко проверить. Ты нашёл целое по доле. Возьми теперь от этого целого ту же долю и сравни с тем, что было дано в задаче. Если совпало, ответ верный. Это та же самая проверка обратным действием, которой мы проверяли деление в начале года. Весь край о долях держится на одной мысли. Целое и часть всегда связаны знаменателем.',
-      uz: "O'zini tekshirish oson. Siz ulushdan butunni topdingiz. Endi shu butundan o'sha ulushni olib, masalada berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu yil boshida bo'lishni tekshirgan teskari amalning aynan o'zi. Ulush haqidagi butun hudud bitta fikrga tayanadi. Butun va bo'lak har doim maxraj bilan bog'langan."
+      uz: "O'zini tekshirish oson. Siz ulushdan butunni topdingiz. Endi shu butundan o'sha ulushni olib, masalada berilgani bilan solishtiring. Mos kelsa, javob to'g'ri. Bu yil boshida bo'lishni tekshirgan teskari amalning aynan o'zi. Ulush haqidagi butun hudud bitta fikrga tayanadi. Butun va bo'lak har doim maxraj bilan bog'langan.",
+      en: 'It is easy to check yourself. You found the whole from a fraction. Now take that same fraction of this whole and compare it with what the problem gave. If it matched, the answer is right. It is the very same check by the opposite operation that we used for division at the start of the year. The whole region about fractions rests on one thought. The whole and a part are always linked by the denominator.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. В каждом сначала реши, что известно.', uz: "Oxirida uchta topshiriq. Har birida avval nima ma'lumligini hal qiling." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перечитай задание. Дано целое или дана часть.', uz: "Topshiriqni qayta o'qing. Butun berilganmi yoki bo'lak." }
+      intro: { ru: 'Три задания напоследок. В каждом сначала реши, что известно.', uz: "Oxirida uchta topshiriq. Har birida avval nima ma'lumligini hal qiling.", en: 'Three tasks at the end. In each one first decide what is known.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перечитай задание. Дано целое или дана часть.', uz: "Topshiriqni qayta o'qing. Butun berilganmi yoki bo'lak.", en: 'Read the task again. Is the whole given or is a part given?' }
     }
   },
 
   // s14 — YAKUN: Б4 bloki yopiladi.
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Квартал долей пройден!', uz: "Ulush kvartali bosib o'tildi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Квартал долей пройден!', uz: "Ulush kvartali bosib o'tildi!", en: 'The quarter of fractions is finished!' },
     cando: {
       ru: ['нахожу долю числа, когда известно целое', 'нахожу целое, когда известна доля', 'проверяю себя обратным действием'],
-      uz: ["butun ma'lum bo'lganda sonning ulushini topaman", "ulush ma'lum bo'lganda butunni topaman", "o'zimni teskari amal bilan tekshiraman"]
+      uz: ["butun ma'lum bo'lganda sonning ulushini topaman", "ulush ma'lum bo'lganda butunni topaman", "o'zimni teskari amal bilan tekshiraman"],
+      en: ['I find a fraction of a number when the whole is known', 'I find the whole when the fraction is known', 'I check myself by the opposite operation']
     },
-    rule_recap: { ru: 'Известно целое — делим. Известна доля — умножаем.', uz: "Butun ma'lum bo'lsa bo'lamiz. Ulush ma'lum bo'lsa ko'paytiramiz." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 27: доля числа; урок 20: проверка обратным действием', uz: '27-dars: sonning ulushi; 20-dars: teskari amal bilan tekshirish' },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'новый край: величины и измерения', uz: "yangi hudud: kattaliklar va o'lchovlar" },
+    rule_recap: { ru: 'Известно целое — делим. Известна доля — умножаем.', uz: "Butun ma'lum bo'lsa bo'lamiz. Ulush ma'lum bo'lsa ko'paytiramiz.", en: 'The whole is known — we divide. The fraction is known — we multiply.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 27: доля числа; урок 20: проверка обратным действием', uz: '27-dars: sonning ulushi; 20-dars: teskari amal bilan tekshirish', en: 'lesson 27: a fraction of a number; lesson 20: a check by the opposite operation' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'новый край: величины и измерения', uz: "yangi hudud: kattaliklar va o'lchovlar", en: 'a new region: quantities and measuring' },
     audio: {
       ru: 'Квартал долей пройден. Запомни главное. Если известно целое, делим его на знаменатель и находим долю. Если известна доля, умножаем её на знаменатель и собираем целое. А проверить себя можно обратным действием, как мы проверяли деление. Впереди новый край!',
-      uz: "Ulush kvartali bosib o'tildi. Asosiysini eslab qoling. Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz. Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni yig'amiz. O'zini esa bo'lishni tekshirgandek, teskari amal bilan tekshirsa bo'ladi. Oldinda yangi hudud!"
+      uz: "Ulush kvartali bosib o'tildi. Asosiysini eslab qoling. Butun ma'lum bo'lsa, uni maxrajga bo'lib ulushni topamiz. Ulush ma'lum bo'lsa, uni maxrajga ko'paytirib butunni yig'amiz. O'zini esa bo'lishni tekshirgandek, teskari amal bilan tekshirsa bo'ladi. Oldinda yangi hudud!",
+      en: 'The quarter of fractions is finished. Remember the main thing. If the whole is known, we divide it by the denominator and find the fraction. If the fraction is known, we multiply it by the denominator and gather the whole. And you can check yourself by the opposite operation, as we checked division. A new region lies ahead!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Пройдём задачу в две стороны.', uz: 'Masalani ikki tomonga yuramiz.' },
-  s2:  { ru: 'Соберём целое из частей.', uz: "Butunni bo'laklardan yig'amiz." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s5:  { ru: 'Разложи вопросы по полкам.', uz: 'Savollarni tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Целое вышло меньше части.', uz: "Butun bo'lakdan kichik chiqibdi." },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна задача.', uz: 'Yana bitta masala.' },
-  s12: { ru: 'Опись у стелы.', uz: "Stela yonidagi ro'yxat." },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Квартал пройден. Идём дальше!', uz: "Kvartal bosib o'tildi. Davom etamiz!" }
+  s1:  { ru: 'Пройдём задачу в две стороны.', uz: 'Masalani ikki tomonga yuramiz.', en: 'Let us go through the problem both ways.' },
+  s2:  { ru: 'Соберём целое из частей.', uz: "Butunni bo'laklardan yig'amiz.", en: 'Let us gather the whole out of parts.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s5:  { ru: 'Разложи вопросы по полкам.', uz: 'Savollarni tokchalarga ajrating.', en: 'Sort the questions onto the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Целое вышло меньше части.', uz: "Butun bo'lakdan kichik chiqibdi.", en: 'The whole came out smaller than a part.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна задача.', uz: 'Yana bitta masala.', en: 'And one more problem.' },
+  s12: { ru: 'Опись у стелы.', uz: "Stela yonidagi ro'yxat.", en: 'The list at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Квартал пройден. Идём дальше!', uz: "Kvartal bosib o'tildi. Davom etamiz!", en: 'The quarter is finished. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Целое собрано по доле, опись закрыта. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Ulushdan butun yig'ildi, ro'yxat yopildi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Ulushdan butun yig'ildi, ro'yxat yopildi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The whole was gathered from a fraction and the list is closed. Thank you for your help!'
 };
 
 // ============================================================
@@ -770,7 +783,7 @@ const InventoryHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d32slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ОТ ДОЛИ К ЦЕЛОМУ' : 'ULUSHDAN BUTUNGA'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ОТ ДОЛИ К ЦЕЛОМУ', 'ULUSHDAN BUTUNGA', 'FROM A FRACTION TO THE WHOLE')}</text>
     <g transform="translate(134 122)">
       {Array.from({ length: 4 }).map((_, k) => (
         <g key={k} transform={`translate(${k * 34} 0)`}>
@@ -786,7 +799,7 @@ const InventoryHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d32slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: sandiq va tangalar --- */}
     <g transform="translate(300 118)">
@@ -951,15 +964,15 @@ const CheckLoopFig = () => {
   return (
   <svg viewBox="0 0 220 104" style={{ width: 'min(266px, 84%)', height: 'auto', display: 'block' }} aria-hidden="true">
     <rect x="18" y="34" width="66" height="36" rx="6" fill="#F3E7CB" stroke="#C08A3E" strokeWidth="1.4"/>
-    <text x="51" y="57" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'доля' : 'ulush'}</text>
+    <text x="51" y="57" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'доля', 'ulush', 'the fraction')}</text>
     <rect x="136" y="34" width="66" height="36" rx="6" fill="#F3E7CB" stroke="#C08A3E" strokeWidth="1.4"/>
-    <text x="169" y="57" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'целое' : 'butun'}</text>
+    <text x="169" y="57" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'целое', 'butun', 'the whole')}</text>
     <path d="M86 44 q24 -18 48 0" fill="none" stroke="#C06A2E" strokeWidth="2" markerEnd="none"/>
     <path d="M128 40 l8 4 l-8 4 Z" fill="#C06A2E"/>
     <path d="M134 62 q-24 18 -48 0" fill="none" stroke="#2E7E9E" strokeWidth="2"/>
     <path d="M92 58 l-8 4 l8 4 Z" fill="#2E7E9E"/>
-    <text x="110" y="22" textAnchor="middle" fontSize="8" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'умножение' : "ko'paytirish"}</text>
-    <text x="110" y="96" textAnchor="middle" fontSize="8" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'деление' : "bo'lish"}</text>
+    <text x="110" y="22" textAnchor="middle" fontSize="8" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'умножение', "ko'paytirish", 'multiplication')}</text>
+    <text x="110" y="96" textAnchor="middle" fontSize="8" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'деление', "bo'lish", 'division')}</text>
   </svg>
   );
 };
@@ -1093,7 +1106,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1212,7 +1225,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d32-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d32-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d32-expr">{t(c.step1)}</span>
@@ -1558,7 +1571,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1623,7 +1636,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1759,7 +1772,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d32-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d32-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1874,7 +1887,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1945,7 +1958,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d32-final-scene fade-up delay-1"><InventoryHallScene gathered/></div>
@@ -1966,7 +1979,7 @@ export default function ShareTasksLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2033,7 +2046,7 @@ export default function ShareTasksLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

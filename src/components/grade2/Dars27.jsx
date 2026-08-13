@@ -71,9 +71,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -244,7 +272,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -285,7 +313,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -897,8 +926,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'len-2-28-v1',
-  lessonTitle: { ru: 'Урок 27. Длина: см, дм, м', uz: "27-dars. Uzunlik: sm, dm, m" }
+  lessonId: 'grade2-27',
+  lessonTitle: { ru: 'Урок 27. Длина: см, дм, м', uz: "27-dars. Uzunlik: sm, dm, m", en: 'Lesson 27. Length: cm, dm, m' }
 };
 // STRUKTURA (Б5 URAN YO'LDOSHI ustaxonasi, o'lchash; Uran gaz/muz gigant — yo'ldoshda stansiya): s0 hook (katta modul → qaysi birlik) · s1 santimetr (chizg'ich, 0 ga to'g'irlab) · s2 dm/m (1 dm=10 sm, 1 m=100 sm) · s3 QOIDA (o'girish) + check convert · s4 qaysi birlik qachon (qalam/parta/modul) + check unit · sTBL birliklar zinapoyasi · s5–s11 mashq (chizg'ich-o'qish + birlik-tanlash + o'girish aralash) · s13 masala (detalni o'lcha) · s14 final · s15 xulosa (→ perimetr).
 // MEXANIKA: LenStage (round.mode: 'ruler' chizg'ichda nechta sm o'qish / 'unit' qaysi birlik sm/dm/m / 'convert' dm→sm, m→dm o'girish, MC). Distraktor = qo'shni son / birlik yoki o'girmagan qiymat.
@@ -945,13 +974,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): katta modul → qaysi birlik? metr (distraktor santimetr)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Длина — см, дм, м', uz: "Mavzu: Uzunlik — sm, dm, m" },
-    lead: { ru: 'Чем измерять?', uz: "Nima bilan o'lchaymiz?" },
-    q: { ru: 'Чем измерять большой модуль?', uz: "Katta modulni nima bilan o'lchaymiz?" },
-    opt0: { ru: 'Сантиметрами', uz: 'Santimetr bilan' },   // distraktor
-    opt1: { ru: 'Метрами', uz: 'Metr bilan' },              // to'g'ri
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Длина — см, дм, м', uz: "Mavzu: Uzunlik — sm, dm, m", en: 'Topic: Length, cm, dm, m' },
+    lead: { ru: 'Чем измерять?', uz: "Nima bilan o'lchaymiz?", en: 'What do you measure with?' },
+    q: { ru: 'Чем измерять большой модуль?', uz: "Katta modulni nima bilan o'lchaymiz?", en: 'What do you measure a big module with?' },
+    opt0: { ru: 'Сантиметрами', uz: 'Santimetr bilan', en: 'In centimetres' },   // distraktor
+    opt1: { ru: 'Метрами', uz: 'Metr bilan', en: 'In metres' },              // to'g'ri
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -965,21 +994,22 @@ const CONTENT = {
           "Katta stansiya modulini o'lchash kerak. U juda uzun.",
           "Bit so'raydi: bunday katta modulni nima bilan o'lchash qulay? Javobni tanlang.",
           "Ikki javobni tinglang. Birinchi, santimetr bilan. Ikkinchi, metr bilan. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['We are in the workshop on a moon of Uranus. The crew is measuring parts to build the station.', 'A big station module has to be measured. It is very long.', 'Bit asks what it is easier to measure such a big module in. Choose your answer.', 'Listen to two answers. First, in centimetres. Second, in metres. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Большие предметы измеряют метрами, а маленькие, сантиметрами. Сейчас разберём все единицы.', uz: "To'g'ri. Katta narsalarni metr bilan, kichiklarini santimetr bilan o'lchaymiz. Hozir barcha birliklarni ko'ramiz." },
-      on_wrong: { ru: 'Сантиметр, маленькая единица, модуль ими мерить долго. Большое измеряют метрами. Сейчас разберём.', uz: "Santimetr, kichik birlik, modulni u bilan o'lchash uzoq. Kattani metr bilan o'lchaymiz. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём сантиметр, дециметр и метр.', uz: "Hechqisi yo'q. Santimetr, detsimetr va metrni ko'ramiz." }
+      on_correct: { ru: 'Верно. Большие предметы измеряют метрами, а маленькие, сантиметрами. Сейчас разберём все единицы.', uz: "To'g'ri. Katta narsalarni metr bilan, kichiklarini santimetr bilan o'lchaymiz. Hozir barcha birliklarni ko'ramiz.", en: 'That is right. Big things are measured in metres and small ones in centimetres. Now let us look at all the units.' },
+      on_wrong: { ru: 'Сантиметр, маленькая единица, модуль ими мерить долго. Большое измеряют метрами. Сейчас разберём.', uz: "Santimetr, kichik birlik, modulni u bilan o'lchash uzoq. Kattani metr bilan o'lchaymiz. Hozir ko'ramiz.", en: 'A centimetre is a small unit and measuring a module in them takes long. Big things are measured in metres. Now let us look at them.' },
+      on_unknown: { ru: 'Ничего. Разберём сантиметр, дециметр и метр.', uz: "Hechqisi yo'q. Santimetr, detsimetr va metrni ko'ramiz.", en: 'No problem. Let us look at the centimetre, the decimetre and the metre.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: SANTIMETR — kichik birlik, chizg'ich bilan (0 ga to'g'irlab, oxirini o'qi)
   s1: {
-    eyebrow: { ru: 'Сантиметр', uz: 'Santimetr' },
-    lead: { ru: 'Сантиметр — маленькая мера.', uz: "Santimetr — kichik o'lchov." },
-    body: { ru: 'Длину измеряют линейкой. Начало предмета ставят на ноль, а потом смотрят, у какого числа его конец. Здесь конец у пятёрки — значит, длина пять сантиметров.', uz: "Uzunlikni chizg'ich bilan o'lchaymiz. Buyumning boshini nolga qo'yamiz, so'ng oxiri qaysi songa to'g'ri kelishiga qaraymiz. Bu yerda oxiri beshda — demak uzunligi besh santimetr." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Начало на 0, читай число у конца.', uz: "Boshni 0 ga qo'ying, oxiridagi sonni o'qing." },
+    eyebrow: { ru: 'Сантиметр', uz: 'Santimetr', en: 'The centimetre' },
+    lead: { ru: 'Сантиметр — маленькая мера.', uz: "Santimetr — kichik o'lchov.", en: 'The centimetre is a small unit.' },
+    body: { ru: 'Длину измеряют линейкой. Начало предмета ставят на ноль, а потом смотрят, у какого числа его конец. Здесь конец у пятёрки — значит, длина пять сантиметров.', uz: "Uzunlikni chizg'ich bilan o'lchaymiz. Buyumning boshini nolga qo'yamiz, so'ng oxiri qaysi songa to'g'ri kelishiga qaraymiz. Bu yerda oxiri beshda — demak uzunligi besh santimetr.", en: 'Length is measured with a ruler. You put the start of the object on zero and then look at which number its end reaches. Here the end is at five, so the length is five centimetres.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Начало на 0, читай число у конца.', uz: "Boshni 0 ga qo'ying, oxiridagi sonni o'qing.", en: 'Start at 0 and read the number at the end.' },
     audio: {
       ru: [
         'Длину измеряют линейкой.',
@@ -990,16 +1020,17 @@ const CONTENT = {
         "Uzunlikni chizg'ich bilan o'lchaymiz.",
         "Buyumning boshi nolda turadi, oxiri esa sonni ko'rsatadi.",
         "Bu yerda oxiri beshda. Demak, uzunligi besh santimetr."
-      ]
+      ],
+      en: ['Length is measured with a ruler.', 'You put the start of the object on zero and the end shows you the number.', 'Here the end is at five. So the length is five centimetres.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: DETSIMETR va METR — katta birliklar (1 dm = 10 sm, 1 m = 100 sm)
   s2: {
-    eyebrow: { ru: 'Дециметр и метр', uz: 'Detsimetr va metr' },
-    lead: { ru: 'Единицы побольше: дм и м.', uz: "Kattaroq birliklar: dm va m." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '1 дециметр = 10 сантиметров. 1 метр = 100 сантиметров.', uz: "1 detsimetr = 10 santimetr. 1 metr = 100 santimetr." },
+    eyebrow: { ru: 'Дециметр и метр', uz: 'Detsimetr va metr', en: 'The decimetre and the metre' },
+    lead: { ru: 'Единицы побольше: дм и м.', uz: "Kattaroq birliklar: dm va m.", en: 'Bigger units: dm and m.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: '1 дециметр = 10 сантиметров. 1 метр = 100 сантиметров.', uz: "1 detsimetr = 10 santimetr. 1 metr = 100 santimetr.", en: '1 decimetre = 10 centimetres. 1 metre = 100 centimetres.' },
     audio: {
       ru: [
         'Для длинных предметов есть единицы побольше.',
@@ -1012,18 +1043,19 @@ const CONTENT = {
         "Detsimetr, bu qatordagi o'nta santimetr.",
         "Bir detsimetr o'n santimetrga teng.",
         "Bir metr esa yuz santimetrga teng. Metr bilan xona yoki modul o'lchanadi."
-      ]
+      ],
+      en: ['For long objects there are bigger units.', 'A decimetre is ten centimetres in a row.', 'One decimetre is equal to ten centimetres.', 'And one metre is equal to a hundred centimetres. A room or a module is measured in metres.']
     }
   },
 
   // s3 — QOIDA: 1 dm=10 sm, 1 m=100 sm + check CONVERT (1 dm → 10 sm)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: '1 дм = 10 см, 1 м = 100 см.', uz: "1 dm = 10 sm, 1 m = 100 sm." },
-    check_q: { ru: '1 дм — сколько это см?', uz: "1 dm — necha sm?" },
-    opts: [{ ru: '1', uz: '1' }, { ru: '10', uz: '10', ok: true }, { ru: '100', uz: '100' }],
-    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
-    check_ok: { ru: 'Верно! 1 дм = 10 см.', uz: "To'g'ri! 1 dm = 10 sm." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: '1 дм = 10 см, 1 м = 100 см.', uz: "1 dm = 10 sm, 1 m = 100 sm.", en: '1 dm = 10 cm, 1 m = 100 cm.' },
+    check_q: { ru: '1 дм — сколько это см?', uz: "1 dm — necha sm?", en: '1 dm, how many cm is that?' },
+    opts: [{ ru: '1', uz: '1', en: '1' }, { ru: '10', uz: '10', en: '10', ok: true }, { ru: '100', uz: '100', en: '100' }],
+    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor.", en: 'There are ten centimetres in one decimetre.' },
+    check_ok: { ru: 'Верно! 1 дм = 10 см.', uz: "To'g'ri! 1 dm = 10 sm.", en: 'That is right! 1 dm = 10 cm.' },
     audio: {
       ru: [
         'Запишем правило. Слушай и запомни.',
@@ -1036,20 +1068,21 @@ const CONTENT = {
         "Bir detsimetr o'n santimetrga teng.",
         "Bir metr yuz santimetrga teng.",
         "Tekshir. Bir detsimetr, bu necha santimetr?"
-      ]
+      ],
+      en: ['Let us write down the rule. Listen and remember.', 'One decimetre is equal to ten centimetres.', 'One metre is equal to a hundred centimetres.', 'Check it. One decimetre, how many centimetres is that?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3: QAYSI BIRLIK QACHON — qalam(sm)/parta(dm)/xona-modul(m) + check unit
   s4: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Для каждого — своя единица.', uz: "Har narsaga — o'z birligi." },
-    body: { ru: 'Карандаш меряют в сантиметрах, парту — в дециметрах, а комнату или модуль — в метрах. Чем больше предмет, тем крупнее единица.', uz: "Qalamni santimetrda, partani detsimetrda, xona yoki modulni esa metrda o'lchaymiz. Narsa qancha katta bo'lsa, birlik shuncha yirik." },
-    warn: { ru: 'Маленькое — в сантиметрах, большое — в метрах.', uz: "Kichik narsani — santimetrda, katta narsani — metrda." },
-    check_q: { ru: 'Комнату чем измеряем?', uz: "Xonani nima bilan o'lchaymiz?" },
-    opts: [{ ru: 'см', uz: 'sm' }, { ru: 'м', uz: 'm', ok: true }],
-    wrong: { ru: 'Комната большая — её меряют в метрах.', uz: "Xona katta — uni metrda o'lchaymiz." },
-    check_ok: { ru: 'Верно! Комнату — в метрах.', uz: "To'g'ri! Xonani — metrda." },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik', en: 'Which unit' },
+    lead: { ru: 'Для каждого — своя единица.', uz: "Har narsaga — o'z birligi.", en: 'Each thing has its own unit.' },
+    body: { ru: 'Карандаш меряют в сантиметрах, парту — в дециметрах, а комнату или модуль — в метрах. Чем больше предмет, тем крупнее единица.', uz: "Qalamni santimetrda, partani detsimetrda, xona yoki modulni esa metrda o'lchaymiz. Narsa qancha katta bo'lsa, birlik shuncha yirik.", en: 'A pencil is measured in centimetres, a desk in decimetres, and a room or a module in metres. The bigger the object, the bigger the unit.' },
+    warn: { ru: 'Маленькое — в сантиметрах, большое — в метрах.', uz: "Kichik narsani — santimetrda, katta narsani — metrda.", en: 'Small things in centimetres, big things in metres.' },
+    check_q: { ru: 'Комнату чем измеряем?', uz: "Xonani nima bilan o'lchaymiz?", en: 'What do we measure a room in?' },
+    opts: [{ ru: 'см', uz: 'sm', en: 'cm' }, { ru: 'м', uz: 'm', en: 'm', ok: true }],
+    wrong: { ru: 'Комната большая — её меряют в метрах.', uz: "Xona katta — uni metrda o'lchaymiz.", en: 'A room is big, so it is measured in metres.' },
+    check_ok: { ru: 'Верно! Комнату — в метрах.', uz: "To'g'ri! Xonani — metrda.", en: 'That is right! A room is measured in metres.' },
     audio: {
       ru: [
         'У каждого предмета своя удобная единица.',
@@ -1062,16 +1095,17 @@ const CONTENT = {
         "Qalamni santimetrda, partani detsimetrda o'lchaymiz.",
         "Xona yoki modulni esa metrda. Narsa qancha katta, birlik shuncha yirik.",
         "Tekshir. Xonani nima bilan o'lchaymiz?"
-      ]
+      ],
+      en: ['Every object has its own suitable unit.', 'A pencil is measured in centimetres and a desk in decimetres.', 'And a room or a module in metres. The bigger the object, the bigger the unit.', 'Check it. What do we measure a room in?']
     }
   },
 
   // sTBL — TUSHUNTIRISH: KALIT (sm < dm < m; 1 dm=10 sm, 1 m=100 sm)
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Единицы длины', uz: "Uzunlik birliklari" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'см < дм < м. 1 дм = 10 см, 1 м = 100 см.', uz: "sm < dm < m. 1 dm = 10 sm, 1 m = 100 sm." },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Единицы длины', uz: "Uzunlik birliklari", en: 'Units of length' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'см < дм < м. 1 дм = 10 см, 1 м = 100 см.', uz: "sm < dm < m. 1 dm = 10 sm, 1 m = 100 sm.", en: 'cm < dm < m. 1 dm = 10 cm, 1 m = 100 cm.' },
     audio: {
       ru: [
         'Запомни ключ: единицы растут от маленькой к большой.',
@@ -1082,199 +1116,203 @@ const CONTENT = {
         "Kalitni yodlang: birliklar kichikdan kattaga o'sadi.",
         "Santimetr detsimetrdan kichik, detsimetr esa metrdan kichik.",
         "Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor."
-      ]
+      ],
+      en: ['Remember the key: the units grow from small to big.', 'A centimetre is smaller than a decimetre, and a decimetre is smaller than a metre.', 'There are ten centimetres in a decimetre and a hundred centimetres in a metre.']
     }
   },
 
   // s5 — MASHQ single CHIZG'ICH-O'QISH (4 sm)
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-    transition: { ru: 'Объяснение закончили. Теперь измеряй сам по линейке.', uz: "Tushuntirishni tugatdik. Endi chizg'ich bilan o'zingiz o'lchang." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+    transition: { ru: 'Объяснение закончили. Теперь измеряй сам по линейке.', uz: "Tushuntirishni tugatdik. Endi chizg'ich bilan o'zingiz o'lchang.", en: 'We have finished explaining. Now measure with the ruler yourself.' },
     mode: 'ruler', cm: 4,
-    wrong: { ru: 'Начало на нуле — смотри, у какого числа конец.', uz: "Boshi nolda — oxiri qaysi songa to'g'ri kelishiga qarang." },
-    done_text: { ru: 'Верно! Конец у четвёрки.', uz: "To'g'ri! Oxiri to'rtda." },
+    wrong: { ru: 'Начало на нуле — смотри, у какого числа конец.', uz: "Boshi nolda — oxiri qaysi songa to'g'ri kelishiga qarang.", en: 'The start is on zero, so look at which number the end reaches.' },
+    done_text: { ru: 'Верно! Конец у четвёрки.', uz: "To'g'ri! Oxiri to'rtda.", en: 'That is right! The end is at four.' },
     audio: {
-      intro: { ru: 'Тренировка. Начало на нуле, прочитай число у конца.', uz: "Mashq. Boshi nolda, oxiridagi sonni o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, у какого числа конец предмета.', uz: "Buyum oxiri qaysi songa to'g'ri kelishiga qarang." }
+      intro: { ru: 'Тренировка. Начало на нуле, прочитай число у конца.', uz: "Mashq. Boshi nolda, oxiridagi sonni o'qing.", en: 'Practice. The start is on zero, read the number at the end.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри, у какого числа конец предмета.', uz: "Buyum oxiri qaysi songa to'g'ri kelishiga qarang.", en: 'Look at which number the end of the object reaches.' }
     }
   },
 
   // s6 — MASHQ CHIZG'ICH-O'QISH (3 round)
   s6: {
-    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    eyebrow: { ru: 'Измеряй', uz: "O'lchang", en: 'Measure it' },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
     rounds: [ { mode: 'ruler', cm: 6 }, { mode: 'ruler', cm: 3 }, { mode: 'ruler', cm: 8 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing.", en: 'The start is on zero, read the number at the end.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Измеряй по линейке. Читай число у конца предмета.', uz: "Chizg'ich bilan o'lchang. Buyum oxiridagi sonni o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри только на конец предмета.', uz: "Faqat buyumning oxiriga qarang." }
+      intro: { ru: 'Измеряй по линейке. Читай число у конца предмета.', uz: "Chizg'ich bilan o'lchang. Buyum oxiridagi sonni o'qing.", en: 'Measure with the ruler. Read the number at the end of the object.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри только на конец предмета.', uz: "Faqat buyumning oxiriga qarang.", en: 'Look only at the end of the object.' }
     }
   },
 
   // s7 — MASHQ BIRLIK-TANLASH (3 round: qalam/modul/parta)
   s7: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik', en: 'Which unit' },
+    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
     rounds: [ { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' }, { mode: 'unit', obj: 'desk', unit: 'dm' } ],
-    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da.", en: 'Small things in cm, big things in m.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Посмотри на предмет и выбери удобную единицу.', uz: "Buyumga qarab qulay birlikni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Карандаш, в сантиметрах, модуль, в метрах.', uz: "Qalam, santimetrda, modul, metrda." }
+      intro: { ru: 'Посмотри на предмет и выбери удобную единицу.', uz: "Buyumga qarab qulay birlikni tanlang.", en: 'Look at the object and choose the unit that suits it.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Карандаш, в сантиметрах, модуль, в метрах.', uz: "Qalam, santimetrda, modul, metrda.", en: 'A pencil in centimetres, a module in metres.' }
     }
   },
 
   // s8 — MASHQ O'GIRISH (3 round: dm→sm, m→dm)
   s8: {
-    eyebrow: { ru: 'Переведи', uz: "O'gir" },
-    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
+    eyebrow: { ru: 'Переведи', uz: "O'gir", en: 'Change the units' },
+    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' },
     rounds: [ { mode: 'convert', from: 'dm', to: 'sm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 2 }, { mode: 'convert', from: 'm', to: 'dm', val: 1 } ],
-    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'В одном дециметре десять сантиметров.', uz: "Bir detsimetrda o'nta santimetr bor.", en: 'There are ten centimetres in one decimetre.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Считай по десять: в дециметре десять сантиметров.', uz: "O'ntadan sanang: detsimetrda o'nta santimetr bor." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Один дециметр, это десять сантиметров.', uz: "Bir detsimetr, bu o'nta santimetr." }
+      intro: { ru: 'Считай по десять: в дециметре десять сантиметров.', uz: "O'ntadan sanang: detsimetrda o'nta santimetr bor.", en: 'Count in tens: there are ten centimetres in a decimetre.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Один дециметр, это десять сантиметров.', uz: "Bir detsimetr, bu o'nta santimetr.", en: 'One decimetre is ten centimetres.' }
     }
   },
 
   // s9 — MASHQ CHIZG'ICH-O'QISH (3 round)
   s9: {
-    eyebrow: { ru: 'Измеряй', uz: "O'lchang" },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    eyebrow: { ru: 'Измеряй', uz: "O'lchang", en: 'Measure it' },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
     rounds: [ { mode: 'ruler', cm: 5 }, { mode: 'ruler', cm: 7 }, { mode: 'ruler', cm: 2 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing.", en: 'The start is on zero, read the number at the end.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова измеряй по линейке.', uz: "Yana chizg'ich bilan o'lchang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Читай число у конца предмета.', uz: "Buyum oxiridagi sonni o'qing." }
+      intro: { ru: 'Снова измеряй по линейке.', uz: "Yana chizg'ich bilan o'lchang.", en: 'Measure with the ruler again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Читай число у конца предмета.', uz: "Buyum oxiridagi sonni o'qing.", en: 'Read the number at the end of the object.' }
     }
   },
 
   // s10 — MASHQ BIRLIK-TANLASH (3 round)
   s10: {
-    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik' },
-    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
+    eyebrow: { ru: 'Какая единица', uz: 'Qaysi birlik', en: 'Which unit' },
+    lead: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
     rounds: [ { mode: 'unit', obj: 'desk', unit: 'dm' }, { mode: 'unit', obj: 'pencil', unit: 'sm' }, { mode: 'unit', obj: 'module', unit: 'm' } ],
-    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Маленькое — в см, большое — в м.', uz: "Kichik narsa — sm da, katta — m da.", en: 'Small things in cm, big things in m.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова выбери удобную единицу для предмета.', uz: "Yana buyum uchun qulay birlikni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Чем больше предмет, тем крупнее единица.', uz: "Narsa qancha katta, birlik shuncha yirik." }
+      intro: { ru: 'Снова выбери удобную единицу для предмета.', uz: "Yana buyum uchun qulay birlikni tanlang.", en: 'Choose the unit that suits the object again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Чем больше предмет, тем крупнее единица.', uz: "Narsa qancha katta, birlik shuncha yirik.", en: 'The bigger the object, the bigger the unit.' }
     }
   },
 
   // s11 — MASHQ O'GIRISH (3 round)
   s11: {
-    eyebrow: { ru: 'Переведи', uz: "O'gir" },
-    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" },
+    eyebrow: { ru: 'Переведи', uz: "O'gir", en: 'Change the units' },
+    lead: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' },
     rounds: [ { mode: 'convert', from: 'm', to: 'dm', val: 1 }, { mode: 'convert', from: 'dm', to: 'sm', val: 3 }, { mode: 'convert', from: 'dm', to: 'sm', val: 1 } ],
-    wrong: { ru: 'Считай по десять.', uz: "O'ntadan sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Считай по десять.', uz: "O'ntadan sanang.", en: 'Count in tens.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Считай по десять.', uz: "Masaladan oldingi oxirgi mashq. O'ntadan sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'В метре десять дециметров, в дециметре десять сантиметров.', uz: "Metrda o'nta detsimetr, detsimetrda o'nta santimetr bor." }
+      intro: { ru: 'Последняя тренировка перед задачей. Считай по десять.', uz: "Masaladan oldingi oxirgi mashq. O'ntadan sanang.", en: 'The last practice before the task. Count in tens.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'В метре десять дециметров, в дециметре десять сантиметров.', uz: "Metrda o'nta detsimetr, detsimetrda o'nta santimetr bor.", en: 'There are ten decimetres in a metre and ten centimetres in a decimetre.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchamoqda." },
-    manifest_label: { ru: 'деталь', uz: 'detal' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchamoqda.", en: 'The crew is measuring a part.' },
+    manifest_label: { ru: 'деталь', uz: 'detal', en: 'part' },
     audio: {
       ru: 'Экипаж измеряет деталь станции линейкой.',
-      uz: "Ekipaj stansiya detalini chizg'ich bilan o'lchamoqda."
+      uz: "Ekipaj stansiya detalini chizg'ich bilan o'lchamoqda.",
+      en: 'The crew is measuring a station part with a ruler.'
     }
   },
 
   // s13 — MASALA (scored, LenStage ruler): detalni chizg'ichda o'lcha → nechta sm?
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
     mode: 'ruler', cm: 6,
-    story: { ru: 'Сколько сантиметров в детали?', uz: "Detalda nechta santimetr?" },
-    wrong: { ru: 'Начало на нуле — смотри число у конца детали.', uz: "Boshi nolda — detal oxiridagi songa qarang." },
-    done_text: { ru: 'Верно! Деталь шесть сантиметров.', uz: "To'g'ri! Detal olti santimetr." },
+    story: { ru: 'Сколько сантиметров в детали?', uz: "Detalda nechta santimetr?", en: 'How many centimetres long is the part?' },
+    wrong: { ru: 'Начало на нуле — смотри число у конца детали.', uz: "Boshi nolda — detal oxiridagi songa qarang.", en: 'The start is on zero, so look at the number at the end of the part.' },
+    done_text: { ru: 'Верно! Деталь шесть сантиметров.', uz: "To'g'ri! Detal olti santimetr.", en: 'That is right! The part is six centimetres long.' },
     audio: {
-      intro: { ru: 'Экипаж измеряет деталь. Начало на нуле, сколько сантиметров у конца?', uz: "Ekipaj detalni o'lchayapti. Boshi nolda, oxirida necha santimetr?" },
-      on_correct: { ru: 'Верно. Деталь шесть сантиметров.', uz: "To'g'ri. Detal olti santimetr." },
-      on_wrong: { ru: 'Смотри, у какого числа конец детали.', uz: "Detal oxiri qaysi songa to'g'ri kelishiga qarang." }
+      intro: { ru: 'Экипаж измеряет деталь. Начало на нуле, сколько сантиметров у конца?', uz: "Ekipaj detalni o'lchayapti. Boshi nolda, oxirida necha santimetr?", en: 'The crew is measuring a part. The start is on zero, how many centimetres does the end reach?' },
+      on_correct: { ru: 'Верно. Деталь шесть сантиметров.', uz: "To'g'ri. Detal olti santimetr.", en: 'That is right. The part is six centimetres long.' },
+      on_wrong: { ru: 'Смотри, у какого числа конец детали.', uz: "Detal oxiri qaysi songa to'g'ri kelishiga qarang.", en: 'Look at which number the end of the part reaches.' }
     }
   },
 
   // s14 — FINAL (scored, 3 round chizg'ich-o'qish + FactCard Uran)
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
     rounds: [ { mode: 'ruler', cm: 4 }, { mode: 'ruler', cm: 9 }, { mode: 'ruler', cm: 6 } ],
-    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta." },
-    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta." },
+    wrong: { ru: 'Начало на нуле — читай число у конца.', uz: "Boshi nolda — oxiridagi sonni o'qing.", en: 'The start is on zero, read the number at the end.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Уран огромный: поперёк он примерно в четыре раза больше Земли.', uz: "Uran juda katta: ko'ndalangiga u Yerdan taxminan to'rt baravar katta.", en: 'Uranus is huge: across, it is about four times bigger than the Earth.' },
+    fact_audio: { ru: 'Уран очень большой: в поперечнике он примерно в четыре раза больше нашей Земли.', uz: "Uran juda katta: ko'ndalangiga u bizning Yerimizdan taxminan to'rt baravar katta.", en: 'Uranus is very big: across, it is about four times bigger than our Earth.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Читай число у конца предмета.', uz: "Yakuniy tekshiruv. Buyum oxiridagi sonni o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Начало на нуле, смотри конец.', uz: "Boshi nolda, oxiriga qarang." }
+      intro: { ru: 'Финальная проверка. Читай число у конца предмета.', uz: "Yakuniy tekshiruv. Buyum oxiridagi sonni o'qing.", en: 'The final check. Read the number at the end of the object.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Начало на нуле, смотри конец.', uz: "Boshi nolda, oxiriga qarang.", en: 'The start is on zero, look at the end.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: perimetr)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты измеряешь в см, дм и м!', uz: "Endi siz sm, dm va m bilan o'lchaysiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты измеряешь в см, дм и м!', uz: "Endi siz sm, dm va m bilan o'lchaysiz!", en: 'Now you can measure in cm, dm and m!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: '1 дм = 10 см, 1 м = 100 см. Маленькое — в см, большое — в м.', uz: "1 dm = 10 sm, 1 m = 100 sm. Kichik narsa — sm da, katta — m da." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'отрезок (длина)', uz: "kesma (uzunlik)" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: периметр', uz: "keyingi: perimetr" },
+    rule_recap: { ru: '1 дм = 10 см, 1 м = 100 см. Маленькое — в см, большое — в м.', uz: "1 dm = 10 sm, 1 m = 100 sm. Kichik narsa — sm da, katta — m da.", en: '1 dm = 10 cm, 1 m = 100 cm. Small things in cm, big things in m.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'отрезок (длина)', uz: "kesma (uzunlik)", en: 'line segments (length)' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: периметр', uz: "keyingi: perimetr", en: 'next: perimeter' },
     audio: {
       ru: 'Миссия выполнена. Мы научились измерять длину линейкой и выбирать единицу. В дециметре десять сантиметров, а в метре сто сантиметров. В мастерской на спутнике Урана экипаж измерил детали станции. Дальше научимся считать периметр.',
-      uz: "Missiya bajarildi. Uzunlikni chizg'ich bilan o'lchashni va birlik tanlashni o'rgandik. Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor. Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini o'lchadi. Keyin perimetrni hisoblashni o'rganamiz."
+      uz: "Missiya bajarildi. Uzunlikni chizg'ich bilan o'lchashni va birlik tanlashni o'rgandik. Detsimetrda o'nta santimetr, metrda esa yuzta santimetr bor. Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini o'lchadi. Keyin perimetrni hisoblashni o'rganamiz.",
+      en: 'Mission complete. We learned to measure length with a ruler and to choose the unit. There are ten centimetres in a decimetre and a hundred centimetres in a metre. In the workshop on the moon of Uranus the crew measured the station parts. Next we will learn to work out the perimeter.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём с сантиметра.', uz: "Santimetrdan boshlaymiz." },
-  s2:  { ru: 'Единицы побольше.', uz: "Kattaroq birliklar." },
-  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Какая единица для чего?', uz: "Qaysi birlik nimaga?" },
-  sTBL: { ru: 'Запомним единицы.', uz: 'Birliklarni yodlaymiz.' },
-  s5:  { ru: 'Теперь измеряй сам.', uz: "Endi o'zingiz o'lchang." },
-  s6:  { ru: 'Измеряй по линейке.', uz: "Chizg'ich bilan o'lchang." },
-  s7:  { ru: 'Выбери единицу.', uz: "Birlikni tanlang." },
-  s8:  { ru: 'Переведи в сантиметры.', uz: "Santimetrga o'giring." },
-  s9:  { ru: 'Снова измеряй.', uz: "Yana o'lchang." },
-  s10: { ru: 'Снова выбери единицу.', uz: "Yana birlikni tanlang." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchaydi." },
-  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Детали станции измерены!', uz: "Stansiya detallari o'lchandi!" }
+  s1:  { ru: 'Начнём с сантиметра.', uz: "Santimetrdan boshlaymiz.", en: 'Let us start with the centimetre.' },
+  s2:  { ru: 'Единицы побольше.', uz: "Kattaroq birliklar.", en: 'Bigger units.' },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz.", en: 'Let us write down the rule.' },
+  s4:  { ru: 'Какая единица для чего?', uz: "Qaysi birlik nimaga?", en: 'Which unit for what?' },
+  sTBL: { ru: 'Запомним единицы.', uz: 'Birliklarni yodlaymiz.', en: 'Let us remember the units.' },
+  s5:  { ru: 'Теперь измеряй сам.', uz: "Endi o'zingiz o'lchang.", en: 'Now measure it yourself.' },
+  s6:  { ru: 'Измеряй по линейке.', uz: "Chizg'ich bilan o'lchang.", en: 'Measure with the ruler.' },
+  s7:  { ru: 'Выбери единицу.', uz: "Birlikni tanlang.", en: 'Choose the unit.' },
+  s8:  { ru: 'Переведи в сантиметры.', uz: "Santimetrga o'giring.", en: 'Change it into centimetres.' },
+  s9:  { ru: 'Снова измеряй.', uz: "Yana o'lchang.", en: 'Measure again.' },
+  s10: { ru: 'Снова выбери единицу.', uz: "Yana birlikni tanlang.", en: 'Choose the unit again.' },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.', en: 'The last practice.' },
+  s12: { ru: 'Экипаж измеряет деталь.', uz: "Ekipaj detalni o'lchaydi.", en: 'The crew is measuring a part.' },
+  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Детали станции измерены!', uz: "Stansiya detallari o'lchandi!", en: 'The station parts are measured!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'В мастерской на спутнике Урана экипаж измерил детали станции линейкой — в сантиметрах, дециметрах и метрах. Всё измерено! Спасибо за помощь.',
-  uz: "Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini chizg'ich bilan — santimetr, detsimetr va metrda o'lchadi. Hammasi o'lchandi! Yordamingiz uchun rahmat."
+  uz: "Uran yo'ldoshidagi ustaxonada ekipaj stansiya detallarini chizg'ich bilan — santimetr, detsimetr va metrda o'lchadi. Hammasi o'lchandi! Yordamingiz uchun rahmat.",
+  en: 'In the workshop on the moon of Uranus the crew measured the station parts with a ruler, in centimetres, decimetres and metres. Everything is measured! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1383,7 +1421,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1400,7 +1438,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2157,7 +2196,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2633,7 +2678,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3265,8 +3310,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3312,9 +3357,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3844,12 +3889,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4197,9 +4244,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4207,15 +4254,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4229,8 +4276,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4239,14 +4286,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4262,16 +4309,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4279,14 +4326,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4363,8 +4410,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4538,7 +4585,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi' }}/>
+          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi', en: 'The lines are told apart' }}/>
         </div>
       </div>
     </Stage>
@@ -4549,14 +4596,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4866,7 +4913,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -4896,8 +4943,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5026,8 +5073,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5296,7 +5343,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5425,7 +5472,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5499,7 +5546,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5588,7 +5635,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5768,8 +5815,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5861,14 +5908,14 @@ const OpChoiceStage = ({ props, cKey, fact = false }) => {
 //  ConvertViz — val ta katta birlik, har biri ratio ta kichik birlikka bo'lingan (dm→sm, m→dm).
 //  LenStage — round.mode: 'ruler' (nechta sm o'qish) / 'unit' (qaysi birlik) / 'convert' (o'girish). MC.
 // ============================================================
-const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
-const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm', en: 'cm' }, dm: { ru: 'дм', uz: 'dm', en: 'dm' }, m: { ru: 'м', uz: 'm', en: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr', en: 'centimetre' }, dm: { ru: 'дециметр', uz: 'detsimetr', en: 'decimetre' }, m: { ru: 'метр', uz: 'metr', en: 'metre' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
 const RUL_STEP = 26, RUL_PAD = 16;
 const LEN_Q = {
-  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' }
 };
 const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
@@ -6023,7 +6070,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
   );
 };
 // --- POLY (Dars27) mexanikasi shu darsda O'LIK, quyida qoladi (klon an'anasi) ---
-const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak', en: 'A triangle' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak", en: 'A quadrilateral' }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak', en: 'A pentagon' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak', en: 'A hexagon' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
   <g>
@@ -6076,13 +6123,13 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
     </svg>
   );
 };
-const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
-const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
-const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
-const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?", en: 'Which polygon is this?' };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?", en: 'How many sides?' };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?", en: 'Is this a polygon?' };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak", en: 'A polygon' } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas", en: 'No' } }];
 const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
-const TOMON = { ru: 'стор.', uz: 'tomon' };
+const TOMON = { ru: 'стор.', uz: 'tomon', en: 'sides' };
 // deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
 const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 // PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
@@ -6132,7 +6179,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
           <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas", en: 'Not a polygon' })}</div>}
         </div>
         {!solved && (
           <>
@@ -6161,7 +6208,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
   );
 };
 // PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
-const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi", en: 'Draw a thread from a shape to its name and the hatch will open' };
 const PolyMatchStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6336,7 +6383,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -6424,8 +6471,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6540,7 +6587,7 @@ const ScreenTable = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(10px, 2vw, 14px)', padding: 'clamp(14px, 2.8vw, 22px)', minHeight: 'clamp(190px, 44vw, 260px)', overflowX: 'auto' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(9px,2.2vw,15px)', width: '100%' }}>
-            {[{ u: 'sm', bars: 1, rel: { ru: 'самая маленькая', uz: 'eng kichik' } }, { u: 'dm', bars: 2, rel: { ru: '1 дм = 10 см', uz: '1 dm = 10 sm' } }, { u: 'm', bars: 3, rel: { ru: '1 м = 100 см', uz: '1 m = 100 sm' } }].map((row) => (
+            {[{ u: 'sm', bars: 1, rel: { ru: 'самая маленькая', uz: 'eng kichik', en: 'the smallest' } }, { u: 'dm', bars: 2, rel: { ru: '1 дм = 10 см', uz: '1 dm = 10 sm', en: '1 dm = 10 cm' } }, { u: 'm', bars: 3, rel: { ru: '1 м = 100 см', uz: '1 m = 100 sm', en: '1 m = 100 cm' } }].map((row) => (
               <div key={row.u} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
                 <span style={{ minWidth: 'clamp(78px,20vw,120px)', fontWeight: 800, fontSize: 'clamp(12px,2vw,16px)', color: '#2FA0C8' }}>{t(UNIT_FULL[row.u])} <span style={{ color: T.ink3, fontFamily: "'JetBrains Mono',monospace" }}>({t(UNIT_ABBR[row.u])})</span></span>
                 <div style={{ flex: 1, minWidth: 0, height: 'clamp(14px,3.4vw,22px)', display: 'flex', gap: 3, alignItems: 'center' }}>
@@ -7521,7 +7568,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

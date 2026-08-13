@@ -28,7 +28,8 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, '..');
 const practiceDir = path.join(rootDir, 'src', 'components', 'grade6', 'practice');
 const sharedQuestionPath = path.join(practiceDir, 'Grade6Question.jsx');
-const outputDir = path.join(rootDir, 'lms-grade6-practice-standalone');
+// Собранные файлы лежат рядом с уроками класса (перенесены из корня 2026-08-12).
+const outputDir = path.join(rootDir, 'src', 'components', 'grade6', 'lms-grade6-practice-standalone');
 
 const TOTAL_LESSONS = 46;
 const TASKS_PER_LESSON = 10;

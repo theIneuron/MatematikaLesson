@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -122,8 +122,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-31',
-  lessonTitle: { ru: 'Урок 31. Десятичные дроби', uz: "31-dars. O'nli kasrlar" }
+  lessonId: 'grade3-31',
+  lessonTitle: { ru: 'Урок 31. Десятичные дроби', uz: "31-dars. O'nli kasrlar", en: 'Lesson 31. Decimal fractions' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 31»): s0 xuk 0,3 · s1 1/10 va 0,1 · s2 model o'nta
 // bo'lak · s3 savol-oldin-QOIDA (verguldan keyingi raqam) · s4 rasm bo'yicha 0,7 ·
@@ -159,15 +159,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: o'nga bo'lingan tasma va vergulli yozuv (darslik 172-bet).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Десятичные дроби', uz: "O'nli kasrlar" },
-    lead: { ru: 'Каменную полосу разделили на 10 равных частей', uz: "Tosh tasma 10 ta teng bo'lakka bo'lingan" },
-    order_cap: { ru: 'закрасили 3 части', uz: "3 ta bo'lak bo'yalgan" },
-    q: { ru: 'Как записать закрашенную часть через запятую?', uz: "Bo'yalgan qismni vergul bilan qanday yozamiz?" },
-    opt0: { ru: '0,3', uz: '0,3' },
-    opt1: { ru: '3,0', uz: '3,0' },
-    opt2: { ru: '0,03', uz: '0,03' },
-    opt3: { ru: '3', uz: '3' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Десятичные дроби', uz: "O'nli kasrlar", en: 'Decimal fractions' },
+    lead: { ru: 'Каменную полосу разделили на 10 равных частей', uz: "Tosh tasma 10 ta teng bo'lakka bo'lingan", en: 'A stone strip was divided into 10 equal parts' },
+    order_cap: { ru: 'закрасили 3 части', uz: "3 ta bo'lak bo'yalgan", en: '3 parts were shaded' },
+    q: { ru: 'Как записать закрашенную часть через запятую?', uz: "Bo'yalgan qismni vergul bilan qanday yozamiz?", en: 'How do we write the shaded part with a comma?' },
+    opt0: { ru: '0,3', uz: '0,3', en: '0,3' },
+    opt1: { ru: '3,0', uz: '3,0', en: '3,0' },
+    opt2: { ru: '0,03', uz: '0,03', en: '0,03' },
+    opt3: { ru: '3', uz: '3', en: '3' },
     audio: {
       intro: {
         ru: [
@@ -181,29 +181,31 @@ const CONTENT = {
           "Tosh tasma o'nta teng bo'lakka bo'lindi.",
           "Uchta bo'lak bo'yaldi, butun tasma bu yerda yo'q.",
           "Sizningcha, buni vergulli qanday yozuv bilan ko'rsatamiz?"
-        ]
+        ],
+        en: ['You know fractions with a denominator. Today we will meet a fraction without a line, with a comma.', 'A stone strip was divided into ten equal parts.', 'Three parts were shaded, there is no whole strip here.', 'Which line with a comma do you think shows this?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, что стоит по обе стороны запятой.', uz: "To'g'ri! Endi vergulning ikki tomonida nima turishini ko'rasiz." },
-      on_wrong1: { ru: 'Целых частей нет ни одной, значит перед запятой ноль.', uz: "Butun bo'lak bitta ham yo'q, demak vergul oldida nol." },
-      on_wrong2: { ru: 'Полосу резали на десять, а не на сто. После запятой одна цифра.', uz: "Tasma o'nga kesilgan, yuzga emas. Verguldan keyin bitta raqam." },
-      on_idk: { ru: 'Ничего. Сейчас посмотрим на полосу внимательно.', uz: "Hechqisi yo'q. Hozir tasmaga diqqat bilan qaraymiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, что стоит по обе стороны запятой.', uz: "To'g'ri! Endi vergulning ikki tomonida nima turishini ko'rasiz.", en: 'Right! And now you will see what stands on each side of the comma.' },
+      on_wrong1: { ru: 'Целых частей нет ни одной, значит перед запятой ноль.', uz: "Butun bo'lak bitta ham yo'q, demak vergul oldida nol.", en: 'There are no whole parts at all, so there is a zero before the comma.' },
+      on_wrong2: { ru: 'Полосу резали на десять, а не на сто. После запятой одна цифра.', uz: "Tasma o'nga kesilgan, yuzga emas. Verguldan keyin bitta raqam.", en: 'The strip was cut into ten, not into a hundred. There is one digit after the comma.' },
+      on_idk: { ru: 'Ничего. Сейчас посмотрим на полосу внимательно.', uz: "Hechqisi yo'q. Hozir tasmaga diqqat bilan qaraymiz.", en: 'Never mind. Let us look at the strip carefully.' }
     }
   },
 
   // s1 — IKKI YOZUV: 1/10 va 0,1 bitta narsa (darslik 176-bet).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Одну и ту же долю можно записать двумя способами', uz: "Bitta ulushni ikki xil yozish mumkin" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Одну и ту же долю можно записать двумя способами', uz: "Bitta ulushni ikki xil yozish mumkin", en: 'The same fraction can be written in two ways' },
     task_line: 'полоса разделена на 10 частей',
     task_line_uz: "tasma 10 bo'lakka bo'lingan",
+    task_line_en: 'the strip is divided into 10 parts',
     step1: '1/10 = 0,1',
-    step1_cap: { ru: 'одна десятая, читается ноль целых одна десятая', uz: "o'ndan bir, nol butun o'ndan bir deb o'qiladi" },
+    step1_cap: { ru: 'одна десятая, читается ноль целых одна десятая', uz: "o'ndan bir, nol butun o'ndan bir deb o'qiladi", en: 'one tenth, read as zero point one tenth' },
     step2: '3/10 = 0,3',
-    step2_cap: { ru: 'три десятых, целых по-прежнему ноль', uz: "o'ndan uch, butun avvalgidek nol" },
-    res: { ru: 'запятая отделяет целые от долей', uz: 'vergul butunni ulushdan ajratadi' },
-    btn1: { ru: 'Взять одну часть', uz: "Bitta bo'lak olish" },
-    btn2: { ru: 'Взять три части', uz: "Uchta bo'lak olish" },
-    done_text: { ru: 'Слева от запятой целые, справа десятые', uz: "Vergulning chapida butunlar, o'ngida o'ndan bo'laklar" },
+    step2_cap: { ru: 'три десятых, целых по-прежнему ноль', uz: "o'ndan uch, butun avvalgidek nol", en: 'three tenths, there are still no wholes' },
+    res: { ru: 'запятая отделяет целые от долей', uz: 'vergul butunni ulushdan ajratadi', en: 'the comma separates the wholes from the fractions' },
+    btn1: { ru: 'Взять одну часть', uz: "Bitta bo'lak olish", en: 'Take one part' },
+    btn2: { ru: 'Взять три части', uz: "Uchta bo'lak olish", en: 'Take three parts' },
+    done_text: { ru: 'Слева от запятой целые, справа десятые', uz: "Vergulning chapida butunlar, o'ngida o'ndan bo'laklar", en: 'To the left of the comma are the wholes, to the right the tenths' },
     audio: {
       ru: [
         'Посмотрим на полосу из десяти частей.',
@@ -214,25 +216,26 @@ const CONTENT = {
         "O'n bo'lakli tasmaga qaraymiz.",
         "Bitta bo'lak bu o'ndan bir. U nol vergul bir deb yoziladi va nol butun o'ndan bir deb o'qiladi.",
         "Uchta bo'lak bu o'ndan uch, ya'ni nol vergul uch. Butun bo'lak yo'q, shuning uchun vergul chapida nol turadi."
-      ]
+      ],
+      en: ['Let us look at the strip of ten parts.', 'One part is one tenth. It is written zero point one and read zero point one tenth.', 'Three parts is three tenths, or zero point three. There are no whole parts, so there is a zero to the left of the comma.']
     }
   },
 
   // s2 — MODEL: o'nta bo'lakdan uchtasi.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     shape: 'bar',
     parts: 10,
     filled: 3,
-    lead: { ru: 'Десятые доли считать удобно: их ровно десять', uz: "O'ndan bo'laklarni sanash qulay: ular roppa-rosa o'nta" },
-    capA: { ru: 'всего 10 частей, целое одно', uz: "jami 10 bo'lak, butun bitta" },
-    capB: { ru: 'закрашено 3, это 0,3', uz: "3 tasi bo'yalgan, bu 0,3" },
+    lead: { ru: 'Десятые доли считать удобно: их ровно десять', uz: "O'ndan bo'laklarni sanash qulay: ular roppa-rosa o'nta", en: 'Tenths are handy to count: there are exactly ten of them' },
+    capA: { ru: 'всего 10 частей, целое одно', uz: "jami 10 bo'lak, butun bitta", en: '10 parts in all, one whole' },
+    capB: { ru: 'закрашено 3, это 0,3', uz: "3 tasi bo'yalgan, bu 0,3", en: '3 are shaded, that is 0.3' },
     res: '3/10 = 0,3',
-    name_a: { ru: 'десятые', uz: "o'ndan bo'lak" },
-    name_b: { ru: 'запись', uz: 'yozuv' },
-    btn1: { ru: 'Разделить на 10', uz: "10 ga bo'lish" },
-    btn2: { ru: 'Закрасить 3 части', uz: "3 ta bo'lakni bo'yash" },
-    done_text: { ru: 'Ноль целых три десятых', uz: "Nol butun o'ndan uch" },
+    name_a: { ru: 'десятые', uz: "o'ndan bo'lak", en: 'tenths' },
+    name_b: { ru: 'запись', uz: 'yozuv', en: 'note' },
+    btn1: { ru: 'Разделить на 10', uz: "10 ga bo'lish", en: 'Divide into 10' },
+    btn2: { ru: 'Закрасить 3 части', uz: "3 ta bo'lakni bo'yash", en: 'Shade 3 parts' },
+    done_text: { ru: 'Ноль целых три десятых', uz: "Nol butun o'ndan uch", en: 'Zero point three tenths' },
     audio: {
       ru: [
         'Разделим полосу на десять равных частей.',
@@ -243,163 +246,167 @@ const CONTENT = {
         "Tasmani o'nta teng bo'lakka bo'lamiz.",
         "Har bir bo'lak butunning o'ndan biri.",
         "Uchta bo'lakni bo'yaymiz. O'ndan uch chiqdi, buni nol vergul uch deb yozishadi."
-      ]
+      ],
+      en: ['Let us divide the strip into ten equal parts.', 'Each part is one tenth of the whole.', 'Let us shade three parts. We got three tenths, and that is written as zero point three.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: verguldan keyingi raqam nimani bildiradi.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что показывает цифра сразу после запятой?', uz: "Verguldan keyingi raqam nimani ko'rsatadi?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Что показывает цифра сразу после запятой?', uz: "Verguldan keyingi raqam nimani ko'rsatadi?", en: 'What does the digit right after the comma show?' },
     opts: [
-      { ru: 'сколько взяли десятых', uz: "o'ndan nechtasi olinganini" },
-      { ru: 'сколько целых', uz: 'nechta butun borligini' },
-      { ru: 'на сколько частей разделили', uz: "nechta bo'lakka bo'linganini" },
-      { ru: 'сколько частей осталось', uz: "nechta bo'lak qolganini" }
+      { ru: 'сколько взяли десятых', uz: "o'ndan nechtasi olinganini", en: 'how many tenths were taken' },
+      { ru: 'сколько целых', uz: 'nechta butun borligini', en: 'how many wholes' },
+      { ru: 'на сколько частей разделили', uz: "nechta bo'lakka bo'linganini", en: 'how many parts it was divided into' },
+      { ru: 'сколько частей осталось', uz: "nechta bo'lak qolganini", en: 'how many parts are left' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Целые стоят слева от запятой.', uz: "Butunlar vergulning chapida turadi." },
-      2: { ru: 'На сколько разделили, в такой записи не пишут. Их всегда десять.', uz: "Nechtaga bo'linganini bunday yozuvda yozishmaydi. Ular doim o'nta." },
-      3: { ru: 'Сколько осталось, надо считать отдельно.', uz: "Nechtasi qolganini alohida hisoblash kerak." }
+      1: { ru: 'Целые стоят слева от запятой.', uz: "Butunlar vergulning chapida turadi.", en: 'The wholes stand to the left of the comma.' },
+      2: { ru: 'На сколько разделили, в такой записи не пишут. Их всегда десять.', uz: "Nechtaga bo'linganini bunday yozuvda yozishmaydi. Ular doim o'nta.", en: 'How many it was divided into is not written in such a line. There are always ten.' },
+      3: { ru: 'Сколько осталось, надо считать отдельно.', uz: "Nechtasi qolganini alohida hisoblash kerak.", en: 'How many are left has to be counted separately.' }
     },
-    on_correct: { ru: 'Да. Первая цифра после запятой это десятые доли.', uz: "Ha. Verguldan keyingi birinchi raqam o'ndan bo'laklar." },
+    on_correct: { ru: 'Да. Первая цифра после запятой это десятые доли.', uz: "Ha. Verguldan keyingi birinchi raqam o'ndan bo'laklar.", en: 'Yes. The first digit after the comma is the tenths.' },
     rule_lines: {
       ru: ['Слева от запятой пишут целые, справа доли.', 'Первая цифра после запятой показывает, сколько взяли десятых. Одна десятая это ноль запятая один.'],
-      uz: ["Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi.", "Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi. O'ndan bir bu nol vergul bir."]
+      uz: ["Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi.", "Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi. O'ndan bir bu nol vergul bir."],
+      en: ['To the left of the comma we write the wholes, to the right the fractions.', 'The first digit after the comma shows how many tenths were taken. One tenth is zero point one.']
     },
     rule_ex: '3/10 = 0,3',
-    rule_speech: { ru: 'три десятых это ноль целых три десятых', uz: "o'ndan uch bu nol butun o'ndan uch" },
+    rule_speech: { ru: 'три десятых это ноль целых три десятых', uz: "o'ndan uch bu nol butun o'ndan uch", en: 'three tenths is zero point three tenths' },
     audio: {
       intro: {
         ru: 'Разберёмся с записью. Что показывает цифра сразу после запятой?',
-        uz: "Yozuvni tushunib olamiz. Verguldan keyingi raqam nimani ko'rsatadi?"
+        uz: "Yozuvni tushunib olamiz. Verguldan keyingi raqam nimani ko'rsatadi?",
+        en: 'Let us sort out the writing. What does the digit right after the comma show?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: yettita bo'lak bo'yalgan.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Какая запись подходит к рисунку?', uz: 'Rasmga qaysi yozuv mos keladi?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Какая запись подходит к рисунку?', uz: 'Rasmga qaysi yozuv mos keladi?', en: 'Which line fits the picture?' },
     fig_shape: 'bar',
     fig_parts: 10,
     fig_filled: 7,
     opts: [
-      { ru: '0,7', uz: '0,7' },
-      { ru: '7,0', uz: '7,0' },
-      { ru: '0,07', uz: '0,07' },
-      { ru: '0,3', uz: '0,3' }
+      { ru: '0,7', uz: '0,7', en: '0,7' },
+      { ru: '7,0', uz: '7,0', en: '7,0' },
+      { ru: '0,07', uz: '0,07', en: '0,07' },
+      { ru: '0,3', uz: '0,3', en: '0,3' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Целых частей нет, слева от запятой должен стоять ноль.', uz: "Butun bo'lak yo'q, vergul chapida nol turishi kerak." },
-      2: { ru: 'Полосу резали на десять, значит после запятой одна цифра.', uz: "Tasma o'nga kesilgan, demak verguldan keyin bitta raqam." },
-      3: { ru: 'Три десятых это незакрашенная часть.', uz: "O'ndan uch bu bo'yalmagan qism." }
+      1: { ru: 'Целых частей нет, слева от запятой должен стоять ноль.', uz: "Butun bo'lak yo'q, vergul chapida nol turishi kerak.", en: 'There are no whole parts, a zero should stand to the left of the comma.' },
+      2: { ru: 'Полосу резали на десять, значит после запятой одна цифра.', uz: "Tasma o'nga kesilgan, demak verguldan keyin bitta raqam.", en: 'The strip was cut into ten, so there is one digit after the comma.' },
+      3: { ru: 'Три десятых это незакрашенная часть.', uz: "O'ndan uch bu bo'yalmagan qism.", en: 'Three tenths is the part that is not shaded.' }
     },
     audio: {
-      intro: { ru: 'Полоса разделена на десять частей, закрашено семь. Какая запись подходит?', uz: "Tasma o'nta bo'lakka bo'lingan, yettitasi bo'yalgan. Qaysi yozuv mos keladi?" },
-      on_correct: { ru: 'Верно. Семь десятых это ноль запятая семь.', uz: "To'g'ri. O'ndan yetti bu nol vergul yetti." },
-      on_wrong: { ru: 'Посчитай закрашенные части. Их число и станет цифрой после запятой.', uz: "Bo'yalgan bo'laklarni sanang. Ularning soni verguldan keyingi raqam bo'ladi." }
+      intro: { ru: 'Полоса разделена на десять частей, закрашено семь. Какая запись подходит?', uz: "Tasma o'nta bo'lakka bo'lingan, yettitasi bo'yalgan. Qaysi yozuv mos keladi?", en: 'The strip is divided into ten parts, seven are shaded. Which line fits?' },
+      on_correct: { ru: 'Верно. Семь десятых это ноль запятая семь.', uz: "To'g'ri. O'ndan yetti bu nol vergul yetti.", en: 'Right. Seven tenths is zero point seven.' },
+      on_wrong: { ru: 'Посчитай закрашенные части. Их число и станет цифрой после запятой.', uz: "Bo'yalgan bo'laklarni sanang. Ularning soni verguldan keyingi raqam bo'ladi.", en: 'Count the shaded parts. Their number becomes the digit after the comma.' }
     }
   },
 
   // s5 — SARALASH: yarimdan katta yoki kichik (darslik 180-bet taqqoslash).
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Сравни каждую запись с половиной', uz: 'Har bir yozuvni yarim bilan solishtiring' },
-    bin_a: { ru: 'больше половины', uz: 'yarimdan katta' },
-    bin_b: { ru: 'меньше половины', uz: 'yarimdan kichik' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Сравни каждую запись с половиной', uz: 'Har bir yozuvni yarim bilan solishtiring', en: 'Compare each line with a half' },
+    bin_a: { ru: 'больше половины', uz: 'yarimdan katta', en: 'bigger than a half' },
+    bin_b: { ru: 'меньше половины', uz: 'yarimdan kichik', en: 'smaller than a half' },
     items: [
-      { n: { ru: '0,8', uz: '0,8' }, a: true, hint: { ru: 'Половина это ноль запятая пять.', uz: "Yarim bu nol vergul besh." } },
-      { n: { ru: '0,3', uz: '0,3' }, a: false, hint: { ru: 'Три десятых меньше пяти десятых.', uz: "O'ndan uch o'ndan beshdan kichik." } },
-      { n: { ru: '0,6', uz: '0,6' }, a: true, hint: { ru: 'Шесть десятых уже больше половины.', uz: "O'ndan olti yarimdan katta." } },
-      { n: { ru: '0,2', uz: '0,2' }, a: false, hint: { ru: 'До половины не хватает трёх десятых.', uz: "Yarimgacha o'ndan uchtasi yetmayapti." } }
+      { n: { ru: '0,8', uz: '0,8', en: '0,8' }, a: true, hint: { ru: 'Половина это ноль запятая пять.', uz: "Yarim bu nol vergul besh.", en: 'A half is zero point five.' } },
+      { n: { ru: '0,3', uz: '0,3', en: '0,3' }, a: false, hint: { ru: 'Три десятых меньше пяти десятых.', uz: "O'ndan uch o'ndan beshdan kichik.", en: 'Three tenths is smaller than five tenths.' } },
+      { n: { ru: '0,6', uz: '0,6', en: '0,6' }, a: true, hint: { ru: 'Шесть десятых уже больше половины.', uz: "O'ndan olti yarimdan katta.", en: 'Six tenths is already bigger than a half.' } },
+      { n: { ru: '0,2', uz: '0,2', en: '0,2' }, a: false, hint: { ru: 'До половины не хватает трёх десятых.', uz: "Yarimgacha o'ndan uchtasi yetmayapti.", en: 'Three tenths are missing to make a half.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре записи. Сравни каждую с половиной и отправь на свою полку.', uz: "To'rtta yozuv. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Половина это ноль запятая пять, с ней и сравниваем.', uz: "Hammasi joyida. Yarim bu nol vergul besh, u bilan solishtiramiz." },
-      on_wrong: { ru: 'Смотри на цифру после запятой и сравнивай с пятёркой.', uz: "Verguldan keyingi raqamga qarang va besh bilan solishtiring." }
+      intro: { ru: 'Четыре записи. Сравни каждую с половиной и отправь на свою полку.', uz: "To'rtta yozuv. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring.", en: 'Four lines. Compare each one with a half and send it to its shelf.' },
+      on_correct: { ru: 'Все на месте. Половина это ноль запятая пять, с ней и сравниваем.', uz: "Hammasi joyida. Yarim bu nol vergul besh, u bilan solishtiramiz.", en: 'All in place. A half is zero point five, and that is what we compare with.' },
+      on_wrong: { ru: 'Смотри на цифру после запятой и сравнивай с пятёркой.', uz: "Verguldan keyingi raqamga qarang va besh bilan solishtiring.", en: 'Look at the digit after the comma and compare it with five.' }
     }
   },
 
   // s6 — TEST: 5/10 vergulli yozuvda.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Как записать 5/10 через запятую?', uz: "5/10 ni vergul bilan qanday yozamiz?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Как записать 5/10 через запятую?', uz: "5/10 ni vergul bilan qanday yozamiz?", en: 'How do we write 5/10 with a comma?' },
     opts: [
-      { ru: '0,5', uz: '0,5' },
-      { ru: '5,0', uz: '5,0' },
-      { ru: '0,05', uz: '0,05' },
-      { ru: '5,10', uz: '5,10' }
+      { ru: '0,5', uz: '0,5', en: '0,5' },
+      { ru: '5,0', uz: '5,0', en: '5,0' },
+      { ru: '0,05', uz: '0,05', en: '0,05' },
+      { ru: '5,10', uz: '5,10', en: '5,10' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Пять целых это гораздо больше половины полосы.', uz: "Besh butun tasmaning yarmidan ancha ko'p." },
-      2: { ru: 'Здесь десятые, а не сотые. После запятой одна цифра.', uz: "Bu yerda o'ndan bo'laklar, yuzdan emas. Verguldan keyin bitta raqam." },
-      3: { ru: 'Знаменатель в такой записи не пишут.', uz: "Bunday yozuvda maxraj yozilmaydi." }
+      1: { ru: 'Пять целых это гораздо больше половины полосы.', uz: "Besh butun tasmaning yarmidan ancha ko'p.", en: 'Five wholes is much more than half the strip.' },
+      2: { ru: 'Здесь десятые, а не сотые. После запятой одна цифра.', uz: "Bu yerda o'ndan bo'laklar, yuzdan emas. Verguldan keyin bitta raqam.", en: 'These are tenths, not hundredths. There is one digit after the comma.' },
+      3: { ru: 'Знаменатель в такой записи не пишут.', uz: "Bunday yozuvda maxraj yozilmaydi.", en: 'The denominator is not written in such a line.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Как записать пять десятых через запятую?', uz: "Tez savol. O'ndan beshni vergul bilan qanday yozamiz?" },
-      on_correct: { ru: 'Верно. Ноль запятая пять, это ровно половина.', uz: "To'g'ri. Nol vergul besh, bu roppa-rosa yarim." },
-      on_wrong: { ru: 'Целых нет, значит слева ноль, а справа число взятых десятых.', uz: "Butun yo'q, demak chapda nol, o'ngda olingan o'ndan bo'laklar soni." }
+      intro: { ru: 'Быстрый вопрос. Как записать пять десятых через запятую?', uz: "Tez savol. O'ndan beshni vergul bilan qanday yozamiz?", en: 'A quick question. How do we write five tenths with a comma?' },
+      on_correct: { ru: 'Верно. Ноль запятая пять, это ровно половина.', uz: "To'g'ri. Nol vergul besh, bu roppa-rosa yarim.", en: 'Right. Zero point five, that is exactly a half.' },
+      on_wrong: { ru: 'Целых нет, значит слева ноль, а справа число взятых десятых.', uz: "Butun yo'q, demak chapda nol, o'ngda olingan o'ndan bo'laklar soni.", en: 'There are no wholes, so a zero on the left, and the number of tenths taken on the right.' }
     }
   },
 
   // s7 — KONSOL: 0,4 ni o'qish.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Прочитай запись 0,4 и заполни консоль', uz: "0,4 yozuvini o'qing va konsolni to'ldiring" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Прочитай запись 0,4 и заполни консоль', uz: "0,4 yozuvini o'qing va konsolni to'ldiring", en: 'Read the line 0.4 and fill the console' },
     swap_line: '0,4',
     cells: [
-      { head: { ru: 'десятых', uz: "o'ndan" }, label: { ru: 'взяли', uz: 'olindi' }, ans: 4, hint: { ru: 'Смотри на цифру после запятой.', uz: "Verguldan keyingi raqamga qarang." } },
-      { head: { ru: 'всего', uz: 'jami' }, label: { ru: 'частей в целом', uz: 'butundagi qism' }, ans: 10, hint: { ru: 'Десятые доли всегда из десяти.', uz: "O'ndan bo'laklar doim o'ntadan." } },
-      { head: { ru: 'до целого', uz: 'butungacha' }, label: '10 − 4', ans: 6, hint: { ru: 'Сколько десятых не хватает до полной полосы.', uz: "To'la tasmagacha o'ndan nechtasi yetmayapti." } }
+      { head: { ru: 'десятых', uz: "o'ndan", en: 'tenths' }, label: { ru: 'взяли', uz: 'olindi', en: 'taken' }, ans: 4, hint: { ru: 'Смотри на цифру после запятой.', uz: "Verguldan keyingi raqamga qarang.", en: 'Look at the digit after the comma.' } },
+      { head: { ru: 'всего', uz: 'jami', en: 'in all' }, label: { ru: 'частей в целом', uz: 'butundagi qism', en: 'parts in the whole' }, ans: 10, hint: { ru: 'Десятые доли всегда из десяти.', uz: "O'ndan bo'laklar doim o'ntadan.", en: 'Tenths always come out of ten.' } },
+      { head: { ru: 'до целого', uz: 'butungacha', en: 'to a whole' }, label: '10 − 4', ans: 6, hint: { ru: 'Сколько десятых не хватает до полной полосы.', uz: "To'la tasmagacha o'ndan nechtasi yetmayapti.", en: 'How many tenths are missing to make a full strip.' } }
     ],
     check: '0,4 = 4/10',
-    check_label: { ru: 'две записи одного числа', uz: 'bitta sonning ikki yozuvi' },
+    check_label: { ru: 'две записи одного числа', uz: 'bitta sonning ikki yozuvi', en: 'two ways of writing one number' },
     audio: {
-      intro: { ru: 'Заполни три окна. Сколько десятых взяли, сколько их всего и сколько не хватает до целого.', uz: "Uchta oynani to'ldiring. O'ndan nechtasi olingan, ular jami nechta va butungacha nechtasi yetmaydi." },
-      on_correct: { ru: 'Четыре десятых. Та же дробь, просто записана через запятую.', uz: "O'ndan to'rt. O'sha kasr, faqat vergul bilan yozilgan." }
+      intro: { ru: 'Заполни три окна. Сколько десятых взяли, сколько их всего и сколько не хватает до целого.', uz: "Uchta oynani to'ldiring. O'ndan nechtasi olingan, ular jami nechta va butungacha nechtasi yetmaydi.", en: 'Fill three windows. How many tenths were taken, how many there are in all and how many are missing to make a whole.' },
+      on_correct: { ru: 'Четыре десятых. Та же дробь, просто записана через запятую.', uz: "O'ndan to'rt. O'sha kasr, faqat vergul bilan yozilgan.", en: 'Four tenths. The same fraction, only written with a comma.' }
     }
   },
 
   // s8 — XATONI TOP: 0,25 va 0,5 ni raqam soniga qarab taqqoslash (M1).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Кто-то написал: 0,25 больше 0,5, потому что 25 больше 5. В чём ошибка?', uz: "Kimdir yozibdi: 0,25 0,5 dan katta, chunki 25 beshdan katta. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Кто-то написал: 0,25 больше 0,5, потому что 25 больше 5. В чём ошибка?', uz: "Kimdir yozibdi: 0,25 0,5 dan katta, chunki 25 beshdan katta. Xato nimada?", en: 'Someone wrote: 0.25 is bigger than 0.5, because 25 is bigger than 5. What is the mistake?' },
     fig_line: '0,25 > 0,5',
     opts: [
-      { ru: 'сотых частей больше, но сами они мельче', uz: "yuzdan bo'lak ko'p, lekin ularning o'zi mayda" },
-      { ru: 'надо было сравнить целые', uz: 'butunlarni taqqoslash kerak edi' },
-      { ru: 'такие записи сравнивать нельзя', uz: "bunday yozuvlarni taqqoslab bo'lmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'сотых частей больше, но сами они мельче', uz: "yuzdan bo'lak ko'p, lekin ularning o'zi mayda", en: 'there are more hundredth parts, but they are smaller themselves' },
+      { ru: 'надо было сравнить целые', uz: 'butunlarni taqqoslash kerak edi', en: 'the wholes should have been compared' },
+      { ru: 'такие записи сравнивать нельзя', uz: "bunday yozuvlarni taqqoslab bo'lmaydi", en: 'such lines cannot be compared' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Целых и там, и там ноль. Сравнивать в них нечего.', uz: "Butunlar ikkalasida ham nol. Ularda taqqoslaydigan narsa yo'q." },
-      2: { ru: 'Целое одно и то же, сравнить можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi." },
-      3: { ru: 'Ошибка есть. Ноль запятая двадцать пять это четверть, а ноль запятая пять половина.', uz: "Xato bor. Nol vergul yigirma besh bu chorak, nol vergul besh esa yarim." }
+      1: { ru: 'Целых и там, и там ноль. Сравнивать в них нечего.', uz: "Butunlar ikkalasida ham nol. Ularda taqqoslaydigan narsa yo'q.", en: 'There is a zero for wholes in both. There is nothing to compare there.' },
+      2: { ru: 'Целое одно и то же, сравнить можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi.", en: 'The whole is the same, they can be compared.' },
+      3: { ru: 'Ошибка есть. Ноль запятая двадцать пять это четверть, а ноль запятая пять половина.', uz: "Xato bor. Nol vergul yigirma besh bu chorak, nol vergul besh esa yarim.", en: 'There is a mistake. Zero point twenty five is a quarter, and zero point five is a half.' }
     },
     audio: {
-      intro: { ru: 'Здесь сравнили две записи по числу цифр и получили наоборот. Найди ошибку.', uz: "Bu yerda ikki yozuv raqam soniga qarab taqqoslanib, teskarisi chiqqan. Xatoni toping." },
-      on_correct: { ru: 'Точно. Четверть меньше половины, сколько бы цифр ни стояло после запятой.', uz: "Aniq. Chorak yarimdan kichik, verguldan keyin nechta raqam turishidan qat'i nazar." },
-      on_wrong: { ru: 'Вспомни, чему равны эти записи на полосе.', uz: "Bu yozuvlar tasmada nimaga teng ekanini eslang." }
+      intro: { ru: 'Здесь сравнили две записи по числу цифр и получили наоборот. Найди ошибку.', uz: "Bu yerda ikki yozuv raqam soniga qarab taqqoslanib, teskarisi chiqqan. Xatoni toping.", en: 'Here two lines were compared by the number of digits and it came out the other way round. Find the mistake.' },
+      on_correct: { ru: 'Точно. Четверть меньше половины, сколько бы цифр ни стояло после запятой.', uz: "Aniq. Chorak yarimdan kichik, verguldan keyin nechta raqam turishidan qat'i nazar.", en: 'Exactly. A quarter is smaller than a half, however many digits stand after the comma.' },
+      on_wrong: { ru: 'Вспомни, чему равны эти записи на полосе.', uz: "Bu yozuvlar tasmada nimaga teng ekanini eslang.", en: 'Remember what these lines are equal to on the strip.' }
     }
   },
 
   // s9 — BIT TUZOG'I: 0,5 ni 5 deb o'qish (M3, yopiq maydon).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит читает запись на камне', uz: "Bit toshdagi yozuvni o'qiydi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит читает запись на камне', uz: "Bit toshdagi yozuvni o'qiydi", en: 'Bit reads the line on the stone' },
     lines: ['на камне 0,5', 'полоса закрашена наполовину'],
     lines_uz: ['toshda 0,5', "tasma yarmigacha bo'yalgan"],
-    line_cap: { ru: 'Бит: тут написано пять, значит это пять целых полос', uz: "Bit: bu yerda besh yozilgan, demak bu beshta butun tasma" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, это половина одной полосы', 'да, это пять полос'], uz: ["yo'q, bu bitta tasmaning yarmi", 'ha, bu beshta tasma'] },
+    lines_en: ['0.5 on the stone', 'the strip is shaded halfway'],
+    line_cap: { ru: 'Бит: тут написано пять, значит это пять целых полос', uz: "Bit: bu yerda besh yozilgan, demak bu beshta butun tasma", en: 'Bit: it says five here, so that is five whole strips' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, это половина одной полосы', 'да, это пять полос'], uz: ["yo'q, bu bitta tasmaning yarmi", 'ha, bu beshta tasma'], en: ['no, that is half of one strip', 'yes, that is five strips'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Перед запятой стоит ноль, целых полос нет ни одной. Пятёрка тут считает десятые доли.', uz: "Ha. Vergul oldida nol turibdi, butun tasma bitta ham yo'q. Beshlik bu yerda o'ndan bo'laklarni sanaydi." },
-    trap_wrong: { ru: 'Посмотри на цифру перед запятой. Там ноль, значит целых нет.', uz: "Vergul oldidagi raqamga qarang. U yerda nol, demak butun yo'q." },
+    trap_correct: { ru: 'Да. Перед запятой стоит ноль, целых полос нет ни одной. Пятёрка тут считает десятые доли.', uz: "Ha. Vergul oldida nol turibdi, butun tasma bitta ham yo'q. Beshlik bu yerda o'ndan bo'laklarni sanaydi.", en: 'Yes. There is a zero before the comma, there are no whole strips at all. The five here counts tenths.' },
+    trap_wrong: { ru: 'Посмотри на цифру перед запятой. Там ноль, значит целых нет.', uz: "Vergul oldidagi raqamga qarang. U yerda nol, demak butun yo'q.", en: 'Look at the digit before the comma. There is a zero there, so there are no wholes.' },
     audio: {
       ru: [
         'Бит смотрит на камень и читает.',
@@ -410,164 +417,170 @@ const CONTENT = {
         "Bit toshga qarab o'qiydi.",
         "Bu yerda nol vergul besh yozilgan. Beshlikni ko'ryapman, demak bu beshta butun tasma.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit looks at the stone and reads.', 'It says zero point five here. I see a five, so that is five whole strips.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: 0,9 dagi o'ndan bo'laklar.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Сколько десятых в записи 0,9?', uz: "0,9 yozuvida o'ndan nechta bo'lak bor?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Сколько десятых в записи 0,9?', uz: "0,9 yozuvida o'ndan nechta bo'lak bor?", en: 'How many tenths are in the line 0.9?' },
     ans: 9,
     check: '0,9 = 9/10',
-    check_label: { ru: 'до целого одной не хватает', uz: 'butungacha bittasi yetmaydi' },
-    hint: { ru: 'Смотри на цифру после запятой.', uz: "Verguldan keyingi raqamga qarang." },
+    check_label: { ru: 'до целого одной не хватает', uz: 'butungacha bittasi yetmaydi', en: 'one is missing to make a whole' },
+    hint: { ru: 'Смотри на цифру после запятой.', uz: "Verguldan keyingi raqamga qarang.", en: 'Look at the digit after the comma.' },
     audio: {
-      intro: { ru: 'Сколько десятых в записи ноль запятая девять?', uz: "Nol vergul to'qqiz yozuvida o'ndan nechta bo'lak bor?" },
-      on_correct: { ru: 'Девять. До целой полосы не хватает одной десятой.', uz: "To'qqiz. Butun tasmagacha o'ndan bittasi yetmaydi." }
+      intro: { ru: 'Сколько десятых в записи ноль запятая девять?', uz: "Nol vergul to'qqiz yozuvida o'ndan nechta bo'lak bor?", en: 'How many tenths are in the line zero point nine?' },
+      on_correct: { ru: 'Девять. До целой полосы не хватает одной десятой.', uz: "To'qqiz. Butun tasmagacha o'ndan bittasi yetmaydi.", en: 'Nine. One tenth is missing to make a whole strip.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: yarim nechta o'ndan bo'lak.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Половина полосы это сколько десятых? Набери число.', uz: "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Половина полосы это сколько десятых? Набери число.', uz: "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering.", en: 'Half a strip is how many tenths? Type the number.' },
     ans: 5,
     check: '1/2 = 0,5',
-    check_label: { ru: 'половина и есть 0,5', uz: 'yarim bu 0,5' },
-    hint: { ru: 'Раздели десять пополам.', uz: "O'nni teng ikkiga bo'ling." },
+    check_label: { ru: 'половина и есть 0,5', uz: 'yarim bu 0,5', en: 'a half is exactly 0.5' },
+    hint: { ru: 'Раздели десять пополам.', uz: "O'nni teng ikkiga bo'ling.", en: 'Halve the ten.' },
     audio: {
-      intro: { ru: 'Половина полосы это сколько десятых? Набери число.', uz: "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering." },
-      on_correct: { ru: 'Пять. Поэтому половину и записывают как ноль запятая пять.', uz: "Besh. Shuning uchun yarim nol vergul besh deb yoziladi." }
+      intro: { ru: 'Половина полосы это сколько десятых? Набери число.', uz: "Tasmaning yarmi o'ndan nechta bo'lak? Sonni tering.", en: 'Half a strip is how many tenths? Type the number.' },
+      on_correct: { ru: 'Пять. Поэтому половину и записывают как ноль запятая пять.', uz: "Besh. Shuning uchun yarim nol vergul besh deb yoziladi.", en: 'Five. That is why a half is written as zero point five.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Мозаичная дорожка', uz: "Mozaikali yo'lak" },
-    q: { ru: 'Дорожку из 10 плит выложили: сначала 0,4 дорожки, потом ещё 0,3. Сколько десятых выложено?', uz: "10 plitali yo'lak terildi: avval 0,4 qismi, keyin yana 0,3. O'ndan nechtasi terilgan?" },
-    q_speech: { ru: 'дорожку из десяти плит выложили, сначала четыре десятых, потом ещё три десятых. Сколько десятых выложено?', uz: "o'nta plitali yo'lak terildi, avval o'ndan to'rt, keyin yana o'ndan uch. O'ndan nechtasi terilgan?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Мозаичная дорожка', uz: "Mozaikali yo'lak", en: 'A mosaic path' },
+    q: { ru: 'Дорожку из 10 плит выложили: сначала 0,4 дорожки, потом ещё 0,3. Сколько десятых выложено?', uz: "10 plitali yo'lak terildi: avval 0,4 qismi, keyin yana 0,3. O'ndan nechtasi terilgan?", en: 'A path of 10 slabs was laid: first 0.4 of the path, then 0.3 more. How many tenths are laid?' },
+    q_speech: { ru: 'дорожку из десяти плит выложили, сначала четыре десятых, потом ещё три десятых. Сколько десятых выложено?', uz: "o'nta plitali yo'lak terildi, avval o'ndan to'rt, keyin yana o'ndan uch. O'ndan nechtasi terilgan?", en: 'a path of ten slabs was laid, first four tenths, then three tenths more. How many tenths are laid?' },
     tbl_heads: [
-      { ru: 'всего плит', uz: 'jami plita' },
-      { ru: 'сначала', uz: 'avval' },
-      { ru: 'потом', uz: 'keyin' }
+      { ru: 'всего плит', uz: 'jami plita', en: 'slabs in all' },
+      { ru: 'сначала', uz: 'avval', en: 'first' },
+      { ru: 'потом', uz: 'keyin', en: 'then' }
     ],
     tbl_cells: ['10', '0,4', '0,3'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '4 + 3', uz: '4 + 3' },
-      { ru: '10 − 4', uz: '10 − 4' },
-      { ru: '4 · 3', uz: '4 · 3' },
-      { ru: '10 : 4', uz: '10 : 4' }
+      { ru: '4 + 3', uz: '4 + 3', en: '4 + 3' },
+      { ru: '10 − 4', uz: '10 − 4', en: '10 − 4' },
+      { ru: '4 · 3', uz: '4 · 3', en: '4 · 3' },
+      { ru: '10 : 4', uz: '10 : 4', en: '10 : 4' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сначала складываем то, что уже выложили.', uz: "Avval terilganini qo'shamiz." },
-      2: { ru: 'Так мы найдём остаток после первой части, а спрашивают другое.', uz: "Bunda birinchi qismdan keyingi qoldiq topiladi, so'ralgani boshqa." },
-      3: { ru: 'Умножать плиты не нужно, их просто добавили.', uz: "Plitalarni ko'paytirish shart emas, ular shunchaki qo'shildi." }
+      1: { ru: 'Сначала складываем то, что уже выложили.', uz: "Avval terilganini qo'shamiz.", en: 'First we add what has already been laid.' },
+      2: { ru: 'Так мы найдём остаток после первой части, а спрашивают другое.', uz: "Bunda birinchi qismdan keyingi qoldiq topiladi, so'ralgani boshqa.", en: 'That way we find the remainder after the first part, and something else was asked.' },
+      3: { ru: 'Умножать плиты не нужно, их просто добавили.', uz: "Plitalarni ko'paytirish shart emas, ular shunchaki qo'shildi.", en: 'The slabs do not need multiplying, they were simply added.' }
     },
-    pick_ok: { ru: 'Верно. Десятые доли складываются как обычные числа.', uz: "To'g'ri. O'ndan bo'laklar oddiy sonlardek qo'shiladi." },
-    step1_q: { ru: 'Сколько десятых выложено?', uz: "O'ndan nechtasi terilgan?" },
+    pick_ok: { ru: 'Верно. Десятые доли складываются как обычные числа.', uz: "To'g'ri. O'ndan bo'laklar oddiy sonlardek qo'shiladi.", en: 'Right. Tenths are added like ordinary numbers.' },
+    step1_q: { ru: 'Сколько десятых выложено?', uz: "O'ndan nechtasi terilgan?", en: 'How many tenths are laid?' },
     ans1: 7,
-    hint1: { ru: 'Сложи четыре и три.', uz: "To'rt bilan uchni qo'shing." },
-    step2_q: { ru: 'Сколько десятых осталось выложить?', uz: "O'ndan nechtasini terish qoldi?" },
+    hint1: { ru: 'Сложи четыре и три.', uz: "To'rt bilan uchni qo'shing.", en: 'Add four and three.' },
+    step2_q: { ru: 'Сколько десятых осталось выложить?', uz: "O'ndan nechtasini terish qoldi?", en: 'How many tenths are still to be laid?' },
     ans2: 3,
-    hint2: { ru: 'Из десяти убери семь.', uz: "O'ntadan yettini olib tashlang." },
+    hint2: { ru: 'Из десяти убери семь.', uz: "O'ntadan yettini olib tashlang.", en: 'Take seven away from ten.' },
     check: '0,4 + 0,3 = 0,7',
-    setup_audio: { ru: 'У стелы выкладывают дорожку. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonida yo'lak terilyapti. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'У стелы выкладывают дорожку. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonida yo'lak terilyapti. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'A path is being laid at the stele. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Дорожку из десяти плит выложили сначала на четыре десятых, потом ещё на три. Сколько десятых выложено?', uz: "O'nta plitali yo'lak avval o'ndan to'rt, keyin yana o'ndan uch qismiga terildi. O'ndan nechtasi terilgan?" },
-      on_correct: { ru: 'Семь десятых, то есть ноль запятая семь. Осталось три десятых.', uz: "O'ndan yetti, ya'ni nol vergul yetti. O'ndan uchtasi qoldi." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько плит уже лежит.', uz: "Birinchi qadamga qayting. Nechta plita allaqachon yotibdi." }
+      intro: { ru: 'Дорожку из десяти плит выложили сначала на четыре десятых, потом ещё на три. Сколько десятых выложено?', uz: "O'nta plitali yo'lak avval o'ndan to'rt, keyin yana o'ndan uch qismiga terildi. O'ndan nechtasi terilgan?", en: 'A path of ten slabs was laid first for four tenths, then three more. How many tenths are laid?' },
+      on_correct: { ru: 'Семь десятых, то есть ноль запятая семь. Осталось три десятых.', uz: "O'ndan yetti, ya'ni nol vergul yetti. O'ndan uchtasi qoldi.", en: 'Seven tenths, that is zero point seven. Three tenths are left.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько плит уже лежит.', uz: "Birinchi qadamga qayting. Nechta plita allaqachon yotibdi.", en: 'Go back to the first step. How many slabs are already down.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Смотри на цифру после запятой', uz: "Uchta topshiriq. Verguldan keyingi raqamga qarang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Смотри на цифру после запятой', uz: "Uchta topshiriq. Verguldan keyingi raqamga qarang", en: 'Three tasks. Look at the digit after the comma' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Сколько десятых в записи 0,6?', uz: "0,6 yozuvida o'ndan nechta bo'lak bor?" },
-        q_speech: { ru: 'сколько десятых в записи ноль запятая шесть?', uz: "nol vergul olti yozuvida o'ndan nechta bo'lak bor?" },
+        q: { ru: 'Сколько десятых в записи 0,6?', uz: "0,6 yozuvida o'ndan nechta bo'lak bor?", en: 'How many tenths are in the line 0.6?' },
+        q_speech: { ru: 'сколько десятых в записи ноль запятая шесть?', uz: "nol vergul olti yozuvida o'ndan nechta bo'lak bor?", en: 'how many tenths are in the line zero point six?' },
         ans: 6,
-        hint: { ru: 'Цифра после запятой и есть ответ.', uz: "Verguldan keyingi raqamning o'zi javob." }
+        hint: { ru: 'Цифра после запятой и есть ответ.', uz: "Verguldan keyingi raqamning o'zi javob.", en: 'The digit after the comma is the answer.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Что больше: 0,8 или 0,2? Набери десятые большей записи.', uz: "0,8 mi yoki 0,2 mi katta? Katta yozuvning o'ndan bo'lagini tering." },
-        q_speech: { ru: 'что больше, ноль запятая восемь или ноль запятая два? Набери десятые большей записи.', uz: "nol vergul sakkiz mi yoki nol vergul ikki mi katta? Katta yozuvning o'ndan bo'lagini tering." },
+        q: { ru: 'Что больше: 0,8 или 0,2? Набери десятые большей записи.', uz: "0,8 mi yoki 0,2 mi katta? Katta yozuvning o'ndan bo'lagini tering.", en: 'Which is bigger: 0.8 or 0.2? Type the tenths of the bigger line.' },
+        q_speech: { ru: 'что больше, ноль запятая восемь или ноль запятая два? Набери десятые большей записи.', uz: "nol vergul sakkiz mi yoki nol vergul ikki mi katta? Katta yozuvning o'ndan bo'lagini tering.", en: 'which is bigger, zero point eight or zero point two? Type the tenths of the bigger line.' },
         ans: 8,
-        hint: { ru: 'Целых нет ни там, ни там. Сравнивай десятые.', uz: "Butun ikkalasida ham yo'q. O'ndan bo'laklarni solishtiring." }
+        hint: { ru: 'Целых нет ни там, ни там. Сравнивай десятые.', uz: "Butun ikkalasida ham yo'q. O'ndan bo'laklarni solishtiring.", en: 'There are no wholes in either. Compare the tenths.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Сколько десятых не хватает записи 0,7 до целого?', uz: "0,7 yozuviga butungacha o'ndan nechtasi yetmaydi?" },
-        q_speech: { ru: 'сколько десятых не хватает записи ноль запятая семь до целого?', uz: "nol vergul yetti yozuviga butungacha o'ndan nechtasi yetmaydi?" },
+        q: { ru: 'Сколько десятых не хватает записи 0,7 до целого?', uz: "0,7 yozuviga butungacha o'ndan nechtasi yetmaydi?", en: 'How many tenths is the line 0.7 missing to make a whole?' },
+        q_speech: { ru: 'сколько десятых не хватает записи ноль запятая семь до целого?', uz: "nol vergul yetti yozuviga butungacha o'ndan nechtasi yetmaydi?", en: 'how many tenths is the line zero point seven missing to make a whole?' },
         ans: 3,
-        hint: { ru: 'Из десяти убери семь.', uz: "O'ntadan yettini olib tashlang." }
+        hint: { ru: 'Из десяти убери семь.', uz: "O'ntadan yettini olib tashlang.", en: 'Take seven away from ten.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Запятая нужна там, где целого не хватает. На рынке говорят полтора килограмма и пишут 1,5 кг, а бутылка на 2,5 литра это два литра и ещё половина. Слева от запятой целые, справа доли.',
-      uz: "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi va 1,5 kg deb yozishadi, 2,5 litrli shisha esa ikki litr va yana yarim. Vergul chapida butunlar, o'ngida ulushlar."
+      uz: "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi va 1,5 kg deb yozishadi, 2,5 litrli shisha esa ikki litr va yana yarim. Vergul chapida butunlar, o'ngida ulushlar.",
+      en: 'A comma is needed where a whole is not enough. At the market people say a kilo and a half and write 1.5 kg, and a two and a half litre bottle is two litres and a half more. To the left of the comma are the wholes, to the right the fractions.'
     },
     fact_audio: {
       ru: 'Запятая нужна там, где целого не хватает. На рынке говорят полтора килограмма, а пишут один запятая пять килограмма. Бутылка на два запятая пять литра это два литра и ещё половина. Слева от запятой всегда целые, справа доли. Мы весь урок работали с десятыми, и в жизни чаще всего встречаются именно они.',
-      uz: "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi, yozishda esa bir vergul besh kilogramm. Ikki vergul besh litrli shisha bu ikki litr va yana yarim. Vergul chapida har doim butunlar, o'ngida ulushlar. Butun dars davomida biz o'ndan bo'laklar bilan ishladik, hayotda ham ko'proq o'shalar uchraydi."
+      uz: "Vergul butun yetmagan joyda kerak bo'ladi. Bozorda bir yarim kilogramm deyishadi, yozishda esa bir vergul besh kilogramm. Ikki vergul besh litrli shisha bu ikki litr va yana yarim. Vergul chapida har doim butunlar, o'ngida ulushlar. Butun dars davomida biz o'ndan bo'laklar bilan ishladik, hayotda ham ko'proq o'shalar uchraydi.",
+      en: 'A comma is needed where a whole is not enough. At the market people say a kilo and a half, and write one point five kilograms. A two point five litre bottle is two litres and a half more. To the left of the comma there are always wholes, to the right fractions. All lesson we worked with tenths, and in life those are the ones you meet most often.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. Везде смотри на цифру после запятой.', uz: "Oxirida uchta topshiriq. Hamma joyda verguldan keyingi raqamga qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перечитай запись. Целые слева, десятые справа.', uz: "Yozuvni qayta o'qing. Butunlar chapda, o'ndan bo'laklar o'ngda." }
+      intro: { ru: 'Три задания напоследок. Везде смотри на цифру после запятой.', uz: "Oxirida uchta topshiriq. Hamma joyda verguldan keyingi raqamga qarang.", en: 'Three tasks at the end. Look at the digit after the comma everywhere.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перечитай запись. Целые слева, десятые справа.', uz: "Yozuvni qayta o'qing. Butunlar chapda, o'ndan bo'laklar o'ngda.", en: 'Read the line again. The wholes on the left, the tenths on the right.' }
     }
   },
 
   // s14 — YAKUN: keyingisi bo'lim masalalari (reja 35-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Дорожка выложена!', uz: "Yo'lak terildi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Дорожка выложена!', uz: "Yo'lak terildi!", en: 'The path is laid!' },
     cando: {
       ru: ['читаю запись с запятой', 'записываю десятые через запятую', 'сравниваю такие записи между собой'],
-      uz: ["vergulli yozuvni o'qiyman", "o'ndan bo'laklarni vergul bilan yozaman", "bunday yozuvlarni o'zaro taqqoslayman"]
+      uz: ["vergulli yozuvni o'qiyman", "o'ndan bo'laklarni vergul bilan yozaman", "bunday yozuvlarni o'zaro taqqoslayman"],
+      en: ['I read a line with a comma', 'I write tenths with a comma', 'I compare such lines with each other']
     },
-    rule_recap: { ru: 'Слева от запятой целые, справа десятые доли.', uz: "Vergul chapida butunlar, o'ngida o'ndan bo'laklar." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 24: доля и её запись; урок 29: сравнение дробей', uz: '24-dars: ulush va uning yozuvi; 29-dars: kasrlarni taqqoslash' },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'задачи блока о долях и дробях', uz: 'ulush va kasrlarga doir bo\'lim masalalari' },
+    rule_recap: { ru: 'Слева от запятой целые, справа десятые доли.', uz: "Vergul chapida butunlar, o'ngida o'ndan bo'laklar.", en: 'To the left of the comma are the wholes, to the right the tenths.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 24: доля и её запись; урок 29: сравнение дробей', uz: '24-dars: ulush va uning yozuvi; 29-dars: kasrlarni taqqoslash', en: 'lesson 24: a fraction and how it is written; lesson 29: comparing fractions' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'задачи блока о долях и дробях', uz: 'ulush va kasrlarga doir bo\'lim masalalari', en: 'word problems of the block about fractions' },
     audio: {
       ru: 'Дорожка выложена. Запомни главное. Слева от запятой пишут целые, справа доли. Первая цифра после запятой показывает, сколько взяли десятых, а ноль впереди говорит, что целых нет. И сравнивать такие записи надо по долям, а не по числу цифр. В следующий раз соберём весь край в задачах!',
-      uz: "Yo'lak terildi. Asosiysini eslab qoling. Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi. Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi, oldidagi nol esa butun yo'qligini aytadi. Bunday yozuvlarni raqam soniga emas, ulushga qarab taqqoslash kerak. Keyingi safar butun hududni masalalarda yig'amiz!"
+      uz: "Yo'lak terildi. Asosiysini eslab qoling. Vergulning chapiga butunlar, o'ngiga ulushlar yoziladi. Verguldan keyingi birinchi raqam o'ndan nechtasi olinganini ko'rsatadi, oldidagi nol esa butun yo'qligini aytadi. Bunday yozuvlarni raqam soniga emas, ulushga qarab taqqoslash kerak. Keyingi safar butun hududni masalalarda yig'amiz!",
+      en: 'The path is laid. Remember the main thing. To the left of the comma we write the wholes, to the right the fractions. The first digit after the comma shows how many tenths were taken, and a zero in front says there are no wholes. And such lines must be compared by the fractions, not by the number of digits. Next time we will gather the whole region into word problems!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Посмотрим на две записи.', uz: 'Ikki yozuvga qaraymiz.' },
-  s2:  { ru: 'Разделим полосу на десять.', uz: "Tasmani o'nga bo'lamiz." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s5:  { ru: 'Сравни с половиной.', uz: 'Yarim bilan solishtiring.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Считали цифры, а не доли.', uz: "Ulush emas, raqam sanalibdi." },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна запись.', uz: 'Yana bitta yozuv.' },
-  s12: { ru: 'Дорожка у стелы.', uz: "Stela yonidagi yo'lak." },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Дорожка выложена. Идём дальше!', uz: "Yo'lak terildi. Davom etamiz!" }
+  s1:  { ru: 'Посмотрим на две записи.', uz: 'Ikki yozuvga qaraymiz.', en: 'Let us look at two ways of writing.' },
+  s2:  { ru: 'Разделим полосу на десять.', uz: "Tasmani o'nga bo'lamiz.", en: 'Let us divide the strip into ten.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s5:  { ru: 'Сравни с половиной.', uz: 'Yarim bilan solishtiring.', en: 'Compare with a half.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Считали цифры, а не доли.', uz: "Ulush emas, raqam sanalibdi.", en: 'They counted the digits, not the fractions.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна запись.', uz: 'Yana bitta yozuv.', en: 'And one more line.' },
+  s12: { ru: 'Дорожка у стелы.', uz: "Stela yonidagi yo'lak.", en: 'A path at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Дорожка выложена. Идём дальше!', uz: "Yo'lak terildi. Davom etamiz!", en: 'The path is laid. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Запись с запятой прочитана до последней доли. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Vergulli yozuv oxirgi ulushigacha o'qildi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Vergulli yozuv oxirgi ulushigacha o'qildi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The line with a comma is read down to the last fraction. Thank you for your help!'
 };
 
 // ============================================================
@@ -770,7 +783,7 @@ const ScaleHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d31slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЗАПИСЬ С ЗАПЯТОЙ' : 'VERGULLI YOZUV'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЗАПИСЬ С ЗАПЯТОЙ', 'VERGULLI YOZUV', 'WRITING WITH A COMMA')}</text>
     <g transform="translate(132 122)">
       {Array.from({ length: 10 }).map((_, k) => (
         <rect key={k} x={k * 13.6} y="0" width="13.6" height="14" fill={k < 3 ? '#E0A05A' : '#EFE6D6'} stroke="#8A7550" strokeWidth="0.8"/>
@@ -783,7 +796,7 @@ const ScaleHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d31slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: o'lchov toshlari --- */}
     {[['0,5', 100], ['0,25', 126], ['0,1', 152]].map(([lab, y], i) => (
@@ -1086,7 +1099,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1205,7 +1218,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d31-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d31-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d31-expr">{t(c.step1)}</span>
@@ -1551,7 +1564,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1616,7 +1629,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1752,7 +1765,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d31-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d31-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1867,7 +1880,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1938,7 +1951,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d31-final-scene fade-up delay-1"><ScaleHallScene gathered/></div>
@@ -1959,7 +1972,7 @@ export default function DecimalLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2026,7 +2039,7 @@ export default function DecimalLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

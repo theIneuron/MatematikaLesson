@@ -59,9 +59,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -199,7 +224,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -236,7 +261,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -599,12 +625,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -719,7 +745,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved}>
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : T.accent, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : 'Не совсем')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : lang === 'en' ? "Not quite" : 'Не совсем')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {solved ? t(c.correct_text) : t(c[`wrong_${picked}`] || c.wrong_default)}
@@ -827,15 +853,15 @@ const AddSubColumnStepwise = ({ op, top, bottom, cols, reveal = 0, chipsShown = 
 
 // UI (infra)
 const UI = {
-  hint:         { ru: 'Подсказка', uz: 'Maslahat' },
-  hide:         { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish' },
-  solution:     { ru: 'Решение', uz: 'Yechim' },
-  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish" },
-  replay:       { ru: '↻ Повторить', uz: '↻ Qaytarish' },
-  tryAgain:     { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring." },
-  retryOk:      { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi." },
-  gaveUp:       { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring." },
-  wrongAudio:   { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring." }
+  hint:         { ru: 'Подсказка', uz: 'Maslahat', en: 'Hint' },
+  hide:         { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish', en: 'Hide the hint' },
+  solution:     { ru: 'Решение', uz: 'Yechim', en: 'Working' },
+  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish", en: 'Show the working' },
+  replay:       { ru: '↻ Повторить', uz: '↻ Qaytarish', en: '↻ Again' },
+  tryAgain:     { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring.", en: 'It does not add up. Look at the hint and try again.' },
+  retryOk:      { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi.", en: 'That is right now. Only the first try counts towards your score.' },
+  gaveUp:       { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring.", en: 'Never mind. Look at the working below.' },
+  wrongAudio:   { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring.", en: 'Not quite. Try again.' }
 };
 
 // Анимированное решение примера: проигрывается само, разряд за разрядом, с повтором.
@@ -900,19 +926,19 @@ const RefNote = ({ idx }) => {
 // CheckLabel (infra)
 const CheckLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Tekshirish' : 'Проверить';
+  return lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить';
 };
 
 // Короткая озвучка ответа на верный ввод/выбор (без подробного разбора). Числа словами.
 const ANSWER_VOICE = {
-  '461': { ru: 'Верно. Ответ четыреста шестьдесят один.', uz: "To'g'ri. Javob to'rt yuz oltmish bir." },
-  '332': { ru: 'Верно. Ответ триста тридцать два.', uz: "To'g'ri. Javob uch yuz o'ttiz ikki." },
-  '695': { ru: 'Верно. Ответ шестьсот девяносто пять.', uz: "To'g'ri. Javob olti yuz to'qson besh." },
-  '604': { ru: 'Верно. Ответ шестьсот четыре.', uz: "To'g'ri. Javob olti yuz to'rt." },
-  '308': { ru: 'Верно. Ответ триста восемь.', uz: "To'g'ri. Javob uch yuz sakkiz." },
-  '305': { ru: 'Верно. Ответ триста пять.', uz: "To'g'ri. Javob uch yuz besh." },
-  '237': { ru: 'Верно. Ответ двести тридцать семь.', uz: "To'g'ri. Javob ikki yuz o'ttiz yetti." },
-  '825': { ru: 'Верно. Ответ восемьсот двадцать пять.', uz: "To'g'ri. Javob sakkiz yuz yigirma besh." }
+  '461': { ru: 'Верно. Ответ четыреста шестьдесят один.', uz: "To'g'ri. Javob to'rt yuz oltmish bir.", en: 'That is right. The answer is four hundred and sixty one.' },
+  '332': { ru: 'Верно. Ответ триста тридцать два.', uz: "To'g'ri. Javob uch yuz o'ttiz ikki.", en: 'That is right. The answer is three hundred and thirty two.' },
+  '695': { ru: 'Верно. Ответ шестьсот девяносто пять.', uz: "To'g'ri. Javob olti yuz to'qson besh.", en: 'That is right. The answer is six hundred and ninety five.' },
+  '604': { ru: 'Верно. Ответ шестьсот четыре.', uz: "To'g'ri. Javob olti yuz to'rt.", en: 'That is right. The answer is six hundred and four.' },
+  '308': { ru: 'Верно. Ответ триста восемь.', uz: "To'g'ri. Javob uch yuz sakkiz.", en: 'That is right. The answer is three hundred and eight.' },
+  '305': { ru: 'Верно. Ответ триста пять.', uz: "To'g'ri. Javob uch yuz besh.", en: 'That is right. The answer is three hundred and five.' },
+  '237': { ru: 'Верно. Ответ двести тридцать семь.', uz: "To'g'ri. Javob ikki yuz o'ttiz yetti.", en: 'That is right. The answer is two hundred and thirty seven.' },
+  '825': { ru: 'Верно. Ответ восемьсот двадцать пять.', uz: "To'g'ri. Javob sakkiz yuz yigirma besh.", en: 'That is right. The answer is eight hundred and twenty five.' }
 };
 
 // ============================================================
@@ -1020,8 +1046,8 @@ const ColumnSolver = ({ sol, texts, onResolved }) => {
   }
 
   const hint = op === '+'
-    ? (lang === 'uz' ? "Chiziq ustiga dildagi (ko'chirish) raqamlarni, ostiga javobni yozing" : 'Над чертой впиши перенос (что держишь в уме), под чертой — ответ')
-    : (lang === 'uz' ? "Chiziq ustiga qarz olgandagi yangi raqamlarni, ostiga javobni yozing" : 'Над чертой впиши перестроенные цифры (заём), под чертой — ответ');
+    ? (lang === 'uz' ? "Chiziq ustiga dildagi (ko'chirish) raqamlarni, ostiga javobni yozing" : lang === 'en' ? "Write the carry above the line (what you hold in your head) and the answer below it" : 'Над чертой впиши перенос (что держишь в уме), под чертой — ответ')
+    : (lang === 'uz' ? "Chiziq ustiga qarz olgandagi yangi raqamlarni, ostiga javobni yozing" : lang === 'en' ? "Write the regrouped digits above the line (the borrowing) and the answer below it" : 'Над чертой впиши перестроенные цифры (заём), под чертой — ответ');
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
       {!locked && <p className="small" style={{ margin: 0, color: T.ink2 }}>{hint}</p>}
@@ -1039,11 +1065,11 @@ const ColumnSolver = ({ sol, texts, onResolved }) => {
         </div>
       )}
       {wrongFlash && !solved && (
-        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
+        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : lang === 'en' ? "It does not work out yet, check it and tap again" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
       )}
       {solved && (
         <FeedbackBlock show={true} isCorrect={true}>
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
           <p className="body" style={{ margin: 0 }}>{firstRef.current === 'ok' ? (texts && texts.correct ? t(texts.correct) : '') : UI.retryOk[lang]}</p>
         </FeedbackBlock>
       )}
@@ -1439,13 +1465,13 @@ const QuestionScreenRetry = ({ idx, screen, totalScreens, storedAnswer, onAnswer
         )}
         {firstDone && sol && isCorrect && (
           <div className="frame-success fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <span className="mono small" style={{ color: T.success, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</span>
+            <span className="mono small" style={{ color: T.success, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</span>
             <ColumnAutoAnim sol={sol} onDone={() => setNavReady(true)}/>
           </div>
         )}
         {firstDone && sol && !isCorrect && (
           <div className="fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span className="mono small" style={{ color: T.ink2, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{lang === 'uz' ? 'Ustun shaklida hisoblang' : 'Посчитай в столбике'}</span>
+            <span className="mono small" style={{ color: T.ink2, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>{lang === 'uz' ? 'Ustun shaklida hisoblang' : lang === 'en' ? "Work it out in columns" : 'Посчитай в столбике'}</span>
             <ColumnSolver sol={sol} texts={{ correct: c.correct_text, reveal: c.correct_text }} onResolved={() => { setResolved(true); setNavReady(true); }}/>
           </div>
         )}
@@ -1541,7 +1567,7 @@ const NumInputScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onN
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!firstDone} onClick={onNext} label={<NextLabel/>}/></>);
 
   const inputState = solved ? 'correct' : (firstDone ? 'wrong' : '');
-  const banner = solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : 'Не совсем');
+  const banner = solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? "Noto'g'ri" : lang === 'en' ? "Not quite" : 'Не совсем');
   const feedbackText = solved
     ? (firstCorrect ? t(c.fb_correct) : UI.retryOk[lang])
     : (gaveUp ? UI.gaveUp[lang] : UI.tryAgain[lang]);
@@ -1601,14 +1627,16 @@ const NumInputScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onN
 // ============================================================
 
 const LESSON_META = {
-  lessonId: 'nat-5-03-v1',
+  lessonId: 'grade5-03',
   lessonTitle: {
     ru: 'Сложение и вычитание столбиком',
-    uz: "Ustun shaklida qo'shish va ayirish"
+    uz: "Ustun shaklida qo'shish va ayirish",
+    en: 'Adding and subtracting in columns'
   },
   globalQuestion: {
     ru: 'Куда пропадают разряды?',
     uz: "Xonalar qayerga yo'qoladi?",
+    en: 'Where do the places disappear to?',
     posed_on: 's0',
     answered_on: 's13'
   }
@@ -1618,40 +1646,42 @@ const CONTENT = {
 
   // ===== s0 — HOOK: Бекзод теряет перенос =====
   s0: {
-    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
-    global_q: { ru: 'Куда пропадают разряды?', uz: "Xonalar qayerga yo'qoladi?" },
+    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli', en: 'The question of the lesson' },
+    global_q: { ru: 'Куда пропадают разряды?', uz: "Xonalar qayerga yo'qoladi?", en: 'Where do the places disappear to?' },
     claim_lead: {
       ru: 'В классе идёт марафон чтения. За первую неделю Бекзод прочитал 168 страниц, за вторую — 257. Он быстро сложил столбиком и говорит:',
-      uz: "Sinfda kitobxonlik marafoni ketyapti. Birinchi haftada Bekzod 168 bet, ikkinchisida 257 bet o'qidi. U tez ustun shaklida qo'shib, shunday deydi:"
+      uz: "Sinfda kitobxonlik marafoni ketyapti. Birinchi haftada Bekzod 168 bet, ikkinchisida 257 bet o'qidi. U tez ustun shaklida qo'shib, shunday deydi:",
+      en: 'The class is running a reading marathon. In the first week Bekzod read 168 pages and in the second 257. He added them in columns in a hurry and says:'
     },
-    claim_em: { ru: 'Всего 315 страниц.', uz: 'Jami 315 bet.' },
-    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?' },
-    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq' },
-    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti' },
-    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
+    claim_em: { ru: 'Всего 315 страниц.', uz: 'Jami 315 bet.', en: 'That is 315 pages in all.' },
+    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?', en: 'Is Bekzod right?' },
+    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq', en: 'Bekzod is right' },
+    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti', en: 'Bekzod is wrong' },
+    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas', en: 'I am not sure' },
     correctIndex: null,
     audio: {
-      intro: { ru: 'В классе идёт марафон чтения. За первую неделю Бекзод прочитал сто шестьдесят восемь страниц, за вторую двести пятьдесят семь. Он быстро сложил в столбик и говорит, что вышло триста пятнадцать. Как думаешь, прав ли он?', uz: "Sinfda kitobxonlik marafoni ketyapti. Bekzod birinchi haftada bir yuz oltmish sakkiz bet, ikkinchi haftada ikki yuz ellik yetti bet o'qidi. U tez ustun shaklida qo'shib, uch yuz o'n besh chiqdi deydi. Sizningcha, u haqmi?" },
-      on_correct: { ru: 'Сейчас проверим вместе.', uz: "Hozir birga tekshiramiz." },
-      on_wrong: { ru: 'Сейчас проверим вместе.', uz: "Hozir birga tekshiramiz." }
+      intro: { ru: 'В классе идёт марафон чтения. За первую неделю Бекзод прочитал сто шестьдесят восемь страниц, за вторую двести пятьдесят семь. Он быстро сложил в столбик и говорит, что вышло триста пятнадцать. Как думаешь, прав ли он?', uz: "Sinfda kitobxonlik marafoni ketyapti. Bekzod birinchi haftada bir yuz oltmish sakkiz bet, ikkinchi haftada ikki yuz ellik yetti bet o'qidi. U tez ustun shaklida qo'shib, uch yuz o'n besh chiqdi deydi. Sizningcha, u haqmi?", en: 'The class is running a reading marathon. In the first week Bekzod read one hundred and sixty eight pages and in the second two hundred and fifty seven. He added them in columns in a hurry and says it came to three hundred and fifteen. Do you think he is right?' },
+      on_correct: { ru: 'Сейчас проверим вместе.', uz: "Hozir birga tekshiramiz.", en: 'Let us check it together.' },
+      on_wrong: { ru: 'Сейчас проверим вместе.', uz: "Hozir birga tekshiramiz.", en: 'Let us check it together.' }
     }
   },
 
   // ===== s1 — EXPLORATION: сложение с переносом (168 + 257 = 425) =====
   s1: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Почему нельзя терять перенос', uz: "Nega ko'chirishni yo'qotmaslik kerak" },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Почему нельзя терять перенос', uz: "Nega ko'chirishni yo'qotmaslik kerak", en: 'Why you must not lose the carry' },
     intro: {
       ru: 'Складываем по разрядам справа налево. Когда в разряде получается 10 или больше, единицу переносим в следующий разряд.',
-      uz: "Xonalar bo'yicha o'ngdan chapga qo'shamiz. Xonada 10 yoki undan ko'p chiqsa, birni keyingi xonaga ko'chiramiz."
+      uz: "Xonalar bo'yicha o'ngdan chapga qo'shamiz. Xonada 10 yoki undan ko'p chiqsa, birni keyingi xonaga ko'chiramiz.",
+      en: 'We add place by place from right to left. When a place comes to 10 or more, we carry one into the next place.'
     },
-    step1_label: { ru: 'Единицы', uz: 'Birlar' },
-    step1_text: { ru: '8 + 7 = 15. Пишем 5, единицу держим в уме.', uz: '8 + 7 = 15. 5 ni yozamiz, birni dilda saqlaymiz.' },
-    step2_label: { ru: 'Десятки', uz: "O'nlar" },
-    step2_text: { ru: '6 + 5 = 11, плюс 1 из ума — 12. Пишем 2, снова 1 в уме.', uz: "6 + 5 = 11, dildagi 1 bilan — 12. 2 ni yozamiz, yana 1 dilda." },
-    step3_label: { ru: 'Сотни', uz: 'Yuzlar' },
-    step3_text: { ru: '1 + 2 = 3, плюс 1 из ума — 4. Итог 425. Бекзод потерял оба переноса и получил 315.', uz: "1 + 2 = 3, dildagi 1 bilan — 4. Natija 425. Bekzod ikkala ko'chirishni yo'qotib, 315 oldi." },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    step1_label: { ru: 'Единицы', uz: 'Birlar', en: 'Units' },
+    step1_text: { ru: '8 + 7 = 15. Пишем 5, единицу держим в уме.', uz: '8 + 7 = 15. 5 ni yozamiz, birni dilda saqlaymiz.', en: '8 + 7 = 15. We write 5 and keep one in our head.' },
+    step2_label: { ru: 'Десятки', uz: "O'nlar", en: 'Tens' },
+    step2_text: { ru: '6 + 5 = 11, плюс 1 из ума — 12. Пишем 2, снова 1 в уме.', uz: "6 + 5 = 11, dildagi 1 bilan — 12. 2 ni yozamiz, yana 1 dilda.", en: '6 + 5 = 11, plus the 1 from our head makes 12. We write 2 and keep 1 in our head again.' },
+    step3_label: { ru: 'Сотни', uz: 'Yuzlar', en: 'Hundreds' },
+    step3_text: { ru: '1 + 2 = 3, плюс 1 из ума — 4. Итог 425. Бекзод потерял оба переноса и получил 315.', uz: "1 + 2 = 3, dildagi 1 bilan — 4. Natija 425. Bekzod ikkala ko'chirishni yo'qotib, 315 oldi.", en: '1 + 2 = 3, plus the 1 from our head makes 4. The total is 425. Bekzod lost both carries and got 315.' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Давай проверим вместе, прав ли Бекзод. Складываем по разрядам, справа налево. В единицах восемь и семь дают пятнадцать. Число двузначное, поэтому пять пишем здесь, а один десяток держим в уме и перекинем в следующий разряд.',
@@ -1662,97 +1692,100 @@ const CONTENT = {
         "Keling, Bekzod haq yoki yo'qligini birga tekshiramiz. Xonama-xona, o'ngdan chapga qo'shamiz. Birlarda sakkiz va yetti o'n besh beradi. Bu ikki xonali son, shuning uchun beshni yozamiz, bir o'nlikni keyingi xonaga ko'chiramiz.",
         "Endi o'nlar. Olti va besh o'n bir, ko'chirilgan birni qo'shsak, o'n ikki. Yana ikki xonali, demak ikkini yozamiz, bir o'nlikni yana ko'chiramiz.",
         "Yuzlar qoldi. Bir va ikki uch, ko'chirilgan bir bilan to'rt. To'rt yuz yigirma besh chiqadi. Bekzod ikkala ko'chirishni yo'qotgan, shuning uchun atigi uch yuz o'n besh olgan."
-      ]
+      ],
+      en: ['Let us check together whether Bekzod is right. We add place by place, from right to left. In the ones eight and seven make fifteen. That has two digits, so we write the five here and keep one ten in our head to move into the next place.', 'Now the tens. Six and five make eleven, and we must not forget the one from our head, so it comes to twelve. Two digits again, so we write the two and keep one in our head once more.', 'The hundreds are left. One and two make three, plus the one from our head, which makes four. That gives four hundred and twenty five. Bekzod lost both carries and got only three hundred and fifteen, and that is where the places went.']
     }
   },
 
   // ===== s2 — RULE: сложение столбиком =====
   s2: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Сложение столбиком', uz: "Ustun shaklida qo'shish" },
-    rule_1: { ru: 'Записываем числа разряд под разрядом, выравнивая справа.', uz: "Sonlarni xonama-xona, o'ng tomondan tekislab yozamiz." },
-    rule_2: { ru: 'Складываем справа налево. Если в разряде вышло 10 или больше — единицу переносим в следующий разряд.', uz: "O'ngdan chapga qo'shamiz. Xonada 10 yoki undan ko'p chiqsa — birni keyingi xonaga ko'chiramiz." },
-    term: { ru: 'Перенос — это единица, которая уходит в следующий разряд, когда сумма разряда достигает десяти.', uz: "Ko'chirish — bu xona yig'indisi o'nga yetganda keyingi xonaga o'tadigan birlik." },
-    example: { ru: '168 + 257 = 425', uz: '168 + 257 = 425' },
-    ref: { ru: 'Разряды и классы — из уроков о многозначных числах (nat_5_01).', uz: "Xonalar va sinflar — ko'p xonali sonlar darslaridan (nat_5_01)." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Сложение столбиком', uz: "Ustun shaklida qo'shish", en: 'Adding in columns' },
+    rule_1: { ru: 'Записываем числа разряд под разрядом, выравнивая справа.', uz: "Sonlarni xonama-xona, o'ng tomondan tekislab yozamiz.", en: 'We write the numbers place under place, lined up on the right.' },
+    rule_2: { ru: 'Складываем справа налево. Если в разряде вышло 10 или больше — единицу переносим в следующий разряд.', uz: "O'ngdan chapga qo'shamiz. Xonada 10 yoki undan ko'p chiqsa — birni keyingi xonaga ko'chiramiz.", en: 'We add from right to left. If a place comes to 10 or more, we carry one into the next place.' },
+    term: { ru: 'Перенос — это единица, которая уходит в следующий разряд, когда сумма разряда достигает десяти.', uz: "Ko'chirish — bu xona yig'indisi o'nga yetganda keyingi xonaga o'tadigan birlik.", en: 'A carry is the one that moves into the next place when a place adds up to ten.' },
+    example: { ru: '168 + 257 = 425', uz: '168 + 257 = 425', en: '168 + 257 = 425' },
+    ref: { ru: 'Разряды и классы — из уроков о многозначных числах (nat_5_01).', uz: "Xonalar va sinflar — ko'p xonali sonlar darslaridan (nat_5_01).", en: 'Places and groups come from the lessons on long numbers (nat_5_01).' },
     audio: {
       ru: 'Закрепим то, что увидели. Числа пишем разряд под разрядом и складываем справа налево. Если в разряде вышло десять или больше, одну единицу держим в уме и перекидываем в следующий разряд. Это и есть перенос. Так сто шестьдесят восемь плюс двести пятьдесят семь дают четыреста двадцать пять.',
-      uz: "Ko'rganimizni mustahkamlaymiz. Sonlarni xonama-xona yozamiz va o'ngdan chapga qo'shamiz. Agar xonada o'n yoki undan ko'p chiqsa, bir birlikni dilda saqlab keyingi xonaga ko'chiramiz. Bu ko'chirish. Shunday qilib bir yuz oltmish sakkizga ikki yuz ellik yettini qo'shsak, to'rt yuz yigirma besh chiqadi."
+      uz: "Ko'rganimizni mustahkamlaymiz. Sonlarni xonama-xona yozamiz va o'ngdan chapga qo'shamiz. Agar xonada o'n yoki undan ko'p chiqsa, bir birlikni dilda saqlab keyingi xonaga ko'chiramiz. Bu ko'chirish. Shunday qilib bir yuz oltmish sakkizga ikki yuz ellik yettini qo'shsak, to'rt yuz yigirma besh chiqadi.",
+      en: 'Let us fix what we have seen. We write the numbers place under place and add from right to left. If a place comes to ten or more, we keep one in our head and move it into the next place. That is the carry. So one hundred and sixty eight plus two hundred and fifty seven makes four hundred and twenty five.'
     }
   },
 
   // ===== s3 — TEST input: сложение (276 + 185 = 461), ввод #1 =====
   s3: {
-    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1' },
-    label: { ru: 'Сложи сам', uz: "O'zingiz qo'shing" },
-    question: { ru: 'Мадина прочитала 276 страниц за первую неделю и 185 за вторую. Сколько всего? 276 + 185.', uz: "Madina birinchi haftada 276 bet, ikkinchisida 185 bet o'qidi. Hammasi bo'lib qancha? 276 + 185." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1', en: 'Practice · 1 of 2' },
+    label: { ru: 'Сложи сам', uz: "O'zingiz qo'shing", en: 'Add it yourself' },
+    question: { ru: 'Мадина прочитала 276 страниц за первую неделю и 185 за вторую. Сколько всего? 276 + 185.', uz: "Madina birinchi haftada 276 bet, ikkinchisida 185 bet o'qidi. Hammasi bo'lib qancha? 276 + 185.", en: 'Madina read 276 pages in the first week and 185 in the second. How many in all? 276 + 185.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '461',
-    hint: { ru: 'Складывай справа налево. В единицах и в десятках будет перенос — не теряй его.', uz: "O'ngdan chapga qo'shing. Birlarda ham, o'nlarda ham ko'chirish bo'ladi — uni yo'qotmang." },
-    fb_correct: { ru: 'Правильно. 6 + 5 = 11 и 7 + 8 + 1 = 16 — два переноса, в сумме 461.', uz: "To'g'ri. 6 + 5 = 11 va 7 + 8 + 1 = 16 — ikkita ko'chirish, yig'indida 461." },
-    fb_wrong: { ru: 'Верный ответ — 461. В единицах 6 + 5 = 11, в десятках 7 + 8 = 15 плюс перенос — оба переноса нужно учесть.', uz: "To'g'ri javob — 461. Birlarda 6 + 5 = 11, o'nlarda 7 + 8 = 15 va ko'chirish — ikkala ko'chirishni hisobga olish kerak." },
+    hint: { ru: 'Складывай справа налево. В единицах и в десятках будет перенос — не теряй его.', uz: "O'ngdan chapga qo'shing. Birlarda ham, o'nlarda ham ko'chirish bo'ladi — uni yo'qotmang.", en: 'Add from right to left. There will be a carry in the ones and in the tens, so do not lose it.' },
+    fb_correct: { ru: 'Правильно. 6 + 5 = 11 и 7 + 8 + 1 = 16 — два переноса, в сумме 461.', uz: "To'g'ri. 6 + 5 = 11 va 7 + 8 + 1 = 16 — ikkita ko'chirish, yig'indida 461.", en: 'Correct. 6 + 5 = 11 and 7 + 8 + 1 = 16, two carries, giving 461.' },
+    fb_wrong: { ru: 'Верный ответ — 461. В единицах 6 + 5 = 11, в десятках 7 + 8 = 15 плюс перенос — оба переноса нужно учесть.', uz: "To'g'ri javob — 461. Birlarda 6 + 5 = 11, o'nlarda 7 + 8 = 15 va ko'chirish — ikkala ko'chirishni hisobga olish kerak.", en: 'The right answer is 461. In the ones 6 + 5 = 11, in the tens 7 + 8 = 15 plus the carry, and both carries have to be counted.' },
     audio: {
-      intro: { ru: 'Теперь твоя очередь. Сложи эти числа в столбик сам. Помни про правило, и если в разряде набралось десять, не теряй перенос.', uz: "Endi sizning navbatingiz. Bu sonlarni o'zingiz ustun shaklida qo'shing. Qoidani unutmang, agar xonada o'n yig'ilsa, ko'chirishni yo'qotmang." },
-      on_correct: { ru: 'Верно. Перенос ты не потерял, всё сошлось.', uz: "To'g'ri. Ko'chirishni yo'qotmadingiz, hammasi mos keldi." },
-      on_wrong: { ru: 'Пока не сходится. Проверь каждый разряд и не забудь про тот один, что держим в уме.', uz: "Hali mos emas. Har bir xonani tekshiring va dildagi birni unutmang." }
+      intro: { ru: 'Теперь твоя очередь. Сложи эти числа в столбик сам. Помни про правило, и если в разряде набралось десять, не теряй перенос.', uz: "Endi sizning navbatingiz. Bu sonlarni o'zingiz ustun shaklida qo'shing. Qoidani unutmang, agar xonada o'n yig'ilsa, ko'chirishni yo'qotmang.", en: 'Now it is your turn. Add these numbers in columns yourself. Remember the rule, and if a place comes to ten, do not lose the carry.' },
+      on_correct: { ru: 'Верно. Перенос ты не потерял, всё сошлось.', uz: "To'g'ri. Ko'chirishni yo'qotmadingiz, hammasi mos keldi.", en: 'That is right. You did not lose the carry and it all adds up.' },
+      on_wrong: { ru: 'Пока не сходится. Проверь каждый разряд и не забудь про тот один, что держим в уме.', uz: "Hali mos emas. Har bir xonani tekshiring va dildagi birni unutmang.", en: 'It does not add up yet. Check every place and do not forget the one we keep in our head.' }
     }
   },
 
   // ===== s4 — TEST choice (retry_with_hint): сложение 285 + 47 =====
   s4: {
-    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2' },
-    label: { ru: 'Найди верную сумму', uz: "To'g'ri yig'indini toping" },
-    question: { ru: 'Сколько будет 285 + 47?', uz: '285 + 47 nechaga teng?' },
-    opt0: { ru: '222', uz: '222' },
-    opt1: { ru: '332', uz: '332' },
-    opt2: { ru: '755', uz: '755' },
-    opt3: { ru: '322', uz: '322' },
+    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2', en: 'Practice · 2 of 2' },
+    label: { ru: 'Найди верную сумму', uz: "To'g'ri yig'indini toping", en: 'Find the right total' },
+    question: { ru: 'Сколько будет 285 + 47?', uz: '285 + 47 nechaga teng?', en: 'How much is 285 + 47?' },
+    opt0: { ru: '222', uz: '222', en: '222' },
+    opt1: { ru: '332', uz: '332', en: '332' },
+    opt2: { ru: '755', uz: '755', en: '755' },
+    opt3: { ru: '322', uz: '322', en: '322' },
     correctIndex: 1,
-    hint: { ru: '47 — это десятки и единицы. Подпиши его под 285 справа, по разрядам. Следи за переносом.', uz: "47 — bu o'nlar va birlar. Uni 285 ostiga o'ngdan, xonalar bo'yicha yozing. Ko'chirishga e'tibor bering." },
-    correct_text: { ru: 'Правильно. 5 + 7 = 12 и 8 + 4 + 1 = 13 — два переноса, в сумме 332.', uz: "To'g'ri. 5 + 7 = 12 va 8 + 4 + 1 = 13 — ikkita ko'chirish, yig'indida 332." },
-    wrong_0: { ru: 'Оба переноса потеряны. 5 + 7 = 12 — единицу переносим в десятки; 8 + 4 = 12 — единицу в сотни. Верно 332.', uz: "Ikkala ko'chirish yo'qolgan. 5 + 7 = 12 — birni o'nlarga ko'chiramiz; 8 + 4 = 12 — birni yuzlarga. To'g'risi 332." },
-    wrong_2: { ru: 'Разряды не выровнены. 47 — это сорок семь, а не четыреста семьдесят; единицы под единицами, десятки под десятками. Верно 332.', uz: "Xonalar tekislanmagan. 47 — bu qirq yetti, to'rt yuz yetmish emas; birlar birlar ostida, o'nlar o'nlar ostida. To'g'risi 332." },
-    wrong_3: { ru: 'Один перенос потерян. В десятках 8 + 4 = 12 — единицу нужно перенести в сотни. Верно 332.', uz: "Bitta ko'chirish yo'qolgan. O'nlarda 8 + 4 = 12 — birni yuzlarga ko'chirish kerak. To'g'risi 332." },
-    wrong_default: { ru: 'Складывай справа налево по разрядам и не теряй перенос. Верно 332.', uz: "Xonalar bo'yicha o'ngdan chapga qo'shing va ko'chirishni yo'qotmang. To'g'risi 332." },
+    hint: { ru: '47 — это десятки и единицы. Подпиши его под 285 справа, по разрядам. Следи за переносом.', uz: "47 — bu o'nlar va birlar. Uni 285 ostiga o'ngdan, xonalar bo'yicha yozing. Ko'chirishga e'tibor bering.", en: '47 is tens and ones. Write it under 285 on the right, place under place. Watch the carry.' },
+    correct_text: { ru: 'Правильно. 5 + 7 = 12 и 8 + 4 + 1 = 13 — два переноса, в сумме 332.', uz: "To'g'ri. 5 + 7 = 12 va 8 + 4 + 1 = 13 — ikkita ko'chirish, yig'indida 332.", en: 'Correct. 5 + 7 = 12 and 8 + 4 + 1 = 13, two carries, giving 332.' },
+    wrong_0: { ru: 'Оба переноса потеряны. 5 + 7 = 12 — единицу переносим в десятки; 8 + 4 = 12 — единицу в сотни. Верно 332.', uz: "Ikkala ko'chirish yo'qolgan. 5 + 7 = 12 — birni o'nlarga ko'chiramiz; 8 + 4 = 12 — birni yuzlarga. To'g'risi 332.", en: 'Both carries were lost. 5 + 7 = 12, so one goes into the tens; 8 + 4 = 12, so one goes into the hundreds. The answer is 332.' },
+    wrong_2: { ru: 'Разряды не выровнены. 47 — это сорок семь, а не четыреста семьдесят; единицы под единицами, десятки под десятками. Верно 332.', uz: "Xonalar tekislanmagan. 47 — bu qirq yetti, to'rt yuz yetmish emas; birlar birlar ostida, o'nlar o'nlar ostida. To'g'risi 332.", en: 'The places are not lined up. 47 is forty seven, not four hundred and seventy; ones under ones and tens under tens. The answer is 332.' },
+    wrong_3: { ru: 'Один перенос потерян. В десятках 8 + 4 = 12 — единицу нужно перенести в сотни. Верно 332.', uz: "Bitta ko'chirish yo'qolgan. O'nlarda 8 + 4 = 12 — birni yuzlarga ko'chirish kerak. To'g'risi 332.", en: 'One carry was lost. In the tens 8 + 4 = 12, so one has to be carried into the hundreds. The answer is 332.' },
+    wrong_default: { ru: 'Складывай справа налево по разрядам и не теряй перенос. Верно 332.', uz: "Xonalar bo'yicha o'ngdan chapga qo'shing va ko'chirishni yo'qotmang. To'g'risi 332.", en: 'Add from right to left place by place and do not lose the carry. The answer is 332.' },
     audio: {
-      intro: { ru: 'А здесь выбери верный ответ. Если сомневаешься, всегда можно сложить в столбик и проверить себя.', uz: "Bu yerda esa to'g'ri javobni tanlang. Agar shubhalansangiz, ustun shaklida qo'shib o'zingizni tekshirsangiz bo'ladi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Давай разберёмся вместе. Сложи разряды справа налево и впиши результат, перенос не теряй.', uz: "Keling, birga ko'rib chiqamiz. Xonalarni o'ngdan chapga qo'shing va natijani yozing, ko'chirishni yo'qotmang." }
+      intro: { ru: 'А здесь выбери верный ответ. Если сомневаешься, всегда можно сложить в столбик и проверить себя.', uz: "Bu yerda esa to'g'ri javobni tanlang. Agar shubhalansangiz, ustun shaklida qo'shib o'zingizni tekshirsangiz bo'ladi.", en: 'Here choose the right answer. If you are unsure, you can always add it in columns and check yourself.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Давай разберёмся вместе. Сложи разряды справа налево и впиши результат, перенос не теряй.', uz: "Keling, birga ko'rib chiqamiz. Xonalarni o'ngdan chapga qo'shing va natijani yozing, ko'chirishni yo'qotmang.", en: 'Let us work it out together. Add the places from right to left and write the result, and do not lose the carry.' }
     }
   },
 
   // ===== s14 — ПРОВЕРКА ЗНАНИЙ: сложение (367 + 458 = 825) =====
   s14: {
-    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi' },
-    label: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
-    question: { ru: 'Зайнаб прочитала 367 страниц, а Алишер 458. Сколько страниц всего? 367 + 458.', uz: "Zaynab 367 bet, Alisher esa 458 bet o'qidi. Hammasi bo'lib necha bet? 367 + 458." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi', en: 'Knowledge check' },
+    label: { ru: 'Проверь себя', uz: "O'zingizni tekshiring", en: 'Check yourself' },
+    question: { ru: 'Зайнаб прочитала 367 страниц, а Алишер 458. Сколько страниц всего? 367 + 458.', uz: "Zaynab 367 bet, Alisher esa 458 bet o'qidi. Hammasi bo'lib necha bet? 367 + 458.", en: 'Zaynab read 367 pages and Alisher read 458. How many pages in all? 367 + 458.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '825',
-    hint: { ru: 'Складывай справа налево. В единицах и в десятках будет перенос, держи его в уме.', uz: "O'ngdan chapga qo'shing. Birlarda ham, o'nlarda ham ko'chirish bo'ladi, uni dilda saqlang." },
-    fb_correct: { ru: 'Верно. 7 + 8 = 15 и 6 + 5 + 1 = 12 — два переноса, в сумме 825.', uz: "To'g'ri. 7 + 8 = 15 va 6 + 5 + 1 = 12 — ikkita ko'chirish, yig'indida 825." },
-    fb_wrong: { ru: 'Верный ответ 825. В единицах 7 + 8 = 15, в десятках 6 + 5 = 11 плюс перенос — оба переноса нужно учесть.', uz: "To'g'ri javob 825. Birlarda 7 + 8 = 15, o'nlarda 6 + 5 = 11 va ko'chirish — ikkala ko'chirishni hisobga oling." },
+    hint: { ru: 'Складывай справа налево. В единицах и в десятках будет перенос, держи его в уме.', uz: "O'ngdan chapga qo'shing. Birlarda ham, o'nlarda ham ko'chirish bo'ladi, uni dilda saqlang.", en: 'Add from right to left. There will be a carry in the ones and in the tens, so keep it in your head.' },
+    fb_correct: { ru: 'Верно. 7 + 8 = 15 и 6 + 5 + 1 = 12 — два переноса, в сумме 825.', uz: "To'g'ri. 7 + 8 = 15 va 6 + 5 + 1 = 12 — ikkita ko'chirish, yig'indida 825.", en: 'That is right. 7 + 8 = 15 and 6 + 5 + 1 = 12, two carries, giving 825.' },
+    fb_wrong: { ru: 'Верный ответ 825. В единицах 7 + 8 = 15, в десятках 6 + 5 = 11 плюс перенос — оба переноса нужно учесть.', uz: "To'g'ri javob 825. Birlarda 7 + 8 = 15, o'nlarda 6 + 5 = 11 va ko'chirish — ikkala ko'chirishni hisobga oling.", en: 'The right answer is 825. In the ones 7 + 8 = 15, in the tens 6 + 5 = 11 plus the carry, and both carries have to be counted.' },
     audio: {
-      intro: { ru: 'А теперь проверь себя. Сложи эти числа в столбик сам и убедись, что оба переноса на месте.', uz: "Endi o'zingizni tekshiring. Bu sonlarni o'zingiz ustun shaklida qo'shing va ikkala ko'chirish ham joyida ekanini tekshiring." },
-      on_correct: { ru: 'Верно. Оба переноса учтены.', uz: "To'g'ri. Ikkala ko'chirish ham hisobga olindi." },
-      on_wrong: { ru: 'Пока не сходится. Проверь каждый разряд и не забудь про единицу в уме.', uz: "Hali mos emas. Har bir xonani tekshiring va dildagi birni unutmang." }
+      intro: { ru: 'А теперь проверь себя. Сложи эти числа в столбик сам и убедись, что оба переноса на месте.', uz: "Endi o'zingizni tekshiring. Bu sonlarni o'zingiz ustun shaklida qo'shing va ikkala ko'chirish ham joyida ekanini tekshiring.", en: 'Now check yourself. Add these numbers in columns and make sure both carries are there.' },
+      on_correct: { ru: 'Верно. Оба переноса учтены.', uz: "To'g'ri. Ikkala ko'chirish ham hisobga olindi.", en: 'That is right. Both carries are counted.' },
+      on_wrong: { ru: 'Пока не сходится. Проверь каждый разряд и не забудь про единицу в уме.', uz: "Hali mos emas. Har bir xonani tekshiring va dildagi birni unutmang.", en: 'It does not add up yet. Check every place and do not forget the one in your head.' }
     }
   },
 
   // ===== s5 — EXPLORATION: вычитание через нули (1000 − 645 = 355) =====
   s5: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Что такое заём', uz: 'Qarz olish nima' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Что такое заём', uz: 'Qarz olish nima', en: 'What borrowing is' },
     intro: {
       ru: 'До цели 1000 страниц, прочитано 645. В разряде единиц ноль — вычесть 5 нельзя. Занимаем у старшего разряда.',
-      uz: "Maqsadgacha 1000 bet, 645 ta o'qildi. Birlar xonasida nol — beshni ayirib bo'lmaydi. Yuqori xonadan qarz olamiz."
+      uz: "Maqsadgacha 1000 bet, 645 ta o'qildi. Birlar xonasida nol — beshni ayirib bo'lmaydi. Yuqori xonadan qarz olamiz.",
+      en: 'The target is 1000 pages and 645 have been read. There is a zero in the ones place, so you cannot take 5 away. We borrow from the place above.'
     },
-    step1_label: { ru: 'Разбиваем по цепочке', uz: "Zanjir bo'ylab almashtiramiz" },
-    step1_text: { ru: '1 тысяча = 10 сотен, 1 сотня = 10 десятков, 1 десяток = 10 единиц. Тысяча становится 0, сотни и десятки — по 9, у единиц — 10.', uz: "1 ming = 10 yuzlik, 1 yuzlik = 10 o'nlik, 1 o'nlik = 10 birlik. Ming 0 bo'ladi, yuzlar va o'nlar — 9 dan, birlarda — 10." },
-    step2_label: { ru: 'Вычитаем по разрядам', uz: 'Xonalar bo\'yicha ayiramiz' },
-    step2_text: { ru: '10 − 5 = 5, 9 − 4 = 5, 9 − 6 = 3.', uz: '10 − 5 = 5, 9 − 4 = 5, 9 − 6 = 3.' },
-    step3_label: { ru: 'Итог', uz: 'Natija' },
-    step3_text: { ru: 'Осталось 355 страниц. Заём прокатился через нули — каждый ноль стал девяткой.', uz: "355 bet qoldi. Qarz nollar orqali o'tdi — har bir nol to'qqizga aylandi." },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    step1_label: { ru: 'Разбиваем по цепочке', uz: "Zanjir bo'ylab almashtiramiz", en: 'Breaking it down in a chain' },
+    step1_text: { ru: '1 тысяча = 10 сотен, 1 сотня = 10 десятков, 1 десяток = 10 единиц. Тысяча становится 0, сотни и десятки — по 9, у единиц — 10.', uz: "1 ming = 10 yuzlik, 1 yuzlik = 10 o'nlik, 1 o'nlik = 10 birlik. Ming 0 bo'ladi, yuzlar va o'nlar — 9 dan, birlarda — 10.", en: '1 thousand = 10 hundreds, 1 hundred = 10 tens, 1 ten = 10 ones. The thousand becomes 0, the hundreds and tens become 9 each, and the ones get 10.' },
+    step2_label: { ru: 'Вычитаем по разрядам', uz: 'Xonalar bo\'yicha ayiramiz', en: 'We subtract place by place' },
+    step2_text: { ru: '10 − 5 = 5, 9 − 4 = 5, 9 − 6 = 3.', uz: '10 − 5 = 5, 9 − 4 = 5, 9 − 6 = 3.', en: '10 − 5 = 5, 9 − 4 = 5, 9 − 6 = 3.' },
+    step3_label: { ru: 'Итог', uz: 'Natija', en: 'Result' },
+    step3_text: { ru: 'Осталось 355 страниц. Заём прокатился через нули — каждый ноль стал девяткой.', uz: "355 bet qoldi. Qarz nollar orqali o'tdi — har bir nol to'qqizga aylandi.", en: '355 pages are left. The borrowing rolled through the zeros and every zero became a nine.' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Со сложением разобрались. Теперь вычитание, и здесь сложнее. Вычитаем тоже справа налево. В единицах ноль, а пять вычесть нельзя, значит надо занять у старшего разряда. Нули по цепочке становятся девятками, а у единиц появляется десять. Это называют занять.',
@@ -1765,158 +1798,163 @@ const CONTENT = {
         "Birlarga qaraymiz. O'ndan beshni ayiramiz, besh qoladi. Beshni yozamiz.",
         "O'nlarga o'tamiz. To'qqizdan to'rtni ayirsak, besh. Yana beshni yozamiz.",
         "Va nihoyat yuzlar. To'qqizdan oltini ayirsak, uch. Uch yuz ellik besh bet chiqadi, birorta xona yo'qolmadi."
-      ]
+      ],
+      en: ['We have sorted out adding. Now subtracting, and this is harder. We subtract from right to left as well. There is a zero in the ones and you cannot take five away, so we have to borrow from the place above. The zeros along the chain become nines and the ones get ten. That is called borrowing.', 'We look at the ones. Ten take away five leaves five. We write five.', 'We move to the tens. Nine minus four is five. We write five again.', 'And finally the hundreds. Nine minus six is three. That gives three hundred and fifty five pages, and not a single place was lost.']
     }
   },
 
   // ===== s6 — RULE: вычитание столбиком и заём через нули =====
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Вычитание столбиком', uz: 'Ustun shaklida ayirish' },
-    rule_1: { ru: 'Записываем разряд под разрядом, вычитаем справа налево.', uz: "Xonama-xona yozamiz, o'ngdan chapga ayiramiz." },
-    rule_2: { ru: 'Если верхней цифры не хватает — берём 1 единицу старшего разряда и разбиваем её на 10 единиц текущего. Это и есть занять.', uz: "Yuqoridagi raqam yetmasa — yuqori xonadan 1 birlik olib, uni shu xonaning 10 birligi qilib olamiz. Bu qarz olish." },
-    rule_3: { ru: 'Если у соседа ноль, разбиваем дальше по цепочке: нули по пути становятся девятками.', uz: "Qo'shnida nol bo'lsa, zanjir bo'ylab davom etamiz: yo'ldagi nollar to'qqizga aylanadi." },
-    term: { ru: 'Заём — взять 1 единицу старшего разряда и заменить её на 10 единиц младшего, когда своей цифры не хватает.', uz: "Qarz olish — o'z raqami yetmaganda yuqori xonadan 1 birlik olib, uni 10 ta kichik birlik bilan almashtirish." },
-    example: { ru: '1000 − 645 = 355', uz: '1000 − 645 = 355' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Вычитание столбиком', uz: 'Ustun shaklida ayirish', en: 'Subtracting in columns' },
+    rule_1: { ru: 'Записываем разряд под разрядом, вычитаем справа налево.', uz: "Xonama-xona yozamiz, o'ngdan chapga ayiramiz.", en: 'We write place under place and subtract from right to left.' },
+    rule_2: { ru: 'Если верхней цифры не хватает — берём 1 единицу старшего разряда и разбиваем её на 10 единиц текущего. Это и есть занять.', uz: "Yuqoridagi raqam yetmasa — yuqori xonadan 1 birlik olib, uni shu xonaning 10 birligi qilib olamiz. Bu qarz olish.", en: 'If the top digit is not enough, we take 1 from the place above and break it into 10 of the current place. That is borrowing.' },
+    rule_3: { ru: 'Если у соседа ноль, разбиваем дальше по цепочке: нули по пути становятся девятками.', uz: "Qo'shnida nol bo'lsa, zanjir bo'ylab davom etamiz: yo'ldagi nollar to'qqizga aylanadi.", en: 'If the neighbour is a zero, we break down further along the chain: the zeros on the way become nines.' },
+    term: { ru: 'Заём — взять 1 единицу старшего разряда и заменить её на 10 единиц младшего, когда своей цифры не хватает.', uz: "Qarz olish — o'z raqami yetmaganda yuqori xonadan 1 birlik olib, uni 10 ta kichik birlik bilan almashtirish.", en: 'Borrowing means taking 1 from the place above and turning it into 10 of the place below when your own digit is not enough.' },
+    example: { ru: '1000 − 645 = 355', uz: '1000 − 645 = 355', en: '1000 − 645 = 355' },
     audio: {
       ru: 'Закрепим и вычитание. Вычитаем справа налево. Если верхней цифры не хватает, занимаем у старшего разряда единицу как десять единиц текущего. Это занять. Если у соседа ноль, занимаем дальше, нули по пути становятся девятками. Так тысяча минус шестьсот сорок пять дают триста пятьдесят пять.',
-      uz: "Ayirishni ham mustahkamlaymiz. O'ngdan chapga ayiramiz. Yuqoridagi raqam yetmasa, yuqori xonadan bir birlik olib, uni shu xonaning o'n birligi qilamiz. Bu qarz olish. Qo'shnida nol bo'lsa, zanjir bo'ylab davom etamiz, nollar to'qqizga aylanadi. Shunday qilib mingdan olti yuz qirq beshni ayirsak, uch yuz ellik besh chiqadi."
+      uz: "Ayirishni ham mustahkamlaymiz. O'ngdan chapga ayiramiz. Yuqoridagi raqam yetmasa, yuqori xonadan bir birlik olib, uni shu xonaning o'n birligi qilamiz. Bu qarz olish. Qo'shnida nol bo'lsa, zanjir bo'ylab davom etamiz, nollar to'qqizga aylanadi. Shunday qilib mingdan olti yuz qirq beshni ayirsak, uch yuz ellik besh chiqadi.",
+      en: 'Let us fix subtracting too. We subtract from right to left. If the top digit is not enough, we borrow one from the place above as ten of the current place. That is borrowing. If the neighbour is a zero, we borrow further on, and the zeros on the way become nines. So a thousand minus six hundred and forty five makes three hundred and fifty five.'
     }
   },
 
   // ===== s7 — TEST input: вычитание через нули (1000 − 396 = 604), ввод #2 =====
   s7: {
-    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1' },
-    label: { ru: 'Посчитай сам', uz: "O'zingiz hisoblang" },
-    question: { ru: 'До цели 1000 страниц прочитано 396. Сколько осталось? 1000 − 396.', uz: "1000 betlik maqsadgacha 396 ta o'qildi. Qancha qoldi? 1000 − 396." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1', en: 'Practice · 1 of 2' },
+    label: { ru: 'Посчитай сам', uz: "O'zingiz hisoblang", en: 'Work it out yourself' },
+    question: { ru: 'До цели 1000 страниц прочитано 396. Сколько осталось? 1000 − 396.', uz: "1000 betlik maqsadgacha 396 ta o'qildi. Qancha qoldi? 1000 − 396.", en: 'The target is 1000 pages and 396 have been read. How many are left? 1000 − 396.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '604',
-    hint: { ru: 'Занимай у тысячи: нули по пути станут девятками. В ответе есть нулевой разряд — не теряй его.', uz: "Mingdan qarz oling: yo'ldagi nollar to'qqizga aylanadi. Javobda nol xonasi bor — uni yo'qotmang." },
-    fb_correct: { ru: 'Правильно. 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6 — осталось 604.', uz: "To'g'ri. 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6 — 604 qoldi." },
-    fb_wrong: { ru: 'Верный ответ — 604. Заём от тысячи прокатывается через нули: 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6. Нулевой разряд в ответе не теряем.', uz: "To'g'ri javob — 604. Mingdan qarz nollar orqali o'tadi: 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6. Javobdagi nol xonasini yo'qotmaymiz." },
+    hint: { ru: 'Занимай у тысячи: нули по пути станут девятками. В ответе есть нулевой разряд — не теряй его.', uz: "Mingdan qarz oling: yo'ldagi nollar to'qqizga aylanadi. Javobda nol xonasi bor — uni yo'qotmang.", en: 'Borrow from the thousand: the zeros on the way become nines. There is a zero place in the answer, so do not lose it.' },
+    fb_correct: { ru: 'Правильно. 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6 — осталось 604.', uz: "To'g'ri. 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6 — 604 qoldi.", en: 'Correct. 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6, so 604 are left.' },
+    fb_wrong: { ru: 'Верный ответ — 604. Заём от тысячи прокатывается через нули: 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6. Нулевой разряд в ответе не теряем.', uz: "To'g'ri javob — 604. Mingdan qarz nollar orqali o'tadi: 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6. Javobdagi nol xonasini yo'qotmaymiz.", en: 'The right answer is 604. The borrowing from the thousand rolls through the zeros: 10 − 6 = 4, 9 − 9 = 0, 9 − 3 = 6. Do not lose the zero place in the answer.' },
     audio: {
-      intro: { ru: 'Снова твоя очередь, теперь вычитание. Вычти в столбик. Здесь сверху нули, так что вспомни, как занимать по цепочке.', uz: "Yana sizning navbatingiz, endi ayirish. Ustun shaklida ayiring. Bu yerda yuqorida nollar bor, shuning uchun zanjir bo'ylab qarz olishni eslang." },
-      on_correct: { ru: 'Верно. Заём прошёл через нули, и ответ сошёлся.', uz: "To'g'ri. Qarz nollar orqali o'tdi va javob mos keldi." },
-      on_wrong: { ru: 'Пока не то. Помни, что при заёме нули превращаются в девятки, проверь ещё раз.', uz: "Hali emas. Qarz olganda nollar to'qqizga aylanishini eslang va yana tekshiring." }
+      intro: { ru: 'Снова твоя очередь, теперь вычитание. Вычти в столбик. Здесь сверху нули, так что вспомни, как занимать по цепочке.', uz: "Yana sizning navbatingiz, endi ayirish. Ustun shaklida ayiring. Bu yerda yuqorida nollar bor, shuning uchun zanjir bo'ylab qarz olishni eslang.", en: 'Your turn again, this time subtracting. Work it out in columns. There are zeros on top here, so remember how to borrow along a chain.' },
+      on_correct: { ru: 'Верно. Заём прошёл через нули, и ответ сошёлся.', uz: "To'g'ri. Qarz nollar orqali o'tdi va javob mos keldi.", en: 'That is right. The borrowing went through the zeros and the answer came out.' },
+      on_wrong: { ru: 'Пока не то. Помни, что при заёме нули превращаются в девятки, проверь ещё раз.', uz: "Hali emas. Qarz olganda nollar to'qqizga aylanishini eslang va yana tekshiring.", en: 'Not right yet. Remember that when you borrow the zeros turn into nines, so check it again.' }
     }
   },
 
   // ===== s8 — TEST choice (retry_with_hint): вычитание 506 − 198 = 308 =====
   s8: {
-    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2' },
-    label: { ru: 'Найди верную разность', uz: "To'g'ri ayirmani toping" },
-    question: { ru: 'Сколько будет 506 − 198?', uz: '506 − 198 nechaga teng?' },
-    opt0: { ru: '492', uz: '492' },
-    opt1: { ru: '308', uz: '308' },
-    opt2: { ru: '318', uz: '318' },
-    opt3: { ru: '408', uz: '408' },
+    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2', en: 'Practice · 2 of 2' },
+    label: { ru: 'Найди верную разность', uz: "To'g'ri ayirmani toping", en: 'Find the right difference' },
+    question: { ru: 'Сколько будет 506 − 198?', uz: '506 − 198 nechaga teng?', en: 'How much is 506 − 198?' },
+    opt0: { ru: '492', uz: '492', en: '492' },
+    opt1: { ru: '308', uz: '308', en: '308' },
+    opt2: { ru: '318', uz: '318', en: '318' },
+    opt3: { ru: '408', uz: '408', en: '408' },
     correctIndex: 1,
-    hint: { ru: 'В единицах 6 меньше 8 — занимай. В десятках стоит 0, заём идёт у сотен; после отдачи 0 становится 9.', uz: "Birlarda 6 kichik 8 dan — qarz oling. O'nlarda 0 turibdi, qarz yuzlardan keladi; bergach 0 to'qqizga aylanadi." },
-    correct_text: { ru: 'Правильно. 16 − 8 = 8, 9 − 9 = 0, 4 − 1 = 3 — разность 308.', uz: "To'g'ri. 16 − 8 = 8, 9 − 9 = 0, 4 − 1 = 3 — ayirma 308." },
-    wrong_0: { ru: 'Из меньшей цифры нельзя вычитать большую как угодно. 5 − 1, 0 − 9, 6 − 8 — где не хватает, занимаем у соседа, а не меняем местами. Верно 308.', uz: "Kichik raqamdan kattasini xohlagancha ayirib bo'lmaydi. 5 − 1, 0 − 9, 6 − 8 — yetmagan joyda qo'shnidan qarz olamiz, o'rin almashtirmaymiz. To'g'risi 308." },
-    wrong_2: { ru: 'Разряд десятков отдал единицу единицам, поэтому он стал 9, а не 10. 9 − 9 = 0. Верно 308.', uz: "O'nlar xonasi birlarga birlik berdi, shuning uchun u 10 emas, 9 bo'ldi. 9 − 9 = 0. To'g'risi 308." },
-    wrong_3: { ru: 'Заём сделан только для единиц, а нулевой разряд десятков оставлен без изменения. Заём должен пройти через ноль. Верно 308.', uz: "Qarz faqat birlar uchun olingan, o'nlardagi nol xona o'zgarishsiz qolgan. Qarz nol orqali o'tishi kerak. To'g'risi 308." },
-    wrong_default: { ru: 'Вычитай справа налево, при нехватке занимай у соседа, проводи заём через нули. Верно 308.', uz: "O'ngdan chapga ayiring, yetmasa qo'shnidan qarz oling, qarzni nollar orqali o'tkazing. To'g'risi 308." },
+    hint: { ru: 'В единицах 6 меньше 8 — занимай. В десятках стоит 0, заём идёт у сотен; после отдачи 0 становится 9.', uz: "Birlarda 6 kichik 8 dan — qarz oling. O'nlarda 0 turibdi, qarz yuzlardan keladi; bergach 0 to'qqizga aylanadi.", en: 'In the ones 6 is less than 8, so borrow. There is a 0 in the tens, so the borrowing comes from the hundreds, and after giving one away the 0 becomes 9.' },
+    correct_text: { ru: 'Правильно. 16 − 8 = 8, 9 − 9 = 0, 4 − 1 = 3 — разность 308.', uz: "To'g'ri. 16 − 8 = 8, 9 − 9 = 0, 4 − 1 = 3 — ayirma 308.", en: 'Correct. 16 − 8 = 8, 9 − 9 = 0, 4 − 1 = 3, so the difference is 308.' },
+    wrong_0: { ru: 'Из меньшей цифры нельзя вычитать большую как угодно. 5 − 1, 0 − 9, 6 − 8 — где не хватает, занимаем у соседа, а не меняем местами. Верно 308.', uz: "Kichik raqamdan kattasini xohlagancha ayirib bo'lmaydi. 5 − 1, 0 − 9, 6 − 8 — yetmagan joyda qo'shnidan qarz olamiz, o'rin almashtirmaymiz. To'g'risi 308.", en: 'You cannot just take a bigger digit from a smaller one. 5 − 1, 0 − 9, 6 − 8: where there is not enough we borrow from the neighbour instead of swapping them round. The answer is 308.' },
+    wrong_2: { ru: 'Разряд десятков отдал единицу единицам, поэтому он стал 9, а не 10. 9 − 9 = 0. Верно 308.', uz: "O'nlar xonasi birlarga birlik berdi, shuning uchun u 10 emas, 9 bo'ldi. 9 − 9 = 0. To'g'risi 308.", en: 'The tens place gave one away to the ones, so it became 9, not 10. 9 − 9 = 0. The answer is 308.' },
+    wrong_3: { ru: 'Заём сделан только для единиц, а нулевой разряд десятков оставлен без изменения. Заём должен пройти через ноль. Верно 308.', uz: "Qarz faqat birlar uchun olingan, o'nlardagi nol xona o'zgarishsiz qolgan. Qarz nol orqali o'tishi kerak. To'g'risi 308.", en: 'The borrowing was done only for the ones and the zero in the tens was left as it was. The borrowing has to pass through the zero. The answer is 308.' },
+    wrong_default: { ru: 'Вычитай справа налево, при нехватке занимай у соседа, проводи заём через нули. Верно 308.', uz: "O'ngdan chapga ayiring, yetmasa qo'shnidan qarz oling, qarzni nollar orqali o'tkazing. To'g'risi 308.", en: 'Subtract from right to left, borrow from the neighbour where there is not enough, and take the borrowing through the zeros. The answer is 308.' },
     audio: {
-      intro: { ru: 'Выбери ответ. Если не уверен, реши в столбик и помни про заём, особенно там, где сверху ноль.', uz: "Javobni tanlang. Ishonchingiz komil bo'lmasa, ustun shaklida yeching va qarz olishni eslang, ayniqsa yuqorida nol bo'lgan joyda." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Давай вместе. Вычитай разряды справа налево и не забудь про заём там, где не хватает.', uz: "Keling, birga. Xonalarni o'ngdan chapga ayiring va yetmagan joyda qarz olishni unutmang." }
+      intro: { ru: 'Выбери ответ. Если не уверен, реши в столбик и помни про заём, особенно там, где сверху ноль.', uz: "Javobni tanlang. Ishonchingiz komil bo'lmasa, ustun shaklida yeching va qarz olishni eslang, ayniqsa yuqorida nol bo'lgan joyda.", en: 'Choose an answer. If you are unsure, work it out in columns and remember the borrowing, especially where there is a zero on top.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Давай вместе. Вычитай разряды справа налево и не забудь про заём там, где не хватает.', uz: "Keling, birga. Xonalarni o'ngdan chapga ayiring va yetmagan joyda qarz olishni unutmang.", en: 'Let us do it together. Subtract the places from right to left and do not forget to borrow where there is not enough.' }
     }
   },
 
   // ===== s9 — CASE setup: финишная неделя марафона =====
   s9: {
-    eyebrow: { ru: 'Задача · марафон класса', uz: 'Masala · sinf marafoni' },
-    title: { ru: 'Финишная неделя', uz: 'Final haftasi' },
+    eyebrow: { ru: 'Задача · марафон класса', uz: 'Masala · sinf marafoni', en: 'Problem · the class marathon' },
+    title: { ru: 'Финишная неделя', uz: 'Final haftasi', en: 'The final week' },
     intro: {
       ru: 'Класс 5-А идёт к цели 1000 страниц. За прошлые недели собрали 428 страниц, на финишной неделе — ещё 267. Сосед, класс 5-Б, собрал 458 страниц. Поможем 5-А разобраться с итогами.',
-      uz: "5-A sinf 1000 betlik maqsad sari ketyapti. O'tgan haftalarda 428 bet, final haftasida — yana 267 bet to'plandi. Qo'shni 5-B sinf 458 bet to'pladi. 5-A ga yakunlarni hisoblashda yordam beramiz."
+      uz: "5-A sinf 1000 betlik maqsad sari ketyapti. O'tgan haftalarda 428 bet, final haftasida — yana 267 bet to'plandi. Qo'shni 5-B sinf 458 bet to'pladi. 5-A ga yakunlarni hisoblashda yordam beramiz.",
+      en: 'Class 5-A is working towards a target of 1000 pages. In the earlier weeks they collected 428 pages and in the final week another 267. Their neighbours, class 5-B, collected 458 pages. Let us help 5-A work out their results.'
     },
-    fact_1: { ru: 'Прошлые недели — 428 страниц', uz: "O'tgan haftalar — 428 bet" },
-    fact_2: { ru: 'Финишная неделя — 267 страниц', uz: 'Final haftasi — 267 bet' },
-    cta: { ru: 'Помочь классу', uz: 'Sinfga yordam berish' },
-    ref: { ru: 'Цель марафона — 1000 страниц. Сосед, 5-Б, — 458 страниц.', uz: "Marafon maqsadi — 1000 bet. Qo'shni 5-B — 458 bet." },
+    fact_1: { ru: 'Прошлые недели — 428 страниц', uz: "O'tgan haftalar — 428 bet", en: 'The earlier weeks, 428 pages' },
+    fact_2: { ru: 'Финишная неделя — 267 страниц', uz: 'Final haftasi — 267 bet', en: 'The final week, 267 pages' },
+    cta: { ru: 'Помочь классу', uz: 'Sinfga yordam berish', en: 'Help the class' },
+    ref: { ru: 'Цель марафона — 1000 страниц. Сосед, 5-Б, — 458 страниц.', uz: "Marafon maqsadi — 1000 bet. Qo'shni 5-B — 458 bet.", en: 'The marathon target is 1000 pages. Their neighbours, 5-B, have 458 pages.' },
     audio: {
       ru: 'А теперь применим всё к настоящей задаче. Класс пять А идёт к цели в тысячу страниц. За прошлые недели собрали четыреста двадцать восемь, на финишной неделе ещё двести шестьдесят семь. Соседний класс пять Б собрал четыреста пятьдесят восемь. Поможем посчитать итоги.',
-      uz: "Endi hammasini haqiqiy masalaga qo'llaymiz. Besh A sinf ming betlik maqsad sari ketyapti. O'tgan haftalarda to'rt yuz yigirma sakkiz, yakuniy haftada yana ikki yuz oltmish yetti bet yig'ildi. Qo'shni besh B sinf to'rt yuz ellik sakkiz bet to'pladi. Natijalarni sanashga yordam beramiz."
+      uz: "Endi hammasini haqiqiy masalaga qo'llaymiz. Besh A sinf ming betlik maqsad sari ketyapti. O'tgan haftalarda to'rt yuz yigirma sakkiz, yakuniy haftada yana ikki yuz oltmish yetti bet yig'ildi. Qo'shni besh B sinf to'rt yuz ellik sakkiz bet to'pladi. Natijalarni sanashga yordam beramiz.",
+      en: 'Now let us use all of it on a real problem. Class five A is working towards a target of a thousand pages. In the earlier weeks they collected four hundred and twenty eight, and in the final week another two hundred and sixty seven. The neighbouring class five B collected four hundred and fifty eight. Let us help work out the results.'
     }
   },
 
   // ===== s10 — CASE step (retry_with_hint): сложение 428 + 267 = 695 =====
   s10: {
-    eyebrow: { ru: 'Задача · марафон класса', uz: 'Masala · sinf marafoni' },
-    label: { ru: 'Сколько собрал 5-А', uz: '5-A qancha to\'pladi' },
-    question: { ru: 'Сколько страниц всего у 5-А? 428 + 267.', uz: "5-A da hammasi bo'lib nechta bet? 428 + 267." },
-    opt0: { ru: '685', uz: '685' },
-    opt1: { ru: '695', uz: '695' },
-    opt2: { ru: '785', uz: '785' },
+    eyebrow: { ru: 'Задача · марафон класса', uz: 'Masala · sinf marafoni', en: 'Problem · the class marathon' },
+    label: { ru: 'Сколько собрал 5-А', uz: '5-A qancha to\'pladi', en: 'How much 5-A collected' },
+    question: { ru: 'Сколько страниц всего у 5-А? 428 + 267.', uz: "5-A da hammasi bo'lib nechta bet? 428 + 267.", en: 'How many pages does 5-A have in all? 428 + 267.' },
+    opt0: { ru: '685', uz: '685', en: '685' },
+    opt1: { ru: '695', uz: '695', en: '695' },
+    opt2: { ru: '785', uz: '785', en: '785' },
     correctIndex: 1,
-    hint: { ru: 'Складывай справа налево. В единицах 8 + 7 = 15 — будет перенос в десятки.', uz: "O'ngdan chapga qo'shing. Birlarda 8 + 7 = 15 — o'nlarga ko'chirish bo'ladi." },
-    correct_text: { ru: 'Правильно. 8 + 7 = 15 — переносим 1; 2 + 6 + 1 = 9; 4 + 2 = 6. Всего 695.', uz: "To'g'ri. 8 + 7 = 15 — 1 ni ko'chiramiz; 2 + 6 + 1 = 9; 4 + 2 = 6. Jami 695." },
-    wrong_0: { ru: 'Перенос из единиц потерян. 8 + 7 = 15 — единицу нужно добавить в десятки. Верно 695.', uz: "Birlardan ko'chirish yo'qolgan. 8 + 7 = 15 — birni o'nlarga qo'shish kerak. To'g'risi 695." },
-    wrong_2: { ru: 'Перенос ушёл не в тот разряд. Единицу из 8 + 7 = 15 добавляем в десятки, а не в сотни. Верно 695.', uz: "Ko'chirish noto'g'ri xonaga ketgan. 8 + 7 = 15 dagi birni o'nlarga qo'shamiz, yuzlarga emas. To'g'risi 695." },
-    wrong_default: { ru: 'Складывай по разрядам и добавляй перенос в следующий разряд. Верно 695.', uz: "Xonalar bo'yicha qo'shing va ko'chirishni keyingi xonaga qo'shing. To'g'risi 695." },
+    hint: { ru: 'Складывай справа налево. В единицах 8 + 7 = 15 — будет перенос в десятки.', uz: "O'ngdan chapga qo'shing. Birlarda 8 + 7 = 15 — o'nlarga ko'chirish bo'ladi.", en: 'Add from right to left. In the ones 8 + 7 = 15, so there will be a carry into the tens.' },
+    correct_text: { ru: 'Правильно. 8 + 7 = 15 — переносим 1; 2 + 6 + 1 = 9; 4 + 2 = 6. Всего 695.', uz: "To'g'ri. 8 + 7 = 15 — 1 ni ko'chiramiz; 2 + 6 + 1 = 9; 4 + 2 = 6. Jami 695.", en: 'Correct. 8 + 7 = 15, so we carry 1; 2 + 6 + 1 = 9; 4 + 2 = 6. That is 695 in all.' },
+    wrong_0: { ru: 'Перенос из единиц потерян. 8 + 7 = 15 — единицу нужно добавить в десятки. Верно 695.', uz: "Birlardan ko'chirish yo'qolgan. 8 + 7 = 15 — birni o'nlarga qo'shish kerak. To'g'risi 695.", en: 'The carry from the ones was lost. 8 + 7 = 15, so the one has to be added into the tens. The answer is 695.' },
+    wrong_2: { ru: 'Перенос ушёл не в тот разряд. Единицу из 8 + 7 = 15 добавляем в десятки, а не в сотни. Верно 695.', uz: "Ko'chirish noto'g'ri xonaga ketgan. 8 + 7 = 15 dagi birni o'nlarga qo'shamiz, yuzlarga emas. To'g'risi 695.", en: 'The carry went into the wrong place. The one from 8 + 7 = 15 goes into the tens, not into the hundreds. The answer is 695.' },
+    wrong_default: { ru: 'Складывай по разрядам и добавляй перенос в следующий разряд. Верно 695.', uz: "Xonalar bo'yicha qo'shing va ko'chirishni keyingi xonaga qo'shing. To'g'risi 695.", en: 'Add place by place and put the carry into the next place. The answer is 695.' },
     audio: {
-      intro: { ru: 'Сначала сложим, сколько страниц собрал класс пять А за все недели. Выбери верную сумму, а если надо, посчитай в столбик.', uz: "Avval besh A sinf barcha haftalarda nechta bet to'plaganini qo'shamiz. To'g'ri yig'indini tanlang, kerak bo'lsa, ustun shaklida sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Давай посчитаем. Сложи четыреста двадцать восемь и двести шестьдесят семь столбиком, перенос не теряй.', uz: "Keling, sanaymiz. To'rt yuz yigirma sakkizga ikki yuz oltmish yettini ustun shaklida qo'shing, ko'chirishni yo'qotmang." }
+      intro: { ru: 'Сначала сложим, сколько страниц собрал класс пять А за все недели. Выбери верную сумму, а если надо, посчитай в столбик.', uz: "Avval besh A sinf barcha haftalarda nechta bet to'plaganini qo'shamiz. To'g'ri yig'indini tanlang, kerak bo'lsa, ustun shaklida sanang.", en: 'First let us add up how many pages class five A collected over all the weeks. Choose the right total, and work it out in columns if you need to.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Давай посчитаем. Сложи четыреста двадцать восемь и двести шестьдесят семь столбиком, перенос не теряй.', uz: "Keling, sanaymiz. To'rt yuz yigirma sakkizga ikki yuz oltmish yettini ustun shaklida qo'shing, ko'chirishni yo'qotmang.", en: 'Let us work it out. Add four hundred and twenty eight and two hundred and sixty seven in columns and do not lose the carry.' }
     }
   },
 
   // ===== s11 — FINAL test choice (retry_with_hint): вычитание 1000 − 695 = 305 =====
   s11: {
-    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1' },
-    label: { ru: 'Сколько осталось до цели', uz: 'Maqsadgacha qancha qoldi' },
-    question: { ru: 'У 5-А 695 страниц, цель — 1000. Сколько осталось? 1000 − 695.', uz: "5-A da 695 bet, maqsad — 1000. Qancha qoldi? 1000 − 695." },
-    opt0: { ru: '415', uz: '415' },
-    opt1: { ru: '315', uz: '315' },
-    opt2: { ru: '305', uz: '305' },
+    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1', en: 'Final · 1 of 2' },
+    label: { ru: 'Сколько осталось до цели', uz: 'Maqsadgacha qancha qoldi', en: 'How many are left to the target' },
+    question: { ru: 'У 5-А 695 страниц, цель — 1000. Сколько осталось? 1000 − 695.', uz: "5-A da 695 bet, maqsad — 1000. Qancha qoldi? 1000 − 695.", en: '5-A has 695 pages and the target is 1000. How many are left? 1000 − 695.' },
+    opt0: { ru: '415', uz: '415', en: '415' },
+    opt1: { ru: '315', uz: '315', en: '315' },
+    opt2: { ru: '305', uz: '305', en: '305' },
     correctIndex: 2,
-    hint: { ru: 'Занимай у тысячи. Нули по цепочке становятся девятками; разряд, который отдал единицу, уже не 10, а 9.', uz: "Mingdan qarz oling. Nollar zanjir bo'ylab to'qqizga aylanadi; birlik bergan xona endi 10 emas, 9." },
-    correct_text: { ru: 'Правильно. 10 − 5 = 5, 9 − 9 = 0, 9 − 6 = 3 — осталось 305.', uz: "To'g'ri. 10 − 5 = 5, 9 − 9 = 0, 9 − 6 = 3 — 305 qoldi." },
-    wrong_0: { ru: 'Каждый ноль принят за 10 по отдельности. Заём общий: он проходит по цепочке, и средние нули становятся девятками. Верно 305.', uz: "Har bir nol alohida 10 deb olingan. Qarz umumiy: u zanjir bo'ylab o'tadi, o'rtadagi nollar to'qqizga aylanadi. To'g'risi 305." },
-    wrong_1: { ru: 'Разряд десятков отдал единицу, поэтому он 9, а не 10. 9 − 9 = 0, а не 1. Верно 305.', uz: "O'nlar xonasi birlik berdi, shuning uchun u 9, 10 emas. 9 − 9 = 0, 1 emas. To'g'risi 305." },
-    wrong_default: { ru: 'Заём от тысячи проходит через нули цепочкой. Верно 305.', uz: "Mingdan qarz nollar orqali zanjir bo'lib o'tadi. To'g'risi 305." },
+    hint: { ru: 'Занимай у тысячи. Нули по цепочке становятся девятками; разряд, который отдал единицу, уже не 10, а 9.', uz: "Mingdan qarz oling. Nollar zanjir bo'ylab to'qqizga aylanadi; birlik bergan xona endi 10 emas, 9.", en: 'Borrow from the thousand. The zeros along the chain become nines, and the place that gave one away is 9, not 10.' },
+    correct_text: { ru: 'Правильно. 10 − 5 = 5, 9 − 9 = 0, 9 − 6 = 3 — осталось 305.', uz: "To'g'ri. 10 − 5 = 5, 9 − 9 = 0, 9 − 6 = 3 — 305 qoldi.", en: 'Correct. 10 − 5 = 5, 9 − 9 = 0, 9 − 6 = 3, so 305 are left.' },
+    wrong_0: { ru: 'Каждый ноль принят за 10 по отдельности. Заём общий: он проходит по цепочке, и средние нули становятся девятками. Верно 305.', uz: "Har bir nol alohida 10 deb olingan. Qarz umumiy: u zanjir bo'ylab o'tadi, o'rtadagi nollar to'qqizga aylanadi. To'g'risi 305.", en: 'Every zero was taken as 10 on its own. The borrowing is shared: it runs along the chain and the zeros in the middle become nines. The answer is 305.' },
+    wrong_1: { ru: 'Разряд десятков отдал единицу, поэтому он 9, а не 10. 9 − 9 = 0, а не 1. Верно 305.', uz: "O'nlar xonasi birlik berdi, shuning uchun u 9, 10 emas. 9 − 9 = 0, 1 emas. To'g'risi 305.", en: 'The tens place gave one away, so it is 9, not 10. 9 − 9 = 0, not 1. The answer is 305.' },
+    wrong_default: { ru: 'Заём от тысячи проходит через нули цепочкой. Верно 305.', uz: "Mingdan qarz nollar orqali zanjir bo'lib o'tadi. To'g'risi 305.", en: 'The borrowing from the thousand runs through the zeros in a chain. The answer is 305.' },
     audio: {
-      intro: { ru: 'Теперь узнаем, сколько страниц осталось классу до цели. От тысячи отними то, что уже собрано. Это снова вычитание через нули.', uz: "Endi sinfga maqsadgacha nechta bet qolganini bilamiz. Mingdan to'plangan betlarni ayiring. Bu yana nollar orqali ayirish." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Давай разберёмся. Из тысячи вычитай столбиком, нули по цепочке станут девятками, помни про заём.', uz: "Keling, ko'rib chiqamiz. Mingdan ustun shaklida ayiring, nollar zanjir bo'ylab to'qqizga aylanadi, qarz olishni eslang." }
+      intro: { ru: 'Теперь узнаем, сколько страниц осталось классу до цели. От тысячи отними то, что уже собрано. Это снова вычитание через нули.', uz: "Endi sinfga maqsadgacha nechta bet qolganini bilamiz. Mingdan to'plangan betlarni ayiring. Bu yana nollar orqali ayirish.", en: 'Now let us find how many pages the class has left to the target. Take what they have collected away from the thousand. That is subtracting through zeros again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Давай разберёмся. Из тысячи вычитай столбиком, нули по цепочке станут девятками, помни про заём.', uz: "Keling, ko'rib chiqamiz. Mingdan ustun shaklida ayiring, nollar zanjir bo'ylab to'qqizga aylanadi, qarz olishni eslang.", en: 'Let us work it out. Subtract from the thousand in columns, the zeros along the chain will become nines, and remember the borrowing.' }
     }
   },
 
   // ===== s12 — FINAL test input: вычитание 695 − 458 = 237, ввод #3 =====
   s12: {
-    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2' },
-    label: { ru: 'Посчитай и введи', uz: 'Hisoblang va kiriting' },
-    question: { ru: 'У 5-А 695 страниц, у 5-Б 458. На сколько 5-А обогнал соседа? 695 − 458.', uz: "5-A da 695 bet, 5-B da 458. 5-A qo'shnisidan qanchaga o'zdi? 695 − 458." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2', en: 'Final · 2 of 2' },
+    label: { ru: 'Посчитай и введи', uz: 'Hisoblang va kiriting', en: 'Work it out and type it in' },
+    question: { ru: 'У 5-А 695 страниц, у 5-Б 458. На сколько 5-А обогнал соседа? 695 − 458.', uz: "5-A da 695 bet, 5-B da 458. 5-A qo'shnisidan qanchaga o'zdi? 695 − 458.", en: '5-A has 695 pages and 5-B has 458. By how much is 5-A ahead of their neighbours? 695 − 458.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '237',
-    hint: { ru: 'В единицах 5 меньше 8 — занимай у десятков. После заёма десятки уменьшатся на единицу.', uz: "Birlarda 5 kichik 8 dan — o'nlardan qarz oling. Qarzdan keyin o'nlar bir birlikka kamayadi." },
-    fb_correct: { ru: 'Правильно. 15 − 8 = 7, 8 − 5 = 3, 6 − 4 = 2 — разница 237.', uz: "To'g'ri. 15 − 8 = 7, 8 − 5 = 3, 6 − 4 = 2 — farq 237." },
-    fb_wrong: { ru: 'Верный ответ — 237. В единицах занимаем: 15 − 8 = 7; десятки стали 8, 8 − 5 = 3; 6 − 4 = 2.', uz: "To'g'ri javob — 237. Birlarda qarz olamiz: 15 − 8 = 7; o'nlar 8 bo'ldi, 8 − 5 = 3; 6 − 4 = 2." },
+    hint: { ru: 'В единицах 5 меньше 8 — занимай у десятков. После заёма десятки уменьшатся на единицу.', uz: "Birlarda 5 kichik 8 dan — o'nlardan qarz oling. Qarzdan keyin o'nlar bir birlikka kamayadi.", en: 'In the ones 5 is less than 8, so borrow from the tens. After the borrowing the tens go down by one.' },
+    fb_correct: { ru: 'Правильно. 15 − 8 = 7, 8 − 5 = 3, 6 − 4 = 2 — разница 237.', uz: "To'g'ri. 15 − 8 = 7, 8 − 5 = 3, 6 − 4 = 2 — farq 237.", en: 'Correct. 15 − 8 = 7, 8 − 5 = 3, 6 − 4 = 2, so the difference is 237.' },
+    fb_wrong: { ru: 'Верный ответ — 237. В единицах занимаем: 15 − 8 = 7; десятки стали 8, 8 − 5 = 3; 6 − 4 = 2.', uz: "To'g'ri javob — 237. Birlarda qarz olamiz: 15 − 8 = 7; o'nlar 8 bo'ldi, 8 − 5 = 3; 6 − 4 = 2.", en: 'The right answer is 237. In the ones we borrow: 15 − 8 = 7; the tens became 8, so 8 − 5 = 3; and 6 − 4 = 2.' },
     audio: {
-      intro: { ru: 'И последнее. Узнай, на сколько страниц класс пять А обогнал соседей. Вычти из своего результата результат класса пять Б, в столбик.', uz: "Va oxirgisi. Besh A sinf qo'shnilardan necha betga o'zib ketganini toping. O'z natijangizdan besh B sinf natijasini ustun shaklida ayiring." },
-      on_correct: { ru: 'Верно. Ты прошёл весь путь, от единиц до сотен.', uz: "To'g'ri. Birlardan yuzlargacha butun yo'lni bosib o'tdingiz." },
-      on_wrong: { ru: 'Пока не сходится. Вычитай по разрядам и, если не хватает, занимай у соседа.', uz: "Hali mos emas. Xonama-xona ayiring va yetmasa, qo'shnidan qarz oling." }
+      intro: { ru: 'И последнее. Узнай, на сколько страниц класс пять А обогнал соседей. Вычти из своего результата результат класса пять Б, в столбик.', uz: "Va oxirgisi. Besh A sinf qo'shnilardan necha betga o'zib ketganini toping. O'z natijangizdan besh B sinf natijasini ustun shaklida ayiring.", en: "And the last one. Find out by how many pages class five A is ahead of their neighbours. Take class five B's result away from their own, in columns." },
+      on_correct: { ru: 'Верно. Ты прошёл весь путь, от единиц до сотен.', uz: "To'g'ri. Birlardan yuzlargacha butun yo'lni bosib o'tdingiz.", en: 'That is right. You went all the way, from the ones to the hundreds.' },
+      on_wrong: { ru: 'Пока не сходится. Вычитай по разрядам и, если не хватает, занимай у соседа.', uz: "Hali mos emas. Xonama-xona ayiring va yetmasa, qo'shnidan qarz oling.", en: 'It does not add up yet. Subtract place by place and borrow from the neighbour where there is not enough.' }
     }
   },
 
   // ===== s13 — SUMMARY: возврат к Бекзоду =====
   s13: {
-    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
-    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
+    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni', en: 'The end of the lesson' },
+    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz', en: 'What you can do now' },
     ring_back: {
       ru: 'Помнишь Бекзода? Он потерял оба переноса и получил 315. На самом деле 168 + 257 = 425. Разряды никуда не пропадают — перенос уносит единицу в следующий разряд, а заём берёт её обратно.',
-      uz: "Bekzod esingizdami? U ikkala ko'chirishni yo'qotib, 315 oldi. Aslida 168 + 257 = 425. Xonalar hech qayerga yo'qolmaydi — ko'chirish birlikni keyingi xonaga olib ketadi, qarz esa uni qaytarib oladi."
+      uz: "Bekzod esingizdami? U ikkala ko'chirishni yo'qotib, 315 oldi. Aslida 168 + 257 = 425. Xonalar hech qayerga yo'qolmaydi — ko'chirish birlikni keyingi xonaga olib ketadi, qarz esa uni qaytarib oladi.",
+      en: 'Remember Bekzod? He lost both carries and got 315. In fact 168 + 257 = 425. The places do not disappear anywhere: a carry takes one into the next place and borrowing takes it back.'
     },
-    learned_1: { ru: 'Складывать столбиком, не теряя перенос.', uz: "Ko'chirishni yo'qotmasdan ustun shaklida qo'shish." },
-    learned_2: { ru: 'Вычитать столбиком, проводя заём через нули.', uz: "Qarzni nollar orqali o'tkazib, ustun shaklida ayirish." },
-    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak' },
-    why_1: { ru: 'Контроль разрядов даёт верный ответ — один потерянный перенос меняет всё число.', uz: "Xonalarni nazorat qilish to'g'ri javob beradi — bitta yo'qolgan ko'chirish butun sonni o'zgartiradi." },
-    why_2: { ru: 'Сложение и вычитание столбиком — основа для десятичных дробей и денежных расчётов.', uz: "Ustun shaklida qo'shish va ayirish — o'nli kasrlar va pul hisob-kitoblari uchun asos." },
-    score_label: { ru: 'Правильных ответов', uz: "To'g'ri javoblar" },
-    teaser: { ru: 'Дальше — умножение столбиком: как быстро сложить одно и то же много раз.', uz: "Keyin — ustun shaklida ko'paytirish: bir xil sonni ko'p marta tez qo'shish." },
-    ref: { ru: 'Здесь пригодились разряды из nat_5_01. Дальше — умножение столбиком (nat_5_04).', uz: "Bunda nat_5_01 dagi xonalar asqotdi. Keyin — ustun shaklida ko'paytirish (nat_5_04)." },
+    learned_1: { ru: 'Складывать столбиком, не теряя перенос.', uz: "Ko'chirishni yo'qotmasdan ustun shaklida qo'shish.", en: 'Add in columns without losing the carry.' },
+    learned_2: { ru: 'Вычитать столбиком, проводя заём через нули.', uz: "Qarzni nollar orqali o'tkazib, ustun shaklida ayirish.", en: 'Subtract in columns, taking the borrowing through zeros.' },
+    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why this is useful' },
+    why_1: { ru: 'Контроль разрядов даёт верный ответ — один потерянный перенос меняет всё число.', uz: "Xonalarni nazorat qilish to'g'ri javob beradi — bitta yo'qolgan ko'chirish butun sonni o'zgartiradi.", en: 'Keeping track of the places gives the right answer: one lost carry changes the whole number.' },
+    why_2: { ru: 'Сложение и вычитание столбиком — основа для десятичных дробей и денежных расчётов.', uz: "Ustun shaklida qo'shish va ayirish — o'nli kasrlar va pul hisob-kitoblari uchun asos.", en: 'Adding and subtracting in columns is the base for decimals and money calculations.' },
+    score_label: { ru: 'Правильных ответов', uz: "To'g'ri javoblar", en: 'Right answers' },
+    teaser: { ru: 'Дальше — умножение столбиком: как быстро сложить одно и то же много раз.', uz: "Keyin — ustun shaklida ko'paytirish: bir xil sonni ko'p marta tez qo'shish.", en: 'Next comes multiplying in columns: how to add the same thing many times quickly.' },
+    ref: { ru: 'Здесь пригодились разряды из nat_5_01. Дальше — умножение столбиком (nat_5_04).', uz: "Bunda nat_5_01 dagi xonalar asqotdi. Keyin — ustun shaklida ko'paytirish (nat_5_04).", en: 'The places from nat_5_01 came in useful here. Next comes multiplying in columns (nat_5_04).' },
     audio: {
       ru: [
         'Вернёмся к самому началу, к Бекзоду. Он потерял оба переноса и получил триста пятнадцать. На самом деле сто шестьдесят восемь плюс двести пятьдесят семь равно четыреста двадцать пять. Видишь, разряды никуда не пропадают.',
@@ -1929,7 +1967,8 @@ const CONTENT = {
         "Endi siz ustun shaklida ko'chirishni yo'qotmay qo'shishni va nollar orqali qarz olib ayirishni bilasiz. Bugun asosiysi shu edi.",
         "Bu nimaga kerak. Xonalarni kuzatsangiz, javob doim to'g'ri chiqadi, chunki bitta yo'qolgan ko'chirish butun sonni o'zgartiradi. Bu o'nli kasrlar va pul hisoblari uchun ham asos.",
         "Keyingi safar ustun shaklida ko'paytirishni olamiz va bir xil sonni ko'p marta tez qo'shishni ko'ramiz."
-      ]
+      ],
+      en: ['Let us go right back to the start, to Bekzod. He lost both carries and got three hundred and fifteen. In fact one hundred and sixty eight plus two hundred and fifty seven equals four hundred and twenty five. You see, the places do not disappear anywhere.', 'Now you can add in columns without losing the carry and subtract by borrowing through zeros. That was the main thing today.', 'And why this is useful. When you keep track of the places the answer is always right, because one lost carry changes the whole number. And it is the base for decimals and money calculations ahead.', 'Next time we will take multiplying in columns and see how to add the same thing many times quickly.']
     }
   }
 };
@@ -2047,7 +2086,7 @@ const SOLUTIONS = {
           "O'nlarda yetti va sakkiz o'n besh, dildagi birni qo'shsak o'n olti. Yana bir o'nlikni yuzlarga ko'chiramiz, oltini yozamiz.",
           "Yuzlarda ikki va bir uch, dildagi bir bilan to'rt. Demak javob to'rt yuz oltmish bir.",
           "Mana shunday, xonama-xona va ko'chirishni yo'qotmay, to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['To see whether it is right we add place by place from right to left. In the ones six and five make eleven. That is more than ten, so we write the one and keep the ten in our head to move on.', 'In the tens seven and eight make fifteen, and we add the one from our head, which makes sixteen. We move one into the hundreds again and write the six.', 'In the hundreds two and one make three, plus the one from our head, which makes four. So the answer is four hundred and sixty one.', 'That is how, place by place and without losing the carry, you get the right answer. We can move on.'] } },
   4:  { op: '+', top: '285', bottom: '47',  result: '332', cols: [ { cap: '5 + 7', sum: '12', carry: 1 }, { cap: '8 + 4 + 1', sum: '13', carry: 1 }, { cap: '2 + 0 + 1', sum: '3' } ],
         narr: { ru: [
           'Складываем справа налево. В единицах пять и семь дают двенадцать. Больше десяти, поэтому два пишем, а один держим в уме и перекидываем в десятки.',
@@ -2059,7 +2098,7 @@ const SOLUTIONS = {
           "O'nlarda sakkiz va to'rt o'n ikki, dildagi birni qo'shsak o'n uch. Uchni yozamiz, bir o'nlikni yana ko'chiramiz.",
           "Yuzlarda ikki, pastda nol, dildagi bir bilan uch. Demak javob uch yuz o'ttiz ikki.",
           "Mana shunday, xonama-xona va ko'chirishni yo'qotmay, to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['We add from right to left. In the ones five and seven make twelve. That is more than ten, so we write the two and keep one in our head to move into the tens.', 'In the tens eight and four make twelve, plus the one from our head, which makes thirteen. We write the three and move one on again.', 'In the hundreds there is a two, a zero below and the one from our head, which makes three. So the answer is three hundred and thirty two.', 'That is how, place by place and without losing the carry, you get the right answer. We can move on.'] } },
   7:  { op: '-', top: '1000', bottom: '396', result: '604', cols: [ { cap: '10 \u2212 6', sum: '4' }, { cap: '9 \u2212 9', sum: '0' }, { cap: '9 \u2212 3', sum: '6' } ],
         narr: { ru: [
           'Чтобы проверить, вычитаем справа налево. В единицах ноль, шесть вычесть нельзя, поэтому занимаем у старших. Нули по цепочке становятся девятками, а у единиц появляется десять. Из десяти вычитаем шесть, пишем четыре.',
@@ -2071,7 +2110,7 @@ const SOLUTIONS = {
           "O'nlarda endi to'qqiz, to'qqizni ayirsak, nol qoladi. Nolni yozamiz.",
           "Yuzlarda to'qqiz, uchni ayirsak, olti. Demak javob olti yuz to'rt.",
           "Mana shunday, yetmagan joyda qarz olib, barcha xonalardan o'tamiz va to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['To check it we subtract from right to left. There is a zero in the ones and you cannot take six away, so we borrow from the places above. The zeros along the chain become nines and the ones get ten. Ten take away six, and we write four.', 'In the tens there is now a nine, take away nine and zero is left. We write zero.', 'In the hundreds there is a nine, take away three and it makes six. So the answer is six hundred and four.', 'That is how, borrowing where there is not enough, you go through all the places and get the right answer. We can move on.'] } },
   8:  { op: '-', top: '506', bottom: '198', result: '308', cols: [ { cap: '16 \u2212 8', sum: '8' }, { cap: '9 \u2212 9', sum: '0' }, { cap: '4 \u2212 1', sum: '3' } ],
         narr: { ru: [
           'Вычитаем справа налево. В единицах из шести восемь не вычесть, поэтому занимаем десяток. Получается шестнадцать минус восемь, это восемь. Пишем восемь.',
@@ -2083,7 +2122,7 @@ const SOLUTIONS = {
           "O'nlarda nol edi, birlar uchun qarz oldik, shuning uchun yuzlardan olamiz, to'qqiz bo'ladi. To'qqizdan to'qqizni ayirsak, nol. Nolni yozamiz.",
           "Yuzlarda qarzdan keyin to'rt qoldi. To'rtdan birni ayirsak, uch. Demak javob uch yuz sakkiz.",
           "Mana shunday, yetmagan joyda qarz olib, barcha xonalardan o'tamiz va to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['We subtract from right to left. In the ones you cannot take eight from six, so we borrow a ten. That gives sixteen minus eight, which is eight. We write eight.', 'There was a zero in the tens and we have already borrowed one, so we take from the hundreds, which gives nine. Nine minus nine is zero. We write zero.', 'In the hundreds four is left after the borrowing. Four minus one is three. So the answer is three hundred and eight.', 'That is how, borrowing where there is not enough, you go through all the places and get the right answer. We can move on.'] } },
   10: { op: '+', top: '428', bottom: '267', result: '695', cols: [ { cap: '8 + 7', sum: '15', carry: 1 }, { cap: '2 + 6 + 1', sum: '9' }, { cap: '4 + 2', sum: '6' } ],
         narr: { ru: [
           'Складываем справа налево. В единицах восемь и семь дают пятнадцать. Больше десяти, поэтому пять пишем, а один держим в уме и перекидываем в десятки.',
@@ -2095,7 +2134,7 @@ const SOLUTIONS = {
           "O'nlarda ikki va olti sakkiz, dildagi birni qo'shsak to'qqiz. To'qqiz o'ndan kichik, ko'chiradigan narsa yo'q, to'qqizni yozamiz.",
           "Yuzlarda to'rt va ikki olti. Demak javob olti yuz to'qson besh.",
           "Mana shunday, xonama-xona va ko'chirishni yo'qotmay, to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['We add from right to left. In the ones eight and seven make fifteen. That is more than ten, so we write the five and keep one in our head to move into the tens.', 'In the tens two and six make eight, plus the one from our head, which makes nine. Nine is less than ten, so there is nothing to carry and we write nine.', 'In the hundreds four and two make six. So the answer is six hundred and ninety five.', 'That is how, place by place and without losing the carry, you get the right answer. We can move on.'] } },
   11: { op: '-', top: '1000', bottom: '695', result: '305', cols: [ { cap: '10 \u2212 5', sum: '5' }, { cap: '9 \u2212 9', sum: '0' }, { cap: '9 \u2212 6', sum: '3' } ],
         narr: { ru: [
           'Вычитаем справа налево. В единицах ноль, пять вычесть нельзя, поэтому занимаем у старших. Нули по цепочке становятся девятками, у единиц появляется десять. Из десяти вычитаем пять, пишем пять.',
@@ -2107,7 +2146,7 @@ const SOLUTIONS = {
           "O'nlarda endi to'qqiz, to'qqizni ayirsak, nol qoladi. Nolni yozamiz.",
           "Yuzlarda to'qqiz, oltini ayirsak, uch. Demak javob uch yuz besh.",
           "Mana shunday, yetmagan joyda qarz olib, barcha xonalardan o'tamiz va to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['We subtract from right to left. There is a zero in the ones and you cannot take five away, so we borrow from the places above. The zeros along the chain become nines and the ones get ten. Ten take away five, and we write five.', 'In the tens there is now a nine, take away nine and zero is left. We write zero.', 'In the hundreds there is a nine, take away six and it makes three. So the answer is three hundred and five.', 'That is how, borrowing where there is not enough, you go through all the places and get the right answer. We can move on.'] } },
   12: { op: '-', top: '695', bottom: '458', result: '237', cols: [ { cap: '15 \u2212 8', sum: '7' }, { cap: '8 \u2212 5', sum: '3' }, { cap: '6 \u2212 4', sum: '2' } ],
         narr: { ru: [
           'Вычитаем справа налево. В единицах из пяти восемь не вычесть, поэтому занимаем десяток. Пятнадцать минус восемь это семь. Пишем семь.',
@@ -2119,7 +2158,7 @@ const SOLUTIONS = {
           "O'nlarda qarzdan keyin sakkiz qoldi. Sakkizdan beshni ayirsak, uch. Uchni yozamiz.",
           "Yuzlarda oltidan to'rtni ayirsak, ikki. Demak javob ikki yuz o'ttiz yetti.",
           "Mana shunday, yetmagan joyda qarz olib, barcha xonalardan o'tamiz va to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-        ] } },
+        ], en: ['We subtract from right to left. In the ones you cannot take eight from five, so we borrow a ten. Fifteen minus eight is seven. We write seven.', 'In the tens eight is left after the borrowing. Eight minus five is three. We write three.', 'In the hundreds six minus four is two. So the answer is two hundred and thirty seven.', 'That is how, borrowing where there is not enough, you go through all the places and get the right answer. We can move on.'] } },
   14: {
     op: '+', top: '367', bottom: '458', result: '825',
     cols: [
@@ -2139,7 +2178,8 @@ const SOLUTIONS = {
         "O'nlar. Olti va besh o'n birni beradi, yana dildagi bir, jami o'n ikki. Ikkini yozamiz, birni yana dilda saqlaymiz.",
         "Yuzlar. Uch va to'rt yettini beradi, yana dildagi bir, jami sakkiz. Boshqa ko'chirish yo'q.",
         "Mana shunday, xonama-xona va ko'chirishni yo'qotmay, to'g'ri javob chiqadi. Endi davom etsa bo'ladi."
-      ]
+      ],
+      en: ['We start with the ones. Seven and eight make fifteen. That is more than ten, so we write the five and keep one in our head to move into the tens.', 'The tens. Six and five make eleven, plus the one from our head, twelve in all. We write the two and keep one in our head again.', 'The hundreds. Three and four make seven, plus the one from our head, which makes eight. There is nothing left to carry.', 'That is how, place by place and without losing the carry, you get the right answer. We can move on.']
     }
   }
 };
@@ -2190,7 +2230,7 @@ const RuleScreenGold = ({ idx, screen, totalScreens, onNext, onPrev, rules, demo
         </div>
         {demo && (
           <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', gap: 10, padding: 'clamp(16px, 3vw, 22px) clamp(12px, 2vw, 18px)' }}>
-            <span className="eyebrow" style={{ color: T.accent }}>{lang === 'uz' ? 'Ustun shaklida tahlil' : 'Разбор в столбик'}</span>
+            <span className="eyebrow" style={{ color: T.accent }}>{lang === 'uz' ? 'Ustun shaklida tahlil' : lang === 'en' ? "Working in columns" : 'Разбор в столбик'}</span>
             <ColumnAutoAnim sol={demo}/>
           </div>
         )}
@@ -2355,13 +2395,13 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
       <button className="btn-ghost" onClick={onReset}
         style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
-        {lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}
+        {lang === 'uz' ? "Qaytadan o'tish" : lang === 'en' ? "Do it again" : 'Пройти заново'}
       </button>
       <button className="btn-white-accent" disabled
         style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
-        {lang === 'uz' ? 'Keyingi dars →' : 'Следующий урок →'}
+        {lang === 'uz' ? 'Keyingi dars →' : lang === 'en' ? "Next lesson →" : 'Следующий урок →'}
       </button>
-      <button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button>
+      <button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button>
     </>
   );
 
@@ -2379,7 +2419,7 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
           </div>
         </div>
         <div className="frame fade-up delay-2">
-          <p className="eyebrow" style={{ color: T.accent, margin: 0 }}>{lang === 'uz' ? 'Asosiy' : 'Главное'}</p>
+          <p className="eyebrow" style={{ color: T.accent, margin: 0 }}>{lang === 'uz' ? 'Asosiy' : lang === 'en' ? "The main thing" : 'Главное'}</p>
           <ul className="body" style={{ marginTop: 12, paddingLeft: 20, color: T.ink2, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <li>{t(c.learned_1)}</li>
             <li>{t(c.learned_2)}</li>
@@ -2414,7 +2454,7 @@ export default function ColumnArithmeticLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   // Конфигурируем урок: движок/SFX/AI читают из ttsConfig.
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
@@ -2469,7 +2509,7 @@ export default function ColumnArithmeticLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

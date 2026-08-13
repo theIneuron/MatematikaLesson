@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -797,13 +823,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -827,8 +853,8 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'dec_5_06',
-  lessonTitle: { ru: 'Деление десятичных дробей', uz: "O'nli kasrlarni bo'lish" }
+  lessonId: 'grade5-29',
+  lessonTitle: { ru: 'Деление десятичных дробей', uz: "O'nli kasrlarni bo'lish", en: 'Dividing decimals' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',          scored: false, scope: 'hook' },
@@ -851,49 +877,49 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK (M1) =====
   s0: {
-    eyebrow: { ru: 'Деление и размер', uz: "Bo'lish va kattalik" },
-    title: { ru: 'Деление всегда уменьшает?', uz: "Bo'lish doim kichraytiradimi?" },
-    lead: { ru: 'Камол уверен: 6 : 0,5 меньше шести. Так ли это?', uz: "Kamol ishonadi: 6 : 0,5 oltidan kichik. Shundaymi?" },
-    opt0: { ru: 'Больше шести', uz: "Oltidan katta" },
-    opt1: { ru: 'Меньше шести', uz: "Oltidan kichik" },
-    opt2: { ru: 'Ровно шесть', uz: "Roppa-rosa olti" },
-    reveal0: { ru: 'Верно. 6 : 0,5 = 12. Мы считаем, сколько половинок в шести, а их двенадцать — больше.', uz: "To'g'ri. 6 : 0,5 = 12. Oltida nechta yarim borligini sanaymiz, ular o'n ikkita — ko'proq." },
-    reveal1: { ru: 'Так думают многие, но 6 : 0,5 = 12. В шести помещается двенадцать половинок.', uz: "Ko'pchilik shunday o'ylaydi, lekin 6 : 0,5 = 12. Oltida o'n ikkita yarim joylashadi." },
-    reveal2: { ru: 'Почти, но нет: в шести двенадцать половинок, значит 6 : 0,5 = 12.', uz: "Deyarli, lekin yo'q: oltida o'n ikkita yarim bor, demak 6 : 0,5 = 12." },
-    audio: { ru: "Камол думает, что деление всегда уменьшает число. Проверим: сколько половинок помещается в шести — больше или меньше шести?", uz: "Kamol bo'lish doim sonni kichraytiradi deb o'ylaydi. Tekshiramiz: oltida nechta yarim joylashadi — oltidan ko'pmi yoki kammi?" }
+    eyebrow: { ru: 'Деление и размер', uz: "Bo'lish va kattalik", en: 'Dividing and size' },
+    title: { ru: 'Деление всегда уменьшает?', uz: "Bo'lish doim kichraytiradimi?", en: 'Does dividing always make things smaller?' },
+    lead: { ru: 'Камол уверен: 6 : 0,5 меньше шести. Так ли это?', uz: "Kamol ishonadi: 6 : 0,5 oltidan kichik. Shundaymi?", en: 'Kamol is sure that 6 : 0,5 is less than six. Is that so?' },
+    opt0: { ru: 'Больше шести', uz: "Oltidan katta", en: 'More than six' },
+    opt1: { ru: 'Меньше шести', uz: "Oltidan kichik", en: 'Less than six' },
+    opt2: { ru: 'Ровно шесть', uz: "Roppa-rosa olti", en: 'Exactly six' },
+    reveal0: { ru: 'Верно. 6 : 0,5 = 12. Мы считаем, сколько половинок в шести, а их двенадцать — больше.', uz: "To'g'ri. 6 : 0,5 = 12. Oltida nechta yarim borligini sanaymiz, ular o'n ikkita — ko'proq.", en: 'That is right. 6 : 0,5 = 12. We are counting how many halves there are in six, and there are twelve of them, which is more.' },
+    reveal1: { ru: 'Так думают многие, но 6 : 0,5 = 12. В шести помещается двенадцать половинок.', uz: "Ko'pchilik shunday o'ylaydi, lekin 6 : 0,5 = 12. Oltida o'n ikkita yarim joylashadi.", en: 'A lot of people think that, but 6 : 0,5 = 12. Twelve halves fit into six.' },
+    reveal2: { ru: 'Почти, но нет: в шести двенадцать половинок, значит 6 : 0,5 = 12.', uz: "Deyarli, lekin yo'q: oltida o'n ikkita yarim bor, demak 6 : 0,5 = 12.", en: 'Almost, but no: there are twelve halves in six, so 6 : 0,5 = 12.' },
+    audio: { ru: "Камол думает, что деление всегда уменьшает число. Проверим: сколько половинок помещается в шести — больше или меньше шести?", uz: "Kamol bo'lish doim sonni kichraytiradi deb o'ylaydi. Tekshiramiz: oltida nechta yarim joylashadi — oltidan ko'pmi yoki kammi?", en: 'Kamol thinks that dividing always makes a number smaller. Let us check: how many halves fit into six, more or less than six?' }
   },
 
   // ===== s1 WARM-UP (÷10) =====
   s1: {
-    eyebrow: { ru: 'Вспомним прошлый урок', uz: "O'tgan darsni eslaylik" },
-    title: { ru: 'Разминка', uz: "Mashq" },
-    question: { ru: 'Сколько будет 25 : 10?', uz: "25 : 10 nechaga teng?" },
-    opt0: { ru: '2,5', uz: '2,5' },
-    opt1: { ru: '25', uz: '25' },
-    opt2: { ru: '0,25', uz: '0,25' },
-    opt3: { ru: '250', uz: '250' },
-    correct_text: { ru: 'Верно: при делении на 10 запятая сдвигается на один разряд влево.', uz: "To'g'ri: 10 ga bo'lganda vergul bir xona chapga suriladi." },
-    wrong_1: { ru: 'Запятая не сдвинулась. При делении на 10 она идёт влево.', uz: "Vergul surilmadi. 10 ga bo'lganda u chapga boradi." },
-    wrong_2: { ru: 'Это деление на 100. На 10 запятая сдвигается на один разряд.', uz: "Bu 100 ga bo'lish. 10 ga vergul bir xona suriladi." },
-    wrong_3: { ru: 'Это умножение. При делении число уменьшается.', uz: "Bu ko'paytirish. Bo'lganda son kichrayadi." },
+    eyebrow: { ru: 'Вспомним прошлый урок', uz: "O'tgan darsni eslaylik", en: 'Let us remember the last lesson' },
+    title: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    question: { ru: 'Сколько будет 25 : 10?', uz: "25 : 10 nechaga teng?", en: 'How much is 25 : 10?' },
+    opt0: { ru: '2,5', uz: '2,5', en: '2,5' },
+    opt1: { ru: '25', uz: '25', en: '25' },
+    opt2: { ru: '0,25', uz: '0,25', en: '0,25' },
+    opt3: { ru: '250', uz: '250', en: '250' },
+    correct_text: { ru: 'Верно: при делении на 10 запятая сдвигается на один разряд влево.', uz: "To'g'ri: 10 ga bo'lganda vergul bir xona chapga suriladi.", en: 'That is right: dividing by 10 moves the comma one place to the left.' },
+    wrong_1: { ru: 'Запятая не сдвинулась. При делении на 10 она идёт влево.', uz: "Vergul surilmadi. 10 ga bo'lganda u chapga boradi.", en: 'The comma has not moved. When you divide by 10 it goes to the left.' },
+    wrong_2: { ru: 'Это деление на 100. На 10 запятая сдвигается на один разряд.', uz: "Bu 100 ga bo'lish. 10 ga vergul bir xona suriladi.", en: 'That is dividing by 100. By 10 the comma moves one place.' },
+    wrong_3: { ru: 'Это умножение. При делении число уменьшается.', uz: "Bu ko'paytirish. Bo'lganda son kichrayadi.", en: 'That is multiplying. When you divide, the number gets smaller.' },
     audio: {
-      intro: { ru: "Вспомним прошлый урок. Сколько будет двадцать пять разделить на десять?", uz: "O'tgan darsni eslaylik. Yigirma beshni o'nga bo'lsak qancha bo'ladi?" },
-      on_correct: { ru: "Верно, две целых пять десятых. Запятая сдвинулась влево.", uz: "To'g'ri, ikki butun o'ndan besh. Vergul chapga surildi." },
-      on_wrong: { ru: "При делении на десять запятая сдвигается на один разряд влево.", uz: "O'nga bo'lganda vergul bir xona chapga suriladi." }
+      intro: { ru: "Вспомним прошлый урок. Сколько будет двадцать пять разделить на десять?", uz: "O'tgan darsni eslaylik. Yigirma beshni o'nga bo'lsak qancha bo'ladi?", en: 'Let us remember the last lesson. How much is twenty five divided by ten?' },
+      on_correct: { ru: "Верно, две целых пять десятых. Запятая сдвинулась влево.", uz: "To'g'ri, ikki butun o'ndan besh. Vergul chapga surildi.", en: 'That is right, two point five. The comma moved to the left.' },
+      on_wrong: { ru: "При делении на десять запятая сдвигается на один разряд влево.", uz: "O'nga bo'lganda vergul bir xona chapga suriladi.", en: 'When you divide by ten the comma moves one place to the left.' }
     }
   },
 
   // ===== s2 EXPLORATION (3,6 : 3, step) =====
   s2: {
-    eyebrow: { ru: 'Делим на целое', uz: "Butun songa bo'lamiz" },
-    title: { ru: 'Десятичная на целое', uz: "O'nli kasrni butun songa" },
-    lead: { ru: 'Делить почти как обычно. Посмотрим.', uz: "Bo'lish deyarli oddiy. Ko'ramiz." },
-    line_problem: { ru: 'Пример: 3,6 : 3', uz: "Misol: 3,6 : 3" },
-    line_nat: { ru: 'Делим как обычно: целую часть 3 : 3 = 1.', uz: "Odatdagidek bo'lamiz: butun qism 3 : 3 = 1." },
-    line_count: { ru: 'Дошли до запятой — ставим запятую в ответе.', uz: "Vergulga yetdik — javobga vergul qo'yamiz." },
-    line_place: { ru: 'Дальше 6 : 3 = 2. Ответ: 1,2.', uz: "Keyin 6 : 3 = 2. Javob: 1,2." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Делим на целое', uz: "Butun songa bo'lamiz", en: 'Dividing by a whole number' },
+    title: { ru: 'Десятичная на целое', uz: "O'nli kasrni butun songa", en: 'A decimal times a whole number' },
+    lead: { ru: 'Делить почти как обычно. Посмотрим.', uz: "Bo'lish deyarli oddiy. Ko'ramiz.", en: 'It is almost like dividing as usual. Let us look.' },
+    line_problem: { ru: 'Пример: 3,6 : 3', uz: "Misol: 3,6 : 3", en: 'Example: 3,6 : 3' },
+    line_nat: { ru: 'Делим как обычно: целую часть 3 : 3 = 1.', uz: "Odatdagidek bo'lamiz: butun qism 3 : 3 = 1.", en: 'We divide as usual: the whole number part, 3 : 3 = 1.' },
+    line_count: { ru: 'Дошли до запятой — ставим запятую в ответе.', uz: "Vergulga yetdik — javobga vergul qo'yamiz.", en: 'When we reach the comma, we put a comma in the answer.' },
+    line_place: { ru: 'Дальше 6 : 3 = 2. Ответ: 1,2.', uz: "Keyin 6 : 3 = 2. Javob: 1,2.", en: 'Then 6 : 3 = 2. The answer is 1,2.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Деление десятичной на целое почти не отличается от обычного. Посмотрим по шагам.",
@@ -906,21 +932,22 @@ const CONTENT = {
         "Avval butun qismni oddiy sonlardek bo'lamiz.",
         "Bo'linuvchida vergulga yetishimiz bilan javobga ham vergul qo'yamiz.",
         "Keyin qolgan raqamlarni bo'lamiz. Mana javob."
-      ]
+      ],
+      en: ['Dividing a decimal by a whole number is almost the same as usual. Let us look step by step.', 'First we divide the whole number part, like ordinary numbers.', 'As soon as we reach the comma in the dividend, we put a comma in the answer too.', 'Then we divide the digits that are left. And there is the answer.']
     }
   },
 
   // ===== s3 EXPLORATION (3,12 : 2,6, step) — M3 =====
   s3: {
-    eyebrow: { ru: 'Делим на десятичную', uz: "O'nliga bo'lamiz" },
-    title: { ru: 'Сдвигаем обе запятые', uz: "Ikkala vergulni suramiz" },
-    lead: { ru: 'А если делитель тоже дробный?', uz: "Agar bo'luvchi ham kasr bo'lsa-chi?" },
-    line_problem: { ru: 'Пример: 3,12 : 2,6', uz: "Misol: 3,12 : 2,6" },
-    line_nat: { ru: 'Делитель 2,6 — дробный. Сделаем его целым.', uz: "Bo'luvchi 2,6 — kasr. Uni butun qilamiz." },
-    line_count: { ru: 'Сдвигаем запятую в обоих числах на один разряд вправо.', uz: "Ikkala sonda vergulni bir xona o'ngga suramiz." },
-    line_place: { ru: 'Получилось 31,2 : 26 = 1,2.', uz: "31,2 : 26 = 1,2 hosil bo'ldi." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Делим на десятичную', uz: "O'nliga bo'lamiz", en: 'Dividing by a decimal' },
+    title: { ru: 'Сдвигаем обе запятые', uz: "Ikkala vergulni suramiz", en: 'We move both commas' },
+    lead: { ru: 'А если делитель тоже дробный?', uz: "Agar bo'luvchi ham kasr bo'lsa-chi?", en: 'And what if the divisor is a decimal too?' },
+    line_problem: { ru: 'Пример: 3,12 : 2,6', uz: "Misol: 3,12 : 2,6", en: 'Example: 3,12 : 2,6' },
+    line_nat: { ru: 'Делитель 2,6 — дробный. Сделаем его целым.', uz: "Bo'luvchi 2,6 — kasr. Uni butun qilamiz.", en: 'The divisor 2,6 is a decimal. Let us make it a whole number.' },
+    line_count: { ru: 'Сдвигаем запятую в обоих числах на один разряд вправо.', uz: "Ikkala sonda vergulni bir xona o'ngga suramiz.", en: 'We move the comma in both numbers one place to the right.' },
+    line_place: { ru: 'Получилось 31,2 : 26 = 1,2.', uz: "31,2 : 26 = 1,2 hosil bo'ldi.", en: 'That gives 31,2 : 26 = 1,2.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Теперь делитель тоже десятичная дробь. Что делать?",
@@ -933,182 +960,183 @@ const CONTENT = {
         "Bo'luvchi butun son bo'lgani qulay. Uni butun qilamiz.",
         "Buning uchun ikkala sonda vergulni bir xil, bir xona o'ngga suramiz.",
         "Endi bu butun songa bo'lish, buni esa bilamiz. Mana javob."
-      ]
+      ],
+      en: ['Now the divisor is a decimal too. What do we do?', 'It is easier when the divisor is a whole number. Let us make it one.', 'To do that we move the comma the same amount in both numbers, one place to the right.', 'Now it is dividing by a whole number, which we already know how to do. And there is the answer.']
     }
   },
 
   // ===== s4 EXPLORATION (slider, M1) =====
   s4: {
-    eyebrow: { ru: 'Когда деление увеличивает', uz: "Bo'lish qachon kattalashtiradi" },
-    title: { ru: 'Двигай делитель', uz: "Bo'luvchini suring" },
-    lead: { ru: 'Делим 6 на разные числа. Сколько раз делитель помещается в шести?', uz: "6 ni turli sonlarga bo'lamiz. Bo'luvchi oltida necha marta joylashadi?" },
-    slider_label: { ru: 'Делитель', uz: "Bo'luvchi" },
-    note_less: { ru: 'Делитель меньше 1 → результат больше 6.', uz: "Bo'luvchi 1 dan kichik → natija 6 dan katta." },
-    note_eq: { ru: 'Делитель равен 1 → результат равен 6.', uz: "Bo'luvchi 1 ga teng → natija 6 ga teng." },
-    note_more: { ru: 'Делитель больше 1 → результат меньше 6.', uz: "Bo'luvchi 1 dan katta → natija 6 dan kichik." },
-    audio: { ru: "Делить можно и на дробь меньше единицы. Тогда результат становится больше исходного числа. Двигай делитель и проверь.", uz: "Birdan kichik kasrga ham bo'lish mumkin. Shunda natija boshlang'ich sondan katta bo'ladi. Bo'luvchini suring va tekshiring." }
+    eyebrow: { ru: 'Когда деление увеличивает', uz: "Bo'lish qachon kattalashtiradi", en: 'When dividing makes things bigger' },
+    title: { ru: 'Двигай делитель', uz: "Bo'luvchini suring", en: 'Move the divisor' },
+    lead: { ru: 'Делим 6 на разные числа. Сколько раз делитель помещается в шести?', uz: "6 ni turli sonlarga bo'lamiz. Bo'luvchi oltida necha marta joylashadi?", en: 'We divide 6 by different numbers. How many times does the divisor fit into six?' },
+    slider_label: { ru: 'Делитель', uz: "Bo'luvchi", en: 'Divisor' },
+    note_less: { ru: 'Делитель меньше 1 → результат больше 6.', uz: "Bo'luvchi 1 dan kichik → natija 6 dan katta.", en: 'A divisor smaller than 1 → the answer is more than 6.' },
+    note_eq: { ru: 'Делитель равен 1 → результат равен 6.', uz: "Bo'luvchi 1 ga teng → natija 6 ga teng.", en: 'A divisor equal to 1 → the answer is 6.' },
+    note_more: { ru: 'Делитель больше 1 → результат меньше 6.', uz: "Bo'luvchi 1 dan katta → natija 6 dan kichik.", en: 'A divisor bigger than 1 → the answer is less than 6.' },
+    audio: { ru: "Делить можно и на дробь меньше единицы. Тогда результат становится больше исходного числа. Двигай делитель и проверь.", uz: "Birdan kichik kasrga ham bo'lish mumkin. Shunda natija boshlang'ich sondan katta bo'ladi. Bo'luvchini suring va tekshiring.", en: 'You can divide by a decimal smaller than one as well. Then the answer comes out bigger than the number you started with. Move the divisor and see.' }
   },
 
   // ===== s5 RULE 1 =====
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Деление десятичных дробей', uz: "O'nli kasrlarni bo'lish" },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'На целое: делим как обычно, у запятой делимого ставим запятую в ответе.', uz: "Butun songa: odatdagidek bo'lamiz, bo'linuvchi vergulida javobga vergul qo'yamiz." },
-    rule_2: { ru: 'На десятичную: сдвигаем запятую в обоих числах вправо, пока делитель не станет целым.', uz: "O'nliga: bo'luvchi butun bo'lguncha ikkala sonda vergulni o'ngga suramiz." },
-    rule_3: { ru: 'Сдвигаем одинаково в делимом и делителе.', uz: "Bo'linuvchi va bo'luvchida bir xil suramiz." },
-    rule_4: { ru: 'Дальше это обычное деление на целое число.', uz: "Keyin bu oddiy butun songa bo'lish." },
-    audio: { ru: "Итак, при делении на целое запятая в ответе идёт там же, где в делимом. А чтобы поделить на десятичную, сдвигаем обе запятые вправо и делим на целое.", uz: "Demak, butun songa bo'lganda javobdagi vergul bo'linuvchidagidek turadi. O'nliga bo'lish uchun esa ikkala vergulni o'ngga surib, butun songa bo'lamiz." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Деление десятичных дробей', uz: "O'nli kasrlarni bo'lish", en: 'Dividing decimals' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'На целое: делим как обычно, у запятой делимого ставим запятую в ответе.', uz: "Butun songa: odatdagidek bo'lamiz, bo'linuvchi vergulida javobga vergul qo'yamiz.", en: 'By a whole number: divide as usual and put a comma in the answer where the comma in the dividend is.' },
+    rule_2: { ru: 'На десятичную: сдвигаем запятую в обоих числах вправо, пока делитель не станет целым.', uz: "O'nliga: bo'luvchi butun bo'lguncha ikkala sonda vergulni o'ngga suramiz.", en: 'By a decimal: move the comma in both numbers to the right until the divisor is a whole number.' },
+    rule_3: { ru: 'Сдвигаем одинаково в делимом и делителе.', uz: "Bo'linuvchi va bo'luvchida bir xil suramiz.", en: 'We move it the same amount in the dividend and in the divisor.' },
+    rule_4: { ru: 'Дальше это обычное деление на целое число.', uz: "Keyin bu oddiy butun songa bo'lish.", en: 'After that it is ordinary dividing by a whole number.' },
+    audio: { ru: "Итак, при делении на целое запятая в ответе идёт там же, где в делимом. А чтобы поделить на десятичную, сдвигаем обе запятые вправо и делим на целое.", uz: "Demak, butun songa bo'lganda javobdagi vergul bo'linuvchidagidek turadi. O'nliga bo'lish uchun esa ikkala vergulni o'ngga surib, butun songa bo'lamiz.", en: 'So when dividing by a whole number the comma in the answer goes where the comma in the dividend is. And to divide by a decimal, we move both commas to the right and divide by a whole number.' }
   },
 
   // ===== s6 RULE 2 — TUZOQ =====
   s6: {
-    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
-    heading: { ru: 'Две частые ошибки', uz: "Ikki ko'p uchraydigan xato" },
-    warn_1: { ru: 'Сдвигай запятую в обоих числах одинаково, а не в одном.', uz: "Vergulni ikkala sonda bir xil suring, faqat bittasida emas." },
-    warn_ex: { ru: 'И не теряй запятую в ответе.', uz: "Va javobdagi vergulni yo'qotmang." },
-    warn_2: { ru: 'Деление на число меньше 1 увеличивает результат.', uz: "Birdan kichik songa bo'lish natijani kattalashtiradi." },
-    audio: { ru: "Будь внимателен. Сдвигай запятую в делимом и делителе одинаково. И не забывай запятую в ответе. И помни: деление на число меньше единицы увеличивает результат.", uz: "Ehtiyot bo'ling. Vergulni bo'linuvchi va bo'luvchida bir xil suring. Javobdagi vergulni ham unutmang. Va yodda tuting: birdan kichik songa bo'lish natijani kattalashtiradi." }
+    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling", en: 'Careful' },
+    heading: { ru: 'Две частые ошибки', uz: "Ikki ko'p uchraydigan xato", en: 'Two common mistakes' },
+    warn_1: { ru: 'Сдвигай запятую в обоих числах одинаково, а не в одном.', uz: "Vergulni ikkala sonda bir xil suring, faqat bittasida emas.", en: 'Move the comma the same amount in both numbers, not just in one.' },
+    warn_ex: { ru: 'И не теряй запятую в ответе.', uz: "Va javobdagi vergulni yo'qotmang.", en: 'And do not lose the comma in the answer.' },
+    warn_2: { ru: 'Деление на число меньше 1 увеличивает результат.', uz: "Birdan kichik songa bo'lish natijani kattalashtiradi.", en: 'Dividing by a number smaller than 1 makes the answer bigger.' },
+    audio: { ru: "Будь внимателен. Сдвигай запятую в делимом и делителе одинаково. И не забывай запятую в ответе. И помни: деление на число меньше единицы увеличивает результат.", uz: "Ehtiyot bo'ling. Vergulni bo'linuvchi va bo'luvchida bir xil suring. Javobdagi vergulni ham unutmang. Va yodda tuting: birdan kichik songa bo'lish natijani kattalashtiradi.", en: 'Take care. Move the comma the same amount in the dividend and the divisor. And do not forget the comma in the answer. And remember that dividing by a number smaller than one makes the answer bigger.' }
   },
 
   // ===== s7 TEST DecInput — 4,8 : 4 = 1,2 =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'Вычисли: 4,8 : 4', uz: "Hisoblang: 4,8 : 4" },
-    placeholder: { ru: '0,0', uz: '0,0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Делим как обычно: 4 : 4 = 1, ставим запятую, 8 : 4 = 2. Ответ 1,2.', uz: "Odatdagidek bo'lamiz: 4 : 4 = 1, vergul qo'yamiz, 8 : 4 = 2. Javob 1,2." },
-    fb_correct: { ru: 'Верно: 4,8 : 4 = 1,2.', uz: "To'g'ri: 4,8 : 4 = 1,2." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    question: { ru: 'Вычисли: 4,8 : 4', uz: "Hisoblang: 4,8 : 4", en: 'Work out 4,8 : 4' },
+    placeholder: { ru: '0,0', uz: '0,0', en: '0,0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Делим как обычно: 4 : 4 = 1, ставим запятую, 8 : 4 = 2. Ответ 1,2.', uz: "Odatdagidek bo'lamiz: 4 : 4 = 1, vergul qo'yamiz, 8 : 4 = 2. Javob 1,2.", en: 'We divide as usual: 4 : 4 = 1, put the comma in, then 8 : 4 = 2. The answer is 1,2.' },
+    fb_correct: { ru: 'Верно: 4,8 : 4 = 1,2.', uz: "To'g'ri: 4,8 : 4 = 1,2.", en: 'That is right: 4,8 : 4 = 1,2.' },
     audio: {
-      intro: { ru: "Вычисли четыре целых восемь десятых разделить на четыре.", uz: "To'rt butun o'ndan sakkizni to'rtga bo'ling." },
-      on_correct: { ru: "Верно, одна целая две десятых.", uz: "To'g'ri, bir butun o'ndan ikki." },
-      on_wrong: { ru: "Дели как обычно, а на запятой делимого поставь запятую в ответе.", uz: "Odatdagidek bo'ling, bo'linuvchi vergulida javobga vergul qo'ying." }
+      intro: { ru: "Вычисли четыре целых восемь десятых разделить на четыре.", uz: "To'rt butun o'ndan sakkizni to'rtga bo'ling.", en: 'Work out four point eight divided by four.' },
+      on_correct: { ru: "Верно, одна целая две десятых.", uz: "To'g'ri, bir butun o'ndan ikki.", en: 'That is right, one point two.' },
+      on_wrong: { ru: "Дели как обычно, а на запятой делимого поставь запятую в ответе.", uz: "Odatdagidek bo'ling, bo'linuvchi vergulida javobga vergul qo'ying.", en: 'Divide as usual, and where the comma in the dividend is, put a comma in the answer.' }
     }
   },
 
   // ===== s8 TEST MC — 6 : 0,5 [FAKT 1:3=0,333...] — M1 =====
   s8: {
-    eyebrow: { ru: 'Сколько половинок', uz: "Nechta yarim" },
-    title: { ru: 'Деление на половину', uz: "Yarimga bo'lish" },
-    question: { ru: 'Чему равно 6 : 0,5?', uz: "6 : 0,5 nechaga teng?" },
-    opt0: { ru: '12', uz: '12' },
-    opt1: { ru: '3', uz: '3' },
-    opt2: { ru: '1,2', uz: '1,2' },
-    opt3: { ru: '0,5', uz: '0,5' },
-    correct_text: { ru: 'Верно: в шести помещается 12 половинок, значит 6 : 0,5 = 12.', uz: "To'g'ri: oltida 12 ta yarim joylashadi, demak 6 : 0,5 = 12." },
-    wrong_1: { ru: 'Это половина шести. А мы делим на 0,5: считаем, сколько половинок в шести — их 12.', uz: "Bu oltining yarmi. Biz esa 0,5 ga bo'lyapmiz: oltida nechta yarim borligini sanaymiz — 12 ta." },
-    wrong_2: { ru: 'Деление на 0,5 не уменьшает. Сколько половинок в шести? Двенадцать.', uz: "0,5 ga bo'lish kichraytirmaydi. Oltida nechta yarim bor? O'n ikki." },
-    wrong_3: { ru: 'Это сам делитель. А результат — сколько раз 0,5 помещается в 6.', uz: "Bu bo'luvchining o'zi. Natija esa — 0,5 oltida necha marta joylashishi." },
-    fact: { ru: 'Не всякое деление заканчивается: 1 : 3 = 0,333… и тройки идут бесконечно. Наше деление, к счастью, закончилось.', uz: "Har qanday bo'lish tugamaydi: 1 : 3 = 0,333… va uchlar cheksiz davom etadi. Bizniki, baxtimizga, tugadi." },
+    eyebrow: { ru: 'Сколько половинок', uz: "Nechta yarim", en: 'How many halves' },
+    title: { ru: 'Деление на половину', uz: "Yarimga bo'lish", en: 'Dividing by a half' },
+    question: { ru: 'Чему равно 6 : 0,5?', uz: "6 : 0,5 nechaga teng?", en: 'What is 6 : 0,5?' },
+    opt0: { ru: '12', uz: '12', en: '12' },
+    opt1: { ru: '3', uz: '3', en: '3' },
+    opt2: { ru: '1,2', uz: '1,2', en: '1,2' },
+    opt3: { ru: '0,5', uz: '0,5', en: '0,5' },
+    correct_text: { ru: 'Верно: в шести помещается 12 половинок, значит 6 : 0,5 = 12.', uz: "To'g'ri: oltida 12 ta yarim joylashadi, demak 6 : 0,5 = 12.", en: 'That is right: 12 halves fit into six, so 6 : 0,5 = 12.' },
+    wrong_1: { ru: 'Это половина шести. А мы делим на 0,5: считаем, сколько половинок в шести — их 12.', uz: "Bu oltining yarmi. Biz esa 0,5 ga bo'lyapmiz: oltida nechta yarim borligini sanaymiz — 12 ta.", en: 'That is half of six. But we are dividing by 0,5, counting how many halves there are in six, and there are 12.' },
+    wrong_2: { ru: 'Деление на 0,5 не уменьшает. Сколько половинок в шести? Двенадцать.', uz: "0,5 ga bo'lish kichraytirmaydi. Oltida nechta yarim bor? O'n ikki.", en: 'Dividing by 0,5 does not make things smaller. How many halves are there in six? Twelve.' },
+    wrong_3: { ru: 'Это сам делитель. А результат — сколько раз 0,5 помещается в 6.', uz: "Bu bo'luvchining o'zi. Natija esa — 0,5 oltida necha marta joylashishi.", en: 'That is the divisor itself. The answer is how many times 0,5 fits into 6.' },
+    fact: { ru: 'Не всякое деление заканчивается: 1 : 3 = 0,333… и тройки идут бесконечно. Наше деление, к счастью, закончилось.', uz: "Har qanday bo'lish tugamaydi: 1 : 3 = 0,333… va uchlar cheksiz davom etadi. Bizniki, baxtimizga, tugadi.", en: 'Not every division comes to an end: 1 : 3 = 0,333… and the threes go on for ever. Ours, luckily, did end.' },
     audio: {
-      intro: { ru: "Сколько будет шесть разделить на ноль целых пять десятых?", uz: "Oltini nol butun o'ndan beshga bo'lsak qancha bo'ladi?" },
-      on_correct: { ru: "Верно, двенадцать. Кстати, не всякое деление заканчивается: один разделить на три даёт бесконечные тройки.", uz: "To'g'ri, o'n ikki. Aytgancha, har qanday bo'lish tugamaydi: birni uchga bo'lsak, uchlar cheksiz chiqadi." },
-      on_wrong: { ru: "Посчитай, сколько половинок помещается в шести.", uz: "Oltida nechta yarim joylashishini sanang." }
+      intro: { ru: "Сколько будет шесть разделить на ноль целых пять десятых?", uz: "Oltini nol butun o'ndan beshga bo'lsak qancha bo'ladi?", en: 'How much is six divided by nought point five?' },
+      on_correct: { ru: "Верно, двенадцать. Кстати, не всякое деление заканчивается: один разделить на три даёт бесконечные тройки.", uz: "To'g'ri, o'n ikki. Aytgancha, har qanday bo'lish tugamaydi: birni uchga bo'lsak, uchlar cheksiz chiqadi.", en: 'That is right, twelve. By the way, not every division comes to an end: one divided by three gives threes that go on for ever.' },
+      on_wrong: { ru: "Посчитай, сколько половинок помещается в шести.", uz: "Oltida nechta yarim joylashishini sanang.", en: 'Count how many halves fit into six.' }
     }
   },
 
   // ===== s9 TEST MC — vergul surish (M3) =====
   s9: {
-    eyebrow: { ru: 'Сдвиг запятой', uz: "Vergulni surish" },
-    title: { ru: 'Как сделать делитель целым', uz: "Bo'luvchini qanday butun qilamiz" },
-    question: { ru: 'Как правильно подготовить 3,12 : 2,6?', uz: "3,12 : 2,6 ni qanday to'g'ri tayyorlaymiz?" },
-    opt0: { ru: '31,2 : 26', uz: '31,2 : 26' },
-    opt1: { ru: '3,12 : 26', uz: '3,12 : 26' },
-    opt2: { ru: '31,2 : 2,6', uz: '31,2 : 2,6' },
-    opt3: { ru: '312 : 26', uz: '312 : 26' },
-    correct_text: { ru: 'Верно: сдвинули запятую в обоих числах на один разряд вправо.', uz: "To'g'ri: ikkala sonda vergulni bir xona o'ngga surdik." },
-    wrong_1: { ru: 'Ты сдвинул только в делителе. Сдвигать нужно в обоих числах.', uz: "Siz faqat bo'luvchida surdingiz. Ikkala sonda surish kerak." },
-    wrong_2: { ru: 'Ты сдвинул только в делимом. Делитель так и остался дробным.', uz: "Siz faqat bo'linuvchida surdingiz. Bo'luvchi kasrligicha qoldi." },
-    wrong_3: { ru: 'Это сдвиг на два разряда. А нужен один — пока делитель не станет целым.', uz: "Bu ikki xona surish. Bitta kerak — bo'luvchi butun bo'lguncha." },
+    eyebrow: { ru: 'Сдвиг запятой', uz: "Vergulni surish", en: 'Moving the comma' },
+    title: { ru: 'Как сделать делитель целым', uz: "Bo'luvchini qanday butun qilamiz", en: 'How to make the divisor a whole number' },
+    question: { ru: 'Как правильно подготовить 3,12 : 2,6?', uz: "3,12 : 2,6 ni qanday to'g'ri tayyorlaymiz?", en: 'What is the right way to set up 3,12 : 2,6?' },
+    opt0: { ru: '31,2 : 26', uz: '31,2 : 26', en: '31,2 : 26' },
+    opt1: { ru: '3,12 : 26', uz: '3,12 : 26', en: '3,12 : 26' },
+    opt2: { ru: '31,2 : 2,6', uz: '31,2 : 2,6', en: '31,2 : 2,6' },
+    opt3: { ru: '312 : 26', uz: '312 : 26', en: '312 : 26' },
+    correct_text: { ru: 'Верно: сдвинули запятую в обоих числах на один разряд вправо.', uz: "To'g'ri: ikkala sonda vergulni bir xona o'ngga surdik.", en: 'That is right: the comma was moved one place to the right in both numbers.' },
+    wrong_1: { ru: 'Ты сдвинул только в делителе. Сдвигать нужно в обоих числах.', uz: "Siz faqat bo'luvchida surdingiz. Ikkala sonda surish kerak.", en: 'You moved it only in the divisor. It has to be moved in both numbers.' },
+    wrong_2: { ru: 'Ты сдвинул только в делимом. Делитель так и остался дробным.', uz: "Siz faqat bo'linuvchida surdingiz. Bo'luvchi kasrligicha qoldi.", en: 'You moved it only in the dividend. The divisor is still a decimal.' },
+    wrong_3: { ru: 'Это сдвиг на два разряда. А нужен один — пока делитель не станет целым.', uz: "Bu ikki xona surish. Bitta kerak — bo'luvchi butun bo'lguncha.", en: 'That is a move of two places. Only one is needed, until the divisor is a whole number.' },
     audio: {
-      intro: { ru: "Чтобы делить на десятичную, сделаем делитель целым. Какой вариант верный?", uz: "O'nliga bo'lish uchun bo'luvchini butun qilamiz. Qaysi variant to'g'ri?" },
-      on_correct: { ru: "Верно. Обе запятые сдвинули одинаково.", uz: "To'g'ri. Ikkala vergulni bir xil surdik." },
-      on_wrong: { ru: "Запятую сдвигают в обоих числах на одинаковое число разрядов.", uz: "Vergulni ikkala sonda bir xil xonaga suriladi." }
+      intro: { ru: "Чтобы делить на десятичную, сделаем делитель целым. Какой вариант верный?", uz: "O'nliga bo'lish uchun bo'luvchini butun qilamiz. Qaysi variant to'g'ri?", en: 'To divide by a decimal, let us make the divisor a whole number. Which one is right?' },
+      on_correct: { ru: "Верно. Обе запятые сдвинули одинаково.", uz: "To'g'ri. Ikkala vergulni bir xil surdik.", en: 'That is right. Both commas were moved the same amount.' },
+      on_wrong: { ru: "Запятую сдвигают в обоих числах на одинаковое число разрядов.", uz: "Vergulni ikkala sonda bir xil xonaga suriladi.", en: 'The comma is moved the same number of places in both numbers.' }
     }
   },
 
   // ===== s10 TEST NumInput — vergulni nechta xona surish (butun) =====
   s10: {
-    eyebrow: { ru: 'Сколько разрядов', uz: "Nechta xona" },
-    question: { ru: 'На сколько разрядов сдвинуть запятую в обоих числах при делении на 1,25?', uz: "1,25 ga bo'lishda ikkala sonda vergulni nechta xona surish kerak?" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Смотри на делитель: у 1,25 два знака после запятой.', uz: "Bo'luvchiga qarang: 1,25 da verguldan keyin ikki raqam." },
-    fb_correct: { ru: 'Верно: два разряда, чтобы 1,25 стало 125.', uz: "To'g'ri: ikki xona, 1,25 son 125 bo'lishi uchun." },
+    eyebrow: { ru: 'Сколько разрядов', uz: "Nechta xona", en: 'How many places' },
+    question: { ru: 'На сколько разрядов сдвинуть запятую в обоих числах при делении на 1,25?', uz: "1,25 ga bo'lishda ikkala sonda vergulni nechta xona surish kerak?", en: 'How many places should the comma be moved in both numbers when dividing by 1,25?' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Смотри на делитель: у 1,25 два знака после запятой.', uz: "Bo'luvchiga qarang: 1,25 da verguldan keyin ikki raqam.", en: 'Look at the divisor: 1,25 has two digits after the comma.' },
+    fb_correct: { ru: 'Верно: два разряда, чтобы 1,25 стало 125.', uz: "To'g'ri: ikki xona, 1,25 son 125 bo'lishi uchun.", en: 'That is right: two places, so that 1,25 becomes 125.' },
     audio: {
-      intro: { ru: "На сколько разрядов нужно сдвинуть запятую, чтобы делитель стал целым числом?", uz: "Bo'luvchi butun son bo'lishi uchun vergulni nechta xona surish kerak?" },
-      on_correct: { ru: "Верно, два разряда.", uz: "To'g'ri, ikki xona." },
-      on_wrong: { ru: "Посчитай знаки после запятой у делителя.", uz: "Bo'luvchining kasr xonalarini sanang." }
+      intro: { ru: "На сколько разрядов нужно сдвинуть запятую, чтобы делитель стал целым числом?", uz: "Bo'luvchi butun son bo'lishi uchun vergulni nechta xona surish kerak?", en: 'How many places does the comma have to move for the divisor to become a whole number?' },
+      on_correct: { ru: "Верно, два разряда.", uz: "To'g'ri, ikki xona.", en: 'That is right, two places.' },
+      on_wrong: { ru: "Посчитай знаки после запятой у делителя.", uz: "Bo'luvchining kasr xonalarini sanang.", en: 'Count the digits after the comma in the divisor.' }
     }
   },
 
   // ===== s11 TEST tasniflash (tap) — natija bo'linuvchidan katta/kichik =====
   s11: {
-    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
-    title: { ru: 'Больше или меньше делимого?', uz: "Bo'linuvchidan katta yoki kichik?" },
-    lead: { ru: 'Поставь каждое частное в свою группу. Считать точно не нужно.', uz: "Har bir bo'linmani o'z guruhiga joylang. Aniq hisoblash shart emas." },
-    bin_sq: { ru: 'Больше делимого', uz: "Bo'linuvchidan katta" },
-    bin_cu: { ru: 'Меньше делимого', uz: "Bo'linuvchidan kichik" },
-    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Делитель меньше 1 увеличивает, больше 1 — уменьшает.', uz: "Birdan kichik bo'luvchi kattalashtiradi, kattasi — kichraytiradi." },
-    correct_text: { ru: 'Верно! Делитель меньше единицы увеличивает результат.', uz: "To'g'ri! Birdan kichik bo'luvchi natijani kattalashtiradi." },
-    fact: { ru: 'А на ноль делить нельзя: ни одно число не подходит. Поэтому калькулятор показывает ошибку.', uz: "Nolga esa bo'lib bo'lmaydi: hech qanday son to'g'ri kelmaydi. Shuning uchun kalkulyator xato ko'rsatadi." },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating", en: 'Sort them into groups' },
+    title: { ru: 'Больше или меньше делимого?', uz: "Bo'linuvchidan katta yoki kichik?", en: 'More or less than the dividend?' },
+    lead: { ru: 'Поставь каждое частное в свою группу. Считать точно не нужно.', uz: "Har bir bo'linmani o'z guruhiga joylang. Aniq hisoblash shart emas.", en: 'Put each answer into its group. You do not need to work it out exactly.' },
+    bin_sq: { ru: 'Больше делимого', uz: "Bo'linuvchidan katta", en: 'More than the dividend' },
+    bin_cu: { ru: 'Меньше делимого', uz: "Bo'linuvchidan kichik", en: 'Less than the dividend' },
+    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang", en: 'First choose the line' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Делитель меньше 1 увеличивает, больше 1 — уменьшает.', uz: "Birdan kichik bo'luvchi kattalashtiradi, kattasi — kichraytiradi.", en: 'A divisor smaller than 1 makes things bigger and bigger than 1 makes them smaller.' },
+    correct_text: { ru: 'Верно! Делитель меньше единицы увеличивает результат.', uz: "To'g'ri! Birdan kichik bo'luvchi natijani kattalashtiradi.", en: 'Right! A divisor smaller than one makes the answer bigger.' },
+    fact: { ru: 'А на ноль делить нельзя: ни одно число не подходит. Поэтому калькулятор показывает ошибку.', uz: "Nolga esa bo'lib bo'lmaydi: hech qanday son to'g'ri kelmaydi. Shuning uchun kalkulyator xato ko'rsatadi.", en: 'And you cannot divide by zero: no number fits. That is why a calculator shows an error.' },
     audio: {
-      intro: { ru: "Поставь частные по группам: какое больше делимого, какое меньше. Считать точно не нужно, прикинь.", uz: "Bo'linmalarni guruhlarga joylang: qaysi biri bo'linuvchidan katta, qaysi biri kichik. Aniq hisoblash shart emas, chamalang." },
-      on_correct: { ru: "Верно. Делитель меньше единицы всегда увеличивает число.", uz: "To'g'ri. Birdan kichik bo'luvchi sonni doim kattalashtiradi." },
-      on_wrong: { ru: "Прикинь: делитель меньше единицы увеличивает.", uz: "Chamalang: birdan kichik bo'luvchi kattalashtiradi." }
+      intro: { ru: "Поставь частные по группам: какое больше делимого, какое меньше. Считать точно не нужно, прикинь.", uz: "Bo'linmalarni guruhlarga joylang: qaysi biri bo'linuvchidan katta, qaysi biri kichik. Aniq hisoblash shart emas, chamalang.", en: 'Sort the answers into groups: which are more than the dividend and which are less. You do not need to work them out exactly, just estimate.' },
+      on_correct: { ru: "Верно. Делитель меньше единицы всегда увеличивает число.", uz: "To'g'ri. Birdan kichik bo'luvchi sonni doim kattalashtiradi.", en: 'That is right. A divisor smaller than one always makes a number bigger.' },
+      on_wrong: { ru: "Прикинь: делитель меньше единицы увеличивает.", uz: "Chamalang: birdan kichik bo'luvchi kattalashtiradi.", en: 'Estimate: a divisor smaller than one makes things bigger.' }
     }
   },
 
   // ===== s12 CASE intro — Bahrom sharbat =====
   s12: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    title: { ru: 'Сок Бахрома', uz: "Bahromning sharbati" },
-    lead: { ru: 'Бахром разливает 7,2 литра сока по стаканам по 0,6 литра.', uz: "Bahrom 7,2 litr sharbatni 0,6 litrli stakanlarga quyadi." },
-    note: { ru: 'Сколько стаканов получится? Посчитаем.', uz: "Nechta stakan chiqadi? Hisoblaymiz." },
-    hint_calc: { ru: 'Объём делят на объём стакана: 7,2 : 0,6.', uz: "Hajm stakan hajmiga bo'linadi: 7,2 : 0,6." },
-    btn_help: { ru: 'Помочь Бахрому', uz: "Bahromga yordam berish" },
-    audio: { ru: "Бахром разливает семь целых две десятых литра сока по стаканам по ноль целых шесть десятых литра. Подумай, как узнать число стаканов.", uz: "Bahrom yetti butun o'ndan ikki litr sharbatni nol butun o'ndan olti litrli stakanlarga quyadi. Stakanlar sonini qanday topishni o'ylang." }
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    title: { ru: 'Сок Бахрома', uz: "Bahromning sharbati", en: "Bahrom's juice" },
+    lead: { ru: 'Бахром разливает 7,2 литра сока по стаканам по 0,6 литра.', uz: "Bahrom 7,2 litr sharbatni 0,6 litrli stakanlarga quyadi.", en: 'Bahrom is pouring 7,2 litres of juice into glasses of 0,6 litres each.' },
+    note: { ru: 'Сколько стаканов получится? Посчитаем.', uz: "Nechta stakan chiqadi? Hisoblaymiz.", en: 'How many glasses will there be? Let us work it out.' },
+    hint_calc: { ru: 'Объём делят на объём стакана: 7,2 : 0,6.', uz: "Hajm stakan hajmiga bo'linadi: 7,2 : 0,6.", en: 'The volume is divided by the volume of a glass: 7,2 : 0,6.' },
+    btn_help: { ru: 'Помочь Бахрому', uz: "Bahromga yordam berish", en: 'Help Bahrom' },
+    audio: { ru: "Бахром разливает семь целых две десятых литра сока по стаканам по ноль целых шесть десятых литра. Подумай, как узнать число стаканов.", uz: "Bahrom yetti butun o'ndan ikki litr sharbatni nol butun o'ndan olti litrli stakanlarga quyadi. Stakanlar sonini qanday topishni o'ylang.", en: 'Bahrom is pouring seven point two litres of juice into glasses of nought point six litres each. Think how to find the number of glasses.' }
   },
 
   // ===== s13 CASE FINAL MC — 7,2 : 0,6 = 12 [FAKT belgisi tarixi] =====
   s13: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Число стаканов', uz: "Stakanlar soni" },
-    question: { ru: 'Сколько стаканов? 7,2 : 0,6', uz: "Nechta stakan? 7,2 : 0,6" },
-    opt0: { ru: '12', uz: '12' },
-    opt1: { ru: '1,2', uz: '1,2' },
-    opt2: { ru: '120', uz: '120' },
-    opt3: { ru: '6', uz: '6' },
-    correct_text: { ru: 'Верно: 72 : 6 = 12 после сдвига запятых. Двенадцать стаканов.', uz: "To'g'ri: vergullarni surgach 72 : 6 = 12. O'n ikki stakan." },
-    wrong_1: { ru: 'Ты не сдвинул запятые. Сделай делитель целым: 72 : 6 = 12.', uz: "Vergullarni surmadingiz. Bo'luvchini butun qiling: 72 : 6 = 12." },
-    wrong_2: { ru: 'Слишком много. Сдвиг на один разряд: 72 : 6 = 12.', uz: "Juda ko'p. Bir xona surish: 72 : 6 = 12." },
-    wrong_3: { ru: 'Это деление на 1,2. А делитель 0,6: 72 : 6 = 12.', uz: "Bu 1,2 ga bo'lish. Bo'luvchi esa 0,6: 72 : 6 = 12." },
-    fact: { ru: 'Знак деления в виде двоеточия и обелюс (÷) ввели около 1659 года. В разных странах пишут и так, и так.', uz: "Bo'lish belgisi — ikki nuqta va obelyus (÷) — taxminan 1659-yili kiritilgan. Turli davlatlarda ham unday, ham bunday yoziladi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq", en: 'Final task' },
+    title: { ru: 'Число стаканов', uz: "Stakanlar soni", en: 'The number of glasses' },
+    question: { ru: 'Сколько стаканов? 7,2 : 0,6', uz: "Nechta stakan? 7,2 : 0,6", en: 'How many glasses? 7,2 : 0,6' },
+    opt0: { ru: '12', uz: '12', en: '12' },
+    opt1: { ru: '1,2', uz: '1,2', en: '1,2' },
+    opt2: { ru: '120', uz: '120', en: '120' },
+    opt3: { ru: '6', uz: '6', en: '6' },
+    correct_text: { ru: 'Верно: 72 : 6 = 12 после сдвига запятых. Двенадцать стаканов.', uz: "To'g'ri: vergullarni surgach 72 : 6 = 12. O'n ikki stakan.", en: 'That is right: after moving the commas, 72 : 6 = 12. Twelve glasses.' },
+    wrong_1: { ru: 'Ты не сдвинул запятые. Сделай делитель целым: 72 : 6 = 12.', uz: "Vergullarni surmadingiz. Bo'luvchini butun qiling: 72 : 6 = 12.", en: 'You did not move the commas. Make the divisor a whole number: 72 : 6 = 12.' },
+    wrong_2: { ru: 'Слишком много. Сдвиг на один разряд: 72 : 6 = 12.', uz: "Juda ko'p. Bir xona surish: 72 : 6 = 12.", en: 'That is too many. A move of one place gives 72 : 6 = 12.' },
+    wrong_3: { ru: 'Это деление на 1,2. А делитель 0,6: 72 : 6 = 12.', uz: "Bu 1,2 ga bo'lish. Bo'luvchi esa 0,6: 72 : 6 = 12.", en: 'That is dividing by 1,2. But the divisor is 0,6: 72 : 6 = 12.' },
+    fact: { ru: 'Знак деления в виде двоеточия и обелюс (÷) ввели около 1659 года. В разных странах пишут и так, и так.', uz: "Bo'lish belgisi — ikki nuqta va obelyus (÷) — taxminan 1659-yili kiritilgan. Turli davlatlarda ham unday, ham bunday yoziladi.", en: 'The division sign as a colon and the obelus (÷) came in around 1659. Different countries use both.' },
     audio: {
-      intro: { ru: "Последнее задание. Семь целых две десятых литра разливают по стаканам по ноль целых шесть десятых. Сколько стаканов?", uz: "Oxirgi topshiriq. Yetti butun o'ndan ikki litr nol butun o'ndan olti litrli stakanlarga quyiladi. Nechta stakan?" },
-      on_correct: { ru: "Верно, двенадцать. Кстати, знак деления придумали больше трёхсот лет назад.", uz: "To'g'ri, o'n ikki. Aytgancha, bo'lish belgisini uch yuz yildan ko'proq oldin o'ylab topishgan." },
-      on_wrong: { ru: "Сдвинь обе запятые вправо и раздели на целое.", uz: "Ikkala vergulni o'ngga suring va butun songa bo'ling." }
+      intro: { ru: "Последнее задание. Семь целых две десятых литра разливают по стаканам по ноль целых шесть десятых. Сколько стаканов?", uz: "Oxirgi topshiriq. Yetti butun o'ndan ikki litr nol butun o'ndan olti litrli stakanlarga quyiladi. Nechta stakan?", en: 'The last task. Seven point two litres are poured into glasses of nought point six litres each. How many glasses?' },
+      on_correct: { ru: "Верно, двенадцать. Кстати, знак деления придумали больше трёхсот лет назад.", uz: "To'g'ri, o'n ikki. Aytgancha, bo'lish belgisini uch yuz yildan ko'proq oldin o'ylab topishgan.", en: 'That is right, twelve. By the way, the division sign was invented more than three hundred years ago.' },
+      on_wrong: { ru: "Сдвинь обе запятые вправо и раздели на целое.", uz: "Ikkala vergulni o'ngga suring va butun songa bo'ling.", en: 'Move both commas to the right and divide by a whole number.' }
     }
   },
 
   // ===== s14 SUMMARY =====
   s14: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Делить десятичные не сложно', uz: "O'nli kasrlarni bo'lish qiyin emas" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'На целое: делим как обычно, запятая в ответе — там же, где в делимом.', uz: "Butun songa: odatdagidek bo'lamiz, javobdagi vergul bo'linuvchidagidek turadi." },
-    main_2: { ru: 'На десятичную: сдвигаем обе запятые вправо и делим на целое.', uz: "O'nliga: ikkala vergulni o'ngga surib, butun songa bo'lamiz." },
-    main_3: { ru: 'Деление на число меньше 1 увеличивает результат.', uz: "Birdan kichik songa bo'lish natijani kattalashtiradi." },
-    hook_close: { ru: 'Вот и ответ Камолу: 6 : 0,5 = 12, больше шести.', uz: "Mana Kamolga javob: 6 : 0,5 = 12, oltidan katta." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Деление на 10, 100, 1000 (Урок 25) и умножение десятичных (Урок 26).', uz: "10, 100, 1000 ga bo'lish (25-dars) va o'nli kasrlarni ko'paytirish (26-dars)." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Проценты — сотые доли числа.', uz: "Foizlar — sonning yuzdan ulushlari." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, на целое делим как обычно, а на десятичную — сдвигаем обе запятые и делим на целое. И помним: деление на число меньше единицы увеличивает результат.", uz: "Demak, butun songa odatdagidek bo'lamiz, o'nliga esa — ikkala vergulni surib, butun songa bo'lamiz. Va yodda tutamiz: birdan kichik songa bo'lish natijani kattalashtiradi." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Делить десятичные не сложно', uz: "O'nli kasrlarni bo'lish qiyin emas", en: 'Dividing decimals is not hard' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'На целое: делим как обычно, запятая в ответе — там же, где в делимом.', uz: "Butun songa: odatdagidek bo'lamiz, javobdagi vergul bo'linuvchidagidek turadi.", en: 'By a whole number: divide as usual, and the comma in the answer goes where the comma in the dividend is.' },
+    main_2: { ru: 'На десятичную: сдвигаем обе запятые вправо и делим на целое.', uz: "O'nliga: ikkala vergulni o'ngga surib, butun songa bo'lamiz.", en: 'By a decimal: move both commas to the right and divide by a whole number.' },
+    main_3: { ru: 'Деление на число меньше 1 увеличивает результат.', uz: "Birdan kichik songa bo'lish natijani kattalashtiradi.", en: 'Dividing by a number smaller than 1 makes the answer bigger.' },
+    hook_close: { ru: 'Вот и ответ Камолу: 6 : 0,5 = 12, больше шести.', uz: "Mana Kamolga javob: 6 : 0,5 = 12, oltidan katta.", en: "So here is Kamol's answer: 6 : 0,5 = 12, which is more than six." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Деление на 10, 100, 1000 (Урок 25) и умножение десятичных (Урок 26).', uz: "10, 100, 1000 ga bo'lish (25-dars) va o'nli kasrlarni ko'paytirish (26-dars).", en: 'Dividing by 10, 100 and 1000 (Lesson 25) and multiplying decimals (Lesson 26).' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Проценты — сотые доли числа.', uz: "Foizlar — sonning yuzdan ulushlari.", en: 'Percentages, which are hundredths of a number.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, на целое делим как обычно, а на десятичную — сдвигаем обе запятые и делим на целое. И помним: деление на число меньше единицы увеличивает результат.", uz: "Demak, butun songa odatdagidek bo'lamiz, o'nliga esa — ikkala vergulni surib, butun songa bo'lamiz. Va yodda tutamiz: birdan kichik songa bo'lish natijani kattalashtiradi.", en: 'So by a whole number we divide as usual, and by a decimal we move both commas and divide by a whole number. And we remember that dividing by a number smaller than one makes the answer bigger.' }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1146,9 +1174,9 @@ const Floaters = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1259,13 +1287,13 @@ const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1566,7 +1594,7 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
             <div style={{ marginTop: 12 }}><FactCard text={c.fact} badge={FB_IT} anim={<AnimZeroDiv/>}/></div>
           </FeedbackBlock>
@@ -1611,7 +1639,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s14;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
@@ -1639,7 +1667,7 @@ export default function DecDivideLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1692,7 +1720,7 @@ export default function DecDivideLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

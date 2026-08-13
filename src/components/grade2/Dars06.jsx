@@ -79,9 +79,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -252,7 +280,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -297,7 +325,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -945,8 +974,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-2-06-v1',
-  lessonTitle: { ru: 'Урок 6. Числовой луч', uz: "6-dars. Son o'qi" }
+  lessonId: 'grade2-06',
+  lessonTitle: { ru: 'Урок 6. Числовой луч', uz: "6-dars. Son o'qi", en: 'Lesson 6. The number line' }
 };
 // STRUKTURA (metodist 2026-07-14): s0–s6 tushuntirish (7) · s7–sCASE mashq (6) · s14 final · s15 xulosa.
 // MEXANIKA: OmborRaf — kodni ikki razryad-rafiga ajratish (45 = 40 + 5). Nol-o'rin alohida (s4).
@@ -992,13 +1021,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): kema trassada — qaysi sonda?
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Числовой луч', uz: "Mavzu: Son o'qi" },
-    lead: { ru: 'Где остановился корабль?', uz: "Kema qayerda to'xtadi?" },
-    q: { ru: 'Корабль на 68 или на 86?', uz: "Kema 68 dami yoki 86 dami?" },
-    opt0: { ru: 'На 86', uz: '86 da' },
-    opt1: { ru: 'На 68', uz: '68 da' },   // to'g'ri (kema 68 da to'xtadi; idx1 = correct-key)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Числовой луч', uz: "Mavzu: Son o'qi", en: 'Topic: The number line' },
+    lead: { ru: 'Где остановился корабль?', uz: "Kema qayerda to'xtadi?", en: 'Where did the ship stop?' },
+    q: { ru: 'Корабль на 68 или на 86?', uz: "Kema 68 dami yoki 86 dami?", en: 'Is the ship on 68 or on 86?' },
+    opt0: { ru: 'На 86', uz: '86 da', en: 'On 86' },
+    opt1: { ru: 'На 68', uz: '68 da', en: 'On 68' },   // to'g'ri (kema 68 da to'xtadi; idx1 = correct-key)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -1012,21 +1041,22 @@ const CONTENT = {
           "Bitning kemasi trassa bo'ylab uchadi. U yigirma sakkizdan start olib, sekin oldinga uchdi.",
           "Kema oltmish bilan yetmish orasida to'xtadi. U qaysi sonda?",
           "Uchta javobni tinglang. Birinchi, sakson oltida. Ikkinchi, oltmish sakkizda. Uchinchi, bilmayman. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['Today the topic is the number line. We will learn to find numbers on the track.', "Bit's ship is flying along the track. It set off from twenty eight and moved slowly forward.", 'The ship stopped between sixty and seventy. Which number is it on?', 'Listen to three answers. First, on eighty six. Second, on sixty eight. Third, I do not know. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Корабль остановился на шестидесяти восьми: между шестьюдесятью и семьюдесятью.', uz: "To'g'ri. Kema oltmish sakkizda to'xtadi: oltmish bilan yetmish orasida." },
-      on_wrong: { ru: 'Смотри: корабль между шестьюдесятью и семьюдесятью. Сейчас научимся читать трассу.', uz: "Qara: kema oltmish bilan yetmish orasida. Hozir trassani o'qishni o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Сейчас научимся находить числа на трассе.', uz: "Hechqisi yo'q. Hozir trassada sonlarni topishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Корабль остановился на шестидесяти восьми: между шестьюдесятью и семьюдесятью.', uz: "To'g'ri. Kema oltmish sakkizda to'xtadi: oltmish bilan yetmish orasida.", en: 'That is right. The ship stopped on sixty eight, between sixty and seventy.' },
+      on_wrong: { ru: 'Смотри: корабль между шестьюдесятью и семьюдесятью. Сейчас научимся читать трассу.', uz: "Qara: kema oltmish bilan yetmish orasida. Hozir trassani o'qishni o'rganamiz.", en: 'Look, the ship is between sixty and seventy. Now we will learn to read the track.' },
+      on_unknown: { ru: 'Ничего. Сейчас научимся находить числа на трассе.', uz: "Hechqisi yo'q. Hozir trassada sonlarni topishni o'rganamiz.", en: 'No problem. We will learn to find numbers on the track now.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: trassa — son o'qi 0..100
   s1: {
-    eyebrow: { ru: 'Трасса чисел', uz: 'Sonlar trassasi' },
-    lead: { ru: 'Трасса — это числовой луч.', uz: "Trassa — bu son o'qi." },
-    body: { ru: 'На трассе числа стоят по порядку: ноль, десять, двадцать … Большие метки — это десятки, а между ними маленькие шаги — единицы.', uz: "Trassada sonlar tartib bilan turadi: nol, o'n, yigirma … Katta belgilar — o'nliklar, orasidagi kichik qadamlar — birliklar." },
-    info_badge: { ru: 'Запомни', uz: 'Yodda tuting' },
-    info: { ru: 'Чем правее — тем число больше.', uz: "Qancha o'ngda — son shuncha katta." },
+    eyebrow: { ru: 'Трасса чисел', uz: 'Sonlar trassasi', en: 'The number track' },
+    lead: { ru: 'Трасса — это числовой луч.', uz: "Trassa — bu son o'qi.", en: 'The track is a number line.' },
+    body: { ru: 'На трассе числа стоят по порядку: ноль, десять, двадцать … Большие метки — это десятки, а между ними маленькие шаги — единицы.', uz: "Trassada sonlar tartib bilan turadi: nol, o'n, yigirma … Katta belgilar — o'nliklar, orasidagi kichik qadamlar — birliklar.", en: 'On the track the numbers stand in order: zero, ten, twenty … The big marks are the tens, and the small steps between them are the ones.' },
+    info_badge: { ru: 'Запомни', uz: 'Yodda tuting', en: 'Remember' },
+    info: { ru: 'Чем правее — тем число больше.', uz: "Qancha o'ngda — son shuncha katta.", en: 'The further right, the bigger the number.' },
     audio: {
       ru: [
         'Трасса корабля это числовой луч. Числа на ней стоят по порядку.',
@@ -1037,16 +1067,17 @@ const CONTENT = {
         "Kemaning trassasi bu son o'qi. Sonlar unda tartib bilan turadi.",
         "Yirik belgilar, o'nliklar: nol, o'n, yigirma, o'ttiz.",
         "O'nliklar orasida kichik qadamlar, birliklar. Qancha o'ngda, shuncha katta."
-      ]
+      ],
+      en: ["The ship's track is a number line. The numbers on it stand in order.", 'The big marks are the tens: zero, ten, twenty, thirty.', 'Between the tens there are small steps, and those are the ones. The further right, the bigger the number.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2 (ishlab ko'rsatish): 34 ni topamiz (30 + 4 qadam)
   s2: {
-    eyebrow: { ru: 'Находим число', uz: 'Sonni topamiz' },
-    lead: { ru: 'Где стоит корабль?', uz: 'Kema qayerda turibdi?' },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '30 и ещё 4 шага — это 34.', uz: "30 va yana 4 qadam — bu 34." },
+    eyebrow: { ru: 'Находим число', uz: 'Sonni topamiz', en: 'Finding a number' },
+    lead: { ru: 'Где стоит корабль?', uz: 'Kema qayerda turibdi?', en: 'Where does the ship stand?' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: '30 и ещё 4 шага — это 34.', uz: "30 va yana 4 qadam — bu 34.", en: '30 and 4 steps more is 34.' },
     audio: {
       ru: [
         'Найдём, на каком числе стоит корабль.',
@@ -1059,18 +1090,19 @@ const CONTENT = {
         "Avval o'nliklarga qaraymiz. Kema o'ttizdan o'ngda, lekin qirqdan chapda. Demak, o'ttiz nechadir.",
         "Endi o'ttizdan kichik qadamlarni sanaymiz: bir, ikki, uch, to'rt.",
         "O'ttiz to'rt bo'ldi. Kema o'ttiz to'rtda turibdi."
-      ]
+      ],
+      en: ['Let us find which number the ship is on.', 'First we look at the tens. The ship is to the right of thirty but to the left of forty. So it is thirty something.', 'Now we count the small steps from thirty: one, two, three, four.', 'That makes thirty four. The ship is standing on thirty four.']
     }
   },
 
   // s3 — QOIDA: avval o'nliklar (qaysi orasida), keyin birlik qadamlar
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Сначала между какими десятками, потом сколько шагов.', uz: "Avval qaysi o'nliklar orasida, keyin nechta qadam." },
-    check_q: { ru: 'Между какими десятками стоит корабль (34)?', uz: "Kema (34) qaysi o'nliklar orasida?" },
-    opts: [{ ru: '30 и 40', uz: '30 va 40', ok: true }, { ru: '40 и 50', uz: '40 va 50' }, { ru: '20 и 30', uz: '20 va 30' }],
-    wrong: { ru: 'Тридцать четыре больше тридцати, но меньше сорока. Значит между 30 и 40.', uz: "O'ttiz to'rt o'ttizdan katta, lekin qirqdan kichik. Demak 30 va 40 orasida." },
-    check_ok: { ru: 'Верно! 34 между 30 и 40.', uz: "To'g'ri! 34 — 30 va 40 orasida." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Сначала между какими десятками, потом сколько шагов.', uz: "Avval qaysi o'nliklar orasida, keyin nechta qadam.", en: 'First which tens it is between, then how many steps.' },
+    check_q: { ru: 'Между какими десятками стоит корабль (34)?', uz: "Kema (34) qaysi o'nliklar orasida?", en: 'Which tens is the ship between (34)?' },
+    opts: [{ ru: '30 и 40', uz: '30 va 40', en: '30 and 40', ok: true }, { ru: '40 и 50', uz: '40 va 50', en: '40 and 50' }, { ru: '20 и 30', uz: '20 va 30', en: '20 and 30' }],
+    wrong: { ru: 'Тридцать четыре больше тридцати, но меньше сорока. Значит между 30 и 40.', uz: "O'ttiz to'rt o'ttizdan katta, lekin qirqdan kichik. Demak 30 va 40 orasida.", en: 'Thirty four is more than thirty but less than forty. So it is between 30 and 40.' },
+    check_ok: { ru: 'Верно! 34 между 30 и 40.', uz: "To'g'ri! 34 — 30 va 40 orasida.", en: 'That is right! 34 is between 30 and 40.' },
     audio: {
       ru: [
         'Запишем правило чтения числа на трассе. Слушай и запомни.',
@@ -1085,20 +1117,21 @@ const CONTENT = {
         "Keyin chap o'nlikdan kichik qadamlarni sanaymiz.",
         "Masalan, o'ttiz to'rt o'ttiz bilan qirq orasida, plyus to'rt qadam.",
         "Endi o'zingiz. Kema qaysi o'nliklar orasida?"
-      ]
+      ],
+      en: ['Let us write down the rule for reading a number on the track. Listen and remember.', 'First we find which tens the ship is between.', 'Then we count the small steps from the ten on the left.', 'For example, thirty four stands between thirty and forty, plus four steps.', 'And now on your own. Which tens is the ship between?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (yana misol): 67 (60 va 70 orasida)
   s4: {
-    eyebrow: { ru: 'Ещё пример', uz: 'Yana misol' },
-    lead: { ru: 'Найди это число.', uz: "Bu sonni toping." },
-    body: { ru: 'Корабль между 60 и 70. Шесть десятков это шестьдесят, и ещё семь шагов — шестьдесят семь.', uz: "Kema 60 bilan 70 orasida. Olti o'nlik — oltmish, va yana yetti qadam — oltmish yetti." },
-    warn: { ru: 'Смотри внимательно: сначала десятки, потом шаги. Не перепутай 67 и 76!', uz: "Diqqat bilan qarang: avval o'nliklar, keyin qadamlar. 67 va 76 ni chalkashtirma!" },
-    check_q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    opts: [{ ru: '67', uz: '67', ok: true }, { ru: '76', uz: '76' }, { ru: '60', uz: '60' }],
-    wrong: { ru: 'Корабль между 60 и 70, значит шестьдесят с чем-то. Семь шагов — шестьдесят семь.', uz: "Kema 60 bilan 70 orasida, demak oltmish nechadir. Yetti qadam — oltmish yetti." },
-    check_ok: { ru: 'Верно! Это 67.', uz: "To'g'ri! Bu 67." },
+    eyebrow: { ru: 'Ещё пример', uz: 'Yana misol', en: 'One more example' },
+    lead: { ru: 'Найди это число.', uz: "Bu sonni toping.", en: 'Find this number.' },
+    body: { ru: 'Корабль между 60 и 70. Шесть десятков это шестьдесят, и ещё семь шагов — шестьдесят семь.', uz: "Kema 60 bilan 70 orasida. Olti o'nlik — oltmish, va yana yetti qadam — oltmish yetti.", en: 'The ship is between 60 and 70. Six tens is sixty, and seven steps more make sixty seven.' },
+    warn: { ru: 'Смотри внимательно: сначала десятки, потом шаги. Не перепутай 67 и 76!', uz: "Diqqat bilan qarang: avval o'nliklar, keyin qadamlar. 67 va 76 ni chalkashtirma!", en: 'Look carefully: tens first, then steps. Do not mix up 67 and 76!' },
+    check_q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+    opts: [{ ru: '67', uz: '67', en: '67', ok: true }, { ru: '76', uz: '76', en: '76' }, { ru: '60', uz: '60', en: '60' }],
+    wrong: { ru: 'Корабль между 60 и 70, значит шестьдесят с чем-то. Семь шагов — шестьдесят семь.', uz: "Kema 60 bilan 70 orasida, demak oltmish nechadir. Yetti qadam — oltmish yetti.", en: 'The ship is between 60 and 70, so it is sixty something. Seven steps make sixty seven.' },
+    check_ok: { ru: 'Верно! Это 67.', uz: "To'g'ri! Bu 67.", en: 'That is right! It is 67.' },
     audio: {
       ru: [
         'Возьмём ещё пример. Найди, на каком числе стоит корабль.',
@@ -1111,18 +1144,19 @@ const CONTENT = {
         "U oltmish bilan yetmish orasida. Demak oltmish nechadir.",
         "Oltmishdan qadamlarni sanaymiz: bir, ikki, uch, to'rt, besh, olti, yetti.",
         "Oltmish yetti bo'ldi. Shu sonni tanla."
-      ]
+      ],
+      en: ['Let us take one more example. Find which number the ship is on.', 'It is between sixty and seventy. So it is sixty something.', 'We count the steps from sixty: one, two, three, four, five, six, seven.', 'That makes sixty seven. Choose this number.']
     }
   },
 
   // s5 — TUSHUNTIRISH-4 (MC): qaysi son (52, 25 emas)
   s5: {
-    eyebrow: { ru: 'Какое число?', uz: 'Qaysi son?' },
-    lead: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing." },
-    q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    opts: [{ ru: '52', uz: '52', ok: true }, { ru: '25', uz: '25' }, { ru: '50', uz: '50' }, { ru: '42', uz: '42' }],
-    wrong: { ru: 'Между 50 и 60, значит пятьдесят с шагами. Два шага — пятьдесят два.', uz: "50 bilan 60 orasida, demak ellik va qadamlar. Ikki qadam — ellik ikki." },
-    done_text: { ru: 'Верно! Это 52.', uz: "To'g'ri! Bu 52." },
+    eyebrow: { ru: 'Какое число?', uz: 'Qaysi son?', en: 'Which number is it?' },
+    lead: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing.", en: 'Read the number on the track.' },
+    q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+    opts: [{ ru: '52', uz: '52', en: '52', ok: true }, { ru: '25', uz: '25', en: '25' }, { ru: '50', uz: '50', en: '50' }, { ru: '42', uz: '42', en: '42' }],
+    wrong: { ru: 'Между 50 и 60, значит пятьдесят с шагами. Два шага — пятьдесят два.', uz: "50 bilan 60 orasida, demak ellik va qadamlar. Ikki qadam — ellik ikki.", en: 'It is between 50 and 60, so it is fifty with some steps. Two steps make fifty two.' },
+    done_text: { ru: 'Верно! Это 52.', uz: "To'g'ri! Bu 52.", en: 'That is right! It is 52.' },
     audio: {
       ru: [
         'Иногда цифры похожи: пятьдесят два и двадцать пять.',
@@ -1133,211 +1167,215 @@ const CONTENT = {
         "Ba'zan raqamlar o'xshash: ellik ikki va yigirma besh.",
         "O'nliklarga qara: kema ellik bilan oltmish orasida.",
         "Demak bu ellik ikki, yigirma besh emas. Sonni tanla."
-      ]
+      ],
+      en: ['Sometimes the digits look alike: fifty two and twenty five.', 'Look at the tens: the ship is between fifty and sixty.', 'So it is fifty two, not twenty five. Choose the number.']
     }
   },
 
   // s6 — TUSHUNTIRISH-5 (recap): qaysi son (48)
   s6: {
-    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
-    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    q: { ru: 'Прочитай число.', uz: "Sonni o'qing." },
-    opts: [{ ru: '48', uz: '48', ok: true }, { ru: '84', uz: '84' }, { ru: '40', uz: '40' }, { ru: '38', uz: '38' }],
-    wrong: { ru: 'Между 40 и 50, значит сорок с шагами. Восемь шагов — сорок восемь.', uz: "40 bilan 50 orasida, demak qirq va qadamlar. Sakkiz qadam — qirq sakkiz." },
-    done_text: { ru: 'Верно! Это 48.', uz: "To'g'ri! Bu 48." },
+    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang", en: 'Check yourself' },
+    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+    q: { ru: 'Прочитай число.', uz: "Sonni o'qing.", en: 'Read the number.' },
+    opts: [{ ru: '48', uz: '48', en: '48', ok: true }, { ru: '84', uz: '84', en: '84' }, { ru: '40', uz: '40', en: '40' }, { ru: '38', uz: '38', en: '38' }],
+    wrong: { ru: 'Между 40 и 50, значит сорок с шагами. Восемь шагов — сорок восемь.', uz: "40 bilan 50 orasida, demak qirq va qadamlar. Sakkiz qadam — qirq sakkiz.", en: 'It is between 40 and 50, so it is forty with some steps. Eight steps make forty eight.' },
+    done_text: { ru: 'Верно! Это 48.', uz: "To'g'ri! Bu 48.", en: 'That is right! It is 48.' },
     audio: {
-      intro: { ru: 'Проверь себя перед практикой. Корабль между сорока и пятьюдесятью. На каком он числе?', uz: "Mashqdan oldin o'zingizni sinang. Kema qirq bilan ellik orasida. U qaysi sonda?" },
-      on_correct: { ru: 'Верно. Сорок восемь.', uz: "To'g'ri. Qirq sakkiz." },
-      on_wrong: { ru: 'Сначала десятки, потом шаги.', uz: "Avval o'nliklar, keyin qadamlar." }
+      intro: { ru: 'Проверь себя перед практикой. Корабль между сорока и пятьюдесятью. На каком он числе?', uz: "Mashqdan oldin o'zingizni sinang. Kema qirq bilan ellik orasida. U qaysi sonda?", en: 'Check yourself before the practice. The ship is between forty and fifty. Which number is it on?' },
+      on_correct: { ru: 'Верно. Сорок восемь.', uz: "To'g'ri. Qirq sakkiz.", en: 'That is right. Forty eight.' },
+      on_wrong: { ru: 'Сначала десятки, потом шаги.', uz: "Avval o'nliklar, keyin qadamlar.", en: 'Tens first, then steps.' }
     }
   },
 
   // s7 — MASHQ-1 (scored MC, 3 misol): qaysi son
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: читай числа на трассе.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: trassada sonlarni o'qing." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: читай числа на трассе.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: trassada sonlarni o'qing.", en: 'We have finished explaining. Now practise on your own: read the numbers on the track.' },
     rounds: [
-      { value: 34, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '34', uz: '34', ok: true }, { ru: '43', uz: '43' }, { ru: '30', uz: '30' }, { ru: '40', uz: '40' }] },
-      { value: 58, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '58', uz: '58', ok: true }, { ru: '85', uz: '85' }, { ru: '50', uz: '50' }, { ru: '48', uz: '48' }] },
-      { value: 71, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '71', uz: '71', ok: true }, { ru: '17', uz: '17' }, { ru: '70', uz: '70' }, { ru: '81', uz: '81' }] }
+      { value: 34, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '34', uz: '34', en: '34', ok: true }, { ru: '43', uz: '43', en: '43' }, { ru: '30', uz: '30', en: '30' }, { ru: '40', uz: '40', en: '40' }] },
+      { value: 58, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '58', uz: '58', en: '58', ok: true }, { ru: '85', uz: '85', en: '85' }, { ru: '50', uz: '50', en: '50' }, { ru: '48', uz: '48', en: '48' }] },
+      { value: 71, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '71', uz: '71', en: '71', ok: true }, { ru: '17', uz: '17', en: '17' }, { ru: '70', uz: '70', en: '70' }, { ru: '81', uz: '81', en: '81' }] }
     ],
-    wrong: { ru: 'Сначала между какими десятками, потом шаги. Не путай цифры местами.', uz: "Avval qaysi o'nliklar orasida, keyin qadamlar. Raqamlar o'rnini chalkashtirma." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Сначала между какими десятками, потом шаги. Не путай цифры местами.', uz: "Avval qaysi o'nliklar orasida, keyin qadamlar. Raqamlar o'rnini chalkashtirma.", en: 'First which tens it is between, then the steps. Do not swap the digits round.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Объяснение мы закончили, теперь тренировка. Читай, на каком числе стоит корабль.', uz: "Tushuntirishni tugatdik, endi trenirovka. Kema qaysi sonda turibdi, o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar." }
+      intro: { ru: 'Объяснение мы закончили, теперь тренировка. Читай, на каком числе стоит корабль.', uz: "Tushuntirishni tugatdik, endi trenirovka. Kema qaysi sonda turibdi, o'qing.", en: 'We have finished explaining, now it is practice. Read which number the ship is on.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar.", en: 'Tens first, then the small steps.' }
     }
   },
 
   // s8 — MASHQ-2 (scored MC, 3 misol): qaysi son (chalkashtiruvchi)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Не перепутай цифры!', uz: "Raqamlarni chalkashtirma!" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Не перепутай цифры!', uz: "Raqamlarni chalkashtirma!", en: 'Do not mix up the digits!' },
     rounds: [
-      { value: 26, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '26', uz: '26', ok: true }, { ru: '62', uz: '62' }, { ru: '20', uz: '20' }, { ru: '30', uz: '30' }] },
-      { value: 63, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '63', uz: '63', ok: true }, { ru: '36', uz: '36' }, { ru: '60', uz: '60' }, { ru: '70', uz: '70' }] },
-      { value: 89, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '89', uz: '89', ok: true }, { ru: '98', uz: '98' }, { ru: '80', uz: '80' }, { ru: '90', uz: '90' }] }
+      { value: 26, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '26', uz: '26', en: '26', ok: true }, { ru: '62', uz: '62', en: '62' }, { ru: '20', uz: '20', en: '20' }, { ru: '30', uz: '30', en: '30' }] },
+      { value: 63, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '63', uz: '63', en: '63', ok: true }, { ru: '36', uz: '36', en: '36' }, { ru: '60', uz: '60', en: '60' }, { ru: '70', uz: '70', en: '70' }] },
+      { value: 89, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '89', uz: '89', en: '89', ok: true }, { ru: '98', uz: '98', en: '98' }, { ru: '80', uz: '80', en: '80' }, { ru: '90', uz: '90', en: '90' }] }
     ],
-    wrong: { ru: 'Смотри на десятки: между какими метками корабль. Потом считай шаги.', uz: "O'nliklarga qarang: kema qaysi belgilar orasida. Keyin qadamlarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Смотри на десятки: между какими метками корабль. Потом считай шаги.', uz: "O'nliklarga qarang: kema qaysi belgilar orasida. Keyin qadamlarni sanang.", en: 'Look at the tens: which marks the ship is between. Then count the steps.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Здесь цифры легко перепутать. Смотри на десятки внимательно.', uz: "Bu yerda raqamlarni chalkashtirish oson. O'nliklarga diqqat bilan qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Десятки решают, где стоит корабль.', uz: "Kema qayerdaligini o'nliklar hal qiladi." }
+      intro: { ru: 'Здесь цифры легко перепутать. Смотри на десятки внимательно.', uz: "Bu yerda raqamlarni chalkashtirish oson. O'nliklarga diqqat bilan qarang.", en: 'Here the digits are easy to mix up. Look at the tens carefully.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Десятки решают, где стоит корабль.', uz: "Kema qayerdaligini o'nliklar hal qiladi.", en: 'The tens decide where the ship stands.' }
     }
   },
 
   // s9 — MASHQ-3 (scored PLACE, 3 misol): sonni son-o'qiga QO'YISH
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь корабль на трассу.', uz: "Kemani trassaga qo'ying." },
-    tap_hint: { ru: 'Нажми на трассу там, где стоит это число.', uz: "Trassada shu son turgan joyni bosing." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь корабль на трассу.', uz: "Kemani trassaga qo'ying.", en: 'Put the ship on the track.' },
+    tap_hint: { ru: 'Нажми на трассу там, где стоит это число.', uz: "Trassada shu son turgan joyni bosing.", en: 'Tap the track where this number stands.' },
     rounds: [
-      { target: 47, say: { ru: 'Поставь корабль на сорок семь.', uz: "Kemani qirq yettiga qo'ying." } },
-      { target: 30, say: { ru: 'Теперь поставь корабль на тридцать.', uz: "Endi kemani o'ttizga qo'ying." } },
-      { target: 68, say: { ru: 'Теперь поставь корабль на шестьдесят восемь.', uz: "Endi kemani oltmish sakkizga qo'ying." } }
+      { target: 47, say: { ru: 'Поставь корабль на сорок семь.', uz: "Kemani qirq yettiga qo'ying.", en: 'Put the ship on forty seven.' } },
+      { target: 30, say: { ru: 'Теперь поставь корабль на тридцать.', uz: "Endi kemani o'ttizga qo'ying.", en: 'Now put the ship on thirty.' } },
+      { target: 68, say: { ru: 'Теперь поставь корабль на шестьдесят восемь.', uz: "Endi kemani oltmish sakkizga qo'ying.", en: 'Now put the ship on sixty eight.' } }
     ],
-    wrong: { ru: 'Сначала посмотри, между какими десятками стоит это число. Потом отсчитай шаги.', uz: "Avval bu son qaysi o'nliklar orasida ekanini qarang. Keyin qadamlarni sanang." },
-    done_text: { ru: 'Верно! Корабль встал точно на число.', uz: "To'g'ri! Kema aynan songa turdi." },
+    wrong: { ru: 'Сначала посмотри, между какими десятками стоит это число. Потом отсчитай шаги.', uz: "Avval bu son qaysi o'nliklar orasida ekanini qarang. Keyin qadamlarni sanang.", en: 'First look at which tens this number is between. Then count the steps.' },
+    done_text: { ru: 'Верно! Корабль встал точно на число.', uz: "To'g'ri! Kema aynan songa turdi.", en: 'That is right! The ship landed exactly on the number.' },
     audio: {
-      intro: { ru: 'Теперь ты сам ставишь корабль на трассу. Посмотри на число и нажми там, где оно стоит.', uz: "Endi kemani o'zingiz trassaga qo'yasiz. Songa qarang va u turgan joyni bosing." },
-      on_correct: { ru: 'Верно. Корабль встал точно на число.', uz: "To'g'ri. Kema aynan songa turdi." },
-      on_wrong: { ru: 'Сначала найди десятки, потом отсчитай маленькие шаги.', uz: "Avval o'nliklarni toping, keyin kichik qadamlarni sanang." }
+      intro: { ru: 'Теперь ты сам ставишь корабль на трассу. Посмотри на число и нажми там, где оно стоит.', uz: "Endi kemani o'zingiz trassaga qo'yasiz. Songa qarang va u turgan joyni bosing.", en: 'Now you put the ship on the track yourself. Look at the number and tap where it stands.' },
+      on_correct: { ru: 'Верно. Корабль встал точно на число.', uz: "To'g'ri. Kema aynan songa turdi.", en: 'That is right. The ship landed exactly on the number.' },
+      on_wrong: { ru: 'Сначала найди десятки, потом отсчитай маленькие шаги.', uz: "Avval o'nliklarni toping, keyin kichik qadamlarni sanang.", en: 'First find the tens, then count the small steps.' }
     }
   },
 
   // s10 — MASHQ-4 (scored MC, 3 misol): qaysi son
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
     rounds: [
-      { value: 37, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '37', uz: '37', ok: true }, { ru: '73', uz: '73' }, { ru: '30', uz: '30' }, { ru: '40', uz: '40' }] },
-      { value: 74, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '74', uz: '74', ok: true }, { ru: '47', uz: '47' }, { ru: '70', uz: '70' }, { ru: '84', uz: '84' }] },
-      { value: 15, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' }, opts: [{ ru: '15', uz: '15', ok: true }, { ru: '51', uz: '51' }, { ru: '10', uz: '10' }, { ru: '25', uz: '25' }] }
+      { value: 37, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '37', uz: '37', en: '37', ok: true }, { ru: '73', uz: '73', en: '73' }, { ru: '30', uz: '30', en: '30' }, { ru: '40', uz: '40', en: '40' }] },
+      { value: 74, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '74', uz: '74', en: '74', ok: true }, { ru: '47', uz: '47', en: '47' }, { ru: '70', uz: '70', en: '70' }, { ru: '84', uz: '84', en: '84' }] },
+      { value: 15, q: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' }, opts: [{ ru: '15', uz: '15', en: '15', ok: true }, { ru: '51', uz: '51', en: '51' }, { ru: '10', uz: '10', en: '10' }, { ru: '25', uz: '25', en: '25' }] }
     ],
-    wrong: { ru: 'Между какими десятками корабль? Потом считай маленькие шаги.', uz: "Kema qaysi o'nliklar orasida? Keyin kichik qadamlarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Между какими десятками корабль? Потом считай маленькие шаги.', uz: "Kema qaysi o'nliklar orasida? Keyin kichik qadamlarni sanang.", en: 'Which tens is the ship between? Then count the small steps.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Ещё числа на трассе. Читай каждое: сначала десятки, потом шаги.', uz: "Trassada yana sonlar. Har birini o'qing: avval o'nliklar, keyin qadamlar." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не путай цифры местами.', uz: "Raqamlar o'rnini chalkashtirma." }
+      intro: { ru: 'Ещё числа на трассе. Читай каждое: сначала десятки, потом шаги.', uz: "Trassada yana sonlar. Har birini o'qing: avval o'nliklar, keyin qadamlar.", en: 'More numbers on the track. Read each one: tens first, then steps.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не путай цифры местами.', uz: "Raqamlar o'rnini chalkashtirma.", en: 'Do not swap the digits round.' }
     }
   },
 
   // s11 — MASHQ-5 (scored PLACE, 3 misol): sonni son-o'qiga QO'YISH
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь корабль на нужное число.', uz: "Kemani kerakli songa qo'ying." },
-    tap_hint: { ru: 'Нажми на трассу там, где стоит это число.', uz: "Trassada shu son turgan joyni bosing." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь корабль на нужное число.', uz: "Kemani kerakli songa qo'ying.", en: 'Put the ship on the right number.' },
+    tap_hint: { ru: 'Нажми на трассу там, где стоит это число.', uz: "Trassada shu son turgan joyni bosing.", en: 'Tap the track where this number stands.' },
     rounds: [
-      { target: 25, say: { ru: 'Поставь корабль на двадцать пять.', uz: "Kemani yigirma beshga qo'ying." } },
-      { target: 74, say: { ru: 'Теперь поставь корабль на семьдесят четыре.', uz: "Endi kemani yetmish to'rtga qo'ying." } },
-      { target: 90, say: { ru: 'Теперь поставь корабль на девяносто.', uz: "Endi kemani to'qsonga qo'ying." } }
+      { target: 25, say: { ru: 'Поставь корабль на двадцать пять.', uz: "Kemani yigirma beshga qo'ying.", en: 'Put the ship on twenty five.' } },
+      { target: 74, say: { ru: 'Теперь поставь корабль на семьдесят четыре.', uz: "Endi kemani yetmish to'rtga qo'ying.", en: 'Now put the ship on seventy four.' } },
+      { target: 90, say: { ru: 'Теперь поставь корабль на девяносто.', uz: "Endi kemani to'qsonga qo'ying.", en: 'Now put the ship on ninety.' } }
     ],
-    wrong: { ru: 'Сначала между какими десятками стоит число, потом отсчитай шаги.', uz: "Avval son qaysi o'nliklar orasida turibdi, keyin qadamlarni sanang." },
-    done_text: { ru: 'Верно! Корабль на месте.', uz: "To'g'ri! Kema joyida." },
+    wrong: { ru: 'Сначала между какими десятками стоит число, потом отсчитай шаги.', uz: "Avval son qaysi o'nliklar orasida turibdi, keyin qadamlarni sanang.", en: 'First which tens the number is between, then count the steps.' },
+    done_text: { ru: 'Верно! Корабль на месте.', uz: "To'g'ri! Kema joyida.", en: 'That is right! The ship is in place.' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Ставь корабль на трассу сам.', uz: "Masaladan oldingi oxirgi mashq. Kemani trassaga o'zingiz qo'ying." },
-      on_correct: { ru: 'Верно. Корабль на месте.', uz: "To'g'ri. Kema joyida." },
-      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar." }
+      intro: { ru: 'Последняя тренировка перед задачей. Ставь корабль на трассу сам.', uz: "Masaladan oldingi oxirgi mashq. Kemani trassaga o'zingiz qo'ying.", en: 'The last practice before the task. Put the ship on the track yourself.' },
+      on_correct: { ru: 'Верно. Корабль на месте.', uz: "To'g'ri. Kema joyida.", en: 'That is right. The ship is in place.' },
+      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar.", en: 'Tens first, then the small steps.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst): Anvar kema o'rnini o'qiydi
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Анвар смотрит, где корабль на трассе.', uz: "Anvar kema trassada qayerda ekanini qaraydi." },
-    manifest_label: { ru: 'трасса', uz: 'trassa' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Анвар смотрит, где корабль на трассе.', uz: "Anvar kema trassada qayerda ekanini qaraydi.", en: 'Anvar is looking at where the ship is on the track.' },
+    manifest_label: { ru: 'трасса', uz: 'trassa', en: 'the track' },
     audio: {
       ru: 'Анвар смотрит на трассу. Корабль остановился между шестьюдесятью и семьюдесятью, на четыре шага правее шестидесяти. На каком он числе?',
-      uz: "Anvar trassaga qaraydi. Kema oltmish bilan yetmish orasida, oltmishdan to'rt qadam o'ngda to'xtadi. U qaysi sonda?"
+      uz: "Anvar trassaga qaraydi. Kema oltmish bilan yetmish orasida, oltmishdan to'rt qadam o'ngda to'xtadi. U qaysi sonda?",
+      en: 'Anvar is looking at the track. The ship stopped between sixty and seventy, four steps to the right of sixty. Which number is it on?'
     }
   },
 
   // s13 — MASALA (savol, scored MC): 64
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-    q: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing." },
-    opts: [{ ru: '64', uz: '64', ok: true }, { ru: '46', uz: '46' }, { ru: '60', uz: '60' }, { ru: '70', uz: '70' }],
-    wrong: { ru: 'Между 60 и 70, четыре шага — шестьдесят четыре.', uz: "60 bilan 70 orasida, to'rt qadam — oltmish to'rt." },
-    done_text: { ru: 'Верно! Это 64.', uz: "To'g'ri! Bu 64." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+    q: { ru: 'Прочитай число на трассе.', uz: "Trassada sonni o'qing.", en: 'Read the number on the track.' },
+    opts: [{ ru: '64', uz: '64', en: '64', ok: true }, { ru: '46', uz: '46', en: '46' }, { ru: '60', uz: '60', en: '60' }, { ru: '70', uz: '70', en: '70' }],
+    wrong: { ru: 'Между 60 и 70, четыре шага — шестьдесят четыре.', uz: "60 bilan 70 orasida, to'rt qadam — oltmish to'rt.", en: 'Between 60 and 70, four steps, that is sixty four.' },
+    done_text: { ru: 'Верно! Это 64.', uz: "To'g'ri! Bu 64.", en: 'That is right! It is 64.' },
     audio: {
-      intro: { ru: 'Корабль между шестьюдесятью и семьюдесятью, четыре шага дальше. Какое это число?', uz: "Kema oltmish bilan yetmish orasida, to'rt qadam narida. Bu qaysi son?" },
-      on_correct: { ru: 'Верно. Шестьдесят четыре.', uz: "To'g'ri. Oltmish to'rt." },
-      on_wrong: { ru: 'Сначала десятки: шестьдесят. Потом четыре шага.', uz: "Avval o'nliklar: oltmish. Keyin to'rt qadam." }
+      intro: { ru: 'Корабль между шестьюдесятью и семьюдесятью, четыре шага дальше. Какое это число?', uz: "Kema oltmish bilan yetmish orasida, to'rt qadam narida. Bu qaysi son?", en: 'The ship is between sixty and seventy, four steps along. Which number is it?' },
+      on_correct: { ru: 'Верно. Шестьдесят четыре.', uz: "To'g'ri. Oltmish to'rt.", en: 'That is right. Sixty four.' },
+      on_wrong: { ru: 'Сначала десятки: шестьдесят. Потом четыре шага.', uz: "Avval o'nliklar: oltmish. Keyin to'rt qadam.", en: 'Tens first: sixty. Then four steps.' }
     }
   },
 
   // s14 — FINAL (scored, ARALASH 3 raund + FactCard): o'qish + qo'yish + oraliqni-top
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Финальная проверка.', uz: "Yakuniy tekshiruv." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Финальная проверка.', uz: "Yakuniy tekshiruv.", en: 'The final check.' },
     rounds: [
-      { kind: 'read', value: 43, q: { ru: 'Прочитай: на каком числе корабль?', uz: "O'qing: kema qaysi sonda?" }, opts: [{ ru: '43', uz: '43', ok: true }, { ru: '34', uz: '34' }, { ru: '40', uz: '40' }, { ru: '50', uz: '50' }], wrong: { ru: 'Между какими десятками корабль? Потом отсчитай шаги.', uz: "Kema qaysi o'nliklar orasida? Keyin qadamlarni sanang." }, say: { ru: 'Первое задание. Прочитай, на каком числе стоит корабль.', uz: "Birinchi topshiriq. Kema qaysi sonda turibdi — o'qing." } },
-      { kind: 'place', target: 76, q: { ru: 'Поставь корабль на это число.', uz: "Kemani shu songa qo'ying." }, wrong: { ru: 'Сначала между какими десятками, потом отсчитай шаги.', uz: "Avval qaysi o'nliklar orasida, keyin qadamlarni sanang." }, say: { ru: 'Второе задание. Поставь корабль на семьдесят шесть.', uz: "Ikkinchi topshiriq. Kemani yetmish oltiga qo'ying." } },
-      { kind: 'interval', value: 57, q: { ru: 'Корабль между 50 и 60. Какое это число?', uz: "Kema 50 bilan 60 orasida. Bu qaysi son?" }, opts: [{ ru: '57', uz: '57', ok: true }, { ru: '75', uz: '75' }, { ru: '50', uz: '50' }, { ru: '60', uz: '60' }], wrong: { ru: 'Начни от пятидесяти и отсчитай шаги вправо.', uz: "Ellikdan boshlab, o'ngga qadamlarni sanang." }, say: { ru: 'Третье задание. Корабль между пятьюдесятью и шестьюдесятью. Какое это число?', uz: "Uchinchi topshiriq. Kema ellik bilan oltmish orasida. Bu qaysi son?" } }
+      { kind: 'read', value: 43, q: { ru: 'Прочитай: на каком числе корабль?', uz: "O'qing: kema qaysi sonda?", en: 'Read it: which number is the ship on?' }, opts: [{ ru: '43', uz: '43', en: '43', ok: true }, { ru: '34', uz: '34', en: '34' }, { ru: '40', uz: '40', en: '40' }, { ru: '50', uz: '50', en: '50' }], wrong: { ru: 'Между какими десятками корабль? Потом отсчитай шаги.', uz: "Kema qaysi o'nliklar orasida? Keyin qadamlarni sanang.", en: 'Which tens is the ship between? Then count the steps.' }, say: { ru: 'Первое задание. Прочитай, на каком числе стоит корабль.', uz: "Birinchi topshiriq. Kema qaysi sonda turibdi — o'qing.", en: 'First task. Read which number the ship is on.' } },
+      { kind: 'place', target: 76, q: { ru: 'Поставь корабль на это число.', uz: "Kemani shu songa qo'ying.", en: 'Put the ship on this number.' }, wrong: { ru: 'Сначала между какими десятками, потом отсчитай шаги.', uz: "Avval qaysi o'nliklar orasida, keyin qadamlarni sanang.", en: 'First which tens it is between, then count the steps.' }, say: { ru: 'Второе задание. Поставь корабль на семьдесят шесть.', uz: "Ikkinchi topshiriq. Kemani yetmish oltiga qo'ying.", en: 'Second task. Put the ship on seventy six.' } },
+      { kind: 'interval', value: 57, q: { ru: 'Корабль между 50 и 60. Какое это число?', uz: "Kema 50 bilan 60 orasida. Bu qaysi son?", en: 'The ship is between 50 and 60. Which number is it?' }, opts: [{ ru: '57', uz: '57', en: '57', ok: true }, { ru: '75', uz: '75', en: '75' }, { ru: '50', uz: '50', en: '50' }, { ru: '60', uz: '60', en: '60' }], wrong: { ru: 'Начни от пятидесяти и отсчитай шаги вправо.', uz: "Ellikdan boshlab, o'ngga qadamlarni sanang.", en: 'Start from fifty and count the steps to the right.' }, say: { ru: 'Третье задание. Корабль между пятьюдесятью и шестьюдесятью. Какое это число?', uz: "Uchinchi topshiriq. Kema ellik bilan oltmish orasida. Bu qaysi son?", en: 'Third task. The ship is between fifty and sixty. Which number is it?' } }
     ],
-    wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Числовой луч помогает сравнивать: чем правее число, тем оно больше.', uz: "Son o'qi taqqoslashga yordam beradi: qancha o'ngda — shuncha katta." },
-    fact_audio: { ru: 'На числовом луче большие числа справа, маленькие слева. Это помогает их сравнивать.', uz: "Son o'qida katta sonlar o'ngda, kichiklari chapda. Bu ularni taqqoslashga yordam beradi." },
+    wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar.", en: 'Tens first, then the small steps.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Числовой луч помогает сравнивать: чем правее число, тем оно больше.', uz: "Son o'qi taqqoslashga yordam beradi: qancha o'ngda — shuncha katta.", en: 'The number line helps you compare: the further right a number is, the bigger it is.' },
+    fact_audio: { ru: 'На числовом луче большие числа справа, маленькие слева. Это помогает их сравнивать.', uz: "Son o'qida katta sonlar o'ngda, kichiklari chapda. Bu ularni taqqoslashga yordam beradi.", en: 'On the number line the big numbers are on the right and the small ones on the left. That helps you compare them.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Три задания: прочитать, поставить и найти число на трассе.', uz: "Yakuniy tekshiruv. Uchta topshiriq: o'qish, qo'yish va trassada sonni topish." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar." }
+      intro: { ru: 'Финальная проверка. Три задания: прочитать, поставить и найти число на трассе.', uz: "Yakuniy tekshiruv. Uchta topshiriq: o'qish, qo'yish va trassada sonni topish.", en: 'The final check. Three tasks: read a number, place the ship, and find a number on the track.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сначала десятки, потом маленькие шаги.', uz: "Avval o'nliklar, keyin kichik qadamlar.", en: 'Tens first, then the small steps.' }
     }
   },
 
   // s15 — YAKUN: uchish + QOIDA recap + bog'lanishlar
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты находишь любое число на числовом луче!', uz: "Endi siz son o'qida har qanday sonni topasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты находишь любое число на числовом луче!', uz: "Endi siz son o'qida har qanday sonni topasiz!", en: 'Now you can find any number on the number line!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Сначала между какими десятками, потом сколько шагов. 34 = 30 + 4 шага.', uz: "Avval qaysi o'nliklar orasida, keyin nechta qadam. 34 = 30 + 4 qadam." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 4: сравнение; урок 5: счёт десятками', uz: "4-dars: taqqoslash; 5-dars: o'nlab sanash" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: сложение чисел', uz: "keyingi: sonlarni qo'shish" },
+    rule_recap: { ru: 'Сначала между какими десятками, потом сколько шагов. 34 = 30 + 4 шага.', uz: "Avval qaysi o'nliklar orasida, keyin nechta qadam. 34 = 30 + 4 qadam.", en: 'First which tens it is between, then how many steps. 34 = 30 + 4 steps.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'урок 4: сравнение; урок 5: счёт десятками', uz: "4-dars: taqqoslash; 5-dars: o'nlab sanash", en: 'lesson 4: comparing; lesson 5: counting in tens' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: сложение чисел', uz: "keyingi: sonlarni qo'shish", en: 'next: adding numbers' },
     audio: {
       ru: 'Миссия выполнена. Мы научились находить числа на трассе. Запомни правило. Сначала смотрим, между какими десятками стоит число, потом считаем маленькие шаги. Тридцать четыре это тридцать и ещё четыре шага. А теперь мы продолжаем полёт. Впереди уже видна красная планета Марс, первая остановка на пути домой. Там мы научимся складывать числа.',
-      uz: "Missiya bajarildi. Trassada sonlarni topishni o'rgandik. Qoidani yodda tuting. Avval son qaysi o'nliklar orasida turibdi, qaraymiz, keyin kichik qadamlarni sanaymiz. O'ttiz to'rt bu o'ttiz va yana to'rt qadam. Endi esa uchishni davom etamiz. Oldinda qizil sayyora Mars ko'rindi, uyga yo'ldagi birinchi to'xtash. U yerda sonlarni qo'shishni o'rganamiz."
+      uz: "Missiya bajarildi. Trassada sonlarni topishni o'rgandik. Qoidani yodda tuting. Avval son qaysi o'nliklar orasida turibdi, qaraymiz, keyin kichik qadamlarni sanaymiz. O'ttiz to'rt bu o'ttiz va yana to'rt qadam. Endi esa uchishni davom etamiz. Oldinda qizil sayyora Mars ko'rindi, uyga yo'ldagi birinchi to'xtash. U yerda sonlarni qo'shishni o'rganamiz.",
+      en: 'Mission complete. We learned to find numbers on the track. Remember the rule. First we look at which tens the number is between, then we count the small steps. Thirty four is thirty and four steps more. And now we fly on. The red planet Mars is already in sight, the first stop on the way home. There we will learn to add numbers.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала посмотрим на трассу.', uz: 'Avval trassaga qaraymiz.' },
-  s2:  { ru: 'Найдём, где стоит корабль.', uz: 'Kema qayerda turganini topamiz.' },
-  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
-  s5:  { ru: 'Не перепутай похожие числа.', uz: "O'xshash sonlarni chalkashtirma." },
-  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
-  s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz." },
-  s8:  { ru: 'Здесь цифры легко перепутать.', uz: "Bu yerda raqamlarni chalkashtirish oson." },
-  s9:  { ru: 'Теперь ставь корабль сам.', uz: "Endi kemani o'zingiz qo'ying." },
-  s10: { ru: 'Читай ещё числа на трассе.', uz: "Trassada yana sonlarni o'qing." },
-  s11: { ru: 'Ещё раз поставь корабль на трассу.', uz: "Kemani yana trassaga qo'ying." },
-  s12: { ru: 'Анвар смотрит на трассу.', uz: 'Anvar trassaga qaraydi.' },
-  s13: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?' },
-  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Впереди Марс! Летим к первой планете.', uz: "Oldinda Mars! Birinchi sayyoraga uchamiz." }
+  s1:  { ru: 'Сначала посмотрим на трассу.', uz: 'Avval trassaga qaraymiz.', en: 'First let us look at the track.' },
+  s2:  { ru: 'Найдём, где стоит корабль.', uz: 'Kema qayerda turganini topamiz.', en: 'Let us find where the ship stands.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.', en: 'Let us take one more example.' },
+  s5:  { ru: 'Не перепутай похожие числа.', uz: "O'xshash sonlarni chalkashtirma.", en: 'Do not mix up numbers that look alike.' },
+  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang.", en: 'Check yourself before the practice.' },
+  s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz.", en: 'We have finished explaining. Now we move on to practice.' },
+  s8:  { ru: 'Здесь цифры легко перепутать.', uz: "Bu yerda raqamlarni chalkashtirish oson.", en: 'Here the digits are easy to mix up.' },
+  s9:  { ru: 'Теперь ставь корабль сам.', uz: "Endi kemani o'zingiz qo'ying.", en: 'Now put the ship in place yourself.' },
+  s10: { ru: 'Читай ещё числа на трассе.', uz: "Trassada yana sonlarni o'qing.", en: 'Read a few more numbers on the track.' },
+  s11: { ru: 'Ещё раз поставь корабль на трассу.', uz: "Kemani yana trassaga qo'ying.", en: 'Put the ship on the track once more.' },
+  s12: { ru: 'Анвар смотрит на трассу.', uz: 'Anvar trassaga qaraydi.', en: 'Anvar is looking at the track.' },
+  s13: { ru: 'На каком числе корабль?', uz: 'Kema qaysi sonda?', en: 'Which number is the ship on?' },
+  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.', en: 'The launch computer will run the final check.' },
+  s15: { ru: 'Впереди Марс! Летим к первой планете.', uz: "Oldinda Mars! Birinchi sayyoraga uchamiz.", en: 'Mars is ahead! We fly to the first planet.' }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Числа на трассе прочитаны, курс проложен. Впереди красная планета Марс — первая остановка! Спасибо за помощь.',
-  uz: "Trassadagi sonlar o'qildi, kurs belgilandi. Oldinda qizil sayyora Mars — birinchi to'xtash! Yordamingiz uchun rahmat."
+  uz: "Trassadagi sonlar o'qildi, kurs belgilandi. Oldinda qizil sayyora Mars — birinchi to'xtash! Yordamingiz uchun rahmat.",
+  en: 'The numbers on the track are read and the course is set. The red planet Mars is ahead, our first stop! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1446,7 +1484,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1463,7 +1501,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2220,7 +2259,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2696,7 +2741,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3296,8 +3341,8 @@ const NumTrack = ({ value, answer = null, max = 100, emphTens = false }) => {
 // OSHKOR QILMAYDI. NumTrack bilan bir xil vizual tilda.
 // ============================================================
 const PLACE_TOL = 2;                                            // ±2 birlik tolerantlik
-const CHECK_LABEL = { ru: 'Проверить', uz: 'Tekshirish' };
-const PUT_LABEL = { ru: 'Число', uz: 'Son' };
+const CHECK_LABEL = { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' };
+const PUT_LABEL = { ru: 'Число', uz: 'Son', en: 'Number' };
 
 // PlaceBoard — interaktiv son-o'qi (nazoratli/controlled). Faqat vizual+ishora; ovoz/ball tashqarida.
 const PlaceBoard = ({ target, placed, onPlace, solved, disabled = false, max = 100 }) => {
@@ -3941,12 +3986,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4294,9 +4341,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4304,15 +4351,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4326,8 +4373,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4336,14 +4383,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4359,16 +4406,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4376,14 +4423,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4460,8 +4507,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4630,8 +4677,8 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 const seqAns = (x) => (x && x.sign ? Number(x.sign) : null);
 const D5 = (props) => <MCStage props={props} cKey="s5" figure={(r, _a, x) => <NumTrack value={52} answer={seqAns(x)}/>} />;
 const D6 = (props) => <MCStage props={props} cKey="s6" figure={(r, _a, x) => <NumTrack value={48} answer={seqAns(x)}/>} />;
@@ -4724,7 +4771,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

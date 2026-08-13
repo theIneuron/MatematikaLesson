@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -605,12 +631,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -727,7 +753,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -794,13 +820,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -830,8 +856,8 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
 const TOTAL_SCREENS = 10;
 const LESSON_META = {
-  lessonId: 'neg-5-02-v1',
-  lessonTitle: { ru: 'Сравнение целых чисел. Противоположные числа', uz: "Butun sonlarni taqqoslash va qarama-qarshi sonlar" }
+  lessonId: 'grade5-07',
+  lessonTitle: { ru: 'Сравнение целых чисел. Противоположные числа', uz: "Butun sonlarni taqqoslash va qarama-qarshi sonlar", en: 'Comparing whole numbers. Opposite numbers' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -850,433 +876,503 @@ const CONTENT = {
 
   // ---- s0 HOOK — Aziza: "minusni olib tashlasa qarama-qarshi son chiqadi". Tuzoq M2: 4 niki ham 4. ----
   s0: {
-    eyebrow: { ru: 'Вопрос', uz: 'Savol' },
-    title: { ru: 'Права ли Азиза', uz: "Aziza haqmi" },
+    eyebrow: { ru: 'Вопрос', uz: 'Savol', en: 'Question' },
+    title: { ru: 'Права ли Азиза', uz: "Aziza haqmi", en: 'Is Aziza right' },
     lead: {
       ru: 'Азиза говорит: «Найти противоположное число легко — просто убери минус». Для −7 она получила 7. А для 4 сказала, что противоположное тоже 4. Она права?',
-      uz: "Aziza «qarama-qarshi sonni topish oson — minusni olib tashlasa bo'ldi» deydi. −7 uchun u 7 ni topdi. 4 uchun esa qarama-qarshisi ham 4 dedi. U haqmi?"
+      uz: "Aziza «qarama-qarshi sonni topish oson — minusni olib tashlasa bo'ldi» deydi. −7 uchun u 7 ni topdi. 4 uchun esa qarama-qarshisi ham 4 dedi. U haqmi?",
+      en: 'Aziza says: finding the opposite number is easy, you just take the minus away. For −7 she got 7. And for 4 she said the opposite is 4 as well. Is she right?'
     },
-    opt0: { ru: 'Да, для 4 противоположное — это 4', uz: "Ha, 4 uchun qarama-qarshisi — 4" },
-    opt1: { ru: 'Нет, у 4 противоположное другое', uz: "Yo'q, 4 ning qarama-qarshisi boshqa" },
-    opt2: { ru: 'Пока не знаю', uz: "Hozircha bilmayman" },
+    opt0: { ru: 'Да, для 4 противоположное — это 4', uz: "Ha, 4 uchun qarama-qarshisi — 4", en: 'Yes, the opposite of 4 is 4' },
+    opt1: { ru: 'Нет, у 4 противоположное другое', uz: "Yo'q, 4 ning qarama-qarshisi boshqa", en: 'No, the opposite of 4 is something else' },
+    opt2: { ru: 'Пока не знаю', uz: "Hozircha bilmayman", en: 'I do not know yet' },
     reveal: {
       ru: 'Запомни свой ответ. К концу урока научимся находить противоположное число и сравнивать целые числа.',
-      uz: "Javobingizni eslab qoling. Dars oxirida qarama-qarshi sonni topish va butun sonlarni taqqoslashni o'rganamiz."
+      uz: "Javobingizni eslab qoling. Dars oxirida qarama-qarshi sonni topish va butun sonlarni taqqoslashni o'rganamiz.",
+      en: 'Remember your answer. By the end of the lesson we will be able to find the opposite number and compare whole numbers.'
     },
     audio: {
       ru: 'Азиза думает, что противоположное число, это просто убрать минус. Для минус семи получилось семь. А для четырёх она говорит, что противоположное тоже четыре. А ты как думаешь, она права?',
-      uz: "Aziza qarama-qarshi son, bu shunchaki minusni olib tashlash deb o'ylaydi. Minus yetti uchun yetti chiqdi. To'rt uchun esa qarama-qarshisi ham to'rt deydi. Sizningcha, u haqmi?"
+      uz: "Aziza qarama-qarshi son, bu shunchaki minusni olib tashlash deb o'ylaydi. Minus yetti uchun yetti chiqdi. To'rt uchun esa qarama-qarshisi ham to'rt deydi. Sizningcha, u haqmi?",
+      en: 'Aziza thinks that the opposite number just means taking the minus away. For minus seven she got seven. And for four she says the opposite is four as well. What do you think, is she right?'
     }
   },
 
   // ---- s1 WARM-UP — neg_5_01 recall: −5 va −3, qaysi katta. correct −3 (B). M1. ----
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
-    title: { ru: 'Какое число больше', uz: "Qaysi son katta" },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz', en: 'Let us remember' },
+    title: { ru: 'Какое число больше', uz: "Qaysi son katta", en: 'Which number is bigger' },
     question: {
       ru: 'На прошлом уроке мы сравнивали числа на прямой. Какое число больше: −5 или −3?',
-      uz: "O'tgan darsda sonlarni son o'qida taqqosladik. Qaysi son katta: −5 yoki −3?"
+      uz: "O'tgan darsda sonlarni son o'qida taqqosladik. Qaysi son katta: −5 yoki −3?",
+      en: 'In the last lesson we compared numbers on the line. Which number is bigger, −5 or −3?'
     },
-    opt0: { ru: '−3', uz: "−3" },
-    opt1: { ru: '−5', uz: "−5" },
-    opt2: { ru: 'Они равны', uz: "Ular teng" },
-    opt3: { ru: 'Нельзя сравнить', uz: "Taqqoslab bo'lmaydi" },
+    opt0: { ru: '−3', uz: "−3", en: '−3' },
+    opt1: { ru: '−5', uz: "−5", en: '−5' },
+    opt2: { ru: 'Они равны', uz: "Ular teng", en: 'They are equal' },
+    opt3: { ru: 'Нельзя сравнить', uz: "Taqqoslab bo'lmaydi", en: 'They cannot be compared' },
     correct_text: {
       ru: 'Верно. −3 правее на прямой, чем −5, а правее — значит больше. Это правило нам сегодня пригодится.',
-      uz: "To'g'ri. −3 son o'qida −5 dan o'ngroqda, o'ngroq esa — kattaroq. Bu qoida bugun asqotadi."
+      uz: "To'g'ri. −3 son o'qida −5 dan o'ngroqda, o'ngroq esa — kattaroq. Bu qoida bugun asqotadi.",
+      en: 'That is right. −3 is further right on the line than −5, and further right means bigger. This rule will be useful today.'
     },
     wrong_1: {
       ru: '−5 кажется больше, ведь 5 больше 3. Но −5 левее на прямой, значит он меньше. Больше −3.',
-      uz: "−5 katta tuyuladi, axir 5, 3 dan katta. Lekin −5 son o'qida chaproqda, demak u kichik. −3 kattaroq."
+      uz: "−5 katta tuyuladi, axir 5, 3 dan katta. Lekin −5 son o'qida chaproqda, demak u kichik. −3 kattaroq.",
+      en: '−5 looks bigger because 5 is more than 3. But −5 is further left on the line, so it is smaller. The bigger one is −3.'
     },
     wrong_2: {
       ru: 'Они не равны: −3 и −5 — разные точки. −3 правее, значит больше.',
-      uz: "Ular teng emas: −3 va −5 — turli nuqtalar. −3 o'ngroqda, demak katta."
+      uz: "Ular teng emas: −3 va −5 — turli nuqtalar. −3 o'ngroqda, demak katta.",
+      en: 'They are not equal: −3 and −5 are different points. −3 is further right, so it is bigger.'
     },
     wrong_3: {
       ru: 'Отрицательные тоже сравнивают: кто правее, тот больше. Это −3.',
-      uz: "Manfiy sonlar ham taqqoslanadi: kim o'ngroqda, o'sha katta. Bu — −3."
+      uz: "Manfiy sonlar ham taqqoslanadi: kim o'ngroqda, o'sha katta. Bu — −3.",
+      en: 'Negative numbers can be compared too: whichever is further right is bigger. That is −3.'
     },
-    wrong_default: { ru: 'Правее на прямой — больше. Это −3.', uz: "Son o'qida o'ngroqda — katta. Bu — −3." },
+    wrong_default: { ru: 'Правее на прямой — больше. Это −3.', uz: "Son o'qida o'ngroqda — katta. Bu — −3.", en: 'Further right on the line means bigger. That is −3.' },
     audio: {
       intro: {
         ru: 'Сначала вспомним прошлый урок. Какое число больше: минус пять или минус три? Выбери ответ.',
-        uz: "Avval o'tgan darsni eslaymiz. Qaysi son katta: minus besh yoki minus uch? Javobni tanlang."
+        uz: "Avval o'tgan darsni eslaymiz. Qaysi son katta: minus besh yoki minus uch? Javobni tanlang.",
+        en: 'First let us remember the last lesson. Which number is bigger, minus five or minus three? Choose an answer.'
       },
-      on_correct: { ru: 'Верно. Минус три правее, значит больше.', uz: "To'g'ri. Minus uch o'ngroqda, demak katta." },
-      on_wrong:   { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang." }
+      on_correct: { ru: 'Верно. Минус три правее, значит больше.', uz: "To'g'ri. Minus uch o'ngroqda, demak katta.", en: 'That is right. Minus three is further right, so it is bigger.' },
+      on_wrong:   { ru: 'Не совсем. Посмотри разбор справа.', uz: "Unchalik emas. O'ngdagi tushuntirishga qarang.", en: 'Not quite. Look at the working on the right.' }
     }
   },
 
   // ---- s2 EXPLORATION — CoordLine slayder: v ni 1 bilan taqqoslash, noldan o'tib (manfiy < musbat). ----
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Кто правее, тот больше', uz: "Kim o'ngroqda, o'sha katta" },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    title: { ru: 'Кто правее, тот больше', uz: "Kim o'ngroqda, o'sha katta", en: 'Whichever is further right is bigger' },
     lead: {
       ru: 'Ноль в центре. Двигай ползунок и сравнивай число с единицей: кто правее на прямой, тот больше.',
-      uz: "Nol — markazda. Slayderni suring va sonni 1 bilan taqqoslang: son o'qida kim o'ngroqda, o'sha katta."
+      uz: "Nol — markazda. Slayderni suring va sonni 1 bilan taqqoslang: son o'qida kim o'ngroqda, o'sha katta.",
+      en: 'Zero is in the middle. Move the slider and compare the number with one: whichever is further right on the line is bigger.'
     },
     note_bigger: {
       ru: 'Это число правее единицы — значит оно больше единицы.',
-      uz: "Bu son birdan o'ngroqda — demak u birdan katta."
+      uz: "Bu son birdan o'ngroqda — demak u birdan katta.",
+      en: 'This number is to the right of one, so it is bigger than one.'
     },
     note_smaller: {
       ru: 'Это число левее единицы — значит меньше. Любое отрицательное число меньше любого положительного.',
-      uz: "Bu son birdan chaproqda — demak kichik. Har qanday manfiy son istalgan musbatdan kichik."
+      uz: "Bu son birdan chaproqda — demak kichik. Har qanday manfiy son istalgan musbatdan kichik.",
+      en: 'This number is to the left of one, so it is smaller. Any negative number is smaller than any positive one.'
     },
     note_eq: {
       ru: 'Это та же точка, что и единица — числа равны.',
-      uz: "Bu — bir bilan bir xil nuqta — sonlar teng."
+      uz: "Bu — bir bilan bir xil nuqta — sonlar teng.",
+      en: 'This is the same point as one, so the numbers are equal.'
     },
-    cur_label: { ru: 'Число', uz: 'Son' },
-    ref_label: { ru: 'Сравниваем с', uz: 'Taqqoslaymiz' },
+    cur_label: { ru: 'Число', uz: 'Son', en: 'Number' },
+    ref_label: { ru: 'Сравниваем с', uz: 'Taqqoslaymiz', en: 'Comparing with' },
     audio: {
       ru: 'Двигай ползунок. Сравнивай число с единицей. Если число правее единицы, оно больше. Если левее, меньше. И запомни: любое отрицательное число меньше любого положительного, ведь минусы стоят левее нуля.',
-      uz: "Slayderni suring. Sonni bir bilan taqqoslang. Agar son birdan o'ngda bo'lsa, u katta. Chapda bo'lsa, kichik. Yodda tuting: har qanday manfiy son istalgan musbatdan kichik, chunki minuslar noldan chapda turadi."
+      uz: "Slayderni suring. Sonni bir bilan taqqoslang. Agar son birdan o'ngda bo'lsa, u katta. Chapda bo'lsa, kichik. Yodda tuting: har qanday manfiy son istalgan musbatdan kichik, chunki minuslar noldan chapda turadi.",
+      en: 'Move the slider. Compare the number with one. If the number is to the right of one, it is bigger. If it is to the left, it is smaller. And remember: any negative number is smaller than any positive one, because minus numbers stand to the left of zero.'
     }
   },
 
   // ---- s3 EXPLORATION — CoordLine mirror: v va −v noldan teng masofada (qarama-qarshi). M2. ----
   s3: {
-    eyebrow: { ru: 'Эксперимент', uz: 'Tajriba' },
-    title: { ru: 'Зеркало вокруг нуля', uz: "Nol atrofidagi ko'zgu" },
+    eyebrow: { ru: 'Эксперимент', uz: 'Tajriba', en: 'Experiment' },
+    title: { ru: 'Зеркало вокруг нуля', uz: "Nol atrofidagi ko'zgu", en: 'A mirror around zero' },
     lead: {
       ru: 'Двигай ползунок. Смотри: число и его противоположное стоят на равном расстоянии от нуля, по разные стороны.',
-      uz: "Slayderni suring. Qarang: son va uning qarama-qarshisi noldan teng masofada, har xil tomonda turadi."
+      uz: "Slayderni suring. Qarang: son va uning qarama-qarshisi noldan teng masofada, har xil tomonda turadi.",
+      en: 'Move the slider. Look: a number and its opposite stand the same distance from zero, on opposite sides.'
     },
     note_neg: {
       ru: 'Число слева, его противоположное — справа, на том же расстоянии. Меняется только знак.',
-      uz: "Son chapda, qarama-qarshisi — o'ngda, xuddi shu masofada. Faqat ishora o'zgaradi."
+      uz: "Son chapda, qarama-qarshisi — o'ngda, xuddi shu masofada. Faqat ishora o'zgaradi.",
+      en: 'The number is on the left and its opposite is on the right, the same distance away. Only the sign changes.'
     },
     note_pos: {
       ru: 'Число справа, его противоположное — слева. Расстояние до нуля одинаковое.',
-      uz: "Son o'ngda, qarama-qarshisi — chapda. Nolgacha masofa bir xil."
+      uz: "Son o'ngda, qarama-qarshisi — chapda. Nolgacha masofa bir xil.",
+      en: 'The number is on the right and its opposite is on the left. The distance to zero is the same.'
     },
     note_zero: {
       ru: 'Ноль особый: его противоположное — тоже ноль.',
-      uz: "Nol alohida: uning qarama-qarshisi — yana nol."
+      uz: "Nol alohida: uning qarama-qarshisi — yana nol.",
+      en: 'Zero is special: its opposite is zero as well.'
     },
-    cur_label: { ru: 'Число', uz: 'Son' },
-    opp_label: { ru: 'Противоположное', uz: 'Qarama-qarshisi' },
+    cur_label: { ru: 'Число', uz: 'Son', en: 'Number' },
+    opp_label: { ru: 'Противоположное', uz: 'Qarama-qarshisi', en: 'The opposite' },
     audio: {
       ru: 'Двигай ползунок. Число и его противоположное всегда на равном расстоянии от нуля, только по разные стороны. У тройки противоположное минус три, у минус двойки противоположное два. Меняется только знак, а не цифра.',
-      uz: "Slayderni suring. Son va uning qarama-qarshisi har doim noldan teng masofada, faqat har xil tomonda. Uchning qarama-qarshisi minus uch, minus ikkining qarama-qarshisi ikki. Faqat ishora o'zgaradi, raqam emas."
+      uz: "Slayderni suring. Son va uning qarama-qarshisi har doim noldan teng masofada, faqat har xil tomonda. Uchning qarama-qarshisi minus uch, minus ikkining qarama-qarshisi ikki. Faqat ishora o'zgaradi, raqam emas.",
+      en: 'Move the slider. A number and its opposite are always the same distance from zero, just on opposite sides. The opposite of three is minus three, and the opposite of minus two is two. Only the sign changes, not the figure.'
     }
   },
 
   // ---- s4 RULE 1 — taqqoslash: son o'qida o'ngroq — katta (har qanday butun son). ----
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Правило сравнения', uz: "Taqqoslash qoidasi" },
-    lead: { ru: 'Запишем первое правило — про сравнение.', uz: "Birinchi qoidani yozamiz — taqqoslash haqida." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Правило сравнения', uz: "Taqqoslash qoidasi", en: 'The rule for comparing' },
+    lead: { ru: 'Запишем первое правило — про сравнение.', uz: "Birinchi qoidani yozamiz — taqqoslash haqida.", en: 'Let us write down the first rule, the one about comparing.' },
     rule_main: {
       ru: 'Кто правее на прямой, тот больше',
-      uz: "Son o'qida kim o'ngroqda, o'sha katta"
+      uz: "Son o'qida kim o'ngroqda, o'sha katta",
+      en: 'Whichever is further right on the line is bigger'
     },
     ex_easy: {
       ru: 'Это работает для всех целых чисел: −2 меньше 3, потому что −2 левее. Любой минус меньше любого плюса.',
-      uz: "Bu barcha butun sonlar uchun ishlaydi: −2, 3 dan kichik, chunki −2 chaproqda. Har qanday minus har qanday plyusdan kichik."
+      uz: "Bu barcha butun sonlar uchun ishlaydi: −2, 3 dan kichik, chunki −2 chaproqda. Har qanday minus har qanday plyusdan kichik.",
+      en: 'This works for all whole numbers: −2 is smaller than 3 because −2 is further left. Any minus number is smaller than any plus number.'
     },
     note: {
       ru: 'Отрицательные — слева от нуля, положительные — справа, ноль — посередине.',
-      uz: "Manfiylar — noldan chapda, musbatlar — o'ngda, nol — o'rtada."
+      uz: "Manfiylar — noldan chapda, musbatlar — o'ngda, nol — o'rtada.",
+      en: 'Negative numbers are to the left of zero, positive ones to the right, and zero is in the middle.'
     },
     audio: {
       ru: 'Первое правило. Кто правее на прямой, тот больше. Это верно для любых целых чисел. Минус два меньше трёх, ведь минус два стоит левее. И любое отрицательное меньше любого положительного.',
-      uz: "Birinchi qoida. Son o'qida kim o'ngroqda, o'sha katta. Bu istalgan butun son uchun to'g'ri. Minus ikki uchdan kichik, chunki minus ikki chaproqda. Va har qanday manfiy har qanday musbatdan kichik."
+      uz: "Birinchi qoida. Son o'qida kim o'ngroqda, o'sha katta. Bu istalgan butun son uchun to'g'ri. Minus ikki uchdan kichik, chunki minus ikki chaproqda. Va har qanday manfiy har qanday musbatdan kichik.",
+      en: 'The first rule. Whichever is further right on the line is bigger. This is true for any whole numbers. Minus two is smaller than three, because minus two stands further left. And any negative number is smaller than any positive one.'
     }
   },
 
   // ---- s5 RULE 2 — qarama-qarshi + tuzoq-ogohlantirish: ishorani almashtirish (minusni olib tashlash emas). M2. ----
   s5: {
-    eyebrow: { ru: 'Внимание', uz: 'Diqqat' },
-    title: { ru: 'Противоположное — смена знака', uz: "Qarama-qarshi — ishorani almashtirish" },
-    lead: { ru: 'Второе правило — про противоположное число.', uz: "Ikkinchi qoida — qarama-qarshi son haqida." },
+    eyebrow: { ru: 'Внимание', uz: 'Diqqat', en: 'Careful' },
+    title: { ru: 'Противоположное — смена знака', uz: "Qarama-qarshi — ishorani almashtirish", en: 'The opposite means changing the sign' },
+    lead: { ru: 'Второе правило — про противоположное число.', uz: "Ikkinchi qoida — qarama-qarshi son haqida.", en: 'The second rule, the one about the opposite number.' },
     point1: {
       ru: 'Противоположное число — это смена знака: у 4 это −4, у −4 это 4, у нуля это сам ноль.',
-      uz: "Qarama-qarshi son — bu ishorani almashtirish: 4 niki −4, −4 niki 4, nol niki esa o'zi nol."
+      uz: "Qarama-qarshi son — bu ishorani almashtirish: 4 niki −4, −4 niki 4, nol niki esa o'zi nol.",
+      en: 'The opposite number means changing the sign: the opposite of 4 is −4, the opposite of −4 is 4, and the opposite of zero is zero itself.'
     },
     point2: {
       ru: 'Оба числа на равном расстоянии от нуля, по разные стороны.',
-      uz: "Ikkala son noldan teng masofada, har xil tomonda turadi."
+      uz: "Ikkala son noldan teng masofada, har xil tomonda turadi.",
+      en: 'Both numbers are the same distance from zero, on opposite sides.'
     },
     warn: {
       ru: 'Ловушка: думать, что противоположное — это «убрать минус». Тогда у 4 не получится −4. Правильно — поменять знак.',
-      uz: "Tuzoq: qarama-qarshini «minusni olib tashlash» deb o'ylash. Unda 4 dan −4 chiqmaydi. To'g'risi — ishorani almashtirish."
+      uz: "Tuzoq: qarama-qarshini «minusni olib tashlash» deb o'ylash. Unda 4 dan −4 chiqmaydi. To'g'risi — ishorani almashtirish.",
+      en: 'The trap is thinking that the opposite means taking the minus away. Then 4 would never give −4. The right way is to change the sign.'
     },
     audio: {
       ru: 'Второе правило. Противоположное число, это смена знака. У четырёх противоположное минус четыре, у минус четырёх это четыре, у нуля это сам ноль. Не путай: противоположное, это не убрать минус, а поменять знак.',
-      uz: "Ikkinchi qoida. Qarama-qarshi son, bu ishorani almashtirish. To'rtning qarama-qarshisi minus to'rt, minus to'rtniki to'rt, nolniki esa o'zi nol. Adashmang, qarama-qarshi minusni olib tashlash emas, balki ishorani almashtirish."
+      uz: "Ikkinchi qoida. Qarama-qarshi son, bu ishorani almashtirish. To'rtning qarama-qarshisi minus to'rt, minus to'rtniki to'rt, nolniki esa o'zi nol. Adashmang, qarama-qarshi minusni olib tashlash emas, balki ishorani almashtirish.",
+      en: 'The second rule. The opposite number means changing the sign. The opposite of four is minus four, the opposite of minus four is four, and the opposite of zero is zero itself. Do not mix it up: the opposite is not taking the minus away, it is changing the sign.'
     }
   },
 
   // ---- s6 TEST NumInput — 5 ning qarama-qarshi soni. correctValue −5. ----
   s6: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Найди противоположное', uz: "Qarama-qarshisini toping" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Найди противоположное', uz: "Qarama-qarshisini toping", en: 'Find the opposite' },
     question: {
       ru: 'Какое число противоположно числу 5? Напиши со знаком, если нужно.',
-      uz: "5 soniga qaysi son qarama-qarshi? Kerak bo'lsa, ishora bilan yozing."
+      uz: "5 soniga qaysi son qarama-qarshi? Kerak bo'lsa, ishora bilan yozing.",
+      en: 'Which number is the opposite of 5? Write it with its sign if it needs one.'
     },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     hint: {
       ru: 'Противоположное — это смена знака, не «убрать минус». У 5 на прямой пара слева, на том же расстоянии: −5.',
-      uz: "Qarama-qarshi — bu ishorani almashtirish, «minusni olib tashlash» emas. 5 ning son o'qida chapdagi jufti, xuddi shu masofada: −5."
+      uz: "Qarama-qarshi — bu ishorani almashtirish, «minusni olib tashlash» emas. 5 ning son o'qida chapdagi jufti, xuddi shu masofada: −5.",
+      en: 'The opposite means changing the sign, not taking the minus away. On the line 5 has a partner on the left, the same distance away: −5.'
     },
     fb_correct: {
       ru: 'Верно! Противоположное к 5 — это −5. Знак сменился, расстояние от нуля то же.',
-      uz: "To'g'ri! 5 ning qarama-qarshisi — −5. Ishora o'zgardi, noldan masofa o'sha."
+      uz: "To'g'ri! 5 ning qarama-qarshisi — −5. Ishora o'zgardi, noldan masofa o'sha.",
+      en: 'Right! The opposite of 5 is −5. The sign has changed and the distance from zero is the same.'
     },
     audio: {
       intro: {
         ru: 'Какое число противоположно числу пять? Помни: меняем знак. Напиши ответ и нажми проверить.',
-        uz: "5 soniga qaysi son qarama-qarshi? Yodda tuting: ishorani almashtiramiz. Javobni yozib, tekshirishni bosing."
+        uz: "5 soniga qaysi son qarama-qarshi? Yodda tuting: ishorani almashtiramiz. Javobni yozib, tekshirishni bosing.",
+        en: 'Which number is the opposite of five? Remember, we change the sign. Write the answer and tap check.'
       },
-      on_correct: { ru: 'Верно. Минус пять.', uz: "To'g'ri. Minus besh." },
-      on_wrong: { ru: 'Посмотри подсказку.', uz: "Maslahatga qarang." }
+      on_correct: { ru: 'Верно. Минус пять.', uz: "To'g'ri. Minus besh.", en: 'That is right. Minus five.' },
+      on_wrong: { ru: 'Посмотри подсказку.', uz: "Maslahatga qarang.", en: 'Look at the hint.' }
     }
   },
 
   // ---- s7 TEST MC — noldan o'tib taqqoslash: −4 va 2, qaysi katta. correct 2 (A). M1. Fakt Tarix. ----
   s7: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Сравни через ноль', uz: "Noldan o'tib taqqoslang" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Сравни через ноль', uz: "Noldan o'tib taqqoslang", en: 'Compare across zero' },
     lead: {
       ru: 'Какое число больше: −4 или 2? Подумай, где они на прямой.',
-      uz: "Qaysi son katta: −4 yoki 2? Ular son o'qida qayerda turishini o'ylang."
+      uz: "Qaysi son katta: −4 yoki 2? Ular son o'qida qayerda turishini o'ylang.",
+      en: 'Which number is bigger, −4 or 2? Think about where they are on the line.'
     },
-    opt0: { ru: '2', uz: "2" },
-    opt1: { ru: '−4', uz: "−4" },
-    opt2: { ru: 'Они равны', uz: "Ular teng" },
-    opt3: { ru: 'Нельзя сравнить', uz: "Taqqoslab bo'lmaydi" },
+    opt0: { ru: '2', uz: "2", en: '2' },
+    opt1: { ru: '−4', uz: "−4", en: '−4' },
+    opt2: { ru: 'Они равны', uz: "Ular teng", en: 'They are equal' },
+    opt3: { ru: 'Нельзя сравнить', uz: "Taqqoslab bo'lmaydi", en: 'They cannot be compared' },
     correct_text: {
       ru: 'Верно! 2 справа от нуля, а −4 слева. Справа — значит больше. Любое положительное больше любого отрицательного.',
-      uz: "To'g'ri! 2 noldan o'ngda, −4 esa chapda. O'ngda — demak katta. Har qanday musbat har qanday manfiydan katta."
+      uz: "To'g'ri! 2 noldan o'ngda, −4 esa chapda. O'ngda — demak katta. Har qanday musbat har qanday manfiydan katta.",
+      en: 'Right! 2 is to the right of zero and −4 is to the left. To the right means bigger. Any positive number is bigger than any negative one.'
     },
     wrong_1: {
       ru: '−4 кажется больше, ведь 4 больше 2. Но −4 слева от нуля, а 2 справа. Справа больше — это 2.',
-      uz: "−4 katta tuyuladi, axir 4, 2 dan katta. Lekin −4 noldan chapda, 2 esa o'ngda. O'ngda katta — bu 2."
+      uz: "−4 katta tuyuladi, axir 4, 2 dan katta. Lekin −4 noldan chapda, 2 esa o'ngda. O'ngda katta — bu 2.",
+      en: '−4 looks bigger because 4 is more than 2. But −4 is to the left of zero and 2 is to the right. The one on the right is bigger, and that is 2.'
     },
     wrong_2: {
       ru: 'Они не равны: −4 слева, 2 справа — разные точки. Больше 2.',
-      uz: "Ular teng emas: −4 chapda, 2 o'ngda — turli nuqtalar. Katta — 2."
+      uz: "Ular teng emas: −4 chapda, 2 o'ngda — turli nuqtalar. Katta — 2.",
+      en: 'They are not equal: −4 is on the left and 2 is on the right, different points. The bigger one is 2.'
     },
     wrong_3: {
       ru: 'Сравнить можно: положительное правее отрицательного. Больше 2.',
-      uz: "Taqqoslasa bo'ladi: musbat manfiydan o'ngroqda. Katta — 2."
+      uz: "Taqqoslasa bo'ladi: musbat manfiydan o'ngroqda. Katta — 2.",
+      en: 'They can be compared: a positive number is further right than a negative one. The bigger one is 2.'
     },
-    wrong_default: { ru: 'Справа на прямой — больше. Это 2.', uz: "Son o'qida o'ngroqda — katta. Bu — 2." },
+    wrong_default: { ru: 'Справа на прямой — больше. Это 2.', uz: "Son o'qida o'ngroqda — katta. Bu — 2.", en: 'Further right on the line means bigger. That is 2.' },
     fact: {
       ru: 'Знак минус появился у математиков около 500 лет назад; до этого отрицательные числа записывали словами. Поэтому привыкнуть к минусу — это нормально.',
-      uz: "Minus belgisi matematiklarda taxminan 500 yil oldin paydo bo'lgan; undan oldin manfiy sonlarni so'z bilan yozishgan. Shuning uchun minusga ko'nikish — bu tabiiy."
+      uz: "Minus belgisi matematiklarda taxminan 500 yil oldin paydo bo'lgan; undan oldin manfiy sonlarni so'z bilan yozishgan. Shuning uchun minusga ko'nikish — bu tabiiy.",
+      en: 'Mathematicians only started using the minus sign about 500 years ago; before that negative numbers were written out in words. So it is quite normal to take a while to get used to the minus.'
     },
     audio: {
       intro: {
         ru: 'Какое число больше: минус четыре или два? Подумай, где каждое на прямой. Выбери ответ.',
-        uz: "Qaysi son katta: minus to'rt yoki ikki? Har biri son o'qida qayerda turishini o'ylang. Javobni tanlang."
+        uz: "Qaysi son katta: minus to'rt yoki ikki? Har biri son o'qida qayerda turishini o'ylang. Javobni tanlang.",
+        en: 'Which number is bigger, minus four or two? Think about where each one is on the line. Choose an answer.'
       },
       on_correct: {
         ru: 'Верно. Два больше. Кстати, знак минус появился у математиков всего около пятисот лет назад.',
-        uz: "To'g'ri. Ikki katta. Aytgancha, minus belgisi matematiklarda atigi besh yuz yilcha oldin paydo bo'lgan."
+        uz: "To'g'ri. Ikki katta. Aytgancha, minus belgisi matematiklarda atigi besh yuz yilcha oldin paydo bo'lgan.",
+        en: 'That is right. Two is bigger. By the way, mathematicians only started using the minus sign about five hundred years ago.'
       },
-      on_wrong: { ru: 'Не совсем. Положительное правее отрицательного.', uz: "Unchalik emas. Musbat manfiydan o'ngroqda." }
+      on_wrong: { ru: 'Не совсем. Положительное правее отрицательного.', uz: "Unchalik emas. Musbat manfiydan o'ngroqda.", en: 'Not quite. A positive number is further right than a negative one.' }
     }
   },
 
   // ---- s8 TEST son o'qiga bosish — −3 (ko'k pin) ning qarama-qarshisini belgilash. correct 3. ----
   s8: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Отметь противоположное', uz: "Qarama-qarshisini belgilang" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Отметь противоположное', uz: "Qarama-qarshisini belgilang", en: 'Mark the opposite' },
     lead: {
       ru: 'Синяя метка стоит на −3. Поставь отметку на противоположное число. Нажми нужное деление прямой.',
-      uz: "Ko'k belgi −3 da turibdi. Uning qarama-qarshi soniga marker qo'ying. Son o'qidagi kerakli bo'linmani bosing."
+      uz: "Ko'k belgi −3 da turibdi. Uning qarama-qarshi soniga marker qo'ying. Son o'qidagi kerakli bo'linmani bosing.",
+      en: 'The blue mark is on −3. Put a mark on the opposite number. Tap the right mark on the line.'
     },
     hint_wrong: {
       ru: 'Противоположное к −3 — на том же расстоянии от нуля, но справа. Отсчитай три шага вправо: это 3.',
-      uz: "−3 ning qarama-qarshisi — noldan xuddi shu masofada, lekin o'ngda. O'ngga uch qadam sanang: bu 3."
+      uz: "−3 ning qarama-qarshisi — noldan xuddi shu masofada, lekin o'ngda. O'ngga uch qadam sanang: bu 3.",
+      en: 'The opposite of −3 is the same distance from zero but on the right. Count three steps to the right: that is 3.'
     },
     correct_text: {
       ru: 'Верно! 3 стоит справа от нуля на том же расстоянии, что и −3 слева. Это противоположные числа.',
-      uz: "To'g'ri! 3 noldan o'ngda, −3 chapdagi masofa bilan bir xil. Bular qarama-qarshi sonlar."
+      uz: "To'g'ri! 3 noldan o'ngda, −3 chapdagi masofa bilan bir xil. Bular qarama-qarshi sonlar.",
+      en: 'Right! 3 stands to the right of zero the same distance away as −3 is on the left. They are opposite numbers.'
     },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    tap_prompt: { ru: 'Нажми деление на прямой', uz: "Son o'qidagi bo'linmani bosing" },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+    tap_prompt: { ru: 'Нажми деление на прямой', uz: "Son o'qidagi bo'linmani bosing", en: 'Tap a mark on the line' },
     audio: {
       intro: {
         ru: 'Синяя метка на минус три. Поставь отметку на противоположное число. Нажми нужное деление и нажми проверить.',
-        uz: "Ko'k belgi minus uchda. Uning qarama-qarshi soniga marker qo'ying. Kerakli bo'linmani bosib, tekshirishni bosing."
+        uz: "Ko'k belgi minus uchda. Uning qarama-qarshi soniga marker qo'ying. Kerakli bo'linmani bosib, tekshirishni bosing.",
+        en: 'The blue mark is on minus three. Put a mark on the opposite number. Tap the right mark and tap check.'
       },
-      on_correct: { ru: 'Верно. Три, на том же расстоянии справа.', uz: "To'g'ri. Uch, o'ngda xuddi shu masofada." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      on_correct: { ru: 'Верно. Три, на том же расстоянии справа.', uz: "To'g'ri. Uch, o'ngda xuddi shu masofada.", en: 'That is right. Three, the same distance away on the right.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' }
     }
   },
 
   // ---- s9 TEST tartiblash — sonlarni o'sish tartibida. correct −5, −1, 2, 4. Fakt Fan. ----
   s9: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Расставь по порядку', uz: "Tartib bilan joylashtiring" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Расставь по порядку', uz: "Tartib bilan joylashtiring", en: 'Put them in order' },
     lead: {
       ru: 'Расставь числа от меньшего к большему. Нажимай по порядку.',
-      uz: "Sonlarni kichikdan kattaga qarab joylashtiring. Tartib bilan bosing."
+      uz: "Sonlarni kichikdan kattaga qarab joylashtiring. Tartib bilan bosing.",
+      en: 'Put the numbers in order from smallest to biggest. Tap them in order.'
     },
     hint_wrong: {
       ru: 'Самое маленькое — левее всех на прямой. Это −5, потом −1, потом 2, потом 4.',
-      uz: "Eng kichik — son o'qida hammadan chapda. Bu −5, keyin −1, keyin 2, keyin 4."
+      uz: "Eng kichik — son o'qida hammadan chapda. Bu −5, keyin −1, keyin 2, keyin 4.",
+      en: 'The smallest is the one furthest left on the line. That is −5, then −1, then 2, then 4.'
     },
     correct_text: {
       ru: 'Верно! От меньшего к большему: −5, −1, 2, 4. Это порядок слева направо на прямой.',
-      uz: "To'g'ri! Kichikdan kattaga: −5, −1, 2, 4. Bu son o'qida chapdan o'ngga tartib."
+      uz: "To'g'ri! Kichikdan kattaga: −5, −1, 2, 4. Bu son o'qida chapdan o'ngga tartib.",
+      en: 'Right! From smallest to biggest: −5, −1, 2, 4. That is the order from left to right on the line.'
     },
     fact: {
       ru: 'Самая низкая температура на Земле, около минус 89 градусов, измерена в Антарктиде. Отрицательные числа помогают записывать такой холод.',
-      uz: "Yerdagi eng past harorat, taxminan minus 89 daraja, Antarktidada o'lchangan. Manfiy sonlar shunday sovuqni yozishga yordam beradi."
+      uz: "Yerdagi eng past harorat, taxminan minus 89 daraja, Antarktidada o'lchangan. Manfiy sonlar shunday sovuqni yozishga yordam beradi.",
+      en: 'The lowest temperature on Earth, about minus 89 degrees, was measured in Antarctica. Negative numbers let us write cold like that down.'
     },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    reset_hint: { ru: 'Нажми ещё раз, чтобы начать заново', uz: "Qaytadan boshlash uchun yana bosing" },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+    reset_hint: { ru: 'Нажми ещё раз, чтобы начать заново', uz: "Qaytadan boshlash uchun yana bosing", en: 'Tap again to start over' },
     audio: {
       intro: {
         ru: 'Расставь числа от меньшего к большему. Нажимай карточки по порядку и нажми проверить.',
-        uz: "Sonlarni kichikdan kattaga joylashtiring. Kartalarni tartib bilan bosib, tekshirishni bosing."
+        uz: "Sonlarni kichikdan kattaga joylashtiring. Kartalarni tartib bilan bosib, tekshirishni bosing.",
+        en: 'Put the numbers in order from smallest to biggest. Tap the cards in order and tap check.'
       },
       on_correct: {
         ru: 'Верно. От меньшего к большему. Кстати, самая низкая температура на Земле, около минус восьмидесяти девяти градусов.',
-        uz: "To'g'ri. Kichikdan kattaga. Aytgancha, Yerdagi eng past harorat taxminan minus sakson to'qqiz daraja."
+        uz: "To'g'ri. Kichikdan kattaga. Aytgancha, Yerdagi eng past harorat taxminan minus sakson to'qqiz daraja.",
+        en: 'That is right. From smallest to biggest. By the way, the lowest temperature on Earth is about minus eighty nine degrees.'
       },
-      on_wrong: { ru: 'Не совсем. Самое маленькое стоит левее всех.', uz: "Unchalik emas. Eng kichik hammadan chapda turadi." }
+      on_wrong: { ru: 'Не совсем. Самое маленькое стоит левее всех.', uz: "Unchalik emas. Eng kichik hammadan chapda turadi.", en: 'Not quite. The smallest one stands furthest to the left.' }
     }
   },
 
   // ---- s10 TEST MULTI-SELECT — qaysi juftlar qarama-qarshi sonlar. correct {0,1}. M2. Fakt IT (s12 da). ----
   s10: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Найди все пары', uz: "Barcha juftlarni toping" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Найди все пары', uz: "Barcha juftlarni toping", en: 'Find all the pairs' },
     lead: {
       ru: 'Отметь ВСЕ пары противоположных чисел. Их может быть несколько.',
-      uz: "Qarama-qarshi sonlarning BARCHA juftlarini belgilang. Ular bir nechta bo'lishi mumkin."
+      uz: "Qarama-qarshi sonlarning BARCHA juftlarini belgilang. Ular bir nechta bo'lishi mumkin.",
+      en: 'Mark ALL the pairs of opposite numbers. There may be more than one.'
     },
-    it0: { ru: '−4 и 4', uz: "−4 va 4" },
-    it1: { ru: '5 и −5', uz: "5 va −5" },
-    it2: { ru: '−2 и 6', uz: "−2 va 6" },
-    it3: { ru: '3 и 3', uz: "3 va 3" },
+    it0: { ru: '−4 и 4', uz: "−4 va 4", en: '−4 and 4' },
+    it1: { ru: '5 и −5', uz: "5 va −5", en: '5 and −5' },
+    it2: { ru: '−2 и 6', uz: "−2 va 6", en: '−2 and 6' },
+    it3: { ru: '3 и 3', uz: "3 va 3", en: '3 and 3' },
     hint_wrong: {
       ru: 'Противоположные — на равном расстоянии от нуля и с разными знаками. −2 и 6 — расстояния разные. 3 и 3 — одно и то же число, не пара.',
-      uz: "Qarama-qarshilar — noldan teng masofada va ishoralari har xil. −2 va 6 — masofalar har xil. 3 va 3 — bitta sonning o'zi, juft emas."
+      uz: "Qarama-qarshilar — noldan teng masofada va ishoralari har xil. −2 va 6 — masofalar har xil. 3 va 3 — bitta sonning o'zi, juft emas.",
+      en: 'Opposite numbers are the same distance from zero and have different signs. −2 and 6 are different distances away. 3 and 3 are the same number, not a pair.'
     },
     correct_text: {
       ru: 'Верно! Противоположные пары: −4 и 4, 5 и −5. У них одинаковое расстояние до нуля и разные знаки.',
-      uz: "To'g'ri! Qarama-qarshi juftlar: −4 va 4, 5 va −5. Ularning nolgacha masofasi bir xil, ishoralari har xil."
+      uz: "To'g'ri! Qarama-qarshi juftlar: −4 va 4, 5 va −5. Ularning nolgacha masofasi bir xil, ishoralari har xil.",
+      en: 'Right! The opposite pairs are −4 and 4, and 5 and −5. They are the same distance from zero and have different signs.'
     },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     audio: {
       intro: {
         ru: 'Отметь все пары противоположных чисел. Их может быть несколько. Выбери и нажми проверить.',
-        uz: "Qarama-qarshi sonlarning barcha juftlarini belgilang. Ular bir nechta bo'lishi mumkin. Tanlab, tekshirishni bosing."
+        uz: "Qarama-qarshi sonlarning barcha juftlarini belgilang. Ular bir nechta bo'lishi mumkin. Tanlab, tekshirishni bosing.",
+        en: 'Mark all the pairs of opposite numbers. There may be more than one. Choose them and tap check.'
       },
       on_correct: {
         ru: 'Верно. Противоположные пары на равном расстоянии от нуля с разными знаками.',
-        uz: "To'g'ri. Qarama-qarshi juftlar noldan teng masofada, ishoralari har xil."
+        uz: "To'g'ri. Qarama-qarshi juftlar noldan teng masofada, ishoralari har xil.",
+        en: 'That is right. Opposite pairs are the same distance from zero and have different signs.'
       },
-      on_wrong: { ru: 'Не совсем. Проверь расстояние до нуля и знаки.', uz: "Unchalik emas. Nolgacha masofa va ishoralarni tekshiring." }
+      on_wrong: { ru: 'Не совсем. Проверь расстояние до нуля и знаки.', uz: "Unchalik emas. Nolgacha masofa va ishoralarni tekshiring.", en: 'Not quite. Check the distance to zero and the signs.' }
     }
   },
 
   // ---- s11 CASE setup — Oybek (−3) va Nafisa (2) bilim o'yinida. CoordLine. ----
   s11: {
-    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
-    title: { ru: 'Кто впереди в викторине', uz: "O'yinda kim oldinda" },
+    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala', en: 'A real life problem' },
+    title: { ru: 'Кто впереди в викторине', uz: "O'yinda kim oldinda", en: 'Who is ahead in the quiz' },
     lead: {
       ru: 'Ойбек и Нафиса играют в викторину. За ошибку очки уходят в минус. У Ойбека счёт −3, у Нафисы 2. Кто из них впереди?',
-      uz: "Oybek va Nafisa bilim o'yinida o'ynamoqda. Xato uchun ochko minusga ketadi. Oybekning hisobi −3, Nafisaniki 2. Qaysi biri oldinda?"
+      uz: "Oybek va Nafisa bilim o'yinida o'ynamoqda. Xato uchun ochko minusga ketadi. Oybekning hisobi −3, Nafisaniki 2. Qaysi biri oldinda?",
+      en: "Oybek and Nafisa are playing a quiz. A wrong answer takes the score into minus. Oybek's score is −3 and Nafisa's is 2. Which of them is ahead?"
     },
     note: {
       ru: 'Впереди — у кого счёт больше, то есть правее на прямой.',
-      uz: "Oldinda — hisobi katta bo'lgan, ya'ni son o'qida o'ngroqda turgan."
+      uz: "Oldinda — hisobi katta bo'lgan, ya'ni son o'qida o'ngroqda turgan.",
+      en: 'The one ahead is the one with the bigger score, the one further right on the line.'
     },
     hint_calc: {
       ru: 'Сравни −3 и 2. Кто правее на прямой, у того счёт больше.',
-      uz: "−3 va 2 ni taqqoslang. Son o'qida kim o'ngroqda, o'shaning hisobi katta."
+      uz: "−3 va 2 ni taqqoslang. Son o'qida kim o'ngroqda, o'shaning hisobi katta.",
+      en: 'Compare −3 and 2. Whichever is further right on the line has the bigger score.'
     },
-    btn_help: { ru: 'Решить', uz: 'Yechish' },
+    btn_help: { ru: 'Решить', uz: 'Yechish', en: 'Solve it' },
     audio: {
       ru: 'Ойбек и Нафиса играют в викторину. За ошибку очки уходят в минус. У Ойбека счёт минус три, у Нафисы два. Кто впереди? Сравним эти числа.',
-      uz: "Oybek va Nafisa bilim o'yinida o'ynamoqda. Xato uchun ochko minusga ketadi. Oybekning hisobi minus uch, Nafisaniki ikki. Kim oldinda? Bu sonlarni taqqoslaymiz."
+      uz: "Oybek va Nafisa bilim o'yinida o'ynamoqda. Xato uchun ochko minusga ketadi. Oybekning hisobi minus uch, Nafisaniki ikki. Kim oldinda? Bu sonlarni taqqoslaymiz.",
+      en: "Oybek and Nafisa are playing a quiz. A wrong answer takes the score into minus. Oybek's score is minus three and Nafisa's is two. Who is ahead? Let us compare these numbers."
     }
   },
 
   // ---- s12 CASE/FINAL MC — kim oldinda. correct Nafisa 2 (D). M1. Fakt IT. ----
   s12: {
-    eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq' },
-    title: { ru: 'Кто впереди', uz: "Kim oldinda" },
+    eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq', en: 'Final task' },
+    title: { ru: 'Кто впереди', uz: "Kim oldinda", en: 'Who is ahead' },
     lead: {
       ru: 'У Ойбека счёт −3, у Нафисы 2. Кто впереди?',
-      uz: "Oybekning hisobi −3, Nafisaniki 2. Kim oldinda?"
+      uz: "Oybekning hisobi −3, Nafisaniki 2. Kim oldinda?",
+      en: "Oybek's score is −3 and Nafisa's is 2. Who is ahead?"
     },
-    opt0: { ru: 'Ойбек (−3)', uz: "Oybek (−3)" },
-    opt1: { ru: 'Одинаково', uz: "Bir xil" },
-    opt2: { ru: 'Нельзя узнать', uz: "Bilib bo'lmaydi" },
-    opt3: { ru: 'Нафиса (2)', uz: "Nafisa (2)" },
+    opt0: { ru: 'Ойбек (−3)', uz: "Oybek (−3)", en: 'Oybek (−3)' },
+    opt1: { ru: 'Одинаково', uz: "Bir xil", en: 'The same' },
+    opt2: { ru: 'Нельзя узнать', uz: "Bilib bo'lmaydi", en: 'It cannot be worked out' },
+    opt3: { ru: 'Нафиса (2)', uz: "Nafisa (2)", en: 'Nafisa (2)' },
     correct_text: {
       ru: 'Верно! 2 больше −3, ведь 2 справа от нуля, а −3 слева. Впереди Нафиса.',
-      uz: "To'g'ri! 2, −3 dan katta, axir 2 noldan o'ngda, −3 esa chapda. Oldinda — Nafisa."
+      uz: "To'g'ri! 2, −3 dan katta, axir 2 noldan o'ngda, −3 esa chapda. Oldinda — Nafisa.",
+      en: 'Right! 2 is bigger than −3, because 2 is to the right of zero and −3 is to the left. Nafisa is ahead.'
     },
     wrong_0: {
       ru: 'Кажется, что Ойбек впереди, ведь 3 больше 2. Но −3 слева от нуля, значит меньше. Впереди Нафиса.',
-      uz: "Oybek oldinda tuyuladi, axir 3, 2 dan katta. Lekin −3 noldan chapda, demak kichik. Oldinda — Nafisa."
+      uz: "Oybek oldinda tuyuladi, axir 3, 2 dan katta. Lekin −3 noldan chapda, demak kichik. Oldinda — Nafisa.",
+      en: 'It looks as though Oybek is ahead because 3 is more than 2. But −3 is to the left of zero, so it is smaller. Nafisa is ahead.'
     },
     wrong_1: {
       ru: 'Счёт не одинаковый: −3 слева, 2 справа. Впереди Нафиса.',
-      uz: "Hisob bir xil emas: −3 chapda, 2 o'ngda. Oldinda — Nafisa."
+      uz: "Hisob bir xil emas: −3 chapda, 2 o'ngda. Oldinda — Nafisa.",
+      en: 'The scores are not the same: −3 is on the left and 2 is on the right. Nafisa is ahead.'
     },
     wrong_2: {
       ru: 'Узнать можно: сравни −3 и 2 на прямой. Больше 2 — впереди Нафиса.',
-      uz: "Bilsa bo'ladi: −3 va 2 ni son o'qida taqqoslang. Katta — 2, oldinda Nafisa."
+      uz: "Bilsa bo'ladi: −3 va 2 ni son o'qida taqqoslang. Katta — 2, oldinda Nafisa.",
+      en: 'It can be worked out: compare −3 and 2 on the line. 2 is bigger, so Nafisa is ahead.'
     },
-    wrong_default: { ru: '2 правее −3 на прямой. Впереди Нафиса.', uz: "2 son o'qida −3 dan o'ngda. Oldinda — Nafisa." },
+    wrong_default: { ru: '2 правее −3 на прямой. Впереди Нафиса.', uz: "2 son o'qida −3 dan o'ngda. Oldinda — Nafisa.", en: '2 is further right than −3 on the line. Nafisa is ahead.' },
     fact: {
       ru: 'В компьютерных играх и графике координаты бывают отрицательными: центр экрана — это ноль. Так что отрицательные числа нужны и здесь.',
-      uz: "Kompyuter o'yinlari va grafikasida koordinatalar manfiy bo'lishi mumkin: ekran markazi — bu nol. Demak manfiy sonlar bu yerda ham kerak."
+      uz: "Kompyuter o'yinlari va grafikasida koordinatalar manfiy bo'lishi mumkin: ekran markazi — bu nol. Demak manfiy sonlar bu yerda ham kerak.",
+      en: 'In computer games and graphics the coordinates can be negative: the middle of the screen is zero. So negative numbers are needed here as well.'
     },
     audio: {
       intro: {
         ru: 'У Ойбека счёт минус три, у Нафисы два. Кто впереди? Выбери ответ.',
-        uz: "Oybekning hisobi minus uch, Nafisaniki ikki. Kim oldinda? Javobni tanlang."
+        uz: "Oybekning hisobi minus uch, Nafisaniki ikki. Kim oldinda? Javobni tanlang.",
+        en: "Oybek's score is minus three and Nafisa's is two. Who is ahead? Choose an answer."
       },
       on_correct: {
         ru: 'Верно. Впереди Нафиса. Кстати, в компьютерных играх координаты тоже бывают отрицательными, ведь центр экрана, это ноль.',
-        uz: "To'g'ri. Oldinda Nafisa. Aytgancha, kompyuter o'yinlarida ham koordinatalar manfiy bo'ladi, axir ekran markazi, bu nol."
+        uz: "To'g'ri. Oldinda Nafisa. Aytgancha, kompyuter o'yinlarida ham koordinatalar manfiy bo'ladi, axir ekran markazi, bu nol.",
+        en: 'That is right. Nafisa is ahead. By the way, in computer games the coordinates can be negative too, because the middle of the screen is zero.'
       },
-      on_wrong: { ru: 'Не совсем. Два правее минус трёх на прямой.', uz: "Unchalik emas. Ikki, son o'qida minus uchdan o'ngda." }
+      on_wrong: { ru: 'Не совсем. Два правее минус трёх на прямой.', uz: "Unchalik emas. Ikki, son o'qida minus uchdan o'ngda.", en: 'Not quite. Two is further right than minus three on the line.' }
     }
   },
 
   // ---- s13 SUMMARY — hookni yopadi + ConnectionsBlock (5-sinf oxiri → 6-sinf) ----
   s13: {
-    eyebrow: { ru: 'Итог', uz: 'Xulosa' },
-    heading: { ru: 'Целые числа покорены', uz: "Butun sonlar bo'ysundi" },
-    title: { ru: 'Отлично! Это был последний урок 5 класса.', uz: "Ajoyib! Bu 5-sinfning oxirgi darsi edi." },
-    main_label: { ru: 'Что мы узнали', uz: "Nimani bilib oldik" },
-    main_1: { ru: 'Кто правее на прямой, тот больше — для любых целых чисел.', uz: "Son o'qida kim o'ngroqda, o'sha katta — barcha butun sonlar uchun." },
-    main_2: { ru: 'Любое отрицательное меньше любого положительного.', uz: "Har qanday manfiy har qanday musbatdan kichik." },
-    main_3: { ru: 'Противоположное число — это смена знака; у нуля это сам ноль.', uz: "Qarama-qarshi son — bu ishorani almashtirish; nol niki esa o'zi nol." },
+    eyebrow: { ru: 'Итог', uz: 'Xulosa', en: 'Result' },
+    heading: { ru: 'Целые числа покорены', uz: "Butun sonlar bo'ysundi", en: 'Whole numbers mastered' },
+    title: { ru: 'Отлично! Это был последний урок 5 класса.', uz: "Ajoyib! Bu 5-sinfning oxirgi darsi edi.", en: 'Well done! That was the last lesson of Year 5.' },
+    main_label: { ru: 'Что мы узнали', uz: "Nimani bilib oldik", en: 'What we have learnt' },
+    main_1: { ru: 'Кто правее на прямой, тот больше — для любых целых чисел.', uz: "Son o'qida kim o'ngroqda, o'sha katta — barcha butun sonlar uchun.", en: 'Whichever is further right on the line is bigger, for any whole numbers.' },
+    main_2: { ru: 'Любое отрицательное меньше любого положительного.', uz: "Har qanday manfiy har qanday musbatdan kichik.", en: 'Any negative number is smaller than any positive one.' },
+    main_3: { ru: 'Противоположное число — это смена знака; у нуля это сам ноль.', uz: "Qarama-qarshi son — bu ishorani almashtirish; nol niki esa o'zi nol.", en: 'The opposite number means changing the sign, and the opposite of zero is zero itself.' },
     hook_close: {
       ru: 'Помнишь Азизу? Она думала, что противоположное — это «убрать минус». Для −7 вышло 7 — случайно верно. Но у 4 противоположное не 4, а −4. Главное — менять знак.',
-      uz: "Azizani eslaysizmi? U qarama-qarshi son — «minusni olib tashlash» deb o'yladi. −7 uchun 7 chiqdi — tasodifan to'g'ri. Lekin 4 ning qarama-qarshisi 4 emas, −4. Asosiysi — ishorani almashtirish."
+      uz: "Azizani eslaysizmi? U qarama-qarshi son — «minusni olib tashlash» deb o'yladi. −7 uchun 7 chiqdi — tasodifan to'g'ri. Lekin 4 ning qarama-qarshisi 4 emas, −4. Asosiysi — ishorani almashtirish.",
+      en: 'Remember Aziza? She thought the opposite meant taking the minus away. For −7 that gave 7, which happened to be right. But the opposite of 4 is not 4, it is −4. The main thing is to change the sign.'
     },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
     conn_refs: {
       ru: 'Отрицательные числа на координатной прямой (правее — больше).',
-      uz: "Manfiy sonlar son o'qida (o'ngroq — kattaroq)."
+      uz: "Manfiy sonlar son o'qida (o'ngroq — kattaroq).",
+      en: 'Negative numbers on the number line (further right means bigger).'
     },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyin' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyin', en: 'Next' },
     conn_next: {
       ru: 'В 6 классе — действия с отрицательными числами и пропорции.',
-      uz: "6-sinfda — manfiy sonlar bilan amallar va nisbatlar."
+      uz: "6-sinfda — manfiy sonlar bilan amallar va nisbatlar.",
+      en: 'In Year 6 come calculations with negative numbers and proportion.'
     },
-    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan' },
+    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Go through it again' },
     audio: {
       ru: 'Отлично. Теперь ты знаешь: кто правее на прямой, тот больше, а любое отрицательное меньше любого положительного. А противоположное число, это смена знака. Это был последний урок пятого класса. Молодец!',
-      uz: "Ajoyib. Endi bilasiz: son o'qida kim o'ngroqda, o'sha katta, har qanday manfiy esa istalgan musbatdan kichik. Qarama-qarshi son, bu ishorani almashtirish. Bu 5-sinfning oxirgi darsi edi. Barakalla!"
+      uz: "Ajoyib. Endi bilasiz: son o'qida kim o'ngroqda, o'sha katta, har qanday manfiy esa istalgan musbatdan kichik. Qarama-qarshi son, bu ishorani almashtirish. Bu 5-sinfning oxirgi darsi edi. Barakalla!",
+      en: 'Well done. Now you know that whichever is further right on the line is bigger, and that any negative number is smaller than any positive one. And the opposite number means changing the sign. That was the last lesson of Year five. Good work!'
     }
   }
 
@@ -1321,9 +1417,9 @@ const Floaters = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1573,45 +1669,45 @@ const Screen5 = ({ screen, onNext, onPrev }) => {
 // mobil-do'st. Ovozli xato = on_wrong (toza). Son so'z bilan. Fakt blok oxirida alohida karta.
 // ============================================================
 const W_B1 = {
-  eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
-  title: { ru: 'Противоположные числа и сравнение', uz: "Qarama-qarshi sonlar va taqqoslash" },
-  lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin." },
-  done_text: { ru: 'Все верно! Противоположное меняет знак, а правее на прямой — больше.', uz: "Hammasi to'g'ri! Qarama-qarshi son ishorani almashtiradi, son o'qida o'ngroq esa — katta." }
+  eyebrow: { ru: 'Тренировка', uz: 'Mashq', en: 'Training' },
+  title: { ru: 'Противоположные числа и сравнение', uz: "Qarama-qarshi sonlar va taqqoslash", en: 'Opposite numbers and comparing' },
+  lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin.", en: 'Several different tasks one after another.' },
+  done_text: { ru: 'Все верно! Противоположное меняет знак, а правее на прямой — больше.', uz: "Hammasi to'g'ri! Qarama-qarshi son ishorani almashtiradi, son o'qida o'ngroq esa — katta.", en: 'All correct! The opposite changes the sign, and further right on the line means bigger.' }
 };
 const W_B2 = {
-  eyebrow: { ru: 'Итог', uz: 'Yakun' },
-  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
-  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yeching." },
-  done_text: { ru: 'Отлично! Ты сравниваешь, упорядочиваешь и находишь противоположные числа.', uz: "Ajoyib! Sonlarni taqqoslaysiz, tartiblaysiz va qarama-qarshisini topasiz." }
+  eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring", en: 'Check yourself' },
+  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yeching.", en: 'Work out the tasks one after another.' },
+  done_text: { ru: 'Отлично! Ты сравниваешь, упорядочиваешь и находишь противоположные числа.', uz: "Ajoyib! Sonlarni taqqoslaysiz, tartiblaysiz va qarama-qarshisini topasiz.", en: 'Well done! You can compare numbers, put them in order and find opposite numbers.' }
 };
 // Yangi qiyin taqqoslash misollari (draft — UZ tasdiq kutadi). c-shape: lead + opt + wrong_N + audio.
 const NH1 = {
-  lead: { ru: 'Что больше: −15 или −8?', uz: "Qaysi katta: −15 yoki −8?" },
-  opt0: { ru: '−8', uz: '−8' }, opt1: { ru: '−15', uz: '−15' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
-  wrong_1: { ru: '−15 кажется больше, ведь 15 больше 8. Но он левее, значит меньше. Больше −8.', uz: "−15 katta tuyuladi, axir 15, 8 dan katta. Lekin u chaproqda, demak kichik. Katta — −8." },
-  wrong_2: { ru: 'Они не равны: −8 правее −15.', uz: "Ular teng emas: −8, −15 dan o'ngroqda." },
-  audio: { intro: { ru: 'Что больше: минус пятнадцать или минус восемь? Выбери ответ.', uz: "Qaysi katta: minus o'n besh yoki minus sakkiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta." }, on_wrong: { ru: 'Большая цифра не делает минус больше. Кто правее, тот больше.', uz: "Katta raqam minusni katta qilmaydi. Kim o'ngroqda, o'sha katta." } }
+  lead: { ru: 'Что больше: −15 или −8?', uz: "Qaysi katta: −15 yoki −8?", en: 'Which is bigger, −15 or −8?' },
+  opt0: { ru: '−8', uz: '−8', en: '−8' }, opt1: { ru: '−15', uz: '−15', en: '−15' }, opt2: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' },
+  wrong_1: { ru: '−15 кажется больше, ведь 15 больше 8. Но он левее, значит меньше. Больше −8.', uz: "−15 katta tuyuladi, axir 15, 8 dan katta. Lekin u chaproqda, demak kichik. Katta — −8.", en: '−15 looks bigger because 15 is more than 8. But it is further left, so it is smaller. The bigger one is −8.' },
+  wrong_2: { ru: 'Они не равны: −8 правее −15.', uz: "Ular teng emas: −8, −15 dan o'ngroqda.", en: 'They are not equal: −8 is further right than −15.' },
+  audio: { intro: { ru: 'Что больше: минус пятнадцать или минус восемь? Выбери ответ.', uz: "Qaysi katta: minus o'n besh yoki minus sakkiz? Javobni tanlang.", en: 'Which is bigger, minus fifteen or minus eight? Choose an answer.' }, on_correct: { ru: 'Верно. Минус восемь больше.', uz: "To'g'ri. Minus sakkiz katta.", en: 'That is right. Minus eight is bigger.' }, on_wrong: { ru: 'Большая цифра не делает минус больше. Кто правее, тот больше.', uz: "Katta raqam minusni katta qilmaydi. Kim o'ngroqda, o'sha katta.", en: 'A bigger figure does not make a minus number bigger. Whichever is further right is bigger.' } }
 };
 const NH2 = {
-  lead: { ru: 'Чему равно противоположное числу −7?', uz: "−7 ning qarama-qarshisi nechaga teng?" },
-  opt0: { ru: '7', uz: '7' }, opt1: { ru: '−7', uz: '−7' }, opt2: { ru: '0', uz: '0' },
-  wrong_1: { ru: 'Противоположное меняет знак. У −7 противоположное это +7.', uz: "Qarama-qarshi ishorani almashtiradi. −7 ning qarama-qarshisi +7." },
-  wrong_2: { ru: 'Противоположное к −7 это не ноль, а 7 — на той же высоте справа от нуля.', uz: "−7 ning qarama-qarshisi nol emas, balki 7 — noldan o'ng tomonda, xuddi shu masofada." },
-  audio: { intro: { ru: 'Чему равно число, противоположное минус семи? Выбери ответ.', uz: "Minus yettiga qarama-qarshi son nechaga teng? Javobni tanlang." }, on_correct: { ru: 'Верно. Противоположное минус семи это семь.', uz: "To'g'ri. Minus yettining qarama-qarshisi yetti." }, on_wrong: { ru: 'Противоположное меняет только знак.', uz: "Qarama-qarshi faqat ishorani almashtiradi." } }
+  lead: { ru: 'Чему равно противоположное числу −7?', uz: "−7 ning qarama-qarshisi nechaga teng?", en: 'What is the opposite of −7?' },
+  opt0: { ru: '7', uz: '7', en: '7' }, opt1: { ru: '−7', uz: '−7', en: '−7' }, opt2: { ru: '0', uz: '0', en: '0' },
+  wrong_1: { ru: 'Противоположное меняет знак. У −7 противоположное это +7.', uz: "Qarama-qarshi ishorani almashtiradi. −7 ning qarama-qarshisi +7.", en: 'The opposite changes the sign. The opposite of −7 is +7.' },
+  wrong_2: { ru: 'Противоположное к −7 это не ноль, а 7 — на той же высоте справа от нуля.', uz: "−7 ning qarama-qarshisi nol emas, balki 7 — noldan o'ng tomonda, xuddi shu masofada.", en: 'The opposite of −7 is not zero, it is 7, the same distance away on the right of zero.' },
+  audio: { intro: { ru: 'Чему равно число, противоположное минус семи? Выбери ответ.', uz: "Minus yettiga qarama-qarshi son nechaga teng? Javobni tanlang.", en: 'What is the opposite of minus seven? Choose an answer.' }, on_correct: { ru: 'Верно. Противоположное минус семи это семь.', uz: "To'g'ri. Minus yettining qarama-qarshisi yetti.", en: 'That is right. The opposite of minus seven is seven.' }, on_wrong: { ru: 'Противоположное меняет только знак.', uz: "Qarama-qarshi faqat ishorani almashtiradi.", en: 'The opposite changes only the sign.' } }
 };
 const NH3 = {
-  lead: { ru: 'Что больше: −20 или −19?', uz: "Qaysi katta: −20 yoki −19?" },
-  opt0: { ru: '−19', uz: '−19' }, opt1: { ru: '−20', uz: '−20' }, opt2: { ru: 'Они равны', uz: 'Ular teng' },
-  wrong_1: { ru: '−20 левее −19 на один шаг, значит меньше. Больше −19.', uz: "−20, −19 dan bir qadam chaproqda, demak kichik. Katta — −19." },
-  wrong_2: { ru: 'Числа близкие, но не равные. Больше −19.', uz: "Sonlar yaqin, lekin teng emas. Katta — −19." },
-  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta." }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "Son o'qida kim o'ngroqda, o'sha katta." } }
+  lead: { ru: 'Что больше: −20 или −19?', uz: "Qaysi katta: −20 yoki −19?", en: 'Which is bigger, −20 or −19?' },
+  opt0: { ru: '−19', uz: '−19', en: '−19' }, opt1: { ru: '−20', uz: '−20', en: '−20' }, opt2: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' },
+  wrong_1: { ru: '−20 левее −19 на один шаг, значит меньше. Больше −19.', uz: "−20, −19 dan bir qadam chaproqda, demak kichik. Katta — −19.", en: '−20 is one step further left than −19, so it is smaller. The bigger one is −19.' },
+  wrong_2: { ru: 'Числа близкие, но не равные. Больше −19.', uz: "Sonlar yaqin, lekin teng emas. Katta — −19.", en: 'The numbers are close but not equal. The bigger one is −19.' },
+  audio: { intro: { ru: 'Что больше: минус двадцать или минус девятнадцать? Выбери ответ.', uz: "Qaysi katta: minus yigirma yoki minus o'n to'qqiz? Javobni tanlang.", en: 'Which is bigger, minus twenty or minus nineteen? Choose an answer.' }, on_correct: { ru: 'Верно. Минус девятнадцать больше.', uz: "To'g'ri. Minus o'n to'qqiz katta.", en: 'That is right. Minus nineteen is bigger.' }, on_wrong: { ru: 'Кто правее на прямой, тот больше.', uz: "Son o'qida kim o'ngroqda, o'sha katta.", en: 'Whichever is further right on the line is bigger.' } }
 };
 const NH4 = {
-  lead: { ru: 'Какое число самое маленькое: −2, −11 или −7?', uz: "Qaysi son eng kichik: −2, −11 yoki −7?" },
-  opt0: { ru: '−11', uz: '−11' }, opt1: { ru: '−2', uz: '−2' }, opt2: { ru: '−7', uz: '−7' },
-  wrong_1: { ru: '−2 правее всех, значит самое большое, а не маленькое. Меньше всех −11.', uz: "−2 hammadan o'ngda, demak eng katta, kichik emas. Eng kichigi — −11." },
-  wrong_2: { ru: '−7 левее −2, но −11 ещё левее. Самое маленькое −11.', uz: "−7, −2 dan chapda, lekin −11 yanada chapda. Eng kichigi — −11." },
-  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanlang." }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik." }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "Son o'qida kim chaproqda, o'sha kichik." } }
+  lead: { ru: 'Какое число самое маленькое: −2, −11 или −7?', uz: "Qaysi son eng kichik: −2, −11 yoki −7?", en: 'Which number is the smallest, −2, −11 or −7?' },
+  opt0: { ru: '−11', uz: '−11', en: '−11' }, opt1: { ru: '−2', uz: '−2', en: '−2' }, opt2: { ru: '−7', uz: '−7', en: '−7' },
+  wrong_1: { ru: '−2 правее всех, значит самое большое, а не маленькое. Меньше всех −11.', uz: "−2 hammadan o'ngda, demak eng katta, kichik emas. Eng kichigi — −11.", en: '−2 is furthest right, so it is the biggest, not the smallest. The smallest is −11.' },
+  wrong_2: { ru: '−7 левее −2, но −11 ещё левее. Самое маленькое −11.', uz: "−7, −2 dan chapda, lekin −11 yanada chapda. Eng kichigi — −11.", en: '−7 is further left than −2, but −11 is further left still. The smallest is −11.' },
+  audio: { intro: { ru: 'Какое число самое маленькое: минус два, минус одиннадцать или минус семь? Выбери ответ.', uz: "Qaysi son eng kichik: minus ikki, minus o'n bir yoki minus yetti? Javobni tanlang.", en: 'Which number is the smallest, minus two, minus eleven or minus seven? Choose an answer.' }, on_correct: { ru: 'Верно. Минус одиннадцать самое маленькое.', uz: "To'g'ri. Minus o'n bir eng kichik.", en: 'That is right. Minus eleven is the smallest.' }, on_wrong: { ru: 'Кто левее на прямой, тот меньше.', uz: "Son o'qida kim chaproqda, o'sha kichik.", en: 'Whichever is further left on the line is smaller.' } }
 };
 const B1_ITEMS = [
   { type: 'input', c: CONTENT.s6, answer: -5, coord: { value: 5, value2: -5, mirror: true } },
@@ -1682,12 +1778,12 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
               <div className="frame" style={{ display: 'flex', justifyContent: 'center' }}><CoordLine value={cur.coord.value} value2={cur.coord.value2} mirror={cur.coord.mirror} min={-6} max={6} success={flash}/></div>
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <input type="text" inputMode="numeric" className={`answer-input ${flash ? 'correct' : (hint ? 'wrong' : '')}`} value={val} placeholder="0" disabled={flash} onChange={e => { setVal(e.target.value); setHint(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(100px, 24vw, 140px)' }}/>
-                {!flash && <button className="btn-white-accent" disabled={!val} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button>}
+                {!flash && <button className="btn-white-accent" disabled={!val} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить')}</button>}
               </div>
             </>)}
             {cur.type === 'place' && (<>
               <div className="frame" style={{ display: 'flex', justifyContent: 'center' }}><CoordLine min={-6} max={6} value2={cur.coord.value2} onPick={(v) => { if (!flash) { setPickV(v); setHint(false); } }} picked={pickV} success={flash}/></div>
-              {!flash && <div style={{ display: 'flex', justifyContent: 'center' }}><button className="btn-white-accent" disabled={pickV === null} onClick={submitPlace} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+              {!flash && <div style={{ display: 'flex', justifyContent: 'center' }}><button className="btn-white-accent" disabled={pickV === null} onClick={submitPlace} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.4vw, 24px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить')}</button></div>}
             </>)}
             {cur.type === 'mc' && (
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 10 }}>
@@ -1702,7 +1798,7 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
                   <button key={i} className={`od-card${pos !== -1 ? ' od-on' : ''}${flash ? ' od-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setSeq(p => p.includes(i) ? p : [...p, i]); setHint(false); } }}>
                     {pos !== -1 && <span className="od-badge">{pos + 1}</span>}<span className="od-temp">{fmtN(v)}</span></button>); })}
               </div>
-              {!flash && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><button className="btn-ghost" disabled={seq.length === 0} onClick={() => setSeq([])} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{lang === 'uz' ? 'Tozalash' : 'Сброс'}</button><button className="btn-white-accent" disabled={seq.length < cur.vals.length} onClick={submitOrder} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+              {!flash && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><button className="btn-ghost" disabled={seq.length === 0} onClick={() => setSeq([])} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{lang === 'uz' ? 'Tozalash' : lang === 'en' ? "Reset" : 'Сброс'}</button><button className="btn-white-accent" disabled={seq.length < cur.vals.length} onClick={submitOrder} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить')}</button></div>}
             </>)}
             {cur.type === 'multiselect' && (<>
               <div className="ms-grid">
@@ -1710,14 +1806,14 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
                   <button key={i} className={`ms-card${on ? ' ms-on' : ''}${isC ? ' ms-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setMsel(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i]); setHint(false); } }}>
                     <span className={`ms-box${on ? ' ms-box-on' : ''}`} aria-hidden="true">{on && <IconOk/>}</span><span className="ms-pair">{mt(t(cur.c[k]))}</span></button>); })}
               </div>
-              {!flash && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMsel} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : 'Проверить')}</button></div>}
+              {!flash && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMsel} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(cur.c.btn_check) || (lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить')}</button></div>}
             </>)}
             {hint && !flash && visHint && (<div className="frame-tip fade-up"><p className="body" style={{ margin: 0 }}>{mt(t(visHint))}</p></div>)}
           </div>
         )}
         {done && (<>
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : 'Готово'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : lang === 'en' ? "Done" : 'Готово'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(w.done_text))}</p>
           </FeedbackBlock>
           {factOnDone}
@@ -1765,7 +1861,7 @@ const Screen13 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1775,7 +1871,7 @@ const Screen13 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
         </div>
         <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
           <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 32px)', fontWeight: 700, color: T.success, lineHeight: 1, flexShrink: 0 }}>{scoreCorrect} / {scoreTotal}</span>
-          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "savolga birinchi urinishda to'g'ri javob" : 'вопросов решено с первой попытки'}</span>
+          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "savolga birinchi urinishda to'g'ri javob" : lang === 'en' ? "questions answered correctly first time" : 'вопросов решено с первой попытки'}</span>
         </div>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
@@ -1802,7 +1898,7 @@ export default function NegCompareLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1855,7 +1951,7 @@ export default function NegCompareLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

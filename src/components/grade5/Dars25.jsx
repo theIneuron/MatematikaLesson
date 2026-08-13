@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -579,12 +605,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -706,7 +732,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -730,8 +756,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'dec-5-02-v1',
-  lessonTitle: { ru: 'Сравнение и округление десятичных дробей', uz: "O'nli kasrlarni solishtirish va yaxlitlash" }
+  lessonId: 'grade5-25',
+  lessonTitle: { ru: 'Сравнение и округление десятичных дробей', uz: "O'nli kasrlarni solishtirish va yaxlitlash", en: 'Comparing and rounding decimals' }
 };
 // Eslatma: ekran ID lari qattiq indeks emas — har komponent jonli `screen` propidan idx oladi.
 const SCREEN_META = [
@@ -753,79 +779,80 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK — M1: ko'p raqam ≠ katta (1,45 vs 1,5) =====
   s0: {
-    eyebrow: { ru: 'Загадка', uz: "Topishmoq" },
-    title: { ru: 'Кто прыгнул выше?', uz: "Kim balandroq sakradi?" },
-    lead: { ru: 'Финал по прыжкам в высоту. Жахонгир — 1,45 м, Мафтуна — 1,5 м. Зритель говорит: у Жахонгира после запятой больше цифр, значит он выше.', uz: "Balandlikka sakrash finali. Jahongir — 1,45 m, Maftuna — 1,5 m. Tomoshabin aytadi: Jahongirda verguldan keyin raqam ko'proq, demak u balandroq." },
-    opt0: { ru: 'Жахонгир — у него цифр больше', uz: "Jahongir — raqami ko'proq" },
-    opt1: { ru: 'Мафтуна — 1,5 м', uz: "Maftuna — 1,5 m" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha ishonchim komil emas" },
-    reveal0: { ru: 'Так думают многие. Но длина не решает — решают разряды. Проверим к концу урока.', uz: "Ko'pchilik shunday o'ylaydi. Lekin uzunlik emas, xonalar hal qiladi. Dars oxirida tekshiramiz." },
-    reveal1: { ru: 'Интуиция верна. Почему — разберём на уроке.', uz: "Sezgi to'g'ri. Nega — darsda ko'ramiz." },
-    reveal2: { ru: 'Честно. К концу урока ответишь уверенно.', uz: "Halol. Dars oxirida ishonch bilan javob berasiz." },
-    audio: { ru: "Финал по прыжкам в высоту. Жахонгир прыгнул на одну целую сорок пять сотых метра, Мафтуна на одну целую пять десятых. Зритель говорит: у Жахонгира больше цифр после запятой, значит он выше. Так ли это? Выбери ответ.", uz: "Balandlikka sakrash finali. Jahongir bir butun yuzdan qirq besh metr, Maftuna bir butun o'ndan besh metr sakradi. Tomoshabin aytadi: Jahongirda raqam ko'proq, demak u balandroq. Shundaymi? Javobni tanlang." }
+    eyebrow: { ru: 'Загадка', uz: "Topishmoq", en: 'A puzzle' },
+    title: { ru: 'Кто прыгнул выше?', uz: "Kim balandroq sakradi?", en: 'Who jumped higher?' },
+    lead: { ru: 'Финал по прыжкам в высоту. Жахонгир — 1,45 м, Мафтуна — 1,5 м. Зритель говорит: у Жахонгира после запятой больше цифр, значит он выше.', uz: "Balandlikka sakrash finali. Jahongir — 1,45 m, Maftuna — 1,5 m. Tomoshabin aytadi: Jahongirda verguldan keyin raqam ko'proq, demak u balandroq.", en: 'The high jump final. Jahongir cleared 1,45 m and Maftuna cleared 1,5 m. A spectator says Jahongir has more digits after the comma, so he is higher.' },
+    opt0: { ru: 'Жахонгир — у него цифр больше', uz: "Jahongir — raqami ko'proq", en: 'Jahongir, he has more digits' },
+    opt1: { ru: 'Мафтуна — 1,5 м', uz: "Maftuna — 1,5 m", en: 'Maftuna, 1,5 m' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha ishonchim komil emas", en: 'I am not sure yet' },
+    reveal0: { ru: 'Так думают многие. Но длина не решает — решают разряды. Проверим к концу урока.', uz: "Ko'pchilik shunday o'ylaydi. Lekin uzunlik emas, xonalar hal qiladi. Dars oxirida tekshiramiz.", en: 'A lot of people think that. But it is not the length that decides, it is the places. We will check by the end of the lesson.' },
+    reveal1: { ru: 'Интуиция верна. Почему — разберём на уроке.', uz: "Sezgi to'g'ri. Nega — darsda ko'ramiz.", en: 'Your instinct is right. We will work out why in the lesson.' },
+    reveal2: { ru: 'Честно. К концу урока ответишь уверенно.', uz: "Halol. Dars oxirida ishonch bilan javob berasiz.", en: 'Fair enough. By the end of the lesson you will answer with confidence.' },
+    audio: { ru: "Финал по прыжкам в высоту. Жахонгир прыгнул на одну целую сорок пять сотых метра, Мафтуна на одну целую пять десятых. Зритель говорит: у Жахонгира больше цифр после запятой, значит он выше. Так ли это? Выбери ответ.", uz: "Balandlikka sakrash finali. Jahongir bir butun yuzdan qirq besh metr, Maftuna bir butun o'ndan besh metr sakradi. Tomoshabin aytadi: Jahongirda raqam ko'proq, demak u balandroq. Shundaymi? Javobni tanlang.", en: 'The high jump final. Jahongir cleared one point four five metres and Maftuna cleared one point five. A spectator says Jahongir has more digits after the comma, so he is higher. Is that so? Choose an answer.' }
   },
 
   // ===== s1 WARMUP — o'tgan darsni eslash (SeqMC, tap) =====
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
-    title: { ru: 'Разминка', uz: "Mashq" },
-    lead: { ru: 'Четыре быстрых вопроса о десятичных дробях.', uz: "O'nli kasrlar haqida to'rtta tez savol." },
-    bridge: { ru: 'Прежде чем решить загадку — вспомним прошлый урок.', uz: "Topishmoqni yechishdan oldin — o'tgan darsni eslaylik." },
+    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz", en: 'Let us remember' },
+    title: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    lead: { ru: 'Четыре быстрых вопроса о десятичных дробях.', uz: "O'nli kasrlar haqida to'rtta tez savol.", en: 'Four quick questions about decimals.' },
+    bridge: { ru: 'Прежде чем решить загадку — вспомним прошлый урок.', uz: "Topishmoqni yechishdan oldin — o'tgan darsni eslaylik.", en: 'Before we solve the puzzle, let us remember the last lesson.' },
     questions: [
       {
-        q: { ru: '0,5 = ?', uz: '0,5 = ?' },
-        say: { ru: "Ноль целых пять десятых — какой дроби равно?", uz: "Nol butun o'ndan besh qaysi kasrga teng?" },
-        opts: [{ ru: '5/10', uz: '5/10' }, { ru: '1/10', uz: '1/10' }, { ru: '5/100', uz: '5/100' }],
+        q: { ru: '0,5 = ?', uz: '0,5 = ?', en: '0,5 = ?' },
+        say: { ru: "Ноль целых пять десятых — какой дроби равно?", uz: "Nol butun o'ndan besh qaysi kasrga teng?", en: 'Which fraction is nought point five equal to?' },
+        opts: [{ ru: '5/10', uz: '5/10', en: '5/10' }, { ru: '1/10', uz: '1/10', en: '1/10' }, { ru: '5/100', uz: '5/100', en: '5/100' }],
         correct: 0,
-        ok: { ru: 'Верно: одна цифра — десятые. 0,5 = 5/10.', uz: "To'g'ri: bitta raqam — o'ndan. 0,5 = 5/10." },
-        no: { ru: 'Одна цифра после запятой это десятые.', uz: "Bitta raqam — o'ndan." }
+        ok: { ru: 'Верно: одна цифра — десятые. 0,5 = 5/10.', uz: "To'g'ri: bitta raqam — o'ndan. 0,5 = 5/10.", en: 'That is right: one digit means tenths. 0,5 = 5/10.' },
+        no: { ru: 'Одна цифра после запятой это десятые.', uz: "Bitta raqam — o'ndan.", en: 'One digit after the comma is tenths.' }
       },
       {
-        q: { ru: '0,7 или 0,5 — что больше?', uz: "0,7 yoki 0,5 — qaysi katta?" },
-        say: { ru: "Что больше: семь десятых или пять десятых?", uz: "Qaysi katta: o'ndan yetti yoki o'ndan besh?" },
-        opts: [{ ru: '0,7', uz: '0,7' }, { ru: '0,5', uz: '0,5' }, { ru: 'Равны', uz: 'Teng' }],
+        q: { ru: '0,7 или 0,5 — что больше?', uz: "0,7 yoki 0,5 — qaysi katta?", en: 'Which is bigger, 0,7 or 0,5?' },
+        say: { ru: "Что больше: семь десятых или пять десятых?", uz: "Qaysi katta: o'ndan yetti yoki o'ndan besh?", en: 'Which is bigger, seven tenths or five tenths?' },
+        opts: [{ ru: '0,7', uz: '0,7', en: '0,7' }, { ru: '0,5', uz: '0,5', en: '0,5' }, { ru: 'Равны', uz: 'Teng', en: 'They are equal' }],
         correct: 0,
-        ok: { ru: 'Верно: семь десятых больше пяти.', uz: "To'g'ri: o'ndan yetti beshdan katta." },
-        no: { ru: 'У обоих десятые. 7 больше 5.', uz: "Ikkalasida o'ndan. 7 esa 5 dan katta." }
+        ok: { ru: 'Верно: семь десятых больше пяти.', uz: "To'g'ri: o'ndan yetti beshdan katta.", en: 'That is right: seven tenths is more than five.' },
+        no: { ru: 'У обоих десятые. 7 больше 5.', uz: "Ikkalasida o'ndan. 7 esa 5 dan katta.", en: 'They are both tenths. 7 is more than 5.' }
       },
       {
-        q: { ru: '0,05 = ?', uz: '0,05 = ?' },
-        say: { ru: "Ноль целых пять сотых — какой дроби равно?", uz: "Nol butun yuzdan besh qaysi kasrga teng?" },
-        opts: [{ ru: '5/100', uz: '5/100' }, { ru: '5/10', uz: '5/10' }, { ru: '1/5', uz: '1/5' }],
+        q: { ru: '0,05 = ?', uz: '0,05 = ?', en: '0,05 = ?' },
+        say: { ru: "Ноль целых пять сотых — какой дроби равно?", uz: "Nol butun yuzdan besh qaysi kasrga teng?", en: 'Which fraction is nought point nought five equal to?' },
+        opts: [{ ru: '5/100', uz: '5/100', en: '5/100' }, { ru: '5/10', uz: '5/10', en: '5/10' }, { ru: '1/5', uz: '1/5', en: '1/5' }],
         correct: 0,
-        ok: { ru: 'Верно: две цифры — сотые. 0,05 = 5/100.', uz: "To'g'ri: ikki raqam — yuzdan. 0,05 = 5/100." },
-        no: { ru: 'Две цифры после запятой это сотые.', uz: "Ikki raqam — yuzdan." }
+        ok: { ru: 'Верно: две цифры — сотые. 0,05 = 5/100.', uz: "To'g'ri: ikki raqam — yuzdan. 0,05 = 5/100.", en: 'That is right: two digits means hundredths. 0,05 = 5/100.' },
+        no: { ru: 'Две цифры после запятой это сотые.', uz: "Ikki raqam — yuzdan.", en: 'Two digits after the comma means hundredths.' }
       },
       {
-        q: { ru: '0,3 или 0,30 — что больше?', uz: "0,3 yoki 0,30 — qaysi katta?" },
-        say: { ru: "Что больше: ноль целых три десятых или ноль целых тридцать сотых?", uz: "Qaysi katta: nol butun o'ndan uch yoki nol butun yuzdan o'ttiz?" },
-        opts: [{ ru: 'Равны', uz: 'Teng' }, { ru: '0,30', uz: '0,30' }, { ru: '0,3', uz: '0,3' }],
+        q: { ru: '0,3 или 0,30 — что больше?', uz: "0,3 yoki 0,30 — qaysi katta?", en: 'Which is bigger, 0,3 or 0,30?' },
+        say: { ru: "Что больше: ноль целых три десятых или ноль целых тридцать сотых?", uz: "Qaysi katta: nol butun o'ndan uch yoki nol butun yuzdan o'ttiz?", en: 'Which is bigger, nought point three or nought point three nought?' },
+        opts: [{ ru: 'Равны', uz: 'Teng', en: 'They are equal' }, { ru: '0,30', uz: '0,30', en: '0,30' }, { ru: '0,3', uz: '0,3', en: '0,3' }],
         correct: 0,
-        ok: { ru: 'Верно: 0,3 = 0,30. Ноль в конце не меняет число.', uz: "To'g'ri: 0,3 = 0,30. Oxirdagi nol sonni o'zgartirmaydi." },
-        no: { ru: 'Допиши ноль: 0,3 это 0,30. Они равны.', uz: "Nol qo'shing: 0,3 — 0,30. Ular teng." }
+        ok: { ru: 'Верно: 0,3 = 0,30. Ноль в конце не меняет число.', uz: "To'g'ri: 0,3 = 0,30. Oxirdagi nol sonni o'zgartirmaydi.", en: 'That is right: 0,3 = 0,30. A zero at the end does not change the number.' },
+        no: { ru: 'Допиши ноль: 0,3 это 0,30. Они равны.', uz: "Nol qo'shing: 0,3 — 0,30. Ular teng.", en: 'Add a zero: 0,3 is 0,30. They are equal.' }
       }
     ],
     audio: {
-      intro: { ru: "Прежде чем решить загадку, вспомним прошлый урок. Четыре быстрых вопроса.", uz: "Topishmoqni yechishdan oldin, o'tgan darsni eslaylik. To'rtta tez savol." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring." },
-      on_done: { ru: "Отлично, размялись.", uz: "Zo'r, mashq tugadi." }
+      intro: { ru: "Прежде чем решить загадку, вспомним прошлый урок. Четыре быстрых вопроса.", uz: "Topishmoqni yechishdan oldin, o'tgan darsni eslaylik. To'rtta tez savol.", en: 'Before we solve the puzzle, let us remember the last lesson. Four quick questions.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring.", en: 'Almost. Have another go.' },
+      on_done: { ru: "Отлично, размялись.", uz: "Zo'r, mashq tugadi.", en: 'Well done, we are warmed up.' }
     }
   },
 
   // ===== s2 EXPLORATION — nol qo'shib solishtirish (DecimalGrid) =====
   s2: {
-    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    title: { ru: 'Допишем ноль и сравним', uz: "Nol qo'shib solishtiramiz" },
-    bridge: { ru: 'Размялись. Теперь раскроем загадку про прыжки.', uz: "Mashq qildik. Endi sakrash topishmog'ini ochamiz." },
-    lead: { ru: 'Сравним 0,45 и 0,5. У первого цифр больше — но больше ли число?', uz: "0,45 va 0,5 ni solishtiramiz. Birinchisida raqam ko'p — lekin son kattaroqmi?" },
+    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz", en: 'Let us explore' },
+    title: { ru: 'Допишем ноль и сравним', uz: "Nol qo'shib solishtiramiz", en: 'Let us add a zero and compare' },
+    bridge: { ru: 'Размялись. Теперь раскроем загадку про прыжки.', uz: "Mashq qildik. Endi sakrash topishmog'ini ochamiz.", en: 'We are warmed up. Now let us solve the puzzle about the jumps.' },
+    lead: { ru: 'Сравним 0,45 и 0,5. У первого цифр больше — но больше ли число?', uz: "0,45 va 0,5 ni solishtiramiz. Birinchisida raqam ko'p — lekin son kattaroqmi?", en: 'Let us compare 0,45 and 0,5. The first has more digits, but is the number bigger?' },
     step_labels: {
       ru: ['У 0,5 — пять полос, у 0,45 — сорок пять мелких клеток. Доли разные.', 'Допишем ноль: 0,5 = 0,50. Теперь у обоих сотые: 50 клеток и 45.', '50 клеток больше 45. Значит 0,5 больше 0,45.'],
-      uz: ["0,5 da beshta bo'lak, 0,45 da qirq beshta mayda katak. Ulushlar har xil.", "Nol qo'shamiz: 0,5 = 0,50. Endi ikkalasida yuzdan: 50 katak va 45.", "50 katak 45 dan ko'p. Demak 0,5 katta 0,45 dan."]
+      uz: ["0,5 da beshta bo'lak, 0,45 da qirq beshta mayda katak. Ulushlar har xil.", "Nol qo'shamiz: 0,5 = 0,50. Endi ikkalasida yuzdan: 50 katak va 45.", "50 katak 45 dan ko'p. Demak 0,5 katta 0,45 dan."],
+      en: ['0,5 has five strips and 0,45 has forty five small cells. The parts are different.', 'Let us add a zero: 0,5 = 0,50. Now they are both in hundredths: 50 cells and 45.', '50 cells is more than 45. So 0,5 is bigger than 0,45.']
     },
-    note: { ru: 'Решает не длина, а значение разрядов. 0,5 больше 0,45.', uz: "Uzunlik emas, xona qiymati hal qiladi. 0,5 katta 0,45 dan." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    note: { ru: 'Решает не длина, а значение разрядов. 0,5 больше 0,45.', uz: "Uzunlik emas, xona qiymati hal qiladi. 0,5 katta 0,45 dan.", en: 'It is not the length that decides, it is what the places are worth. 0,5 is bigger than 0,45.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Размялись, теперь раскроем загадку. Сравним ноль целых сорок пять сотых и ноль целых пять десятых.",
@@ -838,22 +865,24 @@ const CONTENT = {
         "Nol butun o'ndan beshda beshta katta bo'lak, ikkinchisida qirq beshta mayda katak. Ulushlar har xil.",
         "Nol qo'shamiz. Nol butun o'ndan besh — bu nol butun yuzdan ellik. Endi ikkalasida yuzdan.",
         "Ellik katak qirq beshdan ko'p. Demak nol butun o'ndan besh katta."
-      ]
+      ],
+      en: ['We are warmed up, so now let us solve the puzzle. Let us compare nought point four five and nought point five.', 'Nought point five has five big strips and the other one has forty five small cells. The parts are different.', 'Let us add a zero. Nought point five is nought point five nought. Now they are both in hundredths.', 'Fifty cells is more than forty five. So nought point five is bigger.']
     }
   },
 
   // ===== s3 EXPLORATION — yaxlitlash (RoundLine) =====
   s3: {
-    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    title: { ru: 'Ближайшая метка', uz: "Eng yaqin belgi" },
-    lead: { ru: 'Округлить — значит подвести число к ближайшей метке на прямой. Округлим 0,46 до десятых.', uz: "Yaxlitlash — sonni sonlar nuridagi eng yaqin belgiga olib borish. 0,46 ni o'ndangacha yaxlitlaymiz." },
+    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz", en: 'Let us explore' },
+    title: { ru: 'Ближайшая метка', uz: "Eng yaqin belgi", en: 'The nearest mark' },
+    lead: { ru: 'Округлить — значит подвести число к ближайшей метке на прямой. Округлим 0,46 до десятых.', uz: "Yaxlitlash — sonni sonlar nuridagi eng yaqin belgiga olib borish. 0,46 ni o'ndangacha yaxlitlaymiz.", en: 'Rounding means moving a number to the nearest mark on the line. Let us round 0,46 to the nearest tenth.' },
     step_labels: {
       ru: ['0,46 стоит между 0,4 и 0,5.', 'К какой метке ближе? К 0,5. Значит, 0,46 ≈ 0,5.', 'Ещё: 3,7 ближе к 4, чем к 3. Значит 3,7 ≈ 4.'],
-      uz: ["0,46 — 0,4 va 0,5 orasida.", "Qaysi belgiga yaqin? 0,5 ga. Demak 0,46 ≈ 0,5.", "Yana: 3,7 uchdan ko'ra 4 ga yaqin. Demak 3,7 ≈ 4."]
+      uz: ["0,46 — 0,4 va 0,5 orasida.", "Qaysi belgiga yaqin? 0,5 ga. Demak 0,46 ≈ 0,5.", "Yana: 3,7 uchdan ko'ra 4 ga yaqin. Demak 3,7 ≈ 4."],
+      en: ['0,46 lies between 0,4 and 0,5.', 'Which mark is it closer to? To 0,5. So 0,46 ≈ 0,5.', 'Another one: 3,7 is closer to 4 than to 3. So 3,7 ≈ 4.']
     },
-    note: { ru: 'Округление — выбор ближайшей метки: ближайшей десятой или ближайшего целого.', uz: "Yaxlitlash — eng yaqin belgini tanlash: eng yaqin o'ndan yoki butun." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    note: { ru: 'Округление — выбор ближайшей метки: ближайшей десятой или ближайшего целого.', uz: "Yaxlitlash — eng yaqin belgini tanlash: eng yaqin o'ndan yoki butun.", en: 'Rounding is choosing the nearest mark: the nearest tenth or the nearest whole number.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Теперь округление. Округлим ноль целых сорок шесть сотых до десятых.",
@@ -866,269 +895,270 @@ const CONTENT = {
         "Sonlar nurida u nol butun o'ndan to'rt va nol butun o'ndan besh orasida turadi.",
         "Qaysi belgiga yaqin? Nol butun o'ndan beshga yaqin. Demak nol butun o'ndan beshga yaxlitlaymiz.",
         "Yana misol. Uch butun o'ndan yetti to'rtga yaqin. Demak taxminan to'rt."
-      ]
+      ],
+      en: ['Now rounding. Let us round nought point four six to the nearest tenth.', 'On the line it lies between nought point four and nought point five.', 'Which mark is it closer to? Closer to nought point five. So we round it to nought point five.', 'Another example. Three point seven is closer to four. So it is about four.']
     }
   },
 
   // ===== s5 RULE 1 — solishtirish qoidasi =====
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Правило сравнения', uz: "Solishtirish qoidasi" },
-    bridge: { ru: 'Увидели, как сравнивать и округлять. Соберём правила.', uz: "Solishtirish va yaxlitlashni ko'rdik. Qoidalarni yig'amiz." },
-    rule_1: { ru: 'Выровняй числа по запятой.', uz: "Sonlarni vergul bo'yicha tenglang." },
-    rule_2: { ru: 'При необходимости допиши нули справа.', uz: "Kerak bo'lsa o'ngga nol qo'shing." },
-    rule_3: { ru: 'Сравнивай разряд за разрядом слева направо.', uz: "Chapdan o'ngga xonama-xona solishtiring." },
-    rule_4: { ru: 'Решает первый разряд, где числа различаются.', uz: "Sonlar farq qilgan birinchi xona hal qiladi." },
-    rule_label: { ru: 'Сравнение', uz: "Solishtirish" },
-    audio: { ru: "Увидели, как сравнивать и округлять, теперь соберём правила. Чтобы сравнить: выравниваем по запятой, при необходимости дописываем нули, потом сравниваем по разрядам слева направо. Решает первый разряд, где числа различаются.", uz: "Solishtirish va yaxlitlashni ko'rdik, endi qoidalarni yig'amiz. Solishtirish uchun: vergul bo'yicha tenglaymiz, kerak bo'lsa nol qo'shamiz, keyin chapdan o'ngga xona bo'yicha solishtiramiz. Sonlar farq qilgan birinchi xona hal qiladi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Правило сравнения', uz: "Solishtirish qoidasi", en: 'The rule for comparing' },
+    bridge: { ru: 'Увидели, как сравнивать и округлять. Соберём правила.', uz: "Solishtirish va yaxlitlashni ko'rdik. Qoidalarni yig'amiz.", en: 'We have seen how to compare and round. Let us gather the rules.' },
+    rule_1: { ru: 'Выровняй числа по запятой.', uz: "Sonlarni vergul bo'yicha tenglang.", en: 'Line the numbers up by the comma.' },
+    rule_2: { ru: 'При необходимости допиши нули справа.', uz: "Kerak bo'lsa o'ngga nol qo'shing.", en: 'Add zeros on the right if you need to.' },
+    rule_3: { ru: 'Сравнивай разряд за разрядом слева направо.', uz: "Chapdan o'ngga xonama-xona solishtiring.", en: 'Compare place by place from left to right.' },
+    rule_4: { ru: 'Решает первый разряд, где числа различаются.', uz: "Sonlar farq qilgan birinchi xona hal qiladi.", en: 'It is decided by the first place where the numbers differ.' },
+    rule_label: { ru: 'Сравнение', uz: "Solishtirish", en: 'Comparing' },
+    audio: { ru: "Увидели, как сравнивать и округлять, теперь соберём правила. Чтобы сравнить: выравниваем по запятой, при необходимости дописываем нули, потом сравниваем по разрядам слева направо. Решает первый разряд, где числа различаются.", uz: "Solishtirish va yaxlitlashni ko'rdik, endi qoidalarni yig'amiz. Solishtirish uchun: vergul bo'yicha tenglaymiz, kerak bo'lsa nol qo'shamiz, keyin chapdan o'ngga xona bo'yicha solishtiramiz. Sonlar farq qilgan birinchi xona hal qiladi.", en: 'We have seen how to compare and round, so now let us gather the rules. To compare: line the numbers up by the comma, add zeros if you need to, then compare place by place from left to right. It is decided by the first place where the numbers differ.' }
   },
 
   // ===== s6 RULE 2 — yaxlitlash qoidasi + nol ogohlantirish =====
   s6: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Правило округления', uz: "Yaxlitlash qoidasi" },
-    rule_main: { ru: 'Чтобы округлить: посмотри на цифру справа от нужного разряда. 5 или больше — вверх, меньше 5 — вниз.', uz: "Yaxlitlash uchun: kerakli xonadan o'ngdagi raqamga qarang. 5 yoki katta — yuqoriga, 5 dan kichik — pastga." },
-    warn_label: { ru: 'Запомни', uz: "Esda tuting" },
-    warn: { ru: '0,5 = 0,50 = 0,500. Нули в конце не меняют число — они лишь выравнивают разряды.', uz: "0,5 = 0,50 = 0,500. Oxirdagi nollar sonni o'zgartirmaydi — ular faqat xonalarni tenglaydi." },
-    audio: { ru: "Теперь округление. Смотрим на цифру справа от разряда, до которого округляем. Пять или больше — вверх, меньше пяти — вниз. И помни: нули в конце десятичной дроби не меняют её значение.", uz: "Endi yaxlitlash. Yaxlitlanayotgan xonadan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga. Va esda tuting: o'nli kasr oxiridagi nollar uning qiymatini o'zgartirmaydi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Правило округления', uz: "Yaxlitlash qoidasi", en: 'The rule for rounding' },
+    rule_main: { ru: 'Чтобы округлить: посмотри на цифру справа от нужного разряда. 5 или больше — вверх, меньше 5 — вниз.', uz: "Yaxlitlash uchun: kerakli xonadan o'ngdagi raqamga qarang. 5 yoki katta — yuqoriga, 5 dan kichik — pastga.", en: 'To round: look at the digit to the right of the place you want. 5 or more rounds up, less than 5 rounds down.' },
+    warn_label: { ru: 'Запомни', uz: "Esda tuting", en: 'Remember' },
+    warn: { ru: '0,5 = 0,50 = 0,500. Нули в конце не меняют число — они лишь выравнивают разряды.', uz: "0,5 = 0,50 = 0,500. Oxirdagi nollar sonni o'zgartirmaydi — ular faqat xonalarni tenglaydi.", en: '0,5 = 0,50 = 0,500. Zeros at the end do not change the number, they only line the places up.' },
+    audio: { ru: "Теперь округление. Смотрим на цифру справа от разряда, до которого округляем. Пять или больше — вверх, меньше пяти — вниз. И помни: нули в конце десятичной дроби не меняют её значение.", uz: "Endi yaxlitlash. Yaxlitlanayotgan xonadan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga. Va esda tuting: o'nli kasr oxiridagi nollar uning qiymatini o'zgartirmaydi.", en: 'Now rounding. We look at the digit to the right of the place we are rounding to. Five or more rounds up and less than five rounds down. And remember: zeros at the end of a decimal do not change its value.' }
   },
 
   // ===== s7 TEST MC — eng kattasi (0,8) + IT fakti =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    bridge: { ru: 'Правила знаем — теперь попробуй сам.', uz: "Qoidalarni bilamiz — endi o'zingiz urinib ko'ring." },
-    title: { ru: 'Найди самое большое', uz: "Eng kattasini toping" },
-    question: { ru: 'Какое число самое БОЛЬШОЕ?', uz: "Qaysi son eng KATTA?" },
-    opt0: { ru: '0,8', uz: '0,8' },
-    opt1: { ru: '0,75', uz: '0,75' },
-    opt2: { ru: '0,7', uz: '0,7' },
-    opt3: { ru: '0,79', uz: '0,79' },
-    correct_text: { ru: 'Верно. 0,8 = 0,80 это 80 сотых — больше всех.', uz: "To'g'ri. 0,8 = 0,80 — 80 yuzdan, hammadan katta." },
-    wrong_1: { ru: '0,75 это 75 сотых. Допиши всем нули до сотых — где их больше?', uz: "0,75 — 75 yuzdan. Hammaga yuzdangacha nol qo'shing — qayerda ko'proq?" },
-    wrong_2: { ru: '0,7 это 70 сотых. Сравни по разрядам с остальными.', uz: "0,7 — 70 yuzdan. Boshqalar bilan xona bo'yicha solishtiring." },
-    wrong_3: { ru: 'Цифр больше, но это 79 сотых. У кого сотых больше?', uz: "Raqam ko'p, lekin bu 79 yuzdan. Qayerda yuzdan ko'proq?" },
-    fact: { ru: 'Во многих странах десятичный знак — запятая, а в программировании и английском — точка: 3.14.', uz: "Ko'p mamlakatlarda o'nli belgi vergul, dasturlash va ingliz tilida nuqta: 3.14." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    bridge: { ru: 'Правила знаем — теперь попробуй сам.', uz: "Qoidalarni bilamiz — endi o'zingiz urinib ko'ring.", en: 'We know the rules, so now try it yourself.' },
+    title: { ru: 'Найди самое большое', uz: "Eng kattasini toping", en: 'Find the biggest' },
+    question: { ru: 'Какое число самое БОЛЬШОЕ?', uz: "Qaysi son eng KATTA?", en: 'Which number is the BIGGEST?' },
+    opt0: { ru: '0,8', uz: '0,8', en: '0,8' },
+    opt1: { ru: '0,75', uz: '0,75', en: '0,75' },
+    opt2: { ru: '0,7', uz: '0,7', en: '0,7' },
+    opt3: { ru: '0,79', uz: '0,79', en: '0,79' },
+    correct_text: { ru: 'Верно. 0,8 = 0,80 это 80 сотых — больше всех.', uz: "To'g'ri. 0,8 = 0,80 — 80 yuzdan, hammadan katta.", en: 'That is right. 0,8 = 0,80, which is 80 hundredths, the biggest of all.' },
+    wrong_1: { ru: '0,75 это 75 сотых. Допиши всем нули до сотых — где их больше?', uz: "0,75 — 75 yuzdan. Hammaga yuzdangacha nol qo'shing — qayerda ko'proq?", en: '0,75 is 75 hundredths. Add zeros to them all up to hundredths and see which has more.' },
+    wrong_2: { ru: '0,7 это 70 сотых. Сравни по разрядам с остальными.', uz: "0,7 — 70 yuzdan. Boshqalar bilan xona bo'yicha solishtiring.", en: '0,7 is 70 hundredths. Compare it with the others place by place.' },
+    wrong_3: { ru: 'Цифр больше, но это 79 сотых. У кого сотых больше?', uz: "Raqam ko'p, lekin bu 79 yuzdan. Qayerda yuzdan ko'proq?", en: 'It has more digits, but it is 79 hundredths. Which one has more hundredths?' },
+    fact: { ru: 'Во многих странах десятичный знак — запятая, а в программировании и английском — точка: 3.14.', uz: "Ko'p mamlakatlarda o'nli belgi vergul, dasturlash va ingliz tilida nuqta: 3.14.", en: 'In many countries the decimal mark is a comma, while in programming and in English it is a point: 3.14.' },
     audio: {
-      intro: { ru: "Правила знаем, теперь попробуй сам. Из четырёх чисел выбери самое большое.", uz: "Qoidalarni bilamiz, endi o'zingiz urinib ko'ring. To'rt sondan eng kattasini tanlang." },
-      on_correct: { ru: "Верно, ноль целых восемь десятых. Кстати, в программировании десятичный знак это точка, а не запятая.", uz: "To'g'ri, nol butun o'ndan sakkiz. Aytgancha, dasturlashda o'nli belgi nuqta, vergul emas." },
-      on_wrong: { ru: "Не совсем. Допиши нули и сравни сотые.", uz: "Unchalik emas. Nol qo'shib, yuzdanlarni solishtiring." }
+      intro: { ru: "Правила знаем, теперь попробуй сам. Из четырёх чисел выбери самое большое.", uz: "Qoidalarni bilamiz, endi o'zingiz urinib ko'ring. To'rt sondan eng kattasini tanlang.", en: 'We know the rules, so now try it yourself. Choose the biggest of the four numbers.' },
+      on_correct: { ru: "Верно, ноль целых восемь десятых. Кстати, в программировании десятичный знак это точка, а не запятая.", uz: "To'g'ri, nol butun o'ndan sakkiz. Aytgancha, dasturlashda o'nli belgi nuqta, vergul emas.", en: 'That is right, nought point eight. By the way, in programming the decimal mark is a point, not a comma.' },
+      on_wrong: { ru: "Не совсем. Допиши нули и сравни сотые.", uz: "Unchalik emas. Nol qo'shib, yuzdanlarni solishtiring.", en: 'Not quite. Add zeros and compare the hundredths.' }
     }
   },
 
   // ===== s8 — 3 BOSQICHLI MASHQ: solishtirish → tartiblash → xato-top =====
   s8: {
-    eyebrow: { ru: 'Тренировка · 3 шага', uz: "Mashq · 3 bosqich" },
-    bridge: { ru: 'Три разные задачи подряд — скучать не придётся.', uz: "Uchta har xil topshiriq ketma-ket — zerikmaysiz." },
-    title: { ru: 'Три задачи подряд', uz: "Uchta topshiriq ketma-ket" },
-    lead: { ru: 'Сравни, расставь по порядку и найди ошибку.', uz: "Solishtiring, tartiblang va xatoni toping." },
+    eyebrow: { ru: 'Тренировка · 3 шага', uz: "Mashq · 3 bosqich", en: 'Practice · 3 steps' },
+    bridge: { ru: 'Три разные задачи подряд — скучать не придётся.', uz: "Uchta har xil topshiriq ketma-ket — zerikmaysiz.", en: 'Three different tasks in a row, so no time to get bored.' },
+    title: { ru: 'Три задачи подряд', uz: "Uchta topshiriq ketma-ket", en: 'Three tasks in a row' },
+    lead: { ru: 'Сравни, расставь по порядку и найди ошибку.', uz: "Solishtiring, tartiblang va xatoni toping.", en: 'Compare, put them in order and find the mistake.' },
     audio: {
-      intro: { ru: "Три разные задачи подряд. Сначала сравни два числа, ноль целых сорок пять сотых и ноль целых пять десятых. Какой знак между ними?", uz: "Uchta har xil topshiriq ketma-ket. Avval ikki sonni solishtiring, nol butun yuzdan qirq besh va nol butun o'ndan besh. Ularning orasida qaysi belgi?" },
-      on_done: { ru: "Отлично. Все три задачи решены.", uz: "Zo'r. Uchala topshiriq ham yechildi." }
+      intro: { ru: "Три разные задачи подряд. Сначала сравни два числа, ноль целых сорок пять сотых и ноль целых пять десятых. Какой знак между ними?", uz: "Uchta har xil topshiriq ketma-ket. Avval ikki sonni solishtiring, nol butun yuzdan qirq besh va nol butun o'ndan besh. Ularning orasida qaysi belgi?", en: 'Three different tasks in a row. First compare two numbers, nought point four five and nought point five. Which sign goes between them?' },
+      on_done: { ru: "Отлично. Все три задачи решены.", uz: "Zo'r. Uchala topshiriq ham yechildi.", en: 'Well done. All three tasks are done.' }
     },
     steps: [
       // 1-bosqich — SOLISHTIRISH (belgi tanlash, MC)
       {
         kind: 'compare',
-        label: { ru: 'Сравни', uz: "Solishtiring" },
-        prompt: { ru: '0,45 ? 0,5', uz: '0,45 ? 0,5' },
-        question: { ru: 'Какой знак поставить между числами?', uz: "Sonlar orasiga qaysi belgi qo'yiladi?" },
-        opts: [{ ru: '<', uz: '<' }, { ru: '=', uz: '=' }, { ru: '>', uz: '>' }],
+        label: { ru: 'Сравни', uz: "Solishtiring", en: 'Compare' },
+        prompt: { ru: '0,45 ? 0,5', uz: '0,45 ? 0,5', en: '0,45 ? 0,5' },
+        question: { ru: 'Какой знак поставить между числами?', uz: "Sonlar orasiga qaysi belgi qo'yiladi?", en: 'Which sign goes between the numbers?' },
+        opts: [{ ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }, { ru: '>', uz: '>', en: '>' }],
         correct: 0,
-        ok: { ru: 'Верно. 0,45 это 45 сотых, 0,5 это 50 сотых — значит 0,45 < 0,5.', uz: "To'g'ri. 0,45 — 45 yuzdan, 0,5 — 50 yuzdan, demak 0,45 < 0,5." },
-        no: { ru: 'Допиши ноль: 0,45 и 0,50. У кого сотых больше?', uz: "Nol qo'shing: 0,45 va 0,50. Qayerda yuzdan ko'proq?" },
-        noSay: { ru: "Допиши ноль до сотых и сравни. Пятьдесят сотых больше сорока пяти.", uz: "Yuzdangacha nol qo'shib solishtiring. Ellik yuzdan qirq beshdan katta." }
+        ok: { ru: 'Верно. 0,45 это 45 сотых, 0,5 это 50 сотых — значит 0,45 < 0,5.', uz: "To'g'ri. 0,45 — 45 yuzdan, 0,5 — 50 yuzdan, demak 0,45 < 0,5.", en: 'That is right. 0,45 is 45 hundredths and 0,5 is 50 hundredths, so 0,45 < 0,5.' },
+        no: { ru: 'Допиши ноль: 0,45 и 0,50. У кого сотых больше?', uz: "Nol qo'shing: 0,45 va 0,50. Qayerda yuzdan ko'proq?", en: 'Add a zero: 0,45 and 0,50. Which has more hundredths?' },
+        noSay: { ru: "Допиши ноль до сотых и сравни. Пятьдесят сотых больше сорока пяти.", uz: "Yuzdangacha nol qo'shib solishtiring. Ellik yuzdan qirq beshdan katta.", en: 'Add a zero up to hundredths and compare. Fifty hundredths is more than forty five.' }
       },
       // 2-bosqich — TARTIBLASH (o'sish tartibida tap)
       {
         kind: 'order',
-        label: { ru: 'Расставь', uz: "Tartiblang" },
-        title: { ru: 'От меньшего к большему', uz: "Kichikdan kattaga" },
-        lead: { ru: 'Тапай по возрастанию: сначала самое маленькое.', uz: "O'sish tartibida bosing: avval eng kichigi." },
+        label: { ru: 'Расставь', uz: "Tartiblang", en: 'Put them in order' },
+        title: { ru: 'От меньшего к большему', uz: "Kichikdan kattaga", en: 'From smallest to biggest' },
+        lead: { ru: 'Тапай по возрастанию: сначала самое маленькое.', uz: "O'sish tartibida bosing: avval eng kichigi.", en: 'Tap them from smallest to biggest, starting with the smallest.' },
         cards: [{ label: '0,3', v: 0.3 }, { label: '0,25', v: 0.25 }, { label: '0,205', v: 0.205 }, { label: '0,5', v: 0.5 }],
-        hint_wrong: { ru: 'Сейчас это не самое маленькое. Выровняй по запятой — больше цифр не значит больше.', uz: "Bu hozir eng kichigi emas. Vergul bo'yicha tenglang — raqam ko'p son katta degani emas." },
-        done_text: { ru: 'Верно! По возрастанию: 0,205, 0,25, 0,3, 0,5. Длина не главное.', uz: "To'g'ri! O'sish tartibi: 0,205, 0,25, 0,3, 0,5. Uzunlik muhim emas." },
-        say: { ru: "Теперь расставь числа по возрастанию, от меньшего к большему. Число с большим количеством цифр не всегда больше.", uz: "Endi sonlarni o'sish tartibida joylang, kichikdan kattaga. Raqami ko'p son har doim katta emas." },
-        noSay: { ru: "Не то. Выровняй по запятой и сравни разряды.", uz: "Bu emas. Vergul bo'yicha tenglab, xonalarni solishtiring." }
+        hint_wrong: { ru: 'Сейчас это не самое маленькое. Выровняй по запятой — больше цифр не значит больше.', uz: "Bu hozir eng kichigi emas. Vergul bo'yicha tenglang — raqam ko'p son katta degani emas.", en: 'That is not the smallest one. Line them up by the comma, because more digits does not mean bigger.' },
+        done_text: { ru: 'Верно! По возрастанию: 0,205, 0,25, 0,3, 0,5. Длина не главное.', uz: "To'g'ri! O'sish tartibi: 0,205, 0,25, 0,3, 0,5. Uzunlik muhim emas.", en: 'Right! In order: 0,205, 0,25, 0,3, 0,5. Length is not what matters.' },
+        say: { ru: "Теперь расставь числа по возрастанию, от меньшего к большему. Число с большим количеством цифр не всегда больше.", uz: "Endi sonlarni o'sish tartibida joylang, kichikdan kattaga. Raqami ko'p son har doim katta emas.", en: 'Now put the numbers in order from smallest to biggest. A number with more digits is not always bigger.' },
+        noSay: { ru: "Не то. Выровняй по запятой и сравни разряды.", uz: "Bu emas. Vergul bo'yicha tenglab, xonalarni solishtiring.", en: 'Not that one. Line them up by the comma and compare the places.' }
       },
       // 3-bosqich — XATO-TOP (noto'g'ri solishtirishni top, MC)
       {
         kind: 'findwrong',
-        label: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-        title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
-        question: { ru: 'Одно сравнение неверное. Найди его.', uz: "Bitta solishtirish noto'g'ri. Uni toping." },
+        label: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+        title: { ru: 'Где ошибка?', uz: "Xato qayerda?", en: 'Where is the mistake?' },
+        question: { ru: 'Одно сравнение неверное. Найди его.', uz: "Bitta solishtirish noto'g'ri. Uni toping.", en: 'One comparison is wrong. Find it.' },
         opts: [
-          { ru: '0,3 > 0,25', uz: '0,3 > 0,25' },
-          { ru: '0,5 < 0,49', uz: '0,5 < 0,49' },
-          { ru: '0,7 > 0,68', uz: '0,7 > 0,68' },
-          { ru: '0,6 = 0,60', uz: '0,6 = 0,60' }
+          { ru: '0,3 > 0,25', uz: '0,3 > 0,25', en: '0,3 > 0,25' },
+          { ru: '0,5 < 0,49', uz: '0,5 < 0,49', en: '0,5 < 0,49' },
+          { ru: '0,7 > 0,68', uz: '0,7 > 0,68', en: '0,7 > 0,68' },
+          { ru: '0,6 = 0,60', uz: '0,6 = 0,60', en: '0,6 = 0,60' }
         ],
         correct: 1,
-        ok: { ru: 'Верно. 0,5 = 0,50, а 0,50 > 0,49 — знак < поставлен неправильно.', uz: "To'g'ri. 0,5 = 0,50, 0,50 esa 0,49 dan katta — < belgisi noto'g'ri qo'yilgan." },
-        no: { ru: 'Допиши нули и проверь каждое: 0,50 и 0,49 — кто больше?', uz: "Nol qo'shib, har birini tekshiring: 0,50 va 0,49 — qaysi katta?" },
-        say: { ru: "Последняя задача. Здесь четыре сравнения, но одно из них неверное. Найди ошибочное.", uz: "Oxirgi topshiriq. Bu yerda to'rtta solishtirish, biri noto'g'ri. Xatosini toping." },
-        noSay: { ru: "Проверь каждое сравнение. Допиши нули до одного разряда.", uz: "Har bir solishtirishni tekshiring. Bitta xonagacha nol qo'shing." }
+        ok: { ru: 'Верно. 0,5 = 0,50, а 0,50 > 0,49 — знак < поставлен неправильно.', uz: "To'g'ri. 0,5 = 0,50, 0,50 esa 0,49 dan katta — < belgisi noto'g'ri qo'yilgan.", en: 'That is right. 0,5 = 0,50 and 0,50 > 0,49, so the < sign is the wrong way round.' },
+        no: { ru: 'Допиши нули и проверь каждое: 0,50 и 0,49 — кто больше?', uz: "Nol qo'shib, har birini tekshiring: 0,50 va 0,49 — qaysi katta?", en: 'Add zeros and check each one: 0,50 and 0,49, which is bigger?' },
+        say: { ru: "Последняя задача. Здесь четыре сравнения, но одно из них неверное. Найди ошибочное.", uz: "Oxirgi topshiriq. Bu yerda to'rtta solishtirish, biri noto'g'ri. Xatosini toping.", en: 'The last task. There are four comparisons here and one of them is wrong. Find the wrong one.' },
+        noSay: { ru: "Проверь каждое сравнение. Допиши нули до одного разряда.", uz: "Har bir solishtirishni tekshiring. Bitta xonagacha nol qo'shing.", en: 'Check each comparison. Add zeros so they all have the same places.' }
       }
     ]
   },
 
   // ===== s9 TEST tap MC — 0,47 ni o'ndangacha yaxlitla =====
   s9: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Округли до десятых', uz: "O'ndangacha yaxlitlang" },
-    question: { ru: 'Округли 0,47 до десятых.', uz: "0,47 ni o'ndangacha yaxlitlang." },
-    opt0: { ru: '0,5', uz: '0,5' },
-    opt1: { ru: '0,4', uz: '0,4' },
-    opt2: { ru: '0,47', uz: '0,47' },
-    correct_text: { ru: 'Верно. После десятых стоит 7 — это 5 или больше, округляем вверх: 0,5.', uz: "To'g'ri. O'ndandan keyin 7 — bu 5 yoki katta, yuqoriga: 0,5." },
-    wrong_1: { ru: 'Вниз округляют, если следующая цифра меньше 5. А тут 7 — вверх.', uz: "Keyingi raqam 5 dan kichik bo'lsa pastga. Bu yerda 7 — yuqoriga." },
-    wrong_2: { ru: 'Округлить до десятых — оставить одну цифру после запятой. Смотри на вторую.', uz: "O'ndangacha yaxlitlash — verguldan keyin bitta raqam qoldirish. Ikkinchisiga qarang." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Округли до десятых', uz: "O'ndangacha yaxlitlang", en: 'Round to the nearest tenth' },
+    question: { ru: 'Округли 0,47 до десятых.', uz: "0,47 ni o'ndangacha yaxlitlang.", en: 'Round 0,47 to the nearest tenth.' },
+    opt0: { ru: '0,5', uz: '0,5', en: '0,5' },
+    opt1: { ru: '0,4', uz: '0,4', en: '0,4' },
+    opt2: { ru: '0,47', uz: '0,47', en: '0,47' },
+    correct_text: { ru: 'Верно. После десятых стоит 7 — это 5 или больше, округляем вверх: 0,5.', uz: "To'g'ri. O'ndandan keyin 7 — bu 5 yoki katta, yuqoriga: 0,5.", en: 'That is right. After the tenths comes 7, which is 5 or more, so we round up to 0,5.' },
+    wrong_1: { ru: 'Вниз округляют, если следующая цифра меньше 5. А тут 7 — вверх.', uz: "Keyingi raqam 5 dan kichik bo'lsa pastga. Bu yerda 7 — yuqoriga.", en: 'You round down if the next digit is less than 5. Here it is 7, so it rounds up.' },
+    wrong_2: { ru: 'Округлить до десятых — оставить одну цифру после запятой. Смотри на вторую.', uz: "O'ndangacha yaxlitlash — verguldan keyin bitta raqam qoldirish. Ikkinchisiga qarang.", en: 'Rounding to the nearest tenth means leaving one digit after the comma. Look at the second one.' },
     audio: {
-      intro: { ru: "Округли ноль целых сорок семь сотых до десятых. Посмотри на цифру после десятых.", uz: "Nol butun yuzdan qirq yettini o'ndangacha yaxlitlang. O'ndandan keyingi raqamga qarang." },
-      on_correct: { ru: "Верно, ноль целых пять десятых.", uz: "To'g'ri, nol butun o'ndan besh." },
-      on_wrong: { ru: "Посмотри на цифру после десятых: пять или больше — вверх.", uz: "O'ndandan keyingi raqamga qarang: besh yoki katta — yuqoriga." }
+      intro: { ru: "Округли ноль целых сорок семь сотых до десятых. Посмотри на цифру после десятых.", uz: "Nol butun yuzdan qirq yettini o'ndangacha yaxlitlang. O'ndandan keyingi raqamga qarang.", en: 'Round nought point four seven to the nearest tenth. Look at the digit after the tenths.' },
+      on_correct: { ru: "Верно, ноль целых пять десятых.", uz: "To'g'ri, nol butun o'ndan besh.", en: 'That is right, nought point five.' },
+      on_wrong: { ru: "Посмотри на цифру после десятых: пять или больше — вверх.", uz: "O'ndandan keyingi raqamga qarang: besh yoki katta — yuqoriga.", en: 'Look at the digit after the tenths: five or more rounds up.' }
     }
   },
 
   // ===== s_practice — aralash mashq (SeqMC) =====
   s_practice: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Сравни и округли', uz: "Solishtiring va yaxlitlang" },
-    lead: { ru: 'Четыре примера на сравнение и округление.', uz: "Solishtirish va yaxlitlashga to'rtta misol." },
-    bridge: { ru: 'Получается! Закрепим на нескольких примерах.', uz: "Bo'lyapti! Bir nechta misolda mustahkamlaymiz." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Сравни и округли', uz: "Solishtiring va yaxlitlang", en: 'Compare and round' },
+    lead: { ru: 'Четыре примера на сравнение и округление.', uz: "Solishtirish va yaxlitlashga to'rtta misol.", en: 'Four examples on comparing and rounding.' },
+    bridge: { ru: 'Получается! Закрепим на нескольких примерах.', uz: "Bo'lyapti! Bir nechta misolda mustahkamlaymiz.", en: 'It is working! Let us fix it with a few examples.' },
     questions: [
       {
-        q: { ru: '0,8 или 0,75 — что больше?', uz: "0,8 yoki 0,75 — qaysi katta?" },
-        say: { ru: "Что больше: ноль целых восемь десятых или ноль целых семьдесят пять сотых?", uz: "Qaysi katta: nol butun o'ndan sakkiz yoki nol butun yuzdan yetmish besh?" },
-        opts: [{ ru: '0,8', uz: '0,8' }, { ru: '0,75', uz: '0,75' }, { ru: 'Равны', uz: 'Teng' }],
+        q: { ru: '0,8 или 0,75 — что больше?', uz: "0,8 yoki 0,75 — qaysi katta?", en: 'Which is bigger, 0,8 or 0,75?' },
+        say: { ru: "Что больше: ноль целых восемь десятых или ноль целых семьдесят пять сотых?", uz: "Qaysi katta: nol butun o'ndan sakkiz yoki nol butun yuzdan yetmish besh?", en: 'Which is bigger, nought point eight or nought point seven five?' },
+        opts: [{ ru: '0,8', uz: '0,8', en: '0,8' }, { ru: '0,75', uz: '0,75', en: '0,75' }, { ru: 'Равны', uz: 'Teng', en: 'They are equal' }],
         correct: 0,
-        ok: { ru: 'Верно: 0,80 это 80 сотых, больше 75.', uz: "To'g'ri: 0,80 — 80 yuzdan, 75 dan katta." },
-        no: { ru: 'Допиши ноль: 0,80 и 0,75.', uz: "Nol qo'shing: 0,80 va 0,75." }
+        ok: { ru: 'Верно: 0,80 это 80 сотых, больше 75.', uz: "To'g'ri: 0,80 — 80 yuzdan, 75 dan katta.", en: 'That is right: 0,80 is 80 hundredths, more than 75.' },
+        no: { ru: 'Допиши ноль: 0,80 и 0,75.', uz: "Nol qo'shing: 0,80 va 0,75.", en: 'Add a zero: 0,80 and 0,75.' }
       },
       {
-        q: { ru: '0,42 → до десятых?', uz: "0,42 → o'ndangacha?" },
-        say: { ru: "Округли ноль целых сорок две сотых до десятых.", uz: "Nol butun yuzdan qirq ikkini o'ndangacha yaxlitlang." },
-        opts: [{ ru: '0,4', uz: '0,4' }, { ru: '0,5', uz: '0,5' }, { ru: '0,42', uz: '0,42' }],
+        q: { ru: '0,42 → до десятых?', uz: "0,42 → o'ndangacha?", en: '0,42 → to the nearest tenth?' },
+        say: { ru: "Округли ноль целых сорок две сотых до десятых.", uz: "Nol butun yuzdan qirq ikkini o'ndangacha yaxlitlang.", en: 'Round nought point four two to the nearest tenth.' },
+        opts: [{ ru: '0,4', uz: '0,4', en: '0,4' }, { ru: '0,5', uz: '0,5', en: '0,5' }, { ru: '0,42', uz: '0,42', en: '0,42' }],
         correct: 0,
-        ok: { ru: 'Верно: после десятых 2, меньше 5 — вниз: 0,4.', uz: "To'g'ri: o'ndandan keyin 2, 5 dan kichik — pastga: 0,4." },
-        no: { ru: 'Следующая цифра 2, меньше 5 — округляем вниз.', uz: "Keyingi raqam 2, 5 dan kichik — pastga." }
+        ok: { ru: 'Верно: после десятых 2, меньше 5 — вниз: 0,4.', uz: "To'g'ri: o'ndandan keyin 2, 5 dan kichik — pastga: 0,4.", en: 'That is right: after the tenths comes 2, less than 5, so it rounds down to 0,4.' },
+        no: { ru: 'Следующая цифра 2, меньше 5 — округляем вниз.', uz: "Keyingi raqam 2, 5 dan kichik — pastga.", en: 'The next digit is 2, less than 5, so we round down.' }
       },
       {
-        q: { ru: '3,7 → до целого?', uz: "3,7 → butungacha?" },
-        say: { ru: "Округли три целых семь десятых до целого.", uz: "Uch butun o'ndan yettini butungacha yaxlitlang." },
-        opts: [{ ru: '4', uz: '4' }, { ru: '3', uz: '3' }, { ru: '3,7', uz: '3,7' }],
+        q: { ru: '3,7 → до целого?', uz: "3,7 → butungacha?", en: '3,7 → to the nearest whole number?' },
+        say: { ru: "Округли три целых семь десятых до целого.", uz: "Uch butun o'ndan yettini butungacha yaxlitlang.", en: 'Round three point seven to the nearest whole number.' },
+        opts: [{ ru: '4', uz: '4', en: '4' }, { ru: '3', uz: '3', en: '3' }, { ru: '3,7', uz: '3,7', en: '3,7' }],
         correct: 0,
-        ok: { ru: 'Верно: 7 это 5 или больше — вверх: 4.', uz: "To'g'ri: 7 — 5 yoki katta — yuqoriga: 4." },
-        no: { ru: '3,7 ближе к 4, чем к 3.', uz: "3,7 uchdan ko'ra 4 ga yaqin." }
+        ok: { ru: 'Верно: 7 это 5 или больше — вверх: 4.', uz: "To'g'ri: 7 — 5 yoki katta — yuqoriga: 4.", en: 'That is right: 7 is 5 or more, so it rounds up to 4.' },
+        no: { ru: '3,7 ближе к 4, чем к 3.', uz: "3,7 uchdan ko'ra 4 ga yaqin.", en: '3,7 is closer to 4 than to 3.' }
       },
       {
-        q: { ru: '0,6 или 0,60 — что больше?', uz: "0,6 yoki 0,60 — qaysi katta?" },
-        say: { ru: "Что больше: ноль целых шесть десятых или ноль целых шестьдесят сотых?", uz: "Qaysi katta: nol butun o'ndan olti yoki nol butun yuzdan oltmish?" },
-        opts: [{ ru: 'Равны', uz: 'Teng' }, { ru: '0,60', uz: '0,60' }, { ru: '0,6', uz: '0,6' }],
+        q: { ru: '0,6 или 0,60 — что больше?', uz: "0,6 yoki 0,60 — qaysi katta?", en: 'Which is bigger, 0,6 or 0,60?' },
+        say: { ru: "Что больше: ноль целых шесть десятых или ноль целых шестьдесят сотых?", uz: "Qaysi katta: nol butun o'ndan olti yoki nol butun yuzdan oltmish?", en: 'Which is bigger, nought point six or nought point six nought?' },
+        opts: [{ ru: 'Равны', uz: 'Teng', en: 'They are equal' }, { ru: '0,60', uz: '0,60', en: '0,60' }, { ru: '0,6', uz: '0,6', en: '0,6' }],
         correct: 0,
-        ok: { ru: 'Верно: 0,6 = 0,60. Ноль в конце ничего не меняет.', uz: "To'g'ri: 0,6 = 0,60. Oxirdagi nol o'zgartirmaydi." },
-        no: { ru: 'Допиши ноль: 0,6 это 0,60. Равны.', uz: "Nol qo'shing: 0,6 — 0,60. Teng." }
+        ok: { ru: 'Верно: 0,6 = 0,60. Ноль в конце ничего не меняет.', uz: "To'g'ri: 0,6 = 0,60. Oxirdagi nol o'zgartirmaydi.", en: 'That is right: 0,6 = 0,60. A zero at the end changes nothing.' },
+        no: { ru: 'Допиши ноль: 0,6 это 0,60. Равны.', uz: "Nol qo'shing: 0,6 — 0,60. Teng.", en: 'Add a zero: 0,6 is 0,60. They are equal.' }
       }
     ],
     audio: {
-      intro: { ru: "Тренировка. Четыре примера на сравнение и округление.", uz: "Mashq. Solishtirish va yaxlitlashga to'rtta misol." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
-      on_done: { ru: "Молодец, всё верно.", uz: "Barakalla, hammasi to'g'ri." }
+      intro: { ru: "Тренировка. Четыре примера на сравнение и округление.", uz: "Mashq. Solishtirish va yaxlitlashga to'rtta misol.", en: 'Practice. Four examples on comparing and rounding.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring.", en: 'Not quite, have another go.' },
+      on_done: { ru: "Молодец, всё верно.", uz: "Barakalla, hammasi to'g'ri.", en: 'Well done, it is all right.' }
     }
   },
 
   // ===== s10 TEST find-the-wrong + sport fakti =====
   s10: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
-    question: { ru: 'Какое утверждение ОШИБОЧНО?', uz: "Qaysi tasdiq XATO?" },
-    opt0: { ru: '0,8 больше 0,75', uz: "0,8 > 0,75" },
-    opt1: { ru: '3,7 округляется до 4', uz: "3,7 ≈ 4" },
-    opt2: { ru: '0,45 больше 0,5', uz: "0,45 > 0,5" },
-    opt3: { ru: '0,50 равно 0,5', uz: "0,50 = 0,5" },
-    correct_text: { ru: 'Точно! 0,45 больше 0,5 — ошибка. 0,50 это 50 сотых, 0,45 это 45. На деле 0,45 меньше.', uz: "Aniq topdingiz! 0,45 > 0,5 — xato. 0,50 — 50 yuzdan, 0,45 — 45. Aslida 0,45 kichik." },
-    wrong_0: { ru: '0,8 больше 0,75 — верно (0,80 это 80 сотых). Ищи ошибочное.', uz: "0,8 > 0,75 — to'g'ri (0,80 — 80 yuzdan). Xatosini qidiring." },
-    wrong_1: { ru: '3,7 округляется до 4 — верно, ближе к четырём. Ищи ошибочное.', uz: "3,7 ≈ 4 — to'g'ri, to'rtga yaqin. Xatosini qidiring." },
-    wrong_3: { ru: '0,50 равно 0,5 — верно, ноль в конце не меняет. Ищи ошибочное.', uz: "0,50 = 0,5 — to'g'ri, oxirdagi nol o'zgartirmaydi. Xatosini qidiring." },
-    fact: { ru: 'Измерительные приборы округляют: весы показывают массу до десятых долей грамма.', uz: "O'lchov asboblari yaxlitlaydi: tarozi massani grammning o'ndan ulushigacha ko'rsatadi." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Найди неверное', uz: "Noto'g'risini toping", en: 'Find the one that is wrong' },
+    question: { ru: 'Какое утверждение ОШИБОЧНО?', uz: "Qaysi tasdiq XATO?", en: 'Which statement is WRONG?' },
+    opt0: { ru: '0,8 больше 0,75', uz: "0,8 > 0,75", en: '0,8 is more than 0,75' },
+    opt1: { ru: '3,7 округляется до 4', uz: "3,7 ≈ 4", en: '3,7 rounds to 4' },
+    opt2: { ru: '0,45 больше 0,5', uz: "0,45 > 0,5", en: '0,45 is more than 0,5' },
+    opt3: { ru: '0,50 равно 0,5', uz: "0,50 = 0,5", en: '0,50 equals 0,5' },
+    correct_text: { ru: 'Точно! 0,45 больше 0,5 — ошибка. 0,50 это 50 сотых, 0,45 это 45. На деле 0,45 меньше.', uz: "Aniq topdingiz! 0,45 > 0,5 — xato. 0,50 — 50 yuzdan, 0,45 — 45. Aslida 0,45 kichik.", en: 'Exactly! 0,45 is more than 0,5 is wrong. 0,50 is 50 hundredths and 0,45 is 45. In fact 0,45 is smaller.' },
+    wrong_0: { ru: '0,8 больше 0,75 — верно (0,80 это 80 сотых). Ищи ошибочное.', uz: "0,8 > 0,75 — to'g'ri (0,80 — 80 yuzdan). Xatosini qidiring.", en: '0,8 is more than 0,75 is true (0,80 is 80 hundredths). Look for the wrong one.' },
+    wrong_1: { ru: '3,7 округляется до 4 — верно, ближе к четырём. Ищи ошибочное.', uz: "3,7 ≈ 4 — to'g'ri, to'rtga yaqin. Xatosini qidiring.", en: '3,7 rounds to 4 is true, it is closer to four. Look for the wrong one.' },
+    wrong_3: { ru: '0,50 равно 0,5 — верно, ноль в конце не меняет. Ищи ошибочное.', uz: "0,50 = 0,5 — to'g'ri, oxirdagi nol o'zgartirmaydi. Xatosini qidiring.", en: '0,50 equals 0,5 is true, a zero at the end changes nothing. Look for the wrong one.' },
+    fact: { ru: 'Измерительные приборы округляют: весы показывают массу до десятых долей грамма.', uz: "O'lchov asboblari yaxlitlaydi: tarozi massani grammning o'ndan ulushigacha ko'rsatadi.", en: 'Measuring instruments round: kitchen scales show a mass to the nearest tenth of a gram.' },
     audio: {
-      intro: { ru: "Будь внимателен: одно утверждение ошибочно. Найди неверное.", uz: "Diqqatli bo'ling: bitta tasdiq xato. Noto'g'risini toping." },
-      on_correct: { ru: "Верно. Сорок пять сотых меньше пятидесяти. Кстати, весы тоже округляют массу до десятых долей грамма.", uz: "To'g'ri. Yuzdan qirq besh ellikdan kichik. Aytgancha, tarozi ham massani grammning o'ndan ulushigacha yaxlitlaydi." },
-      on_wrong: { ru: "Это утверждение верное. Ищи ошибочное.", uz: "Bu tasdiq to'g'ri. Xatosini qidiring." }
+      intro: { ru: "Будь внимателен: одно утверждение ошибочно. Найди неверное.", uz: "Diqqatli bo'ling: bitta tasdiq xato. Noto'g'risini toping.", en: 'Take care: one statement is wrong. Find it.' },
+      on_correct: { ru: "Верно. Сорок пять сотых меньше пятидесяти. Кстати, весы тоже округляют массу до десятых долей грамма.", uz: "To'g'ri. Yuzdan qirq besh ellikdan kichik. Aytgancha, tarozi ham massani grammning o'ndan ulushigacha yaxlitlaydi.", en: 'That is right. Forty five hundredths is less than fifty. By the way, scales round a mass to the nearest tenth of a gram too.' },
+      on_wrong: { ru: "Это утверждение верное. Ищи ошибочное.", uz: "Bu tasdiq to'g'ri. Xatosini qidiring.", en: 'That statement is right. Look for the wrong one.' }
     }
   },
 
   // ===== s11 CASE setup — Sherzod uzunlikka =====
   s11: {
-    eyebrow: { ru: 'Жизненная задача', uz: "Hayotiy masala" },
-    title: { ru: 'Прыжок Шерзода', uz: "Sherzodning sakrashi" },
-    bridge: { ru: 'Потренировались. Теперь применим это в жизни.', uz: "Mashq qildik. Endi buni hayotda qo'llaymiz." },
-    lead: { ru: 'Шерзод прыгает в длину. Две попытки: 4,25 м и 4,3 м. Дальняя попытка идёт в зачёт.', uz: "Sherzod uzunlikka sakraydi. Ikki urinish: 4,25 m va 4,3 m. Uzoq urinish hisobga olinadi." },
-    note: { ru: 'Какая попытка дальше: 4,25 м или 4,3 м?', uz: "Qaysi urinish uzoqroq: 4,25 m yoki 4,3 m?" },
-    compact: { ru: 'Попытки: 4,25 м и 4,3 м', uz: "Urinishlar: 4,25 m va 4,3 m" },
-    btn_help: { ru: 'Помочь Шерзоду', uz: "Sherzodga yordam berish" },
-    audio: { ru: "Потренировались, теперь задача из жизни. Шерзод прыгает в длину, две попытки: четыре целых двадцать пять сотых и четыре целых три десятых метра. Какая дальше?", uz: "Mashq qildik, endi hayotiy masala. Sherzod uzunlikka sakraydi, ikki urinish: to'rt butun yuzdan yigirma besh va to'rt butun o'ndan uch metr. Qaysi uzoqroq?" }
+    eyebrow: { ru: 'Жизненная задача', uz: "Hayotiy masala", en: 'A real life problem' },
+    title: { ru: 'Прыжок Шерзода', uz: "Sherzodning sakrashi", en: "Sherzod's jump" },
+    bridge: { ru: 'Потренировались. Теперь применим это в жизни.', uz: "Mashq qildik. Endi buni hayotda qo'llaymiz.", en: 'That was good practice. Now let us use it in real life.' },
+    lead: { ru: 'Шерзод прыгает в длину. Две попытки: 4,25 м и 4,3 м. Дальняя попытка идёт в зачёт.', uz: "Sherzod uzunlikka sakraydi. Ikki urinish: 4,25 m va 4,3 m. Uzoq urinish hisobga olinadi.", en: 'Sherzod is doing the long jump. Two attempts: 4,25 m and 4,3 m. The longer one counts.' },
+    note: { ru: 'Какая попытка дальше: 4,25 м или 4,3 м?', uz: "Qaysi urinish uzoqroq: 4,25 m yoki 4,3 m?", en: 'Which attempt is longer, 4,25 m or 4,3 m?' },
+    compact: { ru: 'Попытки: 4,25 м и 4,3 м', uz: "Urinishlar: 4,25 m va 4,3 m", en: 'Attempts: 4,25 m and 4,3 m' },
+    btn_help: { ru: 'Помочь Шерзоду', uz: "Sherzodga yordam berish", en: 'Help Sherzod' },
+    audio: { ru: "Потренировались, теперь задача из жизни. Шерзод прыгает в длину, две попытки: четыре целых двадцать пять сотых и четыре целых три десятых метра. Какая дальше?", uz: "Mashq qildik, endi hayotiy masala. Sherzod uzunlikka sakraydi, ikki urinish: to'rt butun yuzdan yigirma besh va to'rt butun o'ndan uch metr. Qaysi uzoqroq?", en: 'That was good practice, so now a problem from real life. Sherzod is doing the long jump with two attempts: four point two five and four point three metres. Which one is longer?' }
   },
 
   // ===== s12 CASE MC — 4,3 uzoqroq + fan fakti =====
   s12: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Какая попытка дальше', uz: "Qaysi urinish uzoqroq" },
-    question: { ru: 'Какая попытка Шерзода дальше?', uz: "Sherzodning qaysi urinishi uzoqroq?" },
-    opt0: { ru: '4,3 м', uz: '4,3 m' },
-    opt1: { ru: '4,25 м', uz: '4,25 m' },
-    opt2: { ru: 'Они равны', uz: 'Teng' },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно. 4,3 = 4,30 это 30 сотых, а 4,25 это 25. Значит 4,3 м дальше.', uz: "To'g'ri. 4,3 = 4,30 — 30 yuzdan, 4,25 — 25. Demak 4,3 m uzoqroq." },
-    wrong_1: { ru: 'В 4,25 цифр больше, но допиши ноль ко второму и сравни сотые.', uz: "4,25 da raqam ko'p, lekin ikkinchisiga nol qo'shib yuzdanlarni solishtiring." },
-    wrong_2: { ru: 'Допиши ноль: 4,30 и 4,25. Сотые одинаковые?', uz: "Nol qo'shing: 4,30 va 4,25. Yuzdanlar bir xilmi?" },
-    wrong_3: { ru: 'Сравнить можно: допиши ноль и сравни разряды.', uz: "Solishtirsa bo'ladi: nol qo'shib xonalarni solishtiring." },
-    fact: { ru: 'Измерительные приборы округляют: весы показывают массу до десятых долей грамма.', uz: "O'lchov asboblari yaxlitlaydi: tarozi massani grammning o'ndan ulushigacha ko'rsatadi." },
-    fact_audio: { ru: "Кстати, измерительные приборы тоже округляют. Весы показывают массу до десятых долей грамма.", uz: "Aytgancha, o'lchov asboblari ham yaxlitlaydi. Tarozi massani grammning o'ndan ulushigacha ko'rsatadi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Какая попытка дальше', uz: "Qaysi urinish uzoqroq", en: 'Which attempt is longer' },
+    question: { ru: 'Какая попытка Шерзода дальше?', uz: "Sherzodning qaysi urinishi uzoqroq?", en: "Which of Sherzod's attempts is longer?" },
+    opt0: { ru: '4,3 м', uz: '4,3 m', en: '4,3 m' },
+    opt1: { ru: '4,25 м', uz: '4,25 m', en: '4,25 m' },
+    opt2: { ru: 'Они равны', uz: 'Teng', en: 'They are equal' },
+    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi", en: 'They cannot be compared' },
+    correct_text: { ru: 'Верно. 4,3 = 4,30 это 30 сотых, а 4,25 это 25. Значит 4,3 м дальше.', uz: "To'g'ri. 4,3 = 4,30 — 30 yuzdan, 4,25 — 25. Demak 4,3 m uzoqroq.", en: 'That is right. 4,3 = 4,30, which is 30 hundredths, and 4,25 is 25. So 4,3 m is longer.' },
+    wrong_1: { ru: 'В 4,25 цифр больше, но допиши ноль ко второму и сравни сотые.', uz: "4,25 da raqam ko'p, lekin ikkinchisiga nol qo'shib yuzdanlarni solishtiring.", en: '4,25 has more digits, but add a zero to the second one and compare the hundredths.' },
+    wrong_2: { ru: 'Допиши ноль: 4,30 и 4,25. Сотые одинаковые?', uz: "Nol qo'shing: 4,30 va 4,25. Yuzdanlar bir xilmi?", en: 'Add a zero: 4,30 and 4,25. Are the hundredths the same?' },
+    wrong_3: { ru: 'Сравнить можно: допиши ноль и сравни разряды.', uz: "Solishtirsa bo'ladi: nol qo'shib xonalarni solishtiring.", en: 'They can be compared: add a zero and compare the places.' },
+    fact: { ru: 'Измерительные приборы округляют: весы показывают массу до десятых долей грамма.', uz: "O'lchov asboblari yaxlitlaydi: tarozi massani grammning o'ndan ulushigacha ko'rsatadi.", en: 'Measuring instruments round: kitchen scales show a mass to the nearest tenth of a gram.' },
+    fact_audio: { ru: "Кстати, измерительные приборы тоже округляют. Весы показывают массу до десятых долей грамма.", uz: "Aytgancha, o'lchov asboblari ham yaxlitlaydi. Tarozi massani grammning o'ndan ulushigacha ko'rsatadi.", en: 'By the way, measuring instruments round too. Scales show a mass to the nearest tenth of a gram.' },
     audio: {
-      intro: { ru: "Помоги Шерзоду. Какая попытка дальше: четыре целых двадцать пять сотых или четыре целых три десятых?", uz: "Sherzodga yordam bering. Qaysi urinish uzoqroq: to'rt butun yuzdan yigirma besh yoki to'rt butun o'ndan uch?" },
-      on_correct: { ru: "Верно, четыре целых три десятых дальше.", uz: "To'g'ri, to'rt butun o'ndan uch uzoqroq." },
-      on_wrong: { ru: "Не совсем. Допиши ноль и сравни сотые.", uz: "Unchalik emas. Nol qo'shib yuzdanlarni solishtiring." }
+      intro: { ru: "Помоги Шерзоду. Какая попытка дальше: четыре целых двадцать пять сотых или четыре целых три десятых?", uz: "Sherzodga yordam bering. Qaysi urinish uzoqroq: to'rt butun yuzdan yigirma besh yoki to'rt butun o'ndan uch?", en: 'Help Sherzod. Which attempt is longer, four point two five or four point three?' },
+      on_correct: { ru: "Верно, четыре целых три десятых дальше.", uz: "To'g'ri, to'rt butun o'ndan uch uzoqroq.", en: 'That is right, four point three is longer.' },
+      on_wrong: { ru: "Не совсем. Допиши ноль и сравни сотые.", uz: "Unchalik emas. Nol qo'shib yuzdanlarni solishtiring.", en: 'Not quite. Add a zero and compare the hundredths.' }
     }
   },
 
   // ===== s13 FINAL MC — to'g'ri tasdiq + pi fakti =====
   s13: {
-    eyebrow: { ru: 'Итоговый вопрос', uz: "Yakuniy savol" },
-    title: { ru: 'Найди верное', uz: "To'g'risini toping" },
-    question: { ru: 'Какое утверждение ВЕРНО?', uz: "Qaysi tasdiq TO'G'RI?" },
-    opt0: { ru: '0,5 больше 0,45', uz: "0,5 > 0,45" },
-    opt1: { ru: '0,45 больше 0,5', uz: "0,45 > 0,5" },
-    opt2: { ru: '2,3 округляется до 3', uz: "2,3 ≈ 3" },
-    opt3: { ru: '0,7 равно 0,07', uz: "0,7 = 0,07" },
-    correct_text: { ru: 'Верно. 0,5 = 0,50 это 50 сотых, 0,45 это 45. Значит 0,5 больше.', uz: "To'g'ri. 0,5 = 0,50 — 50 yuzdan, 0,45 — 45. Demak 0,5 katta." },
-    wrong_1: { ru: 'Допиши ноль и сравни 0,50 и 0,45.', uz: "Nol qo'shib 0,50 va 0,45 ni solishtiring." },
-    wrong_2: { ru: '2,3: следующая цифра 3, меньше 5 — вниз, до 2.', uz: "2,3: keyingi raqam 3, 5 dan kichik — pastga, 2 ga." },
-    wrong_3: { ru: 'В 0,7 семёрка в десятых, в 0,07 — в сотых. Разные числа.', uz: "0,7 da 7 o'ndanda, 0,07 da yuzdanda. Har xil son." },
-    fact: { ru: 'Число пи равно 3,14159… и бесконечно. 3,14 — уже округлённое значение.', uz: "Pi soni 3,14159… ga teng va cheksiz. 3,14 — allaqachon yaxlitlangan qiymat." },
+    eyebrow: { ru: 'Итоговый вопрос', uz: "Yakuniy savol", en: 'Final question' },
+    title: { ru: 'Найди верное', uz: "To'g'risini toping", en: 'Find the right one' },
+    question: { ru: 'Какое утверждение ВЕРНО?', uz: "Qaysi tasdiq TO'G'RI?", en: 'Which statement is RIGHT?' },
+    opt0: { ru: '0,5 больше 0,45', uz: "0,5 > 0,45", en: '0,5 is more than 0,45' },
+    opt1: { ru: '0,45 больше 0,5', uz: "0,45 > 0,5", en: '0,45 is more than 0,5' },
+    opt2: { ru: '2,3 округляется до 3', uz: "2,3 ≈ 3", en: '2,3 rounds to 3' },
+    opt3: { ru: '0,7 равно 0,07', uz: "0,7 = 0,07", en: '0,7 equals 0,07' },
+    correct_text: { ru: 'Верно. 0,5 = 0,50 это 50 сотых, 0,45 это 45. Значит 0,5 больше.', uz: "To'g'ri. 0,5 = 0,50 — 50 yuzdan, 0,45 — 45. Demak 0,5 katta.", en: 'That is right. 0,5 = 0,50, which is 50 hundredths, and 0,45 is 45. So 0,5 is bigger.' },
+    wrong_1: { ru: 'Допиши ноль и сравни 0,50 и 0,45.', uz: "Nol qo'shib 0,50 va 0,45 ni solishtiring.", en: 'Add a zero and compare 0,50 with 0,45.' },
+    wrong_2: { ru: '2,3: следующая цифра 3, меньше 5 — вниз, до 2.', uz: "2,3: keyingi raqam 3, 5 dan kichik — pastga, 2 ga.", en: '2,3: the next digit is 3, less than 5, so it rounds down to 2.' },
+    wrong_3: { ru: 'В 0,7 семёрка в десятых, в 0,07 — в сотых. Разные числа.', uz: "0,7 da 7 o'ndanda, 0,07 da yuzdanda. Har xil son.", en: 'In 0,7 the seven is in the tenths and in 0,07 it is in the hundredths. Different numbers.' },
+    fact: { ru: 'Число пи равно 3,14159… и бесконечно. 3,14 — уже округлённое значение.', uz: "Pi soni 3,14159… ga teng va cheksiz. 3,14 — allaqachon yaxlitlangan qiymat.", en: 'Pi is 3,14159… and it goes on for ever. 3,14 is already a rounded value.' },
     audio: {
-      intro: { ru: "Итоговый вопрос. Из четырёх утверждений выбери верное.", uz: "Yakuniy savol. To'rt tasdiqdan to'g'risini tanlang." },
-      on_correct: { ru: "Верно, ноль целых пять десятых больше. Кстати, число пи бесконечно: 3,14 это уже округлённое значение.", uz: "To'g'ri, nol butun o'ndan besh katta. Aytgancha, pi soni cheksiz: 3,14 — allaqachon yaxlitlangan qiymat." },
-      on_wrong: { ru: "Не совсем. Проверь каждое: допиши нули, посмотри следующую цифру.", uz: "Unchalik emas. Har birini tekshiring: nol qo'shing, keyingi raqamga qarang." }
+      intro: { ru: "Итоговый вопрос. Из четырёх утверждений выбери верное.", uz: "Yakuniy savol. To'rt tasdiqdan to'g'risini tanlang.", en: 'The final question. Choose the right one of the four statements.' },
+      on_correct: { ru: "Верно, ноль целых пять десятых больше. Кстати, число пи бесконечно: 3,14 это уже округлённое значение.", uz: "To'g'ri, nol butun o'ndan besh katta. Aytgancha, pi soni cheksiz: 3,14 — allaqachon yaxlitlangan qiymat.", en: 'That is right, nought point five is bigger. By the way, pi goes on for ever: 3,14 is already a rounded value.' },
+      on_wrong: { ru: "Не совсем. Проверь каждое: допиши нули, посмотри следующую цифру.", uz: "Unchalik emas. Har birini tekshiring: nol qo'shing, keyingi raqamga qarang.", en: 'Not quite. Check each one: add zeros and look at the next digit.' }
     }
   },
 
   // ===== s14 SUMMARY =====
   s14: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    heading: { ru: 'Что ты теперь умеешь', uz: "Endi nimani bilasiz" },
-    title: { ru: 'Теперь ты умеешь сравнивать и округлять десятичные', uz: "Endi siz o'nli kasrlarni solishtirish va yaxlitlashni bilasiz" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Сравнивай по разрядам, а не по длине: выровняй по запятой, допиши нули.', uz: "Uzunlik emas, xona bo'yicha solishtiring: vergulni tenglab, nol qo'shing." },
-    main_2: { ru: 'Округляй по следующей цифре: 5 и больше — вверх, меньше — вниз.', uz: "Keyingi raqamga qarab yaxlitlang: 5 va katta — yuqoriga, kichik — pastga." },
-    main_3: { ru: '0,5 = 0,50: нули в конце не меняют число.', uz: "0,5 = 0,50: oxirdagi nollar sonni o'zgartirmaydi." },
-    hook_close: { ru: 'Помнишь загадку? Мафтуна прыгнула выше: 1,50 больше 1,45. Решают разряды, а не число цифр.', uz: "Topishmoq yodingizdami? Maftuna balandroq sakradi: 1,50, 1,45 dan katta. Raqam soni emas, xonalar hal qiladi." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Десятичная дробь — концепт, эквивалентные дроби.', uz: "O'nli kasr — konsept, ekvivalent kasrlar." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Сложение и вычитание десятичных дробей.', uz: "O'nli kasrlarni qo'shish va ayirish." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, мы научились сравнивать и округлять десятичные дроби. Сравниваем по разрядам, выровняв по запятой. Округляем по следующей цифре: пять или больше вверх, меньше вниз. И длина числа не главное.", uz: "Demak, o'nli kasrlarni solishtirish va yaxlitlashni o'rgandik. Vergul bo'yicha tenglab, xona bo'yicha solishtiramiz. Keyingi raqamga qarab yaxlitlaymiz: besh yoki katta yuqoriga, kichik pastga. Va sonning uzunligi muhim emas." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    heading: { ru: 'Что ты теперь умеешь', uz: "Endi nimani bilasiz", en: 'What you can do now' },
+    title: { ru: 'Теперь ты умеешь сравнивать и округлять десятичные', uz: "Endi siz o'nli kasrlarni solishtirish va yaxlitlashni bilasiz", en: 'Now you can compare and round decimals' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Сравнивай по разрядам, а не по длине: выровняй по запятой, допиши нули.', uz: "Uzunlik emas, xona bo'yicha solishtiring: vergulni tenglab, nol qo'shing.", en: 'Compare by place, not by length: line them up by the comma and add zeros.' },
+    main_2: { ru: 'Округляй по следующей цифре: 5 и больше — вверх, меньше — вниз.', uz: "Keyingi raqamga qarab yaxlitlang: 5 va katta — yuqoriga, kichik — pastga.", en: 'Round by the next digit: 5 or more rounds up and less rounds down.' },
+    main_3: { ru: '0,5 = 0,50: нули в конце не меняют число.', uz: "0,5 = 0,50: oxirdagi nollar sonni o'zgartirmaydi.", en: '0,5 = 0,50: zeros at the end do not change the number.' },
+    hook_close: { ru: 'Помнишь загадку? Мафтуна прыгнула выше: 1,50 больше 1,45. Решают разряды, а не число цифр.', uz: "Topishmoq yodingizdami? Maftuna balandroq sakradi: 1,50, 1,45 dan katta. Raqam soni emas, xonalar hal qiladi.", en: 'Remember the puzzle? Maftuna jumped higher: 1,50 is more than 1,45. It is decided by the places, not the number of digits.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Десятичная дробь — концепт, эквивалентные дроби.', uz: "O'nli kasr — konsept, ekvivalent kasrlar.", en: 'What a decimal is, and equivalent fractions.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Сложение и вычитание десятичных дробей.', uz: "O'nli kasrlarni qo'shish va ayirish.", en: 'Adding and subtracting decimals.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, мы научились сравнивать и округлять десятичные дроби. Сравниваем по разрядам, выровняв по запятой. Округляем по следующей цифре: пять или больше вверх, меньше вниз. И длина числа не главное.", uz: "Demak, o'nli kasrlarni solishtirish va yaxlitlashni o'rgandik. Vergul bo'yicha tenglab, xona bo'yicha solishtiramiz. Keyingi raqamga qarab yaxlitlaymiz: besh yoki katta yuqoriga, kichik pastga. Va sonning uzunligi muhim emas.", en: 'So we have learnt to compare and round decimals. We compare by place, lined up by the comma. We round by the next digit: five or more rounds up and less rounds down. And the length of a number is not what matters.' }
   }
 };
 
@@ -1169,9 +1199,9 @@ const Floaters = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT    = { ru: 'Знаешь ли ты? · IT',    uz: "Bilasizmi? · IT" };
-const FB_SPORT = { ru: 'Знаешь ли ты? · Спорт', uz: "Bilasizmi? · Sport" };
-const FB_SCI   = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" };
+const FB_IT    = { ru: 'Знаешь ли ты? · IT',    uz: "Bilasizmi? · IT",    en: 'Did you know? · IT' };
+const FB_SPORT = { ru: 'Знаешь ли ты? · Спорт', uz: "Bilasizmi? · Sport", en: 'Did you know? · Sport' };
+const FB_SCI   = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan", en: 'Did you know? · Science' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1218,10 +1248,10 @@ const DecLabel = ({ value, color, text }) => (
 const PlaceTable = ({ whole = 0, tenths = null, hundredths = null, thousandths = null, highlight = '', places = 3 }) => {
   const t = useT();
   const allCols = [
-    { key: 'birlar', label: { ru: 'Цел.', uz: 'Butun' }, val: whole },
-    { key: 'ondan', label: { ru: 'Дес.', uz: "O'ndan" }, val: tenths },
-    { key: 'yuzdan', label: { ru: 'Сот.', uz: 'Yuzdan' }, val: hundredths },
-    { key: 'mingdan', label: { ru: 'Тыс.', uz: 'Mingdan' }, val: thousandths },
+    { key: 'birlar', label: { ru: 'Цел.', uz: 'Butun', en: 'Wh.' }, val: whole },
+    { key: 'ondan', label: { ru: 'Дес.', uz: "O'ndan", en: 'Tth.' }, val: tenths },
+    { key: 'yuzdan', label: { ru: 'Сот.', uz: 'Yuzdan', en: 'Hth.' }, val: hundredths },
+    { key: 'mingdan', label: { ru: 'Тыс.', uz: 'Mingdan', en: 'Thth.' }, val: thousandths },
   ];
   const cols = allCols.slice(0, 1 + places);
   return (
@@ -1387,7 +1417,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1412,7 +1442,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1513,7 +1543,7 @@ const ScreenRule = ({ screen, onNext, onPrev }) => {
   const reveal = () => { setPhase(1); if (!moreRef.current) { moreRef.current = true; audio.triggerInternal('more'); } };
   const goNext = () => { audio.triggerEvent('button_click', 'next'); onNext(); };
   const navContent = phase === 0
-    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : 'Дальше'}/></>)
+    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : lang === 'en' ? "Next" : 'Дальше'}/></>)
     : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={goNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={phase === 0 ? c5.eyebrow : c6.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -1539,7 +1569,7 @@ const ScreenRule = ({ screen, onNext, onPrev }) => {
             <button className="rule-chip fade-up" onClick={() => setPhase(0)} style={{ position: 'relative' }}>
               <span className="rule-chip-ic" aria-hidden="true"><IconOk/></span>
               <span className="rule-chip-tx">{mt(t(c5.heading))}</span>
-              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : 'показать'}</span>
+              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : lang === 'en' ? "show" : 'показать'}</span>
             </button>
             <h2 className="title h-title fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c6.heading))}</h2>
             <div className="frame fade-up delay-1" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{mt(t(c6.rule_main))}</p></div>
@@ -1659,7 +1689,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         {allDone ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Uchala topshiriq ham yechildi." : 'Все три задачи решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Uchala topshiriq ham yechildi." : lang === 'en' ? "All three problems are done." : 'Все три задачи решены.'}</p>
           </div>
         ) : cur.kind === 'order' ? (
           <>
@@ -1677,7 +1707,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
               {orderCards.map((_, i) => i).filter(i => !placed.includes(i)).map(i => <button key={i} className={`ord-card${flash === i ? ' ord-card-bad' : ''}`} onClick={() => tapCard(i)}>{orderCards[i].label}</button>)}
             </div>}
             {orderHint && !stepDone && <div className="frame-tip fade-up" style={{ display: 'flex', gap: 8 }}><span style={{ color: '#D8A93A' }} aria-hidden="true"><IconNo/></span><p className="body" style={{ margin: 0 }}>{mt(t(cur.hint_wrong))}</p></div>}
-            {stepDone && <FeedbackBlock show={true} isCorrect={true}><p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p><p className="body" style={{ margin: 0 }}>{mt(t(cur.done_text))}</p></FeedbackBlock>}
+            {stepDone && <FeedbackBlock show={true} isCorrect={true}><p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p><p className="body" style={{ margin: 0 }}>{mt(t(cur.done_text))}</p></FeedbackBlock>}
           </>
         ) : (
           <>
@@ -1702,7 +1732,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
             </div>
             <FeedbackBlock show={picked !== null || wrongSet.size > 0} isCorrect={solvedMC} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedMC ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedMC ? '✓' : '✗'}</span>{solvedMC ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedMC ? '✓' : '✗'}</span>{solvedMC ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(t(solvedMC ? cur.ok : cur.no))}</p>
             </FeedbackBlock>
@@ -1798,7 +1828,7 @@ const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
               })}
             </div>
             <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
+              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}</p>
               <p className="body" style={{ margin: 0 }}>{mt(solved ? t(content.correct_text) : t(content[`wrong_${picked}`] || c.wrong_default || content.correct_text))}</p>
             </FeedbackBlock>
             {solved && <FactCard text={c.fact} badge={FB_SCI} anim={<AnimRuler/>}/>}
@@ -1823,7 +1853,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s14;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1848,7 +1878,7 @@ export default function DecimalCompareLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1901,7 +1931,7 @@ export default function DecimalCompareLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

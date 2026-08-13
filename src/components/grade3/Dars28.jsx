@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -122,8 +122,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-28',
-  lessonTitle: { ru: 'Урок 28. Дроби больше целого', uz: "28-dars. Butundan katta kasrlar" }
+  lessonId: 'grade3-28',
+  lessonTitle: { ru: 'Урок 28. Дроби больше целого', uz: "28-dars. Butundan katta kasrlar", en: 'Lesson 28. Fractions bigger than a whole' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 28»): s0 xuk 5 ta chorak · s1 3/4 va 5/4 · s2 ikki lagan
 // (aralash son) · s3 savol-oldin-QOIDA · s4 rasm bo'yicha 7/6 · s5 saralash butundan kichik
@@ -159,15 +159,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: bitta butundan ko'p ulush (darslik 134-bet).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Дроби больше целого', uz: 'Butundan katta kasrlar' },
-    lead: { ru: 'Две лепёшки разрезали на четвертинки, и осталось 5 кусков', uz: "Ikki patir chorakka kesildi, 5 ta bo'lak qoldi" },
-    order_cap: { ru: 'кусков больше, чем в одной лепёшке', uz: "bo'laklar bitta patirdagidan ko'p" },
-    q: { ru: 'Как записать эти 5 четвертинок?', uz: "Bu 5 ta chorakni qanday yozamiz?" },
-    opt0: { ru: '5/4', uz: '5/4' },
-    opt1: { ru: '4/5', uz: '4/5' },
-    opt2: { ru: '9/4', uz: '9/4' },
-    opt3: { ru: '5/8', uz: '5/8' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Дроби больше целого', uz: 'Butundan katta kasrlar', en: 'Fractions bigger than a whole' },
+    lead: { ru: 'Две лепёшки разрезали на четвертинки, и осталось 5 кусков', uz: "Ikki patir chorakka kesildi, 5 ta bo'lak qoldi", en: 'Two flatbreads were cut into quarters, and 5 pieces are left' },
+    order_cap: { ru: 'кусков больше, чем в одной лепёшке', uz: "bo'laklar bitta patirdagidan ko'p", en: 'there are more pieces than in one flatbread' },
+    q: { ru: 'Как записать эти 5 четвертинок?', uz: "Bu 5 ta chorakni qanday yozamiz?", en: 'How do we write these 5 quarters?' },
+    opt0: { ru: '5/4', uz: '5/4', en: '5/4' },
+    opt1: { ru: '4/5', uz: '4/5', en: '4/5' },
+    opt2: { ru: '9/4', uz: '9/4', en: '9/4' },
+    opt3: { ru: '5/8', uz: '5/8', en: '5/8' },
     audio: {
       intro: {
         ru: [
@@ -181,29 +181,31 @@ const CONTENT = {
           "Ikkita patir chorakka kesildi.",
           "Laganda beshta bo'lak qoldi, bitta patirda esa ular atigi to'rtta.",
           "Sizningcha, bu beshta chorakni qanday yozuv bilan ko'rsatamiz?"
-        ]
+        ],
+        en: ['You can find a fraction of a number. Today we will meet a fraction that is bigger than a whole.', 'Two flatbreads were cut into quarters.', 'Five pieces are left on the plate, and one flatbread has only four.', 'Which line do you think shows these five quarters?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, сколько это целых лепёшек.', uz: "To'g'ri! Endi bu nechta butun patir ekanini ko'rasiz." },
-      on_wrong1: { ru: 'Внизу пишут, на сколько частей резали лепёшку. Резали на четыре.', uz: "Pastga patir nechta bo'lakka kesilgani yoziladi. To'rtga kesilgan." },
-      on_wrong2: { ru: 'Куски четвертинки, а не восьмушки. Внизу должна быть четвёрка.', uz: "Bo'laklar chorak, sakkizdan bir emas. Pastda to'rt turishi kerak." },
-      on_idk: { ru: 'Ничего. Сейчас разложим куски по блюдам и посмотрим.', uz: "Hechqisi yo'q. Hozir bo'laklarni laganlarga terib ko'ramiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, сколько это целых лепёшек.', uz: "To'g'ri! Endi bu nechta butun patir ekanini ko'rasiz.", en: 'Right! And now you will see how many whole flatbreads that is.' },
+      on_wrong1: { ru: 'Внизу пишут, на сколько частей резали лепёшку. Резали на четыре.', uz: "Pastga patir nechta bo'lakka kesilgani yoziladi. To'rtga kesilgan.", en: 'Below we write how many parts the flatbread was cut into. It was cut into four.' },
+      on_wrong2: { ru: 'Куски четвертинки, а не восьмушки. Внизу должна быть четвёрка.', uz: "Bo'laklar chorak, sakkizdan bir emas. Pastda to'rt turishi kerak.", en: 'The pieces are quarters, not eighths. There should be a four below.' },
+      on_idk: { ru: 'Ничего. Сейчас разложим куски по блюдам и посмотрим.', uz: "Hechqisi yo'q. Hozir bo'laklarni laganlarga terib ko'ramiz.", en: 'Never mind. Let us lay the pieces out on plates and look.' }
     }
   },
 
   // s1 — IKKI YOZUV: 3/4 butundan kichik, 5/4 katta (darslik 134-bet).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Дробь бывает меньше целого, а бывает больше', uz: "Kasr butundan kichik ham, katta ham bo'ladi" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Дробь бывает меньше целого, а бывает больше', uz: "Kasr butundan kichik ham, katta ham bo'ladi", en: 'A fraction can be smaller than a whole, and it can be bigger' },
     task_line: 'лепёшку режем на четвертинки',
     task_line_uz: "patirni choraklarga kesamiz",
-    step1: { ru: '3/4 меньше целого', uz: '3/4 butundan kichik' },
-    step1_cap: { ru: 'взяли три куска из четырёх, лепёшка не полная', uz: "to'rttadan uchta bo'lak olindi, patir to'lmadi" },
-    step2: { ru: '5/4 больше целого', uz: '5/4 butundan katta' },
-    step2_cap: { ru: 'куска четыре и ещё один, целого не хватило', uz: "to'rtta bo'lak va yana bittasi, butun yetmadi" },
-    res: { ru: '5/4 = 1 целая и 1/4', uz: '5/4 = 1 butun va 1/4' },
-    btn1: { ru: 'Взять три четвертинки', uz: 'Uchta chorak olish' },
-    btn2: { ru: 'Взять пять четвертинок', uz: 'Beshta chorak olish' },
-    done_text: { ru: 'Числитель больше знаменателя, значит дробь больше целого', uz: "Surat maxrajdan katta bo'lsa, kasr butundan katta" },
+    task_line_en: 'we cut the flatbread into quarters',
+    step1: { ru: '3/4 меньше целого', uz: '3/4 butundan kichik', en: '3/4 is smaller than a whole' },
+    step1_cap: { ru: 'взяли три куска из четырёх, лепёшка не полная', uz: "to'rttadan uchta bo'lak olindi, patir to'lmadi", en: 'three pieces out of four were taken, the flatbread is not full' },
+    step2: { ru: '5/4 больше целого', uz: '5/4 butundan katta', en: '5/4 is bigger than a whole' },
+    step2_cap: { ru: 'куска четыре и ещё один, целого не хватило', uz: "to'rtta bo'lak va yana bittasi, butun yetmadi", en: 'four pieces and one more, the whole was not enough' },
+    res: { ru: '5/4 = 1 целая и 1/4', uz: '5/4 = 1 butun va 1/4', en: '5/4 = 1 whole and 1/4' },
+    btn1: { ru: 'Взять три четвертинки', uz: 'Uchta chorak olish', en: 'Take three quarters' },
+    btn2: { ru: 'Взять пять четвертинок', uz: 'Beshta chorak olish', en: 'Take five quarters' },
+    done_text: { ru: 'Числитель больше знаменателя, значит дробь больше целого', uz: "Surat maxrajdan katta bo'lsa, kasr butundan katta", en: 'The numerator is bigger than the denominator, so the fraction is bigger than a whole' },
     audio: {
       ru: [
         'Режем лепёшку на четвертинки и берём разное число кусков.',
@@ -214,24 +216,25 @@ const CONTENT = {
         "Patirni choraklarga kesamiz va turli sonda bo'lak olamiz.",
         "To'rttadan uchta chorak. Patir to'lmadi, demak kasr butundan kichik.",
         "Endi beshta. To'rtta bo'lak butun patir beradi, yana bitta chorak ortadi. Sakkiz emas, to'rtdan besh bu bir butun va to'rtdan bir."
-      ]
+      ],
+      en: ['We cut a flatbread into quarters and take different numbers of pieces.', 'Three quarters out of four. The flatbread is not full, so the fraction is smaller than a whole.', 'And now five. Four pieces make a whole flatbread, and one more quarter is left. Five fourths is one whole and one fourth.']
     }
   },
 
   // s2 — IKKI LAGAN: birinchi to'la, ikkinchisida bitta chorak.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     left_parts: 4,
     left_filled: 4,
     right_parts: 4,
     right_filled: 1,
-    lead: { ru: 'Неправильную дробь удобно читать как целое и остаток', uz: "Noto'g'ri kasrni butun va qoldiq deb o'qish qulay" },
-    capA: { ru: 'первое блюдо полное, это 1 целая', uz: "birinchi lagan to'la, bu 1 butun" },
-    capB: { ru: 'на втором одна четвертинка', uz: "ikkinchisida bitta chorak" },
-    res: { ru: '5/4 = 1 целая 1/4', uz: '5/4 = 1 butun 1/4' },
-    btn1: { ru: 'Собрать целое', uz: "Butunni yig'ish" },
-    btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish" },
-    done_text: { ru: 'Одна целая и одна четвёртая, это смешанное число', uz: "Bir butun va to'rtdan bir, bu aralash son" },
+    lead: { ru: 'Неправильную дробь удобно читать как целое и остаток', uz: "Noto'g'ri kasrni butun va qoldiq deb o'qish qulay", en: 'An improper fraction is handy to read as a whole and a remainder' },
+    capA: { ru: 'первое блюдо полное, это 1 целая', uz: "birinchi lagan to'la, bu 1 butun", en: 'the first plate is full, that is 1 whole' },
+    capB: { ru: 'на втором одна четвертинка', uz: "ikkinchisida bitta chorak", en: 'the second has one quarter' },
+    res: { ru: '5/4 = 1 целая 1/4', uz: '5/4 = 1 butun 1/4', en: '5/4 = 1 whole 1/4' },
+    btn1: { ru: 'Собрать целое', uz: "Butunni yig'ish", en: 'Gather a whole' },
+    btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish", en: 'Show the remainder' },
+    done_text: { ru: 'Одна целая и одна четвёртая, это смешанное число', uz: "Bir butun va to'rtdan bir, bu aralash son", en: 'One whole and one fourth, that is a mixed number' },
     audio: {
       ru: [
         'Разложим пять четвертинок по блюдам.',
@@ -242,164 +245,168 @@ const CONTENT = {
         "Beshta chorakni laganlarga teramiz.",
         "To'rtta bo'lak butun patir bo'lib qo'shiladi. Birinchi lagan to'la.",
         "Beshinchi bo'lak ikkinchi laganga tushadi. Bir butun va to'rtdan bir chiqdi. Bunday yozuv aralash son deb ataladi."
-      ]
+      ],
+      en: ['Let us lay five quarters out on plates.', 'Four pieces add up to a whole flatbread. The first plate is full.', 'The fifth piece goes on the second plate. We got one whole and one fourth. Such a line is called a mixed number.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: qaysi kasr butundan katta.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Какая дробь больше целого?', uz: 'Qaysi kasr butundan katta?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Какая дробь больше целого?', uz: 'Qaysi kasr butundan katta?', en: 'Which fraction is bigger than a whole?' },
     opts: [
-      { ru: 'где числитель больше знаменателя', uz: 'surati maxrajidan katta bo\'lgani' },
-      { ru: 'где числитель меньше знаменателя', uz: 'surati maxrajidan kichigi' },
-      { ru: 'где числитель равен единице', uz: 'surati birga tenggi' },
-      { ru: 'дробь всегда меньше целого', uz: 'kasr har doim butundan kichik' }
+      { ru: 'где числитель больше знаменателя', uz: 'surati maxrajidan katta bo\'lgani', en: 'the one where the numerator is bigger than the denominator' },
+      { ru: 'где числитель меньше знаменателя', uz: 'surati maxrajidan kichigi', en: 'the one where the numerator is smaller than the denominator' },
+      { ru: 'где числитель равен единице', uz: 'surati birga tenggi', en: 'the one where the numerator equals one' },
+      { ru: 'дробь всегда меньше целого', uz: 'kasr har doim butundan kichik', en: 'a fraction is always smaller than a whole' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Так получается дробь меньше целого, она правильная.', uz: "Bunda butundan kichik kasr chiqadi, u to'g'ri kasr." },
-      2: { ru: 'Единица наверху бывает и у мелких долей, дело не в ней.', uz: "Tepadagi bir mayda ulushlarda ham bo'ladi, gap unda emas." },
-      3: { ru: 'Пять четвертинок больше целой лепёшки, значит бывает и так.', uz: "Beshta chorak butun patirdan katta, demak bunday ham bo'ladi." }
+      1: { ru: 'Так получается дробь меньше целого, она правильная.', uz: "Bunda butundan kichik kasr chiqadi, u to'g'ri kasr.", en: 'That gives a fraction smaller than a whole, it is a proper one.' },
+      2: { ru: 'Единица наверху бывает и у мелких долей, дело не в ней.', uz: "Tepadagi bir mayda ulushlarda ham bo'ladi, gap unda emas.", en: 'A one on top happens with small fractions too, that is not the point.' },
+      3: { ru: 'Пять четвертинок больше целой лепёшки, значит бывает и так.', uz: "Beshta chorak butun patirdan katta, demak bunday ham bo'ladi.", en: 'Five quarters are more than a whole flatbread, so it does happen.' }
     },
-    on_correct: { ru: 'Да. Числитель больше знаменателя, значит частей набралось больше целого.', uz: "Ha. Surat maxrajdan katta, demak bo'laklar butundan ko'p yig'ilgan." },
+    on_correct: { ru: 'Да. Числитель больше знаменателя, значит частей набралось больше целого.', uz: "Ha. Surat maxrajdan katta, demak bo'laklar butundan ko'p yig'ilgan.", en: 'Yes. The numerator is bigger than the denominator, so more parts than a whole have gathered.' },
     rule_lines: {
       ru: ['Если числитель меньше знаменателя, дробь правильная и меньше целого.', 'Если числитель больше знаменателя, дробь неправильная и больше целого. А если они равны, дробь равна единице.'],
-      uz: ["Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik.", "Surat maxrajdan katta bo'lsa, kasr noto'g'ri va butundan katta. Ular teng bo'lsa, kasr birga teng."]
+      uz: ["Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik.", "Surat maxrajdan katta bo'lsa, kasr noto'g'ri va butundan katta. Ular teng bo'lsa, kasr birga teng."],
+      en: ['If the numerator is smaller than the denominator, the fraction is proper and smaller than a whole.', 'If the numerator is bigger than the denominator, the fraction is improper and bigger than a whole. And if they are equal, the fraction equals one.']
     },
     rule_ex: '5/4 > 1',
-    rule_speech: { ru: 'пять четвёртых больше единицы', uz: "to'rtdan besh birdan katta" },
+    rule_speech: { ru: 'пять четвёртых больше единицы', uz: "to'rtdan besh birdan katta", en: 'five fourths is bigger than one' },
     audio: {
       intro: {
         ru: 'Теперь главный признак. Какая дробь больше целого?',
-        uz: "Endi asosiy belgi. Qaysi kasr butundan katta?"
+        uz: "Endi asosiy belgi. Qaysi kasr butundan katta?",
+        en: 'Now the main sign. Which fraction is bigger than a whole?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: ikki doira, oltidan yetti.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Какая запись подходит к рисунку?', uz: 'Rasmga qaysi yozuv mos keladi?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Какая запись подходит к рисунку?', uz: 'Rasmga qaysi yozuv mos keladi?', en: 'Which line fits the picture?' },
     fig_left: 6,
     fig_left_filled: 6,
     fig_right: 6,
     fig_right_filled: 1,
     opts: [
-      { ru: '7/6', uz: '7/6' },
-      { ru: '6/7', uz: '6/7' },
-      { ru: '7/12', uz: '7/12' },
-      { ru: '1/6', uz: '1/6' }
+      { ru: '7/6', uz: '7/6', en: '7/6' },
+      { ru: '6/7', uz: '6/7', en: '6/7' },
+      { ru: '7/12', uz: '7/12', en: '7/12' },
+      { ru: '1/6', uz: '1/6', en: '1/6' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Внизу пишут, на сколько частей резали круг. Резали на шесть.', uz: "Pastga doira nechtaga kesilgani yoziladi. Oltiga kesilgan." },
-      2: { ru: 'Двенадцать это части двух кругов вместе. Целое здесь один круг.', uz: "O'n ikki bu ikki doiraning bo'laklari birga. Butun bu yerda bitta doira." },
-      3: { ru: 'Закрашена не одна часть, а семь.', uz: "Bitta emas, yettita bo'lak bo'yalgan." }
+      1: { ru: 'Внизу пишут, на сколько частей резали круг. Резали на шесть.', uz: "Pastga doira nechtaga kesilgani yoziladi. Oltiga kesilgan.", en: 'Below we write how many parts the circle was cut into. It was cut into six.' },
+      2: { ru: 'Двенадцать это части двух кругов вместе. Целое здесь один круг.', uz: "O'n ikki bu ikki doiraning bo'laklari birga. Butun bu yerda bitta doira.", en: 'Twelve is the parts of two circles together. The whole here is one circle.' },
+      3: { ru: 'Закрашена не одна часть, а семь.', uz: "Bitta emas, yettita bo'lak bo'yalgan.", en: 'It is not one part that is shaded, it is seven.' }
     },
     audio: {
-      intro: { ru: 'Первый круг закрашен весь, во втором одна часть. Какая запись подходит?', uz: "Birinchi doira butunlay bo'yalgan, ikkinchisida bitta bo'lak. Qaysi yozuv mos keladi?" },
-      on_correct: { ru: 'Верно. Шесть частей и ещё одна, всего семь шестых.', uz: "To'g'ri. Oltita bo'lak va yana bittasi, jami oltidan yetti." },
-      on_wrong: { ru: 'Посчитай все закрашенные части и вспомни, на сколько резали один круг.', uz: "Bo'yalgan bo'laklarni sanang va bitta doira nechtaga kesilganini eslang." }
+      intro: { ru: 'Первый круг закрашен весь, во втором одна часть. Какая запись подходит?', uz: "Birinchi doira butunlay bo'yalgan, ikkinchisida bitta bo'lak. Qaysi yozuv mos keladi?", en: 'The first circle is fully shaded, the second has one part. Which line fits?' },
+      on_correct: { ru: 'Верно. Шесть частей и ещё одна, всего семь шестых.', uz: "To'g'ri. Oltita bo'lak va yana bittasi, jami oltidan yetti.", en: 'Right. Six parts and one more, seven sixths in all.' },
+      on_wrong: { ru: 'Посчитай все закрашенные части и вспомни, на сколько резали один круг.', uz: "Bo'yalgan bo'laklarni sanang va bitta doira nechtaga kesilganini eslang.", en: 'Count all the shaded parts and remember how many one circle was cut into.' }
     }
   },
 
   // s5 — SARALASH: butundan kichik yoki katta.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи дроби: меньше целого или больше', uz: "Kasrlarni ajrating: butundan kichikmi yoki kattami" },
-    bin_a: { ru: 'меньше целого', uz: 'butundan kichik' },
-    bin_b: { ru: 'больше целого', uz: 'butundan katta' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи дроби: меньше целого или больше', uz: "Kasrlarni ajrating: butundan kichikmi yoki kattami", en: 'Sort the fractions: smaller than a whole or bigger' },
+    bin_a: { ru: 'меньше целого', uz: 'butundan kichik', en: 'smaller than a whole' },
+    bin_b: { ru: 'больше целого', uz: 'butundan katta', en: 'bigger than a whole' },
     items: [
-      { n: { ru: '3/4', uz: '3/4' }, a: true, hint: { ru: 'Три меньше четырёх, целое не набралось.', uz: "Uch to'rtdan kichik, butun yig'ilmadi." } },
-      { n: { ru: '9/8', uz: '9/8' }, a: false, hint: { ru: 'Девять больше восьми, целое уже набралось.', uz: "To'qqiz sakkizdan katta, butun allaqachon yig'ildi." } },
-      { n: { ru: '7/8', uz: '7/8' }, a: true, hint: { ru: 'До целого не хватает одной восьмой.', uz: "Butungacha sakkizdan bir yetmayapti." } },
-      { n: { ru: '5/3', uz: '5/3' }, a: false, hint: { ru: 'Пять больше трёх, есть целое и остаток.', uz: "Besh uchdan katta, butun va qoldiq bor." } }
+      { n: { ru: '3/4', uz: '3/4', en: '3/4' }, a: true, hint: { ru: 'Три меньше четырёх, целое не набралось.', uz: "Uch to'rtdan kichik, butun yig'ilmadi.", en: 'Three is smaller than four, a whole has not gathered.' } },
+      { n: { ru: '9/8', uz: '9/8', en: '9/8' }, a: false, hint: { ru: 'Девять больше восьми, целое уже набралось.', uz: "To'qqiz sakkizdan katta, butun allaqachon yig'ildi.", en: 'Nine is bigger than eight, a whole has already gathered.' } },
+      { n: { ru: '7/8', uz: '7/8', en: '7/8' }, a: true, hint: { ru: 'До целого не хватает одной восьмой.', uz: "Butungacha sakkizdan bir yetmayapti.", en: 'One eighth is missing to make a whole.' } },
+      { n: { ru: '5/3', uz: '5/3', en: '5/3' }, a: false, hint: { ru: 'Пять больше трёх, есть целое и остаток.', uz: "Besh uchdan katta, butun va qoldiq bor.", en: 'Five is bigger than three, there is a whole and a remainder.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре дроби. Сравни этажи и отправь каждую на свою полку.', uz: "To'rtta kasr. Qavatlarni solishtirib, har birini o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Смотрим, что больше, верхнее число или нижнее.', uz: "Hammasi joyida. Yuqoridagi son kattami yoki pastdagimi, shunga qaraymiz." },
-      on_wrong: { ru: 'Сравни числитель со знаменателем, больше ничего не нужно.', uz: "Suratni maxraj bilan solishtiring, boshqa hech narsa kerak emas." }
+      intro: { ru: 'Четыре дроби. Сравни этажи и отправь каждую на свою полку.', uz: "To'rtta kasr. Qavatlarni solishtirib, har birini o'z tokchasiga yuboring.", en: 'Four fractions. Compare the floors and send each one to its shelf.' },
+      on_correct: { ru: 'Все на месте. Смотрим, что больше, верхнее число или нижнее.', uz: "Hammasi joyida. Yuqoridagi son kattami yoki pastdagimi, shunga qaraymiz.", en: 'All in place. We look at which is bigger, the upper number or the lower one.' },
+      on_wrong: { ru: 'Сравни числитель со знаменателем, больше ничего не нужно.', uz: "Suratni maxraj bilan solishtiring, boshqa hech narsa kerak emas.", en: 'Compare the numerator with the denominator, nothing else is needed.' }
     }
   },
 
   // s6 — TEST: surat va maxraj teng.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Чему равна дробь 4/4?', uz: '4/4 kasri nechaga teng?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Чему равна дробь 4/4?', uz: '4/4 kasri nechaga teng?', en: 'What does the fraction 4/4 equal?' },
     opts: [
-      { ru: '1 целой', uz: '1 butunga' },
-      { ru: '4 целым', uz: '4 butunga' },
-      { ru: 'нулю', uz: 'nolga' },
-      { ru: 'половине', uz: 'yarimga' }
+      { ru: '1 целой', uz: '1 butunga', en: '1 whole' },
+      { ru: '4 целым', uz: '4 butunga', en: '4 wholes' },
+      { ru: 'нулю', uz: 'nolga', en: 'zero' },
+      { ru: 'половине', uz: 'yarimga', en: 'a half' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Четыре четвертинки это одна лепёшка, а не четыре.', uz: "To'rtta chorak bu bitta patir, to'rtta emas." },
-      2: { ru: 'Куски есть, значит не ноль.', uz: "Bo'laklar bor, demak nol emas." },
-      3: { ru: 'Половина это две четвертинки, а здесь четыре.', uz: "Yarim bu ikkita chorak, bu yerda esa to'rtta." }
+      1: { ru: 'Четыре четвертинки это одна лепёшка, а не четыре.', uz: "To'rtta chorak bu bitta patir, to'rtta emas.", en: 'Four quarters is one flatbread, not four.' },
+      2: { ru: 'Куски есть, значит не ноль.', uz: "Bo'laklar bor, demak nol emas.", en: 'There are pieces, so it is not zero.' },
+      3: { ru: 'Половина это две четвертинки, а здесь четыре.', uz: "Yarim bu ikkita chorak, bu yerda esa to'rtta.", en: 'A half is two quarters, and here there are four.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Чему равна дробь четыре четвёртых?', uz: "Tez savol. To'rtdan to'rt kasri nechaga teng?" },
-      on_correct: { ru: 'Верно. Все части собрались в целое, это единица.', uz: "To'g'ri. Hamma bo'lak butunga yig'ildi, bu bir." },
-      on_wrong: { ru: 'Собери все четыре четвертинки вместе и посмотри, что вышло.', uz: "To'rtta chorakni birga yig'ib, nima chiqqanini ko'ring." }
+      intro: { ru: 'Быстрый вопрос. Чему равна дробь четыре четвёртых?', uz: "Tez savol. To'rtdan to'rt kasri nechaga teng?", en: 'A quick question. What does the fraction four fourths equal?' },
+      on_correct: { ru: 'Верно. Все части собрались в целое, это единица.', uz: "To'g'ri. Hamma bo'lak butunga yig'ildi, bu bir.", en: 'Right. All the parts gathered into a whole, that is one.' },
+      on_wrong: { ru: 'Собери все четыре четвертинки вместе и посмотри, что вышло.', uz: "To'rtta chorakni birga yig'ib, nima chiqqanini ko'ring.", en: 'Put all four quarters together and see what came out.' }
     }
   },
 
   // s7 — KONSOL: 7/3 dan aralash son (19-darsning qoldiqli bo'lishi ishlaydi).
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Переведи 7/3 в смешанное число', uz: "7/3 ni aralash songa aylantiring" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Переведи 7/3 в смешанное число', uz: "7/3 ni aralash songa aylantiring", en: 'Turn 7/3 into a mixed number' },
     swap_line: '7/3',
     cells: [
-      { head: { ru: 'целых', uz: 'butun' }, label: '7 : 3', ans: 2, hint: { ru: 'Сколько раз по три помещается в семи.', uz: "Yettida uchtadan necha marta joylashadi." } },
-      { head: { ru: 'остаток', uz: 'qoldiq' }, label: { ru: 'частей', uz: 'qism' }, ans: 1, hint: { ru: 'Сколько частей осталось сверх целых.', uz: "Butunlardan tashqari nechta bo'lak qoldi." } },
-      { head: { ru: 'знаменатель', uz: 'maxraj' }, label: { ru: 'не меняется', uz: "o'zgarmaydi" }, ans: 3, hint: { ru: 'Резали на три, так и остаётся.', uz: "Uchga kesilgan edi, shundayligicha qoladi." } }
+      { head: { ru: 'целых', uz: 'butun', en: 'wholes' }, label: '7 : 3', ans: 2, hint: { ru: 'Сколько раз по три помещается в семи.', uz: "Yettida uchtadan necha marta joylashadi.", en: 'How many times three fits into seven.' } },
+      { head: { ru: 'остаток', uz: 'qoldiq', en: 'remainder' }, label: { ru: 'частей', uz: 'qism', en: 'parts' }, ans: 1, hint: { ru: 'Сколько частей осталось сверх целых.', uz: "Butunlardan tashqari nechta bo'lak qoldi.", en: 'How many parts are left over the wholes.' } },
+      { head: { ru: 'знаменатель', uz: 'maxraj', en: 'denominator' }, label: { ru: 'не меняется', uz: "o'zgarmaydi", en: 'does not change' }, ans: 3, hint: { ru: 'Резали на три, так и остаётся.', uz: "Uchga kesilgan edi, shundayligicha qoladi.", en: 'It was cut into three, and it stays that way.' } }
     ],
-    check: { ru: '7/3 = 2 целых 1/3', uz: '7/3 = 2 butun 1/3' },
-    check_label: { ru: 'смешанное число', uz: 'aralash son' },
+    check: { ru: '7/3 = 2 целых 1/3', uz: '7/3 = 2 butun 1/3', en: '7/3 = 2 wholes 1/3' },
+    check_label: { ru: 'смешанное число', uz: 'aralash son', en: 'a mixed number' },
     audio: {
-      intro: { ru: 'Заполни три окна. Сколько целых, сколько частей осталось и какой знаменатель.', uz: "Uchta oynani to'ldiring. Nechta butun, nechta bo'lak qoldi va maxraj qanday." },
-      on_correct: { ru: 'Две целых и одна третья. Это то же самое деление с остатком, что было в уроке про остаток.', uz: "Ikki butun va uchdan bir. Bu qoldiq haqidagi darsdagi qoldiqli bo'lishning o'zi." }
+      intro: { ru: 'Заполни три окна. Сколько целых, сколько частей осталось и какой знаменатель.', uz: "Uchta oynani to'ldiring. Nechta butun, nechta bo'lak qoldi va maxraj qanday.", en: 'Fill three windows. How many wholes, how many parts are left and what the denominator is.' },
+      on_correct: { ru: 'Две целых и одна третья. Это то же самое деление с остатком, что было в уроке про остаток.', uz: "Ikki butun va uchdan bir. Bu qoldiq haqidagi darsdagi qoldiqli bo'lishning o'zi.", en: 'Two wholes and one third. That is the very same division with a remainder we had in the lesson about remainders.' }
     }
   },
 
   // s8 — XATONI TOP: noto'g'ri kasrni inkor qilish (M1).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Кто-то написал: записи 5/4 не бывает, дробь не может быть больше целого. В чём ошибка?', uz: "Kimdir yozibdi: 5/4 degan yozuv bo'lmaydi, kasr butundan katta bo'la olmaydi. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Кто-то написал: записи 5/4 не бывает, дробь не может быть больше целого. В чём ошибка?', uz: "Kimdir yozibdi: 5/4 degan yozuv bo'lmaydi, kasr butundan katta bo'la olmaydi. Xato nimada?", en: 'Someone wrote: there is no such thing as 5/4, a fraction cannot be bigger than a whole. What is the mistake?' },
     fig_line: '5/4',
     opts: [
-      { ru: 'бывает, если частей набрали больше целого', uz: "bo'ladi, agar bo'lak butundan ko'p yig'ilsa" },
-      { ru: 'надо было написать 4/5', uz: '4/5 deb yozish kerak edi' },
-      { ru: 'такие куски нельзя складывать', uz: "bunday bo'laklarni qo'shib bo'lmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'бывает, если частей набрали больше целого', uz: "bo'ladi, agar bo'lak butundan ko'p yig'ilsa", en: 'there is, if more parts than a whole were gathered' },
+      { ru: 'надо было написать 4/5', uz: '4/5 deb yozish kerak edi', en: 'it should have been written 4/5' },
+      { ru: 'такие куски нельзя складывать', uz: "bunday bo'laklarni qo'shib bo'lmaydi", en: 'such pieces cannot be added' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Четыре пятых это совсем другая дробь, куски были бы мельче.', uz: "Beshdan to'rt bu butunlay boshqa kasr, bo'laklar mayda bo'lardi." },
-      2: { ru: 'Складывать куски одного размера можно всегда.', uz: "Bir xil kattalikdagi bo'laklarni qo'shsa bo'ladi." },
-      3: { ru: 'Ошибка есть. Пять четвертинок это целая лепёшка и ещё кусок.', uz: "Xato bor. Beshta chorak bu butun patir va yana bitta bo'lak." }
+      1: { ru: 'Четыре пятых это совсем другая дробь, куски были бы мельче.', uz: "Beshdan to'rt bu butunlay boshqa kasr, bo'laklar mayda bo'lardi.", en: 'Four fifths is a completely different fraction, the pieces would be smaller.' },
+      2: { ru: 'Складывать куски одного размера можно всегда.', uz: "Bir xil kattalikdagi bo'laklarni qo'shsa bo'ladi.", en: 'Pieces of the same size can always be added.' },
+      3: { ru: 'Ошибка есть. Пять четвертинок это целая лепёшка и ещё кусок.', uz: "Xato bor. Beshta chorak bu butun patir va yana bitta bo'lak.", en: 'There is a mistake. Five quarters is a whole flatbread and one more piece.' }
     },
     audio: {
-      intro: { ru: 'Здесь запись объявили невозможной. Найди ошибку в рассуждении.', uz: "Bu yerda yozuvni bo'lmaydi deb aytishibdi. Mulohazadagi xatoni toping." },
-      on_correct: { ru: 'Точно. Кусков просто набралось больше, чем в одном целом.', uz: "Aniq. Bo'laklar bitta butundagidan ko'proq yig'ilgan, xolos." },
-      on_wrong: { ru: 'Вспомни блюдо с пятью четвертинками. Оно существует.', uz: "Beshta chorakli laganni eslang. U bor." }
+      intro: { ru: 'Здесь запись объявили невозможной. Найди ошибку в рассуждении.', uz: "Bu yerda yozuvni bo'lmaydi deb aytishibdi. Mulohazadagi xatoni toping.", en: 'Here a line was declared impossible. Find the mistake in the reasoning.' },
+      on_correct: { ru: 'Точно. Кусков просто набралось больше, чем в одном целом.', uz: "Aniq. Bo'laklar bitta butundagidan ko'proq yig'ilgan, xolos.", en: 'Exactly. More pieces have simply gathered than there are in one whole.' },
+      on_wrong: { ru: 'Вспомни блюдо с пятью четвертинками. Оно существует.', uz: "Beshta chorakli laganni eslang. U bor.", en: 'Remember the plate with five quarters. It exists.' }
     }
   },
 
   // s9 — BIT TUZOG'I: 4/4 ni kasr deb butundan kichik sanash (M4).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит смотрит на блюдо с четырьмя четвертинками', uz: "Bit to'rtta chorakli laganga qaraydi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит смотрит на блюдо с четырьмя четвертинками', uz: "Bit to'rtta chorakli laganga qaraydi", en: 'Bit looks at a plate with four quarters' },
     lines: ['4/4 на блюде', 'все куски на месте'],
     lines_uz: ['laganda 4/4', "hamma bo'lak joyida"],
-    line_cap: { ru: 'Бит: раз это дробь, значит меньше целой лепёшки', uz: "Bit: bu kasr ekan, demak butun patirdan kichik" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, это ровно целая', 'да, дробь всегда меньше'], uz: ["yo'q, bu roppa-rosa butun", 'ha, kasr har doim kichik'] },
+    lines_en: ['4/4 on the plate', 'all the pieces are in place'],
+    line_cap: { ru: 'Бит: раз это дробь, значит меньше целой лепёшки', uz: "Bit: bu kasr ekan, demak butun patirdan kichik", en: 'Bit: since it is a fraction, it is smaller than a whole flatbread' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, это ровно целая', 'да, дробь всегда меньше'], uz: ["yo'q, bu roppa-rosa butun", 'ha, kasr har doim kichik'], en: ['no, that is exactly a whole', 'yes, a fraction is always smaller'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Четыре четвертинки складываются в целую лепёшку, ничего не потерялось. Дробь равна единице.', uz: "Ha. To'rtta chorak butun patirga yig'iladi, hech narsa yo'qolmadi. Kasr birga teng." },
-    trap_wrong: { ru: 'Собери куски вместе. Из четырёх четвертинок получается ровно одна лепёшка.', uz: "Bo'laklarni birga yig'ing. To'rtta chorakdan roppa-rosa bitta patir chiqadi." },
+    trap_correct: { ru: 'Да. Четыре четвертинки складываются в целую лепёшку, ничего не потерялось. Дробь равна единице.', uz: "Ha. To'rtta chorak butun patirga yig'iladi, hech narsa yo'qolmadi. Kasr birga teng.", en: 'Yes. Four quarters add up to a whole flatbread, nothing got lost. The fraction equals one.' },
+    trap_wrong: { ru: 'Собери куски вместе. Из четырёх четвертинок получается ровно одна лепёшка.', uz: "Bo'laklarni birga yig'ing. To'rtta chorakdan roppa-rosa bitta patir chiqadi.", en: 'Put the pieces together. Four quarters make exactly one flatbread.' },
     audio: {
       ru: [
         'Бит смотрит на блюдо и говорит.',
@@ -410,164 +417,170 @@ const CONTENT = {
         "Bit laganga qaraydi va aytadi.",
         "Bu yerda to'rtdan to'rt deb yozilgan. Kasr ekan, demak butun patirdan kichik.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit looks at the plate and says this.', 'It says four fourths here. Since it is a fraction, it is smaller than a whole flatbread.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: 9/3 da nechta butun.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Сколько целых в дроби 9/3?', uz: "9/3 kasrida nechta butun bor?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Сколько целых в дроби 9/3?', uz: "9/3 kasrida nechta butun bor?", en: 'How many wholes are in the fraction 9/3?' },
     ans: 3,
     check: '9 : 3 = 3',
-    check_label: { ru: 'остатка нет', uz: "qoldiq yo'q" },
-    hint: { ru: 'Сколько раз по три помещается в девяти.', uz: "To'qqizda uchtadan necha marta joylashadi." },
+    check_label: { ru: 'остатка нет', uz: "qoldiq yo'q", en: 'no remainder' },
+    hint: { ru: 'Сколько раз по три помещается в девяти.', uz: "To'qqizda uchtadan necha marta joylashadi.", en: 'How many times three fits into nine.' },
     audio: {
-      intro: { ru: 'Сколько целых в дроби девять третьих?', uz: "Uchdan to'qqiz kasrida nechta butun bor?" },
-      on_correct: { ru: 'Три целых, и остатка не осталось.', uz: "Uch butun, qoldiq esa qolmadi." }
+      intro: { ru: 'Сколько целых в дроби девять третьих?', uz: "Uchdan to'qqiz kasrida nechta butun bor?", en: 'How many wholes are in the fraction nine thirds?' },
+      on_correct: { ru: 'Три целых, и остатка не осталось.', uz: "Uch butun, qoldiq esa qolmadi.", en: 'Three wholes, and no remainder was left.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: 5/2 da nechta butun.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Сколько целых в дроби 5/2?', uz: "5/2 kasrida nechta butun bor?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Сколько целых в дроби 5/2?', uz: "5/2 kasrida nechta butun bor?", en: 'How many wholes are in the fraction 5/2?' },
     ans: 2,
-    check: { ru: '5 : 2 = 2 (ост. 1)', uz: '5 : 2 = 2 (qold. 1)' },
-    check_label: { ru: 'и ещё половина', uz: 'va yana yarim' },
-    hint: { ru: 'Две половинки дают целое.', uz: "Ikkita yarim butun beradi." },
+    check: { ru: '5 : 2 = 2 (ост. 1)', uz: '5 : 2 = 2 (qold. 1)', en: '5 : 2 = 2 (rem. 1)' },
+    check_label: { ru: 'и ещё половина', uz: 'va yana yarim', en: 'and a half more' },
+    hint: { ru: 'Две половинки дают целое.', uz: "Ikkita yarim butun beradi.", en: 'Two halves make a whole.' },
     audio: {
-      intro: { ru: 'Сколько целых в дроби пять вторых?', uz: "Ikkidan besh kasrida nechta butun bor?" },
-      on_correct: { ru: 'Две целых и ещё половина.', uz: "Ikki butun va yana yarim." }
+      intro: { ru: 'Сколько целых в дроби пять вторых?', uz: "Ikkidan besh kasrida nechta butun bor?", en: 'How many wholes are in the fraction five halves?' },
+      on_correct: { ru: 'Две целых и ещё половина.', uz: "Ikki butun va yana yarim.", en: 'Two wholes and a half more.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam (11 chorak).
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Блюдо у стелы', uz: 'Stela yonidagi lagan' },
-    q: { ru: 'На блюде 11 четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "Laganda patirning 11 ta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?" },
-    q_speech: { ru: 'на блюде одиннадцать четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "laganda patirning o'n bitta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Блюдо у стелы', uz: 'Stela yonidagi lagan', en: 'A plate at the stele' },
+    q: { ru: 'На блюде 11 четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "Laganda patirning 11 ta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?", en: 'A plate has 11 quarters of a flatbread. How many whole flatbreads can be put together and how many quarters will be left?' },
+    q_speech: { ru: 'на блюде одиннадцать четвертинок лепёшки. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "laganda patirning o'n bitta choragi bor. Nechta butun patir yig'iladi va nechta chorak ortadi?", en: 'a plate has eleven quarters of a flatbread. How many whole flatbreads can be put together and how many quarters will be left?' },
     tbl_heads: [
-      { ru: 'всего кусков', uz: "jami bo'lak" },
-      { ru: 'в лепёшке', uz: 'patirda' },
-      { ru: 'вопрос', uz: 'savol' }
+      { ru: 'всего кусков', uz: "jami bo'lak", en: 'pieces in all' },
+      { ru: 'в лепёшке', uz: 'patirda', en: 'in a flatbread' },
+      { ru: 'вопрос', uz: 'savol', en: 'question' }
     ],
     tbl_cells: ['11', '4', '?'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '11 : 4', uz: '11 : 4' },
-      { ru: '11 · 4', uz: '11 · 4' },
-      { ru: '11 − 4', uz: '11 − 4' },
-      { ru: '11 + 4', uz: '11 + 4' }
+      { ru: '11 : 4', uz: '11 : 4', en: '11 : 4' },
+      { ru: '11 · 4', uz: '11 · 4', en: '11 · 4' },
+      { ru: '11 − 4', uz: '11 − 4', en: '11 − 4' },
+      { ru: '11 + 4', uz: '11 + 4', en: '11 + 4' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Куски собираем по четыре, значит это деление.', uz: "Bo'laklar to'rttadan yig'iladi, demak bu bo'lish." },
-      2: { ru: 'Кусков не станет больше, они уже нарезаны.', uz: "Bo'laklar ko'paymaydi, ular allaqachon kesilgan." },
-      3: { ru: 'Вычитание уберёт только одну лепёшку, а их несколько.', uz: "Ayirish faqat bitta patirni oladi, ular esa bir nechta." }
+      1: { ru: 'Куски собираем по четыре, значит это деление.', uz: "Bo'laklar to'rttadan yig'iladi, demak bu bo'lish.", en: 'We gather the pieces four at a time, so this is division.' },
+      2: { ru: 'Кусков не станет больше, они уже нарезаны.', uz: "Bo'laklar ko'paymaydi, ular allaqachon kesilgan.", en: 'There will not be more pieces, they are already cut.' },
+      3: { ru: 'Вычитание уберёт только одну лепёшку, а их несколько.', uz: "Ayirish faqat bitta patirni oladi, ular esa bir nechta.", en: 'Subtraction takes away only one flatbread, and there are several.' }
     },
-    pick_ok: { ru: 'Верно. Это то самое деление с остатком.', uz: "To'g'ri. Bu o'sha qoldiqli bo'lish." },
-    step1_q: { ru: 'Сколько целых лепёшек получилось?', uz: "Nechta butun patir chiqdi?" },
+    pick_ok: { ru: 'Верно. Это то самое деление с остатком.', uz: "To'g'ri. Bu o'sha qoldiqli bo'lish.", en: 'Right. This is that very division with a remainder.' },
+    step1_q: { ru: 'Сколько целых лепёшек получилось?', uz: "Nechta butun patir chiqdi?", en: 'How many whole flatbreads came out?' },
     ans1: 2,
-    hint1: { ru: 'По четыре куска в каждой лепёшке.', uz: "Har bir patirda to'rttadan bo'lak." },
-    step2_q: { ru: 'Сколько четвертинок осталось?', uz: 'Nechta chorak ortdi?' },
+    hint1: { ru: 'По четыре куска в каждой лепёшке.', uz: "Har bir patirda to'rttadan bo'lak.", en: 'Four pieces in each flatbread.' },
+    step2_q: { ru: 'Сколько четвертинок осталось?', uz: 'Nechta chorak ortdi?', en: 'How many quarters are left?' },
     ans2: 3,
-    hint2: { ru: 'Из одиннадцати убери восемь.', uz: "O'n bittadan sakkizni olib tashlang." },
-    check: { ru: '11/4 = 2 целых 3/4', uz: '11/4 = 2 butun 3/4' },
-    setup_audio: { ru: 'На блюде у стелы остались куски. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidagi laganda bo'laklar qoldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    hint2: { ru: 'Из одиннадцати убери восемь.', uz: "O'n bittadan sakkizni olib tashlang.", en: 'Take eight away from eleven.' },
+    check: { ru: '11/4 = 2 целых 3/4', uz: '11/4 = 2 butun 3/4', en: '11/4 = 2 wholes 3/4' },
+    setup_audio: { ru: 'На блюде у стелы остались куски. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidagi laganda bo'laklar qoldi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'Pieces are left on the plate at the stele. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'На блюде одиннадцать четвертинок. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "Laganda o'n bitta chorak bor. Nechta butun patir yig'iladi va nechta chorak ortadi?" },
-      on_correct: { ru: 'Две целых лепёшки и три четвертинки. Так неправильная дробь становится смешанным числом.', uz: "Ikkita butun patir va uchta chorak. Shunday qilib noto'g'ri kasr aralash songa aylanadi." },
-      on_wrong: { ru: 'Вернись к первому шагу. По сколько кусков в одной лепёшке.', uz: "Birinchi qadamga qayting. Bitta patirda nechtadan bo'lak bor." }
+      intro: { ru: 'На блюде одиннадцать четвертинок. Сколько целых лепёшек можно сложить и сколько четвертинок останется?', uz: "Laganda o'n bitta chorak bor. Nechta butun patir yig'iladi va nechta chorak ortadi?", en: 'A plate has eleven quarters. How many whole flatbreads can be put together and how many quarters will be left?' },
+      on_correct: { ru: 'Две целых лепёшки и три четвертинки. Так неправильная дробь становится смешанным числом.', uz: "Ikkita butun patir va uchta chorak. Shunday qilib noto'g'ri kasr aralash songa aylanadi.", en: 'Two whole flatbreads and three quarters. That is how an improper fraction becomes a mixed number.' },
+      on_wrong: { ru: 'Вернись к первому шагу. По сколько кусков в одной лепёшке.', uz: "Birinchi qadamga qayting. Bitta patirda nechtadan bo'lak bor.", en: 'Go back to the first step. How many pieces are in one flatbread.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Считай, сколько целых собралось', uz: "Uchta topshiriq. Nechta butun yig'ilganini sanang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Считай, сколько целых собралось', uz: "Uchta topshiriq. Nechta butun yig'ilganini sanang", en: 'Three tasks. Count how many wholes have gathered' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Сколько целых в дроби 8/8?', uz: "8/8 kasrida nechta butun bor?" },
-        q_speech: { ru: 'сколько целых в дроби восемь восьмых?', uz: "sakkizdan sakkiz kasrida nechta butun bor?" },
+        q: { ru: 'Сколько целых в дроби 8/8?', uz: "8/8 kasrida nechta butun bor?", en: 'How many wholes are in the fraction 8/8?' },
+        q_speech: { ru: 'сколько целых в дроби восемь восьмых?', uz: "sakkizdan sakkiz kasrida nechta butun bor?", en: 'how many wholes are in the fraction eight eighths?' },
         ans: 1,
-        hint: { ru: 'Все части собрались ровно в одно целое.', uz: "Hamma bo'lak roppa-rosa bitta butunga yig'ildi." }
+        hint: { ru: 'Все части собрались ровно в одно целое.', uz: "Hamma bo'lak roppa-rosa bitta butunga yig'ildi.", en: 'All the parts gathered into exactly one whole.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Сколько целых в дроби 13/5?', uz: "13/5 kasrida nechta butun bor?" },
-        q_speech: { ru: 'сколько целых в дроби тринадцать пятых?', uz: "beshdan o'n uch kasrida nechta butun bor?" },
+        q: { ru: 'Сколько целых в дроби 13/5?', uz: "13/5 kasrida nechta butun bor?", en: 'How many wholes are in the fraction 13/5?' },
+        q_speech: { ru: 'сколько целых в дроби тринадцать пятых?', uz: "beshdan o'n uch kasrida nechta butun bor?", en: 'how many wholes are in the fraction thirteen fifths?' },
         ans: 2,
-        hint: { ru: 'Сколько раз по пять помещается в тринадцати.', uz: "O'n uchda beshtadan necha marta joylashadi." }
+        hint: { ru: 'Сколько раз по пять помещается в тринадцати.', uz: "O'n uchda beshtadan necha marta joylashadi.", en: 'How many times five fits into thirteen.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Сколько целых в дроби 7/2?', uz: "7/2 kasrida nechta butun bor?" },
-        q_speech: { ru: 'сколько целых в дроби семь вторых?', uz: "ikkidan yetti kasrida nechta butun bor?" },
+        q: { ru: 'Сколько целых в дроби 7/2?', uz: "7/2 kasrida nechta butun bor?", en: 'How many wholes are in the fraction 7/2?' },
+        q_speech: { ru: 'сколько целых в дроби семь вторых?', uz: "ikkidan yetti kasrida nechta butun bor?", en: 'how many wholes are in the fraction seven halves?' },
         ans: 3,
-        hint: { ru: 'Две половинки дают одно целое.', uz: "Ikkita yarim bitta butun beradi." }
+        hint: { ru: 'Две половинки дают одно целое.', uz: "Ikkita yarim bitta butun beradi.", en: 'Two halves make one whole.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Смешанное число встречается каждый день. Полтора часа это одна целая и одна вторая часа, а полтора литра это один литр и ещё пол-литра. Слово «полтора» и означает «половина сверх одного».',
-      uz: "Aralash son har kuni uchraydi. Bir yarim soat bu bir butun va soatning yarmi, bir yarim litr esa bir litr va yana yarim litr. «Bir yarim» degani ham «bittadan tashqari yarim» degani."
+      uz: "Aralash son har kuni uchraydi. Bir yarim soat bu bir butun va soatning yarmi, bir yarim litr esa bir litr va yana yarim litr. «Bir yarim» degani ham «bittadan tashqari yarim» degani.",
+      en: 'A mixed number turns up every day. An hour and a half is one whole hour and one half of an hour, and a litre and a half is one litre and half a litre more. The words "and a half" mean exactly "a half on top of one".'
     },
     fact_audio: {
       ru: 'Смешанное число встречается каждый день. Полтора часа это один час и ещё половина часа. Полтора литра это литр и ещё пол-литра. Само слово полтора и значит половина сверх одного. Мы весь урок собирали целое из кусков, и в жизни такие числа звучат так же.',
-      uz: "Aralash son har kuni uchraydi. Bir yarim soat bu bir soat va yana yarim soat. Bir yarim litr bu litr va yana yarim litr. Bir yarim degan so'zning o'zi bittadan tashqari yarim degani. Butun dars davomida biz bo'laklardan butunni yig'dik, hayotda ham bunday sonlar shunday jaranglaydi."
+      uz: "Aralash son har kuni uchraydi. Bir yarim soat bu bir soat va yana yarim soat. Bir yarim litr bu litr va yana yarim litr. Bir yarim degan so'zning o'zi bittadan tashqari yarim degani. Butun dars davomida biz bo'laklardan butunni yig'dik, hayotda ham bunday sonlar shunday jaranglaydi.",
+      en: 'A mixed number turns up every day. An hour and a half is one hour and half an hour more. A litre and a half is a litre and half a litre more. The words and a half mean exactly a half on top of one. All lesson we gathered wholes out of pieces, and in life such numbers sound the same.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. Считай, сколько целых собралось из частей.', uz: "Oxirida uchta topshiriq. Bo'laklardan nechta butun yig'ilganini sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Раздели числитель на знаменатель. Частное это и есть целые.', uz: "Suratni maxrajga bo'ling. Bo'linma butunlar soni bo'ladi." }
+      intro: { ru: 'Три задания напоследок. Считай, сколько целых собралось из частей.', uz: "Oxirida uchta topshiriq. Bo'laklardan nechta butun yig'ilganini sanang.", en: 'Three tasks at the end. Count how many wholes gathered out of the parts.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Раздели числитель на знаменатель. Частное это и есть целые.', uz: "Suratni maxrajga bo'ling. Bo'linma butunlar soni bo'ladi.", en: 'Divide the numerator by the denominator. The quotient is the wholes.' }
     }
   },
 
   // s14 — YAKUN: keyingisi turli kasrlarni taqqoslash (reja 32-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Блюдо разобрано!', uz: 'Lagan ajratildi!' },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Блюдо разобрано!', uz: 'Lagan ajratildi!', en: 'The plate is sorted out!' },
     cando: {
       ru: ['отличаю правильную дробь от неправильной', 'читаю неправильную дробь как целое и остаток', 'знаю, что дробь с равными этажами это единица'],
-      uz: ["to'g'ri kasrni noto'g'risidan ajrataman", "noto'g'ri kasrni butun va qoldiq deb o'qiyman", "qavatlari teng kasr bir ekanini bilaman"]
+      uz: ["to'g'ri kasrni noto'g'risidan ajrataman", "noto'g'ri kasrni butun va qoldiq deb o'qiyman", "qavatlari teng kasr bir ekanini bilaman"],
+      en: ['I tell a proper fraction from an improper one', 'I read an improper fraction as a whole and a remainder', 'I know that a fraction with equal floors is one']
     },
-    rule_recap: { ru: 'Числитель меньше знаменателя — дробь правильная. Больше — неправильная.', uz: "Surat maxrajdan kichik bo'lsa kasr to'g'ri. Katta bo'lsa noto'g'ri." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 19: деление с остатком; урок 25: числитель и знаменатель', uz: "19-dars: qoldiqli bo'lish; 25-dars: surat va maxraj" },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'сравнение дробей разных видов', uz: 'turli xil kasrlarni taqqoslash' },
+    rule_recap: { ru: 'Числитель меньше знаменателя — дробь правильная. Больше — неправильная.', uz: "Surat maxrajdan kichik bo'lsa kasr to'g'ri. Katta bo'lsa noto'g'ri.", en: 'The numerator smaller than the denominator — the fraction is proper. Bigger — improper.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 19: деление с остатком; урок 25: числитель и знаменатель', uz: "19-dars: qoldiqli bo'lish; 25-dars: surat va maxraj", en: 'lesson 19: division with a remainder; lesson 25: the numerator and the denominator' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'сравнение дробей разных видов', uz: 'turli xil kasrlarni taqqoslash', en: 'comparing fractions of different kinds' },
     audio: {
       ru: 'Блюдо разобрано. Запомни главное. Если числитель меньше знаменателя, дробь правильная и меньше целого. Если больше, дробь неправильная, и её можно прочитать как целое с остатком. А если этажи равны, дробь равна единице. В следующий раз научимся сравнивать любые дроби!',
-      uz: "Lagan ajratildi. Asosiysini eslab qoling. Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik. Katta bo'lsa, kasr noto'g'ri, uni butun va qoldiq deb o'qish mumkin. Qavatlar teng bo'lsa, kasr birga teng. Keyingi safar istalgan kasrni taqqoslashni o'rganamiz!"
+      uz: "Lagan ajratildi. Asosiysini eslab qoling. Surat maxrajdan kichik bo'lsa, kasr to'g'ri va butundan kichik. Katta bo'lsa, kasr noto'g'ri, uni butun va qoldiq deb o'qish mumkin. Qavatlar teng bo'lsa, kasr birga teng. Keyingi safar istalgan kasrni taqqoslashni o'rganamiz!",
+      en: 'The plate is sorted out. Remember the main thing. If the numerator is smaller than the denominator, the fraction is proper and smaller than a whole. If it is bigger, the fraction is improper and can be read as a whole with a remainder. And if the floors are equal, the fraction equals one. Next time we will learn to compare any fractions!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Возьмём разное число кусков.', uz: "Turli sonda bo'lak olamiz." },
-  s2:  { ru: 'Разложим по блюдам.', uz: 'Laganlarga teramiz.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Кто-то отказался от записи.', uz: 'Kimdir yozuvni rad etibdi.' },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна дробь.', uz: 'Yana bitta kasr.' },
-  s12: { ru: 'Блюдо у стелы.', uz: 'Stela yonidagi lagan.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Блюдо разобрано. Идём дальше!', uz: 'Lagan ajratildi. Davom etamiz!' }
+  s1:  { ru: 'Возьмём разное число кусков.', uz: "Turli sonda bo'lak olamiz.", en: 'Let us take different numbers of pieces.' },
+  s2:  { ru: 'Разложим по блюдам.', uz: 'Laganlarga teramiz.', en: 'Let us lay them out on plates.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Кто-то отказался от записи.', uz: 'Kimdir yozuvni rad etibdi.', en: 'Someone refused the line.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна дробь.', uz: 'Yana bitta kasr.', en: 'And one more fraction.' },
+  s12: { ru: 'Блюдо у стелы.', uz: 'Stela yonidagi lagan.', en: 'A plate at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Блюдо разобрано. Идём дальше!', uz: 'Lagan ajratildi. Davom etamiz!', en: 'The plate is sorted out. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Куски сложились в целые, остаток на месте. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Bo'laklar butunga yig'ildi, qoldiq joyida. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Bo'laklar butunga yig'ildi, qoldiq joyida. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The pieces added up into wholes and the remainder is in place. Thank you for your help!'
 };
 
 // ============================================================
@@ -770,7 +783,7 @@ const PlatterHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d28slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЦЕЛОЕ И ОСТАТОК' : 'BUTUN VA QOLDIQ'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЦЕЛОЕ И ОСТАТОК', 'BUTUN VA QOLDIQ', 'A WHOLE AND A REMAINDER')}</text>
     {[[152, 4], [206, 1]].map(([cx, fill], i) => (
       <g key={i} transform={`translate(${cx} 134)`}>
         <ellipse cx="0" cy="14" rx="19" ry="5" fill="#FFFFFF" opacity="0.6" stroke="#8A7550" strokeWidth="0.8"/>
@@ -796,7 +809,7 @@ const PlatterHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d28slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: to'la va to'lmagan laganlar ustuni --- */}
     {[[4, 96], [4, 124], [2, 152]].map(([fill, y], i) => (
@@ -980,7 +993,7 @@ const ClockFig = () => {
       <path d="M0 0 L0 -26 A26 26 0 0 1 0 26 Z" fill="#E0A05A"/>
       <line x1="0" y1="-26" x2="0" y2="26" stroke="#8A7550" strokeWidth="1.2"/>
     </g>
-    <text x="110" y="98" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '1 и 1/2 часа' : '1 va 1/2 soat'}</text>
+    <text x="110" y="98" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{tri(lang, '1 и 1/2 часа', '1 va 1/2 soat', '1 and 1/2 hours')}</text>
   </svg>
   );
 };
@@ -1114,7 +1127,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1233,7 +1246,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d28-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d28-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d28-expr">{t(c.step1)}</span>
@@ -1569,7 +1582,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1634,7 +1647,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1770,7 +1783,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d28-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d28-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1885,7 +1898,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1956,7 +1969,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d28-final-scene fade-up delay-1"><PlatterHallScene gathered/></div>
@@ -1977,7 +1990,7 @@ export default function ImproperFracLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2044,7 +2057,7 @@ export default function ImproperFracLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

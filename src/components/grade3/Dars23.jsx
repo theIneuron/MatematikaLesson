@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -131,8 +131,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-23',
-  lessonTitle: { ru: 'Урок 23. Задачи в два действия', uz: "23-dars. Ikki amalli masalalar" }
+  lessonId: 'grade3-23',
+  lessonTitle: { ru: 'Урок 23. Задачи в два действия', uz: "23-dars. Ikki amalli masalalar", en: 'Lesson 23. Two-step word problems' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 23»): s0 xuk 45+54 va 8 kg dan · s1 yechim ikki qadamda ·
 // s2 yashiklar modeli (12 to'la va 3 kg ortiqcha) · s3 savol-oldin-QOIDA · s4 xatoni top
@@ -169,15 +169,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: darslik 31-bet 7-masala. Javob QOLDIQ, bo'linma emas.
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Задачи в два действия', uz: "Ikki amalli masalalar" },
-    lead: { ru: 'Ботир собрал 45 кг помидоров, Сардор 54 кг', uz: "Botir 45 kg, Sardor esa 54 kg pomidor terib oldi" },
-    order_cap: { ru: 'раскладывают в ящики по 8 кг', uz: "pomidorlar 8 kg dan yashiklarga joylanadi" },
-    q: { ru: 'Сколько килограммов помидоров останется?', uz: "Necha kilogramm pomidor ortib qoladi?" },
-    opt0: { ru: '3 кг', uz: '3 kg' },
-    opt1: { ru: '12 кг', uz: '12 kg' },
-    opt2: { ru: '99 кг', uz: '99 kg' },
-    opt3: { ru: '8 кг', uz: '8 kg' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Задачи в два действия', uz: "Ikki amalli masalalar", en: 'Two-step word problems' },
+    lead: { ru: 'Ботир собрал 45 кг помидоров, Сардор 54 кг', uz: "Botir 45 kg, Sardor esa 54 kg pomidor terib oldi", en: 'Botir picked 45 kg of tomatoes, Sardor picked 54 kg' },
+    order_cap: { ru: 'раскладывают в ящики по 8 кг', uz: "pomidorlar 8 kg dan yashiklarga joylanadi", en: 'they are packed into boxes of 8 kg' },
+    q: { ru: 'Сколько килограммов помидоров останется?', uz: "Necha kilogramm pomidor ortib qoladi?", en: 'How many kilograms of tomatoes will be left?' },
+    opt0: { ru: '3 кг', uz: '3 kg', en: '3 kg' },
+    opt1: { ru: '12 кг', uz: '12 kg', en: '12 kg' },
+    opt2: { ru: '99 кг', uz: '99 kg', en: '99 kg' },
+    opt3: { ru: '8 кг', uz: '8 kg', en: '8 kg' },
     audio: {
       intro: {
         ru: [
@@ -191,29 +191,31 @@ const CONTENT = {
           "Botir qirq besh kilogramm, Sardor esa ellik to'rt kilogramm pomidor terib oldi.",
           "Pomidorlar yashiklarga joylanadi, har biriga sakkiz kilogrammdan.",
           "Sizningcha, necha kilogramm ortib qoladi?"
-        ]
+        ],
+        en: ['All block long you were counting. Today you will learn to choose what exactly to count.', 'Botir picked forty five kilograms of tomatoes, Sardor picked fifty four.', 'The tomatoes are packed into boxes, eight kilograms in each.', 'How many kilograms do you think will be left?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, откуда взялись эти три килограмма.', uz: "To'g'ri! Endi bu uch kilogramm qayerdan chiqqanini ko'rasiz." },
-      on_wrong1: { ru: 'Двенадцать это ящики, а спрашивают про килограммы. Смотри, о чём вопрос.', uz: "O'n ikki bu yashiklar soni, savol esa kilogramm haqida. Savolga e'tibor bering." },
-      on_wrong2: { ru: 'Девяносто девять это весь урожай. Его ещё надо разложить по ящикам.', uz: "To'qson to'qqiz bu butun hosil. Uni hali yashiklarga joylash kerak." },
-      on_idk: { ru: 'Ничего. Сначала соберём урожай вместе, потом разложим по ящикам.', uz: "Hechqisi yo'q. Avval hosilni birga yig'amiz, keyin yashiklarga joylaymiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, откуда взялись эти три килограмма.', uz: "To'g'ri! Endi bu uch kilogramm qayerdan chiqqanini ko'rasiz.", en: 'Right! And now you will see where those three kilograms came from.' },
+      on_wrong1: { ru: 'Двенадцать это ящики, а спрашивают про килограммы. Смотри, о чём вопрос.', uz: "O'n ikki bu yashiklar soni, savol esa kilogramm haqida. Savolga e'tibor bering.", en: 'Twelve is the boxes, and the question is about kilograms. Look at what is being asked.' },
+      on_wrong2: { ru: 'Девяносто девять это весь урожай. Его ещё надо разложить по ящикам.', uz: "To'qson to'qqiz bu butun hosil. Uni hali yashiklarga joylash kerak.", en: 'Ninety nine is the whole harvest. It still has to be packed into boxes.' },
+      on_idk: { ru: 'Ничего. Сначала соберём урожай вместе, потом разложим по ящикам.', uz: "Hechqisi yo'q. Avval hosilni birga yig'amiz, keyin yashiklarga joylaymiz.", en: 'Never mind. First we gather the whole harvest, then we pack it into boxes.' }
     }
   },
 
   // s1 — IKKI QADAM: yechim zanjiri (darslik 31-bet 7-masala).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'В задаче два действия, и порядок у них жёсткий', uz: "Masalada ikki amal bor, tartibi esa qat'iy" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'В задаче два действия, и порядок у них жёсткий', uz: "Masalada ikki amal bor, tartibi esa qat'iy", en: 'The problem has two steps, and their order is strict' },
     task_line: '45 кг и 54 кг, ящики по 8 кг',
     task_line_uz: "45 kg va 54 kg, yashiklar 8 kg dan",
+    task_line_en: '45 kg and 54 kg, boxes of 8 kg',
     step1: '45 + 54 = 99',
-    step1_cap: { ru: 'сначала весь урожай вместе', uz: "avval butun hosil birga" },
-    step2: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
-    step2_cap: { ru: 'потом раскладываем по ящикам', uz: "keyin yashiklarga joylaymiz" },
-    res: { ru: 'осталось 3 кг', uz: '3 kg qoldi' },
-    btn1: { ru: 'Собрать вместе', uz: "Birga yig'ish" },
-    btn2: { ru: 'Разложить по ящикам', uz: 'Yashiklarga joylash' },
-    done_text: { ru: 'Два действия, и только второе отвечает на вопрос', uz: "Ikki amal, savolga esa faqat ikkinchisi javob beradi" },
+    step1_cap: { ru: 'сначала весь урожай вместе', uz: "avval butun hosil birga", en: 'first the whole harvest together' },
+    step2: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)', en: '99 : 8 = 12 (rem. 3)' },
+    step2_cap: { ru: 'потом раскладываем по ящикам', uz: "keyin yashiklarga joylaymiz", en: 'then we pack it into boxes' },
+    res: { ru: 'осталось 3 кг', uz: '3 kg qoldi', en: '3 kg left' },
+    btn1: { ru: 'Собрать вместе', uz: "Birga yig'ish", en: 'Gather it together' },
+    btn2: { ru: 'Разложить по ящикам', uz: 'Yashiklarga joylash', en: 'Pack it into boxes' },
+    done_text: { ru: 'Два действия, и только второе отвечает на вопрос', uz: "Ikki amal, savolga esa faqat ikkinchisi javob beradi", en: 'Two steps, and only the second answers the question' },
     audio: {
       ru: [
         'Разберём задачу по шагам.',
@@ -224,24 +226,25 @@ const CONTENT = {
         "Masalani qadamma-qadam ko'rib chiqamiz.",
         "Avval qo'shamiz. Qirq besh va ellik to'rt, to'qson to'qqiz kilogramm bo'ladi.",
         "Endi sakkizga bo'lamiz. O'n ikkita yashik va uch kilogramm ortiqcha chiqadi. Kilogramm so'ralgan edi, demak javob uch."
-      ]
+      ],
+      en: ['Let us work the problem out step by step.', 'First we add. Forty five and fifty four gives ninety nine kilograms.', 'Now we divide by eight. That gives twelve boxes and three kilograms on top. Kilograms were asked for, so the answer is three.']
     }
   },
 
   // s2 — YASHIKLAR: 12 to'la yashik va 3 kg ortiqcha KO'RINADI.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
-    lead: { ru: 'Одно деление, а ответов в нём два', uz: "Bitta bo'lish, javob esa ikkita" },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
+    lead: { ru: 'Одно деление, а ответов в нём два', uz: "Bitta bo'lish, javob esa ikkita", en: 'One division, and two answers inside it' },
     total: 99,
     per: 8,
     full: 12,
     rest: 3,
-    capA: { ru: '12 полных ящиков', uz: "12 ta to'la yashik" },
-    capB: { ru: '3 кг не вошли', uz: "3 kg sig'madi" },
-    res: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
-    btn1: { ru: 'Наполнить ящики', uz: "Yashiklarni to'ldirish" },
-    btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish" },
-    done_text: { ru: 'Частное это ящики, остаток это килограммы', uz: "Bo'linma bu yashiklar, qoldiq bu kilogrammlar" },
+    capA: { ru: '12 полных ящиков', uz: "12 ta to'la yashik", en: '12 full boxes' },
+    capB: { ru: '3 кг не вошли', uz: "3 kg sig'madi", en: '3 kg did not fit' },
+    res: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)', en: '99 : 8 = 12 (rem. 3)' },
+    btn1: { ru: 'Наполнить ящики', uz: "Yashiklarni to'ldirish", en: 'Fill the boxes' },
+    btn2: { ru: 'Показать остаток', uz: "Qoldiqni ko'rsatish", en: 'Show the remainder' },
+    done_text: { ru: 'Частное это ящики, остаток это килограммы', uz: "Bo'linma bu yashiklar, qoldiq bu kilogrammlar", en: 'The quotient is the boxes, the remainder is the kilograms' },
     audio: {
       ru: [
         'Посмотри на ящики.',
@@ -252,161 +255,165 @@ const CONTENT = {
         "Yashiklarga qarang.",
         "O'n ikkita yashik to'la to'ldi. Bu bo'linma.",
         "Uch kilogramm esa yonida qoldi, butun yashikka yetmadi. Bu qoldiq. Bitta hisob, javob esa ikkita."
-      ]
+      ],
+      en: ['Look at the boxes.', 'Twelve boxes were filled to the top. That is the quotient.', 'And three kilograms stayed beside them, not enough for a whole box. That is the remainder. One calculation, and two answers in it.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: nima so'ralgan, o'shani javob qilamiz.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Спросили: сколько ящиков заполнилось. Что берём в ответ?', uz: "So'ralgan savol: nechta yashik to'ldi. Javobga nimani olamiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Спросили: сколько ящиков заполнилось. Что берём в ответ?', uz: "So'ralgan savol: nechta yashik to'ldi. Javobga nimani olamiz?", en: 'The question was: how many boxes were filled. Which do we take as the answer?' },
     opts: [
-      { ru: 'частное', uz: "bo'linmani" },
-      { ru: 'остаток', uz: 'qoldiqni' },
-      { ru: 'делимое', uz: "bo'linuvchini" },
-      { ru: 'сумму', uz: "yig'indini" }
+      { ru: 'частное', uz: "bo'linmani", en: 'the quotient' },
+      { ru: 'остаток', uz: 'qoldiqni', en: 'the remainder' },
+      { ru: 'делимое', uz: "bo'linuvchini", en: 'the dividend' },
+      { ru: 'сумму', uz: "yig'indini", en: 'the sum' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Остаток это то, что не вошло. Ящики считает частное.', uz: "Qoldiq bu sig'magani. Yashiklarni bo'linma sanaydi." },
-      2: { ru: 'Делимое это весь урожай, девяносто девять. Ящиков столько быть не может.', uz: "Bo'linuvchi bu butun hosil, to'qson to'qqiz. Yashiklar shuncha bo'la olmaydi." },
-      3: { ru: 'Сумма была на первом шаге. Вопрос про второй.', uz: "Yig'indi birinchi qadamda edi. Savol ikkinchisi haqida." }
+      1: { ru: 'Остаток это то, что не вошло. Ящики считает частное.', uz: "Qoldiq bu sig'magani. Yashiklarni bo'linma sanaydi.", en: 'The remainder is what did not fit. The boxes are counted by the quotient.' },
+      2: { ru: 'Делимое это весь урожай, девяносто девять. Ящиков столько быть не может.', uz: "Bo'linuvchi bu butun hosil, to'qson to'qqiz. Yashiklar shuncha bo'la olmaydi.", en: 'The dividend is the whole harvest, ninety nine. There cannot be that many boxes.' },
+      3: { ru: 'Сумма была на первом шаге. Вопрос про второй.', uz: "Yig'indi birinchi qadamda edi. Savol ikkinchisi haqida.", en: 'The sum was the first step. The question is about the second.' }
     },
-    on_correct: { ru: 'Да. Вопрос выбирает, какое из двух чисел ответ.', uz: "Ha. Savol ikki sondan qaysi biri javob ekanini tanlaydi." },
+    on_correct: { ru: 'Да. Вопрос выбирает, какое из двух чисел ответ.', uz: "Ha. Savol ikki sondan qaysi biri javob ekanini tanlaydi.", en: 'Yes. The question chooses which of the two numbers is the answer.' },
     rule_lines: {
       ru: ['В задаче в два действия сначала находим то, что можно найти сразу.', 'Потом смотрим на вопрос: он выбирает, частное это или остаток.'],
-      uz: ["Ikki amalli masalada avval darrov topiladiganini topamiz.", "Keyin savolga qaraymiz: u bo'linmami yoki qoldiqmi, o'zi tanlaydi."]
+      uz: ["Ikki amalli masalada avval darrov topiladiganini topamiz.", "Keyin savolga qaraymiz: u bo'linmami yoki qoldiqmi, o'zi tanlaydi."],
+      en: ['In a two-step problem we first find what can be found straight away.', 'Then we look at the question: it chooses whether it is the quotient or the remainder.']
     },
-    rule_ex: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)' },
-    rule_speech: { ru: 'девяносто девять разделить на восемь, двенадцать и три в остатке', uz: "to'qson to'qqizni sakkizga bo'lsak, o'n ikki va uch qoldiq" },
+    rule_ex: { ru: '99 : 8 = 12 (ост. 3)', uz: '99 : 8 = 12 (qold. 3)', en: '99 : 8 = 12 (rem. 3)' },
+    rule_speech: { ru: 'девяносто девять разделить на восемь, двенадцать и три в остатке', uz: "to'qson to'qqizni sakkizga bo'lsak, o'n ikki va uch qoldiq", en: 'ninety nine divided by eight, twelve and three as a remainder' },
     audio: {
       intro: {
         ru: 'Прежде чем считать, надо решить, что именно ищем. Спросили, сколько ящиков заполнилось. Что берём в ответ?',
-        uz: "Hisoblashdan oldin nimani qidirayotganimizni hal qilish kerak. Nechta yashik to'ldi deb so'raldi. Javobga nimani olamiz?"
+        uz: "Hisoblashdan oldin nimani qidirayotganimizni hal qilish kerak. Nechta yashik to'ldi deb so'raldi. Javobga nimani olamiz?",
+        en: 'Before counting we have to decide what exactly we are looking for. The question was how many boxes were filled. Which do we take as the answer?'
       }
     }
   },
 
   // s4 — XATONI TOP: javob bo'linma bilan berilgan, savol esa kilogramm haqida (M1).
   s4: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Спрашивали, сколько килограммов осталось. В чём ошибка?', uz: "Necha kilogramm qolgani so'ralgan edi. Xato nimada?" },
-    fig_line: { ru: '45 + 54 = 99, 99 : 8 = 12, ответ 12 кг', uz: '45 + 54 = 99, 99 : 8 = 12, javob 12 kg' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Спрашивали, сколько килограммов осталось. В чём ошибка?', uz: "Necha kilogramm qolgani so'ralgan edi. Xato nimada?", en: 'The question was how many kilograms were left. What is the mistake?' },
+    fig_line: { ru: '45 + 54 = 99, 99 : 8 = 12, ответ 12 кг', uz: '45 + 54 = 99, 99 : 8 = 12, javob 12 kg', en: '45 + 54 = 99, 99 : 8 = 12, answer 12 kg' },
     opts: [
-      { ru: 'в ответ взяли ящики, а не килограммы', uz: "javobga kilogramm emas, yashik olingan" },
-      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
-      { ru: 'надо было делить на 12', uz: "12 ga bo'lish kerak edi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'в ответ взяли ящики, а не килограммы', uz: "javobga kilogramm emas, yashik olingan", en: 'the answer gives boxes, not kilograms' },
+      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan", en: 'the adding was wrong' },
+      { ru: 'надо было делить на 12', uz: "12 ga bo'lish kerak edi", en: 'it should have been divided by 12' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сорок пять и пятьдесят четыре это девяносто девять. Здесь всё верно.', uz: "Qirq besh va ellik to'rt bu to'qson to'qqiz. Bu yeri to'g'ri." },
-      2: { ru: 'Двенадцать это результат, а не делитель. Делили на восемь.', uz: "O'n ikki bu natija, bo'luvchi emas. Sakkizga bo'lingan." },
-      3: { ru: 'Ошибка есть. Ответ записан в ящиках, а спрашивали килограммы.', uz: "Xato bor. Javob yashikda yozilgan, so'ralgani esa kilogramm." }
+      1: { ru: 'Сорок пять и пятьдесят четыре это девяносто девять. Здесь всё верно.', uz: "Qirq besh va ellik to'rt bu to'qson to'qqiz. Bu yeri to'g'ri.", en: 'Forty five and fifty four is ninety nine. Everything is right here.' },
+      2: { ru: 'Двенадцать это результат, а не делитель. Делили на восемь.', uz: "O'n ikki bu natija, bo'luvchi emas. Sakkizga bo'lingan.", en: 'Twelve is the result, not the divisor. They divided by eight.' },
+      3: { ru: 'Ошибка есть. Ответ записан в ящиках, а спрашивали килограммы.', uz: "Xato bor. Javob yashikda yozilgan, so'ralgani esa kilogramm.", en: 'There is a mistake. The answer is written in boxes, and kilograms were asked for.' }
     },
     audio: {
-      intro: { ru: 'Здесь посчитали правильно, а ответ записали не тот. Найди ошибку.', uz: "Bu yerda to'g'ri hisoblangan, javob esa boshqa yozilgan. Xatoni toping." },
-      on_correct: { ru: 'Точно. Счёт верный, а ответ не на тот вопрос. Остаток три килограмма.', uz: "Aniq. Hisob to'g'ri, javob esa boshqa savolga. Qoldiq uch kilogramm." },
-      on_wrong: { ru: 'Проверь не счёт, а последнюю строку. О чём спрашивали.', uz: "Hisobni emas, oxirgi satrni tekshiring. Nima so'ralgan edi." }
+      intro: { ru: 'Здесь посчитали правильно, а ответ записали не тот. Найди ошибку.', uz: "Bu yerda to'g'ri hisoblangan, javob esa boshqa yozilgan. Xatoni toping.", en: 'Here the counting was right, but the wrong answer was written down. Find the mistake.' },
+      on_correct: { ru: 'Точно. Счёт верный, а ответ не на тот вопрос. Остаток три килограмма.', uz: "Aniq. Hisob to'g'ri, javob esa boshqa savolga. Qoldiq uch kilogramm.", en: 'Exactly. The counting is right, but the answer is to the wrong question. The remainder is three kilograms.' },
+      on_wrong: { ru: 'Проверь не счёт, а последнюю строку. О чём спрашивали.', uz: "Hisobni emas, oxirgi satrni tekshiring. Nima so'ralgan edi.", en: 'Check not the counting but the last line. What was asked.' }
     }
   },
 
   // s5 — SARALASH: savol nimani so'rayapti, bo'linmanimi yoki qoldiqnimi.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи вопросы: где ответ частное, а где остаток', uz: "Savollarni ajrating: qayerda javob bo'linma, qayerda qoldiq" },
-    bin_a: { ru: 'ответ частное', uz: "javob bo'linma" },
-    bin_b: { ru: 'ответ остаток', uz: 'javob qoldiq' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи вопросы: где ответ частное, а где остаток', uz: "Savollarni ajrating: qayerda javob bo'linma, qayerda qoldiq", en: 'Sort the questions: where the answer is the quotient and where it is the remainder' },
+    bin_a: { ru: 'ответ частное', uz: "javob bo'linma", en: 'the answer is the quotient' },
+    bin_b: { ru: 'ответ остаток', uz: 'javob qoldiq', en: 'the answer is the remainder' },
     items: [
-      { n: { ru: 'сколько ящиков', uz: 'nechta yashik' }, a: true, hint: { ru: 'Ящики считает частное.', uz: "Yashiklarni bo'linma sanaydi." } },
-      { n: { ru: 'сколько кг не вошло', uz: "necha kg sig'madi" }, a: false, hint: { ru: 'Не вошло это остаток.', uz: "Sig'magani bu qoldiq." } },
-      { n: { ru: 'по сколько в коробке', uz: 'qutida nechtadan' }, a: true, hint: { ru: 'Поровну в каждой это частное.', uz: "Har birida tengdan bu bo'linma." } },
-      { n: { ru: 'сколько лишних', uz: 'nechtasi ortiqcha' }, a: false, hint: { ru: 'Лишние это то, что не поместилось.', uz: "Ortiqcha bu sig'may qolgani." } }
+      { n: { ru: 'сколько ящиков', uz: 'nechta yashik', en: 'how many boxes' }, a: true, hint: { ru: 'Ящики считает частное.', uz: "Yashiklarni bo'linma sanaydi.", en: 'The boxes are counted by the quotient.' } },
+      { n: { ru: 'сколько кг не вошло', uz: "necha kg sig'madi", en: 'how many kg did not fit' }, a: false, hint: { ru: 'Не вошло это остаток.', uz: "Sig'magani bu qoldiq.", en: 'Did not fit is the remainder.' } },
+      { n: { ru: 'по сколько в коробке', uz: 'qutida nechtadan', en: 'how many in a box' }, a: true, hint: { ru: 'Поровну в каждой это частное.', uz: "Har birida tengdan bu bo'linma.", en: 'An equal share in each is the quotient.' } },
+      { n: { ru: 'сколько лишних', uz: 'nechtasi ortiqcha', en: 'how many are extra' }, a: false, hint: { ru: 'Лишние это то, что не поместилось.', uz: "Ortiqcha bu sig'may qolgani.", en: 'Extra is what did not fit.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре вопроса. Отправь каждый на свою полку, по тому, что он спрашивает.', uz: "To'rtta savol. Har birini nimani so'rashiga qarab o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Теперь ты слышишь вопрос до того, как начал считать.', uz: "Hammasi joyida. Endi siz hisobdan oldin savolni eshitasiz." },
-      on_wrong: { ru: 'Спроси себя. Это про то, что раздали, или про то, что осталось.', uz: "O'zingizdan so'rang. Bu tarqatilgani haqidami yoki qolgani haqidami." }
+      intro: { ru: 'Четыре вопроса. Отправь каждый на свою полку, по тому, что он спрашивает.', uz: "To'rtta savol. Har birini nimani so'rashiga qarab o'z tokchasiga yuboring.", en: 'Four questions. Send each one to its own shelf, by what it asks.' },
+      on_correct: { ru: 'Все на месте. Теперь ты слышишь вопрос до того, как начал считать.', uz: "Hammasi joyida. Endi siz hisobdan oldin savolni eshitasiz.", en: 'All in place. Now you hear the question before you start counting.' },
+      on_wrong: { ru: 'Спроси себя. Это про то, что раздали, или про то, что осталось.', uz: "O'zingizdan so'rang. Bu tarqatilgani haqidami yoki qolgani haqidami.", en: 'Ask yourself. Is it about what was shared out, or about what was left?' }
     }
   },
 
   // s6 — TEST: masalaga qaysi yozuv mos keladi (darslik 26-bet 5-masala).
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Из 91 книги раздали 27, остальные связали по 4. Какая запись подходит?', uz: "91 ta kitobdan 27 tasi tarqatildi, qolgani 4 tadan bog'landi. Qaysi yozuv mos keladi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Из 91 книги раздали 27, остальные связали по 4. Какая запись подходит?', uz: "91 ta kitobdan 27 tasi tarqatildi, qolgani 4 tadan bog'landi. Qaysi yozuv mos keladi?", en: 'Out of 91 books 27 were given out, the rest were tied in bundles of 4. Which line fits?' },
     opts: [
-      { ru: '(91 − 27) : 4', uz: '(91 − 27) : 4' },
-      { ru: '91 − 27 : 4', uz: '91 − 27 : 4' },
-      { ru: '91 : 4 − 27', uz: '91 : 4 − 27' },
-      { ru: '(91 + 27) : 4', uz: '(91 + 27) : 4' }
+      { ru: '(91 − 27) : 4', uz: '(91 − 27) : 4', en: '(91 − 27) : 4' },
+      { ru: '91 − 27 : 4', uz: '91 − 27 : 4', en: '91 − 27 : 4' },
+      { ru: '91 : 4 − 27', uz: '91 : 4 − 27', en: '91 : 4 − 27' },
+      { ru: '(91 + 27) : 4', uz: '(91 + 27) : 4', en: '(91 + 27) : 4' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Без скобок сначала разделится двадцать семь. А делить надо остаток книг.', uz: "Qavssiz avval yigirma yetti bo'linadi. Bo'lish kerak bo'lgani esa qolgan kitoblar." },
-      2: { ru: 'Здесь делят все девяносто одну книгу, включая розданные.', uz: "Bu yerda to'qson bitta kitobning hammasi bo'linadi, tarqatilgani ham." },
-      3: { ru: 'Розданные книги ушли. Их вычитают, а не прибавляют.', uz: "Tarqatilgan kitoblar ketdi. Ular ayiriladi, qo'shilmaydi." }
+      1: { ru: 'Без скобок сначала разделится двадцать семь. А делить надо остаток книг.', uz: "Qavssiz avval yigirma yetti bo'linadi. Bo'lish kerak bo'lgani esa qolgan kitoblar.", en: 'Without brackets twenty seven gets divided first. And what has to be divided is the remaining books.' },
+      2: { ru: 'Здесь делят все девяносто одну книгу, включая розданные.', uz: "Bu yerda to'qson bitta kitobning hammasi bo'linadi, tarqatilgani ham.", en: 'Here all ninety one books are divided, including the ones given out.' },
+      3: { ru: 'Розданные книги ушли. Их вычитают, а не прибавляют.', uz: "Tarqatilgan kitoblar ketdi. Ular ayiriladi, qo'shilmaydi.", en: 'The books given out are gone. They are subtracted, not added.' }
     },
     audio: {
-      intro: { ru: 'Из девяноста одной книги раздали двадцать семь, остальные связали по четыре. Какая запись подходит?', uz: "To'qson bitta kitobdan yigirma yettitasi tarqatildi, qolgani to'rttadan bog'landi. Qaysi yozuv mos keladi?" },
-      on_correct: { ru: 'Верно. Скобки говорят, что вычитание идёт первым.', uz: "To'g'ri. Qavs ayirish birinchi ekanini aytadi." },
-      on_wrong: { ru: 'Подумай, что происходит раньше. Сначала книги раздали, потом связали.', uz: "Nima oldin bo'lishini o'ylang. Avval kitoblar tarqatildi, keyin bog'landi." }
+      intro: { ru: 'Из девяноста одной книги раздали двадцать семь, остальные связали по четыре. Какая запись подходит?', uz: "To'qson bitta kitobdan yigirma yettitasi tarqatildi, qolgani to'rttadan bog'landi. Qaysi yozuv mos keladi?", en: 'Out of ninety one books twenty seven were given out, the rest were tied in bundles of four. Which line fits?' },
+      on_correct: { ru: 'Верно. Скобки говорят, что вычитание идёт первым.', uz: "To'g'ri. Qavs ayirish birinchi ekanini aytadi.", en: 'Right. The brackets say that the subtraction goes first.' },
+      on_wrong: { ru: 'Подумай, что происходит раньше. Сначала книги раздали, потом связали.', uz: "Nima oldin bo'lishini o'ylang. Avval kitoblar tarqatildi, keyin bog'landi.", en: 'Think about what happens earlier. First the books were given out, then tied up.' }
     }
   },
 
   // s7 — KONSOL: o'sha masala qadamlab, uchinchi katak — tekshirish (20-dars).
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Заполни консоль по шагам', uz: "Konsolni qadamma-qadam to'ldiring" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Заполни консоль по шагам', uz: "Konsolni qadamma-qadam to'ldiring", en: 'Fill the console step by step' },
     swap_line: '(91 − 27) : 4',
     cells: [
-      { head: { ru: 'шаг 1', uz: '1-qadam' }, label: '91 − 27', ans: 64, hint: { ru: 'Убери розданные книги.', uz: "Tarqatilgan kitoblarni olib tashlang." } },
-      { head: { ru: 'шаг 2', uz: '2-qadam' }, label: '64 : 4', ans: 16, hint: { ru: 'Шестьдесят это четыре по пятнадцать, и ещё четыре.', uz: "Oltmish bu to'rtta o'n beshtadan, yana to'rt." } },
-      { head: { ru: 'проверка', uz: 'tekshirish' }, label: '16 · 4', ans: 64, hint: { ru: 'Умножь ответ на делитель.', uz: "Javobni bo'luvchiga ko'paytiring." } }
+      { head: { ru: 'шаг 1', uz: '1-qadam', en: 'step 1' }, label: '91 − 27', ans: 64, hint: { ru: 'Убери розданные книги.', uz: "Tarqatilgan kitoblarni olib tashlang.", en: 'Take away the books that were given out.' } },
+      { head: { ru: 'шаг 2', uz: '2-qadam', en: 'step 2' }, label: '64 : 4', ans: 16, hint: { ru: 'Шестьдесят это четыре по пятнадцать, и ещё четыре.', uz: "Oltmish bu to'rtta o'n beshtadan, yana to'rt.", en: 'Sixty is four times fifteen, and four more.' } },
+      { head: { ru: 'проверка', uz: 'tekshirish', en: 'check' }, label: '16 · 4', ans: 64, hint: { ru: 'Умножь ответ на делитель.', uz: "Javobni bo'luvchiga ko'paytiring.", en: 'Multiply the answer by the divisor.' } }
     ],
     check: '(91 − 27) : 4 = 16',
-    check_label: { ru: 'вся задача одной строкой', uz: 'butun masala bitta satrda' },
+    check_label: { ru: 'вся задача одной строкой', uz: 'butun masala bitta satrda', en: 'the whole problem in one line' },
     audio: {
-      intro: { ru: 'Заполни три окна. Первое это вычитание, второе деление, третье проверка.', uz: "Uchta oynani to'ldiring. Birinchisi ayirish, ikkinchisi bo'lish, uchinchisi tekshirish." },
-      on_correct: { ru: 'Шестнадцать связок, и проверка сошлась. Вся задача уместилась в одну строку со скобками.', uz: "O'n oltita bog'lam, tekshirish ham mos keldi. Butun masala qavsli bitta satrga sig'di." }
+      intro: { ru: 'Заполни три окна. Первое это вычитание, второе деление, третье проверка.', uz: "Uchta oynani to'ldiring. Birinchisi ayirish, ikkinchisi bo'lish, uchinchisi tekshirish.", en: 'Fill three windows. The first is the subtraction, the second the division, the third the check.' },
+      on_correct: { ru: 'Шестнадцать связок, и проверка сошлась. Вся задача уместилась в одну строку со скобками.', uz: "O'n oltita bog'lam, tekshirish ham mos keldi. Butun masala qavsli bitta satrga sig'di.", en: 'Sixteen bundles, and the check adds up. The whole problem fitted into one line with brackets.' }
     }
   },
 
   // s8 — XATONI TOP: ikkinchi qadamda amal noto'g'ri tanlangan (darslik 26-bet 3-masala).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: '48 помидоров в 3 банки. Сколько нужно на 5 таких банок? В чём ошибка?', uz: "48 dona pomidor 3 ta bankaga. 5 ta shunday bankaga nechta kerak? Xato nimada?" },
-    fig_line: { ru: '48 : 3 = 16, 16 : 5 = 3 (ост. 1)', uz: '48 : 3 = 16, 16 : 5 = 3 (qold. 1)' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: '48 помидоров в 3 банки. Сколько нужно на 5 таких банок? В чём ошибка?', uz: "48 dona pomidor 3 ta bankaga. 5 ta shunday bankaga nechta kerak? Xato nimada?", en: '48 tomatoes in 3 jars. How many are needed for 5 such jars? What is the mistake?' },
+    fig_line: { ru: '48 : 3 = 16, 16 : 5 = 3 (ост. 1)', uz: '48 : 3 = 16, 16 : 5 = 3 (qold. 1)', en: '48 : 3 = 16, 16 : 5 = 3 (rem. 1)' },
     opts: [
-      { ru: 'на втором шаге надо умножать', uz: "ikkinchi qadamda ko'paytirish kerak" },
-      { ru: 'на первом шаге надо умножать', uz: "birinchi qadamda ko'paytirish kerak" },
-      { ru: '48 на 3 не делится', uz: "48 uchga bo'linmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'на втором шаге надо умножать', uz: "ikkinchi qadamda ko'paytirish kerak", en: 'the second step should be multiplying' },
+      { ru: 'на первом шаге надо умножать', uz: "birinchi qadamda ko'paytirish kerak", en: 'the first step should be multiplying' },
+      { ru: '48 на 3 не делится', uz: "48 uchga bo'linmaydi", en: '48 does not divide by 3' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Первый шаг верный, он показывает, сколько в одной банке.', uz: "Birinchi qadam to'g'ri, u bitta bankada nechta borligini ko'rsatadi." },
-      2: { ru: 'Сорок восемь делится на три. Получается шестнадцать.', uz: "Qirq sakkiz uchga bo'linadi. O'n olti chiqadi." },
-      3: { ru: 'Банок стало больше, значит и помидоров нужно больше. Делением больше не станет.', uz: "Banka ko'paydi, demak pomidor ham ko'proq kerak. Bo'lish bilan ko'paymaydi." }
+      1: { ru: 'Первый шаг верный, он показывает, сколько в одной банке.', uz: "Birinchi qadam to'g'ri, u bitta bankada nechta borligini ko'rsatadi.", en: 'The first step is right, it shows how many are in one jar.' },
+      2: { ru: 'Сорок восемь делится на три. Получается шестнадцать.', uz: "Qirq sakkiz uchga bo'linadi. O'n olti chiqadi.", en: 'Forty eight does divide by three. It gives sixteen.' },
+      3: { ru: 'Банок стало больше, значит и помидоров нужно больше. Делением больше не станет.', uz: "Banka ko'paydi, demak pomidor ham ko'proq kerak. Bo'lish bilan ko'paymaydi.", en: 'There are more jars now, so more tomatoes are needed. Dividing will not make more.' }
     },
     audio: {
-      intro: { ru: 'Первый шаг здесь правильный, а второй нет. Найди ошибку.', uz: "Bu yerda birinchi qadam to'g'ri, ikkinchisi esa yo'q. Xatoni toping." },
-      on_correct: { ru: 'Верно. В одной банке шестнадцать, а банок пять. Шестнадцать умножить на пять, восемьдесят.', uz: "To'g'ri. Bitta bankada o'n olti, banka esa beshta. O'n oltini beshga ko'paytiramiz, sakson." },
-      on_wrong: { ru: 'Спроси себя, чего стало больше. Банок стало больше, значит и помидоров.', uz: "O'zingizdan so'rang, nima ko'paydi. Banka ko'paydi, demak pomidor ham." }
+      intro: { ru: 'Первый шаг здесь правильный, а второй нет. Найди ошибку.', uz: "Bu yerda birinchi qadam to'g'ri, ikkinchisi esa yo'q. Xatoni toping.", en: 'The first step here is right and the second is not. Find the mistake.' },
+      on_correct: { ru: 'Верно. В одной банке шестнадцать, а банок пять. Шестнадцать умножить на пять, восемьдесят.', uz: "To'g'ri. Bitta bankada o'n olti, banka esa beshta. O'n oltini beshga ko'paytiramiz, sakson.", en: 'Right. One jar has sixteen, and there are five jars. Sixteen times five, eighty.' },
+      on_wrong: { ru: 'Спроси себя, чего стало больше. Банок стало больше, значит и помидоров.', uz: "O'zingizdan so'rang, nima ko'paydi. Banka ko'paydi, demak pomidor ham.", en: 'Ask yourself what got bigger. There are more jars, so more tomatoes.' }
     }
   },
 
   // s9 — BIT TUZOG'I: qoldiq borligi yana bitta yashik talab qiladi (yopiq maydon).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит смотрит на решение и делает вывод', uz: "Bit yechimga qarab xulosa chiqaradi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит смотрит на решение и делает вывод', uz: "Bit yechimga qarab xulosa chiqaradi", en: 'Bit looks at the solution and draws a conclusion' },
     lines: ['99 : 8 = 12 (ост. 3)', '12 ящиков, 3 кг рядом'],
     lines_uz: ['99 : 8 = 12 (3 qold.)', "12 yashik, yonida 3 kg"],
-    line_cap: { ru: 'Бит: значит, двенадцати ящиков хватит, чтобы увезти весь урожай', uz: "Bit: demak, butun hosilni olib ketishga o'n ikkita yashik yetadi" },
-    trap_label: { ru: 'Так ли это?', uz: "Shundaymi?" },
-    trap_opts: { ru: ['нет, нужен ещё один ящик', 'да, двенадцати хватит'], uz: ["yo'q, yana bitta yashik kerak", "ha, o'n ikkita yetadi"] },
+    lines_en: ['99 : 8 = 12 (rem. 3)', '12 boxes, 3 kg beside them'],
+    line_cap: { ru: 'Бит: значит, двенадцати ящиков хватит, чтобы увезти весь урожай', uz: "Bit: demak, butun hosilni olib ketishga o'n ikkita yashik yetadi", en: 'Bit: so twelve boxes are enough to take the whole harvest away' },
+    trap_label: { ru: 'Так ли это?', uz: "Shundaymi?", en: 'Is that so?' },
+    trap_opts: { ru: ['нет, нужен ещё один ящик', 'да, двенадцати хватит'], uz: ["yo'q, yana bitta yashik kerak", "ha, o'n ikkita yetadi"], en: ['no, one more box is needed', 'yes, twelve is enough'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Три килограмма никуда не денутся, для них нужен тринадцатый ящик. Он поедет неполным.', uz: "Ha. Uch kilogramm yo'qolmaydi, ular uchun o'n uchinchi yashik kerak. U to'lmagan holda ketadi." },
-    trap_wrong: { ru: 'А три килограмма куда? Остаток тоже надо увезти, значит ящиков тринадцать.', uz: "Uch kilogramm-chi? Qoldiqni ham olib ketish kerak, demak yashik o'n uchta." },
+    trap_correct: { ru: 'Да. Три килограмма никуда не денутся, для них нужен тринадцатый ящик. Он поедет неполным.', uz: "Ha. Uch kilogramm yo'qolmaydi, ular uchun o'n uchinchi yashik kerak. U to'lmagan holda ketadi.", en: 'Yes. Three kilograms will not disappear, they need a thirteenth box. It will go only part full.' },
+    trap_wrong: { ru: 'А три килограмма куда? Остаток тоже надо увезти, значит ящиков тринадцать.', uz: "Uch kilogramm-chi? Qoldiqni ham olib ketish kerak, demak yashik o'n uchta.", en: 'And where do the three kilograms go? The remainder has to be taken away too, so there are thirteen boxes.' },
     audio: {
       ru: [
         'Бит посмотрел на решение и говорит.',
@@ -417,164 +424,170 @@ const CONTENT = {
         "Bit yechimga qaradi va aytadi.",
         "O'n ikkita yashik, demak butun hosilni olib ketishga o'n ikkitasi yetadi.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit looked at the solution and says this.', 'Twelve boxes, so twelve are enough to take the whole harvest away.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: darslik 26-bet 3-masala, endi to'g'ri yechim bilan.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: '48 помидоров разложили в 3 банки поровну. Сколько помидоров нужно на 5 таких банок?', uz: "48 dona pomidor 3 ta bankaga teng qismlarga bo'lib solindi. 5 ta shunday bankaga necha dona pomidor kerak?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: '48 помидоров разложили в 3 банки поровну. Сколько помидоров нужно на 5 таких банок?', uz: "48 dona pomidor 3 ta bankaga teng qismlarga bo'lib solindi. 5 ta shunday bankaga necha dona pomidor kerak?", en: '48 tomatoes were put into 3 jars equally. How many tomatoes are needed for 5 such jars?' },
     ans: 80,
     check: '48 : 3 = 16, 16 · 5 = 80',
-    check_label: { ru: 'сначала в одной банке, потом в пяти', uz: 'avval bitta bankada, keyin beshtasida' },
-    hint: { ru: 'Узнай, сколько в одной банке, и повтори это пять раз.', uz: "Bitta bankada nechta ekanini biling va buni besh marta takrorlang." },
+    check_label: { ru: 'сначала в одной банке, потом в пяти', uz: 'avval bitta bankada, keyin beshtasida', en: 'first one jar, then five' },
+    hint: { ru: 'Узнай, сколько в одной банке, и повтори это пять раз.', uz: "Bitta bankada nechta ekanini biling va buni besh marta takrorlang.", en: 'Find out how many are in one jar and repeat that five times.' },
     audio: {
-      intro: { ru: 'Сорок восемь помидоров разложили в три банки поровну. Сколько нужно на пять таких банок?', uz: "Qirq sakkiz dona pomidor uchta bankaga teng bo'lib solindi. Beshta shunday bankaga nechta kerak?" },
-      on_correct: { ru: 'Восемьдесят. Первый шаг деление, второй умножение.', uz: "Sakson. Birinchi qadam bo'lish, ikkinchisi ko'paytirish." }
+      intro: { ru: 'Сорок восемь помидоров разложили в три банки поровну. Сколько нужно на пять таких банок?', uz: "Qirq sakkiz dona pomidor uchta bankaga teng bo'lib solindi. Beshta shunday bankaga nechta kerak?", en: 'Forty eight tomatoes were put into three jars equally. How many are needed for five such jars?' },
+      on_correct: { ru: 'Восемьдесят. Первый шаг деление, второй умножение.', uz: "Sakson. Birinchi qadam bo'lish, ikkinchisi ko'paytirish.", en: 'Eighty. The first step is division, the second is multiplication.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: darslik 28-bet 3-masala (ikki xonaliga bo'lish, 18-dars bonusi).
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'В библиотеку привезли 96 книг, по 16 книг в связке. Сколько связок привезли?', uz: "Kutubxonaga 96 ta kitob olib kelindi. Har bir bog'lamda 16 tadan bo'lsa, nechta bog'lam keltirilgan?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'В библиотеку привезли 96 книг, по 16 книг в связке. Сколько связок привезли?', uz: "Kutubxonaga 96 ta kitob olib kelindi. Har bir bog'lamda 16 tadan bo'lsa, nechta bog'lam keltirilgan?", en: '96 books were brought to the library, 16 books in a bundle. How many bundles were brought?' },
     ans: 6,
     check: '16 · 6 = 96',
-    check_label: { ru: 'проверка умножением', uz: "ko'paytirib tekshirish" },
-    hint: { ru: 'Подбирай. По шестнадцать пять раз это восемьдесят, мало.', uz: "Tanlab ko'ring. O'n oltitadan besh marta bu sakson, kam." },
+    check_label: { ru: 'проверка умножением', uz: "ko'paytirib tekshirish", en: 'a check by multiplying' },
+    hint: { ru: 'Подбирай. По шестнадцать пять раз это восемьдесят, мало.', uz: "Tanlab ko'ring. O'n oltitadan besh marta bu sakson, kam.", en: 'Try it out. Sixteen five times is eighty, too few.' },
     audio: {
-      intro: { ru: 'В библиотеку привезли девяносто шесть книг, по шестнадцать в связке. Сколько получилось связок?', uz: "Kutubxonaga to'qson oltita kitob keltirildi, bog'lamda o'n oltitadan. Nechta bog'lam bo'ldi?" },
-      on_correct: { ru: 'Шесть связок. Проверка сошлась, шестнадцать на шесть это девяносто шесть.', uz: "Oltita bog'lam. Tekshirish mos keldi, o'n oltini oltiga ko'paytirsak to'qson olti." }
+      intro: { ru: 'В библиотеку привезли девяносто шесть книг, по шестнадцать в связке. Сколько получилось связок?', uz: "Kutubxonaga to'qson oltita kitob keltirildi, bog'lamda o'n oltitadan. Nechta bog'lam bo'ldi?", en: 'Ninety six books were brought to the library, sixteen in a bundle. How many bundles came out?' },
+      on_correct: { ru: 'Шесть связок. Проверка сошлась, шестнадцать на шесть это девяносто шесть.', uz: "Oltita bog'lam. Tekshirish mos keldi, o'n oltini oltiga ko'paytirsak to'qson olti.", en: 'Six bundles. The check adds up, sixteen times six is ninety six.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam (darslik 26-bet 3-masala naqshi, boshqa sonlar).
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Заказ мастерской', uz: 'Ustaxona buyurtmasi' },
-    q: { ru: '56 деталей разложили в 4 коробки поровну. Сколько деталей в 7 таких коробках?', uz: "56 ta detal 4 ta qutiga teng bo'lib joylandi. 7 ta shunday qutida nechta detal bo'ladi?" },
-    q_speech: { ru: 'пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей в семи таких коробках?', uz: "ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Заказ мастерской', uz: 'Ustaxona buyurtmasi', en: 'A workshop order' },
+    q: { ru: '56 деталей разложили в 4 коробки поровну. Сколько деталей в 7 таких коробках?', uz: "56 ta detal 4 ta qutiga teng bo'lib joylandi. 7 ta shunday qutida nechta detal bo'ladi?", en: '56 parts were put into 4 boxes equally. How many parts are in 7 such boxes?' },
+    q_speech: { ru: 'пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей в семи таких коробках?', uz: "ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?", en: 'fifty six parts were put into four boxes equally. How many parts are in seven such boxes?' },
     tbl_heads: [
-      { ru: 'всего деталей', uz: 'jami detal' },
-      { ru: 'коробок', uz: 'quti' },
-      { ru: 'нужно коробок', uz: 'kerakli quti' }
+      { ru: 'всего деталей', uz: 'jami detal', en: 'parts in all' },
+      { ru: 'коробок', uz: 'quti', en: 'boxes' },
+      { ru: 'нужно коробок', uz: 'kerakli quti', en: 'boxes needed' }
     ],
     tbl_cells: ['56', '4', '7'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '56 : 4', uz: '56 : 4' },
-      { ru: '56 · 4', uz: '56 · 4' },
-      { ru: '56 · 7', uz: '56 · 7' },
-      { ru: '4 · 7', uz: '4 · 7' }
+      { ru: '56 : 4', uz: '56 : 4', en: '56 : 4' },
+      { ru: '56 · 4', uz: '56 · 4', en: '56 · 4' },
+      { ru: '56 · 7', uz: '56 · 7', en: '56 · 7' },
+      { ru: '4 · 7', uz: '4 · 7', en: '4 · 7' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сначала надо узнать, сколько в одной коробке.', uz: "Avval bitta qutida nechta ekanini bilish kerak." },
-      2: { ru: 'Умножать пока нечего, сколько в одной коробке, ещё неизвестно.', uz: "Hozircha ko'paytiradigan narsa yo'q, bitta qutida nechta ekani hali noma'lum." },
-      3: { ru: 'Это число коробок, а не деталей.', uz: "Bu quti soni, detal soni emas." }
+      1: { ru: 'Сначала надо узнать, сколько в одной коробке.', uz: "Avval bitta qutida nechta ekanini bilish kerak.", en: 'First we have to find out how many are in one box.' },
+      2: { ru: 'Умножать пока нечего, сколько в одной коробке, ещё неизвестно.', uz: "Hozircha ko'paytiradigan narsa yo'q, bitta qutida nechta ekani hali noma'lum.", en: 'There is nothing to multiply yet, how many are in one box is still unknown.' },
+      3: { ru: 'Это число коробок, а не деталей.', uz: "Bu quti soni, detal soni emas.", en: 'That is the number of boxes, not of parts.' }
     },
-    pick_ok: { ru: 'Верно. Сначала одна коробка, потом семь.', uz: "To'g'ri. Avval bitta quti, keyin yetti." },
-    step1_q: { ru: 'Сколько деталей в одной коробке?', uz: 'Bitta qutida nechta detal?' },
+    pick_ok: { ru: 'Верно. Сначала одна коробка, потом семь.', uz: "To'g'ri. Avval bitta quti, keyin yetti.", en: 'Right. First one box, then seven.' },
+    step1_q: { ru: 'Сколько деталей в одной коробке?', uz: 'Bitta qutida nechta detal?', en: 'How many parts are in one box?' },
     ans1: 14,
-    hint1: { ru: 'Пятьдесят шесть раздели на четыре.', uz: "Ellik oltini to'rtga bo'ling." },
-    step2_q: { ru: 'Сколько деталей в 7 коробках?', uz: '7 ta qutida nechta detal?' },
+    hint1: { ru: 'Пятьдесят шесть раздели на четыре.', uz: "Ellik oltini to'rtga bo'ling.", en: 'Divide fifty six by four.' },
+    step2_q: { ru: 'Сколько деталей в 7 коробках?', uz: '7 ta qutida nechta detal?', en: 'How many parts are in 7 boxes?' },
     ans2: 98,
-    hint2: { ru: 'Четырнадцать возьми семь раз.', uz: "O'n to'rtni yetti marta oling." },
+    hint2: { ru: 'Четырнадцать возьми семь раз.', uz: "O'n to'rtni yetti marta oling.", en: 'Take fourteen seven times.' },
     check: '56 : 4 = 14, 14 · 7 = 98',
-    setup_audio: { ru: 'Мастерской пришёл заказ. Посмотри на таблицу и реши, с чего начинать.', uz: "Ustaxonaga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'Мастерской пришёл заказ. Посмотри на таблицу и реши, с чего начинать.', uz: "Ustaxonaga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'An order came to the workshop. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей будет в семи таких коробках?', uz: "Ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?" },
-      on_correct: { ru: 'Девяносто восемь деталей. Два шага, и оба на месте.', uz: "To'qson sakkizta detal. Ikki qadam, ikkalasi ham joyida." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько деталей в одной коробке.', uz: "Birinchi qadamga qayting. Bitta qutida nechta detal bor." }
+      intro: { ru: 'Пятьдесят шесть деталей разложили в четыре коробки поровну. Сколько деталей будет в семи таких коробках?', uz: "Ellik oltita detal to'rtta qutiga teng bo'lib joylandi. Yettita shunday qutida nechta detal bo'ladi?", en: 'Fifty six parts were put into four boxes equally. How many parts will there be in seven such boxes?' },
+      on_correct: { ru: 'Девяносто восемь деталей. Два шага, и оба на месте.', uz: "To'qson sakkizta detal. Ikki qadam, ikkalasi ham joyida.", en: 'Ninety eight parts. Two steps, and both are in place.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько деталей в одной коробке.', uz: "Birinchi qadamga qayting. Bitta qutida nechta detal bor.", en: 'Go back to the first step. How many parts are in one box.' }
     }
   },
 
   // s13 — FINAL: uch xil turdagi masala, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задачи. Смотри, о чём спрашивают', uz: "Uchta masala. Nima so'ralganiga qarang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задачи. Смотри, о чём спрашивают', uz: "Uchta masala. Nima so'ralganiga qarang", en: 'Three problems. Watch what is being asked' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Было 87 болтов, 39 израсходовали. Остальные разложили в 6 ящиков поровну. Сколько в каждом?', uz: "87 ta bolt bor edi, 39 tasi ishlatildi. Qolgani 6 ta yashikka teng bo'lindi. Har birida nechta?" },
-        q_speech: { ru: 'было восемьдесят семь болтов, тридцать девять израсходовали. Остальные разложили в шесть ящиков поровну. Сколько в каждом?', uz: "sakson yettita bolt bor edi, o'ttiz to'qqiztasi ishlatildi. Qolgani oltita yashikka teng bo'lindi. Har birida nechta?" },
+        q: { ru: 'Было 87 болтов, 39 израсходовали. Остальные разложили в 6 ящиков поровну. Сколько в каждом?', uz: "87 ta bolt bor edi, 39 tasi ishlatildi. Qolgani 6 ta yashikka teng bo'lindi. Har birida nechta?", en: 'There were 87 bolts, 39 were used up. The rest were put into 6 boxes equally. How many in each?' },
+        q_speech: { ru: 'было восемьдесят семь болтов, тридцать девять израсходовали. Остальные разложили в шесть ящиков поровну. Сколько в каждом?', uz: "sakson yettita bolt bor edi, o'ttiz to'qqiztasi ishlatildi. Qolgani oltita yashikka teng bo'lindi. Har birida nechta?", en: 'there were eighty seven bolts, thirty nine were used up. The rest were put into six boxes equally. How many in each?' },
         ans: 8,
-        hint: { ru: 'Сначала убери израсходованные.', uz: "Avval ishlatilganini olib tashlang." }
+        hint: { ru: 'Сначала убери израсходованные.', uz: "Avval ishlatilganini olib tashlang.", en: 'First take away the ones used up.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Собрали 29 кг и 37 кг. Ящики по 7 кг. Сколько килограммов останется?', uz: "29 kg va 37 kg terildi. Yashiklar 7 kg dan. Necha kilogramm ortib qoladi?" },
-        q_speech: { ru: 'собрали двадцать девять килограммов и тридцать семь. Ящики по семь килограммов. Сколько килограммов останется?', uz: "yigirma to'qqiz kilogramm va o'ttiz yetti kilogramm terildi. Yashiklar yetti kilogrammdan. Necha kilogramm ortib qoladi?" },
+        q: { ru: 'Собрали 29 кг и 37 кг. Ящики по 7 кг. Сколько килограммов останется?', uz: "29 kg va 37 kg terildi. Yashiklar 7 kg dan. Necha kilogramm ortib qoladi?", en: 'They picked 29 kg and 37 kg. The boxes hold 7 kg. How many kilograms will be left?' },
+        q_speech: { ru: 'собрали двадцать девять килограммов и тридцать семь. Ящики по семь килограммов. Сколько килограммов останется?', uz: "yigirma to'qqiz kilogramm va o'ttiz yetti kilogramm terildi. Yashiklar yetti kilogrammdan. Necha kilogramm ortib qoladi?", en: 'they picked twenty nine kilograms and thirty seven. The boxes hold seven kilograms. How many kilograms will be left?' },
         ans: 3,
-        hint: { ru: 'Спрашивают не про ящики, а про то, что не вошло.', uz: "Yashik haqida emas, sig'magani haqida so'ralyapti." }
+        hint: { ru: 'Спрашивают не про ящики, а про то, что не вошло.', uz: "Yashik haqida emas, sig'magani haqida so'ralyapti.", en: 'The question is not about the boxes but about what did not fit.' }
       },
       {
         kind: 'num',
-        q: { ru: '63 детали разложили в 9 коробок поровну. Сколько деталей в 4 таких коробках?', uz: "63 ta detal 9 ta qutiga teng bo'lindi. 4 ta shunday qutida nechta detal?" },
-        q_speech: { ru: 'шестьдесят три детали разложили в девять коробок поровну. Сколько деталей в четырёх таких коробках?', uz: "oltmish uchta detal to'qqizta qutiga teng bo'lindi. To'rtta shunday qutida nechta detal?" },
+        q: { ru: '63 детали разложили в 9 коробок поровну. Сколько деталей в 4 таких коробках?', uz: "63 ta detal 9 ta qutiga teng bo'lindi. 4 ta shunday qutida nechta detal?", en: '63 parts were put into 9 boxes equally. How many parts are in 4 such boxes?' },
+        q_speech: { ru: 'шестьдесят три детали разложили в девять коробок поровну. Сколько деталей в четырёх таких коробках?', uz: "oltmish uchta detal to'qqizta qutiga teng bo'lindi. To'rtta shunday qutida nechta detal?", en: 'sixty three parts were put into nine boxes equally. How many parts are in four such boxes?' },
         ans: 28,
-        hint: { ru: 'Сначала одна коробка, потом четыре.', uz: "Avval bitta quti, keyin to'rtta." }
+        hint: { ru: 'Сначала одна коробка, потом четыре.', uz: "Avval bitta quti, keyin to'rtta.", en: 'First one box, then four.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Задачу в два действия можно записать одной строкой. Скобки показывают, что делаем первым: (45 + 54) : 8. Без скобок машина сначала разделит 54 на 8 и получит совсем другое.',
-      uz: "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi: (45 + 54) : 8. Qavssiz mashina avval 54 ni 8 ga bo'ladi va butunlay boshqa natija chiqadi."
+      uz: "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi: (45 + 54) : 8. Qavssiz mashina avval 54 ni 8 ga bo'ladi va butunlay boshqa natija chiqadi.",
+      en: 'A two-step problem can be written in one line. The brackets show what is done first: (45 + 54) : 8. Without brackets the machine would first divide 54 by 8 and get something completely different.'
     },
     fact_audio: {
       ru: 'Задачу в два действия можно записать одной строкой. Скобки показывают, что делаем первым. Сорок пять плюс пятьдесят четыре в скобках, и всё это делим на восемь. Без скобок сначала разделилось бы пятьдесят четыре, и ответ вышел бы совсем другой. Мы весь урок делали два шага по очереди, и скобки это как раз про очередь.',
-      uz: "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi. Qirq besh qo'shuv ellik to'rt qavs ichida, hammasini sakkizga bo'lamiz. Qavssiz avval ellik to'rt bo'linardi va javob butunlay boshqa chiqardi. Butun dars davomida biz ikki qadamni navbat bilan qildik, qavs esa aynan navbat haqida."
+      uz: "Ikki amalli masalani bitta satrda yozish mumkin. Qavs nimani birinchi qilishni ko'rsatadi. Qirq besh qo'shuv ellik to'rt qavs ichida, hammasini sakkizga bo'lamiz. Qavssiz avval ellik to'rt bo'linardi va javob butunlay boshqa chiqardi. Butun dars davomida biz ikki qadamni navbat bilan qildik, qavs esa aynan navbat haqida.",
+      en: 'A two-step problem can be written in one line. The brackets show what is done first. Forty five plus fifty four in brackets, and all of it divided by eight. Without brackets fifty four would be divided first, and the answer would come out completely different. All lesson we did two steps in turn, and brackets are exactly about the turn.'
     },
     audio: {
-      intro: { ru: 'Три задачи напоследок. В каждой смотри, о чём спрашивают.', uz: "Oxirida uchta masala. Har birida nima so'ralganiga qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перечитай вопрос. Он подсказывает, какое число брать в ответ.', uz: "Savolni qayta o'qing. U javobga qaysi sonni olishni aytadi." }
+      intro: { ru: 'Три задачи напоследок. В каждой смотри, о чём спрашивают.', uz: "Oxirida uchta masala. Har birida nima so'ralganiga qarang.", en: 'Three problems at the end. In each one watch what is being asked.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перечитай вопрос. Он подсказывает, какое число брать в ответ.', uz: "Savolni qayta o'qing. U javobga qaysi sonni olishni aytadi.", en: 'Read the question again. It tells you which number to take as the answer.' }
     }
   },
 
   // s14 — YAKUN: bo'lim yopiladi, keyingisi ulushlar (reja 27-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Заказ мастерской закрыт!', uz: 'Ustaxona buyurtmasi yopildi!' },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Заказ мастерской закрыт!', uz: 'Ustaxona buyurtmasi yopildi!', en: 'The workshop order is closed!' },
     cando: {
       ru: ['вижу в задаче два действия и их порядок', 'выбираю ответ по вопросу: частное или остаток', 'записываю решение одной строкой со скобками'],
-      uz: ["masalada ikki amalni va ularning tartibini ko'raman", "javobni savolga qarab tanlayman: bo'linmami yoki qoldiqmi", "yechimni qavs bilan bitta satrda yozaman"]
+      uz: ["masalada ikki amalni va ularning tartibini ko'raman", "javobni savolga qarab tanlayman: bo'linmami yoki qoldiqmi", "yechimni qavs bilan bitta satrda yozaman"],
+      en: ['I see the two steps in a problem and their order', 'I choose the answer by the question: the quotient or the remainder', 'I write the solution in one line with brackets']
     },
-    rule_recap: { ru: 'Сначала находим то, что можно. Потом отвечаем ровно на вопрос.', uz: "Avval topsa bo'ladiganini topamiz. Keyin aynan savolga javob beramiz." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 18: деление по частям; урок 19: остаток; урок 20: проверка', uz: "18-dars: qismlab bo'lish; 19-dars: qoldiq; 20-dars: tekshirish" },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'доли: как делят одно целое на равные части', uz: "ulushlar: bir butunni teng qismlarga bo'lish" },
+    rule_recap: { ru: 'Сначала находим то, что можно. Потом отвечаем ровно на вопрос.', uz: "Avval topsa bo'ladiganini topamiz. Keyin aynan savolga javob beramiz.", en: 'First we find what we can. Then we answer exactly the question.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 18: деление по частям; урок 19: остаток; урок 20: проверка', uz: "18-dars: qismlab bo'lish; 19-dars: qoldiq; 20-dars: tekshirish", en: 'lesson 18: dividing by parts; lesson 19: the remainder; lesson 20: checking' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'доли: как делят одно целое на равные части', uz: "ulushlar: bir butunni teng qismlarga bo'lish", en: 'fractions: how one whole is divided into equal parts' },
     audio: {
       ru: 'Заказ мастерской закрыт, и весь блок вместе с ним. Запомни главное. В задаче в два действия сначала находим то, что можно найти сразу, а потом отвечаем ровно на тот вопрос, который задали. Частное и остаток это разные ответы одного счёта. В следующий раз целое начнём делить на равные доли!',
-      uz: "Ustaxona buyurtmasi yopildi, u bilan birga butun bo'lim ham. Asosiysini eslab qoling. Ikki amalli masalada avval darrov topiladiganini topamiz, keyin esa aynan berilgan savolga javob beramiz. Bo'linma va qoldiq bu bitta hisobning turli javoblari. Keyingi safar butunni teng ulushlarga bo'la boshlaymiz!"
+      uz: "Ustaxona buyurtmasi yopildi, u bilan birga butun bo'lim ham. Asosiysini eslab qoling. Ikki amalli masalada avval darrov topiladiganini topamiz, keyin esa aynan berilgan savolga javob beramiz. Bo'linma va qoldiq bu bitta hisobning turli javoblari. Keyingi safar butunni teng ulushlarga bo'la boshlaymiz!",
+      en: 'The workshop order is closed, and the whole block with it. Remember the main thing. In a two step problem we first find what can be found straight away, and then answer exactly the question that was asked. The quotient and the remainder are different answers from one calculation. Next time we will start dividing a whole into equal parts!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Разберём по шагам.', uz: 'Qadamma-qadam ko\'rib chiqamiz.' },
-  s2:  { ru: 'Посмотрим на ящики.', uz: 'Yashiklarga qaraymiz.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Кто-то ответил не на тот вопрос.', uz: 'Kimdir boshqa savolga javob beribdi.' },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Соберём по шагам.', uz: "Qadamlab yig'amiz." },
-  s8:  { ru: 'Второй шаг подвёл.', uz: 'Ikkinchi qadam adashtirdi.' },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна поставка.', uz: 'Yana bitta yetkazma.' },
-  s12: { ru: 'Заказ из учебника.', uz: 'Kitobdagi buyurtma.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Отгрузка готова. Идём дальше!', uz: "Jo'natish tayyor. Davom etamiz!" }
+  s1:  { ru: 'Разберём по шагам.', uz: 'Qadamma-qadam ko\'rib chiqamiz.', en: 'Let us work it out step by step.' },
+  s2:  { ru: 'Посмотрим на ящики.', uz: 'Yashiklarga qaraymiz.', en: 'Let us look at the boxes.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Кто-то ответил не на тот вопрос.', uz: 'Kimdir boshqa savolga javob beribdi.', en: 'Someone answered the wrong question.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Соберём по шагам.', uz: "Qadamlab yig'amiz.", en: 'Let us put it together step by step.' },
+  s8:  { ru: 'Второй шаг подвёл.', uz: 'Ikkinchi qadam adashtirdi.', en: 'The second step let us down.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна поставка.', uz: 'Yana bitta yetkazma.', en: 'And one more delivery.' },
+  s12: { ru: 'Заказ из учебника.', uz: 'Kitobdagi buyurtma.', en: 'An order from the textbook.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Отгрузка готова. Идём дальше!', uz: "Jo'natish tayyor. Davom etamiz!", en: 'The shipment is ready. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Урожай разложен, остаток не потерялся. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Hosil joylandi, qoldiq yo'qolmadi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Hosil joylandi, qoldiq yo'qolmadi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The harvest is packed and the remainder did not get lost. Thank you for your help!'
 };
 
 // ============================================================
@@ -761,7 +774,7 @@ const ShipmentBg = () => {
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
     {/* JO'NATISH STOLI: pallet ustida 12 to'la yashik, yonida 3 kg sig'magan */}
-    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СТОЛ ОТПРАВКИ' : "JO'NATISH STOLI"}</text>
+    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СТОЛ ОТПРАВКИ', "JO'NATISH STOLI", 'THE DISPATCH TABLE')}</text>
     <g transform="translate(84 118)">
       {Array.from({ length: 2 }).map((_, r) => (
         <g key={`br${r}`} transform={`translate(0 ${r * 22})`}>
@@ -895,7 +908,7 @@ const BracketFig = () => {
     <text x="182" y="40" textAnchor="middle" fontSize="10" fontWeight="800" fill="#2E7E9E" fontFamily="'JetBrains Mono', monospace">2</text>
     <line x1="20" y1="52" x2="200" y2="52" stroke="#D8CDB8" strokeWidth="1.4"/>
     <text x="110" y="70" textAnchor="middle" fontSize="10" fontWeight="700" fill="#5D5A52" fontFamily="'JetBrains Mono', monospace">99 : 8 = 12 (3)</text>
-    <text x="110" y="88" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'скобки задают очередь' : 'qavs navbatni belgilaydi'}</text>
+    <text x="110" y="88" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'скобки задают очередь', 'qavs navbatni belgilaydi', 'brackets set the order')}</text>
   </svg>
   );
 };
@@ -1028,7 +1041,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1147,7 +1160,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d23-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d23-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d23-expr">{t(c.step1)}</span>
@@ -1478,7 +1491,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1543,7 +1556,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1679,7 +1692,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d23-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d23-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1794,7 +1807,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1865,7 +1878,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d23-final-scene fade-up delay-1"><ShipmentScene gathered/></div>
@@ -1886,7 +1899,7 @@ export default function TwoStepTasksLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1953,7 +1966,7 @@ export default function TwoStepTasksLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

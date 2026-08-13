@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -731,7 +757,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -755,8 +781,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'geom_5_00',
-  lessonTitle: { ru: 'Угол, прямые и круг. Начало геометрии', uz: "Burchak, chiziqlar va aylana. Geometriya boshlanishi" }
+  lessonId: 'grade5-33',
+  lessonTitle: { ru: 'Угол, прямые и круг. Начало геометрии', uz: "Burchak, chiziqlar va aylana. Geometriya boshlanishi", en: 'Angles, lines and circles. The start of geometry' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -779,25 +805,25 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK (motivatsion) =====
   s0: {
-    eyebrow: { ru: 'Начало геометрии', uz: "Geometriya boshlanishi" },
-    title: { ru: 'Что такое геометрия?', uz: "Geometriya nima?" },
-    lead: { ru: 'Вокруг нас формы: колесо, угол книги, натянутая нить. У них есть названия?', uz: "Atrofimizda shakllar bor: g'ildirak, kitob burchagi, tortilgan ip. Ularning nomlari bormi?" },
-    opt0: { ru: 'Да, их изучает геометрия', uz: "Ha, ularni geometriya o'rganadi" },
-    opt1: { ru: 'Нет, это просто предметы', uz: "Yo'q, bular shunchaki narsalar" },
-    opt2: { ru: 'Не знаю', uz: "Bilmayman" },
-    reveal: { ru: 'Да! Геометрия — наука о формах и их свойствах. Сегодня знакомимся с линией, углом и окружностью.', uz: "Ha! Geometriya — shakllar va ularning xossalarini o'rganadigan fan. Bugun chiziq, burchak va aylana bilan tanishamiz." },
-    audio: { ru: "Посмотри вокруг: колесо круглое, угол книги острый, нить прямая. У каждой формы есть своё имя в геометрии. Узнаем их.", uz: "Atrofga qarang: g'ildirak dumaloq, kitob burchagi o'tkir, ip to'g'ri. Har bir shaklning geometriyada o'z nomi bor. Ularni bilib olamiz." }
+    eyebrow: { ru: 'Начало геометрии', uz: "Geometriya boshlanishi", en: 'The start of geometry' },
+    title: { ru: 'Что такое геометрия?', uz: "Geometriya nima?", en: 'What is geometry?' },
+    lead: { ru: 'Вокруг нас формы: колесо, угол книги, натянутая нить. У них есть названия?', uz: "Atrofimizda shakllar bor: g'ildirak, kitob burchagi, tortilgan ip. Ularning nomlari bormi?", en: 'There are shapes all around us: a wheel, the corner of a book, a pulled thread. Do they have names?' },
+    opt0: { ru: 'Да, их изучает геометрия', uz: "Ha, ularni geometriya o'rganadi", en: 'Yes, geometry is the study of them' },
+    opt1: { ru: 'Нет, это просто предметы', uz: "Yo'q, bular shunchaki narsalar", en: 'No, they are just objects' },
+    opt2: { ru: 'Не знаю', uz: "Bilmayman", en: "I don't know" },
+    reveal: { ru: 'Да! Геометрия — наука о формах и их свойствах. Сегодня знакомимся с линией, углом и окружностью.', uz: "Ha! Geometriya — shakllar va ularning xossalarini o'rganadigan fan. Bugun chiziq, burchak va aylana bilan tanishamiz.", en: 'Yes! Geometry is the study of shapes and what they are like. Today we meet the line, the angle and the circle.' },
+    audio: { ru: "Посмотри вокруг: колесо круглое, угол книги острый, нить прямая. У каждой формы есть своё имя в геометрии. Узнаем их.", uz: "Atrofga qarang: g'ildirak dumaloq, kitob burchagi o'tkir, ip to'g'ri. Har bir shaklning geometriyada o'z nomi bor. Ularni bilib olamiz.", en: 'Look around: a wheel is round, the corner of a book is sharp, a thread is straight. Every shape has its own name in geometry. Let us learn them.' }
   },
 
   // ===== s1 WARM-UP — kesma (step: ikki nuqta -> tutashtirish -> kesma). Savolsiz, bosqichli izoh tepada yig'iladi. =====
   s1: {
-    eyebrow: { ru: 'Начнём', uz: "Boshlaymiz" },
-    title: { ru: 'Две точки', uz: "Ikki nuqta" },
-    step_1: { ru: 'Вот две точки — просто два места на листе.', uz: "Mana ikki nuqta — varaqdagi ikki joy." },
-    step_2: { ru: 'Соединим их самым коротким путём.', uz: "Ularni eng qisqa yo'l bilan tutashtiramiz." },
-    step_3: { ru: 'Этот прямой путь называется отрезком. У него два конца.', uz: "Bu to'g'ri yo'l kesma deyiladi. Uning ikki uchi bor." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Начнём', uz: "Boshlaymiz", en: 'Let us begin' },
+    title: { ru: 'Две точки', uz: "Ikki nuqta", en: 'Two points' },
+    step_1: { ru: 'Вот две точки — просто два места на листе.', uz: "Mana ikki nuqta — varaqdagi ikki joy.", en: 'Here are two points, just two places on the page.' },
+    step_2: { ru: 'Соединим их самым коротким путём.', uz: "Ularni eng qisqa yo'l bilan tutashtiramiz.", en: 'Let us join them by the shortest way.' },
+    step_3: { ru: 'Этот прямой путь называется отрезком. У него два конца.', uz: "Bu to'g'ri yo'l kesma deyiladi. Uning ikki uchi bor.", en: 'This straight path is called a line segment. It has two ends.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "С чего начинается геометрия? С точек. Вот две точки, просто два места.",
@@ -808,20 +834,21 @@ const CONTENT = {
         "Geometriya nimadan boshlanadi? Nuqtalardan. Mana, ikki nuqta. Bu shunchaki ikki joy.",
         "Ularni eng qisqa yo'l bilan tutashtiramiz.",
         "Bu ikki nuqta orasidagi to'g'ri yo'l kesma deyiladi. Uning ikki uchi bor."
-      ]
+      ],
+      en: ['Where does geometry begin? With points. Here are two points, just two places.', 'Let us join them by the shortest way.', 'This straight path between two points is called a line segment. It has two ends.']
     }
   },
 
   // ===== s2 EXPLORATION — chiziqlar (step) =====
   s2: {
-    eyebrow: { ru: 'Три линии', uz: "Uch xil chiziq" },
-    title: { ru: 'Отрезок, луч, прямая', uz: "Kesma, nur, to'g'ri chiziq" },
-    lead: { ru: 'Линии отличаются концами. Посмотрим.', uz: "Chiziqlar uchlari bilan farq qiladi. Ko'ramiz." },
-    line_seg: { ru: 'Отрезок: есть два конца. Он ограничен.', uz: "Kesma: ikki uchi bor. U chegaralangan." },
-    line_ray: { ru: 'Луч: один конец, а в другую сторону бесконечен.', uz: "Nur: bir uchi bor, ikkinchi tomonga cheksiz." },
-    line_line: { ru: 'Прямая: бесконечна в обе стороны, концов нет.', uz: "To'g'ri chiziq: ikki tomonga cheksiz, uchi yo'q." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Три линии', uz: "Uch xil chiziq", en: 'Three lines' },
+    title: { ru: 'Отрезок, луч, прямая', uz: "Kesma, nur, to'g'ri chiziq", en: 'Line segment, ray and line' },
+    lead: { ru: 'Линии отличаются концами. Посмотрим.', uz: "Chiziqlar uchlari bilan farq qiladi. Ko'ramiz.", en: 'Lines differ in their ends. Let us look.' },
+    line_seg: { ru: 'Отрезок: есть два конца. Он ограничен.', uz: "Kesma: ikki uchi bor. U chegaralangan.", en: 'A line segment has two ends. It stops at both.' },
+    line_ray: { ru: 'Луч: один конец, а в другую сторону бесконечен.', uz: "Nur: bir uchi bor, ikkinchi tomonga cheksiz.", en: 'A ray has one end and goes on for ever the other way.' },
+    line_line: { ru: 'Прямая: бесконечна в обе стороны, концов нет.', uz: "To'g'ri chiziq: ikki tomonga cheksiz, uchi yo'q.", en: 'A line goes on for ever both ways and has no ends.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Есть три вида прямых линий. Они отличаются концами.",
@@ -834,195 +861,196 @@ const CONTENT = {
         "Kesma ikki tomondan chegaralangan — uning ikki uchi bor.",
         "Nurning faqat bitta uchi bor, ikkinchi tomonga u cheksiz davom etadi.",
         "To'g'ri chiziq esa ikki tomonga cheksiz, uning uchi umuman yo'q."
-      ]
+      ],
+      en: ['There are three kinds of straight line. They differ in their ends.', 'A line segment stops at both sides, so it has two ends.', 'A ray has only one end and carries on without end the other way.', 'And a line goes on for ever both ways, with no ends at all.']
     }
   },
 
   // ===== s3 EXPLORATION — burchak (slider, M1) =====
   s3: {
-    eyebrow: { ru: 'Угол', uz: "Burchak" },
-    title: { ru: 'Угол — это раскрытие', uz: "Burchak — bu ochilish" },
-    lead: { ru: 'Угол — два луча из одной точки. Меняй раскрытие.', uz: "Burchak — bir nuqtadan ikki nur. Ochilishni o'zgartiring." },
-    slider_label: { ru: 'Раскрытие', uz: "Ochilish" },
-    note_acute: { ru: 'Меньше прямого угла.', uz: "To'g'ri burchakdan kichik." },
-    note_right: { ru: 'Прямой угол — 90 градусов.', uz: "To'g'ri burchak — to'qson daraja." },
-    note_straight: { ru: 'Развёрнутый угол — 180 градусов, прямая линия.', uz: "Yoyiq burchak — bir yuz sakson daraja, to'g'ri chiziq." },
-    note_obtuse: { ru: 'Больше прямого угла.', uz: "To'g'ri burchakdan katta." },
-    warn: { ru: 'Длина сторон не меняет угол — важно только раскрытие.', uz: "Tomonlar uzunligi burchakni o'zgartirmaydi — faqat ochilish muhim." },
-    audio: { ru: "Угол — это два луча, выходящие из одной точки, его вершины. Важно, насколько они раскрыты, а не какой длины стороны. Двигай и смотри: при девяноста градусах угол прямой, при ста восьмидесяти — развёрнутый.", uz: "Burchak — bir nuqtadan, uning uchidan chiqqan ikki nur. Muhimi — ular qanchalik ochilgani, tomonlar uzunligi emas. Suring va qarang: to'qson darajada burchak to'g'ri, bir yuz saksonda — yoyiq." }
+    eyebrow: { ru: 'Угол', uz: "Burchak", en: 'Angle' },
+    title: { ru: 'Угол — это раскрытие', uz: "Burchak — bu ochilish", en: 'An angle is how far it opens' },
+    lead: { ru: 'Угол — два луча из одной точки. Меняй раскрытие.', uz: "Burchak — bir nuqtadan ikki nur. Ochilishni o'zgartiring.", en: 'An angle is two rays from one point. Change how far it opens.' },
+    slider_label: { ru: 'Раскрытие', uz: "Ochilish", en: 'Opening' },
+    note_acute: { ru: 'Меньше прямого угла.', uz: "To'g'ri burchakdan kichik.", en: 'Less than a right angle.' },
+    note_right: { ru: 'Прямой угол — 90 градусов.', uz: "To'g'ri burchak — to'qson daraja.", en: 'A right angle is 90 degrees.' },
+    note_straight: { ru: 'Развёрнутый угол — 180 градусов, прямая линия.', uz: "Yoyiq burchak — bir yuz sakson daraja, to'g'ri chiziq.", en: 'A straight angle is 180 degrees, a straight line.' },
+    note_obtuse: { ru: 'Больше прямого угла.', uz: "To'g'ri burchakdan katta.", en: 'More than a right angle.' },
+    warn: { ru: 'Длина сторон не меняет угол — важно только раскрытие.', uz: "Tomonlar uzunligi burchakni o'zgartirmaydi — faqat ochilish muhim.", en: 'The length of the arms does not change the angle, only how far it opens matters.' },
+    audio: { ru: "Угол — это два луча, выходящие из одной точки, его вершины. Важно, насколько они раскрыты, а не какой длины стороны. Двигай и смотри: при девяноста градусах угол прямой, при ста восьмидесяти — развёрнутый.", uz: "Burchak — bir nuqtadan, uning uchidan chiqqan ikki nur. Muhimi — ular qanchalik ochilgani, tomonlar uzunligi emas. Suring va qarang: to'qson darajada burchak to'g'ri, bir yuz saksonda — yoyiq.", en: 'An angle is two rays coming out of one point, its vertex. What matters is how far apart they open, not how long the arms are. Move it and watch: at ninety degrees the angle is a right angle and at a hundred and eighty it is a straight angle.' }
   },
 
   // ===== s4 EXPLORATION — aylana (slider radius) =====
   s4: {
-    eyebrow: { ru: 'Окружность', uz: "Aylana" },
-    title: { ru: 'Центр, радиус, диаметр', uz: "Markaz, radius, diametr" },
-    lead: { ru: 'Двигай радиус и смотри на диаметр.', uz: "Radiusni suring va diametrga qarang." },
-    slider_label: { ru: 'Радиус', uz: "Radius" },
-    line_def: { ru: 'Радиус — от центра до края. Диаметр — через центр, от края до края.', uz: "Radius — markazdan chetgacha. Diametr — markazdan o'tib, chetdan chetgacha." },
-    line_rel: { ru: 'Диаметр всегда в два раза больше радиуса.', uz: "Diametr har doim radiusdan ikki barobar katta." },
-    audio: { ru: "Окружность — это линия, все точки которой одинаково удалены от центра. Радиус идёт от центра до края, а диаметр проходит через центр и равен двум радиусам. Двигай радиус и проверь.", uz: "Aylana — barcha nuqtalari markazdan bir xil uzoqlikdagi chiziq. Radius markazdan chetgacha boradi, diametr esa markazdan o'tib, ikki radiusga teng bo'ladi. Radiusni suring va tekshiring." }
+    eyebrow: { ru: 'Окружность', uz: "Aylana", en: 'Circle' },
+    title: { ru: 'Центр, радиус, диаметр', uz: "Markaz, radius, diametr", en: 'Centre, radius and diameter' },
+    lead: { ru: 'Двигай радиус и смотри на диаметр.', uz: "Radiusni suring va diametrga qarang.", en: 'Move the radius and watch the diameter.' },
+    slider_label: { ru: 'Радиус', uz: "Radius", en: 'Radius' },
+    line_def: { ru: 'Радиус — от центра до края. Диаметр — через центр, от края до края.', uz: "Radius — markazdan chetgacha. Diametr — markazdan o'tib, chetdan chetgacha.", en: 'The radius goes from the centre to the edge. The diameter goes through the centre, from edge to edge.' },
+    line_rel: { ru: 'Диаметр всегда в два раза больше радиуса.', uz: "Diametr har doim radiusdan ikki barobar katta.", en: 'The diameter is always twice the radius.' },
+    audio: { ru: "Окружность — это линия, все точки которой одинаково удалены от центра. Радиус идёт от центра до края, а диаметр проходит через центр и равен двум радиусам. Двигай радиус и проверь.", uz: "Aylana — barcha nuqtalari markazdan bir xil uzoqlikdagi chiziq. Radius markazdan chetgacha boradi, diametr esa markazdan o'tib, ikki radiusga teng bo'ladi. Radiusni suring va tekshiring.", en: 'A circle is a line where every point is the same distance from the centre. The radius goes from the centre to the edge, and the diameter goes through the centre and equals two radiuses. Move the radius and see.' }
   },
 
   // ===== s5 RULE 1 — chiziqlar + burchak =====
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Линии и угол', uz: "Chiziqlar va burchak" },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Отрезок — два конца. Луч — один конец. Прямая — концов нет.', uz: "Kesma — ikki uchi. Nur — bir uchi. To'g'ri chiziq — uchi yo'q." },
-    rule_2: { ru: 'Угол — два луча из одной вершины.', uz: "Burchak — bir uchdan chiqqan ikki nur." },
-    rule_3: { ru: 'Прямой угол — 90 градусов. Развёрнутый — 180 градусов.', uz: "To'g'ri burchak — to'qson daraja. Yoyiq — bir yuz sakson daraja." },
-    rule_4: { ru: 'Размер угла зависит от раскрытия, а не от длины сторон.', uz: "Burchak kattaligi ochilishga bog'liq, tomon uzunligiga emas." },
-    audio: { ru: "Итак, отрезок ограничен двумя концами, у луча один конец, а прямая бесконечна. Угол — это два луча из вершины, и его размер задаёт раскрытие.", uz: "Demak, kesma ikki uchi bilan chegaralangan, nurning bir uchi bor, to'g'ri chiziq esa cheksiz. Burchak — uchdan chiqqan ikki nur, uning kattaligini ochilish belgilaydi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Линии и угол', uz: "Chiziqlar va burchak", en: 'Lines and angles' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Отрезок — два конца. Луч — один конец. Прямая — концов нет.', uz: "Kesma — ikki uchi. Nur — bir uchi. To'g'ri chiziq — uchi yo'q.", en: 'A line segment has two ends. A ray has one end. A line has no ends.' },
+    rule_2: { ru: 'Угол — два луча из одной вершины.', uz: "Burchak — bir uchdan chiqqan ikki nur.", en: 'An angle is two rays from one vertex.' },
+    rule_3: { ru: 'Прямой угол — 90 градусов. Развёрнутый — 180 градусов.', uz: "To'g'ri burchak — to'qson daraja. Yoyiq — bir yuz sakson daraja.", en: 'A right angle is 90 degrees. A straight angle is 180 degrees.' },
+    rule_4: { ru: 'Размер угла зависит от раскрытия, а не от длины сторон.', uz: "Burchak kattaligi ochilishga bog'liq, tomon uzunligiga emas.", en: 'The size of an angle depends on how far it opens, not on the length of the arms.' },
+    audio: { ru: "Итак, отрезок ограничен двумя концами, у луча один конец, а прямая бесконечна. Угол — это два луча из вершины, и его размер задаёт раскрытие.", uz: "Demak, kesma ikki uchi bilan chegaralangan, nurning bir uchi bor, to'g'ri chiziq esa cheksiz. Burchak — uchdan chiqqan ikki nur, uning kattaligini ochilish belgilaydi.", en: 'So a line segment stops at two ends, a ray has one end and a line goes on for ever. An angle is two rays from a vertex, and its size is set by how far it opens.' }
   },
 
   // ===== s6 RULE 2 — aylana + TUZOQ =====
   s6: {
-    eyebrow: { ru: 'Окружность и ловушка', uz: "Aylana va tuzoq" },
-    heading: { ru: 'Окружность и частая ошибка', uz: "Aylana va ko'p uchraydigan xato" },
-    rule_1: { ru: 'Окружность — линия вокруг центра; круг — это окружность с её внутренностью.', uz: "Aylana — markaz atrofidagi chiziq; doira — aylana va uning ichi." },
-    rule_2: { ru: 'Радиус — от центра до края. Диаметр = 2 радиуса.', uz: "Radius — markazdan chetgacha. Diametr = 2 radius." },
-    warn_1: { ru: 'Угол с длинными сторонами НЕ больше угла с короткими, если раскрытие одинаково.', uz: "Uzun tomonli burchak qisqa tomonlidan KATTA emas, agar ochilish bir xil bo'lsa." },
-    audio: { ru: "Окружность — это линия вокруг центра, а круг — ещё и всё, что внутри. Радиус идёт до края, диаметр вдвое больше. И помни: длинные стороны не делают угол больше — смотри только на раскрытие.", uz: "Aylana — markaz atrofidagi chiziq, doira esa — ichidagi hamma narsa ham. Radius chetgacha boradi, diametr ikki barobar. Va yodda tuting: uzun tomonlar burchakni katta qilmaydi — faqat ochilishga qarang." }
+    eyebrow: { ru: 'Окружность и ловушка', uz: "Aylana va tuzoq", en: 'Circles and a trap' },
+    heading: { ru: 'Окружность и частая ошибка', uz: "Aylana va ko'p uchraydigan xato", en: 'Circles and a common mistake' },
+    rule_1: { ru: 'Окружность — линия вокруг центра; круг — это окружность с её внутренностью.', uz: "Aylana — markaz atrofidagi chiziq; doira — aylana va uning ichi.", en: 'A circle is the line around a centre, and a disc is the circle together with everything inside it.' },
+    rule_2: { ru: 'Радиус — от центра до края. Диаметр = 2 радиуса.', uz: "Radius — markazdan chetgacha. Diametr = 2 radius.", en: 'The radius goes from the centre to the edge. The diameter = 2 radiuses.' },
+    warn_1: { ru: 'Угол с длинными сторонами НЕ больше угла с короткими, если раскрытие одинаково.', uz: "Uzun tomonli burchak qisqa tomonlidan KATTA emas, agar ochilish bir xil bo'lsa.", en: 'An angle with long arms is NOT bigger than one with short arms if they open the same amount.' },
+    audio: { ru: "Окружность — это линия вокруг центра, а круг — ещё и всё, что внутри. Радиус идёт до края, диаметр вдвое больше. И помни: длинные стороны не делают угол больше — смотри только на раскрытие.", uz: "Aylana — markaz atrofidagi chiziq, doira esa — ichidagi hamma narsa ham. Radius chetgacha boradi, diametr ikki barobar. Va yodda tuting: uzun tomonlar burchakni katta qilmaydi — faqat ochilishga qarang.", en: 'A circle is the line around a centre, and a disc is that plus everything inside it. The radius goes to the edge and the diameter is twice as long. And remember: long arms do not make an angle bigger, only look at how far it opens.' }
   },
 
   // ===== s7 TEST MC (figure) — qaysi nur? (M2) =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    question: { ru: 'У этой линии один конец, в другую сторону — бесконечна. Что это?', uz: "Bu chiziqning bir uchi bor, ikkinchi tomonga cheksiz. Bu nima?" },
-    opt0: { ru: 'Отрезок', uz: "Kesma" },
-    opt1: { ru: 'Луч', uz: "Nur" },
-    opt2: { ru: 'Прямая', uz: "To'g'ri chiziq" },
-    correct_text: { ru: 'Верно: один конец и стрелка в другую сторону — это луч.', uz: "To'g'ri: bir uchi va ikkinchi tomonda o'q — bu nur." },
-    wrong_0: { ru: 'У отрезка два конца. А здесь один конец и стрелка.', uz: "Kesmaning ikki uchi bor. Bu yerda bir uchi va o'q." },
-    wrong_2: { ru: 'У прямой нет концов, стрелки с обеих сторон. А здесь один конец.', uz: "To'g'ri chiziqning uchi yo'q, ikki tomonda o'q. Bu yerda bir uchi bor." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+    question: { ru: 'У этой линии один конец, в другую сторону — бесконечна. Что это?', uz: "Bu chiziqning bir uchi bor, ikkinchi tomonga cheksiz. Bu nima?", en: 'This line has one end and goes on for ever the other way. What is it?' },
+    opt0: { ru: 'Отрезок', uz: "Kesma", en: 'A line segment' },
+    opt1: { ru: 'Луч', uz: "Nur", en: 'A ray' },
+    opt2: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' },
+    correct_text: { ru: 'Верно: один конец и стрелка в другую сторону — это луч.', uz: "To'g'ri: bir uchi va ikkinchi tomonda o'q — bu nur.", en: 'That is right: one end and an arrow the other way makes a ray.' },
+    wrong_0: { ru: 'У отрезка два конца. А здесь один конец и стрелка.', uz: "Kesmaning ikki uchi bor. Bu yerda bir uchi va o'q.", en: 'A line segment has two ends. Here there is one end and an arrow.' },
+    wrong_2: { ru: 'У прямой нет концов, стрелки с обеих сторон. А здесь один конец.', uz: "To'g'ri chiziqning uchi yo'q, ikki tomonda o'q. Bu yerda bir uchi bor.", en: 'A line has no ends and arrows both ways. Here there is one end.' },
     audio: {
-      intro: { ru: "Посмотри на линию: один конец, а в другую сторону стрелка. Как она называется?", uz: "Chiziqqa qarang: bir uchi, ikkinchi tomonda o'q. U qanday ataladi?" },
-      on_correct: { ru: "Верно, это луч.", uz: "To'g'ri, bu nur." },
-      on_wrong: { ru: "Считай концы: у луча один конец.", uz: "Uchlarni sanang: nurning bir uchi bor." }
+      intro: { ru: "Посмотри на линию: один конец, а в другую сторону стрелка. Как она называется?", uz: "Chiziqqa qarang: bir uchi, ikkinchi tomonda o'q. U qanday ataladi?", en: 'Look at the line: one end and an arrow the other way. What is it called?' },
+      on_correct: { ru: "Верно, это луч.", uz: "To'g'ri, bu nur.", en: 'That is right, it is a ray.' },
+      on_wrong: { ru: "Считай концы: у луча один конец.", uz: "Uchlarni sanang: nurning bir uchi bor.", en: 'Count the ends: a ray has one end.' }
     }
   },
 
   // ===== s8 TEST MC (figure) — qaysi burchak katta? (M1) [FAKT to'g'ri burchak] =====
   s8: {
-    eyebrow: { ru: 'Сравни углы', uz: "Burchaklarni solishtiring" },
-    title: { ru: 'Какой угол больше?', uz: "Qaysi burchak katta?" },
-    question: { ru: 'У угла А стороны длиннее, у угла Б — короче. Какой угол больше?', uz: "A burchakning tomonlari uzun, B burchakniki qisqa. Qaysi burchak katta?" },
-    opt0: { ru: 'Угол А', uz: "A burchak" },
-    opt1: { ru: 'Угол Б', uz: "B burchak" },
-    opt2: { ru: 'Они равны', uz: "Ular teng" },
-    correct_text: { ru: 'Верно: у Б раскрытие больше. Длина сторон не важна — важно раскрытие.', uz: "To'g'ri: B ning ochilishi katta. Tomon uzunligi muhim emas — ochilish muhim." },
-    wrong_0: { ru: 'Стороны длиннее, но раскрытие меньше. Угол — это раскрытие.', uz: "Tomonlar uzun, lekin ochilishi kichik. Burchak — bu ochilish." },
-    wrong_2: { ru: 'Раскрытие у них разное, посмотри внимательно.', uz: "Ularning ochilishi har xil, diqqat bilan qarang." },
-    fact: { ru: 'Прямой угол в 90 градусов нужен в стройке: чтобы стены стояли ровно, их углы проверяют угольником.', uz: "To'qson darajali to'g'ri burchak qurilishda kerak: devorlar tik turishi uchun ularning burchaklari go'niya bilan tekshiriladi." },
-    fact_audio: { ru: "Прямой угол в девяносто градусов нужен в стройке. Чтобы стены стояли ровно, их углы проверяют угольником.", uz: "To'qson darajali to'g'ri burchak qurilishda kerak. Devorlar tik turishi uchun ularning burchaklarini go'niya bilan tekshiradilar." },
+    eyebrow: { ru: 'Сравни углы', uz: "Burchaklarni solishtiring", en: 'Compare the angles' },
+    title: { ru: 'Какой угол больше?', uz: "Qaysi burchak katta?", en: 'Which angle is bigger?' },
+    question: { ru: 'У угла А стороны длиннее, у угла Б — короче. Какой угол больше?', uz: "A burchakning tomonlari uzun, B burchakniki qisqa. Qaysi burchak katta?", en: 'Angle A has longer arms and angle B has shorter ones. Which angle is bigger?' },
+    opt0: { ru: 'Угол А', uz: "A burchak", en: 'Angle A' },
+    opt1: { ru: 'Угол Б', uz: "B burchak", en: 'Angle B' },
+    opt2: { ru: 'Они равны', uz: "Ular teng", en: 'They are equal' },
+    correct_text: { ru: 'Верно: у Б раскрытие больше. Длина сторон не важна — важно раскрытие.', uz: "To'g'ri: B ning ochilishi katta. Tomon uzunligi muhim emas — ochilish muhim.", en: 'That is right: B opens further. The length of the arms does not matter, only how far it opens.' },
+    wrong_0: { ru: 'Стороны длиннее, но раскрытие меньше. Угол — это раскрытие.', uz: "Tomonlar uzun, lekin ochilishi kichik. Burchak — bu ochilish.", en: 'The arms are longer but it opens less. An angle is how far it opens.' },
+    wrong_2: { ru: 'Раскрытие у них разное, посмотри внимательно.', uz: "Ularning ochilishi har xil, diqqat bilan qarang.", en: 'They open different amounts, look carefully.' },
+    fact: { ru: 'Прямой угол в 90 градусов нужен в стройке: чтобы стены стояли ровно, их углы проверяют угольником.', uz: "To'qson darajali to'g'ri burchak qurilishda kerak: devorlar tik turishi uchun ularning burchaklari go'niya bilan tekshiriladi.", en: 'The 90 degree right angle is needed in building: to make walls stand straight, their corners are checked with a set square.' },
+    fact_audio: { ru: "Прямой угол в девяносто градусов нужен в стройке. Чтобы стены стояли ровно, их углы проверяют угольником.", uz: "To'qson darajali to'g'ri burchak qurilishda kerak. Devorlar tik turishi uchun ularning burchaklarini go'niya bilan tekshiradilar.", en: 'The ninety degree right angle is needed in building. To make walls stand straight, their corners are checked with a set square.' },
     audio: {
-      intro: { ru: "У угла А стороны длиннее, у угла Б короче. Не спеши: какой угол больше?", uz: "A burchakning tomonlari uzunroq, B niki qisqaroq. Shoshilmang: qaysi burchak katta?" },
-      on_correct: { ru: "Верно, угол Б. А прямой угол очень важен в стройке, чтобы стены стояли ровно.", uz: "To'g'ri, B burchak. To'g'ri burchak esa qurilishda juda muhim, devorlar tik turishi uchun." },
-      on_wrong: { ru: "Смотри на раскрытие, а не на длину сторон.", uz: "Tomon uzunligiga emas, ochilishga qarang." }
+      intro: { ru: "У угла А стороны длиннее, у угла Б короче. Не спеши: какой угол больше?", uz: "A burchakning tomonlari uzunroq, B niki qisqaroq. Shoshilmang: qaysi burchak katta?", en: 'Angle A has longer arms and angle B has shorter ones. Take your time: which angle is bigger?' },
+      on_correct: { ru: "Верно, угол Б. А прямой угол очень важен в стройке, чтобы стены стояли ровно.", uz: "To'g'ri, B burchak. To'g'ri burchak esa qurilishda juda muhim, devorlar tik turishi uchun.", en: 'That is right, angle B. And the right angle matters a lot in building, to make walls stand straight.' },
+      on_wrong: { ru: "Смотри на раскрытие, а не на длину сторон.", uz: "Tomon uzunligiga emas, ochilishga qarang.", en: 'Look at how far it opens, not at the length of the arms.' }
     }
   },
 
   // ===== s9 TEST MC (figure) — qaysi kesma diametr? (M3) =====
   s9: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Радиус или диаметр?', uz: "Radius yoki diametr?" },
-    question: { ru: 'Какой отрезок — диаметр?', uz: "Qaysi kesma — diametr?" },
-    opt0: { ru: 'Отрезок X (от центра до края)', uz: "X kesma (markazdan chetgacha)" },
-    opt1: { ru: 'Отрезок Y (через центр, край-край)', uz: "Y kesma (markazdan o'tib, chet-chet)" },
-    correct_text: { ru: 'Верно: диаметр проходит через центр от края до края. X — это радиус.', uz: "To'g'ri: diametr markazdan o'tib, chetdan chetgacha boradi. X — bu radius." },
-    wrong_0: { ru: 'X идёт от центра только до края — это радиус, не диаметр.', uz: "X markazdan faqat chetgacha boradi — bu radius, diametr emas." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Радиус или диаметр?', uz: "Radius yoki diametr?", en: 'Radius or diameter?' },
+    question: { ru: 'Какой отрезок — диаметр?', uz: "Qaysi kesma — diametr?", en: 'Which line is the diameter?' },
+    opt0: { ru: 'Отрезок X (от центра до края)', uz: "X kesma (markazdan chetgacha)", en: 'Line X (from the centre to the edge)' },
+    opt1: { ru: 'Отрезок Y (через центр, край-край)', uz: "Y kesma (markazdan o'tib, chet-chet)", en: 'Line Y (through the centre, edge to edge)' },
+    correct_text: { ru: 'Верно: диаметр проходит через центр от края до края. X — это радиус.', uz: "To'g'ri: diametr markazdan o'tib, chetdan chetgacha boradi. X — bu radius.", en: 'That is right: the diameter goes through the centre from edge to edge. X is the radius.' },
+    wrong_0: { ru: 'X идёт от центра только до края — это радиус, не диаметр.', uz: "X markazdan faqat chetgacha boradi — bu radius, diametr emas.", en: 'X goes from the centre only as far as the edge, so it is the radius, not the diameter.' },
     audio: {
-      intro: { ru: "На окружности два отрезка. Какой из них диаметр?", uz: "Aylanada ikki kesma bor. Qaysi biri diametr?" },
-      on_correct: { ru: "Верно, диаметр идёт через центр.", uz: "To'g'ri, diametr markazdan o'tadi." },
-      on_wrong: { ru: "Диаметр проходит через центр, от края до края.", uz: "Diametr markazdan o'tadi, chetdan chetgacha." }
+      intro: { ru: "На окружности два отрезка. Какой из них диаметр?", uz: "Aylanada ikki kesma bor. Qaysi biri diametr?", en: 'There are two lines on the circle. Which one is the diameter?' },
+      on_correct: { ru: "Верно, диаметр идёт через центр.", uz: "To'g'ri, diametr markazdan o'tadi.", en: 'That is right, the diameter goes through the centre.' },
+      on_wrong: { ru: "Диаметр проходит через центр, от края до края.", uz: "Diametr markazdan o'tadi, chetdan chetgacha.", en: 'The diameter goes through the centre, from edge to edge.' }
     }
   },
 
   // ===== s10 TEST NumGeo — radius -> diametr =====
   s10: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'Радиус окружности 5 см. Чему равен диаметр?', uz: "Aylana radiusi 5 sm. Diametr necha sm?" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Диаметр в два раза больше радиуса.', uz: "Diametr radiusdan ikki barobar katta." },
-    fb_correct: { ru: 'Верно: диаметр равен двум радиусам, это 10 см.', uz: "To'g'ri: diametr ikki radiusga teng, ya'ni 10 sm." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    question: { ru: 'Радиус окружности 5 см. Чему равен диаметр?', uz: "Aylana radiusi 5 sm. Diametr necha sm?", en: 'The radius of a circle is 5 cm. What is the diameter?' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Диаметр в два раза больше радиуса.', uz: "Diametr radiusdan ikki barobar katta.", en: 'The diameter is twice the radius.' },
+    fb_correct: { ru: 'Верно: диаметр равен двум радиусам, это 10 см.', uz: "To'g'ri: diametr ikki radiusga teng, ya'ni 10 sm.", en: 'That is right: the diameter equals two radiuses, which is 10 cm.' },
     audio: {
-      intro: { ru: "Радиус окружности пять сантиметров. Чему равен диаметр?", uz: "Aylana radiusi besh santimetr. Diametr necha santimetr?" },
-      on_correct: { ru: "Верно, десять сантиметров.", uz: "To'g'ri, o'n santimetr." },
-      on_wrong: { ru: "Диаметр в два раза больше радиуса.", uz: "Diametr radiusdan ikki barobar katta." }
+      intro: { ru: "Радиус окружности пять сантиметров. Чему равен диаметр?", uz: "Aylana radiusi besh santimetr. Diametr necha santimetr?", en: 'The radius of a circle is five centimetres. What is the diameter?' },
+      on_correct: { ru: "Верно, десять сантиметров.", uz: "To'g'ri, o'n santimetr.", en: 'That is right, ten centimetres.' },
+      on_wrong: { ru: "Диаметр в два раза больше радиуса.", uz: "Diametr radiusdan ikki barobar katta.", en: 'The diameter is twice the radius.' }
     }
   },
 
   // ===== s11 TEST tasniflash (tap) — to'g'ri burchak / emas [FAKT geometriya] =====
   s11: {
-    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
-    title: { ru: 'Прямой угол или нет?', uz: "To'g'ri burchakmi yoki yo'q?" },
-    lead: { ru: 'Поставь каждый угол в свою группу.', uz: "Har bir burchakni o'z guruhiga joylang." },
-    bin_sq: { ru: 'Прямой угол', uz: "To'g'ri burchak" },
-    bin_cu: { ru: 'Не прямой', uz: "To'g'ri emas" },
-    tap_prompt: { ru: 'Сначала выбери угол', uz: "Avval burchakni tanlang" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Прямой угол — ровно 90 градусов, как угол квадрата.', uz: "To'g'ri burchak — roppa-rosa to'qson daraja, kvadrat burchagidek." },
-    correct_text: { ru: 'Верно! Прямой угол — это 90 градусов.', uz: "To'g'ri! To'g'ri burchak — bu to'qson daraja." },
-    fact: { ru: 'Слово геометрия греческое: гео — земля, метрия — измерение. Всё началось с измерения земельных участков.', uz: "Geometriya so'zi yunoncha: geo — yer, metriya — o'lchash. Hammasi yer maydonlarini o'lchashdan boshlangan." },
-    fact_audio: { ru: "Слово геометрия пришло из греческого. Гео это земля, метрия это измерение. Всё началось с измерения земельных участков.", uz: "Geometriya so'zi yunonchadan kelgan. Geo yer degani, metriya o'lchash degani. Hammasi yer maydonlarini o'lchashdan boshlangan." },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating", en: 'Sort them into groups' },
+    title: { ru: 'Прямой угол или нет?', uz: "To'g'ri burchakmi yoki yo'q?", en: 'A right angle or not?' },
+    lead: { ru: 'Поставь каждый угол в свою группу.', uz: "Har bir burchakni o'z guruhiga joylang.", en: 'Put each angle into its group.' },
+    bin_sq: { ru: 'Прямой угол', uz: "To'g'ri burchak", en: 'Right angle' },
+    bin_cu: { ru: 'Не прямой', uz: "To'g'ri emas", en: 'Not a right angle' },
+    tap_prompt: { ru: 'Сначала выбери угол', uz: "Avval burchakni tanlang", en: 'Choose an angle first' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Прямой угол — ровно 90 градусов, как угол квадрата.', uz: "To'g'ri burchak — roppa-rosa to'qson daraja, kvadrat burchagidek.", en: 'A right angle is exactly 90 degrees, like the corner of a square.' },
+    correct_text: { ru: 'Верно! Прямой угол — это 90 градусов.', uz: "To'g'ri! To'g'ri burchak — bu to'qson daraja.", en: 'Right! A right angle is 90 degrees.' },
+    fact: { ru: 'Слово геометрия греческое: гео — земля, метрия — измерение. Всё началось с измерения земельных участков.', uz: "Geometriya so'zi yunoncha: geo — yer, metriya — o'lchash. Hammasi yer maydonlarini o'lchashdan boshlangan.", en: 'The word geometry is Greek: geo means earth and metria means measuring. It all began with measuring plots of land.' },
+    fact_audio: { ru: "Слово геометрия пришло из греческого. Гео это земля, метрия это измерение. Всё началось с измерения земельных участков.", uz: "Geometriya so'zi yunonchadan kelgan. Geo yer degani, metriya o'lchash degani. Hammasi yer maydonlarini o'lchashdan boshlangan.", en: 'The word geometry comes from Greek. Geo means earth and metria means measuring. It all began with measuring plots of land.' },
     audio: {
-      intro: { ru: "Поставь углы по группам: где прямой угол, а где нет. Прямой — это уголок квадрата.", uz: "Burchaklarni guruhlarga joylang: qaysi biri to'g'ri burchak, qaysi biri yo'q. To'g'ri — kvadrat burchagi kabi." },
-      on_correct: { ru: "Верно, прямой угол всегда девяносто градусов. А слово геометрия пришло из греческого. Гео это земля, а метрия это измерение. Всё началось с измерения земли.", uz: "To'g'ri, to'g'ri burchak har doim to'qson daraja. Geometriya so'zi esa yunonchadan kelgan. Geo yer degani, metriya esa o'lchash. Hammasi yerni o'lchashdan boshlangan." },
-      on_wrong: { ru: "Прямой угол похож на уголок квадрата.", uz: "To'g'ri burchak kvadrat burchagiga o'xshaydi." }
+      intro: { ru: "Поставь углы по группам: где прямой угол, а где нет. Прямой — это уголок квадрата.", uz: "Burchaklarni guruhlarga joylang: qaysi biri to'g'ri burchak, qaysi biri yo'q. To'g'ri — kvadrat burchagi kabi.", en: 'Sort the angles into groups: which are right angles and which are not. A right angle is the corner of a square.' },
+      on_correct: { ru: "Верно, прямой угол всегда девяносто градусов. А слово геометрия пришло из греческого. Гео это земля, а метрия это измерение. Всё началось с измерения земли.", uz: "To'g'ri, to'g'ri burchak har doim to'qson daraja. Geometriya so'zi esa yunonchadan kelgan. Geo yer degani, metriya esa o'lchash. Hammasi yerni o'lchashdan boshlangan.", en: 'That is right, a right angle is always ninety degrees. And the word geometry comes from Greek. Geo means earth and metria means measuring. It all began with measuring land.' },
+      on_wrong: { ru: "Прямой угол похож на уголок квадрата.", uz: "To'g'ri burchak kvadrat burchagiga o'xshaydi.", en: 'A right angle looks like the corner of a square.' }
     }
   },
 
   // ===== s12 CASE intro — Oysha g'ildirak =====
   s12: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    title: { ru: 'Колесо Ойши', uz: "Oyshaning g'ildiragi" },
-    lead: { ru: 'У велосипедного колеса Ойши диаметр 60 см. Она хочет узнать радиус.', uz: "Oyshaning velosiped g'ildiragi diametri 60 sm. U radiusni bilmoqchi." },
-    note: { ru: 'Чему равен радиус? Вспомним связь диаметра и радиуса.', uz: "Radius necha? Diametr va radius bog'lanishini eslaymiz." },
-    hint_calc: { ru: 'Диаметр — это два радиуса. Значит радиус — половина диаметра.', uz: "Diametr — bu ikki radius. Demak radius — diametrning yarmi." },
-    btn_help: { ru: 'Помочь Ойше', uz: "Oyshaga yordam berish" },
-    audio: { ru: "У колеса Ойши диаметр шестьдесят сантиметров. Она хочет узнать радиус. Вспомни, как связаны диаметр и радиус.", uz: "Oyshaning g'ildiragi diametri oltmish santimetr. U radiusni bilmoqchi. Diametr va radius qanday bog'langanini eslang." }
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    title: { ru: 'Колесо Ойши', uz: "Oyshaning g'ildiragi", en: "Oysha's wheel" },
+    lead: { ru: 'У велосипедного колеса Ойши диаметр 60 см. Она хочет узнать радиус.', uz: "Oyshaning velosiped g'ildiragi diametri 60 sm. U radiusni bilmoqchi.", en: "Oysha's bicycle wheel has a diameter of 60 cm. She wants to find the radius." },
+    note: { ru: 'Чему равен радиус? Вспомним связь диаметра и радиуса.', uz: "Radius necha? Diametr va radius bog'lanishini eslaymiz.", en: 'What is the radius? Let us remember how the diameter and the radius are linked.' },
+    hint_calc: { ru: 'Диаметр — это два радиуса. Значит радиус — половина диаметра.', uz: "Diametr — bu ikki radius. Demak radius — diametrning yarmi.", en: 'The diameter is two radiuses. So the radius is half the diameter.' },
+    btn_help: { ru: 'Помочь Ойше', uz: "Oyshaga yordam berish", en: 'Help Oysha' },
+    audio: { ru: "У колеса Ойши диаметр шестьдесят сантиметров. Она хочет узнать радиус. Вспомни, как связаны диаметр и радиус.", uz: "Oyshaning g'ildiragi diametri oltmish santimetr. U radiusni bilmoqchi. Diametr va radius qanday bog'langanini eslang.", en: "Oysha's wheel has a diameter of sixty centimetres. She wants to find the radius. Remember how the diameter and the radius are linked." }
   },
 
   // ===== s13 CASE FINAL MC — diametr 60 -> radius 30 [FAKT pi] =====
   s13: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Радиус колеса', uz: "G'ildirak radiusi" },
-    question: { ru: 'Диаметр колеса 60 см. Чему равен радиус?', uz: "G'ildirak diametri 60 sm. Radiusi necha sm?" },
-    opt0: { ru: '30 см', uz: "30 sm" },
-    opt1: { ru: '120 см', uz: "120 sm" },
-    opt2: { ru: '60 см', uz: "60 sm" },
-    opt3: { ru: '15 см', uz: "15 sm" },
-    correct_text: { ru: 'Верно: радиус — половина диаметра, это 30 см.', uz: "To'g'ri: radius — diametrning yarmi, ya'ni 30 sm." },
-    wrong_1: { ru: 'Это удвоенный диаметр. А радиус — половина диаметра.', uz: "Bu diametrning ikki barobari. Radius esa — diametrning yarmi." },
-    wrong_2: { ru: 'Это сам диаметр. Радиус в два раза меньше.', uz: "Bu diametrning o'zi. Radius ikki barobar kichik." },
-    wrong_3: { ru: 'Это четверть. А радиус — половина диаметра.', uz: "Bu chorak. Radius esa — diametrning yarmi." },
-    fact: { ru: 'А длина самой окружности примерно в 3,14 раза больше диаметра. Это число называют «пи».', uz: "Aylananing uzunligi esa diametridan taxminan 3,14 barobar katta. Bu son «pi» deb ataladi." },
-    fact_audio: { ru: "Длина самой окружности примерно в три целых четырнадцать сотых раза больше диаметра. Это число называют пи.", uz: "Aylananing uzunligi diametridan taxminan uch butun yuzdan o'n to'rt barobar katta. Bu son pi deb ataladi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq", en: 'Final task' },
+    title: { ru: 'Радиус колеса', uz: "G'ildirak radiusi", en: 'The radius of the wheel' },
+    question: { ru: 'Диаметр колеса 60 см. Чему равен радиус?', uz: "G'ildirak diametri 60 sm. Radiusi necha sm?", en: 'The wheel has a diameter of 60 cm. What is the radius?' },
+    opt0: { ru: '30 см', uz: "30 sm", en: '30 cm' },
+    opt1: { ru: '120 см', uz: "120 sm", en: '120 cm' },
+    opt2: { ru: '60 см', uz: "60 sm", en: '60 cm' },
+    opt3: { ru: '15 см', uz: "15 sm", en: '15 cm' },
+    correct_text: { ru: 'Верно: радиус — половина диаметра, это 30 см.', uz: "To'g'ri: radius — diametrning yarmi, ya'ni 30 sm.", en: 'That is right: the radius is half the diameter, which is 30 cm.' },
+    wrong_1: { ru: 'Это удвоенный диаметр. А радиус — половина диаметра.', uz: "Bu diametrning ikki barobari. Radius esa — diametrning yarmi.", en: 'That is the diameter doubled. But the radius is half the diameter.' },
+    wrong_2: { ru: 'Это сам диаметр. Радиус в два раза меньше.', uz: "Bu diametrning o'zi. Radius ikki barobar kichik.", en: 'That is the diameter itself. The radius is half as long.' },
+    wrong_3: { ru: 'Это четверть. А радиус — половина диаметра.', uz: "Bu chorak. Radius esa — diametrning yarmi.", en: 'That is a quarter. But the radius is half the diameter.' },
+    fact: { ru: 'А длина самой окружности примерно в 3,14 раза больше диаметра. Это число называют «пи».', uz: "Aylananing uzunligi esa diametridan taxminan 3,14 barobar katta. Bu son «pi» deb ataladi.", en: 'And the length round a circle is about 3,14 times its diameter. That number is called pi.' },
+    fact_audio: { ru: "Длина самой окружности примерно в три целых четырнадцать сотых раза больше диаметра. Это число называют пи.", uz: "Aylananing uzunligi diametridan taxminan uch butun yuzdan o'n to'rt barobar katta. Bu son pi deb ataladi.", en: 'The length round a circle is about three point one four times its diameter. That number is called pi.' },
     audio: {
-      intro: { ru: "Последнее задание. Диаметр колеса шестьдесят сантиметров. Чему равен радиус?", uz: "Oxirgi topshiriq. G'ildirak diametri oltmish santimetr. Radiusi necha santimetr?" },
-      on_correct: { ru: "Верно, тридцать сантиметров. А длина окружности примерно в три и четырнадцать сотых раза больше диаметра — это число пи.", uz: "To'g'ri, o'ttiz santimetr. Aylana uzunligi esa diametridan taxminan uch butun yuzdan o'n to'rt barobar katta — bu pi soni." },
-      on_wrong: { ru: "Радиус — это половина диаметра.", uz: "Radius — diametrning yarmi." }
+      intro: { ru: "Последнее задание. Диаметр колеса шестьдесят сантиметров. Чему равен радиус?", uz: "Oxirgi topshiriq. G'ildirak diametri oltmish santimetr. Radiusi necha santimetr?", en: 'The last task. The wheel has a diameter of sixty centimetres. What is the radius?' },
+      on_correct: { ru: "Верно, тридцать сантиметров. А длина окружности примерно в три и четырнадцать сотых раза больше диаметра — это число пи.", uz: "To'g'ri, o'ttiz santimetr. Aylana uzunligi esa diametridan taxminan uch butun yuzdan o'n to'rt barobar katta — bu pi soni.", en: 'That is right, thirty centimetres. And the length round a circle is about three point one four times its diameter, and that number is pi.' },
+      on_wrong: { ru: "Радиус — это половина диаметра.", uz: "Radius — diametrning yarmi.", en: 'The radius is half the diameter.' }
     }
   },
 
   // ===== s14 SUMMARY =====
   s14: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Геометрия началась', uz: "Geometriya boshlandi" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Отрезок — два конца, луч — один, прямая — без концов.', uz: "Kesma — ikki uchi, nur — bitta, to'g'ri chiziq — uchsiz." },
-    main_2: { ru: 'Угол задаёт раскрытие, а не длина сторон. Прямой угол — 90 градусов.', uz: "Burchakni ochilish belgilaydi, tomon uzunligi emas. To'g'ri burchak — to'qson daraja." },
-    main_3: { ru: 'У окружности есть центр и радиус, а диаметр в два раза больше радиуса.', uz: "Aylananing markazi va radiusi bor, diametr esa radiusdan ikki barobar katta." },
-    hook_close: { ru: 'Теперь формы вокруг нас не безымянны: это линии, углы и окружности.', uz: "Endi atrofimizdagi shakllar nomsiz emas: bular chiziq, burchak va aylanalar." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Точки и линии из начальной школы.', uz: "Boshlang'ich sinfdagi nuqta va chiziqlar." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Периметр и площадь фигур.', uz: "Figuralarning perimetri va yuzasi." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, мы узнали отрезок, луч и прямую, познакомились с углом и окружностью. Главное про угол — это раскрытие, а диаметр всегда вдвое больше радиуса.", uz: "Demak, kesma, nur va to'g'ri chiziqni bildik, burchak va aylana bilan tanishdik. Burchakda asosiysi — ochilish, diametr esa har doim radiusdan ikki barobar katta." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Геометрия началась', uz: "Geometriya boshlandi", en: 'Geometry has begun' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Отрезок — два конца, луч — один, прямая — без концов.', uz: "Kesma — ikki uchi, nur — bitta, to'g'ri chiziq — uchsiz.", en: 'A line segment has two ends, a ray has one and a line has none.' },
+    main_2: { ru: 'Угол задаёт раскрытие, а не длина сторон. Прямой угол — 90 градусов.', uz: "Burchakni ochilish belgilaydi, tomon uzunligi emas. To'g'ri burchak — to'qson daraja.", en: 'An angle is set by how far it opens, not by the length of the arms. A right angle is 90 degrees.' },
+    main_3: { ru: 'У окружности есть центр и радиус, а диаметр в два раза больше радиуса.', uz: "Aylananing markazi va radiusi bor, diametr esa radiusdan ikki barobar katta.", en: 'A circle has a centre and a radius, and the diameter is twice the radius.' },
+    hook_close: { ru: 'Теперь формы вокруг нас не безымянны: это линии, углы и окружности.', uz: "Endi atrofimizdagi shakllar nomsiz emas: bular chiziq, burchak va aylanalar.", en: 'Now the shapes around us are not nameless: they are lines, angles and circles.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Точки и линии из начальной школы.', uz: "Boshlang'ich sinfdagi nuqta va chiziqlar.", en: 'Points and lines from primary school.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Периметр и площадь фигур.', uz: "Figuralarning perimetri va yuzasi.", en: 'The perimeter and area of shapes.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, мы узнали отрезок, луч и прямую, познакомились с углом и окружностью. Главное про угол — это раскрытие, а диаметр всегда вдвое больше радиуса.", uz: "Demak, kesma, nur va to'g'ri chiziqni bildik, burchak va aylana bilan tanishdik. Burchakda asosiysi — ochilish, diametr esa har doim radiusdan ikki barobar katta.", en: 'So we have learnt the line segment, the ray and the line, and we have met the angle and the circle. The main thing about an angle is how far it opens, and the diameter is always twice the radius.' }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1049,8 +1077,8 @@ const Title = ({ node }) => { const t = useT(); return <h2 className="title h-ti
 // Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT" };
-const FB_MATH = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT",         en: 'Did you know? · IT' };
+const FB_MATH = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika", en: 'Did you know? · Mathematics' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1065,7 +1093,7 @@ const FactCard = ({ text, anim, badge }) => {
   );
 };
 
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
 
 // ============================================================
 // DEKOR + MUKOFOT + HOOK animatsiyalari (CSS/SVG, yengil loop)
@@ -1222,13 +1250,13 @@ const NumGeoScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, co
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1568,7 +1596,7 @@ const Screen11 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
             <div style={{ marginTop: 12 }}><FactCard text={c.fact} badge={FB_HIST} anim={<AnimGeoWord/>}/></div>
           </FeedbackBlock>
@@ -1613,7 +1641,7 @@ const Screen14 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s14;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)', justifyContent: 'center' }}>
@@ -1641,7 +1669,7 @@ export default function GeoIntroLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1694,7 +1722,7 @@ export default function GeoIntroLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

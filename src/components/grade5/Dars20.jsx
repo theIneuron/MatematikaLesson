@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -756,8 +782,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'frac_5_12',
-  lessonTitle: { ru: 'Вычитание дробей с разными знаменателями', uz: "Har xil maxrajli kasrlarni ayirish" }
+  lessonId: 'grade5-20',
+  lessonTitle: { ru: 'Вычитание дробей с разными знаменателями', uz: "Har xil maxrajli kasrlarni ayirish", en: 'Subtracting fractions with different denominators' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0
@@ -782,51 +808,52 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: Farrux sharbat 5/6 − 1/3, ilova 4/3 ko'rsatdi (o'sganmi?). Ekranda FAQAT sarlavha + anim; qolgan ma'lumot OVOZDA.
   s0: {
-    eyebrow: { ru: 'Загадка', uz: "Jumboq" },
-    title: { ru: 'В приложении баг: после глотка сока стало больше?', uz: "Ilovada xato: bir qultumdan keyin sharbat ko'paydimi?" },
-    lead: { ru: 'Бутылка Фарруха была заполнена на 5/6. Он выпил 1/3 бутылки.', uz: "Farruxning shishasi 5/6 ga to'la edi. U shishaning 1/3 qismini ichdi." },
-    opt0: { ru: 'Нет, это ошибка в расчёте', uz: "Yo'q, bu hisobdagi xato" },
-    opt1: { ru: 'Да, так может быть', uz: "Ha, shunday bo'lishi mumkin" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    reveal0: { ru: 'Верное чутьё. Сейчас увидим, где именно ошибся расчёт.', uz: "To'g'ri sezgi. Hozir hisob qayerda xato qilganini ko'ramiz." },
-    reveal1: { ru: 'Проверим вместе: жидкость не появляется из ниоткуда.', uz: "Birga tekshiramiz: suyuqlik yo'qdan paydo bo'lmaydi." },
-    reveal2: { ru: 'Ничего страшного — к концу урока ответишь уверенно.', uz: "Hechqisi yo'q — dars oxirida ishonch bilan javob berasiz." },
+    eyebrow: { ru: 'Загадка', uz: "Jumboq", en: 'A puzzle' },
+    title: { ru: 'В приложении баг: после глотка сока стало больше?', uz: "Ilovada xato: bir qultumdan keyin sharbat ko'paydimi?", en: 'There is a bug in the app: is there more juice after a sip?' },
+    lead: { ru: 'Бутылка Фарруха была заполнена на 5/6. Он выпил 1/3 бутылки.', uz: "Farruxning shishasi 5/6 ga to'la edi. U shishaning 1/3 qismini ichdi.", en: "Farrukh's bottle was 5/6 full. He drank 1/3 of the bottle." },
+    opt0: { ru: 'Нет, это ошибка в расчёте', uz: "Yo'q, bu hisobdagi xato", en: 'No, that is a mistake in the working out' },
+    opt1: { ru: 'Да, так может быть', uz: "Ha, shunday bo'lishi mumkin", en: 'Yes, that can happen' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    reveal0: { ru: 'Верное чутьё. Сейчас увидим, где именно ошибся расчёт.', uz: "To'g'ri sezgi. Hozir hisob qayerda xato qilganini ko'ramiz.", en: 'Good instinct. Now let us see exactly where the working out went wrong.' },
+    reveal1: { ru: 'Проверим вместе: жидкость не появляется из ниоткуда.', uz: "Birga tekshiramiz: suyuqlik yo'qdan paydo bo'lmaydi.", en: 'Let us check together: liquid does not appear out of nowhere.' },
+    reveal2: { ru: 'Ничего страшного — к концу урока ответишь уверенно.', uz: "Hechqisi yo'q — dars oxirida ishonch bilan javob berasiz.", en: 'That is fine, by the end of the lesson you will answer with confidence.' },
     audio: {
       ru: 'Бутылка Фарруха была заполнена на пять шестых. Он выпил одну третью бутылки. Приложение посчитало так. Пять минус один четыре, шесть минус три три, и показало четыре третьих. Но четыре третьих больше целой бутылки. Выходит, после глотка сока стало больше. Как думаешь, так может быть? Выбери ответ.',
-      uz: "Farruxning shishasi oltidan besh qismga to'la edi. U shishaning uchdan bir qismini ichdi. Ilova shunday hisobladi. Besh minus bir to'rt, olti minus uch uch, va uchdan to'rtni ko'rsatdi. Lekin uchdan to'rt butun shishadan ko'p. Demak, bir qultumdan keyin sharbat ko'paygan. Sizningcha, shunday bo'lishi mumkinmi? Javobni tanlang."
+      uz: "Farruxning shishasi oltidan besh qismga to'la edi. U shishaning uchdan bir qismini ichdi. Ilova shunday hisobladi. Besh minus bir to'rt, olti minus uch uch, va uchdan to'rtni ko'rsatdi. Lekin uchdan to'rt butun shishadan ko'p. Demak, bir qultumdan keyin sharbat ko'paygan. Sizningcha, shunday bo'lishi mumkinmi? Javobni tanlang.",
+      en: "Farrukh's bottle was five sixths full. He drank one third of the bottle. The app worked it out like this: five take away one is four, six take away three is three, and it showed four thirds. But four thirds is more than a whole bottle. So after a sip there is more juice. Do you think that can happen? Choose an answer."
     }
   },
 
   // s1 — WARMUP (spaced retrieval): 1/3 = ?/6  (umumiy maxraj, frac_5_06)
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
-    bridge: { ru: 'Помнишь, как приводят дроби? С этого и начнём.', uz: "Kasrlarni keltirishni eslaysizmi? Shundan boshlaymiz." },
-    title: { ru: 'Сначала вспомним приведение к общему знаменателю.', uz: "Avval umumiy maxrajga keltirishni eslaymiz." },
-    question: { ru: 'Сколько шестых в одной третьей? 1/3 = ?/6', uz: "Uchdan birda nechta oltidan bor? 1/3 = ?/6" },
-    opt0: { ru: '2/6', uz: '2/6' },
-    opt1: { ru: '1/6', uz: '1/6' },
-    opt2: { ru: '3/6', uz: '3/6' },
-    correct_text: { ru: 'Верно. Знаменатель умножили на 2, значит и числитель на 2: 1/3 = 2/6.', uz: "To'g'ri. Maxrajni 2 ga ko'paytirdik, demak suratni ham 2 ga: 1/3 = 2/6." },
-    hint_1: { ru: 'Знаменатель вырос с трёх до шести, значит умножили на два. Числитель умножь на то же число.', uz: "Maxraj uchdan oltiga oshdi, demak ikkiga ko'paytirilgan. Suratni ham o'sha songa ko'paytiring." },
-    hint_2: { ru: 'Не угадывай числитель. На сколько умножен знаменатель, на столько же умножается числитель.', uz: "Suratni taxmin qilmang. Maxraj nechaga ko'paytirilgan bo'lsa, surat ham o'shanga ko'paytiriladi." },
-    wrong_default: { ru: 'Приведи одну третью к шестым: умножь и числитель, и знаменатель на два.', uz: "Uchdan birni oltilarga keltiring: surat va maxrajni ham ikkiga ko'paytiring." },
+    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz", en: 'Let us remember' },
+    bridge: { ru: 'Помнишь, как приводят дроби? С этого и начнём.', uz: "Kasrlarni keltirishni eslaysizmi? Shundan boshlaymiz.", en: 'Do you remember how fractions are changed to a common denominator? That is where we start.' },
+    title: { ru: 'Сначала вспомним приведение к общему знаменателю.', uz: "Avval umumiy maxrajga keltirishni eslaymiz.", en: 'First let us remember changing to a common denominator.' },
+    question: { ru: 'Сколько шестых в одной третьей? 1/3 = ?/6', uz: "Uchdan birda nechta oltidan bor? 1/3 = ?/6", en: 'How many sixths are there in one third? 1/3 = ?/6' },
+    opt0: { ru: '2/6', uz: '2/6', en: '2/6' },
+    opt1: { ru: '1/6', uz: '1/6', en: '1/6' },
+    opt2: { ru: '3/6', uz: '3/6', en: '3/6' },
+    correct_text: { ru: 'Верно. Знаменатель умножили на 2, значит и числитель на 2: 1/3 = 2/6.', uz: "To'g'ri. Maxrajni 2 ga ko'paytirdik, demak suratni ham 2 ga: 1/3 = 2/6.", en: 'That is right. The denominator was multiplied by 2, so the numerator is multiplied by 2 as well: 1/3 = 2/6.' },
+    hint_1: { ru: 'Знаменатель вырос с трёх до шести, значит умножили на два. Числитель умножь на то же число.', uz: "Maxraj uchdan oltiga oshdi, demak ikkiga ko'paytirilgan. Suratni ham o'sha songa ko'paytiring.", en: 'The denominator grew from three to six, so it was multiplied by two. Multiply the numerator by the same number.' },
+    hint_2: { ru: 'Не угадывай числитель. На сколько умножен знаменатель, на столько же умножается числитель.', uz: "Suratni taxmin qilmang. Maxraj nechaga ko'paytirilgan bo'lsa, surat ham o'shanga ko'paytiriladi.", en: 'Do not guess the numerator. It is multiplied by however much the denominator was multiplied by.' },
+    wrong_default: { ru: 'Приведи одну третью к шестым: умножь и числитель, и знаменатель на два.', uz: "Uchdan birni oltilarga keltiring: surat va maxrajni ham ikkiga ko'paytiring.", en: 'Change one third into sixths: multiply both the numerator and the denominator by two.' },
     audio: {
-      intro: { ru: 'Сначала разминка из прошлого урока. Сколько шестых помещается в одной третьей? Выбери ответ.', uz: "Avval o'tgan darsdan mashq. Uchdan birda nechta oltidan joylashadi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель умножили на два, поэтому и числитель на два. Одна третья это две шестых.', uz: "To'g'ri. Maxrajni ikkiga ko'paytirdik, shuning uchun suratni ham ikkiga. Uchdan bir bu oltidan ikki." },
-      on_wrong: { ru: 'Не совсем. На сколько умножаешь знаменатель, на столько же умножай числитель.', uz: "Unchalik emas. Maxrajni nechaga ko'paytirsangiz, suratni ham o'shanga ko'paytiring." }
+      intro: { ru: 'Сначала разминка из прошлого урока. Сколько шестых помещается в одной третьей? Выбери ответ.', uz: "Avval o'tgan darsdan mashq. Uchdan birda nechta oltidan joylashadi? Javobni tanlang.", en: 'First a warm up from the last lesson. How many sixths fit into one third? Choose an answer.' },
+      on_correct: { ru: 'Верно. Знаменатель умножили на два, поэтому и числитель на два. Одна третья это две шестых.', uz: "To'g'ri. Maxrajni ikkiga ko'paytirdik, shuning uchun suratni ham ikkiga. Uchdan bir bu oltidan ikki.", en: 'That is right. The denominator was multiplied by two, so the numerator was as well. One third is two sixths.' },
+      on_wrong: { ru: 'Не совсем. На сколько умножаешь знаменатель, на столько же умножай числитель.', uz: "Unchalik emas. Maxrajni nechaga ko'paytirsangiz, suratni ham o'shanga ko'paytiring.", en: 'Not quite. Multiply the numerator by however much you multiply the denominator.' }
     }
   },
 
   // s2 — EXPLORATION (AreaGrid): nega 5−1 va 6−3 xato; 1/3 = 2/6
   s2: {
-    eyebrow: { ru: 'Почему так', uz: "Nega bunday" },
-    bridge: { ru: 'Раз 1/3 = 2/6, посмотрим, почему 6 − 3 — это ошибка.', uz: "1/3 = 2/6 ekan, nega 6 − 3 xato ekanini ko'ramiz." },
-    title: { ru: 'Почему 6 − 3 — ошибка', uz: "Nega 6 − 3 — bu xato" },
-    cap0: { ru: 'Бутылка поделена на 6 равных долей, налито 5. Это 5/6.', uz: "Shisha 6 ta teng ulushga bo'lingan, 5 tasi to'la. Bu 5/6." },
-    cap1: { ru: 'Глоток — это 1/3. Трети крупнее шестых, вычитать их напрямую нельзя.', uz: "Qultum — bu 1/3. Uchdan birlar oltidan birlardan yirik, ularni to'g'ridan ayirib bo'lmaydi." },
-    cap2: { ru: 'Но 1/3 — это ровно 2/6. Значит, убрать нужно 2 доли из 5.', uz: "Lekin 1/3 — bu roppa rosa 2/6. Demak, 5 ulushdan 2 tasini olib tashlash kerak." },
-    cap3: { ru: 'Осталось 3 доли из 6: 5/6 − 2/6 = 3/6. Бутылка не выросла.', uz: "6 dan 3 ulush qoldi: 5/6 − 2/6 = 3/6. Shisha o'smadi." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
+    eyebrow: { ru: 'Почему так', uz: "Nega bunday", en: 'Why it works' },
+    bridge: { ru: 'Раз 1/3 = 2/6, посмотрим, почему 6 − 3 — это ошибка.', uz: "1/3 = 2/6 ekan, nega 6 − 3 xato ekanini ko'ramiz.", en: 'Since 1/3 = 2/6, let us see why 6 − 3 is a mistake.' },
+    title: { ru: 'Почему 6 − 3 — ошибка', uz: "Nega 6 − 3 — bu xato", en: 'Why 6 − 3 is a mistake' },
+    cap0: { ru: 'Бутылка поделена на 6 равных долей, налито 5. Это 5/6.', uz: "Shisha 6 ta teng ulushga bo'lingan, 5 tasi to'la. Bu 5/6.", en: 'The bottle is split into 6 equal parts with 5 filled. That is 5/6.' },
+    cap1: { ru: 'Глоток — это 1/3. Трети крупнее шестых, вычитать их напрямую нельзя.', uz: "Qultum — bu 1/3. Uchdan birlar oltidan birlardan yirik, ularni to'g'ridan ayirib bo'lmaydi.", en: 'The sip is 1/3. Thirds are bigger than sixths, so they cannot be taken away directly.' },
+    cap2: { ru: 'Но 1/3 — это ровно 2/6. Значит, убрать нужно 2 доли из 5.', uz: "Lekin 1/3 — bu roppa rosa 2/6. Demak, 5 ulushdan 2 tasini olib tashlash kerak.", en: 'But 1/3 is exactly 2/6. So 2 parts have to be taken away from the 5.' },
+    cap3: { ru: 'Осталось 3 доли из 6: 5/6 − 2/6 = 3/6. Бутылка не выросла.', uz: "6 dan 3 ulush qoldi: 5/6 − 2/6 = 3/6. Shisha o'smadi.", en: '3 parts are left out of 6: 5/6 − 2/6 = 3/6. The bottle did not grow.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
     audio: {
       ru: [
         'Разберёмся, почему приложение ошиблось. Бутылка поделена на шесть равных долей, налито пять. Это пять шестых. Нажми кнопку дальше.',
@@ -839,36 +866,37 @@ const CONTENT = {
         "Qultum bu uchdan bir. Uchdan birlar oltidan birlardan yirik. Ulushlar har xil o'lchamda, ularni to'g'ridan to'g'ri ayirib bo'lmaydi.",
         "Lekin uchdan bir bu roppa rosa oltidan ikki. Ustiga qo'yib tekshiramiz. Demak, besh ulushdan ikkitasini olib tashlash kerak.",
         "Oltidan uch ulush qoldi. Oltidan besh minus oltidan ikki teng oltidan uch. Shisha o'smadi, hammasi to'g'ri."
-      ]
+      ],
+      en: ['Let us work out why the app went wrong. The bottle is split into six equal parts with five filled. That is five sixths. Tap the next button.', 'The sip is one third. Thirds are bigger than sixths. The parts are different sizes, so they cannot be taken away directly.', 'But one third is exactly two sixths. Let us lay them over each other and check. So two parts have to be taken away from the five.', 'Three parts are left out of six. Five sixths take away two sixths is three sixths. The bottle did not grow and it all works out.']
     }
   },
 
   // s3 — EXPLORATION (slayder): umumiy maxraj qidiruvi (1/2 va 1/3 uchun)
   s3: {
-    eyebrow: { ru: 'Общий знаменатель', uz: "Umumiy maxraj" },
-    bridge: { ru: 'А если знаменатели не делятся друг на друга? Поищем общий.', uz: "Maxrajlar bir-biriga bo'linmasa-chi? Umumiysini qidiramiz." },
-    title: { ru: 'Найди число долей, на которое ровно лягут и 1/2, и 1/3.', uz: "1/2 ham, 1/3 ham tekis tushadigan ulushlar sonini toping." },
-    label_slider: { ru: 'Число долей', uz: "Ulushlar soni" },
-    note_fit: { ru: 'Подходит! Делится и на 2, и на 3.', uz: "Mos keldi! Ham 2 ga, ham 3 ga bo'linadi." },
-    note_nofit: { ru: 'Не подходит: одна из дробей не ляжет ровно.', uz: "Mos emas: kasrlardan biri tekis tushmaydi." },
-    note_small: { ru: 'Это наименьший общий знаменатель — 6.', uz: "Bu eng kichik umumiy maxraj — 6." },
-    conclusion: { ru: 'На 6 долях: 1/2 = 3/6, 1/3 = 2/6. Теперь знаменатели одинаковые.', uz: "6 ulushda: 1/2 = 3/6, 1/3 = 2/6. Endi maxrajlar bir xil." },
+    eyebrow: { ru: 'Общий знаменатель', uz: "Umumiy maxraj", en: 'The common denominator' },
+    bridge: { ru: 'А если знаменатели не делятся друг на друга? Поищем общий.', uz: "Maxrajlar bir-biriga bo'linmasa-chi? Umumiysini qidiramiz.", en: 'And what if neither denominator divides by the other? Let us look for a common one.' },
+    title: { ru: 'Найди число долей, на которое ровно лягут и 1/2, и 1/3.', uz: "1/2 ham, 1/3 ham tekis tushadigan ulushlar sonini toping.", en: 'Find a number of parts that both 1/2 and 1/3 fit into exactly.' },
+    label_slider: { ru: 'Число долей', uz: "Ulushlar soni", en: 'Number of parts' },
+    note_fit: { ru: 'Подходит! Делится и на 2, и на 3.', uz: "Mos keldi! Ham 2 ga, ham 3 ga bo'linadi.", en: 'That works! It divides by both 2 and 3.' },
+    note_nofit: { ru: 'Не подходит: одна из дробей не ляжет ровно.', uz: "Mos emas: kasrlardan biri tekis tushmaydi.", en: 'That does not work: one of the fractions will not fit exactly.' },
+    note_small: { ru: 'Это наименьший общий знаменатель — 6.', uz: "Bu eng kichik umumiy maxraj — 6.", en: 'This is the lowest common denominator, 6.' },
+    conclusion: { ru: 'На 6 долях: 1/2 = 3/6, 1/3 = 2/6. Теперь знаменатели одинаковые.', uz: "6 ulushda: 1/2 = 3/6, 1/3 = 2/6. Endi maxrajlar bir xil.", en: 'With 6 parts: 1/2 = 3/6 and 1/3 = 2/6. Now the denominators are the same.' },
     audio: {
-      intro: { ru: 'Если знаменатели разные, ищем общий. Двигай ползунок и найди число долей, на которое ровно лягут и одна вторая, и одна третья. Самое маленькое подходящее число это шесть.', uz: "Maxrajlar har xil bo'lsa, umumiysini qidiramiz. Slayderni suring va ikkidan bir ham, uchdan bir ham tekis tushadigan ulushlar sonini toping. Eng kichik mos son bu olti." },
-      on_fit: { ru: 'Подходит. И половина, и треть ложатся ровно.', uz: "Mos keldi. Yarim ham, uchdan bir ham tekis tushadi." }
+      intro: { ru: 'Если знаменатели разные, ищем общий. Двигай ползунок и найди число долей, на которое ровно лягут и одна вторая, и одна третья. Самое маленькое подходящее число это шесть.', uz: "Maxrajlar har xil bo'lsa, umumiysini qidiramiz. Slayderni suring va ikkidan bir ham, uchdan bir ham tekis tushadigan ulushlar sonini toping. Eng kichik mos son bu olti.", en: 'If the denominators are different we look for a common one. Move the slider and find a number of parts that both one half and one third fit into exactly. The smallest number that works is six.' },
+      on_fit: { ru: 'Подходит. И половина, и треть ложатся ровно.', uz: "Mos keldi. Yarim ham, uchdan bir ham tekis tushadi.", en: 'That works. Both the half and the third fit exactly.' }
     }
   },
 
   // s4 — RULE: 3 qadam + pale-yellow ogohlantirish + fakt
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Соберём всё в короткое правило из трёх шагов.', uz: "Hammasini uch qadamli qisqa qoidaga yig'amiz." },
-    title: { ru: 'Сначала общий знаменатель, потом вычитаем числители.', uz: "Avval umumiy maxraj, keyin suratlarni ayiramiz." },
-    step1: { ru: '1. Найди общий знаменатель — число, которое делится на оба знаменателя.', uz: "1. Umumiy maxrajni toping — har ikkala maxrajga bo'linadigan son." },
-    step2: { ru: '2. Приведи обе дроби: на сколько умножаешь знаменатель, на столько же — числитель.', uz: "2. Ikkala kasrni keltiring: maxrajni nechaga ko'paytirsangiz, suratni ham o'shanga." },
-    step3: { ru: '3. Вычти только числители. Знаменатель оставь прежним.', uz: "3. Faqat suratlarni ayiring. Maxrajni o'zgartirmang." },
-    warn: { ru: 'Знаменатель — это размер доли. Его не вычитают.', uz: "Maxraj — bu ulush o'lchami. U ayirilmaydi." },
-    fact: { ru: 'Древние египтяне записывали 5/6 как сумму 1/2 и 1/3 — те же числа, что у Фарруха.', uz: "Qadimgi misrliklar 5/6 ni 1/2 va 1/3 yig'indisi shaklida yozishgan — Farruxdagi sonlar." },
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Соберём всё в короткое правило из трёх шагов.', uz: "Hammasini uch qadamli qisqa qoidaga yig'amiz.", en: 'Let us gather it all into a short rule in three steps.' },
+    title: { ru: 'Сначала общий знаменатель, потом вычитаем числители.', uz: "Avval umumiy maxraj, keyin suratlarni ayiramiz.", en: 'The common denominator first, then we subtract the numerators.' },
+    step1: { ru: '1. Найди общий знаменатель — число, которое делится на оба знаменателя.', uz: "1. Umumiy maxrajni toping — har ikkala maxrajga bo'linadigan son.", en: '1. Find the common denominator, a number that divides by both denominators.' },
+    step2: { ru: '2. Приведи обе дроби: на сколько умножаешь знаменатель, на столько же — числитель.', uz: "2. Ikkala kasrni keltiring: maxrajni nechaga ko'paytirsangiz, suratni ham o'shanga.", en: '2. Change both fractions: multiply the numerator by however much you multiply the denominator.' },
+    step3: { ru: '3. Вычти только числители. Знаменатель оставь прежним.', uz: "3. Faqat suratlarni ayiring. Maxrajni o'zgartirmang.", en: '3. Subtract only the numerators. Leave the denominator as it is.' },
+    warn: { ru: 'Знаменатель — это размер доли. Его не вычитают.', uz: "Maxraj — bu ulush o'lchami. U ayirilmaydi.", en: 'The denominator is the size of a part. It is not subtracted.' },
+    fact: { ru: 'Древние египтяне записывали 5/6 как сумму 1/2 и 1/3 — те же числа, что у Фарруха.', uz: "Qadimgi misrliklar 5/6 ni 1/2 va 1/3 yig'indisi shaklida yozishgan — Farruxdagi sonlar.", en: "The ancient Egyptians wrote 5/6 as 1/2 and 1/3 added together, the very same numbers as in Farrukh's problem." },
     audio: {
       ru: [
         'Запомни правило из трёх шагов. Шаг один. Находим общий знаменатель, число, которое делится на оба знаменателя. Шаг два. Приводим обе дроби. На что умножаешь знаменатель, на то же умножай и числитель. Шаг три. Вычитаем только числители. Знаменатель оставляем прежним, его не вычитаем, ведь это размер доли.',
@@ -877,211 +905,212 @@ const CONTENT = {
       uz: [
         "Uch qadamli qoidani eslab qoling. Birinchi qadam. Umumiy maxrajni topamiz, bu har ikkala maxrajga bo'linadigan son. Ikkinchi qadam. Ikkala kasrni keltiramiz. Maxrajni nechaga ko'paytirsangiz, suratni ham o'shanga ko'paytiring. Uchinchi qadam. Faqat suratlarni ayiramiz. Maxrajni o'zgartirmaymiz, uni ayirmaymiz, chunki bu ulush o'lchami.",
         "Endi qiziqarli fakt. Qadimgi misrliklar to'rt ming yil oldin oltidan besh kasrini ikkidan bir va uchdan bir yig'indisi shaklida yozishgan. Xuddi Farrux masalasidagi sonlar."
-      ]
+      ],
+      en: ['Remember the rule in three steps. Step one: find the common denominator, a number that divides by both denominators. Step two: change both fractions, multiplying the numerator by however much you multiply the denominator. Step three: subtract only the numerators. Leave the denominator as it is and do not subtract it, because it is the size of a part.', "And now an interesting fact. Four thousand years ago the ancient Egyptians wrote the fraction five sixths as one half and one third added together. The very same numbers as in Farrukh's problem."]
     }
   },
 
   // s5 — TEST SeqMC: 5 ta OSON savol (to'g'ri javob pozitsiyalari A/C/B/C/B bo'ylab tarqatilgan)
   s5: {
-    eyebrow: { ru: 'Разминка · 5 примеров', uz: "Mashq · 5 ta misol" },
-    bridge: { ru: 'Правило ясно — закрепим на пяти быстрых примерах.', uz: "Qoida tushunarli — beshta tezkor misolda mustahkamlaymiz." },
-    title: { ru: 'Пять быстрых вычитаний', uz: "Beshta tezkor ayirish" },
-    lead: { ru: 'Сначала общий знаменатель, потом вычитай числители.', uz: "Avval umumiy maxraj, keyin suratlarni ayiring." },
+    eyebrow: { ru: 'Разминка · 5 примеров', uz: "Mashq · 5 ta misol", en: 'Warm up · 5 examples' },
+    bridge: { ru: 'Правило ясно — закрепим на пяти быстрых примерах.', uz: "Qoida tushunarli — beshta tezkor misolda mustahkamlaymiz.", en: 'The rule is clear, so let us fix it with five quick examples.' },
+    title: { ru: 'Пять быстрых вычитаний', uz: "Beshta tezkor ayirish", en: 'Five quick subtractions' },
+    lead: { ru: 'Сначала общий знаменатель, потом вычитай числители.', uz: "Avval umumiy maxraj, keyin suratlarni ayiring.", en: 'The common denominator first, then subtract the numerators.' },
     questions: [
-      { q: { ru: '1/2 − 1/4', uz: '1/2 − 1/4' }, opts: [{ ru: '1/4', uz: '1/4' }, { ru: '1/6', uz: '1/6' }, { ru: '1/2', uz: '1/2' }], correct: 0,
-        ok: { ru: 'Верно. 1/2 = 2/4, и 2/4 − 1/4 = 1/4.', uz: "To'g'ri. 1/2 = 2/4, va 2/4 − 1/4 = 1/4." },
-        no: { ru: 'Приведи 1/2 к четвёртым, потом вычти числители.', uz: "1/2 ni to'rtlarga keltiring, keyin suratlarni ayiring." },
-        say: { ru: 'Одна вторая минус одна четвёртая.', uz: "Ikkidan bir minus to'rtdan bir." } },
-      { q: { ru: '1/2 − 1/3', uz: '1/2 − 1/3' }, opts: [{ ru: '1/5', uz: '1/5' }, { ru: '2/5', uz: '2/5' }, { ru: '1/6', uz: '1/6' }], correct: 2,
-        ok: { ru: 'Верно. 3/6 − 2/6 = 1/6.', uz: "To'g'ri. 3/6 − 2/6 = 1/6." },
-        no: { ru: 'Общий знаменатель 6: 1/2 = 3/6, 1/3 = 2/6. Знаменатели не вычитают.', uz: "Umumiy maxraj 6: 1/2 = 3/6, 1/3 = 2/6. Maxrajlar ayirilmaydi." },
-        say: { ru: 'Одна вторая минус одна третья.', uz: "Ikkidan bir minus uchdan bir." } },
-      { q: { ru: '2/3 − 1/2', uz: '2/3 − 1/2' }, opts: [{ ru: '1/1', uz: '1/1' }, { ru: '1/6', uz: '1/6' }, { ru: '1/5', uz: '1/5' }], correct: 1,
-        ok: { ru: 'Верно. 4/6 − 3/6 = 1/6.', uz: "To'g'ri. 4/6 − 3/6 = 1/6." },
-        no: { ru: 'Приведи к шестым: 2/3 = 4/6, 1/2 = 3/6. Потом вычти числители.', uz: "Oltilarga keltiring: 2/3 = 4/6, 1/2 = 3/6. Keyin suratlarni ayiring." },
-        say: { ru: 'Две третьих минус одна вторая.', uz: "Uchdan ikki minus ikkidan bir." } },
-      { q: { ru: '5/6 − 1/3', uz: '5/6 − 1/3' }, opts: [{ ru: '4/3', uz: '4/3' }, { ru: '4/9', uz: '4/9' }, { ru: '3/6', uz: '3/6' }], correct: 2,
-        ok: { ru: 'Верно. 1/3 = 2/6, и 5/6 − 2/6 = 3/6. Это и есть ответ Фарруха.', uz: "To'g'ri. 1/3 = 2/6, va 5/6 − 2/6 = 3/6. Bu Farruxning javobi." },
-        no: { ru: 'Не вычитай числители и знаменатели отдельно. Сначала 1/3 = 2/6.', uz: "Surat va maxrajni alohida ayirmang. Avval 1/3 = 2/6." },
-        say: { ru: 'Пять шестых минус одна третья.', uz: "Oltidan besh minus uchdan bir." } },
-      { q: { ru: '3/4 − 1/6', uz: '3/4 − 1/6' }, opts: [{ ru: '9/12', uz: '9/12' }, { ru: '7/12', uz: '7/12' }, { ru: '2/2', uz: '2/2' }], correct: 1,
-        ok: { ru: 'Верно. 9/12 − 2/12 = 7/12.', uz: "To'g'ri. 9/12 − 2/12 = 7/12." },
-        no: { ru: 'Общий знаменатель 12: 3/4 = 9/12, 1/6 = 2/12. Не забудь вычесть числители.', uz: "Umumiy maxraj 12: 3/4 = 9/12, 1/6 = 2/12. Suratlarni ayirishni unutmang." },
-        say: { ru: 'Три четвёртых минус одна шестая.', uz: "To'rtdan uch minus oltidan bir." } }
+      { q: { ru: '1/2 − 1/4', uz: '1/2 − 1/4', en: '1/2 − 1/4' }, opts: [{ ru: '1/4', uz: '1/4', en: '1/4' }, { ru: '1/6', uz: '1/6', en: '1/6' }, { ru: '1/2', uz: '1/2', en: '1/2' }], correct: 0,
+        ok: { ru: 'Верно. 1/2 = 2/4, и 2/4 − 1/4 = 1/4.', uz: "To'g'ri. 1/2 = 2/4, va 2/4 − 1/4 = 1/4.", en: 'That is right. 1/2 = 2/4 and 2/4 − 1/4 = 1/4.' },
+        no: { ru: 'Приведи 1/2 к четвёртым, потом вычти числители.', uz: "1/2 ni to'rtlarga keltiring, keyin suratlarni ayiring.", en: 'Change 1/2 into quarters, then subtract the numerators.' },
+        say: { ru: 'Одна вторая минус одна четвёртая.', uz: "Ikkidan bir minus to'rtdan bir.", en: 'One half take away one quarter.' } },
+      { q: { ru: '1/2 − 1/3', uz: '1/2 − 1/3', en: '1/2 − 1/3' }, opts: [{ ru: '1/5', uz: '1/5', en: '1/5' }, { ru: '2/5', uz: '2/5', en: '2/5' }, { ru: '1/6', uz: '1/6', en: '1/6' }], correct: 2,
+        ok: { ru: 'Верно. 3/6 − 2/6 = 1/6.', uz: "To'g'ri. 3/6 − 2/6 = 1/6.", en: 'That is right. 3/6 − 2/6 = 1/6.' },
+        no: { ru: 'Общий знаменатель 6: 1/2 = 3/6, 1/3 = 2/6. Знаменатели не вычитают.', uz: "Umumiy maxraj 6: 1/2 = 3/6, 1/3 = 2/6. Maxrajlar ayirilmaydi.", en: 'The common denominator is 6: 1/2 = 3/6 and 1/3 = 2/6. Denominators are not subtracted.' },
+        say: { ru: 'Одна вторая минус одна третья.', uz: "Ikkidan bir minus uchdan bir.", en: 'One half take away one third.' } },
+      { q: { ru: '2/3 − 1/2', uz: '2/3 − 1/2', en: '2/3 − 1/2' }, opts: [{ ru: '1/1', uz: '1/1', en: '1/1' }, { ru: '1/6', uz: '1/6', en: '1/6' }, { ru: '1/5', uz: '1/5', en: '1/5' }], correct: 1,
+        ok: { ru: 'Верно. 4/6 − 3/6 = 1/6.', uz: "To'g'ri. 4/6 − 3/6 = 1/6.", en: 'That is right. 4/6 − 3/6 = 1/6.' },
+        no: { ru: 'Приведи к шестым: 2/3 = 4/6, 1/2 = 3/6. Потом вычти числители.', uz: "Oltilarga keltiring: 2/3 = 4/6, 1/2 = 3/6. Keyin suratlarni ayiring.", en: 'Change them into sixths: 2/3 = 4/6 and 1/2 = 3/6. Then subtract the numerators.' },
+        say: { ru: 'Две третьих минус одна вторая.', uz: "Uchdan ikki minus ikkidan bir.", en: 'Two thirds take away one half.' } },
+      { q: { ru: '5/6 − 1/3', uz: '5/6 − 1/3', en: '5/6 − 1/3' }, opts: [{ ru: '4/3', uz: '4/3', en: '4/3' }, { ru: '4/9', uz: '4/9', en: '4/9' }, { ru: '3/6', uz: '3/6', en: '3/6' }], correct: 2,
+        ok: { ru: 'Верно. 1/3 = 2/6, и 5/6 − 2/6 = 3/6. Это и есть ответ Фарруха.', uz: "To'g'ri. 1/3 = 2/6, va 5/6 − 2/6 = 3/6. Bu Farruxning javobi.", en: "That is right. 1/3 = 2/6 and 5/6 − 2/6 = 3/6. That is Farrukh's answer." },
+        no: { ru: 'Не вычитай числители и знаменатели отдельно. Сначала 1/3 = 2/6.', uz: "Surat va maxrajni alohida ayirmang. Avval 1/3 = 2/6.", en: 'Do not subtract the numerators and denominators separately. First 1/3 = 2/6.' },
+        say: { ru: 'Пять шестых минус одна третья.', uz: "Oltidan besh minus uchdan bir.", en: 'Five sixths take away one third.' } },
+      { q: { ru: '3/4 − 1/6', uz: '3/4 − 1/6', en: '3/4 − 1/6' }, opts: [{ ru: '9/12', uz: '9/12', en: '9/12' }, { ru: '7/12', uz: '7/12', en: '7/12' }, { ru: '2/2', uz: '2/2', en: '2/2' }], correct: 1,
+        ok: { ru: 'Верно. 9/12 − 2/12 = 7/12.', uz: "To'g'ri. 9/12 − 2/12 = 7/12.", en: 'That is right. 9/12 − 2/12 = 7/12.' },
+        no: { ru: 'Общий знаменатель 12: 3/4 = 9/12, 1/6 = 2/12. Не забудь вычесть числители.', uz: "Umumiy maxraj 12: 3/4 = 9/12, 1/6 = 2/12. Suratlarni ayirishni unutmang.", en: 'The common denominator is 12: 3/4 = 9/12 and 1/6 = 2/12. Do not forget to subtract the numerators.' },
+        say: { ru: 'Три четвёртых минус одна шестая.', uz: "To'rtdan uch minus oltidan bir.", en: 'Three quarters take away one sixth.' } }
     ],
     audio: {
-      intro: { ru: 'Разминка. Пять быстрых вычитаний подряд. Сначала одна вторая минус одна четвёртая. Выбери ответ.', uz: "Mashq. Ketma-ket beshta tezkor ayirish. Avval ikkidan bir minus to'rtdan bir. Javobni tanlang." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." },
-      on_done: { ru: 'Все пять верно. Числители вычитаются только после общего знаменателя.', uz: "Beshalasi to'g'ri. Suratlar faqat umumiy maxrajdan keyin ayiriladi." }
+      intro: { ru: 'Разминка. Пять быстрых вычитаний подряд. Сначала одна вторая минус одна четвёртая. Выбери ответ.', uz: "Mashq. Ketma-ket beshta tezkor ayirish. Avval ikkidan bir minus to'rtdan bir. Javobni tanlang.", en: 'Warm up. Five quick subtractions in a row. First, one half take away one quarter. Choose an answer.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' },
+      on_done: { ru: 'Все пять верно. Числители вычитаются только после общего знаменателя.', uz: "Beshalasi to'g'ri. Suratlar faqat umumiy maxrajdan keyin ayiriladi.", en: 'All five right. The numerators are only subtracted once there is a common denominator.' }
     }
   },
 
   // s6 — TEST FracInput: xatoni tuzat, 5/6 − 1/3 = 3/6 (1/2 ham qabul)
   s6: {
-    eyebrow: { ru: 'Исправь баг', uz: "Xatoni tuzating" },
-    bridge: { ru: 'Теперь сам почини расчёт из загадки.', uz: "Endi jumboqdagi hisobni o'zingiz tuzating." },
-    question: { ru: 'Сколько сока на самом деле осталось? 5/6 − 1/3 = ?', uz: "Aslida qancha sharbat qoldi? 5/6 − 1/3 = ?" },
-    placeholder: { ru: '0/0', uz: "0/0" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Сначала приведи 1/3 к шестым: умножь числитель тоже. Потом вычти числители.', uz: "Avval 1/3 ni oltilarga keltiring: suratni ham ko'paytiring. Keyin suratlarni ayiring." },
-    fb_correct: { ru: 'Верно. 1/3 = 2/6, поэтому 5/6 − 2/6 = 3/6 — половина бутылки. Сок не вырос.', uz: "To'g'ri. 1/3 = 2/6, shuning uchun 5/6 − 2/6 = 3/6 — shishaning yarmi. Sharbat o'smadi." },
+    eyebrow: { ru: 'Исправь баг', uz: "Xatoni tuzating", en: 'Fix the bug' },
+    bridge: { ru: 'Теперь сам почини расчёт из загадки.', uz: "Endi jumboqdagi hisobni o'zingiz tuzating.", en: 'Now fix the working out from the puzzle yourself.' },
+    question: { ru: 'Сколько сока на самом деле осталось? 5/6 − 1/3 = ?', uz: "Aslida qancha sharbat qoldi? 5/6 − 1/3 = ?", en: 'How much juice is really left? 5/6 − 1/3 = ?' },
+    placeholder: { ru: '0/0', uz: "0/0", en: '0/0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Сначала приведи 1/3 к шестым: умножь числитель тоже. Потом вычти числители.', uz: "Avval 1/3 ni oltilarga keltiring: suratni ham ko'paytiring. Keyin suratlarni ayiring.", en: 'First change 1/3 into sixths, multiplying the numerator as well. Then subtract the numerators.' },
+    fb_correct: { ru: 'Верно. 1/3 = 2/6, поэтому 5/6 − 2/6 = 3/6 — половина бутылки. Сок не вырос.', uz: "To'g'ri. 1/3 = 2/6, shuning uchun 5/6 − 2/6 = 3/6 — shishaning yarmi. Sharbat o'smadi.", en: 'That is right. 1/3 = 2/6, so 5/6 − 2/6 = 3/6, half the bottle. The juice did not grow.' },
     audio: {
-      intro: { ru: 'Почини расчёт сам. Сколько сока на самом деле осталось? Пять шестых минус одна третья. Введи ответ дробью, например три шестых, и нажми кнопку проверить.', uz: "Hisobni o'zingiz tuzating. Aslida qancha sharbat qoldi? Oltidan besh minus uchdan bir. Javobni kasr shaklida kiriting, masalan oltidan uch, va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Осталась половина бутылки, три шестых. Никакого роста после глотка.', uz: "To'g'ri. Shishaning yarmi qoldi, oltidan uch. Bir qultumdan keyin hech qanday o'sish yo'q." },
-      on_wrong: { ru: 'Не совсем. Сначала приведи одну третью к шестым, потом вычитай числители.', uz: "Unchalik emas. Avval uchdan birni oltilarga keltiring, keyin suratlarni ayiring." }
+      intro: { ru: 'Почини расчёт сам. Сколько сока на самом деле осталось? Пять шестых минус одна третья. Введи ответ дробью, например три шестых, и нажми кнопку проверить.', uz: "Hisobni o'zingiz tuzating. Aslida qancha sharbat qoldi? Oltidan besh minus uchdan bir. Javobni kasr shaklida kiriting, masalan oltidan uch, va tekshirish tugmasini bosing.", en: 'Fix the working out yourself. How much juice is really left? Five sixths take away one third. Type the answer as a fraction, for example three sixths, and tap the check button.' },
+      on_correct: { ru: 'Верно. Осталась половина бутылки, три шестых. Никакого роста после глотка.', uz: "To'g'ri. Shishaning yarmi qoldi, oltidan uch. Bir qultumdan keyin hech qanday o'sish yo'q.", en: 'That is right. Half the bottle is left, three sixths. Nothing grew after the sip.' },
+      on_wrong: { ru: 'Не совсем. Сначала приведи одну третью к шестым, потом вычитай числители.', uz: "Unchalik emas. Avval uchdan birni oltilarga keltiring, keyin suratlarni ayiring.", en: 'Not quite. First change one third into sixths, then subtract the numerators.' }
     }
   },
 
   // s7 — TEST: noto'g'risini top (error-spotting). To'g'ri javob = XATO tenglik (opt0).
   s7: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    bridge: { ru: 'А теперь поймай чужую ошибку — это проверяет понимание.', uz: "Endi birovning xatosini toping — bu tushunishni sinaydi." },
-    title: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    question: { ru: 'Какое равенство НЕВЕРНО?', uz: "Qaysi tenglik NOTO'G'RI?" },
-    opt0: { ru: '3/4 − 1/2 = 2/2', uz: '3/4 − 1/2 = 2/2' },
-    opt1: { ru: '1/2 − 1/4 = 1/4', uz: '1/2 − 1/4 = 1/4' },
-    opt2: { ru: '2/3 − 1/6 = 3/6', uz: '2/3 − 1/6 = 3/6' },
-    correct_text: { ru: 'Верно — неверно именно это. Здесь вычли и числители, и знаменатели. На самом деле 3/4 − 1/2 = 3/4 − 2/4 = 1/4.', uz: "To'g'ri — aynan shu noto'g'ri. Bu yerda surat ham, maxraj ham ayirilgan. Aslida 3/4 − 1/2 = 3/4 − 2/4 = 1/4." },
-    hint_1: { ru: 'Это равенство верное: одна вторая это две четвёртых, и две четвёртых без одной четвёртой дают одну четвёртую.', uz: "Bu tenglik to'g'ri: ikkidan bir bu to'rtdan ikki, to'rtdan ikkidan to'rtdan birni ayirsak to'rtdan bir chiqadi." },
-    hint_2: { ru: 'Это равенство верное: две третьих это четыре шестых, и четыре шестых без одной шестой дают три шестых.', uz: "Bu tenglik to'g'ri: uchdan ikki bu oltidan to'rt, oltidan to'rtdan oltidan birni ayirsak oltidan uch chiqadi." },
-    wrong_default: { ru: 'Ищи равенство, где знаменатель тоже изменили при вычитании. Так делать нельзя.', uz: "Maxraj ham ayirishda o'zgartirilgan tenglikni qidiring. Bunday qilib bo'lmaydi." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    bridge: { ru: 'А теперь поймай чужую ошибку — это проверяет понимание.', uz: "Endi birovning xatosini toping — bu tushunishni sinaydi.", en: "And now catch someone else's mistake, which is a real test of understanding." },
+    title: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    question: { ru: 'Какое равенство НЕВЕРНО?', uz: "Qaysi tenglik NOTO'G'RI?", en: 'Which one is WRONG?' },
+    opt0: { ru: '3/4 − 1/2 = 2/2', uz: '3/4 − 1/2 = 2/2', en: '3/4 − 1/2 = 2/2' },
+    opt1: { ru: '1/2 − 1/4 = 1/4', uz: '1/2 − 1/4 = 1/4', en: '1/2 − 1/4 = 1/4' },
+    opt2: { ru: '2/3 − 1/6 = 3/6', uz: '2/3 − 1/6 = 3/6', en: '2/3 − 1/6 = 3/6' },
+    correct_text: { ru: 'Верно — неверно именно это. Здесь вычли и числители, и знаменатели. На самом деле 3/4 − 1/2 = 3/4 − 2/4 = 1/4.', uz: "To'g'ri — aynan shu noto'g'ri. Bu yerda surat ham, maxraj ham ayirilgan. Aslida 3/4 − 1/2 = 3/4 − 2/4 = 1/4.", en: 'Right, that is the wrong one. Here both the numerators and the denominators were subtracted. In fact 3/4 − 1/2 = 3/4 − 2/4 = 1/4.' },
+    hint_1: { ru: 'Это равенство верное: одна вторая это две четвёртых, и две четвёртых без одной четвёртой дают одну четвёртую.', uz: "Bu tenglik to'g'ri: ikkidan bir bu to'rtdan ikki, to'rtdan ikkidan to'rtdan birni ayirsak to'rtdan bir chiqadi.", en: 'That one is right: one half is two quarters, and two quarters take away one quarter is one quarter.' },
+    hint_2: { ru: 'Это равенство верное: две третьих это четыре шестых, и четыре шестых без одной шестой дают три шестых.', uz: "Bu tenglik to'g'ri: uchdan ikki bu oltidan to'rt, oltidan to'rtdan oltidan birni ayirsak oltidan uch chiqadi.", en: 'That one is right: two thirds is four sixths, and four sixths take away one sixth is three sixths.' },
+    wrong_default: { ru: 'Ищи равенство, где знаменатель тоже изменили при вычитании. Так делать нельзя.', uz: "Maxraj ham ayirishda o'zgartirilgan tenglikni qidiring. Bunday qilib bo'lmaydi.", en: 'Look for the one where the denominator was changed during the subtraction. That is not allowed.' },
     audio: {
-      intro: { ru: 'Теперь поймай ошибку. Среди трёх равенств одно неверное. Найди, где числители и знаменатели вычли по отдельности. Выбери неверное равенство.', uz: "Endi xatoni toping. Uchta tenglikdan biri noto'g'ri. Surat va maxraj alohida ayirilgan joyni toping. Noto'g'ri tenglikni tanlang." },
-      on_correct: { ru: 'Верно. В этом равенстве знаменатель тоже вычли, а так нельзя. Знаменатель остаётся прежним.', uz: "To'g'ri. Bu tenglikda maxraj ham ayirilgan, bunday qilib bo'lmaydi. Maxraj o'zgarmaydi." },
-      on_wrong: { ru: 'Это равенство верное. Ищи то, где изменили знаменатель.', uz: "Bu tenglik to'g'ri. Maxraj o'zgartirilganini qidiring." }
+      intro: { ru: 'Теперь поймай ошибку. Среди трёх равенств одно неверное. Найди, где числители и знаменатели вычли по отдельности. Выбери неверное равенство.', uz: "Endi xatoni toping. Uchta tenglikdan biri noto'g'ri. Surat va maxraj alohida ayirilgan joyni toping. Noto'g'ri tenglikni tanlang.", en: 'Now catch the mistake. One of the three is wrong. Find the one where the numerators and denominators were subtracted separately. Choose the wrong one.' },
+      on_correct: { ru: 'Верно. В этом равенстве знаменатель тоже вычли, а так нельзя. Знаменатель остаётся прежним.', uz: "To'g'ri. Bu tenglikda maxraj ham ayirilgan, bunday qilib bo'lmaydi. Maxraj o'zgarmaydi.", en: 'That is right. In that one the denominator was subtracted too, and that is not allowed. The denominator stays as it is.' },
+      on_wrong: { ru: 'Это равенство верное. Ищи то, где изменили знаменатель.', uz: "Bu tenglik to'g'ri. Maxraj o'zgartirilganini qidiring.", en: 'That one is right. Look for the one where the denominator was changed.' }
     }
   },
 
   // s8 — CASE intro (Mohira): lenta 3/4 m, 1/3 m band uchun
   s8: {
-    eyebrow: { ru: 'Задача · Мохира', uz: "Masala · Mohira" },
-    bridge: { ru: 'Правило работает и в жизни. Помоги Мохире с лентой.', uz: "Qoida hayotda ham ishlaydi. Mohiraga lenta bilan yordam bering." },
-    title: { ru: 'У Мохиры 3/4 метра ленты.', uz: "Mohirada 3/4 metr lenta bor." },
-    body: { ru: 'На один бант уходит 1/3 метра. Сколько ленты останется после одного банта? Сначала прикинь, потом проверим на следующем шаге.', uz: "Bitta bant uchun 1/3 metr ketadi. Bitta bantdan keyin qancha lenta qoladi? Avval chamalang, keyin keyingi qadamda tekshiramiz." },
-    hint_card: { ru: 'Знаменатели 4 и 3. Общий знаменатель — 12.', uz: "Maxrajlar 4 va 3. Umumiy maxraj — 12." },
-    audio: { ru: 'У Мохиры три четвёртых метра ленты. На один бант уходит одна третья метра. Сколько ленты останется после одного банта? Знаменатели четыре и три, общий знаменатель двенадцать. Прикинь ответ, на следующем шаге проверим.', uz: "Mohirada to'rtdan uch metr lenta bor. Bitta bant uchun uchdan bir metr ketadi. Bitta bantdan keyin qancha lenta qoladi? Maxrajlar to'rt va uch, umumiy maxraj o'n ikki. Javobni chamalang, keyingi qadamda tekshiramiz." }
+    eyebrow: { ru: 'Задача · Мохира', uz: "Masala · Mohira", en: 'Problem · Mohira' },
+    bridge: { ru: 'Правило работает и в жизни. Помоги Мохире с лентой.', uz: "Qoida hayotda ham ishlaydi. Mohiraga lenta bilan yordam bering.", en: 'The rule works in real life too. Help Mohira with her ribbon.' },
+    title: { ru: 'У Мохиры 3/4 метра ленты.', uz: "Mohirada 3/4 metr lenta bor.", en: 'Mohira has 3/4 of a metre of ribbon.' },
+    body: { ru: 'На один бант уходит 1/3 метра. Сколько ленты останется после одного банта? Сначала прикинь, потом проверим на следующем шаге.', uz: "Bitta bant uchun 1/3 metr ketadi. Bitta bantdan keyin qancha lenta qoladi? Avval chamalang, keyin keyingi qadamda tekshiramiz.", en: 'One bow uses 1/3 of a metre. How much ribbon is left after one bow? Make a guess first and we will check on the next step.' },
+    hint_card: { ru: 'Знаменатели 4 и 3. Общий знаменатель — 12.', uz: "Maxrajlar 4 va 3. Umumiy maxraj — 12.", en: 'The denominators are 4 and 3. The common denominator is 12.' },
+    audio: { ru: 'У Мохиры три четвёртых метра ленты. На один бант уходит одна третья метра. Сколько ленты останется после одного банта? Знаменатели четыре и три, общий знаменатель двенадцать. Прикинь ответ, на следующем шаге проверим.', uz: "Mohirada to'rtdan uch metr lenta bor. Bitta bant uchun uchdan bir metr ketadi. Bitta bantdan keyin qancha lenta qoladi? Maxrajlar to'rt va uch, umumiy maxraj o'n ikki. Javobni chamalang, keyingi qadamda tekshiramiz.", en: 'Mohira has three quarters of a metre of ribbon. One bow uses one third of a metre. How much ribbon is left after one bow? The denominators are four and three, so the common denominator is twelve. Make a guess and we will check on the next step.' }
   },
 
   // s9 — CASE MC: 3/4 − 1/3 = 5/12 (to'g'ri = opt0; order [1,2,3,0] → D)
   s9: {
-    eyebrow: { ru: 'Задача · Мохира', uz: "Masala · Mohira" },
-    bridge: { ru: 'Теперь посчитаем точно.', uz: "Endi aniq hisoblaymiz." },
-    title: { ru: 'Лента Мохиры', uz: "Mohiraning lentasi" },
-    question: { ru: 'Сколько ленты останется? 3/4 − 1/3 = ?', uz: "Qancha lenta qoladi? 3/4 − 1/3 = ?" },
-    opt0: { ru: '5/12', uz: '5/12' },
-    opt1: { ru: '2/1', uz: '2/1' },
-    opt2: { ru: '2/12', uz: '2/12' },
-    opt3: { ru: '5/7', uz: '5/7' },
-    correct_text: { ru: 'Верно. 3/4 = 9/12, 1/3 = 4/12, и 9/12 − 4/12 = 5/12 метра.', uz: "To'g'ri. 3/4 = 9/12, 1/3 = 4/12, va 9/12 − 4/12 = 5/12 metr." },
-    hint_1: { ru: 'Здесь вычли и числители, и знаменатели по отдельности. Сначала приведи обе дроби к двенадцатым.', uz: "Bu yerda surat va maxraj alohida ayirilgan. Avval ikkala kasrni o'n ikkilarga keltiring." },
-    hint_2: { ru: 'Похоже, к двенадцатым привёл только одну дробь. Приведи обе.', uz: "Faqat bitta kasr o'n ikkilarga keltirilganga o'xshaydi. Ikkalasini ham keltiring." },
-    hint_3: { ru: 'Знаменатель здесь не семь. Общий знаменатель для четвёртых и третьих это двенадцать.', uz: "Maxraj bu yerda yetti emas. To'rtdan va uchdan uchun umumiy maxraj o'n ikki." },
-    wrong_default: { ru: 'Приведи обе дроби к двенадцатым, потом вычти только числители.', uz: "Ikkala kasrni o'n ikkilarga keltiring, keyin faqat suratlarni ayiring." },
-    fact: { ru: 'Дробную черту ввёл математик Фибоначчи около 1200 года.', uz: "Kasr chizig'ini matematik Fibonachchi taxminan 1200-yilda kiritgan." },
+    eyebrow: { ru: 'Задача · Мохира', uz: "Masala · Mohira", en: 'Problem · Mohira' },
+    bridge: { ru: 'Теперь посчитаем точно.', uz: "Endi aniq hisoblaymiz.", en: 'Now let us work it out exactly.' },
+    title: { ru: 'Лента Мохиры', uz: "Mohiraning lentasi", en: "Mohira's ribbon" },
+    question: { ru: 'Сколько ленты останется? 3/4 − 1/3 = ?', uz: "Qancha lenta qoladi? 3/4 − 1/3 = ?", en: 'How much ribbon is left? 3/4 − 1/3 = ?' },
+    opt0: { ru: '5/12', uz: '5/12', en: '5/12' },
+    opt1: { ru: '2/1', uz: '2/1', en: '2/1' },
+    opt2: { ru: '2/12', uz: '2/12', en: '2/12' },
+    opt3: { ru: '5/7', uz: '5/7', en: '5/7' },
+    correct_text: { ru: 'Верно. 3/4 = 9/12, 1/3 = 4/12, и 9/12 − 4/12 = 5/12 метра.', uz: "To'g'ri. 3/4 = 9/12, 1/3 = 4/12, va 9/12 − 4/12 = 5/12 metr.", en: 'That is right. 3/4 = 9/12, 1/3 = 4/12 and 9/12 − 4/12 = 5/12 of a metre.' },
+    hint_1: { ru: 'Здесь вычли и числители, и знаменатели по отдельности. Сначала приведи обе дроби к двенадцатым.', uz: "Bu yerda surat va maxraj alohida ayirilgan. Avval ikkala kasrni o'n ikkilarga keltiring.", en: 'Here both the numerators and the denominators were subtracted separately. First change both fractions into twelfths.' },
+    hint_2: { ru: 'Похоже, к двенадцатым привёл только одну дробь. Приведи обе.', uz: "Faqat bitta kasr o'n ikkilarga keltirilganga o'xshaydi. Ikkalasini ham keltiring.", en: 'It looks as though only one fraction was changed into twelfths. Change them both.' },
+    hint_3: { ru: 'Знаменатель здесь не семь. Общий знаменатель для четвёртых и третьих это двенадцать.', uz: "Maxraj bu yerda yetti emas. To'rtdan va uchdan uchun umumiy maxraj o'n ikki.", en: 'The denominator here is not seven. The common denominator for quarters and thirds is twelve.' },
+    wrong_default: { ru: 'Приведи обе дроби к двенадцатым, потом вычти только числители.', uz: "Ikkala kasrni o'n ikkilarga keltiring, keyin faqat suratlarni ayiring.", en: 'Change both fractions into twelfths, then subtract only the numerators.' },
+    fact: { ru: 'Дробную черту ввёл математик Фибоначчи около 1200 года.', uz: "Kasr chizig'ini matematik Fibonachchi taxminan 1200-yilda kiritgan.", en: 'The fraction line was introduced by the mathematician Fibonacci around the year 1200.' },
     audio: {
-      intro: { ru: 'Теперь точный счёт. Сколько ленты останется? Три четвёртых минус одна третья. Выбери ответ.', uz: "Endi aniq hisob. Qancha lenta qoladi? To'rtdan uch minus uchdan bir. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Три четвёртых это девять двенадцатых, одна третья это четыре двенадцатых, остаётся пять двенадцатых метра. Дробную черту ввёл Фибоначчи около тысяча двухсотого года.', uz: "To'g'ri. To'rtdan uch bu o'n ikkidan to'qqiz, uchdan bir bu o'n ikkidan to'rt, o'n ikkidan besh metr qoladi. Kasr chizig'ini Fibonachchi taxminan ming ikki yuzinchi yili kiritgan." },
-      on_wrong: { ru: 'Не совсем. Приведи обе дроби к двенадцатым, знаменатель не трогай.', uz: "Unchalik emas. Ikkala kasrni o'n ikkilarga keltiring, maxrajga tegmang." }
+      intro: { ru: 'Теперь точный счёт. Сколько ленты останется? Три четвёртых минус одна третья. Выбери ответ.', uz: "Endi aniq hisob. Qancha lenta qoladi? To'rtdan uch minus uchdan bir. Javobni tanlang.", en: 'Now the exact working out. How much ribbon is left? Three quarters take away one third. Choose an answer.' },
+      on_correct: { ru: 'Верно. Три четвёртых это девять двенадцатых, одна третья это четыре двенадцатых, остаётся пять двенадцатых метра. Дробную черту ввёл Фибоначчи около тысяча двухсотого года.', uz: "To'g'ri. To'rtdan uch bu o'n ikkidan to'qqiz, uchdan bir bu o'n ikkidan to'rt, o'n ikkidan besh metr qoladi. Kasr chizig'ini Fibonachchi taxminan ming ikki yuzinchi yili kiritgan.", en: 'That is right. Three quarters is nine twelfths and one third is four twelfths, so five twelfths of a metre is left. The fraction line was introduced by Fibonacci around the year twelve hundred.' },
+      on_wrong: { ru: 'Не совсем. Приведи обе дроби к двенадцатым, знаменатель не трогай.', uz: "Unchalik emas. Ikkala kasrni o'n ikkilarga keltiring, maxrajga tegmang.", en: 'Not quite. Change both fractions into twelfths and leave the denominator alone.' }
     }
   },
 
   // s10 — YAKUNIY TEST (SeqMix): 8 misol oson→qiyin, har xil tur
   s10: {
-    eyebrow: { ru: 'Итоговое · 8 примеров', uz: "Yakuniy · 8 ta misol" },
-    bridge: { ru: 'Финал: соберём всё вместе на восьми примерах.', uz: "Final: hammasini sakkizta misolda birlashtiramiz." },
-    title: { ru: 'Итог: от лёгкого к трудному', uz: "Yakun: oddiydan qiyinga" },
-    lead: { ru: 'Восемь заданий разного типа. Не торопись.', uz: "Sakkizta har xil turdagi topshiriq. Shoshmang." },
-    done_text: { ru: 'Все восемь пройдены. Ты уверенно приводишь дроби и вычитаешь числители.', uz: "Sakkizalasi bajarildi. Siz kasrlarni ishonch bilan keltirib, suratlarni ayiryapsiz." },
+    eyebrow: { ru: 'Итоговое · 8 примеров', uz: "Yakuniy · 8 ta misol", en: 'Final · 8 examples' },
+    bridge: { ru: 'Финал: соберём всё вместе на восьми примерах.', uz: "Final: hammasini sakkizta misolda birlashtiramiz.", en: 'The finish: let us put it all together on eight examples.' },
+    title: { ru: 'Итог: от лёгкого к трудному', uz: "Yakun: oddiydan qiyinga", en: 'Final round: from easy to hard' },
+    lead: { ru: 'Восемь заданий разного типа. Не торопись.', uz: "Sakkizta har xil turdagi topshiriq. Shoshmang.", en: 'Eight tasks of different kinds. Take your time.' },
+    done_text: { ru: 'Все восемь пройдены. Ты уверенно приводишь дроби и вычитаешь числители.', uz: "Sakkizalasi bajarildi. Siz kasrlarni ishonch bilan keltirib, suratlarni ayiryapsiz.", en: 'All eight are done. You can change fractions and subtract numerators with confidence.' },
     items: [
       // 1 — mc oson
-      { type: 'mc', prompt: { ru: '1/2 − 1/4 = ?', uz: '1/2 − 1/4 = ?' }, opts: [{ ru: '1/4', uz: '1/4' }, { ru: '1/2', uz: '1/2' }, { ru: '1/6', uz: '1/6' }], correct: 0,
-        say: { ru: 'Одна вторая минус одна четвёртая.', uz: "Ikkidan bir minus to'rtdan bir." },
-        ok: { ru: '2/4 − 1/4 = 1/4.', uz: "2/4 − 1/4 = 1/4." },
-        no: { ru: 'Приведи 1/2 к четвёртым.', uz: "1/2 ni to'rtlarga keltiring." } },
+      { type: 'mc', prompt: { ru: '1/2 − 1/4 = ?', uz: '1/2 − 1/4 = ?', en: '1/2 − 1/4 = ?' }, opts: [{ ru: '1/4', uz: '1/4', en: '1/4' }, { ru: '1/2', uz: '1/2', en: '1/2' }, { ru: '1/6', uz: '1/6', en: '1/6' }], correct: 0,
+        say: { ru: 'Одна вторая минус одна четвёртая.', uz: "Ikkidan bir minus to'rtdan bir.", en: 'One half take away one quarter.' },
+        ok: { ru: '2/4 − 1/4 = 1/4.', uz: "2/4 − 1/4 = 1/4.", en: '2/4 − 1/4 = 1/4.' },
+        no: { ru: 'Приведи 1/2 к четвёртым.', uz: "1/2 ni to'rtlarga keltiring.", en: 'Change 1/2 into quarters.' } },
       // 2 — input oson
-      { type: 'input', prompt: { ru: '5/6 − 1/2 = ?', uz: '5/6 − 1/2 = ?' }, accept: ['2/6', '1/3'], primary: '2/6',
-        say: { ru: 'Пять шестых минус одна вторая. Введи ответ.', uz: "Oltidan besh minus ikkidan bir. Javobni kiriting." },
-        ok: { ru: '1/2 = 3/6, и 5/6 − 3/6 = 2/6.', uz: "1/2 = 3/6, va 5/6 − 3/6 = 2/6." },
-        no: { ru: 'Приведи 1/2 к шестым, потом вычти числители.', uz: "1/2 ni oltilarga keltiring, keyin suratlarni ayiring." } },
+      { type: 'input', prompt: { ru: '5/6 − 1/2 = ?', uz: '5/6 − 1/2 = ?', en: '5/6 − 1/2 = ?' }, accept: ['2/6', '1/3'], primary: '2/6',
+        say: { ru: 'Пять шестых минус одна вторая. Введи ответ.', uz: "Oltidan besh minus ikkidan bir. Javobni kiriting.", en: 'Five sixths take away one half. Type the answer.' },
+        ok: { ru: '1/2 = 3/6, и 5/6 − 3/6 = 2/6.', uz: "1/2 = 3/6, va 5/6 − 3/6 = 2/6.", en: '1/2 = 3/6, and 5/6 − 3/6 = 2/6.' },
+        no: { ru: 'Приведи 1/2 к шестым, потом вычти числители.', uz: "1/2 ni oltilarga keltiring, keyin suratlarni ayiring.", en: 'Change 1/2 into sixths, then subtract the numerators.' } },
       // 3 — mc (to'g'ri = idx1)
-      { type: 'mc', prompt: { ru: '3/4 − 1/2 = ?', uz: '3/4 − 1/2 = ?' }, opts: [{ ru: '2/2', uz: '2/2' }, { ru: '1/4', uz: '1/4' }, { ru: '2/4', uz: '2/4' }], correct: 1,
-        say: { ru: 'Три четвёртых минус одна вторая.', uz: "To'rtdan uch minus ikkidan bir." },
-        ok: { ru: '3/4 − 2/4 = 1/4.', uz: "3/4 − 2/4 = 1/4." },
-        no: { ru: 'Знаменатель не вычитают. 1/2 = 2/4.', uz: "Maxraj ayirilmaydi. 1/2 = 2/4." } },
+      { type: 'mc', prompt: { ru: '3/4 − 1/2 = ?', uz: '3/4 − 1/2 = ?', en: '3/4 − 1/2 = ?' }, opts: [{ ru: '2/2', uz: '2/2', en: '2/2' }, { ru: '1/4', uz: '1/4', en: '1/4' }, { ru: '2/4', uz: '2/4', en: '2/4' }], correct: 1,
+        say: { ru: 'Три четвёртых минус одна вторая.', uz: "To'rtdan uch minus ikkidan bir.", en: 'Three quarters take away one half.' },
+        ok: { ru: '3/4 − 2/4 = 1/4.', uz: "3/4 − 2/4 = 1/4.", en: '3/4 − 2/4 = 1/4.' },
+        no: { ru: 'Знаменатель не вычитают. 1/2 = 2/4.', uz: "Maxraj ayirilmaydi. 1/2 = 2/4.", en: 'Denominators are not subtracted. 1/2 = 2/4.' } },
       // 4 — multiselect: qaysilar 1/3 ga teng
-      { type: 'multi', prompt: { ru: 'Какие дроби равны 1/3?', uz: "Qaysi kasrlar 1/3 ga teng?" }, opts: [{ ru: '2/6', uz: '2/6' }, { ru: '3/9', uz: '3/9' }, { ru: '1/2', uz: '1/2' }, { ru: '4/12', uz: '4/12' }], mask: [true, true, false, true],
-        say: { ru: 'Выбери все дроби, равные одной третьей.', uz: "Uchdan birga teng barcha kasrlarni tanlang." },
-        ok: { ru: '2/6, 3/9 и 4/12 — все это 1/3. Это помогает приводить дроби.', uz: "2/6, 3/9 va 4/12 — hammasi 1/3. Bu kasrlarni keltirishga yordam beradi." },
-        no: { ru: 'Дробь равна 1/3, если числитель в 3 раза меньше знаменателя.', uz: "Kasr 1/3 ga teng, agar surat maxrajdan 3 marta kichik bo'lsa." } },
+      { type: 'multi', prompt: { ru: 'Какие дроби равны 1/3?', uz: "Qaysi kasrlar 1/3 ga teng?", en: 'Which fractions are equal to 1/3?' }, opts: [{ ru: '2/6', uz: '2/6', en: '2/6' }, { ru: '3/9', uz: '3/9', en: '3/9' }, { ru: '1/2', uz: '1/2', en: '1/2' }, { ru: '4/12', uz: '4/12', en: '4/12' }], mask: [true, true, false, true],
+        say: { ru: 'Выбери все дроби, равные одной третьей.', uz: "Uchdan birga teng barcha kasrlarni tanlang.", en: 'Choose all the fractions equal to one third.' },
+        ok: { ru: '2/6, 3/9 и 4/12 — все это 1/3. Это помогает приводить дроби.', uz: "2/6, 3/9 va 4/12 — hammasi 1/3. Bu kasrlarni keltirishga yordam beradi.", en: '2/6, 3/9 and 4/12 are all 1/3. This helps when changing fractions.' },
+        no: { ru: 'Дробь равна 1/3, если числитель в 3 раза меньше знаменателя.', uz: "Kasr 1/3 ga teng, agar surat maxrajdan 3 marta kichik bo'lsa.", en: 'A fraction equals 1/3 if the numerator is 3 times smaller than the denominator.' } },
       // 5 — input (hook soni)
-      { type: 'input', prompt: { ru: '5/6 − 1/3 = ?', uz: '5/6 − 1/3 = ?' }, accept: ['3/6', '1/2'], primary: '3/6',
-        say: { ru: 'Пять шестых минус одна третья. Введи ответ.', uz: "Oltidan besh minus uchdan bir. Javobni kiriting." },
-        ok: { ru: '1/3 = 2/6, и 5/6 − 2/6 = 3/6.', uz: "1/3 = 2/6, va 5/6 − 2/6 = 3/6." },
-        no: { ru: 'Приведи 1/3 к шестым, числитель тоже умножь.', uz: "1/3 ni oltilarga keltiring, suratni ham ko'paytiring." } },
+      { type: 'input', prompt: { ru: '5/6 − 1/3 = ?', uz: '5/6 − 1/3 = ?', en: '5/6 − 1/3 = ?' }, accept: ['3/6', '1/2'], primary: '3/6',
+        say: { ru: 'Пять шестых минус одна третья. Введи ответ.', uz: "Oltidan besh minus uchdan bir. Javobni kiriting.", en: 'Five sixths take away one third. Type the answer.' },
+        ok: { ru: '1/3 = 2/6, и 5/6 − 2/6 = 3/6.', uz: "1/3 = 2/6, va 5/6 − 2/6 = 3/6.", en: '1/3 = 2/6, and 5/6 − 2/6 = 3/6.' },
+        no: { ru: 'Приведи 1/3 к шестым, числитель тоже умножь.', uz: "1/3 ni oltilarga keltiring, suratni ham ko'paytiring.", en: 'Change 1/3 into sixths, multiplying the numerator as well.' } },
       // 6 — order: o'sish tartibida
-      { type: 'order', prompt: { ru: 'Расставь по возрастанию (от меньшей к большей)', uz: "O'sish tartibida joylashtiring (kichikdan kattaga)" }, vals: [{ ru: '1/6', uz: '1/6' }, { ru: '1/2', uz: '1/2' }, { ru: '1/3', uz: '1/3' }, { ru: '5/6', uz: '5/6' }], correctOrder: [0, 2, 1, 3],
-        say: { ru: 'Расставь дроби по возрастанию. Нажимай от самой маленькой.', uz: "Kasrlarni o'sish tartibida joylang. Eng kichigidan boshlab bosing." },
-        ok: { ru: 'Верный порядок: 1/6, 1/3, 1/2, 5/6.', uz: "To'g'ri tartib: 1/6, 1/3, 1/2, 5/6." },
-        no: { ru: 'Приведи к шестым и сравни числители.', uz: "Oltilarga keltirib, suratlarni solishtiring." } },
+      { type: 'order', prompt: { ru: 'Расставь по возрастанию (от меньшей к большей)', uz: "O'sish tartibida joylashtiring (kichikdan kattaga)", en: 'Put them in order (from smallest to biggest)' }, vals: [{ ru: '1/6', uz: '1/6', en: '1/6' }, { ru: '1/2', uz: '1/2', en: '1/2' }, { ru: '1/3', uz: '1/3', en: '1/3' }, { ru: '5/6', uz: '5/6', en: '5/6' }], correctOrder: [0, 2, 1, 3],
+        say: { ru: 'Расставь дроби по возрастанию. Нажимай от самой маленькой.', uz: "Kasrlarni o'sish tartibida joylang. Eng kichigidan boshlab bosing.", en: 'Put the fractions in order from smallest to biggest. Tap from the smallest one.' },
+        ok: { ru: 'Верный порядок: 1/6, 1/3, 1/2, 5/6.', uz: "To'g'ri tartib: 1/6, 1/3, 1/2, 5/6.", en: 'The right order is 1/6, 1/3, 1/2, 5/6.' },
+        no: { ru: 'Приведи к шестым и сравни числители.', uz: "Oltilarga keltirib, suratlarni solishtiring.", en: 'Change them into sixths and compare the numerators.' } },
       // 7 — input qiyin (12)
-      { type: 'input', prompt: { ru: '5/6 − 3/4 = ?', uz: '5/6 − 3/4 = ?' }, accept: ['1/12'], primary: '1/12',
-        say: { ru: 'Пять шестых минус три четвёртых. Введи ответ.', uz: "Oltidan besh minus to'rtdan uch. Javobni kiriting." },
-        ok: { ru: '10/12 − 9/12 = 1/12.', uz: "10/12 − 9/12 = 1/12." },
-        no: { ru: 'Общий знаменатель 12: 5/6 = 10/12, 3/4 = 9/12.', uz: "Umumiy maxraj 12: 5/6 = 10/12, 3/4 = 9/12." } },
+      { type: 'input', prompt: { ru: '5/6 − 3/4 = ?', uz: '5/6 − 3/4 = ?', en: '5/6 − 3/4 = ?' }, accept: ['1/12'], primary: '1/12',
+        say: { ru: 'Пять шестых минус три четвёртых. Введи ответ.', uz: "Oltidan besh minus to'rtdan uch. Javobni kiriting.", en: 'Five sixths take away three quarters. Type the answer.' },
+        ok: { ru: '10/12 − 9/12 = 1/12.', uz: "10/12 − 9/12 = 1/12.", en: '10/12 − 9/12 = 1/12.' },
+        no: { ru: 'Общий знаменатель 12: 5/6 = 10/12, 3/4 = 9/12.', uz: "Umumiy maxraj 12: 5/6 = 10/12, 3/4 = 9/12.", en: 'The common denominator is 12: 5/6 = 10/12 and 3/4 = 9/12.' } },
       // 8 — mc eng qiyin (24, to'g'ri = idx2)
-      { type: 'mc', prompt: { ru: '7/8 − 5/6 = ?', uz: '7/8 − 5/6 = ?' }, opts: [{ ru: '2/2', uz: '2/2' }, { ru: '2/14', uz: '2/14' }, { ru: '1/24', uz: '1/24' }], correct: 2,
-        say: { ru: 'Семь восьмых минус пять шестых.', uz: "Sakkizdan yetti minus oltidan besh." },
-        ok: { ru: '21/24 − 20/24 = 1/24. Самый трудный — и он сделан.', uz: "21/24 − 20/24 = 1/24. Eng qiyini — u ham bajarildi." },
-        no: { ru: 'Общий знаменатель 24: 7/8 = 21/24, 5/6 = 20/24.', uz: "Umumiy maxraj 24: 7/8 = 21/24, 5/6 = 20/24." } }
+      { type: 'mc', prompt: { ru: '7/8 − 5/6 = ?', uz: '7/8 − 5/6 = ?', en: '7/8 − 5/6 = ?' }, opts: [{ ru: '2/2', uz: '2/2', en: '2/2' }, { ru: '2/14', uz: '2/14', en: '2/14' }, { ru: '1/24', uz: '1/24', en: '1/24' }], correct: 2,
+        say: { ru: 'Семь восьмых минус пять шестых.', uz: "Sakkizdan yetti minus oltidan besh.", en: 'Seven eighths take away five sixths.' },
+        ok: { ru: '21/24 − 20/24 = 1/24. Самый трудный — и он сделан.', uz: "21/24 − 20/24 = 1/24. Eng qiyini — u ham bajarildi.", en: '21/24 − 20/24 = 1/24. The hardest one, and it is done.' },
+        no: { ru: 'Общий знаменатель 24: 7/8 = 21/24, 5/6 = 20/24.', uz: "Umumiy maxraj 24: 7/8 = 21/24, 5/6 = 20/24.", en: 'The common denominator is 24: 7/8 = 21/24 and 5/6 = 20/24.' } }
     ],
     audio: {
-      intro: { ru: 'Итоговый тренажёр. Восемь заданий от лёгкого к трудному, форматы разные. Первое: одна вторая минус одна четвёртая.', uz: "Yakuniy trenajyor. Sakkizta topshiriq oddiydan qiyinga, formatlar har xil. Birinchisi: ikkidan bir minus to'rtdan bir." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку и попробуй снова.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." },
-      on_done: { ru: 'Все восемь пройдены, включая самый трудный. Отличная работа.', uz: "Sakkizalasi, eng qiyini bilan birga, bajarildi. Ajoyib ish." }
+      intro: { ru: 'Итоговый тренажёр. Восемь заданий от лёгкого к трудному, форматы разные. Первое: одна вторая минус одна четвёртая.', uz: "Yakuniy trenajyor. Sakkizta topshiriq oddiydan qiyinga, formatlar har xil. Birinchisi: ikkidan bir minus to'rtdan bir.", en: 'The final practice. Eight tasks from easy to hard, in different formats. The first one: one half take away one quarter.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку и попробуй снова.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring.", en: 'Not quite. Look at the hint and try again.' },
+      on_done: { ru: 'Все восемь пройдены, включая самый трудный. Отличная работа.', uz: "Sakkizalasi, eng qiyini bilan birga, bajarildi. Ajoyib ish.", en: 'All eight are done, including the hardest. Excellent work.' }
     }
   },
 
   // s11 — TEST MC (practice): telefon batareyasi 7/8 − 1/3 = 13/24 (original kontekst, IT-relatable)
   s11: {
-    eyebrow: { ru: 'Задача · батарея', uz: "Masala · batareya" },
-    bridge: { ru: 'Та же идея работает и в телефоне.', uz: "Xuddi shu g'oya telefonda ham ishlaydi." },
-    title: { ru: 'Заряд телефона', uz: "Telefon zaryadi" },
-    question: { ru: 'У Шерзода телефон заряжен на 7/8. Игра съела 1/3 заряда. Сколько осталось? 7/8 − 1/3 = ?', uz: "Sherzodning telefoni 7/8 zaryadlangan. O'yin zaryadning 1/3 ini yedi. Qancha qoldi? 7/8 − 1/3 = ?" },
-    opt0: { ru: '13/24', uz: '13/24' },
-    opt1: { ru: '6/5', uz: '6/5' },
-    opt2: { ru: '21/24', uz: '21/24' },
-    opt3: { ru: '13/11', uz: '13/11' },
-    correct_text: { ru: 'Верно. 7/8 = 21/24, 1/3 = 8/24, и 21/24 − 8/24 = 13/24 заряда.', uz: "To'g'ri. 7/8 = 21/24, 1/3 = 8/24, va 21/24 − 8/24 = 13/24 zaryad." },
-    hint_1: { ru: 'Здесь вычли и числители, и знаменатели по отдельности. Сначала общий знаменатель двадцать четыре.', uz: "Bu yerda surat va maxraj alohida ayirilgan. Avval umumiy maxraj yigirma to'rt." },
-    hint_2: { ru: 'Ты привёл семь восьмых к двадцать четвёртым, но забыл вычесть. Убери восемь двадцать четвёртых.', uz: "Sakkizdan yettini yigirma to'rtlarga keltirdingiz, lekin ayirishni unutdingiz. Yigirma to'rtdan sakkizni oling." },
-    hint_3: { ru: 'Знаменатель не вычитают. Общий знаменатель здесь двадцать четыре.', uz: "Maxraj ayirilmaydi. Bu yerda umumiy maxraj yigirma to'rt." },
-    wrong_default: { ru: 'Приведи обе дроби к двадцать четвёртым, потом вычти только числители.', uz: "Ikkala kasrni yigirma to'rtlarga keltiring, keyin faqat suratlarni ayiring." },
-    fact: { ru: 'Компьютер хранит дробь как пару чисел: числитель и знаменатель — отдельно.', uz: "Kompyuter kasrni ikki son juftligi sifatida saqlaydi: surat va maxraj — alohida." },
+    eyebrow: { ru: 'Задача · батарея', uz: "Masala · batareya", en: 'Problem · battery' },
+    bridge: { ru: 'Та же идея работает и в телефоне.', uz: "Xuddi shu g'oya telefonda ham ishlaydi.", en: 'The same idea works in a phone too.' },
+    title: { ru: 'Заряд телефона', uz: "Telefon zaryadi", en: 'Phone charge' },
+    question: { ru: 'У Шерзода телефон заряжен на 7/8. Игра съела 1/3 заряда. Сколько осталось? 7/8 − 1/3 = ?', uz: "Sherzodning telefoni 7/8 zaryadlangan. O'yin zaryadning 1/3 ini yedi. Qancha qoldi? 7/8 − 1/3 = ?", en: "Sherzod's phone is charged to 7/8. A game ate 1/3 of the charge. How much is left? 7/8 − 1/3 = ?" },
+    opt0: { ru: '13/24', uz: '13/24', en: '13/24' },
+    opt1: { ru: '6/5', uz: '6/5', en: '6/5' },
+    opt2: { ru: '21/24', uz: '21/24', en: '21/24' },
+    opt3: { ru: '13/11', uz: '13/11', en: '13/11' },
+    correct_text: { ru: 'Верно. 7/8 = 21/24, 1/3 = 8/24, и 21/24 − 8/24 = 13/24 заряда.', uz: "To'g'ri. 7/8 = 21/24, 1/3 = 8/24, va 21/24 − 8/24 = 13/24 zaryad.", en: 'That is right. 7/8 = 21/24, 1/3 = 8/24 and 21/24 − 8/24 = 13/24 of the charge.' },
+    hint_1: { ru: 'Здесь вычли и числители, и знаменатели по отдельности. Сначала общий знаменатель двадцать четыре.', uz: "Bu yerda surat va maxraj alohida ayirilgan. Avval umumiy maxraj yigirma to'rt.", en: 'Here both the numerators and the denominators were subtracted separately. The common denominator twenty four comes first.' },
+    hint_2: { ru: 'Ты привёл семь восьмых к двадцать четвёртым, но забыл вычесть. Убери восемь двадцать четвёртых.', uz: "Sakkizdan yettini yigirma to'rtlarga keltirdingiz, lekin ayirishni unutdingiz. Yigirma to'rtdan sakkizni oling.", en: 'You changed seven eighths into twenty fourths but forgot to subtract. Take away eight twenty fourths.' },
+    hint_3: { ru: 'Знаменатель не вычитают. Общий знаменатель здесь двадцать четыре.', uz: "Maxraj ayirilmaydi. Bu yerda umumiy maxraj yigirma to'rt.", en: 'Denominators are not subtracted. The common denominator here is twenty four.' },
+    wrong_default: { ru: 'Приведи обе дроби к двадцать четвёртым, потом вычти только числители.', uz: "Ikkala kasrni yigirma to'rtlarga keltiring, keyin faqat suratlarni ayiring.", en: 'Change both fractions into twenty fourths, then subtract only the numerators.' },
+    fact: { ru: 'Компьютер хранит дробь как пару чисел: числитель и знаменатель — отдельно.', uz: "Kompyuter kasrni ikki son juftligi sifatida saqlaydi: surat va maxraj — alohida.", en: 'A computer stores a fraction as a pair of numbers, keeping the numerator and the denominator separate.' },
     audio: {
-      intro: { ru: 'У Шерзода телефон заряжен на семь восьмых. Игра съела одну третью заряда. Сколько осталось? Семь восьмых минус одна третья. Выбери ответ.', uz: "Sherzodning telefoni sakkizdan yetti zaryadlangan. O'yin zaryadning uchdan birini yedi. Qancha qoldi? Sakkizdan yetti minus uchdan bir. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Общий знаменатель двадцать четыре, семь восьмых это двадцать одна двадцать четвёртая, одна третья это восемь двадцать четвёртых, остаётся тринадцать двадцать четвёртых. Кстати, компьютер хранит дробь как пару чисел, числитель и знаменатель отдельно.', uz: "To'g'ri. Umumiy maxraj yigirma to'rt, sakkizdan yetti bu yigirma to'rtdan yigirma bir, uchdan bir bu yigirma to'rtdan sakkiz, yigirma to'rtdan o'n uch qoladi. Aytmoqchi, kompyuter kasrni ikki son juftligi sifatida saqlaydi, surat va maxraj alohida." },
-      on_wrong: { ru: 'Не совсем. Приведи обе дроби к двадцать четвёртым, знаменатель не вычитай.', uz: "Unchalik emas. Ikkala kasrni yigirma to'rtlarga keltiring, maxrajni ayirmang." }
+      intro: { ru: 'У Шерзода телефон заряжен на семь восьмых. Игра съела одну третью заряда. Сколько осталось? Семь восьмых минус одна третья. Выбери ответ.', uz: "Sherzodning telefoni sakkizdan yetti zaryadlangan. O'yin zaryadning uchdan birini yedi. Qancha qoldi? Sakkizdan yetti minus uchdan bir. Javobni tanlang.", en: "Sherzod's phone is charged to seven eighths. A game ate one third of the charge. How much is left? Seven eighths take away one third. Choose an answer." },
+      on_correct: { ru: 'Верно. Общий знаменатель двадцать четыре, семь восьмых это двадцать одна двадцать четвёртая, одна третья это восемь двадцать четвёртых, остаётся тринадцать двадцать четвёртых. Кстати, компьютер хранит дробь как пару чисел, числитель и знаменатель отдельно.', uz: "To'g'ri. Umumiy maxraj yigirma to'rt, sakkizdan yetti bu yigirma to'rtdan yigirma bir, uchdan bir bu yigirma to'rtdan sakkiz, yigirma to'rtdan o'n uch qoladi. Aytmoqchi, kompyuter kasrni ikki son juftligi sifatida saqlaydi, surat va maxraj alohida.", en: 'That is right. The common denominator is twenty four, seven eighths is twenty one twenty fourths and one third is eight twenty fourths, so thirteen twenty fourths are left. By the way, a computer stores a fraction as a pair of numbers, keeping the numerator and the denominator separate.' },
+      on_wrong: { ru: 'Не совсем. Приведи обе дроби к двадцать четвёртым, знаменатель не вычитай.', uz: "Unchalik emas. Ikkala kasrni yigirma to'rtlarga keltiring, maxrajni ayirmang.", en: 'Not quite. Change both fractions into twenty fourths and do not subtract the denominator.' }
     }
   },
 
   // s12 — SUMMARY: hookni yopadi + ConnectionsBlock (Dars09-13 kanonik layout)
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    title: { ru: 'Сок не вырос — баг разгадан', uz: "Sharbat o'smadi — xato yechildi" },
-    score_caption: { ru: 'верных ответов с первой попытки', uz: "birinchi urinishda to'g'ri javob" },
-    hook_label: { ru: 'Ответ на загадку', uz: "Jumboqqa javob" },
-    hook_text: { ru: 'У Фарруха было 5/6, он выпил 1/3 = 2/6. Осталось 5/6 − 2/6 = 3/6 — половина. Приложение ошиблось, потому что вычло знаменатели. Так делать нельзя.', uz: "Farruxda 5/6 bor edi, u 1/3 = 2/6 ichdi. 5/6 − 2/6 = 3/6 — yarmi qoldi. Ilova xato qildi, chunki maxrajlarni ayirdi. Bunday qilib bo'lmaydi." },
-    main_label: { ru: 'Что запомнить', uz: "Nimani eslab qolish kerak" },
-    main_1: { ru: '1. Сначала общий знаменатель, потом вычитаем числители.', uz: "1. Avval umumiy maxraj, keyin suratlarni ayiramiz." },
-    main_2: { ru: '2. Знаменатель — размер доли, его не вычитают.', uz: "2. Maxraj — ulush o'lchami, u ayirilmaydi." },
-    main_3: { ru: '3. Наименьший общий знаменатель ищем перебором долей.', uz: "3. Eng kichik umumiy maxrajni ulushlarni saralab topamiz." },
-    next_note: { ru: 'А наименьший общий знаменатель через НОК и сокращение через НОД — это уже 6 класс.', uz: "Eng kichik umumiy maxrajni EKUK orqali va qisqartirishni EKUB orqali topish — bu 6-sinf." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Сложение дробей с разными знаменателями; вычитание с равными знаменателями.', uz: "Har xil maxrajli kasrlarni qo'shish; teng maxrajli kasrlarni ayirish." },
-    conn_label_next: { ru: 'Следующий урок', uz: "Keyingi dars" },
-    conn_next: { ru: 'Смешанные числа: сложение и вычитание.', uz: "Aralash sonlar: qo'shish va ayirish." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: 'Подведём итог. У Фарруха было пять шестых, он выпил одну третью, это две шестых. Осталось три шестых, ровно половина. Приложение ошиблось, потому что вычло и знаменатели. Запомни. Сначала общий знаменатель, потом вычитаем только числители. Знаменатель не вычитают. Наименьший общий знаменатель ищем перебором долей. А через наибольший общий делитель и наименьшее общее кратное мы научимся в шестом классе.', uz: "Yakun qilamiz. Farruxda oltidan besh bor edi, u uchdan bir ichdi, bu oltidan ikki. Oltidan uch qoldi, roppa rosa yarmi. Ilova xato qildi, chunki maxrajlarni ham ayirdi. Eslab qoling. Avval umumiy maxraj, keyin faqat suratlarni ayiramiz. Maxraj ayirilmaydi. Eng kichik umumiy maxrajni ulushlarni saralab topamiz. eng katta umumiy bo'luvchi va eng kichik umumiy karrali orqali esa oltinchi sinfda o'rganamiz." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    title: { ru: 'Сок не вырос — баг разгадан', uz: "Sharbat o'smadi — xato yechildi", en: 'The juice did not grow, the bug is solved' },
+    score_caption: { ru: 'верных ответов с первой попытки', uz: "birinchi urinishda to'g'ri javob", en: 'correct answers first time' },
+    hook_label: { ru: 'Ответ на загадку', uz: "Jumboqqa javob", en: 'The answer to the puzzle' },
+    hook_text: { ru: 'У Фарруха было 5/6, он выпил 1/3 = 2/6. Осталось 5/6 − 2/6 = 3/6 — половина. Приложение ошиблось, потому что вычло знаменатели. Так делать нельзя.', uz: "Farruxda 5/6 bor edi, u 1/3 = 2/6 ichdi. 5/6 − 2/6 = 3/6 — yarmi qoldi. Ilova xato qildi, chunki maxrajlarni ayirdi. Bunday qilib bo'lmaydi.", en: 'Farrukh had 5/6 and drank 1/3, which is 2/6. That leaves 5/6 − 2/6 = 3/6, a half. The app went wrong because it subtracted the denominators. That is not allowed.' },
+    main_label: { ru: 'Что запомнить', uz: "Nimani eslab qolish kerak", en: 'What to remember' },
+    main_1: { ru: '1. Сначала общий знаменатель, потом вычитаем числители.', uz: "1. Avval umumiy maxraj, keyin suratlarni ayiramiz.", en: '1. The common denominator first, then we subtract the numerators.' },
+    main_2: { ru: '2. Знаменатель — размер доли, его не вычитают.', uz: "2. Maxraj — ulush o'lchami, u ayirilmaydi.", en: '2. The denominator is the size of a part, it is not subtracted.' },
+    main_3: { ru: '3. Наименьший общий знаменатель ищем перебором долей.', uz: "3. Eng kichik umumiy maxrajni ulushlarni saralab topamiz.", en: '3. We find the lowest common denominator by trying out numbers of parts.' },
+    next_note: { ru: 'А наименьший общий знаменатель через НОК и сокращение через НОД — это уже 6 класс.', uz: "Eng kichik umumiy maxrajni EKUK orqali va qisqartirishni EKUB orqali topish — bu 6-sinf.", en: 'Finding the lowest common denominator with the lowest common multiple, and simplifying with the highest common factor, come in Year 6.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Сложение дробей с разными знаменателями; вычитание с равными знаменателями.', uz: "Har xil maxrajli kasrlarni qo'shish; teng maxrajli kasrlarni ayirish.", en: 'Adding fractions with different denominators, and subtracting with the same denominator.' },
+    conn_label_next: { ru: 'Следующий урок', uz: "Keyingi dars", en: 'Next lesson' },
+    conn_next: { ru: 'Смешанные числа: сложение и вычитание.', uz: "Aralash sonlar: qo'shish va ayirish.", en: 'Mixed numbers: adding and subtracting.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: 'Подведём итог. У Фарруха было пять шестых, он выпил одну третью, это две шестых. Осталось три шестых, ровно половина. Приложение ошиблось, потому что вычло и знаменатели. Запомни. Сначала общий знаменатель, потом вычитаем только числители. Знаменатель не вычитают. Наименьший общий знаменатель ищем перебором долей. А через наибольший общий делитель и наименьшее общее кратное мы научимся в шестом классе.', uz: "Yakun qilamiz. Farruxda oltidan besh bor edi, u uchdan bir ichdi, bu oltidan ikki. Oltidan uch qoldi, roppa rosa yarmi. Ilova xato qildi, chunki maxrajlarni ham ayirdi. Eslab qoling. Avval umumiy maxraj, keyin faqat suratlarni ayiramiz. Maxraj ayirilmaydi. Eng kichik umumiy maxrajni ulushlarni saralab topamiz. eng katta umumiy bo'luvchi va eng kichik umumiy karrali orqali esa oltinchi sinfda o'rganamiz.", en: 'Let us sum up. Farrukh had five sixths and drank one third, which is two sixths. Three sixths are left, exactly a half. The app went wrong because it subtracted the denominators as well. Remember: the common denominator first, then we subtract only the numerators. The denominator is not subtracted. We find the lowest common denominator by trying out numbers of parts. And in Year six we will learn to do it with the highest common factor and the lowest common multiple.' }
   }
 };
 
@@ -1116,8 +1145,8 @@ const ConnectionsBlock = ({ c }) => {
 };
 
 // FAKT-BLOK — ko'k karta (Dars28 etalonidan)
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
   return (
@@ -1243,13 +1272,13 @@ const FracInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent,
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1321,7 +1350,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.'}</p>
           </div>
         ) : (
           <>
@@ -1344,7 +1373,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1436,7 +1465,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
   useEffect(() => () => { if (advRef.current) clearTimeout(advRef.current); }, []);
 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
-  const typeBadge = { mc: lang === 'uz' ? 'Tanlash' : 'Выбор', input: lang === 'uz' ? 'Yozish' : 'Ввод', multi: lang === 'uz' ? "Bir nechta" : 'Несколько', order: lang === 'uz' ? 'Tartiblash' : 'Порядок' }[it ? it.type : 'mc'];
+  const typeBadge = { mc: lang === 'uz' ? 'Tanlash' : lang === 'en' ? "Choose" : 'Выбор', input: lang === 'uz' ? 'Yozish' : lang === 'en' ? "Type" : 'Ввод', multi: lang === 'uz' ? "Bir nechta" : lang === 'en' ? "Several" : 'Несколько', order: lang === 'uz' ? 'Tartiblash' : lang === 'en' ? "Order" : 'Порядок' }[it ? it.type : 'mc'];
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.1vw, 16px)' }}>
@@ -1481,7 +1510,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
               <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <input type="text" inputMode="text" className={`answer-input ${solvedItem ? 'correct' : ''}`} value={inputVal} placeholder="0/0" disabled={solvedItem}
                   onChange={e => { setInputVal(e.target.value); setWrongShown(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(110px, 24vw, 150px)' }}/>
-                {!solvedItem && <button className="btn-white-accent" onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                {!solvedItem && <button className="btn-white-accent" onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>}
               </div>
             )}
 
@@ -1498,7 +1527,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
                     );
                   })}
                 </div>
-                {!solvedItem && <button className="btn-white-accent fade-up delay-2" onClick={submitMulti} style={{ alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                {!solvedItem && <button className="btn-white-accent fade-up delay-2" onClick={submitMulti} style={{ alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>}
               </>
             )}
 
@@ -1519,7 +1548,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
 
             <FeedbackBlock show={solvedItem || wrongShown} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? it.ok : it.no))}</p>
             </FeedbackBlock>
@@ -1681,7 +1710,7 @@ const Screen4 = ({ screen, onNext, onPrev }) => {
         </div>
         {showFact
           ? <FactCard text={c.fact} badge={FB_HIST} anim={<AnimEgypt/>}/>
-          : <button className="btn-ghost fade-up" onClick={revealFact} style={{ alignSelf: 'flex-start', padding: 'clamp(8px, 1.4vw, 10px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(12px, 1.5vw, 13px)', color: T.blue }}>{lang === 'uz' ? "Qiziqarli fakt" : 'Интересный факт'}</button>}
+          : <button className="btn-ghost fade-up" onClick={revealFact} style={{ alignSelf: 'flex-start', padding: 'clamp(8px, 1.4vw, 10px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(12px, 1.5vw, 13px)', color: T.blue }}>{lang === 'uz' ? "Qiziqarli fakt" : lang === 'en' ? "An interesting fact" : 'Интересный факт'}</button>}
       </div>
     </Stage>
   );
@@ -1757,12 +1786,12 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const scoredTotal = SCREEN_META.filter(s => s.scored).length;
   const correctCount = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
   const restart = () => { onReset(); };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={restart} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={restart} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 14px)' }}>
         <Floaters/>
-        <p className="eyebrow fade-up" style={{ color: T.success, display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Dars yakunlandi" : 'Урок пройден'}</p>
+        <p className="eyebrow fade-up" style={{ color: T.success, display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Dars yakunlandi" : lang === 'en' ? "Lesson finished" : 'Урок пройден'}</p>
         <Title node={c.title}/>
         <div className="frame-success fade-up delay-1" style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
           <span className="dm-prob" style={{ color: T.success }}>{correctCount} / {scoredTotal}</span>
@@ -1797,7 +1826,7 @@ export default function FractionSubtractLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1851,7 +1880,7 @@ export default function FractionSubtractLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

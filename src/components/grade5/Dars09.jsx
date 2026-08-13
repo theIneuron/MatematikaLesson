@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -218,7 +243,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -585,12 +611,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -706,7 +732,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -755,9 +781,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК (синяя карта) + анимации (CSS-only loop)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -826,8 +852,8 @@ const GlassModel = ({ parts = 4, filled = 0 }) => (
 // --- POD UROK: frac_5_01 — Что такое дробь / Kasr nima ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-01-v1',
-  lessonTitle: { ru: 'Что такое дробь (часть целого)', uz: "Kasr nima (butunning qismi)" }
+  lessonId: 'grade5-09',
+  lessonTitle: { ru: 'Что такое дробь (часть целого)', uz: "Kasr nima (butunning qismi)", en: 'What a fraction is (part of a whole)' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -852,24 +878,24 @@ const SCREEN_META = [
 const CONTENT = {
   // ---- s0 HOOK: полоса загрузки 3 из 5, провокация Далера «две цифры» ----
   s0: {
-    eyebrow: { ru: 'Дробь · вступление', uz: "Kasr · kirish" },
-    title: { ru: 'Нодира загружает игру. Заполнено 3 из 5 квадратиков.', uz: "Nodira o'yinni yuklamoqda. Beshdan uch katakcha to'ldi." },
-    body: { ru: 'Далер пожимает плечами: «да тут просто две цифры рядом — 3 и 5, при чём тут одно число?»', uz: "Daler yelka qisadi: «bu yerda shunchaki ikkita raqam — 3 va 5, bitta sonning nima aloqasi bor?»" },
-    question: { ru: 'А ты как думаешь: 3 из 5 — это одно число или две отдельные цифры?', uz: "Sizningcha-chi: beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi?" },
-    opt0: { ru: 'Одно число — это часть всей полосы', uz: "Bitta son — butun chiziqning bir qismi" },
-    opt1: { ru: 'Две отдельные цифры, 3 и 5', uz: "Ikkita alohida raqam, 3 va 5" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Нодира загружает игру. Полоса заполнена на три из пяти. Далер говорит, что это просто две цифры. А ты как думаешь — три из пяти это одно число или две отдельные цифры? Выбери ответ.', uz: "Nodira o'yinni yuklamoqda. Chiziq beshdan uchga to'ldi. Daler buni shunchaki ikkita raqam deydi. Sizningcha, beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi? Javobni tanlang." }
+    eyebrow: { ru: 'Дробь · вступление', uz: "Kasr · kirish", en: 'Fractions · introduction' },
+    title: { ru: 'Нодира загружает игру. Заполнено 3 из 5 квадратиков.', uz: "Nodira o'yinni yuklamoqda. Beshdan uch katakcha to'ldi.", en: 'Nodira is loading a game. 3 of the 5 blocks are filled.' },
+    body: { ru: 'Далер пожимает плечами: «да тут просто две цифры рядом — 3 и 5, при чём тут одно число?»', uz: "Daler yelka qisadi: «bu yerda shunchaki ikkita raqam — 3 va 5, bitta sonning nima aloqasi bor?»", en: 'Daler shrugs: those are just two figures side by side, a 3 and a 5, how can that be one number?' },
+    question: { ru: 'А ты как думаешь: 3 из 5 — это одно число или две отдельные цифры?', uz: "Sizningcha-chi: beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi?", en: 'What do you think: is 3 out of 5 one number or two separate figures?' },
+    opt0: { ru: 'Одно число — это часть всей полосы', uz: "Bitta son — butun chiziqning bir qismi", en: 'One number, a part of the whole bar' },
+    opt1: { ru: 'Две отдельные цифры, 3 и 5', uz: "Ikkita alohida raqam, 3 va 5", en: 'Two separate figures, a 3 and a 5' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    audio: { ru: 'Нодира загружает игру. Полоса заполнена на три из пяти. Далер говорит, что это просто две цифры. А ты как думаешь — три из пяти это одно число или две отдельные цифры? Выбери ответ.', uz: "Nodira o'yinni yuklamoqda. Chiziq beshdan uchga to'ldi. Daler buni shunchaki ikkita raqam deydi. Sizningcha, beshdan uch — bu bitta sonmi yoki ikkita alohida raqammi? Javobni tanlang.", en: 'Nodira is loading a game. The bar is filled three out of five. Daler says those are just two figures. What do you think, is three out of five one number or two separate figures? Choose an answer.' }
   },
 
   // ---- s1 EXPLORATION (step-by-step): сборка дроби по шагам ----
   s1: {
-    eyebrow: { ru: 'Что такое дробь', uz: "Kasr nima" },
-    title: { ru: 'Соберём дробь по шагам', uz: "Kasrni bosqichma-bosqich yig'amiz" },
-    bridge: { ru: 'Далер сказал «две цифры». Давай проверим — разберём эту полосу по шагам.', uz: "Daler «ikki raqam» dedi. Keling, tekshiramiz — bu chiziqni bosqichma-bosqich ko'ramiz." },
-    conclusion: { ru: 'Три пятых — три доли из пяти.', uz: "Beshdan uch — beshta ulushdan uchtasi." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А как это записать?', uz: "Tushunarli. Buni qanday yozamiz?" },
+    eyebrow: { ru: 'Что такое дробь', uz: "Kasr nima", en: 'What a fraction is' },
+    title: { ru: 'Соберём дробь по шагам', uz: "Kasrni bosqichma-bosqich yig'amiz", en: 'Let us build a fraction step by step' },
+    bridge: { ru: 'Далер сказал «две цифры». Давай проверим — разберём эту полосу по шагам.', uz: "Daler «ikki raqam» dedi. Keling, tekshiramiz — bu chiziqni bosqichma-bosqich ko'ramiz.", en: 'Daler said two figures. Let us check by taking this bar apart step by step.' },
+    conclusion: { ru: 'Три пятых — три доли из пяти.', uz: "Beshdan uch — beshta ulushdan uchtasi.", en: 'Three fifths, three parts out of five.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А как это записать?', uz: "Tushunarli. Buni qanday yozamiz?", en: 'Got it. And how is it written down?' },
     audio: {
       ru: [
         'Давай разберём эту полосу по шагам. Нажимай кнопку Дальше.',
@@ -882,255 +908,256 @@ const CONTENT = {
         "Avval bizda bitta butun chiziq bor. Bu — bizning butunimiz.",
         "Endi butunni beshta teng bo'lakka bo'lamiz. Har bir bo'lak ulush deyiladi.",
         "Beshta ulushdan uchtasini bo'yaymiz. Beshdan uch hosil bo'ladi — beshta teng ulushdan uchtasi bo'yalgan. Mana shu — kasr."
-      ]
+      ],
+      en: ['Let us take this bar apart step by step. Tap the next button.', 'To start with we have one complete bar. That is our whole.', 'Now we split the whole into five equal parts. Each of these parts is called an equal part.', 'We colour in three parts out of five. That gives three fifths, three coloured parts out of five equal ones. And that is a fraction.']
     }
   },
 
   // ---- s2 EXPLORATION (slider + tap): собери 3/4 сам ----
   s2: {
-    eyebrow: { ru: 'Собери сам', uz: "O'zingiz yig'ing" },
-    title: { ru: 'Собери дробь сам', uz: "Kasrni o'zingiz yig'ing" },
-    intro: { ru: 'Двигай ползунок — меняй число равных долей. Нажимай на доли, чтобы их закрасить.', uz: "Slayderni suring — teng ulushlar sonini o'zgartiring. Ulushlarni bo'yash uchun ularni bosing." },
-    target_text: { ru: 'Цель: собери три четвёртых — 4 равные доли, 3 закрашены.', uz: "Maqsad: to'rtdan uchni yig'ing — 4 ta teng ulush, 3 tasi bo'yalgan." },
-    eyebrow_slider: { ru: 'Равных долей:', uz: "Teng ulushlar:" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
-    fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Это три четвёртых: целое разделили на 4 равные доли и взяли 3.', uz: "Bu — to'rtdan uch: butun to'rtta teng ulushga bo'lindi va uchtasi olindi." },
-    fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужно 4 равные доли и 3 закрашенные. Поставь ползунок на 4 и закрась три доли.', uz: "To'rtta teng ulush va uchta bo'yalgan kerak. Slayderni to'rtga qo'ying va uchta ulushni bo'yang." },
-    audio: { ru: 'Собери дробь сам. Двигай ползунок, чтобы выбрать число равных долей, и нажимай на доли, чтобы закрасить. Твоя цель — три четвёртых: четыре равные доли, три закрашены.', uz: "Kasrni o'zingiz yig'ing. Teng ulushlar sonini tanlash uchun slayderni suring va bo'yash uchun ulushlarni bosing. Maqsadingiz — to'rtdan uch: to'rtta teng ulush, uchtasi bo'yalgan." }
+    eyebrow: { ru: 'Собери сам', uz: "O'zingiz yig'ing", en: 'Build it yourself' },
+    title: { ru: 'Собери дробь сам', uz: "Kasrni o'zingiz yig'ing", en: 'Build the fraction yourself' },
+    intro: { ru: 'Двигай ползунок — меняй число равных долей. Нажимай на доли, чтобы их закрасить.', uz: "Slayderni suring — teng ulushlar sonini o'zgartiring. Ulushlarni bo'yash uchun ularni bosing.", en: 'Move the slider to change the number of equal parts. Tap the parts to colour them in.' },
+    target_text: { ru: 'Цель: собери три четвёртых — 4 равные доли, 3 закрашены.', uz: "Maqsad: to'rtdan uchni yig'ing — 4 ta teng ulush, 3 tasi bo'yalgan.", en: 'Your goal: build three quarters, 4 equal parts with 3 coloured in.' },
+    eyebrow_slider: { ru: 'Равных долей:', uz: "Teng ulushlar:", en: 'Equal parts:' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing", en: 'Build it first' },
+    fb_success_title: { ru: 'Верно', uz: "To'g'ri", en: 'Correct' },
+    fb_success: { ru: 'Это три четвёртых: целое разделили на 4 равные доли и взяли 3.', uz: "Bu — to'rtdan uch: butun to'rtta teng ulushga bo'lindi va uchtasi olindi.", en: 'This is three quarters: the whole was split into 4 equal parts and 3 were taken.' },
+    fb_wrong_title: { ru: 'Почти', uz: "Deyarli", en: 'Almost' },
+    fb_wrong: { ru: 'Нужно 4 равные доли и 3 закрашенные. Поставь ползунок на 4 и закрась три доли.', uz: "To'rtta teng ulush va uchta bo'yalgan kerak. Slayderni to'rtga qo'ying va uchta ulushni bo'yang.", en: 'You need 4 equal parts with 3 coloured in. Set the slider to 4 and colour three parts.' },
+    audio: { ru: 'Собери дробь сам. Двигай ползунок, чтобы выбрать число равных долей, и нажимай на доли, чтобы закрасить. Твоя цель — три четвёртых: четыре равные доли, три закрашены.', uz: "Kasrni o'zingiz yig'ing. Teng ulushlar sonini tanlash uchun slayderni suring va bo'yash uchun ulushlarni bosing. Maqsadingiz — to'rtdan uch: to'rtta teng ulush, uchtasi bo'yalgan.", en: 'Build the fraction yourself. Move the slider to choose the number of equal parts and tap the parts to colour them in. Your goal is three quarters: four equal parts with three coloured in.' }
   },
 
   // ---- s3 RULE: числитель / знаменатель, одно число ----
   s3: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Мы собрали дробь. Теперь дадим имя каждой её части.', uz: "Kasrni yig'dik. Endi uning har bir qismiga nom beramiz." },
-    label: { ru: 'Как устроена дробь', uz: "Kasr qanday tuzilgan" },
-    title: { ru: 'Дробь — это одно число, а не две цифры.', uz: "Kasr — bu bitta son, ikkita raqam emas." },
-    card_top: { ru: 'Числитель (сверху) — сколько долей взяли.', uz: "Surat (yuqorida) — nechta ulush olingani." },
-    card_bottom: { ru: 'Знаменатель (снизу) — на сколько равных долей разделили целое.', uz: "Maxraj (pastda) — butun nechta teng ulushga bo'lingani." },
-    card_line: { ru: 'Чёрточка между ними — это дробная черта.', uz: "Ular orasidagi chiziq — kasr chizig'i." },
-    outro: { ru: 'В дроби три пятых: числитель 3, знаменатель 5. Вместе они задают одно число — часть целого.', uz: "Beshdan uch kasrida: surat 3, maxraj 5. Birgalikda ular bitta sonni — butunning qismini bildiradi." },
-    audio: { ru: 'Дробь — это одно число, а не две отдельные цифры. Число сверху называется числитель: оно показывает, сколько равных долей мы взяли. Число снизу называется знаменатель: оно показывает, на сколько равных долей разделили целое. В дроби три пятых числитель три, знаменатель пять.', uz: "Kasr — bu bitta son, ikkita alohida raqam emas. Yuqoridagi son surat deyiladi: u nechta teng ulush olganimizni ko'rsatadi. Pastdagi son maxraj deyiladi: u butunni nechta teng ulushga bo'lganimizni ko'rsatadi. Beshdan uch kasrida surat uch, maxraj besh." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Мы собрали дробь. Теперь дадим имя каждой её части.', uz: "Kasrni yig'dik. Endi uning har bir qismiga nom beramiz.", en: 'We have built a fraction. Now let us name each of its parts.' },
+    label: { ru: 'Как устроена дробь', uz: "Kasr qanday tuzilgan", en: 'How a fraction is made up' },
+    title: { ru: 'Дробь — это одно число, а не две цифры.', uz: "Kasr — bu bitta son, ikkita raqam emas.", en: 'A fraction is one number, not two figures.' },
+    card_top: { ru: 'Числитель (сверху) — сколько долей взяли.', uz: "Surat (yuqorida) — nechta ulush olingani.", en: 'The numerator (on top) is how many parts were taken.' },
+    card_bottom: { ru: 'Знаменатель (снизу) — на сколько равных долей разделили целое.', uz: "Maxraj (pastda) — butun nechta teng ulushga bo'lingani.", en: 'The denominator (underneath) is how many equal parts the whole was split into.' },
+    card_line: { ru: 'Чёрточка между ними — это дробная черта.', uz: "Ular orasidagi chiziq — kasr chizig'i.", en: 'The short line between them is the fraction line.' },
+    outro: { ru: 'В дроби три пятых: числитель 3, знаменатель 5. Вместе они задают одно число — часть целого.', uz: "Beshdan uch kasrida: surat 3, maxraj 5. Birgalikda ular bitta sonni — butunning qismini bildiradi.", en: 'In the fraction three fifths the numerator is 3 and the denominator is 5. Together they make one number, a part of the whole.' },
+    audio: { ru: 'Дробь — это одно число, а не две отдельные цифры. Число сверху называется числитель: оно показывает, сколько равных долей мы взяли. Число снизу называется знаменатель: оно показывает, на сколько равных долей разделили целое. В дроби три пятых числитель три, знаменатель пять.', uz: "Kasr — bu bitta son, ikkita alohida raqam emas. Yuqoridagi son surat deyiladi: u nechta teng ulush olganimizni ko'rsatadi. Pastdagi son maxraj deyiladi: u butunni nechta teng ulushga bo'lganimizni ko'rsatadi. Beshdan uch kasrida surat uch, maxraj besh.", en: 'A fraction is one number, not two separate figures. The number on top is called the numerator: it shows how many equal parts we took. The number underneath is called the denominator: it shows how many equal parts the whole was split into. In the fraction three fifths the numerator is three and the denominator is five.' }
   },
 
   // ---- s4 TEST (DecInput): запиши числитель (3) ----
   s4: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    bridge: { ru: 'Имена знаем — теперь найди числитель сам.', uz: "Nomlarni bilamiz — endi suratni o'zingiz toping." },
-    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 3. Запиши числитель этой дроби.', uz: "Chiziq 5 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu kasrning suratini yozing." },
-    vis_num: { ru: 'числитель', uz: "surat" },
-    vis_den: { ru: 'знаменатель', uz: "maxraj" },
-    vis_cap: { ru: 'Сколько долей закрашено?', uz: "Nechta ulush bo'yalgan?" },
-    placeholder: { ru: '0', uz: "0" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Числитель — это сколько долей закрашено. Посчитай закрашенные доли.', uz: "Surat — bu nechta ulush bo'yalgani. Bo'yalgan ulushlarni sanang." },
-    fb_correct: { ru: 'Верно: закрашены 3 доли из 5, числитель равен 3. Дробь — три пятых.', uz: "To'g'ri: 5 ulushdan 3 tasi bo'yalgan, surat 3 ga teng. Kasr — beshdan uch." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    bridge: { ru: 'Имена знаем — теперь найди числитель сам.', uz: "Nomlarni bilamiz — endi suratni o'zingiz toping.", en: 'We know the names, so now find the numerator yourself.' },
+    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 3. Запиши числитель этой дроби.', uz: "Chiziq 5 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu kasrning suratini yozing.", en: 'The bar is split into 5 equal parts and 3 are coloured in. Write the numerator of this fraction.' },
+    vis_num: { ru: 'числитель', uz: "surat", en: 'the numerator' },
+    vis_den: { ru: 'знаменатель', uz: "maxraj", en: 'the denominator' },
+    vis_cap: { ru: 'Сколько долей закрашено?', uz: "Nechta ulush bo'yalgan?", en: 'How many parts are coloured in?' },
+    placeholder: { ru: '0', uz: "0", en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Числитель — это сколько долей закрашено. Посчитай закрашенные доли.', uz: "Surat — bu nechta ulush bo'yalgani. Bo'yalgan ulushlarni sanang.", en: 'The numerator is how many parts are coloured in. Count the coloured parts.' },
+    fb_correct: { ru: 'Верно: закрашены 3 доли из 5, числитель равен 3. Дробь — три пятых.', uz: "To'g'ri: 5 ulushdan 3 tasi bo'yalgan, surat 3 ga teng. Kasr — beshdan uch.", en: 'That is right: 3 parts out of 5 are coloured in, so the numerator is 3. The fraction is three fifths.' },
     audio: {
-      intro: { ru: 'Посмотри на полосу: она разделена на пять равных долей, и три из них закрашены. Запиши числитель этой дроби и нажми кнопку Проверить.', uz: "Chiziqqa qarang: u beshta teng ulushga bo'lingan va uchtasi bo'yalgan. Bu kasrning suratini yozing va Tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Закрашены три доли, значит числитель — три. Дробь читается три пятых.', uz: "To'g'ri. Uchta ulush bo'yalgan, demak surat — uch. Kasr beshdan uch deb o'qiladi." },
-      on_wrong: { ru: 'Пока нет. Числитель — это число закрашенных долей. Посчитай их ещё раз.', uz: "Hali emas. Surat — bo'yalgan ulushlar soni. Ularni yana sanang." }
+      intro: { ru: 'Посмотри на полосу: она разделена на пять равных долей, и три из них закрашены. Запиши числитель этой дроби и нажми кнопку Проверить.', uz: "Chiziqqa qarang: u beshta teng ulushga bo'lingan va uchtasi bo'yalgan. Bu kasrning suratini yozing va Tekshirish tugmasini bosing.", en: 'Look at the bar: it is split into five equal parts and three of them are coloured in. Write the numerator of this fraction and tap the check button.' },
+      on_correct: { ru: 'Верно. Закрашены три доли, значит числитель — три. Дробь читается три пятых.', uz: "To'g'ri. Uchta ulush bo'yalgan, demak surat — uch. Kasr beshdan uch deb o'qiladi.", en: 'That is right. Three parts are coloured in, so the numerator is three. The fraction is read as three fifths.' },
+      on_wrong: { ru: 'Пока нет. Числитель — это число закрашенных долей. Посчитай их ещё раз.', uz: "Hali emas. Surat — bo'yalgan ulushlar soni. Ularni yana sanang.", en: 'Not yet. The numerator is the number of coloured parts. Count them again.' }
     }
   },
 
   // ---- s5 RULE: доли должны быть равными ----
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Важно', uz: "Muhim" },
-    title: { ru: 'Доли должны быть равными.', uz: "Ulushlar teng bo'lishi kerak." },
-    card_ok: { ru: 'Равные доли — это дробь. Целое разделено на одинаковые части.', uz: "Teng ulushlar — bu kasr. Butun bir xil qismlarga bo'lingan." },
-    card_bad: { ru: 'Неравные части — это не дробь. Доли разного размера так назвать нельзя.', uz: "Teng bo'lmagan qismlar — kasr emas. Har xil o'lchamdagi qismlarni bunday atab bo'lmaydi." },
-    outro: { ru: 'Дробью называем только равные доли целого. Если части разные — это ещё не дробь.', uz: "Kasr deb faqat butunning teng ulushlarini ataymiz. Qismlar har xil bo'lsa — bu hali kasr emas." },
-    audio: { ru: 'Запомни важное правило: доли должны быть равными. Если целое разделили на одинаковые части — это дробь. А если части разного размера, дробью это назвать нельзя.', uz: "Muhim qoidani eslab qoling: ulushlar teng bo'lishi kerak. Agar butun bir xil qismlarga bo'lingan bo'lsa — bu kasr. Agar qismlar har xil o'lchamda bo'lsa, buni kasr deb atab bo'lmaydi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    label: { ru: 'Важно', uz: "Muhim", en: 'This matters' },
+    title: { ru: 'Доли должны быть равными.', uz: "Ulushlar teng bo'lishi kerak.", en: 'The parts have to be equal.' },
+    card_ok: { ru: 'Равные доли — это дробь. Целое разделено на одинаковые части.', uz: "Teng ulushlar — bu kasr. Butun bir xil qismlarga bo'lingan.", en: 'Equal parts make a fraction. The whole is split into parts of the same size.' },
+    card_bad: { ru: 'Неравные части — это не дробь. Доли разного размера так назвать нельзя.', uz: "Teng bo'lmagan qismlar — kasr emas. Har xil o'lchamdagi qismlarni bunday atab bo'lmaydi.", en: 'Unequal parts are not a fraction. Parts of different sizes cannot be called that.' },
+    outro: { ru: 'Дробью называем только равные доли целого. Если части разные — это ещё не дробь.', uz: "Kasr deb faqat butunning teng ulushlarini ataymiz. Qismlar har xil bo'lsa — bu hali kasr emas.", en: 'We only call equal parts of a whole a fraction. If the parts are different, it is not a fraction yet.' },
+    audio: { ru: 'Запомни важное правило: доли должны быть равными. Если целое разделили на одинаковые части — это дробь. А если части разного размера, дробью это назвать нельзя.', uz: "Muhim qoidani eslab qoling: ulushlar teng bo'lishi kerak. Agar butun bir xil qismlarga bo'lingan bo'lsa — bu kasr. Agar qismlar har xil o'lchamda bo'lsa, buni kasr deb atab bo'lmaydi.", en: 'Remember this important rule: the parts have to be equal. If the whole is split into parts of the same size, it is a fraction. If the parts are different sizes, it cannot be called a fraction.' }
   },
 
   // ---- s6 TEST (классификация tap): дробь (равные доли) или нет ----
   s6: {
-    eyebrow: { ru: 'Тренировка · сортировка', uz: "Mashq · saralash" },
-    title: { ru: 'Дробь или нет?', uz: "Kasrmi yoki yo'qmi?" },
-    lead: { ru: 'Дробь — это только равные доли. Отправь каждую полосу в свою корзину.', uz: "Kasr — bu faqat teng ulushlar. Har bir chiziqni o'z savatiga joylang." },
-    bin_eq: { ru: 'Дробь — доли равные', uz: "Kasr — ulushlar teng" },
-    bin_uneq: { ru: 'Не дробь — доли разные', uz: "Kasr emas — ulushlar har xil" },
-    ask: { ru: 'В какую корзину? Тапни.', uz: "Qaysi savatga? Bosing." },
-    hint_wrong: { ru: 'Посмотри на доли: они одинакового размера или разного? Равные — это дробь.', uz: "Ulushlarga qarang: bir xil o'lchamdami yoki har xilmi? Teng bo'lsa — kasr." },
-    correct_text: { ru: 'Верно! Дробь — это всегда равные доли целого. Части разного размера дробью не назвать.', uz: "To'g'ri! Kasr — bu doim butunning teng ulushlari. Har xil o'lchamdagi qismlarni kasr deb bo'lmaydi." },
-    fact: { ru: 'Древние египтяне записывали дроби только как сумму единичных долей — одна третья, одна четвёртая. Например, 3/4 у них = 1/2 + 1/4.', uz: "Qadimgi misrliklar kasrlarni faqat birlik ulushlar — uchdan bir, to'rtdan bir — yig'indisi qilib yozishgan. Masalan, 3/4 ularda = 1/2 + 1/4." },
-    fact_audio: { ru: 'Древние египтяне записывали дроби только как сумму единичных долей, например одна вторая плюс одна четвёртая.', uz: "Qadimgi misrliklar kasrlarni faqat birlik ulushlar yig'indisi qilib yozishgan, masalan ikkidan bir qo'shilgan to'rtdan bir." },
+    eyebrow: { ru: 'Тренировка · сортировка', uz: "Mashq · saralash", en: 'Practice · sorting' },
+    title: { ru: 'Дробь или нет?', uz: "Kasrmi yoki yo'qmi?", en: 'A fraction or not?' },
+    lead: { ru: 'Дробь — это только равные доли. Отправь каждую полосу в свою корзину.', uz: "Kasr — bu faqat teng ulushlar. Har bir chiziqni o'z savatiga joylang.", en: 'Only equal parts make a fraction. Send each bar to its own basket.' },
+    bin_eq: { ru: 'Дробь — доли равные', uz: "Kasr — ulushlar teng", en: 'A fraction, the parts are equal' },
+    bin_uneq: { ru: 'Не дробь — доли разные', uz: "Kasr emas — ulushlar har xil", en: 'Not a fraction, the parts are different' },
+    ask: { ru: 'В какую корзину? Тапни.', uz: "Qaysi savatga? Bosing.", en: 'Which basket? Tap it.' },
+    hint_wrong: { ru: 'Посмотри на доли: они одинакового размера или разного? Равные — это дробь.', uz: "Ulushlarga qarang: bir xil o'lchamdami yoki har xilmi? Teng bo'lsa — kasr.", en: 'Look at the parts: are they the same size or different? Equal parts make a fraction.' },
+    correct_text: { ru: 'Верно! Дробь — это всегда равные доли целого. Части разного размера дробью не назвать.', uz: "To'g'ri! Kasr — bu doim butunning teng ulushlari. Har xil o'lchamdagi qismlarni kasr deb bo'lmaydi.", en: 'Right! A fraction is always equal parts of a whole. Parts of different sizes cannot be called a fraction.' },
+    fact: { ru: 'Древние египтяне записывали дроби только как сумму единичных долей — одна третья, одна четвёртая. Например, 3/4 у них = 1/2 + 1/4.', uz: "Qadimgi misrliklar kasrlarni faqat birlik ulushlar — uchdan bir, to'rtdan bir — yig'indisi qilib yozishgan. Masalan, 3/4 ularda = 1/2 + 1/4.", en: 'The ancient Egyptians wrote fractions only as single parts added together, like one third or one quarter. For them 3/4 was 1/2 + 1/4.' },
+    fact_audio: { ru: 'Древние египтяне записывали дроби только как сумму единичных долей, например одна вторая плюс одна четвёртая.', uz: "Qadimgi misrliklar kasrlarni faqat birlik ulushlar yig'indisi qilib yozishgan, masalan ikkidan bir qo'shilgan to'rtdan bir.", en: 'The ancient Egyptians wrote fractions only as single parts added together, for example one half plus one quarter.' },
     audio: {
-      intro: { ru: 'Дробь — это только равные доли целого. Посмотри на каждую полосу: если доли одинаковые — это дробь, если разные — нет. Отправь её в нужную корзину.', uz: "Kasr — bu faqat butunning teng ulushlari. Har bir chiziqqa qarang: ulushlar bir xil bo'lsa — kasr, har xil bo'lsa — yo'q. Uni kerakli savatga joylang." },
-      on_correct: { ru: 'Верно. Дробь — это всегда равные доли. Кстати, древние египтяне записывали дроби только как сумму единичных долей.', uz: "To'g'ri. Kasr — bu doim teng ulushlar. Aytgancha, qadimgi misrliklar kasrlarni faqat birlik ulushlar yig'indisi qilib yozishgan." },
-      on_wrong: { ru: 'Пока не то. Сравни доли по размеру: одинаковые — это дробь.', uz: "Hali emas. Ulushlarni o'lchami bo'yicha solishtiring: bir xil bo'lsa — kasr." }
+      intro: { ru: 'Дробь — это только равные доли целого. Посмотри на каждую полосу: если доли одинаковые — это дробь, если разные — нет. Отправь её в нужную корзину.', uz: "Kasr — bu faqat butunning teng ulushlari. Har bir chiziqqa qarang: ulushlar bir xil bo'lsa — kasr, har xil bo'lsa — yo'q. Uni kerakli savatga joylang.", en: 'Only equal parts of a whole make a fraction. Look at each bar: if the parts are the same it is a fraction, if they are different it is not. Send it to the right basket.' },
+      on_correct: { ru: 'Верно. Дробь — это всегда равные доли. Кстати, древние египтяне записывали дроби только как сумму единичных долей.', uz: "To'g'ri. Kasr — bu doim teng ulushlar. Aytgancha, qadimgi misrliklar kasrlarni faqat birlik ulushlar yig'indisi qilib yozishgan.", en: 'That is right. A fraction is always equal parts. By the way, the ancient Egyptians wrote fractions only as single parts added together.' },
+      on_wrong: { ru: 'Пока не то. Сравни доли по размеру: одинаковые — это дробь.', uz: "Hali emas. Ulushlarni o'lchami bo'yicha solishtiring: bir xil bo'lsa — kasr.", en: 'Not that yet. Compare the sizes of the parts: if they are the same it is a fraction.' }
     }
   },
 
   // ---- s7 TEST (choice, frac): назови дробь полосы 3/4 (correct idx 1) ----
   s7: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Назови дробь', uz: "Kasrni ayting" },
-    question: { ru: 'Полоса разделена на 4 равные доли, закрашены 3. Какая это дробь?', uz: "Chiziq 4 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: 3 закрашенные доли из 4 — это три четвёртых. Сверху 3, снизу 4.', uz: "To'g'ri: 4 ulushdan 3 tasi bo'yalgan — bu to'rtdan uch. Yuqorida 3, pastda 4." },
-    hint_0: { ru: 'Сверху число закрашенных долей (3), снизу — общее число долей (4). У тебя они перепутаны.', uz: "Yuqorida bo'yalgan ulushlar soni (uch), pastda umumiy ulushlar soni (to'rt) turishi kerak. Sizda ular almashib qolgan." },
-    hint_2: { ru: 'Снизу пишем, на сколько равных долей разделили целое — это 4, а не 1.', uz: "Pastda butun nechta teng ulushga bo'linganini yozamiz — bu to'rt, bir emas." },
-    hint_3: { ru: 'Сверху — число закрашенных долей. Их 3, а не 1.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular uchta, bir emas." },
-    wrong_default: { ru: 'Числитель — сколько закрашено (3), знаменатель — на сколько разделили (4).', uz: "Surat — nechta bo'yalgan (uch), maxraj — nechtaga bo'lingan (to'rt)." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    label: { ru: 'Назови дробь', uz: "Kasrni ayting", en: 'Name the fraction' },
+    question: { ru: 'Полоса разделена на 4 равные доли, закрашены 3. Какая это дробь?', uz: "Chiziq 4 ta teng ulushga bo'lingan, 3 tasi bo'yalgan. Bu qaysi kasr?", en: 'The bar is split into 4 equal parts and 3 are coloured in. Which fraction is it?' },
+    correct_text: { ru: 'Верно: 3 закрашенные доли из 4 — это три четвёртых. Сверху 3, снизу 4.', uz: "To'g'ri: 4 ulushdan 3 tasi bo'yalgan — bu to'rtdan uch. Yuqorida 3, pastda 4.", en: 'That is right: 3 coloured parts out of 4 is three quarters. 3 on top and 4 underneath.' },
+    hint_0: { ru: 'Сверху число закрашенных долей (3), снизу — общее число долей (4). У тебя они перепутаны.', uz: "Yuqorida bo'yalgan ulushlar soni (uch), pastda umumiy ulushlar soni (to'rt) turishi kerak. Sizda ular almashib qolgan.", en: 'On top goes the number of coloured parts (3) and underneath the total number of parts (4). You have swapped them.' },
+    hint_2: { ru: 'Снизу пишем, на сколько равных долей разделили целое — это 4, а не 1.', uz: "Pastda butun nechta teng ulushga bo'linganini yozamiz — bu to'rt, bir emas.", en: 'Underneath we write how many equal parts the whole was split into, which is 4, not 1.' },
+    hint_3: { ru: 'Сверху — число закрашенных долей. Их 3, а не 1.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular uchta, bir emas.", en: 'On top goes the number of coloured parts. There are 3 of them, not 1.' },
+    wrong_default: { ru: 'Числитель — сколько закрашено (3), знаменатель — на сколько разделили (4).', uz: "Surat — nechta bo'yalgan (uch), maxraj — nechtaga bo'lingan (to'rt).", en: 'The numerator is how many are coloured (3) and the denominator is how many parts it was split into (4).' },
     audio: {
-      intro: { ru: 'Полоса разделена на четыре равные доли, и три закрашены. Выбери дробь, которая это описывает.', uz: "Chiziq to'rtta teng ulushga bo'lingan va uchtasi bo'yalgan. Buni ifodalovchi kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три закрашенные доли из четырёх — три четвёртых.', uz: "To'g'ri. To'rtta ulushdan uchtasi bo'yalgan — to'rtdan uch." },
-      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — nechta ulushga bo'lingani." }
+      intro: { ru: 'Полоса разделена на четыре равные доли, и три закрашены. Выбери дробь, которая это описывает.', uz: "Chiziq to'rtta teng ulushga bo'lingan va uchtasi bo'yalgan. Buni ifodalovchi kasrni tanlang.", en: 'The bar is split into four equal parts and three are coloured in. Choose the fraction that describes it.' },
+      on_correct: { ru: 'Верно. Три закрашенные доли из четырёх — три четвёртых.', uz: "To'g'ri. To'rtta ulushdan uchtasi bo'yalgan — to'rtdan uch.", en: 'That is right. Three coloured parts out of four is three quarters.' },
+      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — nechta ulushga bo'lingani.", en: 'Not yet. On top goes the number of coloured parts and underneath how many parts it was split into.' }
     }
   },
 
   // ---- s_seq TEST (SeqMC): 5 примеров подряд — чтение дроби «[знаменатель]-ых [числитель]» (UZ: [maxraj]dan [surat]) ----
   // Сложнее: знаменатели 6, 3, 8, 10, 9. Перевёрнутое чтение — ловушка (misconception). Tap, веди-до-верного.
   s_seq: {
-    eyebrow: { ru: 'Тренировка · чтение', uz: "Mashq · o'qish" },
-    title: { ru: 'Прочитай дробь', uz: "Kasrni o'qing" },
-    lead: { ru: 'Пять дробей подряд. Сначала знаменатель, потом числитель. Выбери верное чтение.', uz: "Beshta kasr ketma-ket. Avval maxraj, keyin surat. To'g'ri o'qilishini tanlang." },
-    bridge: { ru: 'Имена частей знаем. Теперь быстро прочитаем пять дробей подряд.', uz: "Qism nomlarini bilamiz. Endi beshta kasrni tez o'qib chiqamiz." },
+    eyebrow: { ru: 'Тренировка · чтение', uz: "Mashq · o'qish", en: 'Practice · reading' },
+    title: { ru: 'Прочитай дробь', uz: "Kasrni o'qing", en: 'Read the fraction' },
+    lead: { ru: 'Пять дробей подряд. Сначала знаменатель, потом числитель. Выбери верное чтение.', uz: "Beshta kasr ketma-ket. Avval maxraj, keyin surat. To'g'ri o'qilishini tanlang.", en: 'Five fractions one after another. The bottom number names the parts and the top one says how many. Choose the right reading.' },
+    bridge: { ru: 'Имена частей знаем. Теперь быстро прочитаем пять дробей подряд.', uz: "Qism nomlarini bilamiz. Endi beshta kasrni tez o'qib chiqamiz.", en: 'We know the names of the parts. Now let us quickly read five fractions one after another.' },
     questions: [
       {
-        q: { ru: '5/6', uz: '5/6' },
-        say: { ru: 'Как читается эта дробь? Сначала знаменатель.', uz: "Bu kasr qanday o'qiladi? Avval maxraj." },
-        opts: [{ ru: 'пять шестых', uz: "oltidan besh" }, { ru: 'шесть пятых', uz: "beshdan olti" }, { ru: 'пять и шесть', uz: "besh-olti" }],
+        q: { ru: '5/6', uz: '5/6', en: '5/6' },
+        say: { ru: 'Как читается эта дробь? Сначала знаменатель.', uz: "Bu kasr qanday o'qiladi? Avval maxraj.", en: 'How is this fraction read? Look at the bottom number first.' },
+        opts: [{ ru: 'пять шестых', uz: "oltidan besh", en: 'five sixths' }, { ru: 'шесть пятых', uz: "beshdan olti", en: 'six fifths' }, { ru: 'пять и шесть', uz: "besh-olti", en: 'five and six' }],
         correct: 0,
-        ok: { ru: 'Верно: пять шестых.', uz: "To'g'ri: oltidan besh." },
-        no: { ru: 'Сначала читаем знаменатель (нижнее число), потом числитель.', uz: "Avval maxrajni — pastki sonni, keyin suratni o'qiymiz." }
+        ok: { ru: 'Верно: пять шестых.', uz: "To'g'ri: oltidan besh.", en: 'That is right: five sixths.' },
+        no: { ru: 'Сначала читаем знаменатель (нижнее число), потом числитель.', uz: "Avval maxrajni — pastki sonni, keyin suratni o'qiymiz.", en: 'The bottom number names the parts and the top number says how many of them there are.' }
       },
       {
-        q: { ru: '2/3', uz: '2/3' },
-        say: { ru: 'А эта дробь?', uz: "Bu kasr-chi?" },
-        opts: [{ ru: 'три вторых', uz: "ikkidan uch" }, { ru: 'две третьих', uz: "uchdan ikki" }, { ru: 'два и три', uz: "ikki-uch" }],
+        q: { ru: '2/3', uz: '2/3', en: '2/3' },
+        say: { ru: 'А эта дробь?', uz: "Bu kasr-chi?", en: 'And this fraction?' },
+        opts: [{ ru: 'три вторых', uz: "ikkidan uch", en: 'three halves' }, { ru: 'две третьих', uz: "uchdan ikki", en: 'two thirds' }, { ru: 'два и три', uz: "ikki-uch", en: 'two and three' }],
         correct: 1,
-        ok: { ru: 'Верно: две третьих.', uz: "To'g'ri: uchdan ikki." },
-        no: { ru: 'Нижнее число читаем первым: на сколько долей разделили.', uz: "Pastki sonni avval o'qiymiz: nechta ulushga bo'lingani." }
+        ok: { ru: 'Верно: две третьих.', uz: "To'g'ri: uchdan ikki.", en: 'That is right: two thirds.' },
+        no: { ru: 'Нижнее число читаем первым: на сколько долей разделили.', uz: "Pastki sonni avval o'qiymiz: nechta ulushga bo'lingani.", en: 'Look at the bottom number first: it says how many parts the whole was split into.' }
       },
       {
-        q: { ru: '3/8', uz: '3/8' },
-        say: { ru: 'Прочитай дробь с восьмёркой внизу.', uz: "Pastida sakkiz turgan kasrni o'qing." },
-        opts: [{ ru: 'восемь третьих', uz: "uchdan sakkiz" }, { ru: 'три и восемь', uz: "uch-sakkiz" }, { ru: 'три восьмых', uz: "sakkizdan uch" }],
+        q: { ru: '3/8', uz: '3/8', en: '3/8' },
+        say: { ru: 'Прочитай дробь с восьмёркой внизу.', uz: "Pastida sakkiz turgan kasrni o'qing.", en: 'Read the fraction with an eight underneath.' },
+        opts: [{ ru: 'восемь третьих', uz: "uchdan sakkiz", en: 'eight thirds' }, { ru: 'три и восемь', uz: "uch-sakkiz", en: 'three and eight' }, { ru: 'три восьмых', uz: "sakkizdan uch", en: 'three eighths' }],
         correct: 2,
-        ok: { ru: 'Верно: три восьмых.', uz: "To'g'ri: sakkizdan uch." },
-        no: { ru: 'Знаменатель восемь — читаем его первым.', uz: "Maxraj sakkiz — uni avval o'qiymiz." }
+        ok: { ru: 'Верно: три восьмых.', uz: "To'g'ri: sakkizdan uch.", en: 'That is right: three eighths.' },
+        no: { ru: 'Знаменатель восемь — читаем его первым.', uz: "Maxraj sakkiz — uni avval o'qiymiz.", en: 'The denominator is eight, so the parts are called eighths.' }
       },
       {
-        q: { ru: '7/10', uz: '7/10' },
-        say: { ru: 'Теперь дробь с десятью долями.', uz: "Endi o'nta ulushli kasr." },
-        opts: [{ ru: 'семь десятых', uz: "o'ndan yetti" }, { ru: 'десять седьмых', uz: "yettidan o'n" }, { ru: 'семь и десять', uz: "yetti-o'n" }],
+        q: { ru: '7/10', uz: '7/10', en: '7/10' },
+        say: { ru: 'Теперь дробь с десятью долями.', uz: "Endi o'nta ulushli kasr.", en: 'Now a fraction with ten parts.' },
+        opts: [{ ru: 'семь десятых', uz: "o'ndan yetti", en: 'seven tenths' }, { ru: 'десять седьмых', uz: "yettidan o'n", en: 'ten sevenths' }, { ru: 'семь и десять', uz: "yetti-o'n", en: 'seven and ten' }],
         correct: 0,
-        ok: { ru: 'Верно: семь десятых.', uz: "To'g'ri: o'ndan yetti." },
-        no: { ru: 'Сначала знаменатель десять, потом числитель семь.', uz: "Avval maxraj o'n, keyin surat yetti." }
+        ok: { ru: 'Верно: семь десятых.', uz: "To'g'ri: o'ndan yetti.", en: 'That is right: seven tenths.' },
+        no: { ru: 'Сначала знаменатель десять, потом числитель семь.', uz: "Avval maxraj o'n, keyin surat yetti.", en: 'The denominator is ten, so the parts are tenths, and there are seven of them.' }
       },
       {
-        q: { ru: '4/9', uz: '4/9' },
-        say: { ru: 'Последняя дробь. Прочитай верно.', uz: "Oxirgi kasr. To'g'ri o'qing." },
-        opts: [{ ru: 'четыре и девять', uz: "to'rt-to'qqiz" }, { ru: 'четыре девятых', uz: "to'qqizdan to'rt" }, { ru: 'девять четвёртых', uz: "to'rtdan to'qqiz" }],
+        q: { ru: '4/9', uz: '4/9', en: '4/9' },
+        say: { ru: 'Последняя дробь. Прочитай верно.', uz: "Oxirgi kasr. To'g'ri o'qing.", en: 'The last fraction. Read it correctly.' },
+        opts: [{ ru: 'четыре и девять', uz: "to'rt-to'qqiz", en: 'four and nine' }, { ru: 'четыре девятых', uz: "to'qqizdan to'rt", en: 'four ninths' }, { ru: 'девять четвёртых', uz: "to'rtdan to'qqiz", en: 'nine quarters' }],
         correct: 1,
-        ok: { ru: 'Верно: четыре девятых.', uz: "To'g'ri: to'qqizdan to'rt." },
-        no: { ru: 'Нижнее число девять читаем первым.', uz: "Pastki son to'qqizni avval o'qiymiz." }
+        ok: { ru: 'Верно: четыре девятых.', uz: "To'g'ri: to'qqizdan to'rt.", en: 'That is right: four ninths.' },
+        no: { ru: 'Нижнее число девять читаем первым.', uz: "Pastki son to'qqizni avval o'qiymiz.", en: 'The bottom number is nine, so the parts are called ninths.' }
       }
     ],
     audio: {
-      intro: { ru: 'Прочитаем пять дробей подряд. Правило: сначала знаменатель, нижнее число, потом числитель. Выбери верное чтение.', uz: "Beshta kasrni ketma-ket o'qiymiz. Qoida: avval maxraj — pastki son, keyin surat. To'g'ri o'qilishini tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Почти. Сначала читаем нижнее число.', uz: "Deyarli. Avval pastki sonni o'qiymiz." },
-      on_done: { ru: 'Отлично, все пять дробей прочитаны верно.', uz: "Zo'r, beshala kasr to'g'ri o'qildi." }
+      intro: { ru: 'Прочитаем пять дробей подряд. Правило: сначала знаменатель, нижнее число, потом числитель. Выбери верное чтение.', uz: "Beshta kasrni ketma-ket o'qiymiz. Qoida: avval maxraj — pastki son, keyin surat. To'g'ri o'qilishini tanlang.", en: 'Let us read five fractions one after another. The rule is that the bottom number names the parts and the top number says how many of them there are. Choose the right reading.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Почти. Сначала читаем нижнее число.', uz: "Deyarli. Avval pastki sonni o'qiymiz.", en: 'Almost. Look at the bottom number, it names the parts.' },
+      on_done: { ru: 'Отлично, все пять дробей прочитаны верно.', uz: "Zo'r, beshala kasr to'g'ri o'qildi.", en: 'Well done, all five fractions were read correctly.' }
     }
   },
 
   // ---- s8 CASE setup: Карим наливает сок (стакан 4 части, налито 3) ----
   s8: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    bridge: { ru: 'Дроби живут не только на полосах. Посмотри на стакан Карима.', uz: "Kasrlar faqat chiziqlarda emas. Karimning stakaniga qarang." },
-    title: { ru: 'Карим наливает сок.', uz: "Karim sharbat quymoqda." },
-    body_p1: { ru: 'Стакан разделён на 4 равные части. Карим налил сок до третьей отметки — заполнены 3 части.', uz: "Stakan 4 ta teng qismga bo'lingan. Karim sharbatni uchinchi belgigacha quydi — 3 qism to'ldi." },
-    card_glass_label: { ru: 'Всего частей', uz: "Jami qismlar" },
-    card_glass_value: { ru: '4 равные части', uz: "4 ta teng qism" },
-    card_filled_label: { ru: 'Заполнено', uz: "To'ldi" },
-    card_filled_value: { ru: '3 части', uz: "3 qism" },
-    outro: { ru: 'Какой дробью записать, сколько сока в стакане? Помоги Кариму на следующем шаге.', uz: "Stakandagi sharbatni qaysi kasr bilan yozish kerak? Keyingi bosqichda Karimga yordam bering." },
-    btn_help: { ru: 'Помочь Кариму', uz: "Karimga yordam berish" },
-    audio: { ru: 'Карим наливает сок. Стакан разделён на четыре равные части, и сок налит до третьей — заполнены три части. Подумай, какой дробью записать, сколько сока в стакане.', uz: "Karim sharbat quymoqda. Stakan to'rtta teng qismga bo'lingan va sharbat uchinchisigacha quyilgan — uch qism to'ldi. Stakandagi sharbatni qaysi kasr bilan yozishni o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    bridge: { ru: 'Дроби живут не только на полосах. Посмотри на стакан Карима.', uz: "Kasrlar faqat chiziqlarda emas. Karimning stakaniga qarang.", en: "Fractions do not only live on bars. Look at Karim's glass." },
+    title: { ru: 'Карим наливает сок.', uz: "Karim sharbat quymoqda.", en: 'Karim is pouring juice.' },
+    body_p1: { ru: 'Стакан разделён на 4 равные части. Карим налил сок до третьей отметки — заполнены 3 части.', uz: "Stakan 4 ta teng qismga bo'lingan. Karim sharbatni uchinchi belgigacha quydi — 3 qism to'ldi.", en: 'The glass is split into 4 equal parts. Karim has poured juice up to the third mark, so 3 parts are filled.' },
+    card_glass_label: { ru: 'Всего частей', uz: "Jami qismlar", en: 'Parts in all' },
+    card_glass_value: { ru: '4 равные части', uz: "4 ta teng qism", en: '4 equal parts' },
+    card_filled_label: { ru: 'Заполнено', uz: "To'ldi", en: 'Filled' },
+    card_filled_value: { ru: '3 части', uz: "3 qism", en: '3 parts' },
+    outro: { ru: 'Какой дробью записать, сколько сока в стакане? Помоги Кариму на следующем шаге.', uz: "Stakandagi sharbatni qaysi kasr bilan yozish kerak? Keyingi bosqichda Karimga yordam bering.", en: 'Which fraction says how much juice is in the glass? Help Karim on the next step.' },
+    btn_help: { ru: 'Помочь Кариму', uz: "Karimga yordam berish", en: 'Help Karim' },
+    audio: { ru: 'Карим наливает сок. Стакан разделён на четыре равные части, и сок налит до третьей — заполнены три части. Подумай, какой дробью записать, сколько сока в стакане.', uz: "Karim sharbat quymoqda. Stakan to'rtta teng qismga bo'lingan va sharbat uchinchisigacha quyilgan — uch qism to'ldi. Stakandagi sharbatni qaysi kasr bilan yozishni o'ylab ko'ring.", en: 'Karim is pouring juice. The glass is split into four equal parts and the juice comes up to the third one, so three parts are filled. Think which fraction says how much juice is in the glass.' }
   },
 
   // ---- s9 CASE step (choice, frac): запиши 3/4 (correct idx 2) ----
   s9: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    label: { ru: 'Запиши дробь', uz: "Kasrni yozing" },
-    question: { ru: 'Стакан из 4 равных частей, заполнены 3. Какой дробью записать, сколько налито?', uz: "Stakan 4 ta teng qismdan iborat, 3 tasi to'lgan. Nechta quyilganini qaysi kasr bilan yozamiz?" },
-    correct_text: { ru: 'Верно: 3 части из 4 — это три четвёртых. В стакане три четвёртых сока.', uz: "To'g'ri: 4 qismdan 3 tasi — bu to'rtdan uch. Stakanda to'rtdan uch sharbat bor." },
-    hint_0: { ru: 'Сверху — сколько заполнено (3), снизу — всего частей (4). Тут они перепутаны.', uz: "Yuqorida — nechta to'lgani (uch), pastda — jami qismlar (to'rt). Bu yerda ular almashgan." },
-    hint_1: { ru: 'Снизу должно быть, на сколько равных частей разделён стакан — это 4.', uz: "Pastda stakan nechta teng qismga bo'linganini yozish kerak — bu to'rt." },
-    hint_3: { ru: 'Сверху — число заполненных частей. Их 3, а не 1.', uz: "Yuqorida — to'lgan qismlar soni. Ular uchta, bir emas." },
-    wrong_default: { ru: 'Числитель — сколько заполнено (3), знаменатель — на сколько частей разделён стакан (4).', uz: "Surat — nechta to'lgani (uch), maxraj — stakan nechta qismga bo'lingani (to'rt)." },
-    fact: { ru: 'Мерные стаканы и линейки тоже делят целое на равные доли — поэтому их значения и записывают дробями.', uz: "O'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi — shuning uchun ulardagi qiymatlar kasr bilan yoziladi." },
-    fact_audio: { ru: 'Мерные стаканы и линейки тоже делят целое на равные доли, поэтому их значения записывают дробями.', uz: "O'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi, shuning uchun ulardagi qiymatlar kasr bilan yoziladi." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    label: { ru: 'Запиши дробь', uz: "Kasrni yozing", en: 'Write the fraction' },
+    question: { ru: 'Стакан из 4 равных частей, заполнены 3. Какой дробью записать, сколько налито?', uz: "Stakan 4 ta teng qismdan iborat, 3 tasi to'lgan. Nechta quyilganini qaysi kasr bilan yozamiz?", en: 'The glass has 4 equal parts and 3 are filled. Which fraction says how much has been poured?' },
+    correct_text: { ru: 'Верно: 3 части из 4 — это три четвёртых. В стакане три четвёртых сока.', uz: "To'g'ri: 4 qismdan 3 tasi — bu to'rtdan uch. Stakanda to'rtdan uch sharbat bor.", en: 'That is right: 3 parts out of 4 is three quarters. The glass is three quarters full of juice.' },
+    hint_0: { ru: 'Сверху — сколько заполнено (3), снизу — всего частей (4). Тут они перепутаны.', uz: "Yuqorida — nechta to'lgani (uch), pastda — jami qismlar (to'rt). Bu yerda ular almashgan.", en: 'On top goes how many are filled (3) and underneath the total number of parts (4). Here they are swapped.' },
+    hint_1: { ru: 'Снизу должно быть, на сколько равных частей разделён стакан — это 4.', uz: "Pastda stakan nechta teng qismga bo'linganini yozish kerak — bu to'rt.", en: 'Underneath should go how many equal parts the glass is split into, which is 4.' },
+    hint_3: { ru: 'Сверху — число заполненных частей. Их 3, а не 1.', uz: "Yuqorida — to'lgan qismlar soni. Ular uchta, bir emas.", en: 'On top goes the number of filled parts. There are 3 of them, not 1.' },
+    wrong_default: { ru: 'Числитель — сколько заполнено (3), знаменатель — на сколько частей разделён стакан (4).', uz: "Surat — nechta to'lgani (uch), maxraj — stakan nechta qismga bo'lingani (to'rt).", en: 'The numerator is how many are filled (3) and the denominator is how many parts the glass is split into (4).' },
+    fact: { ru: 'Мерные стаканы и линейки тоже делят целое на равные доли — поэтому их значения и записывают дробями.', uz: "O'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi — shuning uchun ulardagi qiymatlar kasr bilan yoziladi.", en: 'Measuring jugs and rulers also split a whole into equal parts, which is why their readings are written as fractions.' },
+    fact_audio: { ru: 'Мерные стаканы и линейки тоже делят целое на равные доли, поэтому их значения записывают дробями.', uz: "O'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi, shuning uchun ulardagi qiymatlar kasr bilan yoziladi.", en: 'Measuring jugs and rulers also split a whole into equal parts, which is why their readings are written as fractions.' },
     audio: {
-      intro: { ru: 'Стакан разделён на четыре равные части, заполнены три. Выбери дробь, которая показывает, сколько сока налито.', uz: "Stakan to'rtta teng qismga bo'lingan, uchtasi to'lgan. Qancha sharbat quyilganini ko'rsatadigan kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три части из четырёх — три четвёртых стакана. Поэтому мерные стаканы и линейки тоже делят целое на равные доли.', uz: "To'g'ri. To'rttadan uch qism — stakanning to'rtdan uchi. Shuning uchun o'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi." },
-      on_wrong: { ru: 'Пока нет. Сверху — сколько частей заполнено, снизу — на сколько частей разделён стакан.', uz: "Hali emas. Yuqorida — nechta qism to'lgani, pastda — stakan nechta qismga bo'lingani." }
+      intro: { ru: 'Стакан разделён на четыре равные части, заполнены три. Выбери дробь, которая показывает, сколько сока налито.', uz: "Stakan to'rtta teng qismga bo'lingan, uchtasi to'lgan. Qancha sharbat quyilganini ko'rsatadigan kasrni tanlang.", en: 'The glass is split into four equal parts and three are filled. Choose the fraction that shows how much juice has been poured.' },
+      on_correct: { ru: 'Верно. Три части из четырёх — три четвёртых стакана. Поэтому мерные стаканы и линейки тоже делят целое на равные доли.', uz: "To'g'ri. To'rttadan uch qism — stakanning to'rtdan uchi. Shuning uchun o'lchov idishlari va lineykalar ham butunni teng ulushlarga bo'ladi.", en: 'That is right. Three parts out of four is three quarters of the glass. That is why measuring jugs and rulers also split a whole into equal parts.' },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько частей заполнено, снизу — на сколько частей разделён стакан.', uz: "Hali emas. Yuqorida — nechta qism to'lgani, pastda — stakan nechta qismga bo'lingani.", en: 'Not yet. On top goes how many parts are filled and underneath how many parts the glass is split into.' }
     }
   },
 
   // ---- s10 TEST (error-spotting): какое утверждение про 3/4 НЕВЕРНО (correct idx 2 = ложное) ----
   s10: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
-    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri" },
-    question: { ru: 'Мы записали три четвёртых. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Biz to'rtdan uchni yozdik. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?" },
-    opt0: { ru: 'Целое разделено на 4 равные части.', uz: "Butun 4 ta teng qismga bo'lingan." },
-    opt1: { ru: 'Из 4 частей заняты 3.', uz: "4 qismdan 3 tasi band." },
-    opt2: { ru: 'В стакане ровно 3 литра сока.', uz: "Stakanda aniq 3 litr sharbat bor." },
-    opt3: { ru: 'Пустого места — одна четвёртая.', uz: "Bo'sh joy — to'rtdan bir." },
-    correct_text: { ru: 'Верно, это утверждение неверно: дробь показывает части целого, а не литры. Три четвёртых — это 3 части из 4, сколько бы сока ни вмещал стакан.', uz: "To'g'ri, bu izoh noto'g'ri: kasr butunning qismlarini ko'rsatadi, litrlarni emas. To'rtdan uch — bu 4 qismdan 3 tasi, stakan qancha sharbat sig'dirishidan qat'i nazar." },
-    wrong_0: { ru: 'Это утверждение верно: целое и правда делят на 4 равные части. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: butun haqiqatan 4 ta teng qismga bo'linadi. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: заняты 3 части из 4. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 qismdan 3 tasi band. Noto'g'risini boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: занято 3 из 4, значит свободна одна четвёртая. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 dan 3 tasi band, demak to'rtdan biri bo'sh. Noto'g'risini boshqasidan qidiring." },
-    wrong_default: { ru: 'Дробь показывает части целого, а не литры. Ищи именно такое утверждение.', uz: "Kasr butunning qismlarini ko'rsatadi, litrlarni emas. Aynan shunday izohni qidiring." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping", en: 'Find the one that is wrong' },
+    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri", en: 'One of these is wrong' },
+    question: { ru: 'Мы записали три четвёртых. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Biz to'rtdan uchni yozdik. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?", en: 'We have written three quarters. Three of these are true and one is not. Which one is WRONG?' },
+    opt0: { ru: 'Целое разделено на 4 равные части.', uz: "Butun 4 ta teng qismga bo'lingan.", en: 'The whole is split into 4 equal parts.' },
+    opt1: { ru: 'Из 4 частей заняты 3.', uz: "4 qismdan 3 tasi band.", en: '3 of the 4 parts are taken up.' },
+    opt2: { ru: 'В стакане ровно 3 литра сока.', uz: "Stakanda aniq 3 litr sharbat bor.", en: 'There are exactly 3 litres of juice in the glass.' },
+    opt3: { ru: 'Пустого места — одна четвёртая.', uz: "Bo'sh joy — to'rtdan bir.", en: 'The empty space is one quarter.' },
+    correct_text: { ru: 'Верно, это утверждение неверно: дробь показывает части целого, а не литры. Три четвёртых — это 3 части из 4, сколько бы сока ни вмещал стакан.', uz: "To'g'ri, bu izoh noto'g'ri: kasr butunning qismlarini ko'rsatadi, litrlarni emas. To'rtdan uch — bu 4 qismdan 3 tasi, stakan qancha sharbat sig'dirishidan qat'i nazar.", en: 'Right, that one is wrong: a fraction shows parts of a whole, not litres. Three quarters is 3 parts out of 4, however much juice the glass holds.' },
+    wrong_0: { ru: 'Это утверждение верно: целое и правда делят на 4 равные части. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: butun haqiqatan 4 ta teng qismga bo'linadi. Noto'g'risini boshqasidan qidiring.", en: 'That one is true: the whole really is split into 4 equal parts. Keep looking for the wrong one.' },
+    wrong_1: { ru: 'Это верно: заняты 3 части из 4. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 qismdan 3 tasi band. Noto'g'risini boshqasidan qidiring.", en: 'That is true: 3 parts out of 4 are taken up. Keep looking for the wrong one.' },
+    wrong_3: { ru: 'Это верно: занято 3 из 4, значит свободна одна четвёртая. Ищи неверное дальше.', uz: "Bu to'g'ri: 4 dan 3 tasi band, demak to'rtdan biri bo'sh. Noto'g'risini boshqasidan qidiring.", en: 'That is true: 3 out of 4 are taken up, so one quarter is free. Keep looking for the wrong one.' },
+    wrong_default: { ru: 'Дробь показывает части целого, а не литры. Ищи именно такое утверждение.', uz: "Kasr butunning qismlarini ko'rsatadi, litrlarni emas. Aynan shunday izohni qidiring.", en: 'A fraction shows parts of a whole, not litres. Look for the one that says that.' },
     audio: {
-      intro: { ru: 'Три утверждения про три четвёртых верны, а одно неверно. Найди то, которое говорит неправду про сок в стакане.', uz: "To'rtdan uch haqida uchta izoh to'g'ri, bittasi noto'g'ri. Stakandagi sharbat haqida yolg'on aytayotganini toping." },
-      on_correct: { ru: 'Верно. Дробь показывает части целого, а не литры. Три четвёртых — это три части из четырёх.', uz: "To'g'ri. Kasr butunning qismlarini ko'rsatadi, litrlarni emas. To'rtdan uch — bu to'rttadan uch qism." },
-      on_wrong: { ru: 'Это утверждение как раз верно. Ищи то, что говорит про литры вместо частей.', uz: "Bu izoh aynan to'g'ri. Qismlar o'rniga litrlar haqida gapirayotganini qidiring." }
+      intro: { ru: 'Три утверждения про три четвёртых верны, а одно неверно. Найди то, которое говорит неправду про сок в стакане.', uz: "To'rtdan uch haqida uchta izoh to'g'ri, bittasi noto'g'ri. Stakandagi sharbat haqida yolg'on aytayotganini toping.", en: 'Three of these about three quarters are true and one is wrong. Find the one that says something untrue about the juice in the glass.' },
+      on_correct: { ru: 'Верно. Дробь показывает части целого, а не литры. Три четвёртых — это три части из четырёх.', uz: "To'g'ri. Kasr butunning qismlarini ko'rsatadi, litrlarni emas. To'rtdan uch — bu to'rttadan uch qism.", en: 'That is right. A fraction shows parts of a whole, not litres. Three quarters is three parts out of four.' },
+      on_wrong: { ru: 'Это утверждение как раз верно. Ищи то, что говорит про литры вместо частей.', uz: "Bu izoh aynan to'g'ri. Qismlar o'rniga litrlar haqida gapirayotganini qidiring.", en: 'That one is actually true. Look for the one that talks about litres instead of parts.' }
     }
   },
 
   // ---- s11 TEST (choice, frac): назови дробь полосы 2/5 (correct idx 1) ----
   s11: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting" },
-    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 2. Какая это дробь?', uz: "Chiziq 5 ta teng ulushga bo'lingan, 2 tasi bo'yalgan. Bu qaysi kasr?" },
-    correct_text: { ru: 'Верно: 2 закрашенные доли из 5 — это две пятых. Сверху 2, снизу 5.', uz: "To'g'ri: 5 ulushdan 2 tasi bo'yalgan — bu beshdan ikki. Yuqorida 2, pastda 5." },
-    hint_0: { ru: 'Числитель и знаменатель перепутаны: сверху число закрашенных (2), снизу всех долей (5).', uz: "Surat va maxraj almashgan: yuqorida bo'yalganlar soni (ikki), pastda barcha ulushlar (besh)." },
-    hint_2: { ru: 'Снизу — на сколько равных долей разделили целое. Их 5, а не 3.', uz: "Pastda — butun nechta teng ulushga bo'lingani. Ular beshta, uch emas." },
-    hint_3: { ru: 'Сверху — число закрашенных долей. Их 2, а не 3.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular ikkita, uch emas." },
-    wrong_default: { ru: 'Две пятых: числитель 2 (закрашено), знаменатель 5 (всего долей).', uz: "Beshdan ikki: surat ikki (bo'yalgan), maxraj besh (jami ulushlar)." },
-    fact: { ru: 'Полоса загрузки на экране показывает дробь: какая часть целого уже готова. Полоса Нодиры была заполнена на 3/5.', uz: "Ekrandagi yuklash chizig'i kasrni ko'rsatadi: butunning qancha qismi tayyor bo'lgani. Nodiraning chizig'i aynan 3/5 ga to'lgan edi." },
-    fact_audio: { ru: 'Полоса загрузки на экране показывает дробь — какая часть целого уже готова. Полоса Нодиры была заполнена на три пятых.', uz: "Ekrandagi yuklash chizig'i kasrni ko'rsatadi — butunning qancha qismi tayyorligini. Nodiraning chizig'i beshdan uchga to'lgan edi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Последняя — назови дробь', uz: "Oxirgisi — kasrni ayting", en: 'The last one, name the fraction' },
+    question: { ru: 'Полоса разделена на 5 равных долей, закрашены 2. Какая это дробь?', uz: "Chiziq 5 ta teng ulushga bo'lingan, 2 tasi bo'yalgan. Bu qaysi kasr?", en: 'The bar is split into 5 equal parts and 2 are coloured in. Which fraction is it?' },
+    correct_text: { ru: 'Верно: 2 закрашенные доли из 5 — это две пятых. Сверху 2, снизу 5.', uz: "To'g'ri: 5 ulushdan 2 tasi bo'yalgan — bu beshdan ikki. Yuqorida 2, pastda 5.", en: 'That is right: 2 coloured parts out of 5 is two fifths. 2 on top and 5 underneath.' },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: сверху число закрашенных (2), снизу всех долей (5).', uz: "Surat va maxraj almashgan: yuqorida bo'yalganlar soni (ikki), pastda barcha ulushlar (besh).", en: 'The numerator and denominator are swapped: on top goes the number of coloured parts (2) and underneath the number of all the parts (5).' },
+    hint_2: { ru: 'Снизу — на сколько равных долей разделили целое. Их 5, а не 3.', uz: "Pastda — butun nechta teng ulushga bo'lingani. Ular beshta, uch emas.", en: 'Underneath goes how many equal parts the whole was split into. There are 5 of them, not 3.' },
+    hint_3: { ru: 'Сверху — число закрашенных долей. Их 2, а не 3.', uz: "Yuqorida — bo'yalgan ulushlar soni. Ular ikkita, uch emas.", en: 'On top goes the number of coloured parts. There are 2 of them, not 3.' },
+    wrong_default: { ru: 'Две пятых: числитель 2 (закрашено), знаменатель 5 (всего долей).', uz: "Beshdan ikki: surat ikki (bo'yalgan), maxraj besh (jami ulushlar).", en: 'Two fifths: the numerator is 2 (coloured in) and the denominator is 5 (all the parts).' },
+    fact: { ru: 'Полоса загрузки на экране показывает дробь: какая часть целого уже готова. Полоса Нодиры была заполнена на 3/5.', uz: "Ekrandagi yuklash chizig'i kasrni ko'rsatadi: butunning qancha qismi tayyor bo'lgani. Nodiraning chizig'i aynan 3/5 ga to'lgan edi.", en: "A loading bar on a screen shows a fraction: how much of the whole is ready. Nodira's bar was filled 3/5 of the way." },
+    fact_audio: { ru: 'Полоса загрузки на экране показывает дробь — какая часть целого уже готова. Полоса Нодиры была заполнена на три пятых.', uz: "Ekrandagi yuklash chizig'i kasrni ko'rsatadi — butunning qancha qismi tayyorligini. Nodiraning chizig'i beshdan uchga to'lgan edi.", en: "A loading bar on a screen shows a fraction, how much of the whole is ready. Nodira's bar was filled three fifths of the way." },
     audio: {
-      intro: { ru: 'Последнее задание. Полоса разделена на пять равных долей, закрашены две. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Chiziq beshta teng ulushga bo'lingan, ikkitasi bo'yalgan. Kerakli kasrni tanlang." },
-      on_correct: { ru: 'Верно. Две закрашенные доли из пяти — две пятых. Помнишь полосу загрузки Нодиры? Она тоже показывала дробь — какая часть готова.', uz: "To'g'ri. Beshta ulushdan ikkitasi bo'yalgan — beshdan ikki. Nodiraning yuklash chizig'i esingdami? U ham kasrni — qancha qism tayyorligini — ko'rsatgan edi." },
-      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили целое.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — butun nechta ulushga bo'lingani." }
+      intro: { ru: 'Последнее задание. Полоса разделена на пять равных долей, закрашены две. Выбери нужную дробь.', uz: "Oxirgi topshiriq. Chiziq beshta teng ulushga bo'lingan, ikkitasi bo'yalgan. Kerakli kasrni tanlang.", en: 'The last task. The bar is split into five equal parts and two are coloured in. Choose the right fraction.' },
+      on_correct: { ru: 'Верно. Две закрашенные доли из пяти — две пятых. Помнишь полосу загрузки Нодиры? Она тоже показывала дробь — какая часть готова.', uz: "To'g'ri. Beshta ulushdan ikkitasi bo'yalgan — beshdan ikki. Nodiraning yuklash chizig'i esingdami? U ham kasrni — qancha qism tayyorligini — ko'rsatgan edi.", en: "That is right. Two coloured parts out of five is two fifths. Remember Nodira's loading bar? It was showing a fraction too, how much was ready." },
+      on_wrong: { ru: 'Пока нет. Сверху — число закрашенных долей, снизу — на сколько долей разделили целое.', uz: "Hali emas. Yuqorida — bo'yalgan ulushlar soni, pastda — butun nechta ulushga bo'lingani.", en: 'Not yet. On top goes the number of coloured parts and underneath how many parts the whole was split into.' }
     }
   },
 
   // ---- s12 SUMMARY: без счёта, закрывает крючок ----
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz" },
-    title: { ru: 'Теперь дробь для тебя — одно число, а не две цифры.', uz: "Endi kasr siz uchun — bitta son, ikkita raqam emas." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дробь — это часть целого: целое делят на равные доли и берут несколько.', uz: "Kasr — butunning qismi: butun teng ulushlarga bo'linadi va bir nechtasi olinadi." },
-    main_2: { ru: 'Числитель (сверху) — сколько долей взяли. Знаменатель (снизу) — на сколько равных долей разделили.', uz: "Surat (yuqorida) — nechta ulush olingani. Maxraj (pastda) — nechta teng ulushga bo'lingani." },
-    main_3: { ru: 'Доли обязательно равные. Неравные части дробью не назвать.', uz: "Ulushlar albatta teng. Teng bo'lmagan qismlarni kasr deb bo'lmaydi." },
-    main_4: { ru: 'Три пятых, три четвёртых, две пятых — каждая дробь это одно число, часть целого.', uz: "Beshdan uch, to'rtdan uch, beshdan ikki — har bir kasr bitta son, butunning qismi." },
-    back_to_hook: { ru: 'Полоса Нодиры заполнена на три пятых — это и было одно число. Далер ошибался.', uz: "Nodiraning chizig'i beshdan uchga to'lgan — bu bitta son edi. Daler xato qilgan ekan." },
-    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'доли из 4 класса (половина, четверть).', uz: "4-sinf ulushlari (yarim, chorak)." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'дробь на числовой прямой — у дроби есть своё место.', uz: "kasr sonlar nurida — kasrning o'z joyi bor." },
-    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это одно число, часть целого. Числитель показывает, сколько равных долей взяли, а знаменатель — на сколько долей разделили целое. И доли всегда равные. Полоса Нодиры была заполнена на три пятых — это одно число, а не две цифры. Далер ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu bitta son, butunning qismi. Surat nechta teng ulush olinganini, maxraj esa butun nechta ulushga bo'linganini ko'rsatadi. Ulushlar esa doimo teng. Nodiraning chizig'i beshdan uchga to'lgan edi — bu bitta son, ikkita raqam emas. Daler xato qilgan ekan." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi", en: 'Lesson finished' },
+    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz", en: 'questions answered correctly first time' },
+    title: { ru: 'Теперь дробь для тебя — одно число, а не две цифры.', uz: "Endi kasr siz uchun — bitta son, ikkita raqam emas.", en: 'Now a fraction is one number to you, not two figures.' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Дробь — это часть целого: целое делят на равные доли и берут несколько.', uz: "Kasr — butunning qismi: butun teng ulushlarga bo'linadi va bir nechtasi olinadi.", en: 'A fraction is part of a whole: the whole is split into equal parts and some of them are taken.' },
+    main_2: { ru: 'Числитель (сверху) — сколько долей взяли. Знаменатель (снизу) — на сколько равных долей разделили.', uz: "Surat (yuqorida) — nechta ulush olingani. Maxraj (pastda) — nechta teng ulushga bo'lingani.", en: 'The numerator (on top) is how many parts were taken. The denominator (underneath) is how many equal parts it was split into.' },
+    main_3: { ru: 'Доли обязательно равные. Неравные части дробью не назвать.', uz: "Ulushlar albatta teng. Teng bo'lmagan qismlarni kasr deb bo'lmaydi.", en: 'The parts must be equal. Unequal parts cannot be called a fraction.' },
+    main_4: { ru: 'Три пятых, три четвёртых, две пятых — каждая дробь это одно число, часть целого.', uz: "Beshdan uch, to'rtdan uch, beshdan ikki — har bir kasr bitta son, butunning qismi.", en: 'Three fifths, three quarters, two fifths, each fraction is one number, a part of a whole.' },
+    back_to_hook: { ru: 'Полоса Нодиры заполнена на три пятых — это и было одно число. Далер ошибался.', uz: "Nodiraning chizig'i beshdan uchga to'lgan — bu bitta son edi. Daler xato qilgan ekan.", en: "Nodira's bar was filled three fifths of the way, and that was one number all along. Daler was wrong." },
+    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'доли из 4 класса (половина, четверть).', uz: "4-sinf ulushlari (yarim, chorak).", en: 'parts from Year 4 (a half, a quarter).' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'дробь на числовой прямой — у дроби есть своё место.', uz: "kasr sonlar nurida — kasrning o'z joyi bor.", en: 'fractions on the number line, because a fraction has its own place there.' },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это одно число, часть целого. Числитель показывает, сколько равных долей взяли, а знаменатель — на сколько долей разделили целое. И доли всегда равные. Полоса Нодиры была заполнена на три пятых — это одно число, а не две цифры. Далер ошибался.', uz: "Zo'r! Endi bilasiz: kasr — bu bitta son, butunning qismi. Surat nechta teng ulush olinganini, maxraj esa butun nechta ulushga bo'linganini ko'rsatadi. Ulushlar esa doimo teng. Nodiraning chizig'i beshdan uchga to'lgan edi — bu bitta son, ikkita raqam emas. Daler xato qilgan ekan.", en: "Well done! Now you know that a fraction is one number, a part of a whole. The numerator shows how many equal parts were taken and the denominator shows how many parts the whole was split into. And the parts are always equal. Nodira's bar was filled three fifths of the way, which is one number, not two figures. Daler was wrong." }
   }
 };
 
@@ -1186,13 +1213,13 @@ const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1294,7 +1321,7 @@ const ClassifyBars = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1370,7 +1397,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1395,7 +1422,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1675,7 +1702,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1714,7 +1741,7 @@ export default function FractionsLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1782,7 +1809,7 @@ export default function FractionsLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

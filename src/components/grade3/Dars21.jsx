@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -128,8 +128,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-21',
-  lessonTitle: { ru: 'Урок 21. Письменный приём: столбик', uz: '21-dars. Yozma usul: ustun' }
+  lessonId: 'grade3-21',
+  lessonTitle: { ru: 'Урок 21. Письменный приём: столбик', uz: '21-dars. Yozma usul: ustun', en: 'Lesson 21. The written method: the column' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 21»): s0 xuk 123·3 · s1 xonalar bo'yicha · s2 USTUN
 // qadamlab · s3 savol-oldin-QOIDA · s4 xatoni top (yozuv siljigan) · s5 saralash
@@ -164,15 +164,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Письменный приём: столбик', uz: 'Yozma usul: ustun' },
-    lead: { ru: 'Заказ: 123 детали на каждый из 3 модулей', uz: "Buyurtma: 3 modulning har biriga 123 tadan detal" },
-    order_cap: { ru: 'в уме такое считать долго', uz: "bunday hisobni og'zaki qilish uzoq" },
-    q: { ru: 'Сколько деталей нужно всего?', uz: 'Jami nechta detal kerak?' },
-    opt0: { ru: '369', uz: '369' },
-    opt1: { ru: '366', uz: '366' },
-    opt2: { ru: '129', uz: '129' },
-    opt3: { ru: '3639', uz: '3639' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Письменный приём: столбик', uz: 'Yozma usul: ustun', en: 'The written method: the column' },
+    lead: { ru: 'Заказ: 123 детали на каждый из 3 модулей', uz: "Buyurtma: 3 modulning har biriga 123 tadan detal", en: 'Order: 123 parts for each of the 3 modules' },
+    order_cap: { ru: 'в уме такое считать долго', uz: "bunday hisobni og'zaki qilish uzoq", en: 'counting that in your head takes long' },
+    q: { ru: 'Сколько деталей нужно всего?', uz: 'Jami nechta detal kerak?', en: 'How many parts are needed in all?' },
+    opt0: { ru: '369', uz: '369', en: '369' },
+    opt1: { ru: '366', uz: '366', en: '366' },
+    opt2: { ru: '129', uz: '129', en: '129' },
+    opt3: { ru: '3639', uz: '3639', en: '3639' },
     audio: {
       intro: {
         ru: [
@@ -186,40 +186,46 @@ const CONTENT = {
           "Ustaxonaga uchta modul kerak, har birida bir yuz yigirma uchta detal.",
           "Sonlar kattalashdi. Og'zaki hisoblash uzoq, adashish oson.",
           "Sizningcha, jami nechta detal kerak bo'ladi?"
-        ]
+        ],
+        en: ['The topic of the lesson is called the written method of multiplication, or the column.', 'The workshop needs three modules, and each one has one hundred twenty three parts.', 'The numbers have grown big. Counting in your head takes long and it is easy to slip.', 'How many parts do you think will be needed in all?']
       },
       on_correct: {
         ru: 'Верно! А сейчас увидишь, как такую запись делают в тетради, столбиком.',
-        uz: "To'g'ri! Endi bunday yozuv daftarda, ustunda qanday qilinishini ko'rasiz."
+        uz: "To'g'ri! Endi bunday yozuv daftarda, ustunda qanday qilinishini ko'rasiz.",
+        en: 'Right! And now you will see how such a line is written in a notebook, in a column.'
       },
       on_wrong1: {
         ru: 'Почти. Три сотни и шесть десятков верно, а единицы посчитаны неточно.',
-        uz: "Deyarli. Uch yuzlik va olti o'nlik to'g'ri, birliklar noaniq sanalgan."
+        uz: "Deyarli. Uch yuzlik va olti o'nlik to'g'ri, birliklar noaniq sanalgan.",
+        en: 'Almost. Three hundreds and six tens are right, and the units were counted inexactly.'
       },
       on_wrong2: {
         ru: 'Это только сто двадцать три и ещё шесть. А брать надо три раза по сто двадцать три.',
-        uz: "Bu faqat bir yuz yigirma uch va yana olti. Olish kerak esa bir yuz yigirma uchtadan uch marta."
+        uz: "Bu faqat bir yuz yigirma uch va yana olti. Olish kerak esa bir yuz yigirma uchtadan uch marta.",
+        en: 'That is only one hundred twenty three and six more. But one hundred twenty three has to be taken three times.'
       },
       on_idk: {
         ru: 'Цифры перемножены по отдельности и склеены. Так число рассыпается.',
-        uz: "Raqamlar alohida ko'paytirilib yelimlangan. Bunda son buzilib ketadi."
+        uz: "Raqamlar alohida ko'paytirilib yelimlangan. Bunda son buzilib ketadi.",
+        en: 'The digits were multiplied separately and glued together. A number falls apart that way.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz' },
-    lead: { ru: 'Сначала по разрядам, как умеем', uz: 'Avval xonalarga, bilganimizdek' },
+    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz', en: 'Taking it apart' },
+    lead: { ru: 'Сначала по разрядам, как умеем', uz: 'Avval xonalarga, bilganimizdek', en: 'First by place, the way we can' },
     task_line: '123 · 3',
     task_line_uz: '123 · 3',
+    task_line_en: '123 · 3',
     step1: '100 · 3 + 20 · 3 + 3 · 3',
-    step1_cap: { ru: 'каждый разряд отдельно', uz: 'har bir xona alohida' },
+    step1_cap: { ru: 'каждый разряд отдельно', uz: 'har bir xona alohida', en: 'each place on its own' },
     step2: '300 + 60 + 9 = 369',
-    step2_cap: { ru: 'и собираем обратно', uz: "va qaytadan yig'amiz" },
+    step2_cap: { ru: 'и собираем обратно', uz: "va qaytadan yig'amiz", en: 'and we gather it back' },
     res: '123 · 3 = 369',
-    btn1: { ru: 'Разложить на разряды', uz: 'Xonalarga ajratish' },
-    btn2: { ru: 'Сложить', uz: "Qo'shish" },
-    done_text: { ru: 'Приём знакомый, но записи много. В тетради её сокращают.', uz: "Usul tanish, lekin yozuv ko'p. Daftarda uni qisqartirishadi." },
+    btn1: { ru: 'Разложить на разряды', uz: 'Xonalarga ajratish', en: 'Split into places' },
+    btn2: { ru: 'Сложить', uz: "Qo'shish", en: 'Add' },
+    done_text: { ru: 'Приём знакомый, но записи много. В тетради её сокращают.', uz: "Usul tanish, lekin yozuv ko'p. Daftarda uni qisqartirishadi.", en: 'The method is familiar, but there is a lot of writing. In a notebook it is made shorter.' },
     audio: {
       ru: [
         'Сто двадцать три умножить на три. Начнём привычно, по разрядам.',
@@ -230,25 +236,26 @@ const CONTENT = {
         "Bir yuz yigirma uchni uchga ko'paytiramiz. Odatdagidek, xonalardan boshlaymiz.",
         "Yuzni uchga, yigirmani uchga, uchni uchga.",
         "Uch yuz, oltmish va to'qqiz. Birgalikda uch yuz oltmish to'qqiz."
-      ]
+      ],
+      en: ['One hundred twenty three times three. Let us start as usual, by place.', 'A hundred times three, twenty times three, three times three.', 'Three hundred, sixty and nine. Together three hundred sixty nine.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Столбик', uz: 'Ustun' },
-    lead: { ru: 'Та же запись, но короче', uz: 'O\'sha yozuv, lekin qisqaroq' },
-    book_note: { ru: 'правило записи из учебника, стр. 45', uz: 'kitobdagi yozuv qoidasi, 45-bet' },
+    eyebrow: { ru: 'Столбик', uz: 'Ustun', en: 'The column' },
+    lead: { ru: 'Та же запись, но короче', uz: 'O\'sha yozuv, lekin qisqaroq', en: 'The same line, only shorter' },
+    book_note: { ru: 'правило записи из учебника, стр. 45', uz: 'kitobdagi yozuv qoidasi, 45-bet', en: 'the writing rule from the textbook, page 45' },
     top: '123',
     bot: '3',
     res: '369',
     steps: [
-      { cap: { ru: 'второй множитель пишем под единицами', uz: "ikkinchi ko'paytuvchini birliklar tagiga yozamiz" }, res: '' },
-      { cap: { ru: 'умножаем единицы: 3 · 3 = 9', uz: "birliklarni ko'paytiramiz: 3 · 3 = 9" }, res: '__9' },
-      { cap: { ru: 'десятки: 2 · 3 = 6', uz: "o'nliklar: 2 · 3 = 6" }, res: '_69' },
-      { cap: { ru: 'сотни: 1 · 3 = 3', uz: "yuzliklar: 1 · 3 = 3" }, res: '369' }
+      { cap: { ru: 'второй множитель пишем под единицами', uz: "ikkinchi ko'paytuvchini birliklar tagiga yozamiz", en: 'we write the second factor under the units' }, res: '' },
+      { cap: { ru: 'умножаем единицы: 3 · 3 = 9', uz: "birliklarni ko'paytiramiz: 3 · 3 = 9", en: 'we multiply the units: 3 · 3 = 9' }, res: '__9' },
+      { cap: { ru: 'десятки: 2 · 3 = 6', uz: "o'nliklar: 2 · 3 = 6", en: 'the tens: 2 · 3 = 6' }, res: '_69' },
+      { cap: { ru: 'сотни: 1 · 3 = 3', uz: "yuzliklar: 1 · 3 = 3", en: 'the hundreds: 1 · 3 = 3' }, res: '369' }
     ],
-    btn: { ru: 'Следующий разряд', uz: 'Keyingi xona' },
-    done_text: { ru: 'Ответ тот же, а записи в три раза меньше.', uz: "Javob o'sha, yozuv esa uch barobar kam." },
+    btn: { ru: 'Следующий разряд', uz: 'Keyingi xona', en: 'The next place' },
+    done_text: { ru: 'Ответ тот же, а записи в три раза меньше.', uz: "Javob o'sha, yozuv esa uch barobar kam.", en: 'The answer is the same, and there is three times less writing.' },
     audio: {
       ru: [
         'Теперь та же работа, но столбиком. Второй множитель пишем под разрядом единиц.',
@@ -261,26 +268,27 @@ const CONTENT = {
         "Birliklarni ko'paytiramiz. Uch karra uch, to'qqiz. Birliklar tagiga yozamiz.",
         "O'nliklar. Ikki karra uch, olti. O'nliklar tagiga yozamiz.",
         "Yuzliklar. Bir karra uch, uch. Yuzliklar tagiga yozamiz. Uch yuz oltmish to'qqiz chiqdi."
-      ]
+      ],
+      en: ['Now the same work, but in a column. We write the second factor under the units place.', 'We multiply the units. Three times three, nine. We write it under the units.', 'The tens. Two times three, six. We write it under the tens.', 'The hundreds. One times three, three. We write it under the hundreds. We got three hundred sixty nine.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Под каким разрядом пишут второй множитель?', uz: "Ikkinchi ko'paytuvchi qaysi xona tagiga yoziladi?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Под каким разрядом пишут второй множитель?', uz: "Ikkinchi ko'paytuvchi qaysi xona tagiga yoziladi?", en: 'Under which place is the second factor written?' },
     opts: [
-      { ru: 'под единицами', uz: 'birliklar tagiga' },
-      { ru: 'под сотнями', uz: 'yuzliklar tagiga' },
-      { ru: 'под десятками', uz: "o'nliklar tagiga" },
-      { ru: 'где удобно', uz: 'qulay joyga' }
+      { ru: 'под единицами', uz: 'birliklar tagiga', en: 'under the units' },
+      { ru: 'под сотнями', uz: 'yuzliklar tagiga', en: 'under the hundreds' },
+      { ru: 'под десятками', uz: "o'nliklar tagiga", en: 'under the tens' },
+      { ru: 'где удобно', uz: 'qulay joyga', en: 'wherever is handy' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Под сотнями он окажется не в своём разряде, и всё сдвинется.', uz: "Yuzliklar tagida u o'z xonasida bo'lmaydi va hammasi siljib ketadi." },
-      2: { ru: 'Десятки не подходят, ведь у второго множителя всего один разряд, единицы.', uz: "O'nliklar to'g'ri kelmaydi, chunki ikkinchi ko'paytuvchida bitta xona bor, birliklar." },
-      3: { ru: 'Место не выбирают. Разряд пишут под своим разрядом.', uz: "Joy tanlanmaydi. Xona o'z xonasi tagiga yoziladi." }
+      1: { ru: 'Под сотнями он окажется не в своём разряде, и всё сдвинется.', uz: "Yuzliklar tagida u o'z xonasida bo'lmaydi va hammasi siljib ketadi.", en: 'Under the hundreds it will be in the wrong place, and everything will shift.' },
+      2: { ru: 'Десятки не подходят, ведь у второго множителя всего один разряд, единицы.', uz: "O'nliklar to'g'ri kelmaydi, chunki ikkinchi ko'paytuvchida bitta xona bor, birliklar.", en: 'The tens do not fit, because the second factor has only one place, the units.' },
+      3: { ru: 'Место не выбирают. Разряд пишут под своим разрядом.', uz: "Joy tanlanmaydi. Xona o'z xonasi tagiga yoziladi.", en: 'The place is not chosen. A place is written under its own place.' }
     },
-    on_correct: { ru: 'Верно! Единицы под единицами, и умножение начинают с них.', uz: "To'g'ri! Birliklar birliklar tagida, ko'paytirish ham shulardan boshlanadi." },
+    on_correct: { ru: 'Верно! Единицы под единицами, и умножение начинают с них.', uz: "To'g'ri! Birliklar birliklar tagida, ko'paytirish ham shulardan boshlanadi.", en: 'Right! Units under units, and multiplying starts with them.' },
     rule_lines: {
       ru: [
         'второй множитель пишут под единицами',
@@ -291,143 +299,150 @@ const CONTENT = {
         "ikkinchi ko'paytuvchi birliklar tagiga yoziladi",
         "o'ngdan chapga, birliklardan boshlab ko'paytiriladi",
         "har bir ko'paytma o'z xonasi tagiga yoziladi"
-      ]
+      ],
+      en: ['the second factor is written under the units', 'we multiply from right to left, starting with the units', 'each product is written under its own place']
     },
     rule_ex: '123 · 3 = 369',
     rule_speech: {
       ru: 'Правило такое. Второй множитель пишем под разрядом единиц. Умножаем справа налево, начиная с единиц. Каждое произведение пишем под своим разрядом.',
-      uz: "Qoida shunday. Ikkinchi ko'paytuvchini birliklar xonasi tagiga yozamiz. O'ngdan chapga, birliklardan boshlab ko'paytiramiz. Har bir ko'paytmani o'z xonasi tagiga yozamiz."
+      uz: "Qoida shunday. Ikkinchi ko'paytuvchini birliklar xonasi tagiga yozamiz. O'ngdan chapga, birliklardan boshlab ko'paytiramiz. Har bir ko'paytmani o'z xonasi tagiga yozamiz.",
+      en: 'The rule is this. We write the second factor under the units place. We multiply from right to left, starting with the units. We write each product under its own place.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.' }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.', en: 'Now the main question of the lesson.' }
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Столбик записан неверно. В чём ошибка?', uz: "Ustun noto'g'ri yozilgan. Xato nimada?" },
-    fig_line: { ru: '213 · 3 → множитель 3 стоит под цифрой 2', uz: "213 · 3 → 3 ko'paytuvchi 2 raqami tagida" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Столбик записан неверно. В чём ошибка?', uz: "Ustun noto'g'ri yozilgan. Xato nimada?", en: 'The column is written wrongly. What is the mistake?' },
+    fig_line: { ru: '213 · 3 → множитель 3 стоит под цифрой 2', uz: "213 · 3 → 3 ko'paytuvchi 2 raqami tagida", en: '213 · 3 → the factor 3 stands under the digit 2' },
     opts: [
-      { ru: 'множитель стоит не под единицами', uz: "ko'paytuvchi birliklar tagida emas" },
-      { ru: 'множитель слишком маленький', uz: "ko'paytuvchi juda kichik" },
-      { ru: 'начали умножать не с той стороны', uz: "ko'paytirish noto'g'ri tomondan boshlangan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'множитель стоит не под единицами', uz: "ko'paytuvchi birliklar tagida emas", en: 'the factor is not under the units' },
+      { ru: 'множитель слишком маленький', uz: "ko'paytuvchi juda kichik", en: 'the factor is too small' },
+      { ru: 'начали умножать не с той стороны', uz: "ko'paytirish noto'g'ri tomondan boshlangan", en: 'they started multiplying from the wrong side' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Размер множителя ни при чём. Смотри, где он стоит.', uz: "Ko'paytuvchining kattaligi muhim emas. Qayerda turganiga qarang." },
-      2: { ru: 'До умножения дело не дошло. Запись уже сдвинута.', uz: "Ko'paytirishgacha ish yetmadi. Yozuvning o'zi siljigan." },
-      3: { ru: 'Сравни разряды. Тройка это единицы, а стоит она под сотнями.', uz: "Xonalarni solishtiring. Uch bu birlik, u esa yuzliklar tagida turibdi." }
+      1: { ru: 'Размер множителя ни при чём. Смотри, где он стоит.', uz: "Ko'paytuvchining kattaligi muhim emas. Qayerda turganiga qarang.", en: 'The size of the factor has nothing to do with it. Look at where it stands.' },
+      2: { ru: 'До умножения дело не дошло. Запись уже сдвинута.', uz: "Ko'paytirishgacha ish yetmadi. Yozuvning o'zi siljigan.", en: 'It never got as far as multiplying. The writing is already shifted.' },
+      3: { ru: 'Сравни разряды. Тройка это единицы, а стоит она под сотнями.', uz: "Xonalarni solishtiring. Uch bu birlik, u esa yuzliklar tagida turibdi.", en: 'Compare the places. The three is units, and it stands under the hundreds.' }
     },
     audio: {
       intro: {
         ru: ['Двести тринадцать умножить на три. Кто-то записал столбик так, что тройка оказалась под двойкой.', 'Найди ошибку в записи.'],
-        uz: ["Ikki yuz o'n uchni uchga ko'paytirish. Kimdir ustunni shunday yozdiki, uch ikkining tagida qoldi.", 'Yozuvdagi xatoni toping.']
+        uz: ["Ikki yuz o'n uchni uchga ko'paytirish. Kimdir ustunni shunday yozdiki, uch ikkining tagida qoldi.", 'Yozuvdagi xatoni toping.'],
+        en: ['Two hundred thirteen times three. Someone wrote the column so that the three ended up under the two.', 'Find the mistake in the writing.']
       },
-      on_correct: { ru: 'Точно! Единицы пишут под единицами, иначе разряды перепутаются.', uz: "Aniq! Birliklar birliklar tagiga yoziladi, aks holda xonalar chalkashadi." },
-      on_wrong: { ru: 'Посмотри, под каким разрядом стоит второй множитель.', uz: "Ikkinchi ko'paytuvchi qaysi xona tagida turganiga qarang." }
+      on_correct: { ru: 'Точно! Единицы пишут под единицами, иначе разряды перепутаются.', uz: "Aniq! Birliklar birliklar tagiga yoziladi, aks holda xonalar chalkashadi.", en: 'Exactly! Units are written under units, otherwise the places get mixed up.' },
+      on_wrong: { ru: 'Посмотри, под каким разрядом стоит второй множитель.', uz: "Ikkinchi ko'paytuvchi qaysi xona tagida turganiga qarang.", en: 'Look at which place the second factor stands under.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Нужен ли перенос?', uz: "O'tkazish kerakmi?" },
-    bin_a: { ru: 'без переноса', uz: "o'tkazishsiz" },
-    bin_b: { ru: 'с переносом', uz: "o'tkazish bilan" },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Нужен ли перенос?', uz: "O'tkazish kerakmi?", en: 'Is a carry needed?' },
+    bin_a: { ru: 'без переноса', uz: "o'tkazishsiz", en: 'without a carry' },
+    bin_b: { ru: 'с переносом', uz: "o'tkazish bilan", en: 'with a carry' },
     items: [
-      { n: '213 · 3', a: true, hint: { ru: 'Три на три девять, это одна цифра. Переносить нечего.', uz: "Uch karra uch to'qqiz, bu bitta raqam. O'tkazadigan narsa yo'q." } },
-      { n: '48 · 2', a: false, hint: { ru: 'Восемь на два шестнадцать. Шесть пишем, один десяток в уме.', uz: "Sakkiz karra ikki o'n olti. Oltini yozamiz, bitta o'nlik dilda." } },
-      { n: '122 · 4', a: true, hint: { ru: 'Два на четыре восемь, одна цифра. Перенос не нужен.', uz: "Ikki karra to'rt sakkiz, bitta raqam. O'tkazish kerak emas." } },
-      { n: '146 · 2', a: false, hint: { ru: 'Шесть на два двенадцать. Два пишем, один десяток в уме.', uz: "Olti karra ikki o'n ikki. Ikkini yozamiz, bitta o'nlik dilda." } }
+      { n: '213 · 3', a: true, hint: { ru: 'Три на три девять, это одна цифра. Переносить нечего.', uz: "Uch karra uch to'qqiz, bu bitta raqam. O'tkazadigan narsa yo'q.", en: 'Three times three is nine, that is one digit. There is nothing to carry.' } },
+      { n: '48 · 2', a: false, hint: { ru: 'Восемь на два шестнадцать. Шесть пишем, один десяток в уме.', uz: "Sakkiz karra ikki o'n olti. Oltini yozamiz, bitta o'nlik dilda.", en: 'Eight times two is sixteen. We write six and keep one ten in mind.' } },
+      { n: '122 · 4', a: true, hint: { ru: 'Два на четыре восемь, одна цифра. Перенос не нужен.', uz: "Ikki karra to'rt sakkiz, bitta raqam. O'tkazish kerak emas.", en: 'Two times four is eight, one digit. No carry is needed.' } },
+      { n: '146 · 2', a: false, hint: { ru: 'Шесть на два двенадцать. Два пишем, один десяток в уме.', uz: "Olti karra ikki o'n ikki. Ikkini yozamiz, bitta o'nlik dilda.", en: 'Six times two is twelve. We write two and keep one ten in mind.' } }
     ],
     audio: {
-      intro: { ru: 'Разложи примеры по полкам. Слева те, где каждое произведение однозначное, справа те, где придётся держать десяток в уме.', uz: "Misollarni tokchalarga ajrating. Chapda har bir ko'paytma bir xonali bo'lganlari, o'ngda o'nlikni dilda saqlash kerak bo'lganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Умножь единицы и посмотри, одна цифра получилась или две.', uz: "Birliklarni ko'paytiring va bitta raqam chiqdimi yoki ikkita, qarang." }
+      intro: { ru: 'Разложи примеры по полкам. Слева те, где каждое произведение однозначное, справа те, где придётся держать десяток в уме.', uz: "Misollarni tokchalarga ajrating. Chapda har bir ko'paytma bir xonali bo'lganlari, o'ngda o'nlikni dilda saqlash kerak bo'lganlari.", en: 'Lay the examples out on the shelves. On the left those where every product is one digit, on the right those where a ten has to be kept in mind.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Умножь единицы и посмотри, одна цифра получилась или две.', uz: "Birliklarni ko'paytiring va bitta raqam chiqdimi yoki ikkita, qarang.", en: 'Multiply the units and see whether one digit came out or two.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '43 · 2 = ?', uz: '43 · 2 = ?' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '43 · 2 = ?', uz: '43 · 2 = ?', en: '43 · 2 = ?' },
     opts: [
-      { ru: '86', uz: '86' },
-      { ru: '68', uz: '68' },
-      { ru: '46', uz: '46' },
-      { ru: '806', uz: '806' }
+      { ru: '86', uz: '86', en: '86' },
+      { ru: '68', uz: '68', en: '68' },
+      { ru: '46', uz: '46', en: '46' },
+      { ru: '806', uz: '806', en: '806' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Цифры ответа переставлены. Восемь десятков и шесть единиц.', uz: "Javob raqamlari o'rin almashgan. Sakkiz o'nlik va olti birlik." },
-      2: { ru: 'Умножили только десятки и приписали тройку. Три тоже умножают.', uz: "Faqat o'nliklar ko'paytirilib, uch yozib qo'yilgan. Uch ham ko'paytiriladi." },
-      3: { ru: 'Разряды склеены в одно число. Восемьдесят и шесть это восемьдесят шесть.', uz: "Xonalar bitta songa yelimlangan. Sakson va olti bu sakson olti." }
+      1: { ru: 'Цифры ответа переставлены. Восемь десятков и шесть единиц.', uz: "Javob raqamlari o'rin almashgan. Sakkiz o'nlik va olti birlik.", en: 'The digits of the answer are swapped. Eight tens and six units.' },
+      2: { ru: 'Умножили только десятки и приписали тройку. Три тоже умножают.', uz: "Faqat o'nliklar ko'paytirilib, uch yozib qo'yilgan. Uch ham ko'paytiriladi.", en: 'Only the tens were multiplied and the three was written on. Three is multiplied too.' },
+      3: { ru: 'Разряды склеены в одно число. Восемьдесят и шесть это восемьдесят шесть.', uz: "Xonalar bitta songa yelimlangan. Sakson va olti bu sakson olti.", en: 'The places are glued into one number. Eighty and six is eighty six.' }
     },
     audio: {
-      intro: { ru: 'Сорок три умножить на два. Считай столбиком, справа налево.', uz: "Qirq uchni ikkiga ko'paytiring. Ustunda, o'ngdan chapga hisoblang." },
-      on_correct: { ru: 'Верно! Шесть единиц и восемь десятков.', uz: "To'g'ri! Olti birlik va sakkiz o'nlik." },
-      on_wrong: { ru: 'Умножь сначала единицы, потом десятки.', uz: "Avval birliklarni, keyin o'nliklarni ko'paytiring." }
+      intro: { ru: 'Сорок три умножить на два. Считай столбиком, справа налево.', uz: "Qirq uchni ikkiga ko'paytiring. Ustunda, o'ngdan chapga hisoblang.", en: 'Forty three times two. Count in a column, from right to left.' },
+      on_correct: { ru: 'Верно! Шесть единиц и восемь десятков.', uz: "To'g'ri! Olti birlik va sakkiz o'nlik.", en: 'Right! Six units and eight tens.' },
+      on_wrong: { ru: 'Умножь сначала единицы, потом десятки.', uz: "Avval birliklarni, keyin o'nliklarni ko'paytiring.", en: 'Multiply the units first, then the tens.' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: '328 · 3 — с переходом через десяток', uz: "328 · 3 — o'nlikdan o'tib" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: '328 · 3 — с переходом через десяток', uz: "328 · 3 — o'nlikdan o'tib", en: '328 · 3 — with a carry over the ten' },
     swap_line: '328 · 3',
     cells: [
-      { head: { ru: 'единицы', uz: 'birliklar' }, label: '8 · 3', ans: 24, hint: { ru: 'Восемь умножить на три. Четыре пишем, два десятка в уме.', uz: "Sakkizni uchga ko'paytiring. To'rtni yozamiz, ikki o'nlik dilda." } },
-      { head: { ru: 'десятки и в уме', uz: "o'nliklar va dildagi" }, label: '2 · 3 + 2', ans: 8, hint: { ru: 'Два десятка на три, и прибавь два, которые держали в уме.', uz: "Ikki o'nlik karra uch, ustiga dilda saqlangan ikkini qo'shing." } },
-      { head: { ru: 'сотни', uz: 'yuzliklar' }, label: '3 · 3', ans: 9, hint: { ru: 'Три сотни умножить на три.', uz: "Uch yuzlikni uchga ko'paytiring." } }
+      { head: { ru: 'единицы', uz: 'birliklar', en: 'ones' }, label: '8 · 3', ans: 24, hint: { ru: 'Восемь умножить на три. Четыре пишем, два десятка в уме.', uz: "Sakkizni uchga ko'paytiring. To'rtni yozamiz, ikki o'nlik dilda.", en: 'Eight times three. We write four and keep two tens in mind.' } },
+      { head: { ru: 'десятки и в уме', uz: "o'nliklar va dildagi", en: 'the tens and the carry' }, label: '2 · 3 + 2', ans: 8, hint: { ru: 'Два десятка на три, и прибавь два, которые держали в уме.', uz: "Ikki o'nlik karra uch, ustiga dilda saqlangan ikkini qo'shing.", en: 'Two tens times three, and add the two we kept in mind.' } },
+      { head: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' }, label: '3 · 3', ans: 9, hint: { ru: 'Три сотни умножить на три.', uz: "Uch yuzlikni uchga ko'paytiring.", en: 'Three hundreds times three.' } }
     ],
     check: '328 · 3 = 984',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Триста двадцать восемь умножить на три. Здесь единицы дадут две цифры, и один разряд придётся держать в уме.', uz: "Uch yuz yigirma sakkizni uchga ko'paytiramiz. Bu yerda birliklar ikki raqam beradi, bitta xonani dilda saqlash kerak." },
-      on_correct: { ru: 'Верно! Девятьсот восемьдесят четыре.', uz: "To'g'ri! To'qqiz yuz sakson to'rt." }
+      intro: { ru: 'Триста двадцать восемь умножить на три. Здесь единицы дадут две цифры, и один разряд придётся держать в уме.', uz: "Uch yuz yigirma sakkizni uchga ko'paytiramiz. Bu yerda birliklar ikki raqam beradi, bitta xonani dilda saqlash kerak.", en: 'Three hundred twenty eight times three. Here the units give two digits, and one place will have to be kept in mind.' },
+      on_correct: { ru: 'Верно! Девятьсот восемьдесят четыре.', uz: "To'g'ri! To'qqiz yuz sakson to'rt.", en: 'Right! Nine hundred eighty four.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'В столбике потеряли перенос. Где это видно?', uz: "Ustunda o'tkazish yo'qolgan. Qayerdan bilinadi?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'В столбике потеряли перенос. Где это видно?', uz: "Ustunda o'tkazish yo'qolgan. Qayerdan bilinadi?", en: 'The carry was lost in the column. Where can you see it?' },
     fig_line: '146 · 2 = 282',
     opts: [
-      { ru: 'десятки посчитаны без переноса', uz: "o'nliklar o'tkazishsiz sanalgan" },
-      { ru: 'единицы посчитаны неверно', uz: "birliklar noto'g'ri sanalgan" },
-      { ru: 'сотни посчитаны неверно', uz: "yuzliklar noto'g'ri sanalgan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'десятки посчитаны без переноса', uz: "o'nliklar o'tkazishsiz sanalgan", en: 'the tens were counted without the carry' },
+      { ru: 'единицы посчитаны неверно', uz: "birliklar noto'g'ri sanalgan", en: 'the units were counted wrongly' },
+      { ru: 'сотни посчитаны неверно', uz: "yuzliklar noto'g'ri sanalgan", en: 'the hundreds were counted wrongly' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Шесть на два двенадцать, и двойка на месте единиц записана верно.', uz: "Olti karra ikki o'n ikki, birliklar o'rnidagi ikki to'g'ri yozilgan." },
-      2: { ru: 'Одна сотня на два это две сотни, тут всё честно.', uz: "Bir yuzlik karra ikki ikki yuzlik, bu joyi to'g'ri." },
-      3: { ru: 'Проверь десятки. Четыре на два восемь, да ещё один десяток из единиц.', uz: "O'nliklarni tekshiring. To'rt karra ikki sakkiz, ustiga birliklardan bitta o'nlik." }
+      1: { ru: 'Шесть на два двенадцать, и двойка на месте единиц записана верно.', uz: "Olti karra ikki o'n ikki, birliklar o'rnidagi ikki to'g'ri yozilgan.", en: 'Six times two is twelve, and the two in the units place is written correctly.' },
+      2: { ru: 'Одна сотня на два это две сотни, тут всё честно.', uz: "Bir yuzlik karra ikki ikki yuzlik, bu joyi to'g'ri.", en: 'One hundred times two is two hundreds, that part is honest.' },
+      3: { ru: 'Проверь десятки. Четыре на два восемь, да ещё один десяток из единиц.', uz: "O'nliklarni tekshiring. To'rt karra ikki sakkiz, ustiga birliklardan bitta o'nlik.", en: 'Check the tens. Four times two is eight, and one more ten from the units.' }
     },
     audio: {
       intro: {
         ru: ['Сто сорок шесть умножить на два. Получилось двести восемьдесят два.', 'Один десяток куда-то делся. Найди где.'],
-        uz: ["Bir yuz qirq oltini ikkiga ko'paytirishdi. Ikki yuz sakson ikki chiqdi.", "Bitta o'nlik qayoqqadir yo'qolgan. Qayerdaligini toping."]
+        uz: ["Bir yuz qirq oltini ikkiga ko'paytirishdi. Ikki yuz sakson ikki chiqdi.", "Bitta o'nlik qayoqqadir yo'qolgan. Qayerdaligini toping."],
+        en: ['One hundred forty six times two. Two hundred eighty two came out.', 'One ten went missing. Find where.']
       },
-      on_correct: { ru: 'Точно! Из единиц пришёл десяток, и десятков стало девять. Правильный ответ двести девяносто два.', uz: "Aniq! Birliklardan bitta o'nlik keldi, o'nliklar to'qqizta bo'ldi. To'g'ri javob ikki yuz to'qson ikki." },
-      on_wrong: { ru: 'Посчитай каждый разряд по очереди и следи за десятком в уме.', uz: "Har bir xonani navbat bilan sanang va dildagi o'nlikni kuzating." }
+      on_correct: { ru: 'Точно! Из единиц пришёл десяток, и десятков стало девять. Правильный ответ двести девяносто два.', uz: "Aniq! Birliklardan bitta o'nlik keldi, o'nliklar to'qqizta bo'ldi. To'g'ri javob ikki yuz to'qson ikki.", en: 'Exactly! A ten came from the units, and the tens became nine. The right answer is two hundred ninety two.' },
+      on_wrong: { ru: 'Посчитай каждый разряд по очереди и следи за десятком в уме.', uz: "Har bir xonani navbat bilan sanang va dildagi o'nlikni kuzating.", en: 'Count each place in turn and watch the ten you keep in mind.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит начал умножать слева', uz: 'Bit chapdan boshlab ko\'paytirdi' },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит начал умножать слева', uz: 'Bit chapdan boshlab ko\'paytirdi', en: 'Bit started multiplying from the left' },
     lines: ['124 · 2', 'сначала сотни, потом единицы'],
     lines_uz: ['124 · 2', 'avval yuzliklar, keyin birliklar'],
-    line_cap: { ru: 'так ведь тоже получится, говорит Бит', uz: 'shunday ham chiqadi, deydi Bit' },
-    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    lines_en: ['124 · 2', 'first the hundreds, then the units'],
+    line_cap: { ru: 'так ведь тоже получится, говорит Бит', uz: 'shunday ham chiqadi, deydi Bit', en: 'it works this way too, says Bit' },
+    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?', en: 'Is Bit right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Здесь переноса нет, и ответ случайно совпал. Но как только появится перенос, слева направо считать нельзя. Десяток придёт уже после того, как разряд записан.',
-      uz: "Aniq! Bu yerda o'tkazish yo'q, javob tasodifan to'g'ri chiqdi. Lekin o'tkazish paydo bo'lishi bilan chapdan o'ngga hisoblab bo'lmaydi. O'nlik xona yozilgandan keyin keladi."
+      uz: "Aniq! Bu yerda o'tkazish yo'q, javob tasodifan to'g'ri chiqdi. Lekin o'tkazish paydo bo'lishi bilan chapdan o'ngga hisoblab bo'lmaydi. O'nlik xona yozilgandan keyin keladi.",
+      en: 'Exactly! There is no carry here, and the answer matched by chance. But as soon as there is a carry, you cannot count from left to right. The ten will arrive after the place is already written.'
     },
     trap_wrong: {
       ru: 'Тут ответ и правда сошёлся, потому что переноса нет. Возьми пример с переносом, и слева направо всё сломается.',
-      uz: "Bu yerda javob haqiqatan mos keldi, chunki o'tkazish yo'q. O'tkazishli misolni oling va chapdan o'ngga hammasi buziladi."
+      uz: "Bu yerda javob haqiqatan mos keldi, chunki o'tkazish yo'q. O'tkazishli misolni oling va chapdan o'ngga hammasi buziladi.",
+      en: 'Here the answer really did match, because there is no carry. Take an example with a carry and left to right will fall apart.'
     },
     audio: {
       ru: [
@@ -437,169 +452,175 @@ const CONTENT = {
       uz: [
         "Bit bir yuz yigirma to'rtni ikkiga ko'paytirdi, lekin yuzliklardan boshlab birliklar bilan tugatdi. Farqi yo'q deydi.",
         "Bit haqmi?"
-      ]
+      ],
+      en: ['Bit multiplied one hundred twenty four by two, but started with the hundreds and finished with the units. He says it makes no difference.', 'Is Bit right?']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '213 · 3. Набери ответ.', uz: '213 · 3. Javobni tering.' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '213 · 3. Набери ответ.', uz: '213 · 3. Javobni tering.', en: '213 · 3. Type the answer.' },
     ans: 639,
     check: '600 + 30 + 9 = 639',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Единицы, десятки, сотни. Три на три девять, один на три три, два на три шесть.', uz: "Birliklar, o'nliklar, yuzliklar. Uch karra uch to'qqiz, bir karra uch uch, ikki karra uch olti." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Единицы, десятки, сотни. Три на три девять, один на три три, два на три шесть.', uz: "Birliklar, o'nliklar, yuzliklar. Uch karra uch to'qqiz, bir karra uch uch, ikki karra uch olti.", en: 'Units, tens, hundreds. Three times three is nine, one times three is three, two times three is six.' },
     audio: {
-      intro: { ru: 'Двести тринадцать умножить на три. Переноса тут не будет.', uz: "Ikki yuz o'n uchni uchga ko'paytiring. Bu yerda o'tkazish bo'lmaydi." },
-      on_correct: { ru: 'Верно! Шестьсот тридцать девять.', uz: "To'g'ri! Olti yuz o'ttiz to'qqiz." }
+      intro: { ru: 'Двести тринадцать умножить на три. Переноса тут не будет.', uz: "Ikki yuz o'n uchni uchga ko'paytiring. Bu yerda o'tkazish bo'lmaydi.", en: 'Two hundred thirteen times three. There will be no carry here.' },
+      on_correct: { ru: 'Верно! Шестьсот тридцать девять.', uz: "To'g'ri! Olti yuz o'ttiz to'qqiz.", en: 'Right! Six hundred thirty nine.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '122 · 4. Набери ответ.', uz: '122 · 4. Javobni tering.' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '122 · 4. Набери ответ.', uz: '122 · 4. Javobni tering.', en: '122 · 4. Type the answer.' },
     ans: 488,
     check: '400 + 80 + 8 = 488',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Два на четыре восемь, ещё два на четыре восемь, один на четыре четыре.', uz: "Ikki karra to'rt sakkiz, yana ikki karra to'rt sakkiz, bir karra to'rt to'rt." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Два на четыре восемь, ещё два на четыре восемь, один на четыре четыре.', uz: "Ikki karra to'rt sakkiz, yana ikki karra to'rt sakkiz, bir karra to'rt to'rt.", en: 'Two times four is eight, two times four is eight again, one times four is four.' },
     audio: {
-      intro: { ru: 'Сто двадцать два умножить на четыре.', uz: "Bir yuz yigirma ikkini to'rtga ko'paytiring." },
-      on_correct: { ru: 'Верно! Четыреста восемьдесят восемь.', uz: "To'g'ri! To'rt yuz sakson sakkiz." }
+      intro: { ru: 'Сто двадцать два умножить на четыре.', uz: "Bir yuz yigirma ikkini to'rtga ko'paytiring.", en: 'One hundred twenty two times four.' },
+      on_correct: { ru: 'Верно! Четыреста восемьдесят восемь.', uz: "To'g'ri! To'rt yuz sakson sakkiz.", en: 'Right! Four hundred eighty eight.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-    q: { ru: 'В мастерской сделали 154 парты, а столов в 2 раза больше. Сколько парт и столов сделали всего?', uz: "Ustaxonada 154 ta parta, stol esa 2 marta ko'p yasaldi. Jami nechta parta va stol yasalgan?" },
-    q_speech: { ru: 'Сто пятьдесят четыре парты, а столов в два раза больше. Сколько всего?', uz: "Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Jami nechta?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+    q: { ru: 'В мастерской сделали 154 парты, а столов в 2 раза больше. Сколько парт и столов сделали всего?', uz: "Ustaxonada 154 ta parta, stol esa 2 marta ko'p yasaldi. Jami nechta parta va stol yasalgan?", en: 'The workshop made 154 desks, and 2 times more tables. How many desks and tables were made in all?' },
+    q_speech: { ru: 'Сто пятьдесят четыре парты, а столов в два раза больше. Сколько всего?', uz: "Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Jami nechta?", en: 'One hundred fifty four desks, and two times more tables. How many in all?' },
     tbl_heads: [
-      { ru: 'Парт', uz: 'Parta' },
-      { ru: 'Столов', uz: 'Stol' },
-      { ru: 'Всего', uz: 'Jami' }
+      { ru: 'Парт', uz: 'Parta', en: 'Desks' },
+      { ru: 'Столов', uz: 'Stol', en: 'Tables' },
+      { ru: 'Всего', uz: 'Jami', en: 'In all' }
     ],
     tbl_cells: ['154', '?', '?'],
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '154 · 2 + 154', uz: '154 · 2 + 154' },
-      { ru: '154 · 2', uz: '154 · 2' },
-      { ru: '154 + 2', uz: '154 + 2' },
-      { ru: '154 · 2 − 154', uz: '154 · 2 − 154' }
+      { ru: '154 · 2 + 154', uz: '154 · 2 + 154', en: '154 · 2 + 154' },
+      { ru: '154 · 2', uz: '154 · 2', en: '154 · 2' },
+      { ru: '154 + 2', uz: '154 + 2', en: '154 + 2' },
+      { ru: '154 · 2 − 154', uz: '154 · 2 − 154', en: '154 · 2 − 154' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Это только столы. Парты тоже считают.', uz: "Bu faqat stollar. Partalar ham hisobga olinadi." },
-      2: { ru: 'В два раза больше это не на два больше. Тут умножение.', uz: "Ikki marta ko'p bu ikkitaga ko'p emas. Bu yerda ko'paytirish." },
-      3: { ru: 'Вычитание уберёт парты, а их надо прибавить.', uz: "Ayirish partalarni olib tashlaydi, ularni esa qo'shish kerak." }
+      1: { ru: 'Это только столы. Парты тоже считают.', uz: "Bu faqat stollar. Partalar ham hisobga olinadi.", en: 'That is only the tables. The desks are counted too.' },
+      2: { ru: 'В два раза больше это не на два больше. Тут умножение.', uz: "Ikki marta ko'p bu ikkitaga ko'p emas. Bu yerda ko'paytirish.", en: 'Two times more is not two more. There is multiplication here.' },
+      3: { ru: 'Вычитание уберёт парты, а их надо прибавить.', uz: "Ayirish partalarni olib tashlaydi, ularni esa qo'shish kerak.", en: 'Subtraction takes the desks away, and they have to be added.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang." },
-    step1_q: { ru: 'Сколько столов?', uz: 'Nechta stol?' },
+    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang.", en: 'The line is correct. Now count step by step.' },
+    step1_q: { ru: 'Сколько столов?', uz: 'Nechta stol?', en: 'How many tables?' },
     ans1: 308,
-    hint1: { ru: 'Сто пятьдесят четыре умножить на два, столбиком.', uz: "Bir yuz ellik to'rtni ikkiga ko'paytiring, ustunda." },
-    step2_q: { ru: 'Сколько всего?', uz: 'Jami nechta?' },
+    hint1: { ru: 'Сто пятьдесят четыре умножить на два, столбиком.', uz: "Bir yuz ellik to'rtni ikkiga ko'paytiring, ustunda.", en: 'One hundred fifty four times two, in a column.' },
+    step2_q: { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' },
     ans2: 462,
-    hint2: { ru: 'К столам прибавь парты.', uz: "Stollarga partalarni qo'shing." },
+    hint2: { ru: 'К столам прибавь парты.', uz: "Stollarga partalarni qo'shing.", en: 'Add the desks to the tables.' },
     check: '154 + 308 = 462',
-    setup_audio: { ru: 'Задача из мастерской. Сто пятьдесят четыре парты, а столов в два раза больше. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Avval yozuvni tanlang, keyin qadamlab hisoblang." },
+    setup_audio: { ru: 'Задача из мастерской. Сто пятьдесят четыре парты, а столов в два раза больше. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Bir yuz ellik to'rtta parta, stol esa ikki marta ko'p. Avval yozuvni tanlang, keyin qadamlab hisoblang.", en: 'A problem from the workshop. One hundred fifty four desks, and two times more tables. First choose the line, then count step by step.' },
     audio: {
-      intro: { ru: 'Тут пригодится и столбик, и внимание к вопросу.', uz: "Bu yerda ustun ham, savolga e'tibor ham kerak bo'ladi." },
-      on_correct: { ru: 'Четыреста шестьдесят два! Триста восемь столов и сто пятьдесят четыре парты.', uz: "To'rt yuz oltmish ikki! Uch yuz sakkizta stol va bir yuz ellik to'rtta parta." },
-      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.' }
+      intro: { ru: 'Тут пригодится и столбик, и внимание к вопросу.', uz: "Bu yerda ustun ham, savolga e'tibor ham kerak bo'ladi.", en: 'Both the column and attention to the question come in handy here.' },
+      on_correct: { ru: 'Четыреста шестьдесят два! Триста восемь столов и сто пятьдесят четыре парты.', uz: "To'rt yuz oltmish ikki! Uch yuz sakkizta stol va bir yuz ellik to'rtta parta.", en: 'Four hundred sixty two! Three hundred eight tables and one hundred fifty four desks.' },
+      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.', en: 'Count it again, step by step.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Три столбика — и приём твой', uz: 'Uch ustun va usul sizniki' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Три столбика — и приём твой', uz: 'Uch ustun va usul sizniki', en: 'Three columns and the method is yours' },
     items: [
       {
         kind: 'num',
-        q: { ru: '124 · 2. Набери ответ.', uz: '124 · 2. Javobni tering.' },
-        q_speech: { ru: 'Сто двадцать четыре умножить на два.', uz: "Bir yuz yigirma to'rtni ikkiga ko'paytirish." },
+        q: { ru: '124 · 2. Набери ответ.', uz: '124 · 2. Javobni tering.', en: '124 · 2. Type the answer.' },
+        q_speech: { ru: 'Сто двадцать четыре умножить на два.', uz: "Bir yuz yigirma to'rtni ikkiga ko'paytirish.", en: 'One hundred twenty four times two.' },
         ans: 248,
-        hint: { ru: 'Четыре на два восемь, два на два четыре, один на два два.', uz: "To'rt karra ikki sakkiz, ikki karra ikki to'rt, bir karra ikki ikki." }
+        hint: { ru: 'Четыре на два восемь, два на два четыре, один на два два.', uz: "To'rt karra ikki sakkiz, ikki karra ikki to'rt, bir karra ikki ikki.", en: 'Four times two is eight, two times two is four, one times two is two.' }
       },
       {
         kind: 'mc',
-        q: { ru: '133 · 3 = ?', uz: '133 · 3 = ?' },
-        q_speech: { ru: 'Сто тридцать три умножить на три.', uz: "Bir yuz o'ttiz uchni uchga ko'paytirish." },
-        opt0: { ru: '399', uz: '399' },
-        opt1: { ru: '369', uz: '369' },
-        opt2: { ru: '939', uz: '939' },
-        opt3: { ru: '396', uz: '396' },
-        wrong_1: { ru: 'Это ответ для ста двадцати трёх. Здесь десятков больше.', uz: "Bu bir yuz yigirma uch uchun javob. Bu yerda o'nliklar ko'proq." },
-        wrong_2: { ru: 'Разряды переставлены. Сотен три, десятков девять, единиц девять.', uz: "Xonalar o'rin almashgan. Yuzlik uchta, o'nlik to'qqizta, birlik to'qqizta." },
-        wrong_3: { ru: 'Единицы посчитаны неверно. Три на три это девять.', uz: "Birliklar noto'g'ri sanalgan. Uch karra uch to'qqiz." }
+        q: { ru: '133 · 3 = ?', uz: '133 · 3 = ?', en: '133 · 3 = ?' },
+        q_speech: { ru: 'Сто тридцать три умножить на три.', uz: "Bir yuz o'ttiz uchni uchga ko'paytirish.", en: 'One hundred thirty three times three.' },
+        opt0: { ru: '399', uz: '399', en: '399' },
+        opt1: { ru: '369', uz: '369', en: '369' },
+        opt2: { ru: '939', uz: '939', en: '939' },
+        opt3: { ru: '396', uz: '396', en: '396' },
+        wrong_1: { ru: 'Это ответ для ста двадцати трёх. Здесь десятков больше.', uz: "Bu bir yuz yigirma uch uchun javob. Bu yerda o'nliklar ko'proq.", en: 'That is the answer for one hundred twenty three. There are more tens here.' },
+        wrong_2: { ru: 'Разряды переставлены. Сотен три, десятков девять, единиц девять.', uz: "Xonalar o'rin almashgan. Yuzlik uchta, o'nlik to'qqizta, birlik to'qqizta.", en: 'The places are swapped round. Three hundreds, nine tens, nine units.' },
+        wrong_3: { ru: 'Единицы посчитаны неверно. Три на три это девять.', uz: "Birliklar noto'g'ri sanalgan. Uch karra uch to'qqiz.", en: 'The units were counted wrongly. Three times three is nine.' }
       },
       {
         kind: 'mc',
-        q: { ru: '111 · 8 = ?', uz: '111 · 8 = ?' },
-        q_speech: { ru: 'Сто одиннадцать умножить на восемь.', uz: "Bir yuz o'n birni sakkizga ko'paytirish." },
-        opt0: { ru: '888', uz: '888' },
-        opt1: { ru: '188', uz: '188' },
-        opt2: { ru: '818', uz: '818' },
-        opt3: { ru: '8888', uz: '8888' },
-        wrong_1: { ru: 'Сотню тоже умножают. Одна сотня на восемь это восемь сотен.', uz: "Yuzlik ham ko'paytiriladi. Bir yuzlik karra sakkiz sakkiz yuzlik." },
-        wrong_2: { ru: 'Десятки пропущены. Один десяток на восемь это восемь десятков.', uz: "O'nliklar tashlab ketilgan. Bir o'nlik karra sakkiz sakkiz o'nlik." },
-        wrong_3: { ru: 'Цифр стало больше, чем нужно. Разряда всего три.', uz: "Raqamlar keragidan ko'p bo'lib ketdi. Xona jami uchta." }
+        q: { ru: '111 · 8 = ?', uz: '111 · 8 = ?', en: '111 · 8 = ?' },
+        q_speech: { ru: 'Сто одиннадцать умножить на восемь.', uz: "Bir yuz o'n birni sakkizga ko'paytirish.", en: 'One hundred eleven times eight.' },
+        opt0: { ru: '888', uz: '888', en: '888' },
+        opt1: { ru: '188', uz: '188', en: '188' },
+        opt2: { ru: '818', uz: '818', en: '818' },
+        opt3: { ru: '8888', uz: '8888', en: '8888' },
+        wrong_1: { ru: 'Сотню тоже умножают. Одна сотня на восемь это восемь сотен.', uz: "Yuzlik ham ko'paytiriladi. Bir yuzlik karra sakkiz sakkiz yuzlik.", en: 'The hundred is multiplied too. One hundred times eight is eight hundreds.' },
+        wrong_2: { ru: 'Десятки пропущены. Один десяток на восемь это восемь десятков.', uz: "O'nliklar tashlab ketilgan. Bir o'nlik karra sakkiz sakkiz o'nlik.", en: 'The tens were skipped. One ten times eight is eight tens.' },
+        wrong_3: { ru: 'Цифр стало больше, чем нужно. Разряда всего три.', uz: "Raqamlar keragidan ko'p bo'lib ketdi. Xona jami uchta.", en: 'There are more digits than needed. There are only three places.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Столбику примерно тысяча двести лет. Его описал учёный аль-Хорезми, который жил в Хорезме, и от его имени пошло слово алгоритм. Алгоритм это точный порядок шагов, который приводит к ответу всегда, а не только у того, кто хорошо считает в уме. Столбик и есть такой порядок: единицы, десятки, сотни, и перенос на своё место.',
-      uz: "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib: birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga."
+      uz: "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib: birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga.",
+      en: 'The column is about twelve hundred years old. It was described by the scholar al-Khwarizmi, who lived in Khorezm, and the word algorithm comes from his name. An algorithm is an exact order of steps that always leads to the answer, not only for someone who is good at counting in their head. The column is exactly such an order: units, tens, hundreds, and the carry in its place.'
     },
     fact_audio: {
       ru: 'Столбику примерно тысяча двести лет. Его описал учёный аль-Хорезми, который жил в Хорезме, и от его имени пошло слово алгоритм. Алгоритм это точный порядок шагов, который приводит к ответу всегда, а не только у того, кто хорошо считает в уме. Столбик и есть такой порядок. Единицы, десятки, сотни, и перенос на своё место. Ты сегодня научился древнему приёму, которым пользуется весь мир.',
-      uz: "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib. Birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga. Siz bugun butun dunyo ishlatadigan qadimiy usulni o'rgandingiz."
+      uz: "Ustunga taxminan bir yarim ming yil. Uni Xorazmda yashagan olim al-Xorazmiy tavsiflagan, uning nomidan algoritm so'zi kelib chiqqan. Algoritm bu javobga doim olib keladigan aniq qadamlar tartibi, faqat og'zaki yaxshi hisoblaydigan odam uchun emas. Ustun ham ana shunday tartib. Birliklar, o'nliklar, yuzliklar va o'tkazish o'z o'rniga. Siz bugun butun dunyo ishlatadigan qadimiy usulni o'rgandingiz.",
+      en: 'The column is about twelve hundred years old. It was described by the scholar al-Khwarizmi, who lived in Khorezm, and the word algorithm comes from his name. An algorithm is an exact order of steps that always leads to the answer, not only for someone who is good at counting in their head. The column is exactly such an order. Units, tens, hundreds, and the carry in its place. Today you learned an ancient method that the whole world uses.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Считай справа налево и не забывай перенос.', uz: "O'ngdan chapga hisoblang va o'tkazishni unutmang." }
+      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.', en: 'The final check, three examples.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Считай справа налево и не забывай перенос.', uz: "O'ngdan chapga hisoblang va o'tkazishni unutmang.", en: 'Count from right to left and do not forget the carry.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Записи стали короткими, а ответы точными!', uz: 'Yozuvlar qisqardi, javoblar aniq!' },
-    cando: { ru: 'Теперь ты умножаешь столбиком и не теряешь перенос.', uz: "Endi siz ustunda ko'paytirasiz va o'tkazishni yo'qotmaysiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Записи стали короткими, а ответы точными!', uz: 'Yozuvlar qisqardi, javoblar aniq!', en: 'The lines got short and the answers exact!' },
+    cando: { ru: 'Теперь ты умножаешь столбиком и не теряешь перенос.', uz: "Endi siz ustunda ko'paytirasiz va o'tkazishni yo'qotmaysiz.", en: 'Now you multiply in a column and do not lose the carry.' },
     rule_recap: {
       ru: '123 · 3 = 369. Второй множитель под единицами, считаем справа налево, перенос над своим разрядом.',
-      uz: "123 · 3 = 369. Ikkinchi ko'paytuvchi birliklar tagida, o'ngdan chapga hisoblaymiz, o'tkazish o'z xonasi ustida."
+      uz: "123 · 3 = 369. Ikkinchi ko'paytuvchi birliklar tagida, o'ngdan chapga hisoblaymiz, o'tkazish o'z xonasi ustida.",
+      en: '123 · 3 = 369. The second factor under the units, we count from right to left, the carry above its own place.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 11: умножение суммы; урок 17: умножение по частям', uz: "11-dars: yig'indini ko'paytirish; 17-dars: qismlab ko'paytirish" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'умножение двузначного на двузначное', uz: "ikki xonalini ikki xonaliga ko'paytirish" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 11: умножение суммы; урок 17: умножение по частям', uz: "11-dars: yig'indini ko'paytirish; 17-dars: qismlab ko'paytirish", en: 'lesson 11: multiplying a sum; lesson 17: multiplying by parts' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'умножение двузначного на двузначное', uz: "ikki xonalini ikki xonaliga ko'paytirish", en: 'multiplying a two-digit number by a two-digit number' },
     audio: {
       ru: 'Записи стали короткими, а ответы точными. Запомни главное. Второй множитель пишем под единицами, считаем справа налево, а перенос ставим над своим разрядом. В следующий раз возьмём два двузначных числа сразу!',
-      uz: "Yozuvlar qisqardi, javoblar aniq bo'ldi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini birliklar tagiga yozamiz, o'ngdan chapga hisoblaymiz, o'tkazishni o'z xonasi ustiga qo'yamiz. Keyingi safar ikkita ikki xonali sonni birga olamiz!"
+      uz: "Yozuvlar qisqardi, javoblar aniq bo'ldi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini birliklar tagiga yozamiz, o'ngdan chapga hisoblaymiz, o'tkazishni o'z xonasi ustiga qo'yamiz. Keyingi safar ikkita ikki xonali sonni birga olamiz!",
+      en: 'The lines got short and the answers exact. Remember the main thing. We write the second factor under the units, we count from right to left, and we put the carry above its own place. Next time we will take two two-digit numbers at once!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Начнём с того, что умеем.', uz: 'Bilganimizdan boshlaymiz.' },
-  s2:  { ru: 'А теперь короче.', uz: 'Endi qisqaroq.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Кто-то сдвинул запись.', uz: 'Kimdir yozuvni siljitib yubordi.' },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Теперь с переносом.', uz: "Endi o'tkazish bilan." },
-  s8:  { ru: 'Один десяток потерялся.', uz: "Bitta o'nlik yo'qoldi." },
-  s9:  { ru: 'А вот и Бит со своим порядком.', uz: "Mana Bit ham o'z tartibi bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё один столбик.', uz: 'Yana bitta ustun.' },
-  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Записи готовы. Идём дальше!', uz: 'Yozuvlar tayyor. Davom etamiz!' }
+  s1:  { ru: 'Начнём с того, что умеем.', uz: 'Bilganimizdan boshlaymiz.', en: 'Let us start with what we can do.' },
+  s2:  { ru: 'А теперь короче.', uz: 'Endi qisqaroq.', en: 'And now shorter.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Кто-то сдвинул запись.', uz: 'Kimdir yozuvni siljitib yubordi.', en: 'Someone shifted the writing.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Теперь с переносом.', uz: "Endi o'tkazish bilan.", en: 'Now with a carry.' },
+  s8:  { ru: 'Один десяток потерялся.', uz: "Bitta o'nlik yo'qoldi.", en: 'One ten got lost.' },
+  s9:  { ru: 'А вот и Бит со своим порядком.', uz: "Mana Bit ham o'z tartibi bilan.", en: 'And here is Bit with his order.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё один столбик.', uz: 'Yana bitta ustun.', en: 'And one more column.' },
+  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Записи готовы. Идём дальше!', uz: 'Yozuvlar tayyor. Davom etamiz!', en: 'The lines are ready. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Все записи сделаны столбиком, и ни один разряд не потерялся. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Barcha yozuvlar ustunda qilindi, birorta xona yo'qolmadi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Barcha yozuvlar ustunda qilindi, birorta xona yo'qolmadi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! All the lines are written in a column, and not a single place got lost. Thank you for your help!'
 };
 
 // ============================================================
@@ -789,7 +810,7 @@ const ColumnBg = () => {
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
     {/* USTUN TABLOSI */}
     <rect x="120" y="106" width="160" height="66" rx="7" fill="url(#d21board)" stroke="#C9B79A" strokeWidth="2.4"/>
-    <text x="200" y="103" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СТОЛБИК' : 'USTUN'}</text>
+    <text x="200" y="103" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СТОЛБИК', 'USTUN', 'THE COLUMN')}</text>
     {/* o'tkazish oynasi */}
     <rect x="188" y="110" width="16" height="12" rx="3" fill="#FFF3E9" stroke="#FF4F28" strokeWidth="1.2"/>
     <text x="196" y="119.5" textAnchor="middle" fontSize="8" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">2</text>
@@ -922,14 +943,14 @@ const AlgoFig = () => {
     <g stroke="#C0A87E" strokeWidth="1.6" opacity="0.75">
       {[26, 36, 46, 56, 66].map((y) => <line key={y} x1="42" y1={y} x2="118" y2={y}/>)}
     </g>
-    <text x="89" y="82" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'аль-Хорезми' : 'al-Xorazmiy'}</text>
+    <text x="89" y="82" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'аль-Хорезми', 'al-Xorazmiy', 'al-Khwarizmi')}</text>
     {[0, 1, 2].map((k) => (
       <g key={k} className="d21-step" style={{ animationDelay: `${k * 0.8}s` }}>
         <circle cx="168" cy={28 + k * 26} r="11" fill="#FFF3E9" stroke="#FF4F28" strokeWidth="2"/>
         <text x="168" y={32 + k * 26} textAnchor="middle" fontSize="10" fontWeight="800" fill="#FF4F28" fontFamily="'JetBrains Mono', monospace">{k + 1}</text>
       </g>
     ))}
-    <text x="168" y="104" textAnchor="middle" fontSize="8.5" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'алгоритм' : 'algoritm'}</text>
+    <text x="168" y="104" textAnchor="middle" fontSize="8.5" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'алгоритм', 'algoritm', 'algorithm')}</text>
   </svg>
   );
 };
@@ -1062,7 +1083,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1181,7 +1202,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d21-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d21-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d21-expr">{t(c.step1)}</span>
@@ -1508,7 +1529,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1573,7 +1594,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1709,7 +1730,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d21-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d21-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1824,7 +1845,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1895,7 +1916,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d21-final-scene fade-up delay-1"><ColumnScene gathered/></div>
@@ -1916,7 +1937,7 @@ export default function WrittenColumnLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1983,7 +2004,7 @@ export default function WrittenColumnLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

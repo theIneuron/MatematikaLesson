@@ -68,9 +68,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -208,7 +233,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -249,7 +274,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -652,12 +678,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -778,7 +804,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -847,13 +873,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.hint)}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
           </FeedbackBlock>
         )}
@@ -864,7 +890,7 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
 const MONO = { fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(20px, 4.4vw, 30px)', lineHeight: 1.5 };
 
-const CheckLabel = () => { const lang = useLang(); return lang === 'uz' ? 'Tekshirish' : 'Проверить'; };
+const CheckLabel = () => { const lang = useLang(); return lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'; };
 
 const ArrowLeft = ({ color }) => (
   <svg width="22" height="14" viewBox="0 0 22 14" fill="none" stroke={color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
@@ -873,15 +899,15 @@ const ArrowLeft = ({ color }) => (
 );
 
 const UI = {
-  hint: { ru: 'Подсказка', uz: 'Maslahat' },
-  hide: { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish' },
-  solution: { ru: 'Решение', uz: 'Yechim' },
-  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish" },
-  replay: { ru: '↻ Повторить', uz: '↻ Qaytarish' },
-  retryOk: { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi." },
-  gaveUp: { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring." },
-  tryAgain: { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring." },
-  wrongAudio: { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring." }
+  hint: { ru: 'Подсказка', uz: 'Maslahat', en: 'Hint' },
+  hide: { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish', en: 'Hide the hint' },
+  solution: { ru: 'Решение', uz: 'Yechim', en: 'Working' },
+  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish", en: 'Show the working' },
+  replay: { ru: '↻ Повторить', uz: '↻ Qaytarish', en: '↻ Again' },
+  retryOk: { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi.", en: 'That is right now. Only the first try counts towards your score.' },
+  gaveUp: { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring.", en: 'Never mind. Look at the working below.' },
+  tryAgain: { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring.", en: 'It does not add up. Look at the hint and try again.' },
+  wrongAudio: { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring.", en: 'Not quite. Try again.' }
 };
 
 const HintToggle = ({ hint }) => {
@@ -965,7 +991,7 @@ const DivBoard = ({ plan, reveal, fs = 'clamp(18px, 4.6vw, 28px)' }) => {
           {(qShown || '\u00A0').split('').map((d, i) => (<span key={i} style={{ color: d === '0' ? T.accent : T.success }}>{d}</span>))}
         </div>
         {shown === plan.steps.length && plan.finalRemainder !== '0' && (
-          <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: 13, color: T.accent, fontWeight: 600, marginTop: 6 }}>{lang === 'uz' ? 'qoldiq' : 'остаток'} {plan.finalRemainder}</div>
+          <div style={{ fontFamily: "'Manrope', sans-serif", fontSize: 13, color: T.accent, fontWeight: 600, marginTop: 6 }}>{lang === 'uz' ? 'qoldiq' : lang === 'en' ? "remainder" : 'остаток'} {plan.finalRemainder}</div>
         )}
       </div>
     </div>
@@ -997,7 +1023,7 @@ const DivSolutionPlayer = ({ sol }) => {
 const ShareBoard = ({ groups, perGroup, remainder, highlight }) => {
   const lang = useLang();
   const Dot = ({ color }) => (<span style={{ width: 11, height: 11, borderRadius: '50%', background: color, display: 'inline-block' }}/>);
-  const leftLabel = lang === 'uz' ? 'Ortdi:' : 'Осталось:';
+  const leftLabel = lang === 'uz' ? 'Ortdi:' : lang === 'en' ? "Left:" : 'Осталось:';
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.5vw, 18px)', alignItems: 'center', width: '100%' }}>
       <div style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -1024,8 +1050,8 @@ const SEQUENCE = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14];
 const TOTAL_SCREENS = SEQUENCE.length;
 
 const LESSON_META = {
-  lessonId: 'nat-5-05-v1',
-  lessonTitle: { ru: 'Деление уголком, деление с остатком', uz: "Burchak usulida bo'lish, qoldiqli bo'lish" }
+  lessonId: 'grade5-05',
+  lessonTitle: { ru: 'Деление уголком, деление с остатком', uz: "Burchak usulida bo'lish, qoldiqli bo'lish", en: 'Long division and division with a remainder' }
 };
 
 const SCREEN_META = [
@@ -1070,32 +1096,32 @@ const REFS = { 3: null, 7: null, 10: null, 14: null };
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
-    global_q: { ru: 'Что делать с остатком?', uz: "Qoldiq bilan nima qilamiz?" },
-    claim_lead: { ru: 'Зайнаб делит 30 конфет поровну между 4 друзьями. Она быстро посчитала и говорит:', uz: "Zaynab 30 ta konfetni 4 ta do'stiga teng bo'ladi. U tez hisoblab, shunday deydi:" },
-    claim_em: { ru: 'По 6, остаток 6.', uz: '6 tadan, qoldiq 6.' },
-    question: { ru: 'Зайнаб права?', uz: 'Zaynab haqmi?' },
-    opt_yes: { ru: 'Зайнаб права', uz: 'Zaynab haq' },
-    opt_no: { ru: 'Зайнаб ошибается', uz: 'Zaynab xato qilyapti' },
-    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
+    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli', en: 'The question of the lesson' },
+    global_q: { ru: 'Что делать с остатком?', uz: "Qoldiq bilan nima qilamiz?", en: 'What do you do with the remainder?' },
+    claim_lead: { ru: 'Зайнаб делит 30 конфет поровну между 4 друзьями. Она быстро посчитала и говорит:', uz: "Zaynab 30 ta konfetni 4 ta do'stiga teng bo'ladi. U tez hisoblab, shunday deydi:", en: 'Zaynab is sharing 30 sweets equally between 4 friends. She worked it out quickly and says:' },
+    claim_em: { ru: 'По 6, остаток 6.', uz: '6 tadan, qoldiq 6.', en: '6 each, remainder 6.' },
+    question: { ru: 'Зайнаб права?', uz: 'Zaynab haqmi?', en: 'Is Zaynab right?' },
+    opt_yes: { ru: 'Зайнаб права', uz: 'Zaynab haq', en: 'Zaynab is right' },
+    opt_no: { ru: 'Зайнаб ошибается', uz: 'Zaynab xato qilyapti', en: 'Zaynab is wrong' },
+    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas', en: 'I am not sure' },
     audio: {
-      intro: { ru: 'Зайнаб делит тридцать конфет поровну между четырьмя друзьями. Она посчитала и говорит, что выйдет по шесть каждому, а в остатке шесть. Права ли она?', uz: "Zaynab o'ttizta konfetni to'rtta do'stiga teng bo'ladi. U hisoblab, har biriga oltitadan, qoldiqda esa oltita bo'ladi deydi. U haqmi?" },
-      on_correct: { ru: 'Хорошо. Чтобы понять, права ли Зайнаб, сначала разберёмся, как вообще работает деление уголком.', uz: "Yaxshi. Zaynab haqligini tushunish uchun, avval bo'lish burchak usulida qanday ishlashini ko'rib chiqamiz." },
-      on_wrong: { ru: 'Хорошо. Чтобы понять, права ли Зайнаб, сначала разберёмся, как вообще работает деление уголком.', uz: "Yaxshi. Zaynab haqligini tushunish uchun, avval bo'lish burchak usulida qanday ishlashini ko'rib chiqamiz." }
+      intro: { ru: 'Зайнаб делит тридцать конфет поровну между четырьмя друзьями. Она посчитала и говорит, что выйдет по шесть каждому, а в остатке шесть. Права ли она?', uz: "Zaynab o'ttizta konfetni to'rtta do'stiga teng bo'ladi. U hisoblab, har biriga oltitadan, qoldiqda esa oltita bo'ladi deydi. U haqmi?", en: 'Zaynab is sharing thirty sweets equally between four friends. She worked it out and says it comes to six each with six left over. Is she right?' },
+      on_correct: { ru: 'Хорошо. Чтобы понять, права ли Зайнаб, сначала разберёмся, как вообще работает деление уголком.', uz: "Yaxshi. Zaynab haqligini tushunish uchun, avval bo'lish burchak usulida qanday ishlashini ko'rib chiqamiz.", en: 'Good. To see whether Zaynab is right, let us first work out how long division works at all.' },
+      on_wrong: { ru: 'Хорошо. Чтобы понять, права ли Зайнаб, сначала разберёмся, как вообще работает деление уголком.', uz: "Yaxshi. Zaynab haqligini tushunish uchun, avval bo'lish burchak usulida qanday ishlashini ko'rib chiqamiz.", en: 'Good. To see whether Zaynab is right, let us first work out how long division works at all.' }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Как работает деление уголком', uz: "Burchak usulida bo'lish qanday ishlaydi" },
-    intro: { ru: 'Делим уголком слева направо. На каждом шаге берём неполное делимое: делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру.', uz: "Burchak usulida chapdan o'ngga bo'lamiz. Har qadamda to'liqsiz bo'linuvchini olamiz: bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz." },
-    step1_label: { ru: 'Первое неполное делимое — 9', uz: "Birinchi to'liqsiz bo'linuvchi — 9" },
-    step1_text: { ru: '9 на 4 — это 2. Умножаем 2 на 4, получаем 8, вычитаем из 9 — остаётся 1.', uz: "9 ni 4 ga — bu 2. 2 ni 4 ga ko'paytiramiz, 8 chiqadi, 9 dan ayiramiz — 1 qoladi." },
-    step2_label: { ru: 'Сносим 3 — неполное делимое 13', uz: "3 ni tushiramiz — to'liqsiz bo'linuvchi 13" },
-    step2_text: { ru: '13 на 4 — это 3. Умножаем 3 на 4, получаем 12, вычитаем — остаётся 1.', uz: "13 ni 4 ga — bu 3. 3 ni 4 ga ko'paytiramiz, 12 chiqadi, ayiramiz — 1 qoladi." },
-    step3_label: { ru: 'Сносим 6 — неполное делимое 16', uz: "6 ni tushiramiz — to'liqsiz bo'linuvchi 16" },
-    step3_text: { ru: '16 на 4 равно 4. Умножаем 4 на 4, получаем 16, вычитаем — остаётся 0. Частное 234.', uz: "16 ni 4 ga teng 4. 4 ni 4 ga ko'paytiramiz, 16 chiqadi, ayiramiz — 0 qoladi. Bo'linma 234." },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Как работает деление уголком', uz: "Burchak usulida bo'lish qanday ishlaydi", en: 'How long division works' },
+    intro: { ru: 'Делим уголком слева направо. На каждом шаге берём неполное делимое: делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру.', uz: "Burchak usulida chapdan o'ngga bo'lamiz. Har qadamda to'liqsiz bo'linuvchini olamiz: bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz.", en: 'We divide from left to right. At each step we take a part of the number to divide: we divide, multiply the digit of the answer by the divisor, subtract and bring down the next digit.' },
+    step1_label: { ru: 'Первое неполное делимое — 9', uz: "Birinchi to'liqsiz bo'linuvchi — 9", en: 'The first part to divide is 9' },
+    step1_text: { ru: '9 на 4 — это 2. Умножаем 2 на 4, получаем 8, вычитаем из 9 — остаётся 1.', uz: "9 ni 4 ga — bu 2. 2 ni 4 ga ko'paytiramiz, 8 chiqadi, 9 dan ayiramiz — 1 qoladi.", en: '9 divided by 4 is 2. We multiply 2 by 4, get 8, take it from 9 and 1 is left.' },
+    step2_label: { ru: 'Сносим 3 — неполное делимое 13', uz: "3 ni tushiramiz — to'liqsiz bo'linuvchi 13", en: 'We bring down the 3, so the part to divide is 13' },
+    step2_text: { ru: '13 на 4 — это 3. Умножаем 3 на 4, получаем 12, вычитаем — остаётся 1.', uz: "13 ni 4 ga — bu 3. 3 ni 4 ga ko'paytiramiz, 12 chiqadi, ayiramiz — 1 qoladi.", en: '13 divided by 4 is 3. We multiply 3 by 4, get 12, take it away and 1 is left.' },
+    step3_label: { ru: 'Сносим 6 — неполное делимое 16', uz: "6 ni tushiramiz — to'liqsiz bo'linuvchi 16", en: 'We bring down the 6, so the part to divide is 16' },
+    step3_text: { ru: '16 на 4 равно 4. Умножаем 4 на 4, получаем 16, вычитаем — остаётся 0. Частное 234.', uz: "16 ni 4 ga teng 4. 4 ni 4 ga ko'paytiramiz, 16 chiqadi, ayiramiz — 0 qoladi. Bo'linma 234.", en: '16 divided by 4 is 4. We multiply 4 by 4, get 16, take it away and 0 is left. The answer is 234.' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Первое неполное делимое, девять. Девять на четыре, это два. Умножаем два на четыре, получается восемь, вычитаем из девяти, остаётся один.',
@@ -1106,21 +1132,22 @@ const CONTENT = {
         "Birinchi to'liqsiz bo'linuvchi, to'qqiz. To'qqizni to'rtga, bu ikki. Ikkini to'rtga ko'paytiramiz, sakkiz chiqadi, to'qqizdan ayiramiz, bir qoladi.",
         "Uchni tushiramiz, to'liqsiz bo'linuvchi o'n uch. O'n uchni to'rtga, bu uch. Uchni to'rtga ko'paytiramiz, o'n ikki chiqadi, ayiramiz, bir qoladi.",
         "Oltini tushiramiz, to'liqsiz bo'linuvchi o'n olti. O'n oltini to'rtga teng to'rt. To'rtni to'rtga ko'paytiramiz, o'n olti chiqadi, ayiramiz, nol qoladi. Bo'linma ikki yuz o'ttiz to'rt. Endi bo'linmada nol paydo bo'lganda nima bo'lishini ko'ramiz."
-      ]
+      ],
+      en: ['The first part to divide is nine. Nine divided by four is two. We multiply two by four, get eight, take it from nine and one is left.', 'We bring down the three, so the part to divide is thirteen. Thirteen divided by four is three. We multiply three by four, get twelve, take it away and one is left.', 'We bring down the six, so the part to divide is sixteen. Sixteen divided by four is four. We multiply four by four, get sixteen, take it away and zero is left. The answer is two hundred and thirty four. Now let us see what happens when a zero appears in the answer.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Когда в частном появляется ноль', uz: "Bo'linmada nol qachon paydo bo'ladi" },
-    intro: { ru: 'Иногда неполное делимое меньше делителя — оно делится 0 раз. Тогда в частное ставим ноль и сносим следующую цифру. Пропускать ноль нельзя.', uz: "Ba'zan to'liqsiz bo'linuvchi bo'luvchidan kichik bo'ladi — u 0 marta bo'linadi. Shunda bo'linmaga nol qo'yamiz va keyingi raqamni tushiramiz. Nolni tashlab ketib bo'lmaydi." },
-    step1_label: { ru: 'Первое неполное делимое — 6', uz: "Birinchi to'liqsiz bo'linuvchi — 6" },
-    step1_text: { ru: '6 на 6 равно 1. Умножаем 1 на 6, вычитаем — остаётся 0.', uz: "6 ni 6 ga teng 1. 1 ni 6 ga ko'paytiramiz, ayiramiz — 0 qoladi." },
-    step2_label: { ru: 'Сносим 1 — неполное делимое 1', uz: "1 ni tushiramiz — to'liqsiz bo'linuvchi 1" },
-    step2_text: { ru: '1 меньше 6 — делится 0 раз. Пишем в частное ноль и сносим дальше.', uz: "1 son 6 dan kichik — 0 marta bo'linadi. Bo'linmaga nol yozamiz va davom etamiz." },
-    step3_label: { ru: 'Сносим 8 — неполное делимое 18', uz: "8 ni tushiramiz — to'liqsiz bo'linuvchi 18" },
-    step3_text: { ru: '18 на 6 равно 3. Частное 103. Без нуля вышло бы 13 — на разряд короче и неверно.', uz: "18 ni 6 ga teng 3. Bo'linma 103. Nolsiz 13 chiqardi — bir xonaga qisqa va noto'g'ri." },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Когда в частном появляется ноль', uz: "Bo'linmada nol qachon paydo bo'ladi", en: 'When a zero appears in the answer' },
+    intro: { ru: 'Иногда неполное делимое меньше делителя — оно делится 0 раз. Тогда в частное ставим ноль и сносим следующую цифру. Пропускать ноль нельзя.', uz: "Ba'zan to'liqsiz bo'linuvchi bo'luvchidan kichik bo'ladi — u 0 marta bo'linadi. Shunda bo'linmaga nol qo'yamiz va keyingi raqamni tushiramiz. Nolni tashlab ketib bo'lmaydi.", en: 'Sometimes the part to divide is smaller than the divisor, so it goes 0 times. Then we put a zero in the answer and bring down the next digit. The zero must not be skipped.' },
+    step1_label: { ru: 'Первое неполное делимое — 6', uz: "Birinchi to'liqsiz bo'linuvchi — 6", en: 'The first part to divide is 6' },
+    step1_text: { ru: '6 на 6 равно 1. Умножаем 1 на 6, вычитаем — остаётся 0.', uz: "6 ni 6 ga teng 1. 1 ni 6 ga ko'paytiramiz, ayiramiz — 0 qoladi.", en: '6 divided by 6 is 1. We multiply 1 by 6, take it away and 0 is left.' },
+    step2_label: { ru: 'Сносим 1 — неполное делимое 1', uz: "1 ni tushiramiz — to'liqsiz bo'linuvchi 1", en: 'We bring down the 1, so the part to divide is 1' },
+    step2_text: { ru: '1 меньше 6 — делится 0 раз. Пишем в частное ноль и сносим дальше.', uz: "1 son 6 dan kichik — 0 marta bo'linadi. Bo'linmaga nol yozamiz va davom etamiz.", en: '1 is smaller than 6, so it goes 0 times. We put a zero in the answer and bring down the next digit.' },
+    step3_label: { ru: 'Сносим 8 — неполное делимое 18', uz: "8 ni tushiramiz — to'liqsiz bo'linuvchi 18", en: 'We bring down the 8, so the part to divide is 18' },
+    step3_text: { ru: '18 на 6 равно 3. Частное 103. Без нуля вышло бы 13 — на разряд короче и неверно.', uz: "18 ni 6 ga teng 3. Bo'linma 103. Nolsiz 13 chiqardi — bir xonaga qisqa va noto'g'ri.", en: '18 divided by 6 is 3. The answer is 103. Without the zero it would come out as 13, one place shorter and wrong.' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Первое неполное делимое, шесть. Шесть на шесть равно один. Умножаем один на шесть, вычитаем, остаётся ноль.',
@@ -1131,72 +1158,74 @@ const CONTENT = {
         "Birinchi to'liqsiz bo'linuvchi, olti. Oltini oltiga teng bir. Birni oltiga ko'paytiramiz, ayiramiz, nol qoladi.",
         "Birni tushiramiz, to'liqsiz bo'linuvchi bir. Ammo bir oltidan kichik, nol marta bo'linadi. Shuning uchun bo'linmaga nol yozamiz va davom etamiz.",
         "Sakkizni tushiramiz, to'liqsiz bo'linuvchi o'n sakkiz. O'n sakkizni oltiga teng uch. Bo'linma bir yuz uch. Nolni tashlab ketsak, o'n uch chiqadi, bu bir xonaga qisqa va noto'g'ri. Buni misollarda ko'rdik. Endi hammasini bitta qoidaga jamlaymiz."
-      ]
+      ],
+      en: ['The first part to divide is six. Six divided by six is one. We multiply one by six, take it away and zero is left.', 'We bring down the one, so the part to divide is one. But one is smaller than six, so it goes zero times. That is why we write a zero in the answer and bring down the next digit.', 'We bring down the eight, so the part to divide is eighteen. Eighteen divided by six is three. The answer is one hundred and three. If you skip the zero you get thirteen, which is one place shorter and wrong. We have worked through the examples. Now let us gather it all into one rule.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Деление уголком', uz: "Burchak usulida bo'lish" },
-    rule_1: { ru: 'Выделяем первое неполное делимое — наименьшую левую часть, которая делится на делитель. Сколько неполных делимых, столько цифр в частном.', uz: "Birinchi to'liqsiz bo'linuvchini ajratamiz — bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi." },
-    rule_2: { ru: 'Делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру — получаем новое неполное делимое.', uz: "Bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz — yangi to'liqsiz bo'linuvchi hosil bo'ladi." },
-    rule_3: { ru: 'Если неполное делимое меньше делителя — в частное ставим ноль и сносим дальше.', uz: "To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa — bo'linmaga nol qo'yamiz va davom etamiz." },
-    term: { ru: 'Неполное делимое — часть числа, которую делим на этом шаге. Делимое — что делим целиком, делитель — на что делим, частное — результат.', uz: "To'liqsiz bo'linuvchi — shu qadamda bo'linadigan qism. Bo'linuvchi — butun bo'linadigan son, bo'luvchi — nimaga bo'lsak, bo'linma — natija." },
-    example: { ru: '936 : 4 = 234', uz: '936 : 4 = 234' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Деление уголком', uz: "Burchak usulida bo'lish", en: 'Long division' },
+    rule_1: { ru: 'Выделяем первое неполное делимое — наименьшую левую часть, которая делится на делитель. Сколько неполных делимых, столько цифр в частном.', uz: "Birinchi to'liqsiz bo'linuvchini ajratamiz — bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi.", en: 'We pick out the first part to divide, the smallest part on the left that the divisor goes into. However many such parts there are, that is how many digits the answer has.' },
+    rule_2: { ru: 'Делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру — получаем новое неполное делимое.', uz: "Bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz — yangi to'liqsiz bo'linuvchi hosil bo'ladi.", en: 'We divide, multiply the digit of the answer by the divisor, subtract and bring down the next digit, which gives a new part to divide.' },
+    rule_3: { ru: 'Если неполное делимое меньше делителя — в частное ставим ноль и сносим дальше.', uz: "To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa — bo'linmaga nol qo'yamiz va davom etamiz.", en: 'If the part to divide is smaller than the divisor, we put a zero in the answer and bring down the next digit.' },
+    term: { ru: 'Неполное делимое — часть числа, которую делим на этом шаге. Делимое — что делим целиком, делитель — на что делим, частное — результат.', uz: "To'liqsiz bo'linuvchi — shu qadamda bo'linadigan qism. Bo'linuvchi — butun bo'linadigan son, bo'luvchi — nimaga bo'lsak, bo'linma — natija.", en: 'The part to divide is the piece of the number we are dividing at this step. The dividend is what we divide in full, the divisor is what we divide by, and the quotient is the result.' },
+    example: { ru: '936 : 4 = 234', uz: '936 : 4 = 234', en: '936 : 4 = 234' },
     audio: {
       ru: 'Запомним правило. Сначала выделяем первое неполное делимое, наименьшую левую часть, которая делится на делитель. Сколько неполных делимых, столько цифр в частном. Дальше на каждом шаге делим, умножаем цифру частного на делитель, вычитаем и сносим следующую цифру. Если неполное делимое меньше делителя, в частное ставим ноль. В конце проверяем умножением. Частное умножить на делитель даёт делимое. Теперь потренируйся сам.',
-      uz: "Qoidani eslab qolamiz. Avval birinchi to'liqsiz bo'linuvchini ajratamiz, bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi. Keyin har qadamda bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz. To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa, bo'linmaga nol qo'yamiz. Oxirida ko'paytirib tekshiramiz. Bo'linmani bo'luvchiga ko'paytirsak, bo'linuvchi chiqadi. Endi o'zingiz mashq qiling."
+      uz: "Qoidani eslab qolamiz. Avval birinchi to'liqsiz bo'linuvchini ajratamiz, bo'luvchiga bo'linadigan eng kichik chap qism. Nechta to'liqsiz bo'linuvchi bo'lsa, bo'linmada shuncha raqam bo'ladi. Keyin har qadamda bo'lamiz, bo'linma raqamini bo'luvchiga ko'paytiramiz, ayiramiz va keyingi raqamni tushiramiz. To'liqsiz bo'linuvchi bo'luvchidan kichik bo'lsa, bo'linmaga nol qo'yamiz. Oxirida ko'paytirib tekshiramiz. Bo'linmani bo'luvchiga ko'paytirsak, bo'linuvchi chiqadi. Endi o'zingiz mashq qiling.",
+      en: 'Let us remember the rule. First we pick out the first part to divide, the smallest part on the left that the divisor goes into. However many such parts there are, that is how many digits the answer has. Then at each step we divide, multiply the digit of the answer by the divisor, subtract and bring down the next digit. If the part to divide is smaller than the divisor, we put a zero in the answer. At the end we check by multiplying: the answer times the divisor gives the number we started with. Now practise it yourself.'
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1' },
-    label: { ru: 'Раздели сам', uz: "O'zingiz bo'ling" },
-    question: { ru: 'Мадина раздаёт 945 наклеек поровну на 3 команды. Сколько каждой? 945 : 3.', uz: "Madina 945 ta stikerni 3 ta jamoaga teng bo'ladi. Har biriga nechtadan? 945 : 3." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1', en: 'Practice · 1 of 2' },
+    label: { ru: 'Раздели сам', uz: "O'zingiz bo'ling", en: 'Divide it yourself' },
+    question: { ru: 'Мадина раздаёт 945 наклеек поровну на 3 команды. Сколько каждой? 945 : 3.', uz: "Madina 945 ta stikerni 3 ta jamoaga teng bo'ladi. Har biriga nechtadan? 945 : 3.", en: 'Madina is sharing 945 stickers equally between 3 teams. How many does each get? 945 : 3.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '315',
-    hint: { ru: 'Делим слева направо: 9 на 3, потом 4 на 3 с остатком, снеси 5.', uz: "Chapdan o'ngga bo'lamiz: 9 ni 3 ga, keyin 4 ni 3 ga qoldiq bilan, 5 ni tushiring." },
-    fb_correct: { ru: 'Правильно. 9 на 3 равно 3, 4 на 3 равно 1 и остаётся 1, сносим 5 — 15 на 3 равно 5. Итог 315.', uz: "To'g'ri. 9 ni 3 ga bo'lsak 3, 4 ni 3 ga bo'lsak 1 va 1 ortadi, 5 ni tushiramiz — 15 ni 3 ga bo'lsak 5. Natija 315." },
-    fb_wrong: { ru: 'Верный ответ — 315. Делим по разрядам слева направо: 9 на 3, затем 4 на 3 с остатком 1, сносим 5 и делим 15 на 3.', uz: "To'g'ri javob — 315. Xonalar bo'yicha chapdan o'ngga bo'lamiz: 9 ni 3 ga, keyin 4 ni 3 ga qoldiq 1 bilan, 5 ni tushirib, 15 ni 3 ga bo'lamiz." },
+    hint: { ru: 'Делим слева направо: 9 на 3, потом 4 на 3 с остатком, снеси 5.', uz: "Chapdan o'ngga bo'lamiz: 9 ni 3 ga, keyin 4 ni 3 ga qoldiq bilan, 5 ni tushiring.", en: 'Divide from left to right: 9 by 3, then 4 by 3 with something left over, then bring down the 5.' },
+    fb_correct: { ru: 'Правильно. 9 на 3 равно 3, 4 на 3 равно 1 и остаётся 1, сносим 5 — 15 на 3 равно 5. Итог 315.', uz: "To'g'ri. 9 ni 3 ga bo'lsak 3, 4 ni 3 ga bo'lsak 1 va 1 ortadi, 5 ni tushiramiz — 15 ni 3 ga bo'lsak 5. Natija 315.", en: 'Correct. 9 divided by 3 is 3, 4 divided by 3 is 1 with 1 left, we bring down the 5 and 15 divided by 3 is 5. The answer is 315.' },
+    fb_wrong: { ru: 'Верный ответ — 315. Делим по разрядам слева направо: 9 на 3, затем 4 на 3 с остатком 1, сносим 5 и делим 15 на 3.', uz: "To'g'ri javob — 315. Xonalar bo'yicha chapdan o'ngga bo'lamiz: 9 ni 3 ga, keyin 4 ni 3 ga qoldiq 1 bilan, 5 ni tushirib, 15 ni 3 ga bo'lamiz.", en: 'The right answer is 315. We divide place by place from left to right: 9 by 3, then 4 by 3 with 1 left, then bring down the 5 and divide 15 by 3.' },
     audio: {
-      intro: { ru: 'Мадина раздаёт девятьсот сорок пять наклеек поровну на три команды. Сколько достанется каждой? Введи ответ и нажми кнопку проверить.', uz: "Madina to'qqiz yuz qirq besh stikerni uch jamoaga teng bo'ladi. Har biriga nechtadan tegadi? Javobni kiriting va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Попробуем ещё один пример.', uz: "To'g'ri. Yana bitta misol ko'ramiz." },
-      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." }
+      intro: { ru: 'Мадина раздаёт девятьсот сорок пять наклеек поровну на три команды. Сколько достанется каждой? Введи ответ и нажми кнопку проверить.', uz: "Madina to'qqiz yuz qirq besh stikerni uch jamoaga teng bo'ladi. Har biriga nechtadan tegadi? Javobni kiriting va tekshirish tugmasini bosing.", en: 'Madina is sharing nine hundred and forty five stickers equally between three teams. How many does each team get? Type the answer and tap the check button.' },
+      on_correct: { ru: 'Верно. Попробуем ещё один пример.', uz: "To'g'ri. Yana bitta misol ko'ramiz.", en: 'That is right. Let us try one more example.' },
+      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring.", en: 'Not quite. Look at the hint and try again.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2' },
-    label: { ru: 'Найди верное частное', uz: "To'g'ri bo'linmani toping" },
-    question: { ru: 'Сколько будет 824 : 4?', uz: '824 : 4 nechaga teng?' },
-    opt0: { ru: '26 — без нуля в середине', uz: "26 — o'rtada nolsiz" },
-    opt1: { ru: '206 — делится точно', uz: "206 — qoldiqsiz bo'linadi" },
-    opt2: { ru: '260 — ноль в конце', uz: '260 — nol oxirida' },
+    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2', en: 'Practice · 2 of 2' },
+    label: { ru: 'Найди верное частное', uz: "To'g'ri bo'linmani toping", en: 'Find the right answer' },
+    question: { ru: 'Сколько будет 824 : 4?', uz: '824 : 4 nechaga teng?', en: 'How much is 824 : 4?' },
+    opt0: { ru: '26 — без нуля в середине', uz: "26 — o'rtada nolsiz", en: '26, with no zero in the middle' },
+    opt1: { ru: '206 — делится точно', uz: "206 — qoldiqsiz bo'linadi", en: '206, it divides exactly' },
+    opt2: { ru: '260 — ноль в конце', uz: '260 — nol oxirida', en: '260, with a zero at the end' },
     correctIndex: 1,
     order: [1, 0, 2],
-    hint: { ru: 'После первой цифры посмотри: делится ли следующее число на 4? Если нет — поставь ноль и сноси дальше.', uz: "Birinchi raqamdan keyin qarang: keyingi son 4 ga bo'linadimi? Bo'linmasa — nol qo'ying va davom eting." },
-    correct_text: { ru: 'Правильно. После первой цифры 2 не делится на 4 — ставим ноль и сносим дальше: 24 на 4 равно 6. Выходит 206.', uz: "To'g'ri. Birinchi raqamdan keyin 2 ni 4 ga bo'lib bo'lmaydi — nol qo'yib davom etamiz: 24 ni 4 ga bo'lsak 6. 206 chiqadi." },
-    wrong_0: { ru: 'Ноль пропущен. Здесь 2 не делится на 4 — нужен ноль, иначе частное теряет разряд.', uz: "Nol tushib qolgan. Bu yerda 2 ni 4 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma xonasini yo'qotadi." },
-    wrong_2: { ru: 'Ноль не на месте. Он возникает в середине, когда 2 не делится на 4, а не в конце.', uz: "Nol joyida emas. U o'rtada, 2 ni 4 ga bo'lib bo'lmaganda paydo bo'ladi, oxirida emas." },
-    wrong_default: { ru: 'Делим слева направо; если число не делится — ставим ноль и сносим дальше.', uz: "Chapdan o'ngga bo'lamiz; son bo'linmasa — nol qo'yib davom etamiz." },
+    hint: { ru: 'После первой цифры посмотри: делится ли следующее число на 4? Если нет — поставь ноль и сноси дальше.', uz: "Birinchi raqamdan keyin qarang: keyingi son 4 ga bo'linadimi? Bo'linmasa — nol qo'ying va davom eting.", en: 'After the first digit, see whether the next number can be divided by 4. If not, put a zero and bring down the next digit.' },
+    correct_text: { ru: 'Правильно. После первой цифры 2 не делится на 4 — ставим ноль и сносим дальше: 24 на 4 равно 6. Выходит 206.', uz: "To'g'ri. Birinchi raqamdan keyin 2 ni 4 ga bo'lib bo'lmaydi — nol qo'yib davom etamiz: 24 ni 4 ga bo'lsak 6. 206 chiqadi.", en: 'Correct. After the first digit 2 cannot be divided by 4, so we put a zero and bring down the next digit: 24 divided by 4 is 6. That gives 206.' },
+    wrong_0: { ru: 'Ноль пропущен. Здесь 2 не делится на 4 — нужен ноль, иначе частное теряет разряд.', uz: "Nol tushib qolgan. Bu yerda 2 ni 4 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma xonasini yo'qotadi.", en: 'The zero was skipped. Here 2 cannot be divided by 4, so a zero is needed, otherwise the answer loses a place.' },
+    wrong_2: { ru: 'Ноль не на месте. Он возникает в середине, когда 2 не делится на 4, а не в конце.', uz: "Nol joyida emas. U o'rtada, 2 ni 4 ga bo'lib bo'lmaganda paydo bo'ladi, oxirida emas.", en: 'The zero is in the wrong place. It comes in the middle, where 2 cannot be divided by 4, not at the end.' },
+    wrong_default: { ru: 'Делим слева направо; если число не делится — ставим ноль и сносим дальше.', uz: "Chapdan o'ngga bo'lamiz; son bo'linmasa — nol qo'yib davom etamiz.", en: 'We divide from left to right, and if a number cannot be divided we put a zero and bring down the next digit.' },
     audio: {
-      intro: { ru: 'Сколько будет восемьсот двадцать четыре разделить на четыре? Выбери ответ.', uz: "Sakkiz yuz yigirma to'rtni to'rtga bo'lsak, nechaga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Деление выходит ровным не всегда, дальше узнаем, откуда берётся остаток.', uz: "To'g'ri. Bo'lish doim qoldiqsiz bo'lavermaydi, keyin qoldiq qayerdan paydo bo'lishini bilamiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
+      intro: { ru: 'Сколько будет восемьсот двадцать четыре разделить на четыре? Выбери ответ.', uz: "Sakkiz yuz yigirma to'rtni to'rtga bo'lsak, nechaga teng? Javobni tanlang.", en: 'How much is eight hundred and twenty four divided by four? Choose an answer.' },
+      on_correct: { ru: 'Верно. Деление выходит ровным не всегда, дальше узнаем, откуда берётся остаток.', uz: "To'g'ri. Bo'lish doim qoldiqsiz bo'lavermaydi, keyin qoldiq qayerdan paydo bo'lishini bilamiz.", en: 'That is right. Division does not always come out exactly, and next we will find out where the remainder comes from.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Откуда берётся остаток', uz: "Qoldiq qayerdan paydo bo'ladi" },
-    intro: { ru: '23 предмета раздаём поровну в 5 групп. Кладём по одному по кругу, пока хватает.', uz: "23 ta narsani 5 ta guruhga teng bo'lamiz. Yetguncha aylana bo'ylab bittadan qo'yamiz." },
-    step1_label: { ru: 'Раздаём по кругу', uz: "Aylana bo'ylab tarqatamiz" },
-    step1_text: { ru: 'Прошли круг — по 1, ушло 5. Ещё круги: по 2 — это 10, по 3 — 15, по 4 — 20.', uz: "Bir aylana — 1 tadan, 5 tasi ketdi. Yana: 2 tadan — bu 10, 3 tadan — 15, 4 tadan — 20." },
-    step2_label: { ru: 'Что осталось', uz: 'Nima qoldi' },
-    step2_text: { ru: 'Раздали по 4, ушло 20. Осталось 3 предмета — на новый полный круг их не хватает.', uz: "4 tadan tarqatdik, 20 tasi ketdi. 3 ta narsa qoldi — yangi to'liq aylanaga yetmaydi." },
-    step3_label: { ru: 'Остаток меньше делителя', uz: "Qoldiq bo'luvchidan kichik" },
-    step3_text: { ru: 'Каждой группе досталось 4, осталось 3. Остаток 3 меньше 5 — иначе раздали бы ещё по одному. Пишем 23 : 5 = 4, остаток 3.', uz: "Har guruhga 4 tadan tegdi, 3 ta qoldi. Qoldiq 3 beshdan kichik — aks holda yana bittadan tarqatardik. 23 : 5 = 4, qoldiq 3 deb yozamiz." },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Откуда берётся остаток', uz: "Qoldiq qayerdan paydo bo'ladi", en: 'Where the remainder comes from' },
+    intro: { ru: '23 предмета раздаём поровну в 5 групп. Кладём по одному по кругу, пока хватает.', uz: "23 ta narsani 5 ta guruhga teng bo'lamiz. Yetguncha aylana bo'ylab bittadan qo'yamiz.", en: 'We share 23 things equally between 5 groups. We put one in each, round and round, for as long as they last.' },
+    step1_label: { ru: 'Раздаём по кругу', uz: "Aylana bo'ylab tarqatamiz", en: 'Handing them out round and round' },
+    step1_text: { ru: 'Прошли круг — по 1, ушло 5. Ещё круги: по 2 — это 10, по 3 — 15, по 4 — 20.', uz: "Bir aylana — 1 tadan, 5 tasi ketdi. Yana: 2 tadan — bu 10, 3 tadan — 15, 4 tadan — 20.", en: 'One round round gives 1 each and uses 5. More rounds: 2 each is 10, 3 each is 15, 4 each is 20.' },
+    step2_label: { ru: 'Что осталось', uz: 'Nima qoldi', en: 'What is left' },
+    step2_text: { ru: 'Раздали по 4, ушло 20. Осталось 3 предмета — на новый полный круг их не хватает.', uz: "4 tadan tarqatdik, 20 tasi ketdi. 3 ta narsa qoldi — yangi to'liq aylanaga yetmaydi.", en: 'We gave out 4 each and used 20. Three things are left, which is not enough for another full round.' },
+    step3_label: { ru: 'Остаток меньше делителя', uz: "Qoldiq bo'luvchidan kichik", en: 'The remainder is smaller than the divisor' },
+    step3_text: { ru: 'Каждой группе досталось 4, осталось 3. Остаток 3 меньше 5 — иначе раздали бы ещё по одному. Пишем 23 : 5 = 4, остаток 3.', uz: "Har guruhga 4 tadan tegdi, 3 ta qoldi. Qoldiq 3 beshdan kichik — aks holda yana bittadan tarqatardik. 23 : 5 = 4, qoldiq 3 deb yozamiz.", en: 'Each group got 4 and 3 are left. The remainder 3 is smaller than 5, otherwise we would have given out one more each. We write 23 : 5 = 4 remainder 3.' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Двадцать три предмета раздаём поровну в пять групп. Кладём по одному по кругу. Один круг, по одному, ушло пять, дальше по два, по три, по четыре.',
@@ -1207,147 +1236,150 @@ const CONTENT = {
         "Yigirma uchta narsani besh guruhga teng bo'lamiz. Aylana bo'ylab bittadan qo'yamiz. Bir aylana, bittadan, beshtasi ketdi, keyin ikkitadan, uchtadan, to'rttadan.",
         "To'rttadan tarqatdik, yigirmatasi ketdi. Uchta narsa qoldi, yangi to'liq aylanaga endi yetmaydi.",
         "Demak, har guruhga to'rttadan tegdi, qoldiqda uchta. Qoldiq uch beshdan kichik, aks holda yana bittadan tarqatardik. Yozamiz. Yigirma uchni beshga bo'lamiz teng to'rt, qoldiq uch. Endi buni qoldiqli bo'lish qoidasi sifatida rasmiylashtiramiz."
-      ]
+      ],
+      en: ['We share twenty three things equally between five groups. We put one in each, round and round. One round gives one each and uses five, then two each, three each, four each.', 'We gave out four each and used twenty. Three things are left, which is no longer enough for another full round.', 'So each group got four and three are left over. The remainder three is smaller than five, otherwise we would have given out one more each. We write it down: twenty three divided by five is four remainder three. Now let us set that out as the rule for division with a remainder.']
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Деление с остатком', uz: "Qoldiqli bo'lish" },
-    rule_1: { ru: 'Если число не делится нацело, в частном получаем неполное частное, а лишнее — остаток.', uz: "Son qoldiqsiz bo'linmasa, bo'linmada to'liqsiz bo'linma, ortig'i esa qoldiq bo'ladi." },
-    rule_2: { ru: 'Остаток всегда меньше делителя. Если он не меньше — деление не закончено.', uz: "Qoldiq har doim bo'luvchidan kichik. Agar kichik bo'lmasa — bo'lish tugamagan." },
-    term: { ru: 'В записи 23 : 5 = 4, остаток 3 число 4 — неполное частное, 3 — остаток.', uz: "23 : 5 = 4, qoldiq 3 yozuvida 4 — to'liqsiz bo'linma, 3 — qoldiq." },
-    example: { ru: '23 : 5 = 4 (остаток 3)', uz: '23 : 5 = 4 (qoldiq 3)' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Деление с остатком', uz: "Qoldiqli bo'lish", en: 'Division with a remainder' },
+    rule_1: { ru: 'Если число не делится нацело, в частном получаем неполное частное, а лишнее — остаток.', uz: "Son qoldiqsiz bo'linmasa, bo'linmada to'liqsiz bo'linma, ortig'i esa qoldiq bo'ladi.", en: 'If a number does not divide exactly, the answer is a whole number part and what is left over is the remainder.' },
+    rule_2: { ru: 'Остаток всегда меньше делителя. Если он не меньше — деление не закончено.', uz: "Qoldiq har doim bo'luvchidan kichik. Agar kichik bo'lmasa — bo'lish tugamagan.", en: 'The remainder is always smaller than the divisor. If it is not smaller, the division is not finished.' },
+    term: { ru: 'В записи 23 : 5 = 4, остаток 3 число 4 — неполное частное, 3 — остаток.', uz: "23 : 5 = 4, qoldiq 3 yozuvida 4 — to'liqsiz bo'linma, 3 — qoldiq.", en: 'In 23 : 5 = 4 remainder 3, the 4 is the whole number part and the 3 is the remainder.' },
+    example: { ru: '23 : 5 = 4 (остаток 3)', uz: '23 : 5 = 4 (qoldiq 3)', en: '23 : 5 = 4 (remainder 3)' },
     audio: {
       ru: 'Запомним правило. Если число не делится нацело, получаем неполное частное и остаток. Остаток всегда меньше делителя. Если он не меньше, деление ещё не закончено. Проверить можно так. Неполное частное умножить на делитель и прибавить остаток, должно выйти делимое. Закрепим это на задаче.',
-      uz: "Qoidani eslab qolamiz. Son qoldiqsiz bo'linmasa, to'liqsiz bo'linma va qoldiq chiqadi. Qoldiq har doim bo'luvchidan kichik. Agar kichik bo'lmasa, bo'lish hali tugamagan. Tekshirish. To'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqishi kerak. Buni masalada mustahkamlaymiz."
+      uz: "Qoidani eslab qolamiz. Son qoldiqsiz bo'linmasa, to'liqsiz bo'linma va qoldiq chiqadi. Qoldiq har doim bo'luvchidan kichik. Agar kichik bo'lmasa, bo'lish hali tugamagan. Tekshirish. To'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqishi kerak. Buni masalada mustahkamlaymiz.",
+      en: 'Let us remember the rule. If a number does not divide exactly, we get a whole number part and a remainder. The remainder is always smaller than the divisor. If it is not smaller, the division is not finished yet. You can check it like this: multiply the whole number part by the divisor and add the remainder, and you should get the number you started with. Let us fix that with a problem.'
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1' },
-    label: { ru: 'Раздели с остатком', uz: "Qoldiq bilan bo'ling" },
-    question: { ru: 'Алишер раскладывает 58 значков по 7 на стенд. Сколько полных стендов и сколько значков останется? 58 : 7.', uz: "Alisher 58 ta nishonni 7 tadan stendga teradi. Nechta to'liq stend va nechta nishon ortadi? 58 : 7." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Тренировка · 1 из 2', uz: 'Mashq · 2 dan 1', en: 'Practice · 1 of 2' },
+    label: { ru: 'Раздели с остатком', uz: "Qoldiq bilan bo'ling", en: 'Divide with a remainder' },
+    question: { ru: 'Алишер раскладывает 58 значков по 7 на стенд. Сколько полных стендов и сколько значков останется? 58 : 7.', uz: "Alisher 58 ta nishonni 7 tadan stendga teradi. Nechta to'liq stend va nechta nishon ortadi? 58 : 7.", en: 'Alisher is putting 58 badges onto boards, 7 to a board. How many full boards will there be and how many badges will be left? 58 : 7.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctQuotient: '8',
     correctRemainder: '2',
-    hint: { ru: 'Сколько раз 7 помещается в 58? Проверь умножением и найди, сколько осталось.', uz: "7 son 58 ga necha marta sig'adi? Ko'paytirib tekshiring va nechta qolishini toping." },
-    fb_correct: { ru: 'Правильно. 7 умножить на 8 равно 56, до 58 остаётся 2, и 2 меньше 7.', uz: "To'g'ri. 7 ni 8 ga ko'paytirsak 56, 58 gacha 2 qoladi, 2 esa 7 dan kichik." },
-    fb_wrong: { ru: 'Верный ответ — 8, остаток 2. 7 помещается в 58 восемь раз, это 56, остаётся 2. Остаток меньше делителя.', uz: "To'g'ri javob — 8, qoldiq 2. 7 son 58 ga sakkiz marta sig'adi, bu 56, 2 qoladi. Qoldiq bo'luvchidan kichik." },
+    hint: { ru: 'Сколько раз 7 помещается в 58? Проверь умножением и найди, сколько осталось.', uz: "7 son 58 ga necha marta sig'adi? Ko'paytirib tekshiring va nechta qolishini toping.", en: 'How many times does 7 fit into 58? Check by multiplying and find how many are left.' },
+    fb_correct: { ru: 'Правильно. 7 умножить на 8 равно 56, до 58 остаётся 2, и 2 меньше 7.', uz: "To'g'ri. 7 ni 8 ga ko'paytirsak 56, 58 gacha 2 qoladi, 2 esa 7 dan kichik.", en: 'Correct. 7 times 8 is 56, and 2 more makes 58, and 2 is smaller than 7.' },
+    fb_wrong: { ru: 'Верный ответ — 8, остаток 2. 7 помещается в 58 восемь раз, это 56, остаётся 2. Остаток меньше делителя.', uz: "To'g'ri javob — 8, qoldiq 2. 7 son 58 ga sakkiz marta sig'adi, bu 56, 2 qoladi. Qoldiq bo'luvchidan kichik.", en: 'The right answer is 8 remainder 2. 7 fits into 58 eight times, which is 56, and 2 are left. The remainder is smaller than the divisor.' },
     audio: {
-      intro: { ru: 'Алишер раскладывает пятьдесят восемь значков по семь на стенд. Сколько выйдет полных стендов и сколько значков останется? Введи неполное частное и остаток, потом нажми кнопку проверить.', uz: "Alisher ellik sakkiz nishonni har stendga yettitadan teradi. Nechta to'liq stend chiqadi va nechta nishon ortadi? To'liqsiz bo'linma va qoldiqni kiriting, so'ng tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Вернёмся к задаче про Зайнаб с начала урока.', uz: "To'g'ri. Endi dars boshidagi Zaynab masalasiga qaytamiz." },
-      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." }
+      intro: { ru: 'Алишер раскладывает пятьдесят восемь значков по семь на стенд. Сколько выйдет полных стендов и сколько значков останется? Введи неполное частное и остаток, потом нажми кнопку проверить.', uz: "Alisher ellik sakkiz nishonni har stendga yettitadan teradi. Nechta to'liq stend chiqadi va nechta nishon ortadi? To'liqsiz bo'linma va qoldiqni kiriting, so'ng tekshirish tugmasini bosing.", en: 'Alisher is putting fifty eight badges onto boards, seven to a board. How many full boards will there be and how many badges will be left? Type the whole number part and the remainder, then tap the check button.' },
+      on_correct: { ru: 'Верно. Вернёмся к задаче про Зайнаб с начала урока.', uz: "To'g'ri. Endi dars boshidagi Zaynab masalasiga qaytamiz.", en: "That is right. Let us go back to Zaynab's problem from the start of the lesson." },
+      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring.", en: 'Not quite. Look at the hint and try again.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2' },
-    label: { ru: 'Сколько каждому и сколько лишних', uz: 'Har biriga nechtadan va nechta ortadi' },
-    question: { ru: 'Вернёмся к Зайнаб: 30 конфет на 4 друзей. Сколько каждому и сколько останется? 30 : 4.', uz: "Zaynabga qaytamiz: 30 konfet 4 do'stga. Har biriga nechtadan va nechta qoladi? 30 : 4." },
-    opt0: { ru: 'По 6, остаток 6', uz: '6 tadan, qoldiq 6' },
-    opt1: { ru: 'По 7, остаток 2', uz: '7 tadan, qoldiq 2' },
-    opt2: { ru: 'По 7, остаток 6', uz: '7 tadan, qoldiq 6' },
-    opt3: { ru: 'По 5, остаток 10', uz: '5 tadan, qoldiq 10' },
+    eyebrow: { ru: 'Тренировка · 2 из 2', uz: 'Mashq · 2 dan 2', en: 'Practice · 2 of 2' },
+    label: { ru: 'Сколько каждому и сколько лишних', uz: 'Har biriga nechtadan va nechta ortadi', en: 'How many each and how many left over' },
+    question: { ru: 'Вернёмся к Зайнаб: 30 конфет на 4 друзей. Сколько каждому и сколько останется? 30 : 4.', uz: "Zaynabga qaytamiz: 30 konfet 4 do'stga. Har biriga nechtadan va nechta qoladi? 30 : 4.", en: 'Back to Zaynab: 30 sweets between 4 friends. How many does each get and how many are left? 30 : 4.' },
+    opt0: { ru: 'По 6, остаток 6', uz: '6 tadan, qoldiq 6', en: '6 each, remainder 6' },
+    opt1: { ru: 'По 7, остаток 2', uz: '7 tadan, qoldiq 2', en: '7 each, remainder 2' },
+    opt2: { ru: 'По 7, остаток 6', uz: '7 tadan, qoldiq 6', en: '7 each, remainder 6' },
+    opt3: { ru: 'По 5, остаток 10', uz: '5 tadan, qoldiq 10', en: '5 each, remainder 10' },
     correctIndex: 1,
     order: [0, 2, 1, 3],
-    hint: { ru: 'Остаток должен быть меньше 4. Если он 4 или больше — раздай ещё по одной.', uz: "Qoldiq 4 dan kichik bo'lishi kerak. Agar 4 yoki katta bo'lsa — yana bittadan tarqating." },
-    correct_text: { ru: 'Правильно. 7 умножить на 4 равно 28, до 30 остаётся 2, и 2 меньше 4.', uz: "To'g'ri. 7 ni 4 ga ko'paytirsak 28, 30 gacha 2 qoladi, 2 esa 4 dan kichik." },
-    wrong_0: { ru: 'Это ошибка из начала урока. Остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной.', uz: "Bu darsning boshidagi xato. Qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin." },
-    wrong_2: { ru: 'Частное верное, а остаток нет. 7 умножить на 4 равно 28, остаётся не 6, а 2.', uz: "Bo'linma to'g'ri, qoldiq esa yo'q. 7 ni 4 ga ko'paytirsak 28, 6 emas, 2 qoladi." },
-    wrong_3: { ru: 'Деление остановлено слишком рано. Остаток 10 больше делителя 4 — раздаём ещё.', uz: "Bo'lish juda erta to'xtatilgan. Qoldiq 10 bo'luvchi 4 dan katta — yana tarqatamiz." },
-    wrong_default: { ru: 'Остаток должен быть меньше делителя.', uz: "Qoldiq bo'luvchidan kichik bo'lishi kerak." },
+    hint: { ru: 'Остаток должен быть меньше 4. Если он 4 или больше — раздай ещё по одной.', uz: "Qoldiq 4 dan kichik bo'lishi kerak. Agar 4 yoki katta bo'lsa — yana bittadan tarqating.", en: 'The remainder has to be smaller than 4. If it is 4 or more, hand out one more each.' },
+    correct_text: { ru: 'Правильно. 7 умножить на 4 равно 28, до 30 остаётся 2, и 2 меньше 4.', uz: "To'g'ri. 7 ni 4 ga ko'paytirsak 28, 30 gacha 2 qoladi, 2 esa 4 dan kichik.", en: 'Correct. 7 times 4 is 28, and 2 more makes 30, and 2 is smaller than 4.' },
+    wrong_0: { ru: 'Это ошибка из начала урока. Остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной.', uz: "Bu darsning boshidagi xato. Qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin.", en: 'That is the mistake from the start of the lesson. A remainder of 6 is bigger than the divisor 4, so everyone can be given one more.' },
+    wrong_2: { ru: 'Частное верное, а остаток нет. 7 умножить на 4 равно 28, остаётся не 6, а 2.', uz: "Bo'linma to'g'ri, qoldiq esa yo'q. 7 ni 4 ga ko'paytirsak 28, 6 emas, 2 qoladi.", en: 'The answer is right but the remainder is not. 7 times 4 is 28, so what is left is 2, not 6.' },
+    wrong_3: { ru: 'Деление остановлено слишком рано. Остаток 10 больше делителя 4 — раздаём ещё.', uz: "Bo'lish juda erta to'xtatilgan. Qoldiq 10 bo'luvchi 4 dan katta — yana tarqatamiz.", en: 'The division was stopped too early. A remainder of 10 is bigger than the divisor 4, so we hand out more.' },
+    wrong_default: { ru: 'Остаток должен быть меньше делителя.', uz: "Qoldiq bo'luvchidan kichik bo'lishi kerak.", en: 'The remainder has to be smaller than the divisor.' },
     audio: {
-      intro: { ru: 'Вернёмся к Зайнаб. Тридцать конфет нужно раздать поровну четырём друзьям. Сколько достанется каждому и сколько останется? Выбери ответ.', uz: "Zaynabga qaytamiz. O'ttizta konfetni to'rtta do'stga teng bo'lish kerak. Har biriga nechtadan tegadi va nechta qoladi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Теперь применим это к задаче побольше.', uz: "To'g'ri. Endi buni kattaroq masalaga qo'llaymiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
+      intro: { ru: 'Вернёмся к Зайнаб. Тридцать конфет нужно раздать поровну четырём друзьям. Сколько достанется каждому и сколько останется? Выбери ответ.', uz: "Zaynabga qaytamiz. O'ttizta konfetni to'rtta do'stga teng bo'lish kerak. Har biriga nechtadan tegadi va nechta qoladi? Javobni tanlang.", en: 'Back to Zaynab. Thirty sweets have to be shared equally between four friends. How many does each get and how many are left? Choose an answer.' },
+      on_correct: { ru: 'Верно. Теперь применим это к задаче побольше.', uz: "To'g'ri. Endi buni kattaroq masalaga qo'llaymiz.", en: 'That is right. Now let us use it on a bigger problem.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Задача · раскладка класса', uz: 'Masala · sinf terishi' },
-    title: { ru: 'Раскладка тетрадей', uz: 'Daftarlarni terish' },
-    intro: { ru: 'Класс 5-А получил 100 тетрадей. Их раскладывают по пачкам, в каждой пачке по 8 тетрадей. Поможем посчитать.', uz: "5-A sinf 100 ta daftar oldi. Ularni pachkalarga teradi, har pachkada 8 tadan daftar. Hisoblashga yordam beramiz." },
-    fact_1: { ru: 'Всего тетрадей — 100', uz: 'Jami daftar — 100' },
-    fact_2: { ru: 'В одной пачке — 8', uz: 'Bir pachkada — 8' },
-    cta: { ru: 'Помочь классу', uz: 'Sinfga yordam berish' },
+    eyebrow: { ru: 'Задача · раскладка класса', uz: 'Masala · sinf terishi', en: 'Problem · sorting for the class' },
+    title: { ru: 'Раскладка тетрадей', uz: 'Daftarlarni terish', en: 'Sorting the exercise books' },
+    intro: { ru: 'Класс 5-А получил 100 тетрадей. Их раскладывают по пачкам, в каждой пачке по 8 тетрадей. Поможем посчитать.', uz: "5-A sinf 100 ta daftar oldi. Ularni pachkalarga teradi, har pachkada 8 tadan daftar. Hisoblashga yordam beramiz.", en: 'Class 5-A received 100 exercise books. They are being put into bundles of 8. Let us help work it out.' },
+    fact_1: { ru: 'Всего тетрадей — 100', uz: 'Jami daftar — 100', en: 'There are 100 exercise books in all' },
+    fact_2: { ru: 'В одной пачке — 8', uz: 'Bir pachkada — 8', en: 'There are 8 in one bundle' },
+    cta: { ru: 'Помочь классу', uz: 'Sinfga yordam berish', en: 'Help the class' },
     audio: {
       ru: 'Класс пять А получил сто тетрадей. Их раскладывают по пачкам, в каждой пачке по восемь. Поможем посчитать, сколько выйдет полных пачек и сколько тетрадей останется. Посчитаем вместе.',
-      uz: "Besh A sinf yuzta daftar oldi. Ularni pachkalarga teradi, har pachkada sakkiztadan. Nechta to'liq pachka chiqishini va nechta daftar qolishini hisoblashga yordam beramiz. Birga hisoblaymiz."
+      uz: "Besh A sinf yuzta daftar oldi. Ularni pachkalarga teradi, har pachkada sakkiztadan. Nechta to'liq pachka chiqishini va nechta daftar qolishini hisoblashga yordam beramiz. Birga hisoblaymiz.",
+      en: 'Class five A received one hundred exercise books. They are being put into bundles of eight. Let us help work out how many full bundles there will be and how many books will be left. Let us do it together.'
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Задача · раскладка класса', uz: 'Masala · sinf terishi' },
-    label: { ru: 'Сколько пачек и сколько лишних', uz: 'Nechta pachka va nechta ortadi' },
-    question: { ru: 'Сколько выйдет полных пачек и сколько тетрадей останется? 100 : 8.', uz: "Nechta to'liq pachka chiqadi va nechta daftar qoladi? 100 : 8." },
-    opt0: { ru: '12 пачек, без лишних', uz: "12 pachka, ortig'i yo'q" },
-    opt1: { ru: '12 пачек, 4 лишних', uz: '12 pachka, 4 ta ortadi' },
-    opt2: { ru: '13 пачек', uz: '13 pachka' },
+    eyebrow: { ru: 'Задача · раскладка класса', uz: 'Masala · sinf terishi', en: 'Problem · sorting for the class' },
+    label: { ru: 'Сколько пачек и сколько лишних', uz: 'Nechta pachka va nechta ortadi', en: 'How many bundles and how many left over' },
+    question: { ru: 'Сколько выйдет полных пачек и сколько тетрадей останется? 100 : 8.', uz: "Nechta to'liq pachka chiqadi va nechta daftar qoladi? 100 : 8.", en: 'How many full bundles will there be and how many books will be left? 100 : 8.' },
+    opt0: { ru: '12 пачек, без лишних', uz: "12 pachka, ortig'i yo'q", en: '12 bundles, none left over' },
+    opt1: { ru: '12 пачек, 4 лишних', uz: '12 pachka, 4 ta ortadi', en: '12 bundles, 4 left over' },
+    opt2: { ru: '13 пачек', uz: '13 pachka', en: '13 bundles' },
     correctIndex: 1,
     order: [0, 1, 2],
-    hint: { ru: 'Сколько раз 8 помещается в 100? Что осталось — лишние тетради.', uz: "8 son 100 ga necha marta sig'adi? Qolgani — ortgan daftarlar." },
-    correct_text: { ru: 'Правильно. 8 умножить на 12 равно 96, до 100 остаётся 4 тетради — на полную пачку их не хватает.', uz: "To'g'ri. 8 ni 12 ga ko'paytirsak 96, 100 gacha 4 ta daftar qoladi — to'liq pachkaga yetmaydi." },
-    wrong_0: { ru: 'Остаток потерян. 8 умножить на 12 равно 96, а тетрадей 100 — 4 не вошли ни в одну полную пачку.', uz: "Qoldiq yo'qolgan. 8 ni 12 ga ko'paytirsak 96, daftar esa 100 — 4 tasi birorta to'liq pachkaga kirmadi." },
-    wrong_2: { ru: '13-й пачки не выйдет. 4 оставшиеся тетради не образуют полную пачку из 8.', uz: "13-pachka chiqmaydi. Qolgan 4 ta daftar 8 talik to'liq pachka hosil qilmaydi." },
-    wrong_default: { ru: 'Полные пачки — это частное, лишние тетради — остаток.', uz: "To'liq pachkalar — bo'linma, ortgan daftarlar — qoldiq." },
+    hint: { ru: 'Сколько раз 8 помещается в 100? Что осталось — лишние тетради.', uz: "8 son 100 ga necha marta sig'adi? Qolgani — ortgan daftarlar.", en: 'How many times does 8 fit into 100? What is left over is the spare books.' },
+    correct_text: { ru: 'Правильно. 8 умножить на 12 равно 96, до 100 остаётся 4 тетради — на полную пачку их не хватает.', uz: "To'g'ri. 8 ni 12 ga ko'paytirsak 96, 100 gacha 4 ta daftar qoladi — to'liq pachkaga yetmaydi.", en: 'Correct. 8 times 12 is 96, and 4 books more make 100, which is not enough for a full bundle.' },
+    wrong_0: { ru: 'Остаток потерян. 8 умножить на 12 равно 96, а тетрадей 100 — 4 не вошли ни в одну полную пачку.', uz: "Qoldiq yo'qolgan. 8 ni 12 ga ko'paytirsak 96, daftar esa 100 — 4 tasi birorta to'liq pachkaga kirmadi.", en: 'The remainder was lost. 8 times 12 is 96 but there are 100 books, so 4 did not go into any full bundle.' },
+    wrong_2: { ru: '13-й пачки не выйдет. 4 оставшиеся тетради не образуют полную пачку из 8.', uz: "13-pachka chiqmaydi. Qolgan 4 ta daftar 8 talik to'liq pachka hosil qilmaydi.", en: 'There will not be a 13th bundle. The 4 books left do not make a full bundle of 8.' },
+    wrong_default: { ru: 'Полные пачки — это частное, лишние тетради — остаток.', uz: "To'liq pachkalar — bo'linma, ortgan daftarlar — qoldiq.", en: 'The full bundles are the answer and the spare books are the remainder.' },
     audio: {
-      intro: { ru: 'Сколько получится полных пачек и сколько тетрадей останется лишними? Сто разделить на восемь. Выбери ответ.', uz: "Nechta to'liq pachka chiqadi va nechta daftar ortib qoladi? Yuzni sakkizga bo'lamiz. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Перейдём к итоговым примерам.', uz: "To'g'ri. Endi yakuniy misollarga o'tamiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
+      intro: { ru: 'Сколько получится полных пачек и сколько тетрадей останется лишними? Сто разделить на восемь. Выбери ответ.', uz: "Nechta to'liq pachka chiqadi va nechta daftar ortib qoladi? Yuzni sakkizga bo'lamiz. Javobni tanlang.", en: 'How many full bundles will there be and how many books will be left over? One hundred divided by eight. Choose an answer.' },
+      on_correct: { ru: 'Верно. Перейдём к итоговым примерам.', uz: "To'g'ri. Endi yakuniy misollarga o'tamiz.", en: 'That is right. Let us move on to the final examples.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1' },
-    label: { ru: 'Проверь результат', uz: 'Natijani tekshiring' },
-    question: { ru: 'Сколько будет 612 : 6?', uz: '612 : 6 nechaga teng?' },
-    opt0: { ru: '12 — без нуля в середине', uz: "12 — o'rtada nolsiz" },
-    opt1: { ru: '102 — делится точно', uz: "102 — qoldiqsiz bo'linadi" },
-    opt2: { ru: '112 — проверь умножением', uz: "112 — ko'paytirib tekshiring" },
-    opt3: { ru: '120 — ноль в конце', uz: '120 — nol oxirida' },
+    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1', en: 'Final · 1 of 2' },
+    label: { ru: 'Проверь результат', uz: 'Natijani tekshiring', en: 'Check the result' },
+    question: { ru: 'Сколько будет 612 : 6?', uz: '612 : 6 nechaga teng?', en: 'How much is 612 : 6?' },
+    opt0: { ru: '12 — без нуля в середине', uz: "12 — o'rtada nolsiz", en: '12, with no zero in the middle' },
+    opt1: { ru: '102 — делится точно', uz: "102 — qoldiqsiz bo'linadi", en: '102, it divides exactly' },
+    opt2: { ru: '112 — проверь умножением', uz: "112 — ko'paytirib tekshiring", en: '112, check it by multiplying' },
+    opt3: { ru: '120 — ноль в конце', uz: '120 — nol oxirida', en: '120, with a zero at the end' },
     correctIndex: 1,
     order: [0, 2, 3, 1],
-    hint: { ru: 'В среднем разряде проверь: делится ли 1 на 6? И проверь ответ умножением.', uz: "O'rtadagi xonani tekshiring: 1 son 6 ga bo'linadimi? Javobni ko'paytirib ham tekshiring." },
-    correct_text: { ru: 'Правильно. В среднем разряде 1 не делится на 6 — ставим ноль, потом 12 на 6 равно 2. Проверка: 102 умножить на 6 равно 612.', uz: "To'g'ri. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol qo'yamiz, keyin 12 ni 6 ga bo'lsak 2. Tekshirish: 102 ni 6 ga ko'paytirsak 612." },
-    wrong_0: { ru: 'Ноль пропущен. В среднем разряде 1 не делится на 6 — нужен ноль, иначе частное короче на разряд.', uz: "Nol tushib qolgan. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma bir xonaga qisqa." },
-    wrong_2: { ru: 'Проверка не сходится: 112 умножить на 6 равно 672, а не 612. Перепроверь среднюю цифру.', uz: "Tekshirish to'g'ri kelmaydi: 112 ni 6 ga ko'paytirsak 672, 612 emas. O'rtadagi raqamni qayta tekshiring." },
-    wrong_3: { ru: 'Ноль не на месте. Он стоит в середине, где 1 не делится на 6, а не в конце.', uz: "Nol joyida emas. U o'rtada, 1 ni 6 ga bo'lib bo'lmagan joyda turadi, oxirida emas." },
-    wrong_default: { ru: 'Не теряй ноль в частном и проверяй ответ умножением.', uz: "Bo'linmadagi nolni yo'qotmang va javobni ko'paytirib tekshiring." },
+    hint: { ru: 'В среднем разряде проверь: делится ли 1 на 6? И проверь ответ умножением.', uz: "O'rtadagi xonani tekshiring: 1 son 6 ga bo'linadimi? Javobni ko'paytirib ham tekshiring.", en: 'Check the middle place: can 1 be divided by 6? And check the answer by multiplying.' },
+    correct_text: { ru: 'Правильно. В среднем разряде 1 не делится на 6 — ставим ноль, потом 12 на 6 равно 2. Проверка: 102 умножить на 6 равно 612.', uz: "To'g'ri. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol qo'yamiz, keyin 12 ni 6 ga bo'lsak 2. Tekshirish: 102 ni 6 ga ko'paytirsak 612.", en: 'Correct. In the middle place 1 cannot be divided by 6, so we put a zero, and then 12 divided by 6 is 2. Check: 102 times 6 is 612.' },
+    wrong_0: { ru: 'Ноль пропущен. В среднем разряде 1 не делится на 6 — нужен ноль, иначе частное короче на разряд.', uz: "Nol tushib qolgan. O'rtadagi xonada 1 ni 6 ga bo'lib bo'lmaydi — nol kerak, aks holda bo'linma bir xonaga qisqa.", en: 'The zero was skipped. In the middle place 1 cannot be divided by 6, so a zero is needed, otherwise the answer is one place shorter.' },
+    wrong_2: { ru: 'Проверка не сходится: 112 умножить на 6 равно 672, а не 612. Перепроверь среднюю цифру.', uz: "Tekshirish to'g'ri kelmaydi: 112 ni 6 ga ko'paytirsak 672, 612 emas. O'rtadagi raqamni qayta tekshiring.", en: 'The check does not work out: 112 times 6 is 672, not 612. Check the middle digit again.' },
+    wrong_3: { ru: 'Ноль не на месте. Он стоит в середине, где 1 не делится на 6, а не в конце.', uz: "Nol joyida emas. U o'rtada, 1 ni 6 ga bo'lib bo'lmagan joyda turadi, oxirida emas.", en: 'The zero is in the wrong place. It goes in the middle, where 1 cannot be divided by 6, not at the end.' },
+    wrong_default: { ru: 'Не теряй ноль в частном и проверяй ответ умножением.', uz: "Bo'linmadagi nolni yo'qotmang va javobni ko'paytirib tekshiring.", en: 'Do not lose the zero in the answer and check the answer by multiplying.' },
     audio: {
-      intro: { ru: 'Сколько будет шестьсот двенадцать разделить на шесть? Выбери ответ.', uz: "Olti yuz o'n ikkini oltiga bo'lsak, nechaga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Ещё один, последний пример.', uz: "To'g'ri. Yana bitta, oxirgi misol." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang." }
+      intro: { ru: 'Сколько будет шестьсот двенадцать разделить на шесть? Выбери ответ.', uz: "Olti yuz o'n ikkini oltiga bo'lsak, nechaga teng? Javobni tanlang.", en: 'How much is six hundred and twelve divided by six? Choose an answer.' },
+      on_correct: { ru: 'Верно. Ещё один, последний пример.', uz: "To'g'ri. Yana bitta, oxirgi misol.", en: 'That is right. One more, the last example.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Quyidagi tahlilga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2' },
-    label: { ru: 'Раздели уголком', uz: "Burchak usulida bo'ling" },
-    question: { ru: 'Бекзод делит 728 страниц на 7 дней поровну. Сколько в день? 728 : 7.', uz: "Bekzod 728 betni 7 kunga teng bo'ladi. Kuniga nechtadan? 728 : 7." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2', en: 'Final · 2 of 2' },
+    label: { ru: 'Раздели уголком', uz: "Burchak usulida bo'ling", en: 'Do the long division' },
+    question: { ru: 'Бекзод делит 728 страниц на 7 дней поровну. Сколько в день? 728 : 7.', uz: "Bekzod 728 betni 7 kunga teng bo'ladi. Kuniga nechtadan? 728 : 7.", en: 'Bekzod is splitting 728 pages equally over 7 days. How many a day? 728 : 7.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     correctValue: '104',
-    hint: { ru: '7 на 7, потом 2 на 7 не делится — поставь ноль и снеси 8.', uz: "7 ni 7 ga, keyin 2 ni 7 ga bo'lib bo'lmaydi — nol qo'ying va 8 ni tushiring." },
-    fb_correct: { ru: 'Правильно. 7 на 7 равно 1, 2 на 7 не делится — ставим ноль, сносим 8, 28 на 7 равно 4. Итог 104.', uz: "To'g'ri. 7 ni 7 ga bo'lsak 1, 2 ni 7 ga bo'lib bo'lmaydi — nol qo'yamiz, 8 ni tushiramiz, 28 ni 7 ga bo'lsak 4. Natija 104." },
-    fb_wrong: { ru: 'Верный ответ — 104. 2 не делится на 7 — в частном нужен ноль, потом 28 на 7 равно 4. Без нуля выходит 14 — это неверно.', uz: "To'g'ri javob — 104. 2 ni 7 ga bo'lib bo'lmaydi — bo'linmada nol kerak, keyin 28 ni 7 ga bo'lsak 4. Nolsiz 14 chiqadi — bu noto'g'ri." },
+    hint: { ru: '7 на 7, потом 2 на 7 не делится — поставь ноль и снеси 8.', uz: "7 ni 7 ga, keyin 2 ni 7 ga bo'lib bo'lmaydi — nol qo'ying va 8 ni tushiring.", en: '7 divided by 7, then 2 cannot be divided by 7, so put a zero and bring down the 8.' },
+    fb_correct: { ru: 'Правильно. 7 на 7 равно 1, 2 на 7 не делится — ставим ноль, сносим 8, 28 на 7 равно 4. Итог 104.', uz: "To'g'ri. 7 ni 7 ga bo'lsak 1, 2 ni 7 ga bo'lib bo'lmaydi — nol qo'yamiz, 8 ni tushiramiz, 28 ni 7 ga bo'lsak 4. Natija 104.", en: 'Correct. 7 divided by 7 is 1, 2 cannot be divided by 7, so we put a zero, bring down the 8, and 28 divided by 7 is 4. The answer is 104.' },
+    fb_wrong: { ru: 'Верный ответ — 104. 2 не делится на 7 — в частном нужен ноль, потом 28 на 7 равно 4. Без нуля выходит 14 — это неверно.', uz: "To'g'ri javob — 104. 2 ni 7 ga bo'lib bo'lmaydi — bo'linmada nol kerak, keyin 28 ni 7 ga bo'lsak 4. Nolsiz 14 chiqadi — bu noto'g'ri.", en: 'The right answer is 104. 2 cannot be divided by 7, so the answer needs a zero, and then 28 divided by 7 is 4. Without the zero it comes out as 14, which is wrong.' },
     audio: {
-      intro: { ru: 'Бекзод делит семьсот двадцать восемь страниц на семь дней поровну. Сколько страниц в день? Введи ответ и нажми кнопку проверить.', uz: "Bekzod yetti yuz yigirma sakkiz betni yetti kunga teng bo'ladi. Kuniga nechtadan bet? Javobni kiriting va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Подведём итог урока.', uz: "To'g'ri. Endi dars yakunini ko'rib chiqamiz." },
-      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." }
+      intro: { ru: 'Бекзод делит семьсот двадцать восемь страниц на семь дней поровну. Сколько страниц в день? Введи ответ и нажми кнопку проверить.', uz: "Bekzod yetti yuz yigirma sakkiz betni yetti kunga teng bo'ladi. Kuniga nechtadan bet? Javobni kiriting va tekshirish tugmasini bosing.", en: 'Bekzod is splitting seven hundred and twenty eight pages equally over seven days. How many pages a day? Type the answer and tap the check button.' },
+      on_correct: { ru: 'Верно. Подведём итог урока.', uz: "To'g'ri. Endi dars yakunini ko'rib chiqamiz.", en: 'That is right. Let us sum the lesson up.' },
+      on_wrong: { ru: 'Не совсем. Загляни в подсказку и попробуй ещё раз.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring.", en: 'Not quite. Look at the hint and try again.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
-    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
-    ring_back: { ru: 'Помнишь Зайнаб? Она сказала: по 6, остаток 6. Но остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной. На самом деле 30 : 4 = 7, остаток 2.', uz: "Zaynab esingizdami? U: 6 tadan, qoldiq 6 dedi. Ammo qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin. Aslida 30 : 4 = 7, qoldiq 2." },
-    learned_1: { ru: 'Делить уголком, не теряя ноль в частном.', uz: "Bo'linmadagi nolni yo'qotmasdan burchak usulida bo'lish." },
-    learned_2: { ru: 'Делить с остатком и помнить: остаток меньше делителя.', uz: "Qoldiqli bo'lish va eslab qolish: qoldiq bo'luvchidan kichik." },
-    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak' },
-    why_1: { ru: 'Проверка умножением ловит ошибку: неполное частное умножить на делитель плюс остаток даёт делимое.', uz: "Ko'paytirib tekshirish xatoni tutadi: to'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqadi." },
-    why_2: { ru: 'Деление — основа дробей: дробь по сути и означает деление.', uz: "Bo'lish — kasrlarning asosi: kasr aslida bo'lishni bildiradi." },
-    score_label: { ru: 'Правильных ответов', uz: "To'g'ri javoblar" },
-    teaser: { ru: 'Дальше — обыкновенные дроби: что такое часть целого.', uz: "Keyin — oddiy kasrlar: butunning qismi nima." },
+    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni', en: 'The end of the lesson' },
+    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz', en: 'What you can do now' },
+    ring_back: { ru: 'Помнишь Зайнаб? Она сказала: по 6, остаток 6. Но остаток 6 больше делителя 4 — значит, каждому можно дать ещё по одной. На самом деле 30 : 4 = 7, остаток 2.', uz: "Zaynab esingizdami? U: 6 tadan, qoldiq 6 dedi. Ammo qoldiq 6 bo'luvchi 4 dan katta — demak, har biriga yana bittadan berish mumkin. Aslida 30 : 4 = 7, qoldiq 2.", en: 'Remember Zaynab? She said 6 each, remainder 6. But a remainder of 6 is bigger than the divisor 4, so everyone can be given one more. In fact 30 : 4 = 7 remainder 2.' },
+    learned_1: { ru: 'Делить уголком, не теряя ноль в частном.', uz: "Bo'linmadagi nolni yo'qotmasdan burchak usulida bo'lish.", en: 'Do long division without losing the zero in the answer.' },
+    learned_2: { ru: 'Делить с остатком и помнить: остаток меньше делителя.', uz: "Qoldiqli bo'lish va eslab qolish: qoldiq bo'luvchidan kichik.", en: 'Divide with a remainder and remember that the remainder is smaller than the divisor.' },
+    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why this is useful' },
+    why_1: { ru: 'Проверка умножением ловит ошибку: неполное частное умножить на делитель плюс остаток даёт делимое.', uz: "Ko'paytirib tekshirish xatoni tutadi: to'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqadi.", en: 'Checking by multiplying catches mistakes: the whole number part times the divisor plus the remainder gives the number you started with.' },
+    why_2: { ru: 'Деление — основа дробей: дробь по сути и означает деление.', uz: "Bo'lish — kasrlarning asosi: kasr aslida bo'lishni bildiradi.", en: 'Division is the base of fractions: a fraction really means a division.' },
+    score_label: { ru: 'Правильных ответов', uz: "To'g'ri javoblar", en: 'Right answers' },
+    teaser: { ru: 'Дальше — обыкновенные дроби: что такое часть целого.', uz: "Keyin — oddiy kasrlar: butunning qismi nima.", en: 'Next come fractions: what a part of a whole is.' },
     audio: {
       ru: [
         'Вернёмся к началу. Зайнаб сказала, по шесть, остаток шесть. Но остаток шесть больше делителя четыре, значит, каждому можно дать ещё по одной. На самом деле тридцать разделить на четыре равно семь, остаток два.',
@@ -1360,7 +1392,8 @@ const CONTENT = {
         "Endi siz bo'linmadagi nolni yo'qotmasdan burchak usulida bo'lishni va qoldiq bo'luvchidan kichikligini eslab, qoldiqli bo'lishni bilasiz.",
         "Ko'paytirib tekshirish xatoni tutadi. To'liqsiz bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shsak, bo'linuvchi chiqadi. Bundan tashqari, bo'lish, kasrlarning asosi.",
         "Keyin oddiy kasrlarni boshlaymiz, butunning qismi nima."
-      ]
+      ],
+      en: ['Let us go back to the start. Zaynab said six each, remainder six. But a remainder of six is bigger than the divisor four, so everyone can be given one more. In fact thirty divided by four is seven remainder two.', 'Now you can do long division without losing the zero in the answer, and divide with a remainder, remembering that the remainder is smaller than the divisor.', 'Checking by multiplying catches mistakes. The whole number part times the divisor plus the remainder gives the number you started with. And division is also the base of fractions.', 'Next we will start fractions and what a part of a whole is.']
     }
   }
 };
@@ -1529,7 +1562,7 @@ const MCScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, onNext, o
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>{mt(solved ? t(c.correct_text) : t(cc[`wrong_${picked}`] || c.wrong_default))}</p>
         </FeedbackBlock>
@@ -1583,7 +1616,7 @@ const DivNumInputScreen = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
           {!solved && <button className="btn-white-accent" disabled={!value} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>}
         </div>
         <FeedbackBlock show={tried} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}</p>
           <p className="body" style={{ margin: 0 }}>{feedbackText}</p>
         </FeedbackBlock>
         {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
@@ -1598,7 +1631,7 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   const meta = SCREEN_META[idx];
   const sfx = useSfx();
   const audio = useAudio([{ id: `s${idx}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const remWord = lang === 'uz' ? 'qoldiq' : 'ост';
+  const remWord = lang === 'uz' ? 'qoldiq' : lang === 'en' ? "rem" : 'ост';
   // Веди-до-верного: пробуем до верного, без кнопки «Показать решение»; «Дальше» — только на верном.
   const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
   const parsed = (storedAnswer?.studentAnswer || '').match(/\d+/g) || [];
@@ -1609,8 +1642,8 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
   const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
   const firstAnsRef = useRef(storedAnswer?.studentAnswer ?? null);
   const introAdvancedRef = useRef(wasSolved);
-  const qLabel = lang === 'uz' ? "To'liqsiz bo'linma" : 'Неполное частное';
-  const rLabel = lang === 'uz' ? 'Qoldiq' : 'Остаток';
+  const qLabel = lang === 'uz' ? "To'liqsiz bo'linma" : lang === 'en' ? "Whole number part" : 'Неполное частное';
+  const rLabel = lang === 'uz' ? 'Qoldiq' : lang === 'en' ? "Remainder" : 'Остаток';
 
   const submit = () => {
     if (q === '' || r === '' || solved) return;
@@ -1644,7 +1677,7 @@ const NumInputRemainder = ({ idx, screen, totalScreens, storedAnswer, onAnswer, 
           {!solved && <button className="btn-white-accent" disabled={!q || !r} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}><CheckLabel/></button>}
         </div>
         <FeedbackBlock show={tried} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}</p>
           <p className="body" style={{ margin: 0 }}>{feedbackText}</p>
         </FeedbackBlock>
         {solved && DIV_SOLUTIONS[idx] && <DivSolutionPlayer sol={DIV_SOLUTIONS[idx]}/>}
@@ -1739,9 +1772,9 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button>
-      <button className="btn-white-accent" disabled style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Keyingi dars →' : 'Следующий урок →'}</button>
-      <button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button>
+      <button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? "Qaytadan o'tish" : lang === 'en' ? "Do it again" : 'Пройти заново'}</button>
+      <button className="btn-white-accent" disabled style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Keyingi dars →' : lang === 'en' ? "Next lesson →" : 'Следующий урок →'}</button>
+      <button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button>
     </>
   );
   return (
@@ -1756,7 +1789,7 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
           </div>
         </div>
         <div className="frame fade-up delay-2">
-          <p className="eyebrow" style={{ color: T.accent, margin: 0 }}>{lang === 'uz' ? 'Asosiy' : 'Главное'}</p>
+          <p className="eyebrow" style={{ color: T.accent, margin: 0 }}>{lang === 'uz' ? 'Asosiy' : lang === 'en' ? "The main thing" : 'Главное'}</p>
           <ul className="body" style={{ marginTop: 12, paddingLeft: 20, color: T.ink2, display: 'flex', flexDirection: 'column', gap: 6 }}>
             <li>{t(c.learned_1)}</li><li>{t(c.learned_2)}</li>
           </ul>
@@ -1788,7 +1821,7 @@ export default function DivisionLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1847,7 +1880,7 @@ export default function DivisionLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

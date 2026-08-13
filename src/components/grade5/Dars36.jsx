@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -732,7 +758,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -756,8 +782,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
-  lessonId: 'geom_5_03',
-  lessonTitle: { ru: 'Площадь треугольника', uz: "Uchburchak yuzasi" }
+  lessonId: 'grade5-36',
+  lessonTitle: { ru: 'Площадь треугольника', uz: "Uchburchak yuzasi", en: 'The area of a triangle' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -779,66 +805,66 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK — Temur uchburchak yuzasini asos x balandlik deb hisoblaydi, ikkiga bo'lishni unutadi (M1) =====
   s0: {
-    eyebrow: { ru: 'Начало', uz: "Boshlanish" },
-    title: { ru: 'Расчёт Темура', uz: "Temurning hisobi" },
-    lead: { ru: 'У треугольника основание 6 и высота 4. Темур умножил 6 на 4 и говорит: «площадь 24». Он прав?', uz: "Uchburchakning asosi 6, balandligi 4. Temur 6 ni 4 ga ko'paytirdi va «yuza 24» deyapti. U haqmi?" },
-    opt0: { ru: 'Да, 24', uz: "Ha, 24" },
-    opt1: { ru: 'Нет, это площадь прямоугольника', uz: "Yo'q, bu to'g'ri to'rtburchak yuzasi" },
-    opt2: { ru: 'Не знаю', uz: "Bilmayman" },
-    reveal: { ru: 'Умножение основания на высоту даёт площадь прямоугольника. Треугольник — это его половина, поэтому 24 вдвое больше. Сегодня разберёмся.', uz: "Asosni balandlikka ko'paytirish to'g'ri to'rtburchak yuzasini beradi. Uchburchak esa uning yarmi, shuning uchun 24 ikki barobar ko'p. Bugun shuni o'rganamiz." },
-    audio: { ru: "У треугольника основание шесть и высота четыре. Темур умножил шесть на четыре и говорит, что площадь двадцать четыре. Подумай, треугольник занимает весь прямоугольник или только его половину?", uz: "Uchburchakning asosi olti, balandligi to'rt. Temur oltini to'rtga ko'paytirdi va yuza yigirma to'rt deyapti. O'ylab ko'ring, uchburchak butun to'g'ri to'rtburchakni egallaydimi yoki uning yarmini?" }
+    eyebrow: { ru: 'Начало', uz: "Boshlanish", en: 'The start' },
+    title: { ru: 'Расчёт Темура', uz: "Temurning hisobi", en: "Temur's working out" },
+    lead: { ru: 'У треугольника основание 6 и высота 4. Темур умножил 6 на 4 и говорит: «площадь 24». Он прав?', uz: "Uchburchakning asosi 6, balandligi 4. Temur 6 ni 4 ga ko'paytirdi va «yuza 24» deyapti. U haqmi?", en: 'A triangle has a base of 6 and a height of 4. Temur multiplied 6 by 4 and says the area is 24. Is he right?' },
+    opt0: { ru: 'Да, 24', uz: "Ha, 24", en: 'Yes, 24' },
+    opt1: { ru: 'Нет, это площадь прямоугольника', uz: "Yo'q, bu to'g'ri to'rtburchak yuzasi", en: 'No, that is the area of a rectangle' },
+    opt2: { ru: 'Не знаю', uz: "Bilmayman", en: "I don't know" },
+    reveal: { ru: 'Умножение основания на высоту даёт площадь прямоугольника. Треугольник — это его половина, поэтому 24 вдвое больше. Сегодня разберёмся.', uz: "Asosni balandlikka ko'paytirish to'g'ri to'rtburchak yuzasini beradi. Uchburchak esa uning yarmi, shuning uchun 24 ikki barobar ko'p. Bugun shuni o'rganamiz.", en: 'Multiplying the base by the height gives the area of a rectangle. A triangle is half of it, so 24 is twice too big. Let us work it out today.' },
+    audio: { ru: "У треугольника основание шесть и высота четыре. Темур умножил шесть на четыре и говорит, что площадь двадцать четыре. Подумай, треугольник занимает весь прямоугольник или только его половину?", uz: "Uchburchakning asosi olti, balandligi to'rt. Temur oltini to'rtga ko'paytirdi va yuza yigirma to'rt deyapti. O'ylab ko'ring, uchburchak butun to'g'ri to'rtburchakni egallaydimi yoki uning yarmini?", en: 'A triangle has a base of six and a height of four. Temur multiplied six by four and says the area is twenty four. Think: does a triangle take up the whole rectangle or only half of it?' }
   },
 
   // ===== s1 WARM-UP — uchta savol (✓-fold): ko'paytirish VA yarmini olish =====
   s1: {
-    eyebrow: { ru: 'Разминка', uz: "Mashq" },
-    title: { ru: 'Быстрый счёт', uz: "Tez hisob" },
-    lead: { ru: 'Прежде чем считать треугольники, разомнёмся. Умножение и деление пополам пригодятся.', uz: "Uchburchaklarni hisoblashdan oldin mashq qilamiz. Ko'paytirish va yarmini olish asqotadi." },
+    eyebrow: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    title: { ru: 'Быстрый счёт', uz: "Tez hisob", en: 'Quick sums' },
+    lead: { ru: 'Прежде чем считать треугольники, разомнёмся. Умножение и деление пополам пригодятся.', uz: "Uchburchaklarni hisoblashdan oldin mashq qilamiz. Ko'paytirish va yarmini olish asqotadi.", en: 'Before we work out triangles, let us warm up. Multiplying and halving will both come in useful.' },
     questions: [
       {
-        q: { ru: 'Сколько будет 6 × 4?', uz: "6 × 4 nechaga teng?" },
-        opts: [{ ru: '24', uz: "24" }, { ru: '18', uz: "18" }, { ru: '20', uz: "20" }, { ru: '28', uz: "28" }],
+        q: { ru: 'Сколько будет 6 × 4?', uz: "6 × 4 nechaga teng?", en: 'How much is 6 × 4?' },
+        opts: [{ ru: '24', uz: "24", en: '24' }, { ru: '18', uz: "18", en: '18' }, { ru: '20', uz: "20", en: '20' }, { ru: '28', uz: "28", en: '28' }],
         correct: 0,
-        hint: { ru: 'Это шесть раз по четыре подряд.', uz: "Bu ketma-ket olti marta to'rt." },
-        audio: { ru: "Сколько будет шесть умножить на четыре?", uz: "Oltini to'rtga ko'paytirsak nechi bo'ladi?" }
+        hint: { ru: 'Это шесть раз по четыре подряд.', uz: "Bu ketma-ket olti marta to'rt.", en: 'That is six lots of four in a row.' },
+        audio: { ru: "Сколько будет шесть умножить на четыре?", uz: "Oltini to'rtga ko'paytirsak nechi bo'ladi?", en: 'How much is six multiplied by four?' }
       },
       {
-        q: { ru: 'Половина от 24 — это сколько?', uz: "24 ning yarmi nechaga teng?" },
-        opts: [{ ru: '10', uz: "10" }, { ru: '12', uz: "12" }, { ru: '8', uz: "8" }, { ru: '14', uz: "14" }],
+        q: { ru: 'Половина от 24 — это сколько?', uz: "24 ning yarmi nechaga teng?", en: 'How much is half of 24?' },
+        opts: [{ ru: '10', uz: "10", en: '10' }, { ru: '12', uz: "12", en: '12' }, { ru: '8', uz: "8", en: '8' }, { ru: '14', uz: "14", en: '14' }],
         correct: 1,
-        hint: { ru: 'Подели двадцать четыре на два.', uz: "Yigirma to'rtni ikkiga bo'ling." },
-        audio: { ru: "А чему равна половина от двадцати четырёх?", uz: "Yigirma to'rtning yarmi nechaga teng?" }
+        hint: { ru: 'Подели двадцать четыре на два.', uz: "Yigirma to'rtni ikkiga bo'ling.", en: 'Divide twenty four by two.' },
+        audio: { ru: "А чему равна половина от двадцати четырёх?", uz: "Yigirma to'rtning yarmi nechaga teng?", en: 'And how much is half of twenty four?' }
       },
       {
-        q: { ru: 'Сколько будет 8 × 3?', uz: "8 × 3 nechaga teng?" },
-        opts: [{ ru: '21', uz: "21" }, { ru: '18', uz: "18" }, { ru: '24', uz: "24" }, { ru: '27', uz: "27" }],
+        q: { ru: 'Сколько будет 8 × 3?', uz: "8 × 3 nechaga teng?", en: 'How much is 8 × 3?' },
+        opts: [{ ru: '21', uz: "21", en: '21' }, { ru: '18', uz: "18", en: '18' }, { ru: '24', uz: "24", en: '24' }, { ru: '27', uz: "27", en: '27' }],
         correct: 2,
-        hint: { ru: 'Возьми восемь три раза подряд.', uz: "Sakkizni ketma-ket uch marta oling." },
-        audio: { ru: "И последнее. Сколько будет восемь умножить на три?", uz: "Va oxirgisi. Sakkizni uchga ko'paytirsak nechi bo'ladi?" }
+        hint: { ru: 'Возьми восемь три раза подряд.', uz: "Sakkizni ketma-ket uch marta oling.", en: 'Take eight three times over.' },
+        audio: { ru: "И последнее. Сколько будет восемь умножить на три?", uz: "Va oxirgisi. Sakkizni uchga ko'paytirsak nechi bo'ladi?", en: 'And the last one. How much is eight multiplied by three?' }
       }
     ],
-    done_label: { ru: 'Вопрос', uz: "Savol" },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
-    done_text: { ru: 'Отлично, счёт работает. Теперь идём искать площадь треугольника.', uz: "Zo'r, hisob ishlayapti. Endi uchburchak yuzasini topishga o'tamiz." },
+    done_label: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
+    done_text: { ru: 'Отлично, счёт работает. Теперь идём искать площадь треугольника.', uz: "Zo'r, hisob ishlayapti. Endi uchburchak yuzasini topishga o'tamiz.", en: 'Well done, the sums are working. Now let us go and find the area of a triangle.' },
     audio: {
-      next: { ru: 'Разомнёмся перед задачами.', uz: "Masalalardan oldin mashq qilamiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang." }
+      next: { ru: 'Разомнёмся перед задачами.', uz: "Masalalardan oldin mashq qilamiz.", en: 'Let us warm up before the problems.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посчитай ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang.", en: 'Work it out again, calmly.' }
     }
   },
 
   // ===== s2 EXPLORATION — to'g'ri to'rtburchak diagonal bo'yicha 2 teng uchburchakka bo'linadi (step), TriViz split =====
   s2: {
-    eyebrow: { ru: 'Половина', uz: "Yarmi" },
-    bridge: { ru: 'Счёт работает, теперь разрежем прямоугольник.', uz: "Hisob ishladi, endi to'g'ri to'rtburchakni kesamiz." },
-    title: { ru: 'Разрежем прямоугольник', uz: "To'g'ri to'rtburchakni kesamiz" },
-    lead: { ru: 'Возьмём прямоугольник и проведём в нём диагональ. Посмотрим, что получится.', uz: "To'g'ri to'rtburchak olamiz va unda diagonal o'tkazamiz. Nima bo'lishini ko'ramiz." },
-    step_1: { ru: 'Вот прямоугольник: основание 6, высота 4.', uz: "Mana to'g'ri to'rtburchak: asosi 6, balandligi 4." },
-    step_2: { ru: 'Проводим диагональ из угла в угол. Получились два треугольника.', uz: "Burchakdan burchakka diagonal o'tkazamiz. Ikki uchburchak hosil bo'ldi." },
-    step_3: { ru: 'Эти два треугольника одинаковые, их можно наложить друг на друга.', uz: "Bu ikki uchburchak bir xil, ularni bir-birining ustiga qo'yish mumkin." },
-    step_4: { ru: 'Значит один треугольник — это ровно половина прямоугольника.', uz: "Demak bitta uchburchak to'g'ri to'rtburchakning aynan yarmi." },
-    btn_step: { ru: 'Дальше', uz: "Davom" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Половина', uz: "Yarmi", en: 'A half' },
+    bridge: { ru: 'Счёт работает, теперь разрежем прямоугольник.', uz: "Hisob ishladi, endi to'g'ri to'rtburchakni kesamiz.", en: 'The sums are working, so now let us cut a rectangle in two.' },
+    title: { ru: 'Разрежем прямоугольник', uz: "To'g'ri to'rtburchakni kesamiz", en: 'Let us cut the rectangle' },
+    lead: { ru: 'Возьмём прямоугольник и проведём в нём диагональ. Посмотрим, что получится.', uz: "To'g'ri to'rtburchak olamiz va unda diagonal o'tkazamiz. Nima bo'lishini ko'ramiz.", en: 'Let us take a rectangle and draw a diagonal across it. Let us see what happens.' },
+    step_1: { ru: 'Вот прямоугольник: основание 6, высота 4.', uz: "Mana to'g'ri to'rtburchak: asosi 6, balandligi 4.", en: 'Here is a rectangle: base 6, height 4.' },
+    step_2: { ru: 'Проводим диагональ из угла в угол. Получились два треугольника.', uz: "Burchakdan burchakka diagonal o'tkazamiz. Ikki uchburchak hosil bo'ldi.", en: 'We draw a diagonal from corner to corner. That gives two triangles.' },
+    step_3: { ru: 'Эти два треугольника одинаковые, их можно наложить друг на друга.', uz: "Bu ikki uchburchak bir xil, ularni bir-birining ustiga qo'yish mumkin.", en: 'The two triangles are the same and one can be laid exactly over the other.' },
+    step_4: { ru: 'Значит один треугольник — это ровно половина прямоугольника.', uz: "Demak bitta uchburchak to'g'ri to'rtburchakning aynan yarmi.", en: 'So one triangle is exactly half the rectangle.' },
+    btn_step: { ru: 'Дальше', uz: "Davom", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Возьмём прямоугольник с основанием шесть и высотой четыре.",
@@ -851,223 +877,224 @@ const CONTENT = {
         "Burchakdan burchakka diagonal o'tkazamiz. To'g'ri to'rtburchak ikki uchburchakka bo'lindi.",
         "Bu ikki uchburchak bir xil, ularni bir-birining ustiga qo'yish mumkin.",
         "Demak bitta uchburchak to'g'ri to'rtburchakning aynan yarmi."
-      ]
+      ],
+      en: ['Let us take a rectangle with a base of six and a height of four.', 'Let us draw a diagonal from corner to corner. The rectangle has split into two triangles.', 'The two triangles are the same and one can be laid exactly over the other.', 'So one triangle is exactly half the rectangle.']
     }
   },
 
   // ===== s3 EXPLORATION — to'g'ri to'rtburchak yuzasi = asos x balandlik; uchburchak shuning yarmi (step) =====
   s3: {
-    eyebrow: { ru: 'Половина площади', uz: "Yuzaning yarmi" },
-    title: { ru: 'Площадь — половина', uz: "Yuza — yarmi" },
-    lead: { ru: 'Высота равна 4. Двигай основание и смотри: треугольник всегда занимает ровно половину прямоугольника.', uz: "Balandlik 4 ga teng. Asosni suring va qarang: uchburchak doim to'g'ri to'rtburchakning aynan yarmini egallaydi." },
-    slider_label: { ru: 'Основание', uz: "Asos" },
-    note_rect: { ru: 'Площадь прямоугольника', uz: "To'g'ri to'rtburchak yuzasi" },
-    note_tri: { ru: 'Половина — площадь треугольника', uz: "Yarmi — uchburchak yuzasi" },
-    audio: { ru: "Высота равна четырём. Двигай основание и смотри на закрашенный треугольник. Сначала находим площадь всего прямоугольника, основание умножить на высоту. Потом берём половину, и это площадь треугольника.", uz: "Balandlik to'rtga teng. Asosni suring va bo'yalgan uchburchakka qarang. Avval butun to'g'ri to'rtburchak yuzasini topamiz, asosni balandlikka ko'paytiramiz. Keyin yarmini olamiz, bu uchburchak yuzasi." }
+    eyebrow: { ru: 'Половина площади', uz: "Yuzaning yarmi", en: 'Half the area' },
+    title: { ru: 'Площадь — половина', uz: "Yuza — yarmi", en: 'The area is a half' },
+    lead: { ru: 'Высота равна 4. Двигай основание и смотри: треугольник всегда занимает ровно половину прямоугольника.', uz: "Balandlik 4 ga teng. Asosni suring va qarang: uchburchak doim to'g'ri to'rtburchakning aynan yarmini egallaydi.", en: 'The height is 4. Move the base and watch: the triangle always takes up exactly half the rectangle.' },
+    slider_label: { ru: 'Основание', uz: "Asos", en: 'Base' },
+    note_rect: { ru: 'Площадь прямоугольника', uz: "To'g'ri to'rtburchak yuzasi", en: 'The area of a rectangle' },
+    note_tri: { ru: 'Половина — площадь треугольника', uz: "Yarmi — uchburchak yuzasi", en: 'The half is the area of the triangle' },
+    audio: { ru: "Высота равна четырём. Двигай основание и смотри на закрашенный треугольник. Сначала находим площадь всего прямоугольника, основание умножить на высоту. Потом берём половину, и это площадь треугольника.", uz: "Balandlik to'rtga teng. Asosni suring va bo'yalgan uchburchakka qarang. Avval butun to'g'ri to'rtburchak yuzasini topamiz, asosni balandlikka ko'paytiramiz. Keyin yarmini olamiz, bu uchburchak yuzasi.", en: 'The height is four. Move the base and watch the coloured triangle. First we find the area of the whole rectangle, the base times the height. Then we take half of it, and that is the area of the triangle.' }
   },
 
   // ===== s4 RULE 1 — S = (asos x balandlik) : 2; balandlik asosga perpendikulyar =====
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Мы увидели половину, соберём это в правило.', uz: "Yarmini ko'rdik, buni qoidaga yig'amiz." },
-    heading: { ru: 'Как найти площадь', uz: "Yuzani qanday topamiz" },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Площадь треугольника: S = (основание × высота) : 2.', uz: "Uchburchak yuzasi: S = (asos × balandlik) : 2." },
-    rule_2: { ru: 'Сначала умножаем основание на высоту, потом делим результат пополам.', uz: "Avval asosni balandlikka ko'paytiramiz, keyin natijani yarmiga bo'lamiz." },
-    rule_3: { ru: 'Высота проводится к основанию под прямым углом.', uz: "Balandlik asosga to'g'ri burchak ostida o'tkaziladi." },
-    audio: { ru: "Итак, площадь треугольника равна основанию умножить на высоту и разделить на два. Сначала перемножаем основание и высоту, а потом берём половину. Важно, что высота идёт к основанию под прямым углом.", uz: "Demak, uchburchak yuzasi asosni balandlikka ko'paytirib, natijani ikkiga bo'lishga teng. Avval asos va balandlikni ko'paytiramiz, keyin yarmini olamiz. Muhimi, balandlik asosga to'g'ri burchak ostida boradi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Мы увидели половину, соберём это в правило.', uz: "Yarmini ko'rdik, buni qoidaga yig'amiz.", en: 'We have seen the half, so let us gather it into a rule.' },
+    heading: { ru: 'Как найти площадь', uz: "Yuzani qanday topamiz", en: 'How to find the area' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Площадь треугольника: S = (основание × высота) : 2.', uz: "Uchburchak yuzasi: S = (asos × balandlik) : 2.", en: 'The area of a triangle: S = (base × height) : 2.' },
+    rule_2: { ru: 'Сначала умножаем основание на высоту, потом делим результат пополам.', uz: "Avval asosni balandlikka ko'paytiramiz, keyin natijani yarmiga bo'lamiz.", en: 'First we multiply the base by the height, then we halve the answer.' },
+    rule_3: { ru: 'Высота проводится к основанию под прямым углом.', uz: "Balandlik asosga to'g'ri burchak ostida o'tkaziladi.", en: 'The height is drawn to the base at a right angle.' },
+    audio: { ru: "Итак, площадь треугольника равна основанию умножить на высоту и разделить на два. Сначала перемножаем основание и высоту, а потом берём половину. Важно, что высота идёт к основанию под прямым углом.", uz: "Demak, uchburchak yuzasi asosni balandlikka ko'paytirib, natijani ikkiga bo'lishga teng. Avval asos va balandlikni ko'paytiramiz, keyin yarmini olamiz. Muhimi, balandlik asosga to'g'ri burchak ostida boradi.", en: 'So the area of a triangle is the base times the height divided by two. First we multiply the base and the height, then we take half of it. It matters that the height goes to the base at a right angle.' }
   },
 
   // ===== s5 RULE 2 — ikkiga bo'lishni unutmang (M1) + balandlik qiya tomon emas (M2). Xulosa frame-tip da =====
   s5: {
-    eyebrow: { ru: 'Две ловушки', uz: "Ikki tuzoq" },
-    heading: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang" },
-    rule_1: { ru: 'Не забывай делить на два. Без этого получится площадь прямоугольника, вдвое больше.', uz: "Ikkiga bo'lishni unutmang. Busiz to'g'ri to'rtburchak yuzasi, ikki barobar ko'p chiqadi." },
-    rule_2: { ru: 'Высота — это перпендикуляр к основанию, а не наклонная сторона треугольника.', uz: "Balandlik — asosga perpendikulyar, uchburchakning qiya tomoni emas." },
-    tip: { ru: 'Темур забыл разделить на два — взял площадь прямоугольника, а не треугольника.', uz: "Temur ikkiga bo'lishni unutdi — uchburchak emas, to'g'ri to'rtburchak yuzasini oldi." },
-    audio: { ru: "Запомни две ловушки. Первая, не забудь разделить на два, иначе получится площадь прямоугольника, вдвое больше. Вторая, высота это перпендикуляр к основанию, а не наклонная сторона. Темур забыл взять половину, поэтому ошибся.", uz: "Ikki tuzoqni yodda tuting. Birinchisi, ikkiga bo'lishni unutmang, aks holda to'g'ri to'rtburchak yuzasi, ikki barobar ko'p chiqadi. Ikkinchisi, balandlik asosga perpendikulyar, qiya tomon emas. Temur yarmini olishni unutdi, shuning uchun yanglishdi." }
+    eyebrow: { ru: 'Две ловушки', uz: "Ikki tuzoq", en: 'Two traps' },
+    heading: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang", en: 'Do not fall into the trap' },
+    rule_1: { ru: 'Не забывай делить на два. Без этого получится площадь прямоугольника, вдвое больше.', uz: "Ikkiga bo'lishni unutmang. Busiz to'g'ri to'rtburchak yuzasi, ikki barobar ko'p chiqadi.", en: 'Do not forget to divide by two. Without that you get the area of the rectangle, twice too big.' },
+    rule_2: { ru: 'Высота — это перпендикуляр к основанию, а не наклонная сторона треугольника.', uz: "Balandlik — asosga perpendikulyar, uchburchakning qiya tomoni emas.", en: 'The height is the perpendicular to the base, not the sloping side of the triangle.' },
+    tip: { ru: 'Темур забыл разделить на два — взял площадь прямоугольника, а не треугольника.', uz: "Temur ikkiga bo'lishni unutdi — uchburchak emas, to'g'ri to'rtburchak yuzasini oldi.", en: 'Temur forgot to divide by two, so he took the area of the rectangle, not the triangle.' },
+    audio: { ru: "Запомни две ловушки. Первая, не забудь разделить на два, иначе получится площадь прямоугольника, вдвое больше. Вторая, высота это перпендикуляр к основанию, а не наклонная сторона. Темур забыл взять половину, поэтому ошибся.", uz: "Ikki tuzoqni yodda tuting. Birinchisi, ikkiga bo'lishni unutmang, aks holda to'g'ri to'rtburchak yuzasi, ikki barobar ko'p chiqadi. Ikkinchisi, balandlik asosga perpendikulyar, qiya tomon emas. Temur yarmini olishni unutdi, shuning uchun yanglishdi.", en: 'Remember two traps. First, do not forget to divide by two, or you get the area of the rectangle, twice too big. Second, the height is the perpendicular to the base, not the sloping side. Temur forgot to take half, and that is why he got it wrong.' }
   },
 
   // ===== s6 TEST (interaktiv): "Balandlikni top" — perpendikulyar balandlikni aniqlash (M2), keyin yuza yarmini ko'rish (Dars36 imzo metodi) =====
   s6: {
-    eyebrow: { ru: 'Найди высоту', uz: "Balandlikni toping" },
-    bridge: { ru: 'Правило знаем, теперь найди высоту сам.', uz: "Qoidani bilamiz, endi balandlikni o'zingiz toping." },
-    title: { ru: 'Где высота треугольника?', uz: "Uchburchak balandligi qayerda?" },
-    lead: { ru: 'Высота — это перпендикуляр от вершины к основанию, под прямым углом. Выбери её, а не наклонную сторону.', uz: "Balandlik — uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida. Uni tanlang, qiya tomonni emas." },
+    eyebrow: { ru: 'Найди высоту', uz: "Balandlikni toping", en: 'Find the height' },
+    bridge: { ru: 'Правило знаем, теперь найди высоту сам.', uz: "Qoidani bilamiz, endi balandlikni o'zingiz toping.", en: 'We know the rule, so now find the height yourself.' },
+    title: { ru: 'Где высота треугольника?', uz: "Uchburchak balandligi qayerda?", en: 'Where is the height of the triangle?' },
+    lead: { ru: 'Высота — это перпендикуляр от вершины к основанию, под прямым углом. Выбери её, а не наклонную сторону.', uz: "Balandlik — uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida. Uni tanlang, qiya tomonni emas.", en: 'The height is the perpendicular from the vertex to the base, at a right angle. Choose that, not the sloping side.' },
     opts: [
-      { ru: 'Перпендикуляр к основанию', uz: "Asosga perpendikulyar" },
-      { ru: 'Наклонная сторона', uz: "Qiya tomon" },
-      { ru: 'Основание', uz: "Asos" }
+      { ru: 'Перпендикуляр к основанию', uz: "Asosga perpendikulyar", en: 'The perpendicular to the base' },
+      { ru: 'Наклонная сторона', uz: "Qiya tomon", en: 'The sloping side' },
+      { ru: 'Основание', uz: "Asos", en: 'Base' }
     ],
     correct: 0,
-    hint: { ru: 'Высота всегда под прямым углом к основанию, а не вдоль наклонной стороны.', uz: "Balandlik doim asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas." },
-    correct_text: { ru: 'Верно: высота — это перпендикуляр. Теперь площадь — половина от 6 · 4 = 12.', uz: "To'g'ri: balandlik — perpendikulyar. Endi yuza — 6 · 4 ning yarmi = 12." },
+    hint: { ru: 'Высота всегда под прямым углом к основанию, а не вдоль наклонной стороны.', uz: "Balandlik doim asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas.", en: 'The height is always at a right angle to the base, not along the sloping side.' },
+    correct_text: { ru: 'Верно: высота — это перпендикуляр. Теперь площадь — половина от 6 · 4 = 12.', uz: "To'g'ri: balandlik — perpendikulyar. Endi yuza — 6 · 4 ning yarmi = 12.", en: 'That is right: the height is the perpendicular. Now the area is half of 6 · 4, which is 12.' },
     audio: {
-      intro: { ru: "Выбери высоту треугольника. Это перпендикуляр от вершины к основанию, под прямым углом, а не наклонная сторона.", uz: "Uchburchak balandligini tanlang. Bu uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida, qiya tomon emas." },
-      on_correct: { ru: "Верно. Высота это перпендикуляр к основанию. Теперь площадь это половина от шесть умножить четыре, то есть двенадцать.", uz: "To'g'ri. Balandlik asosga perpendikulyar. Endi yuza olti ko'paytiruv to'rtning yarmi, ya'ni o'n ikki." },
-      on_wrong: { ru: "Высота под прямым углом к основанию, а не вдоль наклонной стороны.", uz: "Balandlik asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas." }
+      intro: { ru: "Выбери высоту треугольника. Это перпендикуляр от вершины к основанию, под прямым углом, а не наклонная сторона.", uz: "Uchburchak balandligini tanlang. Bu uchidan asosga tushirilgan perpendikulyar, to'g'ri burchak ostida, qiya tomon emas.", en: 'Choose the height of the triangle. It is the perpendicular from the vertex to the base, at a right angle, not the sloping side.' },
+      on_correct: { ru: "Верно. Высота это перпендикуляр к основанию. Теперь площадь это половина от шесть умножить четыре, то есть двенадцать.", uz: "To'g'ri. Balandlik asosga perpendikulyar. Endi yuza olti ko'paytiruv to'rtning yarmi, ya'ni o'n ikki.", en: 'That is right. The height is the perpendicular to the base. Now the area is half of six times four, which is twelve.' },
+      on_wrong: { ru: "Высота под прямым углом к основанию, а не вдоль наклонной стороны.", uz: "Balandlik asosga to'g'ri burchak ostida, qiya tomon bo'ylab emas.", en: 'The height is at a right angle to the base, not along the sloping side.' }
     }
   },
 
   // ===== s7 TEST (aralash blok): 4 ta har xil tipdagi savol — MC, o'nlik typed, to'g'ri/noto'g'ri, qadamlarni tartiblash =====
   s7: {
-    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar" },
-    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol" },
-    lead: { ru: 'Четыре задания на площадь треугольника — все разного вида. Отвечай по очереди.', uz: "Uchburchak yuzasiga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar", en: 'Different problems' },
+    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol", en: 'Four different questions' },
+    lead: { ru: 'Четыре задания на площадь треугольника — все разного вида. Отвечай по очереди.', uz: "Uchburchak yuzasiga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering.", en: 'Four tasks on the area of a triangle, all of different kinds. Answer them one by one.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
     items: [
       { kind: 'choice', base: 6, height: 4,
-        q: { ru: 'Выбери площадь треугольника: основание 6, высота 4.', uz: "Uchburchak yuzasini tanlang: asos 6, balandlik 4." },
-        opts: [{ ru: '12', uz: '12' }, { ru: '24', uz: '24' }, { ru: '10', uz: '10' }, { ru: '20', uz: '20' }], correct: 0,
-        hint: { ru: 'Умножь основание на высоту и возьми половину.', uz: "Asosni balandlikka ko'paytirib, yarmini oling." },
-        audio_q: { ru: "Первый вопрос. Выбери площадь треугольника с основанием шесть и высотой четыре.", uz: "Birinchi savol. Asosi olti, balandligi to'rt uchburchak yuzasini tanlang." },
-        audio_ok: { ru: "Верно, двенадцать. Шесть на четыре, потом половина.", uz: "To'g'ri, o'n ikki. Olti ko'paytiruv to'rt, keyin yarmi." } },
+        q: { ru: 'Выбери площадь треугольника: основание 6, высота 4.', uz: "Uchburchak yuzasini tanlang: asos 6, balandlik 4.", en: 'Choose the area of a triangle with a base of 6 and a height of 4.' },
+        opts: [{ ru: '12', uz: '12', en: '12' }, { ru: '24', uz: '24', en: '24' }, { ru: '10', uz: '10', en: '10' }, { ru: '20', uz: '20', en: '20' }], correct: 0,
+        hint: { ru: 'Умножь основание на высоту и возьми половину.', uz: "Asosni balandlikka ko'paytirib, yarmini oling.", en: 'Multiply the base by the height and take half of it.' },
+        audio_q: { ru: "Первый вопрос. Выбери площадь треугольника с основанием шесть и высотой четыре.", uz: "Birinchi savol. Asosi olti, balandligi to'rt uchburchak yuzasini tanlang.", en: 'The first question. Choose the area of a triangle with a base of six and a height of four.' },
+        audio_ok: { ru: "Верно, двенадцать. Шесть на четыре, потом половина.", uz: "To'g'ri, o'n ikki. Olti ko'paytiruv to'rt, keyin yarmi.", en: 'That is right, twelve. Six times four, then half of it.' } },
       { kind: 'num', dec: true, base: 5, height: 3, answer: 7.5,
-        q: { ru: 'Основание 5, высота 3. Посчитай площадь сам — может получиться дробь.', uz: "Asos 5, balandlik 3. Yuzasini o'zingiz hisoblang — kasr chiqishi mumkin." },
-        hint: { ru: 'Пять умножить на три, потом половина. Ответ может быть с запятой.', uz: "Beshni uchga ko'paytiring, keyin yarmini. Javob vergulli bo'lishi mumkin." },
-        audio_q: { ru: "Второй вопрос. Основание пять, высота три. Посчитай площадь сам, ответ может быть дробным.", uz: "Ikkinchi savol. Asos besh, balandlik uch. Yuzasini o'zingiz hisoblang, javob kasrli bo'lishi mumkin." },
-        audio_ok: { ru: "Верно, семь целых пять десятых. Пять на три это пятнадцать, а половина это семь с половиной.", uz: "To'g'ri, yetti butun o'ndan besh. Beshni uchga ko'paytirsak o'n besh, yarmi esa yetti yarim." } },
+        q: { ru: 'Основание 5, высота 3. Посчитай площадь сам — может получиться дробь.', uz: "Asos 5, balandlik 3. Yuzasini o'zingiz hisoblang — kasr chiqishi mumkin.", en: 'Base 5, height 3. Work out the area yourself, and it may come out as a decimal.' },
+        hint: { ru: 'Пять умножить на три, потом половина. Ответ может быть с запятой.', uz: "Beshni uchga ko'paytiring, keyin yarmini. Javob vergulli bo'lishi mumkin.", en: 'Five times three, then half of it. The answer may have a comma in it.' },
+        audio_q: { ru: "Второй вопрос. Основание пять, высота три. Посчитай площадь сам, ответ может быть дробным.", uz: "Ikkinchi savol. Asos besh, balandlik uch. Yuzasini o'zingiz hisoblang, javob kasrli bo'lishi mumkin.", en: 'The second question. Base five, height three. Work out the area yourself, and the answer may be a decimal.' },
+        audio_ok: { ru: "Верно, семь целых пять десятых. Пять на три это пятнадцать, а половина это семь с половиной.", uz: "To'g'ri, yetti butun o'ndan besh. Beshni uchga ko'paytirsak o'n besh, yarmi esa yetti yarim.", en: 'That is right, seven point five. Five times three is fifteen, and half of that is seven and a half.' } },
       { kind: 'choice',
-        q: { ru: 'Верно ли: у треугольника с основанием 6 и высотой 4 площадь равна 24?', uz: "To'g'rimi: asosi 6, balandligi 4 uchburchakning yuzasi 24?" },
-        opts: [{ ru: 'Верно', uz: "To'g'ri" }, { ru: 'Неверно', uz: "Noto'g'ri" }], correct: 1,
-        hint: { ru: '24 — это площадь прямоугольника. У треугольника берут половину.', uz: "24 — bu to'g'ri to'rtburchak yuzasi. Uchburchakda yarmini oladilar." },
-        audio_q: { ru: "Третий вопрос. Верно ли, что у треугольника с основанием шесть и высотой четыре площадь равна двадцати четырём?", uz: "Uchinchi savol. Asosi olti, balandligi to'rt uchburchakning yuzasi yigirma to'rt, to'g'rimi?" },
-        audio_ok: { ru: "Правильно, это неверно. Двадцать четыре это прямоугольник, а у треугольника половина, двенадцать.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma to'rt — bu to'g'ri to'rtburchak, uchburchakda esa yarmi, o'n ikki." } },
+        q: { ru: 'Верно ли: у треугольника с основанием 6 и высотой 4 площадь равна 24?', uz: "To'g'rimi: asosi 6, balandligi 4 uchburchakning yuzasi 24?", en: 'Is this true: a triangle with a base of 6 and a height of 4 has an area of 24?' },
+        opts: [{ ru: 'Верно', uz: "To'g'ri", en: 'Correct' }, { ru: 'Неверно', uz: "Noto'g'ri", en: 'Not true' }], correct: 1,
+        hint: { ru: '24 — это площадь прямоугольника. У треугольника берут половину.', uz: "24 — bu to'g'ri to'rtburchak yuzasi. Uchburchakda yarmini oladilar.", en: '24 is the area of the rectangle. For a triangle you take half of it.' },
+        audio_q: { ru: "Третий вопрос. Верно ли, что у треугольника с основанием шесть и высотой четыре площадь равна двадцати четырём?", uz: "Uchinchi savol. Asosi olti, balandligi to'rt uchburchakning yuzasi yigirma to'rt, to'g'rimi?", en: 'The third question. Is it true that a triangle with a base of six and a height of four has an area of twenty four?' },
+        audio_ok: { ru: "Правильно, это неверно. Двадцать четыре это прямоугольник, а у треугольника половина, двенадцать.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma to'rt — bu to'g'ri to'rtburchak, uchburchakda esa yarmi, o'n ikki.", en: 'Correct, that is not true. Twenty four is the rectangle, and the triangle is half of it, twelve.' } },
       { kind: 'order',
-        q: { ru: 'Расставь шаги по порядку: как найти площадь треугольника?', uz: "Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?" },
+        q: { ru: 'Расставь шаги по порядку: как найти площадь треугольника?', uz: "Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?", en: 'Put the steps in order: how do you find the area of a triangle?' },
         steps: [
-          { ru: 'Умножить основание на высоту', uz: "Asosni balandlikka ko'paytirish" },
-          { ru: 'Разделить результат на два', uz: "Natijani ikkiga bo'lish" },
-          { ru: 'Получили площадь треугольника', uz: "Uchburchak yuzasini oldik" }
+          { ru: 'Умножить основание на высоту', uz: "Asosni balandlikka ko'paytirish", en: 'Multiply the base by the height' },
+          { ru: 'Разделить результат на два', uz: "Natijani ikkiga bo'lish", en: 'Divide the answer by two' },
+          { ru: 'Получили площадь треугольника', uz: "Uchburchak yuzasini oldik", en: 'That gives the area of the triangle' }
         ],
         shuffle: [1, 2, 0],
-        hint: { ru: 'Сначала умножают стороны, и только потом делят пополам.', uz: "Avval tomonlarni ko'paytiradilar, keyin yarmiga bo'ladilar." },
-        audio_q: { ru: "Четвёртый вопрос. Расставь по порядку шаги: как найти площадь треугольника?", uz: "To'rtinchi savol. Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?" },
-        audio_ok: { ru: "Верно. Сначала умножить основание на высоту, потом разделить пополам.", uz: "To'g'ri. Avval asosni balandlikka ko'paytirish, keyin yarmiga bo'lish." } }
+        hint: { ru: 'Сначала умножают стороны, и только потом делят пополам.', uz: "Avval tomonlarni ko'paytiradilar, keyin yarmiga bo'ladilar.", en: 'First you multiply the sides and only then halve the answer.' },
+        audio_q: { ru: "Четвёртый вопрос. Расставь по порядку шаги: как найти площадь треугольника?", uz: "To'rtinchi savol. Qadamlarni tartibga soling: uchburchak yuzasini qanday topamiz?", en: 'The fourth question. Put the steps in order: how do you find the area of a triangle?' },
+        audio_ok: { ru: "Верно. Сначала умножить основание на высоту, потом разделить пополам.", uz: "To'g'ri. Avval asosni balandlikka ko'paytirish, keyin yarmiga bo'lish.", en: 'That is right. First multiply the base by the height, then halve it.' } }
     ],
-    done_label: { ru: 'Вопрос', uz: "Savol" },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
-    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz." },
+    done_label: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
+    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz.", en: 'Well done, you have done all four.' },
     audio: {
-      next: { ru: 'Четыре разных задания на площадь треугольника.', uz: "Uchburchak yuzasiga oid to'rt xil topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring." }
+      next: { ru: 'Четыре разных задания на площадь треугольника.', uz: "Uchburchak yuzasiga oid to'rt xil topshiriq.", en: 'Four different tasks on the area of a triangle.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring.", en: 'Look at the hint and try again.' }
     }
   },
 
   // ===== s8 TEST MC — asos 10, balandlik 6 -> 30 (M1: 60, +16, +40) =====
   s8: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Ещё треугольник', uz: "Yana uchburchak" },
-    question: { ru: 'У треугольника основание 10, высота 6. Чему равна площадь?', uz: "Uchburchakning asosi 10, balandligi 6. Yuzasi nechaga teng?" },
-    opt0: { ru: '30', uz: "30" },
-    opt1: { ru: '60', uz: "60" },
-    opt2: { ru: '16', uz: "16" },
-    opt3: { ru: '40', uz: "40" },
-    correct_text: { ru: 'Верно: 10 × 6 = 60, потом 60 : 2 = 30.', uz: "To'g'ri: 10 × 6 = 60, keyin 60 : 2 = 30." },
-    wrong_1: { ru: 'Это площадь прямоугольника. У треугольника нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Uchburchakda yarmini olish kerak. Ikkiga bo'ling." },
-    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish." },
-    wrong_3: { ru: 'Почти. Сначала 10 умножить на 6, это 60, а потом возьми половину.', uz: "Deyarli. Avval 10 ni 6 ga ko'paytiring, bu 60, keyin yarmini oling." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Ещё треугольник', uz: "Yana uchburchak", en: 'Another triangle' },
+    question: { ru: 'У треугольника основание 10, высота 6. Чему равна площадь?', uz: "Uchburchakning asosi 10, balandligi 6. Yuzasi nechaga teng?", en: 'A triangle has a base of 10 and a height of 6. What is the area?' },
+    opt0: { ru: '30', uz: "30", en: '30' },
+    opt1: { ru: '60', uz: "60", en: '60' },
+    opt2: { ru: '16', uz: "16", en: '16' },
+    opt3: { ru: '40', uz: "40", en: '40' },
+    correct_text: { ru: 'Верно: 10 × 6 = 60, потом 60 : 2 = 30.', uz: "To'g'ri: 10 × 6 = 60, keyin 60 : 2 = 30.", en: 'That is right: 10 × 6 = 60, then 60 : 2 = 30.' },
+    wrong_1: { ru: 'Это площадь прямоугольника. У треугольника нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Uchburchakda yarmini olish kerak. Ikkiga bo'ling.", en: 'That is the area of the rectangle. For a triangle you take half of it. Divide by two.' },
+    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish.", en: 'It looks as though you added the sides. The area is the base times the height with half taken.' },
+    wrong_3: { ru: 'Почти. Сначала 10 умножить на 6, это 60, а потом возьми половину.', uz: "Deyarli. Avval 10 ni 6 ga ko'paytiring, bu 60, keyin yarmini oling.", en: 'Almost. First 10 times 6 is 60, then take half of it.' },
     audio: {
-      intro: { ru: "Теперь побольше. Основание десять, высота шесть. Чему равна площадь?", uz: "Endi kattaroq. Asosi o'n, balandligi olti. Yuzasi nechaga teng?" },
-      on_correct: { ru: "Верно, тридцать. Десять умножить на шесть это шестьдесят, а половина от шестидесяти это тридцать.", uz: "To'g'ri, o'ttiz. O'nni oltiga ko'paytirsak oltmish, oltmishning yarmi esa o'ttiz." },
-      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling." }
+      intro: { ru: "Теперь побольше. Основание десять, высота шесть. Чему равна площадь?", uz: "Endi kattaroq. Asosi o'n, balandligi olti. Yuzasi nechaga teng?", en: 'Now a bigger one. Base ten, height six. What is the area?' },
+      on_correct: { ru: "Верно, тридцать. Десять умножить на шесть это шестьдесят, а половина от шестидесяти это тридцать.", uz: "To'g'ri, o'ttiz. O'nni oltiga ko'paytirsak oltmish, oltmishning yarmi esa o'ttiz.", en: 'That is right, thirty. Ten times six is sixty, and half of sixty is thirty.' },
+      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling.", en: 'Multiply the base by the height, then take half of it.' }
     }
   },
 
   // ===== s9 TEST MC — qaysi hisob NOTO'G'RI (yarmini olmagan, to'g'ri to'rtburchak yuzasi) + FactCard FB_HIST (AnimPyramid) =====
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
-    question: { ru: 'Три ученика искали площадь треугольника с основанием 6 и высотой 4. Кто посчитал НЕправильно?', uz: "Uch o'quvchi asosi 6, balandligi 4 uchburchak yuzasini topdi. Kim NOTO'G'RI hisobladi?" },
-    opt0: { ru: 'Малика: 6 × 4 : 2 = 12', uz: "Malika: 6 × 4 : 2 = 12" },
-    opt1: { ru: 'Азиз: 6 × 4 = 24', uz: "Aziz: 6 × 4 = 24" },
-    opt2: { ru: 'Дильшод: (6 × 4) : 2 = 12', uz: "Dilshod: (6 × 4) : 2 = 12" },
-    correct_text: { ru: 'Верно: Азиз умножил основание на высоту, но не взял половину. Это площадь прямоугольника, а не треугольника. Правильно — 12.', uz: "To'g'ri: Aziz asosni balandlikka ko'paytirdi, lekin yarmini olmadi. Bu to'g'ri to'rtburchak yuzasi, uchburchakniki emas. To'g'risi — 12." },
-    wrong_0: { ru: 'Малика умножила основание на высоту и взяла половину, получила двенадцать. Это верно.', uz: "Malika asosni balandlikka ko'paytirib yarmini oldi, o'n ikki chiqdi. Bu to'g'ri." },
-    wrong_2: { ru: 'Дильшод сначала перемножил стороны, потом взял половину, получил двенадцать. Это верно.', uz: "Dilshod avval tomonlarni ko'paytirdi, keyin yarmini oldi, o'n ikki chiqdi. Bu to'g'ri." },
-    fact: { ru: 'Грани египетских пирамид — огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.', uz: "Misr piramidalarining yon yuzlari — ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan." },
-    fact_audio: { ru: "Грани египетских пирамид это огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.", uz: "Misr piramidalarining yon yuzlari ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Где ошибка?', uz: "Xato qayerda?", en: 'Where is the mistake?' },
+    question: { ru: 'Три ученика искали площадь треугольника с основанием 6 и высотой 4. Кто посчитал НЕправильно?', uz: "Uch o'quvchi asosi 6, balandligi 4 uchburchak yuzasini topdi. Kim NOTO'G'RI hisobladi?", en: 'Three pupils worked out the area of a triangle with a base of 6 and a height of 4. Who got it WRONG?' },
+    opt0: { ru: 'Малика: 6 × 4 : 2 = 12', uz: "Malika: 6 × 4 : 2 = 12", en: 'Malika: 6 × 4 : 2 = 12' },
+    opt1: { ru: 'Азиз: 6 × 4 = 24', uz: "Aziz: 6 × 4 = 24", en: 'Aziz: 6 × 4 = 24' },
+    opt2: { ru: 'Дильшод: (6 × 4) : 2 = 12', uz: "Dilshod: (6 × 4) : 2 = 12", en: 'Dilshod: (6 × 4) : 2 = 12' },
+    correct_text: { ru: 'Верно: Азиз умножил основание на высоту, но не взял половину. Это площадь прямоугольника, а не треугольника. Правильно — 12.', uz: "To'g'ri: Aziz asosni balandlikka ko'paytirdi, lekin yarmini olmadi. Bu to'g'ri to'rtburchak yuzasi, uchburchakniki emas. To'g'risi — 12.", en: 'That is right: Aziz multiplied the base by the height but did not take half. That is the area of the rectangle, not the triangle. It should be 12.' },
+    wrong_0: { ru: 'Малика умножила основание на высоту и взяла половину, получила двенадцать. Это верно.', uz: "Malika asosni balandlikka ko'paytirib yarmini oldi, o'n ikki chiqdi. Bu to'g'ri.", en: 'Malika multiplied the base by the height and took half, getting twelve. That is right.' },
+    wrong_2: { ru: 'Дильшод сначала перемножил стороны, потом взял половину, получил двенадцать. Это верно.', uz: "Dilshod avval tomonlarni ko'paytirdi, keyin yarmini oldi, o'n ikki chiqdi. Bu to'g'ri.", en: 'Dilshod multiplied the sides first and then took half, getting twelve. That is right.' },
+    fact: { ru: 'Грани египетских пирамид — огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.', uz: "Misr piramidalarining yon yuzlari — ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan.", en: 'The faces of the Egyptian pyramids are huge triangles. Thousands of years ago the builders knew how to find their area so they could work out how much stone they needed.' },
+    fact_audio: { ru: "Грани египетских пирамид это огромные треугольники. Строители тысячи лет назад умели находить их площадь, чтобы рассчитать камень.", uz: "Misr piramidalarining yon yuzlari ulkan uchburchaklar. Quruvchilar ming yillar oldin tosh hisoblash uchun ularning yuzasini topa olishgan.", en: 'The faces of the Egyptian pyramids are huge triangles. Thousands of years ago the builders knew how to find their area so they could work out how much stone they needed.' },
     audio: {
-      intro: { ru: "Три ученика искали площадь треугольника с основанием шесть и высотой четыре. Найди того, кто посчитал неправильно.", uz: "Uch o'quvchi asosi olti, balandligi to'rt uchburchak yuzasini topdi. Noto'g'ri hisoblaganini toping." },
-      on_correct: { ru: "Верно, ошибся Азиз. Он умножил основание на высоту, но не взял половину, поэтому получил площадь прямоугольника, двадцать четыре вместо двенадцати.", uz: "To'g'ri, Aziz xato qildi. U asosni balandlikka ko'paytirdi, lekin yarmini olmadi, shuning uchun to'g'ri to'rtburchak yuzasini topdi, o'n ikki o'rniga yigirma to'rt." },
-      on_wrong: { ru: "Кто не разделил на два, тот нашёл площадь прямоугольника.", uz: "Kim ikkiga bo'lmagan bo'lsa, to'g'ri to'rtburchak yuzasini topgan." }
+      intro: { ru: "Три ученика искали площадь треугольника с основанием шесть и высотой четыре. Найди того, кто посчитал неправильно.", uz: "Uch o'quvchi asosi olti, balandligi to'rt uchburchak yuzasini topdi. Noto'g'ri hisoblaganini toping.", en: 'Three pupils worked out the area of a triangle with a base of six and a height of four. Find the one who got it wrong.' },
+      on_correct: { ru: "Верно, ошибся Азиз. Он умножил основание на высоту, но не взял половину, поэтому получил площадь прямоугольника, двадцать четыре вместо двенадцати.", uz: "To'g'ri, Aziz xato qildi. U asosni balandlikka ko'paytirdi, lekin yarmini olmadi, shuning uchun to'g'ri to'rtburchak yuzasini topdi, o'n ikki o'rniga yigirma to'rt.", en: 'That is right, Aziz got it wrong. He multiplied the base by the height but did not take half, so he got the area of the rectangle, twenty four instead of twelve.' },
+      on_wrong: { ru: "Кто не разделил на два, тот нашёл площадь прямоугольника.", uz: "Kim ikkiga bo'lmagan bo'lsa, to'g'ri to'rtburchak yuzasini topgan.", en: 'Whoever did not divide by two found the area of the rectangle.' }
     }
   },
 
   // ===== s10 CASE setup — Bekzod uchburchak bayroq tikadi, asos 8, balandlik 6 =====
   s10: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    bridge: { ru: 'Задачи решили, перейдём к настоящему флажку.', uz: "Masalalarni yechdik, endi haqiqiy bayroqchaga o'tamiz." },
-    title: { ru: 'Флажок Бекзода', uz: "Bekzodning bayrog'i" },
-    lead: { ru: 'Бекзод шьёт треугольный флажок. Основание флажка 8 см, высота 6 см.', uz: "Bekzod uchburchak bayroqcha tikyapti. Bayroqning asosi 8 sm, balandligi 6 sm." },
-    note: { ru: 'Сколько ткани нужно на один такой флажок?', uz: "Bitta shunday bayroq uchun qancha mato kerak?" },
-    hint_calc: { ru: 'Площадь ткани — это площадь треугольника. Умножь основание на высоту и возьми половину.', uz: "Mato yuzasi — uchburchak yuzasi. Asosni balandlikka ko'paytirib, yarmini oling." },
-    btn_help: { ru: 'Решить', uz: "Yechish" },
-    audio: { ru: "Бекзод шьёт треугольный флажок. Основание восемь сантиметров, высота шесть. Подумай, площадь ткани это площадь треугольника, значит основание умножить на высоту и взять половину.", uz: "Bekzod uchburchak bayroqcha tikyapti. Asosi sakkiz santimetr, balandligi olti. O'ylab ko'ring, mato yuzasi uchburchak yuzasi, demak asosni balandlikka ko'paytirib, yarmini olish kerak." }
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    bridge: { ru: 'Задачи решили, перейдём к настоящему флажку.', uz: "Masalalarni yechdik, endi haqiqiy bayroqchaga o'tamiz.", en: 'The problems are done, so let us move on to a real flag.' },
+    title: { ru: 'Флажок Бекзода', uz: "Bekzodning bayrog'i", en: "Bekzod's flag" },
+    lead: { ru: 'Бекзод шьёт треугольный флажок. Основание флажка 8 см, высота 6 см.', uz: "Bekzod uchburchak bayroqcha tikyapti. Bayroqning asosi 8 sm, balandligi 6 sm.", en: 'Bekzod is sewing a triangular flag. Its base is 8 cm and its height is 6 cm.' },
+    note: { ru: 'Сколько ткани нужно на один такой флажок?', uz: "Bitta shunday bayroq uchun qancha mato kerak?", en: 'How much fabric is needed for one flag like that?' },
+    hint_calc: { ru: 'Площадь ткани — это площадь треугольника. Умножь основание на высоту и возьми половину.', uz: "Mato yuzasi — uchburchak yuzasi. Asosni balandlikka ko'paytirib, yarmini oling.", en: 'The amount of fabric is the area of the triangle. Multiply the base by the height and take half of it.' },
+    btn_help: { ru: 'Решить', uz: "Yechish", en: 'Solve it' },
+    audio: { ru: "Бекзод шьёт треугольный флажок. Основание восемь сантиметров, высота шесть. Подумай, площадь ткани это площадь треугольника, значит основание умножить на высоту и взять половину.", uz: "Bekzod uchburchak bayroqcha tikyapti. Asosi sakkiz santimetr, balandligi olti. O'ylab ko'ring, mato yuzasi uchburchak yuzasi, demak asosni balandlikka ko'paytirib, yarmini olish kerak.", en: 'Bekzod is sewing a triangular flag with a base of eight centimetres and a height of six. Think: the amount of fabric is the area of the triangle, so multiply the base by the height and take half of it.' }
   },
 
   // ===== s11 TEST MC (case) — bayroq yuzasi 8x6 -> 24 + FactCard FB_MATH (AnimHalf) =====
   s11: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Topshiriq" },
-    title: { ru: 'Площадь флажка', uz: "Bayroq yuzasi" },
-    question: { ru: 'Флажок: основание 8 см, высота 6 см. Сколько ткани нужно?', uz: "Bayroq: asosi 8 sm, balandligi 6 sm. Qancha mato kerak?" },
-    opt0: { ru: '24 см²', uz: "24 sm²" },
-    opt1: { ru: '48 см²', uz: "48 sm²" },
-    opt2: { ru: '14 см²', uz: "14 sm²" },
-    opt3: { ru: '28 см²', uz: "28 sm²" },
-    correct_text: { ru: 'Верно: 8 × 6 = 48, потом 48 : 2 = 24 см².', uz: "To'g'ri: 8 × 6 = 48, keyin 48 : 2 = 24 sm²." },
-    wrong_1: { ru: 'Это площадь прямоугольника. Флажок треугольный, нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Bayroq uchburchak shaklida, yarmini olish kerak. Ikkiga bo'ling." },
-    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish." },
-    wrong_3: { ru: 'Почти. Сначала 8 умножить на 6, это 48, а потом возьми половину.', uz: "Deyarli. Avval 8 ni 6 ga ko'paytiring, bu 48, keyin yarmini oling." },
-    fact: { ru: 'Половина прямоугольника — это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.', uz: "To'g'ri to'rtburchakning yarmi — aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'g'ri to'rtburchak yuzasidan doim ikki barobar kichik." },
-    fact_audio: { ru: "Половина прямоугольника это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.", uz: "To'g'ri to'rtburchakning yarmi aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'g'ri to'rtburchak yuzasidan doim ikki barobar kichik." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Topshiriq", en: 'Final task' },
+    title: { ru: 'Площадь флажка', uz: "Bayroq yuzasi", en: 'The area of the flag' },
+    question: { ru: 'Флажок: основание 8 см, высота 6 см. Сколько ткани нужно?', uz: "Bayroq: asosi 8 sm, balandligi 6 sm. Qancha mato kerak?", en: 'The flag has a base of 8 cm and a height of 6 cm. How much fabric is needed?' },
+    opt0: { ru: '24 см²', uz: "24 sm²", en: '24 sq cm' },
+    opt1: { ru: '48 см²', uz: "48 sm²", en: '48 cm²' },
+    opt2: { ru: '14 см²', uz: "14 sm²", en: '14 sq cm' },
+    opt3: { ru: '28 см²', uz: "28 sm²", en: '28 cm²' },
+    correct_text: { ru: 'Верно: 8 × 6 = 48, потом 48 : 2 = 24 см².', uz: "To'g'ri: 8 × 6 = 48, keyin 48 : 2 = 24 sm².", en: 'That is right: 8 × 6 = 48, then 48 : 2 = 24 cm².' },
+    wrong_1: { ru: 'Это площадь прямоугольника. Флажок треугольный, нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Bayroq uchburchak shaklida, yarmini olish kerak. Ikkiga bo'ling.", en: 'That is the area of a rectangle. The flag is a triangle, so you take half of it. Divide by two.' },
+    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish.", en: 'It looks as though you added the sides. The area is the base times the height with half taken.' },
+    wrong_3: { ru: 'Почти. Сначала 8 умножить на 6, это 48, а потом возьми половину.', uz: "Deyarli. Avval 8 ni 6 ga ko'paytiring, bu 48, keyin yarmini oling.", en: 'Almost. First 8 times 6 is 48, then take half of it.' },
+    fact: { ru: 'Половина прямоугольника — это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.', uz: "To'g'ri to'rtburchakning yarmi — aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'g'ri to'rtburchak yuzasidan doim ikki barobar kichik.", en: 'Half a rectangle is exactly a triangle. That is why the area of a triangle is always half the area of a rectangle with the same base and height.' },
+    fact_audio: { ru: "Половина прямоугольника это и есть треугольник. Поэтому площадь треугольника всегда вдвое меньше площади прямоугольника с теми же основанием и высотой.", uz: "To'g'ri to'rtburchakning yarmi aynan uchburchak. Shuning uchun uchburchak yuzasi xuddi shu asos va balandlikka ega to'g'ri to'rtburchak yuzasidan doim ikki barobar kichik.", en: 'Half a rectangle is exactly a triangle. That is why the area of a triangle is always half the area of a rectangle with the same base and height.' },
     audio: {
-      intro: { ru: "Флажок с основанием восемь сантиметров и высотой шесть. Сколько ткани нужно?", uz: "Asosi sakkiz santimetr, balandligi olti bo'lgan bayroq. Qancha mato kerak?" },
-      on_correct: { ru: "Верно, двадцать четыре квадратных сантиметра. Восемь умножить на шесть это сорок восемь, а половина от сорока восьми это двадцать четыре.", uz: "To'g'ri, yigirma to'rt kvadrat santimetr. Sakkizni oltiga ko'paytirsak qirq sakkiz, qirq sakkizning yarmi esa yigirma to'rt." },
-      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling." }
+      intro: { ru: "Флажок с основанием восемь сантиметров и высотой шесть. Сколько ткани нужно?", uz: "Asosi sakkiz santimetr, balandligi olti bo'lgan bayroq. Qancha mato kerak?", en: 'A flag with a base of eight centimetres and a height of six. How much fabric is needed?' },
+      on_correct: { ru: "Верно, двадцать четыре квадратных сантиметра. Восемь умножить на шесть это сорок восемь, а половина от сорока восьми это двадцать четыре.", uz: "To'g'ri, yigirma to'rt kvadrat santimetr. Sakkizni oltiga ko'paytirsak qirq sakkiz, qirq sakkizning yarmi esa yigirma to'rt.", en: 'That is right, twenty four square centimetres. Eight times six is forty eight, and half of forty eight is twenty four.' },
+      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling.", en: 'Multiply the base by the height, then take half of it.' }
     }
   },
 
   // ===== s12 FINAL MC — uchburchak tom peshtoqi, asos 10, balandlik 4 -> 20 + FactCard FB_IT (AnimMesh) =====
   s12: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Фронтон крыши', uz: "Tom peshtog'i" },
-    question: { ru: 'Треугольный фронтон крыши: основание 10 м, высота 4 м. Чему равна его площадь?', uz: "Tomning uchburchak peshtog'i: asosi 10 m, balandligi 4 m. Yuzasi nechaga teng?" },
-    opt0: { ru: '20 м²', uz: "20 m²" },
-    opt1: { ru: '40 м²', uz: "40 m²" },
-    opt2: { ru: '14 м²', uz: "14 m²" },
-    opt3: { ru: '28 м²', uz: "28 m²" },
-    correct_text: { ru: 'Верно: 10 × 4 = 40, потом 40 : 2 = 20 м².', uz: "To'g'ri: 10 × 4 = 40, keyin 40 : 2 = 20 m²." },
-    wrong_1: { ru: 'Это площадь прямоугольника. Фронтон треугольный, нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Peshtoq uchburchak shaklida, yarmini olish kerak. Ikkiga bo'ling." },
-    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish." },
-    wrong_3: { ru: 'Почти. Сначала 10 умножить на 4, это 40, а потом возьми половину.', uz: "Deyarli. Avval 10 ni 4 ga ko'paytiring, bu 40, keyin yarmini oling." },
-    fact: { ru: 'В компьютерной графике любую 3D-модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.', uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi." },
-    fact_audio: { ru: "В компьютерной графике любую трёхмерную модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.", uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq", en: 'Final task' },
+    title: { ru: 'Фронтон крыши', uz: "Tom peshtog'i", en: 'A roof gable' },
+    question: { ru: 'Треугольный фронтон крыши: основание 10 м, высота 4 м. Чему равна его площадь?', uz: "Tomning uchburchak peshtog'i: asosi 10 m, balandligi 4 m. Yuzasi nechaga teng?", en: 'A triangular roof gable with a base of 10 m and a height of 4 m. What is its area?' },
+    opt0: { ru: '20 м²', uz: "20 m²", en: '20 m²' },
+    opt1: { ru: '40 м²', uz: "40 m²", en: '40 m²' },
+    opt2: { ru: '14 м²', uz: "14 m²", en: '14 m²' },
+    opt3: { ru: '28 м²', uz: "28 m²", en: '28 m²' },
+    correct_text: { ru: 'Верно: 10 × 4 = 40, потом 40 : 2 = 20 м².', uz: "To'g'ri: 10 × 4 = 40, keyin 40 : 2 = 20 m².", en: 'That is right: 10 × 4 = 40, then 40 : 2 = 20 m².' },
+    wrong_1: { ru: 'Это площадь прямоугольника. Фронтон треугольный, нужно взять половину. Подели на два.', uz: "Bu to'g'ri to'rtburchak yuzasi. Peshtoq uchburchak shaklida, yarmini olish kerak. Ikkiga bo'ling.", en: 'That is the area of a rectangle. The gable is a triangle, so you take half of it. Divide by two.' },
+    wrong_2: { ru: 'Похоже, ты сложил стороны. Площадь, это основание умножить на высоту и взять половину.', uz: "Tomonlarni qo'shganga o'xshaysiz. Yuza, asosni balandlikka ko'paytirib, yarmini olish.", en: 'It looks as though you added the sides. The area is the base times the height with half taken.' },
+    wrong_3: { ru: 'Почти. Сначала 10 умножить на 4, это 40, а потом возьми половину.', uz: "Deyarli. Avval 10 ni 4 ga ko'paytiring, bu 40, keyin yarmini oling.", en: 'Almost. First 10 times 4 is 40, then take half of it.' },
+    fact: { ru: 'В компьютерной графике любую 3D-модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.', uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi.", en: 'In computer graphics every 3D model is built from thousands of tiny triangles. The area of each one is worked out with this very formula.' },
+    fact_audio: { ru: "В компьютерной графике любую трёхмерную модель собирают из тысяч маленьких треугольников. Площадь каждого считают по той же формуле.", uz: "Kompyuter grafikasida har qanday uch o'lchamli model minglab kichik uchburchaklardan yig'iladi. Har birining yuzasi xuddi shu formula bilan hisoblanadi.", en: 'In computer graphics every three dimensional model is built from thousands of tiny triangles. The area of each one is worked out with this very formula.' },
     audio: {
-      intro: { ru: "Последнее задание. Треугольный фронтон крыши, основание десять метров, высота четыре. Чему равна площадь?", uz: "Oxirgi topshiriq. Tomning uchburchak peshtog'i, asosi o'n metr, balandligi to'rt. Yuzasi nechaga teng?" },
-      on_correct: { ru: "Верно, двадцать квадратных метров. Десять умножить на четыре это сорок, а половина от сорока это двадцать.", uz: "To'g'ri, yigirma kvadrat metr. O'nni to'rtga ko'paytirsak qirq, qirqning yarmi esa yigirma." },
-      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling." }
+      intro: { ru: "Последнее задание. Треугольный фронтон крыши, основание десять метров, высота четыре. Чему равна площадь?", uz: "Oxirgi topshiriq. Tomning uchburchak peshtog'i, asosi o'n metr, balandligi to'rt. Yuzasi nechaga teng?", en: 'The last task. A triangular roof gable with a base of ten metres and a height of four. What is its area?' },
+      on_correct: { ru: "Верно, двадцать квадратных метров. Десять умножить на четыре это сорок, а половина от сорока это двадцать.", uz: "To'g'ri, yigirma kvadrat metr. O'nni to'rtga ko'paytirsak qirq, qirqning yarmi esa yigirma.", en: 'That is right, twenty square metres. Ten times four is forty, and half of forty is twenty.' },
+      on_wrong: { ru: "Умножь основание на высоту, а потом возьми половину.", uz: "Asosni balandlikka ko'paytiring, keyin yarmini oling.", en: 'Multiply the base by the height, then take half of it.' }
     }
   },
 
   // ===== s13 SUMMARY =====
   s13: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Треугольник — половина', uz: "Uchburchak — yarmi" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Треугольник — это половина прямоугольника с теми же основанием и высотой.', uz: "Uchburchak — xuddi shu asos va balandlikka ega to'g'ri to'rtburchakning yarmi." },
-    main_2: { ru: 'Площадь треугольника: S = (основание × высота) : 2.', uz: "Uchburchak yuzasi: S = (asos × balandlik) : 2." },
-    main_3: { ru: 'Не забывай делить на два, а высоту бери перпендикулярно основанию.', uz: "Ikkiga bo'lishni unutmang, balandlikni esa asosga perpendikulyar oling." },
-    hook_close: { ru: 'Теперь ясно: у Темура площадь не 24, а 12 — он забыл взять половину. 24 — это площадь прямоугольника.', uz: "Endi aniq: Temurda yuza 24 emas, 12 — u yarmini olishni unutdi. 24 — bu to'g'ri to'rtburchak yuzasi." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Площадь прямоугольника, умножение и деление пополам.', uz: "To'g'ri to'rtburchak yuzasi, ko'paytirish va yarmiga bo'lish." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Площадь сложных фигур из прямоугольников и треугольников.', uz: "To'g'ri to'rtburchak va uchburchaklardan iborat murakkab figuralar yuzasi." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, треугольник это половина прямоугольника. Площадь треугольника равна основанию умножить на высоту и разделить на два. Главное, не забывай брать половину, а высоту проводи к основанию под прямым углом.", uz: "Demak, uchburchak to'g'ri to'rtburchakning yarmi. Uchburchak yuzasi asosni balandlikka ko'paytirib, ikkiga bo'lishga teng. Asosiysi, yarmini olishni unutmang, balandlikni esa asosga to'g'ri burchak ostida o'tkazing." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Треугольник — половина', uz: "Uchburchak — yarmi", en: 'A triangle is a half' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Треугольник — это половина прямоугольника с теми же основанием и высотой.', uz: "Uchburchak — xuddi shu asos va balandlikka ega to'g'ri to'rtburchakning yarmi.", en: 'A triangle is half a rectangle with the same base and height.' },
+    main_2: { ru: 'Площадь треугольника: S = (основание × высота) : 2.', uz: "Uchburchak yuzasi: S = (asos × balandlik) : 2.", en: 'The area of a triangle: S = (base × height) : 2.' },
+    main_3: { ru: 'Не забывай делить на два, а высоту бери перпендикулярно основанию.', uz: "Ikkiga bo'lishni unutmang, balandlikni esa asosga perpendikulyar oling.", en: 'Do not forget to divide by two, and take the height perpendicular to the base.' },
+    hook_close: { ru: 'Теперь ясно: у Темура площадь не 24, а 12 — он забыл взять половину. 24 — это площадь прямоугольника.', uz: "Endi aniq: Temurda yuza 24 emas, 12 — u yarmini olishni unutdi. 24 — bu to'g'ri to'rtburchak yuzasi.", en: "Now it is clear: Temur's area is 12, not 24. He forgot to take half. 24 is the area of the rectangle." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Площадь прямоугольника, умножение и деление пополам.', uz: "To'g'ri to'rtburchak yuzasi, ko'paytirish va yarmiga bo'lish.", en: 'The area of a rectangle, multiplying and halving.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Площадь сложных фигур из прямоугольников и треугольников.', uz: "To'g'ri to'rtburchak va uchburchaklardan iborat murakkab figuralar yuzasi.", en: 'The area of more complicated shapes made of rectangles and triangles.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, треугольник это половина прямоугольника. Площадь треугольника равна основанию умножить на высоту и разделить на два. Главное, не забывай брать половину, а высоту проводи к основанию под прямым углом.", uz: "Demak, uchburchak to'g'ri to'rtburchakning yarmi. Uchburchak yuzasi asosni balandlikka ko'paytirib, ikkiga bo'lishga teng. Asosiysi, yarmini olishni unutmang, balandlikni esa asosga to'g'ri burchak ostida o'tkazing.", en: 'So a triangle is half a rectangle. The area of a triangle is the base times the height divided by two. The main thing is not to forget to take half, and to draw the height to the base at a right angle.' }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1096,8 +1123,8 @@ const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bri
 // Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
-const FB_IT     = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT" };
-const FB_MATH   = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika" };
+const FB_IT     = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT",         en: 'Did you know? · IT' };
+const FB_MATH   = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika", en: 'Did you know? · Mathematics' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1112,7 +1139,7 @@ const FactCard = ({ text, anim, badge }) => {
   );
 };
 
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
 
 // ============================================================
 // DEKOR — FloatTris (suzuvchi mini-uchburchaklar, uchburchak motivi)
@@ -1251,13 +1278,13 @@ const NumGeoScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, co
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1377,13 +1404,13 @@ const Screen1 = ({ screen, onAnswer, onNext, onPrev }) => {
         </div>
         <FeedbackBlock show={wrong.size > 0 && !done} isCorrect={false} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}
+            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}
           </p>
           <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
         </FeedbackBlock>
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
           </FeedbackBlock>
         )}
@@ -1559,13 +1586,13 @@ const Screen6 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         </div>
         {wrong.size > 0 && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1694,13 +1721,13 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         </div>
         {showHint && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
           </div>
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
           </FeedbackBlock>
         )}
@@ -1776,7 +1803,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s13;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1805,7 +1832,7 @@ export default function TriangleAreaLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1858,7 +1885,7 @@ export default function TriangleAreaLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

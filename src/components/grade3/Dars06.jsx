@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri , pickSib } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -133,8 +133,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 12;
 const LESSON_META = {
-  lessonId: 'num-3-06',
-  lessonTitle: { ru: 'Урок 6. Число на числовой прямой', uz: "6-dars. Son o'qida son" }
+  lessonId: 'grade3-06',
+  lessonTitle: { ru: 'Урок 6. Число на числовой прямой', uz: "6-dars. Son o'qida son", en: 'Lesson 6. A number on the number line' }
 };
 // STRUKTURA: 1–6 tushuntirish · 7–10 mashq · 11 final · 12 xulosa. Grade2 Dars01 etaloni yoyi,
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
@@ -166,14 +166,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: son o'qi 300-800, 470 qaysi ikki yuzlik orasida
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: число на числовой прямой', uz: "Mavzu: son o'qida son" },
-    lead: { ru: 'Большая шкала города от 300 до 800.', uz: "Shaharning katta shkalasi 300 dan 800 gacha." },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: число на числовой прямой', uz: "Mavzu: son o'qida son", en: 'Topic: a number on the number line' },
+    lead: { ru: 'Большая шкала города от 300 до 800.', uz: "Shaharning katta shkalasi 300 dan 800 gacha.", en: 'The big city scale from 300 to 800.' },
     n: 470, lo: 300, hi: 800,
-    q: { ru: 'Между какими сотнями стоит 470?', uz: '470 qaysi yuzliklar orasida turadi?' },
-    opt0: { ru: '400 и 500', uz: '400 va 500' },
-    opt1: { ru: '300 и 400', uz: '300 va 400' },
-    opt2: { ru: '500 и 600', uz: '500 va 600' },
+    q: { ru: 'Между какими сотнями стоит 470?', uz: '470 qaysi yuzliklar orasida turadi?', en: 'Between which hundreds does 470 stand?' },
+    opt0: { ru: '400 и 500', uz: '400 va 500', en: '400 and 500' },
+    opt1: { ru: '300 и 400', uz: '300 va 400', en: '300 and 400' },
+    opt2: { ru: '500 и 600', uz: '500 va 600', en: '500 and 600' },
     audio: {
       intro: {
         ru: [
@@ -187,17 +187,18 @@ const CONTENT = {
           "O'tgan hududda sonlarni yaxlitladik. Endi Bit shaharning katta shkalasini ko'rsatadi.",
           "Shkala uch yuzdan sakkiz yuzgacha. Katta belgilar bu yuzliklar. Shkalada to'rt yuz yetmish soni turadi.",
           "Sizningcha, u qaysi yuzliklar orasida turadi? Variantni tanlang."
-        ]
+        ],
+        en: ["Today's topic is a number on the number line. We will learn to find the place of a number on the big scale.", 'In the last district we were rounding numbers. Now Bit is showing the big city scale.', 'The scale runs from three hundred to eight hundred. The big marks are hundreds. On the scale stands the number four hundred seventy.', 'Between which hundreds do you think it stands? Choose an answer.']
       },
-      on_correct: { ru: 'Верно. Четыреста семьдесят стоит между четырьмястами и пятьюстами.', uz: "To'g'ri. To'rt yuz yetmish to'rt yuz bilan besh yuz orasida turadi." },
-      on_wrong: { ru: 'Смотри на сотни слева и справа от числа. Проверим вместе.', uz: "Sonning chap va o'ngidagi yuzliklarga qarang. Birga tekshiramiz." }
+      on_correct: { ru: 'Верно. Четыреста семьдесят стоит между четырьмястами и пятьюстами.', uz: "To'g'ri. To'rt yuz yetmish to'rt yuz bilan besh yuz orasida turadi.", en: 'Correct. Four hundred seventy stands between four hundred and five hundred.' },
+      on_wrong: { ru: 'Смотри на сотни слева и справа от числа. Проверим вместе.', uz: "Sonning chap va o'ngidagi yuzliklarga qarang. Birga tekshiramiz.", en: 'Look at the hundreds to the left and to the right of the number. Let us check together.' }
     }
   },
 
   // s1 — RECALL: o'qda tartib
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'На прямой числа стоят по порядку.', uz: "O'qda sonlar tartib bilan turadi." },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'На прямой числа стоят по порядку.', uz: "O'qda sonlar tartib bilan turadi.", en: 'On the line the numbers stand in order.' },
     audio: {
       ru: [
         'Вспомним. На числовой прямой числа стоят по порядку. Чем правее, тем больше.',
@@ -206,14 +207,15 @@ const CONTENT = {
       uz: [
         "Eslaymiz. Son o'qida sonlar tartib bilan turadi. Qancha o'ngda bo'lsa, shuncha katta.",
         "Chapda kichik sonlar, o'ngda katta sonlar. Ikki belgi orasida doim kichikroq va kattaroq sonlar bor."
-      ]
+      ],
+      en: ['Let us recall. On a number line the numbers stand in order. The further right, the greater.', 'Smaller numbers on the left, greater ones on the right. Between two marks there are always smaller and greater numbers.']
     }
   },
 
   // s2 — SHKALA tuzilishi: katta belgi=yuzlik, kichik=o'nlik
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Большие метки — сотни, маленькие — десятки.', uz: "Katta belgilar — yuzliklar, kichiklari — o'nliklar." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Большие метки — сотни, маленькие — десятки.', uz: "Katta belgilar — yuzliklar, kichiklari — o'nliklar.", en: 'Big marks are hundreds, small ones are tens.' },
     lo: 300, hi: 500,
     audio: {
       ru: [
@@ -223,16 +225,17 @@ const CONTENT = {
       uz: [
         "Uch yuzdan besh yuzgacha shkalaga qaraymiz. Katta belgilar bu yumaloq yuzliklar.",
         "Yuzliklar orasida kichik belgilar turadi, bu o'nliklar. Belgidan belgigacha bitta qadam bu o'n."
-      ]
+      ],
+      en: ['Let us look at the scale from three hundred to five hundred. The big marks are round hundreds.', 'Between the hundreds there are small marks, these are tens. From mark to mark one step is ten.']
     }
   },
 
   // s3 — JOYLASH: 470 ni topish (400 + 7 qadam)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Найдём место числа 470.', uz: "470 sonining o'rnini topamiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Найдём место числа 470.', uz: "470 sonining o'rnini topamiz.", en: 'Let us find the place of 470.' },
     n: 470, lo: 300, hi: 800,
-    done_text: { ru: 'Один большой шаг до четырёхсот, потом семь маленьких по десять — четыреста семьдесят.', uz: "Bir katta qadam to'rt yuzga, keyin yetti kichik qadam o'ndan — to'rt yuz yetmish." },
+    done_text: { ru: 'Один большой шаг до четырёхсот, потом семь маленьких по десять — четыреста семьдесят.', uz: "Bir katta qadam to'rt yuzga, keyin yetti kichik qadam o'ndan — to'rt yuz yetmish.", en: 'One big step to four hundred, then seven small ones of ten — four hundred seventy.' },
     audio: {
       ru: [
         'Найдём четыреста семьдесят. Начинаем от левого края шкалы.',
@@ -243,16 +246,17 @@ const CONTENT = {
         "To'rt yuz yetmishni topamiz. Shkalaning chap chekkasidan boshlaymiz.",
         "Yuzdan katta qadamlar qo'yamiz. To'rt yuzga yetamiz.",
         "Keyin yetti kichik qadam o'ndan. To'rt yuz yetmishga yetamiz. Mana uning o'rni, to'rt yuz bilan besh yuz orasida."
-      ]
+      ],
+      en: ['Let us find four hundred seventy. We start from the left edge of the scale.', 'We take big steps of a hundred. We reach four hundred.', 'Then seven small steps of ten. We reach four hundred seventy. Here is its place, between four hundred and five hundred.']
     }
   },
 
   // s4 — O'QISH: belgi 650 da, bu qaysi son
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Прочитаем число по метке.', uz: "Belgi bo'yicha sonni o'qiymiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Прочитаем число по метке.', uz: "Belgi bo'yicha sonni o'qiymiz.", en: 'Let us read the number from the mark.' },
     n: 650, lo: 400, hi: 900,
-    done_text: { ru: 'Метка стоит на шестистах и ещё пять десятков — это шестьсот пятьдесят.', uz: "Belgi olti yuzda va yana besh o'nlik — bu olti yuz ellik." },
+    done_text: { ru: 'Метка стоит на шестистах и ещё пять десятков — это шестьсот пятьдесят.', uz: "Belgi olti yuzda va yana besh o'nlik — bu olti yuz ellik.", en: 'The mark stands at six hundred and five more tens — that is six hundred fifty.' },
     audio: {
       ru: [
         'Теперь наоборот. Метка уже стоит на шкале, а число надо прочитать.',
@@ -263,21 +267,23 @@ const CONTENT = {
         "Endi teskari. Belgi shkalada turibdi, sonni esa o'qish kerak.",
         "Belgi qayerda ekaniga qaraymiz. U olti yuzdan o'tib, beshinchi kichik qadamda turibdi.",
         "Beshta qadam o'ndan bu ellik. Demak belgi olti yuz ellikni ko'rsatadi."
-      ]
+      ],
+      en: ['Now the other way round. The mark already stands on the scale, and we have to read the number.', 'We look at where the mark is. It has passed six hundred and stands on the fifth small step.', 'Five steps of ten is fifty. So the mark shows six hundred fifty.']
     }
   },
 
   // s5 — QOIDA
   s5: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Большие метки — круглые сотни, между ними маленькие метки десятков. Число ищем шагами: сотни большими шагами, десятки маленькими.', uz: "Katta belgilar — yumaloq yuzliklar, ular orasida o'nlik belgilari. Sonni qadamlab topamiz: yuzlik katta qadam, o'nlik kichik qadam." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Большие метки — круглые сотни, между ними маленькие метки десятков. Число ищем шагами: сотни большими шагами, десятки маленькими.', uz: "Katta belgilar — yumaloq yuzliklar, ular orasida o'nlik belgilari. Sonni qadamlab topamiz: yuzlik katta qadam, o'nlik kichik qadam.", en: 'The big marks are round hundreds, and between them are the small marks of tens. We find a number in steps: hundreds with big steps, tens with small ones.' },
     n: 340, lo: 300, hi: 500,
-    check_q: { ru: 'Между какими сотнями стоит 340? Нажми верный ответ.', uz: '340 qaysi yuzliklar orasida? To\'g\'ri javobni bosing.' },
+    check_q: { ru: 'Между какими сотнями стоит 340? Нажми верный ответ.', uz: '340 qaysi yuzliklar orasida? To\'g\'ri javobni bosing.', en: 'Between which hundreds does 340 stand? Tap the correct answer.' },
     check_opts: ['300 и 400', '400 и 500'],
     check_opts_uz: ['300 va 400', '400 va 500'],
+    check_opts_en: ['300 and 400', '400 and 500'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! 340 стоит между тремястами и четырьмястами.', uz: "To'g'ri! 340 uch yuz bilan to'rt yuz orasida turadi." },
-    check_no: { ru: 'Сотни у 340 это три, значит между 300 и 400.', uz: "340 da yuzlik uch, demak 300 bilan 400 orasida." },
+    check_ok: { ru: 'Верно! 340 стоит между тремястами и четырьмястами.', uz: "To'g'ri! 340 uch yuz bilan to'rt yuz orasida turadi.", en: 'Correct! 340 stands between three hundred and four hundred.' },
+    check_no: { ru: 'Сотни у 340 это три, значит между 300 и 400.', uz: "340 da yuzlik uch, demak 300 bilan 400 orasida.", en: 'The hundreds of 340 are three, so between 300 and 400.' },
     audio: {
       ru: [
         'Отлично, теперь запомним правило числовой прямой.',
@@ -290,229 +296,232 @@ const CONTENT = {
         "Katta belgilar bu yumaloq yuzliklar. Ular orasida kichik belgilar, bu o'nliklar. Bitta kichik qadam bu o'n.",
         "Sonni topish uchun qadamlab boramiz. Avval yuzdan katta qadam, keyin o'ndan kichik qadam.",
         "Belgini o'qish uchun esa u nechta yuzlik va nechta o'nlik o'tganiga qaraymiz. Endi o'zingiz. Uch yuz qirq qaysi yuzliklar orasida?"
-      ]
+      ],
+      en: ['Excellent, now let us remember the rule of the number line.', 'The big marks are round hundreds. Between them are small marks, these are tens. One small step is ten.', 'To find a number we go in steps. First big steps of a hundred, then small ones of a ten.', 'And to read a mark we look at how many hundreds and how many tens it has passed. And now on your own. Between which hundreds does three hundred forty stand?']
     }
   },
 
   // s6 — MASHQ qaysi orasida (MC), 3 raund
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Между какими сотнями стоит число?', uz: 'Son qaysi yuzliklar orasida turadi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Между какими сотнями стоит число?', uz: 'Son qaysi yuzliklar orasida turadi?', en: 'Between which hundreds does the number stand?' },
     items: [
       {
         num: 380, lo: 200, hi: 600, ci: 0,
-        opts: [{ ru: '300 и 400', uz: '300 va 400' }, { ru: '400 и 500', uz: '400 va 500' }, { ru: '200 и 300', uz: '200 va 300' }],
+        opts: [{ ru: '300 и 400', uz: '300 va 400', en: '300 and 400' }, { ru: '400 и 500', uz: '400 va 500', en: '400 and 500' }, { ru: '200 и 300', uz: '200 va 300', en: '200 and 300' }],
         hints: {
-          1: { ru: 'Сотни у 380 это три, значит между 300 и 400.', uz: "380 da yuzlik uch, demak 300 bilan 400 orasida." },
-          2: { ru: 'Триста восемьдесят больше трёхсот, значит правее.', uz: "Uch yuz sakson uch yuzdan katta, demak o'ngroqda." }
+          1: { ru: 'Сотни у 380 это три, значит между 300 и 400.', uz: "380 da yuzlik uch, demak 300 bilan 400 orasida.", en: 'The hundreds of 380 are three, so between 300 and 400.' },
+          2: { ru: 'Триста восемьдесят больше трёхсот, значит правее.', uz: "Uch yuz sakson uch yuzdan katta, demak o'ngroqda.", en: 'Three hundred eighty is greater than three hundred, so further right.' }
         }
       },
       {
         num: 720, lo: 600, hi: 900, ci: 0,
-        opts: [{ ru: '700 и 800', uz: '700 va 800' }, { ru: '600 и 700', uz: '600 va 700' }, { ru: '800 и 900', uz: '800 va 900' }],
+        opts: [{ ru: '700 и 800', uz: '700 va 800', en: '700 and 800' }, { ru: '600 и 700', uz: '600 va 700', en: '600 and 700' }, { ru: '800 и 900', uz: '800 va 900', en: '800 and 900' }],
         hints: {
-          1: { ru: 'Сотни у 720 это семь, значит между 700 и 800.', uz: "720 da yuzlik yetti, demak 700 bilan 800 orasida." },
-          2: { ru: 'Семьсот двадцать чуть больше семисот.', uz: "Yetti yuz yigirma yetti yuzdan sal katta." }
+          1: { ru: 'Сотни у 720 это семь, значит между 700 и 800.', uz: "720 da yuzlik yetti, demak 700 bilan 800 orasida.", en: 'The hundreds of 720 are seven, so between 700 and 800.' },
+          2: { ru: 'Семьсот двадцать чуть больше семисот.', uz: "Yetti yuz yigirma yetti yuzdan sal katta.", en: 'Seven hundred twenty is a little more than seven hundred.' }
         }
       },
       {
         num: 540, lo: 400, hi: 700, ci: 0,
-        opts: [{ ru: '500 и 600', uz: '500 va 600' }, { ru: '400 и 500', uz: '400 va 500' }, { ru: '600 и 700', uz: '600 va 700' }],
+        opts: [{ ru: '500 и 600', uz: '500 va 600', en: '500 and 600' }, { ru: '400 и 500', uz: '400 va 500', en: '400 and 500' }, { ru: '600 и 700', uz: '600 va 700', en: '600 and 700' }],
         hints: {
-          1: { ru: 'Сотни у 540 это пять, значит между 500 и 600.', uz: "540 da yuzlik besh, demak 500 bilan 600 orasida." },
-          2: { ru: 'Пятьсот сорок больше пятисот.', uz: "Besh yuz qirq besh yuzdan katta." }
+          1: { ru: 'Сотни у 540 это пять, значит между 500 и 600.', uz: "540 da yuzlik besh, demak 500 bilan 600 orasida.", en: 'The hundreds of 540 are five, so between 500 and 600.' },
+          2: { ru: 'Пятьсот сорок больше пятисот.', uz: "Besh yuz qirq besh yuzdan katta.", en: 'Five hundred forty is greater than five hundred.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanlang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qarang. Yana urinib ko'ring." }
+      intro: { ru: 'Смотри, где стоит метка, и выбери, между какими сотнями число. Три задания.', uz: "Belgi qayerda turganiga qara va son qaysi yuzliklar orasida ekanini tanlang. Uchta topshiriq.", en: 'Look at where the mark stands and choose between which hundreds the number is. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри на цифру сотен числа. Попробуй ещё.', uz: "Sonning yuzlik raqamiga qarang. Yana urinib ko'ring.", en: 'Look at the hundreds digit of the number. Try again.' }
     }
   },
 
   // s7 — MASHQ belgini o'qish (MC), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое число показывает метка?', uz: "Belgi qaysi sonni ko'rsatadi?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какое число показывает метка?', uz: "Belgi qaysi sonni ko'rsatadi?", en: 'What number does the mark show?' },
     items: [
       {
         num: 250, lo: 100, hi: 500, ci: 0,
-        opts: [{ ru: '250', uz: '250' }, { ru: '200', uz: '200' }, { ru: '350', uz: '350' }],
+        opts: [{ ru: '250', uz: '250', en: '250' }, { ru: '200', uz: '200', en: '200' }, { ru: '350', uz: '350', en: '350' }],
         hints: {
-          1: { ru: 'Метка прошла двести и ещё пять десятков — это 250.', uz: "Belgi ikki yuzdan o'tib yana besh o'nlik — bu 250." },
-          2: { ru: 'Сотни у метки две, а не три: 250.', uz: "Belgida yuzlik ikkita, uch emas: 250." }
+          1: { ru: 'Метка прошла двести и ещё пять десятков — это 250.', uz: "Belgi ikki yuzdan o'tib yana besh o'nlik — bu 250.", en: 'The mark has passed two hundred and five more tens — that is 250.' },
+          2: { ru: 'Сотни у метки две, а не три: 250.', uz: "Belgida yuzlik ikkita, uch emas: 250.", en: 'The mark has two hundreds, not three: 250.' }
         }
       },
       {
         num: 630, lo: 400, hi: 900, ci: 0,
-        opts: [{ ru: '630', uz: '630' }, { ru: '600', uz: '600' }, { ru: '730', uz: '730' }],
+        opts: [{ ru: '630', uz: '630', en: '630' }, { ru: '600', uz: '600', en: '600' }, { ru: '730', uz: '730', en: '730' }],
         hints: {
-          1: { ru: 'Метка прошла шестьсот и ещё три десятка — это 630.', uz: "Belgi olti yuzdan o'tib yana uch o'nlik — bu 630." },
-          2: { ru: 'Сотни у метки шесть, а не семь: 630.', uz: "Belgida yuzlik oltita, yetti emas: 630." }
+          1: { ru: 'Метка прошла шестьсот и ещё три десятка — это 630.', uz: "Belgi olti yuzdan o'tib yana uch o'nlik — bu 630.", en: 'The mark has passed six hundred and three more tens — that is 630.' },
+          2: { ru: 'Сотни у метки шесть, а не семь: 630.', uz: "Belgida yuzlik oltita, yetti emas: 630.", en: 'The mark has six hundreds, not seven: 630.' }
         }
       },
       {
         num: 480, lo: 300, hi: 700, ci: 0,
-        opts: [{ ru: '480', uz: '480' }, { ru: '400', uz: '400' }, { ru: '580', uz: '580' }],
+        opts: [{ ru: '480', uz: '480', en: '480' }, { ru: '400', uz: '400', en: '400' }, { ru: '580', uz: '580', en: '580' }],
         hints: {
-          1: { ru: 'Метка прошла четыреста и ещё восемь десятков — это 480.', uz: "Belgi to'rt yuzdan o'tib yana sakkiz o'nlik — bu 480." },
-          2: { ru: 'Сотни у метки четыре, а не пять: 480.', uz: "Belgida yuzlik to'rtta, besh emas: 480." }
+          1: { ru: 'Метка прошла четыреста и ещё восемь десятков — это 480.', uz: "Belgi to'rt yuzdan o'tib yana sakkiz o'nlik — bu 480.", en: 'The mark has passed four hundred and eight more tens — that is 480.' },
+          2: { ru: 'Сотни у метки четыре, а не пять: 480.', uz: "Belgida yuzlik to'rtta, besh emas: 480.", en: 'The mark has four hundreds, not five: 480.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sanang." }
+      intro: { ru: 'Метка стоит на шкале. Прочитай, какое это число. Три задания.', uz: "Belgi shkalada turibdi. Bu qaysi son ekanini o'qing. Uchta topshiriq.", en: 'A mark stands on the scale. Read what number it is. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай сотни и десятки, которые прошла метка.', uz: "Belgi o'tgan yuzlik va o'nliklarni sanang.", en: 'Count the hundreds and tens the mark has passed.' }
     }
   },
 
   // s8 — MASHQ qaysi belgi (A/B/C), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'На какой метке стоит число?', uz: 'Son qaysi belgida turadi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'На какой метке стоит число?', uz: 'Son qaysi belgida turadi?', en: 'Which mark is the number on?' },
     items: [
       {
         target: 560, lo: 500, hi: 620, ci: 1,
         cands: [{ k: 'A', v: 520 }, { k: 'B', v: 560 }, { k: 'C', v: 610 }],
-        opts: [{ ru: 'A', uz: 'A' }, { ru: 'B', uz: 'B' }, { ru: 'C', uz: 'C' }],
+        opts: [{ ru: 'A', uz: 'A', en: 'A' }, { ru: 'B', uz: 'B', en: 'B' }, { ru: 'C', uz: 'C', en: 'C' }],
         hints: {
-          0: { ru: 'Метка A стоит на 520, а нам нужно 560.', uz: "A belgisi 520 da, bizga 560 kerak." },
-          2: { ru: 'Метка C стоит на 610, это больше 560.', uz: "C belgisi 610 da, bu 560 dan katta." }
+          0: { ru: 'Метка A стоит на 520, а нам нужно 560.', uz: "A belgisi 520 da, bizga 560 kerak.", en: 'Mark A stands at 520, and we need 560.' },
+          2: { ru: 'Метка C стоит на 610, это больше 560.', uz: "C belgisi 610 da, bu 560 dan katta.", en: 'Mark C stands at 610, that is more than 560.' }
         }
       },
       {
         target: 340, lo: 300, hi: 460, ci: 0,
         cands: [{ k: 'A', v: 340 }, { k: 'B', v: 390 }, { k: 'C', v: 440 }],
-        opts: [{ ru: 'A', uz: 'A' }, { ru: 'B', uz: 'B' }, { ru: 'C', uz: 'C' }],
+        opts: [{ ru: 'A', uz: 'A', en: 'A' }, { ru: 'B', uz: 'B', en: 'B' }, { ru: 'C', uz: 'C', en: 'C' }],
         hints: {
-          1: { ru: 'Метка B стоит на 390, это больше 340.', uz: "B belgisi 390 da, bu 340 dan katta." },
-          2: { ru: 'Метка C стоит на 440, это больше 340.', uz: "C belgisi 440 da, bu 340 dan katta." }
+          1: { ru: 'Метка B стоит на 390, это больше 340.', uz: "B belgisi 390 da, bu 340 dan katta.", en: 'Mark B stands at 390, that is more than 340.' },
+          2: { ru: 'Метка C стоит на 440, это больше 340.', uz: "C belgisi 440 da, bu 340 dan katta.", en: 'Mark C stands at 440, that is more than 340.' }
         }
       },
       {
         target: 800, lo: 680, hi: 820, ci: 2,
         cands: [{ k: 'A', v: 700 }, { k: 'B', v: 750 }, { k: 'C', v: 800 }],
-        opts: [{ ru: 'A', uz: 'A' }, { ru: 'B', uz: 'B' }, { ru: 'C', uz: 'C' }],
+        opts: [{ ru: 'A', uz: 'A', en: 'A' }, { ru: 'B', uz: 'B', en: 'B' }, { ru: 'C', uz: 'C', en: 'C' }],
         hints: {
-          0: { ru: 'Метка A стоит на 700, а нам нужно 800.', uz: "A belgisi 700 da, bizga 800 kerak." },
-          1: { ru: 'Метка B стоит на 750, это меньше 800.', uz: "B belgisi 750 da, bu 800 dan kichik." }
+          0: { ru: 'Метка A стоит на 700, а нам нужно 800.', uz: "A belgisi 700 da, bizga 800 kerak.", en: 'Mark A stands at 700, and we need 800.' },
+          1: { ru: 'Метка B стоит на 750, это меньше 800.', uz: "B belgisi 750 da, bu 800 dan kichik.", en: 'Mark B stands at 750, that is less than 800.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanlang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни число с каждой меткой. Попробуй ещё.', uz: "Sonni har belgi bilan solishtiring. Yana urinib ko'ring." }
+      intro: { ru: 'Три метки на шкале: A, B и C. Выбери, на какой стоит число. Три задания.', uz: "Shkalada uchta belgi: A, B va C. Son qaysi belgida turganini tanlang. Uchta topshiriq.", en: 'Three marks on the scale: A, B and C. Choose the one the number stands on. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сравни число с каждой меткой. Попробуй ещё.', uz: "Sonni har belgi bilan solishtiring. Yana urinib ko'ring.", en: 'Compare the number with each mark. Try again.' }
     }
   },
 
   // s9 — MASALA (case): Zuhra belgini o'qiydi (bir raund MC)
   s9: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра нашла модуль на шкале города.', uz: 'Zuhra shahar shkalasida modulni topdi.' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Зухра нашла модуль на шкале города.', uz: 'Zuhra shahar shkalasida modulni topdi.', en: 'Zuhra found a module on the city scale.' },
     num: 570, lo: 400, hi: 800, ci: 0,
-    q: { ru: 'Какое число показывает метка модуля?', uz: "Modul belgisi qaysi sonni ko'rsatadi?" },
-    opts: [{ ru: '570', uz: '570' }, { ru: '500', uz: '500' }, { ru: '670', uz: '670' }],
+    q: { ru: 'Какое число показывает метка модуля?', uz: "Modul belgisi qaysi sonni ko'rsatadi?", en: 'What number does the module mark show?' },
+    opts: [{ ru: '570', uz: '570', en: '570' }, { ru: '500', uz: '500', en: '500' }, { ru: '670', uz: '670', en: '670' }],
     hints: {
-      1: { ru: 'Метка прошла пятьсот и ещё семь десятков — это 570.', uz: "Belgi besh yuzdan o'tib yana yetti o'nlik — bu 570." },
-      2: { ru: 'Сотни у метки пять, а не шесть: 570.', uz: "Belgida yuzlik besh, olti emas: 570." }
+      1: { ru: 'Метка прошла пятьсот и ещё семь десятков — это 570.', uz: "Belgi besh yuzdan o'tib yana yetti o'nlik — bu 570.", en: 'The mark has passed five hundred and seven more tens — that is 570.' },
+      2: { ru: 'Сотни у метки пять, а не шесть: 570.', uz: "Belgida yuzlik besh, olti emas: 570.", en: 'The mark has five hundreds, not six: 570.' }
     },
-    setup_audio: { ru: 'Зухра нашла модуль на большой шкале города. Метка стоит между пятьюстами и шестьюстами.', uz: "Zuhra shaharning katta shkalasida modulni topdi. Belgi besh yuz bilan olti yuz orasida turibdi." },
+    setup_audio: { ru: 'Зухра нашла модуль на большой шкале города. Метка стоит между пятьюстами и шестьюстами.', uz: "Zuhra shaharning katta shkalasida modulni topdi. Belgi besh yuz bilan olti yuz orasida turibdi.", en: 'Zuhra found a module on the big city scale. The mark stands between five hundred and six hundred.' },
     audio: {
-      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qing. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Пятьсот и семь десятков — пятьсот семьдесят.', uz: "To'g'ri. Besh yuz va yetti o'nlik — besh yuz yetmish." },
-      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sanang: besh yuz va yetmish." }
+      intro: { ru: 'Прочитай, какое число показывает метка модуля. Выбери верный ответ.', uz: "Modul belgisi qaysi sonni ko'rsatishini o'qing. To'g'ri javobni tanlang.", en: 'Read what number the module mark shows. Choose the correct answer.' },
+      on_correct: { ru: 'Верно. Пятьсот и семь десятков — пятьсот семьдесят.', uz: "To'g'ri. Besh yuz va yetti o'nlik — besh yuz yetmish.", en: 'Correct. Five hundred and seven tens — five hundred seventy.' },
+      on_wrong: { ru: 'Считай сотни и десятки метки: пятьсот и семьдесят.', uz: "Belgining yuzlik va o'nligini sanang: besh yuz va yetmish.", en: 'Count the hundreds and tens of the mark: five hundred and seventy.' }
     }
   },
 
   // s10 — FINAL panel (5 savol) + FactCard
   s10: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Между какими сотнями стоит 630?', uz: '630 qaysi yuzliklar orasida?' },
-        opt0: { ru: '600 и 700', uz: '600 va 700' },
-        opt1: { ru: '500 и 600', uz: '500 va 600' },
-        opt2: { ru: '700 и 800', uz: '700 va 800' },
-        wrong_1: { ru: 'Сотни у 630 шесть, значит между 600 и 700.', uz: "630 da yuzlik olti, demak 600 bilan 700 orasida." },
-        wrong_2: { ru: 'Шестьсот тридцать чуть больше шестисот.', uz: "Olti yuz o'ttiz olti yuzdan sal katta." }
+        q: { ru: 'Между какими сотнями стоит 630?', uz: '630 qaysi yuzliklar orasida?', en: 'Between which hundreds does 630 stand?' },
+        opt0: { ru: '600 и 700', uz: '600 va 700', en: '600 and 700' },
+        opt1: { ru: '500 и 600', uz: '500 va 600', en: '500 and 600' },
+        opt2: { ru: '700 и 800', uz: '700 va 800', en: '700 and 800' },
+        wrong_1: { ru: 'Сотни у 630 шесть, значит между 600 и 700.', uz: "630 da yuzlik olti, demak 600 bilan 700 orasida.", en: 'The hundreds of 630 are six, so between 600 and 700.' },
+        wrong_2: { ru: 'Шестьсот тридцать чуть больше шестисот.', uz: "Olti yuz o'ttiz olti yuzdan sal katta.", en: 'Six hundred thirty is a little more than six hundred.' }
       },
       {
         kind: 'num', ans: 500,
-        q: { ru: 'Какая круглая сотня стоит сразу после 460?', uz: "460 dan keyingi yumaloq yuzlik qaysi son?" },
-        hint: { ru: 'Следующая метка сотен после четырёхсот шестидесяти это пятьсот.', uz: "To'rt yuz oltmishdan keyingi yuzlik belgisi bu besh yuz." }
+        q: { ru: 'Какая круглая сотня стоит сразу после 460?', uz: "460 dan keyingi yumaloq yuzlik qaysi son?", en: 'Which round hundred comes right after 460?' },
+        hint: { ru: 'Следующая метка сотен после четырёхсот шестидесяти это пятьсот.', uz: "To'rt yuz oltmishdan keyingi yuzlik belgisi bu besh yuz.", en: 'The next hundreds mark after four hundred sixty is five hundred.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число показывает метка на 250?', uz: '250 dagi belgi qaysi sonni ko\'rsatadi?' },
-        opt0: { ru: '250', uz: '250' },
-        opt1: { ru: '200', uz: '200' },
-        opt2: { ru: '350', uz: '350' },
-        wrong_1: { ru: 'Метка прошла двести и ещё пять десятков — 250.', uz: "Belgi ikki yuzdan o'tib besh o'nlik — 250." },
-        wrong_2: { ru: 'Сотни у метки две, а не три.', uz: "Belgida yuzlik ikkita, uch emas." }
+        q: { ru: 'Какое число показывает метка на 250?', uz: '250 dagi belgi qaysi sonni ko\'rsatadi?', en: 'What number does the mark at 250 show?' },
+        opt0: { ru: '250', uz: '250', en: '250' },
+        opt1: { ru: '200', uz: '200', en: '200' },
+        opt2: { ru: '350', uz: '350', en: '350' },
+        wrong_1: { ru: 'Метка прошла двести и ещё пять десятков — 250.', uz: "Belgi ikki yuzdan o'tib besh o'nlik — 250.", en: 'The mark has passed two hundred and five more tens — 250.' },
+        wrong_2: { ru: 'Сотни у метки две, а не три.', uz: "Belgida yuzlik ikkita, uch emas.", en: 'The mark has two hundreds, not three.' }
       },
       {
         kind: 'num', ans: 700,
-        q: { ru: 'Какая круглая сотня стоит прямо перед 730?', uz: "730 dan oldingi yumaloq yuzlik qaysi son?" },
-        hint: { ru: 'Метка сотен слева от семисот тридцати это семьсот.', uz: "Yetti yuz o'ttizning chapidagi yuzlik belgisi bu yetti yuz." }
+        q: { ru: 'Какая круглая сотня стоит прямо перед 730?', uz: "730 dan oldingi yumaloq yuzlik qaysi son?", en: 'Which round hundred stands right before 730?' },
+        hint: { ru: 'Метка сотен слева от семисот тридцати это семьсот.', uz: "Yetti yuz o'ttizning chapidagi yuzlik belgisi bu yetti yuz.", en: 'The hundreds mark to the left of seven hundred thirty is seven hundred.' }
       },
       {
         kind: 'num', ans: 280,
-        q: { ru: 'Загадка. Я стою между 200 и 300, оканчиваюсь на ноль, а десятков у меня восемь. Кто я?', uz: "Jumboq. Men 200 bilan 300 orasidaman, nol bilan tugayman, o'nligim sakkiz. Men kimman?" },
-        hint: { ru: 'Двести и восемь десятков, единиц нет — двести восемьдесят.', uz: "Ikki yuz va sakkiz o'nlik, birlik yo'q — ikki yuz sakson." }
+        q: { ru: 'Загадка. Я стою между 200 и 300, оканчиваюсь на ноль, а десятков у меня восемь. Кто я?', uz: "Jumboq. Men 200 bilan 300 orasidaman, nol bilan tugayman, o'nligim sakkiz. Men kimman?", en: 'A riddle. I stand between 200 and 300, I end in zero, and I have eight tens. Who am I?' },
+        hint: { ru: 'Двести и восемь десятков, единиц нет — двести восемьдесят.', uz: "Ikki yuz va sakkiz o'nlik, birlik yo'q — ikki yuz sakson.", en: 'Two hundred and eight tens, no ones — two hundred eighty.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Вокруг красных карликов тоже есть планеты. Учёные ищут там воду и жизнь, ведь такие звёзды живут очень долго.', uz: "Qizil mitti yulduzlar atrofida ham sayyoralar bor. Olimlar u yerdan suv va hayot izlaydi, chunki bunday yulduzlar juda uzoq yashaydi." },
-    fact_audio: { ru: 'Вокруг красных карликов тоже есть планеты. Учёные ищут там воду и жизнь, ведь такие звёзды живут очень долго.', uz: "Qizil mitti yulduzlar atrofida ham sayyoralar bor. Olimlar u yerdan suv va hayot izlaydi, chunki bunday yulduzlar juda uzoq yashaydi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Вокруг красных карликов тоже есть планеты. Учёные ищут там воду и жизнь, ведь такие звёзды живут очень долго.', uz: "Qizil mitti yulduzlar atrofida ham sayyoralar bor. Olimlar u yerdan suv va hayot izlaydi, chunki bunday yulduzlar juda uzoq yashaydi.", en: 'Red dwarfs have planets around them too. Scientists look for water and life there, because such stars live a very long time.' },
+    fact_audio: { ru: 'Вокруг красных карликов тоже есть планеты. Учёные ищут там воду и жизнь, ведь такие звёзды живут очень долго.', uz: "Qizil mitti yulduzlar atrofida ham sayyoralar bor. Olimlar u yerdan suv va hayot izlaydi, chunki bunday yulduzlar juda uzoq yashaydi.", en: 'Red dwarfs have planets around them too. Scientists look for water and life there, because such stars live a very long time.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows tasks, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s11 — YAKUN
   s11: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Большая шкала города прочитана!', uz: "Shaharning katta shkalasi o'qildi!" },
-    cando: { ru: 'Теперь ты находишь место числа на прямой и читаешь число по метке.', uz: "Endi siz sonning o'qdagi o'rnini topasiz va belgi bo'yicha sonni o'qiysiz." },
-    rule_recap: { ru: 'Большие метки — сотни, маленькие — десятки. Число ищем шагами: сотни большими, десятки маленькими.', uz: "Katta belgilar — yuzliklar, kichiklari — o'nliklar. Sonni qadamlab topamiz: yuzlik katta, o'nlik kichik qadam." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'пятый урок: округление чисел', uz: "beshinchi dars: sonlarni yaxlitlash" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 7: письменное сложение и вычитание до 10000', uz: "7-dars: 10000 gacha yozma qo'shish va ayirish" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Большая шкала города прочитана!', uz: "Shaharning katta shkalasi o'qildi!", en: 'The big city scale is read!' },
+    cando: { ru: 'Теперь ты находишь место числа на прямой и читаешь число по метке.', uz: "Endi siz sonning o'qdagi o'rnini topasiz va belgi bo'yicha sonni o'qiysiz.", en: 'Now you find the place of a number on the line and read a number from a mark.' },
+    rule_recap: { ru: 'Большие метки — сотни, маленькие — десятки. Число ищем шагами: сотни большими, десятки маленькими.', uz: "Katta belgilar — yuzliklar, kichiklari — o'nliklar. Sonni qadamlab topamiz: yuzlik katta, o'nlik kichik qadam.", en: 'Big marks are hundreds, small ones are tens. We find a number in steps: hundreds with big steps, tens with small ones.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'пятый урок: округление чисел', uz: "beshinchi dars: sonlarni yaxlitlash", en: 'lesson five: rounding numbers' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 7: письменное сложение и вычитание до 10000', uz: "7-dars: 10000 gacha yozma qo'shish va ayirish", en: 'Lesson 7: written addition and subtraction up to 10000' },
     audio: {
       ru: 'Большая шкала города прочитана. Мы научились находить место числа на числовой прямой и читать число по метке. Запомни. Большие метки это круглые сотни, а маленькие между ними это десятки. Чтобы найти число, идём большими шагами по сотне и маленькими по десятку. В следующий раз научимся складывать и вычитать большие числа столбиком, до десяти тысяч.',
-      uz: "Shaharning katta shkalasi o'qildi. Biz sonning son o'qidagi o'rnini topishni va belgi bo'yicha sonni o'qishni o'rgandik. Yodda tuting. Katta belgilar bu yumaloq yuzliklar, ular orasidagi kichiklari esa o'nliklar. Sonni topish uchun yuzdan katta va o'ndan kichik qadam qo'yamiz. Keyingi safar katta sonlarni ustunda qo'shish va ayirishni o'rganamiz, o'n minggacha."
+      uz: "Shaharning katta shkalasi o'qildi. Biz sonning son o'qidagi o'rnini topishni va belgi bo'yicha sonni o'qishni o'rgandik. Yodda tuting. Katta belgilar bu yumaloq yuzliklar, ular orasidagi kichiklari esa o'nliklar. Sonni topish uchun yuzdan katta va o'ndan kichik qadam qo'yamiz. Keyingi safar katta sonlarni ustunda qo'shish va ayirishni o'rganamiz, o'n minggacha.",
+      en: 'The big city scale is read. We learned to find the place of a number on the number line and to read a number from a mark. Remember. The big marks are round hundreds, and the small ones between them are tens. To find a number we take big steps of a hundred and small steps of a ten. Next time we will learn to add and subtract big numbers in columns, up to ten thousand.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним про порядок.', uz: 'Tartibni eslaymiz.' },
-  s2:  { ru: 'Разберём метки шкалы.', uz: 'Shkala belgilarini ko\'ramiz.' },
-  s3:  { ru: 'Найдём число на прямой.', uz: "Sonni o'qda topamiz." },
-  s4:  { ru: 'А теперь прочитаем метку.', uz: 'Endi belgini o\'qiymiz.' },
-  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s6:  { ru: 'Правило знаем. Ищи сам.', uz: "Qoidani bilamiz. O'zingiz toping." },
-  s7:  { ru: 'Теперь читай метки.', uz: 'Endi belgilarni o\'qing.' },
-  s8:  { ru: 'Выбери верную метку.', uz: 'To\'g\'ri belgini tanlang.' },
-  s9:  { ru: 'Зухра нашла модуль на шкале.', uz: 'Zuhra shkaladan modul topdi.' },
-  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s11: { ru: 'Шкала прочитана. Идём дальше!', uz: 'Shkala o\'qildi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним про порядок.', uz: 'Tartibni eslaymiz.', en: 'Let us recall the order.' },
+  s2:  { ru: 'Разберём метки шкалы.', uz: 'Shkala belgilarini ko\'ramiz.', en: 'Let us look at the marks of the scale.' },
+  s3:  { ru: 'Найдём число на прямой.', uz: "Sonni o'qda topamiz.", en: 'Let us find a number on the line.' },
+  s4:  { ru: 'А теперь прочитаем метку.', uz: 'Endi belgini o\'qiymiz.', en: 'And now let us read a mark.' },
+  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s6:  { ru: 'Правило знаем. Ищи сам.', uz: "Qoidani bilamiz. O'zingiz toping.", en: 'We know the rule. Find them yourself.' },
+  s7:  { ru: 'Теперь читай метки.', uz: 'Endi belgilarni o\'qing.', en: 'Now read the marks.' },
+  s8:  { ru: 'Выбери верную метку.', uz: 'To\'g\'ri belgini tanlang.', en: 'Choose the correct mark.' },
+  s9:  { ru: 'Зухра нашла модуль на шкале.', uz: 'Zuhra shkaladan modul topdi.', en: 'Zuhra found a module on the scale.' },
+  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s11: { ru: 'Шкала прочитана. Идём дальше!', uz: 'Shkala o\'qildi. Davom etamiz!', en: 'The scale is read. Let us move on!' }
 };
 
 // s11 payoff (xulosadan oldin aytiladi)
 const S11_PAYOFF = {
   ru: 'Миссия выполнена! Мы научились читать большую шкалу города и находить место любого числа, и Бит открыл нам её. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz shaharning katta shkalasini o'qishni va har qanday sonning o'rnini topishni o'rgandik, va Bit uni bizga ochdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz shaharning katta shkalasini o'qishni va har qanday sonning o'rnini topishni o'rgandik, va Bit uni bizga ochdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We learned to read the big city scale and to find the place of any number, and Bit opened it for us. Thank you for your help!'
 };
 
 
@@ -718,7 +727,7 @@ const SkywayBg = () => {
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/><path d="M46 63 H354"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
 
-    <text x="200" y="108" textAnchor="middle" fontSize="8" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЧИСЛОВАЯ ОСЬ' : "SON O'QI"}</text>
+    <text x="200" y="108" textAnchor="middle" fontSize="8" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЧИСЛОВАЯ ОСЬ', "SON O'QI", 'NUMBER LINE')}</text>
     {/* raqamlar rels ustida (ekipaj yopmasin) */}
     {[['300', 40], ['400', 104], ['500', 168], ['600', 232], ['700', 296], ['800', 360]].map(([n, x], i) => (
       <text key={`sl${i}`} x={x} y="124" textAnchor="middle" fontSize="8" fontWeight="700" fill="#5E86A2" fontFamily="'JetBrains Mono', monospace">{n}</text>
@@ -1033,8 +1042,8 @@ const Screen1 = (props) => {
           <NumLine lo={100} hi={600}/>
           {reached >= 1 && (
             <div className="lm-reveal" style={{ display: 'flex', justifyContent: 'space-between', width: 'min(300px, 90%)' }}>
-              <span className="mono" style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', color: T.blue, fontWeight: 800 }}>{lang === 'ru' ? '← меньше' : "← kichik"}</span>
-              <span className="mono" style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', color: '#C0392B', fontWeight: 800 }}>{lang === 'ru' ? 'больше →' : "katta →"}</span>
+              <span className="mono" style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', color: T.blue, fontWeight: 800 }}>{tri(lang, '← меньше', '← kichik', '← less')}</span>
+              <span className="mono" style={{ fontSize: 'clamp(12px, 1.8vw, 14px)', color: '#C0392B', fontWeight: 800 }}>{tri(lang, 'больше →', 'katta →', 'greater →')}</span>
             </div>
           )}
         </div>
@@ -1071,8 +1080,8 @@ const Screen2 = (props) => {
           <NumLine lo={c.lo} hi={c.hi}/>
           {reached >= 1 && (
             <div className="lm-reveal" style={{ display: 'flex', gap: 18, flexWrap: 'wrap', justifyContent: 'center' }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 3, height: 18, background: T.ink2, borderRadius: 2 }}/><span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{lang === 'ru' ? 'сотни' : 'yuzlik'}</span></span>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 2, height: 10, background: T.ink3, borderRadius: 2 }}/><span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{lang === 'ru' ? 'десятки (+10)' : "o'nlik (+10)"}</span></span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 3, height: 18, background: T.ink2, borderRadius: 2 }}/><span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{tri(lang, 'сотни', 'yuzlik', 'hundreds')}</span></span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}><span style={{ width: 2, height: 10, background: T.ink3, borderRadius: 2 }}/><span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{tri(lang, 'десятки (+10)', "o'nlik (+10)", 'tens (+10)')}</span></span>
             </div>
           )}
         </div>
@@ -1173,7 +1182,7 @@ const Screen5 = (props) => {
   // MUHIM: optLabels shu yerda e'lon qilinadi, quyida EMAS. Pastda turganda useMemo uni
   // render paytida chaqirardi va ekran «Cannot access optLabels before initialization» bilan
   // qulardi (topildi 2026-08-09, ekran umuman ochilmasdi).
-  const optLabels = lang === 'ru' ? c.check_opts : c.check_opts_uz;
+  const optLabels = pickSib(c, 'check_opts', lang);
   // Variantlar har mount'da ARALASHADI: to'g'ri javob doim bir joyda turmasin (metodist,
   // 2026-08-04). `order` — ko'rsatish tartibi, `ci` — to'g'ri javobning YANGI o'rni.
   const order = React.useMemo(() => shuffleArr(optLabels.map((_, i) => i)), []);
@@ -1465,7 +1474,7 @@ const Screen10 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
@@ -1534,7 +1543,7 @@ const Screen11 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1555,7 +1564,7 @@ export default function NumberLineLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1622,7 +1631,7 @@ export default function NumberLineLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

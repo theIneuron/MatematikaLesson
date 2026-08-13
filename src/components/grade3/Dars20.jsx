@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -127,8 +127,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-20',
-  lessonTitle: { ru: 'Урок 20. Проверка деления с остатком', uz: "20-dars. Qoldiqli bo'lishni tekshirish" }
+  lessonId: 'grade3-20',
+  lessonTitle: { ru: 'Урок 20. Проверка деления с остатком', uz: "20-dars. Qoldiqli bo'lishni tekshirish", en: 'Lesson 20. Checking division with a remainder' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 20»): s0 xuk 31:7 · s1 ikki tanish tekshiruv ·
 // s2 qoldiq bilan tekshirish · s3 savol-oldin-QOIDA · s4 xatoni top (qoldiq unutilgan) ·
@@ -163,15 +163,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Проверка деления с остатком', uz: "Qoldiqli bo'lishni tekshirish" },
-    lead: { ru: 'Бит записал: 31 : 7 = 4 и 3 в лотке', uz: "Bit yozdi: 31 : 7 = 4, laganda 3 ta" },
-    order_cap: { ru: 'контрольный терминал ждёт проверку', uz: 'nazorat terminali tekshiruvni kutyapti' },
-    q: { ru: 'Как проверить, что Бит не ошибся?', uz: "Bit xato qilmaganini qanday tekshiramiz?" },
-    opt0: { ru: '4 · 7 + 3', uz: '4 · 7 + 3' },
-    opt1: { ru: '4 · 7', uz: '4 · 7' },
-    opt2: { ru: '4 + 7 + 3', uz: '4 + 7 + 3' },
-    opt3: { ru: '31 − 3', uz: '31 − 3' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Проверка деления с остатком', uz: "Qoldiqli bo'lishni tekshirish", en: 'Checking division with a remainder' },
+    lead: { ru: 'Бит записал: 31 : 7 = 4 и 3 в лотке', uz: "Bit yozdi: 31 : 7 = 4, laganda 3 ta", en: 'Bit wrote: 31 : 7 = 4 and 3 in the tray' },
+    order_cap: { ru: 'контрольный терминал ждёт проверку', uz: 'nazorat terminali tekshiruvni kutyapti', en: 'the control terminal is waiting for a check' },
+    q: { ru: 'Как проверить, что Бит не ошибся?', uz: "Bit xato qilmaganini qanday tekshiramiz?", en: 'How can we check that Bit did not make a mistake?' },
+    opt0: { ru: '4 · 7 + 3', uz: '4 · 7 + 3', en: '4 · 7 + 3' },
+    opt1: { ru: '4 · 7', uz: '4 · 7', en: '4 · 7' },
+    opt2: { ru: '4 + 7 + 3', uz: '4 + 7 + 3', en: '4 + 7 + 3' },
+    opt3: { ru: '31 − 3', uz: '31 − 3', en: '31 − 3' },
     audio: {
       intro: {
         ru: [
@@ -185,38 +185,43 @@ const CONTENT = {
           "Bit o'ttiz bitta detalni yetti stolga tarqatdi. Har stolga to'rttadan, uchta detal laganda.",
           "Nazorat terminali detal roppa-rosa o'ttiz bitta bo'lganini isbotlashni so'rayapti.",
           "Sizningcha, tekshirish uchun nimani hisoblash kerak?"
-        ]
+        ],
+        en: ['The topic of the lesson is called checking division with a remainder.', 'Bit shared thirty one parts onto seven tables. Four per table, and three parts in the tray.', 'The control terminal asks us to prove that there were exactly thirty one parts.', 'What do you think has to be counted for the check?']
       },
       on_correct: {
         ru: 'Верно! Собираем обратно. Розданное плюс то, что в лотке.',
-        uz: "To'g'ri! Qaytadan yig'amiz. Tarqatilgani ustiga lagandagini qo'shamiz."
+        uz: "To'g'ri! Qaytadan yig'amiz. Tarqatilgani ustiga lagandagini qo'shamiz.",
+        en: 'Right! We put it back together. What was shared out plus what is in the tray.'
       },
       on_wrong1: {
         ru: 'Так мы соберём только розданное, двадцать восемь. Три детали из лотка потерялись.',
-        uz: "Bunda faqat tarqatilgani, yigirma sakkiz yig'iladi. Lagandagi uchta detal yo'qoladi."
+        uz: "Bunda faqat tarqatilgani, yigirma sakkiz yig'iladi. Lagandagi uchta detal yo'qoladi.",
+        en: 'That way we only gather what was shared out, twenty eight. Three parts from the tray got lost.'
       },
       on_wrong2: {
         ru: 'Сложение тут не собирает раздачу. По четыре взяли семь раз, а это умножение.',
-        uz: "Qo'shish bu yerda tarqatishni yig'maydi. To'rttadan yetti marta olingan, bu ko'paytirish."
+        uz: "Qo'shish bu yerda tarqatishni yig'maydi. To'rttadan yetti marta olingan, bu ko'paytirish.",
+        en: 'Addition does not gather the sharing here. Four were taken seven times, and that is multiplication.'
       },
       on_idk: {
         ru: 'Вычитание уберёт остаток, а проверка должна вернуть все детали обратно.',
-        uz: "Ayirish qoldiqni olib tashlaydi, tekshirish esa hamma detalni qaytarishi kerak."
+        uz: "Ayirish qoldiqni olib tashlaydi, tekshirish esa hamma detalni qaytarishi kerak.",
+        en: 'Subtraction takes the remainder away, and a check has to bring all the parts back.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz' },
-    lead: { ru: 'Две проверки, которые ты уже знаешь', uz: 'Siz biladigan ikki tekshiruv' },
-    book_note: { ru: 'правила из учебника, стр. 26', uz: 'kitobdagi qoidalar, 26-bet' },
+    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz', en: 'Recalling' },
+    lead: { ru: 'Две проверки, которые ты уже знаешь', uz: 'Siz biladigan ikki tekshiruv', en: 'Two checks you already know' },
+    book_note: { ru: 'правила из учебника, стр. 26', uz: 'kitobdagi qoidalar, 26-bet', en: 'the rules from the textbook, page 26' },
     cases: [
-      { line: '52 : 4 = 13', check: '13 · 4 = 52', cap: { ru: 'деление проверяют умножением', uz: "bo'lish ko'paytirish bilan tekshiriladi" } },
-      { line: '12 · 8 = 96', check: '96 : 8 = 12', cap: { ru: 'умножение проверяют делением', uz: "ko'paytirish bo'lish bilan tekshiriladi" } }
+      { line: '52 : 4 = 13', check: '13 · 4 = 52', cap: { ru: 'деление проверяют умножением', uz: "bo'lish ko'paytirish bilan tekshiriladi", en: 'division is checked by multiplication' } },
+      { line: '12 · 8 = 96', check: '96 : 8 = 12', cap: { ru: 'умножение проверяют делением', uz: "ko'paytirish bo'lish bilan tekshiriladi", en: 'multiplication is checked by division' } }
     ],
-    btn1: { ru: 'Проверить деление', uz: "Bo'lishni tekshirish" },
-    btn2: { ru: 'Проверить умножение', uz: "Ko'paytirishni tekshirish" },
-    done_text: { ru: 'Каждое действие проверяют обратным. Это правило из учебника.', uz: "Har bir amal teskarisi bilan tekshiriladi. Bu kitobdagi qoida." },
+    btn1: { ru: 'Проверить деление', uz: "Bo'lishni tekshirish", en: 'Check the division' },
+    btn2: { ru: 'Проверить умножение', uz: "Ko'paytirishni tekshirish", en: 'Check the multiplication' },
+    done_text: { ru: 'Каждое действие проверяют обратным. Это правило из учебника.', uz: "Har bir amal teskarisi bilan tekshiriladi. Bu kitobdagi qoida.", en: 'Every operation is checked by the opposite one. That is the rule from the textbook.' },
     audio: {
       ru: [
         'Две проверки ты уже знаешь. Открой первую.',
@@ -227,23 +232,25 @@ const CONTENT = {
         "Ikki tekshiruvni siz allaqachon bilasiz. Birinchisini oching.",
         "Ellik ikkini to'rtga bo'lsak, o'n uch. Ko'paytirish bilan tekshiramiz. O'n uch karra to'rt, ellik ikki.",
         "O'n ikkini sakkizga ko'paytirsak, to'qson olti. Bo'lish bilan tekshiramiz. To'qson oltini sakkizga bo'lsak, o'n ikki."
-      ]
+      ],
+      en: ['You already know two checks. Open the first one.', 'Fifty two divided by four, thirteen. We check by multiplying. Thirteen times four, fifty two.', 'Twelve times eight, ninety six. We check by dividing. Ninety six by eight, twelve.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'А если есть остаток?', uz: 'Qoldiq bo\'lsa-chi?' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'А если есть остаток?', uz: 'Qoldiq bo\'lsa-chi?', en: 'And what if there is a remainder?' },
     task_line: '31 : 7 = 4 (ост. 3)',
     task_line_uz: '31 : 7 = 4 (qold. 3)',
+    task_line_en: '31 : 7 = 4 (rem. 3)',
     step1: '4 · 7 = 28',
-    step1_cap: { ru: 'роздано', uz: 'tarqatilgani' },
+    step1_cap: { ru: 'роздано', uz: 'tarqatilgani', en: 'shared out' },
     step2: '28 + 3 = 31',
-    step2_cap: { ru: 'и то, что в лотке', uz: 'va lagandagisi' },
+    step2_cap: { ru: 'и то, что в лотке', uz: 'va lagandagisi', en: 'and what is in the tray' },
     res: '4 · 7 + 3 = 31',
-    btn1: { ru: 'Собрать розданное', uz: 'Tarqatilganini yig\'ish' },
-    btn2: { ru: 'Добавить остаток', uz: 'Qoldiqni qo\'shish' },
-    done_text: { ru: 'Сошлось с тем, что было. Значит, разделили верно.', uz: "Boridek chiqdi. Demak, to'g'ri bo'lingan." },
+    btn1: { ru: 'Собрать розданное', uz: 'Tarqatilganini yig\'ish', en: 'Gather what was shared out' },
+    btn2: { ru: 'Добавить остаток', uz: 'Qoldiqni qo\'shish', en: 'Add the remainder' },
+    done_text: { ru: 'Сошлось с тем, что было. Значит, разделили верно.', uz: "Boridek chiqdi. Demak, to'g'ri bo'lingan.", en: 'It matched what there was. So the division is correct.' },
     audio: {
       ru: [
         'А если при делении остался лоток? Проверим тридцать один на семь.',
@@ -254,26 +261,27 @@ const CONTENT = {
         "Bo'lishda lagan qolsa-chi? O'ttiz birni yettiga bo'lishni tekshiramiz.",
         "To'rt karra yetti, yigirma sakkiz. Shuncha detal tarqatilgan.",
         "Lagandagi uchtani qo'shamiz. Yigirma sakkiz va uch, o'ttiz bir. Roppa-rosa shuncha edi."
-      ]
+      ],
+      en: ['And what if the tray was left over after dividing? Let us check thirty one by seven.', 'Four times seven, twenty eight. That is how many parts were shared out.', 'We add the three from the tray. Twenty eight and three, thirty one. Exactly what there was.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что делают с остатком при проверке?', uz: 'Tekshirishda qoldiq bilan nima qilinadi?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Что делают с остатком при проверке?', uz: 'Tekshirishda qoldiq bilan nima qilinadi?', en: 'What is done with the remainder when checking?' },
     opts: [
-      { ru: 'прибавляют к произведению', uz: "ko'paytmaga qo'shiladi" },
-      { ru: 'прибавляют к частному', uz: "bo'linmaga qo'shiladi" },
-      { ru: 'вычитают из произведения', uz: "ko'paytmadan ayiriladi" },
-      { ru: 'не трогают, он не нужен', uz: 'tegilmaydi, u kerak emas' }
+      { ru: 'прибавляют к произведению', uz: "ko'paytmaga qo'shiladi", en: 'it is added to the product' },
+      { ru: 'прибавляют к частному', uz: "bo'linmaga qo'shiladi", en: 'it is added to the quotient' },
+      { ru: 'вычитают из произведения', uz: "ko'paytmadan ayiriladi", en: 'it is subtracted from the product' },
+      { ru: 'не трогают, он не нужен', uz: 'tegilmaydi, u kerak emas', en: 'it is left alone, it is not needed' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'К частному прибавлять нельзя. Сначала умножаем, а к результату добавляем лоток.', uz: "Bo'linmaga qo'shib bo'lmaydi. Avval ko'paytiramiz, natijaga lagandagini qo'shamiz." },
-      2: { ru: 'Вычитание убавит, а нам нужно собрать все детали обратно.', uz: "Ayirish kamaytiradi, bizga esa hamma detalni qaytarish kerak." },
-      3: { ru: 'Без остатка получится меньше, чем было. Проверка не сойдётся.', uz: "Qoldiqsiz boridan kam chiqadi. Tekshirish mos kelmaydi." }
+      1: { ru: 'К частному прибавлять нельзя. Сначала умножаем, а к результату добавляем лоток.', uz: "Bo'linmaga qo'shib bo'lmaydi. Avval ko'paytiramiz, natijaga lagandagini qo'shamiz.", en: 'It must not be added to the quotient. First we multiply, and then we add the tray to the result.' },
+      2: { ru: 'Вычитание убавит, а нам нужно собрать все детали обратно.', uz: "Ayirish kamaytiradi, bizga esa hamma detalni qaytarish kerak.", en: 'Subtraction takes away, and we need to gather all the parts back.' },
+      3: { ru: 'Без остатка получится меньше, чем было. Проверка не сойдётся.', uz: "Qoldiqsiz boridan kam chiqadi. Tekshirish mos kelmaydi.", en: 'Without the remainder you get less than there was. The check will not add up.' }
     },
-    on_correct: { ru: 'Верно! Умножили и прибавили остаток.', uz: "To'g'ri! Ko'paytirdik va qoldiqni qo'shdik." },
+    on_correct: { ru: 'Верно! Умножили и прибавили остаток.', uz: "To'g'ri! Ko'paytirdik va qoldiqni qo'shdik.", en: 'Right! We multiplied and added the remainder.' },
     rule_lines: {
       ru: [
         'деление проверяют умножением',
@@ -284,142 +292,149 @@ const CONTENT = {
         "bo'lish ko'paytirish bilan tekshiriladi",
         "ko'paytirish bo'lish bilan tekshiriladi",
         "qoldiq bilan: bo'linma karra bo'luvchi, ustiga qoldiq"
-      ]
+      ],
+      en: ['division is checked by multiplication', 'multiplication is checked by division', 'with a remainder: the quotient times the divisor plus the remainder']
     },
     rule_ex: '31 : 7 = 4 (3) · 4 · 7 + 3 = 31',
     rule_speech: {
       ru: 'Правило такое. Деление проверяют умножением, умножение проверяют делением. А если есть остаток, частное умножают на делитель и прибавляют остаток. Если получилось делимое, всё верно.',
-      uz: "Qoida shunday. Bo'lish ko'paytirish bilan tekshiriladi, ko'paytirish bo'lish bilan. Qoldiq bo'lsa, bo'linma bo'luvchiga ko'paytiriladi va qoldiq qo'shiladi. Bo'linuvchi chiqsa, hammasi to'g'ri."
+      uz: "Qoida shunday. Bo'lish ko'paytirish bilan tekshiriladi, ko'paytirish bo'lish bilan. Qoldiq bo'lsa, bo'linma bo'luvchiga ko'paytiriladi va qoldiq qo'shiladi. Bo'linuvchi chiqsa, hammasi to'g'ri.",
+      en: 'The rule is this. Division is checked by multiplication, multiplication is checked by division. And if there is a remainder, the quotient is multiplied by the divisor and the remainder is added. If you got the dividend, everything is correct.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.' }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.', en: 'Now the main question of the lesson.' }
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Проверка не сошлась. Что забыли?', uz: 'Tekshirish mos kelmadi. Nima unutilgan?' },
-    fig_line: { ru: '37 : 2 = 18 (ост. 1) · 18 · 2 = 36', uz: '37 : 2 = 18 (qold. 1) · 18 · 2 = 36' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Проверка не сошлась. Что забыли?', uz: 'Tekshirish mos kelmadi. Nima unutilgan?', en: 'The check did not add up. What was forgotten?' },
+    fig_line: { ru: '37 : 2 = 18 (ост. 1) · 18 · 2 = 36', uz: '37 : 2 = 18 (qold. 1) · 18 · 2 = 36', en: '37 : 2 = 18 (rem. 1) · 18 · 2 = 36' },
     opts: [
-      { ru: 'забыли прибавить остаток', uz: "qoldiqni qo'shish unutilgan" },
-      { ru: 'умножили не на то число', uz: "boshqa songa ko'paytirilgan" },
-      { ru: 'частное найдено неверно', uz: "bo'linma noto'g'ri topilgan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'забыли прибавить остаток', uz: "qoldiqni qo'shish unutilgan", en: 'the remainder was not added' },
+      { ru: 'умножили не на то число', uz: "boshqa songa ko'paytirilgan", en: 'it was multiplied by the wrong number' },
+      { ru: 'частное найдено неверно', uz: "bo'linma noto'g'ri topilgan", en: 'the quotient was found wrongly' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножали на два, и это правильно, ведь делили тоже на два.', uz: "Ikkiga ko'paytirilgan, bu to'g'ri, chunki bo'lish ham ikkiga edi." },
-      2: { ru: 'Восемнадцать на стол это верно. Не хватает не там.', uz: "Har stolga o'n sakkiztadan to'g'ri. Yetishmayotgani boshqa joyda." },
-      3: { ru: 'Тридцать шесть и тридцать семь это разные числа. Одной детали не хватает.', uz: "O'ttiz olti va o'ttiz yetti har xil son. Bitta detal yetishmayapti." }
+      1: { ru: 'Умножали на два, и это правильно, ведь делили тоже на два.', uz: "Ikkiga ko'paytirilgan, bu to'g'ri, chunki bo'lish ham ikkiga edi.", en: 'They multiplied by two, and that is right, because they divided by two as well.' },
+      2: { ru: 'Восемнадцать на стол это верно. Не хватает не там.', uz: "Har stolga o'n sakkiztadan to'g'ri. Yetishmayotgani boshqa joyda.", en: 'Eighteen per table is correct. What is missing is not there.' },
+      3: { ru: 'Тридцать шесть и тридцать семь это разные числа. Одной детали не хватает.', uz: "O'ttiz olti va o'ttiz yetti har xil son. Bitta detal yetishmayapti.", en: 'Thirty six and thirty seven are different numbers. One part is missing.' }
     },
     audio: {
       intro: {
         ru: ['Тридцать семь деталей на два стола. По восемнадцать, и одна в лотке. Проверили умножением и получили тридцать шесть.', 'Найди, чего не хватает.'],
-        uz: ["O'ttiz yettita detal ikki stolga. O'n sakkiztadan, bittasi laganda. Ko'paytirib tekshirishdi va o'ttiz olti chiqdi.", 'Nima yetishmayotganini toping.']
+        uz: ["O'ttiz yettita detal ikki stolga. O'n sakkiztadan, bittasi laganda. Ko'paytirib tekshirishdi va o'ttiz olti chiqdi.", 'Nima yetishmayotganini toping.'],
+        en: ['Thirty seven parts onto two tables. Eighteen each, and one in the tray. They checked by multiplying and got thirty six.', 'Find what is missing.']
       },
-      on_correct: { ru: 'Точно! Прибавляем деталь из лотка. Тридцать шесть и один, тридцать семь.', uz: "Aniq! Lagandagi detalni qo'shamiz. O'ttiz olti va bir, o'ttiz yetti." },
-      on_wrong: { ru: 'Сравни результат проверки и число деталей.', uz: 'Tekshirish natijasi bilan detal sonini solishtiring.' }
+      on_correct: { ru: 'Точно! Прибавляем деталь из лотка. Тридцать шесть и один, тридцать семь.', uz: "Aniq! Lagandagi detalni qo'shamiz. O'ttiz olti va bir, o'ttiz yetti.", en: 'Exactly! We add the part from the tray. Thirty six and one, thirty seven.' },
+      on_wrong: { ru: 'Сравни результат проверки и число деталей.', uz: 'Tekshirish natijasi bilan detal sonini solishtiring.', en: 'Compare the result of the check with the number of parts.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Проверка сошлась или нет?', uz: 'Tekshirish mos keldimi?' },
-    bin_a: { ru: 'сошлась', uz: 'mos keldi' },
-    bin_b: { ru: 'не сошлась', uz: 'mos kelmadi' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Проверка сошлась или нет?', uz: 'Tekshirish mos keldimi?', en: 'Did the check add up or not?' },
+    bin_a: { ru: 'сошлась', uz: 'mos keldi', en: 'it added up' },
+    bin_b: { ru: 'не сошлась', uz: 'mos kelmadi', en: 'it did not add up' },
     items: [
-      { n: '9 · 6 + 2 = 56', a: true, hint: { ru: 'Девять на шесть пятьдесят четыре, и два, пятьдесят шесть. Сошлась.', uz: "To'qqiz karra olti ellik to'rt, ustiga ikki, ellik olti. Mos keldi." } },
-      { n: '7 · 5 + 4 = 40', a: false, hint: { ru: 'Семь на пять тридцать пять, и четыре, тридцать девять. А записано сорок.', uz: "Yetti karra besh o'ttiz besh, ustiga to'rt, o'ttiz to'qqiz. Yozuvda esa qirq." } },
-      { n: '8 · 4 + 3 = 35', a: true, hint: { ru: 'Восемь на четыре тридцать два, и три, тридцать пять. Сошлась.', uz: "Sakkiz karra to'rt o'ttiz ikki, ustiga uch, o'ttiz besh. Mos keldi." } },
-      { n: '6 · 9 + 5 = 58', a: false, hint: { ru: 'Шесть на девять пятьдесят четыре, и пять, пятьдесят девять. А записано пятьдесят восемь.', uz: "Olti karra to'qqiz ellik to'rt, ustiga besh, ellik to'qqiz. Yozuvda esa ellik sakkiz." } }
+      { n: '9 · 6 + 2 = 56', a: true, hint: { ru: 'Девять на шесть пятьдесят четыре, и два, пятьдесят шесть. Сошлась.', uz: "To'qqiz karra olti ellik to'rt, ustiga ikki, ellik olti. Mos keldi.", en: 'Nine times six is fifty four, and two, fifty six. It added up.' } },
+      { n: '7 · 5 + 4 = 40', a: false, hint: { ru: 'Семь на пять тридцать пять, и четыре, тридцать девять. А записано сорок.', uz: "Yetti karra besh o'ttiz besh, ustiga to'rt, o'ttiz to'qqiz. Yozuvda esa qirq.", en: 'Seven times five is thirty five, and four, thirty nine. But forty is written down.' } },
+      { n: '8 · 4 + 3 = 35', a: true, hint: { ru: 'Восемь на четыре тридцать два, и три, тридцать пять. Сошлась.', uz: "Sakkiz karra to'rt o'ttiz ikki, ustiga uch, o'ttiz besh. Mos keldi.", en: 'Eight times four is thirty two, and three, thirty five. It added up.' } },
+      { n: '6 · 9 + 5 = 58', a: false, hint: { ru: 'Шесть на девять пятьдесят четыре, и пять, пятьдесят девять. А записано пятьдесят восемь.', uz: "Olti karra to'qqiz ellik to'rt, ustiga besh, ellik to'qqiz. Yozuvda esa ellik sakkiz.", en: 'Six times nine is fifty four, and five, fifty nine. But fifty eight is written down.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре проверки. Слева те, где всё сошлось, справа те, где нет.', uz: "To'rt tekshiruv. Chapda mos kelganlari, o'ngda mos kelmaganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай произведение, потом прибавь остаток.', uz: "Ko'paytmani hisoblang, keyin qoldiqni qo'shing." }
+      intro: { ru: 'Четыре проверки. Слева те, где всё сошлось, справа те, где нет.', uz: "To'rt tekshiruv. Chapda mos kelganlari, o'ngda mos kelmaganlari.", en: 'Four checks. On the left those where everything added up, on the right those where it did not.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посчитай произведение, потом прибавь остаток.', uz: "Ko'paytmani hisoblang, keyin qoldiqni qo'shing.", en: 'Work out the product, then add the remainder.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '56 : 8 = 7. Какая проверка верна?', uz: "56 : 8 = 7. Qaysi tekshiruv to'g'ri?" },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '56 : 8 = 7. Какая проверка верна?', uz: "56 : 8 = 7. Qaysi tekshiruv to'g'ri?", en: '56 : 8 = 7. Which check is correct?' },
     opts: [
-      { ru: '7 · 8 = 56', uz: '7 · 8 = 56' },
-      { ru: '56 · 8 = 7', uz: '56 · 8 = 7' },
-      { ru: '7 + 8 = 56', uz: '7 + 8 = 56' },
-      { ru: '56 : 7 = 8', uz: '56 : 7 = 8' }
+      { ru: '7 · 8 = 56', uz: '7 · 8 = 56', en: '7 · 8 = 56' },
+      { ru: '56 · 8 = 7', uz: '56 · 8 = 7', en: '56 · 8 = 7' },
+      { ru: '7 + 8 = 56', uz: '7 + 8 = 56', en: '7 + 8 = 56' },
+      { ru: '56 : 7 = 8', uz: '56 : 7 = 8', en: '56 : 7 = 8' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Делимое не умножают на делитель. Умножают то, что получилось.', uz: "Bo'linuvchi bo'luvchiga ko'paytirilmaydi. Chiqqan natija ko'paytiriladi." },
-      2: { ru: 'Сложение не проверяет деление.', uz: "Qo'shish bo'lishni tekshirmaydi." },
-      3: { ru: 'Это верное равенство, но это другое деление, а не проверка.', uz: "Bu to'g'ri tenglik, lekin bu boshqa bo'lish, tekshiruv emas." }
+      1: { ru: 'Делимое не умножают на делитель. Умножают то, что получилось.', uz: "Bo'linuvchi bo'luvchiga ko'paytirilmaydi. Chiqqan natija ko'paytiriladi.", en: 'The dividend is not multiplied by the divisor. What is multiplied is what came out.' },
+      2: { ru: 'Сложение не проверяет деление.', uz: "Qo'shish bo'lishni tekshirmaydi.", en: 'Addition does not check division.' },
+      3: { ru: 'Это верное равенство, но это другое деление, а не проверка.', uz: "Bu to'g'ri tenglik, lekin bu boshqa bo'lish, tekshiruv emas.", en: 'That is a true equality, but it is a different division, not a check.' }
     },
     audio: {
-      intro: { ru: 'Пятьдесят шесть на восемь, семь. Выбери верную проверку.', uz: "Ellik oltini sakkizga bo'lsak, yetti. To'g'ri tekshiruvni tanlang." },
-      on_correct: { ru: 'Верно! Частное умножаем на делитель и получаем делимое.', uz: "To'g'ri! Bo'linmani bo'luvchiga ko'paytirib, bo'linuvchini olamiz." },
-      on_wrong: { ru: 'Проверка возвращает то число, которое делили.', uz: "Tekshiruv bo'lingan sonni qaytaradi." }
+      intro: { ru: 'Пятьдесят шесть на восемь, семь. Выбери верную проверку.', uz: "Ellik oltini sakkizga bo'lsak, yetti. To'g'ri tekshiruvni tanlang.", en: 'Fifty six by eight, seven. Choose the correct check.' },
+      on_correct: { ru: 'Верно! Частное умножаем на делитель и получаем делимое.', uz: "To'g'ri! Bo'linmani bo'luvchiga ko'paytirib, bo'linuvchini olamiz.", en: 'Right! We multiply the quotient by the divisor and get the dividend.' },
+      on_wrong: { ru: 'Проверка возвращает то число, которое делили.', uz: "Tekshiruv bo'lingan sonni qaytaradi.", en: 'A check gives back the number that was divided.' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: '55 : 4 = 13 (ост. 3) — проверь по шагам', uz: '55 : 4 = 13 (qold. 3) — qadamlab tekshiring' },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: '55 : 4 = 13 (ост. 3) — проверь по шагам', uz: '55 : 4 = 13 (qold. 3) — qadamlab tekshiring', en: '55 : 4 = 13 (rem. 3) — check it step by step' },
     swap_line: '13 · 4 + 3',
     cells: [
-      { head: { ru: 'роздано', uz: 'tarqatilgani' }, label: '13 · 4', ans: 52, hint: { ru: 'Тринадцать умножить на четыре.', uz: "O'n uchni to'rtga ko'paytiring." } },
-      { head: { ru: 'и остаток', uz: 'va qoldiq' }, label: '52 + 3', ans: 55, hint: { ru: 'К пятидесяти двум прибавь три.', uz: "Ellik ikkiga uchni qo'shing." } }
+      { head: { ru: 'роздано', uz: 'tarqatilgani', en: 'shared out' }, label: '13 · 4', ans: 52, hint: { ru: 'Тринадцать умножить на четыре.', uz: "O'n uchni to'rtga ko'paytiring.", en: 'Thirteen times four.' } },
+      { head: { ru: 'и остаток', uz: 'va qoldiq', en: 'and the remainder' }, label: '52 + 3', ans: 55, hint: { ru: 'К пятидесяти двум прибавь три.', uz: "Ellik ikkiga uchni qo'shing.", en: 'Add three to fifty two.' } }
     ],
     check: '13 · 4 + 3 = 55',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Пятьдесят пять деталей на четыре стола. По тринадцать, три в лотке. Проверим по шагам.', uz: "Ellik beshta detal to'rt stolga. O'n uchtadan, uchtasi laganda. Qadamlab tekshiramiz." },
-      on_correct: { ru: 'Верно! Пятьдесят пять, как и было.', uz: "To'g'ri! Ellik besh, boridek." }
+      intro: { ru: 'Пятьдесят пять деталей на четыре стола. По тринадцать, три в лотке. Проверим по шагам.', uz: "Ellik beshta detal to'rt stolga. O'n uchtadan, uchtasi laganda. Qadamlab tekshiramiz.", en: 'Fifty five parts onto four tables. Thirteen each, three in the tray. Let us check step by step.' },
+      on_correct: { ru: 'Верно! Пятьдесят пять, как и было.', uz: "To'g'ri! Ellik besh, boridek.", en: 'Right! Fifty five, just as there was.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Внимание', uz: 'Diqqat' },
-    q: { ru: 'Проверка сошлась. Но ответ всё равно неверный. Почему?', uz: "Tekshirish mos keldi. Lekin javob baribir noto'g'ri. Nega?" },
-    fig_line: { ru: '46 : 5 = 8 (ост. 6) · 8 · 5 + 6 = 46', uz: '46 : 5 = 8 (qold. 6) · 8 · 5 + 6 = 46' },
+    eyebrow: { ru: 'Внимание', uz: 'Diqqat', en: 'Careful' },
+    q: { ru: 'Проверка сошлась. Но ответ всё равно неверный. Почему?', uz: "Tekshirish mos keldi. Lekin javob baribir noto'g'ri. Nega?", en: 'The check added up. But the answer is still wrong. Why?' },
+    fig_line: { ru: '46 : 5 = 8 (ост. 6) · 8 · 5 + 6 = 46', uz: '46 : 5 = 8 (qold. 6) · 8 · 5 + 6 = 46', en: '46 : 5 = 8 (rem. 6) · 8 · 5 + 6 = 46' },
     opts: [
-      { ru: 'остаток больше делителя', uz: "qoldiq bo'luvchidan katta" },
-      { ru: 'проверка посчитана неверно', uz: "tekshiruv noto'g'ri hisoblangan" },
-      { ru: 'делитель записан неверно', uz: "bo'luvchi noto'g'ri yozilgan" },
-      { ru: 'ошибки всё-таки нет', uz: "baribir xato yo'q" }
+      { ru: 'остаток больше делителя', uz: "qoldiq bo'luvchidan katta", en: 'the remainder is bigger than the divisor' },
+      { ru: 'проверка посчитана неверно', uz: "tekshiruv noto'g'ri hisoblangan", en: 'the check was worked out wrongly' },
+      { ru: 'делитель записан неверно', uz: "bo'luvchi noto'g'ri yozilgan", en: 'the divisor is written wrongly' },
+      { ru: 'ошибки всё-таки нет', uz: "baribir xato yo'q", en: 'there is no mistake after all' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Посчитай сам. Восемь на пять сорок, и шесть, сорок шесть. Проверка честная.', uz: "O'zingiz hisoblang. Sakkiz karra besh qirq, ustiga olti, qirq olti. Tekshiruv halol." },
-      2: { ru: 'Делитель пять, как и в задании.', uz: "Bo'luvchi besh, topshiriqdagidek." },
-      3: { ru: 'Сравни остаток и делитель. Шесть больше пяти, значит можно раздать ещё по одной.', uz: "Qoldiq bilan bo'luvchini solishtiring. Olti beshdan katta, demak yana bittadan tarqatish mumkin." }
+      1: { ru: 'Посчитай сам. Восемь на пять сорок, и шесть, сорок шесть. Проверка честная.', uz: "O'zingiz hisoblang. Sakkiz karra besh qirq, ustiga olti, qirq olti. Tekshiruv halol.", en: 'Work it out yourself. Eight times five is forty, and six, forty six. The check is honest.' },
+      2: { ru: 'Делитель пять, как и в задании.', uz: "Bo'luvchi besh, topshiriqdagidek.", en: 'The divisor is five, just as in the task.' },
+      3: { ru: 'Сравни остаток и делитель. Шесть больше пяти, значит можно раздать ещё по одной.', uz: "Qoldiq bilan bo'luvchini solishtiring. Olti beshdan katta, demak yana bittadan tarqatish mumkin.", en: 'Compare the remainder and the divisor. Six is bigger than five, so one more each can be shared out.' }
     },
     audio: {
       intro: {
         ru: ['Сорок шесть деталей на пять столов. По восемь, шесть в лотке. Проверка сошлась и дала сорок шесть.', 'И всё-таки ответ неверный. Найди почему.'],
-        uz: ["Qirq oltita detal besh stolga. Sakkiztadan, oltitasi laganda. Tekshirish mos keldi va qirq olti berdi.", "Shunga qaramay javob noto'g'ri. Sababini toping."]
+        uz: ["Qirq oltita detal besh stolga. Sakkiztadan, oltitasi laganda. Tekshirish mos keldi va qirq olti berdi.", "Shunga qaramay javob noto'g'ri. Sababini toping."],
+        en: ['Forty six parts onto five tables. Eight each, six in the tray. The check added up and gave forty six.', 'And still the answer is wrong. Find out why.']
       },
-      on_correct: { ru: 'Точно! Проверка сходится, но шесть больше пяти. Правильно девять на стол и одна в лотке.', uz: "Aniq! Tekshirish mos keladi, lekin olti beshdan katta. To'g'risi har stolga to'qqiztadan, bittasi laganda." },
-      on_wrong: { ru: 'Проверка не всё ловит. Вспомни правило про остаток.', uz: 'Tekshiruv hammasini tutmaydi. Qoldiq haqidagi qoidani eslang.' }
+      on_correct: { ru: 'Точно! Проверка сходится, но шесть больше пяти. Правильно девять на стол и одна в лотке.', uz: "Aniq! Tekshirish mos keladi, lekin olti beshdan katta. To'g'risi har stolga to'qqiztadan, bittasi laganda.", en: 'Exactly! The check adds up, but six is bigger than five. The right answer is nine per table and one in the tray.' },
+      on_wrong: { ru: 'Проверка не всё ловит. Вспомни правило про остаток.', uz: 'Tekshiruv hammasini tutmaydi. Qoldiq haqidagi qoidani eslang.', en: 'A check does not catch everything. Remember the rule about the remainder.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит считает проверку лишней', uz: 'Bit tekshiruvni ortiqcha deb hisoblaydi' },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит считает проверку лишней', uz: 'Bit tekshiruvni ortiqcha deb hisoblaydi', en: 'Bit thinks the check is unnecessary' },
     lines: ['72 : 6 = 12', 'проверять не буду'],
     lines_uz: ['72 : 6 = 12', 'tekshirmayman'],
-    line_cap: { ru: 'ответ красивый, значит верный', uz: "javob chiroyli, demak to'g'ri" },
-    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    lines_en: ['72 : 6 = 12', 'I will not check'],
+    line_cap: { ru: 'ответ красивый, значит верный', uz: "javob chiroyli, demak to'g'ri", en: 'the answer looks neat, so it is right' },
+    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?', en: 'Is Bit right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Красивый ответ ничего не доказывает. Двенадцать на шесть, семьдесят два. Вот теперь доказано.',
-      uz: "Aniq! Chiroyli javob hech narsani isbotlamaydi. O'n ikki karra olti, yetmish ikki. Mana endi isbotlandi."
+      uz: "Aniq! Chiroyli javob hech narsani isbotlamaydi. O'n ikki karra olti, yetmish ikki. Mana endi isbotlandi.",
+      en: 'Exactly! A neat answer proves nothing. Twelve times six, seventy two. Now it is proved.'
     },
     trap_wrong: {
       ru: 'Ответ и правда верный. Но узнали мы это только сейчас, когда умножили и получили семьдесят два.',
-      uz: "Javob haqiqatan to'g'ri. Lekin buni faqat hozir, ko'paytirib yetmish ikki chiqqanda bildik."
+      uz: "Javob haqiqatan to'g'ri. Lekin buni faqat hozir, ko'paytirib yetmish ikki chiqqanda bildik.",
+      en: 'The answer really is correct. But we only found that out now, when we multiplied and got seventy two.'
     },
     audio: {
       ru: [
@@ -429,169 +444,175 @@ const CONTENT = {
       uz: [
         "Bit yetmish ikkini oltiga bo'lib, o'n ikki oldi. Tekshirishni xohlamayapti, javob chiroyli deydi.",
         "Bit haqmi?"
-      ]
+      ],
+      en: ['Bit divided seventy two by six and got twelve. He does not want to check, because the answer looks neat.', 'Is Bit right?']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '12 · 8 = 96. Проверь делением: 96 : 8 = ?', uz: "12 · 8 = 96. Bo'lib tekshiring: 96 : 8 = ?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '12 · 8 = 96. Проверь делением: 96 : 8 = ?', uz: "12 · 8 = 96. Bo'lib tekshiring: 96 : 8 = ?", en: '12 · 8 = 96. Check by dividing: 96 : 8 = ?' },
     ans: 12,
     check: '96 : 8 = 12',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Восемьдесят на восемь это десять, ещё шестнадцать на восемь это два.', uz: "Saksonni sakkizga bo'lsak o'n, yana o'n oltini sakkizga bo'lsak ikki." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Восемьдесят на восемь это десять, ещё шестнадцать на восемь это два.', uz: "Saksonni sakkizga bo'lsak o'n, yana o'n oltini sakkizga bo'lsak ikki.", en: 'Eighty by eight is ten, and sixteen by eight is two more.' },
     audio: {
-      intro: { ru: 'Двенадцать умножить на восемь, девяносто шесть. Проверь это делением.', uz: "O'n ikkini sakkizga ko'paytirsak, to'qson olti. Buni bo'lib tekshiring." },
-      on_correct: { ru: 'Верно! Вернулось двенадцать, значит умножили правильно.', uz: "To'g'ri! O'n ikki qaytdi, demak to'g'ri ko'paytirilgan." }
+      intro: { ru: 'Двенадцать умножить на восемь, девяносто шесть. Проверь это делением.', uz: "O'n ikkini sakkizga ko'paytirsak, to'qson olti. Buni bo'lib tekshiring.", en: 'Twelve times eight, ninety six. Check it by dividing.' },
+      on_correct: { ru: 'Верно! Вернулось двенадцать, значит умножили правильно.', uz: "To'g'ri! O'n ikki qaytdi, demak to'g'ri ko'paytirilgan.", en: 'Right! Twelve came back, so the multiplication was correct.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '37 : 2. Сколько на каждом столе?', uz: '37 : 2. Har bir stolda nechta?' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '37 : 2. Сколько на каждом столе?', uz: '37 : 2. Har bir stolda nechta?', en: '37 : 2. How many on each table?' },
     ans: 18,
     check: '18 · 2 + 1 = 37',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Тридцать шесть делится на два ровно, а одна деталь останется.', uz: "O'ttiz olti ikkiga tekis bo'linadi, bitta detal ortadi." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Тридцать шесть делится на два ровно, а одна деталь останется.', uz: "O'ttiz olti ikkiga tekis bo'linadi, bitta detal ortadi.", en: 'Thirty six divides by two exactly, and one part will be left.' },
     audio: {
-      intro: { ru: 'Тридцать семь деталей на два стола. Набери, по сколько выйдет.', uz: "O'ttiz yettita detal ikki stolga. Nechtadan chiqishini tering." },
-      on_correct: { ru: 'Верно! Восемнадцать на стол и одна в лотке. Проверка сошлась.', uz: "To'g'ri! Har stolga o'n sakkiztadan, bittasi laganda. Tekshirish mos keldi." }
+      intro: { ru: 'Тридцать семь деталей на два стола. Набери, по сколько выйдет.', uz: "O'ttiz yettita detal ikki stolga. Nechtadan chiqishini tering.", en: 'Thirty seven parts onto two tables. Type how many there will be.' },
+      on_correct: { ru: 'Верно! Восемнадцать на стол и одна в лотке. Проверка сошлась.', uz: "To'g'ri! Har stolga o'n sakkiztadan, bittasi laganda. Tekshirish mos keldi.", en: 'Right! Eighteen per table and one in the tray. The check adds up.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-    q: { ru: 'В мастерской 75 деталей. В ящик входит 4. Сколько ящиков наполнится и сколько останется?', uz: "Ustaxonada 75 ta detal bor. Yashikka 4 ta sig'adi. Nechta yashik to'ladi va nechtasi ortadi?" },
-    q_speech: { ru: 'Семьдесят пять деталей, в ящик входит четыре. Сколько ящиков и сколько останется?', uz: "Yetmish beshta detal, yashikka to'rtta sig'adi. Nechta yashik va nechtasi ortadi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+    q: { ru: 'В мастерской 75 деталей. В ящик входит 4. Сколько ящиков наполнится и сколько останется?', uz: "Ustaxonada 75 ta detal bor. Yashikka 4 ta sig'adi. Nechta yashik to'ladi va nechtasi ortadi?", en: 'The workshop has 75 parts. A box holds 4. How many boxes will be filled and how many will be left?' },
+    q_speech: { ru: 'Семьдесят пять деталей, в ящик входит четыре. Сколько ящиков и сколько останется?', uz: "Yetmish beshta detal, yashikka to'rtta sig'adi. Nechta yashik va nechtasi ortadi?", en: 'Seventy five parts, a box holds four. How many boxes and how many will be left?' },
     tbl_heads: [
-      { ru: 'Всего деталей', uz: 'Jami detal' },
-      { ru: 'В ящик входит', uz: "Yashikka sig'adi" },
-      { ru: 'Проверка', uz: 'Tekshirish' }
+      { ru: 'Всего деталей', uz: 'Jami detal', en: 'Parts in all' },
+      { ru: 'В ящик входит', uz: "Yashikka sig'adi", en: 'A box holds' },
+      { ru: 'Проверка', uz: 'Tekshirish', en: 'Check' }
     ],
     tbl_cells: ['75', '4', '?'],
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '75 : 4', uz: '75 : 4' },
-      { ru: '75 · 4', uz: '75 · 4' },
-      { ru: '75 − 4', uz: '75 − 4' },
-      { ru: '4 : 75', uz: '4 : 75' }
+      { ru: '75 : 4', uz: '75 : 4', en: '75 : 4' },
+      { ru: '75 · 4', uz: '75 · 4', en: '75 · 4' },
+      { ru: '75 − 4', uz: '75 − 4', en: '75 − 4' },
+      { ru: '4 : 75', uz: '4 : 75', en: '4 : 75' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение соберёт ещё больше деталей, а их всего семьдесят пять.', uz: "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish beshta." },
-      2: { ru: 'Вычитание уберёт один ящик, а нужно число ящиков.', uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak." },
-      3: { ru: 'Делят большее на меньшее. Детали раскладывают по ящикам.', uz: "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi." }
+      1: { ru: 'Умножение соберёт ещё больше деталей, а их всего семьдесят пять.', uz: "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish beshta.", en: 'Multiplication will gather even more parts, and there are only seventy five.' },
+      2: { ru: 'Вычитание уберёт один ящик, а нужно число ящиков.', uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak.", en: 'Subtraction takes away one box, and we need the number of boxes.' },
+      3: { ru: 'Делят большее на меньшее. Детали раскладывают по ящикам.', uz: "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi.", en: 'The bigger one is divided by the smaller one. The parts are laid out into boxes.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang." },
-    step1_q: { ru: 'Сколько ящиков наполнится?', uz: "Nechta yashik to'ladi?" },
+    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang.", en: 'The line is correct. Now count step by step.' },
+    step1_q: { ru: 'Сколько ящиков наполнится?', uz: "Nechta yashik to'ladi?", en: 'How many boxes will be filled?' },
     ans1: 18,
-    hint1: { ru: 'Сорок на четыре это десять, ещё тридцать два на четыре это восемь.', uz: "Qirqni to'rtga bo'lsak o'n, yana o'ttiz ikkini to'rtga bo'lsak sakkiz." },
-    step2_q: { ru: 'Сколько деталей останется?', uz: 'Nechta detal ortadi?' },
+    hint1: { ru: 'Сорок на четыре это десять, ещё тридцать два на четыре это восемь.', uz: "Qirqni to'rtga bo'lsak o'n, yana o'ttiz ikkini to'rtga bo'lsak sakkiz.", en: 'Forty by four is ten, and thirty two by four is eight more.' },
+    step2_q: { ru: 'Сколько деталей останется?', uz: 'Nechta detal ortadi?', en: 'How many parts will be left?' },
     ans2: 3,
-    hint2: { ru: 'Восемнадцать ящиков по четыре это семьдесят две детали.', uz: "O'n sakkiz yashik to'rttadan bu yetmish ikkita detal." },
+    hint2: { ru: 'Восемнадцать ящиков по четыре это семьдесят две детали.', uz: "O'n sakkiz yashik to'rttadan bu yetmish ikkita detal.", en: 'Eighteen boxes of four is seventy two parts.' },
     check: '18 · 4 + 3 = 75',
-    setup_audio: { ru: 'Задача из мастерской. Семьдесят пять деталей и ящики по четыре. Сначала выбери запись, потом считай по шагам, а в конце проверь.', uz: "Ustaxonadan masala. Yetmish beshta detal va to'rttadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang, oxirida tekshiring." },
+    setup_audio: { ru: 'Задача из мастерской. Семьдесят пять деталей и ящики по четыре. Сначала выбери запись, потом считай по шагам, а в конце проверь.', uz: "Ustaxonadan masala. Yetmish beshta detal va to'rttadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang, oxirida tekshiring.", en: 'A problem from the workshop. Seventy five parts and boxes of four. First choose the line, then count step by step, and check at the end.' },
     audio: {
-      intro: { ru: 'Тут пригодится и остаток, и проверка.', uz: "Bu yerda qoldiq ham, tekshirish ham kerak bo'ladi." },
-      on_correct: { ru: 'Восемнадцать ящиков и три детали сверху! Проверка сошлась, семьдесят пять.', uz: "O'n sakkizta yashik va uchta ortiqcha detal! Tekshirish mos keldi, yetmish besh." },
-      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.' }
+      intro: { ru: 'Тут пригодится и остаток, и проверка.', uz: "Bu yerda qoldiq ham, tekshirish ham kerak bo'ladi.", en: 'Both the remainder and the check come in handy here.' },
+      on_correct: { ru: 'Восемнадцать ящиков и три детали сверху! Проверка сошлась, семьдесят пять.', uz: "O'n sakkizta yashik va uchta ortiqcha detal! Tekshirish mos keldi, yetmish besh.", en: 'Eighteen boxes and three parts on top! The check adds up, seventy five.' },
+      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.', en: 'Count it again, step by step.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Три проверки — и урок закрыт', uz: 'Uch tekshiruv va dars yopiladi' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Три проверки — и урок закрыт', uz: 'Uch tekshiruv va dars yopiladi', en: 'Three checks and the lesson is closed' },
     items: [
       {
         kind: 'num',
-        q: { ru: '82 : 6 = 13 (ост. 4). Проверь: 13 · 6 + 4 = ? Набери ответ.', uz: '82 : 6 = 13 (qold. 4). Tekshiring: 13 · 6 + 4 = ? Javobni tering.' },
-        q_speech: { ru: 'Проверь деление восьмидесяти двух на шесть. Тринадцать на шесть и прибавь четыре.', uz: "Sakson ikkini oltiga bo'lishni tekshiring. O'n uchni oltiga ko'paytirib, to'rtni qo'shing." },
+        q: { ru: '82 : 6 = 13 (ост. 4). Проверь: 13 · 6 + 4 = ? Набери ответ.', uz: '82 : 6 = 13 (qold. 4). Tekshiring: 13 · 6 + 4 = ? Javobni tering.', en: '82 : 6 = 13 (rem. 4). Check: 13 · 6 + 4 = ? Type the answer.' },
+        q_speech: { ru: 'Проверь деление восьмидесяти двух на шесть. Тринадцать на шесть и прибавь четыре.', uz: "Sakson ikkini oltiga bo'lishni tekshiring. O'n uchni oltiga ko'paytirib, to'rtni qo'shing.", en: 'Check the division of eighty two by six. Thirteen times six and add four.' },
         ans: 82,
-        hint: { ru: 'Сначала тринадцать на шесть, это семьдесят восемь. Потом прибавь четыре.', uz: "Avval o'n uch karra olti, bu yetmish sakkiz. Keyin to'rtni qo'shing." }
+        hint: { ru: 'Сначала тринадцать на шесть, это семьдесят восемь. Потом прибавь четыре.', uz: "Avval o'n uch karra olti, bu yetmish sakkiz. Keyin to'rtni qo'shing.", en: 'First thirteen times six, that is seventy eight. Then add four.' }
       },
       {
         kind: 'mc',
-        q: { ru: '6 · 13 = 78. Какая проверка верна?', uz: "6 · 13 = 78. Qaysi tekshiruv to'g'ri?" },
-        q_speech: { ru: 'Шесть умножить на тринадцать, семьдесят восемь. Какая проверка верна?', uz: "Olti karra o'n uch, yetmish sakkiz. Qaysi tekshiruv to'g'ri?" },
-        opt0: { ru: '78 : 6 = 13', uz: '78 : 6 = 13' },
-        opt1: { ru: '78 · 6 = 13', uz: '78 · 6 = 13' },
-        opt2: { ru: '78 + 6 = 13', uz: '78 + 6 = 13' },
-        opt3: { ru: '13 − 6 = 78', uz: '13 − 6 = 78' },
-        wrong_1: { ru: 'Произведение не умножают ещё раз. Его делят на один из множителей.', uz: "Ko'paytma yana ko'paytirilmaydi. U ko'paytuvchilardan biriga bo'linadi." },
-        wrong_2: { ru: 'Сложение не проверяет умножение.', uz: "Qo'shish ko'paytirishni tekshirmaydi." },
-        wrong_3: { ru: 'Вычитание тоже не проверяет умножение, да и равенство неверное.', uz: "Ayirish ham ko'paytirishni tekshirmaydi, tenglik ham noto'g'ri." }
+        q: { ru: '6 · 13 = 78. Какая проверка верна?', uz: "6 · 13 = 78. Qaysi tekshiruv to'g'ri?", en: '6 · 13 = 78. Which check is correct?' },
+        q_speech: { ru: 'Шесть умножить на тринадцать, семьдесят восемь. Какая проверка верна?', uz: "Olti karra o'n uch, yetmish sakkiz. Qaysi tekshiruv to'g'ri?", en: 'Six times thirteen, seventy eight. Which check is correct?' },
+        opt0: { ru: '78 : 6 = 13', uz: '78 : 6 = 13', en: '78 : 6 = 13' },
+        opt1: { ru: '78 · 6 = 13', uz: '78 · 6 = 13', en: '78 · 6 = 13' },
+        opt2: { ru: '78 + 6 = 13', uz: '78 + 6 = 13', en: '78 + 6 = 13' },
+        opt3: { ru: '13 − 6 = 78', uz: '13 − 6 = 78', en: '13 − 6 = 78' },
+        wrong_1: { ru: 'Произведение не умножают ещё раз. Его делят на один из множителей.', uz: "Ko'paytma yana ko'paytirilmaydi. U ko'paytuvchilardan biriga bo'linadi.", en: 'A product is not multiplied again. It is divided by one of the factors.' },
+        wrong_2: { ru: 'Сложение не проверяет умножение.', uz: "Qo'shish ko'paytirishni tekshirmaydi.", en: 'Addition does not check multiplication.' },
+        wrong_3: { ru: 'Вычитание тоже не проверяет умножение, да и равенство неверное.', uz: "Ayirish ham ko'paytirishni tekshirmaydi, tenglik ham noto'g'ri.", en: 'Subtraction does not check multiplication either, and the equality is wrong as well.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись деления верна?', uz: "Qaysi bo'lish yozuvi to'g'ri?" },
-        q_speech: { ru: 'Какая запись деления верна?', uz: "Qaysi bo'lish yozuvi to'g'ri?" },
-        opt0: { ru: '59 : 7 = 8 (ост. 3)', uz: '59 : 7 = 8 (qold. 3)' },
-        opt1: { ru: '59 : 7 = 7 (ост. 10)', uz: '59 : 7 = 7 (qold. 10)' },
-        opt2: { ru: '59 : 7 = 8 (ост. 7)', uz: '59 : 7 = 8 (qold. 7)' },
-        opt3: { ru: '59 : 7 = 9 (ост. 4)', uz: '59 : 7 = 9 (qold. 4)' },
-        wrong_1: { ru: 'Десять больше семи. Можно раздать ещё по одной.', uz: "O'n yettidan katta. Yana bittadan tarqatish mumkin." },
-        wrong_2: { ru: 'Остаток равен делителю, а это ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng, bu esa yana bitta to'liq aylana." },
-        wrong_3: { ru: 'Девять на семь это шестьдесят три, а деталей пятьдесят девять.', uz: "To'qqiz karra yetti oltmish uch, detal esa ellik to'qqizta." }
+        q: { ru: 'Какая запись деления верна?', uz: "Qaysi bo'lish yozuvi to'g'ri?", en: 'Which division line is correct?' },
+        q_speech: { ru: 'Какая запись деления верна?', uz: "Qaysi bo'lish yozuvi to'g'ri?", en: 'Which division line is correct?' },
+        opt0: { ru: '59 : 7 = 8 (ост. 3)', uz: '59 : 7 = 8 (qold. 3)', en: '59 : 7 = 8 (rem. 3)' },
+        opt1: { ru: '59 : 7 = 7 (ост. 10)', uz: '59 : 7 = 7 (qold. 10)', en: '59 : 7 = 7 (rem. 10)' },
+        opt2: { ru: '59 : 7 = 8 (ост. 7)', uz: '59 : 7 = 8 (qold. 7)', en: '59 : 7 = 8 (rem. 7)' },
+        opt3: { ru: '59 : 7 = 9 (ост. 4)', uz: '59 : 7 = 9 (qold. 4)', en: '59 : 7 = 9 (rem. 4)' },
+        wrong_1: { ru: 'Десять больше семи. Можно раздать ещё по одной.', uz: "O'n yettidan katta. Yana bittadan tarqatish mumkin.", en: 'Ten is bigger than seven. One more each can be shared out.' },
+        wrong_2: { ru: 'Остаток равен делителю, а это ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng, bu esa yana bitta to'liq aylana.", en: 'The remainder equals the divisor, and that is one more full round.' },
+        wrong_3: { ru: 'Девять на семь это шестьдесят три, а деталей пятьдесят девять.', uz: "To'qqiz karra yetti oltmish uch, detal esa ellik to'qqizta.", en: 'Nine times seven is sixty three, and there are fifty nine parts.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'На проверке держатся штрихкоды. В номере товара последняя цифра не случайная: её считают из остальных, и кассовый аппарат каждый раз пересчитывает и сравнивает. Если продавец ошибся хоть в одной цифре, проверка не сойдётся и аппарат откажется принимать номер. Тот же приём, что у тебя сегодня: посчитал обратно и сравнил.',
-      uz: "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas: u qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi: teskari hisoblab, solishtirdingiz."
+      uz: "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas: u qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi: teskari hisoblab, solishtirdingiz.",
+      en: 'Barcodes rest on checking. The last digit in a product number is not random: it is worked out from the others, and the till recalculates and compares it every time. If the seller got even one digit wrong, the check will not add up and the till will refuse the number. The same method as yours today: count back and compare.'
     },
     fact_audio: {
       ru: 'На проверке держатся штрихкоды. В номере товара последняя цифра не случайная. Её считают из остальных, и кассовый аппарат каждый раз пересчитывает и сравнивает. Если продавец ошибся хоть в одной цифре, проверка не сойдётся и аппарат откажется принимать номер. Тот же приём, что у тебя сегодня. Посчитал обратно и сравнил.',
-      uz: "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas. U qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi. Teskari hisoblab, solishtirdingiz."
+      uz: "Shtrixkodlar tekshiruvga tayanadi. Mahsulot raqamining oxirgi raqami tasodifiy emas. U qolganlaridan hisoblanadi, kassa apparati esa har safar qayta hisoblab solishtiradi. Sotuvchi bitta raqamda xato qilsa, tekshirish mos kelmaydi va apparat raqamni qabul qilmaydi. Bu siz bugun qilgan usulning o'zi. Teskari hisoblab, solishtirdingiz.",
+      en: 'Barcodes rest on checking. The last digit in a product number is not random. It is worked out from the others, and the till recalculates and compares it every time. If the seller got even one digit wrong, the check will not add up and the till will refuse the number. The same method as yours today. Count back and compare.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, три вопроса.', uz: 'Yakuniy tekshiruv, uch savol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Умножь частное на делитель и прибавь остаток.', uz: "Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing." }
+      intro: { ru: 'Финальная проверка, три вопроса.', uz: 'Yakuniy tekshiruv, uch savol.', en: 'The final check, three questions.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Умножь частное на делитель и прибавь остаток.', uz: "Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing.", en: 'Multiply the quotient by the divisor and add the remainder.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Контроль пройден, все детали на счету!', uz: 'Nazorat o\'tdi, hamma detal hisobda!' },
-    cando: { ru: 'Теперь ты проверяешь и деление с остатком, и умножение.', uz: "Endi siz qoldiqli bo'lishni ham, ko'paytirishni ham tekshirasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Контроль пройден, все детали на счету!', uz: 'Nazorat o\'tdi, hamma detal hisobda!', en: 'The control is passed, every part is accounted for!' },
+    cando: { ru: 'Теперь ты проверяешь и деление с остатком, и умножение.', uz: "Endi siz qoldiqli bo'lishni ham, ko'paytirishni ham tekshirasiz.", en: 'Now you check both division with a remainder and multiplication.' },
     rule_recap: {
       ru: '31 : 7 = 4 (ост. 3), проверка 4 · 7 + 3 = 31. Умножь частное на делитель и прибавь остаток.',
-      uz: "31 : 7 = 4 (qold. 3), tekshiruv 4 · 7 + 3 = 31. Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing."
+      uz: "31 : 7 = 4 (qold. 3), tekshiruv 4 · 7 + 3 = 31. Bo'linmani bo'luvchiga ko'paytirib, qoldiqni qo'shing.",
+      en: '31 : 7 = 4 (rem. 3), check 4 · 7 + 3 = 31. Multiply the quotient by the divisor and add the remainder.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 14: обратное действие; урок 19: остаток', uz: '14-dars: teskari amal; 19-dars: qoldiq' },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'письменные приёмы, столбик', uz: 'yozma usullar, ustun' },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 14: обратное действие; урок 19: остаток', uz: '14-dars: teskari amal; 19-dars: qoldiq', en: 'lesson 14: the opposite operation; lesson 19: the remainder' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'письменные приёмы, столбик', uz: 'yozma usullar, ustun', en: 'written methods, the column' },
     audio: {
       ru: 'Контроль пройден, все детали на счету. Запомни главное. Умножь частное на делитель и прибавь остаток, и если получилось делимое, всё верно. И помни про лоток. Даже когда проверка сошлась, остаток должен быть меньше делителя. В следующий раз начнём писать в столбик!',
-      uz: "Nazorat o'tdi, hamma detal hisobda. Asosiysini eslab qoling. Bo'linmani bo'luvchiga ko'paytiring va qoldiqni qo'shing, bo'linuvchi chiqsa hammasi to'g'ri. Laganni ham unutmang. Tekshirish mos kelganda ham qoldiq bo'luvchidan kichik bo'lishi kerak. Keyingi safar ustunda yozishni boshlaymiz!"
+      uz: "Nazorat o'tdi, hamma detal hisobda. Asosiysini eslab qoling. Bo'linmani bo'luvchiga ko'paytiring va qoldiqni qo'shing, bo'linuvchi chiqsa hammasi to'g'ri. Laganni ham unutmang. Tekshirish mos kelganda ham qoldiq bo'luvchidan kichik bo'lishi kerak. Keyingi safar ustunda yozishni boshlaymiz!",
+      en: 'The control is passed, every part is accounted for. Remember the main thing. Multiply the quotient by the divisor and add the remainder, and if you got the dividend, everything is correct. And remember the tray. Even when the check adds up, the remainder must be smaller than the divisor. Next time we will start writing in a column!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'А теперь с лотком.', uz: 'Endi lagan bilan.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Кто-то поторопился.', uz: 'Kimdir shoshildi.' },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Проверим по шагам.', uz: 'Qadamlab tekshiramiz.' },
-  s8:  { ru: 'Внимание, случай хитрый.', uz: 'Diqqat, holat ayyor.' },
-  s9:  { ru: 'А вот и Бит со своим мнением.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь проверяй сам.', uz: "Endi o'zingiz tekshiring." },
-  s11: { ru: 'И ещё одно деление.', uz: "Yana bitta bo'lish." },
-  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Контроль пройден. Идём дальше!', uz: "Nazorat o'tdi. Davom etamiz!" }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'А теперь с лотком.', uz: 'Endi lagan bilan.', en: 'And now with the tray.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Кто-то поторопился.', uz: 'Kimdir shoshildi.', en: 'Someone was in a hurry.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Проверим по шагам.', uz: 'Qadamlab tekshiramiz.', en: 'Let us check step by step.' },
+  s8:  { ru: 'Внимание, случай хитрый.', uz: 'Diqqat, holat ayyor.', en: 'Careful, a tricky case.' },
+  s9:  { ru: 'А вот и Бит со своим мнением.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his opinion.' },
+  s10: { ru: 'Теперь проверяй сам.', uz: "Endi o'zingiz tekshiring.", en: 'Now check on your own.' },
+  s11: { ru: 'И ещё одно деление.', uz: "Yana bitta bo'lish.", en: 'And one more division.' },
+  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Контроль пройден. Идём дальше!', uz: "Nazorat o'tdi. Davom etamiz!", en: 'The control is passed. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Терминал контроля доволен: каждая деталь на счету. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Nazorat terminali mamnun: har bir detal hisobda. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Nazorat terminali mamnun: har bir detal hisobda. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The control terminal is pleased: every part is accounted for. Thank you for your help!'
 };
 
 // ============================================================
@@ -781,10 +802,10 @@ const ControlBg = () => {
     {/* NAZORAT TABLOSI */}
     <rect x="92" y="108" width="216" height="58" rx="7" fill="url(#d20panel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="98" y="112" width="204" height="9" rx="3" fill="#122236"/>
-    <text x="200" y="119" textAnchor="middle" fontSize="6.5" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПРОВЕРКА' : 'NAZORAT'}</text>
-    <text x="132" y="140" textAnchor="middle" fontSize="7" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'посчитано' : 'hisoblandi'}</text>
+    <text x="200" y="119" textAnchor="middle" fontSize="6.5" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ПРОВЕРКА', 'NAZORAT', 'CHECK')}</text>
+    <text x="132" y="140" textAnchor="middle" fontSize="7" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'посчитано', 'hisoblandi', 'counted')}</text>
     <text x="132" y="156" textAnchor="middle" fontSize="16" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">31</text>
-    <text x="268" y="140" textAnchor="middle" fontSize="7" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'было' : 'bor edi'}</text>
+    <text x="268" y="140" textAnchor="middle" fontSize="7" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'было', 'bor edi', 'there was')}</text>
     <text x="268" y="156" textAnchor="middle" fontSize="16" fontWeight="800" fill="#9FE0FF" fontFamily="'JetBrains Mono', monospace">31</text>
     <g className="lm-glow">
       <circle cx="200" cy="147" r="12" fill="#1F7A4D" opacity="0.25"/>
@@ -906,8 +927,8 @@ const BarcodeFig = () => {
     <g className="d20-scan"><rect x="20" y="24" width="3" height="38" fill="#FF4F28" opacity="0.85"/></g>
     <rect x="160" y="24" width="34" height="38" rx="5" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
     <text x="177" y="48" textAnchor="middle" fontSize="17" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">7</text>
-    <text x="177" y="72" textAnchor="middle" fontSize="6.5" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'проверка' : 'tekshiruv'}</text>
-    <text x="110" y="96" textAnchor="middle" fontSize="9" fontWeight="700" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'касса каждый раз пересчитывает' : 'kassa har safar qayta sanaydi'}</text>
+    <text x="177" y="72" textAnchor="middle" fontSize="6.5" fontWeight="800" fill="#1F7A4D" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'проверка', 'tekshiruv', 'check')}</text>
+    <text x="110" y="96" textAnchor="middle" fontSize="9" fontWeight="700" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'касса каждый раз пересчитывает', 'kassa har safar qayta sanaydi', 'the till recalculates every time')}</text>
   </svg>
   );
 };
@@ -1040,7 +1061,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1211,7 +1232,7 @@ const Screen2 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d20-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d20-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', alignItems: 'baseline', gap: 8 }}>
               <span className="mono d20-expr">{t(c.step1)}</span>
@@ -1484,7 +1505,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1549,7 +1570,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1685,7 +1706,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d20-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d20-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1800,7 +1821,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1871,7 +1892,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d20-final-scene fade-up delay-1"><ControlScene gathered/></div>
@@ -1892,7 +1913,7 @@ export default function CheckDivisionLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1959,7 +1980,7 @@ export default function CheckDivisionLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

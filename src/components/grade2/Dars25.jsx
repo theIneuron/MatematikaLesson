@@ -71,9 +71,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -244,7 +272,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -285,7 +313,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -897,8 +926,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'geo-2-26-v1',
-  lessonTitle: { ru: 'Урок 25. Луч, прямая, отрезок', uz: "25-dars. Nur, to'g'ri chiziq, kesma" }
+  lessonId: 'grade2-25',
+  lessonTitle: { ru: 'Урок 25. Луч, прямая, отрезок', uz: "25-dars. Nur, to'g'ri chiziq, kesma", en: 'Lesson 25. Rays, straight lines and line segments' }
 };
 // STRUKTURA (Б5 URAN YO'LDOSHI, geometriya boshi; Uran gaz/muz gigant — QO'NIB bo'lmaydi, yo'ldoshda stansiya, osmonda Uran): s0 hook (uch soni bilan tur) · s1 to'g'ri chiziq (∞ ikki tomon) · s2 nur (1 boshi) · s3 QOIDA (uch soni: 0/1/2 → chiziq/nur/kesma) + check · s4 kesma (2 uchi) + check · sTBL uch tur kaliti · s5–s11 mashq (tur-tanish + saralash aralash) · s13 masala · s14 final · s15 xulosa (→ ko'pburchaklar).
 // MEXANIKA (YANGI, Van Hiele 0→1): LineTypeStage (chiziq/nur/kesma figurasini UCH SONI bo'yicha tanish, MC + hayotiy langar: ufq/fonar/qalam) + LineSortStage (obyektlarni turiga drag-saralash). Distraktor = boshqa tur.
@@ -945,13 +974,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): 12 kristal 2 talik vagonlarga → nechta vagon? 12÷2=6. Distraktor 10 (=12−2)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Луч, прямая, отрезок', uz: "Mavzu: Nur, to'g'ri chiziq, kesma" },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    q: { ru: 'Линия с одним концом. Как называется?', uz: "Bitta uchli chiziq. Qanday ataladi?" },
-    opt0: { ru: 'Прямая', uz: "To'g'ri chiziq" },   // distraktor
-    opt1: { ru: 'Луч', uz: 'Nur' },                 // to'g'ri
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Луч, прямая, отрезок', uz: "Mavzu: Nur, to'g'ri chiziq, kesma", en: 'Topic: Rays, straight lines and line segments' },
+    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+    q: { ru: 'Линия с одним концом. Как называется?', uz: "Bitta uchli chiziq. Qanday ataladi?", en: 'A line with one end. What is it called?' },
+    opt0: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' },   // distraktor
+    opt1: { ru: 'Луч', uz: 'Nur', en: 'A ray' },                 // to'g'ri
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -965,21 +994,22 @@ const CONTENT = {
           "Fonar nuri bir tomonga ketadi va bitta uchi, boshi bor.",
           "Bit so'raydi: bitta uchi bor bunday chiziq qanday ataladi? Nomini tanla.",
           "Ikki javobni tinglang. Birinchi, to'g'ri chiziq. Ikkinchi, nur. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['We have arrived at a moon of Uranus. The crew is building a station on the solid ground, and Uranus itself can be seen in the sky.', 'A torch beam goes one way and has one end, its start.', 'Bit asks what a line like that, with one end, is called. Choose the name.', 'Listen to two answers. First, a straight line. Second, a ray. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Луч имеет одно начало и идёт в одну сторону без конца. Сейчас разберём все линии.', uz: "To'g'ri. Nurning bitta boshi bor va bir tomonga uchsiz ketadi. Hozir barcha chiziqlarni ko'ramiz." },
-      on_wrong: { ru: 'У прямой нет концов, а у луча один конец, начало. Это луч. Сейчас разберём.', uz: "To'g'ri chiziqning uchi yo'q, nurning bitta uchi, boshi bor. Bu nur. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Разберём прямую, луч и отрезок.', uz: "Hechqisi yo'q. To'g'ri chiziq, nur va kesmani ko'ramiz." }
+      on_correct: { ru: 'Верно. Луч имеет одно начало и идёт в одну сторону без конца. Сейчас разберём все линии.', uz: "To'g'ri. Nurning bitta boshi bor va bir tomonga uchsiz ketadi. Hozir barcha chiziqlarni ko'ramiz.", en: 'That is right. A ray has one starting point and goes off one way with no end. Now let us look at all the lines.' },
+      on_wrong: { ru: 'У прямой нет концов, а у луча один конец, начало. Это луч. Сейчас разберём.', uz: "To'g'ri chiziqning uchi yo'q, nurning bitta uchi, boshi bor. Bu nur. Hozir ko'ramiz.", en: 'A straight line has no ends, but a ray has one end, its start. This is a ray. Now let us look at them.' },
+      on_unknown: { ru: 'Ничего. Разберём прямую, луч и отрезок.', uz: "Hechqisi yo'q. To'g'ri chiziq, nur va kesmani ko'ramiz.", en: 'No problem. Let us look at straight lines, rays and line segments.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: TO'G'RI CHIZIQ — ikki tomonga cheksiz, uchi yo'q (ufq chizig'i)
   s1: {
-    eyebrow: { ru: 'Прямая', uz: "To'g'ri chiziq" },
-    lead: { ru: 'Прямая — без концов.', uz: "To'g'ri chiziq — uchsiz." },
-    body: { ru: 'Прямая линия идёт в обе стороны без конца — у неё нет концов. Стрелки на рисунке показывают: она тянется дальше и дальше. Как линия горизонта: она уходит в обе стороны, и концов её не видно.', uz: "To'g'ri chiziq ikki tomonga uchsiz ketadi — uning uchi yo'q. Rasmdagi strelkalar ko'rsatadi: u yana-da uzoqqa cho'ziladi. Ufq chizig'i kabi: u ikki tomonga ketadi, uchlari ko'rinmaydi." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'У прямой нет концов.', uz: "To'g'ri chiziqning uchi yo'q." },
+    eyebrow: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' },
+    lead: { ru: 'Прямая — без концов.', uz: "To'g'ri chiziq — uchsiz.", en: 'A straight line has no ends.' },
+    body: { ru: 'Прямая линия идёт в обе стороны без конца — у неё нет концов. Стрелки на рисунке показывают: она тянется дальше и дальше. Как линия горизонта: она уходит в обе стороны, и концов её не видно.', uz: "To'g'ri chiziq ikki tomonga uchsiz ketadi — uning uchi yo'q. Rasmdagi strelkalar ko'rsatadi: u yana-da uzoqqa cho'ziladi. Ufq chizig'i kabi: u ikki tomonga ketadi, uchlari ko'rinmaydi.", en: 'A straight line goes both ways with no end, so it has no ends at all. The arrows in the picture show that it stretches on and on. It is like the horizon: it goes off both ways and you never see where it ends.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'У прямой нет концов.', uz: "To'g'ri chiziqning uchi yo'q.", en: 'A straight line has no ends.' },
     audio: {
       ru: [
         'Прямая линия идёт в обе стороны без конца.',
@@ -990,16 +1020,17 @@ const CONTENT = {
         "To'g'ri chiziq ikki tomonga uchsiz ketadi.",
         "Uning uchi yo'q. Strelkalar u yana-da uzoqqa cho'zilishini ko'rsatadi.",
         "Ufq chizig'i kabi: u ikki tomonga ketadi, uchlari ko'rinmaydi. Bu to'g'ri chiziq."
-      ]
+      ],
+      en: ['A straight line goes both ways with no end.', 'It has no ends. The arrows show that it stretches on and on.', 'It is like the horizon: it goes off both ways and you never see where it ends. That is a straight line.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: NUR — bitta boshi, bir tomonga cheksiz (fonar/quyosh nuri)
   s2: {
-    eyebrow: { ru: 'Луч', uz: 'Nur' },
-    lead: { ru: 'Луч — один конец.', uz: "Nur — bitta uch." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'У луча один конец.', uz: "Nurning bitta uchi bor." },
+    eyebrow: { ru: 'Луч', uz: 'Nur', en: 'A ray' },
+    lead: { ru: 'Луч — один конец.', uz: "Nur — bitta uch.", en: 'A ray has one end.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'У луча один конец.', uz: "Nurning bitta uchi bor.", en: 'A ray has one end.' },
     audio: {
       ru: [
         'Луч имеет одно начало, один конец. Это зелёная точка.',
@@ -1010,18 +1041,19 @@ const CONTENT = {
         "Nurning bitta boshi, bitta uchi bor. Bu yashil nuqta.",
         "Boshqa tomonga u uchsiz ketadi, u yoqqa strelka ko'rsatadi.",
         "Fonar yoki quyosh nuri kabi: bitta nuqtadan boshlanib, oldinga uchadi."
-      ]
+      ],
+      en: ['A ray has one start, one end. That is the green dot.', 'The other way it goes on with no end, and the arrow points that way.', 'It is like a beam from a torch or the sun: it starts at one point and flies onward.']
     }
   },
 
   // s3 — QOIDA: bo'lish = teng ulashish, ÷ belgi kiritiladi + check MC (8÷2=4)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Считай концы (зелёные точки): 0 концов — прямая, 1 конец — луч, 2 конца — отрезок.', uz: "Uchlarni sanang (yashil nuqtalar): 0 uch — to'g'ri chiziq, 1 uch — nur, 2 uch — kesma." },
-    check_q: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    opts: [{ ru: 'Прямая', uz: "To'g'ri chiziq", ok: true }, { ru: 'Луч', uz: 'Nur' }, { ru: 'Отрезок', uz: 'Kesma' }],
-    wrong: { ru: 'Нет концов и стрелки в обе стороны — это прямая.', uz: "Uchi yo'q, strelka ikki tomonga — bu to'g'ri chiziq." },
-    check_ok: { ru: 'Верно! Нет концов — это прямая.', uz: "To'g'ri! Uchi yo'q — bu to'g'ri chiziq." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Считай концы (зелёные точки): 0 концов — прямая, 1 конец — луч, 2 конца — отрезок.', uz: "Uchlarni sanang (yashil nuqtalar): 0 uch — to'g'ri chiziq, 1 uch — nur, 2 uch — kesma.", en: 'Count the ends, the green dots: 0 ends is a straight line, 1 end is a ray, 2 ends is a line segment.' },
+    check_q: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+    opts: [{ ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line', ok: true }, { ru: 'Луч', uz: 'Nur', en: 'A ray' }, { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' }],
+    wrong: { ru: 'Нет концов и стрелки в обе стороны — это прямая.', uz: "Uchi yo'q, strelka ikki tomonga — bu to'g'ri chiziq.", en: 'No ends and arrows both ways means it is a straight line.' },
+    check_ok: { ru: 'Верно! Нет концов — это прямая.', uz: "To'g'ri! Uchi yo'q — bu to'g'ri chiziq.", en: 'That is right! No ends, so it is a straight line.' },
     audio: {
       ru: [
         'Запишем главное. Слушай и запомни.',
@@ -1034,20 +1066,21 @@ const CONTENT = {
         "Chiziqning uchlarini sana, yashil nuqtalar.",
         "Nol uch, to'g'ri chiziq, bir uch, nur, ikki uch, kesma.",
         "Tekshir. Bu chiziqning uchi yo'q, strelka ikki tomonga. Bu nima?"
-      ]
+      ],
+      en: ['Let us write down the main thing. Listen and remember.', 'Count the ends of the line, the green dots.', 'No ends is a straight line, one end is a ray, two ends is a line segment.', 'Check it. This line has no ends and arrows both ways. What is it?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3: KESMA — ikki uchi bor, ikki nuqta orasi (qalam) + check
   s4: {
-    eyebrow: { ru: 'Отрезок', uz: 'Kesma' },
-    lead: { ru: 'Отрезок — два конца.', uz: "Kesma — ikki uch." },
-    body: { ru: 'Отрезок — это часть линии между двумя точками. У него два конца и нет стрелок. Как карандаш: он где-то начинается и где-то заканчивается.', uz: "Kesma — chiziqning ikki nuqta orasidagi qismi. Uning ikki uchi bor va strelkasi yo'q. Qalam kabi: u bir joyda boshlanadi va bir joyda tugaydi." },
-    warn: { ru: 'Отрезок можно измерить линейкой — у него есть длина. Прямую и луч — нельзя.', uz: "Kesmani chizg'ich bilan o'lchash mumkin — uning uzunligi bor. To'g'ri chiziq va nurni — bo'lmaydi." },
-    check_q: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    opts: [{ ru: 'Отрезок', uz: 'Kesma', ok: true }, { ru: 'Луч', uz: 'Nur' }, { ru: 'Прямая', uz: "To'g'ri chiziq" }],
-    wrong: { ru: 'Два конца, нет стрелок — это отрезок.', uz: "Ikki uch, strelka yo'q — bu kesma." },
-    check_ok: { ru: 'Верно! Два конца — это отрезок.', uz: "To'g'ri! Ikki uch — bu kesma." },
+    eyebrow: { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' },
+    lead: { ru: 'Отрезок — два конца.', uz: "Kesma — ikki uch.", en: 'A line segment has two ends.' },
+    body: { ru: 'Отрезок — это часть линии между двумя точками. У него два конца и нет стрелок. Как карандаш: он где-то начинается и где-то заканчивается.', uz: "Kesma — chiziqning ikki nuqta orasidagi qismi. Uning ikki uchi bor va strelkasi yo'q. Qalam kabi: u bir joyda boshlanadi va bir joyda tugaydi.", en: 'A line segment is the part of a line between two points. It has two ends and no arrows. It is like a pencil: it starts somewhere and finishes somewhere.' },
+    warn: { ru: 'Отрезок можно измерить линейкой — у него есть длина. Прямую и луч — нельзя.', uz: "Kesmani chizg'ich bilan o'lchash mumkin — uning uzunligi bor. To'g'ri chiziq va nurni — bo'lmaydi.", en: 'A line segment can be measured with a ruler because it has a length. A straight line and a ray cannot.' },
+    check_q: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+    opts: [{ ru: 'Отрезок', uz: 'Kesma', en: 'A line segment', ok: true }, { ru: 'Луч', uz: 'Nur', en: 'A ray' }, { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' }],
+    wrong: { ru: 'Два конца, нет стрелок — это отрезок.', uz: "Ikki uch, strelka yo'q — bu kesma.", en: 'Two ends and no arrows means it is a line segment.' },
+    check_ok: { ru: 'Верно! Два конца — это отрезок.', uz: "To'g'ri! Ikki uch — bu kesma.", en: 'That is right! Two ends, so it is a line segment.' },
     audio: {
       ru: [
         'Отрезок, это часть линии между двумя точками.',
@@ -1060,16 +1093,17 @@ const CONTENT = {
         "Uning ikki uchi bor va strelkasi yo'q. Qalam kabi: u boshlanadi va tugaydi.",
         "Kesmani chizg'ich bilan o'lchash mumkin, uning uzunligi bor.",
         "Tekshir. Bu chiziqning ikki uchi bor, strelkasi yo'q. Bu nima?"
-      ]
+      ],
+      en: ['A line segment is the part of a line between two points.', 'It has two ends and no arrows. It is like a pencil: it starts and it finishes.', 'A line segment can be measured with a ruler because it has a length.', 'Check it. This line has two ends and no arrows. What is it?']
     }
   },
 
   // sTBL — TUSHUNTIRISH: UCH TUR KALITI (nur/to'g'ri chiziq/kesma — uch soni bilan)
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Три линии — по концам', uz: "Uch chiziq — uchlari bilan" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай зелёные точки!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Yashil nuqtalarni sanang!" },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Три линии — по концам', uz: "Uch chiziq — uchlari bilan", en: 'Three lines, told apart by their ends' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай зелёные точки!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Yashil nuqtalarni sanang!", en: 'A straight line has 0 ends, a ray has 1 end, a line segment has 2 ends. Count the green dots!' },
     audio: {
       ru: [
         'Запомни ключ: смотри на концы линии, зелёные точки.',
@@ -1080,199 +1114,203 @@ const CONTENT = {
         "Kalitni yodlang: chiziqning uchlariga qara, yashil nuqtalar.",
         "To'g'ri chiziqning uchi yo'q, nurning bitta uchi, kesmaning ikki uchi.",
         "Uchlarni sanasangiz, chiziqni darrov bilasiz."
-      ]
+      ],
+      en: ['Remember the key: look at the ends of the line, the green dots.', 'A straight line has no ends, a ray has one end, a line segment has two ends.', 'Count the ends and you know the line straight away.']
     }
   },
 
   // s5 — MASHQ single tur-tanish (nur)
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-    transition: { ru: 'Объяснение закончили. Теперь узнавай линии по концам.', uz: "Tushuntirishni tugatdik. Endi chiziqlarni uchlari bo'yicha taning." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+    transition: { ru: 'Объяснение закончили. Теперь узнавай линии по концам.', uz: "Tushuntirishni tugatdik. Endi chiziqlarni uchlari bo'yicha taning.", en: 'We have finished explaining. Now tell the lines apart by their ends.' },
     type: 'ray',
-    wrong: { ru: 'Один конец и одна стрелка — это луч.', uz: "Bitta uch va bitta strelka — bu nur." },
-    done_text: { ru: 'Верно! Один конец — это луч.', uz: "To'g'ri! Bitta uch — bu nur." },
+    wrong: { ru: 'Один конец и одна стрелка — это луч.', uz: "Bitta uch va bitta strelka — bu nur.", en: 'One end and one arrow means it is a ray.' },
+    done_text: { ru: 'Верно! Один конец — это луч.', uz: "To'g'ri! Bitta uch — bu nur.", en: 'That is right! One end, so it is a ray.' },
     audio: {
-      intro: { ru: 'Тренировка. Посмотри на концы и назови линию.', uz: "Mashq. Uchlarga qarab chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: сколько зелёных точек?', uz: "Uchlarni sanang: nechta yashil nuqta?" }
+      intro: { ru: 'Тренировка. Посмотри на концы и назови линию.', uz: "Mashq. Uchlarga qarab chiziqni ayting.", en: 'Practice. Look at the ends and name the line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай концы: сколько зелёных точек?', uz: "Uchlarni sanang: nechta yashil nuqta?", en: 'Count the ends: how many green dots are there?' }
     }
   },
 
   // s6 — MASHQ uch-sanash (3 round)
   s6: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
-    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
+    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang', en: 'Count the ends' },
+    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' },
     rounds: [ { type: 'segment', ask: 'count' }, { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang.", en: 'Count the green dots at the ends.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Считай концы линии, зелёные точки.', uz: "Chiziqning uchlarini, yashil nuqtalarni sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'У прямой ноль, у луча один, у отрезка два.', uz: "To'g'ri chiziqda nol, nurda bir, kesmada ikki." }
+      intro: { ru: 'Считай концы линии, зелёные точки.', uz: "Chiziqning uchlarini, yashil nuqtalarni sanang.", en: 'Count the ends of the line, the green dots.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'У прямой ноль, у луча один, у отрезка два.', uz: "To'g'ri chiziqda nol, nurda bir, kesmada ikki.", en: 'A straight line has none, a ray has one, a line segment has two.' }
     }
   },
 
   // s7 — MASHQ HAYOTIY langar (tur-tanish, 3 round: ufq/fonar/qalam)
   s7: {
-    eyebrow: { ru: 'В жизни', uz: 'Hayotda' },
-    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?" },
+    eyebrow: { ru: 'В жизни', uz: 'Hayotda', en: 'In real life' },
+    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?", en: 'What does it look like?' },
     rounds: [ { type: 'line', kind: 'horizon' }, { type: 'ray', kind: 'beam' }, { type: 'segment', kind: 'edge' } ],
-    wrong: { ru: 'Линия горизонта — в обе стороны, луч фонаря — в одну, карандаш — с двумя концами.', uz: "Ufq chizig'i — ikki tomonga, fonar nuri — bir tomonga, qalam — ikki uchli." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Линия горизонта — в обе стороны, луч фонаря — в одну, карандаш — с двумя концами.', uz: "Ufq chizig'i — ikki tomonga, fonar nuri — bir tomonga, qalam — ikki uchli.", en: 'The horizon goes both ways, a torch beam goes one way, a pencil has two ends.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Посмотри на предмет и назови линию: прямая, луч или отрезок.', uz: "Buyumga qarab chiziqni ayting: to'g'ri chiziq, nur yoki kesma." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы: у линии горизонта их нет, у луча один, у карандаша два.', uz: "Uchlarni sanang: ufq chizig'i uchsiz, nur bitta, qalam ikkita." }
+      intro: { ru: 'Посмотри на предмет и назови линию: прямая, луч или отрезок.', uz: "Buyumga qarab chiziqni ayting: to'g'ri chiziq, nur yoki kesma.", en: 'Look at the object and name the line: a straight line, a ray or a line segment.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай концы: у линии горизонта их нет, у луча один, у карандаша два.', uz: "Uchlarni sanang: ufq chizig'i uchsiz, nur bitta, qalam ikkita.", en: 'Count the ends: the horizon has none, a beam has one, a pencil has two.' }
     }
   },
 
   // s8 — MASHQ tur-tanish (3 round abstrakt)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
     rounds: [ { type: 'segment' }, { type: 'ray' }, { type: 'line' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang.", en: 'Count the ends, the green dots.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Смотри на концы и называй линию.', uz: "Uchlarga qarab chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль, прямая, один, луч, два, отрезок.', uz: "Nol, to'g'ri chiziq, bir, nur, ikki, kesma." }
+      intro: { ru: 'Смотри на концы и называй линию.', uz: "Uchlarga qarab chiziqni ayting.", en: 'Look at the ends and name the line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Ноль, прямая, один, луч, два, отрезок.', uz: "Nol, to'g'ri chiziq, bir, nur, ikki, kesma.", en: 'Zero is a straight line, one is a ray, two is a line segment.' }
     }
   },
 
   // s9 — MASHQ uch-sanash (3 round)
   s9: {
-    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang' },
-    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?" },
+    eyebrow: { ru: 'Считай концы', uz: 'Uchlarni sanang', en: 'Count the ends' },
+    lead: { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' },
     rounds: [ { type: 'line', ask: 'count' }, { type: 'ray', ask: 'count' }, { type: 'segment', ask: 'count' } ],
-    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Считай зелёные точки на концах.', uz: "Uchlardagi yashil nuqtalarni sanang.", en: 'Count the green dots at the ends.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова считай концы линии.', uz: "Yana chiziqning uchlarini sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри только на концы линии.', uz: "Faqat chiziqning uchlariga qarang." }
+      intro: { ru: 'Снова считай концы линии.', uz: "Yana chiziqning uchlarini sanang.", en: 'Count the ends of the line again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри только на концы линии.', uz: "Faqat chiziqning uchlariga qarang.", en: 'Look only at the ends of the line.' }
     }
   },
 
   // s10 — MASHQ HAYOTIY langar (tur-tanish, 3 round)
   s10: {
-    eyebrow: { ru: 'В жизни', uz: 'Hayotda' },
-    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?" },
+    eyebrow: { ru: 'В жизни', uz: 'Hayotda', en: 'In real life' },
+    lead: { ru: 'На что это похоже?', uz: "Bu nimaga o'xshaydi?", en: 'What does it look like?' },
     rounds: [ { type: 'ray', kind: 'beam' }, { type: 'segment', kind: 'edge' }, { type: 'line', kind: 'horizon' } ],
-    wrong: { ru: 'Луч — один конец, карандаш — два, линия горизонта — без концов.', uz: "Nur — bitta uch, qalam — ikkita, ufq chizig'i — uchsiz." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Луч — один конец, карандаш — два, линия горизонта — без концов.', uz: "Nur — bitta uch, qalam — ikkita, ufq chizig'i — uchsiz.", en: 'A beam has one end, a pencil has two, the horizon has none.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова назови линию по предмету.', uz: "Yana buyumga qarab chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай концы предмета.', uz: "Buyumning uchlarini sanang." }
+      intro: { ru: 'Снова назови линию по предмету.', uz: "Yana buyumga qarab chiziqni ayting.", en: 'Name the line from the object again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай концы предмета.', uz: "Buyumning uchlarini sanang.", en: 'Count the ends of the object.' }
     }
   },
 
   // s11 — MASHQ tur-tanish (3 round abstrakt)
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
     rounds: [ { type: 'ray' }, { type: 'line' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang.", en: 'Count the ends, the green dots.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Назови линию.', uz: "Masaladan oldingi oxirgi mashq. Chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль, прямая, один, луч, два, отрезок.', uz: "Nol, to'g'ri chiziq, bir, nur, ikki, kesma." }
+      intro: { ru: 'Последняя тренировка перед задачей. Назови линию.', uz: "Masaladan oldingi oxirgi mashq. Chiziqni ayting.", en: 'The last practice before the task. Name the line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Ноль, прямая, один, луч, два, отрезок.', uz: "Nol, to'g'ri chiziq, bir, nur, ikki, kesma.", en: 'Zero is a straight line, one is a ray, two is a line segment.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi." },
-    manifest_label: { ru: 'добыча', uz: "o'lja" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi.", en: 'Zuhra is sharing out the crystals.' },
+    manifest_label: { ru: 'добыча', uz: "o'lja", en: 'the haul' },
     audio: {
       ru: 'Зухра делит добычу поровну.',
-      uz: "Zuhra o'ljani teng ulashadi."
+      uz: "Zuhra o'ljani teng ulashadi.",
+      en: 'Zuhra is sharing the haul equally.'
     }
   },
 
   // s13 — MASALA (scored, LineTypeStage hayotiy): qalam = kesma
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
     type: 'segment', kind: 'edge',
-    story: { ru: 'Экипаж измеряет карандаш. Какая линия?', uz: "Ekipaj qalamni o'lchayapti. Qanday chiziq?" },
-    wrong: { ru: 'У карандаша два конца — начало и конец.', uz: "Qalamning ikki uchi bor — boshi va oxiri." },
-    done_text: { ru: 'Верно! Карандаш — отрезок.', uz: "To'g'ri! Qalam — kesma." },
+    story: { ru: 'Экипаж измеряет карандаш. Какая линия?', uz: "Ekipaj qalamni o'lchayapti. Qanday chiziq?", en: 'The crew is measuring a pencil. Which kind of line is it?' },
+    wrong: { ru: 'У карандаша два конца — начало и конец.', uz: "Qalamning ikki uchi bor — boshi va oxiri.", en: 'A pencil has two ends, a start and a finish.' },
+    done_text: { ru: 'Верно! Карандаш — отрезок.', uz: "To'g'ri! Qalam — kesma.", en: 'That is right! A pencil is a line segment.' },
     audio: {
-      intro: { ru: 'Экипаж измеряет карандаш для чертежа. Какая это линия, прямая, луч или отрезок?', uz: "Ekipaj chizma uchun qalamni o'lchayapti. Bu qanday chiziq, to'g'ri chiziq, nur yoki kesma?" },
-      on_correct: { ru: 'Верно. Отрезок можно измерить, у него два конца.', uz: "To'g'ri. Kesmani o'lchash mumkin, uning ikki uchi bor." },
-      on_wrong: { ru: 'У карандаша два конца, это отрезок.', uz: "Qalamning ikki uchi bor, bu kesma." }
+      intro: { ru: 'Экипаж измеряет карандаш для чертежа. Какая это линия, прямая, луч или отрезок?', uz: "Ekipaj chizma uchun qalamni o'lchayapti. Bu qanday chiziq, to'g'ri chiziq, nur yoki kesma?", en: 'The crew is measuring a pencil for a drawing. Which kind of line is it, a straight line, a ray or a line segment?' },
+      on_correct: { ru: 'Верно. Отрезок можно измерить, у него два конца.', uz: "To'g'ri. Kesmani o'lchash mumkin, uning ikki uchi bor.", en: 'That is right. A line segment can be measured because it has two ends.' },
+      on_wrong: { ru: 'У карандаша два конца, это отрезок.', uz: "Qalamning ikki uchi bor, bu kesma.", en: 'A pencil has two ends, so it is a line segment.' }
     }
   },
 
   // s14 — FINAL (scored, 3 round tur-tanish + FactCard Uran)
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
     rounds: [ { type: 'line' }, { type: 'ray' }, { type: 'segment' } ],
-    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Уран вращается «на боку» — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran «yonboshlab» aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi." },
-    fact_audio: { ru: 'Уран, необычная планета: она вращается на боку, лёжа, как будто катится по орбите.', uz: "Uran, g'ayrioddiy sayyora: u yonboshlab, yotgan holda aylanadi, xuddi orbitada dumalab ketayotgandek." },
+    wrong: { ru: 'Считай концы — зелёные точки.', uz: "Uchlarni — yashil nuqtalarni sanang.", en: 'Count the ends, the green dots.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Уран вращается «на боку» — лёжа, как будто катится. Другие планеты крутятся стоя.', uz: "Uran «yonboshlab» aylanadi — yotgan holda, xuddi dumalayotgandek. Boshqa sayyoralar tik aylanadi.", en: 'Uranus spins on its side, lying down as if it were rolling along. The other planets spin upright.' },
+    fact_audio: { ru: 'Уран, необычная планета: она вращается на боку, лёжа, как будто катится по орбите.', uz: "Uran, g'ayrioddiy sayyora: u yonboshlab, yotgan holda aylanadi, xuddi orbitada dumalab ketayotgandek.", en: 'Uranus is an unusual planet: it spins on its side, lying down as if it were rolling along its orbit.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Смотри на концы и называй линию.', uz: "Yakuniy tekshiruv. Uchlarga qarab chiziqni ayting." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль концов, прямая, один, луч, два, отрезок.', uz: "Nol uch, to'g'ri chiziq, bir, nur, ikki, kesma." }
+      intro: { ru: 'Финальная проверка. Смотри на концы и называй линию.', uz: "Yakuniy tekshiruv. Uchlarga qarab chiziqni ayting.", en: 'The final check. Look at the ends and name the line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Ноль концов, прямая, один, луч, два, отрезок.', uz: "Nol uch, to'g'ri chiziq, bir, nur, ikki, kesma.", en: 'No ends is a straight line, one is a ray, two is a line segment.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: ko'pburchaklar)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты различаешь прямую, луч и отрезок!', uz: "Endi siz to'g'ri chiziq, nur va kesmani ajratasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты различаешь прямую, луч и отрезок!', uz: "Endi siz to'g'ri chiziq, nur va kesmani ajratasiz!", en: 'Now you can tell a straight line, a ray and a line segment apart!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай концы!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Uchlarni sanang!" },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'точка и линия', uz: "nuqta va chiziq" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: многоугольники', uz: "keyingi: ko'pburchaklar" },
+    rule_recap: { ru: 'Прямая — 0 концов, луч — 1 конец, отрезок — 2 конца. Считай концы!', uz: "To'g'ri chiziq — 0 uch, nur — 1 uch, kesma — 2 uch. Uchlarni sanang!", en: 'A straight line has 0 ends, a ray has 1 end, a line segment has 2 ends. Count the ends!' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'точка и линия', uz: "nuqta va chiziq", en: 'points and lines' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: многоугольники', uz: "keyingi: ko'pburchaklar", en: 'next: polygons' },
     audio: {
       ru: 'Миссия выполнена. Мы научились различать линии по концам. У прямой концов нет, у луча один конец, у отрезка два конца. На спутнике Урана экипаж начертил линии для станции. Дальше научимся узнавать многоугольники.',
-      uz: "Missiya bajarildi. Chiziqlarni uchlari bo'yicha ajratishni o'rgandik. To'g'ri chiziqning uchi yo'q, nurning bitta uchi, kesmaning ikki uchi bor. Uran yo'ldoshida ekipaj stansiya uchun chiziqlar chizdi. Keyin ko'pburchaklarni tanishni o'rganamiz."
+      uz: "Missiya bajarildi. Chiziqlarni uchlari bo'yicha ajratishni o'rgandik. To'g'ri chiziqning uchi yo'q, nurning bitta uchi, kesmaning ikki uchi bor. Uran yo'ldoshida ekipaj stansiya uchun chiziqlar chizdi. Keyin ko'pburchaklarni tanishni o'rganamiz.",
+      en: 'Mission complete. We learned to tell lines apart by their ends. A straight line has no ends, a ray has one end, a line segment has two ends. On the moon of Uranus the crew drew the lines for the station. Next we will learn to recognise polygons.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём с прямой линии.', uz: "To'g'ri chiziqdan boshlaymiz." },
-  s2:  { ru: 'Теперь луч.', uz: "Endi nur." },
-  s3:  { ru: 'Как различить линии?', uz: "Chiziqlarni qanday ajratamiz?" },
-  s4:  { ru: 'И наконец отрезок.', uz: "Va nihoyat kesma." },
-  sTBL: { ru: 'Запомним ключ по концам.', uz: 'Uchlar kalitini yodlaymiz.' },
-  s5:  { ru: 'Теперь узнавай линии сам.', uz: "Endi chiziqlarni o'zingiz taning." },
-  s6:  { ru: 'Считай концы.', uz: "Uchlarni sanang." },
-  s7:  { ru: 'Найди линию в жизни.', uz: "Hayotda chiziqni toping." },
-  s8:  { ru: 'Что это за линия?', uz: "Bu qanday chiziq?" },
-  s9:  { ru: 'Снова считай концы.', uz: "Yana uchlarni sanang." },
-  s10: { ru: 'Ещё раз — в жизни.', uz: "Yana — hayotda." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Экипаж чертит линии.', uz: "Ekipaj chiziqlar chizadi." },
-  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!" }
+  s1:  { ru: 'Начнём с прямой линии.', uz: "To'g'ri chiziqdan boshlaymiz.", en: 'Let us start with the straight line.' },
+  s2:  { ru: 'Теперь луч.', uz: "Endi nur.", en: 'Now the ray.' },
+  s3:  { ru: 'Как различить линии?', uz: "Chiziqlarni qanday ajratamiz?", en: 'How do you tell the lines apart?' },
+  s4:  { ru: 'И наконец отрезок.', uz: "Va nihoyat kesma.", en: 'And finally the line segment.' },
+  sTBL: { ru: 'Запомним ключ по концам.', uz: 'Uchlar kalitini yodlaymiz.', en: 'Let us remember the key: the ends.' },
+  s5:  { ru: 'Теперь узнавай линии сам.', uz: "Endi chiziqlarni o'zingiz taning.", en: 'Now tell the lines apart yourself.' },
+  s6:  { ru: 'Считай концы.', uz: "Uchlarni sanang.", en: 'Count the ends.' },
+  s7:  { ru: 'Найди линию в жизни.', uz: "Hayotda chiziqni toping.", en: 'Find the line in real life.' },
+  s8:  { ru: 'Что это за линия?', uz: "Bu qanday chiziq?", en: 'What kind of line is this?' },
+  s9:  { ru: 'Снова считай концы.', uz: "Yana uchlarni sanang.", en: 'Count the ends again.' },
+  s10: { ru: 'Ещё раз — в жизни.', uz: "Yana — hayotda.", en: 'In real life once more.' },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.', en: 'The last practice.' },
+  s12: { ru: 'Экипаж чертит линии.', uz: "Ekipaj chiziqlar chizadi.", en: 'The crew is drawing lines.' },
+  s13: { ru: 'Помоги экипажу.', uz: "Ekipajga yordam bering.", en: 'Help the crew.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!", en: 'The crystals have gone off in their carts!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'На спутнике Урана экипаж начертил прямые, лучи и отрезки для станции. Линии различены! Спасибо за помощь.',
-  uz: "Uran yo'ldoshida ekipaj stansiya uchun to'g'ri chiziq, nur va kesmalar chizdi. Chiziqlar ajratildi! Yordamingiz uchun rahmat."
+  uz: "Uran yo'ldoshida ekipaj stansiya uchun to'g'ri chiziq, nur va kesmalar chizdi. Chiziqlar ajratildi! Yordamingiz uchun rahmat.",
+  en: 'On the moon of Uranus the crew drew straight lines, rays and line segments for the station. The lines are told apart! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1381,7 +1419,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1398,7 +1436,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2155,7 +2194,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2631,7 +2676,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3263,8 +3308,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3310,9 +3355,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3842,12 +3887,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4195,9 +4242,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4205,15 +4252,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4227,8 +4274,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4237,14 +4284,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4260,16 +4307,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4277,14 +4324,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4361,8 +4408,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4536,7 +4583,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi' }}/>
+          <UranField label={{ ru: 'Линии различены', uz: 'Chiziqlar ajratildi', en: 'The lines are told apart' }}/>
         </div>
       </div>
     </Stage>
@@ -4547,14 +4594,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4864,7 +4911,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -4894,8 +4941,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5024,8 +5071,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5294,7 +5341,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5423,7 +5470,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5497,7 +5544,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5586,7 +5633,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5766,8 +5813,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5858,7 +5905,7 @@ const OpChoiceStage = ({ props, cKey, fact = false }) => {
 //  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
 //  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
 // ============================================================
-const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
+const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' }, ray: { ru: 'Луч', uz: 'Nur', en: 'A ray' }, segment: { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' } };
 const LT_ENDS = { line: 0, ray: 1, segment: 2 };
 // Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
 const LineEnd = ({ x, y, big }) => (
@@ -5962,8 +6009,8 @@ const RealObj = ({ kind }) => {
     </svg>
   );
 };
-const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
-const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
+const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?", en: 'What is this?' };
+const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' };
 const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 const LineTypeStage = ({ props, cKey, fact = false }) => {
@@ -6078,7 +6125,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -6166,8 +6213,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6286,7 +6333,7 @@ const ScreenTable = (props) => {
               <div key={ty} style={{ display: 'flex', alignItems: 'center', gap: 'clamp(8px,2vw,14px)' }}>
                 <span style={{ minWidth: 'clamp(74px,20vw,120px)', fontWeight: 800, fontSize: 'clamp(13px,2.2vw,17px)', color: '#2FA0C8' }}>{t(LINE_TYPES[ty])}</span>
                 <div style={{ flex: 1, minWidth: 0 }}><LineFig type={ty}/></div>
-                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(13px,2.2vw,17px)', color: T.success, minWidth: 'clamp(28px,6vw,40px)', textAlign: 'center' }}>{LT_ENDS[ty]} {t({ ru: 'к.', uz: 'uch' })}</span>
+                <span style={{ fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(13px,2.2vw,17px)', color: T.success, minWidth: 'clamp(28px,6vw,40px)', textAlign: 'center' }}>{LT_ENDS[ty]} {t({ ru: 'к.', uz: 'uch', en: 'ends' })}</span>
               </div>
             ))}
           </div>
@@ -7261,7 +7308,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

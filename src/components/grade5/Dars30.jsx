@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -757,8 +783,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
-  lessonId: 'perc_5_01',
-  lessonTitle: { ru: 'Процент как сотая доля', uz: "Foiz — yuzdan bir ulush" }
+  lessonId: 'grade5-30',
+  lessonTitle: { ru: 'Процент как сотая доля', uz: "Foiz — yuzdan bir ulush", en: 'A percentage as a hundredth part' }
 };
 // Eslatma: ekran ID lari qattiq indeks emas — har komponent jonli `screen` propidan idx oladi.
 // Reorder qilishda faqat SCREEN_META + screens massivini bir xil tartibda yangilang.
@@ -782,109 +808,109 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK (M2: foiz = miqdor) — Rustam batareya =====
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title: { ru: 'Загадка про заряд', uz: "Zaryad topishmog'i" },
-    lead: { ru: 'У Рустама на телефоне заряд 50 процентов. На повербанке тоже 50 процентов. В обоих одинаковый запас энергии?', uz: "Rustam telefonida zaryad 50 foiz. Power-bankda ham 50 foiz. Ikkalasida energiya zaxirasi bir xilmi?" },
-    opt0: { ru: 'Да, оба по 50 процентов — значит, поровну', uz: "Ha, ikkalasi 50 foiz — demak teng" },
-    opt1: { ru: 'Нет, запас может быть разным', uz: "Yo'q, zaxira har xil bo'lishi mumkin" },
-    opt2: { ru: 'Так не определить', uz: "Bunday aniqlab bo'lmaydi" },
-    reveal0: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz." },
-    reveal1: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz." },
-    reveal2: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz." },
-    audio: { ru: "У Рустама телефон заряжен на пятьдесят процентов. И повербанк тоже на пятьдесят процентов. Как думаешь, запас энергии в них одинаковый?", uz: "Rustam telefoni ellik foizga zaryadlangan. Power-bank ham ellik foizga. Sizningcha, ulardagi energiya zaxirasi bir xilmi?" }
+    eyebrow: { ru: 'Загадка', uz: 'Topishmoq', en: 'A puzzle' },
+    title: { ru: 'Загадка про заряд', uz: "Zaryad topishmog'i", en: 'A puzzle about charge' },
+    lead: { ru: 'У Рустама на телефоне заряд 50 процентов. На повербанке тоже 50 процентов. В обоих одинаковый запас энергии?', uz: "Rustam telefonida zaryad 50 foiz. Power-bankda ham 50 foiz. Ikkalasida energiya zaxirasi bir xilmi?", en: "Rustam's phone is charged to 50 per cent. His power bank is at 50 per cent as well. Do they both hold the same amount of energy?" },
+    opt0: { ru: 'Да, оба по 50 процентов — значит, поровну', uz: "Ha, ikkalasi 50 foiz — demak teng", en: 'Yes, they are both at 50 per cent, so they are the same' },
+    opt1: { ru: 'Нет, запас может быть разным', uz: "Yo'q, zaxira har xil bo'lishi mumkin", en: 'No, the amount can be different' },
+    opt2: { ru: 'Так не определить', uz: "Bunday aniqlab bo'lmaydi", en: 'There is no way to tell' },
+    reveal0: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz.", en: 'Remember your answer. We will come back to this puzzle at the end of the lesson.' },
+    reveal1: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz.", en: 'Remember your answer. We will come back to this puzzle at the end of the lesson.' },
+    reveal2: { ru: 'Запомни свой ответ. В конце урока вернёмся к этой загадке.', uz: "Javobingizni eslab qoling. Dars oxirida shu topishmoqqa qaytamiz.", en: 'Remember your answer. We will come back to this puzzle at the end of the lesson.' },
+    audio: { ru: "У Рустама телефон заряжен на пятьдесят процентов. И повербанк тоже на пятьдесят процентов. Как думаешь, запас энергии в них одинаковый?", uz: "Rustam telefoni ellik foizga zaryadlangan. Power-bank ham ellik foizga. Sizningcha, ulardagi energiya zaxirasi bir xilmi?", en: "Rustam's phone is charged to fifty per cent and his power bank is at fifty per cent too. Do you think they hold the same amount of energy?" }
   },
 
   // ===== s1 WARM-UP — 3 ta foiz prerekviziti (aralash tip, tap). scored=false =====
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
-    title: { ru: 'Вспомним сотые', uz: "Yuzdan ulushni eslaymiz" },
-    lead: { ru: 'Три быстрых вопроса. Выбери ответ.', uz: "Uchta tez savol. Javobni tanlang." },
-    bridge: { ru: 'Прежде чем говорить о процентах — вспомним сотые.', uz: "Foiz haqida gapirishdan oldin — yuzdan ulushni eslaylik." },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz', en: 'Let us remember' },
+    title: { ru: 'Вспомним сотые', uz: "Yuzdan ulushni eslaymiz", en: 'Let us remember hundredths' },
+    lead: { ru: 'Три быстрых вопроса. Выбери ответ.', uz: "Uchta tez savol. Javobni tanlang.", en: 'Three quick questions. Choose an answer.' },
+    bridge: { ru: 'Прежде чем говорить о процентах — вспомним сотые.', uz: "Foiz haqida gapirishdan oldin — yuzdan ulushni eslaylik.", en: 'Before we talk about percentages, let us remember hundredths.' },
     questions: [
       {
-        q: { ru: 'Из ста клеток закрашены 9. Какая это дробь?', uz: "Yuzta katakdan 9 tasi bo'yalgan. Bu qaysi kasr?" },
-        say: { ru: "Из ста клеток закрашены девять. Какая это десятичная дробь?", uz: "Yuzta katakdan to'qqiztasi bo'yalgan. Bu qaysi o'nli kasr?" },
-        opts: [{ ru: '0,09', uz: '0,09' }, { ru: '0,9', uz: '0,9' }, { ru: '0,009', uz: '0,009' }],
+        q: { ru: 'Из ста клеток закрашены 9. Какая это дробь?', uz: "Yuzta katakdan 9 tasi bo'yalgan. Bu qaysi kasr?", en: '9 out of a hundred cells are coloured in. Which decimal is that?' },
+        say: { ru: "Из ста клеток закрашены девять. Какая это десятичная дробь?", uz: "Yuzta katakdan to'qqiztasi bo'yalgan. Bu qaysi o'nli kasr?", en: 'Nine out of a hundred cells are coloured in. Which decimal is that?' },
+        opts: [{ ru: '0,09', uz: '0,09', en: '0,09' }, { ru: '0,9', uz: '0,9', en: '0,9' }, { ru: '0,009', uz: '0,009', en: '0,009' }],
         correct: 0,
-        ok: { ru: 'Верно: девять из ста — это ноль целых девять сотых.', uz: "To'g'ri: yuzdan to'qqiz, bu nol butun yuzdan to'qqiz." },
-        no: { ru: 'Клеток сто, значит разряд — сотые.', uz: "Katak yuzta, demak xona — yuzdan." }
+        ok: { ru: 'Верно: девять из ста — это ноль целых девять сотых.', uz: "To'g'ri: yuzdan to'qqiz, bu nol butun yuzdan to'qqiz.", en: 'That is right: nine out of a hundred is nought point nought nine.' },
+        no: { ru: 'Клеток сто, значит разряд — сотые.', uz: "Katak yuzta, demak xona — yuzdan.", en: 'There are a hundred cells, so the place is hundredths.' }
       },
       {
-        q: { ru: 'Если сократить 20/100, что получится?', uz: "20/100 ni qisqartirsak, nima chiqadi?" },
-        say: { ru: "А теперь сократи дробь двадцать сотых.", uz: "Endi yuzdan yigirma kasrini qisqartiring." },
-        opts: [{ ru: '1/4', uz: '1/4' }, { ru: '1/5', uz: '1/5' }, { ru: '2/5', uz: '2/5' }],
+        q: { ru: 'Если сократить 20/100, что получится?', uz: "20/100 ni qisqartirsak, nima chiqadi?", en: 'If you simplify 20/100, what do you get?' },
+        say: { ru: "А теперь сократи дробь двадцать сотых.", uz: "Endi yuzdan yigirma kasrini qisqartiring.", en: 'And now simplify the fraction twenty hundredths.' },
+        opts: [{ ru: '1/4', uz: '1/4', en: '1/4' }, { ru: '1/5', uz: '1/5', en: '1/5' }, { ru: '2/5', uz: '2/5', en: '2/5' }],
         correct: 1,
-        ok: { ru: 'Верно: двадцать сотых — это одна пятая.', uz: "To'g'ri: yuzdan yigirma — bu beshdan bir." },
-        no: { ru: 'Раздели и числитель, и знаменатель на двадцать.', uz: "Ham suratni, ham maxrajni yigirmaga bo'ling." }
+        ok: { ru: 'Верно: двадцать сотых — это одна пятая.', uz: "To'g'ri: yuzdan yigirma — bu beshdan bir.", en: 'That is right: twenty hundredths is one fifth.' },
+        no: { ru: 'Раздели и числитель, и знаменатель на двадцать.', uz: "Ham suratni, ham maxrajni yigirmaga bo'ling.", en: 'Divide both the numerator and the denominator by twenty.' }
       },
       {
-        q: { ru: 'Как записать 1/2 десятичной дробью?', uz: "1/2 ni o'nli kasrda qanday yozamiz?" },
-        say: { ru: "И последнее. Как записать одну вторую десятичной дробью?", uz: "Va oxirgisi. Ikkidan birni o'nli kasrda qanday yozamiz?" },
-        opts: [{ ru: '0,2', uz: '0,2' }, { ru: '0,15', uz: '0,15' }, { ru: '0,5', uz: '0,5' }],
+        q: { ru: 'Как записать 1/2 десятичной дробью?', uz: "1/2 ni o'nli kasrda qanday yozamiz?", en: 'How do you write 1/2 as a decimal?' },
+        say: { ru: "И последнее. Как записать одну вторую десятичной дробью?", uz: "Va oxirgisi. Ikkidan birni o'nli kasrda qanday yozamiz?", en: 'And the last one. How do you write one half as a decimal?' },
+        opts: [{ ru: '0,2', uz: '0,2', en: '0,2' }, { ru: '0,15', uz: '0,15', en: '0,15' }, { ru: '0,5', uz: '0,5', en: '0,5' }],
         correct: 2,
-        ok: { ru: 'Верно: половина — это ноль целых пять десятых.', uz: "To'g'ri: yarmi — bu nol butun o'ndan besh." },
-        no: { ru: 'Половина — это пятьдесят сотых.', uz: "Yarmi — bu yuzdan ellik." }
+        ok: { ru: 'Верно: половина — это ноль целых пять десятых.', uz: "To'g'ri: yarmi — bu nol butun o'ndan besh.", en: 'That is right: a half is nought point five.' },
+        no: { ru: 'Половина — это пятьдесят сотых.', uz: "Yarmi — bu yuzdan ellik.", en: 'A half is fifty hundredths.' }
       }
     ],
     audio: {
-      intro: { ru: "Прежде чем говорить о процентах, вспомним сотые. Три быстрых вопроса.", uz: "Foiz haqida gapirishdan oldin, yuzdan ulushni eslaylik. Uchta tez savol." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring." },
-      on_done: { ru: "Отлично, размялись.", uz: "Zo'r, mashq qildik." }
+      intro: { ru: "Прежде чем говорить о процентах, вспомним сотые. Три быстрых вопроса.", uz: "Foiz haqida gapirishdan oldin, yuzdan ulushni eslaylik. Uchta tez savol.", en: 'Before we talk about percentages, let us remember hundredths. Three quick questions.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring.", en: 'Almost. Have another go.' },
+      on_done: { ru: "Отлично, размялись.", uz: "Zo'r, mashq qildik.", en: 'Well done, we are warmed up.' }
     }
   },
 
   // ===== s2 EXPLORATION — 10x10 PercentGrid, tap bilan 9 katak bo'yaladi (1% = 1 katak). Step-audio gated. =====
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Сотая доля целого', uz: "Butunning yuzdan biri" },
-    lead: { ru: 'Целое разделили на 100 равных клеток. Закрась клетки по одной.', uz: "Butunni 100 ta teng katakka bo'ldik. Kataklarni bittadan bo'yang." },
-    btn_step: { ru: 'Закрасить клетку', uz: "Katakni bo'yash" },
-    btn_final: { ru: 'Понятно', uz: 'Tushunarli' },
-    progress: { ru: '{n}/9', uz: "{n}/9" },
-    note_done: { ru: '9 клеток из ста — это 9 процентов, то есть 9/100 = 0,09.', uz: "Yuzdan 9 ta katak — bu 9 foiz, ya'ni 9/100 = 0,09." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    title: { ru: 'Сотая доля целого', uz: "Butunning yuzdan biri", en: 'A hundredth part of a whole' },
+    lead: { ru: 'Целое разделили на 100 равных клеток. Закрась клетки по одной.', uz: "Butunni 100 ta teng katakka bo'ldik. Kataklarni bittadan bo'yang.", en: 'A whole has been split into 100 equal cells. Colour the cells in one at a time.' },
+    btn_step: { ru: 'Закрасить клетку', uz: "Katakni bo'yash", en: 'Colour a cell' },
+    btn_final: { ru: 'Понятно', uz: 'Tushunarli', en: 'Got it' },
+    progress: { ru: '{n}/9', uz: "{n}/9", en: '{n}/9' },
+    note_done: { ru: '9 клеток из ста — это 9 процентов, то есть 9/100 = 0,09.', uz: "Yuzdan 9 ta katak — bu 9 foiz, ya'ni 9/100 = 0,09.", en: '9 cells out of a hundred is 9 per cent, that is 9/100 = 0,09.' },
     audio: {
-      tap: { ru: "Это целое, разделённое на сто равных клеток. Нажимай и закрашивай по одной. Одна клетка из ста это один процент, то есть одна сотая.", uz: "Bu butun yuzta teng katakka bo'lingan. Bosing va bittadan bo'yang. Yuzdan bitta katak, bu bir foiz, ya'ni yuzdan bir." },
-      done: { ru: "Девять клеток это девять процентов, то есть девять сотых. Процент это всегда доля из ста.", uz: "To'qqizta katak, bu to'qqiz foiz, ya'ni yuzdan to'qqiz. Foiz doim yuzdan olingan ulush." }
+      tap: { ru: "Это целое, разделённое на сто равных клеток. Нажимай и закрашивай по одной. Одна клетка из ста это один процент, то есть одна сотая.", uz: "Bu butun yuzta teng katakka bo'lingan. Bosing va bittadan bo'yang. Yuzdan bitta katak, bu bir foiz, ya'ni yuzdan bir.", en: 'This is a whole split into a hundred equal cells. Tap to colour them in one at a time. One cell out of a hundred is one per cent, that is one hundredth.' },
+      done: { ru: "Девять клеток это девять процентов, то есть девять сотых. Процент это всегда доля из ста.", uz: "To'qqizta katak, bu to'qqiz foiz, ya'ni yuzdan to'qqiz. Foiz doim yuzdan olingan ulush.", en: 'Nine cells is nine per cent, that is nine hundredths. A percentage is always a part out of a hundred.' }
     }
   },
 
   // ===== s3 EXPLORATION — slider 0-100 -> PercentGrid + FourForms (bitta son, to'rt yozuv). =====
   s3: {
-    eyebrow: { ru: 'Одно число', uz: 'Bitta son' },
-    title: { ru: 'Одно число — четыре записи', uz: "Bitta son — to'rt yozuv" },
-    lead: { ru: 'Двигай ползунок: сколько клеток закрашено — столько процентов.', uz: "Slayderni suring: nechta katak bo'yalsa — shuncha foiz." },
-    slider_label: { ru: 'Процент', uz: 'Foiz' },
-    instr: { ru: 'Двигай ползунок и смотри на четыре записи одного числа.', uz: "Slayderni suring va bitta sonning to'rt yozuviga qarang." },
-    instr_full: { ru: '100 процентов — это все сто клеток, то есть целое.', uz: "100 foiz — bu barcha yuzta katak, ya'ni butun." },
-    audio: { ru: "Двигай ползунок и следи за подписями. Двадцать процентов это двадцать сотых, после сокращения одна пятая, а десятичной дробью ноль целых две десятых. Это одно число в четырёх записях. Доведи до конца: сто процентов это все клетки, целое.", uz: "Slayderni suring va yozuvlarni kuzating. Yigirma foiz, bu yuzdan yigirma, qisqartirilganda beshdan bir, o'nli kasrda esa nol butun o'ndan ikki. Bu, to'rt yozuvdagi bitta son. Oxirigacha suring: yuz foiz, bu barcha kataklar, butun." }
+    eyebrow: { ru: 'Одно число', uz: 'Bitta son', en: 'One number' },
+    title: { ru: 'Одно число — четыре записи', uz: "Bitta son — to'rt yozuv", en: 'One number, four ways of writing it' },
+    lead: { ru: 'Двигай ползунок: сколько клеток закрашено — столько процентов.', uz: "Slayderni suring: nechta katak bo'yalsa — shuncha foiz.", en: 'Move the slider: however many cells are coloured, that is the percentage.' },
+    slider_label: { ru: 'Процент', uz: 'Foiz', en: 'Percentage' },
+    instr: { ru: 'Двигай ползунок и смотри на четыре записи одного числа.', uz: "Slayderni suring va bitta sonning to'rt yozuviga qarang.", en: 'Move the slider and watch the four ways of writing one number.' },
+    instr_full: { ru: '100 процентов — это все сто клеток, то есть целое.', uz: "100 foiz — bu barcha yuzta katak, ya'ni butun.", en: '100 per cent is all hundred cells, that is a whole.' },
+    audio: { ru: "Двигай ползунок и следи за подписями. Двадцать процентов это двадцать сотых, после сокращения одна пятая, а десятичной дробью ноль целых две десятых. Это одно число в четырёх записях. Доведи до конца: сто процентов это все клетки, целое.", uz: "Slayderni suring va yozuvlarni kuzating. Yigirma foiz, bu yuzdan yigirma, qisqartirilganda beshdan bir, o'nli kasrda esa nol butun o'ndan ikki. Bu, to'rt yozuvdagi bitta son. Oxirigacha suring: yuz foiz, bu barcha kataklar, butun.", en: 'Move the slider and watch the labels. Twenty per cent is twenty hundredths, one fifth when simplified, and nought point two as a decimal. It is one number written four ways. Take it all the way: a hundred per cent is every cell, a whole.' }
   },
 
   // ===== s4 RULE — N% = N/100 (lean). Bridge. =====
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    heading: { ru: 'Процент — это сотая', uz: "Foiz — yuzdan ulush" },
-    bridge: { ru: 'Мы увидели, что такое процент. Теперь соберём правило.', uz: "Foiz nima ekanini ko'rdik. Endi qoidani yig'amiz." },
-    rule_label: { ru: 'Запомни', uz: 'Yodda tuting' },
-    rule_1: { ru: 'Процент — это сотая доля целого.', uz: "Foiz — bu butunning yuzdan ulushi." },
-    rule_2: { ru: 'N процентов = N/100.', uz: "N foiz = N/100." },
-    rule_3: { ru: 'Дробь со знаменателем 100 при желании сокращаем.', uz: "Maxraji 100 bo'lgan kasrni istasak qisqartiramiz." },
-    ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi" },
-    ex_caption: { ru: '20% = 20/100 = 1/5 = 0,2.', uz: "20% = 20/100 = 1/5 = 0,2." },
-    audio: { ru: "Мы увидели, что такое процент. Теперь соберём правило. Любой процент это число сотых. Эн процентов равно эн сотым. Например, двадцать процентов это двадцать сотых, после сокращения одна пятая, а десятичной дробью ноль целых две десятых. Одно число, разные записи.", uz: "Foiz nima ekanini ko'rdik. Endi qoidani yig'amiz. Har qanday foiz, bu yuzdan ulushlar soni. En foiz teng yuzdan en. Masalan, yigirma foiz, bu yuzdan yigirma, qisqartirilganda beshdan bir, o'nli kasr bilan esa nol butun o'ndan ikki. Bitta son, har xil yozuv." }
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    heading: { ru: 'Процент — это сотая', uz: "Foiz — yuzdan ulush", en: 'A percentage is a hundredth' },
+    bridge: { ru: 'Мы увидели, что такое процент. Теперь соберём правило.', uz: "Foiz nima ekanini ko'rdik. Endi qoidani yig'amiz.", en: 'We have seen what a percentage is. Now let us gather the rule.' },
+    rule_label: { ru: 'Запомни', uz: 'Yodda tuting', en: 'Remember' },
+    rule_1: { ru: 'Процент — это сотая доля целого.', uz: "Foiz — bu butunning yuzdan ulushi.", en: 'A percentage is a hundredth part of a whole.' },
+    rule_2: { ru: 'N процентов = N/100.', uz: "N foiz = N/100.", en: 'N per cent = N/100.' },
+    rule_3: { ru: 'Дробь со знаменателем 100 при желании сокращаем.', uz: "Maxraji 100 bo'lgan kasrni istasak qisqartiramiz.", en: 'A fraction with 100 underneath can be simplified if you want.' },
+    ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi", en: 'How it works' },
+    ex_caption: { ru: '20% = 20/100 = 1/5 = 0,2.', uz: "20% = 20/100 = 1/5 = 0,2.", en: '20% = 20/100 = 1/5 = 0,2.' },
+    audio: { ru: "Мы увидели, что такое процент. Теперь соберём правило. Любой процент это число сотых. Эн процентов равно эн сотым. Например, двадцать процентов это двадцать сотых, после сокращения одна пятая, а десятичной дробью ноль целых две десятых. Одно число, разные записи.", uz: "Foiz nima ekanini ko'rdik. Endi qoidani yig'amiz. Har qanday foiz, bu yuzdan ulushlar soni. En foiz teng yuzdan en. Masalan, yigirma foiz, bu yuzdan yigirma, qisqartirilganda beshdan bir, o'nli kasr bilan esa nol butun o'ndan ikki. Bitta son, har xil yozuv.", en: 'We have seen what a percentage is. Now let us gather the rule. Any percentage is a number of hundredths. N per cent equals N hundredths. For example, twenty per cent is twenty hundredths, one fifth when simplified, and nought point two as a decimal. One number written different ways.' }
   },
 
   // ===== s5 EXAMPLES — 25/50/75% har biri to'rt yozuvda (step reveal, OLTIN gridlar). Step-audio gated. =====
   s5: {
-    eyebrow: { ru: 'Разбор', uz: 'Ishlangan misol' },
-    title: { ru: 'Ещё три разбора', uz: "Yana uchta ishlangan misol" },
-    lead: { ru: 'У любого процента есть четыре равные записи. Посмотрим по одной.', uz: "Har qanday foizning to'rt teng yozuvi bor. Bittadan ko'ramiz." },
-    btn_step: { ru: 'Ещё пример', uz: 'Yana misol' },
-    btn_final: { ru: 'Понятно', uz: 'Tushunarli' },
+    eyebrow: { ru: 'Разбор', uz: 'Ishlangan misol', en: 'Working it out' },
+    title: { ru: 'Ещё три разбора', uz: "Yana uchta ishlangan misol", en: 'Three more worked through' },
+    lead: { ru: 'У любого процента есть четыре равные записи. Посмотрим по одной.', uz: "Har qanday foizning to'rt teng yozuvi bor. Bittadan ko'ramiz.", en: 'Any percentage has four equal ways of being written. Let us look at them one at a time.' },
+    btn_step: { ru: 'Ещё пример', uz: 'Yana misol', en: 'One more example' },
+    btn_final: { ru: 'Понятно', uz: 'Tushunarli', en: 'Got it' },
     ex_note: [
-      { ru: 'Двадцать пять процентов — это четверть.', uz: "Yigirma besh foiz — bu chorak." },
-      { ru: 'Пятьдесят процентов — это половина.', uz: "Ellik foiz — bu yarmi." },
-      { ru: 'Семьдесят пять процентов — это три четвёртых.', uz: "Yetmish besh foiz — bu to'rtdan uch." }
+      { ru: 'Двадцать пять процентов — это четверть.', uz: "Yigirma besh foiz — bu chorak.", en: 'Twenty five per cent is a quarter.' },
+      { ru: 'Пятьдесят процентов — это половина.', uz: "Ellik foiz — bu yarmi.", en: 'Fifty per cent is a half.' },
+      { ru: 'Семьдесят пять процентов — это три четвёртых.', uz: "Yetmish besh foiz — bu to'rtdan uch.", en: 'Seventy five per cent is three quarters.' }
     ],
     audio: {
       ru: [
@@ -898,29 +924,30 @@ const CONTENT = {
         "Yigirma besh foiz, bu yuzdan yigirma besh, qisqartirilganda to'rtdan bir, o'nli kasrda esa nol butun yuzdan yigirma besh.",
         "Ellik foiz, bu yarmi, ya'ni nol butun o'ndan besh.",
         "Yetmish besh foiz, bu to'rtdan uch, ya'ni nol butun yuzdan yetmish besh. Bitta son, to'rt kiyim."
-      ]
+      ],
+      en: ['Any percentage has four equal ways of being written. Let us look at them one at a time.', 'Twenty five per cent is twenty five hundredths, one quarter when simplified, and nought point two five as a decimal.', 'Fifty per cent is a half, that is nought point five.', 'Seventy five per cent is three quarters, that is nought point seven five. One number in four different clothes.']
     }
   },
 
   // ===== s6 MERGE — 100% = butun + foiz NISBAT (TwinGlasses) + foiz hayotda qayerda. Step reveal, pale-yellow. =====
   s6: {
-    eyebrow: { ru: 'Важно', uz: 'Muhim' },
-    title: { ru: '100% — это целое', uz: "100% — bu butun" },
-    bridge: { ru: 'Прежде чем тренироваться — два важных момента.', uz: "Mashq qilishdan oldin — ikki muhim narsa." },
-    point1: { ru: '100% — это целое, всё. А каким будет целое — зависит от того, о чём речь.', uz: "100% — bu butun, hammasi. Bu butun qanday bo'lishi nima haqida gap ketayotganiga bog'liq." },
-    point2: { ru: 'Половина большого стакана и половина маленького — обе 50%, хотя воды в них разное количество. Процент — это отношение, а не само количество.', uz: "Katta stakanning yarmi va kichigining yarmi — ikkalasi ham 50%, garchi suv miqdori har xil. Foiz — bu nisbat, miqdorning o'zi emas." },
-    sec2_h: { ru: 'Процент — это отношение', uz: "Foiz — bu nisbat" },
-    sec3_h: { ru: 'Где живёт процент', uz: "Foiz hayotda qayerda" },
-    use1_label: { ru: 'Скидка', uz: 'Chegirma' },
-    use1_val:   { ru: 'минус 30%', uz: 'minus 30%' },
-    use2_label: { ru: 'Заряд батареи', uz: 'Batareya zaryadi' },
-    use2_val:   { ru: '85%', uz: '85%' },
-    use3_label: { ru: 'Балл за экзамен', uz: 'Imtihon bali' },
-    use3_val:   { ru: '4 из 5 = 80%', uz: "5 dan 4 = 80%" },
-    use4_label: { ru: 'Статистика', uz: 'Statistika' },
-    use4_val:   { ru: '60%', uz: '60%' },
-    btn_step: { ru: 'Дальше', uz: 'Keyingi qadam' },
-    btn_final: { ru: 'Понятно', uz: 'Tushunarli' },
+    eyebrow: { ru: 'Важно', uz: 'Muhim', en: 'This matters' },
+    title: { ru: '100% — это целое', uz: "100% — bu butun", en: '100% is a whole' },
+    bridge: { ru: 'Прежде чем тренироваться — два важных момента.', uz: "Mashq qilishdan oldin — ikki muhim narsa.", en: 'Before we practise, two important things.' },
+    point1: { ru: '100% — это целое, всё. А каким будет целое — зависит от того, о чём речь.', uz: "100% — bu butun, hammasi. Bu butun qanday bo'lishi nima haqida gap ketayotganiga bog'liq.", en: '100% is a whole, all of it. And what the whole is depends on what you are talking about.' },
+    point2: { ru: 'Половина большого стакана и половина маленького — обе 50%, хотя воды в них разное количество. Процент — это отношение, а не само количество.', uz: "Katta stakanning yarmi va kichigining yarmi — ikkalasi ham 50%, garchi suv miqdori har xil. Foiz — bu nisbat, miqdorning o'zi emas.", en: 'Half a big glass and half a small one are both 50%, even though they hold different amounts of water. A percentage is a comparison, not the amount itself.' },
+    sec2_h: { ru: 'Процент — это отношение', uz: "Foiz — bu nisbat", en: 'A percentage is a comparison' },
+    sec3_h: { ru: 'Где живёт процент', uz: "Foiz hayotda qayerda", en: 'Where percentages turn up' },
+    use1_label: { ru: 'Скидка', uz: 'Chegirma', en: 'A discount' },
+    use1_val:   { ru: 'минус 30%', uz: 'minus 30%', en: '30% off' },
+    use2_label: { ru: 'Заряд батареи', uz: 'Batareya zaryadi', en: 'Battery charge' },
+    use2_val:   { ru: '85%', uz: '85%', en: '85%' },
+    use3_label: { ru: 'Балл за экзамен', uz: 'Imtihon bali', en: 'An exam mark' },
+    use3_val:   { ru: '4 из 5 = 80%', uz: "5 dan 4 = 80%", en: '4 out of 5 = 80%' },
+    use4_label: { ru: 'Статистика', uz: 'Statistika', en: 'Statistics' },
+    use4_val:   { ru: '60%', uz: '60%', en: '60%' },
+    btn_step: { ru: 'Дальше', uz: 'Keyingi qadam', en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: 'Tushunarli', en: 'Got it' },
     audio: {
       ru: [
         "Прежде чем тренироваться, два важных момента. Запомни: сто процентов это целое, всё. Но каким будет целое зависит от того, о чём речь.",
@@ -931,168 +958,169 @@ const CONTENT = {
         "Mashq qilishdan oldin, ikki muhim narsa. Eslab qoling: yuz foiz, bu butun, hammasi. Lekin bu butun qanday bo'lishi nima haqida gap ketayotganiga bog'liq.",
         "Katta stakanning yarmi va kichigining yarmi ikkalasi ham ellik foizga teng, garchi suv miqdori har xil. Foiz, bu nisbat, miqdorning o'zi emas.",
         "Mana shuning uchun foiz juda qulay. Do'kondagi chegirma, batareya zaryadi, imtihon bali, statistika. Hamma joyda u ulushlarni yuzdan iborat yagona o'lchov bilan solishtiradi."
-      ]
+      ],
+      en: ['Before we practise, two important things. Remember that a hundred per cent is a whole, all of it. But what the whole is depends on what you are talking about.', 'Half a big glass and half a small one are both fifty per cent, even though they hold different amounts of water. A percentage is a comparison, not the amount itself.', 'That is why percentages are so handy. A discount in a shop, battery charge, an exam mark, statistics. Everywhere they compare parts using one measure out of a hundred.']
     }
   },
 
   // ===== s7 TEST MC — 45% = 9/20. practice + FAKT etimologiya. =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    title: { ru: 'Процент в дробь', uz: "Foizni kasrga" },
-    question: { ru: 'Какой обыкновенной дроби равны 45%? Выбери сокращённую запись.', uz: "45% qaysi oddiy kasrga teng? Qisqartirilgan yozuvni tanlang." },
-    opt0: { ru: '9/20', uz: '9/20' },
-    opt1: { ru: '9/25', uz: '9/25' },
-    opt2: { ru: '1/2', uz: '1/2' },
-    opt3: { ru: '9/100', uz: '9/100' },
-    correct_text: { ru: 'Верно. 45% = 45/100, сокращаем на 5 — получаем 9/20.', uz: "To'g'ri. 45% = 45/100, 5 ga qisqartiramiz — 9/20 chiqadi." },
-    wrong_1: { ru: 'Знаменатель не тот. Дели 45/100 на 5: и числитель, и знаменатель.', uz: "Maxraj noto'g'ri. 45/100 ni 5 ga bo'ling: ham suratni, ham maxrajni." },
-    wrong_2: { ru: 'Числа близкие, но не равны. Запиши 45/100 и сократи точно.', uz: "Sonlar yaqin, lekin teng emas. 45/100 ni yozing va aniq qisqartiring." },
-    wrong_3: { ru: 'Это запись до сокращения. Раздели числитель и знаменатель на пять.', uz: "Bu qisqartirishdan oldingi yozuv. Surat va maxrajni beshga bo'ling." },
-    fact: { ru: 'Слово процент идёт от латинского per centum — за сотню. И сам знак процента вырос из числа 100.', uz: "Foiz so'zi lotincha per centum — yuzdan degani. Foiz belgisi ham 100 sonidan o'sib chiqqan." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    title: { ru: 'Процент в дробь', uz: "Foizni kasrga", en: 'Percentage into a fraction' },
+    question: { ru: 'Какой обыкновенной дроби равны 45%? Выбери сокращённую запись.', uz: "45% qaysi oddiy kasrga teng? Qisqartirilgan yozuvni tanlang.", en: 'Which ordinary fraction is 45% equal to? Choose the simplified form.' },
+    opt0: { ru: '9/20', uz: '9/20', en: '9/20' },
+    opt1: { ru: '9/25', uz: '9/25', en: '9/25' },
+    opt2: { ru: '1/2', uz: '1/2', en: '1/2' },
+    opt3: { ru: '9/100', uz: '9/100', en: '9/100' },
+    correct_text: { ru: 'Верно. 45% = 45/100, сокращаем на 5 — получаем 9/20.', uz: "To'g'ri. 45% = 45/100, 5 ga qisqartiramiz — 9/20 chiqadi.", en: 'That is right. 45% = 45/100, and dividing by 5 gives 9/20.' },
+    wrong_1: { ru: 'Знаменатель не тот. Дели 45/100 на 5: и числитель, и знаменатель.', uz: "Maxraj noto'g'ri. 45/100 ni 5 ga bo'ling: ham suratni, ham maxrajni.", en: 'That is the wrong denominator. Divide 45/100 by 5, both the numerator and the denominator.' },
+    wrong_2: { ru: 'Числа близкие, но не равны. Запиши 45/100 и сократи точно.', uz: "Sonlar yaqin, lekin teng emas. 45/100 ni yozing va aniq qisqartiring.", en: 'The numbers are close but not equal. Write 45/100 and simplify it properly.' },
+    wrong_3: { ru: 'Это запись до сокращения. Раздели числитель и знаменатель на пять.', uz: "Bu qisqartirishdan oldingi yozuv. Surat va maxrajni beshga bo'ling.", en: 'That is the form before simplifying. Divide the numerator and the denominator by five.' },
+    fact: { ru: 'Слово процент идёт от латинского per centum — за сотню. И сам знак процента вырос из числа 100.', uz: "Foiz so'zi lotincha per centum — yuzdan degani. Foiz belgisi ham 100 sonidan o'sib chiqqan.", en: 'The word per cent comes from the Latin per centum, meaning by the hundred. And the % sign itself grew out of the number 100.' },
     audio: {
-      intro: { ru: "Сорок пять процентов это какая обыкновенная дробь? Выбери сокращённый вариант.", uz: "Qirq besh foiz qaysi oddiy kasr? Qisqartirilgan variantni tanlang." },
-      on_correct: { ru: "Верно, девять двадцатых. Кстати, слово процент с латыни и значит за сотню.", uz: "To'g'ri, yigirmadan to'qqiz. Aytgancha, foiz so'zi lotincha yuzdan degani." },
-      on_wrong: { ru: "Запиши сорок пять сотых и сократи на пять.", uz: "Yuzdan qirq beshni yozing va beshga qisqartiring." }
+      intro: { ru: "Сорок пять процентов это какая обыкновенная дробь? Выбери сокращённый вариант.", uz: "Qirq besh foiz qaysi oddiy kasr? Qisqartirilgan variantni tanlang.", en: 'Which ordinary fraction is forty five per cent? Choose the simplified one.' },
+      on_correct: { ru: "Верно, девять двадцатых. Кстати, слово процент с латыни и значит за сотню.", uz: "To'g'ri, yigirmadan to'qqiz. Aytgancha, foiz so'zi lotincha yuzdan degani.", en: 'That is right, nine twentieths. By the way, the words per cent come from Latin and mean by the hundred.' },
+      on_wrong: { ru: "Запиши сорок пять сотых и сократи на пять.", uz: "Yuzdan qirq beshni yozing va beshga qisqartiring.", en: 'Write forty five hundredths and simplify by five.' }
     }
   },
 
   // ===== s8 TEST DecInput — 7/20 = ?% -> 35. practice. =====
   s8: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    bridge: { ru: 'Из дроби в процент — обратный путь.', uz: "Kasrdan foizga — teskari yo'l." },
-    question: { ru: 'Сколько процентов составляет 7/20?', uz: "7/20 necha foizni tashkil qiladi?" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    hint: { ru: 'Приведи 7/20 к знаменателю 100. Умножь числитель и знаменатель на пять.', uz: "7/20 ni 100 maxrajiga keltiring. Surat va maxrajni beshga ko'paytiring." },
-    fb_correct: { ru: 'Верно. 7/20 = 35/100 = 35%.', uz: "To'g'ri. 7/20 = 35/100 = 35%." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    bridge: { ru: 'Из дроби в процент — обратный путь.', uz: "Kasrdan foizga — teskari yo'l.", en: 'From a fraction into a percentage, the other way round.' },
+    question: { ru: 'Сколько процентов составляет 7/20?', uz: "7/20 necha foizni tashkil qiladi?", en: 'What percentage is 7/20?' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+    hint: { ru: 'Приведи 7/20 к знаменателю 100. Умножь числитель и знаменатель на пять.', uz: "7/20 ni 100 maxrajiga keltiring. Surat va maxrajni beshga ko'paytiring.", en: 'Change 7/20 to a denominator of 100. Multiply the numerator and the denominator by five.' },
+    fb_correct: { ru: 'Верно. 7/20 = 35/100 = 35%.', uz: "To'g'ri. 7/20 = 35/100 = 35%.", en: 'That is right. 7/20 = 35/100 = 35%.' },
     audio: {
-      intro: { ru: "Семь двадцатых это сколько процентов? Приведи к сотым и введи число.", uz: "Yigirmadan yetti, bu necha foiz? Yuzdan ulushga keltiring va sonni kiriting." },
-      on_correct: { ru: "Верно. Тридцать пять процентов, потому что семь двадцатых это тридцать пять сотых.", uz: "To'g'ri. O'ttiz besh foiz, chunki yigirmadan yetti, bu yuzdan o'ttiz besh." },
-      on_wrong: { ru: "Умножь числитель и знаменатель на пять, чтобы внизу стало сто.", uz: "Pastda yuz bo'lishi uchun surat va maxrajni beshga ko'paytiring." }
+      intro: { ru: "Семь двадцатых это сколько процентов? Приведи к сотым и введи число.", uz: "Yigirmadan yetti, bu necha foiz? Yuzdan ulushga keltiring va sonni kiriting.", en: 'What percentage is seven twentieths? Change it to hundredths and type the number.' },
+      on_correct: { ru: "Верно. Тридцать пять процентов, потому что семь двадцатых это тридцать пять сотых.", uz: "To'g'ri. O'ttiz besh foiz, chunki yigirmadan yetti, bu yuzdan o'ttiz besh.", en: 'That is right. Thirty five per cent, because seven twentieths is thirty five hundredths.' },
+      on_wrong: { ru: "Умножь числитель и знаменатель на пять, чтобы внизу стало сто.", uz: "Pastda yuz bo'lishi uchun surat va maxrajni beshga ko'paytiring.", en: 'Multiply the numerator and the denominator by five so that a hundred goes underneath.' }
     }
   },
 
   // ===== s9 TEST sort — =1/2 / teng emas (one-at-a-time, RANDOM, 8 karta). practice. M1 sindirgich. =====
   s9: {
-    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
-    title: { ru: 'Найди половину', uz: "Yarmini toping" },
-    lead: { ru: 'Одно число прячется в разных одеждах. Поставь каждую карточку в свою группу.', uz: "Bitta son har xil kiyimda yashirinadi. Har kartani o'z guruhiga joylang." },
-    bin_sq:  { ru: 'Равно 1/2', uz: "1/2 ga teng" },
-    bin_cu:  { ru: 'Не равно 1/2', uz: "1/2 ga teng emas" },
-    ask: { ru: 'Это равно 1/2? Тапни корзину.', uz: "Bu 1/2 ga tengmi? Savatni bosing." },
-    hint_wrong: { ru: 'Переведи карточку в проценты или в сотые. Половина — это пятьдесят процентов.', uz: "Kartani foizga yoki yuzdan ulushga aylantiring. Yarmi — bu ellik foiz." },
-    correct_text: { ru: 'Верно. 50%, 0,5, 150/300 и 4/8 — это всё половина. А 5%, 0,05, 2/5 и 9/20 — нет.', uz: "To'g'ri. 50%, 0,5, 150/300 va 4/8 — bularning hammasi yarmi. 5%, 0,05, 2/5 va 9/20 esa — yo'q." },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating", en: 'Sort them into groups' },
+    title: { ru: 'Найди половину', uz: "Yarmini toping", en: 'Find the halves' },
+    lead: { ru: 'Одно число прячется в разных одеждах. Поставь каждую карточку в свою группу.', uz: "Bitta son har xil kiyimda yashirinadi. Har kartani o'z guruhiga joylang.", en: 'One number is hiding in different clothes. Put each card into its group.' },
+    bin_sq:  { ru: 'Равно 1/2', uz: "1/2 ga teng", en: 'Equal to 1/2' },
+    bin_cu:  { ru: 'Не равно 1/2', uz: "1/2 ga teng emas", en: 'Not equal to 1/2' },
+    ask: { ru: 'Это равно 1/2? Тапни корзину.', uz: "Bu 1/2 ga tengmi? Savatni bosing.", en: 'Is it equal to 1/2? Tap a basket.' },
+    hint_wrong: { ru: 'Переведи карточку в проценты или в сотые. Половина — это пятьдесят процентов.', uz: "Kartani foizga yoki yuzdan ulushga aylantiring. Yarmi — bu ellik foiz.", en: 'Turn the card into a percentage or into hundredths. A half is fifty per cent.' },
+    correct_text: { ru: 'Верно. 50%, 0,5, 150/300 и 4/8 — это всё половина. А 5%, 0,05, 2/5 и 9/20 — нет.', uz: "To'g'ri. 50%, 0,5, 150/300 va 4/8 — bularning hammasi yarmi. 5%, 0,05, 2/5 va 9/20 esa — yo'q.", en: 'That is right. 50%, 0,5, 150/300 and 4/8 are all a half. But 5%, 0,05, 2/5 and 9/20 are not.' },
     audio: {
-      intro: { ru: "Поставь каждую карточку по группам: какая равна одной второй, а какая нет. Тапни корзину.", uz: "Har kartani guruhlarga joylang: qaysi biri ikkidan birga teng, qaysi biri yo'q. Savatni bosing." },
-      on_correct: { ru: "Верно. Пятьдесят процентов, ноль целых пять десятых и сто пятьдесят из трёхсот это одна и та же половина.", uz: "To'g'ri. Ellik foiz, nol butun o'ndan besh va uch yuzdan bir yuz ellik bu o'sha bitta yarmi." },
-      on_wrong: { ru: "Переведи карточку в проценты: половина это пятьдесят процентов.", uz: "Kartani foizga aylantiring: yarmi, bu ellik foiz." }
+      intro: { ru: "Поставь каждую карточку по группам: какая равна одной второй, а какая нет. Тапни корзину.", uz: "Har kartani guruhlarga joylang: qaysi biri ikkidan birga teng, qaysi biri yo'q. Savatni bosing.", en: 'Sort each card into its group: which are equal to one half and which are not. Tap a basket.' },
+      on_correct: { ru: "Верно. Пятьдесят процентов, ноль целых пять десятых и сто пятьдесят из трёхсот это одна и та же половина.", uz: "To'g'ri. Ellik foiz, nol butun o'ndan besh va uch yuzdan bir yuz ellik bu o'sha bitta yarmi.", en: 'That is right. Fifty per cent, nought point five and a hundred and fifty out of three hundred are all the same half.' },
+      on_wrong: { ru: "Переведи карточку в проценты: половина это пятьдесят процентов.", uz: "Kartani foizga aylantiring: yarmi, bu ellik foiz.", en: 'Turn the card into a percentage: a half is fifty per cent.' }
     }
   },
 
   // ===== s10 TEST SeqMC — uchta ulushni foizga (9/100->9, 3/4->75, 130/200->65). practice. =====
   s10: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Доля в процентах', uz: "Ulush foizda" },
-    lead: { ru: 'Три доли подряд. Переведи каждую в проценты.', uz: "Uchta ulush ketma-ket. Har birini foizga aylantiring." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Доля в процентах', uz: "Ulush foizda", en: 'A part as a percentage' },
+    lead: { ru: 'Три доли подряд. Переведи каждую в проценты.', uz: "Uchta ulush ketma-ket. Har birini foizga aylantiring.", en: 'Three parts in a row. Turn each one into a percentage.' },
     questions: [
       {
-        q: { ru: '9/100 = ?%', uz: '9/100 = ?%' },
-        say: { ru: "Девять сотых это сколько процентов?", uz: "Yuzdan to'qqiz necha foiz?" },
-        opts: [{ ru: '9%', uz: '9%' }, { ru: '90%', uz: '90%' }, { ru: '1%', uz: '1%' }],
+        q: { ru: '9/100 = ?%', uz: '9/100 = ?%', en: '9/100 = ?%' },
+        say: { ru: "Девять сотых это сколько процентов?", uz: "Yuzdan to'qqiz necha foiz?", en: 'What percentage is nine hundredths?' },
+        opts: [{ ru: '9%', uz: '9%', en: '9%' }, { ru: '90%', uz: '90%', en: '90%' }, { ru: '1%', uz: '1%', en: '1%' }],
         correct: 0,
-        ok: { ru: 'Верно: девять из ста — это девять процентов.', uz: "To'g'ri: yuzdan to'qqiz, bu to'qqiz foiz." },
-        no: { ru: 'Каждая клетка из ста — это один процент.', uz: "Yuzdan har katak — bu bir foiz." }
+        ok: { ru: 'Верно: девять из ста — это девять процентов.', uz: "To'g'ri: yuzdan to'qqiz, bu to'qqiz foiz.", en: 'That is right: nine out of a hundred is nine per cent.' },
+        no: { ru: 'Каждая клетка из ста — это один процент.', uz: "Yuzdan har katak — bu bir foiz.", en: 'Each cell out of a hundred is one per cent.' }
       },
       {
-        q: { ru: '3/4 = ?%', uz: '3/4 = ?%' },
-        say: { ru: "Три четвёртых это сколько процентов? Приведи к сотым.", uz: "To'rtdan uch necha foiz? Yuzdan ulushga keltiring." },
-        opts: [{ ru: '34%', uz: '34%' }, { ru: '75%', uz: '75%' }, { ru: '70%', uz: '70%' }],
+        q: { ru: '3/4 = ?%', uz: '3/4 = ?%', en: '3/4 = ?%' },
+        say: { ru: "Три четвёртых это сколько процентов? Приведи к сотым.", uz: "To'rtdan uch necha foiz? Yuzdan ulushga keltiring.", en: 'What percentage is three quarters? Change it to hundredths.' },
+        opts: [{ ru: '34%', uz: '34%', en: '34%' }, { ru: '75%', uz: '75%', en: '75%' }, { ru: '70%', uz: '70%', en: '70%' }],
         correct: 1,
-        ok: { ru: 'Верно: три четвёртых — это семьдесят пять сотых.', uz: "To'g'ri: to'rtdan uch — bu yuzdan yetmish besh." },
-        no: { ru: 'Умножь числитель и знаменатель на двадцать пять.', uz: "Surat va maxrajni yigirma beshga ko'paytiring." }
+        ok: { ru: 'Верно: три четвёртых — это семьдесят пять сотых.', uz: "To'g'ri: to'rtdan uch — bu yuzdan yetmish besh.", en: 'That is right: three quarters is seventy five hundredths.' },
+        no: { ru: 'Умножь числитель и знаменатель на двадцать пять.', uz: "Surat va maxrajni yigirma beshga ko'paytiring.", en: 'Multiply the numerator and the denominator by twenty five.' }
       },
       {
-        q: { ru: '130/200 = ?%', uz: '130/200 = ?%' },
-        say: { ru: "В зале двести мест, заняты сто тридцать. Сколько это процентов?", uz: "Zalda ikki yuz o'rindiq, bir yuz o'ttiztasi band. Bu necha foiz?" },
-        opts: [{ ru: '65%', uz: '65%' }, { ru: '60%', uz: '60%' }, { ru: '13%', uz: '13%' }],
+        q: { ru: '130/200 = ?%', uz: '130/200 = ?%', en: '130/200 = ?%' },
+        say: { ru: "В зале двести мест, заняты сто тридцать. Сколько это процентов?", uz: "Zalda ikki yuz o'rindiq, bir yuz o'ttiztasi band. Bu necha foiz?", en: 'A hall has two hundred seats and a hundred and thirty are taken. What percentage is that?' },
+        opts: [{ ru: '65%', uz: '65%', en: '65%' }, { ru: '60%', uz: '60%', en: '60%' }, { ru: '13%', uz: '13%', en: '13%' }],
         correct: 0,
-        ok: { ru: 'Верно: сто тридцать из двухсот — это шестьдесят пять сотых.', uz: "To'g'ri: ikki yuzdan bir yuz o'ttiz — bu yuzdan oltmish besh." },
-        no: { ru: 'Раздели числитель и знаменатель на два — внизу станет сто.', uz: "Surat va maxrajni ikkiga bo'ling — pastda yuz bo'ladi." }
+        ok: { ru: 'Верно: сто тридцать из двухсот — это шестьдесят пять сотых.', uz: "To'g'ri: ikki yuzdan bir yuz o'ttiz — bu yuzdan oltmish besh.", en: 'That is right: a hundred and thirty out of two hundred is sixty five hundredths.' },
+        no: { ru: 'Раздели числитель и знаменатель на два — внизу станет сто.', uz: "Surat va maxrajni ikkiga bo'ling — pastda yuz bo'ladi.", en: 'Divide the numerator and the denominator by two and a hundred goes underneath.' }
       }
     ],
     audio: {
-      intro: { ru: "Тренировка. Три доли подряд. Переведи каждую в проценты.", uz: "Mashq. Uchta ulush ketma-ket. Har birini foizga aylantiring." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
-      on_done: { ru: "Отлично. Любую долю можно перевести в проценты, приведя её к сотым.", uz: "Zo'r. Har qanday ulushni yuzdan ulushga keltirib, foizga aylantirish mumkin." }
+      intro: { ru: "Тренировка. Три доли подряд. Переведи каждую в проценты.", uz: "Mashq. Uchta ulush ketma-ket. Har birini foizga aylantiring.", en: 'Practice. Three parts in a row. Turn each one into a percentage.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring.", en: 'Not quite, have another go.' },
+      on_done: { ru: "Отлично. Любую долю можно перевести в проценты, приведя её к сотым.", uz: "Zo'r. Har qanday ulushni yuzdan ulushga keltirib, foizga aylantirish mumkin.", en: 'Well done. Any part can be turned into a percentage by changing it to hundredths.' }
     }
   },
 
   // ===== s11 TEST find-the-wrong — XATO tenglikni top. practice + FAKT batareya. correct = 3/5=35%. =====
   s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    title: { ru: 'Неверное равенство', uz: "Xato tenglik" },
-    question: { ru: 'Одно из равенств ошибочно. Найди именно его.', uz: "Tengliklardan biri xato. Aynan o'shani toping." },
-    opt0: { ru: '150/200 = 75%', uz: '150/200 = 75%' },
-    opt1: { ru: '0,6 = 60%', uz: '0,6 = 60%' },
-    opt2: { ru: '1/4 = 25%', uz: '1/4 = 25%' },
-    opt3: { ru: '3/5 = 35%', uz: '3/5 = 35%' },
-    correct_text: { ru: 'Верно, это и есть ошибка. 3/5 = 60/100 = 60%, а не 35%.', uz: "To'g'ri, xato shu. 3/5 = 60/100 = 60%, 35% emas." },
-    wrong_0: { ru: 'Это равенство верное: 150/200 = 75/100 = 75%. Ошибка в другом.', uz: "Bu tenglik to'g'ri: 150/200 = 75/100 = 75%. Xato boshqasida." },
-    wrong_1: { ru: 'Это равенство верное: 0,6 — это 60/100 = 60%. Ищи ошибку дальше.', uz: "Bu tenglik to'g'ri: 0,6 — bu 60/100 = 60%. Xatoni boshqa joydan qidiring." },
-    wrong_2: { ru: 'Это равенство верное: 1/4 = 25/100 = 25%. Ошибка не здесь.', uz: "Bu tenglik to'g'ri: 1/4 = 25/100 = 25%. Xato bu yerda emas." },
-    fact: { ru: 'Заряд телефона тоже в процентах: 100% — батарея полная, 0% — пустая. Каждый процент — сотая доля ёмкости.', uz: "Telefon zaryadi ham foizda: 100% — batareya to'la, 0% — bo'sh. Har foiz — sig'imning yuzdan biri." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    title: { ru: 'Неверное равенство', uz: "Xato tenglik", en: 'The one that is wrong' },
+    question: { ru: 'Одно из равенств ошибочно. Найди именно его.', uz: "Tengliklardan biri xato. Aynan o'shani toping.", en: 'One of these is wrong. Find that one.' },
+    opt0: { ru: '150/200 = 75%', uz: '150/200 = 75%', en: '150/200 = 75%' },
+    opt1: { ru: '0,6 = 60%', uz: '0,6 = 60%', en: '0,6 = 60%' },
+    opt2: { ru: '1/4 = 25%', uz: '1/4 = 25%', en: '1/4 = 25%' },
+    opt3: { ru: '3/5 = 35%', uz: '3/5 = 35%', en: '3/5 = 35%' },
+    correct_text: { ru: 'Верно, это и есть ошибка. 3/5 = 60/100 = 60%, а не 35%.', uz: "To'g'ri, xato shu. 3/5 = 60/100 = 60%, 35% emas.", en: 'Right, that is the mistake. 3/5 = 60/100 = 60%, not 35%.' },
+    wrong_0: { ru: 'Это равенство верное: 150/200 = 75/100 = 75%. Ошибка в другом.', uz: "Bu tenglik to'g'ri: 150/200 = 75/100 = 75%. Xato boshqasida.", en: 'That one is right: 150/200 = 75/100 = 75%. The mistake is in another one.' },
+    wrong_1: { ru: 'Это равенство верное: 0,6 — это 60/100 = 60%. Ищи ошибку дальше.', uz: "Bu tenglik to'g'ri: 0,6 — bu 60/100 = 60%. Xatoni boshqa joydan qidiring.", en: 'That one is right: 0,6 is 60/100 = 60%. Keep looking for the mistake.' },
+    wrong_2: { ru: 'Это равенство верное: 1/4 = 25/100 = 25%. Ошибка не здесь.', uz: "Bu tenglik to'g'ri: 1/4 = 25/100 = 25%. Xato bu yerda emas.", en: 'That one is right: 1/4 = 25/100 = 25%. The mistake is not here.' },
+    fact: { ru: 'Заряд телефона тоже в процентах: 100% — батарея полная, 0% — пустая. Каждый процент — сотая доля ёмкости.', uz: "Telefon zaryadi ham foizda: 100% — batareya to'la, 0% — bo'sh. Har foiz — sig'imning yuzdan biri.", en: 'Phone charge is in percentages too: 100% means the battery is full and 0% means it is empty. Each per cent is a hundredth of what it holds.' },
     audio: {
-      intro: { ru: "Здесь вопрос наоборот. Одно равенство ошибочно. Найди именно ошибочное и выбери его.", uz: "Bu yerda savol teskari. Bitta tenglik xato. Aynan xato bo'lganini toping va tanlang." },
-      on_correct: { ru: "Верно. Три пятых это шестьдесят процентов, а не тридцать пять. Кстати, заряд телефона тоже доля из ста.", uz: "To'g'ri. Beshdan uch, bu oltmish foiz, o'ttiz besh emas. Aytgancha, telefon zaryadi ham yuzdan ulush." },
-      on_wrong: { ru: "Переведи каждую долю в проценты, приведя к сотым.", uz: "Har ulushni yuzdan ulushga keltirib, foizga aylantiring." }
+      intro: { ru: "Здесь вопрос наоборот. Одно равенство ошибочно. Найди именно ошибочное и выбери его.", uz: "Bu yerda savol teskari. Bitta tenglik xato. Aynan xato bo'lganini toping va tanlang.", en: 'This question is the other way round. One of these is wrong. Find the wrong one and choose it.' },
+      on_correct: { ru: "Верно. Три пятых это шестьдесят процентов, а не тридцать пять. Кстати, заряд телефона тоже доля из ста.", uz: "To'g'ri. Beshdan uch, bu oltmish foiz, o'ttiz besh emas. Aytgancha, telefon zaryadi ham yuzdan ulush.", en: 'That is right. Three fifths is sixty per cent, not thirty five. By the way, phone charge is a part out of a hundred too.' },
+      on_wrong: { ru: "Переведи каждую долю в проценты, приведя к сотым.", uz: "Har ulushni yuzdan ulushga keltirib, foizga aylantiring.", en: 'Turn each part into a percentage by changing it to hundredths.' }
     }
   },
 
   // ===== s12 CASE setup + FINAL (birlashgan) — Nafisa ikki sinf -> 7-A 75%. final + FAKT tana suv. =====
   s12: {
-    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
-    title: { ru: 'Сравним два класса', uz: "Ikki sinfni solishtiramiz" },
-    bridge: { ru: 'Хорошо потренировались. Теперь жизненная задача.', uz: "Yaxshi mashq qildik. Endi hayotiy masala." },
-    lead: { ru: 'Нафиса посмотрела результаты двух классов на олимпиаде. Баллы разные, и максимум у классов разный.', uz: "Nafisa ikki sinfning olimpiada natijasini ko'rdi. Ballar har xil, sinflarning maksimal bali ham har xil." },
-    note: { ru: 'Чтобы сравнить честно, переведём каждый результат в проценты.', uz: "Halol solishtirish uchun har natijani foizga aylantiramiz." },
-    hint_calc: { ru: '7-А набрал 180 из 240, 7-Б набрал 210 из 300. Приведи каждую долю к сотым.', uz: "7-A 240 dan 180, 7-B 300 dan 210 to'pladi. Har ulushni yuzdan ulushga keltiring." },
-    compact: { ru: '7-А: 180 из 240 · 7-Б: 210 из 300', uz: "7-A: 240 dan 180 · 7-B: 300 dan 210" },
-    btn_help: { ru: 'Решить', uz: 'Yechish' },
-    question: { ru: 'В каком классе результат лучше?', uz: "Qaysi sinf natijasi yaxshiroq?" },
-    opt0: { ru: 'Класс 7-А — это 75%', uz: "7-A sinf — bu 75%" },
-    opt1: { ru: 'Класс 7-Б — это 70%', uz: "7-B sinf — bu 70%" },
-    opt2: { ru: 'Поровну', uz: "Bir xil" },
-    opt3: { ru: 'Так не определить', uz: "Bunday aniqlab bo'lmaydi" },
-    correct_text: { ru: 'Верно. 180/240 = 75%, а 210/300 = 70%. У класса 7-А результат выше.', uz: "To'g'ri. 180/240 = 75%, 210/300 esa = 70%. 7-A sinf natijasi yuqoriroq." },
-    wrong_1: { ru: 'У 7-Б больше баллов, но и максимум больше. Сравнивай не количество, а долю — приведи обе дроби к сотым.', uz: "7-B da ko'proq ball, lekin maksimal bal ham kattaroq. Miqdorni emas, ulushni solishtiring — ikkala kasrni yuzdan ulushga keltiring." },
-    wrong_2: { ru: 'Не поровну. Приведи обе дроби к сотым и сравни.', uz: "Bir xil emas. Ikkala kasrni yuzdan ulushga keltiring va solishtiring." },
-    wrong_3: { ru: 'Определить можно — для этого и нужны проценты. Приведи обе доли к знаменателю сто.', uz: "Aniqlash mumkin — foiz aynan shuning uchun kerak. Ikkala ulushni yuz maxrajiga keltiring." },
-    fact: { ru: 'Тело человека примерно на 60% состоит из воды. Это тоже доля из ста.', uz: "Inson tanasi taxminan 60% suvdan iborat. Bu ham — yuzdan ulush." },
+    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala', en: 'A real life problem' },
+    title: { ru: 'Сравним два класса', uz: "Ikki sinfni solishtiramiz", en: 'Let us compare two classes' },
+    bridge: { ru: 'Хорошо потренировались. Теперь жизненная задача.', uz: "Yaxshi mashq qildik. Endi hayotiy masala.", en: 'That was good practice. Now a real life problem.' },
+    lead: { ru: 'Нафиса посмотрела результаты двух классов на олимпиаде. Баллы разные, и максимум у классов разный.', uz: "Nafisa ikki sinfning olimpiada natijasini ko'rdi. Ballar har xil, sinflarning maksimal bali ham har xil.", en: "Nafisa looked at two classes' results in a competition. The marks are different and so is the total each class could score." },
+    note: { ru: 'Чтобы сравнить честно, переведём каждый результат в проценты.', uz: "Halol solishtirish uchun har natijani foizga aylantiramiz.", en: 'To compare them fairly, let us turn each result into a percentage.' },
+    hint_calc: { ru: '7-А набрал 180 из 240, 7-Б набрал 210 из 300. Приведи каждую долю к сотым.', uz: "7-A 240 dan 180, 7-B 300 dan 210 to'pladi. Har ulushni yuzdan ulushga keltiring.", en: '7-A scored 180 out of 240 and 7-B scored 210 out of 300. Change each part to hundredths.' },
+    compact: { ru: '7-А: 180 из 240 · 7-Б: 210 из 300', uz: "7-A: 240 dan 180 · 7-B: 300 dan 210", en: '7-A: 180 out of 240 · 7-B: 210 out of 300' },
+    btn_help: { ru: 'Решить', uz: 'Yechish', en: 'Solve it' },
+    question: { ru: 'В каком классе результат лучше?', uz: "Qaysi sinf natijasi yaxshiroq?", en: 'Which class did better?' },
+    opt0: { ru: 'Класс 7-А — это 75%', uz: "7-A sinf — bu 75%", en: 'Class 7-A, which is 75%' },
+    opt1: { ru: 'Класс 7-Б — это 70%', uz: "7-B sinf — bu 70%", en: 'Class 7-B, which is 70%' },
+    opt2: { ru: 'Поровну', uz: "Bir xil", en: 'The same' },
+    opt3: { ru: 'Так не определить', uz: "Bunday aniqlab bo'lmaydi", en: 'There is no way to tell' },
+    correct_text: { ru: 'Верно. 180/240 = 75%, а 210/300 = 70%. У класса 7-А результат выше.', uz: "To'g'ri. 180/240 = 75%, 210/300 esa = 70%. 7-A sinf natijasi yuqoriroq.", en: 'That is right. 180/240 = 75% and 210/300 = 70%. Class 7-A did better.' },
+    wrong_1: { ru: 'У 7-Б больше баллов, но и максимум больше. Сравнивай не количество, а долю — приведи обе дроби к сотым.', uz: "7-B da ko'proq ball, lekin maksimal bal ham kattaroq. Miqdorni emas, ulushni solishtiring — ikkala kasrni yuzdan ulushga keltiring.", en: '7-B has more marks but a bigger total to score out of. Compare the parts, not the amounts, by changing both fractions to hundredths.' },
+    wrong_2: { ru: 'Не поровну. Приведи обе дроби к сотым и сравни.', uz: "Bir xil emas. Ikkala kasrni yuzdan ulushga keltiring va solishtiring.", en: 'They are not the same. Change both fractions to hundredths and compare.' },
+    wrong_3: { ru: 'Определить можно — для этого и нужны проценты. Приведи обе доли к знаменателю сто.', uz: "Aniqlash mumkin — foiz aynan shuning uchun kerak. Ikkala ulushni yuz maxrajiga keltiring.", en: 'It can be worked out, and that is what percentages are for. Change both parts to a denominator of a hundred.' },
+    fact: { ru: 'Тело человека примерно на 60% состоит из воды. Это тоже доля из ста.', uz: "Inson tanasi taxminan 60% suvdan iborat. Bu ham — yuzdan ulush.", en: 'The human body is about 60% water. That is a part out of a hundred too.' },
     audio: {
-      intro: { ru: "Хорошо потренировались, теперь жизненная задача. Нафиса смотрит результаты двух классов. Класс семь А набрал сто восемьдесят баллов из двухсот сорока. Класс семь Б набрал двести десять из трёхсот. Баллы большие и разные, поэтому сравним их в процентах. Нажми решить.", uz: "Yaxshi mashq qildik, endi hayotiy masala. Nafisa ikki sinf natijasini ko'radi. Yetti A sinf ikki yuz qirq balldan bir yuz sakson ball to'pladi. Yetti B sinf uch yuzdan ikki yuz o'n ball to'pladi. Ballar katta va har xil, shuning uchun ularni foizda solishtiramiz. Yechishni bosing." },
-      intro2: { ru: "В каком классе результат лучше?", uz: "Qaysi sinf natijasi yaxshiroq?" },
-      on_correct: { ru: "Верно. Семьдесят пять процентов больше семидесяти. Кстати, тело человека почти на шестьдесят процентов из воды.", uz: "To'g'ri. Yetmish besh foiz yetmishdan katta. Aytgancha, inson tanasi deyarli oltmish foiz suvdan iborat." },
-      on_wrong: { ru: "Приведи обе доли к сотым и сравни проценты.", uz: "Ikkala ulushni yuzdan ulushga keltiring va foizni solishtiring." }
+      intro: { ru: "Хорошо потренировались, теперь жизненная задача. Нафиса смотрит результаты двух классов. Класс семь А набрал сто восемьдесят баллов из двухсот сорока. Класс семь Б набрал двести десять из трёхсот. Баллы большие и разные, поэтому сравним их в процентах. Нажми решить.", uz: "Yaxshi mashq qildik, endi hayotiy masala. Nafisa ikki sinf natijasini ko'radi. Yetti A sinf ikki yuz qirq balldan bir yuz sakson ball to'pladi. Yetti B sinf uch yuzdan ikki yuz o'n ball to'pladi. Ballar katta va har xil, shuning uchun ularni foizda solishtiramiz. Yechishni bosing.", en: "That was good practice, so now a real life problem. Nafisa is looking at two classes' results. Class seven A scored a hundred and eighty marks out of two hundred and forty. Class seven B scored two hundred and ten out of three hundred. The marks are big and different, so let us compare them as percentages. Tap solve." },
+      intro2: { ru: "В каком классе результат лучше?", uz: "Qaysi sinf natijasi yaxshiroq?", en: 'Which class did better?' },
+      on_correct: { ru: "Верно. Семьдесят пять процентов больше семидесяти. Кстати, тело человека почти на шестьдесят процентов из воды.", uz: "To'g'ri. Yetmish besh foiz yetmishdan katta. Aytgancha, inson tanasi deyarli oltmish foiz suvdan iborat.", en: 'That is right. Seventy five per cent is more than seventy. By the way, the human body is almost sixty per cent water.' },
+      on_wrong: { ru: "Приведи обе доли к сотым и сравни проценты.", uz: "Ikkala ulushni yuzdan ulushga keltiring va foizni solishtiring.", en: 'Change both parts to hundredths and compare the percentages.' }
     }
   },
 
   // ===== s13 SUMMARY — batareya hookini yopadi + ConnectionsBlock. =====
   s13: {
-    eyebrow: { ru: 'Итог', uz: 'Xulosa' },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Процент — это сотая доля', uz: "Foiz — bu yuzdan ulush" },
-    main_label: { ru: 'Главное', uz: 'Asosiy' },
-    main_1: { ru: 'Процент — это сотая доля: 1% = 1/100 = 0,01.', uz: "Foiz — bu yuzdan ulush: 1% = 1/100 = 0,01." },
-    main_2: { ru: 'Одно число — четыре записи: процент, дробь /100, сокращённая дробь и десятичная дробь.', uz: "Bitta son — to'rt yozuv: foiz, /100 kasr, qisqartirilgan kasr va o'nli kasr." },
-    main_3: { ru: '100% — это целое, а процент это отношение, а не само количество.', uz: "100% — bu butun, foiz esa — nisbat, miqdorning o'zi emas." },
-    hook_close: { ru: 'Оба заряда по 50% — но это половина разных батарей, поэтому энергии в них разное количество.', uz: "Ikkala zaryad ham 50% — lekin bu har xil batareyalarning yarmi, shuning uchun energiya miqdori har xil." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'Сокращение дробей, эквивалентные дроби и десятичная дробь.', uz: "Kasrlarni qisqartirish, ekvivalent kasrlar va o'nli kasr." },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars' },
-    conn_next: { ru: 'нахождение процента от числа: 20% от 50.', uz: "sonning foizini topish: 50 ning 20 foizi." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Подведём итог. Процент это сотая доля: один процент это одна сотая. Одно число можно записать процентом, дробью со знаменателем сто, сокращённой дробью и десятичной дробью. А сто процентов это целое, и процент это отношение, а не само количество. Поэтому у Рустама оба заряда по пятьдесят процентов, но энергия в них разная.", uz: "Xulosa qilamiz. Foiz, bu yuzdan ulush: bir foiz, bu yuzdan bir. Bitta sonni foiz, maxraji yuz bo'lgan kasr, qisqartirilgan kasr va o'nli kasr bilan yozish mumkin. Yuz foiz esa, bu butun, foiz, nisbat, miqdorning o'zi emas. Shuning uchun Rustamda ikkala zaryad ham ellik foiz, lekin ulardagi energiya har xil." }
+    eyebrow: { ru: 'Итог', uz: 'Xulosa', en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Процент — это сотая доля', uz: "Foiz — bu yuzdan ulush", en: 'A percentage is a hundredth part' },
+    main_label: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    main_1: { ru: 'Процент — это сотая доля: 1% = 1/100 = 0,01.', uz: "Foiz — bu yuzdan ulush: 1% = 1/100 = 0,01.", en: 'A percentage is a hundredth part: 1% = 1/100 = 0,01.' },
+    main_2: { ru: 'Одно число — четыре записи: процент, дробь /100, сокращённая дробь и десятичная дробь.', uz: "Bitta son — to'rt yozuv: foiz, /100 kasr, qisqartirilgan kasr va o'nli kasr.", en: 'One number, four ways of writing it: a percentage, a fraction over 100, a simplified fraction and a decimal.' },
+    main_3: { ru: '100% — это целое, а процент это отношение, а не само количество.', uz: "100% — bu butun, foiz esa — nisbat, miqdorning o'zi emas.", en: '100% is a whole, and a percentage is a comparison, not the amount itself.' },
+    hook_close: { ru: 'Оба заряда по 50% — но это половина разных батарей, поэтому энергии в них разное количество.', uz: "Ikkala zaryad ham 50% — lekin bu har xil batareyalarning yarmi, shuning uchun energiya miqdori har xil.", en: 'Both are at 50%, but that is half of two different batteries, so they hold different amounts of energy.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'Сокращение дробей, эквивалентные дроби и десятичная дробь.', uz: "Kasrlarni qisqartirish, ekvivalent kasrlar va o'nli kasr.", en: 'Simplifying fractions, equivalent fractions and decimals.' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi dars', en: 'Next' },
+    conn_next: { ru: 'нахождение процента от числа: 20% от 50.', uz: "sonning foizini topish: 50 ning 20 foizi.", en: 'finding a percentage of a number: 20% of 50.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Подведём итог. Процент это сотая доля: один процент это одна сотая. Одно число можно записать процентом, дробью со знаменателем сто, сокращённой дробью и десятичной дробью. А сто процентов это целое, и процент это отношение, а не само количество. Поэтому у Рустама оба заряда по пятьдесят процентов, но энергия в них разная.", uz: "Xulosa qilamiz. Foiz, bu yuzdan ulush: bir foiz, bu yuzdan bir. Bitta sonni foiz, maxraji yuz bo'lgan kasr, qisqartirilgan kasr va o'nli kasr bilan yozish mumkin. Yuz foiz esa, bu butun, foiz, nisbat, miqdorning o'zi emas. Shuning uchun Rustamda ikkala zaryad ham ellik foiz, lekin ulardagi energiya har xil.", en: "Let us sum up. A percentage is a hundredth part: one per cent is one hundredth. One number can be written as a percentage, as a fraction with a hundred underneath, as a simplified fraction and as a decimal. A hundred per cent is a whole, and a percentage is a comparison, not the amount itself. That is why Rustam's two things are both at fifty per cent but hold different amounts of energy." }
   }
 };
 
@@ -1132,9 +1160,9 @@ const FloatTiles = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1182,7 +1210,7 @@ const PercentGrid = ({ shaded = 0, glow = false, success = false, sm = false }) 
 const FourForms = ({ n }) => {
   const t = useT();
   if (n === 0) return <span className="pg-forms"><b>0%</b> <Op size="sm">=</Op> 0</span>;
-  if (n === 100) return <span className="pg-forms"><b>100%</b> <Op size="sm">=</Op> 1 ({t({ ru: 'целое', uz: 'butun' })})</span>;
+  if (n === 100) return <span className="pg-forms"><b>100%</b> <Op size="sm">=</Op> 1 ({t({ ru: 'целое', uz: 'butun', en: 'the whole' })})</span>;
   const g = pgGcd(n, 100); const a = n / g; const b = 100 / g;
   return (
     <span className="pg-forms">
@@ -1273,13 +1301,13 @@ const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1350,7 +1378,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1375,7 +1403,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1707,7 +1735,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1815,7 +1843,7 @@ const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
             </div>
             <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(solved ? t(content.correct_text) : t(content[`wrong_${picked}`] || content.wrong_default || content.correct_text))}</p>
             </FeedbackBlock>
@@ -1832,7 +1860,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s13;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1861,7 +1889,7 @@ export default function PercentConceptLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1914,7 +1942,7 @@ export default function PercentConceptLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -21,7 +21,7 @@ import { build } from 'vite';
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, '..');
-const bundleDir = path.join(rootDir, 'lms-grade6-practice-standalone');
+const bundleDir = path.join(rootDir, 'src', 'components', 'grade6', 'lms-grade6-practice-standalone');
 const tmpDir = path.join(rootDir, '.tmp-lms-practice-check');
 
 const TOTAL_LESSONS = 46;

@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -180,7 +205,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -215,7 +240,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -582,12 +608,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -703,7 +729,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -752,9 +778,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК + анимации (CSS-only loop, синяя тема)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -860,8 +886,8 @@ const DivExpr = ({ a, b, size = 'mid' }) => (
 // --- POD UROK: frac_5_03 — Дробь как деление / Kasr — bo'lish natijasi ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-03-v1',
-  lessonTitle: { ru: 'Дробь как деление', uz: "Kasr — bo'lish natijasi" }
+  lessonId: 'grade5-11',
+  lessonTitle: { ru: 'Дробь как деление', uz: "Kasr — bo'lish natijasi", en: 'A fraction as a division' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -885,24 +911,24 @@ const SCREEN_META = [
 const CONTENT = {
   // ---- s0 HOOK: Севара делит 3 лепёшки на 4 друзей, Улугбек: «3 меньше 4 — не делится» ----
   s0: {
-    eyebrow: { ru: 'Дробь как деление · вступление', uz: "Kasr — bo'lish · kirish" },
-    title: { ru: 'Севара хочет разделить 3 лепёшки поровну между 4 друзьями.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi." },
-    body: { ru: 'Улугбек машет рукой: «три на четыре не делится — три меньше четырёх. Кому-то не хватит, поровну не выйдет».', uz: "Ulug'bek qo'l siltaydi: «uchni to'rtga bo'lib bo'lmaydi — uch to'rtdan kichik. Kimgadir yetmaydi, teng chiqmaydi»." },
-    question: { ru: 'А ты как думаешь: можно ли разделить 3 лепёшки на 4 друзей поровну?', uz: "Sizningcha-chi: 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi?" },
-    opt0: { ru: 'Да — каждому достанется равная часть', uz: "Ha — har biriga teng ulush tegadi" },
-    opt1: { ru: 'Нет — меньшее на большее не делится', uz: "Yo'q — kichikni kattaga bo'lib bo'lmaydi" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Севара хочет разделить три лепёшки поровну между четырьмя друзьями. Улугбек говорит, что три на четыре не делится, ведь три меньше четырёх. А ты как думаешь — можно ли разделить три лепёшки на четырёх друзей поровну? Выбери ответ.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi. Ulug'bek aytadiki, uchni to'rtga bo'lib bo'lmaydi, chunki uch to'rtdan kichik. Sizningcha, 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi? Javobni tanlang." }
+    eyebrow: { ru: 'Дробь как деление · вступление', uz: "Kasr — bo'lish · kirish", en: 'A fraction as a division · introduction' },
+    title: { ru: 'Севара хочет разделить 3 лепёшки поровну между 4 друзьями.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi.", en: 'Sevara wants to share 3 flatbreads equally between 4 friends.' },
+    body: { ru: 'Улугбек машет рукой: «три на четыре не делится — три меньше четырёх. Кому-то не хватит, поровну не выйдет».', uz: "Ulug'bek qo'l siltaydi: «uchni to'rtga bo'lib bo'lmaydi — uch to'rtdan kichik. Kimgadir yetmaydi, teng chiqmaydi».", en: 'Ulugbek waves it away: three cannot be divided by four, three is smaller than four. Someone will go without, it will not come out equal.' },
+    question: { ru: 'А ты как думаешь: можно ли разделить 3 лепёшки на 4 друзей поровну?', uz: "Sizningcha-chi: 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi?", en: 'What do you think: can 3 flatbreads be shared equally between 4 friends?' },
+    opt0: { ru: 'Да — каждому достанется равная часть', uz: "Ha — har biriga teng ulush tegadi", en: 'Yes, each of them gets an equal part' },
+    opt1: { ru: 'Нет — меньшее на большее не делится', uz: "Yo'q — kichikni kattaga bo'lib bo'lmaydi", en: 'No, a smaller number cannot be divided by a bigger one' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    audio: { ru: 'Севара хочет разделить три лепёшки поровну между четырьмя друзьями. Улугбек говорит, что три на четыре не делится, ведь три меньше четырёх. А ты как думаешь — можно ли разделить три лепёшки на четырёх друзей поровну? Выбери ответ.', uz: "Sevara 3 ta nonni 4 ta do'sti o'rtasida teng bo'lmoqchi. Ulug'bek aytadiki, uchni to'rtga bo'lib bo'lmaydi, chunki uch to'rtdan kichik. Sizningcha, 3 ta nonni 4 ta do'stga teng bo'lib bo'ladimi? Javobni tanlang.", en: 'Sevara wants to share three flatbreads equally between four friends. Ulugbek says that three cannot be divided by four because three is smaller than four. What do you think, can three flatbreads be shared equally between four friends? Choose an answer.' }
   },
 
   // ---- s1 EXPLORATION (step-by-step): делим 3 лепёшки на 4 ----
   s1: {
-    eyebrow: { ru: 'Делим поровну', uz: "Teng bo'lamiz" },
-    title: { ru: 'Разделим 3 лепёшки на 4 друзей по шагам', uz: "3 ta nonni 4 do'stga bosqichma-bosqich bo'lamiz" },
-    bridge: { ru: 'Улугбек сказал «не делится». Давай попробуем разделить по шагам.', uz: "Ulug'bek «bo'linmaydi» dedi. Keling, bosqichma-bosqich bo'lib ko'ramiz." },
-    conclusion: { ru: 'Каждому досталось 3/4 лепёшки. Значит, 3 ÷ 4 = 3/4.', uz: "Har biriga 3/4 non tegdi. Demak, 3 ÷ 4 = 3/4." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
+    eyebrow: { ru: 'Делим поровну', uz: "Teng bo'lamiz", en: 'Sharing equally' },
+    title: { ru: 'Разделим 3 лепёшки на 4 друзей по шагам', uz: "3 ta nonni 4 do'stga bosqichma-bosqich bo'lamiz", en: 'Let us share 3 flatbreads between 4 friends step by step' },
+    bridge: { ru: 'Улугбек сказал «не делится». Давай попробуем разделить по шагам.', uz: "Ulug'bek «bo'linmaydi» dedi. Keling, bosqichma-bosqich bo'lib ko'ramiz.", en: 'Ulugbek said it cannot be divided. Let us try to share it step by step.' },
+    conclusion: { ru: 'Каждому досталось 3/4 лепёшки. Значит, 3 ÷ 4 = 3/4.', uz: "Har biriga 3/4 non tegdi. Demak, 3 ÷ 4 = 3/4.", en: 'Each of them got 3/4 of a flatbread. So 3 ÷ 4 = 3/4.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?", en: 'Got it. Is there a rule?' },
     audio: {
       ru: [
         'Разделим три лепёшки на четыре друга по шагам. Нажимай кнопку Дальше.',
@@ -915,253 +941,254 @@ const CONTENT = {
         "Mana 3 ta butun non va 4 ta do'st. Har biriga teng tegishini xohlaymiz.",
         "Do'stlar to'rtta — shuning uchun har bir nonni 4 ta teng bo'lakka kesamiz. Har bir bo'lak — nonning to'rtdan biri.",
         "Endi har biriga har bir nondan bitta bo'lakdan beramiz. Non uchta — demak uchta bo'lak, bu to'rtdan uch. Ko'rdingizmi: uchni to'rtga bo'lsa ham bo'larkan, faqat javob — kasr."
-      ]
+      ],
+      en: ['Let us share three flatbreads between four friends step by step. Tap the next button.', 'Here are three whole flatbreads and four friends. We want each of them to get an equal share.', 'There are four friends, so we cut each flatbread into four equal parts. Each part is one quarter of a flatbread.', 'Now we give each of them one piece from every flatbread. Three flatbreads means three pieces, which is three quarters. You see, three can be divided by four after all, the answer is simply a fraction.']
     }
   },
 
   // ---- s2 EXPLORATION (slider + check): подели 2 лепёшки на 3 сам ----
   s2: {
-    eyebrow: { ru: 'Подели сам', uz: "O'zingiz bo'ling" },
-    title: { ru: 'Подели 2 лепёшки на 3 друзей сам', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling" },
-    intro: { ru: 'Двигай ползунок — выбирай, на сколько равных частей резать каждую лепёшку. Подумай, как сделать дольки честными для 3 друзей.', uz: "Slayderni suring — har bir nonni nechta teng bo'lakka kesishni tanlang. 3 do'st uchun ulushlar adolatli bo'lishini o'ylab ko'ring." },
-    target_text: { ru: 'Цель: 2 лепёшки на 3 друзей. На сколько частей резать каждую лепёшку?', uz: "Maqsad: 2 ta non 3 do'stga. Har bir nonni nechta bo'lakka kesamiz?" },
-    eyebrow_slider: { ru: 'Частей в лепёшке:', uz: "Nondagi bo'laklar:" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала подели', uz: "Avval bo'ling" },
-    fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Друзей 3 — режем каждую лепёшку на 3 части. Каждому по 2 кусочка — это две третьих. Значит, два разделить на три это две третьих.', uz: "Do'stlar 3 ta — har bir nonni 3 bo'lakka kesamiz. Har biriga 2 bo'lakdan — bu uchdan ikki. Demak, ikkini uchga bo'lsak uchdan ikki." },
-    fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Друзей 3, поэтому каждую лепёшку режем ровно на 3 части. Поставь ползунок на 3.', uz: "Do'stlar 3 ta, shuning uchun har bir nonni aniq 3 bo'lakka kesamiz. Slayderni 3 ga qo'ying." },
-    audio: { ru: 'Подели две лепёшки на трёх друзей сам. Двигай ползунок и выбери, на сколько равных частей резать каждую лепёшку. Друзей трое, поэтому каждую лепёшку режем на три части, и каждому достаётся две третьих.', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling. Slayderni surib, har bir nonni nechta teng bo'lakka kesishni tanlang. Do'stlar uchta, shuning uchun har bir nonni 3 bo'lakka kesamiz va har biriga uchdan ikki tegadi." }
+    eyebrow: { ru: 'Подели сам', uz: "O'zingiz bo'ling", en: 'Share it yourself' },
+    title: { ru: 'Подели 2 лепёшки на 3 друзей сам', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling", en: 'Share 2 flatbreads between 3 friends yourself' },
+    intro: { ru: 'Двигай ползунок — выбирай, на сколько равных частей резать каждую лепёшку. Подумай, как сделать дольки честными для 3 друзей.', uz: "Slayderni suring — har bir nonni nechta teng bo'lakka kesishni tanlang. 3 do'st uchun ulushlar adolatli bo'lishini o'ylab ko'ring.", en: 'Move the slider to choose how many equal parts to cut each flatbread into. Think how to make the pieces fair for 3 friends.' },
+    target_text: { ru: 'Цель: 2 лепёшки на 3 друзей. На сколько частей резать каждую лепёшку?', uz: "Maqsad: 2 ta non 3 do'stga. Har bir nonni nechta bo'lakka kesamiz?", en: 'Your goal: 2 flatbreads for 3 friends. How many parts should each flatbread be cut into?' },
+    eyebrow_slider: { ru: 'Частей в лепёшке:', uz: "Nondagi bo'laklar:", en: 'Parts in a flatbread:' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    btn_disabled_label: { ru: 'Сначала подели', uz: "Avval bo'ling", en: 'Share it first' },
+    fb_success_title: { ru: 'Верно', uz: "To'g'ri", en: 'Correct' },
+    fb_success: { ru: 'Друзей 3 — режем каждую лепёшку на 3 части. Каждому по 2 кусочка — это две третьих. Значит, два разделить на три это две третьих.', uz: "Do'stlar 3 ta — har bir nonni 3 bo'lakka kesamiz. Har biriga 2 bo'lakdan — bu uchdan ikki. Demak, ikkini uchga bo'lsak uchdan ikki.", en: 'There are 3 friends, so we cut each flatbread into 3 parts. Each of them gets 2 pieces, which is two thirds. So two divided by three is two thirds.' },
+    fb_wrong_title: { ru: 'Почти', uz: "Deyarli", en: 'Almost' },
+    fb_wrong: { ru: 'Друзей 3, поэтому каждую лепёшку режем ровно на 3 части. Поставь ползунок на 3.', uz: "Do'stlar 3 ta, shuning uchun har bir nonni aniq 3 bo'lakka kesamiz. Slayderni 3 ga qo'ying.", en: 'There are 3 friends, so each flatbread is cut into exactly 3 parts. Set the slider to 3.' },
+    audio: { ru: 'Подели две лепёшки на трёх друзей сам. Двигай ползунок и выбери, на сколько равных частей резать каждую лепёшку. Друзей трое, поэтому каждую лепёшку режем на три части, и каждому достаётся две третьих.', uz: "2 ta nonni 3 do'stga o'zingiz bo'ling. Slayderni surib, har bir nonni nechta teng bo'lakka kesishni tanlang. Do'stlar uchta, shuning uchun har bir nonni 3 bo'lakka kesamiz va har biriga uchdan ikki tegadi.", en: 'Share two flatbreads between three friends yourself. Move the slider and choose how many equal parts to cut each flatbread into. There are three friends, so each flatbread is cut into three parts and each of them gets two thirds.' }
   },
 
   // ---- s3 RULE: a ÷ b = a/b ----
   s3: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Разделили на практике. Теперь запишем это правилом.', uz: "Amalda bo'ldik. Endi buni qoida qilib yozamiz." },
-    label: { ru: 'Дробь — это деление', uz: "Kasr — bu bo'lish" },
-    title: { ru: 'Запись a/b означает «a разделить на b».', uz: "a/b yozuvi «a ni b ga bo'lish» degani." },
-    card_top: { ru: 'Числитель (сверху) — что делим: сколько лепёшек.', uz: "Surat (yuqorida) — nimani bo'lamiz: nechta non." },
-    card_bottom: { ru: 'Знаменатель (снизу) — на сколько делим: сколько друзей.', uz: "Maxraj (pastda) — nechtaga bo'lamiz: nechta do'st." },
-    card_line: { ru: 'Каждому достаётся ровно a/b.', uz: "Har biriga aniq a/b tegadi." },
-    outro: { ru: '3 лепёшки на 4 друзей: 3 ÷ 4 = 3/4. Каждому — три четвёртых лепёшки.', uz: "3 ta non 4 do'stga: 3 ÷ 4 = 3/4. Har biriga — nonning to'rtdan uchi." },
-    audio: { ru: 'Запомни главное: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху, в числителе, — что делим, сколько лепёшек. Снизу, в знаменателе, — на сколько делим, сколько друзей. Каждому достаётся ровно a дробь b. Три лепёшки на четыре друга — это три разделить на четыре, то есть три четвёртых.', uz: "Asosiysini eslab qoling: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida, suratda, — nimani bo'lamiz, nechta non. Pastda, maxrajda, — nechtaga bo'lamiz, nechta do'st. Har biriga aniq a kasr b tegadi. 3 ta non 4 do'stga — bu uchni to'rtga bo'lish, ya'ni to'rtdan uch." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Разделили на практике. Теперь запишем это правилом.', uz: "Amalda bo'ldik. Endi buni qoida qilib yozamiz.", en: 'We have shared them out in practice. Now let us write it down as a rule.' },
+    label: { ru: 'Дробь — это деление', uz: "Kasr — bu bo'lish", en: 'A fraction is a division' },
+    title: { ru: 'Запись a/b означает «a разделить на b».', uz: "a/b yozuvi «a ni b ga bo'lish» degani.", en: 'Writing a/b means a divided by b.' },
+    card_top: { ru: 'Числитель (сверху) — что делим: сколько лепёшек.', uz: "Surat (yuqorida) — nimani bo'lamiz: nechta non.", en: 'The numerator (on top) is what we are sharing: how many flatbreads.' },
+    card_bottom: { ru: 'Знаменатель (снизу) — на сколько делим: сколько друзей.', uz: "Maxraj (pastda) — nechtaga bo'lamiz: nechta do'st.", en: 'The denominator (underneath) is how many we share between: how many friends.' },
+    card_line: { ru: 'Каждому достаётся ровно a/b.', uz: "Har biriga aniq a/b tegadi.", en: 'Each of them gets exactly a/b.' },
+    outro: { ru: '3 лепёшки на 4 друзей: 3 ÷ 4 = 3/4. Каждому — три четвёртых лепёшки.', uz: "3 ta non 4 do'stga: 3 ÷ 4 = 3/4. Har biriga — nonning to'rtdan uchi.", en: '3 flatbreads between 4 friends: 3 ÷ 4 = 3/4. Each of them gets three quarters of a flatbread.' },
+    audio: { ru: 'Запомни главное: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху, в числителе, — что делим, сколько лепёшек. Снизу, в знаменателе, — на сколько делим, сколько друзей. Каждому достаётся ровно a дробь b. Три лепёшки на четыре друга — это три разделить на четыре, то есть три четвёртых.', uz: "Asosiysini eslab qoling: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida, suratda, — nimani bo'lamiz, nechta non. Pastda, maxrajda, — nechtaga bo'lamiz, nechta do'st. Har biriga aniq a kasr b tegadi. 3 ta non 4 do'stga — bu uchni to'rtga bo'lish, ya'ni to'rtdan uch.", en: 'Remember the main thing: a fraction is a division. Writing a over b means a divided by b. On top, in the numerator, is what we are sharing, how many flatbreads. Underneath, in the denominator, is how many we share between, how many friends. Each of them gets exactly a over b. Three flatbreads between four friends is three divided by four, that is three quarters.' }
   },
 
   // ---- s4 TEST (MC, дроби): 4 лепёшки на 5 → 4/5 (correct old idx 1) ----
   s4: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing" },
-    question: { ru: '4 лепёшки разделили поровну между 5 друзьями. Сколько достанется каждому?', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har biriga qancha tegadi?" },
-    correct_text: { ru: 'Верно: делим 4 на 5, значит 4 ÷ 5 = 4/5. Каждому — четыре пятых лепёшки.', uz: "To'g'ri: 4 ni 5 ga bo'lamiz, demak 4 ÷ 5 = 4/5. Har biriga — nonning beshdan to'rti." },
-    hint_0: { ru: 'Числитель и знаменатель перепутаны: делим 4 (лепёшки) на 5 (друзей), сверху 4, снизу 5.', uz: "Surat va maxraj almashgan: 4 (non) ni 5 (do'st) ga bo'lamiz, yuqorida 4, pastda 5." },
-    hint_2: { ru: 'Это значило бы, что каждому достаётся целая лепёшка. Но лепёшек 4, а друзей 5 — каждому меньше целого.', uz: "Bu har biriga butun non degani bo'lardi. Lekin non 4 ta, do'st 5 ta — har biriga butundan kam." },
-    hint_3: { ru: 'Снизу — число друзей. Их 5, а не 4.', uz: "Pastda — do'stlar soni. Ular 5 ta, 4 emas." },
-    wrong_default: { ru: 'Числитель — что делим (4 лепёшки), знаменатель — на сколько (5 друзей). Это 4/5.', uz: "Surat — nimani bo'lamiz (4 non), maxraj — nechtaga (5 do'st). Bu 4/5." },
-    fact: { ru: 'Пчёлы делят соты на равные шестиугольные ячейки — это деление пространства на равные доли в самой природе.', uz: "Asalarilar uyani teng oltburchak katakchalarga bo'ladi — bu tabiatdagi fazoni teng ulushlarga bo'lishdir." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    label: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing", en: 'Write the division as a fraction' },
+    question: { ru: '4 лепёшки разделили поровну между 5 друзьями. Сколько достанется каждому?', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har biriga qancha tegadi?", en: '4 flatbreads were shared equally between 5 friends. How much does each of them get?' },
+    correct_text: { ru: 'Верно: делим 4 на 5, значит 4 ÷ 5 = 4/5. Каждому — четыре пятых лепёшки.', uz: "To'g'ri: 4 ni 5 ga bo'lamiz, demak 4 ÷ 5 = 4/5. Har biriga — nonning beshdan to'rti.", en: 'That is right: we divide 4 by 5, so 4 ÷ 5 = 4/5. Each of them gets four fifths of a flatbread.' },
+    hint_0: { ru: 'Числитель и знаменатель перепутаны: делим 4 (лепёшки) на 5 (друзей), сверху 4, снизу 5.', uz: "Surat va maxraj almashgan: 4 (non) ni 5 (do'st) ga bo'lamiz, yuqorida 4, pastda 5.", en: 'The numerator and denominator are swapped: we divide 4 (flatbreads) by 5 (friends), so 4 goes on top and 5 underneath.' },
+    hint_2: { ru: 'Это значило бы, что каждому достаётся целая лепёшка. Но лепёшек 4, а друзей 5 — каждому меньше целого.', uz: "Bu har biriga butun non degani bo'lardi. Lekin non 4 ta, do'st 5 ta — har biriga butundan kam.", en: 'That would mean each of them gets a whole flatbread. But there are 4 flatbreads and 5 friends, so each one gets less than a whole.' },
+    hint_3: { ru: 'Снизу — число друзей. Их 5, а не 4.', uz: "Pastda — do'stlar soni. Ular 5 ta, 4 emas.", en: 'Underneath goes the number of friends. There are 5 of them, not 4.' },
+    wrong_default: { ru: 'Числитель — что делим (4 лепёшки), знаменатель — на сколько (5 друзей). Это 4/5.', uz: "Surat — nimani bo'lamiz (4 non), maxraj — nechtaga (5 do'st). Bu 4/5.", en: 'The numerator is what we are sharing (4 flatbreads) and the denominator is how many we share between (5 friends). It is 4/5.' },
+    fact: { ru: 'Пчёлы делят соты на равные шестиугольные ячейки — это деление пространства на равные доли в самой природе.', uz: "Asalarilar uyani teng oltburchak katakchalarga bo'ladi — bu tabiatdagi fazoni teng ulushlarga bo'lishdir.", en: 'Bees divide a honeycomb into equal six sided cells, which is space being split into equal parts in nature itself.' },
     audio: {
-      intro: { ru: 'Четыре лепёшки разделили поровну между пятью друзьями. Выбери дробь, которая показывает долю каждого.', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har birining ulushini ko'rsatadigan kasrni tanlang." },
-      on_correct: { ru: 'Верно. Четыре на пять — это четыре пятых. Кстати, пчёлы тоже делят соты на равные шестиугольные ячейки — равное деление встречается в самой природе.', uz: "To'g'ri. To'rtni beshga — bu beshdan to'rt. Aytgancha, asalarilar ham uyani teng oltburchak katakchalarga bo'ladi — teng bo'lish tabiatning o'zida uchraydi." },
-      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
+      intro: { ru: 'Четыре лепёшки разделили поровну между пятью друзьями. Выбери дробь, которая показывает долю каждого.', uz: "4 ta non 5 ta do'stga teng bo'lindi. Har birining ulushini ko'rsatadigan kasrni tanlang.", en: "Four flatbreads were shared equally between five friends. Choose the fraction that shows each one's share." },
+      on_correct: { ru: 'Верно. Четыре на пять — это четыре пятых. Кстати, пчёлы тоже делят соты на равные шестиугольные ячейки — равное деление встречается в самой природе.', uz: "To'g'ri. To'rtni beshga — bu beshdan to'rt. Aytgancha, asalarilar ham uyani teng oltburchak katakchalarga bo'ladi — teng bo'lish tabiatning o'zida uchraydi.", en: 'That is right. Four divided by five is four fifths. By the way, bees divide a honeycomb into equal six sided cells too, so equal sharing turns up in nature itself.' },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st.", en: 'Not yet. On top goes how many flatbreads and underneath how many friends.' }
     }
   },
 
   // ---- s5 RULE: порядок важен, 3/4 ≠ 4/3 ----
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    label: { ru: 'Порядок важен', uz: "Tartib muhim" },
-    title: { ru: '3/4 и 4/3 — это разные дроби.', uz: "3/4 va 4/3 — har xil kasrlar." },
-    card_ok: { ru: '3/4 — это 3 лепёшки на 4 друзей: каждому меньше целой лепёшки.', uz: "3/4 — bu 3 ta non 4 do'stga: har biriga butun nondan kam." },
-    card_bad: { ru: '4/3 — это уже 4 лепёшки на 3 друзей: каждому больше целой. Поменяли местами — получилась другая дробь.', uz: "4/3 — bu endi 4 ta non 3 do'stga: har biriga butundan ko'p. O'rni almashdi — boshqa kasr chiqdi." },
-    outro: { ru: 'Сверху — что делим, снизу — на сколько. Эти два числа нельзя менять местами.', uz: "Yuqorida — nimani bo'lamiz, pastda — nechtaga. Bu ikki sonni o'rni bilan almashtirib bo'lmaydi." },
-    audio: { ru: 'Порядок в дроби важен. Три четвёртых — это три лепёшки на четыре друга, каждому меньше целой. А четыре третьих — это четыре лепёшки на три друга, каждому больше целой. Сверху всегда то, что делим, а снизу — на сколько делим. Поменяешь их местами — получится совсем другая дробь.', uz: "Kasrdagi tartib muhim. To'rtdan uch — bu 3 ta non 4 do'stga, har biriga butundan kam. Uchdan to'rt esa — bu 4 ta non 3 do'stga, har biriga butundan ko'p. Yuqorida doim nimani bo'lsak o'sha, pastda esa nechtaga bo'lganimiz turadi. Ularning o'rnini almashtirsangiz, butunlay boshqa kasr chiqadi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    label: { ru: 'Порядок важен', uz: "Tartib muhim", en: 'The order matters' },
+    title: { ru: '3/4 и 4/3 — это разные дроби.', uz: "3/4 va 4/3 — har xil kasrlar.", en: '3/4 and 4/3 are different fractions.' },
+    card_ok: { ru: '3/4 — это 3 лепёшки на 4 друзей: каждому меньше целой лепёшки.', uz: "3/4 — bu 3 ta non 4 do'stga: har biriga butun nondan kam.", en: '3/4 means 3 flatbreads between 4 friends, so each one gets less than a whole flatbread.' },
+    card_bad: { ru: '4/3 — это уже 4 лепёшки на 3 друзей: каждому больше целой. Поменяли местами — получилась другая дробь.', uz: "4/3 — bu endi 4 ta non 3 do'stga: har biriga butundan ko'p. O'rni almashdi — boshqa kasr chiqdi.", en: '4/3 means 4 flatbreads between 3 friends, so each one gets more than a whole. Swapping them round gives a different fraction.' },
+    outro: { ru: 'Сверху — что делим, снизу — на сколько. Эти два числа нельзя менять местами.', uz: "Yuqorida — nimani bo'lamiz, pastda — nechtaga. Bu ikki sonni o'rni bilan almashtirib bo'lmaydi.", en: 'On top is what we are sharing and underneath is how many we share between. These two numbers must not be swapped.' },
+    audio: { ru: 'Порядок в дроби важен. Три четвёртых — это три лепёшки на четыре друга, каждому меньше целой. А четыре третьих — это четыре лепёшки на три друга, каждому больше целой. Сверху всегда то, что делим, а снизу — на сколько делим. Поменяешь их местами — получится совсем другая дробь.', uz: "Kasrdagi tartib muhim. To'rtdan uch — bu 3 ta non 4 do'stga, har biriga butundan kam. Uchdan to'rt esa — bu 4 ta non 3 do'stga, har biriga butundan ko'p. Yuqorida doim nimani bo'lsak o'sha, pastda esa nechtaga bo'lganimiz turadi. Ularning o'rnini almashtirsangiz, butunlay boshqa kasr chiqadi.", en: 'The order in a fraction matters. Three quarters means three flatbreads between four friends, so each one gets less than a whole. Four thirds means four flatbreads between three friends, so each one gets more than a whole. On top is always what we are sharing and underneath is how many we share between. Swap them round and you get a completely different fraction.' }
   },
 
   // ---- s6 TEST (классификация tap): каждому меньше / больше целой лепёшки ----
   s6: {
-    eyebrow: { ru: 'Тренировка · сортировка', uz: "Mashq · saralash" },
-    title: { ru: 'Меньше или больше целой?', uz: "Butundan kammi yoki ko'pmi?" },
-    lead: { ru: 'Каждому достанется меньше целой лепёшки или больше? Отправь в свою корзину. Считать точно не нужно.', uz: "Har biriga butun nondan kam tegadimi yoki ko'p? O'z savatiga joylang. Aniq hisoblash shart emas." },
-    bin_eq: { ru: 'Каждому меньше целой', uz: "Har biriga butundan kam" },
-    bin_uneq: { ru: 'Каждому больше целой', uz: "Har biriga butundan ko'p" },
-    ask: { ru: 'В какую корзину? Тапни.', uz: "Qaysi savatga? Bosing." },
-    hint_wrong: { ru: 'Сравни: если лепёшек меньше, чем друзей — каждому меньше целой; если больше — больше целой.', uz: "Solishtiring: non do'stdan kam bo'lsa — har biriga butundan kam; ko'p bo'lsa — butundan ko'p." },
-    correct_text: { ru: 'Верно! Лепёшек меньше, чем друзей — каждому меньше целой. Лепёшек больше — каждому больше целой.', uz: "To'g'ri! Non do'stdan kam — har biriga butundan kam. Non ko'p — har biriga butundan ko'p." },
+    eyebrow: { ru: 'Тренировка · сортировка', uz: "Mashq · saralash", en: 'Practice · sorting' },
+    title: { ru: 'Меньше или больше целой?', uz: "Butundan kammi yoki ko'pmi?", en: 'Less than a whole or more?' },
+    lead: { ru: 'Каждому достанется меньше целой лепёшки или больше? Отправь в свою корзину. Считать точно не нужно.', uz: "Har biriga butun nondan kam tegadimi yoki ko'p? O'z savatiga joylang. Aniq hisoblash shart emas.", en: 'Does each one get less than a whole flatbread or more? Send it to its own basket. You do not need to work it out exactly.' },
+    bin_eq: { ru: 'Каждому меньше целой', uz: "Har biriga butundan kam", en: 'Each one gets less than a whole' },
+    bin_uneq: { ru: 'Каждому больше целой', uz: "Har biriga butundan ko'p", en: 'Each one gets more than a whole' },
+    ask: { ru: 'В какую корзину? Тапни.', uz: "Qaysi savatga? Bosing.", en: 'Which basket? Tap it.' },
+    hint_wrong: { ru: 'Сравни: если лепёшек меньше, чем друзей — каждому меньше целой; если больше — больше целой.', uz: "Solishtiring: non do'stdan kam bo'lsa — har biriga butundan kam; ko'p bo'lsa — butundan ko'p.", en: 'Compare them: if there are fewer flatbreads than friends, each one gets less than a whole; if there are more, each one gets more than a whole.' },
+    correct_text: { ru: 'Верно! Лепёшек меньше, чем друзей — каждому меньше целой. Лепёшек больше — каждому больше целой.', uz: "To'g'ri! Non do'stdan kam — har biriga butundan kam. Non ko'p — har biriga butundan ko'p.", en: 'Right! Fewer flatbreads than friends means each one gets less than a whole. More flatbreads means each one gets more than a whole.' },
     audio: {
-      intro: { ru: 'Распредели по корзинам: где каждому достанется меньше целой лепёшки, а где больше. Считать точно не нужно. Сравни число лепёшек и число друзей.', uz: "Savatlarga ajrating: qayerda har biriga butun nondan kam tegadi, qayerda ko'p. Aniq hisoblash shart emas. Non va do'stlar sonini solishtiring." },
-      on_correct: { ru: 'Верно. Если делим меньшее число на большее — каждому меньше целой.', uz: "To'g'ri. Kichik sonni kattaga bo'lsak — har biriga butundan kam." },
-      on_wrong: { ru: 'Сравни: лепёшек меньше, чем друзей, или больше?', uz: "Solishtiring: non do'stdan kammi yoki ko'pmi?" }
+      intro: { ru: 'Распредели по корзинам: где каждому достанется меньше целой лепёшки, а где больше. Считать точно не нужно. Сравни число лепёшек и число друзей.', uz: "Savatlarga ajrating: qayerda har biriga butun nondan kam tegadi, qayerda ko'p. Aniq hisoblash shart emas. Non va do'stlar sonini solishtiring.", en: 'Sort them into baskets: where each one gets less than a whole flatbread and where each one gets more. You do not need to work it out exactly. Compare the number of flatbreads with the number of friends.' },
+      on_correct: { ru: 'Верно. Если делим меньшее число на большее — каждому меньше целой.', uz: "To'g'ri. Kichik sonni kattaga bo'lsak — har biriga butundan kam.", en: 'That is right. If we divide a smaller number by a bigger one, each one gets less than a whole.' },
+      on_wrong: { ru: 'Сравни: лепёшек меньше, чем друзей, или больше?', uz: "Solishtiring: non do'stdan kammi yoki ko'pmi?", en: 'Compare them: are there fewer flatbreads than friends, or more?' }
     }
   },
 
   // ---- s7 TEST (MC, текст): «3 меньше 4 — не делится»? Нет, можно (correct old idx 0) ----
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Делится ли меньшее на большее?', uz: "Kichikni kattaga bo'lsa bo'ladimi?" },
-    question: { ru: 'Кто-то говорит: «3 на 4 не делится, ведь 3 меньше 4». Это так?', uz: "Kimdir aytadi: «3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik 4 dan». Shundaymi?" },
-    opt0: { ru: 'Неверно — делится, каждому достаётся 3/4 (меньше целой лепёшки)', uz: "Noto'g'ri — bo'linadi, har biriga 3/4 tegadi (butun nondan kam)" },
-    opt1: { ru: 'Верно — меньшее на большее не делится', uz: "To'g'ri — kichikni kattaga bo'lib bo'lmaydi" },
-    opt2: { ru: 'Делится, но каждому достаётся целая лепёшка', uz: "Bo'linadi, lekin har biriga butun non tegadi" },
-    opt3: { ru: 'Делится только с остатком, дробь тут ни при чём', uz: "Faqat qoldiq bilan bo'linadi, kasrning unga aloqasi yo'q" },
-    correct_text: { ru: 'Верно: 3 на 4 делится, просто ответ — дробь. Каждому достаётся 3/4 лепёшки, это меньше целой.', uz: "To'g'ri: 3 ni 4 ga bo'lsa bo'ladi, faqat javob — kasr. Har biriga 3/4 non tegadi, bu butundan kam." },
-    hint_1: { ru: 'Лепёшку же можно разрезать. Делим на 4 части — каждому по 3 кусочка, это три четвёртых.', uz: "Nonni kessa bo'ladi-ku. 4 bo'lakka bo'lamiz — har biriga 3 bo'lakdan, bu to'rtdan uch." },
-    hint_2: { ru: 'Лепёшек 3, а друзей 4 — целой на каждого не хватит. Каждому три четвёртых, меньше целой.', uz: "Non 3 ta, do'st 4 ta — har biriga butun yetmaydi. Har biriga to'rtdan uch, butundan kam." },
-    hint_3: { ru: 'Как раз при том, что нацело не делится, и появляется дробь: три разделить на четыре это три четвёртых.', uz: "Aynan butun bo'linmaganda kasr paydo bo'ladi: uchni to'rtga bo'lsak, to'rtdan uch chiqadi." },
-    wrong_default: { ru: '3 на 4 делится, ответ — дробь 3/4. Каждому меньше целой лепёшки.', uz: "3 ni 4 ga bo'lsa bo'ladi, javob — 3/4 kasri. Har biriga butun nondan kam." },
-    fact: { ru: 'В Древнем Египте, чтобы поделить хлеб и зерно поровну, пользовались особыми таблицами деления — для писцов деление и было записью дроби.', uz: "Qadimgi Misrda nonni va donni teng bo'lish uchun maxsus bo'lish jadvallaridan foydalanilgan — mirzalar uchun bo'lishning o'zi kasr yozuvi edi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Делится ли меньшее на большее?', uz: "Kichikni kattaga bo'lsa bo'ladimi?", en: 'Can a smaller number be divided by a bigger one?' },
+    question: { ru: 'Кто-то говорит: «3 на 4 не делится, ведь 3 меньше 4». Это так?', uz: "Kimdir aytadi: «3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik 4 dan». Shundaymi?", en: 'Someone says: 3 cannot be divided by 4 because 3 is smaller than 4. Is that so?' },
+    opt0: { ru: 'Неверно — делится, каждому достаётся 3/4 (меньше целой лепёшки)', uz: "Noto'g'ri — bo'linadi, har biriga 3/4 tegadi (butun nondan kam)", en: 'Wrong, it can be divided and each one gets 3/4 (less than a whole flatbread)' },
+    opt1: { ru: 'Верно — меньшее на большее не делится', uz: "To'g'ri — kichikni kattaga bo'lib bo'lmaydi", en: 'True, a smaller number cannot be divided by a bigger one' },
+    opt2: { ru: 'Делится, но каждому достаётся целая лепёшка', uz: "Bo'linadi, lekin har biriga butun non tegadi", en: 'It can be divided, but each one gets a whole flatbread' },
+    opt3: { ru: 'Делится только с остатком, дробь тут ни при чём', uz: "Faqat qoldiq bilan bo'linadi, kasrning unga aloqasi yo'q", en: 'It only divides with a remainder, fractions have nothing to do with it' },
+    correct_text: { ru: 'Верно: 3 на 4 делится, просто ответ — дробь. Каждому достаётся 3/4 лепёшки, это меньше целой.', uz: "To'g'ri: 3 ni 4 ga bo'lsa bo'ladi, faqat javob — kasr. Har biriga 3/4 non tegadi, bu butundan kam.", en: 'That is right: 3 can be divided by 4, the answer is simply a fraction. Each one gets 3/4 of a flatbread, which is less than a whole.' },
+    hint_1: { ru: 'Лепёшку же можно разрезать. Делим на 4 части — каждому по 3 кусочка, это три четвёртых.', uz: "Nonni kessa bo'ladi-ku. 4 bo'lakka bo'lamiz — har biriga 3 bo'lakdan, bu to'rtdan uch.", en: 'A flatbread can be cut up, after all. We cut it into 4 parts and each one gets 3 pieces, which is three quarters.' },
+    hint_2: { ru: 'Лепёшек 3, а друзей 4 — целой на каждого не хватит. Каждому три четвёртых, меньше целой.', uz: "Non 3 ta, do'st 4 ta — har biriga butun yetmaydi. Har biriga to'rtdan uch, butundan kam.", en: 'There are 3 flatbreads and 4 friends, so there is not a whole one for everybody. Each one gets three quarters, less than a whole.' },
+    hint_3: { ru: 'Как раз при том, что нацело не делится, и появляется дробь: три разделить на четыре это три четвёртых.', uz: "Aynan butun bo'linmaganda kasr paydo bo'ladi: uchni to'rtga bo'lsak, to'rtdan uch chiqadi.", en: 'It is exactly because it does not divide exactly that a fraction appears: three divided by four is three quarters.' },
+    wrong_default: { ru: '3 на 4 делится, ответ — дробь 3/4. Каждому меньше целой лепёшки.', uz: "3 ni 4 ga bo'lsa bo'ladi, javob — 3/4 kasri. Har biriga butun nondan kam.", en: '3 can be divided by 4 and the answer is the fraction 3/4. Each one gets less than a whole flatbread.' },
+    fact: { ru: 'В Древнем Египте, чтобы поделить хлеб и зерно поровну, пользовались особыми таблицами деления — для писцов деление и было записью дроби.', uz: "Qadimgi Misrda nonni va donni teng bo'lish uchun maxsus bo'lish jadvallaridan foydalanilgan — mirzalar uchun bo'lishning o'zi kasr yozuvi edi.", en: 'In ancient Egypt special division tables were used to share bread and grain equally, and for the scribes a division was the way a fraction was written.' },
     audio: {
-      intro: { ru: 'Кто-то говорит, что три на четыре не делится, ведь три меньше четырёх. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: 3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik. Shundaymi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Делится — каждому достаётся три четвёртых, меньше целой. Кстати, в Древнем Египте хлеб и зерно делили поровну по особым таблицам деления — деление там и было записью дроби.', uz: "To'g'ri. Bo'linadi — har biriga to'rtdan uch tegadi, butundan kam. Aytgancha, qadimgi Misrda non va don maxsus bo'lish jadvallari bo'yicha teng bo'lingan — bo'lishning o'zi kasr yozuvi edi." },
-      on_wrong: { ru: 'Посмотри ещё раз: лепёшку можно разрезать, поэтому ответ — дробь.', uz: "Yana qarang: nonni kessa bo'ladi, shuning uchun javob — kasr." }
+      intro: { ru: 'Кто-то говорит, что три на четыре не делится, ведь три меньше четырёх. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: 3 ni 4 ga bo'lib bo'lmaydi, axir 3 kichik. Shundaymi? Javobni tanlang.", en: 'Someone says that three cannot be divided by four because three is smaller than four. Is that so? Choose an answer.' },
+      on_correct: { ru: 'Верно. Делится — каждому достаётся три четвёртых, меньше целой. Кстати, в Древнем Египте хлеб и зерно делили поровну по особым таблицам деления — деление там и было записью дроби.', uz: "To'g'ri. Bo'linadi — har biriga to'rtdan uch tegadi, butundan kam. Aytgancha, qadimgi Misrda non va don maxsus bo'lish jadvallari bo'yicha teng bo'lingan — bo'lishning o'zi kasr yozuvi edi.", en: 'That is right. It can be divided, and each one gets three quarters, less than a whole. By the way, in ancient Egypt bread and grain were shared equally using special division tables, and a division there was the way a fraction was written.' },
+      on_wrong: { ru: 'Посмотри ещё раз: лепёшку можно разрезать, поэтому ответ — дробь.', uz: "Yana qarang: nonni kessa bo'ladi, shuning uchun javob — kasr.", en: 'Look again: a flatbread can be cut up, so the answer is a fraction.' }
     }
   },
 
   // ---- s_seq TEST (SeqMC): 5 примеров — запиши деление дробью (порядок важен; сложнее) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · запиши дробью', uz: "Mashq · kasr bilan yozing" },
-    title: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing" },
-    lead: { ru: 'Пять делений. Сверху — что делим, снизу — на сколько. Порядок важен!', uz: "Beshta bo'lish. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Tartib muhim!" },
-    bridge: { ru: 'Правило знаем. Теперь быстро запишем пять делений дробью.', uz: "Qoidani bilamiz. Endi beshta bo'lishni tez kasr bilan yozamiz." },
+    eyebrow: { ru: 'Тренировка · запиши дробью', uz: "Mashq · kasr bilan yozing", en: 'Practice · write it as a fraction' },
+    title: { ru: 'Запиши деление дробью', uz: "Bo'lishni kasr bilan yozing", en: 'Write the division as a fraction' },
+    lead: { ru: 'Пять делений. Сверху — что делим, снизу — на сколько. Порядок важен!', uz: "Beshta bo'lish. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Tartib muhim!", en: 'Five divisions. On top goes what we are dividing and underneath how many we divide by. The order matters!' },
+    bridge: { ru: 'Правило знаем. Теперь быстро запишем пять делений дробью.', uz: "Qoidani bilamiz. Endi beshta bo'lishni tez kasr bilan yozamiz.", en: 'We know the rule. Now let us quickly write five divisions as fractions.' },
     questions: [
       {
-        q: { ru: '3 ÷ 5', uz: '3 ÷ 5' },
-        say: { ru: 'Три разделить на пять. Какая дробь?', uz: "Uchni beshga bo'lish. Qaysi kasr?" },
-        opts: [{ ru: '3/5', uz: '3/5' }, { ru: '5/3', uz: '5/3' }, { ru: '8', uz: '8' }],
+        q: { ru: '3 ÷ 5', uz: '3 ÷ 5', en: '3 ÷ 5' },
+        say: { ru: 'Три разделить на пять. Какая дробь?', uz: "Uchni beshga bo'lish. Qaysi kasr?", en: 'Three divided by five. Which fraction is it?' },
+        opts: [{ ru: '3/5', uz: '3/5', en: '3/5' }, { ru: '5/3', uz: '5/3', en: '5/3' }, { ru: '8', uz: '8', en: '8' }],
         correct: 0,
-        ok: { ru: 'Верно: 3 ÷ 5 = 3/5.', uz: "To'g'ri: 3 ÷ 5 = 3/5." },
-        no: { ru: 'Сверху то, что делим, снизу — на сколько делим.', uz: "Yuqorida nimani bo'lsak o'sha, pastda nechtaga bo'lganimiz." }
+        ok: { ru: 'Верно: 3 ÷ 5 = 3/5.', uz: "To'g'ri: 3 ÷ 5 = 3/5.", en: 'That is right: 3 ÷ 5 = 3/5.' },
+        no: { ru: 'Сверху то, что делим, снизу — на сколько делим.', uz: "Yuqorida nimani bo'lsak o'sha, pastda nechtaga bo'lganimiz.", en: 'On top goes what we are dividing and underneath how many we divide by.' }
       },
       {
-        q: { ru: '5 ÷ 6', uz: '5 ÷ 6' },
-        say: { ru: 'Пять разделить на шесть.', uz: "Beshni oltiga bo'lish." },
-        opts: [{ ru: '6/5', uz: '6/5' }, { ru: '5/6', uz: '5/6' }, { ru: '11', uz: '11' }],
+        q: { ru: '5 ÷ 6', uz: '5 ÷ 6', en: '5 ÷ 6' },
+        say: { ru: 'Пять разделить на шесть.', uz: "Beshni oltiga bo'lish.", en: 'Five divided by six.' },
+        opts: [{ ru: '6/5', uz: '6/5', en: '6/5' }, { ru: '5/6', uz: '5/6', en: '5/6' }, { ru: '11', uz: '11', en: '11' }],
         correct: 1,
-        ok: { ru: 'Верно: 5 ÷ 6 = 5/6.', uz: "To'g'ri: 5 ÷ 6 = 5/6." },
-        no: { ru: 'Делить — это не складывать. Сверху делимое, снизу делитель.', uz: "Bo'lish — qo'shish emas. Yuqorida bo'linuvchi, pastda bo'luvchi." }
+        ok: { ru: 'Верно: 5 ÷ 6 = 5/6.', uz: "To'g'ri: 5 ÷ 6 = 5/6.", en: 'That is right: 5 ÷ 6 = 5/6.' },
+        no: { ru: 'Делить — это не складывать. Сверху делимое, снизу делитель.', uz: "Bo'lish — qo'shish emas. Yuqorida bo'linuvchi, pastda bo'luvchi.", en: 'Dividing is not adding. On top goes the dividend and underneath the divisor.' }
       },
       {
-        q: { ru: '4 ÷ 7', uz: '4 ÷ 7' },
-        say: { ru: 'Четыре разделить на семь.', uz: "To'rtni yettiga bo'lish." },
-        opts: [{ ru: '4/7', uz: '4/7' }, { ru: '7/4', uz: '7/4' }, { ru: '3', uz: '3' }],
+        q: { ru: '4 ÷ 7', uz: '4 ÷ 7', en: '4 ÷ 7' },
+        say: { ru: 'Четыре разделить на семь.', uz: "To'rtni yettiga bo'lish.", en: 'Four divided by seven.' },
+        opts: [{ ru: '4/7', uz: '4/7', en: '4/7' }, { ru: '7/4', uz: '7/4', en: '7/4' }, { ru: '3', uz: '3', en: '3' }],
         correct: 0,
-        ok: { ru: 'Верно: 4 ÷ 7 = 4/7.', uz: "To'g'ri: 4 ÷ 7 = 4/7." },
-        no: { ru: 'Сверху делимое четыре, снизу делитель семь.', uz: "Yuqorida bo'linuvchi to'rt, pastda bo'luvchi yetti." }
+        ok: { ru: 'Верно: 4 ÷ 7 = 4/7.', uz: "To'g'ri: 4 ÷ 7 = 4/7.", en: 'That is right: 4 ÷ 7 = 4/7.' },
+        no: { ru: 'Сверху делимое четыре, снизу делитель семь.', uz: "Yuqorida bo'linuvchi to'rt, pastda bo'luvchi yetti.", en: 'On top goes the dividend four and underneath the divisor seven.' }
       },
       {
-        q: { ru: '7 ÷ 4', uz: '7 ÷ 4' },
-        say: { ru: 'А теперь наоборот: семь разделить на четыре.', uz: "Endi aksincha: yettini to'rtga bo'lish." },
-        opts: [{ ru: '4/7', uz: '4/7' }, { ru: '7/4', uz: '7/4' }, { ru: '28', uz: '28' }],
+        q: { ru: '7 ÷ 4', uz: '7 ÷ 4', en: '7 ÷ 4' },
+        say: { ru: 'А теперь наоборот: семь разделить на четыре.', uz: "Endi aksincha: yettini to'rtga bo'lish.", en: 'And now the other way round: seven divided by four.' },
+        opts: [{ ru: '4/7', uz: '4/7', en: '4/7' }, { ru: '7/4', uz: '7/4', en: '7/4' }, { ru: '28', uz: '28', en: '28' }],
         correct: 1,
-        ok: { ru: 'Верно: 7 ÷ 4 = 7/4. Видишь, порядок поменялся — дробь другая.', uz: "To'g'ri: 7 ÷ 4 = 7/4. Ko'rdingizmi, tartib o'zgardi — kasr boshqacha." },
-        no: { ru: 'Здесь делим семь на четыре, значит сверху семь.', uz: "Bu yerda yettini to'rtga bo'lamiz, demak yuqorida yetti." }
+        ok: { ru: 'Верно: 7 ÷ 4 = 7/4. Видишь, порядок поменялся — дробь другая.', uz: "To'g'ri: 7 ÷ 4 = 7/4. Ko'rdingizmi, tartib o'zgardi — kasr boshqacha.", en: 'That is right: 7 ÷ 4 = 7/4. You see, the order has changed and the fraction is different.' },
+        no: { ru: 'Здесь делим семь на четыре, значит сверху семь.', uz: "Bu yerda yettini to'rtga bo'lamiz, demak yuqorida yetti.", en: 'Here we divide seven by four, so seven goes on top.' }
       },
       {
-        q: { ru: '2 ÷ 9', uz: '2 ÷ 9' },
-        say: { ru: 'Последнее: два разделить на девять.', uz: "Oxirgisi: ikkini to'qqizga bo'lish." },
-        opts: [{ ru: '9/2', uz: '9/2' }, { ru: '2/9', uz: '2/9' }, { ru: '7', uz: '7' }],
+        q: { ru: '2 ÷ 9', uz: '2 ÷ 9', en: '2 ÷ 9' },
+        say: { ru: 'Последнее: два разделить на девять.', uz: "Oxirgisi: ikkini to'qqizga bo'lish.", en: 'The last one: two divided by nine.' },
+        opts: [{ ru: '9/2', uz: '9/2', en: '9/2' }, { ru: '2/9', uz: '2/9', en: '2/9' }, { ru: '7', uz: '7', en: '7' }],
         correct: 1,
-        ok: { ru: 'Верно: 2 ÷ 9 = 2/9.', uz: "To'g'ri: 2 ÷ 9 = 2/9." },
-        no: { ru: 'Сверху делимое два, снизу делитель девять.', uz: "Yuqorida bo'linuvchi ikki, pastda bo'luvchi to'qqiz." }
+        ok: { ru: 'Верно: 2 ÷ 9 = 2/9.', uz: "To'g'ri: 2 ÷ 9 = 2/9.", en: 'That is right: 2 ÷ 9 = 2/9.' },
+        no: { ru: 'Сверху делимое два, снизу делитель девять.', uz: "Yuqorida bo'linuvchi ikki, pastda bo'luvchi to'qqiz.", en: 'On top goes the dividend two and underneath the divisor nine.' }
       }
     ],
     audio: {
-      intro: { ru: 'Запиши каждое деление дробью. Сверху то, что делим, снизу — на сколько делим. Порядок важен.', uz: "Har bir bo'lishni kasr bilan yozing. Yuqorida nimani bo'lsak o'sha, pastda nechtaga. Tartib muhim." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Почти. Сверху делимое, снизу делитель.', uz: "Deyarli. Yuqorida bo'linuvchi, pastda bo'luvchi." },
-      on_done: { ru: 'Отлично, все пять делений записаны верно.', uz: "Zo'r, beshala bo'lish to'g'ri yozildi." }
+      intro: { ru: 'Запиши каждое деление дробью. Сверху то, что делим, снизу — на сколько делим. Порядок важен.', uz: "Har bir bo'lishni kasr bilan yozing. Yuqorida nimani bo'lsak o'sha, pastda nechtaga. Tartib muhim.", en: 'Write each division as a fraction. On top goes what we are dividing and underneath how many we divide by. The order matters.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Почти. Сверху делимое, снизу делитель.', uz: "Deyarli. Yuqorida bo'linuvchi, pastda bo'luvchi.", en: 'Almost. On top goes the dividend and underneath the divisor.' },
+      on_done: { ru: 'Отлично, все пять делений записаны верно.', uz: "Zo'r, beshala bo'lish to'g'ri yozildi.", en: 'Well done, all five divisions were written correctly.' }
     }
   },
 
   // ---- s8 CASE setup: Камола разливает 3 литра сока в 4 стакана ----
   s8: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    bridge: { ru: 'Деление по-настоящему повсюду. Поможем Камоле с соком.', uz: "Bo'lish hayotda hamma joyda. Kamolaga sharbatda yordam beramiz." },
-    title: { ru: 'Камола разливает сок по стаканам.', uz: "Kamola sharbatni stakanlarga quyadi." },
-    body_p1: { ru: 'У Камолы 3 литра сока. Она хочет разлить его поровну в 4 одинаковых стакана. Сколько сока попадёт в каждый стакан?', uz: "Kamolada 3 litr sharbat bor. U uni 4 ta bir xil stakanga teng quymoqchi. Har bir stakanga qancha sharbat tushadi?" },
-    card_line_label: { ru: 'Сока', uz: "Sharbat" },
-    card_line_value: { ru: '3 литра', uz: "3 litr" },
-    card_parts_label: { ru: 'Стаканов', uz: "Stakanlar" },
-    card_parts_value: { ru: '4 одинаковых', uz: "4 ta bir xil" },
-    outro: { ru: 'Это деление: 3 литра разделить на 4 стакана. Помоги Камоле на следующем шаге.', uz: "Bu — bo'lish: 3 litrni 4 stakanga bo'lish. Keyingi bosqichda Kamolaga yordam bering." },
-    btn_help: { ru: 'Помочь Камоле', uz: "Kamolaga yordam berish" },
-    audio: { ru: 'У Камолы три литра сока, и она разливает его поровну в четыре одинаковых стакана. Сколько сока попадёт в каждый стакан? Это деление: три литра разделить на четыре. Подумай, какая получится дробь.', uz: "Kamolada 3 litr sharbat bor va u uni 4 ta bir xil stakanga teng quyadi. Har bir stakanga qancha sharbat tushadi? Bu — bo'lish: 3 litrni 4 ga bo'lish. Qanday kasr chiqishini o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    bridge: { ru: 'Деление по-настоящему повсюду. Поможем Камоле с соком.', uz: "Bo'lish hayotda hamma joyda. Kamolaga sharbatda yordam beramiz.", en: 'Dividing really is everywhere. Let us help Kamola with the juice.' },
+    title: { ru: 'Камола разливает сок по стаканам.', uz: "Kamola sharbatni stakanlarga quyadi.", en: 'Kamola is pouring juice into glasses.' },
+    body_p1: { ru: 'У Камолы 3 литра сока. Она хочет разлить его поровну в 4 одинаковых стакана. Сколько сока попадёт в каждый стакан?', uz: "Kamolada 3 litr sharbat bor. U uni 4 ta bir xil stakanga teng quymoqchi. Har bir stakanga qancha sharbat tushadi?", en: 'Kamola has 3 litres of juice. She wants to pour it equally into 4 identical glasses. How much juice goes into each glass?' },
+    card_line_label: { ru: 'Сока', uz: "Sharbat", en: 'Juice' },
+    card_line_value: { ru: '3 литра', uz: "3 litr", en: '3 litres' },
+    card_parts_label: { ru: 'Стаканов', uz: "Stakanlar", en: 'Glasses' },
+    card_parts_value: { ru: '4 одинаковых', uz: "4 ta bir xil", en: '4 identical ones' },
+    outro: { ru: 'Это деление: 3 литра разделить на 4 стакана. Помоги Камоле на следующем шаге.', uz: "Bu — bo'lish: 3 litrni 4 stakanga bo'lish. Keyingi bosqichda Kamolaga yordam bering.", en: 'This is a division: 3 litres divided by 4 glasses. Help Kamola on the next step.' },
+    btn_help: { ru: 'Помочь Камоле', uz: "Kamolaga yordam berish", en: 'Help Kamola' },
+    audio: { ru: 'У Камолы три литра сока, и она разливает его поровну в четыре одинаковых стакана. Сколько сока попадёт в каждый стакан? Это деление: три литра разделить на четыре. Подумай, какая получится дробь.', uz: "Kamolada 3 litr sharbat bor va u uni 4 ta bir xil stakanga teng quyadi. Har bir stakanga qancha sharbat tushadi? Bu — bo'lish: 3 litrni 4 ga bo'lish. Qanday kasr chiqishini o'ylab ko'ring.", en: 'Kamola has three litres of juice and she is pouring it equally into four identical glasses. How much juice goes into each glass? This is a division: three litres divided by four. Think which fraction it comes to.' }
   },
 
   // ---- s9 CASE step (MC, дроби): 3 литра на 4 стакана → 3/4 (correct old idx 1) ----
   s9: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    label: { ru: 'Сколько в стакане?', uz: "Stakanda qancha?" },
-    question: { ru: '3 литра сока разлили поровну в 4 стакана. Сколько литра в каждом стакане?', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr?" },
-    correct_text: { ru: 'Верно: 3 литра на 4 стакана — это 3 ÷ 4 = 3/4. В каждом стакане три четвёртых литра.', uz: "To'g'ri: 3 litr 4 stakanga — bu 3 ÷ 4 = 3/4. Har bir stakanda litrning to'rtdan uchi." },
-    hint_0: { ru: 'Числа перепутаны: делим 3 (литра) на 4 (стакана), сверху 3, снизу 4.', uz: "Sonlar almashgan: 3 (litr) ni 4 (stakan) ga bo'lamiz, yuqorida 3, pastda 4." },
-    hint_2: { ru: 'Это означало бы 3 целых литра в стакане. Но литров всего 3, а стаканов 4.', uz: "Bu stakanda 3 butun litr degani bo'lardi. Lekin litr jami 3 ta, stakan 4 ta." },
-    hint_3: { ru: 'Это означало бы 1 литр на 4 стакана. А литров у нас 3.', uz: "Bu 1 litr 4 stakanga degani. Bizda esa litr 3 ta." },
-    wrong_default: { ru: 'Числитель — сколько литров (3), знаменатель — сколько стаканов (4). Это 3/4.', uz: "Surat — necha litr (3), maxraj — nechta stakan (4). Bu 3/4." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    label: { ru: 'Сколько в стакане?', uz: "Stakanda qancha?", en: 'How much is in a glass?' },
+    question: { ru: '3 литра сока разлили поровну в 4 стакана. Сколько литра в каждом стакане?', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr?", en: '3 litres of juice were poured equally into 4 glasses. How much of a litre is in each glass?' },
+    correct_text: { ru: 'Верно: 3 литра на 4 стакана — это 3 ÷ 4 = 3/4. В каждом стакане три четвёртых литра.', uz: "To'g'ri: 3 litr 4 stakanga — bu 3 ÷ 4 = 3/4. Har bir stakanda litrning to'rtdan uchi.", en: 'That is right: 3 litres between 4 glasses is 3 ÷ 4 = 3/4. Each glass has three quarters of a litre in it.' },
+    hint_0: { ru: 'Числа перепутаны: делим 3 (литра) на 4 (стакана), сверху 3, снизу 4.', uz: "Sonlar almashgan: 3 (litr) ni 4 (stakan) ga bo'lamiz, yuqorida 3, pastda 4.", en: 'The numbers are swapped: we divide 3 (litres) by 4 (glasses), so 3 goes on top and 4 underneath.' },
+    hint_2: { ru: 'Это означало бы 3 целых литра в стакане. Но литров всего 3, а стаканов 4.', uz: "Bu stakanda 3 butun litr degani bo'lardi. Lekin litr jami 3 ta, stakan 4 ta.", en: 'That would mean 3 whole litres in a glass. But there are only 3 litres and 4 glasses.' },
+    hint_3: { ru: 'Это означало бы 1 литр на 4 стакана. А литров у нас 3.', uz: "Bu 1 litr 4 stakanga degani. Bizda esa litr 3 ta.", en: 'That would mean 1 litre between 4 glasses. But we have 3 litres.' },
+    wrong_default: { ru: 'Числитель — сколько литров (3), знаменатель — сколько стаканов (4). Это 3/4.', uz: "Surat — necha litr (3), maxraj — nechta stakan (4). Bu 3/4.", en: 'The numerator is how many litres (3) and the denominator is how many glasses (4). It is 3/4.' },
     audio: {
-      intro: { ru: 'Три литра сока разлили поровну в четыре стакана. Сколько литра в каждом стакане? Выбери дробь.', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr? Kasrni tanlang." },
-      on_correct: { ru: 'Верно. Три литра на четыре стакана — три четвёртых литра в каждом.', uz: "To'g'ri. 3 litr 4 stakanga — har birida litrning to'rtdan uchi." },
-      on_wrong: { ru: 'Пока нет. Сверху — сколько литров, снизу — сколько стаканов.', uz: "Hali emas. Yuqorida — necha litr, pastda — nechta stakan." }
+      intro: { ru: 'Три литра сока разлили поровну в четыре стакана. Сколько литра в каждом стакане? Выбери дробь.', uz: "3 litr sharbat 4 stakanga teng quyildi. Har bir stakanda necha litr? Kasrni tanlang.", en: 'Three litres of juice were poured equally into four glasses. How much of a litre is in each glass? Choose a fraction.' },
+      on_correct: { ru: 'Верно. Три литра на четыре стакана — три четвёртых литра в каждом.', uz: "To'g'ri. 3 litr 4 stakanga — har birida litrning to'rtdan uchi.", en: 'That is right. Three litres between four glasses is three quarters of a litre in each.' },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько литров, снизу — сколько стаканов.', uz: "Hali emas. Yuqorida — necha litr, pastda — nechta stakan.", en: 'Not yet. On top goes how many litres and underneath how many glasses.' }
     }
   },
 
   // ---- s10 TEST (error-spotting): какое утверждение про 3/4 литра НЕВЕРНО (correct old idx 2) ----
   s10: {
-    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat" },
-    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
-    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri" },
-    question: { ru: 'В каждом стакане 3/4 литра. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Har bir stakanda 3/4 litr. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?" },
-    opt0: { ru: '3 литра разделили на 4 стакана.', uz: "3 litr 4 stakanga bo'lindi." },
-    opt1: { ru: 'В каждом стакане меньше целого литра.', uz: "Har bir stakanda 1 butun litrdan kam." },
-    opt2: { ru: 'В каждом стакане ровно 3 литра.', uz: "Har bir stakanda aniq 3 litr bor." },
-    opt3: { ru: 'Сверху — литры, снизу — стаканы.', uz: "Yuqorida — litrlar, pastda — stakanlar." },
-    correct_text: { ru: 'Верно, это утверждение неверно: всего сока 3 литра на 4 стакана, поэтому в каждом 3/4 литра — меньше целого, а не 3 литра.', uz: "To'g'ri, bu izoh noto'g'ri: sharbat jami 3 litr 4 stakanga, shuning uchun har birida 3/4 litr — butundan kam, 3 litr emas." },
-    wrong_0: { ru: 'Это утверждение верно: именно 3 литра делят на 4 стакана. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: aynan 3 litr 4 stakanga bo'linadi. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: три четвёртых литра меньше целого. Ищи неверное дальше.', uz: "Bu to'g'ri: to'rtdan uch litr butundan kam. Noto'g'risini boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: сверху литры (3), снизу стаканы (4). Ищи неверное дальше.', uz: "Bu to'g'ri: yuqorida litrlar (3), pastda stakanlar (4). Noto'g'risini boshqasidan qidiring." },
-    wrong_default: { ru: 'Всего сока 3 литра, поэтому в стакане не 3 литра, а 3/4. Ищи такое утверждение.', uz: "Sharbat jami 3 litr, shuning uchun stakanda 3 litr emas, 3/4. Shunday izohni qidiring." },
+    eyebrow: { ru: 'Задача · сок', uz: "Masala · sharbat", en: 'Problem · juice' },
+    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping", en: 'Find the one that is wrong' },
+    title: { ru: 'Одно утверждение неверно', uz: "Bitta izoh noto'g'ri", en: 'One of these is wrong' },
+    question: { ru: 'В каждом стакане 3/4 литра. Три утверждения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Har bir stakanda 3/4 litr. Uchta izoh to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?", en: 'Each glass has 3/4 of a litre in it. Three of these are true and one is not. Which one is WRONG?' },
+    opt0: { ru: '3 литра разделили на 4 стакана.', uz: "3 litr 4 stakanga bo'lindi.", en: '3 litres were divided between 4 glasses.' },
+    opt1: { ru: 'В каждом стакане меньше целого литра.', uz: "Har bir stakanda 1 butun litrdan kam.", en: 'Each glass has less than a whole litre in it.' },
+    opt2: { ru: 'В каждом стакане ровно 3 литра.', uz: "Har bir stakanda aniq 3 litr bor.", en: 'Each glass has exactly 3 litres in it.' },
+    opt3: { ru: 'Сверху — литры, снизу — стаканы.', uz: "Yuqorida — litrlar, pastda — stakanlar.", en: 'On top go the litres and underneath the glasses.' },
+    correct_text: { ru: 'Верно, это утверждение неверно: всего сока 3 литра на 4 стакана, поэтому в каждом 3/4 литра — меньше целого, а не 3 литра.', uz: "To'g'ri, bu izoh noto'g'ri: sharbat jami 3 litr 4 stakanga, shuning uchun har birida 3/4 litr — butundan kam, 3 litr emas.", en: 'Right, that one is wrong: there are 3 litres of juice in all for 4 glasses, so each one has 3/4 of a litre, less than a whole, not 3 litres.' },
+    wrong_0: { ru: 'Это утверждение верно: именно 3 литра делят на 4 стакана. Ищи неверное дальше.', uz: "Bu izoh to'g'ri: aynan 3 litr 4 stakanga bo'linadi. Noto'g'risini boshqasidan qidiring.", en: 'That one is true: 3 litres really are divided between 4 glasses. Keep looking for the wrong one.' },
+    wrong_1: { ru: 'Это верно: три четвёртых литра меньше целого. Ищи неверное дальше.', uz: "Bu to'g'ri: to'rtdan uch litr butundan kam. Noto'g'risini boshqasidan qidiring.", en: 'That is true: three quarters of a litre is less than a whole one. Keep looking for the wrong one.' },
+    wrong_3: { ru: 'Это верно: сверху литры (3), снизу стаканы (4). Ищи неверное дальше.', uz: "Bu to'g'ri: yuqorida litrlar (3), pastda stakanlar (4). Noto'g'risini boshqasidan qidiring.", en: 'That is true: the litres (3) go on top and the glasses (4) underneath. Keep looking for the wrong one.' },
+    wrong_default: { ru: 'Всего сока 3 литра, поэтому в стакане не 3 литра, а 3/4. Ищи такое утверждение.', uz: "Sharbat jami 3 litr, shuning uchun stakanda 3 litr emas, 3/4. Shunday izohni qidiring.", en: 'There are only 3 litres of juice in all, so a glass holds 3/4 of a litre, not 3 litres. Look for the one that says that.' },
     audio: {
-      intro: { ru: 'Три утверждения про три четвёртых литра верны, а одно неверно. Найди то, которое говорит неправду.', uz: "Litrning to'rtdan uchi haqida uchta izoh to'g'ri, bittasi noto'g'ri. Yolg'on aytayotganini toping." },
-      on_correct: { ru: 'Верно. Всего три литра на четыре стакана, в каждом меньше целого, а не три литра.', uz: "To'g'ri. Jami uch litr to'rt stakanga, har birida butundan kam, uch litr emas." },
-      on_wrong: { ru: 'Это утверждение верно. Ищи то, что говорит про целые литры в стакане.', uz: "Bu izoh to'g'ri. Stakanda butun litrlar haqida gapirayotganini qidiring." }
+      intro: { ru: 'Три утверждения про три четвёртых литра верны, а одно неверно. Найди то, которое говорит неправду.', uz: "Litrning to'rtdan uchi haqida uchta izoh to'g'ri, bittasi noto'g'ri. Yolg'on aytayotganini toping.", en: 'Three of these about three quarters of a litre are true and one is wrong. Find the one that says something untrue.' },
+      on_correct: { ru: 'Верно. Всего три литра на четыре стакана, в каждом меньше целого, а не три литра.', uz: "To'g'ri. Jami uch litr to'rt stakanga, har birida butundan kam, uch litr emas.", en: 'That is right. There are three litres in all for four glasses, so each one has less than a whole litre, not three litres.' },
+      on_wrong: { ru: 'Это утверждение верно. Ищи то, что говорит про целые литры в стакане.', uz: "Bu izoh to'g'ri. Stakanda butun litrlar haqida gapirayotganini qidiring.", en: 'That one is true. Look for the one that talks about whole litres in a glass.' }
     }
   },
 
   // ---- s11 TEST (MC, дроби): 1 лепёшка на 4 → 1/4 (correct old idx 1) ----
   s11: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — запиши дробью', uz: "Oxirgisi — kasr bilan yozing" },
-    question: { ru: '1 лепёшку разделили поровну на 4 друзей. Сколько достанется каждому?', uz: "1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi?" },
-    correct_text: { ru: 'Верно: 1 на 4 — это 1 ÷ 4 = 1/4. Каждому по одной четвёртой лепёшки.', uz: "To'g'ri: 1 ni 4 ga — bu 1 ÷ 4 = 1/4. Har biriga nonning to'rtdan biri." },
-    hint_0: { ru: 'Числа перепутаны: делим 1 (лепёшку) на 4 (друзей), сверху 1, снизу 4.', uz: "Sonlar almashgan: 1 (non) ni 4 (do'st) ga bo'lamiz, yuqorida 1, pastda 4." },
-    hint_2: { ru: 'Это один на три. А друзей 4.', uz: "Bu 1 ni 3 ga degani. Do'st esa 4 ta." },
-    hint_3: { ru: 'Это половина. А делим на 4, значит получается четверть.', uz: "Bu yarim. Biz esa 4 ga bo'lamiz, demak chorak chiqadi." },
-    wrong_default: { ru: 'Числитель — что делим (1 лепёшка), знаменатель — на сколько (4 друга). Это 1/4.', uz: "Surat — nimani bo'lamiz (1 non), maxraj — nechtaga (4 do'st). Bu 1/4." },
-    fact: { ru: 'Когда файл качают сразу с нескольких серверов, нагрузку делят между ними поровну — это тоже деление, и доля каждого сервера записывается дробью.', uz: "Fayl bir nechta serverdan yuklanganda, yuklama ular o'rtasida teng bo'linadi — bu ham bo'lish, va har bir serverning ulushi kasr bilan yoziladi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Последняя — запиши дробью', uz: "Oxirgisi — kasr bilan yozing", en: 'The last one, write it as a fraction' },
+    question: { ru: '1 лепёшку разделили поровну на 4 друзей. Сколько достанется каждому?', uz: "1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi?", en: '1 flatbread was shared equally between 4 friends. How much does each of them get?' },
+    correct_text: { ru: 'Верно: 1 на 4 — это 1 ÷ 4 = 1/4. Каждому по одной четвёртой лепёшки.', uz: "To'g'ri: 1 ni 4 ga — bu 1 ÷ 4 = 1/4. Har biriga nonning to'rtdan biri.", en: 'That is right: 1 divided by 4 is 1 ÷ 4 = 1/4. Each of them gets one quarter of a flatbread.' },
+    hint_0: { ru: 'Числа перепутаны: делим 1 (лепёшку) на 4 (друзей), сверху 1, снизу 4.', uz: "Sonlar almashgan: 1 (non) ni 4 (do'st) ga bo'lamiz, yuqorida 1, pastda 4.", en: 'The numbers are swapped: we divide 1 (flatbread) by 4 (friends), so 1 goes on top and 4 underneath.' },
+    hint_2: { ru: 'Это один на три. А друзей 4.', uz: "Bu 1 ni 3 ga degani. Do'st esa 4 ta.", en: 'That is one divided by three. But there are 4 friends.' },
+    hint_3: { ru: 'Это половина. А делим на 4, значит получается четверть.', uz: "Bu yarim. Biz esa 4 ga bo'lamiz, demak chorak chiqadi.", en: 'That is a half. But we divide by 4, so it comes to a quarter.' },
+    wrong_default: { ru: 'Числитель — что делим (1 лепёшка), знаменатель — на сколько (4 друга). Это 1/4.', uz: "Surat — nimani bo'lamiz (1 non), maxraj — nechtaga (4 do'st). Bu 1/4.", en: 'The numerator is what we are sharing (1 flatbread) and the denominator is how many we share between (4 friends). It is 1/4.' },
+    fact: { ru: 'Когда файл качают сразу с нескольких серверов, нагрузку делят между ними поровну — это тоже деление, и доля каждого сервера записывается дробью.', uz: "Fayl bir nechta serverdan yuklanganda, yuklama ular o'rtasida teng bo'linadi — bu ham bo'lish, va har bir serverning ulushi kasr bilan yoziladi.", en: "When a file is downloaded from several servers at once, the load is shared equally between them, which is a division too, and each server's share is written as a fraction." },
     audio: {
-      intro: { ru: 'Последнее задание. Одну лепёшку разделили поровну на четырёх друзей. Сколько достанется каждому? Выбери дробь.', uz: "Oxirgi topshiriq. 1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi? Kasrni tanlang." },
-      on_correct: { ru: 'Верно. Одна лепёшка на четыре — это одна четвёртая. Кстати, когда файл качают сразу с нескольких серверов, нагрузку тоже делят между ними поровну — доля каждого сервера это дробь.', uz: "To'g'ri. 1 ta non 4 ga — bu to'rtdan bir. Aytgancha, fayl bir nechta serverdan yuklanganda, yuklama ham ular o'rtasida teng bo'linadi — har bir serverning ulushi kasr." },
-      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st." }
+      intro: { ru: 'Последнее задание. Одну лепёшку разделили поровну на четырёх друзей. Сколько достанется каждому? Выбери дробь.', uz: "Oxirgi topshiriq. 1 ta non 4 do'stga teng bo'lindi. Har biriga qancha tegadi? Kasrni tanlang.", en: 'The last task. One flatbread was shared equally between four friends. How much does each of them get? Choose a fraction.' },
+      on_correct: { ru: 'Верно. Одна лепёшка на четыре — это одна четвёртая. Кстати, когда файл качают сразу с нескольких серверов, нагрузку тоже делят между ними поровну — доля каждого сервера это дробь.', uz: "To'g'ri. 1 ta non 4 ga — bu to'rtdan bir. Aytgancha, fayl bir nechta serverdan yuklanganda, yuklama ham ular o'rtasida teng bo'linadi — har bir serverning ulushi kasr.", en: "That is right. One flatbread divided by four is one quarter. By the way, when a file is downloaded from several servers at once, the load is shared equally between them too, and each server's share is a fraction." },
+      on_wrong: { ru: 'Пока нет. Сверху — сколько лепёшек, снизу — сколько друзей.', uz: "Hali emas. Yuqorida — nechta non, pastda — nechta do'st.", en: 'Not yet. On top goes how many flatbreads and underneath how many friends.' }
     }
   },
 
   // ---- s12 SUMMARY: закрывает крючок ----
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz" },
-    title: { ru: 'Теперь дробь для тебя — это деление.', uz: "Endi kasr siz uchun — bu bo'lish." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Дробь — это деление: a/b означает «a разделить на b».', uz: "Kasr — bu bo'lish: a/b «a ni b ga bo'lish» degani." },
-    main_2: { ru: 'Числитель (сверху) — что делим, знаменатель (снизу) — на сколько делим.', uz: "Surat (yuqorida) — nimani bo'lamiz, maxraj (pastda) — nechtaga bo'lamiz." },
-    main_3: { ru: 'Меньшее можно делить на большее — получится дробь меньше целого. Каждому достаётся a/b.', uz: "Kichikni kattaga bo'lsa bo'ladi — butundan kichik kasr chiqadi. Har biriga a/b tegadi." },
-    main_4: { ru: 'Порядок важен: 3/4 и 4/3 — разные дроби.', uz: "Tartib muhim: 3/4 va 4/3 — har xil kasrlar." },
-    back_to_hook: { ru: '3 лепёшки на 4 друзей разделились поровну — каждому по 3/4. Улугбек ошибался: делить можно, ответ просто стал дробью.', uz: "3 ta non 4 do'stga teng bo'lindi — har biriga 3/4 dan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan, javob shunchaki kasr bo'ldi." },
-    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление уголком».', uz: "«Kasr nima», «Kasr sonlar nurida», «Burchak usulida bo'lish»." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сравнение дробей с одинаковым знаменателем.', uz: "bir xil maxrajli kasrlarni taqqoslash." },
-    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху — что делим, снизу — на сколько. Меньшее можно делить на большее, и тогда получается дробь меньше целого. А порядок важен: три четвёртых и четыре третьих — разные дроби. Три лепёшки на четыре друга разделились поровну, каждому по три четвёртых. Улугбек ошибался: делить можно.', uz: "Zo'r! Endi bilasiz: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Kichikni kattaga bo'lsa bo'ladi va shunda butundan kichik kasr chiqadi. Tartib esa muhim: to'rtdan uch va uchdan to'rt — har xil kasrlar. 3 ta non 4 do'stga teng bo'lindi, har biriga to'rtdan uchdan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi", en: 'Lesson finished' },
+    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz", en: 'questions answered correctly first time' },
+    title: { ru: 'Теперь дробь для тебя — это деление.', uz: "Endi kasr siz uchun — bu bo'lish.", en: 'Now a fraction is a division to you.' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Дробь — это деление: a/b означает «a разделить на b».', uz: "Kasr — bu bo'lish: a/b «a ni b ga bo'lish» degani.", en: 'A fraction is a division: a/b means a divided by b.' },
+    main_2: { ru: 'Числитель (сверху) — что делим, знаменатель (снизу) — на сколько делим.', uz: "Surat (yuqorida) — nimani bo'lamiz, maxraj (pastda) — nechtaga bo'lamiz.", en: 'The numerator (on top) is what we are dividing and the denominator (underneath) is how many we divide by.' },
+    main_3: { ru: 'Меньшее можно делить на большее — получится дробь меньше целого. Каждому достаётся a/b.', uz: "Kichikni kattaga bo'lsa bo'ladi — butundan kichik kasr chiqadi. Har biriga a/b tegadi.", en: 'A smaller number can be divided by a bigger one, and the answer is a fraction less than a whole. Each one gets a/b.' },
+    main_4: { ru: 'Порядок важен: 3/4 и 4/3 — разные дроби.', uz: "Tartib muhim: 3/4 va 4/3 — har xil kasrlar.", en: 'The order matters: 3/4 and 4/3 are different fractions.' },
+    back_to_hook: { ru: '3 лепёшки на 4 друзей разделились поровну — каждому по 3/4. Улугбек ошибался: делить можно, ответ просто стал дробью.', uz: "3 ta non 4 do'stga teng bo'lindi — har biriga 3/4 dan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan, javob shunchaki kasr bo'ldi.", en: '3 flatbreads were shared equally between 4 friends and each one got 3/4. Ulugbek was wrong: it can be divided, the answer simply turned out to be a fraction.' },
+    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: '«Что такое дробь», «Дробь на прямой», «Деление уголком».', uz: "«Kasr nima», «Kasr sonlar nurida», «Burchak usulida bo'lish».", en: 'What a fraction is, Fractions on the line, Long division.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'сравнение дробей с одинаковым знаменателем.', uz: "bir xil maxrajli kasrlarni taqqoslash.", en: 'comparing fractions with the same denominator.' },
+    audio: { ru: 'Отлично! Теперь ты знаешь: дробь — это деление. Запись a дробь b означает a разделить на b. Сверху — что делим, снизу — на сколько. Меньшее можно делить на большее, и тогда получается дробь меньше целого. А порядок важен: три четвёртых и четыре третьих — разные дроби. Три лепёшки на четыре друга разделились поровну, каждому по три четвёртых. Улугбек ошибался: делить можно.', uz: "Zo'r! Endi bilasiz: kasr — bu bo'lish. a kasr b yozuvi a ni b ga bo'lish degani. Yuqorida — nimani bo'lamiz, pastda — nechtaga. Kichikni kattaga bo'lsa bo'ladi va shunda butundan kichik kasr chiqadi. Tartib esa muhim: to'rtdan uch va uchdan to'rt — har xil kasrlar. 3 ta non 4 do'stga teng bo'lindi, har biriga to'rtdan uchdan. Ulug'bek xato qilgan ekan: bo'lsa bo'larkan.", en: 'Well done! Now you know that a fraction is a division. Writing a over b means a divided by b. On top is what we are dividing and underneath is how many we divide by. A smaller number can be divided by a bigger one, and then the answer is a fraction less than a whole. And the order matters: three quarters and four thirds are different fractions. Three flatbreads were shared equally between four friends and each one got three quarters. Ulugbek was wrong: it can be divided.' }
   }
 };
 
@@ -1258,7 +1285,7 @@ const ClassifyShare = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1328,7 +1355,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1353,7 +1380,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1620,7 +1647,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1659,7 +1686,7 @@ export default function FractionDivisionLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1727,7 +1754,7 @@ export default function FractionDivisionLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

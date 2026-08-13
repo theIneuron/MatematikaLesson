@@ -46,9 +46,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -186,7 +211,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -227,7 +252,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -621,12 +647,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -745,7 +771,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -812,13 +838,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#A07D14', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -830,9 +856,9 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 // FACTCARD — fakt to'g'ri javobdan keyin (FB_* badge + Anim*). Namuna: Dars06.
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -880,8 +906,8 @@ const AnimUpload = () => (
 // --- ПОД УРОК: frac_5_09 — Сложение дробей с равными знаменателями ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-09-v3',
-  lessonTitle: { ru: 'Сложение дробей с равными знаменателями', uz: "Bir xil maxrajli kasrlarni qo'shish" }
+  lessonId: 'grade5-17',
+  lessonTitle: { ru: 'Сложение дробей с равными знаменателями', uz: "Bir xil maxrajli kasrlarni qo'shish", en: 'Adding fractions with the same denominator' }
 };
 const TOTAL_SCREENS = 13;
 
@@ -906,85 +932,85 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK — «nega?» konseptual, sharbat (Nilufar) =====
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
-    title: { ru: 'Сколько сока стало?', uz: "Sharbat qancha bo'ldi?" },
-    lead: { ru: 'У Нилуфар два стакана одного сока: 2/6 и 3/6. Она сливает их в один. Подруга говорит: стало 5/12. Так ли это?', uz: "Nilufarda bir xil sharbatli ikki stakan: 2/6 va 3/6. U ularni bittaga quyadi. Dugonasi: 5/12 bo'ldi, deydi. Shundaymi?" },
-    opt0: { ru: '5/6', uz: '5/6' },
-    opt1: { ru: '5/12', uz: '5/12' },
-    opt2: { ru: '6/6', uz: '6/6' },
-    reveal0: { ru: 'Верно. Доли одинаковые, шестые. Складываем только доли: 2 и 3 это 5. Знаменатель остаётся 6.', uz: "To'g'ri. Ulushlar bir xil, oltidan. Faqat ulushlarni qo'shamiz: 2 va 3 bu 5. Maxraj 6 bo'lib qoladi." },
-    reveal1: { ru: 'Так думают многие. Но знаменатель показывает размер доли, он не меняется. Доли складываются: получается 5/6.', uz: "Ko'pchilik shunday o'ylaydi. Lekin maxraj ulush kattaligini ko'rsatadi, u o'zgarmaydi. Ulushlar qo'shiladi: 5/6 chiqadi." },
-    reveal2: { ru: 'Почти. 6/6 это полный стакан. Но мы налили только 2 и 3 доли, всего 5 из 6.', uz: "Deyarli. 6/6 to'la stakan. Lekin biz faqat 2 va 3 ulush quydik, oltidan 5 ta." },
-    audio: { ru: "У Нилуфар два стакана одного и того же сока. В одном две шестых, в другом три шестых. Она сливает оба в один стакан. Сколько сока стало? Подумай, прежде чем выбрать.", uz: "Nilufarda bir xil sharbatli ikki stakan bor. Birida oltidan ikki, ikkinchisida oltidan uch. U ikkalasini bitta stakanga quyadi. Sharbat qancha bo'ldi? Tanlashdan oldin o'ylab ko'ring." }
+    eyebrow: { ru: 'Загадка', uz: 'Topishmoq', en: 'A puzzle' },
+    title: { ru: 'Сколько сока стало?', uz: "Sharbat qancha bo'ldi?", en: 'How much juice is there now?' },
+    lead: { ru: 'У Нилуфар два стакана одного сока: 2/6 и 3/6. Она сливает их в один. Подруга говорит: стало 5/12. Так ли это?', uz: "Nilufarda bir xil sharbatli ikki stakan: 2/6 va 3/6. U ularni bittaga quyadi. Dugonasi: 5/12 bo'ldi, deydi. Shundaymi?", en: 'Nilufar has two glasses of the same juice: 2/6 and 3/6. She pours them into one. Her friend says it comes to 5/12. Is that so?' },
+    opt0: { ru: '5/6', uz: '5/6', en: '5/6' },
+    opt1: { ru: '5/12', uz: '5/12', en: '5/12' },
+    opt2: { ru: '6/6', uz: '6/6', en: '6/6' },
+    reveal0: { ru: 'Верно. Доли одинаковые, шестые. Складываем только доли: 2 и 3 это 5. Знаменатель остаётся 6.', uz: "To'g'ri. Ulushlar bir xil, oltidan. Faqat ulushlarni qo'shamiz: 2 va 3 bu 5. Maxraj 6 bo'lib qoladi.", en: 'That is right. The parts are the same, sixths. We only add the parts: 2 and 3 make 5. The denominator stays 6.' },
+    reveal1: { ru: 'Так думают многие. Но знаменатель показывает размер доли, он не меняется. Доли складываются: получается 5/6.', uz: "Ko'pchilik shunday o'ylaydi. Lekin maxraj ulush kattaligini ko'rsatadi, u o'zgarmaydi. Ulushlar qo'shiladi: 5/6 chiqadi.", en: 'A lot of people think that. But the denominator shows the size of the part and it does not change. The parts are added, which gives 5/6.' },
+    reveal2: { ru: 'Почти. 6/6 это полный стакан. Но мы налили только 2 и 3 доли, всего 5 из 6.', uz: "Deyarli. 6/6 to'la stakan. Lekin biz faqat 2 va 3 ulush quydik, oltidan 5 ta.", en: 'Almost. 6/6 is a full glass. But we only poured in 2 and 3 parts, which is 5 out of 6.' },
+    audio: { ru: "У Нилуфар два стакана одного и того же сока. В одном две шестых, в другом три шестых. Она сливает оба в один стакан. Сколько сока стало? Подумай, прежде чем выбрать.", uz: "Nilufarda bir xil sharbatli ikki stakan bor. Birida oltidan ikki, ikkinchisida oltidan uch. U ikkalasini bitta stakanga quyadi. Sharbat qancha bo'ldi? Tanlashdan oldin o'ylab ko'ring.", en: 'Nilufar has two glasses of the same juice. One holds two sixths and the other three sixths. She pours them both into one glass. How much juice is there now? Think before you choose.' }
   },
 
   // ===== s1 WARMUP SeqMC — 5 oson savol (prerekvizit recall) =====
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaylik' },
-    title: { ru: 'Разминка: пять вопросов', uz: "Mashq: besh savol" },
-    lead: { ru: 'Пять быстрых вопросов про доли. Выбери ответ.', uz: "Ulushlar haqida beshta tez savol. Javobni tanlang." },
-    bridge: { ru: 'Прежде чем ответить Нилуфар, вспомним, что такое доли.', uz: "Nilufarga javob berishdan oldin, ulush nimaligini eslaylik." },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslaylik', en: 'Let us remember' },
+    title: { ru: 'Разминка: пять вопросов', uz: "Mashq: besh savol", en: 'Warm up: five questions' },
+    lead: { ru: 'Пять быстрых вопросов про доли. Выбери ответ.', uz: "Ulushlar haqida beshta tez savol. Javobni tanlang.", en: 'Five quick questions about parts. Choose an answer.' },
+    bridge: { ru: 'Прежде чем ответить Нилуфар, вспомним, что такое доли.', uz: "Nilufarga javob berishdan oldin, ulush nimaligini eslaylik.", en: 'Before we answer Nilufar, let us remember what parts are.' },
     questions: [
       {
-        q: { ru: 'Что больше: 3/7 или 5/7?', uz: "Qaysi katta: 3/7 yoki 5/7?" },
-        say: { ru: "Доли одинаковые, седьмые. Что больше: три седьмых или пять седьмых?", uz: "Ulushlar bir xil, yettidan. Qaysi katta: yettidan uch yoki yettidan besh?" },
-        opts: [{ ru: '5/7', uz: '5/7' }, { ru: '3/7', uz: '3/7' }, { ru: 'Равны', uz: 'Teng' }],
+        q: { ru: 'Что больше: 3/7 или 5/7?', uz: "Qaysi katta: 3/7 yoki 5/7?", en: 'Which is bigger, 3/7 or 5/7?' },
+        say: { ru: "Доли одинаковые, седьмые. Что больше: три седьмых или пять седьмых?", uz: "Ulushlar bir xil, yettidan. Qaysi katta: yettidan uch yoki yettidan besh?", en: 'The parts are the same, sevenths. Which is bigger, three sevenths or five sevenths?' },
+        opts: [{ ru: '5/7', uz: '5/7', en: '5/7' }, { ru: '3/7', uz: '3/7', en: '3/7' }, { ru: 'Равны', uz: 'Teng', en: 'They are equal' }],
         correct: 0,
-        ok: { ru: 'Верно: доли одинаковы, больше та, где долей больше.', uz: "To'g'ri: ulushlar bir xil, ulushi ko'pi katta." },
-        no: { ru: 'Доли одинаковые. Смотри, где их больше.', uz: "Ulushlar bir xil. Qayerda ko'p ekaniga qarang." }
+        ok: { ru: 'Верно: доли одинаковы, больше та, где долей больше.', uz: "To'g'ri: ulushlar bir xil, ulushi ko'pi katta.", en: 'That is right: the parts are the same, so the bigger one is the one with more parts.' },
+        no: { ru: 'Доли одинаковые. Смотри, где их больше.', uz: "Ulushlar bir xil. Qayerda ko'p ekaniga qarang.", en: 'The parts are the same. See which has more of them.' }
       },
       {
-        q: { ru: 'Какой знаменатель у дроби 2/9?', uz: "2/9 kasrning maxraji qaysi?" },
-        say: { ru: "Назови знаменатель дроби две девятых.", uz: "To'qqizdan ikki kasrning maxrajini ayting." },
-        opts: [{ ru: '2', uz: '2' }, { ru: '9', uz: '9' }, { ru: '11', uz: '11' }],
+        q: { ru: 'Какой знаменатель у дроби 2/9?', uz: "2/9 kasrning maxraji qaysi?", en: 'What is the denominator of 2/9?' },
+        say: { ru: "Назови знаменатель дроби две девятых.", uz: "To'qqizdan ikki kasrning maxrajini ayting.", en: 'Name the denominator of the fraction two ninths.' },
+        opts: [{ ru: '2', uz: '2', en: '2' }, { ru: '9', uz: '9', en: '9' }, { ru: '11', uz: '11', en: '11' }],
         correct: 1,
-        ok: { ru: 'Верно: знаменатель внизу, он показывает число долей.', uz: "To'g'ri: maxraj pastda, u ulushlar sonini ko'rsatadi." },
-        no: { ru: 'Знаменатель внизу. Он показывает, на сколько долей разделили.', uz: "Maxraj pastda. U nechta ulushga bo'linganini ko'rsatadi." }
+        ok: { ru: 'Верно: знаменатель внизу, он показывает число долей.', uz: "To'g'ri: maxraj pastda, u ulushlar sonini ko'rsatadi.", en: 'That is right: the denominator is underneath and it shows the number of parts.' },
+        no: { ru: 'Знаменатель внизу. Он показывает, на сколько долей разделили.', uz: "Maxraj pastda. U nechta ulushga bo'linganini ko'rsatadi.", en: 'The denominator is underneath. It shows how many parts the whole was split into.' }
       },
       {
-        q: { ru: 'Лепёшку разделили на 8 равных долей. Одна доля — это?', uz: "Non 8 teng ulushga bo'lindi. Bitta ulush — bu?" },
-        say: { ru: "Лепёшку разделили на восемь равных долей. Одна такая доля это какая дробь?", uz: "Non sakkiz teng ulushga bo'lindi. Bitta shunday ulush qaysi kasr?" },
-        opts: [{ ru: '8/1', uz: '8/1' }, { ru: '1/4', uz: '1/4' }, { ru: '1/8', uz: '1/8' }],
+        q: { ru: 'Лепёшку разделили на 8 равных долей. Одна доля — это?', uz: "Non 8 teng ulushga bo'lindi. Bitta ulush — bu?", en: 'A flatbread was split into 8 equal parts. One part is…?' },
+        say: { ru: "Лепёшку разделили на восемь равных долей. Одна такая доля это какая дробь?", uz: "Non sakkiz teng ulushga bo'lindi. Bitta shunday ulush qaysi kasr?", en: 'A flatbread was split into eight equal parts. Which fraction is one of those parts?' },
+        opts: [{ ru: '8/1', uz: '8/1', en: '8/1' }, { ru: '1/4', uz: '1/4', en: '1/4' }, { ru: '1/8', uz: '1/8', en: '1/8' }],
         correct: 2,
-        ok: { ru: 'Верно: одна доля из восьми — это 1/8.', uz: "To'g'ri: sakkizdan bitta ulush — bu 1/8." },
-        no: { ru: 'Берём одну долю из восьми: вверху один, внизу восемь.', uz: "Sakkizdan bitta ulush olamiz: yuqorida bir, pastda sakkiz." }
+        ok: { ru: 'Верно: одна доля из восьми — это 1/8.', uz: "To'g'ri: sakkizdan bitta ulush — bu 1/8.", en: 'That is right: one part out of eight is 1/8.' },
+        no: { ru: 'Берём одну долю из восьми: вверху один, внизу восемь.', uz: "Sakkizdan bitta ulush olamiz: yuqorida bir, pastda sakkiz.", en: 'We take one part out of eight: one on top and eight underneath.' }
       },
       {
-        q: { ru: 'Чему равна дробь 4/4?', uz: "4/4 kasr nechaga teng?" },
-        say: { ru: "Сколько будет четыре четвёртых?", uz: "To'rtdan to'rt qancha bo'ladi?" },
-        opts: [{ ru: 'Целому', uz: 'Butunga' }, { ru: '4', uz: '4' }, { ru: 'Нулю', uz: 'Nolga' }],
+        q: { ru: 'Чему равна дробь 4/4?', uz: "4/4 kasr nechaga teng?", en: 'What does the fraction 4/4 equal?' },
+        say: { ru: "Сколько будет четыре четвёртых?", uz: "To'rtdan to'rt qancha bo'ladi?", en: 'How much is four quarters?' },
+        opts: [{ ru: 'Целому', uz: 'Butunga', en: 'A whole one' }, { ru: '4', uz: '4', en: '4' }, { ru: 'Нулю', uz: 'Nolga', en: 'Zero' }],
         correct: 0,
-        ok: { ru: 'Верно: все доли на месте — это целое.', uz: "To'g'ri: barcha ulush joyida — bu butun." },
-        no: { ru: 'Когда взяты все доли, получается целое.', uz: "Hamma ulush olinganda, butun bo'ladi." }
+        ok: { ru: 'Верно: все доли на месте — это целое.', uz: "To'g'ri: barcha ulush joyida — bu butun.", en: 'That is right: every part is there, so it is a whole one.' },
+        no: { ru: 'Когда взяты все доли, получается целое.', uz: "Hamma ulush olinganda, butun bo'ladi.", en: 'When all the parts are taken, you get a whole one.' }
       },
       {
-        q: { ru: 'Что меньше: 1/6 или 5/6?', uz: "Qaysi kichik: 1/6 yoki 5/6?" },
-        say: { ru: "Доли шестые. Что меньше: одна шестая или пять шестых?", uz: "Ulushlar oltidan. Qaysi kichik: oltidan bir yoki oltidan besh?" },
-        opts: [{ ru: '5/6', uz: '5/6' }, { ru: 'Равны', uz: 'Teng' }, { ru: '1/6', uz: '1/6' }],
+        q: { ru: 'Что меньше: 1/6 или 5/6?', uz: "Qaysi kichik: 1/6 yoki 5/6?", en: 'Which is smaller, 1/6 or 5/6?' },
+        say: { ru: "Доли шестые. Что меньше: одна шестая или пять шестых?", uz: "Ulushlar oltidan. Qaysi kichik: oltidan bir yoki oltidan besh?", en: 'The parts are sixths. Which is smaller, one sixth or five sixths?' },
+        opts: [{ ru: '5/6', uz: '5/6', en: '5/6' }, { ru: 'Равны', uz: 'Teng', en: 'They are equal' }, { ru: '1/6', uz: '1/6', en: '1/6' }],
         correct: 2,
-        ok: { ru: 'Верно: одна доля меньше пяти таких же долей.', uz: "To'g'ri: bitta ulush shunday besh ulushdan kichik." },
-        no: { ru: 'Доли одинаковые. Меньше та, где их меньше.', uz: "Ulushlar bir xil. Ulushi kami kichik." }
+        ok: { ru: 'Верно: одна доля меньше пяти таких же долей.', uz: "To'g'ri: bitta ulush shunday besh ulushdan kichik.", en: 'That is right: one part is less than five parts of the same size.' },
+        no: { ru: 'Доли одинаковые. Меньше та, где их меньше.', uz: "Ulushlar bir xil. Ulushi kami kichik.", en: 'The parts are the same. The smaller one is the one with fewer of them.' }
       }
     ],
     audio: {
-      intro: { ru: "Прежде чем ответить Нилуфар, вспомним доли. Пять быстрых вопросов.", uz: "Nilufarga javob berishdan oldin, ulushlarni eslaylik. Beshta tez savol." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Почти. Посмотри ещё раз.", uz: "Deyarli. Yana bir qarang." },
-      on_done: { ru: "Разминка пройдена. Теперь к сложению.", uz: "Mashq tugadi. Endi qo'shishga o'tamiz." }
+      intro: { ru: "Прежде чем ответить Нилуфар, вспомним доли. Пять быстрых вопросов.", uz: "Nilufarga javob berishdan oldin, ulushlarni eslaylik. Beshta tez savol.", en: 'Before we answer Nilufar, let us remember about parts. Five quick questions.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Почти. Посмотри ещё раз.", uz: "Deyarli. Yana bir qarang.", en: 'Almost. Have another look.' },
+      on_done: { ru: "Разминка пройдена. Теперь к сложению.", uz: "Mashq tugadi. Endi qo'shishga o'tamiz.", en: 'The warm up is done. Now on to adding.' }
     }
   },
 
   // ===== s2 EXPLORATION — bar/doira step (2/6 + 3/6 = 5/6) =====
   s2: {
-    eyebrow: { ru: 'Смотрим на доли', uz: "Ulushlarga qaraymiz" },
-    title: { ru: 'Складываем 2/6 и 3/6', uz: "2/6 va 3/6 ni qo'shamiz" },
-    lead: { ru: 'Вернёмся к соку Нилуфар. Доли одинаковые — шестые.', uz: "Nilufar sharbatiga qaytamiz. Ulushlar bir xil — oltidan." },
-    bridge: { ru: 'Доли вспомнили. Теперь шаг за шагом сложим их.', uz: "Ulushlarni esladik. Endi ularni qadam-baqadam qo'shamiz." },
-    line_intro: { ru: 'Одна полоса разделена на 6 равных долей.', uz: "Bitta chiziq 6 teng ulushga bo'lingan." },
-    line_first: { ru: 'Закрасим 2 доли — это первый стакан, 2/6.', uz: "2 ulushni bo'yaymiz — bu birinchi stakan, 2/6." },
-    line_second: { ru: 'Добавим ещё 3 доли — второй стакан, 3/6.', uz: "Yana 3 ulush qo'shamiz — ikkinchi stakan, 3/6." },
-    line_count: { ru: 'Считаем закрашенные доли: 2 + 3 = 5. Получилось 5/6.', uz: "Bo'yalgan ulushlarni sanaymiz: 2 + 3 = 5. 5/6 chiqdi." },
-    line_key: { ru: 'Размер доли не изменился — осталась шестой. Сложились только сами доли.', uz: "Ulush kattaligi o'zgarmadi — oltidanligicha qoldi. Faqat ulushlarning o'zi qo'shildi." },
+    eyebrow: { ru: 'Смотрим на доли', uz: "Ulushlarga qaraymiz", en: 'Looking at the parts' },
+    title: { ru: 'Складываем 2/6 и 3/6', uz: "2/6 va 3/6 ni qo'shamiz", en: 'Adding 2/6 and 3/6' },
+    lead: { ru: 'Вернёмся к соку Нилуфар. Доли одинаковые — шестые.', uz: "Nilufar sharbatiga qaytamiz. Ulushlar bir xil — oltidan.", en: "Back to Nilufar's juice. The parts are the same, sixths." },
+    bridge: { ru: 'Доли вспомнили. Теперь шаг за шагом сложим их.', uz: "Ulushlarni esladik. Endi ularni qadam-baqadam qo'shamiz.", en: 'We have remembered about parts. Now let us add them step by step.' },
+    line_intro: { ru: 'Одна полоса разделена на 6 равных долей.', uz: "Bitta chiziq 6 teng ulushga bo'lingan.", en: 'One bar is split into 6 equal parts.' },
+    line_first: { ru: 'Закрасим 2 доли — это первый стакан, 2/6.', uz: "2 ulushni bo'yaymiz — bu birinchi stakan, 2/6.", en: 'We colour in 2 parts, which is the first glass, 2/6.' },
+    line_second: { ru: 'Добавим ещё 3 доли — второй стакан, 3/6.', uz: "Yana 3 ulush qo'shamiz — ikkinchi stakan, 3/6.", en: 'We add 3 more parts, the second glass, 3/6.' },
+    line_count: { ru: 'Считаем закрашенные доли: 2 + 3 = 5. Получилось 5/6.', uz: "Bo'yalgan ulushlarni sanaymiz: 2 + 3 = 5. 5/6 chiqdi.", en: 'We count the coloured parts: 2 + 3 = 5. That gives 5/6.' },
+    line_key: { ru: 'Размер доли не изменился — осталась шестой. Сложились только сами доли.', uz: "Ulush kattaligi o'zgarmadi — oltidanligicha qoldi. Faqat ulushlarning o'zi qo'shildi.", en: 'The size of a part did not change, it stayed a sixth. Only the parts themselves were added.' },
     audio: {
       ru: [
         "Вернёмся к соку. Полоса разделена на шесть равных долей.",
@@ -999,249 +1025,250 @@ const CONTENT = {
         "Yana uch ulush qo'shamiz. Bu ikkinchi stakan, oltidan uch.",
         "Bo'yalgan ulushlarni sanaymiz: ikki va uch besh. Oltidan besh chiqdi.",
         "Ulush kattaligi o'zgarmadi. U oltidanligicha qoldi. Faqat ulushlarning o'zi qo'shildi."
-      ]
+      ],
+      en: ['Back to the juice. The bar is split into six equal parts.', 'We colour in two parts. That is the first glass, two sixths.', 'We add three more parts. That is the second glass, three sixths.', 'We count the coloured parts: two and three make five. That gives five sixths.', 'The size of a part did not change. It stayed a sixth. Only the parts themselves were added.']
     }
   },
 
   // ===== s3 EXPLORATION — interaktiv +/-, jonli formula (den=7) =====
   s3: {
-    eyebrow: { ru: 'Попробуй сам', uz: "O'zingiz sinab ko'ring" },
-    title: { ru: 'Добавляй доли сам', uz: "Ulushlarni o'zingiz qo'shing" },
-    lead: { ru: 'Знаменатель — седьмые. Кнопками набери два числителя и смотри на сумму.', uz: "Maxraj — yettidan. Tugmalar bilan ikkita suratni tering va yig'indiga qarang." },
-    instr: { ru: 'Меняй числители кнопками плюс и минус.', uz: "Suratlarni plyus va minus tugmalari bilan o'zgartiring." },
-    instr_done: { ru: 'Видишь: меняется только верх дроби, низ остаётся 7.', uz: "Ko'ryapsiz: faqat kasrning usti o'zgaradi, pasti 7 bo'lib qoladi." },
-    leg_a: { ru: 'Первая', uz: "Birinchi" },
-    leg_b: { ru: 'Вторая', uz: "Ikkinchi" },
-    leg_sum: { ru: 'Сумма', uz: "Yig'indi" },
-    note_rule: { ru: 'Числители складываются, знаменатель 7 не меняется.', uz: "Suratlar qo'shiladi, maxraj 7 o'zgarmaydi." },
-    audio: { ru: "Теперь попробуй сам. Знаменатель у обеих дробей одинаковый, седьмые. Меняй числители кнопками и смотри: внизу всё время остаётся семь, а вверху доли складываются.", uz: "Endi o'zingiz sinab ko'ring. Ikkala kasrning maxraji bir xil, yettidan. Suratlarni tugmalar bilan o'zgartiring va qarang: pastda doim yetti qoladi, yuqorida esa ulushlar qo'shiladi." }
+    eyebrow: { ru: 'Попробуй сам', uz: "O'zingiz sinab ko'ring", en: 'Try it yourself' },
+    title: { ru: 'Добавляй доли сам', uz: "Ulushlarni o'zingiz qo'shing", en: 'Add the parts yourself' },
+    lead: { ru: 'Знаменатель — седьмые. Кнопками набери два числителя и смотри на сумму.', uz: "Maxraj — yettidan. Tugmalar bilan ikkita suratni tering va yig'indiga qarang.", en: 'The denominator is sevenths. Use the buttons to set the two numerators and watch the total.' },
+    instr: { ru: 'Меняй числители кнопками плюс и минус.', uz: "Suratlarni plyus va minus tugmalari bilan o'zgartiring.", en: 'Change the numerators with the plus and minus buttons.' },
+    instr_done: { ru: 'Видишь: меняется только верх дроби, низ остаётся 7.', uz: "Ko'ryapsiz: faqat kasrning usti o'zgaradi, pasti 7 bo'lib qoladi.", en: 'You see: only the top of the fraction changes, the bottom stays 7.' },
+    leg_a: { ru: 'Первая', uz: "Birinchi", en: 'First' },
+    leg_b: { ru: 'Вторая', uz: "Ikkinchi", en: 'Second' },
+    leg_sum: { ru: 'Сумма', uz: "Yig'indi", en: 'Total' },
+    note_rule: { ru: 'Числители складываются, знаменатель 7 не меняется.', uz: "Suratlar qo'shiladi, maxraj 7 o'zgarmaydi.", en: 'The numerators are added and the denominator 7 does not change.' },
+    audio: { ru: "Теперь попробуй сам. Знаменатель у обеих дробей одинаковый, седьмые. Меняй числители кнопками и смотри: внизу всё время остаётся семь, а вверху доли складываются.", uz: "Endi o'zingiz sinab ko'ring. Ikkala kasrning maxraji bir xil, yettidan. Suratlarni tugmalar bilan o'zgartiring va qarang: pastda doim yetti qoladi, yuqorida esa ulushlar qo'shiladi.", en: 'Now try it yourself. Both fractions have the same denominator, sevenths. Change the numerators with the buttons and watch: underneath it stays seven all the time, while on top the parts are added.' }
   },
 
   // ===== s4 RULE =====
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Сложение дробей с равными знаменателями', uz: "Bir xil maxrajli kasrlarni qo'shish" },
-    bridge: { ru: 'Мы увидели, как это работает. Соберём в одно правило.', uz: "Bu qanday ishlashini ko'rdik. Bitta qoidaga yig'amiz." },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Складываем числители — верхние числа.', uz: "Suratlarni — yuqoridagi sonlarni qo'shamiz." },
-    rule_2: { ru: 'Знаменатель оставляем тот же — он показывает размер доли.', uz: "Maxrajni o'sha holicha qoldiramiz — u ulush kattaligini ko'rsatadi." },
-    ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi" },
-    ex_caption: { ru: '2/6 + 3/6: складываем 2 + 3 = 5, знаменатель 6 → 5/6.', uz: "2/6 + 3/6: 2 + 3 = 5 qo'shamiz, maxraj 6 → 5/6." },
-    audio: { ru: "Запомним правило. Когда знаменатели одинаковые, складываем только числители, а знаменатель оставляем тот же. Например, две шестых плюс три шестых дают пять шестых.", uz: "Qoidani yodda tutamiz. Maxrajlar bir xil bo'lganda, faqat suratlarni qo'shamiz, maxrajni o'sha holicha qoldiramiz. Masalan, oltidan ikki va oltidan uch oltidan beshni beradi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Сложение дробей с равными знаменателями', uz: "Bir xil maxrajli kasrlarni qo'shish", en: 'Adding fractions with the same denominator' },
+    bridge: { ru: 'Мы увидели, как это работает. Соберём в одно правило.', uz: "Bu qanday ishlashini ko'rdik. Bitta qoidaga yig'amiz.", en: 'We have seen how it works. Let us gather it into one rule.' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Складываем числители — верхние числа.', uz: "Suratlarni — yuqoridagi sonlarni qo'shamiz.", en: 'We add the numerators, the numbers on top.' },
+    rule_2: { ru: 'Знаменатель оставляем тот же — он показывает размер доли.', uz: "Maxrajni o'sha holicha qoldiramiz — u ulush kattaligini ko'rsatadi.", en: 'We leave the denominator the same, because it shows the size of a part.' },
+    ex_label: { ru: 'Как это работает', uz: "Bu qanday ishlaydi", en: 'How it works' },
+    ex_caption: { ru: '2/6 + 3/6: складываем 2 + 3 = 5, знаменатель 6 → 5/6.', uz: "2/6 + 3/6: 2 + 3 = 5 qo'shamiz, maxraj 6 → 5/6.", en: '2/6 + 3/6: we add 2 + 3 = 5 and the denominator is 6, giving 5/6.' },
+    audio: { ru: "Запомним правило. Когда знаменатели одинаковые, складываем только числители, а знаменатель оставляем тот же. Например, две шестых плюс три шестых дают пять шестых.", uz: "Qoidani yodda tutamiz. Maxrajlar bir xil bo'lganda, faqat suratlarni qo'shamiz, maxrajni o'sha holicha qoldiramiz. Masalan, oltidan ikki va oltidan uch oltidan beshni beradi.", en: 'Let us remember the rule. When the denominators are the same, we only add the numerators and leave the denominator as it is. For example, two sixths plus three sixths makes five sixths.' }
   },
 
   // ===== s5 RULE 2 — TUZOQ (pale-yellow) =====
   s5: {
-    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
-    heading: { ru: 'Знаменатели не складываются', uz: "Maxrajlar qo'shilmaydi" },
-    warn_1: { ru: 'Самая частая ошибка — сложить и знаменатели тоже.', uz: "Eng ko'p uchraydigan xato — maxrajlarni ham qo'shib yuborish." },
-    ok_label: { ru: 'Правильно', uz: "To'g'ri" },
-    ok_note: { ru: 'Знаменатель остаётся шестым.', uz: "Maxraj oltidan bo'lib qoladi." },
-    bad_label: { ru: 'Неправильно', uz: "Noto'g'ri" },
-    bad_cause: { ru: 'Здесь сложили и знаменатели: 6 + 6 = 12.', uz: "Bu yerda maxrajlar ham qo'shilgan: 6 + 6 = 12." },
-    bad_note: { ru: 'Так нельзя — знаменатель не складывают.', uz: "Bunday bo'lmaydi — maxraj qo'shilmaydi." },
-    warn_2: { ru: 'Знаменатель — это размер доли. Долю не делим заново, поэтому он не меняется.', uz: "Maxraj — bu ulush kattaligi. Ulushni qaytadan bo'lmaymiz, shuning uchun u o'zgarmaydi." },
-    audio: { ru: "Будь внимателен. Самая частая ошибка это сложить ещё и знаменатели: шесть плюс шесть двенадцать. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся прежним, шестым.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish: olti qo'shuv olti o'n ikki. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha, oltidan bo'lib qoladi." }
+    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling", en: 'Careful' },
+    heading: { ru: 'Знаменатели не складываются', uz: "Maxrajlar qo'shilmaydi", en: 'Denominators are not added' },
+    warn_1: { ru: 'Самая частая ошибка — сложить и знаменатели тоже.', uz: "Eng ko'p uchraydigan xato — maxrajlarni ham qo'shib yuborish.", en: 'The commonest mistake is to add the denominators as well.' },
+    ok_label: { ru: 'Правильно', uz: "To'g'ri", en: 'Right' },
+    ok_note: { ru: 'Знаменатель остаётся шестым.', uz: "Maxraj oltidan bo'lib qoladi.", en: 'The denominator stays a sixth.' },
+    bad_label: { ru: 'Неправильно', uz: "Noto'g'ri", en: 'Wrong' },
+    bad_cause: { ru: 'Здесь сложили и знаменатели: 6 + 6 = 12.', uz: "Bu yerda maxrajlar ham qo'shilgan: 6 + 6 = 12.", en: 'Here the denominators were added too: 6 + 6 = 12.' },
+    bad_note: { ru: 'Так нельзя — знаменатель не складывают.', uz: "Bunday bo'lmaydi — maxraj qo'shilmaydi.", en: 'That is not allowed, denominators are not added.' },
+    warn_2: { ru: 'Знаменатель — это размер доли. Долю не делим заново, поэтому он не меняется.', uz: "Maxraj — bu ulush kattaligi. Ulushni qaytadan bo'lmaymiz, shuning uchun u o'zgarmaydi.", en: 'The denominator is the size of a part. We are not splitting the parts again, so it does not change.' },
+    audio: { ru: "Будь внимателен. Самая частая ошибка это сложить ещё и знаменатели: шесть плюс шесть двенадцать. Тогда вместо пяти шестых получится пять двенадцатых. Но знаменатель показывает размер доли, и он остаётся прежним, шестым.", uz: "Diqqat bo'ling. Eng ko'p uchraydigan xato bu maxrajlarni ham qo'shib yuborish: olti qo'shuv olti o'n ikki. Unda oltidan besh o'rniga o'n ikkidan besh chiqadi. Lekin maxraj ulush kattaligini ko'rsatadi, va u o'sha holicha, oltidan bo'lib qoladi.", en: 'Take care. The commonest mistake is to add the denominators as well: six plus six is twelve. Then instead of five sixths you get five twelfths. But the denominator shows the size of a part and it stays as it was, a sixth.' }
   },
 
   // ===== s6 TEST MC — 2/7 + 4/7 (FAKT: musiqa) =====
   s6: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    bridge: { ru: 'Правило знаем — теперь попробуй применить его сам.', uz: "Qoidani bilamiz — endi uni o'zingiz qo'llab ko'ring." },
-    title: { ru: 'Сложи <b>2/7 + 4/7</b>', uz: "<b>2/7 + 4/7</b> ni qo'shing" },
-    question: { ru: 'Знаменатель — седьмые. Сколько получится?', uz: "Maxraj — yettidan. Qancha chiqadi?" },
-    opt0: { ru: '6/7', uz: '6/7' },
-    opt1: { ru: '6/14', uz: '6/14' },
-    opt2: { ru: '8/7', uz: '8/7' },
-    opt3: { ru: '2/7', uz: '2/7' },
-    correct_text: { ru: 'Верно: 2 + 4 = 6, знаменатель 7 не меняется. Получается 6/7.', uz: "To'g'ri: 2 + 4 = 6, maxraj 7 o'zgarmaydi. 6/7 chiqadi." },
-    wrong_1: { ru: 'Ты сложил и знаменатели тоже. Так делать нельзя, знаменатель остаётся прежним.', uz: "Siz maxrajlarni ham qo'shdingiz. Bunday qilib bo'lmaydi, maxraj o'sha holicha qoladi." },
-    wrong_2: { ru: 'Числители сложены неверно. Сложи только верхние числа.', uz: "Suratlar noto'g'ri qo'shilgan. Faqat yuqoridagi sonlarni qo'shing." },
-    wrong_3: { ru: 'Это только первая дробь. Прибавь к ней и вторую долю.', uz: "Bu faqat birinchi kasr. Unga ikkinchi ulushni ham qo'shing." },
-    fact: { ru: 'В музыке так же: четверть плюс четверть это половина (1/4 + 1/4 = 1/2). Доли длительности складываются, как доли целого.', uz: "Musiqada ham xuddi shunday: chorak qo'shuv chorak — bu yarim (1/4 + 1/4 = 1/2). Davomiylik ulushlari butun ulushlaridek qo'shiladi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    bridge: { ru: 'Правило знаем — теперь попробуй применить его сам.', uz: "Qoidani bilamiz — endi uni o'zingiz qo'llab ko'ring.", en: 'We know the rule, so now try using it yourself.' },
+    title: { ru: 'Сложи <b>2/7 + 4/7</b>', uz: "<b>2/7 + 4/7</b> ni qo'shing", en: 'Add <b>2/7 + 4/7</b>' },
+    question: { ru: 'Знаменатель — седьмые. Сколько получится?', uz: "Maxraj — yettidan. Qancha chiqadi?", en: 'The denominator is sevenths. What do you get?' },
+    opt0: { ru: '6/7', uz: '6/7', en: '6/7' },
+    opt1: { ru: '6/14', uz: '6/14', en: '6/14' },
+    opt2: { ru: '8/7', uz: '8/7', en: '8/7' },
+    opt3: { ru: '2/7', uz: '2/7', en: '2/7' },
+    correct_text: { ru: 'Верно: 2 + 4 = 6, знаменатель 7 не меняется. Получается 6/7.', uz: "To'g'ri: 2 + 4 = 6, maxraj 7 o'zgarmaydi. 6/7 chiqadi.", en: 'That is right: 2 + 4 = 6 and the denominator 7 does not change. That gives 6/7.' },
+    wrong_1: { ru: 'Ты сложил и знаменатели тоже. Так делать нельзя, знаменатель остаётся прежним.', uz: "Siz maxrajlarni ham qo'shdingiz. Bunday qilib bo'lmaydi, maxraj o'sha holicha qoladi.", en: 'You added the denominators as well. That is not allowed, the denominator stays as it was.' },
+    wrong_2: { ru: 'Числители сложены неверно. Сложи только верхние числа.', uz: "Suratlar noto'g'ri qo'shilgan. Faqat yuqoridagi sonlarni qo'shing.", en: 'The numerators were added wrongly. Add only the numbers on top.' },
+    wrong_3: { ru: 'Это только первая дробь. Прибавь к ней и вторую долю.', uz: "Bu faqat birinchi kasr. Unga ikkinchi ulushni ham qo'shing.", en: 'That is only the first fraction. Add the second lot of parts to it as well.' },
+    fact: { ru: 'В музыке так же: четверть плюс четверть это половина (1/4 + 1/4 = 1/2). Доли длительности складываются, как доли целого.', uz: "Musiqada ham xuddi shunday: chorak qo'shuv chorak — bu yarim (1/4 + 1/4 = 1/2). Davomiylik ulushlari butun ulushlaridek qo'shiladi.", en: 'It is the same in music: a quarter note plus a quarter note is a half note (1/4 + 1/4 = 1/2). Parts of a beat are added just like parts of a whole.' },
     audio: {
-      intro: { ru: "Правило знаем, теперь попробуй сам. Сколько будет две седьмых плюс четыре седьмых?", uz: "Qoidani bilamiz, endi o'zingiz urinib ko'ring. Yettidan ikki va yettidan to'rt qancha bo'ladi?" },
-      on_correct: { ru: "Верно, шесть седьмых. Кстати, в музыке доли длительности складываются так же: четверть и ещё четверть дают половину.", uz: "To'g'ri, yettidan olti. Aytgancha, musiqada davomiylik ulushlari xuddi shunday qo'shiladi: chorak va yana chorak yarimni beradi." },
-      on_wrong: { ru: "Сложи только числители, знаменатель оставь прежним.", uz: "Faqat suratlarni qo'shing, maxrajni o'sha holicha qoldiring." }
+      intro: { ru: "Правило знаем, теперь попробуй сам. Сколько будет две седьмых плюс четыре седьмых?", uz: "Qoidani bilamiz, endi o'zingiz urinib ko'ring. Yettidan ikki va yettidan to'rt qancha bo'ladi?", en: 'We know the rule, so now try it yourself. How much is two sevenths plus four sevenths?' },
+      on_correct: { ru: "Верно, шесть седьмых. Кстати, в музыке доли длительности складываются так же: четверть и ещё четверть дают половину.", uz: "To'g'ri, yettidan olti. Aytgancha, musiqada davomiylik ulushlari xuddi shunday qo'shiladi: chorak va yana chorak yarimni beradi.", en: 'That is right, six sevenths. By the way, parts of a beat are added the same way in music: a quarter and another quarter make a half.' },
+      on_wrong: { ru: "Сложи только числители, знаменатель оставь прежним.", uz: "Faqat suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Add only the numerators and leave the denominator as it is.' }
     }
   },
 
   // ===== s7 TEST error-spotting (FAKT: vaqt) =====
   s7: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Где запись <b>неверная</b>?', uz: "Qaysi yozuv <b>noto'g'ri</b>?" },
-    question: { ru: 'Три записи верны, одна — нет. Найди неверную.', uz: "Uch yozuv to'g'ri, biri — yo'q. Noto'g'risini toping." },
-    opt0: { ru: '1/5 + 2/5 = 3/5', uz: '1/5 + 2/5 = 3/5' },
-    opt1: { ru: '2/9 + 4/9 = 6/9', uz: '2/9 + 4/9 = 6/9' },
-    opt2: { ru: '3/8 + 4/8 = 7/16', uz: '3/8 + 4/8 = 7/16' },
-    opt3: { ru: '1/4 + 2/4 = 3/4', uz: '1/4 + 2/4 = 3/4' },
-    correct_text: { ru: 'Верно. В 3/8 + 4/8 сложили и знаменатели: вышло 7/16. Правильно 7/8 — знаменатель остаётся 8.', uz: "To'g'ri. 3/8 + 4/8 da maxrajlar ham qo'shilgan: 7/16 chiqqan. To'g'risi 7/8 — maxraj 8 bo'lib qoladi." },
-    wrong_0: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring." },
-    wrong_1: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring." },
-    wrong_3: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring." },
-    wrong_default: { ru: 'Проверь каждую запись: знаменатель не должен меняться.', uz: "Har bir yozuvni tekshiring: maxraj o'zgarmasligi kerak." },
-    fact: { ru: 'На часах так же: четверть часа плюс четверть часа это полчаса (1/4 + 1/4 = 2/4). Доли времени складываются как доли целого.', uz: "Soatda ham shunday: chorak soat qo'shuv chorak soat — bu yarim soat (1/4 + 1/4 = 2/4). Vaqt ulushlari butun ulushlaridek qo'shiladi." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Где запись <b>неверная</b>?', uz: "Qaysi yozuv <b>noto'g'ri</b>?", en: 'Which one is written <b>wrongly</b>?' },
+    question: { ru: 'Три записи верны, одна — нет. Найди неверную.', uz: "Uch yozuv to'g'ri, biri — yo'q. Noto'g'risini toping.", en: 'Three of these are right and one is not. Find the wrong one.' },
+    opt0: { ru: '1/5 + 2/5 = 3/5', uz: '1/5 + 2/5 = 3/5', en: '1/5 + 2/5 = 3/5' },
+    opt1: { ru: '2/9 + 4/9 = 6/9', uz: '2/9 + 4/9 = 6/9', en: '2/9 + 4/9 = 6/9' },
+    opt2: { ru: '3/8 + 4/8 = 7/16', uz: '3/8 + 4/8 = 7/16', en: '3/8 + 4/8 = 7/16' },
+    opt3: { ru: '1/4 + 2/4 = 3/4', uz: '1/4 + 2/4 = 3/4', en: '1/4 + 2/4 = 3/4' },
+    correct_text: { ru: 'Верно. В 3/8 + 4/8 сложили и знаменатели: вышло 7/16. Правильно 7/8 — знаменатель остаётся 8.', uz: "To'g'ri. 3/8 + 4/8 da maxrajlar ham qo'shilgan: 7/16 chiqqan. To'g'risi 7/8 — maxraj 8 bo'lib qoladi.", en: 'That is right. In 3/8 + 4/8 the denominators were added too, giving 7/16. It should be 7/8, because the denominator stays 8.' },
+    wrong_0: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring.", en: 'That one is right, the denominator stayed as it was. Keep looking.' },
+    wrong_1: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring.", en: 'That one is right, the denominator stayed as it was. Keep looking.' },
+    wrong_3: { ru: 'Эта запись верна, знаменатель остался прежним. Ищи дальше.', uz: "Bu yozuv to'g'ri, maxraj o'sha holicha qoldi. Boshqasidan qidiring.", en: 'That one is right, the denominator stayed as it was. Keep looking.' },
+    wrong_default: { ru: 'Проверь каждую запись: знаменатель не должен меняться.', uz: "Har bir yozuvni tekshiring: maxraj o'zgarmasligi kerak.", en: 'Check each one: the denominator must not change.' },
+    fact: { ru: 'На часах так же: четверть часа плюс четверть часа это полчаса (1/4 + 1/4 = 2/4). Доли времени складываются как доли целого.', uz: "Soatda ham shunday: chorak soat qo'shuv chorak soat — bu yarim soat (1/4 + 1/4 = 2/4). Vaqt ulushlari butun ulushlaridek qo'shiladi.", en: 'It is the same on a clock: a quarter of an hour plus a quarter of an hour is half an hour (1/4 + 1/4 = 2/4). Parts of an hour are added just like parts of a whole.' },
     audio: {
-      intro: { ru: "Одна из этих записей неверная. Найди ту, где знаменатель сложили вместе с числителями.", uz: "Bu yozuvlardan biri noto'g'ri. Maxrajni suratlar bilan qo'shib yuborilgan yozuvni toping." },
-      on_correct: { ru: "Верно, здесь сложили и знаменатели. Кстати, на часах доли времени складываются правильно: четверть часа и ещё четверть это полчаса.", uz: "To'g'ri, bu yerda maxrajlar ham qo'shilgan. Aytgancha, soatda vaqt ulushlari to'g'ri qo'shiladi: chorak soat va yana chorak yarim soatni beradi." },
-      on_wrong: { ru: "Проверь каждую запись: знаменатель должен остаться прежним.", uz: "Har bir yozuvni tekshiring: maxraj o'sha holicha qolishi kerak." }
+      intro: { ru: "Одна из этих записей неверная. Найди ту, где знаменатель сложили вместе с числителями.", uz: "Bu yozuvlardan biri noto'g'ri. Maxrajni suratlar bilan qo'shib yuborilgan yozuvni toping.", en: 'One of these is wrong. Find the one where the denominator was added along with the numerators.' },
+      on_correct: { ru: "Верно, здесь сложили и знаменатели. Кстати, на часах доли времени складываются правильно: четверть часа и ещё четверть это полчаса.", uz: "To'g'ri, bu yerda maxrajlar ham qo'shilgan. Aytgancha, soatda vaqt ulushlari to'g'ri qo'shiladi: chorak soat va yana chorak yarim soatni beradi.", en: 'That is right, the denominators were added here too. By the way, parts of an hour add up properly on a clock: a quarter of an hour and another quarter make half an hour.' },
+      on_wrong: { ru: "Проверь каждую запись: знаменатель должен остаться прежним.", uz: "Har bir yozuvni tekshiring: maxraj o'sha holicha qolishi kerak.", en: 'Check each one: the denominator must stay as it was.' }
     }
   },
 
   // ===== s8 TEST classify — yig'indi: butundan kichik / teng / katta (3 savat) =====
   s8: {
-    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
-    title: { ru: 'Сумма меньше целого, равна или больше?', uz: "Yig'indi butundan kichik, teng yoki katta?" },
-    lead: { ru: 'Посчитай каждую сумму и поставь её в свою группу. Сравни числитель со знаменателем.', uz: "Har bir yig'indini hisoblang va o'z guruhiga joylang. Suratni maxraj bilan solishtiring." },
-    bin_lt: { ru: 'Меньше целого', uz: "Butundan kichik" },
-    bin_eq: { ru: 'Равно целому', uz: "Butunga teng" },
-    bin_gt: { ru: 'Больше целого', uz: "Butundan katta" },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating", en: 'Sort them into groups' },
+    title: { ru: 'Сумма меньше целого, равна или больше?', uz: "Yig'indi butundan kichik, teng yoki katta?", en: 'Is the total less than a whole, equal to it or more?' },
+    lead: { ru: 'Посчитай каждую сумму и поставь её в свою группу. Сравни числитель со знаменателем.', uz: "Har bir yig'indini hisoblang va o'z guruhiga joylang. Suratni maxraj bilan solishtiring.", en: 'Work out each total and put it into its group. Compare the numerator with the denominator.' },
+    bin_lt: { ru: 'Меньше целого', uz: "Butundan kichik", en: 'Less than a whole' },
+    bin_eq: { ru: 'Равно целому', uz: "Butunga teng", en: 'Equal to a whole' },
+    bin_gt: { ru: 'Больше целого', uz: "Butundan katta", en: 'More than a whole' },
     cards: [
-      { expr: '1/5 + 2/5', bin: 'lt', say: { ru: 'Одна пятая плюс две пятых', uz: "Beshdan bir qo'shuv beshdan ikki" } },
-      { expr: '2/6 + 1/6', bin: 'lt', say: { ru: 'Две шестых плюс одна шестая', uz: "Oltidan ikki qo'shuv oltidan bir" } },
-      { expr: '3/6 + 3/6', bin: 'eq', say: { ru: 'Три шестых плюс три шестых', uz: "Oltidan uch qo'shuv oltidan uch" } },
-      { expr: '4/8 + 4/8', bin: 'eq', say: { ru: 'Четыре восьмых плюс четыре восьмых', uz: "Sakkizdan to'rt qo'shuv sakkizdan to'rt" } },
-      { expr: '5/6 + 4/6', bin: 'gt', say: { ru: 'Пять шестых плюс четыре шестых', uz: "Oltidan besh qo'shuv oltidan to'rt" } },
-      { expr: '3/4 + 2/4', bin: 'gt', say: { ru: 'Три четвёртых плюс две четвёртых', uz: "To'rtdan uch qo'shuv to'rtdan ikki" } }
+      { expr: '1/5 + 2/5', bin: 'lt', say: { ru: 'Одна пятая плюс две пятых', uz: "Beshdan bir qo'shuv beshdan ikki", en: 'One fifth plus two fifths' } },
+      { expr: '2/6 + 1/6', bin: 'lt', say: { ru: 'Две шестых плюс одна шестая', uz: "Oltidan ikki qo'shuv oltidan bir", en: 'Two sixths plus one sixth' } },
+      { expr: '3/6 + 3/6', bin: 'eq', say: { ru: 'Три шестых плюс три шестых', uz: "Oltidan uch qo'shuv oltidan uch", en: 'Three sixths plus three sixths' } },
+      { expr: '4/8 + 4/8', bin: 'eq', say: { ru: 'Четыре восьмых плюс четыре восьмых', uz: "Sakkizdan to'rt qo'shuv sakkizdan to'rt", en: 'Four eighths plus four eighths' } },
+      { expr: '5/6 + 4/6', bin: 'gt', say: { ru: 'Пять шестых плюс четыре шестых', uz: "Oltidan besh qo'shuv oltidan to'rt", en: 'Five sixths plus four sixths' } },
+      { expr: '3/4 + 2/4', bin: 'gt', say: { ru: 'Три четвёртых плюс две четвёртых', uz: "To'rtdan uch qo'shuv to'rtdan ikki", en: 'Three quarters plus two quarters' } }
     ],
-    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing." },
-    done_text: { ru: 'Готово. Сумма равна целому, когда числитель сравнялся со знаменателем, и больше целого, когда числитель его перерос.', uz: "Tayyor. Surat maxrajga tenglashganda yig'indi butunga teng, suratdan oshganda esa butundan katta bo'ladi." },
-    hint_wrong: { ru: 'Сложи числители и сравни со знаменателем: меньше, равно или больше.', uz: "Suratlarni qo'shib maxraj bilan solishtiring: kichik, teng yoki katta." },
-    correct_text: { ru: 'Верно. Числитель меньше знаменателя — меньше целого, равен — целое, больше — больше целого.', uz: "To'g'ri. Surat maxrajdan kichik — butundan kichik, teng — butun, katta — butundan katta." },
+    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing.", en: 'Which group? Tap a basket.' },
+    done_text: { ru: 'Готово. Сумма равна целому, когда числитель сравнялся со знаменателем, и больше целого, когда числитель его перерос.', uz: "Tayyor. Surat maxrajga tenglashganda yig'indi butunga teng, suratdan oshganda esa butundan katta bo'ladi.", en: 'Done. The total equals a whole when the numerator has caught up with the denominator, and it is more than a whole when the numerator has grown past it.' },
+    hint_wrong: { ru: 'Сложи числители и сравни со знаменателем: меньше, равно или больше.', uz: "Suratlarni qo'shib maxraj bilan solishtiring: kichik, teng yoki katta.", en: 'Add the numerators and compare with the denominator: less, equal or more.' },
+    correct_text: { ru: 'Верно. Числитель меньше знаменателя — меньше целого, равен — целое, больше — больше целого.', uz: "To'g'ri. Surat maxrajdan kichik — butundan kichik, teng — butun, katta — butundan katta.", en: 'That is right. A numerator smaller than the denominator means less than a whole, equal means a whole, and bigger means more than a whole.' },
     audio: {
-      intro: { ru: "Поставь каждую сумму в свою группу: меньше целого, равна целому или больше. Сложи числители и сравни со знаменателем.", uz: "Har bir yig'indini o'z guruhiga joylang: butundan kichik, butunga teng yoki katta. Suratlarni qo'shib maxraj bilan solishtiring." },
-      on_correct: { ru: "Верно. Когда числитель равен знаменателю, дробь это целое.", uz: "To'g'ri. Surat maxrajga teng bo'lganda, kasr butun bo'ladi." },
-      on_wrong: { ru: "Сложи числители и сравни со знаменателем.", uz: "Suratlarni qo'shib maxraj bilan solishtiring." }
+      intro: { ru: "Поставь каждую сумму в свою группу: меньше целого, равна целому или больше. Сложи числители и сравни со знаменателем.", uz: "Har bir yig'indini o'z guruhiga joylang: butundan kichik, butunga teng yoki katta. Suratlarni qo'shib maxraj bilan solishtiring.", en: 'Put each total into its group: less than a whole, equal to a whole or more. Add the numerators and compare with the denominator.' },
+      on_correct: { ru: "Верно. Когда числитель равен знаменателю, дробь это целое.", uz: "To'g'ri. Surat maxrajga teng bo'lganda, kasr butun bo'ladi.", en: 'That is right. When the numerator equals the denominator, the fraction is a whole one.' },
+      on_wrong: { ru: "Сложи числители и сравни со знаменателем.", uz: "Suratlarni qo'shib maxraj bilan solishtiring.", en: 'Add the numerators and compare with the denominator.' }
     }
   },
 
   // ===== s9 TEST fill-blank — 3/8 + 2/8 = ?/8 (o'zi teradi) =====
   s9: {
-    eyebrow: { ru: 'Впиши ответ', uz: "Javobni kiriting" },
-    question: { ru: 'Сложи: 3/8 + 2/8 = ?/8. Впиши числитель.', uz: "Qo'shing: 3/8 + 2/8 = ?/8. Suratni kiriting." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Знаменатель уже стоит. Сложи только числители, то есть верхние числа.', uz: "Maxraj allaqachon turibdi. Faqat suratlarni, ya'ni yuqoridagi sonlarni qo'shing." },
-    fb_correct: { ru: 'Верно: 3 + 2 = 5, знаменатель 8 → 5/8.', uz: "To'g'ri: 3 + 2 = 5, maxraj 8 → 5/8." },
+    eyebrow: { ru: 'Впиши ответ', uz: "Javobni kiriting", en: 'Write in the answer' },
+    question: { ru: 'Сложи: 3/8 + 2/8 = ?/8. Впиши числитель.', uz: "Qo'shing: 3/8 + 2/8 = ?/8. Suratni kiriting.", en: 'Add: 3/8 + 2/8 = ?/8. Write in the numerator.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Знаменатель уже стоит. Сложи только числители, то есть верхние числа.', uz: "Maxraj allaqachon turibdi. Faqat suratlarni, ya'ni yuqoridagi sonlarni qo'shing.", en: 'The denominator is already there. Add only the numerators, the numbers on top.' },
+    fb_correct: { ru: 'Верно: 3 + 2 = 5, знаменатель 8 → 5/8.', uz: "To'g'ri: 3 + 2 = 5, maxraj 8 → 5/8.", en: 'That is right: 3 + 2 = 5 and the denominator is 8, giving 5/8.' },
     audio: {
-      intro: { ru: "Знаменатель уже стоит, восемь. Впиши числитель: сколько будет три восьмых плюс две восьмых?", uz: "Maxraj allaqachon turibdi, sakkiz. Suratni kiriting: sakkizdan uch va sakkizdan ikki qancha bo'ladi?" },
-      on_correct: { ru: "Верно, пять восьмых. Сложили только числители.", uz: "To'g'ri, sakkizdan besh. Faqat suratlarni qo'shdik." },
-      on_wrong: { ru: "Сложи числители, знаменатель не трогай.", uz: "Suratlarni qo'shing, maxrajga tegmang." }
+      intro: { ru: "Знаменатель уже стоит, восемь. Впиши числитель: сколько будет три восьмых плюс две восьмых?", uz: "Maxraj allaqachon turibdi, sakkiz. Suratni kiriting: sakkizdan uch va sakkizdan ikki qancha bo'ladi?", en: 'The denominator is already there, eight. Write in the numerator: how much is three eighths plus two eighths?' },
+      on_correct: { ru: "Верно, пять восьмых. Сложили только числители.", uz: "To'g'ri, sakkizdan besh. Faqat suratlarni qo'shdik.", en: 'That is right, five eighths. Only the numerators were added.' },
+      on_wrong: { ru: "Сложи числители, знаменатель не трогай.", uz: "Suratlarni qo'shing, maxrajga tegmang.", en: 'Add the numerators and leave the denominator alone.' }
     }
   },
 
   // ===== s10 TEST SeqMC — 7 misol oson→qiyin =====
   s10: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Семь примеров: от лёгкого к трудному', uz: "Yetti misol: osondan qiyiniga" },
-    lead: { ru: 'Складывай дроби. Знаменатель не меняем. Дальше — сложнее.', uz: "Kasrlarni qo'shing. Maxraj o'zgarmaydi. Keyingisi — qiyinroq." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Семь примеров: от лёгкого к трудному', uz: "Yetti misol: osondan qiyiniga", en: 'Seven examples: from easy to hard' },
+    lead: { ru: 'Складывай дроби. Знаменатель не меняем. Дальше — сложнее.', uz: "Kasrlarni qo'shing. Maxraj o'zgarmaydi. Keyingisi — qiyinroq.", en: 'Add the fractions. The denominator does not change. It gets harder as you go.' },
     questions: [
       {
-        q: { ru: '1/4 + 2/4', uz: '1/4 + 2/4' },
-        say: { ru: "Одна четвёртая плюс две четвёртых.", uz: "To'rtdan bir qo'shuv to'rtdan ikki." },
-        opts: [{ ru: '3/4', uz: '3/4' }, { ru: '3/8', uz: '3/8' }, { ru: '2/4', uz: '2/4' }],
+        q: { ru: '1/4 + 2/4', uz: '1/4 + 2/4', en: '1/4 + 2/4' },
+        say: { ru: "Одна четвёртая плюс две четвёртых.", uz: "To'rtdan bir qo'shuv to'rtdan ikki.", en: 'One quarter plus two quarters.' },
+        opts: [{ ru: '3/4', uz: '3/4', en: '3/4' }, { ru: '3/8', uz: '3/8', en: '3/8' }, { ru: '2/4', uz: '2/4', en: '2/4' }],
         correct: 0,
-        ok: { ru: 'Верно: 1 + 2 = 3, знаменатель 4.', uz: "To'g'ri: 1 + 2 = 3, maxraj 4." },
-        no: { ru: 'Сложи числители, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring." }
+        ok: { ru: 'Верно: 1 + 2 = 3, знаменатель 4.', uz: "To'g'ri: 1 + 2 = 3, maxraj 4.", en: 'That is right: 1 + 2 = 3 and the denominator is 4.' },
+        no: { ru: 'Сложи числители, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Add the numerators and leave the denominator as it is.' }
       },
       {
-        q: { ru: '2/5 + 1/5', uz: '2/5 + 1/5' },
-        say: { ru: "Две пятых плюс одна пятая.", uz: "Beshdan ikki qo'shuv beshdan bir." },
-        opts: [{ ru: '3/10', uz: '3/10' }, { ru: '3/5', uz: '3/5' }, { ru: '1/5', uz: '1/5' }],
+        q: { ru: '2/5 + 1/5', uz: '2/5 + 1/5', en: '2/5 + 1/5' },
+        say: { ru: "Две пятых плюс одна пятая.", uz: "Beshdan ikki qo'shuv beshdan bir.", en: 'Two fifths plus one fifth.' },
+        opts: [{ ru: '3/10', uz: '3/10', en: '3/10' }, { ru: '3/5', uz: '3/5', en: '3/5' }, { ru: '1/5', uz: '1/5', en: '1/5' }],
         correct: 1,
-        ok: { ru: 'Верно: 2 + 1 = 3, знаменатель 5.', uz: "To'g'ri: 2 + 1 = 3, maxraj 5." },
-        no: { ru: 'Знаменатель не складываем, он остаётся прежним.', uz: "Maxrajni qo'shmaymiz, u o'sha holicha qoladi." }
+        ok: { ru: 'Верно: 2 + 1 = 3, знаменатель 5.', uz: "To'g'ri: 2 + 1 = 3, maxraj 5.", en: 'That is right: 2 + 1 = 3 and the denominator is 5.' },
+        no: { ru: 'Знаменатель не складываем, он остаётся прежним.', uz: "Maxrajni qo'shmaymiz, u o'sha holicha qoladi.", en: 'We do not add the denominators, they stay as they are.' }
       },
       {
-        q: { ru: '3/7 + 2/7', uz: '3/7 + 2/7' },
-        say: { ru: "Три седьмых плюс две седьмых.", uz: "Yettidan uch qo'shuv yettidan ikki." },
-        opts: [{ ru: '5/14', uz: '5/14' }, { ru: '6/7', uz: '6/7' }, { ru: '5/7', uz: '5/7' }],
+        q: { ru: '3/7 + 2/7', uz: '3/7 + 2/7', en: '3/7 + 2/7' },
+        say: { ru: "Три седьмых плюс две седьмых.", uz: "Yettidan uch qo'shuv yettidan ikki.", en: 'Three sevenths plus two sevenths.' },
+        opts: [{ ru: '5/14', uz: '5/14', en: '5/14' }, { ru: '6/7', uz: '6/7', en: '6/7' }, { ru: '5/7', uz: '5/7', en: '5/7' }],
         correct: 2,
-        ok: { ru: 'Верно: 3 + 2 = 5, знаменатель 7.', uz: "To'g'ri: 3 + 2 = 5, maxraj 7." },
-        no: { ru: 'Сложи только числители.', uz: "Faqat suratlarni qo'shing." }
+        ok: { ru: 'Верно: 3 + 2 = 5, знаменатель 7.', uz: "To'g'ri: 3 + 2 = 5, maxraj 7.", en: 'That is right: 3 + 2 = 5 and the denominator is 7.' },
+        no: { ru: 'Сложи только числители.', uz: "Faqat suratlarni qo'shing.", en: 'Add only the numerators.' }
       },
       {
-        q: { ru: '4/9 + 4/9', uz: '4/9 + 4/9' },
-        say: { ru: "Четыре девятых плюс четыре девятых.", uz: "To'qqizdan to'rt qo'shuv to'qqizdan to'rt." },
-        opts: [{ ru: '8/9', uz: '8/9' }, { ru: '8/18', uz: '8/18' }, { ru: '16/9', uz: '16/9' }],
+        q: { ru: '4/9 + 4/9', uz: '4/9 + 4/9', en: '4/9 + 4/9' },
+        say: { ru: "Четыре девятых плюс четыре девятых.", uz: "To'qqizdan to'rt qo'shuv to'qqizdan to'rt.", en: 'Four ninths plus four ninths.' },
+        opts: [{ ru: '8/9', uz: '8/9', en: '8/9' }, { ru: '8/18', uz: '8/18', en: '8/18' }, { ru: '16/9', uz: '16/9', en: '16/9' }],
         correct: 0,
-        ok: { ru: 'Верно: 4 + 4 = 8, знаменатель 9.', uz: "To'g'ri: 4 + 4 = 8, maxraj 9." },
-        no: { ru: 'Числители сложи, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring." }
+        ok: { ru: 'Верно: 4 + 4 = 8, знаменатель 9.', uz: "To'g'ri: 4 + 4 = 8, maxraj 9.", en: 'That is right: 4 + 4 = 8 and the denominator is 9.' },
+        no: { ru: 'Числители сложи, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Add the numerators and leave the denominator as it is.' }
       },
       {
-        q: { ru: '3/6 + 3/6', uz: '3/6 + 3/6' },
-        say: { ru: "Три шестых плюс три шестых.", uz: "Oltidan uch qo'shuv oltidan uch." },
-        opts: [{ ru: '6/12', uz: '6/12' }, { ru: '6/6', uz: '6/6' }, { ru: '3/6', uz: '3/6' }],
+        q: { ru: '3/6 + 3/6', uz: '3/6 + 3/6', en: '3/6 + 3/6' },
+        say: { ru: "Три шестых плюс три шестых.", uz: "Oltidan uch qo'shuv oltidan uch.", en: 'Three sixths plus three sixths.' },
+        opts: [{ ru: '6/12', uz: '6/12', en: '6/12' }, { ru: '6/6', uz: '6/6', en: '6/6' }, { ru: '3/6', uz: '3/6', en: '3/6' }],
         correct: 1,
-        ok: { ru: 'Верно: 3 + 3 = 6, знаменатель 6. Это 6/6 — целое.', uz: "To'g'ri: 3 + 3 = 6, maxraj 6. Bu 6/6 — butun." },
-        no: { ru: 'Сложи числители, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring." }
+        ok: { ru: 'Верно: 3 + 3 = 6, знаменатель 6. Это 6/6 — целое.', uz: "To'g'ri: 3 + 3 = 6, maxraj 6. Bu 6/6 — butun.", en: 'That is right: 3 + 3 = 6 and the denominator is 6. That is 6/6, a whole one.' },
+        no: { ru: 'Сложи числители, знаменатель оставь прежним.', uz: "Suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Add the numerators and leave the denominator as it is.' }
       },
       {
-        q: { ru: '5/8 + 3/8', uz: '5/8 + 3/8' },
-        say: { ru: "Пять восьмых плюс три восьмых.", uz: "Sakkizdan besh qo'shuv sakkizdan uch." },
-        opts: [{ ru: '8/16', uz: '8/16' }, { ru: '8/8', uz: '8/8' }, { ru: '15/8', uz: '15/8' }],
+        q: { ru: '5/8 + 3/8', uz: '5/8 + 3/8', en: '5/8 + 3/8' },
+        say: { ru: "Пять восьмых плюс три восьмых.", uz: "Sakkizdan besh qo'shuv sakkizdan uch.", en: 'Five eighths plus three eighths.' },
+        opts: [{ ru: '8/16', uz: '8/16', en: '8/16' }, { ru: '8/8', uz: '8/8', en: '8/8' }, { ru: '15/8', uz: '15/8', en: '15/8' }],
         correct: 1,
-        ok: { ru: 'Верно: 5 + 3 = 8, знаменатель 8. Это 8/8 — целое.', uz: "To'g'ri: 5 + 3 = 8, maxraj 8. Bu 8/8 — butun." },
-        no: { ru: 'Знаменатель не меняем. Сложи верхние числа.', uz: "Maxrajni o'zgartirmaymiz. Yuqoridagi sonlarni qo'shing." }
+        ok: { ru: 'Верно: 5 + 3 = 8, знаменатель 8. Это 8/8 — целое.', uz: "To'g'ri: 5 + 3 = 8, maxraj 8. Bu 8/8 — butun.", en: 'That is right: 5 + 3 = 8 and the denominator is 8. That is 8/8, a whole one.' },
+        no: { ru: 'Знаменатель не меняем. Сложи верхние числа.', uz: "Maxrajni o'zgartirmaymiz. Yuqoridagi sonlarni qo'shing.", en: 'The denominator does not change. Add the numbers on top.' }
       },
       {
-        q: { ru: '5/6 + 4/6', uz: '5/6 + 4/6' },
-        say: { ru: "Пять шестых плюс четыре шестых.", uz: "Oltidan besh qo'shuv oltidan to'rt." },
-        opts: [{ ru: '9/6', uz: '9/6' }, { ru: '9/12', uz: '9/12' }, { ru: '1/6', uz: '1/6' }],
+        q: { ru: '5/6 + 4/6', uz: '5/6 + 4/6', en: '5/6 + 4/6' },
+        say: { ru: "Пять шестых плюс четыре шестых.", uz: "Oltidan besh qo'shuv oltidan to'rt.", en: 'Five sixths plus four sixths.' },
+        opts: [{ ru: '9/6', uz: '9/6', en: '9/6' }, { ru: '9/12', uz: '9/12', en: '9/12' }, { ru: '1/6', uz: '1/6', en: '1/6' }],
         correct: 0,
-        ok: { ru: 'Верно: 5 + 4 = 9, знаменатель 6. Получается 9/6 — больше целого.', uz: "To'g'ri: 5 + 4 = 9, maxraj 6. 9/6 chiqadi — butundan katta." },
-        no: { ru: 'Сложи числители. Сумма может быть больше целого.', uz: "Suratlarni qo'shing. Yig'indi butundan katta bo'lishi mumkin." }
+        ok: { ru: 'Верно: 5 + 4 = 9, знаменатель 6. Получается 9/6 — больше целого.', uz: "To'g'ri: 5 + 4 = 9, maxraj 6. 9/6 chiqadi — butundan katta.", en: 'That is right: 5 + 4 = 9 and the denominator is 6. That gives 9/6, more than a whole.' },
+        no: { ru: 'Сложи числители. Сумма может быть больше целого.', uz: "Suratlarni qo'shing. Yig'indi butundan katta bo'lishi mumkin.", en: 'Add the numerators. The total can be more than a whole.' }
       }
     ],
     audio: {
-      intro: { ru: "Семь примеров, от лёгкого к трудному. Складывай числители, знаменатель оставляй прежним.", uz: "Yetti misol, osondan qiyiniga. Suratlarni qo'shing, maxrajni o'sha holicha qoldiring." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Почти. Складывай только числители.", uz: "Deyarli. Faqat suratlarni qo'shing." },
-      on_done: { ru: "Все семь готовы. Даже когда сумма больше целого, знаменатель не меняется.", uz: "Yettalasi tayyor. Yig'indi butundan katta bo'lganda ham, maxraj o'zgarmaydi." }
+      intro: { ru: "Семь примеров, от лёгкого к трудному. Складывай числители, знаменатель оставляй прежним.", uz: "Yetti misol, osondan qiyiniga. Suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Seven examples, from easy to hard. Add the numerators and leave the denominator as it is.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Почти. Складывай только числители.", uz: "Deyarli. Faqat suratlarni qo'shing.", en: 'Almost. Add only the numerators.' },
+      on_done: { ru: "Все семь готовы. Даже когда сумма больше целого, знаменатель не меняется.", uz: "Yettalasi tayyor. Yig'indi butundan katta bo'lganda ham, maxraj o'zgarmaydi.", en: 'All seven are done. Even when the total is more than a whole, the denominator does not change.' }
     }
   },
 
   // ===== s11 CASE — internet/GB (Behruz), final MC (FAKT: internet) =====
   s11: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    title: { ru: 'Загрузка файла у Бехруза', uz: "Behruzning fayl yuklashi" },
-    bridge: { ru: 'Хорошо потренировались. Применим сложение в жизни.', uz: "Yaxshi mashq qildik. Qo'shishni hayotda qo'llaymiz." },
-    lead: { ru: 'Бехруз качает файл. Сначала загрузилось 1/8 файла, потом ещё 3/8. Доли одинаковые — восьмые.', uz: "Behruz fayl yuklayapti. Avval faylning 1/8 qismi yuklandi, keyin yana 3/8. Ulushlar bir xil — sakkizdan." },
-    note: { ru: 'Сколько файла загрузилось всего?', uz: "Jami faylning qancha qismi yuklandi?" },
-    question: { ru: 'Сколько загрузилось всего? <b>1/8 + 3/8</b>', uz: "Jami qancha yuklandi? <b>1/8 + 3/8</b>" },
-    opt0: { ru: '4/8', uz: '4/8' },
-    opt1: { ru: '4/16', uz: '4/16' },
-    opt2: { ru: '3/8', uz: '3/8' },
-    opt3: { ru: '1/8', uz: '1/8' },
-    correct_text: { ru: 'Верно: 1 + 3 = 4, знаменатель 8. Загрузилось 4/8 файла — это половина.', uz: "To'g'ri: 1 + 3 = 4, maxraj 8. Faylning 4/8 qismi yuklandi — bu yarmi." },
-    wrong_1: { ru: 'Ты сложил и знаменатели тоже. Знаменатель остаётся прежним.', uz: "Siz maxrajlarni ham qo'shdingiz. Maxraj o'sha holicha qoladi." },
-    wrong_2: { ru: 'Это только вторая загрузка. Прибавь и первую долю.', uz: "Bu faqat ikkinchi yuklash. Birinchi ulushni ham qo'shing." },
-    wrong_3: { ru: 'Это только первая загрузка. Прибавь и вторую долю.', uz: "Bu faqat birinchi yuklash. Ikkinchi ulushni ham qo'shing." },
-    fact: { ru: 'Полоска загрузки в телефоне — это дробь: загруженная часть от всего файла. 4/8 это половина, полоса заполнена наполовину.', uz: "Telefondagi yuklash chizig'i — bu kasr: butun fayldan yuklangan qism. 4/8 — bu yarim, chiziq yarmigacha to'lgan." },
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    title: { ru: 'Загрузка файла у Бехруза', uz: "Behruzning fayl yuklashi", en: "Behruz's file download" },
+    bridge: { ru: 'Хорошо потренировались. Применим сложение в жизни.', uz: "Yaxshi mashq qildik. Qo'shishni hayotda qo'llaymiz.", en: 'That was good practice. Let us use adding in real life.' },
+    lead: { ru: 'Бехруз качает файл. Сначала загрузилось 1/8 файла, потом ещё 3/8. Доли одинаковые — восьмые.', uz: "Behruz fayl yuklayapti. Avval faylning 1/8 qismi yuklandi, keyin yana 3/8. Ulushlar bir xil — sakkizdan.", en: 'Behruz is downloading a file. First 1/8 of it downloaded and then another 3/8. The parts are the same, eighths.' },
+    note: { ru: 'Сколько файла загрузилось всего?', uz: "Jami faylning qancha qismi yuklandi?", en: 'How much of the file has downloaded altogether?' },
+    question: { ru: 'Сколько загрузилось всего? <b>1/8 + 3/8</b>', uz: "Jami qancha yuklandi? <b>1/8 + 3/8</b>", en: 'How much has downloaded altogether? <b>1/8 + 3/8</b>' },
+    opt0: { ru: '4/8', uz: '4/8', en: '4/8' },
+    opt1: { ru: '4/16', uz: '4/16', en: '4/16' },
+    opt2: { ru: '3/8', uz: '3/8', en: '3/8' },
+    opt3: { ru: '1/8', uz: '1/8', en: '1/8' },
+    correct_text: { ru: 'Верно: 1 + 3 = 4, знаменатель 8. Загрузилось 4/8 файла — это половина.', uz: "To'g'ri: 1 + 3 = 4, maxraj 8. Faylning 4/8 qismi yuklandi — bu yarmi.", en: 'That is right: 1 + 3 = 4 and the denominator is 8. 4/8 of the file has downloaded, which is half.' },
+    wrong_1: { ru: 'Ты сложил и знаменатели тоже. Знаменатель остаётся прежним.', uz: "Siz maxrajlarni ham qo'shdingiz. Maxraj o'sha holicha qoladi.", en: 'You added the denominators as well. The denominator stays as it was.' },
+    wrong_2: { ru: 'Это только вторая загрузка. Прибавь и первую долю.', uz: "Bu faqat ikkinchi yuklash. Birinchi ulushni ham qo'shing.", en: 'That is only the second download. Add the first lot of parts as well.' },
+    wrong_3: { ru: 'Это только первая загрузка. Прибавь и вторую долю.', uz: "Bu faqat birinchi yuklash. Ikkinchi ulushni ham qo'shing.", en: 'That is only the first download. Add the second lot of parts as well.' },
+    fact: { ru: 'Полоска загрузки в телефоне — это дробь: загруженная часть от всего файла. 4/8 это половина, полоса заполнена наполовину.', uz: "Telefondagi yuklash chizig'i — bu kasr: butun fayldan yuklangan qism. 4/8 — bu yarim, chiziq yarmigacha to'lgan.", en: 'The loading bar on a phone is a fraction: the downloaded part out of the whole file. 4/8 is a half, so the bar is half full.' },
     audio: {
-      intro: { ru: "Бехруз качает файл. Сначала загрузилась одна восьмая, потом ещё три восьмых. Сколько файла загрузилось всего?", uz: "Behruz fayl yuklayapti. Avval sakkizdan bir yuklandi, keyin yana sakkizdan uch. Jami faylning qancha qismi yuklandi?" },
-      on_correct: { ru: "Верно, четыре восьмых, это ровно половина файла. Кстати, полоска загрузки и есть такая дробь.", uz: "To'g'ri, sakkizdan to'rt, bu faylning aniq yarmi. Aytgancha, yuklash chizig'i ham xuddi shunday kasr." },
-      on_wrong: { ru: "Сложи только числители, знаменатель оставь прежним.", uz: "Faqat suratlarni qo'shing, maxrajni o'sha holicha qoldiring." }
+      intro: { ru: "Бехруз качает файл. Сначала загрузилась одна восьмая, потом ещё три восьмых. Сколько файла загрузилось всего?", uz: "Behruz fayl yuklayapti. Avval sakkizdan bir yuklandi, keyin yana sakkizdan uch. Jami faylning qancha qismi yuklandi?", en: 'Behruz is downloading a file. First one eighth downloaded and then another three eighths. How much of the file has downloaded altogether?' },
+      on_correct: { ru: "Верно, четыре восьмых, это ровно половина файла. Кстати, полоска загрузки и есть такая дробь.", uz: "To'g'ri, sakkizdan to'rt, bu faylning aniq yarmi. Aytgancha, yuklash chizig'i ham xuddi shunday kasr.", en: 'That is right, four eighths, which is exactly half the file. By the way, a loading bar is a fraction just like that.' },
+      on_wrong: { ru: "Сложи только числители, знаменатель оставь прежним.", uz: "Faqat suratlarni qo'shing, maxrajni o'sha holicha qoldiring.", en: 'Add only the numerators and leave the denominator as it is.' }
     }
   },
 
   // ===== s12 SUMMARY — hookni yopadi + ConnectionsBlock =====
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Сложить дроби с равным знаменателем легко', uz: "Bir xil maxrajli kasrlarni qo'shish oson" },
-    score_caption: { ru: 'верных ответов с первой попытки.', uz: "ta javob birinchi urinishda to'g'ri." },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Складываем только числители.', uz: "Faqat suratlarni qo'shamiz." },
-    main_2: { ru: 'Знаменатель оставляем тот же — его не складываем.', uz: "Maxrajni o'sha holicha qoldiramiz — uni qo'shmaymiz." },
-    main_3: { ru: 'Когда числитель сравнялся со знаменателем, дробь равна целому.', uz: "Surat maxrajga tenglashganda, kasr butunga teng bo'ladi." },
-    hook_close: { ru: 'Вот и ответ Нилуфар: 2/6 + 3/6 = 5/6, а не 5/12. Знаменатель не меняется.', uz: "Mana Nilufarga javob: 2/6 + 3/6 = 5/6, 5/12 emas. Maxraj o'zgarmaydi." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Что такое доля целого и сравнение дробей с равным знаменателем.', uz: "Butun ulushi nima va bir xil maxrajli kasrlarni taqqoslash." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Вычитание дробей с равными знаменателями.', uz: "Bir xil maxrajli kasrlarni ayirish." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, складываем только числители, а знаменатель оставляем прежним. А когда числитель сравнялся со знаменателем, дробь становится целым. Вот и ответ Нилуфар: две шестых плюс три шестых это пять шестых.", uz: "Demak, faqat suratlarni qo'shamiz, maxrajni esa o'sha holicha qoldiramiz. Surat maxrajga tenglashganda kasr butun bo'ladi. Mana Nilufarga javob: oltidan ikki va oltidan uch bu oltidan besh." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Сложить дроби с равным знаменателем легко', uz: "Bir xil maxrajli kasrlarni qo'shish oson", en: 'Adding fractions with the same denominator is easy' },
+    score_caption: { ru: 'верных ответов с первой попытки.', uz: "ta javob birinchi urinishda to'g'ri.", en: 'correct answers first time.' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Складываем только числители.', uz: "Faqat suratlarni qo'shamiz.", en: 'We add only the numerators.' },
+    main_2: { ru: 'Знаменатель оставляем тот же — его не складываем.', uz: "Maxrajni o'sha holicha qoldiramiz — uni qo'shmaymiz.", en: 'We leave the denominator the same, we do not add it.' },
+    main_3: { ru: 'Когда числитель сравнялся со знаменателем, дробь равна целому.', uz: "Surat maxrajga tenglashganda, kasr butunga teng bo'ladi.", en: 'When the numerator has caught up with the denominator, the fraction equals a whole one.' },
+    hook_close: { ru: 'Вот и ответ Нилуфар: 2/6 + 3/6 = 5/6, а не 5/12. Знаменатель не меняется.', uz: "Mana Nilufarga javob: 2/6 + 3/6 = 5/6, 5/12 emas. Maxraj o'zgarmaydi.", en: "So here is Nilufar's answer: 2/6 + 3/6 = 5/6, not 5/12. The denominator does not change." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Что такое доля целого и сравнение дробей с равным знаменателем.', uz: "Butun ulushi nima va bir xil maxrajli kasrlarni taqqoslash.", en: 'What a part of a whole is and comparing fractions with the same denominator.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Вычитание дробей с равными знаменателями.', uz: "Bir xil maxrajli kasrlarni ayirish.", en: 'Subtracting fractions with the same denominator.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, складываем только числители, а знаменатель оставляем прежним. А когда числитель сравнялся со знаменателем, дробь становится целым. Вот и ответ Нилуфар: две шестых плюс три шестых это пять шестых.", uz: "Demak, faqat suratlarni qo'shamiz, maxrajni esa o'sha holicha qoldiramiz. Surat maxrajga tenglashganda kasr butun bo'ladi. Mana Nilufarga javob: oltidan ikki va oltidan uch bu oltidan besh.", en: "So we add only the numerators and leave the denominator as it is. And when the numerator has caught up with the denominator, the fraction becomes a whole one. So here is Nilufar's answer: two sixths plus three sixths is five sixths." }
   }
 };
 
@@ -1464,7 +1491,7 @@ const ClassifySum = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1533,14 +1560,14 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
             <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 'clamp(10px, 2.4vw, 18px)', padding: 'clamp(14px, 2.6vw, 22px)' }}>
               {scored ? (
                 <>
-                  <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? "qo'sh:" : 'сложи:'}</span>
+                  <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? "qo'sh:" : lang === 'en' ? "add:" : 'сложи:'}</span>
                   <div className="dm-prob">{mt(tx(q.q))}</div>
                 </>
               ) : (
@@ -1563,7 +1590,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1580,8 +1607,8 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
 
 // s0 — HOOK: 3/5 + 1/5 = 4/10 — ошибка? (центрируется, picked сбрасывается)
 // Fakt-badgelar (FB_IT/FB_SCI/FB_HIST infra'da; bu darsga musiqa va vaqt qo'shildi).
-const FB_MUS  = { ru: 'Знаешь ли ты? · Музыка', uz: "Bilasizmi? · Musiqa" };
-const FB_TIME = { ru: 'Знаешь ли ты? · Время',  uz: "Bilasizmi? · Vaqt" };
+const FB_MUS  = { ru: 'Знаешь ли ты? · Музыка', uz: "Bilasizmi? · Musiqa", en: 'Did you know? · Music' };
+const FB_TIME = { ru: 'Знаешь ли ты? · Время',  uz: "Bilasizmi? · Vaqt",  en: 'Did you know? · Time' };
 
 // ============================================================
 // s0 — HOOK: sharbat quyilishi (2/6 + 3/6). Konseptual «nega?», tuzoq 5/12.
@@ -1663,7 +1690,7 @@ const StepBarExplore = ({ c, screen, onNext, onPrev, den, lines, countsByStep, s
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const counts = countsByStep[Math.min(step, countsByStep.length - 1)];
   const fills = buildFills([{ count: counts[0], color: T.accent }, { count: counts[1], color: T.blue }], den);
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : lang === 'en' ? "Next" : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
@@ -1866,7 +1893,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1905,7 +1932,7 @@ export default function FractionAddSameDenLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1958,7 +1985,7 @@ export default function FractionAddSameDenLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -73,9 +73,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -246,7 +274,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -287,7 +315,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -899,8 +928,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'kalendar-2-34-v1',
-  lessonTitle: { ru: 'Урок 34. Календарь', uz: "34-dars. Kalendar" }
+  lessonId: 'grade2-34',
+  lessonTitle: { ru: 'Урок 34. Календарь', uz: "34-dars. Kalendar", en: 'Lesson 34. The calendar' }
 };
 // STRUKTURA (Б6 NEPTUN, kalendar): s0 hook (chorshanbadan keyin dushanba? — kun tartibi) · s1 WeekStrip teach (7 kun) ·
 // s2 kecha/bugun/erta · s3 QOIDA (kunlar tartib bilan) + check (jumadan keyin?) · s4 OYLAR (12) + warn (hafta=7≠oy) +
@@ -951,13 +980,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK: «Chorshanbadan keyin Dushanba keladi»mi? (kun tartibi buzilgan). To'g'ri = Yo'q (Payshanba).
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Календарь', uz: "Mavzu: Kalendar" },
-    lead: { ru: 'Верный ли порядок?', uz: "Tartib to'g'rimi?" },
-    q: { ru: 'После среды идёт понедельник?', uz: "Chorshanbadan keyin dushanba keladimi?" },
-    opt0: { ru: 'Да', uz: 'Ha' },
-    opt1: { ru: 'Нет', uz: "Yo'q" },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Календарь', uz: "Mavzu: Kalendar", en: 'Topic: The calendar' },
+    lead: { ru: 'Верный ли порядок?', uz: "Tartib to'g'rimi?", en: 'Is the order right?' },
+    q: { ru: 'После среды идёт понедельник?', uz: "Chorshanbadan keyin dushanba keladimi?", en: 'Does Monday come after Wednesday?' },
+    opt0: { ru: 'Да', uz: 'Ha', en: 'Yes' },
+    opt1: { ru: 'Нет', uz: "Yo'q", en: 'No' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -971,20 +1000,21 @@ const CONTENT = {
           "Hafta kunlari doim tartib bilan, birin-ketin keladi.",
           "Kimdir aytdi: chorshanbadan keyin dushanba keladi. Ammo u kun tartibini chalkashtirdi.",
           "Sizningcha, bu to'g'rimi? Javoblarni tinglang: ha yoki yo'q. Yoki hali bilmaysiz."
-        ]
+        ],
+        en: ["We are at the station by Neptune. Bit is filling in the ship's log from the calendar.", 'The days of the week always go in order, one after another.', 'Someone said that Monday comes after Wednesday. But they mixed up the order of the days.', 'Do you think that is right? Listen to the answers: yes or no. Or maybe you do not know yet.']
       },
-      on_correct: { ru: 'Верно. После среды идёт четверг, а не понедельник.', uz: "To'g'ri. Chorshanbadan keyin payshanba keladi, dushanba emas." },
-      on_wrong: { ru: 'Дни идут по порядку: после среды, четверг. Сейчас разберём.', uz: "Kunlar tartib bilan keladi: chorshanbadan keyin, payshanba. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Сегодня разберём дни недели и календарь.', uz: "Hechqisi yo'q. Bugun hafta kunlari va kalendarni o'rganamiz." }
+      on_correct: { ru: 'Верно. После среды идёт четверг, а не понедельник.', uz: "To'g'ri. Chorshanbadan keyin payshanba keladi, dushanba emas.", en: 'That is right. Thursday comes after Wednesday, not Monday.' },
+      on_wrong: { ru: 'Дни идут по порядку: после среды, четверг. Сейчас разберём.', uz: "Kunlar tartib bilan keladi: chorshanbadan keyin, payshanba. Hozir ko'ramiz.", en: 'The days go in order: after Wednesday comes Thursday. Now let us look at it.' },
+      on_unknown: { ru: 'Ничего. Сегодня разберём дни недели и календарь.', uz: "Hechqisi yo'q. Bugun hafta kunlari va kalendarni o'rganamiz.", en: 'No problem. Today we will look at the days of the week and the calendar.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: WeekStrip — 7 kun tartibi. Hafta = 7 kun. 4 seg step-reveal.
   s1: {
-    eyebrow: { ru: 'Неделя', uz: 'Hafta' },
-    lead: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'В неделе семь дней, по порядку.', uz: "Haftada yetti kun, tartib bilan." },
+    eyebrow: { ru: 'Неделя', uz: 'Hafta', en: 'The week' },
+    lead: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni", en: 'Seven days of the week' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'В неделе семь дней, по порядку.', uz: "Haftada yetti kun, tartib bilan.", en: 'There are seven days in a week, and they go in order.' },
     audio: {
       ru: [
         'Посмотри на неделю. В ней семь дней.',
@@ -997,16 +1027,17 @@ const CONTENT = {
         "Birinchi kun, dushanba. Undan keyin seshanba, chorshanba, payshanba.",
         "Keyin juma, shanba va yakshanba.",
         "Kunlar doim tartib bilan keladi. Yakshanbadan keyin yana dushanba."
-      ]
+      ],
+      en: ['Look at the week. It has seven days.', 'The first day is Monday. Then come Tuesday, Wednesday and Thursday.', 'Then Friday, Saturday and Sunday.', 'The days always go in order. After Sunday it is Monday again.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: kecha / bugun / erta (WeekStrip da). 4 seg.
   s2: {
-    eyebrow: { ru: 'Вчера · сегодня · завтра', uz: 'Kecha · bugun · ertaga' },
-    lead: { ru: 'Вчера, сегодня, завтра', uz: "Kecha, bugun, ertaga" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Вчера — до, сегодня — сейчас, завтра — после.', uz: "Kecha — oldin, bugun — hozir, ertaga — keyin." },
+    eyebrow: { ru: 'Вчера · сегодня · завтра', uz: 'Kecha · bugun · ertaga', en: 'Yesterday · today · tomorrow' },
+    lead: { ru: 'Вчера, сегодня, завтра', uz: "Kecha, bugun, ertaga", en: 'Yesterday, today, tomorrow' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Вчера — до, сегодня — сейчас, завтра — после.', uz: "Kecha — oldin, bugun — hozir, ertaga — keyin.", en: 'Yesterday is before, today is now, tomorrow is after.' },
     audio: {
       ru: [
         'Допустим, сегодня среда.',
@@ -1019,18 +1050,19 @@ const CONTENT = {
         "Kecha chorshanbadan oldingi kun, seshanba edi.",
         "Erta chorshanbadan keyingi kun, payshanba bo'ladi.",
         "Kecha, bugun, ertaga, bu ketma-ket uch kun."
-      ]
+      ],
+      en: ['Let us say today is Wednesday.', 'Yesterday was the day before Wednesday, which is Tuesday.', 'Tomorrow is the day after Wednesday, which is Thursday.', 'Yesterday, today and tomorrow are three days in a row.']
     }
   },
 
   // s3 — QOIDA: kunlar tartib bilan; oxirgisidan keyin — yana birinchisi + check (jumadan keyin? → shanba).
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Дни идут по порядку; после последнего — снова первый.', uz: "Kunlar tartib bilan; oxirgisidan keyin yana birinchisi." },
-    check_q: { ru: 'Какой день идёт после пятницы?', uz: "Jumadan keyin qaysi kun keladi?" },
-    opts: [{ ru: 'суббота', uz: 'shanba', ok: true }, { ru: 'четверг', uz: 'payshanba' }, { ru: 'понедельник', uz: 'dushanba' }],
-    wrong: { ru: 'Иди по порядку: пятница, потом суббота. Четверг был до пятницы.', uz: "Tartib bilan boring: juma, keyin shanba. Payshanba jumadan oldin edi." },
-    check_ok: { ru: 'Верно! После пятницы идёт суббота.', uz: "To'g'ri! Jumadan keyin shanba keladi." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Дни идут по порядку; после последнего — снова первый.', uz: "Kunlar tartib bilan; oxirgisidan keyin yana birinchisi.", en: 'The days go in order, and after the last one the first one comes again.' },
+    check_q: { ru: 'Какой день идёт после пятницы?', uz: "Jumadan keyin qaysi kun keladi?", en: 'Which day comes after Friday?' },
+    opts: [{ ru: 'суббота', uz: 'shanba', en: 'Saturday', ok: true }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday' }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday' }],
+    wrong: { ru: 'Иди по порядку: пятница, потом суббота. Четверг был до пятницы.', uz: "Tartib bilan boring: juma, keyin shanba. Payshanba jumadan oldin edi.", en: 'Go in order: Friday, then Saturday. Thursday was before Friday.' },
+    check_ok: { ru: 'Верно! После пятницы идёт суббота.', uz: "To'g'ri! Jumadan keyin shanba keladi.", en: 'That is right! Saturday comes after Friday.' },
     audio: {
       ru: [
         'Запомним правило. Слушай.',
@@ -1043,19 +1075,20 @@ const CONTENT = {
         "Hafta kunlari doim tartib bilan keladi.",
         "Oxirgi kun, yakshanbadan keyin, yana dushanba boshlanadi.",
         "Tekshiring. Jumadan keyin qaysi kun keladi?"
-      ]
+      ],
+      en: ['Let us remember the rule. Listen.', 'The days of the week always go in order.', 'After the last day, Sunday, Monday starts again.', 'Check it. Which day comes after Friday?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (OYLAR + WARN): yilda 12 oy, oyda ~30 kun. warn: hafta=7 kun, oy ≠ 7. check (yilda nechta oy? → 12).
   s4: {
-    eyebrow: { ru: 'Месяцы', uz: 'Oylar' },
-    lead: { ru: 'В году двенадцать месяцев', uz: "Yilda o'n ikki oy" },
-    warn: { ru: 'Не путай: в неделе семь дней, а в месяце около тридцати. Это разные единицы времени.', uz: "Chalkashtirmang: haftada yetti kun, oyda esa taxminan o'ttiz kun. Bular har xil vaqt birliklari." },
-    check_q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-    opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7' }, { ru: '30', uz: '30' }],
-    wrong: { ru: 'Семь — это дни недели, тридцать — дни месяца. А месяцев в году двенадцать.', uz: "Yetti — bu hafta kunlari, o'ttiz — oy kunlari. Yilda esa o'n ikki oy bor." },
-    check_ok: { ru: 'Верно! В году двенадцать месяцев.', uz: "To'g'ri! Yilda o'n ikki oy bor." },
+    eyebrow: { ru: 'Месяцы', uz: 'Oylar', en: 'The months' },
+    lead: { ru: 'В году двенадцать месяцев', uz: "Yilda o'n ikki oy", en: 'There are twelve months in a year' },
+    warn: { ru: 'Не путай: в неделе семь дней, а в месяце около тридцати. Это разные единицы времени.', uz: "Chalkashtirmang: haftada yetti kun, oyda esa taxminan o'ttiz kun. Bular har xil vaqt birliklari.", en: 'Do not get it mixed up: there are seven days in a week and about thirty in a month. They are different units of time.' },
+    check_q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?", en: 'How many months are in a year?' },
+    opts: [{ ru: '12', uz: '12', en: '12', ok: true }, { ru: '7', uz: '7', en: '7' }, { ru: '30', uz: '30', en: '30' }],
+    wrong: { ru: 'Семь — это дни недели, тридцать — дни месяца. А месяцев в году двенадцать.', uz: "Yetti — bu hafta kunlari, o'ttiz — oy kunlari. Yilda esa o'n ikki oy bor.", en: 'Seven is the days in a week and thirty is the days in a month. There are twelve months in a year.' },
+    check_ok: { ru: 'Верно! В году двенадцать месяцев.', uz: "To'g'ri! Yilda o'n ikki oy bor.", en: 'That is right! There are twelve months in a year.' },
     audio: {
       ru: [
         'В году двенадцать месяцев: январь, февраль, март и так далее.',
@@ -1068,17 +1101,18 @@ const CONTENT = {
         "Bitta oyda taxminan o'ttiz kun bor.",
         "Chalkashtirmang: hafta, bu yetti kun, oy esa, taxminan o'ttiz.",
         "Tekshiring. Yilda nechta oy bor?"
-      ]
+      ],
+      en: ['There are twelve months in a year: January, February, March and so on.', 'There are about thirty days in one month.', 'Do not get it mixed up: a week is seven days and a month is about thirty.', 'Check it. How many months are there in a year?']
     }
   },
 
   // sTBL — KALIT: hafta kunlari (to'liq+qisqa) + hafta=7 · oy~30 · yil=12 oy. done sTBL_2 (3 seg).
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Дни, недели, месяцы', uz: "Kunlar, haftalar, oylar" },
-    caption: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Неделя — 7 дней, месяц — 30, год — 12 месяцев.', uz: "Hafta — 7 kun, oy — 30 kun, yil — 12 oy." },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Дни, недели, месяцы', uz: "Kunlar, haftalar, oylar", en: 'Days, weeks, months' },
+    caption: { ru: 'Семь дней недели', uz: "Haftaning yetti kuni", en: 'Seven days of the week' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Неделя — 7 дней, месяц — 30, год — 12 месяцев.', uz: "Hafta — 7 kun, oy — 30 kun, yil — 12 oy.", en: 'A week is 7 days, a month is 30, a year is 12 months.' },
     audio: {
       ru: [
         'Соберём ключ. Семь дней недели идут по порядку.',
@@ -1089,256 +1123,259 @@ const CONTENT = {
         "Kalitni yig'amiz. Haftaning yetti kuni tartib bilan keladi.",
         "Dushanbadan yakshanbagacha, bu bitta hafta, yetti kun.",
         "Oyda taxminan o'ttiz kun, yilda esa o'n ikki oy bor."
-      ]
+      ],
+      en: ['Let us put the key together. The seven days of the week go in order.', 'From Monday to Sunday is one week, seven days.', 'There are about thirty days in a month and twelve months in a year.']
     }
   },
 
   // s5 — MASHQ WeekDayStage: keyin/oldin qaysi kun. distraktor = tartib buzilishi (M1).
   s5: {
-    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    label: { ru: 'Какой день?', uz: "Qaysi kun?" },
+    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1', en: 'Practice · 1' },
+    label: { ru: 'Какой день?', uz: "Qaysi kun?", en: 'Which day?' },
     rounds: [
-      { q: { ru: 'Какой день идёт после вторника?', uz: "Seshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Понедельник был до вторника. По порядку после вторника — среда.', uz: "Dushanba seshanbadan oldin edi. Tartib bilan seshanbadan keyin — chorshanba." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Четверг идёт через день. Сразу после вторника — среда.', uz: "Payshanba bir kundan keyin keladi. Seshanbadan darrov keyin — chorshanba." } }],
-        correct_text: { ru: 'Верно. После вторника — среда.', uz: "To'g'ri. Seshanbadan keyin — chorshanba." } },
-      { q: { ru: 'Какой день идёт до субботы?', uz: "Shanbadan oldin qaysi kun keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Воскресенье идёт после субботы, а не до неё. До субботы — пятница.', uz: "Yakshanba shanbadan keyin keladi, oldin emas. Shanbadan oldin — juma." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Четверг стоит раньше. Сразу до субботы — пятница.', uz: "Payshanba oldinroq turadi. Shanbadan darrov oldin — juma." } }],
-        correct_text: { ru: 'Верно. До субботы — пятница.', uz: "To'g'ri. Shanbadan oldin — juma." } },
-      { q: { ru: 'Какой день идёт после воскресенья?', uz: "Yakshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была до воскресенья. После последнего дня снова понедельник.', uz: "Shanba yakshanbadan oldin edi. Oxirgi kundan keyin yana dushanba." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'После воскресенья начинается новая неделя — с понедельника.', uz: "Yakshanbadan keyin yangi hafta boshlanadi — dushanbadan." } }],
-        correct_text: { ru: 'Верно. После воскресенья снова понедельник.', uz: "To'g'ri. Yakshanbadan keyin yana dushanba." } }
+      { q: { ru: 'Какой день идёт после вторника?', uz: "Seshanbadan keyin qaysi kun keladi?", en: 'Which day comes after Tuesday?' },
+        opts: [{ ru: 'среда', uz: 'chorshanba', en: 'Wednesday', ok: true }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday', wrong: { ru: 'Понедельник был до вторника. По порядку после вторника — среда.', uz: "Dushanba seshanbadan oldin edi. Tartib bilan seshanbadan keyin — chorshanba.", en: 'Monday was before Tuesday. In order, Wednesday comes after Tuesday.' } }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Четверг идёт через день. Сразу после вторника — среда.', uz: "Payshanba bir kundan keyin keladi. Seshanbadan darrov keyin — chorshanba.", en: 'Thursday is a day later. Straight after Tuesday comes Wednesday.' } }],
+        correct_text: { ru: 'Верно. После вторника — среда.', uz: "To'g'ri. Seshanbadan keyin — chorshanba.", en: 'That is right. Wednesday comes after Tuesday.' } },
+      { q: { ru: 'Какой день идёт до субботы?', uz: "Shanbadan oldin qaysi kun keladi?", en: 'Which day comes before Saturday?' },
+        opts: [{ ru: 'пятница', uz: 'juma', en: 'Friday', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', wrong: { ru: 'Воскресенье идёт после субботы, а не до неё. До субботы — пятница.', uz: "Yakshanba shanbadan keyin keladi, oldin emas. Shanbadan oldin — juma.", en: 'Sunday comes after Saturday, not before it. Friday comes before Saturday.' } }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Четверг стоит раньше. Сразу до субботы — пятница.', uz: "Payshanba oldinroq turadi. Shanbadan darrov oldin — juma.", en: 'Thursday is earlier. Straight before Saturday comes Friday.' } }],
+        correct_text: { ru: 'Верно. До субботы — пятница.', uz: "To'g'ri. Shanbadan oldin — juma.", en: 'That is right. Friday comes before Saturday.' } },
+      { q: { ru: 'Какой день идёт после воскресенья?', uz: "Yakshanbadan keyin qaysi kun keladi?", en: 'Which day comes after Sunday?' },
+        opts: [{ ru: 'понедельник', uz: 'dushanba', en: 'Monday', ok: true }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Суббота была до воскресенья. После последнего дня снова понедельник.', uz: "Shanba yakshanbadan oldin edi. Oxirgi kundan keyin yana dushanba.", en: 'Saturday was before Sunday. After the last day Monday comes again.' } }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'После воскресенья начинается новая неделя — с понедельника.', uz: "Yakshanbadan keyin yangi hafta boshlanadi — dushanbadan.", en: 'After Sunday a new week starts, with Monday.' } }],
+        correct_text: { ru: 'Верно. После воскресенья снова понедельник.', uz: "To'g'ri. Yakshanbadan keyin yana dushanba.", en: 'That is right. After Sunday it is Monday again.' } }
     ],
     audio: {
-      intro: { ru: 'Иди по порядку дней недели и выбери верный день.', uz: "Hafta kunlari tartibi bo'yicha boring va to'g'ri kunni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Иди по порядку дней недели и выбери верный день.', uz: "Hafta kunlari tartibi bo'yicha boring va to'g'ri kunni tanlang.", en: 'Go through the days of the week in order and choose the right day.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s6 — MASHQ CalendarReadStage: sana → hafta kuni (mavhum oy, 1=Ch). distraktor = qo'shni kun / sanani kun deb (M2).
   s6: {
-    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2', en: 'Practice · 2' },
+    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?", en: 'Which day is the date on?' },
     rounds: [
-      { mark: 8, q: { ru: 'На какой день недели приходится восьмое число?', uz: "Sakkizinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Посмотри по столбцу: восьмое стоит под средой, не под четвергом.', uz: "Ustunga qarang: sakkizinchi chorshanba tagida turadi, payshanba emas." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Восьмое — под средой. Вторник левее.', uz: "Sakkizinchi — chorshanba tagida. Seshanba chaproqda." } }],
-        correct_text: { ru: 'Верно. Восьмое — среда.', uz: "To'g'ri. Sakkizinchi — chorshanba." } },
-      { mark: 6, q: { ru: 'На какой день недели приходится шестое число?', uz: "Oltinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Шестое стоит в столбце понедельника, первого столбца.', uz: "Oltinchi dushanba ustunida, birinchi ustunda turadi." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Шестое — под понедельником. Вторник правее.', uz: "Oltinchi — dushanba tagida. Seshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Шестое — понедельник.', uz: "To'g'ri. Oltinchi — dushanba." } },
-      { mark: 10, q: { ru: 'На какой день недели приходится десятое число?', uz: "O'ninchi sana haftaning qaysi kuniga to'g'ri keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Десятое стоит под пятницей, не под субботой.', uz: "O'ninchi juma tagida turadi, shanba emas." } }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Десятое — под пятницей. Четверг левее.', uz: "O'ninchi — juma tagida. Payshanba chaproqda." } }],
-        correct_text: { ru: 'Верно. Десятое — пятница.', uz: "To'g'ri. O'ninchi — juma." } }
+      { mark: 8, q: { ru: 'На какой день недели приходится восьмое число?', uz: "Sakkizinchi sana haftaning qaysi kuniga to'g'ri keladi?", en: 'Which day of the week is the eighth on?' },
+        opts: [{ ru: 'среда', uz: 'chorshanba', en: 'Wednesday', ok: true }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Посмотри по столбцу: восьмое стоит под средой, не под четвергом.', uz: "Ustunga qarang: sakkizinchi chorshanba tagida turadi, payshanba emas.", en: 'Look down the column: the eighth is under Wednesday, not under Thursday.' } }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Восьмое — под средой. Вторник левее.', uz: "Sakkizinchi — chorshanba tagida. Seshanba chaproqda.", en: 'The eighth is under Wednesday. Tuesday is to the left.' } }],
+        correct_text: { ru: 'Верно. Восьмое — среда.', uz: "To'g'ri. Sakkizinchi — chorshanba.", en: 'That is right. The eighth is a Wednesday.' } },
+      { mark: 6, q: { ru: 'На какой день недели приходится шестое число?', uz: "Oltinchi sana haftaning qaysi kuniga to'g'ri keladi?", en: 'Which day of the week is the sixth on?' },
+        opts: [{ ru: 'понедельник', uz: 'dushanba', en: 'Monday', ok: true }, { ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', wrong: { ru: 'Шестое стоит в столбце понедельника, первого столбца.', uz: "Oltinchi dushanba ustunida, birinchi ustunda turadi.", en: 'The sixth is in the Monday column, the first column.' } }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Шестое — под понедельником. Вторник правее.', uz: "Oltinchi — dushanba tagida. Seshanba o'ngroqda.", en: 'The sixth is under Monday. Tuesday is to the right.' } }],
+        correct_text: { ru: 'Верно. Шестое — понедельник.', uz: "To'g'ri. Oltinchi — dushanba.", en: 'That is right. The sixth is a Monday.' } },
+      { mark: 10, q: { ru: 'На какой день недели приходится десятое число?', uz: "O'ninchi sana haftaning qaysi kuniga to'g'ri keladi?", en: 'Which day of the week is the tenth on?' },
+        opts: [{ ru: 'пятница', uz: 'juma', en: 'Friday', ok: true }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Десятое стоит под пятницей, не под субботой.', uz: "O'ninchi juma tagida turadi, shanba emas.", en: 'The tenth is under Friday, not under Saturday.' } }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Десятое — под пятницей. Четверг левее.', uz: "O'ninchi — juma tagida. Payshanba chaproqda.", en: 'The tenth is under Friday. Thursday is to the left.' } }],
+        correct_text: { ru: 'Верно. Десятое — пятница.', uz: "To'g'ri. O'ninchi — juma.", en: 'That is right. The tenth is a Friday.' } }
     ],
     audio: {
-      intro: { ru: 'Найди число в календаре и посмотри, в каком оно столбце дня.', uz: "Kalendardan sanani toping va u qaysi kun ustunida ekanini qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Найди число в календаре и посмотри, в каком оно столбце дня.', uz: "Kalendardan sanani toping va u qaysi kun ustunida ekanini qarang.", en: 'Find the date in the calendar and see which day column it is in.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s7 — MASHQ WeekDayStage: kecha/bugun/erta. distraktor = teskari (kecha↔erta).
   s7: {
-    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    label: { ru: 'Вчера и завтра', uz: "Kecha va ertaga" },
+    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3', en: 'Practice · 3' },
+    label: { ru: 'Вчера и завтра', uz: "Kecha va ertaga", en: 'Yesterday and tomorrow' },
     rounds: [
-      { q: { ru: 'Сегодня четверг. Какой день был вчера?', uz: "Bugun payshanba. Kecha qaysi kun edi?" },
-        opts: [{ ru: 'среда', uz: 'chorshanba', ok: true }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница будет завтра, а не вчера. Вчера — день до четверга, среда.', uz: "Juma ertaga bo'ladi, kecha emas. Kecha — payshanbadan oldingi kun, chorshanba." } }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был раньше. Вчера — это день сразу до четверга, среда.', uz: "Seshanba oldinroq edi. Kecha — payshanbadan darrov oldingi kun, chorshanba." } }],
-        correct_text: { ru: 'Верно. Вчера была среда.', uz: "To'g'ri. Kecha chorshanba edi." } },
-      { q: { ru: 'Сегодня воскресенье. Какой день будет завтра?', uz: "Bugun yakshanba. Erta qaysi kun bo'ladi?" },
-        opts: [{ ru: 'понедельник', uz: 'dushanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была вчера. Завтра после воскресенья — понедельник.', uz: "Shanba kecha edi. Yakshanbadan keyin ertaga — dushanba." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница была раньше. Завтра — новая неделя, понедельник.', uz: "Juma oldinroq edi. Erta — yangi hafta, dushanba." } }],
-        correct_text: { ru: 'Верно. Завтра будет понедельник.', uz: "To'g'ri. Erta dushanba bo'ladi." } },
-      { q: { ru: 'Сегодня среда. Какой день будет завтра?', uz: "Bugun chorshanba. Erta qaysi kun bo'ladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был вчера. Завтра — день после среды, четверг.', uz: "Seshanba kecha edi. Erta — chorshanbadan keyingi kun, payshanba." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятница будет через день. Сразу завтра — четверг.', uz: "Juma bir kundan keyin bo'ladi. Darrov ertaga — payshanba." } }],
-        correct_text: { ru: 'Верно. Завтра будет четверг.', uz: "To'g'ri. Erta payshanba bo'ladi." } }
+      { q: { ru: 'Сегодня четверг. Какой день был вчера?', uz: "Bugun payshanba. Kecha qaysi kun edi?", en: 'Today is Thursday. Which day was yesterday?' },
+        opts: [{ ru: 'среда', uz: 'chorshanba', en: 'Wednesday', ok: true }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Пятница будет завтра, а не вчера. Вчера — день до четверга, среда.', uz: "Juma ertaga bo'ladi, kecha emas. Kecha — payshanbadan oldingi kun, chorshanba.", en: 'Friday is tomorrow, not yesterday. Yesterday is the day before Thursday, which is Wednesday.' } }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Вторник был раньше. Вчера — это день сразу до четверга, среда.', uz: "Seshanba oldinroq edi. Kecha — payshanbadan darrov oldingi kun, chorshanba.", en: 'Tuesday was earlier. Yesterday is the day straight before Thursday, which is Wednesday.' } }],
+        correct_text: { ru: 'Верно. Вчера была среда.', uz: "To'g'ri. Kecha chorshanba edi.", en: 'That is right. Yesterday was Wednesday.' } },
+      { q: { ru: 'Сегодня воскресенье. Какой день будет завтра?', uz: "Bugun yakshanba. Erta qaysi kun bo'ladi?", en: 'Today is Sunday. Which day is tomorrow?' },
+        opts: [{ ru: 'понедельник', uz: 'dushanba', en: 'Monday', ok: true }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Суббота была вчера. Завтра после воскресенья — понедельник.', uz: "Shanba kecha edi. Yakshanbadan keyin ertaga — dushanba.", en: 'Saturday was yesterday. Tomorrow, after Sunday, is Monday.' } }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Пятница была раньше. Завтра — новая неделя, понедельник.', uz: "Juma oldinroq edi. Erta — yangi hafta, dushanba.", en: 'Friday was earlier. Tomorrow is a new week, Monday.' } }],
+        correct_text: { ru: 'Верно. Завтра будет понедельник.', uz: "To'g'ri. Erta dushanba bo'ladi.", en: 'That is right. Tomorrow is Monday.' } },
+      { q: { ru: 'Сегодня среда. Какой день будет завтра?', uz: "Bugun chorshanba. Erta qaysi kun bo'ladi?", en: 'Today is Wednesday. Which day is tomorrow?' },
+        opts: [{ ru: 'четверг', uz: 'payshanba', en: 'Thursday', ok: true }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Вторник был вчера. Завтра — день после среды, четверг.', uz: "Seshanba kecha edi. Erta — chorshanbadan keyingi kun, payshanba.", en: 'Tuesday was yesterday. Tomorrow is the day after Wednesday, which is Thursday.' } }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Пятница будет через день. Сразу завтра — четверг.', uz: "Juma bir kundan keyin bo'ladi. Darrov ertaga — payshanba.", en: 'Friday is a day later. Tomorrow itself is Thursday.' } }],
+        correct_text: { ru: 'Верно. Завтра будет четверг.', uz: "To'g'ri. Erta payshanba bo'ladi.", en: 'That is right. Tomorrow is Thursday.' } }
     ],
     audio: {
-      intro: { ru: 'Вчера, день до сегодня, завтра, день после. Выбери верный день.', uz: "Kecha, bugungacha bo'lgan kun, ertaga, keyingi kun. To'g'ri kunni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Вчера, день до сегодня, завтра, день после. Выбери верный день.', uz: "Kecha, bugungacha bo'lgan kun, ertaga, keyingi kun. To'g'ri kunni tanlang.", en: 'Yesterday is the day before today, tomorrow is the day after. Choose the right day.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s8 — MASHQ CalendarReadStage: boshqa sanalar. distraktor = qo'shni kun.
   s8: {
-    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4', en: 'Practice · 4' },
+    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?", en: 'Which day is the date on?' },
     rounds: [
-      { mark: 3, q: { ru: 'На какой день приходится третье число?', uz: "Uchinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Третье стоит под пятницей. Четверг — второе число.', uz: "Uchinchi juma tagida turadi. Payshanba — ikkinchi sana." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Третье — под пятницей. Суббота правее.', uz: "Uchinchi — juma tagida. Shanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Третье — пятница.', uz: "To'g'ri. Uchinchi — juma." } },
-      { mark: 14, q: { ru: 'На какой день приходится четырнадцатое число?', uz: "O'n to'rtinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'вторник', uz: 'seshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Четырнадцатое под вторником. Понедельник — тринадцатое.', uz: "O'n to'rtinchi seshanba tagida. Dushanba — o'n uchinchi." } }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Четырнадцатое — под вторником. Среда правее.', uz: "O'n to'rtinchi — seshanba tagida. Chorshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Четырнадцатое — вторник.', uz: "To'g'ri. O'n to'rtinchi — seshanba." } },
-      { mark: 12, q: { ru: 'На какой день приходится двенадцатое число?', uz: "O'n ikkinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Двенадцатое под воскресеньем, последним столбцом. Суббота — одиннадцатое.', uz: "O'n ikkinchi yakshanba, oxirgi ustun tagida. Shanba — o'n birinchi." } }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Двенадцатое — воскресенье. Понедельник — начало недели.', uz: "O'n ikkinchi — yakshanba. Dushanba — hafta boshi." } }],
-        correct_text: { ru: 'Верно. Двенадцатое — воскресенье.', uz: "To'g'ri. O'n ikkinchi — yakshanba." } }
+      { mark: 3, q: { ru: 'На какой день приходится третье число?', uz: "Uchinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the third on?' },
+        opts: [{ ru: 'пятница', uz: 'juma', en: 'Friday', ok: true }, { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Третье стоит под пятницей. Четверг — второе число.', uz: "Uchinchi juma tagida turadi. Payshanba — ikkinchi sana.", en: 'The third is under Friday. Thursday is the second.' } }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Третье — под пятницей. Суббота правее.', uz: "Uchinchi — juma tagida. Shanba o'ngroqda.", en: 'The third is under Friday. Saturday is to the right.' } }],
+        correct_text: { ru: 'Верно. Третье — пятница.', uz: "To'g'ri. Uchinchi — juma.", en: 'That is right. The third is a Friday.' } },
+      { mark: 14, q: { ru: 'На какой день приходится четырнадцатое число?', uz: "O'n to'rtinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the fourteenth on?' },
+        opts: [{ ru: 'вторник', uz: 'seshanba', en: 'Tuesday', ok: true }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday', wrong: { ru: 'Четырнадцатое под вторником. Понедельник — тринадцатое.', uz: "O'n to'rtinchi seshanba tagida. Dushanba — o'n uchinchi.", en: 'The fourteenth is under Tuesday. Monday is the thirteenth.' } }, { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', wrong: { ru: 'Четырнадцатое — под вторником. Среда правее.', uz: "O'n to'rtinchi — seshanba tagida. Chorshanba o'ngroqda.", en: 'The fourteenth is under Tuesday. Wednesday is to the right.' } }],
+        correct_text: { ru: 'Верно. Четырнадцатое — вторник.', uz: "To'g'ri. O'n to'rtinchi — seshanba.", en: 'That is right. The fourteenth is a Tuesday.' } },
+      { mark: 12, q: { ru: 'На какой день приходится двенадцатое число?', uz: "O'n ikkinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the twelfth on?' },
+        opts: [{ ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', ok: true }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Двенадцатое под воскресеньем, последним столбцом. Суббота — одиннадцатое.', uz: "O'n ikkinchi yakshanba, oxirgi ustun tagida. Shanba — o'n birinchi.", en: 'The twelfth is under Sunday, the last column. Saturday is the eleventh.' } }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday', wrong: { ru: 'Двенадцатое — воскресенье. Понедельник — начало недели.', uz: "O'n ikkinchi — yakshanba. Dushanba — hafta boshi.", en: 'The twelfth is a Sunday. Monday is the start of the week.' } }],
+        correct_text: { ru: 'Верно. Двенадцатое — воскресенье.', uz: "To'g'ri. O'n ikkinchi — yakshanba.", en: 'That is right. The twelfth is a Sunday.' } }
     ],
     audio: {
-      intro: { ru: 'Снова найди число и посмотри его столбец дня.', uz: "Yana sanani toping va uning kun ustunini qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Снова найди число и посмотри его столбец дня.', uz: "Yana sanani toping va uning kun ustunini qarang.", en: 'Find the date again and see which day column it is in.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s9 — MASHQ MonthStage: oylar. distraktor = 7/30 chalkashligi (M3), oy tartibi (M4).
   s9: {
-    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    label: { ru: 'Месяцы года', uz: "Yil oylari" },
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5', en: 'Practice · 5' },
+    label: { ru: 'Месяцы года', uz: "Yil oylari", en: 'The months of the year' },
     rounds: [
-      { q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-        opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7', wrong: { ru: 'Семь — это дни недели, а не месяцы. В году двенадцать месяцев.', uz: "Yetti — bu hafta kunlari, oylar emas. Yilda o'n ikki oy." } }, { ru: '30', uz: '30', wrong: { ru: 'Около тридцати — это дни в месяце. А месяцев в году двенадцать.', uz: "Taxminan o'ttiz — bu oydagi kunlar. Yilda esa o'n ikki oy." } }],
-        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy." } },
-      { q: { ru: 'Какой месяц идёт после мая?', uz: "Maydan keyin qaysi oy keladi?" },
-        opts: [{ ru: 'июнь', uz: 'iyun', ok: true }, { ru: 'апрель', uz: 'aprel', wrong: { ru: 'Апрель был до мая. После мая идёт июнь.', uz: "Aprel maydan oldin edi. Maydan keyin iyun keladi." } }, { ru: 'июль', uz: 'iyul', wrong: { ru: 'Июль идёт через месяц. Сразу после мая — июнь.', uz: "Iyul bir oydan keyin keladi. Maydan darrov keyin — iyun." } }],
-        correct_text: { ru: 'Верно. После мая идёт июнь.', uz: "To'g'ri. Maydan keyin iyun keladi." } },
-      { q: { ru: 'Какой месяц первый в году?', uz: "Yilning birinchi oyi qaysi?" },
-        opts: [{ ru: 'январь', uz: 'yanvar', ok: true }, { ru: 'декабрь', uz: 'dekabr', wrong: { ru: 'Декабрь — последний месяц года. Первый — январь.', uz: "Dekabr — yilning oxirgi oyi. Birinchisi — yanvar." } }, { ru: 'март', uz: 'mart', wrong: { ru: 'Март — третий месяц. Год начинается с января.', uz: "Mart — uchinchi oy. Yil yanvardan boshlanadi." } }],
-        correct_text: { ru: 'Верно. Год начинается с января.', uz: "To'g'ri. Yil yanvardan boshlanadi." } }
+      { q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?", en: 'How many months are in a year?' },
+        opts: [{ ru: '12', uz: '12', en: '12', ok: true }, { ru: '7', uz: '7', en: '7', wrong: { ru: 'Семь — это дни недели, а не месяцы. В году двенадцать месяцев.', uz: "Yetti — bu hafta kunlari, oylar emas. Yilda o'n ikki oy.", en: 'Seven is the days of the week, not the months. There are twelve months in a year.' } }, { ru: '30', uz: '30', en: '30', wrong: { ru: 'Около тридцати — это дни в месяце. А месяцев в году двенадцать.', uz: "Taxminan o'ttiz — bu oydagi kunlar. Yilda esa o'n ikki oy.", en: 'About thirty is the days in a month. There are twelve months in a year.' } }],
+        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy.", en: 'That is right. There are twelve months in a year.' } },
+      { q: { ru: 'Какой месяц идёт после мая?', uz: "Maydan keyin qaysi oy keladi?", en: 'Which month comes after May?' },
+        opts: [{ ru: 'июнь', uz: 'iyun', en: 'June', ok: true }, { ru: 'апрель', uz: 'aprel', en: 'April', wrong: { ru: 'Апрель был до мая. После мая идёт июнь.', uz: "Aprel maydan oldin edi. Maydan keyin iyun keladi.", en: 'April was before May. June comes after May.' } }, { ru: 'июль', uz: 'iyul', en: 'July', wrong: { ru: 'Июль идёт через месяц. Сразу после мая — июнь.', uz: "Iyul bir oydan keyin keladi. Maydan darrov keyin — iyun.", en: 'July is a month later. Straight after May comes June.' } }],
+        correct_text: { ru: 'Верно. После мая идёт июнь.', uz: "To'g'ri. Maydan keyin iyun keladi.", en: 'That is right. June comes after May.' } },
+      { q: { ru: 'Какой месяц первый в году?', uz: "Yilning birinchi oyi qaysi?", en: 'Which month is the first of the year?' },
+        opts: [{ ru: 'январь', uz: 'yanvar', en: 'January', ok: true }, { ru: 'декабрь', uz: 'dekabr', en: 'December', wrong: { ru: 'Декабрь — последний месяц года. Первый — январь.', uz: "Dekabr — yilning oxirgi oyi. Birinchisi — yanvar.", en: 'December is the last month of the year. The first is January.' } }, { ru: 'март', uz: 'mart', en: 'March', wrong: { ru: 'Март — третий месяц. Год начинается с января.', uz: "Mart — uchinchi oy. Yil yanvardan boshlanadi.", en: 'March is the third month. The year starts with January.' } }],
+        correct_text: { ru: 'Верно. Год начинается с января.', uz: "To'g'ri. Yil yanvardan boshlanadi.", en: 'That is right. The year starts with January.' } }
     ],
     audio: {
-      intro: { ru: 'Вспомни: месяцев в году двенадцать, они идут по порядку.', uz: "Eslang: yilda o'n ikki oy, ular tartib bilan keladi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Вспомни: месяцев в году двенадцать, они идут по порядку.', uz: "Eslang: yilda o'n ikki oy, ular tartib bilan keladi.", en: 'Remember: there are twelve months in a year and they go in order.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s10 — MASHQ CalendarReadStage aralash.
   s10: {
-    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6' },
-    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?" },
+    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6', en: 'Practice · 6' },
+    label: { ru: 'Какой день у числа?', uz: "Sana qaysi kunga to'g'ri keladi?", en: 'Which day is the date on?' },
     rounds: [
-      { mark: 7, q: { ru: 'На какой день приходится седьмое число?', uz: "Yettinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'вторник', uz: 'seshanba', ok: true }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Седьмое под вторником. Понедельник — шестое.', uz: "Yettinchi seshanba tagida. Dushanba — oltinchi." } }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Седьмое — под вторником. Среда правее.', uz: "Yettinchi — seshanba tagida. Chorshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Седьмое — вторник.', uz: "To'g'ri. Yettinchi — seshanba." } },
-      { mark: 11, q: { ru: 'На какой день приходится одиннадцатое число?', uz: "O'n birinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'суббота', uz: 'shanba', ok: true }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Одиннадцатое под субботой. Пятница — десятое.', uz: "O'n birinchi shanba tagida. Juma — o'ninchi." } }, { ru: 'воскресенье', uz: 'yakshanba', wrong: { ru: 'Одиннадцатое — под субботой. Воскресенье правее.', uz: "O'n birinchi — shanba tagida. Yakshanba o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Одиннадцатое — суббота.', uz: "To'g'ri. O'n birinchi — shanba." } },
-      { mark: 5, q: { ru: 'На какой день приходится пятое число?', uz: "Beshinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Пятое под воскресеньем, последним столбцом. Суббота — четвёртое.', uz: "Beshinchi yakshanba, oxirgi ustun tagida. Shanba — to'rtinchi." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Пятое — под воскресеньем. Пятница левее.', uz: "Beshinchi — yakshanba tagida. Juma chaproqda." } }],
-        correct_text: { ru: 'Верно. Пятое — воскресенье.', uz: "To'g'ri. Beshinchi — yakshanba." } }
+      { mark: 7, q: { ru: 'На какой день приходится седьмое число?', uz: "Yettinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the seventh on?' },
+        opts: [{ ru: 'вторник', uz: 'seshanba', en: 'Tuesday', ok: true }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday', wrong: { ru: 'Седьмое под вторником. Понедельник — шестое.', uz: "Yettinchi seshanba tagida. Dushanba — oltinchi.", en: 'The seventh is under Tuesday. Monday is the sixth.' } }, { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', wrong: { ru: 'Седьмое — под вторником. Среда правее.', uz: "Yettinchi — seshanba tagida. Chorshanba o'ngroqda.", en: 'The seventh is under Tuesday. Wednesday is to the right.' } }],
+        correct_text: { ru: 'Верно. Седьмое — вторник.', uz: "To'g'ri. Yettinchi — seshanba.", en: 'That is right. The seventh is a Tuesday.' } },
+      { mark: 11, q: { ru: 'На какой день приходится одиннадцатое число?', uz: "O'n birinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the eleventh on?' },
+        opts: [{ ru: 'суббота', uz: 'shanba', en: 'Saturday', ok: true }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Одиннадцатое под субботой. Пятница — десятое.', uz: "O'n birinchi shanba tagida. Juma — o'ninchi.", en: 'The eleventh is under Saturday. Friday is the tenth.' } }, { ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', wrong: { ru: 'Одиннадцатое — под субботой. Воскресенье правее.', uz: "O'n birinchi — shanba tagida. Yakshanba o'ngroqda.", en: 'The eleventh is under Saturday. Sunday is to the right.' } }],
+        correct_text: { ru: 'Верно. Одиннадцатое — суббота.', uz: "To'g'ri. O'n birinchi — shanba.", en: 'That is right. The eleventh is a Saturday.' } },
+      { mark: 5, q: { ru: 'На какой день приходится пятое число?', uz: "Beshinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the fifth on?' },
+        opts: [{ ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', ok: true }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Пятое под воскресеньем, последним столбцом. Суббота — четвёртое.', uz: "Beshinchi yakshanba, oxirgi ustun tagida. Shanba — to'rtinchi.", en: 'The fifth is under Sunday, the last column. Saturday is the fourth.' } }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Пятое — под воскресеньем. Пятница левее.', uz: "Beshinchi — yakshanba tagida. Juma chaproqda.", en: 'The fifth is under Sunday. Friday is to the left.' } }],
+        correct_text: { ru: 'Верно. Пятое — воскресенье.', uz: "To'g'ri. Beshinchi — yakshanba.", en: 'That is right. The fifth is a Sunday.' } }
     ],
     audio: {
-      intro: { ru: 'Читай календарь по столбцам дней недели.', uz: "Kalendarni hafta kunlari ustunlari bo'yicha o'qing." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Читай календарь по столбцам дней недели.', uz: "Kalendarni hafta kunlari ustunlari bo'yicha o'qing.", en: 'Read the calendar down the day columns.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s11 — MASHQ WeekDayStage aralash (tartib).
   s11: {
-    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7' },
-    label: { ru: 'Какой день?', uz: "Qaysi kun?" },
+    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7', en: 'Practice · 7' },
+    label: { ru: 'Какой день?', uz: "Qaysi kun?", en: 'Which day?' },
     rounds: [
-      { q: { ru: 'Какой день идёт после четверга?', uz: "Payshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'пятница', uz: 'juma', ok: true }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Среда была до четверга. После четверга — пятница.', uz: "Chorshanba payshanbadan oldin edi. Payshanbadan keyin — juma." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота идёт через день. Сразу после четверга — пятница.', uz: "Shanba bir kundan keyin keladi. Payshanbadan darrov keyin — juma." } }],
-        correct_text: { ru: 'Верно. После четверга — пятница.', uz: "To'g'ri. Payshanbadan keyin — juma." } },
-      { q: { ru: 'Какой день идёт до понедельника?', uz: "Dushanbadan oldin qaysi kun keladi?" },
-        opts: [{ ru: 'воскресенье', uz: 'yakshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник идёт после понедельника, а не до. До понедельника — воскресенье.', uz: "Seshanba dushanbadan keyin keladi, oldin emas. Dushanbadan oldin — yakshanba." } }, { ru: 'суббота', uz: 'shanba', wrong: { ru: 'Суббота была раньше. Сразу до понедельника — воскресенье.', uz: "Shanba oldinroq edi. Dushanbadan darrov oldin — yakshanba." } }],
-        correct_text: { ru: 'Верно. До понедельника — воскресенье.', uz: "To'g'ri. Dushanbadan oldin — yakshanba." } },
-      { q: { ru: 'Сколько дней в неделе?', uz: "Haftada nechta kun bor?" },
-        opts: [{ ru: '7', uz: '7', ok: true }, { ru: '12', uz: '12', wrong: { ru: 'Двенадцать — это месяцы в году. В неделе семь дней.', uz: "O'n ikki — bu yildagi oylar. Haftada yetti kun." } }, { ru: '5', uz: '5', wrong: { ru: 'Дней в неделе семь, вместе с субботой и воскресеньем.', uz: "Haftada yetti kun, shanba va yakshanba bilan birga." } }],
-        correct_text: { ru: 'Верно. В неделе семь дней.', uz: "To'g'ri. Haftada yetti kun." } }
+      { q: { ru: 'Какой день идёт после четверга?', uz: "Payshanbadan keyin qaysi kun keladi?", en: 'Which day comes after Thursday?' },
+        opts: [{ ru: 'пятница', uz: 'juma', en: 'Friday', ok: true }, { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', wrong: { ru: 'Среда была до четверга. После четверга — пятница.', uz: "Chorshanba payshanbadan oldin edi. Payshanbadan keyin — juma.", en: 'Wednesday was before Thursday. Friday comes after Thursday.' } }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Суббота идёт через день. Сразу после четверга — пятница.', uz: "Shanba bir kundan keyin keladi. Payshanbadan darrov keyin — juma.", en: 'Saturday is a day later. Straight after Thursday comes Friday.' } }],
+        correct_text: { ru: 'Верно. После четверга — пятница.', uz: "To'g'ri. Payshanbadan keyin — juma.", en: 'That is right. Friday comes after Thursday.' } },
+      { q: { ru: 'Какой день идёт до понедельника?', uz: "Dushanbadan oldin qaysi kun keladi?", en: 'Which day comes before Monday?' },
+        opts: [{ ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', ok: true }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Вторник идёт после понедельника, а не до. До понедельника — воскресенье.', uz: "Seshanba dushanbadan keyin keladi, oldin emas. Dushanbadan oldin — yakshanba.", en: 'Tuesday comes after Monday, not before. Sunday comes before Monday.' } }, { ru: 'суббота', uz: 'shanba', en: 'Saturday', wrong: { ru: 'Суббота была раньше. Сразу до понедельника — воскресенье.', uz: "Shanba oldinroq edi. Dushanbadan darrov oldin — yakshanba.", en: 'Saturday was earlier. Straight before Monday comes Sunday.' } }],
+        correct_text: { ru: 'Верно. До понедельника — воскресенье.', uz: "To'g'ri. Dushanbadan oldin — yakshanba.", en: 'That is right. Sunday comes before Monday.' } },
+      { q: { ru: 'Сколько дней в неделе?', uz: "Haftada nechta kun bor?", en: 'How many days are there in a week?' },
+        opts: [{ ru: '7', uz: '7', en: '7', ok: true }, { ru: '12', uz: '12', en: '12', wrong: { ru: 'Двенадцать — это месяцы в году. В неделе семь дней.', uz: "O'n ikki — bu yildagi oylar. Haftada yetti kun.", en: 'Twelve is the months in a year. There are seven days in a week.' } }, { ru: '5', uz: '5', en: '5', wrong: { ru: 'Дней в неделе семь, вместе с субботой и воскресеньем.', uz: "Haftada yetti kun, shanba va yakshanba bilan birga.", en: 'There are seven days in a week, counting Saturday and Sunday.' } }],
+        correct_text: { ru: 'Верно. В неделе семь дней.', uz: "To'g'ri. Haftada yetti kun.", en: 'That is right. There are seven days in a week.' } }
     ],
     audio: {
-      intro: { ru: 'Помни порядок дней недели. Выбери верный ответ.', uz: "Hafta kunlari tartibini yodda tuting. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Помни порядок дней недели. Выбери верный ответ.', uz: "Hafta kunlari tartibini yodda tuting. To'g'ri javobni tanlang.", en: 'Remember the order of the days of the week. Choose the right answer.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s12 — MASALA konteksti (ishlatilmaydi, klon an'anasi bo'yicha saqlanadi)
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi." },
-    audio: { ru: 'Бит отмечает день в бортовом журнале.', uz: "Bit bort jurnalida kunni belgilaydi." }
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi.", en: 'Bit is filling in the log.' },
+    audio: { ru: 'Бит отмечает день в бортовом журнале.', uz: "Bit bort jurnalida kunni belgilaydi.", en: "Bit is marking the day in the ship's log." }
   },
 
   // s13 — MASALA (CalendarReadStage single): jurnalda voqea 15-sanada — qaysi kun?
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    label: { ru: 'День в журнале', uz: "Jurnaldagi kun" },
-    story: { ru: 'Бит отметил событие на пятнадцатое число.', uz: "Bit voqeani o'n beshinchi sanaga belgiladi." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    label: { ru: 'День в журнале', uz: "Jurnaldagi kun", en: 'A day in the log' },
+    story: { ru: 'Бит отметил событие на пятнадцатое число.', uz: "Bit voqeani o'n beshinchi sanaga belgiladi.", en: 'Bit marked an event for the fifteenth.' },
     mark: 15,
-    q: { ru: 'На какой день недели приходится пятнадцатое число?', uz: "O'n beshinchi sana haftaning qaysi kuniga to'g'ri keladi?" },
+    q: { ru: 'На какой день недели приходится пятнадцатое число?', uz: "O'n beshinchi sana haftaning qaysi kuniga to'g'ri keladi?", en: 'Which day of the week is the fifteenth on?' },
     opts: [
-      { ru: 'среда', uz: 'chorshanba', ok: true },
-      { ru: 'четверг', uz: 'payshanba', wrong: { ru: 'Пятнадцатое стоит под средой. Четверг — шестнадцатое.', uz: "O'n beshinchi chorshanba tagida turadi. Payshanba — o'n oltinchi." } },
-      { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Пятнадцатое — под средой. Вторник левее.', uz: "O'n beshinchi — chorshanba tagida. Seshanba chaproqda." } }
+      { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', ok: true },
+      { ru: 'четверг', uz: 'payshanba', en: 'Thursday', wrong: { ru: 'Пятнадцатое стоит под средой. Четверг — шестнадцатое.', uz: "O'n beshinchi chorshanba tagida turadi. Payshanba — o'n oltinchi.", en: 'The fifteenth is under Wednesday. Thursday is the sixteenth.' } },
+      { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Пятнадцатое — под средой. Вторник левее.', uz: "O'n beshinchi — chorshanba tagida. Seshanba chaproqda.", en: 'The fifteenth is under Wednesday. Tuesday is to the left.' } }
     ],
-    correct_text: { ru: 'Верно. Пятнадцатое — среда. Событие в среду.', uz: "To'g'ri. O'n beshinchi — chorshanba. Voqea chorshanba kuni." },
+    correct_text: { ru: 'Верно. Пятнадцатое — среда. Событие в среду.', uz: "To'g'ri. O'n beshinchi — chorshanba. Voqea chorshanba kuni.", en: 'That is right. The fifteenth is a Wednesday. The event is on Wednesday.' },
     audio: {
-      intro: { ru: 'Событие назначено на пятнадцатое число. Посмотри в календарь: какой это день недели?', uz: "Voqea o'n beshinchi sanaga belgilangan. Kalendarga qarang: bu haftaning qaysi kuni?" },
-      on_correct: { ru: 'Верно. Пятнадцатое, среда.', uz: "To'g'ri. O'n beshinchi, chorshanba." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Событие назначено на пятнадцатое число. Посмотри в календарь: какой это день недели?', uz: "Voqea o'n beshinchi sanaga belgilangan. Kalendarga qarang: bu haftaning qaysi kuni?", en: 'The event is set for the fifteenth. Look at the calendar: which day of the week is that?' },
+      on_correct: { ru: 'Верно. Пятнадцатое, среда.', uz: "To'g'ri. O'n beshinchi, chorshanba.", en: 'That is right. The fifteenth is a Wednesday.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s14 — FINAL (aralash Week/Calendar ×3 + FactCard Neptun).
   s14: {
-    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv' },
-    label: { ru: 'Календарь', uz: "Kalendar" },
+    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv', en: 'Result · check' },
+    label: { ru: 'Календарь', uz: "Kalendar", en: 'The calendar' },
     rounds: [
-      { kind: 'week', q: { ru: 'Какой день идёт после среды?', uz: "Chorshanbadan keyin qaysi kun keladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'вторник', uz: 'seshanba', wrong: { ru: 'Вторник был до среды. После среды — четверг.', uz: "Seshanba chorshanbadan oldin edi. Chorshanbadan keyin — payshanba." } }, { ru: 'понедельник', uz: 'dushanba', wrong: { ru: 'Понедельник — начало недели. После среды — четверг.', uz: "Dushanba — hafta boshi. Chorshanbadan keyin — payshanba." } }],
-        correct_text: { ru: 'Верно. После среды — четверг.', uz: "To'g'ri. Chorshanbadan keyin — payshanba." } },
-      { kind: 'cal', mark: 9, q: { ru: 'На какой день приходится девятое число?', uz: "To'qqizinchi sana qaysi kunga to'g'ri keladi?" },
-        opts: [{ ru: 'четверг', uz: 'payshanba', ok: true }, { ru: 'среда', uz: 'chorshanba', wrong: { ru: 'Девятое под четвергом. Среда — восьмое.', uz: "To'qqizinchi payshanba tagida. Chorshanba — sakkizinchi." } }, { ru: 'пятница', uz: 'juma', wrong: { ru: 'Девятое — под четвергом. Пятница правее.', uz: "To'qqizinchi — payshanba tagida. Juma o'ngroqda." } }],
-        correct_text: { ru: 'Верно. Девятое — четверг.', uz: "To'g'ri. To'qqizinchi — payshanba." } },
-      { kind: 'week', q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?" },
-        opts: [{ ru: '12', uz: '12', ok: true }, { ru: '7', uz: '7', wrong: { ru: 'Семь — дни недели. Месяцев в году двенадцать.', uz: "Yetti — hafta kunlari. Yilda o'n ikki oy." } }, { ru: '30', uz: '30', wrong: { ru: 'Тридцать — дни месяца. Месяцев двенадцать.', uz: "O'ttiz — oy kunlari. Oylar o'n ikkita." } }],
-        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy." } }
+      { kind: 'week', q: { ru: 'Какой день идёт после среды?', uz: "Chorshanbadan keyin qaysi kun keladi?", en: 'Which day comes after Wednesday?' },
+        opts: [{ ru: 'четверг', uz: 'payshanba', en: 'Thursday', ok: true }, { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', wrong: { ru: 'Вторник был до среды. После среды — четверг.', uz: "Seshanba chorshanbadan oldin edi. Chorshanbadan keyin — payshanba.", en: 'Tuesday was before Wednesday. Thursday comes after Wednesday.' } }, { ru: 'понедельник', uz: 'dushanba', en: 'Monday', wrong: { ru: 'Понедельник — начало недели. После среды — четверг.', uz: "Dushanba — hafta boshi. Chorshanbadan keyin — payshanba.", en: 'Monday is the start of the week. Thursday comes after Wednesday.' } }],
+        correct_text: { ru: 'Верно. После среды — четверг.', uz: "To'g'ri. Chorshanbadan keyin — payshanba.", en: 'That is right. Thursday comes after Wednesday.' } },
+      { kind: 'cal', mark: 9, q: { ru: 'На какой день приходится девятое число?', uz: "To'qqizinchi sana qaysi kunga to'g'ri keladi?", en: 'Which day is the ninth on?' },
+        opts: [{ ru: 'четверг', uz: 'payshanba', en: 'Thursday', ok: true }, { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', wrong: { ru: 'Девятое под четвергом. Среда — восьмое.', uz: "To'qqizinchi payshanba tagida. Chorshanba — sakkizinchi.", en: 'The ninth is under Thursday. Wednesday is the eighth.' } }, { ru: 'пятница', uz: 'juma', en: 'Friday', wrong: { ru: 'Девятое — под четвергом. Пятница правее.', uz: "To'qqizinchi — payshanba tagida. Juma o'ngroqda.", en: 'The ninth is under Thursday. Friday is to the right.' } }],
+        correct_text: { ru: 'Верно. Девятое — четверг.', uz: "To'g'ri. To'qqizinchi — payshanba.", en: 'That is right. The ninth is a Thursday.' } },
+      { kind: 'week', q: { ru: 'Сколько месяцев в году?', uz: "Yilda nechta oy bor?", en: 'How many months are in a year?' },
+        opts: [{ ru: '12', uz: '12', en: '12', ok: true }, { ru: '7', uz: '7', en: '7', wrong: { ru: 'Семь — дни недели. Месяцев в году двенадцать.', uz: "Yetti — hafta kunlari. Yilda o'n ikki oy.", en: 'Seven is the days of the week. There are twelve months in a year.' } }, { ru: '30', uz: '30', en: '30', wrong: { ru: 'Тридцать — дни месяца. Месяцев двенадцать.', uz: "O'ttiz — oy kunlari. Oylar o'n ikkita.", en: 'Thirty is the days in a month. There are twelve months.' } }],
+        correct_text: { ru: 'Верно. В году двенадцать месяцев.', uz: "To'g'ri. Yilda o'n ikki oy.", en: 'That is right. There are twelve months in a year.' } }
     ],
-    fact_badge: { ru: 'Нептун', uz: 'Neptun' },
-    fact_text: { ru: 'Нептун открыли не в телескоп, а по расчётам: учёные вычислили, где он должен быть.', uz: "Neptun teleskopda emas, hisob-kitob orqali topilgan: olimlar u qayerda bo'lishini hisoblab chiqishgan." },
-    fact_audio: { ru: 'Нептун нашли не глазами, а по расчётам. Учёные вычислили, где он должен быть, и не ошиблись.', uz: "Neptun ko'z bilan emas, hisob-kitob orqali topilgan. Olimlar u qayerda bo'lishini hisoblab, xato qilishmagan." },
+    fact_badge: { ru: 'Нептун', uz: 'Neptun', en: 'Neptune' },
+    fact_text: { ru: 'Нептун открыли не в телескоп, а по расчётам: учёные вычислили, где он должен быть.', uz: "Neptun teleskopda emas, hisob-kitob orqali topilgan: olimlar u qayerda bo'lishini hisoblab chiqishgan.", en: 'Neptune was not found with a telescope but by working it out: scientists calculated where it had to be.' },
+    fact_audio: { ru: 'Нептун нашли не глазами, а по расчётам. Учёные вычислили, где он должен быть, и не ошиблись.', uz: "Neptun ko'z bilan emas, hisob-kitob orqali topilgan. Olimlar u qayerda bo'lishini hisoblab, xato qilishmagan.", en: 'Neptune was found not by looking but by working it out. Scientists calculated where it had to be and they were right.' },
     audio: {
-      intro: { ru: 'Последняя проверка. Дни недели, календарь и месяцы.', uz: "Oxirgi tekshiruv. Hafta kunlari, kalendar va oylar." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Последняя проверка. Дни недели, календарь и месяцы.', uz: "Oxirgi tekshiruv. Hafta kunlari, kalendar va oylar.", en: 'The last check. The days of the week, the calendar and the months.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.40 pul)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь читать календарь!', uz: "Endi siz kalendarni o'qiy olasiz!" },
-    rule_recap: { ru: 'В неделе семь дней по порядку. В месяце около тридцати дней, в году двенадцать месяцев.', uz: "Haftada yetti kun tartib bilan. Oyda taxminan o'ttiz kun, yilda o'n ikki oy." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты умеешь читать календарь!', uz: "Endi siz kalendarni o'qiy olasiz!", en: 'Now you can read a calendar!' },
+    rule_recap: { ru: 'В неделе семь дней по порядку. В месяце около тридцати дней, в году двенадцать месяцев.', uz: "Haftada yetti kun tartib bilan. Oyda taxminan o'ttiz kun, yilda o'n ikki oy.", en: 'There are seven days in a week and they go in order. There are about thirty days in a month and twelve months in a year.' },
     audio: {
       ru: 'Миссия выполнена. Мы научились читать календарь. В неделе семь дней, они идут по порядку. В месяце около тридцати дней, а в году двенадцать месяцев. Дальше мы узнаем про деньги.',
-      uz: "Missiya bajarildi. Kalendarni o'qishni o'rgandik. Haftada yetti kun, ular tartib bilan keladi. Oyda taxminan o'ttiz kun, yilda esa o'n ikki oy. Keyingi safar pul haqida bilib olamiz."
+      uz: "Missiya bajarildi. Kalendarni o'qishni o'rgandik. Haftada yetti kun, ular tartib bilan keladi. Oyda taxminan o'ttiz kun, yilda esa o'n ikki oy. Keyingi safar pul haqida bilib olamiz.",
+      en: 'Mission complete. We learned to read a calendar. There are seven days in a week and they go in order. There are about thirty days in a month and twelve months in a year. Next we will find out about money.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Семь дней недели.', uz: "Haftaning yetti kuni." },
-  s2:  { ru: 'Вчера, сегодня, завтра.', uz: "Kecha, bugun, ertaga." },
-  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'А теперь месяцы.', uz: "Endi oylar." },
-  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti." },
-  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz." },
-  s6:  { ru: 'Читаем календарь.', uz: "Kalendarni o'qiymiz." },
-  s7:  { ru: 'Вчера и завтра.', uz: "Kecha va ertaga." },
-  s8:  { ru: 'Снова календарь.', uz: "Yana kalendar." },
-  s9:  { ru: 'Месяцы года.', uz: "Yil oylari." },
-  s10: { ru: 'Ещё раз календарь.', uz: "Yana bir kalendar." },
-  s11: { ru: 'Порядок дней.', uz: "Kunlar tartibi." },
-  s12: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi." },
-  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Путь домой почти пройден!', uz: "Uyga yo'l deyarli bosib o'tildi!" }
+  s1:  { ru: 'Семь дней недели.', uz: "Haftaning yetti kuni.", en: 'Seven days of the week.' },
+  s2:  { ru: 'Вчера, сегодня, завтра.', uz: "Kecha, bugun, ertaga.", en: 'Yesterday, today, tomorrow.' },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz.", en: 'Let us write down the rule.' },
+  s4:  { ru: 'А теперь месяцы.', uz: "Endi oylar.", en: 'And now the months.' },
+  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti.", en: 'The key of the last planet.' },
+  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz.", en: 'Now on your own.' },
+  s6:  { ru: 'Читаем календарь.', uz: "Kalendarni o'qiymiz.", en: 'Reading the calendar.' },
+  s7:  { ru: 'Вчера и завтра.', uz: "Kecha va ertaga.", en: 'Yesterday and tomorrow.' },
+  s8:  { ru: 'Снова календарь.', uz: "Yana kalendar.", en: 'The calendar again.' },
+  s9:  { ru: 'Месяцы года.', uz: "Yil oylari.", en: 'The months of the year.' },
+  s10: { ru: 'Ещё раз календарь.', uz: "Yana bir kalendar.", en: 'The calendar once more.' },
+  s11: { ru: 'Порядок дней.', uz: "Kunlar tartibi.", en: 'The order of the days.' },
+  s12: { ru: 'Бит заполняет журнал.', uz: "Bit jurnalni to'ldiradi.", en: 'Bit is filling in the log.' },
+  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering.", en: 'Help Bit.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Путь домой почти пройден!', uz: "Uyga yo'l deyarli bosib o'tildi!", en: 'The way home is almost done!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'На станции у Нептуна Бит отметил день в бортовом журнале. Путь домой почти пройден! Спасибо за помощь.',
-  uz: "Neptun yonidagi stansiyada Bit bort jurnalida kunni belgiladi. Uyga yo'l deyarli bosib o'tildi! Yordamingiz uchun rahmat."
+  uz: "Neptun yonidagi stansiyada Bit bort jurnalida kunni belgiladi. Uyga yo'l deyarli bosib o'tildi! Yordamingiz uchun rahmat.",
+  en: "At the station by Neptune Bit marked the day in the ship's log. The way home is almost done! Thank you for your help."
 };
 
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1447,7 +1484,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1464,7 +1501,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2221,7 +2259,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2697,7 +2741,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -2989,8 +3033,8 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(210px, 48vw, 290px)' }}>
           {/* hafta kunlari — 7 kun tartib bilan (Du..Ya) */}
           <WeekStrip/>
-          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'от понедельника до воскресенья', uz: "dushanbadan yakshanbagacha" })}</div>}
-          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(16px,2.8vw,21px)' }}>{t({ ru: 'неделя — семь дней', uz: 'hafta — yetti kun' })}</div>}
+          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(15px,2.6vw,20px)' }}>{t({ ru: 'от понедельника до воскресенья', uz: "dushanbadan yakshanbagacha", en: 'from Monday to Sunday' })}</div>}
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(16px,2.8vw,21px)' }}>{t({ ru: 'неделя — семь дней', uz: 'hafta — yetti kun', en: 'a week is seven days' })}</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3077,8 +3121,8 @@ const Screen2 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(200px, 46vw, 280px)' }}>
           {/* kecha (seshanba) · bugun (chorshanba) · erta (payshanba) */}
-          <WeekStrip hi={reveal >= 1 ? [1, 2, 3] : [2]} caps={done ? { 1: { ru: 'вчера', uz: 'kecha' }, 2: { ru: 'сегодня', uz: 'bugun' }, 3: { ru: 'завтра', uz: 'ertaga' } } : { 2: { ru: 'сегодня', uz: 'bugun' } }}/>
-          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(15px,2.6vw,20px)', textAlign: 'center' }}>{t({ ru: 'три дня подряд', uz: "ketma-ket uch kun" })}</div>}
+          <WeekStrip hi={reveal >= 1 ? [1, 2, 3] : [2]} caps={done ? { 1: { ru: 'вчера', uz: 'kecha', en: 'yesterday' }, 2: { ru: 'сегодня', uz: 'bugun', en: 'today' }, 3: { ru: 'завтра', uz: 'ertaga', en: 'tomorrow' } } : { 2: { ru: 'сегодня', uz: 'bugun', en: 'today' } }}/>
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(15px,2.6vw,20px)', textAlign: 'center' }}>{t({ ru: 'три дня подряд', uz: "ketma-ket uch kun", en: 'three days in a row' })}</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3369,8 +3413,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3416,9 +3460,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3625,7 +3669,7 @@ const Screen4 = (props) => {
                 <div key={i} className={substShown ? 'g1-pop-in' : ''} style={{ textAlign: 'center', padding: 'clamp(5px,1.3vw,8px) 2px', borderRadius: 8, fontSize: 'clamp(9px,1.6vw,12px)', fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", background: T.accentSoft, color: T.accent, animationDelay: substShown ? `${i * 0.04}s` : undefined }}>{mo.ab[lang]}</div>
               ))}
             </div>
-            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'двенадцать месяцев', uz: "o'n ikki oy" })}</div>}
+            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)' }}>{t({ ru: 'двенадцать месяцев', uz: "o'n ikki oy", en: 'twelve months' })}</div>}
           </div>
         </div>
         <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
@@ -3954,12 +3998,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4307,9 +4353,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4317,15 +4363,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4339,8 +4385,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4349,14 +4395,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4372,16 +4418,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4389,14 +4435,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4473,8 +4519,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4648,7 +4694,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <NeptunField label={{ ru: 'Календарь освоен', uz: "Kalendar o'rganildi" }}/>
+          <NeptunField label={{ ru: 'Календарь освоен', uz: "Kalendar o'rganildi", en: 'The calendar is sorted' }}/>
         </div>
       </div>
     </Stage>
@@ -4659,14 +4705,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4976,7 +5022,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -5006,8 +5052,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5136,8 +5182,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5406,7 +5452,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5535,7 +5581,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5609,7 +5655,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5698,7 +5744,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5878,8 +5924,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6037,7 +6083,7 @@ const SumFig = ({ shape, sides, reveal = false, labels = true, hi = null }) => {
   );
 };
 const sumPerim = (sides, shape) => shape === 'rect' ? 2 * (sides[0] + sides[1]) : sides[0] + sides[1] + sides[2];
-const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" };
+const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' };
 // PerimStage — round.mode: 'geo' {verts} / 'sum' {shape,sides}. MC son. Distraktor = qo'shni son.
 const PerimStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -6108,10 +6154,10 @@ const PerimStage = ({ props, cKey, fact = false }) => {
 //  BuildStage — eni/bo'yi stepperlari bilan to'rtburchak yasab, «Tekshir» bosiladi (geoboard jonli preview).
 //  PickStage — berilgan o'lchamga (spec) mos shaklni 3 tadan tanlash (GeoFig previewlar).
 // ============================================================
-const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:" };
-const B_ENI = { ru: 'ширина', uz: 'eni' };
-const B_BOYI = { ru: 'высота', uz: "bo'yi" };
-const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring' };
+const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:", en: 'Draw a rectangle:' };
+const B_ENI = { ru: 'ширина', uz: 'eni', en: 'width' };
+const B_BOYI = { ru: 'высота', uz: "bo'yi", en: 'height' };
+const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring', en: 'Check' };
 const rectVerts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
 const STEP_BTN = { width: 'clamp(36px,8vw,44px)', height: 'clamp(36px,8vw,44px)', borderRadius: 10, border: `2px solid ${T.accent}`, background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(20px,3.4vw,26px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 };
 const Stepper = ({ label, value, onDec, onInc, disabled }) => (
@@ -6188,7 +6234,7 @@ const RectBuildStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" };
+const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?", en: 'Which shape fits?' };
 const PickStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6241,14 +6287,14 @@ const PickStage = ({ props, cKey, fact = false }) => {
 };
 // ============================================================
 // --- Geometriya mexanikalari (LEN/POLY/PERIM/CHAIN) — Dars32 da hammasi O'LIK KOD (klon an'anasi) ---
-const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
-const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm', en: 'cm' }, dm: { ru: 'дм', uz: 'dm', en: 'dm' }, m: { ru: 'м', uz: 'm', en: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr', en: 'centimetre' }, dm: { ru: 'дециметр', uz: 'detsimetr', en: 'decimetre' }, m: { ru: 'метр', uz: 'metr', en: 'metre' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
 const RUL_STEP = 26, RUL_PAD = 16;
 const LEN_Q = {
-  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' }
 };
 const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
@@ -6403,7 +6449,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
   );
 };
 // --- POLY (Dars27) mexanikasi — Dars31 da JONLI (s7: name/ispoly/count) ---
-const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak', en: 'A triangle' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak", en: 'A quadrilateral' }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak', en: 'A pentagon' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak', en: 'A hexagon' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
   <g>
@@ -6456,13 +6502,13 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
     </svg>
   );
 };
-const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
-const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
-const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
-const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?", en: 'Which polygon is this?' };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?", en: 'How many sides?' };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?", en: 'Is this a polygon?' };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak", en: 'A polygon' } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas", en: 'No' } }];
 const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
-const TOMON = { ru: 'стор.', uz: 'tomon' };
+const TOMON = { ru: 'стор.', uz: 'tomon', en: 'sides' };
 // deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
 const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 // PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
@@ -6512,7 +6558,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
           <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas", en: 'Not a polygon' })}</div>}
         </div>
         {!solved && (
           <>
@@ -6541,7 +6587,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
   );
 };
 // PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
-const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi", en: 'Draw a thread from a shape to its name and the hatch will open' };
 const PolyMatchStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6678,7 +6724,7 @@ const PolyMatchStage = ({ props, cKey }) => {
 //  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
 //  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
 // ============================================================
-const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
+const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' }, ray: { ru: 'Луч', uz: 'Nur', en: 'A ray' }, segment: { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' } };
 const LT_ENDS = { line: 0, ray: 1, segment: 2 };
 // Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
 const LineEnd = ({ x, y, big }) => (
@@ -6782,8 +6828,8 @@ const RealObj = ({ kind }) => {
     </svg>
   );
 };
-const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
-const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
+const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?", en: 'What is this?' };
+const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' };
 const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 const LineTypeStage = ({ props, cKey, fact = false }) => {
@@ -6897,7 +6943,7 @@ const ExprText = ({ left, op, right, size = 'mid' }) => {
   );
 };
 
-const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?" };
+const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?", en: 'What is the value?' };
 const evalVal = (r) => (r.op === '+' ? r.val + r.n : r.val - r.n);
 const evalOpts = (r, seed) => {
   const c = evalVal(r);
@@ -6972,8 +7018,8 @@ const EvalStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?" };
-const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli' } }];
+const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?", en: 'A number one or a letter one?' };
+const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli', en: 'A number one' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli', en: 'A letter one' } }];
 // ClassifyStage — ifoda sonli yoki harfli? (harf bo'lsa harfli).
 const ClassifyStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7033,7 +7079,7 @@ const PICK_PROMPT = {
   '+': { ru: (l, n) => `Прибавить к ${l} число ${n}`, uz: (l, n) => `${l} ga ${n} sonini qo'shish` },
   '−': { ru: (l, n) => `Вычесть из ${l} число ${n}`, uz: (l, n) => `${l} dan ${n} sonini ayirish` }
 };
-const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?" };
+const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?", en: 'Which expression fits?' };
 // PickExprStage — so'zga mos ifodani tanla. Variantlar: to'g'ri (letter op n), teskari amal, yopishtirilgan (letter n).
 const PickExprStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7106,21 +7152,21 @@ const FRAC_OPT = { padding: 'clamp(10px,1.9vw,14px)', fontSize: 'clamp(17px,3vw,
 const WORD_OPT = { padding: 'clamp(8px,1.6vw,12px) clamp(6px,1.4vw,10px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 700, fontFamily: "'Source Serif 4', serif", minHeight: 'clamp(50px,8vw,64px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center', lineHeight: 1.15 };
 // Hafta kunlari (0=Dushanba … 6=Yakshanba) — to'liq + qisqartma. UZ/RU DRAFT.
 const WEEKDAYS = [
-  { ru: 'понедельник', uz: 'dushanba', ab: { ru: 'Пн', uz: 'Du' } },
-  { ru: 'вторник', uz: 'seshanba', ab: { ru: 'Вт', uz: 'Se' } },
-  { ru: 'среда', uz: 'chorshanba', ab: { ru: 'Ср', uz: 'Ch' } },
-  { ru: 'четверг', uz: 'payshanba', ab: { ru: 'Чт', uz: 'Pa' } },
-  { ru: 'пятница', uz: 'juma', ab: { ru: 'Пт', uz: 'Ju' } },
-  { ru: 'суббота', uz: 'shanba', ab: { ru: 'Сб', uz: 'Sh' } },
-  { ru: 'воскресенье', uz: 'yakshanba', ab: { ru: 'Вс', uz: 'Ya' } }
+  { ru: 'понедельник', uz: 'dushanba', en: 'Monday', ab: { ru: 'Пн', uz: 'Du', en: 'Mon' } },
+  { ru: 'вторник', uz: 'seshanba', en: 'Tuesday', ab: { ru: 'Вт', uz: 'Se', en: 'Tue' } },
+  { ru: 'среда', uz: 'chorshanba', en: 'Wednesday', ab: { ru: 'Ср', uz: 'Ch', en: 'Wed' } },
+  { ru: 'четверг', uz: 'payshanba', en: 'Thursday', ab: { ru: 'Чт', uz: 'Pa', en: 'Thu' } },
+  { ru: 'пятница', uz: 'juma', en: 'Friday', ab: { ru: 'Пт', uz: 'Ju', en: 'Fri' } },
+  { ru: 'суббота', uz: 'shanba', en: 'Saturday', ab: { ru: 'Сб', uz: 'Sh', en: 'Sat' } },
+  { ru: 'воскресенье', uz: 'yakshanba', en: 'Sunday', ab: { ru: 'Вс', uz: 'Ya', en: 'Sun' } }
 ];
 const MONTHS = [
-  { ru: 'январь', uz: 'yanvar', ab: { ru: 'янв', uz: 'yan' } }, { ru: 'февраль', uz: 'fevral', ab: { ru: 'фев', uz: 'fev' } },
-  { ru: 'март', uz: 'mart', ab: { ru: 'мар', uz: 'mar' } }, { ru: 'апрель', uz: 'aprel', ab: { ru: 'апр', uz: 'apr' } },
-  { ru: 'май', uz: 'may', ab: { ru: 'май', uz: 'may' } }, { ru: 'июнь', uz: 'iyun', ab: { ru: 'июн', uz: 'iyn' } },
-  { ru: 'июль', uz: 'iyul', ab: { ru: 'июл', uz: 'iyl' } }, { ru: 'август', uz: 'avgust', ab: { ru: 'авг', uz: 'avg' } },
-  { ru: 'сентябрь', uz: 'sentabr', ab: { ru: 'сен', uz: 'sen' } }, { ru: 'октябрь', uz: 'oktabr', ab: { ru: 'окт', uz: 'okt' } },
-  { ru: 'ноябрь', uz: 'noyabr', ab: { ru: 'ноя', uz: 'noy' } }, { ru: 'декабрь', uz: 'dekabr', ab: { ru: 'дек', uz: 'dek' } }
+  { ru: 'январь', uz: 'yanvar', en: 'January', ab: { ru: 'янв', uz: 'yan', en: 'Jan' } }, { ru: 'февраль', uz: 'fevral', en: 'February', ab: { ru: 'фев', uz: 'fev', en: 'Feb' } },
+  { ru: 'март', uz: 'mart', en: 'March', ab: { ru: 'мар', uz: 'mar', en: 'Mar' } }, { ru: 'апрель', uz: 'aprel', en: 'April', ab: { ru: 'апр', uz: 'apr', en: 'Apr' } },
+  { ru: 'май', uz: 'may', en: 'May', ab: { ru: 'май', uz: 'may', en: 'May' } }, { ru: 'июнь', uz: 'iyun', en: 'June', ab: { ru: 'июн', uz: 'iyn', en: 'Jun' } },
+  { ru: 'июль', uz: 'iyul', en: 'July', ab: { ru: 'июл', uz: 'iyl', en: 'Jul' } }, { ru: 'август', uz: 'avgust', en: 'August', ab: { ru: 'авг', uz: 'avg', en: 'Aug' } },
+  { ru: 'сентябрь', uz: 'sentabr', en: 'September', ab: { ru: 'сен', uz: 'sen', en: 'Sep' } }, { ru: 'октябрь', uz: 'oktabr', en: 'October', ab: { ru: 'окт', uz: 'okt', en: 'Oct' } },
+  { ru: 'ноябрь', uz: 'noyabr', en: 'November', ab: { ru: 'ноя', uz: 'noy', en: 'Nov' } }, { ru: 'декабрь', uz: 'dekabr', en: 'December', ab: { ru: 'дек', uz: 'dek', en: 'Dec' } }
 ];
 const CAL_START = 2;   // 1-sana = Chorshanba (index 2)
 const CAL_DAYS = 30;
@@ -7267,7 +7313,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -7355,8 +7401,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -7475,9 +7521,9 @@ const ScreenTable = (props) => {
             <span style={KEY_CAP}>{t(c.caption)}</span>
             <WeekStrip/>
             <div style={{ display: 'flex', gap: 'clamp(8px,2.4vw,18px)', flexWrap: 'wrap', justifyContent: 'center', fontFamily: "'JetBrains Mono',monospace", fontWeight: 800, fontSize: 'clamp(11px,1.9vw,14px)', color: T.ink2 }}>
-              <span>{t({ ru: 'неделя = 7 дней', uz: 'hafta = 7 kun' })}</span>
-              <span>{t({ ru: 'месяц ≈ 30 дней', uz: "oy ≈ 30 kun" })}</span>
-              <span>{t({ ru: 'год = 12 месяцев', uz: 'yil = 12 oy' })}</span>
+              <span>{t({ ru: 'неделя = 7 дней', uz: 'hafta = 7 kun', en: 'a week = 7 days' })}</span>
+              <span>{t({ ru: 'месяц ≈ 30 дней', uz: "oy ≈ 30 kun", en: 'a month ≈ 30 days' })}</span>
+              <span>{t({ ru: 'год = 12 месяцев', uz: 'yil = 12 oy', en: 'a year = 12 months' })}</span>
             </div>
           </div>
         </div>
@@ -8341,7 +8387,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

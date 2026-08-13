@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -133,8 +133,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'num-3-05',
-  lessonTitle: { ru: 'Урок 5. Округление чисел', uz: "5-dars. Sonlarni yaxlitlash" }
+  lessonId: 'grade3-05',
+  lessonTitle: { ru: 'Урок 5. Округление чисел', uz: "5-dars. Sonlarni yaxlitlash", en: 'Lesson 5. Rounding numbers' }
 };
 // STRUKTURA: 1–7 tushuntirish · 8–11 mashq · 12 final · 13 xulosa. Grade2 Dars01 etaloni yoyi,
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
@@ -167,14 +167,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: shahar shkalasi, 47 chiroq taxminan qancha (o'nlikkacha)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash' },
-    lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.' },
-    num_display: { ru: '47', uz: '47' },
-    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitlang: 40 ga yaqinmi yoki 50 ga?" },
-    opt0: { ru: '40', uz: '40' },
-    opt1: { ru: '50', uz: '50' },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: округление чисел', uz: 'Mavzu: sonlarni yaxlitlash', en: 'Topic: rounding numbers' },
+    lead: { ru: 'Шкала города: тут 47 огней.', uz: 'Shahar shkalasi: bu yerda 47 chiroq.', en: 'The city scale: there are 47 lights here.' },
+    num_display: { ru: '47', uz: '47', en: '47' },
+    q: { ru: 'Округли до десятков: ближе к 40 или к 50?', uz: "O'nlikkacha yaxlitlang: 40 ga yaqinmi yoki 50 ga?", en: 'Round to tens: closer to 40 or to 50?' },
+    opt0: { ru: '40', uz: '40', en: '40' },
+    opt1: { ru: '50', uz: '50', en: '50' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -188,17 +188,18 @@ const CONTENT = {
           "O'tgan hududda tumanlarni taqqosladik. Endi Bit shahar shkalasini ko'rsatadi.",
           "Shkalada qirq yetti chiroq. Yumaloq belgilar bu qirq va ellik.",
           "Sizningcha, qirq yetti qaysi yumaloq songa yaqinroq? Variantni tanlang."
-        ]
+        ],
+        en: ["Today's topic is rounding numbers. We will learn to replace a number with the nearest round one.", 'In the last district we were comparing districts. Now Bit is showing the city scale.', 'There are forty seven lights on the scale. The round marks are forty and fifty.', 'Which round number do you think forty seven is closer to? Choose an answer.']
       },
-      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти. Округляем до пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq. Ellikkacha yaxlitlaymiz." },
-      on_wrong: { ru: 'Посмотри на шкалу. Сорок семь ближе к пятидесяти, чем к сорока.', uz: "Shkalaga qarang. Qirq yetti qirqqa emas, ellikka yaqinroq." }
+      on_correct: { ru: 'Верно. Сорок семь ближе к пятидесяти. Округляем до пятидесяти.', uz: "To'g'ri. Qirq yetti ellikka yaqinroq. Ellikkacha yaxlitlaymiz.", en: 'Correct. Forty seven is closer to fifty. We round to fifty.' },
+      on_wrong: { ru: 'Посмотри на шкалу. Сорок семь ближе к пятидесяти, чем к сорока.', uz: "Shkalaga qarang. Qirq yetti qirqqa emas, ellikka yaqinroq.", en: 'Look at the scale. Forty seven is closer to fifty than to forty.' }
     }
   },
 
   // s1 — RECALL: son o'qida yumaloq belgilar tartib bilan
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'Круглые числа — метки на шкале.', uz: 'Yumaloq sonlar — shkaladagi belgilar.' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'Круглые числа — метки на шкале.', uz: 'Yumaloq sonlar — shkaladagi belgilar.', en: 'Round numbers are the marks on the scale.' },
     audio: {
       ru: [
         'На числовой шкале числа стоят по порядку. Чем правее, тем больше.',
@@ -209,18 +210,19 @@ const CONTENT = {
         "Son shkalasida sonlar tartib bilan turadi. Qancha o'ngda bo'lsa, shuncha katta.",
         "Yumaloq sonlar bu asosiy belgilar. O'nliklar: o'n, yigirma, o'ttiz. Yuzliklar: yuz, ikki yuz, uch yuz.",
         "Har qanday son ikki yumaloq belgi orasida turadi. Yaxlitlash bu eng yaqin belgini tanlash."
-      ]
+      ],
+      en: ['On a number scale the numbers stand in order. The further right, the greater.', 'Round numbers are the main marks. Tens: ten, twenty, thirty. Hundreds: one hundred, two hundred, three hundred.', 'Any number stands between two round marks. To round means to choose the nearest mark.']
     }
   },
 
   // s2 — YUMALOQ SON nima (0 bilan tugaydi)
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Круглое число оканчивается на ноль.', uz: 'Yumaloq son nol bilan tugaydi.' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Круглое число оканчивается на ноль.', uz: 'Yumaloq son nol bilan tugaydi.', en: 'A round number ends in zero.' },
     tens: ['30', '80', '60'],
     hundreds: ['200', '500', '700'],
-    tens_label: { ru: 'круглые десятки', uz: "yumaloq o'nliklar" },
-    hundreds_label: { ru: 'круглые сотни', uz: 'yumaloq yuzliklar' },
+    tens_label: { ru: 'круглые десятки', uz: "yumaloq o'nliklar", en: 'round tens' },
+    hundreds_label: { ru: 'круглые сотни', uz: 'yumaloq yuzliklar', en: 'round hundreds' },
     audio: {
       ru: [
         'Какие числа называют круглыми? Круглый десяток оканчивается на один ноль. Тридцать, восемьдесят, шестьдесят.',
@@ -229,16 +231,17 @@ const CONTENT = {
       uz: [
         "Qaysi sonlar yumaloq deyiladi? Yumaloq o'nlik bitta nol bilan tugaydi. O'ttiz, sakson, oltmish.",
         "Yumaloq yuzlik ikkita nol bilan tugaydi. Ikki yuz, besh yuz, yetti yuz. Bunday sonlarni sanash va eslash qulay."
-      ]
+      ],
+      en: ['Which numbers are called round? A round ten ends in one zero. Thirty, eighty, sixty.', 'A round hundred ends in two zeros. Two hundred, five hundred, seven hundred. Such numbers are easy to count with and to remember.']
     }
   },
 
   // s3 — O'NLIKKACHA yaxlitlash: 47 -> 50
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Округляем до десятков.', uz: "O'nlikkacha yaxlitlaymiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Округляем до десятков.', uz: "O'nlikkacha yaxlitlaymiz.", en: 'We round to tens.' },
     n: 47, base: 10, rounded: 50,
-    done_text: { ru: 'Сорок семь ближе к пятидесяти. Округлили до пятидесяти.', uz: "Qirq yetti ellikka yaqin. Ellikkacha yaxlitladik." },
+    done_text: { ru: 'Сорок семь ближе к пятидесяти. Округлили до пятидесяти.', uz: "Qirq yetti ellikka yaqin. Ellikkacha yaxlitladik.", en: 'Forty-seven is closer to fifty. We rounded to fifty.' },
     audio: {
       ru: [
         'Округлим сорок семь до десятков. Оно стоит между сорока и пятьюдесятью.',
@@ -249,16 +252,17 @@ const CONTENT = {
         "Qirq yettini o'nlikkacha yaxlitlaymiz. U qirq bilan ellik orasida turadi.",
         "Qaysi belgiga yaqinligiga qaraymiz. Qirq yetti ellikka yaqinroq.",
         "Eng yaqin belgiga sakraymiz. Qirq yettini ellikkacha yaxlitladik. Qirq uch esa qirqqa yaqin bo'lardi."
-      ]
+      ],
+      en: ['Let us round forty seven to tens. It stands between forty and fifty.', 'We look at which mark is nearer. Forty seven is closer to fifty.', 'We jump to the nearest mark. Forty seven rounds to fifty. And forty three would be closer to forty.']
     }
   },
 
   // s4 — CHEGARA qoida: 45 -> 50 (birlik 5 yuqoriga); raqam qoidasi
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ровно пять — округляем вверх.', uz: "Roppa-rosa besh — yuqoriga yaxlitlaymiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Ровно пять — округляем вверх.', uz: "Roppa-rosa besh — yuqoriga yaxlitlaymiz.", en: 'Exactly five — we round up.' },
     n: 45, base: 10, rounded: 50,
-    done_text: { ru: 'Если цифра справа пять или больше — округляем вверх. Если меньше пяти — вниз.', uz: "O'ngdagi raqam besh yoki katta bo'lsa — yuqoriga. Beshdan kichik bo'lsa — pastga." },
+    done_text: { ru: 'Если цифра справа пять или больше — округляем вверх. Если меньше пяти — вниз.', uz: "O'ngdagi raqam besh yoki katta bo'lsa — yuqoriga. Beshdan kichik bo'lsa — pastga.", en: 'If the digit on the right is five or more — we round up. If less than five — down.' },
     audio: {
       ru: [
         'А если число ровно посередине? Сорок пять стоит точно между сорока и пятьюдесятью.',
@@ -269,16 +273,17 @@ const CONTENT = {
         "Agar son roppa-rosa o'rtada bo'lsa-chi? Qirq besh qirq bilan ellik orasida aynan o'rtada.",
         "Qoida bor. Xonaning o'ng tomonidagi raqamga qaraymiz. Agar u besh yoki katta bo'lsa, yuqoriga yaxlitlaymiz.",
         "Beshlik bu besh, demak yuqoriga. Qirq beshni ellikkacha yaxlitlaymiz. Agar raqam beshdan kichik bo'lsa, pastga yaxlitlaymiz."
-      ]
+      ],
+      en: ['And what if a number is exactly in the middle? Forty five stands exactly between forty and fifty.', 'There is a rule. We look at the digit to the right of the place. If it is five or more, we round up.', 'A five is five, so it goes up. Forty five rounds to fifty. And if the digit is less than five, we round down.']
     }
   },
 
   // s5 — YUZLIKKACHA yaxlitlash: 347 -> 300, 380 -> 400
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Округляем до сотен.', uz: 'Yuzlikkacha yaxlitlaymiz.' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Округляем до сотен.', uz: 'Yuzlikkacha yaxlitlaymiz.', en: 'We round to hundreds.' },
     n: 347, base: 100, rounded: 300,
-    done_text: { ru: 'До сотен смотрим на десятки. У 347 десятков четыре, это меньше пяти — вниз, к тремстам.', uz: "Yuzlikkacha o'nlikka qaraymiz. 347 da o'nlik to'rt, bu beshdan kichik — pastga, uch yuzga." },
+    done_text: { ru: 'До сотен смотрим на десятки. У 347 десятков четыре, это меньше пяти — вниз, к тремстам.', uz: "Yuzlikkacha o'nlikka qaraymiz. 347 da o'nlik to'rt, bu beshdan kichik — pastga, uch yuzga.", en: 'For hundreds we look at the tens. 347 has four tens, that is less than five — down, to three hundred.' },
     audio: {
       ru: [
         'Теперь округлим до сотен. Возьмём триста сорок семь. Оно между тремястами и четырьмястами.',
@@ -289,20 +294,21 @@ const CONTENT = {
         "Endi yuzlikkacha yaxlitlaymiz. Uch yuz qirq yettini olamiz. U uch yuz bilan to'rt yuz orasida.",
         "Yuzlikkacha o'nlik raqamiga qaraymiz. Uch yuz qirq yettida o'nlik to'rt.",
         "To'rt beshdan kichik, demak pastga. Uch yuz qirq yettini uch yuzgacha yaxlitlaymiz. Uch yuz sakson esa to'rt yuzgacha yaxlitlanardi."
-      ]
+      ],
+      en: ['Now let us round to hundreds. Take three hundred forty seven. It is between three hundred and four hundred.', 'For hundreds we look at the tens digit. Three hundred forty seven has four in the tens.', 'Four is less than five, so we go down. Three hundred forty seven rounds to three hundred. And three hundred eighty would round to four hundred.']
     }
   },
 
   // s6 — QOIDA
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Смотрим на цифру справа от разряда округления. Пять или больше — округляем вверх, меньше пяти — вниз.', uz: "Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Besh yoki katta — yuqoriga, beshdan kichik — pastga yaxlitlaymiz.", en: 'We look at the digit to the right of the rounding place. Five or more — round up, less than five — down.' },
     n: 63, base: 10, rounded: 60,
-    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitlang. To'g'ri javobni bosing." },
+    check_q: { ru: 'Округли 63 до десятков. Нажми верный ответ.', uz: "63 ni o'nlikkacha yaxlitlang. To'g'ri javobni bosing.", en: 'Round 63 to tens. Tap the correct answer.' },
     check_opts: ['60', '70'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga." },
-    check_no: { ru: 'Цифра единиц три, меньше пяти — округляем вниз, к 60.', uz: "Birlik raqami uch, beshdan kichik — pastga, 60 ga." },
+    check_ok: { ru: 'Верно! Цифра справа три, это меньше пяти — округляем вниз, к 60.', uz: "To'g'ri! O'ngdagi raqam uch, beshdan kichik — pastga, 60 ga.", en: 'Correct! The digit on the right is three, that is less than five — we round down, to 60.' },
+    check_no: { ru: 'Цифра единиц три, меньше пяти — округляем вниз, к 60.', uz: "Birlik raqami uch, beshdan kichik — pastga, 60 ga.", en: 'The ones digit is three, less than five — we round down, to 60.' },
     audio: {
       ru: [
         'Отлично, теперь запомним правило округления.',
@@ -315,224 +321,227 @@ const CONTENT = {
         "Qaysi xonagacha yaxlitlasak, o'shaning o'ng tomonidagi raqamga qaraymiz.",
         "Agar bu raqam besh yoki katta bo'lsa, yuqoriga, keyingi belgiga yaxlitlaymiz.",
         "Beshdan kichik bo'lsa, pastga, o'z belgisiga yaxlitlaymiz. Endi o'zingiz. Oltmish uchni o'nlikkacha yaxlitlang."
-      ]
+      ],
+      en: ['Excellent, now let us remember the rounding rule.', 'We look at the digit to the right of the place we are rounding to.', 'If that digit is five or more, we round up, to the next mark.', 'If it is less than five, we round down, to its own mark. And now on your own. Round sixty three to tens.']
     }
   },
 
   // s7 — MASHQ o'nlikkacha (MC), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitlang." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Округли до десятков.', uz: "O'nlikkacha yaxlitlang.", en: 'Round to tens.' },
     base: 10,
     items: [
       {
         num: 68, ci: 0,
-        opts: [{ ru: '70', uz: '70' }, { ru: '60', uz: '60' }, { ru: '68', uz: '68' }],
+        opts: [{ ru: '70', uz: '70', en: '70' }, { ru: '60', uz: '60', en: '60' }, { ru: '68', uz: '68', en: '68' }],
         hints: {
-          1: { ru: 'Цифра единиц восемь, это больше пяти — округляем вверх, к 70.', uz: "Birlik raqami sakkiz, beshdan katta — yuqoriga, 70 ga." },
-          2: { ru: 'Ответ должен быть круглым, оканчиваться на ноль.', uz: "Javob yumaloq bo'lishi kerak, nol bilan tugashi kerak." }
+          1: { ru: 'Цифра единиц восемь, это больше пяти — округляем вверх, к 70.', uz: "Birlik raqami sakkiz, beshdan katta — yuqoriga, 70 ga.", en: 'The ones digit is eight, that is more than five — we round up, to 70.' },
+          2: { ru: 'Ответ должен быть круглым, оканчиваться на ноль.', uz: "Javob yumaloq bo'lishi kerak, nol bilan tugashi kerak.", en: 'The answer must be round, it must end in zero.' }
         }
       },
       {
         num: 34, ci: 0,
-        opts: [{ ru: '30', uz: '30' }, { ru: '40', uz: '40' }, { ru: '34', uz: '34' }],
+        opts: [{ ru: '30', uz: '30', en: '30' }, { ru: '40', uz: '40', en: '40' }, { ru: '34', uz: '34', en: '34' }],
         hints: {
-          1: { ru: 'Цифра единиц четыре, меньше пяти — округляем вниз, к 30.', uz: "Birlik raqami to'rt, beshdan kichik — pastga, 30 ga." },
-          2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
+          1: { ru: 'Цифра единиц четыре, меньше пяти — округляем вниз, к 30.', uz: "Birlik raqami to'rt, beshdan kichik — pastga, 30 ga.", en: 'The ones digit is four, less than five — we round down, to 30.' },
+          2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi.", en: 'A round answer ends in zero.' }
         }
       },
       {
         num: 55, ci: 0,
-        opts: [{ ru: '60', uz: '60' }, { ru: '50', uz: '50' }, { ru: '55', uz: '55' }],
+        opts: [{ ru: '60', uz: '60', en: '60' }, { ru: '50', uz: '50', en: '50' }, { ru: '55', uz: '55', en: '55' }],
         hints: {
-          1: { ru: 'Цифра единиц пять — округляем вверх, к 60.', uz: "Birlik raqami besh — yuqoriga, 60 ga." },
-          2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
+          1: { ru: 'Цифра единиц пять — округляем вверх, к 60.', uz: "Birlik raqami besh — yuqoriga, 60 ga.", en: 'The ones digit is five — we round up, to 60.' },
+          2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi.", en: 'A round answer ends in zero.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitlang. Birlik raqamiga qarang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
+      intro: { ru: 'Округляй числа до десятков. Смотри на цифру единиц. Три задания.', uz: "Sonlarni o'nlikkacha yaxlitlang. Birlik raqamiga qarang. Uchta topshiriq.", en: 'Round the numbers to tens. Look at the ones digit. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри на цифру единиц: пять и больше вверх, меньше вниз.', uz: "Birlik raqamiga qarang: besh va katta yuqoriga, kichik pastga.", en: 'Look at the ones digit: five and more goes up, less goes down.' }
     }
   },
 
   // s8 — MASHQ yuzlikkacha (MC), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitlang.' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Округли до сотен.', uz: 'Yuzlikkacha yaxlitlang.', en: 'Round to hundreds.' },
     base: 100,
     items: [
       {
         num: 347, ci: 0,
-        opts: [{ ru: '300', uz: '300' }, { ru: '400', uz: '400' }, { ru: '350', uz: '350' }],
+        opts: [{ ru: '300', uz: '300', en: '300' }, { ru: '400', uz: '400', en: '400' }, { ru: '350', uz: '350', en: '350' }],
         hints: {
-          1: { ru: 'Цифра десятков четыре, меньше пяти — округляем вниз, к 300.', uz: "O'nlik raqami to'rt, beshdan kichik — pastga, 300 ga." },
-          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
+          1: { ru: 'Цифра десятков четыре, меньше пяти — округляем вниз, к 300.', uz: "O'nlik raqami to'rt, beshdan kichik — pastga, 300 ga.", en: 'The tens digit is four, less than five — we round down, to 300.' },
+          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi.", en: 'For hundreds the answer ends in two zeros.' }
         }
       },
       {
         num: 682, ci: 0,
-        opts: [{ ru: '700', uz: '700' }, { ru: '600', uz: '600' }, { ru: '680', uz: '680' }],
+        opts: [{ ru: '700', uz: '700', en: '700' }, { ru: '600', uz: '600', en: '600' }, { ru: '680', uz: '680', en: '680' }],
         hints: {
-          1: { ru: 'Цифра десятков восемь, больше пяти — округляем вверх, к 700.', uz: "O'nlik raqami sakkiz, beshdan katta — yuqoriga, 700 ga." },
-          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
+          1: { ru: 'Цифра десятков восемь, больше пяти — округляем вверх, к 700.', uz: "O'nlik raqami sakkiz, beshdan katta — yuqoriga, 700 ga.", en: 'The tens digit is eight, more than five — we round up, to 700.' },
+          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi.", en: 'For hundreds the answer ends in two zeros.' }
         }
       },
       {
         num: 450, ci: 0,
-        opts: [{ ru: '500', uz: '500' }, { ru: '400', uz: '400' }, { ru: '450', uz: '450' }],
+        opts: [{ ru: '500', uz: '500', en: '500' }, { ru: '400', uz: '400', en: '400' }, { ru: '450', uz: '450', en: '450' }],
         hints: {
-          1: { ru: 'Цифра десятков пять — округляем вверх, к 500.', uz: "O'nlik raqami besh — yuqoriga, 500 ga." },
-          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
+          1: { ru: 'Цифра десятков пять — округляем вверх, к 500.', uz: "O'nlik raqami besh — yuqoriga, 500 ga.", en: 'The tens digit is five — we round up, to 500.' },
+          2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi.", en: 'For hundreds the answer ends in two zeros.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitlang. O'nlik raqamiga qarang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qarang: besh va katta yuqoriga, kichik pastga." }
+      intro: { ru: 'Округляй числа до сотен. Смотри на цифру десятков. Три задания.', uz: "Sonlarni yuzlikkacha yaxlitlang. O'nlik raqamiga qarang. Uchta topshiriq.", en: 'Round the numbers to hundreds. Look at the tens digit. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри на цифру десятков: пять и больше вверх, меньше вниз.', uz: "O'nlik raqamiga qarang: besh va katta yuqoriga, kichik pastga.", en: 'Look at the tens digit: five and more goes up, less goes down.' }
     }
   },
 
   // s9 — MASHQ xatoni top (yaxlitlash), 3 raund
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверное округление.', uz: "Noto'g'ri yaxlitlashni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Найди неверное округление.', uz: "Noto'g'ri yaxlitlashni toping.", en: 'Find the wrong rounding.' },
     items: [
       {
         stmts: ['76 → 80', '45 → 40', '23 → 20'],
         wrong: 1,
-        hint: { ru: 'У сорока пяти цифра единиц пять — округляем вверх, к 50, а не к 40.', uz: "Qirq beshda birlik raqami besh — yuqoriga, 50 ga, 40 ga emas." }
+        hint: { ru: 'У сорока пяти цифра единиц пять — округляем вверх, к 50, а не к 40.', uz: "Qirq beshda birlik raqami besh — yuqoriga, 50 ga, 40 ga emas.", en: 'Forty-five has five in the ones — we round up, to 50, not to 40.' }
       },
       {
         stmts: ['350 → 400', '240 → 300', '618 → 600'],
         wrong: 1,
-        hint: { ru: 'У двухсот сорока десятков четыре, меньше пяти — вниз, к 200, а не к 300.', uz: "Ikki yuz qirqda o'nlik to'rt, beshdan kichik — pastga, 200 ga, 300 ga emas." }
+        hint: { ru: 'У двухсот сорока десятков четыре, меньше пяти — вниз, к 200, а не к 300.', uz: "Ikki yuz qirqda o'nlik to'rt, beshdan kichik — pastga, 200 ga, 300 ga emas.", en: 'Two hundred forty has four tens, less than five — down, to 200, not to 300.' }
       },
       {
         stmts: ['92 → 90', '87 → 80', '31 → 30'],
         wrong: 1,
-        hint: { ru: 'У восьмидесяти семи единиц семь, больше пяти — вверх, к 90, а не к 80.', uz: "Sakson yettida birlik yetti, beshdan katta — yuqoriga, 90 ga, 80 ga emas." }
+        hint: { ru: 'У восьмидесяти семи единиц семь, больше пяти — вверх, к 90, а не к 80.', uz: "Sakson yettida birlik yetti, beshdan katta — yuqoriga, 90 ga, 80 ga emas.", en: 'Eighty-seven has seven ones, more than five — up, to 90, not to 80.' }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три округления. Одно неверное. Найди неверное.', uz: "Uchta yaxlitlash beraman. Bittasi noto'g'ri. Noto'g'risini toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshiring: besh va katta yuqoriga, kichik pastga." }
+      intro: { ru: 'Даю три округления. Одно неверное. Найди неверное.', uz: "Uchta yaxlitlash beraman. Bittasi noto'g'ri. Noto'g'risini toping.", en: 'I give you three roundings. One is wrong. Find the wrong one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь цифру справа: пять и больше вверх, меньше вниз.', uz: "O'ngdagi raqamni tekshiring: besh va katta yuqoriga, kichik pastga.", en: 'Check the digit on the right: five and more goes up, less goes down.' }
     }
   },
 
   // s10 — MASALA (case): Anvar taxminiy hisob (yuzlikkacha)
   s10: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Анвар считает модули: их 623. Сколько это примерно?', uz: 'Anvar modullarni sanayapti: ular 623 ta. Bu taxminan qancha?' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Анвар считает модули: их 623. Сколько это примерно?', uz: 'Anvar modullarni sanayapti: ular 623 ta. Bu taxminan qancha?', en: 'Anvar is counting modules: there are 623. About how many is that?' },
     num: 623, base: 100, ci: 0,
-    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.' },
-    opts: [{ ru: '600', uz: '600' }, { ru: '700', uz: '700' }, { ru: '620', uz: '620' }],
+    q: { ru: 'Округли 623 до сотен.', uz: '623 ni yuzlikkacha yaxlitlang.', en: 'Round 623 to hundreds.' },
+    opts: [{ ru: '600', uz: '600', en: '600' }, { ru: '700', uz: '700', en: '700' }, { ru: '620', uz: '620', en: '620' }],
     hints: {
-      1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga." },
-      2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
+      1: { ru: 'Цифра десятков два, меньше пяти — округляем вниз, к 600.', uz: "O'nlik raqami ikki, beshdan kichik — pastga, 600 ga.", en: 'The tens digit is two, less than five — we round down, to 600.' },
+      2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi.", en: 'For hundreds the answer ends in two zeros.' }
     },
-    setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak." },
+    setup_audio: { ru: 'Анвар сосчитал модули района. Их шестьсот двадцать три. Для отчёта нужно примерное круглое число.', uz: "Anvar tuman modullarini sanadi. Ular olti yuz yigirma uchta. Hisob uchun taxminiy yumaloq son kerak.", en: 'Anvar counted the modules of the district. There are six hundred twenty three. The report needs an approximate round number.' },
     audio: {
-      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz." },
-      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qarang: 2, bu beshdan kichik. Pastga yaxlitlaymiz." }
+      intro: { ru: 'Округли шестьсот двадцать три до сотен. Выбери верный ответ.', uz: "Olti yuz yigirma uchni yuzlikkacha yaxlitlang. To'g'ri javobni tanlang.", en: 'Round six hundred twenty three to hundreds. Choose the correct answer.' },
+      on_correct: { ru: 'Верно. Десятков два, меньше пяти — округляем к шестистам.', uz: "To'g'ri. O'nlik ikki, beshdan kichik — olti yuzga yaxlitlaymiz.", en: 'Correct. There are two tens, less than five — we round to six hundred.' },
+      on_wrong: { ru: 'Смотри на десятки: 2, это меньше пяти. Округляем вниз.', uz: "O'nlikka qarang: 2, bu beshdan kichik. Pastga yaxlitlaymiz.", en: 'Look at the tens: 2, that is less than five. We round down.' }
     }
   },
 
   // s11 — FINAL panel (5 savol) + FactCard
   s11: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitlang." },
-        opt0: { ru: '60', uz: '60' },
-        opt1: { ru: '50', uz: '50' },
-        opt2: { ru: '58', uz: '58' },
-        wrong_1: { ru: 'Единиц восемь, больше пяти — вверх, к 60.', uz: "Birlik sakkiz, beshdan katta — yuqoriga, 60 ga." },
-        wrong_2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi." }
+        q: { ru: 'Округли 58 до десятков.', uz: "58 ni o'nlikkacha yaxlitlang.", en: 'Round 58 to tens.' },
+        opt0: { ru: '60', uz: '60', en: '60' },
+        opt1: { ru: '50', uz: '50', en: '50' },
+        opt2: { ru: '58', uz: '58', en: '58' },
+        wrong_1: { ru: 'Единиц восемь, больше пяти — вверх, к 60.', uz: "Birlik sakkiz, beshdan katta — yuqoriga, 60 ga.", en: 'Eight ones, more than five — up, to 60.' },
+        wrong_2: { ru: 'Круглый ответ оканчивается на ноль.', uz: "Yumaloq javob nol bilan tugaydi.", en: 'A round answer ends in zero.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitlang.' },
-        opt0: { ru: '400', uz: '400' },
-        opt1: { ru: '500', uz: '500' },
-        opt2: { ru: '410', uz: '410' },
-        wrong_1: { ru: 'Десятков один, меньше пяти — вниз, к 400.', uz: "O'nlik bir, beshdan kichik — pastga, 400 ga." },
-        wrong_2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi." }
+        q: { ru: 'Округли 412 до сотен.', uz: '412 ni yuzlikkacha yaxlitlang.', en: 'Round 412 to hundreds.' },
+        opt0: { ru: '400', uz: '400', en: '400' },
+        opt1: { ru: '500', uz: '500', en: '500' },
+        opt2: { ru: '410', uz: '410', en: '410' },
+        wrong_1: { ru: 'Десятков один, меньше пяти — вниз, к 400.', uz: "O'nlik bir, beshdan kichik — pastga, 400 ga.", en: 'One ten, less than five — down, to 400.' },
+        wrong_2: { ru: 'До сотен ответ оканчивается на два нуля.', uz: "Yuzlikkacha javob ikkita nol bilan tugaydi.", en: 'For hundreds the answer ends in two zeros.' }
       },
       {
         kind: 'num', ans: 280,
-        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing." },
-        hint: { ru: 'Единиц пять — округляем вверх, к 280.', uz: "Birlik besh — yuqoriga, 280 ga." }
+        q: { ru: 'Округли 275 до десятков и запиши.', uz: "275 ni o'nlikkacha yaxlitlab yozing.", en: 'Round 275 to tens and write it.' },
+        hint: { ru: 'Единиц пять — округляем вверх, к 280.', uz: "Birlik besh — yuqoriga, 280 ga.", en: 'Five ones — we round up, to 280.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitlang." },
-        opt0: { ru: '90', uz: '90' },
-        opt1: { ru: '100', uz: '100' },
-        opt2: { ru: '80', uz: '80' },
-        wrong_1: { ru: 'Единиц четыре, меньше пяти — вниз, к 90.', uz: "Birlik to'rt, beshdan kichik — pastga, 90 ga." },
-        wrong_2: { ru: 'Смотрим на единицы: четыре. Округляем вниз, к 90.', uz: "Birlikka qaraymiz: to'rt. Pastga, 90 ga." }
+        q: { ru: 'Округли 94 до десятков.', uz: "94 ni o'nlikkacha yaxlitlang.", en: 'Round 94 to tens.' },
+        opt0: { ru: '90', uz: '90', en: '90' },
+        opt1: { ru: '100', uz: '100', en: '100' },
+        opt2: { ru: '80', uz: '80', en: '80' },
+        wrong_1: { ru: 'Единиц четыре, меньше пяти — вниз, к 90.', uz: "Birlik to'rt, beshdan kichik — pastga, 90 ga.", en: 'Four ones, less than five — down, to 90.' },
+        wrong_2: { ru: 'Смотрим на единицы: четыре. Округляем вниз, к 90.', uz: "Birlikka qaraymiz: to'rt. Pastga, 90 ga.", en: 'We look at the ones: four. We round down, to 90.' }
       },
       {
         kind: 'num', ans: 58,
-        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?" },
-        hint: { ru: 'Единиц восемь, округляется вверх к 60. Значит число пятьдесят восемь.', uz: "Birlik sakkiz, yuqoriga 60 ga yaxlitlanadi. Demak son ellik sakkiz." }
+        q: { ru: 'Загадка. Если округлить меня до десятков, будет 60. Единиц у меня восемь. Кто я?', uz: "Jumboq. Meni o'nlikkacha yaxlitlasa 60 chiqadi. Birligim sakkiz. Men kimman?", en: 'A riddle. If you round me to tens, you get 60. I have eight ones. Who am I?' },
+        hint: { ru: 'Единиц восемь, округляется вверх к 60. Значит число пятьдесят восемь.', uz: "Birlik sakkiz, yuqoriga 60 ga yaxlitlanadi. Demak son ellik sakkiz.", en: 'Eight ones rounds up to 60. So the number is fifty eight.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Красные карлики очень маленькие: самые лёгкие из них лишь немного больше планеты Юпитер. Но горят они дольше всех звёзд.', uz: "Qizil mitti yulduzlar juda kichik: eng yengillari Yupiter sayyorasidan atigi sal katta. Lekin ular hamma yulduzdan uzoq yonadi." },
-    fact_audio: { ru: 'Красные карлики очень маленькие. Самые лёгкие из них лишь немного больше планеты Юпитер. Но горят они дольше всех звёзд.', uz: "Qizil mitti yulduzlar juda kichik. Eng yengillari Yupiter sayyorasidan atigi sal katta. Lekin ular hamma yulduzdan uzoq yonadi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Красные карлики очень маленькие: самые лёгкие из них лишь немного больше планеты Юпитер. Но горят они дольше всех звёзд.', uz: "Qizil mitti yulduzlar juda kichik: eng yengillari Yupiter sayyorasidan atigi sal katta. Lekin ular hamma yulduzdan uzoq yonadi.", en: 'Red dwarfs are very small: the lightest of them are only a little bigger than the planet Jupiter. But they burn longer than any other star.' },
+    fact_audio: { ru: 'Красные карлики очень маленькие. Самые лёгкие из них лишь немного больше планеты Юпитер. Но горят они дольше всех звёзд.', uz: "Qizil mitti yulduzlar juda kichik. Eng yengillari Yupiter sayyorasidan atigi sal katta. Lekin ular hamma yulduzdan uzoq yonadi.", en: 'Red dwarfs are very small. The lightest of them are only a little bigger than the planet Jupiter. But they burn longer than any other star.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows tasks, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s12 — YAKUN
   s12: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!' },
-    cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz." },
-    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qarang: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 6: число на числовой прямой', uz: "6-dars: son o'qida son" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Шкала города освоена!', uz: 'Shahar shkalasi egallandi!', en: 'The city scale is mastered!' },
+    cando: { ru: 'Теперь ты округляешь числа до десятков и до сотен.', uz: "Endi siz sonlarni o'nlikkacha va yuzlikkacha yaxlitlaysiz.", en: 'Now you round numbers to tens and to hundreds.' },
+    rule_recap: { ru: 'Смотри на цифру справа от разряда: пять и больше — вверх, меньше пяти — вниз. Круглое число оканчивается на ноль.', uz: "Xonaning o'ngidagi raqamga qarang: besh va katta — yuqoriga, beshdan kichik — pastga. Yumaloq son nol bilan tugaydi.", en: 'Look at the digit to the right of the place: five and more goes up, less than five goes down. A round number ends in zero.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'четвёртый урок: сравнение чисел', uz: "to'rtinchi dars: sonlarni taqqoslash", en: 'lesson four: comparing numbers' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 6: число на числовой прямой', uz: "6-dars: son o'qida son", en: 'Lesson 6: a number on the number line' },
     audio: {
       ru: 'Шкала города освоена. Мы научились округлять числа до десятков и до сотен. Запомни правило. Смотрим на цифру справа от разряда округления. Если пять или больше, округляем вверх. Если меньше пяти, вниз. А круглое число всегда оканчивается на ноль. В следующий раз научимся находить место числа на числовой прямой.',
-      uz: "Shahar shkalasi egallandi. Biz sonlarni o'nlikkacha va yuzlikkacha yaxlitlashni o'rgandik. Qoidani yodda tuting. Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Agar besh yoki katta bo'lsa, yuqoriga. Beshdan kichik bo'lsa, pastga. Yumaloq son esa doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz."
+      uz: "Shahar shkalasi egallandi. Biz sonlarni o'nlikkacha va yuzlikkacha yaxlitlashni o'rgandik. Qoidani yodda tuting. Yaxlitlash xonasidan o'ngdagi raqamga qaraymiz. Agar besh yoki katta bo'lsa, yuqoriga. Beshdan kichik bo'lsa, pastga. Yumaloq son esa doim nol bilan tugaydi. Keyingi safar sonning son o'qidagi o'rnini topishni o'rganamiz.",
+      en: 'The city scale is mastered. We learned to round numbers to tens and to hundreds. Remember the rule. We look at the digit to the right of the rounding place. If it is five or more, we round up. If it is less than five, down. And a round number always ends in zero. Next time we will learn to find the place of a number on the number line.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним про шкалу.', uz: 'Shkalani eslaymiz.' },
-  s2:  { ru: 'Какие числа круглые?', uz: 'Qaysi sonlar yumaloq?' },
-  s3:  { ru: 'Округлим до десятков.', uz: "O'nlikkacha yaxlitlaymiz." },
-  s4:  { ru: 'А если ровно посередине?', uz: "Roppa-rosa o'rtada bo'lsa-chi?" },
-  s5:  { ru: 'Теперь до сотен.', uz: 'Endi yuzlikkacha.' },
-  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s7:  { ru: 'Правило знаем. Округляй сам.', uz: "Qoidani bilamiz. O'zingiz yaxlitlang." },
-  s8:  { ru: 'Теперь до сотен.', uz: 'Endi yuzlikkacha.' },
-  s9:  { ru: 'Проверим округления на ошибку.', uz: 'Yaxlitlashlarni xatoga tekshiramiz.' },
-  s10: { ru: 'Анвару нужно примерное число.', uz: 'Anvarga taxminiy son kerak.' },
-  s11: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s12: { ru: 'Шкала освоена. Идём дальше!', uz: 'Shkala egallandi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним про шкалу.', uz: 'Shkalani eslaymiz.', en: 'Let us recall the scale.' },
+  s2:  { ru: 'Какие числа круглые?', uz: 'Qaysi sonlar yumaloq?', en: 'Which numbers are round?' },
+  s3:  { ru: 'Округлим до десятков.', uz: "O'nlikkacha yaxlitlaymiz.", en: 'Let us round to tens.' },
+  s4:  { ru: 'А если ровно посередине?', uz: "Roppa-rosa o'rtada bo'lsa-chi?", en: 'And what if it is exactly in the middle?' },
+  s5:  { ru: 'Теперь до сотен.', uz: 'Endi yuzlikkacha.', en: 'Now to hundreds.' },
+  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s7:  { ru: 'Правило знаем. Округляй сам.', uz: "Qoidani bilamiz. O'zingiz yaxlitlang.", en: 'We know the rule. Round on your own.' },
+  s8:  { ru: 'Теперь до сотен.', uz: 'Endi yuzlikkacha.', en: 'Now to hundreds.' },
+  s9:  { ru: 'Проверим округления на ошибку.', uz: 'Yaxlitlashlarni xatoga tekshiramiz.', en: 'Let us check the roundings for a mistake.' },
+  s10: { ru: 'Анвару нужно примерное число.', uz: 'Anvarga taxminiy son kerak.', en: 'Anvar needs an approximate number.' },
+  s11: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s12: { ru: 'Шкала освоена. Идём дальше!', uz: 'Shkala egallandi. Davom etamiz!', en: 'The scale is mastered. Let us move on!' }
 };
 
 // s12 payoff (xulosadan oldin aytiladi)
 const S12_PAYOFF = {
   ru: 'Миссия выполнена! Мы научились быстро прикидывать число круглыми метками, и Бит открыл шкалу города. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz sonni yumaloq belgilar bilan tez chamalashni o'rgandik, va Bit shahar shkalasini ochdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz sonni yumaloq belgilar bilan tez chamalashni o'rgandik, va Bit shahar shkalasini ochdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We learned to estimate a number quickly with round marks, and Bit opened the city scale. Thank you for your help!'
 };
 
 
@@ -740,7 +749,7 @@ const MeasureTowerBg = () => {
 
     <rect x="96" y="104" width="208" height="52" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="102" y="108" width="196" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ОКРУГЛЕНИЕ' : 'YAXLITLASH'}</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ОКРУГЛЕНИЕ', 'YAXLITLASH', 'ROUNDING')}</text>
     <line x1="116" y1="140" x2="284" y2="140" stroke="#5E86A2" strokeWidth="2"/>
     {[['40', 116], ['45', 158], ['50', 200], ['55', 242], ['60', 284]].map(([n, x], i) => (<g key={`t${i}`}><line x1={x} y1="135" x2={x} y2="145" stroke="#5E86A2" strokeWidth="1.5"/><text x={x} y="153" textAnchor="middle" fontSize="7" fill="#8FB8D0" fontFamily="'JetBrains Mono', monospace">{n}</text></g>))}
     <g><circle cx="149" cy="140" r="3.5" fill="#F2A85C"/><text x="149" y="130" textAnchor="middle" fontSize="9" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">47</text></g>
@@ -1521,7 +1530,7 @@ const Screen11 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1590,7 +1599,7 @@ const Screen12 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1611,7 +1620,7 @@ export default function RoundingLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1678,7 +1687,7 @@ export default function RoundingLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

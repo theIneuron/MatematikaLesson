@@ -81,9 +81,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -254,7 +282,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -295,7 +323,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -907,8 +936,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'col-setup-2-11-v1',
-  lessonTitle: { ru: 'Урок 11. Запись столбиком', uz: "11-dars. Ustun (tuzish)" }
+  lessonId: 'grade2-11',
+  lessonTitle: { ru: 'Урок 11. Запись столбиком', uz: "11-dars. Ustun (tuzish)", en: 'Lesson 11. Writing it in columns' }
 };
 // STRUKTURA (metodist 2026-07-14): s0–s6 tushuntirish (7) · s7–sCASE mashq (6) · s14 final · s15 xulosa.
 // MEXANIKA: OmborRaf — kodni ikki razryad-rafiga ajratish (45 = 40 + 5). Nol-o'rin alohida (s4).
@@ -954,13 +983,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): Mars yuk bazasi — ikki yuk, jami qancha
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Запись столбиком', uz: "Mavzu: Ustun (tuzish)" },
-    lead: { ru: 'Куда писать число?', uz: "Sonni qayerga yozamiz?" },
-    q: { ru: '52 + 3 — это 55 или 82?', uz: "52 + 3 — bu 55 mi yoki 82 mi?" },
-    opt0: { ru: '82', uz: '82' },
-    opt1: { ru: '55', uz: '55' },   // to'g'ri (idx1 = correct-key)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Запись столбиком', uz: "Mavzu: Ustun (tuzish)", en: 'Topic: Writing it in columns' },
+    lead: { ru: 'Куда писать число?', uz: "Sonni qayerga yozamiz?", en: 'Where do we write the number?' },
+    q: { ru: '52 + 3 — это 55 или 82?', uz: "52 + 3 — bu 55 mi yoki 82 mi?", en: '52 + 3, is it 55 or 82?' },
+    opt0: { ru: '82', uz: '82', en: '82' },
+    opt1: { ru: '55', uz: '55', en: '55' },   // to'g'ri (idx1 = correct-key)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -974,21 +1003,22 @@ const CONTENT = {
           "Bitning kemasi qizil sayyora Marsda. Yuk bazasida qutilar sanaladi.",
           "Konteynerda ellik ikki quti, yonida yana uchta. Jami qancha?",
           "Ikki javobni tinglang. Birinchi, sakson ikki. Ikkinchi, ellik besh. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['Today the topic is how to write numbers in columns correctly. Ones under ones, tens under tens.', "Bit's ship is on the red planet Mars. At the cargo base they are counting boxes.", 'The container has fifty two boxes and there are three more beside it. How many are there in all?', 'Listen to two answers. First, eighty two. Second, fifty five. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Пятьдесят два плюс три это пятьдесят пять.', uz: "To'g'ri. Ellik ikki qo'shuv uch, ellik besh." },
-      on_wrong: { ru: 'Три это единицы, поэтому пишем под единицами. Сейчас научимся.', uz: "Uch, bu birlik, shuning uchun birlik ostiga yozamiz. Hozir o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Сейчас научимся ставить числа в столбик.', uz: "Hechqisi yo'q. Hozir sonlarni ustunga to'g'ri qo'yishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Пятьдесят два плюс три это пятьдесят пять.', uz: "To'g'ri. Ellik ikki qo'shuv uch, ellik besh.", en: 'That is right. Fifty two plus three is fifty five.' },
+      on_wrong: { ru: 'Три это единицы, поэтому пишем под единицами. Сейчас научимся.', uz: "Uch, bu birlik, shuning uchun birlik ostiga yozamiz. Hozir o'rganamiz.", en: 'Three is ones, so we write it under the ones. We will learn it now.' },
+      on_unknown: { ru: 'Ничего. Сейчас научимся ставить числа в столбик.', uz: "Hechqisi yo'q. Hozir sonlarni ustunga to'g'ri qo'yishni o'rganamiz.", en: 'No problem. We will learn to place numbers in columns now.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: ustunlab — o'nlik ostiga o'nlik, birlik ostiga birlik
   s1: {
-    eyebrow: { ru: 'Почему столбиком?', uz: 'Nega ustunlab?' },
-    lead: { ru: 'Каждый разряд в свой столбик.', uz: "Har razryad o'z ustuniga." },
-    body: { ru: 'Вспомни разряды. Десятки пишем под десятками, единицы под единицами. Тогда каждый столбик считаем отдельно.', uz: "Razryadlarni eslang. O'nlikni o'nlik ostiga, birlikni birlik ostiga yozamiz. Shunda har ustunni alohida sanaymiz." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik." },
+    eyebrow: { ru: 'Почему столбиком?', uz: 'Nega ustunlab?', en: 'Why in columns?' },
+    lead: { ru: 'Каждый разряд в свой столбик.', uz: "Har razryad o'z ustuniga.", en: 'Each place in its own column.' },
+    body: { ru: 'Вспомни разряды. Десятки пишем под десятками, единицы под единицами. Тогда каждый столбик считаем отдельно.', uz: "Razryadlarni eslang. O'nlikni o'nlik ostiga, birlikni birlik ostiga yozamiz. Shunda har ustunni alohida sanaymiz.", en: 'Remember the places. We write tens under tens and ones under ones. Then we work out each column on its own.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik.", en: 'Ones under ones, tens under tens.' },
     audio: {
       ru: [
         'В столбике у каждого разряда своё место. Вспомни разряды из третьего урока.',
@@ -999,16 +1029,17 @@ const CONTENT = {
         "Ustunda har razryadning o'z o'rni bor. Uchinchi darsdagi razryadlarni eslang.",
         "Qirq uch, bu qirq va uch. Yigirma besh, bu yigirma va besh.",
         "O'nlikni o'nlik ostiga, birlikni birlik ostiga qo'yamiz. Shunday sanash qulay."
-      ]
+      ],
+      en: ['In columns every place has its own spot. Remember the places from lesson three.', 'Forty three is forty and three. Twenty five is twenty and five.', 'We put tens under tens and ones under ones. That makes it easy to work out.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2 (ishlab ko'rsatish): 34 + 25 = 59
   s2: {
-    eyebrow: { ru: 'Один разряд', uz: 'Bir xonali son' },
-    lead: { ru: 'Прибавим 6 к 43.', uz: "43 ga 6 ni qo'shamiz." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: '6 — единицы: под 3. 43 + 6 = 49.', uz: "6 — birlik: 3 ning tagiga. 43 + 6 = 49." },
+    eyebrow: { ru: 'Один разряд', uz: 'Bir xonali son', en: 'One place only' },
+    lead: { ru: 'Прибавим 6 к 43.', uz: "43 ga 6 ni qo'shamiz.", en: 'Let us add 6 to 43.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: '6 — единицы: под 3. 43 + 6 = 49.', uz: "6 — birlik: 3 ning tagiga. 43 + 6 = 49.", en: '6 is ones, so it goes under the 3. 43 + 6 = 49.' },
     audio: {
       ru: [
         'Прибавим к сорока трём число шесть.',
@@ -1021,18 +1052,19 @@ const CONTENT = {
         "Olti, bu birlik. Oltini birlik ostiga, aynan uchning tagiga qo'yamiz, o'nlik ostiga emas. Uchga oltini qo'shamiz, to'qqiz.",
         "O'nliklar ustunida faqat to'rt, tagida hech narsa yo'q. O'nliklar to'rt bo'lib qoladi.",
         "Qirq to'qqiz bo'ldi. Qirq uch qo'shuv olti, qirq to'qqiz."
-      ]
+      ],
+      en: ['Let us add six to forty three.', 'Six is ones. We put the six under the ones, right under the three, not under the tens. Three plus six is nine.', 'In the tens column there is only the four, with nothing below it. The tens stay as four.', 'That gives forty nine. Forty three plus six is forty nine.']
     }
   },
 
   // s3 — QOIDA: avval birliklar, keyin o'nliklar
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Единицы под единицами, десятки под десятками. Однозначное — под единицами.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Bir xonali — birlik ustuniga." },
-    check_q: { ru: '34 + 5 = ?', uz: '34 + 5 = ?' },
-    opts: [{ ru: '39', uz: '39', ok: true }, { ru: '84', uz: '84' }, { ru: '35', uz: '35' }, { ru: '30', uz: '30' }],
-    wrong: { ru: 'Пять это единицы: пишем под 4. Тридцать четыре плюс пять это тридцать девять.', uz: "Besh — bu birlik: 4 ning tagiga yozamiz. O'ttiz to'rt qo'shuv besh — o'ttiz to'qqiz." },
-    check_ok: { ru: 'Верно! 34 + 5 = 39.', uz: "To'g'ri! 34 + 5 = 39." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Единицы под единицами, десятки под десятками. Однозначное — под единицами.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Bir xonali — birlik ustuniga.", en: 'Ones under ones, tens under tens. A single digit number goes under the ones.' },
+    check_q: { ru: '34 + 5 = ?', uz: '34 + 5 = ?', en: '34 + 5 = ?' },
+    opts: [{ ru: '39', uz: '39', en: '39', ok: true }, { ru: '84', uz: '84', en: '84' }, { ru: '35', uz: '35', en: '35' }, { ru: '30', uz: '30', en: '30' }],
+    wrong: { ru: 'Пять это единицы: пишем под 4. Тридцать четыре плюс пять это тридцать девять.', uz: "Besh — bu birlik: 4 ning tagiga yozamiz. O'ttiz to'rt qo'shuv besh — o'ttiz to'qqiz.", en: 'Five is ones, so we write it under the 4. Thirty four plus five is thirty nine.' },
+    check_ok: { ru: 'Верно! 34 + 5 = 39.', uz: "To'g'ri! 34 + 5 = 39.", en: 'That is right! 34 + 5 = 39.' },
     audio: {
       ru: [
         'Запишем главное правило записи столбиком. Слушай.',
@@ -1047,20 +1079,21 @@ const CONTENT = {
         "Agar son bir xonali bo'lsa, u faqat birlikdan iborat. Uni birlik ostiga yozamiz.",
         "Shunda har ustunni alohida sanaymiz, hech narsani chalkashtirmaymiz.",
         "Endi o'zingiz. O'ttiz to'rt qo'shuv besh nechchi bo'ladi?"
-      ]
+      ],
+      en: ['Let us write down the main rule for writing in columns. Listen.', 'Ones always go under ones and tens under tens.', 'If a number has one digit, it is only ones. We write it under the ones.', 'Then we work out each column on its own and nothing gets mixed up.', 'And now on your own. How much is thirty four plus five?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (yana misol): 52 + 16 = 68
   s4: {
-    eyebrow: { ru: 'И для вычитания', uz: 'Ayirishda ham' },
-    lead: { ru: 'Вычтем 4 из 58.', uz: "58 dan 4 ni ayiramiz." },
-    body: { ru: '4 — это единицы. Пишем 4 под единицами, под 8. 58 − 4 = 54.', uz: "4 — bu birlik. 4 ni birlik ostiga, 8 ning tagiga yozamiz. 58 − 4 = 54." },
-    warn: { ru: 'Не ставь однозначное под десятками!', uz: "Bir xonali sonni o'nlik ostiga qo'yma!" },
-    check_q: { ru: '58 − 4 = ?', uz: '58 − 4 = ?' },
-    opts: [{ ru: '54', uz: '54', ok: true }, { ru: '18', uz: '18' }, { ru: '55', uz: '55' }],
-    wrong: { ru: '4 под единицами: восемь минус четыре это четыре. 58 − 4 = 54.', uz: "4 birlik ostiga: sakkizdan to'rtni ayiramiz — to'rt. 58 − 4 = 54." },
-    check_ok: { ru: 'Верно! 58 − 4 = 54.', uz: "To'g'ri! 58 − 4 = 54." },
+    eyebrow: { ru: 'И для вычитания', uz: 'Ayirishda ham', en: 'The same for subtracting' },
+    lead: { ru: 'Вычтем 4 из 58.', uz: "58 dan 4 ni ayiramiz.", en: 'Let us take 4 away from 58.' },
+    body: { ru: '4 — это единицы. Пишем 4 под единицами, под 8. 58 − 4 = 54.', uz: "4 — bu birlik. 4 ni birlik ostiga, 8 ning tagiga yozamiz. 58 − 4 = 54.", en: '4 is ones. We write the 4 under the ones, under the 8. 58 − 4 = 54.' },
+    warn: { ru: 'Не ставь однозначное под десятками!', uz: "Bir xonali sonni o'nlik ostiga qo'yma!", en: 'Do not put a single digit number under the tens!' },
+    check_q: { ru: '58 − 4 = ?', uz: '58 − 4 = ?', en: '58 − 4 = ?' },
+    opts: [{ ru: '54', uz: '54', en: '54', ok: true }, { ru: '18', uz: '18', en: '18' }, { ru: '55', uz: '55', en: '55' }],
+    wrong: { ru: '4 под единицами: восемь минус четыре это четыре. 58 − 4 = 54.', uz: "4 birlik ostiga: sakkizdan to'rtni ayiramiz — to'rt. 58 − 4 = 54.", en: 'The 4 goes under the ones: eight minus four is four. 58 − 4 = 54.' },
+    check_ok: { ru: 'Верно! 58 − 4 = 54.', uz: "To'g'ri! 58 − 4 = 54.", en: 'That is right! 58 − 4 = 54.' },
     audio: {
       ru: [
         'То же и для вычитания. Вычтем из пятидесяти восьми четыре.',
@@ -1073,18 +1106,19 @@ const CONTENT = {
         "To'rt, bu birlik. Birlik ostiga, sakkizning tagiga qo'yamiz.",
         "Sakkiz ayir to'rt, to'rt. O'nliklar besh joyida qoladi. Ellik to'rt bo'ldi.",
         "O'zingiz sanang: ellik sakkizdan to'rtni ayiramiz."
-      ]
+      ],
+      en: ['The same goes for subtracting. Let us take four away from fifty eight.', 'Four is ones. We put it under the ones, under the eight.', 'Eight minus four is four. The five tens stay. That gives fifty four.', 'Work it out yourself: fifty eight minus four.']
     }
   },
 
   // s5 — MASHQ (align): 64 + 3 (bir xonali -> birlik ustuniga)
   s5: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech.", en: 'Place the number in the column and work it out.' },
     a: 64, b: 3, op: '+',
-    q: { ru: '64 + 3 = ?', uz: '64 + 3 = ?' },
-    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y." },
-    done_text: { ru: 'Верно! 64 + 3 = 67.', uz: "To'g'ri! 64 + 3 = 67." },
+    q: { ru: '64 + 3 = ?', uz: '64 + 3 = ?', en: '64 + 3 = ?' },
+    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y.", en: 'Put a single digit number under the ones.' },
+    done_text: { ru: 'Верно! 64 + 3 = 67.', uz: "To'g'ri! 64 + 3 = 67.", en: 'That is right! 64 + 3 = 67.' },
     audio: {
       ru: [
         'Прибавь к шестидесяти четырём три.',
@@ -1095,239 +1129,243 @@ const CONTENT = {
         "Oltmish to'rtga uchni qo'sh.",
         "Uch, bu birlik. Uchni birlik ostiga, to'rtning tagiga qo'y.",
         "Shunda oltmish yetti bo'ladi. Sonni ustunga qo'y."
-      ]
+      ],
+      en: ['Add three to sixty four.', 'Three is ones. Put the three under the ones, under the four.', 'Then you get sixty seven. Place the number in the column.']
     }
   },
 
   // s6 — MASHQ (align, ayirish): 78 − 5
   s6: {
-    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang" },
-    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech." },
+    eyebrow: { ru: 'Проверь себя', uz: "O'zingizni sinang", en: 'Check yourself' },
+    lead: { ru: 'Поставь число в столбик и реши.', uz: "Sonni ustunga qo'y va yech.", en: 'Place the number in the column and work it out.' },
     a: 78, b: 5, op: '−',
-    q: { ru: '78 − 5 = ?', uz: '78 − 5 = ?' },
-    wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh — birlik, birlik ustuniga qo'y." },
-    done_text: { ru: 'Верно! 78 − 5 = 73.', uz: "To'g'ri! 78 − 5 = 73." },
+    q: { ru: '78 − 5 = ?', uz: '78 − 5 = ?', en: '78 − 5 = ?' },
+    wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh — birlik, birlik ustuniga qo'y.", en: 'Five is ones, so put it under the ones.' },
+    done_text: { ru: 'Верно! 78 − 5 = 73.', uz: "To'g'ri! 78 − 5 = 73.", en: 'That is right! 78 − 5 = 73.' },
     audio: {
-      intro: { ru: 'Проверь себя. Вычти из семидесяти восьми пять. Куда поставить пятёрку?', uz: "O'zingizni sinang. Yetmish sakkizdan beshni ayiramiz. Beshni qayerga qo'yasiz?" },
-      on_correct: { ru: 'Верно. Семьдесят три.', uz: "To'g'ri. Yetmish uch." },
-      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh, birlik, birlik ustuniga qo'y." }
+      intro: { ru: 'Проверь себя. Вычти из семидесяти восьми пять. Куда поставить пятёрку?', uz: "O'zingizni sinang. Yetmish sakkizdan beshni ayiramiz. Beshni qayerga qo'yasiz?", en: 'Check yourself. Take five away from seventy eight. Where does the five go?' },
+      on_correct: { ru: 'Верно. Семьдесят три.', uz: "To'g'ri. Yetmish uch.", en: 'That is right. Seventy three.' },
+      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh, birlik, birlik ustuniga qo'y.", en: 'Five is ones, so put it under the ones.' }
     }
   },
 
   // s7 — MASHQ-1 (align, 3 misol): sonni to'g'ri ustunga qo'y
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: ставь число в правильный столбик и решай.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: sonni to'g'ri ustunga qo'yib yeching." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y.", en: 'Place the number in the right column.' },
+    transition: { ru: 'Объяснение мы закончили. Теперь потренируйся сам: ставь число в правильный столбик и решай.', uz: "Tushuntirishni tugatdik. Endi o'zingiz mashq qiling: sonni to'g'ri ustunga qo'yib yeching.", en: 'We have finished explaining. Now practise on your own: place the number in the right column and work it out.' },
     rounds: [
-      { a: 52, b: 4, op: '+', q: { ru: '52 + 4 = ?', uz: '52 + 4 = ?' } },
-      { a: 36, b: 21, op: '+', q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?' } },
-      { a: 89, b: 6, op: '−', q: { ru: '89 − 6 = ?', uz: '89 − 6 = ?' } }
+      { a: 52, b: 4, op: '+', q: { ru: '52 + 4 = ?', uz: '52 + 4 = ?', en: '52 + 4 = ?' } },
+      { a: 36, b: 21, op: '+', q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?', en: '36 + 21 = ?' } },
+      { a: 89, b: 6, op: '−', q: { ru: '89 − 6 = ?', uz: '89 − 6 = ?', en: '89 − 6 = ?' } }
     ],
-    wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik.", en: 'Ones under ones, tens under tens.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Объяснение закончили, теперь тренировка. Ставь число в правильный столбик: единицы под единицами.', uz: "Tushuntirishni tugatdik, endi trenirovka. Sonni to'g'ri ustunga qo'y: birlik ostiga birlik." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Однозначное, под единицами, двузначное, по разрядам.', uz: "Bir xonali, birlik ustuniga, ikki xonali, razryadlab." }
+      intro: { ru: 'Объяснение закончили, теперь тренировка. Ставь число в правильный столбик: единицы под единицами.', uz: "Tushuntirishni tugatdik, endi trenirovka. Sonni to'g'ri ustunga qo'y: birlik ostiga birlik.", en: 'We have finished explaining, now it is practice. Place the number in the right column: ones under ones.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Однозначное, под единицами, двузначное, по разрядам.', uz: "Bir xonali, birlik ustuniga, ikki xonali, razryadlab.", en: 'A single digit number goes under the ones, a two digit number goes place by place.' }
     }
   },
 
   // s8 — MASHQ-2 (align, 3 misol)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y.", en: 'Place the number in the right column.' },
     rounds: [
-      { a: 76, b: 5, op: '−', q: { ru: '76 − 5 = ?', uz: '76 − 5 = ?' } },
-      { a: 45, b: 32, op: '+', q: { ru: '45 + 32 = ?', uz: '45 + 32 = ?' } },
-      { a: 60, b: 7, op: '+', q: { ru: '60 + 7 = ?', uz: '60 + 7 = ?' } }
+      { a: 76, b: 5, op: '−', q: { ru: '76 − 5 = ?', uz: '76 − 5 = ?', en: '76 − 5 = ?' } },
+      { a: 45, b: 32, op: '+', q: { ru: '45 + 32 = ?', uz: '45 + 32 = ?', en: '45 + 32 = ?' } },
+      { a: 60, b: 7, op: '+', q: { ru: '60 + 7 = ?', uz: '60 + 7 = ?', en: '60 + 7 = ?' } }
     ],
-    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Однозначное число ставь под единицами.', uz: "Bir xonali sonni birlik ustuniga qo'y.", en: 'Put a single digit number under the ones.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Ещё примеры. Смотри, сколько цифр в числе, и ставь его правильно.', uz: "Yana misollar. Sonda nechta raqam borligiga qarang va to'g'ri qo'y." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik." }
+      intro: { ru: 'Ещё примеры. Смотри, сколько цифр в числе, и ставь его правильно.', uz: "Yana misollar. Sonda nechta raqam borligiga qarang va to'g'ri qo'y.", en: 'A few more examples. Look at how many digits the number has and place it correctly.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik.", en: 'Ones under ones.' }
     }
   },
 
   // s9 — XATONI TOP (yangi mexanika, 3 misol): TAYYOR yozuvda bir xonali son
   //       ATAYLAB o'nlik ustuniga tushgan. O'quvchi «xato qayerda?» ni tanlaydi.
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    lead: { ru: 'Запись готова, но в ней ошибка.', uz: "Yozuv tayyor, lekin unda xato bor." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    lead: { ru: 'Запись готова, но в ней ошибка.', uz: "Yozuv tayyor, lekin unda xato bor.", en: 'The writing is done, but there is a mistake in it.' },
     rounds: [
-      { kind: 'spot', a: 52, b: 4, op: '+', bad: { tens: 4, units: null }, q: { ru: '52 + 4', uz: '52 + 4' }, opts: [
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" }
+      { kind: 'spot', a: 52, b: 4, op: '+', bad: { tens: 4, units: null }, q: { ru: '52 + 4', uz: '52 + 4', en: '52 + 4' }, opts: [
+        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", en: 'A one was written under the tens', ok: true },
+        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan", en: 'A ten was written under the ones' },
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' }
       ] },
-      { kind: 'spot', a: 63, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '63 + 5', uz: '63 + 5' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri" }
+      { kind: 'spot', a: 63, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '63 + 5', uz: '63 + 5', en: '63 + 5' }, opts: [
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", en: 'A one was written under the tens', ok: true },
+        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri", en: 'The sign is wrong' }
       ] },
-      { kind: 'spot', a: 87, b: 6, op: '−', bad: { tens: 6, units: null }, q: { ru: '87 − 6', uz: '87 − 6' }, opts: [
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true }
+      { kind: 'spot', a: 87, b: 6, op: '−', bad: { tens: 6, units: null }, q: { ru: '87 − 6', uz: '87 − 6', en: '87 − 6' }, opts: [
+        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan", en: 'A ten was written under the ones' },
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", en: 'A one was written under the tens', ok: true }
       ] }
     ],
-    wrong: { ru: 'Каждая цифра — в свой столбик: единицы под единицами. Посмотри, где стоит второе число.', uz: "Har raqam o'z ustuniga: birlik ostiga birlik. Ikkinchi son qayerda turibdi, qarang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Каждая цифра — в свой столбик: единицы под единицами. Посмотри, где стоит второе число.', uz: "Har raqam o'z ustuniga: birlik ostiga birlik. Ikkinchi son qayerda turibdi, qarang.", en: 'Every digit goes in its own column: ones under ones. Look at where the second number stands.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Здесь запись уже готова, но в ней спрятана ошибка. Найди, где число стоит неправильно.', uz: "Bu yerda yozuv tayyor, lekin unda xato yashiringan. Son qayer noto'g'ri turganini toping." },
-      on_correct: { ru: 'Верно, ошибку нашёл.', uz: "To'g'ri, xatoni topdingiz." },
-      on_wrong: { ru: 'Посмотри ещё раз: единицы под единицами.', uz: "Yana qarang: birlik ostiga birlik." }
+      intro: { ru: 'Здесь запись уже готова, но в ней спрятана ошибка. Найди, где число стоит неправильно.', uz: "Bu yerda yozuv tayyor, lekin unda xato yashiringan. Son qayer noto'g'ri turganini toping.", en: 'Here the writing is already done, but a mistake is hidden in it. Find where the number stands wrongly.' },
+      on_correct: { ru: 'Верно, ошибку нашёл.', uz: "To'g'ri, xatoni topdingiz.", en: 'That is right, you found the mistake.' },
+      on_wrong: { ru: 'Посмотри ещё раз: единицы под единицами.', uz: "Yana qarang: birlik ostiga birlik.", en: 'Look again: ones under ones.' }
     }
   },
 
   // s10 — MASHQ-4 (align, 3 misol)
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Поставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y.", en: 'Place the number in the right column.' },
     rounds: [
-      { a: 84, b: 3, op: '−', q: { ru: '84 − 3 = ?', uz: '84 − 3 = ?' } },
-      { a: 57, b: 22, op: '+', q: { ru: '57 + 22 = ?', uz: '57 + 22 = ?' } },
-      { a: 41, b: 8, op: '+', q: { ru: '41 + 8 = ?', uz: '41 + 8 = ?' } }
+      { a: 84, b: 3, op: '−', q: { ru: '84 − 3 = ?', uz: '84 − 3 = ?', en: '84 − 3 = ?' } },
+      { a: 57, b: 22, op: '+', q: { ru: '57 + 22 = ?', uz: '57 + 22 = ?', en: '57 + 22 = ?' } },
+      { a: 41, b: 8, op: '+', q: { ru: '41 + 8 = ?', uz: '41 + 8 = ?', en: '41 + 8 = ?' } }
     ],
-    wrong: { ru: 'Проверь: где единицы, а где десятки.', uz: "Tekshir: qaysi birlik, qaysi o'nlik." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Проверь: где единицы, а где десятки.', uz: "Tekshir: qaysi birlik, qaysi o'nlik.", en: 'Check it: which are the ones and which are the tens.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Ещё примеры. Ставь число в правильный столбик.', uz: "Yana misollar. Sonni to'g'ri ustunga qo'y." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik." }
+      intro: { ru: 'Ещё примеры. Ставь число в правильный столбик.', uz: "Yana misollar. Sonni to'g'ri ustunga qo'y.", en: 'A few more examples. Place the number in the right column.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Единицы под единицами.', uz: "Birlik ostiga birlik.", en: 'Ones under ones.' }
     }
   },
 
   // s11 — XATONI TOP (yangi mexanika, 3 misol): boshqa xato-turi — IKKI XONALI
   //        sonning raqamlari ustunlarini almashtirib yozgan (o'nlik/birlik joyi teskari).
   s11: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    lead: { ru: 'Найди, что записано неверно.', uz: "Nima noto'g'ri yozilganini toping." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    lead: { ru: 'Найди, что записано неверно.', uz: "Nima noto'g'ri yozilganini toping.", en: 'Find what is written wrongly.' },
     rounds: [
-      { kind: 'spot', a: 41, b: 23, op: '+', bad: { tens: 3, units: 2 }, q: { ru: '41 + 23', uz: '41 + 23' }, opts: [
-        { ru: 'Цифры второго числа перепутали местами', uz: "Ikkinchi sonning raqamlari o'rni almashgan", ok: true },
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Первое число записали неверно', uz: "Birinchi son noto'g'ri yozilgan" }
+      { kind: 'spot', a: 41, b: 23, op: '+', bad: { tens: 3, units: 2 }, q: { ru: '41 + 23', uz: '41 + 23', en: '41 + 23' }, opts: [
+        { ru: 'Цифры второго числа перепутали местами', uz: "Ikkinchi sonning raqamlari o'rni almashgan", en: 'The digits of the second number were swapped', ok: true },
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Первое число записали неверно', uz: "Birinchi son noto'g'ri yozilgan", en: 'The first number was written wrongly' }
       ] },
-      { kind: 'spot', a: 74, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '74 + 5', uz: '74 + 5' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" }
+      { kind: 'spot', a: 74, b: 5, op: '+', bad: { tens: 5, units: null }, q: { ru: '74 + 5', uz: '74 + 5', en: '74 + 5' }, opts: [
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", en: 'A one was written under the tens', ok: true },
+        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan", en: 'A ten was written under the ones' }
       ] },
-      { kind: 'spot', a: 68, b: 25, op: '−', bad: { tens: 5, units: 2 }, q: { ru: '68 − 25', uz: '68 − 25' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri" },
-        { ru: 'Десятки и единицы перепутали столбцами', uz: "O'nlik va birlik ustunlari almashgan", ok: true }
+      { kind: 'spot', a: 68, b: 25, op: '−', bad: { tens: 5, units: 2 }, q: { ru: '68 − 25', uz: '68 − 25', en: '68 − 25' }, opts: [
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Знак действия неверный', uz: "Amal belgisi noto'g'ri", en: 'The sign is wrong' },
+        { ru: 'Десятки и единицы перепутали столбцами', uz: "O'nlik va birlik ustunlari almashgan", en: 'The tens and the ones were put in the wrong columns', ok: true }
       ] }
     ],
-    wrong: { ru: 'Разряд к разряду: десятки под десятками, единицы под единицами. Сравни столбики.', uz: "Razryad razryadga: o'nlik ostiga o'nlik, birlik ostiga birlik. Ustunlarni solishtiring." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Разряд к разряду: десятки под десятками, единицы под единицами. Сравни столбики.', uz: "Razryad razryadga: o'nlik ostiga o'nlik, birlik ostiga birlik. Ustunlarni solishtiring.", en: 'Place under place: tens under tens, ones under ones. Compare the columns.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'И здесь запись с ошибкой. Иногда путают местами десятки и единицы. Найди ошибку.', uz: "Bu yerda ham xato yozuv. Ba'zan o'nlik bilan birlikning o'rni almashtiriladi. Xatoni toping." },
-      on_correct: { ru: 'Верно, ты внимательный.', uz: "To'g'ri, siz diqqatlisiz." },
-      on_wrong: { ru: 'Сравни столбики: где десятки, где единицы.', uz: "Ustunlarni solishtiring: qayerda o'nlik, qayerda birlik." }
+      intro: { ru: 'И здесь запись с ошибкой. Иногда путают местами десятки и единицы. Найди ошибку.', uz: "Bu yerda ham xato yozuv. Ba'zan o'nlik bilan birlikning o'rni almashtiriladi. Xatoni toping.", en: 'This writing has a mistake too. Sometimes the tens and the ones get swapped. Find the mistake.' },
+      on_correct: { ru: 'Верно, ты внимательный.', uz: "To'g'ri, siz diqqatlisiz.", en: 'That is right, you are being careful.' },
+      on_wrong: { ru: 'Сравни столбики: где десятки, где единицы.', uz: "Ustunlarni solishtiring: qayerda o'nlik, qayerda birlik.", en: 'Compare the columns: which are the tens and which are the ones.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst): Anvar ikki konteyner yuklaydi
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Анвар считает ящики.', uz: "Anvar qutilarni sanaydi." },
-    manifest_label: { ru: 'груз', uz: 'yuk' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Анвар считает ящики.', uz: "Anvar qutilarni sanaydi.", en: 'Anvar is counting boxes.' },
+    manifest_label: { ru: 'груз', uz: 'yuk', en: 'cargo' },
     audio: {
       ru: 'В контейнере пятьдесят четыре ящика. Анвар добавил ещё пять. Сколько стало? Поставь пятёрку в правильный столбик.',
-      uz: "Konteynerda ellik to'rt quti bor. Anvar yana beshta qo'shdi. Nechta bo'ldi? Beshni to'g'ri ustunga qo'y."
+      uz: "Konteynerda ellik to'rt quti bor. Anvar yana beshta qo'shdi. Nechta bo'ldi? Beshni to'g'ri ustunga qo'y.",
+      en: 'The container has fifty four boxes. Anvar added five more. How many are there now? Put the five in the right column.'
     }
   },
 
   // s13 — MASALA (savol, align): 54 + 5 = 59
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Поставь число и реши.', uz: "Sonni qo'y va yech." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Поставь число и реши.', uz: "Sonni qo'y va yech.", en: 'Place the number and work it out.' },
     a: 54, b: 5, op: '+',
-    q: { ru: '54 + 5 = ?', uz: '54 + 5 = ?' },
-    wrong: { ru: '5 это единицы: под 4. Пятьдесят четыре плюс пять это пятьдесят девять.', uz: "5 — birlik: 4 ning tagiga. Ellik to'rt qo'shuv besh — ellik to'qqiz." },
-    done_text: { ru: 'Верно! 54 + 5 = 59 ящиков.', uz: "To'g'ri! 54 + 5 = 59 quti." },
+    q: { ru: '54 + 5 = ?', uz: '54 + 5 = ?', en: '54 + 5 = ?' },
+    wrong: { ru: '5 это единицы: под 4. Пятьдесят четыре плюс пять это пятьдесят девять.', uz: "5 — birlik: 4 ning tagiga. Ellik to'rt qo'shuv besh — ellik to'qqiz.", en: '5 is ones, so it goes under the 4. Fifty four plus five is fifty nine.' },
+    done_text: { ru: 'Верно! 54 + 5 = 59 ящиков.', uz: "To'g'ri! 54 + 5 = 59 quti.", en: 'That is right! 54 + 5 = 59 boxes.' },
     audio: {
-      intro: { ru: 'В контейнере пятьдесят четыре ящика, добавили пять. Куда поставить пятёрку?', uz: "Konteynerda ellik to'rt quti, beshta qo'shildi. Beshni qayerga qo'yasiz?" },
-      on_correct: { ru: 'Верно. Пятьдесят девять ящиков.', uz: "To'g'ri. Ellik to'qqiz quti." },
-      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh, birlik, birlik ustuniga qo'y." }
+      intro: { ru: 'В контейнере пятьдесят четыре ящика, добавили пять. Куда поставить пятёрку?', uz: "Konteynerda ellik to'rt quti, beshta qo'shildi. Beshni qayerga qo'yasiz?", en: 'The container has fifty four boxes and five were added. Where does the five go?' },
+      on_correct: { ru: 'Верно. Пятьдесят девять ящиков.', uz: "To'g'ri. Ellik to'qqiz quti.", en: 'That is right. Fifty nine boxes.' },
+      on_wrong: { ru: 'Пять это единицы, ставь под единицами.', uz: "Besh, birlik, birlik ustuniga qo'y.", en: 'Five is ones, so put it under the ones.' }
     }
   },
 
   // s14 — FINAL (aralash 3 raund + FactCard): 1) align (sonni qo'y) 2) xatoni top 3) to'g'ri yozuvni tanla
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Реши и проверь.', uz: "Yeching va tekshiring." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Реши и проверь.', uz: "Yeching va tekshiring.", en: 'Work it out and check it.' },
     rounds: [
-      { kind: 'align', a: 73, b: 6, op: '+', q: { ru: '73 + 6 = ?', uz: '73 + 6 = ?' } },
-      { kind: 'spot', a: 52, b: 3, op: '+', bad: { tens: 3, units: null }, q: { ru: '52 + 3', uz: '52 + 3' }, opts: [
-        { ru: 'Ошибки нет', uz: "Xato yo'q" },
-        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", ok: true },
-        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan" }
+      { kind: 'align', a: 73, b: 6, op: '+', q: { ru: '73 + 6 = ?', uz: '73 + 6 = ?', en: '73 + 6 = ?' } },
+      { kind: 'spot', a: 52, b: 3, op: '+', bad: { tens: 3, units: null }, q: { ru: '52 + 3', uz: '52 + 3', en: '52 + 3' }, opts: [
+        { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+        { ru: 'Единицу записали под десятки', uz: "Birlikni o'nlik ustuniga yozgan", en: 'A one was written under the tens', ok: true },
+        { ru: 'Десяток записали под единицы', uz: "O'nlikni birlik ustuniga yozgan", en: 'A ten was written under the ones' }
       ] },
-      { kind: 'choose', a: 36, b: 21, op: '+', bad: { tens: 1, units: 2 }, q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?' } }
+      { kind: 'choose', a: 36, b: 21, op: '+', bad: { tens: 1, units: 2 }, q: { ru: '36 + 21 = ?', uz: '36 + 21 = ?', en: '36 + 21 = ?' } }
     ],
-    wrong: { ru: 'Единицы под единицами, десятки под десятками. Проверь.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Tekshiring." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Единицы всегда пишут под единицами — это первое правило столбика. Даже взрослые не путают разряды!', uz: "Birlikni doim birlik ostiga yozadi — bu ustunning birinchi qoidasi. Kattalar ham razryadlarni chalkashtirmaydi!" },
-    fact_audio: { ru: 'Единицы всегда под единицами, десятки под десятками. Это первое и самое главное правило записи столбиком. Поставишь правильно, посчитаешь без ошибок.', uz: "Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bu, ustun yozuvining birinchi va eng muhim qoidasi. To'g'ri qo'ysangiz, xatosiz sanaysiz." },
+    wrong: { ru: 'Единицы под единицами, десятки под десятками. Проверь.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Tekshiring.", en: 'Ones under ones, tens under tens. Check it.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Единицы всегда пишут под единицами — это первое правило столбика. Даже взрослые не путают разряды!', uz: "Birlikni doim birlik ostiga yozadi — bu ustunning birinchi qoidasi. Kattalar ham razryadlarni chalkashtirmaydi!", en: 'Ones are always written under ones, and that is the first rule of columns. Even grown ups never mix up the places!' },
+    fact_audio: { ru: 'Единицы всегда под единицами, десятки под десятками. Это первое и самое главное правило записи столбиком. Поставишь правильно, посчитаешь без ошибок.', uz: "Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bu, ustun yozuvining birinchi va eng muhim qoidasi. To'g'ri qo'ysangiz, xatosiz sanaysiz.", en: 'Ones always go under ones and tens under tens. That is the first and most important rule of writing in columns. Place them correctly and you will work it out without mistakes.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Здесь и поставить число, и найти ошибку, и выбрать верную запись.', uz: "Yakuniy tekshiruv. Bu yerda sonni ham qo'yasiz, xatoni ham topasiz, to'g'ri yozuvni ham tanlaysiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik." }
+      intro: { ru: 'Финальная проверка. Здесь и поставить число, и найти ошибку, и выбрать верную запись.', uz: "Yakuniy tekshiruv. Bu yerda sonni ham qo'yasiz, xatoni ham topasiz, to'g'ri yozuvni ham tanlaysiz.", en: 'The final check. Here you place a number, find a mistake, and choose the correct way of writing it.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Единицы под единицами, десятки под десятками.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik.", en: 'Ones under ones, tens under tens.' }
     }
   },
 
   // s15 — YAKUN: uchish + QOIDA recap + bog'lanishlar
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты правильно ставишь числа в столбик!', uz: "Endi siz sonlarni ustunga to'g'ri qo'yasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты правильно ставишь числа в столбик!', uz: "Endi siz sonlarni ustunga to'g'ri qo'yasiz!", en: 'Now you can place numbers in columns correctly!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Единицы под единицами, десятки под десятками. Однозначное — под единицами. 43 + 6 = 49.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Bir xonali — birlik ustuniga. 43 + 6 = 49." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 3: разряды; уроки 7–10: столбик', uz: "3-dars: razryadlar; 7–10-dars: ustun" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: задачи в два действия', uz: "keyingi: ikki amalli masala" },
+    rule_recap: { ru: 'Единицы под единицами, десятки под десятками. Однозначное — под единицами. 43 + 6 = 49.', uz: "Birlik ostiga birlik, o'nlik ostiga o'nlik. Bir xonali — birlik ustuniga. 43 + 6 = 49.", en: 'Ones under ones, tens under tens. A single digit number goes under the ones. 43 + 6 = 49.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'урок 3: разряды; уроки 7–10: столбик', uz: "3-dars: razryadlar; 7–10-dars: ustun", en: 'lesson 3: places; lessons 7-10: columns' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: задачи в два действия', uz: "keyingi: ikki amalli masala", en: 'next: two step problems' },
     audio: {
       ru: 'Миссия выполнена. На Марсе мы научились правильно записывать числа столбиком. Запомни главное правило. Единицы всегда под единицами, десятки под десятками. Однозначное число пишем под единицами. Груз посчитан, база довольна. Впереди новые задачи на красной планете.',
-      uz: "Missiya bajarildi. Marsda sonlarni ustunlab to'g'ri yozishni o'rgandik. Asosiy qoidani yodda tuting. Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bir xonali sonni birlik ustuniga yozamiz. Yuk sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda."
+      uz: "Missiya bajarildi. Marsda sonlarni ustunlab to'g'ri yozishni o'rgandik. Asosiy qoidani yodda tuting. Birlik doim birlik ostiga, o'nlik o'nlik ostiga. Bir xonali sonni birlik ustuniga yozamiz. Yuk sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda.",
+      en: 'Mission complete. On Mars we learned to write numbers in columns correctly. Remember the main rule. Ones always go under ones and tens under tens. A single digit number is written under the ones. The cargo is counted and the base is happy. New tasks lie ahead on the red planet.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала научимся писать столбиком.', uz: "Avval ustunlab yozishni o'rganamiz." },
-  s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz." },
-  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.' },
-  s5:  { ru: 'Поставь число правильно.', uz: "Sonni to'g'ri qo'y." },
-  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang." },
-  s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz." },
-  s8:  { ru: 'Смотри, сколько цифр в числе.', uz: "Sonda nechta raqam borligiga qarang." },
-  s9:  { ru: 'Теперь проверим готовые записи.', uz: 'Endi tayyor yozuvlarni tekshiramiz.' },
-  s10: { ru: 'Ставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y." },
-  s11: { ru: 'Найди спрятанную ошибку.', uz: 'Yashiringan xatoni toping.' },
-  s12: { ru: 'Анвар считает ящики.', uz: 'Anvar qutilarni sanaydi.' },
-  s13: { ru: 'Куда поставить число?', uz: 'Sonni qayerga qo\'yamiz?' },
-  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Груз на базе посчитан, база довольна!', uz: "Bazadagi yuk sanaldi, baza mamnun!" }
+  s1:  { ru: 'Сначала научимся писать столбиком.', uz: "Avval ustunlab yozishni o'rganamiz.", en: 'First let us learn to write it in columns.' },
+  s2:  { ru: 'Разберём на примере.', uz: "Misolda ko'rib chiqamiz.", en: 'Let us work through an example.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s4:  { ru: 'Возьмём ещё пример.', uz: 'Yana bir misol olamiz.', en: 'Let us take one more example.' },
+  s5:  { ru: 'Поставь число правильно.', uz: "Sonni to'g'ri qo'y.", en: 'Place the number correctly.' },
+  s6:  { ru: 'Проверь себя перед практикой.', uz: "Mashqdan oldin o'zingizni sinang.", en: 'Check yourself before the practice.' },
+  s7:  { ru: 'Объяснение закончили. Переходим к тренировке.', uz: "Tushuntirishni tugatdik. Trenirovkaga o'tamiz.", en: 'We have finished explaining. Now we move on to practice.' },
+  s8:  { ru: 'Смотри, сколько цифр в числе.', uz: "Sonda nechta raqam borligiga qarang.", en: 'Look at how many digits the number has.' },
+  s9:  { ru: 'Теперь проверим готовые записи.', uz: 'Endi tayyor yozuvlarni tekshiramiz.', en: 'Now let us check some writing that is already done.' },
+  s10: { ru: 'Ставь число в правильный столбик.', uz: "Sonni to'g'ri ustunga qo'y.", en: 'Place the number in the right column.' },
+  s11: { ru: 'Найди спрятанную ошибку.', uz: 'Yashiringan xatoni toping.', en: 'Find the hidden mistake.' },
+  s12: { ru: 'Анвар считает ящики.', uz: 'Anvar qutilarni sanaydi.', en: 'Anvar is counting boxes.' },
+  s13: { ru: 'Куда поставить число?', uz: 'Sonni qayerga qo\'yamiz?', en: 'Where does the number go?' },
+  s14: { ru: 'Стартовый компьютер сделает финальную проверку.', uz: 'Uchish kompyuteri yakuniy tekshiradi.', en: 'The launch computer will run the final check.' },
+  s15: { ru: 'Груз на базе посчитан, база довольна!', uz: "Bazadagi yuk sanaldi, baza mamnun!", en: 'The cargo at the base is counted and the base is happy!' }
 };
 
 // s15 uchish-payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Груз на Марсе посчитан столбиком, база довольна. Впереди новые задачи на красной планете! Спасибо за помощь.',
-  uz: "Marsdagi yuk ustunlab sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda! Yordamingiz uchun rahmat."
+  uz: "Marsdagi yuk ustunlab sanaldi, baza mamnun. Qizil sayyorada yangi masalalar oldinda! Yordamingiz uchun rahmat.",
+  en: 'The cargo on Mars is counted in columns and the base is happy. New tasks lie ahead on the red planet! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1436,7 +1474,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1453,7 +1491,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2210,7 +2249,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2686,7 +2731,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3321,8 +3366,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits, sign = '+',
   const bBox = { boxShadow: emphB ? `0 0 0 3px ${T.accentSoft}` : 'none', borderRadius: 8, transition: 'box-shadow .3s' };
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>{sign}</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3370,9 +3415,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3899,12 +3944,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4252,9 +4299,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4262,15 +4309,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4284,8 +4331,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4294,14 +4341,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4317,16 +4364,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4334,14 +4381,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4418,8 +4465,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4593,7 +4640,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Mars bazasida yuk ustunlab sanaldi — natija (jami 55) + ✓ */}
         <div className="fade-up delay-1">
-          <MarsCargoDone total={55} label={{ ru: 'Груз посчитан', uz: 'Yuk sanaldi' }}/>
+          <MarsCargoDone total={55} label={{ ru: 'Груз посчитан', uz: 'Yuk sanaldi', en: 'The cargo is counted' }}/>
         </div>
       </div>
     </Stage>
@@ -4604,8 +4651,8 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // AlignStage — Dars11 amaliyot mexanikasi: o'quvchi IKKINCHI sonni to'g'ri ustunga qo'yadi
 // (birlik ostiga birlik). Plitalar B ning raqamlari; D8_TILE uslubi qayta ishlatiladi.
@@ -4625,7 +4672,7 @@ const D8DropSlot = React.forwardRef(({ digit, color, state, onClear }, ref) => {
 // AlignStage — Dars11 «столбik tuzish» mexanikasi: o'quvchi IKKINCHI sonni (B) to'g'ri
 // ustunga qo'yadi (birlik ostiga birlik, o'nlik ostiga o'nlik). Bir xonali B -> birlik ustuniga
 // (o'nlik katagi bo'sh qoladi). To'g'ri joylashsa -> javob avtomatik ochiladi. Amal belgisi cur.op.
-const PLACE_HINT = { ru: 'Поставь число в правильный столбик', uz: "Sonni to'g'ri ustunga qo'y" };
+const PLACE_HINT = { ru: 'Поставь число в правильный столбик', uz: "Sonni to'g'ri ustunga qo'y", en: 'Place the number in the right column' };
 const AlignStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -4793,9 +4840,9 @@ const AlignStage = ({ props, cKey, fact = false }) => {
 // tayanadi (hammasi shu faylda). Boshqa darsga ko'chirish uchun: ColumnCard oilasi + shu komponent.
 // ============================================================
 const digitsOf = (n) => (n < 10 ? { tens: null, units: n } : { tens: Math.floor(n / 10), units: n % 10 });
-const SPOT_Q = { ru: 'Где ошибка?', uz: 'Xato qayerda?' };
-const CHOOSE_Q = { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?" };
-const ALIGN_TAP_HINT = { ru: 'Выбери плитку, потом нужный столбик', uz: "Plitani tanlang, so'ng kerakli ustunni bosing" };
+const SPOT_Q = { ru: 'Где ошибка?', uz: 'Xato qayerda?', en: 'Where is the mistake?' };
+const CHOOSE_Q = { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?", en: 'Which line is correct?' };
+const ALIGN_TAP_HINT = { ru: 'Выбери плитку, потом нужный столбик', uz: "Plitani tanlang, so'ng kerakli ustunni bosing", en: 'Choose a tile, then the column it belongs in' };
 
 const ErrorSpotStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5104,7 +5151,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -13,7 +13,14 @@ export default defineConfig([
     '_archive',
     '.tmp',
     'lms_dars01_3d_build',
-    'lms-grade6-standalone',
+    // Собранные для LMS файлы лежат рядом с уроками своего класса (перенесены из корня
+    // 2026-08-12). Это выход сборщика: движок вшит в каждый файл, править надо исходник.
+    'src/components/grade3/lms-grade3-standalone',
+    'src/components/grade3/lms-grade3-standalone-tts',
+    'src/components/grade3/lms-grade3-practice-standalone',
+    'src/components/grade6/lms-grade6-standalone',
+    'src/components/grade6/lms-grade6-practice-standalone',
+    'src/components/grade8/lms-grade8-standalone',
   ]),
   {
     files: ['**/*.{js,jsx}'],

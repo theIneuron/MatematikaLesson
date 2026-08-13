@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -180,7 +205,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -215,7 +240,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -596,12 +622,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -717,7 +743,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -766,9 +792,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК + анимации (CSS-only loop, синяя тема)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -850,8 +876,8 @@ const EquivStack = ({ rows, animateIn = true, sweep = false, dimIdx = null }) =>
 // --- POD UROK: frac_5_07 — Эквивалентные дроби — правило ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-07-v1',
-  lessonTitle: { ru: 'Эквивалентные дроби — правило', uz: "Ekvivalent kasrlar — qoida" }
+  lessonId: 'grade5-15',
+  lessonTitle: { ru: 'Эквивалентные дроби — правило', uz: "Ekvivalent kasrlar — qoida", en: 'Equivalent fractions, the rule' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -875,26 +901,28 @@ const SCREEN_META = [
 // === CONTENT BELOW ===
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Загадка', uz: 'Topishmoq' },
+    eyebrow: { ru: 'Загадка', uz: 'Topishmoq', en: 'A puzzle' },
     title: {
       ru: 'Камрон накопил <b>1/2</b> цены велосипеда, а Бобур — <b>3/6</b>. Кто ближе к покупке?',
-      uz: "Kamron velosiped narxining <b>1/2</b> qismini, Bobur esa <b>3/6</b> qismini yig'di. Kim xaridga yaqinroq?"
+      uz: "Kamron velosiped narxining <b>1/2</b> qismini, Bobur esa <b>3/6</b> qismini yig'di. Kim xaridga yaqinroq?",
+      en: 'Kamron has saved up <b>1/2</b> of the price of a bike and Bobur has saved <b>3/6</b>. Who is closer to buying one?'
     },
-    opt_a: { ru: 'Камрон', uz: 'Kamron' },
-    opt_b: { ru: 'Бобур', uz: 'Bobur' },
-    opt_c: { ru: 'Они накопили поровну', uz: "Ular teng yig'ishgan" },
+    opt_a: { ru: 'Камрон', uz: 'Kamron', en: 'Kamron' },
+    opt_b: { ru: 'Бобур', uz: 'Bobur', en: 'Bobur' },
+    opt_c: { ru: 'Они накопили поровну', uz: "Ular teng yig'ishgan", en: 'They have saved the same amount' },
     audio: {
       ru: 'Камрон накопил одну вторую цены велосипеда. Бобур накопил три шестых. Цифры разные. Как думаешь, кто ближе к покупке? Выбери ответ.',
-      uz: "Kamron velosiped narxining bir ikkidan qismini yig'di. Bobur esa uch oltidan qismini yig'di. Raqamlar har xil. Sizningcha kim xaridga yaqinroq? Javobni tanlang."
+      uz: "Kamron velosiped narxining bir ikkidan qismini yig'di. Bobur esa uch oltidan qismini yig'di. Raqamlar har xil. Sizningcha kim xaridga yaqinroq? Javobni tanlang.",
+      en: 'Kamron has saved one half of the price of a bike. Bobur has saved three sixths. The figures are different. Who do you think is closer to buying one? Choose an answer.'
     }
   },
   s1: {
-    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot' },
-    bridge: { ru: 'Цифры разные — а накопления одинаковые? Проверим на полосках.', uz: "Raqamlar har xil, lekin jamg'arma bir xilmi? Chiziqlarda tekshiramiz." },
-    title: { ru: 'Закрасим <b>1/2</b> и <b>3/6</b> на одинаковых полосках', uz: "Bir xil chiziqlarda <b>1/2</b> va <b>3/6</b> ni bo'yaymiz" },
-    step1: { ru: 'Полоску Камрона делим на 2 части и красим одну. Закрашена ровно половина.', uz: "Kamronning chizig'ini 2 ga bo'lib, bittasini bo'yaymiz. Aniq yarmi bo'yaldi." },
-    step2: { ru: 'Полоску Бобура делим на 6 частей и красим три. Граница встаёт на то же место.', uz: "Bobur chizig'ini 6 ga bo'lib, uchtasini bo'yaymiz. Chegara aynan o'sha joyga tushadi." },
-    step3: { ru: 'Закрашенная длина одинаковая. <b>1/2 = 3/6</b> — это одно и то же количество.', uz: "Bo'yalgan uzunlik bir xil. <b>1/2 = 3/6</b> — bu bir xil miqdor." },
+    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot', en: 'Investigation' },
+    bridge: { ru: 'Цифры разные — а накопления одинаковые? Проверим на полосках.', uz: "Raqamlar har xil, lekin jamg'arma bir xilmi? Chiziqlarda tekshiramiz.", en: 'The figures are different, but are the savings the same? Let us check on the bars.' },
+    title: { ru: 'Закрасим <b>1/2</b> и <b>3/6</b> на одинаковых полосках', uz: "Bir xil chiziqlarda <b>1/2</b> va <b>3/6</b> ni bo'yaymiz", en: 'Let us colour in <b>1/2</b> and <b>3/6</b> on identical bars' },
+    step1: { ru: 'Полоску Камрона делим на 2 части и красим одну. Закрашена ровно половина.', uz: "Kamronning chizig'ini 2 ga bo'lib, bittasini bo'yaymiz. Aniq yarmi bo'yaldi.", en: "We split Kamron's bar into 2 parts and colour one in. Exactly a half is coloured." },
+    step2: { ru: 'Полоску Бобура делим на 6 частей и красим три. Граница встаёт на то же место.', uz: "Bobur chizig'ini 6 ga bo'lib, uchtasini bo'yaymiz. Chegara aynan o'sha joyga tushadi.", en: "We split Bobur's bar into 6 parts and colour three in. The edge lands in the same place." },
+    step3: { ru: 'Закрашенная длина одинаковая. <b>1/2 = 3/6</b> — это одно и то же количество.', uz: "Bo'yalgan uzunlik bir xil. <b>1/2 = 3/6</b> — bu bir xil miqdor.", en: 'The coloured length is the same. <b>1/2 = 3/6</b>, it is the same amount.' },
     audio: {
       ru: [
         'Возьмём две одинаковые полоски. На них покажем накопления обоих мальчиков.',
@@ -907,15 +935,16 @@ const CONTENT = {
         "Kamronning chizig'ini ikki qismga bo'lib, bittasini bo'yaymiz. Aniq yarmi bo'yaldi. «Davom etish» ni bosing.",
         "Bobur chizig'ini olti qismga bo'lib, uchtasini bo'yaymiz. Qarang, chegara aynan o'sha joyga tushdi. «Davom etish» ni bosing.",
         "Bo'yalgan uzunlik ikkalasida bir xil. Demak bir ikkidan uch oltidan ga teng. Bu har xil raqamlar bilan yozilgan bir xil miqdor."
-      ]
+      ],
+      en: ["Let us take two identical bars. We will show both boys' savings on them.", "We split Kamron's bar into two parts and colour one in. Exactly a half is coloured. Tap Next.", "We split Bobur's bar into six parts and colour three in. Look, the edge has landed in exactly the same place. Tap Next.", 'The coloured length is the same for both of them. So one half equals three sixths. It is the same amount written with different figures.']
     }
   },
   s2: {
-    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot' },
-    title: { ru: 'Как из <b>1/2</b> получилось <b>3/6</b>?', uz: "<b>1/2</b> dan <b>3/6</b> qanday hosil bo'ldi?" },
-    step1: { ru: 'Числитель умножили на 3: <b>1 · 3 = 3</b>.', uz: "Suratni 3 ga ko'paytirdik: <b>1 · 3 = 3</b>." },
-    step2: { ru: 'Знаменатель умножили на то же число 3: <b>2 · 3 = 6</b>.', uz: "Maxrajni ham aynan o'sha 3 ga ko'paytirdik: <b>2 · 3 = 6</b>." },
-    step3: { ru: 'Умножили <b>и верх, и низ на одно и то же</b> — дробь не изменилась по величине.', uz: "<b>Surat ham, maxraj ham bitta songa</b> ko'paytirildi — kasrning qiymati o'zgarmadi." },
+    eyebrow: { ru: 'Исследование', uz: 'Tadqiqot', en: 'Investigation' },
+    title: { ru: 'Как из <b>1/2</b> получилось <b>3/6</b>?', uz: "<b>1/2</b> dan <b>3/6</b> qanday hosil bo'ldi?", en: 'How did <b>1/2</b> turn into <b>3/6</b>?' },
+    step1: { ru: 'Числитель умножили на 3: <b>1 · 3 = 3</b>.', uz: "Suratni 3 ga ko'paytirdik: <b>1 · 3 = 3</b>.", en: 'The numerator was multiplied by 3: <b>1 · 3 = 3</b>.' },
+    step2: { ru: 'Знаменатель умножили на то же число 3: <b>2 · 3 = 6</b>.', uz: "Maxrajni ham aynan o'sha 3 ga ko'paytirdik: <b>2 · 3 = 6</b>.", en: 'The denominator was multiplied by the same number 3: <b>2 · 3 = 6</b>.' },
+    step3: { ru: 'Умножили <b>и верх, и низ на одно и то же</b> — дробь не изменилась по величине.', uz: "<b>Surat ham, maxraj ham bitta songa</b> ko'paytirildi — kasrning qiymati o'zgarmadi.", en: '<b>Both the top and the bottom were multiplied by the same number</b>, so the size of the fraction did not change.' },
     audio: {
       ru: [
         'Посмотрим, что мы сделали с цифрами, чтобы из одной второй получить три шестых.',
@@ -928,207 +957,212 @@ const CONTENT = {
         "Suratni, yaniy yuqorini, uchga ko'paytirdik. Bir karra uch teng uch. «Davom etish» ni bosing.",
         "Maxrajni, yaniy pastni, aynan o'sha uch soniga ko'paytirdik. Ikki karra uch teng olti. «Davom etish» ni bosing.",
         "Eng muhimi: biz surat ham, maxraj ham bitta songa ko'paytirdik. Shuning uchun kasrning qiymati o'zgarmadi, faqat yozuvi o'zgardi."
-      ]
+      ],
+      en: ['Let us look at what we did to the figures to turn one half into three sixths.', 'The numerator, the top, was multiplied by three. One times three is three. Tap Next.', 'The denominator, the bottom, was multiplied by the same number three. Two times three is six. Tap Next.', 'The main thing is that we multiplied both the top and the bottom by the same number. That is why the size of the fraction did not change, only the way it is written.']
     }
   },
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    bridge: { ru: 'Это работает не только для 1/2. Вот общее правило.', uz: "Bu faqat 1/2 uchun emas. Mana umumiy qoida." },
-    title: { ru: 'Правило эквивалентных дробей', uz: 'Ekvivalent kasrlar qoidasi' },
-    rule_main: { ru: 'Если умножить <b>числитель и знаменатель на одно и то же число</b> (кроме нуля) — получится <b>равная</b> дробь.', uz: "Agar <b>surat va maxrajni bitta songa</b> (noldan tashqari) ko'paytirsak — <b>teng</b> kasr hosil bo'ladi." },
-    rule_div: { ru: 'Делить верх и низ на одно и то же число — тоже можно. Дробь останется равной.', uz: "Surat va maxrajni bitta songa bo'lish ham mumkin. Kasr teng qoladi." },
-    outro: { ru: 'Такие дроби называют <b>эквивалентными</b> — равными по величине, а само это правило — <b>основное свойство дроби</b>.', uz: "Bunday kasrlar <b>ekvivalent</b> — qiymati teng kasrlar deyiladi, qoidaning o'zi esa — <b>kasrning asosiy xossasi</b>." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    bridge: { ru: 'Это работает не только для 1/2. Вот общее правило.', uz: "Bu faqat 1/2 uchun emas. Mana umumiy qoida.", en: 'This works for more than just 1/2. Here is the general rule.' },
+    title: { ru: 'Правило эквивалентных дробей', uz: 'Ekvivalent kasrlar qoidasi', en: 'The rule for equivalent fractions' },
+    rule_main: { ru: 'Если умножить <b>числитель и знаменатель на одно и то же число</b> (кроме нуля) — получится <b>равная</b> дробь.', uz: "Agar <b>surat va maxrajni bitta songa</b> (noldan tashqari) ko'paytirsak — <b>teng</b> kasr hosil bo'ladi.", en: 'If you multiply <b>the numerator and the denominator by the same number</b> (not zero), you get an <b>equal</b> fraction.' },
+    rule_div: { ru: 'Делить верх и низ на одно и то же число — тоже можно. Дробь останется равной.', uz: "Surat va maxrajni bitta songa bo'lish ham mumkin. Kasr teng qoladi.", en: 'You can divide the top and the bottom by the same number too. The fraction stays equal.' },
+    outro: { ru: 'Такие дроби называют <b>эквивалентными</b> — равными по величине, а само это правило — <b>основное свойство дроби</b>.', uz: "Bunday kasrlar <b>ekvivalent</b> — qiymati teng kasrlar deyiladi, qoidaning o'zi esa — <b>kasrning asosiy xossasi</b>.", en: 'Fractions like these are called <b>equivalent</b>, meaning equal in size, and the rule itself is <b>the basic property of a fraction</b>.' },
     audio: {
       ru: 'Запомни правило. Если умножить числитель и знаменатель на одно и то же число, кроме нуля, получится равная дробь. Делить верх и низ на одно и то же число тоже можно, дробь останется равной. Такие дроби называют эквивалентными, то есть равными по величине.',
-      uz: "Qoidani eslab qoling. Agar surat va maxrajni bitta songa, noldan tashqari, ko'paytirsak, teng kasr hosil bo'ladi. Surat va maxrajni bitta songa bo'lish ham mumkin, kasr teng qoladi. Bunday kasrlar ekvivalent, yaniy qiymati teng kasrlar deyiladi."
+      uz: "Qoidani eslab qoling. Agar surat va maxrajni bitta songa, noldan tashqari, ko'paytirsak, teng kasr hosil bo'ladi. Surat va maxrajni bitta songa bo'lish ham mumkin, kasr teng qoladi. Bunday kasrlar ekvivalent, yaniy qiymati teng kasrlar deyiladi.",
+      en: 'Remember the rule. If you multiply the numerator and the denominator by the same number, not zero, you get an equal fraction. You can divide the top and the bottom by the same number too and the fraction stays equal. Fractions like these are called equivalent, which means equal in size.'
     }
   },
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    bridge: { ru: 'Применим правило.', uz: "Qoidani qo'llaymiz." },
-    title: { ru: 'Какая дробь равна <b>1/2</b>?', uz: "Qaysi kasr <b>1/2</b> ga teng?" },
-    question: { ru: 'Посмотри на полоски: у какой закрашенная длина совпадает с 1/2?', uz: "Chiziqlarga qarang: qaysisida bo'yalgan uzunlik 1/2 bilan mos keladi?" },
-    opt_a: { ru: '2/4', uz: '2/4' },
-    opt_b: { ru: '2/3', uz: '2/3' },
-    opt_c: { ru: '3/4', uz: '3/4' },
-    opt_d: { ru: '1/3', uz: '1/3' },
-    correct_text: { ru: 'Верно. 2/4 — это 1·2 / 2·2. Верх и низ умножили на 2, граница на той же половине.', uz: "To'g'ri. 2/4 — bu 1·2 / 2·2. Surat va maxraj 2 ga ko'paytirildi, chegara o'sha yarmida." },
-    wrong_0: { ru: 'Две четвёртых — это ровно половина: верх и низ дроби одна вторая умножили на два.', uz: "Ikkidan to'rt — aniq yarmi: ikkidan bir kasrning surat va maxraji ikkiga ko'paytirildi." },
-    wrong_1: { ru: 'Две третьих больше половины: закрашено две части из трёх, граница правее середины.', uz: "Uchdan ikki yarmidan katta: uchdan ikki qism bo'yalgan, chegara o'rtadan o'ngda." },
-    wrong_2: { ru: 'Три четвёртых — это намного больше половины. Сравни полоски.', uz: "To'rtdan uch — yarmidan ancha katta. Chiziqlarni solishtiring." },
-    wrong_3: { ru: 'Одна третья меньше половины: одна часть из трёх, граница левее середины.', uz: "Uchdan bir yarmidan kichik: uchdan bir qism, chegara o'rtadan chapda." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    bridge: { ru: 'Применим правило.', uz: "Qoidani qo'llaymiz.", en: 'Let us use the rule.' },
+    title: { ru: 'Какая дробь равна <b>1/2</b>?', uz: "Qaysi kasr <b>1/2</b> ga teng?", en: 'Which fraction is equal to <b>1/2</b>?' },
+    question: { ru: 'Посмотри на полоски: у какой закрашенная длина совпадает с 1/2?', uz: "Chiziqlarga qarang: qaysisida bo'yalgan uzunlik 1/2 bilan mos keladi?", en: 'Look at the bars: which one has the same coloured length as 1/2?' },
+    opt_a: { ru: '2/4', uz: '2/4', en: '2/4' },
+    opt_b: { ru: '2/3', uz: '2/3', en: '2/3' },
+    opt_c: { ru: '3/4', uz: '3/4', en: '3/4' },
+    opt_d: { ru: '1/3', uz: '1/3', en: '1/3' },
+    correct_text: { ru: 'Верно. 2/4 — это 1·2 / 2·2. Верх и низ умножили на 2, граница на той же половине.', uz: "To'g'ri. 2/4 — bu 1·2 / 2·2. Surat va maxraj 2 ga ko'paytirildi, chegara o'sha yarmida.", en: 'That is right. 2/4 is 1·2 over 2·2. The top and the bottom were multiplied by 2 and the edge is at the same half.' },
+    wrong_0: { ru: 'Две четвёртых — это ровно половина: верх и низ дроби одна вторая умножили на два.', uz: "Ikkidan to'rt — aniq yarmi: ikkidan bir kasrning surat va maxraji ikkiga ko'paytirildi.", en: 'Two quarters is exactly a half: the top and the bottom of one half were multiplied by two.' },
+    wrong_1: { ru: 'Две третьих больше половины: закрашено две части из трёх, граница правее середины.', uz: "Uchdan ikki yarmidan katta: uchdan ikki qism bo'yalgan, chegara o'rtadan o'ngda.", en: 'Two thirds is more than a half: two parts out of three are coloured and the edge is past the middle.' },
+    wrong_2: { ru: 'Три четвёртых — это намного больше половины. Сравни полоски.', uz: "To'rtdan uch — yarmidan ancha katta. Chiziqlarni solishtiring.", en: 'Three quarters is much more than a half. Compare the bars.' },
+    wrong_3: { ru: 'Одна третья меньше половины: одна часть из трёх, граница левее середины.', uz: "Uchdan bir yarmidan kichik: uchdan bir qism, chegara o'rtadan chapda.", en: 'One third is less than a half: one part out of three, with the edge before the middle.' },
     audio: {
-      intro: { ru: 'Какая из этих дробей равна одной второй? Смотри на закрашенную длину полосок и выбирай.', uz: "Bu kasrlardan qaysi biri bir ikkidan ga teng? Chiziqlarning bo'yalgan uzunligiga qarab tanlang." },
-      on_correct: { ru: 'Верно. Две четвёртых — это та же половина.', uz: "To'g'ri. Ikki to'rtdan — o'sha yarmi." },
-      on_wrong: { ru: 'Сравни закрашенную длину с половиной полоски.', uz: "Bo'yalgan uzunlikni chiziqning yarmi bilan solishtiring." }
+      intro: { ru: 'Какая из этих дробей равна одной второй? Смотри на закрашенную длину полосок и выбирай.', uz: "Bu kasrlardan qaysi biri bir ikkidan ga teng? Chiziqlarning bo'yalgan uzunligiga qarab tanlang.", en: 'Which of these fractions is equal to one half? Look at the coloured length of the bars and choose.' },
+      on_correct: { ru: 'Верно. Две четвёртых — это та же половина.', uz: "To'g'ri. Ikki to'rtdan — o'sha yarmi.", en: 'That is right. Two quarters is the same half.' },
+      on_wrong: { ru: 'Сравни закрашенную длину с половиной полоски.', uz: "Bo'yalgan uzunlikni chiziqning yarmi bilan solishtiring.", en: 'Compare the coloured length with half of the bar.' }
     }
   },
   s5: {
-    eyebrow: { ru: 'Важно', uz: 'Muhim' },
-    title: { ru: 'Частая ошибка: менять <b>только низ</b>', uz: "Ko'p uchraydigan xato: <b>faqat maxrajni</b> o'zgartirish" },
-    rule_main: { ru: 'Кто-то думает: «<b>1/2</b>, увеличу низ → <b>1/6</b>». Но это <b>другая, меньшая</b> дробь!', uz: "Kimdir o'ylaydi: «<b>1/2</b>, maxrajni kattalashtiraman → <b>1/6</b>». Lekin bu <b>boshqa, kichikroq</b> kasr!" },
-    rule_div: { ru: 'Смотри: у 1/6 закрашена всего одна часть из шести. Это намного меньше половины.', uz: "Qarang: 1/6 da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik." },
-    outro: { ru: 'Чтобы дробь осталась равной, меняй <b>и верх, и низ</b> — на одно и то же число.', uz: "Kasr teng qolishi uchun <b>surat ham, maxraj ham</b> bitta songa o'zgartiriladi." },
+    eyebrow: { ru: 'Важно', uz: 'Muhim', en: 'This matters' },
+    title: { ru: 'Частая ошибка: менять <b>только низ</b>', uz: "Ko'p uchraydigan xato: <b>faqat maxrajni</b> o'zgartirish", en: 'A common mistake: changing <b>only the bottom</b>' },
+    rule_main: { ru: 'Кто-то думает: «<b>1/2</b>, увеличу низ → <b>1/6</b>». Но это <b>другая, меньшая</b> дробь!', uz: "Kimdir o'ylaydi: «<b>1/2</b>, maxrajni kattalashtiraman → <b>1/6</b>». Lekin bu <b>boshqa, kichikroq</b> kasr!", en: 'Someone thinks: take <b>1/2</b> and make the bottom bigger, giving <b>1/6</b>. But that is <b>a different, smaller</b> fraction!' },
+    rule_div: { ru: 'Смотри: у 1/6 закрашена всего одна часть из шести. Это намного меньше половины.', uz: "Qarang: 1/6 da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik.", en: 'Look: in 1/6 only one part out of six is coloured. That is much less than a half.' },
+    outro: { ru: 'Чтобы дробь осталась равной, меняй <b>и верх, и низ</b> — на одно и то же число.', uz: "Kasr teng qolishi uchun <b>surat ham, maxraj ham</b> bitta songa o'zgartiriladi.", en: 'For the fraction to stay equal, change <b>both the top and the bottom</b> by the same number.' },
     audio: {
       ru: 'Будь внимателен к частой ошибке. Кто-то берёт одну вторую и меняет только низ, получая одну шестую. Но смотри: у одной шестой закрашена всего одна часть из шести. Это намного меньше половины. Чтобы дробь осталась равной, нужно менять и верх, и низ на одно и то же число.',
-      uz: "Ko'p uchraydigan xatoga e'tibor bering. Kimdir bir ikkidan ni olib, faqat maxrajni o'zgartirib, bir oltidan ni hosil qiladi. Lekin qarang: bir oltidan da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik. Kasr teng qolishi uchun surat ham, maxraj ham bitta songa o'zgartirilishi kerak."
+      uz: "Ko'p uchraydigan xatoga e'tibor bering. Kimdir bir ikkidan ni olib, faqat maxrajni o'zgartirib, bir oltidan ni hosil qiladi. Lekin qarang: bir oltidan da oltidan atigi bitta qism bo'yalgan. Bu yarmidan ancha kichik. Kasr teng qolishi uchun surat ham, maxraj ham bitta songa o'zgartirilishi kerak.",
+      en: 'Watch out for a common mistake. Someone takes one half and changes only the bottom, getting one sixth. But look: in one sixth only one part out of six is coloured. That is much less than a half. For the fraction to stay equal, both the top and the bottom have to be changed by the same number.'
     }
   },
   s6: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    title: { ru: 'Разложи дроби: равна <b>1/2</b> или нет', uz: "Kasrlarni ajrating: <b>1/2</b> ga tengmi yoki yo'q" },
-    lead: { ru: 'Нажми на дробь — она улетит в нужную корзину. Равна половине или нет?', uz: "Kasrni bosing — u kerakli savatga uchadi. Yarmiga tengmi yoki yo'q?" },
-    ask: { ru: 'равна 1/2?', uz: "1/2 ga tengmi?" },
-    bin_eq: { ru: 'равна 1/2', uz: "1/2 ga teng" },
-    bin_uneq: { ru: 'не равна 1/2', uz: "1/2 ga teng emas" },
-    hint_wrong: { ru: 'Проверь: низ ровно вдвое больше верха? Тогда дробь равна половине.', uz: "Tekshiring: maxraji suratdan aniq ikki barobar kattami? Unda kasr yarmiga teng." },
-    correct_text: { ru: 'Готово. Равны половине те дроби, где низ ровно вдвое больше верха: 2/4, 3/6, 4/8, 5/10.', uz: "Tayyor. Maxraji suratdan aniq ikki barobar katta kasrlar yarmiga teng: 2/4, 3/6, 4/8, 5/10." },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    title: { ru: 'Разложи дроби: равна <b>1/2</b> или нет', uz: "Kasrlarni ajrating: <b>1/2</b> ga tengmi yoki yo'q", en: 'Sort the fractions: equal to <b>1/2</b> or not' },
+    lead: { ru: 'Нажми на дробь — она улетит в нужную корзину. Равна половине или нет?', uz: "Kasrni bosing — u kerakli savatga uchadi. Yarmiga tengmi yoki yo'q?", en: 'Tap a fraction and it will fly into the right basket. Is it equal to a half or not?' },
+    ask: { ru: 'равна 1/2?', uz: "1/2 ga tengmi?", en: 'equal to 1/2?' },
+    bin_eq: { ru: 'равна 1/2', uz: "1/2 ga teng", en: 'equal to 1/2' },
+    bin_uneq: { ru: 'не равна 1/2', uz: "1/2 ga teng emas", en: 'not equal to 1/2' },
+    hint_wrong: { ru: 'Проверь: низ ровно вдвое больше верха? Тогда дробь равна половине.', uz: "Tekshiring: maxraji suratdan aniq ikki barobar kattami? Unda kasr yarmiga teng.", en: 'Check: is the bottom exactly twice the top? Then the fraction is equal to a half.' },
+    correct_text: { ru: 'Готово. Равны половине те дроби, где низ ровно вдвое больше верха: 2/4, 3/6, 4/8, 5/10.', uz: "Tayyor. Maxraji suratdan aniq ikki barobar katta kasrlar yarmiga teng: 2/4, 3/6, 4/8, 5/10.", en: 'Done. The fractions equal to a half are the ones where the bottom is exactly twice the top: 2/4, 3/6, 4/8, 5/10.' },
     audio: {
-      intro: { ru: 'Перед тобой дроби. Разложи их по двум корзинам: равна одной второй или нет. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni ikki savatga ajrating: bir ikkidan ga tengmi yoki yo'q. Kasrni bosing — u savatga uchadi." },
-      on_correct: { ru: 'Верно, в нужную корзину.', uz: "To'g'ri, kerakli savatga." },
-      on_wrong: { ru: 'Подумай: низ ровно вдвое больше верха?', uz: "O'ylab ko'ring: maxraji suratdan aniq ikki barobar kattami?" }
+      intro: { ru: 'Перед тобой дроби. Разложи их по двум корзинам: равна одной второй или нет. Нажимай на дробь — она улетит в корзину.', uz: "Oldingizda kasrlar. Ularni ikki savatga ajrating: bir ikkidan ga tengmi yoki yo'q. Kasrni bosing — u savatga uchadi.", en: 'Here are some fractions. Sort them into two baskets: equal to one half or not. Tap a fraction and it will fly into a basket.' },
+      on_correct: { ru: 'Верно, в нужную корзину.', uz: "To'g'ri, kerakli savatga.", en: 'That is right, into the right basket.' },
+      on_wrong: { ru: 'Подумай: низ ровно вдвое больше верха?', uz: "O'ylab ko'ring: maxraji suratdan aniq ikki barobar kattami?", en: 'Think: is the bottom exactly twice the top?' }
     }
   },
   s7: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    title: { ru: 'Дополни до равной дроби: <b>2/3 = ?/6</b>', uz: "Teng kasrgacha to'ldiring: <b>2/3 = ?/6</b>" },
-    question: { ru: 'Низ умножили на 2 (3·2=6). На что нужно умножить верх?', uz: "Maxraj 2 ga ko'paytirildi (3·2=6). Suratni nechaga ko'paytirish kerak?" },
-    opt_a: { ru: '4', uz: '4' },
-    opt_b: { ru: '2', uz: '2' },
-    opt_c: { ru: '5', uz: '5' },
-    opt_d: { ru: '6', uz: '6' },
-    correct_text: { ru: 'Верно. 3 умножили на 2, значит и 2 умножаем на 2: получаем 4. 2/3 = 4/6.', uz: "To'g'ri. 3 ni 2 ga ko'paytirdik, demak 2 ni ham 2 ga: 4 chiqadi. 2/3 = 4/6." },
-    wrong_0: { ru: 'Да: низ умножили на два, верх тоже на два — это четыре. Две третьих это четыре шестых.', uz: "Ha: maxraj ikkiga ko'paytirildi, surat ham ikkiga — bu to'rt. Uchdan ikki bu oltidan to'rt." },
-    wrong_1: { ru: 'Если оставить верх как два, дробь две шестых — она меньше. Верх тоже надо умножить на два.', uz: "Suratni ikki qoldirsak, oltidan ikki kasri kichikroq. Suratni ham ikkiga ko'paytirish kerak." },
-    wrong_2: { ru: 'Откуда 5? Множитель один — 2, и для верха, и для низа.', uz: "5 qayerdan? Ko'paytuvchi bitta — 2, surat uchun ham, maxraj uchun ham." },
-    wrong_3: { ru: '6 — это новый низ, а не верх. Верх: 2 умножить на 2 равно 4.', uz: "6 — bu yangi maxraj, surat emas. Surat: 2 karra 2 teng 4." },
-    fact: { ru: 'В шестерёнках часов одно колесо вдвое больше другого — это та же эквивалентность 1 к 2, что и 3/6 = 1/2.', uz: "Soat tishli g'ildiraklarida bir g'ildirak ikkinchisidan ikki barobar katta — bu xuddi 3/6 = 1/2 dagi 1 ga 2 ekvivalentligi." },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    title: { ru: 'Дополни до равной дроби: <b>2/3 = ?/6</b>', uz: "Teng kasrgacha to'ldiring: <b>2/3 = ?/6</b>", en: 'Complete the equal fraction: <b>2/3 = ?/6</b>' },
+    question: { ru: 'Низ умножили на 2 (3·2=6). На что нужно умножить верх?', uz: "Maxraj 2 ga ko'paytirildi (3·2=6). Suratni nechaga ko'paytirish kerak?", en: 'The bottom was multiplied by 2 (3·2=6). What does the top have to be multiplied by?' },
+    opt_a: { ru: '4', uz: '4', en: '4' },
+    opt_b: { ru: '2', uz: '2', en: '2' },
+    opt_c: { ru: '5', uz: '5', en: '5' },
+    opt_d: { ru: '6', uz: '6', en: '6' },
+    correct_text: { ru: 'Верно. 3 умножили на 2, значит и 2 умножаем на 2: получаем 4. 2/3 = 4/6.', uz: "To'g'ri. 3 ni 2 ga ko'paytirdik, demak 2 ni ham 2 ga: 4 chiqadi. 2/3 = 4/6.", en: 'That is right. 3 was multiplied by 2, so we multiply 2 by 2 as well and get 4. 2/3 = 4/6.' },
+    wrong_0: { ru: 'Да: низ умножили на два, верх тоже на два — это четыре. Две третьих это четыре шестых.', uz: "Ha: maxraj ikkiga ko'paytirildi, surat ham ikkiga — bu to'rt. Uchdan ikki bu oltidan to'rt.", en: 'Yes: the bottom was multiplied by two and so was the top, which gives four. Two thirds is four sixths.' },
+    wrong_1: { ru: 'Если оставить верх как два, дробь две шестых — она меньше. Верх тоже надо умножить на два.', uz: "Suratni ikki qoldirsak, oltidan ikki kasri kichikroq. Suratni ham ikkiga ko'paytirish kerak.", en: 'If the top is left as two, the fraction is two sixths, which is smaller. The top has to be multiplied by two as well.' },
+    wrong_2: { ru: 'Откуда 5? Множитель один — 2, и для верха, и для низа.', uz: "5 qayerdan? Ko'paytuvchi bitta — 2, surat uchun ham, maxraj uchun ham.", en: 'Where does 5 come from? There is one multiplier, 2, for both the top and the bottom.' },
+    wrong_3: { ru: '6 — это новый низ, а не верх. Верх: 2 умножить на 2 равно 4.', uz: "6 — bu yangi maxraj, surat emas. Surat: 2 karra 2 teng 4.", en: '6 is the new bottom, not the top. The top is 2 times 2, which is 4.' },
+    fact: { ru: 'В шестерёнках часов одно колесо вдвое больше другого — это та же эквивалентность 1 к 2, что и 3/6 = 1/2.', uz: "Soat tishli g'ildiraklarida bir g'ildirak ikkinchisidan ikki barobar katta — bu xuddi 3/6 = 1/2 dagi 1 ga 2 ekvivalentligi.", en: 'In the gears of a clock one wheel is twice the size of another, which is the same 1 to 2 equivalence as 3/6 = 1/2.' },
     audio: {
-      intro: { ru: 'Дополни дробь так, чтобы две третьих стали равны чему-то шестых. Низ умножили на два. На что умножить верх?', uz: "Kasrni to'ldiring: uch ikkidan nechadir oltidan ga teng bo'lsin. Maxraj ikkiga ko'paytirildi. Suratni nechaga ko'paytiramiz?" },
-      on_correct: { ru: 'Верно, четыре.', uz: "To'g'ri, to'rt." },
-      on_wrong: { ru: 'Тот же множитель, что и у низа.', uz: "Maxrajdagi bilan bir xil ko'paytuvchi." }
+      intro: { ru: 'Дополни дробь так, чтобы две третьих стали равны чему-то шестых. Низ умножили на два. На что умножить верх?', uz: "Kasrni to'ldiring: uch ikkidan nechadir oltidan ga teng bo'lsin. Maxraj ikkiga ko'paytirildi. Suratni nechaga ko'paytiramiz?", en: 'Complete the fraction so that two thirds becomes something sixths. The bottom was multiplied by two. What should the top be multiplied by?' },
+      on_correct: { ru: 'Верно, четыре.', uz: "To'g'ri, to'rt.", en: 'That is right, four.' },
+      on_wrong: { ru: 'Тот же множитель, что и у низа.', uz: "Maxrajdagi bilan bir xil ko'paytuvchi.", en: 'The same multiplier as the bottom.' }
     }
   },
   s_seq: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar' },
-    title: { ru: 'Найди числитель: <b>5 примеров подряд</b>', uz: "Suratni toping: <b>5 ta misol ketma-ket</b>" },
-    lead: { ru: 'Числа растут. Умножай верх на тот же множитель, что и низ.', uz: "Sonlar o'sib boradi. Suratni maxrajdagi bilan bir xil ko'paytuvchiga ko'paytiring." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashqlar', en: 'Trainer' },
+    title: { ru: 'Найди числитель: <b>5 примеров подряд</b>', uz: "Suratni toping: <b>5 ta misol ketma-ket</b>", en: 'Find the numerator: <b>5 examples in a row</b>' },
+    lead: { ru: 'Числа растут. Умножай верх на тот же множитель, что и низ.', uz: "Sonlar o'sib boradi. Suratni maxrajdagi bilan bir xil ko'paytuvchiga ko'paytiring.", en: 'The numbers grow. Multiply the top by the same multiplier as the bottom.' },
     questions: [
       {
         q: '1/2 = ?/8', opts: ['4', '2', '6'], correct: 0,
-        ok: { ru: 'Верно. Низ 2·4=8, значит верх 1·4=4. 1/2 = 4/8.', uz: "To'g'ri. Maxraj 2·4=8, demak surat 1·4=4. 1/2 = 4/8." },
-        no: { ru: 'Низ умножили на 4. На столько же умножь верх.', uz: "Maxraj 4 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring." }
+        ok: { ru: 'Верно. Низ 2·4=8, значит верх 1·4=4. 1/2 = 4/8.', uz: "To'g'ri. Maxraj 2·4=8, demak surat 1·4=4. 1/2 = 4/8.", en: 'That is right. The bottom is 2·4=8, so the top is 1·4=4. 1/2 = 4/8.' },
+        no: { ru: 'Низ умножили на 4. На столько же умножь верх.', uz: "Maxraj 4 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring.", en: 'The bottom was multiplied by 4. Multiply the top by the same amount.' }
       },
       {
         q: '2/5 = ?/20', opts: ['2', '8', '10'], correct: 1,
-        ok: { ru: 'Верно. Низ 5·4=20, значит верх 2·4=8. 2/5 = 8/20.', uz: "To'g'ri. Maxraj 5·4=20, demak surat 2·4=8. 2/5 = 8/20." },
-        no: { ru: 'Низ умножили на 4. Верх 2 тоже умножь на 4.', uz: "Maxraj 4 ga ko'paytirildi. Surat 2 ni ham 4 ga ko'paytiring." }
+        ok: { ru: 'Верно. Низ 5·4=20, значит верх 2·4=8. 2/5 = 8/20.', uz: "To'g'ri. Maxraj 5·4=20, demak surat 2·4=8. 2/5 = 8/20.", en: 'That is right. The bottom is 5·4=20, so the top is 2·4=8. 2/5 = 8/20.' },
+        no: { ru: 'Низ умножили на 4. Верх 2 тоже умножь на 4.', uz: "Maxraj 4 ga ko'paytirildi. Surat 2 ni ham 4 ga ko'paytiring.", en: 'The bottom was multiplied by 4. Multiply the top 2 by 4 as well.' }
       },
       {
         q: '3/4 = ?/40', opts: ['12', '30', '3'], correct: 1,
-        ok: { ru: 'Верно. Низ 4·10=40, значит верх 3·10=30. 3/4 = 30/40.', uz: "To'g'ri. Maxraj 4·10=40, demak surat 3·10=30. 3/4 = 30/40." },
-        no: { ru: 'Низ умножили на 10. Верх 3 тоже умножь на 10.', uz: "Maxraj 10 ga ko'paytirildi. Surat 3 ni ham 10 ga ko'paytiring." }
+        ok: { ru: 'Верно. Низ 4·10=40, значит верх 3·10=30. 3/4 = 30/40.', uz: "To'g'ri. Maxraj 4·10=40, demak surat 3·10=30. 3/4 = 30/40.", en: 'That is right. The bottom is 4·10=40, so the top is 3·10=30. 3/4 = 30/40.' },
+        no: { ru: 'Низ умножили на 10. Верх 3 тоже умножь на 10.', uz: "Maxraj 10 ga ko'paytirildi. Surat 3 ni ham 10 ga ko'paytiring.", en: 'The bottom was multiplied by 10. Multiply the top 3 by 10 as well.' }
       },
       {
         q: '3/5 = ?/100', opts: ['60', '20', '3'], correct: 0,
-        ok: { ru: 'Верно. Низ 5·20=100, значит верх 3·20=60. 3/5 = 60/100.', uz: "To'g'ri. Maxraj 5·20=100, demak surat 3·20=60. 3/5 = 60/100." },
-        no: { ru: 'Низ умножили на 20. На столько же умножь верх.', uz: "Maxraj 20 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring." },
-        say: { ru: 'Знаменатель большой. На сколько умножили низ, на столько умножь и верх.', uz: "Maxraj katta. Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring." }
+        ok: { ru: 'Верно. Низ 5·20=100, значит верх 3·20=60. 3/5 = 60/100.', uz: "To'g'ri. Maxraj 5·20=100, demak surat 3·20=60. 3/5 = 60/100.", en: 'That is right. The bottom is 5·20=100, so the top is 3·20=60. 3/5 = 60/100.' },
+        no: { ru: 'Низ умножили на 20. На столько же умножь верх.', uz: "Maxraj 20 ga ko'paytirildi. Suratni ham shuncha songa ko'paytiring.", en: 'The bottom was multiplied by 20. Multiply the top by the same amount.' },
+        say: { ru: 'Знаменатель большой. На сколько умножили низ, на столько умножь и верх.', uz: "Maxraj katta. Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring.", en: 'The denominator is big. Multiply the top by however much the bottom was multiplied by.' }
       },
       {
         q: '1/4 = ?/1000', opts: ['100', '25', '250'], correct: 2,
-        ok: { ru: 'Верно. Низ 4·250=1000, значит верх 1·250=250. 1/4 = 250/1000.', uz: "To'g'ri. Maxraj 4·250=1000, demak surat 1·250=250. 1/4 = 250/1000." },
-        no: { ru: 'Низ умножили на 250. Верх 1 тоже умножь на 250.', uz: "Maxraj 250 ga ko'paytirildi. Surat 1 ni ham 250 ga ko'paytiring." },
-        say: { ru: 'Числа большие, но правило то же: один множитель для верха и низа.', uz: "Sonlar katta, lekin qoida o'sha: surat va maxraj uchun bitta ko'paytuvchi." }
+        ok: { ru: 'Верно. Низ 4·250=1000, значит верх 1·250=250. 1/4 = 250/1000.', uz: "To'g'ri. Maxraj 4·250=1000, demak surat 1·250=250. 1/4 = 250/1000.", en: 'That is right. The bottom is 4·250=1000, so the top is 1·250=250. 1/4 = 250/1000.' },
+        no: { ru: 'Низ умножили на 250. Верх 1 тоже умножь на 250.', uz: "Maxraj 250 ga ko'paytirildi. Surat 1 ni ham 250 ga ko'paytiring.", en: 'The bottom was multiplied by 250. Multiply the top 1 by 250 as well.' },
+        say: { ru: 'Числа большие, но правило то же: один множитель для верха и низа.', uz: "Sonlar katta, lekin qoida o'sha: surat va maxraj uchun bitta ko'paytuvchi.", en: 'The numbers are big, but the rule is the same: one multiplier for the top and the bottom.' }
       }
     ],
     audio: {
-      intro: { ru: 'Пять примеров подряд. В каждом найди числитель равной дроби. Числа будут расти. Множитель для верха всегда такой же, как для низа.', uz: "Besh misol ketma-ket. Har birida teng kasrning suratini toping. Sonlar o'sib boradi. Surat uchun ko'paytuvchi doim maxraj bilan bir xil." },
-      on_wrong: { ru: 'На сколько умножили низ, на столько умножь и верх.', uz: "Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring." },
-      on_done: { ru: 'Готово. Ты держал один множитель для верха и низа даже на больших числах.', uz: "Tayyor. Katta sonlarda ham surat va maxraj uchun bitta ko'paytuvchini ushlab turdingiz." }
+      intro: { ru: 'Пять примеров подряд. В каждом найди числитель равной дроби. Числа будут расти. Множитель для верха всегда такой же, как для низа.', uz: "Besh misol ketma-ket. Har birida teng kasrning suratini toping. Sonlar o'sib boradi. Surat uchun ko'paytuvchi doim maxraj bilan bir xil.", en: 'Five examples in a row. In each one find the numerator of the equal fraction. The numbers will grow. The multiplier for the top is always the same as for the bottom.' },
+      on_wrong: { ru: 'На сколько умножили низ, на столько умножь и верх.', uz: "Maxrajni nechaga ko'paytirgan bo'lsangiz, suratni ham shuncha songa ko'paytiring.", en: 'Multiply the top by however much the bottom was multiplied by.' },
+      on_done: { ru: 'Готово. Ты держал один множитель для верха и низа даже на больших числах.', uz: "Tayyor. Katta sonlarda ham surat va maxraj uchun bitta ko'paytuvchini ushlab turdingiz.", en: 'Done. You kept one multiplier for the top and the bottom even with big numbers.' }
     }
   },
   s8: {
-    eyebrow: { ru: 'Случай', uz: 'Vaziyat' },
-    bridge: { ru: 'Эквивалентные дроби нужны не только в тетради. Вот кухня.', uz: "Ekvivalent kasrlar faqat daftarda emas. Mana oshxona." },
-    title: { ru: 'Лайло готовит по рецепту', uz: "Laylo retsept bo'yicha pishirmoqda" },
-    fact1: { ru: 'В рецепте сказано: <b>2/3</b> стакана сахара.', uz: "Retseptda: <b>2/3</b> stakan shakar deyilgan." },
-    fact2: { ru: 'У Лайло мерный стакан с делениями на <b>6</b> частей.', uz: "Layloda <b>6</b> ga bo'lingan o'lchov stakani bor." },
-    fact3: { ru: 'Сколько шестых ей отмерить, чтобы вышло ровно 2/3?', uz: "Aynan 2/3 chiqishi uchun necha oltidan o'lchashi kerak?" },
-    cta: { ru: 'Помочь Лайло', uz: 'Layloga yordam berish' },
+    eyebrow: { ru: 'Случай', uz: 'Vaziyat', en: 'A real case' },
+    bridge: { ru: 'Эквивалентные дроби нужны не только в тетради. Вот кухня.', uz: "Ekvivalent kasrlar faqat daftarda emas. Mana oshxona.", en: 'Equivalent fractions are not only needed in an exercise book. Here is a kitchen.' },
+    title: { ru: 'Лайло готовит по рецепту', uz: "Laylo retsept bo'yicha pishirmoqda", en: 'Laylo is cooking from a recipe' },
+    fact1: { ru: 'В рецепте сказано: <b>2/3</b> стакана сахара.', uz: "Retseptda: <b>2/3</b> stakan shakar deyilgan.", en: 'The recipe says <b>2/3</b> of a cup of sugar.' },
+    fact2: { ru: 'У Лайло мерный стакан с делениями на <b>6</b> частей.', uz: "Layloda <b>6</b> ga bo'lingan o'lchov stakani bor.", en: 'Laylo has a measuring cup marked in <b>6</b> parts.' },
+    fact3: { ru: 'Сколько шестых ей отмерить, чтобы вышло ровно 2/3?', uz: "Aynan 2/3 chiqishi uchun necha oltidan o'lchashi kerak?", en: 'How many sixths should she measure out to get exactly 2/3?' },
+    cta: { ru: 'Помочь Лайло', uz: 'Layloga yordam berish', en: 'Help Laylo' },
     audio: {
       ru: 'Лайло готовит по рецепту. В рецепте сказано: две третьих стакана сахара. Но у Лайло мерный стакан с делениями на шесть частей. Сколько шестых ей отмерить, чтобы получилось ровно две третьих? Нажми «Помочь Лайло».',
-      uz: "Laylo retsept bo'yicha pishirmoqda. Retseptda: uch ikkidan stakan shakar deyilgan. Lekin Layloda olti qismga bo'lingan o'lchov stakani bor. Aynan uch ikkidan chiqishi uchun necha oltidan o'lchashi kerak? «Layloga yordam berish» ni bosing."
+      uz: "Laylo retsept bo'yicha pishirmoqda. Retseptda: uch ikkidan stakan shakar deyilgan. Lekin Layloda olti qismga bo'lingan o'lchov stakani bor. Aynan uch ikkidan chiqishi uchun necha oltidan o'lchashi kerak? «Layloga yordam berish» ni bosing.",
+      en: 'Laylo is cooking from a recipe. The recipe says two thirds of a cup of sugar. But Laylo has a measuring cup marked in six parts. How many sixths should she measure out to get exactly two thirds? Tap Help Laylo.'
     }
   },
   s9: {
-    eyebrow: { ru: 'Случай', uz: 'Vaziyat' },
-    title: { ru: 'Сколько шестых стакана нужно Лайло?', uz: "Layloga necha oltidan stakan kerak?" },
-    question: { ru: '2/3 — это сколько шестых? Низ с 3 стал 6 (умножили на 2).', uz: "2/3 — necha oltidan? Maxraj 3 dan 6 bo'ldi (2 ga ko'paytirildi)." },
-    opt_a: { ru: '4/6', uz: '4/6' },
-    opt_b: { ru: '2/6', uz: '2/6' },
-    opt_c: { ru: '3/6', uz: '3/6' },
-    opt_d: { ru: '6/6', uz: '6/6' },
-    correct_text: { ru: 'Верно. 2·2=4, 3·2=6. Значит 2/3 = 4/6. Лайло отмерит 4 деления.', uz: "To'g'ri. 2·2=4, 3·2=6. Demak 2/3 = 4/6. Laylo 4 bo'limni o'lchaydi." },
-    wrong_0: { ru: 'Да, четыре шестых: верх два умножили на два, низ три умножили на два.', uz: "Ha, oltidan to'rt: surat ikkini ikkiga, maxraj uchni ikkiga ko'paytirdik." },
-    wrong_1: { ru: 'Две шестых — низ умножили, верх забыли. Это меньше, чем две третьих.', uz: "Oltidan ikki — maxrajni ko'paytirib, suratni unutdik. Bu uchdan ikkidan kichik." },
-    wrong_2: { ru: 'Три шестых — это половина, а две третьих больше половины. Не подходит.', uz: "Oltidan uch — bu yarmi, uchdan ikki esa yarmidan katta. To'g'ri kelmaydi." },
-    wrong_3: { ru: 'Шесть шестых — это целый стакан. Две третьих меньше целого.', uz: "Oltidan olti — bu butun stakan. Uchdan ikki butundan kichik." },
-    fact: { ru: 'В нотах целая нота равна двум половинным, а половинная — двум четвертным. Музыканты считают такими же эквивалентными дробями.', uz: "Notalarda butun nota ikki yarim notaga, yarim nota esa ikki chorak notaga teng. Musiqachilar xuddi shunday ekvivalent kasrlar bilan sanaydi." },
+    eyebrow: { ru: 'Случай', uz: 'Vaziyat', en: 'A real case' },
+    title: { ru: 'Сколько шестых стакана нужно Лайло?', uz: "Layloga necha oltidan stakan kerak?", en: 'How many sixths of a cup does Laylo need?' },
+    question: { ru: '2/3 — это сколько шестых? Низ с 3 стал 6 (умножили на 2).', uz: "2/3 — necha oltidan? Maxraj 3 dan 6 bo'ldi (2 ga ko'paytirildi).", en: 'How many sixths is 2/3? The bottom went from 3 to 6 (multiplied by 2).' },
+    opt_a: { ru: '4/6', uz: '4/6', en: '4/6' },
+    opt_b: { ru: '2/6', uz: '2/6', en: '2/6' },
+    opt_c: { ru: '3/6', uz: '3/6', en: '3/6' },
+    opt_d: { ru: '6/6', uz: '6/6', en: '6/6' },
+    correct_text: { ru: 'Верно. 2·2=4, 3·2=6. Значит 2/3 = 4/6. Лайло отмерит 4 деления.', uz: "To'g'ri. 2·2=4, 3·2=6. Demak 2/3 = 4/6. Laylo 4 bo'limni o'lchaydi.", en: 'That is right. 2·2=4 and 3·2=6. So 2/3 = 4/6 and Laylo measures out 4 marks.' },
+    wrong_0: { ru: 'Да, четыре шестых: верх два умножили на два, низ три умножили на два.', uz: "Ha, oltidan to'rt: surat ikkini ikkiga, maxraj uchni ikkiga ko'paytirdik.", en: 'Yes, four sixths: the top two was multiplied by two and the bottom three was multiplied by two.' },
+    wrong_1: { ru: 'Две шестых — низ умножили, верх забыли. Это меньше, чем две третьих.', uz: "Oltidan ikki — maxrajni ko'paytirib, suratni unutdik. Bu uchdan ikkidan kichik.", en: 'Two sixths means the bottom was multiplied and the top was forgotten. That is less than two thirds.' },
+    wrong_2: { ru: 'Три шестых — это половина, а две третьих больше половины. Не подходит.', uz: "Oltidan uch — bu yarmi, uchdan ikki esa yarmidan katta. To'g'ri kelmaydi.", en: 'Three sixths is a half, and two thirds is more than a half. That does not fit.' },
+    wrong_3: { ru: 'Шесть шестых — это целый стакан. Две третьих меньше целого.', uz: "Oltidan olti — bu butun stakan. Uchdan ikki butundan kichik.", en: 'Six sixths is a whole cup. Two thirds is less than a whole.' },
+    fact: { ru: 'В нотах целая нота равна двум половинным, а половинная — двум четвертным. Музыканты считают такими же эквивалентными дробями.', uz: "Notalarda butun nota ikki yarim notaga, yarim nota esa ikki chorak notaga teng. Musiqachilar xuddi shunday ekvivalent kasrlar bilan sanaydi.", en: 'In music a whole note equals two half notes and a half note equals two quarter notes. Musicians count with these very same equivalent fractions.' },
     audio: {
-      intro: { ru: 'Помоги Лайло. Две третьих стакана — это сколько шестых? Низ был три, стал шесть. Выбирай.', uz: "Layloga yordam bering. Uch ikkidan stakan — necha oltidan? Maxraj uch edi, olti bo'ldi. Tanlang." },
-      on_correct: { ru: 'Верно, четыре шестых.', uz: "To'g'ri, to'rt oltidan." },
-      on_wrong: { ru: 'Верх тоже умножь на 2.', uz: "Suratni ham 2 ga ko'paytiring." }
+      intro: { ru: 'Помоги Лайло. Две третьих стакана — это сколько шестых? Низ был три, стал шесть. Выбирай.', uz: "Layloga yordam bering. Uch ikkidan stakan — necha oltidan? Maxraj uch edi, olti bo'ldi. Tanlang.", en: 'Help Laylo. How many sixths is two thirds of a cup? The bottom was three and became six. Choose.' },
+      on_correct: { ru: 'Верно, четыре шестых.', uz: "To'g'ri, to'rt oltidan.", en: 'That is right, four sixths.' },
+      on_wrong: { ru: 'Верх тоже умножь на 2.', uz: "Suratni ham 2 ga ko'paytiring.", en: 'Multiply the top by 2 as well.' }
     }
   },
   s10: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    title: { ru: 'Где запись <b>неверна</b>?', uz: "Qaysi yozuv <b>noto'g'ri</b>?" },
-    question: { ru: 'Три записи равных дробей сделаны верно, одна — с ошибкой. Найди ошибочную.', uz: "Teng kasrlarning uchta yozuvi to'g'ri, bittasi xato. Xatosini toping." },
-    opt_a: { ru: '1/2 = 1/6', uz: '1/2 = 1/6' },
-    opt_b: { ru: '1/2 = 5/10', uz: '1/2 = 5/10' },
-    opt_c: { ru: '3/4 = 6/8', uz: '3/4 = 6/8' },
-    opt_d: { ru: '2/5 = 4/10', uz: '2/5 = 4/10' },
-    correct_text: { ru: 'Верно. 1/2 = 1/6 — ошибка: низ умножили на 3, а верх оставили. Надо 1/2 = 3/6.', uz: "To'g'ri. 1/2 = 1/6 — xato: maxraj 3 ga ko'paytirilib, surat qoldirilgan. 1/2 = 3/6 bo'lishi kerak." },
-    wrong_0: { ru: 'Да: низ умножили на три, а верх нет. Поэтому одна вторая не равна одной шестой.', uz: "Ha: maxraj uchga ko'paytirilib, surat ko'paytirilmagan. Shuning uchun ikkidan bir oltidan birga teng emas." },
-    wrong_1: { ru: 'Одна вторая равна пяти десятым — верно: и верх, и низ умножили на пять.', uz: "Ikkidan bir o'ndan beshga teng — to'g'ri: surat ham, maxraj ham beshga ko'paytirilgan." },
-    wrong_2: { ru: 'Три четвёртых равны шести восьмым — верно: и верх, и низ умножили на два.', uz: "To'rtdan uch sakkizdan oltiga teng — to'g'ri: surat ham, maxraj ham ikkiga ko'paytirilgan." },
-    wrong_3: { ru: 'Две пятых равны четырём десятым — верно: и верх, и низ умножили на два.', uz: "Beshdan ikki o'ndan to'rtga teng — to'g'ri: surat ham, maxraj ham ikkiga ko'paytirilgan." },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    title: { ru: 'Где запись <b>неверна</b>?', uz: "Qaysi yozuv <b>noto'g'ri</b>?", en: 'Which one is <b>wrong</b>?' },
+    question: { ru: 'Три записи равных дробей сделаны верно, одна — с ошибкой. Найди ошибочную.', uz: "Teng kasrlarning uchta yozuvi to'g'ri, bittasi xato. Xatosini toping.", en: 'Three of these equal fractions are written correctly and one has a mistake. Find the wrong one.' },
+    opt_a: { ru: '1/2 = 1/6', uz: '1/2 = 1/6', en: '1/2 = 1/6' },
+    opt_b: { ru: '1/2 = 5/10', uz: '1/2 = 5/10', en: '1/2 = 5/10' },
+    opt_c: { ru: '3/4 = 6/8', uz: '3/4 = 6/8', en: '3/4 = 6/8' },
+    opt_d: { ru: '2/5 = 4/10', uz: '2/5 = 4/10', en: '2/5 = 4/10' },
+    correct_text: { ru: 'Верно. 1/2 = 1/6 — ошибка: низ умножили на 3, а верх оставили. Надо 1/2 = 3/6.', uz: "To'g'ri. 1/2 = 1/6 — xato: maxraj 3 ga ko'paytirilib, surat qoldirilgan. 1/2 = 3/6 bo'lishi kerak.", en: 'That is right. 1/2 = 1/6 is a mistake: the bottom was multiplied by 3 and the top was left alone. It should be 1/2 = 3/6.' },
+    wrong_0: { ru: 'Да: низ умножили на три, а верх нет. Поэтому одна вторая не равна одной шестой.', uz: "Ha: maxraj uchga ko'paytirilib, surat ko'paytirilmagan. Shuning uchun ikkidan bir oltidan birga teng emas.", en: 'Yes: the bottom was multiplied by three and the top was not. That is why one half is not equal to one sixth.' },
+    wrong_1: { ru: 'Одна вторая равна пяти десятым — верно: и верх, и низ умножили на пять.', uz: "Ikkidan bir o'ndan beshga teng — to'g'ri: surat ham, maxraj ham beshga ko'paytirilgan.", en: 'One half equals five tenths, which is right: both the top and the bottom were multiplied by five.' },
+    wrong_2: { ru: 'Три четвёртых равны шести восьмым — верно: и верх, и низ умножили на два.', uz: "To'rtdan uch sakkizdan oltiga teng — to'g'ri: surat ham, maxraj ham ikkiga ko'paytirilgan.", en: 'Three quarters equals six eighths, which is right: both the top and the bottom were multiplied by two.' },
+    wrong_3: { ru: 'Две пятых равны четырём десятым — верно: и верх, и низ умножили на два.', uz: "Beshdan ikki o'ndan to'rtga teng — to'g'ri: surat ham, maxraj ham ikkiga ko'paytirilgan.", en: 'Two fifths equals four tenths, which is right: both the top and the bottom were multiplied by two.' },
     audio: {
-      intro: { ru: 'Три записи равных дробей сделаны правильно, одна — с ошибкой. Найди ту, где равенство неверно.', uz: "Teng kasrlarning uchta yozuvi to'g'ri, bittasi xato. Tenglik noto'g'ri bo'lganini toping." },
-      on_correct: { ru: 'Верно, тут низ умножили, а верх забыли.', uz: "To'g'ri, bu yerda maxrajni ko'paytirib, suratni unutgan." },
-      on_wrong: { ru: 'Проверь каждое: и верх, и низ умножены на одно число?', uz: "Har birini tekshiring: surat ham, maxraj ham bitta songa ko'paytirilganmi?" }
+      intro: { ru: 'Три записи равных дробей сделаны правильно, одна — с ошибкой. Найди ту, где равенство неверно.', uz: "Teng kasrlarning uchta yozuvi to'g'ri, bittasi xato. Tenglik noto'g'ri bo'lganini toping.", en: 'Three of these equal fractions are written correctly and one has a mistake. Find the one where the two sides are not equal.' },
+      on_correct: { ru: 'Верно, тут низ умножили, а верх забыли.', uz: "To'g'ri, bu yerda maxrajni ko'paytirib, suratni unutgan.", en: 'That is right, here the bottom was multiplied and the top was forgotten.' },
+      on_wrong: { ru: 'Проверь каждое: и верх, и низ умножены на одно число?', uz: "Har birini tekshiring: surat ham, maxraj ham bitta songa ko'paytirilganmi?", en: 'Check each one: were both the top and the bottom multiplied by the same number?' }
     }
   },
   s11: {
-    eyebrow: { ru: 'Итоговая проверка', uz: 'Yakuniy tekshiruv' },
-    title: { ru: 'Сократи <b>6/8</b> до меньших чисел', uz: "<b>6/8</b> ni kichikroq sonlarga keltiring" },
-    question: { ru: 'Раздели верх и низ на одно и то же число. Какая дробь получится равной?', uz: "Surat va maxrajni bitta songa bo'ling. Qaysi teng kasr hosil bo'ladi?" },
-    opt_a: { ru: '3/4', uz: '3/4' },
-    opt_b: { ru: '6/8', uz: '6/8' },
-    opt_c: { ru: '3/8', uz: '3/8' },
-    opt_d: { ru: '2/4', uz: '2/4' },
-    correct_text: { ru: 'Верно. 6/8: делим верх и низ на 2 → 3/4. Это та же величина, числа меньше.', uz: "To'g'ri. 6/8: surat va maxrajni 2 ga bo'lamiz → 3/4. Bu o'sha qiymat, sonlar kichikroq." },
-    wrong_0: { ru: 'Да: шесть разделить на два равно три, восемь разделить на два равно четыре. Шесть восьмых это три четвёртых.', uz: "Ha: oltini ikkiga bo'lsak uch, sakkizni ikkiga bo'lsak to'rt. Sakkizdan olti bu to'rtdan uch." },
-    wrong_1: { ru: 'Шесть восьмых — это исходная дробь, её ещё не сократили.', uz: "Sakkizdan olti — boshlang'ich kasr, hali keltirilmagan." },
-    wrong_2: { ru: 'Три восьмых — низ оставили без деления. Делить надо и верх, и низ.', uz: "Sakkizdan uch — maxraj bo'linmay qoldi. Surat ham, maxraj ham bo'linadi." },
-    wrong_3: { ru: 'Две четвёртых не равны шести восьмым: тут другое отношение. Раздели шесть восьмых на два.', uz: "To'rtdan ikki sakkizdan oltiga teng emas: bu boshqa nisbat. Sakkizdan oltini ikkiga bo'ling." },
+    eyebrow: { ru: 'Итоговая проверка', uz: 'Yakuniy tekshiruv', en: 'Final check' },
+    title: { ru: 'Сократи <b>6/8</b> до меньших чисел', uz: "<b>6/8</b> ni kichikroq sonlarga keltiring", en: 'Simplify <b>6/8</b> to smaller numbers' },
+    question: { ru: 'Раздели верх и низ на одно и то же число. Какая дробь получится равной?', uz: "Surat va maxrajni bitta songa bo'ling. Qaysi teng kasr hosil bo'ladi?", en: 'Divide the top and the bottom by the same number. Which equal fraction do you get?' },
+    opt_a: { ru: '3/4', uz: '3/4', en: '3/4' },
+    opt_b: { ru: '6/8', uz: '6/8', en: '6/8' },
+    opt_c: { ru: '3/8', uz: '3/8', en: '3/8' },
+    opt_d: { ru: '2/4', uz: '2/4', en: '2/4' },
+    correct_text: { ru: 'Верно. 6/8: делим верх и низ на 2 → 3/4. Это та же величина, числа меньше.', uz: "To'g'ri. 6/8: surat va maxrajni 2 ga bo'lamiz → 3/4. Bu o'sha qiymat, sonlar kichikroq.", en: 'That is right. 6/8: divide the top and the bottom by 2 and you get 3/4. It is the same size with smaller numbers.' },
+    wrong_0: { ru: 'Да: шесть разделить на два равно три, восемь разделить на два равно четыре. Шесть восьмых это три четвёртых.', uz: "Ha: oltini ikkiga bo'lsak uch, sakkizni ikkiga bo'lsak to'rt. Sakkizdan olti bu to'rtdan uch.", en: 'Yes: six divided by two is three and eight divided by two is four. Six eighths is three quarters.' },
+    wrong_1: { ru: 'Шесть восьмых — это исходная дробь, её ещё не сократили.', uz: "Sakkizdan olti — boshlang'ich kasr, hali keltirilmagan.", en: 'Six eighths is the fraction we started with, it has not been simplified yet.' },
+    wrong_2: { ru: 'Три восьмых — низ оставили без деления. Делить надо и верх, и низ.', uz: "Sakkizdan uch — maxraj bo'linmay qoldi. Surat ham, maxraj ham bo'linadi.", en: 'Three eighths means the bottom was left undivided. Both the top and the bottom have to be divided.' },
+    wrong_3: { ru: 'Две четвёртых не равны шести восьмым: тут другое отношение. Раздели шесть восьмых на два.', uz: "To'rtdan ikki sakkizdan oltiga teng emas: bu boshqa nisbat. Sakkizdan oltini ikkiga bo'ling.", en: 'Two quarters is not equal to six eighths, it is a different amount. Divide six eighths by two.' },
     audio: {
-      intro: { ru: 'Итоговое задание. Сократи дробь шесть восьмых — раздели верх и низ на одно и то же число. Какая равная дробь получится?', uz: "Yakuniy topshiriq. Olti sakkizdan kasrini keltiring — surat va maxrajni bitta songa bo'ling. Qaysi teng kasr chiqadi?" },
-      on_correct: { ru: 'Верно, три четвёртых.', uz: "To'g'ri, uch to'rtdan." },
-      on_wrong: { ru: 'Дели и верх, и низ на одно число.', uz: "Surat va maxrajni bitta songa bo'ling." }
+      intro: { ru: 'Итоговое задание. Сократи дробь шесть восьмых — раздели верх и низ на одно и то же число. Какая равная дробь получится?', uz: "Yakuniy topshiriq. Olti sakkizdan kasrini keltiring — surat va maxrajni bitta songa bo'ling. Qaysi teng kasr chiqadi?", en: 'The final task. Simplify the fraction six eighths by dividing the top and the bottom by the same number. Which equal fraction do you get?' },
+      on_correct: { ru: 'Верно, три четвёртых.', uz: "To'g'ri, uch to'rtdan.", en: 'That is right, three quarters.' },
+      on_wrong: { ru: 'Дели и верх, и низ на одно число.', uz: "Surat va maxrajni bitta songa bo'ling.", en: 'Divide both the top and the bottom by the same number.' }
     }
   },
   s12: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
-    point1: { ru: 'Эквивалентные дроби — это <b>разные записи одной величины</b> (1/2 = 3/6).', uz: "Ekvivalent kasrlar — <b>bir qiymatning har xil yozuvi</b> (1/2 = 3/6)." },
-    point2: { ru: 'Умножай или дели <b>верх и низ на одно и то же число</b> — дробь не меняется.', uz: "<b>Surat va maxrajni bitta songa</b> ko'paytiring yoki bo'ling — kasr o'zgarmaydi." },
-    point3: { ru: 'Менять только низ — <b>ошибка</b>: получится другая дробь.', uz: "Faqat maxrajni o'zgartirish — <b>xato</b>: boshqa kasr chiqadi." },
-    score_caption: { ru: 'Правильных ответов', uz: "To'g'ri javoblar" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz', en: 'What you can do now' },
+    point1: { ru: 'Эквивалентные дроби — это <b>разные записи одной величины</b> (1/2 = 3/6).', uz: "Ekvivalent kasrlar — <b>bir qiymatning har xil yozuvi</b> (1/2 = 3/6).", en: 'Equivalent fractions are <b>different ways of writing the same size</b> (1/2 = 3/6).' },
+    point2: { ru: 'Умножай или дели <b>верх и низ на одно и то же число</b> — дробь не меняется.', uz: "<b>Surat va maxrajni bitta songa</b> ko'paytiring yoki bo'ling — kasr o'zgarmaydi.", en: 'Multiply or divide <b>the top and the bottom by the same number</b> and the fraction does not change.' },
+    point3: { ru: 'Менять только низ — <b>ошибка</b>: получится другая дробь.', uz: "Faqat maxrajni o'zgartirish — <b>xato</b>: boshqa kasr chiqadi.", en: 'Changing only the bottom is <b>a mistake</b>: you get a different fraction.' },
+    score_caption: { ru: 'Правильных ответов', uz: "To'g'ri javoblar", en: 'Right answers' },
     audio: {
       ru: 'Подведём итог. Эквивалентные дроби — это разные записи одной и той же величины. Чтобы получить равную дробь, умножай или дели верх и низ на одно и то же число. Менять только низ нельзя — получится другая дробь. Ты молодец.',
-      uz: "Xulosa qilamiz. Ekvivalent kasrlar — bir xil qiymatning har xil yozuvi. Teng kasr olish uchun surat va maxrajni bitta songa ko'paytiring yoki bo'ling. Faqat maxrajni o'zgartirib bo'lmaydi — boshqa kasr chiqadi. Ofarin."
+      uz: "Xulosa qilamiz. Ekvivalent kasrlar — bir xil qiymatning har xil yozuvi. Teng kasr olish uchun surat va maxrajni bitta songa ko'paytiring yoki bo'ling. Faqat maxrajni o'zgartirib bo'lmaydi — boshqa kasr chiqadi. Ofarin.",
+      en: 'Let us sum up. Equivalent fractions are different ways of writing the same size. To get an equal fraction, multiply or divide the top and the bottom by the same number. Changing only the bottom is not allowed, because you get a different fraction. Good work.'
     }
   }
 };
@@ -1227,7 +1261,7 @@ const ClassifyEquiv = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1297,7 +1331,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1322,7 +1356,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1382,7 +1416,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const steps = [c.step1, c.step2, c.step3];
   const rows = step >= 2 ? [{ num: 1, den: 2 }, { num: 3, den: 6 }] : [{ num: 1, den: 2 }];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : lang === 'en' ? "Next" : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
@@ -1409,7 +1443,7 @@ const Screen2 = ({ screen, onNext, onPrev }) => {
   const [step, setStep] = useState(0);
   const handleStep = () => { if (step < last) { const ns = step + 1; setStep(ns); audio.triggerInternal(`step_${ns}`); } else { audio.triggerEvent('button_click', 'next'); onNext(); } };
   const steps = [c.step1, c.step2, c.step3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={audio.isPlaying && !audio.muted} label={step < last ? (lang === 'uz' ? 'Keyingi qadam' : lang === 'en' ? "Next" : 'Дальше') : <NextLabel/>} onClick={handleStep}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.6vw, 18px)' }}>
@@ -1560,7 +1594,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.point1, c.point2, c.point3];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Boshidan' : 'Заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? 'Boshidan' : lang === 'en' ? "Start over" : 'Заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1597,7 +1631,7 @@ export default function FractionEquivLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1665,7 +1699,7 @@ export default function FractionEquivLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

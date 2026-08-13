@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -125,8 +125,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-22',
-  lessonTitle: { ru: 'Урок 22. Умножение двузначного на двузначное', uz: "22-dars. Ikki xonalini ikki xonaliga ko'paytirish" }
+  lessonId: 'grade3-22',
+  lessonTitle: { ru: 'Урок 22. Умножение двузначного на двузначное', uz: "22-dars. Ikki xonalini ikki xonaliga ko'paytirish", en: 'Lesson 22. Multiplying a two-digit number by a two-digit number' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 22»): s0 xuk 12·15 · s1 ikkinchi ko'paytuvchini ajratish ·
 // s2 katak to'r ikki bo'lakka · s3 savol-oldin-QOIDA · s4 xatoni top (ikkala son ajratilgan) ·
@@ -161,15 +161,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Умножение двузначного на двузначное', uz: "Ikki xonalini ikki xonaliga ko'paytirish" },
-    lead: { ru: 'Большой модуль: 15 рядов по 12 деталей', uz: "Katta modul: 12 tadan 15 qator" },
-    order_cap: { ru: 'оба числа двузначные', uz: "ikkala son ham ikki xonali" },
-    q: { ru: 'Сколько деталей в большом модуле?', uz: 'Katta modulda nechta detal bor?' },
-    opt0: { ru: '180', uz: '180' },
-    opt1: { ru: '120', uz: '120' },
-    opt2: { ru: '60', uz: '60' },
-    opt3: { ru: '1215', uz: '1215' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Умножение двузначного на двузначное', uz: "Ikki xonalini ikki xonaliga ko'paytirish", en: 'Multiplying a two-digit number by a two-digit number' },
+    lead: { ru: 'Большой модуль: 15 рядов по 12 деталей', uz: "Katta modul: 12 tadan 15 qator", en: 'A big module: 15 rows of 12 parts' },
+    order_cap: { ru: 'оба числа двузначные', uz: "ikkala son ham ikki xonali", en: 'both numbers are two-digit' },
+    q: { ru: 'Сколько деталей в большом модуле?', uz: 'Katta modulda nechta detal bor?', en: 'How many parts are in the big module?' },
+    opt0: { ru: '180', uz: '180', en: '180' },
+    opt1: { ru: '120', uz: '120', en: '120' },
+    opt2: { ru: '60', uz: '60', en: '60' },
+    opt3: { ru: '1215', uz: '1215', en: '1215' },
     audio: {
       intro: {
         ru: [
@@ -183,40 +183,46 @@ const CONTENT = {
           "Ustaxona katta modul yig'yapti. Unda o'n besh qator, har birida o'n ikkita detal.",
           "Endi ikkala son ham ikki xonali. Ikkinchisini ajratishga to'g'ri keladi.",
           "Sizningcha, bunday modulda nechta detal bor?"
-        ]
+        ],
+        en: ['The topic of the lesson is called multiplying a two-digit number by a two-digit number.', 'The workshop is assembling a big module. It has fifteen rows with twelve parts in each.', 'Now both numbers are two-digit. We will have to split the second one.', 'How many parts do you think such a module has?']
       },
       on_correct: {
         ru: 'Верно! А сейчас увидишь, из каких двух частей это складывается.',
-        uz: "To'g'ri! Endi bu qaysi ikki qismdan yig'ilishini ko'rasiz."
+        uz: "To'g'ri! Endi bu qaysi ikki qismdan yig'ilishini ko'rasiz.",
+        en: 'Right! And now you will see which two parts it is made of.'
       },
       on_wrong1: {
         ru: 'Это только десять рядов. Ещё пять рядов остались несобранными.',
-        uz: "Bu faqat o'n qator. Yana besh qator yig'ilmay qoldi."
+        uz: "Bu faqat o'n qator. Yana besh qator yig'ilmay qoldi.",
+        en: 'That is only ten rows. Five more rows are still not assembled.'
       },
       on_wrong2: {
         ru: 'Это только пять рядов. Десять рядов забыли посчитать.',
-        uz: "Bu faqat besh qator. O'n qatorni sanash unutilgan."
+        uz: "Bu faqat besh qator. O'n qatorni sanash unutilgan.",
+        en: 'That is only five rows. Ten rows were forgotten.'
       },
       on_idk: {
         ru: 'Числа записаны рядом, но не перемножены. Так ответ не получают.',
-        uz: "Sonlar yonma-yon yozilgan, lekin ko'paytirilmagan. Javob bunday olinmaydi."
+        uz: "Sonlar yonma-yon yozilgan, lekin ko'paytirilmagan. Javob bunday olinmaydi.",
+        en: 'The numbers were written side by side but not multiplied. You do not get an answer that way.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz' },
-    lead: { ru: 'Раскладываем второй множитель', uz: "Ikkinchi ko'paytuvchini ajratamiz" },
+    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz', en: 'Taking it apart' },
+    lead: { ru: 'Раскладываем второй множитель', uz: "Ikkinchi ko'paytuvchini ajratamiz", en: 'We split the second factor' },
     task_line: '12 · 15',
     task_line_uz: '12 · 15',
+    task_line_en: '12 · 15',
     step1: '12 · 10 + 12 · 5',
-    step1_cap: { ru: '15 это 10 и ещё 5', uz: "15 bu 10 va yana 5" },
+    step1_cap: { ru: '15 это 10 и ещё 5', uz: "15 bu 10 va yana 5", en: '15 is 10 and 5 more' },
     step2: '120 + 60 = 180',
-    step2_cap: { ru: 'складываем обе части', uz: "ikkala qismni qo'shamiz" },
+    step2_cap: { ru: 'складываем обе части', uz: "ikkala qismni qo'shamiz", en: 'we add both parts' },
     res: '12 · 15 = 180',
-    btn1: { ru: 'Разложить 15', uz: '15 ni ajratish' },
-    btn2: { ru: 'Сложить части', uz: "Qismlarni qo'shish" },
-    done_text: { ru: 'Приём тот же, что при умножении по частям. Только раскладываем второй множитель.', uz: "Usul qismlab ko'paytirishdagidek. Faqat ikkinchi ko'paytuvchini ajratamiz." },
+    btn1: { ru: 'Разложить 15', uz: '15 ni ajratish', en: 'Split 15' },
+    btn2: { ru: 'Сложить части', uz: "Qismlarni qo'shish", en: 'Add the parts' },
+    done_text: { ru: 'Приём тот же, что при умножении по частям. Только раскладываем второй множитель.', uz: "Usul qismlab ko'paytirishdagidek. Faqat ikkinchi ko'paytuvchini ajratamiz.", en: 'The method is the same as multiplying by parts. Only we split the second factor.' },
     audio: {
       ru: [
         'Двенадцать умножить на пятнадцать. Раскладываем второй множитель.',
@@ -227,22 +233,23 @@ const CONTENT = {
         "O'n ikkini o'n beshga ko'paytiramiz. Ikkinchi ko'paytuvchini ajratamiz.",
         "O'n besh bu o'n va yana besh. Demak, o'n ikki karra o'n va o'n ikki karra besh.",
         "Bir yuz yigirma va oltmish. Birgalikda bir yuz sakson."
-      ]
+      ],
+      en: ['Twelve times fifteen. We split the second factor.', 'Fifteen is ten and five more. So twelve times ten and twelve times five.', 'One hundred twenty and sixty. Together one hundred eighty.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Почему так', uz: 'Nega bunday' },
-    lead: { ru: 'Модуль режется на два куска', uz: 'Modul ikki bo\'lakka kesiladi' },
+    eyebrow: { ru: 'Почему так', uz: 'Nega bunday', en: 'Why it works' },
+    lead: { ru: 'Модуль режется на два куска', uz: 'Modul ikki bo\'lakka kesiladi', en: 'The module is cut into two pieces' },
     rows: 12,
     colsA: 10,
     colsB: 5,
-    capA: { ru: '12 · 10 = 120', uz: '12 · 10 = 120' },
-    capB: { ru: '12 · 5 = 60', uz: '12 · 5 = 60' },
+    capA: { ru: '12 · 10 = 120', uz: '12 · 10 = 120', en: '12 · 10 = 120' },
+    capB: { ru: '12 · 5 = 60', uz: '12 · 5 = 60', en: '12 · 5 = 60' },
     res: '120 + 60 = 180',
-    btn1: { ru: 'Отрезать 10 рядов', uz: '10 qatorni ajratish' },
-    btn2: { ru: 'И оставшиеся 5', uz: 'Va qolgan 5 tasi' },
-    done_text: { ru: 'Две части вместе дают весь модуль. Ни одна деталь не потерялась.', uz: "Ikki qism birga butun modulni beradi. Birorta detal yo'qolmadi." },
+    btn1: { ru: 'Отрезать 10 рядов', uz: '10 qatorni ajratish', en: 'Cut off 10 rows' },
+    btn2: { ru: 'И оставшиеся 5', uz: 'Va qolgan 5 tasi', en: 'And the remaining 5' },
+    done_text: { ru: 'Две части вместе дают весь модуль. Ни одна деталь не потерялась.', uz: "Ikki qism birga butun modulni beradi. Birorta detal yo'qolmadi.", en: 'The two parts together give the whole module. Not a single part got lost.' },
     audio: {
       ru: [
         'Посмотри на модуль целиком. Пятнадцать рядов по двенадцать деталей.',
@@ -253,26 +260,27 @@ const CONTENT = {
         "Modulga butunligicha qarang. O'n ikkitadan o'n besh qator.",
         "O'n qatorni ajratamiz. Ularda bir yuz yigirmata detal.",
         "Besh qator qoldi, ularda oltmishta. Birgalikda yana bir yuz sakson."
-      ]
+      ],
+      en: ['Look at the whole module. Fifteen rows of twelve parts.', 'Let us cut off ten rows. They have one hundred twenty parts.', 'Five rows are left with sixty in them. Together one hundred eighty again.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Сколько умножений нужно сделать?', uz: "Nechta ko'paytirish qilish kerak?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Сколько умножений нужно сделать?', uz: "Nechta ko'paytirish qilish kerak?", en: 'How many multiplications do we need to do?' },
     opts: [
-      { ru: 'два: на десятки и на единицы', uz: "ikkita: o'nlikka va birlikka" },
-      { ru: 'одно: только на десятки', uz: "bitta: faqat o'nlikka" },
-      { ru: 'одно: десятки на десятки', uz: "bitta: o'nlikni o'nlikka" },
-      { ru: 'четыре: каждую цифру на каждую', uz: "to'rtta: har raqamni har raqamga" }
+      { ru: 'два: на десятки и на единицы', uz: "ikkita: o'nlikka va birlikka", en: 'two: by the tens and by the units' },
+      { ru: 'одно: только на десятки', uz: "bitta: faqat o'nlikka", en: 'one: only by the tens' },
+      { ru: 'одно: десятки на десятки', uz: "bitta: o'nlikni o'nlikka", en: 'one: tens by tens' },
+      { ru: 'четыре: каждую цифру на каждую', uz: "to'rtta: har raqamni har raqamga", en: 'four: each digit by each digit' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Тогда пять рядов останутся несобранными.', uz: "Unda besh qator yig'ilmay qoladi." },
-      2: { ru: 'Десятки на десятки это только часть модуля, и то не та.', uz: "O'nlikni o'nlikka bu modulning bir qismi, u ham noto'g'ri qismi." },
-      3: { ru: 'Первое число целиком не разбиваем. Раскладываем только второй множитель.', uz: "Birinchi sonni butunicha ajratmaymiz. Faqat ikkinchi ko'paytuvchini ajratamiz." }
+      1: { ru: 'Тогда пять рядов останутся несобранными.', uz: "Unda besh qator yig'ilmay qoladi.", en: 'Then five rows stay unassembled.' },
+      2: { ru: 'Десятки на десятки это только часть модуля, и то не та.', uz: "O'nlikni o'nlikka bu modulning bir qismi, u ham noto'g'ri qismi.", en: 'Tens by tens is only a piece of the module, and not the right one either.' },
+      3: { ru: 'Первое число целиком не разбиваем. Раскладываем только второй множитель.', uz: "Birinchi sonni butunicha ajratmaymiz. Faqat ikkinchi ko'paytuvchini ajratamiz.", en: 'We do not split the first number at all. We split only the second factor.' }
     },
-    on_correct: { ru: 'Верно! Два умножения и одно сложение.', uz: "To'g'ri! Ikki ko'paytirish va bitta qo'shish." },
+    on_correct: { ru: 'Верно! Два умножения и одно сложение.', uz: "To'g'ri! Ikki ko'paytirish va bitta qo'shish.", en: 'Right! Two multiplications and one addition.' },
     rule_lines: {
       ru: [
         'разложи второй множитель на десятки и единицы',
@@ -283,143 +291,150 @@ const CONTENT = {
         "ikkinchi ko'paytuvchini o'nlik va birlikka ajrating",
         "birinchi sonni har bir qismga ko'paytiring",
         "ikki ko'paytmani qo'shing"
-      ]
+      ],
+      en: ['split the second factor into tens and units', 'multiply the first number by each part', 'add the two products']
     },
     rule_ex: '12 · 15 = 12 · 10 + 12 · 5 = 180',
     rule_speech: {
       ru: 'Правило такое. Раскладываем второй множитель на десятки и единицы. Умножаем первое число на каждую часть. Складываем два произведения.',
-      uz: "Qoida shunday. Ikkinchi ko'paytuvchini o'nlik va birlikka ajratamiz. Birinchi sonni har bir qismga ko'paytiramiz. Ikki ko'paytmani qo'shamiz."
+      uz: "Qoida shunday. Ikkinchi ko'paytuvchini o'nlik va birlikka ajratamiz. Birinchi sonni har bir qismga ko'paytiramiz. Ikki ko'paytmani qo'shamiz.",
+      en: 'The rule is this. We split the second factor into tens and units. We multiply the first number by each part. We add the two products.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.' }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.', en: 'Now the main question of the lesson.' }
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Здесь умножили не то на то. В чём ошибка?', uz: "Bu yerda noto'g'ri ko'paytirilgan. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Здесь умножили не то на то. В чём ошибка?', uz: "Bu yerda noto'g'ri ko'paytirilgan. Xato nimada?", en: 'Here the wrong things were multiplied. What is the mistake?' },
     fig_line: '12 · 15 = 10 · 10 + 2 · 5 = 110',
     opts: [
-      { ru: 'разложили оба числа, а надо только второе', uz: "ikkala son ajratilgan, faqat ikkinchisi kerak edi" },
-      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
-      { ru: 'взяли не тот второй множитель', uz: "ikkinchi ko'paytuvchi noto'g'ri olingan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'разложили оба числа, а надо только второе', uz: "ikkala son ajratilgan, faqat ikkinchisi kerak edi", en: 'both numbers were split, and only the second should be' },
+      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan", en: 'the adding was wrong' },
+      { ru: 'взяли не тот второй множитель', uz: "ikkinchi ko'paytuvchi noto'g'ri olingan", en: 'the wrong second factor was taken' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сто и десять складываются в сто десять верно. Ошибка раньше.', uz: "Yuz va o'n bir yuz o'nni to'g'ri beradi. Xato oldinroq." },
-      2: { ru: 'Второй множитель пятнадцать, и он на месте. Смотри на первый.', uz: "Ikkinchi ko'paytuvchi o'n besh, u joyida. Birinchisiga qarang." },
-      3: { ru: 'Сравни ответы. Сто десять и сто восемьдесят это разные числа.', uz: "Javoblarni solishtiring. Bir yuz o'n va bir yuz sakson har xil son." }
+      1: { ru: 'Сто и десять складываются в сто десять верно. Ошибка раньше.', uz: "Yuz va o'n bir yuz o'nni to'g'ri beradi. Xato oldinroq.", en: 'One hundred and ten add up to one hundred ten correctly. The mistake is earlier.' },
+      2: { ru: 'Второй множитель пятнадцать, и он на месте. Смотри на первый.', uz: "Ikkinchi ko'paytuvchi o'n besh, u joyida. Birinchisiga qarang.", en: 'The second factor is fifteen, and it is in place. Look at the first one.' },
+      3: { ru: 'Сравни ответы. Сто десять и сто восемьдесят это разные числа.', uz: "Javoblarni solishtiring. Bir yuz o'n va bir yuz sakson har xil son.", en: 'Compare the answers. One hundred ten and one hundred eighty are different numbers.' }
     },
     audio: {
       intro: {
         ru: ['Двенадцать умножить на пятнадцать. Кто-то умножил десять на десять и два на пять.', 'Найди, где сломался приём.'],
-        uz: ["O'n ikkini o'n beshga ko'paytirish. Kimdir o'nni o'nga, ikkini beshga ko'paytirdi.", 'Usul qayerda buzilganini toping.']
+        uz: ["O'n ikkini o'n beshga ko'paytirish. Kimdir o'nni o'nga, ikkini beshga ko'paytirdi.", 'Usul qayerda buzilganini toping.'],
+        en: ['Twelve times fifteen. Someone multiplied ten by ten and two by five.', 'Find where the method broke.']
       },
-      on_correct: { ru: 'Точно! Первое число берут целиком, а на части режут только второе.', uz: "Aniq! Birinchi son butunicha olinadi, faqat ikkinchisi qismlarga bo'linadi." },
-      on_wrong: { ru: 'Вспомни правило. Что раскладывают, а что берут целиком.', uz: "Qoidani eslang. Nima ajratiladi, nima butunicha olinadi." }
+      on_correct: { ru: 'Точно! Первое число берут целиком, а на части режут только второе.', uz: "Aniq! Birinchi son butunicha olinadi, faqat ikkinchisi qismlarga bo'linadi.", en: 'Exactly! The first number is taken whole, and only the second is cut into parts.' },
+      on_wrong: { ru: 'Вспомни правило. Что раскладывают, а что берут целиком.', uz: "Qoidani eslang. Nima ajratiladi, nima butunicha olinadi.", en: 'Recall the rule. What is split and what is taken whole.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Умножили полностью или забыли часть?', uz: "To'liq ko'paytirildimi yoki qism unutildimi?" },
-    bin_a: { ru: 'полностью', uz: "to'liq" },
-    bin_b: { ru: 'забыли часть', uz: 'qism unutilgan' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Умножили полностью или забыли часть?', uz: "To'liq ko'paytirildimi yoki qism unutildimi?", en: 'Multiplied fully or a part forgotten?' },
+    bin_a: { ru: 'полностью', uz: "to'liq", en: 'fully' },
+    bin_b: { ru: 'забыли часть', uz: 'qism unutilgan', en: 'a part forgotten' },
     items: [
-      { n: '11 · 17 = 110 + 77', a: true, hint: { ru: 'Одиннадцать на десять и одиннадцать на семь. Обе части на месте.', uz: "O'n bir karra o'n va o'n bir karra yetti. Ikkala qism joyida." } },
-      { n: '26 · 13 = 260', a: false, hint: { ru: 'Это только двадцать шесть на десять. Ещё три ряда не посчитаны.', uz: "Bu faqat yigirma olti karra o'n. Yana uch qator sanalmagan." } },
-      { n: '21 · 12 = 210 + 42', a: true, hint: { ru: 'Двадцать один на десять и двадцать один на два. Всё собрано.', uz: "Yigirma bir karra o'n va yigirma bir karra ikki. Hammasi yig'ilgan." } },
-      { n: '31 · 17 = 217', a: false, hint: { ru: 'Это тридцать один на семь. Десять рядов пропущены.', uz: "Bu o'ttiz bir karra yetti. O'n qator tashlab ketilgan." } }
+      { n: '11 · 17 = 110 + 77', a: true, hint: { ru: 'Одиннадцать на десять и одиннадцать на семь. Обе части на месте.', uz: "O'n bir karra o'n va o'n bir karra yetti. Ikkala qism joyida.", en: 'Eleven times ten and eleven times seven. Both parts are in place.' } },
+      { n: '26 · 13 = 260', a: false, hint: { ru: 'Это только двадцать шесть на десять. Ещё три ряда не посчитаны.', uz: "Bu faqat yigirma olti karra o'n. Yana uch qator sanalmagan.", en: 'That is only twenty six times ten. Three more rows are not counted.' } },
+      { n: '21 · 12 = 210 + 42', a: true, hint: { ru: 'Двадцать один на десять и двадцать один на два. Всё собрано.', uz: "Yigirma bir karra o'n va yigirma bir karra ikki. Hammasi yig'ilgan.", en: 'Twenty one times ten and twenty one times two. Everything is gathered.' } },
+      { n: '31 · 17 = 217', a: false, hint: { ru: 'Это тридцать один на семь. Десять рядов пропущены.', uz: "Bu o'ttiz bir karra yetti. O'n qator tashlab ketilgan.", en: 'That is thirty one times seven. Ten rows were skipped.' } }
     ],
     audio: {
-      intro: { ru: 'Разложи записи по полкам. Слева те, где посчитаны обе части, справа те, где одна потерялась.', uz: "Yozuvlarni tokchalarga ajrating. Chapda ikkala qism sanalganlari, o'ngda bittasi yo'qolganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь, есть ли умножение и на десятки, и на единицы.', uz: "O'nlikka ham, birlikka ham ko'paytirish bor-yo'qligini tekshiring." }
+      intro: { ru: 'Разложи записи по полкам. Слева те, где посчитаны обе части, справа те, где одна потерялась.', uz: "Yozuvlarni tokchalarga ajrating. Chapda ikkala qism sanalganlari, o'ngda bittasi yo'qolganlari.", en: 'Lay the lines out on the shelves. On the left those where both parts are counted, on the right those where one got lost.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь, есть ли умножение и на десятки, и на единицы.', uz: "O'nlikka ham, birlikka ham ko'paytirish bor-yo'qligini tekshiring.", en: 'Check whether there is a multiplication by the tens and by the units.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '11 · 17 = ?', uz: '11 · 17 = ?' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '11 · 17 = ?', uz: '11 · 17 = ?', en: '11 · 17 = ?' },
     opts: [
-      { ru: '187', uz: '187' },
-      { ru: '110', uz: '110' },
-      { ru: '177', uz: '177' },
-      { ru: '77', uz: '77' }
+      { ru: '187', uz: '187', en: '187' },
+      { ru: '110', uz: '110', en: '110' },
+      { ru: '177', uz: '177', en: '177' },
+      { ru: '77', uz: '77', en: '77' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Это только одиннадцать на десять. Семь рядов ещё не посчитаны.', uz: "Bu faqat o'n bir karra o'n. Yetti qator hali sanalmagan." },
-      2: { ru: 'Сто десять и семьдесят семь дают больше. Сложи ещё раз.', uz: "Bir yuz o'n va yetmish yetti ko'proq beradi. Yana qo'shing." },
-      3: { ru: 'Это только одиннадцать на семь. Десять рядов пропущены.', uz: "Bu faqat o'n bir karra yetti. O'n qator tashlab ketilgan." }
+      1: { ru: 'Это только одиннадцать на десять. Семь рядов ещё не посчитаны.', uz: "Bu faqat o'n bir karra o'n. Yetti qator hali sanalmagan.", en: 'That is only eleven times ten. Seven rows are still not counted.' },
+      2: { ru: 'Сто десять и семьдесят семь дают больше. Сложи ещё раз.', uz: "Bir yuz o'n va yetmish yetti ko'proq beradi. Yana qo'shing.", en: 'One hundred ten and seventy seven give more. Add again.' },
+      3: { ru: 'Это только одиннадцать на семь. Десять рядов пропущены.', uz: "Bu faqat o'n bir karra yetti. O'n qator tashlab ketilgan.", en: 'That is only eleven times seven. Ten rows were skipped.' }
     },
     audio: {
-      intro: { ru: 'Одиннадцать умножить на семнадцать. Разложи семнадцать.', uz: "O'n birni o'n yettiga ko'paytiring. O'n yettini ajrating." },
-      on_correct: { ru: 'Верно! Сто десять и семьдесят семь, сто восемьдесят семь.', uz: "To'g'ri! Bir yuz o'n va yetmish yetti, bir yuz sakson yetti." },
-      on_wrong: { ru: 'Посчитай обе части и сложи.', uz: "Ikkala qismni hisoblab, qo'shing." }
+      intro: { ru: 'Одиннадцать умножить на семнадцать. Разложи семнадцать.', uz: "O'n birni o'n yettiga ko'paytiring. O'n yettini ajrating.", en: 'Eleven times seventeen. Split the seventeen.' },
+      on_correct: { ru: 'Верно! Сто десять и семьдесят семь, сто восемьдесят семь.', uz: "To'g'ri! Bir yuz o'n va yetmish yetti, bir yuz sakson yetti.", en: 'Right! One hundred ten and seventy seven, one hundred eighty seven.' },
+      on_wrong: { ru: 'Посчитай обе части и сложи.', uz: "Ikkala qismni hisoblab, qo'shing.", en: 'Count both parts and add.' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: '26 · 13 — заполни консоль по частям', uz: "26 · 13 — konsolni qismlab to'ldiring" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: '26 · 13 — заполни консоль по частям', uz: "26 · 13 — konsolni qismlab to'ldiring", en: '26 · 13 — fill the console part by part' },
     swap_line: '13 = 10 + 3',
     cells: [
-      { head: { ru: 'десятки', uz: "o'nliklar" }, label: '26 · 10', ans: 260, hint: { ru: 'Двадцать шесть умножить на десять.', uz: "Yigirma oltini o'nga ko'paytiring." } },
-      { head: { ru: 'единицы', uz: 'birliklar' }, label: '26 · 3', ans: 78, hint: { ru: 'Двадцать шесть умножить на три.', uz: "Yigirma oltini uchga ko'paytiring." } },
-      { head: { ru: 'вместе', uz: 'birgalikda' }, label: '260 + 78', ans: 338, hint: { ru: 'Сложи двести шестьдесят и семьдесят восемь.', uz: "Ikki yuz oltmish bilan yetmish sakkizni qo'shing." } }
+      { head: { ru: 'десятки', uz: "o'nliklar", en: 'tens' }, label: '26 · 10', ans: 260, hint: { ru: 'Двадцать шесть умножить на десять.', uz: "Yigirma oltini o'nga ko'paytiring.", en: 'Twenty six times ten.' } },
+      { head: { ru: 'единицы', uz: 'birliklar', en: 'ones' }, label: '26 · 3', ans: 78, hint: { ru: 'Двадцать шесть умножить на три.', uz: "Yigirma oltini uchga ko'paytiring.", en: 'Twenty six times three.' } },
+      { head: { ru: 'вместе', uz: 'birgalikda', en: 'together' }, label: '260 + 78', ans: 338, hint: { ru: 'Сложи двести шестьдесят и семьдесят восемь.', uz: "Ikki yuz oltmish bilan yetmish sakkizni qo'shing.", en: 'Add two hundred sixty and seventy eight.' } }
     ],
     check: '26 · 13 = 338',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Двадцать шесть умножить на тринадцать. Тринадцать это десять и три.', uz: "Yigirma oltini o'n uchga ko'paytiramiz. O'n uch bu o'n va uch." },
-      on_correct: { ru: 'Верно! Триста тридцать восемь.', uz: "To'g'ri! Uch yuz o'ttiz sakkiz." }
+      intro: { ru: 'Двадцать шесть умножить на тринадцать. Тринадцать это десять и три.', uz: "Yigirma oltini o'n uchga ko'paytiramiz. O'n uch bu o'n va uch.", en: 'Twenty six times thirteen. Thirteen is ten and three.' },
+      on_correct: { ru: 'Верно! Триста тридцать восемь.', uz: "To'g'ri! Uch yuz o'ttiz sakkiz.", en: 'Right! Three hundred thirty eight.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Одна часть потерялась. Какая?', uz: 'Bitta qism yo\'qolgan. Qaysi biri?' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Одна часть потерялась. Какая?', uz: 'Bitta qism yo\'qolgan. Qaysi biri?', en: 'One part got lost. Which one?' },
     fig_line: '21 · 12 = 210',
     opts: [
-      { ru: 'не умножили на 2 единицы', uz: "2 birlikka ko'paytirilmagan" },
-      { ru: 'не умножили на 10 десятков', uz: "10 o'nlikka ko'paytirilmagan" },
-      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'не умножили на 2 единицы', uz: "2 birlikka ko'paytirilmagan", en: 'it was not multiplied by the 2 units' },
+      { ru: 'не умножили на 10 десятков', uz: "10 o'nlikka ko'paytirilmagan", en: 'it was not multiplied by the 10 tens' },
+      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan", en: 'the adding was wrong' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Двести десять это как раз двадцать один на десять. Эта часть есть.', uz: "Ikki yuz o'n bu aynan yigirma bir karra o'n. Bu qism bor." },
-      2: { ru: 'Складывать пока нечего. Вторая часть не посчитана.', uz: "Qo'shadigan narsa yo'q. Ikkinchi qism sanalmagan." },
-      3: { ru: 'Двенадцать это десять и два. Двойка осталась без работы.', uz: "O'n ikki bu o'n va ikki. Ikki ishsiz qoldi." }
+      1: { ru: 'Двести десять это как раз двадцать один на десять. Эта часть есть.', uz: "Ikki yuz o'n bu aynan yigirma bir karra o'n. Bu qism bor.", en: 'Two hundred ten is exactly twenty one times ten. That part is there.' },
+      2: { ru: 'Складывать пока нечего. Вторая часть не посчитана.', uz: "Qo'shadigan narsa yo'q. Ikkinchi qism sanalmagan.", en: 'There is nothing to add yet. The second part is not counted.' },
+      3: { ru: 'Двенадцать это десять и два. Двойка осталась без работы.', uz: "O'n ikki bu o'n va ikki. Ikki ishsiz qoldi.", en: 'Twelve is ten and two. The two was left without work.' }
     },
     audio: {
       intro: {
         ru: ['Двадцать один умножить на двенадцать. Получилось двести десять.', 'Одна часть куда-то делась. Найди какая.'],
-        uz: ["Yigirma birni o'n ikkiga ko'paytirish. Ikki yuz o'n chiqdi.", "Bitta qism qayoqqadir yo'qolgan. Qaysi biri, toping."]
+        uz: ["Yigirma birni o'n ikkiga ko'paytirish. Ikki yuz o'n chiqdi.", "Bitta qism qayoqqadir yo'qolgan. Qaysi biri, toping."],
+        en: ['Twenty one times twelve. Two hundred ten came out.', 'One part went missing. Find which one.']
       },
-      on_correct: { ru: 'Точно! Ещё двадцать один на два, сорок два. Всего двести пятьдесят два.', uz: "Aniq! Yana yigirma bir karra ikki, qirq ikki. Jami ikki yuz ellik ikki." },
-      on_wrong: { ru: 'Проверь, обе ли части второго множителя пошли в дело.', uz: "Ikkinchi ko'paytuvchining ikkala qismi ishga tushganini tekshiring." }
+      on_correct: { ru: 'Точно! Ещё двадцать один на два, сорок два. Всего двести пятьдесят два.', uz: "Aniq! Yana yigirma bir karra ikki, qirq ikki. Jami ikki yuz ellik ikki.", en: 'Exactly! Twenty one times two as well, forty two. Two hundred fifty two in all.' },
+      on_wrong: { ru: 'Проверь, обе ли части второго множителя пошли в дело.', uz: "Ikkinchi ko'paytuvchining ikkala qismi ishga tushganini tekshiring.", en: 'Check whether both parts of the second factor were put to work.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит перемножил части между собой', uz: 'Bit qismlarni bir-biriga ko\'paytirdi' },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит перемножил части между собой', uz: 'Bit qismlarni bir-biriga ko\'paytirdi', en: 'Bit multiplied the parts by each other' },
     lines: ['12 · 15', '120 · 60'],
     lines_uz: ['12 · 15', '120 · 60'],
-    line_cap: { ru: 'части ведь обе нужны, говорит Бит', uz: "ikkala qism ham kerak-ku, deydi Bit" },
-    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    lines_en: ['12 · 15', '120 · 60'],
+    line_cap: { ru: 'части ведь обе нужны, говорит Бит', uz: "ikkala qism ham kerak-ku, deydi Bit", en: 'both parts are needed, says Bit' },
+    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?', en: 'Is Bit right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Части складывают, а не перемножают. Сто двадцать и шестьдесят это сто восемьдесят, а не тысячи.',
-      uz: "Aniq! Qismlar qo'shiladi, ko'paytirilmaydi. Bir yuz yigirma va oltmish bu bir yuz sakson, minglar emas."
+      uz: "Aniq! Qismlar qo'shiladi, ko'paytirilmaydi. Bir yuz yigirma va oltmish bu bir yuz sakson, minglar emas.",
+      en: 'Exactly! The parts are added, not multiplied. One hundred twenty and sixty is one hundred eighty, not thousands.'
     },
     trap_wrong: {
       ru: 'Посмотри на модуль. Две части лежат рядом, их складывают. Перемножать их не за что.',
-      uz: "Modulga qarang. Ikki qism yonma-yon turibdi, ular qo'shiladi. Ko'paytirishga sabab yo'q."
+      uz: "Modulga qarang. Ikki qism yonma-yon turibdi, ular qo'shiladi. Ko'paytirishga sabab yo'q.",
+      en: 'Look at the module. The two parts lie side by side, they are added. There is nothing to multiply them by.'
     },
     audio: {
       ru: [
@@ -429,169 +444,175 @@ const CONTENT = {
       uz: [
         "Bit ikkala qismni, bir yuz yigirma va oltmishni topdi va ularni ko'paytirmoqchi bo'ldi.",
         "Bit haqmi?"
-      ]
+      ],
+      en: ['Bit found both parts, one hundred twenty and sixty, and decided to multiply them by each other.', 'Is Bit right?']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '31 · 17. Набери ответ.', uz: '31 · 17. Javobni tering.' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '31 · 17. Набери ответ.', uz: '31 · 17. Javobni tering.', en: '31 · 17. Type the answer.' },
     ans: 527,
     check: '310 + 217 = 527',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Тридцать один на десять и тридцать один на семь. Потом сложи.', uz: "O'ttiz bir karra o'n va o'ttiz bir karra yetti. Keyin qo'shing." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Тридцать один на десять и тридцать один на семь. Потом сложи.', uz: "O'ttiz bir karra o'n va o'ttiz bir karra yetti. Keyin qo'shing.", en: 'Thirty one times ten and thirty one times seven. Then add.' },
     audio: {
-      intro: { ru: 'Тридцать один умножить на семнадцать.', uz: "O'ttiz birni o'n yettiga ko'paytiring." },
-      on_correct: { ru: 'Верно! Триста десять и двести семнадцать, пятьсот двадцать семь.', uz: "To'g'ri! Uch yuz o'n va ikki yuz o'n yetti, besh yuz yigirma yetti." }
+      intro: { ru: 'Тридцать один умножить на семнадцать.', uz: "O'ttiz birni o'n yettiga ko'paytiring.", en: 'Thirty one times seventeen.' },
+      on_correct: { ru: 'Верно! Триста десять и двести семнадцать, пятьсот двадцать семь.', uz: "To'g'ri! Uch yuz o'n va ikki yuz o'n yetti, besh yuz yigirma yetti.", en: 'Right! Three hundred ten and two hundred seventeen, five hundred twenty seven.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '33 · 13. Набери ответ.', uz: '33 · 13. Javobni tering.' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '33 · 13. Набери ответ.', uz: '33 · 13. Javobni tering.', en: '33 · 13. Type the answer.' },
     ans: 429,
     check: '330 + 99 = 429',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Тридцать три на десять и тридцать три на три.', uz: "O'ttiz uch karra o'n va o'ttiz uch karra uch." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Тридцать три на десять и тридцать три на три.', uz: "O'ttiz uch karra o'n va o'ttiz uch karra uch.", en: 'Thirty three times ten and thirty three times three.' },
     audio: {
-      intro: { ru: 'Тридцать три умножить на тринадцать.', uz: "O'ttiz uchni o'n uchga ko'paytiring." },
-      on_correct: { ru: 'Верно! Триста тридцать и девяносто девять, четыреста двадцать девять.', uz: "To'g'ri! Uch yuz o'ttiz va to'qson to'qqiz, to'rt yuz yigirma to'qqiz." }
+      intro: { ru: 'Тридцать три умножить на тринадцать.', uz: "O'ttiz uchni o'n uchga ko'paytiring.", en: 'Thirty three times thirteen.' },
+      on_correct: { ru: 'Верно! Триста тридцать и девяносто девять, четыреста двадцать девять.', uz: "To'g'ri! Uch yuz o'ttiz va to'qson to'qqiz, to'rt yuz yigirma to'qqiz.", en: 'Right! Three hundred thirty and ninety nine, four hundred twenty nine.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из учебника, стр. 62.', uz: 'Kitobdagi masala, 62-bet.' },
-    q: { ru: 'В доме 12 этажей по 24 квартиры, в другом 16 этажей по 18. В каком доме квартир больше?', uz: "Bir binoda 24 tadan 12 qavat, boshqasida 18 tadan 16 qavat. Qaysi binoda xonadon ko'p?" },
-    q_speech: { ru: 'В одном доме двенадцать этажей по двадцать четыре квартиры, в другом шестнадцать по восемнадцать. Где квартир больше?', uz: "Bir binoda yigirma to'rttadan o'n ikki qavat, boshqasida o'n sakkiztadan o'n olti qavat. Qayerda xonadon ko'p?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из учебника, стр. 62.', uz: 'Kitobdagi masala, 62-bet.', en: 'A problem from the textbook, page 62.' },
+    q: { ru: 'В доме 12 этажей по 24 квартиры, в другом 16 этажей по 18. В каком доме квартир больше?', uz: "Bir binoda 24 tadan 12 qavat, boshqasida 18 tadan 16 qavat. Qaysi binoda xonadon ko'p?", en: 'One house has 12 floors of 24 flats, another has 16 floors of 18. Which house has more flats?' },
+    q_speech: { ru: 'В одном доме двенадцать этажей по двадцать четыре квартиры, в другом шестнадцать по восемнадцать. Где квартир больше?', uz: "Bir binoda yigirma to'rttadan o'n ikki qavat, boshqasida o'n sakkiztadan o'n olti qavat. Qayerda xonadon ko'p?", en: 'One house has twelve floors of twenty four flats, another has sixteen of eighteen. Which has more flats?' },
     tbl_heads: [
-      { ru: 'Первый дом', uz: 'Birinchi bino' },
-      { ru: 'Второй дом', uz: 'Ikkinchi bino' },
-      { ru: 'Больше где', uz: "Qayerda ko'p" }
+      { ru: 'Первый дом', uz: 'Birinchi bino', en: 'The first house' },
+      { ru: 'Второй дом', uz: 'Ikkinchi bino', en: 'The second house' },
+      { ru: 'Больше где', uz: "Qayerda ko'p", en: 'Where there are more' }
     ],
     tbl_cells: ['12 · 24', '16 · 18', '?'],
-    pick_label: { ru: 'Сначала выбери, что считать', uz: 'Avval nimani hisoblashni tanlang' },
+    pick_label: { ru: 'Сначала выбери, что считать', uz: 'Avval nimani hisoblashni tanlang', en: 'First choose what to count' },
     opts: [
-      { ru: 'оба произведения', uz: "ikkala ko'paytmani" },
-      { ru: 'только первое', uz: 'faqat birinchisini' },
-      { ru: 'сумму этажей', uz: 'qavatlar yig\'indisini' },
-      { ru: 'разность этажей', uz: 'qavatlar farqini' }
+      { ru: 'оба произведения', uz: "ikkala ko'paytmani", en: 'both products' },
+      { ru: 'только первое', uz: 'faqat birinchisini', en: 'only the first' },
+      { ru: 'сумму этажей', uz: 'qavatlar yig\'indisini', en: 'the sum of the floors' },
+      { ru: 'разность этажей', uz: 'qavatlar farqini', en: 'the difference of the floors' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'По одному дому не сравнить. Нужны оба числа.', uz: "Bitta bino bilan solishtirib bo'lmaydi. Ikkala son kerak." },
-      2: { ru: 'Этажи складывать незачем, ведь в них разное число квартир.', uz: "Qavatlarni qo'shish shart emas, chunki ularda xonadon soni har xil." },
-      3: { ru: 'Разность этажей не говорит о квартирах.', uz: "Qavatlar farqi xonadonlar haqida gapirmaydi." }
+      1: { ru: 'По одному дому не сравнить. Нужны оба числа.', uz: "Bitta bino bilan solishtirib bo'lmaydi. Ikkala son kerak.", en: 'You cannot compare with one house. Both numbers are needed.' },
+      2: { ru: 'Этажи складывать незачем, ведь в них разное число квартир.', uz: "Qavatlarni qo'shish shart emas, chunki ularda xonadon soni har xil.", en: 'There is no point adding the floors, they have different numbers of flats.' },
+      3: { ru: 'Разность этажей не говорит о квартирах.', uz: "Qavatlar farqi xonadonlar haqida gapirmaydi.", en: 'The difference of the floors says nothing about the flats.' }
     },
-    pick_ok: { ru: 'Верно. Считай по домам.', uz: "To'g'ri. Binolar bo'yicha hisoblang." },
-    step1_q: { ru: 'Квартир в первом доме?', uz: 'Birinchi binoda nechta xonadon?' },
+    pick_ok: { ru: 'Верно. Считай по домам.', uz: "To'g'ri. Binolar bo'yicha hisoblang.", en: 'Right. Count house by house.' },
+    step1_q: { ru: 'Квартир в первом доме?', uz: 'Birinchi binoda nechta xonadon?', en: 'Flats in the first house?' },
     ans1: 288,
-    hint1: { ru: 'Двенадцать на двадцать четыре. Двенадцать на двадцать и двенадцать на четыре.', uz: "O'n ikki karra yigirma to'rt. O'n ikki karra yigirma va o'n ikki karra to'rt." },
-    step2_q: { ru: 'Квартир во втором доме?', uz: 'Ikkinchi binoda nechta xonadon?' },
+    hint1: { ru: 'Двенадцать на двадцать четыре. Двенадцать на двадцать и двенадцать на четыре.', uz: "O'n ikki karra yigirma to'rt. O'n ikki karra yigirma va o'n ikki karra to'rt.", en: 'Twelve times twenty four. Twelve times twenty and twelve times four.' },
+    step2_q: { ru: 'Квартир во втором доме?', uz: 'Ikkinchi binoda nechta xonadon?', en: 'Flats in the second house?' },
     ans2: 288,
-    hint2: { ru: 'Шестнадцать на десять и шестнадцать на восемь.', uz: "O'n olti karra o'n va o'n olti karra sakkiz." },
+    hint2: { ru: 'Шестнадцать на десять и шестнадцать на восемь.', uz: "O'n olti karra o'n va o'n olti karra sakkiz.", en: 'Sixteen times ten and sixteen times eight.' },
     check: '288 = 288',
-    setup_audio: { ru: 'Задача из учебника. Два дома, в них разное число этажей и квартир. Сначала выбери, что считать, потом посчитай оба дома.', uz: "Kitobdagi masala. Ikki bino, ularda qavatlar va xonadonlar soni har xil. Avval nimani hisoblashni tanlang, keyin ikkala binoni hisoblang." },
+    setup_audio: { ru: 'Задача из учебника. Два дома, в них разное число этажей и квартир. Сначала выбери, что считать, потом посчитай оба дома.', uz: "Kitobdagi masala. Ikki bino, ularda qavatlar va xonadonlar soni har xil. Avval nimani hisoblashni tanlang, keyin ikkala binoni hisoblang.", en: 'A problem from the textbook. Two houses with different numbers of floors and flats. First choose what to count, then count both houses.' },
     audio: {
-      intro: { ru: 'Ответ тут неожиданный.', uz: 'Bu yerda javob kutilmagan.' },
-      on_correct: { ru: 'Двести восемьдесят восемь и там, и там! Дома разные, а квартир поровну.', uz: "Ikki yuz sakson sakkizta u yerda ham, bu yerda ham! Binolar har xil, xonadonlar esa teng." },
-      on_wrong: { ru: 'Посчитай ещё раз, по частям.', uz: 'Yana bir bor, qismlab hisoblang.' }
+      intro: { ru: 'Ответ тут неожиданный.', uz: 'Bu yerda javob kutilmagan.', en: 'The answer here is unexpected.' },
+      on_correct: { ru: 'Двести восемьдесят восемь и там, и там! Дома разные, а квартир поровну.', uz: "Ikki yuz sakson sakkizta u yerda ham, bu yerda ham! Binolar har xil, xonadonlar esa teng.", en: 'Two hundred eighty eight in both! The houses are different, and the flats are equal.' },
+      on_wrong: { ru: 'Посчитай ещё раз, по частям.', uz: 'Yana bir bor, qismlab hisoblang.', en: 'Count it again, part by part.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Три примера — и приём твой', uz: 'Uch misol va usul sizniki' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Три примера — и приём твой', uz: 'Uch misol va usul sizniki', en: 'Three examples and the method is yours' },
     items: [
       {
         kind: 'num',
-        q: { ru: '41 · 12. Набери ответ.', uz: '41 · 12. Javobni tering.' },
-        q_speech: { ru: 'Сорок один умножить на двенадцать.', uz: "Qirq birni o'n ikkiga ko'paytirish." },
+        q: { ru: '41 · 12. Набери ответ.', uz: '41 · 12. Javobni tering.', en: '41 · 12. Type the answer.' },
+        q_speech: { ru: 'Сорок один умножить на двенадцать.', uz: "Qirq birni o'n ikkiga ko'paytirish.", en: 'Forty one times twelve.' },
         ans: 492,
-        hint: { ru: 'Сорок один на десять и сорок один на два.', uz: "Qirq bir karra o'n va qirq bir karra ikki." }
+        hint: { ru: 'Сорок один на десять и сорок один на два.', uz: "Qirq bir karra o'n va qirq bir karra ikki.", en: 'Forty one times ten and forty one times two.' }
       },
       {
         kind: 'mc',
-        q: { ru: '15 · 13 = ?', uz: '15 · 13 = ?' },
-        q_speech: { ru: 'Пятнадцать умножить на тринадцать.', uz: "O'n beshni o'n uchga ko'paytirish." },
-        opt0: { ru: '195', uz: '195' },
-        opt1: { ru: '150', uz: '150' },
-        opt2: { ru: '165', uz: '165' },
-        opt3: { ru: '45', uz: '45' },
-        wrong_1: { ru: 'Это только пятнадцать на десять. Три ряда не посчитаны.', uz: "Bu faqat o'n besh karra o'n. Uch qator sanalmagan." },
-        wrong_2: { ru: 'Вторая часть посчитана неверно. Пятнадцать на три это сорок пять.', uz: "Ikkinchi qism noto'g'ri sanalgan. O'n besh karra uch qirq besh." },
-        wrong_3: { ru: 'Это только пятнадцать на три. Десять рядов пропущены.', uz: "Bu faqat o'n besh karra uch. O'n qator tashlab ketilgan." }
+        q: { ru: '15 · 13 = ?', uz: '15 · 13 = ?', en: '15 · 13 = ?' },
+        q_speech: { ru: 'Пятнадцать умножить на тринадцать.', uz: "O'n beshni o'n uchga ko'paytirish.", en: 'Fifteen times thirteen.' },
+        opt0: { ru: '195', uz: '195', en: '195' },
+        opt1: { ru: '150', uz: '150', en: '150' },
+        opt2: { ru: '165', uz: '165', en: '165' },
+        opt3: { ru: '45', uz: '45', en: '45' },
+        wrong_1: { ru: 'Это только пятнадцать на десять. Три ряда не посчитаны.', uz: "Bu faqat o'n besh karra o'n. Uch qator sanalmagan.", en: 'That is only fifteen times ten. Three rows are not counted.' },
+        wrong_2: { ru: 'Вторая часть посчитана неверно. Пятнадцать на три это сорок пять.', uz: "Ikkinchi qism noto'g'ri sanalgan. O'n besh karra uch qirq besh.", en: 'The second part was counted wrongly. Fifteen times three is forty five.' },
+        wrong_3: { ru: 'Это только пятнадцать на три. Десять рядов пропущены.', uz: "Bu faqat o'n besh karra uch. O'n qator tashlab ketilgan.", en: 'That is only fifteen times three. Ten rows were skipped.' }
       },
       {
         kind: 'mc',
-        q: { ru: '24 · 22 = ?', uz: '24 · 22 = ?' },
-        q_speech: { ru: 'Двадцать четыре умножить на двадцать два.', uz: "Yigirma to'rtni yigirma ikkiga ko'paytirish." },
-        opt0: { ru: '528', uz: '528' },
-        opt1: { ru: '480', uz: '480' },
-        opt2: { ru: '288', uz: '288' },
-        opt3: { ru: '48', uz: '48' },
-        wrong_1: { ru: 'Это только двадцать четыре на двадцать. Ещё две единицы остались.', uz: "Bu faqat yigirma to'rt karra yigirma. Yana ikki birlik qoldi." },
-        wrong_2: { ru: 'Это ответ из задачи про дома. Здесь числа другие.', uz: "Bu binolar haqidagi masaladan javob. Bu yerda sonlar boshqa." },
-        wrong_3: { ru: 'Это только двадцать четыре на два. Двадцать рядов пропущены.', uz: "Bu faqat yigirma to'rt karra ikki. Yigirma qator tashlab ketilgan." }
+        q: { ru: '24 · 22 = ?', uz: '24 · 22 = ?', en: '24 · 22 = ?' },
+        q_speech: { ru: 'Двадцать четыре умножить на двадцать два.', uz: "Yigirma to'rtni yigirma ikkiga ko'paytirish.", en: 'Twenty four times twenty two.' },
+        opt0: { ru: '528', uz: '528', en: '528' },
+        opt1: { ru: '480', uz: '480', en: '480' },
+        opt2: { ru: '288', uz: '288', en: '288' },
+        opt3: { ru: '48', uz: '48', en: '48' },
+        wrong_1: { ru: 'Это только двадцать четыре на двадцать. Ещё две единицы остались.', uz: "Bu faqat yigirma to'rt karra yigirma. Yana ikki birlik qoldi.", en: 'That is only twenty four times twenty. Two units are still left.' },
+        wrong_2: { ru: 'Это ответ из задачи про дома. Здесь числа другие.', uz: "Bu binolar haqidagi masaladan javob. Bu yerda sonlar boshqa.", en: 'That is the answer from the problem about the houses. The numbers here are different.' },
+        wrong_3: { ru: 'Это только двадцать четыре на два. Двадцать рядов пропущены.', uz: "Bu faqat yigirma to'rt karra ikki. Yigirma qator tashlab ketilgan.", en: 'That is only twenty four times two. Twenty rows were skipped.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'У числа одиннадцать есть красивая привычка. Одиннадцать на одиннадцать это сто двадцать один: цифры поднимаются и спускаются лесенкой. Сто одиннадцать на сто одиннадцать даёт двенадцать тысяч триста двадцать один, и лесенка становится длиннее. Работает это ровно из-за того, что ты делал сегодня: каждый разряд умножается отдельно, а потом всё складывается.',
-      uz: "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir: raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi: har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi."
+      uz: "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir: raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi: har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi.",
+      en: 'The number eleven has a pretty habit. Eleven times eleven is one hundred twenty one: the digits go up and down like a staircase. One hundred eleven times one hundred eleven gives twelve thousand three hundred twenty one, and the staircase gets longer. It works for exactly the reason you saw today: every place is multiplied separately and then everything is added.'
     },
     fact_audio: {
       ru: 'У числа одиннадцать есть красивая привычка. Одиннадцать на одиннадцать это сто двадцать один. Цифры поднимаются и спускаются лесенкой. Сто одиннадцать на сто одиннадцать даёт двенадцать тысяч триста двадцать один, и лесенка становится длиннее. Работает это ровно из-за того, что ты делал сегодня. Каждый разряд умножается отдельно, а потом всё складывается.',
-      uz: "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir. Raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi. Har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi."
+      uz: "O'n bir sonining chiroyli odati bor. O'n bir karra o'n bir bir yuz yigirma bir. Raqamlar zinapoyadek ko'tarilib, keyin tushadi. Bir yuz o'n bir karra bir yuz o'n bir o'n ikki ming uch yuz yigirma birni beradi, zinapoya uzayadi. Bu siz bugun qilgan ish tufayli ishlaydi. Har bir xona alohida ko'paytiriladi, keyin hammasi qo'shiladi.",
+      en: 'The number eleven has a pretty habit. Eleven times eleven is one hundred twenty one. The digits go up and down like a staircase. One hundred eleven times one hundred eleven gives twelve thousand three hundred twenty one, and the staircase gets longer. It works for exactly the reason you saw today. Every place is multiplied separately and then everything is added.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Разложи второй множитель и посчитай обе части.', uz: "Ikkinchi ko'paytuvchini ajrating va ikkala qismni hisoblang." }
+      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.', en: 'The final check, three examples.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Разложи второй множитель и посчитай обе части.', uz: "Ikkinchi ko'paytuvchini ajrating va ikkala qismni hisoblang.", en: 'Split the second factor and count both parts.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Большой модуль собран!', uz: "Katta modul yig'ildi!" },
-    cando: { ru: 'Теперь ты умножаешь двузначное на двузначное.', uz: "Endi siz ikki xonalini ikki xonaliga ko'paytirasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Большой модуль собран!', uz: "Katta modul yig'ildi!", en: 'The big module is assembled!' },
+    cando: { ru: 'Теперь ты умножаешь двузначное на двузначное.', uz: "Endi siz ikki xonalini ikki xonaliga ko'paytirasiz.", en: 'Now you multiply a two-digit number by a two-digit number.' },
     rule_recap: {
       ru: '12 · 15 = 12 · 10 + 12 · 5 = 180. Раскладывай второй множитель и складывай два произведения.',
-      uz: "12 · 15 = 12 · 10 + 12 · 5 = 180. Ikkinchi ko'paytuvchini ajrating va ikki ko'paytmani qo'shing."
+      uz: "12 · 15 = 12 · 10 + 12 · 5 = 180. Ikkinchi ko'paytuvchini ajrating va ikki ko'paytmani qo'shing.",
+      en: '12 · 15 = 12 · 10 + 12 · 5 = 180. Split the second factor and add the two products.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 17: умножение по частям; урок 10: ×10', uz: "17-dars: qismlab ko'paytirish; 10-dars: ×10" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'задачи блока мастерской', uz: 'ustaxona bo\'limining masalalari' },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 17: умножение по частям; урок 10: ×10', uz: "17-dars: qismlab ko'paytirish; 10-dars: ×10", en: 'lesson 17: multiplying by parts; lesson 10: ×10' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'задачи блока мастерской', uz: 'ustaxona bo\'limining masalalari', en: 'word problems of the workshop block' },
     audio: {
       ru: 'Большой модуль собран, и ни один ряд не потерялся. Запомни главное. Раскладывай второй множитель на десятки и единицы, умножай первое число на каждую часть и складывай. В следующий раз соберём все приёмы мастерской в задачах!',
-      uz: "Katta modul yig'ildi, birorta qator yo'qolmadi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini o'nlik va birlikka ajrating, birinchi sonni har bir qismga ko'paytiring va qo'shing. Keyingi safar ustaxonaning barcha usullarini masalalarda yig'amiz!"
+      uz: "Katta modul yig'ildi, birorta qator yo'qolmadi. Asosiysini eslab qoling. Ikkinchi ko'paytuvchini o'nlik va birlikka ajrating, birinchi sonni har bir qismga ko'paytiring va qo'shing. Keyingi safar ustaxonaning barcha usullarini masalalarda yig'amiz!",
+      en: 'The big module is assembled and not a single row got lost. Remember the main thing. Split the second factor into tens and units, multiply the first number by each part and add. Next time we will bring all the workshop methods together in word problems!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Разложим второй множитель.', uz: "Ikkinchi ko'paytuvchini ajratamiz." },
-  s2:  { ru: 'Посмотрим на модуль целиком.', uz: 'Modulga butunligicha qaraymiz.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Кто-то разрезал лишнее.', uz: 'Kimdir ortiqchasini kesib yubordi.' },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz." },
-  s8:  { ru: 'Одна часть пропала.', uz: "Bitta qism yo'qoldi." },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё один модуль.', uz: 'Yana bitta modul.' },
-  s12: { ru: 'Задача из учебника.', uz: 'Kitobdagi masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Модуль готов. Идём дальше!', uz: 'Modul tayyor. Davom etamiz!' }
+  s1:  { ru: 'Разложим второй множитель.', uz: "Ikkinchi ko'paytuvchini ajratamiz.", en: 'Let us split the second factor.' },
+  s2:  { ru: 'Посмотрим на модуль целиком.', uz: 'Modulga butunligicha qaraymiz.', en: 'Let us look at the whole module.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Кто-то разрезал лишнее.', uz: 'Kimdir ortiqchasini kesib yubordi.', en: 'Someone cut too much.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz.", en: 'Let us put it together part by part.' },
+  s8:  { ru: 'Одна часть пропала.', uz: "Bitta qism yo'qoldi.", en: 'One part went missing.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё один модуль.', uz: 'Yana bitta modul.', en: 'And one more module.' },
+  s12: { ru: 'Задача из учебника.', uz: 'Kitobdagi masala.', en: 'A problem from the textbook.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Модуль готов. Идём дальше!', uz: 'Modul tayyor. Davom etamiz!', en: 'The module is ready. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Большой модуль собран, и обе части посчитаны. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Katta modul yig'ildi, ikkala qism ham sanaldi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Katta modul yig'ildi, ikkala qism ham sanaldi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The big module is assembled and both parts are counted. Thank you for your help!'
 };
 
 // ============================================================
@@ -778,7 +799,7 @@ const BigModuleBg = () => {
     <g stroke="#C9B79A" strokeWidth="2.4" opacity="0.9"><path d="M148 32 V94"/><path d="M256 32 V94"/></g>
     <rect x="42" y="95" width="316" height="5" rx="2" fill="#B4976F"/>
     {/* KATTA MODUL: 15 ustun (10 + 5), 4 qator ko'rinadi */}
-    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'БОЛЬШОЙ МОДУЛЬ' : 'KATTA MODUL'}</text>
+    <text x="200" y="112" textAnchor="middle" fontSize="7" letterSpacing="1.4" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'БОЛЬШОЙ МОДУЛЬ', 'KATTA MODUL', 'THE BIG MODULE')}</text>
     <g transform="translate(96 118)">
       <rect x="-6" y="-4" width="220" height="56" rx="6" fill="#C3A87E" opacity="0.45"/>
       {Array.from({ length: 4 }).map((_, r) => (
@@ -1044,7 +1065,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1163,7 +1184,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d22-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d22-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d22-expr">{t(c.step1)}</span>
@@ -1494,7 +1515,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1559,7 +1580,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1695,7 +1716,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d22-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d22-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1810,7 +1831,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1881,7 +1902,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d22-final-scene fade-up delay-1"><BigModuleScene gathered/></div>
@@ -1902,7 +1923,7 @@ export default function TwoByTwoLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1969,7 +1990,7 @@ export default function TwoByTwoLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

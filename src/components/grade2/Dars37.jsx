@@ -78,9 +78,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -251,7 +279,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -292,7 +320,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -904,8 +933,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'mantiq-2-37-v1',
-  lessonTitle: { ru: 'Урок 37. Логика', uz: "37-dars. Mantiq" }
+  lessonId: 'grade2-37',
+  lessonTitle: { ru: 'Урок 37. Логика', uz: "37-dars. Mantiq", en: 'Lesson 37. Logic' }
 };
 // STRUKTURA (Б6 NEPTUN, kattalik-masala): s0 hook (8 sm−3, kimdir qo'shdi=11? Yo'q) · s1 bergan/so'ralgan · s2 amal-signali
 // (ko'paydi→+, kamaydi→−) · s3 QOIDA + check (500+200=700) · s4 BIRLIK + warn + check (9 sm−4=5 sm) · sTBL so'z-signal KALIT ·
@@ -956,14 +985,14 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK: naqsh or-doira/bl-uchburchak takror; kimdir «keyingisi doira» dedi (qoida bo'yicha uchburchak). Yo'q.
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Логика', uz: "Mavzu: Mantiq" },
-    lead: { ru: 'Верно ли продолжили?', uz: "To'g'ri davom ettirildimi?" },
-    q: { ru: 'Кто-то сказал: дальше круг. Это верно?', uz: "Kimdir «keyingisi doira» dedi. To'g'rimi?" },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Логика', uz: "Mavzu: Mantiq", en: 'Topic: Logic' },
+    lead: { ru: 'Верно ли продолжили?', uz: "To'g'ri davom ettirildimi?", en: 'Was it carried on correctly?' },
+    q: { ru: 'Кто-то сказал: дальше круг. Это верно?', uz: "Kimdir «keyingisi doira» dedi. To'g'rimi?", en: 'Someone said the next one is a circle. Is that right?' },
     seq: [{ k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'or' }],
-    opt0: { ru: 'Да', uz: 'Ha' },
-    opt1: { ru: 'Нет', uz: "Yo'q" },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    opt0: { ru: 'Да', uz: 'Ha', en: 'Yes' },
+    opt1: { ru: 'Нет', uz: "Yo'q", en: 'No' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -977,21 +1006,22 @@ const CONTENT = {
           "Naqshga qarang: doira, uchburchak, doira, uchburchak, doira.",
           "Bu yerda doira-uchburchak zvenosi takrorlanadi.",
           "Sizningcha, to'g'ri davom ettirildimi? Javoblarni tinglang: ha yoki yo'q. Yoki hali bilmaysiz."
-        ]
+        ],
+        en: ['We are at the station by Neptune. The crew is solving logic tasks.', 'Look at the pattern: circle, triangle, circle, triangle, circle.', 'Here the part circle and triangle repeats.', 'Do you think it was carried on correctly? Listen to the answers: yes or no. Or maybe you do not know yet.']
       },
-      on_correct: { ru: 'Верно. Повторяется круг-треугольник. После круга, треугольник.', uz: "To'g'ri. Doira-uchburchak takrorlanadi. Doiradan keyin, uchburchak." },
-      on_wrong: { ru: 'Смотри на правило: круг-треугольник. После круга, треугольник. Сейчас разберём.', uz: "Qoidaga qarang: doira-uchburchak. Doiradan keyin, uchburchak. Hozir ko'ramiz." },
-      on_unknown: { ru: 'Ничего. Сегодня разберём узоры, лишний и выводы.', uz: "Hechqisi yo'q. Bugun naqsh, ortiqcha va xulosalarni o'rganamiz." }
+      on_correct: { ru: 'Верно. Повторяется круг-треугольник. После круга, треугольник.', uz: "To'g'ri. Doira-uchburchak takrorlanadi. Doiradan keyin, uchburchak.", en: 'That is right. Circle and triangle repeat. After a circle comes a triangle.' },
+      on_wrong: { ru: 'Смотри на правило: круг-треугольник. После круга, треугольник. Сейчас разберём.', uz: "Qoidaga qarang: doira-uchburchak. Doiradan keyin, uchburchak. Hozir ko'ramiz.", en: 'Look at the rule: circle, triangle. After a circle comes a triangle. Now let us look at it.' },
+      on_unknown: { ru: 'Ничего. Сегодня разберём узоры, лишний и выводы.', uz: "Hechqisi yo'q. Bugun naqsh, ortiqcha va xulosalarni o'rganamiz.", en: 'No problem. Today we will look at patterns, odd ones out and conclusions.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: naqsh — takrorlanuvchi zveno (doira-uchburchak). 4 seg step-reveal.
   s1: {
-    eyebrow: { ru: 'Закономерность', uz: 'Naqsh' },
-    lead: { ru: 'Повторяющееся звено', uz: "Takrorlanuvchi zveno" },
+    eyebrow: { ru: 'Закономерность', uz: 'Naqsh', en: 'The pattern' },
+    lead: { ru: 'Повторяющееся звено', uz: "Takrorlanuvchi zveno", en: 'The repeating part' },
     seq: [{ k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }],
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Найди звено — узнаешь, что дальше.', uz: "Zvenoni toping — keyingisini bilasiz." },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Найди звено — узнаешь, что дальше.', uz: "Zvenoni toping — keyingisini bilasiz.", en: 'Find the repeating part and you will know what comes next.' },
     audio: {
       ru: [
         'Посмотри на узор: круг, треугольник, круг, треугольник.',
@@ -1004,17 +1034,18 @@ const CONTENT = {
         "Bu yerda zveno takrorlanadi: doira va uchburchak.",
         "Zveno qayta-qayta takrorlanadi.",
         "Zvenoni top, keyin nima bo'lishini bilasiz."
-      ]
+      ],
+      en: ['Look at the pattern: circle, triangle, circle, triangle.', 'Here the repeating part is a circle and a triangle.', 'The part repeats again and again.', 'Find the repeating part and you will know what comes next.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: ortiqcha — guruhда biri mos emas (bir tur, biri boshqa). 4 seg.
   s2: {
-    eyebrow: { ru: 'Лишний', uz: 'Ortiqcha' },
-    lead: { ru: 'Что не подходит', uz: "Nima mos emas" },
+    eyebrow: { ru: 'Лишний', uz: 'Ortiqcha', en: 'The odd one out' },
+    lead: { ru: 'Что не подходит', uz: "Nima mos emas", en: 'What does not belong' },
     group: [{ k: 'circle', c: 'or' }, { k: 'circle', c: 'or' }, { k: 'square', c: 'or' }, { k: 'circle', c: 'or' }],
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Найди общий признак — увидишь лишний.', uz: "Umumiy belgini toping — ortiqchani ko'rasiz." },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Найди общий признак — увидишь лишний.', uz: "Umumiy belgini toping — ortiqchani ko'rasiz.", en: 'Find what they have in common and you will spot the odd one out.' },
     audio: {
       ru: [
         'Посмотри на группу фигур.',
@@ -1027,20 +1058,21 @@ const CONTENT = {
         "Uchtasi doira, bittasi, kvadrat.",
         "Kvadrat mos emas: u ortiqcha.",
         "Umumiy belgini top, ortiqchani ko'rasiz."
-      ]
+      ],
+      en: ['Look at the group of shapes.', 'Three of them are circles and one is a square.', 'The square does not belong: it is the odd one out.', 'Find what they have in common and you will see which one is the odd one out.']
     }
   },
 
   // s3 — QOIDA: naqsh qoidasini top, keyin davom ettir + check (pattern).
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Найди правило узора — потом продолжай.', uz: "Naqsh qoidasini toping — keyin davom ettiring." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Найди правило узора — потом продолжай.', uz: "Naqsh qoidasini toping — keyin davom ettiring.", en: 'Find the rule of the pattern, then carry it on.' },
     mode: 'pattern',
     seq: [{ k: 'square', c: 'gr' }, { k: 'circle', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'circle', c: 'pu' }],
-    check_q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+    check_q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
     choices: [{ k: 'square', c: 'gr', ok: true }, { k: 'circle', c: 'pu' }, { k: 'tri', c: 'or' }],
-    wrong: { ru: 'Повторяется квадрат-круг. После круга снова квадрат.', uz: "Kvadrat-doira takrorlanadi. Doiradan keyin yana kvadrat." },
-    check_ok: { ru: 'Верно! После круга снова квадрат.', uz: "To'g'ri! Doiradan keyin yana kvadrat." },
+    wrong: { ru: 'Повторяется квадрат-круг. После круга снова квадрат.', uz: "Kvadrat-doira takrorlanadi. Doiradan keyin yana kvadrat.", en: 'Square and circle repeat. After a circle comes a square again.' },
+    check_ok: { ru: 'Верно! После круга снова квадрат.', uz: "To'g'ri! Doiradan keyin yana kvadrat.", en: 'That is right! After a circle comes a square again.' },
     audio: {
       ru: [
         'Запомним правило. Слушай.',
@@ -1053,21 +1085,22 @@ const CONTENT = {
         "Naqshning takrorlanadigan zvenosini top.",
         "Naqshni shu qoida bo'yicha davom ettir.",
         "Tekshiring. Kvadrat, doira, kvadrat, doira. Keyingisi nima?"
-      ]
+      ],
+      en: ['Let us remember the rule. Listen.', 'Find the part of the pattern that repeats.', 'Carry the pattern on by that rule.', 'Check it. Square, circle, square, circle. What comes next?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3 (XULOSA + WARN): katta/kichik. warn: munosabatni teskari qilma. check (deduct).
   s4: {
-    eyebrow: { ru: 'Вывод', uz: 'Xulosa' },
-    lead: { ru: 'Больше и меньше', uz: "Katta va kichik" },
+    eyebrow: { ru: 'Вывод', uz: 'Xulosa', en: 'The conclusion' },
+    lead: { ru: 'Больше и меньше', uz: "Katta va kichik", en: 'More and fewer' },
     mode: 'deduct',
     fig: { pair: [{ k: 'circle', c: 'or', big: true }, { k: 'circle', c: 'bl', big: false }] },
-    warn: { ru: 'Смотри внимательно: если один больше, то другой меньше. Не переворачивай.', uz: "Diqqat bilan qarang: biri katta bo'lsa, ikkinchisi kichik. Teskari qilmang." },
-    check_q: { ru: 'Оранжевый круг больше синего. Какой меньше?', uz: "To'q sariq doira ko'kdan katta. Qaysi biri kichik?" },
-    opts: [{ ru: 'синий', uz: "ko'k", ok: true }, { ru: 'оранжевый', uz: 'to\'q sariq' }, { ru: 'равны', uz: 'teng' }],
-    wrong: { ru: 'Если оранжевый больше, то синий меньше. Меньше — синий.', uz: "To'q sariq katta bo'lsa, ko'k kichik. Kichigi — ko'k." },
-    check_ok: { ru: 'Верно! Синий меньше.', uz: "To'g'ri! Ko'k kichik." },
+    warn: { ru: 'Смотри внимательно: если один больше, то другой меньше. Не переворачивай.', uz: "Diqqat bilan qarang: biri katta bo'lsa, ikkinchisi kichik. Teskari qilmang.", en: 'Look carefully: if one is bigger, the other is smaller. Do not turn it round.' },
+    check_q: { ru: 'Оранжевый круг больше синего. Какой меньше?', uz: "To'q sariq doira ko'kdan katta. Qaysi biri kichik?", en: 'The orange circle is bigger than the blue one. Which one is smaller?' },
+    opts: [{ ru: 'синий', uz: "ko'k", en: 'the blue one', ok: true }, { ru: 'оранжевый', uz: 'to\'q sariq', en: 'the orange one' }, { ru: 'равны', uz: 'teng', en: 'they are equal' }],
+    wrong: { ru: 'Если оранжевый больше, то синий меньше. Меньше — синий.', uz: "To'q sariq katta bo'lsa, ko'k kichik. Kichigi — ko'k.", en: 'If the orange one is bigger, then the blue one is smaller. The blue one is smaller.' },
+    check_ok: { ru: 'Верно! Синий меньше.', uz: "To'g'ri! Ko'k kichik.", en: 'That is right! The blue one is smaller.' },
     audio: {
       ru: [
         'Иногда в задаче надо сделать вывод.',
@@ -1080,16 +1113,17 @@ const CONTENT = {
         "Bir shakl katta bo'lsa, ikkinchisi kichik.",
         "Teskari qilmang: katta va kichik, har xil.",
         "Tekshiring. To'q sariq doira ko'kdan katta. Qaysi biri kichik?"
-      ]
+      ],
+      en: ['Sometimes a task asks you to work something out.', 'If one shape is bigger, the other is smaller.', 'Do not turn it round: bigger and smaller are different.', 'Check it. The orange circle is bigger than the blue one. Which one is smaller?']
     }
   },
 
   // sTBL — KALIT: uch turdagi mantiq (naqsh · ortiqcha · xulosa). done sTBL_2 (3 seg).
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Три вида задач', uz: "Uch xil topshiriq" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Узор — найди правило. Лишний — найди общий признак. Вывод — сравни внимательно.', uz: "Naqsh — qoidani toping. Ortiqcha — umumiy belgini toping. Xulosa — diqqat bilan solishtiring." },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Три вида задач', uz: "Uch xil topshiriq", en: 'Three kinds of task' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Узор — найди правило. Лишний — найди общий признак. Вывод — сравни внимательно.', uz: "Naqsh — qoidani toping. Ortiqcha — umumiy belgini toping. Xulosa — diqqat bilan solishtiring.", en: 'For a pattern, find the rule. For the odd one out, find what they have in common. For a conclusion, compare carefully.' },
     audio: {
       ru: [
         'Соберём ключ. Сегодня три вида задач.',
@@ -1100,244 +1134,247 @@ const CONTENT = {
         "Kalitni yig'amiz. Bugun uch xil topshiriq.",
         "Naqsh, qoidani top va davom ettir. Ortiqcha, umumiy belgini top.",
         "Xulosa, diqqat bilan solishtir va teskari qilmang."
-      ]
+      ],
+      en: ['Let us put the key together. Today there are three kinds of task.', 'A pattern, find the rule and carry it on. An odd one out, find what they have in common.', 'A conclusion, compare carefully and do not turn it round.']
     }
   },
 
   // s5 — MASHQ pattern (shakl). distraktor = oxirgi elementni ko'chirish (M1).
   s5: {
-    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1' },
-    label: { ru: 'Продолжи узор', uz: "Naqshni davom ettiring" },
+    eyebrow: { ru: 'Тренировка · 1', uz: 'Mashq · 1', en: 'Practice · 1' },
+    label: { ru: 'Продолжи узор', uz: "Naqshni davom ettiring", en: 'Carry on the pattern' },
     rounds: [
-      { mode: 'pattern', seq: [{ k: 'circle', c: 'or' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+      { mode: 'pattern', seq: [{ k: 'circle', c: 'or' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'circle', c: 'or' }, { k: 'tri', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'circle', c: 'or', ok: true }, { k: 'tri', c: 'bl' }, { k: 'square', c: 'gr' }],
-        wrong: { ru: 'Звено — круг, круг, треугольник. После треугольника снова круг.', uz: "Zveno — doira, doira, uchburchak. Uchburchakdan keyin yana doira." },
-        correct_text: { ru: 'Верно. После треугольника — круг.', uz: "To'g'ri. Uchburchakdan keyin — doira." } },
-      { mode: 'pattern', seq: [{ k: 'star', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'star', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'star', c: 'pu' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+        wrong: { ru: 'Звено — круг, круг, треугольник. После треугольника снова круг.', uz: "Zveno — doira, doira, uchburchak. Uchburchakdan keyin yana doira.", en: 'The repeating part is circle, circle, triangle. After a triangle comes a circle again.' },
+        correct_text: { ru: 'Верно. После треугольника — круг.', uz: "To'g'ri. Uchburchakdan keyin — doira.", en: 'That is right. After a triangle comes a circle.' } },
+      { mode: 'pattern', seq: [{ k: 'star', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'star', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'star', c: 'pu' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'square', c: 'gr', ok: true }, { k: 'star', c: 'pu' }, { k: 'circle', c: 'or' }],
-        wrong: { ru: 'Звено — звезда, квадрат. После звезды — квадрат.', uz: "Zveno — yulduz, kvadrat. Yulduzdan keyin — kvadrat." },
-        correct_text: { ru: 'Верно. После звезды — квадрат.', uz: "To'g'ri. Yulduzdan keyin — kvadrat." } }
+        wrong: { ru: 'Звено — звезда, квадрат. После звезды — квадрат.', uz: "Zveno — yulduz, kvadrat. Yulduzdan keyin — kvadrat.", en: 'The repeating part is star, square. After a star comes a square.' },
+        correct_text: { ru: 'Верно. После звезды — квадрат.', uz: "To'g'ri. Yulduzdan keyin — kvadrat.", en: 'That is right. After a star comes a square.' } }
     ],
     audio: {
-      intro: { ru: 'Найди правило узора и выбери, что будет дальше.', uz: "Naqsh qoidasini toping va keyingisini tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Найди правило узора и выбери, что будет дальше.', uz: "Naqsh qoidasini toping va keyingisini tanlang.", en: 'Find the rule of the pattern and choose what comes next.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s6 — MASHQ odd (shakl/rang). distraktor = ahamiyatsiz belgi (M2).
   s6: {
-    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2' },
-    label: { ru: 'Найди лишний', uz: "Ortiqchani toping" },
+    eyebrow: { ru: 'Тренировка · 2', uz: 'Mashq · 2', en: 'Practice · 2' },
+    label: { ru: 'Найди лишний', uz: "Ortiqchani toping", en: 'Find the odd one out' },
     rounds: [
-      { mode: 'odd', group: [{ k: 'tri', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'gr', ok: true }, { k: 'tri', c: 'pu' }], q: { ru: 'Какая фигура лишняя?', uz: "Qaysi shakl ortiqcha?" },
-        wrong: { ru: 'Три из них треугольники, а один — круг. Круг лишний.', uz: "Uchtasi uchburchak, bittasi — doira. Doira ortiqcha." },
-        correct_text: { ru: 'Верно. Круг лишний — остальные треугольники.', uz: "To'g'ri. Doira ortiqcha — qolgani uchburchak." } },
-      { mode: 'odd', group: [{ k: 'square', c: 'gr' }, { k: 'circle', c: 'gr' }, { k: 'star', c: 'gr' }, { k: 'tri', c: 'or', ok: true }], q: { ru: 'Какая фигура лишняя?', uz: "Qaysi shakl ortiqcha?" },
-        wrong: { ru: 'Три из них зелёные, а одна — оранжевая. Оранжевая лишняя.', uz: "Uchtasi yashil, bittasi — to'q sariq. To'q sariq ortiqcha." },
-        correct_text: { ru: 'Верно. Оранжевая лишняя — остальные зелёные.', uz: "To'g'ri. To'q sariq ortiqcha — qolgani yashil." } }
+      { mode: 'odd', group: [{ k: 'tri', c: 'or' }, { k: 'tri', c: 'bl' }, { k: 'circle', c: 'gr', ok: true }, { k: 'tri', c: 'pu' }], q: { ru: 'Какая фигура лишняя?', uz: "Qaysi shakl ortiqcha?", en: 'Which shape is the odd one out?' },
+        wrong: { ru: 'Три из них треугольники, а один — круг. Круг лишний.', uz: "Uchtasi uchburchak, bittasi — doira. Doira ortiqcha.", en: 'Three of them are triangles and one is a circle. The circle is the odd one out.' },
+        correct_text: { ru: 'Верно. Круг лишний — остальные треугольники.', uz: "To'g'ri. Doira ortiqcha — qolgani uchburchak.", en: 'That is right. The circle is the odd one out, the rest are triangles.' } },
+      { mode: 'odd', group: [{ k: 'square', c: 'gr' }, { k: 'circle', c: 'gr' }, { k: 'star', c: 'gr' }, { k: 'tri', c: 'or', ok: true }], q: { ru: 'Какая фигура лишняя?', uz: "Qaysi shakl ortiqcha?", en: 'Which shape is the odd one out?' },
+        wrong: { ru: 'Три из них зелёные, а одна — оранжевая. Оранжевая лишняя.', uz: "Uchtasi yashil, bittasi — to'q sariq. To'q sariq ortiqcha.", en: 'Three of them are green and one is orange. The orange one is the odd one out.' },
+        correct_text: { ru: 'Верно. Оранжевая лишняя — остальные зелёные.', uz: "To'g'ri. To'q sariq ortiqcha — qolgani yashil.", en: 'That is right. The orange one is the odd one out, the rest are green.' } }
     ],
     audio: {
-      intro: { ru: 'Найди общий признак и выбери лишнюю фигуру.', uz: "Umumiy belgini toping va ortiqcha shaklni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Найди общий признак и выбери лишнюю фигуру.', uz: "Umumiy belgini toping va ortiqcha shaklni tanlang.", en: 'Find what they have in common and choose the odd shape out.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s7 — MASHQ pattern (rang). distraktor = M1.
   s7: {
-    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3' },
-    label: { ru: 'Продолжи узор', uz: "Naqshni davom ettiring" },
+    eyebrow: { ru: 'Тренировка · 3', uz: 'Mashq · 3', en: 'Practice · 3' },
+    label: { ru: 'Продолжи узор', uz: "Naqshni davom ettiring", en: 'Carry on the pattern' },
     rounds: [
-      { mode: 'pattern', seq: [{ k: 'circle', c: 'or' }, { k: 'circle', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'circle', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+      { mode: 'pattern', seq: [{ k: 'circle', c: 'or' }, { k: 'circle', c: 'bl' }, { k: 'circle', c: 'or' }, { k: 'circle', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'circle', c: 'or', ok: true }, { k: 'circle', c: 'bl' }, { k: 'circle', c: 'gr' }],
-        wrong: { ru: 'Цвет чередуется: оранжевый, синий. После синего — оранжевый.', uz: "Rang almashadi: to'q sariq, ko'k. Ko'kdan keyin — to'q sariq." },
-        correct_text: { ru: 'Верно. После синего — оранжевый.', uz: "To'g'ri. Ko'kdan keyin — to'q sariq." } },
-      { mode: 'pattern', seq: [{ k: 'square', c: 'gr' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'pu' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+        wrong: { ru: 'Цвет чередуется: оранжевый, синий. После синего — оранжевый.', uz: "Rang almashadi: to'q sariq, ko'k. Ko'kdan keyin — to'q sariq.", en: 'The colours take turns: orange, blue. After blue comes orange.' },
+        correct_text: { ru: 'Верно. После синего — оранжевый.', uz: "To'g'ri. Ko'kdan keyin — to'q sariq.", en: 'That is right. After blue comes orange.' } },
+      { mode: 'pattern', seq: [{ k: 'square', c: 'gr' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'pu' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'gr' }, { k: 'square', c: 'pu' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'square', c: 'gr', ok: true }, { k: 'square', c: 'pu' }, { k: 'circle', c: 'or' }],
-        wrong: { ru: 'Звено — зелёный, зелёный, фиолетовый. После фиолетового снова зелёный.', uz: "Zveno — yashil, yashil, siyohrang. Siyohrangdan keyin yana yashil." },
-        correct_text: { ru: 'Верно. После фиолетового — зелёный.', uz: "To'g'ri. Siyohrangdan keyin — yashil." } }
+        wrong: { ru: 'Звено — зелёный, зелёный, фиолетовый. После фиолетового снова зелёный.', uz: "Zveno — yashil, yashil, siyohrang. Siyohrangdan keyin yana yashil.", en: 'The repeating part is green, green, purple. After purple comes green again.' },
+        correct_text: { ru: 'Верно. После фиолетового — зелёный.', uz: "To'g'ri. Siyohrangdan keyin — yashil.", en: 'That is right. After purple comes green.' } }
     ],
     audio: {
-      intro: { ru: 'Здесь узор по цвету. Найди правило и продолжи.', uz: "Bu yerda rang bo'yicha naqsh. Qoidani toping va davom ettiring." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Здесь узор по цвету. Найди правило и продолжи.', uz: "Bu yerda rang bo'yicha naqsh. Qoidani toping va davom ettiring.", en: 'This pattern is about colour. Find the rule and carry it on.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s8 — MASHQ deduct (katta/kichik, oldin/keyin). distraktor = teskari (M3).
   s8: {
-    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4' },
-    label: { ru: 'Сделай вывод', uz: "Xulosa chiqaring" },
+    eyebrow: { ru: 'Тренировка · 4', uz: 'Mashq · 4', en: 'Practice · 4' },
+    label: { ru: 'Сделай вывод', uz: "Xulosa chiqaring", en: 'Work it out' },
     rounds: [
-      { mode: 'deduct', fig: { pair: [{ k: 'square', c: 'gr', big: false }, { k: 'square', c: 'pu', big: true }] }, q: { ru: 'Фиолетовый квадрат больше зелёного. Какой меньше?', uz: "Siyohrang kvadrat yashildan katta. Qaysi biri kichik?" },
-        opts: [{ ru: 'зелёный', uz: 'yashil', ok: true }, { ru: 'фиолетовый', uz: 'siyohrang', wrong: { ru: 'Фиолетовый больше, значит меньше — зелёный.', uz: "Siyohrang katta, demak kichigi — yashil." } }, { ru: 'равны', uz: 'teng', wrong: { ru: 'Они разные: один больше, другой меньше.', uz: "Ular har xil: biri katta, biri kichik." } }],
-        correct_text: { ru: 'Верно. Зелёный меньше.', uz: "To'g'ri. Yashil kichik." } },
-      { mode: 'deduct', q: { ru: 'Анвар пришёл раньше Зухры. Кто пришёл позже?', uz: "Anvar Zuhradan oldin keldi. Kim keyin keldi?" },
-        opts: [{ ru: 'Зухра', uz: 'Zuhra', ok: true }, { ru: 'Анвар', uz: 'Anvar', wrong: { ru: 'Анвар был раньше. Значит позже пришла Зухра.', uz: "Anvar oldin edi. Demak keyin Zuhra keldi." } }, { ru: 'вместе', uz: 'birga', wrong: { ru: 'Один был раньше, другой позже — не вместе.', uz: "Biri oldin, biri keyin — birga emas." } }],
-        correct_text: { ru: 'Верно. Зухра пришла позже.', uz: "To'g'ri. Zuhra keyin keldi." } }
+      { mode: 'deduct', fig: { pair: [{ k: 'square', c: 'gr', big: false }, { k: 'square', c: 'pu', big: true }] }, q: { ru: 'Фиолетовый квадрат больше зелёного. Какой меньше?', uz: "Siyohrang kvadrat yashildan katta. Qaysi biri kichik?", en: 'The purple square is bigger than the green one. Which one is smaller?' },
+        opts: [{ ru: 'зелёный', uz: 'yashil', en: 'the green one', ok: true }, { ru: 'фиолетовый', uz: 'siyohrang', en: 'the purple one', wrong: { ru: 'Фиолетовый больше, значит меньше — зелёный.', uz: "Siyohrang katta, demak kichigi — yashil.", en: 'The purple one is bigger, so the green one is smaller.' } }, { ru: 'равны', uz: 'teng', en: 'they are equal', wrong: { ru: 'Они разные: один больше, другой меньше.', uz: "Ular har xil: biri katta, biri kichik.", en: 'They are different: one is bigger and the other is smaller.' } }],
+        correct_text: { ru: 'Верно. Зелёный меньше.', uz: "To'g'ri. Yashil kichik.", en: 'That is right. The green one is smaller.' } },
+      { mode: 'deduct', q: { ru: 'Анвар пришёл раньше Зухры. Кто пришёл позже?', uz: "Anvar Zuhradan oldin keldi. Kim keyin keldi?", en: 'Anvar arrived before Zuhra. Who arrived later?' },
+        opts: [{ ru: 'Зухра', uz: 'Zuhra', en: 'Zuhra', ok: true }, { ru: 'Анвар', uz: 'Anvar', en: 'Anvar', wrong: { ru: 'Анвар был раньше. Значит позже пришла Зухра.', uz: "Anvar oldin edi. Demak keyin Zuhra keldi.", en: 'Anvar was earlier. So Zuhra arrived later.' } }, { ru: 'вместе', uz: 'birga', en: 'together', wrong: { ru: 'Один был раньше, другой позже — не вместе.', uz: "Biri oldin, biri keyin — birga emas.", en: 'One was earlier and the other later, not at the same time.' } }],
+        correct_text: { ru: 'Верно. Зухра пришла позже.', uz: "To'g'ri. Zuhra keyin keldi.", en: 'That is right. Zuhra arrived later.' } }
     ],
     audio: {
-      intro: { ru: 'Прочитай, сравни внимательно и сделай вывод.', uz: "O'qing, diqqat bilan solishtiring va xulosa chiqaring." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Прочитай, сравни внимательно и сделай вывод.', uz: "O'qing, diqqat bilan solishtiring va xulosa chiqaring.", en: 'Read it, compare carefully and work it out.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s9 — MASHQ odd (boshqa belgi). distraktor = M2.
   s9: {
-    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5' },
-    label: { ru: 'Найди лишний', uz: "Ortiqchani toping" },
+    eyebrow: { ru: 'Тренировка · 5', uz: 'Mashq · 5', en: 'Practice · 5' },
+    label: { ru: 'Найди лишний', uz: "Ortiqchani toping", en: 'Find the odd one out' },
     rounds: [
-      { mode: 'odd', group: [{ k: 'num', v: 2 }, { k: 'num', v: 4 }, { k: 'num', v: 5, ok: true }, { k: 'num', v: 6 }], q: { ru: 'Какое число лишнее?', uz: "Qaysi son ortiqcha?" },
-        wrong: { ru: 'Два, четыре, шесть — чётные. Пять — нечётное, лишнее.', uz: "Ikki, to'rt, olti — juft. Besh — toq, ortiqcha." },
-        correct_text: { ru: 'Верно. Пять лишнее — остальные чётные.', uz: "To'g'ri. Besh ortiqcha — qolgani juft." } },
-      { mode: 'odd', group: [{ k: 'star', c: 'or' }, { k: 'star', c: 'bl' }, { k: 'star', c: 'gr' }, { k: 'circle', c: 'pu', ok: true }], q: { ru: 'Что лишнее?', uz: "Nima ortiqcha?" },
-        wrong: { ru: 'Три из них звёзды, а одна — круг. Круг лишний.', uz: "Uchtasi yulduz, bittasi — doira. Doira ortiqcha." },
-        correct_text: { ru: 'Верно. Круг лишний — остальные звёзды.', uz: "To'g'ri. Doira ortiqcha — qolgani yulduz." } }
+      { mode: 'odd', group: [{ k: 'num', v: 2 }, { k: 'num', v: 4 }, { k: 'num', v: 5, ok: true }, { k: 'num', v: 6 }], q: { ru: 'Какое число лишнее?', uz: "Qaysi son ortiqcha?", en: 'Which number is the odd one out?' },
+        wrong: { ru: 'Два, четыре, шесть — чётные. Пять — нечётное, лишнее.', uz: "Ikki, to'rt, olti — juft. Besh — toq, ortiqcha.", en: 'Two, four and six are even. Five is odd, so it is the odd one out.' },
+        correct_text: { ru: 'Верно. Пять лишнее — остальные чётные.', uz: "To'g'ri. Besh ortiqcha — qolgani juft.", en: 'That is right. Five is the odd one out, the rest are even.' } },
+      { mode: 'odd', group: [{ k: 'star', c: 'or' }, { k: 'star', c: 'bl' }, { k: 'star', c: 'gr' }, { k: 'circle', c: 'pu', ok: true }], q: { ru: 'Что лишнее?', uz: "Nima ortiqcha?", en: 'Which is the odd one out?' },
+        wrong: { ru: 'Три из них звёзды, а одна — круг. Круг лишний.', uz: "Uchtasi yulduz, bittasi — doira. Doira ortiqcha.", en: 'Three of them are stars and one is a circle. The circle is the odd one out.' },
+        correct_text: { ru: 'Верно. Круг лишний — остальные звёзды.', uz: "To'g'ri. Doira ortiqcha — qolgani yulduz.", en: 'That is right. The circle is the odd one out, the rest are stars.' } }
     ],
     audio: {
-      intro: { ru: 'Найди, чем похожи, и выбери лишний.', uz: "Nimasi o'xshashligini toping va ortiqchani tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Найди, чем похожи, и выбери лишний.', uz: "Nimasi o'xshashligini toping va ortiqchani tanlang.", en: 'Find how they are alike and choose the odd one out.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s10 — MASHQ pattern (sonli, +2). distraktor = M1 / hisob.
   s10: {
-    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6' },
-    label: { ru: 'Числовой узор', uz: "Sonli naqsh" },
+    eyebrow: { ru: 'Тренировка · 6', uz: 'Mashq · 6', en: 'Practice · 6' },
+    label: { ru: 'Числовой узор', uz: "Sonli naqsh", en: 'A number pattern' },
     rounds: [
-      { mode: 'pattern', seq: [{ k: 'num', v: 2 }, { k: 'num', v: 4 }, { k: 'num', v: 6 }, { k: 'num', v: 8 }], q: { ru: 'Какое число будет дальше?', uz: "Keyingi son nima?" },
+      { mode: 'pattern', seq: [{ k: 'num', v: 2 }, { k: 'num', v: 4 }, { k: 'num', v: 6 }, { k: 'num', v: 8 }], q: { ru: 'Какое число будет дальше?', uz: "Keyingi son nima?", en: 'Which number comes next?' },
         choices: [{ k: 'num', v: 10, ok: true }, { k: 'num', v: 9 }, { k: 'num', v: 8 }],
-        wrong: { ru: 'Каждый раз прибавляем два: восемь плюс два — десять.', uz: "Har safar ikki qo'shamiz: sakkizga ikkini qo'shamiz — o'n." },
-        correct_text: { ru: 'Верно. Восемь плюс два — десять.', uz: "To'g'ri. Sakkizga ikkini qo'shamiz — o'n." } },
-      { mode: 'pattern', seq: [{ k: 'num', v: 5 }, { k: 'num', v: 7 }, { k: 'num', v: 9 }, { k: 'num', v: 11 }], q: { ru: 'Какое число будет дальше?', uz: "Keyingi son nima?" },
+        wrong: { ru: 'Каждый раз прибавляем два: восемь плюс два — десять.', uz: "Har safar ikki qo'shamiz: sakkizga ikkini qo'shamiz — o'n.", en: 'Each time we add two: eight plus two is ten.' },
+        correct_text: { ru: 'Верно. Восемь плюс два — десять.', uz: "To'g'ri. Sakkizga ikkini qo'shamiz — o'n.", en: 'That is right. Eight plus two is ten.' } },
+      { mode: 'pattern', seq: [{ k: 'num', v: 5 }, { k: 'num', v: 7 }, { k: 'num', v: 9 }, { k: 'num', v: 11 }], q: { ru: 'Какое число будет дальше?', uz: "Keyingi son nima?", en: 'Which number comes next?' },
         choices: [{ k: 'num', v: 13, ok: true }, { k: 'num', v: 12 }, { k: 'num', v: 11 }],
-        wrong: { ru: 'Прибавляем по два: одиннадцать плюс два — тринадцать.', uz: "Ikkitadan qo'shamiz: o'n bir qo'shuv ikki — o'n uch." },
-        correct_text: { ru: 'Верно. Одиннадцать плюс два — тринадцать.', uz: "To'g'ri. O'n bir qo'shuv ikki — o'n uch." } }
+        wrong: { ru: 'Прибавляем по два: одиннадцать плюс два — тринадцать.', uz: "Ikkitadan qo'shamiz: o'n bir qo'shuv ikki — o'n uch.", en: 'We add two each time: eleven plus two is thirteen.' },
+        correct_text: { ru: 'Верно. Одиннадцать плюс два — тринадцать.', uz: "To'g'ri. O'n bir qo'shuv ikki — o'n uch.", en: 'That is right. Eleven plus two is thirteen.' } }
     ],
     audio: {
-      intro: { ru: 'Как меняются числа? Найди правило и продолжи.', uz: "Sonlar qanday o'zgaradi? Qoidani toping va davom ettiring." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Как меняются числа? Найди правило и продолжи.', uz: "Sonlar qanday o'zgaradi? Qoidani toping va davom ettiring.", en: 'How are the numbers changing? Find the rule and carry it on.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s11 — MASHQ aralash (deduct + pattern).
   s11: {
-    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7' },
-    label: { ru: 'Подумай', uz: "O'ylab ko'r" },
+    eyebrow: { ru: 'Тренировка · 7', uz: 'Mashq · 7', en: 'Practice · 7' },
+    label: { ru: 'Подумай', uz: "O'ylab ko'r", en: 'Think it through' },
     rounds: [
-      { mode: 'deduct', q: { ru: 'Зухра выше Анвара, а Анвар выше Бита. Кто самый высокий?', uz: "Zuhra Anvardan baland, Anvar Bitdan baland. Kim eng baland?" },
-        opts: [{ ru: 'Зухра', uz: 'Zuhra', ok: true }, { ru: 'Бит', uz: 'Bit', wrong: { ru: 'Бит ниже всех. Выше всех — Зухра.', uz: "Bit hammadan past. Eng baland — Zuhra." } }, { ru: 'Анвар', uz: 'Anvar', wrong: { ru: 'Анвар в середине. Выше всех — Зухра.', uz: "Anvar o'rtada. Eng baland — Zuhra." } }],
-        correct_text: { ru: 'Верно. Зухра самая высокая.', uz: "To'g'ri. Zuhra eng baland." } },
-      { mode: 'pattern', seq: [{ k: 'tri', c: 'or' }, { k: 'circle', c: 'bl' }, { k: 'square', c: 'gr' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+      { mode: 'deduct', q: { ru: 'Зухра выше Анвара, а Анвар выше Бита. Кто самый высокий?', uz: "Zuhra Anvardan baland, Anvar Bitdan baland. Kim eng baland?", en: 'Zuhra is taller than Anvar, and Anvar is taller than Bit. Who is the tallest?' },
+        opts: [{ ru: 'Зухра', uz: 'Zuhra', en: 'Zuhra', ok: true }, { ru: 'Бит', uz: 'Bit', en: 'Bit', wrong: { ru: 'Бит ниже всех. Выше всех — Зухра.', uz: "Bit hammadan past. Eng baland — Zuhra.", en: 'Bit is the shortest. Zuhra is the tallest.' } }, { ru: 'Анвар', uz: 'Anvar', en: 'Anvar', wrong: { ru: 'Анвар в середине. Выше всех — Зухра.', uz: "Anvar o'rtada. Eng baland — Zuhra.", en: 'Anvar is in the middle. Zuhra is the tallest.' } }],
+        correct_text: { ru: 'Верно. Зухра самая высокая.', uz: "To'g'ri. Zuhra eng baland.", en: 'That is right. Zuhra is the tallest.' } },
+      { mode: 'pattern', seq: [{ k: 'tri', c: 'or' }, { k: 'circle', c: 'bl' }, { k: 'square', c: 'gr' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'bl' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'square', c: 'gr', ok: true }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'bl' }],
-        wrong: { ru: 'Звено — треугольник, круг, квадрат. После круга — квадрат.', uz: "Zveno — uchburchak, doira, kvadrat. Doiradan keyin — kvadrat." },
-        correct_text: { ru: 'Верно. После круга — квадрат.', uz: "To'g'ri. Doiradan keyin — kvadrat." } },
-      { mode: 'odd', group: [{ k: 'circle', c: 'or' }, { k: 'square', c: 'or' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'bl', ok: true }], q: { ru: 'Что лишнее?', uz: "Nima ortiqcha?" },
-        wrong: { ru: 'Три из них оранжевые, а одна — синяя. Синяя лишняя.', uz: "Uchtasi to'q sariq, bittasi — ko'k. Ko'k ortiqcha." },
-        correct_text: { ru: 'Верно. Синяя лишняя.', uz: "To'g'ri. Ko'k ortiqcha." } }
+        wrong: { ru: 'Звено — треугольник, круг, квадрат. После круга — квадрат.', uz: "Zveno — uchburchak, doira, kvadrat. Doiradan keyin — kvadrat.", en: 'The repeating part is triangle, circle, square. After a circle comes a square.' },
+        correct_text: { ru: 'Верно. После круга — квадрат.', uz: "To'g'ri. Doiradan keyin — kvadrat.", en: 'That is right. After a circle comes a square.' } },
+      { mode: 'odd', group: [{ k: 'circle', c: 'or' }, { k: 'square', c: 'or' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'bl', ok: true }], q: { ru: 'Что лишнее?', uz: "Nima ortiqcha?", en: 'Which is the odd one out?' },
+        wrong: { ru: 'Три из них оранжевые, а одна — синяя. Синяя лишняя.', uz: "Uchtasi to'q sariq, bittasi — ko'k. Ko'k ortiqcha.", en: 'Three of them are orange and one is blue. The blue one is the odd one out.' },
+        correct_text: { ru: 'Верно. Синяя лишняя.', uz: "To'g'ri. Ko'k ortiqcha.", en: 'That is right. The blue one is the odd one out.' } }
     ],
     audio: {
-      intro: { ru: 'Разные задачи. Читай внимательно и выбирай.', uz: "Har xil topshiriq. Diqqat bilan o'qing va tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Разные задачи. Читай внимательно и выбирай.', uz: "Har xil topshiriq. Diqqat bilan o'qing va tanlang.", en: 'Different tasks. Read carefully and choose.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s12 — MASALA konteksti (ishlatilmaydi, klon an'anasi bo'yicha saqlanadi)
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит чинит пульт.', uz: "Bit pultni tuzatadi." },
-    audio: { ru: 'Бит восстанавливает узор на пульте.', uz: "Bit pultdagi naqshni tiklaydi." }
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Бит чинит пульт.', uz: "Bit pultni tuzatadi.", en: 'Bit is fixing the panel.' },
+    audio: { ru: 'Бит восстанавливает узор на пульте.', uz: "Bit pultdagi naqshni tiklaydi.", en: 'Bit is restoring the pattern on the panel.' }
   },
 
   // s13 — MASALA (pattern single): Bit pult naqshini tuzatadi.
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    label: { ru: 'Узор на пульте', uz: "Pultdagi naqsh" },
-    story: { ru: 'На пульте стёрся узор. Продолжи его правильно.', uz: "Pultdagi naqsh o'chib qoldi. Uni to'g'ri davom ettiring." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    label: { ru: 'Узор на пульте', uz: "Pultdagi naqsh", en: 'The pattern on the panel' },
+    story: { ru: 'На пульте стёрся узор. Продолжи его правильно.', uz: "Pultdagi naqsh o'chib qoldi. Uni to'g'ri davom ettiring.", en: 'The pattern on the panel has worn away. Carry it on correctly.' },
     mode: 'pattern',
     seq: [{ k: 'star', c: 'or' }, { k: 'star', c: 'bl' }, { k: 'star', c: 'or' }, { k: 'star', c: 'bl' }, { k: 'star', c: 'or' }],
-    q: { ru: 'Что идёт дальше в узоре?', uz: "Naqshda keyingisi nima?" },
+    q: { ru: 'Что идёт дальше в узоре?', uz: "Naqshda keyingisi nima?", en: 'What comes next in the pattern?' },
     choices: [{ k: 'star', c: 'bl', ok: true }, { k: 'star', c: 'or' }, { k: 'circle', c: 'gr' }],
-    wrong: { ru: 'Цвет чередуется: оранжевый, синий. После оранжевого — синий.', uz: "Rang almashadi: to'q sariq, ko'k. To'q sariqdan keyin — ko'k." },
-    correct_text: { ru: 'Верно. После оранжевой — синяя звезда.', uz: "To'g'ri. To'q sariqdan keyin — ko'k yulduz." },
+    wrong: { ru: 'Цвет чередуется: оранжевый, синий. После оранжевого — синий.', uz: "Rang almashadi: to'q sariq, ko'k. To'q sariqdan keyin — ko'k.", en: 'The colours take turns: orange, blue. After orange comes blue.' },
+    correct_text: { ru: 'Верно. После оранжевой — синяя звезда.', uz: "To'g'ri. To'q sariqdan keyin — ko'k yulduz.", en: 'That is right. After the orange one comes a blue star.' },
     audio: {
-      intro: { ru: 'На пульте узор из звёзд. Продолжи его правильно.', uz: "Pultda yulduzlardan naqsh. Uni to'g'ri davom ettiring." },
-      on_correct: { ru: 'Верно. После оранжевой, синяя.', uz: "To'g'ri. To'q sariqdan keyin, ko'k." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'На пульте узор из звёзд. Продолжи его правильно.', uz: "Pultda yulduzlardan naqsh. Uni to'g'ri davom ettiring.", en: 'The panel has a pattern of stars. Carry it on correctly.' },
+      on_correct: { ru: 'Верно. После оранжевой, синяя.', uz: "To'g'ri. To'q sariqdan keyin, ko'k.", en: 'That is right. After the orange one comes the blue one.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s14 — FINAL (aralash pattern/odd/deduct ×3 + FactCard Neptun).
   s14: {
-    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv' },
-    label: { ru: 'Логика', uz: "Mantiq" },
+    eyebrow: { ru: 'Итог · проверка', uz: 'Yakun · tekshiruv', en: 'Result · check' },
+    label: { ru: 'Логика', uz: "Mantiq", en: 'Logic' },
     rounds: [
-      { mode: 'pattern', seq: [{ k: 'circle', c: 'gr' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'gr' }, { k: 'tri', c: 'or' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?" },
+      { mode: 'pattern', seq: [{ k: 'circle', c: 'gr' }, { k: 'tri', c: 'or' }, { k: 'circle', c: 'gr' }, { k: 'tri', c: 'or' }], q: { ru: 'Что будет дальше?', uz: "Keyingisi nima?", en: 'What comes next?' },
         choices: [{ k: 'circle', c: 'gr', ok: true }, { k: 'tri', c: 'or' }, { k: 'square', c: 'bl' }],
-        wrong: { ru: 'Звено — круг, треугольник. После треугольника — круг.', uz: "Zveno — doira, uchburchak. Uchburchakdan keyin — doira." },
-        correct_text: { ru: 'Верно. После треугольника — круг.', uz: "To'g'ri. Uchburchakdan keyin — doira." } },
-      { mode: 'odd', group: [{ k: 'num', v: 3 }, { k: 'num', v: 5 }, { k: 'num', v: 8, ok: true }, { k: 'num', v: 7 }], q: { ru: 'Какое число лишнее?', uz: "Qaysi son ortiqcha?" },
-        wrong: { ru: 'Три, пять, семь — нечётные. Восемь — чётное, лишнее.', uz: "Uch, besh, yetti — toq. Sakkiz — juft, ortiqcha." },
-        correct_text: { ru: 'Верно. Восемь лишнее — остальные нечётные.', uz: "To'g'ri. Sakkiz ortiqcha — qolgani toq." } },
-      { mode: 'deduct', q: { ru: 'Утро наступает раньше вечера. Что позже?', uz: "Ertalab kechqurundan oldin keladi. Nima keyin?" },
-        opts: [{ ru: 'вечер', uz: 'kechqurun', ok: true }, { ru: 'утро', uz: 'ertalab', wrong: { ru: 'Утро раньше. Значит позже — вечер.', uz: "Ertalab oldin. Demak keyin — kechqurun." } }, { ru: 'вместе', uz: 'birga', wrong: { ru: 'Одно раньше, другое позже.', uz: "Biri oldin, biri keyin." } }],
-        correct_text: { ru: 'Верно. Вечер позже.', uz: "To'g'ri. Kechqurun keyin." } }
+        wrong: { ru: 'Звено — круг, треугольник. После треугольника — круг.', uz: "Zveno — doira, uchburchak. Uchburchakdan keyin — doira.", en: 'The repeating part is circle, triangle. After a triangle comes a circle.' },
+        correct_text: { ru: 'Верно. После треугольника — круг.', uz: "To'g'ri. Uchburchakdan keyin — doira.", en: 'That is right. After a triangle comes a circle.' } },
+      { mode: 'odd', group: [{ k: 'num', v: 3 }, { k: 'num', v: 5 }, { k: 'num', v: 8, ok: true }, { k: 'num', v: 7 }], q: { ru: 'Какое число лишнее?', uz: "Qaysi son ortiqcha?", en: 'Which number is the odd one out?' },
+        wrong: { ru: 'Три, пять, семь — нечётные. Восемь — чётное, лишнее.', uz: "Uch, besh, yetti — toq. Sakkiz — juft, ortiqcha.", en: 'Three, five and seven are odd. Eight is even, so it is the odd one out.' },
+        correct_text: { ru: 'Верно. Восемь лишнее — остальные нечётные.', uz: "To'g'ri. Sakkiz ortiqcha — qolgani toq.", en: 'That is right. Eight is the odd one out, the rest are odd numbers.' } },
+      { mode: 'deduct', q: { ru: 'Утро наступает раньше вечера. Что позже?', uz: "Ertalab kechqurundan oldin keladi. Nima keyin?", en: 'Morning comes before evening. Which is later?' },
+        opts: [{ ru: 'вечер', uz: 'kechqurun', en: 'evening', ok: true }, { ru: 'утро', uz: 'ertalab', en: 'morning', wrong: { ru: 'Утро раньше. Значит позже — вечер.', uz: "Ertalab oldin. Demak keyin — kechqurun.", en: 'Morning is earlier. So evening is later.' } }, { ru: 'вместе', uz: 'birga', en: 'together', wrong: { ru: 'Одно раньше, другое позже.', uz: "Biri oldin, biri keyin.", en: 'One is earlier and the other is later.' } }],
+        correct_text: { ru: 'Верно. Вечер позже.', uz: "To'g'ri. Kechqurun keyin.", en: 'That is right. Evening is later.' } }
     ],
-    fact_badge: { ru: 'Нептун', uz: 'Neptun' },
-    fact_text: { ru: 'Нептун — единственная планета, которую нашли с помощью математики, а не в телескоп.', uz: "Neptun — teleskopda emas, matematika yordamida topilgan yagona sayyora." },
-    fact_audio: { ru: 'Нептун нашли с помощью математики. Учёные вычислили, где он должен быть.', uz: "Neptun matematika yordamida topilgan. Olimlar u qayerda bo'lishini hisoblab chiqishgan." },
+    fact_badge: { ru: 'Нептун', uz: 'Neptun', en: 'Neptune' },
+    fact_text: { ru: 'Нептун — единственная планета, которую нашли с помощью математики, а не в телескоп.', uz: "Neptun — teleskopda emas, matematika yordamida topilgan yagona sayyora.", en: 'Neptune is the only planet that was found with maths rather than with a telescope.' },
+    fact_audio: { ru: 'Нептун нашли с помощью математики. Учёные вычислили, где он должен быть.', uz: "Neptun matematika yordamida topilgan. Olimlar u qayerda bo'lishini hisoblab chiqishgan.", en: 'Neptune was found with maths. Scientists worked out where it had to be.' },
     audio: {
-      intro: { ru: 'Последняя проверка. Узор, лишний и вывод.', uz: "Oxirgi tekshiruv. Naqsh, ortiqcha va xulosa." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang." }
+      intro: { ru: 'Последняя проверка. Узор, лишний и вывод.', uz: "Oxirgi tekshiruv. Naqsh, ortiqcha va xulosa.", en: 'The last check. A pattern, an odd one out and a conclusion.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор ниже.', uz: "Unchalik emas. Pastdagi tushuntirishga qarang.", en: 'Not quite. Look at the working below.' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi d.43 ma'lumot)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь рассуждать логически!', uz: "Endi siz mantiqiy fikrlay olasiz!" },
-    rule_recap: { ru: 'Узор — найди правило. Лишний — найди общий признак. Вывод — сравни внимательно.', uz: "Naqsh — qoidani toping. Ortiqcha — umumiy belgini toping. Xulosa — diqqat bilan solishtiring." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты умеешь рассуждать логически!', uz: "Endi siz mantiqiy fikrlay olasiz!", en: 'Now you can reason things out!' },
+    rule_recap: { ru: 'Узор — найди правило. Лишний — найди общий признак. Вывод — сравни внимательно.', uz: "Naqsh — qoidani toping. Ortiqcha — umumiy belgini toping. Xulosa — diqqat bilan solishtiring.", en: 'For a pattern, find the rule. For the odd one out, find what they have in common. For a conclusion, compare carefully.' },
     audio: {
       ru: 'Миссия выполнена. Мы научились рассуждать логически. В узоре ищи правило и продолжай. В группе ищи общий признак и находи лишний. В выводе сравнивай внимательно и не переворачивай. Дальше будем работать с данными.',
-      uz: "Missiya bajarildi. Mantiqiy fikrlashni o'rgandik. Naqshda qoidani toping va davom ettiring. Guruhda umumiy belgini toping va ortiqchani toping. Xulosada diqqat bilan solishtiring va teskari qilmang. Keyingi safar ma'lumotlar bilan ishlaymiz."
+      uz: "Missiya bajarildi. Mantiqiy fikrlashni o'rgandik. Naqshda qoidani toping va davom ettiring. Guruhda umumiy belgini toping va ortiqchani toping. Xulosada diqqat bilan solishtiring va teskari qilmang. Keyingi safar ma'lumotlar bilan ishlaymiz.",
+      en: 'Mission complete. We learned to reason things out. In a pattern, look for the rule and carry it on. In a group, look for what they have in common and find the odd one out. In a conclusion, compare carefully and do not turn it round. Next we will work with data.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Повторяющееся звено.', uz: "Takrorlanuvchi zveno." },
-  s2:  { ru: 'Что не подходит.', uz: "Nima mos emas." },
-  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz." },
-  s4:  { ru: 'Больше и меньше.', uz: "Katta va kichik." },
-  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti." },
-  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz." },
-  s6:  { ru: 'Найди лишний.', uz: "Ortiqchani toping." },
-  s7:  { ru: 'Узор по цвету.', uz: "Rang bo'yicha naqsh." },
-  s8:  { ru: 'Сделай вывод.', uz: "Xulosa chiqaring." },
-  s9:  { ru: 'Снова лишний.', uz: "Yana ortiqcha." },
-  s10: { ru: 'Числовой узор.', uz: "Sonli naqsh." },
-  s11: { ru: 'Подумай.', uz: "O'ylab ko'r." },
-  s12: { ru: 'Бит чинит пульт.', uz: "Bit pultni tuzatadi." },
-  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Дом уже виден!', uz: "Uy ko'rinib turibdi!" }
+  s1:  { ru: 'Повторяющееся звено.', uz: "Takrorlanuvchi zveno.", en: 'The repeating part.' },
+  s2:  { ru: 'Что не подходит.', uz: "Nima mos emas.", en: 'What does not belong.' },
+  s3:  { ru: 'Запишем правило.', uz: "Qoidani yozamiz.", en: 'Let us write down the rule.' },
+  s4:  { ru: 'Больше и меньше.', uz: "Katta va kichik.", en: 'Bigger and smaller.' },
+  sTBL: { ru: 'Ключ последней планеты.', uz: "Oxirgi sayyora kaliti.", en: 'The key of the last planet.' },
+  s5:  { ru: 'Теперь сам.', uz: "Endi o'zingiz.", en: 'Now on your own.' },
+  s6:  { ru: 'Найди лишний.', uz: "Ortiqchani toping.", en: 'Find the odd one out.' },
+  s7:  { ru: 'Узор по цвету.', uz: "Rang bo'yicha naqsh.", en: 'A colour pattern.' },
+  s8:  { ru: 'Сделай вывод.', uz: "Xulosa chiqaring.", en: 'Work it out.' },
+  s9:  { ru: 'Снова лишний.', uz: "Yana ortiqcha.", en: 'The odd one out again.' },
+  s10: { ru: 'Числовой узор.', uz: "Sonli naqsh.", en: 'A number pattern.' },
+  s11: { ru: 'Подумай.', uz: "O'ylab ko'r.", en: 'Think it through.' },
+  s12: { ru: 'Бит чинит пульт.', uz: "Bit pultni tuzatadi.", en: 'Bit is fixing the panel.' },
+  s13: { ru: 'Помоги Биту.', uz: "Bitga yordam bering.", en: 'Help Bit.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Дом уже виден!', uz: "Uy ko'rinib turibdi!", en: 'Home is in sight!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'На станции у Нептуна экипаж решил логические задачи. Дом уже совсем близко! Спасибо за помощь.',
-  uz: "Neptun yonidagi stansiyada ekipaj mantiqiy masalalarni yechdi. Uy juda yaqin! Yordamingiz uchun rahmat."
+  uz: "Neptun yonidagi stansiyada ekipaj mantiqiy masalalarni yechdi. Uy juda yaqin! Yordamingiz uchun rahmat.",
+  en: 'At the station by Neptune the crew solved the logic tasks. Home is very close now! Thank you for your help.'
 };
 
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1446,7 +1483,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1463,7 +1500,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2220,7 +2258,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2696,7 +2740,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -2988,8 +3032,8 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.4vw, 18px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(210px, 48vw, 290px)' }}>
           {/* naqsh: doira-uchburchak zvenosi takrorlanadi */}
           <PatternRow seq={c.seq} showQ={false}/>
-          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'звено: круг + треугольник', uz: "zveno: doira + uchburchak" })}</div>}
-          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'звено повторяется', uz: "zveno takrorlanadi" })}</div>}
+          {revealSol && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'звено: круг + треугольник', uz: "zveno: doira + uchburchak", en: 'repeating part: circle + triangle' })}</div>}
+          {done && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.ink, fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'звено повторяется', uz: "zveno takrorlanadi", en: 'the part repeats' })}</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3079,7 +3123,7 @@ const Screen2 = (props) => {
           <div style={{ display: 'flex', gap: 'clamp(8px,2.4vw,16px)', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
             {c.group.map((it, i) => <span key={i} className={it.k === 'square' && reveal >= 1 ? 'g1-pop-in' : ''} style={{ display: 'inline-flex', padding: 'clamp(6px,1.6vw,10px)', borderRadius: 12, background: it.k === 'square' && reveal >= 1 ? '#FFF1EA' : 'transparent', border: it.k === 'square' && reveal >= 1 ? '2.5px solid #fe5b1a' : '2.5px solid transparent' }}><Shape {...it} s="clamp(40px,9.5vw,58px)"/></span>)}
           </div>
-          {reveal >= 1 && <div className="g1-pop-in" style={{ fontWeight: 800, color: '#fe5b1a', fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'квадрат лишний — остальные круги', uz: "kvadrat ortiqcha — qolgani doira" })}</div>}
+          {reveal >= 1 && <div className="g1-pop-in" style={{ fontWeight: 800, color: '#fe5b1a', fontSize: 'clamp(14px,2.4vw,18px)', textAlign: 'center' }}>{t({ ru: 'квадрат лишний — остальные круги', uz: "kvadrat ortiqcha — qolgani doira", en: 'the square is the odd one out, the rest are circles' })}</div>}
         </div>
         {done && <div ref={revealRef}><InfoNote badge={t(c.info_badge)} text={t(c.info)}/></div>}
       </div>
@@ -3372,8 +3416,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3419,9 +3463,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3624,7 +3668,7 @@ const Screen4 = (props) => {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px,1.4vw,10px)' }}>
             {/* XULOSA: ikki doira — biri katta, biri kichik (to'q sariq > ko'k) */}
             <DeductPair pair={c.fig.pair}/>
-            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.2vw,17px)', textAlign: 'center' }}>{t({ ru: 'один больше — другой меньше', uz: "biri katta — biri kichik" })}</div>}
+            {substShown && <div className="g1-pop-in" style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(13px,2.2vw,17px)', textAlign: 'center' }}>{t({ ru: 'один больше — другой меньше', uz: "biri katta — biri kichik", en: 'one is bigger, the other is smaller' })}</div>}
           </div>
         </div>
         <div className="fade-up" style={{ background: '#FFF1EA', border: '2px solid #fe5b1a', borderRadius: 12, padding: 'clamp(10px,2vw,14px)', boxShadow: warnActive ? '0 0 0 4px rgba(254,91,26,0.15)' : 'none', transition: 'all .3s', textAlign: 'center', fontWeight: 700, color: '#0E0E10', fontSize: 'clamp(14px,2.1vw,17px)' }}>{t(c.warn)}</div>
@@ -3953,12 +3997,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4306,9 +4352,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4316,15 +4362,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4338,8 +4384,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4348,14 +4394,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4371,16 +4417,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4388,14 +4434,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4472,8 +4518,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4647,7 +4693,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <NeptunField label={{ ru: 'Логика пройдена', uz: "Mantiq o'tildi" }}/>
+          <NeptunField label={{ ru: 'Логика пройдена', uz: "Mantiq o'tildi", en: 'Logic is done' }}/>
         </div>
       </div>
     </Stage>
@@ -4658,14 +4704,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4975,7 +5021,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -5005,8 +5051,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5135,8 +5181,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5405,7 +5451,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5534,7 +5580,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5608,7 +5654,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5697,7 +5743,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5877,8 +5923,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6036,7 +6082,7 @@ const SumFig = ({ shape, sides, reveal = false, labels = true, hi = null }) => {
   );
 };
 const sumPerim = (sides, shape) => shape === 'rect' ? 2 * (sides[0] + sides[1]) : sides[0] + sides[1] + sides[2];
-const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?" };
+const PERIM_Q = { ru: 'Чему равен периметр?', uz: "Perimetr nechaga teng?", en: 'What is the perimeter?' };
 // PerimStage — round.mode: 'geo' {verts} / 'sum' {shape,sides}. MC son. Distraktor = qo'shni son.
 const PerimStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -6107,10 +6153,10 @@ const PerimStage = ({ props, cKey, fact = false }) => {
 //  BuildStage — eni/bo'yi stepperlari bilan to'rtburchak yasab, «Tekshir» bosiladi (geoboard jonli preview).
 //  PickStage — berilgan o'lchamga (spec) mos shaklni 3 tadan tanlash (GeoFig previewlar).
 // ============================================================
-const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:" };
-const B_ENI = { ru: 'ширина', uz: 'eni' };
-const B_BOYI = { ru: 'высота', uz: "bo'yi" };
-const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring' };
+const BUILD_SPEC = { ru: 'Построй прямоугольник:', uz: "To'rtburchak yasang:", en: 'Draw a rectangle:' };
+const B_ENI = { ru: 'ширина', uz: 'eni', en: 'width' };
+const B_BOYI = { ru: 'высота', uz: "bo'yi", en: 'height' };
+const CHECK_BTN = { ru: 'Проверить', uz: 'Tekshiring', en: 'Check' };
 const rectVerts = (w, h) => [[0, 0], [w, 0], [w, h], [0, h]];
 const STEP_BTN = { width: 'clamp(36px,8vw,44px)', height: 'clamp(36px,8vw,44px)', borderRadius: 10, border: `2px solid ${T.accent}`, background: T.accentSoft, color: T.accent, fontWeight: 800, fontSize: 'clamp(20px,3.4vw,26px)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', lineHeight: 1 };
 const Stepper = ({ label, value, onDec, onInc, disabled }) => (
@@ -6187,7 +6233,7 @@ const RectBuildStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?" };
+const PICK_Q = { ru: 'Какая фигура подходит?', uz: "Qaysi shakl mos keladi?", en: 'Which shape fits?' };
 const PickStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -6240,14 +6286,14 @@ const PickStage = ({ props, cKey, fact = false }) => {
 };
 // ============================================================
 // --- Geometriya mexanikalari (LEN/POLY/PERIM/CHAIN) — Dars32 da hammasi O'LIK KOD (klon an'anasi) ---
-const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm' }, dm: { ru: 'дм', uz: 'dm' }, m: { ru: 'м', uz: 'm' } };
-const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr' }, dm: { ru: 'дециметр', uz: 'detsimetr' }, m: { ru: 'метр', uz: 'metr' } };
+const UNIT_ABBR = { sm: { ru: 'см', uz: 'sm', en: 'cm' }, dm: { ru: 'дм', uz: 'dm', en: 'dm' }, m: { ru: 'м', uz: 'm', en: 'm' } };
+const UNIT_FULL = { sm: { ru: 'сантиметр', uz: 'santimetr', en: 'centimetre' }, dm: { ru: 'дециметр', uz: 'detsimetr', en: 'decimetre' }, m: { ru: 'метр', uz: 'metr', en: 'metre' } };
 const LEN_RATIO = { 'dm>sm': 10, 'm>dm': 10, 'm>sm': 100 };
 const RUL_STEP = 26, RUL_PAD = 16;
 const LEN_Q = {
-  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?" },
-  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?" },
-  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?" }
+  ruler: { ru: 'Сколько сантиметров?', uz: "Nechta santimetr?", en: 'How many centimetres?' },
+  unit: { ru: 'Чем измеряем?', uz: "Nima bilan o'lchaymiz?", en: 'What do we measure it in?' },
+  convert: { ru: 'Сколько получится?', uz: "Nechasi chiqadi?", en: 'How much does it come to?' }
 };
 const lenShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const tmp = a[i]; a[i] = a[j]; a[j] = tmp; } return a; };
 const rulerOpts = (cm, seed) => lenShuffle(cm - 1 < 1 ? [cm, cm + 1, cm + 2] : [cm - 1, cm, cm + 1], seed * 7 + 3);
@@ -6402,7 +6448,7 @@ const LenStage = ({ props, cKey, fact = false }) => {
   );
 };
 // --- POLY (Dars27) mexanikasi — Dars31 da JONLI (s7: name/ispoly/count) ---
-const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak" }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak' } };
+const POLY_NAMES = { 3: { ru: 'Треугольник', uz: 'Uchburchak', en: 'A triangle' }, 4: { ru: 'Четырёхугольник', uz: "To'rtburchak", en: 'A quadrilateral' }, 5: { ru: 'Пятиугольник', uz: 'Beshburchak', en: 'A pentagon' }, 6: { ru: 'Шестиугольник', uz: 'Oltiburchak', en: 'A hexagon' } };
 // PolyFig — muntazam ko'pburchak (tomonlar to'g'ri kesma, burchaklar=yashil nuqta); sides=0 → doira (ko'pburchak EMAS), sides=-1 → ochiq siniq chiziq (yopilmagan).
 const PolyVert = ({ x, y, big }) => (
   <g>
@@ -6455,13 +6501,13 @@ const PolyFig = ({ sides, hi = false, max = 176 }) => {
     </svg>
   );
 };
-const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?" };
-const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?" };
-const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?" };
-const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak" } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas" } }];
+const POLY_NAME_Q = { ru: 'Какой это многоугольник?', uz: "Bu qanday ko'pburchak?", en: 'Which polygon is this?' };
+const POLY_COUNT_Q = { ru: 'Сколько сторон?', uz: "Nechta tomoni bor?", en: 'How many sides?' };
+const POLY_ISPOLY_Q = { ru: 'Это многоугольник?', uz: "Bu ko'pburchakmi?", en: 'Is this a polygon?' };
+const POLY_YESNO = [{ v: true, label: { ru: 'Многоугольник', uz: "Ko'pburchak", en: 'A polygon' } }, { v: false, label: { ru: 'Нет', uz: "Ko'pburchak emas", en: 'No' } }];
 const POLY_OPT = { padding: 'clamp(9px,1.6vw,12px)', fontSize: 'clamp(12px,1.9vw,15px)', fontWeight: 800, lineHeight: 1.15, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const NAME_POOL = { 3: [3, 4, 5], 4: [4, 3, 5], 5: [5, 4, 6], 6: [6, 5, 4] };
-const TOMON = { ru: 'стор.', uz: 'tomon' };
+const TOMON = { ru: 'стор.', uz: 'tomon', en: 'sides' };
 // deterministik aralashtirish (render'da xavfsiz — Math.random yo'q)
 const polyShuffle = (arr, seed) => { const a = arr.slice(); let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 // PolyTypeStage — ko'pburchakni ko'rsatib «qaysi tur?» (ask:'name') / «nechta tomon?» (ask:'count') / «ko'pburchakmi?» (ask:'ispoly') MC. round: {sides, ask?}.
@@ -6511,7 +6557,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
         {(cur.story || c.story) && <p className="fade-up delay-1" style={{ margin: 0, color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px,2.1vw,17px)', textAlign: 'center', lineHeight: 1.5 }}>{t(cur.story || c.story)}</p>}
         <div key={ri} className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px,1.8vw,12px)', padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px,32vw,210px)', justifyContent: 'center' }}>
           <div style={{ width: 'clamp(94px,26vw,150px)' }}><PolyFig sides={sides} hi={solved} max={150}/></div>
-          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas" })}</div>}
+          {solved && <div className="g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(14px,2.2vw,18px)', color: T.success }}>{isPoly ? `${t(POLY_NAMES[sides])} · ${sides} ${t(TOMON)}` : t({ ru: 'Не многоугольник', uz: "Ko'pburchak emas", en: 'Not a polygon' })}</div>}
         </div>
         {!solved && (
           <>
@@ -6540,7 +6586,7 @@ const PolyTypeStage = ({ props, cKey, fact = false }) => {
   );
 };
 // PolyMatchStage — shaklni uning NOMIga elastik-sim bilan sudrab MOSLASH (drag). MatchDoor lyuk ochiladi. c.pairs=[{sides},...] (turli tomon soni).
-const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi" };
+const PMATCH_HINT = { ru: 'Протяни ниточку от фигуры к её названию — откроется люк', uz: "Simni shakldan uning nomiga tort — lyuk ochiladi", en: 'Draw a thread from a shape to its name and the hatch will open' };
 const PolyMatchStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6677,7 +6723,7 @@ const PolyMatchStage = ({ props, cKey }) => {
 //  RealObj — hayotiy langar (ufq chizig'i=chiziq, fonar nuri=nur, qalam=kesma).
 //  LineTypeStage — figurani ko'rsatib «qaysi tur?» (ask:'type') yoki «nechta uchi?» (ask:'count') MC.
 // ============================================================
-const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq" }, ray: { ru: 'Луч', uz: 'Nur' }, segment: { ru: 'Отрезок', uz: 'Kesma' } };
+const LINE_TYPES = { line: { ru: 'Прямая', uz: "To'g'ri chiziq", en: 'A straight line' }, ray: { ru: 'Луч', uz: 'Nur', en: 'A ray' }, segment: { ru: 'Отрезок', uz: 'Kesma', en: 'A line segment' } };
 const LT_ENDS = { line: 0, ray: 1, segment: 2 };
 // Uchlarni porlaydigan yashil doira, strelka — accent. Chiziq — Uran moviy.
 const LineEnd = ({ x, y, big }) => (
@@ -6781,8 +6827,8 @@ const RealObj = ({ kind }) => {
     </svg>
   );
 };
-const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?" };
-const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?" };
+const LT_TYPE_Q = { ru: 'Что это?', uz: "Bu nima?", en: 'What is this?' };
+const LT_COUNT_Q = { ru: 'Сколько концов?', uz: "Nechta uchi bor?", en: 'How many ends?' };
 const LT_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(14px,2.3vw,17px)', fontWeight: 800, minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center', textAlign: 'center' };
 const ltShuffle3 = (seed) => { const a = ['line', 'ray', 'segment']; let s = (seed + 2) * 9301 + 49297; for (let i = a.length - 1; i > 0; i -= 1) { s = (s * 233280 + 1) % 99991; const j = s % (i + 1); const t = a[i]; a[i] = a[j]; a[j] = t; } return a; };
 const LineTypeStage = ({ props, cKey, fact = false }) => {
@@ -6896,7 +6942,7 @@ const ExprText = ({ left, op, right, size = 'mid' }) => {
   );
 };
 
-const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?" };
+const SUB_Q = { ru: 'Чему равно значение?', uz: "Qiymati nechaga teng?", en: 'What is the value?' };
 const evalVal = (r) => (r.op === '+' ? r.val + r.n : r.val - r.n);
 const evalOpts = (r, seed) => {
   const c = evalVal(r);
@@ -6971,8 +7017,8 @@ const EvalStage = ({ props, cKey, fact = false }) => {
     </Stage>
   );
 };
-const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?" };
-const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli' } }];
+const CLASS_Q = { ru: 'Числовое или буквенное?', uz: "Sonli yoki harfli?", en: 'A number one or a letter one?' };
+const CLASS_OPTS = [{ v: 'sonli', label: { ru: 'Числовое', uz: 'Sonli', en: 'A number one' } }, { v: 'harfli', label: { ru: 'Буквенное', uz: 'Harfli', en: 'A letter one' } }];
 // ClassifyStage — ifoda sonli yoki harfli? (harf bo'lsa harfli).
 const ClassifyStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7032,7 +7078,7 @@ const PICK_PROMPT = {
   '+': { ru: (l, n) => `Прибавить к ${l} число ${n}`, uz: (l, n) => `${l} ga ${n} sonini qo'shish` },
   '−': { ru: (l, n) => `Вычесть из ${l} число ${n}`, uz: (l, n) => `${l} dan ${n} sonini ayirish` }
 };
-const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?" };
+const PICK_Q2 = { ru: 'Какое выражение подходит?', uz: "Qaysi ifoda mos keladi?", en: 'Which expression fits?' };
 // PickExprStage — so'zga mos ifodani tanla. Variantlar: to'g'ri (letter op n), teskari amal, yopishtirilgan (letter n).
 const PickExprStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -7247,7 +7293,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -7335,8 +7381,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -7455,15 +7501,15 @@ const ScreenTable = (props) => {
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'clamp(7px,2vw,12px)', width: '100%', maxWidth: 460 }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 'clamp(9px,2vw,13px)', borderRadius: 12, background: T.accentSoft }}>
                 <div style={{ display: 'flex', gap: 3 }}><Shape k="circle" c="or" s="clamp(18px,4vw,26px)"/><Shape k="tri" c="bl" s="clamp(18px,4vw,26px)"/></div>
-                <span style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'узор', uz: 'naqsh' })}</span>
+                <span style={{ fontWeight: 800, color: T.accent, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'узор', uz: 'naqsh', en: 'pattern' })}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 'clamp(9px,2vw,13px)', borderRadius: 12, background: '#E1F0FB' }}>
                 <div style={{ display: 'flex', gap: 3 }}><Shape k="circle" c="bl" s="clamp(18px,4vw,26px)"/><Shape k="square" c="or" s="clamp(18px,4vw,26px)"/></div>
-                <span style={{ fontWeight: 800, color: T.blue, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'лишний', uz: 'ortiqcha' })}</span>
+                <span style={{ fontWeight: 800, color: T.blue, fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'лишний', uz: 'ortiqcha', en: 'odd one out' })}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 7, padding: 'clamp(9px,2vw,13px)', borderRadius: 12, background: '#EDE9F7' }}>
                 <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end' }}><Shape k="circle" c="pu" s="clamp(24px,5vw,32px)"/><Shape k="circle" c="pu" s="clamp(15px,3.4vw,21px)"/></div>
-                <span style={{ fontWeight: 800, color: '#7C5CBF', fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'вывод', uz: 'xulosa' })}</span>
+                <span style={{ fontWeight: 800, color: '#7C5CBF', fontSize: 'clamp(11px,1.9vw,14px)', textAlign: 'center' }}>{t({ ru: 'вывод', uz: 'xulosa', en: 'conclusion' })}</span>
               </div>
             </div>
           </div>
@@ -8328,7 +8374,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

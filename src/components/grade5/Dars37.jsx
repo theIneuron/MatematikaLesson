@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -727,7 +753,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -751,8 +777,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'geom-5-04-v1',
-  lessonTitle: { ru: 'Объём прямоугольного параллелепипеда', uz: "To'g'ri burchakli parallelepiped hajmi" }
+  lessonId: 'grade5-37',
+  lessonTitle: { ru: 'Объём прямоугольного параллелепипеда', uz: "To'g'ri burchakli parallelepiped hajmi", en: 'The volume of a cuboid' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -776,72 +802,77 @@ const CONTENT = {
 
   // ---- s0 HOOK — Rustam quti (tag 4x2, balandlik 3). Tuzoq M1: "2 son yetadi". ----
   s0: {
-    eyebrow: { ru: 'Вопрос', uz: 'Savol' },
-    title: { ru: 'Хватит ли двух чисел?', uz: "Ikki son yetadimi?" },
+    eyebrow: { ru: 'Вопрос', uz: 'Savol', en: 'Question' },
+    title: { ru: 'Хватит ли двух чисел?', uz: "Ikki son yetadimi?", en: 'Are two numbers enough?' },
     lead: {
       ru: 'Дно — 8 кубиков. А вся коробка?',
-      uz: "Asos — 8 kubcha. Butun quti-chi?"
+      uz: "Asos — 8 kubcha. Butun quti-chi?",
+      en: 'The base holds 8 cubes. And the whole box?'
     },
-    opt0: { ru: 'Да, двух хватит', uz: "Ha, ikkitasi yetadi" },
-    opt1: { ru: 'Нет, нужна высота', uz: "Yo'q, balandlik kerak" },
-    opt2: { ru: 'Пока не знаю', uz: "Hozircha bilmayman" },
+    opt0: { ru: 'Да, двух хватит', uz: "Ha, ikkitasi yetadi", en: 'Yes, two are enough' },
+    opt1: { ru: 'Нет, нужна высота', uz: "Yo'q, balandlik kerak", en: 'No, the height is needed' },
+    opt2: { ru: 'Пока не знаю', uz: "Hozircha bilmayman", en: 'I do not know yet' },
     reveal: {
       ru: 'Запомни ответ. К концу урока научимся находить объём любой коробки.',
-      uz: "Javobni eslab qoling. Dars oxirida har qanday quti hajmini topamiz."
+      uz: "Javobni eslab qoling. Dars oxirida har qanday quti hajmini topamiz.",
+      en: 'Remember your answer. By the end of the lesson we will be able to find the volume of any box.'
     },
     audio: {
       ru: 'Рустам собрал коробку. На дно, четыре на два, влезает восемь кубиков. Для площади дна хватило двух чисел. А чтобы заполнить всю коробку кубиками, двух чисел хватит? Как думаешь?',
-      uz: "Rustam quti yasadi. Asosiga, to'rtga ikki, sakkizta kubcha sig'adi. Asosning yuzi uchun ikki son yetdi. Butun qutini kubchalar bilan to'ldirish uchun ikki son yetadimi? Sizningcha-chi?"
+      uz: "Rustam quti yasadi. Asosiga, to'rtga ikki, sakkizta kubcha sig'adi. Asosning yuzi uchun ikki son yetdi. Butun qutini kubchalar bilan to'ldirish uchun ikki son yetadimi? Sizningcha-chi?",
+      en: 'Rustam has made a box. Eight cubes fit on the base, which is four by two. Two numbers were enough for the area of the base. But are two numbers enough to fill the whole box with cubes? What do you think?'
     }
   },
 
   // ---- s1 WARM-UP — tag yuzasi retrieval (geom_5_02). 4x2 = 8. correct B. ----
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz' },
-    title: { ru: 'Площадь дна', uz: "Asosning yuzi" },
-    done_label: { ru: 'Вопрос', uz: 'Savol' },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslab olamiz', en: 'Let us remember' },
+    title: { ru: 'Площадь дна', uz: "Asosning yuzi", en: 'The area of the base' },
+    done_label: { ru: 'Вопрос', uz: 'Savol', en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
     done_text: {
       ru: 'Отлично! Площадь дна — это стороны, перемноженные между собой. Это один слой.',
-      uz: "Ajoyib! Asosning yuzi — bu tomonlarning ko'paytmasi. Bu bir qatlam."
+      uz: "Ajoyib! Asosning yuzi — bu tomonlarning ko'paytmasi. Bu bir qatlam.",
+      en: 'Well done! The area of the base is the sides multiplied together. That is one layer.'
     },
     questions: [
       {
-        q: { ru: 'Дно 4 на 2. Сколько клеток?', uz: "Asos 4 ga 2. Nechta katak?" },
-        opts: [{ ru: '8', uz: '8' }, { ru: '6', uz: '6' }, { ru: '12', uz: '12' }, { ru: '16', uz: '16' }],
+        q: { ru: 'Дно 4 на 2. Сколько клеток?', uz: "Asos 4 ga 2. Nechta katak?", en: 'The base is 4 by 2. How many squares?' },
+        opts: [{ ru: '8', uz: '8', en: '8' }, { ru: '6', uz: '6', en: '6' }, { ru: '12', uz: '12', en: '12' }, { ru: '16', uz: '16', en: '16' }],
         correct: 0,
-        hint: { ru: 'Стороны не сложить, а перемножить.', uz: "Tomonlarni qo'shmang, ko'paytiring." },
-        audio: { ru: 'Сначала вспомним прошлый урок. Дно коробки четыре на два. Сколько клеток на дне?', uz: "Avval o'tgan darsni eslaymiz. Quti asosi to'rtga ikki. Asosiga nechta katak?" }
+        hint: { ru: 'Стороны не сложить, а перемножить.', uz: "Tomonlarni qo'shmang, ko'paytiring.", en: 'The sides are not added, they are multiplied.' },
+        audio: { ru: 'Сначала вспомним прошлый урок. Дно коробки четыре на два. Сколько клеток на дне?', uz: "Avval o'tgan darsni eslaymiz. Quti asosi to'rtga ikki. Asosiga nechta katak?", en: 'First let us remember the last lesson. The base of the box is four by two. How many squares are there on the base?' }
       },
       {
-        q: { ru: 'Дно 3 на 2. Сколько клеток?', uz: "Asos 3 ga 2. Nechta katak?" },
-        opts: [{ ru: '5', uz: '5' }, { ru: '6', uz: '6' }, { ru: '9', uz: '9' }, { ru: '12', uz: '12' }],
+        q: { ru: 'Дно 3 на 2. Сколько клеток?', uz: "Asos 3 ga 2. Nechta katak?", en: 'The base is 3 by 2. How many squares?' },
+        opts: [{ ru: '5', uz: '5', en: '5' }, { ru: '6', uz: '6', en: '6' }, { ru: '9', uz: '9', en: '9' }, { ru: '12', uz: '12', en: '12' }],
         correct: 1,
-        hint: { ru: 'Перемножь две стороны дна.', uz: "Asosning ikki tomonini ko'paytiring." },
-        audio: { ru: 'Дно три на два. Сколько клеток?', uz: "Asos uchga ikki. Nechta katak?" }
+        hint: { ru: 'Перемножь две стороны дна.', uz: "Asosning ikki tomonini ko'paytiring.", en: 'Multiply the two sides of the base together.' },
+        audio: { ru: 'Дно три на два. Сколько клеток?', uz: "Asos uchga ikki. Nechta katak?", en: 'The base is three by two. How many squares?' }
       },
       {
-        q: { ru: 'Дно 5 на 2. Сколько клеток?', uz: "Asos 5 ga 2. Nechta katak?" },
-        opts: [{ ru: '12', uz: '12' }, { ru: '7', uz: '7' }, { ru: '10', uz: '10' }, { ru: '25', uz: '25' }],
+        q: { ru: 'Дно 5 на 2. Сколько клеток?', uz: "Asos 5 ga 2. Nechta katak?", en: 'The base is 5 by 2. How many squares?' },
+        opts: [{ ru: '12', uz: '12', en: '12' }, { ru: '7', uz: '7', en: '7' }, { ru: '10', uz: '10', en: '10' }, { ru: '25', uz: '25', en: '25' }],
         correct: 2,
-        hint: { ru: 'Перемножь стороны, не складывай.', uz: "Tomonlarni ko'paytiring, qo'shmang." },
-        audio: { ru: 'Дно пять на два. Сколько клеток?', uz: "Asos beshga ikki. Nechta katak?" }
+        hint: { ru: 'Перемножь стороны, не складывай.', uz: "Tomonlarni ko'paytiring, qo'shmang.", en: 'Multiply the sides, do not add them.' },
+        audio: { ru: 'Дно пять на два. Сколько клеток?', uz: "Asos beshga ikki. Nechta katak?", en: 'The base is five by two. How many squares?' }
       }
     ],
     audio: {
-      next: { ru: 'Верно! Следующий вопрос.', uz: "To'g'ri! Keyingi savol." },
-      on_correct: { ru: 'Отлично, все три верно!', uz: "Ajoyib, uchalasi ham to'g'ri!" },
-      on_wrong:   { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      next: { ru: 'Верно! Следующий вопрос.', uz: "To'g'ri! Keyingi savol.", en: 'Right! Next question.' },
+      on_correct: { ru: 'Отлично, все три верно!', uz: "Ajoyib, uchalasi ham to'g'ri!", en: 'Well done, all three right!' },
+      on_wrong:   { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' }
     }
   },
 
   // ---- s2 EXPLORATION — tag qatlam: 4x2 = 8 kub (step). Yuzaga ko'prik. ----
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Первый слой', uz: "Birinchi qatlam" },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    title: { ru: 'Первый слой', uz: "Birinchi qatlam", en: 'The first layer' },
     lead: {
       ru: 'Заполним дно кубиками. Нажимай и смотри.',
-      uz: "Asosni kubchalar bilan to'ldiramiz. Bosing va kuzating."
+      uz: "Asosni kubchalar bilan to'ldiramiz. Bosing va kuzating.",
+      en: 'Let us fill the base with cubes. Tap and watch.'
     },
     caps: {
       ru: [
@@ -853,414 +884,478 @@ const CONTENT = {
         "Bo'sh quti. Asosi — 4 ga 2.",
         "Kubchalarni qator-qator qo'yamiz.",
         "Bir qatlam — 4 ni 2 ga ko'paytirib, 8 ta kubcha."
-      ]
+      ],
+      en: ['An empty box. The base is 4 by 2.', 'We put the cubes in row by row.', 'One layer is 4 times 2, exactly 8 cubes.']
     },
     note: {
       ru: 'Один слой — это как площадь дна: 8 кубиков.',
-      uz: "Bir qatlam — asosning yuzi kabi: 8 ta kubcha."
+      uz: "Bir qatlam — asosning yuzi kabi: 8 ta kubcha.",
+      en: 'One layer is like the area of the base: 8 cubes.'
     },
-    btn_step: { ru: 'Дальше', uz: 'Keyingi' },
+    btn_step: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
     audio: {
       intro: {
         ru: 'Положим кубики на дно коробки. Дно четыре на два. Нажимай на кнопку и смотри, как заполняется слой.',
-        uz: "Quti asosiga kubchalar qo'yamiz. Asosi to'rtga ikki. Tugmani bosing va qatlam qanday to'lishini kuzating."
+        uz: "Quti asosiga kubchalar qo'yamiz. Asosi to'rtga ikki. Tugmani bosing va qatlam qanday to'lishini kuzating.",
+        en: 'Let us put cubes on the base of the box. The base is four by two. Tap the button and watch the layer fill up.'
       },
       done: {
         ru: 'Видишь? Один слой, это четыре умножить на два, восемь кубиков. Это как площадь дна.',
-        uz: "Ko'rib turibsizmi? Bir qatlam, bu to'rtni ikkiga ko'paytirib, sakkizta kubcha. Bu asosning yuzi kabi."
+        uz: "Ko'rib turibsizmi? Bir qatlam, bu to'rtni ikkiga ko'paytirib, sakkizta kubcha. Bu asosning yuzi kabi.",
+        en: 'Do you see? One layer is four times two, which is eight cubes. That is like the area of the base.'
       }
     }
   },
 
   // ---- s3 EXPLORATION — jonli slayder: qatlamlarni ustma-ust, balandlik 1..3; V = 8 x qatlam. ----
   s3: {
-    eyebrow: { ru: 'Эксперимент', uz: 'Tajriba' },
-    title: { ru: 'Слои друг на друга', uz: "Qatlamlar ustma-ust" },
+    eyebrow: { ru: 'Эксперимент', uz: 'Tajriba', en: 'Experiment' },
+    title: { ru: 'Слои друг на друга', uz: "Qatlamlar ustma-ust", en: 'Layers on top of each other' },
     lead: {
       ru: 'Каждый слой — 8 кубиков. Двигай ползунок «высота» и смотри, как растёт число кубиков.',
-      uz: "Har qatlam — 8 kubcha. «Balandlik» slayderini suring va kubchalar soni o'sishini kuzating."
+      uz: "Har qatlam — 8 kubcha. «Balandlik» slayderini suring va kubchalar soni o'sishini kuzating.",
+      en: 'Each layer is 8 cubes. Move the height slider and watch the number of cubes grow.'
     },
-    slider_label: { ru: 'Высота (число слоёв)', uz: "Balandlik (qatlamlar soni)" },
+    slider_label: { ru: 'Высота (число слоёв)', uz: "Balandlik (qatlamlar soni)", en: 'Height (number of layers)' },
     note_target: {
       ru: 'Высота 3: три слоя по 8 — это 8 умножить на 3, всего 24 кубика.',
-      uz: "Balandlik 3: uch qatlam, har biri 8 — bu 8 ni 3 ga ko'paytirib, 24 ta kubcha."
+      uz: "Balandlik 3: uch qatlam, har biri 8 — bu 8 ni 3 ga ko'paytirib, 24 ta kubcha.",
+      en: 'Height 3: three layers of 8 is 8 times 3, which is 24 cubes in all.'
     },
     hint_move: {
       ru: 'Сколько слоёв — столько раз берём по 8 кубиков.',
-      uz: "Necha qatlam bo'lsa — 8 kubchani shuncha marta olamiz."
+      uz: "Necha qatlam bo'lsa — 8 kubchani shuncha marta olamiz.",
+      en: 'However many layers there are, that is how many times we take 8 cubes.'
     },
     audio: {
       ru: 'Двигай ползунок и меняй высоту. Каждый слой, это восемь кубиков. Сколько слоёв, столько раз по восемь. При высоте три получается двадцать четыре кубика.',
-      uz: "Slayderni surib, balandlikni o'zgartiring. Har qatlam, bu sakkizta kubcha. Necha qatlam bo'lsa, shuncha marta sakkizta. Balandlik uch bo'lganda yigirma to'rt kubcha bo'ladi."
+      uz: "Slayderni surib, balandlikni o'zgartiring. Har qatlam, bu sakkizta kubcha. Necha qatlam bo'lsa, shuncha marta sakkizta. Balandlik uch bo'lganda yigirma to'rt kubcha bo'ladi.",
+      en: 'Move the slider and change the height. Each layer is eight cubes. However many layers there are, that is how many eights we take. At a height of three that comes to twenty four cubes.'
     }
   },
 
   // ---- s4 EXPLORATION — birlik kub = 1 sm³; sm² (yuza) va sm³ (hajm) farqi (M3). ----
   s4: {
-    eyebrow: { ru: 'Единицы', uz: 'Birliklar' },
-    title: { ru: 'См, см² и см³', uz: "Sm, sm² va sm³" },
+    eyebrow: { ru: 'Единицы', uz: 'Birliklar', en: 'Units' },
+    title: { ru: 'См, см² и см³', uz: "Sm, sm² va sm³", en: 'cm, cm² and cm³' },
     lead: {
       ru: 'Один кубик с ребром 1 см — это 1 см³. Почему «кубический»?',
-      uz: "Qirrasi 1 sm kubcha — bu 1 sm³. Nega «kub»?"
+      uz: "Qirrasi 1 sm kubcha — bu 1 sm³. Nega «kub»?",
+      en: 'One cube with an edge of 1 cm is 1 cm³. Why cubic?'
     },
     point1: {
       ru: 'Длина — одно измерение, см.',
-      uz: "Uzunlik — bitta o'lcham, sm."
+      uz: "Uzunlik — bitta o'lcham, sm.",
+      en: 'Length has one dimension, cm.'
     },
     point2: {
       ru: 'Площадь — два измерения, см².',
-      uz: "Yuza — ikki o'lcham, sm²."
+      uz: "Yuza — ikki o'lcham, sm².",
+      en: 'Area has two dimensions, cm².'
     },
     point3: {
       ru: 'Объём — три измерения, см³.',
-      uz: "Hajm — uch o'lcham, sm³."
+      uz: "Hajm — uch o'lcham, sm³.",
+      en: 'Volume has three dimensions, cm³.'
     },
     audio: {
       ru: 'Один кубик с ребром один сантиметр, это единица объёма. Длина измеряется в сантиметрах, площадь в квадратных сантиметрах, а объём в кубических. Куб, потому что измерений целых три.',
-      uz: "Qirrasi bir santimetr bo'lgan bitta kubcha, bu hajm birligi. Uzunlik santimetrda, yuza kvadrat santimetrda, hajm esa kub santimetrda o'lchanadi. Kub, chunki o'lchovlar uchta."
+      uz: "Qirrasi bir santimetr bo'lgan bitta kubcha, bu hajm birligi. Uzunlik santimetrda, yuza kvadrat santimetrda, hajm esa kub santimetrda o'lchanadi. Kub, chunki o'lchovlar uchta.",
+      en: 'One cube with an edge of one centimetre is the unit of volume. Length is measured in centimetres, area in square centimetres and volume in cubic ones. Cubic, because there are three whole dimensions.'
     }
   },
 
   // ---- s5 RULE 1 — V = a x b x c (bo'yi x eni x balandligi) = asosning yuzi x balandlik. ----
   s5: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Правило объёма', uz: "Hajm qoidasi" },
-    lead: { ru: 'Запишем правило, которое ты открыл.', uz: "Siz kashf etgan qoidani yozamiz." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Правило объёма', uz: "Hajm qoidasi", en: 'The rule for volume' },
+    lead: { ru: 'Запишем правило, которое ты открыл.', uz: "Siz kashf etgan qoidani yozamiz.", en: 'Let us write down the rule you have found.' },
     rule_main: {
       ru: 'Объём = длина × ширина × высота',
-      uz: "Hajm = bo'yi × eni × balandligi"
+      uz: "Hajm = bo'yi × eni × balandligi",
+      en: 'Volume = length × width × height'
     },
     ex_easy: {
       ru: 'Слой 4 × 2 = 8, и высота 3: 8 × 3 = 24.',
-      uz: "Qatlam 4 × 2 = 8, balandlik 3: 8 × 3 = 24."
+      uz: "Qatlam 4 × 2 = 8, balandlik 3: 8 × 3 = 24.",
+      en: 'The layer is 4 × 2 = 8 and the height is 3: 8 × 3 = 24.'
     },
     note: {
       ru: 'Сначала слой (длина × ширина), потом × число слоёв.',
-      uz: "Avval qatlam (bo'yi × eni), keyin × qatlamlar soni."
+      uz: "Avval qatlam (bo'yi × eni), keyin × qatlamlar soni.",
+      en: 'First the layer (length × width), then × the number of layers.'
     },
     audio: {
       ru: 'Запомним правило. Объём равен длину умножить на ширину и на высоту. Это площадь дна, умноженная на высоту. Сначала слой, потом число слоёв.',
-      uz: "Qoidani eslab qolamiz. Hajm bo'yini eniga va balandlikka ko'paytirishga teng. Bu asosning yuzi, balandlikka ko'paytirilgan. Avval qatlam, keyin qatlamlar soni."
+      uz: "Qoidani eslab qolamiz. Hajm bo'yini eniga va balandlikka ko'paytirishga teng. Bu asosning yuzi, balandlikka ko'paytirilgan. Avval qatlam, keyin qatlamlar soni.",
+      en: 'Let us remember the rule. The volume is the length times the width times the height. That is the area of the base multiplied by the height. First the layer, then the number of layers.'
     }
   },
 
   // ---- s6 RULE 2 — tuzoq-ogohlantirish: 2 son -> yuza (sm²); 3 son -> hajm (sm³). (M1, M3) ----
   s6: {
-    eyebrow: { ru: 'Внимание', uz: 'Diqqat' },
-    title: { ru: 'Площадь или объём?', uz: "Yuza yoki hajm?" },
-    lead: { ru: 'Не путай площадь и объём.', uz: "Yuza va hajmni chalkashtirmang." },
+    eyebrow: { ru: 'Внимание', uz: 'Diqqat', en: 'Careful' },
+    title: { ru: 'Площадь или объём?', uz: "Yuza yoki hajm?", en: 'Area or volume?' },
+    lead: { ru: 'Не путай площадь и объём.', uz: "Yuza va hajmni chalkashtirmang.", en: 'Do not mix up area and volume.' },
     point1: {
       ru: 'Два числа — это площадь, см². Только один слой.',
-      uz: "Ikki son — bu yuza, sm². Faqat bitta qatlam."
+      uz: "Ikki son — bu yuza, sm². Faqat bitta qatlam.",
+      en: 'Two numbers give the area, cm². That is only one layer.'
     },
     point2: {
       ru: 'Три измерения — это объём, см³.',
-      uz: "Uch o'lcham — bu hajm, sm³."
+      uz: "Uch o'lcham — bu hajm, sm³.",
+      en: 'Three dimensions give the volume, cm³.'
     },
     point3: {
       ru: 'Забыл высоту — получил площадь дна, а не объём.',
-      uz: "Balandlik unutilsa — hajm emas, asosning yuzi chiqadi."
+      uz: "Balandlik unutilsa — hajm emas, asosning yuzi chiqadi.",
+      en: 'Forget the height and you get the area of the base, not the volume.'
     },
     audio: {
       ru: 'Будь внимателен. Если умножить только два числа, получится площадь, в квадратных сантиметрах, это лишь один слой. Для объёма нужны все три измерения, и ответ в кубических сантиметрах.',
-      uz: "E'tiborli bo'ling. Faqat ikki son ko'paytirilsa, yuza chiqadi, kvadrat santimetrda, bu atigi bitta qatlam. Hajm uchun uchala o'lchov kerak, javob esa kub santimetrda."
+      uz: "E'tiborli bo'ling. Faqat ikki son ko'paytirilsa, yuza chiqadi, kvadrat santimetrda, bu atigi bitta qatlam. Hajm uchun uchala o'lchov kerak, javob esa kub santimetrda.",
+      en: 'Take care. If you multiply only two numbers you get the area, in square centimetres, and that is just one layer. Volume needs all three dimensions, and the answer is in cubic centimetres.'
     }
   },
 
   // ---- s7 TEST drag-and-drop classify (sm / sm² / sm³ savatlariga sudrash) + Fakt Matematika (1 litr). M3. ----
   s7: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Перетащи в нужную корзину', uz: "Mos savatga sudrang" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Перетащи в нужную корзину', uz: "Mos savatga sudrang", en: 'Drag it into the right basket' },
     lead: {
       ru: 'Перетащи каждую карточку в корзину с правильной единицей.',
-      uz: "Har bir kartani to'g'ri birlikli savatga sudrang."
+      uz: "Har bir kartani to'g'ri birlikli savatga sudrang.",
+      en: 'Drag each card into the basket with the right unit.'
     },
-    bin_len: { ru: 'Длина · см', uz: 'Uzunlik · sm' },
-    bin_area: { ru: 'Площадь · см²', uz: 'Yuza · sm²' },
-    bin_vol: { ru: 'Объём · см³', uz: 'Hajm · sm³' },
-    it0: { ru: 'Сторона коробки', uz: "Quti tomoni" },
-    it1: { ru: 'Площадь дна', uz: "Asosning yuzi" },
-    it2: { ru: 'Кубики внутри', uz: "Ichidagi kubchalar" },
-    tray_label: { ru: 'Карточки', uz: 'Kartalar' },
+    bin_len: { ru: 'Длина · см', uz: 'Uzunlik · sm', en: 'Length · cm' },
+    bin_area: { ru: 'Площадь · см²', uz: 'Yuza · sm²', en: 'Area · cm²' },
+    bin_vol: { ru: 'Объём · см³', uz: 'Hajm · sm³', en: 'Volume · cm³' },
+    it0: { ru: 'Сторона коробки', uz: "Quti tomoni", en: 'The side of the box' },
+    it1: { ru: 'Площадь дна', uz: "Asosning yuzi", en: 'The area of the base' },
+    it2: { ru: 'Кубики внутри', uz: "Ichidagi kubchalar", en: 'The cubes inside' },
+    tray_label: { ru: 'Карточки', uz: 'Kartalar', en: 'Cards' },
     hint_wrong: {
       ru: 'Считай измерения. Длина это одно измерение, площадь два, объём три.',
-      uz: "O'lchovlarni sanang. Uzunlik bitta o'lcham, yuza ikkita, hajm uchta."
+      uz: "O'lchovlarni sanang. Uzunlik bitta o'lcham, yuza ikkita, hajm uchta.",
+      en: 'Count the dimensions. Length has one, area has two and volume has three.'
     },
     correct_text: {
       ru: 'Верно! Сторона — длина (см), дно — площадь (см²), кубики внутри — объём (см³).',
-      uz: "To'g'ri! Tomon — uzunlik (sm), asos — yuza (sm²), ichidagi kubchalar — hajm (sm³)."
+      uz: "To'g'ri! Tomon — uzunlik (sm), asos — yuza (sm²), ichidagi kubchalar — hajm (sm³).",
+      en: 'Right! The side is a length (cm), the base is an area (cm²) and the cubes inside are a volume (cm³).'
     },
     fact: {
       ru: 'Кубик с ребром 10 см — это ровно 1 литр: 10 × 10 × 10 = 1000 см³. Вот откуда литр.',
-      uz: "Qirrasi 10 sm kubcha — bu aynan 1 litr: 10 × 10 × 10 = 1000 sm³. Litr mana shu yerdan."
+      uz: "Qirrasi 10 sm kubcha — bu aynan 1 litr: 10 × 10 × 10 = 1000 sm³. Litr mana shu yerdan.",
+      en: 'A cube with an edge of 10 cm is exactly 1 litre: 10 × 10 × 10 = 1000 cm³. That is where the litre comes from.'
     },
     fact_audio: {
       ru: "Кубик с ребром десять сантиметров это ровно один литр. Десять умножить на десять и ещё на десять даёт тысячу кубических сантиметров. Вот откуда взялся литр.",
-      uz: "Qirrasi o'n santimetr kubcha aynan bir litrga teng. O'nni o'nga va yana o'nga ko'paytirsak ming kub santimetr chiqadi. Litr mana shu yerdan kelib chiqqan."
+      uz: "Qirrasi o'n santimetr kubcha aynan bir litrga teng. O'nni o'nga va yana o'nga ko'paytirsak ming kub santimetr chiqadi. Litr mana shu yerdan kelib chiqqan.",
+      en: 'A cube with an edge of ten centimetres is exactly one litre. Ten times ten times ten gives a thousand cubic centimetres. That is where the litre came from.'
     },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     audio: {
       intro: {
         ru: 'Перетащи каждую карточку в корзину с правильной единицей. Длина, площадь или объём? Потом нажми проверить.',
-        uz: "Har bir kartani to'g'ri birlikli savatga sudrang. Uzunlik, yuza yoki hajm? Keyin tekshirishni bosing."
+        uz: "Har bir kartani to'g'ri birlikli savatga sudrang. Uzunlik, yuza yoki hajm? Keyin tekshirishni bosing.",
+        en: 'Drag each card into the basket with the right unit. Length, area or volume? Then tap check.'
       },
       on_correct: {
         ru: 'Верно. Кубик с ребром десять сантиметров, это ровно один литр, десять на десять на десять, тысяча кубических сантиметров.',
-        uz: "To'g'ri. Qirrasi o'n santimetr bo'lgan kubcha, bu aynan bir litr, o'nni o'nga, yana o'nga, ming kub santimetr."
+        uz: "To'g'ri. Qirrasi o'n santimetr bo'lgan kubcha, bu aynan bir litr, o'nni o'nga, yana o'nga, ming kub santimetr.",
+        en: 'That is right. A cube with an edge of ten centimetres is exactly one litre: ten by ten by ten, a thousand cubic centimetres.'
       },
-      on_wrong: { ru: 'Не совсем. Посчитай измерения. Длина одно, площадь два, объём три.', uz: "Unchalik emas. O'lchovlarni sanang. Uzunlik bitta, yuza ikkita, hajm uchta." }
+      on_wrong: { ru: 'Не совсем. Посчитай измерения. Длина одно, площадь два, объём три.', uz: "Unchalik emas. O'lchovlarni sanang. Uzunlik bitta, yuza ikkita, hajm uchta.", en: 'Not quite. Count the dimensions. Length has one, area two and volume three.' }
     }
   },
 
   // ---- s8 TEST NumInput — quti 5x2x3 -> V = 30. ----
   s8: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Найди объём', uz: "Hajmni toping" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
-    done_label: { ru: 'Вопрос', uz: 'Savol' },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Найди объём', uz: "Hajmni toping", en: 'Find the volume' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
+    done_label: { ru: 'Вопрос', uz: 'Savol', en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
     done_text: {
       ru: 'Отлично! Ты находишь объём по всем трём числам.',
-      uz: "Ajoyib! Hajmni uchala son bo'yicha topyapsiz."
+      uz: "Ajoyib! Hajmni uchala son bo'yicha topyapsiz.",
+      en: 'Well done! You can find the volume from all three numbers.'
     },
     questions: [
-      { q: { ru: 'Коробка 5 × 2 × 3. Объём?', uz: "Quti 5 × 2 × 3. Hajmi?" }, value: 30, cols: 5, rows: 2, layers: 3,
-        hint: { ru: 'Найди слой, потом умножь на высоту. Нужны все три числа.', uz: "Qatlamni toping, keyin balandlikka ko'paytiring. Uchala son kerak." },
-        audio: { ru: 'Найди объём коробки. Коробка пять на два на три. Чему равен объём?', uz: "Quti hajmini toping. Quti beshga ikkiga uch. Hajmi qancha?" } },
-      { q: { ru: 'Коробка 4 × 2 × 2. Объём?', uz: "Quti 4 × 2 × 2. Hajmi?" }, value: 16, cols: 4, rows: 2, layers: 2,
-        hint: { ru: 'Слой 4 на 2, потом на высоту 2.', uz: "Qatlam 4 ga 2, keyin balandlik 2 ga." },
-        audio: { ru: 'Коробка четыре на два на два. Чему равен объём?', uz: "Quti to'rtga ikkiga ikki. Hajmi qancha?" } },
-      { q: { ru: 'Коробка 3 × 3 × 2. Объём?', uz: "Quti 3 × 3 × 2. Hajmi?" }, value: 18, cols: 3, rows: 3, layers: 2,
-        hint: { ru: 'Перемножь все три измерения.', uz: "Uchala o'lchovni ko'paytiring." },
-        audio: { ru: 'Коробка три на три на два. Чему равен объём?', uz: "Quti uchga uchga ikki. Hajmi qancha?" } }
+      { q: { ru: 'Коробка 5 × 2 × 3. Объём?', uz: "Quti 5 × 2 × 3. Hajmi?", en: 'A box 5 × 2 × 3. The volume?' }, value: 30, cols: 5, rows: 2, layers: 3,
+        hint: { ru: 'Найди слой, потом умножь на высоту. Нужны все три числа.', uz: "Qatlamni toping, keyin balandlikka ko'paytiring. Uchala son kerak.", en: 'Find the layer, then multiply by the height. All three numbers are needed.' },
+        audio: { ru: 'Найди объём коробки. Коробка пять на два на три. Чему равен объём?', uz: "Quti hajmini toping. Quti beshga ikkiga uch. Hajmi qancha?", en: 'Find the volume of the box. The box is five by two by three. What is the volume?' } },
+      { q: { ru: 'Коробка 4 × 2 × 2. Объём?', uz: "Quti 4 × 2 × 2. Hajmi?", en: 'A box 4 × 2 × 2. The volume?' }, value: 16, cols: 4, rows: 2, layers: 2,
+        hint: { ru: 'Слой 4 на 2, потом на высоту 2.', uz: "Qatlam 4 ga 2, keyin balandlik 2 ga.", en: 'The layer is 4 by 2, then times the height of 2.' },
+        audio: { ru: 'Коробка четыре на два на два. Чему равен объём?', uz: "Quti to'rtga ikkiga ikki. Hajmi qancha?", en: 'A box four by two by two. What is the volume?' } },
+      { q: { ru: 'Коробка 3 × 3 × 2. Объём?', uz: "Quti 3 × 3 × 2. Hajmi?", en: 'A box 3 × 3 × 2. The volume?' }, value: 18, cols: 3, rows: 3, layers: 2,
+        hint: { ru: 'Перемножь все три измерения.', uz: "Uchala o'lchovni ko'paytiring.", en: 'Multiply all three dimensions together.' },
+        audio: { ru: 'Коробка три на три на два. Чему равен объём?', uz: "Quti uchga uchga ikki. Hajmi qancha?", en: 'A box three by three by two. What is the volume?' } }
     ],
     audio: {
-      next: { ru: 'Верно! Следующая.', uz: "To'g'ri! Keyingisi." },
-      on_correct: { ru: 'Отлично, все три верно!', uz: "Ajoyib, uchalasi ham to'g'ri!" },
-      on_wrong: { ru: 'Посмотри подсказку.', uz: "Maslahatga qarang." }
+      next: { ru: 'Верно! Следующая.', uz: "To'g'ri! Keyingisi.", en: 'Right! Next one.' },
+      on_correct: { ru: 'Отлично, все три верно!', uz: "Ajoyib, uchalasi ham to'g'ri!", en: 'Well done, all three right!' },
+      on_wrong: { ru: 'Посмотри подсказку.', uz: "Maslahatga qarang.", en: 'Look at the hint.' }
     }
   },
 
   // ---- s9 TEST find-the-wrong — biri yuzani hajm deb hisoblagan (M1). correct C + Fakt IT (voksel). ----
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    title: { ru: 'Где забыли высоту?', uz: "Balandlik qayerda unutilgan?" },
-    q_pre: { ru: 'Три объёма верны, а один —', uz: "Uchta hajm to'g'ri, bittasi esa —" },
-    q_em: { ru: 'ОШИБОЧНО', uz: 'XATO' },
-    q_post: { ru: '. Найди его.', uz: '. Uni toping.' },
-    opt0: { ru: '4 × 3 × 2 → 24', uz: "4 × 3 × 2 → 24" },
-    opt1: { ru: '5 × 2 × 2 → 20', uz: "5 × 2 × 2 → 20" },
-    opt2: { ru: '6 × 2 × 3 → 12', uz: "6 × 2 × 3 → 12" },
-    opt3: { ru: '2 × 2 × 5 → 20', uz: "2 × 2 × 5 → 20" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    title: { ru: 'Где забыли высоту?', uz: "Balandlik qayerda unutilgan?", en: 'Where was the height forgotten?' },
+    q_pre: { ru: 'Три объёма верны, а один —', uz: "Uchta hajm to'g'ri, bittasi esa —", en: 'Three of the volumes are right and one is' },
+    q_em: { ru: 'ОШИБОЧНО', uz: 'XATO', en: 'WRONG' },
+    q_post: { ru: '. Найди его.', uz: '. Uni toping.', en: '. Find it.' },
+    opt0: { ru: '4 × 3 × 2 → 24', uz: "4 × 3 × 2 → 24", en: '4 × 3 × 2 → 24' },
+    opt1: { ru: '5 × 2 × 2 → 20', uz: "5 × 2 × 2 → 20", en: '5 × 2 × 2 → 20' },
+    opt2: { ru: '6 × 2 × 3 → 12', uz: "6 × 2 × 3 → 12", en: '6 × 2 × 3 → 12' },
+    opt3: { ru: '2 × 2 × 5 → 20', uz: "2 × 2 × 5 → 20", en: '2 × 2 × 5 → 20' },
     correct_text: {
       ru: 'Верно! Здесь умножили только два числа, 6 × 2 — это площадь дна. А высоту 3 забыли.',
-      uz: "To'g'ri! Bu yerda faqat ikki son ko'paytirilgan, 6 × 2 — bu asosning yuzi. Balandlik 3 esa unutilgan."
+      uz: "To'g'ri! Bu yerda faqat ikki son ko'paytirilgan, 6 × 2 — bu asosning yuzi. Balandlik 3 esa unutilgan.",
+      en: 'Right! Here only two numbers were multiplied, 6 × 2, which is the area of the base. The height of 3 was forgotten.'
     },
     wrong_0: {
       ru: 'Здесь перемножены все три измерения, это верно. Ищи дальше.',
-      uz: "Bu yerda uchala o'lchov ko'paytirilgan, to'g'ri. Davom etib qidiring."
+      uz: "Bu yerda uchala o'lchov ko'paytirilgan, to'g'ri. Davom etib qidiring.",
+      en: 'All three dimensions are multiplied here, so that one is right. Keep looking.'
     },
     wrong_1: {
       ru: 'Здесь все три числа на месте, это верно. Ошибка в другом.',
-      uz: "Bu yerda uchala son joyida, to'g'ri. Xato boshqasida."
+      uz: "Bu yerda uchala son joyida, to'g'ri. Xato boshqasida.",
+      en: 'All three numbers are here, so that one is right. The mistake is in another one.'
     },
     wrong_3: {
       ru: 'Здесь тоже три измерения, это верно. Ищи, где их только два.',
-      uz: "Bu yerda ham uch o'lcham bor, to'g'ri. Faqat ikkitasi bo'lganini qidiring."
+      uz: "Bu yerda ham uch o'lcham bor, to'g'ri. Faqat ikkitasi bo'lganini qidiring.",
+      en: 'There are three dimensions here too, so that one is right. Look for the one with only two.'
     },
-    wrong_default: { ru: 'Ищи решение, где умножили только два числа.', uz: "Faqat ikki son ko'paytirilgan yechimni qidiring." },
+    wrong_default: { ru: 'Ищи решение, где умножили только два числа.', uz: "Faqat ikki son ko'paytirilgan yechimni qidiring.", en: 'Look for the one where only two numbers were multiplied.' },
     fact: {
       ru: 'В 3D-играх мир собран из «вокселей» — кубиков. Объём фигуры там — это число кубиков.',
-      uz: "3D o'yinlarda dunyo «voksel» — kubchalardan yig'iladi. Shakl hajmi — kubchalar soni."
+      uz: "3D o'yinlarda dunyo «voksel» — kubchalardan yig'iladi. Shakl hajmi — kubchalar soni.",
+      en: 'In 3D games the world is built from voxels, which are little cubes. The volume of a shape there is the number of cubes.'
     },
     fact_audio: {
       ru: "В трёхмерных играх мир собран из вокселей, маленьких кубиков. Объём фигуры там это число кубиков.",
-      uz: "Uch o'lchovli o'yinlarda dunyo voksellardan, ya'ni kubchalardan yig'iladi. U yerda shakl hajmi kubchalar soniga teng."
+      uz: "Uch o'lchovli o'yinlarda dunyo voksellardan, ya'ni kubchalardan yig'iladi. U yerda shakl hajmi kubchalar soniga teng.",
+      en: 'In three dimensional games the world is built from voxels, little cubes. The volume of a shape there is the number of cubes.'
     },
     audio: {
       intro: {
         ru: 'Здесь четыре решения. Три верные, а одно ошибочно. Найди то, где умножили только два числа.',
-        uz: "Bu yerda to'rtta yechim bor. Uchtasi to'g'ri, bittasi xato. Faqat ikki son ko'paytirilgan yechimni toping."
+        uz: "Bu yerda to'rtta yechim bor. Uchtasi to'g'ri, bittasi xato. Faqat ikki son ko'paytirilgan yechimni toping.",
+        en: 'There are four workings here. Three are right and one is wrong. Find the one where only two numbers were multiplied.'
       },
       on_correct: {
         ru: 'Верно. Там забыли высоту. В трёхмерных играх мир собран из вокселей, кубиков, и объём, это просто число кубиков.',
-        uz: "To'g'ri. U yerda balandlik unutilgan. Uch o'lchamli o'yinlarda dunyo voksellardan, kubchalardan yig'iladi, hajm esa, bu shunchaki kubchalar soni."
+        uz: "To'g'ri. U yerda balandlik unutilgan. Uch o'lchamli o'yinlarda dunyo voksellardan, kubchalardan yig'iladi, hajm esa, bu shunchaki kubchalar soni.",
+        en: 'That is right. The height was forgotten there. In three dimensional games the world is built from voxels, little cubes, and the volume is simply the number of cubes.'
       },
-      on_wrong: { ru: 'Не там. Ищи, где умножили только два числа.', uz: "U emas. Faqat ikki son ko'paytirilgan yechimni qidiring." }
+      on_wrong: { ru: 'Не там. Ищи, где умножили только два числа.', uz: "U emas. Faqat ikki son ko'paytirilgan yechimni qidiring.", en: 'Not that one. Look for the one where only two numbers were multiplied.' }
     }
   },
 
   // ---- s10 TEST multi-blank — quti 4x3 tag, 2 qatlam: tag=12, qatlam=2, hajm=24. ----
   s10: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Считаем по шагам', uz: "Qadamlab hisoblaymiz" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Считаем по шагам', uz: "Qadamlab hisoblaymiz", en: 'Working it out step by step' },
     lead: {
       ru: 'Коробка: дно 4 на 3, высота 2. Заполни шаги.',
-      uz: "Quti: asosi 4 ga 3, balandlik 2. Qadamlarni to'ldiring."
+      uz: "Quti: asosi 4 ga 3, balandlik 2. Qadamlarni to'ldiring.",
+      en: 'A box with a base 4 by 3 and a height of 2. Fill in the steps.'
     },
-    lbl_layer: { ru: 'Слой: 4 × 3 =', uz: "Qatlam: 4 × 3 =" },
-    lbl_count: { ru: 'Число слоёв =', uz: "Qatlamlar soni =" },
-    lbl_vol: { ru: 'Объём =', uz: "Hajm =" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    lbl_layer: { ru: 'Слой: 4 × 3 =', uz: "Qatlam: 4 × 3 =", en: 'The layer: 4 × 3 =' },
+    lbl_count: { ru: 'Число слоёв =', uz: "Qatlamlar soni =", en: 'The number of layers =' },
+    lbl_vol: { ru: 'Объём =', uz: "Hajm =", en: 'The volume =' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     hint: {
       ru: 'Сначала найди слой, 4 на 3. Потом умножь слой на число слоёв.',
-      uz: "Avval qatlamni toping, 4 ga 3. Keyin qatlamni qatlamlar soniga ko'paytiring."
+      uz: "Avval qatlamni toping, 4 ga 3. Keyin qatlamni qatlamlar soniga ko'paytiring.",
+      en: 'First find the layer, 4 by 3. Then multiply the layer by the number of layers.'
     },
     fb_correct: {
       ru: 'Верно! Слой 12, слоёв 2, объём 12 × 2 = 24.',
-      uz: "To'g'ri! Qatlam 12, qatlamlar 2 ta, hajm 12 × 2 = 24."
+      uz: "To'g'ri! Qatlam 12, qatlamlar 2 ta, hajm 12 × 2 = 24.",
+      en: 'Right! The layer is 12, there are 2 layers, and the volume is 12 × 2 = 24.'
     },
     audio: {
       intro: {
         ru: 'Заполни шаги. Сначала слой, дно четыре на три. Потом число слоёв. Потом объём. Нажми проверить.',
-        uz: "Qadamlarni to'ldiring. Avval qatlam, asosi to'rtga uch. Keyin qatlamlar soni. Keyin hajm. Tekshirishni bosing."
+        uz: "Qadamlarni to'ldiring. Avval qatlam, asosi to'rtga uch. Keyin qatlamlar soni. Keyin hajm. Tekshirishni bosing.",
+        en: 'Fill in the steps. First the layer, with a base four by three. Then the number of layers. Then the volume. Tap check.'
       },
-      on_correct: { ru: 'Верно. Слой двенадцать, объём двадцать четыре.', uz: "To'g'ri. Qatlam o'n ikki, hajm yigirma to'rt." },
-      on_wrong: { ru: 'Не совсем. Сначала найди слой, потом умножь на число слоёв.', uz: "Unchalik emas. Avval qatlamni toping, keyin qatlamlar soniga ko'paytiring." }
+      on_correct: { ru: 'Верно. Слой двенадцать, объём двадцать четыре.', uz: "To'g'ri. Qatlam o'n ikki, hajm yigirma to'rt.", en: 'That is right. The layer is twelve and the volume is twenty four.' },
+      on_wrong: { ru: 'Не совсем. Сначала найди слой, потом умножь на число слоёв.', uz: "Unchalik emas. Avval qatlamni toping, keyin qatlamlar soniga ko'paytiring.", en: 'Not quite. First find the layer, then multiply by the number of layers.' }
     }
   },
 
   // ---- s11 TEST MC — kub 2x2x2 -> 8. correct A. ----
   s11: {
-    eyebrow: { ru: 'Задание', uz: 'Topshiriq' },
-    title: { ru: 'Объём куба', uz: "Kub hajmi" },
+    eyebrow: { ru: 'Задание', uz: 'Topshiriq', en: 'Task' },
+    title: { ru: 'Объём куба', uz: "Kub hajmi", en: 'The volume of a cube' },
     lead: {
       ru: 'У этого кубика длина 2, ширина 2 и высота 2. Чему равен объём?',
-      uz: "Bu kubchaning bo'yi 2, eni 2 va balandligi 2. Hajmi qancha?"
+      uz: "Bu kubchaning bo'yi 2, eni 2 va balandligi 2. Hajmi qancha?",
+      en: 'This cube has a length of 2, a width of 2 and a height of 2. What is its volume?'
     },
-    opt0: { ru: '8 см³', uz: "8 sm³" },
-    opt1: { ru: '6 см³', uz: "6 sm³" },
-    opt2: { ru: '4 см³', uz: "4 sm³" },
-    opt3: { ru: '12 см³', uz: "12 sm³" },
+    opt0: { ru: '8 см³', uz: "8 sm³", en: '8 cm³' },
+    opt1: { ru: '6 см³', uz: "6 sm³", en: '6 cm³' },
+    opt2: { ru: '4 см³', uz: "4 sm³", en: '4 cm³' },
+    opt3: { ru: '12 см³', uz: "12 sm³", en: '12 cm³' },
     correct_text: {
       ru: 'Верно! 2 × 2 × 2 — это 8 кубиков, 8 см³.',
-      uz: "To'g'ri! 2 × 2 × 2 — bu 8 ta kubcha, 8 sm³."
+      uz: "To'g'ri! 2 × 2 × 2 — bu 8 ta kubcha, 8 sm³.",
+      en: 'Right! 2 × 2 × 2 is 8 cubes, which is 8 cm³.'
     },
     wrong_1: {
       ru: 'Это сумма. Объём находят умножением, а не сложением.',
-      uz: "Bu yig'indi. Hajm ko'paytirish bilan topiladi, qo'shish bilan emas."
+      uz: "Bu yig'indi. Hajm ko'paytirish bilan topiladi, qo'shish bilan emas.",
+      en: 'That is the sides added together. Volume is found by multiplying, not adding.'
     },
     wrong_2: {
       ru: 'Это только дно, два числа. Умножь ещё на высоту.',
-      uz: "Bu faqat asos, ikki son. Yana balandlikka ko'paytiring."
+      uz: "Bu faqat asos, ikki son. Yana balandlikka ko'paytiring.",
+      en: 'That is only the base, two numbers. Multiply by the height as well.'
     },
     wrong_3: {
       ru: 'Это слишком много. Перемножь три ребра по одному разу.',
-      uz: "Bu juda ko'p. Uchala qirrani bir martadan ko'paytiring."
+      uz: "Bu juda ko'p. Uchala qirrani bir martadan ko'paytiring.",
+      en: 'That is too much. Multiply the three edges together once each.'
     },
-    wrong_default: { ru: 'Объём куба — перемножь три ребра.', uz: "Kub hajmi — uchala qirrani ko'paytiring." },
+    wrong_default: { ru: 'Объём куба — перемножь три ребра.', uz: "Kub hajmi — uchala qirrani ko'paytiring.", en: 'The volume of a cube: multiply the three edges together.' },
     audio: {
       intro: {
         ru: 'У коробки длина два, ширина два и высота два. Чему равен объём? Выбери ответ.',
-        uz: "Quti bo'yi ikki, eni ikki va balandligi ikki. Hajmi qancha? Javobni tanlang."
+        uz: "Quti bo'yi ikki, eni ikki va balandligi ikki. Hajmi qancha? Javobni tanlang.",
+        en: 'A box has a length of two, a width of two and a height of two. What is its volume? Choose an answer.'
       },
-      on_correct: { ru: 'Верно. Восемь кубических сантиметров.', uz: "To'g'ri. Sakkiz kub santimetr." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      on_correct: { ru: 'Верно. Восемь кубических сантиметров.', uz: "To'g'ri. Sakkiz kub santimetr.", en: 'That is right. Eight cubic centimetres.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' }
     }
   },
 
   // ---- s12 CASE setup — Shahnoza sovg'a qutisi (5x3x4). ----
   s12: {
-    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala' },
-    title: { ru: 'Коробка Шахнозы', uz: "Shahnozaning qutisi" },
+    eyebrow: { ru: 'Жизненная задача', uz: 'Hayotiy masala', en: 'A real life problem' },
+    title: { ru: 'Коробка Шахнозы', uz: "Shahnozaning qutisi", en: "Shahnoza's box" },
     lead: {
       ru: 'Шахноза наполняет коробку кубиками-конфетами. Длина 5, ширина 3, высота 4. Сколько поместится?',
-      uz: "Shahnoza qutini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi 5, eni 3, balandligi 4. Nechta sig'adi?"
+      uz: "Shahnoza qutini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi 5, eni 3, balandligi 4. Nechta sig'adi?",
+      en: 'Shahnoza is filling a box with cube shaped sweets. The length is 5, the width is 3 and the height is 4. How many will fit?'
     },
     note: {
       ru: 'Объём = длина × ширина × высота.',
-      uz: "Hajm = bo'yi × eni × balandligi."
+      uz: "Hajm = bo'yi × eni × balandligi.",
+      en: 'Volume = length × width × height.'
     },
     hint_calc: {
       ru: 'Сначала слой 5 × 3, потом умножь на высоту.',
-      uz: "Avval qatlam 5 × 3, keyin balandlikka ko'paytiring."
+      uz: "Avval qatlam 5 × 3, keyin balandlikka ko'paytiring.",
+      en: 'First the layer, 5 × 3, then multiply by the height.'
     },
-    btn_help: { ru: 'Посчитать', uz: 'Hisoblash' },
+    btn_help: { ru: 'Посчитать', uz: 'Hisoblash', en: 'Count' },
     audio: {
       ru: 'Шахноза наполняет подарочную коробку кубиками-конфетами. Длина пять, ширина три, высота четыре. Сколько конфет поместится? Посчитаем объём.',
-      uz: "Shahnoza sovg'a qutisini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi besh, eni uch, balandligi to'rt. Nechta konfet sig'adi? Hajmni hisoblaymiz."
+      uz: "Shahnoza sovg'a qutisini kubcha-konfetlar bilan to'ldirmoqda. Bo'yi besh, eni uch, balandligi to'rt. Nechta konfet sig'adi? Hajmni hisoblaymiz.",
+      en: 'Shahnoza is filling a gift box with cube shaped sweets. The length is five, the width is three and the height is four. How many sweets will fit? Let us work out the volume.'
     }
   },
 
   // ---- s13 CASE/FINAL MC — quti 5x3x4 -> 60. correct D + Fakt Matematika (Rubik). ----
   s13: {
-    eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq' },
-    title: { ru: 'Сколько конфет?', uz: "Nechta konfet?" },
+    eyebrow: { ru: 'Итоговое задание', uz: 'Yakuniy topshiriq', en: 'Final task' },
+    title: { ru: 'Сколько конфет?', uz: "Nechta konfet?", en: 'How many sweets?' },
     lead: {
       ru: 'Коробка Шахнозы: длина 5, ширина 3, высота 4. Сколько кубиков-конфет поместится?',
-      uz: "Shahnozaning qutisi: bo'yi 5, eni 3, balandligi 4. Nechta kubcha-konfet sig'adi?"
+      uz: "Shahnozaning qutisi: bo'yi 5, eni 3, balandligi 4. Nechta kubcha-konfet sig'adi?",
+      en: "Shahnoza's box has a length of 5, a width of 3 and a height of 4. How many cube shaped sweets will fit?"
     },
-    opt0: { ru: '60', uz: "60" },
-    opt1: { ru: '12', uz: "12" },
-    opt2: { ru: '15', uz: "15" },
-    opt3: { ru: '120', uz: "120" },
+    opt0: { ru: '60', uz: "60", en: '60' },
+    opt1: { ru: '12', uz: "12", en: '12' },
+    opt2: { ru: '15', uz: "15", en: '15' },
+    opt3: { ru: '120', uz: "120", en: '120' },
     correct_text: {
       ru: 'Верно! Слой 5 × 3 = 15, и высота 4: 15 × 4 = 60 конфет.',
-      uz: "To'g'ri! Qatlam 5 × 3 = 15, balandlik 4: 15 × 4 = 60 ta konfet."
+      uz: "To'g'ri! Qatlam 5 × 3 = 15, balandlik 4: 15 × 4 = 60 ta konfet.",
+      en: 'Right! The layer is 5 × 3 = 15 and the height is 4: 15 × 4 = 60 sweets.'
     },
     wrong_1: {
       ru: 'Это сумма. Объём находят умножением, не сложением.',
-      uz: "Bu yig'indi. Hajm ko'paytirish bilan topiladi, qo'shish bilan emas."
+      uz: "Bu yig'indi. Hajm ko'paytirish bilan topiladi, qo'shish bilan emas.",
+      en: 'That is the sides added together. Volume is found by multiplying, not adding.'
     },
     wrong_2: {
       ru: 'Это только площадь дна. Умножь её ещё на высоту.',
-      uz: "Bu faqat asosning yuzi. Uni yana balandlikka ko'paytiring."
+      uz: "Bu faqat asosning yuzi. Uni yana balandlikka ko'paytiring.",
+      en: 'That is only the area of the base. Multiply it by the height as well.'
     },
     wrong_3: {
       ru: 'Слишком много. Перемножь три измерения по одному разу.',
-      uz: "Juda ko'p. Uchala o'lchovni bir martadan ko'paytiring."
+      uz: "Juda ko'p. Uchala o'lchovni bir martadan ko'paytiring.",
+      en: 'That is too much. Multiply the three dimensions together once each.'
     },
-    wrong_default: { ru: 'Объём — перемножь все три измерения.', uz: "Hajm — uchala o'lchovni ko'paytiring." },
+    wrong_default: { ru: 'Объём — перемножь все три измерения.', uz: "Hajm — uchala o'lchovni ko'paytiring.", en: 'Volume: multiply all three dimensions together.' },
     fact: {
       ru: 'Кубик Рубика — это 3 × 3 × 3 = 27 маленьких кубиков. Три слоя по девять.',
-      uz: "Rubik kubi — bu 3 × 3 × 3 = 27 ta kichik kub. Uch qatlam, har biri to'qqizta."
+      uz: "Rubik kubi — bu 3 × 3 × 3 = 27 ta kichik kub. Uch qatlam, har biri to'qqizta.",
+      en: "A Rubik's cube is 3 × 3 × 3 = 27 little cubes. Three layers of nine."
     },
     fact_audio: {
       ru: "Кубик Рубика это двадцать семь маленьких кубиков. Три на три на три. Три слоя по девять.",
-      uz: "Rubik kubi yigirma yetti ta kichik kubdan iborat. Uchga uchga uch. Uch qatlam, har birida to'qqiztadan."
+      uz: "Rubik kubi yigirma yetti ta kichik kubdan iborat. Uchga uchga uch. Uch qatlam, har birida to'qqiztadan.",
+      en: "A Rubik's cube is twenty seven little cubes. Three by three by three. Three layers of nine."
     },
     audio: {
       intro: {
         ru: 'Посчитай объём коробки Шахнозы. Длина пять, ширина три, высота четыре. Не забудь все три числа.',
-        uz: "Shahnoza qutisining hajmini hisoblang. Bo'yi besh, eni uch, balandligi to'rt. Uchala sonni unutmang."
+        uz: "Shahnoza qutisining hajmini hisoblang. Bo'yi besh, eni uch, balandligi to'rt. Uchala sonni unutmang.",
+        en: "Work out the volume of Shahnoza's box. The length is five, the width is three and the height is four. Do not forget all three numbers."
       },
       on_correct: {
         ru: 'Верно. Шестьдесят. Кубик Рубика, это три на три на три, двадцать семь маленьких кубиков. Три слоя по девять.',
-        uz: "To'g'ri. Oltmish. Rubik kubi, bu uchga uchga uch, yigirma yetti kichik kub. Uch qatlam, har biri to'qqizta."
+        uz: "To'g'ri. Oltmish. Rubik kubi, bu uchga uchga uch, yigirma yetti kichik kub. Uch qatlam, har biri to'qqizta.",
+        en: "That is right. Sixty. A Rubik's cube is three by three by three, twenty seven little cubes. Three layers of nine."
       },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." }
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' }
     }
   },
 
   // ---- s14 SUMMARY — hookni yopadi + ConnectionsBlock ----
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Xulosa' },
-    title: { ru: 'Отлично! Ты умеешь находить объём.', uz: "Ajoyib! Hajmni topa olasiz." },
-    score_label: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
-    main_label: { ru: 'Что узнали', uz: "Nimani bildik" },
-    main_1: { ru: 'Объём — число кубиков внутри.', uz: "Hajm — ichidagi kubchalar soni." },
-    main_2: { ru: 'Объём = длина × ширина × высота.', uz: "Hajm = bo'yi × eni × balandligi." },
-    main_3: { ru: 'Два числа — площадь, три — объём.', uz: "Ikki son — yuza, uchta — hajm." },
+    eyebrow: { ru: 'Итог', uz: 'Xulosa', en: 'Result' },
+    title: { ru: 'Отлично! Ты умеешь находить объём.', uz: "Ajoyib! Hajmni topa olasiz.", en: 'Well done! You can find the volume.' },
+    score_label: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob", en: 'correct answers first time' },
+    main_label: { ru: 'Что узнали', uz: "Nimani bildik", en: 'What we have learnt' },
+    main_1: { ru: 'Объём — число кубиков внутри.', uz: "Hajm — ichidagi kubchalar soni.", en: 'Volume is the number of cubes inside.' },
+    main_2: { ru: 'Объём = длина × ширина × высота.', uz: "Hajm = bo'yi × eni × balandligi.", en: 'Volume = length × width × height.' },
+    main_3: { ru: 'Два числа — площадь, три — объём.', uz: "Ikki son — yuza, uchta — hajm.", en: 'Two numbers give the area and three give the volume.' },
     hook_close: {
       ru: 'Рустаму двух чисел не хватило — нужна была высота.',
-      uz: "Rustamga ikki son yetmadi — balandlik kerak edi."
+      uz: "Rustamga ikki son yetmadi — balandlik kerak edi.",
+      en: 'Two numbers were not enough for Rustam, the height was needed too.'
     },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
     conn_refs: {
       ru: 'Площадь прямоугольника (один слой — это площадь дна).',
-      uz: "To'rtburchak yuzasi (bir qatlam — bu asosning yuzi)."
+      uz: "To'rtburchak yuzasi (bir qatlam — bu asosning yuzi).",
+      en: 'The area of a rectangle (one layer is the area of the base).'
     },
-    conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars' },
+    conn_label_next: { ru: 'Следующий урок', uz: 'Keyingi dars', en: 'Next lesson' },
     conn_next: {
       ru: 'Отрицательные числа на координатной прямой.',
-      uz: "Koordinata to'g'ri chizig'ida manfiy sonlar."
+      uz: "Koordinata to'g'ri chizig'ida manfiy sonlar.",
+      en: 'Negative numbers on the number line.'
     },
-    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan' },
+    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan', en: 'Go through it again' },
     audio: {
       ru: 'Отлично. Теперь ты знаешь: объём, это число кубиков внутри. Длина умножить на ширину и на высоту. Два числа дают площадь, а три, объём. Молодец!',
-      uz: "Ajoyib. Endi bilasiz: hajm, bu ichidagi kubchalar soni. Bo'yini eniga va balandlikka ko'paytiramiz. Ikki son yuza beradi, uchta esa, hajm. Barakalla!"
+      uz: "Ajoyib. Endi bilasiz: hajm, bu ichidagi kubchalar soni. Bo'yini eniga va balandlikka ko'paytiramiz. Ikki son yuza beradi, uchta esa, hajm. Barakalla!",
+      en: 'Well done. Now you know that volume is the number of cubes inside: the length times the width times the height. Two numbers give the area and three give the volume. Good work!'
     }
   }
 
@@ -1330,8 +1425,8 @@ const RiseCubes = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ri javobdan keyin, ALOHIDA karta).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT" };
-const FB_MATH = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT",         en: 'Did you know? · IT' };
+const FB_MATH = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika", en: 'Did you know? · Mathematics' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1591,7 +1686,7 @@ const Screen1 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Hammasi to'g'ri" : 'Всё верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Hammasi to'g'ri" : lang === 'en' ? "All correct" : 'Всё верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
             <div style={{ marginTop: 10 }}><RiseCubes/></div>
           </FeedbackBlock>
@@ -1665,7 +1760,7 @@ const Screen3 = ({ screen, onNext, onPrev }) => {
           <div className="hr-calc">
             <span className="hr-calc-on">8</span><span className="hr-calc-op">×</span><span className="hr-calc-on">{h}</span>
             <span className="hr-calc-op">=</span><span className="hr-calc-res">{vol}</span>
-            <span className="hr-calc-unit">{lang === 'uz' ? 'kubcha' : 'кубиков'}</span>
+            <span className="hr-calc-unit">{lang === 'uz' ? 'kubcha' : lang === 'en' ? "cubes" : 'кубиков'}</span>
           </div>
         </div>
         <div className="fade-up delay-2" style={{ position: 'relative' }}>
@@ -1862,7 +1957,7 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         {solved && (
           <>
             <FeedbackBlock show={true} isCorrect={true}>
-              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+              <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
               <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
             </FeedbackBlock>
             <FactCard text={c.fact} badge={FB_MATH} anim={<AnimLitre/>}/>
@@ -1943,7 +2038,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Hammasi to'g'ri" : 'Всё верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Hammasi to'g'ri" : lang === 'en' ? "All correct" : 'Всё верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
             <div style={{ marginTop: 10 }}><RiseCubes/></div>
           </FeedbackBlock>
@@ -2026,7 +2121,7 @@ const Screen10 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
             <div style={{ marginTop: 10 }}><RiseCubes/></div>
           </FeedbackBlock>
@@ -2083,7 +2178,7 @@ const Screen14 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const scoredIdx = SCREEN_META.map((m, i) => (m.scored ? i : -1)).filter(i => i >= 0);
   const correct = scoredIdx.filter(i => answers && answers[i] && answers[i].correct).length;
   const total = scoredIdx.length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 1.9vw, 14px)', justifyContent: 'center' }}>
@@ -2116,7 +2211,7 @@ export default function BoxVolumeLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -2169,7 +2264,7 @@ export default function BoxVolumeLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

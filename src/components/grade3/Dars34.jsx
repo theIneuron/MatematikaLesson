@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -118,8 +118,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-34',
-  lessonTitle: { ru: 'Урок 34. Единицы площади', uz: "34-dars. Yuza birliklari" }
+  lessonId: 'grade3-34',
+  lessonTitle: { ru: 'Урок 34. Единицы площади', uz: "34-dars. Yuza birliklari", en: 'Lesson 34. Units of area' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 34»): s0 xuk 4 ga 3 panel · s1 kataklarni sanash va
 // birlikni nomlash · s2 model, kataklar to'ldiriladi · s3 savol-oldin-QOIDA · s4 rasm
@@ -156,15 +156,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: ichkaridagi kataklar (darslik 161-bet).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Единицы площади', uz: 'Yuza birliklari' },
-    lead: { ru: 'Панель разбита на клетки со стороной 1 см: 4 в ряд и 3 ряда', uz: "Panel tomoni 1 sm bo'lgan kataklarga bo'lingan: qatorda 4 ta, qator 3 ta" },
-    order_cap: { ru: 'теперь считаем не край, а то, что внутри', uz: "endi chekkani emas, ichkaridagini sanaymiz" },
-    q: { ru: 'Сколько места занимает панель?', uz: 'Panel qancha joy egallaydi?' },
-    opt0: { ru: '12 см²', uz: '12 sm²' },
-    opt1: { ru: '14 см²', uz: '14 sm²' },
-    opt2: { ru: '7 см²', uz: '7 sm²' },
-    opt3: { ru: '4 см²', uz: '4 sm²' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Единицы площади', uz: 'Yuza birliklari', en: 'Units of area' },
+    lead: { ru: 'Панель разбита на клетки со стороной 1 см: 4 в ряд и 3 ряда', uz: "Panel tomoni 1 sm bo'lgan kataklarga bo'lingan: qatorda 4 ta, qator 3 ta", en: 'A panel is divided into squares with a side of 1 cm: 4 in a row and 3 rows' },
+    order_cap: { ru: 'теперь считаем не край, а то, что внутри', uz: "endi chekkani emas, ichkaridagini sanaymiz", en: 'now we count not the edge but what is inside' },
+    q: { ru: 'Сколько места занимает панель?', uz: 'Panel qancha joy egallaydi?', en: 'How much space does the panel take up?' },
+    opt0: { ru: '12 см²', uz: '12 sm²', en: '12 sq cm' },
+    opt1: { ru: '14 см²', uz: '14 sm²', en: '14 sq cm' },
+    opt2: { ru: '7 см²', uz: '7 sm²', en: '7 sq cm' },
+    opt3: { ru: '4 см²', uz: '4 sm²', en: '4 sq cm' },
     audio: {
       intro: {
         ru: [
@@ -178,29 +178,31 @@ const CONTENT = {
           "Panel kataklarga bo'lingan. Har bir katakning tomoni bir santimetr.",
           "Qatorda to'rtta katak, qator esa uchta.",
           "Sizningcha, panel qancha joy egallaydi?"
-        ]
+        ],
+        en: ['Last time we went round the panel along the edge. Today we will look inside.', 'The panel is divided into squares. The side of each square is one centimetre.', 'A row has four squares, and there are three rows.', 'How much space do you think the panel takes up?']
       },
-      on_correct: { ru: 'Верно! А сейчас узнаешь, почему единица называется квадратной.', uz: "To'g'ri! Endi birlik nega kvadrat deb atalishini bilasiz." },
-      on_wrong1: { ru: 'Четырнадцать это путь по краю. Мы считаем клетки внутри.', uz: "O'n to'rt bu chekka yo'li. Biz ichkaridagi kataklarni sanaymiz." },
-      on_wrong2: { ru: 'Семь это длина и ширина вместе. А клеток больше.', uz: "Yetti bu uzunlik va en birga. Kataklar esa ko'proq." },
-      on_idk: { ru: 'Ничего. Сейчас посчитаем клетки по одной.', uz: "Hechqisi yo'q. Hozir kataklarni bittalab sanaymiz." }
+      on_correct: { ru: 'Верно! А сейчас узнаешь, почему единица называется квадратной.', uz: "To'g'ri! Endi birlik nega kvadrat deb atalishini bilasiz.", en: 'Right! And now you will find out why the unit is called square.' },
+      on_wrong1: { ru: 'Четырнадцать это путь по краю. Мы считаем клетки внутри.', uz: "O'n to'rt bu chekka yo'li. Biz ichkaridagi kataklarni sanaymiz.", en: 'Fourteen is the path along the edge. We are counting the squares inside.' },
+      on_wrong2: { ru: 'Семь это длина и ширина вместе. А клеток больше.', uz: "Yetti bu uzunlik va en birga. Kataklar esa ko'proq.", en: 'Seven is the length and the width together. And there are more squares.' },
+      on_idk: { ru: 'Ничего. Сейчас посчитаем клетки по одной.', uz: "Hechqisi yo'q. Hozir kataklarni bittalab sanaymiz.", en: 'Never mind. Let us count the squares one by one.' }
     }
   },
 
   // s1 — KATAKLARNI SANASH: bittalab, keyin birlik nomlanadi (darslik 161-bet).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Площадь считают клетками, а клетка сама квадрат', uz: "Yuza kataklab sanaladi, katakning o'zi esa kvadrat" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Площадь считают клетками, а клетка сама квадрат', uz: "Yuza kataklab sanaladi, katakning o'zi esa kvadrat", en: 'Area is counted in squares, and a square is itself a square' },
     task_line: 'панель 4 клетки на 3',
     task_line_uz: "panel 4 katakka 3 katak",
-    step1: { ru: '12 клеток', uz: '12 katak' },
-    step1_cap: { ru: 'посчитали все клетки внутри', uz: "ichkaridagi hamma katak sanaldi" },
-    step2: { ru: '12 см²', uz: '12 sm²' },
-    step2_cap: { ru: 'сторона клетки 1 см, значит клетка это 1 см²', uz: "katak tomoni 1 sm, demak katak 1 sm²" },
-    res: { ru: 'площадь мерят квадратными единицами', uz: "yuza kvadrat birliklarda o'lchanadi" },
-    btn1: { ru: 'Посчитать клетки', uz: 'Kataklarni sanash' },
-    btn2: { ru: 'Назвать единицу', uz: 'Birlikni nomlash' },
-    done_text: { ru: 'Мерка это квадрат со стороной в один сантиметр', uz: "O'lchov bu tomoni bir santimetrli kvadrat" },
+    task_line_en: 'panel 4 squares by 3',
+    step1: { ru: '12 клеток', uz: '12 katak', en: '12 squares' },
+    step1_cap: { ru: 'посчитали все клетки внутри', uz: "ichkaridagi hamma katak sanaldi", en: 'we counted all the squares inside' },
+    step2: { ru: '12 см²', uz: '12 sm²', en: '12 sq cm' },
+    step2_cap: { ru: 'сторона клетки 1 см, значит клетка это 1 см²', uz: "katak tomoni 1 sm, demak katak 1 sm²", en: 'the side of a square is 1 cm, so the square is 1 sq cm' },
+    res: { ru: 'площадь мерят квадратными единицами', uz: "yuza kvadrat birliklarda o'lchanadi", en: 'area is measured in square units' },
+    btn1: { ru: 'Посчитать клетки', uz: 'Kataklarni sanash', en: 'Count the squares' },
+    btn2: { ru: 'Назвать единицу', uz: 'Birlikni nomlash', en: 'Name the unit' },
+    done_text: { ru: 'Мерка это квадрат со стороной в один сантиметр', uz: "O'lchov bu tomoni bir santimetrli kvadrat", en: 'The measure is a square with a side of one centimetre' },
     audio: {
       ru: [
         'Заглянем внутрь панели.',
@@ -211,24 +213,25 @@ const CONTENT = {
         "Panel ichkarisiga qaraymiz.",
         "Kataklarni bittalab sanaymiz. Birinchi qatorda to'rtta, ikkinchisida to'rtta, uchinchisida to'rtta. Jami o'n ikkita katak.",
         "Har bir katakning tomoni bir santimetr, shuning uchun katakning o'zi bir kvadrat santimetr. Demak panelning yuzasi o'n ikki kvadrat santimetr."
-      ]
+      ],
+      en: ['Let us look inside the panel.', 'We count the squares one by one. Four in the first row, four in the second, four in the third. Twelve squares in all.', 'The side of each square is one centimetre, so the square itself is one square centimetre. So the area of the panel is twelve square centimetres.']
     }
   },
 
   // s2 — MODEL: kataklar birin-ketin bo'yaladi.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     w: 4,
     h: 3,
-    lead: { ru: 'Заполним панель клетками и посчитаем', uz: "Panelni kataklar bilan to'ldirib sanaymiz" },
-    capA: { ru: 'первый ряд, 4 клетки', uz: "birinchi qator, 4 katak" },
-    capB: { ru: 'все ряды, 12 клеток', uz: "hamma qator, 12 katak" },
-    res: { ru: 'S = 12 см²', uz: 'S = 12 sm²' },
-    name_a: { ru: 'ряд', uz: 'qator' },
-    name_b: { ru: 'площадь', uz: 'yuza' },
-    btn1: { ru: 'Заполнить ряд', uz: "Qatorni to'ldirish" },
-    btn2: { ru: 'Заполнить всё', uz: "Hammasini to'ldirish" },
-    done_text: { ru: 'Двенадцать квадратных сантиметров', uz: "O'n ikki kvadrat santimetr" },
+    lead: { ru: 'Заполним панель клетками и посчитаем', uz: "Panelni kataklar bilan to'ldirib sanaymiz", en: 'Let us fill the panel with squares and count them' },
+    capA: { ru: 'первый ряд, 4 клетки', uz: "birinchi qator, 4 katak", en: 'the first row, 4 squares' },
+    capB: { ru: 'все ряды, 12 клеток', uz: "hamma qator, 12 katak", en: 'all the rows, 12 squares' },
+    res: { ru: 'S = 12 см²', uz: 'S = 12 sm²', en: 'S = 12 sq cm' },
+    name_a: { ru: 'ряд', uz: 'qator', en: 'row' },
+    name_b: { ru: 'площадь', uz: 'yuza', en: 'area' },
+    btn1: { ru: 'Заполнить ряд', uz: "Qatorni to'ldirish", en: 'Fill a row' },
+    btn2: { ru: 'Заполнить всё', uz: "Hammasini to'ldirish", en: 'Fill it all' },
+    done_text: { ru: 'Двенадцать квадратных сантиметров', uz: "O'n ikki kvadrat santimetr", en: 'Twelve square centimetres' },
     audio: {
       ru: [
         'Посмотри на пустую панель из клеток.',
@@ -239,162 +242,166 @@ const CONTENT = {
         "Kataklardan iborat bo'sh panelga qarang.",
         "Birinchi qatorni to'ldiramiz. Unda to'rtta katak bor.",
         "Endi qolgan qatorlarni. Jami o'n ikkita katak, panel yuzasi o'n ikki kvadrat santimetr."
-      ]
+      ],
+      en: ['Look at the empty panel of squares.', 'We fill the first row. It has four squares.', 'Now the other rows. Twelve squares in all, and the area of the panel is twelve square centimetres.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: yuza nimani ko'rsatadi.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что показывает площадь фигуры?', uz: "Shaklning yuzasi nimani ko'rsatadi?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Что показывает площадь фигуры?', uz: "Shaklning yuzasi nimani ko'rsatadi?", en: 'What does the area of a figure show?' },
     opts: [
-      { ru: 'сколько клеток помещается внутри', uz: "ichkariga nechta katak sig'ishini" },
-      { ru: 'длину пути по краю', uz: "chekka bo'ylab yo'l uzunligini" },
-      { ru: 'длину самой длинной стороны', uz: 'eng uzun tomon uzunligini' },
-      { ru: 'сколько у фигуры сторон', uz: 'shaklning nechta tomoni borligini' }
+      { ru: 'сколько клеток помещается внутри', uz: "ichkariga nechta katak sig'ishini", en: 'how many squares fit inside' },
+      { ru: 'длину пути по краю', uz: "chekka bo'ylab yo'l uzunligini", en: 'the length of the path along the edge' },
+      { ru: 'длину самой длинной стороны', uz: 'eng uzun tomon uzunligini', en: 'the length of the longest side' },
+      { ru: 'сколько у фигуры сторон', uz: 'shaklning nechta tomoni borligini', en: 'how many sides the figure has' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Путь по краю это периметр, он был в прошлом уроке.', uz: "Chekka yo'li bu perimetr, u o'tgan darsda edi." },
-      2: { ru: 'Одна сторона про площадь ничего не говорит.', uz: "Bitta tomon yuza haqida hech nima aytmaydi." },
-      3: { ru: 'Число сторон у прямоугольника всегда четыре, а площади разные.', uz: "To'rtburchakda tomon doim to'rtta, yuzalar esa har xil." }
+      1: { ru: 'Путь по краю это периметр, он был в прошлом уроке.', uz: "Chekka yo'li bu perimetr, u o'tgan darsda edi.", en: 'The path along the edge is the perimeter, that was in the last lesson.' },
+      2: { ru: 'Одна сторона про площадь ничего не говорит.', uz: "Bitta tomon yuza haqida hech nima aytmaydi.", en: 'One side says nothing about the area.' },
+      3: { ru: 'Число сторон у прямоугольника всегда четыре, а площади разные.', uz: "To'rtburchakda tomon doim to'rtta, yuzalar esa har xil.", en: 'A rectangle always has four sides, and the areas are different.' }
     },
-    on_correct: { ru: 'Да. Площадь это место внутри, и мерят его клетками.', uz: "Ha. Yuza bu ichkaridagi joy, u kataklab o'lchanadi." },
+    on_correct: { ru: 'Да. Площадь это место внутри, и мерят его клетками.', uz: "Ha. Yuza bu ichkaridagi joy, u kataklab o'lchanadi.", en: 'Yes. Area is the space inside, and it is measured in squares.' },
     rule_lines: {
       ru: ['Площадь показывает, сколько клеток помещается внутри фигуры.', 'Мерка это квадрат. Квадрат со стороной 1 см даёт 1 см², со стороной 1 дм даёт 1 дм².'],
-      uz: ["Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi.", "O'lchov bu kvadrat. Tomoni 1 sm bo'lgan kvadrat 1 sm², tomoni 1 dm bo'lgani 1 dm² beradi."]
+      uz: ["Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi.", "O'lchov bu kvadrat. Tomoni 1 sm bo'lgan kvadrat 1 sm², tomoni 1 dm bo'lgani 1 dm² beradi."],
+      en: ['Area shows how many squares fit inside a figure.', 'The measure is a square. A square with a side of 1 cm gives 1 sq cm, with a side of 1 dm it gives 1 sq dm.']
     },
-    rule_ex: { ru: 'S = 12 см²', uz: 'S = 12 sm²' },
-    rule_speech: { ru: 'площадь двенадцать квадратных сантиметров', uz: "yuza o'n ikki kvadrat santimetr" },
+    rule_ex: { ru: 'S = 12 см²', uz: 'S = 12 sm²', en: 'S = 12 sq cm' },
+    rule_speech: { ru: 'площадь двенадцать квадратных сантиметров', uz: "yuza o'n ikki kvadrat santimetr", en: 'the area is twelve square centimetres' },
     audio: {
       intro: {
         ru: 'Назовём величину точно. Что показывает площадь фигуры?',
-        uz: "Kattalikni aniq nomlaymiz. Shaklning yuzasi nimani ko'rsatadi?"
+        uz: "Kattalikni aniq nomlaymiz. Shaklning yuzasi nimani ko'rsatadi?",
+        en: 'Let us name the quantity exactly. What does the area of a figure show?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: 5 ga 4 panel yuzasi.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Чему равна площадь этой панели?', uz: 'Bu panelning yuzasi nechaga teng?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Чему равна площадь этой панели?', uz: 'Bu panelning yuzasi nechaga teng?', en: 'What is the area of this panel?' },
     fig_w: 5,
     fig_h: 4,
     opts: [
-      { ru: '20 см²', uz: '20 sm²' },
-      { ru: '18 см²', uz: '18 sm²' },
-      { ru: '9 см²', uz: '9 sm²' },
-      { ru: '20 см', uz: '20 sm' }
+      { ru: '20 см²', uz: '20 sm²', en: '20 sq cm' },
+      { ru: '18 см²', uz: '18 sm²', en: '18 sq cm' },
+      { ru: '9 см²', uz: '9 sm²', en: '9 sq cm' },
+      { ru: '20 см', uz: '20 sm', en: '20 cm' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Восемнадцать это путь по краю, а не клетки.', uz: "O'n sakkiz bu chekka yo'li, kataklar emas." },
-      2: { ru: 'Девять это длина и ширина вместе.', uz: "To'qqiz bu uzunlik va en birga." },
-      3: { ru: 'Число верное, а единица не та. Площадь мерят квадратными.', uz: "Son to'g'ri, birlik esa boshqa. Yuza kvadrat birlikda o'lchanadi." }
+      1: { ru: 'Восемнадцать это путь по краю, а не клетки.', uz: "O'n sakkiz bu chekka yo'li, kataklar emas.", en: 'Eighteen is the path along the edge, not the squares.' },
+      2: { ru: 'Девять это длина и ширина вместе.', uz: "To'qqiz bu uzunlik va en birga.", en: 'Nine is the length and the width together.' },
+      3: { ru: 'Число верное, а единица не та. Площадь мерят квадратными.', uz: "Son to'g'ri, birlik esa boshqa. Yuza kvadrat birlikda o'lchanadi.", en: 'The number is right and the unit is wrong. Area is measured in square units.' }
     },
     audio: {
-      intro: { ru: 'В ряду пять клеток, рядов четыре. Чему равна площадь панели?', uz: "Qatorda beshta katak, qator to'rtta. Panel yuzasi nechaga teng?" },
-      on_correct: { ru: 'Верно. Двадцать клеток, значит двадцать квадратных сантиметров.', uz: "To'g'ri. Yigirmata katak, demak yigirma kvadrat santimetr." },
-      on_wrong: { ru: 'Считай клетки внутри и не забудь квадратную единицу.', uz: "Ichkaridagi kataklarni sanang va kvadrat birlikni unutmang." }
+      intro: { ru: 'В ряду пять клеток, рядов четыре. Чему равна площадь панели?', uz: "Qatorda beshta katak, qator to'rtta. Panel yuzasi nechaga teng?", en: 'A row has five squares and there are four rows. What is the area of the panel?' },
+      on_correct: { ru: 'Верно. Двадцать клеток, значит двадцать квадратных сантиметров.', uz: "To'g'ri. Yigirmata katak, demak yigirma kvadrat santimetr.", en: 'Right. Twenty squares, so twenty square centimetres.' },
+      on_wrong: { ru: 'Считай клетки внутри и не забудь квадратную единицу.', uz: "Ichkaridagi kataklarni sanang va kvadrat birlikni unutmang.", en: 'Count the squares inside and do not forget the square unit.' }
     }
   },
 
   // s5 — SARALASH: santimetr yoki kvadrat santimetr.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Что мерят в см, а что в см²', uz: "Nima sm da, nima sm² da o'lchanadi" },
-    bin_a: { ru: 'в см', uz: 'sm da' },
-    bin_b: { ru: 'в см²', uz: 'sm² da' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Что мерят в см, а что в см²', uz: "Nima sm da, nima sm² da o'lchanadi", en: 'What is measured in cm and what in sq cm' },
+    bin_a: { ru: 'в см', uz: 'sm da', en: 'in cm' },
+    bin_b: { ru: 'в см²', uz: 'sm² da', en: 'in sq cm' },
     items: [
-      { n: { ru: 'длина ленты', uz: 'tasma uzunligi' }, a: true, hint: { ru: 'Лента это длина, у неё нет ширины.', uz: "Tasma bu uzunlik, uning eni yo'q." } },
-      { n: { ru: 'место на панели', uz: 'paneldagi joy' }, a: false, hint: { ru: 'Место внутри мерят клетками.', uz: "Ichkaridagi joy kataklab o'lchanadi." } },
-      { n: { ru: 'периметр', uz: 'perimetr' }, a: true, hint: { ru: 'Периметр это путь, а путь измеряют в сантиметрах.', uz: "Perimetr bu yo'l, yo'l esa santimetrda o'lchanadi." } },
-      { n: { ru: 'сколько плитки', uz: 'nechta plitka' }, a: false, hint: { ru: 'Плитка закрывает место внутри.', uz: "Plitka ichkaridagi joyni yopadi." } }
+      { n: { ru: 'длина ленты', uz: 'tasma uzunligi', en: 'the length of a strip' }, a: true, hint: { ru: 'Лента это длина, у неё нет ширины.', uz: "Tasma bu uzunlik, uning eni yo'q.", en: 'A strip is a length, it has no width.' } },
+      { n: { ru: 'место на панели', uz: 'paneldagi joy', en: 'the space on a panel' }, a: false, hint: { ru: 'Место внутри мерят клетками.', uz: "Ichkaridagi joy kataklab o'lchanadi.", en: 'The space inside is measured in squares.' } },
+      { n: { ru: 'периметр', uz: 'perimetr', en: 'the perimeter' }, a: true, hint: { ru: 'Периметр это путь, а путь измеряют в сантиметрах.', uz: "Perimetr bu yo'l, yo'l esa santimetrda o'lchanadi.", en: 'The perimeter is a path, and a path is measured in centimetres.' } },
+      { n: { ru: 'сколько плитки', uz: 'nechta plitka', en: 'how much tiling' }, a: false, hint: { ru: 'Плитка закрывает место внутри.', uz: "Plitka ichkaridagi joyni yopadi.", en: 'Tiling covers the space inside.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре величины. Отправь каждую на свою полку по единице.', uz: "To'rtta kattalik. Har birini birligiga qarab o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Длина в сантиметрах, место в квадратных.', uz: "Hammasi joyida. Uzunlik santimetrda, joy kvadrat santimetrda." },
-      on_wrong: { ru: 'Спроси себя, это путь или это место внутри.', uz: "O'zingizdan so'rang, bu yo'lmi yoki ichkaridagi joymi." }
+      intro: { ru: 'Четыре величины. Отправь каждую на свою полку по единице.', uz: "To'rtta kattalik. Har birini birligiga qarab o'z tokchasiga yuboring.", en: 'Four quantities. Send each one to its shelf by the unit.' },
+      on_correct: { ru: 'Все на месте. Длина в сантиметрах, место в квадратных.', uz: "Hammasi joyida. Uzunlik santimetrda, joy kvadrat santimetrda.", en: 'All in place. Length in centimetres, space in square ones.' },
+      on_wrong: { ru: 'Спроси себя, это путь или это место внутри.', uz: "O'zingizdan so'rang, bu yo'lmi yoki ichkaridagi joymi.", en: 'Ask yourself whether this is a path or the space inside.' }
     }
   },
 
   // s6 — TEST: dm² birligi.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Клетка со стороной 1 дм. Как называется её площадь?', uz: "Tomoni 1 dm bo'lgan katak. Uning yuzasi qanday ataladi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Клетка со стороной 1 дм. Как называется её площадь?', uz: "Tomoni 1 dm bo'lgan katak. Uning yuzasi qanday ataladi?", en: 'A square has a side of 1 dm. What is its area called?' },
     opts: [
-      { ru: '1 дм²', uz: '1 dm²' },
-      { ru: '1 дм', uz: '1 dm' },
-      { ru: '10 см', uz: '10 sm' },
-      { ru: '1 см²', uz: '1 sm²' }
+      { ru: '1 дм²', uz: '1 dm²', en: '1 sq dm' },
+      { ru: '1 дм', uz: '1 dm', en: '1 dm' },
+      { ru: '10 см', uz: '10 sm', en: '10 cm' },
+      { ru: '1 см²', uz: '1 sm²', en: '1 sq cm' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Один дециметр это длина стороны, а не площадь.', uz: "Bir detsimetr bu tomon uzunligi, yuza emas." },
-      2: { ru: 'Десять сантиметров это тоже длина.', uz: "O'n santimetr ham uzunlik." },
-      3: { ru: 'Сторона у клетки дециметр, а не сантиметр.', uz: "Katakning tomoni detsimetr, santimetr emas." }
+      1: { ru: 'Один дециметр это длина стороны, а не площадь.', uz: "Bir detsimetr bu tomon uzunligi, yuza emas.", en: 'One decimetre is the length of the side, not the area.' },
+      2: { ru: 'Десять сантиметров это тоже длина.', uz: "O'n santimetr ham uzunlik.", en: 'Ten centimetres is a length too.' },
+      3: { ru: 'Сторона у клетки дециметр, а не сантиметр.', uz: "Katakning tomoni detsimetr, santimetr emas.", en: 'The square has a side of a decimetre, not a centimetre.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. У клетки сторона один дециметр. Как называется её площадь?', uz: "Tez savol. Katakning tomoni bir detsimetr. Uning yuzasi qanday ataladi?" },
-      on_correct: { ru: 'Верно. Один квадратный дециметр.', uz: "To'g'ri. Bir kvadrat detsimetr." },
-      on_wrong: { ru: 'Единица площади всегда квадратная, по стороне мерки.', uz: "Yuza birligi har doim kvadrat, o'lchov tomoni bo'yicha." }
+      intro: { ru: 'Быстрый вопрос. У клетки сторона один дециметр. Как называется её площадь?', uz: "Tez savol. Katakning tomoni bir detsimetr. Uning yuzasi qanday ataladi?", en: 'A quick question. A square has a side of one decimetre. What is its area called?' },
+      on_correct: { ru: 'Верно. Один квадратный дециметр.', uz: "To'g'ri. Bir kvadrat detsimetr.", en: 'Right. One square decimetre.' },
+      on_wrong: { ru: 'Единица площади всегда квадратная, по стороне мерки.', uz: "Yuza birligi har doim kvadrat, o'lchov tomoni bo'yicha.", en: 'A unit of area is always square, by the side of the measure.' }
     }
   },
 
   // s7 — KONSOL: yuza va perimetr bitta shaklda.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Посчитай обе величины у панели 6 на 4', uz: "6 ga 4 panelning ikkala kattaligini hisoblang" },
-    swap_line: { ru: 'панель 6 и 4', uz: 'panel 6 va 4' },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Посчитай обе величины у панели 6 на 4', uz: "6 ga 4 panelning ikkala kattaligini hisoblang", en: 'Work out both quantities for a 6 by 4 panel' },
+    swap_line: { ru: 'панель 6 и 4', uz: 'panel 6 va 4', en: 'panel 6 and 4' },
     cells: [
-      { head: { ru: 'клеток', uz: 'katak' }, label: { ru: 'внутри', uz: 'ichida' }, ans: 24, hint: { ru: 'Шесть в ряду, рядов четыре.', uz: "Qatorda oltita, qator to'rtta." } },
-      { head: { ru: 'по краю', uz: 'chekkadan' }, label: { ru: 'периметр', uz: 'perimetr' }, ans: 20, hint: { ru: 'Сложи все четыре стороны.', uz: "To'rtala tomonni qo'shing." } },
-      { head: { ru: 'разница', uz: 'farq' }, label: '24 − 20', ans: 4, hint: { ru: 'Убери периметр из числа клеток.', uz: "Kataklar sonidan perimetrni olib tashlang." } }
+      { head: { ru: 'клеток', uz: 'katak', en: 'squares' }, label: { ru: 'внутри', uz: 'ichida', en: 'inside' }, ans: 24, hint: { ru: 'Шесть в ряду, рядов четыре.', uz: "Qatorda oltita, qator to'rtta.", en: 'Six in a row, four rows.' } },
+      { head: { ru: 'по краю', uz: 'chekkadan', en: 'along the edge' }, label: { ru: 'периметр', uz: 'perimetr', en: 'the perimeter' }, ans: 20, hint: { ru: 'Сложи все четыре стороны.', uz: "To'rtala tomonni qo'shing.", en: 'Add all four sides.' } },
+      { head: { ru: 'разница', uz: 'farq', en: 'difference' }, label: '24 − 20', ans: 4, hint: { ru: 'Убери периметр из числа клеток.', uz: "Kataklar sonidan perimetrni olib tashlang.", en: 'Take the perimeter away from the number of squares.' } }
     ],
-    check: { ru: 'S = 24 см², P = 20 см', uz: 'S = 24 sm², P = 20 sm' },
-    check_label: { ru: 'две величины у одной панели', uz: 'bitta panelning ikki kattaligi' },
+    check: { ru: 'S = 24 см², P = 20 см', uz: 'S = 24 sm², P = 20 sm', en: 'S = 24 sq cm, P = 20 cm' },
+    check_label: { ru: 'две величины у одной панели', uz: 'bitta panelning ikki kattaligi', en: 'two quantities of one panel' },
     audio: {
-      intro: { ru: 'Заполни три окна. Клетки внутри, путь по краю и разница между числами.', uz: "Uchta oynani to'ldiring. Ichkaridagi kataklar, chekka yo'li va sonlar orasidagi farq." },
-      on_correct: { ru: 'Числа разные и единицы разные. Площадь в квадратных сантиметрах, периметр просто в сантиметрах.', uz: "Sonlar ham, birliklar ham har xil. Yuza kvadrat santimetrda, perimetr oddiy santimetrda." }
+      intro: { ru: 'Заполни три окна. Клетки внутри, путь по краю и разница между числами.', uz: "Uchta oynani to'ldiring. Ichkaridagi kataklar, chekka yo'li va sonlar orasidagi farq.", en: 'Fill three windows. The squares inside, the path along the edge and the difference between the numbers.' },
+      on_correct: { ru: 'Числа разные и единицы разные. Площадь в квадратных сантиметрах, периметр просто в сантиметрах.', uz: "Sonlar ham, birliklar ham har xil. Yuza kvadrat santimetrda, perimetr oddiy santimetrda.", en: 'The numbers are different and the units are different. Area in square centimetres, perimeter simply in centimetres.' }
     }
   },
 
   // s8 — XATONI TOP: perimetr yuza deb yozilgan (M2).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Для панели 5 на 3 записали площадь 16 см². В чём ошибка?', uz: "5 ga 3 panel uchun yuza 16 sm² deb yozilgan. Xato nimada?" },
-    fig_line: { ru: 'S = 16 см²', uz: 'S = 16 sm²' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Для панели 5 на 3 записали площадь 16 см². В чём ошибка?', uz: "5 ga 3 panel uchun yuza 16 sm² deb yozilgan. Xato nimada?", en: 'For a 5 by 3 panel the area was written as 16 sq cm. What is the mistake?' },
+    fig_line: { ru: 'S = 16 см²', uz: 'S = 16 sm²', en: 'S = 16 sq cm' },
     opts: [
-      { ru: 'посчитали путь по краю, а не клетки', uz: "kataklar emas, chekka yo'li sanalgan" },
-      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
-      { ru: 'единица должна быть в сантиметрах', uz: 'birlik santimetrda bo\'lishi kerak' },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'посчитали путь по краю, а не клетки', uz: "kataklar emas, chekka yo'li sanalgan", en: 'they counted the path along the edge, not the squares' },
+      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan", en: 'the adding was wrong' },
+      { ru: 'единица должна быть в сантиметрах', uz: 'birlik santimetrda bo\'lishi kerak', en: 'the unit should be in centimetres' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Пять и три и пять и три это шестнадцать, счёт верный. Считали не ту величину.', uz: "Besh va uch va besh va uch bu o'n olti, hisob to'g'ri. Boshqa kattalik sanalgan." },
-      2: { ru: 'Единицу назвали правильно, ошибка в самом числе.', uz: "Birlik to'g'ri aytilgan, xato sonning o'zida." },
-      3: { ru: 'Ошибка есть. Клеток внутри пятнадцать, а не шестнадцать.', uz: "Xato bor. Ichkarida o'n beshta katak, o'n oltita emas." }
+      1: { ru: 'Пять и три и пять и три это шестнадцать, счёт верный. Считали не ту величину.', uz: "Besh va uch va besh va uch bu o'n olti, hisob to'g'ri. Boshqa kattalik sanalgan.", en: 'Five and three and five and three is sixteen, the counting is right. The wrong quantity was counted.' },
+      2: { ru: 'Единицу назвали правильно, ошибка в самом числе.', uz: "Birlik to'g'ri aytilgan, xato sonning o'zida.", en: 'The unit was named correctly, the mistake is in the number itself.' },
+      3: { ru: 'Ошибка есть. Клеток внутри пятнадцать, а не шестнадцать.', uz: "Xato bor. Ichkarida o'n beshta katak, o'n oltita emas.", en: 'There is a mistake. There are fifteen squares inside, not sixteen.' }
     },
     audio: {
-      intro: { ru: 'Здесь величину назвали площадью, а посчитали периметр. Найди ошибку.', uz: "Bu yerda kattalik yuza deb atalgan, sanalgani esa perimetr. Xatoni toping." },
-      on_correct: { ru: 'Точно. Клеток внутри пятнадцать, значит площадь пятнадцать квадратных сантиметров.', uz: "Aniq. Ichkarida o'n beshta katak, demak yuza o'n besh kvadrat santimetr." },
-      on_wrong: { ru: 'Посчитай клетки внутри и сравни с записью.', uz: "Ichkaridagi kataklarni sanab, yozuv bilan solishtiring." }
+      intro: { ru: 'Здесь величину назвали площадью, а посчитали периметр. Найди ошибку.', uz: "Bu yerda kattalik yuza deb atalgan, sanalgani esa perimetr. Xatoni toping.", en: 'Here the quantity was called the area and the perimeter was counted. Find the mistake.' },
+      on_correct: { ru: 'Точно. Клеток внутри пятнадцать, значит площадь пятнадцать квадратных сантиметров.', uz: "Aniq. Ichkarida o'n beshta katak, demak yuza o'n besh kvadrat santimetr.", en: 'Exactly. There are fifteen squares inside, so the area is fifteen square centimetres.' },
+      on_wrong: { ru: 'Посчитай клетки внутри и сравни с записью.', uz: "Ichkaridagi kataklarni sanab, yozuv bilan solishtiring.", en: 'Count the squares inside and compare with the line.' }
     }
   },
 
   // s9 — BIT TUZOG'I: yuzani oddiy santimetrda o'lchash (M1).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит записывает результат измерения', uz: "Bit o'lchov natijasini yozadi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит записывает результат измерения', uz: "Bit o'lchov natijasini yozadi", en: 'Bit writes down the result of the measuring' },
     lines: ['клеток внутри 12', 'Бит пишет: S = 12 см'],
     lines_uz: ["ichkarida 12 katak", "Bit yozadi: S = 12 sm"],
-    line_cap: { ru: 'Бит: сантиметр он и есть сантиметр, квадрат тут лишний', uz: "Bit: santimetr baribir santimetr, kvadrat ortiqcha" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, мерка сама квадрат', 'да, квадрат лишний'], uz: ["yo'q, o'lchovning o'zi kvadrat", 'ha, kvadrat ortiqcha'] },
+    lines_en: ['12 squares inside', 'Bit writes: S = 12 cm'],
+    line_cap: { ru: 'Бит: сантиметр он и есть сантиметр, квадрат тут лишний', uz: "Bit: santimetr baribir santimetr, kvadrat ortiqcha", en: 'Bit: a centimetre is a centimetre, the square here is unnecessary' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, мерка сама квадрат', 'да, квадрат лишний'], uz: ["yo'q, o'lchovning o'zi kvadrat", 'ha, kvadrat ortiqcha'], en: ['no, the measure is itself a square', 'yes, the square is unnecessary'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Мы считали не отрезки, а квадратики со стороной один сантиметр. Поэтому и единица квадратная.', uz: "Ha. Biz kesmalarni emas, tomoni bir santimetr bo'lgan kvadratchalarni sanadik. Shuning uchun birlik ham kvadrat." },
-    trap_wrong: { ru: 'В сантиметрах меряют длину, а мы считали клетки. Клетка это квадрат, и единица тоже квадратная.', uz: "Santimetrda uzunlik o'lchanadi, biz esa kataklarni sanadik. Katak bu kvadrat, birlik ham kvadrat." },
+    trap_correct: { ru: 'Да. Мы считали не отрезки, а квадратики со стороной один сантиметр. Поэтому и единица квадратная.', uz: "Ha. Biz kesmalarni emas, tomoni bir santimetr bo'lgan kvadratchalarni sanadik. Shuning uchun birlik ham kvadrat.", en: 'Yes. We counted not segments but little squares with a side of one centimetre. That is why the unit is square too.' },
+    trap_wrong: { ru: 'В сантиметрах меряют длину, а мы считали клетки. Клетка это квадрат, и единица тоже квадратная.', uz: "Santimetrda uzunlik o'lchanadi, biz esa kataklarni sanadik. Katak bu kvadrat, birlik ham kvadrat.", en: 'Centimetres measure length, and we counted squares. A square is a square, and the unit is square too.' },
     audio: {
       ru: [
         'Бит посчитал клетки и записывает ответ.',
@@ -405,164 +412,170 @@ const CONTENT = {
         "Bit kataklarni sanab, javobni yozadi.",
         "Katak o'n ikkita. Mana yozdim. Yuza o'n ikki santimetr. Santimetr baribir santimetr, kvadrat ortiqcha.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit counted the squares and is writing down the answer.', 'There are twelve squares. I write it like this. The area is twelve centimetres. A centimetre is a centimetre, the square here is unnecessary.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: kataklarni sanash.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'В ряду 7 клеток, рядов 3. Сколько квадратных сантиметров?', uz: "Qatorda 7 katak, qator 3 ta. Necha kvadrat santimetr?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'В ряду 7 клеток, рядов 3. Сколько квадратных сантиметров?', uz: "Qatorda 7 katak, qator 3 ta. Necha kvadrat santimetr?", en: 'A row has 7 squares and there are 3 rows. How many square centimetres?' },
     ans: 21,
-    check: { ru: 'S = 21 см²', uz: 'S = 21 sm²' },
-    check_label: { ru: 'три ряда по семь', uz: 'yettitadan uch qator' },
-    hint: { ru: 'Посчитай клетки рядами.', uz: "Kataklarni qatorlab sanang." },
+    check: { ru: 'S = 21 см²', uz: 'S = 21 sm²', en: 'S = 21 sq cm' },
+    check_label: { ru: 'три ряда по семь', uz: 'yettitadan uch qator', en: 'three rows of seven' },
+    hint: { ru: 'Посчитай клетки рядами.', uz: "Kataklarni qatorlab sanang.", en: 'Count the squares by rows.' },
     audio: {
-      intro: { ru: 'В ряду семь клеток, рядов три. Сколько квадратных сантиметров?', uz: "Qatorda yettita katak, qator uchta. Necha kvadrat santimetr?" },
-      on_correct: { ru: 'Двадцать один квадратный сантиметр.', uz: "Yigirma bir kvadrat santimetr." }
+      intro: { ru: 'В ряду семь клеток, рядов три. Сколько квадратных сантиметров?', uz: "Qatorda yettita katak, qator uchta. Necha kvadrat santimetr?", en: 'A row has seven squares and there are three rows. How many square centimetres?' },
+      on_correct: { ru: 'Двадцать один квадратный сантиметр.', uz: "Yigirma bir kvadrat santimetr.", en: 'Twenty one square centimetres.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: ikki qator.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Панель 9 клеток в ряд и 2 ряда. Чему равна площадь?', uz: "Panelda qatorda 9 katak, qator 2 ta. Yuzasi nechaga teng?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Панель 9 клеток в ряд и 2 ряда. Чему равна площадь?', uz: "Panelda qatorda 9 katak, qator 2 ta. Yuzasi nechaga teng?", en: 'A panel is 9 squares in a row and 2 rows. What is the area?' },
     ans: 18,
-    check: { ru: 'S = 18 см²', uz: 'S = 18 sm²' },
-    check_label: { ru: 'два ряда по девять', uz: "to'qqiztadan ikki qator" },
-    hint: { ru: 'Девять клеток дважды.', uz: "To'qqizta katak ikki marta." },
+    check: { ru: 'S = 18 см²', uz: 'S = 18 sm²', en: 'S = 18 sq cm' },
+    check_label: { ru: 'два ряда по девять', uz: "to'qqiztadan ikki qator", en: 'two rows of nine' },
+    hint: { ru: 'Девять клеток дважды.', uz: "To'qqizta katak ikki marta.", en: 'Nine squares twice.' },
     audio: {
-      intro: { ru: 'Панель девять клеток в ряд и два ряда. Чему равна площадь?', uz: "Panelda qatorda to'qqizta katak, qator ikkita. Yuzasi nechaga teng?" },
-      on_correct: { ru: 'Восемнадцать квадратных сантиметров.', uz: "O'n sakkiz kvadrat santimetr." }
+      intro: { ru: 'Панель девять клеток в ряд и два ряда. Чему равна площадь?', uz: "Panelda qatorda to'qqizta katak, qator ikkita. Yuzasi nechaga teng?", en: 'A panel is nine squares in a row and two rows. What is the area?' },
+      on_correct: { ru: 'Восемнадцать квадратных сантиметров.', uz: "O'n sakkiz kvadrat santimetr.", en: 'Eighteen square centimetres.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Заказ на плитку', uz: 'Plitka buyurtmasi' },
-    q: { ru: 'Пол панели 8 клеток на 3. Каждая клетка одна плитка. Сколько плиток нужно и сколько останется от 30?', uz: "Panel poli 8 katakka 3 katak. Har bir katak bitta plitka. Nechta plitka kerak va 30 tadan nechtasi ortadi?" },
-    q_speech: { ru: 'пол панели восемь клеток на три. Каждая клетка это одна плитка. Сколько плиток нужно и сколько останется от тридцати?', uz: "panel poli sakkiz katakka uch katak. Har bir katak bitta plitka. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Заказ на плитку', uz: 'Plitka buyurtmasi', en: 'An order for tiles' },
+    q: { ru: 'Пол панели 8 клеток на 3. Каждая клетка одна плитка. Сколько плиток нужно и сколько останется от 30?', uz: "Panel poli 8 katakka 3 katak. Har bir katak bitta plitka. Nechta plitka kerak va 30 tadan nechtasi ortadi?", en: 'The floor of a panel is 8 squares by 3. Each square is one tile. How many tiles are needed and how many will be left out of 30?' },
+    q_speech: { ru: 'пол панели восемь клеток на три. Каждая клетка это одна плитка. Сколько плиток нужно и сколько останется от тридцати?', uz: "panel poli sakkiz katakka uch katak. Har bir katak bitta plitka. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?", en: 'the floor of a panel is eight squares by three. Each square is one tile. How many tiles are needed and how many will be left out of thirty?' },
     tbl_heads: [
-      { ru: 'в ряду', uz: 'qatorda' },
-      { ru: 'рядов', uz: 'qator' },
-      { ru: 'есть плиток', uz: 'plitka bor' }
+      { ru: 'в ряду', uz: 'qatorda', en: 'in a row' },
+      { ru: 'рядов', uz: 'qator', en: 'rows' },
+      { ru: 'есть плиток', uz: 'plitka bor', en: 'tiles available' }
     ],
     tbl_cells: ['8', '3', '30'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '8 · 3', uz: '8 · 3' },
-      { ru: '(8 + 3) · 2', uz: '(8 + 3) · 2' },
-      { ru: '30 − 8', uz: '30 − 8' },
-      { ru: '8 + 3', uz: '8 + 3' }
+      { ru: '8 · 3', uz: '8 · 3', en: '8 · 3' },
+      { ru: '(8 + 3) · 2', uz: '(8 + 3) · 2', en: '(8 + 3) · 2' },
+      { ru: '30 − 8', uz: '30 − 8', en: '30 − 8' },
+      { ru: '8 + 3', uz: '8 + 3', en: '8 + 3' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Так считают путь по краю, а плитка ложится внутри.', uz: "Bunda chekka yo'li sanaladi, plitka esa ichkariga yotadi." },
-      2: { ru: 'Вычитать рано, сначала узнаем, сколько плиток нужно.', uz: "Ayirish erta, avval nechta plitka kerakligini bilamiz." },
-      3: { ru: 'Длина и ширина вместе это не число клеток.', uz: "Uzunlik va en birga kataklar soni emas." }
+      1: { ru: 'Так считают путь по краю, а плитка ложится внутри.', uz: "Bunda chekka yo'li sanaladi, plitka esa ichkariga yotadi.", en: 'That is how the path along the edge is counted, and tiles are laid inside.' },
+      2: { ru: 'Вычитать рано, сначала узнаем, сколько плиток нужно.', uz: "Ayirish erta, avval nechta plitka kerakligini bilamiz.", en: 'It is too early to subtract, first we find out how many tiles are needed.' },
+      3: { ru: 'Длина и ширина вместе это не число клеток.', uz: "Uzunlik va en birga kataklar soni emas.", en: 'The length and the width together are not the number of squares.' }
     },
-    pick_ok: { ru: 'Верно. Клетки считают рядами.', uz: "To'g'ri. Kataklar qatorlab sanaladi." },
-    step1_q: { ru: 'Сколько плиток нужно?', uz: 'Nechta plitka kerak?' },
+    pick_ok: { ru: 'Верно. Клетки считают рядами.', uz: "To'g'ri. Kataklar qatorlab sanaladi.", en: 'Right. Squares are counted by rows.' },
+    step1_q: { ru: 'Сколько плиток нужно?', uz: 'Nechta plitka kerak?', en: 'How many tiles are needed?' },
     ans1: 24,
-    hint1: { ru: 'Восемь клеток три раза.', uz: "Sakkizta katak uch marta." },
-    step2_q: { ru: 'Сколько плиток останется?', uz: 'Nechta plitka ortadi?' },
+    hint1: { ru: 'Восемь клеток три раза.', uz: "Sakkizta katak uch marta.", en: 'Eight squares three times.' },
+    step2_q: { ru: 'Сколько плиток останется?', uz: 'Nechta plitka ortadi?', en: 'How many tiles will be left?' },
     ans2: 6,
-    hint2: { ru: 'Из тридцати убери двадцать четыре.', uz: "O'ttiztadan yigirma to'rttani olib tashlang." },
-    check: { ru: 'S = 24 см²', uz: 'S = 24 sm²' },
-    setup_audio: { ru: 'Строителям привезли плитку. Посмотри на таблицу и реши, с чего начинать.', uz: "Quruvchilarga plitka keltirildi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    hint2: { ru: 'Из тридцати убери двадцать четыре.', uz: "O'ttiztadan yigirma to'rttani olib tashlang.", en: 'Take twenty four away from thirty.' },
+    check: { ru: 'S = 24 см²', uz: 'S = 24 sm²', en: 'S = 24 sq cm' },
+    setup_audio: { ru: 'Строителям привезли плитку. Посмотри на таблицу и реши, с чего начинать.', uz: "Quruvchilarga plitka keltirildi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'Tiles were delivered to the builders. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Пол панели восемь клеток на три. Сколько плиток нужно и сколько останется от тридцати?', uz: "Panel poli sakkiz katakka uch katak. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?" },
-      on_correct: { ru: 'Двадцать четыре плитки ушло, шесть осталось.', uz: "Yigirma to'rtta plitka ketdi, oltitasi qoldi." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько клеток на полу.', uz: "Birinchi qadamga qayting. Polda nechta katak bor." }
+      intro: { ru: 'Пол панели восемь клеток на три. Сколько плиток нужно и сколько останется от тридцати?', uz: "Panel poli sakkiz katakka uch katak. Nechta plitka kerak va o'ttiztadan nechtasi ortadi?", en: 'The floor of a panel is eight squares by three. How many tiles are needed and how many will be left out of thirty?' },
+      on_correct: { ru: 'Двадцать четыре плитки ушло, шесть осталось.', uz: "Yigirma to'rtta plitka ketdi, oltitasi qoldi.", en: 'Twenty four tiles were used, six are left.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько клеток на полу.', uz: "Birinchi qadamga qayting. Polda nechta katak bor.", en: 'Go back to the first step. How many squares there are on the floor.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Считай клетки внутри', uz: "Uchta topshiriq. Ichkaridagi kataklarni sanang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Считай клетки внутри', uz: "Uchta topshiriq. Ichkaridagi kataklarni sanang", en: 'Three tasks. Count the squares inside' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'В ряду 6 клеток, рядов 5. Чему равна площадь в см²?', uz: "Qatorda 6 katak, qator 5 ta. Yuza sm² da nechaga teng?" },
-        q_speech: { ru: 'в ряду шесть клеток, рядов пять. Чему равна площадь в квадратных сантиметрах?', uz: "qatorda oltita katak, qator beshta. Yuza kvadrat santimetrda nechaga teng?" },
+        q: { ru: 'В ряду 6 клеток, рядов 5. Чему равна площадь в см²?', uz: "Qatorda 6 katak, qator 5 ta. Yuza sm² da nechaga teng?", en: 'A row has 6 squares and there are 5 rows. What is the area in sq cm?' },
+        q_speech: { ru: 'в ряду шесть клеток, рядов пять. Чему равна площадь в квадратных сантиметрах?', uz: "qatorda oltita katak, qator beshta. Yuza kvadrat santimetrda nechaga teng?", en: 'a row has six squares and there are five rows. What is the area in square centimetres?' },
         ans: 30,
-        hint: { ru: 'Шесть клеток пять раз.', uz: "Oltita katak besh marta." }
+        hint: { ru: 'Шесть клеток пять раз.', uz: "Oltita katak besh marta.", en: 'Six squares five times.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Квадратная панель 4 клетки в ряд. Чему равна её площадь?', uz: "Kvadrat panelda qatorda 4 katak. Yuzasi nechaga teng?" },
-        q_speech: { ru: 'квадратная панель четыре клетки в ряд. Чему равна её площадь?', uz: "kvadrat panelda qatorda to'rtta katak. Yuzasi nechaga teng?" },
+        q: { ru: 'Квадратная панель 4 клетки в ряд. Чему равна её площадь?', uz: "Kvadrat panelda qatorda 4 katak. Yuzasi nechaga teng?", en: 'A square panel is 4 squares in a row. What is its area?' },
+        q_speech: { ru: 'квадратная панель четыре клетки в ряд. Чему равна её площадь?', uz: "kvadrat panelda qatorda to'rtta katak. Yuzasi nechaga teng?", en: 'a square panel is four squares in a row. What is its area?' },
         ans: 16,
-        hint: { ru: 'У квадрата рядов столько же, сколько клеток в ряду.', uz: "Kvadratda qator soni qatordagi katak soniga teng." }
+        hint: { ru: 'У квадрата рядов столько же, сколько клеток в ряду.', uz: "Kvadratda qator soni qatordagi katak soniga teng.", en: 'A square has as many rows as there are squares in a row.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Внутри 12 клеток, в ряду 3. Сколько рядов?', uz: "Ichkarida 12 katak, qatorda 3 ta. Nechta qator bor?" },
-        q_speech: { ru: 'внутри двенадцать клеток, в ряду три. Сколько рядов?', uz: "ichkarida o'n ikkita katak, qatorda uchta. Nechta qator bor?" },
+        q: { ru: 'Внутри 12 клеток, в ряду 3. Сколько рядов?', uz: "Ichkarida 12 katak, qatorda 3 ta. Nechta qator bor?", en: 'There are 12 squares inside and 3 in a row. How many rows?' },
+        q_speech: { ru: 'внутри двенадцать клеток, в ряду три. Сколько рядов?', uz: "ichkarida o'n ikkita katak, qatorda uchta. Nechta qator bor?", en: 'there are twelve squares inside and three in a row. How many rows?' },
         ans: 4,
-        hint: { ru: 'Раздели все клетки на число клеток в ряду.', uz: "Hamma katakni qatordagi katak soniga bo'ling." }
+        hint: { ru: 'Раздели все клетки на число клеток в ряду.', uz: "Hamma katakni qatordagi katak soniga bo'ling.", en: 'Divide all the squares by the number of squares in a row.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Единица площади всегда квадрат. Один квадратный дециметр это квадрат со стороной 10 см, и в него помещается ровно 100 квадратных сантиметров: десять рядов по десять клеток.',
-      uz: "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni 10 sm bo'lgan kvadrat, unga roppa-rosa 100 kvadrat santimetr sig'adi: o'ntadan o'n qator."
+      uz: "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni 10 sm bo'lgan kvadrat, unga roppa-rosa 100 kvadrat santimetr sig'adi: o'ntadan o'n qator.",
+      en: 'A unit of area is always a square. One square decimetre is a square with a side of 10 cm, and exactly 100 square centimetres fit into it: ten rows of ten squares.'
     },
     fact_audio: {
       ru: 'Единица площади всегда квадрат. Один квадратный дециметр это квадрат со стороной десять сантиметров. Разлинуй его на клетки по сантиметру, и получится десять рядов по десять клеток, то есть сто квадратных сантиметров. Поэтому дециметровая мерка сразу заменяет сотню сантиметровых, и большие панели удобнее мерить именно ею.',
-      uz: "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni o'n santimetr bo'lgan kvadrat. Uni santimetrli kataklarga bo'lsangiz, o'ntadan o'n qator chiqadi, ya'ni yuz kvadrat santimetr. Shuning uchun detsimetrli o'lchov birdaniga yuzta santimetrlini almashtiradi va katta panellarni o'shanda o'lchash qulay."
+      uz: "Yuza birligi har doim kvadrat. Bir kvadrat detsimetr bu tomoni o'n santimetr bo'lgan kvadrat. Uni santimetrli kataklarga bo'lsangiz, o'ntadan o'n qator chiqadi, ya'ni yuz kvadrat santimetr. Shuning uchun detsimetrli o'lchov birdaniga yuzta santimetrlini almashtiradi va katta panellarni o'shanda o'lchash qulay.",
+      en: 'A unit of area is always a square. One square decimetre is a square with a side of ten centimetres. Rule it into centimetre squares and you get ten rows of ten squares, that is one hundred square centimetres. So a decimetre measure replaces a hundred centimetre ones at once, and big panels are easier to measure with it.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. Везде считай клетки внутри.', uz: "Oxirida uchta topshiriq. Hamma joyda ichkaridagi kataklarni sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай клетки рядами и не бери путь по краю.', uz: "Kataklarni qatorlab sanang, chekka yo'lini olmang." }
+      intro: { ru: 'Три задания напоследок. Везде считай клетки внутри.', uz: "Oxirida uchta topshiriq. Hamma joyda ichkaridagi kataklarni sanang.", en: 'Three tasks at the end. Count the squares inside everywhere.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посчитай клетки рядами и не бери путь по краю.', uz: "Kataklarni qatorlab sanang, chekka yo'lini olmang.", en: 'Count the squares by rows and do not take the path along the edge.' }
     }
   },
 
   // s14 — YAKUN: keyingisi to'rtburchak yuzasi formulasi (reja 39-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Панель измерена!', uz: "Panel o'lchandi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Панель измерена!', uz: "Panel o'lchandi!", en: 'The panel is measured!' },
     cando: {
       ru: ['считаю площадь клетками', 'называю квадратную единицу', 'не путаю площадь с периметром'],
-      uz: ["yuzani kataklab sanayman", "kvadrat birlikni nomlayman", "yuzani perimetr bilan chalkashtirmayman"]
+      uz: ["yuzani kataklab sanayman", "kvadrat birlikni nomlayman", "yuzani perimetr bilan chalkashtirmayman"],
+      en: ['I count area in squares', 'I name the square unit', 'I do not confuse area with perimeter']
     },
-    rule_recap: { ru: 'Площадь это клетки внутри, а мерка сама квадрат.', uz: "Yuza bu ichkaridagi kataklar, o'lchovning o'zi esa kvadrat." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 33: периметр; урок 9: таблица умножения', uz: '33-dars: perimetr; 9-dars: ko\'paytirish jadvali' },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'площадь прямоугольника: длина на ширину', uz: "to'rtburchak yuzasi: uzunlikni enga ko'paytirish" },
+    rule_recap: { ru: 'Площадь это клетки внутри, а мерка сама квадрат.', uz: "Yuza bu ichkaridagi kataklar, o'lchovning o'zi esa kvadrat.", en: 'Area is the squares inside, and the measure is itself a square.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 33: периметр; урок 9: таблица умножения', uz: '33-dars: perimetr; 9-dars: ko\'paytirish jadvali', en: 'lesson 33: perimeter; lesson 9: the multiplication table' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'площадь прямоугольника: длина на ширину', uz: "to'rtburchak yuzasi: uzunlikni enga ko'paytirish", en: 'the area of a rectangle: length times width' },
     audio: {
       ru: 'Панель измерена. Запомни главное. Площадь показывает, сколько клеток помещается внутри фигуры, и мерка при этом сама квадрат. Клетка со стороной один сантиметр это один квадратный сантиметр. Периметр меряют по краю в сантиметрах, а площадь внутри в квадратных. В следующий раз найдём короткий способ считать клетки!',
-      uz: "Panel o'lchandi. Asosiysini eslab qoling. Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi, o'lchovning o'zi esa kvadrat. Tomoni bir santimetr bo'lgan katak bir kvadrat santimetr. Perimetr chekkadan santimetrda, yuza ichkaridan kvadrat santimetrda o'lchanadi. Keyingi safar kataklarni sanashning qisqa yo'lini topamiz!"
+      uz: "Panel o'lchandi. Asosiysini eslab qoling. Yuza shakl ichiga nechta katak sig'ishini ko'rsatadi, o'lchovning o'zi esa kvadrat. Tomoni bir santimetr bo'lgan katak bir kvadrat santimetr. Perimetr chekkadan santimetrda, yuza ichkaridan kvadrat santimetrda o'lchanadi. Keyingi safar kataklarni sanashning qisqa yo'lini topamiz!",
+      en: 'The panel is measured. Remember the main thing. Area shows how many squares fit inside a figure, and the measure itself is a square. A square with a side of one centimetre is one square centimetre. The perimeter is measured along the edge in centimetres, and the area inside in square ones. Next time we will find a short way to count the squares!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Заглянем внутрь.', uz: 'Ichkariga qaraymiz.' },
-  s2:  { ru: 'Заполним клетками.', uz: "Kataklar bilan to'ldiramiz." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай чертёж.', uz: "Chizmani o'qing." },
-  s5:  { ru: 'Разложи по единицам.', uz: 'Birliklarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Величину назвали не ту.', uz: 'Kattalik boshqa atalibdi.' },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна панель.', uz: 'Yana bitta panel.' },
-  s12: { ru: 'Заказ на плитку.', uz: 'Plitka buyurtmasi.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Панель измерена. Идём дальше!', uz: "Panel o'lchandi. Davom etamiz!" }
+  s1:  { ru: 'Заглянем внутрь.', uz: 'Ichkariga qaraymiz.', en: 'Let us look inside.' },
+  s2:  { ru: 'Заполним клетками.', uz: "Kataklar bilan to'ldiramiz.", en: 'Let us fill it with squares.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай чертёж.', uz: "Chizmani o'qing.", en: 'Read the drawing.' },
+  s5:  { ru: 'Разложи по единицам.', uz: 'Birliklarga ajrating.', en: 'Sort them by units.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Величину назвали не ту.', uz: 'Kattalik boshqa atalibdi.', en: 'The wrong quantity was named.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна панель.', uz: 'Yana bitta panel.', en: 'And one more panel.' },
+  s12: { ru: 'Заказ на плитку.', uz: 'Plitka buyurtmasi.', en: 'An order for tiles.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Панель измерена. Идём дальше!', uz: "Panel o'lchandi. Davom etamiz!", en: 'The panel is measured. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Клетки сосчитаны, единица названа верно. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Kataklar sanaldi, birlik to'g'ri ataldi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Kataklar sanaldi, birlik to'g'ri ataldi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The squares are counted and the unit is named correctly. Thank you for your help!'
 };
 
 // ============================================================
@@ -725,12 +738,12 @@ const GridNodeLayer = () => {
         ))
       ))}
       <rect x="0" y="0" width="34" height="28" fill="none" stroke="#FFB92E" strokeWidth="2.6"/>
-      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СЕТКА КЛЕТОК' : "KATAK-TO'R"}</text>
-      <text x="85" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '1 клетка = 1 см²' : '1 katak = 1 sm2'}</text>
+      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СЕТКА КЛЕТОК', "KATAK-TO'R", 'THE GRID OF SQUARES')}</text>
+      <text x="85" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">{tri(lang, '1 клетка = 1 см²', '1 katak = 1 sm2', '1 square = 1 sq cm')}</text>
     </g>
     <g transform="translate(300 150)">
       <rect x="0" y="-10" width="20" height="20" fill="#FFD98A" stroke="#7FA8BF" strokeWidth="1.4"/>
-      <text x="10" y="22" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'мерка' : "o'lchov"}</text>
+      <text x="10" y="22" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'мерка', "o'lchov", 'the measure')}</text>
     </g>
   </svg>
   );
@@ -956,7 +969,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1075,7 +1088,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d34-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d34-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d34-expr">{t(c.step1)}</span>
@@ -1410,7 +1423,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1475,7 +1488,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1611,7 +1624,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d34-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d34-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1726,7 +1739,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1797,7 +1810,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d34-final-scene fade-up delay-1"><CrystalCityScene gathered/></div>
@@ -1818,7 +1831,7 @@ export default function AreaUnitLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1885,7 +1898,7 @@ export default function AreaUnitLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri , pickSib } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -133,8 +133,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 12;
 const LESSON_META = {
-  lessonId: 'num-3-07',
-  lessonTitle: { ru: 'Урок 7. Письменное сложение и вычитание', uz: "7-dars. Yozma qo'shish va ayirish" }
+  lessonId: 'grade3-07',
+  lessonTitle: { ru: 'Урок 7. Письменное сложение и вычитание', uz: "7-dars. Yozma qo'shish va ayirish", en: 'Lesson 7. Written addition and subtraction' }
 };
 // STRUKTURA (12 ekran): 1 hook · 2–6 tushuntirish · 7–10 mashq · 11 final · 12 xulosa.
 // Grade2 Dars01 etaloni yoyi, yuzlik qo'shilgan (uch pog'onali razryad).
@@ -166,14 +166,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: hisob terminali, katta sonlarni qanday qo'shamiz
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: письменное сложение и вычитание', uz: "Mavzu: yozma qo'shish va ayirish" },
-    lead: { ru: 'Счётный терминал складывает большие числа.', uz: 'Hisob terminali katta sonlarni qo\'shadi.' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: письменное сложение и вычитание', uz: "Mavzu: yozma qo'shish va ayirish", en: 'Topic: written addition and subtraction' },
+    lead: { ru: 'Счётный терминал складывает большие числа.', uz: 'Hisob terminali katta sonlarni qo\'shadi.', en: 'The counting terminal adds big numbers.' },
     a: 2456, b: 3178,
-    q: { ru: 'Можно ли сложить их в уме?', uz: 'Bularni xayolda qo\'shib bo\'ladimi?' },
-    opt0: { ru: 'Да, легко', uz: 'Ha, oson' },
-    opt1: { ru: 'Нет, нужен способ', uz: "Yo'q, usul kerak" },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    q: { ru: 'Можно ли сложить их в уме?', uz: 'Bularni xayolda qo\'shib bo\'ladimi?', en: 'Can you add them in your head?' },
+    opt0: { ru: 'Да, легко', uz: 'Ha, oson', en: 'Yes, easily' },
+    opt1: { ru: 'Нет, нужен способ', uz: "Yo'q, usul kerak", en: 'No, we need a method' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -187,17 +187,18 @@ const CONTENT = {
           "O'tgan hududda shahar shkalasini o'qidik. Endi Bit bizni hisob terminaliga olib keldi.",
           "Terminalda ikkita katta son. Ikki ming to'rt yuz ellik olti va uch ming bir yuz yetmish sakkiz.",
           "Sizningcha, bunday sonlarni xayolda qo'shish osonmi? Variantni tanlang."
-        ]
+        ],
+        en: ["Today's topic is written addition and subtraction. We will learn to work with big numbers in columns.", 'In the last district we were reading the city scale. Now Bit has brought us to the counting terminal.', 'There are two big numbers on the terminal. Two thousand four hundred fifty six and three thousand one hundred seventy eight.', 'Do you think such numbers are easy to add in your head? Choose an answer.']
       },
-      on_correct: { ru: 'Верно. В уме трудно. Есть удобный способ — столбик.', uz: "To'g'ri. Xayolda qiyin. Qulay usul bor — ustun." },
-      on_wrong: { ru: 'В уме такие числа складывать трудно. Поможет столбик.', uz: "Bunday sonlarni xayolda qo'shish qiyin. Ustun yordam beradi." }
+      on_correct: { ru: 'Верно. В уме трудно. Есть удобный способ — столбик.', uz: "To'g'ri. Xayolda qiyin. Qulay usul bor — ustun.", en: 'Correct. In your head it is hard. There is a handy method — the column.' },
+      on_wrong: { ru: 'В уме такие числа складывать трудно. Поможет столбик.', uz: "Bunday sonlarni xayolda qo'shish qiyin. Ustun yordam beradi.", en: 'Such numbers are hard to add in your head. The column will help.' }
     }
   },
 
   // s1 — RECALL: to'rt xonali sonda razryadlar (minglik/yuzlik/o'nlik/birlik)
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'У большого числа четыре разряда.', uz: 'Katta sonning to\'rt xonasi bor.' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'У большого числа четыре разряда.', uz: 'Katta sonning to\'rt xonasi bor.', en: 'A big number has four places.' },
     num: 3456,
     labels_ru: ['тысячи', 'сотни', 'десятки', 'единицы'],
     labels_uz: ['minglik', 'yuzlik', "o'nlik", 'birlik'],
@@ -211,16 +212,17 @@ const CONTENT = {
         "Xonalarni eslaymiz. Uch ming to'rt yuz ellik olti sonida to'rt xona bor.",
         "Chapda minglik, keyin yuzlik, keyin o'nlik, o'ngda birlik. Har raqam o'z o'rnida.",
         "Ustunda qo'shish uchun bir xil xonalar aynan bir-birining ostiga qo'yiladi."
-      ]
+      ],
+      en: ['Let us recall the places. The number three thousand four hundred fifty six has four places.', 'Thousands on the left, then hundreds, then tens, ones on the right. Each digit in its own place.', 'To add in a column, the same places are put strictly one under the other.']
     }
   },
 
   // s2 — TIKLASH (align): 3456 + 2178 ustunga
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Ставим числа в столбик по разрядам.', uz: "Sonlarni xonama-xona ustunga qo'yamiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Ставим числа в столбик по разрядам.', uz: "Sonlarni xonama-xona ustunga qo'yamiz.", en: 'We put the numbers in a column by place.' },
     a: 3456, b: 2178, op: '+',
-    done_text: { ru: 'Единицы под единицами, десятки под десятками. Так удобно складывать.', uz: "Birlik birlik ostida, o'nlik o'nlik ostida. Shunday qo'shish qulay." },
+    done_text: { ru: 'Единицы под единицами, десятки под десятками. Так удобно складывать.', uz: "Birlik birlik ostida, o'nlik o'nlik ostida. Shunday qo'shish qulay.", en: 'Ones under ones, tens under tens. That makes adding easy.' },
     audio: {
       ru: [
         'Возьмём три тысячи четыреста пятьдесят шесть и две тысячи сто семьдесят восемь.',
@@ -231,16 +233,17 @@ const CONTENT = {
         "Uch ming to'rt yuz ellik olti va ikki ming bir yuz yetmish sakkizni olamiz.",
         "Bir sonni ikkinchisining ostiga qo'yamiz. Birlik birlik ostida, o'nlik o'nlik ostida, yuzlik yuzlik ostida.",
         "Pastdan chiziq tortamiz. Endi ustunlab, o'ngdan chapga qo'shamiz."
-      ]
+      ],
+      en: ['Let us take three thousand four hundred fifty six and two thousand one hundred seventy eight.', 'We put one number under the other. Ones under ones, tens under tens, hundreds under hundreds.', 'We draw a line underneath. Now we will add column by column, from right to left.']
     }
   },
 
   // s3 — QO'SHISH o'tkazish bilan: 3456 + 2178 = 5634
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Складываем справа налево, с переносом.', uz: "O'ngdan chapga, o'tkazish bilan qo'shamiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Складываем справа налево, с переносом.', uz: "O'ngdan chapga, o'tkazish bilan qo'shamiz.", en: 'We add from right to left, with carrying.' },
     a: 3456, b: 2178, op: '+', result: 5634,
-    done_text: { ru: 'Если в разряде получилось больше девяти, десяток переносим в следующий разряд.', uz: "Xonada to'qqizdan ko'p chiqsa, o'nlikni keyingi xonaga o'tkazamiz." },
+    done_text: { ru: 'Если в разряде получилось больше девяти, десяток переносим в следующий разряд.', uz: "Xonada to'qqizdan ko'p chiqsa, o'nlikni keyingi xonaga o'tkazamiz.", en: 'If a place gives more than nine, we carry the ten into the next place.' },
     audio: {
       ru: [
         'Складываем единицы. Шесть плюс восемь это четырнадцать. Пишем четыре, а один десяток переносим влево.',
@@ -253,16 +256,17 @@ const CONTENT = {
         "O'nlikni qo'shamiz. Besh qo'shuv yetti bu o'n ikki, yana bitta o'tkazish, jami o'n uch. Uchni yozamiz, bir o'tkazamiz.",
         "Yuzlikni qo'shamiz. To'rt qo'shuv bir bu besh, yana o'tkazish, jami olti. Oltini yozamiz.",
         "Minglikni qo'shamiz. Uch qo'shuv ikki bu besh. Besh ming olti yuz o'ttiz to'rt chiqdi."
-      ]
+      ],
+      en: ['We add the ones. Six plus eight is fourteen. We write four and carry one ten to the left.', 'We add the tens. Five plus seven is twelve, and one more from the carry, thirteen in all. We write three and carry one.', 'We add the hundreds. Four plus one is five, and one more from the carry, six in all. We write six.', 'We add the thousands. Three plus two is five. We got five thousand six hundred thirty four.']
     }
   },
 
   // s4 — AYIRISH qarz bilan: 5342 - 1867 = 3475
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Вычитаем справа налево, с займом.', uz: "O'ngdan chapga, qarz bilan ayiramiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Вычитаем справа налево, с займом.', uz: "O'ngdan chapga, qarz bilan ayiramiz.", en: 'We subtract from right to left, with borrowing.' },
     a: 5342, b: 1867, op: '-', result: 3475,
-    done_text: { ru: 'Если цифры не хватает, занимаем десяток у соседа слева.', uz: "Raqam yetmasa, chap qo'shnidan bitta o'nlik qarz olamiz." },
+    done_text: { ru: 'Если цифры не хватает, занимаем десяток у соседа слева.', uz: "Raqam yetmasa, chap qo'shnidan bitta o'nlik qarz olamiz.", en: 'If a digit is not enough, we borrow a ten from the neighbour on the left.' },
     audio: {
       ru: [
         'Вычитаем единицы. От двух отнять семь нельзя. Занимаем десяток у соседа. Двенадцать минус семь это пять.',
@@ -275,20 +279,21 @@ const CONTENT = {
         "O'nlikni ayiramiz. Uch qoldi, oltini ayirib bo'lmaydi. Yana qarz olamiz. O'n uch ayir olti bu yetti.",
         "Yuzlikni ayiramiz. Ikki qoldi, sakkizni ayirib bo'lmaydi. Qarz olamiz. O'n ikki ayir sakkiz bu to'rt.",
         "Minglikni ayiramiz. To'rt qoldi, birni ayirsak bu uch. Uch ming to'rt yuz yetmish besh chiqdi."
-      ]
+      ],
+      en: ['We subtract the ones. You cannot take seven from two. We borrow a ten from the neighbour. Twelve minus seven is five.', 'We subtract the tens. Three are left, you cannot take six. We borrow again. Thirteen minus six is seven.', 'We subtract the hundreds. Two are left, you cannot take eight. We borrow. Twelve minus eight is four.', 'We subtract the thousands. Four are left, take one and that is three. We got three thousand four hundred seventy five.']
     }
   },
 
   // s5 — QOIDA
   s5: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Пишем разряд под разрядом. Считаем справа налево. При сложении лишний десяток переносим влево, при вычитании занимаем десяток у соседа.', uz: "Xonani xona ostiga yozamiz. O'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Пишем разряд под разрядом. Считаем справа налево. При сложении лишний десяток переносим влево, при вычитании занимаем десяток у соседа.', uz: "Xonani xona ostiga yozamiz. O'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz.", en: 'We write place under place. We count from right to left. When adding we carry the extra ten to the left, when subtracting we borrow a ten from the neighbour.' },
     a: 346, b: 128, op: '+', result: 474,
-    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'shing: 346 qo'shuv 128 nechaga teng?" },
+    check_q: { ru: 'Сложи столбиком: чему равно 346 плюс 128?', uz: "Ustunda qo'shing: 346 qo'shuv 128 nechaga teng?", en: 'Add in a column: what is 346 plus 128?' },
     check_opts: ['474', '464'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! Шесть плюс восемь четырнадцать, перенос — получается 474.', uz: "To'g'ri! Olti qo'shuv sakkiz o'n to'rt, o'tkazish — 474 chiqadi." },
-    check_no: { ru: 'Не забудь перенос из единиц. Шесть плюс восемь это четырнадцать. Ответ 474.', uz: "Birlikdan o'tkazishni unutmang. Olti qo'shuv sakkiz o'n to'rt. Javob 474." },
+    check_ok: { ru: 'Верно! Шесть плюс восемь четырнадцать, перенос — получается 474.', uz: "To'g'ri! Olti qo'shuv sakkiz o'n to'rt, o'tkazish — 474 chiqadi.", en: 'Correct! Six plus eight is fourteen, a carry — that gives 474.' },
+    check_no: { ru: 'Не забудь перенос из единиц. Шесть плюс восемь это четырнадцать. Ответ 474.', uz: "Birlikdan o'tkazishni unutmang. Olti qo'shuv sakkiz o'n to'rt. Javob 474.", en: 'Do not forget the carry from the ones. Six plus eight is fourteen. The answer is 474.' },
     audio: {
       ru: [
         'Отлично, теперь запомним правило письменного счёта.',
@@ -301,170 +306,173 @@ const CONTENT = {
         "Sonni son ostiga, xonani aynan xona ostiga yozamiz. Doim o'ngdan chapga, birlikdan hisoblaymiz.",
         "Qo'shishda, agar xonada to'qqizdan ko'p chiqsa, ortiqcha o'nlikni keyingi chap xonaga o'tkazamiz.",
         "Ayirishda, agar raqam yetmasa, chap qo'shnidan bitta o'nlik qarz olamiz. Endi o'zingiz. Uch yuz qirq olti va bir yuz yigirma sakkizni ustunda qo'shing."
-      ]
+      ],
+      en: ['Excellent, now let us remember the rule of written counting.', 'We write number under number, place strictly under place. We always count from right to left, from the ones.', 'When adding, if a place gives more than nine, we carry the extra ten into the next place on the left.', 'When subtracting, if a digit is not enough, we borrow one ten from the neighbour on the left. And now on your own. Add three hundred forty six and one hundred twenty eight in a column.']
     }
   },
 
   // s6 — MASHQ qo'shish (NumPad), 3 raund
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'shing." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Сложи столбиком.', uz: "Ustunda qo'shing.", en: 'Add in a column.' },
     op: '+',
-    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    check_label: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     items: [
-      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'shing." } },
-      { a: 3456, b: 2178, ans: 5634, hint: { ru: 'Не забудь переносы: шесть плюс восемь четырнадцать.', uz: "O'tkazishni unutmang: olti qo'shuv sakkiz o'n to'rt." } },
-      { a: 4508, b: 2394, ans: 6902, hint: { ru: 'Восемь плюс четыре двенадцать — перенос десятка.', uz: "Sakkiz qo'shuv to'rt o'n ikki — o'nlik o'tkaziladi." } }
+      { a: 2345, b: 1432, ans: 3777, hint: { ru: 'Складывай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona qo'shing.", en: 'Add from right to left, place by place.' } },
+      { a: 3456, b: 2178, ans: 5634, hint: { ru: 'Не забудь переносы: шесть плюс восемь четырнадцать.', uz: "O'tkazishni unutmang: olti qo'shuv sakkiz o'n to'rt.", en: 'Do not forget the carries: six plus eight is fourteen.' } },
+      { a: 4508, b: 2394, ans: 6902, hint: { ru: 'Восемь плюс четыре двенадцать — перенос десятка.', uz: "Sakkiz qo'shuv to'rt o'n ikki — o'nlik o'tkaziladi.", en: 'Eight plus four is twelve — carry a ten.' } }
     ],
     audio: {
-      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'shing. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishlarni unutmang." }
+      intro: { ru: 'Складывай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda qo'shing. Javobni terib, tekshirishni bosing. Uchta topshiriq.", en: 'Add the numbers in a column. Type the answer and tap check. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishlarni unutmang.", en: 'Count from right to left, do not forget the carries.' }
     }
   },
 
   // s7 — MASHQ ayirish (NumPad), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayiring." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Вычти столбиком.', uz: "Ustunda ayiring.", en: 'Subtract in a column.' },
     op: '-',
-    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    check_label: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     items: [
-      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayiring." } },
-      { a: 5342, b: 1867, ans: 3475, hint: { ru: 'Где не хватает, занимай десяток у соседа.', uz: "Yetmagan joyda qo'shnidan o'nlik qarz ol." } },
-      { a: 6003, b: 2748, ans: 3255, hint: { ru: 'Занимай через нули по очереди, справа налево.', uz: "Nollar orqali navbatma-navbat qarz ol, o'ngdan chapga." } }
+      { a: 4785, b: 2341, ans: 2444, hint: { ru: 'Вычитай справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona ayiring.", en: 'Subtract from right to left, place by place.' } },
+      { a: 5342, b: 1867, ans: 3475, hint: { ru: 'Где не хватает, занимай десяток у соседа.', uz: "Yetmagan joyda qo'shnidan o'nlik qarz ol.", en: 'Where a digit is not enough, borrow a ten from the neighbour.' } },
+      { a: 6003, b: 2748, ans: 3255, hint: { ru: 'Занимай через нули по очереди, справа налево.', uz: "Nollar orqali navbatma-navbat qarz ol, o'ngdan chapga.", en: 'Borrow through the zeros one by one, from right to left.' } }
     ],
     audio: {
-      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayiring. Javobni terib, tekshirishni bosing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisoblang. Yetmasa — qarz ol." }
+      intro: { ru: 'Вычитай числа столбиком. Набери ответ и нажми проверить. Три задания.', uz: "Sonlarni ustunda ayiring. Javobni terib, tekshirishni bosing. Uchta topshiriq.", en: 'Subtract the numbers in a column. Type the answer and tap check. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай справа налево. Где не хватает — занимай.', uz: "O'ngdan chapga hisoblang. Yetmasa — qarz ol.", en: 'Count from right to left. Where it is not enough, borrow.' }
     }
   },
 
   // s8 — MASHQ xatoni top (hisob yozuvlari), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверный пример.', uz: "Noto'g'ri misolni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Найди неверный пример.', uz: "Noto'g'ri misolni toping.", en: 'Find the wrong example.' },
     items: [
       {
         stmts: ['3456 + 2178 = 5534', '2345 + 1432 = 3777', '4000 + 500 = 4500'],
         wrong: 0,
-        hint: { ru: 'В сотнях с переносом выходит шесть: 3456 плюс 2178 это 5634, а не 5534.', uz: "Yuzlikda o'tkazish bilan olti chiqadi: 3456 qo'shuv 2178 bu 5634, 5534 emas." }
+        hint: { ru: 'В сотнях с переносом выходит шесть: 3456 плюс 2178 это 5634, а не 5534.', uz: "Yuzlikda o'tkazish bilan olti chiqadi: 3456 qo'shuv 2178 bu 5634, 5534 emas.", en: 'In the hundreds with the carry it comes to six: 3456 plus 2178 is 5634, not 5534.' }
       },
       {
         stmts: ['5342 - 1867 = 3475', '4785 - 2341 = 2544', '6000 - 2000 = 4000'],
         wrong: 1,
-        hint: { ru: 'Семь сотен минус три это четыре: 4785 минус 2341 это 2444, а не 2544.', uz: "Yetti yuzlik ayir uch bu to'rt: 4785 ayir 2341 bu 2444, 2544 emas." }
+        hint: { ru: 'Семь сотен минус три это четыре: 4785 минус 2341 это 2444, а не 2544.', uz: "Yetti yuzlik ayir uch bu to'rt: 4785 ayir 2341 bu 2444, 2544 emas.", en: 'Seven hundreds minus three is four: 4785 minus 2341 is 2444, not 2544.' }
       },
       {
         stmts: ['7250 + 1300 = 8550', '3200 + 2900 = 5100', '9000 - 4500 = 4500'],
         wrong: 1,
-        hint: { ru: 'Три плюс два тысячи это пять, с переносом сотен — шесть тысяч: 3200 плюс 2900 это 6100.', uz: "Uch qo'shuv ikki minglik besh, yuzlik o'tkazish bilan — olti ming: 3200 qo'shuv 2900 bu 6100." }
+        hint: { ru: 'Три плюс два тысячи это пять, с переносом сотен — шесть тысяч: 3200 плюс 2900 это 6100.', uz: "Uch qo'shuv ikki minglik besh, yuzlik o'tkazish bilan — olti ming: 3200 qo'shuv 2900 bu 6100.", en: 'Three plus two thousands is five, with the carry from the hundreds — six thousand: 3200 plus 2900 is 6100.' }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три примера. Один посчитан неверно. Найди неверный пример.', uz: "Uchta misol beraman. Bittasi noto'g'ri hisoblangan. Noto'g'ri misolni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisoblang. Yana qarang." }
+      intro: { ru: 'Даю три примера. Один посчитан неверно. Найди неверный пример.', uz: "Uchta misol beraman. Bittasi noto'g'ri hisoblangan. Noto'g'ri misolni toping.", en: 'I give you three examples. One is worked out wrongly. Find the wrong example.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Пересчитай столбиком, справа налево. Посмотри ещё.', uz: "Ustunda o'ngdan chapga qayta hisoblang. Yana qarang.", en: 'Work it out again in a column, from right to left. Look again.' }
     }
   },
 
   // s9 — MASALA (case): hisob terminali (Jasur jami), NumPad
   s9: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Джасур собрал модули: 2640 днём и 1785 вечером.', uz: 'Jasur modul yig\'di: kunduzi 2640, kechqurun 1785.' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Джасур собрал модули: 2640 днём и 1785 вечером.', uz: 'Jasur modul yig\'di: kunduzi 2640, kechqurun 1785.', en: 'Jasur collected modules: 2640 in the day and 1785 in the evening.' },
     a: 2640, b: 1785, op: '+', ans: 4425,
-    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'shing." },
-    setup_audio: { ru: 'Джасур собирал модули для города. Днём собрал две тысячи шестьсот сорок, вечером ещё тысячу семьсот восемьдесят пять.', uz: "Jasur shahar uchun modul yig'di. Kunduzi ikki ming olti yuz qirqta, kechqurun yana bir ming yetti yuz sakson beshta." },
+    q: { ru: 'Сколько всего модулей? Сложи столбиком.', uz: "Jami nechta modul? Ustunda qo'shing.", en: 'How many modules altogether? Add in a column.' },
+    setup_audio: { ru: 'Джасур собирал модули для города. Днём собрал две тысячи шестьсот сорок, вечером ещё тысячу семьсот восемьдесят пять.', uz: "Jasur shahar uchun modul yig'di. Kunduzi ikki ming olti yuz qirqta, kechqurun yana bir ming yetti yuz sakson beshta.", en: 'Jasur was collecting modules for the city. In the day he collected two thousand six hundred forty, in the evening one thousand seven hundred eighty five more.' },
     audio: {
-      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni tering." },
-      on_correct: { ru: 'Верно. Две тысячи шестьсот сорок плюс тысяча семьсот восемьдесят пять это четыре тысячи четыреста двадцать пять.', uz: "To'g'ri. Ikki ming olti yuz qirq qo'shuv bir ming yetti yuz sakson besh bu to'rt ming to'rt yuz yigirma besh." },
-      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishni unutmang." }
+      intro: { ru: 'Сложи столбиком, сколько всего модулей, и набери ответ.', uz: "Jami nechta modul ekanini ustunda qo'sh va javobni tering.", en: 'Add in a column how many modules there are altogether and type the answer.' },
+      on_correct: { ru: 'Верно. Две тысячи шестьсот сорок плюс тысяча семьсот восемьдесят пять это четыре тысячи четыреста двадцать пять.', uz: "To'g'ri. Ikki ming olti yuz qirq qo'shuv bir ming yetti yuz sakson besh bu to'rt ming to'rt yuz yigirma besh.", en: 'Correct. Two thousand six hundred forty plus one thousand seven hundred eighty five is four thousand four hundred twenty five.' },
+      on_wrong: { ru: 'Считай справа налево, не забывай переносы.', uz: "O'ngdan chapga hisobla, o'tkazishni unutmang.", en: 'Count from right to left, do not forget the carries.' }
     }
   },
 
   // s10 — FINAL panel (5 savol) + FactCard
   s10: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'num', ans: 5685,
-        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'shing: 3254 + 2431." },
-        hint: { ru: 'Справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona." }
+        q: { ru: 'Сложи столбиком: 3254 + 2431.', uz: "Ustunda qo'shing: 3254 + 2431.", en: 'Add in a column: 3254 + 2431.' },
+        hint: { ru: 'Справа налево, разряд за разрядом.', uz: "O'ngdan chapga, xonama-xona.", en: 'From right to left, place by place.' }
       },
       {
         kind: 'num', ans: 3200,
-        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayiring: 5600 − 2400." },
-        hint: { ru: 'Из шести сотен отними четыре — две сотни. Тысячи: пять минус два.', uz: "Olti yuzlikdan to'rtni ayir — ikki yuzlik. Minglik: besh ayir ikki." }
+        q: { ru: 'Вычти столбиком: 5600 − 2400.', uz: "Ustunda ayiring: 5600 − 2400.", en: 'Subtract in a column: 5600 − 2400.' },
+        hint: { ru: 'Из шести сотен отними четыре — две сотни. Тысячи: пять минус два.', uz: "Olti yuzlikdan to'rtni ayir — ikki yuzlik. Minglik: besh ayir ikki.", en: 'Take four from six hundreds — two hundreds. Thousands: five minus two.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какой ответ верный: 2345 + 1432?', uz: "Qaysi javob to'g'ri: 2345 + 1432?" },
-        opt0: { ru: '3777', uz: '3777' },
-        opt1: { ru: '3677', uz: '3677' },
-        opt2: { ru: '3877', uz: '3877' },
-        wrong_1: { ru: 'В сотнях три плюс четыре это семь: 3777.', uz: "Yuzlikda uch qo'shuv to'rt bu yetti: 3777." },
-        wrong_2: { ru: 'Пересчитай сотни: три плюс четыре семь, а не восемь.', uz: "Yuzlikni qayta sana: uch qo'shuv to'rt yetti, sakkiz emas." }
+        q: { ru: 'Какой ответ верный: 2345 + 1432?', uz: "Qaysi javob to'g'ri: 2345 + 1432?", en: 'Which answer is correct: 2345 + 1432?' },
+        opt0: { ru: '3777', uz: '3777', en: '3777' },
+        opt1: { ru: '3677', uz: '3677', en: '3677' },
+        opt2: { ru: '3877', uz: '3877', en: '3877' },
+        wrong_1: { ru: 'В сотнях три плюс четыре это семь: 3777.', uz: "Yuzlikda uch qo'shuv to'rt bu yetti: 3777.", en: 'In the hundreds three plus four is seven: 3777.' },
+        wrong_2: { ru: 'Пересчитай сотни: три плюс четыре семь, а не восемь.', uz: "Yuzlikni qayta sana: uch qo'shuv to'rt yetti, sakkiz emas.", en: 'Count the hundreds again: three plus four is seven, not eight.' }
       },
       {
         kind: 'num', ans: 7005,
-        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'shing: 4067 + 2938." },
-        hint: { ru: 'Семь плюс восемь пятнадцать, дальше переносы до тысяч.', uz: "Yetti qo'shuv sakkiz o'n besh, keyin o'tkazishlar minglikkacha." }
+        q: { ru: 'Сложи столбиком: 4067 + 2938.', uz: "Ustunda qo'shing: 4067 + 2938.", en: 'Add in a column: 4067 + 2938.' },
+        hint: { ru: 'Семь плюс восемь пятнадцать, дальше переносы до тысяч.', uz: "Yetti qo'shuv sakkiz o'n besh, keyin o'tkazishlar minglikkacha.", en: 'Seven plus eight is fifteen, then carries all the way to the thousands.' }
       },
       {
         kind: 'num', ans: 3500,
-        q: { ru: 'Загадка. Я между 3000 и 4000. Если ко мне прибавить 2000, будет 5500. Кто я?', uz: "Jumboq. Men 3000 bilan 4000 orasidaman. Menga 2000 qo'shsa, 5500 chiqadi. Men kimman?" },
-        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayiring." }
+        q: { ru: 'Загадка. Я между 3000 и 4000. Если ко мне прибавить 2000, будет 5500. Кто я?', uz: "Jumboq. Men 3000 bilan 4000 orasidaman. Menga 2000 qo'shsa, 5500 chiqadi. Men kimman?", en: 'A riddle. I am between 3000 and 4000. If you add 2000 to me, you get 5500. Who am I?' },
+        hint: { ru: 'От пяти тысяч пятисот отними две тысячи.', uz: "Besh ming besh yuzdan ikki mingni ayiring.", en: 'Take two thousand away from five thousand five hundred.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Красные карлики иногда сильно вспыхивают: за минуты становятся во много раз ярче. Такие вспышки видно даже с далёких планет.', uz: "Qizil mitti yulduzlar ba'zan kuchli chaqnaydi: bir necha daqiqada ancha yorug'roq bo'ladi. Bunday chaqnashlar uzoq sayyoralardan ham ko'rinadi." },
-    fact_audio: { ru: 'Красные карлики иногда сильно вспыхивают. За минуты они становятся во много раз ярче. Такие вспышки видно даже с далёких планет.', uz: "Qizil mitti yulduzlar ba'zan kuchli chaqnaydi. Bir necha daqiqada ancha yorug'roq bo'ladi. Bunday chaqnashlar uzoq sayyoralardan ham ko'rinadi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Красные карлики иногда сильно вспыхивают: за минуты становятся во много раз ярче. Такие вспышки видно даже с далёких планет.', uz: "Qizil mitti yulduzlar ba'zan kuchli chaqnaydi: bir necha daqiqada ancha yorug'roq bo'ladi. Bunday chaqnashlar uzoq sayyoralardan ham ko'rinadi.", en: 'Red dwarfs sometimes flare strongly: in minutes they become many times brighter. Such flares can be seen even from distant planets.' },
+    fact_audio: { ru: 'Красные карлики иногда сильно вспыхивают. За минуты они становятся во много раз ярче. Такие вспышки видно даже с далёких планет.', uz: "Qizil mitti yulduzlar ba'zan kuchli chaqnaydi. Bir necha daqiqada ancha yorug'roq bo'ladi. Bunday chaqnashlar uzoq sayyoralardan ham ko'rinadi.", en: 'Red dwarfs sometimes flare strongly. In minutes they become many times brighter. Such flares can be seen even from distant planets.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает примеры, отвечай на каждый.', uz: "Yakuniy tekshiruv. Shahar kompyuteri misollar ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает примеры, отвечай на каждый.', uz: "Yakuniy tekshiruv. Shahar kompyuteri misollar ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows examples, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s11 — YAKUN
   s11: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Счётный терминал заработал!', uz: 'Hisob terminali ishga tushdi!' },
-    cando: { ru: 'Теперь ты складываешь и вычитаешь большие числа столбиком.', uz: "Endi siz katta sonlarni ustunda qo'shasiz va ayirasiz." },
-    rule_recap: { ru: 'Разряд под разрядом, считаем справа налево. Сложение — перенос влево, вычитание — заём у соседа.', uz: "Xona xona ostida, o'ngdan chapga hisoblaymiz. Qo'shishda — chapga o'tkazish, ayirishda — qo'shnidan qarz." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'третий урок: разрядные слагаемые', uz: "uchinchi dars: razryad qo'shiluvchilari" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 8: системы счисления и римские цифры', uz: "8-dars: sanoq sistemalari va Rim raqamlari" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Счётный терминал заработал!', uz: 'Hisob terminali ishga tushdi!', en: 'The counting terminal is running!' },
+    cando: { ru: 'Теперь ты складываешь и вычитаешь большие числа столбиком.', uz: "Endi siz katta sonlarni ustunda qo'shasiz va ayirasiz.", en: 'Now you add and subtract big numbers in columns.' },
+    rule_recap: { ru: 'Разряд под разрядом, считаем справа налево. Сложение — перенос влево, вычитание — заём у соседа.', uz: "Xona xona ostida, o'ngdan chapga hisoblaymiz. Qo'shishda — chapga o'tkazish, ayirishda — qo'shnidan qarz.", en: 'Place under place, we count from right to left. Addition — carry to the left, subtraction — borrow from the neighbour.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'третий урок: разрядные слагаемые', uz: "uchinchi dars: razryad qo'shiluvchilari", en: 'lesson three: place-value parts' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 8: системы счисления и римские цифры', uz: "8-dars: sanoq sistemalari va Rim raqamlari", en: 'Lesson 8: number systems and Roman numerals' },
     audio: {
       ru: 'Счётный терминал заработал. Мы научились складывать и вычитать большие числа столбиком. Запомни. Пишем разряд под разрядом и считаем справа налево. При сложении лишний десяток переносим влево, при вычитании занимаем десяток у соседа. В следующий раз познакомимся с системами счисления и римскими цифрами.',
-      uz: "Hisob terminali ishga tushdi. Biz katta sonlarni ustunda qo'shish va ayirishni o'rgandik. Yodda tuting. Xonani xona ostiga yozamiz va o'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz. Keyingi safar sanoq sistemalari va Rim raqamlari bilan tanishamiz."
+      uz: "Hisob terminali ishga tushdi. Biz katta sonlarni ustunda qo'shish va ayirishni o'rgandik. Yodda tuting. Xonani xona ostiga yozamiz va o'ngdan chapga hisoblaymiz. Qo'shishda ortiqcha o'nlikni chapga o'tkazamiz, ayirishda qo'shnidan o'nlik qarz olamiz. Keyingi safar sanoq sistemalari va Rim raqamlari bilan tanishamiz.",
+      en: 'The counting terminal is running. We learned to add and subtract big numbers in columns. Remember. We write place under place and count from right to left. When adding we carry the extra ten to the left, when subtracting we borrow a ten from the neighbour. Next time we will meet number systems and Roman numerals.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним разряды.', uz: 'Xonalarni eslaymiz.' },
-  s2:  { ru: 'Поставим числа в столбик.', uz: "Sonlarni ustunga qo'yamiz." },
-  s3:  { ru: 'Складываем с переносом.', uz: "O'tkazish bilan qo'shamiz." },
-  s4:  { ru: 'А теперь вычитаем.', uz: 'Endi ayiramiz.' },
-  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s6:  { ru: 'Правило знаем. Складывай сам.', uz: "Qoidani bilamiz. O'zingiz qo'shing." },
-  s7:  { ru: 'Теперь вычитай.', uz: 'Endi ayiring.' },
-  s8:  { ru: 'Проверим примеры на ошибку.', uz: 'Misollarni xatoga tekshiramiz.' },
-  s9:  { ru: 'Джасур собрал модули.', uz: "Jasur modul yig'di." },
-  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s11: { ru: 'Терминал заработал. Идём дальше!', uz: 'Terminal ishladi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним разряды.', uz: 'Xonalarni eslaymiz.', en: 'Let us recall the places.' },
+  s2:  { ru: 'Поставим числа в столбик.', uz: "Sonlarni ustunga qo'yamiz.", en: 'Let us put the numbers in a column.' },
+  s3:  { ru: 'Складываем с переносом.', uz: "O'tkazish bilan qo'shamiz.", en: 'We add with carrying.' },
+  s4:  { ru: 'А теперь вычитаем.', uz: 'Endi ayiramiz.', en: 'And now we subtract.' },
+  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s6:  { ru: 'Правило знаем. Складывай сам.', uz: "Qoidani bilamiz. O'zingiz qo'shing.", en: 'We know the rule. Add on your own.' },
+  s7:  { ru: 'Теперь вычитай.', uz: 'Endi ayiring.', en: 'Now subtract.' },
+  s8:  { ru: 'Проверим примеры на ошибку.', uz: 'Misollarni xatoga tekshiramiz.', en: 'Let us check the examples for a mistake.' },
+  s9:  { ru: 'Джасур собрал модули.', uz: "Jasur modul yig'di.", en: 'Jasur collected modules.' },
+  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s11: { ru: 'Терминал заработал. Идём дальше!', uz: 'Terminal ishladi. Davom etamiz!', en: 'The terminal is running. Let us move on!' }
 };
 
 // s11 payoff (xulosadan oldin aytiladi)
 const S11_PAYOFF = {
   ru: 'Миссия выполнена! Мы научились считать большие числа столбиком, и счётный терминал города заработал. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz katta sonlarni ustunda hisoblashni o'rgandik, va shaharning hisob terminali ishga tushdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz katta sonlarni ustunda hisoblashni o'rgandik, va shaharning hisob terminali ishga tushdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We learned to work with big numbers in columns, and the counting terminal of the city started up. Thank you for your help!'
 };
 
 
@@ -672,7 +680,7 @@ const CountingHallBg = () => {
 
     <rect x="120" y="102" width="160" height="66" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="126" y="106" width="148" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="113.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СЧЁТ В СТОЛБИК' : 'USTUN HISOB'}</text>
+    <text x="200" y="113.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СЧЁТ В СТОЛБИК', 'USTUN HISOB', 'COLUMN COUNTING')}</text>
     <text x="214" y="132" textAnchor="middle" fontSize="17" fontWeight="800" fill="#EAF6FB" fontFamily="'JetBrains Mono', monospace">356</text>
     <text x="214" y="152" textAnchor="middle" fontSize="17" fontWeight="800" fill="#EAF6FB" fontFamily="'JetBrains Mono', monospace">428</text>
     {/* + belgisi ikki son ANIQ o'rtasida (vertikal markaz) */}
@@ -893,7 +901,7 @@ const Screen1 = (props) => {
     </>
   );
   const digs = String(c.num).split('');
-  const labels = lang === 'ru' ? c.labels_ru : c.labels_uz;
+  const labels = pickSib(c, 'labels', lang);
   const cols = ['#7A3FA0', '#C0392B', '#1F7A4D', T.blue];
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -1225,7 +1233,7 @@ const Screen9 = (props) => {
           <FrameFx/>
           <ColumnCalc a={c.a} b={c.b} op={c.op} showResult={solved} showMarks={solved}/>
           <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={4} state={numState}/>
-          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
         </div>
         {checked && (
           <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
@@ -1375,7 +1383,7 @@ const Screen10 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={4} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1444,7 +1452,7 @@ const Screen11 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1465,7 +1473,7 @@ export default function WrittenCalcLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1532,7 +1540,7 @@ export default function WrittenCalcLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

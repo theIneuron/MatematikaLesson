@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -134,8 +134,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'num-3-04',
-  lessonTitle: { ru: 'Урок 4. Сравнение трёхзначных чисел', uz: "4-dars. Uch xonali sonlarni taqqoslash" }
+  lessonId: 'grade3-04',
+  lessonTitle: { ru: 'Урок 4. Сравнение трёхзначных чисел', uz: "4-dars. Uch xonali sonlarni taqqoslash", en: 'Lesson 4. Comparing three-digit numbers' }
 };
 // STRUKTURA: s0 hook · s1–s5 tushuntirish · s6 qoida · s7–s10 mashq · s11 final · s12 xulosa (13 ekran).
 // Syujet: Bit sayyorasi Lumo, uch xonali sonlarni taqqoslash (SYUJET_3SINF.md Б1 d.4).
@@ -168,14 +168,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: ikki tuman, qaysida ko'p chiroq? (462 vs 458, o'nlik hal qiladi)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: сравнение чисел', uz: 'Mavzu: sonlarni taqqoslash' },
-    lead: { ru: 'Два района города. Огни сосчитаны.', uz: 'Shaharning ikki tumani. Chiroqlar sanalgan.' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: сравнение чисел', uz: 'Mavzu: sonlarni taqqoslash', en: 'Topic: comparing numbers' },
+    lead: { ru: 'Два района города. Огни сосчитаны.', uz: 'Shaharning ikki tumani. Chiroqlar sanalgan.', en: 'Two districts of the city. The lights are counted.' },
     a: 462, b: 458,
-    q: { ru: 'В каком районе больше огней?', uz: 'Qaysi tumanda chiroq ko\'p?' },
-    opt0: { ru: '462', uz: '462' },
-    opt1: { ru: '458', uz: '458' },
-    opt2: { ru: 'Поровну', uz: 'Teng' },
+    q: { ru: 'В каком районе больше огней?', uz: 'Qaysi tumanda chiroq ko\'p?', en: 'Which district has more lights?' },
+    opt0: { ru: '462', uz: '462', en: '462' },
+    opt1: { ru: '458', uz: '458', en: '458' },
+    opt2: { ru: 'Поровну', uz: 'Teng', en: 'The same' },
     audio: {
       intro: {
         ru: [
@@ -189,17 +189,18 @@ const CONTENT = {
           "O'tgan hududda sonlarni ajratdik. Endi Bit o'z shahrining ikki tumanini ko'rsatadi.",
           "Bir tumanda to'rt yuz oltmish ikki chiroq, boshqasida to'rt yuz ellik sakkiz.",
           "Sizningcha, qaysi tumanda chiroq ko'proq? Bittasini tanlang."
-        ]
+        ],
+        en: ["Today's topic is comparing three digit numbers. We will learn to tell which number is greater.", 'In the last district we were breaking numbers into parts. Now Bit is showing two districts of his city.', 'One district has four hundred sixty two lights, the other has four hundred fifty eight.', 'Which district do you think has more lights? Choose one answer.']
       },
-      on_correct: { ru: 'Верно. Сотни равны, а десятков в первом больше: шесть больше пяти.', uz: "To'g'ri. Yuzliklar teng, birinchisida o'nlik ko'proq: olti beshdan katta." },
-      on_wrong: { ru: 'Смотри не на последнюю цифру, а по разрядам слева. Проверим вместе.', uz: "Oxirgi raqamga emas, chapdan xonalarga qarang. Birga tekshiramiz." }
+      on_correct: { ru: 'Верно. Сотни равны, а десятков в первом больше: шесть больше пяти.', uz: "To'g'ri. Yuzliklar teng, birinchisida o'nlik ko'proq: olti beshdan katta.", en: 'Correct. The hundreds are equal, and the first has more tens: six is greater than five.' },
+      on_wrong: { ru: 'Смотри не на последнюю цифру, а по разрядам слева. Проверим вместе.', uz: "Oxirgi raqamga emas, chapdan xonalarga qarang. Birga tekshiramiz.", en: 'Look not at the last digit but at the places from the left. Let us check together.' }
     }
   },
 
   // s1 — RECALL: chap raqam eng og'ir (o'rin qiymati)
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'Левый разряд — самый весомый.', uz: "Chap xona eng og'ir." },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'Левый разряд — самый весомый.', uz: "Chap xona eng og'ir.", en: 'The left place carries the most weight.' },
     audio: {
       ru: [
         'Вспомним. В трёхзначном числе слева сотни, потом десятки, потом единицы.',
@@ -210,16 +211,17 @@ const CONTENT = {
         "Eslaymiz. Uch xonali sonda chapda yuzlik, keyin o'nlik, keyin birlik.",
         "Yuzlik hammadan og'ir. Bitta yuzlik bu yuz, bitta o'nlik esa atigi o'n.",
         "Shuning uchun sonlarni chapdan, eng og'ir xonadan boshlab taqqoslaymiz."
-      ]
+      ],
+      en: ['Let us recall. In a three digit number the hundreds are on the left, then the tens, then the ones.', 'The hundreds weigh the most. One hundred is a hundred, and one ten is only ten.', 'That is why we start comparing numbers from the left, from the heaviest place.']
     }
   },
 
   // s2 — YUZLIK hal qiladi: 523 vs 481
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Сначала сравниваем сотни.', uz: 'Avval yuzliklarni taqqoslaymiz.' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Сначала сравниваем сотни.', uz: 'Avval yuzliklarni taqqoslaymiz.', en: 'First we compare the hundreds.' },
     a: 523, b: 481, place: 'h', sign: '>',
-    done_text: { ru: 'Пять сотен больше четырёх. Значит 523 больше, остальное не важно.', uz: "Besh yuzlik to'rtdan katta. Demak 523 katta, qolgani muhim emas." },
+    done_text: { ru: 'Пять сотен больше четырёх. Значит 523 больше, остальное не важно.', uz: "Besh yuzlik to'rtdan katta. Demak 523 katta, qolgani muhim emas.", en: 'Five hundreds is more than four. So 523 is greater, the rest does not matter.' },
     audio: {
       ru: [
         'Сравним пятьсот двадцать три и четыреста восемьдесят один. Смотрим сотни.',
@@ -230,16 +232,17 @@ const CONTENT = {
         "Besh yuz yigirma uch va to'rt yuz sakson birni taqqoslaymiz. Yuzliklarga qaraymiz.",
         "Birinchi sonda besh yuzlik, ikkinchisida to'rt. Besh to'rtdan katta.",
         "Demak besh yuz yigirma uch katta. Yuzliklar har xil bo'lsa, keyingisiga qaramasa ham bo'ladi."
-      ]
+      ],
+      en: ['Let us compare five hundred twenty three and four hundred eighty one. We look at the hundreds.', 'The first number has five hundreds, the second has four. Five is greater than four.', 'So five hundred twenty three is greater. When the hundreds differ, there is no need to look further.']
     }
   },
 
   // s3 — O'NLIK hal qiladi: 345 vs 354 (yuzlik teng)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Сотни равны — смотрим десятки.', uz: "Yuzliklar teng — o'nliklarga qaraymiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Сотни равны — смотрим десятки.', uz: "Yuzliklar teng — o'nliklarga qaraymiz.", en: 'The hundreds are equal — we look at the tens.' },
     a: 345, b: 354, place: 't', sign: '<',
-    done_text: { ru: 'Сотни равны. В десятках четыре меньше пяти, значит 345 меньше 354.', uz: "Yuzliklar teng. O'nlikda to'rt beshdan kichik, demak 345 kichik 354 dan." },
+    done_text: { ru: 'Сотни равны. В десятках четыре меньше пяти, значит 345 меньше 354.', uz: "Yuzliklar teng. O'nlikda to'rt beshdan kichik, demak 345 kichik 354 dan.", en: 'The hundreds are equal. In the tens four is less than five, so 345 is less than 354.' },
     audio: {
       ru: [
         'Сравним триста сорок пять и триста пятьдесят четыре. В сотнях у обоих по три, они равны.',
@@ -250,16 +253,17 @@ const CONTENT = {
         "Uch yuz qirq besh va uch yuz ellik to'rtni taqqoslaymiz. Yuzlikda ikkovida uchtadan, ular teng.",
         "Yuzliklar teng ekan, keyingi xonaga, o'nlikka qaraymiz.",
         "To'rt o'nlik besh o'nlikdan kichik. Demak uch yuz qirq besh kichik uch yuz ellik to'rtdan."
-      ]
+      ],
+      en: ['Let us compare three hundred forty five and three hundred fifty four. Both have three in the hundreds, they are equal.', 'Since the hundreds are equal, we look at the next place, the tens.', 'Four tens is less than five tens. So three hundred forty five is less than three hundred fifty four.']
     }
   },
 
   // s4 — BIRLIK hal qiladi: 272 vs 276 (yuzlik+o'nlik teng)
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Сотни и десятки равны — смотрим единицы.', uz: "Yuzlik va o'nlik teng — birlikka qaraymiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Сотни и десятки равны — смотрим единицы.', uz: "Yuzlik va o'nlik teng — birlikka qaraymiz.", en: 'The hundreds and tens are equal — we look at the ones.' },
     a: 272, b: 276, place: 'o', sign: '<',
-    done_text: { ru: 'Сотни и десятки равны. В единицах два меньше шести, значит 272 меньше 276.', uz: "Yuzlik va o'nlik teng. Birlikda ikki oltidan kichik, demak 272 kichik 276 dan." },
+    done_text: { ru: 'Сотни и десятки равны. В единицах два меньше шести, значит 272 меньше 276.', uz: "Yuzlik va o'nlik teng. Birlikda ikki oltidan kichik, demak 272 kichik 276 dan.", en: 'The hundreds and tens are equal. In the ones two is less than six, so 272 is less than 276.' },
     audio: {
       ru: [
         'Сравним двести семьдесят два и двести семьдесят шесть. Сотни равны, десятки тоже равны.',
@@ -270,16 +274,17 @@ const CONTENT = {
         "Ikki yuz yetmish ikki va ikki yuz yetmish oltini taqqoslaymiz. Yuzliklar teng, o'nliklar ham teng.",
         "Oxirgi xona, birlik qoldi.",
         "Ikki oltidan kichik. Demak ikki yuz yetmish ikki kichik ikki yuz yetmish oltidan."
-      ]
+      ],
+      en: ['Let us compare two hundred seventy two and two hundred seventy six. The hundreds are equal and the tens are equal too.', 'The last place is left, the ones.', 'Two is less than six. So two hundred seventy two is less than two hundred seventy six.']
     }
   },
 
   // s5 — BELGI ma'nosi + tricky 600 vs 599
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Открытый рот знака смотрит на большее.', uz: "Belgining ochiq og'zi kattaga qaraydi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Открытый рот знака смотрит на большее.', uz: "Belgining ochiq og'zi kattaga qaraydi.", en: 'The open mouth of the sign looks at the greater one.' },
     a: 600, b: 599, place: 'h', sign: '>',
-    done_text: { ru: 'Шесть сотен больше пяти. Значит 600 больше 599, хотя во втором много девяток.', uz: "Olti yuzlik beshdan katta. Demak 600 katta 599 dan, ikkinchisida to'qqizlar ko'p bo'lsa ham." },
+    done_text: { ru: 'Шесть сотен больше пяти. Значит 600 больше 599, хотя во втором много девяток.', uz: "Olti yuzlik beshdan katta. Demak 600 katta 599 dan, ikkinchisida to'qqizlar ko'p bo'lsa ham.", en: 'Six hundreds is more than five. So 600 is greater than 599, even though the second has many nines.' },
     audio: {
       ru: [
         'Между числами ставят знак. Открытый рот знака всегда смотрит на большее число.',
@@ -290,19 +295,20 @@ const CONTENT = {
         "Sonlar orasiga belgi qo'yiladi. Belgining ochiq og'zi doim katta songa qaraydi.",
         "Olti yuz va besh yuz to'qson to'qqizni taqqoslaymiz. Ikkinchisida to'qqizlar ko'proqday.",
         "Lekin yuzlikka qaraymiz. Olti yuzlik beshdan katta. Demak olti yuz katta. Raqam soni emas, xonalar muhim."
-      ]
+      ],
+      en: ['A sign is put between the numbers. The open mouth of the sign always looks at the greater number.', 'Let us compare six hundred and five hundred ninety nine. It seems the second one has more nines.', 'But we look at the hundreds. Six hundreds is more than five. So six hundred is greater. The count of digits is not what matters, the places are.']
     }
   },
 
   // s6 — QOIDA
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Сравниваем слева направо, разряд за разрядом. Где цифра больше — то число больше. Знак открывается к большему.', uz: "Chapdan o'ngga, xonama-xona taqqoslaymiz. Qaysida raqam katta — o'sha son katta. Belgi kattaga ochiladi." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Сравниваем слева направо, разряд за разрядом. Где цифра больше — то число больше. Знак открывается к большему.', uz: "Chapdan o'ngga, xonama-xona taqqoslaymiz. Qaysida raqam katta — o'sha son katta. Belgi kattaga ochiladi.", en: 'We compare from left to right, place by place. Where the digit is greater, that number is greater. The sign opens towards the greater one.' },
     a: 463, b: 468,
-    check_q: { ru: 'Поставь знак между 463 и 468.', uz: "463 va 468 orasiga belgi qo'ying." },
+    check_q: { ru: 'Поставь знак между 463 и 468.', uz: "463 va 468 orasiga belgi qo'ying.", en: 'Put the sign between 463 and 468.' },
     check_sign: '<',
-    check_ok: { ru: 'Верно! Сотни и десятки равны, а три меньше восьми: 463 меньше.', uz: "To'g'ri! Yuzlik va o'nlik teng, uch sakkizdan kichik: 463 kichik." },
-    check_no: { ru: 'Сотни и десятки равны. Сравни единицы: три меньше восьми.', uz: "Yuzlik va o'nlik teng. Birlikni solishtiring: uch sakkizdan kichik." },
+    check_ok: { ru: 'Верно! Сотни и десятки равны, а три меньше восьми: 463 меньше.', uz: "To'g'ri! Yuzlik va o'nlik teng, uch sakkizdan kichik: 463 kichik.", en: 'Correct! The hundreds and tens are equal, and three is less than eight: 463 is less.' },
+    check_no: { ru: 'Сотни и десятки равны. Сравни единицы: три меньше восьми.', uz: "Yuzlik va o'nlik teng. Birlikni solishtiring: uch sakkizdan kichik.", en: 'The hundreds and tens are equal. Compare the ones: three is less than eight.' },
     audio: {
       ru: [
         'Отлично, теперь запомним это как правило.',
@@ -317,195 +323,198 @@ const CONTENT = {
         "Yuzliklar teng bo'lsa, o'nlikka qaraymiz. Ular ham teng bo'lsa, birlikka qaraymiz.",
         "Qaysi xona raqami katta bo'lsa, o'sha son katta. Belgi ochiq og'zi bilan katta songa qaraydi.",
         "Endi o'zingiz. To'rt yuz oltmish uch va to'rt yuz oltmish sakkiz orasiga belgi qo'ying."
-      ]
+      ],
+      en: ['Excellent, now let us remember this as a rule.', 'We compare two numbers from left to right, place by place. We start with the hundreds.', 'If the hundreds are equal, we look at the tens. If those are equal too, we look at the ones.', 'Where the digit of a place is greater, that number is greater. The open mouth of the sign looks at the greater number.', 'And now on your own. Put the sign between the numbers four hundred sixty three and four hundred sixty eight.']
     }
   },
 
   // s7 — MASHQ belgi qo'yish (< = >), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
-      { pair: [345, 354], sign: '<', hint: { ru: 'Сотни равны, десятки: 4 меньше 5. Значит 345 меньше, знак меньше.', uz: "Yuzliklar teng, o'nlik: 4, 5 dan kichik. Demak 345 kichik, kichik belgisi." } },
-      { pair: [482, 428], sign: '>', hint: { ru: 'Сотни равны, десятки: 8 больше 2. Значит 482 больше, знак больше.', uz: "Yuzliklar teng, o'nlik: 8, 2 dan katta. Demak 482 katta, katta belgisi." } },
-      { pair: [600, 599], sign: '>', hint: { ru: 'Сотни: 6 больше 5. Значит 600 больше 599, знак больше.', uz: "Yuzlik: 6, 5 dan katta. Demak 600 katta 599 dan, katta belgisi." } }
+      { pair: [345, 354], sign: '<', hint: { ru: 'Сотни равны, десятки: 4 меньше 5. Значит 345 меньше, знак меньше.', uz: "Yuzliklar teng, o'nlik: 4, 5 dan kichik. Demak 345 kichik, kichik belgisi.", en: 'Hundreds are equal, tens: 4 is less than 5. So 345 is less, the sign is less than.' } },
+      { pair: [482, 428], sign: '>', hint: { ru: 'Сотни равны, десятки: 8 больше 2. Значит 482 больше, знак больше.', uz: "Yuzliklar teng, o'nlik: 8, 2 dan katta. Demak 482 katta, katta belgisi.", en: 'Hundreds are equal, tens: 8 is greater than 2. So 482 is greater, the sign is greater than.' } },
+      { pair: [600, 599], sign: '>', hint: { ru: 'Сотни: 6 больше 5. Значит 600 больше 599, знак больше.', uz: "Yuzlik: 6, 5 dan katta. Demak 600 katta 599 dan, katta belgisi.", en: 'Hundreds: 6 is greater than 5. So 600 is greater than 599, the sign is greater than.' } }
     ],
     audio: {
-      intro: { ru: 'Ставь знак между числами. Открытый рот смотрит на большее число. Три задания.', uz: "Sonlar orasiga belgi qo'ying. Ochiq og'iz katta songa qaraydi. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни разряды слева направо. Знак открывается к большему.', uz: "Xonalarni chapdan o'ngga solishtiring. Belgi kattaga ochiladi." }
+      intro: { ru: 'Ставь знак между числами. Открытый рот смотрит на большее число. Три задания.', uz: "Sonlar orasiga belgi qo'ying. Ochiq og'iz katta songa qaraydi. Uchta topshiriq.", en: 'Put the sign between the numbers. The open mouth looks at the greater number. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сравни разряды слева направо. Знак открывается к большему.', uz: "Xonalarni chapdan o'ngga solishtiring. Belgi kattaga ochiladi.", en: 'Compare the places from left to right. The sign opens towards the greater one.' }
     }
   },
 
   // s8 — MASHQ kattasini tanla (MC), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое число больше?', uz: 'Qaysi son katta?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какое число больше?', uz: 'Qaysi son katta?', en: 'Which number is greater?' },
     items: [
       {
         pair: [730, 703], ci: 0,
-        opts: [{ ru: '730', uz: '730' }, { ru: '703', uz: '703' }, { ru: 'поровну', uz: 'teng' }],
+        opts: [{ ru: '730', uz: '730', en: '730' }, { ru: '703', uz: '703', en: '703' }, { ru: 'поровну', uz: 'teng', en: 'the same' }],
         hints: {
-          1: { ru: 'Сотни равны, десятки: 3 больше 0. Значит 730 больше.', uz: "Yuzliklar teng, o'nlik: 3, 0 dan katta. Demak 730 katta." },
-          2: { ru: 'Числа не равны: в десятках 3 и 0 разные.', uz: "Sonlar teng emas: o'nlikda 3 va 0 har xil." }
+          1: { ru: 'Сотни равны, десятки: 3 больше 0. Значит 730 больше.', uz: "Yuzliklar teng, o'nlik: 3, 0 dan katta. Demak 730 katta.", en: 'Hundreds are equal, tens: 3 is greater than 0. So 730 is greater.' },
+          2: { ru: 'Числа не равны: в десятках 3 и 0 разные.', uz: "Sonlar teng emas: o'nlikda 3 va 0 har xil.", en: 'The numbers are not equal: in the tens 3 and 0 are different.' }
         }
       },
       {
         pair: [519, 591], ci: 1,
-        opts: [{ ru: '519', uz: '519' }, { ru: '591', uz: '591' }, { ru: 'поровну', uz: 'teng' }],
+        opts: [{ ru: '519', uz: '519', en: '519' }, { ru: '591', uz: '591', en: '591' }, { ru: 'поровну', uz: 'teng', en: 'the same' }],
         hints: {
-          0: { ru: 'Сотни равны, десятки: 9 больше 1. Значит 591 больше.', uz: "Yuzliklar teng, o'nlik: 9, 1 dan katta. Demak 591 katta." },
-          2: { ru: 'Цифры одни, но места разные, значит не равны.', uz: "Raqamlar bir xil, lekin o'rni har xil, demak teng emas." }
+          0: { ru: 'Сотни равны, десятки: 9 больше 1. Значит 591 больше.', uz: "Yuzliklar teng, o'nlik: 9, 1 dan katta. Demak 591 katta.", en: 'Hundreds are equal, tens: 9 is greater than 1. So 591 is greater.' },
+          2: { ru: 'Цифры одни, но места разные, значит не равны.', uz: "Raqamlar bir xil, lekin o'rni har xil, demak teng emas.", en: 'The digits are the same, but the places differ, so they are not equal.' }
         }
       },
       {
         pair: [380, 380], ci: 2,
-        opts: [{ ru: '380', uz: '380' }, { ru: '380', uz: '380' }, { ru: 'поровну', uz: 'teng' }],
+        opts: [{ ru: '380', uz: '380', en: '380' }, { ru: '380', uz: '380', en: '380' }, { ru: 'поровну', uz: 'teng', en: 'the same' }],
         hints: {
-          0: { ru: 'Числа одинаковые во всех разрядах — они равны.', uz: "Sonlar barcha xonada bir xil — ular teng." },
-          1: { ru: 'Числа одинаковые во всех разрядах — они равны.', uz: "Sonlar barcha xonada bir xil — ular teng." }
+          0: { ru: 'Числа одинаковые во всех разрядах — они равны.', uz: "Sonlar barcha xonada bir xil — ular teng.", en: 'The numbers are the same in every place — they are equal.' },
+          1: { ru: 'Числа одинаковые во всех разрядах — они равны.', uz: "Sonlar barcha xonada bir xil — ular teng.", en: 'The numbers are the same in every place — they are equal.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Выбери, какое число больше. Если равны — нажми поровну. Три задания.', uz: "Qaysi son katta ekanini tanlang. Teng bo'lsa — teng bosing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни по разрядам слева направо. Попробуй ещё.', uz: "Xonama-xona chapdan o'ngga solishtiring. Yana urinib ko'ring." }
+      intro: { ru: 'Выбери, какое число больше. Если равны — нажми поровну. Три задания.', uz: "Qaysi son katta ekanini tanlang. Teng bo'lsa — teng bosing. Uchta topshiriq.", en: 'Choose which number is greater. If they are equal, tap the same. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сравни по разрядам слева направо. Попробуй ещё.', uz: "Xonama-xona chapdan o'ngga solishtiring. Yana urinib ko'ring.", en: 'Compare place by place from left to right. Try again.' }
     }
   },
 
   // s9 — MASHQ xatoni top (taqqoslash yozuvlari), 3 raund
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверную запись.', uz: "Noto'g'ri yozuvni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Найди неверную запись.', uz: "Noto'g'ri yozuvni toping.", en: 'Find the wrong line.' },
     items: [
       {
         stmts: ['517 > 571', '288 < 300', '640 > 604'],
         wrong: 0,
-        hint: { ru: 'Пятьсот семнадцать меньше пятисот семидесяти одного: десятки 1 меньше 7. Знак наоборот.', uz: "Besh yuz o'n yetti besh yuz yetmish birdan kichik: o'nlik 1, 7 dan kichik. Belgi teskari." }
+        hint: { ru: 'Пятьсот семнадцать меньше пятисот семидесяти одного: десятки 1 меньше 7. Знак наоборот.', uz: "Besh yuz o'n yetti besh yuz yetmish birdan kichik: o'nlik 1, 7 dan kichik. Belgi teskari.", en: 'Five hundred seventeen is less than five hundred seventy one: tens 1 is less than 7. The sign is the wrong way.' }
       },
       {
         stmts: ['729 > 728', '460 < 406', '815 > 809'],
         wrong: 1,
-        hint: { ru: 'Четыреста шестьдесят больше четырёхсот шести: десятки 6 больше 0. Знак наоборот.', uz: "To'rt yuz oltmish to'rt yuz oltidan katta: o'nlik 6, 0 dan katta. Belgi teskari." }
+        hint: { ru: 'Четыреста шестьдесят больше четырёхсот шести: десятки 6 больше 0. Знак наоборот.', uz: "To'rt yuz oltmish to'rt yuz oltidan katta: o'nlik 6, 0 dan katta. Belgi teskari.", en: 'Four hundred sixty is greater than four hundred six: tens 6 is greater than 0. The sign is the wrong way.' }
       },
       {
         stmts: ['300 < 299', '555 = 555', '712 > 700'],
         wrong: 0,
-        hint: { ru: 'Триста больше двухсот девяноста девяти: сотни 3 больше 2. Знак наоборот.', uz: "Uch yuz ikki yuz to'qson to'qqizdan katta: yuzlik 3, 2 dan katta. Belgi teskari." }
+        hint: { ru: 'Триста больше двухсот девяноста девяти: сотни 3 больше 2. Знак наоборот.', uz: "Uch yuz ikki yuz to'qson to'qqizdan katta: yuzlik 3, 2 dan katta. Belgi teskari.", en: 'Three hundred is greater than two hundred ninety nine: hundreds 3 is greater than 2. The sign is the wrong way.' }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три записи со знаками. Одна неверная. Найди неверную запись.', uz: "Uchta belgili yozuv beraman. Bittasi noto'g'ri. Noto'g'ri yozuvni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь знак: он открывается к большему числу. Посмотри ещё.', uz: "Belgini tekshiring: u katta songa ochiladi. Yana qarang." }
+      intro: { ru: 'Даю три записи со знаками. Одна неверная. Найди неверную запись.', uz: "Uchta belgili yozuv beraman. Bittasi noto'g'ri. Noto'g'ri yozuvni toping.", en: 'I give you three lines with signs. One is wrong. Find the wrong line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь знак: он открывается к большему числу. Посмотри ещё.', uz: "Belgini tekshiring: u katta songa ochiladi. Yana qarang.", en: 'Check the sign: it opens towards the greater number. Look again.' }
     }
   },
 
   // s10 — MASALA (case): Jasur ikki tuman -> belgi
   s10: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Джасур сравнил два района: 428 и 482 огня.', uz: 'Jasur ikki tumanni taqqosladi: 428 va 482 chiroq.' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Джасур сравнил два района: 428 и 482 огня.', uz: 'Jasur ikki tumanni taqqosladi: 428 va 482 chiroq.', en: 'Jasur compared two districts: 428 and 482 lights.' },
     pair: [428, 482], sign: '<',
-    q: { ru: 'Поставь верный знак между числами.', uz: "Sonlar orasiga to'g'ri belgini qo'ying." },
-    setup_audio: { ru: 'Джасур сосчитал огни в двух районах. В первом четыреста двадцать восемь, во втором четыреста восемьдесят два.', uz: "Jasur ikki tumandagi chiroqlarni sanadi. Birinchisida to'rt yuz yigirma sakkiz, ikkinchisida to'rt yuz sakson ikki." },
+    q: { ru: 'Поставь верный знак между числами.', uz: "Sonlar orasiga to'g'ri belgini qo'ying.", en: 'Put the correct sign between the numbers.' },
+    setup_audio: { ru: 'Джасур сосчитал огни в двух районах. В первом четыреста двадцать восемь, во втором четыреста восемьдесят два.', uz: "Jasur ikki tumandagi chiroqlarni sanadi. Birinchisida to'rt yuz yigirma sakkiz, ikkinchisida to'rt yuz sakson ikki.", en: 'Jasur counted the lights in two districts. The first has four hundred twenty eight, the second has four hundred eighty two.' },
     audio: {
-      intro: { ru: 'Поставь верный знак между числами. Открытый рот смотрит на большее.', uz: "Sonlar orasiga to'g'ri belgini qo'ying. Ochiq og'iz kattaga qaraydi." },
-      on_correct: { ru: 'Верно. Сотни равны, а восемь десятков больше двух: 428 меньше 482.', uz: "To'g'ri. Yuzliklar teng, sakkiz o'nlik ikkidan katta: 428 kichik 482 dan." },
-      on_wrong: { ru: 'Сравни десятки: 2 и 8. Знак открывается к большему.', uz: "O'nlikni solishtiring: 2 va 8. Belgi kattaga ochiladi." }
+      intro: { ru: 'Поставь верный знак между числами. Открытый рот смотрит на большее.', uz: "Sonlar orasiga to'g'ri belgini qo'ying. Ochiq og'iz kattaga qaraydi.", en: 'Put the correct sign between the numbers. The open mouth looks at the greater one.' },
+      on_correct: { ru: 'Верно. Сотни равны, а восемь десятков больше двух: 428 меньше 482.', uz: "To'g'ri. Yuzliklar teng, sakkiz o'nlik ikkidan katta: 428 kichik 482 dan.", en: 'Correct. The hundreds are equal, and eight tens is more than two: 428 is less than 482.' },
+      on_wrong: { ru: 'Сравни десятки: 2 и 8. Знак открывается к большему.', uz: "O'nlikni solishtiring: 2 va 8. Belgi kattaga ochiladi.", en: 'Compare the tens: 2 and 8. The sign opens towards the greater one.' }
     }
   },
 
   // s11 — FINAL panel (5 savol) + FactCard
   s11: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Какое число больше: 618 или 681?', uz: 'Qaysi son katta: 618 yoki 681?' },
-        opt0: { ru: '681', uz: '681' },
-        opt1: { ru: '618', uz: '618' },
-        opt2: { ru: 'Поровну', uz: 'Teng' },
-        wrong_1: { ru: 'Сотни равны, десятки: 8 больше 1, значит 681 больше.', uz: "Yuzliklar teng, o'nlik: 8, 1 dan katta, demak 681 katta." },
-        wrong_2: { ru: 'Цифры одни, но места разные — числа не равны.', uz: "Raqamlar bir xil, lekin o'rni har xil — sonlar teng emas." }
+        q: { ru: 'Какое число больше: 618 или 681?', uz: 'Qaysi son katta: 618 yoki 681?', en: 'Which number is greater: 618 or 681?' },
+        opt0: { ru: '681', uz: '681', en: '681' },
+        opt1: { ru: '618', uz: '618', en: '618' },
+        opt2: { ru: 'Поровну', uz: 'Teng', en: 'The same' },
+        wrong_1: { ru: 'Сотни равны, десятки: 8 больше 1, значит 681 больше.', uz: "Yuzliklar teng, o'nlik: 8, 1 dan katta, demak 681 katta.", en: 'Hundreds are equal, tens: 8 is greater than 1, so 681 is greater.' },
+        wrong_2: { ru: 'Цифры одни, но места разные — числа не равны.', uz: "Raqamlar bir xil, lekin o'rni har xil — sonlar teng emas.", en: 'The digits are the same, but the places differ — the numbers are not equal.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какой знак верен: 507 ... 570?', uz: "Qaysi belgi to'g'ri: 507 ... 570?" },
-        opt0: { ru: 'меньше', uz: 'kichik' },
-        opt1: { ru: 'больше', uz: 'katta' },
-        opt2: { ru: 'равно', uz: 'teng' },
-        wrong_1: { ru: 'Сотни равны, десятки: 0 меньше 7. Значит 507 меньше.', uz: "Yuzliklar teng, o'nlik: 0, 7 dan kichik. Demak 507 kichik." },
-        wrong_2: { ru: 'Числа разные: в десятках 0 и 7.', uz: "Sonlar har xil: o'nlikda 0 va 7." }
+        q: { ru: 'Какой знак верен: 507 ... 570?', uz: "Qaysi belgi to'g'ri: 507 ... 570?", en: 'Which sign is correct: 507 ... 570?' },
+        opt0: { ru: 'меньше', uz: 'kichik', en: 'less than' },
+        opt1: { ru: 'больше', uz: 'katta', en: 'greater than' },
+        opt2: { ru: 'равно', uz: 'teng', en: 'equal to' },
+        wrong_1: { ru: 'Сотни равны, десятки: 0 меньше 7. Значит 507 меньше.', uz: "Yuzliklar teng, o'nlik: 0, 7 dan kichik. Demak 507 kichik.", en: 'Hundreds are equal, tens: 0 is less than 7. So 507 is less.' },
+        wrong_2: { ru: 'Числа разные: в десятках 0 и 7.', uz: "Sonlar har xil: o'nlikda 0 va 7.", en: 'The numbers are different: in the tens 0 and 7.' }
       },
       {
         kind: 'num', ans: 800,
-        q: { ru: 'Какое число больше: 800 или 799? Запиши большее.', uz: '800 yoki 799 — qaysi katta? Kattasini yozing.' },
-        hint: { ru: 'Сотни: 8 больше 7. Значит больше восемьсот.', uz: "Yuzlik: 8, 7 dan katta. Demak sakkiz yuz katta." }
+        q: { ru: 'Какое число больше: 800 или 799? Запиши большее.', uz: '800 yoki 799 — qaysi katta? Kattasini yozing.', en: 'Which number is greater: 800 or 799? Write the greater one.' },
+        hint: { ru: 'Сотни: 8 больше 7. Значит больше восемьсот.', uz: "Yuzlik: 8, 7 dan katta. Demak sakkiz yuz katta.", en: 'Hundreds: 8 is greater than 7. So eight hundred is greater.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?" },
-        opt0: { ru: '640 > 604', uz: '640 > 604' },
-        opt1: { ru: '640 < 604', uz: '640 < 604' },
-        opt2: { ru: '640 = 604', uz: '640 = 604' },
-        wrong_1: { ru: 'Десятки: 4 больше 0, значит 640 больше 604.', uz: "O'nlik: 4, 0 dan katta, demak 640 katta 604 dan." },
-        wrong_2: { ru: 'В десятках 4 и 0 — числа не равны.', uz: "O'nlikda 4 va 0 — sonlar teng emas." }
+        q: { ru: 'Какая запись верна?', uz: "Qaysi yozuv to'g'ri?", en: 'Which line is correct?' },
+        opt0: { ru: '640 > 604', uz: '640 > 604', en: '640 > 604' },
+        opt1: { ru: '640 < 604', uz: '640 < 604', en: '640 < 604' },
+        opt2: { ru: '640 = 604', uz: '640 = 604', en: '640 = 604' },
+        wrong_1: { ru: 'Десятки: 4 больше 0, значит 640 больше 604.', uz: "O'nlik: 4, 0 dan katta, demak 640 katta 604 dan.", en: 'Tens: 4 is greater than 0, so 640 is greater than 604.' },
+        wrong_2: { ru: 'В десятках 4 и 0 — числа не равны.', uz: "O'nlikda 4 va 0 — sonlar teng emas.", en: 'In the tens 4 and 0 — the numbers are not equal.' }
       },
       {
         kind: 'num', ans: 350,
-        q: { ru: 'Загадка. Я трёхзначное число, больше 349 и меньше 351. Кто я?', uz: "Jumboq. Men uch xonali sonman, 349 dan katta va 351 dan kichik. Men kimman?" },
-        hint: { ru: 'Между 349 и 351 стоит только одно число.', uz: "349 bilan 351 orasida faqat bitta son turadi." }
+        q: { ru: 'Загадка. Я трёхзначное число, больше 349 и меньше 351. Кто я?', uz: "Jumboq. Men uch xonali sonman, 349 dan katta va 351 dan kichik. Men kimman?", en: 'A riddle. I am a three-digit number, greater than 349 and less than 351. Who am I?' },
+        hint: { ru: 'Между 349 и 351 стоит только одно число.', uz: "349 bilan 351 orasida faqat bitta son turadi.", en: 'Between 349 and 351 there stands only one number.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Красные карлики холоднее нашего Солнца, поэтому светят красным светом. Чем холоднее звезда, тем краснее её свет.', uz: "Qizil mitti yulduzlar Quyoshimizdan sovuqroq, shuning uchun qizil nur sochadi. Yulduz qancha sovuq bo'lsa, nuri shuncha qizil." },
-    fact_audio: { ru: 'Красные карлики холоднее нашего Солнца, поэтому светят красным светом. Чем холоднее звезда, тем краснее её свет.', uz: "Qizil mitti yulduzlar Quyoshimizdan sovuqroq, shuning uchun qizil nur sochadi. Yulduz qancha sovuq bo'lsa, nuri shuncha qizil." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Красные карлики холоднее нашего Солнца, поэтому светят красным светом. Чем холоднее звезда, тем краснее её свет.', uz: "Qizil mitti yulduzlar Quyoshimizdan sovuqroq, shuning uchun qizil nur sochadi. Yulduz qancha sovuq bo'lsa, nuri shuncha qizil.", en: 'Red dwarfs are cooler than our Sun, so they shine with red light. The cooler a star is, the redder its light.' },
+    fact_audio: { ru: 'Красные карлики холоднее нашего Солнца, поэтому светят красным светом. Чем холоднее звезда, тем краснее её свет.', uz: "Qizil mitti yulduzlar Quyoshimizdan sovuqroq, shuning uchun qizil nur sochadi. Yulduz qancha sovuq bo'lsa, nuri shuncha qizil.", en: 'Red dwarfs are cooler than our Sun, so they shine with red light. The cooler a star is, the redder its light.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows tasks, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s12 — YAKUN
   s12: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Районы сравнены — карта города открыта!', uz: 'Tumanlar taqqoslandi — shahar xaritasi ochildi!' },
-    cando: { ru: 'Теперь ты сравниваешь трёхзначные числа по разрядам, слева направо.', uz: "Endi siz uch xonali sonlarni xonama-xona, chapdan o'ngga taqqoslaysiz." },
-    rule_recap: { ru: 'Сравнивай слева направо: сначала сотни, потом десятки, потом единицы. Знак открывается к большему.', uz: "Chapdan o'ngga taqqoslang: avval yuzlik, keyin o'nlik, keyin birlik. Belgi kattaga ochiladi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'третий урок: разрядные слагаемые', uz: "uchinchi dars: razryad qo'shiluvchilari" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 5: округление до десятков и сотен', uz: "5-dars: o'nlik va yuzlikkacha yaxlitlash" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Районы сравнены — карта города открыта!', uz: 'Tumanlar taqqoslandi — shahar xaritasi ochildi!', en: 'The districts are compared — the city map is open!' },
+    cando: { ru: 'Теперь ты сравниваешь трёхзначные числа по разрядам, слева направо.', uz: "Endi siz uch xonali sonlarni xonama-xona, chapdan o'ngga taqqoslaysiz.", en: 'Now you compare three-digit numbers place by place, from left to right.' },
+    rule_recap: { ru: 'Сравнивай слева направо: сначала сотни, потом десятки, потом единицы. Знак открывается к большему.', uz: "Chapdan o'ngga taqqoslang: avval yuzlik, keyin o'nlik, keyin birlik. Belgi kattaga ochiladi.", en: 'Compare from left to right: first the hundreds, then the tens, then the ones. The sign opens towards the greater one.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'третий урок: разрядные слагаемые', uz: "uchinchi dars: razryad qo'shiluvchilari", en: 'lesson three: place-value parts' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 5: округление до десятков и сотен', uz: "5-dars: o'nlik va yuzlikkacha yaxlitlash", en: 'Lesson 5: rounding to tens and hundreds' },
     audio: {
       ru: 'Районы города сравнены. Мы научились сравнивать трёхзначные числа по разрядам, слева направо. Запомни правило. Сначала сравниваем сотни, потом десятки, потом единицы. Где цифра разряда больше, то число больше. А знак открытым ртом смотрит на большее число. В следующий раз научимся округлять числа до десятков и сотен.',
-      uz: "Shahar tumanlari taqqoslandi. Biz uch xonali sonlarni xonama-xona, chapdan o'ngga taqqoslashni o'rgandik. Qoidani yodda tuting. Avval yuzlikni, keyin o'nlikni, keyin birlikni taqqoslaymiz. Qaysi xona raqami katta bo'lsa, o'sha son katta. Belgi esa ochiq og'zi bilan katta songa qaraydi. Keyingi safar sonlarni o'nlik va yuzlikkacha yaxlitlashni o'rganamiz."
+      uz: "Shahar tumanlari taqqoslandi. Biz uch xonali sonlarni xonama-xona, chapdan o'ngga taqqoslashni o'rgandik. Qoidani yodda tuting. Avval yuzlikni, keyin o'nlikni, keyin birlikni taqqoslaymiz. Qaysi xona raqami katta bo'lsa, o'sha son katta. Belgi esa ochiq og'zi bilan katta songa qaraydi. Keyingi safar sonlarni o'nlik va yuzlikkacha yaxlitlashni o'rganamiz.",
+      en: 'The districts of the city are compared. We learned to compare three digit numbers place by place, from left to right. Remember the rule. First we compare the hundreds, then the tens, then the ones. Where the digit of a place is greater, that number is greater. And the open mouth of the sign looks at the greater number. Next time we will learn to round numbers to tens and hundreds.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним про разряды.', uz: 'Xonalarni eslaymiz.' },
-  s2:  { ru: 'Начнём сравнивать с сотен.', uz: 'Yuzlikdan taqqoslay boshlaymiz.' },
-  s3:  { ru: 'А если сотни равны?', uz: 'Yuzliklar teng bo\'lsa-chi?' },
-  s4:  { ru: 'А если и десятки равны?', uz: 'O\'nliklar ham teng bo\'lsa-chi?' },
-  s5:  { ru: 'Про знак и хитрый случай.', uz: 'Belgi va ayyor holat haqida.' },
-  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s7:  { ru: 'Правило знаем. Ставь знак сам.', uz: "Qoidani bilamiz. O'zingiz belgi qo'ying." },
-  s8:  { ru: 'Теперь выбирай большее число.', uz: 'Endi katta sonni tanlang.' },
-  s9:  { ru: 'Проверим записи на ошибку.', uz: 'Yozuvlarni xatoga tekshiramiz.' },
-  s10: { ru: 'Последнее сравнение районов.', uz: 'Tumanlarning oxirgi taqqoslashi.' },
-  s11: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s12: { ru: 'Карта открыта. Идём дальше!', uz: 'Xarita ochildi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним про разряды.', uz: 'Xonalarni eslaymiz.', en: 'Let us recall the places.' },
+  s2:  { ru: 'Начнём сравнивать с сотен.', uz: 'Yuzlikdan taqqoslay boshlaymiz.', en: 'Let us start comparing with the hundreds.' },
+  s3:  { ru: 'А если сотни равны?', uz: 'Yuzliklar teng bo\'lsa-chi?', en: 'And what if the hundreds are equal?' },
+  s4:  { ru: 'А если и десятки равны?', uz: 'O\'nliklar ham teng bo\'lsa-chi?', en: 'And what if the tens are equal too?' },
+  s5:  { ru: 'Про знак и хитрый случай.', uz: 'Belgi va ayyor holat haqida.', en: 'About the sign and a tricky case.' },
+  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s7:  { ru: 'Правило знаем. Ставь знак сам.', uz: "Qoidani bilamiz. O'zingiz belgi qo'ying.", en: 'We know the rule. Put the sign yourself.' },
+  s8:  { ru: 'Теперь выбирай большее число.', uz: 'Endi katta sonni tanlang.', en: 'Now choose the greater number.' },
+  s9:  { ru: 'Проверим записи на ошибку.', uz: 'Yozuvlarni xatoga tekshiramiz.', en: 'Let us check the lines for a mistake.' },
+  s10: { ru: 'Последнее сравнение районов.', uz: 'Tumanlarning oxirgi taqqoslashi.', en: 'The last comparison of districts.' },
+  s11: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s12: { ru: 'Карта открыта. Идём дальше!', uz: 'Xarita ochildi. Davom etamiz!', en: 'The map is open. Let us move on!' }
 };
 
 // s12 payoff (xulosadan oldin aytiladi)
 const S12_PAYOFF = {
   ru: 'Миссия выполнена! Мы научились сравнивать районы по числу огней, и Бит открыл карту города. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz tumanlarni chiroqlar soni bo'yicha taqqoslashni o'rgandik, va Bit shahar xaritasini ochdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz tumanlarni chiroqlar soni bo'yicha taqqoslashni o'rgandik, va Bit shahar xaritasini ochdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We learned to compare districts by the number of lights, and Bit opened the city map. Thank you for your help!'
 };
 
 
@@ -716,7 +725,7 @@ const TwoDistrictBridgeBg = () => {
 
     <rect x="104" y="104" width="192" height="46" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="110" y="108" width="180" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СРАВНЕНИЕ' : 'TAQQOSLASH'}</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СРАВНЕНИЕ', 'TAQQOSLASH', 'COMPARISON')}</text>
     <text x="150" y="142" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8FE6C0" fontFamily="'JetBrains Mono', monospace">546</text>
     <text x="200" y="143" textAnchor="middle" fontSize="22" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">&gt;</text>
     <text x="250" y="142" textAnchor="middle" fontSize="20" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">465</text>
@@ -887,7 +896,7 @@ const CompareRound = ({ props, ck }) => {
         {it && (
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, items.length)} из ${items.length}` : `${Math.min(idx + 1, items.length)}-topshiriq, jami ${items.length}`}</div>
-            <h1 className="title h-sub fade-up">{lang === 'ru' ? 'Поставь знак' : "Belgini qo'ying"}</h1>
+            <h1 className="title h-sub fade-up">{tri(lang, 'Поставь знак', "Belgini qo'ying", 'Put the sign')}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
               <div className="lm-cmprow">
@@ -1099,7 +1108,7 @@ const Screen1 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const labels = { h: lang === 'ru' ? 'сотни' : 'yuzlik', t: lang === 'ru' ? 'десятки' : "o'nlik", o: lang === 'ru' ? 'единицы' : 'birlik' };
+  const labels = { h: tri(lang, 'сотни', 'yuzlik', 'hundreds'), t: tri(lang, 'десятки', "o'nlik", 'tens'), o: tri(lang, 'единицы', 'birlik', 'ones') };
   const weights = [['3', 'h', '100'], ['4', 't', '10'], ['5', 'o', '1']];
   const RCOL = ['#C0392B', '#1F7A4D', T.blue];
   return (
@@ -1529,7 +1538,7 @@ const Screen11 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1598,7 +1607,7 @@ const Screen12 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1619,7 +1628,7 @@ export default function CompareLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1686,7 +1695,7 @@ export default function CompareLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

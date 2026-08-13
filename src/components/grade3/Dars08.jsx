@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -133,8 +133,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 12;
 const LESSON_META = {
-  lessonId: 'num-3-08',
-  lessonTitle: { ru: 'Урок 8. Римские цифры', uz: "8-dars. Rim raqamlari" }
+  lessonId: 'grade3-08',
+  lessonTitle: { ru: 'Урок 8. Римские цифры', uz: "8-dars. Rim raqamlari", en: 'Lesson 8. Roman numerals' }
 };
 // STRUKTURA (12 ekran): s0 hook · s1–s4 kashfiyot · s5 qoida · s6–s9 mashq · s10 final · s11 xulosa.
 // Syujet: Bit sayyorasi Lumo, belgi-devor (SYUJET_3SINF.md Б1 d.8).
@@ -166,14 +166,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: belgi-devor, IV qaysi son (ayiruv seed)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: римские цифры', uz: 'Mavzu: Rim raqamlari' },
-    lead: { ru: 'На стене Бита числа записаны знаками.', uz: 'Bit devorida sonlar belgilar bilan yozilgan.' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: римские цифры', uz: 'Mavzu: Rim raqamlari', en: 'Topic: Roman numerals' },
+    lead: { ru: 'На стене Бита числа записаны знаками.', uz: 'Bit devorida sonlar belgilar bilan yozilgan.', en: "On Bit's wall the numbers are written with signs." },
     roman: 'IV',
-    q: { ru: 'Какое это число?', uz: 'Bu qaysi son?' },
-    opt0: { ru: '4', uz: '4' },
-    opt1: { ru: '6', uz: '6' },
-    opt2: { ru: '51', uz: '51' },
+    q: { ru: 'Какое это число?', uz: 'Bu qaysi son?', en: 'What number is this?' },
+    opt0: { ru: '4', uz: '4', en: '4' },
+    opt1: { ru: '6', uz: '6', en: '6' },
+    opt2: { ru: '51', uz: '51', en: '51' },
     audio: {
       intro: {
         ru: [
@@ -187,17 +187,18 @@ const CONTENT = {
           "O'tgan hududda hisob terminali ishga tushdi. Endi Bit eski belgili devorni ko'rsatadi.",
           "Bunday belgilar bilan qadimgi Rimda yozishgan. Mana bitta belgi, uning ketidan yana bittasi.",
           "Kichik belgi kattaroq belgidan chapda turibdi. Sizningcha, bu qaysi son? Variantni tanlang."
-        ]
+        ],
+        en: ["Today's topic is Roman numerals. We will learn to read and write numbers with ancient signs.", 'In the last district the counting terminal started up. Now Bit is showing a wall with old signs.', 'People wrote with such signs in ancient Rome. Here is one sign, and after it another one.', 'The small sign stands to the left of the bigger one. What number do you think this is? Choose an answer.']
       },
-      on_correct: { ru: 'Верно. Маленький знак слева отнимается: пять минус один это четыре.', uz: "To'g'ri. Kichik belgi chapda ayiriladi: besh ayir bir bu to'rt." },
-      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qarang. Kichik belgi chapda ayiriladi, qo'shilmaydi." }
+      on_correct: { ru: 'Верно. Маленький знак слева отнимается: пять минус один это четыре.', uz: "To'g'ri. Kichik belgi chapda ayiriladi: besh ayir bir bu to'rt.", en: 'Correct. A small sign on the left is subtracted: five minus one is four.' },
+      on_wrong: { ru: 'Смотри на порядок. Маленький знак слева отнимается, не прибавляется.', uz: "Tartibga qarang. Kichik belgi chapda ayiriladi, qo'shilmaydi.", en: 'Look at the order. A small sign on the left is subtracted, not added.' }
     }
   },
 
   // s1 — RECALL/kirish: pozitsion va nopozitsion
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'У наших цифр важно место. У знаков — нет.', uz: "Bizning raqamlarda o'rin muhim. Belgilarda esa yo'q." },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'У наших цифр важно место. У знаков — нет.', uz: "Bizning raqamlarda o'rin muhim. Belgilarda esa yo'q.", en: 'For our digits the place matters. For these signs it does not.' },
     audio: {
       ru: [
         'Вспомним. В наших числах значение цифры зависит от места. В числе двести двадцать два три одинаковых цифры, но значат разное.',
@@ -208,18 +209,19 @@ const CONTENT = {
         "Eslaymiz. Bizning sonlarda raqamning qiymati o'rniga bog'liq. Ikki yuz yigirma ikkida uchta bir xil raqam bor, lekin har xil qiymatga ega.",
         "Bu pozitsion sistema. Yana boshqasi ham bor, nopozitsion.",
         "Nopozitsion sistemada belgining qiymati o'rniga bog'liq emas. O'n belgisi qayerda tursa ham doim o'n degani. Rim raqamlari ana shunday sistema."
-      ]
+      ],
+      en: ['Let us recall. In our numbers the value of a digit depends on its place. In the number two hundred twenty two there are three identical digits, but they mean different things.', 'This is a positional system. And there is another one, non positional.', 'In a non positional system the value of a sign does not depend on its place. The sign for ten always means ten, wherever it stands. Roman numerals are exactly such a system.']
     }
   },
 
   // s2 — RIM BELGILARI jadvali: I V X L C
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Знаки римских цифр.', uz: 'Rim raqamlari belgilari.' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Знаки римских цифр.', uz: 'Rim raqamlari belgilari.', en: 'The signs of Roman numerals.' },
     symbols: [
       { r: 'I', v: '1' }, { r: 'V', v: '5' }, { r: 'X', v: '10' }, { r: 'L', v: '50' }, { r: 'C', v: '100' }
     ],
-    extra: { ru: 'Ещё есть D = 500 и M = 1000.', uz: 'Yana D = 500 va M = 1000 ham bor.' },
+    extra: { ru: 'Ещё есть D = 500 и M = 1000.', uz: 'Yana D = 500 va M = 1000 ham bor.', en: 'There are also D = 500 and M = 1000.' },
     audio: {
       ru: [
         'Выучим главные знаки. Знак один это единица. Знак пять это пятёрка. Знак десять это десяток.',
@@ -228,20 +230,21 @@ const CONTENT = {
       uz: [
         "Asosiy belgilarni o'rganamiz. Bir belgisi birga teng. Besh belgisi beshga teng. O'n belgisi o'nga teng.",
         "Ellik belgisi besh o'nlikka teng. Yuz belgisi yuzga teng. Yana besh yuz va ming belgilari ham bor. Bu belgilardan har qanday son yig'iladi."
-      ]
+      ],
+      en: ['Let us learn the main signs. The sign for one is a unit. The sign for five is a five. The sign for ten is a ten.', 'The sign for fifty is five tens. The sign for one hundred is a hundred. There are also signs for five hundred and a thousand. Any number is built from these signs.']
     }
   },
 
   // s3 — QO'SHUV qoidasi (kichik o'ngda)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Маленький знак справа — прибавляем.', uz: "Kichik belgi o'ngda — qo'shamiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Маленький знак справа — прибавляем.', uz: "Kichik belgi o'ngda — qo'shamiz.", en: 'A small sign on the right — we add.' },
     examples: [
       { r: 'VI', calc: '5 + 1', v: '6' },
       { r: 'XII', calc: '10 + 1 + 1', v: '12' },
       { r: 'XV', calc: '10 + 5', v: '15' }
     ],
-    done_text: { ru: 'Если меньший знак стоит справа от большего, их значения складывают.', uz: "Kichik belgi kattadan o'ngda tursa, ularning qiymatlari qo'shiladi." },
+    done_text: { ru: 'Если меньший знак стоит справа от большего, их значения складывают.', uz: "Kichik belgi kattadan o'ngda tursa, ularning qiymatlari qo'shiladi.", en: 'If a smaller sign stands to the right of a bigger one, their values are added.' },
     audio: {
       ru: [
         'Первое правило. Если маленький знак стоит справа от большего, знаки складывают.',
@@ -252,14 +255,15 @@ const CONTENT = {
         "Birinchi qoida. Agar kichik belgi kattadan o'ngda tursa, belgilar qo'shiladi.",
         "Beshlik va o'ngdagi birlik bu olti. O'nlik va ikkita birlik bu o'n ikki.",
         "O'nlik va o'ngdagi beshlik bu o'n besh. O'ngda bo'lsa, demak qo'shamiz."
-      ]
+      ],
+      en: ['The first rule. If a small sign stands to the right of a bigger one, the signs are added.', 'A five and a unit on the right is six. A ten and two units is twelve.', 'A ten and a five on the right is fifteen. On the right means we add.']
     }
   },
 
   // s4 — AYIRUV qoidasi (kichik chapda) + 3 martadan ko'p yo'q
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Маленький знак слева — отнимаем.', uz: "Kichik belgi chapda — ayiramiz." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Маленький знак слева — отнимаем.', uz: "Kichik belgi chapda — ayiramiz.", en: 'A small sign on the left — we subtract.' },
     examples: [
       { r: 'IV', calc: '5 − 1', v: '4' },
       { r: 'IX', calc: '10 − 1', v: '9' },
@@ -267,7 +271,7 @@ const CONTENT = {
       { r: 'XC', calc: '100 − 10', v: '90' }
     ],
     note_bad: 'IIII', note_good: 'IV',
-    done_text: { ru: 'Если меньший знак слева от большего — отнимаем. И один знак не пишут больше трёх раз подряд.', uz: "Kichik belgi kattadan chapda bo'lsa — ayiramiz. Va bitta belgi uch martadan ko'p ketma-ket yozilmaydi." },
+    done_text: { ru: 'Если меньший знак слева от большего — отнимаем. И один знак не пишут больше трёх раз подряд.', uz: "Kichik belgi kattadan chapda bo'lsa — ayiramiz. Va bitta belgi uch martadan ko'p ketma-ket yozilmaydi.", en: 'If a smaller sign is on the left of a bigger one — we subtract. And one sign is not written more than three times in a row.' },
     audio: {
       ru: [
         'Второе правило. Если маленький знак стоит слева от большего, его значение отнимают.',
@@ -280,20 +284,21 @@ const CONTENT = {
         "Beshlikning chapidagi birlik bu to'rt. O'nlikning chapidagi birlik bu to'qqiz.",
         "Ellikning chapidagi o'nlik bu qirq. Yuzning chapidagi o'nlik bu to'qson.",
         "Va yana yodda tuting. Bitta belgi uch martadan ko'p ketma-ket yozilmaydi. Shuning uchun to'rtni to'rtta birlik bilan emas, beshdan bitta kam qilib yozamiz."
-      ]
+      ],
+      en: ['The second rule. If a small sign stands to the left of a bigger one, its value is subtracted.', 'A unit to the left of a five is four. A unit to the left of a ten is nine.', 'A ten to the left of fifty is forty. A ten to the left of a hundred is ninety.', 'And remember one more thing. The same sign is not written more than three times in a row. That is why four is written not as four units, but as five without one.']
     }
   },
 
   // s5 — QOIDA
   s5: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Меньший знак справа от большего — прибавляем, слева — отнимаем. Один знак не повторяют больше трёх раз подряд.', uz: "Kichik belgi kattadan o'ngda — qo'shamiz, chapda — ayiramiz. Bitta belgi uch martadan ko'p takrorlanmaydi." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Меньший знак справа от большего — прибавляем, слева — отнимаем. Один знак не повторяют больше трёх раз подряд.', uz: "Kichik belgi kattadan o'ngda — qo'shamiz, chapda — ayiramiz. Bitta belgi uch martadan ko'p takrorlanmaydi.", en: 'A smaller sign to the right of a bigger one — we add, on the left — we subtract. One sign is not repeated more than three times in a row.' },
     check_roman: 'IX',
-    check_q: { ru: 'Какое число записано знаками IX? Нажми верный ответ.', uz: 'IX belgilari qaysi sonni yozadi? To\'g\'ri javobni bosing.' },
+    check_q: { ru: 'Какое число записано знаками IX? Нажми верный ответ.', uz: 'IX belgilari qaysi sonni yozadi? To\'g\'ri javobni bosing.', en: 'What number is written by the signs IX? Tap the correct answer.' },
     check_opts: ['9', '11'],
     check_ci: 0,
-    check_ok: { ru: 'Верно! Единица слева от десятка отнимается: десять минус один это девять.', uz: "To'g'ri! O'nlikning chapidagi birlik ayiriladi: o'n ayir bir bu to'qqiz." },
-    check_no: { ru: 'Маленький знак слева отнимается: десять минус один это девять.', uz: "Kichik belgi chapda ayiriladi: o'n ayir bir bu to'qqiz." },
+    check_ok: { ru: 'Верно! Единица слева от десятка отнимается: десять минус один это девять.', uz: "To'g'ri! O'nlikning chapidagi birlik ayiriladi: o'n ayir bir bu to'qqiz.", en: 'Correct! A unit to the left of a ten is subtracted: ten minus one is nine.' },
+    check_no: { ru: 'Маленький знак слева отнимается: десять минус один это девять.', uz: "Kichik belgi chapda ayiriladi: o'n ayir bir bu to'qqiz.", en: 'A small sign on the left is subtracted: ten minus one is nine.' },
     audio: {
       ru: [
         'Отлично, теперь запомним правило римских цифр.',
@@ -306,229 +311,232 @@ const CONTENT = {
         "Agar kichik belgi kattadan o'ngda tursa, ularning qiymatlari qo'shiladi.",
         "Agar kichik belgi chapda tursa, uning qiymati kattadan ayiriladi.",
         "Va bitta belgi uch martadan ko'p yozilmaydi. Endi o'zingiz. Birlik o'nlikdan oldin turgan belgilar qaysi sonni yozadi?"
-      ]
+      ],
+      en: ['Excellent, now let us remember the rule of Roman numerals.', 'If a smaller sign stands to the right of a bigger one, their values are added.', 'If a smaller sign stands on the left, its value is subtracted from the bigger one.', 'And the same sign is not written more than three times in a row. And now on your own. What number is written by the signs where a unit stands before a ten?']
     }
   },
 
   // s6 — MASHQ Rim -> son (MC), 3 raund
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое это число?', uz: 'Bu qaysi son?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какое это число?', uz: 'Bu qaysi son?', en: 'What number is this?' },
     items: [
       {
         roman: 'XIV', ci: 0,
-        opts: [{ ru: '14', uz: '14' }, { ru: '16', uz: '16' }, { ru: '6', uz: '6' }],
+        opts: [{ ru: '14', uz: '14', en: '14' }, { ru: '16', uz: '16', en: '16' }, { ru: '6', uz: '6', en: '6' }],
         hints: {
-          1: { ru: 'После десятка идёт четыре, а не шесть: единица слева от пятёрки. Это 14.', uz: "O'nlikdan keyin to'rt keladi, olti emas: birlik beshning chapida. Bu 14." },
-          2: { ru: 'Не забудь десяток впереди. Десять и четыре это 14.', uz: "Oldidagi o'nlikni unutmang. O'n va to'rt bu 14." }
+          1: { ru: 'После десятка идёт четыре, а не шесть: единица слева от пятёрки. Это 14.', uz: "O'nlikdan keyin to'rt keladi, olti emas: birlik beshning chapida. Bu 14.", en: 'After the ten comes four, not six: a unit to the left of a five. That is 14.' },
+          2: { ru: 'Не забудь десяток впереди. Десять и четыре это 14.', uz: "Oldidagi o'nlikni unutmang. O'n va to'rt bu 14.", en: 'Do not forget the ten in front. Ten and four is 14.' }
         }
       },
       {
         roman: 'XL', ci: 0,
-        opts: [{ ru: '40', uz: '40' }, { ru: '60', uz: '60' }, { ru: '10', uz: '10' }],
+        opts: [{ ru: '40', uz: '40', en: '40' }, { ru: '60', uz: '60', en: '60' }, { ru: '10', uz: '10', en: '10' }],
         hints: {
-          1: { ru: 'Десяток слева от пятидесяти отнимается: пятьдесят минус десять это 40.', uz: "Ellikning chapidagi o'nlik ayiriladi: ellik ayir o'n bu 40." },
-          2: { ru: 'Здесь два знака: десяток и пятьдесят. Это 40.', uz: "Bu yerda ikki belgi: o'nlik va ellik. Bu 40." }
+          1: { ru: 'Десяток слева от пятидесяти отнимается: пятьдесят минус десять это 40.', uz: "Ellikning chapidagi o'nlik ayiriladi: ellik ayir o'n bu 40.", en: 'A ten to the left of fifty is subtracted: fifty minus ten is 40.' },
+          2: { ru: 'Здесь два знака: десяток и пятьдесят. Это 40.', uz: "Bu yerda ikki belgi: o'nlik va ellik. Bu 40.", en: 'There are two signs here: a ten and fifty. That is 40.' }
         }
       },
       {
         roman: 'XXVII', ci: 0,
-        opts: [{ ru: '27', uz: '27' }, { ru: '22', uz: '22' }, { ru: '32', uz: '32' }],
+        opts: [{ ru: '27', uz: '27', en: '27' }, { ru: '22', uz: '22', en: '22' }, { ru: '32', uz: '32', en: '32' }],
         hints: {
-          1: { ru: 'Два десятка, пятёрка и две единицы: двадцать семь.', uz: "Ikki o'nlik, beshlik va ikki birlik: yigirma yetti." },
-          2: { ru: 'Десятков ровно два, не три: это 27.', uz: "O'nlik roppa-rosa ikkita, uch emas: bu 27." }
+          1: { ru: 'Два десятка, пятёрка и две единицы: двадцать семь.', uz: "Ikki o'nlik, beshlik va ikki birlik: yigirma yetti.", en: 'Two tens, a five and two units: twenty-seven.' },
+          2: { ru: 'Десятков ровно два, не три: это 27.', uz: "O'nlik roppa-rosa ikkita, uch emas: bu 27.", en: 'There are exactly two tens, not three: that is 27.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qarang: chapda ayiramiz, o'ngda qo'shamiz." }
+      intro: { ru: 'Читай числа, записанные римскими знаками. Три задания.', uz: "Rim belgilari bilan yozilgan sonlarni o'qing. Uchta topshiriq.", en: 'Read the numbers written with Roman signs. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Смотри, где меньший знак: слева отнимаем, справа прибавляем.', uz: "Kichik belgi qayerda ekaniga qarang: chapda ayiramiz, o'ngda qo'shamiz.", en: 'Look at where the smaller sign is: on the left we subtract, on the right we add.' }
     }
   },
 
   // s7 — MASHQ son -> Rim (MC), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Как записать это число римскими цифрами?', uz: 'Bu sonni Rim raqamlarida qanday yozamiz?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Как записать это число римскими цифрами?', uz: 'Bu sonni Rim raqamlarida qanday yozamiz?', en: 'How do you write this number in Roman numerals?' },
     items: [
       {
         num: 8, ci: 0,
-        opts: [{ ru: 'VIII', uz: 'VIII' }, { ru: 'IIX', uz: 'IIX' }, { ru: 'IX', uz: 'IX' }],
+        opts: [{ ru: 'VIII', uz: 'VIII', en: 'VIII' }, { ru: 'IIX', uz: 'IIX', en: 'IIX' }, { ru: 'IX', uz: 'IX', en: 'IX' }],
         hints: {
-          1: { ru: 'Отнимают только один знак слева. Восемь это пять и три единицы: VIII.', uz: "Chapda faqat bitta belgi ayiriladi. Sakkiz bu besh va uch birlik: VIII." },
-          2: { ru: 'Это девять, а не восемь. Восемь пишут VIII.', uz: "Bu to'qqiz, sakkiz emas. Sakkizni VIII deb yozamiz." }
+          1: { ru: 'Отнимают только один знак слева. Восемь это пять и три единицы: VIII.', uz: "Chapda faqat bitta belgi ayiriladi. Sakkiz bu besh va uch birlik: VIII.", en: 'Only one sign is subtracted on the left. Eight is five and three units: VIII.' },
+          2: { ru: 'Это девять, а не восемь. Восемь пишут VIII.', uz: "Bu to'qqiz, sakkiz emas. Sakkizni VIII deb yozamiz.", en: 'That is nine, not eight. Eight is written VIII.' }
         }
       },
       {
         num: 9, ci: 0,
-        opts: [{ ru: 'IX', uz: 'IX' }, { ru: 'VIIII', uz: 'VIIII' }, { ru: 'XI', uz: 'XI' }],
+        opts: [{ ru: 'IX', uz: 'IX', en: 'IX' }, { ru: 'VIIII', uz: 'VIIII', en: 'VIIII' }, { ru: 'XI', uz: 'XI', en: 'XI' }],
         hints: {
-          1: { ru: 'Один знак нельзя писать больше трёх раз. Девять это десять без одного: IX.', uz: "Bitta belgi uch martadan ko'p yozilmaydi. To'qqiz bu o'ndan bitta kam: IX." },
-          2: { ru: 'Это одиннадцать. Девять пишут IX, единица слева.', uz: "Bu o'n bir. To'qqizni IX deb yozamiz, birlik chapda." }
+          1: { ru: 'Один знак нельзя писать больше трёх раз. Девять это десять без одного: IX.', uz: "Bitta belgi uch martadan ko'p yozilmaydi. To'qqiz bu o'ndan bitta kam: IX.", en: 'One sign cannot be written more than three times. Nine is ten without one: IX.' },
+          2: { ru: 'Это одиннадцать. Девять пишут IX, единица слева.', uz: "Bu o'n bir. To'qqizni IX deb yozamiz, birlik chapda.", en: 'That is eleven. Nine is written IX, a unit on the left.' }
         }
       },
       {
         num: 40, ci: 0,
-        opts: [{ ru: 'XL', uz: 'XL' }, { ru: 'XXXX', uz: 'XXXX' }, { ru: 'LX', uz: 'LX' }],
+        opts: [{ ru: 'XL', uz: 'XL', en: 'XL' }, { ru: 'XXXX', uz: 'XXXX', en: 'XXXX' }, { ru: 'LX', uz: 'LX', en: 'LX' }],
         hints: {
-          1: { ru: 'Четыре десятка нельзя писать четырьмя знаками. Сорок это XL.', uz: "To'rt o'nlikni to'rtta belgi bilan yozib bo'lmaydi. Qirq bu XL." },
-          2: { ru: 'Это шестьдесят. Сорок пишут XL, десяток слева.', uz: "Bu oltmish. Qirqni XL deb yozamiz, o'nlik chapda." }
+          1: { ru: 'Четыре десятка нельзя писать четырьмя знаками. Сорок это XL.', uz: "To'rt o'nlikni to'rtta belgi bilan yozib bo'lmaydi. Qirq bu XL.", en: 'Four tens cannot be written with four signs. Forty is XL.' },
+          2: { ru: 'Это шестьдесят. Сорок пишут XL, десяток слева.', uz: "Bu oltmish. Qirqni XL deb yozamiz, o'nlik chapda.", en: 'That is sixty. Forty is written XL, a ten on the left.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanlang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Помни: один знак не больше трёх раз, четыре и девять пишут через вычитание.', uz: "Yodda tut: bitta belgi uch martadan ko'p emas, to'rt va to'qqiz ayirish orqali yoziladi." }
+      intro: { ru: 'Выбери верную запись числа римскими знаками. Три задания.', uz: "Sonning Rim belgilaridagi to'g'ri yozuvini tanlang. Uchta topshiriq.", en: 'Choose the correct way to write the number in Roman signs. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Помни: один знак не больше трёх раз, четыре и девять пишут через вычитание.', uz: "Yodda tut: bitta belgi uch martadan ko'p emas, to'rt va to'qqiz ayirish orqali yoziladi.", en: 'Remember: one sign no more than three times, four and nine are written by subtraction.' }
     }
   },
 
   // s8 — MASHQ xatoni top (Rim juftlari), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверную запись.', uz: "Noto'g'ri yozuvni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Найди неверную запись.', uz: "Noto'g'ri yozuvni toping.", en: 'Find the wrong line.' },
     items: [
       {
         stmts: ['VI = 6', 'IX = 11', 'XX = 20'],
         wrong: 1,
-        hint: { ru: 'В записи с единицей слева от десятка отнимаем: это 9, а не 11.', uz: "Birlik o'nlikning chapida bo'lsa ayiramiz: bu 9, 11 emas." }
+        hint: { ru: 'В записи с единицей слева от десятка отнимаем: это 9, а не 11.', uz: "Birlik o'nlikning chapida bo'lsa ayiramiz: bu 9, 11 emas.", en: 'In the line with a unit to the left of a ten we subtract: that is 9, not 11.' }
       },
       {
         stmts: ['XV = 15', 'IV = 6', 'XXX = 30'],
         wrong: 1,
-        hint: { ru: 'Единица слева от пятёрки отнимается: это 4, а не 6.', uz: "Beshlikning chapidagi birlik ayiriladi: bu 4, 6 emas." }
+        hint: { ru: 'Единица слева от пятёрки отнимается: это 4, а не 6.', uz: "Beshlikning chapidagi birlik ayiriladi: bu 4, 6 emas.", en: 'A unit to the left of a five is subtracted: that is 4, not 6.' }
       },
       {
         stmts: ['XC = 90', 'VII = 7', 'XL = 60'],
         wrong: 2,
-        hint: { ru: 'Десяток слева от пятидесяти отнимается: это 40, а не 60.', uz: "Ellikning chapidagi o'nlik ayiriladi: bu 40, 60 emas." }
+        hint: { ru: 'Десяток слева от пятидесяти отнимается: это 40, а не 60.', uz: "Ellikning chapidagi o'nlik ayiriladi: bu 40, 60 emas.", en: 'A ten to the left of fifty is subtracted: that is 40, not 60.' }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три записи. Одна неверная. Найди неверную запись.', uz: "Uchta yozuv beraman. Bittasi noto'g'ri. Noto'g'ri yozuvni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь порядок знаков: слева отнимаем, справа прибавляем.', uz: "Belgilar tartibini tekshiring: chapda ayiramiz, o'ngda qo'shamiz." }
+      intro: { ru: 'Даю три записи. Одна неверная. Найди неверную запись.', uz: "Uchta yozuv beraman. Bittasi noto'g'ri. Noto'g'ri yozuvni toping.", en: 'I give you three lines. One is wrong. Find the wrong line.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь порядок знаков: слева отнимаем, справа прибавляем.', uz: "Belgilar tartibini tekshiring: chapda ayiramiz, o'ngda qo'shamiz.", en: 'Check the order of the signs: on the left we subtract, on the right we add.' }
     }
   },
 
   // s9 — MASALA (case): oy nomi (Bit devor belgisi)
   s9: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'На стене Бит показал месяц числом VIII.', uz: 'Bit devorda oyni VIII soni bilan ko\'rsatdi.' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'На стене Бит показал месяц числом VIII.', uz: 'Bit devorda oyni VIII soni bilan ko\'rsatdi.', en: 'On the wall Bit showed a month as the number VIII.' },
     roman: 'VIII', ci: 0,
-    q: { ru: 'Какой это месяц по счёту?', uz: 'Bu nechanchi oy?' },
-    opts: [{ ru: '8', uz: '8' }, { ru: '6', uz: '6' }, { ru: '3', uz: '3' }],
+    q: { ru: 'Какой это месяц по счёту?', uz: 'Bu nechanchi oy?', en: 'Which month is it in order?' },
+    opts: [{ ru: '8', uz: '8', en: '8' }, { ru: '6', uz: '6', en: '6' }, { ru: '3', uz: '3', en: '3' }],
     hints: {
-      1: { ru: 'Пятёрка и три единицы справа это восемь, а не шесть.', uz: "Beshlik va o'ngdagi uch birlik bu sakkiz, olti emas." },
-      2: { ru: 'Не забудь пятёрку впереди: пять и три это восемь.', uz: "Oldidagi beshlikni unutmang: besh va uch bu sakkiz." }
+      1: { ru: 'Пятёрка и три единицы справа это восемь, а не шесть.', uz: "Beshlik va o'ngdagi uch birlik bu sakkiz, olti emas.", en: 'A five and three units on the right is eight, not six.' },
+      2: { ru: 'Не забудь пятёрку впереди: пять и три это восемь.', uz: "Oldidagi beshlikni unutmang: besh va uch bu sakkiz.", en: 'Do not forget the five in front: five and three is eight.' }
     },
-    setup_audio: { ru: 'Год делят на месяцы, и каждый месяц можно записать римским числом по порядку. Бит показал на стене знаки: пятёрка и три единицы.', uz: "Yil oylarga bo'linadi, va har oyni tartib bo'yicha Rim soni bilan yozish mumkin. Bit devorda belgilarni ko'rsatdi: beshlik va uch birlik." },
+    setup_audio: { ru: 'Год делят на месяцы, и каждый месяц можно записать римским числом по порядку. Бит показал на стене знаки: пятёрка и три единицы.', uz: "Yil oylarga bo'linadi, va har oyni tartib bo'yicha Rim soni bilan yozish mumkin. Bit devorda belgilarni ko'rsatdi: beshlik va uch birlik.", en: 'The year is divided into months, and each month can be written as a Roman number in order. Bit showed the signs on the wall: a five and three units.' },
     audio: {
-      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qing. To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Пять и три это восемь — восьмой месяц.', uz: "To'g'ri. Besh va uch bu sakkiz — sakkizinchi oy." },
-      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sanang: beshlik va uch birlik bu sakkiz." }
+      intro: { ru: 'Прочитай, какой это месяц по счёту. Выбери верный ответ.', uz: "Bu nechanchi oy ekanini o'qing. To'g'ri javobni tanlang.", en: 'Read which month it is in order. Choose the correct answer.' },
+      on_correct: { ru: 'Верно. Пять и три это восемь — восьмой месяц.', uz: "To'g'ri. Besh va uch bu sakkiz — sakkizinchi oy.", en: 'Correct. Five and three is eight — the eighth month.' },
+      on_wrong: { ru: 'Считай знаки: пятёрка и три единицы это восемь.', uz: "Belgilarni sanang: beshlik va uch birlik bu sakkiz.", en: 'Count the signs: a five and three units is eight.' }
     }
   },
 
   // s10 — FINAL panel (5 savol, hammasi MC) + FactCard
   s10: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?' },
-        opt0: { ru: '13', uz: '13' },
-        opt1: { ru: '15', uz: '15' },
-        opt2: { ru: '8', uz: '8' },
-        wrong_1: { ru: 'Десяток и три единицы это тринадцать.', uz: "O'nlik va uch birlik bu o'n uch." },
-        wrong_2: { ru: 'Впереди десяток, потом три единицы: тринадцать.', uz: "Oldida o'nlik, keyin uch birlik: o'n uch." }
+        q: { ru: 'Какое число записано знаками XIII?', uz: 'XIII belgilari qaysi sonni yozadi?', en: 'What number is written by the signs XIII?' },
+        opt0: { ru: '13', uz: '13', en: '13' },
+        opt1: { ru: '15', uz: '15', en: '15' },
+        opt2: { ru: '8', uz: '8', en: '8' },
+        wrong_1: { ru: 'Десяток и три единицы это тринадцать.', uz: "O'nlik va uch birlik bu o'n uch.", en: 'A ten and three units is thirteen.' },
+        wrong_2: { ru: 'Впереди десяток, потом три единицы: тринадцать.', uz: "Oldida o'nlik, keyin uch birlik: o'n uch.", en: 'A ten in front, then three units: thirteen.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?' },
-        opt0: { ru: 'XII', uz: 'XII' },
-        opt1: { ru: 'IIX', uz: 'IIX' },
-        opt2: { ru: 'XXII', uz: 'XXII' },
-        wrong_1: { ru: 'Слева отнимают только один знак. Двенадцать это XII.', uz: "Chapda faqat bitta belgi ayiriladi. O'n ikki bu XII." },
-        wrong_2: { ru: 'Это двадцать два. Двенадцать это XII.', uz: "Bu yigirma ikki. O'n ikki bu XII." }
+        q: { ru: 'Как записать 12 римскими цифрами?', uz: '12 ni Rim raqamlarida qanday yozamiz?', en: 'How do you write 12 in Roman numerals?' },
+        opt0: { ru: 'XII', uz: 'XII', en: 'XII' },
+        opt1: { ru: 'IIX', uz: 'IIX', en: 'IIX' },
+        opt2: { ru: 'XXII', uz: 'XXII', en: 'XXII' },
+        wrong_1: { ru: 'Слева отнимают только один знак. Двенадцать это XII.', uz: "Chapda faqat bitta belgi ayiriladi. O'n ikki bu XII.", en: 'Only one sign is subtracted on the left. Twelve is XII.' },
+        wrong_2: { ru: 'Это двадцать два. Двенадцать это XII.', uz: "Bu yigirma ikki. O'n ikki bu XII.", en: 'That is twenty-two. Twelve is XII.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?' },
-        opt0: { ru: '9', uz: '9' },
-        opt1: { ru: '11', uz: '11' },
-        opt2: { ru: '6', uz: '6' },
-        wrong_1: { ru: 'Единица слева отнимается: десять минус один это девять.', uz: "Chapdagi birlik ayiriladi: o'n ayir bir bu to'qqiz." },
-        wrong_2: { ru: 'Это не шесть. Единица слева от десятка это девять.', uz: "Bu olti emas. O'nlikning chapidagi birlik bu to'qqiz." }
+        q: { ru: 'Какое число записано знаками IX?', uz: 'IX belgilari qaysi sonni yozadi?', en: 'What number is written by the signs IX?' },
+        opt0: { ru: '9', uz: '9', en: '9' },
+        opt1: { ru: '11', uz: '11', en: '11' },
+        opt2: { ru: '6', uz: '6', en: '6' },
+        wrong_1: { ru: 'Единица слева отнимается: десять минус один это девять.', uz: "Chapdagi birlik ayiriladi: o'n ayir bir bu to'qqiz.", en: 'A unit on the left is subtracted: ten minus one is nine.' },
+        wrong_2: { ru: 'Это не шесть. Единица слева от десятка это девять.', uz: "Bu olti emas. O'nlikning chapidagi birlik bu to'qqiz.", en: 'That is not six. A unit to the left of a ten is nine.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?' },
-        opt0: { ru: 'XC', uz: 'XC' },
-        opt1: { ru: 'CX', uz: 'CX' },
-        opt2: { ru: 'LXL', uz: 'LXL' },
-        wrong_1: { ru: 'Это сто десять. Девяносто это десяток слева от сотни: XC.', uz: "Bu bir yuz o'n. To'qson bu yuzning chapidagi o'nlik: XC." },
-        wrong_2: { ru: 'Так знаки не пишут. Девяносто это XC.', uz: "Belgilar bunday yozilmaydi. To'qson bu XC." }
+        q: { ru: 'Как записать 90 римскими цифрами?', uz: '90 ni Rim raqamlarida qanday yozamiz?', en: 'How do you write 90 in Roman numerals?' },
+        opt0: { ru: 'XC', uz: 'XC', en: 'XC' },
+        opt1: { ru: 'CX', uz: 'CX', en: 'CX' },
+        opt2: { ru: 'LXL', uz: 'LXL', en: 'LXL' },
+        wrong_1: { ru: 'Это сто десять. Девяносто это десяток слева от сотни: XC.', uz: "Bu bir yuz o'n. To'qson bu yuzning chapidagi o'nlik: XC.", en: 'That is one hundred ten. Ninety is a ten to the left of a hundred: XC.' },
+        wrong_2: { ru: 'Так знаки не пишут. Девяносто это XC.', uz: "Belgilar bunday yozilmaydi. To'qson bu XC.", en: 'Signs are not written like that. Ninety is XC.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?' },
-        opt0: { ru: '24', uz: '24' },
-        opt1: { ru: '26', uz: '26' },
-        opt2: { ru: '16', uz: '16' },
-        wrong_1: { ru: 'Два десятка и четыре: двадцать четыре, а не двадцать шесть.', uz: "Ikki o'nlik va to'rt: yigirma to'rt, yigirma olti emas." },
-        wrong_2: { ru: 'Десятков два, не один: двадцать четыре.', uz: "O'nlik ikkita, bitta emas: yigirma to'rt." }
+        q: { ru: 'Какое число записано знаками XXIV?', uz: 'XXIV belgilari qaysi sonni yozadi?', en: 'What number is written by the signs XXIV?' },
+        opt0: { ru: '24', uz: '24', en: '24' },
+        opt1: { ru: '26', uz: '26', en: '26' },
+        opt2: { ru: '16', uz: '16', en: '16' },
+        wrong_1: { ru: 'Два десятка и четыре: двадцать четыре, а не двадцать шесть.', uz: "Ikki o'nlik va to'rt: yigirma to'rt, yigirma olti emas.", en: 'Two tens and four: twenty-four, not twenty-six.' },
+        wrong_2: { ru: 'Десятков два, не один: двадцать четыре.', uz: "O'nlik ikkita, bitta emas: yigirma to'rt.", en: 'There are two tens, not one: twenty-four.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Самая близкая к нам звезда после Солнца — Проксима Центавра — тоже красный карлик. До неё свет летит больше четырёх лет.', uz: "Quyoshdan keyin bizga eng yaqin yulduz — Proksima Sentavri — ham qizil mitti. Uning nuri bizgacha to'rt yildan ko'proq uchadi." },
-    fact_audio: { ru: 'Самая близкая к нам звезда после Солнца — Проксима Центавра — тоже красный карлик. До неё свет летит больше четырёх лет.', uz: "Quyoshdan keyin bizga eng yaqin yulduz — Proksima Sentavri — ham qizil mitti. Uning nuri bizgacha to'rt yildan ko'proq uchadi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Самая близкая к нам звезда после Солнца — Проксима Центавра — тоже красный карлик. До неё свет летит больше четырёх лет.', uz: "Quyoshdan keyin bizga eng yaqin yulduz — Proksima Sentavri — ham qizil mitti. Uning nuri bizgacha to'rt yildan ko'proq uchadi.", en: 'The closest star to us after the Sun — Proxima Centauri — is a red dwarf too. Its light takes more than four years to reach us.' },
+    fact_audio: { ru: 'Самая близкая к нам звезда после Солнца — Проксима Центавра — тоже красный карлик. До неё свет летит больше четырёх лет.', uz: "Quyoshdan keyin bizga eng yaqin yulduz — Proksima Sentavri — ham qizil mitti. Uning nuri bizgacha to'rt yildan ko'proq uchadi.", en: 'The closest star to us after the Sun — Proxima Centauri — is a red dwarf too. Its light takes more than four years to reach us.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает записи, отвечай на каждую.', uz: "Yakuniy tekshiruv. Shahar kompyuteri yozuvlar ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает записи, отвечай на каждую.', uz: "Yakuniy tekshiruv. Shahar kompyuteri yozuvlar ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows lines, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s11 — YAKUN (Б1 hudud yakuni)
   s11: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Стена знаков прочитана — город Бита открыт!', uz: 'Belgili devor o\'qildi — Bit shahri ochildi!' },
-    cando: { ru: 'Теперь ты читаешь и записываешь числа римскими цифрами.', uz: "Endi siz sonlarni Rim raqamlarida o'qiysiz va yozasiz." },
-    rule_recap: { ru: 'Меньший знак справа — прибавляем, слева — отнимаем. Один знак не больше трёх раз подряд.', uz: "Kichik belgi o'ngda — qo'shamiz, chapda — ayiramiz. Bitta belgi uch martadan ko'p emas." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'чтение и запись чисел', uz: "sonlarni o'qish va yozish" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'новая область — Сады света: таблица умножения', uz: "yangi hudud — Nur bog'lari: ko'paytirish jadvali" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Стена знаков прочитана — город Бита открыт!', uz: 'Belgili devor o\'qildi — Bit shahri ochildi!', en: "The wall of signs is read — Bit's city is open!" },
+    cando: { ru: 'Теперь ты читаешь и записываешь числа римскими цифрами.', uz: "Endi siz sonlarni Rim raqamlarida o'qiysiz va yozasiz.", en: 'Now you read and write numbers in Roman numerals.' },
+    rule_recap: { ru: 'Меньший знак справа — прибавляем, слева — отнимаем. Один знак не больше трёх раз подряд.', uz: "Kichik belgi o'ngda — qo'shamiz, chapda — ayiramiz. Bitta belgi uch martadan ko'p emas.", en: 'A smaller sign on the right — we add, on the left — we subtract. One sign no more than three times in a row.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'чтение и запись чисел', uz: "sonlarni o'qish va yozish", en: 'reading and writing numbers' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'новая область — Сады света: таблица умножения', uz: "yangi hudud — Nur bog'lari: ko'paytirish jadvali", en: 'a new district — the Gardens of Light: the multiplication table' },
     audio: {
       ru: 'Стена знаков прочитана, и город Бита полностью открыт. Мы научились читать и записывать числа римскими цифрами. Запомни. Меньший знак справа от большего прибавляем, а слева отнимаем. И один и тот же знак не пишут больше трёх раз подряд. Дальше нас ждёт новая область — Сады света, где мы вспомним таблицу умножения.',
-      uz: "Belgili devor o'qildi, va Bit shahri to'liq ochildi. Biz sonlarni Rim raqamlarida o'qish va yozishni o'rgandik. Yodda tuting. Kichik belgi kattadan o'ngda bo'lsa qo'shamiz, chapda bo'lsa ayiramiz. Va bitta belgi uch martadan ko'p yozilmaydi. Endi bizni yangi hudud kutmoqda — Nur bog'lari, u yerda ko'paytirish jadvalini eslaymiz."
+      uz: "Belgili devor o'qildi, va Bit shahri to'liq ochildi. Biz sonlarni Rim raqamlarida o'qish va yozishni o'rgandik. Yodda tuting. Kichik belgi kattadan o'ngda bo'lsa qo'shamiz, chapda bo'lsa ayiramiz. Va bitta belgi uch martadan ko'p yozilmaydi. Endi bizni yangi hudud kutmoqda — Nur bog'lari, u yerda ko'paytirish jadvalini eslaymiz.",
+      en: "The wall of signs is read, and Bit's city is fully open. We learned to read and write numbers in Roman numerals. Remember. A smaller sign to the right of a bigger one is added, and on the left it is subtracted. And the same sign is not written more than three times in a row. Next a new district awaits us — the Gardens of Light, where we will recall the multiplication table."
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним про место цифры.', uz: 'Raqam o\'rni haqida eslaymiz.' },
-  s2:  { ru: 'Выучим знаки.', uz: 'Belgilarni o\'rganamiz.' },
-  s3:  { ru: 'Первое правило — сложение.', uz: 'Birinchi qoida — qo\'shish.' },
-  s4:  { ru: 'Второе правило — вычитание.', uz: 'Ikkinchi qoida — ayirish.' },
-  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s6:  { ru: 'Правило знаем. Читай сам.', uz: "Qoidani bilamiz. O'zingiz o'qing." },
-  s7:  { ru: 'Теперь записывай сам.', uz: 'Endi o\'zingiz yozing.' },
-  s8:  { ru: 'Проверим записи на ошибку.', uz: 'Yozuvlarni xatoga tekshiramiz.' },
-  s9:  { ru: 'Бит показал месяц на стене.', uz: 'Bit devorda oyni ko\'rsatdi.' },
-  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s11: { ru: 'Город открыт. Идём дальше!', uz: 'Shahar ochildi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним про место цифры.', uz: 'Raqam o\'rni haqida eslaymiz.', en: 'Let us recall the place of a digit.' },
+  s2:  { ru: 'Выучим знаки.', uz: 'Belgilarni o\'rganamiz.', en: 'Let us learn the signs.' },
+  s3:  { ru: 'Первое правило — сложение.', uz: 'Birinchi qoida — qo\'shish.', en: 'The first rule — addition.' },
+  s4:  { ru: 'Второе правило — вычитание.', uz: 'Ikkinchi qoida — ayirish.', en: 'The second rule — subtraction.' },
+  s5:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s6:  { ru: 'Правило знаем. Читай сам.', uz: "Qoidani bilamiz. O'zingiz o'qing.", en: 'We know the rule. Read on your own.' },
+  s7:  { ru: 'Теперь записывай сам.', uz: 'Endi o\'zingiz yozing.', en: 'Now write them yourself.' },
+  s8:  { ru: 'Проверим записи на ошибку.', uz: 'Yozuvlarni xatoga tekshiramiz.', en: 'Let us check the lines for a mistake.' },
+  s9:  { ru: 'Бит показал месяц на стене.', uz: 'Bit devorda oyni ko\'rsatdi.', en: 'Bit showed a month on the wall.' },
+  s10: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s11: { ru: 'Город открыт. Идём дальше!', uz: 'Shahar ochildi. Davom etamiz!', en: 'The city is open. Let us move on!' }
 };
 
 // s11 payoff (xulosadan oldin aytiladi)
 const S11_PAYOFF = {
   ru: 'Миссия выполнена! Мы разгадали древние знаки на стене, и весь город Бита теперь открыт. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz devordagi qadimiy belgilarni yechdik, va Bitning butun shahri endi ochiq. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz devordagi qadimiy belgilarni yechdik, va Bitning butun shahri endi ochiq. Yordamingiz uchun rahmat!",
+  en: "Mission complete! We solved the ancient signs on the wall, and all of Bit's city is now open. Thank you for your help!"
 };
 
 
@@ -752,7 +760,7 @@ const RimHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#h8slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РИМСКАЯ ЦИФРА' : 'RIM RAQAMI'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РИМСКАЯ ЦИФРА', 'RIM RAQAMI', 'ROMAN NUMERAL')}</text>
     <text x="156" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">XII</text>
     <text x="205" y="140" textAnchor="middle" fontSize="20" fontWeight="800" fill="#8A7550" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="248" y="142" textAnchor="middle" fontSize="24" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">12</text>
@@ -989,12 +997,12 @@ const Screen1 = (props) => {
         <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, padding: 'clamp(16px, 3vw, 24px)', minHeight: 'clamp(150px, 32vw, 200px)' }}>
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
             <span className="mono" style={{ fontSize: 'clamp(30px, 7vw, 44px)', fontWeight: 800, color: T.ink, letterSpacing: 4 }}>222</span>
-            <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{lang === 'ru' ? 'место важно (позиционная)' : "o'rin muhim (pozitsion)"}</span>
+            <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.ink2, fontWeight: 700 }}>{tri(lang, 'место важно (позиционная)', "o'rin muhim (pozitsion)", 'place matters (positional)')}</span>
           </div>
           {reached >= 2 && (
             <div className="lm-reveal" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
               <RomanBig r="X X X"/>
-              <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.accent, fontWeight: 700 }}>{lang === 'ru' ? 'знак всегда 10 (непозиционная)' : "belgi doim 10 (nopozitsion)"}</span>
+              <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', color: T.accent, fontWeight: 700 }}>{tri(lang, 'знак всегда 10 (непозиционная)', 'belgi doim 10 (nopozitsion)', 'the sign is always 10 (non-positional)')}</span>
             </div>
           )}
         </div>
@@ -1498,7 +1506,7 @@ const Screen11 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1519,7 +1527,7 @@ export default function RomanLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1586,7 +1594,7 @@ export default function RomanLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

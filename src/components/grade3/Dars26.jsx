@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -124,8 +124,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-26',
-  lessonTitle: { ru: 'Урок 26. Сравнение долей', uz: "26-dars. Ulushlarni taqqoslash" }
+  lessonId: 'grade3-26',
+  lessonTitle: { ru: 'Урок 26. Сравнение долей', uz: "26-dars. Ulushlarni taqqoslash", en: 'Lesson 26. Comparing fractions' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 26»): s0 xuk 1/3 va 1/6 · s1 yonma-yon qo'yish ·
 // s2 belgi qo'yish · s3 savol-oldin-QOIDA · s4 rasm bo'yicha belgi · s5 saralash 1/5 bilan ·
@@ -161,15 +161,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: bir xil ikki doira, biri 3 ga, ikkinchisi 6 ga bo'lingan.
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Сравнение долей', uz: 'Ulushlarni taqqoslash' },
-    lead: { ru: 'Два одинаковых каменных диска: один разделён на 3 части, другой на 6', uz: "Ikkita bir xil tosh disk: biri 3 ta, ikkinchisi 6 ta bo'lakka bo'lingan" },
-    order_cap: { ru: 'с каждого взяли по одному куску', uz: "har biridan bittadan bo'lak olindi" },
-    q: { ru: 'Чей кусок больше?', uz: "Kimning bo'lagi katta?" },
-    opt0: { ru: 'где разделили на 3', uz: "3 ga bo'lingani" },
-    opt1: { ru: 'где разделили на 6', uz: "6 ga bo'lingani" },
-    opt2: { ru: 'куски одинаковые', uz: "bo'laklar bir xil" },
-    opt3: { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Сравнение долей', uz: 'Ulushlarni taqqoslash', en: 'Comparing fractions' },
+    lead: { ru: 'Два одинаковых каменных диска: один разделён на 3 части, другой на 6', uz: "Ikkita bir xil tosh disk: biri 3 ta, ikkinchisi 6 ta bo'lakka bo'lingan", en: 'Two identical stone discs: one is divided into 3 parts, the other into 6' },
+    order_cap: { ru: 'с каждого взяли по одному куску', uz: "har biridan bittadan bo'lak olindi", en: 'one piece was taken from each' },
+    q: { ru: 'Чей кусок больше?', uz: "Kimning bo'lagi katta?", en: 'Whose piece is bigger?' },
+    opt0: { ru: 'где разделили на 3', uz: "3 ga bo'lingani", en: 'the one divided into 3' },
+    opt1: { ru: 'где разделили на 6', uz: "6 ga bo'lingani", en: 'the one divided into 6' },
+    opt2: { ru: 'куски одинаковые', uz: "bo'laklar bir xil", en: 'the pieces are the same' },
+    opt3: { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' },
     audio: {
       intro: {
         ru: [
@@ -183,29 +183,31 @@ const CONTENT = {
           "Oldingizda ikkita bir xil tosh disk.",
           "Birinchisi uchta teng bo'lakka, ikkinchisi oltita bo'lakka bo'lindi. Har biridan bittadan bo'lak olindi.",
           "Sizningcha, kimning bo'lagi katta?"
-        ]
+        ],
+        en: ['You can already write fractions. Today you will learn to compare them.', 'In front of you are two identical stone discs.', 'The first was divided into three equal parts, the second into six. One piece was taken from each.', 'Whose piece do you think is bigger?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, почему так получается.', uz: "To'g'ri! Endi nima uchun shunday chiqishini ko'rasiz." },
-      on_wrong1: { ru: 'Шесть частей мельче трёх. Число больше, а кусок меньше.', uz: "Oltita bo'lak uchtadan mayda. Son katta, bo'lak esa kichik." },
-      on_wrong2: { ru: 'Диски одинаковые, а разрезаны по-разному. Значит и куски разные.', uz: "Disklar bir xil, kesimi esa boshqa. Demak bo'laklar ham har xil." },
-      on_idk: { ru: 'Ничего. Сейчас положим доли рядом и посмотрим.', uz: "Hechqisi yo'q. Hozir ulushlarni yonma-yon qo'yib ko'ramiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, почему так получается.', uz: "To'g'ri! Endi nima uchun shunday chiqishini ko'rasiz.", en: 'Right! And now you will see why it works out that way.' },
+      on_wrong1: { ru: 'Шесть частей мельче трёх. Число больше, а кусок меньше.', uz: "Oltita bo'lak uchtadan mayda. Son katta, bo'lak esa kichik.", en: 'Six parts are smaller than three. The number is bigger and the piece is smaller.' },
+      on_wrong2: { ru: 'Диски одинаковые, а разрезаны по-разному. Значит и куски разные.', uz: "Disklar bir xil, kesimi esa boshqa. Demak bo'laklar ham har xil.", en: 'The discs are the same, but they are cut differently. So the pieces are different too.' },
+      on_idk: { ru: 'Ничего. Сейчас положим доли рядом и посмотрим.', uz: "Hechqisi yo'q. Hozir ulushlarni yonma-yon qo'yib ko'ramiz.", en: 'Never mind. Let us put the fractions side by side and look.' }
     }
   },
 
   // s1 — YONMA-YON: bitta butun, ikki xil kesim (darslik 133-bet 5-topshiriq).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Доли одного целого удобно класть рядом', uz: "Bitta butunning ulushlarini yonma-yon qo'yish qulay" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Доли одного целого удобно класть рядом', uz: "Bitta butunning ulushlarini yonma-yon qo'yish qulay", en: 'Fractions of one whole are handy to put side by side' },
     task_line: 'одинаковые диски, разрезы 3 и 6',
     task_line_uz: "bir xil disklar, kesimlar 3 va 6",
-    step1: { ru: '1/3 — крупный кусок', uz: "1/3 — yirik bo'lak" },
-    step1_cap: { ru: 'разделили на три, каждая часть большая', uz: "uchga bo'lindi, har bir bo'lak katta" },
-    step2: { ru: '1/6 — мелкий кусок', uz: "1/6 — mayda bo'lak" },
-    step2_cap: { ru: 'разделили на шесть, каждая часть меньше', uz: "oltiga bo'lindi, har bir bo'lak kichikroq" },
-    res: { ru: '1/3 больше, чем 1/6', uz: '1/3 1/6 dan katta' },
-    btn1: { ru: 'Разрезать на три', uz: 'Uchga kesish' },
-    btn2: { ru: 'Разрезать на шесть', uz: 'Oltiga kesish' },
-    done_text: { ru: 'Знаменатель меньше, значит доля крупнее', uz: "Maxraj kichik bo'lsa, ulush yirikroq" },
+    task_line_en: 'identical discs, cuts of 3 and 6',
+    step1: { ru: '1/3 — крупный кусок', uz: "1/3 — yirik bo'lak", en: '1/3 — a big piece' },
+    step1_cap: { ru: 'разделили на три, каждая часть большая', uz: "uchga bo'lindi, har bir bo'lak katta", en: 'divided into three, each part is big' },
+    step2: { ru: '1/6 — мелкий кусок', uz: "1/6 — mayda bo'lak", en: '1/6 — a small piece' },
+    step2_cap: { ru: 'разделили на шесть, каждая часть меньше', uz: "oltiga bo'lindi, har bir bo'lak kichikroq", en: 'divided into six, each part is smaller' },
+    res: { ru: '1/3 больше, чем 1/6', uz: '1/3 1/6 dan katta', en: '1/3 is bigger than 1/6' },
+    btn1: { ru: 'Разрезать на три', uz: 'Uchga kesish', en: 'Cut into three' },
+    btn2: { ru: 'Разрезать на шесть', uz: 'Oltiga kesish', en: 'Cut into six' },
+    done_text: { ru: 'Знаменатель меньше, значит доля крупнее', uz: "Maxraj kichik bo'lsa, ulush yirikroq", en: 'The smaller the denominator, the bigger the fraction' },
     audio: {
       ru: [
         'Положим два одинаковых диска рядом.',
@@ -216,25 +218,26 @@ const CONTENT = {
         "Ikkita bir xil diskni yonma-yon qo'yamiz.",
         "Birinchisi uchta teng bo'lakka kesildi. Bunday bo'lak katta.",
         "Ikkinchisi oltiga. Endi har bir bo'lak sezilarli kichik. Demak uchdan bir oltidan birdan katta."
-      ]
+      ],
+      en: ['Let us put two identical discs side by side.', 'The first was cut into three equal parts. One such part is big.', 'The second into six. Now each part is noticeably smaller. So one third is bigger than one sixth.']
     }
   },
 
   // s2 — BELGI: ikki ulush orasiga belgi qo'yiladi (4-darsning > < = madaniyati).
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     left_parts: 4,
     right_parts: 8,
     left_label: '1/4',
     right_label: '1/8',
     sign: '>',
-    lead: { ru: 'Между долями ставят такой же знак, как между числами', uz: "Ulushlar orasiga sonlar orasidagidek belgi qo'yiladi" },
-    capA: { ru: 'слева разрезали на 4', uz: "chapda 4 ga kesilgan" },
-    capB: { ru: 'справа на 8, кусок мельче', uz: "o'ngda 8 ga, bo'lak mayda" },
+    lead: { ru: 'Между долями ставят такой же знак, как между числами', uz: "Ulushlar orasiga sonlar orasidagidek belgi qo'yiladi", en: 'Between fractions we put the same sign as between numbers' },
+    capA: { ru: 'слева разрезали на 4', uz: "chapda 4 ga kesilgan", en: 'on the left it was cut into 4' },
+    capB: { ru: 'справа на 8, кусок мельче', uz: "o'ngda 8 ga, bo'lak mayda", en: 'on the right into 8, the piece is smaller' },
     res: '1/4 > 1/8',
-    btn1: { ru: 'Показать доли', uz: "Ulushlarni ko'rsatish" },
-    btn2: { ru: 'Поставить знак', uz: "Belgi qo'yish" },
-    done_text: { ru: 'Знак открывается к большей доле', uz: "Belgi katta ulush tomonga ochiladi" },
+    btn1: { ru: 'Показать доли', uz: "Ulushlarni ko'rsatish", en: 'Show the fractions' },
+    btn2: { ru: 'Поставить знак', uz: "Belgi qo'yish", en: 'Put the sign' },
+    done_text: { ru: 'Знак открывается к большей доле', uz: "Belgi katta ulush tomonga ochiladi", en: 'The sign opens towards the bigger fraction' },
     audio: {
       ru: [
         'Сравним две доли одного и того же диска.',
@@ -245,162 +248,166 @@ const CONTENT = {
         "Bitta diskning ikki ulushini taqqoslaymiz.",
         "Chapda disk to'rtta bo'lakka, o'ngda sakkizta bo'lakka kesildi. O'ngdagi bo'lak mayda.",
         "Belgi qo'yamiz. U katta ulush tomonga ochiladi, demak to'rtdan bir sakkizdan birdan katta."
-      ]
+      ],
+      en: ['Let us compare two fractions of the very same disc.', 'On the left the disc was cut into four parts, on the right into eight. The right piece is smaller.', 'We put the sign. It opens towards the bigger fraction, so one fourth is bigger than one eighth.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: maxraj kichik bo'lsa ulush katta.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'У какой доли одного целого кусок крупнее?', uz: "Bitta butunning qaysi ulushida bo'lak yirikroq?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'У какой доли одного целого кусок крупнее?', uz: "Bitta butunning qaysi ulushida bo'lak yirikroq?", en: 'Which fraction of one whole has the bigger piece?' },
     opts: [
-      { ru: 'где знаменатель меньше', uz: 'maxraji kichigida' },
-      { ru: 'где знаменатель больше', uz: 'maxraji kattasida' },
-      { ru: 'всегда одинаково', uz: 'har doim bir xil' },
-      { ru: 'зависит от числителя', uz: "suratga bog'liq" }
+      { ru: 'где знаменатель меньше', uz: 'maxraji kichigida', en: 'the one with the smaller denominator' },
+      { ru: 'где знаменатель больше', uz: 'maxraji kattasida', en: 'the one with the bigger denominator' },
+      { ru: 'всегда одинаково', uz: 'har doim bir xil', en: 'they are always the same' },
+      { ru: 'зависит от числителя', uz: "suratga bog'liq", en: 'it depends on the numerator' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Чем на большее число частей режем, тем каждая мельче.', uz: "Qancha ko'p bo'lakka kessak, har biri shuncha mayda." },
-      2: { ru: 'Разрезы разные, значит и куски разные.', uz: "Kesimlar har xil, demak bo'laklar ham har xil." },
-      3: { ru: 'У доли числитель всегда единица. Решает нижнее число.', uz: "Ulushda surat doim bir. Pastki son hal qiladi." }
+      1: { ru: 'Чем на большее число частей режем, тем каждая мельче.', uz: "Qancha ko'p bo'lakka kessak, har biri shuncha mayda.", en: 'The more parts we cut into, the smaller each one is.' },
+      2: { ru: 'Разрезы разные, значит и куски разные.', uz: "Kesimlar har xil, demak bo'laklar ham har xil.", en: 'The cuts are different, so the pieces are different too.' },
+      3: { ru: 'У доли числитель всегда единица. Решает нижнее число.', uz: "Ulushda surat doim bir. Pastki son hal qiladi.", en: 'A unit fraction always has a one on top. The lower number decides.' }
     },
-    on_correct: { ru: 'Да. Меньше знаменатель, крупнее доля, если целое одно и то же.', uz: "Ha. Maxraj kichik bo'lsa ulush yirik, albatta butun bitta bo'lsa." },
+    on_correct: { ru: 'Да. Меньше знаменатель, крупнее доля, если целое одно и то же.', uz: "Ha. Maxraj kichik bo'lsa ulush yirik, albatta butun bitta bo'lsa.", en: 'Yes. A smaller denominator means a bigger fraction, if the whole is the same.' },
     rule_lines: {
       ru: ['У долей одного целого сравнивают знаменатели.', 'Меньше знаменатель — крупнее доля, потому что целое делили на меньшее число частей.'],
-      uz: ["Bitta butunning ulushlarida maxrajlar taqqoslanadi.", "Maxraj kichik bo'lsa ulush yirik, chunki butun kamroq bo'lakka bo'lingan."]
+      uz: ["Bitta butunning ulushlarida maxrajlar taqqoslanadi.", "Maxraj kichik bo'lsa ulush yirik, chunki butun kamroq bo'lakka bo'lingan."],
+      en: ['For fractions of one whole we compare the denominators.', 'A smaller denominator means a bigger fraction, because the whole was divided into fewer parts.']
     },
     rule_ex: '1/4 > 1/8',
-    rule_speech: { ru: 'одна четвёртая больше одной восьмой', uz: "to'rtdan bir sakkizdan birdan katta" },
+    rule_speech: { ru: 'одна четвёртая больше одной восьмой', uz: "to'rtdan bir sakkizdan birdan katta", en: 'one fourth is bigger than one eighth' },
     audio: {
       intro: {
         ru: 'Прежде чем ставить знак, решим главное. У какой доли одного целого кусок крупнее?',
-        uz: "Belgi qo'yishdan oldin asosiysini hal qilamiz. Bitta butunning qaysi ulushida bo'lak yirikroq?"
+        uz: "Belgi qo'yishdan oldin asosiysini hal qilamiz. Bitta butunning qaysi ulushida bo'lak yirikroq?",
+        en: 'Before putting the sign let us settle the main thing. Which fraction of one whole has the bigger piece?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA BELGI: ikki disk, qaysi belgi mos keladi.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Какой знак поставить между этими долями?', uz: "Bu ulushlar orasiga qaysi belgi qo'yiladi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Какой знак поставить между этими долями?', uz: "Bu ulushlar orasiga qaysi belgi qo'yiladi?", en: 'Which sign goes between these fractions?' },
     fig_left: 6,
     fig_right: 3,
     opts: [
-      { ru: 'меньше', uz: 'kichik' },
-      { ru: 'больше', uz: 'katta' },
-      { ru: 'равно', uz: 'teng' },
-      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" }
+      { ru: 'меньше', uz: 'kichik', en: 'less than' },
+      { ru: 'больше', uz: 'katta', en: 'greater than' },
+      { ru: 'равно', uz: 'teng', en: 'equal to' },
+      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Слева разрезали на шесть, кусок там мельче.', uz: "Chapda oltiga kesilgan, u yerda bo'lak mayda." },
-      2: { ru: 'Разрезы разные, значит куски не равны.', uz: "Kesimlar har xil, demak bo'laklar teng emas." },
-      3: { ru: 'Диски одинаковые, сравнить можно всегда.', uz: "Disklar bir xil, taqqoslash har doim mumkin." }
+      1: { ru: 'Слева разрезали на шесть, кусок там мельче.', uz: "Chapda oltiga kesilgan, u yerda bo'lak mayda.", en: 'On the left it was cut into six, the piece there is smaller.' },
+      2: { ru: 'Разрезы разные, значит куски не равны.', uz: "Kesimlar har xil, demak bo'laklar teng emas.", en: 'The cuts are different, so the pieces are not equal.' },
+      3: { ru: 'Диски одинаковые, сравнить можно всегда.', uz: "Disklar bir xil, taqqoslash har doim mumkin.", en: 'The discs are the same, they can always be compared.' }
     },
     audio: {
-      intro: { ru: 'Слева одна шестая, справа одна третья. Какой знак между ними?', uz: "Chapda oltidan bir, o'ngda uchdan bir. Ular orasida qaysi belgi?" },
-      on_correct: { ru: 'Верно. Одна шестая меньше одной третьей.', uz: "To'g'ri. Oltidan bir uchdan birdan kichik." },
-      on_wrong: { ru: 'Посмотри, где кусок мельче. Знак открывается к большему.', uz: "Bo'lak qayerda mayda ekaniga qarang. Belgi kattaga ochiladi." }
+      intro: { ru: 'Слева одна шестая, справа одна третья. Какой знак между ними?', uz: "Chapda oltidan bir, o'ngda uchdan bir. Ular orasida qaysi belgi?", en: 'On the left is one sixth, on the right one third. Which sign goes between them?' },
+      on_correct: { ru: 'Верно. Одна шестая меньше одной третьей.', uz: "To'g'ri. Oltidan bir uchdan birdan kichik.", en: 'Right. One sixth is smaller than one third.' },
+      on_wrong: { ru: 'Посмотри, где кусок мельче. Знак открывается к большему.', uz: "Bo'lak qayerda mayda ekaniga qarang. Belgi kattaga ochiladi.", en: 'Look at where the piece is smaller. The sign opens towards the bigger one.' }
     }
   },
 
   // s5 — SARALASH: 1/5 dan katta yoki kichik (darslik 148-bet «yarim ulush bilan» g'oyasi).
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Сравни каждую долю с одной пятой', uz: "Har bir ulushni beshdan bir bilan solishtiring" },
-    bin_a: { ru: 'больше 1/5', uz: '1/5 dan katta' },
-    bin_b: { ru: 'меньше 1/5', uz: '1/5 dan kichik' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Сравни каждую долю с одной пятой', uz: "Har bir ulushni beshdan bir bilan solishtiring", en: 'Compare each fraction with one fifth' },
+    bin_a: { ru: 'больше 1/5', uz: '1/5 dan katta', en: 'bigger than 1/5' },
+    bin_b: { ru: 'меньше 1/5', uz: '1/5 dan kichik', en: 'smaller than 1/5' },
     items: [
-      { n: { ru: '1/3', uz: '1/3' }, a: true, hint: { ru: 'Три меньше пяти, значит доля крупнее.', uz: "Uch beshdan kichik, demak ulush yirikroq." } },
-      { n: { ru: '1/8', uz: '1/8' }, a: false, hint: { ru: 'Восемь больше пяти, значит доля мельче.', uz: "Sakkiz beshdan katta, demak ulush mayda." } },
-      { n: { ru: '1/4', uz: '1/4' }, a: true, hint: { ru: 'Четыре меньше пяти, кусок крупнее.', uz: "To'rt beshdan kichik, bo'lak yirikroq." } },
-      { n: { ru: '1/12', uz: '1/12' }, a: false, hint: { ru: 'Двенадцать частей это очень мелко.', uz: "O'n ikkita bo'lak juda mayda." } }
+      { n: { ru: '1/3', uz: '1/3', en: '1/3' }, a: true, hint: { ru: 'Три меньше пяти, значит доля крупнее.', uz: "Uch beshdan kichik, demak ulush yirikroq.", en: 'Three is smaller than five, so the fraction is bigger.' } },
+      { n: { ru: '1/8', uz: '1/8', en: '1/8' }, a: false, hint: { ru: 'Восемь больше пяти, значит доля мельче.', uz: "Sakkiz beshdan katta, demak ulush mayda.", en: 'Eight is bigger than five, so the fraction is smaller.' } },
+      { n: { ru: '1/4', uz: '1/4', en: '1/4' }, a: true, hint: { ru: 'Четыре меньше пяти, кусок крупнее.', uz: "To'rt beshdan kichik, bo'lak yirikroq.", en: 'Four is smaller than five, the piece is bigger.' } },
+      { n: { ru: '1/12', uz: '1/12', en: '1/12' }, a: false, hint: { ru: 'Двенадцать частей это очень мелко.', uz: "O'n ikkita bo'lak juda mayda.", en: 'Twelve parts is very fine.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре доли. Каждую сравни с одной пятой и отправь на свою полку.', uz: "To'rtta ulush. Har birini beshdan bir bilan solishtirib, o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Знаменатель меньше пяти, значит доля крупнее.', uz: "Hammasi joyida. Maxraj beshdan kichik bo'lsa, ulush yirikroq." },
-      on_wrong: { ru: 'Сравнивай нижние числа с пятёркой.', uz: "Pastki sonlarni besh bilan solishtiring." }
+      intro: { ru: 'Четыре доли. Каждую сравни с одной пятой и отправь на свою полку.', uz: "To'rtta ulush. Har birini beshdan bir bilan solishtirib, o'z tokchasiga yuboring.", en: 'Four fractions. Compare each one with one fifth and send it to its shelf.' },
+      on_correct: { ru: 'Все на месте. Знаменатель меньше пяти, значит доля крупнее.', uz: "Hammasi joyida. Maxraj beshdan kichik bo'lsa, ulush yirikroq.", en: 'All in place. A denominator smaller than five means a bigger fraction.' },
+      on_wrong: { ru: 'Сравнивай нижние числа с пятёркой.', uz: "Pastki sonlarni besh bilan solishtiring.", en: 'Compare the lower numbers with five.' }
     }
   },
 
   // s6 — TEST: qaysi ulush katta.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Что больше: 1/6 или 1/12?', uz: '1/6 mi yoki 1/12 mi, qaysi biri katta?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Что больше: 1/6 или 1/12?', uz: '1/6 mi yoki 1/12 mi, qaysi biri katta?', en: 'Which is bigger: 1/6 or 1/12?' },
     opts: [
-      { ru: '1/6', uz: '1/6' },
-      { ru: '1/12', uz: '1/12' },
-      { ru: 'они равны', uz: 'ular teng' },
-      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" }
+      { ru: '1/6', uz: '1/6', en: '1/6' },
+      { ru: '1/12', uz: '1/12', en: '1/12' },
+      { ru: 'они равны', uz: 'ular teng', en: 'they are equal' },
+      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Двенадцать частей мельче шести.', uz: "O'n ikkita bo'lak oltitadan mayda." },
-      2: { ru: 'Разрезы разные, равными куски быть не могут.', uz: "Kesimlar har xil, bo'laklar teng bo'la olmaydi." },
-      3: { ru: 'Целое одно и то же, сравнивать можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi." }
+      1: { ru: 'Двенадцать частей мельче шести.', uz: "O'n ikkita bo'lak oltitadan mayda.", en: 'Twelve parts are smaller than six.' },
+      2: { ru: 'Разрезы разные, равными куски быть не могут.', uz: "Kesimlar har xil, bo'laklar teng bo'la olmaydi.", en: 'The cuts are different, the pieces cannot be equal.' },
+      3: { ru: 'Целое одно и то же, сравнивать можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi.", en: 'The whole is the same, they can be compared.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Что больше, одна шестая или одна двенадцатая?', uz: "Tez savol. Oltidan bir mi yoki o'n ikkidan bir mi, qaysi biri katta?" },
-      on_correct: { ru: 'Верно. Шесть меньше двенадцати, значит доля крупнее.', uz: "To'g'ri. Olti o'n ikkidan kichik, demak ulush yirikroq." },
-      on_wrong: { ru: 'Смотри на нижние числа. Меньше число, крупнее кусок.', uz: "Pastki sonlarga qarang. Son kichik bo'lsa, bo'lak yirik." }
+      intro: { ru: 'Быстрый вопрос. Что больше, одна шестая или одна двенадцатая?', uz: "Tez savol. Oltidan bir mi yoki o'n ikkidan bir mi, qaysi biri katta?", en: 'A quick question. Which is bigger, one sixth or one twelfth?' },
+      on_correct: { ru: 'Верно. Шесть меньше двенадцати, значит доля крупнее.', uz: "To'g'ri. Olti o'n ikkidan kichik, demak ulush yirikroq.", en: 'Right. Six is smaller than twelve, so the fraction is bigger.' },
+      on_wrong: { ru: 'Смотри на нижние числа. Меньше число, крупнее кусок.', uz: "Pastki sonlarga qarang. Son kichik bo'lsa, bo'lak yirik.", en: 'Look at the lower numbers. A smaller number means a bigger piece.' }
     }
   },
 
   // s7 — KONSOL: ikki kesim va katta ulushning maxraji.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Прочитай рисунок и заполни консоль', uz: "Rasmni o'qing va konsolni to'ldiring" },
-    swap_line: { ru: 'диски разрезаны на 4 и на 10', uz: "disklar 4 ga va 10 ga bo'lingan" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Прочитай рисунок и заполни консоль', uz: "Rasmni o'qing va konsolni to'ldiring", en: 'Read the picture and fill the console' },
+    swap_line: { ru: 'диски разрезаны на 4 и на 10', uz: "disklar 4 ga va 10 ga bo'lingan", en: 'the discs are cut into 4 and into 10' },
     cells: [
-      { head: { ru: 'первый', uz: 'birinchi' }, label: { ru: 'частей', uz: 'qism' }, ans: 4, hint: { ru: 'Посчитай части левого диска.', uz: "Chapdagi diskning bo'laklarini sanang." } },
-      { head: { ru: 'второй', uz: 'ikkinchi' }, label: { ru: 'частей', uz: 'qism' }, ans: 10, hint: { ru: 'Посчитай части правого диска.', uz: "O'ngdagi diskning bo'laklarini sanang." } },
-      { head: { ru: 'крупнее', uz: 'yirikroq' }, label: { ru: 'знаменатель', uz: 'maxraj' }, ans: 4, hint: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq." } }
+      { head: { ru: 'первый', uz: 'birinchi', en: 'the first' }, label: { ru: 'частей', uz: 'qism', en: 'parts' }, ans: 4, hint: { ru: 'Посчитай части левого диска.', uz: "Chapdagi diskning bo'laklarini sanang.", en: 'Count the parts of the left disc.' } },
+      { head: { ru: 'второй', uz: 'ikkinchi', en: 'the second' }, label: { ru: 'частей', uz: 'qism', en: 'parts' }, ans: 10, hint: { ru: 'Посчитай части правого диска.', uz: "O'ngdagi diskning bo'laklarini sanang.", en: 'Count the parts of the right disc.' } },
+      { head: { ru: 'крупнее', uz: 'yirikroq', en: 'bigger' }, label: { ru: 'знаменатель', uz: 'maxraj', en: 'the denominator' }, ans: 4, hint: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq.", en: 'It is bigger where there are fewer parts.' } }
     ],
     check: '1/4 > 1/10',
-    check_label: { ru: 'какая доля крупнее', uz: 'qaysi ulush yirikroq' },
+    check_label: { ru: 'какая доля крупнее', uz: 'qaysi ulush yirikroq', en: 'which fraction is bigger' },
     audio: {
-      intro: { ru: 'Заполни три окна. Сколько частей в первом диске, сколько во втором и где доля крупнее.', uz: "Uchta oynani to'ldiring. Birinchi diskda nechta bo'lak, ikkinchisida nechta va ulush qayerda yirikroq." },
-      on_correct: { ru: 'Одна четвёртая крупнее одной десятой. Меньше знаменатель, крупнее доля.', uz: "To'rtdan bir o'ndan birdan yirik. Maxraj kichik, ulush yirik." }
+      intro: { ru: 'Заполни три окна. Сколько частей в первом диске, сколько во втором и где доля крупнее.', uz: "Uchta oynani to'ldiring. Birinchi diskda nechta bo'lak, ikkinchisida nechta va ulush qayerda yirikroq.", en: 'Fill three windows. How many parts in the first disc, how many in the second and where the fraction is bigger.' },
+      on_correct: { ru: 'Одна четвёртая крупнее одной десятой. Меньше знаменатель, крупнее доля.', uz: "To'rtdan bir o'ndan birdan yirik. Maxraj kichik, ulush yirik.", en: 'One fourth is bigger than one tenth. A smaller denominator, a bigger fraction.' }
     }
   },
 
   // s8 — XATONI TOP: mulohazadagi xato (M1 ning o'zi, so'z bilan).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Кто-то написал: 1/8 больше 1/2, потому что 8 больше 2. В чём ошибка?', uz: "Kimdir yozibdi: 1/8 1/2 dan katta, chunki 8 ikkidan katta. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Кто-то написал: 1/8 больше 1/2, потому что 8 больше 2. В чём ошибка?', uz: "Kimdir yozibdi: 1/8 1/2 dan katta, chunki 8 ikkidan katta. Xato nimada?", en: 'Someone wrote: 1/8 is bigger than 1/2, because 8 is bigger than 2. What is the mistake?' },
     fig_line: '1/8 > 1/2',
     opts: [
-      { ru: 'больше частей — мельче кусок', uz: "bo'lak ko'p bo'lsa, kesagi mayda" },
-      { ru: 'надо было сравнить числители', uz: "suratlarni taqqoslash kerak edi" },
-      { ru: 'такие доли сравнивать нельзя', uz: "bunday ulushlarni taqqoslab bo'lmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'больше частей — мельче кусок', uz: "bo'lak ko'p bo'lsa, kesagi mayda", en: 'more parts — a smaller piece' },
+      { ru: 'надо было сравнить числители', uz: "suratlarni taqqoslash kerak edi", en: 'the numerators should have been compared' },
+      { ru: 'такие доли сравнивать нельзя', uz: "bunday ulushlarni taqqoslab bo'lmaydi", en: 'such fractions cannot be compared' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Наверху у обеих единица, сравнивать там нечего.', uz: "Ikkalasining tepasida bir, u yerda taqqoslaydigan narsa yo'q." },
-      2: { ru: 'Целое одно и то же, поэтому сравнить можно.', uz: "Butun bitta va o'sha, shuning uchun taqqoslasa bo'ladi." },
-      3: { ru: 'Ошибка есть. Восемь частей мельче двух половин.', uz: "Xato bor. Sakkizta bo'lak ikkita yarimdan mayda." }
+      1: { ru: 'Наверху у обеих единица, сравнивать там нечего.', uz: "Ikkalasining tepasida bir, u yerda taqqoslaydigan narsa yo'q.", en: 'Both have a one on top, there is nothing to compare there.' },
+      2: { ru: 'Целое одно и то же, поэтому сравнить можно.', uz: "Butun bitta va o'sha, shuning uchun taqqoslasa bo'ladi.", en: 'The whole is the same, so they can be compared.' },
+      3: { ru: 'Ошибка есть. Восемь частей мельче двух половин.', uz: "Xato bor. Sakkizta bo'lak ikkita yarimdan mayda.", en: 'There is a mistake. Eight parts are smaller than two halves.' }
     },
     audio: {
-      intro: { ru: 'Здесь сравнили доли и получили неверно. Найди ошибку в рассуждении.', uz: "Bu yerda ulushlar taqqoslanib, noto'g'ri chiqqan. Mulohazadagi xatoni toping." },
-      on_correct: { ru: 'Точно. Чем больше частей, тем каждая мельче. Одна восьмая меньше половины.', uz: "Aniq. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda. Sakkizdan bir yarimdan kichik." },
-      on_wrong: { ru: 'Подумай, что происходит с куском, когда режут чаще.', uz: "Ko'proq kesilganda bo'lakka nima bo'lishini o'ylang." }
+      intro: { ru: 'Здесь сравнили доли и получили неверно. Найди ошибку в рассуждении.', uz: "Bu yerda ulushlar taqqoslanib, noto'g'ri chiqqan. Mulohazadagi xatoni toping.", en: 'Here fractions were compared and the answer came out wrong. Find the mistake in the reasoning.' },
+      on_correct: { ru: 'Точно. Чем больше частей, тем каждая мельче. Одна восьмая меньше половины.', uz: "Aniq. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda. Sakkizdan bir yarimdan kichik.", en: 'Exactly. The more parts there are, the smaller each one is. One eighth is smaller than a half.' },
+      on_wrong: { ru: 'Подумай, что происходит с куском, когда режут чаще.', uz: "Ko'proq kesilganda bo'lakka nima bo'lishini o'ylang.", en: 'Think about what happens to a piece when it is cut more often.' }
     }
   },
 
   // s9 — BIT TUZOG'I: turli butunlarning ulushi (M2, yopiq maydon).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит сравнивает доли двух разных дисков', uz: "Bit ikki xil diskning ulushini taqqoslaydi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит сравнивает доли двух разных дисков', uz: "Bit ikki xil diskning ulushini taqqoslaydi", en: 'Bit compares fractions of two different discs' },
     lines: ['1/2 маленького диска', '1/4 большого диска'],
     lines_uz: ['kichik diskning 1/2 qismi', "katta diskning 1/4 qismi"],
-    line_cap: { ru: 'Бит: одна вторая всегда больше одной четвёртой', uz: "Bit: ikkidan bir har doim to'rtdan birdan katta" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, целые разные', 'да, всегда больше'], uz: ["yo'q, butunlar boshqa", 'ha, har doim katta'] },
+    lines_en: ['1/2 of the small disc', '1/4 of the big disc'],
+    line_cap: { ru: 'Бит: одна вторая всегда больше одной четвёртой', uz: "Bit: ikkidan bir har doim to'rtdan birdan katta", en: 'Bit: one half is always bigger than one fourth' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, целые разные', 'да, всегда больше'], uz: ["yo'q, butunlar boshqa", 'ha, har doim katta'], en: ['no, the wholes are different', 'yes, always bigger'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Правило работает, когда целое одно и то же. У разных дисков четверть большого может оказаться крупнее половины маленького.', uz: "Ha. Qoida butun bitta bo'lganda ishlaydi. Turli disklarda kattaning choragi kichikning yarmidan yirik bo'lishi mumkin." },
-    trap_wrong: { ru: 'Диски разные по размеру. Сравнивать знаменатели можно только у долей одного целого.', uz: "Disklar kattaligi bilan farq qiladi. Maxrajlarni faqat bitta butunning ulushlarida taqqoslash mumkin." },
+    trap_correct: { ru: 'Да. Правило работает, когда целое одно и то же. У разных дисков четверть большого может оказаться крупнее половины маленького.', uz: "Ha. Qoida butun bitta bo'lganda ishlaydi. Turli disklarda kattaning choragi kichikning yarmidan yirik bo'lishi mumkin.", en: 'Yes. The rule works when the whole is the same. With different discs a quarter of a big one can be bigger than half of a small one.' },
+    trap_wrong: { ru: 'Диски разные по размеру. Сравнивать знаменатели можно только у долей одного целого.', uz: "Disklar kattaligi bilan farq qiladi. Maxrajlarni faqat bitta butunning ulushlarida taqqoslash mumkin.", en: 'The discs are different in size. Denominators can only be compared for fractions of one whole.' },
     audio: {
       ru: [
         'Бит взял два диска разного размера и говорит.',
@@ -411,164 +418,170 @@ const CONTENT = {
         "Bit har xil kattalikdagi ikki diskni oldi va aytadi.",
         "Bu yerda kichigining yarmi, bu yerda kattasining choragi. Ikkidan bir har doim to'rtdan birdan katta.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit took two discs of different size and says this.', 'Here is half of the small one, here is a quarter of the big one. One half is always bigger than one fourth.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: katta ulushning maxrajini terish.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Что больше: 1/7 или 1/9? Набери знаменатель большей доли.', uz: "1/7 mi yoki 1/9 mi katta? Katta ulushning maxrajini tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Что больше: 1/7 или 1/9? Набери знаменатель большей доли.', uz: "1/7 mi yoki 1/9 mi katta? Katta ulushning maxrajini tering.", en: 'Which is bigger: 1/7 or 1/9? Type the denominator of the bigger fraction.' },
     ans: 7,
     check: '1/7 > 1/9',
-    check_label: { ru: 'знаменатель меньше, доля крупнее', uz: 'maxraj kichik, ulush yirik' },
-    hint: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq." },
+    check_label: { ru: 'знаменатель меньше, доля крупнее', uz: 'maxraj kichik, ulush yirik', en: 'a smaller denominator, a bigger fraction' },
+    hint: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq.", en: 'It is bigger where there are fewer parts.' },
     audio: {
-      intro: { ru: 'Что больше, одна седьмая или одна девятая? Набери знаменатель большей доли.', uz: "Yettidan bir mi yoki to'qqizdan bir mi katta? Katta ulushning maxrajini tering." },
-      on_correct: { ru: 'Семь. На семь частей режем крупнее, чем на девять.', uz: "Yetti. Yettita bo'lakka kesganda to'qqiztaga qaraganda yirikroq chiqadi." }
+      intro: { ru: 'Что больше, одна седьмая или одна девятая? Набери знаменатель большей доли.', uz: "Yettidan bir mi yoki to'qqizdan bir mi katta? Katta ulushning maxrajini tering.", en: 'Which is bigger, one seventh or one ninth? Type the denominator of the bigger fraction.' },
+      on_correct: { ru: 'Семь. На семь частей режем крупнее, чем на девять.', uz: "Yetti. Yettita bo'lakka kesganda to'qqiztaga qaraganda yirikroq chiqadi.", en: 'Seven. Cutting into seven parts gives bigger pieces than cutting into nine.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: mayda ulushning maxrajini terish.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'У какой доли кусок мельче: 1/5 или 1/10? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda: 1/5 mi yoki 1/10 mi? Maxrajni tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'У какой доли кусок мельче: 1/5 или 1/10? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda: 1/5 mi yoki 1/10 mi? Maxrajni tering.", en: 'Which fraction has the smaller piece: 1/5 or 1/10? Type the denominator.' },
     ans: 10,
     check: '1/10 < 1/5',
-    check_label: { ru: 'знаменатель больше, доля мельче', uz: 'maxraj katta, ulush mayda' },
-    hint: { ru: 'Мельче там, где частей больше.', uz: "Bo'lak ko'p bo'lgan joyda mayda." },
+    check_label: { ru: 'знаменатель больше, доля мельче', uz: 'maxraj katta, ulush mayda', en: 'a bigger denominator, a smaller fraction' },
+    hint: { ru: 'Мельче там, где частей больше.', uz: "Bo'lak ko'p bo'lgan joyda mayda.", en: 'It is smaller where there are more parts.' },
     audio: {
-      intro: { ru: 'У какой доли кусок мельче, у одной пятой или у одной десятой? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda, beshdan birmi yoki o'ndan birmi? Maxrajni tering." },
-      on_correct: { ru: 'Десять. Чем больше частей, тем мельче каждая.', uz: "O'n. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda." }
+      intro: { ru: 'У какой доли кусок мельче, у одной пятой или у одной десятой? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda, beshdan birmi yoki o'ndan birmi? Maxrajni tering.", en: 'Which fraction has the smaller piece, one fifth or one tenth? Type the denominator.' },
+      on_correct: { ru: 'Десять. Чем больше частей, тем мельче каждая.', uz: "O'n. Bo'lak qancha ko'p bo'lsa, har biri shuncha mayda.", en: 'Ten. The more parts there are, the smaller each one is.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Два диска у стелы', uz: 'Stela yonidagi ikki disk' },
-    q: { ru: 'Два одинаковых диска. Первый разделили на 3 части, второй на 9. На сколько частей второй разделён больше?', uz: "Ikkita bir xil disk. Birinchisi 3 bo'lakka, ikkinchisi 9 bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?" },
-    q_speech: { ru: 'два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?', uz: "ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Два диска у стелы', uz: 'Stela yonidagi ikki disk', en: 'Two discs at the stele' },
+    q: { ru: 'Два одинаковых диска. Первый разделили на 3 части, второй на 9. На сколько частей второй разделён больше?', uz: "Ikkita bir xil disk. Birinchisi 3 bo'lakka, ikkinchisi 9 bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?", en: 'Two identical discs. The first was divided into 3 parts, the second into 9. How many more parts is the second divided into?' },
+    q_speech: { ru: 'два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?', uz: "ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?", en: 'two identical discs. The first was divided into three parts, the second into nine. How many more parts is the second divided into?' },
     tbl_heads: [
-      { ru: 'первый диск', uz: 'birinchi disk' },
-      { ru: 'второй диск', uz: 'ikkinchi disk' },
-      { ru: 'взяли', uz: 'olindi' }
+      { ru: 'первый диск', uz: 'birinchi disk', en: 'the first disc' },
+      { ru: 'второй диск', uz: 'ikkinchi disk', en: 'the second disc' },
+      { ru: 'взяли', uz: 'olindi', en: 'taken' }
     ],
     tbl_cells: ['3', '9', '1 + 1'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '9 − 3', uz: '9 − 3' },
-      { ru: '9 + 3', uz: '9 + 3' },
-      { ru: '9 : 3', uz: '9 : 3' },
-      { ru: '3 · 9', uz: '3 · 9' }
+      { ru: '9 − 3', uz: '9 − 3', en: '9 − 3' },
+      { ru: '9 + 3', uz: '9 + 3', en: '9 + 3' },
+      { ru: '9 : 3', uz: '9 : 3', en: '9 : 3' },
+      { ru: '3 · 9', uz: '3 · 9', en: '3 · 9' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Спрашивают, насколько больше. Это вычитание.', uz: "Qanchaga ko'p deb so'ralyapti. Bu ayirish." },
-      2: { ru: 'Складывать части двух дисков не нужно, диски разные.', uz: "Ikki diskning bo'laklarini qo'shish shart emas, disklar boshqa." },
-      3: { ru: 'Во сколько раз и на сколько, это разные вопросы. Спросили на сколько.', uz: "Necha marta va nechtaga, bular boshqa savollar. Nechtaga deb so'ralgan." }
+      1: { ru: 'Спрашивают, насколько больше. Это вычитание.', uz: "Qanchaga ko'p deb so'ralyapti. Bu ayirish.", en: 'The question is how many more. That is subtraction.' },
+      2: { ru: 'Складывать части двух дисков не нужно, диски разные.', uz: "Ikki diskning bo'laklarini qo'shish shart emas, disklar boshqa.", en: 'There is no need to add the parts of two discs, the discs are different.' },
+      3: { ru: 'Во сколько раз и на сколько, это разные вопросы. Спросили на сколько.', uz: "Necha marta va nechtaga, bular boshqa savollar. Nechtaga deb so'ralgan.", en: 'How many times and how many more are different questions. How many more was asked.' }
     },
-    pick_ok: { ru: 'Верно. Сначала находим разницу в числе частей.', uz: "To'g'ri. Avval bo'laklar sonidagi farqni topamiz." },
-    step1_q: { ru: 'На сколько частей больше во втором?', uz: "Ikkinchisida nechta bo'lakka ko'p?" },
+    pick_ok: { ru: 'Верно. Сначала находим разницу в числе частей.', uz: "To'g'ri. Avval bo'laklar sonidagi farqni topamiz.", en: 'Right. First we find the difference in the number of parts.' },
+    step1_q: { ru: 'На сколько частей больше во втором?', uz: "Ikkinchisida nechta bo'lakka ko'p?", en: 'How many more parts are in the second?' },
     ans1: 6,
-    hint1: { ru: 'Из девяти убери три.', uz: "To'qqizdan uchni olib tashlang." },
-    step2_q: { ru: 'У какой доли кусок крупнее? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi yirik? Maxrajni tering." },
+    hint1: { ru: 'Из девяти убери три.', uz: "To'qqizdan uchni olib tashlang.", en: 'Take three away from nine.' },
+    step2_q: { ru: 'У какой доли кусок крупнее? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi yirik? Maxrajni tering.", en: 'Which fraction has the bigger piece? Type the denominator.' },
     ans2: 3,
-    hint2: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq." },
+    hint2: { ru: 'Крупнее там, где частей меньше.', uz: "Bo'lak kam bo'lgan joyda yirikroq.", en: 'It is bigger where there are fewer parts.' },
     check: '1/3 > 1/9',
-    setup_audio: { ru: 'У стелы лежат два одинаковых диска. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonida ikkita bir xil disk yotibdi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'У стелы лежат два одинаковых диска. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonida ikkita bir xil disk yotibdi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'Two identical discs lie at the stele. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?', uz: "Ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?" },
-      on_correct: { ru: 'На шесть частей больше, и кусок там мельче. Одна третья крупнее одной девятой.', uz: "Oltita bo'lakka ko'p, u yerda bo'lak mayda. Uchdan bir to'qqizdan birdan yirik." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько частей в каждом диске.', uz: "Birinchi qadamga qayting. Har bir diskda nechta bo'lak bor." }
+      intro: { ru: 'Два одинаковых диска. Первый разделили на три части, второй на девять. На сколько частей второй разделён больше?', uz: "Ikkita bir xil disk. Birinchisi uch bo'lakka, ikkinchisi to'qqiz bo'lakka bo'lindi. Ikkinchisi nechta bo'lakka ko'p bo'lingan?", en: 'Two identical discs. The first was divided into three parts, the second into nine. How many more parts is the second divided into?' },
+      on_correct: { ru: 'На шесть частей больше, и кусок там мельче. Одна третья крупнее одной девятой.', uz: "Oltita bo'lakka ko'p, u yerda bo'lak mayda. Uchdan bir to'qqizdan birdan yirik.", en: 'Six parts more, and the piece there is smaller. One third is bigger than one ninth.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько частей в каждом диске.', uz: "Birinchi qadamga qayting. Har bir diskda nechta bo'lak bor.", en: 'Go back to the first step. How many parts each disc has.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Целое всюду одно и то же', uz: "Uchta topshiriq. Butun hamma joyda bitta" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Целое всюду одно и то же', uz: "Uchta topshiriq. Butun hamma joyda bitta", en: 'Three tasks. The whole is the same everywhere' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Что больше: 1/2 или 1/11? Набери знаменатель большей доли.', uz: "1/2 mi yoki 1/11 mi katta? Katta ulushning maxrajini tering." },
-        q_speech: { ru: 'что больше, одна вторая или одна одиннадцатая? Набери знаменатель большей доли.', uz: "ikkidan bir mi yoki o'n birdan bir mi katta? Katta ulushning maxrajini tering." },
+        q: { ru: 'Что больше: 1/2 или 1/11? Набери знаменатель большей доли.', uz: "1/2 mi yoki 1/11 mi katta? Katta ulushning maxrajini tering.", en: 'Which is bigger: 1/2 or 1/11? Type the denominator of the bigger fraction.' },
+        q_speech: { ru: 'что больше, одна вторая или одна одиннадцатая? Набери знаменатель большей доли.', uz: "ikkidan bir mi yoki o'n birdan bir mi katta? Katta ulushning maxrajini tering.", en: 'which is bigger, one half or one eleventh? Type the denominator of the bigger fraction.' },
         ans: 2,
-        hint: { ru: 'На две части режут крупнее всего.', uz: "Ikkita bo'lakka kesganda eng yirik chiqadi." }
+        hint: { ru: 'На две части режут крупнее всего.', uz: "Ikkita bo'lakka kesganda eng yirik chiqadi.", en: 'Cutting into two parts gives the biggest pieces of all.' }
       },
       {
         kind: 'num',
-        q: { ru: 'У какой доли кусок мельче: 1/14 или 1/6? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda: 1/14 mi yoki 1/6 mi? Maxrajni tering." },
-        q_speech: { ru: 'у какой доли кусок мельче, у одной четырнадцатой или у одной шестой? Набери знаменатель.', uz: "qaysi ulushning bo'lagi mayda, o'n to'rtdan birmi yoki oltidan birmi? Maxrajni tering." },
+        q: { ru: 'У какой доли кусок мельче: 1/14 или 1/6? Набери знаменатель.', uz: "Qaysi ulushning bo'lagi mayda: 1/14 mi yoki 1/6 mi? Maxrajni tering.", en: 'Which fraction has the smaller piece: 1/14 or 1/6? Type the denominator.' },
+        q_speech: { ru: 'у какой доли кусок мельче, у одной четырнадцатой или у одной шестой? Набери знаменатель.', uz: "qaysi ulushning bo'lagi mayda, o'n to'rtdan birmi yoki oltidan birmi? Maxrajni tering.", en: 'which fraction has the smaller piece, one fourteenth or one sixth? Type the denominator.' },
         ans: 14,
-        hint: { ru: 'Мельче там, где частей больше.', uz: "Bo'lak ko'p bo'lgan joyda mayda." }
+        hint: { ru: 'Мельче там, где частей больше.', uz: "Bo'lak ko'p bo'lgan joyda mayda.", en: 'It is smaller where there are more parts.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Диск разрезали на 15 частей и на 20. Где кусок крупнее? Набери знаменатель.', uz: "Disk 15 va 20 bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering." },
-        q_speech: { ru: 'диск разрезали на пятнадцать частей и на двадцать. Где кусок крупнее? Набери знаменатель.', uz: "disk o'n besh va yigirma bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering." },
+        q: { ru: 'Диск разрезали на 15 частей и на 20. Где кусок крупнее? Набери знаменатель.', uz: "Disk 15 va 20 bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering.", en: 'A disc was cut into 15 parts and into 20. Where is the piece bigger? Type the denominator.' },
+        q_speech: { ru: 'диск разрезали на пятнадцать частей и на двадцать. Где кусок крупнее? Набери знаменатель.', uz: "disk o'n besh va yigirma bo'lakka kesildi. Bo'lak qayerda yirik? Maxrajni tering.", en: 'a disc was cut into fifteen parts and into twenty. Where is the piece bigger? Type the denominator.' },
         ans: 15,
-        hint: { ru: 'Частей меньше, значит кусок крупнее.', uz: "Bo'lak kam bo'lsa, kesagi yirik." }
+        hint: { ru: 'Частей меньше, значит кусок крупнее.', uz: "Bo'lak kam bo'lsa, kesagi yirik.", en: 'Fewer parts means a bigger piece.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Солнечные часы у стелы делят день на равные доли. Чем больше делений нарезано на круге, тем короче каждое: на 12 делений это час, на 24 — полчаса. Правило то же, что и у долей.',
-      uz: "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa: 12 bo'linmada bu bir soat, 24 tada — yarim soat. Qoida ulushlardagi bilan bir xil."
+      uz: "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa: 12 bo'linmada bu bir soat, 24 tada — yarim soat. Qoida ulushlardagi bilan bir xil.",
+      en: 'The sundial at the stele divides the day into equal parts. The more divisions are cut on the circle, the shorter each one is: with 12 divisions it is an hour, with 24 — half an hour. The rule is the same as for fractions.'
     },
     fact_audio: {
       ru: 'Солнечные часы у стелы делят день на равные доли. Чем больше делений нарезано на круге, тем короче каждое. Если делений двенадцать, каждое это целый час, а если двадцать четыре, то всего полчаса. Правило то же самое, что мы сегодня открыли про доли.',
-      uz: "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa. Bo'linma o'n ikkita bo'lsa, har biri bir soat, yigirma to'rtta bo'lsa, atigi yarim soat. Qoida biz bugun ochgan qoidaning aynan o'zi."
+      uz: "Stela yonidagi quyosh soati kunni teng ulushlarga bo'ladi. Doiraga qancha ko'p bo'linma kesilsa, har biri shuncha qisqa. Bo'linma o'n ikkita bo'lsa, har biri bir soat, yigirma to'rtta bo'lsa, atigi yarim soat. Qoida biz bugun ochgan qoidaning aynan o'zi.",
+      en: 'The sundial at the stele divides the day into equal parts. The more divisions are cut on the circle, the shorter each one is. If there are twelve divisions, each one is a whole hour, and if there are twenty four, only half an hour. The rule is exactly the one we discovered today about fractions.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. Везде смотри на нижние числа.', uz: "Oxirida uchta topshiriq. Hamma joyda pastki sonlarga qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перечитай задание. Спрашивают про крупный кусок или про мелкий.', uz: "Topshiriqni qayta o'qing. Yirik bo'lak haqidami yoki mayda haqidami so'ralyapti." }
+      intro: { ru: 'Три задания напоследок. Везде смотри на нижние числа.', uz: "Oxirida uchta topshiriq. Hamma joyda pastki sonlarga qarang.", en: 'Three tasks at the end. Look at the lower numbers everywhere.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перечитай задание. Спрашивают про крупный кусок или про мелкий.', uz: "Topshiriqni qayta o'qing. Yirik bo'lak haqidami yoki mayda haqidami so'ralyapti.", en: 'Read the task again. Is it asking about the big piece or the small one?' }
     }
   },
 
   // s14 — YAKUN: keyingisi sonning ulushi (reja 30-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Диски сравнены!', uz: 'Disklar taqqoslandi!' },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Диски сравнены!', uz: 'Disklar taqqoslandi!', en: 'The discs are compared!' },
     cando: {
       ru: ['сравниваю доли одного целого по знаменателю', 'ставлю знак между долями', 'помню: правило работает, когда целое одно и то же'],
-      uz: ["bitta butunning ulushlarini maxraj bo'yicha taqqoslayman", "ulushlar orasiga belgi qo'yaman", "esimda: qoida butun bitta bo'lganda ishlaydi"]
+      uz: ["bitta butunning ulushlarini maxraj bo'yicha taqqoslayman", "ulushlar orasiga belgi qo'yaman", "esimda: qoida butun bitta bo'lganda ishlaydi"],
+      en: ['I compare fractions of one whole by the denominator', 'I put the sign between fractions', 'I remember: the rule works when the whole is the same']
     },
-    rule_recap: { ru: 'Меньше знаменатель, крупнее доля, если целое одно и то же.', uz: "Maxraj kichik bo'lsa, ulush yirik, albatta butun bitta bo'lsa." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 4: знаки сравнения; урок 25: семьи знаменателей', uz: '4-dars: taqqoslash belgilari; 25-dars: maxrajlar oilasi' },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'доля числа: сколько это в штуках и сантиметрах', uz: "sonning ulushi: bu donada va santimetrda qancha" },
+    rule_recap: { ru: 'Меньше знаменатель, крупнее доля, если целое одно и то же.', uz: "Maxraj kichik bo'lsa, ulush yirik, albatta butun bitta bo'lsa.", en: 'A smaller denominator, a bigger fraction, if the whole is the same.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 4: знаки сравнения; урок 25: семьи знаменателей', uz: '4-dars: taqqoslash belgilari; 25-dars: maxrajlar oilasi', en: 'lesson 4: comparison signs; lesson 25: families of denominators' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'доля числа: сколько это в штуках и сантиметрах', uz: "sonning ulushi: bu donada va santimetrda qancha", en: 'a fraction of a number: how much that is in pieces and centimetres' },
     audio: {
       ru: 'Диски сравнены. Запомни главное. У долей одного целого смотрим на знаменатель, и чем он меньше, тем крупнее доля. А если целые разные, сравнивать знаменатели нельзя. В следующий раз узнаем, сколько это в штуках и сантиметрах!',
-      uz: "Disklar taqqoslandi. Asosiysini eslab qoling. Bitta butunning ulushlarida maxrajga qaraymiz, u qancha kichik bo'lsa, ulush shuncha yirik. Butunlar boshqa bo'lsa, maxrajlarni taqqoslab bo'lmaydi. Keyingi safar bu donada va santimetrda qancha ekanini bilamiz!"
+      uz: "Disklar taqqoslandi. Asosiysini eslab qoling. Bitta butunning ulushlarida maxrajga qaraymiz, u qancha kichik bo'lsa, ulush shuncha yirik. Butunlar boshqa bo'lsa, maxrajlarni taqqoslab bo'lmaydi. Keyingi safar bu donada va santimetrda qancha ekanini bilamiz!",
+      en: 'The discs are compared. Remember the main thing. For fractions of one whole we look at the denominator, and the smaller it is, the bigger the fraction. And if the wholes are different, the denominators cannot be compared. Next time we will find out how much that is in pieces and centimetres!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Положим доли рядом.', uz: "Ulushlarni yonma-yon qo'yamiz." },
-  s2:  { ru: 'Поставим знак.', uz: "Belgi qo'yamiz." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Кто-то рассудил неверно.', uz: "Kimdir noto'g'ri mulohaza qilibdi." },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна пара.', uz: 'Yana bitta juftlik.' },
-  s12: { ru: 'Два диска у стелы.', uz: 'Stela yonidagi ikki disk.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Диски сравнены. Идём дальше!', uz: 'Disklar taqqoslandi. Davom etamiz!' }
+  s1:  { ru: 'Положим доли рядом.', uz: "Ulushlarni yonma-yon qo'yamiz.", en: 'Let us put the fractions side by side.' },
+  s2:  { ru: 'Поставим знак.', uz: "Belgi qo'yamiz.", en: 'Let us put the sign.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Кто-то рассудил неверно.', uz: "Kimdir noto'g'ri mulohaza qilibdi.", en: 'Someone reasoned wrongly.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна пара.', uz: 'Yana bitta juftlik.', en: 'And one more pair.' },
+  s12: { ru: 'Два диска у стелы.', uz: 'Stela yonidagi ikki disk.', en: 'Two discs at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Диски сравнены. Идём дальше!', uz: 'Disklar taqqoslandi. Davom etamiz!', en: 'The discs are compared. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Доли сравнены, и знак стоит верно. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Ulushlar taqqoslandi, belgi to'g'ri turibdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Ulushlar taqqoslandi, belgi to'g'ri turibdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The fractions are compared and the sign is in the right place. Thank you for your help!'
 };
 
 // ============================================================
@@ -771,7 +784,7 @@ const TwoDiskHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d26slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КАКАЯ ДОЛЯ БОЛЬШЕ' : 'QAYSI ULUSH KATTA'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'КАКАЯ ДОЛЯ БОЛЬШЕ', 'QAYSI ULUSH KATTA', 'WHICH FRACTION IS BIGGER')}</text>
     {[[156, 3], [244, 6]].map(([cx, n], i) => (
       <g key={i} transform={`translate(${cx} 136)`}>
         <circle cx="0" cy="0" r="17" fill="#E8D8B2" stroke="#8A7550" strokeWidth="1.4"/>
@@ -789,7 +802,7 @@ const TwoDiskHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d26slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: ulush maydalashib boradi (4, 8, 12) --- */}
     {[[4, 96], [8, 124], [12, 152]].map(([n, y], i) => (
@@ -963,7 +976,7 @@ const DialFig = () => {
     <path d="M110 54 L110 20 A34 34 0 0 1 139 37 Z" fill="#E0A05A" opacity="0.9"/>
     <path d="M110 54 L96 26 L104 24 Z" fill="#8A7550"/>
     <circle cx="110" cy="54" r="3" fill="#5A4A2E"/>
-    <text x="110" y="104" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'день на равные доли' : 'kun teng ulushlarga'}</text>
+    <text x="110" y="104" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'день на равные доли', 'kun teng ulushlarga', 'the day into equal parts')}</text>
   </svg>
   );
 };
@@ -1097,7 +1110,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1216,7 +1229,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d26-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d26-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d26-expr">{t(c.step1)}</span>
@@ -1552,7 +1565,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1617,7 +1630,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1753,7 +1766,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d26-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d26-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1868,7 +1881,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1939,7 +1952,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d26-final-scene fade-up delay-1"><TwoDiskHallScene gathered/></div>
@@ -1960,7 +1973,7 @@ export default function CompareSharesLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2027,7 +2040,7 @@ export default function CompareSharesLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

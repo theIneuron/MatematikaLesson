@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -152,8 +152,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-15',
-  lessonTitle: { ru: 'Урок 15. Задачи на умножение и деление', uz: "15-dars. Ko'paytirish va bo'lishga masalalar" }
+  lessonId: 'grade3-15',
+  lessonTitle: { ru: 'Урок 15. Задачи на умножение и деление', uz: "15-dars. Ko'paytirish va bo'lishga masalalar", en: 'Lesson 15. Word problems with multiplication and division' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 15»): s0 xuk (ikki gulzor) · s1 ko'prik · s2 IKKI KONSOL
 // (×3 va +3) · s3 DARSLIK JADVALI · s4 savol-oldin-QOIDA · s5 Bit tuzog'i (M1) · s6 «marta
@@ -193,17 +193,17 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Задачи на умножение и деление', uz: "Ko'paytirish va bo'lishga masalalar" },
-    lead: { ru: 'У Рано одна грядка, у Анвара участок под сеткой', uz: "Ra'noda bitta gulzor, Anvarda uchastka to'r ostida" },
-    panel_cap: { ru: 'задание в саду', uz: "bog' vazifasi" },
-    bed_a_cap: { ru: 'грядка Рано', uz: "Ra'no gulzori" },
-    bed_b_cap: { ru: 'в 3 раза больше', uz: "3 marta ko'p" },
-    q: { ru: 'Сколько растений у Анвара?', uz: "Anvarda nechta o'simlik?" },
-    opt0: { ru: '24', uz: '24' },
-    opt1: { ru: '11', uz: '11' },
-    opt2: { ru: '5', uz: '5' },
-    opt3: { ru: '3', uz: '3' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Задачи на умножение и деление', uz: "Ko'paytirish va bo'lishga masalalar", en: 'Word problems with multiplication and division' },
+    lead: { ru: 'У Рано одна грядка, у Анвара участок под сеткой', uz: "Ra'noda bitta gulzor, Anvarda uchastka to'r ostida", en: "Ra'no has one bed, Anvar has a plot under a net" },
+    panel_cap: { ru: 'задание в саду', uz: "bog' vazifasi", en: 'a task in the garden' },
+    bed_a_cap: { ru: 'грядка Рано', uz: "Ra'no gulzori", en: "Ra'no's bed" },
+    bed_b_cap: { ru: 'в 3 раза больше', uz: "3 marta ko'p", en: '3 times more' },
+    q: { ru: 'Сколько растений у Анвара?', uz: "Anvarda nechta o'simlik?", en: 'How many plants does Anvar have?' },
+    opt0: { ru: '24', uz: '24', en: '24' },
+    opt1: { ru: '11', uz: '11', en: '11' },
+    opt2: { ru: '5', uz: '5', en: '5' },
+    opt3: { ru: '3', uz: '3', en: '3' },
     audio: {
       intro: {
         ru: [
@@ -217,35 +217,40 @@ const CONTENT = {
           "Bit bog'da vazifa berdi. Ra'noda bitta gulzor, unda sakkizta nurli o'simlik.",
           "Anvarda esa o'simlik uch marta ko'p, lekin uning uchastkasi hozircha to'r ostida.",
           "Sizningcha, Anvarda nechta o'simlik bor?"
-        ]
+        ],
+        en: ['The topic of the lesson is called word problems with multiplication and division. We will find out how the words of a problem show the operation.', "Bit handed out a task in the garden. Ra'no has one bed with eight glowing plants on it.", 'And Anvar has three times more plants, but his plot is still under a net.', 'How many plants do you think Anvar has?']
       },
       on_correct: {
         ru: 'Верно! В три раза больше значит взять восемь три раза, и это двадцать четыре. Сейчас увидим это на грядках.',
-        uz: "To'g'ri! Uch marta ko'p degani sakkizni uch marta olish, bu esa yigirma to'rt. Hozir buni gulzorlarda ko'ramiz."
+        uz: "To'g'ri! Uch marta ko'p degani sakkizni uch marta olish, bu esa yigirma to'rt. Hozir buni gulzorlarda ko'ramiz.",
+        en: 'Right! Three times more means taking eight three times, and that is twenty four. Now we will see it on the beds.'
       },
       on_wrong1: {
         ru: 'Одиннадцать получается, если прибавить три. А сказано в три раза больше, это про мерку, а не про добавку.',
-        uz: "O'n bir uchni qo'shsak chiqadi. Aytilgani esa uch marta ko'p, bu qo'shimcha emas, merka haqida."
+        uz: "O'n bir uchni qo'shsak chiqadi. Aytilgani esa uch marta ko'p, bu qo'shimcha emas, merka haqida.",
+        en: 'Eleven comes out if you add three. But it says three times more, and that is about a measure, not about an extra bit.'
       },
       on_wrong2: {
         ru: 'Пять это меньше, а у Анвара растений больше.',
-        uz: "Besh bu kamroq, Anvarda esa o'simlik ko'proq."
+        uz: "Besh bu kamroq, Anvarda esa o'simlik ko'proq.",
+        en: 'Five is less, and Anvar has more plants.'
       },
       on_idk: {
         ru: 'Три это сколько раз, а вопрос про число растений.',
-        uz: "Uch bu necha marta, savol esa o'simliklar soni haqida."
+        uz: "Uch bu necha marta, savol esa o'simliklar soni haqida.",
+        en: 'Three is how many times, and the question is about the number of plants.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz' },
-    lead: { ru: 'Считать ты уже умеешь', uz: 'Hisoblashni allaqachon bilasiz' },
-    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing' },
-    card1: { ru: '8 × 3 = 24', uz: '8 × 3 = 24' },
-    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
-    card2: { ru: '24 : 3 = 8', uz: '24 : 3 = 8' },
-    card2_cap: { ru: 'связь умножения и деления, урок 14', uz: "ko'paytirish va bo'lish bog'lanishi, 14-dars" },
+    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz', en: 'Recalling' },
+    lead: { ru: 'Считать ты уже умеешь', uz: 'Hisoblashni allaqachon bilasiz', en: 'You can already count' },
+    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing', en: 'Tap a card' },
+    card1: { ru: '8 × 3 = 24', uz: '8 × 3 = 24', en: '8 × 3 = 24' },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars", en: 'the multiplication table, lesson 9' },
+    card2: { ru: '24 : 3 = 8', uz: '24 : 3 = 8', en: '24 : 3 = 8' },
+    card2_cap: { ru: 'связь умножения и деления, урок 14', uz: "ko'paytirish va bo'lish bog'lanishi, 14-dars", en: 'the link between multiplication and division, lesson 14' },
     audio: {
       ru: [
         'Обе записи ты уже знаешь. Открой первую карточку.',
@@ -258,23 +263,24 @@ const CONTENT = {
         "Sakkiz karra uch, yigirma to'rt.",
         "Yigirma to'rtni uchga bo'lsak, sakkiz.",
         "Hisoblashni bilasiz. Bugun yangisi bitta. Masaladagi so'zlarga qarab qaysi amal kerakligini tanlash."
-      ]
+      ],
+      en: ['You already know both lines. Open the first card.', 'Eight times three, twenty four.', 'Twenty four divided by three, eight.', 'You can count. Only one thing is new today. Choosing which of these operations the words of a problem call for.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'В 3 раза больше и на 3 больше — это разное', uz: "3 marta ko'p va 3 ta ko'p — bular boshqacha" },
-    cap_mul: { ru: 'в 3 раза больше', uz: "3 marta ko'p" },
-    cap_add: { ru: 'на 3 больше', uz: "3 ta ko'p" },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'В 3 раза больше и на 3 больше — это разное', uz: "3 marta ko'p va 3 ta ko'p — bular boshqacha", en: '3 times more and 3 more are different things' },
+    cap_mul: { ru: 'в 3 раза больше', uz: "3 marta ko'p", en: '3 times more' },
+    cap_add: { ru: 'на 3 больше', uz: "3 ta ko'p", en: '3 more' },
     mul_badge: '×3',
     add_badge: '+3',
     mul_val: 24,
     add_val: 11,
     row_n: 8,
-    btn1: { ru: 'Взять мерку три раза', uz: 'Merkani uch marta olish' },
-    btn2: { ru: 'А если на три больше?', uz: "Uchta ko'p bo'lsa-chi?" },
-    done_text: { ru: 'В три раза больше это двадцать четыре, а на три больше только одиннадцать.', uz: "Uch marta ko'p bu yigirma to'rt, uchta ko'p esa faqat o'n bir." },
+    btn1: { ru: 'Взять мерку три раза', uz: 'Merkani uch marta olish', en: 'Take the measure three times' },
+    btn2: { ru: 'А если на три больше?', uz: "Uchta ko'p bo'lsa-chi?", en: 'And what about three more?' },
+    done_text: { ru: 'В три раза больше это двадцать четыре, а на три больше только одиннадцать.', uz: "Uch marta ko'p bu yigirma to'rt, uchta ko'p esa faqat o'n bir.", en: 'Three times more is twenty four, and three more is only eleven.' },
     audio: {
       ru: [
         'Смотри на мерку. Одна грядка Рано, на ней восемь растений.',
@@ -287,26 +293,27 @@ const CONTENT = {
         "Uch marta ko'p degani bu merkani uch marta olish. Sakkiz, o'n olti, yigirma to'rt.",
         "Uchta ko'p degani esa faqat uchta o'simlik qo'shish. O'n bir chiqadi.",
         "Farq bitta so'zda. Marta bu merka va ko'paytirish, ta esa qo'shimcha va qo'shish."
-      ]
+      ],
+      en: ["Look at the measure. Ra'no's one bed with eight plants on it.", 'Three times more means taking this measure three times. Eight, sixteen, twenty four.', 'And three more means adding just three plants. That gives eleven.', 'The difference is one word. Times is about a measure and multiplication, and more by is about an extra bit and addition.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Таблица задачи', uz: 'Masala jadvali' },
-    lead: { ru: 'Задачу записывают таблицей, как в учебнике', uz: 'Masala kitobdagidek jadval bilan yoziladi' },
-    h1: { ru: 'На одну грядку', uz: 'Bitta gulzorga' },
-    h2: { ru: 'Грядок', uz: 'Gulzorlar' },
-    h3: { ru: 'Всего', uz: 'Jami' },
+    eyebrow: { ru: 'Таблица задачи', uz: 'Masala jadvali', en: 'The problem table' },
+    lead: { ru: 'Задачу записывают таблицей, как в учебнике', uz: 'Masala kitobdagidek jadval bilan yoziladi', en: 'A problem is written as a table, like in the textbook' },
+    h1: { ru: 'На одну грядку', uz: 'Bitta gulzorga', en: 'Per bed' },
+    h2: { ru: 'Грядок', uz: 'Gulzorlar', en: 'Beds' },
+    h3: { ru: 'Всего', uz: 'Jami', en: 'In all' },
     a: 8,
     b: 3,
     total: 24,
     expr_mul: '8 × 3 = 24',
     expr_div: '24 : 8 = 3',
-    note_mul: { ru: 'неизвестно всего — умножаем', uz: "jami noma'lum — ko'paytiramiz" },
-    note_div: { ru: 'неизвестно, сколько грядок — делим', uz: "gulzorlar soni noma'lum — bo'lamiz" },
-    btn1: { ru: 'Найти всего', uz: 'Jamini topish' },
-    btn2: { ru: 'Перевернуть задачу', uz: 'Masalani teskari qilish' },
-    done_text: { ru: 'Одна таблица, а действия два. Слово подсказывает, какое взять.', uz: "Jadval bitta, amal esa ikkita. Qaysi birini olishni so'z aytadi." },
+    note_mul: { ru: 'неизвестно всего — умножаем', uz: "jami noma'lum — ko'paytiramiz", en: 'the total is unknown — we multiply' },
+    note_div: { ru: 'неизвестно, сколько грядок — делим', uz: "gulzorlar soni noma'lum — bo'lamiz", en: 'the number of beds is unknown — we divide' },
+    btn1: { ru: 'Найти всего', uz: 'Jamini topish', en: 'Find the total' },
+    btn2: { ru: 'Перевернуть задачу', uz: 'Masalani teskari qilish', en: 'Turn the problem round' },
+    done_text: { ru: 'Одна таблица, а действия два. Слово подсказывает, какое взять.', uz: "Jadval bitta, amal esa ikkita. Qaysi birini olishni so'z aytadi.", en: 'One table, but two operations. The words tell you which one to take.' },
     audio: {
       ru: [
         'Задачу удобно записать в таблицу, как в учебнике. На одну грядку восемь, грядок три, а всего пока неизвестно.',
@@ -319,26 +326,27 @@ const CONTENT = {
         "Jamini ko'paytirish bilan topamiz. Sakkiz karra uch, yigirma to'rt.",
         "Endi teskarisiga. Jami yigirma to'rt, bitta gulzorga sakkizta, gulzorlar soni esa noma'lum. Bu yerda bo'lish kerak.",
         "Jadval bo'yicha eslab qoling. Jami noma'lum bo'lsa, ko'paytiramiz. Gulzorlar soni noma'lum bo'lsa, bo'lamiz."
-      ]
+      ],
+      en: ['It is handy to write the problem in a table, like in the textbook. Eight per bed, three beds, and the total is unknown so far.', 'We find the total by multiplying. Eight times three, twenty four.', 'Now the other way round. The total is twenty four, eight per bed, and the number of beds is unknown. Division is needed here.', 'Remember it by the table. The total is unknown, we multiply. The number of beds is unknown, we divide.']
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'В задаче сказано: у Жасура в 3 раза меньше. Какое действие?', uz: "Masalada aytilgan: Jasurda 3 marta kam. Qaysi amal?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'В задаче сказано: у Жасура в 3 раза меньше. Какое действие?', uz: "Masalada aytilgan: Jasurda 3 marta kam. Qaysi amal?", en: 'The problem says: Jasur has 3 times fewer. Which operation?' },
     opts: [
-      { ru: 'Деление', uz: "Bo'lish" },
-      { ru: 'Умножение', uz: "Ko'paytirish" },
-      { ru: 'Сложение', uz: "Qo'shish" },
-      { ru: 'Вычитание', uz: 'Ayirish' }
+      { ru: 'Деление', uz: "Bo'lish", en: 'Division' },
+      { ru: 'Умножение', uz: "Ko'paytirish", en: 'Multiplication' },
+      { ru: 'Сложение', uz: "Qo'shish", en: 'Addition' },
+      { ru: 'Вычитание', uz: 'Ayirish', en: 'Subtraction' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение делает больше, а сказано меньше.', uz: "Ko'paytirish ko'paytiradi, aytilgani esa kam." },
-      2: { ru: 'Сложение тоже делает больше. И слово раз тут про мерку, а не про добавку.', uz: "Qo'shish ham ko'paytiradi. Marta so'zi esa merka haqida, qo'shimcha haqida emas." },
-      3: { ru: 'Вычитание убирает три растения. А в три раза меньше значит мерка уложилась три раза.', uz: "Ayirish uchta o'simlikni olib qo'yadi. Uch marta kam esa merka uch marta joylashgan degani." }
+      1: { ru: 'Умножение делает больше, а сказано меньше.', uz: "Ko'paytirish ko'paytiradi, aytilgani esa kam.", en: 'Multiplication makes more, and it says fewer.' },
+      2: { ru: 'Сложение тоже делает больше. И слово раз тут про мерку, а не про добавку.', uz: "Qo'shish ham ko'paytiradi. Marta so'zi esa merka haqida, qo'shimcha haqida emas.", en: 'Addition also makes more. And the word times here is about a measure, not about an extra bit.' },
+      3: { ru: 'Вычитание убирает три растения. А в три раза меньше значит мерка уложилась три раза.', uz: "Ayirish uchta o'simlikni olib qo'yadi. Uch marta kam esa merka uch marta joylashgan degani.", en: 'Subtraction takes away three plants. And three times fewer means the measure fitted three times.' }
     },
-    on_correct: { ru: 'Верно! В несколько раз меньше находят делением.', uz: "To'g'ri! Bir necha marta kam bo'lish bilan topiladi." },
+    on_correct: { ru: 'Верно! В несколько раз меньше находят делением.', uz: "To'g'ri! Bir necha marta kam bo'lish bilan topiladi.", en: 'Right! Several times fewer is found by dividing.' },
     rule_lines: {
       ru: [
         'в несколько раз больше — умножаем',
@@ -349,33 +357,37 @@ const CONTENT = {
         "bir necha marta ko'p — ko'paytiramiz",
         "bir necha marta kam — bo'lamiz",
         "necha marta ko'p — kattani kichigiga bo'lamiz"
-      ]
+      ],
+      en: ['several times more — we multiply', 'several times fewer — we divide', 'how many times more — we divide the bigger by the smaller']
     },
     rule_ex: '8 × 3 = 24 · 24 : 3 = 8 · 24 : 8 = 3',
     rule_speech: {
       ru: 'Правило такое. Если в задаче сказано в несколько раз больше, умножаем. Если в несколько раз меньше, делим. А если спрашивают, во сколько раз больше, делим большее число на меньшее.',
-      uz: "Qoida shunday. Masalada bir necha marta ko'p deyilsa, ko'paytiramiz. Bir necha marta kam deyilsa, bo'lamiz. Necha marta ko'p deb so'ralsa esa, katta sonni kichigiga bo'lamiz."
+      uz: "Qoida shunday. Masalada bir necha marta ko'p deyilsa, ko'paytiramiz. Bir necha marta kam deyilsa, bo'lamiz. Necha marta ko'p deb so'ralsa esa, katta sonni kichigiga bo'lamiz.",
+      en: 'The rule is this. If a problem says several times more, we multiply. If it says several times fewer, we divide. And if it asks how many times more, we divide the bigger number by the smaller one.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: "Endi darsning asosiy savoli." }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: "Endi darsning asosiy savoli.", en: 'Now the main question of the lesson.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит прочитал в 3 раза больше и посчитал так', uz: "Bit 3 marta ko'p deb o'qidi va shunday hisobladi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит прочитал в 3 раза больше и посчитал так', uz: "Bit 3 marta ko'p deb o'qidi va shunday hisobladi", en: 'Bit read three times more and counted like this' },
     lines: ['8 + 3', '11'],
-    line_cap: { ru: 'в 3 раза больше', uz: "3 marta ko'p" },
-    trap_label: { ru: 'Верно ли посчитал Бит?', uz: "Bit to'g'ri hisobladimi?" },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    line_cap: { ru: 'в 3 раза больше', uz: "3 marta ko'p", en: '3 times more' },
+    trap_label: { ru: 'Верно ли посчитал Бит?', uz: "Bit to'g'ri hisobladimi?", en: 'Did Bit count correctly?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Одиннадцать это ответ на другую фразу, на три больше. А в три раза больше значит взять мерку три раза, двадцать четыре.',
-      uz: "Aniq! O'n bir boshqa iboraning javobi, uchta ko'p. Uch marta ko'p esa merkani uch marta olish, yigirma to'rt."
+      uz: "Aniq! O'n bir boshqa iboraning javobi, uchta ko'p. Uch marta ko'p esa merkani uch marta olish, yigirma to'rt.",
+      en: 'Exactly! Eleven is the answer to a different phrase, three more. And three times more means taking the measure three times, twenty four.'
     },
     trap_wrong: {
       ru: 'Посмотри на грядки. У Анвара три такие же полосы, а не одна полоса и три растения.',
-      uz: "Gulzorlarga qarang. Anvarda xuddi shunday uchta polosa bor, bitta polosa va uchta o'simlik emas."
+      uz: "Gulzorlarga qarang. Anvarda xuddi shunday uchta polosa bor, bitta polosa va uchta o'simlik emas.",
+      en: 'Look at the beds. Anvar has three strips just like it, not one strip and three plants.'
     },
     audio: {
       ru: [
@@ -385,36 +397,37 @@ const CONTENT = {
       uz: [
         "Bit uch marta ko'p deb o'qidi va shunday hisobladi. Sakkiz qo'shuv uch, o'n bir!",
         "Bit to'g'ri hisobladimi?"
-      ]
+      ],
+      en: ['Bit read three times more and counted like this. Eight plus three, eleven!', 'Did Bit count correctly?']
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Больше и меньше', uz: "Ko'p va kam" },
-    lead: { ru: 'Одна грядка читается в две стороны', uz: "Bitta gulzor ikki tomonga o'qiladi" },
-    left_title: { ru: 'в 3 раза больше', uz: "3 marta ko'p" },
+    eyebrow: { ru: 'Больше и меньше', uz: "Ko'p va kam", en: 'More and fewer' },
+    lead: { ru: 'Одна грядка читается в две стороны', uz: "Bitta gulzor ikki tomonga o'qiladi", en: 'One bed reads both ways' },
+    left_title: { ru: 'в 3 раза больше', uz: "3 marta ko'p", en: '3 times more' },
     left_lines: ['8', '8 × 3', '24'],
-    left_cap: { ru: 'от Рано к Анвару, умножаем', uz: "Ra'nodan Anvarga, ko'paytiramiz" },
-    right_title: { ru: 'в 3 раза меньше', uz: '3 marta kam' },
+    left_cap: { ru: 'от Рано к Анвару, умножаем', uz: "Ra'nodan Anvarga, ko'paytiramiz", en: "from Ra'no to Anvar, we multiply" },
+    right_title: { ru: 'в 3 раза меньше', uz: '3 marta kam', en: '3 times fewer' },
     right_lines: ['24', '24 : 3', '8'],
-    right_cap: { ru: 'от Анвара к Жасуру, делим', uz: "Anvardan Jasurga, bo'lamiz" },
-    btn1: { ru: 'Больше', uz: "Ko'p" },
-    btn2: { ru: 'Меньше', uz: 'Kam' },
-    mc_q: { ru: 'У Жасура в 3 раза меньше, чем 24. Сколько у Жасура?', uz: "Jasurda 24 dan 3 marta kam. Jasurda nechta?" },
-    mc_q_speech: { ru: 'У Жасура в три раза меньше, чем двадцать четыре. Сколько растений у Жасура?', uz: "Jasurda yigirma to'rtdan uch marta kam. Jasurda nechta o'simlik?" },
+    right_cap: { ru: 'от Анвара к Жасуру, делим', uz: "Anvardan Jasurga, bo'lamiz", en: 'from Anvar to Jasur, we divide' },
+    btn1: { ru: 'Больше', uz: "Ko'p", en: 'More' },
+    btn2: { ru: 'Меньше', uz: 'Kam', en: 'Fewer' },
+    mc_q: { ru: 'У Жасура в 3 раза меньше, чем 24. Сколько у Жасура?', uz: "Jasurda 24 dan 3 marta kam. Jasurda nechta?", en: 'Jasur has 3 times fewer than 24. How many does Jasur have?' },
+    mc_q_speech: { ru: 'У Жасура в три раза меньше, чем двадцать четыре. Сколько растений у Жасура?', uz: "Jasurda yigirma to'rtdan uch marta kam. Jasurda nechta o'simlik?", en: 'Jasur has three times fewer than twenty four. How many plants does Jasur have?' },
     mc_opts: [
-      { ru: '8', uz: '8' },
-      { ru: '21', uz: '21' },
-      { ru: '72', uz: '72' },
-      { ru: '27', uz: '27' }
+      { ru: '8', uz: '8', en: '8' },
+      { ru: '21', uz: '21', en: '21' },
+      { ru: '72', uz: '72', en: '72' },
+      { ru: '27', uz: '27', en: '27' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Двадцать один получается, если убрать три растения. А в три раза меньше значит мерка уложилась три раза.', uz: "Yigirma bir uchta o'simlikni olib qo'ysak chiqadi. Uch marta kam esa merka uch marta joylashgan degani." },
-      2: { ru: 'Так число стало больше, а сказано меньше.', uz: "Bunda son kattalashdi, aytilgani esa kam." },
-      3: { ru: 'Сложение делает больше. Здесь нужно деление.', uz: "Qo'shish ko'paytiradi. Bu yerda bo'lish kerak." }
+      1: { ru: 'Двадцать один получается, если убрать три растения. А в три раза меньше значит мерка уложилась три раза.', uz: "Yigirma bir uchta o'simlikni olib qo'ysak chiqadi. Uch marta kam esa merka uch marta joylashgan degani.", en: 'Twenty one comes out if you take three plants away. And three times fewer means the measure fitted three times.' },
+      2: { ru: 'Так число стало больше, а сказано меньше.', uz: "Bunda son kattalashdi, aytilgani esa kam.", en: 'That way the number got bigger, and it says fewer.' },
+      3: { ru: 'Сложение делает больше. Здесь нужно деление.', uz: "Qo'shish ko'paytiradi. Bu yerda bo'lish kerak.", en: 'Addition makes more. Division is needed here.' }
     },
-    mc_ok: { ru: 'Верно! Двадцать четыре разделить на три, восемь.', uz: "To'g'ri! Yigirma to'rtni uchga bo'lsak, sakkiz." },
+    mc_ok: { ru: 'Верно! Двадцать четыре разделить на три, восемь.', uz: "To'g'ri! Yigirma to'rtni uchga bo'lsak, sakkiz.", en: 'Right! Twenty four divided by three, eight.' },
     audio: {
       ru: [
         'Одна и та же грядка читается в две стороны. Нажми и посмотри.',
@@ -427,162 +440,165 @@ const CONTENT = {
         "Ra'nodan Anvarga. Uch marta ko'p, ko'paytiramiz, yigirma to'rt.",
         "Anvardan Jasurga. Uch marta kam, bo'lamiz, sakkiz.",
         "Ko'p va kam bu bitta yo'lning ikki tomoni. Bitta so'z amalni o'zgartiradi."
-      ]
+      ],
+      en: ['The very same bed reads both ways. Tap and look.', "From Ra'no to Anvar. Three times more, we multiply, twenty four.", 'From Anvar to Jasur. Three times fewer, we divide, eight.', 'More and fewer are one road going both ways. One word changes the operation.']
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya' },
-    q: { ru: 'Какая запись подходит?', uz: 'Qaysi yozuv mos keladi?' },
-    setup: { ru: 'У Рано 9 растений, у Зухры в 2 раза больше.', uz: "Ra'noda 9 o'simlik, Zuhrada 2 marta ko'p." },
+    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya', en: 'Five seconds' },
+    q: { ru: 'Какая запись подходит?', uz: 'Qaysi yozuv mos keladi?', en: 'Which line fits?' },
+    setup: { ru: 'У Рано 9 растений, у Зухры в 2 раза больше.', uz: "Ra'noda 9 o'simlik, Zuhrada 2 marta ko'p.", en: "Ra'no has 9 plants, Zuhra has 2 times more." },
     items: [
       {
-        opts: [{ ru: '9 × 2', uz: '9 × 2' }, { ru: '9 + 2', uz: '9 + 2' }, { ru: '9 − 2', uz: '9 − 2' }, { ru: '9 : 2', uz: '9 : 2' }],
+        opts: [{ ru: '9 × 2', uz: '9 × 2', en: '9 × 2' }, { ru: '9 + 2', uz: '9 + 2', en: '9 + 2' }, { ru: '9 − 2', uz: '9 − 2', en: '9 − 2' }, { ru: '9 : 2', uz: '9 : 2', en: '9 : 2' }],
         hints: [
           null,
-          { ru: 'Это на два больше. А сказано в два раза больше.', uz: "Bu ikkita ko'p. Aytilgani esa ikki marta ko'p." },
-          { ru: 'Вычитание делает меньше, а у Зухры больше.', uz: "Ayirish kamaytiradi, Zuhrada esa ko'p." },
-          { ru: 'Деление тоже делает меньше. Оно нужно, когда сказано в несколько раз меньше.', uz: "Bo'lish ham kamaytiradi. U bir necha marta kam deyilganda kerak." }
+          { ru: 'Это на два больше. А сказано в два раза больше.', uz: "Bu ikkita ko'p. Aytilgani esa ikki marta ko'p.", en: 'That is two more. But it says two times more.' },
+          { ru: 'Вычитание делает меньше, а у Зухры больше.', uz: "Ayirish kamaytiradi, Zuhrada esa ko'p.", en: 'Subtraction makes fewer, and Zuhra has more.' },
+          { ru: 'Деление тоже делает меньше. Оно нужно, когда сказано в несколько раз меньше.', uz: "Bo'lish ham kamaytiradi. U bir necha marta kam deyilganda kerak.", en: 'Division also makes fewer. It is needed when it says several times fewer.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Пять секунд на подумать. У Рано девять растений, у Зухры в два раза больше. Выбери не ответ, а запись.', uz: "O'ylash uchun besh soniya. Ra'noda to'qqiz o'simlik, Zuhrada ikki marta ko'p. Javobni emas, yozuvni tanlang." },
-      on_correct: { ru: 'Успел! Девять умножить на два, восемнадцать.', uz: "Ulguribsiz! To'qqiz karra ikki, o'n sakkiz." },
-      on_wrong: { ru: 'В несколько раз больше это умножение.', uz: "Bir necha marta ko'p bu ko'paytirish." }
+      intro: { ru: 'Пять секунд на подумать. У Рано девять растений, у Зухры в два раза больше. Выбери не ответ, а запись.', uz: "O'ylash uchun besh soniya. Ra'noda to'qqiz o'simlik, Zuhrada ikki marta ko'p. Javobni emas, yozuvni tanlang.", en: "Five seconds to think. Ra'no has nine plants, Zuhra has two times more. Choose not the answer but the line." },
+      on_correct: { ru: 'Успел! Девять умножить на два, восемнадцать.', uz: "Ulguribsiz! To'qqiz karra ikki, o'n sakkiz.", en: 'Made it! Nine times two, eighteen.' },
+      on_wrong: { ru: 'В несколько раз больше это умножение.', uz: "Bir necha marta ko'p bu ko'paytirish.", en: 'Several times more is multiplication.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Во сколько раз', uz: 'Necha marta' },
+    eyebrow: { ru: 'Во сколько раз', uz: 'Necha marta', en: 'How many times' },
     items: [
       {
-        q: { ru: 'Во сколько раз 24 больше, чем 8?', uz: "24 soni 8 dan necha marta ko'p?" },
-        q_speech: { ru: 'Во сколько раз двадцать четыре больше, чем восемь?', uz: "Yigirma to'rt sakkizdan necha marta ko'p?" },
+        q: { ru: 'Во сколько раз 24 больше, чем 8?', uz: "24 soni 8 dan necha marta ko'p?", en: 'How many times is 24 greater than 8?' },
+        q_speech: { ru: 'Во сколько раз двадцать четыре больше, чем восемь?', uz: "Yigirma to'rt sakkizdan necha marta ko'p?", en: 'How many times is twenty four greater than eight?' },
         big: 24, small: 8,
-        opts: [{ ru: '3', uz: '3' }, { ru: '16', uz: '16' }, { ru: '32', uz: '32' }, { ru: '4', uz: '4' }],
+        opts: [{ ru: '3', uz: '3', en: '3' }, { ru: '16', uz: '16', en: '16' }, { ru: '32', uz: '32', en: '32' }, { ru: '4', uz: '4', en: '4' }],
         hints: [
           null,
-          { ru: 'Шестнадцать это разность. А во сколько раз показывает деление.', uz: "O'n olti bu ayirma. Necha marta ko'pligini bo'lish ko'rsatadi." },
-          { ru: 'Тридцать два больше обоих чисел. Мы ищем, сколько мерок уложилось.', uz: "O'ttiz ikki ikkala sondan katta. Biz nechta merka joylashganini qidiramiz." },
-          { ru: 'Проверь умножением. Восемь умножить на четыре, тридцать два, а не двадцать четыре.', uz: "Ko'paytirib tekshiring. Sakkiz karra to'rt, o'ttiz ikki, yigirma to'rt emas." }
+          { ru: 'Шестнадцать это разность. А во сколько раз показывает деление.', uz: "O'n olti bu ayirma. Necha marta ko'pligini bo'lish ko'rsatadi.", en: 'Sixteen is the difference. And how many times is shown by division.' },
+          { ru: 'Тридцать два больше обоих чисел. Мы ищем, сколько мерок уложилось.', uz: "O'ttiz ikki ikkala sondan katta. Biz nechta merka joylashganini qidiramiz.", en: 'Thirty two is bigger than both numbers. We are looking for how many measures fitted.' },
+          { ru: 'Проверь умножением. Восемь умножить на четыре, тридцать два, а не двадцать четыре.', uz: "Ko'paytirib tekshiring. Sakkiz karra to'rt, o'ttiz ikki, yigirma to'rt emas.", en: 'Check by multiplying. Eight times four, thirty two, not twenty four.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Во сколько раз 30 больше, чем 5?', uz: "30 soni 5 dan necha marta ko'p?" },
-        q_speech: { ru: 'Во сколько раз тридцать больше, чем пять?', uz: "O'ttiz beshdan necha marta ko'p?" },
+        q: { ru: 'Во сколько раз 30 больше, чем 5?', uz: "30 soni 5 dan necha marta ko'p?", en: 'How many times is 30 greater than 5?' },
+        q_speech: { ru: 'Во сколько раз тридцать больше, чем пять?', uz: "O'ttiz beshdan necha marta ko'p?", en: 'How many times is thirty greater than five?' },
         big: 30, small: 5,
-        opts: [{ ru: '6', uz: '6' }, { ru: '25', uz: '25' }, { ru: '35', uz: '35' }, { ru: '5', uz: '5' }],
+        opts: [{ ru: '6', uz: '6', en: '6' }, { ru: '25', uz: '25', en: '25' }, { ru: '35', uz: '35', en: '35' }, { ru: '5', uz: '5', en: '5' }],
         hints: [
           null,
-          { ru: 'Двадцать пять это разность, а нужно деление.', uz: "Yigirma besh bu ayirma, kerakli amal esa bo'lish." },
-          { ru: 'Это сумма. Она не показывает, сколько раз.', uz: "Bu yig'indi. U necha marta ekanini ko'rsatmaydi." },
-          { ru: 'Проверь. Пять умножить на пять, двадцать пять, а не тридцать.', uz: "Tekshiring. Besh karra besh, yigirma besh, o'ttiz emas." }
+          { ru: 'Двадцать пять это разность, а нужно деление.', uz: "Yigirma besh bu ayirma, kerakli amal esa bo'lish.", en: 'Twenty five is the difference, and we need division.' },
+          { ru: 'Это сумма. Она не показывает, сколько раз.', uz: "Bu yig'indi. U necha marta ekanini ko'rsatmaydi.", en: 'That is the sum. It does not show how many times.' },
+          { ru: 'Проверь. Пять умножить на пять, двадцать пять, а не тридцать.', uz: "Tekshiring. Besh karra besh, yigirma besh, o'ttiz emas.", en: 'Check it. Five times five, twenty five, not thirty.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Во сколько раз 36 больше, чем 4?', uz: "36 soni 4 dan necha marta ko'p?" },
-        q_speech: { ru: 'Во сколько раз тридцать шесть больше, чем четыре?', uz: "O'ttiz olti to'rtdan necha marta ko'p?" },
+        q: { ru: 'Во сколько раз 36 больше, чем 4?', uz: "36 soni 4 dan necha marta ko'p?", en: 'How many times is 36 greater than 4?' },
+        q_speech: { ru: 'Во сколько раз тридцать шесть больше, чем четыре?', uz: "O'ttiz olti to'rtdan necha marta ko'p?", en: 'How many times is thirty six greater than four?' },
         big: 36, small: 4,
-        opts: [{ ru: '9', uz: '9' }, { ru: '32', uz: '32' }, { ru: '40', uz: '40' }, { ru: '8', uz: '8' }],
+        opts: [{ ru: '9', uz: '9', en: '9' }, { ru: '32', uz: '32', en: '32' }, { ru: '40', uz: '40', en: '40' }, { ru: '8', uz: '8', en: '8' }],
         hints: [
           null,
-          { ru: 'Тридцать два это разность.', uz: "O'ttiz ikki bu ayirma." },
-          { ru: 'Это сумма, а не число мерок.', uz: "Bu yig'indi, merkalar soni emas." },
-          { ru: 'Проверь. Четыре умножить на восемь, тридцать два.', uz: "Tekshiring. To'rt karra sakkiz, o'ttiz ikki." }
+          { ru: 'Тридцать два это разность.', uz: "O'ttiz ikki bu ayirma.", en: 'Thirty two is the difference.' },
+          { ru: 'Это сумма, а не число мерок.', uz: "Bu yig'indi, merkalar soni emas.", en: 'That is the sum, not the number of measures.' },
+          { ru: 'Проверь. Четыре умножить на восемь, тридцать два.', uz: "Tekshiring. To'rt karra sakkiz, o'ttiz ikki.", en: 'Check it. Four times eight, thirty two.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Третий вопрос задачи звучит так. Во сколько раз больше. Тут тоже деление, только делим большее число на меньшее.', uz: "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, faqat katta sonni kichigiga bo'lamiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Раздели большее на меньшее.', uz: "Kattani kichigiga bo'ling." }
+      intro: { ru: 'Третий вопрос задачи звучит так. Во сколько раз больше. Тут тоже деление, только делим большее число на меньшее.', uz: "Masalaning uchinchi savoli shunday. Necha marta ko'p. Bu yerda ham bo'lish, faqat katta sonni kichigiga bo'lamiz.", en: 'The third question of a problem sounds like this. How many times more. That is division too, only we divide the bigger number by the smaller one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Раздели большее на меньшее.', uz: "Kattani kichigiga bo'ling.", en: 'Divide the bigger one by the smaller one.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
     items: [
       {
-        q: { ru: 'У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?', uz: "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?" },
-        q_speech: { ru: 'У Анвара семь растений, у Зухры в пять раз больше. Какая запись?', uz: "Anvarda yetti o'simlik, Zuhrada besh marta ko'p. Qaysi yozuv?" },
+        q: { ru: 'У Анвара 7 растений, у Зухры в 5 раз больше. Какая запись?', uz: "Anvarda 7 o'simlik, Zuhrada 5 marta ko'p. Qaysi yozuv?", en: 'Anvar has 7 plants, Zuhra has 5 times more. Which line?' },
+        q_speech: { ru: 'У Анвара семь растений, у Зухры в пять раз больше. Какая запись?', uz: "Anvarda yetti o'simlik, Zuhrada besh marta ko'p. Qaysi yozuv?", en: 'Anvar has seven plants, Zuhra has five times more. Which line?' },
         // Metodist 2026-08-05: SHU savolda rasm YO'Q — shart matnda to'liq aytilgan,
         // bola yozuvni so'zdan tanlaydi. `fig` yo'q bo'lsa, figura umuman chizilmaydi.
         fig: null,
-        opts: [{ ru: '7 × 5', uz: '7 × 5' }, { ru: '7 + 5', uz: '7 + 5' }, { ru: '7 − 5', uz: '7 − 5' }, { ru: '7 : 5', uz: '7 : 5' }],
+        opts: [{ ru: '7 × 5', uz: '7 × 5', en: '7 × 5' }, { ru: '7 + 5', uz: '7 + 5', en: '7 + 5' }, { ru: '7 − 5', uz: '7 − 5', en: '7 − 5' }, { ru: '7 : 5', uz: '7 : 5', en: '7 : 5' }],
         hints: [
           null,
-          { ru: 'Это на пять больше.', uz: "Bu beshta ko'p." },
-          { ru: 'Вычитание делает меньше.', uz: 'Ayirish kamaytiradi.' },
-          { ru: 'Деление нужно, когда меньше или когда спрашивают во сколько раз.', uz: "Bo'lish kam bo'lganda yoki necha marta deb so'ralganda kerak." }
+          { ru: 'Это на пять больше.', uz: "Bu beshta ko'p.", en: 'That is five more.' },
+          { ru: 'Вычитание делает меньше.', uz: 'Ayirish kamaytiradi.', en: 'Subtraction makes fewer.' },
+          { ru: 'Деление нужно, когда меньше или когда спрашивают во сколько раз.', uz: "Bo'lish kam bo'lganda yoki necha marta deb so'ralganda kerak.", en: 'Division is needed when it is fewer or when it asks how many times.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'В 6 раз меньше, чем 42. Какая запись?', uz: "42 dan 6 marta kam. Qaysi yozuv?" },
-        q_speech: { ru: 'В шесть раз меньше, чем сорок два. Какая запись?', uz: "Qirq ikkidan olti marta kam. Qaysi yozuv?" },
+        q: { ru: 'В 6 раз меньше, чем 42. Какая запись?', uz: "42 dan 6 marta kam. Qaysi yozuv?", en: '6 times fewer than 42. Which line?' },
+        q_speech: { ru: 'В шесть раз меньше, чем сорок два. Какая запись?', uz: "Qirq ikkidan olti marta kam. Qaysi yozuv?", en: 'Six times fewer than forty two. Which line?' },
         fig: null,   // metodist 2026-08-05: bu savolda ham rasm YO'Q
-        opts: [{ ru: '42 : 6', uz: '42 : 6' }, { ru: '42 × 6', uz: '42 × 6' }, { ru: '42 − 6', uz: '42 − 6' }, { ru: '6 : 42', uz: '6 : 42' }],
+        opts: [{ ru: '42 : 6', uz: '42 : 6', en: '42 : 6' }, { ru: '42 × 6', uz: '42 × 6', en: '42 × 6' }, { ru: '42 − 6', uz: '42 − 6', en: '42 − 6' }, { ru: '6 : 42', uz: '6 : 42', en: '6 : 42' }],
         hints: [
           null,
-          { ru: 'Умножение делает больше.', uz: "Ko'paytirish ko'paytiradi." },
-          { ru: 'Это на шесть меньше, а сказано в шесть раз меньше.', uz: "Bu oltita kam, aytilgani esa olti marta kam." },
-          { ru: 'Делят большее на меньшее, а не наоборот.', uz: "Kattani kichigiga bo'ladilar, teskarisiga emas." }
+          { ru: 'Умножение делает больше.', uz: "Ko'paytirish ko'paytiradi.", en: 'Multiplication makes more.' },
+          { ru: 'Это на шесть меньше, а сказано в шесть раз меньше.', uz: "Bu oltita kam, aytilgani esa olti marta kam.", en: 'That is six fewer, and it says six times fewer.' },
+          { ru: 'Делят большее на меньшее, а не наоборот.', uz: "Kattani kichigiga bo'ladilar, teskarisiga emas.", en: 'The bigger one is divided by the smaller one, not the other way round.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Во сколько раз 45 больше, чем 9?', uz: "45 soni 9 dan necha marta ko'p?" },
-        q_speech: { ru: 'Во сколько раз сорок пять больше, чем девять?', uz: "Qirq besh to'qqizdan necha marta ko'p?" },
+        q: { ru: 'Во сколько раз 45 больше, чем 9?', uz: "45 soni 9 dan necha marta ko'p?", en: 'How many times is 45 greater than 9?' },
+        q_speech: { ru: 'Во сколько раз сорок пять больше, чем девять?', uz: "Qirq besh to'qqizdan necha marta ko'p?", en: 'How many times is forty five greater than nine?' },
         fig: null,   // butun test ekrani rasmsiz: faqat savol va to'rt variant
-        opts: [{ ru: '5', uz: '5' }, { ru: '36', uz: '36' }, { ru: '54', uz: '54' }, { ru: '4', uz: '4' }],
+        opts: [{ ru: '5', uz: '5', en: '5' }, { ru: '36', uz: '36', en: '36' }, { ru: '54', uz: '54', en: '54' }, { ru: '4', uz: '4', en: '4' }],
         hints: [
           null,
-          { ru: 'Тридцать шесть это разность.', uz: "O'ttiz olti bu ayirma." },
-          { ru: 'Это сумма.', uz: "Bu yig'indi." },
-          { ru: 'Проверь. Девять умножить на четыре, тридцать шесть.', uz: "Tekshiring. To'qqiz karra to'rt, o'ttiz olti." }
+          { ru: 'Тридцать шесть это разность.', uz: "O'ttiz olti bu ayirma.", en: 'Thirty six is the difference.' },
+          { ru: 'Это сумма.', uz: "Bu yig'indi.", en: 'That is the sum.' },
+          { ru: 'Проверь. Девять умножить на четыре, тридцать шесть.', uz: "Tekshiring. To'qqiz karra to'rt, o'ttiz olti.", en: 'Check it. Nine times four, thirty six.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Три вопроса вперемешку. Сначала читай слова, потом выбирай действие.', uz: "Uch savol aralash. Avval so'zlarni o'qing, keyin amalni tanlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Прочитай слова ещё раз.', uz: "So'zlarni yana bir o'qing." }
+      intro: { ru: 'Три вопроса вперемешку. Сначала читай слова, потом выбирай действие.', uz: "Uch savol aralash. Avval so'zlarni o'qing, keyin amalni tanlang.", en: 'Three questions mixed up. First read the words, then choose the operation.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Прочитай слова ещё раз.', uz: "So'zlarni yana bir o'qing.", en: 'Read the words once more.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'Задача в два шага', uz: 'Ikki qadamli masala' },
-    task: { ru: 'У Рано 7 растений, у Анвара в 3 раза больше. Сколько ВСЕГО?', uz: "Ra'noda 7 o'simlik, Anvarda 3 marta ko'p. JAMI nechta?" },
-    task_speech: { ru: 'У Рано семь растений, у Анвара в три раза больше. Сколько всего?', uz: "Ra'noda yetti o'simlik, Anvarda uch marta ko'p. Jami nechta?" },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'Задача в два шага', uz: 'Ikki qadamli masala', en: 'A two-step problem' },
+    task: { ru: 'У Рано 7 растений, у Анвара в 3 раза больше. Сколько ВСЕГО?', uz: "Ra'noda 7 o'simlik, Anvarda 3 marta ko'p. JAMI nechta?", en: "Ra'no has 7 plants, Anvar has 3 times more. How many ALTOGETHER?" },
+    task_speech: { ru: 'У Рано семь растений, у Анвара в три раза больше. Сколько всего?', uz: "Ra'noda yetti o'simlik, Anvarda uch marta ko'p. Jami nechta?", en: "Ra'no has seven plants, Anvar has three times more. How many altogether?" },
     step1: '7 × 3 = 21',
-    step1_cap: { ru: 'столько у Анвара', uz: 'Anvarda shuncha' },
+    step1_cap: { ru: 'столько у Анвара', uz: 'Anvarda shuncha', en: 'that is how many Anvar has' },
     step2: '21 + 7 = 28',
-    step2_cap: { ru: 'а это всего', uz: 'bu esa jami' },
-    btn1: { ru: 'Первый шаг', uz: 'Birinchi qadam' },
-    btn2: { ru: 'Второй шаг', uz: 'Ikkinchi qadam' },
-    btn3: { ru: 'Проверить записи Бита', uz: "Bitning yozuvlarini tekshirish" },
-    find_label: { ru: 'Найди неверную запись Бита', uz: "Bitning noto'g'ri yozuvini toping" },
-    stmts: ['7 × 3 = 21', { ru: 'Всего 21', uz: 'Jami 21' }, '21 + 7 = 28'],
+    step2_cap: { ru: 'а это всего', uz: 'bu esa jami', en: 'and this is the total' },
+    btn1: { ru: 'Первый шаг', uz: 'Birinchi qadam', en: 'The first step' },
+    btn2: { ru: 'Второй шаг', uz: 'Ikkinchi qadam', en: 'The second step' },
+    btn3: { ru: 'Проверить записи Бита', uz: "Bitning yozuvlarini tekshirish", en: "Check Bit's lines" },
+    find_label: { ru: 'Найди неверную запись Бита', uz: "Bitning noto'g'ri yozuvini toping", en: "Find Bit's wrong line" },
+    stmts: ['7 × 3 = 21', { ru: 'Всего 21', uz: 'Jami 21', en: 'Total 21' }, '21 + 7 = 28'],
     stmt_caps: [
-      { ru: 'у Анвара', uz: 'Anvarda' },
-      { ru: 'всего', uz: 'jami' },
-      { ru: 'всего', uz: 'jami' }
+      { ru: 'у Анвара', uz: 'Anvarda', en: 'Anvar has' },
+      { ru: 'всего', uz: 'jami', en: 'in all' },
+      { ru: 'всего', uz: 'jami', en: 'in all' }
     ],
     wrong: 1,
     wrong_hint: {
       ru: 'Двадцать один это только у Анвара. Вопрос был про всех, поэтому нужно прибавить растения Рано.',
-      uz: "Yigirma bir bu faqat Anvarda. Savol esa hamma haqida edi, shuning uchun Ra'noning o'simliklarini qo'shish kerak."
+      uz: "Yigirma bir bu faqat Anvarda. Savol esa hamma haqida edi, shuning uchun Ra'noning o'simliklarini qo'shish kerak.",
+      en: "Twenty one is only what Anvar has. The question was about everyone, so Ra'no's plants must be added."
     },
     other_hint: {
       ru: 'Эта запись верна. Проверь остальные.',
-      uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring."
+      uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring.",
+      en: 'This line is correct. Check the others.'
     },
     audio: {
       ru: [
@@ -598,165 +614,171 @@ const CONTENT = {
         "Endi jami. Yigirma bir qo'shuv yetti, yigirma sakkiz.",
         "Endi Bitning noto'g'ri yozuvini toping.",
         "Tarkibli masalada asosiysi savolga yetib borish, o'rtada to'xtab qolish emas."
-      ]
+      ],
+      en: ['A small bonus. There are two step problems, in the textbook they are called compound problems.', 'First we find how many Anvar has. Seven times three, twenty one.', 'Now the total. Twenty one plus seven, twenty eight.', "And now find Bit's wrong line.", 'The main thing in a compound problem is to reach the question, not to stop halfway.']
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
     items: [
-      { q: { ru: 'В 6 раз меньше, чем 48. Набери ответ.', uz: "48 dan 6 marta kam. Javobni tering." }, q_speech: { ru: 'В шесть раз меньше, чем сорок восемь.', uz: "Qirq sakkizdan olti marta kam." }, ans: 8, check: '8 × 6 = 48', hint: { ru: 'В несколько раз меньше находят делением. Сорок восемь разделить на шесть.', uz: "Bir necha marta kam bo'lish bilan topiladi. Qirq sakkizni oltiga bo'ling." } },
-      { q: { ru: 'В 9 раз больше, чем 6. Набери ответ.', uz: "6 dan 9 marta ko'p. Javobni tering." }, q_speech: { ru: 'В девять раз больше, чем шесть.', uz: "Oltidan to'qqiz marta ko'p." }, ans: 54, check: '54 : 9 = 6', hint: { ru: 'В несколько раз больше находят умножением. Шесть умножить на девять.', uz: "Bir necha marta ko'p ko'paytirish bilan topiladi. Olti karra to'qqiz." } },
-      { q: { ru: 'Во сколько раз 56 больше, чем 8? Набери ответ.', uz: "56 soni 8 dan necha marta ko'p? Javobni tering." }, q_speech: { ru: 'Во сколько раз пятьдесят шесть больше, чем восемь?', uz: "Ellik olti sakkizdan necha marta ko'p?" }, ans: 7, check: '7 × 8 = 56', hint: { ru: 'Раздели большее на меньшее, пятьдесят шесть на восемь.', uz: "Kattani kichigiga bo'ling, ellik oltini sakkizga." } }
+      { q: { ru: 'В 6 раз меньше, чем 48. Набери ответ.', uz: "48 dan 6 marta kam. Javobni tering.", en: '6 times fewer than 48. Type the answer.' }, q_speech: { ru: 'В шесть раз меньше, чем сорок восемь.', uz: "Qirq sakkizdan olti marta kam.", en: 'Six times fewer than forty eight.' }, ans: 8, check: '8 × 6 = 48', hint: { ru: 'В несколько раз меньше находят делением. Сорок восемь разделить на шесть.', uz: "Bir necha marta kam bo'lish bilan topiladi. Qirq sakkizni oltiga bo'ling.", en: 'Several times fewer is found by dividing. Forty eight divided by six.' } },
+      { q: { ru: 'В 9 раз больше, чем 6. Набери ответ.', uz: "6 dan 9 marta ko'p. Javobni tering.", en: '9 times more than 6. Type the answer.' }, q_speech: { ru: 'В девять раз больше, чем шесть.', uz: "Oltidan to'qqiz marta ko'p.", en: 'Nine times more than six.' }, ans: 54, check: '54 : 9 = 6', hint: { ru: 'В несколько раз больше находят умножением. Шесть умножить на девять.', uz: "Bir necha marta ko'p ko'paytirish bilan topiladi. Olti karra to'qqiz.", en: 'Several times more is found by multiplying. Six times nine.' } },
+      { q: { ru: 'Во сколько раз 56 больше, чем 8? Набери ответ.', uz: "56 soni 8 dan necha marta ko'p? Javobni tering.", en: 'How many times is 56 greater than 8? Type the answer.' }, q_speech: { ru: 'Во сколько раз пятьдесят шесть больше, чем восемь?', uz: "Ellik olti sakkizdan necha marta ko'p?", en: 'How many times is fifty six greater than eight?' }, ans: 7, check: '7 × 8 = 56', hint: { ru: 'Раздели большее на меньшее, пятьдесят шесть на восемь.', uz: "Kattani kichigiga bo'ling, ellik oltini sakkizga.", en: 'Divide the bigger one by the smaller one, fifty six by eight.' } }
     ],
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Три задачи, и после каждой сразу проверка обратным действием.', uz: "Uch masala, har biridan keyin darrov teskari amal bilan tekshirish." },
-      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi." }
+      intro: { ru: 'Три задачи, и после каждой сразу проверка обратным действием.', uz: "Uch masala, har biridan keyin darrov teskari amal bilan tekshirish.", en: 'Three problems, and after each one a check by the opposite operation.' },
+      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi.", en: 'Correct, and the check confirmed it.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Обратная задача', uz: 'Teskari masala' },
-    lead: { ru: 'Задача с другого конца.', uz: 'Masala boshqa tomondan.' },
-    q: { ru: 'У Зухры 32 растения, это в 4 раза больше, чем у Жасура. Сколько растений у Жасура?', uz: "Zuhrada 32 o'simlik, bu Jasurdagidan 4 marta ko'p. Jasurda nechta o'simlik?" },
-    q_speech: { ru: 'У Зухры тридцать два растения, это в четыре раза больше, чем у Жасура. Сколько растений у Жасура?', uz: "Zuhrada o'ttiz ikki o'simlik, bu Jasurdagidan to'rt marta ko'p. Jasurda nechta o'simlik?" },
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    eyebrow: { ru: 'Обратная задача', uz: 'Teskari masala', en: 'The reverse problem' },
+    lead: { ru: 'Задача с другого конца.', uz: 'Masala boshqa tomondan.', en: 'A problem from the other end.' },
+    q: { ru: 'У Зухры 32 растения, это в 4 раза больше, чем у Жасура. Сколько растений у Жасура?', uz: "Zuhrada 32 o'simlik, bu Jasurdagidan 4 marta ko'p. Jasurda nechta o'simlik?", en: 'Zuhra has 32 plants, that is 4 times more than Jasur. How many plants does Jasur have?' },
+    q_speech: { ru: 'У Зухры тридцать два растения, это в четыре раза больше, чем у Жасура. Сколько растений у Жасура?', uz: "Zuhrada o'ttiz ikki o'simlik, bu Jasurdagidan to'rt marta ko'p. Jasurda nechta o'simlik?", en: 'Zuhra has thirty two plants, that is four times more than Jasur. How many plants does Jasur have?' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '32 : 4', uz: '32 : 4' },
-      { ru: '32 × 4', uz: '32 × 4' },
-      { ru: '32 − 4', uz: '32 − 4' },
-      { ru: '4 : 32', uz: '4 : 32' }
+      { ru: '32 : 4', uz: '32 : 4', en: '32 : 4' },
+      { ru: '32 × 4', uz: '32 × 4', en: '32 × 4' },
+      { ru: '32 − 4', uz: '32 − 4', en: '32 − 4' },
+      { ru: '4 : 32', uz: '4 : 32', en: '4 : 32' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение даст ещё больше, а у Жасура меньше.', uz: "Ko'paytirish yana ko'p beradi, Jasurda esa kam." },
-      2: { ru: 'Это на четыре меньше. А сказано в четыре раза больше у Зухры.', uz: "Bu to'rtta kam. Aytilgani esa Zuhrada to'rt marta ko'p." },
-      3: { ru: 'Делят большее на меньшее.', uz: "Kattani kichigiga bo'ladilar." }
+      1: { ru: 'Умножение даст ещё больше, а у Жасура меньше.', uz: "Ko'paytirish yana ko'p beradi, Jasurda esa kam.", en: 'Multiplication will give even more, and Jasur has fewer.' },
+      2: { ru: 'Это на четыре меньше. А сказано в четыре раза больше у Зухры.', uz: "Bu to'rtta kam. Aytilgani esa Zuhrada to'rt marta ko'p.", en: 'That is four fewer. And it says Zuhra has four times more.' },
+      3: { ru: 'Делят большее на меньшее.', uz: "Kattani kichigiga bo'ladilar.", en: 'The bigger one is divided by the smaller one.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering." },
+    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering.", en: 'The line is correct. Now type the answer.' },
     ans: 8,
     check: '8 × 4 = 32',
-    setup_audio: { ru: 'Задача с другого конца. Известно у Зухры, а найти нужно у Жасура. Сначала выбери запись, потом посчитай.', uz: "Masala boshqa tomondan. Zuhradagi ma'lum, topish kerak esa Jasurdagi. Avval yozuvni tanlang, keyin hisoblang." },
+    setup_audio: { ru: 'Задача с другого конца. Известно у Зухры, а найти нужно у Жасура. Сначала выбери запись, потом посчитай.', uz: "Masala boshqa tomondan. Zuhradagi ma'lum, topish kerak esa Jasurdagi. Avval yozuvni tanlang, keyin hisoblang.", en: 'A problem from the other end. Zuhra is known, and Jasur has to be found. First choose the line, then count.' },
     audio: {
-      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi." },
-      on_correct: { ru: 'Восемь растений! И проверка сошлась, восемь умножить на четыре, тридцать два.', uz: "Sakkizta o'simlik! Tekshirish ham mos keldi, sakkiz karra to'rt, o'ttiz ikki." },
-      on_wrong: { ru: 'Тридцать два разделить на четыре. Сколько мерок уложилось?', uz: "O'ttiz ikkini to'rtga bo'ling. Nechta merka joylashdi?" }
+      intro: { ru: 'Тут пригодится всё правило.', uz: "Bu yerda butun qoida kerak bo'ladi.", en: 'The whole rule comes in handy here.' },
+      on_correct: { ru: 'Восемь растений! И проверка сошлась, восемь умножить на четыре, тридцать два.', uz: "Sakkizta o'simlik! Tekshirish ham mos keldi, sakkiz karra to'rt, o'ttiz ikki.", en: 'Eight plants! And the check adds up, eight times four, thirty two.' },
+      on_wrong: { ru: 'Тридцать два разделить на четыре. Сколько мерок уложилось?', uz: "O'ttiz ikkini to'rtga bo'ling. Nechta merka joylashdi?", en: 'Thirty two divided by four. How many measures fitted?' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Пять вопросов — и задание в саду закрыто', uz: "Besh savol va bog' vazifasi yopiladi" },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Пять вопросов — и задание в саду закрыто', uz: "Besh savol va bog' vazifasi yopiladi", en: 'Five questions and the garden task is closed' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'В 7 раз больше, чем 9. Набери ответ.', uz: "9 dan 7 marta ko'p. Javobni tering." },
-        q_speech: { ru: 'В семь раз больше, чем девять.', uz: "To'qqizdan yetti marta ko'p." },
+        q: { ru: 'В 7 раз больше, чем 9. Набери ответ.', uz: "9 dan 7 marta ko'p. Javobni tering.", en: '7 times more than 9. Type the answer.' },
+        q_speech: { ru: 'В семь раз больше, чем девять.', uz: "To'qqizdan yetti marta ko'p.", en: 'Seven times more than nine.' },
         ans: 63,
-        hint: { ru: 'В несколько раз больше это умножение. Девять умножить на семь.', uz: "Bir necha marta ko'p bu ko'paytirish. To'qqiz karra yetti." }
+        hint: { ru: 'В несколько раз больше это умножение. Девять умножить на семь.', uz: "Bir necha marta ko'p bu ko'paytirish. To'qqiz karra yetti.", en: 'Several times more is multiplication. Nine times seven.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Во сколько раз 72 больше, чем 8?', uz: "72 soni 8 dan necha marta ko'p?" },
-        q_speech: { ru: 'Во сколько раз семьдесят два больше, чем восемь?', uz: "Yetmish ikki sakkizdan necha marta ko'p?" },
-        opt0: { ru: '9', uz: '9' },
-        opt1: { ru: '64', uz: '64' },
-        opt2: { ru: '80', uz: '80' },
-        opt3: { ru: '8', uz: '8' },
-        wrong_1: { ru: 'Шестьдесят четыре это разность.', uz: "Oltmish to'rt bu ayirma." },
-        wrong_2: { ru: 'Это сумма.', uz: "Bu yig'indi." },
-        wrong_3: { ru: 'Проверь. Восемь умножить на восемь, шестьдесят четыре.', uz: "Tekshiring. Sakkiz karra sakkiz, oltmish to'rt." }
+        q: { ru: 'Во сколько раз 72 больше, чем 8?', uz: "72 soni 8 dan necha marta ko'p?", en: 'How many times is 72 greater than 8?' },
+        q_speech: { ru: 'Во сколько раз семьдесят два больше, чем восемь?', uz: "Yetmish ikki sakkizdan necha marta ko'p?", en: 'How many times is seventy two greater than eight?' },
+        opt0: { ru: '9', uz: '9', en: '9' },
+        opt1: { ru: '64', uz: '64', en: '64' },
+        opt2: { ru: '80', uz: '80', en: '80' },
+        opt3: { ru: '8', uz: '8', en: '8' },
+        wrong_1: { ru: 'Шестьдесят четыре это разность.', uz: "Oltmish to'rt bu ayirma.", en: 'Sixty four is the difference.' },
+        wrong_2: { ru: 'Это сумма.', uz: "Bu yig'indi.", en: 'That is the sum.' },
+        wrong_3: { ru: 'Проверь. Восемь умножить на восемь, шестьдесят четыре.', uz: "Tekshiring. Sakkiz karra sakkiz, oltmish to'rt.", en: 'Check it. Eight times eight, sixty four.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'В 9 раз меньше, чем 81. Какая запись?', uz: "81 dan 9 marta kam. Qaysi yozuv?" },
-        q_speech: { ru: 'В девять раз меньше, чем восемьдесят один. Какая запись?', uz: "Sakson birdan to'qqiz marta kam. Qaysi yozuv?" },
-        opt0: { ru: '81 : 9', uz: '81 : 9' },
-        opt1: { ru: '81 × 9', uz: '81 × 9' },
-        opt2: { ru: '81 − 9', uz: '81 − 9' },
-        opt3: { ru: '9 : 81', uz: '9 : 81' },
-        wrong_1: { ru: 'Умножение делает больше.', uz: "Ko'paytirish ko'paytiradi." },
-        wrong_2: { ru: 'Это на девять меньше.', uz: "Bu to'qqizta kam." },
-        wrong_3: { ru: 'Порядок в делении важен.', uz: "Bo'lishda tartib muhim." }
+        q: { ru: 'В 9 раз меньше, чем 81. Какая запись?', uz: "81 dan 9 marta kam. Qaysi yozuv?", en: '9 times fewer than 81. Which line?' },
+        q_speech: { ru: 'В девять раз меньше, чем восемьдесят один. Какая запись?', uz: "Sakson birdan to'qqiz marta kam. Qaysi yozuv?", en: 'Nine times fewer than eighty one. Which line?' },
+        opt0: { ru: '81 : 9', uz: '81 : 9', en: '81 : 9' },
+        opt1: { ru: '81 × 9', uz: '81 × 9', en: '81 × 9' },
+        opt2: { ru: '81 − 9', uz: '81 − 9', en: '81 − 9' },
+        opt3: { ru: '9 : 81', uz: '9 : 81', en: '9 : 81' },
+        wrong_1: { ru: 'Умножение делает больше.', uz: "Ko'paytirish ko'paytiradi.", en: 'Multiplication makes more.' },
+        wrong_2: { ru: 'Это на девять меньше.', uz: "Bu to'qqizta kam.", en: 'That is nine fewer.' },
+        wrong_3: { ru: 'Порядок в делении важен.', uz: "Bo'lishda tartib muhim.", en: 'Order matters in division.' }
       },
       {
         kind: 'num',
-        q: { ru: '40 растений это в 5 раз больше, чем у Бита. Сколько у Бита?', uz: "40 o'simlik Bitdagidan 5 marta ko'p. Bitda nechta?" },
-        q_speech: { ru: 'Сорок растений это в пять раз больше, чем у Бита. Сколько растений у Бита?', uz: "Qirq o'simlik Bitdagidan besh marta ko'p. Bitda nechta o'simlik?" },
+        q: { ru: '40 растений это в 5 раз больше, чем у Бита. Сколько у Бита?', uz: "40 o'simlik Bitdagidan 5 marta ko'p. Bitda nechta?", en: '40 plants is 5 times more than Bit has. How many does Bit have?' },
+        q_speech: { ru: 'Сорок растений это в пять раз больше, чем у Бита. Сколько растений у Бита?', uz: "Qirq o'simlik Bitdagidan besh marta ko'p. Bitda nechta o'simlik?", en: 'Forty plants is five times more than Bit has. How many plants does Bit have?' },
         ans: 8,
-        hint: { ru: 'Сорок разделить на пять.', uz: "Qirqni beshga bo'ling." }
+        hint: { ru: 'Сорок разделить на пять.', uz: "Qirqni beshga bo'ling.", en: 'Forty divided by five.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'У Рано 10 растений. Сначала на 2 больше, потом в 2 раза больше. Какая пара верна?', uz: "Ra'noda 10 o'simlik. Avval 2 ta ko'p, keyin 2 marta ko'p. Qaysi juftlik to'g'ri?" },
-        q_speech: { ru: 'У Рано десять растений. Сначала на два больше, потом в два раза больше. Какая пара верна?', uz: "Ra'noda o'n o'simlik. Avval ikkita ko'p, keyin ikki marta ko'p. Qaysi juftlik to'g'ri?" },
-        opt0: { ru: '12 и 20', uz: '12 va 20' },
-        opt1: { ru: '20 и 12', uz: '20 va 12' },
-        opt2: { ru: '12 и 12', uz: '12 va 12' },
-        opt3: { ru: '20 и 20', uz: '20 va 20' },
-        wrong_1: { ru: 'Наоборот. На два больше это добавить два, а в два раза больше это взять мерку два раза.', uz: "Teskarisi. Ikkita ko'p bu ikkitani qo'shish, ikki marta ko'p esa merkani ikki marta olish." },
-        wrong_2: { ru: 'Тогда слова не различались бы, а они разные. Раз это мерка.', uz: "Unda so'zlar farq qilmas edi, ular esa boshqacha. Marta bu merka." },
-        wrong_3: { ru: 'На два больше это только двенадцать.', uz: "Ikkita ko'p bu faqat o'n ikki." }
+        q: { ru: 'У Рано 10 растений. Сначала на 2 больше, потом в 2 раза больше. Какая пара верна?', uz: "Ra'noda 10 o'simlik. Avval 2 ta ko'p, keyin 2 marta ko'p. Qaysi juftlik to'g'ri?", en: "Ra'no has 10 plants. First 2 more, then 2 times more. Which pair is correct?" },
+        q_speech: { ru: 'У Рано десять растений. Сначала на два больше, потом в два раза больше. Какая пара верна?', uz: "Ra'noda o'n o'simlik. Avval ikkita ko'p, keyin ikki marta ko'p. Qaysi juftlik to'g'ri?", en: "Ra'no has ten plants. First two more, then two times more. Which pair is correct?" },
+        opt0: { ru: '12 и 20', uz: '12 va 20', en: '12 and 20' },
+        opt1: { ru: '20 и 12', uz: '20 va 12', en: '20 and 12' },
+        opt2: { ru: '12 и 12', uz: '12 va 12', en: '12 and 12' },
+        opt3: { ru: '20 и 20', uz: '20 va 20', en: '20 and 20' },
+        wrong_1: { ru: 'Наоборот. На два больше это добавить два, а в два раза больше это взять мерку два раза.', uz: "Teskarisi. Ikkita ko'p bu ikkitani qo'shish, ikki marta ko'p esa merkani ikki marta olish.", en: 'The other way round. Two more means adding two, and two times more means taking the measure twice.' },
+        wrong_2: { ru: 'Тогда слова не различались бы, а они разные. Раз это мерка.', uz: "Unda so'zlar farq qilmas edi, ular esa boshqacha. Marta bu merka.", en: 'Then the words would not differ, but they do. Times is a measure.' },
+        wrong_3: { ru: 'На два больше это только двенадцать.', uz: "Ikkita ko'p bu faqat o'n ikki.", en: 'Two more is only twelve.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Муравей поднимает груз в пятьдесят раз тяжелее себя. Во сколько раз тяжелее, узнают делением: вес груза делят на вес муравья. Если бы человек мог так же, он поднял бы легковую машину.',
-      uz: "Chumoli o'zidan ellik marta og'ir yukni ko'taradi. Necha marta og'irligini bo'lish bilan biladilar: yuk vaznini chumoli vazniga bo'ladilar. Odam ham shunday qila olsa, yengil mashinani ko'tarib ketardi."
+      uz: "Chumoli o'zidan ellik marta og'ir yukni ko'taradi. Necha marta og'irligini bo'lish bilan biladilar: yuk vaznini chumoli vazniga bo'ladilar. Odam ham shunday qila olsa, yengil mashinani ko'tarib ketardi.",
+      en: 'An ant lifts a load fifty times heavier than itself. How many times heavier is found by dividing: the weight of the load is divided by the weight of the ant. If a person could do the same, they would lift a car.'
     },
     fact_audio: {
       ru: 'Муравей поднимает груз в пятьдесят раз тяжелее себя. Во сколько раз тяжелее, узнают делением. Вес груза делят на вес муравья. Если бы человек мог так же, он поднял бы легковую машину. Мы весь урок считали, во сколько раз больше, и здесь то же деление.',
-      uz: "Chumoli o'zidan ellik marta og'ir yukni ko'taradi. Necha marta og'irligini bo'lish bilan biladilar. Yuk vaznini chumoli vazniga bo'ladilar. Odam ham shunday qila olsa, yengil mashinani ko'tarib ketardi. Butun dars necha marta ko'p ekanini hisobladik, bu yerda ham o'sha bo'lish."
+      uz: "Chumoli o'zidan ellik marta og'ir yukni ko'taradi. Necha marta og'irligini bo'lish bilan biladilar. Yuk vaznini chumoli vazniga bo'ladilar. Odam ham shunday qila olsa, yengil mashinani ko'tarib ketardi. Butun dars necha marta ko'p ekanini hisobladik, bu yerda ham o'sha bo'lish.",
+      en: 'An ant lifts a load fifty times heavier than itself. How many times heavier is found by dividing. The weight of the load is divided by the weight of the ant. If a person could do the same, they would lift a car. All lesson we worked out how many times more, and here it is the same division.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Прочитай слова задачи ещё раз.', uz: "Masaladagi so'zlarni yana bir o'qing." }
+      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.', en: 'The final check, five questions.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Прочитай слова задачи ещё раз.', uz: "Masaladagi so'zlarni yana bir o'qing.", en: 'Read the words of the problem once more.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Задание в саду выполнено!', uz: "Bog'dagi vazifa bajarildi!" },
-    cando: { ru: 'Теперь ты выбираешь действие по словам задачи.', uz: "Endi siz masaladagi so'zlarga qarab amalni tanlaysiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Задание в саду выполнено!', uz: "Bog'dagi vazifa bajarildi!", en: 'The garden task is done!' },
+    cando: { ru: 'Теперь ты выбираешь действие по словам задачи.', uz: "Endi siz masaladagi so'zlarga qarab amalni tanlaysiz.", en: 'Now you choose the operation by the words of the problem.' },
     rule_recap: {
       ru: 'В несколько раз больше — умножаем. В несколько раз меньше — делим. Во сколько раз больше — делим большее на меньшее. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3.',
-      uz: "Bir necha marta ko'p — ko'paytiramiz. Bir necha marta kam — bo'lamiz. Necha marta ko'p — kattani kichigiga bo'lamiz."
+      uz: "Bir necha marta ko'p — ko'paytiramiz. Bir necha marta kam — bo'lamiz. Necha marta ko'p — kattani kichigiga bo'lamiz.",
+      en: 'Several times more — we multiply. Several times fewer — we divide. How many times more — we divide the bigger by the smaller. 8 × 3 = 24, 24 : 3 = 8, 24 : 8 = 3.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления', uz: "9-dars: ko'paytirish jadvali; 14-dars: ko'paytirish va bo'lish bog'lanishi" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'делители и кратные числа', uz: "bo'luvchilar va karrali sonlar" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 9: таблица умножения; урок 14: связь умножения и деления', uz: "9-dars: ko'paytirish jadvali; 14-dars: ko'paytirish va bo'lish bog'lanishi", en: 'lesson 9: the multiplication table; lesson 14: the link between multiplication and division' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'делители и кратные числа', uz: "bo'luvchilar va karrali sonlar", en: 'divisors and multiples' },
     audio: {
       ru: 'Задание в саду закрыто. И у тебя новое умение. Ты читаешь слова задачи и выбираешь действие. Запомни главное. В несколько раз больше умножаем, в несколько раз меньше делим, а во сколько раз больше делим большее на меньшее. А если растения нужно разложить по грядкам ровно, без остатка? Какие числа для этого подходят? Об этом в следующем уроке!',
-      uz: "Bog'dagi vazifa yopildi. Sizda esa yangi ko'nikma bor. Masaladagi so'zlarni o'qib, amalni tanlaysiz. Asosiysini eslab qoling. Bir necha marta ko'p bo'lsa ko'paytiramiz, bir necha marta kam bo'lsa bo'lamiz, necha marta ko'p deb so'ralsa kattani kichigiga bo'lamiz. Agar o'simliklarni gulzorlarga qoldiqsiz, tekis joylash kerak bo'lsa-chi? Buning uchun qanday sonlar mos keladi? Bu haqda keyingi darsda!"
+      uz: "Bog'dagi vazifa yopildi. Sizda esa yangi ko'nikma bor. Masaladagi so'zlarni o'qib, amalni tanlaysiz. Asosiysini eslab qoling. Bir necha marta ko'p bo'lsa ko'paytiramiz, bir necha marta kam bo'lsa bo'lamiz, necha marta ko'p deb so'ralsa kattani kichigiga bo'lamiz. Agar o'simliklarni gulzorlarga qoldiqsiz, tekis joylash kerak bo'lsa-chi? Buning uchun qanday sonlar mos keladi? Bu haqda keyingi darsda!",
+      en: 'The garden task is closed. And you have a new skill. You read the words of a problem and choose the operation. Remember the main thing. Several times more, we multiply; several times fewer, we divide; and how many times more, we divide the bigger by the smaller. And what if the plants have to be laid out on beds exactly, with nothing left over? Which numbers suit that? That is in the next lesson!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'Теперь к грядкам.', uz: 'Endi gulzorlarga.' },
-  s3:  { ru: 'Запишем задачу таблицей.', uz: 'Masalani jadval bilan yozamiz.' },
-  s4:  { ru: 'Соберём это в правило.', uz: 'Buni qoidaga yig\'amiz.' },
-  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
-  s6:  { ru: 'Теперь в другую сторону.', uz: 'Endi boshqa tomonga.' },
-  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s8:  { ru: 'Третий вопрос задачи.', uz: 'Masalaning uchinchi savoli.' },
-  s9:  { ru: 'Теперь все три вперемешку.', uz: 'Endi uchtasi aralash.' },
-  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s12: { ru: 'Зухре нужна помощь.', uz: 'Zuhraga yordam kerak.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Задание закрыто. Идём дальше!', uz: 'Vazifa yopildi. Davom etamiz!' }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'Теперь к грядкам.', uz: 'Endi gulzorlarga.', en: 'Now to the beds.' },
+  s3:  { ru: 'Запишем задачу таблицей.', uz: 'Masalani jadval bilan yozamiz.', en: 'Let us write the problem as a table.' },
+  s4:  { ru: 'Соберём это в правило.', uz: 'Buni qoidaga yig\'amiz.', en: 'Let us gather this into a rule.' },
+  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan.", en: 'And here is Bit with his counting.' },
+  s6:  { ru: 'Теперь в другую сторону.', uz: 'Endi boshqa tomonga.', en: 'Now the other way.' },
+  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s8:  { ru: 'Третий вопрос задачи.', uz: 'Masalaning uchinchi savoli.', en: 'The third question of a problem.' },
+  s9:  { ru: 'Теперь все три вперемешку.', uz: 'Endi uchtasi aralash.', en: 'Now all three mixed up.' },
+  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s12: { ru: 'Зухре нужна помощь.', uz: 'Zuhraga yordam kerak.', en: 'Zuhra needs help.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Задание закрыто. Идём дальше!', uz: 'Vazifa yopildi. Davom etamiz!', en: 'The task is closed. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Обе грядки политы, задание в саду закрыто, и слова задачи больше не путают. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Ikki gulzor ham sug'orildi, bog'dagi vazifa yopildi, masaladagi so'zlar endi chalkashtirmaydi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Ikki gulzor ham sug'orildi, bog'dagi vazifa yopildi, masaladagi so'zlar endi chalkashtirmaydi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! Both beds are watered, the garden task is closed, and the words of a problem no longer confuse you. Thank you for your help!'
 };
 
 
@@ -960,7 +982,7 @@ const TaskHallBg = () => {
     {/* MARKAZIY PANEL: bugungi vazifa merkasi */}
     <rect x="104" y="104" width="192" height="46" rx="7" fill="url(#d16panel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="110" y="108" width="180" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="6.6" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЗАДАЧА' : 'VAZIFA'}</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="6.6" letterSpacing="1.4" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЗАДАЧА', 'VAZIFA', 'PROBLEM')}</text>
     <text x="146" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#8FE6C0" fontFamily="'JetBrains Mono', monospace">8</text>
     <text x="200" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">×3</text>
     <text x="254" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">?</text>
@@ -1149,7 +1171,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -2008,7 +2030,7 @@ const Screen11 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
               {(showCheck || done) && <CheckStrip expr={it.check} cap={t(c.check_label)} ok/>}
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
@@ -2114,7 +2136,7 @@ const Screen12 = (props) => {
               {!solved && (
                 <>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d16-res lm-reveal">{c.ans}</span>}
@@ -2229,7 +2251,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -2300,7 +2322,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         {/* yakuniy sahna — ETALON o'lchamida: ikki gulzor ham sug'orilgan */}
@@ -2322,7 +2344,7 @@ export default function WordProblemLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2389,7 +2411,7 @@ export default function WordProblemLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

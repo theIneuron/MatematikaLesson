@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -731,7 +757,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -756,8 +782,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 12;
 const LESSON_META = {
-  lessonId: 'percent_5_03',
-  lessonTitle: { ru: 'Нахождение числа по проценту', uz: "Foizi bo'yicha sonni topish" }
+  lessonId: 'grade5-32',
+  lessonTitle: { ru: 'Нахождение числа по проценту', uz: "Foizi bo'yicha sonni topish", en: 'Finding a number from a percentage' }
 };
 // Eslatma: ekran ID lari qattiq indeks emas — har komponent jonli `screen` propidan idx oladi.
 // Reorder qilishda faqat SCREEN_META + screens massivini bir xil tartibda yangilang.
@@ -779,70 +805,70 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK (M1: qism = butun) — Oybek yirtilgan xarita =====
   s0: {
-    eyebrow: { ru: 'Часть и целое', uz: "Qism va butun" },
-    title: { ru: 'Карта Ойбека', uz: "Oybekning xaritasi" },
-    lead: { ru: 'Ойбек нашёл обрывок карты: это 20 процентов, в нём 10 клеток. Сколько клеток во всей карте?', uz: "Oybek xarita bo'lagini topdi: bu yigirma foiz, unda 10 katak. Butun xaritada nechta katak?" },
-    opt0: { ru: 'Всего 10 клеток', uz: "Jami 10 katak" },
-    opt1: { ru: 'Больше 10 клеток', uz: "10 katakdan ko'p" },
-    opt2: { ru: 'Меньше 10 клеток', uz: "10 katakdan kam" },
-    reveal0: { ru: 'Так думают многие. Но 10 — это только обрывок, 20 процентов. Целая карта больше.', uz: "Ko'pchilik shunday o'ylaydi. Lekin 10 — bu faqat bo'lak, yigirma foiz. Butun xarita kattaroq." },
-    reveal1: { ru: 'Верно. Обрывок — это только часть, значит целая карта больше десяти.', uz: "To'g'ri. Bo'lak — bu faqat qism, demak butun xarita o'ndan katta." },
-    reveal2: { ru: 'Нет: целое не может быть меньше своей части. Карта больше обрывка.', uz: "Yo'q: butun o'z qismidan kichik bo'lolmaydi. Xarita bo'lakdan katta." },
-    audio: { ru: "Ойбек нашёл обрывок старой карты. Это двадцать процентов всей карты, и в нём десять клеток. Подумай: во всей карте больше или меньше десяти клеток?", uz: "Oybek eski xaritaning bo'lagini topdi. Bu butun xaritaning yigirma foizi, va unda o'nta katak bor. O'ylab ko'ring: butun xaritada o'ntadan ko'pmi yoki kammi?" }
+    eyebrow: { ru: 'Часть и целое', uz: "Qism va butun", en: 'The part and the whole' },
+    title: { ru: 'Карта Ойбека', uz: "Oybekning xaritasi", en: "Oybek's map" },
+    lead: { ru: 'Ойбек нашёл обрывок карты: это 20 процентов, в нём 10 клеток. Сколько клеток во всей карте?', uz: "Oybek xarita bo'lagini topdi: bu yigirma foiz, unda 10 katak. Butun xaritada nechta katak?", en: 'Oybek has found a torn piece of a map: it is 20 per cent of it and has 10 squares. How many squares are there in the whole map?' },
+    opt0: { ru: 'Всего 10 клеток', uz: "Jami 10 katak", en: '10 squares in all' },
+    opt1: { ru: 'Больше 10 клеток', uz: "10 katakdan ko'p", en: 'More than 10 squares' },
+    opt2: { ru: 'Меньше 10 клеток', uz: "10 katakdan kam", en: 'Fewer than 10 squares' },
+    reveal0: { ru: 'Так думают многие. Но 10 — это только обрывок, 20 процентов. Целая карта больше.', uz: "Ko'pchilik shunday o'ylaydi. Lekin 10 — bu faqat bo'lak, yigirma foiz. Butun xarita kattaroq.", en: 'A lot of people think that. But 10 is only the torn piece, 20 per cent. The whole map is bigger.' },
+    reveal1: { ru: 'Верно. Обрывок — это только часть, значит целая карта больше десяти.', uz: "To'g'ri. Bo'lak — bu faqat qism, demak butun xarita o'ndan katta.", en: 'That is right. The torn piece is only a part, so the whole map is bigger than ten.' },
+    reveal2: { ru: 'Нет: целое не может быть меньше своей части. Карта больше обрывка.', uz: "Yo'q: butun o'z qismidan kichik bo'lolmaydi. Xarita bo'lakdan katta.", en: 'No: a whole cannot be smaller than a part of it. The map is bigger than the torn piece.' },
+    audio: { ru: "Ойбек нашёл обрывок старой карты. Это двадцать процентов всей карты, и в нём десять клеток. Подумай: во всей карте больше или меньше десяти клеток?", uz: "Oybek eski xaritaning bo'lagini topdi. Bu butun xaritaning yigirma foizi, va unda o'nta katak bor. O'ylab ko'ring: butun xaritada o'ntadan ko'pmi yoki kammi?", en: 'Oybek has found a torn piece of an old map. It is twenty per cent of the whole map and has ten squares. Think: does the whole map have more or fewer than ten squares?' }
   },
 
   // ===== s1 WARM-UP — 3 ta tez prereq (1% va foiz) =====
   s1: {
-    eyebrow: { ru: 'Вспомним прошлый урок', uz: "O'tgan darsni eslaylik" },
-    title: { ru: 'Разминка', uz: "Mashq" },
-    lead: { ru: 'Три быстрых примера про проценты. Выбери ответ.', uz: "Foiz haqida uchta tez misol. Javobni tanlang." },
-    bridge: { ru: 'Прежде чем помочь Ойбеку, вспомним проценты.', uz: "Oybekka yordam berishdan oldin foizni eslaylik." },
+    eyebrow: { ru: 'Вспомним прошлый урок', uz: "O'tgan darsni eslaylik", en: 'Let us remember the last lesson' },
+    title: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    lead: { ru: 'Три быстрых примера про проценты. Выбери ответ.', uz: "Foiz haqida uchta tez misol. Javobni tanlang.", en: 'Three quick examples about percentages. Choose an answer.' },
+    bridge: { ru: 'Прежде чем помочь Ойбеку, вспомним проценты.', uz: "Oybekka yordam berishdan oldin foizni eslaylik.", en: 'Before we help Oybek, let us remember percentages.' },
     questions: [
       {
-        q: { ru: '1% = 4. Сколько 100%?', uz: "1% = 4. 100% nechaga teng?" },
-        say: { ru: "Если один процент равен четырём, чему равно сто процентов?", uz: "Agar bir foiz to'rtga teng bo'lsa, yuz foiz nechaga teng?" },
-        opts: [{ ru: '40', uz: '40' }, { ru: '400', uz: '400' }, { ru: '104', uz: '104' }],
+        q: { ru: '1% = 4. Сколько 100%?', uz: "1% = 4. 100% nechaga teng?", en: '1% = 4. How much is 100%?' },
+        say: { ru: "Если один процент равен четырём, чему равно сто процентов?", uz: "Agar bir foiz to'rtga teng bo'lsa, yuz foiz nechaga teng?", en: 'If one per cent is four, how much is a hundred per cent?' },
+        opts: [{ ru: '40', uz: '40', en: '40' }, { ru: '400', uz: '400', en: '400' }, { ru: '104', uz: '104', en: '104' }],
         correct: 1,
-        ok: { ru: 'Верно: один процент берём сто раз.', uz: "To'g'ri: bir foizni yuz marta olamiz." },
-        no: { ru: 'Целое это сто таких частей. Умножь на сто.', uz: "Butun, bu shunday yuzta qism. Yuzga ko'paytiring." }
+        ok: { ru: 'Верно: один процент берём сто раз.', uz: "To'g'ri: bir foizni yuz marta olamiz.", en: 'That is right: we take one per cent a hundred times.' },
+        no: { ru: 'Целое это сто таких частей. Умножь на сто.', uz: "Butun, bu shunday yuzta qism. Yuzga ko'paytiring.", en: 'The whole is a hundred parts like that. Multiply by a hundred.' }
       },
       {
-        q: { ru: '10% = 5. Сколько 100%?', uz: "10% = 5. 100% nechaga teng?" },
-        say: { ru: "Если десять процентов равно пяти, чему равно сто процентов?", uz: "Agar o'n foiz beshga teng bo'lsa, yuz foiz nechaga teng?" },
-        opts: [{ ru: '50', uz: '50' }, { ru: '15', uz: '15' }, { ru: '500', uz: '500' }],
+        q: { ru: '10% = 5. Сколько 100%?', uz: "10% = 5. 100% nechaga teng?", en: '10% = 5. How much is 100%?' },
+        say: { ru: "Если десять процентов равно пяти, чему равно сто процентов?", uz: "Agar o'n foiz beshga teng bo'lsa, yuz foiz nechaga teng?", en: 'If ten per cent is five, how much is a hundred per cent?' },
+        opts: [{ ru: '50', uz: '50', en: '50' }, { ru: '15', uz: '15', en: '15' }, { ru: '500', uz: '500', en: '500' }],
         correct: 0,
-        ok: { ru: 'Верно: сто процентов — это десять таких десятков.', uz: "To'g'ri: yuz foiz — bu shunday o'nta o'nlik." },
-        no: { ru: 'В целом десять таких долей. Подумай, во сколько раз больше.', uz: "Butunda shunday o'nta ulush bor. Necha barobar ko'pligini o'ylang." }
+        ok: { ru: 'Верно: сто процентов — это десять таких десятков.', uz: "To'g'ri: yuz foiz — bu shunday o'nta o'nlik.", en: 'That is right: a hundred per cent is ten of those tens.' },
+        no: { ru: 'В целом десять таких долей. Подумай, во сколько раз больше.', uz: "Butunda shunday o'nta ulush bor. Necha barobar ko'pligini o'ylang.", en: 'The whole holds ten parts like that. Think how many times bigger it is.' }
       },
       {
-        q: { ru: '20 разделить на 20', uz: "20 ni 20 ga bo'ling" },
-        say: { ru: "Сколько будет двадцать разделить на двадцать?", uz: "Yigirmani yigirmaga bo'lsak qancha bo'ladi?" },
-        opts: [{ ru: '1', uz: '1' }, { ru: '0', uz: '0' }, { ru: '20', uz: '20' }],
+        q: { ru: '20 разделить на 20', uz: "20 ni 20 ga bo'ling", en: '20 divided by 20' },
+        say: { ru: "Сколько будет двадцать разделить на двадцать?", uz: "Yigirmani yigirmaga bo'lsak qancha bo'ladi?", en: 'How much is twenty divided by twenty?' },
+        opts: [{ ru: '1', uz: '1', en: '1' }, { ru: '0', uz: '0', en: '0' }, { ru: '20', uz: '20', en: '20' }],
         correct: 0,
-        ok: { ru: 'Верно: число на само себя — единица.', uz: "To'g'ri: son o'ziga bo'linsa — bir." },
-        no: { ru: 'Любое число, делённое на само себя, равно единице.', uz: "Har qanday son o'ziga bo'linsa, birga teng." }
+        ok: { ru: 'Верно: число на само себя — единица.', uz: "To'g'ri: son o'ziga bo'linsa — bir.", en: 'That is right: a number divided by itself is one.' },
+        no: { ru: 'Любое число, делённое на само себя, равно единице.', uz: "Har qanday son o'ziga bo'linsa, birga teng.", en: 'Any number divided by itself is one.' }
       }
     ],
     audio: {
-      intro: { ru: "Прежде чем помочь Ойбеку, вспомним проценты. Три быстрых примера.", uz: "Oybekka yordam berishdan oldin, foizni eslaylik. Uchta tez misol." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring." },
-      on_done: { ru: "Отлично, разминка пройдена.", uz: "Zo'r, mashq tugadi." }
+      intro: { ru: "Прежде чем помочь Ойбеку, вспомним проценты. Три быстрых примера.", uz: "Oybekka yordam berishdan oldin, foizni eslaylik. Uchta tez misol.", en: 'Before we help Oybek, let us remember percentages. Three quick examples.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Почти. Попробуй ещё раз.", uz: "Deyarli. Yana urinib ko'ring.", en: 'Almost. Have another go.' },
+      on_done: { ru: "Отлично, разминка пройдена.", uz: "Zo'r, mashq tugadi.", en: 'Well done, the warm up is done.' }
     }
   },
 
   // ===== s2 EXPLORATION — 20% = 10 -> *5 = 50 (step, tiles assemble) =====
   s2: {
-    eyebrow: { ru: 'Собираем целое', uz: "Butunni yig'amiz" },
-    title: { ru: 'От части — к целому', uz: "Qismdan — butunga" },
-    lead: { ru: 'Вернёмся к карте: 20 процентов — это 10 клеток.', uz: "Xaritaga qaytamiz: yigirma foiz — bu 10 katak." },
-    bridge: { ru: 'Размялись. Теперь шаг за шагом соберём целую карту.', uz: "Mashq qildik. Endi butun xaritani qadam-baqadam yig'amiz." },
-    line_part: { ru: '20% — это 10 клеток.', uz: "20% — bu 10 katak." },
-    line_count: { ru: 'Сколько таких частей в целом? Сто делим на двадцать — пять.', uz: "Butunda shunday nechta qism bor? Yuzni yigirmaga bo'lamiz — besh." },
-    line_whole: { ru: 'Пять раз по 10 клеток — это 50 клеток. Вот вся карта.', uz: "Besh marta 10 katakdan — bu 50 katak. Mana butun xarita." },
-    line_key: { ru: 'Часть меньше целого. Чтобы найти целое, узнаём, сколько в нём таких частей.', uz: "Qism butundan kichik. Butunni topish uchun unda shunday nechta qism borligini bilamiz." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Собираем целое', uz: "Butunni yig'amiz", en: 'Building the whole' },
+    title: { ru: 'От части — к целому', uz: "Qismdan — butunga", en: 'From the part to the whole' },
+    lead: { ru: 'Вернёмся к карте: 20 процентов — это 10 клеток.', uz: "Xaritaga qaytamiz: yigirma foiz — bu 10 katak.", en: 'Back to the map: 20 per cent is 10 squares.' },
+    bridge: { ru: 'Размялись. Теперь шаг за шагом соберём целую карту.', uz: "Mashq qildik. Endi butun xaritani qadam-baqadam yig'amiz.", en: 'We are warmed up. Now let us build the whole map step by step.' },
+    line_part: { ru: '20% — это 10 клеток.', uz: "20% — bu 10 katak.", en: '20% is 10 squares.' },
+    line_count: { ru: 'Сколько таких частей в целом? Сто делим на двадцать — пять.', uz: "Butunda shunday nechta qism bor? Yuzni yigirmaga bo'lamiz — besh.", en: 'How many parts like that are there in the whole? A hundred divided by twenty is five.' },
+    line_whole: { ru: 'Пять раз по 10 клеток — это 50 клеток. Вот вся карта.', uz: "Besh marta 10 katakdan — bu 50 katak. Mana butun xarita.", en: 'Five lots of 10 squares is 50 squares. That is the whole map.' },
+    line_key: { ru: 'Часть меньше целого. Чтобы найти целое, узнаём, сколько в нём таких частей.', uz: "Qism butundan kichik. Butunni topish uchun unda shunday nechta qism borligini bilamiz.", en: 'A part is smaller than the whole. To find the whole, we work out how many parts like that it holds.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Размялись. Теперь соберём целую карту по шагам.",
@@ -855,210 +881,211 @@ const CONTENT = {
         "Yigirma foiz, bu o'nta katak. Bu faqat qism.",
         "Butunda shunday nechta qism bor? Yuzni yigirmaga bo'lamiz, besh chiqadi.",
         "Besh marta o'ntadan katak, bu ellik katak. Mana butun xarita."
-      ]
+      ],
+      en: ['We are warmed up. Now let us build the whole map step by step.', 'Twenty per cent is ten squares. That is only a part.', 'How many parts like that are there in the whole? A hundred divided by twenty is five.', 'Five lots of ten squares is fifty squares. And there is the whole map.']
     }
   },
 
   // ===== s3 RULE + M1/M2 (birlashgan) =====
   s3: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Как найти целое по проценту', uz: "Foiz bo'yicha butunni qanday topamiz" },
-    bridge: { ru: 'Мы собрали целое руками. Теперь соберём это в правило.', uz: "Butunni qo'l bilan yig'dik. Endi buni qoidaga yig'amiz." },
-    rule_label: { ru: 'Мост через один процент', uz: "Bir foiz ko'prigi" },
-    rule_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz." },
-    rule_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz." },
-    rule_3: { ru: 'Коротко: часть делим на процент, потом умножаем на сто.', uz: "Qisqacha: qismni foizga bo'lib, keyin yuzga ko'paytiramiz." },
-    ex_label: { ru: 'Пример', uz: "Misol" },
-    ex_caption: { ru: '20% = 10 → 10 делим на 20 = 0,5 → умножаем на 100 = 50.', uz: "20% = 10 → 10 ni 20 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50." },
-    warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
-    warn_1: { ru: 'Часть — не целое. 10 клеток — это только обрывок, не вся карта.', uz: "Qism — butun emas. 10 katak — bu faqat bo'lak, butun xarita emas." },
-    warn_2: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi." },
-    audio: { ru: "Мы собрали целое руками. Теперь правило. Делим часть на её процент и получаем один процент. Потом умножаем один процент на сто и получаем целое. И запомни: одна и та же часть при разном проценте даёт разное целое.", uz: "Butunni qo'l bilan yig'dik. Endi qoida. Qismni uning foiziga bo'lib, bir foizni olamiz. Keyin bir foizni yuzga ko'paytirib, butunni olamiz. Va yodda tuting: bir xil qism turli foizda turli butun beradi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Как найти целое по проценту', uz: "Foiz bo'yicha butunni qanday topamiz", en: 'How to find the whole from a percentage' },
+    bridge: { ru: 'Мы собрали целое руками. Теперь соберём это в правило.', uz: "Butunni qo'l bilan yig'dik. Endi buni qoidaga yig'amiz.", en: 'We have built the whole by hand. Now let us gather it into a rule.' },
+    rule_label: { ru: 'Мост через один процент', uz: "Bir foiz ko'prigi", en: 'The bridge through one per cent' },
+    rule_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz.", en: 'Divide the part by its percentage to get one per cent.' },
+    rule_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz.", en: 'Multiply one per cent by a hundred to get the whole.' },
+    rule_3: { ru: 'Коротко: часть делим на процент, потом умножаем на сто.', uz: "Qisqacha: qismni foizga bo'lib, keyin yuzga ko'paytiramiz.", en: 'In short: divide the part by the percentage, then multiply by a hundred.' },
+    ex_label: { ru: 'Пример', uz: "Misol", en: 'Example' },
+    ex_caption: { ru: '20% = 10 → 10 делим на 20 = 0,5 → умножаем на 100 = 50.', uz: "20% = 10 → 10 ni 20 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50.", en: '20% = 10 → 10 divided by 20 = 0,5 → multiplied by 100 = 50.' },
+    warn_label: { ru: 'Осторожно', uz: "Ehtiyot bo'ling", en: 'Careful' },
+    warn_1: { ru: 'Часть — не целое. 10 клеток — это только обрывок, не вся карта.', uz: "Qism — butun emas. 10 katak — bu faqat bo'lak, butun xarita emas.", en: 'A part is not the whole. 10 squares is only the torn piece, not the whole map.' },
+    warn_2: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi.", en: 'The same part gives a different whole when the percentage is different.' },
+    audio: { ru: "Мы собрали целое руками. Теперь правило. Делим часть на её процент и получаем один процент. Потом умножаем один процент на сто и получаем целое. И запомни: одна и та же часть при разном проценте даёт разное целое.", uz: "Butunni qo'l bilan yig'dik. Endi qoida. Qismni uning foiziga bo'lib, bir foizni olamiz. Keyin bir foizni yuzga ko'paytirib, butunni olamiz. Va yodda tuting: bir xil qism turli foizda turli butun beradi.", en: 'We have built the whole by hand. Now the rule. Divide the part by its percentage to get one per cent. Then multiply one per cent by a hundred to get the whole. And remember: the same part gives a different whole when the percentage is different.' }
   },
 
   // ===== s4 ISHLANGAN MISOL + MASHQ (scored): yuqorida 30%=15->50; pastda 40%=20->50 (DecInput) =====
   s4: {
-    eyebrow: { ru: 'Сначала пример, потом сам', uz: "Avval misol, keyin o'zingiz" },
-    title: { ru: 'Найди целое', uz: "Butunni toping" },
-    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сам.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching." },
-    we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol" },
-    we_caption: { ru: '30% = 15 → 15 делим на 30 = 0,5 → умножаем на 100 = 50.', uz: "30% = 15 → 15 ni 30 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50." },
-    question: { ru: 'Теперь сам: 40% числа равно 20. Чему равно число?', uz: "Endi o'zingiz: sonning 40% i 20 ga teng. Son nechaga teng?" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Раздели часть на её процент, потом умножь на сто.', uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." },
-    fb_correct: { ru: 'Верно: 20 делим на 40 = 0,5, умножаем на 100 = 50.', uz: "To'g'ri: 20 ni 40 ga bo'lamiz = 0,5, yuzga ko'paytiramiz = 50." },
+    eyebrow: { ru: 'Сначала пример, потом сам', uz: "Avval misol, keyin o'zingiz", en: 'First an example, then your turn' },
+    title: { ru: 'Найди целое', uz: "Butunni toping", en: 'Find the whole' },
+    bridge: { ru: 'Правило знаем. Сначала посмотри пример, потом реши сам.', uz: "Qoidani bilamiz. Avval misolni ko'ring, keyin o'zingiz yeching.", en: 'We know the rule. First look at the example, then do one yourself.' },
+    we_label: { ru: 'Разобранный пример', uz: "Ishlangan misol", en: 'A worked example' },
+    we_caption: { ru: '30% = 15 → 15 делим на 30 = 0,5 → умножаем на 100 = 50.', uz: "30% = 15 → 15 ni 30 ga bo'lamiz = 0,5 → yuzga ko'paytiramiz = 50.", en: '30% = 15 → 15 divided by 30 = 0,5 → multiplied by 100 = 50.' },
+    question: { ru: 'Теперь сам: 40% числа равно 20. Чему равно число?', uz: "Endi o'zingiz: sonning 40% i 20 ga teng. Son nechaga teng?", en: 'Now your turn: 40% of a number is 20. What is the number?' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Раздели часть на её процент, потом умножь на сто.', uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring.", en: 'Divide the part by its percentage, then multiply by a hundred.' },
+    fb_correct: { ru: 'Верно: 20 делим на 40 = 0,5, умножаем на 100 = 50.', uz: "To'g'ri: 20 ni 40 ga bo'lamiz = 0,5, yuzga ko'paytiramiz = 50.", en: 'That is right: 20 divided by 40 is 0,5, multiplied by 100 is 50.' },
     audio: {
-      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сам: сорок процентов числа равно двадцати. Чему равно само число?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: sonning qirq foizi yigirmaga teng. Sonning o'zi nechaga teng?" },
-      on_correct: { ru: "Верно, число пятьдесят.", uz: "To'g'ri, son ellik." },
-      on_wrong: { ru: "Раздели часть на её процент, потом умножь на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." }
+      intro: { ru: "Сначала посмотри разобранный пример сверху. Теперь сам: сорок процентов числа равно двадцати. Чему равно само число?", uz: "Avval yuqoridagi ishlangan misolni ko'ring. Endi o'zingiz: sonning qirq foizi yigirmaga teng. Sonning o'zi nechaga teng?", en: 'First look at the worked example above. Now your turn: forty per cent of a number is twenty. What is the number itself?' },
+      on_correct: { ru: "Верно, число пятьдесят.", uz: "To'g'ri, son ellik.", en: 'That is right, the number is fifty.' },
+      on_wrong: { ru: "Раздели часть на её процент, потом умножь на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring.", en: 'Divide the part by its percentage, then multiply by a hundred.' }
     }
   },
 
   // ===== s5 TEST MC — 30% = 60 -> 200 [FAKT saylov] =====
   s5: {
-    eyebrow: { ru: 'Находим целое', uz: "Butunni topamiz" },
-    title: { ru: 'Найди всё число', uz: "Butun sonni toping" },
-    question: { ru: '30% числа равно 60. Чему равно число?', uz: "Sonning 30% i 60 ga teng. Son nechaga teng?" },
-    opt0: { ru: '200', uz: '200' },
-    opt1: { ru: '90', uz: '90' },
-    opt2: { ru: '18', uz: '18' },
-    opt3: { ru: '600', uz: '600' },
-    correct_text: { ru: 'Верно: 60 делим на 30 = 2, умножаем на 100 = 200.', uz: "To'g'ri: 60 ni 30 ga bo'lamiz = 2, yuzga ko'paytiramiz = 200." },
-    wrong_1: { ru: 'Ты сложил часть и процент. Раздели часть на процент, потом умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
-    wrong_2: { ru: 'Это часть от 60, а нужно наоборот, найти целое. Целое больше части.', uz: "Bu 60 dan qism, kerak esa aksincha, butunni topish. Butun qismdan katta." },
-    wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
-    fact: { ru: 'На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.', uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi." },
-    fact_audio: { ru: "На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.", uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi." },
+    eyebrow: { ru: 'Находим целое', uz: "Butunni topamiz", en: 'Finding the whole' },
+    title: { ru: 'Найди всё число', uz: "Butun sonni toping", en: 'Find the whole number' },
+    question: { ru: '30% числа равно 60. Чему равно число?', uz: "Sonning 30% i 60 ga teng. Son nechaga teng?", en: '30% of a number is 60. What is the number?' },
+    opt0: { ru: '200', uz: '200', en: '200' },
+    opt1: { ru: '90', uz: '90', en: '90' },
+    opt2: { ru: '18', uz: '18', en: '18' },
+    opt3: { ru: '600', uz: '600', en: '600' },
+    correct_text: { ru: 'Верно: 60 делим на 30 = 2, умножаем на 100 = 200.', uz: "To'g'ri: 60 ni 30 ga bo'lamiz = 2, yuzga ko'paytiramiz = 200.", en: 'That is right: 60 divided by 30 is 2, multiplied by 100 is 200.' },
+    wrong_1: { ru: 'Ты сложил часть и процент. Раздели часть на процент, потом умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, keyin yuzga ko'paytiring.", en: 'You added the part and the percentage. Divide the part by the percentage, then multiply by a hundred.' },
+    wrong_2: { ru: 'Это часть от 60, а нужно наоборот, найти целое. Целое больше части.', uz: "Bu 60 dan qism, kerak esa aksincha, butunni topish. Butun qismdan katta.", en: 'That is a part of 60, but we need the other way round, to find the whole. The whole is bigger than the part.' },
+    wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring.", en: 'That is too much. Divide the part by the percentage, then multiply by a hundred.' },
+    fact: { ru: 'На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.', uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi.", en: 'At an election the number of votes counted so far and their percentage are used to work backwards to how many people voted in all.' },
+    fact_audio: { ru: "На выборах по части подсчитанных голосов и их проценту обратным счётом находят, сколько всего человек проголосовало.", uz: "Saylovda sanalgan ovozlarning bir qismi va ularning foizi bo'yicha teskari hisob bilan jami nechta odam ovoz berganini topishadi.", en: 'At an election the number of votes counted so far and their percentage are used to work backwards to how many people voted in all.' },
     audio: {
-      intro: { ru: "Тридцать процентов числа равно шестидесяти. Чему равно само число?", uz: "Sonning o'ttiz foizi oltmishga teng. Sonning o'zi nechaga teng?" },
-      on_correct: { ru: "Верно, двести. Шестьдесят делим на тридцать, получается два, умножаем на сто.", uz: "To'g'ri, ikki yuz. Oltmishni o'ttizga bo'lamiz, ikki chiqadi, yuzga ko'paytiramiz." },
-      on_wrong: { ru: "Раздели часть на её процент, потом умножь на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring." }
+      intro: { ru: "Тридцать процентов числа равно шестидесяти. Чему равно само число?", uz: "Sonning o'ttiz foizi oltmishga teng. Sonning o'zi nechaga teng?", en: 'Thirty per cent of a number is sixty. What is the number itself?' },
+      on_correct: { ru: "Верно, двести. Шестьдесят делим на тридцать, получается два, умножаем на сто.", uz: "To'g'ri, ikki yuz. Oltmishni o'ttizga bo'lamiz, ikki chiqadi, yuzga ko'paytiramiz.", en: 'That is right, two hundred. Sixty divided by thirty is two, multiplied by a hundred.' },
+      on_wrong: { ru: "Раздели часть на её процент, потом умножь на сто.", uz: "Qismni uning foiziga bo'ling, keyin yuzga ko'paytiring.", en: 'Divide the part by its percentage, then multiply by a hundred.' }
     }
   },
 
   // ===== s6 TEST DecInput — 50% = 35 -> 70 =====
   s6: {
-    eyebrow: { ru: 'Половина известна', uz: "Yarmi ma'lum" },
-    bridge: { ru: 'Хорошо. Теперь набери ответ сам.', uz: "Yaxshi. Endi javobni o'zingiz tering." },
-    question: { ru: '50% числа равно 35. Чему равно число?', uz: "Sonning 50% i 35 ga teng. Son nechaga teng?" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: '50 процентов это половина. Если половина известна, целое вдвое больше.', uz: "50 foiz, bu yarim. Yarmi ma'lum bo'lsa, butun ikki barobar katta." },
-    fb_correct: { ru: 'Верно: 35 делим на 50 = 0,7, умножаем на 100 = 70.', uz: "To'g'ri: 35 ni 50 ga bo'lamiz = 0,7, yuzga ko'paytiramiz = 70." },
+    eyebrow: { ru: 'Половина известна', uz: "Yarmi ma'lum", en: 'The half is known' },
+    bridge: { ru: 'Хорошо. Теперь набери ответ сам.', uz: "Yaxshi. Endi javobni o'zingiz tering.", en: 'Good. Now type the answer yourself.' },
+    question: { ru: '50% числа равно 35. Чему равно число?', uz: "Sonning 50% i 35 ga teng. Son nechaga teng?", en: '50% of a number is 35. What is the number?' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: '50 процентов это половина. Если половина известна, целое вдвое больше.', uz: "50 foiz, bu yarim. Yarmi ma'lum bo'lsa, butun ikki barobar katta.", en: '50 per cent is a half. If the half is known, the whole is twice as big.' },
+    fb_correct: { ru: 'Верно: 35 делим на 50 = 0,7, умножаем на 100 = 70.', uz: "To'g'ri: 35 ni 50 ga bo'lamiz = 0,7, yuzga ko'paytiramiz = 70.", en: 'That is right: 35 divided by 50 is 0,7, multiplied by 100 is 70.' },
     audio: {
-      intro: { ru: "Набери ответ сам. Пятьдесят процентов числа равно тридцати пяти. Чему равно число?", uz: "Javobni o'zingiz tering. Sonning ellik foizi o'ttiz beshga teng. Son nechaga teng?" },
-      on_correct: { ru: "Верно, семьдесят. Половина равна тридцати пяти, значит целое семьдесят.", uz: "To'g'ri, yetmish. Yarmi o'ttiz beshga teng, demak butun yetmish." },
-      on_wrong: { ru: "Половина известна, целое вдвое больше. Раздели на процент и умножь на сто.", uz: "Yarmi ma'lum, butun ikki barobar katta. Foizga bo'ling va yuzga ko'paytiring." }
+      intro: { ru: "Набери ответ сам. Пятьдесят процентов числа равно тридцати пяти. Чему равно число?", uz: "Javobni o'zingiz tering. Sonning ellik foizi o'ttiz beshga teng. Son nechaga teng?", en: 'Type the answer yourself. Fifty per cent of a number is thirty five. What is the number?' },
+      on_correct: { ru: "Верно, семьдесят. Половина равна тридцати пяти, значит целое семьдесят.", uz: "To'g'ri, yetmish. Yarmi o'ttiz beshga teng, demak butun yetmish.", en: 'That is right, seventy. The half is thirty five, so the whole is seventy.' },
+      on_wrong: { ru: "Половина известна, целое вдвое больше. Раздели на процент и умножь на сто.", uz: "Yarmi ma'lum, butun ikki barobar katta. Foizga bo'ling va yuzga ko'paytiring.", en: 'The half is known, so the whole is twice as big. Divide by the percentage and multiply by a hundred.' }
     }
   },
 
   // ===== s7 TEST SeqMC — 3 ta oson teskari misol (scored) =====
   s7: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Найди целое', uz: "Butunni toping" },
-    lead: { ru: 'Три примера. Часть и процент даны, найди число.', uz: "Uchta misol. Qism va foiz berilgan, sonni toping." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Найди целое', uz: "Butunni toping", en: 'Find the whole' },
+    lead: { ru: 'Три примера. Часть и процент даны, найди число.', uz: "Uchta misol. Qism va foiz berilgan, sonni toping.", en: 'Three examples. The part and the percentage are given, so find the number.' },
     questions: [
       {
-        q: { ru: '25% = 5. Целое?', uz: "25% = 5. Butun?" },
-        say: { ru: "Двадцать пять процентов равно пяти. Чему равно целое?", uz: "Yigirma besh foiz beshga teng. Butun nechaga teng?" },
-        opts: [{ ru: '20', uz: '20' }, { ru: '10', uz: '10' }, { ru: '125', uz: '125' }],
+        q: { ru: '25% = 5. Целое?', uz: "25% = 5. Butun?", en: '25% = 5. The whole?' },
+        say: { ru: "Двадцать пять процентов равно пяти. Чему равно целое?", uz: "Yigirma besh foiz beshga teng. Butun nechaga teng?", en: 'Twenty five per cent is five. What is the whole?' },
+        opts: [{ ru: '20', uz: '20', en: '20' }, { ru: '10', uz: '10', en: '10' }, { ru: '125', uz: '125', en: '125' }],
         correct: 0,
-        ok: { ru: 'Верно: 5 делим на 25, умножаем на 100.', uz: "To'g'ri: 5 ni 25 ga bo'lib, yuzga ko'paytiramiz." },
-        no: { ru: 'Раздели часть на процент, потом умножь на сто.', uz: "Qismni foizga bo'ling, keyin yuzga ko'paytiring." }
+        ok: { ru: 'Верно: 5 делим на 25, умножаем на 100.', uz: "To'g'ri: 5 ni 25 ga bo'lib, yuzga ko'paytiramiz.", en: 'That is right: 5 divided by 25, multiplied by 100.' },
+        no: { ru: 'Раздели часть на процент, потом умножь на сто.', uz: "Qismni foizga bo'ling, keyin yuzga ko'paytiring.", en: 'Divide the part by the percentage, then multiply by a hundred.' }
       },
       {
-        q: { ru: '10% = 7. Целое?', uz: "10% = 7. Butun?" },
-        say: { ru: "Десять процентов равно семи. Чему равно целое?", uz: "O'n foiz yettiga teng. Butun nechaga teng?" },
-        opts: [{ ru: '70', uz: '70' }, { ru: '17', uz: '17' }, { ru: '700', uz: '700' }],
+        q: { ru: '10% = 7. Целое?', uz: "10% = 7. Butun?", en: '10% = 7. The whole?' },
+        say: { ru: "Десять процентов равно семи. Чему равно целое?", uz: "O'n foiz yettiga teng. Butun nechaga teng?", en: 'Ten per cent is seven. What is the whole?' },
+        opts: [{ ru: '70', uz: '70', en: '70' }, { ru: '17', uz: '17', en: '17' }, { ru: '700', uz: '700', en: '700' }],
         correct: 0,
-        ok: { ru: 'Верно: десять таких частей — это семьдесят.', uz: "To'g'ri: shunday o'nta qism — bu yetmish." },
-        no: { ru: 'В целом десять таких долей. Раздели на процент, умножь на сто.', uz: "Butunda shunday o'nta ulush. Foizga bo'ling, yuzga ko'paytiring." }
+        ok: { ru: 'Верно: десять таких частей — это семьдесят.', uz: "To'g'ri: shunday o'nta qism — bu yetmish.", en: 'That is right: ten parts like that make seventy.' },
+        no: { ru: 'В целом десять таких долей. Раздели на процент, умножь на сто.', uz: "Butunda shunday o'nta ulush. Foizga bo'ling, yuzga ko'paytiring.", en: 'The whole holds ten parts like that. Divide by the percentage and multiply by a hundred.' }
       },
       {
-        q: { ru: '50% = 9. Целое?', uz: "50% = 9. Butun?" },
-        say: { ru: "Пятьдесят процентов равно девяти. Чему равно целое?", uz: "Ellik foiz to'qqizga teng. Butun nechaga teng?" },
-        opts: [{ ru: '18', uz: '18' }, { ru: '4,5', uz: '4,5' }, { ru: '90', uz: '90' }],
+        q: { ru: '50% = 9. Целое?', uz: "50% = 9. Butun?", en: '50% = 9. The whole?' },
+        say: { ru: "Пятьдесят процентов равно девяти. Чему равно целое?", uz: "Ellik foiz to'qqizga teng. Butun nechaga teng?", en: 'Fifty per cent is nine. What is the whole?' },
+        opts: [{ ru: '18', uz: '18', en: '18' }, { ru: '4,5', uz: '4,5', en: '4,5' }, { ru: '90', uz: '90', en: '90' }],
         correct: 0,
-        ok: { ru: 'Верно: половина равна девяти, целое вдвое больше.', uz: "To'g'ri: yarmi to'qqizga teng, butun ikki barobar." },
-        no: { ru: 'Половина известна, целое вдвое больше.', uz: "Yarmi ma'lum, butun ikki barobar katta." }
+        ok: { ru: 'Верно: половина равна девяти, целое вдвое больше.', uz: "To'g'ri: yarmi to'qqizga teng, butun ikki barobar.", en: 'That is right: the half is nine, so the whole is twice as big.' },
+        no: { ru: 'Половина известна, целое вдвое больше.', uz: "Yarmi ma'lum, butun ikki barobar katta.", en: 'The half is known, so the whole is twice as big.' }
       }
     ],
     audio: {
-      intro: { ru: "Тренировка. Три примера. Часть и процент даны, найди целое число.", uz: "Mashq. Uchta misol. Qism va foiz berilgan, butun sonni toping." },
-      on_correct: { ru: "Верно.", uz: "To'g'ri." },
-      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring." },
-      on_done: { ru: "Молодец, все примеры верны.", uz: "Barakalla, hamma misol to'g'ri." }
+      intro: { ru: "Тренировка. Три примера. Часть и процент даны, найди целое число.", uz: "Mashq. Uchta misol. Qism va foiz berilgan, butun sonni toping.", en: 'Practice. Three examples. The part and the percentage are given, so find the whole number.' },
+      on_correct: { ru: "Верно.", uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: "Не совсем, попробуй ещё.", uz: "Unchalik emas, yana urinib ko'ring.", en: 'Not quite, have another go.' },
+      on_done: { ru: "Молодец, все примеры верны.", uz: "Barakalla, hamma misol to'g'ri.", en: 'Well done, every example is right.' }
     }
   },
 
   // ===== s8 TEST tasniflash (sort, M2): bir xil qism 12, foiz boshqa -> butun boshqa =====
   s8: {
-    eyebrow: { ru: 'Один и тот же 12', uz: "Bir xil 12" },
-    title: { ru: 'Часть 12 — разный процент', uz: "Qism 12 — har xil foiz" },
-    lead: { ru: 'Часть всюду 12, но процент разный. В какую группу — целое больше 60 или нет?', uz: "Qism hamma joyda 12, lekin foiz har xil. Qaysi guruhga — butun 60 dan katta yoki yo'q?" },
-    bin_sq: { ru: 'Целое 60 и меньше', uz: "Butun 60 va undan kichik" },
-    bin_cu: { ru: 'Целое больше 60', uz: "Butun 60 dan katta" },
-    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing." },
-    done_text: { ru: 'Готово! Чем меньше процент, тем больше целое.', uz: "Tayyor! Foiz qancha kichik bo'lsa, butun shuncha katta." },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Подумай: при меньшем проценте целое больше. Раздели 12 на процент, умножь на сто.', uz: "O'ylang: foiz kichikroq bo'lsa butun kattaroq. 12 ni foizga bo'ling, yuzga ko'paytiring." },
-    correct_text: { ru: 'Верно! Одна и та же часть 12 при разном проценте даёт разное целое.', uz: "To'g'ri! Bir xil qism 12 turli foizda turli butun beradi." },
+    eyebrow: { ru: 'Один и тот же 12', uz: "Bir xil 12", en: 'The same 12 every time' },
+    title: { ru: 'Часть 12 — разный процент', uz: "Qism 12 — har xil foiz", en: 'The part is 12 with different percentages' },
+    lead: { ru: 'Часть всюду 12, но процент разный. В какую группу — целое больше 60 или нет?', uz: "Qism hamma joyda 12, lekin foiz har xil. Qaysi guruhga — butun 60 dan katta yoki yo'q?", en: 'The part is 12 every time but the percentage is different. Which group does it go in, is the whole more than 60 or not?' },
+    bin_sq: { ru: 'Целое 60 и меньше', uz: "Butun 60 va undan kichik", en: 'The whole is 60 or less' },
+    bin_cu: { ru: 'Целое больше 60', uz: "Butun 60 dan katta", en: 'The whole is more than 60' },
+    ask: { ru: 'В какую группу? Тапни корзину.', uz: "Qaysi guruhga? Savatni bosing.", en: 'Which group? Tap a basket.' },
+    done_text: { ru: 'Готово! Чем меньше процент, тем больше целое.', uz: "Tayyor! Foiz qancha kichik bo'lsa, butun shuncha katta.", en: 'Done! The smaller the percentage, the bigger the whole.' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Подумай: при меньшем проценте целое больше. Раздели 12 на процент, умножь на сто.', uz: "O'ylang: foiz kichikroq bo'lsa butun kattaroq. 12 ni foizga bo'ling, yuzga ko'paytiring.", en: 'Think: a smaller percentage means a bigger whole. Divide 12 by the percentage and multiply by a hundred.' },
+    correct_text: { ru: 'Верно! Одна и та же часть 12 при разном проценте даёт разное целое.', uz: "To'g'ri! Bir xil qism 12 turli foizda turli butun beradi.", en: 'Right! The same part of 12 gives a different whole when the percentage is different.' },
     audio: {
-      intro: { ru: "Часть всюду двенадцать, но процент разный. Поставь каждое в группу: целое шестьдесят и меньше, или больше шестидесяти. Чем меньше процент, тем больше целое.", uz: "Qism hamma joyda o'n ikki, lekin foiz har xil. Har birini guruhga joylang: butun oltmish va undan kichik, yoki oltmishdan katta. Foiz qancha kichik bo'lsa, butun shuncha katta." },
-      on_correct: { ru: "Верно. Одна и та же часть при разном проценте даёт разное целое.", uz: "To'g'ri. Bir xil qism turli foizda turli butun beradi." },
-      on_wrong: { ru: "При меньшем проценте целое больше. Раздели часть на процент, умножь на сто.", uz: "Foiz kichikroq bo'lsa butun kattaroq. Qismni foizga bo'ling, yuzga ko'paytiring." }
+      intro: { ru: "Часть всюду двенадцать, но процент разный. Поставь каждое в группу: целое шестьдесят и меньше, или больше шестидесяти. Чем меньше процент, тем больше целое.", uz: "Qism hamma joyda o'n ikki, lekin foiz har xil. Har birini guruhga joylang: butun oltmish va undan kichik, yoki oltmishdan katta. Foiz qancha kichik bo'lsa, butun shuncha katta.", en: 'The part is twelve every time but the percentage is different. Put each one into its group: the whole is sixty or less, or more than sixty. The smaller the percentage, the bigger the whole.' },
+      on_correct: { ru: "Верно. Одна и та же часть при разном проценте даёт разное целое.", uz: "To'g'ri. Bir xil qism turli foizda turli butun beradi.", en: 'That is right. The same part gives a different whole when the percentage is different.' },
+      on_wrong: { ru: "При меньшем проценте целое больше. Раздели часть на процент, умножь на сто.", uz: "Foiz kichikroq bo'lsa butun kattaroq. Qismni foizga bo'ling, yuzga ko'paytiring.", en: 'A smaller percentage means a bigger whole. Divide the part by the percentage and multiply by a hundred.' }
     }
   },
 
   // ===== s9 TEST MC (xatoni top) — teskari hisob xatosi [FAKT per cento] =====
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Где целое найдено неверно?', uz: "Qaysi butun noto'g'ri topilgan?" },
-    question: { ru: 'В одном примере целое найдено неправильно. В каком?', uz: "Bitta misolda butun noto'g'ri topilgan. Qaysi birida?" },
-    opt0: { ru: '10% = 8 → целое 80', uz: "10% = 8 → butun 80" },
-    opt1: { ru: '25% = 6 → целое 24', uz: "25% = 6 → butun 24" },
-    opt2: { ru: '20% = 9 → целое 18', uz: "20% = 9 → butun 18" },
-    opt3: { ru: '50% = 8 → целое 16', uz: "50% = 8 → butun 16" },
-    correct_text: { ru: 'Верно! 9 делим на 20 = 0,45, умножаем на 100 = 45, а не 18.', uz: "To'g'ri! 9 ni 20 ga bo'lamiz = 0,45, yuzga ko'paytiramiz = 45, 18 emas." },
-    wrong_0: { ru: 'Здесь верно: 8 делим на 10, умножаем на сто, выходит восемьдесят.', uz: "Bu yerda to'g'ri: 8 ni 10 ga bo'lib, yuzga ko'paytiramiz, sakson chiqadi." },
-    wrong_1: { ru: 'Здесь верно: 6 делим на 25, умножаем на сто, выходит двадцать четыре.', uz: "Bu yerda to'g'ri: 6 ni 25 ga bo'lib, yuzga ko'paytiramiz, yigirma to'rt chiqadi." },
-    wrong_3: { ru: 'Здесь верно: половина равна восьми, целое шестнадцать.', uz: "Bu yerda to'g'ri: yarmi sakkizga teng, butun o'n olti." },
-    wrong_default: { ru: 'Посчитай каждый: часть делим на процент, умножаем на сто.', uz: "Har birini hisoblang: qismni foizga bo'lib, yuzga ko'paytiramiz." },
-    fact: { ru: 'Знак процента вырос из итальянского «per cento» — «из ста». Поэтому процент всегда означает долю от ста.', uz: "Foiz belgisi italyancha «per cento» — «yuzdan» — yozuvidan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi." },
-    fact_audio: { ru: "Знак процента вырос из итальянского пер ченто, что значит из ста. Поэтому процент всегда означает долю от ста.", uz: "Foiz belgisi italyancha per cento, ya'ni yuzdan, degan yozuvdan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Где целое найдено неверно?', uz: "Qaysi butun noto'g'ri topilgan?", en: 'Which whole is found wrongly?' },
+    question: { ru: 'В одном примере целое найдено неправильно. В каком?', uz: "Bitta misolda butun noto'g'ri topilgan. Qaysi birida?", en: 'In one of these the whole has been found wrongly. Which one?' },
+    opt0: { ru: '10% = 8 → целое 80', uz: "10% = 8 → butun 80", en: '10% = 8 → the whole is 80' },
+    opt1: { ru: '25% = 6 → целое 24', uz: "25% = 6 → butun 24", en: '25% = 6 → the whole is 24' },
+    opt2: { ru: '20% = 9 → целое 18', uz: "20% = 9 → butun 18", en: '20% = 9 → the whole is 18' },
+    opt3: { ru: '50% = 8 → целое 16', uz: "50% = 8 → butun 16", en: '50% = 8 → the whole is 16' },
+    correct_text: { ru: 'Верно! 9 делим на 20 = 0,45, умножаем на 100 = 45, а не 18.', uz: "To'g'ri! 9 ni 20 ga bo'lamiz = 0,45, yuzga ko'paytiramiz = 45, 18 emas.", en: 'Right! 9 divided by 20 is 0,45, multiplied by 100 is 45, not 18.' },
+    wrong_0: { ru: 'Здесь верно: 8 делим на 10, умножаем на сто, выходит восемьдесят.', uz: "Bu yerda to'g'ri: 8 ni 10 ga bo'lib, yuzga ko'paytiramiz, sakson chiqadi.", en: 'That one is right: 8 divided by 10, multiplied by a hundred, gives eighty.' },
+    wrong_1: { ru: 'Здесь верно: 6 делим на 25, умножаем на сто, выходит двадцать четыре.', uz: "Bu yerda to'g'ri: 6 ni 25 ga bo'lib, yuzga ko'paytiramiz, yigirma to'rt chiqadi.", en: 'That one is right: 6 divided by 25, multiplied by a hundred, gives twenty four.' },
+    wrong_3: { ru: 'Здесь верно: половина равна восьми, целое шестнадцать.', uz: "Bu yerda to'g'ri: yarmi sakkizga teng, butun o'n olti.", en: 'That one is right: the half is eight, so the whole is sixteen.' },
+    wrong_default: { ru: 'Посчитай каждый: часть делим на процент, умножаем на сто.', uz: "Har birini hisoblang: qismni foizga bo'lib, yuzga ko'paytiramiz.", en: 'Work each one out: divide the part by the percentage and multiply by a hundred.' },
+    fact: { ru: 'Знак процента вырос из итальянского «per cento» — «из ста». Поэтому процент всегда означает долю от ста.', uz: "Foiz belgisi italyancha «per cento» — «yuzdan» — yozuvidan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi.", en: 'The % sign grew out of the Italian per cento, meaning out of a hundred. That is why a percentage always means a part out of a hundred.' },
+    fact_audio: { ru: "Знак процента вырос из итальянского пер ченто, что значит из ста. Поэтому процент всегда означает долю от ста.", uz: "Foiz belgisi italyancha per cento, ya'ni yuzdan, degan yozuvdan o'sib chiqqan. Shuning uchun foiz doim yuzdan ulushni bildiradi.", en: 'The per cent sign grew out of the Italian per cento, which means out of a hundred. That is why a percentage always means a part out of a hundred.' },
     audio: {
-      intro: { ru: "В одном из этих примеров целое найдено неправильно. Найди, где обратный счёт сделан с ошибкой.", uz: "Bu misollardan birida butun noto'g'ri topilgan. Teskari hisob xato qilingan joyni toping." },
-      on_correct: { ru: "Верно. Девять делим на двадцать, получается ноль целых сорок пять сотых, умножаем на сто, выходит сорок пять, а не восемнадцать.", uz: "To'g'ri. To'qqizni yigirmaga bo'lamiz, nol butun yuzdan qirq besh chiqadi, yuzga ko'paytiramiz, qirq besh bo'ladi, o'n sakkiz emas." },
-      on_wrong: { ru: "Посчитай каждый: раздели часть на процент и умножь на сто.", uz: "Har birini hisoblang: qismni foizga bo'ling va yuzga ko'paytiring." }
+      intro: { ru: "В одном из этих примеров целое найдено неправильно. Найди, где обратный счёт сделан с ошибкой.", uz: "Bu misollardan birida butun noto'g'ri topilgan. Teskari hisob xato qilingan joyni toping.", en: 'In one of these examples the whole has been found wrongly. Find where the working backwards went wrong.' },
+      on_correct: { ru: "Верно. Девять делим на двадцать, получается ноль целых сорок пять сотых, умножаем на сто, выходит сорок пять, а не восемнадцать.", uz: "To'g'ri. To'qqizni yigirmaga bo'lamiz, nol butun yuzdan qirq besh chiqadi, yuzga ko'paytiramiz, qirq besh bo'ladi, o'n sakkiz emas.", en: 'That is right. Nine divided by twenty is nought point four five, multiplied by a hundred gives forty five, not eighteen.' },
+      on_wrong: { ru: "Посчитай каждый: раздели часть на процент и умножь на сто.", uz: "Har birini hisoblang: qismni foizga bo'ling va yuzga ko'paytiring.", en: 'Work each one out: divide the part by the percentage and multiply by a hundred.' }
     }
   },
 
   // ===== s10 CASE setup + FINAL (birlashgan) — Iroda so'rovnoma 30% = 18 -> 60 [FAKT chegirma] =====
   s10: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    title: { ru: 'Опрос в классе Ироды', uz: "Iroda sinfidagi so'rovnoma" },
-    bridge: { ru: 'Карта собрана. Теперь применим навык в жизни.', uz: "Xarita yig'ildi. Endi ko'nikmani hayotda qo'llaymiz." },
-    lead: { ru: 'Ирода провела опрос. «Да» ответили 30 процентов класса, и это 18 учеников.', uz: "Iroda so'rovnoma o'tkazdi. Sinfning 30 foizi «ha» dedi, va bu 18 o'quvchi." },
-    note: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi bor?" },
-    hint_calc: { ru: '18 это только «да». Раздели 18 на 30, потом умножь на сто.', uz: "18, bu faqat «ha» deganlar. 18 ni 30 ga bo'ling, keyin yuzga ko'paytiring." },
-    compact: { ru: '«Да» = 30% · это 18 учеников', uz: "«Ha» = 30% · bu 18 o'quvchi" },
-    btn_help: { ru: 'Помочь Ироде', uz: "Irodaga yordam berish" },
-    question: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi?" },
-    opt0: { ru: '60', uz: '60' },
-    opt1: { ru: '18', uz: '18' },
-    opt2: { ru: '48', uz: '48' },
-    opt3: { ru: '600', uz: '600' },
-    correct_text: { ru: 'Верно: 18 делим на 30 = 0,6, умножаем на 100 = 60 учеников.', uz: "To'g'ri: 18 ni 30 ga bo'lamiz = 0,6, yuzga ko'paytiramiz = 60 o'quvchi." },
-    wrong_1: { ru: 'Это только ответившие да, а нужен весь класс. Целое больше части.', uz: "Bu faqat ha deganlar, butun sinf kerak. Butun qismdan katta." },
-    wrong_2: { ru: 'Ты сложил часть и процент. Раздели часть на процент, умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, yuzga ko'paytiring." },
-    wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring." },
-    fact: { ru: 'В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.', uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
-    fact_audio: { ru: "В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.", uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi." },
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    title: { ru: 'Опрос в классе Ироды', uz: "Iroda sinfidagi so'rovnoma", en: "A survey in Iroda's class" },
+    bridge: { ru: 'Карта собрана. Теперь применим навык в жизни.', uz: "Xarita yig'ildi. Endi ko'nikmani hayotda qo'llaymiz.", en: 'The map is put back together. Now let us use the skill in real life.' },
+    lead: { ru: 'Ирода провела опрос. «Да» ответили 30 процентов класса, и это 18 учеников.', uz: "Iroda so'rovnoma o'tkazdi. Sinfning 30 foizi «ha» dedi, va bu 18 o'quvchi.", en: 'Iroda ran a survey. 30 per cent of the class answered yes, and that is 18 pupils.' },
+    note: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi bor?", en: 'How many pupils are there in the class altogether?' },
+    hint_calc: { ru: '18 это только «да». Раздели 18 на 30, потом умножь на сто.', uz: "18, bu faqat «ha» deganlar. 18 ni 30 ga bo'ling, keyin yuzga ko'paytiring.", en: '18 is only the yes answers. Divide 18 by 30, then multiply by a hundred.' },
+    compact: { ru: '«Да» = 30% · это 18 учеников', uz: "«Ha» = 30% · bu 18 o'quvchi", en: 'Yes = 30% · that is 18 pupils' },
+    btn_help: { ru: 'Помочь Ироде', uz: "Irodaga yordam berish", en: 'Help Iroda' },
+    question: { ru: 'Сколько всего учеников в классе?', uz: "Sinfda jami nechta o'quvchi?", en: 'How many pupils are there in the class altogether?' },
+    opt0: { ru: '60', uz: '60', en: '60' },
+    opt1: { ru: '18', uz: '18', en: '18' },
+    opt2: { ru: '48', uz: '48', en: '48' },
+    opt3: { ru: '600', uz: '600', en: '600' },
+    correct_text: { ru: 'Верно: 18 делим на 30 = 0,6, умножаем на 100 = 60 учеников.', uz: "To'g'ri: 18 ni 30 ga bo'lamiz = 0,6, yuzga ko'paytiramiz = 60 o'quvchi.", en: 'That is right: 18 divided by 30 is 0,6, multiplied by 100 is 60 pupils.' },
+    wrong_1: { ru: 'Это только ответившие да, а нужен весь класс. Целое больше части.', uz: "Bu faqat ha deganlar, butun sinf kerak. Butun qismdan katta.", en: 'That is only the ones who said yes, but we need the whole class. The whole is bigger than the part.' },
+    wrong_2: { ru: 'Ты сложил часть и процент. Раздели часть на процент, умножь на сто.', uz: "Siz qism va foizni qo'shdingiz. Qismni foizga bo'ling, yuzga ko'paytiring.", en: 'You added the part and the percentage. Divide the part by the percentage and multiply by a hundred.' },
+    wrong_3: { ru: 'Слишком много. Раздели часть на процент, потом умножь на сто.', uz: "Juda ko'p. Qismni foizga bo'ling, keyin yuzga ko'paytiring.", en: 'That is too much. Divide the part by the percentage, then multiply by a hundred.' },
+    fact: { ru: 'В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.', uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi.", en: 'In a shop the sale price and the percentage off are used to work backwards to the original price.' },
+    fact_audio: { ru: "В магазине по цене со скидкой и проценту скидки обратным счётом находят первоначальную цену.", uz: "Do'konda chegirmali narx va chegirma foizi bo'yicha teskari hisob bilan dastlabki narxni topishadi.", en: 'In a shop the sale price and the percentage off are used to work backwards to the original price.' },
     audio: {
-      intro: { ru: "Карта собрана, теперь навык в жизни. Ирода провела опрос. Тридцать процентов класса ответили да, и это восемнадцать учеников. Восемнадцать, это только ответившие да, а не весь класс. Нажми решить.", uz: "Xarita yig'ildi, endi ko'nikma hayotda. Iroda so'rovnoma o'tkazdi. Sinfning o'ttiz foizi ha dedi, va bu o'n sakkiz o'quvchi. O'n sakkiz, bu faqat ha deganlar, butun sinf emas. Yechishni bosing." },
-      intro2: { ru: "Сколько всего учеников в классе?", uz: "Sinfda jami nechta o'quvchi bor?" },
-      on_correct: { ru: "Верно, шестьдесят. Восемнадцать делим на тридцать, умножаем на сто.", uz: "To'g'ri, oltmish. O'n sakkizni o'ttizga bo'lamiz, yuzga ko'paytiramiz." },
-      on_wrong: { ru: "Восемнадцать это часть. Раздели часть на процент, умножь на сто.", uz: "O'n sakkiz, bu qism. Qismni foizga bo'ling, yuzga ko'paytiring." }
+      intro: { ru: "Карта собрана, теперь навык в жизни. Ирода провела опрос. Тридцать процентов класса ответили да, и это восемнадцать учеников. Восемнадцать, это только ответившие да, а не весь класс. Нажми решить.", uz: "Xarita yig'ildi, endi ko'nikma hayotda. Iroda so'rovnoma o'tkazdi. Sinfning o'ttiz foizi ha dedi, va bu o'n sakkiz o'quvchi. O'n sakkiz, bu faqat ha deganlar, butun sinf emas. Yechishni bosing.", en: 'The map is put back together, so now the skill in real life. Iroda ran a survey. Thirty per cent of the class answered yes, and that is eighteen pupils. Eighteen is only the ones who said yes, not the whole class. Tap solve.' },
+      intro2: { ru: "Сколько всего учеников в классе?", uz: "Sinfda jami nechta o'quvchi bor?", en: 'How many pupils are there in the class altogether?' },
+      on_correct: { ru: "Верно, шестьдесят. Восемнадцать делим на тридцать, умножаем на сто.", uz: "To'g'ri, oltmish. O'n sakkizni o'ttizga bo'lamiz, yuzga ko'paytiramiz.", en: 'That is right, sixty. Eighteen divided by thirty, multiplied by a hundred.' },
+      on_wrong: { ru: "Восемнадцать это часть. Раздели часть на процент, умножь на сто.", uz: "O'n sakkiz, bu qism. Qismni foizga bo'ling, yuzga ko'paytiring.", en: 'Eighteen is the part. Divide the part by the percentage and multiply by a hundred.' }
     }
   },
 
   // ===== s11 SUMMARY =====
   s11: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'По части — найти целое', uz: "Qism bo'yicha butunni topish" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz." },
-    main_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz." },
-    main_3: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi." },
-    hook_close: { ru: 'Вот и ответ Ойбеку: 20% = 10 клеток, значит вся карта — 50 клеток.', uz: "Mana Oybekka javob: 20% = 10 katak, demak butun xarita — 50 katak." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Процент как доля от ста (Урок 30) и нахождение процента от числа (Урок 31).', uz: "Foiz yuzdan ulush sifatida (30-dars) va sonning foizini topish (31-dars)." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Задачи на проценты в жизни.', uz: "Hayotdagi foiz masalalari." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, чтобы найти целое: делим часть на её процент, получаем один процент, и умножаем на сто. И помним: одна и та же часть при разном проценте даёт разное целое.", uz: "Demak, butunni topish uchun: qismni uning foiziga bo'lib, bir foizni olamiz, va yuzga ko'paytiramiz. Va yodda tutamiz: bir xil qism turli foizda turli butun beradi." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'По части — найти целое', uz: "Qism bo'yicha butunni topish", en: 'From a part, find the whole' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Делим часть на её процент — получаем один процент.', uz: "Qismni uning foiziga bo'lamiz — bir foizni olamiz.", en: 'Divide the part by its percentage to get one per cent.' },
+    main_2: { ru: 'Умножаем один процент на сто — получаем целое.', uz: "Bir foizni yuzga ko'paytiramiz — butunni olamiz.", en: 'Multiply one per cent by a hundred to get the whole.' },
+    main_3: { ru: 'Одна и та же часть при разном проценте даёт разное целое.', uz: "Bir xil qism turli foizda turli butun beradi.", en: 'The same part gives a different whole when the percentage is different.' },
+    hook_close: { ru: 'Вот и ответ Ойбеку: 20% = 10 клеток, значит вся карта — 50 клеток.', uz: "Mana Oybekka javob: 20% = 10 katak, demak butun xarita — 50 katak.", en: "So here is Oybek's answer: 20% is 10 squares, so the whole map is 50 squares." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Процент как доля от ста (Урок 30) и нахождение процента от числа (Урок 31).', uz: "Foiz yuzdan ulush sifatida (30-dars) va sonning foizini topish (31-dars).", en: 'A percentage as a part out of a hundred (Lesson 30) and finding a percentage of a number (Lesson 31).' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Задачи на проценты в жизни.', uz: "Hayotdagi foiz masalalari.", en: 'Percentage problems in real life.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, чтобы найти целое: делим часть на её процент, получаем один процент, и умножаем на сто. И помним: одна и та же часть при разном проценте даёт разное целое.", uz: "Demak, butunni topish uchun: qismni uning foiziga bo'lib, bir foizni olamiz, va yuzga ko'paytiramiz. Va yodda tutamiz: bir xil qism turli foizda turli butun beradi.", en: 'So to find the whole: divide the part by its percentage to get one per cent, then multiply by a hundred. And we remember that the same part gives a different whole when the percentage is different.' }
   }
 };
 
@@ -1098,9 +1125,9 @@ const FloatTiles = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_STAT = { ru: 'Знаешь ли ты? · Статистика', uz: "Bilasizmi? · Statistika" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',     uz: "Bilasizmi? · Tarix" };
-const FB_LIFE = { ru: 'Полезно знать · Жизнь',       uz: "Bilib qo'ying · Hayot" };
+const FB_STAT = { ru: 'Знаешь ли ты? · Статистика', uz: "Bilasizmi? · Statistika", en: 'Did you know? · Statistics' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',     uz: "Bilasizmi? · Tarix",     en: 'Did you know? · History' };
+const FB_LIFE = { ru: 'Полезно знать · Жизнь',       uz: "Bilib qo'ying · Hayot",       en: 'Worth knowing · Real life' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1232,13 +1259,13 @@ const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1309,7 +1336,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1334,7 +1361,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1431,7 +1458,7 @@ const ScreenRule = ({ screen, onNext, onPrev }) => {
   const rules = [c.rule_1, c.rule_2, c.rule_3];
   const reveal = () => { setPhase(1); };
   const navContent = phase === 0
-    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : 'Дальше'}/></>)
+    ? (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={reveal} label={lang === 'uz' ? "Davom etish" : lang === 'en' ? "Next" : 'Дальше'}/></>)
     : (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
@@ -1460,7 +1487,7 @@ const ScreenRule = ({ screen, onNext, onPrev }) => {
             <button className="rule-chip fade-up" onClick={() => setPhase(0)} style={{ position: 'relative' }}>
               <span className="rule-chip-ic" aria-hidden="true"><IconOk/></span>
               <span className="rule-chip-tx">{mt(t(c.heading))}</span>
-              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : 'показать'}</span>
+              <span className="rule-chip-act">{lang === 'uz' ? "ko'rish" : lang === 'en' ? "show" : 'показать'}</span>
             </button>
             <h2 className="title h-title fade-up delay-1" style={{ position: 'relative', margin: 0 }}>{mt(t(c.warn_label))}</h2>
             <div className="frame-tip fade-up delay-1" style={{ position: 'relative' }}>
@@ -1599,7 +1626,7 @@ const Screen8 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1708,7 +1735,7 @@ const ScreenCase = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
             </div>
             <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(solved ? t(content.correct_text) : t(content[`wrong_${picked}`] || content.wrong_default || content.correct_text))}</p>
             </FeedbackBlock>
@@ -1725,7 +1752,7 @@ const Screen11 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s11;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1754,7 +1781,7 @@ export default function NumberByPercentLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1807,7 +1834,7 @@ export default function NumberByPercentLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -44,9 +44,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -180,7 +205,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -215,7 +240,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -582,12 +608,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -703,7 +729,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -752,9 +778,9 @@ const Floaters = () => (
 // ============================================================
 // FACT-БЛОК + анимации (CSS-only loop, синяя тема)
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -838,8 +864,8 @@ const FractionWall = ({ rows, marker = false, winnerDen = null, animateIn = true
 // --- POD UROK: frac_5_05 — Сравнение дробей с одинаковым числителем ---
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-05-v1',
-  lessonTitle: { ru: 'Сравнение дробей с одинаковым числителем', uz: "Bir xil suratli kasrlarni taqqoslash" }
+  lessonId: 'grade5-13',
+  lessonTitle: { ru: 'Сравнение дробей с одинаковым числителем', uz: "Bir xil suratli kasrlarni taqqoslash", en: 'Comparing fractions with the same numerator' }
 };
 const TOTAL_SCREENS = 14;
 
@@ -863,24 +889,24 @@ const SCREEN_META = [
 const CONTENT = {
   // ---- s0 HOOK: Эльдор (1/3) и Темур (1/5) делят одинаковый интернет-пакет ----
   s0: {
-    eyebrow: { ru: 'Сравнение дробей · вступление', uz: "Kasrlarni taqqoslash · kirish" },
-    title: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между своими устройствами.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi." },
-    body: { ru: 'У Эльдора 3 устройства — каждому достаётся 1/3 пакета. У Темура 5 устройств — каждому 1/5. Темур хвастается: «у меня устройств больше, 5 — значит каждому достаётся больше интернета, 1/5 больше 1/3!».', uz: "Eldorda 3 ta qurilma — har biriga paketning 1/3 qismi tegadi. Temurda 5 ta qurilma — har biriga 1/5. Temur maqtanadi: «menda qurilma ko'p, 5 ta — demak har biriga ko'proq internet tegadi, 1/5 katta 1/3 dan!»." },
-    question: { ru: 'А ты как думаешь: на одно устройство больше интернета у 1/3 или у 1/5?', uz: "Sizningcha-chi: bitta qurilmaga ko'proq internet 1/3 da-mi yoki 1/5 da-mi?" },
-    opt0: { ru: '1/3 больше — у Эльдора устройств меньше, каждому достаётся больше', uz: "1/3 katta — Eldorda qurilma kam, har biriga ko'proq tegadi" },
-    opt1: { ru: '1/5 больше — ведь 5 больше 3', uz: "1/5 katta — axir 5 katta 3 dan" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между устройствами. У Эльдора три устройства, каждому достаётся одна третья. У Темура пять устройств, каждому одна пятая. Темур говорит, что у него устройств больше, поэтому каждому достаётся больше. А ты как думаешь — на одно устройство больше интернета у одной третьей или у одной пятой? Выбери ответ.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi. Eldorda 3 ta qurilma, har biriga uchdan bir tegadi. Temurda 5 ta qurilma, har biriga beshdan bir. Temur aytadiki, unda qurilma ko'p, shuning uchun har biriga ko'proq tegadi. Sizningcha, bitta qurilmaga ko'proq internet uchdan birda-mi yoki beshdan birda-mi? Javobni tanlang." }
+    eyebrow: { ru: 'Сравнение дробей · вступление', uz: "Kasrlarni taqqoslash · kirish", en: 'Comparing fractions · introduction' },
+    title: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между своими устройствами.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi.", en: 'Eldor and Temur have bought the same internet package and are sharing it equally between their devices.' },
+    body: { ru: 'У Эльдора 3 устройства — каждому достаётся 1/3 пакета. У Темура 5 устройств — каждому 1/5. Темур хвастается: «у меня устройств больше, 5 — значит каждому достаётся больше интернета, 1/5 больше 1/3!».', uz: "Eldorda 3 ta qurilma — har biriga paketning 1/3 qismi tegadi. Temurda 5 ta qurilma — har biriga 1/5. Temur maqtanadi: «menda qurilma ko'p, 5 ta — demak har biriga ko'proq internet tegadi, 1/5 katta 1/3 dan!».", en: 'Eldor has 3 devices, so each one gets 1/3 of the package. Temur has 5 devices, so each one gets 1/5. Temur boasts: I have more devices, 5 of them, so each one gets more internet, 1/5 is more than 1/3!' },
+    question: { ru: 'А ты как думаешь: на одно устройство больше интернета у 1/3 или у 1/5?', uz: "Sizningcha-chi: bitta qurilmaga ko'proq internet 1/3 da-mi yoki 1/5 da-mi?", en: 'What do you think: which gives one device more internet, 1/3 or 1/5?' },
+    opt0: { ru: '1/3 больше — у Эльдора устройств меньше, каждому достаётся больше', uz: "1/3 katta — Eldorda qurilma kam, har biriga ko'proq tegadi", en: '1/3 is more, Eldor has fewer devices so each one gets more' },
+    opt1: { ru: '1/5 больше — ведь 5 больше 3', uz: "1/5 katta — axir 5 katta 3 dan", en: '1/5 is more, because 5 is more than 3' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    audio: { ru: 'Эльдор и Темур купили одинаковый интернет-пакет и делят его поровну между устройствами. У Эльдора три устройства, каждому достаётся одна третья. У Темура пять устройств, каждому одна пятая. Темур говорит, что у него устройств больше, поэтому каждому достаётся больше. А ты как думаешь — на одно устройство больше интернета у одной третьей или у одной пятой? Выбери ответ.', uz: "Eldor va Temur bir xil internet paketini sotib olib, uni qurilmalari o'rtasida teng ulashadi. Eldorda 3 ta qurilma, har biriga uchdan bir tegadi. Temurda 5 ta qurilma, har biriga beshdan bir. Temur aytadiki, unda qurilma ko'p, shuning uchun har biriga ko'proq tegadi. Sizningcha, bitta qurilmaga ko'proq internet uchdan birda-mi yoki beshdan birda-mi? Javobni tanlang.", en: 'Eldor and Temur have bought the same internet package and are sharing it equally between their devices. Eldor has three devices, so each one gets one third. Temur has five devices, so each one gets one fifth. Temur says that he has more devices, so each one gets more. What do you think, which gives one device more internet, one third or one fifth? Choose an answer.' }
   },
 
   // ---- s1 EXPLORATION (step-by-step): стена дробей 1/2, 1/3, 1/4 ----
   s1: {
-    eyebrow: { ru: 'Стена дробей', uz: "Kasr devori" },
-    title: { ru: 'Соберём «стену дробей» по шагам', uz: "«Kasr devori»ni bosqichma-bosqich yig'amiz" },
-    bridge: { ru: 'Темур сказал «больше». Построим стену дробей и посмотрим.', uz: "Temur «ko'p» dedi. Kasr devorini quramiz va ko'ramiz." },
-    conclusion: { ru: 'Числитель один и тот же — везде одна доля. Но чем больше знаменатель, тем доля мельче: 1/2 > 1/3 > 1/4.', uz: "Surat bir xil — hamma joyda bitta ulush. Lekin maxraj qancha katta bo'lsa, ulush shuncha mayda: 1/2 > 1/3 > 1/4." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?" },
+    eyebrow: { ru: 'Стена дробей', uz: "Kasr devori", en: 'The fraction wall' },
+    title: { ru: 'Соберём «стену дробей» по шагам', uz: "«Kasr devori»ni bosqichma-bosqich yig'amiz", en: 'Let us build the fraction wall step by step' },
+    bridge: { ru: 'Темур сказал «больше». Построим стену дробей и посмотрим.', uz: "Temur «ko'p» dedi. Kasr devorini quramiz va ko'ramiz.", en: 'Temur said it is more. Let us build a fraction wall and see.' },
+    conclusion: { ru: 'Числитель один и тот же — везде одна доля. Но чем больше знаменатель, тем доля мельче: 1/2 > 1/3 > 1/4.', uz: "Surat bir xil — hamma joyda bitta ulush. Lekin maxraj qancha katta bo'lsa, ulush shuncha mayda: 1/2 > 1/3 > 1/4.", en: 'The numerator is the same, one part every time. But the bigger the denominator, the smaller the part: 1/2 > 1/3 > 1/4.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А есть правило?', uz: "Tushunarli. Qoida bormi?", en: 'Got it. Is there a rule?' },
     audio: {
       ru: [
         'Соберём стену дробей по шагам. Нажимай кнопку Дальше.',
@@ -893,274 +919,275 @@ const CONTENT = {
         "Mana butun chiziq, 2 bo'lakka bo'lingan. Bittasini bo'yaymiz — bu ikkidan bir, yarim.",
         "Pastda xuddi shunday chiziq, lekin 3 bo'lakka bo'lingan. Bitta ulushni bo'yaymiz — bu uchdan bir. Qarang: ulush yarimdan mayda bo'ldi.",
         "Yana pastda — 4 bo'lakli chiziq, bittasi bo'yalgan. Bu to'rtdan bir, u yana ham mayda. Surat hamma joyda bitta, ulushlar esa kichrayib boradi — zinapoya pastga tushadi: ikkidan bir katta uchdan birdan, u esa katta to'rtdan birdan."
-      ]
+      ],
+      en: ['Let us build the fraction wall step by step. Tap the next button.', 'Here is a whole bar split into 2 parts. We colour one in, and that is one half.', 'Below is the same bar but split into 3 parts. We colour one part in, and that is one third. Look: the part has become smaller than a half.', 'Below that is a bar in 4 parts with one coloured in. That is one quarter, and it is smaller still. The numerator is the same every time and the parts keep getting smaller, so it makes a staircase going down: one half is bigger than one third, which is bigger than one quarter.']
     }
   },
 
   // ---- s2 EXPLORATION (slider, shrinking slice): доля уменьшается с ростом знаменателя ----
   s2: {
-    eyebrow: { ru: 'Доля уменьшается', uz: "Ulush kichrayadi" },
-    title: { ru: 'Двигай ползунок — смотри, как доля уменьшается', uz: "Slayderni suring — ulush qanday kichrayishini kuzating" },
-    intro: { ru: 'Сверху для сравнения — одна третья. Снизу одна доля: двигай ползунок и меняй знаменатель. Закрашенный кусочек будет меняться.', uz: "Yuqorida solishtirish uchun — uchdan bir. Pastda bitta ulush: slayderni surib, maxrajni o'zgartiring. Bo'yalgan bo'lak o'zgarib turadi." },
-    target_text: { ru: 'Цель: сделай долю 1/6 и сравни её с 1/3.', uz: "Maqsad: ulushni 1/6 qiling va uni 1/3 bilan solishtiring." },
-    eyebrow_slider: { ru: 'Знаменатель:', uz: "Maxraj:" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing" },
-    fb_success_title: { ru: 'Верно', uz: "To'g'ri" },
-    fb_success: { ru: 'Одна шестая мельче одной третьей: знаменатель больше, шесть против трёх, значит доля меньше. Одна шестая меньше одной третьей.', uz: "Oltidan bir uchdan birdan mayda: maxraj katta, olti uchga qarshi, demak ulush kichik. Oltidan bir uchdan birdan kichik." },
-    fb_wrong_title: { ru: 'Почти', uz: "Deyarli" },
-    fb_wrong: { ru: 'Нужна доля одна шестая — поставь знаменатель на шесть.', uz: "Oltidan bir ulush kerak — maxrajni oltiga qo'ying." },
-    audio: { ru: 'Двигай ползунок и смотри, как доля уменьшается, когда знаменатель растёт. Сверху для сравнения стоит одна третья. Сделай нижнюю долю одной шестой — поставь знаменатель на шесть. Увидишь: одна шестая мельче одной третьей, ведь знаменатель больше.', uz: "Slayderni surib, maxraj o'sganda ulush qanday kichrayishini kuzating. Yuqorida solishtirish uchun uchdan bir turibdi. Pastki ulushni oltidan bir qiling — maxrajni 6 ga qo'ying. Ko'rasiz: oltidan bir uchdan birdan mayda, chunki maxraj katta." }
+    eyebrow: { ru: 'Доля уменьшается', uz: "Ulush kichrayadi", en: 'The part gets smaller' },
+    title: { ru: 'Двигай ползунок — смотри, как доля уменьшается', uz: "Slayderni suring — ulush qanday kichrayishini kuzating", en: 'Move the slider and watch the part get smaller' },
+    intro: { ru: 'Сверху для сравнения — одна третья. Снизу одна доля: двигай ползунок и меняй знаменатель. Закрашенный кусочек будет меняться.', uz: "Yuqorida solishtirish uchun — uchdan bir. Pastda bitta ulush: slayderni surib, maxrajni o'zgartiring. Bo'yalgan bo'lak o'zgarib turadi.", en: 'One third is on top to compare with. Underneath is one part: move the slider to change the denominator. The coloured piece will change.' },
+    target_text: { ru: 'Цель: сделай долю 1/6 и сравни её с 1/3.', uz: "Maqsad: ulushni 1/6 qiling va uni 1/3 bilan solishtiring.", en: 'Your goal: make the part 1/6 and compare it with 1/3.' },
+    eyebrow_slider: { ru: 'Знаменатель:', uz: "Maxraj:", en: 'Denominator:' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    btn_disabled_label: { ru: 'Сначала собери', uz: "Avval yig'ing", en: 'Build it first' },
+    fb_success_title: { ru: 'Верно', uz: "To'g'ri", en: 'Correct' },
+    fb_success: { ru: 'Одна шестая мельче одной третьей: знаменатель больше, шесть против трёх, значит доля меньше. Одна шестая меньше одной третьей.', uz: "Oltidan bir uchdan birdan mayda: maxraj katta, olti uchga qarshi, demak ulush kichik. Oltidan bir uchdan birdan kichik.", en: 'One sixth is smaller than one third: the denominator is bigger, six against three, so the part is smaller. One sixth is less than one third.' },
+    fb_wrong_title: { ru: 'Почти', uz: "Deyarli", en: 'Almost' },
+    fb_wrong: { ru: 'Нужна доля одна шестая — поставь знаменатель на шесть.', uz: "Oltidan bir ulush kerak — maxrajni oltiga qo'ying.", en: 'You need the part one sixth, so set the denominator to six.' },
+    audio: { ru: 'Двигай ползунок и смотри, как доля уменьшается, когда знаменатель растёт. Сверху для сравнения стоит одна третья. Сделай нижнюю долю одной шестой — поставь знаменатель на шесть. Увидишь: одна шестая мельче одной третьей, ведь знаменатель больше.', uz: "Slayderni surib, maxraj o'sganda ulush qanday kichrayishini kuzating. Yuqorida solishtirish uchun uchdan bir turibdi. Pastki ulushni oltidan bir qiling — maxrajni 6 ga qo'ying. Ko'rasiz: oltidan bir uchdan birdan mayda, chunki maxraj katta.", en: 'Move the slider and watch the part get smaller as the denominator grows. One third is on top to compare with. Make the bottom part one sixth by setting the denominator to six. You will see that one sixth is smaller than one third, because the denominator is bigger.' }
   },
 
   // ---- s3 RULE: одинаковый числитель → больше знаменатель = меньше дробь ----
   s3: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Стена дробей всё показала. Теперь — правило.', uz: "Kasr devori hammasini ko'rsatdi. Endi — qoida." },
-    label: { ru: 'Числитель один — смотрим на знаменатель', uz: "Surat bir xil — maxrajga qaraymiz" },
-    title: { ru: 'Если числитель одинаковый, больше та дробь, у которой знаменатель меньше.', uz: "Surat bir xil bo'lsa, maxraji kichik bo'lgan kasr katta." },
-    card_top: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz." },
-    card_bottom: { ru: 'Чем больше знаменатель, тем мельче доля — значит дробь меньше.', uz: "Maxraj qancha katta bo'lsa, ulush shuncha mayda — demak kasr kichik." },
-    card_line: { ru: 'Больше знаменатель — меньше дробь.', uz: "Maxraj katta — kasr kichik." },
-    outro: { ru: 'Стена дробей: 1/2 > 1/3 > 1/4 > 1/5. Числитель один, а доли всё мельче.', uz: "Kasr devori: 1/2 > 1/3 > 1/4 > 1/5. Surat bir xil, ulushlar esa mayda-mayda bo'ladi." },
-    audio: { ru: 'Запомни правило. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше. Числитель один — мы берём одинаковое число долей. А чем больше знаменатель, тем мельче сама доля, поэтому дробь меньше. Смотри на стену дробей: одна вторая больше одной третьей, та больше одной четвёртой, и так далее.', uz: "Qoidani eslab qoling. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta. Surat bir xil — biz bir xil sondagi ulush olamiz. Maxraj qancha katta bo'lsa, ulushning o'zi shuncha mayda, shuning uchun kasr kichik. Kasr devoriga qarang: ikkidan bir katta uchdan birdan, u to'rtdan birdan, va hokazo." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Стена дробей всё показала. Теперь — правило.', uz: "Kasr devori hammasini ko'rsatdi. Endi — qoida.", en: 'The fraction wall has shown it all. Now for the rule.' },
+    label: { ru: 'Числитель один — смотрим на знаменатель', uz: "Surat bir xil — maxrajga qaraymiz", en: 'Same numerator, so look at the denominator' },
+    title: { ru: 'Если числитель одинаковый, больше та дробь, у которой знаменатель меньше.', uz: "Surat bir xil bo'lsa, maxraji kichik bo'lgan kasr katta.", en: 'If the numerator is the same, the bigger fraction is the one with the smaller denominator.' },
+    card_top: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz.", en: 'The same numerator means we take the same number of parts.' },
+    card_bottom: { ru: 'Чем больше знаменатель, тем мельче доля — значит дробь меньше.', uz: "Maxraj qancha katta bo'lsa, ulush shuncha mayda — demak kasr kichik.", en: 'The bigger the denominator, the smaller each part is, so the fraction is smaller.' },
+    card_line: { ru: 'Больше знаменатель — меньше дробь.', uz: "Maxraj katta — kasr kichik.", en: 'A bigger denominator means a smaller fraction.' },
+    outro: { ru: 'Стена дробей: 1/2 > 1/3 > 1/4 > 1/5. Числитель один, а доли всё мельче.', uz: "Kasr devori: 1/2 > 1/3 > 1/4 > 1/5. Surat bir xil, ulushlar esa mayda-mayda bo'ladi.", en: 'The fraction wall: 1/2 > 1/3 > 1/4 > 1/5. The numerator is the same and the parts keep getting smaller.' },
+    audio: { ru: 'Запомни правило. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше. Числитель один — мы берём одинаковое число долей. А чем больше знаменатель, тем мельче сама доля, поэтому дробь меньше. Смотри на стену дробей: одна вторая больше одной третьей, та больше одной четвёртой, и так далее.', uz: "Qoidani eslab qoling. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta. Surat bir xil — biz bir xil sondagi ulush olamiz. Maxraj qancha katta bo'lsa, ulushning o'zi shuncha mayda, shuning uchun kasr kichik. Kasr devoriga qarang: ikkidan bir katta uchdan birdan, u to'rtdan birdan, va hokazo.", en: 'Remember the rule. If fractions have the same numerator, the bigger one is the one with the smaller denominator. The numerator is the same, so we take the same number of parts. And the bigger the denominator, the smaller each part is, so the fraction is smaller. Look at the fraction wall: one half is bigger than one third, which is bigger than one quarter, and so on.' }
   },
 
   // ---- s4 TEST (MC, отношение): 1/4 ? 1/7 → 1/4 > 1/7 (correct old idx 0) ----
   s4: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    label: { ru: 'Сравни доли', uz: "Ulushlarni solishtiring" },
-    question: { ru: 'Сравни 1/4 и 1/7. Что верно?', uz: "1/4 va 1/7 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '1/4 > 1/7', uz: "1/4 > 1/7" },
-    opt1: { ru: '1/4 < 1/7', uz: "1/4 < 1/7" },
-    opt2: { ru: '1/4 = 1/7', uz: "1/4 = 1/7" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: числитель один, знаменатель 4 меньше 7 — значит доля крупнее. 1/4 > 1/7.', uz: "To'g'ri: surat bir xil, maxraj 4 kichik 7 dan — demak ulush yirikroq. 1/4 > 1/7." },
-    hint_1: { ru: 'Тут ловушка: 7 больше 4, но доля одна седьмая мельче. Больше та, где знаменатель меньше — одна четвёртая.', uz: "Bu yerda tuzoq: 7 katta 4 dan, lekin yettidan bir ulushi mayda. Maxraji kichik bo'lgani katta — to'rtdan bir." },
-    hint_2: { ru: 'Доли разного размера: четвёртая крупнее седьмой. Они не равны.', uz: "Ulushlar har xil o'lchamda: to'rtdan bir yettidan biridan yirik. Ular teng emas." },
-    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
-    wrong_default: { ru: 'Числитель один, знаменатель меньше у 1/4 — значит 1/4 больше. 1/4 > 1/7.', uz: "Surat bir xil, maxraj 1/4 da kichik — demak 1/4 katta. 1/4 > 1/7." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    label: { ru: 'Сравни доли', uz: "Ulushlarni solishtiring", en: 'Compare the parts' },
+    question: { ru: 'Сравни 1/4 и 1/7. Что верно?', uz: "1/4 va 1/7 ni solishtiring. Nima to'g'ri?", en: 'Compare 1/4 and 1/7. Which is true?' },
+    opt0: { ru: '1/4 > 1/7', uz: "1/4 > 1/7", en: '1/4 > 1/7' },
+    opt1: { ru: '1/4 < 1/7', uz: "1/4 < 1/7", en: '1/4 < 1/7' },
+    opt2: { ru: '1/4 = 1/7', uz: "1/4 = 1/7", en: '1/4 = 1/7' },
+    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi", en: 'They cannot be compared' },
+    correct_text: { ru: 'Верно: числитель один, знаменатель 4 меньше 7 — значит доля крупнее. 1/4 > 1/7.', uz: "To'g'ri: surat bir xil, maxraj 4 kichik 7 dan — demak ulush yirikroq. 1/4 > 1/7.", en: 'That is right: the numerator is the same and the denominator 4 is smaller than 7, so the part is bigger. 1/4 > 1/7.' },
+    hint_1: { ru: 'Тут ловушка: 7 больше 4, но доля одна седьмая мельче. Больше та, где знаменатель меньше — одна четвёртая.', uz: "Bu yerda tuzoq: 7 katta 4 dan, lekin yettidan bir ulushi mayda. Maxraji kichik bo'lgani katta — to'rtdan bir.", en: 'This is the trap: 7 is more than 4, but a seventh is a smaller part. The bigger one is the one with the smaller denominator, one quarter.' },
+    hint_2: { ru: 'Доли разного размера: четвёртая крупнее седьмой. Они не равны.', uz: "Ulushlar har xil o'lchamda: to'rtdan bir yettidan biridan yirik. Ular teng emas.", en: 'The parts are different sizes: a quarter is bigger than a seventh. They are not equal.' },
+    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz.", en: 'They can be compared: the numerator is the same, so we look at the denominators.' },
+    wrong_default: { ru: 'Числитель один, знаменатель меньше у 1/4 — значит 1/4 больше. 1/4 > 1/7.', uz: "Surat bir xil, maxraj 1/4 da kichik — demak 1/4 katta. 1/4 > 1/7.", en: 'The numerator is the same and 1/4 has the smaller denominator, so 1/4 is bigger. 1/4 > 1/7.' },
     audio: {
-      intro: { ru: 'Сравни одну четвёртую и одну седьмую. Выбери, что верно.', uz: "To'rtdan bir va yettidan birni solishtiring. Nima to'g'ri ekanini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у одной четвёртой — она крупнее.', uz: "To'g'ri. Maxraj to'rtdan birda kichik — u yirikroq." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
+      intro: { ru: 'Сравни одну четвёртую и одну седьмую. Выбери, что верно.', uz: "To'rtdan bir va yettidan birni solishtiring. Nima to'g'ri ekanini tanlang.", en: 'Compare one quarter and one seventh. Choose which is true.' },
+      on_correct: { ru: 'Верно. Знаменатель меньше у одной четвёртой — она крупнее.', uz: "To'g'ri. Maxraj to'rtdan birda kichik — u yirikroq.", en: 'That is right. One quarter has the smaller denominator, so it is the bigger part.' },
+      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta.", en: 'Not yet. The numerator is the same, so the bigger part is the one with the smaller denominator.' }
     }
   },
 
   // ---- s5 RULE (bias-flip, flip-card): 5 > 3, но 1/5 < 1/3 ----
   s5: {
-    eyebrow: { ru: 'Правило · ловушка', uz: "Qoida · tuzoq" },
-    label: { ru: 'Осторожно: ловушка', uz: "Ehtiyot bo'ling: tuzoq" },
-    trap_title: { ru: '5 больше 3...', uz: "5 katta 3 dan..." },
-    trap_text: { ru: 'Кажется, раз 5 больше 3, то и 1/5 должна быть больше 1/3. Это и есть ловушка. Проверим?', uz: "Go'yo 5 katta 3 dan, demak 1/5 ham 1/3 dan katta bo'lishi kerak. Mana shu — tuzoq. Tekshiramizmi?" },
-    btn_reveal: { ru: 'Показать правду', uz: "Haqiqatni ko'rsatish" },
-    truth_title: { ru: 'На самом деле 1/5 < 1/3', uz: "Aslida 1/5 < 1/3" },
-    truth_text: { ru: 'Числитель один и тот же. Большее число снизу делит целое на больше частей — доля мельче. Поэтому 1/5 меньше 1/3.', uz: "Surat bir xil. Pastdagi katta son butunni ko'proq bo'lakka bo'ladi — ulush mayda. Shuning uchun 1/5 kichik 1/3 dan." },
-    contrast: { ru: 'В прошлом уроке знаменатель был одинаковый — там больше тот, у кого числитель больше. Здесь наоборот: числитель один, и больше тот, у кого знаменатель меньше.', uz: "O'tgan darsda maxraj bir xil edi — u yerda surati katta bo'lgani katta. Bu yerda aksincha: surat bir xil, va maxraji kichik bo'lgani katta." },
-    btn_next: { ru: 'Понял ловушку', uz: "Tuzoqni tushundim" },
-    audio: { ru: 'Осторожно, тут ловушка. Кажется, раз пять больше трёх, то одна пятая больше одной третьей. Нажми кнопку и проверь. На самом деле одна пятая меньше одной третьей. Числитель один, а большее число снизу делит целое на больше частей, поэтому доля мельче. В прошлом уроке знаменатель был одинаковый и правило было обратное. Будь внимателен.', uz: "Ehtiyot bo'ling, bu yerda tuzoq bor. Go'yo besh katta uchdan, demak beshdan bir katta uchdan bir. Tugmani bosib tekshiring. Aslida beshdan bir kichik uchdan bir. Surat bir xil, pastdagi katta son butunni ko'proq bo'lakka bo'ladi, shuning uchun ulush mayda. O'tgan darsda maxraj bir xil edi va qoida teskari edi. Diqqatli bo'ling." }
+    eyebrow: { ru: 'Правило · ловушка', uz: "Qoida · tuzoq", en: 'Rule · the trap' },
+    label: { ru: 'Осторожно: ловушка', uz: "Ehtiyot bo'ling: tuzoq", en: 'Careful: a trap' },
+    trap_title: { ru: '5 больше 3...', uz: "5 katta 3 dan...", en: '5 is more than 3…' },
+    trap_text: { ru: 'Кажется, раз 5 больше 3, то и 1/5 должна быть больше 1/3. Это и есть ловушка. Проверим?', uz: "Go'yo 5 katta 3 dan, demak 1/5 ham 1/3 dan katta bo'lishi kerak. Mana shu — tuzoq. Tekshiramizmi?", en: 'It looks as though, since 5 is more than 3, 1/5 ought to be more than 1/3. That is the trap. Shall we check?' },
+    btn_reveal: { ru: 'Показать правду', uz: "Haqiqatni ko'rsatish", en: 'Show the truth' },
+    truth_title: { ru: 'На самом деле 1/5 < 1/3', uz: "Aslida 1/5 < 1/3", en: 'In fact 1/5 < 1/3' },
+    truth_text: { ru: 'Числитель один и тот же. Большее число снизу делит целое на больше частей — доля мельче. Поэтому 1/5 меньше 1/3.', uz: "Surat bir xil. Pastdagi katta son butunni ko'proq bo'lakka bo'ladi — ulush mayda. Shuning uchun 1/5 kichik 1/3 dan.", en: 'The numerator is the same. A bigger number underneath splits the whole into more parts, so each part is smaller. That is why 1/5 is less than 1/3.' },
+    contrast: { ru: 'В прошлом уроке знаменатель был одинаковый — там больше тот, у кого числитель больше. Здесь наоборот: числитель один, и больше тот, у кого знаменатель меньше.', uz: "O'tgan darsda maxraj bir xil edi — u yerda surati katta bo'lgani katta. Bu yerda aksincha: surat bir xil, va maxraji kichik bo'lgani katta.", en: 'In the last lesson the denominator was the same, and there the bigger one was the one with the bigger numerator. Here it is the other way round: the numerator is the same and the bigger one is the one with the smaller denominator.' },
+    btn_next: { ru: 'Понял ловушку', uz: "Tuzoqni tushundim", en: 'I see the trap' },
+    audio: { ru: 'Осторожно, тут ловушка. Кажется, раз пять больше трёх, то одна пятая больше одной третьей. Нажми кнопку и проверь. На самом деле одна пятая меньше одной третьей. Числитель один, а большее число снизу делит целое на больше частей, поэтому доля мельче. В прошлом уроке знаменатель был одинаковый и правило было обратное. Будь внимателен.', uz: "Ehtiyot bo'ling, bu yerda tuzoq bor. Go'yo besh katta uchdan, demak beshdan bir katta uchdan bir. Tugmani bosib tekshiring. Aslida beshdan bir kichik uchdan bir. Surat bir xil, pastdagi katta son butunni ko'proq bo'lakka bo'ladi, shuning uchun ulush mayda. O'tgan darsda maxraj bir xil edi va qoida teskari edi. Diqqatli bo'ling.", en: 'Careful, there is a trap here. It looks as though, since five is more than three, one fifth is more than one third. Tap the button and check. In fact one fifth is less than one third. The numerator is the same, and a bigger number underneath splits the whole into more parts, so each part is smaller. In the last lesson the denominator was the same and the rule was the other way round. Take care.' }
   },
 
   // ---- s6 TEST (упорядочивание tap, 3 раунда): расставь по возрастанию (одинаковый числитель) ----
   s6: {
-    eyebrow: { ru: 'Тренировка · по порядку', uz: "Mashq · tartib bilan" },
-    title: { ru: 'Расставь по возрастанию', uz: "O'sish tartibida joylang" },
-    lead: { ru: 'Числитель один! Три набора, от простого к сложному. Нажимай от самой маленькой доли к самой большой — помни: больше знаменатель = мельче доля.', uz: "Surat bir xil! Uchta to'plam, osondan qiyinga. Eng kichik ulushdan eng kattasigacha bosing — eslang: maxraj katta = ulush mayda." },
-    round_label: { ru: 'Набор', uz: "To'plam" },
-    ask: { ru: 'Нажми самую маленькую из оставшихся.', uz: "Qolganlardan eng kichigini bosing." },
-    hint_wrong: { ru: 'Это не самая маленькая. Числитель один — самая маленькая та, у которой знаменатель БОЛЬШЕ.', uz: "Bu eng kichigi emas. Surat bir xil — eng kichigi maxraji KATTA bo'lgani." },
-    correct_text: { ru: 'Отлично! Числитель один — порядок обратный знаменателям: чем больше знаменатель, тем мельче доля.', uz: "Ajoyib! Surat bir xil — tartib maxrajlarga teskari: maxraj qancha katta bo'lsa, ulush shuncha mayda." },
+    eyebrow: { ru: 'Тренировка · по порядку', uz: "Mashq · tartib bilan", en: 'Practice · in order' },
+    title: { ru: 'Расставь по возрастанию', uz: "O'sish tartibida joylang", en: 'Put them in order from smallest to biggest' },
+    lead: { ru: 'Числитель один! Три набора, от простого к сложному. Нажимай от самой маленькой доли к самой большой — помни: больше знаменатель = мельче доля.', uz: "Surat bir xil! Uchta to'plam, osondan qiyinga. Eng kichik ulushdan eng kattasigacha bosing — eslang: maxraj katta = ulush mayda.", en: 'The numerator is the same! Three sets, from easy to hard. Tap from the smallest part to the biggest, and remember: a bigger denominator means a smaller part.' },
+    round_label: { ru: 'Набор', uz: "To'plam", en: 'Set' },
+    ask: { ru: 'Нажми самую маленькую из оставшихся.', uz: "Qolganlardan eng kichigini bosing.", en: 'Tap the smallest of the ones left.' },
+    hint_wrong: { ru: 'Это не самая маленькая. Числитель один — самая маленькая та, у которой знаменатель БОЛЬШЕ.', uz: "Bu eng kichigi emas. Surat bir xil — eng kichigi maxraji KATTA bo'lgani.", en: 'That is not the smallest one. The numerator is the same, so the smallest one is the one with the BIGGER denominator.' },
+    correct_text: { ru: 'Отлично! Числитель один — порядок обратный знаменателям: чем больше знаменатель, тем мельче доля.', uz: "Ajoyib! Surat bir xil — tartib maxrajlarga teskari: maxraj qancha katta bo'lsa, ulush shuncha mayda.", en: 'Well done! When the numerator is the same, the order runs backwards to the denominators: the bigger the denominator, the smaller the part.' },
     audio: {
-      intro: { ru: 'Расставь дроби по возрастанию. Будет три набора, от простого к сложному. Числитель один и тот же, поэтому самая маленькая дробь та, у которой знаменатель больше всех. Нажимай от меньшей к большей.', uz: "Kasrlarni o'sish tartibida joylang. Uchta to'plam bo'ladi, osondan qiyinga. Surat bir xil, shuning uchun eng kichik kasr maxraji hammadan katta bo'lgani. Kichigidan kattasigacha bosing." },
-      on_correct: { ru: 'Верно. Числитель один — больше знаменатель, мельче доля.', uz: "To'g'ri. Surat bir xil — maxraj katta, ulush mayda." },
-      on_wrong: { ru: 'Не самая маленькая. У самой маленькой доли знаменатель больше всех.', uz: "Eng kichigi emas. Eng kichik ulushda maxraj hammadan katta." }
+      intro: { ru: 'Расставь дроби по возрастанию. Будет три набора, от простого к сложному. Числитель один и тот же, поэтому самая маленькая дробь та, у которой знаменатель больше всех. Нажимай от меньшей к большей.', uz: "Kasrlarni o'sish tartibida joylang. Uchta to'plam bo'ladi, osondan qiyinga. Surat bir xil, shuning uchun eng kichik kasr maxraji hammadan katta bo'lgani. Kichigidan kattasigacha bosing.", en: 'Put the fractions in order from smallest to biggest. There will be three sets, from easy to hard. The numerator is the same every time, so the smallest fraction is the one with the biggest denominator. Tap from the smallest to the biggest.' },
+      on_correct: { ru: 'Верно. Числитель один — больше знаменатель, мельче доля.', uz: "To'g'ri. Surat bir xil — maxraj katta, ulush mayda.", en: 'That is right. When the numerator is the same, a bigger denominator means a smaller part.' },
+      on_wrong: { ru: 'Не самая маленькая. У самой маленькой доли знаменатель больше всех.', uz: "Eng kichigi emas. Eng kichik ulushda maxraj hammadan katta.", en: 'Not the smallest one. The smallest part has the biggest denominator.' }
     }
   },
 
   // ---- s7 TEST (MC, текст): 1/8 > 1/5? Нет (correct old idx 0) ----
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang" },
-    question: { ru: 'Кто-то говорит: «1/8 больше 1/5, ведь 8 больше 5». Это так?', uz: "Kimdir aytadi: «1/8 katta 1/5 dan, axir 8 katta 5 dan». Shundaymi?" },
-    opt0: { ru: 'Неверно — 1/8 меньше: знаменатель больше, доля мельче', uz: "Noto'g'ri — 1/8 kichik: maxraj katta, ulush mayda" },
-    opt1: { ru: 'Верно — раз 8 больше 5, то 1/8 больше', uz: "To'g'ri — 8 katta 5 dan, demak 1/8 katta" },
-    opt2: { ru: 'Они равны — числитель ведь один', uz: "Ular teng — surat-ku bitta" },
-    opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: большее число снизу делит целое на больше частей, доля мельче. 1/8 < 1/5.', uz: "To'g'ri: pastdagi katta son butunni ko'proq bo'lakka bo'ladi, ulush mayda. 1/8 < 1/5." },
-    hint_1: { ru: 'Это и есть ловушка. 8 больше 5, но доля одна восьмая мельче. Меньше, а не больше.', uz: "Mana shu — tuzoq. 8 katta 5 dan, lekin sakkizdan bir ulushi mayda. Kichik, katta emas." },
-    hint_2: { ru: 'Не равны: восьмая доля мельче пятой, ведь целое поделено на больше частей.', uz: "Teng emas: sakkizdan ulush beshdan ulushdan mayda, chunki butun ko'proq bo'lakka bo'lingan." },
-    hint_3: { ru: 'Сравнить можно: числитель один, больше та доля, у которой знаменатель меньше.', uz: "Solishtirsa bo'ladi: surat bir xil, maxraji kichik bo'lgan ulush katta." },
-    wrong_default: { ru: 'Нет. Знаменатель больше — доля мельче. 1/8 меньше 1/5.', uz: "Yo'q. Maxraj katta — ulush mayda. 1/8 kichik 1/5 dan." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Не попадись в ловушку', uz: "Tuzoqqa tushmang", en: 'Do not fall into the trap' },
+    question: { ru: 'Кто-то говорит: «1/8 больше 1/5, ведь 8 больше 5». Это так?', uz: "Kimdir aytadi: «1/8 katta 1/5 dan, axir 8 katta 5 dan». Shundaymi?", en: 'Someone says: 1/8 is more than 1/5, because 8 is more than 5. Is that so?' },
+    opt0: { ru: 'Неверно — 1/8 меньше: знаменатель больше, доля мельче', uz: "Noto'g'ri — 1/8 kichik: maxraj katta, ulush mayda", en: 'Wrong, 1/8 is less: the denominator is bigger so the part is smaller' },
+    opt1: { ru: 'Верно — раз 8 больше 5, то 1/8 больше', uz: "To'g'ri — 8 katta 5 dan, demak 1/8 katta", en: 'True, since 8 is more than 5, 1/8 is more' },
+    opt2: { ru: 'Они равны — числитель ведь один', uz: "Ular teng — surat-ku bitta", en: 'They are equal, the numerator is the same after all' },
+    opt3: { ru: 'Такие дроби сравнить нельзя', uz: "Bunday kasrlarni solishtirib bo'lmaydi", en: 'Fractions like these cannot be compared' },
+    correct_text: { ru: 'Верно: большее число снизу делит целое на больше частей, доля мельче. 1/8 < 1/5.', uz: "To'g'ri: pastdagi katta son butunni ko'proq bo'lakka bo'ladi, ulush mayda. 1/8 < 1/5.", en: 'That is right: a bigger number underneath splits the whole into more parts, so each part is smaller. 1/8 < 1/5.' },
+    hint_1: { ru: 'Это и есть ловушка. 8 больше 5, но доля одна восьмая мельче. Меньше, а не больше.', uz: "Mana shu — tuzoq. 8 katta 5 dan, lekin sakkizdan bir ulushi mayda. Kichik, katta emas.", en: 'That is the trap. 8 is more than 5, but an eighth is a smaller part. It is less, not more.' },
+    hint_2: { ru: 'Не равны: восьмая доля мельче пятой, ведь целое поделено на больше частей.', uz: "Teng emas: sakkizdan ulush beshdan ulushdan mayda, chunki butun ko'proq bo'lakka bo'lingan.", en: 'They are not equal: an eighth is smaller than a fifth, because the whole is split into more parts.' },
+    hint_3: { ru: 'Сравнить можно: числитель один, больше та доля, у которой знаменатель меньше.', uz: "Solishtirsa bo'ladi: surat bir xil, maxraji kichik bo'lgan ulush katta.", en: 'They can be compared: the numerator is the same, so the bigger part is the one with the smaller denominator.' },
+    wrong_default: { ru: 'Нет. Знаменатель больше — доля мельче. 1/8 меньше 1/5.', uz: "Yo'q. Maxraj katta — ulush mayda. 1/8 kichik 1/5 dan.", en: 'No. A bigger denominator means a smaller part. 1/8 is less than 1/5.' },
     audio: {
-      intro: { ru: 'Кто-то говорит, что одна восьмая больше одной пятой, ведь восемь больше пяти. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: sakkizdan bir katta beshdan birdan, axir 8 katta 5 dan. Shundaymi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель больше — доля мельче, поэтому одна восьмая меньше.', uz: "To'g'ri. Maxraj katta — ulush mayda, shuning uchun sakkizdan bir kichik." },
-      on_wrong: { ru: 'Это ловушка: большее число снизу делает долю мельче, а не крупнее.', uz: "Bu tuzoq: pastdagi katta son ulushni mayda qiladi, yirik emas." }
+      intro: { ru: 'Кто-то говорит, что одна восьмая больше одной пятой, ведь восемь больше пяти. Так ли это? Выбери ответ.', uz: "Kimdir aytadi: sakkizdan bir katta beshdan birdan, axir 8 katta 5 dan. Shundaymi? Javobni tanlang.", en: 'Someone says that one eighth is more than one fifth, because eight is more than five. Is that so? Choose an answer.' },
+      on_correct: { ru: 'Верно. Знаменатель больше — доля мельче, поэтому одна восьмая меньше.', uz: "To'g'ri. Maxraj katta — ulush mayda, shuning uchun sakkizdan bir kichik.", en: 'That is right. A bigger denominator means a smaller part, so one eighth is less.' },
+      on_wrong: { ru: 'Это ловушка: большее число снизу делает долю мельче, а не крупнее.', uz: "Bu tuzoq: pastdagi katta son ulushni mayda qiladi, yirik emas.", en: 'That is the trap: a bigger number underneath makes the part smaller, not bigger.' }
     }
   },
 
   // ---- s_seq TEST (SeqMC): 5 примеров — поставь знак, одинаковый числитель (bias-trap) ----
   s_seq: {
-    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'ying" },
-    title: { ru: 'Поставь знак: больше, меньше или равно', uz: "Belgi qo'ying: katta, kichik yoki teng" },
-    lead: { ru: 'Числитель в паре одинаковый. Числа будут расти: одна цифра, две, три, потом четыре. Правило одно: больше знаменатель — меньше дробь.', uz: "Juftda surat bir xil. Sonlar o'sib boradi: bir xonali, ikki, uch, keyin to'rt. Qoida bitta: maxraj katta — kasr kichik." },
-    bridge: { ru: 'Ловушку знаем. Теперь — со знаком, и числа будут расти.', uz: "Tuzoqni bilamiz. Endi — belgi bilan, sonlar esa o'sib boradi." },
+    eyebrow: { ru: 'Тренировка · поставь знак', uz: "Mashq · belgi qo'ying", en: 'Practice · put in the sign' },
+    title: { ru: 'Поставь знак: больше, меньше или равно', uz: "Belgi qo'ying: katta, kichik yoki teng", en: 'Put in the sign: more than, less than or equal to' },
+    lead: { ru: 'Числитель в паре одинаковый. Числа будут расти: одна цифра, две, три, потом четыре. Правило одно: больше знаменатель — меньше дробь.', uz: "Juftda surat bir xil. Sonlar o'sib boradi: bir xonali, ikki, uch, keyin to'rt. Qoida bitta: maxraj katta — kasr kichik.", en: 'Each pair has the same numerator. The numbers will grow: one figure, then two, three and four. The rule stays the same: a bigger denominator means a smaller fraction.' },
+    bridge: { ru: 'Ловушку знаем. Теперь — со знаком, и числа будут расти.', uz: "Tuzoqni bilamiz. Endi — belgi bilan, sonlar esa o'sib boradi.", en: 'We know the trap. Now let us do it with the sign, and the numbers will grow.' },
     questions: [
       {
-        q: { ru: '1/4 ? 1/9', uz: '1/4 ? 1/9' },
-        say: { ru: 'Одна четвёртая и одна девятая. Какой знак?', uz: "To'rtdan bir va to'qqizdan bir. Qaysi belgi?" },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '1/4 ? 1/9', uz: '1/4 ? 1/9', en: '1/4 ? 1/9' },
+        say: { ru: 'Одна четвёртая и одна девятая. Какой знак?', uz: "To'rtdan bir va to'qqizdan bir. Qaysi belgi?", en: 'One quarter and one ninth. Which sign?' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 0,
-        ok: { ru: 'Верно: знаменатель меньше у 1/4, значит она больше.', uz: "To'g'ri: maxraj 1/4 da kichik, demak u katta." },
-        no: { ru: 'Числитель один. Меньше знаменатель — крупнее доля.', uz: "Surat bir xil. Maxraj kichik — ulush yirik." }
+        ok: { ru: 'Верно: знаменатель меньше у 1/4, значит она больше.', uz: "To'g'ri: maxraj 1/4 da kichik, demak u katta.", en: 'That is right: 1/4 has the smaller denominator, so it is bigger.' },
+        no: { ru: 'Числитель один. Меньше знаменатель — крупнее доля.', uz: "Surat bir xil. Maxraj kichik — ulush yirik.", en: 'The numerator is the same. A smaller denominator means a bigger part.' }
       },
       {
-        q: { ru: '3/8 ? 3/5', uz: '3/8 ? 3/5' },
-        say: { ru: 'Три восьмых и три пятых.', uz: "Sakkizdan uch va beshdan uch." },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '3/8 ? 3/5', uz: '3/8 ? 3/5', en: '3/8 ? 3/5' },
+        say: { ru: 'Три восьмых и три пятых.', uz: "Sakkizdan uch va beshdan uch.", en: 'Three eighths and three fifths.' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 1,
-        ok: { ru: 'Верно: знаменатель больше у 3/8, значит она меньше.', uz: "To'g'ri: maxraj 3/8 da katta, demak u kichik." },
-        no: { ru: 'Ловушка: 8 больше 5, но восьмые мельче пятых.', uz: "Tuzoq: 8 katta 5 dan, lekin sakkizdan ulush mayda." }
+        ok: { ru: 'Верно: знаменатель больше у 3/8, значит она меньше.', uz: "To'g'ri: maxraj 3/8 da katta, demak u kichik.", en: 'That is right: 3/8 has the bigger denominator, so it is smaller.' },
+        no: { ru: 'Ловушка: 8 больше 5, но восьмые мельче пятых.', uz: "Tuzoq: 8 katta 5 dan, lekin sakkizdan ulush mayda.", en: 'The trap: 8 is more than 5, but eighths are smaller than fifths.' }
       },
       {
-        q: { ru: '5/12 ? 5/20', uz: '5/12 ? 5/20' },
-        say: { ru: 'Двузначные знаменатели. Числитель один. Какой знак?', uz: "Ikki xonali maxrajlar. Surat bir xil. Qaysi belgi?" },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '5/12 ? 5/20', uz: '5/12 ? 5/20', en: '5/12 ? 5/20' },
+        say: { ru: 'Двузначные знаменатели. Числитель один. Какой знак?', uz: "Ikki xonali maxrajlar. Surat bir xil. Qaysi belgi?", en: 'Two figure denominators. The numerator is the same. Which sign?' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 0,
-        ok: { ru: 'Верно: 12 меньше 20, значит доля 5/12 крупнее. 5/12 больше.', uz: "To'g'ri: 12 kichik 20 dan, demak 5/12 ulushi yirik. 5/12 katta." },
-        no: { ru: 'Числитель один. Меньше знаменатель (12) — крупнее доля.', uz: "Surat bir xil. Maxraj kichik (12) — ulush yirik." }
+        ok: { ru: 'Верно: 12 меньше 20, значит доля 5/12 крупнее. 5/12 больше.', uz: "To'g'ri: 12 kichik 20 dan, demak 5/12 ulushi yirik. 5/12 katta.", en: 'That is right: 12 is smaller than 20, so 5/12 is the bigger part. 5/12 is more.' },
+        no: { ru: 'Числитель один. Меньше знаменатель (12) — крупнее доля.', uz: "Surat bir xil. Maxraj kichik (12) — ulush yirik.", en: 'The numerator is the same. The smaller denominator (12) means the bigger part.' }
       },
       {
-        q: { ru: '7/40 ? 7/100', uz: '7/40 ? 7/100' },
-        say: { ru: 'Теперь трёхзначный знаменатель. Числитель тот же. Сравни.', uz: "Endi uch xonali maxraj. Surat o'sha. Solishtiring." },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '7/40 ? 7/100', uz: '7/40 ? 7/100', en: '7/40 ? 7/100' },
+        say: { ru: 'Теперь трёхзначный знаменатель. Числитель тот же. Сравни.', uz: "Endi uch xonali maxraj. Surat o'sha. Solishtiring.", en: 'Now a three figure denominator. The numerator is the same. Compare them.' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 0,
-        ok: { ru: 'Верно: 40 меньше 100, значит 7/40 крупнее. Большие числа правило не меняют.', uz: "To'g'ri: 40 kichik 100 dan, demak 7/40 yirik. Katta sonlar qoidani o'zgartirmaydi." },
-        no: { ru: 'Не дай большому числу обмануть: меньше знаменатель — больше дробь.', uz: "Katta son aldamasin: maxraj kichik — kasr katta." }
+        ok: { ru: 'Верно: 40 меньше 100, значит 7/40 крупнее. Большие числа правило не меняют.', uz: "To'g'ri: 40 kichik 100 dan, demak 7/40 yirik. Katta sonlar qoidani o'zgartirmaydi.", en: 'That is right: 40 is smaller than 100, so 7/40 is bigger. Big numbers do not change the rule.' },
+        no: { ru: 'Не дай большому числу обмануть: меньше знаменатель — больше дробь.', uz: "Katta son aldamasin: maxraj kichik — kasr katta.", en: 'Do not let a big number fool you: a smaller denominator means a bigger fraction.' }
       },
       {
-        q: { ru: '4/250 ? 4/250', uz: '4/250 ? 4/250' },
-        say: { ru: 'Числа большие, но посмотри внимательно на обе дроби.', uz: "Sonlar katta, lekin ikkala kasrga diqqat bilan qarang." },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '4/250 ? 4/250', uz: '4/250 ? 4/250', en: '4/250 ? 4/250' },
+        say: { ru: 'Числа большие, но посмотри внимательно на обе дроби.', uz: "Sonlar katta, lekin ikkala kasrga diqqat bilan qarang.", en: 'The numbers are big, but look carefully at both fractions.' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 2,
-        ok: { ru: 'Верно: дроби полностью одинаковые — равны. Размер чисел тут не при чём.', uz: "To'g'ri: kasrlar to'liq bir xil — teng. Sonlar kattaligi bunga aloqasiz." },
-        no: { ru: 'Присмотрись: и числитель, и знаменатель совпадают. Значит, равны.', uz: "Diqqat bilan qarang: surat ham, maxraj ham bir xil. Demak, teng." }
+        ok: { ru: 'Верно: дроби полностью одинаковые — равны. Размер чисел тут не при чём.', uz: "To'g'ri: kasrlar to'liq bir xil — teng. Sonlar kattaligi bunga aloqasiz.", en: 'That is right: the fractions are exactly the same, so they are equal. The size of the numbers has nothing to do with it.' },
+        no: { ru: 'Присмотрись: и числитель, и знаменатель совпадают. Значит, равны.', uz: "Diqqat bilan qarang: surat ham, maxraj ham bir xil. Demak, teng.", en: 'Look closely: both the numerator and the denominator match. So they are equal.' }
       },
       {
-        q: { ru: '3/1000 ? 3/750', uz: '3/1000 ? 3/750' },
-        say: { ru: 'Последняя — четырёхзначный знаменатель. Не спеши, числитель один.', uz: "Oxirgisi — to'rt xonali maxraj. Shoshmang, surat bir xil." },
-        opts: [{ ru: '>', uz: '>' }, { ru: '<', uz: '<' }, { ru: '=', uz: '=' }],
+        q: { ru: '3/1000 ? 3/750', uz: '3/1000 ? 3/750', en: '3/1000 ? 3/750' },
+        say: { ru: 'Последняя — четырёхзначный знаменатель. Не спеши, числитель один.', uz: "Oxirgisi — to'rt xonali maxraj. Shoshmang, surat bir xil.", en: 'The last one, a four figure denominator. Take your time, the numerator is the same.' },
+        opts: [{ ru: '>', uz: '>', en: '>' }, { ru: '<', uz: '<', en: '<' }, { ru: '=', uz: '=', en: '=' }],
         correct: 1,
-        ok: { ru: 'Верно: 1000 больше 750, целое разбито на больше частей — доля мельче. 3/1000 меньше.', uz: "To'g'ri: 1000 katta 750 dan, butun ko'proq bo'lakka bo'lingan — ulush mayda. 3/1000 kichik." },
-        no: { ru: 'Тысяча больше, чем семьсот пятьдесят — значит доля три тысячных мельче.', uz: "Ming yetti yuz ellikdan katta — demak mingdan uch ulushi mayda." }
+        ok: { ru: 'Верно: 1000 больше 750, целое разбито на больше частей — доля мельче. 3/1000 меньше.', uz: "To'g'ri: 1000 katta 750 dan, butun ko'proq bo'lakka bo'lingan — ulush mayda. 3/1000 kichik.", en: 'That is right: 1000 is more than 750, so the whole is split into more parts and each part is smaller. 3/1000 is less.' },
+        no: { ru: 'Тысяча больше, чем семьсот пятьдесят — значит доля три тысячных мельче.', uz: "Ming yetti yuz ellikdan katta — demak mingdan uch ulushi mayda.", en: 'A thousand is more than seven hundred and fifty, so three thousandths is the smaller part.' }
       }
     ],
     audio: {
-      intro: { ru: 'Поставь знак между дробями. Числитель в каждой паре одинаковый. Числа будут расти — от одной цифры до четырёх, но правило не меняется: чем больше знаменатель, тем меньше дробь.', uz: "Kasrlar orasiga belgi qo'ying. Har juftda surat bir xil. Sonlar o'sib boradi — bir xonalidan to'rt xonaligacha, lekin qoida o'zgarmaydi: maxraj qancha katta bo'lsa, kasr shuncha kichik." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Не спеши. Больше знаменатель — меньше дробь.', uz: "Shoshmang. Maxraj katta — kasr kichik." },
-      on_done: { ru: 'Отлично, ловушка не сработала ни разу!', uz: "Zo'r, tuzoq bir marta ham ishlamadi!" }
+      intro: { ru: 'Поставь знак между дробями. Числитель в каждой паре одинаковый. Числа будут расти — от одной цифры до четырёх, но правило не меняется: чем больше знаменатель, тем меньше дробь.', uz: "Kasrlar orasiga belgi qo'ying. Har juftda surat bir xil. Sonlar o'sib boradi — bir xonalidan to'rt xonaligacha, lekin qoida o'zgarmaydi: maxraj qancha katta bo'lsa, kasr shuncha kichik.", en: 'Put a sign between the fractions. Each pair has the same numerator. The numbers will grow from one figure to four, but the rule does not change: the bigger the denominator, the smaller the fraction.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Не спеши. Больше знаменатель — меньше дробь.', uz: "Shoshmang. Maxraj katta — kasr kichik.", en: 'Take your time. A bigger denominator means a smaller fraction.' },
+      on_done: { ru: 'Отлично, ловушка не сработала ни разу!', uz: "Zo'r, tuzoq bir marta ham ishlamadi!", en: 'Well done, the trap did not catch you once!' }
     }
   },
 
   // ---- s8 CASE setup: Диёра, общее облачное хранилище класса ----
   s8: {
-    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut" },
-    bridge: { ru: 'То же правило — в жизни. Диёра делит облако класса.', uz: "O'sha qoida — hayotda. Diyora sinf bulutini bo'ladi." },
-    title: { ru: 'Диёра делит общее облачное хранилище.', uz: "Diyora umumiy bulutli xotirani bo'ladi." },
-    body_p1: { ru: 'Две группы получили одинаковое по объёму облачное хранилище и делят его поровну между учениками. В группе Диёры 4 ученика — каждому достаётся 1/4 хранилища. В другой группе 6 учеников — каждому 1/6. У кого на одного ученика больше места?', uz: "Ikki guruh bir xil hajmdagi bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida 4 o'quvchi — har biriga xotiraning 1/4 qismi tegadi. Boshqa guruhda 6 o'quvchi — har biriga 1/6. Bitta o'quvchiga qaysisida ko'proq joy tegadi?" },
-    card_line_label: { ru: 'Группа Диёры', uz: "Diyora guruhi" },
-    card_line_value: { ru: '4 ученика · по 1/4', uz: "4 o'quvchi · 1/4 dan" },
-    card_parts_label: { ru: 'Другая группа', uz: "Boshqa guruh" },
-    card_parts_value: { ru: '6 учеников · по 1/6', uz: "6 o'quvchi · 1/6 dan" },
-    outro: { ru: 'Хранилище одинаковое, числитель один (по одной доле на ученика). Помоги сравнить на следующем шаге.', uz: "Xotira bir xil, surat bir xil (har o'quvchiga bitta ulushdan). Keyingi bosqichda solishtirishga yordam bering." },
-    btn_help: { ru: 'Помочь сравнить', uz: "Solishtirishga yordam" },
-    audio: { ru: 'Две группы получили одинаковое облачное хранилище и делят его поровну между учениками. В группе Диёры четыре ученика, каждому достаётся одна четвёртая. В другой группе шесть учеников, каждому одна шестая. У кого на одного ученика больше места? Хранилище одинаковое, числитель один. Подумай, как сравнить.', uz: "Ikki guruh bir xil bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida to'rtta o'quvchi, har biriga to'rtdan bir tegadi. Boshqa guruhda oltita o'quvchi, har biriga oltidan bir. Bitta o'quvchiga qaysisida ko'proq joy tegadi? Xotira bir xil, surat bir xil. Qanday solishtirishni o'ylab ko'ring." }
+    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut", en: 'Problem · cloud storage' },
+    bridge: { ru: 'То же правило — в жизни. Диёра делит облако класса.', uz: "O'sha qoida — hayotda. Diyora sinf bulutini bo'ladi.", en: 'The same rule in real life. Diyora is sharing out the class cloud storage.' },
+    title: { ru: 'Диёра делит общее облачное хранилище.', uz: "Diyora umumiy bulutli xotirani bo'ladi.", en: 'Diyora is sharing out the shared cloud storage.' },
+    body_p1: { ru: 'Две группы получили одинаковое по объёму облачное хранилище и делят его поровну между учениками. В группе Диёры 4 ученика — каждому достаётся 1/4 хранилища. В другой группе 6 учеников — каждому 1/6. У кого на одного ученика больше места?', uz: "Ikki guruh bir xil hajmdagi bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida 4 o'quvchi — har biriga xotiraning 1/4 qismi tegadi. Boshqa guruhda 6 o'quvchi — har biriga 1/6. Bitta o'quvchiga qaysisida ko'proq joy tegadi?", en: "Two groups have been given cloud storage of the same size and are sharing it equally between their pupils. Diyora's group has 4 pupils, so each one gets 1/4 of the storage. The other group has 6 pupils, so each one gets 1/6. Which group has more space per pupil?" },
+    card_line_label: { ru: 'Группа Диёры', uz: "Diyora guruhi", en: "Diyora's group" },
+    card_line_value: { ru: '4 ученика · по 1/4', uz: "4 o'quvchi · 1/4 dan", en: '4 pupils · 1/4 each' },
+    card_parts_label: { ru: 'Другая группа', uz: "Boshqa guruh", en: 'The other group' },
+    card_parts_value: { ru: '6 учеников · по 1/6', uz: "6 o'quvchi · 1/6 dan", en: '6 pupils · 1/6 each' },
+    outro: { ru: 'Хранилище одинаковое, числитель один (по одной доле на ученика). Помоги сравнить на следующем шаге.', uz: "Xotira bir xil, surat bir xil (har o'quvchiga bitta ulushdan). Keyingi bosqichda solishtirishga yordam bering.", en: 'The storage is the same size and the numerator is the same (one part per pupil). Help compare them on the next step.' },
+    btn_help: { ru: 'Помочь сравнить', uz: "Solishtirishga yordam", en: 'Help compare them' },
+    audio: { ru: 'Две группы получили одинаковое облачное хранилище и делят его поровну между учениками. В группе Диёры четыре ученика, каждому достаётся одна четвёртая. В другой группе шесть учеников, каждому одна шестая. У кого на одного ученика больше места? Хранилище одинаковое, числитель один. Подумай, как сравнить.', uz: "Ikki guruh bir xil bulutli xotira oldi va uni o'quvchilar o'rtasida teng bo'ladi. Diyoraning guruhida to'rtta o'quvchi, har biriga to'rtdan bir tegadi. Boshqa guruhda oltita o'quvchi, har biriga oltidan bir. Bitta o'quvchiga qaysisida ko'proq joy tegadi? Xotira bir xil, surat bir xil. Qanday solishtirishni o'ylab ko'ring.", en: "Two groups have been given cloud storage of the same size and are sharing it equally between their pupils. Diyora's group has four pupils, so each one gets one quarter. The other group has six pupils, so each one gets one sixth. Which group has more space per pupil? The storage is the same size and the numerator is the same. Think how to compare them." }
   },
 
   // ---- s9 CASE step (MC, отношение): 1/4 vs 1/6 → группа Диёры больше (correct old idx 0) ----
   s9: {
-    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut" },
-    label: { ru: 'У кого больше места?', uz: "Kimda ko'proq joy?" },
-    question: { ru: 'В группе Диёры по 1/4, в другой по 1/6. Что верно?', uz: "Diyora guruhida 1/4 dan, boshqasida 1/6 dan. Nima to'g'ri?" },
-    opt0: { ru: 'У группы Диёры больше: 1/4 > 1/6', uz: "Diyora guruhida ko'proq: 1/4 > 1/6" },
-    opt1: { ru: 'У другой группы больше: 1/6 > 1/4', uz: "Boshqa guruhda ko'proq: 1/6 > 1/4" },
-    opt2: { ru: 'Поровну', uz: "Teng" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: учеников меньше (4 против 6) — на каждого больше места. 1/4 > 1/6.', uz: "To'g'ri: o'quvchi kam (4, 6 ga qarshi) — har biriga ko'proq joy. 1/4 > 1/6." },
-    hint_1: { ru: 'Ловушка: 6 больше 4, но больше учеников — меньше каждому. Одна шестая мельче одной четвёртой.', uz: "Tuzoq: 6 katta 4 dan, lekin o'quvchi ko'p — har biriga kam. Oltidan bir to'rtdan birdan mayda." },
-    hint_2: { ru: 'Доли разные: одна четвёртая крупнее одной шестой. Не поровну.', uz: "Ulushlar har xil: to'rtdan bir oltidan birdan yirik. Teng emas." },
-    hint_3: { ru: 'Хранилище одинаковое, числитель один — сравнить можно по знаменателям.', uz: "Xotira bir xil, surat bir — maxrajlar bo'yicha solishtirsa bo'ladi." },
-    wrong_default: { ru: 'Учеников меньше у группы Диёры — каждому больше. 1/4 > 1/6.', uz: "Diyora guruhida o'quvchi kam — har biriga ko'proq. 1/4 > 1/6." },
-    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessa — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsa — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda." },
+    eyebrow: { ru: 'Задача · облако', uz: "Masala · bulut", en: 'Problem · cloud storage' },
+    label: { ru: 'У кого больше места?', uz: "Kimda ko'proq joy?", en: 'Which group has more space?' },
+    question: { ru: 'В группе Диёры по 1/4, в другой по 1/6. Что верно?', uz: "Diyora guruhida 1/4 dan, boshqasida 1/6 dan. Nima to'g'ri?", en: "Diyora's group gets 1/4 each and the other one gets 1/6 each. Which is true?" },
+    opt0: { ru: 'У группы Диёры больше: 1/4 > 1/6', uz: "Diyora guruhida ko'proq: 1/4 > 1/6", en: "Diyora's group has more: 1/4 > 1/6" },
+    opt1: { ru: 'У другой группы больше: 1/6 > 1/4', uz: "Boshqa guruhda ko'proq: 1/6 > 1/4", en: 'The other group has more: 1/6 > 1/4' },
+    opt2: { ru: 'Поровну', uz: "Teng", en: 'The same' },
+    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi", en: 'They cannot be compared' },
+    correct_text: { ru: 'Верно: учеников меньше (4 против 6) — на каждого больше места. 1/4 > 1/6.', uz: "To'g'ri: o'quvchi kam (4, 6 ga qarshi) — har biriga ko'proq joy. 1/4 > 1/6.", en: 'That is right: there are fewer pupils (4 against 6), so there is more space each. 1/4 > 1/6.' },
+    hint_1: { ru: 'Ловушка: 6 больше 4, но больше учеников — меньше каждому. Одна шестая мельче одной четвёртой.', uz: "Tuzoq: 6 katta 4 dan, lekin o'quvchi ko'p — har biriga kam. Oltidan bir to'rtdan birdan mayda.", en: 'The trap: 6 is more than 4, but more pupils means less each. One sixth is smaller than one quarter.' },
+    hint_2: { ru: 'Доли разные: одна четвёртая крупнее одной шестой. Не поровну.', uz: "Ulushlar har xil: to'rtdan bir oltidan birdan yirik. Teng emas.", en: 'The parts are different: one quarter is bigger than one sixth. It is not the same amount.' },
+    hint_3: { ru: 'Хранилище одинаковое, числитель один — сравнить можно по знаменателям.', uz: "Xotira bir xil, surat bir — maxrajlar bo'yicha solishtirsa bo'ladi.", en: 'The storage is the same size and the numerator is the same, so they can be compared by their denominators.' },
+    wrong_default: { ru: 'Учеников меньше у группы Диёры — каждому больше. 1/4 > 1/6.', uz: "Diyora guruhida o'quvchi kam — har biriga ko'proq. 1/4 > 1/6.", en: "Diyora's group has fewer pupils, so each one gets more. 1/4 > 1/6." },
+    fact: { ru: 'Разрежь яблоко на 2 части — получишь крупные половинки. А раздели то же яблоко на 8 — кусочки выйдут совсем маленькими. Яблоко одно, числитель один, а чем больше знаменатель, тем мельче доля.', uz: "Olmani 2 bo'lakka kessa — yirik yarimliklar chiqadi. Xuddi shu olmani 8 ga bo'lsa — bo'laklar juda mayda bo'ladi. Olma bitta, surat bir xil, maxraj qancha katta bo'lsa, ulush shuncha mayda.", en: 'Cut an apple into 2 and you get big halves. Split the same apple into 8 and the pieces come out really small. It is one apple and the numerator is the same, but the bigger the denominator, the smaller the part.' },
     audio: {
-      intro: { ru: 'В группе Диёры каждому достаётся одна четвёртая, в другой группе одна шестая. У кого на ученика больше места? Выбери верное.', uz: "Diyora guruhida har biriga to'rtdan bir, boshqa guruhda oltidan bir tegadi. O'quvchiga qaysisida ko'proq joy? To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kesilsa bo'laklar yirik, sakkizga bo'linsa juda mayda." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta." }
+      intro: { ru: 'В группе Диёры каждому достаётся одна четвёртая, в другой группе одна шестая. У кого на ученика больше места? Выбери верное.', uz: "Diyora guruhida har biriga to'rtdan bir, boshqa guruhda oltidan bir tegadi. O'quvchiga qaysisida ko'proq joy? To'g'risini tanlang.", en: "In Diyora's group each pupil gets one quarter and in the other group one sixth. Which group has more space per pupil? Choose the right answer." },
+      on_correct: { ru: 'Верно. Учеников меньше — каждому больше. Одна четвёртая больше одной шестой. Так и с яблоком: разрежешь на два — куски крупные, на восемь — совсем мелкие.', uz: "To'g'ri. O'quvchi kam — har biriga ko'proq. To'rtdan bir katta oltidan birdan. Olma ham shunday: ikkiga kesilsa bo'laklar yirik, sakkizga bo'linsa juda mayda.", en: 'That is right. Fewer pupils means more each. One quarter is bigger than one sixth. It is the same with an apple: cut it into two and the pieces are big, into eight and they are really small.' },
+      on_wrong: { ru: 'Пока нет. Числитель один, больше та доля, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan ulush katta.", en: 'Not yet. The numerator is the same, so the bigger part is the one with the smaller denominator.' }
     }
   },
 
   // ---- s10 TEST (error-spotting): какое сравнение НЕВЕРНО (correct old idx 2) ----
   s10: {
-    eyebrow: { ru: 'Проверка · найди ошибку', uz: "Tekshiruv · xatoni toping" },
-    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping" },
-    title: { ru: 'Одно сравнение неверно', uz: "Bitta solishtirish noto'g'ri" },
-    question: { ru: 'Три сравнения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Uchta solishtirish to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?" },
-    opt0: { ru: '1/3 > 1/5', uz: "1/3 > 1/5" },
-    opt1: { ru: '2/7 < 2/4', uz: "2/7 < 2/4" },
-    opt2: { ru: '1/8 > 1/6', uz: "1/8 > 1/6" },
-    opt3: { ru: '3/10 < 3/4', uz: "3/10 < 3/4" },
-    correct_text: { ru: 'Верно, это сравнение неверно: числитель один (1), знаменатель 8 больше 6 — значит 1/8 меньше 1/6, а не больше.', uz: "To'g'ri, bu solishtirish noto'g'ri: surat bir xil (1), maxraj 8 katta 6 dan — demak 1/8 kichik 1/6 dan, katta emas." },
-    wrong_0: { ru: 'Это верно: знаменатель меньше у одной третьей, значит она больше. Ищи неверное дальше.', uz: "Bu to'g'ri: maxraj uchdan birda kichik, demak u katta. Noto'g'risini boshqasidan qidiring." },
-    wrong_1: { ru: 'Это верно: 7 больше 4, седьмые мельче четвёртых, значит две седьмых меньше. Ищи дальше.', uz: "Bu to'g'ri: 7 katta 4 dan, yettidan ulush mayda, demak yettidan ikki kichik. Boshqasidan qidiring." },
-    wrong_3: { ru: 'Это верно: десятые мельче четвёртых, значит три десятых меньше. Ищи дальше.', uz: "Bu to'g'ri: o'ndan ulush maydaroq, demak o'ndan uch kichik. Boshqasidan qidiring." },
-    wrong_default: { ru: 'Ищи сравнение, где попались в ловушку: больший знаменатель приняли за большую дробь.', uz: "Tuzoqqa tushgan solishtirishni qidiring: katta maxrajni katta kasr deb o'ylagan." },
+    eyebrow: { ru: 'Проверка · найди ошибку', uz: "Tekshiruv · xatoni toping", en: 'Check · find the mistake' },
+    label: { ru: 'Найди неверное', uz: "Noto'g'risini toping", en: 'Find the one that is wrong' },
+    title: { ru: 'Одно сравнение неверно', uz: "Bitta solishtirish noto'g'ri", en: 'One of these comparisons is wrong' },
+    question: { ru: 'Три сравнения верны, а одно — нет. Какое НЕВЕРНО?', uz: "Uchta solishtirish to'g'ri, bittasi esa — yo'q. Qaysi biri NOTO'G'RI?", en: 'Three of these comparisons are right and one is not. Which one is WRONG?' },
+    opt0: { ru: '1/3 > 1/5', uz: "1/3 > 1/5", en: '1/3 > 1/5' },
+    opt1: { ru: '2/7 < 2/4', uz: "2/7 < 2/4", en: '2/7 < 2/4' },
+    opt2: { ru: '1/8 > 1/6', uz: "1/8 > 1/6", en: '1/8 > 1/6' },
+    opt3: { ru: '3/10 < 3/4', uz: "3/10 < 3/4", en: '3/10 < 3/4' },
+    correct_text: { ru: 'Верно, это сравнение неверно: числитель один (1), знаменатель 8 больше 6 — значит 1/8 меньше 1/6, а не больше.', uz: "To'g'ri, bu solishtirish noto'g'ri: surat bir xil (1), maxraj 8 katta 6 dan — demak 1/8 kichik 1/6 dan, katta emas.", en: 'Right, that comparison is wrong: the numerator is the same (1) and the denominator 8 is bigger than 6, so 1/8 is less than 1/6, not more.' },
+    wrong_0: { ru: 'Это верно: знаменатель меньше у одной третьей, значит она больше. Ищи неверное дальше.', uz: "Bu to'g'ri: maxraj uchdan birda kichik, demak u katta. Noto'g'risini boshqasidan qidiring.", en: 'That one is right: one third has the smaller denominator, so it is bigger. Keep looking for the wrong one.' },
+    wrong_1: { ru: 'Это верно: 7 больше 4, седьмые мельче четвёртых, значит две седьмых меньше. Ищи дальше.', uz: "Bu to'g'ri: 7 katta 4 dan, yettidan ulush mayda, demak yettidan ikki kichik. Boshqasidan qidiring.", en: 'That is right: 7 is more than 4, so sevenths are smaller than quarters and two sevenths is less. Keep looking.' },
+    wrong_3: { ru: 'Это верно: десятые мельче четвёртых, значит три десятых меньше. Ищи дальше.', uz: "Bu to'g'ri: o'ndan ulush maydaroq, demak o'ndan uch kichik. Boshqasidan qidiring.", en: 'That is right: tenths are smaller than quarters, so three tenths is less. Keep looking.' },
+    wrong_default: { ru: 'Ищи сравнение, где попались в ловушку: больший знаменатель приняли за большую дробь.', uz: "Tuzoqqa tushgan solishtirishni qidiring: katta maxrajni katta kasr deb o'ylagan.", en: 'Look for the comparison that fell into the trap, where a bigger denominator was taken for a bigger fraction.' },
     audio: {
-      intro: { ru: 'Три сравнения верны, а одно неверно. Найди то, где попались в ловушку большого знаменателя. Числитель в каждой паре одинаковый.', uz: "Uchta solishtirish to'g'ri, bittasi noto'g'ri. Katta maxraj tuzog'iga tushgan birini toping. Har juftda surat bir xil." },
-      on_correct: { ru: 'Верно. Восемь больше шести, но одна восьмая меньше одной шестой, а не больше.', uz: "To'g'ri. Sakkiz katta oltidan, lekin sakkizdan bir kichik oltidan bir, katta emas." },
-      on_wrong: { ru: 'Это сравнение верное. Ищи, где большой знаменатель приняли за большую дробь.', uz: "Bu solishtirish to'g'ri. Katta maxrajni katta kasr deb o'ylagan birini qidiring." }
+      intro: { ru: 'Три сравнения верны, а одно неверно. Найди то, где попались в ловушку большого знаменателя. Числитель в каждой паре одинаковый.', uz: "Uchta solishtirish to'g'ri, bittasi noto'g'ri. Katta maxraj tuzog'iga tushgan birini toping. Har juftda surat bir xil.", en: 'Three of these comparisons are right and one is wrong. Find the one that fell into the big denominator trap. Each pair has the same numerator.' },
+      on_correct: { ru: 'Верно. Восемь больше шести, но одна восьмая меньше одной шестой, а не больше.', uz: "To'g'ri. Sakkiz katta oltidan, lekin sakkizdan bir kichik oltidan bir, katta emas.", en: 'That is right. Eight is more than six, but one eighth is less than one sixth, not more.' },
+      on_wrong: { ru: 'Это сравнение верное. Ищи, где большой знаменатель приняли за большую дробь.', uz: "Bu solishtirish to'g'ri. Katta maxrajni katta kasr deb o'ylagan birini qidiring.", en: 'That comparison is right. Look for the one where a big denominator was taken for a big fraction.' }
     }
   },
 
   // ---- s11 TEST (MC, отношение): 2/5 ? 2/7 → 2/5 > 2/7 (correct old idx 0) ----
   s11: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    label: { ru: 'Последняя — сравни', uz: "Oxirgisi — solishtiring" },
-    question: { ru: 'Сравни 2/5 и 2/7. Что верно?', uz: "2/5 va 2/7 ni solishtiring. Nima to'g'ri?" },
-    opt0: { ru: '2/5 > 2/7', uz: "2/5 > 2/7" },
-    opt1: { ru: '2/5 < 2/7', uz: "2/5 < 2/7" },
-    opt2: { ru: '2/5 = 2/7', uz: "2/5 = 2/7" },
-    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi" },
-    correct_text: { ru: 'Верно: числитель один (2), знаменатель 5 меньше 7 — пятые доли крупнее седьмых. 2/5 > 2/7.', uz: "To'g'ri: surat bir xil (2), maxraj 5 kichik 7 dan — beshdan ulushlar yettidan ulushlardan yirik. 2/5 > 2/7." },
-    hint_1: { ru: 'Ловушка: 7 больше 5, но седьмые мельче пятых. Больше две пятых.', uz: "Tuzoq: 7 katta 5 dan, lekin yettidan ulushlar mayda. Beshdan ikki katta." },
-    hint_2: { ru: 'Доли разные: пятые крупнее седьмых. Не равны.', uz: "Ulushlar har xil: beshdan ulushlar yettidan ulushlardan yirik. Teng emas." },
-    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz." },
-    wrong_default: { ru: 'Числитель один (2), знаменатель меньше у 2/5 — значит 2/5 больше.', uz: "Surat bir xil (2), maxraj 2/5 da kichik — demak 2/5 katta." },
-    fact: { ru: 'Картинку на экране делят на пиксели. Чем на больше пикселей разбит один и тот же экран, тем мельче каждый пиксель — и тем чётче картинка. Знаменатель растёт, а доля каждого пикселя падает.', uz: "Ekrandagi rasm piksellarga bo'linadi. Bitta ekran qancha ko'p pikselga bo'linsa, har piksel shuncha mayda — va rasm shuncha aniq. Maxraj o'sadi, har pikselning ulushi esa kichrayadi." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    label: { ru: 'Последняя — сравни', uz: "Oxirgisi — solishtiring", en: 'The last one, compare them' },
+    question: { ru: 'Сравни 2/5 и 2/7. Что верно?', uz: "2/5 va 2/7 ni solishtiring. Nima to'g'ri?", en: 'Compare 2/5 and 2/7. Which is true?' },
+    opt0: { ru: '2/5 > 2/7', uz: "2/5 > 2/7", en: '2/5 > 2/7' },
+    opt1: { ru: '2/5 < 2/7', uz: "2/5 < 2/7", en: '2/5 < 2/7' },
+    opt2: { ru: '2/5 = 2/7', uz: "2/5 = 2/7", en: '2/5 = 2/7' },
+    opt3: { ru: 'Сравнить нельзя', uz: "Solishtirib bo'lmaydi", en: 'They cannot be compared' },
+    correct_text: { ru: 'Верно: числитель один (2), знаменатель 5 меньше 7 — пятые доли крупнее седьмых. 2/5 > 2/7.', uz: "To'g'ri: surat bir xil (2), maxraj 5 kichik 7 dan — beshdan ulushlar yettidan ulushlardan yirik. 2/5 > 2/7.", en: 'That is right: the numerator is the same (2) and the denominator 5 is smaller than 7, so fifths are bigger than sevenths. 2/5 > 2/7.' },
+    hint_1: { ru: 'Ловушка: 7 больше 5, но седьмые мельче пятых. Больше две пятых.', uz: "Tuzoq: 7 katta 5 dan, lekin yettidan ulushlar mayda. Beshdan ikki katta.", en: 'The trap: 7 is more than 5, but sevenths are smaller than fifths. Two fifths is bigger.' },
+    hint_2: { ru: 'Доли разные: пятые крупнее седьмых. Не равны.', uz: "Ulushlar har xil: beshdan ulushlar yettidan ulushlardan yirik. Teng emas.", en: 'The parts are different: fifths are bigger than sevenths. They are not equal.' },
+    hint_3: { ru: 'Сравнить можно: числитель один, смотрим на знаменатели.', uz: "Solishtirsa bo'ladi: surat bir xil, maxrajlarga qaraymiz.", en: 'They can be compared: the numerator is the same, so we look at the denominators.' },
+    wrong_default: { ru: 'Числитель один (2), знаменатель меньше у 2/5 — значит 2/5 больше.', uz: "Surat bir xil (2), maxraj 2/5 da kichik — demak 2/5 katta.", en: 'The numerator is the same (2) and 2/5 has the smaller denominator, so 2/5 is bigger.' },
+    fact: { ru: 'Картинку на экране делят на пиксели. Чем на больше пикселей разбит один и тот же экран, тем мельче каждый пиксель — и тем чётче картинка. Знаменатель растёт, а доля каждого пикселя падает.', uz: "Ekrandagi rasm piksellarga bo'linadi. Bitta ekran qancha ko'p pikselga bo'linsa, har piksel shuncha mayda — va rasm shuncha aniq. Maxraj o'sadi, har pikselning ulushi esa kichrayadi.", en: "A picture on a screen is split into pixels. The more pixels the same screen is split into, the smaller each pixel is and the sharper the picture. The denominator grows and each pixel's share gets smaller." },
     audio: {
-      intro: { ru: 'Последнее задание. Сравни две пятых и две седьмых. Выбери верное.', uz: "Oxirgi topshiriq. Beshdan ikki va yettidan ikkini solishtiring. To'g'risini tanlang." },
-      on_correct: { ru: 'Верно. Знаменатель меньше у двух пятых — они больше. Так и с экраном: чем на больше пикселей он разбит, тем мельче каждый пиксель.', uz: "To'g'ri. Maxraj beshdan ikkida kichik — ular katta. Ekran ham shunday: qancha ko'p pikselga bo'linsa, har piksel shuncha mayda." },
-      on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta." }
+      intro: { ru: 'Последнее задание. Сравни две пятых и две седьмых. Выбери верное.', uz: "Oxirgi topshiriq. Beshdan ikki va yettidan ikkini solishtiring. To'g'risini tanlang.", en: 'The last task. Compare two fifths and two sevenths. Choose the right answer.' },
+      on_correct: { ru: 'Верно. Знаменатель меньше у двух пятых — они больше. Так и с экраном: чем на больше пикселей он разбит, тем мельче каждый пиксель.', uz: "To'g'ri. Maxraj beshdan ikkida kichik — ular katta. Ekran ham shunday: qancha ko'p pikselga bo'linsa, har piksel shuncha mayda.", en: 'That is right. Two fifths has the smaller denominator, so it is bigger. It is the same with a screen: the more pixels it is split into, the smaller each pixel is.' },
+      on_wrong: { ru: 'Пока нет. Числитель один, больше та дробь, у которой знаменатель меньше.', uz: "Hali emas. Surat bir xil, maxraji kichik bo'lgan kasr katta.", en: 'Not yet. The numerator is the same, so the bigger fraction is the one with the smaller denominator.' }
     }
   },
 
   // ---- s12 SUMMARY: закрывает крючок ----
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz" },
-    title: { ru: 'Теперь тебя не обманет большой знаменатель.', uz: "Endi katta maxraj sizni alday olmaydi." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz." },
-    main_2: { ru: 'Больше та дробь, у которой знаменатель МЕНЬШЕ: доля крупнее.', uz: "Maxraji KICHIK bo'lgan kasr katta: ulush yirikroq." },
-    main_3: { ru: 'Большое число снизу не делает дробь больше — оно делит целое на больше мелких частей.', uz: "Pastdagi katta son kasrni katta qilmaydi — u butunni ko'proq mayda bo'lakka bo'ladi." },
-    main_4: { ru: 'Одинаковый числитель — смотрим на знаменатель; одинаковый знаменатель — на числитель.', uz: "Surat bir xil — maxrajga qaraymiz; maxraj bir xil — suratga qaraymiz." },
-    back_to_hook: { ru: 'У Эльдора 3 устройства, у Темура 5. Интернет один, но у Темура устройств больше — значит каждому достаётся меньше. 1/3 > 1/5. Темур попал в ловушку.', uz: "Eldorda 3 ta qurilma, Temurda 5 ta. Internet bir xil, lekin Temurda qurilma ko'p — demak har biriga kamroq tegadi. 1/3 > 1/5. Temur tuzoqqa tushgan ekan." },
-    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'урок «Сравнение дробей с одинаковым знаменателем».', uz: "«Bir xil maxrajli kasrlarni taqqoslash» darsi." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сравнение дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni taqqoslash." },
-    audio: { ru: 'Отлично! Теперь тебя не обманет большой знаменатель. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше: доля крупнее. Большое число снизу не делает дробь больше — оно лишь делит целое на больше мелких частей. Помни: одинаковый числитель — смотри на знаменатель, одинаковый знаменатель — на числитель. У Эльдора три устройства, у Темура пять. Интернет один, а у Темура устройств больше, значит каждому достаётся меньше. Одна третья больше одной пятой. Темур попал в ловушку.', uz: "Zo'r! Endi katta maxraj sizni alday olmaydi. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta: ulush yirikroq. Pastdagi katta son kasrni katta qilmaydi — u faqat butunni ko'proq mayda bo'lakka bo'ladi. Esda tuting: surat bir xil — maxrajga qarang, maxraj bir xil — suratga qarang. Eldorda uchta qurilma, Temurda beshta. Internet bir xil, Temurda esa qurilma ko'p, demak har biriga kamroq tegadi. Uchdan bir katta beshdan birdan. Temur tuzoqqa tushgan ekan." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi", en: 'Lesson finished' },
+    score_caption: { ru: 'вопросов решено верно с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob berdingiz", en: 'questions answered correctly first time' },
+    title: { ru: 'Теперь тебя не обманет большой знаменатель.', uz: "Endi katta maxraj sizni alday olmaydi.", en: 'Now a big denominator will not fool you.' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Одинаковый числитель — берём одинаковое число долей.', uz: "Bir xil surat — bir xil sondagi ulush olamiz.", en: 'The same numerator means we take the same number of parts.' },
+    main_2: { ru: 'Больше та дробь, у которой знаменатель МЕНЬШЕ: доля крупнее.', uz: "Maxraji KICHIK bo'lgan kasr katta: ulush yirikroq.", en: 'The bigger fraction is the one with the SMALLER denominator, because its part is bigger.' },
+    main_3: { ru: 'Большое число снизу не делает дробь больше — оно делит целое на больше мелких частей.', uz: "Pastdagi katta son kasrni katta qilmaydi — u butunni ko'proq mayda bo'lakka bo'ladi.", en: 'A big number underneath does not make a fraction bigger, it splits the whole into more small parts.' },
+    main_4: { ru: 'Одинаковый числитель — смотрим на знаменатель; одинаковый знаменатель — на числитель.', uz: "Surat bir xil — maxrajga qaraymiz; maxraj bir xil — suratga qaraymiz.", en: 'Same numerator, look at the denominator; same denominator, look at the numerator.' },
+    back_to_hook: { ru: 'У Эльдора 3 устройства, у Темура 5. Интернет один, но у Темура устройств больше — значит каждому достаётся меньше. 1/3 > 1/5. Темур попал в ловушку.', uz: "Eldorda 3 ta qurilma, Temurda 5 ta. Internet bir xil, lekin Temurda qurilma ko'p — demak har biriga kamroq tegadi. 1/3 > 1/5. Temur tuzoqqa tushgan ekan.", en: 'Eldor has 3 devices and Temur has 5. The internet package is the same, but Temur has more devices, so each one gets less. 1/3 > 1/5. Temur fell into the trap.' },
+    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'урок «Сравнение дробей с одинаковым знаменателем».', uz: "«Bir xil maxrajli kasrlarni taqqoslash» darsi.", en: 'the lesson on comparing fractions with the same denominator.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'сравнение дробей с разными знаменателями.', uz: "har xil maxrajli kasrlarni taqqoslash.", en: 'comparing fractions with different denominators.' },
+    audio: { ru: 'Отлично! Теперь тебя не обманет большой знаменатель. Если у дробей одинаковый числитель, больше та, у которой знаменатель меньше: доля крупнее. Большое число снизу не делает дробь больше — оно лишь делит целое на больше мелких частей. Помни: одинаковый числитель — смотри на знаменатель, одинаковый знаменатель — на числитель. У Эльдора три устройства, у Темура пять. Интернет один, а у Темура устройств больше, значит каждому достаётся меньше. Одна третья больше одной пятой. Темур попал в ловушку.', uz: "Zo'r! Endi katta maxraj sizni alday olmaydi. Agar kasrlarning surati bir xil bo'lsa, maxraji kichik bo'lgani katta: ulush yirikroq. Pastdagi katta son kasrni katta qilmaydi — u faqat butunni ko'proq mayda bo'lakka bo'ladi. Esda tuting: surat bir xil — maxrajga qarang, maxraj bir xil — suratga qarang. Eldorda uchta qurilma, Temurda beshta. Internet bir xil, Temurda esa qurilma ko'p, demak har biriga kamroq tegadi. Uchdan bir katta beshdan birdan. Temur tuzoqqa tushgan ekan.", en: 'Well done! Now a big denominator will not fool you. If fractions have the same numerator, the bigger one is the one with the smaller denominator, because its part is bigger. A big number underneath does not make a fraction bigger, it only splits the whole into more small parts. Remember: same numerator, look at the denominator; same denominator, look at the numerator. Eldor has three devices and Temur has five. The internet package is the same, but Temur has more devices, so each one gets less. One third is more than one fifth. Temur fell into the trap.' }
   }
 };
 
@@ -1252,7 +1279,7 @@ const OrderTap = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1322,7 +1349,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1347,7 +1374,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1627,7 +1654,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1666,7 +1693,7 @@ export default function FractionCompareSameNumLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1734,7 +1761,7 @@ export default function FractionCompareSameNumLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

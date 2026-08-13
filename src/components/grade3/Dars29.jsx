@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -123,8 +123,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-29',
-  lessonTitle: { ru: 'Урок 29. Сравнение дробей', uz: "29-dars. Kasrlarni taqqoslash" }
+  lessonId: 'grade3-29',
+  lessonTitle: { ru: 'Урок 29. Сравнение дробей', uz: "29-dars. Kasrlarni taqqoslash", en: 'Lesson 29. Comparing fractions' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 29»): s0 xuk 3/8 va 5/8 · s1 ikki belgi · s2 model bir
 // xil maxraj · s3 savol-oldin-QOIDA · s4 rasm bo'yicha 2/3 va 2/5 · s5 saralash yarim bilan ·
@@ -160,15 +160,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: maxrajlar bir xil (darslik 143-bet).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Сравнение дробей', uz: 'Kasrlarni taqqoslash' },
-    lead: { ru: 'Две одинаковые полосы разрезали на 8 частей', uz: "Ikkita bir xil tasma 8 bo'lakka kesilgan" },
-    order_cap: { ru: 'на первой закрашено 3 части, на второй 5', uz: "birinchisida 3 ta, ikkinchisida 5 ta bo'lak bo'yalgan" },
-    q: { ru: 'Какая дробь больше?', uz: 'Qaysi kasr katta?' },
-    opt0: { ru: '5/8', uz: '5/8' },
-    opt1: { ru: '3/8', uz: '3/8' },
-    opt2: { ru: 'они равны', uz: 'ular teng' },
-    opt3: { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Сравнение дробей', uz: 'Kasrlarni taqqoslash', en: 'Comparing fractions' },
+    lead: { ru: 'Две одинаковые полосы разрезали на 8 частей', uz: "Ikkita bir xil tasma 8 bo'lakka kesilgan", en: 'Two identical strips were cut into 8 parts' },
+    order_cap: { ru: 'на первой закрашено 3 части, на второй 5', uz: "birinchisida 3 ta, ikkinchisida 5 ta bo'lak bo'yalgan", en: '3 parts are shaded on the first, 5 on the second' },
+    q: { ru: 'Какая дробь больше?', uz: 'Qaysi kasr katta?', en: 'Which fraction is bigger?' },
+    opt0: { ru: '5/8', uz: '5/8', en: '5/8' },
+    opt1: { ru: '3/8', uz: '3/8', en: '3/8' },
+    opt2: { ru: 'они равны', uz: 'ular teng', en: 'they are equal' },
+    opt3: { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' },
     audio: {
       intro: {
         ru: [
@@ -182,29 +182,31 @@ const CONTENT = {
           "Ikkita bir xil tasma sakkizta bo'lakka kesildi.",
           "Birinchisida uchta bo'lak, ikkinchisida beshta bo'lak bo'yalgan.",
           "Sizningcha, qaysi kasr katta?"
-        ]
+        ],
+        en: ['You can compare unit fractions. Today you will learn to compare any fractions.', 'Two identical strips were cut into eight parts.', 'Three parts are shaded on the first, five on the second.', 'Which fraction do you think is bigger?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, когда так рассуждать можно, а когда нет.', uz: "To'g'ri! Endi qachon bunday mulohaza qilish mumkin, qachon yo'qligini ko'rasiz." },
-      on_wrong1: { ru: 'Куски одинаковые, а закрашено меньше. Значит и дробь меньше.', uz: "Bo'laklar bir xil, bo'yalgani esa kam. Demak kasr ham kichik." },
-      on_wrong2: { ru: 'Закрашено разное число частей, равными дроби быть не могут.', uz: "Har xil sondagi bo'lak bo'yalgan, kasrlar teng bo'la olmaydi." },
-      on_idk: { ru: 'Ничего. Сейчас положим полосы рядом и посмотрим.', uz: "Hechqisi yo'q. Hozir tasmalarni yonma-yon qo'yib ko'ramiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, когда так рассуждать можно, а когда нет.', uz: "To'g'ri! Endi qachon bunday mulohaza qilish mumkin, qachon yo'qligini ko'rasiz.", en: 'Right! And now you will see when you can reason that way and when you cannot.' },
+      on_wrong1: { ru: 'Куски одинаковые, а закрашено меньше. Значит и дробь меньше.', uz: "Bo'laklar bir xil, bo'yalgani esa kam. Demak kasr ham kichik.", en: 'The pieces are the same, and fewer are shaded. So the fraction is smaller too.' },
+      on_wrong2: { ru: 'Закрашено разное число частей, равными дроби быть не могут.', uz: "Har xil sondagi bo'lak bo'yalgan, kasrlar teng bo'la olmaydi.", en: 'Different numbers of parts are shaded, the fractions cannot be equal.' },
+      on_idk: { ru: 'Ничего. Сейчас положим полосы рядом и посмотрим.', uz: "Hechqisi yo'q. Hozir tasmalarni yonma-yon qo'yib ko'ramiz.", en: 'Never mind. Let us put the strips side by side and look.' }
     }
   },
 
   // s1 — IKKI BELGI: maxraj bir xil / surat bir xil (darslik 143 va 145-bet).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Смотрим, что у дробей совпало', uz: "Kasrlarda nima mos kelganiga qaraymiz" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Смотрим, что у дробей совпало', uz: "Kasrlarda nima mos kelganiga qaraymiz", en: 'We look at what the fractions have in common' },
     task_line: 'два признака сравнения',
     task_line_uz: 'ikkita taqqoslash belgisi',
+    task_line_en: 'two tests for comparing',
     step1: '3/8 < 5/8',
-    step1_cap: { ru: 'знаменатели равны, смотрим числители', uz: "maxrajlar teng, suratlarga qaraymiz" },
+    step1_cap: { ru: 'знаменатели равны, смотрим числители', uz: "maxrajlar teng, suratlarga qaraymiz", en: 'the denominators are equal, we look at the numerators' },
     step2: '2/3 > 2/5',
-    step2_cap: { ru: 'числители равны, смотрим знаменатели', uz: "suratlar teng, maxrajlarga qaraymiz" },
-    res: { ru: 'сначала смотрим, что совпало', uz: 'avval nima mos kelganiga qaraymiz' },
-    btn1: { ru: 'Одинаковые знаменатели', uz: 'Maxrajlar bir xil' },
-    btn2: { ru: 'Одинаковые числители', uz: 'Suratlar bir xil' },
-    done_text: { ru: 'Признак выбирается по тому, что совпало', uz: "Belgi nima mos kelganiga qarab tanlanadi" },
+    step2_cap: { ru: 'числители равны, смотрим знаменатели', uz: "suratlar teng, maxrajlarga qaraymiz", en: 'the numerators are equal, we look at the denominators' },
+    res: { ru: 'сначала смотрим, что совпало', uz: 'avval nima mos kelganiga qaraymiz', en: 'first we look at what matched' },
+    btn1: { ru: 'Одинаковые знаменатели', uz: 'Maxrajlar bir xil', en: 'The same denominators' },
+    btn2: { ru: 'Одинаковые числители', uz: 'Suratlar bir xil', en: 'The same numerators' },
+    done_text: { ru: 'Признак выбирается по тому, что совпало', uz: "Belgi nima mos kelganiga qarab tanlanadi", en: 'The test is chosen by what matched' },
     audio: {
       ru: [
         'Есть два простых случая, и оба ты уже видел.',
@@ -215,24 +217,25 @@ const CONTENT = {
         "Ikkita oddiy holat bor, ikkalasini ham ko'rgansiz.",
         "Maxrajlar bir xil bo'lsa, bo'laklar bir kattalikda. Bo'lagi ko'p kasr katta. Sakkizdan uch sakkizdan beshdan kichik.",
         "Suratlar bir xil bo'lsa, bo'lak soni teng, lekin kattaligi har xil. Maxraji kichik kasr katta. Uchdan ikki beshdan ikkidan katta."
-      ]
+      ],
+      en: ['There are two simple cases, and you have seen both.', 'If the denominators are the same, the pieces are the same size. The fraction with more pieces is bigger. Three eighths is smaller than five eighths.', 'If the numerators are the same, there is the same number of pieces, but they are different sizes. The fraction with the smaller denominator is bigger. Two thirds is bigger than two fifths.']
     }
   },
 
   // s2 — MODEL: bir xil maxrajli ikki tasma.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     left_parts: 8,
     left_filled: 3,
     right_parts: 8,
     right_filled: 5,
-    lead: { ru: 'При одном знаменателе считать легко', uz: "Maxraj bir xil bo'lsa, sanash oson" },
-    capA: { ru: 'слева 3 части из 8', uz: "chapda 8 tadan 3 ta" },
-    capB: { ru: 'справа 5 частей, кусков больше', uz: "o'ngda 5 ta, bo'lak ko'proq" },
+    lead: { ru: 'При одном знаменателе считать легко', uz: "Maxraj bir xil bo'lsa, sanash oson", en: 'With one denominator counting is easy' },
+    capA: { ru: 'слева 3 части из 8', uz: "chapda 8 tadan 3 ta", en: '3 parts out of 8 on the left' },
+    capB: { ru: 'справа 5 частей, кусков больше', uz: "o'ngda 5 ta, bo'lak ko'proq", en: '5 parts on the right, more pieces' },
     res: '3/8 < 5/8',
-    btn1: { ru: 'Показать первую', uz: "Birinchisini ko'rsatish" },
-    btn2: { ru: 'Показать вторую', uz: "Ikkinchisini ko'rsatish" },
-    done_text: { ru: 'Куски одного размера, значит решает их число', uz: "Bo'laklar bir kattalikda, demak ularning soni hal qiladi" },
+    btn1: { ru: 'Показать первую', uz: "Birinchisini ko'rsatish", en: 'Show the first' },
+    btn2: { ru: 'Показать вторую', uz: "Ikkinchisini ko'rsatish", en: 'Show the second' },
+    done_text: { ru: 'Куски одного размера, значит решает их число', uz: "Bo'laklar bir kattalikda, demak ularning soni hal qiladi", en: 'The pieces are the same size, so their number decides' },
     audio: {
       ru: [
         'Положим полосы рядом.',
@@ -243,164 +246,168 @@ const CONTENT = {
         "Tasmalarni yonma-yon qo'yamiz.",
         "Birinchisida sakkiztadan uchta bo'lak bo'yalgan.",
         "Ikkinchisida xuddi shunday beshta bo'lak. Bo'laklar bir xil, demak soni ko'p bo'lgan kasr katta."
-      ]
+      ],
+      en: ['Let us put the strips side by side.', 'Three parts out of eight are shaded on the first.', 'Five of the very same parts on the second. The pieces are the same, so the fraction with more of them is bigger.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: nima mos kelganiga qarab belgi tanlanadi.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'У дробей 4/9 и 7/9 совпали знаменатели. На что смотрим?', uz: "4/9 va 7/9 kasrlarining maxraji mos keldi. Nimaga qaraymiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'У дробей 4/9 и 7/9 совпали знаменатели. На что смотрим?', uz: "4/9 va 7/9 kasrlarining maxraji mos keldi. Nimaga qaraymiz?", en: 'The fractions 4/9 and 7/9 have the same denominators. What do we look at?' },
     opts: [
-      { ru: 'на числители', uz: 'suratlarga' },
-      { ru: 'на знаменатели', uz: 'maxrajlarga' },
-      { ru: 'на сумму этажей', uz: "qavatlar yig'indisiga" },
-      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" }
+      { ru: 'на числители', uz: 'suratlarga', en: 'at the numerators' },
+      { ru: 'на знаменатели', uz: 'maxrajlarga', en: 'at the denominators' },
+      { ru: 'на сумму этажей', uz: "qavatlar yig'indisiga", en: 'at the sum of the floors' },
+      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Знаменатели уже одинаковые, сравнивать в них нечего.', uz: "Maxrajlar allaqachon bir xil, ularda taqqoslaydigan narsa yo'q." },
-      2: { ru: 'Складывать этажи нельзя, это не одно число.', uz: "Qavatlarni qo'shib bo'lmaydi, bu bitta son emas." },
-      3: { ru: 'Целое одно и то же, сравнить можно всегда.', uz: "Butun bitta va o'sha, taqqoslash har doim mumkin." }
+      1: { ru: 'Знаменатели уже одинаковые, сравнивать в них нечего.', uz: "Maxrajlar allaqachon bir xil, ularda taqqoslaydigan narsa yo'q.", en: 'The denominators are already the same, there is nothing to compare there.' },
+      2: { ru: 'Складывать этажи нельзя, это не одно число.', uz: "Qavatlarni qo'shib bo'lmaydi, bu bitta son emas.", en: 'The floors must not be added, this is not one number.' },
+      3: { ru: 'Целое одно и то же, сравнить можно всегда.', uz: "Butun bitta va o'sha, taqqoslash har doim mumkin.", en: 'The whole is the same, they can always be compared.' }
     },
-    on_correct: { ru: 'Да. Куски одинаковые, решает их количество.', uz: "Ha. Bo'laklar bir xil, ularning soni hal qiladi." },
+    on_correct: { ru: 'Да. Куски одинаковые, решает их количество.', uz: "Ha. Bo'laklar bir xil, ularning soni hal qiladi.", en: 'Yes. The pieces are the same, their number decides.' },
     rule_lines: {
       ru: ['Если знаменатели одинаковые, больше та дробь, у которой числитель больше.', 'Если числители одинаковые, больше та, у которой знаменатель меньше. Если не совпало ничего, сравниваем каждую с половиной.'],
-      uz: ["Maxrajlar bir xil bo'lsa, surati katta kasr katta.", "Suratlar bir xil bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiramiz."]
+      uz: ["Maxrajlar bir xil bo'lsa, surati katta kasr katta.", "Suratlar bir xil bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiramiz."],
+      en: ['If the denominators are the same, the fraction with the bigger numerator is bigger.', 'If the numerators are the same, the one with the smaller denominator is bigger. If nothing matched, we compare each one with a half.']
     },
     rule_ex: '4/9 < 7/9',
-    rule_speech: { ru: 'четыре девятых меньше семи девятых', uz: "to'qqizdan to'rt to'qqizdan yettidan kichik" },
+    rule_speech: { ru: 'четыре девятых меньше семи девятых', uz: "to'qqizdan to'rt to'qqizdan yettidan kichik", en: 'four ninths is smaller than seven ninths' },
     audio: {
       intro: {
         ru: 'Сначала решаем, каким признаком пользоваться. У дробей четыре девятых и семь девятых совпали знаменатели. На что смотрим?',
-        uz: "Avval qaysi belgidan foydalanishni hal qilamiz. To'qqizdan to'rt va to'qqizdan yetti kasrlarining maxraji mos keldi. Nimaga qaraymiz?"
+        uz: "Avval qaysi belgidan foydalanishni hal qilamiz. To'qqizdan to'rt va to'qqizdan yetti kasrlarining maxraji mos keldi. Nimaga qaraymiz?",
+        en: 'First we decide which test to use. The fractions four ninths and seven ninths have the same denominators. What do we look at?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: suratlar bir xil, maxrajlar boshqa.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Какой знак поставить между 2/3 и 2/5?', uz: "2/3 va 2/5 orasiga qaysi belgi qo'yiladi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Какой знак поставить между 2/3 и 2/5?', uz: "2/3 va 2/5 orasiga qaysi belgi qo'yiladi?", en: 'Which sign goes between 2/3 and 2/5?' },
     fig_left: 3,
     fig_left_filled: 2,
     fig_right: 5,
     fig_right_filled: 2,
     opts: [
-      { ru: 'больше', uz: 'katta' },
-      { ru: 'меньше', uz: 'kichik' },
-      { ru: 'равно', uz: 'teng' },
-      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" }
+      { ru: 'больше', uz: 'katta', en: 'greater than' },
+      { ru: 'меньше', uz: 'kichik', en: 'less than' },
+      { ru: 'равно', uz: 'teng', en: 'equal to' },
+      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Кусков поровну, но слева они крупнее.', uz: "Bo'lak soni teng, lekin chapdagilari yirikroq." },
-      2: { ru: 'Куски разного размера, равными дроби быть не могут.', uz: "Bo'laklar har xil, kasrlar teng bo'la olmaydi." },
-      3: { ru: 'Целые одинаковые, сравнить можно.', uz: "Butunlar bir xil, taqqoslasa bo'ladi." }
+      1: { ru: 'Кусков поровну, но слева они крупнее.', uz: "Bo'lak soni teng, lekin chapdagilari yirikroq.", en: 'There is the same number of pieces, but on the left they are bigger.' },
+      2: { ru: 'Куски разного размера, равными дроби быть не могут.', uz: "Bo'laklar har xil, kasrlar teng bo'la olmaydi.", en: 'The pieces are different sizes, the fractions cannot be equal.' },
+      3: { ru: 'Целые одинаковые, сравнить можно.', uz: "Butunlar bir xil, taqqoslasa bo'ladi.", en: 'The wholes are the same, they can be compared.' }
     },
     audio: {
-      intro: { ru: 'Здесь числители совпали, а знаменатели разные. Какой знак поставить?', uz: "Bu yerda suratlar mos keldi, maxrajlar esa boshqa. Qaysi belgi qo'yiladi?" },
-      on_correct: { ru: 'Верно. Куски по три крупнее, чем куски по пять.', uz: "To'g'ri. Uchga bo'lingan bo'laklar beshga bo'linganidan yirik." },
-      on_wrong: { ru: 'Кусков поровну. Значит решает их размер.', uz: "Bo'lak soni teng. Demak ularning kattaligi hal qiladi." }
+      intro: { ru: 'Здесь числители совпали, а знаменатели разные. Какой знак поставить?', uz: "Bu yerda suratlar mos keldi, maxrajlar esa boshqa. Qaysi belgi qo'yiladi?", en: 'Here the numerators matched and the denominators differ. Which sign goes between them?' },
+      on_correct: { ru: 'Верно. Куски по три крупнее, чем куски по пять.', uz: "To'g'ri. Uchga bo'lingan bo'laklar beshga bo'linganidan yirik.", en: 'Right. Pieces from three are bigger than pieces from five.' },
+      on_wrong: { ru: 'Кусков поровну. Значит решает их размер.', uz: "Bo'lak soni teng. Demak ularning kattaligi hal qiladi.", en: 'There is the same number of pieces. So their size decides.' }
     }
   },
 
   // s5 — SARALASH: yarim bilan solishtirish (darslik 148-bet).
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Сравни каждую дробь с половиной', uz: 'Har bir kasrni yarim bilan solishtiring' },
-    bin_a: { ru: 'больше половины', uz: 'yarimdan katta' },
-    bin_b: { ru: 'меньше половины', uz: 'yarimdan kichik' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Сравни каждую дробь с половиной', uz: 'Har bir kasrni yarim bilan solishtiring', en: 'Compare each fraction with a half' },
+    bin_a: { ru: 'больше половины', uz: 'yarimdan katta', en: 'bigger than a half' },
+    bin_b: { ru: 'меньше половины', uz: 'yarimdan kichik', en: 'smaller than a half' },
     items: [
-      { n: { ru: '5/6', uz: '5/6' }, a: true, hint: { ru: 'Половина это три шестых, а тут пять.', uz: "Yarim bu oltidan uch, bu yerda esa besh." } },
-      { n: { ru: '2/8', uz: '2/8' }, a: false, hint: { ru: 'Половина это четыре восьмых, а тут две.', uz: "Yarim bu sakkizdan to'rt, bu yerda esa ikki." } },
-      { n: { ru: '3/4', uz: '3/4' }, a: true, hint: { ru: 'Половина это две четвёртых, а тут три.', uz: "Yarim bu to'rtdan ikki, bu yerda esa uch." } },
-      { n: { ru: '1/3', uz: '1/3' }, a: false, hint: { ru: 'До половины не хватает, три части это больше двух.', uz: "Yarimga yetmaydi, uchta bo'lak ikkitadan ko'p." } }
+      { n: { ru: '5/6', uz: '5/6', en: '5/6' }, a: true, hint: { ru: 'Половина это три шестых, а тут пять.', uz: "Yarim bu oltidan uch, bu yerda esa besh.", en: 'A half is three sixths, and here there are five.' } },
+      { n: { ru: '2/8', uz: '2/8', en: '2/8' }, a: false, hint: { ru: 'Половина это четыре восьмых, а тут две.', uz: "Yarim bu sakkizdan to'rt, bu yerda esa ikki.", en: 'A half is four eighths, and here there are two.' } },
+      { n: { ru: '3/4', uz: '3/4', en: '3/4' }, a: true, hint: { ru: 'Половина это две четвёртых, а тут три.', uz: "Yarim bu to'rtdan ikki, bu yerda esa uch.", en: 'A half is two fourths, and here there are three.' } },
+      { n: { ru: '1/3', uz: '1/3', en: '1/3' }, a: false, hint: { ru: 'До половины не хватает, три части это больше двух.', uz: "Yarimga yetmaydi, uchta bo'lak ikkitadan ko'p.", en: 'It is short of a half, three parts is more than two.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре дроби. Сравни каждую с половиной и отправь на свою полку.', uz: "To'rtta kasr. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Половина это когда числитель ровно вдвое меньше знаменателя.', uz: "Hammasi joyida. Yarim bu surat maxrajdan roppa-rosa ikki barobar kichik bo'lgani." },
-      on_wrong: { ru: 'Прикинь, сколько будет половина от этих частей.', uz: "Bu bo'laklarning yarmi qancha bo'lishini chamalang." }
+      intro: { ru: 'Четыре дроби. Сравни каждую с половиной и отправь на свою полку.', uz: "To'rtta kasr. Har birini yarim bilan solishtirib, o'z tokchasiga yuboring.", en: 'Four fractions. Compare each one with a half and send it to its shelf.' },
+      on_correct: { ru: 'Все на месте. Половина это когда числитель ровно вдвое меньше знаменателя.', uz: "Hammasi joyida. Yarim bu surat maxrajdan roppa-rosa ikki barobar kichik bo'lgani.", en: 'All in place. A half is when the numerator is exactly half the denominator.' },
+      on_wrong: { ru: 'Прикинь, сколько будет половина от этих частей.', uz: "Bu bo'laklarning yarmi qancha bo'lishini chamalang.", en: 'Work out roughly what half of these parts would be.' }
     }
   },
 
   // s6 — TEST: yarim bilan taqqoslash.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Что больше: 5/6 или 1/2?', uz: '5/6 mi yoki 1/2 mi katta?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Что больше: 5/6 или 1/2?', uz: '5/6 mi yoki 1/2 mi katta?', en: 'Which is bigger: 5/6 or 1/2?' },
     opts: [
-      { ru: '5/6', uz: '5/6' },
-      { ru: '1/2', uz: '1/2' },
-      { ru: 'они равны', uz: 'ular teng' },
-      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi" }
+      { ru: '5/6', uz: '5/6', en: '5/6' },
+      { ru: '1/2', uz: '1/2', en: '1/2' },
+      { ru: 'они равны', uz: 'ular teng', en: 'they are equal' },
+      { ru: 'сравнить нельзя', uz: "taqqoslab bo'lmaydi", en: 'they cannot be compared' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Половина это три шестых. Пять больше трёх.', uz: "Yarim bu oltidan uch. Besh uchdan katta." },
-      2: { ru: 'Равными они быть не могут, частей взято разное число.', uz: "Ular teng bo'la olmaydi, har xil sondagi bo'lak olingan." },
-      3: { ru: 'Целое одно и то же, значит сравнить можно.', uz: "Butun bitta va o'sha, demak taqqoslasa bo'ladi." }
+      1: { ru: 'Половина это три шестых. Пять больше трёх.', uz: "Yarim bu oltidan uch. Besh uchdan katta.", en: 'A half is three sixths. Five is bigger than three.' },
+      2: { ru: 'Равными они быть не могут, частей взято разное число.', uz: "Ular teng bo'la olmaydi, har xil sondagi bo'lak olingan.", en: 'They cannot be equal, different numbers of parts were taken.' },
+      3: { ru: 'Целое одно и то же, значит сравнить можно.', uz: "Butun bitta va o'sha, demak taqqoslasa bo'ladi.", en: 'The whole is the same, so they can be compared.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Что больше, пять шестых или одна вторая?', uz: "Tez savol. Oltidan besh mi yoki ikkidan bir mi katta?" },
-      on_correct: { ru: 'Верно. Половина это три шестых, а взяли пять.', uz: "To'g'ri. Yarim bu oltidan uch, olingani esa besh." },
-      on_wrong: { ru: 'Переведи половину в шестые доли и сравни.', uz: "Yarimni oltidan bo'lakka aylantirib solishtiring." }
+      intro: { ru: 'Быстрый вопрос. Что больше, пять шестых или одна вторая?', uz: "Tez savol. Oltidan besh mi yoki ikkidan bir mi katta?", en: 'A quick question. Which is bigger, five sixths or one half?' },
+      on_correct: { ru: 'Верно. Половина это три шестых, а взяли пять.', uz: "To'g'ri. Yarim bu oltidan uch, olingani esa besh.", en: 'Right. A half is three sixths, and five were taken.' },
+      on_wrong: { ru: 'Переведи половину в шестые доли и сравни.', uz: "Yarimni oltidan bo'lakka aylantirib solishtiring.", en: 'Turn the half into sixths and compare.' }
     }
   },
 
   // s7 — KONSOL: uchta juftlik, har birida katta kasrning surati yoki maxraji.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Заполни консоль по признакам', uz: "Konsolni belgilar bo'yicha to'ldiring" },
-    swap_line: { ru: '7/10 и 3/10, потом 4/5 и 4/9', uz: '7/10 va 3/10, keyin 4/5 va 4/9' },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Заполни консоль по признакам', uz: "Konsolni belgilar bo'yicha to'ldiring", en: 'Fill the console by the tests' },
+    swap_line: { ru: '7/10 и 3/10, потом 4/5 и 4/9', uz: '7/10 va 3/10, keyin 4/5 va 4/9', en: '7/10 and 3/10, then 4/5 and 4/9' },
     cells: [
-      { head: { ru: 'первая пара', uz: 'birinchi juft' }, label: { ru: 'числитель большей', uz: 'kattaning surati' }, ans: 7, hint: { ru: 'Знаменатели совпали, решают числители.', uz: "Maxrajlar mos keldi, suratlar hal qiladi." } },
-      { head: { ru: 'вторая пара', uz: 'ikkinchi juft' }, label: { ru: 'знаменатель большей', uz: 'kattaning maxraji' }, ans: 5, hint: { ru: 'Числители совпали, крупнее там, где частей меньше.', uz: "Suratlar mos keldi, bo'lak kam joyda yirikroq." } },
-      { head: { ru: 'проверка', uz: 'tekshirish' }, label: { ru: 'половина от 10', uz: '10 ning yarmi' }, ans: 5, hint: { ru: 'Половина десяти это пять.', uz: "O'nning yarmi besh." } }
+      { head: { ru: 'первая пара', uz: 'birinchi juft', en: 'the first pair' }, label: { ru: 'числитель большей', uz: 'kattaning surati', en: 'the numerator of the bigger one' }, ans: 7, hint: { ru: 'Знаменатели совпали, решают числители.', uz: "Maxrajlar mos keldi, suratlar hal qiladi.", en: 'The denominators matched, the numerators decide.' } },
+      { head: { ru: 'вторая пара', uz: 'ikkinchi juft', en: 'the second pair' }, label: { ru: 'знаменатель большей', uz: 'kattaning maxraji', en: 'the denominator of the bigger one' }, ans: 5, hint: { ru: 'Числители совпали, крупнее там, где частей меньше.', uz: "Suratlar mos keldi, bo'lak kam joyda yirikroq.", en: 'The numerators matched, it is bigger where there are fewer parts.' } },
+      { head: { ru: 'проверка', uz: 'tekshirish', en: 'check' }, label: { ru: 'половина от 10', uz: '10 ning yarmi', en: 'half of 10' }, ans: 5, hint: { ru: 'Половина десяти это пять.', uz: "O'nning yarmi besh.", en: 'Half of ten is five.' } }
     ],
     check: '7/10 > 3/10, 4/5 > 4/9',
-    check_label: { ru: 'два признака подряд', uz: 'ketma-ket ikki belgi' },
+    check_label: { ru: 'два признака подряд', uz: 'ketma-ket ikki belgi', en: 'two tests in a row' },
     audio: {
-      intro: { ru: 'Заполни три окна. В первой паре совпали знаменатели, во второй числители.', uz: "Uchta oynani to'ldiring. Birinchi juftda maxrajlar, ikkinchisida suratlar mos keldi." },
-      on_correct: { ru: 'Оба признака сработали. Смотри сначала, что совпало.', uz: "Ikkala belgi ham ishladi. Avval nima mos kelganiga qarang." }
+      intro: { ru: 'Заполни три окна. В первой паре совпали знаменатели, во второй числители.', uz: "Uchta oynani to'ldiring. Birinchi juftda maxrajlar, ikkinchisida suratlar mos keldi.", en: 'Fill three windows. In the first pair the denominators matched, in the second the numerators.' },
+      on_correct: { ru: 'Оба признака сработали. Смотри сначала, что совпало.', uz: "Ikkala belgi ham ishladi. Avval nima mos kelganiga qarang.", en: 'Both tests worked. First look at what matched.' }
     }
   },
 
   // s8 — XATONI TOP: suratlar bir xil, maxrajga noto'g'ri qoida (M1).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Кто-то написал: 2/5 больше 2/3, потому что 5 больше 3. В чём ошибка?', uz: "Kimdir yozibdi: 2/5 2/3 dan katta, chunki 5 uchdan katta. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Кто-то написал: 2/5 больше 2/3, потому что 5 больше 3. В чём ошибка?', uz: "Kimdir yozibdi: 2/5 2/3 dan katta, chunki 5 uchdan katta. Xato nimada?", en: 'Someone wrote: 2/5 is bigger than 2/3, because 5 is bigger than 3. What is the mistake?' },
     fig_line: '2/5 > 2/3',
     opts: [
-      { ru: 'при равных числителях больше та, где знаменатель меньше', uz: "suratlar teng bo'lsa, maxraji kichigi katta" },
-      { ru: 'надо было сравнить числители', uz: 'suratlarni taqqoslash kerak edi' },
-      { ru: 'такие дроби сравнивать нельзя', uz: "bunday kasrlarni taqqoslab bo'lmaydi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'при равных числителях больше та, где знаменатель меньше', uz: "suratlar teng bo'lsa, maxraji kichigi katta", en: 'with equal numerators the one with the smaller denominator is bigger' },
+      { ru: 'надо было сравнить числители', uz: 'suratlarni taqqoslash kerak edi', en: 'the numerators should have been compared' },
+      { ru: 'такие дроби сравнивать нельзя', uz: "bunday kasrlarni taqqoslab bo'lmaydi", en: 'such fractions cannot be compared' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Числители и так равны, сравнивать в них нечего.', uz: "Suratlar allaqachon teng, ularda taqqoslaydigan narsa yo'q." },
-      2: { ru: 'Целое одно и то же, сравнить можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi." },
-      3: { ru: 'Ошибка есть. На пять частей режут мельче, чем на три.', uz: "Xato bor. Beshga bo'lganda uchga bo'lgandan mayda chiqadi." }
+      1: { ru: 'Числители и так равны, сравнивать в них нечего.', uz: "Suratlar allaqachon teng, ularda taqqoslaydigan narsa yo'q.", en: 'The numerators are equal anyway, there is nothing to compare there.' },
+      2: { ru: 'Целое одно и то же, сравнить можно.', uz: "Butun bitta va o'sha, taqqoslasa bo'ladi.", en: 'The whole is the same, they can be compared.' },
+      3: { ru: 'Ошибка есть. На пять частей режут мельче, чем на три.', uz: "Xato bor. Beshga bo'lganda uchga bo'lgandan mayda chiqadi.", en: 'There is a mistake. Cutting into five parts gives smaller pieces than into three.' }
     },
     audio: {
-      intro: { ru: 'Здесь сравнили дроби и получили наоборот. Найди ошибку в рассуждении.', uz: "Bu yerda kasrlar taqqoslanib, teskarisi chiqqan. Mulohazadagi xatoni toping." },
-      on_correct: { ru: 'Точно. Кусков поровну, но пятые доли мельче третьих.', uz: "Aniq. Bo'lak soni teng, lekin beshdan bo'laklar uchdan boshqasidan mayda." },
-      on_wrong: { ru: 'Посмотри, что здесь совпало, и вспомни нужный признак.', uz: "Bu yerda nima mos kelganiga qarang va kerakli belgini eslang." }
+      intro: { ru: 'Здесь сравнили дроби и получили наоборот. Найди ошибку в рассуждении.', uz: "Bu yerda kasrlar taqqoslanib, teskarisi chiqqan. Mulohazadagi xatoni toping.", en: 'Here fractions were compared and it came out the other way round. Find the mistake in the reasoning.' },
+      on_correct: { ru: 'Точно. Кусков поровну, но пятые доли мельче третьих.', uz: "Aniq. Bo'lak soni teng, lekin beshdan bo'laklar uchdan boshqasidan mayda.", en: 'Exactly. There is the same number of pieces, but fifths are smaller than thirds.' },
+      on_wrong: { ru: 'Посмотри, что здесь совпало, и вспомни нужный признак.', uz: "Bu yerda nima mos kelganiga qarang va kerakli belgini eslang.", en: 'Look at what matched here and recall the right test.' }
     }
   },
 
   // s9 — BIT TUZOG'I: qavatlarni qo'shib taqqoslash (M2, yopiq maydon).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит придумал быстрый способ', uz: "Bit tezkor usul o'ylab topdi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит придумал быстрый способ', uz: "Bit tezkor usul o'ylab topdi", en: 'Bit has thought up a quick way' },
     lines: ['сравним 3/4 и 5/8', 'Бит: 3 и 4 это 7, а 5 и 8 это 13'],
     lines_uz: ["3/4 va 5/8 ni taqqoslaymiz", "Bit: 3 va 4 bu 7, 5 va 8 esa 13"],
-    line_cap: { ru: 'Бит: сумма больше, значит и дробь больше', uz: "Bit: yig'indi katta, demak kasr ham katta" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, так считать нельзя', 'да, способ рабочий'], uz: ["yo'q, bunday hisoblab bo'lmaydi", 'ha, usul ishlaydi'] },
+    lines_en: ['let us compare 3/4 and 5/8', 'Bit: 3 and 4 is 7, and 5 and 8 is 13'],
+    line_cap: { ru: 'Бит: сумма больше, значит и дробь больше', uz: "Bit: yig'indi katta, demak kasr ham katta", en: 'Bit: the sum is bigger, so the fraction is bigger' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, так считать нельзя', 'да, способ рабочий'], uz: ["yo'q, bunday hisoblab bo'lmaydi", 'ha, usul ishlaydi'], en: ['no, you cannot count that way', 'yes, the method works'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Три четвёртых это шесть восьмых, и это больше пяти восьмых. Сумма этажей ничего не говорит о размере дроби.', uz: "Ha. To'rtdan uch bu sakkizdan olti, u sakkizdan beshdan katta. Qavatlar yig'indisi kasrning kattaligi haqida hech nima aytmaydi." },
-    trap_wrong: { ru: 'Проверь по рисунку. Три четвёртых это шесть восьмых, а у Бита вышло меньше.', uz: "Rasm bo'yicha tekshiring. To'rtdan uch bu sakkizdan olti, Bitda esa kamroq chiqdi." },
+    trap_correct: { ru: 'Да. Три четвёртых это шесть восьмых, и это больше пяти восьмых. Сумма этажей ничего не говорит о размере дроби.', uz: "Ha. To'rtdan uch bu sakkizdan olti, u sakkizdan beshdan katta. Qavatlar yig'indisi kasrning kattaligi haqida hech nima aytmaydi.", en: 'Yes. Three fourths is six eighths, and that is bigger than five eighths. The sum of the floors says nothing about the size of a fraction.' },
+    trap_wrong: { ru: 'Проверь по рисунку. Три четвёртых это шесть восьмых, а у Бита вышло меньше.', uz: "Rasm bo'yicha tekshiring. To'rtdan uch bu sakkizdan olti, Bitda esa kamroq chiqdi.", en: 'Check it on the picture. Three fourths is six eighths, and Bit got it as smaller.' },
     audio: {
       ru: [
         'Бит придумал быстрый способ сравнивать дроби.',
@@ -411,164 +418,170 @@ const CONTENT = {
         "Bit kasrlarni taqqoslashning tezkor usulini o'ylab topdi.",
         "Ikkala qavatni qo'shaman. Uch va to'rt bu yetti, besh va sakkiz bu o'n uch. Yig'indi katta, demak kasr ham katta.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit has thought up a quick way to compare fractions.', 'I add both floors. Three and four is seven, five and eight is thirteen. The sum is bigger, so the fraction is bigger.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: bir xil maxraj.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Что больше: 4/9 или 7/9? Набери числитель большей дроби.', uz: "4/9 mi yoki 7/9 mi katta? Katta kasrning suratini tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Что больше: 4/9 или 7/9? Набери числитель большей дроби.', uz: "4/9 mi yoki 7/9 mi katta? Katta kasrning suratini tering.", en: 'Which is bigger: 4/9 or 7/9? Type the numerator of the bigger fraction.' },
     ans: 7,
     check: '7/9 > 4/9',
-    check_label: { ru: 'знаменатели равны', uz: 'maxrajlar teng' },
-    hint: { ru: 'Куски одинаковые, считай их число.', uz: "Bo'laklar bir xil, sonini sanang." },
+    check_label: { ru: 'знаменатели равны', uz: 'maxrajlar teng', en: 'the denominators are equal' },
+    hint: { ru: 'Куски одинаковые, считай их число.', uz: "Bo'laklar bir xil, sonini sanang.", en: 'The pieces are the same, count their number.' },
     audio: {
-      intro: { ru: 'Что больше, четыре девятых или семь девятых? Набери числитель большей дроби.', uz: "To'qqizdan to'rt mi yoki to'qqizdan yetti mi katta? Katta kasrning suratini tering." },
-      on_correct: { ru: 'Семь. Куски одного размера, значит решает их число.', uz: "Yetti. Bo'laklar bir kattalikda, demak soni hal qiladi." }
+      intro: { ru: 'Что больше, четыре девятых или семь девятых? Набери числитель большей дроби.', uz: "To'qqizdan to'rt mi yoki to'qqizdan yetti mi katta? Katta kasrning suratini tering.", en: 'Which is bigger, four ninths or seven ninths? Type the numerator of the bigger fraction.' },
+      on_correct: { ru: 'Семь. Куски одного размера, значит решает их число.', uz: "Yetti. Bo'laklar bir kattalikda, demak soni hal qiladi.", en: 'Seven. The pieces are the same size, so their number decides.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: bir xil surat.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Что больше: 3/5 или 3/10? Набери знаменатель большей дроби.', uz: "3/5 mi yoki 3/10 mi katta? Katta kasrning maxrajini tering." },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Что больше: 3/5 или 3/10? Набери знаменатель большей дроби.', uz: "3/5 mi yoki 3/10 mi katta? Katta kasrning maxrajini tering.", en: 'Which is bigger: 3/5 or 3/10? Type the denominator of the bigger fraction.' },
     ans: 5,
     check: '3/5 > 3/10',
-    check_label: { ru: 'числители равны', uz: 'suratlar teng' },
-    hint: { ru: 'Кусков поровну, крупнее там, где частей меньше.', uz: "Bo'lak soni teng, bo'lak kam joyda yirikroq." },
+    check_label: { ru: 'числители равны', uz: 'suratlar teng', en: 'the numerators are equal' },
+    hint: { ru: 'Кусков поровну, крупнее там, где частей меньше.', uz: "Bo'lak soni teng, bo'lak kam joyda yirikroq.", en: 'There is the same number of pieces, it is bigger where there are fewer parts.' },
     audio: {
-      intro: { ru: 'Что больше, три пятых или три десятых? Набери знаменатель большей дроби.', uz: "Beshdan uch mi yoki o'ndan uch mi katta? Katta kasrning maxrajini tering." },
-      on_correct: { ru: 'Пять. Кусков поровну, но пятые доли крупнее десятых.', uz: "Besh. Bo'lak soni teng, lekin beshdan bo'laklar o'ndan boshqasidan yirik." }
+      intro: { ru: 'Что больше, три пятых или три десятых? Набери знаменатель большей дроби.', uz: "Beshdan uch mi yoki o'ndan uch mi katta? Katta kasrning maxrajini tering.", en: 'Which is bigger, three fifths or three tenths? Type the denominator of the bigger fraction.' },
+      on_correct: { ru: 'Пять. Кусков поровну, но пятые доли крупнее десятых.', uz: "Besh. Bo'lak soni teng, lekin beshdan bo'laklar o'ndan boshqasidan yirik.", en: 'Five. There is the same number of pieces, but fifths are bigger than tenths.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Два свитка у стелы', uz: 'Stela yonidagi ikki o\'ram' },
-    q: { ru: 'Два одинаковых свитка. Первый исписан на 5/12, второй на 7/12. Насколько больше частей исписано во втором?', uz: "Ikkita bir xil o'ram. Birinchisi 5/12 ga, ikkinchisi 7/12 ga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?" },
-    q_speech: { ru: 'два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь двенадцатых. Насколько больше частей исписано во втором?', uz: "ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi o'n ikkidan yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Два свитка у стелы', uz: 'Stela yonidagi ikki o\'ram', en: 'Two scrolls at the stele' },
+    q: { ru: 'Два одинаковых свитка. Первый исписан на 5/12, второй на 7/12. Насколько больше частей исписано во втором?', uz: "Ikkita bir xil o'ram. Birinchisi 5/12 ga, ikkinchisi 7/12 ga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?", en: 'Two identical scrolls. The first is written on for 5/12, the second for 7/12. How many more parts are written on in the second?' },
+    q_speech: { ru: 'два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь двенадцатых. Насколько больше частей исписано во втором?', uz: "ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi o'n ikkidan yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?", en: 'two identical scrolls. The first is written on for five twelfths, the second for seven twelfths. How many more parts are written on in the second?' },
     tbl_heads: [
-      { ru: 'частей всего', uz: "jami bo'lak" },
-      { ru: 'первый', uz: 'birinchi' },
-      { ru: 'второй', uz: 'ikkinchi' }
+      { ru: 'частей всего', uz: "jami bo'lak", en: 'parts in all' },
+      { ru: 'первый', uz: 'birinchi', en: 'the first' },
+      { ru: 'второй', uz: 'ikkinchi', en: 'the second' }
     ],
     tbl_cells: ['12', '5', '7'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '7 − 5', uz: '7 − 5' },
-      { ru: '7 + 5', uz: '7 + 5' },
-      { ru: '12 − 7', uz: '12 − 7' },
-      { ru: '12 : 5', uz: '12 : 5' }
+      { ru: '7 − 5', uz: '7 − 5', en: '7 − 5' },
+      { ru: '7 + 5', uz: '7 + 5', en: '7 + 5' },
+      { ru: '12 − 7', uz: '12 − 7', en: '12 − 7' },
+      { ru: '12 : 5', uz: '12 : 5', en: '12 : 5' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Спрашивают, насколько больше. Это вычитание числителей.', uz: "Qanchaga ko'p deb so'ralyapti. Bu suratlarni ayirish." },
-      2: { ru: 'Складывать исписанные части двух свитков не нужно.', uz: "Ikki o'ramning yozilgan qismini qo'shish shart emas." },
-      3: { ru: 'Так мы найдём чистую часть второго свитка, а спрашивают другое.', uz: "Bunda ikkinchi o'ramning toza qismi topiladi, so'ralgani esa boshqa." }
+      1: { ru: 'Спрашивают, насколько больше. Это вычитание числителей.', uz: "Qanchaga ko'p deb so'ralyapti. Bu suratlarni ayirish.", en: 'The question is how many more. That is subtracting the numerators.' },
+      2: { ru: 'Складывать исписанные части двух свитков не нужно.', uz: "Ikki o'ramning yozilgan qismini qo'shish shart emas.", en: 'There is no need to add the written parts of two scrolls.' },
+      3: { ru: 'Так мы найдём чистую часть второго свитка, а спрашивают другое.', uz: "Bunda ikkinchi o'ramning toza qismi topiladi, so'ralgani esa boshqa.", en: 'That way we find the blank part of the second scroll, and something else was asked.' }
     },
-    pick_ok: { ru: 'Верно. Знаменатели равны, значит сравниваем числители.', uz: "To'g'ri. Maxrajlar teng, demak suratlarni taqqoslaymiz." },
-    step1_q: { ru: 'На сколько частей больше исписано во втором?', uz: "Ikkinchisida nechta bo'lak ko'p yozilgan?" },
+    pick_ok: { ru: 'Верно. Знаменатели равны, значит сравниваем числители.', uz: "To'g'ri. Maxrajlar teng, demak suratlarni taqqoslaymiz.", en: 'Right. The denominators are equal, so we compare the numerators.' },
+    step1_q: { ru: 'На сколько частей больше исписано во втором?', uz: "Ikkinchisida nechta bo'lak ko'p yozilgan?", en: 'How many more parts are written on in the second?' },
     ans1: 2,
-    hint1: { ru: 'Из семи убери пять.', uz: "Yettidan beshni olib tashlang." },
-    step2_q: { ru: 'Сколько частей второго свитка ещё чистые?', uz: "Ikkinchi o'ramning nechta bo'lagi hali toza?" },
+    hint1: { ru: 'Из семи убери пять.', uz: "Yettidan beshni olib tashlang.", en: 'Take five away from seven.' },
+    step2_q: { ru: 'Сколько частей второго свитка ещё чистые?', uz: "Ikkinchi o'ramning nechta bo'lagi hali toza?", en: 'How many parts of the second scroll are still blank?' },
     ans2: 5,
-    hint2: { ru: 'Из двенадцати убери семь.', uz: "O'n ikkitadan yettini olib tashlang." },
+    hint2: { ru: 'Из двенадцати убери семь.', uz: "O'n ikkitadan yettini olib tashlang.", en: 'Take seven away from twelve.' },
     check: '7/12 > 5/12',
-    setup_audio: { ru: 'У стелы нашли два свитка. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidan ikkita o'ram topildi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'У стелы нашли два свитка. Посмотри на таблицу и реши, с чего начинать.', uz: "Stela yonidan ikkita o'ram topildi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'Two scrolls were found at the stele. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь. Насколько больше частей исписано во втором?', uz: "Ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?" },
-      on_correct: { ru: 'На две части больше, и пять частей ещё чистые.', uz: "Ikkita bo'lakka ko'p, beshta bo'lak esa hali toza." },
-      on_wrong: { ru: 'Вернись к первому шагу. Знаменатели одинаковые, работай с числителями.', uz: "Birinchi qadamga qayting. Maxrajlar bir xil, suratlar bilan ishlang." }
+      intro: { ru: 'Два одинаковых свитка. Первый исписан на пять двенадцатых, второй на семь. Насколько больше частей исписано во втором?', uz: "Ikkita bir xil o'ram. Birinchisi o'n ikkidan besh, ikkinchisi yetti qismiga yozilgan. Ikkinchisida nechta bo'lak ko'p yozilgan?", en: 'Two identical scrolls. The first is written on for five twelfths, the second for seven. How many more parts are written on in the second?' },
+      on_correct: { ru: 'На две части больше, и пять частей ещё чистые.', uz: "Ikkita bo'lakka ko'p, beshta bo'lak esa hali toza.", en: 'Two parts more, and five parts are still blank.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Знаменатели одинаковые, работай с числителями.', uz: "Birinchi qadamga qayting. Maxrajlar bir xil, suratlar bilan ishlang.", en: 'Go back to the first step. The denominators are the same, work with the numerators.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Сначала смотри, что совпало', uz: "Uchta topshiriq. Avval nima mos kelganiga qarang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Сначала смотри, что совпало', uz: "Uchta topshiriq. Avval nima mos kelganiga qarang", en: 'Three tasks. First look at what matched' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Что больше: 2/7 или 6/7? Набери числитель большей дроби.', uz: "2/7 mi yoki 6/7 mi katta? Katta kasrning suratini tering." },
-        q_speech: { ru: 'что больше, две седьмых или шесть седьмых? Набери числитель большей дроби.', uz: "yettidan ikki mi yoki yettidan olti mi katta? Katta kasrning suratini tering." },
+        q: { ru: 'Что больше: 2/7 или 6/7? Набери числитель большей дроби.', uz: "2/7 mi yoki 6/7 mi katta? Katta kasrning suratini tering.", en: 'Which is bigger: 2/7 or 6/7? Type the numerator of the bigger fraction.' },
+        q_speech: { ru: 'что больше, две седьмых или шесть седьмых? Набери числитель большей дроби.', uz: "yettidan ikki mi yoki yettidan olti mi katta? Katta kasrning suratini tering.", en: 'which is bigger, two sevenths or six sevenths? Type the numerator of the bigger fraction.' },
         ans: 6,
-        hint: { ru: 'Знаменатели совпали, считай куски.', uz: "Maxrajlar mos keldi, bo'laklarni sanang." }
+        hint: { ru: 'Знаменатели совпали, считай куски.', uz: "Maxrajlar mos keldi, bo'laklarni sanang.", en: 'The denominators matched, count the pieces.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Что больше: 5/6 или 5/11? Набери знаменатель большей дроби.', uz: "5/6 mi yoki 5/11 mi katta? Katta kasrning maxrajini tering." },
-        q_speech: { ru: 'что больше, пять шестых или пять одиннадцатых? Набери знаменатель большей дроби.', uz: "oltidan besh mi yoki o'n birdan besh mi katta? Katta kasrning maxrajini tering." },
+        q: { ru: 'Что больше: 5/6 или 5/11? Набери знаменатель большей дроби.', uz: "5/6 mi yoki 5/11 mi katta? Katta kasrning maxrajini tering.", en: 'Which is bigger: 5/6 or 5/11? Type the denominator of the bigger fraction.' },
+        q_speech: { ru: 'что больше, пять шестых или пять одиннадцатых? Набери знаменатель большей дроби.', uz: "oltidan besh mi yoki o'n birdan besh mi katta? Katta kasrning maxrajini tering.", en: 'which is bigger, five sixths or five elevenths? Type the denominator of the bigger fraction.' },
         ans: 6,
-        hint: { ru: 'Кусков поровну, крупнее там, где частей меньше.', uz: "Bo'lak soni teng, bo'lak kam joyda yirikroq." }
+        hint: { ru: 'Кусков поровну, крупнее там, где частей меньше.', uz: "Bo'lak soni teng, bo'lak kam joyda yirikroq.", en: 'There is the same number of pieces, it is bigger where there are fewer parts.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Дробь 7/14 равна половине. Сколько получится, если взять половину от 14?', uz: "7/14 kasri yarimga teng. 14 ning yarmi nechaga teng?" },
-        q_speech: { ru: 'дробь семь четырнадцатых равна половине. Сколько получится, если взять половину от четырнадцати?', uz: "o'n to'rtdan yetti kasri yarimga teng. O'n to'rtning yarmi nechaga teng?" },
+        q: { ru: 'Дробь 7/14 равна половине. Сколько получится, если взять половину от 14?', uz: "7/14 kasri yarimga teng. 14 ning yarmi nechaga teng?", en: 'The fraction 7/14 equals a half. What do you get if you take half of 14?' },
+        q_speech: { ru: 'дробь семь четырнадцатых равна половине. Сколько получится, если взять половину от четырнадцати?', uz: "o'n to'rtdan yetti kasri yarimga teng. O'n to'rtning yarmi nechaga teng?", en: 'the fraction seven fourteenths equals a half. What do you get if you take half of fourteen?' },
         ans: 7,
-        hint: { ru: 'Половина это ровно вдвое меньше.', uz: "Yarim bu roppa-rosa ikki barobar kam." }
+        hint: { ru: 'Половина это ровно вдвое меньше.', uz: "Yarim bu roppa-rosa ikki barobar kam.", en: 'A half is exactly two times less.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Половина работает как контролёр. Если одна дробь больше половины, а другая меньше, сравнивать этажи уже не нужно: ответ известен сразу.',
-      uz: "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas: javob darrov ma'lum."
+      uz: "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas: javob darrov ma'lum.",
+      en: 'A half works as an inspector. If one fraction is bigger than a half and the other is smaller, there is no need to compare the floors at all: the answer is known at once.'
     },
     fact_audio: {
       ru: 'Половина работает как контролёр. Если одна дробь больше половины, а другая меньше, сравнивать этажи уже не нужно, ответ известен сразу. Три четвёртых больше половины, а две восьмых меньше, и этого достаточно. Такой приём выручает, когда ни числители, ни знаменатели не совпали.',
-      uz: "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas, javob darrov ma'lum. To'rtdan uch yarimdan katta, sakkizdan ikki esa kichik, shuning o'zi yetarli. Bunday usul na surat, na maxraj mos kelmaganda yordam beradi."
+      uz: "Yarim nazoratchi bo'lib ishlaydi. Bitta kasr yarimdan katta, ikkinchisi kichik bo'lsa, qavatlarni taqqoslash shart emas, javob darrov ma'lum. To'rtdan uch yarimdan katta, sakkizdan ikki esa kichik, shuning o'zi yetarli. Bunday usul na surat, na maxraj mos kelmaganda yordam beradi.",
+      en: 'A half works as an inspector. If one fraction is bigger than a half and the other is smaller, there is no need to compare the floors, the answer is known at once. Three fourths is bigger than a half and two eighths is smaller, and that is enough. This trick helps when neither the numerators nor the denominators matched.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. В каждом сначала найди совпадение.', uz: "Oxirida uchta topshiriq. Har birida avval mos kelganini toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри, что одинаково у дробей, и выбери признак.', uz: "Kasrlarda nima bir xil ekaniga qarang va belgini tanlang." }
+      intro: { ru: 'Три задания напоследок. В каждом сначала найди совпадение.', uz: "Oxirida uchta topshiriq. Har birida avval mos kelganini toping.", en: 'Three tasks at the end. In each one find the match first.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри, что одинаково у дробей, и выбери признак.', uz: "Kasrlarda nima bir xil ekaniga qarang va belgini tanlang.", en: 'Look at what the fractions have in common and choose the test.' }
     }
   },
 
   // s14 — YAKUN: keyingisi bir xil maxrajli kasrlarni qo'shish (reja 33-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Свитки сравнены!', uz: "O'ramlar taqqoslandi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Свитки сравнены!', uz: "O'ramlar taqqoslandi!", en: 'The scrolls are compared!' },
     cando: {
       ru: ['сравниваю дроби с одинаковым знаменателем', 'сравниваю дроби с одинаковым числителем', 'если не совпало ничего, сравниваю с половиной'],
-      uz: ["maxraji bir xil kasrlarni taqqoslayman", "surati bir xil kasrlarni taqqoslayman", "hech nima mos kelmasa, yarim bilan solishtiraman"]
+      uz: ["maxraji bir xil kasrlarni taqqoslayman", "surati bir xil kasrlarni taqqoslayman", "hech nima mos kelmasa, yarim bilan solishtiraman"],
+      en: ['I compare fractions with the same denominator', 'I compare fractions with the same numerator', 'if nothing matched, I compare with a half']
     },
-    rule_recap: { ru: 'Смотри, что совпало. Совпал знаменатель — считай числители, совпал числитель — смотри знаменатели.', uz: "Nima mos kelganiga qarang. Maxraj mos kelsa suratlarni sanang, surat mos kelsa maxrajlarga qarang." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 26: сравнение долей; урок 28: дроби больше целого', uz: '26-dars: ulushlarni taqqoslash; 28-dars: butundan katta kasrlar' },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'сложение и вычитание дробей с одинаковым знаменателем', uz: "bir xil maxrajli kasrlarni qo'shish va ayirish" },
+    rule_recap: { ru: 'Смотри, что совпало. Совпал знаменатель — считай числители, совпал числитель — смотри знаменатели.', uz: "Nima mos kelganiga qarang. Maxraj mos kelsa suratlarni sanang, surat mos kelsa maxrajlarga qarang.", en: 'Look at what matched. The denominator matched — count the numerators, the numerator matched — look at the denominators.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 26: сравнение долей; урок 28: дроби больше целого', uz: '26-dars: ulushlarni taqqoslash; 28-dars: butundan katta kasrlar', en: 'lesson 26: comparing unit fractions; lesson 28: fractions bigger than a whole' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'сложение и вычитание дробей с одинаковым знаменателем', uz: "bir xil maxrajli kasrlarni qo'shish va ayirish", en: 'adding and subtracting fractions with the same denominator' },
     audio: {
       ru: 'Свитки сравнены. Запомни главное. Сначала смотри, что у дробей совпало. Если знаменатели, больше та, где числитель больше. Если числители, больше та, где знаменатель меньше. А если ничего не совпало, сравни каждую с половиной. В следующий раз начнём дроби складывать!',
-      uz: "O'ramlar taqqoslandi. Asosiysini eslab qoling. Avval kasrlarda nima mos kelganiga qarang. Maxrajlar bo'lsa, surati katta kasr katta. Suratlar bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiring. Keyingi safar kasrlarni qo'sha boshlaymiz!"
+      uz: "O'ramlar taqqoslandi. Asosiysini eslab qoling. Avval kasrlarda nima mos kelganiga qarang. Maxrajlar bo'lsa, surati katta kasr katta. Suratlar bo'lsa, maxraji kichigi katta. Hech nima mos kelmasa, har birini yarim bilan solishtiring. Keyingi safar kasrlarni qo'sha boshlaymiz!",
+      en: 'The scrolls are compared. Remember the main thing. First look at what the fractions have in common. If it is the denominators, the one with the bigger numerator is bigger. If it is the numerators, the one with the smaller denominator is bigger. And if nothing matched, compare each one with a half. Next time we will start adding fractions!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Посмотрим на два признака.', uz: 'Ikkita belgiga qaraymiz.' },
-  s2:  { ru: 'Положим полосы рядом.', uz: "Tasmalarni yonma-yon qo'yamiz." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s5:  { ru: 'Сравни с половиной.', uz: 'Yarim bilan solishtiring.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Кто-то взял не тот признак.', uz: "Kimdir belgini adashtiribdi." },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна пара.', uz: 'Yana bitta juftlik.' },
-  s12: { ru: 'Два свитка у стелы.', uz: "Stela yonidagi ikki o'ram." },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Свитки сравнены. Идём дальше!', uz: "O'ramlar taqqoslandi. Davom etamiz!" }
+  s1:  { ru: 'Посмотрим на два признака.', uz: 'Ikkita belgiga qaraymiz.', en: 'Let us look at two tests.' },
+  s2:  { ru: 'Положим полосы рядом.', uz: "Tasmalarni yonma-yon qo'yamiz.", en: 'Let us put the strips side by side.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s5:  { ru: 'Сравни с половиной.', uz: 'Yarim bilan solishtiring.', en: 'Compare with a half.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Кто-то взял не тот признак.', uz: "Kimdir belgini adashtiribdi.", en: 'Someone took the wrong test.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна пара.', uz: 'Yana bitta juftlik.', en: 'And one more pair.' },
+  s12: { ru: 'Два свитка у стелы.', uz: "Stela yonidagi ikki o'ram.", en: 'Two scrolls at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Свитки сравнены. Идём дальше!', uz: "O'ramlar taqqoslandi. Davom etamiz!", en: 'The scrolls are compared. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Свитки сравнены, признак выбран верно. Спасибо за помощь!',
-  uz: "Missiya bajarildi! O'ramlar taqqoslandi, belgi to'g'ri tanlandi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! O'ramlar taqqoslandi, belgi to'g'ri tanlandi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The scrolls are compared and the test was chosen correctly. Thank you for your help!'
 };
 
 // ============================================================
@@ -771,7 +784,7 @@ const ScrollHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d29slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КАКАЯ ДРОБЬ БОЛЬШЕ' : 'QAYSI KASR KATTA'}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'КАКАЯ ДРОБЬ БОЛЬШЕ', 'QAYSI KASR KATTA', 'WHICH FRACTION IS BIGGER')}</text>
     {[[120, 5], [140, 7]].map(([y, fill], i) => (
       <g key={i} transform={`translate(132 ${y})`}>
         {Array.from({ length: 12 }).map((_, k) => (
@@ -786,13 +799,13 @@ const ScrollHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d29slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: yarim ulush shkalasi --- */}
     <g transform="translate(300 120)">
       <rect x="0" y="0" width="52" height="14" rx="2" fill="#EFE6D6" stroke="#8A7550" strokeWidth="1"/>
       <rect x="0" y="0" width="26" height="14" fill="#E0A05A" stroke="#8A7550" strokeWidth="1"/>
-      <text x="26" y="26" textAnchor="middle" fontSize="7" fontWeight="800" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПОЛОВИНА' : 'YARIM'}</text>
+      <text x="26" y="26" textAnchor="middle" fontSize="7" fontWeight="800" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ПОЛОВИНА', 'YARIM', 'A HALF')}</text>
       <line x1="26" y1="-4" x2="26" y2="18" stroke="#C06A2E" strokeWidth="1.6" strokeDasharray="3 2"/>
     </g>
     <circle className="lm-glow" cx="300" cy="152" r="2.4" fill="#BFF0C8"/>
@@ -960,7 +973,7 @@ const HalfFig = () => {
         <text x="150" y="17" fontSize="10" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">{fill}/{parts}</text>
       </g>
     ))}
-    <text x="110" y="96" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'решает линия половины' : "yarim chizig'i hal qiladi"}</text>
+    <text x="110" y="96" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'решает линия половины', "yarim chizig'i hal qiladi", 'the half line decides')}</text>
   </svg>
   );
 };
@@ -1094,7 +1107,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1213,7 +1226,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d29-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d29-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d29-expr">{t(c.step1)}</span>
@@ -1549,7 +1562,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1614,7 +1627,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1750,7 +1763,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d29-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d29-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1865,7 +1878,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1936,7 +1949,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d29-final-scene fade-up delay-1"><ScrollHallScene gathered/></div>
@@ -1957,7 +1970,7 @@ export default function CompareFracLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2024,7 +2037,7 @@ export default function CompareFracLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

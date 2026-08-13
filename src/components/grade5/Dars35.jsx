@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -732,7 +758,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -756,8 +782,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
-  lessonId: 'geom_5_02',
-  lessonTitle: { ru: 'Площадь прямоугольника и квадрата', uz: "To'g'ri to'rtburchak va kvadrat yuzasi" }
+  lessonId: 'grade5-35',
+  lessonTitle: { ru: 'Площадь прямоугольника и квадрата', uz: "To'g'ri to'rtburchak va kvadrat yuzasi", en: 'The area of a rectangle and a square' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -779,66 +805,66 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK — Akmal to'g'ri to'rtburchak polni plitka bilan qoplaydi, lekin tomonlarni QO'SHADI (= perimetr, M1) =====
   s0: {
-    eyebrow: { ru: 'Начало', uz: "Boshlanish" },
-    title: { ru: 'Плитка Акмаля', uz: "Akmalning plitkasi" },
-    lead: { ru: 'Акмаль выкладывает пол плитками 1 на 1. Пол прямоугольный: 5 и 3. Он сложил 5 + 3 + 5 + 3 и говорит: «нужно 16 плиток». Он прав?', uz: "Akmal polni 1 ga 1 plitkalar bilan qoplayapti. Pol to'g'ri to'rtburchak: 5 va 3. U 5 + 3 + 5 + 3 ni qo'shdi va «16 plitka kerak» deyapti. U haqmi?" },
-    opt0: { ru: 'Да, 16 плиток', uz: "Ha, 16 plitka" },
-    opt1: { ru: 'Нет, нужно заполнить весь пол', uz: "Yo'q, butun polni to'ldirish kerak" },
-    opt2: { ru: 'Не знаю', uz: "Bilmayman" },
-    reveal: { ru: 'Плитки покрывают весь пол, а не только его край. Сложение даёт длину границы, а нам нужно, сколько места внутри. Сегодня разберёмся.', uz: "Plitkalar butun polni qoplaydi, faqat chetini emas. Qo'shish chegara uzunligini beradi, bizga esa ichidagi joy kerak. Bugun shuni o'rganamiz." },
-    audio: { ru: "Акмаль выкладывает пол плитками один на один. Пол пять на три. Он сложил все стороны и говорит, что нужно шестнадцать плиток. Подумай, плитки покрывают весь пол или только его край?", uz: "Akmal polni bir ga bir plitkalar bilan qoplayapti. Pol besh ga uch. U barcha tomonlarni qo'shdi va o'n olti plitka kerak deyapti. O'ylab ko'ring, plitkalar butun polni qoplaydimi yoki faqat chetinimi?" }
+    eyebrow: { ru: 'Начало', uz: "Boshlanish", en: 'The start' },
+    title: { ru: 'Плитка Акмаля', uz: "Akmalning plitkasi", en: "Akmal's tiles" },
+    lead: { ru: 'Акмаль выкладывает пол плитками 1 на 1. Пол прямоугольный: 5 и 3. Он сложил 5 + 3 + 5 + 3 и говорит: «нужно 16 плиток». Он прав?', uz: "Akmal polni 1 ga 1 plitkalar bilan qoplayapti. Pol to'g'ri to'rtburchak: 5 va 3. U 5 + 3 + 5 + 3 ni qo'shdi va «16 plitka kerak» deyapti. U haqmi?", en: 'Akmal is tiling a floor with 1 by 1 tiles. The floor is a rectangle 5 by 3. He added 5 + 3 + 5 + 3 and says 16 tiles are needed. Is he right?' },
+    opt0: { ru: 'Да, 16 плиток', uz: "Ha, 16 plitka", en: 'Yes, 16 tiles' },
+    opt1: { ru: 'Нет, нужно заполнить весь пол', uz: "Yo'q, butun polni to'ldirish kerak", en: 'No, the whole floor has to be filled' },
+    opt2: { ru: 'Не знаю', uz: "Bilmayman", en: "I don't know" },
+    reveal: { ru: 'Плитки покрывают весь пол, а не только его край. Сложение даёт длину границы, а нам нужно, сколько места внутри. Сегодня разберёмся.', uz: "Plitkalar butun polni qoplaydi, faqat chetini emas. Qo'shish chegara uzunligini beradi, bizga esa ichidagi joy kerak. Bugun shuni o'rganamiz.", en: 'Tiles cover the whole floor, not just its edge. Adding gives the length of the border, but we need how much room there is inside. Let us work it out today.' },
+    audio: { ru: "Акмаль выкладывает пол плитками один на один. Пол пять на три. Он сложил все стороны и говорит, что нужно шестнадцать плиток. Подумай, плитки покрывают весь пол или только его край?", uz: "Akmal polni bir ga bir plitkalar bilan qoplayapti. Pol besh ga uch. U barcha tomonlarni qo'shdi va o'n olti plitka kerak deyapti. O'ylab ko'ring, plitkalar butun polni qoplaydimi yoki faqat chetinimi?", en: 'Akmal is tiling a floor with one by one tiles. The floor is five by three. He added up all the sides and says sixteen tiles are needed. Think: do tiles cover the whole floor or just its edge?' }
   },
 
   // ===== s1 WARM-UP — uchta ketma-ket ko'paytma (✓-fold). Veди-do-vernogo har savolda. =====
   s1: {
-    eyebrow: { ru: 'Разминка', uz: "Mashq" },
-    title: { ru: 'Быстрый счёт', uz: "Tez hisob" },
-    lead: { ru: 'Прежде чем считать плитки, разомнёмся. Умножение пригодится для площади.', uz: "Plitkalarni hisoblashdan oldin mashq qilamiz. Ko'paytirish yuza uchun asqotadi." },
+    eyebrow: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    title: { ru: 'Быстрый счёт', uz: "Tez hisob", en: 'Quick sums' },
+    lead: { ru: 'Прежде чем считать плитки, разомнёмся. Умножение пригодится для площади.', uz: "Plitkalarni hisoblashdan oldin mashq qilamiz. Ko'paytirish yuza uchun asqotadi.", en: 'Before we count tiles, let us warm up. Multiplying will come in useful for area.' },
     questions: [
       {
-        q: { ru: 'Сколько будет 4 × 3?', uz: "4 × 3 nechaga teng?" },
-        opts: [{ ru: '12', uz: "12" }, { ru: '7', uz: "7" }, { ru: '14', uz: "14" }, { ru: '9', uz: "9" }],
+        q: { ru: 'Сколько будет 4 × 3?', uz: "4 × 3 nechaga teng?", en: 'How much is 4 × 3?' },
+        opts: [{ ru: '12', uz: "12", en: '12' }, { ru: '7', uz: "7", en: '7' }, { ru: '14', uz: "14", en: '14' }, { ru: '9', uz: "9", en: '9' }],
         correct: 0,
-        hint: { ru: 'Это четыре раза по три, то есть три, и три, и три, и три.', uz: "Bu to'rt marta uch, ya'ni uch, va uch, va uch, va uch." },
-        audio: { ru: "Сколько будет четыре умножить на три?", uz: "To'rtni uchga ko'paytirsak nechi bo'ladi?" }
+        hint: { ru: 'Это четыре раза по три, то есть три, и три, и три, и три.', uz: "Bu to'rt marta uch, ya'ni uch, va uch, va uch, va uch.", en: 'That is four lots of three: three and three and three and three.' },
+        audio: { ru: "Сколько будет четыре умножить на три?", uz: "To'rtni uchga ko'paytirsak nechi bo'ladi?", en: 'How much is four multiplied by three?' }
       },
       {
-        q: { ru: 'Сколько будет 5 × 6?', uz: "5 × 6 nechaga teng?" },
-        opts: [{ ru: '11', uz: "11" }, { ru: '25', uz: "25" }, { ru: '30', uz: "30" }, { ru: '35', uz: "35" }],
+        q: { ru: 'Сколько будет 5 × 6?', uz: "5 × 6 nechaga teng?", en: 'How much is 5 × 6?' },
+        opts: [{ ru: '11', uz: "11", en: '11' }, { ru: '25', uz: "25", en: '25' }, { ru: '30', uz: "30", en: '30' }, { ru: '35', uz: "35", en: '35' }],
         correct: 2,
-        hint: { ru: 'Возьми шесть пять раз подряд.', uz: "Oltini ketma-ket besh marta oling." },
-        audio: { ru: "А сколько будет пять умножить на шесть?", uz: "Beshni oltiga ko'paytirsak nechi bo'ladi?" }
+        hint: { ru: 'Возьми шесть пять раз подряд.', uz: "Oltini ketma-ket besh marta oling.", en: 'Take six five times over.' },
+        audio: { ru: "А сколько будет пять умножить на шесть?", uz: "Beshni oltiga ko'paytirsak nechi bo'ladi?", en: 'And how much is five multiplied by six?' }
       },
       {
-        q: { ru: 'Сколько будет 7 × 2?', uz: "7 × 2 nechaga teng?" },
-        opts: [{ ru: '9', uz: "9" }, { ru: '14', uz: "14" }, { ru: '12', uz: "12" }, { ru: '16', uz: "16" }],
+        q: { ru: 'Сколько будет 7 × 2?', uz: "7 × 2 nechaga teng?", en: 'How much is 7 × 2?' },
+        opts: [{ ru: '9', uz: "9", en: '9' }, { ru: '14', uz: "14", en: '14' }, { ru: '12', uz: "12", en: '12' }, { ru: '16', uz: "16", en: '16' }],
         correct: 1,
-        hint: { ru: 'Это семь два раза, семь и ещё семь.', uz: "Bu yetti ikki marta, yetti va yana yetti." },
-        audio: { ru: "И последнее. Сколько будет семь умножить на два?", uz: "Va oxirgisi. Yettini ikkiga ko'paytirsak nechi bo'ladi?" }
+        hint: { ru: 'Это семь два раза, семь и ещё семь.', uz: "Bu yetti ikki marta, yetti va yana yetti.", en: 'That is seven twice: seven and another seven.' },
+        audio: { ru: "И последнее. Сколько будет семь умножить на два?", uz: "Va oxirgisi. Yettini ikkiga ko'paytirsak nechi bo'ladi?", en: 'And the last one. How much is seven multiplied by two?' }
       }
     ],
-    done_label: { ru: 'Вопрос', uz: "Savol" },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
-    done_text: { ru: 'Отлично, умножение работает. Теперь идём заполнять фигуры квадратами.', uz: "Zo'r, ko'paytirish ishlayapti. Endi figuralarni kvadratlar bilan to'ldirishga o'tamiz." },
+    done_label: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
+    done_text: { ru: 'Отлично, умножение работает. Теперь идём заполнять фигуры квадратами.', uz: "Zo'r, ko'paytirish ishlayapti. Endi figuralarni kvadratlar bilan to'ldirishga o'tamiz.", en: 'Well done, the multiplying is working. Now let us go and fill shapes with squares.' },
     audio: {
-      next: { ru: 'Разомнёмся перед задачами.', uz: "Masalalardan oldin mashq qilamiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посчитай ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang." }
+      next: { ru: 'Разомнёмся перед задачами.', uz: "Masalalardan oldin mashq qilamiz.", en: 'Let us warm up before the problems.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посчитай ещё раз спокойно.', uz: "Yana bir bor xotirjam hisoblang.", en: 'Work it out again, calmly.' }
     }
   },
 
   // ===== s2 EXPLORATION — qator-qator birlik kvadratlar bilan to'ldirish (step), 5x3 = 15 =====
   s2: {
-    eyebrow: { ru: 'Заполняем', uz: "To'ldiramiz" },
-    bridge: { ru: 'Счёт работает, теперь заполним прямоугольник рядами.', uz: "Hisob ishladi, endi to'g'ri to'rtburchakni qatorlab to'ldiramiz." },
-    title: { ru: 'Заполняем рядами', uz: "Qatorlab to'ldiramiz" },
-    lead: { ru: 'Заполним прямоугольник 5 на 3 квадратиками 1 на 1, ряд за рядом.', uz: "5 ga 3 to'g'ri to'rtburchakni 1 ga 1 kvadratchalar bilan qatorlab to'ldiramiz." },
-    step_1: { ru: 'Первый ряд: 5 квадратиков. Всего 5.', uz: "Birinchi qator: 5 kvadratcha. Jami 5." },
-    step_2: { ru: 'Второй ряд: ещё 5. Всего 10.', uz: "Ikkinchi qator: yana 5. Jami 10." },
-    step_3: { ru: 'Третий ряд: ещё 5. Всего 15.', uz: "Uchinchi qator: yana 5. Jami 15." },
-    step_4: { ru: 'Три ряда по 5 — это 3 умножить на 5, всего 15 квадратиков. Это площадь.', uz: "5 tadan uch qator — bu 3 ni 5 ga ko'paytirish, jami 15 kvadratcha. Bu yuza." },
-    btn_step: { ru: 'Следующий ряд', uz: "Keyingi qator" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Заполняем', uz: "To'ldiramiz", en: 'Filling it up' },
+    bridge: { ru: 'Счёт работает, теперь заполним прямоугольник рядами.', uz: "Hisob ishladi, endi to'g'ri to'rtburchakni qatorlab to'ldiramiz.", en: 'The sums are working, so now let us fill a rectangle row by row.' },
+    title: { ru: 'Заполняем рядами', uz: "Qatorlab to'ldiramiz", en: 'Filling it row by row' },
+    lead: { ru: 'Заполним прямоугольник 5 на 3 квадратиками 1 на 1, ряд за рядом.', uz: "5 ga 3 to'g'ri to'rtburchakni 1 ga 1 kvadratchalar bilan qatorlab to'ldiramiz.", en: 'Let us fill a rectangle 5 by 3 with 1 by 1 squares, one row at a time.' },
+    step_1: { ru: 'Первый ряд: 5 квадратиков. Всего 5.', uz: "Birinchi qator: 5 kvadratcha. Jami 5.", en: 'The first row: 5 squares. That is 5 so far.' },
+    step_2: { ru: 'Второй ряд: ещё 5. Всего 10.', uz: "Ikkinchi qator: yana 5. Jami 10.", en: 'The second row: 5 more. That is 10 so far.' },
+    step_3: { ru: 'Третий ряд: ещё 5. Всего 15.', uz: "Uchinchi qator: yana 5. Jami 15.", en: 'The third row: 5 more. That is 15 so far.' },
+    step_4: { ru: 'Три ряда по 5 — это 3 умножить на 5, всего 15 квадратиков. Это площадь.', uz: "5 tadan uch qator — bu 3 ni 5 ga ko'paytirish, jami 15 kvadratcha. Bu yuza.", en: 'Three rows of 5 is 3 times 5, which is 15 squares in all. That is the area.' },
+    btn_step: { ru: 'Следующий ряд', uz: "Keyingi qator", en: 'Next row' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Заполним прямоугольник квадратиками один на один, ряд за рядом. В первом ряду пять квадратиков.",
@@ -851,220 +877,221 @@ const CONTENT = {
         "Ikkinchi qatorni qo'shamiz, yana besh, o'n bo'ldi.",
         "Uchinchi qatorni qo'shamiz, yana besh, o'n besh bo'ldi.",
         "Beshtadan uch qator, bu uchni beshga ko'paytirish, o'n besh kvadratcha. Ichidagi joy shuncha, mana shu yuza."
-      ]
+      ],
+      en: ['Let us fill the rectangle with one by one squares, row by row. There are five squares in the first row.', 'Let us add a second row of five more, which makes ten.', 'Let us add a third row of five more, which makes fifteen.', 'Three rows of five is three times five, which is fifteen squares. That is how much room there is inside, and that is the area.']
     }
   },
 
   // ===== s3 EXPLORATION — slider: bo'y o'zgaradi; yuza = a*b o'sadi; a=b bo'lsa kvadrat =====
   s3: {
-    eyebrow: { ru: 'Стороны', uz: "Tomonlar" },
-    title: { ru: 'Площадь растёт', uz: "Yuza o'sadi" },
-    lead: { ru: 'Двигай длину и смотри, как растёт число квадратиков внутри — это площадь.', uz: "Bo'yni suring va ichidagi kvadratchalar soni qanday o'sishini ko'ring — bu yuza." },
-    slider_label: { ru: 'Длина', uz: "Bo'y" },
-    note_rect: { ru: 'Квадратиков внутри столько, сколько даёт длина умножить на ширину.', uz: "Ichidagi kvadratchalar soni bo'yni enga ko'paytirgancha." },
-    note_square: { ru: 'Длина равна ширине — получился квадрат!', uz: "Bo'y enga teng — kvadrat hosil bo'ldi!" },
-    audio: { ru: "Двигай длину. Чем длиннее прямоугольник, тем больше квадратиков внутри. Их число это длина умножить на ширину, то есть площадь. Когда длина станет равна ширине, получится квадрат.", uz: "Bo'yni suring. To'g'ri to'rtburchak qancha uzun bo'lsa, ichida shuncha ko'p kvadratcha bo'ladi. Ularning soni bo'yni enga ko'paytirgancha, ya'ni yuza. Bo'y enga teng bo'lganda kvadrat hosil bo'ladi." }
+    eyebrow: { ru: 'Стороны', uz: "Tomonlar", en: 'Sides' },
+    title: { ru: 'Площадь растёт', uz: "Yuza o'sadi", en: 'The area grows' },
+    lead: { ru: 'Двигай длину и смотри, как растёт число квадратиков внутри — это площадь.', uz: "Bo'yni suring va ichidagi kvadratchalar soni qanday o'sishini ko'ring — bu yuza.", en: 'Move the length and watch the number of squares inside grow, and that is the area.' },
+    slider_label: { ru: 'Длина', uz: "Bo'y", en: 'Length' },
+    note_rect: { ru: 'Квадратиков внутри столько, сколько даёт длина умножить на ширину.', uz: "Ichidagi kvadratchalar soni bo'yni enga ko'paytirgancha.", en: 'The number of squares inside is the length times the width.' },
+    note_square: { ru: 'Длина равна ширине — получился квадрат!', uz: "Bo'y enga teng — kvadrat hosil bo'ldi!", en: 'The length equals the width, so it is a square!' },
+    audio: { ru: "Двигай длину. Чем длиннее прямоугольник, тем больше квадратиков внутри. Их число это длина умножить на ширину, то есть площадь. Когда длина станет равна ширине, получится квадрат.", uz: "Bo'yni suring. To'g'ri to'rtburchak qancha uzun bo'lsa, ichida shuncha ko'p kvadratcha bo'ladi. Ularning soni bo'yni enga ko'paytirgancha, ya'ni yuza. Bo'y enga teng bo'lganda kvadrat hosil bo'ladi.", en: 'Move the length. The longer the rectangle, the more squares there are inside. Their number is the length times the width, which is the area. When the length becomes equal to the width, you get a square.' }
   },
 
   // ===== s4 RULE 1 — yuza = a*b = birlik kvadratlar soni; kvadrat a*a; birlik sm² =====
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Мы заполнили прямоугольник, соберём это в правило.', uz: "To'g'ri to'rtburchakni to'ldirdik, buni qoidaga yig'amiz." },
-    heading: { ru: 'Как найти площадь', uz: "Yuzani qanday topamiz" },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Площадь — это сколько единичных квадратиков помещается внутри фигуры.', uz: "Yuza — figura ichiga nechta birlik kvadrat sig'ishi." },
-    rule_2: { ru: 'У прямоугольника: S = a · b, где a и b — длина и ширина. У квадрата: S = a · a.', uz: "To'g'ri to'rtburchakda: S = a · b, bu yerda a va b — bo'y va en. Kvadratda: S = a · a." },
-    rule_3: { ru: 'Площадь измеряют в квадратных единицах, например в квадратных сантиметрах, sm².', uz: "Yuza kvadrat birliklarda o'lchanadi, masalan kvadrat santimetrda, sm²." },
-    audio: { ru: "Итак, площадь это сколько единичных квадратиков помещается внутри. У прямоугольника берут длину умножить на ширину. У квадрата сторону умножить на ту же сторону. И помни, площадь измеряют в квадратных сантиметрах.", uz: "Demak, yuza ichiga nechta birlik kvadrat sig'ishi. To'g'ri to'rtburchakda bo'yni enga ko'paytiriladi. Kvadratda tomonni o'sha tomonga ko'paytiriladi. Va yodda tuting, yuza kvadrat santimetrda o'lchanadi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Мы заполнили прямоугольник, соберём это в правило.', uz: "To'g'ri to'rtburchakni to'ldirdik, buni qoidaga yig'amiz.", en: 'We have filled the rectangle, so let us gather it into a rule.' },
+    heading: { ru: 'Как найти площадь', uz: "Yuzani qanday topamiz", en: 'How to find the area' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Площадь — это сколько единичных квадратиков помещается внутри фигуры.', uz: "Yuza — figura ichiga nechta birlik kvadrat sig'ishi.", en: 'The area is how many unit squares fit inside a shape.' },
+    rule_2: { ru: 'У прямоугольника: S = a · b, где a и b — длина и ширина. У квадрата: S = a · a.', uz: "To'g'ri to'rtburchakda: S = a · b, bu yerda a va b — bo'y va en. Kvadratda: S = a · a.", en: 'For a rectangle: S = a · b, where a and b are the length and the width. For a square: S = a · a.' },
+    rule_3: { ru: 'Площадь измеряют в квадратных единицах, например в квадратных сантиметрах, sm².', uz: "Yuza kvadrat birliklarda o'lchanadi, masalan kvadrat santimetrda, sm².", en: 'Area is measured in square units, for example square centimetres, cm².' },
+    audio: { ru: "Итак, площадь это сколько единичных квадратиков помещается внутри. У прямоугольника берут длину умножить на ширину. У квадрата сторону умножить на ту же сторону. И помни, площадь измеряют в квадратных сантиметрах.", uz: "Demak, yuza ichiga nechta birlik kvadrat sig'ishi. To'g'ri to'rtburchakda bo'yni enga ko'paytiriladi. Kvadratda tomonni o'sha tomonga ko'paytiriladi. Va yodda tuting, yuza kvadrat santimetrda o'lchanadi.", en: 'So the area is how many unit squares fit inside. For a rectangle you take the length times the width. For a square, the side times the same side. And remember that area is measured in square centimetres.' }
   },
 
   // ===== s5 RULE 2 — yuza ≠ perimetr (Akmal shu yerda yanglishgan), xulosa frame-tip da =====
   s5: {
-    eyebrow: { ru: 'Внутри, а не вокруг', uz: "Ichida, atrofida emas" },
-    heading: { ru: 'Площадь — это не периметр', uz: "Yuza — perimetr emas" },
-    rule_1: { ru: 'Площадь — это сколько места внутри. Её находят умножением сторон.', uz: "Yuza — ichidagi joy miqdori. Uni tomonlarni ko'paytirib topadilar." },
-    rule_2: { ru: 'Периметр — это длина границы, путь вокруг фигуры. Его складывают.', uz: "Perimetr — chegara uzunligi, figura atrofidagi yo'l. Uni qo'shadilar." },
-    tip: { ru: 'Акмалю нужны плитки на весь пол — это площадь, а не периметр.', uz: "Akmalga butun polga plitka kerak — bu yuza, perimetr emas." },
-    audio: { ru: "Запомни разницу. Площадь это место внутри, её получают умножением сторон. А периметр это длина границы, его получают сложением. Акмаль сложил стороны и нашёл периметр, но для плиток нужно именно место внутри, то есть площадь.", uz: "Farqni yodda tuting. Yuza ichidagi joy, uni tomonlarni ko'paytirib olamiz. Perimetr esa chegara uzunligi, uni qo'shib olamiz. Akmal tomonlarni qo'shib perimetrni topdi, lekin plitkalar uchun aynan ichidagi joy, ya'ni yuza kerak." }
+    eyebrow: { ru: 'Внутри, а не вокруг', uz: "Ichida, atrofida emas", en: 'Inside, not around' },
+    heading: { ru: 'Площадь — это не периметр', uz: "Yuza — perimetr emas", en: 'The area is not the perimeter' },
+    rule_1: { ru: 'Площадь — это сколько места внутри. Её находят умножением сторон.', uz: "Yuza — ichidagi joy miqdori. Uni tomonlarni ko'paytirib topadilar.", en: 'The area is how much room there is inside. It is found by multiplying the sides.' },
+    rule_2: { ru: 'Периметр — это длина границы, путь вокруг фигуры. Его складывают.', uz: "Perimetr — chegara uzunligi, figura atrofidagi yo'l. Uni qo'shadilar.", en: 'The perimeter is the length of the border, the way round a shape. It is found by adding.' },
+    tip: { ru: 'Акмалю нужны плитки на весь пол — это площадь, а не периметр.', uz: "Akmalga butun polga plitka kerak — bu yuza, perimetr emas.", en: 'Akmal needs tiles for the whole floor, and that is the area, not the perimeter.' },
+    audio: { ru: "Запомни разницу. Площадь это место внутри, её получают умножением сторон. А периметр это длина границы, его получают сложением. Акмаль сложил стороны и нашёл периметр, но для плиток нужно именно место внутри, то есть площадь.", uz: "Farqni yodda tuting. Yuza ichidagi joy, uni tomonlarni ko'paytirib olamiz. Perimetr esa chegara uzunligi, uni qo'shib olamiz. Akmal tomonlarni qo'shib perimetrni topdi, lekin plitkalar uchun aynan ichidagi joy, ya'ni yuza kerak.", en: 'Remember the difference. The area is the room inside and it is found by multiplying the sides. The perimeter is the length of the border and it is found by adding. Akmal added the sides and found the perimeter, but tiles need the room inside, that is the area.' }
   },
 
   // ===== s6 TEST (interaktiv): "Kataklar bilan to'ldir" — to'g'ri to'rtburchak ICHINI qatorlab to'ldirib yuza yig'iladi (Dars35 imzo metodi) =====
   s6: {
-    eyebrow: { ru: 'Собери площадь', uz: "Yuzani yig'ing" },
-    bridge: { ru: 'Правило знаем, теперь собери площадь сам.', uz: "Qoidani bilamiz, endi yuzani o'zingiz yig'ing." },
-    title: { ru: 'Заполни прямоугольник', uz: "To'g'ri to'rtburchakni to'ldiring" },
-    lead: { ru: 'Прямоугольник 6 на 4. Нажимай на него — каждое нажатие добавляет ряд квадратиков. Заполни весь и подтверди площадь.', uz: "To'g'ri to'rtburchak 6 ga 4. Uni bosing — har bosish bitta qator kvadratcha qo'shadi. To'liq to'ldirib, yuzani tasdiqlang." },
-    fill_label: { ru: 'Заполнено', uz: "To'ldirildi" },
-    btn_confirm: { ru: 'Подтвердить площадь', uz: "Yuzani tasdiqlash" },
-    hint: { ru: 'Ты заполнил не весь прямоугольник. Площадь — это все квадратики внутри, заполни каждый ряд.', uz: "Butun to'g'ri to'rtburchakni to'ldirmadingiz. Yuza — ichidagi barcha kvadratchalar, har qatorni to'ldiring." },
-    correct_text: { ru: 'Верно: 4 ряда по 6 — это 6 · 4 = 24 квадратика. Это и есть площадь.', uz: "To'g'ri: 6 tadan 4 qator — bu 6 · 4 = 24 kvadratcha. Mana shu yuza." },
+    eyebrow: { ru: 'Собери площадь', uz: "Yuzani yig'ing", en: 'Build the area' },
+    bridge: { ru: 'Правило знаем, теперь собери площадь сам.', uz: "Qoidani bilamiz, endi yuzani o'zingiz yig'ing.", en: 'We know the rule, so now build the area yourself.' },
+    title: { ru: 'Заполни прямоугольник', uz: "To'g'ri to'rtburchakni to'ldiring", en: 'Fill the rectangle' },
+    lead: { ru: 'Прямоугольник 6 на 4. Нажимай на него — каждое нажатие добавляет ряд квадратиков. Заполни весь и подтверди площадь.', uz: "To'g'ri to'rtburchak 6 ga 4. Uni bosing — har bosish bitta qator kvadratcha qo'shadi. To'liq to'ldirib, yuzani tasdiqlang.", en: 'A rectangle 6 by 4. Tap it and each tap adds a row of squares. Fill it completely and confirm the area.' },
+    fill_label: { ru: 'Заполнено', uz: "To'ldirildi", en: 'Filled' },
+    btn_confirm: { ru: 'Подтвердить площадь', uz: "Yuzani tasdiqlash", en: 'Confirm the area' },
+    hint: { ru: 'Ты заполнил не весь прямоугольник. Площадь — это все квадратики внутри, заполни каждый ряд.', uz: "Butun to'g'ri to'rtburchakni to'ldirmadingiz. Yuza — ichidagi barcha kvadratchalar, har qatorni to'ldiring.", en: 'You have not filled the whole rectangle. The area is every square inside, so fill each row.' },
+    correct_text: { ru: 'Верно: 4 ряда по 6 — это 6 · 4 = 24 квадратика. Это и есть площадь.', uz: "To'g'ri: 6 tadan 4 qator — bu 6 · 4 = 24 kvadratcha. Mana shu yuza.", en: 'That is right: 4 rows of 6 is 6 · 4 = 24 squares. And that is the area.' },
     audio: {
-      intro: { ru: "Нажимай на прямоугольник, каждое нажатие заполняет один ряд квадратиков. Заполни его целиком, считай квадратики, а потом подтверди площадь.", uz: "To'g'ri to'rtburchakni bosing, har bosish bitta qator kvadratchani to'ldiradi. Uni to'liq to'ldiring, kvadratchalarni sanang, keyin yuzani tasdiqlang." },
-      on_correct: { ru: "Верно, двадцать четыре. Четыре ряда по шесть квадратиков. Это площадь.", uz: "To'g'ri, yigirma to'rt. Oltitadan to'rt qator kvadratcha. Bu yuza." },
-      on_wrong: { ru: "Заполни каждый ряд прямоугольника, а потом подтверди.", uz: "To'g'ri to'rtburchakning har qatorini to'ldiring, keyin tasdiqlang." }
+      intro: { ru: "Нажимай на прямоугольник, каждое нажатие заполняет один ряд квадратиков. Заполни его целиком, считай квадратики, а потом подтверди площадь.", uz: "To'g'ri to'rtburchakni bosing, har bosish bitta qator kvadratchani to'ldiradi. Uni to'liq to'ldiring, kvadratchalarni sanang, keyin yuzani tasdiqlang.", en: 'Tap the rectangle and each tap fills one row of squares. Fill it completely, count the squares, then confirm the area.' },
+      on_correct: { ru: "Верно, двадцать четыре. Четыре ряда по шесть квадратиков. Это площадь.", uz: "To'g'ri, yigirma to'rt. Oltitadan to'rt qator kvadratcha. Bu yuza.", en: 'That is right, twenty four. Four rows of six squares. That is the area.' },
+      on_wrong: { ru: "Заполни каждый ряд прямоугольника, а потом подтверди.", uz: "To'g'ri to'rtburchakning har qatorini to'ldiring, keyin tasdiqlang.", en: 'Fill each row of the rectangle, then confirm.' }
     }
   },
 
   // ===== s7 TEST (aralash blok): 4 ta har xil tipdagi savol — MC, typed, to'g'ri/noto'g'ri, tasniflash =====
   s7: {
-    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar" },
-    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol" },
-    lead: { ru: 'Четыре задания на площадь — все разного вида. Отвечай по очереди.', uz: "Yuzaga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
+    eyebrow: { ru: 'Разные задачи', uz: "Har xil savollar", en: 'Different problems' },
+    title: { ru: 'Четыре разных вопроса', uz: "To'rt xil savol", en: 'Four different questions' },
+    lead: { ru: 'Четыре задания на площадь — все разного вида. Отвечай по очереди.', uz: "Yuzaga oid to'rt topshiriq — har biri har xil. Navbatma-navbat javob bering.", en: 'Four tasks on area, all of different kinds. Answer them one by one.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
     items: [
       { kind: 'choice', cols: 5, rows: 4,
-        q: { ru: 'Выбери площадь прямоугольника 5 на 4.', uz: "5 ga 4 to'g'ri to'rtburchak yuzasini tanlang." },
-        opts: [{ ru: '20', uz: '20' }, { ru: '18', uz: '18' }, { ru: '9', uz: '9' }, { ru: '16', uz: '16' }], correct: 0,
-        hint: { ru: 'Умножь длину на ширину.', uz: "Bo'yni enga ko'paytiring." },
-        audio_q: { ru: "Первый вопрос. Выбери площадь прямоугольника пять на четыре.", uz: "Birinchi savol. Besh ga to'rt to'g'ri to'rtburchak yuzasini tanlang." },
-        audio_ok: { ru: "Верно, двадцать. Пять умножить на четыре.", uz: "To'g'ri, yigirma. Beshni to'rtga ko'paytirdik." } },
+        q: { ru: 'Выбери площадь прямоугольника 5 на 4.', uz: "5 ga 4 to'g'ri to'rtburchak yuzasini tanlang.", en: 'Choose the area of a rectangle 5 by 4.' },
+        opts: [{ ru: '20', uz: '20', en: '20' }, { ru: '18', uz: '18', en: '18' }, { ru: '9', uz: '9', en: '9' }, { ru: '16', uz: '16', en: '16' }], correct: 0,
+        hint: { ru: 'Умножь длину на ширину.', uz: "Bo'yni enga ko'paytiring.", en: 'Multiply the length by the width.' },
+        audio_q: { ru: "Первый вопрос. Выбери площадь прямоугольника пять на четыре.", uz: "Birinchi savol. Besh ga to'rt to'g'ri to'rtburchak yuzasini tanlang.", en: 'The first question. Choose the area of a rectangle five by four.' },
+        audio_ok: { ru: "Верно, двадцать. Пять умножить на четыре.", uz: "To'g'ri, yigirma. Beshni to'rtga ko'paytirdik.", en: 'That is right, twenty. Five times four.' } },
       { kind: 'num', cols: 6, rows: 6, answer: 36,
-        q: { ru: 'Квадрат со стороной 6. Посчитай площадь сам.', uz: "Tomoni 6 kvadrat. Yuzasini o'zingiz hisoblang." },
-        hint: { ru: 'У квадрата стороны равны. Умножь сторону саму на себя.', uz: "Kvadratning tomonlari teng. Tomonni o'ziga ko'paytiring." },
-        audio_q: { ru: "Второй вопрос. У квадрата сторона шесть. Посчитай площадь сам и введи ответ.", uz: "Ikkinchi savol. Kvadrat tomoni olti. Yuzasini o'zingiz hisoblang va javobni kiriting." },
-        audio_ok: { ru: "Верно, тридцать шесть. Шесть умножить на шесть.", uz: "To'g'ri, o'ttiz olti. Oltini oltiga ko'paytirdik." } },
+        q: { ru: 'Квадрат со стороной 6. Посчитай площадь сам.', uz: "Tomoni 6 kvadrat. Yuzasini o'zingiz hisoblang.", en: 'A square with a side of 6. Work out the area yourself.' },
+        hint: { ru: 'У квадрата стороны равны. Умножь сторону саму на себя.', uz: "Kvadratning tomonlari teng. Tomonni o'ziga ko'paytiring.", en: 'A square has equal sides. Multiply the side by itself.' },
+        audio_q: { ru: "Второй вопрос. У квадрата сторона шесть. Посчитай площадь сам и введи ответ.", uz: "Ikkinchi savol. Kvadrat tomoni olti. Yuzasini o'zingiz hisoblang va javobni kiriting.", en: 'The second question. A square has a side of six. Work out the area yourself and type the answer.' },
+        audio_ok: { ru: "Верно, тридцать шесть. Шесть умножить на шесть.", uz: "To'g'ri, o'ttiz olti. Oltini oltiga ko'paytirdik.", en: 'That is right, thirty six. Six times six.' } },
       { kind: 'choice',
-        q: { ru: 'Верно ли: у квадрата со стороной 5 площадь равна 20?', uz: "To'g'rimi: tomoni 5 kvadratning yuzasi 20?" },
-        opts: [{ ru: 'Верно', uz: "To'g'ri" }, { ru: 'Неверно', uz: "Noto'g'ri" }], correct: 1,
-        hint: { ru: 'Подумай: 20 — это сумма сторон, периметр. Площадь умножают.', uz: "O'ylab ko'ring: 20 — bu tomonlar yig'indisi, perimetr. Yuzani ko'paytiradilar." },
-        audio_q: { ru: "Третий вопрос. Верно ли, что у квадрата со стороной пять площадь равна двадцати?", uz: "Uchinchi savol. Tomoni besh kvadratning yuzasi yigirma, to'g'rimi?" },
-        audio_ok: { ru: "Правильно, это неверно. Двадцать это периметр, а площадь равна двадцати пяти.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma — bu perimetr, yuza esa yigirma beshga teng." } },
+        q: { ru: 'Верно ли: у квадрата со стороной 5 площадь равна 20?', uz: "To'g'rimi: tomoni 5 kvadratning yuzasi 20?", en: 'Is this true: a square with a side of 5 has an area of 20?' },
+        opts: [{ ru: 'Верно', uz: "To'g'ri", en: 'Correct' }, { ru: 'Неверно', uz: "Noto'g'ri", en: 'Not true' }], correct: 1,
+        hint: { ru: 'Подумай: 20 — это сумма сторон, периметр. Площадь умножают.', uz: "O'ylab ko'ring: 20 — bu tomonlar yig'indisi, perimetr. Yuzani ko'paytiradilar.", en: 'Think: 20 is the sides added together, which is the perimeter. Area is found by multiplying.' },
+        audio_q: { ru: "Третий вопрос. Верно ли, что у квадрата со стороной пять площадь равна двадцати?", uz: "Uchinchi savol. Tomoni besh kvadratning yuzasi yigirma, to'g'rimi?", en: 'The third question. Is it true that a square with a side of five has an area of twenty?' },
+        audio_ok: { ru: "Правильно, это неверно. Двадцать это периметр, а площадь равна двадцати пяти.", uz: "To'g'ri javob, bu noto'g'ri. Yigirma — bu perimetr, yuza esa yigirma beshga teng.", en: 'Correct, that is not true. Twenty is the perimeter, and the area is twenty five.' } },
       { kind: 'sort',
-        q: { ru: 'Что находит каждая формула — площадь или периметр?', uz: "Har bir formula nimani topadi — yuzanimi yoki perimetrnimi?" },
-        cat_area: { ru: 'Площадь', uz: "Yuza" },
-        cat_perim: { ru: 'Периметр', uz: "Perimetr" },
+        q: { ru: 'Что находит каждая формула — площадь или периметр?', uz: "Har bir formula nimani topadi — yuzanimi yoki perimetrnimi?", en: 'What does each formula find, the area or the perimeter?' },
+        cat_area: { ru: 'Площадь', uz: "Yuza", en: 'Area' },
+        cat_perim: { ru: 'Периметр', uz: "Perimetr", en: 'Perimeter' },
         cards: [
-          { label: { ru: 'сторона × сторона', uz: "tomon × tomon" }, cat: 'area' },
-          { label: { ru: '2 · (длина + ширина)', uz: "2 · (bo'y + en)" }, cat: 'perim' },
-          { label: { ru: 'длина × ширина', uz: "bo'y × en" }, cat: 'area' }
+          { label: { ru: 'сторона × сторона', uz: "tomon × tomon", en: 'side × side' }, cat: 'area' },
+          { label: { ru: '2 · (длина + ширина)', uz: "2 · (bo'y + en)", en: '2 · (length + width)' }, cat: 'perim' },
+          { label: { ru: 'длина × ширина', uz: "bo'y × en", en: 'length × width' }, cat: 'area' }
         ],
-        hint: { ru: 'Умножение даёт площадь, сложение сторон — периметр.', uz: "Ko'paytirish yuzani beradi, tomonlarni qo'shish — perimetrni." },
-        audio_q: { ru: "Четвёртый вопрос. Определи для каждой формулы: она находит площадь или периметр?", uz: "To'rtinchi savol. Har bir formula uchun aniqlang: u yuzani topadimi yoki perimetrni?" },
-        audio_ok: { ru: "Верно. Где стороны умножают — это площадь, где складывают — периметр.", uz: "To'g'ri. Tomonlar ko'paytirilsa — yuza, qo'shilsa — perimetr." } }
+        hint: { ru: 'Умножение даёт площадь, сложение сторон — периметр.', uz: "Ko'paytirish yuzani beradi, tomonlarni qo'shish — perimetrni.", en: 'Multiplying gives the area and adding the sides gives the perimeter.' },
+        audio_q: { ru: "Четвёртый вопрос. Определи для каждой формулы: она находит площадь или периметр?", uz: "To'rtinchi savol. Har bir formula uchun aniqlang: u yuzani topadimi yoki perimetrni?", en: 'The fourth question. Decide for each formula: does it find the area or the perimeter?' },
+        audio_ok: { ru: "Верно. Где стороны умножают — это площадь, где складывают — периметр.", uz: "To'g'ri. Tomonlar ko'paytirilsa — yuza, qo'shilsa — perimetr.", en: 'That is right. Where the sides are multiplied it is the area, and where they are added it is the perimeter.' } }
     ],
-    done_label: { ru: 'Вопрос', uz: "Savol" },
-    done_ok: { ru: 'верно', uz: "to'g'ri" },
-    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz." },
+    done_label: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    done_ok: { ru: 'верно', uz: "to'g'ri", en: 'true' },
+    done_text: { ru: 'Отлично, ты справился со всеми четырьмя.', uz: "Zo'r, to'rttasini ham yechdingiz.", en: 'Well done, you have done all four.' },
     audio: {
-      next: { ru: 'Четыре разных задания на площадь.', uz: "Yuzaga oid to'rt xil topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring." }
+      next: { ru: 'Четыре разных задания на площадь.', uz: "Yuzaga oid to'rt xil topshiriq.", en: 'Four different tasks on area.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри подсказку и попробуй ещё раз.', uz: "Maslahatni ko'ring va yana urinib ko'ring.", en: 'Look at the hint and try again.' }
     }
   },
 
   // ===== s8 TEST MC — teskari: yuza 24, en 4 -> bo'y 6 (M: 20, 12, 8) =====
   s8: {
-    eyebrow: { ru: 'Обратная задача', uz: "Teskari masala" },
-    title: { ru: 'Найди сторону', uz: "Tomonni toping" },
-    question: { ru: 'Площадь прямоугольника 24, ширина 4. Чему равна длина?', uz: "To'g'ri to'rtburchak yuzasi 24, eni 4. Bo'yi nechaga teng?" },
-    opt0: { ru: '6', uz: "6" },
-    opt1: { ru: '20', uz: "20" },
-    opt2: { ru: '12', uz: "12" },
-    opt3: { ru: '8', uz: "8" },
-    correct_text: { ru: 'Верно: площадь это длина умножить на ширину, значит длина это 24 поделить на 4, получается 6.', uz: "To'g'ri: yuza bo'yni enga ko'paytirgan, demak bo'y 24 ni 4 ga bo'lgan, ya'ni 6." },
-    wrong_1: { ru: 'Ты вычел ширину из площади. Площадь это произведение, значит нужно делить, а не вычитать.', uz: "Siz enni yuzadan ayirdingiz. Yuza ko'paytma, demak bo'lish kerak, ayirish emas." },
-    wrong_2: { ru: 'Это половина площади. А длину находят делением площади на ширину.', uz: "Bu yuzaning yarmi. Bo'y esa yuzani enga bo'lib topiladi." },
-    wrong_3: { ru: 'Почти, но проверь. Восемь умножить на четыре это тридцать два, а нам нужно двадцать четыре.', uz: "Deyarli, lekin tekshiring. Sakkizni to'rtga ko'paytirsak o'ttiz ikki, bizga esa yigirma to'rt kerak." },
+    eyebrow: { ru: 'Обратная задача', uz: "Teskari masala", en: 'The reverse problem' },
+    title: { ru: 'Найди сторону', uz: "Tomonni toping", en: 'Find the side' },
+    question: { ru: 'Площадь прямоугольника 24, ширина 4. Чему равна длина?', uz: "To'g'ri to'rtburchak yuzasi 24, eni 4. Bo'yi nechaga teng?", en: 'A rectangle has an area of 24 and a width of 4. What is the length?' },
+    opt0: { ru: '6', uz: "6", en: '6' },
+    opt1: { ru: '20', uz: "20", en: '20' },
+    opt2: { ru: '12', uz: "12", en: '12' },
+    opt3: { ru: '8', uz: "8", en: '8' },
+    correct_text: { ru: 'Верно: площадь это длина умножить на ширину, значит длина это 24 поделить на 4, получается 6.', uz: "To'g'ri: yuza bo'yni enga ko'paytirgan, demak bo'y 24 ni 4 ga bo'lgan, ya'ni 6.", en: 'That is right: the area is the length times the width, so the length is 24 divided by 4, which is 6.' },
+    wrong_1: { ru: 'Ты вычел ширину из площади. Площадь это произведение, значит нужно делить, а не вычитать.', uz: "Siz enni yuzadan ayirdingiz. Yuza ko'paytma, demak bo'lish kerak, ayirish emas.", en: 'You took the width away from the area. The area comes from multiplying, so you need to divide, not subtract.' },
+    wrong_2: { ru: 'Это половина площади. А длину находят делением площади на ширину.', uz: "Bu yuzaning yarmi. Bo'y esa yuzani enga bo'lib topiladi.", en: 'That is half the area. The length is found by dividing the area by the width.' },
+    wrong_3: { ru: 'Почти, но проверь. Восемь умножить на четыре это тридцать два, а нам нужно двадцать четыре.', uz: "Deyarli, lekin tekshiring. Sakkizni to'rtga ko'paytirsak o'ttiz ikki, bizga esa yigirma to'rt kerak.", en: 'Almost, but check it. Eight times four is thirty two, and we need twenty four.' },
     audio: {
-      intro: { ru: "Задача наоборот. Площадь прямоугольника двадцать четыре, ширина четыре. Чему равна длина?", uz: "Teskari masala. To'g'ri to'rtburchak yuzasi yigirma to'rt, eni to'rt. Bo'yi nechaga teng?" },
-      on_correct: { ru: "Верно, шесть. Площадь это длина умножить на ширину, значит длину находят делением, двадцать четыре поделить на четыре равно шесть.", uz: "To'g'ri, olti. Yuza bo'yni enga ko'paytirgan, demak bo'y bo'lish bilan topiladi, yigirma to'rtni to'rtga bo'lsak olti bo'ladi." },
-      on_wrong: { ru: "Площадь делят на ширину, чтобы найти длину.", uz: "Bo'yni topish uchun yuzani enga bo'ladilar." }
+      intro: { ru: "Задача наоборот. Площадь прямоугольника двадцать четыре, ширина четыре. Чему равна длина?", uz: "Teskari masala. To'g'ri to'rtburchak yuzasi yigirma to'rt, eni to'rt. Bo'yi nechaga teng?", en: 'A problem the other way round. A rectangle has an area of twenty four and a width of four. What is the length?' },
+      on_correct: { ru: "Верно, шесть. Площадь это длина умножить на ширину, значит длину находят делением, двадцать четыре поделить на четыре равно шесть.", uz: "To'g'ri, olti. Yuza bo'yni enga ko'paytirgan, demak bo'y bo'lish bilan topiladi, yigirma to'rtni to'rtga bo'lsak olti bo'ladi.", en: 'That is right, six. The area is the length times the width, so the length is found by dividing: twenty four divided by four is six.' },
+      on_wrong: { ru: "Площадь делят на ширину, чтобы найти длину.", uz: "Bo'yni topish uchun yuzani enga bo'ladilar.", en: 'Divide the area by the width to find the length.' }
     }
   },
 
   // ===== s9 TEST MC — qaysi hisob NOTO'G'RI (perimetr hisoblangan) + FactCard FB_HIST (AnimLand) =====
   s9: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Где ошибка?', uz: "Xato qayerda?" },
-    question: { ru: 'Три ученика искали площадь прямоугольника 5 на 3. Кто посчитал НЕправильно?', uz: "Uch o'quvchi 5 ga 3 to'g'ri to'rtburchak yuzasini topdi. Kim NOTO'G'RI hisobladi?" },
-    opt0: { ru: 'Диёра: 5 · 3 = 15', uz: "Diyora: 5 · 3 = 15" },
-    opt1: { ru: 'Бобур: 5 + 3 + 5 + 3 = 16', uz: "Bobur: 5 + 3 + 5 + 3 = 16" },
-    opt2: { ru: 'Санжар: 3 · 5 = 15', uz: "Sanjar: 3 · 5 = 15" },
-    correct_text: { ru: 'Верно: Бобур сложил стороны и нашёл периметр, а не площадь. Правильная площадь — 15.', uz: "To'g'ri: Bobur tomonlarni qo'shib perimetrni topdi, yuzani emas. To'g'ri yuza — 15." },
-    wrong_0: { ru: 'Диёра взяла 5 умножить на 3 и получила пятнадцать, это верная площадь.', uz: "Diyora 5 ni 3 ga ko'paytirib o'n besh oldi, bu to'g'ri yuza." },
-    wrong_2: { ru: 'Санжар взял 3 умножить на 5 и получил пятнадцать, это верная площадь.', uz: "Sanjar 3 ni 5 ga ko'paytirib o'n besh oldi, bu to'g'ri yuza." },
-    fact: { ru: 'Само слово «геометрия» значит «измерение земли». В древности так делили поля и считали их площадь.', uz: "«Geometriya» so'zining o'zi «yer o'lchash» degani. Qadimda dalalarni shunday bo'lib, yuzasini hisoblashgan." },
-    fact_audio: { ru: "Само слово геометрия значит измерение земли. В древности так делили поля и считали их площадь.", uz: "Geometriya so'zining o'zi yer o'lchash degani. Qadimda dalalarni shunday bo'lib, yuzasini hisoblashgan." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Где ошибка?', uz: "Xato qayerda?", en: 'Where is the mistake?' },
+    question: { ru: 'Три ученика искали площадь прямоугольника 5 на 3. Кто посчитал НЕправильно?', uz: "Uch o'quvchi 5 ga 3 to'g'ri to'rtburchak yuzasini topdi. Kim NOTO'G'RI hisobladi?", en: 'Three pupils worked out the area of a rectangle 5 by 3. Who got it WRONG?' },
+    opt0: { ru: 'Диёра: 5 · 3 = 15', uz: "Diyora: 5 · 3 = 15", en: 'Diyora: 5 · 3 = 15' },
+    opt1: { ru: 'Бобур: 5 + 3 + 5 + 3 = 16', uz: "Bobur: 5 + 3 + 5 + 3 = 16", en: 'Bobur: 5 + 3 + 5 + 3 = 16' },
+    opt2: { ru: 'Санжар: 3 · 5 = 15', uz: "Sanjar: 3 · 5 = 15", en: 'Sanjar: 3 · 5 = 15' },
+    correct_text: { ru: 'Верно: Бобур сложил стороны и нашёл периметр, а не площадь. Правильная площадь — 15.', uz: "To'g'ri: Bobur tomonlarni qo'shib perimetrni topdi, yuzani emas. To'g'ri yuza — 15.", en: 'That is right: Bobur added the sides and found the perimeter, not the area. The right area is 15.' },
+    wrong_0: { ru: 'Диёра взяла 5 умножить на 3 и получила пятнадцать, это верная площадь.', uz: "Diyora 5 ni 3 ga ko'paytirib o'n besh oldi, bu to'g'ri yuza.", en: 'Diyora took 5 times 3 and got fifteen, which is the right area.' },
+    wrong_2: { ru: 'Санжар взял 3 умножить на 5 и получил пятнадцать, это верная площадь.', uz: "Sanjar 3 ni 5 ga ko'paytirib o'n besh oldi, bu to'g'ri yuza.", en: 'Sanjar took 3 times 5 and got fifteen, which is the right area.' },
+    fact: { ru: 'Само слово «геометрия» значит «измерение земли». В древности так делили поля и считали их площадь.', uz: "«Geometriya» so'zining o'zi «yer o'lchash» degani. Qadimda dalalarni shunday bo'lib, yuzasini hisoblashgan.", en: 'The word geometry itself means measuring the earth. Long ago that is how fields were divided up and their area worked out.' },
+    fact_audio: { ru: "Само слово геометрия значит измерение земли. В древности так делили поля и считали их площадь.", uz: "Geometriya so'zining o'zi yer o'lchash degani. Qadimda dalalarni shunday bo'lib, yuzasini hisoblashgan.", en: 'The word geometry itself means measuring the earth. Long ago that is how fields were divided up and their area worked out.' },
     audio: {
-      intro: { ru: "Три ученика искали площадь прямоугольника пять на три. Найди того, кто посчитал неправильно.", uz: "Uch o'quvchi besh ga uch to'g'ri to'rtburchak yuzasini topdi. Noto'g'ri hisoblaganini toping." },
-      on_correct: { ru: "Верно, ошибся Бобур. Он сложил стороны и получил периметр, а площадь это произведение сторон, пятнадцать.", uz: "To'g'ri, Bobur xato qildi. U tomonlarni qo'shib perimetrni topdi, yuza esa tomonlar ko'paytmasi, o'n besh." },
-      on_wrong: { ru: "Площадь умножают. Кто сложил стороны, тот нашёл периметр.", uz: "Yuzani ko'paytiradilar. Kim tomonlarni qo'shgan bo'lsa, perimetrni topgan." }
+      intro: { ru: "Три ученика искали площадь прямоугольника пять на три. Найди того, кто посчитал неправильно.", uz: "Uch o'quvchi besh ga uch to'g'ri to'rtburchak yuzasini topdi. Noto'g'ri hisoblaganini toping.", en: 'Three pupils worked out the area of a rectangle five by three. Find the one who got it wrong.' },
+      on_correct: { ru: "Верно, ошибся Бобур. Он сложил стороны и получил периметр, а площадь это произведение сторон, пятнадцать.", uz: "To'g'ri, Bobur xato qildi. U tomonlarni qo'shib perimetrni topdi, yuza esa tomonlar ko'paytmasi, o'n besh.", en: 'That is right, Bobur got it wrong. He added the sides and got the perimeter, but the area is the sides multiplied, which is fifteen.' },
+      on_wrong: { ru: "Площадь умножают. Кто сложил стороны, тот нашёл периметр.", uz: "Yuzani ko'paytiradilar. Kim tomonlarni qo'shgan bo'lsa, perimetrni topgan.", en: 'Area is found by multiplying. Whoever added the sides found the perimeter.' }
     }
   },
 
   // ===== s10 CASE setup — Laylo devorni plitka bilan qoplaydi, 8x3 =====
   s10: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    bridge: { ru: 'Задачи решили, перейдём к настоящей стене из плиток.', uz: "Masalalarni yechdik, endi haqiqiy plitkali devorga o'tamiz." },
-    title: { ru: 'Стена Лайло', uz: "Layloning devori" },
-    lead: { ru: 'Лайло выкладывает плитками прямоугольную стену: 8 и 3. Каждая плитка — это единичный квадрат.', uz: "Laylo to'g'ri to'rtburchak devorni plitka bilan qoplayapti: 8 va 3. Har bir plitka — birlik kvadrat." },
-    note: { ru: 'Сколько плиток нужно, чтобы покрыть всю стену?', uz: "Butun devorni qoplash uchun nechta plitka kerak?" },
-    hint_calc: { ru: 'Плитки покрывают всё внутри — это площадь. Умножь длину на ширину.', uz: "Plitkalar butun ichni qoplaydi — bu yuza. Bo'yni enga ko'paytiring." },
-    btn_help: { ru: 'Решить', uz: "Yechish" },
-    audio: { ru: "Лайло выкладывает плитками стену восемь на три. Подумай, плитки покрывают всё внутри, значит их число это площадь.", uz: "Laylo sakkizga uch devorni plitka bilan qoplayapti. O'ylab ko'ring, plitkalar butun ichni qoplaydi, demak ularning soni yuza." }
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    bridge: { ru: 'Задачи решили, перейдём к настоящей стене из плиток.', uz: "Masalalarni yechdik, endi haqiqiy plitkali devorga o'tamiz.", en: 'The problems are done, so let us move on to a real tiled wall.' },
+    title: { ru: 'Стена Лайло', uz: "Layloning devori", en: "Laylo's wall" },
+    lead: { ru: 'Лайло выкладывает плитками прямоугольную стену: 8 и 3. Каждая плитка — это единичный квадрат.', uz: "Laylo to'g'ri to'rtburchak devorni plitka bilan qoplayapti: 8 va 3. Har bir plitka — birlik kvadrat.", en: 'Laylo is tiling a rectangular wall 8 by 3. Each tile is one unit square.' },
+    note: { ru: 'Сколько плиток нужно, чтобы покрыть всю стену?', uz: "Butun devorni qoplash uchun nechta plitka kerak?", en: 'How many tiles are needed to cover the whole wall?' },
+    hint_calc: { ru: 'Плитки покрывают всё внутри — это площадь. Умножь длину на ширину.', uz: "Plitkalar butun ichni qoplaydi — bu yuza. Bo'yni enga ko'paytiring.", en: 'The tiles cover everything inside, so it is the area. Multiply the length by the width.' },
+    btn_help: { ru: 'Решить', uz: "Yechish", en: 'Solve it' },
+    audio: { ru: "Лайло выкладывает плитками стену восемь на три. Подумай, плитки покрывают всё внутри, значит их число это площадь.", uz: "Laylo sakkizga uch devorni plitka bilan qoplayapti. O'ylab ko'ring, plitkalar butun ichni qoplaydi, demak ularning soni yuza.", en: 'Laylo is tiling a wall eight by three. Think: the tiles cover everything inside, so their number is the area.' }
   },
 
   // ===== s11 TEST MC (case) — plitkalar soni 8x3 -> 24 + FactCard FB_MATH (AnimChess) =====
   s11: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Topshiriq" },
-    title: { ru: 'Сколько плиток', uz: "Nechta plitka" },
-    question: { ru: 'Стена 8 на 3. Сколько единичных плиток нужно, чтобы её покрыть?', uz: "Devor 8 ga 3. Uni qoplash uchun nechta birlik plitka kerak?" },
-    opt0: { ru: '24', uz: "24" },
-    opt1: { ru: '22', uz: "22" },
-    opt2: { ru: '11', uz: "11" },
-    opt3: { ru: '16', uz: "16" },
-    correct_text: { ru: 'Верно: 8 · 3 = 24. Внутри помещается 24 единичных квадрата.', uz: "To'g'ri: 8 · 3 = 24. Ichiga 24 birlik kvadrat sig'adi." },
-    wrong_1: { ru: 'Это сумма всех сторон, получился периметр стены, а не число плиток внутри.', uz: "Bu barcha tomonlar yig'indisi, devor perimetri chiqdi, ichidagi plitkalar soni emas." },
-    wrong_2: { ru: 'Ты сложил две стороны. Для числа плиток стороны умножают.', uz: "Siz ikki tomonni qo'shdingiz. Plitkalar soni uchun tomonlar ko'paytiriladi." },
-    wrong_3: { ru: 'Этого не хватит. Умножь 8 на 3.', uz: "Bu yetmaydi. 8 ni 3 ga ko'paytiring." },
-    fact: { ru: 'Шахматная доска — это квадрат 8 на 8. Перемножив стороны, получаем 64 клетки, это её площадь в клетках.', uz: "Shaxmat taxtasi — 8 ga 8 kvadrat. Tomonlarni ko'paytirsak 64 katak chiqadi, bu uning kataklardagi yuzasi." },
-    fact_audio: { ru: "Шахматная доска это квадрат восемь на восемь. Перемножив стороны, получаем шестьдесят четыре клетки, это её площадь.", uz: "Shaxmat taxtasi sakkizga sakkiz kvadrat. Tomonlarni ko'paytirsak oltmish to'rt katak chiqadi, bu uning yuzasi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Topshiriq", en: 'Final task' },
+    title: { ru: 'Сколько плиток', uz: "Nechta plitka", en: 'How many tiles' },
+    question: { ru: 'Стена 8 на 3. Сколько единичных плиток нужно, чтобы её покрыть?', uz: "Devor 8 ga 3. Uni qoplash uchun nechta birlik plitka kerak?", en: 'The wall is 8 by 3. How many unit tiles are needed to cover it?' },
+    opt0: { ru: '24', uz: "24", en: '24' },
+    opt1: { ru: '22', uz: "22", en: '22' },
+    opt2: { ru: '11', uz: "11", en: '11' },
+    opt3: { ru: '16', uz: "16", en: '16' },
+    correct_text: { ru: 'Верно: 8 · 3 = 24. Внутри помещается 24 единичных квадрата.', uz: "To'g'ri: 8 · 3 = 24. Ichiga 24 birlik kvadrat sig'adi.", en: 'That is right: 8 · 3 = 24. There is room for 24 unit squares inside.' },
+    wrong_1: { ru: 'Это сумма всех сторон, получился периметр стены, а не число плиток внутри.', uz: "Bu barcha tomonlar yig'indisi, devor perimetri chiqdi, ichidagi plitkalar soni emas.", en: 'That is all the sides added together, which gives the perimeter of the wall, not the number of tiles inside.' },
+    wrong_2: { ru: 'Ты сложил две стороны. Для числа плиток стороны умножают.', uz: "Siz ikki tomonni qo'shdingiz. Plitkalar soni uchun tomonlar ko'paytiriladi.", en: 'You added two sides. For the number of tiles the sides are multiplied.' },
+    wrong_3: { ru: 'Этого не хватит. Умножь 8 на 3.', uz: "Bu yetmaydi. 8 ni 3 ga ko'paytiring.", en: 'That will not be enough. Multiply 8 by 3.' },
+    fact: { ru: 'Шахматная доска — это квадрат 8 на 8. Перемножив стороны, получаем 64 клетки, это её площадь в клетках.', uz: "Shaxmat taxtasi — 8 ga 8 kvadrat. Tomonlarni ko'paytirsak 64 katak chiqadi, bu uning kataklardagi yuzasi.", en: 'A chessboard is a square 8 by 8. Multiplying the sides gives 64 squares, which is its area in squares.' },
+    fact_audio: { ru: "Шахматная доска это квадрат восемь на восемь. Перемножив стороны, получаем шестьдесят четыре клетки, это её площадь.", uz: "Shaxmat taxtasi sakkizga sakkiz kvadrat. Tomonlarni ko'paytirsak oltmish to'rt katak chiqadi, bu uning yuzasi.", en: 'A chessboard is a square eight by eight. Multiplying the sides gives sixty four squares, and that is its area.' },
     audio: {
-      intro: { ru: "Стена восемь на три. Сколько единичных плиток нужно, чтобы её покрыть?", uz: "Devor sakkizga uch. Uni qoplash uchun nechta birlik plitka kerak?" },
-      on_correct: { ru: "Верно, двадцать четыре. Плитки покрывают всё внутри, восемь умножить на три равно двадцать четыре.", uz: "To'g'ri, yigirma to'rt. Plitkalar butun ichni qoplaydi, sakkizni uchga ko'paytirsak yigirma to'rt bo'ladi." },
-      on_wrong: { ru: "Плитки покрывают всё внутри, умножь стороны.", uz: "Plitkalar butun ichni qoplaydi, tomonlarni ko'paytiring." }
+      intro: { ru: "Стена восемь на три. Сколько единичных плиток нужно, чтобы её покрыть?", uz: "Devor sakkizga uch. Uni qoplash uchun nechta birlik plitka kerak?", en: 'The wall is eight by three. How many unit tiles are needed to cover it?' },
+      on_correct: { ru: "Верно, двадцать четыре. Плитки покрывают всё внутри, восемь умножить на три равно двадцать четыре.", uz: "To'g'ri, yigirma to'rt. Plitkalar butun ichni qoplaydi, sakkizni uchga ko'paytirsak yigirma to'rt bo'ladi.", en: 'That is right, twenty four. The tiles cover everything inside, and eight times three is twenty four.' },
+      on_wrong: { ru: "Плитки покрывают всё внутри, умножь стороны.", uz: "Plitkalar butun ichni qoplaydi, tomonlarni ko'paytiring.", en: 'The tiles cover everything inside, so multiply the sides.' }
     }
   },
 
   // ===== s12 FINAL MC — kvadrat gilam, tomon 9 -> 81 + FactCard FB_IT (AnimPixels) =====
   s12: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Квадратный ковёр', uz: "Kvadrat gilam" },
-    question: { ru: 'Квадратный ковёр, сторона 9. Чему равна его площадь?', uz: "Kvadrat gilam, tomoni 9. Uning yuzasi nechaga teng?" },
-    opt0: { ru: '81', uz: "81" },
-    opt1: { ru: '36', uz: "36" },
-    opt2: { ru: '18', uz: "18" },
-    opt3: { ru: '72', uz: "72" },
-    correct_text: { ru: 'Верно: у квадрата сторону умножают саму на себя, 9 · 9 = 81.', uz: "To'g'ri: kvadratda tomonni o'ziga ko'paytiriladi, 9 · 9 = 81." },
-    wrong_1: { ru: 'Это 4 умножить на 9, получился периметр ковра, а площадь это сторона умножить на сторону.', uz: "Bu 4 ni 9 ga ko'paytirish, gilam perimetri chiqdi, yuza esa tomonni tomonga ko'paytirish." },
-    wrong_2: { ru: 'Это две стороны. Для площади сторону умножают на ту же сторону.', uz: "Bu ikki tomon. Yuza uchun tomonni o'sha tomonga ko'paytiriladi." },
-    wrong_3: { ru: 'Почти, но проверь. Восемь умножить на девять это семьдесят два, а сторона равна девяти.', uz: "Deyarli, lekin tekshiring. Sakkizni to'qqizga ko'paytirsak yetmish ikki, tomon esa to'qqizga teng." },
-    fact: { ru: 'Экран составлен из крошечных квадратиков — пикселей. Перемножив ширину на высоту в пикселях, узнают, сколько их всего.', uz: "Ekran mayda kvadratchalardan, ya'ni piksellardan iborat. Enni bo'yiga piksellarda ko'paytirib, ularning umumiy sonini bilishadi." },
-    fact_audio: { ru: "Экран составлен из крошечных квадратиков, пикселей. Перемножив ширину на высоту, узнают, сколько их всего.", uz: "Ekran mayda kvadratchalardan, piksellardan iborat. Enni bo'yiga ko'paytirib, ularning umumiy sonini bilishadi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq", en: 'Final task' },
+    title: { ru: 'Квадратный ковёр', uz: "Kvadrat gilam", en: 'A square rug' },
+    question: { ru: 'Квадратный ковёр, сторона 9. Чему равна его площадь?', uz: "Kvadrat gilam, tomoni 9. Uning yuzasi nechaga teng?", en: 'A square rug with a side of 9. What is its area?' },
+    opt0: { ru: '81', uz: "81", en: '81' },
+    opt1: { ru: '36', uz: "36", en: '36' },
+    opt2: { ru: '18', uz: "18", en: '18' },
+    opt3: { ru: '72', uz: "72", en: '72' },
+    correct_text: { ru: 'Верно: у квадрата сторону умножают саму на себя, 9 · 9 = 81.', uz: "To'g'ri: kvadratda tomonni o'ziga ko'paytiriladi, 9 · 9 = 81.", en: 'That is right: for a square the side is multiplied by itself, 9 · 9 = 81.' },
+    wrong_1: { ru: 'Это 4 умножить на 9, получился периметр ковра, а площадь это сторона умножить на сторону.', uz: "Bu 4 ni 9 ga ko'paytirish, gilam perimetri chiqdi, yuza esa tomonni tomonga ko'paytirish.", en: 'That is 4 times 9, which gives the perimeter of the rug, but the area is the side times the side.' },
+    wrong_2: { ru: 'Это две стороны. Для площади сторону умножают на ту же сторону.', uz: "Bu ikki tomon. Yuza uchun tomonni o'sha tomonga ko'paytiriladi.", en: 'That is two sides. For the area the side is multiplied by the same side.' },
+    wrong_3: { ru: 'Почти, но проверь. Восемь умножить на девять это семьдесят два, а сторона равна девяти.', uz: "Deyarli, lekin tekshiring. Sakkizni to'qqizga ko'paytirsak yetmish ikki, tomon esa to'qqizga teng.", en: 'Almost, but check it. Eight times nine is seventy two, and the side is nine.' },
+    fact: { ru: 'Экран составлен из крошечных квадратиков — пикселей. Перемножив ширину на высоту в пикселях, узнают, сколько их всего.', uz: "Ekran mayda kvadratchalardan, ya'ni piksellardan iborat. Enni bo'yiga piksellarda ko'paytirib, ularning umumiy sonini bilishadi.", en: 'A screen is made of tiny squares called pixels. Multiplying the width by the height in pixels tells you how many there are in all.' },
+    fact_audio: { ru: "Экран составлен из крошечных квадратиков, пикселей. Перемножив ширину на высоту, узнают, сколько их всего.", uz: "Ekran mayda kvadratchalardan, piksellardan iborat. Enni bo'yiga ko'paytirib, ularning umumiy sonini bilishadi.", en: 'A screen is made of tiny squares called pixels. Multiplying the width by the height tells you how many there are in all.' },
     audio: {
-      intro: { ru: "Последнее задание. Квадратный ковёр со стороной девять. Чему равна его площадь?", uz: "Oxirgi topshiriq. Tomoni to'qqiz bo'lgan kvadrat gilam. Uning yuzasi nechaga teng?" },
-      on_correct: { ru: "Верно, восемьдесят один. У квадрата сторону умножают на ту же сторону, девять умножить на девять равно восемьдесят один.", uz: "To'g'ri, sakson bir. Kvadratda tomonni o'sha tomonga ko'paytiriladi, to'qqizni to'qqizga ko'paytirsak sakson bir bo'ladi." },
-      on_wrong: { ru: "У квадрата сторону умножают саму на себя.", uz: "Kvadratda tomonni o'ziga ko'paytiriladi." }
+      intro: { ru: "Последнее задание. Квадратный ковёр со стороной девять. Чему равна его площадь?", uz: "Oxirgi topshiriq. Tomoni to'qqiz bo'lgan kvadrat gilam. Uning yuzasi nechaga teng?", en: 'The last task. A square rug with a side of nine. What is its area?' },
+      on_correct: { ru: "Верно, восемьдесят один. У квадрата сторону умножают на ту же сторону, девять умножить на девять равно восемьдесят один.", uz: "To'g'ri, sakson bir. Kvadratda tomonni o'sha tomonga ko'paytiriladi, to'qqizni to'qqizga ko'paytirsak sakson bir bo'ladi.", en: 'That is right, eighty one. For a square the side is multiplied by the same side, and nine times nine is eighty one.' },
+      on_wrong: { ru: "У квадрата сторону умножают саму на себя.", uz: "Kvadratda tomonni o'ziga ko'paytiriladi.", en: 'For a square the side is multiplied by itself.' }
     }
   },
 
   // ===== s13 SUMMARY =====
   s13: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Площадь — это место внутри', uz: "Yuza — bu ichidagi joy" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Площадь — сколько единичных квадратов помещается внутри фигуры.', uz: "Yuza — figura ichiga nechta birlik kvadrat sig'ishi." },
-    main_2: { ru: 'У прямоугольника S = a · b, у квадрата S = a · a. Измеряют в sm².', uz: "To'g'ri to'rtburchakda S = a · b, kvadratda S = a · a. sm² da o'lchanadi." },
-    main_3: { ru: 'Площадь умножают, а периметр — складывают. Это разные вещи.', uz: "Yuzani ko'paytiradilar, perimetrni esa qo'shadilar. Bu ikki xil narsa." },
-    hook_close: { ru: 'Теперь ясно: Акмалю нужно не 16, а 15 плиток — это площадь пола, а 16 было бы периметром.', uz: "Endi aniq: Akmalga 16 emas, 15 plitka kerak — bu pol yuzasi, 16 esa perimetr bo'lardi." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Умножение, периметр прямоугольника и квадрата.', uz: "Ko'paytirish, to'g'ri to'rtburchak va kvadrat perimetri." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Единицы площади и площадь сложных фигур.', uz: "Yuza birliklari va murakkab figuralar yuzasi." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, площадь это сколько места внутри, число единичных квадратов. У прямоугольника длину умножают на ширину, у квадрата сторону на ту же сторону. И помни, площадь умножают, а периметр складывают.", uz: "Demak, yuza ichidagi joy miqdori, birlik kvadratlar soni. To'g'ri to'rtburchakda bo'yni enga ko'paytiriladi, kvadratda tomonni o'sha tomonga. Va yodda tuting, yuzani ko'paytiradilar, perimetrni qo'shadilar." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Площадь — это место внутри', uz: "Yuza — bu ichidagi joy", en: 'The area is the room inside' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Площадь — сколько единичных квадратов помещается внутри фигуры.', uz: "Yuza — figura ichiga nechta birlik kvadrat sig'ishi.", en: 'The area is how many unit squares fit inside a shape.' },
+    main_2: { ru: 'У прямоугольника S = a · b, у квадрата S = a · a. Измеряют в sm².', uz: "To'g'ri to'rtburchakda S = a · b, kvadratda S = a · a. sm² da o'lchanadi.", en: 'For a rectangle S = a · b and for a square S = a · a. It is measured in cm².' },
+    main_3: { ru: 'Площадь умножают, а периметр — складывают. Это разные вещи.', uz: "Yuzani ko'paytiradilar, perimetrni esa qo'shadilar. Bu ikki xil narsa.", en: 'The area is found by multiplying and the perimeter by adding. They are different things.' },
+    hook_close: { ru: 'Теперь ясно: Акмалю нужно не 16, а 15 плиток — это площадь пола, а 16 было бы периметром.', uz: "Endi aniq: Akmalga 16 emas, 15 plitka kerak — bu pol yuzasi, 16 esa perimetr bo'lardi.", en: 'Now it is clear: Akmal needs 15 tiles, not 16. That is the area of the floor, and 16 would be the perimeter.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Умножение, периметр прямоугольника и квадрата.', uz: "Ko'paytirish, to'g'ri to'rtburchak va kvadrat perimetri.", en: 'Multiplying, and the perimeter of a rectangle and a square.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Единицы площади и площадь сложных фигур.', uz: "Yuza birliklari va murakkab figuralar yuzasi.", en: 'Units of area and the area of more complicated shapes.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, площадь это сколько места внутри, число единичных квадратов. У прямоугольника длину умножают на ширину, у квадрата сторону на ту же сторону. И помни, площадь умножают, а периметр складывают.", uz: "Demak, yuza ichidagi joy miqdori, birlik kvadratlar soni. To'g'ri to'rtburchakda bo'yni enga ko'paytiriladi, kvadratda tomonni o'sha tomonga. Va yodda tuting, yuzani ko'paytiradilar, perimetrni qo'shadilar.", en: 'So the area is how much room there is inside, the number of unit squares. For a rectangle you multiply the length by the width, and for a square the side by the same side. And remember that the area is found by multiplying and the perimeter by adding.' }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1093,8 +1120,8 @@ const Bridge = ({ node }) => { const t = useT(); return node ? <p className="bri
 // Ikonkalar ✓/✗ — feedback faqat rang bilan emas (accessibility).
 const IconOk = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><polyline points="20 6 9 17 4 12"/></svg>);
 const IconNo = () => (<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>);
-const FB_IT     = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT" };
-const FB_MATH   = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika" };
+const FB_IT     = { ru: 'Знаешь ли ты? · IT',         uz: "Bilasizmi? · IT",         en: 'Did you know? · IT' };
+const FB_MATH   = { ru: 'Знаешь ли ты? · Математика', uz: "Bilasizmi? · Matematika", en: 'Did you know? · Mathematics' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1109,7 +1136,7 @@ const FactCard = ({ text, anim, badge }) => {
   );
 };
 
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
 
 // ============================================================
 // DEKOR — FloatTiles (suzuvchi birlik kvadratchalar, yuza motivi)
@@ -1224,13 +1251,13 @@ const NumGeoScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, co
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1350,13 +1377,13 @@ const Screen1 = ({ screen, onAnswer, onNext, onPrev }) => {
         </div>
         <FeedbackBlock show={wrong.size > 0 && !done} isCorrect={false} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}
+            <span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}
           </p>
           <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
         </FeedbackBlock>
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
           </FeedbackBlock>
         )}
@@ -1523,13 +1550,13 @@ const Screen6 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         {!solved && <button className="btn-white-accent fade-up delay-3" onClick={confirm} style={{ position: 'relative', alignSelf: 'flex-start', padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_confirm)}</button>}
         {hint && !solved && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1665,13 +1692,13 @@ const Screen7 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         </div>
         {showHint && (
           <div className="frame-tip fade-up" style={{ position: 'relative' }}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(cur.hint))}</p>
           </div>
         )}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.done_text))}</p>
           </FeedbackBlock>
         )}
@@ -1747,7 +1774,7 @@ const Screen13 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s13;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1776,7 +1803,7 @@ export default function AreaLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1829,7 +1856,7 @@ export default function AreaLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

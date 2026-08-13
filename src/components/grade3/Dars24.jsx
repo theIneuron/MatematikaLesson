@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -130,8 +130,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-24',
-  lessonTitle: { ru: 'Урок 24. Доля целого и её запись', uz: "24-dars. Butunning ulushi va uning yozuvi" }
+  lessonId: 'grade3-24',
+  lessonTitle: { ru: 'Урок 24. Доля целого и её запись', uz: "24-dars. Butunning ulushi va uning yozuvi", en: 'Lesson 24. A fraction of a whole and how it is written' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 24»): s0 xuk bitta patir to'rt mehmonga · s1 bo'lishdan
 // ulushga (2:2 va 1:2) · s2 kasr chizig'i, maxraj va surat · s3 savol-oldin-QOIDA · s4 teng
@@ -168,15 +168,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: bitta patir to'rt bolaga. Javob ULUSH, butun son emas.
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Доля целого и её запись', uz: "Butunning ulushi va uning yozuvi" },
-    lead: { ru: 'У древней стелы одна лепёшка, а нас четверо', uz: "Qadimiy stela yonida bitta patir, biz esa to'rttamiz" },
-    order_cap: { ru: 'делят поровну, поровну — значит на равные части', uz: "teng bo'lishadi, teng degani bir xil bo'laklarga" },
-    q: { ru: 'Сколько лепёшки достанется каждому?', uz: "Har biriga patirning qanchasi tegadi?" },
-    opt0: { ru: 'одна четвёртая', uz: "to'rtdan bir" },
-    opt1: { ru: 'одна вторая', uz: 'ikkidan bir' },
-    opt2: { ru: 'четыре лепёшки', uz: "to'rtta patir" },
-    opt3: { ru: 'целая лепёшка', uz: 'butun patir' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Доля целого и её запись', uz: "Butunning ulushi va uning yozuvi", en: 'A fraction of a whole and how it is written' },
+    lead: { ru: 'У древней стелы одна лепёшка, а нас четверо', uz: "Qadimiy stela yonida bitta patir, biz esa to'rttamiz", en: 'There is one flatbread at the ancient stele, and there are four of us' },
+    order_cap: { ru: 'делят поровну, поровну — значит на равные части', uz: "teng bo'lishadi, teng degani bir xil bo'laklarga", en: 'they share it equally, equally means into equal parts' },
+    q: { ru: 'Сколько лепёшки достанется каждому?', uz: "Har biriga patirning qanchasi tegadi?", en: 'How much of the flatbread will each one get?' },
+    opt0: { ru: 'одна четвёртая', uz: "to'rtdan bir", en: 'one fourth' },
+    opt1: { ru: 'одна вторая', uz: 'ikkidan bir', en: 'one half' },
+    opt2: { ru: 'четыре лепёшки', uz: "to'rtta patir", en: 'four flatbreads' },
+    opt3: { ru: 'целая лепёшка', uz: 'butun patir', en: 'a whole flatbread' },
     audio: {
       intro: {
         ru: [
@@ -190,29 +190,31 @@ const CONTENT = {
           "Qadimiy stela yonida bitta patir, biz esa to'rttamiz.",
           "Patir teng bo'linadi, demak bo'laklar bir xil.",
           "Sizningcha, har biriga patirning qanchasi tegadi?"
-        ]
+        ],
+        en: ['We are starting a new region. Here a whole is divided into equal parts.', 'There is one flatbread at the ancient stele, and there are four of us.', 'The flatbread is shared equally, so all the parts are the same.', 'How much of the flatbread do you think each one will get?']
       },
-      on_correct: { ru: 'Верно! А сейчас увидишь, как такую часть записывают.', uz: "To'g'ri! Endi bunday bo'lak qanday yozilishini ko'rasiz." },
-      on_wrong1: { ru: 'Одна вторая это половина, её делят на двоих. А гостей четверо.', uz: "Ikkidan bir bu yarim, u ikki kishiga bo'linadi. Mehmon esa to'rtta." },
-      on_wrong2: { ru: 'Лепёшка всего одна. Больше целой никому не достанется.', uz: "Patir bittagina. Hech kimga butundan ko'p tegmaydi." },
-      on_idk: { ru: 'Ничего. Сейчас разрежем лепёшку и посмотрим.', uz: "Hechqisi yo'q. Hozir patirni kesamiz va ko'ramiz." }
+      on_correct: { ru: 'Верно! А сейчас увидишь, как такую часть записывают.', uz: "To'g'ri! Endi bunday bo'lak qanday yozilishini ko'rasiz.", en: 'Right! And now you will see how such a part is written.' },
+      on_wrong1: { ru: 'Одна вторая это половина, её делят на двоих. А гостей четверо.', uz: "Ikkidan bir bu yarim, u ikki kishiga bo'linadi. Mehmon esa to'rtta.", en: 'One half is a half, it is shared between two. And there are four guests.' },
+      on_wrong2: { ru: 'Лепёшка всего одна. Больше целой никому не достанется.', uz: "Patir bittagina. Hech kimga butundan ko'p tegmaydi.", en: 'There is only one flatbread. Nobody will get more than a whole one.' },
+      on_idk: { ru: 'Ничего. Сейчас разрежем лепёшку и посмотрим.', uz: "Hechqisi yo'q. Hozir patirni kesamiz va ko'ramiz.", en: 'Never mind. Let us cut the flatbread now and see.' }
     }
   },
 
   // s1 — BO'LISHDAN ULUSHGA: darslik 126-bet, a va b bandlari dosloven.
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Иногда деление не даёт целого — и тогда появляется доля', uz: "Ba'zan bo'lish butun bermaydi, o'shanda ulush paydo bo'ladi" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Иногда деление не даёт целого — и тогда появляется доля', uz: "Ba'zan bo'lish butun bermaydi, o'shanda ulush paydo bo'ladi", en: 'Sometimes dividing does not give a whole — and then a fraction appears' },
     task_line: '2 лепёшки на 2 гостей, потом 1 лепёшка на 2 гостей',
     task_line_uz: "2 patir 2 mehmonga, keyin 1 patir 2 mehmonga",
+    task_line_en: '2 flatbreads for 2 guests, then 1 flatbread for 2 guests',
     step1: '2 : 2 = 1',
-    step1_cap: { ru: 'каждому по целой лепёшке', uz: 'har biriga butun patirdan' },
+    step1_cap: { ru: 'каждому по целой лепёшке', uz: 'har biriga butun patirdan', en: 'a whole flatbread each' },
     step2: '1 : 2 = 1/2',
-    step2_cap: { ru: 'целого не вышло, вышла половина', uz: "butun chiqmadi, yarim chiqdi" },
-    res: { ru: '1/2 — одна вторая', uz: '1/2 — bir ikkidan' },
-    btn1: { ru: 'Разделить две лепёшки', uz: 'Ikki patirni bo\'lish' },
-    btn2: { ru: 'Разделить одну лепёшку', uz: 'Bitta patirni bo\'lish' },
-    done_text: { ru: 'Доля это одна из равных частей целого', uz: "Ulush bu butunning teng bo'laklaridan biri" },
+    step2_cap: { ru: 'целого не вышло, вышла половина', uz: "butun chiqmadi, yarim chiqdi", en: 'no whole came out, a half came out' },
+    res: { ru: '1/2 — одна вторая', uz: '1/2 — bir ikkidan', en: '1/2 — one half' },
+    btn1: { ru: 'Разделить две лепёшки', uz: 'Ikki patirni bo\'lish', en: 'Divide two flatbreads' },
+    btn2: { ru: 'Разделить одну лепёшку', uz: 'Bitta patirni bo\'lish', en: 'Divide one flatbread' },
+    done_text: { ru: 'Доля это одна из равных частей целого', uz: "Ulush bu butunning teng bo'laklaridan biri", en: 'A fraction is one of the equal parts of a whole' },
     audio: {
       ru: [
         'Посмотрим, откуда берётся доля.',
@@ -223,24 +225,25 @@ const CONTENT = {
         "Ulush qayerdan kelishini ko'ramiz.",
         "Ikkita patir ikki mehmonga. Har biriga butun patirdan tegdi, bo'lish tekis chiqdi.",
         "Endi bitta patir ikki kishiga. Butun chiqmadi. Har biri ikkita teng bo'lakdan bittasini oladi, buni ikkidan bir deb yozishadi."
-      ]
+      ],
+      en: ['Let us see where a fraction comes from.', 'Two flatbreads for two guests. Each one got a whole flatbread, the division came out even.', 'And now one flatbread for two. No whole came out. Each one takes one of the two equal parts, and that is written as one half.']
     }
   },
 
   // s2 — KASR CHIZIG'I: pastda maxraj, tepada surat (darslik 126-bet ta'rifi dosloven).
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
-    lead: { ru: 'У черты два этажа, и каждый отвечает за своё', uz: "Kasr chizig'ining ikki qavati bor, har biri o'ziniki uchun javob beradi" },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
+    lead: { ru: 'У черты два этажа, и каждый отвечает за своё', uz: "Kasr chizig'ining ikki qavati bor, har biri o'ziniki uchun javob beradi", en: 'The line has two floors, and each one is in charge of its own thing' },
     parts: 4,
     filled: 1,
-    capA: { ru: 'внизу — на сколько равных частей разделили', uz: "pastda — nechta teng bo'lakka bo'lingani" },
-    capB: { ru: 'вверху — сколько таких частей взяли', uz: "tepada — shunday bo'laklardan nechtasi olingani" },
+    capA: { ru: 'внизу — на сколько равных частей разделили', uz: "pastda — nechta teng bo'lakka bo'lingani", en: 'below — how many equal parts it was divided into' },
+    capB: { ru: 'вверху — сколько таких частей взяли', uz: "tepada — shunday bo'laklardan nechtasi olingani", en: 'above — how many such parts were taken' },
     res: '1/4',
-    name_a: { ru: 'знаменатель', uz: 'maxraj' },
-    name_b: { ru: 'числитель', uz: 'surat' },
-    btn1: { ru: 'Разделить на равные части', uz: "Teng bo'laklarga bo'lish" },
-    btn2: { ru: 'Взять одну часть', uz: 'Bitta bo\'lakni olish' },
-    done_text: { ru: 'Одна четвёртая, разделили на четыре и взяли одну', uz: "To'rtdan bir, to'rtga bo'ldik va bittasini oldik" },
+    name_a: { ru: 'знаменатель', uz: 'maxraj', en: 'the denominator' },
+    name_b: { ru: 'числитель', uz: 'surat', en: 'the numerator' },
+    btn1: { ru: 'Разделить на равные части', uz: "Teng bo'laklarga bo'lish", en: 'Divide into equal parts' },
+    btn2: { ru: 'Взять одну часть', uz: 'Bitta bo\'lakni olish', en: 'Take one part' },
+    done_text: { ru: 'Одна четвёртая, разделили на четыре и взяли одну', uz: "To'rtdan bir, to'rtga bo'ldik va bittasini oldik", en: 'One fourth, we divided into four and took one' },
     audio: {
       ru: [
         'Теперь посмотри, как устроена запись.',
@@ -251,162 +254,166 @@ const CONTENT = {
         "Endi yozuv qanday tuzilganiga qarang.",
         "Patir to'rtta teng bo'lakka bo'lindi. Chiziq tagidagi son nechta bo'lakka bo'linganini ko'rsatadi. Uni maxraj deyishadi.",
         "Bitta bo'lak olindi. Chiziq ustidagi son nechta bo'lak olinganini ko'rsatadi. Uni surat deyishadi. To'rtdan bir deb o'qiladi."
-      ]
+      ],
+      en: ['Now look at how the writing is built.', 'The flatbread was divided into four equal parts. The number below the line shows how many parts it was divided into. It is called the denominator.', 'One part was taken. The number above the line shows how many parts were taken. It is called the numerator. It reads one fourth.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: chiziq tagidagi son nimani bildiradi.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что показывает число под чертой?', uz: 'Chiziq tagidagi son nimani ko\'rsatadi?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Что показывает число под чертой?', uz: 'Chiziq tagidagi son nimani ko\'rsatadi?', en: 'What does the number below the line show?' },
     opts: [
-      { ru: 'на сколько равных частей разделили целое', uz: "butun nechta teng bo'lakka bo'linganini" },
-      { ru: 'сколько частей взяли', uz: "nechta bo'lak olinganini" },
-      { ru: 'сколько всего лепёшек', uz: 'jami nechta patir borligini' },
-      { ru: 'сколько частей осталось', uz: "nechta bo'lak qolganini" }
+      { ru: 'на сколько равных частей разделили целое', uz: "butun nechta teng bo'lakka bo'linganini", en: 'how many equal parts the whole was divided into' },
+      { ru: 'сколько частей взяли', uz: "nechta bo'lak olinganini", en: 'how many parts were taken' },
+      { ru: 'сколько всего лепёшек', uz: 'jami nechta patir borligini', en: 'how many flatbreads there are in all' },
+      { ru: 'сколько частей осталось', uz: "nechta bo'lak qolganini", en: 'how many parts are left' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сколько взяли, это верхнее число, числитель.', uz: "Nechta olingani bu yuqoridagi son, surat." },
-      2: { ru: 'Лепёшка одна. Делят именно её.', uz: "Patir bitta. Aynan o'sha bo'linadi." },
-      3: { ru: 'Сколько осталось, по записи сразу не видно. Внизу другое.', uz: "Nechta qolgani yozuvdan darrov ko'rinmaydi. Pastda boshqa narsa." }
+      1: { ru: 'Сколько взяли, это верхнее число, числитель.', uz: "Nechta olingani bu yuqoridagi son, surat.", en: 'How many were taken is the upper number, the numerator.' },
+      2: { ru: 'Лепёшка одна. Делят именно её.', uz: "Patir bitta. Aynan o'sha bo'linadi.", en: 'There is one flatbread. It is the one being divided.' },
+      3: { ru: 'Сколько осталось, по записи сразу не видно. Внизу другое.', uz: "Nechta qolgani yozuvdan darrov ko'rinmaydi. Pastda boshqa narsa.", en: 'How many are left cannot be seen from the line straight away. Below there is something else.' }
     },
-    on_correct: { ru: 'Да. Внизу на сколько разделили, вверху сколько взяли.', uz: "Ha. Pastda nechtaga bo'lingani, tepada nechtasi olingani." },
+    on_correct: { ru: 'Да. Внизу на сколько разделили, вверху сколько взяли.', uz: "Ha. Pastda nechtaga bo'lingani, tepada nechtasi olingani.", en: 'Yes. Below is how many it was divided into, above is how many were taken.' },
     rule_lines: {
       ru: ['Под чертой пишут, на сколько равных частей разделили целое. Это знаменатель.', 'Над чертой пишут, сколько таких частей взяли. Это числитель.'],
-      uz: ["Chiziq tagiga butun nechta teng bo'lakka bo'lingani yoziladi. Bu maxraj.", "Chiziq ustiga shunday bo'laklardan nechtasi olingani yoziladi. Bu surat."]
+      uz: ["Chiziq tagiga butun nechta teng bo'lakka bo'lingani yoziladi. Bu maxraj.", "Chiziq ustiga shunday bo'laklardan nechtasi olingani yoziladi. Bu surat."],
+      en: ['Below the line we write how many equal parts the whole was divided into. That is the denominator.', 'Above the line we write how many such parts were taken. That is the numerator.']
     },
     rule_ex: '3/8',
-    rule_speech: { ru: 'три восьмых, разделили на восемь, взяли три', uz: "sakkizdan uch, sakkizga bo'lindi, uchtasi olindi" },
+    rule_speech: { ru: 'три восьмых, разделили на восемь, взяли три', uz: "sakkizdan uch, sakkizga bo'lindi, uchtasi olindi", en: 'three eighths, we divided into eight and took three' },
     audio: {
       intro: {
         ru: 'Прежде чем записывать, надо понять запись. Что показывает число под чертой?',
-        uz: "Yozishdan oldin yozuvni tushunish kerak. Chiziq tagidagi son nimani ko'rsatadi?"
+        uz: "Yozishdan oldin yozuvni tushunish kerak. Chiziq tagidagi son nimani ko'rsatadi?",
+        en: 'Before writing we have to understand the writing. What does the number below the line show?'
       }
     }
   },
 
   // s4 — TENG EMAS: bo'laklar teng bo'lmasa, ulush chiqmaydi (M1, rasm bilan).
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Полоску разрезали на 4 части и одну закрасили. Это одна четвёртая?', uz: "Tasma 4 bo'lakka kesildi va bittasi bo'yaldi. Bu to'rtdan birmi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Полоску разрезали на 4 части и одну закрасили. Это одна четвёртая?', uz: "Tasma 4 bo'lakka kesildi va bittasi bo'yaldi. Bu to'rtdan birmi?", en: 'A strip was cut into 4 parts and one was shaded. Is that one fourth?' },
     fig_parts: 4,
     fig_filled: 1,
     opts: [
-      { ru: 'нет, части не равны', uz: "yo'q, bo'laklar teng emas" },
-      { ru: 'да, частей ровно четыре', uz: "ha, bo'laklar roppa-rosa to'rtta" },
-      { ru: 'да, закрашена одна часть', uz: "ha, bitta bo'lak bo'yalgan" },
-      { ru: 'нет, надо было пять частей', uz: "yo'q, beshta bo'lak kerak edi" }
+      { ru: 'нет, части не равны', uz: "yo'q, bo'laklar teng emas", en: 'no, the parts are not equal' },
+      { ru: 'да, частей ровно четыре', uz: "ha, bo'laklar roppa-rosa to'rtta", en: 'yes, there are exactly four parts' },
+      { ru: 'да, закрашена одна часть', uz: "ha, bitta bo'lak bo'yalgan", en: 'yes, one part is shaded' },
+      { ru: 'нет, надо было пять частей', uz: "yo'q, beshta bo'lak kerak edi", en: 'no, it should have been five parts' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Частей и правда четыре, но посмотри на их размер.', uz: "Bo'lak haqiqatan to'rtta, lekin ularning kattaligiga qarang." },
-      2: { ru: 'Закрашена одна, это верно. А равны ли части между собой?', uz: "Bittasi bo'yalgan, bu to'g'ri. Bo'laklar o'zaro tengmi?" },
-      3: { ru: 'Число частей выбираем сами. Важно другое, они должны быть равными.', uz: "Bo'lak sonini o'zimiz tanlaymiz. Muhimi boshqa, ular teng bo'lishi kerak." }
+      1: { ru: 'Частей и правда четыре, но посмотри на их размер.', uz: "Bo'lak haqiqatan to'rtta, lekin ularning kattaligiga qarang.", en: 'There really are four parts, but look at their size.' },
+      2: { ru: 'Закрашена одна, это верно. А равны ли части между собой?', uz: "Bittasi bo'yalgan, bu to'g'ri. Bo'laklar o'zaro tengmi?", en: 'One is shaded, that is right. But are the parts equal to each other?' },
+      3: { ru: 'Число частей выбираем сами. Важно другое, они должны быть равными.', uz: "Bo'lak sonini o'zimiz tanlaymiz. Muhimi boshqa, ular teng bo'lishi kerak.", en: 'We choose the number of parts ourselves. Something else matters: they must be equal.' }
     },
     audio: {
-      intro: { ru: 'Посмотри на полоску внимательно. Частей четыре, одна закрашена. Можно ли назвать её одной четвёртой?', uz: "Tasmaga diqqat bilan qarang. Bo'lak to'rtta, bittasi bo'yalgan. Uni to'rtdan bir deb atash mumkinmi?" },
-      on_correct: { ru: 'Точно. Доля получается только тогда, когда части равные.', uz: "Aniq. Ulush faqat bo'laklar teng bo'lgandagina chiqadi." },
-      on_wrong: { ru: 'Считать части мало. Посмотри, одинаковые ли они.', uz: "Bo'lakni sanashning o'zi kam. Ular bir xilmi, qarang." }
+      intro: { ru: 'Посмотри на полоску внимательно. Частей четыре, одна закрашена. Можно ли назвать её одной четвёртой?', uz: "Tasmaga diqqat bilan qarang. Bo'lak to'rtta, bittasi bo'yalgan. Uni to'rtdan bir deb atash mumkinmi?", en: 'Look at the strip carefully. There are four parts and one is shaded. Can it be called one fourth?' },
+      on_correct: { ru: 'Точно. Доля получается только тогда, когда части равные.', uz: "Aniq. Ulush faqat bo'laklar teng bo'lgandagina chiqadi.", en: 'Exactly. A fraction only comes out when the parts are equal.' },
+      on_wrong: { ru: 'Считать части мало. Посмотри, одинаковые ли они.', uz: "Bo'lakni sanashning o'zi kam. Ular bir xilmi, qarang.", en: 'Counting the parts is not enough. Look at whether they are the same.' }
     }
   },
 
   // s5 — SARALASH: so'z bilan aytilgan ulushni yozuvga moslash.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Отправь каждую запись к своему описанию', uz: "Har bir yozuvni o'z ta'rifiga yuboring" },
-    bin_a: { ru: 'разделили на 2', uz: "2 ga bo'lingan" },
-    bin_b: { ru: 'разделили на 4', uz: "4 ga bo'lingan" },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Отправь каждую запись к своему описанию', uz: "Har bir yozuvni o'z ta'rifiga yuboring", en: 'Send each line to its own description' },
+    bin_a: { ru: 'разделили на 2', uz: "2 ga bo'lingan", en: 'divided into 2' },
+    bin_b: { ru: 'разделили на 4', uz: "4 ga bo'lingan", en: 'divided into 4' },
     items: [
-      { n: { ru: 'половина', uz: 'yarim' }, a: true, hint: { ru: 'Половина это одна вторая.', uz: "Yarim bu ikkidan bir." } },
-      { n: { ru: 'четверть', uz: 'chorak' }, a: false, hint: { ru: 'Четверть это одна четвёртая.', uz: "Chorak bu to'rtdan bir." } },
-      { n: { ru: 'одна вторая', uz: 'ikkidan bir' }, a: true, hint: { ru: 'Внизу двойка, значит делили на два.', uz: "Pastda ikki, demak ikkiga bo'lingan." } },
-      { n: { ru: 'три четвёртых', uz: "to'rtdan uch" }, a: false, hint: { ru: 'Внизу четвёрка, значит делили на четыре.', uz: "Pastda to'rt, demak to'rtga bo'lingan." } }
+      { n: { ru: 'половина', uz: 'yarim', en: 'a half' }, a: true, hint: { ru: 'Половина это одна вторая.', uz: "Yarim bu ikkidan bir.", en: 'A half is one second.' } },
+      { n: { ru: 'четверть', uz: 'chorak', en: 'a quarter' }, a: false, hint: { ru: 'Четверть это одна четвёртая.', uz: "Chorak bu to'rtdan bir.", en: 'A quarter is one fourth.' } },
+      { n: { ru: 'одна вторая', uz: 'ikkidan bir', en: 'one half' }, a: true, hint: { ru: 'Внизу двойка, значит делили на два.', uz: "Pastda ikki, demak ikkiga bo'lingan.", en: 'Below is a two, so it was divided into two.' } },
+      { n: { ru: 'три четвёртых', uz: "to'rtdan uch", en: 'three fourths' }, a: false, hint: { ru: 'Внизу четвёрка, значит делили на четыре.', uz: "Pastda to'rt, demak to'rtga bo'lingan.", en: 'Below is a four, so it was divided into four.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре записи. Смотри на нижнее число и отправляй каждую на свою полку.', uz: "To'rtta yozuv. Pastki songa qarang va har birini o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. Нижнее число сразу говорит, на сколько частей делили.', uz: "Hammasi joyida. Pastki son nechtaga bo'linganini darrov aytadi." },
-      on_wrong: { ru: 'Смотри только на нижнее число. Оно и решает.', uz: "Faqat pastki songa qarang. O'sha hal qiladi." }
+      intro: { ru: 'Четыре записи. Смотри на нижнее число и отправляй каждую на свою полку.', uz: "To'rtta yozuv. Pastki songa qarang va har birini o'z tokchasiga yuboring.", en: 'Four lines. Look at the lower number and send each one to its own shelf.' },
+      on_correct: { ru: 'Все на месте. Нижнее число сразу говорит, на сколько частей делили.', uz: "Hammasi joyida. Pastki son nechtaga bo'linganini darrov aytadi.", en: 'All in place. The lower number tells you at once how many parts it was divided into.' },
+      on_wrong: { ru: 'Смотри только на нижнее число. Оно и решает.', uz: "Faqat pastki songa qarang. O'sha hal qiladi.", en: 'Look only at the lower number. That is what decides.' }
     }
   },
 
   // s6 — TEST: kasrni o'qish (darslik 127-bet 2-topshiriq).
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Как читается 1/3?', uz: "1/3 qanday o'qiladi?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Как читается 1/3?', uz: "1/3 qanday o'qiladi?", en: 'How is 1/3 read?' },
     opts: [
-      { ru: 'одна третья', uz: 'uchdan bir' },
-      { ru: 'три первых', uz: 'birdan uch' },
-      { ru: 'три целых', uz: "uchta butun" },
-      { ru: 'один и три', uz: 'bir va uch' }
+      { ru: 'одна третья', uz: 'uchdan bir', en: 'one third' },
+      { ru: 'три первых', uz: 'birdan uch', en: 'three firsts' },
+      { ru: 'три целых', uz: "uchta butun", en: 'three wholes' },
+      { ru: 'один и три', uz: 'bir va uch', en: 'one and three' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сначала называют, сколько взяли, потом на сколько разделили.', uz: "Avval nechtasi olingani, keyin nechtaga bo'lingani aytiladi." },
-      2: { ru: 'Целых здесь нет, целое всего одно и оно разрезано.', uz: "Bu yerda butun yo'q, butun bitta va u kesilgan." },
-      3: { ru: 'Это одно число, а не два.', uz: "Bu bitta son, ikkita emas." }
+      1: { ru: 'Сначала называют, сколько взяли, потом на сколько разделили.', uz: "Avval nechtasi olingani, keyin nechtaga bo'lingani aytiladi.", en: 'First we say how many were taken, then how many it was divided into.' },
+      2: { ru: 'Целых здесь нет, целое всего одно и оно разрезано.', uz: "Bu yerda butun yo'q, butun bitta va u kesilgan.", en: 'There are no wholes here, there is only one whole and it is cut up.' },
+      3: { ru: 'Это одно число, а не два.', uz: "Bu bitta son, ikkita emas.", en: 'This is one number, not two.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. Как читается эта запись?', uz: "Tez savol. Bu yozuv qanday o'qiladi?" },
-      on_correct: { ru: 'Верно. Одна третья, то есть одна часть из трёх.', uz: "To'g'ri. Uchdan bir, ya'ni uchtadan bitta bo'lak." },
-      on_wrong: { ru: 'Верхнее число называют первым, нижнее вторым.', uz: "Yuqoridagi son birinchi, pastdagisi ikkinchi aytiladi." }
+      intro: { ru: 'Быстрый вопрос. Как читается эта запись?', uz: "Tez savol. Bu yozuv qanday o'qiladi?", en: 'A quick question. How is this line read?' },
+      on_correct: { ru: 'Верно. Одна третья, то есть одна часть из трёх.', uz: "To'g'ri. Uchdan bir, ya'ni uchtadan bitta bo'lak.", en: 'Right. One third, that is one part out of three.' },
+      on_wrong: { ru: 'Верхнее число называют первым, нижнее вторым.', uz: "Yuqoridagi son birinchi, pastdagisi ikkinchi aytiladi.", en: 'The upper number is said first, the lower one second.' }
     }
   },
 
   // s7 — KONSOL: rasm bo'yicha maxraj, surat va bo'yalmagan bo'laklar.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Прочитай рисунок и заполни консоль', uz: "Rasmni o'qing va konsolni to'ldiring" },
-    swap_line: { ru: '8 равных частей, закрашено 3', uz: "8 teng qism, 3 tasi bo'yalgan" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Прочитай рисунок и заполни консоль', uz: "Rasmni o'qing va konsolni to'ldiring", en: 'Read the picture and fill the console' },
+    swap_line: { ru: '8 равных частей, закрашено 3', uz: "8 teng qism, 3 tasi bo'yalgan", en: '8 equal parts, 3 shaded' },
     cells: [
-      { head: { ru: 'разделили', uz: "bo'lindi" }, label: { ru: 'всего частей', uz: 'jami qism' }, ans: 8, hint: { ru: 'Посчитай все части.', uz: "Hamma bo'lakni sanang." } },
-      { head: { ru: 'взяли', uz: 'olindi' }, label: { ru: 'закрашено', uz: "bo'yalgan" }, ans: 3, hint: { ru: 'Посчитай закрашенные.', uz: "Bo'yalganlarini sanang." } },
-      { head: { ru: 'осталось', uz: 'qoldi' }, label: { ru: 'не закрашено', uz: "bo'yalmagan" }, ans: 5, hint: { ru: 'Из всех частей убери закрашенные.', uz: "Hamma bo'lakdan bo'yalganini olib tashlang." } }
+      { head: { ru: 'разделили', uz: "bo'lindi", en: 'divided into' }, label: { ru: 'всего частей', uz: 'jami qism', en: 'parts in all' }, ans: 8, hint: { ru: 'Посчитай все части.', uz: "Hamma bo'lakni sanang.", en: 'Count all the parts.' } },
+      { head: { ru: 'взяли', uz: 'olindi', en: 'taken' }, label: { ru: 'закрашено', uz: "bo'yalgan", en: 'shaded' }, ans: 3, hint: { ru: 'Посчитай закрашенные.', uz: "Bo'yalganlarini sanang.", en: 'Count the shaded ones.' } },
+      { head: { ru: 'осталось', uz: 'qoldi', en: 'left' }, label: { ru: 'не закрашено', uz: "bo'yalmagan", en: 'not shaded' }, ans: 5, hint: { ru: 'Из всех частей убери закрашенные.', uz: "Hamma bo'lakdan bo'yalganini olib tashlang.", en: 'Take the shaded ones away from all the parts.' } }
     ],
     check: '3/8',
-    check_label: { ru: 'закрашенная часть', uz: "bo'yalgan qism" },
+    check_label: { ru: 'закрашенная часть', uz: "bo'yalgan qism", en: 'the shaded part' },
     audio: {
-      intro: { ru: 'Заполни три окна. Сколько частей всего, сколько закрашено и сколько осталось.', uz: "Uchta oynani to'ldiring. Jami nechta bo'lak, nechtasi bo'yalgan va nechtasi qolgan." },
-      on_correct: { ru: 'Закрашено три восьмых. Внизу восемь, вверху три.', uz: "Sakkizdan uchi bo'yalgan. Pastda sakkiz, tepada uch." }
+      intro: { ru: 'Заполни три окна. Сколько частей всего, сколько закрашено и сколько осталось.', uz: "Uchta oynani to'ldiring. Jami nechta bo'lak, nechtasi bo'yalgan va nechtasi qolgan.", en: 'Fill three windows. How many parts in all, how many are shaded and how many are left.' },
+      on_correct: { ru: 'Закрашено три восьмых. Внизу восемь, вверху три.', uz: "Sakkizdan uchi bo'yalgan. Pastda sakkiz, tepada uch.", en: 'Three eighths are shaded. Eight below, three above.' }
     }
   },
 
   // s8 — XATONI TOP: surat va maxraj o'rin almashib qolgan (M2).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Круг разделили на 3 равные части и закрасили одну. Записали 3/1. В чём ошибка?', uz: "Doira 3 ta teng bo'lakka bo'linib, bittasi bo'yaldi. 3/1 deb yozildi. Xato nimada?" },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Круг разделили на 3 равные части и закрасили одну. Записали 3/1. В чём ошибка?', uz: "Doira 3 ta teng bo'lakka bo'linib, bittasi bo'yaldi. 3/1 deb yozildi. Xato nimada?", en: 'A circle was divided into 3 equal parts and one was shaded. They wrote 3/1. What is the mistake?' },
     fig_line: '3/1',
     opts: [
-      { ru: 'числа поменяли местами', uz: "sonlar o'rin almashib qolgan" },
-      { ru: 'частей должно быть четыре', uz: "bo'lak to'rtta bo'lishi kerak" },
-      { ru: 'надо закрасить все части', uz: "hamma bo'lakni bo'yash kerak" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'числа поменяли местами', uz: "sonlar o'rin almashib qolgan", en: 'the numbers were swapped' },
+      { ru: 'частей должно быть четыре', uz: "bo'lak to'rtta bo'lishi kerak", en: 'there should be four parts' },
+      { ru: 'надо закрасить все части', uz: "hamma bo'lakni bo'yash kerak", en: 'all the parts should be shaded' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сколько частей делать, решает задача. Здесь три, и это нормально.', uz: "Nechta bo'lak qilish masalada hal bo'ladi. Bu yerda uchta, bu normal." },
-      2: { ru: 'Закрасили одну часть, так и было задумано.', uz: "Bitta bo'lak bo'yaldi, shunday mo'ljallangan edi." },
-      3: { ru: 'Ошибка есть. Внизу должно стоять число частей, а стоит число взятых.', uz: "Xato bor. Pastda bo'laklar soni turishi kerak, olinganlar soni turibdi." }
+      1: { ru: 'Сколько частей делать, решает задача. Здесь три, и это нормально.', uz: "Nechta bo'lak qilish masalada hal bo'ladi. Bu yerda uchta, bu normal.", en: 'How many parts to make is decided by the task. Here there are three, and that is fine.' },
+      2: { ru: 'Закрасили одну часть, так и было задумано.', uz: "Bitta bo'lak bo'yaldi, shunday mo'ljallangan edi.", en: 'One part was shaded, that is what was meant.' },
+      3: { ru: 'Ошибка есть. Внизу должно стоять число частей, а стоит число взятых.', uz: "Xato bor. Pastda bo'laklar soni turishi kerak, olinganlar soni turibdi.", en: 'There is a mistake. Below there should be the number of parts, and the number taken is there.' }
     },
     audio: {
-      intro: { ru: 'Здесь разделили правильно, а записали неверно. Найди ошибку.', uz: "Bu yerda to'g'ri bo'lindi, yozuv esa noto'g'ri. Xatoni toping." },
-      on_correct: { ru: 'Точно. Внизу три, вверху один. Читается одна третья.', uz: "Aniq. Pastda uch, tepada bir. Uchdan bir deb o'qiladi." },
-      on_wrong: { ru: 'Сравни рисунок и запись. Что стоит внизу и что должно там стоять.', uz: "Rasm bilan yozuvni solishtiring. Pastda nima turibdi va u yerda nima turishi kerak." }
+      intro: { ru: 'Здесь разделили правильно, а записали неверно. Найди ошибку.', uz: "Bu yerda to'g'ri bo'lindi, yozuv esa noto'g'ri. Xatoni toping.", en: 'Here the dividing was right and the writing was wrong. Find the mistake.' },
+      on_correct: { ru: 'Точно. Внизу три, вверху один. Читается одна третья.', uz: "Aniq. Pastda uch, tepada bir. Uchdan bir deb o'qiladi.", en: 'Exactly. Three below, one above. It reads one third.' },
+      on_wrong: { ru: 'Сравни рисунок и запись. Что стоит внизу и что должно там стоять.', uz: "Rasm bilan yozuvni solishtiring. Pastda nima turibdi va u yerda nima turishi kerak.", en: 'Compare the picture and the line. What is below and what should be there.' }
     }
   },
 
   // s9 — BIT TUZOG'I: ulush BUTUNGA bog'liq (yopiq maydon, metodist qarori 2.4).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит сравнивает два угощения', uz: "Bit ikki noz-ne'matni solishtiradi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит сравнивает два угощения', uz: "Bit ikki noz-ne'matni solishtiradi", en: 'Bit compares two treats' },
     lines: ['половина лепёшки', 'половина арбуза'],
     lines_uz: ['patirning yarmi', 'tarvuzning yarmi'],
-    line_cap: { ru: 'Бит: раз и там половина, и там половина, значит поровну', uz: "Bit: u yerda ham yarim, bu yerda ham yarim, demak teng" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, целые разные', 'да, поровну'], uz: ["yo'q, butunlar boshqa", 'ha, teng'] },
+    lines_en: ['half a flatbread', 'half a melon'],
+    line_cap: { ru: 'Бит: раз и там половина, и там половина, значит поровну', uz: "Bit: u yerda ham yarim, bu yerda ham yarim, demak teng", en: 'Bit: if there is a half here and a half there, then it is equal' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, целые разные', 'да, поровну'], uz: ["yo'q, butunlar boshqa", 'ha, teng'], en: ['no, the wholes are different', 'yes, equal'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Доля всегда от своего целого. Половина арбуза тяжелее половины лепёшки, хотя доля одна и та же.', uz: "Ha. Ulush har doim o'z butunidan olinadi. Tarvuzning yarmi patirning yarmidan og'irroq, ulush esa bir xil." },
-    trap_wrong: { ru: 'Доля одинаковая, а целые разные. Арбуз больше лепёшки, значит и половина больше.', uz: "Ulush bir xil, butunlar esa boshqa. Tarvuz patirdan katta, demak yarmi ham katta." },
+    trap_correct: { ru: 'Да. Доля всегда от своего целого. Половина арбуза тяжелее половины лепёшки, хотя доля одна и та же.', uz: "Ha. Ulush har doim o'z butunidan olinadi. Tarvuzning yarmi patirning yarmidan og'irroq, ulush esa bir xil.", en: 'Yes. A fraction is always of its own whole. Half a melon is heavier than half a flatbread, even though the fraction is the same.' },
+    trap_wrong: { ru: 'Доля одинаковая, а целые разные. Арбуз больше лепёшки, значит и половина больше.', uz: "Ulush bir xil, butunlar esa boshqa. Tarvuz patirdan katta, demak yarmi ham katta.", en: 'The fraction is the same, but the wholes are different. A melon is bigger than a flatbread, so the half is bigger too.' },
     audio: {
       ru: [
         'Бит смотрит на два угощения и говорит.',
@@ -417,164 +424,170 @@ const CONTENT = {
         "Bit ikki noz-ne'matga qaraydi va aytadi.",
         "Bu yerda patirning yarmi, bu yerda tarvuzning yarmi. Ikkalasi ham yarim, demak teng.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit looks at two treats and says this.', 'Here is half a flatbread, and here is half a melon. Both are halves, so they are equal.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: maxrajni rasmdan o'qish.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Полосу разделили на 6 равных частей и взяли 5. Сколько частей не взяли?', uz: "Tasma 6 ta teng bo'lakka bo'lindi va 5 tasi olindi. Nechta bo'lak olinmadi?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Полосу разделили на 6 равных частей и взяли 5. Сколько частей не взяли?', uz: "Tasma 6 ta teng bo'lakka bo'lindi va 5 tasi olindi. Nechta bo'lak olinmadi?", en: 'A strip was divided into 6 equal parts and 5 were taken. How many parts were not taken?' },
     ans: 1,
     check: '5/6',
-    check_label: { ru: 'взятая часть', uz: 'olingan qism' },
-    hint: { ru: 'Из шести частей убери те, что взяли.', uz: "Oltita bo'lakdan olinganini olib tashlang." },
+    check_label: { ru: 'взятая часть', uz: 'olingan qism', en: 'the part taken' },
+    hint: { ru: 'Из шести частей убери те, что взяли.', uz: "Oltita bo'lakdan olinganini olib tashlang.", en: 'Take away the parts that were taken from the six.' },
     audio: {
-      intro: { ru: 'Полосу разделили на шесть равных частей и взяли пять. Сколько частей не взяли?', uz: "Tasma oltita teng bo'lakka bo'lindi va beshtasi olindi. Nechta bo'lak olinmadi?" },
-      on_correct: { ru: 'Одна. Взяли пять шестых, осталась одна шестая.', uz: "Bitta. Oltidan besh olindi, oltidan bir qoldi." }
+      intro: { ru: 'Полосу разделили на шесть равных частей и взяли пять. Сколько частей не взяли?', uz: "Tasma oltita teng bo'lakka bo'lindi va beshtasi olindi. Nechta bo'lak olinmadi?", en: 'A strip was divided into six equal parts and five were taken. How many parts were not taken?' },
+      on_correct: { ru: 'Одна. Взяли пять шестых, осталась одна шестая.', uz: "Bitta. Oltidan besh olindi, oltidan bir qoldi.", en: 'One. Five sixths were taken, one sixth is left.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: maxrajni topish.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Каждый кусок — одна двенадцатая лепёшки. На сколько частей её разделили?', uz: "Har bir bo'lak patirning o'n ikkidan biri. U nechta bo'lakka bo'lingan?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Каждый кусок — одна двенадцатая лепёшки. На сколько частей её разделили?', uz: "Har bir bo'lak patirning o'n ikkidan biri. U nechta bo'lakka bo'lingan?", en: 'Each piece is one twelfth of a flatbread. How many parts was it divided into?' },
     ans: 12,
     check: '1/12',
-    check_label: { ru: 'один кусок', uz: 'bitta bo\'lak' },
-    hint: { ru: 'Нижнее число и есть число частей.', uz: "Pastki son bo'laklar sonining o'zi." },
+    check_label: { ru: 'один кусок', uz: 'bitta bo\'lak', en: 'one piece' },
+    hint: { ru: 'Нижнее число и есть число частей.', uz: "Pastki son bo'laklar sonining o'zi.", en: 'The lower number is the number of parts.' },
     audio: {
-      intro: { ru: 'Каждый кусок это одна двенадцатая лепёшки. На сколько равных частей её разделили?', uz: "Har bir bo'lak patirning o'n ikkidan biri. U nechta teng bo'lakka bo'lingan?" },
-      on_correct: { ru: 'Двенадцать. Нижнее число прямо говорит, на сколько разделили.', uz: "O'n ikki. Pastki son nechtaga bo'linganini to'g'ridan-to'g'ri aytadi." }
+      intro: { ru: 'Каждый кусок это одна двенадцатая лепёшки. На сколько равных частей её разделили?', uz: "Har bir bo'lak patirning o'n ikkidan biri. U nechta teng bo'lakka bo'lingan?", en: 'Each piece is one twelfth of a flatbread. How many equal parts was it divided into?' },
+      on_correct: { ru: 'Двенадцать. Нижнее число прямо говорит, на сколько разделили.', uz: "O'n ikki. Pastki son nechtaga bo'linganini to'g'ridan-to'g'ri aytadi.", en: 'Twelve. The lower number says directly how many it was divided into.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam (23-darsning tuzilmasi saqlanadi).
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Каменный круг на восемь частей', uz: "Sakkiz bo'lakli tosh doira" },
-    q: { ru: 'Лепёшку разделили на 8 равных частей. Дилором взяла 3 части, Ботир 2. Сколько частей осталось?', uz: "Patir 8 ta teng bo'lakka bo'lindi. Dilorom 3 ta, Botir 2 ta bo'lak oldi. Nechta bo'lak qoldi?" },
-    q_speech: { ru: 'лепёшку разделили на восемь равных частей. Дилором взяла три части, Ботир две. Сколько частей осталось?', uz: "patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita bo'lak oldi. Nechta bo'lak qoldi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Каменный круг на восемь частей', uz: "Sakkiz bo'lakli tosh doira", en: 'A stone circle in eight parts' },
+    q: { ru: 'Лепёшку разделили на 8 равных частей. Дилором взяла 3 части, Ботир 2. Сколько частей осталось?', uz: "Patir 8 ta teng bo'lakka bo'lindi. Dilorom 3 ta, Botir 2 ta bo'lak oldi. Nechta bo'lak qoldi?", en: 'A flatbread was divided into 8 equal parts. Dilnoza took 3 parts, Botir took 2. How many parts are left?' },
+    q_speech: { ru: 'лепёшку разделили на восемь равных частей. Дилором взяла три части, Ботир две. Сколько частей осталось?', uz: "patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita bo'lak oldi. Nechta bo'lak qoldi?", en: 'a flatbread was divided into eight equal parts. Dilnoza took three parts, Botir took two. How many parts are left?' },
     tbl_heads: [
-      { ru: 'всего частей', uz: "jami bo'lak" },
-      { ru: 'взяла Дилором', uz: 'Dilorom oldi' },
-      { ru: 'взял Ботир', uz: 'Botir oldi' }
+      { ru: 'всего частей', uz: "jami bo'lak", en: 'parts in all' },
+      { ru: 'взяла Дилором', uz: 'Dilorom oldi', en: 'Dilnoza took' },
+      { ru: 'взял Ботир', uz: 'Botir oldi', en: 'Botir took' }
     ],
     tbl_cells: ['8', '3', '2'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '3 + 2', uz: '3 + 2' },
-      { ru: '8 − 3', uz: '8 − 3' },
-      { ru: '8 : 2', uz: '8 : 2' },
-      { ru: '3 · 2', uz: '3 · 2' }
+      { ru: '3 + 2', uz: '3 + 2', en: '3 + 2' },
+      { ru: '8 − 3', uz: '8 − 3', en: '8 − 3' },
+      { ru: '8 : 2', uz: '8 : 2', en: '8 : 2' },
+      { ru: '3 · 2', uz: '3 · 2', en: '3 · 2' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Сначала узнаем, сколько частей взяли вдвоём.', uz: "Avval ikkalasi nechta bo'lak olganini bilamiz." },
-      2: { ru: 'Так мы уберём только части Дилором, а Ботир тоже брал.', uz: "Bunda faqat Dilorom bo'laklari olinadi, Botir ham olgan edi." },
-      3: { ru: 'Делить лепёшку второй раз не нужно, она уже разрезана.', uz: "Patirni ikkinchi marta bo'lish shart emas, u allaqachon kesilgan." }
+      1: { ru: 'Сначала узнаем, сколько частей взяли вдвоём.', uz: "Avval ikkalasi nechta bo'lak olganini bilamiz.", en: 'First we find out how many parts the two of them took.' },
+      2: { ru: 'Так мы уберём только части Дилором, а Ботир тоже брал.', uz: "Bunda faqat Dilorom bo'laklari olinadi, Botir ham olgan edi.", en: "That way we only take away Dilnoza's parts, and Botir took some too." },
+      3: { ru: 'Делить лепёшку второй раз не нужно, она уже разрезана.', uz: "Patirni ikkinchi marta bo'lish shart emas, u allaqachon kesilgan.", en: 'There is no need to divide the flatbread again, it is already cut.' }
     },
-    pick_ok: { ru: 'Верно. Сначала складываем взятое, потом убираем из целого.', uz: "To'g'ri. Avval olinganini qo'shamiz, keyin butundan olib tashlaymiz." },
-    step1_q: { ru: 'Сколько частей взяли вдвоём?', uz: "Ikkalasi nechta bo'lak oldi?" },
+    pick_ok: { ru: 'Верно. Сначала складываем взятое, потом убираем из целого.', uz: "To'g'ri. Avval olinganini qo'shamiz, keyin butundan olib tashlaymiz.", en: 'Right. First we add what was taken, then we take it away from the whole.' },
+    step1_q: { ru: 'Сколько частей взяли вдвоём?', uz: "Ikkalasi nechta bo'lak oldi?", en: 'How many parts did the two of them take?' },
     ans1: 5,
-    hint1: { ru: 'Сложи три и два.', uz: "Uch bilan ikkini qo'shing." },
-    step2_q: { ru: 'Сколько частей осталось?', uz: "Nechta bo'lak qoldi?" },
+    hint1: { ru: 'Сложи три и два.', uz: "Uch bilan ikkini qo'shing.", en: 'Add three and two.' },
+    step2_q: { ru: 'Сколько частей осталось?', uz: "Nechta bo'lak qoldi?", en: 'How many parts are left?' },
     ans2: 3,
-    hint2: { ru: 'Из восьми убери пять.', uz: "Sakkizdan beshni olib tashlang." },
+    hint2: { ru: 'Из восьми убери пять.', uz: "Sakkizdan beshni olib tashlang.", en: 'Take five away from eight.' },
     check: '8 − 5 = 3',
-    setup_audio: { ru: 'Каждый взял по несколько частей. Посмотри на таблицу и реши, с чего начинать.', uz: "Har biri bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'Каждый взял по несколько частей. Посмотри на таблицу и реши, с чего начинать.', uz: "Har biri bir necha bo'lakdan oldi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'Each of them took several parts. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Лепёшку разделили на восемь равных частей. Дилором взяла три, Ботир две. Сколько частей осталось?', uz: "Patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita oldi. Nechta bo'lak qoldi?" },
-      on_correct: { ru: 'Три части. Это три восьмых лепёшки.', uz: "Uchta bo'lak. Bu patirning sakkizdan uchi." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько частей ушло со стола.', uz: "Birinchi qadamga qayting. Stoldan nechta bo'lak ketdi." }
+      intro: { ru: 'Лепёшку разделили на восемь равных частей. Дилором взяла три, Ботир две. Сколько частей осталось?', uz: "Patir sakkizta teng bo'lakka bo'lindi. Dilorom uchta, Botir ikkita oldi. Nechta bo'lak qoldi?", en: 'A flatbread was divided into eight equal parts. Dilnoza took three, Botir took two. How many parts are left?' },
+      on_correct: { ru: 'Три части. Это три восьмых лепёшки.', uz: "Uchta bo'lak. Bu patirning sakkizdan uchi.", en: 'Three parts. That is three eighths of the flatbread.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько частей ушло со стола.', uz: "Birinchi qadamga qayting. Stoldan nechta bo'lak ketdi.", en: 'Go back to the first step. How many parts left the table.' }
     }
   },
 
   // s13 — FINAL: uch xil savol, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Смотри, о чём спрашивают', uz: "Uchta topshiriq. Nima so'ralganiga qarang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Смотри, о чём спрашивают', uz: "Uchta topshiriq. Nima so'ralganiga qarang", en: 'Three tasks. Watch what is being asked' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Каждая часть — одна пятая круга. Сколько таких частей в целом круге?', uz: "Har bir bo'lak doiraning beshdan biri. Butun doirada shunday bo'lakdan nechta bor?" },
-        q_speech: { ru: 'каждая часть это одна пятая круга. Сколько таких частей в целом круге?', uz: "har bir bo'lak doiraning beshdan biri. Butun doirada shunday bo'lakdan nechta bor?" },
+        q: { ru: 'Каждая часть — одна пятая круга. Сколько таких частей в целом круге?', uz: "Har bir bo'lak doiraning beshdan biri. Butun doirada shunday bo'lakdan nechta bor?", en: 'Each part is one fifth of a circle. How many such parts are in a whole circle?' },
+        q_speech: { ru: 'каждая часть это одна пятая круга. Сколько таких частей в целом круге?', uz: "har bir bo'lak doiraning beshdan biri. Butun doirada shunday bo'lakdan nechta bor?", en: 'each part is one fifth of a circle. How many such parts are in a whole circle?' },
         ans: 5,
-        hint: { ru: 'Нижнее число говорит, на сколько разделили.', uz: "Pastki son nechtaga bo'linganini aytadi." }
+        hint: { ru: 'Нижнее число говорит, на сколько разделили.', uz: "Pastki son nechtaga bo'linganini aytadi.", en: 'The lower number says how many it was divided into.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Полоса разделена на 9 равных частей, закрашено 4. Сколько частей не закрашено?', uz: "Tasma 9 ta teng bo'lakka bo'lingan, 4 tasi bo'yalgan. Nechta bo'lak bo'yalmagan?" },
-        q_speech: { ru: 'полоса разделена на девять равных частей, закрашено четыре. Сколько частей не закрашено?', uz: "tasma to'qqizta teng bo'lakka bo'lingan, to'rttasi bo'yalgan. Nechta bo'lak bo'yalmagan?" },
+        q: { ru: 'Полоса разделена на 9 равных частей, закрашено 4. Сколько частей не закрашено?', uz: "Tasma 9 ta teng bo'lakka bo'lingan, 4 tasi bo'yalgan. Nechta bo'lak bo'yalmagan?", en: 'A strip is divided into 9 equal parts, 4 are shaded. How many parts are not shaded?' },
+        q_speech: { ru: 'полоса разделена на девять равных частей, закрашено четыре. Сколько частей не закрашено?', uz: "tasma to'qqizta teng bo'lakka bo'lingan, to'rttasi bo'yalgan. Nechta bo'lak bo'yalmagan?", en: 'a strip is divided into nine equal parts, four are shaded. How many parts are not shaded?' },
         ans: 5,
-        hint: { ru: 'Из девяти убери закрашенные.', uz: "To'qqiztadan bo'yalganini olib tashlang." }
+        hint: { ru: 'Из девяти убери закрашенные.', uz: "To'qqiztadan bo'yalganini olib tashlang.", en: 'Take the shaded ones away from nine.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Дыню разделили поровну на 7 человек. Сколько частей достанется одному?', uz: "Qovun 7 kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
-        q_speech: { ru: 'дыню разделили поровну на семь человек. Сколько частей достанется одному?', uz: "qovun yetti kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?" },
+        q: { ru: 'Дыню разделили поровну на 7 человек. Сколько частей достанется одному?', uz: "Qovun 7 kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?", en: 'A melon was shared equally among 7 people. How many parts will one person get?' },
+        q_speech: { ru: 'дыню разделили поровну на семь человек. Сколько частей достанется одному?', uz: "qovun yetti kishiga teng bo'lindi. Bittasiga nechta bo'lak tegadi?", en: 'a melon was shared equally among seven people. How many parts will one person get?' },
         ans: 1,
-        hint: { ru: 'Каждому по одной части, и эта часть называется одна седьмая.', uz: "Har biriga bittadan bo'lak, bu bo'lak yettidan bir deb ataladi." }
+        hint: { ru: 'Каждому по одной части, и эта часть называется одна седьмая.', uz: "Har biriga bittadan bo'lak, bu bo'lak yettidan bir deb ataladi.", en: 'One part each, and that part is called one seventh.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Пчёлы строят соты из одинаковых шестиугольных ячеек. Равные части не оставляют щелей и экономят воск: на такую же площадь его уходит меньше, чем на круглые ячейки.',
-      uz: "Asalarilar uyani bir xil olti burchakli katakchalardan quradi. Teng bo'laklar orasida bo'shliq qolmaydi va mum tejaladi: shuncha joyga dumaloq katakchalarga qaraganda kamroq ketadi."
+      uz: "Asalarilar uyani bir xil olti burchakli katakchalardan quradi. Teng bo'laklar orasida bo'shliq qolmaydi va mum tejaladi: shuncha joyga dumaloq katakchalarga qaraganda kamroq ketadi.",
+      en: 'Bees build honeycombs from identical hexagonal cells. Equal parts leave no gaps and save wax: the same area takes less of it than round cells would.'
     },
     fact_audio: {
       ru: 'Пчёлы строят соты из одинаковых шестиугольных ячеек. Равные части прилегают друг к другу без щелей, и воска уходит меньше, чем если бы ячейки были круглыми. Мы весь урок делили целое на равные части, и природа делает то же самое, только ради экономии.',
-      uz: "Asalarilar uyani bir xil olti burchakli katakchalardan quradi. Teng bo'laklar bir-biriga bo'shliqsiz yopishadi va mum dumaloq katakchalardagidan kamroq ketadi. Butun dars davomida biz butunni teng bo'laklarga bo'ldik, tabiat ham xuddi shunday qiladi, faqat tejash uchun."
+      uz: "Asalarilar uyani bir xil olti burchakli katakchalardan quradi. Teng bo'laklar bir-biriga bo'shliqsiz yopishadi va mum dumaloq katakchalardagidan kamroq ketadi. Butun dars davomida biz butunni teng bo'laklarga bo'ldik, tabiat ham xuddi shunday qiladi, faqat tejash uchun.",
+      en: 'Bees build honeycombs from identical hexagonal cells. Equal parts sit against each other with no gaps, and less wax is used than if the cells were round. All lesson we divided a whole into equal parts, and nature does the same, only to save material.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. В каждом смотри на число частей.', uz: "Oxirida uchta topshiriq. Har birida bo'laklar soniga qarang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Перечитай задание. Сколько всего частей и сколько из них взяли.', uz: "Topshiriqni qayta o'qing. Jami nechta bo'lak va nechtasi olingan." }
+      intro: { ru: 'Три задания напоследок. В каждом смотри на число частей.', uz: "Oxirida uchta topshiriq. Har birida bo'laklar soniga qarang.", en: 'Three tasks at the end. In each one look at the number of parts.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Перечитай задание. Сколько всего частей и сколько из них взяли.', uz: "Topshiriqni qayta o'qing. Jami nechta bo'lak va nechtasi olingan.", en: 'Read the task again. How many parts in all and how many of them were taken.' }
     }
   },
 
   // s14 — YAKUN: keyingisi maxrajlar oilasi (reja 28-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Целое разделено поровну!', uz: "Butun teng bo'lindi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Целое разделено поровну!', uz: "Butun teng bo'lindi!", en: 'The whole is divided equally!' },
     cando: {
       ru: ['делю целое на равные части и называю долю', 'читаю и записываю долю чертой', 'вижу, что доля всегда от своего целого'],
-      uz: ["butunni teng bo'laklarga bo'lib, ulushni ayta olaman", "ulushni chiziq bilan o'qiyman va yozaman", "ulush har doim o'z butunidan olinishini ko'raman"]
+      uz: ["butunni teng bo'laklarga bo'lib, ulushni ayta olaman", "ulushni chiziq bilan o'qiyman va yozaman", "ulush har doim o'z butunidan olinishini ko'raman"],
+      en: ['I divide a whole into equal parts and name the fraction', 'I read and write a fraction with a line', 'I see that a fraction is always of its own whole']
     },
-    rule_recap: { ru: 'Под чертой — на сколько разделили. Над чертой — сколько взяли.', uz: "Chiziq tagida nechtaga bo'lingani. Chiziq ustida nechtasi olingani." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 19: деление с остатком; урок 23: два действия', uz: "19-dars: qoldiqli bo'lish; 23-dars: ikki amal" },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'семьи знаменателей: 2, 4, 8 и 3, 6, 12', uz: "maxrajlar oilasi: 2, 4, 8 va 3, 6, 12" },
+    rule_recap: { ru: 'Под чертой — на сколько разделили. Над чертой — сколько взяли.', uz: "Chiziq tagida nechtaga bo'lingani. Chiziq ustida nechtasi olingani.", en: 'Below the line — how many it was divided into. Above the line — how many were taken.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 19: деление с остатком; урок 23: два действия', uz: "19-dars: qoldiqli bo'lish; 23-dars: ikki amal", en: 'lesson 19: division with a remainder; lesson 23: two steps' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'семьи знаменателей: 2, 4, 8 и 3, 6, 12', uz: "maxrajlar oilasi: 2, 4, 8 va 3, 6, 12", en: 'families of denominators: 2, 4, 8 and 3, 6, 12' },
     audio: {
       ru: 'Целое разделено поровну. Запомни главное. Доля это одна из равных частей целого. Под чертой пишут, на сколько частей разделили, над чертой сколько взяли. И доля всегда считается от своего целого. В следующий раз разрежем одну и ту же полосу на разное число частей!',
-      uz: "Butun teng bo'lindi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!"
+      uz: "Butun teng bo'lindi. Asosiysini eslab qoling. Ulush bu butunning teng bo'laklaridan biri. Chiziq tagiga nechta bo'lakka bo'lingani, ustiga nechtasi olingani yoziladi. Ulush esa har doim o'z butunidan hisoblanadi. Keyingi safar bitta tasmani turlicha songa bo'lamiz!",
+      en: 'The whole is divided equally. Remember the main thing. A fraction is one of the equal parts of a whole. Below the line we write how many parts it was divided into, above the line how many were taken. And a fraction is always counted from its own whole. Next time we will cut the same strip into different numbers of parts!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Разделим лепёшку.', uz: 'Patirni bo\'lamiz.' },
-  s2:  { ru: 'Посмотрим на запись.', uz: 'Yozuvga qaraymiz.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Кто-то резал на глаз.', uz: 'Kimdir chamalab kesibdi.' },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing." },
-  s8:  { ru: 'Запись перепутали.', uz: 'Yozuv adashtirilgan.' },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна лепёшка.', uz: 'Yana bitta patir.' },
-  s12: { ru: 'Задача у стелы.', uz: 'Steladagi masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Квартал разгадан. Идём дальше!', uz: 'Chorak sirlari ochildi. Davom etamiz!' }
+  s1:  { ru: 'Разделим лепёшку.', uz: 'Patirni bo\'lamiz.', en: 'Let us divide the flatbread.' },
+  s2:  { ru: 'Посмотрим на запись.', uz: 'Yozuvga qaraymiz.', en: 'Let us look at the writing.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Кто-то резал на глаз.', uz: 'Kimdir chamalab kesibdi.', en: 'Someone cut it by eye.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Прочитай рисунок.', uz: "Rasmni o'qing.", en: 'Read the picture.' },
+  s8:  { ru: 'Запись перепутали.', uz: 'Yozuv adashtirilgan.', en: 'The writing got mixed up.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна лепёшка.', uz: 'Yana bitta patir.', en: 'And one more flatbread.' },
+  s12: { ru: 'Задача у стелы.', uz: 'Steladagi masala.', en: 'A problem at the stele.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Квартал разгадан. Идём дальше!', uz: 'Chorak sirlari ochildi. Davom etamiz!', en: 'The quarter is solved. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Все получили поровну, и никто не остался без доли. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Hamma tengdan oldi, hech kim ulushsiz qolmadi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Hamma tengdan oldi, hech kim ulushsiz qolmadi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! Everyone got an equal share and nobody was left without a piece. Thank you for your help!'
 };
 
 // ============================================================
@@ -777,7 +790,7 @@ const UlushHallBg = () => {
     <rect x="116" y="94" width="168" height="66" rx="5" fill="url(#d24slab)" stroke="#8A7550" strokeWidth="2"/>
     <rect x="122" y="100" width="156" height="54" rx="3" fill="none" stroke="#A8946A" strokeWidth="1" opacity="0.7"/>
     <rect x="130" y="103" width="140" height="11" rx="2" fill="#C6AE7E"/>
-    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНЫЕ ДОЛИ' : "TENG BO'LAK"}</text>
+    <text x="200" y="111.5" textAnchor="middle" fontSize="7" letterSpacing="2" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНЫЕ ДОЛИ', "TENG BO'LAK", 'EQUAL PARTS')}</text>
     <g transform="translate(152 136)">
       <circle cx="0" cy="0" r="17" fill="#E8D8B2" stroke="#8A7550" strokeWidth="1.4"/>
       <path d="M0 0 L0 -17 A17 17 0 0 1 17 0 Z" fill="#E0A05A" stroke="#8A7550" strokeWidth="1"/>
@@ -795,7 +808,7 @@ const UlushHallBg = () => {
       <ellipse cx="0" cy="4" rx="24" ry="9" fill="url(#d24slab)" stroke="#8A7550" strokeWidth="1.2"/>
       <path d="M0 4 L-2 -6 L2 -6 Z" fill="#8A7550"/>
       <g stroke="#8A7550" strokeWidth="0.8">{[-18, -9, 0, 9, 18].map((dx, k) => <line key={k} x1={dx} y1={4 - Math.abs(dx) * 0.16} x2={dx * 0.8} y2={0 - Math.abs(dx) * 0.14}/>)}</g>
-      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАВНО' : 'TENG'}</text>
+      <text x="0" y="-3" textAnchor="middle" fontSize="5" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАВНО', 'TENG', 'EQUAL')}</text>
     </g>
     {/* --- O'NG artefakt: teng bo'laklarga bo'lingan tosh disklar (2, 3, 4, 6) --- */}
     {[[2, 92], [3, 116], [4, 140], [6, 164]].map(([n, y], i) => (
@@ -1095,7 +1108,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1214,7 +1227,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d24-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d24-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d24-expr">{t(c.step1)}</span>
@@ -1559,7 +1572,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1624,7 +1637,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1760,7 +1773,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d24-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d24-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1875,7 +1888,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1946,7 +1959,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d24-final-scene fade-up delay-1"><UlushHallScene gathered/></div>
@@ -1967,7 +1980,7 @@ export default function ShareIntroLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2034,7 +2047,7 @@ export default function ShareIntroLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

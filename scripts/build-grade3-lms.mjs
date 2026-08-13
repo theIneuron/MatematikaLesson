@@ -21,7 +21,10 @@ const espree = require('espree');
 
 const DIR = path.resolve('src/components/grade3');
 const KIT = path.join(DIR, '_kit');
-const OUT = path.resolve('lms-grade3-standalone');
+// Куда складывать. По умолчанию — рабочая папка класса; --out=<папка> пишет в другую,
+// чтобы не затирать уже отданные в LMS файлы (они не под git, восстановить их нечем).
+const outArg = process.argv.find((a) => a.startsWith('--out='));
+const OUT = path.resolve(outArg ? outArg.slice('--out='.length) : 'src/components/grade3/lms-grade3-standalone');
 const read = (p) => fs.readFileSync(p, 'utf8').split('\r').join('');
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const lessons = args.length ? args : fs.readdirSync(DIR).filter((f) => /^Dars\d+\.jsx$/.test(f)).sort();

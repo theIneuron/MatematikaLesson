@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, ZuhraSVG, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, ZuhraSVG, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -134,8 +134,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
-  lessonId: 'num-3-03',
-  lessonTitle: { ru: 'Урок 3. Разрядные слагаемые', uz: "3-dars. Razryad qo'shiluvchilari" }
+  lessonId: 'grade3-03',
+  lessonTitle: { ru: 'Урок 3. Разрядные слагаемые', uz: "3-dars. Razryad qo'shiluvchilari", en: 'Lesson 3. Place-value parts' }
 };
 // STRUKTURA (14 ekran): s0 hook · s1–s5 kashfiyot · s6 qoida · s7–s10 mashq · s11 masala · s12 final · s13 xulosa.
 // Grade2 Dars01 etaloni yoyi, yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
@@ -169,14 +169,14 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: razryad paneli, 352 dagi 5 raqami qiymati (o'rin qiymati seed)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: разрядные слагаемые', uz: "Mavzu: razryad qo'shiluvchilari" },
-    lead: { ru: 'Разрядная панель показывает число 352.', uz: 'Razryad paneli 352 sonini ko\'rsatadi.' },
-    num_display: { ru: '352', uz: '352' },
-    q: { ru: 'Сколько значит цифра 5 в этом числе?', uz: 'Bu sonda 5 raqami qancha degani?' },
-    opt0: { ru: '5', uz: '5' },
-    opt1: { ru: '50', uz: '50' },
-    opt2: { ru: '500', uz: '500' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: разрядные слагаемые', uz: "Mavzu: razryad qo'shiluvchilari", en: 'Topic: place-value parts' },
+    lead: { ru: 'Разрядная панель показывает число 352.', uz: 'Razryad paneli 352 sonini ko\'rsatadi.', en: 'The place panel shows the number 352.' },
+    num_display: { ru: '352', uz: '352', en: '352' },
+    q: { ru: 'Сколько значит цифра 5 в этом числе?', uz: 'Bu sonda 5 raqami qancha degani?', en: 'What does the digit 5 mean in this number?' },
+    opt0: { ru: '5', uz: '5', en: '5' },
+    opt1: { ru: '50', uz: '50', en: '50' },
+    opt2: { ru: '500', uz: '500', en: '500' },
     audio: {
       intro: {
         ru: [
@@ -190,24 +190,25 @@ const CONTENT = {
           "O'tgan hududda sonlarni o'qidik. Endi Bit bizni razryad paneliga olib keldi.",
           "Panelda uch yuz ellik ikki soni. O'rtadagi raqamga qarang, bu besh.",
           "Sizningcha, bu beshlik sonda qancha degani? Bittasini tanlang."
-        ]
+        ],
+        en: ["Today's topic is place value parts. We will learn to break a number into parts by place.", 'In the last district we were reading numbers. Now Bit has brought us to the place panel.', 'On the panel is the number three hundred fifty two. Look at the middle digit, it is five.', 'What do you think this five means in the number? Choose one answer.']
       },
-      on_correct: { ru: 'Верно. Пятёрка стоит в десятках, значит она значит пятьдесят.', uz: "To'g'ri. Beshlik o'nlikda turadi, demak u ellik degani." },
-      on_wrong: { ru: 'Смотри на место. Пятёрка в десятках — это пятьдесят, не пять.', uz: "O'rniga qarang. Beshlik o'nlikda, bu ellik, besh emas." }
+      on_correct: { ru: 'Верно. Пятёрка стоит в десятках, значит она значит пятьдесят.', uz: "To'g'ri. Beshlik o'nlikda turadi, demak u ellik degani.", en: 'Correct. The five stands in the tens, so it means fifty.' },
+      on_wrong: { ru: 'Смотри на место. Пятёрка в десятках — это пятьдесят, не пять.', uz: "O'rniga qarang. Beshlik o'nlikda, bu ellik, besh emas.", en: 'Look at the place. A five in the tens is fifty, not five.' }
     }
   },
 
   // s1 — RECALL: har xonaning o'z QIYMATI (3->300, 4->40, 5->5)
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'У каждой цифры — своё значение по месту.', uz: "Har raqamning o'rniga qarab qiymati bor." },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'У каждой цифры — своё значение по месту.', uz: "Har raqamning o'rniga qarab qiymati bor.", en: 'Every digit has its own value by place.' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
     vals: [
-      { dig: '3', val: '300', ru: 'триста', uz: 'uch yuz' },
-      { dig: '4', val: '40', ru: 'сорок', uz: 'qirq' },
-      { dig: '5', val: '5', ru: 'пять', uz: 'besh' }
+      { dig: '3', val: '300', ru: 'триста', uz: 'uch yuz', en: 'three hundred' },
+      { dig: '4', val: '40', ru: 'сорок', uz: 'qirq', en: 'forty' },
+      { dig: '5', val: '5', ru: 'пять', uz: 'besh', en: 'five' }
     ],
     audio: {
       ru: [
@@ -219,17 +220,18 @@ const CONTENT = {
         "Uch yuz qirq besh sonini olamiz. Har raqam o'z o'rnida turadi.",
         "Uchlik yuzlikda turadi, qiymati uch yuz. To'rtlik o'nlikda, qiymati qirq.",
         "Beshlik birlikda turadi, qiymati besh. Har raqamning o'rniga qarab qiymati bor."
-      ]
+      ],
+      en: ['Let us take the number three hundred forty five. Each digit stands in its own place.', 'The three stands in the hundreds, its value is three hundred. The four is in the tens, its value is forty.', 'The five is in the ones, its value is five. Every digit has its own value by place.']
     }
   },
 
   // s2 — AJRATISH: 345 -> 300 + 40 + 5
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Разложим число на разрядные слагаемые.', uz: "Sonni razryad qo'shiluvchilariga ajratamiz." },
-    num: { ru: '345', uz: '345' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Разложим число на разрядные слагаемые.', uz: "Sonni razryad qo'shiluvchilariga ajratamiz.", en: 'Let us break the number into place-value parts.' },
+    num: { ru: '345', uz: '345', en: '345' },
     parts: ['300', '40', '5'],
-    done_text: { ru: 'Триста сорок пять — это триста плюс сорок плюс пять.', uz: "Uch yuz qirq besh — bu uch yuz, qirq va besh." },
+    done_text: { ru: 'Триста сорок пять — это триста плюс сорок плюс пять.', uz: "Uch yuz qirq besh — bu uch yuz, qirq va besh.", en: 'Three hundred forty-five is three hundred plus forty plus five.' },
     audio: {
       ru: [
         'Разложим число триста сорок пять на части. Каждая часть это значение одного разряда.',
@@ -240,14 +242,15 @@ const CONTENT = {
         "Uch yuz qirq besh sonini qismlarga ajratamiz. Har qism bitta xonaning qiymati.",
         "Yuzliklar uch yuzni beradi. O'nliklar qirqni beradi. Birliklar beshni beradi.",
         "Razryad qo'shiluvchilarini yig'dik. Uch yuz, qirq va besh. Bu uch yuz qirq besh sonining o'zi."
-      ]
+      ],
+      en: ['Let us break the number three hundred forty five into parts. Each part is the value of one place.', 'The hundreds give three hundred. The tens give forty. The ones give five.', 'We have collected the place value parts. Three hundred, forty and five. That is the number three hundred forty five.']
     }
   },
 
   // s3 — ISHLANGAN MISOLLAR (uchta yoyilma)
   s3: {
-    eyebrow: { ru: 'Ещё примеры', uz: 'Yana misollar' },
-    lead: { ru: 'Так раскладывается любое число.', uz: "Har qanday son shunday ajraladi." },
+    eyebrow: { ru: 'Ещё примеры', uz: 'Yana misollar', en: 'More examples' },
+    lead: { ru: 'Так раскладывается любое число.', uz: "Har qanday son shunday ajraladi.", en: 'Any number can be broken up this way.' },
     examples: [
       { n: '528', h: '500', t: '20', o: '8' },
       { n: '764', h: '700', t: '60', o: '4' },
@@ -263,17 +266,18 @@ const CONTENT = {
         "Yana misollarni ko'ramiz. Har qanday sonni shunday ajratish mumkin.",
         "Besh yuz yigirma sakkiz bu besh yuz, yigirma va sakkiz. Yetti yuz oltmish to'rt bu yetti yuz, oltmish va to'rt.",
         "Ikki yuz o'n olti bu ikki yuz, o'n va olti. Har safar yuzlik, o'nlik va birlik alohida."
-      ]
+      ],
+      en: ['Let us look at more examples. Any number can be broken up this way.', 'Five hundred twenty eight is five hundred, twenty and eight. Seven hundred sixty four is seven hundred, sixty and four.', 'Two hundred sixteen is two hundred, ten and six. Every time the hundreds, the tens and the ones separately.']
     }
   },
 
   // s4 — YIG'ISH (teskari): 300 + 40 + 5 -> 345
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Теперь наоборот: соберём число из частей.', uz: 'Endi teskari: qismlardan sonni yig\'amiz.' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Теперь наоборот: соберём число из частей.', uz: 'Endi teskari: qismlardan sonni yig\'amiz.', en: 'Now the other way round: we build the number from parts.' },
     parts: ['300', '40', '5'],
-    result: { ru: '345', uz: '345' },
-    done_text: { ru: 'Триста плюс сорок плюс пять — вместе триста сорок пять.', uz: "Uch yuz, qirq va besh — birga uch yuz qirq besh." },
+    result: { ru: '345', uz: '345', en: '345' },
+    done_text: { ru: 'Триста плюс сорок плюс пять — вместе триста сорок пять.', uz: "Uch yuz, qirq va besh — birga uch yuz qirq besh.", en: 'Three hundred plus forty plus five — together three hundred forty-five.' },
     audio: {
       ru: [
         'Теперь наоборот. У нас есть части: триста, сорок и пять. Соберём из них число.',
@@ -284,23 +288,24 @@ const CONTENT = {
         "Endi teskari. Bizda qismlar bor: uch yuz, qirq va besh. Ulardan sonni yig'amiz.",
         "Uch yuzni yuzlikka qo'yamiz. Qirqni o'nlikka. Beshni birlikka.",
         "Qismlar bitta songa qo'shildi. Uch yuz qirq besh. Shunday qismlar qaytadan songa aylanadi."
-      ]
+      ],
+      en: ['Now the other way round. We have the parts: three hundred, forty and five. Let us build a number from them.', 'Three hundred goes into the hundreds. Forty into the tens. Five into the ones.', 'The parts came together into one number. Three hundred forty five. That is how parts turn back into a number.']
     }
   },
 
   // s5 — NOL YOYILMADA: 305 -> 300 + 5 (bo'sh xona qo'shiluvchida yo'q)
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Если разряд пустой — его слагаемого нет.', uz: "Xona bo'sh bo'lsa — uning qo'shiluvchisi yo'q." },
-    num: { ru: '305', uz: '305' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Если разряд пустой — его слагаемого нет.', uz: "Xona bo'sh bo'lsa — uning qo'shiluvchisi yo'q.", en: 'If a place is empty — it has no part.' },
+    num: { ru: '305', uz: '305', en: '305' },
     parts: ['300', '5'],
-    missing: { ru: 'десятков нет', uz: "o'nlik yo'q" },
+    missing: { ru: 'десятков нет', uz: "o'nlik yo'q", en: 'no tens' },
     examples: [
       { n: '470', exp: '400 + 70' },
       { n: '508', exp: '500 + 8' },
       { n: '640', exp: '600 + 40' }
     ],
-    done_text: { ru: 'В числе 305 десятков нет, поэтому в сумме только триста и пять.', uz: "305 sonida o'nlik yo'q, shuning uchun yig'indida faqat uch yuz va besh." },
+    done_text: { ru: 'В числе 305 десятков нет, поэтому в сумме только триста и пять.', uz: "305 sonida o'nlik yo'q, shuning uchun yig'indida faqat uch yuz va besh.", en: 'The number 305 has no tens, so the sum has only three hundred and five.' },
     audio: {
       ru: [
         'Возьмём число триста пять. Разложим его на части.',
@@ -311,21 +316,22 @@ const CONTENT = {
         "Uch yuz besh sonini olamiz. Uni qismlarga ajratamiz.",
         "Yuzliklar uch yuzni beradi. Birliklar beshni beradi. Bu sonda o'nlik yo'q, demak uning qo'shiluvchisi ham yo'q.",
         "Uch yuz va besh chiqdi. Bo'sh xona qo'shiluvchi bermaydi. Lekin sonning o'zida nol saqlanadi."
-      ]
+      ],
+      en: ['Let us take the number three hundred five. We break it into parts.', 'The hundreds give three hundred. The ones give five. And this number has no tens, so there is no part for them either.', 'We got three hundred plus five. An empty place gives no part. But in the written number the zero stays.']
     }
   },
 
   // s6 — QOIDA
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Число равно сумме разрядных слагаемых: значение сотен плюс значение десятков плюс значение единиц.', uz: "Son razryad qo'shiluvchilari yig'indisiga teng: yuzlik qiymati, o'nlik qiymati va birlik qiymati." },
-    num: { ru: '345', uz: '345' },
-    exp: { ru: '300 + 40 + 5', uz: '300 + 40 + 5' },
-    check_q: { ru: 'Сколько значит цифра десятков? Нажми верное значение.', uz: "O'nlik raqamining qiymati qancha? To'g'ri qiymatni bosing." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Число равно сумме разрядных слагаемых: значение сотен плюс значение десятков плюс значение единиц.', uz: "Son razryad qo'shiluvchilari yig'indisiga teng: yuzlik qiymati, o'nlik qiymati va birlik qiymati.", en: 'A number equals the sum of its place-value parts: the value of the hundreds plus the value of the tens plus the value of the ones.' },
+    num: { ru: '345', uz: '345', en: '345' },
+    exp: { ru: '300 + 40 + 5', uz: '300 + 40 + 5', en: '300 + 40 + 5' },
+    check_q: { ru: 'Сколько значит цифра десятков? Нажми верное значение.', uz: "O'nlik raqamining qiymati qancha? To'g'ri qiymatni bosing.", en: 'What does the tens digit mean? Tap the correct value.' },
     check_opts: ['300', '40', '5'],
     check_ci: 1,
-    check_ok: { ru: 'Верно! Четвёрка в десятках значит сорок.', uz: "To'g'ri! O'nlikdagi to'rtlik qirq degani." },
-    check_no: { ru: 'Это цифра десятков — её значение сорок.', uz: "Bu o'nlik raqami — uning qiymati qirq." },
+    check_ok: { ru: 'Верно! Четвёрка в десятках значит сорок.', uz: "To'g'ri! O'nlikdagi to'rtlik qirq degani.", en: 'Correct! A four in the tens means forty.' },
+    check_no: { ru: 'Это цифра десятков — её значение сорок.', uz: "Bu o'nlik raqami — uning qiymati qirq.", en: 'This is the tens digit — its value is forty.' },
     audio: {
       ru: [
         'Отлично, теперь запомним это как правило.',
@@ -338,141 +344,142 @@ const CONTENT = {
         "Son o'zining razryad qo'shiluvchilari yig'indisiga teng. Yuzlik qiymati, o'nlik qiymati va birlik qiymatini olamiz.",
         "Uch yuz qirq besh bu uch yuz, qirq va besh. Uch, to'rt, besh emas, aynan xonalar qiymati.",
         "Xona bo'sh bo'lsa, uning qo'shiluvchisi yig'indida yo'q. Endi o'zingiz. O'nlik raqamining qiymatini bosing."
-      ]
+      ],
+      en: ['Excellent, now let us remember this as a rule.', 'A number equals the sum of its place value parts. We take the value of the hundreds, the value of the tens and the value of the ones.', 'Three hundred forty five is three hundred plus forty plus five. Not three plus four plus five, but exactly the values of the places.', 'If a place is empty, there is no part for it in the sum. And now on your own. Tap what the tens digit means.']
     }
   },
 
   // s7 — MASHQ ajratish (son -> yoyilma, MC), 3 raund
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Выбери верное разложение.', uz: "To'g'ri yoyilmani tanlang." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Выбери верное разложение.', uz: "To'g'ri yoyilmani tanlang.", en: 'Choose the correct breakdown.' },
     items: [
       {
         num: 462, ci: 0,
         opts: [
-          { ru: '400 + 60 + 2', uz: '400 + 60 + 2' },
-          { ru: '4 + 6 + 2', uz: '4 + 6 + 2' },
-          { ru: '400 + 6 + 2', uz: '400 + 6 + 2' },
-          { ru: '40 + 60 + 2', uz: '40 + 60 + 2' }
+          { ru: '400 + 60 + 2', uz: '400 + 60 + 2', en: '400 + 60 + 2' },
+          { ru: '4 + 6 + 2', uz: '4 + 6 + 2', en: '4 + 6 + 2' },
+          { ru: '400 + 6 + 2', uz: '400 + 6 + 2', en: '400 + 6 + 2' },
+          { ru: '40 + 60 + 2', uz: '40 + 60 + 2', en: '40 + 60 + 2' }
         ],
         hints: {
-          1: { ru: 'Это значения цифр, а не сами цифры. Сотни дают четыреста, а не четыре.', uz: "Bu raqamlarning qiymati, raqamning o'zi emas. Yuzlik to'rt yuz beradi, to'rt emas." },
-          2: { ru: 'Шестёрка в десятках значит шестьдесят, а не шесть.', uz: "Oltilik o'nlikda oltmish degani, olti emas." },
-          3: { ru: 'Четвёрка в сотнях значит четыреста, а не сорок.', uz: "To'rtlik yuzlikda to'rt yuz degani, qirq emas." }
+          1: { ru: 'Это значения цифр, а не сами цифры. Сотни дают четыреста, а не четыре.', uz: "Bu raqamlarning qiymati, raqamning o'zi emas. Yuzlik to'rt yuz beradi, to'rt emas.", en: 'These are the values of the digits, not the digits themselves. The hundreds give four hundred, not four.' },
+          2: { ru: 'Шестёрка в десятках значит шестьдесят, а не шесть.', uz: "Oltilik o'nlikda oltmish degani, olti emas.", en: 'A six in the tens means sixty, not six.' },
+          3: { ru: 'Четвёрка в сотнях значит четыреста, а не сорок.', uz: "To'rtlik yuzlikda to'rt yuz degani, qirq emas.", en: 'A four in the hundreds means four hundred, not forty.' }
         }
       },
       {
         num: 813, ci: 0,
         opts: [
-          { ru: '800 + 10 + 3', uz: '800 + 10 + 3' },
-          { ru: '8 + 1 + 3', uz: '8 + 1 + 3' },
-          { ru: '800 + 1 + 3', uz: '800 + 1 + 3' },
-          { ru: '80 + 10 + 3', uz: '80 + 10 + 3' }
+          { ru: '800 + 10 + 3', uz: '800 + 10 + 3', en: '800 + 10 + 3' },
+          { ru: '8 + 1 + 3', uz: '8 + 1 + 3', en: '8 + 1 + 3' },
+          { ru: '800 + 1 + 3', uz: '800 + 1 + 3', en: '800 + 1 + 3' },
+          { ru: '80 + 10 + 3', uz: '80 + 10 + 3', en: '80 + 10 + 3' }
         ],
         hints: {
-          1: { ru: 'Нужны значения по месту: восемьсот, десять и три.', uz: "O'ringa qarab qiymat kerak: sakkiz yuz, o'n va uch." },
-          2: { ru: 'Единица в десятках значит десять, а не один.', uz: "Birlik o'nlikda o'n degani, bir emas." },
-          3: { ru: 'Восьмёрка в сотнях значит восемьсот.', uz: "Sakkizlik yuzlikda sakkiz yuz degani." }
+          1: { ru: 'Нужны значения по месту: восемьсот, десять и три.', uz: "O'ringa qarab qiymat kerak: sakkiz yuz, o'n va uch.", en: 'We need the values by place: eight hundred, ten and three.' },
+          2: { ru: 'Единица в десятках значит десять, а не один.', uz: "Birlik o'nlikda o'n degani, bir emas.", en: 'A one in the tens means ten, not one.' },
+          3: { ru: 'Восьмёрка в сотнях значит восемьсот.', uz: "Sakkizlik yuzlikda sakkiz yuz degani.", en: 'An eight in the hundreds means eight hundred.' }
         }
       },
       {
         num: 275, ci: 0,
         opts: [
-          { ru: '200 + 70 + 5', uz: '200 + 70 + 5' },
-          { ru: '2 + 7 + 5', uz: '2 + 7 + 5' },
-          { ru: '200 + 7 + 5', uz: '200 + 7 + 5' },
-          { ru: '20 + 70 + 5', uz: '20 + 70 + 5' }
+          { ru: '200 + 70 + 5', uz: '200 + 70 + 5', en: '200 + 70 + 5' },
+          { ru: '2 + 7 + 5', uz: '2 + 7 + 5', en: '2 + 7 + 5' },
+          { ru: '200 + 7 + 5', uz: '200 + 7 + 5', en: '200 + 7 + 5' },
+          { ru: '20 + 70 + 5', uz: '20 + 70 + 5', en: '20 + 70 + 5' }
         ],
         hints: {
-          1: { ru: 'Складываем значения разрядов, не цифры.', uz: "Xonalar qiymatini qo'shamiz, raqamlarni emas." },
-          2: { ru: 'Семёрка в десятках значит семьдесят.', uz: "Yettilik o'nlikda yetmish degani." },
-          3: { ru: 'Двойка в сотнях значит двести.', uz: "Ikkilik yuzlikda ikki yuz degani." }
+          1: { ru: 'Складываем значения разрядов, не цифры.', uz: "Xonalar qiymatini qo'shamiz, raqamlarni emas.", en: 'We add the values of the places, not the digits.' },
+          2: { ru: 'Семёрка в десятках значит семьдесят.', uz: "Yettilik o'nlikda yetmish degani.", en: 'A seven in the tens means seventy.' },
+          3: { ru: 'Двойка в сотнях значит двести.', uz: "Ikkilik yuzlikda ikki yuz degani.", en: 'A two in the hundreds means two hundred.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Теперь раскладываешь сам. Выбери верное разложение числа. Три задания.', uz: "Endi o'zingiz ajratasiz. Sonning to'g'ri yoyilmasini tanlang. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Бери значение каждого разряда. Попробуй ещё.', uz: "Har xonaning qiymatini oling. Yana urinib ko'ring." }
+      intro: { ru: 'Теперь раскладываешь сам. Выбери верное разложение числа. Три задания.', uz: "Endi o'zingiz ajratasiz. Sonning to'g'ri yoyilmasini tanlang. Uchta topshiriq.", en: 'Now you break numbers up yourself. Choose the correct breakdown of the number. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Бери значение каждого разряда. Попробуй ещё.', uz: "Har xonaning qiymatini oling. Yana urinib ko'ring.", en: 'Take the value of each place. Try again.' }
     }
   },
 
   // s8 — MASHQ yig'ish (yoyilma -> son, NumPad), 3 raund
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Собери число из слагаемых.', uz: "Qo'shiluvchilardan sonni yig'ing." },
-    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Собери число из слагаемых.', uz: "Qo'shiluvchilardan sonni yig'ing.", en: 'Build the number from the parts.' },
+    check_label: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     items: [
-      { exp: '400 + 60 + 3', ans: 463, hint: { ru: 'Четыре сотни, шесть десятков, три единицы.', uz: "To'rt yuzlik, olti o'nlik, uch birlik." } },
-      { exp: '500 + 20 + 9', ans: 529, hint: { ru: 'Пять сотен, два десятка, девять единиц.', uz: "Besh yuzlik, ikki o'nlik, to'qqiz birlik." } },
-      { exp: '700 + 80', ans: 780, hint: { ru: 'Семь сотен, восемь десятков, единиц нет — в конце ноль.', uz: "Yetti yuzlik, sakkiz o'nlik, birlik yo'q — oxirida nol." } }
+      { exp: '400 + 60 + 3', ans: 463, hint: { ru: 'Четыре сотни, шесть десятков, три единицы.', uz: "To'rt yuzlik, olti o'nlik, uch birlik.", en: 'Four hundreds, six tens, three ones.' } },
+      { exp: '500 + 20 + 9', ans: 529, hint: { ru: 'Пять сотен, два десятка, девять единиц.', uz: "Besh yuzlik, ikki o'nlik, to'qqiz birlik.", en: 'Five hundreds, two tens, nine ones.' } },
+      { exp: '700 + 80', ans: 780, hint: { ru: 'Семь сотен, восемь десятков, единиц нет — в конце ноль.', uz: "Yetti yuzlik, sakkiz o'nlik, birlik yo'q — oxirida nol.", en: 'Seven hundreds, eight tens, no ones — a zero at the end.' } }
     ],
     audio: {
-      intro: { ru: 'Теперь собираешь число из частей. Набери ответ и нажми проверить.', uz: "Endi qismlardan sonni yig'asiz. Javobni terib, tekshirishni bosing." },
-      on_correct: { ru: 'Отлично. Собрано верно.', uz: "Zo'r. To'g'ri yig'dingiz." },
-      on_wrong: { ru: 'Каждая часть в свой разряд. Попробуй ещё.', uz: "Har qism o'z xonasiga. Yana urinib ko'ring." }
+      intro: { ru: 'Теперь собираешь число из частей. Набери ответ и нажми проверить.', uz: "Endi qismlardan sonni yig'asiz. Javobni terib, tekshirishni bosing.", en: 'Now you build the number from parts. Type the answer and tap check.' },
+      on_correct: { ru: 'Отлично. Собрано верно.', uz: "Zo'r. To'g'ri yig'dingiz.", en: 'Excellent. Built correctly.' },
+      on_wrong: { ru: 'Каждая часть в свой разряд. Попробуй ещё.', uz: "Har qism o'z xonasiga. Yana urinib ko'ring.", en: 'Each part in its own place. Try again.' }
     }
   },
 
   // s9 — MASHQ nol yoyilmada (son -> yoyilma, MC), 3 raund
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Выбери верное разложение.', uz: "To'g'ri yoyilmani tanlang." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Выбери верное разложение.', uz: "To'g'ri yoyilmani tanlang.", en: 'Choose the correct breakdown.' },
     items: [
       {
         num: 305, ci: 0,
         opts: [
-          { ru: '300 + 5', uz: '300 + 5' },
-          { ru: '300 + 50', uz: '300 + 50' },
-          { ru: '30 + 5', uz: '30 + 5' },
-          { ru: '3 + 5', uz: '3 + 5' }
+          { ru: '300 + 5', uz: '300 + 5', en: '300 + 5' },
+          { ru: '300 + 50', uz: '300 + 50', en: '300 + 50' },
+          { ru: '30 + 5', uz: '30 + 5', en: '30 + 5' },
+          { ru: '3 + 5', uz: '3 + 5', en: '3 + 5' }
         ],
         hints: {
-          1: { ru: 'Пятёрка в единицах — это пять, а не пятьдесят.', uz: "Beshlik birlikda — bu besh, ellik emas." },
-          2: { ru: 'Тройка в сотнях значит триста, а не тридцать.', uz: "Uchlik yuzlikda uch yuz degani, o'ttiz emas." },
-          3: { ru: 'Это значения разрядов: триста и пять.', uz: "Bu xonalar qiymati: uch yuz va besh." }
+          1: { ru: 'Пятёрка в единицах — это пять, а не пятьдесят.', uz: "Beshlik birlikda — bu besh, ellik emas.", en: 'A five in the ones is five, not fifty.' },
+          2: { ru: 'Тройка в сотнях значит триста, а не тридцать.', uz: "Uchlik yuzlikda uch yuz degani, o'ttiz emas.", en: 'A three in the hundreds means three hundred, not thirty.' },
+          3: { ru: 'Это значения разрядов: триста и пять.', uz: "Bu xonalar qiymati: uch yuz va besh.", en: 'These are the values of the places: three hundred and five.' }
         }
       },
       {
         num: 640, ci: 0,
         opts: [
-          { ru: '600 + 40', uz: '600 + 40' },
-          { ru: '600 + 4', uz: '600 + 4' },
-          { ru: '60 + 40', uz: '60 + 40' },
-          { ru: '6 + 4', uz: '6 + 4' }
+          { ru: '600 + 40', uz: '600 + 40', en: '600 + 40' },
+          { ru: '600 + 4', uz: '600 + 4', en: '600 + 4' },
+          { ru: '60 + 40', uz: '60 + 40', en: '60 + 40' },
+          { ru: '6 + 4', uz: '6 + 4', en: '6 + 4' }
         ],
         hints: {
-          1: { ru: 'Четвёрка в десятках значит сорок, а не четыре. Единиц нет.', uz: "To'rtlik o'nlikda qirq degani, to'rt emas. Birlik yo'q." },
-          2: { ru: 'Шестёрка в сотнях значит шестьсот.', uz: "Oltilik yuzlikda olti yuz degani." },
-          3: { ru: 'Бери значения по месту: шестьсот и сорок.', uz: "O'ringa qarab qiymat oling: olti yuz va qirq." }
+          1: { ru: 'Четвёрка в десятках значит сорок, а не четыре. Единиц нет.', uz: "To'rtlik o'nlikda qirq degani, to'rt emas. Birlik yo'q.", en: 'A four in the tens means forty, not four. There are no ones.' },
+          2: { ru: 'Шестёрка в сотнях значит шестьсот.', uz: "Oltilik yuzlikda olti yuz degani.", en: 'A six in the hundreds means six hundred.' },
+          3: { ru: 'Бери значения по месту: шестьсот и сорок.', uz: "O'ringa qarab qiymat oling: olti yuz va qirq.", en: 'Take the values by place: six hundred and forty.' }
         }
       },
       {
         num: 507, ci: 0,
         opts: [
-          { ru: '500 + 7', uz: '500 + 7' },
-          { ru: '500 + 70', uz: '500 + 70' },
-          { ru: '50 + 7', uz: '50 + 7' },
-          { ru: '5 + 7', uz: '5 + 7' }
+          { ru: '500 + 7', uz: '500 + 7', en: '500 + 7' },
+          { ru: '500 + 70', uz: '500 + 70', en: '500 + 70' },
+          { ru: '50 + 7', uz: '50 + 7', en: '50 + 7' },
+          { ru: '5 + 7', uz: '5 + 7', en: '5 + 7' }
         ],
         hints: {
-          1: { ru: 'Семёрка в единицах — это семь, а не семьдесят. Десятков нет.', uz: "Yettilik birlikda — bu yetti, yetmish emas. O'nlik yo'q." },
-          2: { ru: 'Пятёрка в сотнях значит пятьсот.', uz: "Beshlik yuzlikda besh yuz degani." },
-          3: { ru: 'Бери значения разрядов: пятьсот и семь.', uz: "Xonalar qiymatini oling: besh yuz va yetti." }
+          1: { ru: 'Семёрка в единицах — это семь, а не семьдесят. Десятков нет.', uz: "Yettilik birlikda — bu yetti, yetmish emas. O'nlik yo'q.", en: 'A seven in the ones is seven, not seventy. There are no tens.' },
+          2: { ru: 'Пятёрка в сотнях значит пятьсот.', uz: "Beshlik yuzlikda besh yuz degani.", en: 'A five in the hundreds means five hundred.' },
+          3: { ru: 'Бери значения разрядов: пятьсот и семь.', uz: "Xonalar qiymatini oling: besh yuz va yetti.", en: 'Take the values of the places: five hundred and seven.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'В этих числах один разряд пустой. Его слагаемого нет. Три задания.', uz: "Bu sonlarda bitta xona bo'sh. Uning qo'shiluvchisi yo'q. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Пустой разряд слагаемого не даёт. Попробуй ещё.', uz: "Bo'sh xona qo'shiluvchi bermaydi. Yana urinib ko'ring." }
+      intro: { ru: 'В этих числах один разряд пустой. Его слагаемого нет. Три задания.', uz: "Bu sonlarda bitta xona bo'sh. Uning qo'shiluvchisi yo'q. Uchta topshiriq.", en: 'In these numbers one place is empty. It has no part. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Пустой разряд слагаемого не даёт. Попробуй ещё.', uz: "Bo'sh xona qo'shiluvchi bermaydi. Yana urinib ko'ring.", en: 'An empty place gives no part. Try again.' }
     }
   },
 
   // s10 — MASHQ xatoni top (son = yoyilma juftlari), 3 raund
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Найди неверное разложение.', uz: "Noto'g'ri yoyilmani toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Найди неверное разложение.', uz: "Noto'g'ri yoyilmani toping.", en: 'Find the wrong breakdown.' },
     items: [
       {
         pairs: [
@@ -481,7 +488,7 @@ const CONTENT = {
           { num: 505, exp: '500 + 5' }
         ],
         wrong: 0,
-        hint: { ru: 'В числе 246 четвёрка в десятках, её значение сорок: 200 + 40 + 6, а не 200 + 4 + 6.', uz: "246 sonida to'rtlik o'nlikda, qiymati qirq: 200 + 40 + 6, 200 + 4 + 6 emas." }
+        hint: { ru: 'В числе 246 четвёрка в десятках, её значение сорок: 200 + 40 + 6, а не 200 + 4 + 6.', uz: "246 sonida to'rtlik o'nlikda, qiymati qirq: 200 + 40 + 6, 200 + 4 + 6 emas.", en: 'In the number 246 the four is in the tens, its value is forty: 200 + 40 + 6, not 200 + 4 + 6.' }
       },
       {
         pairs: [
@@ -490,7 +497,7 @@ const CONTENT = {
           { num: 470, exp: '400 + 70' }
         ],
         wrong: 1,
-        hint: { ru: 'В числе 803 тройка стоит в единицах: 800 + 3, а не 800 + 30. Десятков нет.', uz: "803 sonida uchlik birlikda turadi: 800 + 3, 800 + 30 emas. O'nlik yo'q." }
+        hint: { ru: 'В числе 803 тройка стоит в единицах: 800 + 3, а не 800 + 30. Десятков нет.', uz: "803 sonida uchlik birlikda turadi: 800 + 3, 800 + 30 emas. O'nlik yo'q.", en: 'In the number 803 the three stands in the ones: 800 + 3, not 800 + 30. There are no tens.' }
       },
       {
         pairs: [
@@ -499,120 +506,122 @@ const CONTENT = {
           { num: 490, exp: '400 + 9' }
         ],
         wrong: 2,
-        hint: { ru: 'В числе 490 девятка в десятках: 400 + 90, а не 400 + 9.', uz: "490 sonida to'qqizlik o'nlikda: 400 + 90, 400 + 9 emas." }
+        hint: { ru: 'В числе 490 девятка в десятках: 400 + 90, а не 400 + 9.', uz: "490 sonida to'qqizlik o'nlikda: 400 + 90, 400 + 9 emas.", en: 'In the number 490 the nine is in the tens: 400 + 90, not 400 + 9.' }
       }
     ],
     audio: {
-      intro: { ru: 'Даю три разложения. Одно неверное. Найди неверное разложение.', uz: "Uchta yoyilma beraman. Bittasi noto'g'ri. Noto'g'ri yoyilmani toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сверь каждый разряд со значением. Посмотри ещё.', uz: "Har xonani qiymati bilan solishtiring. Yana qarang." }
+      intro: { ru: 'Даю три разложения. Одно неверное. Найди неверное разложение.', uz: "Uchta yoyilma beraman. Bittasi noto'g'ri. Noto'g'ri yoyilmani toping.", en: 'I give you three breakdowns. One is wrong. Find the wrong breakdown.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сверь каждый разряд со значением. Посмотри ещё.', uz: "Har xonani qiymati bilan solishtiring. Yana qarang.", en: 'Compare each place with its value. Look again.' }
     }
   },
 
   // s11 — MASALA (case): Zuhra yoyilma keltiradi -> NumPad
   s11: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра принесла запись с разрядной панели.', uz: 'Zuhra razryad panelidan yozuv keltirdi.' },
-    manifest_label: { ru: 'запись', uz: 'yozuv' },
-    exp_display: { ru: '500 + 80 + 2', uz: '500 + 80 + 2' },
-    q: { ru: 'Собери число и набери ответ.', uz: "Sonni yig'ib, javobni tering." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Зухра принесла запись с разрядной панели.', uz: 'Zuhra razryad panelidan yozuv keltirdi.', en: 'Zuhra brought a note from the place panel.' },
+    manifest_label: { ru: 'запись', uz: 'yozuv', en: 'note' },
+    exp_display: { ru: '500 + 80 + 2', uz: '500 + 80 + 2', en: '500 + 80 + 2' },
+    q: { ru: 'Собери число и набери ответ.', uz: "Sonni yig'ib, javobni tering.", en: 'Build the number and type the answer.' },
     ans: 582,
-    setup_audio: { ru: 'Зухра принесла запись с панели. Пятьсот плюс восемьдесят плюс два.', uz: "Zuhra paneldan yozuv keltirdi. Besh yuz, sakson va ikki." },
+    setup_audio: { ru: 'Зухра принесла запись с панели. Пятьсот плюс восемьдесят плюс два.', uz: "Zuhra paneldan yozuv keltirdi. Besh yuz, sakson va ikki.", en: 'Zuhra brought a note from the panel. Five hundred plus eighty plus two.' },
     audio: {
-      intro: { ru: 'Собери из этих частей число и набери ответ. Потом нажми проверить.', uz: "Bu qismlardan sonni yig'ib, javobni tering. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Пятьсот, восемьдесят и два — пятьсот восемьдесят два.', uz: "To'g'ri. Besh yuz, sakson va ikki — besh yuz sakson ikki." },
-      on_wrong: { ru: 'Посмотри разбор. Каждая часть в свой разряд.', uz: "Tushuntirishga qarang. Har qism o'z xonasiga." }
+      intro: { ru: 'Собери из этих частей число и набери ответ. Потом нажми проверить.', uz: "Bu qismlardan sonni yig'ib, javobni tering. So'ng tekshirishni bosing.", en: 'Build a number from these parts and type the answer. Then tap check.' },
+      on_correct: { ru: 'Верно. Пятьсот, восемьдесят и два — пятьсот восемьдесят два.', uz: "To'g'ri. Besh yuz, sakson va ikki — besh yuz sakson ikki.", en: 'Correct. Five hundred, eighty and two — five hundred eighty two.' },
+      on_wrong: { ru: 'Посмотри разбор. Каждая часть в свой разряд.', uz: "Tushuntirishga qarang. Har qism o'z xonasiga.", en: 'Look at the explanation. Each part in its own place.' }
     }
   },
 
   // s12 — FINAL panel (5 savol) + FactCard
   s12: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     items: [
       {
         kind: 'num', ans: 493,
-        q: { ru: 'Собери число: 400 + 90 + 3.', uz: "Sonni yig'ing: 400 + 90 + 3." },
-        hint: { ru: 'Четыре сотни, девять десятков, три единицы.', uz: "To'rt yuzlik, to'qqiz o'nlik, uch birlik." }
+        q: { ru: 'Собери число: 400 + 90 + 3.', uz: "Sonni yig'ing: 400 + 90 + 3.", en: 'Build the number: 400 + 90 + 3.' },
+        hint: { ru: 'Четыре сотни, девять десятков, три единицы.', uz: "To'rt yuzlik, to'qqiz o'nlik, uch birlik.", en: 'Four hundreds, nine tens, three ones.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое разложение у числа 648?', uz: "648 sonining yoyilmasi qanday?" },
-        opt0: { ru: '600 + 40 + 8', uz: '600 + 40 + 8' },
-        opt1: { ru: '6 + 4 + 8', uz: '6 + 4 + 8' },
-        opt2: { ru: '600 + 4 + 8', uz: '600 + 4 + 8' },
-        wrong_1: { ru: 'Это значения разрядов, а не цифры: шестьсот, сорок и восемь.', uz: "Bu xonalar qiymati, raqamlar emas: olti yuz, qirq va sakkiz." },
-        wrong_2: { ru: 'Четвёрка в десятках значит сорок, а не четыре.', uz: "To'rtlik o'nlikda qirq degani, to'rt emas." }
+        q: { ru: 'Какое разложение у числа 648?', uz: "648 sonining yoyilmasi qanday?", en: 'What is the breakdown of the number 648?' },
+        opt0: { ru: '600 + 40 + 8', uz: '600 + 40 + 8', en: '600 + 40 + 8' },
+        opt1: { ru: '6 + 4 + 8', uz: '6 + 4 + 8', en: '6 + 4 + 8' },
+        opt2: { ru: '600 + 4 + 8', uz: '600 + 4 + 8', en: '600 + 4 + 8' },
+        wrong_1: { ru: 'Это значения разрядов, а не цифры: шестьсот, сорок и восемь.', uz: "Bu xonalar qiymati, raqamlar emas: olti yuz, qirq va sakkiz.", en: 'These are the values of the places, not the digits: six hundred, forty and eight.' },
+        wrong_2: { ru: 'Четвёрка в десятках значит сорок, а не четыре.', uz: "To'rtlik o'nlikda qirq degani, to'rt emas.", en: 'A four in the tens means forty, not four.' }
       },
       {
         kind: 'num', ans: 760,
-        q: { ru: 'Собери число: 700 + 60.', uz: "Sonni yig'ing: 700 + 60." },
-        hint: { ru: 'Семь сотен, шесть десятков, единиц нет — ноль в конце.', uz: "Yetti yuzlik, olti o'nlik, birlik yo'q — oxirida nol." }
+        q: { ru: 'Собери число: 700 + 60.', uz: "Sonni yig'ing: 700 + 60.", en: 'Build the number: 700 + 60.' },
+        hint: { ru: 'Семь сотен, шесть десятков, единиц нет — ноль в конце.', uz: "Yetti yuzlik, olti o'nlik, birlik yo'q — oxirida nol.", en: 'Seven hundreds, six tens, no ones — a zero at the end.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое разложение у числа 805?', uz: "805 sonining yoyilmasi qanday?" },
-        opt0: { ru: '800 + 5', uz: '800 + 5' },
-        opt1: { ru: '800 + 50', uz: '800 + 50' },
-        opt2: { ru: '80 + 5', uz: '80 + 5' },
-        wrong_1: { ru: 'Пятёрка в единицах — это пять, а не пятьдесят. Десятков нет.', uz: "Beshlik birlikda — bu besh, ellik emas. O'nlik yo'q." },
-        wrong_2: { ru: 'Восьмёрка в сотнях значит восемьсот.', uz: "Sakkizlik yuzlikda sakkiz yuz degani." }
+        q: { ru: 'Какое разложение у числа 805?', uz: "805 sonining yoyilmasi qanday?", en: 'What is the breakdown of the number 805?' },
+        opt0: { ru: '800 + 5', uz: '800 + 5', en: '800 + 5' },
+        opt1: { ru: '800 + 50', uz: '800 + 50', en: '800 + 50' },
+        opt2: { ru: '80 + 5', uz: '80 + 5', en: '80 + 5' },
+        wrong_1: { ru: 'Пятёрка в единицах — это пять, а не пятьдесят. Десятков нет.', uz: "Beshlik birlikda — bu besh, ellik emas. O'nlik yo'q.", en: 'A five in the ones is five, not fifty. There are no tens.' },
+        wrong_2: { ru: 'Восьмёрка в сотнях значит восемьсот.', uz: "Sakkizlik yuzlikda sakkiz yuz degani.", en: 'An eight in the hundreds means eight hundred.' }
       },
       {
         kind: 'num', ans: 530,
-        q: { ru: 'Загадка. Сотен у меня пять, десятков три, единиц нет. Кто я?', uz: "Jumboq. Yuzligim besh, o'nligim uch, birligim yo'q. Men kimman?" },
-        hint: { ru: 'Пятьсот плюс тридцать. Единиц нет — в конце ноль.', uz: "Besh yuz va o'ttiz. Birlik yo'q — oxirida nol." }
+        q: { ru: 'Загадка. Сотен у меня пять, десятков три, единиц нет. Кто я?', uz: "Jumboq. Yuzligim besh, o'nligim uch, birligim yo'q. Men kimman?", en: 'A riddle. I have five hundreds, three tens and no ones. Who am I?' },
+        hint: { ru: 'Пятьсот плюс тридцать. Единиц нет — в конце ноль.', uz: "Besh yuz va o'ttiz. Birlik yo'q — oxirida nol.", en: 'Five hundred plus thirty. No ones — a zero at the end.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Большинство звёзд нашей Галактики — красные карлики. Их так много, что они самые обычные звёзды во Вселенной.', uz: "Galaktikamizdagi yulduzlarning ko'pchiligi — qizil mitti yulduzlar. Ular shunchalik ko'pki, Koinotda eng oddiy yulduzlar." },
-    fact_audio: { ru: 'Большинство звёзд нашей Галактики — красные карлики. Их так много, что они самые обычные звёзды во Вселенной.', uz: "Galaktikamizdagi yulduzlarning ko'pchiligi — qizil mitti yulduzlar. Ular shunchalik ko'pki, Koinotda eng oddiy yulduzlar." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Большинство звёзд нашей Галактики — красные карлики. Их так много, что они самые обычные звёзды во Вселенной.', uz: "Galaktikamizdagi yulduzlarning ko'pchiligi — qizil mitti yulduzlar. Ular shunchalik ko'pki, Koinotda eng oddiy yulduzlar.", en: 'Most stars in our Galaxy are red dwarfs. There are so many of them that they are the most ordinary stars in the Universe.' },
+    fact_audio: { ru: 'Большинство звёзд нашей Галактики — красные карлики. Их так много, что они самые обычные звёзды во Вселенной.', uz: "Galaktikamizdagi yulduzlarning ko'pchiligi — qizil mitti yulduzlar. Ular shunchalik ko'pki, Koinotda eng oddiy yulduzlar.", en: 'Most stars in our Galaxy are red dwarfs. There are so many of them that they are the most ordinary stars in the Universe.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает задания, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri topshiriq ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows tasks, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s13 — YAKUN
   s13: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Разрядная панель освоена!', uz: 'Razryad paneli egallandi!' },
-    cando: { ru: 'Теперь ты раскладываешь число на разрядные слагаемые и собираешь обратно.', uz: "Endi siz sonni razryad qo'shiluvchilariga ajratasiz va qaytadan yig'asiz." },
-    rule_recap: { ru: 'Число равно значению сотен плюс значению десятков плюс значению единиц. Пустой разряд слагаемого не даёт.', uz: "Son yuzlik qiymati, o'nlik qiymati va birlik qiymatiga teng. Bo'sh xona qo'shiluvchi bermaydi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'второй урок: чтение и запись чисел', uz: "ikkinchi dars: sonlarni o'qish va yozish" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 4: сравнение трёхзначных чисел', uz: "4-dars: uch xonali sonlarni taqqoslash" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Разрядная панель освоена!', uz: 'Razryad paneli egallandi!', en: 'The place panel is mastered!' },
+    cando: { ru: 'Теперь ты раскладываешь число на разрядные слагаемые и собираешь обратно.', uz: "Endi siz sonni razryad qo'shiluvchilariga ajratasiz va qaytadan yig'asiz.", en: 'Now you break a number into place-value parts and build it back.' },
+    rule_recap: { ru: 'Число равно значению сотен плюс значению десятков плюс значению единиц. Пустой разряд слагаемого не даёт.', uz: "Son yuzlik qiymati, o'nlik qiymati va birlik qiymatiga teng. Bo'sh xona qo'shiluvchi bermaydi.", en: 'A number equals the value of the hundreds plus the value of the tens plus the value of the ones. An empty place gives no part.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'второй урок: чтение и запись чисел', uz: "ikkinchi dars: sonlarni o'qish va yozish", en: 'lesson two: reading and writing numbers' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 4: сравнение трёхзначных чисел', uz: "4-dars: uch xonali sonlarni taqqoslash", en: 'Lesson 4: comparing three-digit numbers' },
     audio: {
       ru: 'Разрядная панель освоена. Мы научились раскладывать число на разрядные слагаемые и собирать его обратно. Запомни правило. Число равно значению сотен плюс значению десятков плюс значению единиц. А если разряд пустой, его слагаемого в сумме нет. В следующий раз научимся сравнивать трёхзначные числа.',
-      uz: "Razryad paneli egallandi. Biz sonni razryad qo'shiluvchilariga ajratishni va uni qaytadan yig'ishni o'rgandik. Qoidani yodda tuting. Son yuzlik qiymati, o'nlik qiymati va birlik qiymatiga teng. Agar xona bo'sh bo'lsa, uning qo'shiluvchisi yig'indida yo'q. Keyingi safar uch xonali sonlarni taqqoslashni o'rganamiz."
+      uz: "Razryad paneli egallandi. Biz sonni razryad qo'shiluvchilariga ajratishni va uni qaytadan yig'ishni o'rgandik. Qoidani yodda tuting. Son yuzlik qiymati, o'nlik qiymati va birlik qiymatiga teng. Agar xona bo'sh bo'lsa, uning qo'shiluvchisi yig'indida yo'q. Keyingi safar uch xonali sonlarni taqqoslashni o'rganamiz.",
+      en: 'The place panel is mastered. We learned to break a number into place value parts and to build it back. Remember the rule. A number equals the value of the hundreds plus the value of the tens plus the value of the ones. And if a place is empty, there is no part for it in the sum. Next time we will learn to compare three digit numbers.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Вспомним значение цифр.', uz: 'Raqamlar qiymatini eslaymiz.' },
-  s2:  { ru: 'Разложим число на части.', uz: 'Sonni qismlarga ajratamiz.' },
-  s3:  { ru: 'Посмотрим ещё примеры.', uz: "Yana misollarni ko'ramiz." },
-  s4:  { ru: 'А теперь соберём обратно.', uz: 'Endi qaytadan yig\'amiz.' },
-  s5:  { ru: 'Внимание. Бывает пустой разряд.', uz: "Diqqat. Bo'sh xona bo'ladi." },
-  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s7:  { ru: 'Правило знаем. Раскладывай сам.', uz: "Qoidani bilamiz. O'zingiz ajrating." },
-  s8:  { ru: 'А теперь собирай число.', uz: 'Endi sonni yig\'ing.' },
-  s9:  { ru: 'Один разряд будет пустым.', uz: "Bitta xona bo'sh bo'ladi." },
-  s10: { ru: 'Проверим разложения на ошибку.', uz: 'Yoyilmalarni xatoga tekshiramiz.' },
-  s11: { ru: 'Последняя запись с панели.', uz: 'Paneldan oxirgi yozuv.' },
-  s12: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s13: { ru: 'Панель освоена. Идём дальше!', uz: 'Panel egallandi. Davom etamiz!' }
+  s1:  { ru: 'Вспомним значение цифр.', uz: 'Raqamlar qiymatini eslaymiz.', en: 'Let us recall the value of digits.' },
+  s2:  { ru: 'Разложим число на части.', uz: 'Sonni qismlarga ajratamiz.', en: 'Let us break the number into parts.' },
+  s3:  { ru: 'Посмотрим ещё примеры.', uz: "Yana misollarni ko'ramiz.", en: 'Let us look at more examples.' },
+  s4:  { ru: 'А теперь соберём обратно.', uz: 'Endi qaytadan yig\'amiz.', en: 'And now let us build it back.' },
+  s5:  { ru: 'Внимание. Бывает пустой разряд.', uz: "Diqqat. Bo'sh xona bo'ladi.", en: 'Attention. A place can be empty.' },
+  s6:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s7:  { ru: 'Правило знаем. Раскладывай сам.', uz: "Qoidani bilamiz. O'zingiz ajrating.", en: 'We know the rule. Break numbers up yourself.' },
+  s8:  { ru: 'А теперь собирай число.', uz: 'Endi sonni yig\'ing.', en: 'And now build the number.' },
+  s9:  { ru: 'Один разряд будет пустым.', uz: "Bitta xona bo'sh bo'ladi.", en: 'One place will be empty.' },
+  s10: { ru: 'Проверим разложения на ошибку.', uz: 'Yoyilmalarni xatoga tekshiramiz.', en: 'Let us check the breakdowns for a mistake.' },
+  s11: { ru: 'Последняя запись с панели.', uz: 'Paneldan oxirgi yozuv.', en: 'The last note from the panel.' },
+  s12: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s13: { ru: 'Панель освоена. Идём дальше!', uz: 'Panel egallandi. Davom etamiz!', en: 'The panel is mastered. Let us move on!' }
 };
 
 // s13 payoff (xulosadan oldin aytiladi)
 const S13_PAYOFF = {
   ru: 'Миссия выполнена! Мы разобрали, как число делится на разрядные слагаемые, и Бит открыл разрядную панель города. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz son razryad qo'shiluvchilariga qanday bo'linishini ochdik, va Bit shaharning razryad panelini ochdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz son razryad qo'shiluvchilariga qanday bo'linishini ochdik, va Bit shaharning razryad panelini ochdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We worked out how a number splits into place-value parts, and Bit opened the place panel of the city. Thank you for your help!'
 };
 
 
@@ -822,7 +831,7 @@ const RazryadPlazaBg = () => {
 
     <rect x="98" y="104" width="204" height="48" rx="7" fill="url(#shPanel)" stroke="#3E6E90" strokeWidth="1.6"/>
     <rect x="104" y="108" width="192" height="10" rx="3" fill="#122236"/>
-    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'РАЗЛОЖЕНИЕ' : 'YOYILMA'}</text>
+    <text x="200" y="115.5" textAnchor="middle" fontSize="7" letterSpacing="1.5" fill="#7FB8D8" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'РАЗЛОЖЕНИЕ', 'YOYILMA', 'BREAKDOWN')}</text>
     <text x="126" y="142" textAnchor="middle" fontSize="19" fontWeight="800" fill="#FFD86E" fontFamily="'JetBrains Mono', monospace">305</text>
     <text x="158" y="141" textAnchor="middle" fontSize="14" fill="#9FE0FF" fontFamily="'JetBrains Mono', monospace">=</text>
     <text x="190" y="142" textAnchor="middle" fontSize="15" fontWeight="800" fill="#F2A85C" fontFamily="'JetBrains Mono', monospace">300</text>
@@ -835,13 +844,13 @@ const RazryadPlazaBg = () => {
     <g transform="translate(10 120)"><rect x="-2" y="-2" width="60" height="56" rx="4" fill="#C3A87E" opacity="0.5"/>
       {[0, 1, 2].map((k) => <g key={k} transform={`translate(${2 + k * 18} 4)`}><rect x="0" y="0" width="15" height="15" rx="1.5" fill="#8FD8B8" stroke="#5FA888" strokeWidth="0.8"/><g stroke="#5FA888" strokeWidth="0.4" opacity="0.6"><path d="M5 0V15M10 0V15M0 5H15M0 10H15"/></g></g>)}
       <text x="28" y="34" textAnchor="middle" fontSize="8" fontWeight="800" fill="#4E7E64" fontFamily="'JetBrains Mono', monospace">100</text>
-      <text x="28" y="45" textAnchor="middle" fontSize="6" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'СОТНИ' : 'YUZLIK'}</text>
+      <text x="28" y="45" textAnchor="middle" fontSize="6" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'СОТНИ', 'YUZLIK', 'HUNDREDS')}</text>
     </g>
     {/* o'ng: birlik kublari (5x1) + bo'sh o'nlik slot */}
     <g transform="translate(330 120)"><rect x="-4" y="-2" width="62" height="56" rx="4" fill="#C3A87E" opacity="0.5"/>
       {[0, 1, 2, 3, 4].map((k) => <rect key={k} x={k % 3 * 12} y={Math.floor(k / 3) * 12} width="9" height="9" rx="1.5" fill="#6FD0E4" stroke="#3E8FA8" strokeWidth="0.7"/>)}
       <rect x="30" y="26" width="24" height="10" rx="2" fill="none" stroke="#8FA6B8" strokeWidth="1" strokeDasharray="2 2"/><text x="42" y="34" textAnchor="middle" fontSize="6" fill="#8FA6B8" fontFamily="'JetBrains Mono', monospace">0 o</text>
-      <text x="26" y="52" textAnchor="middle" fontSize="6" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЕДИНИЦЫ' : 'BIRLIK'}</text>
+      <text x="26" y="52" textAnchor="middle" fontSize="6" fill="#6B5636" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЕДИНИЦЫ', 'BIRLIK', 'ONES')}</text>
     </g>
     <rect x="0" y="176" width="400" height="54" fill="url(#shFloor)"/>
     <line x1="0" y1="176" x2="400" y2="176" stroke="#9A8058" strokeWidth="2"/>
@@ -1622,7 +1631,7 @@ const Screen11 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const askLine = lang === 'ru' ? 'Набери число цифрами:' : 'Sonni raqamlab tering:';
+  const askLine = tri(lang, 'Набери число цифрами:', 'Sonni raqamlab tering:', 'Type the number in digits:');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 11px)' }}>
@@ -1639,7 +1648,7 @@ const Screen11 = (props) => {
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
           <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={3} state={numState}/>
-          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
         </div>
         {checked && (
           <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
@@ -1773,7 +1782,7 @@ const Screen12 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1842,7 +1851,7 @@ const Screen13 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -1863,7 +1872,7 @@ export default function RazryadSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1930,7 +1939,7 @@ export default function RazryadSumLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

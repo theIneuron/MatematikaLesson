@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -138,8 +138,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-10',
-  lessonTitle: { ru: 'Урок 10. Умножение и деление на 10 и 100', uz: "10-dars. 10 va 100 ga ko'paytirish va bo'lish" }
+  lessonId: 'grade3-10',
+  lessonTitle: { ru: 'Урок 10. Умножение и деление на 10 и 100', uz: "10-dars. 10 va 100 ga ko'paytirish va bo'lish", en: 'Lesson 10. Multiplying and dividing by 10 and 100' }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md): s0 xuk · s1 ko'prik · s2 kashfiyot ×10 ·
 // s3 kashfiyot ×100 · s4 QOIDA · s5 kashfiyot ÷ · s6 soat-savol · s7 test MC ×3 · s8 SARALASH ·
@@ -178,13 +178,13 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: 23 pushta x 10 nur-gul
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: умножение и деление на 10 и 100', uz: "Mavzu: 10 va 100 ga ko'paytirish va bo'lish" },
-    lead: { ru: 'Вечер в светящемся саду Бита!', uz: "Bitning nurli bog'ida oqshom!" },
-    q: { ru: 'В саду 23 грядки, в каждой по 10 огоньков. Как быстро узнать, сколько всего?', uz: "Bog'da 23 pushta bor, har birida 10 nur-gul. Hammasi nechta ekanini qanday tez bilamiz?" },
-    opt0: { ru: '23 раза по 10', uz: '23 marta 10 tadan' },
-    opt1: { ru: 'Считать по одному', uz: 'Bittalab sanaymiz' },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Topic: multiplying and dividing by 10 and 100' },
+    topic: { ru: 'Тема: умножение и деление на 10 и 100', uz: "Mavzu: 10 va 100 ga ko'paytirish va bo'lish", en: "Evening in Bit's glowing garden!" },
+    lead: { ru: 'Вечер в светящемся саду Бита!', uz: "Bitning nurli bog'ida oqshom!", en: 'The garden has 23 beds with 10 lights in each. How can we find the total quickly?' },
+    q: { ru: 'В саду 23 грядки, в каждой по 10 огоньков. Как быстро узнать, сколько всего?', uz: "Bog'da 23 pushta bor, har birida 10 nur-gul. Hammasi nechta ekanini qanday tez bilamiz?", en: '23 times 10' },
+    opt0: { ru: '23 раза по 10', uz: '23 marta 10 tadan', en: 'Count one by one' },
+    opt1: { ru: 'Считать по одному', uz: 'Bittalab sanaymiz', en: "I don't know" },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "Today's topic is called multiplying and dividing by ten and by a hundred." },
     audio: {
       intro: {
         ru: [
@@ -198,20 +198,21 @@ const CONTENT = {
           "Quyosh botmoqda, Bitning bog'i porlashga tayyorlanmoqda. Nur-gullar pushta-pushta o'sadi, har pushtada roppa-rosa o'nta.",
           "Bit pushtaga teginadi, butun pushta birdan yonadi. Bog'da yigirma uchta pushta bor.",
           "Nechta nur-gul yonadi? O'ylab ko'ring va tanlang."
-        ]
+        ],
+        en: ["A firefly's light is cold: almost all the energy becomes light, not heat. An old light bulb is the opposite, most of the energy goes into heat.", "A firefly's light is cold. Almost all the energy becomes light, not heat. An old light bulb is the opposite, most of the energy goes into heat. The lights in Bit's garden shine just as coldly as fireflies.", 'The final check of the garden. Five tasks, answer each one.', 'Look at the explanation and try again.']
       },
-      on_correct: { ru: 'Отличная мысль! Двадцать три раза по десять, это умножение на десять. Сегодня научимся делать это мгновенно.', uz: "Ajoyib fikr! Yigirma uch marta o'ntadan, bu o'nga ko'paytirish. Bugun buni bir zumda qilishni o'rganamiz." },
-      on_wrong: { ru: 'Можно и так. Но огоньков здесь сотни, до утра не сосчитаешь. Есть путь быстрее.', uz: "Shunday ham mumkin. Lekin nur-gullar yuzlab, tonggacha sanab bo'lmaydi. Tezroq yo'l bor." },
-      on_idk: { ru: 'Честный ответ! К концу урока будешь знать точно. Смотри.', uz: "Halol javob! Dars oxirida aniq bilasiz. Qarang." }
+      on_correct: { ru: 'Отличная мысль! Двадцать три раза по десять, это умножение на десять. Сегодня научимся делать это мгновенно.', uz: "Ajoyib fikr! Yigirma uch marta o'ntadan, bu o'nga ko'paytirish. Bugun buni bir zumda qilishni o'rganamiz.", en: "The sun is setting and Bit's garden is getting ready to glow. The lights grow in beds, exactly ten in each bed." },
+      on_wrong: { ru: 'Можно и так. Но огоньков здесь сотни, до утра не сосчитаешь. Есть путь быстрее.', uz: "Shunday ham mumkin. Lekin nur-gullar yuzlab, tonggacha sanab bo'lmaydi. Tezroq yo'l bor.", en: 'Bit touches a bed and the whole bed lights up at once. There are twenty three beds in the garden.' },
+      on_idk: { ru: 'Честный ответ! К концу урока будешь знать точно. Смотри.', uz: "Halol javob! Dars oxirida aniq bilasiz. Qarang.", en: 'How many lights will come on? Think and choose.' }
     }
   },
 
   // s1 — KO'PRIK: jadvaldan o'nlikka (3 pushta tap)
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'От таблицы — к десяткам.', uz: "Jadvaldan o'nliklarga." },
-    counts: { ru: ['Десять.', 'Двадцать.', 'Тридцать!'], uz: ["O'n.", 'Yigirma.', "O'ttiz!"] },
-    tap_label: { ru: 'Зажигай грядки по одной', uz: 'Pushtalarni bittalab yoqing' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Great thinking! Twenty three times ten, that is multiplying by ten. Today we will learn to do it instantly.' },
+    lead: { ru: 'От таблицы — к десяткам.', uz: "Jadvaldan o'nliklarga.", en: 'You could do that. But there are hundreds of lights here, you would not finish before morning. There is a faster way.' },
+    counts: { ru: ['Десять.', 'Двадцать.', 'Тридцать!'], uz: ["O'n.", 'Yigirma.', "O'ttiz!"], en: ['Result', 'Well done!', 'The garden is lit!'] },
+    tap_label: { ru: 'Зажигай грядки по одной', uz: 'Pushtalarni bittalab yoqing', en: 'An honest answer! By the end of the lesson you will know for sure. Watch.' },
     audio: {
       ru: [
         'Таблицу умножения ты уже знаешь. Три умножить на четыре, двенадцать. Это три ряда по четыре.',
@@ -220,21 +221,22 @@ const CONTENT = {
       uz: [
         "Ko'paytirish jadvalini bilasiz. Uch karra to'rt, o'n ikki. Bu to'rttadan uch qator.",
         "Endi esa o'ntadan uch pushta. Pushtalarni bittalab yoqing va sanang."
-      ]
+      ],
+      en: ['Now you can multiply and divide by 10 and 100 instantly.', 'With ×10 the digits move one place to the left and a zero takes the ones place. With ×100 — two places and two zeros. Division is the way back.']
     },
-    done_text: { ru: 'Три умножить на десять, тридцать. Была тройка, стало тридцать. Рядом с тройкой появился ноль. Почему? Сейчас разберёмся.', uz: "Uch karra o'n, o'ttiz. Uch edi, o'ttiz bo'ldi. Uch yoniga nol keldi. Nega? Hozir aniqlaymiz." }
+    done_text: { ru: 'Три умножить на десять, тридцать. Была тройка, стало тридцать. Рядом с тройкой появился ноль. Почему? Сейчас разберёмся.', uz: "Uch karra o'n, o'ttiz. Uch edi, o'ttiz bo'ldi. Uch yoniga nol keldi. Nega? Hozir aniqlaymiz.", en: 'Recall and discover' }
   },
 
   // s2 — KASHFIYOT x10: xonalar ko'chishi (23, keyin o'zi 40 va 51)
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Цифры переезжают влево.', uz: "Raqamlar chapga ko'chadi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'From the table to tens.' },
+    lead: { ru: 'Цифры переезжают влево.', uz: "Raqamlar chapga ko'chadi.", en: 'Ten.' },
     steps: [
       { from: 23, factor: 10 },
       { from: 40, factor: 10 },
       { from: 51, factor: 10 }
     ],
-    btn: { ru: '× 10', uz: '× 10' },
+    btn: { ru: '× 10', uz: '× 10', en: 'Twenty.' },
     audio: {
       ru: [
         'Вот число двадцать три на табло разрядов. Двойка в десятках, тройка в единицах.',
@@ -253,18 +255,19 @@ const CONTENT = {
         "To'rt yuz! To'rt yuzlikka ko'chdi.",
         "Yana bitta. Ellik birni o'nga ko'paytiring.",
         "Besh yuz o'n. Raqamlar chapga ko'chadi, nol o'ngdan keladi."
-      ]
+      ],
+      en: ['Builds on', 'lesson 9: the multiplication table; block 1: places', 'Next', 'multiplying a sum', 'Now you know the secret of ten and a hundred. The digits move, and a zero takes the empty place. And what if there are twenty three beds and each one has to be multiplied by four? That is trickier. We will work it out in the next lesson!', 'Lesson 10. Multiplying and dividing by 10 and 100', 'Let us start with the familiar table.']
     }
   },
 
   // s3 — KASHFIYOT x100 + Bitning tuzog'i (7 -> 700, xato-namoyish 70)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'А если умножить на 100?', uz: 'Yuzga ko\'paytirsak-chi?' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'From the table to tens.' },
+    lead: { ru: 'А если умножить на 100?', uz: 'Yuzga ko\'paytirsak-chi?', en: 'Thirty!' },
     from: 7,
-    btn: { ru: '× 100', uz: '× 100' },
-    trap_label: { ru: 'Бит: получилось 70. Верно?', uz: 'Bit: 70 chiqdi. To\'g\'rimi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    btn: { ru: '× 100', uz: '× 100', en: 'Light the beds one by one' },
+    trap_label: { ru: 'Бит: получилось 70. Верно?', uz: 'Bit: 70 chiqdi. To\'g\'rimi?', en: 'You already know the multiplication table. Three times four is twelve. That is three rows of four.' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Now the place board.', 'And now let us multiply by a hundred.'] },
     trap_ci: 1,
     audio: {
       ru: [
@@ -278,40 +281,42 @@ const CONTENT = {
         "Yuzga ko'paytirish tugmasini bosing.",
         "Yetti birdan ikki xona oshib, yuzlikka sakradi. Ortidan ikkita nol. Yetti yuz.",
         "Bit ayyorlik qilib faqat bitta xonaga ko'chdi. Yetmish chiqdi. Bu to'g'rimi?"
-      ]
+      ],
+      en: ['Let us write this down as a rule.', 'Let us take the road back.', 'Test yourself for speed.', 'We know the rule. Count on your own.']
     },
-    trap_correct: { ru: 'Нет! Семьдесят это семь десятков. А нужно семь сотен. Умножаем на сто, значит два разряда и два ноля.', uz: "Yo'q! Yetmish bu yetti o'nlik. Kerakli esa yetti yuzlik. Yuzga ko'paytirsak, ikki xona va ikkita nol." },
-    trap_wrong: { ru: 'Посмотри внимательно. Семьдесят это семь десятков, а не семь сотен. Бит ошибся.', uz: "Diqqat bilan qarang. Yetmish bu yetti o'nlik, yetti yuzlik emas. Bit xato qildi." }
+    trap_correct: { ru: 'Нет! Семьдесят это семь десятков. А нужно семь сотен. Умножаем на сто, значит два разряда и два ноля.', uz: "Yo'q! Yetmish bu yetti o'nlik. Kerakli esa yetti yuzlik. Yuzga ko'paytirsak, ikki xona va ikkita nol.", en: 'And now three beds of ten. Light the beds one by one and count.' },
+    trap_wrong: { ru: 'Посмотри внимательно. Семьдесят это семь десятков, а не семь сотен. Бит ошибся.', uz: "Diqqat bilan qarang. Yetmish bu yetti o'nlik, yetti yuzlik emas. Bit xato qildi.", en: 'Three times ten is thirty. It was a three and it became thirty. A zero appeared next to the three. Why? Let us find out.' }
   },
 
   // s4 — SAVOL-OLDIN-QOIDA
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что делают цифры при умножении на 10?', uz: "O'nga ko'paytirganda raqamlar nima qiladi?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Discovery' },
+    q: { ru: 'Что делают цифры при умножении на 10?', uz: "O'nga ko'paytirganda raqamlar nima qiladi?", en: 'The digits move to the left.' },
     opts: [
-      { ru: 'Переезжают на один разряд влево', uz: 'Bir xona chapga ko\'chadi' },
-      { ru: 'Переезжают вправо', uz: 'O\'ngga ko\'chadi' },
-      { ru: 'Число просто увеличивается на 10', uz: 'Son shunchaki o\'nga ortadi' },
-      { ru: 'Цифры меняются местами', uz: 'Raqamlar o\'rin almashadi' }
+      { ru: 'Переезжают на один разряд влево', uz: 'Bir xona chapga ko\'chadi', en: '× 10' },
+      { ru: 'Переезжают вправо', uz: 'O\'ngga ko\'chadi', en: 'Here is the number twenty three on the place board. The two is in the tens, the three is in the ones.' },
+      { ru: 'Число просто увеличивается на 10', uz: 'Son shunchaki o\'nga ortadi', en: 'Tap multiply by ten and watch the digits.' },
+      { ru: 'Цифры меняются местами', uz: 'Raqamlar o\'rin almashadi', en: 'Every light became a whole bed! Everything grew ten times. The two moved into the hundreds, the three into the tens, and a zero took the empty ones place. Two hundred thirty.' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Вправо цифры едут при делении. Мы умножаем, всё растёт.', uz: "O'ngga bo'lishda ko'chadi. Biz ko'paytiryapmiz, hammasi o'sadi." },
-      2: { ru: 'На десять число растёт при сложении. Умножение делает его больше в десять раз.', uz: "O'nga qo'shganda son o'nga ortadi. Ko'paytirish esa uni o'n barobar katta qiladi." },
-      3: { ru: 'Цифры не меняются местами. Они все вместе едут влево.', uz: "Raqamlar o'rin almashmaydi. Hammasi birga chapga ko'chadi." }
+      1: { ru: 'Вправо цифры едут при делении. Мы умножаем, всё растёт.', uz: "O'ngga bo'lishda ko'chadi. Biz ko'paytiryapmiz, hammasi o'sadi.", en: 'Now you. Multiply forty by ten.' },
+      2: { ru: 'На десять число растёт при сложении. Умножение делает его больше в десять раз.', uz: "O'nga qo'shganda son o'nga ortadi. Ko'paytirish esa uni o'n barobar katta qiladi.", en: 'Four hundred! The four moved into the hundreds.' },
+      3: { ru: 'Цифры не меняются местами. Они все вместе едут влево.', uz: "Raqamlar o'rin almashmaydi. Hammasi birga chapga ko'chadi.", en: 'And one more. Multiply fifty one by ten.' }
     },
-    rule: { ru: 'При умножении на 10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При умножении на 100 переезжают на два разряда, и встают два ноля.', uz: "O'nga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. Yuzga ko'paytirganda ikki xona ko'chadi va ikkita nol keladi." },
+    rule: { ru: 'При умножении на 10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При умножении на 100 переезжают на два разряда, и встают два ноля.', uz: "O'nga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. Yuzga ko'paytirganda ikki xona ko'chadi va ikkita nol keladi.", en: 'Five hundred ten. The digits move left, a zero takes the place on the right.' },
     audio: {
       ru: ['Мы видели переезд цифр своими глазами. А теперь вопрос.', 'Что делают цифры при умножении на десять? Выбери ответ.'],
-      uz: ["Raqamlar ko'chishini o'z ko'zimiz bilan ko'rdik. Endi esa savol.", "O'nga ko'paytirganda raqamlar nima qiladi? Javobni tanlang."]
+      uz: ["Raqamlar ko'chishini o'z ko'zimiz bilan ko'rdik. Endi esa savol.", "O'nga ko'paytirganda raqamlar nima qiladi? Javobni tanlang."],
+      en: ['Now the task the other way round.', 'Let us set off on a journey.']
     },
-    on_correct: { ru: 'Именно! Цифры переезжают на один разряд влево, и это правило.', uz: "Aynan! Raqamlar bir xona chapga ko'chadi, va bu qoida." }
+    on_correct: { ru: 'Именно! Цифры переезжают на один разряд влево, и это правило.', uz: "Aynan! Raqamlar bir xona chapga ko'chadi, va bu qoida.", en: 'And what if we multiply by 100?' }
   },
 
   // s5 — KASHFIYOT ÷10 va ÷100 (teskari yo'l): 230->23, o'zi 800->80, 600->6
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Деление — обратный путь.', uz: "Bo'lish — teskari yo'l." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'From the table to tens.' },
+    lead: { ru: 'Деление — обратный путь.', uz: "Bo'lish — teskari yo'l.", en: '× 100' },
     steps: [
       { from: 230, factor: -10 },
       { from: 800, factor: -10 },
@@ -333,82 +338,83 @@ const CONTENT = {
         'Sakson.',
         "Endi olti yuzni yuzga bo'ling.",
         "Olti! Ikkita nol o'chdi, olti birlikka qaytdi."
-      ]
+      ],
+      en: ['Now type the answers yourself.', "Let us check Bit's lines.", 'Evening is close, let us help Bit.', 'The final check of the garden.', 'The garden is lit. Let us move on!', 'Mission complete! The whole garden lit up with one multiplication. Thank you for your help!']
     }
   },
 
   // s6 — 5 soniya SOAT + savol (45x10)
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сколько будет 45 × 10?', uz: '45 × 10 nechta bo\'ladi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
+    q: { ru: 'Сколько будет 45 × 10?', uz: '45 × 10 nechta bo\'ladi?', en: 'Right' },
     items: [
       {
         ci: 0,
-        opts: [{ ru: '450', uz: '450' }, { ru: '55', uz: '55' }, { ru: '405', uz: '405' }, { ru: '4500', uz: '4500' }],
+        opts: [{ ru: '450', uz: '450', en: '450' }, { ru: '55', uz: '55', en: '55' }, { ru: '405', uz: '405', en: '405' }, { ru: '4500', uz: '4500', en: '4500' }],
         hints: {
-          1: { ru: 'Это сорок пять плюс десять. А нужно в десять раз больше.', uz: "Bu qirq besh qo'shuv o'n. Kerakli esa o'n barobar katta." },
-          2: { ru: 'Ноль встаёт в конец, в единицы, а не в середину.', uz: "Nol oxiriga, birlikka keladi, o'rtaga emas." },
-          3: { ru: 'Это умножение на сто. У нас на десять, один ноль.', uz: "Bu yuzga ko'paytirilgan. Bizda o'nga, bitta nol." }
+          1: { ru: 'Это сорок пять плюс десять. А нужно в десять раз больше.', uz: "Bu qirq besh qo'shuv o'n. Kerakli esa o'n barobar katta.", en: 'Wrong' },
+          2: { ru: 'Ноль встаёт в конец, в единицы, а не в середину.', uz: "Nol oxiriga, birlikka keladi, o'rtaga emas.", en: 'And what if we multiply by a hundred? One light grows into a whole square plot, a hundred lights! Look at the seven.' },
+          3: { ru: 'Это умножение на сто. У нас на десять, один ноль.', uz: "Bu yuzga ko'paytirilgan. Bizda o'nga, bitta nol.", en: 'Tap multiply by a hundred.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Проверь себя. Сорок пять умножить на десять. Пять секунд подумай, не спеши.', uz: "O'zingizni sinang. Qirq beshni o'nga ko'paytiring. Besh soniya o'ylang, shoshilmang." },
-      on_correct: { ru: 'Четыреста пятьдесят!', uz: "To'rt yuz ellik!" },
-      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring." }
+      intro: { ru: 'Проверь себя. Сорок пять умножить на десять. Пять секунд подумай, не спеши.', uz: "O'zingizni sinang. Qirq beshni o'nga ko'paytiring. Besh soniya o'ylang, shoshilmang.", en: 'The seven jumped over two places at once, into the hundreds. Two zeros follow it. Seven hundred.' },
+      on_correct: { ru: 'Четыреста пятьдесят!', uz: "To'rt yuz ellik!", en: 'Bit tried to cut a corner and moved only one place. He got seventy. Is that right?' },
+      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring.", en: 'No! Seventy is seven tens. But we need seven hundreds. We multiply by a hundred, so two places and two zeros.' }
     }
   },
 
   // s7 — TEST MC, 3 raund (4 variant)
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q_mul10: { ru: 'Сколько будет 23 × 10?', uz: '23 × 10 nechta bo\'ladi?' },
-    q_mul100: { ru: 'Сколько будет 7 × 100?', uz: '7 × 100 nechta bo\'ladi?' },
-    q_div10: { ru: 'Сколько будет 450 ÷ 10?', uz: '450 ÷ 10 nechta bo\'ladi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
+    q_mul10: { ru: 'Сколько будет 23 × 10?', uz: '23 × 10 nechta bo\'ladi?', en: 'Look carefully. Seventy is seven tens, not seven hundreds. Bit made a mistake.' },
+    q_mul100: { ru: 'Сколько будет 7 × 100?', uz: '7 × 100 nechta bo\'ladi?', en: 'Rule' },
+    q_div10: { ru: 'Сколько будет 450 ÷ 10?', uz: '450 ÷ 10 nechta bo\'ladi?', en: 'What do the digits do when we multiply by 10?' },
     items: [
       {
         qk: 'q_mul10', ci: 0,
-        opts: [{ ru: '230', uz: '230' }, { ru: '33', uz: '33' }, { ru: '203', uz: '203' }, { ru: '2300', uz: '2300' }],
+        opts: [{ ru: '230', uz: '230', en: '230' }, { ru: '33', uz: '33', en: '33' }, { ru: '203', uz: '203', en: '203' }, { ru: '2300', uz: '2300', en: '2300' }],
         hints: {
-          1: { ru: 'Это плюс десять. Умножить на десять, значит в десять раз больше.', uz: "Bu qo'shuv o'n. O'nga ko'paytirish, demak o'n barobar katta." },
-          2: { ru: 'Ноль встаёт в конец, а не в середину. Цифры едут вместе.', uz: "Nol oxirga keladi, o'rtaga emas. Raqamlar birga ko'chadi." },
-          3: { ru: 'Два ноля, это умножение на сто. У нас на десять.', uz: "Ikkita nol, bu yuzga ko'paytirish. Bizda o'nga." }
+          1: { ru: 'Это плюс десять. Умножить на десять, значит в десять раз больше.', uz: "Bu qo'shuv o'n. O'nga ko'paytirish, demak o'n barobar katta.", en: 'They move one place to the left' },
+          2: { ru: 'Ноль встаёт в конец, а не в середину. Цифры едут вместе.', uz: "Nol oxirga keladi, o'rtaga emas. Raqamlar birga ko'chadi.", en: 'They move to the right' },
+          3: { ru: 'Два ноля, это умножение на сто. У нас на десять.', uz: "Ikkita nol, bu yuzga ko'paytirish. Bizda o'nga.", en: 'The number just grows by 10' }
         }
       },
       {
         qk: 'q_mul100', ci: 0,
-        opts: [{ ru: '700', uz: '700' }, { ru: '70', uz: '70' }, { ru: '107', uz: '107' }, { ru: '7100', uz: '7100' }],
+        opts: [{ ru: '700', uz: '700', en: '700' }, { ru: '70', uz: '70', en: '70' }, { ru: '107', uz: '107', en: '107' }, { ru: '7100', uz: '7100', en: '7100' }],
         hints: {
-          1: { ru: 'Один разряд мало. На сто, значит два разряда, два ноля.', uz: "Bitta xona kam. Yuzga bo'lsa, ikki xona, ikkita nol." },
-          2: { ru: 'Это сто плюс семь. А нужно семь раз по сто.', uz: "Bu yuz qo'shuv yetti. Kerakli esa yetti marta yuztadan." },
-          3: { ru: 'Семь и сто нельзя просто поставить рядом. Семь сотен, это семьсот.', uz: "Yetti bilan yuzni shunchaki yonma-yon qo'yib bo'lmaydi. Yetti yuzlik, bu yetti yuz." }
+          1: { ru: 'Один разряд мало. На сто, значит два разряда, два ноля.', uz: "Bitta xona kam. Yuzga bo'lsa, ikki xona, ikkita nol.", en: 'The digits swap places' },
+          2: { ru: 'Это сто плюс семь. А нужно семь раз по сто.', uz: "Bu yuz qo'shuv yetti. Kerakli esa yetti marta yuztadan.", en: 'Digits move right when we divide. We are multiplying, everything grows.' },
+          3: { ru: 'Семь и сто нельзя просто поставить рядом. Семь сотен, это семьсот.', uz: "Yetti bilan yuzni shunchaki yonma-yon qo'yib bo'lmaydi. Yetti yuzlik, bu yetti yuz.", en: 'A number grows by ten when we add. Multiplication makes it ten times bigger.' }
         }
       },
       {
         qk: 'q_div10', ci: 0,
-        opts: [{ ru: '45', uz: '45' }, { ru: '440', uz: '440' }, { ru: '405', uz: '405' }, { ru: '4500', uz: '4500' }],
+        opts: [{ ru: '45', uz: '45', en: '45' }, { ru: '440', uz: '440', en: '440' }, { ru: '405', uz: '405', en: '405' }, { ru: '4500', uz: '4500', en: '4500' }],
         hints: {
-          1: { ru: 'Это минус десять. Мы делим, значит в десять раз меньше.', uz: "Bu ayiruv o'n. Biz bo'lyapmiz, demak o'n barobar kichik." },
-          2: { ru: 'Гаснет ноль единиц, а не цифра из середины.', uz: "Birlikdagi nol o'chadi, o'rtadagi raqam emas." },
-          3: { ru: 'Число выросло. А при делении оно уменьшается.', uz: "Son o'sib ketdi. Bo'lishda esa u kichrayadi." }
+          1: { ru: 'Это минус десять. Мы делим, значит в десять раз меньше.', uz: "Bu ayiruv o'n. Biz bo'lyapmiz, demak o'n barobar kichik.", en: 'The digits do not swap places. They all move left together.' },
+          2: { ru: 'Гаснет ноль единиц, а не цифра из середины.', uz: "Birlikdagi nol o'chadi, o'rtadagi raqam emas.", en: 'When multiplying by 10 the digits move one place to the left, and a zero takes the ones place. When multiplying by 100 they move two places, and two zeros take their place.' },
+          3: { ru: 'Число выросло. А при делении оно уменьшается.', uz: "Son o'sib ketdi. Bo'lishda esa u kichrayadi.", en: 'We saw the digits move with our own eyes. And now a question.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Три задания. Цифры переезжают, ты следишь.', uz: "Uchta topshiriq. Raqamlar ko'chadi, siz kuzatasiz." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Вспомни правило переезда. Попробуй ещё.', uz: "Ko'chish qoidasini eslang. Yana urinib ko'ring." }
+      intro: { ru: 'Три задания. Цифры переезжают, ты следишь.', uz: "Uchta topshiriq. Raqamlar ko'chadi, siz kuzatasiz.", en: 'What do the digits do when we multiply by ten? Choose an answer.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Exactly! The digits move one place to the left, and that is the rule.' },
+      on_wrong: { ru: 'Вспомни правило переезда. Попробуй ещё.', uz: "Ko'chish qoidasini eslang. Yana urinib ko'ring.", en: 'Division is the way back.' }
     }
   },
 
   // s8 — SARALASH «Nima bo'ldi?» (tap-to-bin, kartalar ketma-ket)
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Что произошло с числом?', uz: 'Songa nima bo\'ldi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
+    q: { ru: 'Что произошло с числом?', uz: 'Songa nima bo\'ldi?', en: 'Dividing by ten is the way back. Tap and watch.' },
     bins: [
-      { key: 'm10', label: { ru: '× 10', uz: '× 10' } },
-      { key: 'm100', label: { ru: '× 100', uz: '× 100' } },
-      { key: 'd10', label: { ru: '÷ 10', uz: '÷ 10' } }
+      { key: 'm10', label: { ru: '× 10', uz: '× 10', en: 'Twenty.' } },
+      { key: 'm100', label: { ru: '× 100', uz: '× 100', en: 'Light the beds one by one' } },
+      { key: 'd10', label: { ru: '÷ 10', uz: '÷ 10', en: 'The zero went out, the digits moved right. Twenty three. Multiplying and dividing by ten, there and back.' } }
     ],
     cards: [
       { from: 40, to: 400, bin: 'm10' },
@@ -417,211 +423,213 @@ const CONTENT = {
       { from: 62, to: 620, bin: 'm10' },
       { from: 90, to: 9, bin: 'd10' }
     ],
-    ok_word: { m10: { ru: 'Точно, на десять!', uz: "Aniq, o'nga!" }, m100: { ru: 'Да, на сто!', uz: 'Ha, yuzga!' }, d10: { ru: 'Верно, разделили!', uz: "To'g'ri, bo'lindi!" } },
+    ok_word: { m10: { ru: 'Точно, на десять!', uz: "Aniq, o'nga!", en: 'Your turn. Divide eight hundred by ten.' }, m100: { ru: 'Да, на сто!', uz: 'Ha, yuzga!', en: 'Eighty.' }, d10: { ru: 'Верно, разделили!', uz: "To'g'ri, bo'lindi!", en: 'And divide six hundred by a hundred.' } },
     wrong_map: {
-      'shrunk-mul': { ru: 'Число стало меньше. А умножение делает больше. Это деление.', uz: "Son kichraydi. Ko'paytirish esa kattalashtiradi. Bu bo'lish." },
-      'm100-as-m10': { ru: 'Смотри, цифра уехала на два разряда, за ней два ноля. Это не десять.', uz: "Qarang, raqam ikki xona ko'chdi, ortidan ikkita nol. Bu o'n emas." },
-      'm10-as-m100': { ru: 'Появился только один ноль. На сто, это два ноля.', uz: "Faqat bitta nol paydo bo'ldi. Yuzga bo'lsa, ikkita nol." },
-      'grew-div': { ru: 'Число выросло. А деление уменьшает.', uz: "Son o'sdi. Bo'lish esa kichraytiradi." }
+      'shrunk-mul': { ru: 'Число стало меньше. А умножение делает больше. Это деление.', uz: "Son kichraydi. Ko'paytirish esa kattalashtiradi. Bu bo'lish.", en: 'Six! Two zeros went out and the six came back to the ones.' },
+      'm100-as-m10': { ru: 'Смотри, цифра уехала на два разряда, за ней два ноля. Это не десять.', uz: "Qarang, raqam ikki xona ko'chdi, ortidan ikkita nol. Bu o'n emas.", en: 'Practice' },
+      'm10-as-m100': { ru: 'Появился только один ноль. На сто, это два ноля.', uz: "Faqat bitta nol paydo bo'ldi. Yuzga bo'lsa, ikkita nol.", en: 'What is 45 × 10?' },
+      'grew-div': { ru: 'Число выросло. А деление уменьшает.', uz: "Son o'sdi. Bo'lish esa kichraytiradi.", en: 'That is forty five plus ten. But we need ten times more.' }
     },
     audio: {
-      intro: { ru: 'Огоньки в саду превращались, а Бит не записал как. Посмотри на каждую карточку и определи, что произошло.', uz: "Bog'dagi nur-gullar aylandi, Bit esa qandayligini yozib olmadi. Har kartaga qarang va nima bo'lganini aniqlang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни. Ноль появился или пропал? Число выросло или уменьшилось?', uz: "Solishtiring. Nol paydo bo'ldimi yoki yo'qoldimi? Son o'sdimi yoki kichraydimi?" }
+      intro: { ru: 'Огоньки в саду превращались, а Бит не записал как. Посмотри на каждую карточку и определи, что произошло.', uz: "Bog'dagi nur-gullar aylandi, Bit esa qandayligini yozib olmadi. Har kartaga qarang va nima bo'lganini aniqlang.", en: 'The zero goes at the end, into the ones, not into the middle.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Exactly! The digits move one place to the left, and that is the rule.' },
+      on_wrong: { ru: 'Сравни. Ноль появился или пропал? Число выросло или уменьшилось?', uz: "Solishtiring. Nol paydo bo'ldimi yoki yo'qoldimi? Son o'sdimi yoki kichraydimi?", en: 'That is multiplying by a hundred. Ours is by ten, one zero.' }
     }
   },
 
   // s9 — ZANJIR SAYOHATI: 4 -> x10 -> ? -> x10 -> ? -> ÷100 -> ?
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Проведи четвёрку по цепочке превращений.', uz: "To'rtni aylanishlar zanjiri bo'ylab olib o'ting." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
+    lead: { ru: 'Проведи четвёрку по цепочке превращений.', uz: "To'rtni aylanishlar zanjiri bo'ylab olib o'ting.", en: 'Test yourself. Forty five times ten. Think for five seconds, do not rush.' },
     steps: [
       {
-        q: { ru: 'Сколько будет 4 × 10?', uz: '4 × 10 nechta?' },
+        q: { ru: 'Сколько будет 4 × 10?', uz: '4 × 10 nechta?', en: 'Four hundred fifty!' },
         from: 4, factor: 10, ans: 40, ci: 0,
-        opts: [{ ru: '40', uz: '40' }, { ru: '14', uz: '14' }, { ru: '44', uz: '44' }, { ru: '400', uz: '400' }],
+        opts: [{ ru: '40', uz: '40', en: '40' }, { ru: '14', uz: '14', en: '14' }, { ru: '44', uz: '44', en: '44' }, { ru: '400', uz: '400', en: '400' }],
         hints: {
-          1: { ru: 'Это четыре плюс десять. Нужно в десять раз больше.', uz: "Bu to'rt qo'shuv o'n. O'n barobar katta kerak." },
-          2: { ru: 'Четвёрка не удваивается. Она переезжает влево, справа ноль.', uz: "To'rt ikkilanmaydi. U chapga ko'chadi, o'ngdan nol." },
-          3: { ru: 'Это сразу на сто. Пока только на десять.', uz: "Bu birdan yuzga. Hozircha faqat o'nga." }
+          1: { ru: 'Это четыре плюс десять. Нужно в десять раз больше.', uz: "Bu to'rt qo'shuv o'n. O'n barobar katta kerak.", en: 'Recall how the digits move. Try again.' },
+          2: { ru: 'Четвёрка не удваивается. Она переезжает влево, справа ноль.', uz: "To'rt ikkilanmaydi. U chapga ko'chadi, o'ngdan nol.", en: 'What is 23 × 10?' },
+          3: { ru: 'Это сразу на сто. Пока только на десять.', uz: "Bu birdan yuzga. Hozircha faqat o'nga.", en: 'What is 7 × 100?' }
         },
-        ok: { ru: 'Сорок! Едем дальше.', uz: 'Qirq! Davom etamiz.' }
+        ok: { ru: 'Сорок! Едем дальше.', uz: 'Qirq! Davom etamiz.', en: 'What is 450 ÷ 10?' }
       },
       {
-        q: { ru: 'Сколько будет 40 × 10?', uz: '40 × 10 nechta?' },
+        q: { ru: 'Сколько будет 40 × 10?', uz: '40 × 10 nechta?', en: 'That is plus ten. Times ten means ten times more.' },
         from: 40, factor: 10, ans: 400, ci: 0,
-        opts: [{ ru: '400', uz: '400' }, { ru: '50', uz: '50' }, { ru: '4000', uz: '4000' }, { ru: '410', uz: '410' }],
+        opts: [{ ru: '400', uz: '400', en: '400' }, { ru: '50', uz: '50', en: '50' }, { ru: '4000', uz: '4000', en: '4000' }, { ru: '410', uz: '410', en: '410' }],
         hints: {
-          1: { ru: 'Это сорок плюс десять. А нужно в десять раз больше.', uz: "Bu qirq qo'shuv o'n. O'n barobar katta kerak." },
-          2: { ru: 'Слишком далеко. Один переезд, один ноль.', uz: 'Juda uzoq. Bitta ko\'chish, bitta nol.' },
-          3: { ru: 'Ноль встаёт на место единиц, а не внутрь числа.', uz: 'Nol birlik o\'rniga keladi, son ichiga emas.' }
+          1: { ru: 'Это сорок плюс десять. А нужно в десять раз больше.', uz: "Bu qirq qo'shuv o'n. O'n barobar katta kerak.", en: 'The zero goes at the end, not into the middle. The digits move together.' },
+          2: { ru: 'Слишком далеко. Один переезд, один ноль.', uz: 'Juda uzoq. Bitta ko\'chish, bitta nol.', en: 'Two zeros means multiplying by a hundred. Ours is by ten.' },
+          3: { ru: 'Ноль встаёт на место единиц, а не внутрь числа.', uz: 'Nol birlik o\'rniga keladi, son ichiga emas.', en: 'One place is not enough. By a hundred means two places, two zeros.' }
         },
-        ok: { ru: 'Четыреста! Четвёрка добралась до сотен.', uz: "To'rt yuz! To'rt yuzlikkacha yetib keldi." }
+        ok: { ru: 'Четыреста! Четвёрка добралась до сотен.', uz: "To'rt yuz! To'rt yuzlikkacha yetib keldi.", en: 'That is a hundred plus seven. But we need seven times a hundred.' }
       },
       {
-        q: { ru: 'Сколько будет 400 ÷ 100?', uz: '400 ÷ 100 nechta?' },
+        q: { ru: 'Сколько будет 400 ÷ 100?', uz: '400 ÷ 100 nechta?', en: 'You cannot just put seven and a hundred side by side. Seven hundreds is seven hundred.' },
         from: 400, factor: -100, ans: 4, ci: 0,
-        opts: [{ ru: '4', uz: '4' }, { ru: '40', uz: '40' }, { ru: '300', uz: '300' }, { ru: '4000', uz: '4000' }],
+        opts: [{ ru: '4', uz: '4', en: '4' }, { ru: '40', uz: '40', en: '40' }, { ru: '300', uz: '300', en: '300' }, { ru: '4000', uz: '4000', en: '4000' }],
         hints: {
-          1: { ru: 'Погас только один ноль. Делим на сто, гаснут два.', uz: "Faqat bitta nol o'chdi. Yuzga bo'lsak, ikkitasi o'chadi." },
-          2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.' },
-          3: { ru: 'Число выросло, а деление уменьшает.', uz: "Son o'sdi, bo'lish esa kichraytiradi." }
+          1: { ru: 'Погас только один ноль. Делим на сто, гаснут два.', uz: "Faqat bitta nol o'chdi. Yuzga bo'lsak, ikkitasi o'chadi.", en: 'That is minus ten. We are dividing, so ten times less.' },
+          2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.', en: 'The zero of the ones goes out, not a digit from the middle.' },
+          3: { ru: 'Число выросло, а деление уменьшает.', uz: "Son o'sdi, bo'lish esa kichraytiradi.", en: 'The number grew. But when we divide it gets smaller.' }
         },
-        ok: { ru: 'Четыре! Число вернулось домой.', uz: "To'rt! Son uyiga qaytdi." }
+        ok: { ru: 'Четыре! Число вернулось домой.', uz: "To'rt! Son uyiga qaytdi.", en: 'Three tasks. The digits move, you keep watch.' }
       }
     ],
-    payoff: { ru: 'Смотри, что получилось. Дважды умножили на десять, и вышло как один раз на сто. А потом разделили на сто, и четвёрка вернулась домой. Умножение и деление, дорога туда и обратно.', uz: "Qarang, nima bo'ldi. Ikki marta o'nga ko'paytirdik, xuddi bir marta yuzga ko'paytirgandek chiqdi. Keyin yuzga bo'ldik, to'rt uyiga qaytdi. Ko'paytirish va bo'lish, borish va qaytish yo'li." },
+    payoff: { ru: 'Смотри, что получилось. Дважды умножили на десять, и вышло как один раз на сто. А потом разделили на сто, и четвёрка вернулась домой. Умножение и деление, дорога туда и обратно.', uz: "Qarang, nima bo'ldi. Ikki marta o'nga ko'paytirdik, xuddi bir marta yuzga ko'paytirgandek chiqdi. Keyin yuzga bo'ldik, to'rt uyiga qaytdi. Ko'paytirish va bo'lish, borish va qaytish yo'li.", en: 'Correct.' },
     audio: {
-      intro: { ru: 'Четвёрка отправляется в путешествие по саду. Проведи её по цепочке превращений.', uz: "To'rt raqami bog' bo'ylab sayohatga chiqadi. Uni aylanishlar zanjiri bo'ylab olib o'ting." },
-      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring." }
+      intro: { ru: 'Четвёрка отправляется в путешествие по саду. Проведи её по цепочке превращений.', uz: "To'rt raqami bog' bo'ylab sayohatga chiqadi. Uni aylanishlar zanjiri bo'ylab olib o'ting.", en: 'Recall the rule of moving. Try again.' },
+      on_wrong: { ru: 'Вспомни переезд цифр. Попробуй ещё.', uz: "Raqamlar ko'chishini eslang. Yana urinib ko'ring.", en: 'No! Seventy is seven tens. But we need seven hundreds. We multiply by a hundred, so two places and two zeros.' }
     }
   },
 
   // s10 — TRENAJYOR NumPad, 3 topshiriq
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
     items: [
-      { q: { ru: 'Набери ответ: 60 × 10.', uz: 'Javobni tering: 60 × 10.' }, ans: 600, hint: { ru: 'Цифры влево, справа ноль. Шесть десятков станут шестью сотнями.', uz: "Raqamlar chapga, o'ngdan nol. Olti o'nlik olti yuzlik bo'ladi." } },
-      { q: { ru: 'Набери ответ: 9 × 100.', uz: 'Javobni tering: 9 × 100.' }, ans: 900, hint: { ru: 'Два разряда влево, два ноля.', uz: 'Ikki xona chapga, ikkita nol.' } },
-      { q: { ru: 'Набери ответ: 320 ÷ 10.', uz: 'Javobni tering: 320 ÷ 10.' }, ans: 32, hint: { ru: 'Ноль единиц гаснет, цифры съезжают вправо.', uz: "Birlikdagi nol o'chadi, raqamlar o'ngga ko'chadi." } }
+      { q: { ru: 'Набери ответ: 60 × 10.', uz: 'Javobni tering: 60 × 10.', en: 'What happened to the number?' }, ans: 600, hint: { ru: 'Цифры влево, справа ноль. Шесть десятков станут шестью сотнями.', uz: "Raqamlar chapga, o'ngdan nol. Olti o'nlik olti yuzlik bo'ladi.", en: '÷ 10' } },
+      { q: { ru: 'Набери ответ: 9 × 100.', uz: 'Javobni tering: 9 × 100.', en: 'Exactly, by ten!' }, ans: 900, hint: { ru: 'Два разряда влево, два ноля.', uz: 'Ikki xona chapga, ikkita nol.', en: 'Yes, by a hundred!' } },
+      { q: { ru: 'Набери ответ: 320 ÷ 10.', uz: 'Javobni tering: 320 ÷ 10.', en: 'Right, we divided!' }, ans: 32, hint: { ru: 'Ноль единиц гаснет, цифры съезжают вправо.', uz: "Birlikdagi nol o'chadi, raqamlar o'ngga ko'chadi.", en: 'The number got smaller. But multiplication makes it bigger. This is division.' } }
     ],
     audio: {
-      intro: { ru: 'Теперь без готовых вариантов. Набери ответ сам.', uz: "Endi tayyor variantlarsiz. Javobni o'zingiz tering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." }
+      intro: { ru: 'Теперь без готовых вариантов. Набери ответ сам.', uz: "Endi tayyor variantlarsiz. Javobni o'zingiz tering.", en: 'Look, the digit moved two places and two zeros followed. That is not ten.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Exactly! The digits move one place to the left, and that is the rule.' }
     }
   },
 
   // s11 — XATONI TOP (4 yozuv)
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Bit: I got 70. Is that right?' },
+    q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
     items: [
       {
         stmts: ['8 × 100 = 80', '30 ÷ 10 = 3', '12 × 10 = 120', '50 ÷ 10 = 5'],
         wrong: 0,
-        hint: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring." }
+        hint: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring.", en: 'The number grew. But division makes it smaller.' }
       }
     ],
     audio: {
-      intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping." },
-      on_correct: { ru: 'Да! Восемьдесят это восемь десятков. А умножили на сто, значит восемь сотен, восемьсот.', uz: "Ha! Sakson bu sakkiz o'nlik. Yuzga ko'paytirilgan, demak sakkiz yuzlik, sakkiz yuz." },
-      on_wrong: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring." }
+      intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping.", en: 'The lights in the garden were changing and Bit did not write down how. Look at each card and work out what happened.' },
+      on_correct: { ru: 'Да! Восемьдесят это восемь десятков. А умножили на сто, значит восемь сотен, восемьсот.', uz: "Ha! Sakson bu sakkiz o'nlik. Yuzga ko'paytirilgan, demak sakkiz yuzlik, sakkiz yuz.", en: 'Compare. Did a zero appear or disappear? Did the number grow or get smaller?' },
+      on_wrong: { ru: 'Эта запись верна. Проверь переезд разрядов в других.', uz: "Bu yozuv to'g'ri. Boshqalarida xonalar ko'chishini tekshiring.", en: 'The number grew. But division makes it smaller.' }
     }
   },
 
   // s12 — MASALA (case): 38 pushta x 10, NumPad, verniygacha
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Бит подготовил 38 грядок, в каждой по 10 огоньков.', uz: "Bit 38 pushta tayyorladi, har birida 10 nur-gul." },
-    q: { ru: 'Сколько огоньков зажжётся вечером?', uz: 'Kechqurun nechta nur-gul yonadi?' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Take the four along the chain of changes.' },
+    lead: { ru: 'Бит подготовил 38 грядок, в каждой по 10 огоньков.', uz: "Bit 38 pushta tayyorladi, har birida 10 nur-gul.", en: 'What is 4 × 10?' },
+    q: { ru: 'Сколько огоньков зажжётся вечером?', uz: 'Kechqurun nechta nur-gul yonadi?', en: 'That is four plus ten. We need ten times more.' },
     ans: 380,
-    setup_audio: { ru: 'Вечер близко. Бит подготовил тридцать восемь грядок, в каждой по десять огоньков.', uz: "Oqshom yaqin. Bit o'ttiz sakkizta pushta tayyorladi, har birida o'ntadan nur-gul." },
+    setup_audio: { ru: 'Вечер близко. Бит подготовил тридцать восемь грядок, в каждой по десять огоньков.', uz: "Oqshom yaqin. Bit o'ttiz sakkizta pushta tayyorladi, har birida o'ntadan nur-gul.", en: 'The four does not double. It moves left, and a zero goes on the right.' },
     audio: {
-      intro: { ru: 'Помоги Биту посчитать огоньки. Набери ответ.', uz: "Bitga nur-gullarni sanashga yordam bering. Javobni tering." },
-      on_correct: { ru: 'Триста восемьдесят огоньков! Сад готов к вечеру.', uz: "Uch yuz sakson nur-gul! Bog' oqshomga tayyor." },
-      on_wrong: { ru: 'Тридцать восемь раз по десять. Цифры влево, ноль справа.', uz: "O'ttiz sakkiz marta o'ntadan. Raqamlar chapga, nol o'ngdan." }
+      intro: { ru: 'Помоги Биту посчитать огоньки. Набери ответ.', uz: "Bitga nur-gullarni sanashga yordam bering. Javobni tering.", en: 'That is by a hundred at once. So far only by ten.' },
+      on_correct: { ru: 'Триста восемьдесят огоньков! Сад готов к вечеру.', uz: "Uch yuz sakson nur-gul! Bog' oqshomga tayyor.", en: 'Forty! Let us go on.' },
+      on_wrong: { ru: 'Тридцать восемь раз по десять. Цифры влево, ноль справа.', uz: "O'ttiz sakkiz marta o'ntadan. Raqamlar chapga, nol o'ngdan.", en: 'What is 40 × 10?' }
     }
   },
 
   // s13 — FINAL panel (5 savol) + FactCard (o'sha ekranda, 5-savoldan keyin)
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Финальная проверка сада. Пять заданий.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'That is forty plus ten. But we need ten times more.' },
+    intro_line: { ru: 'Финальная проверка сада. Пять заданий.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq.", en: 'Too far. One move, one zero.' },
     items: [
       {
         kind: 'num', ans: 520,
-        q: { ru: 'Набери ответ: 52 × 10.', uz: 'Javobni tering: 52 × 10.' },
-        hint: { ru: 'Цифры влево, ноль в единицы.', uz: 'Raqamlar chapga, nol birlikka.' }
+        q: { ru: 'Набери ответ: 52 × 10.', uz: 'Javobni tering: 52 × 10.', en: 'The zero takes the ones place, not a place inside the number.' },
+        hint: { ru: 'Цифры влево, ноль в единицы.', uz: 'Raqamlar chapga, nol birlikka.', en: 'Four hundred! The four reached the hundreds.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет 700 ÷ 100?', uz: '700 ÷ 100 nechta bo\'ladi?' },
-        opt0: { ru: '7', uz: '7' },
-        opt1: { ru: '70', uz: '70' },
-        opt2: { ru: '600', uz: '600' },
-        opt3: { ru: '7000', uz: '7000' },
-        wrong_1: { ru: 'Гасим два ноля, а не один.', uz: "Ikkita nolni o'chiramiz, bittasini emas." },
-        wrong_2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.' },
-        wrong_3: { ru: 'Число выросло, а при делении оно уменьшается.', uz: "Son o'sdi, bo'lishda esa kichrayadi." }
+        q: { ru: 'Сколько будет 700 ÷ 100?', uz: '700 ÷ 100 nechta bo\'ladi?', en: 'What is 400 ÷ 100?' },
+        opt0: { ru: '7', uz: '7', en: '7' },
+        opt1: { ru: '70', uz: '70', en: '70' },
+        opt2: { ru: '600', uz: '600', en: '600' },
+        opt3: { ru: '7000', uz: '7000', en: '7000' },
+        wrong_1: { ru: 'Гасим два ноля, а не один.', uz: "Ikkita nolni o'chiramiz, bittasini emas.", en: 'Only one zero went out. We divide by a hundred, two go out.' },
+        wrong_2: { ru: 'Это минус сто. Мы делим.', uz: 'Bu ayiruv yuz. Biz bo\'lyapmiz.', en: 'The zero of the ones goes out, not a digit from the middle.' },
+        wrong_3: { ru: 'Число выросло, а при делении оно уменьшается.', uz: "Son o'sdi, bo'lishda esa kichrayadi.", en: 'That is minus a hundred. We are dividing.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'В одном участке 100 огоньков. Сколько огоньков в 6 участках?', uz: 'Bitta maydonchada 100 nur-gul. 6 maydonchada nechta nur-gul bor?' },
-        opt0: { ru: '600', uz: '600' },
-        opt1: { ru: '60', uz: '60' },
-        opt2: { ru: '106', uz: '106' },
-        opt3: { ru: '6000', uz: '6000' },
-        wrong_1: { ru: 'Это шесть десятков. В участке сотня.', uz: "Bu olti o'nlik. Maydonchada yuzta." },
-        wrong_2: { ru: 'Это сто плюс шесть. А нужно шесть раз по сто.', uz: "Bu yuz qo'shuv olti. Kerakli esa olti marta yuztadan." },
-        wrong_3: { ru: 'Слишком много. Шесть сотен, это шестьсот.', uz: 'Juda ko\'p. Olti yuzlik, bu olti yuz.' }
+        q: { ru: 'В одном участке 100 огоньков. Сколько огоньков в 6 участках?', uz: 'Bitta maydonchada 100 nur-gul. 6 maydonchada nechta nur-gul bor?', en: 'The number grew, but division makes it smaller.' },
+        opt0: { ru: '600', uz: '600', en: '600' },
+        opt1: { ru: '60', uz: '60', en: '60' },
+        opt2: { ru: '106', uz: '106', en: '106' },
+        opt3: { ru: '6000', uz: '6000', en: '6000' },
+        wrong_1: { ru: 'Это шесть десятков. В участке сотня.', uz: "Bu olti o'nlik. Maydonchada yuzta.", en: 'Four! The number came back home.' },
+        wrong_2: { ru: 'Это сто плюс шесть. А нужно шесть раз по сто.', uz: "Bu yuz qo'shuv olti. Kerakli esa olti marta yuztadan.", en: 'Look what happened. We multiplied by ten twice and it came out the same as once by a hundred. And then we divided by a hundred and the four came back home. Multiplication and division, the road there and back.' },
+        wrong_3: { ru: 'Слишком много. Шесть сотен, это шестьсот.', uz: 'Juda ko\'p. Olti yuzlik, bu olti yuz.', en: 'The four sets off on a journey through the garden. Take it along the chain of changes.' }
       },
       {
         kind: 'num', ans: 90,
-        q: { ru: 'Набери ответ: 900 ÷ 10.', uz: 'Javobni tering: 900 ÷ 10.' },
-        hint: { ru: 'Ноль единиц гаснет.', uz: "Birlikdagi nol o'chadi." }
+        q: { ru: 'Набери ответ: 900 ÷ 10.', uz: 'Javobni tering: 900 ÷ 10.', en: 'Type the answer: 60 × 10.' },
+        hint: { ru: 'Ноль единиц гаснет.', uz: "Birlikdagi nol o'chadi.", en: 'Digits to the left, a zero on the right. Six tens become six hundreds.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '6 × 100 = 60', uz: '6 × 100 = 60' },
-        opt1: { ru: '30 × 10 = 300', uz: '30 × 10 = 300' },
-        opt2: { ru: '500 ÷ 100 = 5', uz: '500 ÷ 100 = 5' },
-        opt3: { ru: '14 × 10 = 140', uz: '14 × 10 = 140' },
-        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
+        opt0: { ru: '6 × 100 = 60', uz: '6 × 100 = 60', en: 'Type the answer: 9 × 100.' },
+        opt1: { ru: '30 × 10 = 300', uz: '30 × 10 = 300', en: 'Two places to the left, two zeros.' },
+        opt2: { ru: '500 ÷ 100 = 5', uz: '500 ÷ 100 = 5', en: 'Type the answer: 320 ÷ 10.' },
+        opt3: { ru: '14 × 10 = 140', uz: '14 × 10 = 140', en: 'The zero of the ones goes out, the digits move right.' },
+        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Свет светлячка холодный: почти вся энергия становится светом, а не теплом. А у старой лампочки наоборот, большая часть энергии уходит в тепло.', uz: "Olovqurt nuri sovuq, energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi." },
-    fact_audio: { ru: 'Свет светлячка холодный. Почти вся энергия становится светом, а не теплом. У старой лампочки наоборот, большая часть энергии уходит в тепло. Огоньки в саду Бита светят так же холодно, как светлячки.', uz: "Olovqurt nuri sovuq. Energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi. Bit bog'idagi nur-gullar ham olovqurt kabi sovuq nur sochadi." },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
+    fact_text: { ru: 'Свет светлячка холодный: почти вся энергия становится светом, а не теплом. А у старой лампочки наоборот, большая часть энергии уходит в тепло.', uz: "Olovqurt nuri sovuq, energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi.", en: 'This line is correct. Check how the places move in the others.' },
+    fact_audio: { ru: 'Свет светлячка холодный. Почти вся энергия становится светом, а не теплом. У старой лампочки наоборот, большая часть энергии уходит в тепло. Огоньки в саду Бита светят так же холодно, как светлячки.', uz: "Olovqurt nuri sovuq. Energiyaning deyarli hammasi issiqlikka emas, yorug'likka aylanadi. Eski cho'g'lanma lampada esa aksincha, energiyaning ko'p qismi issiqlikka ketadi. Bit bog'idagi nur-gullar ham olovqurt kabi sovuq nur sochadi.", en: 'Bit wrote four examples and a mistake crept into one. Find it.' },
     audio: {
-      intro: { ru: 'Финальная проверка сада. Пять заданий, отвечай на каждое.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор и попробуй ещё.', uz: "Tahlilga qarang va yana urinib ko'ring." }
+      intro: { ru: 'Финальная проверка сада. Пять заданий, отвечай на каждое.', uz: "Bog'ning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering.", en: 'Yes! Eighty is eight tens. But we multiplied by a hundred, so eight hundreds, eight hundred.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Exactly! The digits move one place to the left, and that is the rule.' },
+      on_wrong: { ru: 'Посмотри разбор и попробуй ещё.', uz: "Tahlilga qarang va yana urinib ko'ring.", en: 'Word problem' }
     }
   },
 
   // s14 — YAKUN
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Сад зажжён!', uz: "Bog' yoqildi!" },
-    cando: { ru: 'Теперь ты умеешь умножать и делить на 10 и 100 мгновенно.', uz: "Endi siz 10 va 100 ga bir zumda ko'paytira va bo'la olasiz." },
-    rule_recap: { ru: 'При ×10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При ×100 — на два разряда и два ноля. Деление — обратный путь.', uz: "10 ga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. 100 ga — ikki xona va ikkita nol. Bo'lish — teskari yo'l." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 9: таблица умножения; блок 1: разряды', uz: "9-dars: ko'paytirish jadvali; 1-blok: xonalar" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Bit prepared 38 beds with 10 lights in each.' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'How many lights will come on in the evening?' },
+    mission_done: { ru: 'Сад зажжён!', uz: "Bog' yoqildi!", en: 'Evening is close. Bit has prepared thirty eight beds with ten lights in each.' },
+    cando: { ru: 'Теперь ты умеешь умножать и делить на 10 и 100 мгновенно.', uz: "Endi siz 10 va 100 ga bir zumda ko'paytira va bo'la olasiz.", en: 'Help Bit count the lights. Type the answer.' },
+    rule_recap: { ru: 'При ×10 цифры переезжают на один разряд влево, на место единиц встаёт ноль. При ×100 — на два разряда и два ноля. Деление — обратный путь.', uz: "10 ga ko'paytirganda raqamlar bir xona chapga ko'chadi, birlik o'rniga nol keladi. 100 ga — ikki xona va ikkita nol. Bo'lish — teskari yo'l.", en: 'Three hundred eighty lights! The garden is ready for the evening.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Thirty eight times ten. Digits to the left, a zero on the right.' },
+    conn_refs: { ru: 'урок 9: таблица умножения; блок 1: разряды', uz: "9-dars: ko'paytirish jadvali; 1-blok: xonalar", en: 'Final' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'The final check of the garden. Five tasks.' },
+    conn_next: { ru: 'умножение суммы', uz: "yig'indini ko'paytirish", en: 'Type the answer: 52 × 10.' },
     audio: {
       ru: 'Теперь ты знаешь секрет десятки и сотни. Цифры переезжают, а ноль занимает пустое место. А если грядок двадцать три и каждую нужно умножить на четыре? Это уже хитрее. Разберёмся в следующем уроке!',
-      uz: "Endi siz o'n va yuz sirini bilasiz. Raqamlar ko'chadi, nol esa bo'sh o'rinni egallaydi. Agar pushta yigirma uchta bo'lsa va har birini to'rtga ko'paytirish kerak bo'lsa-chi? Bu endi qiziqroq. Keyingi darsda aniqlaymiz!"
+      uz: "Endi siz o'n va yuz sirini bilasiz. Raqamlar ko'chadi, nol esa bo'sh o'rinni egallaydi. Agar pushta yigirma uchta bo'lsa va har birini to'rtga ko'paytirish kerak bo'lsa-chi? Bu endi qiziqroq. Keyingi darsda aniqlaymiz!",
+      en: 'Digits to the left, a zero into the ones.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём со знакомой таблицы.', uz: 'Tanish jadvaldan boshlaymiz.' },
-  s2:  { ru: 'Теперь табло разрядов.', uz: 'Endi xonalar taxtasi.' },
-  s3:  { ru: 'А теперь умножим на сто.', uz: 'Endi yuzga ko\'paytiramiz.' },
-  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s5:  { ru: 'Пойдём обратной дорогой.', uz: 'Teskari yo\'ldan yuramiz.' },
-  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s7:  { ru: 'Правило знаем. Считай сам.', uz: "Qoidani bilamiz. O'zingiz sanang." },
-  s8:  { ru: 'Теперь задача наоборот.', uz: 'Endi teskari topshiriq.' },
-  s9:  { ru: 'Отправимся в путешествие.', uz: 'Sayohatga chiqamiz.' },
-  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
-  s11: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
-  s12: { ru: 'Вечер близко, поможем Биту.', uz: 'Oqshom yaqin, Bitga yordam beramiz.' },
-  s13: { ru: 'Финальная проверка сада.', uz: "Bog'ning yakuniy tekshiruvi." },
-  s14: { ru: 'Сад зажжён. Идём дальше!', uz: "Bog' yoqildi. Davom etamiz!" }
+  s1:  { ru: 'Начнём со знакомой таблицы.', uz: 'Tanish jadvaldan boshlaymiz.', en: 'What is 700 ÷ 100?' },
+  s2:  { ru: 'Теперь табло разрядов.', uz: 'Endi xonalar taxtasi.', en: 'We put out two zeros, not one.' },
+  s3:  { ru: 'А теперь умножим на сто.', uz: 'Endi yuzga ko\'paytiramiz.', en: 'The number grew, but when we divide it gets smaller.' },
+  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'One plot has 100 lights. How many lights are in 6 plots?' },
+  s5:  { ru: 'Пойдём обратной дорогой.', uz: 'Teskari yo\'ldan yuramiz.', en: 'That is six tens. A plot has a hundred.' },
+  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s7:  { ru: 'Правило знаем. Считай сам.', uz: "Qoidani bilamiz. O'zingiz sanang.", en: 'Too many. Six hundreds is six hundred.' },
+  s8:  { ru: 'Теперь задача наоборот.', uz: 'Endi teskari topshiriq.', en: 'Type the answer: 900 ÷ 10.' },
+  s9:  { ru: 'Отправимся в путешествие.', uz: 'Sayohatga chiqamiz.', en: 'The zero of the ones goes out.' },
+  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering.", en: '6 × 100 = 60' },
+  s11: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.', en: '30 × 10 = 300' },
+  s12: { ru: 'Вечер близко, поможем Биту.', uz: 'Oqshom yaqin, Bitga yordam beramiz.', en: '500 ÷ 100 = 5' },
+  s13: { ru: 'Финальная проверка сада.', uz: "Bog'ning yakuniy tekshiruvi.", en: '14 × 10 = 140' },
+  s14: { ru: 'Сад зажжён. Идём дальше!', uz: "Bog' yoqildi. Davom etamiz!", en: 'This line is correct. Look for another one.' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Весь сад зажёгся одним умножением. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Butun bog' bitta ko'paytirish bilan yondi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Butun bog' bitta ko'paytirish bilan yondi. Yordamingiz uchun rahmat!",
+  en: 'Did you know?'
 };
 
 
@@ -1042,7 +1050,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Check')}</span>
     </div>
   );
 };
@@ -1054,7 +1062,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
 // ÷ — teskari: oxirgi nol(lar) so'nadi, raqamlar o'ngga qaytadi.
 // played=false -> boshlang'ich holat; true -> natija (CSS transition o'ynaydi).
 // ============================================================
-const RZ_LBL = { ru: ['сотни', 'десятки', 'единицы'], uz: ['yuzlik', "o'nlik", 'birlik'] };
+const RZ_LBL = { ru: ['сотни', 'десятки', 'единицы'], uz: ['yuzlik', "o'nlik", 'birlik'], en: ['Think…', '1 bed = 10 lights', 'All the moves are done!'] };
 const rzChips = (from, factor) => {
   const shift = Math.abs(factor) === 10 ? 1 : 2;
   const digits = String(from).split('');
@@ -1143,7 +1151,7 @@ const Screen0 = (props) => {
         {picked === null && (
           <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, padding: 'clamp(10px, 2vw, 16px)' }}>
             <PushtaViz/>
-            <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{lang === 'ru' ? '1 грядка = 10 огоньков' : '1 pushta = 10 nur-gul'}</span>
+            <span className="mono" style={{ fontSize: 'clamp(11px, 1.6vw, 13px)', fontWeight: 800, color: T.ink2 }}>{tri(lang, '1 грядка = 10 огоньков', '1 pushta = 10 nur-gul', 'Remember')}</span>
           </div>
         )}
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
@@ -1294,7 +1302,7 @@ const ShiftExploreScreen = ({ props, ck, eventAt }) => {
         </div>
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={lang === 'ru' ? 'Все переезды выполнены!' : "Barcha ko'chishlar bajarildi!"}/>
+            <Reaction state="correct" praise={tri(lang, 'Все переезды выполнены!', "Barcha ko'chishlar bajarildi!", 'hundreds')}/>
           </div>
         )}
       </div>
@@ -1818,7 +1826,7 @@ const Screen10 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshir', 'tens')}</button>
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
@@ -1969,7 +1977,7 @@ const Screen12 = (props) => {
             <span className="mono" style={{ fontSize: 'clamp(14px, 2.2vw, 18px)', fontWeight: 800, color: T.ink2 }}>× 38</span>
           </div>
           <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+          <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshir', 'tens')}</button>
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
@@ -2176,7 +2184,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshir', 'tens')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
@@ -2245,7 +2253,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tut', 'ones')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="fade-up delay-1"><LessonScene gathered/></div>
@@ -2266,7 +2274,7 @@ export default function MulDivTensLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

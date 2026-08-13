@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { AnsPop, AudioEngine, AudioIndicator, BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, ENCOURAGE, FREE_NAV, FeedbackBlock, Frac, FrameFx, GradientDefs, HeroContext, ICON, InfoNote, LUMO_CAST, LangContext, Lenta, LumoCityBg, NavBack, NavNext, NextLabel, Obj, Op, PRAISE, Panel, Pips, ProgressContext, QuestionScreen, Reaction, ReadinessMeter, Slider, SparkBurst, Stage, StageHero, T, autoScrollTo, buildTtsUrl, configureLesson, getAudioEngine, mt, nextEncourage, nextPraise, npKey, playChime, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useCountOnce, useHero, useIsMobile, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg } from './_kit/index.jsx';
+import { AnsPop, AudioEngine, AudioIndicator, BackLabel, BigNum, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, ENCOURAGE, FREE_NAV, FeedbackBlock, Frac, FrameFx, GradientDefs, HeroContext, ICON, InfoNote, LUMO_CAST, LangContext, Lenta, LumoCityBg, NavBack, NavNext, NextLabel, Obj, Op, PRAISE, Panel, Pips, ProgressContext, QuestionScreen, Reaction, ReadinessMeter, Slider, SparkBurst, Stage, StageHero, T, autoScrollTo, buildTtsUrl, configureLesson, getAudioEngine, mt, nextEncourage, nextPraise, npKey, playChime, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useCountOnce, useHero, useIsMobile, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, makeBrgSeg , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -147,8 +147,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-01-v1',
-  lessonTitle: { ru: 'Урок 1. Сотни, десятки и единицы', uz: "1-dars. Yuzliklar, o'nliklar va birliklar" }
+  lessonId: 'grade3-01',
+  lessonTitle: { ru: 'Урок 1. Сотни, десятки и единицы', uz: "1-dars. Yuzliklar, o'nliklar va birliklar", en: 'Lesson 1. Hundreds, tens and ones' }
 };
 // STRUKTURA: 1–7 tushuntirish · 8–13 mashq · 14 final · 15 xulosa. Grade2 Dars01 etaloni yoyi,
 // yuzlik qo'shilgan (uch pog'onali razryad). Syujet: Bit sayyorasi Lumo (SYUJET_3SINF.md Б1 d.1).
@@ -183,13 +183,13 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK (scope: hook): Lumoga qo'nish, shahar chiroqlari yuzlab
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Сотни, десятки и единицы', uz: "Mavzu: Yuzliklar, o'nliklar va birliklar" },
-    lead: { ru: 'Корабль сел на планету Бита — Лумо!', uz: "Kema Bitning sayyorasi — Lumoga qo'ndi!" },
-    q: { ru: 'Как быстро сосчитать сотни огней города?', uz: "Shaharning yuzlab chirog'ini qanday tez sanaymiz?" },
-    opt0: { ru: 'По одному', uz: 'Bittalab' },
-    opt1: { ru: 'Собирать по сто', uz: "Yuzlab yig'ib" },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Сотни, десятки и единицы', uz: "Mavzu: Yuzliklar, o'nliklar va birliklar", en: 'Topic: hundreds, tens and ones' },
+    lead: { ru: 'Корабль сел на планету Бита — Лумо!', uz: "Kema Bitning sayyorasi — Lumoga qo'ndi!", en: "The ship has landed on Bit's planet — Lumo!" },
+    q: { ru: 'Как быстро сосчитать сотни огней города?', uz: "Shaharning yuzlab chirog'ini qanday tez sanaymiz?", en: "How can we count the city's hundreds of lights quickly?" },
+    opt0: { ru: 'По одному', uz: 'Bittalab', en: 'One by one' },
+    opt1: { ru: 'Собирать по сто', uz: "Yuzlab yig'ib", en: 'Collect them in hundreds' },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -203,22 +203,23 @@ const CONTENT = {
           "O'tgan safar biz Bitni uyiga yetkazdik. Kemamiz Bitning sayyorasiga qo'ndi, uning nomi Lumo. Endi biz Bitning mehmonimiz.",
           "Bit o'z shahrini ko'rsatmoqda. Bu yerda chiroqlar juda ko'p, yuzlab. Ularni bittalab sanash uzoq.",
           "Mana bizning missiyamiz. Chiroqlarni yuzlab sanashni o'rganamiz, shunda Bit bizga butun shahrini ko'rsatadi. Olg'a!"
-        ]
+        ],
+        en: ["Today's topic is hundreds, tens and ones. We will learn to see how many hundreds, tens and ones a number has.", "Last time we brought Bit home. Our ship has landed on Bit's planet, it is called Lumo. Now we are Bit's guests.", 'Bit is showing us the city. There are very many lights here, hundreds of them. Counting one by one takes long.', 'Here is our mission. We will learn to count the lights in hundreds, and then Bit will show us the whole city. Off we go!']
       },
-      on_correct: { ru: 'Верная мысль. Соберём по сто, и станет видно.', uz: "To'g'ri fikr. Yuzlab yig'amiz, va ko'rinadi." },
-      on_wrong: { ru: 'Так можно, но это долго. В городе есть способ быстрее.', uz: "Bunday bo'ladi, lekin uzoq. Shaharda tezroq yo'l bor." },
-      on_unknown: { ru: 'Ничего. Сейчас увидим способ города.', uz: "Hechqisi yo'q. Hozir shaharning yo'lini ko'ramiz." }
+      on_correct: { ru: 'Верная мысль. Соберём по сто, и станет видно.', uz: "To'g'ri fikr. Yuzlab yig'amiz, va ko'rinadi.", en: 'Good thinking. Let us collect them in hundreds and it will become clear.' },
+      on_wrong: { ru: 'Так можно, но это долго. В городе есть способ быстрее.', uz: "Bunday bo'ladi, lekin uzoq. Shaharda tezroq yo'l bor.", en: 'You can do that, but it takes long. The city has a faster way.' },
+      on_unknown: { ru: 'Ничего. Сейчас увидим способ города.', uz: "Hechqisi yo'q. Hozir shaharning yo'lini ko'ramiz.", en: 'Never mind. Now we will see the way the city does it.' }
     }
   },
 
   // s1 — RECALL (72) + UNITIZING (10 o'nlik -> 1 yuzlik) birlashgan, ketma-ket ochiladi.
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'От десятков — к сотне.', uz: "O'nlikdan yuzlikka." },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    recall_eq: { ru: '72 = 7 десятков и 2 единицы', uz: "72 = 7 o'nlik va 2 birlik" },
-    unit_eq: { ru: '10 десятков = 1 сотня', uz: "10 o'nlik = 1 yuzlik" },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'От десятков — к сотне.', uz: "O'nlikdan yuzlikka.", en: 'From tens to a hundred.' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    recall_eq: { ru: '72 = 7 десятков и 2 единицы', uz: "72 = 7 o'nlik va 2 birlik", en: '72 = 7 tens and 2 ones' },
+    unit_eq: { ru: '10 десятков = 1 сотня', uz: "10 o'nlik = 1 yuzlik", en: '10 tens = 1 hundred' },
     audio: {
       ru: [
         'Начнём с того, что вам уже знакомо с первого класса. В двузначном числе слева десятки, справа единицы. В числе семьдесят два семь десятков и две единицы. Молодцы, это вы помните.',
@@ -231,15 +232,16 @@ const CONTENT = {
         "O'nlab sanash tez. Lekin Bit shahrida o'nliklar juda ko'p. Keling, ularni yana yig'amiz.",
         "O'nta o'nlikni birga to'playmiz. Har o'nlik bitta lenta.",
         "Qarang, nima bo'ldi! O'nta o'nlik bitta yuzlik bo'ldi. Bitta panelni yuzlik deymiz. Yuzlik bu yuzta birga."
-      ]
+      ],
+      en: ['Let us start with what you already know from first grade. In a two digit number the tens are on the left and the ones are on the right. In the number seventy two there are seven tens and two ones. Well done, you remember this.', 'Counting in tens is fast. But in the city of Bit there are very many tens. Let us collect them further.', 'We put ten tens together. Each ten is one strip.', 'Look what we got. Ten tens became one hundred. One such panel we call a hundred. A hundred is one hundred together.']
     }
   },
 
   // s2 — UNITIZING: 10 o'nlik -> 1 yuzlik
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Собери десятки в сотню.', uz: "O'nliklarni yuzlikka yig'ing." },
-    done_text: { ru: 'Одна панель — это одна сотня, сто огней. Теперь считать удобно.', uz: "Bitta panel — bu bitta yuzlik, yuz chiroq. Endi sanash qulay." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Собери десятки в сотню.', uz: "O'nliklarni yuzlikka yig'ing.", en: 'Collect the tens into a hundred.' },
+    done_text: { ru: 'Одна панель — это одна сотня, сто огней. Теперь считать удобно.', uz: "Bitta panel — bu bitta yuzlik, yuz chiroq. Endi sanash qulay.", en: 'One panel is one hundred, a hundred lights. Now counting is easy.' },
     audio: {
       ru: [
         'Смотри. В городе Бита огни собраны в ленты, в каждой ленте десять огней. Одна лента это десяток.',
@@ -250,21 +252,22 @@ const CONTENT = {
         "Qarang. Bitning shahrida chiroqlar lentalarga yig'ilgan, har lentada o'nta chiroq. Bitta lenta bu o'nlik.",
         "O'nlab sanash tezroq. Lekin lentalar shunchalik ko'pki, ularni yana yig'ish qulayroq. Lentalarni o'ntadan bitta panelga to'plang.",
         "Lentalar roppa-rosa o'nta bo'lganda panel to'liq yonadi. O'nta o'nlik bitta yuzlik bo'ldi. Bitta shunday panelni yuzlik deymiz. Shu so'zni yodda tuting. Yuzlik bu yuzta birga."
-      ]
+      ],
+      en: ['Look. In the city of Bit the lights are gathered into strips, and each strip has ten lights. One strip is one ten.', 'Counting in tens is already faster. But there are so many strips that it is easier to collect them further. Put the strips together, ten at a time, into one panel.', 'When there are exactly ten strips, the panel lights up completely. Ten tens became one hundred. One such panel we call a hundred. Remember this word. A hundred is one hundred together.']
     }
   },
 
   // s3 — BUILD 245 (yuzlik + o'nlik + birlik)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Собери 245.', uz: "245 ni yig'ing." },
-    src_hundreds: { ru: 'панель +', uz: 'panel +' },
-    src_tens: { ru: 'лента +', uz: 'lenta +' },
-    src_ones: { ru: 'огонёк +', uz: 'chiroq +' },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    done_text: { ru: 'Две сотни, четыре десятка и пять единиц — двести сорок пять.', uz: "Ikki yuzlik, to'rt o'nlik va besh birlik — ikki yuz qirq besh." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Собери 245.', uz: "245 ni yig'ing.", en: 'Build 245.' },
+    src_hundreds: { ru: 'панель +', uz: 'panel +', en: 'panel +' },
+    src_tens: { ru: 'лента +', uz: 'lenta +', en: 'strip +' },
+    src_ones: { ru: 'огонёк +', uz: 'chiroq +', en: 'light +' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    done_text: { ru: 'Две сотни, четыре десятка и пять единиц — двести сорок пять.', uz: "Ikki yuzlik, to'rt o'nlik va besh birlik — ikki yuz qirq besh.", en: 'Two hundreds, four tens and five ones — two hundred forty-five.' },
     audio: {
       ru: [
         'Теперь соберём число сами. Возьми две панели. В каждой по сто, значит вместе это две сотни, двести.',
@@ -275,27 +278,28 @@ const CONTENT = {
         "Endi sonni o'zimiz yig'amiz. Ikkita panel oling. Har birida yuzdan, demak birga bu ikki yuzlik, ikki yuz.",
         "To'rtta lenta qo'shing. Har birida o'ndan, bu to'rt o'nlik, qirq. Va beshta alohida chiroq qo'shing, bu besh birlik.",
         "Displeyga qarang va jami nechta bo'lganini sanang."
-      ]
+      ],
+      en: ['Now let us build a number ourselves. Take two panels. Each holds a hundred, so together that is two hundreds, two hundred.', 'Add four strips. Each holds ten, that is four tens, forty. And add five single lights, that is five ones.', 'Look at the board and count how many there are altogether.']
     }
   },
 
   // s4 — RAZRYAD KARTASI: 345 = 300 + 40 + 5
   s4: {
-    eyebrow: { ru: 'Два способа', uz: 'Ikki usul' },
-    lead: { ru: 'Разберём 345 двумя способами.', uz: "345 ni ikki usulda ochamiz." },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    m1_label: { ru: 'Способ 1 — разрядная таблица', uz: "1-usul — razryad jadvali" },
-    m1_text: { ru: 'Ставим каждую цифру на своё место.', uz: "Har raqamni o'z xonasiga qo'yamiz." },
-    m2_label: { ru: 'Способ 2 — разрядные слагаемые', uz: "2-usul — yoyilma yig'indi" },
-    m2_text: { ru: 'Пишем значение каждого разряда.', uz: "Har xonaning qiymatini yozamiz." },
-    m3_label: { ru: 'Бонус — чтение числа', uz: "Bonus — o'qilishi" },
-    m3_text: { ru: 'Число можно прочитать словами.', uz: "Sonni so'z bilan ham o'qiymiz." },
+    eyebrow: { ru: 'Два способа', uz: 'Ikki usul', en: 'Two ways' },
+    lead: { ru: 'Разберём 345 двумя способами.', uz: "345 ni ikki usulda ochamiz.", en: 'Let us take 345 apart in two ways.' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    m1_label: { ru: 'Способ 1 — разрядная таблица', uz: "1-usul — razryad jadvali", en: 'Way 1 — place-value chart' },
+    m1_text: { ru: 'Ставим каждую цифру на своё место.', uz: "Har raqamni o'z xonasiga qo'yamiz.", en: 'We put each digit in its own place.' },
+    m2_label: { ru: 'Способ 2 — разрядные слагаемые', uz: "2-usul — yoyilma yig'indi", en: 'Way 2 — expanded form' },
+    m2_text: { ru: 'Пишем значение каждого разряда.', uz: "Har xonaning qiymatini yozamiz.", en: 'We write the value of each place.' },
+    m3_label: { ru: 'Бонус — чтение числа', uz: "Bonus — o'qilishi", en: 'Bonus — reading the number' },
+    m3_text: { ru: 'Число можно прочитать словами.', uz: "Sonni so'z bilan ham o'qiymiz.", en: 'A number can be read in words.' },
     m3_parts: [
-      { num: '300', ru: 'триста', uz: 'uch yuz' },
-      { num: '40', ru: 'сорок', uz: 'qirq' },
-      { num: '5', ru: 'пять', uz: 'besh' }
+      { num: '300', ru: 'триста', uz: 'uch yuz', en: 'three hundred' },
+      { num: '40', ru: 'сорок', uz: 'qirq', en: 'forty' },
+      { num: '5', ru: 'пять', uz: 'besh', en: 'five' }
     ],
     audio: {
       ru: [
@@ -311,18 +315,19 @@ const CONTENT = {
         "Ikkinchi usul — yoyilma yig'indi. Har xonaning qiymatini yozamiz. Uch yuz, qirq va besh.",
         "Zo'r! Endi siz ikki usulni o'rganib oldingiz. Bonus tariqasida esa yana bir sirni aytaman — bu sonni so'z bilan ham o'qish mumkin. Uch yuz qirq besh.",
         "Ko'rsatish har xil, lekin son bitta — uch yuz qirq besh. Barakalla!"
-      ]
+      ],
+      en: ['A number has several ways to open it up. Let us take three hundred forty five apart in two main ways.', 'The first way is the place value chart. We put each digit in its own place. Hundreds three, tens four, ones five.', 'The second way is expanded form. We write the value of each place. Three hundred, forty and five.', 'Excellent. Now you know two ways. And as a bonus I will tell you one more secret. This number can be read in words. Three hundred forty five.', 'We showed it in different ways, but the number is one — three hundred forty-five. Well done!']
     }
   },
 
   // s5 — O'RIN HAL QILADI: 345 / 435 / 543
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Одни и те же цифры — а числа разные.', uz: 'Bir xil raqamlar — lekin sonlar har xil.' },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    done_text: { ru: 'Место цифры решает. Слева сотни, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda yuzlik, o'ngda birlik." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Одни и те же цифры — а числа разные.', uz: 'Bir xil raqamlar — lekin sonlar har xil.', en: 'The same digits — but different numbers.' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    done_text: { ru: 'Место цифры решает. Слева сотни, справа единицы.', uz: "Raqamning o'rni hal qiladi. Chapda yuzlik, o'ngda birlik.", en: "A digit's place decides. Hundreds on the left, ones on the right." },
     audio: {
       ru: [
         'Возьмём три цифры — три, четыре и пять. Из них можно собрать разные числа. Сейчас триста сорок пять.',
@@ -335,19 +340,20 @@ const CONTENT = {
         "Endi eng qizig'i! Kartalarni almashtiramiz. Qarang — to'rt yuz o'ttiz besh.",
         "Yana almashtiramiz — besh yuz qirq uch. Raqamlar aynan o'sha, lekin o'rni almashdi.",
         "Besh raqamiga qarang. Birlikda u besh degani. Yuzlikda esa o'sha beshlik besh yuz degani. Raqamning o'rni hal qiladi!"
-      ]
+      ],
+      en: ['Let us take three digits — three, four and five. Different numbers can be built from them. Right now it is three hundred forty five.', 'And now the interesting part. We swap the cards. Look, four hundred thirty five.', 'We swap again, five hundred forty three. The digits are the same, but their places have changed.', 'Look at the five. In the ones it means five. And in the hundreds the same five means five hundred. The place of a digit decides.']
     }
   },
 
   // s6 — SON O'QI: 470 (0-1000)
   s6: {
-    eyebrow: { ru: 'Число на прямой', uz: "Son o'qida" },
-    lead: { ru: 'Где стоит 470?', uz: "470 qayerda turadi?" },
-    q: { ru: 'Линия от 300 до 800. Где стоит 470? Нажми.', uz: "Chiziq 300 dan 800 gacha. 470 qayerda? Bosing." },
-    q_audio: { ru: 'Эта линия идёт от трёхсот до восьмисот. Как думаешь, где на ней стоит четыреста семьдесят? Нажми туда, где считаешь.', uz: "Bu chiziq uch yuzdan sakkiz yuzgacha. Sizningcha, unda to'rt yuz yetmish qayerda turadi? O'zingiz o'ylagan joyni bosing." },
-    done_text: { ru: 'Четыреста семьдесят стоит между четырьмястами и пятьюстами.', uz: "To'rt yuz yetmish to'rt yuz bilan besh yuz orasida turadi." },
-    info_badge: { ru: 'Полезно', uz: 'Foydali' },
-    info: { ru: 'На числовой прямой числа стоят по порядку: чем правее, тем больше. Большие метки — это сотни. Между ними стоят десятки.', uz: "Son o'qida sonlar tartib bilan turadi: qancha o'ngda bo'lsa, shuncha katta. Katta belgilar — yuzliklar. Ular orasida o'nliklar turadi." },
+    eyebrow: { ru: 'Число на прямой', uz: "Son o'qida", en: 'The number on a line' },
+    lead: { ru: 'Где стоит 470?', uz: "470 qayerda turadi?", en: 'Where does 470 stand?' },
+    q: { ru: 'Линия от 300 до 800. Где стоит 470? Нажми.', uz: "Chiziq 300 dan 800 gacha. 470 qayerda? Bosing.", en: 'A line from 300 to 800. Where does 470 stand? Tap it.' },
+    q_audio: { ru: 'Эта линия идёт от трёхсот до восьмисот. Как думаешь, где на ней стоит четыреста семьдесят? Нажми туда, где считаешь.', uz: "Bu chiziq uch yuzdan sakkiz yuzgacha. Sizningcha, unda to'rt yuz yetmish qayerda turadi? O'zingiz o'ylagan joyni bosing.", en: 'This line runs from three hundred to eight hundred. Where do you think four hundred seventy stands on it? Tap where you think.' },
+    done_text: { ru: 'Четыреста семьдесят стоит между четырьмястами и пятьюстами.', uz: "To'rt yuz yetmish to'rt yuz bilan besh yuz orasida turadi.", en: 'Four hundred seventy stands between four hundred and five hundred.' },
+    info_badge: { ru: 'Полезно', uz: 'Foydali', en: 'Useful' },
+    info: { ru: 'На числовой прямой числа стоят по порядку: чем правее, тем больше. Большие метки — это сотни. Между ними стоят десятки.', uz: "Son o'qida sonlar tartib bilan turadi: qancha o'ngda bo'lsa, shuncha katta. Katta belgilar — yuzliklar. Ular orasida o'nliklar turadi.", en: 'On a number line the numbers stand in order: the further right, the greater. The big marks are hundreds. The tens stand between them.' },
     audio: {
       ru: [
         'Покажем четыреста семьдесят. Линия идёт от трёхсот до восьмисот.',
@@ -358,17 +364,18 @@ const CONTENT = {
         "To'rt yuz yetmishni ko'rsatamiz. Chiziq uch yuzdan sakkiz yuzgacha.",
         "Bir katta qadam yuzga — to'rt yuzga yetamiz.",
         "Keyin yetti kichik qadam o'ndan — to'rt yuz yetmishga yetamiz. Bu to'rt yuz bilan besh yuz orasida."
-      ]
+      ],
+      en: ['Let us show four hundred seventy. The line runs from three hundred to eight hundred.', 'One big step of a hundred and we reach four hundred.', 'Then seven small steps of ten and we reach four hundred seventy. That is between four hundred and five hundred.']
     }
   },
 
   // sMING — KASHFIYOT: 10 yuzlik = 1000 (keyingi darsga ko'prik)
   sming: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'А если собрать десять сотен?', uz: "Agar o'nta yuzlikni yig'sak-chi?" },
-    ming_eq: { ru: '10 сотен = 1000', uz: '10 yuzlik = 1000' },
-    ming_word: { ru: 'ТЫСЯЧА', uz: 'MING' },
-    done_text: { ru: 'Тысяча — это десять сотен вместе. Самое большое число нашего урока!', uz: "Ming — bu o'nta yuzlik birga. Darsimizning eng katta soni!" },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'А если собрать десять сотен?', uz: "Agar o'nta yuzlikni yig'sak-chi?", en: 'And what if we collect ten hundreds?' },
+    ming_eq: { ru: '10 сотен = 1000', uz: '10 yuzlik = 1000', en: '10 hundreds = 1000' },
+    ming_word: { ru: 'ТЫСЯЧА', uz: 'MING', en: 'ONE THOUSAND' },
+    done_text: { ru: 'Тысяча — это десять сотен вместе. Самое большое число нашего урока!', uz: "Ming — bu o'nta yuzlik birga. Darsimizning eng katta soni!", en: 'A thousand is ten hundreds together. The biggest number of our lesson!' },
     audio: {
       ru: [
         'Помните? Десять десятков дали нам сотню. А теперь интересный вопрос. Что будет, если собрать десять сотен? Подумай немного.',
@@ -381,20 +388,21 @@ const CONTENT = {
         "Keling, birga sanab chiqamiz. Bir, ikki, uch va shunday o'ngacha — o'nta panel, har birida yuzdan chiroq.",
         "Qarang, nima chiqdi! O'nta yuzlik — bu ming. Butun boshli ming chiroq!",
         "Ming — bu yangi katta son. Keyingi safar shunday sonlarni o'qish va yozishni o'rganamiz. Bu haqiqiy sarguzasht bo'ladi!"
-      ]
+      ],
+      en: ['Do you remember? Ten tens gave us a hundred. And now an interesting question. What happens if we collect ten hundreds? Think a little.', 'Let us count together. One, two, three and so on up to ten, ten panels with a hundred lights in each.', 'Look what we got. Ten hundreds is one thousand. A whole thousand lights.', 'A thousand is a new big number. Next time we will learn to read and write such numbers. That will be an adventure.']
     }
   },
 
   // s7 — QOIDA
   s7: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'В трёхзначном числе три разряда: слева сотни, потом десятки, справа единицы.', uz: "Uch xonali sonda uch xona: chapda yuzlik, keyin o'nlik, o'ngda birlik." },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    check_q: { ru: 'Нажми цифру сотен.', uz: "Yuzliklar raqamini bosing." },
-    check_ok: { ru: 'Верно! Слева — сотни.', uz: "To'g'ri! Chapda — yuzliklar." },
-    check_no: { ru: 'Сотни стоят слева. Нажми левую цифру.', uz: "Yuzliklar chapda turadi. Chap raqamni bosing." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'В трёхзначном числе три разряда: слева сотни, потом десятки, справа единицы.', uz: "Uch xonali sonda uch xona: chapda yuzlik, keyin o'nlik, o'ngda birlik.", en: 'A three-digit number has three places: hundreds on the left, then tens, ones on the right.' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    check_q: { ru: 'Нажми цифру сотен.', uz: "Yuzliklar raqamini bosing.", en: 'Tap the hundreds digit.' },
+    check_ok: { ru: 'Верно! Слева — сотни.', uz: "To'g'ri! Chapda — yuzliklar.", en: 'Correct! Hundreds are on the left.' },
+    check_no: { ru: 'Сотни стоят слева. Нажми левую цифру.', uz: "Yuzliklar chapda turadi. Chap raqamni bosing.", en: 'Hundreds stand on the left. Tap the left digit.' },
     audio: {
       ru: [
         'Отлично, теперь вы всё поняли! Пришло время запомнить это как правило — оно нам будет нужно всегда. Слушайте внимательно.',
@@ -413,221 +421,225 @@ const CONTENT = {
         "Va yana yodda tuting. Yonma-yon bu qo'shish emas. Uch, to'rt va besh yonma-yon uch yuz qirq besh beradi, o'n ikki emas.",
         "Yana nol ham bor. Nol bo'sh o'rinni saqlaydi. Uch yuz besh bu uch yuzlik, nol o'nlik va besh birlik. Nolni tashlab bo'lmaydi.",
         "Endi o'zingiz. Yuzliklarni ko'rsatadigan raqamni bosing."
-      ]
+      ],
+      en: ['Excellent, now you have understood it all. It is time to remember this as a rule, we will always need it. Listen carefully.', 'A three digit number has three digits. How do we know where the hundreds are, where the tens are and where the ones are? Only by their place.', 'The left digit is always the hundreds. It counts the panels, the whole hundreds. Here the left one is three, so there are three hundreds.', 'The middle digit is the tens and the right one is the ones. Here there are four tens and five ones.', 'And remember one more thing. Side by side is not addition. Three, four and five side by side give three hundred forty five, not twelve.', 'And there is also zero. Zero holds an empty place. Three hundred five is three hundreds, zero tens and five ones. Zero cannot be thrown away.', 'And now on your own. Tap the digit that shows the hundreds.']
     }
   },
 
   // s8 — MASHQ build 362
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Собери 362.', uz: "362 ni yig'ing." },
-    src_hundreds: { ru: 'панель +', uz: 'panel +' },
-    src_tens: { ru: 'лента +', uz: 'lenta +' },
-    src_ones: { ru: 'огонёк +', uz: 'chiroq +' },
-    hundreds_label: { ru: 'сотни', uz: 'yuzliklar' },
-    tens_label: { ru: 'десятки', uz: "o'nliklar" },
-    ones_label: { ru: 'единицы', uz: 'birliklar' },
-    check_label: { ru: 'Проверить', uz: 'Tekshirish' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Собери 362.', uz: "362 ni yig'ing.", en: 'Build 362.' },
+    src_hundreds: { ru: 'панель +', uz: 'panel +', en: 'panel +' },
+    src_tens: { ru: 'лента +', uz: 'lenta +', en: 'strip +' },
+    src_ones: { ru: 'огонёк +', uz: 'chiroq +', en: 'light +' },
+    hundreds_label: { ru: 'сотни', uz: 'yuzliklar', en: 'hundreds' },
+    tens_label: { ru: 'десятки', uz: "o'nliklar", en: 'tens' },
+    ones_label: { ru: 'единицы', uz: 'birliklar', en: 'ones' },
+    check_label: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     audio: {
-      intro: { ru: 'Собирай число из панелей, лент и огоньков. Сначала сотни, потом десятки, потом единицы. После нажми проверить.', uz: "Sonni panel, lenta va chiroqlardan yig'ing. Avval yuzlik, keyin o'nlik, keyin birlik. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Отлично. Собрано верно.', uz: "Zo'r. To'g'ri yig'dingiz." },
-      on_wrong: { ru: 'Проверь. Сначала набери сотни, потом десятки, потом единицы.', uz: "Tekshiring. Avval yuzlik, keyin o'nlik, keyin birlikni yig'ing." }
+      intro: { ru: 'Собирай число из панелей, лент и огоньков. Сначала сотни, потом десятки, потом единицы. После нажми проверить.', uz: "Sonni panel, lenta va chiroqlardan yig'ing. Avval yuzlik, keyin o'nlik, keyin birlik. So'ng tekshirishni bosing.", en: 'Build the number from panels, strips and lights. First the hundreds, then the tens, then the ones. After that tap check.' },
+      on_correct: { ru: 'Отлично. Собрано верно.', uz: "Zo'r. To'g'ri yig'dingiz.", en: 'Excellent. Built correctly.' },
+      on_wrong: { ru: 'Проверь. Сначала набери сотни, потом десятки, потом единицы.', uz: "Tekshiring. Avval yuzlik, keyin o'nlik, keyin birlikni yig'ing.", en: 'Check it. First set the hundreds, then the tens, then the ones.' }
     }
   },
 
   // s9 — TASNIFLASH 528
   s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Разложи цифры числа 528 по разрядам.', uz: "528 sonining raqamlarini xonalarga ajrating." },
-    hold_hundreds: { ru: 'СОТНИ', uz: 'YUZLIKLAR' },
-    hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR" },
-    hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Разложи цифры числа 528 по разрядам.', uz: "528 sonining raqamlarini xonalarga ajrating.", en: 'Sort the digits of 528 into places.' },
+    hold_hundreds: { ru: 'СОТНИ', uz: 'YUZLIKLAR', en: 'HUNDREDS' },
+    hold_tens: { ru: 'ДЕСЯТКИ', uz: "O'NLIKLAR", en: 'TENS' },
+    hold_ones: { ru: 'ЕДИНИЦЫ', uz: 'BIRLIKLAR', en: 'ONES' },
     audio: {
-      intro: { ru: 'Сортировщик города. Каждую цифру поставь в свой разряд. Слева сотни, в середине десятки, справа единицы. Но будь внимателен, среди карточек есть лишние цифры. Бери только нужные.', uz: "Shahar saralagichi. Har raqamni o'z xonasiga qo'ying. Chapda yuzlik, o'rtada o'nlik, o'ngda birlik. Lekin ehtiyot bo'ling, kartochkalar orasida ortiqcha raqamlar ham bor. Faqat keraklilarini oling." },
-      on_correct: { ru: 'Верно. Каждая цифра в своём разряде.', uz: "To'g'ri. Har raqam o'z xonasida." },
-      on_wrong: { ru: 'Читай слева направо: первая цифра сотни, последняя единицы.', uz: "Chapdan o'ngga o'qing: birinchi raqam yuzlik, oxirgisi birlik." }
+      intro: { ru: 'Сортировщик города. Каждую цифру поставь в свой разряд. Слева сотни, в середине десятки, справа единицы. Но будь внимателен, среди карточек есть лишние цифры. Бери только нужные.', uz: "Shahar saralagichi. Har raqamni o'z xonasiga qo'ying. Chapda yuzlik, o'rtada o'nlik, o'ngda birlik. Lekin ehtiyot bo'ling, kartochkalar orasida ortiqcha raqamlar ham bor. Faqat keraklilarini oling.", en: 'The city sorter. Put each digit into its own place. Hundreds on the left, tens in the middle, ones on the right. But be careful, there are extra digits among the cards. Take only the ones you need.' },
+      on_correct: { ru: 'Верно. Каждая цифра в своём разряде.', uz: "To'g'ri. Har raqam o'z xonasida.", en: 'Correct. Every digit is in its own place.' },
+      on_wrong: { ru: 'Читай слева направо: первая цифра сотни, последняя единицы.', uz: "Chapdan o'ngga o'qing: birinchi raqam yuzlik, oxirgisi birlik.", en: 'Read from left to right: the first digit is hundreds, the last one is ones.' }
     }
   },
 
   // s10 — MC nol-o'rin 305
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
       {
-        q: { ru: 'Какое число — 3 сотни, 0 десятков и 5 единиц?', uz: "Qaysi son — 3 yuzlik, 0 o'nlik, 5 birlik?" },
+        q: { ru: 'Какое число — 3 сотни, 0 десятков и 5 единиц?', uz: "Qaysi son — 3 yuzlik, 0 o'nlik, 5 birlik?", en: 'Which number is 3 hundreds, 0 tens and 5 ones?' },
         hto: [3, 0, 5], ci: 1,
-        opts: [{ ru: '35', uz: '35' }, { ru: '305', uz: '305' }, { ru: '350', uz: '350' }, { ru: '503', uz: '503' }],
+        opts: [{ ru: '35', uz: '35', en: '35' }, { ru: '305', uz: '305', en: '305' }, { ru: '350', uz: '350', en: '350' }, { ru: '503', uz: '503', en: '503' }],
         hints: {
-          0: { ru: 'Разряд десятков пустой, ноль держит его место: 305, а не 35.', uz: "O'nlik xonasi bo'sh, nol o'rinni saqlaydi: 305, 35 emas." },
-          2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305." },
-          3: { ru: 'Сотен три, значит слева тройка: 305.', uz: "Yuzlik uchta, demak chapda uch: 305." }
+          0: { ru: 'Разряд десятков пустой, ноль держит его место: 305, а не 35.', uz: "O'nlik xonasi bo'sh, nol o'rinni saqlaydi: 305, 35 emas.", en: 'The tens place is empty, zero holds its place: 305, not 35.' },
+          2: { ru: 'Ноль в середине, в десятках, а не в конце: 305.', uz: "Nol o'rtada, o'nlikda, oxirida emas: 305.", en: 'The zero is in the middle, in the tens, not at the end: 305.' },
+          3: { ru: 'Сотен три, значит слева тройка: 305.', uz: "Yuzlik uchta, demak chapda uch: 305.", en: 'There are three hundreds, so a three on the left: 305.' }
         }
       },
       {
-        q: { ru: 'Какое число — 7 сотен, 0 десятков и 2 единицы?', uz: "Qaysi son — 7 yuzlik, 0 o'nlik, 2 birlik?" },
+        q: { ru: 'Какое число — 7 сотен, 0 десятков и 2 единицы?', uz: "Qaysi son — 7 yuzlik, 0 o'nlik, 2 birlik?", en: 'Which number is 7 hundreds, 0 tens and 2 ones?' },
         hto: [7, 0, 2], ci: 0,
-        opts: [{ ru: '702', uz: '702' }, { ru: '720', uz: '720' }, { ru: '72', uz: '72' }, { ru: '207', uz: '207' }],
+        opts: [{ ru: '702', uz: '702', en: '702' }, { ru: '720', uz: '720', en: '720' }, { ru: '72', uz: '72', en: '72' }, { ru: '207', uz: '207', en: '207' }],
         hints: {
-          1: { ru: 'Ноль в десятках, не в единицах: 702.', uz: "Nol o'nlikda, birlikda emas: 702." },
-          2: { ru: 'Это трёхзначное число, сотни есть: 702.', uz: "Bu uch xonali son, yuzlik bor: 702." },
-          3: { ru: 'Сотен семь, значит слева семёрка: 702.', uz: "Yuzlik yettita, demak chapda yetti: 702." }
+          1: { ru: 'Ноль в десятках, не в единицах: 702.', uz: "Nol o'nlikda, birlikda emas: 702.", en: 'The zero is in the tens, not in the ones: 702.' },
+          2: { ru: 'Это трёхзначное число, сотни есть: 702.', uz: "Bu uch xonali son, yuzlik bor: 702.", en: 'This is a three-digit number, it has hundreds: 702.' },
+          3: { ru: 'Сотен семь, значит слева семёрка: 702.', uz: "Yuzlik yettita, demak chapda yetti: 702.", en: 'There are seven hundreds, so a seven on the left: 702.' }
         }
       },
       {
-        q: { ru: 'Какое число — 5 сотен, 4 десятка и 0 единиц?', uz: "Qaysi son — 5 yuzlik, 4 o'nlik, 0 birlik?" },
+        q: { ru: 'Какое число — 5 сотен, 4 десятка и 0 единиц?', uz: "Qaysi son — 5 yuzlik, 4 o'nlik, 0 birlik?", en: 'Which number is 5 hundreds, 4 tens and 0 ones?' },
         hto: [5, 4, 0], ci: 1,
-        opts: [{ ru: '504', uz: '504' }, { ru: '540', uz: '540' }, { ru: '54', uz: '54' }, { ru: '450', uz: '450' }],
+        opts: [{ ru: '504', uz: '504', en: '504' }, { ru: '540', uz: '540', en: '540' }, { ru: '54', uz: '54', en: '54' }, { ru: '450', uz: '450', en: '450' }],
         hints: {
-          0: { ru: 'Ноль в конце, в единицах, а не в середине: 540.', uz: "Nol oxirida, birlikda, o'rtada emas: 540." },
-          2: { ru: 'Сотни есть, пять сотен: 540.', uz: "Yuzlik bor, besh yuzlik: 540." },
-          3: { ru: 'Сотен пять, значит слева пятёрка: 540.', uz: "Yuzlik beshta, demak chapda besh: 540." }
+          0: { ru: 'Ноль в конце, в единицах, а не в середине: 540.', uz: "Nol oxirida, birlikda, o'rtada emas: 540.", en: 'The zero is at the end, in the ones, not in the middle: 540.' },
+          2: { ru: 'Сотни есть, пять сотен: 540.', uz: "Yuzlik bor, besh yuzlik: 540.", en: 'There are hundreds, five hundreds: 540.' },
+          3: { ru: 'Сотен пять, значит слева пятёрка: 540.', uz: "Yuzlik beshta, demak chapda besh: 540.", en: 'There are five hundreds, so a five on the left: 540.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'В городе бывает пустой разряд. Ноль держит его место. Три задания подряд.', uz: "Shaharda ba'zan bo'sh xona bo'ladi. Nol uning o'rnini saqlaydi. Uchta topshiriq ketma-ket." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Ноль держит пустое место. Попробуй ещё.', uz: "Nol bo'sh o'rinni saqlaydi. Yana urinib ko'ring." }
+      intro: { ru: 'В городе бывает пустой разряд. Ноль держит его место. Три задания подряд.', uz: "Shaharda ba'zan bo'sh xona bo'ladi. Nol uning o'rnini saqlaydi. Uchta topshiriq ketma-ket.", en: 'A place in the city can be empty. Zero holds its place. Three tasks in a row.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Ноль держит пустое место. Попробуй ещё.', uz: "Nol bo'sh o'rinni saqlaydi. Yana urinib ko'ring.", en: 'Zero holds an empty place. Try again.' }
     }
   },
 
   // s11 — MC taqqoslash 345/354
   s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
-      { pair: [345, 354], sign: '<', hint: { ru: 'Сотни равны, десятки: 5 больше 4. Значит 345 меньше 354, знак меньше.', uz: "Yuzliklar teng, o'nlik: 5, 4 dan katta. Demak 345 kichik 354 dan, kichik belgisi." } },
-      { pair: [482, 428], sign: '>', hint: { ru: 'Сотни равны, десятки: 8 больше 2. Значит 482 больше 428, знак больше.', uz: "Yuzliklar teng, o'nlik: 8, 2 dan katta. Demak 482 katta 428 dan, katta belgisi." } },
-      { pair: [600, 599], sign: '>', hint: { ru: 'Сотни: 6 больше 5. Значит 600 больше 599, знак больше.', uz: "Yuzlik: 6, 5 dan katta. Demak 600 katta 599 dan, katta belgisi." } }
+      { pair: [345, 354], sign: '<', hint: { ru: 'Сотни равны, десятки: 5 больше 4. Значит 345 меньше 354, знак меньше.', uz: "Yuzliklar teng, o'nlik: 5, 4 dan katta. Demak 345 kichik 354 dan, kichik belgisi.", en: 'Hundreds are equal, tens: 5 is greater than 4. So 345 is less than 354, the sign is less than.' } },
+      { pair: [482, 428], sign: '>', hint: { ru: 'Сотни равны, десятки: 8 больше 2. Значит 482 больше 428, знак больше.', uz: "Yuzliklar teng, o'nlik: 8, 2 dan katta. Demak 482 katta 428 dan, katta belgisi.", en: 'Hundreds are equal, tens: 8 is greater than 2. So 482 is greater than 428, the sign is greater than.' } },
+      { pair: [600, 599], sign: '>', hint: { ru: 'Сотни: 6 больше 5. Значит 600 больше 599, знак больше.', uz: "Yuzlik: 6, 5 dan katta. Demak 600 katta 599 dan, katta belgisi.", en: 'Hundreds: 6 is greater than 5. So 600 is greater than 599, the sign is greater than.' } }
     ],
     audio: {
-      intro: { ru: 'Ставь знак между числами. Открытый рот знака смотрит на большее число. Три задания.', uz: "Sonlar orasiga belgi qo'ying. Belgining ochiq og'zi katta songa qaraydi. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Сравни разряды слева направо. Знак открывается к большему.', uz: "Xonalarni chapdan o'ngga solishtiring. Belgi kattaga ochiladi." }
+      intro: { ru: 'Ставь знак между числами. Открытый рот знака смотрит на большее число. Три задания.', uz: "Sonlar orasiga belgi qo'ying. Belgining ochiq og'zi katta songa qaraydi. Uchta topshiriq.", en: 'Put a sign between the numbers. The open mouth of the sign looks at the greater number. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Сравни разряды слева направо. Знак открывается к большему.', uz: "Xonalarni chapdan o'ngga solishtiring. Belgi kattaga ochiladi.", en: 'Compare the places from left to right. The sign opens towards the greater number.' }
     }
   },
 
   // s12 — MASALA kirish (shahar hisobi), Anvar
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Отчёт района: 3 панели, 4 ленты и 6 огоньков.', uz: 'Tuman hisobi: 3 panel, 4 lenta va 6 chiroq.' },
-    manifest_label: { ru: 'отчёт', uz: 'hisob' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Отчёт района: 3 панели, 4 ленты и 6 огоньков.', uz: 'Tuman hisobi: 3 panel, 4 lenta va 6 chiroq.', en: 'District report: 3 panels, 4 strips and 6 lights.' },
+    manifest_label: { ru: 'отчёт', uz: 'hisob', en: 'report' },
     audio: {
       ru: 'Анвар принёс отчёт по району. Три панели по сто это три сотни. Четыре ленты по десять это четыре десятка. И шесть отдельных огоньков это шесть единиц.',
-      uz: "Anvar tuman hisobini keltirdi. Uchta panel yuzdan bu uch yuzlik. To'rtta lenta o'ndan bu to'rt o'nlik. Va oltita alohida chiroq bu olti birlik."
+      uz: "Anvar tuman hisobini keltirdi. Uchta panel yuzdan bu uch yuzlik. To'rtta lenta o'ndan bu to'rt o'nlik. Va oltita alohida chiroq bu olti birlik.",
+      en: 'Anvar brought the report on the district. Three panels of a hundred is three hundreds. Four strips of ten is four tens. And six single lights is six ones.'
     }
   },
 
   // s13 — MASALA savol: jami 346
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    q: { ru: 'Сколько всего огней?', uz: 'Jami nechta chiroq?' },
-    opt0: { ru: '346', uz: '346' },
-    opt1: { ru: '436', uz: '436' },
-    opt2: { ru: '13', uz: '13' },
-    opt3: { ru: '340', uz: '340' },
-    wrong_1: { ru: 'Панели это сотни, их три. Поставь сотни слева: получается 346.', uz: "Panellar — yuzlik, ular uchta. Yuzlikni chapga qo'ying: 346 chiqadi." },
-    wrong_2: { ru: 'Тринадцать получится, если просто сложить 3, 4 и 6. А панели по сто, ленты по десять.', uz: "O'n uch — 3, 4 va 6 ni shunchaki qo'shsak chiqadi. Panellar yuzdan, lentalar o'ndan." },
-    wrong_3: { ru: 'Не забудь шесть отдельных огоньков. С ними получается 346.', uz: "Oltita alohida chiroqni unutmang. Ular bilan 346 chiqadi." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    q: { ru: 'Сколько всего огней?', uz: 'Jami nechta chiroq?', en: 'How many lights are there altogether?' },
+    opt0: { ru: '346', uz: '346', en: '346' },
+    opt1: { ru: '436', uz: '436', en: '436' },
+    opt2: { ru: '13', uz: '13', en: '13' },
+    opt3: { ru: '340', uz: '340', en: '340' },
+    wrong_1: { ru: 'Панели это сотни, их три. Поставь сотни слева: получается 346.', uz: "Panellar — yuzlik, ular uchta. Yuzlikni chapga qo'ying: 346 chiqadi.", en: 'Panels are hundreds, there are three of them. Put the hundreds on the left: that gives 346.' },
+    wrong_2: { ru: 'Тринадцать получится, если просто сложить 3, 4 и 6. А панели по сто, ленты по десять.', uz: "O'n uch — 3, 4 va 6 ni shunchaki qo'shsak chiqadi. Panellar yuzdan, lentalar o'ndan.", en: 'Thirteen comes out if you simply add 3, 4 and 6. But panels hold a hundred and strips hold ten.' },
+    wrong_3: { ru: 'Не забудь шесть отдельных огоньков. С ними получается 346.', uz: "Oltita alohida chiroqni unutmang. Ular bilan 346 chiqadi.", en: "Don't forget the six single lights. With them it gives 346." },
     audio: {
-      intro: { ru: 'Посчитаем, сколько всего огней в районе. Панели сотни, ленты десятки, огоньки единицы.', uz: "Tumanda jami nechta chiroq borligini sanaymiz. Panellar yuzlik, lentalar o'nlik, chiroqlar birlik." },
-      on_correct: { ru: 'Верно. Три сотни, четыре десятка и шесть единиц, триста сорок шесть.', uz: "To'g'ri. Uch yuzlik, to'rt o'nlik va olti birlik, uch yuz qirq olti." },
-      on_wrong: { ru: 'Посмотри разбор. Панели сотни, их три, слева.', uz: "Tushuntirishga qarang. Panellar yuzlik, ular uchta, chapda." }
+      intro: { ru: 'Посчитаем, сколько всего огней в районе. Панели сотни, ленты десятки, огоньки единицы.', uz: "Tumanda jami nechta chiroq borligini sanaymiz. Panellar yuzlik, lentalar o'nlik, chiroqlar birlik.", en: 'Let us count how many lights there are in the district altogether. Panels are hundreds, strips are tens, lights are ones.' },
+      on_correct: { ru: 'Верно. Три сотни, четыре десятка и шесть единиц, триста сорок шесть.', uz: "To'g'ri. Uch yuzlik, to'rt o'nlik va olti birlik, uch yuz qirq olti.", en: 'Correct. Three hundreds, four tens and six ones, three hundred forty six.' },
+      on_wrong: { ru: 'Посмотри разбор. Панели сотни, их три, слева.', uz: "Tushuntirishga qarang. Panellar yuzlik, ular uchta, chapda.", en: 'Look at the explanation. Panels are hundreds, there are three of them, on the left.' }
     }
   },
 
   // s14 — FINAL panel (4 savol) + FactCard
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Городской компьютер проверит тебя. Пять заданий.', uz: "Shahar kompyuteri sizni tekshiradi. Beshta topshiriq.", en: 'The city computer will test you. Five tasks.' },
     // Aralash panel: kind 'num' — raqam-plita bilan JAVOB TERILADI (produksiya); kind 'mc' — konsept/tanish.
     // Masalalar ziyoly.uz «Xona birliklari» turlariga moslangan; 5-savol — son-jumboq (mantiq).
     items: [
       {
         kind: 'num', ans: 645,
-        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'shing: 600 + 40 + 5. Javobni tering." },
-        hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik." }
+        q: { ru: 'Сложи по разрядам: 600 + 40 + 5. Набери ответ.', uz: "Razryadlab qo'shing: 600 + 40 + 5. Javobni tering.", en: 'Add by places: 600 + 40 + 5. Type the answer.' },
+        hint: { ru: 'По местам: шесть сотен, четыре десятка, пять единиц.', uz: "O'z o'rniga: olti yuzlik, to'rt o'nlik, besh birlik.", en: 'By places: six hundreds, four tens, five ones.' }
       },
       {
         kind: 'num', ans: 230,
-        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab tering." },
-        hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol." }
+        q: { ru: 'Запиши цифрами число двести тридцать.', uz: "Ikki yuz o'ttiz sonini raqamlab tering.", en: 'Write the number two hundred thirty in digits.' },
+        hint: { ru: 'Две сотни, три десятка, единиц нет — ноль в конце.', uz: "Ikki yuzlik, uch o'nlik, birlik yo'q — oxirida nol.", en: 'Two hundreds, three tens, no ones — a zero at the end.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько сотен в числе 682?', uz: "682 sonida nechta yuzlik bor?" },
-        opt0: { ru: '6 сотен', uz: '6 yuzlik' },
-        opt1: { ru: '8 сотен', uz: '8 yuzlik' },
-        opt2: { ru: '2 сотни', uz: '2 yuzlik' },
-        wrong_1: { ru: 'Восемь стоит в десятках, а не в сотнях. Сотни слева: шесть.', uz: "Sakkiz o'nlikda turadi, yuzlikda emas. Yuzlik chapda: olti." },
-        wrong_2: { ru: 'Два стоит в единицах. Сотни это левая цифра: шесть.', uz: "Ikki birlikda turadi. Yuzlik bu chap raqam: olti." }
+        q: { ru: 'Сколько сотен в числе 682?', uz: "682 sonida nechta yuzlik bor?", en: 'How many hundreds are in the number 682?' },
+        opt0: { ru: '6 сотен', uz: '6 yuzlik', en: '6 hundreds' },
+        opt1: { ru: '8 сотен', uz: '8 yuzlik', en: '8 hundreds' },
+        opt2: { ru: '2 сотни', uz: '2 yuzlik', en: '2 hundreds' },
+        wrong_1: { ru: 'Восемь стоит в десятках, а не в сотнях. Сотни слева: шесть.', uz: "Sakkiz o'nlikda turadi, yuzlikda emas. Yuzlik chapda: olti.", en: 'The eight stands in the tens, not in the hundreds. The hundreds are on the left: six.' },
+        wrong_2: { ru: 'Два стоит в единицах. Сотни это левая цифра: шесть.', uz: "Ikki birlikda turadi. Yuzlik bu chap raqam: olti.", en: 'The two stands in the ones. The hundreds are the left digit: six.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Что больше: 519 или 591?', uz: "Qaysi biri katta: 519 yoki 591?" },
-        opt0: { ru: '591', uz: '591' },
-        opt1: { ru: '519', uz: '519' },
-        opt2: { ru: 'Они равны', uz: 'Ular teng' },
-        wrong_1: { ru: 'Сотни равны, значит сравни десятки. Девять десятков больше одного: 591 больше.', uz: "Yuzliklar teng, demak o'nlikni solishtiring. To'qqiz o'nlik birdan katta: 591 katta." },
-        wrong_2: { ru: 'Цифры одни и те же, но места разные, значит числа не равны. 591 больше.', uz: "Raqamlar bir xil, lekin o'rni har xil, demak sonlar teng emas. 591 katta." }
+        q: { ru: 'Что больше: 519 или 591?', uz: "Qaysi biri katta: 519 yoki 591?", en: 'Which is greater: 519 or 591?' },
+        opt0: { ru: '591', uz: '591', en: '591' },
+        opt1: { ru: '519', uz: '519', en: '519' },
+        opt2: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' },
+        wrong_1: { ru: 'Сотни равны, значит сравни десятки. Девять десятков больше одного: 591 больше.', uz: "Yuzliklar teng, demak o'nlikni solishtiring. To'qqiz o'nlik birdan katta: 591 katta.", en: 'The hundreds are equal, so compare the tens. Nine tens is more than one: 591 is greater.' },
+        wrong_2: { ru: 'Цифры одни и те же, но места разные, значит числа не равны. 591 больше.', uz: "Raqamlar bir xil, lekin o'rni har xil, demak sonlar teng emas. 591 katta.", en: 'The digits are the same, but the places differ, so the numbers are not equal. 591 is greater.' }
       },
       {
         kind: 'num', ans: 522,
-        q: { ru: 'Загадка. Я трёхзначное число. Сотен 5, единиц 2, а десятков на 3 меньше, чем сотен. Кто я?', uz: "Jumboq. Men uch xonali sonman. Yuzligim 5, birligim 2, o'nligim yuzligimdan 3 kam. Men kimman?" },
-        hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshlang: besh. O'nlik beshdan uch kam. Birlik ikki." }
+        q: { ru: 'Загадка. Я трёхзначное число. Сотен 5, единиц 2, а десятков на 3 меньше, чем сотен. Кто я?', uz: "Jumboq. Men uch xonali sonman. Yuzligim 5, birligim 2, o'nligim yuzligimdan 3 kam. Men kimman?", en: 'A riddle. I am a three-digit number. I have 5 hundreds, 2 ones, and 3 fewer tens than hundreds. Who am I?' },
+        hint: { ru: 'Начни с сотен: пять. Десятков на три меньше пяти. Единиц два.', uz: "Yuzlikdan boshlang: besh. O'nlik beshdan uch kam. Birlik ikki.", en: 'Start with the hundreds: five. There are three fewer tens than five. There are two ones.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Планета Лумо вращается вокруг красного карлика. Такие звёзды в космосе встречаются чаще всего и светят очень долго.', uz: "Lumo sayyorasi qizil mitti yulduz atrofida aylanadi. Bunday yulduzlar koinotda eng ko'p uchraydi va juda uzoq nur sochadi." },
-    fact_audio: { ru: 'Планета Бита вращается вокруг красного карлика. Такие звёзды в космосе встречаются чаще всего и светят очень долго.', uz: "Bitning sayyorasi qizil mitti yulduz atrofida aylanadi. Bunday yulduzlar koinotda eng ko'p uchraydi va juda uzoq nur sochadi." },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'Планета Лумо вращается вокруг красного карлика. Такие звёзды в космосе встречаются чаще всего и светят очень долго.', uz: "Lumo sayyorasi qizil mitti yulduz atrofida aylanadi. Bunday yulduzlar koinotda eng ko'p uchraydi va juda uzoq nur sochadi.", en: 'Planet Lumo orbits a red dwarf. Such stars are the most common in space and they shine for a very long time.' },
+    fact_audio: { ru: 'Планета Бита вращается вокруг красного карлика. Такие звёзды в космосе встречаются чаще всего и светят очень долго.', uz: "Bitning sayyorasi qizil mitti yulduz atrofida aylanadi. Bunday yulduzlar koinotda eng ko'p uchraydi va juda uzoq nur sochadi.", en: 'Planet Bit orbits a red dwarf. Such stars are the most common in space and they shine for a very long time.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Городской компьютер показывает числа, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri sonlar ko'rsatadi, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Финальная проверка. Городской компьютер показывает числа, отвечай на каждое.', uz: "Yakuniy tekshiruv. Shahar kompyuteri sonlar ko'rsatadi, har biriga javob bering.", en: 'The final check. The city computer shows numbers, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   // s15 — YAKUN
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена — город открыт!', uz: 'Missiya bajarildi — shahar ochildi!' },
-    cando: { ru: 'Мы научились считать огни сотнями. Теперь ты видишь в числе сотни, десятки и единицы.', uz: "Chiroqlarni yuzlab sanashni o'rgandik. Endi siz sonda yuzlik, o'nlik va birlikni ko'rasiz." },
-    rule_recap: { ru: 'Слева сотни, потом десятки, справа единицы. Ноль держит место.', uz: "Chapda yuzlik, keyin o'nlik, o'ngda birlik. Nol o'rinni saqlaydi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'второй класс: десятки и единицы, десять единиц — один десяток', uz: "ikkinchi sinf: o'nlik va birlik, o'nta birlik — bitta o'nlik" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Урок 2: чтение и запись чисел до тысячи', uz: "2-dars: minggacha sonlarni o'qish va yozish" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена — город открыт!', uz: 'Missiya bajarildi — shahar ochildi!', en: 'Mission complete — the city is open!' },
+    cando: { ru: 'Мы научились считать огни сотнями. Теперь ты видишь в числе сотни, десятки и единицы.', uz: "Chiroqlarni yuzlab sanashni o'rgandik. Endi siz sonda yuzlik, o'nlik va birlikni ko'rasiz.", en: 'We learned to count the lights in hundreds. Now you can see hundreds, tens and ones in a number.' },
+    rule_recap: { ru: 'Слева сотни, потом десятки, справа единицы. Ноль держит место.', uz: "Chapda yuzlik, keyin o'nlik, o'ngda birlik. Nol o'rinni saqlaydi.", en: 'Hundreds on the left, then tens, ones on the right. Zero holds the place.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'второй класс: десятки и единицы, десять единиц — один десяток', uz: "ikkinchi sinf: o'nlik va birlik, o'nta birlik — bitta o'nlik", en: 'second grade: tens and ones, ten ones is one ten' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Урок 2: чтение и запись чисел до тысячи', uz: "2-dars: minggacha sonlarni o'qish va yozish", en: 'Lesson 2: reading and writing numbers up to a thousand' },
     audio: {
       ru: 'Город Бита открыт. Мы научились собирать сотни из десятков и видеть в числе сотни, десятки и единицы. Запомни правило. Десять десятков это одна сотня. Слева сотни, потом десятки, справа единицы. А ноль держит пустое место. В следующий раз научимся читать и записывать большие числа города.',
-      uz: "Bitning shahri ochildi. Biz o'nliklardan yuzlik yig'ishni va sonda yuzlik, o'nlik, birlikni ko'rishni o'rgandik. Qoidani yodda tuting. O'nta o'nlik bu bitta yuzlik. Chapda yuzlik, keyin o'nlik, o'ngda birlik. Nol esa bo'sh o'rinni saqlaydi. Keyingi safar shaharning katta sonlarini o'qish va yozishni o'rganamiz."
+      uz: "Bitning shahri ochildi. Biz o'nliklardan yuzlik yig'ishni va sonda yuzlik, o'nlik, birlikni ko'rishni o'rgandik. Qoidani yodda tuting. O'nta o'nlik bu bitta yuzlik. Chapda yuzlik, keyin o'nlik, o'ngda birlik. Nol esa bo'sh o'rinni saqlaydi. Keyingi safar shaharning katta sonlarini o'qish va yozishni o'rganamiz.",
+      en: 'The city of Bit is open. We learned to collect hundreds from tens and to see hundreds, tens and ones in a number. Remember the rule. Ten tens is one hundred. Hundreds on the left, then tens, ones on the right. And zero holds an empty place. Next time we will learn to read and write the big numbers of the city.'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Начнём с того, что вам знакомо с первого класса.', uz: "Sizga birinchi sinfdan tanish narsadan boshlaymiz." },
-  s2:  { ru: 'Огней много. Посмотрим, как собрать сотню.', uz: "Chiroq ko'p. Yuzlikni qanday yig'ishni ko'ramiz." },
-  s3:  { ru: 'Сотню поняли. Теперь соберём из них число.', uz: "Yuzlikni bildik. Endi undan son yig'amiz." },
-  s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz." },
-  s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim." },
-  s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz." },
-  sming: { ru: 'А теперь маленькое чудо.', uz: "Endi esa kichik mo'jiza." },
-  s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s8:  { ru: 'Правило знаем. Теперь собирай число сам.', uz: "Qoidani bilamiz. Endi sonni o'zingiz yig'ing." },
-  s9:  { ru: 'Разложи цифры по разрядам.', uz: 'Raqamlarni xonalarga ajrating.' },
-  s10: { ru: 'Один разряд будет пустым.', uz: "Bitta xona bo'sh bo'ladi." },
-  s11: { ru: 'Сравним два района города.', uz: 'Shaharning ikki tumanini solishtiramiz.' },
-  s12: { ru: 'Последний отчёт. Сколько по нему?', uz: "Oxirgi hisob. Unda nechta?" },
-  s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.' },
-  s14: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.' },
-  s15: { ru: 'Город открыт. Идём дальше!', uz: 'Shahar ochildi. Davom etamiz!' }
+  s1:  { ru: 'Начнём с того, что вам знакомо с первого класса.', uz: "Sizga birinchi sinfdan tanish narsadan boshlaymiz.", en: 'Let us start with what you know from first grade.' },
+  s2:  { ru: 'Огней много. Посмотрим, как собрать сотню.', uz: "Chiroq ko'p. Yuzlikni qanday yig'ishni ko'ramiz.", en: 'There are many lights. Let us see how to collect a hundred.' },
+  s3:  { ru: 'Сотню поняли. Теперь соберём из них число.', uz: "Yuzlikni bildik. Endi undan son yig'amiz.", en: 'We understand a hundred. Now let us build a number from them.' },
+  s4:  { ru: 'Собрали. Теперь заглянем внутрь числа.', uz: "Yig'dik. Endi sonning ichiga qaraymiz.", en: 'Built it. Now let us look inside the number.' },
+  s5:  { ru: 'Внимание. Место цифры решает.', uz: "Diqqat. Raqamning o'rni muhim.", en: 'Attention. The place of a digit decides.' },
+  s6:  { ru: 'Покажем это число на прямой.', uz: "Shu sonni o'qda ko'rsatamiz.", en: 'Let us show this number on a line.' },
+  sming: { ru: 'А теперь маленькое чудо.', uz: "Endi esa kichik mo'jiza.", en: 'And now a little wonder.' },
+  s7:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s8:  { ru: 'Правило знаем. Теперь собирай число сам.', uz: "Qoidani bilamiz. Endi sonni o'zingiz yig'ing.", en: 'We know the rule. Now build a number yourself.' },
+  s9:  { ru: 'Разложи цифры по разрядам.', uz: 'Raqamlarni xonalarga ajrating.', en: 'Sort the digits into places.' },
+  s10: { ru: 'Один разряд будет пустым.', uz: "Bitta xona bo'sh bo'ladi.", en: 'One place will be empty.' },
+  s11: { ru: 'Сравним два района города.', uz: 'Shaharning ikki tumanini solishtiramiz.', en: 'Let us compare two districts of the city.' },
+  s12: { ru: 'Последний отчёт. Сколько по нему?', uz: "Oxirgi hisob. Unda nechta?", en: 'The last report. How many by it?' },
+  s13: { ru: 'Считаем всё вместе.', uz: 'Hammasini birga sanaymiz.', en: 'We count it all together.' },
+  s14: { ru: 'Городской компьютер сделает финальную проверку.', uz: 'Shahar kompyuteri yakuniy tekshiradi.', en: 'The city computer will run the final check.' },
+  s15: { ru: 'Город открыт. Идём дальше!', uz: 'Shahar ochildi. Davom etamiz!', en: 'The city is open. Let us move on!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Миссия выполнена! Мы научились считать огни сотнями, и Бит показал нам весь свой город. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Biz chiroqlarni yuzlab sanashni o'rgandik, va Bit bizga butun shaharni ko'rsatdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Biz chiroqlarni yuzlab sanashni o'rgandik, va Bit bizga butun shaharni ko'rsatdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! We learned to count the lights in hundreds, and Bit showed us his whole city. Thank you for your help!'
 };
 
 
@@ -883,7 +895,7 @@ const Screen0 = (props) => {
             <Reaction state={ok ? 'correct' : 'wrong'} praise={t(c.audio[fbKey(picked)])}/>
             {!ok && (
               <p className="fade-up" style={{ margin: 'clamp(6px, 1.4vw, 10px) 0 0', textAlign: 'center', color: '#1F7A4D', fontWeight: 700, fontSize: 'clamp(13px, 1.8vw, 16px)' }}>
-                {(lang === 'ru' ? 'Верный ответ' : "To'g'ri javob")}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
+                {(tri(lang, 'Верный ответ', "To'g'ri javob", 'Correct answer'))}: <b>{t(c.opt1)}</b>. {t(c.audio.on_correct)}
               </p>
             )}
           </FeedbackBlock>
@@ -1029,7 +1041,7 @@ const Screen2 = (props) => {
               <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(20px, 4vw, 28px)', fontWeight: 800, color: T.ink2 }}>=</span>
               <span style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
                 <Panel/>
-                <b style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(12px, 1.9vw, 14px)', color: T.accent }}>{lang === 'ru' ? '1 сотня' : "1 yuzlik"}</b>
+                <b style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 'clamp(12px, 1.9vw, 14px)', color: T.accent }}>{tri(lang, '1 сотня', '1 yuzlik', '1 hundred')}</b>
               </span>
             </div>
             <Reaction state="correct" praise={t(c.done_text)}/>
@@ -1100,7 +1112,7 @@ const Screen3 = (props) => {
 const EX_MORE = [[528, 500, 20, 8], [703, 700, 0, 3], [640, 600, 40, 0]];
 const WorkedExamples = ({ lang }) => (
   <div className="frame-tip fade-up" style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.2vw, 8px)', padding: 'clamp(8px, 1.6vw, 12px)' }}>
-    <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{lang === 'ru' ? 'Ещё примеры — как это работает' : "Yana misollar — qanday ishlaydi"}</span>
+    <span className="mono" style={{ color: T.accent, fontWeight: 800, fontSize: 'clamp(11px, 1.5vw, 13px)' }}>{tri(lang, 'Ещё примеры — как это работает', 'Yana misollar — qanday ishlaydi', 'More examples — how it works')}</span>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'clamp(8px, 2.2vw, 18px)', justifyContent: 'center' }}>
       {EX_MORE.map(([n, h, tn, o]) => (
         <span key={n} className="mono g1-pop-in" style={{ fontWeight: 800, fontSize: 'clamp(13px, 2.2vw, 17px)', color: T.ink, whiteSpace: 'nowrap' }}>
@@ -1377,7 +1389,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -1573,7 +1585,7 @@ const Screen8 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const buildLabel = lang === 'ru' ? 'Собери число' : "Sonni yig'ing";
+  const buildLabel = tri(lang, 'Собери число', "Sonni yig'ing", 'Build the number');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
@@ -1646,11 +1658,11 @@ const TapBinDemo = ({ labels, lang, onDone }) => {
   const done = step >= DEMO_DIG.length;
   const placedN = (i) => i < step || (i === step && sub === 'placed');
   const cap = done
-    ? (lang === 'ru' ? 'Готово — так и делаем!' : "Bo'ldi — shunday qilamiz!")
+    ? (tri(lang, 'Готово — так и делаем!', "Bo'ldi — shunday qilamiz!", 'Ready — that is how we do it!'))
     : `${DEMO_DIG[step]} — ${labels[DEMO_BK[step]]}`;
   return (
     <div className="lm-demo-wrap fade-up" ref={wrapRef}>
-      <div className="lm-demo-goal mono">{lang === 'ru' ? 'Собираем число' : "Sonni yig'amiz"}</div>
+      <div className="lm-demo-goal mono">{tri(lang, 'Собираем число', "Sonni yig'amiz", 'Building the number')}</div>
       <div className="lm-demo-num mono">
         {DEMO_DIG.map((d, i) => (
           <span key={i} className={`lm-demo-num-d ${placedN(i) ? 'lm-demo-num-done' : (i === step ? 'lm-demo-num-on' : '')}`}>{d}</span>
@@ -1769,23 +1781,23 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const sortLabel = lang === 'ru' ? 'Разложи цифры числа' : "Raqamlarni xonalarga ajrating";
+  const sortLabel = tri(lang, 'Разложи цифры числа', 'Raqamlarni xonalarga ajrating', 'Sort the digits of the number');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div ref={wrapRef} style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         {!done && phase === 'demo' && (
           <>
-            <div className="lm-demo-banner mono fade-up">👀 {lang === 'ru' ? 'Смотри — покажу на примере' : "Qara — misolda ko'rsataman"}: {DEMO_NUM}</div>
+            <div className="lm-demo-banner mono fade-up">👀 {tri(lang, 'Смотри — покажу на примере', "Qara — misolda ko'rsataman", 'Watch — I will show an example')}: {DEMO_NUM}</div>
             <TapBinDemo key={replayKey} labels={labels} lang={lang} onDone={() => setDemoDone(true)}/>
             <div className="fade-up" style={{ display: 'flex', gap: 'clamp(8px, 2vw, 12px)', justifyContent: 'center', flexWrap: 'wrap', marginTop: 4 }}>
-              <button className="lm-demo-replay" disabled={!demoDone} onClick={() => { setDemoDone(false); setReplayKey((k) => k + 1); }}>↺ {lang === 'ru' ? 'Ещё раз' : "Yana ko'r"}</button>
-              <button className="btn-white-accent" disabled={!demoDone} onClick={() => setPhase('play')}>{lang === 'ru' ? 'Теперь я сам! →' : "Endi o'zim! →"}</button>
+              <button className="lm-demo-replay" disabled={!demoDone} onClick={() => { setDemoDone(false); setReplayKey((k) => k + 1); }}>↺ {tri(lang, 'Ещё раз', "Yana ko'ring", 'Try again')}</button>
+              <button className="btn-white-accent" disabled={!demoDone} onClick={() => setPhase('play')}>{tri(lang, 'Теперь я сам! →', "Endi o'zim! →", 'Now on my own! →')}</button>
             </div>
           </>
         )}
         {phase === 'play' && (
           <>
-            <div className="lm-play-banner mono fade-up">✋ {lang === 'ru' ? 'Твоя очередь!' : 'Endi sening navbating!'}</div>
+            <div className="lm-play-banner mono fade-up">✋ {tri(lang, 'Твоя очередь!', 'Endi sening navbating!', 'Your turn!')}</div>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(round + 1, S9_NUMS.length)} из ${S9_NUMS.length}` : `${Math.min(round + 1, S9_NUMS.length)}-topshiriq, jami ${S9_NUMS.length}`}</div>
             <h1 className="title h-sub fade-up">{sortLabel}: <span className="mono" style={{ color: T.accent }}>{num}</span></h1>
             <div className="lm-digtray fade-up delay-1">
@@ -1797,7 +1809,7 @@ const Screen9 = (props) => {
             <div className="lm-bins fade-up delay-1">
               {['h', 't', 'o'].map((k) => (
                 <button key={k} className={`lm-bin ${bins[k] !== null ? 'lm-bin-full' : ''} ${sel !== null && bins[k] === null ? 'lm-bin-open' : ''}`}
-                  title={bins[k] !== null ? (lang === 'ru' ? 'Нажми, чтобы убрать цифру' : "Raqamni olib tashlash uchun bosing") : undefined}
+                  title={bins[k] !== null ? (tri(lang, 'Нажми, чтобы убрать цифру', 'Raqamni olib tashlash uchun bosing', 'Tap to remove a digit')) : undefined}
                   disabled={!canAct || checked || flyingIdx !== null || (bins[k] === null && sel === null)}
                   onClick={(e) => (bins[k] !== null ? takeBack(k) : placeInto(k, e))}>
                   <span className="lm-bin-head mono">{labels[k]}</span>
@@ -1914,7 +1926,7 @@ const MCRoundScreen = ({ props, ck, renderFig, cols = 2 }) => {
 };
 const Screen10 = (props) => {
   const lang = useLang();
-  const labels = { h: lang === 'ru' ? 'сотни' : 'yuzlik', t: lang === 'ru' ? 'десятки' : "o'nlik", o: lang === 'ru' ? 'единицы' : 'birlik' };
+  const labels = { h: tri(lang, 'сотни', 'yuzlik', 'hundreds'), t: tri(lang, 'десятки', "o'nlik", 'tens'), o: tri(lang, 'единицы', 'birlik', 'ones') };
   // Figura — energiya konsoli naqshi (bitta belgi + ×son), razryad bloklarini sanash o'rniga:
   // ixcham va o'quvchiga tushunarli. Aksent YO'Q (neutral), qiymat ko'rsatilmaydi (showVal=false),
   // aks holda 300 va 5 javobni tayyor beradi. key — har topshiriqda ×son qayta «pop» qilsin.
@@ -1987,7 +1999,7 @@ const Screen11 = (props) => {
         {it && (
           <>
             <div className="mono fade-up" style={{ textAlign: 'center', color: T.accent, fontWeight: 800 }}>{lang === 'ru' ? `Задание ${Math.min(idx + 1, items.length)} из ${items.length}` : `${Math.min(idx + 1, items.length)}-topshiriq, jami ${items.length}`}</div>
-            <h1 className="title h-sub fade-up">{lang === 'ru' ? 'Поставь знак' : "Belgini qo'ying"}</h1>
+            <h1 className="title h-sub fade-up">{tri(lang, 'Поставь знак', "Belgini qo'ying", 'Put the sign')}</h1>
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(12px, 2.6vw, 20px)', padding: 'clamp(14px, 2.6vw, 20px)' }}>
               <FrameFx/>
               <div className="lm-cmprow">
@@ -2120,7 +2132,7 @@ const ScreenCase = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const askLine = lang === 'ru' ? 'Набери ответ, нажимая цифры:' : 'Raqamlarni bosib javobni tering:';
+  const askLine = tri(lang, 'Набери ответ, нажимая цифры:', 'Raqamlarni bosib javobni tering:', 'Type the answer by tapping the digits:');
   return (
     <Stage eyebrow={s12.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
@@ -2132,7 +2144,7 @@ const ScreenCase = (props) => {
           <div className="lm-report">
             <span className="lm-report-head mono">{t(s12.manifest_label)}</span>
             <div className="lm-report-cols">
-              {[[3, lang === 'ru' ? 'сотни' : 'yuzlik', '#C0392B', '#FBE9E7'], [4, lang === 'ru' ? 'десятки' : "o'nlik", '#1F7A4D', '#E3F0E8'], [6, lang === 'ru' ? 'единицы' : 'birlik', '#019ACB', '#E3F2F8']].map(([n, lbl, col, bg], i) => (
+              {[[3, tri(lang, 'сотни', 'yuzlik', 'hundreds'), '#C0392B', '#FBE9E7'], [4, tri(lang, 'десятки', "o'nlik", 'tens'), '#1F7A4D', '#E3F0E8'], [6, tri(lang, 'единицы', 'birlik', 'ones'), '#019ACB', '#E3F2F8']].map(([n, lbl, col, bg], i) => (
                 <div key={lbl} className="lm-report-col lm-reveal" style={{ animationDelay: `${0.25 + i * 0.3}s` }}>
                   <span className="lm-report-n mono" style={{ color: col, background: bg }}>{n}</span>
                   <span className="lm-report-lbl">{lbl}</span>
@@ -2142,7 +2154,7 @@ const ScreenCase = (props) => {
           </div>
           <p className="fade-up" style={{ margin: 0, textAlign: 'center', color: T.ink2, fontSize: 'clamp(12px, 1.6vw, 14px)', fontWeight: 600 }}>{askLine}</p>
           <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || solved} max={3} state={numState}/>
-          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+          <button className="btn-white-accent" disabled={!canAct || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
         </div>
         {checked && (
           <div ref={revealRef} className={correct ? 'frame-success fade-up' : 'frame-tip fade-up'}>
@@ -2310,7 +2322,7 @@ const Screen14 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
@@ -2400,7 +2412,7 @@ export default function TensUnitsLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2467,7 +2479,7 @@ export default function TensUnitsLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

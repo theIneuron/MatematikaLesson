@@ -71,9 +71,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -244,7 +272,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -285,7 +313,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -897,8 +926,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'div-2-24-v1',
-  lessonTitle: { ru: 'Урок 24. Задачи на деление', uz: "24-dars. Bo'lishga masalalar" }
+  lessonId: 'grade2-24',
+  lessonTitle: { ru: 'Урок 24. Задачи на деление', uz: "24-dars. Bo'lishga masalalar", en: 'Lesson 24. Division problems' }
 };
 // STRUKTURA (Б4 SATURN «lager», bo'lish YAKUNI): s0 hook (syujet masala) · s1–s4 tushuntirish (teng ulashish/guruhlash=÷; qaysi amal ×/÷) · sTBL ÷ jadval-kaliti · s5–s11 mashq (syujet+viz + «qaysi amal?» aralash) · s13 masala · s14 final · s15 xulosa (→ geometriya).
 // MEXANIKA MIKS (metodist «aralash»): syujet masala + meros viz (DealStage s5/s10/s13, NumberLineBackStage s6, FamilyFindStage s7/s14) + YANGI OpChoiceStage («qaysi amal? ×/÷ → javob» s8/s9/s11). ÷ har xil bo'luvchi, butun.
@@ -945,13 +974,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): 12 kristal 2 talik vagonlarga → nechta vagon? 12÷2=6. Distraktor 10 (=12−2)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Задачи на деление', uz: "Mavzu: Bo'lishga masalalar" },
-    lead: { ru: 'Сколько достанется каждому?', uz: "Har biriga nechtadan tegadi?" },
-    q: { ru: '20 кристаллов делят поровну между 5 друзьями. Сколько каждому?', uz: "20 ta kristall 5 do'stga teng ulashiladi. Har biriga nechtadan?" },
-    opt0: { ru: '15', uz: '15' },   // distraktor = 20−5 (ayirish xatosi)
-    opt1: { ru: '4', uz: '4' },     // to'g'ri (20 ni 5 ga teng ulashsak)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Задачи на деление', uz: "Mavzu: Bo'lishga masalalar", en: 'Topic: Division problems' },
+    lead: { ru: 'Сколько достанется каждому?', uz: "Har biriga nechtadan tegadi?", en: 'How many does each one get?' },
+    q: { ru: '20 кристаллов делят поровну между 5 друзьями. Сколько каждому?', uz: "20 ta kristall 5 do'stga teng ulashiladi. Har biriga nechtadan?", en: '20 crystals are shared equally between 5 friends. How many does each one get?' },
+    opt0: { ru: '15', uz: '15', en: '15' },   // distraktor = 20−5 (ayirish xatosi)
+    opt1: { ru: '4', uz: '4', en: '4' },     // to'g'ri (20 ni 5 ga teng ulashsak)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -965,21 +994,22 @@ const CONTENT = {
           "Do'stlar yigirmata kristallni beshtaga teng ulashmoqchi.",
           "Bit so'raydi: har biriga nechta kristall tegadi? Bu yerda bo'lish kerak.",
           "Ikki javobni tinglang. Birinchi, o'n besh. Ikkinchi, to'rt. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['We have learned all the division tables. The crew is resting at the camp by the Saturn mine.', 'The friends want to share twenty crystals equally between five of them.', 'Bit asks how many crystals each one will get. Here you have to divide.', 'Listen to two answers. First, fifteen. Second, four. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Двадцать разделить на пять, по четыре каждому. В задачах ищем, что делят и на сколько.', uz: "To'g'ri. Yigirmani beshga bo'lsak, har biriga to'rttadan. Masalada nimani va nechaga bo'lishni topamiz." },
-      on_wrong: { ru: 'Тут не отнимают, а делят поровну: двадцать на пять это четыре. Сейчас поучимся решать задачи.', uz: "Bu yerda ayirilmaydi, teng ulashiladi: yigirmani beshga bo'lsak to'rt. Hozir masala yechishni o'rganamiz." },
-      on_unknown: { ru: 'Ничего. Научимся понимать задачи на деление.', uz: "Hechqisi yo'q. Bo'lish masalalarini tushunishni o'rganamiz." }
+      on_correct: { ru: 'Верно. Двадцать разделить на пять, по четыре каждому. В задачах ищем, что делят и на сколько.', uz: "To'g'ri. Yigirmani beshga bo'lsak, har biriga to'rttadan. Masalada nimani va nechaga bo'lishni topamiz.", en: 'That is right. Twenty divided by five is four each. In problems we look for what is being shared and between how many.' },
+      on_wrong: { ru: 'Тут не отнимают, а делят поровну: двадцать на пять это четыре. Сейчас поучимся решать задачи.', uz: "Bu yerda ayirilmaydi, teng ulashiladi: yigirmani beshga bo'lsak to'rt. Hozir masala yechishni o'rganamiz.", en: 'Nothing is taken away here, it is shared equally: twenty divided by five is four. Now we will learn to solve these problems.' },
+      on_unknown: { ru: 'Ничего. Научимся понимать задачи на деление.', uz: "Hechqisi yo'q. Bo'lish masalalarini tushunishni o'rganamiz.", en: 'No problem. We will learn to understand division problems.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: TENG ULASHISH masalasi = ÷ (12 kristal 3 do'stga → 4)
   s1: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Делят поровну — это деление.', uz: "Teng ulashsa — bu bo'lish." },
-    body: { ru: '«12 кристаллов раздали поровну 3 друзьям.» Слова «поровну» и «каждому» подсказывают: нужно делить. 12 ÷ 3 = 4 — каждому по 4.', uz: "«12 ta kristall 3 do'stga teng ulashildi.» «Teng» va «har biriga» so'zlari aytadi: bo'lish kerak. 12 ÷ 3 = 4 — har biriga 4 tadan." },
-    info_badge: { ru: 'Ключ', uz: 'Kalit' },
-    info: { ru: 'Раздать поровну, каждому одинаково — это деление.', uz: "Teng ulashish, har biriga barobar — bu bo'lish." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Делят поровну — это деление.', uz: "Teng ulashsa — bu bo'lish.", en: 'Sharing equally means dividing.' },
+    body: { ru: '«12 кристаллов раздали поровну 3 друзьям.» Слова «поровну» и «каждому» подсказывают: нужно делить. 12 ÷ 3 = 4 — каждому по 4.', uz: "«12 ta kristall 3 do'stga teng ulashildi.» «Teng» va «har biriga» so'zlari aytadi: bo'lish kerak. 12 ÷ 3 = 4 — har biriga 4 tadan.", en: '12 crystals were shared equally between 3 friends. The words equally and each tell you that you have to divide. 12 ÷ 3 = 4, so 4 each.' },
+    info_badge: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    info: { ru: 'Раздать поровну, каждому одинаково — это деление.', uz: "Teng ulashish, har biriga barobar — bu bo'lish.", en: 'Sharing equally, the same for everyone, means dividing.' },
     audio: {
       ru: [
         'В задаче двенадцать кристаллов раздали поровну трём друзьям.',
@@ -990,16 +1020,17 @@ const CONTENT = {
         "Masalada o'n ikkita kristall uch do'stga teng ulashildi.",
         "Teng va har biriga so'zlari aytadi: bo'lish kerak.",
         "O'n ikkini uchga bo'lsak to'rt. Har biriga to'rttadan kristall."
-      ]
+      ],
+      en: ['In the problem twelve crystals were shared equally between three friends.', 'The words equally and each tell you that you have to divide.', 'Twelve divided by three is four. Four crystals each.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: GURUHLASH masalasi = ÷ (15 kristal, 5 tadan qutiga → 3 quti; son o'qi)
   s2: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Разложить по группам — тоже деление.', uz: "Guruhlarga terish — ham bo'lish." },
-    info_badge: { ru: 'Ключ', uz: 'Kalit' },
-    info: { ru: '«По 5 в каждую коробку» — считаем, сколько коробок: 15 ÷ 5 = 3.', uz: "«Har qutiga 5 tadan» — nechta quti ekanini sanaymiz: 15 ÷ 5 = 3." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Разложить по группам — тоже деление.', uz: "Guruhlarga terish — ham bo'lish.", en: 'Putting things into groups is dividing too.' },
+    info_badge: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    info: { ru: '«По 5 в каждую коробку» — считаем, сколько коробок: 15 ÷ 5 = 3.', uz: "«Har qutiga 5 tadan» — nechta quti ekanini sanaymiz: 15 ÷ 5 = 3.", en: '5 in each box, so we work out how many boxes: 15 ÷ 5 = 3.' },
     audio: {
       ru: [
         'Другая задача: пятнадцать кристаллов кладут по пять в каждую коробку.',
@@ -1010,18 +1041,19 @@ const CONTENT = {
         "Boshqa masala: o'n besh kristall har qutiga beshtadan solinadi.",
         "Nechta quti chiqishini so'rashadi. O'n beshdan orqaga beshtadan sakraymiz.",
         "O'n beshni beshga bo'lsak uch. Uchta quti chiqadi. Bu ham bo'lish."
-      ]
+      ],
+      en: ['Another problem: fifteen crystals are put into boxes, five in each.', 'It asks how many boxes there will be. We jump back in fives from fifteen.', 'Fifteen divided by five is three. There will be three boxes. That is dividing too.']
     }
   },
 
   // s3 — QOIDA: bo'lish = teng ulashish, ÷ belgi kiritiladi + check MC (8÷2=4)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Слова «поровну», «каждому» — значит деление.', uz: "«Teng», «har biriga» so'zlari — demak bo'lish." },
-    check_q: { ru: '18 кристаллов раздали поровну 3 друзьям. Сколько каждому?', uz: "18 ta kristall 3 do'stga teng ulashildi. Har biriga nechta?" },
-    opts: [{ ru: '6', uz: '6', ok: true }, { ru: '9', uz: '9' }, { ru: '5', uz: '5' }],
-    wrong: { ru: 'Раздают поровну — это деление: 18 ÷ 3.', uz: "Teng ulashilyapti — bu bo'lish: 18 ÷ 3." },
-    check_ok: { ru: 'Верно! 18 ÷ 3 = 6.', uz: "To'g'ri! 18 ÷ 3 = 6." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Слова «поровну», «каждому» — значит деление.', uz: "«Teng», «har biriga» so'zlari — demak bo'lish.", en: 'The words equally and each mean dividing.' },
+    check_q: { ru: '18 кристаллов раздали поровну 3 друзьям. Сколько каждому?', uz: "18 ta kristall 3 do'stga teng ulashildi. Har biriga nechta?", en: '18 crystals were shared equally between 3 friends. How many does each one get?' },
+    opts: [{ ru: '6', uz: '6', en: '6', ok: true }, { ru: '9', uz: '9', en: '9' }, { ru: '5', uz: '5', en: '5' }],
+    wrong: { ru: 'Раздают поровну — это деление: 18 ÷ 3.', uz: "Teng ulashilyapti — bu bo'lish: 18 ÷ 3.", en: 'They are shared equally, so it is dividing: 18 ÷ 3.' },
+    check_ok: { ru: 'Верно! 18 ÷ 3 = 6.', uz: "To'g'ri! 18 ÷ 3 = 6.", en: 'That is right! 18 ÷ 3 = 6.' },
     audio: {
       ru: [
         'Запишем главное. Слушай и запомни.',
@@ -1034,20 +1066,21 @@ const CONTENT = {
         "Masalada so'zlarni izlang: teng, har biriga, har biriga shuncha.",
         "Teng qismlarga bo'linsa yoki ulashilsa, bu bo'lish.",
         "Tekshir. O'n sakkiz kristall uch do'stga teng ulashildi. Har biriga nechta?"
-      ]
+      ],
+      en: ['Let us write down the main thing. Listen and remember.', 'In a problem look for the words equally, each, and so many in each.', 'If something is shared or split into equal parts, it is dividing.', 'Check it. Eighteen crystals were shared equally between three friends. How many each?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3: QAYSI AMAL — × jami topadi, ÷ ulush/guruh topadi + check (24÷4=6)
   s4: {
-    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?' },
-    lead: { ru: 'Умножить или разделить?', uz: "Ko'paytirish yoki bo'lish?" },
-    body: { ru: 'Если собираем равные группы и ищем ВСЕГО — умножаем. Если делят целое на равные части — делим. «24 кристалла на 4 ящика поровну» — ищем часть, значит 24 ÷ 4 = 6.', uz: "Teng guruhlarni yig'ib JAMINI izlasak — ko'paytiramiz. Butunni teng qismlarga bo'lsak — bo'lamiz. «24 kristall 4 qutiga teng» — ulushni izlaymiz, demak 24 ÷ 4 = 6." },
-    warn: { ru: 'Делят поровну — деление. Собирают группы для «всего» — умножение.', uz: "Teng ulashsa — bo'lish. Guruhlarni «jami» uchun yig'sa — ko'paytirish." },
-    check_q: { ru: '24 кристалла разложили в 4 ящика поровну. Сколько в ящике?', uz: "24 ta kristall 4 qutiga teng terildi. Qutida nechta?" },
-    opts: [{ ru: '6', uz: '6', ok: true }, { ru: '8', uz: '8' }, { ru: '5', uz: '5' }],
-    wrong: { ru: 'Целое делят на 4 равные части: 24 ÷ 4.', uz: "Butun 4 teng qismga bo'linyapti: 24 ÷ 4." },
-    check_ok: { ru: 'Верно! 24 ÷ 4 = 6.', uz: "To'g'ri! 24 ÷ 4 = 6." },
+    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?', en: 'Which operation?' },
+    lead: { ru: 'Умножить или разделить?', uz: "Ko'paytirish yoki bo'lish?", en: 'Multiply or divide?' },
+    body: { ru: 'Если собираем равные группы и ищем ВСЕГО — умножаем. Если делят целое на равные части — делим. «24 кристалла на 4 ящика поровну» — ищем часть, значит 24 ÷ 4 = 6.', uz: "Teng guruhlarni yig'ib JAMINI izlasak — ko'paytiramiz. Butunni teng qismlarga bo'lsak — bo'lamiz. «24 kristall 4 qutiga teng» — ulushni izlaymiz, demak 24 ÷ 4 = 6.", en: 'If we are putting equal groups together and looking for the TOTAL, we multiply. If a whole is being shared into equal parts, we divide. 24 crystals into 4 boxes equally, we are looking for a part, so 24 ÷ 4 = 6.' },
+    warn: { ru: 'Делят поровну — деление. Собирают группы для «всего» — умножение.', uz: "Teng ulashsa — bo'lish. Guruhlarni «jami» uchun yig'sa — ko'paytirish.", en: 'Shared equally means dividing. Groups put together for a total means multiplying.' },
+    check_q: { ru: '24 кристалла разложили в 4 ящика поровну. Сколько в ящике?', uz: "24 ta kristall 4 qutiga teng terildi. Qutida nechta?", en: '24 crystals were put into 4 boxes equally. How many are in a box?' },
+    opts: [{ ru: '6', uz: '6', en: '6', ok: true }, { ru: '8', uz: '8', en: '8' }, { ru: '5', uz: '5', en: '5' }],
+    wrong: { ru: 'Целое делят на 4 равные части: 24 ÷ 4.', uz: "Butun 4 teng qismga bo'linyapti: 24 ÷ 4.", en: 'The whole is shared into 4 equal parts: 24 ÷ 4.' },
+    check_ok: { ru: 'Верно! 24 ÷ 4 = 6.', uz: "To'g'ri! 24 ÷ 4 = 6.", en: 'That is right! 24 ÷ 4 = 6.' },
     audio: {
       ru: [
         'Иногда нужно решить: умножить или разделить.',
@@ -1060,16 +1093,17 @@ const CONTENT = {
         "Teng guruhlarni yig'ib jamini izlasak, ko'paytiramiz. Butunni teng qismlarga bo'lsak, bo'lamiz.",
         "Yigirma to'rt kristall to'rt qutiga teng. Qutida nechta ekanini izlaymiz, demak bo'lamiz.",
         "Tekshir. Yigirma to'rt kristall to'rt qutiga teng terildi. Qutida nechta?"
-      ]
+      ],
+      en: ['Sometimes you have to decide whether to multiply or divide.', 'If we put equal groups together and look for the total, we multiply. If a whole is shared into equal parts, we divide.', 'Twenty four crystals into four boxes equally. We are looking for how many are in a box, so we divide.', 'Check it. Twenty four crystals were put into four boxes equally. How many are in a box?']
     }
   },
 
   // sTBL — TUSHUNTIRISH: BO'LISH KALITI (masalada bo'lishni tanish) + jadval-yordamchi
   sTBL: {
-    eyebrow: { ru: 'Ключ', uz: 'Kalit' },
-    lead: { ru: 'Когда это деление?', uz: "Qachon bu bo'lish?" },
-    info_badge: { ru: 'Ключ', uz: 'Kalit' },
-    info: { ru: 'Делят поровну или на равные группы — это деление.', uz: "Teng ulashilsa yoki teng guruhlarga bo'linsa — bu bo'lish." },
+    eyebrow: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    lead: { ru: 'Когда это деление?', uz: "Qachon bu bo'lish?", en: 'When is it dividing?' },
+    info_badge: { ru: 'Ключ', uz: 'Kalit', en: 'The key' },
+    info: { ru: 'Делят поровну или на равные группы — это деление.', uz: "Teng ulashilsa yoki teng guruhlarga bo'linsa — bu bo'lish.", en: 'Shared equally or into equal groups means dividing.' },
     audio: {
       ru: [
         'Запомни ключ: задача про деление, если раздают поровну или разбивают на равные группы.',
@@ -1080,209 +1114,213 @@ const CONTENT = {
         "Kalitni yodlang: masala bo'lish haqida, agar teng ulashilsa yoki teng guruhlarga bo'linsa.",
         "Teng, har biriga, har biriga shuncha so'zlari, bu bo'lish.",
         "Bu bo'lish jadvallarini esa doim yordam uchun ochsa bo'ladi."
-      ]
+      ],
+      en: ['Remember the key: a problem is about dividing if something is shared equally or split into equal groups.', 'The words equally, each, and so many in each all mean dividing.', 'And you can always open these division tables if you need help.']
     }
   },
 
   // s5 — MASHQ syujet ULASHISH (DealStage): 24 kristal 4 do'stga → 6
   s5: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Раздели поровну.', uz: "Teng ulashing." },
-    transition: { ru: 'Объяснение закончили. Теперь порешаем задачи на деление.', uz: "Tushuntirishni tugatdik. Endi bo'lish masalalarini yechamiz." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Раздели поровну.', uz: "Teng ulashing.", en: 'Share them equally.' },
+    transition: { ru: 'Объяснение закончили. Теперь порешаем задачи на деление.', uz: "Tushuntirishni tugatdik. Endi bo'lish masalalarini yechamiz.", en: 'We have finished explaining. Now let us solve some division problems.' },
     total: 24, groups: 4,
-    story: { ru: '24 кристалла раздали поровну 4 друзьям. Сколько каждому?', uz: "24 ta kristall 4 do'stga teng ulashildi. Har biriga nechta?" },
-    wrong: { ru: 'Раздают поровну на 4 — это 24 ÷ 4.', uz: "4 ga teng ulashilyapti — bu 24 ÷ 4." },
-    done_text: { ru: 'Верно! 24 ÷ 4 = 6.', uz: "To'g'ri! 24 ÷ 4 = 6." },
+    story: { ru: '24 кристалла раздали поровну 4 друзьям. Сколько каждому?', uz: "24 ta kristall 4 do'stga teng ulashildi. Har biriga nechta?", en: '24 crystals were shared equally between 4 friends. How many does each one get?' },
+    wrong: { ru: 'Раздают поровну на 4 — это 24 ÷ 4.', uz: "4 ga teng ulashilyapti — bu 24 ÷ 4.", en: 'They are shared equally between 4, so it is 24 ÷ 4.' },
+    done_text: { ru: 'Верно! 24 ÷ 4 = 6.', uz: "To'g'ri! 24 ÷ 4 = 6.", en: 'That is right! 24 ÷ 4 = 6.' },
     audio: {
-      intro: { ru: 'Двадцать четыре кристалла раздали поровну четырём друзьям. Сколько достанется каждому?', uz: "Yigirma to'rt kristall to'rt do'stga teng ulashildi. Har biriga nechta tegadi?" },
-      on_correct: { ru: 'Верно. Каждому по шесть.', uz: "To'g'ri. Har biriga oltitadan." },
-      on_wrong: { ru: 'Раздай двадцать четыре на четверых поровну.', uz: "Yigirma to'rtni to'rt kishiga teng tarqating." }
+      intro: { ru: 'Двадцать четыре кристалла раздали поровну четырём друзьям. Сколько достанется каждому?', uz: "Yigirma to'rt kristall to'rt do'stga teng ulashildi. Har biriga nechta tegadi?", en: 'Twenty four crystals were shared equally between four friends. How many does each one get?' },
+      on_correct: { ru: 'Верно. Каждому по шесть.', uz: "To'g'ri. Har biriga oltitadan.", en: 'That is right. Six each.' },
+      on_wrong: { ru: 'Раздай двадцать четыре на четверых поровну.', uz: "Yigirma to'rtni to'rt kishiga teng tarqating.", en: 'Share twenty four equally between four.' }
     }
   },
 
   // s6 — MASHQ syujet GURUHLASH (NumberLineBack): 21 kristal, har qutiga 3 → 7 quti
   s6: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Сколько коробок?', uz: "Nechta quti?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Сколько коробок?', uz: "Nechta quti?", en: 'How many boxes?' },
     total: 21, step: 3,
-    story: { ru: '21 кристалл раскладывают по 3 в коробку. Сколько коробок?', uz: "21 ta kristall har qutiga 3 tadan terilyapti. Nechta quti?" },
-    wrong: { ru: 'Прыгай назад по 3 от 21 до 0 и считай прыжки.', uz: "21 dan 0 gacha 3 talik orqaga sakrab, sakrashlarni sanang." },
-    done_text: { ru: 'Верно! 21 ÷ 3 = 7.', uz: "To'g'ri! 21 ÷ 3 = 7." },
+    story: { ru: '21 кристалл раскладывают по 3 в коробку. Сколько коробок?', uz: "21 ta kristall har qutiga 3 tadan terilyapti. Nechta quti?", en: '21 crystals are put into boxes, 3 in each. How many boxes?' },
+    wrong: { ru: 'Прыгай назад по 3 от 21 до 0 и считай прыжки.', uz: "21 dan 0 gacha 3 talik orqaga sakrab, sakrashlarni sanang.", en: 'Jump back in 3s from 21 to 0 and count the jumps.' },
+    done_text: { ru: 'Верно! 21 ÷ 3 = 7.', uz: "To'g'ri! 21 ÷ 3 = 7.", en: 'That is right! 21 ÷ 3 = 7.' },
     audio: {
-      intro: { ru: 'Двадцать один кристалл кладут по три в коробку. Сколько выйдет коробок? Прыгай назад по три.', uz: "Yigirma bir kristall har qutiga uchtadan solinadi. Nechta quti chiqadi? Orqaga uch talik sakrang." },
-      on_correct: { ru: 'Верно. Семь коробок.', uz: "To'g'ri. Yettita quti." },
-      on_wrong: { ru: 'Считай тройки: сколько их в двадцати одном.', uz: "Uchliklarni sanang: yigirma birda nechta." }
+      intro: { ru: 'Двадцать один кристалл кладут по три в коробку. Сколько выйдет коробок? Прыгай назад по три.', uz: "Yigirma bir kristall har qutiga uchtadan solinadi. Nechta quti chiqadi? Orqaga uch talik sakrang.", en: 'Twenty one crystals are put into boxes, three in each. How many boxes will there be? Jump back in threes.' },
+      on_correct: { ru: 'Верно. Семь коробок.', uz: "To'g'ri. Yettita quti.", en: 'That is right. Seven boxes.' },
+      on_wrong: { ru: 'Считай тройки: сколько их в двадцати одном.', uz: "Uchliklarni sanang: yigirma birda nechta.", en: 'Count the threes: how many of them are in twenty one.' }
     }
   },
 
   // s7 — MASHQ syujet ×↔÷ (FamilyFind): massiv 6×4=24 → 24÷6=4
   s7: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
     a: 6, b: 4, by: 6,
-    story: { ru: 'Кристаллы сложили в массив 6 × 4 = 24. Сколько в каждом из 6 рядов?', uz: "Kristallar 6 × 4 = 24 massivga terildi. 6 qatorning har birida nechta?" },
-    wrong: { ru: '6 × 4 = 24, значит 24 ÷ 6 = 4.', uz: "6 × 4 = 24, demak 24 ÷ 6 = 4." },
-    done_text: { ru: 'Верно! 24 ÷ 6 = 4.', uz: "To'g'ri! 24 ÷ 6 = 4." },
+    story: { ru: 'Кристаллы сложили в массив 6 × 4 = 24. Сколько в каждом из 6 рядов?', uz: "Kristallar 6 × 4 = 24 massivga terildi. 6 qatorning har birida nechta?", en: 'The crystals were laid out in an array, 6 × 4 = 24. How many are in each of the 6 rows?' },
+    wrong: { ru: '6 × 4 = 24, значит 24 ÷ 6 = 4.', uz: "6 × 4 = 24, demak 24 ÷ 6 = 4.", en: '6 × 4 = 24, so 24 ÷ 6 = 4.' },
+    done_text: { ru: 'Верно! 24 ÷ 6 = 4.', uz: "To'g'ri! 24 ÷ 6 = 4.", en: 'That is right! 24 ÷ 6 = 4.' },
     audio: {
-      intro: { ru: 'Кристаллы сложили в шесть рядов по четыре, всего двадцать четыре. Сколько в каждом ряду? Найди через умножение.', uz: "Kristallar olti qatorga to'rttadan terildi, jami yigirma to'rt. Har qatorda nechta? Ko'paytirish orqali toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Шесть умножить на сколько будет двадцать четыре?', uz: "Oltini nechaga ko'paytirsak yigirma to'rt bo'ladi?" }
+      intro: { ru: 'Кристаллы сложили в шесть рядов по четыре, всего двадцать четыре. Сколько в каждом ряду? Найди через умножение.', uz: "Kristallar olti qatorga to'rttadan terildi, jami yigirma to'rt. Har qatorda nechta? Ko'paytirish orqali toping.", en: 'The crystals were laid out in six rows of four, twenty four in all. How many are in each row? Find it through the multiplying.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Шесть умножить на сколько будет двадцать четыре?', uz: "Oltini nechaga ko'paytirsak yigirma to'rt bo'ladi?", en: 'Six times what makes twenty four?' }
     }
   },
 
   // s8 — MASHQ «QAYSI AMAL?» (OpChoice): 18 kristal 3 do'stga → ÷, 18÷3=6
   s8: {
-    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?' },
-    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang." },
-    story: { ru: '18 кристаллов делят поровну между 3 экипажами. Сколько каждому?', uz: "18 ta kristall 3 ekipajga teng ulashiladi. Har biriga nechta?" },
+    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?', en: 'Which operation?' },
+    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang.", en: 'First choose the operation.' },
+    story: { ru: '18 кристаллов делят поровну между 3 экипажами. Сколько каждому?', uz: "18 ta kristall 3 ekipajga teng ulashiladi. Har biriga nechta?", en: '18 crystals are shared equally between 3 crews. How many does each one get?' },
     total: 18, div: 3,
-    wrong_op: { ru: 'Здесь делят поровну — нужно деление, а не умножение.', uz: "Bu yerda teng ulashilyapti — bo'lish kerak, ko'paytirish emas." },
-    wrong: { ru: 'Раздай 18 на троих поровну.', uz: "18 ni uch kishiga teng tarqating." },
-    done_text: { ru: 'Верно! 18 ÷ 3 = 6.', uz: "To'g'ri! 18 ÷ 3 = 6." },
+    wrong_op: { ru: 'Здесь делят поровну — нужно деление, а не умножение.', uz: "Bu yerda teng ulashilyapti — bo'lish kerak, ko'paytirish emas.", en: 'Here they are shared equally, so you need dividing, not multiplying.' },
+    wrong: { ru: 'Раздай 18 на троих поровну.', uz: "18 ni uch kishiga teng tarqating.", en: 'Share 18 equally between three.' },
+    done_text: { ru: 'Верно! 18 ÷ 3 = 6.', uz: "To'g'ri! 18 ÷ 3 = 6.", en: 'That is right! 18 ÷ 3 = 6.' },
     audio: {
-      intro: { ru: 'Восемнадцать кристаллов делят поровну на три экипажа. Сначала выбери, какое действие нужно, потом посчитай.', uz: "O'n sakkiz kristall uch ekipajga teng ulashiladi. Avval qaysi amal kerakligini tanlang, keyin hisoblang." },
-      on_correct: { ru: 'Верно. Каждому по шесть.', uz: "To'g'ri. Har biriga oltitadan." },
-      on_wrong: { ru: 'Делят поровну, это деление.', uz: "Teng ulashilyapti, bu bo'lish." }
+      intro: { ru: 'Восемнадцать кристаллов делят поровну на три экипажа. Сначала выбери, какое действие нужно, потом посчитай.', uz: "O'n sakkiz kristall uch ekipajga teng ulashiladi. Avval qaysi amal kerakligini tanlang, keyin hisoblang.", en: 'Eighteen crystals are shared equally between three crews. First choose which operation you need, then work it out.' },
+      on_correct: { ru: 'Верно. Каждому по шесть.', uz: "To'g'ri. Har biriga oltitadan.", en: 'That is right. Six each.' },
+      on_wrong: { ru: 'Делят поровну, это деление.', uz: "Teng ulashilyapti, bu bo'lish.", en: 'They are shared equally, so it is dividing.' }
     }
   },
 
   // s9 — MASHQ «QAYSI AMAL?» (OpChoice): 30 kristal 5 qutiga → ÷, 30÷5=6
   s9: {
-    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?' },
-    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang." },
-    story: { ru: '30 кристаллов разложили поровну в 5 ящиков. Сколько в каждом?', uz: "30 ta kristall 5 qutiga teng terildi. Har birida nechta?" },
+    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?', en: 'Which operation?' },
+    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang.", en: 'First choose the operation.' },
+    story: { ru: '30 кристаллов разложили поровну в 5 ящиков. Сколько в каждом?', uz: "30 ta kristall 5 qutiga teng terildi. Har birida nechta?", en: '30 crystals were put equally into 5 boxes. How many are in each?' },
     total: 30, div: 5,
-    wrong_op: { ru: 'Целое разбивают на равные части — это деление.', uz: "Butun teng qismlarga bo'linyapti — bu bo'lish." },
-    wrong: { ru: 'Раздели 30 на 5 поровну.', uz: "30 ni 5 ga teng bo'ling." },
-    done_text: { ru: 'Верно! 30 ÷ 5 = 6.', uz: "To'g'ri! 30 ÷ 5 = 6." },
+    wrong_op: { ru: 'Целое разбивают на равные части — это деление.', uz: "Butun teng qismlarga bo'linyapti — bu bo'lish.", en: 'A whole is being split into equal parts, so it is dividing.' },
+    wrong: { ru: 'Раздели 30 на 5 поровну.', uz: "30 ni 5 ga teng bo'ling.", en: 'Share 30 equally between 5.' },
+    done_text: { ru: 'Верно! 30 ÷ 5 = 6.', uz: "To'g'ri! 30 ÷ 5 = 6.", en: 'That is right! 30 ÷ 5 = 6.' },
     audio: {
-      intro: { ru: 'Тридцать кристаллов разложили поровну в пять ящиков. Выбери действие и посчитай.', uz: "O'ttiz kristall besh qutiga teng terildi. Amalni tanlang va hisoblang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Тридцать на пять поровну.', uz: "O'ttizni beshga teng bo'ling." }
+      intro: { ru: 'Тридцать кристаллов разложили поровну в пять ящиков. Выбери действие и посчитай.', uz: "O'ttiz kristall besh qutiga teng terildi. Amalni tanlang va hisoblang.", en: 'Thirty crystals were put equally into five boxes. Choose the operation and work it out.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Тридцать на пять поровну.', uz: "O'ttizni beshga teng bo'ling.", en: 'Thirty shared equally between five.' }
     }
   },
 
   // s10 — MASHQ syujet ULASHISH (DealStage): 28 kristal 7 do'stga → 4
   s10: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Раздели поровну.', uz: "Teng ulashing." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Раздели поровну.', uz: "Teng ulashing.", en: 'Share them equally.' },
     total: 28, groups: 7,
-    story: { ru: '28 кристаллов раздали поровну 7 друзьям. Сколько каждому?', uz: "28 ta kristall 7 do'stga teng ulashildi. Har biriga nechta?" },
-    wrong: { ru: 'Раздай 28 на семерых поровну.', uz: "28 ni yetti kishiga teng tarqating." },
-    done_text: { ru: 'Верно! 28 ÷ 7 = 4.', uz: "To'g'ri! 28 ÷ 7 = 4." },
+    story: { ru: '28 кристаллов раздали поровну 7 друзьям. Сколько каждому?', uz: "28 ta kristall 7 do'stga teng ulashildi. Har biriga nechta?", en: '28 crystals were shared equally between 7 friends. How many does each one get?' },
+    wrong: { ru: 'Раздай 28 на семерых поровну.', uz: "28 ni yetti kishiga teng tarqating.", en: 'Share 28 equally between seven.' },
+    done_text: { ru: 'Верно! 28 ÷ 7 = 4.', uz: "To'g'ri! 28 ÷ 7 = 4.", en: 'That is right! 28 ÷ 7 = 4.' },
     audio: {
-      intro: { ru: 'Двадцать восемь кристаллов раздали поровну семи друзьям. Сколько достанется каждому?', uz: "Yigirma sakkiz kristall yetti do'stga teng ulashildi. Har biriga nechta tegadi?" },
-      on_correct: { ru: 'Верно. Каждому по четыре.', uz: "To'g'ri. Har biriga to'rttadan." },
-      on_wrong: { ru: 'Семь умножить на сколько будет двадцать восемь?', uz: "Yettini nechaga ko'paytirsak yigirma sakkiz bo'ladi?" }
+      intro: { ru: 'Двадцать восемь кристаллов раздали поровну семи друзьям. Сколько достанется каждому?', uz: "Yigirma sakkiz kristall yetti do'stga teng ulashildi. Har biriga nechta tegadi?", en: 'Twenty eight crystals were shared equally between seven friends. How many does each one get?' },
+      on_correct: { ru: 'Верно. Каждому по четыре.', uz: "To'g'ri. Har biriga to'rttadan.", en: 'That is right. Four each.' },
+      on_wrong: { ru: 'Семь умножить на сколько будет двадцать восемь?', uz: "Yettini nechaga ko'paytirsak yigirma sakkiz bo'ladi?", en: 'Seven times what makes twenty eight?' }
     }
   },
 
   // s11 — MASHQ «QAYSI AMAL?» (OpChoice): 24 kristal 8 do'stga → ÷, 24÷8=3
   s11: {
-    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?' },
-    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang." },
-    story: { ru: '24 кристалла раздали поровну 8 друзьям. Сколько каждому?', uz: "24 ta kristall 8 do'stga teng ulashildi. Har biriga nechta?" },
+    eyebrow: { ru: 'Какое действие?', uz: 'Qaysi amal?', en: 'Which operation?' },
+    lead: { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang.", en: 'First choose the operation.' },
+    story: { ru: '24 кристалла раздали поровну 8 друзьям. Сколько каждому?', uz: "24 ta kristall 8 do'stga teng ulashildi. Har biriga nechta?", en: '24 crystals were shared equally between 8 friends. How many does each one get?' },
     total: 24, div: 8,
-    wrong_op: { ru: 'Раздают поровну — это деление.', uz: "Teng ulashilyapti — bu bo'lish." },
-    wrong: { ru: 'Раздели 24 на 8 поровну.', uz: "24 ni 8 ga teng bo'ling." },
-    done_text: { ru: 'Верно! 24 ÷ 8 = 3.', uz: "To'g'ri! 24 ÷ 8 = 3." },
+    wrong_op: { ru: 'Раздают поровну — это деление.', uz: "Teng ulashilyapti — bu bo'lish.", en: 'They are shared equally, so it is dividing.' },
+    wrong: { ru: 'Раздели 24 на 8 поровну.', uz: "24 ni 8 ga teng bo'ling.", en: 'Share 24 equally between 8.' },
+    done_text: { ru: 'Верно! 24 ÷ 8 = 3.', uz: "To'g'ri! 24 ÷ 8 = 3.", en: 'That is right! 24 ÷ 8 = 3.' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Двадцать четыре на восемь друзей поровну. Выбери действие и посчитай.', uz: "Masaladan oldingi oxirgi mashq. Yigirma to'rt kristall sakkiz do'stga teng. Amalni tanlang va hisoblang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Делят поровну, деление.', uz: "Teng ulashilyapti, bo'lish." }
+      intro: { ru: 'Последняя тренировка перед задачей. Двадцать четыре на восемь друзей поровну. Выбери действие и посчитай.', uz: "Masaladan oldingi oxirgi mashq. Yigirma to'rt kristall sakkiz do'stga teng. Amalni tanlang va hisoblang.", en: 'The last practice before the task. Twenty four shared equally between eight friends. Choose the operation and work it out.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Делят поровну, деление.', uz: "Teng ulashilyapti, bo'lish.", en: 'Shared equally, so dividing.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi." },
-    manifest_label: { ru: 'добыча', uz: "o'lja" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi.", en: 'Zuhra is sharing out the crystals.' },
+    manifest_label: { ru: 'добыча', uz: "o'lja", en: 'the haul' },
     audio: {
       ru: 'Зухра делит добычу поровну.',
-      uz: "Zuhra o'ljani teng ulashadi."
+      uz: "Zuhra o'ljani teng ulashadi.",
+      en: 'Zuhra is sharing the haul equally.'
     }
   },
 
   // s13 — MASALA (scored, DealStage): Zuhra 32 kristalni 8 do'stga teng → 4
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering.", en: 'Help Zuhra.' },
     total: 32, groups: 8,
-    story: { ru: 'Зухра раздаёт 32 кристалла поровну 8 друзьям. Сколько каждому?', uz: "Zuhra 32 ta kristallni 8 do'stga teng ulashadi. Har biriga nechta?" },
-    wrong: { ru: 'Раздай 32 на восьмерых поровну.', uz: "32 ni sakkiz kishiga teng tarqating." },
-    done_text: { ru: 'Верно! 32 ÷ 8 = 4.', uz: "To'g'ri! 32 ÷ 8 = 4." },
+    story: { ru: 'Зухра раздаёт 32 кристалла поровну 8 друзьям. Сколько каждому?', uz: "Zuhra 32 ta kristallni 8 do'stga teng ulashadi. Har biriga nechta?", en: 'Zuhra is sharing 32 crystals equally between 8 friends. How many does each one get?' },
+    wrong: { ru: 'Раздай 32 на восьмерых поровну.', uz: "32 ni sakkiz kishiga teng tarqating.", en: 'Share 32 equally between eight.' },
+    done_text: { ru: 'Верно! 32 ÷ 8 = 4.', uz: "To'g'ri! 32 ÷ 8 = 4.", en: 'That is right! 32 ÷ 8 = 4.' },
     audio: {
-      intro: { ru: 'Помоги Зухре. Она раздаёт тридцать два кристалла поровну восьми друзьям. Сколько достанется каждому?', uz: "Zuhraga yordam bering. U o'ttiz ikki kristallni sakkiz do'stga teng ulashadi. Har biriga nechta tegadi?" },
-      on_correct: { ru: 'Верно. Каждому по четыре.', uz: "To'g'ri. Har biriga to'rttadan." },
-      on_wrong: { ru: 'Восемь умножить на сколько будет тридцать два?', uz: "Sakkizni nechaga ko'paytirsak o'ttiz ikki bo'ladi?" }
+      intro: { ru: 'Помоги Зухре. Она раздаёт тридцать два кристалла поровну восьми друзьям. Сколько достанется каждому?', uz: "Zuhraga yordam bering. U o'ttiz ikki kristallni sakkiz do'stga teng ulashadi. Har biriga nechta tegadi?", en: 'Help Zuhra. She is sharing thirty two crystals equally between eight friends. How many does each one get?' },
+      on_correct: { ru: 'Верно. Каждому по четыре.', uz: "To'g'ri. Har biriga to'rttadan.", en: 'That is right. Four each.' },
+      on_wrong: { ru: 'Восемь умножить на сколько будет тридцать два?', uz: "Sakkizni nechaga ko'paytirsak o'ttiz ikki bo'ladi?", en: 'Eight times what makes thirty two?' }
     }
   },
 
   // s14 — FINAL (scored, 3 round OILA-TOP + FactCard Saturn): 32÷4=8, 35÷5=7, 20÷4=5
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
     rounds: [ { a: 8, b: 7, by: 8 }, { a: 9, b: 8, by: 9 }, { a: 6, b: 9, by: 6 } ],
-    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'В сутках Сатурна всего около 10 часов — планета крутится очень быстро, хотя она огромная.', uz: "Saturn sutkasi bor-yo'g'i 10 soatcha — sayyora juda tez aylanadi, garchi u ulkan bo'lsa ham." },
-    fact_audio: { ru: 'Сатурн, огромная планета, но крутится очень быстро: сутки на нём длятся всего около десяти часов.', uz: "Saturn ulkan sayyora, lekin juda tez aylanadi: undagi sutka bor-yo'g'i o'n soatcha davom etadi." },
+    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang.", en: 'Remember the multiplying in the family.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'В сутках Сатурна всего около 10 часов — планета крутится очень быстро, хотя она огромная.', uz: "Saturn sutkasi bor-yo'g'i 10 soatcha — sayyora juda tez aylanadi, garchi u ulkan bo'lsa ham.", en: 'A day on Saturn is only about 10 hours long. The planet spins very fast even though it is huge.' },
+    fact_audio: { ru: 'Сатурн, огромная планета, но крутится очень быстро: сутки на нём длятся всего около десяти часов.', uz: "Saturn ulkan sayyora, lekin juda tez aylanadi: undagi sutka bor-yo'g'i o'n soatcha davom etadi.", en: 'Saturn is a huge planet but it spins very fast: a day there lasts only about ten hours.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Найди деление через умножение.', uz: "Yakuniy tekshiruv. Ko'paytirish orqali bo'lishni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?" }
+      intro: { ru: 'Финальная проверка. Найди деление через умножение.', uz: "Yakuniy tekshiruv. Ko'paytirish orqali bo'lishni toping.", en: 'The final check. Find the dividing through the multiplying.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?", en: 'This number times what makes the number being shared?' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: ÷4 va ÷5)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь решать задачи на деление!', uz: "Endi siz bo'lishga masalalar yecha olasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты умеешь решать задачи на деление!', uz: "Endi siz bo'lishga masalalar yecha olasiz!", en: 'Now you can solve division problems!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Делят поровну или на равные группы — это деление.', uz: "Teng ulashilsa yoki teng guruhlarga bo'linsa — bu bo'lish." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'уроки 19–23: деление', uz: "19–23-darslar: bo'lish" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: геометрия и длина', uz: "keyingi: geometriya va uzunlik" },
+    rule_recap: { ru: 'Делят поровну или на равные группы — это деление.', uz: "Teng ulashilsa yoki teng guruhlarga bo'linsa — bu bo'lish.", en: 'Shared equally or into equal groups means dividing.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'уроки 19–23: деление', uz: "19–23-darslar: bo'lish", en: 'lessons 19-23: dividing' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: геометрия и длина', uz: "keyingi: geometriya va uzunlik", en: 'next: shapes and length' },
     audio: {
       ru: 'Миссия выполнена. Мы научились понимать и решать задачи на деление. Если в задаче раздают поровну или разбивают на равные группы, это деление. Весь блок деления пройден! Дальше нас ждёт геометрия: фигуры, линии и длина.',
-      uz: "Missiya bajarildi. Bo'lish masalalarini tushunish va yechishni o'rgandik. Agar masalada teng ulashilsa yoki teng guruhlarga bo'linsa, bu bo'lish. Butun bo'lish bloki o'tildi! Keyin bizni geometriya kutadi: shakllar, chiziqlar va uzunlik."
+      uz: "Missiya bajarildi. Bo'lish masalalarini tushunish va yechishni o'rgandik. Agar masalada teng ulashilsa yoki teng guruhlarga bo'linsa, bu bo'lish. Butun bo'lish bloki o'tildi! Keyin bizni geometriya kutadi: shakllar, chiziqlar va uzunlik.",
+      en: 'Mission complete. We learned to understand and solve division problems. If something is shared equally or split into equal groups, it is dividing. The whole dividing block is done! Next come shapes, lines and length.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Прочитаем задачу вместе.', uz: "Masalani birga o'qiymiz." },
-  s2:  { ru: 'Другая задача — про группы.', uz: "Boshqa masala — guruhlar haqida." },
-  s3:  { ru: 'Как узнать деление в задаче?', uz: "Masalada bo'lishni qanday bilamiz?" },
-  s4:  { ru: 'Умножить или разделить?', uz: "Ko'paytirish yoki bo'lish?" },
-  sTBL: { ru: 'Запомним ключ.', uz: 'Kalitni yodlaymiz.' },
-  s5:  { ru: 'Теперь порешай задачи.', uz: "Endi masalalarni yeching." },
-  s6:  { ru: 'Задача про коробки.', uz: "Qutilar haqida masala." },
-  s7:  { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
-  s8:  { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang." },
-  s9:  { ru: 'Снова выбери действие.', uz: "Yana amalni tanlang." },
-  s10: { ru: 'Ещё задача на деление.', uz: "Yana bo'lish masalasi." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Зухра грузит вагонетки.', uz: "Zuhra vagonchalarni yuklaydi." },
-  s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!" }
+  s1:  { ru: 'Прочитаем задачу вместе.', uz: "Masalani birga o'qiymiz.", en: 'Let us read the problem together.' },
+  s2:  { ru: 'Другая задача — про группы.', uz: "Boshqa masala — guruhlar haqida.", en: 'Another problem, this one about groups.' },
+  s3:  { ru: 'Как узнать деление в задаче?', uz: "Masalada bo'lishni qanday bilamiz?", en: 'How do you spot dividing in a problem?' },
+  s4:  { ru: 'Умножить или разделить?', uz: "Ko'paytirish yoki bo'lish?", en: 'Multiply or divide?' },
+  sTBL: { ru: 'Запомним ключ.', uz: 'Kalitni yodlaymiz.', en: 'Let us remember the key.' },
+  s5:  { ru: 'Теперь порешай задачи.', uz: "Endi masalalarni yeching.", en: 'Now solve some problems.' },
+  s6:  { ru: 'Задача про коробки.', uz: "Qutilar haqida masala.", en: 'A problem about boxes.' },
+  s7:  { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
+  s8:  { ru: 'Сначала выбери действие.', uz: "Avval amalni tanlang.", en: 'First choose the operation.' },
+  s9:  { ru: 'Снова выбери действие.', uz: "Yana amalni tanlang.", en: 'Choose the operation again.' },
+  s10: { ru: 'Ещё задача на деление.', uz: "Yana bo'lish masalasi.", en: 'One more division problem.' },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.', en: 'The last practice.' },
+  s12: { ru: 'Зухра грузит вагонетки.', uz: "Zuhra vagonchalarni yuklaydi.", en: 'Zuhra is loading the carts.' },
+  s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering.", en: 'Help Zuhra.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!", en: 'The crystals have gone off in their carts!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Кристаллы у шахты Сатурна разъехались по вагонеткам поровну. Деление на 2 и 3 освоено! Спасибо за помощь.',
-  uz: "Saturn koni yonidagi kristallar vagonchalarga teng taqsimlandi. 2 va 3 ga bo'lish o'zlashtirildi! Yordamingiz uchun rahmat."
+  uz: "Saturn koni yonidagi kristallar vagonchalarga teng taqsimlandi. 2 va 3 ga bo'lish o'zlashtirildi! Yordamingiz uchun rahmat.",
+  en: 'The crystals at the Saturn mine went off in their carts, shared equally. Dividing by 2 and 3 is sorted! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1391,7 +1429,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1408,7 +1446,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2165,7 +2204,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2641,7 +2686,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3273,8 +3318,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3320,9 +3365,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3852,12 +3897,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4205,9 +4252,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4215,15 +4262,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4237,8 +4284,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4247,14 +4294,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4270,16 +4317,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4287,14 +4334,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4371,8 +4418,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4546,7 +4593,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <SaturnField label={{ ru: 'Разделено поровну', uz: 'Teng ulashildi' }}/>
+          <SaturnField label={{ ru: 'Разделено поровну', uz: 'Teng ulashildi', en: 'Shared equally' }}/>
         </div>
       </div>
     </Stage>
@@ -4557,14 +4604,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4874,7 +4921,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -4904,8 +4951,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5034,8 +5081,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5304,7 +5351,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5433,7 +5480,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5507,7 +5554,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5596,7 +5643,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5776,8 +5823,8 @@ const MatchStage = ({ props, cKey }) => {
 // Dars24 YANGI MEXANIKA — OpChoiceStage: hayotiy masala → AVVAL amal (÷ yoki ×) tanlanadi, KEYIN javob.
 // Amalni tanib olishga urg'u (masala tushunish). Distraktor amal = total×div; javob distraktor = quotOpts.
 // ============================================================
-const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?' };
-const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:' };
+const OP_Q = { ru: 'Какое действие нужно?', uz: 'Qaysi amal kerak?', en: 'Which operation do you need?' };
+const OP_COMPUTE = { ru: 'Теперь посчитай:', uz: 'Endi hisoblang:', en: 'Now work it out:' };
 const OpChoiceStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5906,7 +5953,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -5994,8 +6041,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6848,7 +6895,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

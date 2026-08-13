@@ -16,7 +16,11 @@ import { build } from 'vite';
 
 const EXTERNAL = new Set(['react', 'react-dom', 'react/jsx-runtime', 'react-dom/client', 'react-dom/server']);
 
-const OUT = path.resolve('lms-grade3-standalone');
+// Собранные файлы 3 класса лежат рядом с уроками, в src/components/grade3/
+// (перенесены из корня 2026-08-12). Другую папку задаёт флаг:
+// --out=src/components/grade3/lms-grade3-standalone-tts
+const outArg = process.argv.find((a) => a.startsWith('--out='));
+const OUT = path.resolve(outArg ? outArg.slice('--out='.length) : 'src/components/grade3/lms-grade3-standalone');
 const TMP = path.resolve('.tmp-lms-check');
 const args = process.argv.slice(2).filter((a) => !a.startsWith('--'));
 const files = args.length ? args : fs.readdirSync(OUT).filter((f) => /^Dars\d+\.jsx$/.test(f)).sort();

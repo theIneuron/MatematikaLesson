@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -143,8 +143,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-11',
-  lessonTitle: { ru: 'Урок 11. Умножение суммы', uz: "11-dars. Yig'indini ko'paytirish" }
+  lessonId: 'grade3-11',
+  lessonTitle: { ru: 'Урок 11. Умножение суммы', uz: "11-dars. Yig'indini ko'paytirish", en: 'Lesson 11. Multiplying a sum' }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-04, KONTENT_3SINF.md «Dars 11»): s0 xuk · s1 ko'prik ·
 // s2 KESISH (SplitArray) · s3 qismlar hisobi · s4 QOIDA · s5 Bit tuzog'i (M1) · s6 soat ·
@@ -184,13 +184,13 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: умножение суммы', uz: "Mavzu: yig'indini ko'paytirish" },
-    lead: { ru: 'Сад пока без тропинок. Нужны светящиеся!', uz: "Bog'da hali yo'lak yo'q. Yorug' yo'laklar kerak!" },
-    q: { ru: 'Одна тропинка — 23 камня: две плиты и три камешка. Тропинок четыре. Как посчитать 23 × 4?', uz: "Bitta yo'lak — 23 tosh: ikkita plita va uchta toshcha. Yo'laklar to'rtta. 23 × 4 ni qanday hisoblaymiz?" },
-    opt0: { ru: 'Разбить 23 на части', uz: "23 ni qismlarga bo'lamiz" },
-    opt1: { ru: 'Считать по одному', uz: 'Bittalab sanaymiz' },
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: умножение суммы', uz: "Mavzu: yig'indini ko'paytirish", en: 'Topic: multiplying a sum' },
+    lead: { ru: 'Сад пока без тропинок. Нужны светящиеся!', uz: "Bog'da hali yo'lak yo'q. Yorug' yo'laklar kerak!", en: 'The garden has no paths yet. They must glow!' },
+    q: { ru: 'Одна тропинка — 23 камня: две плиты и три камешка. Тропинок четыре. Как посчитать 23 × 4?', uz: "Bitta yo'lak — 23 tosh: ikkita plita va uchta toshcha. Yo'laklar to'rtta. 23 × 4 ni qanday hisoblaymiz?", en: 'One path is 23 stones: two slabs and three pebbles. There are four paths. How do we count 23 × 4?' },
+    opt0: { ru: 'Разбить 23 на части', uz: "23 ni qismlarga bo'lamiz", en: 'Split 23 into parts' },
+    opt1: { ru: 'Считать по одному', uz: 'Bittalab sanaymiz', en: "I don't know" },
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -204,23 +204,24 @@ const CONTENT = {
           "Bit bog'ida ertalab. Uychalarga hali yo'l yo'q. Bit to'rtta yorug' yo'lak yotqizishga qaror qildi.",
           "Bitta yo'lakka yigirma uchta tosh kerak. Ikkita uzun plita, har birida o'nta nur, va uchta toshcha.",
           "To'rtta yo'lakka jami nechta tosh kerak? Jadval bu yerda yordam bermaydi, u o'nda tugaydi. O'ylab ko'ring va tanlang."
-        ]
+        ],
+        en: ['The topic of the lesson is called multiplying a sum. We will learn to multiply numbers that are not in the table.', "Morning in Bit's garden. There are still no roads to the little houses. Bit has decided to lay four glowing paths.", 'One path needs twenty three stones. Two long slabs with ten lights in each, and three pebbles.', 'How many stones are needed for all four paths? The table will not help here, it ends at ten. Think and choose.']
       },
-      on_correct: { ru: 'Отличная идея! Двадцать три можно разбить на двадцать и три. А их умножать мы уже умеем. Сейчас всё получится.', uz: "Ajoyib fikr! Yigirma uchni yigirma va uchga bo'lish mumkin. Ularni ko'paytirishni esa bilamiz. Hozir hammasi chiqadi." },
-      on_wrong: { ru: 'Можно, но камней почти сотня, и на дворе ночь. Есть путь быстрее.', uz: "Mumkin, lekin toshlar yuzga yaqin, tashqarida esa tun. Tezroq yo'l bor." },
-      on_idk: { ru: 'Честный ответ! Смотри, сейчас откроем секрет.', uz: "Halol javob! Qarang, hozir sirni ochamiz." }
+      on_correct: { ru: 'Отличная идея! Двадцать три можно разбить на двадцать и три. А их умножать мы уже умеем. Сейчас всё получится.', uz: "Ajoyib fikr! Yigirma uchni yigirma va uchga bo'lish mumkin. Ularni ko'paytirishni esa bilamiz. Hozir hammasi chiqadi.", en: 'Great idea! Twenty three can be split into twenty and three. And we already know how to multiply those. It will work out now.' },
+      on_wrong: { ru: 'Можно, но камней почти сотня, и на дворе ночь. Есть путь быстрее.', uz: "Mumkin, lekin toshlar yuzga yaqin, tashqarida esa tun. Tezroq yo'l bor.", en: 'You could, but there are almost a hundred stones and it is night outside. There is a faster way.' },
+      on_idk: { ru: 'Честный ответ! Смотри, сейчас откроем секрет.', uz: "Halol javob! Qarang, hozir sirni ochamiz.", en: 'An honest answer! Watch, we are about to open a secret.' }
     }
   },
 
   // s1 — KO'PRIK: ikki karta (23=20+3, 20x4=80)
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'Две половинки секрета.', uz: 'Sirning ikki bo\'lagi.' },
-    card1: { ru: '23 = 20 + 3', uz: '23 = 20 + 3' },
-    card1_cap: { ru: 'урок 3: разрядные слагаемые', uz: '3-dars: xona qo\'shiluvchilari' },
-    card2: { ru: '20 × 4 = 80', uz: '20 × 4 = 80' },
-    card2_cap: { ru: 'урок 9: два десятка по четыре', uz: "9-dars: to'rttadan ikki o'nlik" },
-    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'Две половинки секрета.', uz: 'Sirning ikki bo\'lagi.', en: 'Two halves of the secret.' },
+    card1: { ru: '23 = 20 + 3', uz: '23 = 20 + 3', en: '23 = 20 + 3' },
+    card1_cap: { ru: 'урок 3: разрядные слагаемые', uz: '3-dars: xona qo\'shiluvchilari', en: 'lesson 3: place-value parts' },
+    card2: { ru: '20 × 4 = 80', uz: '20 × 4 = 80', en: '20 × 4 = 80' },
+    card2_cap: { ru: 'урок 9: два десятка по четыре', uz: "9-dars: to'rttadan ikki o'nlik", en: 'lesson 9: two tens times four' },
+    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching', en: 'Open the cards one by one' },
     audio: {
       ru: [
         'У тебя уже есть обе половинки секрета. Открой первую карточку.',
@@ -233,17 +234,18 @@ const CONTENT = {
         "Yigirma uch bu yigirma va uch. Xona qo'shiluvchilari, xonalar darsidan eslaysiz.",
         "Yigirmani to'rtga ko'paytirish esa to'rttadan ikki o'nlik. Ikki karra to'rt, sakkiz. Sakkiz o'nlik, sakson.",
         "Endi shu ikki bo'lakni ulash qoldi. Yo'laklarga boramiz."
-      ]
+      ],
+      en: ['You already have both halves of the secret. Open the first card.', 'Twenty three is twenty and three. Place value parts, remember, from the lesson about places.', 'And twenty times four is two tens times four. Two times four, eight. Eight tens, eighty.', 'Now we only need to join these two halves. Off to the paths.']
     }
   },
 
   // s2 — KESISH (SplitArray)
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Разрежь тропинки на две команды.', uz: "Yo'laklarni ikki jamoaga ajrating." },
-    btn: { ru: 'Разрезать', uz: 'Kesish' },
-    label_left: { ru: '20 × 4', uz: '20 × 4' },
-    label_right: { ru: '3 × 4', uz: '3 × 4' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Разрежь тропинки на две команды.', uz: "Yo'laklarni ikki jamoaga ajrating.", en: 'Cut the paths into two teams.' },
+    btn: { ru: 'Разрезать', uz: 'Kesish', en: 'Cut' },
+    label_left: { ru: '20 × 4', uz: '20 × 4', en: '20 × 4' },
+    label_right: { ru: '3 × 4', uz: '3 × 4', en: '3 × 4' },
     audio: {
       ru: [
         'Вот все четыре тропинки. В каждом ряду двадцать три камня, из них плиты слева, камешки справа.',
@@ -254,18 +256,19 @@ const CONTENT = {
         "Mana to'rtta yo'lak. Har qatorda yigirma uchta tosh, chapda plitalar, o'ngda toshchalar.",
         "Kesish tugmasini bosing va toshlarni ikki jamoaga ajrating.",
         "Qarang! Chapda faqat plitalar qoldi, qatorda yigirmatadan, to'rt qator. O'ngda faqat toshchalar, qatorda uchtadan, to'rt qator. Bitta qiyin ko'paytirish ikkita osonga aylandi."
-      ]
+      ],
+      en: ['Here are all four paths. Each row has twenty three stones, the slabs on the left and the pebbles on the right.', 'Tap cut and split the stones into two teams.', 'Look! On the left there are only slabs, twenty stones in a row, four rows. On the right only pebbles, three in a row, four rows. One hard multiplication turned into two easy ones.']
     }
   },
 
   // s3 — QISMLAR HISOBI (uch satr ketma-ket)
   s3: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Считаем части и складываем.', uz: 'Qismlarni sanab qo\'shamiz.' },
-    line1: { ru: '20 × 4 = 80', uz: '20 × 4 = 80' },
-    line2: { ru: '3 × 4 = 12', uz: '3 × 4 = 12' },
-    line3: { ru: '80 + 12 = 92', uz: '80 + 12 = 92' },
-    done_text: { ru: 'Девяносто два камня на четыре тропинки. И никакой таблицы до двадцати трёх не понадобилось.', uz: "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Считаем части и складываем.', uz: 'Qismlarni sanab qo\'shamiz.', en: 'We count the parts and add them.' },
+    line1: { ru: '20 × 4 = 80', uz: '20 × 4 = 80', en: '20 × 4 = 80' },
+    line2: { ru: '3 × 4 = 12', uz: '3 × 4 = 12', en: '3 × 4 = 12' },
+    line3: { ru: '80 + 12 = 92', uz: '80 + 12 = 92', en: '80 + 12 = 92' },
+    done_text: { ru: 'Девяносто два камня на четыре тропинки. И никакой таблицы до двадцати трёх не понадобилось.', uz: "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi.", en: 'Ninety two stones for four paths. And we did not need a table up to twenty three at all.' },
     audio: {
       ru: [
         'Считаем плиты. Двадцать на четыре, это два десятка по четыре. Восемь десятков, восемьдесят.',
@@ -278,42 +281,44 @@ const CONTENT = {
         "Endi toshchalar. Uch karra to'rt, bu jadvaldan. O'n ikki.",
         "Qo'shamiz. Sakson va o'n ikki, to'qson ikki. Qarang, yo'laklar yonmoqda!",
         "To'rt yo'lakka to'qson ikkita tosh. Yigirma uchgacha jadval kerak bo'lmadi."
-      ]
+      ],
+      en: ['We count the slabs. Twenty times four is two tens times four. Eight tens, eighty.', 'Now the pebbles. Three times four, that is from the table. Twelve.', 'We add. Eighty and twelve, ninety two. Look, the paths are lighting up!', 'Ninety two stones for four paths. And we did not need a table up to twenty three at all.']
     }
   },
 
   // s4 — SAVOL-OLDIN-QOIDA
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Как умножить сумму на число?', uz: "Yig'indini songa qanday ko'paytiramiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Как умножить сумму на число?', uz: "Yig'indini songa qanday ko'paytiramiz?", en: 'How do you multiply a sum by a number?' },
     opts: [
-      { ru: 'Умножить каждое слагаемое и сложить', uz: "Har qo'shiluvchini ko'paytirib, keyin qo'shish" },
-      { ru: 'Умножить только первое слагаемое', uz: "Faqat birinchi qo'shiluvchini ko'paytirish" },
-      { ru: 'Сложить все числа', uz: 'Hamma sonlarni qo\'shish' },
-      { ru: 'Умножить только второе слагаемое', uz: "Faqat ikkinchi qo'shiluvchini ko'paytirish" }
+      { ru: 'Умножить каждое слагаемое и сложить', uz: "Har qo'shiluvchini ko'paytirib, keyin qo'shish", en: 'Multiply each addend and add the results' },
+      { ru: 'Умножить только первое слагаемое', uz: "Faqat birinchi qo'shiluvchini ko'paytirish", en: 'Multiply only the first addend' },
+      { ru: 'Сложить все числа', uz: 'Hamma sonlarni qo\'shish', en: 'Add all the numbers' },
+      { ru: 'Умножить только второе слагаемое', uz: "Faqat ikkinchi qo'shiluvchini ko'paytirish", en: 'Multiply only the second addend' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Тогда камешки останутся без умножения. Их тоже четыре ряда.', uz: "Unda toshchalar ko'paytirilmay qoladi. Ular ham to'rt qator." },
-      2: { ru: 'Сложение здесь не поможет, ряды повторяются четыре раза. Это умножение.', uz: "Qo'shish bu yerda yordam bermaydi, qatorlar to'rt marta takrorlanadi. Bu ko'paytirish." },
-      3: { ru: 'А плиты? Их тоже надо умножить.', uz: "Plitalar-chi? Ularni ham ko'paytirish kerak." }
+      1: { ru: 'Тогда камешки останутся без умножения. Их тоже четыре ряда.', uz: "Unda toshchalar ko'paytirilmay qoladi. Ular ham to'rt qator.", en: 'Then the pebbles are left without multiplying. There are four rows of them too.' },
+      2: { ru: 'Сложение здесь не поможет, ряды повторяются четыре раза. Это умножение.', uz: "Qo'shish bu yerda yordam bermaydi, qatorlar to'rt marta takrorlanadi. Bu ko'paytirish.", en: 'Adding will not help here, the rows repeat four times. This is multiplication.' },
+      3: { ru: 'А плиты? Их тоже надо умножить.', uz: "Plitalar-chi? Ularni ham ko'paytirish kerak.", en: 'And the slabs? They have to be multiplied too.' }
     },
-    rule: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты. (20+3)×4 = 20×4 + 3×4.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing." },
-    rule_speech: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing." },
+    rule: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты. (20+3)×4 = 20×4 + 3×4.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing.", en: 'To multiply a sum by a number, multiply each addend by that number and add the results. (20+3)×4 = 20×4 + 3×4.' },
+    rule_speech: { ru: 'Чтобы умножить сумму на число, умножь каждое слагаемое на это число и сложи результаты.', uz: "Yig'indini songa ko'paytirish uchun har qo'shiluvchini shu songa ko'paytiring va natijalarni qo'shing.", en: 'To multiply a sum by a number, multiply each addend by that number and add the results.' },
     audio: {
       ru: ['Мы видели это на тропинках. Теперь вопрос.', 'Как умножить сумму на число? Выбери ответ.'],
-      uz: ["Buni yo'laklarda ko'rdik. Endi savol.", "Yig'indini songa qanday ko'paytiramiz? Javobni tanlang."]
+      uz: ["Buni yo'laklarda ko'rdik. Endi savol.", "Yig'indini songa qanday ko'paytiramiz? Javobni tanlang."],
+      en: ['We saw this on the paths. Now a question.', 'How do you multiply a sum by a number? Choose an answer.']
     },
-    on_correct: { ru: 'Именно так!', uz: 'Aynan shunday!' }
+    on_correct: { ru: 'Именно так!', uz: 'Aynan shunday!', en: 'Exactly so!' }
   },
 
   // s5 — BIT TUZOG'I (M1: 80+3=83)
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Бит считает быстрее всех. Или нет?', uz: 'Bit hammadan tez hisoblaydi. Yoki yo\'qmi?' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Бит считает быстрее всех. Или нет?', uz: 'Bit hammadan tez hisoblaydi. Yoki yo\'qmi?', en: 'Bit counts faster than anyone. Or does he?' },
     lines: ['(20 + 3) × 4', '20 × 4 = 80', '80 + 3 = 83'],
-    trap_label: { ru: 'Бит получил 83. Верно?', uz: 'Bit 83 chiqardi. To\'g\'rimi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    trap_label: { ru: 'Бит получил 83. Верно?', uz: 'Bit 83 chiqardi. To\'g\'rimi?', en: 'Bit got 83. Is that right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     audio: {
       ru: [
@@ -323,134 +328,135 @@ const CONTENT = {
       uz: [
         "Bit hammadan tez hisoblamoqchi bo'ldi. Yigirma karra to'rt, sakson. Qo'shuv uch. Sakson uch!",
         "Bit to'g'ri hisobladimi?"
-      ]
+      ],
+      en: ['Bit decided to count faster than anyone. Twenty times four, eighty. Plus three. Eighty three!', 'Did Bit count correctly?']
     },
-    trap_correct: { ru: 'Точно подмечено! Бит забыл умножить тройку. Камешки лежат на каждой из четырёх тропинок, их три на четыре, двенадцать. Верный ответ девяносто два.', uz: "Aniq sezdingiz! Bit uchni ko'paytirishni unutdi. Toshchalar to'rtala yo'lakda ham bor, uch karra to'rt, o'n ikki. To'g'ri javob to'qson ikki." },
-    trap_wrong: { ru: 'Посмотри на тропинки. Камешки есть на каждой, значит тройку тоже умножаем на четыре.', uz: "Yo'laklarga qarang. Toshchalar har birida bor, demak uchni ham to'rtga ko'paytiramiz." }
+    trap_correct: { ru: 'Точно подмечено! Бит забыл умножить тройку. Камешки лежат на каждой из четырёх тропинок, их три на четыре, двенадцать. Верный ответ девяносто два.', uz: "Aniq sezdingiz! Bit uchni ko'paytirishni unutdi. Toshchalar to'rtala yo'lakda ham bor, uch karra to'rt, o'n ikki. To'g'ri javob to'qson ikki.", en: 'Well spotted! Bit forgot to multiply the three. The pebbles lie on each of the four paths, three times four, twelve. The correct answer is ninety two.' },
+    trap_wrong: { ru: 'Посмотри на тропинки. Камешки есть на каждой, значит тройку тоже умножаем на четыре.', uz: "Yo'laklarga qarang. Toshchalar har birida bor, demak uchni ham to'rtga ko'paytiramiz.", en: 'Look at the paths. There are pebbles on each one, so we multiply the three by four as well.' }
   },
 
   // s6 — 5 soniya SOAT
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сколько будет (10 + 5) × 3?', uz: '(10 + 5) × 3 nechta bo\'ladi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Сколько будет (10 + 5) × 3?', uz: '(10 + 5) × 3 nechta bo\'ladi?', en: 'What is (10 + 5) × 3?' },
     items: [
       {
         ci: 0,
-        opts: [{ ru: '45', uz: '45' }, { ru: '35', uz: '35' }, { ru: '18', uz: '18' }, { ru: '153', uz: '153' }],
+        opts: [{ ru: '45', uz: '45', en: '45' }, { ru: '35', uz: '35', en: '35' }, { ru: '18', uz: '18', en: '18' }, { ru: '153', uz: '153', en: '153' }],
         hints: {
-          1: { ru: 'Пятёрка тоже умножается на три. Тридцать плюс пятнадцать.', uz: "Besh ham uchga ko'paytiriladi. O'ttiz qo'shuv o'n besh." },
-          2: { ru: 'Это сложение всех чисел. А нужно умножить каждое слагаемое.', uz: "Bu hamma sonlarni qo'shish. Har qo'shiluvchini ko'paytirish kerak." },
-          3: { ru: 'Тридцать и пятнадцать не приставляют рядом, их складывают.', uz: "O'ttiz bilan o'n besh yonma-yon qo'yilmaydi, ular qo'shiladi." }
+          1: { ru: 'Пятёрка тоже умножается на три. Тридцать плюс пятнадцать.', uz: "Besh ham uchga ko'paytiriladi. O'ttiz qo'shuv o'n besh.", en: 'The five is multiplied by three too. Thirty plus fifteen.' },
+          2: { ru: 'Это сложение всех чисел. А нужно умножить каждое слагаемое.', uz: "Bu hamma sonlarni qo'shish. Har qo'shiluvchini ko'paytirish kerak.", en: 'That is adding all the numbers. But we need to multiply each addend.' },
+          3: { ru: 'Тридцать и пятнадцать не приставляют рядом, их складывают.', uz: "O'ttiz bilan o'n besh yonma-yon qo'yilmaydi, ular qo'shiladi.", en: 'Thirty and fifteen are not put side by side, they are added.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Проверь себя. Десять плюс пять, и всё это умножить на три. Пять секунд подумай.', uz: "O'zingizni sinang. O'n qo'shuv besh, hammasini uchga ko'paytiring. Besh soniya o'ylang." },
-      on_correct: { ru: 'Сорок пять!', uz: 'Qirq besh!' },
-      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring." }
+      intro: { ru: 'Проверь себя. Десять плюс пять, и всё это умножить на три. Пять секунд подумай.', uz: "O'zingizni sinang. O'n qo'shuv besh, hammasini uchga ko'paytiring. Besh soniya o'ylang.", en: 'Test yourself. Ten plus five, and all of it times three. Think for five seconds.' },
+      on_correct: { ru: 'Сорок пять!', uz: 'Qirq besh!', en: 'Forty five!' },
+      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring.", en: 'Split, multiply each, add. Try again.' }
     }
   },
 
   // s7 — «QANDAY BO'LAMIZ?» MC x3
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Как разбить число для умножения?', uz: "Ko'paytirish uchun sonni qanday bo'lamiz?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Как разбить число для умножения?', uz: "Ko'paytirish uchun sonni qanday bo'lamiz?", en: 'How do you split a number for multiplying?' },
     items: [
       {
         num: 17, ci: 0,
-        opts: [{ ru: '10 + 7', uz: '10 + 7' }, { ru: '1 + 7', uz: '1 + 7' }, { ru: '15 + 2', uz: '15 + 2' }, { ru: '10 + 17', uz: '10 + 17' }],
+        opts: [{ ru: '10 + 7', uz: '10 + 7', en: '10 + 7' }, { ru: '1 + 7', uz: '1 + 7', en: '1 + 7' }, { ru: '15 + 2', uz: '15 + 2', en: '15 + 2' }, { ru: '10 + 17', uz: '10 + 17', en: '10 + 17' }],
         hints: {
-          1: { ru: 'Единица здесь это десяток. Семнадцать, это десять и семь.', uz: "Bu yerdagi bir bu o'nlik. O'n yetti bu o'n va yetti." },
-          2: { ru: 'Так тоже семнадцать, но умножать неудобно. Разбивай на десятки и единицы.', uz: "Bunday ham o'n yetti, lekin ko'paytirish noqulay. O'nlik va birlikka bo'ling." },
-          3: { ru: 'Вместе получится двадцать семь, а не семнадцать.', uz: "Birga yigirma yetti chiqadi, o'n yetti emas." }
+          1: { ru: 'Единица здесь это десяток. Семнадцать, это десять и семь.', uz: "Bu yerdagi bir bu o'nlik. O'n yetti bu o'n va yetti.", en: 'The one here is a ten. Seventeen is ten and seven.' },
+          2: { ru: 'Так тоже семнадцать, но умножать неудобно. Разбивай на десятки и единицы.', uz: "Bunday ham o'n yetti, lekin ko'paytirish noqulay. O'nlik va birlikka bo'ling.", en: 'That is seventeen too, but awkward to multiply. Split into tens and ones.' },
+          3: { ru: 'Вместе получится двадцать семь, а не семнадцать.', uz: "Birga yigirma yetti chiqadi, o'n yetti emas.", en: 'Together that gives twenty seven, not seventeen.' }
         }
       },
       {
         num: 24, ci: 0,
-        opts: [{ ru: '20 + 4', uz: '20 + 4' }, { ru: '2 + 4', uz: '2 + 4' }, { ru: '14 + 10', uz: '14 + 10' }, { ru: '20 + 14', uz: '20 + 14' }],
+        opts: [{ ru: '20 + 4', uz: '20 + 4', en: '20 + 4' }, { ru: '2 + 4', uz: '2 + 4', en: '2 + 4' }, { ru: '14 + 10', uz: '14 + 10', en: '14 + 10' }, { ru: '20 + 14', uz: '20 + 14', en: '20 + 14' }],
         hints: {
-          1: { ru: 'Двойка здесь это два десятка, двадцать.', uz: "Bu yerdagi ikki bu ikki o'nlik, yigirma." },
-          2: { ru: 'Так тоже двадцать четыре, но удобнее двадцать и четыре.', uz: "Bunday ham yigirma to'rt, lekin yigirma va to'rt qulayroq." },
-          3: { ru: 'Вместе получится тридцать четыре.', uz: "Birga o'ttiz to'rt chiqadi." }
+          1: { ru: 'Двойка здесь это два десятка, двадцать.', uz: "Bu yerdagi ikki bu ikki o'nlik, yigirma.", en: 'The two here is two tens, twenty.' },
+          2: { ru: 'Так тоже двадцать четыре, но удобнее двадцать и четыре.', uz: "Bunday ham yigirma to'rt, lekin yigirma va to'rt qulayroq.", en: 'That is twenty four too, but twenty and four is easier.' },
+          3: { ru: 'Вместе получится тридцать четыре.', uz: "Birga o'ttiz to'rt chiqadi.", en: 'Together that gives thirty four.' }
         }
       },
       {
         num: 35, ci: 0,
-        opts: [{ ru: '30 + 5', uz: '30 + 5' }, { ru: '3 + 5', uz: '3 + 5' }, { ru: '25 + 10', uz: '25 + 10' }, { ru: '30 + 15', uz: '30 + 15' }],
+        opts: [{ ru: '30 + 5', uz: '30 + 5', en: '30 + 5' }, { ru: '3 + 5', uz: '3 + 5', en: '3 + 5' }, { ru: '25 + 10', uz: '25 + 10', en: '25 + 10' }, { ru: '30 + 15', uz: '30 + 15', en: '30 + 15' }],
         hints: {
-          1: { ru: 'Тройка здесь это три десятка, тридцать.', uz: "Bu yerdagi uch bu uch o'nlik, o'ttiz." },
-          2: { ru: 'Удобнее разбивать на десятки и единицы, то есть тридцать и пять.', uz: "O'nlik va birlikka bo'lish qulayroq, ya'ni o'ttiz va besh." },
-          3: { ru: 'Вместе получится сорок пять.', uz: 'Birga qirq besh chiqadi.' }
+          1: { ru: 'Тройка здесь это три десятка, тридцать.', uz: "Bu yerdagi uch bu uch o'nlik, o'ttiz.", en: 'The three here is three tens, thirty.' },
+          2: { ru: 'Удобнее разбивать на десятки и единицы, то есть тридцать и пять.', uz: "O'nlik va birlikka bo'lish qulayroq, ya'ni o'ttiz va besh.", en: 'It is easier to split into tens and ones, that is thirty and five.' },
+          3: { ru: 'Вместе получится сорок пять.', uz: 'Birga qirq besh chiqadi.', en: 'Together that gives forty five.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Сначала главный шаг. Разбей число на десятки и единицы. Три задания.', uz: "Avval asosiy qadam. Sonni o'nlik va birlikka bo'ling. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Разбивай на десятки и единицы. Попробуй ещё.', uz: "O'nlik va birlikka bo'ling. Yana urinib ko'ring." }
+      intro: { ru: 'Сначала главный шаг. Разбей число на десятки и единицы. Три задания.', uz: "Avval asosiy qadam. Sonni o'nlik va birlikka bo'ling. Uchta topshiriq.", en: 'First the main step. Split the number into tens and ones. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Разбивай на десятки и единицы. Попробуй ещё.', uz: "O'nlik va birlikka bo'ling. Yana urinib ko'ring.", en: 'Split into tens and ones. Try again.' }
     }
   },
 
   // s8 — TEST MC x3
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
       {
-        q: { ru: 'Сколько будет (20 + 3) × 4?', uz: '(20 + 3) × 4 nechta bo\'ladi?' }, expr: '(20 + 3) × 4', ci: 0,
-        opts: [{ ru: '92', uz: '92' }, { ru: '83', uz: '83' }, { ru: '27', uz: '27' }, { ru: '8012', uz: '8012' }],
+        q: { ru: 'Сколько будет (20 + 3) × 4?', uz: '(20 + 3) × 4 nechta bo\'ladi?', en: 'What is (20 + 3) × 4?' }, expr: '(20 + 3) × 4', ci: 0,
+        opts: [{ ru: '92', uz: '92', en: '92' }, { ru: '83', uz: '83', en: '83' }, { ru: '27', uz: '27', en: '27' }, { ru: '8012', uz: '8012', en: '8012' }],
         hints: {
-          1: { ru: 'Тройка тоже умножается на четыре. Восемьдесят плюс двенадцать.', uz: "Uch ham to'rtga ko'paytiriladi. Sakson qo'shuv o'n ikki." },
-          2: { ru: 'Это сложение. А ряды повторяются четыре раза, это умножение.', uz: "Bu qo'shish. Qatorlar to'rt marta takrorlanadi, bu ko'paytirish." },
-          3: { ru: 'Восемьдесят и двенадцать складывают, а не ставят рядом.', uz: "Sakson bilan o'n ikki qo'shiladi, yonma-yon qo'yilmaydi." }
+          1: { ru: 'Тройка тоже умножается на четыре. Восемьдесят плюс двенадцать.', uz: "Uch ham to'rtga ko'paytiriladi. Sakson qo'shuv o'n ikki.", en: 'The three is multiplied by four too. Eighty plus twelve.' },
+          2: { ru: 'Это сложение. А ряды повторяются четыре раза, это умножение.', uz: "Bu qo'shish. Qatorlar to'rt marta takrorlanadi, bu ko'paytirish.", en: 'That is addition. But the rows repeat four times, that is multiplication.' },
+          3: { ru: 'Восемьдесят и двенадцать складывают, а не ставят рядом.', uz: "Sakson bilan o'n ikki qo'shiladi, yonma-yon qo'yilmaydi.", en: 'Eighty and twelve are added, not put side by side.' }
         }
       },
       {
-        q: { ru: 'Сколько будет (30 + 2) × 3?', uz: '(30 + 2) × 3 nechta bo\'ladi?' }, expr: '(30 + 2) × 3', ci: 0,
-        opts: [{ ru: '96', uz: '96' }, { ru: '92', uz: '92' }, { ru: '35', uz: '35' }, { ru: '906', uz: '906' }],
+        q: { ru: 'Сколько будет (30 + 2) × 3?', uz: '(30 + 2) × 3 nechta bo\'ladi?', en: 'What is (30 + 2) × 3?' }, expr: '(30 + 2) × 3', ci: 0,
+        opts: [{ ru: '96', uz: '96', en: '96' }, { ru: '92', uz: '92', en: '92' }, { ru: '35', uz: '35', en: '35' }, { ru: '906', uz: '906', en: '906' }],
         hints: {
-          1: { ru: 'Двойка тоже умножается на три. Девяносто плюс шесть.', uz: "Ikki ham uchga ko'paytiriladi. To'qson qo'shuv olti." },
-          2: { ru: 'Это сложение всех чисел.', uz: "Bu hamma sonlarni qo'shish." },
-          3: { ru: 'Девяносто и шесть складывают, девяносто шесть.', uz: "To'qson bilan olti qo'shiladi, to'qson olti." }
+          1: { ru: 'Двойка тоже умножается на три. Девяносто плюс шесть.', uz: "Ikki ham uchga ko'paytiriladi. To'qson qo'shuv olti.", en: 'The two is multiplied by three too. Ninety plus six.' },
+          2: { ru: 'Это сложение всех чисел.', uz: "Bu hamma sonlarni qo'shish.", en: 'That is adding all the numbers.' },
+          3: { ru: 'Девяносто и шесть складывают, девяносто шесть.', uz: "To'qson bilan olti qo'shiladi, to'qson olti.", en: 'Ninety and six are added, ninety six.' }
         }
       },
       {
-        q: { ru: 'Сколько будет (10 + 7) × 5?', uz: '(10 + 7) × 5 nechta bo\'ladi?' }, expr: '(10 + 7) × 5', ci: 0,
-        opts: [{ ru: '85', uz: '85' }, { ru: '57', uz: '57' }, { ru: '22', uz: '22' }, { ru: '350', uz: '350' }],
+        q: { ru: 'Сколько будет (10 + 7) × 5?', uz: '(10 + 7) × 5 nechta bo\'ladi?', en: 'What is (10 + 7) × 5?' }, expr: '(10 + 7) × 5', ci: 0,
+        opts: [{ ru: '85', uz: '85', en: '85' }, { ru: '57', uz: '57', en: '57' }, { ru: '22', uz: '22', en: '22' }, { ru: '350', uz: '350', en: '350' }],
         hints: {
-          1: { ru: 'Семёрка тоже умножается на пять. Пятьдесят плюс тридцать пять.', uz: "Yetti ham beshga ko'paytiriladi. Ellik qo'shuv o'ttiz besh." },
-          2: { ru: 'Это сложение.', uz: "Bu qo'shish." },
-          3: { ru: 'Это пятьдесят умножить на семь. А нужно пятьдесят плюс тридцать пять.', uz: "Bu ellik karra yetti. Kerakli esa ellik qo'shuv o'ttiz besh." }
+          1: { ru: 'Семёрка тоже умножается на пять. Пятьдесят плюс тридцать пять.', uz: "Yetti ham beshga ko'paytiriladi. Ellik qo'shuv o'ttiz besh.", en: 'The seven is multiplied by five too. Fifty plus thirty five.' },
+          2: { ru: 'Это сложение.', uz: "Bu qo'shish.", en: 'That is addition.' },
+          3: { ru: 'Это пятьдесят умножить на семь. А нужно пятьдесят плюс тридцать пять.', uz: "Bu ellik karra yetti. Kerakli esa ellik qo'shuv o'ttiz besh.", en: 'That is fifty times seven. But we need fifty plus thirty five.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Теперь весь приём целиком. Разбей, умножь, сложи. Три задания.', uz: "Endi usul to'liq. Bo'ling, ko'paytiring, qo'shing. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring." }
+      intro: { ru: 'Теперь весь приём целиком. Разбей, умножь, сложи. Три задания.', uz: "Endi usul to'liq. Bo'ling, ko'paytiring, qo'shing. Uchta topshiriq.", en: 'Now the whole method. Split, multiply, add. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Разбей, умножь каждое, сложи. Попробуй ещё.', uz: "Bo'ling, har birini ko'paytiring, qo'shing. Yana urinib ko'ring.", en: 'Split, multiply each, add. Try again.' }
     }
   },
 
   // s9 — BONUS: USTUN-KO'PRIK (23x4 stolbikda) + 1 savol
   s9: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'Секрет: взрослая запись.', uz: 'Sir: kattalar yozuvi.' },
-    left_title: { ru: 'Наша запись', uz: 'Bizning yozuv' },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'Секрет: взрослая запись.', uz: 'Sir: kattalar yozuvi.', en: 'A secret: the grown-up way of writing.' },
+    left_title: { ru: 'Наша запись', uz: 'Bizning yozuv', en: 'Our way' },
     left_lines: ['(20 + 3) × 4', '80 + 12 = 92'],
-    right_title: { ru: 'Столбик', uz: 'Ustun' },
-    mc_q: { ru: 'Откуда в столбике маленькая единичка над двойкой?', uz: "Ustundagi ikkining tepasidagi kichkina bir qayerdan keldi?" },
+    right_title: { ru: 'Столбик', uz: 'Ustun', en: 'Column' },
+    mc_q: { ru: 'Откуда в столбике маленькая единичка над двойкой?', uz: "Ustundagi ikkining tepasidagi kichkina bir qayerdan keldi?", en: 'Where does the little one above the two in the column come from?' },
     mc_opts: [
-      { ru: 'Это десяток из 12', uz: "Bu o'n ikkidagi o'nlik" },
-      { ru: 'Это цифра из 80', uz: 'Bu saksondagi raqam' },
-      { ru: 'Это украшение', uz: 'Bu bezak' },
-      { ru: 'Это ошибка записи', uz: 'Bu yozuv xatosi' }
+      { ru: 'Это десяток из 12', uz: "Bu o'n ikkidagi o'nlik", en: 'It is the ten from 12' },
+      { ru: 'Это цифра из 80', uz: 'Bu saksondagi raqam', en: 'It is a digit from 80' },
+      { ru: 'Это украшение', uz: 'Bu bezak', en: 'It is a decoration' },
+      { ru: 'Это ошибка записи', uz: 'Bu yozuv xatosi', en: 'It is a slip of the pen' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Восемьдесят приходит позже, из плит. А единичка родилась из двенадцати.', uz: "Sakson keyinroq keladi, plitalardan. Birlik esa o'n ikkidan tug'ildi." },
-      2: { ru: 'В математике нет украшений, каждая цифра работает. Это десяток из двенадцати.', uz: "Matematikada bezak yo'q, har raqam ishlaydi. Bu o'n ikkidan chiqqan o'nlik." },
-      3: { ru: 'Это не ошибка, а перенос. Десяток из двенадцати переехал к десяткам.', uz: "Bu xato emas, o'tkazish. O'n ikkidagi o'nlik o'nliklarga ko'chdi." }
+      1: { ru: 'Восемьдесят приходит позже, из плит. А единичка родилась из двенадцати.', uz: "Sakson keyinroq keladi, plitalardan. Birlik esa o'n ikkidan tug'ildi.", en: 'Eighty comes later, from the slabs. And the little one was born out of twelve.' },
+      2: { ru: 'В математике нет украшений, каждая цифра работает. Это десяток из двенадцати.', uz: "Matematikada bezak yo'q, har raqam ishlaydi. Bu o'n ikkidan chiqqan o'nlik.", en: 'There are no decorations in mathematics, every digit works. It is the ten from twelve.' },
+      3: { ru: 'Это не ошибка, а перенос. Десяток из двенадцати переехал к десяткам.', uz: "Bu xato emas, o'tkazish. O'n ikkidagi o'nlik o'nliklarga ko'chdi.", en: 'It is not a slip, it is a carry. The ten from twelve moved over to the tens.' }
     },
-    mc_ok: { ru: 'Именно! Десяток из двенадцати переезжает к десяткам. Это и есть перенос.', uz: "Aynan! O'n ikkidagi o'nlik o'nliklarga ko'chadi. Bu o'tkazish deyiladi." },
+    mc_ok: { ru: 'Именно! Десяток из двенадцати переезжает к десяткам. Это и есть перенос.', uz: "Aynan! O'n ikkidagi o'nlik o'nliklarga ko'chadi. Bu o'tkazish deyiladi.", en: 'Exactly! The ten from twelve moves over to the tens. That is the carry.' },
     audio: {
       ru: [
         'А теперь секрет. Взрослые записывают наш приём коротко, в столбик. Смотри.',
@@ -463,155 +469,158 @@ const CONTENT = {
         "Uch karra to'rt, o'n ikki. Ikkini birliklar ostiga yozamiz, o'n ikkidagi o'nlikni esa tepaga, kichkina raqam bilan ko'chiramiz.",
         "Yigirma karra to'rt, sakson. Qo'shuv ko'chirilgan o'nlik, to'qqiz o'nlik.",
         "To'qson ikki! Yo'laklardagi bilan bir xil javob. Ustun bu bizning kesishimiz, qisqa yozilgani. Unga birozdan keyin batafsil o'rganamiz. Endi esa savol."
-      ]
+      ],
+      en: ['And now the secret. Grown ups write our method short, in a column. Watch.', 'Three times four, twelve. We write the two under the ones, and the ten from twelve we carry up as a little digit.', 'Twenty times four, eighty. Plus the carried ten, nine tens.', 'Ninety two! The same answer as on the paths. The column is our cutting, written short. We will learn it properly a little later. And now a question.']
     }
   },
 
   // s10 — TRENAJYOR NumPad x3
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
-      { q: { ru: 'Набери ответ: (40 + 5) × 2.', uz: 'Javobni tering: (40 + 5) × 2.' }, ans: 90, hint: { ru: 'Сорок на два и пять на два, потом сложи.', uz: "Qirqni ikkiga va beshni ikkiga, keyin qo'shing." } },
-      { q: { ru: 'Набери ответ: (20 + 6) × 4.', uz: 'Javobni tering: (20 + 6) × 4.' }, ans: 104, hint: { ru: 'Восемьдесят плюс двадцать четыре.', uz: "Sakson qo'shuv yigirma to'rt." } },
-      { q: { ru: 'Набери ответ: (30 + 3) × 3.', uz: 'Javobni tering: (30 + 3) × 3.' }, ans: 99, hint: { ru: 'Девяносто плюс девять.', uz: "To'qson qo'shuv to'qqiz." } }
+      { q: { ru: 'Набери ответ: (40 + 5) × 2.', uz: 'Javobni tering: (40 + 5) × 2.', en: 'Type the answer: (40 + 5) × 2.' }, ans: 90, hint: { ru: 'Сорок на два и пять на два, потом сложи.', uz: "Qirqni ikkiga va beshni ikkiga, keyin qo'shing.", en: 'Forty times two and five times two, then add.' } },
+      { q: { ru: 'Набери ответ: (20 + 6) × 4.', uz: 'Javobni tering: (20 + 6) × 4.', en: 'Type the answer: (20 + 6) × 4.' }, ans: 104, hint: { ru: 'Восемьдесят плюс двадцать четыре.', uz: "Sakson qo'shuv yigirma to'rt.", en: 'Eighty plus twenty four.' } },
+      { q: { ru: 'Набери ответ: (30 + 3) × 3.', uz: 'Javobni tering: (30 + 3) × 3.', en: 'Type the answer: (30 + 3) × 3.' }, ans: 99, hint: { ru: 'Девяносто плюс девять.', uz: "To'qson qo'shuv to'qqiz.", en: 'Ninety plus nine.' } }
     ],
     audio: {
-      intro: { ru: 'Теперь сам, без вариантов. Разбей, умножь, сложи и набери ответ.', uz: "Endi o'zingiz, variantlarsiz. Bo'ling, ko'paytiring, qo'shing va javobni tering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." }
+      intro: { ru: 'Теперь сам, без вариантов. Разбей, умножь, сложи и набери ответ.', uz: "Endi o'zingiz, variantlarsiz. Bo'ling, ko'paytiring, qo'shing va javobni tering.", en: 'Now on your own, without answer choices. Split, multiply, add and type the answer.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' }
     }
   },
 
   // s11 — MASALA (sCASE): Jasur, 3 yo'lak x 32 tosh
   s11: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Жасур выкладывает дорожки к теплице: 3 тропинки, на каждую нужно 32 камня.', uz: "Jasur issiqxonaga yo'laklar yotqizmoqda: 3 yo'lak, har biriga 32 tosh kerak." },
-    q: { ru: 'Сколько камней приготовить?', uz: 'Nechta tosh tayyorlash kerak?' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Жасур выкладывает дорожки к теплице: 3 тропинки, на каждую нужно 32 камня.', uz: "Jasur issiqxonaga yo'laklar yotqizmoqda: 3 yo'lak, har biriga 32 tosh kerak.", en: 'Jasur is laying paths to the greenhouse: 3 paths, each needs 32 stones.' },
+    q: { ru: 'Сколько камней приготовить?', uz: 'Nechta tosh tayyorlash kerak?', en: 'How many stones should he prepare?' },
     ans: 96,
-    setup_audio: { ru: 'Жасур строит дорожки к теплице. Три тропинки, на каждую тридцать два камня.', uz: "Jasur issiqxonaga yo'lak qurmoqda. Uchta yo'lak, har biriga o'ttiz ikkita tosh." },
+    setup_audio: { ru: 'Жасур строит дорожки к теплице. Три тропинки, на каждую тридцать два камня.', uz: "Jasur issiqxonaga yo'lak qurmoqda. Uchta yo'lak, har biriga o'ttiz ikkita tosh.", en: 'Jasur is building paths to the greenhouse. Three paths, thirty two stones for each.' },
     audio: {
-      intro: { ru: 'Помоги Жасуру посчитать камни. Набери ответ.', uz: "Jasurga toshlarni sanashga yordam bering. Javobni tering." },
-      on_correct: { ru: 'Девяносто шесть камней! Дорожки к теплице будут светиться.', uz: "To'qson oltita tosh! Issiqxona yo'laklari porlab turadi." },
-      on_wrong: { ru: 'Разбей тридцать два на тридцать и два. Умножь каждое на три и сложи.', uz: "O'ttiz ikkini o'ttiz va ikkiga bo'ling. Har birini uchga ko'paytirib qo'shing." }
+      intro: { ru: 'Помоги Жасуру посчитать камни. Набери ответ.', uz: "Jasurga toshlarni sanashga yordam bering. Javobni tering.", en: 'Help Jasur count the stones. Type the answer.' },
+      on_correct: { ru: 'Девяносто шесть камней! Дорожки к теплице будут светиться.', uz: "To'qson oltita tosh! Issiqxona yo'laklari porlab turadi.", en: 'Ninety six stones! The paths to the greenhouse will glow.' },
+      on_wrong: { ru: 'Разбей тридцать два на тридцать и два. Умножь каждое на три и сложи.', uz: "O'ttiz ikkini o'ttiz va ikkiga bo'ling. Har birini uchga ko'paytirib qo'shing.", en: 'Split thirty two into thirty and two. Multiply each by three and add.' }
     }
   },
 
   // s12 — XATONI TOP (4 yozuv; 65 IKKI MARTA uchraydi, biri to'g'ri!)
   s12: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
     items: [
       {
         stmts: ['(20+4) × 2 = 48', '(30+5) × 2 = 65', '(10+3) × 5 = 65', '(40+2) × 2 = 84'],
         wrong: 1,
-        hint: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
+        hint: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi.", en: 'This line is correct. Check the others. Was every addend multiplied?' }
       }
     ],
     audio: {
-      intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping." },
-      on_correct: { ru: 'Да! Тридцать умножили, а пятёрку забыли. Шестьдесят плюс десять, семьдесят.', uz: "Ha! O'ttiz ko'paytirilgan, besh esa unutilgan. Oltmish qo'shuv o'n, yetmish." },
-      on_wrong: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi." }
+      intro: { ru: 'Бит записал четыре примера, в один закралась ошибка. Найди её.', uz: "Bit to'rtta misol yozdi, bittasiga xato yashiringan. Uni toping.", en: 'The lights in the garden were changing and Bit did not write down how. Look at each card and work out what happened.' },
+      on_correct: { ru: 'Да! Тридцать умножили, а пятёрку забыли. Шестьдесят плюс десять, семьдесят.', uz: "Ha! O'ttiz ko'paytirilgan, besh esa unutilgan. Oltmish qo'shuv o'n, yetmish.", en: 'Yes! Thirty was multiplied, but the five was forgotten. Sixty plus ten, seventy.' },
+      on_wrong: { ru: 'Эта запись верна. Проверь остальные. Умножено ли каждое слагаемое.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring. Har qo'shiluvchi ko'paytirilganmi.", en: 'This line is correct. Check the others. Was every addend multiplied?' }
     }
   },
 
   // s13 — FINAL 5 savol + FactCard
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Финальная проверка тропинок. Пять заданий.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Финальная проверка тропинок. Пять заданий.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq.", en: 'The final check of the paths. Five tasks.' },
     items: [
       {
         kind: 'num', ans: 88,
-        q: { ru: 'Набери ответ: (20 + 2) × 4.', uz: 'Javobni tering: (20 + 2) × 4.' },
-        hint: { ru: 'Восемьдесят плюс восемь.', uz: "Sakson qo'shuv sakkiz." }
+        q: { ru: 'Набери ответ: (20 + 2) × 4.', uz: 'Javobni tering: (20 + 2) × 4.', en: 'Type the answer: (20 + 2) × 4.' },
+        hint: { ru: 'Восемьдесят плюс восемь.', uz: "Sakson qo'shuv sakkiz.", en: 'Eighty plus eight.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет (30 + 1) × 3?', uz: '(30 + 1) × 3 nechta bo\'ladi?' },
-        opt0: { ru: '93', uz: '93' },
-        opt1: { ru: '91', uz: '91' },
-        opt2: { ru: '34', uz: '34' },
-        opt3: { ru: '903', uz: '903' },
-        wrong_1: { ru: 'Единица тоже умножается на три.', uz: "Bir ham uchga ko'paytiriladi." },
-        wrong_2: { ru: 'Это сложение.', uz: "Bu qo'shish." },
-        wrong_3: { ru: 'Девяносто и три складывают.', uz: "To'qson bilan uch qo'shiladi." }
+        q: { ru: 'Сколько будет (30 + 1) × 3?', uz: '(30 + 1) × 3 nechta bo\'ladi?', en: 'What is (30 + 1) × 3?' },
+        opt0: { ru: '93', uz: '93', en: '93' },
+        opt1: { ru: '91', uz: '91', en: '91' },
+        opt2: { ru: '34', uz: '34', en: '34' },
+        opt3: { ru: '903', uz: '903', en: '903' },
+        wrong_1: { ru: 'Единица тоже умножается на три.', uz: "Bir ham uchga ko'paytiriladi.", en: 'The one is multiplied by three too.' },
+        wrong_2: { ru: 'Это сложение.', uz: "Bu qo'shish.", en: 'That is addition.' },
+        wrong_3: { ru: 'Девяносто и три складывают.', uz: "To'qson bilan uch qo'shiladi.", en: 'Ninety and three are added.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Как разбить 47 для умножения?', uz: "Ko'paytirish uchun 47 ni qanday bo'lamiz?" },
-        opt0: { ru: '40 + 7', uz: '40 + 7' },
-        opt1: { ru: '4 + 7', uz: '4 + 7' },
-        opt2: { ru: '45 + 2', uz: '45 + 2' },
-        opt3: { ru: '40 + 17', uz: '40 + 17' },
-        wrong_1: { ru: 'Четвёрка здесь это четыре десятка.', uz: "Bu yerdagi to'rt bu to'rt o'nlik." },
-        wrong_2: { ru: 'Удобнее на десятки и единицы, то есть сорок и семь.', uz: "O'nlik va birlikka qulayroq, ya'ni qirq va yetti." },
-        wrong_3: { ru: 'Вместе получится пятьдесят семь.', uz: 'Birga ellik yetti chiqadi.' }
+        q: { ru: 'Как разбить 47 для умножения?', uz: "Ko'paytirish uchun 47 ni qanday bo'lamiz?", en: 'How do you split 47 for multiplying?' },
+        opt0: { ru: '40 + 7', uz: '40 + 7', en: '40 + 7' },
+        opt1: { ru: '4 + 7', uz: '4 + 7', en: '4 + 7' },
+        opt2: { ru: '45 + 2', uz: '45 + 2', en: '45 + 2' },
+        opt3: { ru: '40 + 17', uz: '40 + 17', en: '40 + 17' },
+        wrong_1: { ru: 'Четвёрка здесь это четыре десятка.', uz: "Bu yerdagi to'rt bu to'rt o'nlik.", en: 'The four here is four tens.' },
+        wrong_2: { ru: 'Удобнее на десятки и единицы, то есть сорок и семь.', uz: "O'nlik va birlikka qulayroq, ya'ni qirq va yetti.", en: 'Tens and ones are easier, that is forty and seven.' },
+        wrong_3: { ru: 'Вместе получится пятьдесят семь.', uz: 'Birga ellik yetti chiqadi.', en: 'Together that gives fifty seven.' }
       },
       {
         kind: 'num', ans: 38,
-        q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni tering: 19 × 2.' },
-        hint: { ru: 'Разбей сам на десять и девять, каждое по два раза.', uz: "O'zingiz o'n va to'qqizga bo'ling, har biri ikki marta." }
+        q: { ru: 'Набери ответ: 19 × 2.', uz: 'Javobni tering: 19 × 2.', en: 'Type the answer: 19 × 2.' },
+        hint: { ru: 'Разбей сам на десять и девять, каждое по два раза.', uz: "O'zingiz o'n va to'qqizga bo'ling, har biri ikki marta.", en: 'Split it yourself into ten and nine, each of them twice.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '(20+3) × 2 = 43', uz: '(20+3) × 2 = 43' },
-        opt1: { ru: '(10+5) × 4 = 60', uz: '(10+5) × 4 = 60' },
-        opt2: { ru: '(30+2) × 2 = 64', uz: '(30+2) × 2 = 64' },
-        opt3: { ru: '(40+1) × 2 = 82', uz: '(40+1) × 2 = 82' },
-        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
+        opt0: { ru: '(20+3) × 2 = 43', uz: '(20+3) × 2 = 43', en: '(20+3) × 2 = 43' },
+        opt1: { ru: '(10+5) × 4 = 60', uz: '(10+5) × 4 = 60', en: '(10+5) × 4 = 60' },
+        opt2: { ru: '(30+2) × 2 = 64', uz: '(30+2) × 2 = 64', en: '(30+2) × 2 = 64' },
+        opt3: { ru: '(40+1) × 2 = 82', uz: '(40+1) × 2 = 82', en: '(40+1) × 2 = 82' },
+        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi." },
-    fact_audio: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим. Огни тропинок светят для нас, а листья сада весь день собирали свет для себя.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi. Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun nur yig'di." },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
+    fact_text: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi.", en: 'The leaves of plants catch sunlight and turn it into food. This is photosynthesis. At the same time the leaves let out the oxygen we breathe.' },
+    fact_audio: { ru: 'Листья растений ловят солнечный свет и превращают его в питание. Это фотосинтез. Заодно листья выпускают кислород, которым мы дышим. Огни тропинок светят для нас, а листья сада весь день собирали свет для себя.', uz: "O'simlik barglari quyosh nurini tutib, uni oziqqa aylantiradi. Bu fotosintez. Shu bilan birga barglar biz nafas oladigan kislorodni chiqaradi. Yo'lak nurlari biz uchun porlaydi, bog' barglari esa kun bo'yi o'zi uchun nur yig'di.", en: 'The leaves of plants catch sunlight and turn it into food. This is photosynthesis. At the same time the leaves let out the oxygen we breathe. The path lights shine for us, and the garden leaves gathered light for themselves all day.' },
     audio: {
-      intro: { ru: 'Финальная проверка тропинок. Пять заданий, отвечай на каждое.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри разбор и попробуй ещё.', uz: "Tahlilga qarang va yana urinib ko'ring." }
+      intro: { ru: 'Финальная проверка тропинок. Пять заданий, отвечай на каждое.', uz: "Yo'laklarning yakuniy tekshiruvi. Beshta topshiriq, har biriga javob bering.", en: 'The final check of the paths. Five tasks, answer each one.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри разбор и попробуй ещё.', uz: "Tahlilga qarang va yana urinib ko'ring.", en: 'Word problem' }
     }
   },
 
   // s14 — YAKUN
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Тропинки светятся!', uz: "Yo'laklar porlayapti!" },
-    cando: { ru: 'Теперь ты умеешь умножать числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ko'paytira olasiz." },
-    rule_recap: { ru: 'Разбей число на десятки и единицы, умножь каждое слагаемое, сложи результаты. (20+3)×4 = 80+12 = 92.', uz: "Sonni o'nlik va birlikka bo'ling, har qo'shiluvchini ko'paytiring, natijalarni qo'shing." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 3: разрядные слагаемые; уроки 9, 10', uz: "3-dars: xona qo'shiluvchilari; 9, 10-darslar" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'деление суммы', uz: "yig'indini bo'lish" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Тропинки светятся!', uz: "Yo'laklar porlayapti!", en: 'The paths are glowing!' },
+    cando: { ru: 'Теперь ты умеешь умножать числа, которых нет в таблице.', uz: "Endi siz jadvalda yo'q sonlarni ko'paytira olasiz.", en: 'Now you can multiply numbers that are not in the table.' },
+    rule_recap: { ru: 'Разбей число на десятки и единицы, умножь каждое слагаемое, сложи результаты. (20+3)×4 = 80+12 = 92.', uz: "Sonni o'nlik va birlikka bo'ling, har qo'shiluvchini ko'paytiring, natijalarni qo'shing.", en: 'Split the number into tens and ones, multiply each addend, add the results. (20+3)×4 = 80+12 = 92.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'урок 3: разрядные слагаемые; уроки 9, 10', uz: "3-dars: xona qo'shiluvchilari; 9, 10-darslar", en: 'lesson 3: place-value parts; lessons 9, 10' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'деление суммы', uz: "yig'indini bo'lish", en: 'dividing a sum' },
     audio: {
       ru: 'Тропинки светятся, и у тебя новый приём. Разбей число на десятки и единицы, умножь каждое, сложи. И взрослая запись, столбик, тебе уже знакома. А завтра обратная задача. Девяносто два камня надо раздать поровну на четыре тропинки. Получится ли? Узнаем в следующем уроке!',
-      uz: "Yo'laklar porlayapti, sizda esa yangi usul bor. Sonni o'nlik va birlikka bo'ling, har birini ko'paytiring, qo'shing. Kattalar yozuvi, ustun ham endi sizga tanish. Ertaga esa teskari masala. To'qson ikkita toshni to'rtta yo'lakka teng bo'lish kerak. Chiqarmikan? Keyingi darsda bilamiz!"
+      uz: "Yo'laklar porlayapti, sizda esa yangi usul bor. Sonni o'nlik va birlikka bo'ling, har birini ko'paytiring, qo'shing. Kattalar yozuvi, ustun ham endi sizga tanish. Ertaga esa teskari masala. To'qson ikkita toshni to'rtta yo'lakka teng bo'lish kerak. Chiqarmikan? Keyingi darsda bilamiz!",
+      en: 'The paths are glowing and you have a new method. Split the number into tens and ones, multiply each one, add. And the grown-up way of writing, the column, is already familiar to you. And tomorrow the opposite task. Ninety two stones must be shared equally among four paths. Will it work out? We will find out in the next lesson!'
     }
   }
 };
 
 // slaydlararo ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'Теперь к тропинкам.', uz: "Endi yo'laklarga." },
-  s3:  { ru: 'Части готовы. Считаем.', uz: 'Qismlar tayyor. Sanaymiz.' },
-  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
-  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s7:  { ru: 'Потренируем первый шаг.', uz: 'Birinchi qadamni mashq qilamiz.' },
-  s8:  { ru: 'Теперь приём целиком.', uz: "Endi usul to'liq." },
-  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
-  s11: { ru: 'Жасуру нужна помощь.', uz: 'Jasurga yordam kerak.' },
-  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
-  s13: { ru: 'Финальная проверка тропинок.', uz: "Yo'laklarning yakuniy tekshiruvi." },
-  s14: { ru: 'Тропинки готовы. Идём домой!', uz: "Yo'laklar tayyor. Uyga boramiz!" }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'Теперь к тропинкам.', uz: "Endi yo'laklarga.", en: 'Now to the paths.' },
+  s3:  { ru: 'Части готовы. Считаем.', uz: 'Qismlar tayyor. Sanaymiz.', en: 'The parts are ready. We count.' },
+  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan.", en: 'And here is Bit with his counting.' },
+  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s7:  { ru: 'Потренируем первый шаг.', uz: 'Birinchi qadamni mashq qilamiz.', en: 'Let us practise the first step.' },
+  s8:  { ru: 'Теперь приём целиком.', uz: "Endi usul to'liq.", en: 'Now the whole method.' },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering.", en: '6 × 100 = 60' },
+  s11: { ru: 'Жасуру нужна помощь.', uz: 'Jasurga yordam kerak.', en: 'Jasur needs help.' },
+  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.', en: '30 × 10 = 300' },
+  s13: { ru: 'Финальная проверка тропинок.', uz: "Yo'laklarning yakuniy tekshiruvi.", en: 'The final check of the paths.' },
+  s14: { ru: 'Тропинки готовы. Идём домой!', uz: "Yo'laklar tayyor. Uyga boramiz!", en: 'The paths are ready. Off we go home!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Все четыре тропинки светятся, и дорога домой открыта. Спасибо за помощь!',
-  uz: "Missiya bajarildi! To'rtala yo'lak porlayapti, uyga yo'l ochiq. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! To'rtala yo'lak porlayapti, uyga yo'l ochiq. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! All four paths are glowing and the road home is open. Thank you for your help!'
 };
 
 
@@ -1047,7 +1056,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -1235,7 +1244,7 @@ const Screen0 = (props) => {
         {picked === null && (
           <div className="frame fade-up delay-1 d12-sample-row" style={{ padding: 'clamp(8px, 1.6vw, 12px)' }}>
             <PathSample/>
-            <span className="mono d12-sample-cap">{lang === 'ru' ? '1 тропинка = 2 плиты + 3 камешка = 23' : "1 yo'lak = 2 plita + 3 toshcha = 23"}</span>
+            <span className="mono d12-sample-cap">{tri(lang, '1 тропинка = 2 плиты + 3 камешка = 23', "1 yo'lak = 2 plita + 3 toshcha = 23", '1 path = 2 slabs + 3 pebbles = 23')}</span>
           </div>
         )}
         <p className="fade-up delay-1" style={{ textAlign: 'center', color: T.ink2, fontWeight: 600, fontSize: 'clamp(14px, 1.9vw, 17px)', margin: 0 }}>{t(c.q)}</p>
@@ -1327,7 +1336,7 @@ const Screen1 = (props) => {
         </div>
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={lang === 'ru' ? 'Обе половинки готовы. Соединяем!' : "Ikkala bo'lak tayyor. Ulaymiz!"}/>
+            <Reaction state="correct" praise={tri(lang, 'Обе половинки готовы. Соединяем!', "Ikkala bo'lak tayyor. Ulaymiz!", 'Both halves are ready. We join them!')}/>
           </div>
         )}
       </div>
@@ -1387,7 +1396,7 @@ const Screen2 = (props) => {
         </div>
         {done && (
           <div ref={revealRef} className="frame-success fade-up">
-            <Reaction state="correct" praise={lang === 'ru' ? 'Одно трудное умножение стало двумя лёгкими!' : "Bitta qiyin ko'paytirish ikkita osonga aylandi!"}/>
+            <Reaction state="correct" praise={tri(lang, 'Одно трудное умножение стало двумя лёгкими!', "Bitta qiyin ko'paytirish ikkita osonga aylandi!", 'One hard multiplication became two easy ones!')}/>
           </div>
         )}
       </div>
@@ -1435,7 +1444,7 @@ const Screen3 = (props) => {
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(14px, 2.2vw, 17px)' }}>
-              {step === 0 ? (lang === 'ru' ? 'Считать плиты' : 'Plitalarni sanash') : (step === 1 ? (lang === 'ru' ? 'Считать камешки' : 'Toshchalarni sanash') : (lang === 'ru' ? 'Сложить' : "Qo'shish"))}
+              {step === 0 ? (tri(lang, 'Считать плиты', 'Plitalarni sanash', 'Count the slabs')) : (step === 1 ? (tri(lang, 'Считать камешки', 'Toshchalarni sanash', 'Count the pebbles')) : (tri(lang, 'Сложить', "Qo'shish", 'Add')))}
             </button>
           )}
         </div>
@@ -1757,7 +1766,7 @@ const Screen9 = (props) => {
             {!built && (
               <button className="btn-white-accent" disabled={!canAct} onClick={tapCol}
                 style={{ fontSize: 'clamp(13px, 2vw, 16px)', marginTop: 4 }}>
-                {reached === 0 ? (lang === 'ru' ? 'Умножить единицы' : 'Birliklarni ko\'paytirish') : (reached === 1 ? (lang === 'ru' ? 'Умножить десятки' : 'O\'nliklarni ko\'paytirish') : (lang === 'ru' ? 'Показать ответ' : 'Javobni ko\'rsatish'))}
+                {reached === 0 ? (tri(lang, 'Умножить единицы', "Birliklarni ko\'paytirish", 'Multiply the ones')) : (reached === 1 ? (tri(lang, 'Умножить десятки', "O\'nliklarni ko\'paytirish", 'Multiply the tens')) : (tri(lang, 'Показать ответ', "Javobni ko\'rsatish", 'Show the answer')))}
               </button>
             )}
           </div>
@@ -1854,7 +1863,7 @@ const Screen10 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshir', 'Check')}</button>
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
@@ -1927,7 +1936,7 @@ const Screen11 = (props) => {
             <span className="mono" style={{ fontSize: 'clamp(14px, 2.2vw, 18px)', fontWeight: 800, color: T.ink2 }}>32 × 3</span>
           </div>
           <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+          <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshir', 'Check')}</button>
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
         {solved && (
@@ -2172,7 +2181,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshir', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
               </>
@@ -2241,7 +2250,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tut', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d12-final-scene fade-up delay-1"><LessonScene gathered/></div>
@@ -2262,7 +2271,7 @@ export default function MulSumLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);

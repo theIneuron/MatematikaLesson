@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -158,8 +158,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-14',
-  lessonTitle: { ru: 'Урок 14. Связь умножения и деления', uz: "14-dars. Ko'paytirish va bo'lishning bog'lanishi" }
+  lessonId: 'grade3-14',
+  lessonTitle: { ru: 'Урок 14. Связь умножения и деления', uz: "14-dars. Ko'paytirish va bo'lishning bog'lanishi", en: 'Lesson 14. The link between multiplication and division' }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-05, KONTENT_3SINF.md «Dars 14»): bitta uchlik
 // 5, 8, 40 ustida qurilgan. s0 xuk (vagonetka, yorliq 40) · s1 ko'prik (ikki tayyor yozuv) ·
@@ -201,16 +201,16 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Связь умножения и деления', uz: "Ko'paytirish va bo'lishning bog'lanishi" },
-    lead: { ru: 'Лампы уехали в город, а сколько ящиков — не видно', uz: "Lampalar shaharga ketdi, yashiklar soni esa ko'rinmaydi" },
-    tag_cap: { ru: 'накладная', uz: 'yorliq' },
-    crate_cap: { ru: 'в ящике по 5', uz: 'yashikda beshtadan' },
-    q: { ru: 'Как узнать, сколько ящиков, не снимая чехол?', uz: "Matoni ochmasdan yashiklar sonini qanday bilish mumkin?" },
-    opt0: { ru: 'Разделить сорок на пять', uz: "Qirqni beshga bo'lish" },
-    opt1: { ru: 'Умножить сорок на пять', uz: "Qirqni beshga ko'paytirish" },
-    opt2: { ru: 'Вычесть из сорока пять', uz: 'Qirqdan beshni ayirish' },
-    opt3: { ru: 'Снять чехол и посчитать', uz: 'Matoni ochib sanash' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Связь умножения и деления', uz: "Ko'paytirish va bo'lishning bog'lanishi", en: 'The link between multiplication and division' },
+    lead: { ru: 'Лампы уехали в город, а сколько ящиков — не видно', uz: "Lampalar shaharga ketdi, yashiklar soni esa ko'rinmaydi", en: 'The lamps have gone to the city, but the number of boxes is hidden' },
+    tag_cap: { ru: 'накладная', uz: 'yorliq', en: 'delivery note' },
+    crate_cap: { ru: 'в ящике по 5', uz: 'yashikda beshtadan', en: '5 in a box' },
+    q: { ru: 'Как узнать, сколько ящиков, не снимая чехол?', uz: "Matoni ochmasdan yashiklar sonini qanday bilish mumkin?", en: 'How can we find the number of boxes without taking the cover off?' },
+    opt0: { ru: 'Разделить сорок на пять', uz: "Qirqni beshga bo'lish", en: 'Divide forty by five' },
+    opt1: { ru: 'Умножить сорок на пять', uz: "Qirqni beshga ko'paytirish", en: 'Multiply forty by five' },
+    opt2: { ru: 'Вычесть из сорока пять', uz: 'Qirqdan beshni ayirish', en: 'Subtract five from forty' },
+    opt3: { ru: 'Снять чехол и посчитать', uz: 'Matoni ochib sanash', en: 'Take the cover off and count' },
     audio: {
       intro: {
         ru: [
@@ -224,35 +224,40 @@ const CONTENT = {
           "Yorug' bog' lampalarni shaharga jo'natadi. Jo'natish maydonchasida vagonetka turadi, ustida yashiklar bor, har yashikda beshta lampa.",
           "Yorliqda nechta lampa ketgani yozilgan. Jami qirq. Yashiklar esa ko'rinmaydi, ular mato ostida.",
           "Qabulda Bit yashiklar sonini aytishi kerak. Sizningcha, u nima qilishi kerak?"
-        ]
+        ],
+        en: ['The topic of the lesson is called the link between multiplication and division. We will find out how to find a number hidden in a line.', 'The glowing garden sends lamps to the city. A trolley stands at the dispatch yard with boxes on it, and each box holds five lamps.', 'The tag says how many lamps have gone. Forty in all. And the boxes cannot be seen, they are under a cover.', 'At the receiving point Bit has to name the number of boxes. What do you think he should do?']
       },
       on_correct: {
         ru: 'Верно! Сорок разделить на пять, и число ящиков найдено. Сейчас проверим это на самой вагонетке.',
-        uz: "To'g'ri! Qirqni beshga bo'lsak, yashiklar soni topiladi. Hozir buni vagonettada tekshiramiz."
+        uz: "To'g'ri! Qirqni beshga bo'lsak, yashiklar soni topiladi. Hozir buni vagonettada tekshiramiz.",
+        en: 'Right! Forty divided by five, and the number of boxes is found. Now we will check it on the trolley itself.'
       },
       on_wrong1: {
         ru: 'Умножение собирает целое, а целое мы уже знаем, это сорок. Искать надо часть.',
-        uz: "Ko'paytirish butunni yig'adi, butunni esa bilamiz, u qirq. Qismni topish kerak."
+        uz: "Ko'paytirish butunni yig'adi, butunni esa bilamiz, u qirq. Qismni topish kerak.",
+        en: 'Multiplication puts the whole together, and we already know the whole, it is forty. We have to find a part.'
       },
       on_wrong2: {
         ru: 'Вычитание уберёт один ящик, а нам нужно, сколько их всего.',
-        uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa ularning jami soni kerak."
+        uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa ularning jami soni kerak.",
+        en: 'Subtraction will take away one box, and we need to know how many there are in all.'
       },
       on_idk: {
         ru: 'Посчитать можно, но если ящиков сто, счёт затянется. Есть действие, которое даёт ответ сразу.',
-        uz: "Sanash mumkin, lekin yashik yuzta bo'lsa, sanoq uzoq davom etadi. Javobni darrov beradigan amal bor."
+        uz: "Sanash mumkin, lekin yashik yuzta bo'lsa, sanoq uzoq davom etadi. Javobni darrov beradigan amal bor.",
+        en: 'You can count them, but if there are a hundred boxes, counting will drag on. There is an operation that gives the answer at once.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz' },
-    lead: { ru: 'Две записи, которые ты уже знаешь', uz: 'Siz allaqachon bilgan ikki yozuv' },
-    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing' },
-    card1: { ru: '5 × 8 = 40', uz: '5 × 8 = 40' },
-    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
-    card2: { ru: '40 : 5 = 8', uz: '40 : 5 = 8' },
-    card2_cap: { ru: 'деление, урок 9', uz: "bo'lish, 9-dars" },
+    eyebrow: { ru: 'Вспоминаем', uz: 'Eslaymiz', en: 'Recalling' },
+    lead: { ru: 'Две записи, которые ты уже знаешь', uz: 'Siz allaqachon bilgan ikki yozuv', en: 'Two lines you already know' },
+    tap_label: { ru: 'Нажми на карточку', uz: 'Kartani bosing', en: 'Tap a card' },
+    card1: { ru: '5 × 8 = 40', uz: '5 × 8 = 40', en: '5 × 8 = 40' },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars", en: 'the multiplication table, lesson 9' },
+    card2: { ru: '40 : 5 = 8', uz: '40 : 5 = 8', en: '40 : 5 = 8' },
+    card2_cap: { ru: 'деление, урок 9', uz: "bo'lish, 9-dars", en: 'division, lesson 9' },
     audio: {
       ru: [
         'Смотри, обе записи ты уже знаешь. Открой первую карточку.',
@@ -265,18 +270,19 @@ const CONTENT = {
         "Besh karra sakkiz, qirq. Bu jadvaldan.",
         "Qirqni beshga bo'lsak, sakkiz. Bu ham tanish.",
         "Endi asosiy narsani sezing. Ikki yozuvda o'sha uchta son bor. Besh, sakkiz va qirq."
-      ]
+      ],
+      en: ['Look, you already know both lines. Open the first card.', 'Five times eight is forty. That is from the table.', 'Forty divided by five is eight. Familiar too.', 'And now notice the main thing. Both lines have the very same three numbers. Five, eight and forty.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Обратная дорога: от сорока к числу ящиков', uz: "Teskari yo'l: qirqdan yashiklar soniga" },
-    btn1: { ru: 'Разделить сорок на пять', uz: "Qirqni beshga bo'lish" },
-    btn2: { ru: 'Открыть ящики', uz: 'Yashiklarni ochish' },
-    btn3: { ru: 'Посчитать', uz: 'Sanash' },
-    count_cap: { ru: 'ящиков', uz: 'yashik' },
-    done_text: { ru: 'Сорок ламп, по пять в ящике, восемь ящиков. Накладная сошлась.', uz: "Qirq lampa, yashikda beshtadan, sakkiz yashik. Yorliq to'g'ri chiqdi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Обратная дорога: от сорока к числу ящиков', uz: "Teskari yo'l: qirqdan yashiklar soniga", en: 'The way back: from forty to the number of boxes' },
+    btn1: { ru: 'Разделить сорок на пять', uz: "Qirqni beshga bo'lish", en: 'Divide forty by five' },
+    btn2: { ru: 'Открыть ящики', uz: 'Yashiklarni ochish', en: 'Open the boxes' },
+    btn3: { ru: 'Посчитать', uz: 'Sanash', en: 'Count' },
+    count_cap: { ru: 'ящиков', uz: 'yashik', en: 'boxes' },
+    done_text: { ru: 'Сорок ламп, по пять в ящике, восемь ящиков. Накладная сошлась.', uz: "Qirq lampa, yashikda beshtadan, sakkiz yashik. Yorliq to'g'ri chiqdi.", en: 'Forty lamps, five in a box, eight boxes. The delivery note adds up.' },
     audio: {
       ru: [
         'Смотри на вагонетку. Всего сорок ламп, и в каждом ящике по пять.',
@@ -291,25 +297,26 @@ const CONTENT = {
         "Yashiklar birin-ketin paydo bo'ladi. Besh, o'n, o'n besh va shu tartibda qirqqacha.",
         "Yashiklar sakkizta chiqdi. Qirqni beshga bo'lsak, sakkiz.",
         "Bu yo'lni eslab qoling. Biz teskari yo'ldan bordik, butundan qismga, va bo'lish yashiringan sonni qaytardi."
-      ]
+      ],
+      en: ['Look at the trolley. Forty lamps in all, and five in every box.', 'We divide forty by five. That means we find out how many times five fits into forty.', 'The boxes appear one after another. Five, ten, fifteen and on up to forty.', 'Eight boxes came out. Forty divided by five is eight.', 'Remember this move. We went the way back, from the whole to a part, and division returned the hidden number.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Три числа', uz: 'Uchta son' },
-    lead: { ru: 'Одна тройка чисел — четыре записи', uz: "Bitta uchlik son — to'rtta yozuv" },
-    tri_cap: { ru: 'сорок, пять и восемь держатся вместе', uz: 'qirq, besh va sakkiz birga turadi' },
+    eyebrow: { ru: 'Три числа', uz: 'Uchta son', en: 'Three numbers' },
+    lead: { ru: 'Одна тройка чисел — четыре записи', uz: "Bitta uchlik son — to'rtta yozuv", en: 'One trio of numbers — four lines' },
+    tri_cap: { ru: 'сорок, пять и восемь держатся вместе', uz: 'qirq, besh va sakkiz birga turadi', en: 'forty, five and eight hold together' },
     rows: [
-      { expr: '5 × 8 = 40', cap: { ru: 'множитель, множитель, произведение', uz: "ko'paytuvchi, ko'paytuvchi, ko'paytma" } },
-      { expr: '8 × 5 = 40', cap: { ru: 'множители можно поменять местами', uz: "ko'paytuvchilar o'rnini almashtirsa bo'ladi" } },
-      { expr: '40 : 5 = 8', cap: { ru: 'делимое, делитель, частное', uz: "bo'linuvchi, bo'luvchi, bo'linma" } },
-      { expr: '40 : 8 = 5', cap: { ru: 'делим на другое число тройки', uz: "uchlikdagi boshqa songa bo'lamiz" } }
+      { expr: '5 × 8 = 40', cap: { ru: 'множитель, множитель, произведение', uz: "ko'paytuvchi, ko'paytuvchi, ko'paytma", en: 'factor, factor, product' } },
+      { expr: '8 × 5 = 40', cap: { ru: 'множители можно поменять местами', uz: "ko'paytuvchilar o'rnini almashtirsa bo'ladi", en: 'the factors can be swapped' } },
+      { expr: '40 : 5 = 8', cap: { ru: 'делимое, делитель, частное', uz: "bo'linuvchi, bo'luvchi, bo'linma", en: 'dividend, divisor, quotient' } },
+      { expr: '40 : 8 = 5', cap: { ru: 'делим на другое число тройки', uz: "uchlikdagi boshqa songa bo'lamiz", en: 'we divide by the other number of the trio' } }
     ],
-    btn1: { ru: 'Первая запись', uz: 'Birinchi yozuv' },
-    btn2: { ru: 'Вторая запись', uz: 'Ikkinchi yozuv' },
-    btn3: { ru: 'Третья запись', uz: 'Uchinchi yozuv' },
-    btn4: { ru: 'Четвёртая запись', uz: "To'rtinchi yozuv" },
-    done_text: { ru: 'Из трёх чисел вышли четыре записи. Две с умножением и две с делением.', uz: "Uchta sondan to'rtta yozuv chiqdi. Ikkitasi ko'paytirish, ikkitasi bo'lish." },
+    btn1: { ru: 'Первая запись', uz: 'Birinchi yozuv', en: 'The first line' },
+    btn2: { ru: 'Вторая запись', uz: 'Ikkinchi yozuv', en: 'The second line' },
+    btn3: { ru: 'Третья запись', uz: 'Uchinchi yozuv', en: 'The third line' },
+    btn4: { ru: 'Четвёртая запись', uz: "To'rtinchi yozuv", en: 'The fourth line' },
+    done_text: { ru: 'Из трёх чисел вышли четыре записи. Две с умножением и две с делением.', uz: "Uchta sondan to'rtta yozuv chiqdi. Ikkitasi ko'paytirish, ikkitasi bo'lish.", en: 'Three numbers gave four lines. Two with multiplication and two with division.' },
     audio: {
       ru: [
         'Три числа держатся вместе, как одна семья. Сорок наверху, пять и восемь внизу.',
@@ -326,26 +333,27 @@ const CONTENT = {
         "Qirqni beshga bo'lsak, sakkiz. Bu yerda qirq bo'linuvchi, besh bo'luvchi, sakkiz esa bo'linma.",
         "Qirqni sakkizga bo'lsak, besh. O'sha uchburchak, faqat boshqa songa bo'ldik.",
         "Uchta sondan to'rtta yozuv chiqdi. Ikkitasi ko'paytirish, ikkitasi bo'lish. Shuning uchun javobdan doim ortga qaytish mumkin."
-      ]
+      ],
+      en: ['Three numbers hold together like one family. Forty on top, five and eight below.', 'Five times eight is forty. Five and eight are the factors here, and forty is the product.', 'Eight times five is also forty. The factors can be swapped, the product will not change.', 'Forty divided by five is eight. Here forty is the dividend, five is the divisor and eight is the quotient.', 'Forty divided by eight is five. The same triangle, only we divide by the other number.', 'Four lines came out of three numbers. Two with multiplication and two with division. That is why you can always come back from the answer.']
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Какое-то число умножили на пять и вышло сорок. Как найти это число?', uz: "Qaysidir son beshga ko'paytirilib, qirq chiqdi. Bu sonni qanday topamiz?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Какое-то число умножили на пять и вышло сорок. Как найти это число?', uz: "Qaysidir son beshga ko'paytirilib, qirq chiqdi. Bu sonni qanday topamiz?", en: 'Some number was multiplied by five and forty came out. How do we find that number?' },
     opts: [
-      { ru: 'Сорок разделить на пять', uz: "Qirqni beshga bo'lish" },
-      { ru: 'Сорок умножить на пять', uz: "Qirqni beshga ko'paytirish" },
-      { ru: 'К сорока прибавить пять', uz: "Qirqqa beshni qo'shish" },
-      { ru: 'Из сорока вычесть пять', uz: 'Qirqdan beshni ayirish' }
+      { ru: 'Сорок разделить на пять', uz: "Qirqni beshga bo'lish", en: 'Divide forty by five' },
+      { ru: 'Сорок умножить на пять', uz: "Qirqni beshga ko'paytirish", en: 'Multiply forty by five' },
+      { ru: 'К сорока прибавить пять', uz: "Qirqqa beshni qo'shish", en: 'Add five to forty' },
+      { ru: 'Из сорока вычесть пять', uz: 'Qirqdan beshni ayirish', en: 'Subtract five from forty' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение уже сделано, его результат сорок. Второй раз умножать нечего.', uz: "Ko'paytirish allaqachon bajarilgan, natijasi qirq. Ikkinchi marta ko'paytiradigan narsa yo'q." },
-      2: { ru: 'Сложение тут не при чём. В записи стоит умножение, значит вернёт нас деление.', uz: "Qo'shishning bunga aloqasi yo'q. Yozuvda ko'paytirish turadi, demak bizni bo'lish qaytaradi." },
-      3: { ru: 'Вычитание убирает пять ламп, а нам нужно, сколько раз по пять уложилось в сорок.', uz: "Ayirish beshta lampani olib qo'yadi, bizga esa qirqqa beshtadan necha marta joylashgani kerak." }
+      1: { ru: 'Умножение уже сделано, его результат сорок. Второй раз умножать нечего.', uz: "Ko'paytirish allaqachon bajarilgan, natijasi qirq. Ikkinchi marta ko'paytiradigan narsa yo'q.", en: 'The multiplication is already done, its result is forty. There is nothing to multiply a second time.' },
+      2: { ru: 'Сложение тут не при чём. В записи стоит умножение, значит вернёт нас деление.', uz: "Qo'shishning bunga aloqasi yo'q. Yozuvda ko'paytirish turadi, demak bizni bo'lish qaytaradi.", en: 'Addition has nothing to do with it. The line has a multiplication, so division will bring us back.' },
+      3: { ru: 'Вычитание убирает пять ламп, а нам нужно, сколько раз по пять уложилось в сорок.', uz: "Ayirish beshta lampani olib qo'yadi, bizga esa qirqqa beshtadan necha marta joylashgani kerak.", en: 'Subtraction takes away five lamps, and we need to know how many fives fit into forty.' }
     },
-    on_correct: { ru: 'Именно так! Неизвестный множитель находят делением.', uz: "Aynan shunday! Noma'lum ko'paytuvchi bo'lish bilan topiladi." },
+    on_correct: { ru: 'Именно так! Неизвестный множитель находят делением.', uz: "Aynan shunday! Noma'lum ko'paytuvchi bo'lish bilan topiladi.", en: 'Exactly so! An unknown factor is found by dividing.' },
     rule_lines: {
       ru: [
         'Неизвестный множитель = произведение : известный множитель',
@@ -356,32 +364,36 @@ const CONTENT = {
         "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi",
         "Ko'paytirishni tekshirish: ko'paytma : ko'paytuvchi",
         "Bo'lishni tekshirish: bo'linma × bo'luvchi"
-      ]
+      ],
+      en: ['Unknown factor = product : known factor', 'Multiplication is checked by division: product : factor', 'Division is checked by multiplication: quotient × divisor']
     },
     rule_ex: '5 × 8 = 40 · 40 : 5 = 8 · 40 : 8 = 5',
     rule_speech: {
       ru: 'Правило такое. Если один множитель неизвестен, делим произведение на известный множитель. Чтобы проверить умножение, произведение делят на один из множителей. А чтобы проверить деление, частное умножают на делитель.',
-      uz: "Qoida shunday. Bitta ko'paytuvchi noma'lum bo'lsa, ko'paytmani ma'lum ko'paytuvchiga bo'lamiz. Ko'paytirishni tekshirish uchun ko'paytmani ko'paytuvchilardan biriga bo'lamiz. Bo'lishni tekshirish uchun esa bo'linmani bo'luvchiga ko'paytiramiz."
+      uz: "Qoida shunday. Bitta ko'paytuvchi noma'lum bo'lsa, ko'paytmani ma'lum ko'paytuvchiga bo'lamiz. Ko'paytirishni tekshirish uchun ko'paytmani ko'paytuvchilardan biriga bo'lamiz. Bo'lishni tekshirish uchun esa bo'linmani bo'luvchiga ko'paytiramiz.",
+      en: 'The rule is this. If one factor is unknown, we divide the product by the known factor. To check a multiplication, the product is divided by one of the factors. And to check a division, the quotient is multiplied by the divisor.'
     },
     audio: {
-      intro: { ru: 'Одну вагонетку мы разобрали. Теперь главный вопрос урока.', uz: "Bitta vagonettani ko'rib chiqdik. Endi darsning asosiy savoli." }
+      intro: { ru: 'Одну вагонетку мы разобрали. Теперь главный вопрос урока.', uz: "Bitta vagonettani ko'rib chiqdik. Endi darsning asosiy savoli.", en: 'We sorted out one trolley. Now the main question of the lesson.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит увидел умножение и умножил сам', uz: "Bit ko'paytirishni ko'rib, o'zi ham ko'paytirdi" },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит увидел умножение и умножил сам', uz: "Bit ko'paytirishni ko'rib, o'zi ham ko'paytirdi", en: 'Bit saw a multiplication and multiplied himself' },
     lines: ['☐ × 5 = 40', '40 × 5', '200'],
-    trap_label: { ru: 'Верно ли посчитал Бит?', uz: "Bit to'g'ri hisobladimi?" },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    trap_label: { ru: 'Верно ли посчитал Бит?', uz: "Bit to'g'ri hisobladimi?", en: 'Did Bit count correctly?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Двести это не выдумка, но это ответ на другую задачу, где сорок само стало множителем. А у нас сорок уже целое, поэтому его делят.',
-      uz: "Aniq! Ikki yuz o'ydirma emas, lekin bu boshqa masalaning javobi, unda qirqning o'zi ko'paytuvchi bo'ladi. Bizda esa qirq allaqachon butun, shuning uchun u bo'linadi."
+      uz: "Aniq! Ikki yuz o'ydirma emas, lekin bu boshqa masalaning javobi, unda qirqning o'zi ko'paytuvchi bo'ladi. Bizda esa qirq allaqachon butun, shuning uchun u bo'linadi.",
+      en: 'Exactly! Two hundred is not made up, but it is the answer to a different problem, where forty itself became a factor. In ours forty is already the whole, so it is divided.'
     },
     trap_wrong: {
       ru: 'Посмотри на вагонетку. Ламп всего сорок, больше их стать не может. Значит действие обратное, деление.',
-      uz: "Vagonettaga qarang. Lampa jami qirq, undan ko'p bo'la olmaydi. Demak amal teskari, bo'lish."
+      uz: "Vagonettaga qarang. Lampa jami qirq, undan ko'p bo'la olmaydi. Demak amal teskari, bo'lish.",
+      en: 'Look at the trolley. There are forty lamps in all, there cannot be more. So the operation is the opposite one, division.'
     },
     audio: {
       ru: [
@@ -391,35 +403,36 @@ const CONTENT = {
       uz: [
         "Bit yozuvda ko'paytirishni ko'rib, o'zi ham ko'paytirdi. Qirq karra besh, ikki yuz!",
         "Bit to'g'ri hisobladimi?"
-      ]
+      ],
+      en: ['Bit saw a multiplication in the line and multiplied himself. Forty times five, two hundred!', 'Did Bit count correctly?']
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshirish' },
-    lead: { ru: 'Проверка ловит ошибку', uz: 'Tekshirish xatoni tutadi' },
-    left_title: { ru: 'Бит разделил', uz: "Bit bo'ldi" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshirish', en: 'Checking' },
+    lead: { ru: 'Проверка ловит ошибку', uz: 'Tekshirish xatoni tutadi', en: 'Checking catches the mistake' },
+    left_title: { ru: 'Бит разделил', uz: "Bit bo'ldi", en: 'Bit divided' },
     left_lines: ['54 : 9 = 7', '7 × 9 = 63', '54 : 9 = 6'],
-    left_cap: { ru: 'шестьдесят три это не пятьдесят четыре, значит ошибка', uz: "oltmish uch ellik to'rt emas, demak xato" },
-    right_title: { ru: 'Бит умножил', uz: "Bit ko'paytirdi" },
+    left_cap: { ru: 'шестьдесят три это не пятьдесят четыре, значит ошибка', uz: "oltmish uch ellik to'rt emas, demak xato", en: 'sixty three is not fifty four, so there is a mistake' },
+    right_title: { ru: 'Бит умножил', uz: "Bit ko'paytirdi", en: 'Bit multiplied' },
     right_lines: ['6 × 9 = 54', '54 : 6 = 9', '54 : 9 = 6'],
-    right_cap: { ru: 'произведение разделили на множитель', uz: "ko'paytmani ko'paytuvchiga bo'ldik" },
-    btn1: { ru: 'Проверить деление', uz: "Bo'lishni tekshirish" },
-    btn2: { ru: 'Проверить умножение', uz: "Ko'paytirishni tekshirish" },
-    mc_q: { ru: 'Бит разделил и получил семь. Как проверить его ответ?', uz: "Bit bo'lib, yetti chiqardi. Javobini qanday tekshiramiz?" },
+    right_cap: { ru: 'произведение разделили на множитель', uz: "ko'paytmani ko'paytuvchiga bo'ldik", en: 'the product was divided by a factor' },
+    btn1: { ru: 'Проверить деление', uz: "Bo'lishni tekshirish", en: 'Check the division' },
+    btn2: { ru: 'Проверить умножение', uz: "Ko'paytirishni tekshirish", en: 'Check the multiplication' },
+    mc_q: { ru: 'Бит разделил и получил семь. Как проверить его ответ?', uz: "Bit bo'lib, yetti chiqardi. Javobini qanday tekshiramiz?", en: 'Bit divided and got seven. How do we check his answer?' },
     mc_opts: [
-      { ru: 'Умножить семь на девять', uz: "Yettini to'qqizga ko'paytirish" },
-      { ru: 'Разделить семь на девять', uz: "Yettini to'qqizga bo'lish" },
-      { ru: 'Разделить девять на семь', uz: "To'qqizni yettiga bo'lish" },
-      { ru: 'Прибавить к семи девять', uz: "Yettiga to'qqizni qo'shish" }
+      { ru: 'Умножить семь на девять', uz: "Yettini to'qqizga ko'paytirish", en: 'Multiply seven by nine' },
+      { ru: 'Разделить семь на девять', uz: "Yettini to'qqizga bo'lish", en: 'Divide seven by nine' },
+      { ru: 'Разделить девять на семь', uz: "To'qqizni yettiga bo'lish", en: 'Divide nine by seven' },
+      { ru: 'Прибавить к семи девять', uz: "Yettiga to'qqizni qo'shish", en: 'Add nine to seven' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Частное делить не нужно, его умножают. Деление уже было, теперь идём обратно.', uz: "Bo'linmani bo'lish kerak emas, uni ko'paytiradilar. Bo'lish bo'lib o'tdi, endi ortga qaytamiz." },
-      2: { ru: 'Порядок в делении важен. Девять на семь и семь на девять это не одно и то же.', uz: "Bo'lishda tartib muhim. To'qqizni yettiga va yettini to'qqizga bo'lish bir xil emas." },
-      3: { ru: 'Сложение не вернёт делимое. Делимое собирают умножением.', uz: "Qo'shish bo'linuvchini qaytarmaydi. Bo'linuvchi ko'paytirish bilan yig'iladi." }
+      1: { ru: 'Частное делить не нужно, его умножают. Деление уже было, теперь идём обратно.', uz: "Bo'linmani bo'lish kerak emas, uni ko'paytiradilar. Bo'lish bo'lib o'tdi, endi ortga qaytamiz.", en: 'A quotient is not divided, it is multiplied. The division has already happened, now we go back.' },
+      2: { ru: 'Порядок в делении важен. Девять на семь и семь на девять это не одно и то же.', uz: "Bo'lishda tartib muhim. To'qqizni yettiga va yettini to'qqizga bo'lish bir xil emas.", en: 'Order matters in division. Nine by seven and seven by nine are not the same thing.' },
+      3: { ru: 'Сложение не вернёт делимое. Делимое собирают умножением.', uz: "Qo'shish bo'linuvchini qaytarmaydi. Bo'linuvchi ko'paytirish bilan yig'iladi.", en: 'Addition will not bring the dividend back. A dividend is put together by multiplying.' }
     },
-    mc_ok: { ru: 'Верно! Деление проверяют умножением.', uz: "To'g'ri! Bo'lish ko'paytirish bilan tekshiriladi." },
+    mc_ok: { ru: 'Верно! Деление проверяют умножением.', uz: "To'g'ri! Bo'lish ko'paytirish bilan tekshiriladi.", en: 'Right! Division is checked by multiplication.' },
     audio: {
       ru: [
         'В книге это называется проверка. Бит разделил пятьдесят четыре на девять и получил семь. Нажми и проверим.',
@@ -432,127 +445,128 @@ const CONTENT = {
         "Bo'linmani bo'luvchiga ko'paytiramiz. Yetti karra to'qqiz, oltmish uch. Lampa esa ellik to'rtta edi, demak Bit xato qildi. To'g'ri javob olti, olti karra to'qqiz aynan ellik to'rt.",
         "Ko'paytirish teskarisiga tekshiriladi. Olti karra to'qqiz, ellik to'rt. Ellik to'rtni oltiga bo'lsak, to'qqiz chiqadi. Mos keldi.",
         "Bog'lanish shuning uchun kerak. U yashiringan sonni topadi va xatoni ham tutadi."
-      ]
+      ],
+      en: ['In the book this is called checking. Bit divided fifty four by nine and got seven. Tap and let us check.', 'We multiply the quotient by the divisor. Seven times nine, sixty three. But there were fifty four lamps, so Bit was wrong. The correct answer is six, and six times nine is exactly fifty four.', 'Multiplication is checked the other way round. Six times nine, fifty four. We divide fifty four by six and get nine. It adds up.', 'That is what the link is for. It not only finds a hidden number, it also catches a mistake.']
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya' },
-    q: { ru: 'Каким действием найти спрятанный множитель?', uz: "Yashiringan ko'paytuvchini qaysi amal topadi?" },
+    eyebrow: { ru: 'Пять секунд', uz: 'Besh soniya', en: 'Five seconds' },
+    q: { ru: 'Каким действием найти спрятанный множитель?', uz: "Yashiringan ko'paytuvchini qaysi amal topadi?", en: 'Which operation finds the hidden factor?' },
     expr: '☐ × 7 = 56',
     items: [
       {
-        opts: [{ ru: '56 : 7', uz: '56 : 7' }, { ru: '56 × 7', uz: '56 × 7' }, { ru: '56 − 7', uz: '56 − 7' }, { ru: '7 × 56', uz: '7 × 56' }],
+        opts: [{ ru: '56 : 7', uz: '56 : 7', en: '56 : 7' }, { ru: '56 × 7', uz: '56 × 7', en: '56 × 7' }, { ru: '56 − 7', uz: '56 − 7', en: '56 − 7' }, { ru: '7 × 56', uz: '7 × 56', en: '7 × 56' }],
         hints: [
           null,
-          { ru: 'Так число станет больше, а нам нужна часть от пятидесяти шести.', uz: "Bunda son kattalashadi, bizga esa ellik oltining qismi kerak." },
-          { ru: 'Вычитание убирает семь, а не показывает, сколько раз по семь.', uz: "Ayirish yettini olib qo'yadi, necha marta yettidan borligini ko'rsatmaydi." },
-          { ru: 'Это то же умножение, только с другого конца. Умножать здесь нечего.', uz: "Bu o'sha ko'paytirish, faqat boshqa tomondan. Bu yerda ko'paytiradigan narsa yo'q." }
+          { ru: 'Так число станет больше, а нам нужна часть от пятидесяти шести.', uz: "Bunda son kattalashadi, bizga esa ellik oltining qismi kerak.", en: 'That way the number gets bigger, and we need a part of fifty six.' },
+          { ru: 'Вычитание убирает семь, а не показывает, сколько раз по семь.', uz: "Ayirish yettini olib qo'yadi, necha marta yettidan borligini ko'rsatmaydi.", en: 'Subtraction takes seven away, it does not show how many sevens there are.' },
+          { ru: 'Это то же умножение, только с другого конца. Умножать здесь нечего.', uz: "Bu o'sha ko'paytirish, faqat boshqa tomondan. Bu yerda ko'paytiradigan narsa yo'q.", en: 'That is the same multiplication from the other end. There is nothing to multiply here.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Пять секунд на подумать. В записи неизвестен множитель, а произведение пятьдесят шесть. Выбери не ответ, а действие, которым его найдут.', uz: "O'ylash uchun besh soniya. Yozuvda ko'paytuvchi noma'lum, ko'paytma esa ellik olti. Javobni emas, uni topadigan amalni tanlang." },
-      on_correct: { ru: 'Успел! Пятьдесят шесть разделить на семь, восемь.', uz: "Ulguribsiz! Ellik oltini yettiga bo'lsak, sakkiz." },
-      on_wrong: { ru: 'Неизвестен множитель, значит нужно деление.', uz: "Ko'paytuvchi noma'lum, demak bo'lish kerak." }
+      intro: { ru: 'Пять секунд на подумать. В записи неизвестен множитель, а произведение пятьдесят шесть. Выбери не ответ, а действие, которым его найдут.', uz: "O'ylash uchun besh soniya. Yozuvda ko'paytuvchi noma'lum, ko'paytma esa ellik olti. Javobni emas, uni topadigan amalni tanlang.", en: 'Five seconds to think. In the line the factor is unknown and the product is fifty six. Choose not the answer but the operation that finds it.' },
+      on_correct: { ru: 'Успел! Пятьдесят шесть разделить на семь, восемь.', uz: "Ulguribsiz! Ellik oltini yettiga bo'lsak, sakkiz.", en: 'Made it! Fifty six divided by seven, eight.' },
+      on_wrong: { ru: 'Неизвестен множитель, значит нужно деление.', uz: "Ko'paytuvchi noma'lum, demak bo'lish kerak.", en: 'The factor is unknown, so division is needed.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
+    eyebrow: { ru: 'Тренировка', uz: 'Mashq', en: 'Training' },
     items: [
-      { q: { ru: 'Найди спрятанное число: ☐ × 6 = 42', uz: "Yashiringan sonni toping: ☐ × 6 = 42" }, q_speech: { ru: 'Спрятанное число умножить на шесть, сорок два.', uz: 'Yashiringan son karra olti, qirq ikki.' }, ans: 7, hint: { ru: 'Неизвестен множитель. Раздели произведение на шесть.', uz: "Ko'paytuvchi noma'lum. Ko'paytmani oltiga bo'ling." } },
-      { q: { ru: 'Найди спрятанное число: 9 × ☐ = 45', uz: "Yashiringan sonni toping: 9 × ☐ = 45" }, q_speech: { ru: 'Девять умножить на спрятанное число, сорок пять.', uz: "To'qqiz karra yashiringan son, qirq besh." }, ans: 5, hint: { ru: 'Второй множитель прячется. Сорок пять разделить на девять.', uz: "Ikkinchi ko'paytuvchi yashiringan. Qirq beshni to'qqizga bo'ling." } },
-      { q: { ru: 'Найди спрятанное число: ☐ : 4 = 8', uz: "Yashiringan sonni toping: ☐ : 4 = 8" }, q_speech: { ru: 'Спрятанное число разделить на четыре, восемь.', uz: "Yashiringan sonni to'rtga bo'lsak, sakkiz." }, ans: 32, hint: { ru: 'Здесь спряталось целое, делимое. Целое собирают умножением, восемь умножить на четыре.', uz: "Bu yerda butun, ya'ni bo'linuvchi yashiringan. Butun ko'paytirish bilan yig'iladi, sakkiz karra to'rt." } }
+      { q: { ru: 'Найди спрятанное число: ☐ × 6 = 42', uz: "Yashiringan sonni toping: ☐ × 6 = 42", en: 'Find the hidden number: ☐ × 6 = 42' }, q_speech: { ru: 'Спрятанное число умножить на шесть, сорок два.', uz: 'Yashiringan son karra olti, qirq ikki.', en: 'The hidden number times six is forty two.' }, ans: 7, hint: { ru: 'Неизвестен множитель. Раздели произведение на шесть.', uz: "Ko'paytuvchi noma'lum. Ko'paytmani oltiga bo'ling.", en: 'The factor is unknown. Divide the product by six.' } },
+      { q: { ru: 'Найди спрятанное число: 9 × ☐ = 45', uz: "Yashiringan sonni toping: 9 × ☐ = 45", en: 'Find the hidden number: 9 × ☐ = 45' }, q_speech: { ru: 'Девять умножить на спрятанное число, сорок пять.', uz: "To'qqiz karra yashiringan son, qirq besh.", en: 'Nine times the hidden number is forty five.' }, ans: 5, hint: { ru: 'Второй множитель прячется. Сорок пять разделить на девять.', uz: "Ikkinchi ko'paytuvchi yashiringan. Qirq beshni to'qqizga bo'ling.", en: 'The second factor is hiding. Forty five divided by nine.' } },
+      { q: { ru: 'Найди спрятанное число: ☐ : 4 = 8', uz: "Yashiringan sonni toping: ☐ : 4 = 8", en: 'Find the hidden number: ☐ : 4 = 8' }, q_speech: { ru: 'Спрятанное число разделить на четыре, восемь.', uz: "Yashiringan sonni to'rtga bo'lsak, sakkiz.", en: 'The hidden number divided by four is eight.' }, ans: 32, hint: { ru: 'Здесь спряталось целое, делимое. Целое собирают умножением, восемь умножить на четыре.', uz: "Bu yerda butun, ya'ni bo'linuvchi yashiringan. Butun ko'paytirish bilan yig'iladi, sakkiz karra to'rt.", en: 'Here the whole is hiding, the dividend. A whole is put together by multiplying, eight times four.' } }
     ],
     audio: {
-      intro: { ru: 'Теперь сам. В каждой записи одно число спряталось, найди его.', uz: "Endi o'zingiz. Har yozuvda bitta son yashiringan, uni toping." },
-      on_correct: { ru: 'Верно. И проверить легко, умножь обратно.', uz: "To'g'ri. Tekshirish oson, teskarisiga ko'paytiring." }
+      intro: { ru: 'Теперь сам. В каждой записи одно число спряталось, найди его.', uz: "Endi o'zingiz. Har yozuvda bitta son yashiringan, uni toping.", en: 'Now on your own. In each line one number is hidden, find it.' },
+      on_correct: { ru: 'Верно. И проверить легко, умножь обратно.', uz: "To'g'ri. Tekshirish oson, teskarisiga ko'paytiring.", en: 'Correct. And it is easy to check, multiply back.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
     items: [
       {
-        q: { ru: 'В семье чисел 7, 8 и 56 какая запись верна?', uz: "7, 8 va 56 sonlari oilasida qaysi yozuv to'g'ri?" },
-        q_speech: { ru: 'В семье чисел семь, восемь и пятьдесят шесть какая запись верна?', uz: "Yetti, sakkiz va ellik olti sonlari oilasida qaysi yozuv to'g'ri?" },
+        q: { ru: 'В семье чисел 7, 8 и 56 какая запись верна?', uz: "7, 8 va 56 sonlari oilasida qaysi yozuv to'g'ri?", en: 'In the family of numbers 7, 8 and 56 which line is correct?' },
+        q_speech: { ru: 'В семье чисел семь, восемь и пятьдесят шесть какая запись верна?', uz: "Yetti, sakkiz va ellik olti sonlari oilasida qaysi yozuv to'g'ri?", en: 'In the family of numbers seven, eight and fifty six which line is correct?' },
         expr: '7 · 8 · 56',
-        opts: [{ ru: '56 : 7 = 8', uz: '56 : 7 = 8' }, { ru: '56 : 7 = 7', uz: '56 : 7 = 7' }, { ru: '7 + 8 = 56', uz: '7 + 8 = 56' }, { ru: '56 × 8 = 7', uz: '56 × 8 = 7' }],
+        opts: [{ ru: '56 : 7 = 8', uz: '56 : 7 = 8', en: '56 : 7 = 8' }, { ru: '56 : 7 = 7', uz: '56 : 7 = 7', en: '56 : 7 = 7' }, { ru: '7 + 8 = 56', uz: '7 + 8 = 56', en: '7 + 8 = 56' }, { ru: '56 × 8 = 7', uz: '56 × 8 = 7', en: '56 × 8 = 7' }],
         hints: [
           null,
-          { ru: 'Тогда семёрок было бы семь, а это сорок девять. Проверь умножением.', uz: "Unda yettitalik yetti bo'lardi, u esa qirq to'qqiz. Ko'paytirib tekshiring." },
-          { ru: 'Семь и восемь дают пятнадцать. Пятьдесят шесть получается умножением.', uz: "Yetti va sakkiz o'n beshni beradi. Ellik olti ko'paytirish bilan chiqadi." },
-          { ru: 'Умножение делает число больше, а не меньше. Здесь нужно деление.', uz: "Ko'paytirish sonni kichraytirmaydi, kattalashtiradi. Bu yerda bo'lish kerak." }
+          { ru: 'Тогда семёрок было бы семь, а это сорок девять. Проверь умножением.', uz: "Unda yettitalik yetti bo'lardi, u esa qirq to'qqiz. Ko'paytirib tekshiring.", en: 'Then there would be seven sevens, and that is forty nine. Check it by multiplying.' },
+          { ru: 'Семь и восемь дают пятнадцать. Пятьдесят шесть получается умножением.', uz: "Yetti va sakkiz o'n beshni beradi. Ellik olti ko'paytirish bilan chiqadi.", en: 'Seven and eight give fifteen. Fifty six comes from multiplying.' },
+          { ru: 'Умножение делает число больше, а не меньше. Здесь нужно деление.', uz: "Ko'paytirish sonni kichraytirmaydi, kattalashtiradi. Bu yerda bo'lish kerak.", en: 'Multiplication makes a number bigger, not smaller. Division is needed here.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Как называется число, которое делят?', uz: "Bo'linadigan son qanday ataladi?" },
+        q: { ru: 'Как называется число, которое делят?', uz: "Bo'linadigan son qanday ataladi?", en: 'What is the number that is divided called?' },
         expr: '40 : 5 = 8',
         opts: [
-          { ru: 'делимое', uz: "bo'linuvchi" },
-          { ru: 'делитель', uz: "bo'luvchi" },
-          { ru: 'частное', uz: "bo'linma" },
-          { ru: 'множитель', uz: "ko'paytuvchi" }
+          { ru: 'делимое', uz: "bo'linuvchi", en: 'the dividend' },
+          { ru: 'делитель', uz: "bo'luvchi", en: 'the divisor' },
+          { ru: 'частное', uz: "bo'linma", en: 'the quotient' },
+          { ru: 'множитель', uz: "ko'paytuvchi", en: 'the factor' }
         ],
         hints: [
           null,
-          { ru: 'Делитель это то, на что делят. А нам нужно то, что делят.', uz: "Bo'luvchi bu nimaga bo'linsa, o'sha. Bizga esa bo'linadigan son kerak." },
-          { ru: 'Частное это уже результат деления.', uz: "Bo'linma bu bo'lishning natijasi." },
-          { ru: 'Множитель живёт в умножении, а вопрос про деление.', uz: "Ko'paytuvchi ko'paytirishda bo'ladi, savol esa bo'lish haqida." }
+          { ru: 'Делитель это то, на что делят. А нам нужно то, что делят.', uz: "Bo'luvchi bu nimaga bo'linsa, o'sha. Bizga esa bo'linadigan son kerak.", en: 'The divisor is what we divide by. And we need what is divided.' },
+          { ru: 'Частное это уже результат деления.', uz: "Bo'linma bu bo'lishning natijasi.", en: 'The quotient is already the result of the division.' },
+          { ru: 'Множитель живёт в умножении, а вопрос про деление.', uz: "Ko'paytuvchi ko'paytirishda bo'ladi, savol esa bo'lish haqida.", en: 'A factor lives in multiplication, and the question is about division.' }
         ],
         ci: 0
       },
       {
-        q: { ru: 'Как проверяют умножение?', uz: "Ko'paytirish qanday tekshiriladi?" },
+        q: { ru: 'Как проверяют умножение?', uz: "Ko'paytirish qanday tekshiriladi?", en: 'How is multiplication checked?' },
         expr: '6 × 9 = 54',
         opts: [
-          { ru: 'произведение делят на множитель', uz: "ko'paytma ko'paytuvchiga bo'linadi" },
-          { ru: 'произведение умножают на множитель', uz: "ko'paytma ko'paytuvchiga ko'paytiriladi" },
-          { ru: 'множители складывают', uz: "ko'paytuvchilar qo'shiladi" },
-          { ru: 'произведение делят на частное', uz: "ko'paytma bo'linmaga bo'linadi" }
+          { ru: 'произведение делят на множитель', uz: "ko'paytma ko'paytuvchiga bo'linadi", en: 'the product is divided by a factor' },
+          { ru: 'произведение умножают на множитель', uz: "ko'paytma ko'paytuvchiga ko'paytiriladi", en: 'the product is multiplied by a factor' },
+          { ru: 'множители складывают', uz: "ko'paytuvchilar qo'shiladi", en: 'the factors are added' },
+          { ru: 'произведение делят на частное', uz: "ko'paytma bo'linmaga bo'linadi", en: 'the product is divided by the quotient' }
         ],
         hints: [
           null,
-          { ru: 'Тогда число уедет ещё дальше. Проверка идёт обратным действием.', uz: "Unda son yana ham uzoqlashadi. Tekshirish teskari amal bilan boradi." },
-          { ru: 'Сложение не проверяет умножение, у них разные семьи.', uz: "Qo'shish ko'paytirishni tekshirmaydi, ularning oilasi boshqa." },
-          { ru: 'Частного в умножении нет, там множители и произведение.', uz: "Ko'paytirishda bo'linma yo'q, unda ko'paytuvchilar va ko'paytma bor." }
+          { ru: 'Тогда число уедет ещё дальше. Проверка идёт обратным действием.', uz: "Unda son yana ham uzoqlashadi. Tekshirish teskari amal bilan boradi.", en: 'Then the number would go even further away. Checking goes by the opposite operation.' },
+          { ru: 'Сложение не проверяет умножение, у них разные семьи.', uz: "Qo'shish ko'paytirishni tekshirmaydi, ularning oilasi boshqa.", en: 'Addition does not check multiplication, they are different families.' },
+          { ru: 'Частного в умножении нет, там множители и произведение.', uz: "Ko'paytirishda bo'linma yo'q, unda ko'paytuvchilar va ko'paytma bor.", en: 'There is no quotient in multiplication, there are factors and a product.' }
         ],
         ci: 0
       }
     ],
     audio: {
-      intro: { ru: 'Три вопроса на проверку. Слова тоже важны, ими пользуются в книге.', uz: "Tekshirish uchun uch savol. So'zlar ham muhim, kitobda ular ishlatiladi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Посмотри на тройку чисел ещё раз.', uz: "Uchlik sonlarga yana bir qarang." }
+      intro: { ru: 'Три вопроса на проверку. Слова тоже важны, ими пользуются в книге.', uz: "Tekshirish uchun uch savol. So'zlar ham muhim, kitobda ular ishlatiladi.", en: 'Three questions to check. The words matter too, they are used in the book.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Посмотри на тройку чисел ещё раз.', uz: "Uchlik sonlarga yana bir qarang.", en: 'Look at the trio of numbers once more.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'Взрослая запись: вместо окошка буква', uz: "Kattalar yozuvi: katakcha o'rniga harf" },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'Взрослая запись: вместо окошка буква', uz: "Kattalar yozuvi: katakcha o'rniga harf", en: 'The grown-up way: a letter instead of a box' },
     steps: ['☐ × 5 = 40', 'x × 5 = 40', 'x = 40 : 5', 'x = 8', '8 × 5 = 40'],
-    btn1: { ru: 'Поставить букву', uz: "Harfni qo'yish" },
-    btn2: { ru: 'Записать решение', uz: 'Yechimni yozish' },
-    btn3: { ru: 'Найти икс', uz: 'Iksni topish' },
-    btn4: { ru: 'Проверить ответ', uz: 'Javobni tekshirish' },
-    book_note: { ru: 'так записано в учебнике 3 класса', uz: '3-sinf darsligida shunday yozilgan' },
-    mc_q: { ru: 'Что означает буква x в записи?', uz: 'Yozuvdagi x harfi nimani bildiradi?' },
+    btn1: { ru: 'Поставить букву', uz: "Harfni qo'yish", en: 'Put a letter' },
+    btn2: { ru: 'Записать решение', uz: 'Yechimni yozish', en: 'Write the solution' },
+    btn3: { ru: 'Найти икс', uz: 'Iksni topish', en: 'Find x' },
+    btn4: { ru: 'Проверить ответ', uz: 'Javobni tekshirish', en: 'Check the answer' },
+    book_note: { ru: 'так записано в учебнике 3 класса', uz: '3-sinf darsligida shunday yozilgan', en: 'that is how it is written in the third-grade textbook' },
+    mc_q: { ru: 'Что означает буква x в записи?', uz: 'Yozuvdagi x harfi nimani bildiradi?', en: 'What does the letter x mean in the line?' },
     mc_opts: [
-      { ru: 'Неизвестное число', uz: "Noma'lum sonni" },
-      { ru: 'Знак умножения', uz: "Ko'paytirish belgisini" },
-      { ru: 'Ответ примера', uz: 'Misolning javobini' },
-      { ru: 'Ноль', uz: 'Nolni' }
+      { ru: 'Неизвестное число', uz: "Noma'lum sonni", en: 'An unknown number' },
+      { ru: 'Знак умножения', uz: "Ko'paytirish belgisini", en: 'A multiplication sign' },
+      { ru: 'Ответ примера', uz: 'Misolning javobini', en: 'The answer to the example' },
+      { ru: 'Ноль', uz: 'Nolni', en: 'Zero' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Похоже, но нет. Знак умножения стоит между числами, а буква на месте числа.', uz: "O'xshaydi, lekin yo'q. Ko'paytirish belgisi sonlar orasida turadi, harf esa son o'rnida." },
-      2: { ru: 'Ответ мы находим, а буква только держит место, пока число не найдено.', uz: "Javobni biz topamiz, harf esa son topilmagunicha faqat joyni ushlab turadi." },
-      3: { ru: 'Ноль это число. А буква это любое число, которое надо найти.', uz: "Nol bu son. Harf esa topish kerak bo'lgan har qanday son." }
+      1: { ru: 'Похоже, но нет. Знак умножения стоит между числами, а буква на месте числа.', uz: "O'xshaydi, lekin yo'q. Ko'paytirish belgisi sonlar orasida turadi, harf esa son o'rnida.", en: 'Close, but no. A multiplication sign stands between numbers, and the letter stands in place of a number.' },
+      2: { ru: 'Ответ мы находим, а буква только держит место, пока число не найдено.', uz: "Javobni biz topamiz, harf esa son topilmagunicha faqat joyni ushlab turadi.", en: 'We find the answer, and the letter only holds the place until the number is found.' },
+      3: { ru: 'Ноль это число. А буква это любое число, которое надо найти.', uz: "Nol bu son. Harf esa topish kerak bo'lgan har qanday son.", en: 'Zero is a number. And the letter is any number that has to be found.' }
     },
-    mc_ok: { ru: 'Верно! Буква держит место неизвестного числа.', uz: "To'g'ri! Harf noma'lum son o'rnini ushlab turadi." },
+    mc_ok: { ru: 'Верно! Буква держит место неизвестного числа.', uz: "To'g'ri! Harf noma'lum son o'rnini ushlab turadi.", en: 'Right! The letter holds the place of the unknown number.' },
     audio: {
       ru: [
         'Небольшой бонус. В книге вместо окошка ставят букву, и читается она икс.',
@@ -567,164 +581,170 @@ const CONTENT = {
         "Noma'lum ko'paytuvchini topamiz, demak iks qirqni beshga bo'lganga teng.",
         "Iks sakkizga teng.",
         "Va darrov tekshirish. Sakkiz karra besh, qirq. To'g'ri."
-      ]
+      ],
+      en: ['A small bonus. In the book a letter is put instead of the box, and it is read as x.', 'x times five is forty. The line has become grown up, and the meaning is the same.', 'We are looking for the unknown factor, so x equals forty divided by five.', 'x equals eight.', 'And a check straight away. Eight times five, forty. Correct.']
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
     items: [
-      { q: { ru: 'Набери спрятанное число: ☐ : 8 = 6', uz: "Yashiringan sonni tering: ☐ : 8 = 6" }, q_speech: { ru: 'Спрятанное число разделить на восемь, шесть.', uz: "Yashiringan sonni sakkizga bo'lsak, olti." }, ans: 48, check: '6 × 8 = 48', hint: { ru: 'Спряталось делимое. Частное умножь на делитель.', uz: "Bo'linuvchi yashiringan. Bo'linmani bo'luvchiga ko'paytiring." } },
-      { q: { ru: 'Набери спрятанное число: 30 : ☐ = 5', uz: "Yashiringan sonni tering: 30 : ☐ = 5" }, q_speech: { ru: 'Тридцать разделить на спрятанное число, пять.', uz: "O'ttizni yashiringan songa bo'lsak, besh." }, ans: 6, check: '30 : 6 = 5', hint: { ru: 'Спрятался делитель. Раздели делимое на частное.', uz: "Bo'luvchi yashiringan. Bo'linuvchini bo'linmaga bo'ling." } },
-      { q: { ru: 'Набери спрятанное число: ☐ × 9 = 36', uz: "Yashiringan sonni tering: ☐ × 9 = 36" }, q_speech: { ru: 'Спрятанное число умножить на девять, тридцать шесть.', uz: "Yashiringan son karra to'qqiz, o'ttiz olti." }, ans: 4, check: '36 : 9 = 4', hint: { ru: 'Неизвестен множитель. Тридцать шесть раздели на девять.', uz: "Ko'paytuvchi noma'lum. O'ttiz oltini to'qqizga bo'ling." } }
+      { q: { ru: 'Набери спрятанное число: ☐ : 8 = 6', uz: "Yashiringan sonni tering: ☐ : 8 = 6", en: 'Type the hidden number: ☐ : 8 = 6' }, q_speech: { ru: 'Спрятанное число разделить на восемь, шесть.', uz: "Yashiringan sonni sakkizga bo'lsak, olti.", en: 'The hidden number divided by eight is six.' }, ans: 48, check: '6 × 8 = 48', hint: { ru: 'Спряталось делимое. Частное умножь на делитель.', uz: "Bo'linuvchi yashiringan. Bo'linmani bo'luvchiga ko'paytiring.", en: 'The dividend is hiding. Multiply the quotient by the divisor.' } },
+      { q: { ru: 'Набери спрятанное число: 30 : ☐ = 5', uz: "Yashiringan sonni tering: 30 : ☐ = 5", en: 'Type the hidden number: 30 : ☐ = 5' }, q_speech: { ru: 'Тридцать разделить на спрятанное число, пять.', uz: "O'ttizni yashiringan songa bo'lsak, besh.", en: 'Thirty divided by the hidden number is five.' }, ans: 6, check: '30 : 6 = 5', hint: { ru: 'Спрятался делитель. Раздели делимое на частное.', uz: "Bo'luvchi yashiringan. Bo'linuvchini bo'linmaga bo'ling.", en: 'The divisor is hiding. Divide the dividend by the quotient.' } },
+      { q: { ru: 'Набери спрятанное число: ☐ × 9 = 36', uz: "Yashiringan sonni tering: ☐ × 9 = 36", en: 'Type the hidden number: ☐ × 9 = 36' }, q_speech: { ru: 'Спрятанное число умножить на девять, тридцать шесть.', uz: "Yashiringan son karra to'qqiz, o'ttiz olti.", en: 'The hidden number times nine is thirty six.' }, ans: 4, check: '36 : 9 = 4', hint: { ru: 'Неизвестен множитель. Тридцать шесть раздели на девять.', uz: "Ko'paytuvchi noma'lum. O'ttiz oltini to'qqizga bo'ling.", en: 'The factor is unknown. Divide thirty six by nine.' } }
     ],
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Три записи, и после каждой сразу проверка. Так делают в книге.', uz: "Uch yozuv, har biridan keyin darrov tekshirish. Kitobda shunday qiladi." },
-      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi." }
+      intro: { ru: 'Три записи, и после каждой сразу проверка. Так делают в книге.', uz: "Uch yozuv, har biridan keyin darrov tekshirish. Kitobda shunday qiladi.", en: 'Three lines, and a check right after each one. That is how it is done in the book.' },
+      on_correct: { ru: 'Верно, и проверка это подтвердила.', uz: "To'g'ri, tekshirish ham buni tasdiqladi.", en: 'Correct, and the check confirmed it.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Рано отправляет лампы в город.', uz: "Ra'no lampalarni shaharga jo'natadi." },
-    q: { ru: 'Рано отправила 54 лампы. В один ящик кладут 9 ламп. Сколько ящиков?', uz: "Ra'no 54 lampa jo'natdi. Bitta yashikka 9 lampa solinadi. Nechta yashik bo'ladi?" },
-    q_speech: { ru: 'Рано отправила в город пятьдесят четыре лампы. В один ящик кладут девять ламп. Сколько ящиков?', uz: "Ra'no shaharga ellik to'rt lampa jo'natdi. Bitta yashikka to'qqizta lampa solinadi. Nechta yashik bo'ladi?" },
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Рано отправляет лампы в город.', uz: "Ra'no lampalarni shaharga jo'natadi.", en: "Ra'no is sending lamps to the city." },
+    q: { ru: 'Рано отправила 54 лампы. В один ящик кладут 9 ламп. Сколько ящиков?', uz: "Ra'no 54 lampa jo'natdi. Bitta yashikka 9 lampa solinadi. Nechta yashik bo'ladi?", en: "Ra'no sent 54 lamps. One box holds 9 lamps. How many boxes?" },
+    q_speech: { ru: 'Рано отправила в город пятьдесят четыре лампы. В один ящик кладут девять ламп. Сколько ящиков?', uz: "Ra'no shaharga ellik to'rt lampa jo'natdi. Bitta yashikka to'qqizta lampa solinadi. Nechta yashik bo'ladi?", en: "Ra'no sent fifty four lamps to the city. One box holds nine lamps. How many boxes?" },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '54 : 9', uz: '54 : 9' },
-      { ru: '54 × 9', uz: '54 × 9' },
-      { ru: '9 : 54', uz: '9 : 54' },
-      { ru: '54 − 9', uz: '54 − 9' }
+      { ru: '54 : 9', uz: '54 : 9', en: '54 : 9' },
+      { ru: '54 × 9', uz: '54 × 9', en: '54 × 9' },
+      { ru: '9 : 54', uz: '9 : 54', en: '9 : 54' },
+      { ru: '54 − 9', uz: '54 − 9', en: '54 − 9' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение соберёт ещё больше ламп, а у Рано их всего пятьдесят четыре.', uz: "Ko'paytirish yana ko'p lampa yig'adi, Ra'noda esa jami ellik to'rtta." },
-      2: { ru: 'Делят целое на часть. Целое здесь пятьдесят четыре.', uz: "Butunni qismga bo'ladilar. Bu yerda butun ellik to'rt." },
-      3: { ru: 'Вычитание уберёт один ящик ламп, а нужно число ящиков.', uz: "Ayirish bitta yashik lampani olib qo'yadi, bizga esa yashiklar soni kerak." }
+      1: { ru: 'Умножение соберёт ещё больше ламп, а у Рано их всего пятьдесят четыре.', uz: "Ko'paytirish yana ko'p lampa yig'adi, Ra'noda esa jami ellik to'rtta.", en: "Multiplication will gather even more lamps, and Ra'no has only fifty four." },
+      2: { ru: 'Делят целое на часть. Целое здесь пятьдесят четыре.', uz: "Butunni qismga bo'ladilar. Bu yerda butun ellik to'rt.", en: 'A whole is divided by a part. The whole here is fifty four.' },
+      3: { ru: 'Вычитание уберёт один ящик ламп, а нужно число ящиков.', uz: "Ayirish bitta yashik lampani olib qo'yadi, bizga esa yashiklar soni kerak.", en: 'Subtraction takes away one box of lamps, and we need the number of boxes.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering." },
+    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering.", en: 'The line is correct. Now type the answer.' },
     ans: 6,
     check: '6 × 9 = 54',
-    setup_audio: { ru: 'Задача с площадки отправки. Пятьдесят четыре лампы, в ящике по девять. Сначала выбери запись, потом посчитай.', uz: "Jo'natish maydonchasidan masala. Ellik to'rt lampa, yashikda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang." },
+    setup_audio: { ru: 'Задача с площадки отправки. Пятьдесят четыре лампы, в ящике по девять. Сначала выбери запись, потом посчитай.', uz: "Jo'natish maydonchasidan masala. Ellik to'rt lampa, yashikda to'qqiztadan. Avval yozuvni tanlang, keyin hisoblang.", en: 'A problem from the dispatch yard. Fifty four lamps, nine in a box. First choose the line, then count.' },
     audio: {
-      intro: { ru: 'Тут пригодится всё, что мы разобрали.', uz: "Bu yerda ko'rib chiqqanimizning hammasi kerak bo'ladi." },
-      on_correct: { ru: 'Шесть ящиков! И проверка сошлась, шесть умножить на девять, пятьдесят четыре.', uz: "Olti yashik! Tekshirish ham mos keldi, olti karra to'qqiz, ellik to'rt." },
-      on_wrong: { ru: 'Пятьдесят четыре разделить на девять. Сколько раз по девять уложится?', uz: "Ellik to'rtni to'qqizga bo'ling. Necha marta to'qqiztadan joylashadi?" }
+      intro: { ru: 'Тут пригодится всё, что мы разобрали.', uz: "Bu yerda ko'rib chiqqanimizning hammasi kerak bo'ladi.", en: 'Everything we have worked through will come in handy here.' },
+      on_correct: { ru: 'Шесть ящиков! И проверка сошлась, шесть умножить на девять, пятьдесят четыре.', uz: "Olti yashik! Tekshirish ham mos keldi, olti karra to'qqiz, ellik to'rt.", en: 'Six boxes! And the check adds up, six times nine, fifty four.' },
+      on_wrong: { ru: 'Пятьдесят четыре разделить на девять. Сколько раз по девять уложится?', uz: "Ellik to'rtni to'qqizga bo'ling. Necha marta to'qqiztadan joylashadi?", en: 'Fifty four divided by nine. How many nines will fit in?' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Пять вопросов — и накладная закрыта', uz: 'Besh savol va yorliq yopiladi' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Пять вопросов — и накладная закрыта', uz: 'Besh savol va yorliq yopiladi', en: 'Five questions and the delivery note is closed' },
     items: [
       {
         kind: 'num',
-        q: { ru: '☐ × 8 = 24. Набери спрятанное число.', uz: "☐ × 8 = 24. Yashiringan sonni tering." },
-        q_speech: { ru: 'Спрятанное число умножить на восемь, двадцать четыре.', uz: "Yashiringan son karra sakkiz, yigirma to'rt." },
+        q: { ru: '☐ × 8 = 24. Набери спрятанное число.', uz: "☐ × 8 = 24. Yashiringan sonni tering.", en: '☐ × 8 = 24. Type the hidden number.' },
+        q_speech: { ru: 'Спрятанное число умножить на восемь, двадцать четыре.', uz: "Yashiringan son karra sakkiz, yigirma to'rt.", en: 'The hidden number times eight is twenty four.' },
         ans: 3,
-        hint: { ru: 'Раздели двадцать четыре на восемь.', uz: "Yigirma to'rtni sakkizga bo'ling." }
+        hint: { ru: 'Раздели двадцать четыре на восемь.', uz: "Yigirma to'rtni sakkizga bo'ling.", en: 'Divide twenty four by eight.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Бит разделил 35 на 5 и получил 7. Какая запись это подтверждает?', uz: "Bit 35 ni 5 ga bo'lib, 7 chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
-        q_speech: { ru: 'Бит разделил тридцать пять на пять и получил семь. Какая запись это подтверждает?', uz: "Bit o'ttiz beshni beshga bo'lib, yetti chiqardi. Buni qaysi yozuv tasdiqlaydi?" },
-        opt0: { ru: '7 × 5 = 35', uz: '7 × 5 = 35' },
-        opt1: { ru: '35 × 5 = 7', uz: '35 × 5 = 7' },
-        opt2: { ru: '7 : 5 = 35', uz: '7 : 5 = 35' },
-        opt3: { ru: '5 : 7 = 35', uz: '5 : 7 = 35' },
-        wrong_1: { ru: 'Умножение делает число больше, семёрка так не выйдет.', uz: "Ko'paytirish sonni kattalashtiradi, yetti bunday chiqmaydi." },
-        wrong_2: { ru: 'Деление уменьшает. Проверяют умножением частного на делитель.', uz: "Bo'lish kichraytiradi. Bo'linmani bo'luvchiga ko'paytirib tekshiriladi." },
-        wrong_3: { ru: 'И порядок не тот, и действие не то.', uz: "Tartib ham noto'g'ri, amal ham noto'g'ri." }
+        q: { ru: 'Бит разделил 35 на 5 и получил 7. Какая запись это подтверждает?', uz: "Bit 35 ni 5 ga bo'lib, 7 chiqardi. Buni qaysi yozuv tasdiqlaydi?", en: 'Bit divided 35 by 5 and got 7. Which line confirms it?' },
+        q_speech: { ru: 'Бит разделил тридцать пять на пять и получил семь. Какая запись это подтверждает?', uz: "Bit o'ttiz beshni beshga bo'lib, yetti chiqardi. Buni qaysi yozuv tasdiqlaydi?", en: 'Bit divided thirty five by five and got seven. Which line confirms it?' },
+        opt0: { ru: '7 × 5 = 35', uz: '7 × 5 = 35', en: '7 × 5 = 35' },
+        opt1: { ru: '35 × 5 = 7', uz: '35 × 5 = 7', en: '35 × 5 = 7' },
+        opt2: { ru: '7 : 5 = 35', uz: '7 : 5 = 35', en: '7 : 5 = 35' },
+        opt3: { ru: '5 : 7 = 35', uz: '5 : 7 = 35', en: '5 : 7 = 35' },
+        wrong_1: { ru: 'Умножение делает число больше, семёрка так не выйдет.', uz: "Ko'paytirish sonni kattalashtiradi, yetti bunday chiqmaydi.", en: 'Multiplication makes a number bigger, a seven will not come out that way.' },
+        wrong_2: { ru: 'Деление уменьшает. Проверяют умножением частного на делитель.', uz: "Bo'lish kichraytiradi. Bo'linmani bo'luvchiga ko'paytirib tekshiriladi.", en: 'Division makes it smaller. It is checked by multiplying the quotient by the divisor.' },
+        wrong_3: { ru: 'И порядок не тот, и действие не то.', uz: "Tartib ham noto'g'ri, amal ham noto'g'ri.", en: 'Neither the order nor the operation is right.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'В записи ☐ : 3 = 7 спряталось делимое. Какое действие его найдёт?', uz: "☐ : 3 = 7 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?" },
-        q_speech: { ru: 'В записи спрятано делимое, его делят на три и выходит семь. Какое действие найдёт делимое?', uz: "Yozuvda bo'linuvchi yashiringan, u uchga bo'linadi va yetti chiqadi. Qaysi amal bo'linuvchini topadi?" },
-        opt0: { ru: 'семь умножить на три', uz: "yettini uchga ko'paytirish" },
-        opt1: { ru: 'семь разделить на три', uz: "yettini uchga bo'lish" },
-        opt2: { ru: 'три разделить на семь', uz: "uchni yettiga bo'lish" },
-        opt3: { ru: 'к семи прибавить три', uz: "yettiga uchni qo'shish" },
-        wrong_1: { ru: 'Делимое больше частного, делением его не получишь.', uz: "Bo'linuvchi bo'linmadan katta, bo'lish bilan uni topolmaysiz." },
-        wrong_2: { ru: 'Порядок в делении важен, и целое так не соберётся.', uz: "Bo'lishda tartib muhim, butun bunday yig'ilmaydi." },
-        wrong_3: { ru: 'Сложение даст десять, а в записи было деление на три.', uz: "Qo'shish o'nni beradi, yozuvda esa uchga bo'lish bor edi." }
+        q: { ru: 'В записи ☐ : 3 = 7 спряталось делимое. Какое действие его найдёт?', uz: "☐ : 3 = 7 yozuvida bo'linuvchi yashiringan. Qaysi amal uni topadi?", en: 'In the line ☐ : 3 = 7 the dividend is hidden. Which operation finds it?' },
+        q_speech: { ru: 'В записи спрятано делимое, его делят на три и выходит семь. Какое действие найдёт делимое?', uz: "Yozuvda bo'linuvchi yashiringan, u uchga bo'linadi va yetti chiqadi. Qaysi amal bo'linuvchini topadi?", en: 'In the line the dividend is hidden, it is divided by three and seven comes out. Which operation will find the dividend?' },
+        opt0: { ru: 'семь умножить на три', uz: "yettini uchga ko'paytirish", en: 'seven times three' },
+        opt1: { ru: 'семь разделить на три', uz: "yettini uchga bo'lish", en: 'seven divided by three' },
+        opt2: { ru: 'три разделить на семь', uz: "uchni yettiga bo'lish", en: 'three divided by seven' },
+        opt3: { ru: 'к семи прибавить три', uz: "yettiga uchni qo'shish", en: 'add three to seven' },
+        wrong_1: { ru: 'Делимое больше частного, делением его не получишь.', uz: "Bo'linuvchi bo'linmadan katta, bo'lish bilan uni topolmaysiz.", en: 'The dividend is bigger than the quotient, you will not get it by dividing.' },
+        wrong_2: { ru: 'Порядок в делении важен, и целое так не соберётся.', uz: "Bo'lishda tartib muhim, butun bunday yig'ilmaydi.", en: 'Order matters in division, and the whole will not come together that way.' },
+        wrong_3: { ru: 'Сложение даст десять, а в записи было деление на три.', uz: "Qo'shish o'nni beradi, yozuvda esa uchga bo'lish bor edi.", en: 'Addition gives ten, and the line had a division by three.' }
       },
       {
         kind: 'num',
-        q: { ru: '72 : ☐ = 8. Набери спрятанное число.', uz: "72 : ☐ = 8. Yashiringan sonni tering." },
-        q_speech: { ru: 'Семьдесят два разделить на спрятанное число, восемь.', uz: "Yetmish ikkini yashiringan songa bo'lsak, sakkiz." },
+        q: { ru: '72 : ☐ = 8. Набери спрятанное число.', uz: "72 : ☐ = 8. Yashiringan sonni tering.", en: '72 : ☐ = 8. Type the hidden number.' },
+        q_speech: { ru: 'Семьдесят два разделить на спрятанное число, восемь.', uz: "Yetmish ikkini yashiringan songa bo'lsak, sakkiz.", en: 'Seventy two divided by the hidden number is eight.' },
         ans: 9,
-        hint: { ru: 'Делимое раздели на частное, семьдесят два на восемь.', uz: "Bo'linuvchini bo'linmaga bo'ling, yetmish ikkini sakkizga." }
+        hint: { ru: 'Делимое раздели на частное, семьдесят два на восемь.', uz: "Bo'linuvchini bo'linmaga bo'ling, yetmish ikkini sakkizga.", en: 'Divide the dividend by the quotient, seventy two by eight.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '7 : 28 = 4', uz: '7 : 28 = 4' },
-        opt1: { ru: '28 : 7 = 4', uz: '28 : 7 = 4' },
-        opt2: { ru: '4 × 7 = 28', uz: '4 × 7 = 28' },
-        opt3: { ru: '28 : 4 = 7', uz: '28 : 4 = 7' },
-        wrong_1: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." },
-        wrong_2: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." },
-        wrong_3: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring." }
+        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
+        opt0: { ru: '7 : 28 = 4', uz: '7 : 28 = 4', en: '7 : 28 = 4' },
+        opt1: { ru: '28 : 7 = 4', uz: '28 : 7 = 4', en: '28 : 7 = 4' },
+        opt2: { ru: '4 × 7 = 28', uz: '4 × 7 = 28', en: '4 × 7 = 28' },
+        opt3: { ru: '28 : 4 = 7', uz: '28 : 4 = 7', en: '28 : 4 = 7' },
+        wrong_1: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring.", en: 'This line is from the family of numbers and it is correct. Look for another one.' },
+        wrong_2: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring.", en: 'This line is from the family of numbers and it is correct. Look for another one.' },
+        wrong_3: { ru: 'Эта запись из семьи чисел и она верна. Ищи другую.', uz: "Bu yozuv sonlar oilasidan va to'g'ri. Boshqasini qidiring.", en: 'This line is from the family of numbers and it is correct. Look for another one.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Летучая мышь в темноте кричит и слушает, когда звук вернётся. Звук идёт до стены и обратно, значит весь путь в два раза длиннее. Чтобы узнать расстояние до стены, весь путь делят на два. Мышь не видит стену, она находит её обратным действием.',
-      uz: "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun yo'lni ikkiga bo'ladi. Ko'rshapalak devorni ko'rmaydi, uni teskari amal bilan topadi."
+      uz: "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun yo'lni ikkiga bo'ladi. Ko'rshapalak devorni ko'rmaydi, uni teskari amal bilan topadi.",
+      en: 'A bat in the dark calls out and listens for the sound to come back. The sound goes to the wall and back, so the whole path is twice as long. To find the distance to the wall, the whole path is divided by two. The bat does not see the wall, it finds it by the opposite operation.'
     },
     fact_audio: {
       ru: 'Летучая мышь в темноте кричит и слушает, когда звук вернётся. Звук идёт до стены и обратно, значит весь путь в два раза длиннее. Чтобы узнать расстояние до стены, весь путь делят на два. Мы весь урок возвращались от ответа к спрятанному числу. Летучая мышь делает то же самое, только со звуком.',
-      uz: "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun yo'lni ikkiga bo'ladi. Butun dars javobdan yashiringan songa qaytdik. Ko'rshapalak ham shuni qiladi, faqat tovush bilan."
+      uz: "Ko'rshapalak qorong'ida qichqiradi va tovush qaytishini tinglaydi. Tovush devorgacha borib qaytadi, ya'ni butun yo'l ikki barobar uzun. Devorgacha masofani bilish uchun butun yo'lni ikkiga bo'ladi. Butun dars javobdan yashiringan songa qaytdik. Ko'rshapalak ham shuni qiladi, faqat tovush bilan.",
+      en: 'A bat in the dark calls out and listens for the sound to come back. The sound goes to the wall and back, so the whole path is twice as long. To find the distance to the wall, the whole path is divided by two. All lesson we came back from the answer to the hidden number. A bat does the same, only with sound.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Вернись к тройке чисел и проверь обратным действием.', uz: "Uchlik sonlarga qaytib, teskari amal bilan tekshiring." }
+      intro: { ru: 'Финальная проверка, пять вопросов.', uz: 'Yakuniy tekshiruv, besh savol.', en: 'The final check, five questions.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Вернись к тройке чисел и проверь обратным действием.', uz: "Uchlik sonlarga qaytib, teskari amal bilan tekshiring.", en: 'Go back to the trio of numbers and check by the opposite operation.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Вагонетка отправлена, накладная сошлась!', uz: "Vagonetka jo'natildi, yorliq to'g'ri chiqdi!" },
-    cando: { ru: 'Теперь ты знаешь, как найти спрятанное число и как проверить себя.', uz: "Endi siz yashiringan sonni topishni va o'zingizni tekshirishni bilasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Вагонетка отправлена, накладная сошлась!', uz: "Vagonetka jo'natildi, yorliq to'g'ri chiqdi!", en: 'The trolley is on its way, the delivery note adds up!' },
+    cando: { ru: 'Теперь ты знаешь, как найти спрятанное число и как проверить себя.', uz: "Endi siz yashiringan sonni topishni va o'zingizni tekshirishni bilasiz.", en: 'Now you know how to find a hidden number and how to check yourself.' },
     rule_recap: {
       ru: 'Неизвестный множитель = произведение : известный множитель. Умножение проверяют делением, деление проверяют умножением. 5 × 8 = 40, значит 40 : 5 = 8 и 40 : 8 = 5.',
-      uz: "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi. Ko'paytirish bo'lish bilan, bo'lish ko'paytirish bilan tekshiriladi. 5 × 8 = 40, demak 40 : 5 = 8 va 40 : 8 = 5."
+      uz: "Noma'lum ko'paytuvchi = ko'paytma : ma'lum ko'paytuvchi. Ko'paytirish bo'lish bilan, bo'lish ko'paytirish bilan tekshiriladi. 5 × 8 = 40, demak 40 : 5 = 8 va 40 : 8 = 5.",
+      en: 'Unknown factor = product : known factor. Multiplication is checked by division, division is checked by multiplication. 5 × 8 = 40, so 40 : 5 = 8 and 40 : 8 = 5.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 9: таблица умножения; уроки 11 и 12: умножение и деление суммы', uz: "9-dars: ko'paytirish jadvali; 11 va 12-darslar: yig'indini ko'paytirish va bo'lish" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'задачи на умножение и деление', uz: "ko'paytirish va bo'lishga masalalar" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 9: таблица умножения; уроки 11 и 12: умножение и деление суммы', uz: "9-dars: ko'paytirish jadvali; 11 va 12-darslar: yig'indini ko'paytirish va bo'lish", en: 'lesson 9: the multiplication table; lessons 11 and 12: multiplying and dividing a sum' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'задачи на умножение и деление', uz: "ko'paytirish va bo'lishga masalalar", en: 'word problems with multiplication and division' },
     audio: {
       ru: 'Неизвестный множитель находят так, произведение делят на известный множитель. Умножение проверяют делением, а деление проверяют умножением. И запомни главное. Три числа держатся вместе, поэтому от ответа всегда можно вернуться назад и проверить себя. А если в задаче нет ни знака умножения, ни знака деления, только слова? Например, в шесть раз больше. Об этом в следующем уроке!',
-      uz: "Noma'lum ko'paytuvchi shunday topiladi, ko'paytma ma'lum ko'paytuvchiga bo'linadi. Ko'paytirish bo'lish bilan, bo'lish esa ko'paytirish bilan tekshiriladi. Va asosiysini eslab qoling. Uchta son birga turadi, shuning uchun javobdan doim ortga qaytib, o'zingizni tekshirsangiz bo'ladi. Agar masalada ko'paytirish belgisi ham, bo'lish belgisi ham bo'lmasa, faqat so'zlar bo'lsa-chi? Masalan, olti marta ko'p. Bu haqda keyingi darsda!"
+      uz: "Noma'lum ko'paytuvchi shunday topiladi, ko'paytma ma'lum ko'paytuvchiga bo'linadi. Ko'paytirish bo'lish bilan, bo'lish esa ko'paytirish bilan tekshiriladi. Va asosiysini eslab qoling. Uchta son birga turadi, shuning uchun javobdan doim ortga qaytib, o'zingizni tekshirsangiz bo'ladi. Agar masalada ko'paytirish belgisi ham, bo'lish belgisi ham bo'lmasa, faqat so'zlar bo'lsa-chi? Masalan, olti marta ko'p. Bu haqda keyingi darsda!",
+      en: 'An unknown factor is found like this: the product is divided by the known factor. Multiplication is checked by division, and division is checked by multiplication. And remember the main thing. Three numbers hold together, so from the answer you can always go back and check yourself. And what if a problem has neither a multiplication sign nor a division sign, only words? For example, six times more. That is in the next lesson!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'Теперь к вагонетке.', uz: 'Endi vagonettaga.' },
-  s3:  { ru: 'Соберём три числа вместе.', uz: "Uchta sonni birga yig'amiz." },
-  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
-  s6:  { ru: 'Теперь про проверку.', uz: 'Endi tekshirish haqida.' },
-  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s8:  { ru: 'Потренируем главный навык.', uz: "Asosiy ko'nikmani mashq qilamiz." },
-  s9:  { ru: 'Теперь вопросы на слова и записи.', uz: "Endi so'z va yozuvlarga savollar." },
-  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s11: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
-  s12: { ru: 'Рано нужна помощь с отправкой.', uz: "Ra'noga jo'natishda yordam kerak." },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Вагонетка отправлена. Идём дальше!', uz: "Vagonetka jo'natildi. Davom etamiz!" }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'Теперь к вагонетке.', uz: 'Endi vagonettaga.', en: 'Now to the trolley.' },
+  s3:  { ru: 'Соберём три числа вместе.', uz: "Uchta sonni birga yig'amiz.", en: 'Let us bring the three numbers together.' },
+  s4:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s5:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan.", en: 'And here is Bit with his counting.' },
+  s6:  { ru: 'Теперь про проверку.', uz: 'Endi tekshirish haqida.', en: 'Now about checking.' },
+  s7:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s8:  { ru: 'Потренируем главный навык.', uz: "Asosiy ko'nikmani mashq qilamiz.", en: 'Let us practise the main skill.' },
+  s9:  { ru: 'Теперь вопросы на слова и записи.', uz: "Endi so'z va yozuvlarga savollar.", en: 'Now questions about the words and the lines.' },
+  s10: { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s11: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering.", en: '6 × 100 = 60' },
+  s12: { ru: 'Рано нужна помощь с отправкой.', uz: "Ra'noga jo'natishda yordam kerak.", en: "Ra'no needs help with the dispatch." },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Вагонетка отправлена. Идём дальше!', uz: "Vagonetka jo'natildi. Davom etamiz!", en: 'The trolley is on its way. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Вагонетка ушла в город, накладная сошлась, и число ящиков нашлось делением. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Vagonetka shaharga ketdi, yorliq to'g'ri chiqdi, yashiklar soni esa bo'lish bilan topildi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Vagonetka shaharga ketdi, yorliq to'g'ri chiqdi, yashiklar soni esa bo'lish bilan topildi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The trolley left for the city, the delivery note adds up, and the number of boxes was found by division. Thank you for your help!'
 };
 
 
@@ -908,7 +928,7 @@ const YardBg = () => {
           <rect x={x + w - 7} y={124 - h + 12} width="4" height="5" rx="1" fill="url(#lmGlow)"/>
         </g>
       ))}
-      <text x="300" y="136" fontSize="7" fill="#8FA6BC" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ЛУМО' : 'LUMO'}</text>
+      <text x="300" y="136" fontSize="7" fill="#8FA6BC" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ЛУМО', 'LUMO', 'LUMO')}</text>
     </g>
     {/* yer */}
     <rect x="0" y="134" width="400" height="96" fill="url(#d15ground)"/>
@@ -1098,7 +1118,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -1847,7 +1867,7 @@ const Screen8 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
@@ -2048,7 +2068,7 @@ const Screen11 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
               {(showCheck || done) && <CheckStrip expr={it.check} cap={t(c.check_label)} ok/>}
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
@@ -2156,10 +2176,10 @@ const Screen12 = (props) => {
               {!solved && (
                 <>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
-              {solved && <span className="mono d15-res lm-reveal">{`${c.ans} ${lang === 'ru' ? 'ящиков' : 'yashik'}`}</span>}
+              {solved && <span className="mono d15-res lm-reveal">{`${c.ans} ${tri(lang, 'ящиков', 'yashik', 'boxes')}`}</span>}
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(CONTENT.s11.check_label)} ok/>}
@@ -2271,7 +2291,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -2342,7 +2362,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14): vagonetka shaharga jo'nadi */}
@@ -2364,7 +2384,7 @@ export default function CompLinkLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2431,7 +2451,7 @@ export default function CompLinkLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

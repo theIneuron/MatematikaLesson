@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { GridFig, LumoCityBg, BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -123,8 +123,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-33',
-  lessonTitle: { ru: 'Урок 33. Периметр', uz: "33-dars. Perimetr" }
+  lessonId: 'grade3-33',
+  lessonTitle: { ru: 'Урок 33. Периметр', uz: "33-dars. Perimetr", en: 'Lesson 33. Perimeter' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 33»): s0 xuk 5 ga 3 panel · s1 chegara bo'ylab qo'shish ·
 // s2 model, chegarani kataklab yurish · s3 savol-oldin-QOIDA · s4 rasm bo'yicha 6 ga 4 ·
@@ -161,15 +161,15 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — XUK: kristall panel chegarasi (darslik 159-bet).
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Периметр', uz: 'Perimetr' },
-    lead: { ru: 'Кристальную панель 5 на 3 надо обвести светящейся лентой', uz: "5 ga 3 kristall panelni yorug' tasma bilan o'rash kerak" },
-    order_cap: { ru: 'лента идёт по краю, вдоль всех сторон', uz: "tasma chekka bo'ylab, hamma tomondan o'tadi" },
-    q: { ru: 'Сколько метров ленты нужно?', uz: 'Necha metr tasma kerak?' },
-    opt0: { ru: '16 м', uz: '16 m' },
-    opt1: { ru: '15 м', uz: '15 m' },
-    opt2: { ru: '8 м', uz: '8 m' },
-    opt3: { ru: '20 м', uz: '20 m' },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Периметр', uz: 'Perimetr', en: 'Perimeter' },
+    lead: { ru: 'Кристальную панель 5 на 3 надо обвести светящейся лентой', uz: "5 ga 3 kristall panelni yorug' tasma bilan o'rash kerak", en: 'A crystal panel 5 by 3 has to be edged with a glowing strip' },
+    order_cap: { ru: 'лента идёт по краю, вдоль всех сторон', uz: "tasma chekka bo'ylab, hamma tomondan o'tadi", en: 'the strip runs along the edge, along all the sides' },
+    q: { ru: 'Сколько метров ленты нужно?', uz: 'Necha metr tasma kerak?', en: 'How many metres of strip are needed?' },
+    opt0: { ru: '16 м', uz: '16 m', en: '16 m' },
+    opt1: { ru: '15 м', uz: '15 m', en: '15 m' },
+    opt2: { ru: '8 м', uz: '8 m', en: '8 m' },
+    opt3: { ru: '20 м', uz: '20 m', en: '20 m' },
     audio: {
       intro: {
         ru: [
@@ -183,29 +183,31 @@ const CONTENT = {
           "Panelning uzunligi besh metr, eni uch metr.",
           "Uni chekka bo'ylab yorug' tasma bilan o'rash kerak.",
           "Sizningcha, necha metr tasma kerak bo'ladi?"
-        ]
+        ],
+        en: ['We have arrived in the quarter of crystal architecture. Here everything is built and measured.', 'A panel is five metres long and three wide.', 'It has to be edged with a glowing strip right along the edge.', 'How many metres of strip do you think will be needed?']
       },
-      on_correct: { ru: 'Верно! А сейчас пройдём по краю и посчитаем вместе.', uz: "To'g'ri! Endi chekka bo'ylab yurib, birga sanaymiz." },
-      on_wrong1: { ru: 'Пятнадцать это клетки внутри панели. Лента идёт по краю.', uz: "O'n besh bu panel ichidagi kataklar. Tasma esa chekkadan o'tadi." },
-      on_wrong2: { ru: 'Восемь это только длина и ширина. А сторон четыре.', uz: "Sakkiz bu faqat uzunlik va en. Tomonlar esa to'rtta." },
-      on_idk: { ru: 'Ничего. Сейчас обойдём панель по краю и посчитаем.', uz: "Hechqisi yo'q. Hozir panelni chekka bo'ylab aylanib chiqamiz." }
+      on_correct: { ru: 'Верно! А сейчас пройдём по краю и посчитаем вместе.', uz: "To'g'ri! Endi chekka bo'ylab yurib, birga sanaymiz.", en: 'Right! And now we will walk along the edge and count together.' },
+      on_wrong1: { ru: 'Пятнадцать это клетки внутри панели. Лента идёт по краю.', uz: "O'n besh bu panel ichidagi kataklar. Tasma esa chekkadan o'tadi.", en: 'Fifteen is the squares inside the panel. The strip runs along the edge.' },
+      on_wrong2: { ru: 'Восемь это только длина и ширина. А сторон четыре.', uz: "Sakkiz bu faqat uzunlik va en. Tomonlar esa to'rtta.", en: 'Eight is only the length and the width. And there are four sides.' },
+      on_idk: { ru: 'Ничего. Сейчас обойдём панель по краю и посчитаем.', uz: "Hechqisi yo'q. Hozir panelni chekka bo'ylab aylanib chiqamiz.", en: 'Never mind. Let us walk round the panel along the edge and count.' }
     }
   },
 
   // s1 — CHEGARA BO'YLAB: to'rtta tomon qo'shiladi (darslik 159-bet ta'rifi).
   s1: {
-    eyebrow: { ru: 'Разбор', uz: 'Tahlil' },
-    lead: { ru: 'Периметр это путь по краю, а не то, что внутри', uz: "Perimetr bu chekka bo'ylab yo'l, ichkaridagi narsa emas" },
+    eyebrow: { ru: 'Разбор', uz: 'Tahlil', en: 'Working it out' },
+    lead: { ru: 'Периметр это путь по краю, а не то, что внутри', uz: "Perimetr bu chekka bo'ylab yo'l, ichkaridagi narsa emas", en: 'The perimeter is the path along the edge, not what is inside' },
     task_line: 'панель 5 м и 3 м',
     task_line_uz: "panel 5 m va 3 m",
+    task_line_en: 'panel 5 m and 3 m',
     step1: '5 + 3 + 5 + 3',
-    step1_cap: { ru: 'складываем все четыре стороны', uz: "to'rtala tomonni qo'shamiz" },
-    step2: { ru: '= 16 м', uz: '= 16 m' },
-    step2_cap: { ru: 'столько ленты нужно', uz: 'shuncha tasma kerak' },
-    res: { ru: 'периметр это сумма всех сторон', uz: "perimetr bu hamma tomonlar yig'indisi" },
-    btn1: { ru: 'Обойти панель', uz: 'Panelni aylanib chiqish' },
-    btn2: { ru: 'Сложить стороны', uz: "Tomonlarni qo'shish" },
-    done_text: { ru: 'У прямоугольника противоположные стороны равны', uz: "To'rtburchakning qarama-qarshi tomonlari teng" },
+    step1_cap: { ru: 'складываем все четыре стороны', uz: "to'rtala tomonni qo'shamiz", en: 'we add all four sides' },
+    step2: { ru: '= 16 м', uz: '= 16 m', en: '= 16 m' },
+    step2_cap: { ru: 'столько ленты нужно', uz: 'shuncha tasma kerak', en: 'that is how much strip is needed' },
+    res: { ru: 'периметр это сумма всех сторон', uz: "perimetr bu hamma tomonlar yig'indisi", en: 'the perimeter is the sum of all the sides' },
+    btn1: { ru: 'Обойти панель', uz: 'Panelni aylanib chiqish', en: 'Walk round the panel' },
+    btn2: { ru: 'Сложить стороны', uz: "Tomonlarni qo'shish", en: 'Add the sides' },
+    done_text: { ru: 'У прямоугольника противоположные стороны равны', uz: "To'rtburchakning qarama-qarshi tomonlari teng", en: 'In a rectangle the opposite sides are equal' },
     audio: {
       ru: [
         'Пойдём по краю панели и будем считать метры.',
@@ -216,24 +218,25 @@ const CONTENT = {
         "Panel chekkasi bo'ylab yurib, metrlarni sanaymiz.",
         "Besh metr, keyin uch, keyin yana besh va yana uch. Biz o'sha nuqtaga qaytdik.",
         "Hammasini qo'shamiz. Besh va uch va besh va uch, o'n olti metr chiqadi. Bu perimetr bo'ladi."
-      ]
+      ],
+      en: ['Let us walk along the edge of the panel and count the metres.', 'Five metres, then three, then five again and three again. We came back to the same point.', 'Let us add it all up. Five and three and five and three gives sixteen metres. That is the perimeter.']
     }
   },
 
   // s2 — MODEL: chegara bo'ylab yurish, har qadam yoritiladi.
   s2: {
-    eyebrow: { ru: 'Модель', uz: 'Model' },
+    eyebrow: { ru: 'Модель', uz: 'Model', en: 'The model' },
     w: 5,
     h: 3,
-    lead: { ru: 'Пройди границу по клеткам и увидишь весь путь', uz: "Chegarani kataklab yuring va butun yo'lni ko'rasiz" },
-    capA: { ru: 'длина 5, потом ширина 3', uz: 'uzunlik 5, keyin en 3' },
-    capB: { ru: 'и снова 5 и 3, круг замкнулся', uz: "va yana 5 va 3, aylana yopildi" },
-    res: { ru: 'P = 16 м', uz: 'P = 16 m' },
-    name_a: { ru: 'граница', uz: 'chegara' },
-    name_b: { ru: 'периметр', uz: 'perimetr' },
-    btn1: { ru: 'Пройти половину', uz: 'Yarmini yurish' },
-    btn2: { ru: 'Замкнуть круг', uz: 'Aylanani yopish' },
-    done_text: { ru: 'Шестнадцать метров по краю', uz: "Chekka bo'ylab o'n olti metr" },
+    lead: { ru: 'Пройди границу по клеткам и увидишь весь путь', uz: "Chegarani kataklab yuring va butun yo'lni ko'rasiz", en: 'Walk the border by squares and you will see the whole path' },
+    capA: { ru: 'длина 5, потом ширина 3', uz: 'uzunlik 5, keyin en 3', en: 'length 5, then width 3' },
+    capB: { ru: 'и снова 5 и 3, круг замкнулся', uz: "va yana 5 va 3, aylana yopildi", en: 'and 5 and 3 again, the circle is closed' },
+    res: { ru: 'P = 16 м', uz: 'P = 16 m', en: 'P = 16 m' },
+    name_a: { ru: 'граница', uz: 'chegara', en: 'the border' },
+    name_b: { ru: 'периметр', uz: 'perimetr', en: 'the perimeter' },
+    btn1: { ru: 'Пройти половину', uz: 'Yarmini yurish', en: 'Walk half of it' },
+    btn2: { ru: 'Замкнуть круг', uz: 'Aylanani yopish', en: 'Close the circle' },
+    done_text: { ru: 'Шестнадцать метров по краю', uz: "Chekka bo'ylab o'n olti metr", en: 'Sixteen metres along the edge' },
     audio: {
       ru: [
         'Посмотри на панель из клеток.',
@@ -244,162 +247,166 @@ const CONTENT = {
         "Kataklardan iborat panelga qarang.",
         "Yuqori tomon bo'ylab beshta katak, keyin o'ng tomondan pastga uchta.",
         "Qaytamiz. Pastdan beshta va chapdan uchta. Jami o'n oltita katak yo'l. Bu perimetr."
-      ]
+      ],
+      en: ['Look at the panel made of squares.', 'We go five squares along the top side, then three down the right one.', 'We come back. Five along the bottom and three along the left. Sixteen squares of path in all. That is the perimeter.']
     }
   },
 
   // s3 — SAVOL-OLDIN-QOIDA: perimetr nima.
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Что такое периметр фигуры?', uz: 'Shaklning perimetri nima?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Что такое периметр фигуры?', uz: 'Shaklning perimetri nima?', en: 'What is the perimeter of a figure?' },
     opts: [
-      { ru: 'сумма длин всех сторон', uz: "hamma tomon uzunliklarining yig'indisi" },
-      { ru: 'число клеток внутри', uz: 'ichkaridagi kataklar soni' },
-      { ru: 'длина самой длинной стороны', uz: 'eng uzun tomonning uzunligi' },
-      { ru: 'длина и ширина вместе', uz: 'uzunlik va en birga' }
+      { ru: 'сумма длин всех сторон', uz: "hamma tomon uzunliklarining yig'indisi", en: 'the sum of the lengths of all the sides' },
+      { ru: 'число клеток внутри', uz: 'ichkaridagi kataklar soni', en: 'the number of squares inside' },
+      { ru: 'длина самой длинной стороны', uz: 'eng uzun tomonning uzunligi', en: 'the length of the longest side' },
+      { ru: 'длина и ширина вместе', uz: 'uzunlik va en birga', en: 'the length and the width together' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Клетки внутри это другая величина, до неё дойдём.', uz: "Ichkaridagi kataklar boshqa kattalik, unga yetib boramiz." },
-      2: { ru: 'Одна сторона это только часть пути по краю.', uz: "Bitta tomon chekka yo'lining faqat bir qismi." },
-      3: { ru: 'Длина и ширина это две стороны из четырёх.', uz: "Uzunlik va en to'rttadan ikkita tomon." }
+      1: { ru: 'Клетки внутри это другая величина, до неё дойдём.', uz: "Ichkaridagi kataklar boshqa kattalik, unga yetib boramiz.", en: 'The squares inside are a different quantity, we will get to it.' },
+      2: { ru: 'Одна сторона это только часть пути по краю.', uz: "Bitta tomon chekka yo'lining faqat bir qismi.", en: 'One side is only part of the path along the edge.' },
+      3: { ru: 'Длина и ширина это две стороны из четырёх.', uz: "Uzunlik va en to'rttadan ikkita tomon.", en: 'The length and the width are two sides out of four.' }
     },
-    on_correct: { ru: 'Да. Обходим фигуру по краю и складываем все стороны.', uz: "Ha. Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shamiz." },
+    on_correct: { ru: 'Да. Обходим фигуру по краю и складываем все стороны.', uz: "Ha. Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shamiz.", en: 'Yes. We go round the figure along the edge and add all the sides.' },
     rule_lines: {
       ru: ['Периметр это сумма длин всех сторон фигуры.', 'У прямоугольника противоположные стороны равны, поэтому можно сложить длину с шириной и взять дважды.'],
-      uz: ["Perimetr bu shaklning hamma tomon uzunliklari yig'indisi.", "To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi."]
+      uz: ["Perimetr bu shaklning hamma tomon uzunliklari yig'indisi.", "To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi."],
+      en: ['The perimeter is the sum of the lengths of all the sides of a figure.', 'In a rectangle the opposite sides are equal, so you can add the length to the width and take it twice.']
     },
     rule_ex: '5 + 3 + 5 + 3 = 16',
-    rule_speech: { ru: 'пять плюс три плюс пять плюс три, шестнадцать', uz: "besh qo'shuv uch qo'shuv besh qo'shuv uch, o'n olti" },
+    rule_speech: { ru: 'пять плюс три плюс пять плюс три, шестнадцать', uz: "besh qo'shuv uch qo'shuv besh qo'shuv uch, o'n olti", en: 'five plus three plus five plus three, sixteen' },
     audio: {
       intro: {
         ru: 'Прежде чем считать, назовём величину. Что такое периметр фигуры?',
-        uz: "Hisoblashdan oldin kattalikni nomlaymiz. Shaklning perimetri nima?"
+        uz: "Hisoblashdan oldin kattalikni nomlaymiz. Shaklning perimetri nima?",
+        en: 'Before counting let us name the quantity. What is the perimeter of a figure?'
       }
     }
   },
 
   // s4 — RASM BO'YICHA: 4 ga 6 panelning perimetri.
   s4: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'Чему равен периметр этой панели?', uz: 'Bu panelning perimetri nechaga teng?' },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'Чему равен периметр этой панели?', uz: 'Bu panelning perimetri nechaga teng?', en: 'What is the perimeter of this panel?' },
     fig_w: 6,
     fig_h: 4,
     opts: [
-      { ru: '20', uz: '20' },
-      { ru: '24', uz: '24' },
-      { ru: '10', uz: '10' },
-      { ru: '12', uz: '12' }
+      { ru: '20', uz: '20', en: '20' },
+      { ru: '24', uz: '24', en: '24' },
+      { ru: '10', uz: '10', en: '10' },
+      { ru: '12', uz: '12', en: '12' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Двадцать четыре это клетки внутри, а не путь по краю.', uz: "Yigirma to'rt bu ichkaridagi kataklar, chekka yo'li emas." },
-      2: { ru: 'Десять это только длина и ширина. Сторон четыре.', uz: "O'n bu faqat uzunlik va en. Tomonlar to'rtta." },
-      3: { ru: 'Двенадцать это меньше, чем одна пара сторон и ещё одна.', uz: "O'n ikki bir juft tomon va yana bittasidan kam." }
+      1: { ru: 'Двадцать четыре это клетки внутри, а не путь по краю.', uz: "Yigirma to'rt bu ichkaridagi kataklar, chekka yo'li emas.", en: 'Twenty four is the squares inside, not the path along the edge.' },
+      2: { ru: 'Десять это только длина и ширина. Сторон четыре.', uz: "O'n bu faqat uzunlik va en. Tomonlar to'rtta.", en: 'Ten is only the length and the width. There are four sides.' },
+      3: { ru: 'Двенадцать это меньше, чем одна пара сторон и ещё одна.', uz: "O'n ikki bir juft tomon va yana bittasidan kam.", en: 'Twelve is less than one pair of sides and one more.' }
     },
     audio: {
-      intro: { ru: 'Панель шесть клеток в длину и четыре в ширину. Чему равен её периметр?', uz: "Panelning uzunligi oltita katak, eni to'rtta. Uning perimetri nechaga teng?" },
-      on_correct: { ru: 'Верно. Шесть и четыре и шесть и четыре, двадцать.', uz: "To'g'ri. Olti va to'rt va olti va to'rt, yigirma." },
-      on_wrong: { ru: 'Сложи все четыре стороны, а не только две.', uz: "Faqat ikkitasini emas, to'rtala tomonni qo'shing." }
+      intro: { ru: 'Панель шесть клеток в длину и четыре в ширину. Чему равен её периметр?', uz: "Panelning uzunligi oltita katak, eni to'rtta. Uning perimetri nechaga teng?", en: 'The panel is six squares long and four wide. What is its perimeter?' },
+      on_correct: { ru: 'Верно. Шесть и четыре и шесть и четыре, двадцать.', uz: "To'g'ri. Olti va to'rt va olti va to'rt, yigirma.", en: 'Right. Six and four and six and four, twenty.' },
+      on_wrong: { ru: 'Сложи все четыре стороны, а не только две.', uz: "Faqat ikkitasini emas, to'rtala tomonni qo'shing.", en: 'Add all four sides, not just two.' }
     }
   },
 
   // s5 — SARALASH: qaysi vazifada chegara, qaysida ichkari kerak.
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Что мерят по краю, а что внутри', uz: 'Nima chekkadan, nima ichkaridan o\'lchanadi' },
-    bin_a: { ru: 'меряем по краю', uz: "chekkadan o'lchaymiz" },
-    bin_b: { ru: 'меряем внутри', uz: "ichkaridan o'lchaymiz" },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Что мерят по краю, а что внутри', uz: 'Nima chekkadan, nima ichkaridan o\'lchanadi', en: 'What is measured along the edge and what inside' },
+    bin_a: { ru: 'меряем по краю', uz: "chekkadan o'lchaymiz", en: 'we measure along the edge' },
+    bin_b: { ru: 'меряем внутри', uz: "ichkaridan o'lchaymiz", en: 'we measure inside' },
     items: [
-      { n: { ru: 'сколько ленты вокруг', uz: 'atrofga qancha tasma' }, a: true, hint: { ru: 'Лента идёт по границе.', uz: "Tasma chegara bo'ylab boradi." } },
-      { n: { ru: 'сколько плиток на пол', uz: 'polga nechta plitka' }, a: false, hint: { ru: 'Плитки заполняют внутренность.', uz: "Plitkalar ichkarini to'ldiradi." } },
-      { n: { ru: 'длина ограды', uz: 'panjara uzunligi' }, a: true, hint: { ru: 'Ограда стоит по краю участка.', uz: "Panjara maydon chekkasida turadi." } },
-      { n: { ru: 'сколько краски на панель', uz: 'panelga qancha bo\'yoq' }, a: false, hint: { ru: 'Красят всю поверхность внутри.', uz: "Ichkaridagi butun yuza bo'yaladi." } }
+      { n: { ru: 'сколько ленты вокруг', uz: 'atrofga qancha tasma', en: 'how much strip goes round' }, a: true, hint: { ru: 'Лента идёт по границе.', uz: "Tasma chegara bo'ylab boradi.", en: 'The strip runs along the border.' } },
+      { n: { ru: 'сколько плиток на пол', uz: 'polga nechta plitka', en: 'how many tiles for the floor' }, a: false, hint: { ru: 'Плитки заполняют внутренность.', uz: "Plitkalar ichkarini to'ldiradi.", en: 'The tiles fill the inside.' } },
+      { n: { ru: 'длина ограды', uz: 'panjara uzunligi', en: 'the length of the fence' }, a: true, hint: { ru: 'Ограда стоит по краю участка.', uz: "Panjara maydon chekkasida turadi.", en: 'The fence stands along the edge of the plot.' } },
+      { n: { ru: 'сколько краски на панель', uz: 'panelga qancha bo\'yoq', en: 'how much paint for the panel' }, a: false, hint: { ru: 'Красят всю поверхность внутри.', uz: "Ichkaridagi butun yuza bo'yaladi.", en: 'The whole surface inside is painted.' } }
     ],
     audio: {
-      intro: { ru: 'Четыре задачи строителей. Отправь каждую на свою полку.', uz: "Quruvchilarning to'rtta vazifasi. Har birini o'z tokchasiga yuboring." },
-      on_correct: { ru: 'Все на месте. По краю это периметр, внутри это уже другая величина.', uz: "Hammasi joyida. Chekka bo'yicha bu perimetr, ichkari esa boshqa kattalik." },
-      on_wrong: { ru: 'Спроси себя, идёт задача по границе или заполняет фигуру.', uz: "O'zingizdan so'rang, vazifa chegara bo'ylab boradimi yoki shaklni to'ldiradimi." }
+      intro: { ru: 'Четыре задачи строителей. Отправь каждую на свою полку.', uz: "Quruvchilarning to'rtta vazifasi. Har birini o'z tokchasiga yuboring.", en: "Four builders' tasks. Send each one to its shelf." },
+      on_correct: { ru: 'Все на месте. По краю это периметр, внутри это уже другая величина.', uz: "Hammasi joyida. Chekka bo'yicha bu perimetr, ichkari esa boshqa kattalik.", en: 'All in place. Along the edge is the perimeter, inside is already a different quantity.' },
+      on_wrong: { ru: 'Спроси себя, идёт задача по границе или заполняет фигуру.', uz: "O'zingizdan so'rang, vazifa chegara bo'ylab boradimi yoki shaklni to'ldiradimi.", en: 'Ask yourself whether the task goes along the border or fills the figure.' }
     }
   },
 
   // s6 — TEST: kvadratning perimetri.
   s6: {
-    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv' },
-    q: { ru: 'У квадратной панели сторона 6 м. Чему равен периметр?', uz: "Kvadrat panelning tomoni 6 m. Perimetri nechaga teng?" },
+    eyebrow: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Checking' },
+    q: { ru: 'У квадратной панели сторона 6 м. Чему равен периметр?', uz: "Kvadrat panelning tomoni 6 m. Perimetri nechaga teng?", en: 'A square panel has a side of 6 m. What is the perimeter?' },
     opts: [
-      { ru: '24 м', uz: '24 m' },
-      { ru: '12 м', uz: '12 m' },
-      { ru: '36 м', uz: '36 m' },
-      { ru: '30 м', uz: '30 m' }
+      { ru: '24 м', uz: '24 m', en: '24 m' },
+      { ru: '12 м', uz: '12 m', en: '12 m' },
+      { ru: '36 м', uz: '36 m', en: '36 m' },
+      { ru: '30 м', uz: '30 m', en: '30 m' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Двенадцать это только две стороны, а их четыре.', uz: "O'n ikki bu faqat ikki tomon, ular esa to'rtta." },
-      2: { ru: 'Тридцать шесть получается, если сторону умножить саму на себя. Это другая величина.', uz: "O'ttiz olti tomonni o'ziga ko'paytirsak chiqadi. Bu boshqa kattalik." },
-      3: { ru: 'Стороны у квадрата одинаковые, лишних метров взяться неоткуда.', uz: "Kvadratning tomonlari bir xil, ortiqcha metr qayerdan ham kelsin." }
+      1: { ru: 'Двенадцать это только две стороны, а их четыре.', uz: "O'n ikki bu faqat ikki tomon, ular esa to'rtta.", en: 'Twelve is only two sides, and there are four.' },
+      2: { ru: 'Тридцать шесть получается, если сторону умножить саму на себя. Это другая величина.', uz: "O'ttiz olti tomonni o'ziga ko'paytirsak chiqadi. Bu boshqa kattalik.", en: 'Thirty six comes from multiplying the side by itself. That is a different quantity.' },
+      3: { ru: 'Стороны у квадрата одинаковые, лишних метров взяться неоткуда.', uz: "Kvadratning tomonlari bir xil, ortiqcha metr qayerdan ham kelsin.", en: 'A square has equal sides, extra metres cannot come from anywhere.' }
     },
     audio: {
-      intro: { ru: 'Быстрый вопрос. У квадратной панели сторона шесть метров. Чему равен периметр?', uz: "Tez savol. Kvadrat panelning tomoni olti metr. Perimetri nechaga teng?" },
-      on_correct: { ru: 'Верно. Четыре стороны по шесть, двадцать четыре метра.', uz: "To'g'ri. Oltitadan to'rtta tomon, yigirma to'rt metr." },
-      on_wrong: { ru: 'У квадрата четыре одинаковые стороны. Сложи их все.', uz: "Kvadratning to'rtta bir xil tomoni bor. Hammasini qo'shing." }
+      intro: { ru: 'Быстрый вопрос. У квадратной панели сторона шесть метров. Чему равен периметр?', uz: "Tez savol. Kvadrat panelning tomoni olti metr. Perimetri nechaga teng?", en: 'A quick question. A square panel has a side of six metres. What is the perimeter?' },
+      on_correct: { ru: 'Верно. Четыре стороны по шесть, двадцать четыре метра.', uz: "To'g'ri. Oltitadan to'rtta tomon, yigirma to'rt metr.", en: 'Right. Four sides of six, twenty four metres.' },
+      on_wrong: { ru: 'У квадрата четыре одинаковые стороны. Сложи их все.', uz: "Kvadratning to'rtta bir xil tomoni bor. Hammasini qo'shing.", en: 'A square has four identical sides. Add them all.' }
     }
   },
 
   // s7 — KONSOL: uzun yo'l va qisqa yo'l bitta javobga olib keladi.
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: 'Посчитай периметр панели 7 на 3 двумя путями', uz: "7 ga 3 panelning perimetrini ikki yo'l bilan hisoblang" },
-    swap_line: { ru: 'панель 7 и 3', uz: 'panel 7 va 3' },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: 'Посчитай периметр панели 7 на 3 двумя путями', uz: "7 ga 3 panelning perimetrini ikki yo'l bilan hisoblang", en: 'Work out the perimeter of a 7 by 3 panel in two ways' },
+    swap_line: { ru: 'панель 7 и 3', uz: 'panel 7 va 3', en: 'panel 7 and 3' },
     cells: [
-      { head: { ru: 'длинный путь', uz: "uzun yo'l" }, label: '7+3+7+3', ans: 20, hint: { ru: 'Сложи все четыре стороны подряд.', uz: "To'rtala tomonni ketma-ket qo'shing." } },
-      { head: { ru: 'короткий путь', uz: "qisqa yo'l" }, label: '(7+3)·2', ans: 20, hint: { ru: 'Сложи длину с шириной и возьми дважды.', uz: "Uzunlik bilan enni qo'shib, ikki marta oling." } },
-      { head: { ru: 'внутри', uz: 'ichkarida' }, label: { ru: 'клеток', uz: 'katak' }, ans: 21, hint: { ru: 'Внутри клетки считают рядами, семь по три.', uz: "Ichkarida kataklar qatorlab sanaladi, yettitadan uchta." } }
+      { head: { ru: 'длинный путь', uz: "uzun yo'l", en: 'the long way' }, label: '7+3+7+3', ans: 20, hint: { ru: 'Сложи все четыре стороны подряд.', uz: "To'rtala tomonni ketma-ket qo'shing.", en: 'Add all four sides one after another.' } },
+      { head: { ru: 'короткий путь', uz: "qisqa yo'l", en: 'the short way' }, label: '(7+3)·2', ans: 20, hint: { ru: 'Сложи длину с шириной и возьми дважды.', uz: "Uzunlik bilan enni qo'shib, ikki marta oling.", en: 'Add the length to the width and take it twice.' } },
+      { head: { ru: 'внутри', uz: 'ichkarida', en: 'inside' }, label: { ru: 'клеток', uz: 'katak', en: 'squares' }, ans: 21, hint: { ru: 'Внутри клетки считают рядами, семь по три.', uz: "Ichkarida kataklar qatorlab sanaladi, yettitadan uchta.", en: 'Inside the squares are counted in rows, seven by three.' } }
     ],
-    check: { ru: 'P = 20 м', uz: 'P = 20 m' },
-    check_label: { ru: 'два пути, один ответ', uz: "ikki yo'l, bitta javob" },
+    check: { ru: 'P = 20 м', uz: 'P = 20 m', en: 'P = 20 m' },
+    check_label: { ru: 'два пути, один ответ', uz: "ikki yo'l, bitta javob", en: 'two ways, one answer' },
     audio: {
-      intro: { ru: 'Заполни три окна. Периметр длинным путём, коротким и сколько клеток внутри.', uz: "Uchta oynani to'ldiring. Perimetr uzun yo'l bilan, qisqa yo'l bilan va ichkarida nechta katak bor." },
-      on_correct: { ru: 'Оба пути дали двадцать. А клеток внутри двадцать одна, и это уже другая величина.', uz: "Ikkala yo'l ham yigirma berdi. Ichkarida esa yigirma bitta katak, bu allaqachon boshqa kattalik." }
+      intro: { ru: 'Заполни три окна. Периметр длинным путём, коротким и сколько клеток внутри.', uz: "Uchta oynani to'ldiring. Perimetr uzun yo'l bilan, qisqa yo'l bilan va ichkarida nechta katak bor.", en: 'Fill three windows. The perimeter the long way, the short way and how many squares there are inside.' },
+      on_correct: { ru: 'Оба пути дали двадцать. А клеток внутри двадцать одна, и это уже другая величина.', uz: "Ikkala yo'l ham yigirma berdi. Ichkarida esa yigirma bitta katak, bu allaqachon boshqa kattalik.", en: 'Both ways gave twenty. And there are twenty one squares inside, and that is already a different quantity.' }
     }
   },
 
   // s8 — XATONI TOP: perimetr o'rniga ichkaridagi kataklar sanalgan (M2).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'Для панели 5 на 3 записали периметр 15 м. В чём ошибка?', uz: "5 ga 3 panel uchun perimetr 15 m deb yozilgan. Xato nimada?" },
-    fig_line: { ru: 'P = 15 м', uz: 'P = 15 m' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'Для панели 5 на 3 записали периметр 15 м. В чём ошибка?', uz: "5 ga 3 panel uchun perimetr 15 m deb yozilgan. Xato nimada?", en: 'For a 5 by 3 panel the perimeter was written as 15 m. What is the mistake?' },
+    fig_line: { ru: 'P = 15 м', uz: 'P = 15 m', en: 'P = 15 m' },
     opts: [
-      { ru: 'посчитали клетки внутри, а не путь по краю', uz: "chekka yo'li emas, ichkaridagi kataklar sanalgan" },
-      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan" },
-      { ru: 'надо было умножить на 4', uz: "4 ga ko'paytirish kerak edi" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'посчитали клетки внутри, а не путь по краю', uz: "chekka yo'li emas, ichkaridagi kataklar sanalgan", en: 'they counted the squares inside, not the path along the edge' },
+      { ru: 'сложили неверно', uz: "noto'g'ri qo'shilgan", en: 'the adding was wrong' },
+      { ru: 'надо было умножить на 4', uz: "4 ga ko'paytirish kerak edi", en: 'it should have been multiplied by 4' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Пять и три и пять и три это шестнадцать. Считали не то.', uz: "Besh va uch va besh va uch bu o'n olti. Boshqa narsa sanalgan." },
-      2: { ru: 'На четыре умножают, когда все стороны равны. Здесь они разные.', uz: "To'rtga hamma tomon teng bo'lganda ko'paytiriladi. Bu yerda ular har xil." },
-      3: { ru: 'Ошибка есть. Пятнадцать это пять рядов по три клетки внутри.', uz: "Xato bor. O'n besh bu ichkaridagi uchtadan beshta qator." }
+      1: { ru: 'Пять и три и пять и три это шестнадцать. Считали не то.', uz: "Besh va uch va besh va uch bu o'n olti. Boshqa narsa sanalgan.", en: 'Five and three and five and three is sixteen. They counted the wrong thing.' },
+      2: { ru: 'На четыре умножают, когда все стороны равны. Здесь они разные.', uz: "To'rtga hamma tomon teng bo'lganda ko'paytiriladi. Bu yerda ular har xil.", en: 'We multiply by four when all the sides are equal. Here they are different.' },
+      3: { ru: 'Ошибка есть. Пятнадцать это пять рядов по три клетки внутри.', uz: "Xato bor. O'n besh bu ichkaridagi uchtadan beshta qator.", en: 'There is a mistake. Fifteen is five rows of three squares inside.' }
     },
     audio: {
-      intro: { ru: 'Здесь величину назвали периметром, а посчитали другое. Найди ошибку.', uz: "Bu yerda kattalik perimetr deb atalgan, sanalgani esa boshqa. Xatoni toping." },
-      on_correct: { ru: 'Точно. Периметр идёт по краю и равен шестнадцати.', uz: "Aniq. Perimetr chekka bo'ylab boradi va o'n oltiga teng." },
-      on_wrong: { ru: 'Пройди по краю сам и сравни с записью.', uz: "Chekka bo'ylab o'zingiz yurib, yozuv bilan solishtiring." }
+      intro: { ru: 'Здесь величину назвали периметром, а посчитали другое. Найди ошибку.', uz: "Bu yerda kattalik perimetr deb atalgan, sanalgani esa boshqa. Xatoni toping.", en: 'Here the quantity was called the perimeter and something else was counted. Find the mistake.' },
+      on_correct: { ru: 'Точно. Периметр идёт по краю и равен шестнадцати.', uz: "Aniq. Perimetr chekka bo'ylab boradi va o'n oltiga teng.", en: 'Exactly. The perimeter goes along the edge and equals sixteen.' },
+      on_wrong: { ru: 'Пройди по краю сам и сравни с записью.', uz: "Chekka bo'ylab o'zingiz yurib, yozuv bilan solishtiring.", en: 'Walk along the edge yourself and compare with the line.' }
     }
   },
 
   // s9 — BIT TUZOG'I: katta perimetr katta ichki qismni bildiradi degan fikr (M1).
   s9: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i' },
-    lead: { ru: 'Бит сравнивает две панели', uz: 'Bit ikki panelni solishtiradi' },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzog\'i', en: "Bit's trap" },
+    lead: { ru: 'Бит сравнивает две панели', uz: 'Bit ikki panelni solishtiradi', en: 'Bit compares two panels' },
     lines: ['панель 4 на 4, лента 16 м', 'панель 7 на 1, лента 16 м'],
     lines_uz: ["panel 4 ga 4, tasma 16 m", "panel 7 ga 1, tasma 16 m"],
-    line_cap: { ru: 'Бит: ленты поровну, значит и панели одинаковые', uz: "Bit: tasma teng, demak panellar ham bir xil" },
-    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?' },
-    trap_opts: { ru: ['нет, внутри они разные', 'да, панели одинаковые'], uz: ["yo'q, ichkarisi har xil", 'ha, panellar bir xil'] },
+    lines_en: ['panel 4 by 4, strip 16 m', 'panel 7 by 1, strip 16 m'],
+    line_cap: { ru: 'Бит: ленты поровну, значит и панели одинаковые', uz: "Bit: tasma teng, demak panellar ham bir xil", en: 'Bit: the strip is the same, so the panels are the same' },
+    trap_label: { ru: 'Так ли это?', uz: 'Shundaymi?', en: 'Is that so?' },
+    trap_opts: { ru: ['нет, внутри они разные', 'да, панели одинаковые'], uz: ["yo'q, ichkarisi har xil", 'ha, panellar bir xil'], en: ['no, inside they are different', 'yes, the panels are the same'] },
     trap_ci: 0,
-    trap_correct: { ru: 'Да. Лента одинаковая, а внутри у первой шестнадцать клеток, у второй только семь. Периметр и внутренность это разные величины.', uz: "Ha. Tasma bir xil, ichkarida esa birinchisida o'n oltita katak, ikkinchisida atigi yettita. Perimetr va ichkari boshqa-boshqa kattalik." },
-    trap_wrong: { ru: 'Посчитай клетки внутри. У квадрата их шестнадцать, у вытянутой панели семь, хотя лента одна и та же.', uz: "Ichkaridagi kataklarni sanang. Kvadratda o'n oltita, cho'zilgan panelda yettita, tasma esa bir xil." },
+    trap_correct: { ru: 'Да. Лента одинаковая, а внутри у первой шестнадцать клеток, у второй только семь. Периметр и внутренность это разные величины.', uz: "Ha. Tasma bir xil, ichkarida esa birinchisida o'n oltita katak, ikkinchisida atigi yettita. Perimetr va ichkari boshqa-boshqa kattalik.", en: 'Yes. The strip is the same, and inside the first has sixteen squares and the second only seven. The perimeter and the inside are different quantities.' },
+    trap_wrong: { ru: 'Посчитай клетки внутри. У квадрата их шестнадцать, у вытянутой панели семь, хотя лента одна и та же.', uz: "Ichkaridagi kataklarni sanang. Kvadratda o'n oltita, cho'zilgan panelda yettita, tasma esa bir xil.", en: 'Count the squares inside. The square has sixteen, the long panel has seven, even though the strip is the same.' },
     audio: {
       ru: [
         'Бит измерил две панели и говорит.',
@@ -410,164 +417,170 @@ const CONTENT = {
         "Bit ikki panelni o'lchadi va aytadi.",
         "Birinchisiga o'n olti metr tasma ketdi, ikkinchisiga ham o'n olti. Demak panellar bir xil.",
         "Shundaymi?"
-      ]
+      ],
+      en: ['Bit measured two panels and says this.', 'The first took sixteen metres of strip, the second also sixteen. So the panels are the same.', 'Is that so?']
     }
   },
 
   // s10 — TRENAJYOR: to'rtburchak perimetri.
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'Панель 4 м на 6 м. Чему равен периметр?', uz: "Panel 4 m ga 6 m. Perimetri nechaga teng?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'Панель 4 м на 6 м. Чему равен периметр?', uz: "Panel 4 m ga 6 m. Perimetri nechaga teng?", en: 'A panel is 4 m by 6 m. What is the perimeter?' },
     ans: 20,
     check: '(4 + 6) · 2 = 20',
-    check_label: { ru: 'короткий путь', uz: "qisqa yo'l" },
-    hint: { ru: 'Сложи длину с шириной и возьми дважды.', uz: "Uzunlik bilan enni qo'shib, ikki marta oling." },
+    check_label: { ru: 'короткий путь', uz: "qisqa yo'l", en: 'the short way' },
+    hint: { ru: 'Сложи длину с шириной и возьми дважды.', uz: "Uzunlik bilan enni qo'shib, ikki marta oling.", en: 'Add the length to the width and take it twice.' },
     audio: {
-      intro: { ru: 'Панель четыре метра на шесть. Чему равен периметр?', uz: "Panel to'rt metrga olti metr. Perimetri nechaga teng?" },
-      on_correct: { ru: 'Двадцать метров. Четыре и шесть это десять, и дважды по десять.', uz: "Yigirma metr. To'rt va olti bu o'n, o'ntadan ikki marta." }
+      intro: { ru: 'Панель четыре метра на шесть. Чему равен периметр?', uz: "Panel to'rt metrga olti metr. Perimetri nechaga teng?", en: 'A panel is four metres by six. What is the perimeter?' },
+      on_correct: { ru: 'Двадцать метров. Четыре и шесть это десять, и дважды по десять.', uz: "Yigirma metr. To'rt va olti bu o'n, o'ntadan ikki marta.", en: 'Twenty metres. Four and six is ten, and twice ten.' }
     }
   },
 
   // s11 — TRENAJYOR NumPad: kvadrat perimetri.
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Mashq' },
-    q: { ru: 'У квадратной плиты сторона 7 м. Чему равен периметр?', uz: "Kvadrat plitaning tomoni 7 m. Perimetri nechaga teng?" },
+    eyebrow: { ru: 'Тренажёр', uz: 'Mashq', en: 'Trainer' },
+    q: { ru: 'У квадратной плиты сторона 7 м. Чему равен периметр?', uz: "Kvadrat plitaning tomoni 7 m. Perimetri nechaga teng?", en: 'A square slab has a side of 7 m. What is the perimeter?' },
     ans: 28,
     check: '7 · 4 = 28',
-    check_label: { ru: 'четыре равные стороны', uz: "to'rtta teng tomon" },
-    hint: { ru: 'У квадрата все четыре стороны одинаковые.', uz: "Kvadratning to'rtala tomoni bir xil." },
+    check_label: { ru: 'четыре равные стороны', uz: "to'rtta teng tomon", en: 'four equal sides' },
+    hint: { ru: 'У квадрата все четыре стороны одинаковые.', uz: "Kvadratning to'rtala tomoni bir xil.", en: 'A square has all four sides the same.' },
     audio: {
-      intro: { ru: 'У квадратной плиты сторона семь метров. Чему равен периметр?', uz: "Kvadrat plitaning tomoni yetti metr. Perimetri nechaga teng?" },
-      on_correct: { ru: 'Двадцать восемь. Семь взяли четыре раза.', uz: "Yigirma sakkiz. Yettini to'rt marta oldik." }
+      intro: { ru: 'У квадратной плиты сторона семь метров. Чему равен периметр?', uz: "Kvadrat plitaning tomoni yetti metr. Perimetri nechaga teng?", en: 'A square slab has a side of seven metres. What is the perimeter?' },
+      on_correct: { ru: 'Двадцать восемь. Семь взяли четыре раза.', uz: "Yigirma sakkiz. Yettini to'rt marta oldik.", en: 'Twenty eight. Seven taken four times.' }
     }
   },
 
   // s12 — MASALA: jadval bilan, ikki qadam.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Заказ на ограждение', uz: 'Panjara buyurtmasi' },
-    q: { ru: 'Площадку 8 м на 2 м обносят лентой. Сколько метров ленты нужно и сколько метров останется от мотка в 30 м?', uz: "8 m ga 2 m maydon tasma bilan o'raladi. Necha metr tasma kerak va 30 m li o'ramdan necha metr ortadi?" },
-    q_speech: { ru: 'площадку восемь метров на два обносят лентой. Сколько метров ленты нужно и сколько останется от мотка в тридцать метров?', uz: "sakkiz metrga ikki metr maydon tasma bilan o'raladi. Necha metr tasma kerak va o'ttiz metrli o'ramdan necha metr ortadi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Заказ на ограждение', uz: 'Panjara buyurtmasi', en: 'An order for fencing' },
+    q: { ru: 'Площадку 8 м на 2 м обносят лентой. Сколько метров ленты нужно и сколько метров останется от мотка в 30 м?', uz: "8 m ga 2 m maydon tasma bilan o'raladi. Necha metr tasma kerak va 30 m li o'ramdan necha metr ortadi?", en: 'A yard 8 m by 2 m is being edged with strip. How many metres of strip are needed and how many metres will be left from a 30 m roll?' },
+    q_speech: { ru: 'площадку восемь метров на два обносят лентой. Сколько метров ленты нужно и сколько останется от мотка в тридцать метров?', uz: "sakkiz metrga ikki metr maydon tasma bilan o'raladi. Necha metr tasma kerak va o'ttiz metrli o'ramdan necha metr ortadi?", en: 'a yard eight metres by two is being edged with strip. How many metres are needed and how many will be left from a roll of thirty metres?' },
     tbl_heads: [
-      { ru: 'длина', uz: 'uzunlik' },
-      { ru: 'ширина', uz: 'en' },
-      { ru: 'в мотке', uz: "o'ramda" }
+      { ru: 'длина', uz: 'uzunlik', en: 'length' },
+      { ru: 'ширина', uz: 'en', en: 'width' },
+      { ru: 'в мотке', uz: "o'ramda", en: 'in the roll' }
     ],
     tbl_cells: ['8', '2', '30'],
-    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?' },
+    pick_label: { ru: 'С какого действия начинаем?', uz: 'Qaysi amaldan boshlaymiz?', en: 'Which operation do we start with?' },
     opts: [
-      { ru: '(8 + 2) · 2', uz: '(8 + 2) · 2' },
-      { ru: '8 · 2', uz: '8 · 2' },
-      { ru: '30 − 8', uz: '30 − 8' },
-      { ru: '8 + 2', uz: '8 + 2' }
+      { ru: '(8 + 2) · 2', uz: '(8 + 2) · 2', en: '(8 + 2) · 2' },
+      { ru: '8 · 2', uz: '8 · 2', en: '8 · 2' },
+      { ru: '30 − 8', uz: '30 − 8', en: '30 − 8' },
+      { ru: '8 + 2', uz: '8 + 2', en: '8 + 2' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Так считают клетки внутри, а лента идёт по краю.', uz: "Bunda ichkaridagi kataklar sanaladi, tasma esa chekkadan boradi." },
-      2: { ru: 'Из мотка вычитать рано, сначала узнаем, сколько нужно.', uz: "O'ramdan ayirish erta, avval qancha kerakligini bilamiz." },
-      3: { ru: 'Длина и ширина это только половина пути по краю.', uz: "Uzunlik va en chekka yo'lining faqat yarmi." }
+      1: { ru: 'Так считают клетки внутри, а лента идёт по краю.', uz: "Bunda ichkaridagi kataklar sanaladi, tasma esa chekkadan boradi.", en: 'That is how the squares inside are counted, and the strip runs along the edge.' },
+      2: { ru: 'Из мотка вычитать рано, сначала узнаем, сколько нужно.', uz: "O'ramdan ayirish erta, avval qancha kerakligini bilamiz.", en: 'It is too early to subtract from the roll, first we find out how much is needed.' },
+      3: { ru: 'Длина и ширина это только половина пути по краю.', uz: "Uzunlik va en chekka yo'lining faqat yarmi.", en: 'The length and the width are only half of the path along the edge.' }
     },
-    pick_ok: { ru: 'Верно. Сначала периметр, потом остаток мотка.', uz: "To'g'ri. Avval perimetr, keyin o'ram qoldig'i." },
-    step1_q: { ru: 'Сколько метров ленты нужно?', uz: 'Necha metr tasma kerak?' },
+    pick_ok: { ru: 'Верно. Сначала периметр, потом остаток мотка.', uz: "To'g'ri. Avval perimetr, keyin o'ram qoldig'i.", en: 'Right. First the perimeter, then the rest of the roll.' },
+    step1_q: { ru: 'Сколько метров ленты нужно?', uz: 'Necha metr tasma kerak?', en: 'How many metres of strip are needed?' },
     ans1: 20,
-    hint1: { ru: 'Восемь и два это десять, и дважды по десять.', uz: "Sakkiz va ikki bu o'n, o'ntadan ikki marta." },
-    step2_q: { ru: 'Сколько метров останется в мотке?', uz: "O'ramda necha metr qoladi?" },
+    hint1: { ru: 'Восемь и два это десять, и дважды по десять.', uz: "Sakkiz va ikki bu o'n, o'ntadan ikki marta.", en: 'Eight and two is ten, and twice ten.' },
+    step2_q: { ru: 'Сколько метров останется в мотке?', uz: "O'ramda necha metr qoladi?", en: 'How many metres will be left in the roll?' },
     ans2: 10,
-    hint2: { ru: 'Из тридцати убери двадцать.', uz: "O'ttizdan yigirmani olib tashlang." },
+    hint2: { ru: 'Из тридцати убери двадцать.', uz: "O'ttizdan yigirmani olib tashlang.", en: 'Take twenty away from thirty.' },
     check: '(8 + 2) · 2 = 20',
-    setup_audio: { ru: 'Строителям пришёл заказ. Посмотри на таблицу и реши, с чего начинать.', uz: "Quruvchilarga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling." },
+    setup_audio: { ru: 'Строителям пришёл заказ. Посмотри на таблицу и реши, с чего начинать.', uz: "Quruvchilarga buyurtma keldi. Jadvalga qarang va nimadan boshlashni hal qiling.", en: 'An order came to the builders. Look at the table and decide where to start.' },
     audio: {
-      intro: { ru: 'Площадку восемь на два обносят лентой. Сколько метров нужно и сколько останется от мотка в тридцать метров?', uz: "Sakkizga ikki maydon tasma bilan o'raladi. Necha metr kerak va o'ttiz metrli o'ramdan nechasi ortadi?" },
-      on_correct: { ru: 'Двадцать метров ушло, десять осталось.', uz: "Yigirma metr ketdi, o'n metr qoldi." },
-      on_wrong: { ru: 'Вернись к первому шагу. Сколько метров по краю площадки.', uz: "Birinchi qadamga qayting. Maydon chekkasi bo'ylab necha metr bor." }
+      intro: { ru: 'Площадку восемь на два обносят лентой. Сколько метров нужно и сколько останется от мотка в тридцать метров?', uz: "Sakkizga ikki maydon tasma bilan o'raladi. Necha metr kerak va o'ttiz metrli o'ramdan nechasi ortadi?", en: 'A yard eight by two is being edged with strip. How many metres are needed and how many will be left from a roll of thirty metres?' },
+      on_correct: { ru: 'Двадцать метров ушло, десять осталось.', uz: "Yigirma metr ketdi, o'n metr qoldi.", en: 'Twenty metres were used, ten are left.' },
+      on_wrong: { ru: 'Вернись к первому шагу. Сколько метров по краю площадки.', uz: "Birinchi qadamga qayting. Maydon chekkasi bo'ylab necha metr bor.", en: 'Go back to the first step. How many metres there are along the edge of the yard.' }
     }
   },
 
   // s13 — FINAL: uch topshiriq, sonlar darsda uchramagan.
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Yakuniy' },
-    intro_line: { ru: 'Три задания. Считай путь по краю', uz: "Uchta topshiriq. Chekka bo'ylab yo'lni sanang" },
+    eyebrow: { ru: 'Финал', uz: 'Yakuniy', en: 'Final' },
+    intro_line: { ru: 'Три задания. Считай путь по краю', uz: "Uchta topshiriq. Chekka bo'ylab yo'lni sanang", en: 'Three tasks. Count the path along the edge' },
     items: [
       {
         kind: 'num',
-        q: { ru: 'Панель 9 м на 4 м. Чему равен периметр?', uz: "Panel 9 m ga 4 m. Perimetri nechaga teng?" },
-        q_speech: { ru: 'панель девять метров на четыре. Чему равен периметр?', uz: "panel to'qqiz metrga to'rt metr. Perimetri nechaga teng?" },
+        q: { ru: 'Панель 9 м на 4 м. Чему равен периметр?', uz: "Panel 9 m ga 4 m. Perimetri nechaga teng?", en: 'A panel is 9 m by 4 m. What is the perimeter?' },
+        q_speech: { ru: 'панель девять метров на четыре. Чему равен периметр?', uz: "panel to'qqiz metrga to'rt metr. Perimetri nechaga teng?", en: 'a panel is nine metres by four. What is the perimeter?' },
         ans: 26,
-        hint: { ru: 'Девять и четыре это тринадцать, и дважды.', uz: "To'qqiz va to'rt bu o'n uch, ikki marta." }
+        hint: { ru: 'Девять и четыре это тринадцать, и дважды.', uz: "To'qqiz va to'rt bu o'n uch, ikki marta.", en: 'Nine and four is thirteen, and twice.' }
       },
       {
         kind: 'num',
-        q: { ru: 'У квадратной плиты сторона 8 м. Чему равен периметр?', uz: "Kvadrat plitaning tomoni 8 m. Perimetri nechaga teng?" },
-        q_speech: { ru: 'у квадратной плиты сторона восемь метров. Чему равен периметр?', uz: "kvadrat plitaning tomoni sakkiz metr. Perimetri nechaga teng?" },
+        q: { ru: 'У квадратной плиты сторона 8 м. Чему равен периметр?', uz: "Kvadrat plitaning tomoni 8 m. Perimetri nechaga teng?", en: 'A square slab has a side of 8 m. What is the perimeter?' },
+        q_speech: { ru: 'у квадратной плиты сторона восемь метров. Чему равен периметр?', uz: "kvadrat plitaning tomoni sakkiz metr. Perimetri nechaga teng?", en: 'a square slab has a side of eight metres. What is the perimeter?' },
         ans: 32,
-        hint: { ru: 'Восемь возьми четыре раза.', uz: "Sakkizni to'rt marta oling." }
+        hint: { ru: 'Восемь возьми четыре раза.', uz: "Sakkizni to'rt marta oling.", en: 'Take eight four times.' }
       },
       {
         kind: 'num',
-        q: { ru: 'Периметр квадрата 20 м. Чему равна его сторона?', uz: "Kvadratning perimetri 20 m. Uning tomoni nechaga teng?" },
-        q_speech: { ru: 'периметр квадрата двадцать метров. Чему равна его сторона?', uz: "kvadratning perimetri yigirma metr. Uning tomoni nechaga teng?" },
+        q: { ru: 'Периметр квадрата 20 м. Чему равна его сторона?', uz: "Kvadratning perimetri 20 m. Uning tomoni nechaga teng?", en: 'The perimeter of a square is 20 m. What is its side?' },
+        q_speech: { ru: 'периметр квадрата двадцать метров. Чему равна его сторона?', uz: "kvadratning perimetri yigirma metr. Uning tomoni nechaga teng?", en: 'the perimeter of a square is twenty metres. What is its side?' },
         ans: 5,
-        hint: { ru: 'Сторон четыре и они равны, значит делим.', uz: "Tomon to'rtta va ular teng, demak bo'lamiz." }
+        hint: { ru: 'Сторон четыре и они равны, значит делим.', uz: "Tomon to'rtta va ular teng, demak bo'lamiz.", en: 'There are four sides and they are equal, so we divide.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Одинаковая лента может обвести очень разные площадки. У квадрата 4 на 4 и у полосы 7 на 1 периметр один и тот же, 16 метров, а места внутри у квадрата вдвое больше. Поэтому строители считают обе величины, а не одну.',
-      uz: "Bir xil tasma juda har xil maydonni o'rashi mumkin. 4 ga 4 kvadrat va 7 ga 1 tasmaning perimetri bir xil, 16 metr, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar bitta emas, ikkala kattalikni hisoblaydi."
+      uz: "Bir xil tasma juda har xil maydonni o'rashi mumkin. 4 ga 4 kvadrat va 7 ga 1 tasmaning perimetri bir xil, 16 metr, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar bitta emas, ikkala kattalikni hisoblaydi.",
+      en: 'The same strip can edge very different yards. A 4 by 4 square and a 7 by 1 strip have the very same perimeter, 16 metres, and the square has twice as much room inside. That is why builders count both quantities, not one.'
     },
     fact_audio: {
       ru: 'Одинаковая лента может обвести очень разные площадки. Возьми квадрат четыре на четыре и узкую полосу семь на один. Ленты и там, и там уйдёт шестнадцать метров, а места внутри у квадрата вдвое больше. Поэтому строители всегда считают две величины, а не одну. Со второй мы познакомимся в следующий раз.',
-      uz: "Bir xil tasma juda har xil maydonni o'rashi mumkin. To'rtga to'rt kvadratni va yettiga bir tor tasmani oling. Ikkalasiga ham o'n olti metr tasma ketadi, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar har doim bitta emas, ikkita kattalikni hisoblaydi. Ikkinchisi bilan keyingi safar tanishamiz."
+      uz: "Bir xil tasma juda har xil maydonni o'rashi mumkin. To'rtga to'rt kvadratni va yettiga bir tor tasmani oling. Ikkalasiga ham o'n olti metr tasma ketadi, ichkaridagi joy esa kvadratda ikki barobar ko'p. Shuning uchun quruvchilar har doim bitta emas, ikkita kattalikni hisoblaydi. Ikkinchisi bilan keyingi safar tanishamiz.",
+      en: 'The same strip can edge very different yards. Take a square four by four and a narrow strip seven by one. Both will use sixteen metres of strip, and the square has twice as much room inside. That is why builders always count two quantities, not one. We will meet the second one next time.'
     },
     audio: {
-      intro: { ru: 'Три задания напоследок. Везде считай путь по краю.', uz: "Oxirida uchta topshiriq. Hamma joyda chekka bo'ylab yo'lni sanang." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Обойди фигуру по краю и сложи все стороны.', uz: "Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shing." }
+      intro: { ru: 'Три задания напоследок. Везде считай путь по краю.', uz: "Oxirida uchta topshiriq. Hamma joyda chekka bo'ylab yo'lni sanang.", en: 'Three tasks at the end. Count the path along the edge everywhere.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Обойди фигуру по краю и сложи все стороны.', uz: "Shaklni chekka bo'ylab aylanib, hamma tomonni qo'shing.", en: 'Go round the figure along the edge and add all the sides.' }
     }
   },
 
   // s14 — YAKUN: keyingisi yuza birliklari (reja 38-satr).
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Панель обведена!', uz: "Panel o'raldi!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Панель обведена!', uz: "Panel o'raldi!", en: 'The panel is edged!' },
     cando: {
       ru: ['нахожу периметр, складывая все стороны', 'у прямоугольника считаю коротким путём', 'не путаю путь по краю с тем, что внутри'],
-      uz: ["hamma tomonni qo'shib perimetrni topaman", "to'rtburchakda qisqa yo'l bilan hisoblayman", "chekka yo'lini ichkaridagi bilan chalkashtirmayman"]
+      uz: ["hamma tomonni qo'shib perimetrni topaman", "to'rtburchakda qisqa yo'l bilan hisoblayman", "chekka yo'lini ichkaridagi bilan chalkashtirmayman"],
+      en: ['I find the perimeter by adding all the sides', 'for a rectangle I count the short way', 'I do not confuse the path along the edge with what is inside']
     },
-    rule_recap: { ru: 'Периметр это сумма длин всех сторон.', uz: "Perimetr bu hamma tomon uzunliklarining yig'indisi." },
-    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi' },
-    conn_refs: { ru: 'урок 17: умножение на однозначное; урок 23: два действия', uz: "17-dars: bir xonaliga ko'paytirish; 23-dars: ikki amal" },
-    conn_label_next: { ru: 'дальше', uz: 'keyin' },
-    conn_next: { ru: 'единицы площади: сколько клеток внутри', uz: "yuza birliklari: ichkarida nechta katak" },
+    rule_recap: { ru: 'Периметр это сумма длин всех сторон.', uz: "Perimetr bu hamma tomon uzunliklarining yig'indisi.", en: 'The perimeter is the sum of the lengths of all the sides.' },
+    conn_label_refs: { ru: 'опирается на', uz: 'nimaga tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 17: умножение на однозначное; урок 23: два действия', uz: "17-dars: bir xonaliga ko'paytirish; 23-dars: ikki amal", en: 'lesson 17: multiplying by a one-digit number; lesson 23: two steps' },
+    conn_label_next: { ru: 'дальше', uz: 'keyin', en: 'next' },
+    conn_next: { ru: 'единицы площади: сколько клеток внутри', uz: "yuza birliklari: ichkarida nechta katak", en: 'units of area: how many squares are inside' },
     audio: {
       ru: 'Панель обведена. Запомни главное. Периметр это сумма длин всех сторон, и находят его, обходя фигуру по краю. У прямоугольника противоположные стороны равны, поэтому можно сложить длину с шириной и взять дважды. А то, что внутри фигуры, это уже другая величина. С ней познакомимся в следующий раз!',
-      uz: "Panel o'raldi. Asosiysini eslab qoling. Perimetr bu hamma tomon uzunliklarining yig'indisi, u shaklni chekka bo'ylab aylanib topiladi. To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi. Shakl ichidagi narsa esa boshqa kattalik. U bilan keyingi safar tanishamiz!"
+      uz: "Panel o'raldi. Asosiysini eslab qoling. Perimetr bu hamma tomon uzunliklarining yig'indisi, u shaklni chekka bo'ylab aylanib topiladi. To'rtburchakning qarama-qarshi tomonlari teng, shuning uchun uzunlik bilan enni qo'shib, ikki marta olsa bo'ladi. Shakl ichidagi narsa esa boshqa kattalik. U bilan keyingi safar tanishamiz!",
+      en: 'The panel is edged. Remember the main thing. The perimeter is the sum of the lengths of all the sides, and it is found by going round the figure along the edge. In a rectangle the opposite sides are equal, so you can add the length to the width and take it twice. And what is inside the figure is already a different quantity. We will meet it next time!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Пройдём по краю.', uz: "Chekka bo'ylab yuramiz." },
-  s2:  { ru: 'Посчитаем клетками.', uz: 'Kataklab sanaymiz.' },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'Прочитай чертёж.', uz: "Chizmani o'qing." },
-  s5:  { ru: 'Разложи задачи по полкам.', uz: 'Vazifalarni tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring." },
-  s8:  { ru: 'Посчитали не то.', uz: 'Boshqa narsa sanalibdi.' },
-  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan." },
-  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s11: { ru: 'И ещё одна плита.', uz: 'Yana bitta plita.' },
-  s12: { ru: 'Заказ на ограждение.', uz: 'Panjara buyurtmasi.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Панель обведена. Идём дальше!', uz: "Panel o'raldi. Davom etamiz!" }
+  s1:  { ru: 'Пройдём по краю.', uz: "Chekka bo'ylab yuramiz.", en: 'Let us walk along the edge.' },
+  s2:  { ru: 'Посчитаем клетками.', uz: 'Kataklab sanaymiz.', en: 'Let us count by squares.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'Прочитай чертёж.', uz: "Chizmani o'qing.", en: 'Read the drawing.' },
+  s5:  { ru: 'Разложи задачи по полкам.', uz: 'Vazifalarni tokchalarga ajrating.', en: 'Sort the tasks onto the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Заполни консоль.', uz: "Konsolni to'ldiring.", en: 'Fill the console.' },
+  s8:  { ru: 'Посчитали не то.', uz: 'Boshqa narsa sanalibdi.', en: 'They counted the wrong thing.' },
+  s9:  { ru: 'А вот и Бит со своей идеей.', uz: "Mana Bit ham o'z fikri bilan.", en: 'And here is Bit with his idea.' },
+  s10: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s11: { ru: 'И ещё одна плита.', uz: 'Yana bitta plita.', en: 'And one more slab.' },
+  s12: { ru: 'Заказ на ограждение.', uz: 'Panjara buyurtmasi.', en: 'An order for fencing.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Панель обведена. Идём дальше!', uz: "Panel o'raldi. Davom etamiz!", en: 'The panel is edged. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Лента легла ровно по краю. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Tasma chekka bo'ylab tekis yotdi. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Tasma chekka bo'ylab tekis yotdi. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The strip lies evenly along the edge. Thank you for your help!'
 };
 
 // ============================================================
@@ -732,13 +745,13 @@ const CrystalNodeLayer = () => {
       <g fill="#FFB92E">
         {[[0, 0], [170, 0], [170, 84], [0, 84]].map(([x, y], i) => <circle key={i} cx={x} cy={y} r="3.4"/>)}
       </g>
-      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'КРИСТАЛЬНАЯ ПАНЕЛЬ' : 'KRISTALL PANEL'}</text>
+      <text x="85" y="-12" textAnchor="middle" fontSize="8" letterSpacing="1.4" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'КРИСТАЛЬНАЯ ПАНЕЛЬ', 'KRISTALL PANEL', 'THE CRYSTAL PANEL')}</text>
       <text x="85" y="100" textAnchor="middle" fontSize="9" fontWeight="800" fill="#C06A2E" fontFamily="'JetBrains Mono', monospace">P = 16 m</text>
     </g>
     <g transform="translate(300 150)">
       <path d="M0 0 h56" stroke="#7FA8BF" strokeWidth="2.4" strokeLinecap="round"/>
       {[0, 14, 28, 42, 56].map((x, i) => <line key={i} x1={x} y1="-4" x2={x} y2="4" stroke="#7FA8BF" strokeWidth="1.6"/>)}
-      <text x="28" y="18" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'мерка' : "o'lchov"}</text>
+      <text x="28" y="18" textAnchor="middle" fontSize="7" fill="#3F5A6B" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'мерка', "o'lchov", 'the measure')}</text>
     </g>
   </svg>
   );
@@ -838,7 +851,7 @@ const SamePerimFig = () => {
       <rect x="0" y="0" width="105" height="15" fill="none" stroke="#C06A2E" strokeWidth="2.4"/>
       <text x="52" y="31" textAnchor="middle" fontSize="9" fontWeight="800" fill="#5A4A2E" fontFamily="'JetBrains Mono', monospace">7 kv.</text>
     </g>
-    <text x="110" y="12" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'лента в обеих 16 м' : 'tasma ikkalasida ham 16 m'}</text>
+    <text x="110" y="12" textAnchor="middle" fontSize="8" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'лента в обеих 16 м', 'tasma ikkalasida ham 16 m', 'both take 16 m of strip')}</text>
   </svg>
   );
 };
@@ -972,7 +985,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1091,7 +1104,7 @@ const Screen1 = (props) => {
         <h1 className="title h-sub fade-up">{t(c.lead)}</h1>
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(6px, 1.4vw, 10px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
-          <span className="mono d33-plate">{lang === 'ru' ? c.task_line : c.task_line_uz}</span>
+          <span className="mono d33-plate">{pickSib(c, 'task_line', lang)}</span>
           {step >= 1 && (
             <span className="lm-reveal" style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
               <span className="mono d33-expr">{t(c.step1)}</span>
@@ -1426,7 +1439,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1491,7 +1504,7 @@ const Screen9 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const lines = lang === 'ru' ? c.lines : c.lines_uz;
+  const lines = pickSib(c, 'lines', lang);
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1627,7 +1640,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d33-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d33-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1742,7 +1755,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -1813,7 +1826,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d33-final-scene fade-up delay-1"><CrystalCityScene gathered/></div>
@@ -1834,7 +1847,7 @@ export default function PerimeterLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -1901,7 +1914,7 @@ export default function PerimeterLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

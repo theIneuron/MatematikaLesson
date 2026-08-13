@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -605,12 +631,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -727,7 +753,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -794,13 +820,13 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -824,8 +850,8 @@ const NumInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 11;
 const LESSON_META = {
-  lessonId: 'nat_5_06',
-  lessonTitle: { ru: 'Степень числа. Квадрат и куб', uz: "Sonning darajasi. Kvadrat va kub" }
+  lessonId: 'grade5-08',
+  lessonTitle: { ru: 'Степень числа. Квадрат и куб', uz: "Sonning darajasi. Kvadrat va kub", en: 'Powers. Squares and cubes' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },
@@ -844,50 +870,50 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK =====
   s0: {
-    eyebrow: { ru: 'Зачем короткая запись', uz: "Nega qisqa yozuv" },
-    title: { ru: 'Длинно или коротко?', uz: "Uzunmi yoki qisqa?" },
-    lead: { ru: 'Как записать 3·3·3·3·3 короче?', uz: "3·3·3·3·3 ni qanday qisqaroq yozamiz?" },
-    opt0: { ru: 'Есть короткая запись — степень', uz: "Qisqa yozuv bor — daraja" },
-    opt1: { ru: 'Никак, только полным умножением', uz: "Hech qanday, faqat to'liq ko'paytma bilan" },
-    opt2: { ru: 'Можно записать 3·5', uz: "3·5 deb yozsa bo'ladi" },
-    reveal0: { ru: 'Верно! Одинаковые множители сворачивают в степень: 3·3·3·3·3 = 3⁵. Сейчас разберёмся.', uz: "To'g'ri! Bir xil ko'paytuvchilar darajaga yig'iladi: 3·3·3·3·3 = 3⁵. Hozir ko'rib chiqamiz." },
-    reveal1: { ru: 'Полная запись работает, но она длинная. Есть короткая — степень. Посмотрим.', uz: "To'liq yozuv ishlaydi, lekin uzun. Qisqa yozuv bor — daraja. Ko'ramiz." },
-    reveal2: { ru: 'Осторожно: 3·5 = 15, это сложение пяти троек. А тут тройка умножается сама на себя — это 3⁵, намного больше.', uz: "Ehtiyot bo'ling: 3·5 = 15, bu beshta uchni qo'shish. Bu yerda esa uch o'ziga ko'payadi — bu 3⁵, ancha katta." },
-    audio: { ru: "Посмотри на длинную запись. Её можно записать гораздо короче. Как думаешь?", uz: "Uzun yozuvga qarang. Uni ancha qisqa yozish mumkin. Sizningcha, qanday?" }
+    eyebrow: { ru: 'Зачем короткая запись', uz: "Nega qisqa yozuv", en: 'Why a short way of writing it' },
+    title: { ru: 'Длинно или коротко?', uz: "Uzunmi yoki qisqa?", en: 'The long way or the short way?' },
+    lead: { ru: 'Как записать 3·3·3·3·3 короче?', uz: "3·3·3·3·3 ni qanday qisqaroq yozamiz?", en: 'How can 3·3·3·3·3 be written more shortly?' },
+    opt0: { ru: 'Есть короткая запись — степень', uz: "Qisqa yozuv bor — daraja", en: 'There is a short way, a power' },
+    opt1: { ru: 'Никак, только полным умножением', uz: "Hech qanday, faqat to'liq ko'paytma bilan", en: 'There is no way, only the full multiplication' },
+    opt2: { ru: 'Можно записать 3·5', uz: "3·5 deb yozsa bo'ladi", en: 'It can be written as 3·5' },
+    reveal0: { ru: 'Верно! Одинаковые множители сворачивают в степень: 3·3·3·3·3 = 3⁵. Сейчас разберёмся.', uz: "To'g'ri! Bir xil ko'paytuvchilar darajaga yig'iladi: 3·3·3·3·3 = 3⁵. Hozir ko'rib chiqamiz.", en: 'Right! The same numbers multiplied again and again are folded up into a power: 3·3·3·3·3 = 3⁵. Let us work it out now.' },
+    reveal1: { ru: 'Полная запись работает, но она длинная. Есть короткая — степень. Посмотрим.', uz: "To'liq yozuv ishlaydi, lekin uzun. Qisqa yozuv bor — daraja. Ko'ramiz.", en: 'Writing it out in full works, but it is long. There is a short way, a power. Let us look at it.' },
+    reveal2: { ru: 'Осторожно: 3·5 = 15, это сложение пяти троек. А тут тройка умножается сама на себя — это 3⁵, намного больше.', uz: "Ehtiyot bo'ling: 3·5 = 15, bu beshta uchni qo'shish. Bu yerda esa uch o'ziga ko'payadi — bu 3⁵, ancha katta.", en: 'Careful: 3·5 = 15, which is five threes added together. Here the three is multiplied by itself, which is 3⁵, far bigger.' },
+    audio: { ru: "Посмотри на длинную запись. Её можно записать гораздо короче. Как думаешь?", uz: "Uzun yozuvga qarang. Uni ancha qisqa yozish mumkin. Sizningcha, qanday?", en: 'Look at the long way of writing it. It can be written far more shortly. What do you think?' }
   },
 
   // ===== s1 WARM-UP (prereq: ko'paytirish) =====
   s1: {
-    eyebrow: { ru: 'Вспомним умножение', uz: "Ko'paytmani eslaylik" },
-    title: { ru: 'Разминка', uz: "Mashq" },
-    question: { ru: 'Сколько будет 3·3·3?', uz: "3·3·3 nechaga teng?" },
-    opt0: { ru: '27', uz: '27' },
-    opt1: { ru: '9', uz: '9' },
-    opt2: { ru: '6', uz: '6' },
-    opt3: { ru: '12', uz: '12' },
-    correct_text: { ru: 'Верно: 3·3 = 9, потом 9·3 = 27. Скоро запишем это короче.', uz: "To'g'ri: 3·3 = 9, keyin 9·3 = 27. Tez orada qisqaroq yozamiz." },
-    wrong_1: { ru: 'Это только три умножить на три. Множителей три — умножь ещё на три.', uz: "Bu faqat uchni uchga ko'paytirish. Ko'paytuvchilar uchta — yana uchga ko'paytiring." },
-    wrong_2: { ru: 'Это три плюс три. Здесь множители умножают, а не складывают.', uz: "Bu uch qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi, qo'shilmaydi." },
-    wrong_3: { ru: 'Почти. Пересчитай: три умножить на три равно девять, затем девять умножить на три.', uz: "Deyarli. Qayta sanang: uchni uchga ko'paytirsak to'qqiz, keyin to'qqizni uchga." },
+    eyebrow: { ru: 'Вспомним умножение', uz: "Ko'paytmani eslaylik", en: 'Let us remember multiplying' },
+    title: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    question: { ru: 'Сколько будет 3·3·3?', uz: "3·3·3 nechaga teng?", en: 'How much is 3·3·3?' },
+    opt0: { ru: '27', uz: '27', en: '27' },
+    opt1: { ru: '9', uz: '9', en: '9' },
+    opt2: { ru: '6', uz: '6', en: '6' },
+    opt3: { ru: '12', uz: '12', en: '12' },
+    correct_text: { ru: 'Верно: 3·3 = 9, потом 9·3 = 27. Скоро запишем это короче.', uz: "To'g'ri: 3·3 = 9, keyin 9·3 = 27. Tez orada qisqaroq yozamiz.", en: 'That is right: 3·3 = 9, then 9·3 = 27. Soon we will write it more shortly.' },
+    wrong_1: { ru: 'Это только три умножить на три. Множителей три — умножь ещё на три.', uz: "Bu faqat uchni uchga ko'paytirish. Ko'paytuvchilar uchta — yana uchga ko'paytiring.", en: 'That is only three times three. There are three numbers to multiply, so multiply by three again.' },
+    wrong_2: { ru: 'Это три плюс три. Здесь множители умножают, а не складывают.', uz: "Bu uch qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi, qo'shilmaydi.", en: 'That is three plus three. Here the numbers are multiplied, not added.' },
+    wrong_3: { ru: 'Почти. Пересчитай: три умножить на три равно девять, затем девять умножить на три.', uz: "Deyarli. Qayta sanang: uchni uchga ko'paytirsak to'qqiz, keyin to'qqizni uchga.", en: 'Almost. Work it out again: three times three is nine, then nine times three.' },
     audio: {
-      intro: { ru: "Вспомним умножение. Сколько будет три на три и ещё на три?", uz: "Ko'paytmani eslaylik. Uchni uchga, yana uchga ko'paytirsak qancha bo'ladi?" },
-      on_correct: { ru: "Отлично, двадцать семь. Запомним это число.", uz: "Ajoyib, yigirma yetti. Shu sonni yodda tutaylik." },
-      on_wrong: { ru: "Ещё раз: сначала три на три, потом результат на три.", uz: "Yana bir bor: avval uchni uchga, keyin natijani uchga." }
+      intro: { ru: "Вспомним умножение. Сколько будет три на три и ещё на три?", uz: "Ko'paytmani eslaylik. Uchni uchga, yana uchga ko'paytirsak qancha bo'ladi?", en: 'Let us remember multiplying. How much is three times three times three?' },
+      on_correct: { ru: "Отлично, двадцать семь. Запомним это число.", uz: "Ajoyib, yigirma yetti. Shu sonni yodda tutaylik.", en: 'Well done, twenty seven. Let us remember that number.' },
+      on_wrong: { ru: "Ещё раз: сначала три на три, потом результат на три.", uz: "Yana bir bor: avval uchni uchga, keyin natijani uchga.", en: 'Once more: first three times three, then that answer times three.' }
     }
   },
 
   // ===== s2 EXPLORATION — daraja yozuvi (step) =====
   s2: {
-    eyebrow: { ru: 'Запись степени', uz: "Daraja yozuvi" },
-    title: { ru: 'Свернём в степень', uz: "Darajaga yig'amiz" },
-    lead: { ru: 'Помни 3·3·3 = 27? Теперь запишем это короче.', uz: "3·3·3 = 27 ni eslaysizmi? Endi buni qisqaroq yozamiz." },
-    line_chain: { ru: 'Пять одинаковых множителей: 3·3·3·3·3', uz: "Beshta bir xil ko'paytuvchi: 3·3·3·3·3" },
-    line_power: { ru: 'Коротко это степень: 3⁵', uz: "Qisqacha bu daraja: 3⁵" },
-    line_base: { ru: 'Внизу основание: какое число умножаем.', uz: "Pastda asos: qaysi sonni ko'paytiramiz." },
-    line_exp: { ru: 'Вверху показатель: сколько раз.', uz: "Tepada ko'rsatkich: necha marta." },
-    line_one: { ru: 'Первая степень равна самому числу: 3¹ = 3.', uz: "Birinchi daraja sonning o'ziga teng: 3¹ = 3." },
-    btn_step: { ru: 'Дальше', uz: "Keyingi qadam" },
-    btn_final: { ru: 'Понятно', uz: "Tushunarli" },
+    eyebrow: { ru: 'Запись степени', uz: "Daraja yozuvi", en: 'Writing a power' },
+    title: { ru: 'Свернём в степень', uz: "Darajaga yig'amiz", en: 'Let us fold it up into a power' },
+    lead: { ru: 'Помни 3·3·3 = 27? Теперь запишем это короче.', uz: "3·3·3 = 27 ni eslaysizmi? Endi buni qisqaroq yozamiz.", en: 'Remember 3·3·3 = 27? Now let us write it more shortly.' },
+    line_chain: { ru: 'Пять одинаковых множителей: 3·3·3·3·3', uz: "Beshta bir xil ko'paytuvchi: 3·3·3·3·3", en: 'Five of the same number multiplied: 3·3·3·3·3' },
+    line_power: { ru: 'Коротко это степень: 3⁵', uz: "Qisqacha bu daraja: 3⁵", en: 'Written shortly it is a power: 3⁵' },
+    line_base: { ru: 'Внизу основание: какое число умножаем.', uz: "Pastda asos: qaysi sonni ko'paytiramiz.", en: 'The base is at the bottom: which number we multiply.' },
+    line_exp: { ru: 'Вверху показатель: сколько раз.', uz: "Tepada ko'rsatkich: necha marta.", en: 'The index is at the top: how many times.' },
+    line_one: { ru: 'Первая степень равна самому числу: 3¹ = 3.', uz: "Birinchi daraja sonning o'ziga teng: 3¹ = 3.", en: 'The first power is the number itself: 3¹ = 3.' },
+    btn_step: { ru: 'Дальше', uz: "Keyingi qadam", en: 'Next' },
+    btn_final: { ru: 'Понятно', uz: "Tushunarli", en: 'Got it' },
     audio: {
       ru: [
         "Помни, мы перемножали тройки. Теперь посмотрим, что делать, когда одинаковых множителей много.",
@@ -902,194 +928,195 @@ const CONTENT = {
         "Shuning uchun qisqa yozuvga yig'amiz. Pastdagi son qaysi sonni ko'paytirayotganimizni aytadi.",
         "Tepadagi son necha marta ko'paytirayotganimizni aytadi.",
         "Agar son bir marta olinsa, uning birinchi darajasi o'ziga teng bo'ladi."
-      ]
+      ],
+      en: ['Remember, we were multiplying threes together. Now let us see what to do when there are a lot of the same number.', 'Here are five of the same number multiplied. Writing them all out takes a long time and it is easy to make a mistake.', 'So we fold it up into a short form. The number at the bottom tells us which number we are multiplying.', 'The number at the top tells us how many times we multiply.', 'If a number is taken just once, its first power is the number itself.']
     }
   },
 
   // ===== s3 EXPLORATION — KVADRAT (slider) =====
   s3: {
-    eyebrow: { ru: 'Квадрат числа', uz: "Sonning kvadrati" },
-    title: { ru: 'Вторая степень — квадрат', uz: "Ikkinchi daraja — kvadrat" },
-    lead: { ru: 'Двигай сторону и смотри на клетки.', uz: "Tomonni suring va kataklarga qarang." },
-    slider_label: { ru: 'Сторона', uz: "Tomon" },
-    line_def: { ru: 'a² = a·a — число, умноженное само на себя.', uz: "a² = a·a — son o'ziga ko'paytirilgani." },
-    line_why: { ru: 'Клетки заполняют квадрат. Поэтому это и есть квадрат.', uz: "Kataklar kvadratni to'ldiradi. Shuning uchun bu kvadrat." },
-    line_warn: { ru: 'Не путай: a·2 — это всего два ряда, а не квадрат.', uz: "Adashtirmang: a·2 — atigi ikki qator, kvadrat emas." },
-    audio: { ru: "Вторая степень — квадрат. Двигай сторону: клетки всегда образуют квадрат. Умножить на два — это не квадрат.", uz: "Ikkinchi daraja — kvadrat. Tomonni suring: kataklar har doim kvadrat hosil qiladi. Ikkiga ko'paytirish kvadrat emas." }
+    eyebrow: { ru: 'Квадрат числа', uz: "Sonning kvadrati", en: 'The square of a number' },
+    title: { ru: 'Вторая степень — квадрат', uz: "Ikkinchi daraja — kvadrat", en: 'The second power is a square' },
+    lead: { ru: 'Двигай сторону и смотри на клетки.', uz: "Tomonni suring va kataklarga qarang.", en: 'Move the side and watch the squares.' },
+    slider_label: { ru: 'Сторона', uz: "Tomon", en: 'Side' },
+    line_def: { ru: 'a² = a·a — число, умноженное само на себя.', uz: "a² = a·a — son o'ziga ko'paytirilgani.", en: 'a² = a·a, a number multiplied by itself.' },
+    line_why: { ru: 'Клетки заполняют квадрат. Поэтому это и есть квадрат.', uz: "Kataklar kvadratni to'ldiradi. Shuning uchun bu kvadrat.", en: 'The little squares fill a square shape. That is why it is called a square.' },
+    line_warn: { ru: 'Не путай: a·2 — это всего два ряда, а не квадрат.', uz: "Adashtirmang: a·2 — atigi ikki qator, kvadrat emas.", en: 'Do not mix it up: a·2 is only two rows, not a square.' },
+    audio: { ru: "Вторая степень — квадрат. Двигай сторону: клетки всегда образуют квадрат. Умножить на два — это не квадрат.", uz: "Ikkinchi daraja — kvadrat. Tomonni suring: kataklar har doim kvadrat hosil qiladi. Ikkiga ko'paytirish kvadrat emas.", en: 'The second power is a square. Move the side: the little squares always make a square shape. Multiplying by two is not squaring.' }
   },
 
   // ===== s4 EXPLORATION — KUB (slider) =====
   s4: {
-    eyebrow: { ru: 'Куб числа', uz: "Sonning kubi" },
-    title: { ru: 'Третья степень — куб', uz: "Uchinchi daraja — kub" },
-    lead: { ru: 'Двигай ребро и смотри на кубики.', uz: "Qirrani suring va kublarga qarang." },
-    slider_label: { ru: 'Ребро', uz: "Qirra" },
-    line_def: { ru: 'a³ = a·a·a — три одинаковых множителя.', uz: "a³ = a·a·a — uchta bir xil ko'paytuvchi." },
-    line_why: { ru: 'Маленькие кубики заполняют большой куб. Поэтому это куб.', uz: "Kichik kublar katta kubni to'ldiradi. Shuning uchun bu kub." },
-    audio: { ru: "Третья степень — куб. Двигай ребро: маленькие кубики образуют полный куб.", uz: "Uchinchi daraja — kub. Qirrani suring: kichik kublar to'la kubni hosil qiladi." }
+    eyebrow: { ru: 'Куб числа', uz: "Sonning kubi", en: 'The cube of a number' },
+    title: { ru: 'Третья степень — куб', uz: "Uchinchi daraja — kub", en: 'The third power is a cube' },
+    lead: { ru: 'Двигай ребро и смотри на кубики.', uz: "Qirrani suring va kublarga qarang.", en: 'Move the edge and watch the little cubes.' },
+    slider_label: { ru: 'Ребро', uz: "Qirra", en: 'Edge' },
+    line_def: { ru: 'a³ = a·a·a — три одинаковых множителя.', uz: "a³ = a·a·a — uchta bir xil ko'paytuvchi.", en: 'a³ = a·a·a, the same number multiplied three times.' },
+    line_why: { ru: 'Маленькие кубики заполняют большой куб. Поэтому это куб.', uz: "Kichik kublar katta kubni to'ldiradi. Shuning uchun bu kub.", en: 'The little cubes fill a big cube. That is why it is called a cube.' },
+    audio: { ru: "Третья степень — куб. Двигай ребро: маленькие кубики образуют полный куб.", uz: "Uchinchi daraja — kub. Qirrani suring: kichik kublar to'la kubni hosil qiladi.", en: 'The third power is a cube. Move the edge: the little cubes make a complete cube.' }
   },
 
   // ===== s5 RULE 1 =====
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Степень числа', uz: "Sonning darajasi" },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Степень — это произведение одинаковых множителей.', uz: "Daraja — bir xil ko'paytuvchilar ko'paytmasi." },
-    rule_2: { ru: 'Квадрат: a² = a·a.  Куб: a³ = a·a·a.', uz: "Kvadrat: a² = a·a.  Kub: a³ = a·a·a." },
-    rule_3: { ru: 'Первая степень: a¹ = a.', uz: "Birinchi daraja: a¹ = a." },
-    rule_4: { ru: 'Нижнее число — основание, верхнее — показатель.', uz: "Pastki son — asos, tepadagi — ko'rsatkich." },
-    audio: { ru: "Итак, степень — это произведение одинаковых множителей. Вторую степень называют квадратом, третью — кубом.", uz: "Demak, daraja bir xil ko'paytuvchilarning ko'paytmasi. Ikkinchi daraja kvadrat, uchinchisi kub deyiladi." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Степень числа', uz: "Sonning darajasi", en: 'The power of a number' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Степень — это произведение одинаковых множителей.', uz: "Daraja — bir xil ko'paytuvchilar ko'paytmasi.", en: 'A power is the same number multiplied by itself again and again.' },
+    rule_2: { ru: 'Квадрат: a² = a·a.  Куб: a³ = a·a·a.', uz: "Kvadrat: a² = a·a.  Kub: a³ = a·a·a.", en: 'Square: a² = a·a.  Cube: a³ = a·a·a.' },
+    rule_3: { ru: 'Первая степень: a¹ = a.', uz: "Birinchi daraja: a¹ = a.", en: 'The first power: a¹ = a.' },
+    rule_4: { ru: 'Нижнее число — основание, верхнее — показатель.', uz: "Pastki son — asos, tepadagi — ko'rsatkich.", en: 'The number at the bottom is the base, the one at the top is the index.' },
+    audio: { ru: "Итак, степень — это произведение одинаковых множителей. Вторую степень называют квадратом, третью — кубом.", uz: "Demak, daraja bir xil ko'paytuvchilarning ko'paytmasi. Ikkinchi daraja kvadrat, uchinchisi kub deyiladi.", en: 'So a power is the same number multiplied by itself again and again. The second power is called a square and the third one a cube.' }
   },
 
   // ===== s6 RULE 2 — TUZOQ =====
   s6: {
-    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling" },
-    heading: { ru: 'Частая ошибка', uz: "Ko'p uchraydigan xato" },
-    warn_1: { ru: 'a² — это a·a, а не a·2.', uz: "a² — bu a·a, a·2 emas." },
-    warn_ex: { ru: 'Например: 5² = 25, а 5·2 = 10. Это разные числа.', uz: "Masalan: 5² = 25, 5·2 esa 10. Bular boshqa-boshqa sonlar." },
-    warn_2: { ru: 'Показатель говорит, сколько раз умножать, а не на сколько.', uz: "Ko'rsatkich necha marta ko'paytirishni aytadi, nechaga emas." },
-    audio: { ru: "Вот здесь многие ошибаются. Квадрат — это умножить число само на себя, а не на два. Пять в квадрате — двадцать пять, а пять умножить на два — десять.", uz: "Mana shu yerda ko'p bola adashadi. Kvadrat — sonni o'ziga ko'paytirish, ikkiga ko'paytirish emas. Beshning kvadrati yigirma besh, beshni ikkiga ko'paytirsak esa o'n." }
+    eyebrow: { ru: 'Осторожно', uz: "Ehtiyot bo'ling", en: 'Careful' },
+    heading: { ru: 'Частая ошибка', uz: "Ko'p uchraydigan xato", en: 'A common mistake' },
+    warn_1: { ru: 'a² — это a·a, а не a·2.', uz: "a² — bu a·a, a·2 emas.", en: 'a² means a·a, not a·2.' },
+    warn_ex: { ru: 'Например: 5² = 25, а 5·2 = 10. Это разные числа.', uz: "Masalan: 5² = 25, 5·2 esa 10. Bular boshqa-boshqa sonlar.", en: 'For example, 5² = 25 while 5·2 = 10. They are different numbers.' },
+    warn_2: { ru: 'Показатель говорит, сколько раз умножать, а не на сколько.', uz: "Ko'rsatkich necha marta ko'paytirishni aytadi, nechaga emas.", en: 'The index tells you how many times to multiply, not what to multiply by.' },
+    audio: { ru: "Вот здесь многие ошибаются. Квадрат — это умножить число само на себя, а не на два. Пять в квадрате — двадцать пять, а пять умножить на два — десять.", uz: "Mana shu yerda ko'p bola adashadi. Kvadrat — sonni o'ziga ko'paytirish, ikkiga ko'paytirish emas. Beshning kvadrati yigirma besh, beshni ikkiga ko'paytirsak esa o'n.", en: 'This is where many people go wrong. Squaring means multiplying a number by itself, not by two. Five squared is twenty five, while five times two is ten.' }
   },
 
   // ===== s7 TEST NumInput — 5² = 25 =====
   s7: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    question: { ru: 'Вычисли: 5²', uz: "Hisoblang: 5²" },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Квадрат — это число само на себя: пять умножить на пять. Не пять умножить на два.', uz: "Kvadrat — son o'ziga ko'paytirilgani: beshni beshga. Beshni ikkiga emas." },
-    fb_correct: { ru: 'Верно: 5·5 = 25.', uz: "To'g'ri: 5·5 = 25." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    question: { ru: 'Вычисли: 5²', uz: "Hisoblang: 5²", en: 'Work out 5²' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Квадрат — это число само на себя: пять умножить на пять. Не пять умножить на два.', uz: "Kvadrat — son o'ziga ko'paytirilgani: beshni beshga. Beshni ikkiga emas.", en: 'Squaring means a number times itself: five times five. Not five times two.' },
+    fb_correct: { ru: 'Верно: 5·5 = 25.', uz: "To'g'ri: 5·5 = 25.", en: 'That is right: 5·5 = 25.' },
     audio: {
-      intro: { ru: "Вычисли пять в квадрате. Помни: само на себя.", uz: "Beshning kvadratini hisoblang. Yodingizda bo'lsin: o'ziga ko'paytiriladi." },
-      on_correct: { ru: "Верно, двадцать пять.", uz: "To'g'ri, yigirma besh." },
-      on_wrong: { ru: "Не то. Умножь пять само на себя, а не на два.", uz: "Emas. Beshni o'ziga ko'paytiring, ikkiga emas." }
+      intro: { ru: "Вычисли пять в квадрате. Помни: само на себя.", uz: "Beshning kvadratini hisoblang. Yodingizda bo'lsin: o'ziga ko'paytiriladi.", en: 'Work out five squared. Remember, it is the number times itself.' },
+      on_correct: { ru: "Верно, двадцать пять.", uz: "To'g'ri, yigirma besh.", en: 'That is right, twenty five.' },
+      on_wrong: { ru: "Не то. Умножь пять само на себя, а не на два.", uz: "Emas. Beshni o'ziga ko'paytiring, ikkiga emas.", en: 'Not that. Multiply five by itself, not by two.' }
     }
   },
 
   // ===== s8 TEST — Noto'g'risini top [FAKT toq sonlar] =====
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    title: { ru: 'Внимание, вопрос наоборот', uz: "Diqqat, savol teskari" },
-    question: { ru: 'В каком равенстве ошибка?', uz: "Qaysi tenglikda xato bor?" },
-    opt0: { ru: '6² = 36', uz: '6² = 36' },
-    opt1: { ru: '2³ = 8', uz: '2³ = 8' },
-    opt2: { ru: '10² = 100', uz: '10² = 100' },
-    opt3: { ru: '4² = 8', uz: '4² = 8' },
-    correct_text: { ru: 'Верно! 4² = 4·4 = 16, а не 8. Восьмёрка — это 4·2. Вот и ошибка.', uz: "To'g'ri! 4² = 4·4 = 16, 8 emas. Sakkiz — bu 4·2. Mana xato shu." },
-    wrong_0: { ru: 'Шесть в квадрате это шесть умножить на шесть, будет тридцать шесть — это верно. Ищи ошибочное равенство.', uz: "Olti kvadrati — oltini oltiga ko'paytirsak o'ttiz olti, bu to'g'ri. Xato tenglikni qidiring." },
-    wrong_1: { ru: 'Два в кубе это два умножить на два и ещё на два, будет восемь — верно. Это не ошибка.', uz: "Ikki kubi — ikkini ikkiga, yana ikkiga ko'paytirsak sakkiz, to'g'ri. Bu xato emas." },
-    wrong_2: { ru: 'Десять в квадрате это десять умножить на десять, будет сто — верно. Ищи ошибку.', uz: "O'n kvadrati — o'nni o'nga ko'paytirsak yuz, to'g'ri. Xatoni qidiring." },
-    fact: { ru: 'Квадраты — это суммы нечётных чисел: 1, потом 1+3=4, потом 1+3+5=9. Поэтому квадрат всегда складывается из таких слоёв.', uz: "Kvadrat sonlar — toq sonlar yig'indisi: 1, keyin 1+3=4, keyin 1+3+5=9. Shuning uchun kvadrat har doim shunday qatlamlardan tuziladi." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    title: { ru: 'Внимание, вопрос наоборот', uz: "Diqqat, savol teskari", en: 'Careful, this question is the other way round' },
+    question: { ru: 'В каком равенстве ошибка?', uz: "Qaysi tenglikda xato bor?", en: 'Which of these is wrong?' },
+    opt0: { ru: '6² = 36', uz: '6² = 36', en: '6² = 36' },
+    opt1: { ru: '2³ = 8', uz: '2³ = 8', en: '2³ = 8' },
+    opt2: { ru: '10² = 100', uz: '10² = 100', en: '10² = 100' },
+    opt3: { ru: '4² = 8', uz: '4² = 8', en: '4² = 8' },
+    correct_text: { ru: 'Верно! 4² = 4·4 = 16, а не 8. Восьмёрка — это 4·2. Вот и ошибка.', uz: "To'g'ri! 4² = 4·4 = 16, 8 emas. Sakkiz — bu 4·2. Mana xato shu.", en: 'Right! 4² = 4·4 = 16, not 8. The eight is 4·2. That is the mistake.' },
+    wrong_0: { ru: 'Шесть в квадрате это шесть умножить на шесть, будет тридцать шесть — это верно. Ищи ошибочное равенство.', uz: "Olti kvadrati — oltini oltiga ko'paytirsak o'ttiz olti, bu to'g'ri. Xato tenglikni qidiring.", en: 'Six squared is six times six, which is thirty six, so that one is right. Look for the one that is wrong.' },
+    wrong_1: { ru: 'Два в кубе это два умножить на два и ещё на два, будет восемь — верно. Это не ошибка.', uz: "Ikki kubi — ikkini ikkiga, yana ikkiga ko'paytirsak sakkiz, to'g'ri. Bu xato emas.", en: 'Two cubed is two times two times two, which is eight, so that is right. That is not the mistake.' },
+    wrong_2: { ru: 'Десять в квадрате это десять умножить на десять, будет сто — верно. Ищи ошибку.', uz: "O'n kvadrati — o'nni o'nga ko'paytirsak yuz, to'g'ri. Xatoni qidiring.", en: 'Ten squared is ten times ten, which is a hundred, so that is right. Look for the mistake.' },
+    fact: { ru: 'Квадраты — это суммы нечётных чисел: 1, потом 1+3=4, потом 1+3+5=9. Поэтому квадрат всегда складывается из таких слоёв.', uz: "Kvadrat sonlar — toq sonlar yig'indisi: 1, keyin 1+3=4, keyin 1+3+5=9. Shuning uchun kvadrat har doim shunday qatlamlardan tuziladi.", en: 'Square numbers are odd numbers added up: 1, then 1+3=4, then 1+3+5=9. That is why a square is always built out of layers like these.' },
     audio: {
-      intro: { ru: "Будь внимателен: здесь вопрос наоборот. Найди равенство, в котором есть ошибка.", uz: "Diqqat bo'ling: bu yerda savol teskari. Xato bor tenglikni toping." },
-      on_correct: { ru: "Точно. Четыре в квадрате — шестнадцать, а не восемь. И вот что красиво: квадраты складываются из нечётных чисел.", uz: "Aniq. To'rtning kvadrati o'n olti, sakkiz emas. Mana qizig'i: kvadrat sonlar toq sonlardan yig'iladi." },
-      on_wrong: { ru: "Это равенство верное. Ищи то, где результат не сходится.", uz: "Bu tenglik to'g'ri. Natija to'g'ri kelmaydiganini qidiring." }
+      intro: { ru: "Будь внимателен: здесь вопрос наоборот. Найди равенство, в котором есть ошибка.", uz: "Diqqat bo'ling: bu yerda savol teskari. Xato bor tenglikni toping.", en: 'Take care: this question is the other way round. Find the one that has a mistake in it.' },
+      on_correct: { ru: "Точно. Четыре в квадрате — шестнадцать, а не восемь. И вот что красиво: квадраты складываются из нечётных чисел.", uz: "Aniq. To'rtning kvadrati o'n olti, sakkiz emas. Mana qizig'i: kvadrat sonlar toq sonlardan yig'iladi.", en: 'Exactly. Four squared is sixteen, not eight. And here is something lovely: squares are built out of odd numbers.' },
+      on_wrong: { ru: "Это равенство верное. Ищи то, где результат не сходится.", uz: "Bu tenglik to'g'ri. Natija to'g'ri kelmaydiganini qidiring.", en: 'That one is right. Look for the one where the answer does not work out.' }
     }
   },
 
   // ===== s9 TEST MC — 2³ [FAKT xotira] =====
   s9: {
-    eyebrow: { ru: 'Проверка', uz: "Tekshiruv" },
-    title: { ru: 'Куб двойки', uz: "Ikkining kubi" },
-    question: { ru: 'Чему равно 2³?', uz: "2³ nechaga teng?" },
-    opt0: { ru: '8', uz: '8' },
-    opt1: { ru: '6', uz: '6' },
-    opt2: { ru: '9', uz: '9' },
-    opt3: { ru: '5', uz: '5' },
-    correct_text: { ru: 'Верно: 2³ = 2·2·2 = 8.', uz: "To'g'ri: 2³ = 2·2·2 = 8." },
-    wrong_1: { ru: 'Шесть — это два умножить на три. А куб — это два умножить на два и ещё на два.', uz: "Olti — bu ikkini uchga ko'paytirish. Kub esa ikkini ikkiga, yana ikkiga." },
-    wrong_2: { ru: 'Девять — это три в квадрате. Основание и показатель поменялись местами.', uz: "To'qqiz — bu uch kvadrati. Asos va ko'rsatkich o'rin almashib qoldi." },
-    wrong_3: { ru: 'Пять — это два плюс три. Здесь множители умножают.', uz: "Besh — bu ikki qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi." },
-    fact: { ru: 'Память компьютера измеряют степенями двойки: 2¹⁰ = 1024 байта это один килобайт. Поэтому объёмы растут скачками: 256, 512, 1024.', uz: "Kompyuter xotirasi ikkining darajalari bilan o'lchanadi: 2¹⁰ = 1024 bayt — bu bir kilobayt. Shuning uchun hajmlar sakrab o'sadi: 256, 512, 1024." },
+    eyebrow: { ru: 'Проверка', uz: "Tekshiruv", en: 'Checking' },
+    title: { ru: 'Куб двойки', uz: "Ikkining kubi", en: 'Two cubed' },
+    question: { ru: 'Чему равно 2³?', uz: "2³ nechaga teng?", en: 'What is 2³?' },
+    opt0: { ru: '8', uz: '8', en: '8' },
+    opt1: { ru: '6', uz: '6', en: '6' },
+    opt2: { ru: '9', uz: '9', en: '9' },
+    opt3: { ru: '5', uz: '5', en: '5' },
+    correct_text: { ru: 'Верно: 2³ = 2·2·2 = 8.', uz: "To'g'ri: 2³ = 2·2·2 = 8.", en: 'That is right: 2³ = 2·2·2 = 8.' },
+    wrong_1: { ru: 'Шесть — это два умножить на три. А куб — это два умножить на два и ещё на два.', uz: "Olti — bu ikkini uchga ko'paytirish. Kub esa ikkini ikkiga, yana ikkiga.", en: 'Six is two times three. A cube is two times two times two.' },
+    wrong_2: { ru: 'Девять — это три в квадрате. Основание и показатель поменялись местами.', uz: "To'qqiz — bu uch kvadrati. Asos va ko'rsatkich o'rin almashib qoldi.", en: 'Nine is three squared. The base and the index have swapped places.' },
+    wrong_3: { ru: 'Пять — это два плюс три. Здесь множители умножают.', uz: "Besh — bu ikki qo'shuv uch. Bu yerda ko'paytuvchilar ko'paytiriladi.", en: 'Five is two plus three. Here the numbers are multiplied.' },
+    fact: { ru: 'Память компьютера измеряют степенями двойки: 2¹⁰ = 1024 байта это один килобайт. Поэтому объёмы растут скачками: 256, 512, 1024.', uz: "Kompyuter xotirasi ikkining darajalari bilan o'lchanadi: 2¹⁰ = 1024 bayt — bu bir kilobayt. Shuning uchun hajmlar sakrab o'sadi: 256, 512, 1024.", en: 'Computer memory is measured in powers of two: 2¹⁰ = 1024 bytes make one kilobyte. That is why memory sizes jump: 256, 512, 1024.' },
     audio: {
-      intro: { ru: "Вычисли два в кубе. Куб — три одинаковых множителя.", uz: "Ikkining kubini hisoblang. Kub — uchta bir xil ko'paytuvchi." },
-      on_correct: { ru: "Верно, восемь. А степени двойки очень важны в компьютерах: тысяча двадцать четыре байта это один килобайт.", uz: "To'g'ri, sakkiz. Ikkining darajalari kompyuterda juda muhim: bir ming yigirma to'rt bayt — bu bir kilobayt." },
-      on_wrong: { ru: "Не то. Умножь двойку саму на себя три раза.", uz: "Emas. Ikkini o'ziga uch marta ko'paytiring." }
+      intro: { ru: "Вычисли два в кубе. Куб — три одинаковых множителя.", uz: "Ikkining kubini hisoblang. Kub — uchta bir xil ko'paytuvchi.", en: 'Work out two cubed. A cube is the same number multiplied three times.' },
+      on_correct: { ru: "Верно, восемь. А степени двойки очень важны в компьютерах: тысяча двадцать четыре байта это один килобайт.", uz: "To'g'ri, sakkiz. Ikkining darajalari kompyuterda juda muhim: bir ming yigirma to'rt bayt — bu bir kilobayt.", en: 'That is right, eight. And powers of two matter a lot in computers: one thousand and twenty four bytes make one kilobyte.' },
+      on_wrong: { ru: "Не то. Умножь двойку саму на себя три раза.", uz: "Emas. Ikkini o'ziga uch marta ko'paytiring.", en: 'Not that. Multiply two by itself three times.' }
     }
   },
 
   // ===== s10 TEST NumInput — fill-blank ko'rsatkich =====
   s10: {
-    eyebrow: { ru: 'Заполни пропуск', uz: "Bo'sh joyni to'ldiring" },
-    question: { ru: 'Впиши показатель степени.', uz: "Daraja ko'rsatkichini yozing." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Показатель — это сколько одинаковых множителей. Сосчитай двойки.', uz: "Ko'rsatkich — nechta bir xil ko'paytuvchi borligi. Ikkilarni sanang." },
-    fb_correct: { ru: 'Верно: четыре двойки, значит 2⁴.', uz: "To'g'ri: to'rtta ikki, demak 2⁴." },
+    eyebrow: { ru: 'Заполни пропуск', uz: "Bo'sh joyni to'ldiring", en: 'Fill in the gap' },
+    question: { ru: 'Впиши показатель степени.', uz: "Daraja ko'rsatkichini yozing.", en: 'Write in the index.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Показатель — это сколько одинаковых множителей. Сосчитай двойки.', uz: "Ko'rsatkich — nechta bir xil ko'paytuvchi borligi. Ikkilarni sanang.", en: 'The index is how many of the same number are multiplied. Count the twos.' },
+    fb_correct: { ru: 'Верно: четыре двойки, значит 2⁴.', uz: "To'g'ri: to'rtta ikki, demak 2⁴.", en: 'That is right: four twos, so 2⁴.' },
     audio: {
-      intro: { ru: "Посчитай, сколько здесь одинаковых множителей, и впиши показатель.", uz: "Bu yerda nechta bir xil ko'paytuvchi borligini sanang va ko'rsatkichni yozing." },
-      on_correct: { ru: "Верно, четыре.", uz: "To'g'ri, to'rt." },
-      on_wrong: { ru: "Пересчитай множители — каждый из них это одна двойка.", uz: "Ko'paytuvchilarni qayta sanang — har biri bitta ikki." }
+      intro: { ru: "Посчитай, сколько здесь одинаковых множителей, и впиши показатель.", uz: "Bu yerda nechta bir xil ko'paytuvchi borligini sanang va ko'rsatkichni yozing.", en: 'Count how many of the same number are multiplied here and write in the index.' },
+      on_correct: { ru: "Верно, четыре.", uz: "To'g'ri, to'rt.", en: 'That is right, four.' },
+      on_wrong: { ru: "Пересчитай множители — каждый из них это одна двойка.", uz: "Ko'paytuvchilarni qayta sanang — har biri bitta ikki.", en: 'Count them again, each one of them is a two.' }
     }
   },
 
   // ===== s11 TEST — Tasniflash (tap-to-place) =====
   s11: {
-    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating" },
-    title: { ru: 'Квадрат или куб?', uz: "Kvadrat yoki kub?" },
-    lead: { ru: 'Нажми запись, потом её группу.', uz: "Yozuvni bosing, keyin uning guruhini bosing." },
-    bin_sq: { ru: 'Квадрат (a²)', uz: "Kvadrat (a²)" },
-    bin_cu: { ru: 'Куб (a³)', uz: "Kub (a³)" },
-    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    reset_hint: { ru: 'Сбросить', uz: "Tozalash" },
-    hint_wrong: { ru: 'Смотри на показатель: 2 — квадрат, 3 — куб.', uz: "Ko'rsatkichga qarang: 2 — kvadrat, 3 — kub." },
-    correct_text: { ru: 'Верно! Показатель 2 — квадрат, показатель 3 — куб.', uz: "To'g'ri! Ko'rsatkich 2 — kvadrat, ko'rsatkich 3 — kub." },
+    eyebrow: { ru: 'Разложи по группам', uz: "Guruhlarga ajrating", en: 'Sort them into groups' },
+    title: { ru: 'Квадрат или куб?', uz: "Kvadrat yoki kub?", en: 'Square or cube?' },
+    lead: { ru: 'Нажми запись, потом её группу.', uz: "Yozuvni bosing, keyin uning guruhini bosing.", en: 'Tap a card, then its group.' },
+    bin_sq: { ru: 'Квадрат (a²)', uz: "Kvadrat (a²)", en: 'Square (a²)' },
+    bin_cu: { ru: 'Куб (a³)', uz: "Kub (a³)", en: 'Cube (a³)' },
+    tap_prompt: { ru: 'Сначала выбери запись', uz: "Avval yozuvni tanlang", en: 'First choose the line' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    reset_hint: { ru: 'Сбросить', uz: "Tozalash", en: 'Start over' },
+    hint_wrong: { ru: 'Смотри на показатель: 2 — квадрат, 3 — куб.', uz: "Ko'rsatkichga qarang: 2 — kvadrat, 3 — kub.", en: 'Look at the index: 2 means a square, 3 means a cube.' },
+    correct_text: { ru: 'Верно! Показатель 2 — квадрат, показатель 3 — куб.', uz: "To'g'ri! Ko'rsatkich 2 — kvadrat, ko'rsatkich 3 — kub.", en: 'Right! An index of 2 is a square and an index of 3 is a cube.' },
     audio: {
-      intro: { ru: "Разложи записи по группам: где квадрат, а где куб. Подсказка в показателе.", uz: "Yozuvlarni guruhlarga ajrating: qaysi biri kvadrat, qaysi biri kub. Maslahat ko'rsatkichda." },
-      on_correct: { ru: "Верно. Показатель сразу говорит, квадрат это или куб.", uz: "To'g'ri. Ko'rsatkich darhol aytadi: kvadratmi yoki kub." },
-      on_wrong: { ru: "Посмотри на верхнее число: двойка это квадрат, тройка это куб.", uz: "Tepadagi songa qarang: ikki — kvadrat, uch — kub." }
+      intro: { ru: "Разложи записи по группам: где квадрат, а где куб. Подсказка в показателе.", uz: "Yozuvlarni guruhlarga ajrating: qaysi biri kvadrat, qaysi biri kub. Maslahat ko'rsatkichda.", en: 'Sort the cards into groups: which is a square and which is a cube. The clue is in the index.' },
+      on_correct: { ru: "Верно. Показатель сразу говорит, квадрат это или куб.", uz: "To'g'ri. Ko'rsatkich darhol aytadi: kvadratmi yoki kub.", en: 'That is right. The index tells you straight away whether it is a square or a cube.' },
+      on_wrong: { ru: "Посмотри на верхнее число: двойка это квадрат, тройка это куб.", uz: "Tepadagi songa qarang: ikki — kvadrat, uch — kub.", en: 'Look at the number at the top: a two means a square, a three means a cube.' }
     }
   },
 
   // ===== s12 CASE intro — Nilufar =====
   s12: {
-    eyebrow: { ru: 'Задача', uz: "Masala" },
-    title: { ru: 'Логотип Нилуфар', uz: "Nilufarning logotipi" },
-    lead: { ru: 'Нилуфар рисует пиксельный логотип. Он квадратный: 6 пикселей в ширину и 6 в высоту.', uz: "Nilufar piksel logotip chizadi. U kvadrat shaklida: eni 6 piksel, bo'yi 6 piksel." },
-    note: { ru: 'Сколько всего пикселей в таком квадрате? Сейчас сосчитаем.', uz: "Bunday kvadratda jami nechta piksel bor? Hozir sanaymiz." },
-    hint_calc: { ru: 'Квадрат 6 на 6 — это 6², то есть 6·6.', uz: "6 ga 6 kvadrat — bu 6², ya'ni 6·6." },
-    btn_help: { ru: 'Помочь Нилуфар', uz: "Nilufarga yordam berish" },
-    audio: { ru: "Нилуфар делает квадратный логотип: шесть пикселей в ширину и шесть в высоту. Подумай, как быстро сосчитать все пиксели.", uz: "Nilufar kvadrat logotip qiladi: eni olti piksel, bo'yi olti piksel. Barcha piksellarni qanday tez sanashni o'ylang." }
+    eyebrow: { ru: 'Задача', uz: "Masala", en: 'Word problem' },
+    title: { ru: 'Логотип Нилуфар', uz: "Nilufarning logotipi", en: "Nilufar's logo" },
+    lead: { ru: 'Нилуфар рисует пиксельный логотип. Он квадратный: 6 пикселей в ширину и 6 в высоту.', uz: "Nilufar piksel logotip chizadi. U kvadrat shaklida: eni 6 piksel, bo'yi 6 piksel.", en: 'Nilufar is drawing a pixel logo. It is a square: 6 pixels wide and 6 pixels high.' },
+    note: { ru: 'Сколько всего пикселей в таком квадрате? Сейчас сосчитаем.', uz: "Bunday kvadratda jami nechta piksel bor? Hozir sanaymiz.", en: 'How many pixels are there in a square like that altogether? Let us count them.' },
+    hint_calc: { ru: 'Квадрат 6 на 6 — это 6², то есть 6·6.', uz: "6 ga 6 kvadrat — bu 6², ya'ni 6·6.", en: 'A 6 by 6 square is 6², that is 6·6.' },
+    btn_help: { ru: 'Помочь Нилуфар', uz: "Nilufarga yordam berish", en: 'Help Nilufar' },
+    audio: { ru: "Нилуфар делает квадратный логотип: шесть пикселей в ширину и шесть в высоту. Подумай, как быстро сосчитать все пиксели.", uz: "Nilufar kvadrat logotip qiladi: eni olti piksel, bo'yi olti piksel. Barcha piksellarni qanday tez sanashni o'ylang.", en: 'Nilufar is making a square logo: six pixels wide and six pixels high. Think how to count all the pixels quickly.' }
   },
 
   // ===== s13 CASE FINAL — 6² = 36 [FAKT shaxmat] =====
   s13: {
-    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq" },
-    title: { ru: 'Пиксели логотипа', uz: "Logotip piksellari" },
-    question: { ru: 'Сколько пикселей в квадрате 6 на 6?', uz: "6 ga 6 kvadratda nechta piksel bor?" },
-    opt0: { ru: '36', uz: '36' },
-    opt1: { ru: '12', uz: '12' },
-    opt2: { ru: '30', uz: '30' },
-    opt3: { ru: '18', uz: '18' },
-    correct_text: { ru: 'Верно: 6² = 6·6 = 36 пикселей.', uz: "To'g'ri: 6² = 6·6 = 36 piksel." },
-    wrong_1: { ru: 'Двенадцать — это шесть умножить на два. А квадрат — это шесть умножить на шесть.', uz: "O'n ikki — bu oltini ikkiga ko'paytirish. Kvadrat esa oltini oltiga." },
-    wrong_2: { ru: 'Тридцать — это шесть умножить на пять. Сторона умножается сама на себя: шесть на шесть.', uz: "O'ttiz — bu oltini beshga ko'paytirish. Tomon o'ziga ko'paytiriladi: oltini oltiga." },
-    wrong_3: { ru: 'Восемнадцать — это шесть умножить на три. Здесь нужен квадрат: шесть на шесть.', uz: "O'n sakkiz — bu oltini uchga ko'paytirish. Bu yerda kvadrat kerak: oltini oltiga." },
-    fact: { ru: 'Есть легенда: за изобретение шахмат попросили класть на клетки зёрна, каждый раз удваивая. На последней клетке вышло 2⁶³ зёрен — больше, чем риса во всём мире. Так быстро растёт степень.', uz: "Bir afsona bor: shaxmat ixtirosi uchun kataklarga don qo'yishni so'rashgan, har safar ikki barobar. Oxirgi katakda 2⁶³ dona chiqqan — dunyodagi barcha guruchdan ko'p. Daraja shunchalik tez o'sadi." },
+    eyebrow: { ru: 'Итоговое задание', uz: "Yakuniy topshiriq", en: 'Final task' },
+    title: { ru: 'Пиксели логотипа', uz: "Logotip piksellari", en: 'The pixels in the logo' },
+    question: { ru: 'Сколько пикселей в квадрате 6 на 6?', uz: "6 ga 6 kvadratda nechta piksel bor?", en: 'How many pixels are there in a 6 by 6 square?' },
+    opt0: { ru: '36', uz: '36', en: '36' },
+    opt1: { ru: '12', uz: '12', en: '12' },
+    opt2: { ru: '30', uz: '30', en: '30' },
+    opt3: { ru: '18', uz: '18', en: '18' },
+    correct_text: { ru: 'Верно: 6² = 6·6 = 36 пикселей.', uz: "To'g'ri: 6² = 6·6 = 36 piksel.", en: 'That is right: 6² = 6·6 = 36 pixels.' },
+    wrong_1: { ru: 'Двенадцать — это шесть умножить на два. А квадрат — это шесть умножить на шесть.', uz: "O'n ikki — bu oltini ikkiga ko'paytirish. Kvadrat esa oltini oltiga.", en: 'Twelve is six times two. Squaring is six times six.' },
+    wrong_2: { ru: 'Тридцать — это шесть умножить на пять. Сторона умножается сама на себя: шесть на шесть.', uz: "O'ttiz — bu oltini beshga ko'paytirish. Tomon o'ziga ko'paytiriladi: oltini oltiga.", en: 'Thirty is six times five. The side is multiplied by itself: six times six.' },
+    wrong_3: { ru: 'Восемнадцать — это шесть умножить на три. Здесь нужен квадрат: шесть на шесть.', uz: "O'n sakkiz — bu oltini uchga ko'paytirish. Bu yerda kvadrat kerak: oltini oltiga.", en: 'Eighteen is six times three. Here we need the square: six times six.' },
+    fact: { ru: 'Есть легенда: за изобретение шахмат попросили класть на клетки зёрна, каждый раз удваивая. На последней клетке вышло 2⁶³ зёрен — больше, чем риса во всём мире. Так быстро растёт степень.', uz: "Bir afsona bor: shaxmat ixtirosi uchun kataklarga don qo'yishni so'rashgan, har safar ikki barobar. Oxirgi katakda 2⁶³ dona chiqqan — dunyodagi barcha guruchdan ko'p. Daraja shunchalik tez o'sadi.", en: 'There is a legend that as a reward for inventing chess a man asked for grains on the squares, doubling each time. On the last square that came to 2⁶³ grains, more than all the rice in the world. That is how fast a power grows.' },
     audio: {
-      intro: { ru: "Последнее задание. Сосчитай, сколько пикселей в квадрате шесть на шесть.", uz: "Oxirgi topshiriq. Eni olti, bo'yi olti kvadratda nechta piksel borligini sanang." },
-      on_correct: { ru: "Верно, тридцать шесть. И напоследок: степень растёт так быстро, что на шахматной доске зёрен вышло бы больше, чем во всём мире.", uz: "To'g'ri, o'ttiz olti. Va nihoyat: daraja shunchalik tez o'sadiki, shaxmat taxtasida don dunyodagidan ko'p chiqar edi." },
-      on_wrong: { ru: "Это квадрат: умножь шесть само на себя.", uz: "Bu kvadrat: oltini o'ziga ko'paytiring." }
+      intro: { ru: "Последнее задание. Сосчитай, сколько пикселей в квадрате шесть на шесть.", uz: "Oxirgi topshiriq. Eni olti, bo'yi olti kvadratda nechta piksel borligini sanang.", en: 'The last task. Count how many pixels there are in a six by six square.' },
+      on_correct: { ru: "Верно, тридцать шесть. И напоследок: степень растёт так быстро, что на шахматной доске зёрен вышло бы больше, чем во всём мире.", uz: "To'g'ri, o'ttiz olti. Va nihoyat: daraja shunchalik tez o'sadiki, shaxmat taxtasida don dunyodagidan ko'p chiqar edi.", en: 'That is right, thirty six. And one last thing: a power grows so fast that on a chessboard there would be more grains than in the whole world.' },
+      on_wrong: { ru: "Это квадрат: умножь шесть само на себя.", uz: "Bu kvadrat: oltini o'ziga ko'paytiring.", en: 'This is a square: multiply six by itself.' }
     }
   },
 
   // ===== s14 SUMMARY =====
   s14: {
-    eyebrow: { ru: 'Итог', uz: "Xulosa" },
-    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik" },
-    title: { ru: 'Степень — это коротко и точно', uz: "Daraja — qisqa va aniq" },
-    main_label: { ru: 'Главное', uz: "Asosiy" },
-    main_1: { ru: 'Одинаковые множители записывают степенью: 3·3·3·3·3 = 3⁵.', uz: "Bir xil ko'paytuvchilar daraja bilan yoziladi: 3·3·3·3·3 = 3⁵." },
-    main_2: { ru: 'Квадрат a² = a·a, куб a³ = a·a·a.', uz: "Kvadrat a² = a·a, kub a³ = a·a·a." },
-    main_3: { ru: 'Помни: 3⁵ — это не 3·5. Степень — это умножение, а не сложение.', uz: "Yodda tuting: 3⁵ — bu 3·5 emas. Daraja — ko'paytirish, qo'shish emas." },
-    hook_close: { ru: 'Вот и ответ на первый вопрос: 3·3·3·3·3 коротко записывают как 3⁵.', uz: "Mana birinchi savolga javob: 3·3·3·3·3 qisqacha 3⁵ deb yoziladi." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Умножение столбиком (Урок 4) — степень это многократное умножение.', uz: "Ustun shaklida ko'paytirish (4-dars) — daraja ko'p marta ko'paytirish." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'Квадрат пригодится для площади, а куб — для объёма фигур.', uz: "Kvadrat yuza uchun, kub esa hajm uchun kerak bo'ladi." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: "Итак, степень коротко записывает одинаковые множители. Квадрат — умножить само на себя, куб — три раза. Главное: степень это умножение, а не сложение.", uz: "Demak, daraja bir xil ko'paytuvchilarni qisqa yozadi. Kvadrat — o'ziga ko'paytirish, kub — uch marta. Eng muhimi: daraja ko'paytirish, qo'shish emas." }
+    eyebrow: { ru: 'Итог', uz: "Xulosa", en: 'Result' },
+    heading: { ru: 'Что мы поняли', uz: "Nimani tushundik", en: 'What we have understood' },
+    title: { ru: 'Степень — это коротко и точно', uz: "Daraja — qisqa va aniq", en: 'A power is short and exact' },
+    main_label: { ru: 'Главное', uz: "Asosiy", en: 'The main thing' },
+    main_1: { ru: 'Одинаковые множители записывают степенью: 3·3·3·3·3 = 3⁵.', uz: "Bir xil ko'paytuvchilar daraja bilan yoziladi: 3·3·3·3·3 = 3⁵.", en: 'The same number multiplied again and again is written as a power: 3·3·3·3·3 = 3⁵.' },
+    main_2: { ru: 'Квадрат a² = a·a, куб a³ = a·a·a.', uz: "Kvadrat a² = a·a, kub a³ = a·a·a.", en: 'A square is a² = a·a, a cube is a³ = a·a·a.' },
+    main_3: { ru: 'Помни: 3⁵ — это не 3·5. Степень — это умножение, а не сложение.', uz: "Yodda tuting: 3⁵ — bu 3·5 emas. Daraja — ko'paytirish, qo'shish emas.", en: 'Remember: 3⁵ is not 3·5. A power is multiplying, not adding.' },
+    hook_close: { ru: 'Вот и ответ на первый вопрос: 3·3·3·3·3 коротко записывают как 3⁵.', uz: "Mana birinchi savolga javob: 3·3·3·3·3 qisqacha 3⁵ deb yoziladi.", en: 'So here is the answer to the first question: 3·3·3·3·3 is written shortly as 3⁵.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Умножение столбиком (Урок 4) — степень это многократное умножение.', uz: "Ustun shaklida ko'paytirish (4-dars) — daraja ko'p marta ko'paytirish.", en: 'Long multiplication (Lesson 4), because a power is multiplying again and again.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'Квадрат пригодится для площади, а куб — для объёма фигур.', uz: "Kvadrat yuza uchun, kub esa hajm uchun kerak bo'ladi.", en: 'Squares will be useful for area and cubes for the volume of shapes.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: "Итак, степень коротко записывает одинаковые множители. Квадрат — умножить само на себя, куб — три раза. Главное: степень это умножение, а не сложение.", uz: "Demak, daraja bir xil ko'paytuvchilarni qisqa yozadi. Kvadrat — o'ziga ko'paytirish, kub — uch marta. Eng muhimi: daraja ko'paytirish, qo'shish emas.", en: 'So a power is a short way of writing the same number multiplied again and again. A square is a number times itself and a cube is three of them. The main thing is that a power is multiplying, not adding.' }
   }
 };
 const shuffleMC = (c, options, correctIdx, order) => {
@@ -1126,9 +1153,9 @@ const Floaters = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука',    uz: "Bilasizmi? · Fan",    en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1427,54 +1454,54 @@ const Screen6 = ({ screen, onNext, onPrev }) => {
 // Daraja matni: 2⁵ ko'rinishida; ovozda so'z bilan. Yangi misollar DRAFT (UZ tasdiq kutadi).
 // ============================================================
 const W_A8 = {
-  eyebrow: { ru: 'Тренировка', uz: 'Mashq' },
-  title: { ru: 'Степени, квадраты и кубы', uz: 'Daraja, kvadrat va kub' },
-  lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin." },
-  done_text: { ru: 'Все верно! Степень — это короткая запись повторного умножения.', uz: "Hammasi to'g'ri! Daraja — takror ko'paytirishning qisqa yozuvi." }
+  eyebrow: { ru: 'Тренировка', uz: 'Mashq', en: 'Training' },
+  title: { ru: 'Степени, квадраты и кубы', uz: 'Daraja, kvadrat va kub', en: 'Powers, squares and cubes' },
+  lead: { ru: 'Несколько разных заданий подряд.', uz: "Bir nechta har xil topshiriq birin-ketin.", en: 'Several different tasks one after another.' },
+  done_text: { ru: 'Все верно! Степень — это короткая запись повторного умножения.', uz: "Hammasi to'g'ri! Daraja — takror ko'paytirishning qisqa yozuvi.", en: 'All correct! A power is a short way of writing repeated multiplication.' }
 };
 const W_B8 = {
-  eyebrow: { ru: 'Итог', uz: 'Yakun' },
-  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
-  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yeching." },
-  done_text: { ru: 'Отлично! Ты считаешь степени и сравниваешь их.', uz: "Ajoyib! Darajalarni hisoblaysiz va taqqoslaysiz." }
+  eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+  title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring", en: 'Check yourself' },
+  lead: { ru: 'Реши задания одно за другим.', uz: "Topshiriqlarni birin-ketin yeching.", en: 'Work out the tasks one after another.' },
+  done_text: { ru: 'Отлично! Ты считаешь степени и сравниваешь их.', uz: "Ajoyib! Darajalarni hisoblaysiz va taqqoslaysiz.", en: 'Well done! You can work out powers and compare them.' }
 };
 const A8_ITEMS = [
-  { type: 'input', pw: { b: '2', e: '5' }, answer: 32, lead: { ru: 'Вычисли 2⁵.', uz: "2⁵ ni hisoblang." }, hint: { ru: 'Умножь двойку на себя пять раз.', uz: "Ikkini o'ziga besh marta ko'paytiring." },
-    intro: { ru: 'Вычисли два в пятой степени.', uz: "Ikki ning beshinchi darajasini hisoblang." }, on_correct: { ru: 'Верно. Два в пятой это тридцать два.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki." }, on_wrong: { ru: 'Умножь двойку на себя пять раз.', uz: "Ikkini o'ziga besh marta ko'paytiring." } },
-  { type: 'mc', opt0: { ru: '2⁴', uz: '2⁴' }, opt1: { ru: '3²', uz: '3²' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
-    lead: { ru: 'Что больше: 2⁴ или 3²?', uz: "Qaysi katta: 2⁴ yoki 3²?" },
-    wrong_1: { ru: 'Три в квадрате это девять, а два в четвёртой это шестнадцать. Больше два в четвёртой.', uz: "Uch kvadrati — to'qqiz, ikki ning to'rtinchisi — o'n olti. Katta — ikki ning to'rtinchisi." },
-    wrong_2: { ru: 'Они не равны: шестнадцать и девять. Больше 2⁴.', uz: "Ular teng emas: o'n olti va to'qqiz. Katta — 2⁴." },
-    intro: { ru: 'Что больше: два в четвёртой или три в квадрате?', uz: "Qaysi katta: ikki ning to'rtinchisi yoki uch ning kvadrati?" }, on_correct: { ru: 'Верно. Два в четвёртой шестнадцать, больше девяти.', uz: "To'g'ri. Ikki ning to'rtinchisi o'n olti, to'qqizdan katta." }, on_wrong: { ru: 'Сначала посчитай каждую степень.', uz: "Avval har bir darajani hisoblang." } },
-  { type: 'multiselect', items: [{ ru: '16', uz: '16' }, { ru: '25', uz: '25' }, { ru: '36', uz: '36' }, { ru: '20', uz: '20' }, { ru: '30', uz: '30' }], mask: [true, true, true, false, false],
-    lead: { ru: 'Отметь все полные квадраты.', uz: "Barcha to'liq kvadratlarni belgilang." }, hint: { ru: 'Полный квадрат — это число вида n². 16=4², 25=5², 36=6².', uz: "To'liq kvadrat — n² ko'rinishidagi son. 16=4², 25=5², 36=6²." },
-    intro: { ru: 'Отметь все числа, которые являются полными квадратами.', uz: "To'liq kvadrat bo'lgan barcha sonlarni belgilang." }, on_correct: { ru: 'Верно. Шестнадцать, двадцать пять и тридцать шесть — полные квадраты.', uz: "To'g'ri. O'n olti, yigirma besh va o'ttiz olti — to'liq kvadratlar." }, on_wrong: { ru: 'Полный квадрат это число вида эн в квадрате.', uz: "To'liq kvadrat — en kvadrat ko'rinishidagi son." } },
+  { type: 'input', pw: { b: '2', e: '5' }, answer: 32, lead: { ru: 'Вычисли 2⁵.', uz: "2⁵ ni hisoblang.", en: 'Work out 2⁵.' }, hint: { ru: 'Умножь двойку на себя пять раз.', uz: "Ikkini o'ziga besh marta ko'paytiring.", en: 'Multiply two by itself five times.' },
+    intro: { ru: 'Вычисли два в пятой степени.', uz: "Ikki ning beshinchi darajasini hisoblang.", en: 'Work out two to the power of five.' }, on_correct: { ru: 'Верно. Два в пятой это тридцать два.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki.", en: 'That is right. Two to the power of five is thirty two.' }, on_wrong: { ru: 'Умножь двойку на себя пять раз.', uz: "Ikkini o'ziga besh marta ko'paytiring.", en: 'Multiply two by itself five times.' } },
+  { type: 'mc', opt0: { ru: '2⁴', uz: '2⁴', en: '2⁴' }, opt1: { ru: '3²', uz: '3²', en: '3²' }, opt2: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' }, correct: 0, order: [1, 0, 2],
+    lead: { ru: 'Что больше: 2⁴ или 3²?', uz: "Qaysi katta: 2⁴ yoki 3²?", en: 'Which is bigger, 2⁴ or 3²?' },
+    wrong_1: { ru: 'Три в квадрате это девять, а два в четвёртой это шестнадцать. Больше два в четвёртой.', uz: "Uch kvadrati — to'qqiz, ikki ning to'rtinchisi — o'n olti. Katta — ikki ning to'rtinchisi.", en: 'Three squared is nine and two to the power of four is sixteen. The bigger one is two to the power of four.' },
+    wrong_2: { ru: 'Они не равны: шестнадцать и девять. Больше 2⁴.', uz: "Ular teng emas: o'n olti va to'qqiz. Katta — 2⁴.", en: 'They are not equal: sixteen and nine. The bigger one is 2⁴.' },
+    intro: { ru: 'Что больше: два в четвёртой или три в квадрате?', uz: "Qaysi katta: ikki ning to'rtinchisi yoki uch ning kvadrati?", en: 'Which is bigger, two to the power of four or three squared?' }, on_correct: { ru: 'Верно. Два в четвёртой шестнадцать, больше девяти.', uz: "To'g'ri. Ikki ning to'rtinchisi o'n olti, to'qqizdan katta.", en: 'That is right. Two to the power of four is sixteen, which is more than nine.' }, on_wrong: { ru: 'Сначала посчитай каждую степень.', uz: "Avval har bir darajani hisoblang.", en: 'First work out each power.' } },
+  { type: 'multiselect', items: [{ ru: '16', uz: '16', en: '16' }, { ru: '25', uz: '25', en: '25' }, { ru: '36', uz: '36', en: '36' }, { ru: '20', uz: '20', en: '20' }, { ru: '30', uz: '30', en: '30' }], mask: [true, true, true, false, false],
+    lead: { ru: 'Отметь все полные квадраты.', uz: "Barcha to'liq kvadratlarni belgilang.", en: 'Mark all the square numbers.' }, hint: { ru: 'Полный квадрат — это число вида n². 16=4², 25=5², 36=6².', uz: "To'liq kvadrat — n² ko'rinishidagi son. 16=4², 25=5², 36=6².", en: 'A square number is a number of the form n². 16=4², 25=5², 36=6².' },
+    intro: { ru: 'Отметь все числа, которые являются полными квадратами.', uz: "To'liq kvadrat bo'lgan barcha sonlarni belgilang.", en: 'Mark all the numbers that are square numbers.' }, on_correct: { ru: 'Верно. Шестнадцать, двадцать пять и тридцать шесть — полные квадраты.', uz: "To'g'ri. O'n olti, yigirma besh va o'ttiz olti — to'liq kvadratlar.", en: 'That is right. Sixteen, twenty five and thirty six are square numbers.' }, on_wrong: { ru: 'Полный квадрат это число вида эн в квадрате.', uz: "To'liq kvadrat — en kvadrat ko'rinishidagi son.", en: 'A square number is a number of the form n squared.' } },
   { type: 'order', labels: ['3²', '2²', '2³'], vals: [9, 4, 8],
-    lead: { ru: 'Расставь от меньшего к большему.', uz: "Kichikdan kattaga tartiblang." }, hint: { ru: 'Сначала посчитай каждую степень, потом сравни.', uz: "Avval har bir darajani hisoblang, keyin taqqoslang." },
-    intro: { ru: 'Расставь эти степени от меньшего значения к большему.', uz: "Bu darajalarni qiymati bo'yicha kichikdan kattaga tartiblang." }, on_correct: { ru: 'Верно. Четыре, восемь, девять.', uz: "To'g'ri. To'rt, sakkiz, to'qqiz." }, on_wrong: { ru: 'Посчитай значение каждой степени.', uz: "Har bir darajaning qiymatini hisoblang." } },
-  { type: 'mc', opt0: { ru: 'Куб (3³)', uz: 'Kub (3³)' }, opt1: { ru: 'Квадрат', uz: 'Kvadrat' }, opt2: { ru: 'Ни то ни другое', uz: 'Hech qaysi' }, correct: 0, order: [1, 0, 2],
-    lead: { ru: 'Число 27 — это…', uz: '27 soni — bu…' },
-    wrong_1: { ru: 'Двадцать семь это не квадрат: квадраты это двадцать пять и тридцать шесть. Зато двадцать семь это три умножить на три и ещё на три, то есть три в кубе.', uz: "Yigirma yetti kvadrat emas: kvadratlar yigirma besh va o'ttiz olti. Lekin yigirma yetti — uchni uchga, yana uchga ko'paytirish, ya'ni uch kubi." },
-    wrong_2: { ru: 'Двадцать семь это куб тройки: три в кубе равно двадцать семь.', uz: "Yigirma yetti — uch ning kubi: uch kubi yigirma yettiga teng." },
-    intro: { ru: 'Число двадцать семь это куб или квадрат?', uz: "Yigirma yetti soni kub yoki kvadratmi?" }, on_correct: { ru: 'Верно. Двадцать семь это три в кубе.', uz: "To'g'ri. Yigirma yetti — uch ning kubi." }, on_wrong: { ru: 'Проверь: три умножить на три и ещё на три.', uz: "Tekshiring: uchni uchga, yana uchga ko'paytiring." } }
+    lead: { ru: 'Расставь от меньшего к большему.', uz: "Kichikdan kattaga tartiblang.", en: 'Put them in order from smallest to biggest.' }, hint: { ru: 'Сначала посчитай каждую степень, потом сравни.', uz: "Avval har bir darajani hisoblang, keyin taqqoslang.", en: 'First work out each power, then compare them.' },
+    intro: { ru: 'Расставь эти степени от меньшего значения к большему.', uz: "Bu darajalarni qiymati bo'yicha kichikdan kattaga tartiblang.", en: 'Put these powers in order from the smallest value to the biggest.' }, on_correct: { ru: 'Верно. Четыре, восемь, девять.', uz: "To'g'ri. To'rt, sakkiz, to'qqiz.", en: 'That is right. Four, eight, nine.' }, on_wrong: { ru: 'Посчитай значение каждой степени.', uz: "Har bir darajaning qiymatini hisoblang.", en: 'Work out the value of each power.' } },
+  { type: 'mc', opt0: { ru: 'Куб (3³)', uz: 'Kub (3³)', en: 'A cube (3³)' }, opt1: { ru: 'Квадрат', uz: 'Kvadrat', en: 'A square' }, opt2: { ru: 'Ни то ни другое', uz: 'Hech qaysi', en: 'Neither of them' }, correct: 0, order: [1, 0, 2],
+    lead: { ru: 'Число 27 — это…', uz: '27 soni — bu…', en: 'The number 27 is…' },
+    wrong_1: { ru: 'Двадцать семь это не квадрат: квадраты это двадцать пять и тридцать шесть. Зато двадцать семь это три умножить на три и ещё на три, то есть три в кубе.', uz: "Yigirma yetti kvadrat emas: kvadratlar yigirma besh va o'ttiz olti. Lekin yigirma yetti — uchni uchga, yana uchga ko'paytirish, ya'ni uch kubi.", en: 'Twenty seven is not a square: the squares are twenty five and thirty six. But twenty seven is three times three times three, that is three cubed.' },
+    wrong_2: { ru: 'Двадцать семь это куб тройки: три в кубе равно двадцать семь.', uz: "Yigirma yetti — uch ning kubi: uch kubi yigirma yettiga teng.", en: 'Twenty seven is the cube of three: three cubed is twenty seven.' },
+    intro: { ru: 'Число двадцать семь это куб или квадрат?', uz: "Yigirma yetti soni kub yoki kvadratmi?", en: 'Is the number twenty seven a cube or a square?' }, on_correct: { ru: 'Верно. Двадцать семь это три в кубе.', uz: "To'g'ri. Yigirma yetti — uch ning kubi.", en: 'That is right. Twenty seven is three cubed.' }, on_wrong: { ru: 'Проверь: три умножить на три и ещё на три.', uz: "Tekshiring: uchni uchga, yana uchga ko'paytiring.", en: 'Check it: three times three times three.' } }
 ];
 const B8_ITEMS = [
-  { type: 'mc', opt0: { ru: '2⁵', uz: '2⁵' }, opt1: { ru: '5²', uz: '5²' }, opt2: { ru: 'Они равны', uz: 'Ular teng' }, correct: 0, order: [1, 0, 2],
-    lead: { ru: 'Что больше: 2⁵ или 5²?', uz: "Qaysi katta: 2⁵ yoki 5²?" },
-    wrong_1: { ru: 'Пять в квадрате это двадцать пять, а два в пятой это тридцать два. Больше два в пятой.', uz: "Besh kvadrati — yigirma besh, ikki ning beshinchisi — o'ttiz ikki. Katta — ikki ning beshinchisi." },
-    wrong_2: { ru: 'Они не равны: тридцать два и двадцать пять. Больше 2⁵.', uz: "Ular teng emas: o'ttiz ikki va yigirma besh. Katta — 2⁵." },
-    intro: { ru: 'Что больше: два в пятой или пять в квадрате?', uz: "Qaysi katta: ikki ning beshinchisi yoki besh ning kvadrati?" }, on_correct: { ru: 'Верно. Два в пятой тридцать два, больше двадцати пяти.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki, yigirma beshdan katta." }, on_wrong: { ru: 'Посчитай каждую степень.', uz: "Har bir darajani hisoblang." } },
-  { type: 'multiselect', items: [{ ru: '4³', uz: '4³' }, { ru: '8²', uz: '8²' }, { ru: '2⁶', uz: '2⁶' }, { ru: '6²', uz: '6²' }], mask: [true, true, true, false],
-    lead: { ru: 'Отметь все записи, равные 64.', uz: "64 ga teng barcha yozuvlarni belgilang." }, hint: { ru: '4³=64, 8²=64, 2⁶=64. А 6²=36.', uz: "4³=64, 8²=64, 2⁶=64. 6² esa 36." },
-    intro: { ru: 'Отметь все записи, которые равны шестидесяти четырём.', uz: "Oltmish to'rtga teng barcha yozuvlarni belgilang." }, on_correct: { ru: 'Верно. Четыре в кубе, восемь в квадрате и два в шестой все равны шестидесяти четырём.', uz: "To'g'ri. To'rt kub, sakkiz kvadrat va ikki ning oltinchisi — barchasi oltmish to'rtga teng." }, on_wrong: { ru: 'Посчитай каждую запись.', uz: "Har bir yozuvni hisoblang." } },
-  { type: 'input', pw: { b: '10', e: '3' }, answer: 1000, lead: { ru: 'Вычисли 10³.', uz: "10³ ni hisoblang." }, hint: { ru: 'Это десять, умноженное на себя три раза.', uz: "Bu o'nni o'ziga uch marta ko'paytirish." },
-    intro: { ru: 'Вычисли десять в кубе.', uz: "O'n ning kubini hisoblang." }, on_correct: { ru: 'Верно. Десять в кубе это тысяча.', uz: "To'g'ri. O'n ning kubi ming." }, on_wrong: { ru: 'Десять умножь на десять и ещё на десять.', uz: "O'nni o'nga, yana o'nga ko'paytiring." } },
-  { type: 'mc', opt0: { ru: '36', uz: '36' }, opt1: { ru: '12', uz: '12' }, opt2: { ru: '66', uz: '66' }, opt3: { ru: '18', uz: '18' }, correct: 0, order: [1, 0, 3, 2],
-    lead: { ru: 'Сколько будет 6²?', uz: '6² nechaga teng?' },
-    wrong_1: { ru: 'Шесть в квадрате это не шесть умножить на два. Это шесть умножить на шесть, будет тридцать шесть.', uz: "Olti kvadrati — bu oltini ikkiga ko'paytirish emas. Bu oltini oltiga, o'ttiz olti bo'ladi." },
-    wrong_2: { ru: 'Проверь умножение: шесть умножить на шесть равно тридцать шесть.', uz: "Ko'paytmani tekshiring: oltini oltiga ko'paytirsak o'ttiz olti." },
-    wrong_3: { ru: 'Шесть в квадрате это шесть умножить на шесть, а не шесть плюс шесть плюс шесть. Получается тридцать шесть.', uz: "Olti kvadrati — bu oltini oltiga ko'paytirish, olti qo'shuv olti qo'shuv olti emas. O'ttiz olti chiqadi." },
-    intro: { ru: 'Сколько будет шесть в квадрате?', uz: "Olti ning kvadrati nechaga teng?" }, on_correct: { ru: 'Верно. Шесть в квадрате тридцать шесть.', uz: "To'g'ri. Olti ning kvadrati o'ttiz olti." }, on_wrong: { ru: 'Это шесть умножить на шесть.', uz: "Bu olti karra olti." } }
+  { type: 'mc', opt0: { ru: '2⁵', uz: '2⁵', en: '2⁵' }, opt1: { ru: '5²', uz: '5²', en: '5²' }, opt2: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' }, correct: 0, order: [1, 0, 2],
+    lead: { ru: 'Что больше: 2⁵ или 5²?', uz: "Qaysi katta: 2⁵ yoki 5²?", en: 'Which is bigger, 2⁵ or 5²?' },
+    wrong_1: { ru: 'Пять в квадрате это двадцать пять, а два в пятой это тридцать два. Больше два в пятой.', uz: "Besh kvadrati — yigirma besh, ikki ning beshinchisi — o'ttiz ikki. Katta — ikki ning beshinchisi.", en: 'Five squared is twenty five and two to the power of five is thirty two. The bigger one is two to the power of five.' },
+    wrong_2: { ru: 'Они не равны: тридцать два и двадцать пять. Больше 2⁵.', uz: "Ular teng emas: o'ttiz ikki va yigirma besh. Katta — 2⁵.", en: 'They are not equal: thirty two and twenty five. The bigger one is 2⁵.' },
+    intro: { ru: 'Что больше: два в пятой или пять в квадрате?', uz: "Qaysi katta: ikki ning beshinchisi yoki besh ning kvadrati?", en: 'Which is bigger, two to the power of five or five squared?' }, on_correct: { ru: 'Верно. Два в пятой тридцать два, больше двадцати пяти.', uz: "To'g'ri. Ikki ning beshinchisi o'ttiz ikki, yigirma beshdan katta.", en: 'That is right. Two to the power of five is thirty two, which is more than twenty five.' }, on_wrong: { ru: 'Посчитай каждую степень.', uz: "Har bir darajani hisoblang.", en: 'Work out each power.' } },
+  { type: 'multiselect', items: [{ ru: '4³', uz: '4³', en: '4³' }, { ru: '8²', uz: '8²', en: '8²' }, { ru: '2⁶', uz: '2⁶', en: '2⁶' }, { ru: '6²', uz: '6²', en: '6²' }], mask: [true, true, true, false],
+    lead: { ru: 'Отметь все записи, равные 64.', uz: "64 ga teng barcha yozuvlarni belgilang.", en: 'Mark everything that equals 64.' }, hint: { ru: '4³=64, 8²=64, 2⁶=64. А 6²=36.', uz: "4³=64, 8²=64, 2⁶=64. 6² esa 36.", en: '4³=64, 8²=64, 2⁶=64. But 6²=36.' },
+    intro: { ru: 'Отметь все записи, которые равны шестидесяти четырём.', uz: "Oltmish to'rtga teng barcha yozuvlarni belgilang.", en: 'Mark everything that equals sixty four.' }, on_correct: { ru: 'Верно. Четыре в кубе, восемь в квадрате и два в шестой все равны шестидесяти четырём.', uz: "To'g'ri. To'rt kub, sakkiz kvadrat va ikki ning oltinchisi — barchasi oltmish to'rtga teng.", en: 'That is right. Four cubed, eight squared and two to the power of six all equal sixty four.' }, on_wrong: { ru: 'Посчитай каждую запись.', uz: "Har bir yozuvni hisoblang.", en: 'Work out each sum.' } },
+  { type: 'input', pw: { b: '10', e: '3' }, answer: 1000, lead: { ru: 'Вычисли 10³.', uz: "10³ ni hisoblang.", en: 'Work out 10³.' }, hint: { ru: 'Это десять, умноженное на себя три раза.', uz: "Bu o'nni o'ziga uch marta ko'paytirish.", en: 'It is ten multiplied by itself three times.' },
+    intro: { ru: 'Вычисли десять в кубе.', uz: "O'n ning kubini hisoblang.", en: 'Work out ten cubed.' }, on_correct: { ru: 'Верно. Десять в кубе это тысяча.', uz: "To'g'ri. O'n ning kubi ming.", en: 'That is right. Ten cubed is a thousand.' }, on_wrong: { ru: 'Десять умножь на десять и ещё на десять.', uz: "O'nni o'nga, yana o'nga ko'paytiring.", en: 'Multiply ten by ten and by ten again.' } },
+  { type: 'mc', opt0: { ru: '36', uz: '36', en: '36' }, opt1: { ru: '12', uz: '12', en: '12' }, opt2: { ru: '66', uz: '66', en: '66' }, opt3: { ru: '18', uz: '18', en: '18' }, correct: 0, order: [1, 0, 3, 2],
+    lead: { ru: 'Сколько будет 6²?', uz: '6² nechaga teng?', en: 'How much is 6²?' },
+    wrong_1: { ru: 'Шесть в квадрате это не шесть умножить на два. Это шесть умножить на шесть, будет тридцать шесть.', uz: "Olti kvadrati — bu oltini ikkiga ko'paytirish emas. Bu oltini oltiga, o'ttiz olti bo'ladi.", en: 'Six squared is not six times two. It is six times six, which is thirty six.' },
+    wrong_2: { ru: 'Проверь умножение: шесть умножить на шесть равно тридцать шесть.', uz: "Ko'paytmani tekshiring: oltini oltiga ko'paytirsak o'ttiz olti.", en: 'Check the multiplication: six times six is thirty six.' },
+    wrong_3: { ru: 'Шесть в квадрате это шесть умножить на шесть, а не шесть плюс шесть плюс шесть. Получается тридцать шесть.', uz: "Olti kvadrati — bu oltini oltiga ko'paytirish, olti qo'shuv olti qo'shuv olti emas. O'ttiz olti chiqadi.", en: 'Six squared is six times six, not six plus six plus six. It comes to thirty six.' },
+    intro: { ru: 'Сколько будет шесть в квадрате?', uz: "Olti ning kvadrati nechaga teng?", en: 'How much is six squared?' }, on_correct: { ru: 'Верно. Шесть в квадрате тридцать шесть.', uz: "To'g'ri. Olti ning kvadrati o'ttiz olti.", en: 'That is right. Six squared is thirty six.' }, on_wrong: { ru: 'Это шесть умножить на шесть.', uz: "Bu olti karra olti.", en: 'It is six times six.' } }
 ];
 
 const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone, storedAnswer, onAnswer, onNext, onPrev }) => {
@@ -1529,7 +1556,7 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
               {cur.pw && <div className="frame" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12 }}><Pw b={cur.pw.b} e={cur.pw.e}/><span className="mono" style={{ fontSize: 'clamp(20px, 4vw, 28px)' }}>= ?</span></div>}
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
                 <input type="text" inputMode="numeric" className={`answer-input ${flash ? 'correct' : (hint ? 'wrong' : '')}`} value={val} placeholder="0" disabled={flash} onChange={e => { setVal(e.target.value); setHint(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(110px, 26vw, 150px)' }}/>
-                {!flash && <button className="btn-white-accent" disabled={!val} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                {!flash && <button className="btn-white-accent" disabled={!val} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>}
               </div>
             </>)}
             {cur.type === 'mc' && (
@@ -1545,7 +1572,7 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
                   <button key={i} className={`od-card${pos !== -1 ? ' od-on' : ''}${flash ? ' od-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setSeq(p => p.includes(i) ? p : [...p, i]); setHint(false); } }}>
                     {pos !== -1 && <span className="od-badge">{pos + 1}</span>}<span className="od-temp">{labelTxt}</span></button>); })}
               </div>
-              {!flash && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><button className="btn-ghost" disabled={seq.length === 0} onClick={() => setSeq([])} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{lang === 'uz' ? 'Tozalash' : 'Сброс'}</button><button className="btn-white-accent" disabled={seq.length < cur.vals.length} onClick={submitOrder} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button></div>}
+              {!flash && <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10 }}><button className="btn-ghost" disabled={seq.length === 0} onClick={() => setSeq([])} style={{ padding: 'clamp(9px, 1.5vw, 11px) clamp(14px, 2vw, 18px)', fontSize: 'clamp(11px, 1.4vw, 13px)' }}>{lang === 'uz' ? 'Tozalash' : lang === 'en' ? "Reset" : 'Сброс'}</button><button className="btn-white-accent" disabled={seq.length < cur.vals.length} onClick={submitOrder} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button></div>}
             </>)}
             {cur.type === 'multiselect' && (<>
               <div className="ms-grid">
@@ -1553,14 +1580,14 @@ const SeqMix = ({ screen, totalScreens, items, screenContent, scope, factOnDone,
                   <button key={i} className={`ms-card${on ? ' ms-on' : ''}${isC ? ' ms-ok' : ''}`} disabled={flash} onClick={() => { if (!flash) { setMsel(p => p.includes(i) ? p.filter(x => x !== i) : [...p, i]); setHint(false); } }}>
                     <span className={`ms-box${on ? ' ms-box-on' : ''}`} aria-hidden="true">{on && <IconOk/>}</span><span className="ms-pair">{mt(t(it))}</span></button>); })}
               </div>
-              {!flash && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMsel} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button></div>}
+              {!flash && <div style={{ display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMsel} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button></div>}
             </>)}
             {hint && !flash && visHint && (<div className="frame-tip fade-up"><p className="body" style={{ margin: 0 }}>{mt(t(visHint))}</p></div>)}
           </div>
         )}
         {done && (<>
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : 'Готово'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : lang === 'en' ? "Done" : 'Готово'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(w.done_text))}</p>
           </FeedbackBlock>
           {factOnDone}
@@ -1603,7 +1630,7 @@ const Screen14 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const mains = [c.main_1, c.main_2, c.main_3];
   const scoreTotal = SCREEN_META.filter(s => s.scored).length;
   const scoreCorrect = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 16px)' }}>
@@ -1613,7 +1640,7 @@ const Screen14 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
         </div>
         <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
           <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 32px)', fontWeight: 700, color: T.success, lineHeight: 1, flexShrink: 0 }}>{scoreCorrect} / {scoreTotal}</span>
-          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "savolga birinchi urinishda to'g'ri javob" : 'вопросов решено с первой попытки'}</span>
+          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "savolga birinchi urinishda to'g'ri javob" : lang === 'en' ? "questions answered correctly first time" : 'вопросов решено с первой попытки'}</span>
         </div>
         <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
           <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
@@ -1636,7 +1663,7 @@ export default function PowerSquareCubeLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1689,7 +1716,7 @@ export default function PowerSquareCubeLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

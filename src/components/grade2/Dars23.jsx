@@ -71,9 +71,37 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются (мост + intro) и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+// Выбор из трёх языков для подписей, вшитых прямо в разметку (не через CONTENT).
+// Английского может не быть — тогда показывается русский, урок не ломается.
+const tri = (lang, ru, uz, en) => (lang === 'uz' ? uz : (lang === 'en' && en !== undefined ? en : ru));
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку, и по контракту платформы два ученика
+// на одном тексте обязаны делить кэш.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -244,7 +272,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -285,7 +313,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -897,8 +926,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 //   factOnCorrect bilan (bitta savolli slaydда joy bor, skrollsiz — etalon naqsh). sPANEL faktsiz qoladi.
 const TOTAL_SCREENS = 16;
 const LESSON_META = {
-  lessonId: 'div-2-23-v1',
-  lessonTitle: { ru: 'Урок 23. Деление на 6, 7, 8 и 9', uz: "23-dars. 6, 7, 8 va 9 ga bo'lish" }
+  lessonId: 'grade2-23',
+  lessonTitle: { ru: 'Урок 23. Деление на 6, 7, 8 и 9', uz: "23-dars. 6, 7, 8 va 9 ga bo'lish", en: 'Lesson 23. Dividing by 6, 7, 8 and 9' }
 };
 // STRUKTURA (Б4 SATURN kon, bo'lish jadvali FINALI): s0 hook (24÷6=?) · s1 ÷6 son o'qi · s2 ÷7 jadval-qatori · s3 QOIDA+÷8 check · s4 ÷9 son o'qi · sTBL ÷6–9 jadvallari · s5–s11 mashq (÷6–9 aralash) · s13 masala · s14 final · s15 xulosa (→ masalalar).
 // MEXANIKA MIKS (Dars21 meros): DivTableFillStage (s5/s8/s11) + NumberLineBackStage (s6/s9/s13) + FamilyFindStage (s7/s10/s14). ÷6/7/8/9, butun.
@@ -945,13 +974,13 @@ const shuffleArr = (a) => { for (let i = a.length - 1; i > 0; i -= 1) { const j 
 const CONTENT = {
   // s0 — HOOK (scope: hook): 12 kristal 2 talik vagonlarga → nechta vagon? 12÷2=6. Distraktor 10 (=12−2)
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: Деление на 6, 7, 8, 9', uz: "Mavzu: 6, 7, 8, 9 ga bo'lish" },
-    lead: { ru: 'Сколько вагонеток?', uz: "Nechta vagoncha?" },
-    q: { ru: '24 кристалла, по 6 в вагонетку. Сколько вагонеток? 24 ÷ 6 = ?', uz: "24 kristall, 6 tadan vagonchaga. Nechta vagoncha? 24 ÷ 6 = ?" },
-    opt0: { ru: '18', uz: '18' },   // distraktor = 24−6 (ayirish xatosi)
-    opt1: { ru: '4', uz: '4' },     // to'g'ri (24 ni 6 tadan → 4 vagoncha)
-    opt2: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: Деление на 6, 7, 8, 9', uz: "Mavzu: 6, 7, 8, 9 ga bo'lish", en: 'Topic: Dividing by 6, 7, 8, 9' },
+    lead: { ru: 'Сколько вагонеток?', uz: "Nechta vagoncha?", en: 'How many carts?' },
+    q: { ru: '24 кристалла, по 6 в вагонетку. Сколько вагонеток? 24 ÷ 6 = ?', uz: "24 kristall, 6 tadan vagonchaga. Nechta vagoncha? 24 ÷ 6 = ?", en: '24 crystals, 6 in each cart. How many carts? 24 ÷ 6 = ?' },
+    opt0: { ru: '18', uz: '18', en: '18' },   // distraktor = 24−6 (ayirish xatosi)
+    opt1: { ru: '4', uz: '4', en: '4' },     // to'g'ri (24 ni 6 tadan → 4 vagoncha)
+    opt2: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -965,21 +994,22 @@ const CONTENT = {
           "Har vagonchaga oltitadan kristall solinadi. Kristallar jami yigirma to'rtta.",
           "Bit so'raydi: nechta vagoncha chiqadi? Bu yigirma to'rtni oltiga bo'lish.",
           "Ikki javobni tinglang. Birinchi, o'n sakkiz. Ikkinchi, to'rt. Yoki hali bilmaysiz. O'z javobingizni tanlang."
-        ]
+        ],
+        en: ['We can already divide by two, three, four and five. Now we just have the bigger numbers left to learn.', 'Six crystals go into each cart. There are twenty four crystals in all.', 'Bit asks how many carts there will be. That is twenty four divided by six.', 'Listen to two answers. First, eighteen. Second, four. Or maybe you do not know yet. Choose your answer.']
       },
-      on_correct: { ru: 'Верно. Двадцать четыре по шесть, это четыре вагонетки. Двадцать четыре разделить на шесть равно четыре.', uz: "To'g'ri. Yigirma to'rt, oltitadan, to'rt vagoncha. Yigirma to'rtni oltiga bo'lsak to'rt." },
-      on_wrong: { ru: 'Тут не отнимают. Вспомни: шесть умножить на сколько будет двадцать четыре? Сейчас поймём.', uz: "Bu yerda ayirilmaydi. Esla: oltini nechaga ko'paytirsak yigirma to'rt bo'ladi? Hozir tushunamiz." },
-      on_unknown: { ru: 'Ничего. Разберёмся, как делить на шесть, семь, восемь и девять.', uz: "Hechqisi yo'q. Olti, yetti, sakkiz va to'qqizga bo'lishni tushunamiz." }
+      on_correct: { ru: 'Верно. Двадцать четыре по шесть, это четыре вагонетки. Двадцать четыре разделить на шесть равно четыре.', uz: "To'g'ri. Yigirma to'rt, oltitadan, to'rt vagoncha. Yigirma to'rtni oltiga bo'lsak to'rt.", en: 'That is right. Twenty four in sixes is four carts. Twenty four divided by six is four.' },
+      on_wrong: { ru: 'Тут не отнимают. Вспомни: шесть умножить на сколько будет двадцать четыре? Сейчас поймём.', uz: "Bu yerda ayirilmaydi. Esla: oltini nechaga ko'paytirsak yigirma to'rt bo'ladi? Hozir tushunamiz.", en: 'Nothing is taken away here. Remember: six times what makes twenty four? Now we will see.' },
+      on_unknown: { ru: 'Ничего. Разберёмся, как делить на шесть, семь, восемь и девять.', uz: "Hechqisi yo'q. Olti, yetti, sakkiz va to'qqizga bo'lishni tushunamiz.", en: 'No problem. Let us see how to divide by six, seven, eight and nine.' }
     }
   },
 
   // s1 — TUSHUNTIRISH-1: SON O'QIDA ORQAGA sakrash — 24 dan 6 talik → 4 sakrash = 24÷6
   s1: {
-    eyebrow: { ru: 'Деление на 6', uz: "6 ga bo'lish" },
-    lead: { ru: 'Прыгаем назад по шесть.', uz: "Orqaga oltitadan sakraymiz." },
-    body: { ru: 'Встанем на 24 и прыгаем назад по 6: 24, 18, 12, 6, 0. Насчитали 4 прыжка — до нуля. Значит 24 ÷ 6 = 4.', uz: "24 ga turamiz va orqaga 6 tadan sakraymiz: 24, 18, 12, 6, 0. 4 ta sakrash sanadik — nolgacha. Demak 24 ÷ 6 = 4." },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Прыжков по 6 = 24 ÷ 6 = 4.', uz: "6 talik sakrashlar soni = 24 ÷ 6 = 4." },
+    eyebrow: { ru: 'Деление на 6', uz: "6 ga bo'lish", en: 'Dividing by 6' },
+    lead: { ru: 'Прыгаем назад по шесть.', uz: "Orqaga oltitadan sakraymiz.", en: 'We jump back in sixes.' },
+    body: { ru: 'Встанем на 24 и прыгаем назад по 6: 24, 18, 12, 6, 0. Насчитали 4 прыжка — до нуля. Значит 24 ÷ 6 = 4.', uz: "24 ga turamiz va orqaga 6 tadan sakraymiz: 24, 18, 12, 6, 0. 4 ta sakrash sanadik — nolgacha. Demak 24 ÷ 6 = 4.", en: 'Stand on 24 and jump back in 6s: 24, 18, 12, 6, 0. That is 4 jumps down to zero. So 24 ÷ 6 = 4.' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Прыжков по 6 = 24 ÷ 6 = 4.', uz: "6 talik sakrashlar soni = 24 ÷ 6 = 4.", en: 'The jumps of 6 give the answer: 24 ÷ 6 = 4.' },
     audio: {
       ru: [
         'Встанем на число двадцать четыре и будем прыгать назад по шесть.',
@@ -990,16 +1020,17 @@ const CONTENT = {
         "Yigirma to'rt soniga turamiz va orqaga oltitadan sakraymiz.",
         "Yigirma to'rt, o'n sakkiz, o'n ikki, olti, nol. To'rtta sakrash sanadik.",
         "Oltitadan nechta sakrash, yigirma to'rtni oltiga bo'lish ham shuncha. Demak to'rt."
-      ]
+      ],
+      en: ['Let us stand on the number twenty four and jump back in sixes.', 'Twenty four, eighteen, twelve, six, zero. That is four jumps.', 'However many jumps of six there are, that is twenty four divided by six. So it is four.']
     }
   },
 
   // s2 — TUSHUNTIRISH-2: ÷7 JADVAL-QATORI (7÷7=1, 14÷7=2, 21÷7=3…) bosqichli
   s2: {
-    eyebrow: { ru: 'Таблица ÷7', uz: "÷7 jadvali" },
-    lead: { ru: 'Таблица деления на 7', uz: "7 ga bo'lish jadvali" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Делимое растёт на 7, ответ — на 1.', uz: "Bo'linuvchi 7 ga, javob 1 ga o'sadi." },
+    eyebrow: { ru: 'Таблица ÷7', uz: "÷7 jadvali", en: 'The ÷7 table' },
+    lead: { ru: 'Таблица деления на 7', uz: "7 ga bo'lish jadvali", en: 'The dividing by 7 table' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Делимое растёт на 7, ответ — на 1.', uz: "Bo'linuvchi 7 ga, javob 1 ga o'sadi.", en: 'The number being shared grows by 7 and the answer grows by 1.' },
     audio: {
       ru: [
         'Построим таблицу деления на семь.',
@@ -1010,18 +1041,19 @@ const CONTENT = {
         "Yettiga bo'lish jadvalini quramiz.",
         "Yetti bo'linadi yetti bir, o'n to'rt bo'linadi yetti ikki, yigirma bir bo'linadi yetti uch. Bo'linuvchi yettiga, javob birga o'sadi.",
         "Shunday davom etadi: yigirma sakkiz bo'linadi yetti to'rt, o'ttiz besh bo'linadi yetti besh, qirq ikki bo'linadi yetti olti."
-      ]
+      ],
+      en: ['Let us build the dividing by seven table.', 'Seven divided by seven is one, fourteen divided by seven is two, twenty one divided by seven is three. The number being shared grows by seven and the answer grows by one.', 'It carries on: twenty eight divided by seven is four, thirty five divided by seven is five, forty two divided by seven is six.']
     }
   },
 
   // s3 — QOIDA: bo'lish = teng ulashish, ÷ belgi kiritiladi + check MC (8÷2=4)
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    rule: { ru: 'Деление на 6–9: прыгай назад или вспомни умножение.', uz: "6–9 ga bo'lish: orqaga sakrang yoki ko'paytirishni eslang." },
-    check_q: { ru: '24 ÷ 8 = ?', uz: "24 ÷ 8 = ?" },
-    opts: [{ ru: '3', uz: '3', ok: true }, { ru: '4', uz: '4' }, { ru: '2', uz: '2' }],
-    wrong: { ru: 'На сколько умножить 8, чтобы вышло 24? Или прыгай назад по 8.', uz: "8 ni nechaga ko'paytirsak 24 bo'ladi? Yoki orqaga 8 talik sakrang." },
-    check_ok: { ru: 'Верно! 24 ÷ 8 = 3.', uz: "To'g'ri! 24 ÷ 8 = 3." },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    rule: { ru: 'Деление на 6–9: прыгай назад или вспомни умножение.', uz: "6–9 ga bo'lish: orqaga sakrang yoki ko'paytirishni eslang.", en: 'Dividing by 6 to 9: jump back or remember the multiplying.' },
+    check_q: { ru: '24 ÷ 8 = ?', uz: "24 ÷ 8 = ?", en: '24 ÷ 8 = ?' },
+    opts: [{ ru: '3', uz: '3', en: '3', ok: true }, { ru: '4', uz: '4', en: '4' }, { ru: '2', uz: '2', en: '2' }],
+    wrong: { ru: 'На сколько умножить 8, чтобы вышло 24? Или прыгай назад по 8.', uz: "8 ni nechaga ko'paytirsak 24 bo'ladi? Yoki orqaga 8 talik sakrang.", en: 'Eight times what makes 24? Or jump back in 8s.' },
+    check_ok: { ru: 'Верно! 24 ÷ 8 = 3.', uz: "To'g'ri! 24 ÷ 8 = 3.", en: 'That is right! 24 ÷ 8 = 3.' },
     audio: {
       ru: [
         'Запишем правило. Слушай и запомни.',
@@ -1034,20 +1066,21 @@ const CONTENT = {
         "Olti, yetti, sakkiz va to'qqizga ham kichik sonlarga o'xshab bo'lamiz.",
         "Orqaga sakrang yoki ko'paytirishni eslang: bu son nechaga ko'paytirsak chiqadi.",
         "Tekshir. Yigirma to'rtni sakkizga bo'lsak nechta bo'ladi?"
-      ]
+      ],
+      en: ['Let us write down the rule. Listen and remember.', 'We divide by six, seven, eight and nine the same way as by the smaller numbers.', 'Jump back or remember the multiplying: this number comes out if you multiply by what.', 'Check it. How much is twenty four divided by eight?']
     }
   },
 
   // s4 — TUSHUNTIRISH-3: ÷9 — orqaga 9 talik sakrash (27→0 = 3 sakrash) + check (27÷9=3)
   s4: {
-    eyebrow: { ru: 'Деление на 9', uz: "9 ga bo'lish" },
-    lead: { ru: 'Теперь по девять.', uz: "Endi to'qqiztadan." },
-    body: { ru: 'На 9 делим так же: прыгаем назад по 9. От 27: 27, 18, 9, 0 — три прыжка. Значит 27 ÷ 9 = 3. Или вспомни: 9 × 3 = 27.', uz: "9 ga ham xuddi shunday: orqaga 9 talik sakraymiz. 27 dan: 27, 18, 9, 0 — uch sakrash. Demak 27 ÷ 9 = 3. Yoki eslang: 9 × 3 = 27." },
-    warn: { ru: 'Деление — не вычитание. Считаем прыжки или вспоминаем умножение.', uz: "Bo'lish — ayirish emas. Sakrashlarni sanaymiz yoki ko'paytirishni eslaymiz." },
-    check_q: { ru: '27 ÷ 9 = ?', uz: "27 ÷ 9 = ?" },
-    opts: [{ ru: '3', uz: '3', ok: true }, { ru: '6', uz: '6' }, { ru: '2', uz: '2' }],
-    wrong: { ru: 'Сколько прыжков по 9 от 27 до 0? Или 9 × ? = 27.', uz: "27 dan 0 gacha 9 talik nechta sakrash? Yoki 9 × ? = 27." },
-    check_ok: { ru: 'Верно! 27 ÷ 9 = 3.', uz: "To'g'ri! 27 ÷ 9 = 3." },
+    eyebrow: { ru: 'Деление на 9', uz: "9 ga bo'lish", en: 'Dividing by 9' },
+    lead: { ru: 'Теперь по девять.', uz: "Endi to'qqiztadan.", en: 'Now in nines.' },
+    body: { ru: 'На 9 делим так же: прыгаем назад по 9. От 27: 27, 18, 9, 0 — три прыжка. Значит 27 ÷ 9 = 3. Или вспомни: 9 × 3 = 27.', uz: "9 ga ham xuddi shunday: orqaga 9 talik sakraymiz. 27 dan: 27, 18, 9, 0 — uch sakrash. Demak 27 ÷ 9 = 3. Yoki eslang: 9 × 3 = 27.", en: 'We divide by 9 the same way: jump back in 9s. From 27: 27, 18, 9, 0, that is three jumps. So 27 ÷ 9 = 3. Or remember: 9 × 3 = 27.' },
+    warn: { ru: 'Деление — не вычитание. Считаем прыжки или вспоминаем умножение.', uz: "Bo'lish — ayirish emas. Sakrashlarni sanaymiz yoki ko'paytirishni eslaymiz.", en: 'Dividing is not taking away. We count the jumps or remember the multiplying.' },
+    check_q: { ru: '27 ÷ 9 = ?', uz: "27 ÷ 9 = ?", en: '27 ÷ 9 = ?' },
+    opts: [{ ru: '3', uz: '3', en: '3', ok: true }, { ru: '6', uz: '6', en: '6' }, { ru: '2', uz: '2', en: '2' }],
+    wrong: { ru: 'Сколько прыжков по 9 от 27 до 0? Или 9 × ? = 27.', uz: "27 dan 0 gacha 9 talik nechta sakrash? Yoki 9 × ? = 27.", en: 'How many jumps of 9 from 27 to 0? Or 9 × ? = 27.' },
+    check_ok: { ru: 'Верно! 27 ÷ 9 = 3.', uz: "To'g'ri! 27 ÷ 9 = 3.", en: 'That is right! 27 ÷ 9 = 3.' },
     audio: {
       ru: [
         'На девять делим так же, как на остальные числа.',
@@ -1060,16 +1093,17 @@ const CONTENT = {
         "Orqaga to'qqiz talik sakraymiz. Yigirma yettidan: yigirma yetti, o'n sakkiz, to'qqiz, nol. Uch sakrash.",
         "Demak yigirma yettini to'qqizga bo'lsak uch. Yoki eslang: to'qqiz marta uch yigirma yetti.",
         "Tekshir. Yigirma yettini to'qqizga bo'lsak nechta bo'ladi?"
-      ]
+      ],
+      en: ['We divide by nine the same way as by the other numbers.', 'We jump back in nines. From twenty seven: twenty seven, eighteen, nine, zero. Three jumps.', 'So twenty seven divided by nine is three. Or remember: nine times three is twenty seven.', 'Check it. How much is twenty seven divided by nine?']
     }
   },
 
   // sTBL — TUSHUNTIRISH: ÷6, ÷7, ÷8, ÷9 JADVALLARI
   sTBL: {
-    eyebrow: { ru: 'Таблицы', uz: 'Jadvallar' },
-    lead: { ru: 'Таблицы ÷6, ÷7, ÷8, ÷9', uz: "÷6, ÷7, ÷8, ÷9 jadvallari" },
-    info_badge: { ru: 'Главное', uz: 'Asosiy' },
-    info: { ru: 'Ответы идут 1, 2, 3…', uz: "Javoblar 1, 2, 3… bo'lib boradi." },
+    eyebrow: { ru: 'Таблицы', uz: 'Jadvallar', en: 'The tables' },
+    lead: { ru: 'Таблицы ÷6, ÷7, ÷8, ÷9', uz: "÷6, ÷7, ÷8, ÷9 jadvallari", en: 'The ÷6, ÷7, ÷8 and ÷9 tables' },
+    info_badge: { ru: 'Главное', uz: 'Asosiy', en: 'The main thing' },
+    info: { ru: 'Ответы идут 1, 2, 3…', uz: "Javoblar 1, 2, 3… bo'lib boradi.", en: 'The answers go 1, 2, 3…' },
     audio: {
       ru: [
         'Вот таблицы деления на шесть, семь, восемь и девять.',
@@ -1080,199 +1114,203 @@ const CONTENT = {
         "Mana olti, yetti, sakkiz va to'qqizga bo'lish jadvallari.",
         "Har jadvalida bo'linuvchi o'z soniga o'sadi, javoblar esa doim bir, ikki, uch bo'lib boradi.",
         "Bu jadvallarni yordam uchun ochsa bo'ladi, yana ularni ko'paytirish jadvali aytib beradi."
-      ]
+      ],
+      en: ['Here are the division tables for six, seven, eight and nine.', 'In each table the number being shared grows by its own number, and the answers always go one, two, three and on.', 'You can open these tables whenever you need help, and the multiplication table tells you the same thing.']
     }
   },
 
   // s5 — MASHQ-single JADVAL-TO'LDIRISH (÷6): 30÷6=? → 5
   s5: {
-    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir" },
-    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring." },
-    transition: { ru: 'Объяснение закончили. Теперь потренируйся: заполни таблицы деления.', uz: "Tushuntirishni tugatdik. Endi mashq qiling: bo'lish jadvallarini to'ldiring." },
+    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir", en: 'Fill in the table' },
+    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring.", en: 'Fill in the empty box.' },
+    transition: { ru: 'Объяснение закончили. Теперь потренируйся: заполни таблицы деления.', uz: "Tushuntirishni tugatdik. Endi mashq qiling: bo'lish jadvallarini to'ldiring.", en: 'We have finished explaining. Now practise: fill in the division tables.' },
     by: 6, blank: 5, upto: 6,
-    wrong: { ru: 'В таблице ÷6 ответы идут по порядку: 1, 2, 3…', uz: "÷6 jadvalida javoblar tartib bilan: 1, 2, 3…" },
-    done_text: { ru: 'Верно! 30 ÷ 6 = 5.', uz: "To'g'ri! 30 ÷ 6 = 5." },
+    wrong: { ru: 'В таблице ÷6 ответы идут по порядку: 1, 2, 3…', uz: "÷6 jadvalida javoblar tartib bilan: 1, 2, 3…", en: 'In the ÷6 table the answers go in order: 1, 2, 3…' },
+    done_text: { ru: 'Верно! 30 ÷ 6 = 5.', uz: "To'g'ri! 30 ÷ 6 = 5.", en: 'That is right! 30 ÷ 6 = 5.' },
     audio: {
-      intro: { ru: 'Это таблица деления на шесть. Одна клетка пустая. Найди ответ и нажми. Можешь открыть таблицу умножения.', uz: "Bu oltiga bo'lish jadvali. Bir katak bo'sh. Javobni topib bosing. Ko'paytirish jadvalini ochsangiz bo'ladi." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Соседние клетки подскажут: ответы по порядку.', uz: "Qo'shni kataklar aytadi: javoblar tartib bilan." }
+      intro: { ru: 'Это таблица деления на шесть. Одна клетка пустая. Найди ответ и нажми. Можешь открыть таблицу умножения.', uz: "Bu oltiga bo'lish jadvali. Bir katak bo'sh. Javobni topib bosing. Ko'paytirish jadvalini ochsangiz bo'ladi.", en: 'This is the dividing by six table. One box is empty. Find the answer and tap it. You can open the multiplication table.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Соседние клетки подскажут: ответы по порядку.', uz: "Qo'shni kataklar aytadi: javoblar tartib bilan.", en: 'The boxes next to it will help: the answers go in order.' }
     }
   },
 
   // s6 — MASHQ-single SON O'QI orqaga sakrash: 28 dan 7 talik → 4
   s6: {
-    eyebrow: { ru: 'Прыжки назад', uz: 'Orqaga sakrash' },
-    lead: { ru: 'Сколько прыжков по 7?', uz: "7 talik nechta sakrash?" },
+    eyebrow: { ru: 'Прыжки назад', uz: 'Orqaga sakrash', en: 'Jumping back' },
+    lead: { ru: 'Сколько прыжков по 7?', uz: "7 talik nechta sakrash?", en: 'How many jumps of 7?' },
     total: 28, step: 7,
-    wrong: { ru: 'Прыгай назад по 7 от 28 до 0 и считай прыжки.', uz: "28 dan 0 gacha 7 talik orqaga sakrab, sakrashlarni sanang." },
-    done_text: { ru: 'Верно! 28 ÷ 7 = 4.', uz: "To'g'ri! 28 ÷ 7 = 4." },
+    wrong: { ru: 'Прыгай назад по 7 от 28 до 0 и считай прыжки.', uz: "28 dan 0 gacha 7 talik orqaga sakrab, sakrashlarni sanang.", en: 'Jump back in 7s from 28 to 0 and count the jumps.' },
+    done_text: { ru: 'Верно! 28 ÷ 7 = 4.', uz: "To'g'ri! 28 ÷ 7 = 4.", en: 'That is right! 28 ÷ 7 = 4.' },
     audio: {
-      intro: { ru: 'Прыгай назад по семь от двадцати восьми до нуля. Сколько прыжков, столько и двадцать восемь разделить на семь.', uz: "Yigirma sakkizdan nolgacha orqaga yetti talik sakrang. Nechta sakrash, yigirma sakkizni yettiga bo'lish ham shuncha." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай прыжки по семь.', uz: "Yetti talik sakrashlarni sanang." }
+      intro: { ru: 'Прыгай назад по семь от двадцати восьми до нуля. Сколько прыжков, столько и двадцать восемь разделить на семь.', uz: "Yigirma sakkizdan nolgacha orqaga yetti talik sakrang. Nechta sakrash, yigirma sakkizni yettiga bo'lish ham shuncha.", en: 'Jump back in sevens from twenty eight to zero. However many jumps you make, that is twenty eight divided by seven.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай прыжки по семь.', uz: "Yetti talik sakrashlarni sanang.", en: 'Count the jumps of seven.' }
     }
   },
 
   // s7 — MASHQ OILA-TOP (FamilyFind, 3 round, ÷2/÷3): 12÷2=6, 12÷3=4, 16÷2=8
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
     rounds: [ { a: 6, b: 5, by: 6 }, { a: 7, b: 4, by: 7 }, { a: 8, b: 3, by: 8 } ],
-    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang.", en: 'Remember the multiplying in the family.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'В семье пропало деление. Смотри на умножение и найди его.', uz: "Oilada bo'lish yo'qoldi. Ko'paytirishga qarab uni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?" }
+      intro: { ru: 'В семье пропало деление. Смотри на умножение и найди его.', uz: "Oilada bo'lish yo'qoldi. Ko'paytirishga qarab uni toping.", en: 'A division is missing from the family. Look at the multiplying and find it.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?", en: 'This number times what makes the number being shared?' }
     }
   },
 
   // s8 — MASHQ JADVAL-TO'LDIRISH (÷2/÷3, 3 round): 12÷2=6, 12÷3=4, 6÷2=3
   s8: {
-    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir" },
-    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring." },
+    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir", en: 'Fill in the table' },
+    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring.", en: 'Fill in the empty box.' },
     rounds: [ { by: 7, blank: 4, upto: 6 }, { by: 8, blank: 5, upto: 6 }, { by: 9, blank: 3, upto: 6 } ],
-    wrong: { ru: 'Ответы в таблице идут по порядку: 1, 2, 3…', uz: "Jadvalda javoblar tartib bilan: 1, 2, 3…" },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Ответы в таблице идут по порядку: 1, 2, 3…', uz: "Jadvalda javoblar tartib bilan: 1, 2, 3…", en: 'The answers in the table go in order: 1, 2, 3…' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Разные таблицы деления. Найди пустую клетку.', uz: "Har xil bo'lish jadvallari. Bo'sh katakni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Соседние клетки подскажут.', uz: "Qo'shni kataklar aytadi." }
+      intro: { ru: 'Разные таблицы деления. Найди пустую клетку.', uz: "Har xil bo'lish jadvallari. Bo'sh katakni toping.", en: 'Different division tables. Find the empty box.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Соседние клетки подскажут.', uz: "Qo'shni kataklar aytadi.", en: 'The boxes next to it will help.' }
     }
   },
 
   // s9 — MASHQ SON O'QI orqaga sakrash (3 round): 8÷2=4, 12÷3=4, 16÷2=8
   s9: {
-    eyebrow: { ru: 'Прыжки назад', uz: 'Orqaga sakrash' },
-    lead: { ru: 'Сколько прыжков?', uz: "Nechta sakrash?" },
+    eyebrow: { ru: 'Прыжки назад', uz: 'Orqaga sakrash', en: 'Jumping back' },
+    lead: { ru: 'Сколько прыжков?', uz: "Nechta sakrash?", en: 'How many jumps?' },
     rounds: [ { total: 18, step: 6 }, { total: 24, step: 8 }, { total: 36, step: 9 } ],
-    wrong: { ru: 'Прыгай назад и считай прыжки до нуля.', uz: "Orqaga sakrab, nolgacha sakrashlarni sanang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Прыгай назад и считай прыжки до нуля.', uz: "Orqaga sakrab, nolgacha sakrashlarni sanang.", en: 'Jump back and count the jumps down to zero.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Прыгай назад до нуля. Сколько прыжков, столько и деление.', uz: "Nolgacha orqaga sakrang. Nechta sakrash, bo'lish ham shuncha." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Считай прыжки одинаковыми шагами.', uz: "Bir xil qadam bilan sakrashlarni sanang." }
+      intro: { ru: 'Прыгай назад до нуля. Сколько прыжков, столько и деление.', uz: "Nolgacha orqaga sakrang. Nechta sakrash, bo'lish ham shuncha.", en: 'Jump back to zero. However many jumps you make, that is the answer.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Считай прыжки одинаковыми шагами.', uz: "Bir xil qadam bilan sakrashlarni sanang.", en: 'Count the jumps in equal steps.' }
     }
   },
 
   // s10 — MASHQ OILA-TOP (FamilyFind, 3 round): 15÷3=5, 18÷2=9, 18÷3=6
   s10: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
     rounds: [ { a: 9, b: 5, by: 9 }, { a: 6, b: 6, by: 6 }, { a: 7, b: 6, by: 7 } ],
-    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang.", en: 'Remember the multiplying in the family.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Снова найди деление через умножение.', uz: "Yana ko'paytirish orqali bo'lishni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Думай через умножение.', uz: "Ko'paytirish orqali o'ylang." }
+      intro: { ru: 'Снова найди деление через умножение.', uz: "Yana ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying again.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Думай через умножение.', uz: "Ko'paytirish orqali o'ylang.", en: 'Think of the multiplying.' }
     }
   },
 
   // s11 — MASHQ JADVAL-TO'LDIRISH (÷3/÷2, 3 round): 18÷3=6, 8÷2=4, 15÷3=5
   s11: {
-    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir" },
-    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring." },
+    eyebrow: { ru: 'Заполни таблицу', uz: "Jadvalni to'ldir", en: 'Fill in the table' },
+    lead: { ru: 'Заполни пустую клетку.', uz: "Bo'sh katakni to'ldiring.", en: 'Fill in the empty box.' },
     rounds: [ { by: 8, blank: 4, upto: 6 }, { by: 6, blank: 6, upto: 6 }, { by: 9, blank: 5, upto: 6 } ],
-    wrong: { ru: 'Ответы идут по порядку.', uz: "Javoblar tartib bilan." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
+    wrong: { ru: 'Ответы идут по порядку.', uz: "Javoblar tartib bilan.", en: 'The answers go in order.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
     audio: {
-      intro: { ru: 'Последняя тренировка перед задачей. Заполни клетку.', uz: "Masaladan oldingi oxirgi mashq. Katakni to'ldiring." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Соседние клетки подскажут.', uz: "Qo'shni kataklar aytadi." }
+      intro: { ru: 'Последняя тренировка перед задачей. Заполни клетку.', uz: "Masaladan oldingi oxirgi mashq. Katakni to'ldiring.", en: 'The last practice before the task. Fill in the box.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Соседние клетки подскажут.', uz: "Qo'shni kataklar aytadi.", en: 'The boxes next to it will help.' }
     }
   },
 
   // s12 — MASALA (kirish/kontekst, ishlatilmaydi — s13 ichida story). Saqlanadi.
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi." },
-    manifest_label: { ru: 'добыча', uz: "o'lja" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Зухра делит кристаллы.', uz: "Zuhra kristallarni ulashadi.", en: 'Zuhra is sharing out the crystals.' },
+    manifest_label: { ru: 'добыча', uz: "o'lja", en: 'the haul' },
     audio: {
       ru: 'Зухра делит добычу поровну.',
-      uz: "Zuhra o'ljani teng ulashadi."
+      uz: "Zuhra o'ljani teng ulashadi.",
+      en: 'Zuhra is sharing the haul equally.'
     }
   },
 
   // s13 — MASALA (scored, NumberLineBack): 30 kristal, har vagonda 6 → nechta vagon? 30÷6=5
   s13: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
-    story: { ru: '30 кристаллов, по 6 в вагонетку. Сколько вагонеток?', uz: "30 kristall, har vagonchaga 6 tadan. Nechta vagoncha?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering.", en: 'Help Zuhra.' },
+    story: { ru: '30 кристаллов, по 6 в вагонетку. Сколько вагонеток?', uz: "30 kristall, har vagonchaga 6 tadan. Nechta vagoncha?", en: '30 crystals, 6 in each cart. How many carts?' },
     total: 30, step: 6,
-    wrong: { ru: 'Прыгай назад по 6 от 30 до 0 и считай прыжки.', uz: "30 dan 0 gacha 6 talik orqaga sakrab, sakrashlarni sanang." },
-    done_text: { ru: 'Верно! 30 ÷ 6 = 5, пять вагонеток.', uz: "To'g'ri! 30 ÷ 6 = 5, beshta vagoncha." },
+    wrong: { ru: 'Прыгай назад по 6 от 30 до 0 и считай прыжки.', uz: "30 dan 0 gacha 6 talik orqaga sakrab, sakrashlarni sanang.", en: 'Jump back in 6s from 30 to 0 and count the jumps.' },
+    done_text: { ru: 'Верно! 30 ÷ 6 = 5, пять вагонеток.', uz: "To'g'ri! 30 ÷ 6 = 5, beshta vagoncha.", en: 'That is right! 30 ÷ 6 = 5, so five carts.' },
     audio: {
-      intro: { ru: 'Помоги Зухре. У неё тридцать кристаллов, в каждую вагонетку по шесть. Сколько выйдет вагонеток? Прыгай назад по шесть.', uz: "Zuhraga yordam bering. Unda o'ttizta kristall, har vagonchaga oltitadan. Nechta vagoncha chiqadi? Orqaga olti talik sakrang." },
-      on_correct: { ru: 'Верно. Пять вагонеток.', uz: "To'g'ri. Beshta vagoncha." },
-      on_wrong: { ru: 'Тридцать, двадцать четыре, восемнадцать, двенадцать, шесть, ноль, пять прыжков.', uz: "O'ttiz, yigirma to'rt, o'n sakkiz, o'n ikki, olti, nol, besh sakrash." }
+      intro: { ru: 'Помоги Зухре. У неё тридцать кристаллов, в каждую вагонетку по шесть. Сколько выйдет вагонеток? Прыгай назад по шесть.', uz: "Zuhraga yordam bering. Unda o'ttizta kristall, har vagonchaga oltitadan. Nechta vagoncha chiqadi? Orqaga olti talik sakrang.", en: 'Help Zuhra. She has thirty crystals and six go in each cart. How many carts will there be? Jump back in sixes.' },
+      on_correct: { ru: 'Верно. Пять вагонеток.', uz: "To'g'ri. Beshta vagoncha.", en: 'That is right. Five carts.' },
+      on_wrong: { ru: 'Тридцать, двадцать четыре, восемнадцать, двенадцать, шесть, ноль, пять прыжков.', uz: "O'ttiz, yigirma to'rt, o'n sakkiz, o'n ikki, olti, nol, besh sakrash.", en: 'Thirty, twenty four, eighteen, twelve, six, zero, that is five jumps.' }
     }
   },
 
   // s14 — FINAL (scored, 3 round OILA-TOP + FactCard Saturn): 32÷4=8, 35÷5=7, 20÷4=5
   s14: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    lead: { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
     rounds: [ { a: 8, b: 7, by: 8 }, { a: 9, b: 8, by: 9 }, { a: 6, b: 9, by: 6 } ],
-    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang." },
-    done_text: { ru: 'Верно!', uz: "To'g'ri!" },
-    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'В сутках Сатурна всего около 10 часов — планета крутится очень быстро, хотя она огромная.', uz: "Saturn sutkasi bor-yo'g'i 10 soatcha — sayyora juda tez aylanadi, garchi u ulkan bo'lsa ham." },
-    fact_audio: { ru: 'Сатурн, огромная планета, но крутится очень быстро: сутки на нём длятся всего около десяти часов.', uz: "Saturn ulkan sayyora, lekin juda tez aylanadi: undagi sutka bor-yo'g'i o'n soatcha davom etadi." },
+    wrong: { ru: 'Вспомни умножение семьи.', uz: "Oila ko'paytmasini eslang.", en: 'Remember the multiplying in the family.' },
+    done_text: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+    fact_badge: { ru: 'Знаешь?', uz: 'Bilasizmi?', en: 'Did you know?' },
+    fact_text: { ru: 'В сутках Сатурна всего около 10 часов — планета крутится очень быстро, хотя она огромная.', uz: "Saturn sutkasi bor-yo'g'i 10 soatcha — sayyora juda tez aylanadi, garchi u ulkan bo'lsa ham.", en: 'A day on Saturn is only about 10 hours long. The planet spins very fast even though it is huge.' },
+    fact_audio: { ru: 'Сатурн, огромная планета, но крутится очень быстро: сутки на нём длятся всего около десяти часов.', uz: "Saturn ulkan sayyora, lekin juda tez aylanadi: undagi sutka bor-yo'g'i o'n soatcha davom etadi.", en: 'Saturn is a huge planet but it spins very fast: a day there lasts only about ten hours.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Найди деление через умножение.', uz: "Yakuniy tekshiruv. Ko'paytirish orqali bo'lishni toping." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?" }
+      intro: { ru: 'Финальная проверка. Найди деление через умножение.', uz: "Yakuniy tekshiruv. Ko'paytirish orqali bo'lishni toping.", en: 'The final check. Find the dividing through the multiplying.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'На сколько умножить это число, чтобы вышло делимое?', uz: "Bu sonni nechaga ko'paytirsak bo'linuvchi chiqadi?", en: 'This number times what makes the number being shared?' }
     }
   },
 
   // s15 — YAKUN: QOIDA recap + bog'lanishlar (keyingi: ÷4 va ÷5)
   s15: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    praise: { ru: 'Молодец!', uz: 'Barakalla!' },
-    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!' },
-    cando: { ru: 'Теперь ты умеешь делить на любое число до 9!', uz: "Endi siz 9 gacha istalgan songa bo'la olasiz!" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    praise: { ru: 'Молодец!', uz: 'Barakalla!', en: 'Well done!' },
+    mission_done: { ru: 'Миссия выполнена!', uz: 'Missiya bajarildi!', en: 'Mission complete!' },
+    cando: { ru: 'Теперь ты умеешь делить на любое число до 9!', uz: "Endi siz 9 gacha istalgan songa bo'la olasiz!", en: 'Now you can divide by any number up to 9!' },
     // QOIDA recap (ko'rinadigan):
-    rule_recap: { ru: 'Деление на 6–9: прыгай назад или вспомни умножение. 24 ÷ 6 = 4, 27 ÷ 9 = 3.', uz: "6–9 ga bo'lish: orqaga sakrang yoki ko'paytirishni eslang. 24 ÷ 6 = 4, 27 ÷ 9 = 3." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'урок 22: деление на 4 и 5', uz: "22-dars: 4 va 5 ga bo'lish" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'дальше: задачи на деление', uz: "keyingi: bo'lishga masalalar" },
+    rule_recap: { ru: 'Деление на 6–9: прыгай назад или вспомни умножение. 24 ÷ 6 = 4, 27 ÷ 9 = 3.', uz: "6–9 ga bo'lish: orqaga sakrang yoki ko'paytirishni eslang. 24 ÷ 6 = 4, 27 ÷ 9 = 3.", en: 'Dividing by 6 to 9: jump back or remember the multiplying. 24 ÷ 6 = 4, 27 ÷ 9 = 3.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'урок 22: деление на 4 и 5', uz: "22-dars: 4 va 5 ga bo'lish", en: 'lesson 22: dividing by 4 and 5' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'дальше: задачи на деление', uz: "keyingi: bo'lishga masalalar", en: 'next: division problems' },
     audio: {
       ru: 'Миссия выполнена. Мы выучили деление на шесть, семь, восемь и девять. Теперь мы умеем делить на любое число до девяти: можно прыгать назад и считать прыжки, а можно вспомнить умножение. Вся таблица деления собрана! Дальше будем решать задачи на деление.',
-      uz: "Missiya bajarildi. Olti, yetti, sakkiz va to'qqizga bo'lishni o'rgandik. Endi to'qqizgacha istalgan songa bo'la olamiz: orqaga sakrab, sakrashlarni sanash mumkin, yoki ko'paytirishni eslash mumkin. Butun bo'lish jadvali yig'ildi! Keyin bo'lishga masalalar yechamiz."
+      uz: "Missiya bajarildi. Olti, yetti, sakkiz va to'qqizga bo'lishni o'rgandik. Endi to'qqizgacha istalgan songa bo'la olamiz: orqaga sakrab, sakrashlarni sanash mumkin, yoki ko'paytirishni eslash mumkin. Butun bo'lish jadvali yig'ildi! Keyin bo'lishga masalalar yechamiz.",
+      en: 'Mission complete. We learned to divide by six, seven, eight and nine. Now we can divide by any number up to nine: you can jump back and count the jumps, or you can remember the multiplying. The whole set of division tables is complete! Next we will solve division problems.'
     }
   }
 };
 
 // v8 missiya-zanjiri — slaydlararo ↳ ko'priklar (audio-intro boshiga; ekranda ko'rinmaydi). TTS-toza.
 const BRIDGES = {
-  s1:  { ru: 'Прыгнем назад по числовому лучу.', uz: "Son o'qida orqaga sakraymiz." },
-  s2:  { ru: 'Построим таблицу деления на 7.', uz: "7 ga bo'lish jadvalini quramiz." },
-  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s4:  { ru: 'Теперь делим на 9.', uz: "Endi 9 ga bo'lamiz." },
-  sTBL: { ru: 'Посмотрим обе таблицы.', uz: 'Ikkala jadvalga qaraymiz.' },
-  s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling." },
-  s6:  { ru: 'А теперь считай прыжки.', uz: "Endi sakrashlarni sanang." },
-  s7:  { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping." },
-  s8:  { ru: 'Снова заполни таблицу.', uz: "Yana jadvalni to'ldiring." },
-  s9:  { ru: 'Ещё раз прыжки назад.', uz: "Yana orqaga sakrash." },
-  s10: { ru: 'Опять через умножение.', uz: "Yana ko'paytirish orqali." },
-  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.' },
-  s12: { ru: 'Зухра грузит вагонетки.', uz: "Zuhra vagonchalarni yuklaydi." },
-  s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering." },
-  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!" }
+  s1:  { ru: 'Прыгнем назад по числовому лучу.', uz: "Son o'qida orqaga sakraymiz.", en: 'Let us jump back along the number line.' },
+  s2:  { ru: 'Построим таблицу деления на 7.', uz: "7 ga bo'lish jadvalini quramiz.", en: 'Let us build the dividing by 7 table.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s4:  { ru: 'Теперь делим на 9.', uz: "Endi 9 ga bo'lamiz.", en: 'Now we divide by 9.' },
+  sTBL: { ru: 'Посмотрим обе таблицы.', uz: 'Ikkala jadvalga qaraymiz.', en: 'Let us look at both tables.' },
+  s5:  { ru: 'Теперь потренируйся сам.', uz: "Endi o'zingiz mashq qiling.", en: 'Now practise on your own.' },
+  s6:  { ru: 'А теперь считай прыжки.', uz: "Endi sakrashlarni sanang.", en: 'And now count the jumps.' },
+  s7:  { ru: 'Найди деление через умножение.', uz: "Ko'paytirish orqali bo'lishni toping.", en: 'Find the dividing through the multiplying.' },
+  s8:  { ru: 'Снова заполни таблицу.', uz: "Yana jadvalni to'ldiring.", en: 'Fill in the table again.' },
+  s9:  { ru: 'Ещё раз прыжки назад.', uz: "Yana orqaga sakrash.", en: 'Jumping back once more.' },
+  s10: { ru: 'Опять через умножение.', uz: "Yana ko'paytirish orqali.", en: 'Through the multiplying again.' },
+  s11: { ru: 'Последняя тренировка.', uz: 'Oxirgi trenirovka.', en: 'The last practice.' },
+  s12: { ru: 'Зухра грузит вагонетки.', uz: "Zuhra vagonchalarni yuklaydi.", en: 'Zuhra is loading the carts.' },
+  s13: { ru: 'Помоги Зухре.', uz: "Zuhraga yordam bering.", en: 'Help Zuhra.' },
+  s14: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s15: { ru: 'Кристаллы разъехались по вагонеткам!', uz: "Kristallar vagonchalarga taqsimlandi!", en: 'The crystals have gone off in their carts!' }
 };
 
 // s15 payoff (xulosadan oldin aytiladi)
 const S15_PAYOFF = {
   ru: 'Кристаллы у шахты Сатурна разъехались по вагонеткам поровну. Деление на 2 и 3 освоено! Спасибо за помощь.',
-  uz: "Saturn koni yonidagi kristallar vagonchalarga teng taqsimlandi. 2 va 3 ga bo'lish o'zlashtirildi! Yordamingiz uchun rahmat."
+  uz: "Saturn koni yonidagi kristallar vagonchalarga teng taqsimlandi. 2 va 3 ga bo'lish o'zlashtirildi! Yordamingiz uchun rahmat.",
+  en: 'The crystals at the Saturn mine went off in their carts, shared equally. Dividing by 2 and 3 is sorted! Thank you for your help.'
 };
 
 // «UCHISHGA TAYYORLIK» -> yo'l xaritasi yozuvi (lang-lookup)
-const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l" };
+const READY_LABEL = { ru: 'Путь домой', uz: "Uyga yo'l", en: 'The way home' };
 
 // ============================================================
 // 1-SINF ANIMATSION KIT (etalon — keyingi darslar shundan meros oladi)
@@ -1381,7 +1419,7 @@ const Pips = ({ n, kind = 'apple', anim = 'bob', wrap = false }) => (
 // ETALON KIT · BIT-KARTOCHKA + RAG'BAT — yagona reaktsiya (Bit + maqtov) barcha javob ekranlarida
 // ============================================================
 // Maqtov so'zlari navbat bilan (monoton bo'lmasin)
-const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'] };
+const PRAISE = { ru: ['Молодец!', 'Отлично!', 'Здорово!', 'Умница!'], uz: ['Barakalla!', 'Ajoyib!', "Zo'r!", 'Ofarin!'], en: ['Well done!', 'Excellent!', 'Great!', 'Good job!'] };
 // Rag'bat — xato javobda navbat bilan UNIKAL, to'g'ri javobga YO'NALTIRUVCHI so'z
 // (javobni OCHIB QO'YMAYDI — faqat usulni ko'rsatadi: qaytadan/bittadan/diqqat bilan sana).
 const ENCOURAGE = {
@@ -1398,7 +1436,8 @@ const ENCOURAGE = {
     'Yaxshi urinish! Shoshmasdan, tartib bilan sanang.',
     'Ozgina qoldi! Har biriga qarab, bittadan sanang.',
     "Zo'r harakat! Sanashni boshidan, sekin boshlang."
-  ]
+  ],
+  en: ['Almost! Count again, one by one.', 'You are close! Look carefully and count again.', 'Good try! Count slowly, in order.', 'Nearly there! Touch each one and count.', 'Well done! Start counting again, take your time.']
 };
 let _encIdx = 0;
 const nextEncourage = (lang) => { const a = ENCOURAGE[lang] || ENCOURAGE.ru; const p = a[_encIdx % a.length]; _encIdx += 1; return p; };
@@ -2155,7 +2194,13 @@ const brgSeg = (key, lang) => ({ id: `${key}_brg`, text: BRIDGES[key][lang], tri
 const withBridgeAudio = (c, key) => {
   const b = BRIDGES[key];
   if (!b || !c.audio || !c.audio.intro) return c;
-  return { ...c, audio: { ...c.audio, intro: { ru: `${b.ru} ${c.audio.intro.ru}`, uz: `${b.uz} ${c.audio.intro.uz}` } } };
+  // Склейка идёт по всем языкам, которые есть у моста и у intro: если оставить только ru и uz,
+  // объект intro заменится на двуязычный и английский экран останется без озвучки.
+  const glued = {};
+  for (const l of Object.keys(c.audio.intro)) {
+    glued[l] = b[l] !== undefined ? `${b[l]} ${c.audio.intro[l]}` : c.audio.intro[l];
+  }
+  return { ...c, audio: { ...c.audio, intro: glued } };
 };
 
 // --- MC EKRAN o'rami: shuffleMC (qat'iy order) + keep-visible QuestionScreen. v8: ko'prik.
@@ -2631,7 +2676,7 @@ const TeachStage = ({ props, cKey, figure, body = null, info = null }) => {
 };
 
 // Ko'p-raund yordamchilari: raund-nuqtalar + «Keyingi misol» tugmasi (ketma-ket ochilish)
-const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol' };
+const NEXT_EX = { ru: 'Следующий пример', uz: 'Keyingi misol', en: 'Next example' };
 const RoundDots = ({ ri, total }) => (
   <div className="fade-up" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 7 }}>
     {Array.from({ length: total }).map((_, i) => (
@@ -3263,8 +3308,8 @@ const ColumnCard = ({ at, au, bt, bu, dimT, dimU, resTens, resUnits }) => {
   const t = useT();
   return (
     <div style={{ display: 'inline-grid', gridTemplateColumns: `auto ${COL_W} ${COL_W}`, alignItems: 'center', columnGap: 'clamp(3px,1.2vw,7px)', rowGap: 3, padding: 'clamp(12px,2.6vw,18px) clamp(18px,3.4vw,26px)', background: '#F6F4EF', borderRadius: 14, border: `2px solid ${T.ink3}`, boxShadow: '0 4px 14px -8px rgba(0,0,0,0.25)' }}>
-      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n" })}</span>
-      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir' })}</span>
+      <span style={{ gridColumn: 2, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#fe5b1a', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'дес', uz: "o'n", en: 'tens' })}</span>
+      <span style={{ gridColumn: 3, gridRow: 1, width: COL_W, textAlign: 'center', fontSize: 'clamp(9px,1.6vw,11px)', fontWeight: 800, color: '#019ACB', textTransform: 'uppercase', letterSpacing: '.02em' }}>{t({ ru: 'ед', uz: 'bir', en: 'ones' })}</span>
       <span style={{ gridColumn: 1, gridRow: '2 / 4', alignSelf: 'center', justifySelf: 'center', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,36px)', color: T.ink2 }}>+</span>
       <span style={{ ...colCell, gridColumn: 2, gridRow: 2, color: '#fe5b1a', opacity: dimT ? 0.32 : 1, transition: 'opacity .3s' }}>{at}</span>
       <span style={{ ...colCell, gridColumn: 3, gridRow: 2, color: '#019ACB', opacity: dimU ? 0.32 : 1, transition: 'opacity .3s' }}>{au}</span>
@@ -3310,9 +3355,9 @@ const RazryadBreak = ({ a, b }) => {
       {row(a, 0)}
       {row(b, 1)}
       <p className="fade-up" style={{ margin: '4px 0 0', fontWeight: 700, fontSize: 'clamp(13px,2vw,16px)', textAlign: 'center', animationDelay: '0.65s' }}>
-        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan" })}</span>
+        <span style={{ color: '#fe5b1a' }}>{t({ ru: 'десятки — с десятками', uz: "o'nlik — o'nlik bilan", en: 'tens with tens' })}</span>
         <span style={{ color: T.ink3 }}>, </span>
-        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan' })}</span>
+        <span style={{ color: '#019ACB' }}>{t({ ru: 'единицы — с единицами', uz: 'birlik — birlik bilan', en: 'ones with ones' })}</span>
       </p>
     </div>
   );
@@ -3842,12 +3887,14 @@ const Screen7 = (props) => {
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(10px, 2vw, 14px)' }}>
         <Bridge text={t(BRIDGES.s7)}/>
         <div className="fade-up" style={{ position: 'relative', background: '#FFF8EC', border: `2px solid ${T.accent}`, borderRadius: 16, margin: '6px 0 0', padding: 'clamp(14px, 2.6vw, 20px) clamp(14px, 2.6vw, 18px)', boxShadow: ruleActive ? `0 0 0 4px ${T.accentSoft}` : '0 4px 14px -6px rgba(254,91,26,0.25)', transform: ruleActive ? 'scale(1.03)' : 'scale(1)', transition: 'all 0.3s ease' }}>
-          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{lang === 'ru' ? 'ПРАВИЛО' : 'QOIDA'}</span>
+          <span style={{ position: 'absolute', top: -11, left: 16, background: T.accent, color: '#fff', fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(10px, 1.5vw, 12px)', letterSpacing: '0.1em', padding: '3px 12px', borderRadius: 99 }}>{tri(lang, 'ПРАВИЛО', 'QOIDA', 'RULE')}</span>
           <p className="title" style={{ margin: 0, fontSize: 'clamp(16px, 2.5vw, 21px)', lineHeight: 1.35, color: T.ink }}>
-            {lang === 'ru' ? (
-              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
-            ) : (
+            {lang === 'uz' ? (
               <>Chapdan o'ngga o'qiymiz: <b style={{ color: '#fe5b1a' }}>o'nliklar</b> nomi, keyin <b style={{ color: '#019ACB' }}>birliklar</b> nomi.</>
+            ) : lang === 'en' ? (
+              <>We read from left to right: the name of the <b style={{ color: '#fe5b1a' }}>tens</b>, then the name of the <b style={{ color: '#019ACB' }}>ones</b>.</>
+            ) : (
+              <>Читаем слева направо: имя <b style={{ color: '#fe5b1a' }}>десятков</b>, потом имя <b style={{ color: '#019ACB' }}>единиц</b>.</>
             )}
           </p>
         </div>
@@ -4195,9 +4242,9 @@ const SeqMCPanel = ({ props, cKey, panelLabel, doneText, subs, cols = 4, fact = 
 
 // razryad savol-generatori: {tens, ones} figura + [to'g'ri, o'rin-almashgan, qo'shilgan, so'zma-so'z] variantlar.
 const RZ_WRONG = {
-  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar." },
-  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi." },
-  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas." }
+  swap: { ru: 'Здесь цифры переставлены. Слева десятки, справа единицы.', uz: "Bu yerda raqamlar o'rni almashgan. Chapda o'nliklar, o'ngda birliklar.", en: 'The digits are swapped here. Tens on the left, ones on the right.' },
+  sum: { ru: 'Это если сложить. А десятки и единицы стоят рядом, не складываются.', uz: "Bu — qo'shsak chiqadi. O'nlik va birlik yonma-yon turadi, qo'shilmaydi.", en: 'That is what you get by adding. But tens and ones stand side by side, they are not added.' },
+  lit: { ru: 'Слишком большое. Десятки — левая цифра, а не сотни.', uz: "Juda katta. O'nliklar — chap raqam, yuzlik emas.", en: 'Far too big. The left digit is the tens, not the hundreds.' }
 };
 const razryadSub = (tens, ones, order) => {
   const vals = [tens * 10 + ones, ones * 10 + tens, tens + ones, tens * 100 + ones];
@@ -4205,15 +4252,15 @@ const razryadSub = (tens, ones, order) => {
   const optTypes = order.map((oi) => types[oi]);
   return {
     figure: <CassBattViz tens={tens} ones={ones} small/>,
-    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?" },
+    q: { ru: 'Какое число на дисплее двигателя?', uz: "Dvigatel displeyida qaysi son?", en: 'Which number is on the engine display?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (RZ_WRONG[optTypes[i]] || RZ_WRONG.sum)[lg]
   };
 };
 // s10 — O'QISH paneli (Dars02): kod ko'rsatiladi, to'g'ri NOMni tanla (reversal + konkatenatsiya distraktori)
-const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"] };
-const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"] };
+const TENS_NM = { ru: ['', 'десять', 'двадцать', 'тридцать', 'сорок', 'пятьдесят', 'шестьдесят', 'семьдесят', 'восемьдесят', 'девяносто'], uz: ['', "o'n", 'yigirma', "o'ttiz", 'qirq', 'ellik', 'oltmish', 'yetmish', 'sakson', "to'qson"], en: ['', 'ten', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'] };
+const ONES_NM = { ru: ['', 'один', 'два', 'три', 'четыре', 'пять', 'шесть', 'семь', 'восемь', 'девять'], uz: ['', 'bir', 'ikki', 'uch', "to'rt", 'besh', 'olti', 'yetti', 'sakkiz', "to'qqiz"], en: ['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'] };
 const numName = (code, lg) => { const t = Math.floor(code / 10), o = code % 10; return TENS_NM[lg][t] + (o > 0 ? ' ' + ONES_NM[lg][o] : ''); };
 const concatNm = (code, lg) => ONES_NM[lg][Math.floor(code / 10)] + ' ' + ONES_NM[lg][code % 10];
 const MiniCode = ({ code }) => {
@@ -4227,8 +4274,8 @@ const MiniCode = ({ code }) => {
 };
 const NameOpt = ({ ru, uz }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(15px,2.4vw,19px)' }}>{t({ ru, uz })}</span>; };
 const READ_WRONG = {
-  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar." },
-  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi." }
+  swap: { ru: 'Место цифр решает: слева десятки, справа единицы.', uz: "Raqam o'rni hal qiladi: chapda o'nliklar, o'ngda birliklar.", en: 'The place of the digits decides: tens on the left, ones on the right.' },
+  concat: { ru: 'Читаем по разрядам, а не по цифрам: имя десятков и имя единиц.', uz: "Xonalab o'qiymiz, raqamlab emas: o'nlik nomi va birlik nomi.", en: 'We read by places, not digit by digit: the name of the tens and the name of the ones.' }
 };
 const readSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4237,14 +4284,14 @@ const readSub = (code, order) => {
   const types = ['correct', 'swap', 'concat'];
   return {
     figure: <MiniCode code={code}/>,
-    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?" },
+    q: { ru: 'Как читается код?', uz: "Kod qanday o'qiladi?", en: 'How is the code read?' },
     options: order.map((oi, i) => <NameOpt key={i} ru={defs[oi].ru} uz={defs[oi].uz}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (READ_WRONG[types[order[i]]] || READ_WRONG.swap)[lg]
   };
 };
-const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi' };
-const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz." };
+const S10_LABEL = { ru: 'Бортовой тест', uz: 'Bort testi', en: 'Ship test' };
+const S10_DONE = { ru: 'Отлично! Ты читаешь любой бортовой код.', uz: "Zo'r! Har qanday bort kodini o'qiysiz.", en: 'Excellent! You can read any ship code.' };
 const Screen10 = (props) => (
   <SeqMCPanel props={props} cKey="s10" panelLabel={S10_LABEL} doneText={S10_DONE} cols={1}
     subs={[readSub(63, [1, 0, 2]), readSub(52, [0, 2, 1]), readSub(47, [2, 1, 0]), readSub(74, [1, 2, 0])]}/>
@@ -4260,16 +4307,16 @@ const compareSub = (a, b) => ({
       <CassBattViz tens={Math.floor(b / 10)} ones={b % 10} small/>
     </div>
   ),
-  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?" },
+  q: { ru: 'В каком энергоблоке заряда больше?', uz: "Qaysi blokda quvvat ko'p?", en: 'Which power block has more charge?' },
   options: [<NumOpt v={a}/>, <NumOpt v={b}/>],
   correctIdx: a > b ? 0 : 1,
-  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p." }[lg])
+  wrongText: (i, lg) => ({ ru: 'Сначала сравни десятки: у кого их больше, в том энергоблоке заряда больше.', uz: "Avval o'nliklarni solishtiring: kimda ko'p, o'sha blokda quvvat ko'p.", en: 'First compare the tens. The block with more tens has more charge.' }[lg])
 });
 // s11 — YOZISH paneli (Dars02): nom ko'rsatiladi, to'g'ri KODni tanla (reversal + qo'shish distraktori)
 const NameFig = ({ code }) => { const t = useT(); return <span style={{ fontFamily: "'Source Serif 4', serif", fontWeight: 700, fontSize: 'clamp(24px,5vw,34px)', color: T.ink }}>{t({ ru: numName(code, 'ru'), uz: numName(code, 'uz') })}</span>; };
 const WRITE_WRONG = {
-  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring." },
-  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz." }
+  swap: { ru: 'Имя десятков ставим слева. Проверь порядок цифр.', uz: "O'nlik nomini chapga qo'ying. Raqamlar tartibini tekshiring.", en: 'The name of the tens goes on the left. Check the order of the digits.' },
+  sum: { ru: 'Не складываем: десятки и единицы пишем рядом.', uz: "Qo'shmaymiz: o'nlik va birlikni yonma-yon yozamiz.", en: 'We are not adding. Tens and ones are written side by side.' }
 };
 const writeSub = (code, order) => {
   const t = Math.floor(code / 10), o = code % 10;
@@ -4277,14 +4324,14 @@ const writeSub = (code, order) => {
   const types = ['correct', 'swap', 'sum'];
   return {
     figure: <NameFig code={code}/>,
-    q: { ru: 'Какой это код?', uz: "Bu qanday kod?" },
+    q: { ru: 'Какой это код?', uz: "Bu qanday kod?", en: 'Which code is this?' },
     options: order.map((oi, i) => <NumOpt key={i} v={vals[oi]}/>),
     correctIdx: order.indexOf(0),
     wrongText: (i, lg) => (WRITE_WRONG[types[order[i]]] || WRITE_WRONG.swap)[lg]
   };
 };
-const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish' };
-const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz." };
+const S11_LABEL = { ru: 'Запись кода', uz: 'Kodni yozish', en: 'Writing a code down' };
+const S11_DONE = { ru: 'Верно! Ты записываешь код по имени.', uz: "To'g'ri! Nom bo'yicha kodni yozasiz.", en: 'That is right! You can write a code from its name.' };
 const Screen11 = (props) => (
   <SeqMCPanel props={props} cKey="s11" panelLabel={S11_LABEL} doneText={S11_DONE} cols={3}
     subs={[writeSub(53, [1, 0, 2]), writeSub(48, [0, 2, 1]), writeSub(29, [2, 1, 0]), writeSub(61, [1, 2, 0])]}/>
@@ -4361,8 +4408,8 @@ const ScreenCase = (props) => {
 };
 
 // s14 — FINAL (scored, 4 ketma-ket razryad savol + FactCard): oxirgisi 47 (tablo).
-const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test' };
-const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz." };
+const S14_LABEL = { ru: 'Финальный тест', uz: 'Yakuniy test', en: 'Final test' };
+const S14_DONE = { ru: 'Тест пройден! Ты читаешь и пишешь любой бортовой код.', uz: "Test o'tdi! Har qanday bort kodini o'qiysiz va yozasiz.", en: 'Test passed! You can read and write any ship code.' };
 const Screen14 = (props) => {
   const c = CONTENT.s14;
   const t = useT();
@@ -4536,7 +4583,7 @@ const Screen15 = (props) => {
         </div>
         {/* Yakun sahnasi: Saturn konida kristallar teng ulashildi (12÷3=4) + ✓ */}
         <div className="fade-up delay-1">
-          <SaturnField label={{ ru: 'Разделено поровну', uz: 'Teng ulashildi' }}/>
+          <SaturnField label={{ ru: 'Разделено поровну', uz: 'Teng ulashildi', en: 'Shared equally' }}/>
         </div>
       </div>
     </Stage>
@@ -4547,14 +4594,14 @@ const Screen15 = (props) => {
 // DARS03 EKRANLARI (thin) — s5..s14: OmborRaf / CodeTablo + qayta ishlatiladigan Stage-lar
 // (Eski Dars02 Screen5..Screen14 tanаlari YUQORIDA dead-code — screens massivida ishlatilmaydi.)
 // ============================================================
-const LBL_T = { ru: 'десятки', uz: "o'nliklar" };
-const LBL_O = { ru: 'единицы', uz: 'birliklar' };
+const LBL_T = { ru: 'десятки', uz: "o'nliklar", en: 'tens' };
+const LBL_O = { ru: 'единицы', uz: 'birliklar', en: 'ones' };
 // ============================================================
 // DropColumnStage — Dars07 amaliyot mexanikasi: o'quvchi raqam-plitalarni bo'sh natija
 // katakchalariga SUDRAB (drag) yoki BOSIB (tap) qo'yadi. Ikkalasi to'g'ri bo'lsa —
 // столбик yechim bosqichma-bosqich animatsiya bilan ochiladi (birlik -> o'nlik).
 // ============================================================
-const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y" };
+const DROP_HINT = { ru: 'Перетащи цифры в пустые клетки', uz: "Raqamlarni bo'sh katakchalarga sudrab qo'y", en: 'Drag the digits into the empty boxes' };
 const D8_TILE = { display: 'flex', alignItems: 'center', justifyContent: 'center', width: 'clamp(40px,9vw,54px)', height: 'clamp(48px,10vw,62px)', borderRadius: 12, fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(24px,5.4vw,34px)', background: 'linear-gradient(180deg,#ffffff,#EEF2F6)', border: '2px solid #B9C4D2', color: T.ink, boxShadow: '0 3px 8px -3px rgba(0,0,0,0.3)', cursor: 'grab', touchAction: 'none', userSelect: 'none' };
 const d8Shuffle = (arr, seed) => {
   const a = [...arr]; let s = (seed + 1) * 9301 + 49297;
@@ -4864,7 +4911,7 @@ const uniqOpts = (correct, cands, seed) => {
   return arr.map((v) => ({ v, ok: v === correct }));
 };
 const arrayOpts = (r, c, seed) => uniqOpts(r * c, [r + c, r * c - c, r * c + c, r * c - 1], seed);
-const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?' };
+const ARR_Q = { ru: 'Сколько всего?', uz: 'Jami nechta?', en: 'How many in all?' };
 const ARR_OPT = { padding: 'clamp(10px,1.7vw,13px)', fontSize: 'clamp(20px,4vw,28px)', fontWeight: 800, fontFamily: "'JetBrains Mono', monospace", minHeight: 'clamp(46px,7vw,56px)', display: 'flex', alignItems: 'center', justifyContent: 'center' };
 // KO'PAYTIRISH JADVALI (yordamchi) — 1..max × 1..max. O'quvchi hali jadvalни bilmaydi, shuning uchun
 // har test slaydidа ochib ishlata oladi (metodist 2026-07-15). Kichik (1–6) — birinchi dars uchun.
@@ -4894,8 +4941,8 @@ const MultTable = ({ max = 6, hr = 0, hc = 0, hres = false }) => {
     </div>
   );
 };
-const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali" };
-const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish' };
+const TBL_SHOW = { ru: 'Таблица умножения', uz: "Ko'paytirish jadvali", en: 'The multiplication table' };
+const TBL_HIDE = { ru: 'Скрыть таблицу', uz: 'Jadvalni yashirish', en: 'Hide the table' };
 
 // ============================================================
 // «BO'LISH» MEXANIKASI (Dars19, Б4 SATURN — metodist tanlagan ikki mexanika):
@@ -5024,8 +5071,8 @@ const FamilyViz = ({ a, b, reveal = 2, blankBy = null, solved = false }) => {
 };
 // bo'linma MC — distraktor = misconception: total−div (ayirish), div (belgi chalkash), ±1.
 const quotOpts = (total, div, seed) => uniqOpts(total / div, [total - div, div, total / div + 1, total / div - 1], seed);
-const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?' };
-const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?' };
+const DEAL_Q = { ru: 'Сколько каждому?', uz: 'Har biriga nechta?', en: 'How many each?' };
+const GRP_Q = { ru: 'Сколько групп?', uz: 'Nechta guruh?', en: 'How many groups?' };
 // DealStage — TENG ULASHISH mashqi (single yoki rounds). cKey: s5/s7/s9/s11/s13.
 const DealStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
@@ -5294,7 +5341,7 @@ const ArrayStage = ({ props, cKey, fact = false, variant = 'geo' }) => {
 //  DivTableRow/DivTableFillStage — ÷by jadval-qatori (by·n ÷ by = n), bo'sh katakni MC bilan to'ldirish.
 //  DivTable — sTBL: ÷2 va ÷3 to'liq jadvali. Distraktor quotOpts (ayirish-xato ham).
 // ============================================================
-const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?' };
+const NLB_Q = { ru: 'Сколько прыжков назад?', uz: 'Orqaga nechta sakrash?', en: 'How many jumps back?' };
 // reveal>=2 da: nuqta BOSHIDAN (total) 0 gacha birma-bir SEKIN sakrab boradi; har sakragan yoy chiziladi.
 const NumberLineBackViz = ({ total, step, reveal = 0 }) => {
   const count = total / step;
@@ -5423,7 +5470,7 @@ const DivTableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }
     </div>
   );
 };
-const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const DTFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 const DivTableFillStage = ({ props, cKey }) => {
   const lang = useLang(); const t = useT(); const sfx = useSfx();
   const c = CONTENT[cKey];
@@ -5497,7 +5544,7 @@ const DivTable = () => (
 //  FamilyFindStage — oilaning BO'SH ÷ a'zosini top (MC). FamilyViz blankBy bilan; quotOpts distraktor.
 //  MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap-tanlash: chap × → o'ng ÷).
 // ============================================================
-const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?" };
+const FAM_Q = { ru: 'Что пропало в семье?', uz: "Oilada nima yo'qoldi?", en: 'What is missing from the family?' };
 const FamilyFindStage = ({ props, cKey, fact = false }) => {
   const lang = useLang();
   const t = useT();
@@ -5586,7 +5633,7 @@ const FamilyFindStage = ({ props, cKey, fact = false }) => {
   );
 };
 // MatchStage — × faktni bir oiladagi ÷ faktiga MOSLASH (tap: chap × → o'ng ÷). p÷a = b (mahsulot bo'yicha mos).
-const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi" };
+const MATCH_HINT = { ru: 'Протяни ниточку от умножения к его делению — откроется люк', uz: "Simni ko'paytirishdan uning bo'lishiga tort — lyuk ochiladi", en: 'Draw a thread from a multiplication to its division and the hatch will open' };
 const MATCH_COLORS = ['#5FC7E8', '#F2A23A', '#7F4FD0', '#E8863A'];
 const MCELL = { fontFamily: "'JetBrains Mono', monospace", fontWeight: 800, fontSize: 'clamp(15px,3.2vw,22px)', padding: '0 clamp(6px,1.4vw,12px)', height: '100%', minHeight: 'clamp(42px,7vw,54px)', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: 12, cursor: 'pointer', transition: 'all .2s' };
 // MatchDoor — ko'p-etapli LYUK: har to'g'ri juft bitta panelni yuqoriga suradi; hammasi ochilsa kristallar + koinot ko'rinadi.
@@ -5806,7 +5853,7 @@ const TableRow = ({ by, upto = 6, fill = upto, blankIdx = 0, solved = false }) =
   );
 };
 const tableFillOpts = (by, blank, seed) => uniqOpts(by * blank, [by * (blank - 1), by * (blank + 1), by * blank + 1, by * blank - 1], seed);
-const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?" };
+const TFILL_Q = { ru: 'Что в пустой клетке?', uz: "Bo'sh katakda nima?", en: 'What goes in the empty box?' };
 // TableFillStage — skip-sanash qatorining bo'sh katagini MC bilan to'ldirish (s6/s8/s10).
 const TableFillStage = ({ props, cKey }) => {
   const lang = useLang();
@@ -5894,8 +5941,8 @@ const TableFillStage = ({ props, cKey }) => {
 // COMMUTE MEXANIKASI — «TENG?»: ikki ko'paytma (a×b va e×f) yonma-yon massiv bilan; teng bo'ladimi?
 // O'rin almashish (a×b = b×a) → Ha; sonlar boshqa (masalan 3×5 va 5×4) → Yo'q. Ha/Yo'q tanlov.
 // ============================================================
-const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng' }, no: { ru: 'Нет', uz: "Yo'q" } };
-const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?' };
+const YESNO = { yes: { ru: 'Да, равны', uz: 'Ha, teng', en: 'Yes, they are equal' }, no: { ru: 'Нет', uz: "Yo'q", en: 'No' } };
+const COMMUTE_Q = { ru: 'Эти два равны?', uz: 'Bu ikkalasi teng bo\'ladimi?', en: 'Are these two equal?' };
 const CommuteStage = ({ props, cKey }) => {
   const lang = useLang();
   const t = useT();
@@ -6748,7 +6795,7 @@ export default function RazryadLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#fe5b1a' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

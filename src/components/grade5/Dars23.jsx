@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -605,12 +631,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -731,7 +757,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -751,8 +777,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Personajsiz hook (nega-ramka); case Nilufar (lenta), yakuniy Saida (masofa). Drag: mixfill + dragbin(3-savat).
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac_5_15',
-  lessonTitle: { ru: 'Сложение и вычитание смешанных чисел', uz: "Aralash sonlarni qo'shish va ayirish" }
+  lessonId: 'grade5-23',
+  lessonTitle: { ru: 'Сложение и вычитание смешанных чисел', uz: "Aralash sonlarni qo'shish va ayirish", en: 'Adding and subtracting mixed numbers' }
 };
 const TOTAL_SCREENS = 12;
 
@@ -775,54 +801,54 @@ const SCREEN_META = [
 const CONTENT = {
   // ===== s0 HOOK (konseptual, personajsiz): javobda 4/3 qolsa nega butunga ajratamiz? =====
   s0: {
-    eyebrow: { ru: 'Вопрос', uz: "Savol" },
-    title: { ru: 'В ответе осталось 4/3. Это конец?', uz: "Javobda 4/3 qoldi. Bu oxirimi?" },
-    lead: { ru: 'Сложили 1 2/3 + 2 2/3 и получили 3 целых и 4/3.', uz: "1 2/3 + 2 2/3 ni qo'shib, 3 butun va 4/3 hosil qildik." },
-    question: { ru: '4/3 — это меньше одного целого или больше?', uz: "4/3 — bir butundan kam yoki ko'pmi?" },
-    opt0: { ru: 'Больше: 4/3 = 1 целый и 1/3, его выделяют → 4 1/3', uz: "Ko'p: 4/3 = 1 butun va 1/3, uni ajratamiz → 4 1/3" },
-    opt1: { ru: 'Ровно или меньше: 3 4/3 — это и есть ответ', uz: "Teng yoki kam: 3 4/3 — bu javobning o'zi" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    reveal0: { ru: 'Верно. В 4/3 умещается одно целое (3/3) и ещё 1/3. Его выделяют: 3 + 1 1/3 = 4 1/3.', uz: "To'g'ri. 4/3 ichida bitta butun (3/3) va yana 1/3 bor. Uni ajratamiz: 3 + 1 1/3 = 4 1/3." },
-    reveal1: { ru: 'Так оставлять нельзя. 4/3 больше одного целого, поэтому ответ ещё не готов — нужно выделить целое.', uz: "Bunday qoldirib bo'lmaydi. 4/3 bir butundan ko'p, shuning uchun javob hali tayyor emas — butunni ajratish kerak." },
-    reveal2: { ru: 'Посмотрим на плитках, что такое 4/3.', uz: "4/3 nimaligini plitkalarda ko'ramiz." },
-    audio: { ru: 'Сложили одну целую две третьих и две целых две третьих, получилось три целых и четыре третьих. Четыре третьих больше одного целого, ведь три третьих это уже целое. Как думаешь, такой ответ готов? Выбери ответ.', uz: "Bir butun uchdan ikki va ikki butun uchdan ikkini qo'shib, uch butun va uchdan to'rt hosil qildik. Uchdan to'rt bir butundan ko'p, chunki uchdan uch allaqachon bitta butun. Sizningcha, bunday javob tayyormi? Javobni tanlang." }
+    eyebrow: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    title: { ru: 'В ответе осталось 4/3. Это конец?', uz: "Javobda 4/3 qoldi. Bu oxirimi?", en: 'The answer still has 4/3 in it. Is that finished?' },
+    lead: { ru: 'Сложили 1 2/3 + 2 2/3 и получили 3 целых и 4/3.', uz: "1 2/3 + 2 2/3 ni qo'shib, 3 butun va 4/3 hosil qildik.", en: 'We added 1 2/3 + 2 2/3 and got 3 wholes and 4/3.' },
+    question: { ru: '4/3 — это меньше одного целого или больше?', uz: "4/3 — bir butundan kam yoki ko'pmi?", en: 'Is 4/3 less than one whole or more?' },
+    opt0: { ru: 'Больше: 4/3 = 1 целый и 1/3, его выделяют → 4 1/3', uz: "Ko'p: 4/3 = 1 butun va 1/3, uni ajratamiz → 4 1/3", en: 'More: 4/3 = 1 whole and 1/3, which is taken out, giving 4 1/3' },
+    opt1: { ru: 'Ровно или меньше: 3 4/3 — это и есть ответ', uz: "Teng yoki kam: 3 4/3 — bu javobning o'zi", en: 'Equal or less: 3 4/3 is the answer' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    reveal0: { ru: 'Верно. В 4/3 умещается одно целое (3/3) и ещё 1/3. Его выделяют: 3 + 1 1/3 = 4 1/3.', uz: "To'g'ri. 4/3 ichida bitta butun (3/3) va yana 1/3 bor. Uni ajratamiz: 3 + 1 1/3 = 4 1/3.", en: 'That is right. 4/3 holds one whole (3/3) and 1/3 more. It is taken out: 3 + 1 1/3 = 4 1/3.' },
+    reveal1: { ru: 'Так оставлять нельзя. 4/3 больше одного целого, поэтому ответ ещё не готов — нужно выделить целое.', uz: "Bunday qoldirib bo'lmaydi. 4/3 bir butundan ko'p, shuning uchun javob hali tayyor emas — butunni ajratish kerak.", en: 'It cannot be left like that. 4/3 is more than one whole, so the answer is not finished, the whole has to be taken out.' },
+    reveal2: { ru: 'Посмотрим на плитках, что такое 4/3.', uz: "4/3 nimaligini plitkalarda ko'ramiz.", en: 'Let us look at the tiles and see what 4/3 is.' },
+    audio: { ru: 'Сложили одну целую две третьих и две целых две третьих, получилось три целых и четыре третьих. Четыре третьих больше одного целого, ведь три третьих это уже целое. Как думаешь, такой ответ готов? Выбери ответ.', uz: "Bir butun uchdan ikki va ikki butun uchdan ikkini qo'shib, uch butun va uchdan to'rt hosil qildik. Uchdan to'rt bir butundan ko'p, chunki uchdan uch allaqachon bitta butun. Sizningcha, bunday javob tayyormi? Javobni tanlang.", en: 'We added one and two thirds and two and two thirds, and got three wholes and four thirds. Four thirds is more than one whole, because three thirds is already a whole. Do you think that answer is finished? Choose an answer.' }
   },
 
   // ===== s1 WARM-UP (QuestionScreen): noto'g'ri kasrni aralash songa (prereq frac_5_14) =====
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: "Eslab olamiz" },
-    title: { ru: 'Сначала вспомним один приём', uz: "Avval bitta usulni eslaymiz" },
-    question: { ru: '7/4 — переведи в смешанное число.', uz: "7/4 ni aralash songa aylantiring." },
-    opt0: { ru: '1 3/4', uz: '1 3/4' },
-    opt1: { ru: '1 1/4', uz: '1 1/4' },
-    opt2: { ru: '3 1/4', uz: '3 1/4' },
-    opt3: { ru: '7/4 — уже готово', uz: "7/4 — tayyor" },
-    correct_text: { ru: 'Верно. В 7 четвёртых одно целое (4/4) и остаток 3/4. Значит 7/4 = 1 3/4.', uz: "To'g'ri. 7 ta to'rtdan birda bitta butun (4/4) va qoldiq 3/4 bor. Demak 7/4 = 1 3/4." },
-    wrong_1: { ru: 'Пересчитай остаток: из 7 убрали 4 (одно целое), осталось 3 — это 3/4.', uz: "Qoldiqni qayta sanang: 7 dan 4 ni oldik (bir butun), 3 qoldi — bu 3/4." },
-    wrong_2: { ru: 'Целая часть — это сколько раз 4 умещается в 7. Это один раз, не три.', uz: "Butun qism — 4 ning 7 ichiga necha marta sig'ishi. Bu bir marta, uch emas." },
-    wrong_3: { ru: '7/4 — неправильная дробь, числитель больше знаменателя. Её выделяют в целое и остаток.', uz: "7/4 — noto'g'ri kasr, surati maxrajidan katta. Uni butun va qoldiqqa ajratamiz." },
-    wrong_default: { ru: 'Раздели 7 на 4: целое — один, остаток — 3, то есть 3/4.', uz: "7 ni 4 ga bo'ling: butun — bir, qoldiq — 3, ya'ni 3/4." },
-    audio_hint_1: { ru: 'Пересчитай остаток, целая часть один.', uz: "Qoldiqni qayta sanang, butun qismi bir." },
-    audio_hint_2: { ru: 'Целая часть один, остаток возьми в дробь.', uz: "Butun qismi bir, qoldiqni kasrga oling." },
-    audio_hint_3: { ru: 'Это неправильная дробь, её надо выделить в смешанное число.', uz: "Bu noto'g'ri kasr, uni aralash songa ajratish kerak." },
+    eyebrow: { ru: 'Вспомним', uz: "Eslab olamiz", en: 'Let us remember' },
+    title: { ru: 'Сначала вспомним один приём', uz: "Avval bitta usulni eslaymiz", en: 'First let us remember one trick' },
+    question: { ru: '7/4 — переведи в смешанное число.', uz: "7/4 ni aralash songa aylantiring.", en: 'Turn 7/4 into a mixed number.' },
+    opt0: { ru: '1 3/4', uz: '1 3/4', en: '1 3/4' },
+    opt1: { ru: '1 1/4', uz: '1 1/4', en: '1 1/4' },
+    opt2: { ru: '3 1/4', uz: '3 1/4', en: '3 1/4' },
+    opt3: { ru: '7/4 — уже готово', uz: "7/4 — tayyor", en: '7/4 is already finished' },
+    correct_text: { ru: 'Верно. В 7 четвёртых одно целое (4/4) и остаток 3/4. Значит 7/4 = 1 3/4.', uz: "To'g'ri. 7 ta to'rtdan birda bitta butun (4/4) va qoldiq 3/4 bor. Demak 7/4 = 1 3/4.", en: 'That is right. 7 quarters holds one whole (4/4) with 3/4 left over. So 7/4 = 1 3/4.' },
+    wrong_1: { ru: 'Пересчитай остаток: из 7 убрали 4 (одно целое), осталось 3 — это 3/4.', uz: "Qoldiqni qayta sanang: 7 dan 4 ni oldik (bir butun), 3 qoldi — bu 3/4.", en: 'Work out the remainder again: 4 was taken from the 7 (one whole) leaving 3, which is 3/4.' },
+    wrong_2: { ru: 'Целая часть — это сколько раз 4 умещается в 7. Это один раз, не три.', uz: "Butun qism — 4 ning 7 ichiga necha marta sig'ishi. Bu bir marta, uch emas.", en: 'The whole number part is how many times 4 fits into 7. That is once, not three times.' },
+    wrong_3: { ru: '7/4 — неправильная дробь, числитель больше знаменателя. Её выделяют в целое и остаток.', uz: "7/4 — noto'g'ri kasr, surati maxrajidan katta. Uni butun va qoldiqqa ajratamiz.", en: '7/4 is an improper fraction, the numerator is bigger than the denominator. It is split into a whole and a remainder.' },
+    wrong_default: { ru: 'Раздели 7 на 4: целое — один, остаток — 3, то есть 3/4.', uz: "7 ni 4 ga bo'ling: butun — bir, qoldiq — 3, ya'ni 3/4.", en: 'Divide 7 by 4: the whole number is one and the remainder is 3, that is 3/4.' },
+    audio_hint_1: { ru: 'Пересчитай остаток, целая часть один.', uz: "Qoldiqni qayta sanang, butun qismi bir.", en: 'Work out the remainder again, the whole number part is one.' },
+    audio_hint_2: { ru: 'Целая часть один, остаток возьми в дробь.', uz: "Butun qismi bir, qoldiqni kasrga oling.", en: 'The whole number part is one, and the remainder goes into the fraction.' },
+    audio_hint_3: { ru: 'Это неправильная дробь, её надо выделить в смешанное число.', uz: "Bu noto'g'ri kasr, uni aralash songa ajratish kerak.", en: 'That is an improper fraction, it has to be turned into a mixed number.' },
     audio: {
-      intro: { ru: 'Чтобы складывать смешанные числа, пригодится этот приём. Переведи семь четвёртых в смешанное число. Выбери ответ.', uz: "Aralash sonlarni qo'shish uchun shu usul kerak bo'ladi. Yettidan to'rtni aralash songa aylantiring. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Одно целое и три четвёртых.', uz: "To'g'ri. Bir butun va to'rtdan uch." },
-      on_wrong: { ru: 'Не совсем. Раздели семь на четыре: целое один, остаток три.', uz: "Unchalik emas. Yettini to'rtga bo'ling: butun bir, qoldiq uch." }
+      intro: { ru: 'Чтобы складывать смешанные числа, пригодится этот приём. Переведи семь четвёртых в смешанное число. Выбери ответ.', uz: "Aralash sonlarni qo'shish uchun shu usul kerak bo'ladi. Yettidan to'rtni aralash songa aylantiring. Javobni tanlang.", en: 'This trick will be useful for adding mixed numbers. Turn seven quarters into a mixed number. Choose an answer.' },
+      on_correct: { ru: 'Верно. Одно целое и три четвёртых.', uz: "To'g'ri. Bir butun va to'rtdan uch.", en: 'That is right. One whole and three quarters.' },
+      on_wrong: { ru: 'Не совсем. Раздели семь на четыре: целое один, остаток три.', uz: "Unchalik emas. Yettini to'rtga bo'ling: butun bir, qoldiq uch.", en: 'Not quite. Divide seven by four: the whole number is one and the remainder is three.' }
     }
   },
 
   // ===== s2 EXPLORATION (step): qo'shish + ko'chirish, 1 2/3 + 2 2/3 = 4 1/3 =====
   s2: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Складываем: целые с целыми, доли с долями', uz: "Qo'shamiz: butunni butunga, ulushni ulushga" },
-    lead: { ru: '1 2/3 + 2 2/3. Соберём по частям и посмотрим, где спрятано целое.', uz: "1 2/3 + 2 2/3. Bo'laklab yig'amiz va butun qayerda yashiringanini ko'ramiz." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А вычитание?', uz: "Tushunarli. Ayirish-chi?" },
-    cap1: { ru: 'Целые: 1 + 2 = 3.', uz: "Butunlar: 1 + 2 = 3." },
-    cap2: { ru: 'Доли: 2/3 + 2/3 = 4/3. Это больше целого.', uz: "Ulushlar: 2/3 + 2/3 = 4/3. Bu butundan ko'p." },
-    cap3: { ru: 'Выделяем целое: 4/3 = 1 1/3. Прибавили к 3 → 4 1/3.', uz: "Butunni ajratamiz: 4/3 = 1 1/3. 3 ga qo'shdik → 4 1/3." },
-    result: { ru: '1 2/3 + 2 2/3 = 4 1/3', uz: "1 2/3 + 2 2/3 = 4 1/3" },
+    eyebrow: { ru: 'Разбор', uz: "Tahlil", en: 'Working it out' },
+    title: { ru: 'Складываем: целые с целыми, доли с долями', uz: "Qo'shamiz: butunni butunga, ulushni ulushga", en: 'Adding: wholes with wholes and parts with parts' },
+    lead: { ru: '1 2/3 + 2 2/3. Соберём по частям и посмотрим, где спрятано целое.', uz: "1 2/3 + 2 2/3. Bo'laklab yig'amiz va butun qayerda yashiringanini ko'ramiz.", en: '1 2/3 + 2 2/3. Let us put it together piece by piece and see where a whole is hidden.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А вычитание?', uz: "Tushunarli. Ayirish-chi?", en: 'Got it. And subtracting?' },
+    cap1: { ru: 'Целые: 1 + 2 = 3.', uz: "Butunlar: 1 + 2 = 3.", en: 'The wholes: 1 + 2 = 3.' },
+    cap2: { ru: 'Доли: 2/3 + 2/3 = 4/3. Это больше целого.', uz: "Ulushlar: 2/3 + 2/3 = 4/3. Bu butundan ko'p.", en: 'The parts: 2/3 + 2/3 = 4/3. That is more than a whole.' },
+    cap3: { ru: 'Выделяем целое: 4/3 = 1 1/3. Прибавили к 3 → 4 1/3.', uz: "Butunni ajratamiz: 4/3 = 1 1/3. 3 ga qo'shdik → 4 1/3.", en: 'We take out the whole: 4/3 = 1 1/3. Added to the 3 that gives 4 1/3.' },
+    result: { ru: '1 2/3 + 2 2/3 = 4 1/3', uz: "1 2/3 + 2 2/3 = 4 1/3", en: '1 2/3 + 2 2/3 = 4 1/3' },
     audio: {
       ru: [
         'Складываем одну целую две третьих и две целых две третьих. Нажимай кнопку дальше.',
@@ -835,21 +861,22 @@ const CONTENT = {
         "Avval butunlarni qo'shamiz: bir va ikki, uch butun.",
         "Endi ulushlarni: uchdan ikki va uchdan ikki, uchdan to'rt. Bu bir butundan ko'p, chunki uchdan uch allaqachon butun.",
         "Butunni ajratamiz: uchdan to'rt bu bir butun va uchdan bir. Uchga qo'shamiz, to'rt butun uchdan bir hosil bo'ladi."
-      ]
+      ],
+      en: ['Let us add one and two thirds to two and two thirds. Tap the next button.', 'First we add the wholes: one and two make three wholes.', 'Now the parts: two thirds and two thirds make four thirds. That is more than one whole, because three thirds is already a whole.', 'We take out the whole: four thirds is one whole and one third. Added to the three that gives four and one third.']
     }
   },
 
   // ===== s3 EXPLORATION (step): ayirish + qarz olish, 3 1/4 − 1 3/4 = 1 2/4 =====
   s3: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Вычитаем: иногда нужно занять у целого', uz: "Ayiramiz: ba'zan butundan qarz olamiz" },
-    lead: { ru: '3 1/4 − 1 3/4. Из 1/4 нельзя вычесть 3/4 — займём одно целое.', uz: "3 1/4 − 1 3/4. 1/4 dan 3/4 ni ayirib bo'lmaydi — bitta butunni qarzga olamiz." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А разные знаменатели?', uz: "Tushunarli. Har xil maxraj-chi?" },
-    cap1: { ru: 'Беда: 1/4 меньше 3/4, верхней доли не хватает.', uz: "Muammo: 1/4 dan 3/4 kichik, yuqori ulush yetmaydi." },
-    cap2: { ru: 'Занимаем целое: оно ломается на 4 доли. 3 1/4 = 2 5/4.', uz: "Butunni qarzga olamiz: u 4 ulushga sinadi. 3 1/4 = 2 5/4." },
-    cap3: { ru: 'Теперь вычитаем: 2 − 1 = 1, 5/4 − 3/4 = 2/4. Ответ 1 2/4.', uz: "Endi ayiramiz: 2 − 1 = 1, 5/4 − 3/4 = 2/4. Javob 1 2/4." },
-    result: { ru: '3 1/4 − 1 3/4 = 1 2/4', uz: "3 1/4 − 1 3/4 = 1 2/4" },
+    eyebrow: { ru: 'Разбор', uz: "Tahlil", en: 'Working it out' },
+    title: { ru: 'Вычитаем: иногда нужно занять у целого', uz: "Ayiramiz: ba'zan butundan qarz olamiz", en: 'Subtracting: sometimes you have to borrow from a whole' },
+    lead: { ru: '3 1/4 − 1 3/4. Из 1/4 нельзя вычесть 3/4 — займём одно целое.', uz: "3 1/4 − 1 3/4. 1/4 dan 3/4 ni ayirib bo'lmaydi — bitta butunni qarzga olamiz.", en: '3 1/4 − 1 3/4. 3/4 cannot be taken from 1/4, so let us borrow one whole.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А разные знаменатели?', uz: "Tushunarli. Har xil maxraj-chi?", en: 'Got it. And different denominators?' },
+    cap1: { ru: 'Беда: 1/4 меньше 3/4, верхней доли не хватает.', uz: "Muammo: 1/4 dan 3/4 kichik, yuqori ulush yetmaydi.", en: 'Trouble: 1/4 is less than 3/4, so there are not enough parts on top.' },
+    cap2: { ru: 'Занимаем целое: оно ломается на 4 доли. 3 1/4 = 2 5/4.', uz: "Butunni qarzga olamiz: u 4 ulushga sinadi. 3 1/4 = 2 5/4.", en: 'We borrow a whole and it breaks into 4 parts. 3 1/4 = 2 5/4.' },
+    cap3: { ru: 'Теперь вычитаем: 2 − 1 = 1, 5/4 − 3/4 = 2/4. Ответ 1 2/4.', uz: "Endi ayiramiz: 2 − 1 = 1, 5/4 − 3/4 = 2/4. Javob 1 2/4.", en: 'Now we subtract: 2 − 1 = 1 and 5/4 − 3/4 = 2/4. The answer is 1 2/4.' },
+    result: { ru: '3 1/4 − 1 3/4 = 1 2/4', uz: "3 1/4 − 1 3/4 = 1 2/4", en: '3 1/4 − 1 3/4 = 1 2/4' },
     audio: {
       ru: [
         'Вычитаем из трёх целых одной четвёртой одну целую три четвёртых. Нажимай кнопку дальше.',
@@ -862,21 +889,22 @@ const CONTENT = {
         "Qarang: to'rtdan birdan to'rtdan uchni ayirib bo'lmaydi, yuqori ulush yetmaydi.",
         "Bitta butunni qarzga olamiz. U to'rt ulushga sinadi. Endi uch butun to'rtdan bir bu ikki butun to'rtdan besh.",
         "Ayiramiz: ikki minus bir, bir butun, to'rtdan besh minus to'rtdan uch, to'rtdan ikki. Bir butun to'rtdan ikki hosil bo'ladi."
-      ]
+      ],
+      en: ['Let us take one and three quarters away from three and one quarter. Tap the next button.', 'Look: three quarters cannot be taken from one quarter, there are not enough parts on top.', 'We borrow one whole and it breaks into four parts. Now three and one quarter is two and five quarters.', 'We subtract: two take away one is one whole, and five quarters take away three quarters is two quarters. That gives one and two quarters.']
     }
   },
 
   // ===== s4 EXPLORATION (step): har xil maxraj, 1 1/2 + 2 1/3 = 3 5/6 =====
   s4: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Разные знаменатели — сначала уравняем доли', uz: "Maxrajlar har xil — avval ulushlarni tenglashtiramiz" },
-    lead: { ru: '1 1/2 + 2 1/3. Доли разного размера, приведём к одному знаменателю.', uz: "1 1/2 + 2 1/3. Ulushlar har xil o'lchamda, bir maxrajga keltiramiz." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно. А правило?', uz: "Tushunarli. Qoida-chi?" },
-    cap1: { ru: 'Общий знаменатель 6: 1/2 = 3/6, 1/3 = 2/6.', uz: "Umumiy maxraj 6: 1/2 = 3/6, 1/3 = 2/6." },
-    cap2: { ru: 'Целые: 1 + 2 = 3. Доли: 3/6 + 2/6 = 5/6.', uz: "Butunlar: 1 + 2 = 3. Ulushlar: 3/6 + 2/6 = 5/6." },
-    cap3: { ru: 'Ответ 3 5/6. Здесь целое выделять не нужно: 5/6 меньше целого.', uz: "Javob 3 5/6. Bu yerda butunni ajratish shart emas: 5/6 butundan kam." },
-    result: { ru: '1 1/2 + 2 1/3 = 3 5/6', uz: "1 1/2 + 2 1/3 = 3 5/6" },
+    eyebrow: { ru: 'Разбор', uz: "Tahlil", en: 'Working it out' },
+    title: { ru: 'Разные знаменатели — сначала уравняем доли', uz: "Maxrajlar har xil — avval ulushlarni tenglashtiramiz", en: 'Different denominators, so first let us make the parts equal' },
+    lead: { ru: '1 1/2 + 2 1/3. Доли разного размера, приведём к одному знаменателю.', uz: "1 1/2 + 2 1/3. Ulushlar har xil o'lchamda, bir maxrajga keltiramiz.", en: '1 1/2 + 2 1/3. The parts are different sizes, so let us give them the same denominator.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно. А правило?', uz: "Tushunarli. Qoida-chi?", en: 'Got it. And the rule?' },
+    cap1: { ru: 'Общий знаменатель 6: 1/2 = 3/6, 1/3 = 2/6.', uz: "Umumiy maxraj 6: 1/2 = 3/6, 1/3 = 2/6.", en: 'The common denominator is 6: 1/2 = 3/6 and 1/3 = 2/6.' },
+    cap2: { ru: 'Целые: 1 + 2 = 3. Доли: 3/6 + 2/6 = 5/6.', uz: "Butunlar: 1 + 2 = 3. Ulushlar: 3/6 + 2/6 = 5/6.", en: 'The wholes: 1 + 2 = 3. The parts: 3/6 + 2/6 = 5/6.' },
+    cap3: { ru: 'Ответ 3 5/6. Здесь целое выделять не нужно: 5/6 меньше целого.', uz: "Javob 3 5/6. Bu yerda butunni ajratish shart emas: 5/6 butundan kam.", en: 'The answer is 3 5/6. No whole needs taking out here, because 5/6 is less than a whole.' },
+    result: { ru: '1 1/2 + 2 1/3 = 3 5/6', uz: "1 1/2 + 2 1/3 = 3 5/6", en: '1 1/2 + 2 1/3 = 3 5/6' },
     audio: {
       ru: [
         'Складываем одну целую одну вторую и две целых одну третью. Доли разного размера. Нажимай кнопку дальше.',
@@ -889,221 +917,222 @@ const CONTENT = {
         "Umumiy maxraj olti. Ikkidan bir bu oltidan uch, uchdan bir bu oltidan ikki.",
         "Endi bo'laklab: butunlar bir va ikki, uch. Ulushlar oltidan uch va oltidan ikki, oltidan besh.",
         "Uch butun oltidan besh hosil bo'ladi. Butunni ajratish shart emas, chunki oltidan besh bir butundan kam."
-      ]
+      ],
+      en: ['Let us add one and one half to two and one third. The parts are different sizes. Tap the next button.', 'The common denominator is six. One half is three sixths and one third is two sixths.', 'Now piece by piece: the wholes one and two make three, and the parts three sixths and two sixths make five sixths.', 'That gives three and five sixths. No whole needs taking out, because five sixths is less than one whole.']
     }
   },
 
   // ===== s5 RULE + 2-usul =====
   s5: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    heading: { ru: 'Как складывать и вычитать смешанные числа', uz: "Aralash sonlarni qo'shish va ayirish" },
-    bridge: { ru: 'Мы увидели это на плитках. Теперь соберём в правило.', uz: "Buni plitkalarda ko'rdik. Endi qoidaga yig'amiz." },
-    rule_label: { ru: 'Запомни', uz: "Yodda tuting" },
-    rule_1: { ru: 'Если знаменатели разные — сначала приведи доли к общему знаменателю.', uz: "Maxrajlar har xil bo'lsa — avval ulushlarni umumiy maxrajga keltiring." },
-    rule_2: { ru: 'Целые складывай (вычитай) с целыми, доли — с долями.', uz: "Butunlarni butun bilan, ulushlarni ulush bilan qo'shing yoki ayiring." },
-    rule_3: { ru: 'При сложении доли стали больше целого — выдели одно целое (перенос).', uz: "Qo'shganda ulush butundan oshsa — bitta butunni ajrating (ko'chirish)." },
-    rule_4: { ru: 'При вычитании верхней доли не хватает — займи одно целое у целой части.', uz: "Ayirganda yuqori ulush yetmasa — butun qismdan bitta butunni qarzga oling." },
-    warn_label: { ru: 'Две частые ошибки', uz: "Ikki tez-tez uchraydigan xato" },
-    warn: { ru: 'Оставить в ответе неправильную дробь, например 4/3, и не занять у целого при вычитании.', uz: "Javobda noto'g'ri kasrni, masalan 4/3 ni qoldirib ketish va ayirishda butundan qarz olmaslik." },
-    second_label: { ru: 'Второй способ', uz: "Ikkinchi usul" },
-    second: { ru: 'Можно перевести в неправильные дроби: 1 2/3 = 5/3, 2 2/3 = 8/3, тогда 5/3 + 8/3 = 13/3 = 4 1/3.', uz: "Noto'g'ri kasrga aylantirib ham yechsa bo'ladi: 1 2/3 = 5/3, 2 2/3 = 8/3, demak 5/3 + 8/3 = 13/3 = 4 1/3." },
-    audio: { ru: 'Запомни. Если знаменатели разные, сначала приводим доли к общему знаменателю. Дальше целые складываем или вычитаем с целыми, а доли с долями. Если при сложении доли стали больше целого, выделяем одно целое. Если при вычитании верхней доли не хватает, занимаем одно целое у целой части. И второй способ: можно перевести смешанные числа в неправильные дроби, сложить и снова выделить целое. Одна целая две третьих это пять третьих, две целых две третьих это восемь третьих, вместе тринадцать третьих, то есть четыре целых одна третья.', uz: "Yodda tuting. Maxrajlar har xil bo'lsa, avval ulushlarni umumiy maxrajga keltiramiz. So'ng butunlarni butun bilan, ulushlarni ulush bilan qo'shamiz yoki ayiramiz. Qo'shganda ulush butundan oshsa, bitta butunni ajratamiz. Ayirganda yuqori ulush yetmasa, butun qismdan bitta butunni qarzga olamiz. Ikkinchi usul ham bor: aralash sonni noto'g'ri kasrga aylantirib, qo'shib, yana butunni ajratsa bo'ladi. Bir butun uchdan ikki bu uchdan besh, ikki butun uchdan ikki bu uchdan sakkiz, birga uchdan o'n uch, ya'ni to'rt butun uchdan bir." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    heading: { ru: 'Как складывать и вычитать смешанные числа', uz: "Aralash sonlarni qo'shish va ayirish", en: 'How to add and subtract mixed numbers' },
+    bridge: { ru: 'Мы увидели это на плитках. Теперь соберём в правило.', uz: "Buni plitkalarda ko'rdik. Endi qoidaga yig'amiz.", en: 'We have seen it on the tiles. Now let us turn it into a rule.' },
+    rule_label: { ru: 'Запомни', uz: "Yodda tuting", en: 'Remember' },
+    rule_1: { ru: 'Если знаменатели разные — сначала приведи доли к общему знаменателю.', uz: "Maxrajlar har xil bo'lsa — avval ulushlarni umumiy maxrajga keltiring.", en: 'If the denominators are different, first give the parts a common denominator.' },
+    rule_2: { ru: 'Целые складывай (вычитай) с целыми, доли — с долями.', uz: "Butunlarni butun bilan, ulushlarni ulush bilan qo'shing yoki ayiring.", en: 'Add (or subtract) wholes with wholes and parts with parts.' },
+    rule_3: { ru: 'При сложении доли стали больше целого — выдели одно целое (перенос).', uz: "Qo'shganda ulush butundan oshsa — bitta butunni ajrating (ko'chirish).", en: 'If the parts add up to more than a whole, take one whole out (carrying).' },
+    rule_4: { ru: 'При вычитании верхней доли не хватает — займи одно целое у целой части.', uz: "Ayirganda yuqori ulush yetmasa — butun qismdan bitta butunni qarzga oling.", en: 'If there are not enough parts on top when subtracting, borrow one whole from the whole number part.' },
+    warn_label: { ru: 'Две частые ошибки', uz: "Ikki tez-tez uchraydigan xato", en: 'Two common mistakes' },
+    warn: { ru: 'Оставить в ответе неправильную дробь, например 4/3, и не занять у целого при вычитании.', uz: "Javobda noto'g'ri kasrni, masalan 4/3 ni qoldirib ketish va ayirishda butundan qarz olmaslik.", en: 'Leaving an improper fraction such as 4/3 in the answer, and not borrowing from a whole when subtracting.' },
+    second_label: { ru: 'Второй способ', uz: "Ikkinchi usul", en: 'A second way' },
+    second: { ru: 'Можно перевести в неправильные дроби: 1 2/3 = 5/3, 2 2/3 = 8/3, тогда 5/3 + 8/3 = 13/3 = 4 1/3.', uz: "Noto'g'ri kasrga aylantirib ham yechsa bo'ladi: 1 2/3 = 5/3, 2 2/3 = 8/3, demak 5/3 + 8/3 = 13/3 = 4 1/3.", en: 'You can turn them into improper fractions: 1 2/3 = 5/3 and 2 2/3 = 8/3, so 5/3 + 8/3 = 13/3 = 4 1/3.' },
+    audio: { ru: 'Запомни. Если знаменатели разные, сначала приводим доли к общему знаменателю. Дальше целые складываем или вычитаем с целыми, а доли с долями. Если при сложении доли стали больше целого, выделяем одно целое. Если при вычитании верхней доли не хватает, занимаем одно целое у целой части. И второй способ: можно перевести смешанные числа в неправильные дроби, сложить и снова выделить целое. Одна целая две третьих это пять третьих, две целых две третьих это восемь третьих, вместе тринадцать третьих, то есть четыре целых одна третья.', uz: "Yodda tuting. Maxrajlar har xil bo'lsa, avval ulushlarni umumiy maxrajga keltiramiz. So'ng butunlarni butun bilan, ulushlarni ulush bilan qo'shamiz yoki ayiramiz. Qo'shganda ulush butundan oshsa, bitta butunni ajratamiz. Ayirganda yuqori ulush yetmasa, butun qismdan bitta butunni qarzga olamiz. Ikkinchi usul ham bor: aralash sonni noto'g'ri kasrga aylantirib, qo'shib, yana butunni ajratsa bo'ladi. Bir butun uchdan ikki bu uchdan besh, ikki butun uchdan ikki bu uchdan sakkiz, birga uchdan o'n uch, ya'ni to'rt butun uchdan bir.", en: 'Remember. If the denominators are different, first give the parts a common denominator. Then add or subtract wholes with wholes and parts with parts. If the parts add up to more than a whole, take one whole out. If there are not enough parts on top when subtracting, borrow one whole from the whole number part. And there is a second way: you can turn the mixed numbers into improper fractions, add them and take the whole out again. One and two thirds is five thirds, two and two thirds is eight thirds, and together that is thirteen thirds, which is four and one third.' }
   },
 
   // ===== s6 DRAG-FILL (mixfill): ko'chirishni to'ldiring, 1 2/3 + 2 2/3 = [4] 1/3 =====
   s6: {
-    eyebrow: { ru: 'Собери ответ', uz: "Javobni yig'ing" },
-    title: { ru: 'Перетащи целую часть на место', uz: "Butun qismni joyiga torting" },
-    lead: { ru: 'Доли уже сложили: 2/3 + 2/3 = 4/3 = 1 1/3. Сколько целых получится?', uz: "Ulushlarni qo'shdik: 2/3 + 2/3 = 4/3 = 1 1/3. Nechta butun chiqadi?" },
-    drag_num: { ru: 'Перетащи число в окошко — или нажми число, потом нажми окошко.', uz: "Sonni katakka torting — yoki sonni bosib, so'ng katakka bosing." },
-    hint: { ru: 'Целые: 1 + 2 = 3, и ещё одно целое из 4/3. Всего 4, доля 1/3.', uz: "Butunlar: 1 + 2 = 3, va 4/3 dan yana bitta butun. Hammasi 4, ulush 1/3." },
-    fb_correct: { ru: 'Верно. 3 целых плюс целое из 4/3 — это 4, и остаётся 1/3. Ответ 4 1/3.', uz: "To'g'ri. 3 butun va 4/3 dan bitta butun — bu 4, hamda 1/3 qoladi. Javob 4 1/3." },
+    eyebrow: { ru: 'Собери ответ', uz: "Javobni yig'ing", en: 'Build the answer' },
+    title: { ru: 'Перетащи целую часть на место', uz: "Butun qismni joyiga torting", en: 'Drag the whole number part into place' },
+    lead: { ru: 'Доли уже сложили: 2/3 + 2/3 = 4/3 = 1 1/3. Сколько целых получится?', uz: "Ulushlarni qo'shdik: 2/3 + 2/3 = 4/3 = 1 1/3. Nechta butun chiqadi?", en: 'The parts have already been added: 2/3 + 2/3 = 4/3 = 1 1/3. How many wholes does that make?' },
+    drag_num: { ru: 'Перетащи число в окошко — или нажми число, потом нажми окошко.', uz: "Sonni katakka torting — yoki sonni bosib, so'ng katakka bosing.", en: 'Drag a number into the box, or tap the number and then the box.' },
+    hint: { ru: 'Целые: 1 + 2 = 3, и ещё одно целое из 4/3. Всего 4, доля 1/3.', uz: "Butunlar: 1 + 2 = 3, va 4/3 dan yana bitta butun. Hammasi 4, ulush 1/3.", en: 'The wholes: 1 + 2 = 3, and one more whole out of 4/3. That makes 4, with 1/3 as the part.' },
+    fb_correct: { ru: 'Верно. 3 целых плюс целое из 4/3 — это 4, и остаётся 1/3. Ответ 4 1/3.', uz: "To'g'ri. 3 butun va 4/3 dan bitta butun — bu 4, hamda 1/3 qoladi. Javob 4 1/3.", en: 'That is right. 3 wholes plus the whole from 4/3 makes 4, with 1/3 left. The answer is 4 1/3.' },
     item: {
       kind: 'mixfill', aw: 1, an: 2, bw: 2, bn: 2, d: 3, op: '+', resN: 1, answer: 4,
       chips: [{ id: 'c0', label: '4', ok: true }, { id: 'c1', label: '3', ok: false }, { id: 'c2', label: '5', ok: false }]
     },
     audio: {
-      intro: { ru: 'Доли мы уже сложили: получилось четыре третьих, а это одно целое и одна третья. Сколько всего целых выйдет? Перетащи число в окошко.', uz: "Ulushlarni allaqachon qo'shdik: uchdan to'rt chiqdi, bu bir butun va uchdan bir. Hammasi bo'lib nechta butun chiqadi? Sonni katakka torting." },
-      on_correct: { ru: 'Верно. Всего четыре целых и одна третья.', uz: "To'g'ri. Hammasi to'rt butun va uchdan bir." },
-      on_wrong: { ru: 'Пока не то. Сложи три целых и ещё одно целое из четырёх третьих.', uz: "Hozircha emas. Uch butun va uchdan to'rtdan chiqqan yana bitta butunni qo'shing." }
+      intro: { ru: 'Доли мы уже сложили: получилось четыре третьих, а это одно целое и одна третья. Сколько всего целых выйдет? Перетащи число в окошко.', uz: "Ulushlarni allaqachon qo'shdik: uchdan to'rt chiqdi, bu bir butun va uchdan bir. Hammasi bo'lib nechta butun chiqadi? Sonni katakka torting.", en: 'We have already added the parts and got four thirds, which is one whole and one third. How many wholes will there be in all? Drag a number into the box.' },
+      on_correct: { ru: 'Верно. Всего четыре целых и одна третья.', uz: "To'g'ri. Hammasi to'rt butun va uchdan bir.", en: 'That is right. Four and one third in all.' },
+      on_wrong: { ru: 'Пока не то. Сложи три целых и ещё одно целое из четырёх третьих.', uz: "Hozircha emas. Uch butun va uchdan to'rtdan chiqqan yana bitta butunni qo'shing.", en: 'Not right yet. Add the three wholes and the one more whole from the four thirds.' }
     }
   },
 
   // ===== s7 — BESHTA OSON SAVOL (SeqMC, scored) =====
   s7: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Пять быстрых примеров', uz: "Beshta tez misol" },
-    lead: { ru: 'Складывай и вычитай смешанные числа. Выбери ответ.', uz: "Aralash sonlarni qo'shing va ayiring. Javobni tanlang." },
-    bridge: { ru: 'Правило знаем — теперь потренируемся.', uz: "Qoidani bilamiz — endi mashq qilamiz." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Пять быстрых примеров', uz: "Beshta tez misol", en: 'Five quick examples' },
+    lead: { ru: 'Складывай и вычитай смешанные числа. Выбери ответ.', uz: "Aralash sonlarni qo'shing va ayiring. Javobni tanlang.", en: 'Add and subtract mixed numbers. Choose an answer.' },
+    bridge: { ru: 'Правило знаем — теперь потренируемся.', uz: "Qoidani bilamiz — endi mashq qilamiz.", en: 'We know the rule, so now let us practise.' },
     questions: [
       {
-        q: '1 1/5 + 2 3/5', say: { ru: 'Сложи одну целую одну пятую и две целых три пятых.', uz: "Bir butun beshdan bir va ikki butun beshdan uchni qo'shing." },
+        q: '1 1/5 + 2 3/5', say: { ru: 'Сложи одну целую одну пятую и две целых три пятых.', uz: "Bir butun beshdan bir va ikki butun beshdan uchni qo'shing.", en: 'Add one and one fifth to two and three fifths.' },
         opts: ['3 4/5', '2 4/5', '3 2/5'], correct: 0,
-        ok: { ru: 'Верно: 1 + 2 = 3, 1/5 + 3/5 = 4/5.', uz: "To'g'ri: 1 + 2 = 3, 1/5 + 3/5 = 4/5." },
-        no: { ru: 'Целые складывай с целыми, доли с долями.', uz: "Butunlarni butunga, ulushlarni ulushga qo'shing." }
+        ok: { ru: 'Верно: 1 + 2 = 3, 1/5 + 3/5 = 4/5.', uz: "To'g'ri: 1 + 2 = 3, 1/5 + 3/5 = 4/5.", en: 'That is right: 1 + 2 = 3 and 1/5 + 3/5 = 4/5.' },
+        no: { ru: 'Целые складывай с целыми, доли с долями.', uz: "Butunlarni butunga, ulushlarni ulushga qo'shing.", en: 'Add wholes with wholes and parts with parts.' }
       },
       {
-        q: '3 3/7 − 1 2/7', say: { ru: 'Вычти из трёх целых трёх седьмых одну целую две седьмых.', uz: "Uch butun yettidan uchdan bir butun yettidan ikkini ayiring." },
+        q: '3 3/7 − 1 2/7', say: { ru: 'Вычти из трёх целых трёх седьмых одну целую две седьмых.', uz: "Uch butun yettidan uchdan bir butun yettidan ikkini ayiring.", en: 'Take one and two sevenths away from three and three sevenths.' },
         opts: ['2 2/7', '2 1/7', '1 1/7'], correct: 1,
-        ok: { ru: 'Верно: 3 − 1 = 2, 3/7 − 2/7 = 1/7.', uz: "To'g'ri: 3 − 1 = 2, 3/7 − 2/7 = 1/7." },
-        no: { ru: 'Целое вычитай из целого, долю из доли.', uz: "Butunni butundan, ulushni ulushdan ayiring." }
+        ok: { ru: 'Верно: 3 − 1 = 2, 3/7 − 2/7 = 1/7.', uz: "To'g'ri: 3 − 1 = 2, 3/7 − 2/7 = 1/7.", en: 'That is right: 3 − 1 = 2 and 3/7 − 2/7 = 1/7.' },
+        no: { ru: 'Целое вычитай из целого, долю из доли.', uz: "Butunni butundan, ulushni ulushdan ayiring.", en: 'Take the whole from the whole and the part from the part.' }
       },
       {
-        q: '1 2/3 + 1 2/3', say: { ru: 'К одной целой двум третьим прибавь ещё одну целую две третьих.', uz: "Bir butun uchdan ikkiga yana bir butun uchdan ikkini qo'shing." },
+        q: '1 2/3 + 1 2/3', say: { ru: 'К одной целой двум третьим прибавь ещё одну целую две третьих.', uz: "Bir butun uchdan ikkiga yana bir butun uchdan ikkini qo'shing.", en: 'Add one and two thirds to one and two thirds.' },
         opts: ['2 4/3', '3 4/3', '3 1/3'], correct: 2,
-        ok: { ru: 'Верно: доли дали 4/3, выделили целое — 3 1/3.', uz: "To'g'ri: ulushlar 4/3 berdi, butunni ajratdik — 3 1/3." },
-        no: { ru: 'Если доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshsa, bitta butunni ajrating." }
+        ok: { ru: 'Верно: доли дали 4/3, выделили целое — 3 1/3.', uz: "To'g'ri: ulushlar 4/3 berdi, butunni ajratdik — 3 1/3.", en: 'That is right: the parts made 4/3, and taking out the whole gives 3 1/3.' },
+        no: { ru: 'Если доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshsa, bitta butunni ajrating.", en: 'If the parts add up to more than a whole, take one whole out.' }
       },
       {
-        q: '2 3/4 + 1 1/4', say: { ru: 'Сложи две целых три четвёртых и одну целую одну четвёртую.', uz: "Ikki butun to'rtdan uch va bir butun to'rtdan birni qo'shing." },
+        q: '2 3/4 + 1 1/4', say: { ru: 'Сложи две целых три четвёртых и одну целую одну четвёртую.', uz: "Ikki butun to'rtdan uch va bir butun to'rtdan birni qo'shing.", en: 'Add two and three quarters to one and one quarter.' },
         opts: ['4', '3 4/4', '4 1/4'], correct: 0,
-        ok: { ru: 'Верно: 3/4 + 1/4 = 4/4 = 1, всего 4 целых.', uz: "To'g'ri: 3/4 + 1/4 = 4/4 = 1, hammasi 4 butun." },
-        no: { ru: 'Доли дали целое. Прибавь это целое к остальным.', uz: "Ulushlar butun berdi. Bu butunni qolganlariga qo'shing." }
+        ok: { ru: 'Верно: 3/4 + 1/4 = 4/4 = 1, всего 4 целых.', uz: "To'g'ri: 3/4 + 1/4 = 4/4 = 1, hammasi 4 butun.", en: 'That is right: 3/4 + 1/4 = 4/4 = 1, making 4 wholes in all.' },
+        no: { ru: 'Доли дали целое. Прибавь это целое к остальным.', uz: "Ulushlar butun berdi. Bu butunni qolganlariga qo'shing.", en: 'The parts made a whole. Add that whole to the others.' }
       },
       {
-        q: '4 1/6 − 2 1/6', say: { ru: 'Вычти из четырёх целых одной шестой две целых одну шестую.', uz: "To'rt butun oltidan birdan ikki butun oltidan birni ayiring." },
+        q: '4 1/6 − 2 1/6', say: { ru: 'Вычти из четырёх целых одной шестой две целых одну шестую.', uz: "To'rt butun oltidan birdan ikki butun oltidan birni ayiring.", en: 'Take two and one sixth away from four and one sixth.' },
         opts: ['2 2/6', '2', '1 1/6'], correct: 1,
-        ok: { ru: 'Верно: 4 − 2 = 2, 1/6 − 1/6 = 0 — остаётся 2.', uz: "To'g'ri: 4 − 2 = 2, 1/6 − 1/6 = 0 — 2 qoladi." },
-        no: { ru: 'Доли равны, их разность ноль, останутся только целые.', uz: "Ulushlar teng, ayirmasi nol, faqat butunlar qoladi." }
+        ok: { ru: 'Верно: 4 − 2 = 2, 1/6 − 1/6 = 0 — остаётся 2.', uz: "To'g'ri: 4 − 2 = 2, 1/6 − 1/6 = 0 — 2 qoladi.", en: 'That is right: 4 − 2 = 2 and 1/6 − 1/6 = 0, leaving 2.' },
+        no: { ru: 'Доли равны, их разность ноль, останутся только целые.', uz: "Ulushlar teng, ayirmasi nol, faqat butunlar qoladi.", en: 'The parts are equal, so their difference is zero and only the wholes are left.' }
       }
     ],
     audio: {
-      intro: { ru: 'Правило знаем, теперь потренируемся. Пять быстрых примеров.', uz: "Qoidani bilamiz, endi mashq qilamiz. Beshta tez misol." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Почти. Попробуй ещё раз.', uz: "Deyarli. Yana urinib ko'ring." },
-      on_done: { ru: 'Отлично, все примеры решены.', uz: "Zo'r, hamma misol yechildi." }
+      intro: { ru: 'Правило знаем, теперь потренируемся. Пять быстрых примеров.', uz: "Qoidani bilamiz, endi mashq qilamiz. Beshta tez misol.", en: 'We know the rule, so now let us practise. Five quick examples.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Почти. Попробуй ещё раз.', uz: "Deyarli. Yana urinib ko'ring.", en: 'Almost. Have another go.' },
+      on_done: { ru: 'Отлично, все примеры решены.', uz: "Zo'r, hamma misol yechildi.", en: 'Well done, every example is done.' }
     }
   },
 
   // ===== s8 — CASE (Nilufar, lenta): 3 1/4 − 1 3/4 (qarz olish) =====
   s8: {
-    eyebrow: { ru: 'Задача · лента', uz: "Masala · lenta" },
-    title: { ru: 'Нилуфар шила и отрезала ленту', uz: "Nilufar tikdi va lenta kesdi" },
-    question: { ru: 'Было 3 1/4 м ленты, отрезала 1 3/4 м. Сколько осталось?', uz: "3 1/4 m lenta bor edi, 1 3/4 m kesdi. Qancha qoldi?" },
-    opt0: { ru: '1 2/4 м', uz: '1 2/4 m' },
-    opt1: { ru: '2 2/4 м', uz: '2 2/4 m' },
-    opt2: { ru: '1 3/4 м', uz: '1 3/4 m' },
-    opt3: { ru: '2 1/4 м', uz: '2 1/4 m' },
-    correct_text: { ru: 'Верно. Из 1/4 нельзя вычесть 3/4, заняли целое: 3 1/4 = 2 5/4. Тогда 2 5/4 − 1 3/4 = 1 2/4 м.', uz: "To'g'ri. 1/4 dan 3/4 ni ayirib bo'lmaydi, butunni qarzga oldik: 3 1/4 = 2 5/4. Demak 2 5/4 − 1 3/4 = 1 2/4 m." },
-    wrong_1: { ru: 'Похоже, целое не заняли. Из 1/4 нельзя вычесть 3/4 — сначала займи одно целое.', uz: "Butunni qarzga olmadingiz shekilli. 1/4 dan 3/4 ayrilmaydi — avval bitta butunni oling." },
-    wrong_2: { ru: 'Это уменьшаемое, а не ответ. Займи целое и вычти доли.', uz: "Bu kamayuvchi, javob emas. Butunni qarzga oling va ulushlarni ayiring." },
-    wrong_3: { ru: 'Целую часть посчитали неверно: после займа целых остаётся 1.', uz: "Butun qismni noto'g'ri sanadingiz: qarzdan keyin butun 1 qoladi." },
-    wrong_default: { ru: 'Займи одно целое: 3 1/4 = 2 5/4, затем вычти.', uz: "Bitta butunni qarzga oling: 3 1/4 = 2 5/4, so'ng ayiring." },
-    audio_hint_1: { ru: 'Сначала займи одно целое, потом вычитай доли.', uz: "Avval bitta butunni qarzga oling, so'ng ulushlarni ayiring." },
-    audio_hint_2: { ru: 'Это уменьшаемое, а не ответ. Выполни вычитание.', uz: "Bu kamayuvchi, javob emas. Ayirishni bajaring." },
-    audio_hint_3: { ru: 'Пересчитай целую часть после займа, останется один.', uz: "Qarzdan keyin butun qismni qayta sanang, bir qoladi." },
-    fact: { ru: 'Портные и плотники всегда меряют смешанными числами: полтора метра, две с половиной доски.', uz: "Tikuvchi va duradgorlar doim aralash son bilan o'lchaydi: bir yarim metr, ikki yarim taxta." },
+    eyebrow: { ru: 'Задача · лента', uz: "Masala · lenta", en: 'Problem · ribbon' },
+    title: { ru: 'Нилуфар шила и отрезала ленту', uz: "Nilufar tikdi va lenta kesdi", en: 'Nilufar was sewing and cut some ribbon' },
+    question: { ru: 'Было 3 1/4 м ленты, отрезала 1 3/4 м. Сколько осталось?', uz: "3 1/4 m lenta bor edi, 1 3/4 m kesdi. Qancha qoldi?", en: 'She had 3 1/4 m of ribbon and cut off 1 3/4 m. How much is left?' },
+    opt0: { ru: '1 2/4 м', uz: '1 2/4 m', en: '1 2/4 m' },
+    opt1: { ru: '2 2/4 м', uz: '2 2/4 m', en: '2 2/4 m' },
+    opt2: { ru: '1 3/4 м', uz: '1 3/4 m', en: '1 3/4 m' },
+    opt3: { ru: '2 1/4 м', uz: '2 1/4 m', en: '2 1/4 m' },
+    correct_text: { ru: 'Верно. Из 1/4 нельзя вычесть 3/4, заняли целое: 3 1/4 = 2 5/4. Тогда 2 5/4 − 1 3/4 = 1 2/4 м.', uz: "To'g'ri. 1/4 dan 3/4 ni ayirib bo'lmaydi, butunni qarzga oldik: 3 1/4 = 2 5/4. Demak 2 5/4 − 1 3/4 = 1 2/4 m.", en: 'That is right. 3/4 cannot be taken from 1/4, so a whole was borrowed: 3 1/4 = 2 5/4. Then 2 5/4 − 1 3/4 = 1 2/4 m.' },
+    wrong_1: { ru: 'Похоже, целое не заняли. Из 1/4 нельзя вычесть 3/4 — сначала займи одно целое.', uz: "Butunni qarzga olmadingiz shekilli. 1/4 dan 3/4 ayrilmaydi — avval bitta butunni oling.", en: 'It looks as though no whole was borrowed. 3/4 cannot be taken from 1/4, so borrow one whole first.' },
+    wrong_2: { ru: 'Это уменьшаемое, а не ответ. Займи целое и вычти доли.', uz: "Bu kamayuvchi, javob emas. Butunni qarzga oling va ulushlarni ayiring.", en: 'That is the number you started with, not the answer. Borrow a whole and subtract the parts.' },
+    wrong_3: { ru: 'Целую часть посчитали неверно: после займа целых остаётся 1.', uz: "Butun qismni noto'g'ri sanadingiz: qarzdan keyin butun 1 qoladi.", en: 'The whole number part is wrong: after borrowing there is 1 whole left.' },
+    wrong_default: { ru: 'Займи одно целое: 3 1/4 = 2 5/4, затем вычти.', uz: "Bitta butunni qarzga oling: 3 1/4 = 2 5/4, so'ng ayiring.", en: 'Borrow one whole: 3 1/4 = 2 5/4, then subtract.' },
+    audio_hint_1: { ru: 'Сначала займи одно целое, потом вычитай доли.', uz: "Avval bitta butunni qarzga oling, so'ng ulushlarni ayiring.", en: 'Borrow one whole first, then subtract the parts.' },
+    audio_hint_2: { ru: 'Это уменьшаемое, а не ответ. Выполни вычитание.', uz: "Bu kamayuvchi, javob emas. Ayirishni bajaring.", en: 'That is the number you started with, not the answer. Do the subtraction.' },
+    audio_hint_3: { ru: 'Пересчитай целую часть после займа, останется один.', uz: "Qarzdan keyin butun qismni qayta sanang, bir qoladi.", en: 'Work out the whole number part again after borrowing, there will be one left.' },
+    fact: { ru: 'Портные и плотники всегда меряют смешанными числами: полтора метра, две с половиной доски.', uz: "Tikuvchi va duradgorlar doim aralash son bilan o'lchaydi: bir yarim metr, ikki yarim taxta.", en: 'Tailors and carpenters always measure in mixed numbers: a metre and a half, two and a half boards.' },
     audio: {
-      intro: { ru: 'У Нилуфар было три целых одна четвёртая метра ленты, она отрезала одну целую три четвёртых. Сколько осталось? Выбери ответ.', uz: "Nilufarda uch butun to'rtdan bir metr lenta bor edi, u bir butun to'rtdan uchni kesdi. Qancha qoldi? Javobni tanlang." },
-      on_correct: { ru: 'Верно, осталось одна целая две четвёртых метра. Кстати, портные и плотники всегда меряют смешанными числами.', uz: "To'g'ri, bir butun to'rtdan ikki metr qoldi. Aytgancha, tikuvchi va duradgorlar doim aralash son bilan o'lchaydi." },
-      on_wrong: { ru: 'Не совсем. Из одной четвёртой нельзя вычесть три четвёртых, займи целое.', uz: "Unchalik emas. To'rtdan birdan to'rtdan uchni ayirib bo'lmaydi, butunni qarzga oling." }
+      intro: { ru: 'У Нилуфар было три целых одна четвёртая метра ленты, она отрезала одну целую три четвёртых. Сколько осталось? Выбери ответ.', uz: "Nilufarda uch butun to'rtdan bir metr lenta bor edi, u bir butun to'rtdan uchni kesdi. Qancha qoldi? Javobni tanlang.", en: 'Nilufar had three and one quarter metres of ribbon and cut off one and three quarters. How much is left? Choose an answer.' },
+      on_correct: { ru: 'Верно, осталось одна целая две четвёртых метра. Кстати, портные и плотники всегда меряют смешанными числами.', uz: "To'g'ri, bir butun to'rtdan ikki metr qoldi. Aytgancha, tikuvchi va duradgorlar doim aralash son bilan o'lchaydi.", en: 'That is right, one and two quarter metres are left. By the way, tailors and carpenters always measure in mixed numbers.' },
+      on_wrong: { ru: 'Не совсем. Из одной четвёртой нельзя вычесть три четвёртых, займи целое.', uz: "Unchalik emas. To'rtdan birdan to'rtdan uchni ayirib bo'lmaydi, butunni qarzga oling.", en: 'Not quite. Three quarters cannot be taken from one quarter, so borrow a whole.' }
     }
   },
 
   // ===== s9 — OLTI-SAKKIZ MISOL, OSONDAN QIYINGA, HAR XIL TIP (SeqMix, scored) =====
   s9: {
-    eyebrow: { ru: 'Смешанная тренировка', uz: "Aralash mashq" },
-    title: { ru: 'Семь примеров — разного типа', uz: "Yettita misol — har xil turdagi" },
-    lead: { ru: 'Разные типы: выбор, перетаскивание, сортировка — от лёгкого к трудному.', uz: "Har xil tur: tanlash, tortish, saralash — osondan qiyinga." },
-    bridge: { ru: 'Проверим себя на разных типах вопросов.', uz: "Turli xil savollar bilan o'zimizni sinaymiz." },
-    lvl_easy: { ru: 'Лёгкий', uz: "Oson" },
-    lvl_mid: { ru: 'Средний', uz: "O'rta" },
-    lvl_hard: { ru: 'Трудный', uz: "Qiyin" },
-    drag_num: { ru: 'Перетащи число — или нажми число, потом нажми окошко.', uz: "Sonni torting — yoki sonni bosib, so'ng katakka bosing." },
-    bin_ask: { ru: 'Что нужно сделать? Перетащи пример — или нажми его, потом нажми корзину.', uz: "Nima qilish kerak? Misolni torting — yoki bosib, so'ng savatga bosing." },
-    bin_carry: { ru: 'Нужен перенос', uz: "Ko'chirish kerak" },
-    bin_borrow: { ru: 'Нужен заём', uz: "Qarz olish kerak" },
-    bin_direct: { ru: 'Напрямую', uz: "To'g'ridan" },
+    eyebrow: { ru: 'Смешанная тренировка', uz: "Aralash mashq", en: 'Mixed practice' },
+    title: { ru: 'Семь примеров — разного типа', uz: "Yettita misol — har xil turdagi", en: 'Seven examples of different kinds' },
+    lead: { ru: 'Разные типы: выбор, перетаскивание, сортировка — от лёгкого к трудному.', uz: "Har xil tur: tanlash, tortish, saralash — osondan qiyinga.", en: 'Different kinds: choosing, dragging and sorting, from easy to hard.' },
+    bridge: { ru: 'Проверим себя на разных типах вопросов.', uz: "Turli xil savollar bilan o'zimizni sinaymiz.", en: 'Let us test ourselves on different kinds of question.' },
+    lvl_easy: { ru: 'Лёгкий', uz: "Oson", en: 'Easy' },
+    lvl_mid: { ru: 'Средний', uz: "O'rta", en: 'Medium' },
+    lvl_hard: { ru: 'Трудный', uz: "Qiyin", en: 'Hard' },
+    drag_num: { ru: 'Перетащи число — или нажми число, потом нажми окошко.', uz: "Sonni torting — yoki sonni bosib, so'ng katakka bosing.", en: 'Drag a number, or tap the number and then the box.' },
+    bin_ask: { ru: 'Что нужно сделать? Перетащи пример — или нажми его, потом нажми корзину.', uz: "Nima qilish kerak? Misolni torting — yoki bosib, so'ng savatga bosing.", en: 'What needs to be done? Drag the example, or tap it and then the basket.' },
+    bin_carry: { ru: 'Нужен перенос', uz: "Ko'chirish kerak", en: 'Carrying needed' },
+    bin_borrow: { ru: 'Нужен заём', uz: "Qarz olish kerak", en: 'Borrowing needed' },
+    bin_direct: { ru: 'Напрямую', uz: "To'g'ridan", en: 'Straight through' },
     items: [
       // (1) MC oson
       { kind: 'mc', lvl: 'easy', prob: '1 1/4 + 1 1/4', opts: ['2 2/4', '2 1/4', '1 2/4'], correct: 0,
-        say: { ru: 'Сложи одну целую одну четвёртую и одну целую одну четвёртую.', uz: "Bir butun to'rtdan bir va bir butun to'rtdan birni qo'shing." },
-        ok: { ru: 'Верно: 1 + 1 = 2, 1/4 + 1/4 = 2/4.', uz: "To'g'ri: 1 + 1 = 2, 1/4 + 1/4 = 2/4." },
-        no: { ru: 'Целые с целыми, доли с долями.', uz: "Butunni butunga, ulushni ulushga." } },
+        say: { ru: 'Сложи одну целую одну четвёртую и одну целую одну четвёртую.', uz: "Bir butun to'rtdan bir va bir butun to'rtdan birni qo'shing.", en: 'Add one and one quarter to one and one quarter.' },
+        ok: { ru: 'Верно: 1 + 1 = 2, 1/4 + 1/4 = 2/4.', uz: "To'g'ri: 1 + 1 = 2, 1/4 + 1/4 = 2/4.", en: 'That is right: 1 + 1 = 2 and 1/4 + 1/4 = 2/4.' },
+        no: { ru: 'Целые с целыми, доли с долями.', uz: "Butunni butunga, ulushni ulushga.", en: 'Wholes with wholes and parts with parts.' } },
       // (2) MIXFILL oson (ko'chirishsiz): 2 1/5 + 1 3/5 = [3] 4/5
       { kind: 'mixfill', lvl: 'easy', aw: 2, an: 1, bw: 1, bn: 3, d: 5, op: '+', resN: 4, answer: 3,
         chips: [{ id: 'c0', label: '3', ok: true }, { id: 'c1', label: '4', ok: false }, { id: 'c2', label: '2', ok: false }],
-        say: { ru: 'Сложи две целых одну пятую и одну целую три пятых, перетащи целую часть.', uz: "Ikki butun beshdan bir va bir butun beshdan uchni qo'shing, butun qismni torting." },
-        ok: { ru: 'Верно: 2 + 1 = 3, доли 4/5.', uz: "To'g'ri: 2 + 1 = 3, ulush 4/5." },
-        no: { ru: 'Сложи целые: 2 и 1. Доли уже меньше целого.', uz: "Butunlarni qo'shing: 2 va 1. Ulush butundan kichik." } },
+        say: { ru: 'Сложи две целых одну пятую и одну целую три пятых, перетащи целую часть.', uz: "Ikki butun beshdan bir va bir butun beshdan uchni qo'shing, butun qismni torting.", en: 'Add two and one fifth to one and three fifths, then drag the whole number part.' },
+        ok: { ru: 'Верно: 2 + 1 = 3, доли 4/5.', uz: "To'g'ri: 2 + 1 = 3, ulush 4/5.", en: 'That is right: 2 + 1 = 3 and the parts make 4/5.' },
+        no: { ru: 'Сложи целые: 2 и 1. Доли уже меньше целого.', uz: "Butunlarni qo'shing: 2 va 1. Ulush butundan kichik.", en: 'Add the wholes, 2 and 1. The parts are already less than a whole.' } },
       // (3) MC o'rta (ko'chirish): 2 3/5 + 1 4/5 = 4 2/5
       { kind: 'mc', lvl: 'mid', prob: '2 3/5 + 1 4/5', opts: ['3 7/5', '4 2/5', '4 7/5'], correct: 1,
-        say: { ru: 'Сложи две целых три пятых и одну целую четыре пятых.', uz: "Ikki butun beshdan uch va bir butun beshdan to'rtni qo'shing." },
-        ok: { ru: 'Верно: доли дали 7/5 = 1 2/5, всего 4 2/5.', uz: "To'g'ri: ulushlar 7/5 = 1 2/5 berdi, hammasi 4 2/5." },
-        no: { ru: 'Доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshdi, bitta butunni ajrating." } },
+        say: { ru: 'Сложи две целых три пятых и одну целую четыре пятых.', uz: "Ikki butun beshdan uch va bir butun beshdan to'rtni qo'shing.", en: 'Add two and three fifths to one and four fifths.' },
+        ok: { ru: 'Верно: доли дали 7/5 = 1 2/5, всего 4 2/5.', uz: "To'g'ri: ulushlar 7/5 = 1 2/5 berdi, hammasi 4 2/5.", en: 'That is right: the parts made 7/5 = 1 2/5, giving 4 2/5 in all.' },
+        no: { ru: 'Доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshdi, bitta butunni ajrating.", en: 'The parts add up to more than a whole, so take one whole out.' } },
       // (4) DRAGBIN o'rta (klassifikatsiya): 3 1/4 − 1 3/4 -> qarz
       { kind: 'dragbin', lvl: 'mid', expr: '3 1/4 − 1 3/4', bin: 'borrow',
-        say: { ru: 'Что нужно для этого вычитания? Перетащи в корзину.', uz: "Bu ayirish uchun nima kerak? Savatga torting." },
-        ok: { ru: 'Верно: 1/4 меньше 3/4, нужно занять целое.', uz: "To'g'ri: 1/4 dan 3/4 katta, butunni qarzga olish kerak." },
-        no: { ru: 'Сравни доли: верхней не хватает, значит заём.', uz: "Ulushlarni solishtiring: yuqorisi yetmaydi, demak qarz." } },
+        say: { ru: 'Что нужно для этого вычитания? Перетащи в корзину.', uz: "Bu ayirish uchun nima kerak? Savatga torting.", en: 'What does this subtraction need? Drag it into a basket.' },
+        ok: { ru: 'Верно: 1/4 меньше 3/4, нужно занять целое.', uz: "To'g'ri: 1/4 dan 3/4 katta, butunni qarzga olish kerak.", en: 'That is right: 1/4 is less than 3/4, so a whole has to be borrowed.' },
+        no: { ru: 'Сравни доли: верхней не хватает, значит заём.', uz: "Ulushlarni solishtiring: yuqorisi yetmaydi, demak qarz.", en: 'Compare the parts: there are not enough on top, so it needs borrowing.' } },
       // (5) MIXFILL o'rta (qarz): 3 1/3 − 1 2/3 = [1] 2/3
       { kind: 'mixfill', lvl: 'mid', aw: 3, an: 1, bw: 1, bn: 2, d: 3, op: '-', resN: 2, answer: 1,
         chips: [{ id: 'c0', label: '1', ok: true }, { id: 'c1', label: '2', ok: false }, { id: 'c2', label: '3', ok: false }],
-        say: { ru: 'Вычти из трёх целых одной третьей одну целую две третьих, перетащи целую часть.', uz: "Uch butun uchdan birdan bir butun uchdan ikkini ayiring, butun qismni torting." },
-        ok: { ru: 'Верно: заняли целое (2 4/3), осталось 1 2/3.', uz: "To'g'ri: butunni qarzga oldik (2 4/3), 1 2/3 qoldi." },
-        no: { ru: 'Сначала займи одно целое у целой части, потом вычитай доли.', uz: "Avval butun qismdan bitta butunni qarzga oling, so'ng ulushlarni ayiring." } },
+        say: { ru: 'Вычти из трёх целых одной третьей одну целую две третьих, перетащи целую часть.', uz: "Uch butun uchdan birdan bir butun uchdan ikkini ayiring, butun qismni torting.", en: 'Take one and two thirds away from three and one third, then drag the whole number part.' },
+        ok: { ru: 'Верно: заняли целое (2 4/3), осталось 1 2/3.', uz: "To'g'ri: butunni qarzga oldik (2 4/3), 1 2/3 qoldi.", en: 'That is right: a whole was borrowed (2 4/3), leaving 1 2/3.' },
+        no: { ru: 'Сначала займи одно целое у целой части, потом вычитай доли.', uz: "Avval butun qismdan bitta butunni qarzga oling, so'ng ulushlarni ayiring.", en: 'First borrow one whole from the whole number part, then subtract the parts.' } },
       // (6) MC qiyin (har xil maxraj): 1 1/2 + 2 1/3 = 3 5/6
       { kind: 'mc', lvl: 'hard', prob: '1 1/2 + 2 1/3', opts: ['3 2/5', '3 5/6', '4 5/6'], correct: 1,
-        say: { ru: 'Сложи одну целую одну вторую и две целых одну третью.', uz: "Bir butun ikkidan bir va ikki butun uchdan birni qo'shing." },
-        ok: { ru: 'Верно: общий знаменатель 6, 3/6 + 2/6 = 5/6, всего 3 5/6.', uz: "To'g'ri: umumiy maxraj 6, 3/6 + 2/6 = 5/6, hammasi 3 5/6." },
-        no: { ru: 'Сначала приведи доли к общему знаменателю шесть.', uz: "Avval ulushlarni umumiy maxraj oltiga keltiring." } },
+        say: { ru: 'Сложи одну целую одну вторую и две целых одну третью.', uz: "Bir butun ikkidan bir va ikki butun uchdan birni qo'shing.", en: 'Add one and one half to two and one third.' },
+        ok: { ru: 'Верно: общий знаменатель 6, 3/6 + 2/6 = 5/6, всего 3 5/6.', uz: "To'g'ri: umumiy maxraj 6, 3/6 + 2/6 = 5/6, hammasi 3 5/6.", en: 'That is right: the common denominator is 6, 3/6 + 2/6 = 5/6, giving 3 5/6 in all.' },
+        no: { ru: 'Сначала приведи доли к общему знаменателю шесть.', uz: "Avval ulushlarni umumiy maxraj oltiga keltiring.", en: 'First give the parts the common denominator six.' } },
       // (7) DRAGBIN qiyin: 2 1/2 + 1 3/4 -> umumiy maxraj 4, 2/4+3/4=5/4 -> ko'chirish
       { kind: 'dragbin', lvl: 'hard', expr: '2 1/2 + 1 3/4', bin: 'carry',
-        say: { ru: 'Приведи к общему знаменателю и реши, что нужно. Перетащи в корзину.', uz: "Umumiy maxrajga keltiring va nima kerakligini hal qiling. Savatga torting." },
-        ok: { ru: 'Верно: 2/4 + 3/4 = 5/4 больше целого — нужен перенос.', uz: "To'g'ri: 2/4 + 3/4 = 5/4 butundan katta — ko'chirish kerak." },
-        no: { ru: 'Сложи доли в общем знаменателе: если больше целого, перенос.', uz: "Ulushlarni umumiy maxrajda qo'shing: butundan oshsa, ko'chirish." } }
+        say: { ru: 'Приведи к общему знаменателю и реши, что нужно. Перетащи в корзину.', uz: "Umumiy maxrajga keltiring va nima kerakligini hal qiling. Savatga torting.", en: 'Give them a common denominator and decide what is needed. Drag it into a basket.' },
+        ok: { ru: 'Верно: 2/4 + 3/4 = 5/4 больше целого — нужен перенос.', uz: "To'g'ri: 2/4 + 3/4 = 5/4 butundan katta — ko'chirish kerak.", en: 'That is right: 2/4 + 3/4 = 5/4 is more than a whole, so carrying is needed.' },
+        no: { ru: 'Сложи доли в общем знаменателе: если больше целого, перенос.', uz: "Ulushlarni umumiy maxrajda qo'shing: butundan oshsa, ko'chirish.", en: 'Add the parts with a common denominator: if it is more than a whole, it needs carrying.' } }
     ],
-    fact: { ru: 'Полоса загрузки файла показывает целое и долю вместе — смешанное число встречается и здесь.', uz: "Fayl yuklanish chizig'i butun va ulushni birga ko'rsatadi — aralash son bu yerda ham bor." },
+    fact: { ru: 'Полоса загрузки файла показывает целое и долю вместе — смешанное число встречается и здесь.', uz: "Fayl yuklanish chizig'i butun va ulushni birga ko'rsatadi — aralash son bu yerda ham bor.", en: 'A file loading bar shows a whole and a part together, so mixed numbers turn up here too.' },
     audio: {
-      intro: { ru: 'Проверим себя на разных типах. Семь примеров: выбор, перетаскивание и сортировка.', uz: "Turli xil tiplarda o'zimizni sinaymiz. Yettita misol: tanlash, tortish va saralash." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Почти. Попробуй ещё раз.', uz: "Deyarli. Yana urinib ko'ring." },
-      on_done: { ru: 'Отлично, все типы решены. Кстати, полоса загрузки файла это тоже целое и доля вместе.', uz: "Ajoyib, barcha tur yechildi. Aytgancha, fayl yuklanish chizig'i ham butun va ulush birga." }
+      intro: { ru: 'Проверим себя на разных типах. Семь примеров: выбор, перетаскивание и сортировка.', uz: "Turli xil tiplarda o'zimizni sinaymiz. Yettita misol: tanlash, tortish va saralash.", en: 'Let us test ourselves on different kinds. Seven examples: choosing, dragging and sorting.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Почти. Попробуй ещё раз.', uz: "Deyarli. Yana urinib ko'ring.", en: 'Almost. Have another go.' },
+      on_done: { ru: 'Отлично, все типы решены. Кстати, полоса загрузки файла это тоже целое и доля вместе.', uz: "Ajoyib, barcha tur yechildi. Aytgancha, fayl yuklanish chizig'i ham butun va ulush birga.", en: 'Well done, every kind is done. By the way, a file loading bar is a whole and a part together too.' }
     }
   },
 
   // ===== s10 — YAKUNIY (QuestionScreen, final): Saida, masofa, 1 3/4 + 2 1/2 = 4 1/4 =====
   s10: {
-    eyebrow: { ru: 'Итог · дистанция', uz: "Yakun · masofa" },
-    title: { ru: 'Саида пробежала утром и вечером', uz: "Saida ertalab va kechqurun yugurdi" },
-    question: { ru: 'Утром 1 3/4 км, вечером 2 1/2 км. Сколько всего? (1 3/4 + 2 1/2)', uz: "Ertalab 1 3/4 km, kechqurun 2 1/2 km. Jami qancha? (1 3/4 + 2 1/2)" },
-    opt0: { ru: '4 1/4 км', uz: '4 1/4 km' },
-    opt1: { ru: '3 5/4 км', uz: '3 5/4 km' },
-    opt2: { ru: '3 4/6 км', uz: '3 4/6 km' },
-    opt3: { ru: '4 1/2 км', uz: '4 1/2 km' },
-    correct_text: { ru: 'Верно. 1/2 = 2/4, доли 3/4 + 2/4 = 5/4 — больше целого. Выделили целое: 3 + 1 1/4 = 4 1/4 км.', uz: "To'g'ri. 1/2 = 2/4, ulushlar 3/4 + 2/4 = 5/4 — butundan ko'p. Butunni ajratdik: 3 + 1 1/4 = 4 1/4 km." },
-    wrong_1: { ru: 'Доли стали 5/4 — это больше целого. Выдели одно целое и не оставляй 5/4.', uz: "Ulushlar 5/4 bo'ldi — bu butundan ko'p. Bitta butunni ajrating, 5/4 ni qoldirmang." },
-    wrong_2: { ru: 'Сначала общий знаменатель 4, а не 6: 1/2 = 2/4. И не забудь перенос.', uz: "Avval umumiy maxraj 4, 6 emas: 1/2 = 2/4. Ko'chirishni ham unutmang." },
-    wrong_3: { ru: 'Доли сложи в общем знаменателе: 3/4 + 2/4 = 5/4, отсюда перенос даёт 1/4.', uz: "Ulushlarni umumiy maxrajda qo'shing: 3/4 + 2/4 = 5/4, ko'chirishdan 1/4 chiqadi." },
-    wrong_default: { ru: 'Приведи к знаменателю 4, сложи доли, выдели целое.', uz: "Maxraj 4 ga keltiring, ulushlarni qo'shing, butunni ajrating." },
-    audio_hint_1: { ru: 'Доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshdi, bitta butunni ajrating." },
-    audio_hint_2: { ru: 'Общий знаменатель здесь четыре, не шесть.', uz: "Umumiy maxraj bu yerda to'rt, olti emas." },
-    audio_hint_3: { ru: 'Сложи доли в общем знаменателе и выдели целое.', uz: "Ulushlarni umumiy maxrajda qo'shing va butunni ajrating." },
-    fact: { ru: 'Древние вавилонские учёные писали целое и долю вместе в системе из 60 — часы и минуты пришли оттуда.', uz: "Qadimgi bobillik olimlar butun va ulushni 60 lik tizimda yozgan — soat va daqiqa o'shandan qolgan." },
+    eyebrow: { ru: 'Итог · дистанция', uz: "Yakun · masofa", en: 'Final · distance' },
+    title: { ru: 'Саида пробежала утром и вечером', uz: "Saida ertalab va kechqurun yugurdi", en: 'Saida ran in the morning and in the evening' },
+    question: { ru: 'Утром 1 3/4 км, вечером 2 1/2 км. Сколько всего? (1 3/4 + 2 1/2)', uz: "Ertalab 1 3/4 km, kechqurun 2 1/2 km. Jami qancha? (1 3/4 + 2 1/2)", en: '1 3/4 km in the morning and 2 1/2 km in the evening. How far in all? (1 3/4 + 2 1/2)' },
+    opt0: { ru: '4 1/4 км', uz: '4 1/4 km', en: '4 1/4 km' },
+    opt1: { ru: '3 5/4 км', uz: '3 5/4 km', en: '3 5/4 km' },
+    opt2: { ru: '3 4/6 км', uz: '3 4/6 km', en: '3 4/6 km' },
+    opt3: { ru: '4 1/2 км', uz: '4 1/2 km', en: '4 1/2 km' },
+    correct_text: { ru: 'Верно. 1/2 = 2/4, доли 3/4 + 2/4 = 5/4 — больше целого. Выделили целое: 3 + 1 1/4 = 4 1/4 км.', uz: "To'g'ri. 1/2 = 2/4, ulushlar 3/4 + 2/4 = 5/4 — butundan ko'p. Butunni ajratdik: 3 + 1 1/4 = 4 1/4 km.", en: 'That is right. 1/2 = 2/4, so the parts make 3/4 + 2/4 = 5/4, more than a whole. Taking out the whole gives 3 + 1 1/4 = 4 1/4 km.' },
+    wrong_1: { ru: 'Доли стали 5/4 — это больше целого. Выдели одно целое и не оставляй 5/4.', uz: "Ulushlar 5/4 bo'ldi — bu butundan ko'p. Bitta butunni ajrating, 5/4 ni qoldirmang.", en: 'The parts came to 5/4, which is more than a whole. Take one whole out and do not leave 5/4.' },
+    wrong_2: { ru: 'Сначала общий знаменатель 4, а не 6: 1/2 = 2/4. И не забудь перенос.', uz: "Avval umumiy maxraj 4, 6 emas: 1/2 = 2/4. Ko'chirishni ham unutmang.", en: 'The common denominator is 4, not 6: 1/2 = 2/4. And do not forget the carrying.' },
+    wrong_3: { ru: 'Доли сложи в общем знаменателе: 3/4 + 2/4 = 5/4, отсюда перенос даёт 1/4.', uz: "Ulushlarni umumiy maxrajda qo'shing: 3/4 + 2/4 = 5/4, ko'chirishdan 1/4 chiqadi.", en: 'Add the parts with a common denominator: 3/4 + 2/4 = 5/4, and carrying from that leaves 1/4.' },
+    wrong_default: { ru: 'Приведи к знаменателю 4, сложи доли, выдели целое.', uz: "Maxraj 4 ga keltiring, ulushlarni qo'shing, butunni ajrating.", en: 'Change them to a denominator of 4, add the parts and take the whole out.' },
+    audio_hint_1: { ru: 'Доли стали больше целого, выдели одно целое.', uz: "Ulush butundan oshdi, bitta butunni ajrating.", en: 'The parts add up to more than a whole, so take one whole out.' },
+    audio_hint_2: { ru: 'Общий знаменатель здесь четыре, не шесть.', uz: "Umumiy maxraj bu yerda to'rt, olti emas.", en: 'The common denominator here is four, not six.' },
+    audio_hint_3: { ru: 'Сложи доли в общем знаменателе и выдели целое.', uz: "Ulushlarni umumiy maxrajda qo'shing va butunni ajrating.", en: 'Add the parts with a common denominator and take the whole out.' },
+    fact: { ru: 'Древние вавилонские учёные писали целое и долю вместе в системе из 60 — часы и минуты пришли оттуда.', uz: "Qadimgi bobillik olimlar butun va ulushni 60 lik tizimda yozgan — soat va daqiqa o'shandan qolgan.", en: 'Ancient Babylonian scholars wrote a whole and a part together in a system based on 60, and that is where hours and minutes come from.' },
     audio: {
-      intro: { ru: 'Саида пробежала утром одну целую три четвёртых километра и вечером две целых одну вторую. Сколько всего? Выбери ответ.', uz: "Saida ertalab bir butun to'rtdan uch kilometr, kechqurun ikki butun ikkidan bir yugurdi. Jami qancha? Javobni tanlang." },
-      on_correct: { ru: 'Верно, всего четыре целых одна четвёртая километра. А ещё часы и минуты идут из вавилонской системы из шестидесяти.', uz: "To'g'ri, hammasi to'rt butun to'rtdan bir kilometr. Yana soat va daqiqa bobilliklarning oltmishlik tizimidan kelgan." },
-      on_wrong: { ru: 'Не совсем. Приведи к знаменателю четыре, сложи доли и выдели целое.', uz: "Unchalik emas. Maxraj to'rtga keltiring, ulushlarni qo'shing va butunni ajrating." }
+      intro: { ru: 'Саида пробежала утром одну целую три четвёртых километра и вечером две целых одну вторую. Сколько всего? Выбери ответ.', uz: "Saida ertalab bir butun to'rtdan uch kilometr, kechqurun ikki butun ikkidan bir yugurdi. Jami qancha? Javobni tanlang.", en: 'Saida ran one and three quarter kilometres in the morning and two and a half in the evening. How far in all? Choose an answer.' },
+      on_correct: { ru: 'Верно, всего четыре целых одна четвёртая километра. А ещё часы и минуты идут из вавилонской системы из шестидесяти.', uz: "To'g'ri, hammasi to'rt butun to'rtdan bir kilometr. Yana soat va daqiqa bobilliklarning oltmishlik tizimidan kelgan.", en: 'That is right, four and one quarter kilometres in all. And hours and minutes come from the Babylonian system based on sixty.' },
+      on_wrong: { ru: 'Не совсем. Приведи к знаменателю четыре, сложи доли и выдели целое.', uz: "Unchalik emas. Maxraj to'rtga keltiring, ulushlarni qo'shing va butunni ajrating.", en: 'Not quite. Change them to a denominator of four, add the parts and take the whole out.' }
     }
   },
 
   // ===== s11 SUMMARY + ConnectionsBlock =====
   s11: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    heading: { ru: 'Что мы усвоили', uz: "Nimani o'rgandik" },
-    title: { ru: 'Теперь ты складываешь и вычитаешь смешанные числа.', uz: "Endi siz aralash sonlarni qo'shasiz va ayirasiz." },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Разные знаменатели — сначала общий знаменатель, потом по частям.', uz: "Maxrajlar har xil bo'lsa — avval umumiy maxraj, so'ng bo'laklab." },
-    main_2: { ru: 'При сложении доли больше целого — выделяем целое (перенос).', uz: "Qo'shganda ulush butundan oshsa — butunni ajratamiz (ko'chirish)." },
-    main_3: { ru: 'При вычитании доли не хватает — занимаем целое у целой части.', uz: "Ayirganda ulush yetmasa — butun qismdan butunni qarzga olamiz." },
-    score_label: { ru: 'Верно с первой попытки', uz: "Birinchi urinishda to'g'ri" },
-    back_to_hook: { ru: 'И ответ из начала: 1 2/3 + 2 2/3 = 4 1/3, а не 3 4/3.', uz: "Boshdagi javob: 1 2/3 + 2 2/3 = 4 1/3, 3 4/3 emas." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Перевод смешанного числа и неправильной дроби» и «Сложение дробей с разными знаменателями».', uz: "«Aralash son va noto'g'ri kasr» hamda «Har xil maxrajli kasrlarni qo'shish»." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'десятичные дроби — другой способ записывать целое и доли.', uz: "o'nli kasrlar — butun va ulushni boshqacha yozish usuli." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично. Теперь ты складываешь и вычитаешь смешанные числа. Если знаменатели разные, сначала приводим к общему знаменателю, потом считаем по частям. Если при сложении доли стали больше целого, выделяем целое. Если при вычитании доли не хватает, занимаем целое у целой части. Дальше нас ждут десятичные дроби — другой способ записывать целое и доли.', uz: "Zo'r. Endi siz aralash sonlarni qo'shasiz va ayirasiz. Maxrajlar har xil bo'lsa, avval umumiy maxrajga keltiramiz, so'ng bo'laklab hisoblaymiz. Qo'shganda ulush butundan oshsa, butunni ajratamiz. Ayirganda ulush yetmasa, butun qismdan butunni qarzga olamiz. Keyingi darsda o'nli kasrlar bizni kutmoqda — butun va ulushni boshqacha yozish usuli." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    heading: { ru: 'Что мы усвоили', uz: "Nimani o'rgandik", en: 'What we have learnt' },
+    title: { ru: 'Теперь ты складываешь и вычитаешь смешанные числа.', uz: "Endi siz aralash sonlarni qo'shasiz va ayirasiz.", en: 'Now you can add and subtract mixed numbers.' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Разные знаменатели — сначала общий знаменатель, потом по частям.', uz: "Maxrajlar har xil bo'lsa — avval umumiy maxraj, so'ng bo'laklab.", en: 'Different denominators mean a common denominator first, then piece by piece.' },
+    main_2: { ru: 'При сложении доли больше целого — выделяем целое (перенос).', uz: "Qo'shganda ulush butundan oshsa — butunni ajratamiz (ko'chirish).", en: 'If the parts add up to more than a whole, we take the whole out (carrying).' },
+    main_3: { ru: 'При вычитании доли не хватает — занимаем целое у целой части.', uz: "Ayirganda ulush yetmasa — butun qismdan butunni qarzga olamiz.", en: 'If there are not enough parts when subtracting, we borrow a whole from the whole number part.' },
+    score_label: { ru: 'Верно с первой попытки', uz: "Birinchi urinishda to'g'ri", en: 'Correct first time' },
+    back_to_hook: { ru: 'И ответ из начала: 1 2/3 + 2 2/3 = 4 1/3, а не 3 4/3.', uz: "Boshdagi javob: 1 2/3 + 2 2/3 = 4 1/3, 3 4/3 emas.", en: 'And the answer from the start: 1 2/3 + 2 2/3 = 4 1/3, not 3 4/3.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: '«Перевод смешанного числа и неправильной дроби» и «Сложение дробей с разными знаменателями».', uz: "«Aralash son va noto'g'ri kasr» hamda «Har xil maxrajli kasrlarni qo'shish».", en: 'Converting mixed numbers and improper fractions, and Adding fractions with different denominators.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'десятичные дроби — другой способ записывать целое и доли.', uz: "o'nli kasrlar — butun va ulushni boshqacha yozish usuli.", en: 'decimals, another way of writing a whole and its parts.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    audio: { ru: 'Отлично. Теперь ты складываешь и вычитаешь смешанные числа. Если знаменатели разные, сначала приводим к общему знаменателю, потом считаем по частям. Если при сложении доли стали больше целого, выделяем целое. Если при вычитании доли не хватает, занимаем целое у целой части. Дальше нас ждут десятичные дроби — другой способ записывать целое и доли.', uz: "Zo'r. Endi siz aralash sonlarni qo'shasiz va ayirasiz. Maxrajlar har xil bo'lsa, avval umumiy maxrajga keltiramiz, so'ng bo'laklab hisoblaymiz. Qo'shganda ulush butundan oshsa, butunni ajratamiz. Ayirganda ulush yetmasa, butun qismdan butunni qarzga olamiz. Keyingi darsda o'nli kasrlar bizni kutmoqda — butun va ulushni boshqacha yozish usuli.", en: 'Well done. Now you can add and subtract mixed numbers. If the denominators are different, we give them a common denominator first and then work piece by piece. If the parts add up to more than a whole, we take the whole out. If there are not enough parts when subtracting, we borrow a whole from the whole number part. Next come decimals, another way of writing a whole and its parts.' }
   }
 };
 
@@ -1147,9 +1176,9 @@ const Floaters = () => (
 );
 
 // FAKT-BLOK — ko'k karta, katta animatsiya + kam matn (faqat to'g'ri javobdan keyin).
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',      uz: "Bilasizmi? · IT" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
-const FB_LIFE = { ru: 'Знаешь ли ты? · Жизнь',   uz: "Bilasizmi? · Hayot" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',      uz: "Bilasizmi? · IT",      en: 'Did you know? · IT' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
+const FB_LIFE = { ru: 'Знаешь ли ты? · Жизнь',   uz: "Bilasizmi? · Hayot",   en: 'Did you know? · Real life' };
 const AnimMeasure = () => (
   <div className="pa-st" aria-hidden="true">
     {['1', '½', '2', '½'].map((ch, i) => (<span key={i} className="pa-st-c" style={{ animationDelay: `${i * 0.28}s` }}>{ch}</span>))}
@@ -1396,7 +1425,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.'}</p>
           </div>
         ) : (
           <>
@@ -1419,7 +1448,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1501,7 +1530,7 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
           <>
             <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ color: T.success }}><IconOk/></span>
-              <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Barcha turdagi misollar yechildi." : 'Все типы примеров решены.'}</p>
+              <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Barcha turdagi misollar yechildi." : lang === 'en' ? "Every kind of example is done." : 'Все типы примеров решены.'}</p>
             </div>
             {factOnDone}
           </>
@@ -1540,7 +1569,7 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
 
             <FeedbackBlock show={solvedItem || showWrong} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? <IconOk/> : <IconNo/>}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? <IconOk/> : <IconNo/>}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? it.ok : it.no))}</p>
             </FeedbackBlock>
@@ -1779,7 +1808,7 @@ const ScreenDrag = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1825,7 +1854,7 @@ const ScreenSummary = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const points = [c.main_1, c.main_2, c.main_3];
   const scoredTotal = SCREEN_META.filter(s => s.scored).length;
   const correctCount = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -1855,7 +1884,7 @@ export default function MixedNumbersLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1908,7 +1937,7 @@ export default function MixedNumbersLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

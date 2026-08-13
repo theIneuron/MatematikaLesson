@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -750,8 +776,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'nat_5_01',
-  lessonTitle: { ru: 'Огромные числа вокруг нас', uz: 'Atrofimizdagi katta sonlar' }
+  lessonId: 'grade5-01',
+  lessonTitle: { ru: 'Огромные числа вокруг нас', uz: 'Atrofimizdagi katta sonlar', en: 'The huge numbers around us' }
 };
 
 const SCREEN_META = [
@@ -774,46 +800,46 @@ const SCREEN_META = [
 
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
-    global_q: { ru: 'Как прочитать огромные числа вокруг нас?', uz: "Atrofimizdagi katta sonlarni qanday o'qiymiz?" },
-    lead: { ru: 'Земля движется вокруг Солнца. Расстояние до него — вот столько километров:', uz: "Yer Quyosh atrofida aylanadi. Ungacha masofa — mana shuncha kilometr:" },
-    number_em: { ru: '149 600 000', uz: '149 600 000' },
-    question: { ru: 'Сможешь прочитать это число?', uz: "Bu sonni o'qiy olasizmi?" },
-    opt_yes: { ru: 'Прочту легко', uz: "Bemalol o'qiyman" },
-    opt_no: { ru: 'Пока трудно', uz: 'Hozircha qiyin' },
-    opt_idk: { ru: 'Хочу научиться', uz: "O'rganmoqchiman" },
+    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli', en: 'The question of the lesson' },
+    global_q: { ru: 'Как прочитать огромные числа вокруг нас?', uz: "Atrofimizdagi katta sonlarni qanday o'qiymiz?", en: 'How do you read the huge numbers around us?' },
+    lead: { ru: 'Земля движется вокруг Солнца. Расстояние до него — вот столько километров:', uz: "Yer Quyosh atrofida aylanadi. Ungacha masofa — mana shuncha kilometr:", en: 'The Earth moves around the Sun. The distance to it is this many kilometres:' },
+    number_em: { ru: '149 600 000', uz: '149 600 000', en: '149 600 000' },
+    question: { ru: 'Сможешь прочитать это число?', uz: "Bu sonni o'qiy olasizmi?", en: 'Can you read this number?' },
+    opt_yes: { ru: 'Прочту легко', uz: "Bemalol o'qiyman", en: 'I can read it easily' },
+    opt_no: { ru: 'Пока трудно', uz: 'Hozircha qiyin', en: 'It is hard so far' },
+    opt_idk: { ru: 'Хочу научиться', uz: "O'rganmoqchiman", en: 'I want to learn' },
     audio: {
-      intro: { ru: 'Земля движется вокруг Солнца, и расстояние до него сто сорок девять миллионов шестьсот тысяч километров. Прочитать такое число с ходу трудно. Главный вопрос урока: как прочитать и представить себе огромные числа вокруг нас? Сможешь прочитать это число?', uz: "Yer Quyosh atrofida aylanadi, va ungacha masofa bir yuz qirq to'qqiz million olti yuz ming kilometr. Bunday sonni darrov o'qish qiyin. Darsning asosiy savoli: atrofimizdagi katta sonlarni qanday o'qish va tasavvur qilamiz? Bu sonni o'qiy olasizmi?" },
-      on_correct: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' },
-      on_wrong: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' }
+      intro: { ru: 'Земля движется вокруг Солнца, и расстояние до него сто сорок девять миллионов шестьсот тысяч километров. Прочитать такое число с ходу трудно. Главный вопрос урока: как прочитать и представить себе огромные числа вокруг нас? Сможешь прочитать это число?', uz: "Yer Quyosh atrofida aylanadi, va ungacha masofa bir yuz qirq to'qqiz million olti yuz ming kilometr. Bunday sonni darrov o'qish qiyin. Darsning asosiy savoli: atrofimizdagi katta sonlarni qanday o'qish va tasavvur qilamiz? Bu sonni o'qiy olasizmi?", en: 'The Earth moves around the Sun, and the distance to it is one hundred and forty nine million six hundred thousand kilometres. Reading a number like that straight off is hard. The main question of the lesson is how to read and picture the huge numbers around us. Can you read this number?' },
+      on_correct: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.', en: 'Then let us begin.' },
+      on_wrong: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.', en: 'Then let us begin.' }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz' },
-    bridge: { ru: 'Сначала вспомним разряды из начальной школы.', uz: "Avval boshlang'ich sinfdagi xonalarni eslaymiz." },
-    question: { ru: 'В числе 2 658 цифра 6 стоит в разряде…', uz: '2 658 sonida 6 raqami qaysi xonada turibdi…' },
-    opt0: { ru: 'единиц', uz: 'birlar' },
-    opt1: { ru: 'десятков', uz: "o'nlar" },
-    opt2: { ru: 'сотен', uz: 'yuzlar' },
-    opt3: { ru: 'тысяч', uz: 'minglar' },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Let us remember' },
+    bridge: { ru: 'Сначала вспомним разряды из начальной школы.', uz: "Avval boshlang'ich sinfdagi xonalarni eslaymiz.", en: 'First let us remember the places from primary school.' },
+    question: { ru: 'В числе 2 658 цифра 6 стоит в разряде…', uz: '2 658 sonida 6 raqami qaysi xonada turibdi…', en: 'In the number 2 658 the digit 6 stands in the place of…' },
+    opt0: { ru: 'единиц', uz: 'birlar', en: 'ones' },
+    opt1: { ru: 'десятков', uz: "o'nlar", en: 'tens' },
+    opt2: { ru: 'сотен', uz: 'yuzlar', en: 'hundreds' },
+    opt3: { ru: 'тысяч', uz: 'minglar', en: 'thousands' },
     correctIndex: 2,
-    correct_text: { ru: 'Верно. 2 658 — это 2 тысячи, 6 сотен, 5 десятков, 8 единиц. Разряд показывает, сколько стоит цифра.', uz: "To'g'ri. 2 658 — bu 2 mingta, 6 yuzta, 5 o'nta, 8 birta. Xona raqamning qiymatini ko'rsatadi." },
-    wrong_0: { ru: 'Единицы — самый правый разряд, там стоит восьмёрка. Считай разряды справа налево.', uz: "Birlar — eng o'ngdagi xona, u yerda sakkiz turibdi. Xonalarni o'ngdan chapga sanang." },
-    wrong_1: { ru: 'В десятках стоит пятёрка. Шестёрка — на разряд левее десятков.', uz: "O'nlar xonasida besh turibdi. Olti undan bitta chap tomonda." },
-    wrong_3: { ru: 'В тысячах стоит двойка. Шестёрка — на разряд правее тысяч.', uz: "Minglar xonasida ikki turibdi. Olti undan bitta o'ng tomonda." },
+    correct_text: { ru: 'Верно. 2 658 — это 2 тысячи, 6 сотен, 5 десятков, 8 единиц. Разряд показывает, сколько стоит цифра.', uz: "To'g'ri. 2 658 — bu 2 mingta, 6 yuzta, 5 o'nta, 8 birta. Xona raqamning qiymatini ko'rsatadi.", en: 'That is right. 2 658 is 2 thousands, 6 hundreds, 5 tens and 8 ones. The place tells you what a digit is worth.' },
+    wrong_0: { ru: 'Единицы — самый правый разряд, там стоит восьмёрка. Считай разряды справа налево.', uz: "Birlar — eng o'ngdagi xona, u yerda sakkiz turibdi. Xonalarni o'ngdan chapga sanang.", en: 'The ones is the place furthest right, and the eight stands there. Count the places from right to left.' },
+    wrong_1: { ru: 'В десятках стоит пятёрка. Шестёрка — на разряд левее десятков.', uz: "O'nlar xonasida besh turibdi. Olti undan bitta chap tomonda.", en: 'The five stands in the tens. The six is one place to the left of the tens.' },
+    wrong_3: { ru: 'В тысячах стоит двойка. Шестёрка — на разряд правее тысяч.', uz: "Minglar xonasida ikki turibdi. Olti undan bitta o'ng tomonda.", en: 'The two stands in the thousands. The six is one place to the right of the thousands.' },
     audio: {
-      intro: { ru: 'Короткий разогрев. В числе две тысячи шестьсот пятьдесят восемь в каком разряде стоит цифра шесть? Выбери ответ.', uz: "Qisqa mashq. Ikki ming olti yuz ellik sakkiz sonida olti raqami qaysi xonada turibdi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Скоро эти разряды соберутся в классы.', uz: "To'g'ri. Tez orada bu xonalar sinflarga yig'iladi." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Короткий разогрев. В числе две тысячи шестьсот пятьдесят восемь в каком разряде стоит цифра шесть? Выбери ответ.', uz: "Qisqa mashq. Ikki ming olti yuz ellik sakkiz sonida olti raqami qaysi xonada turibdi? Javobni tanlang.", en: 'A quick warm up. In the number two thousand six hundred and fifty eight, which place does the digit six stand in? Choose an answer.' },
+      on_correct: { ru: 'Верно. Скоро эти разряды соберутся в классы.', uz: "To'g'ri. Tez orada bu xonalar sinflarga yig'iladi.", en: 'That is right. Soon these places will gather into groups.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    bridge: { ru: 'Это число длинное. Разобьём его на части.', uz: "Bu son uzun. Uni qismlarga ajratamiz." },
-    title: { ru: 'Разбиваем число на классы', uz: 'Sonni sinflarga ajratamiz' },
-    number_grouped: { ru: '149 600 000', uz: '149 600 000' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    bridge: { ru: 'Это число длинное. Разобьём его на части.', uz: "Bu son uzun. Uni qismlarga ajratamiz.", en: 'This number is long. Let us split it into parts.' },
+    title: { ru: 'Разбиваем число на классы', uz: 'Sonni sinflarga ajratamiz', en: 'Splitting a number into groups' },
+    number_grouped: { ru: '149 600 000', uz: '149 600 000', en: '149 600 000' },
     audio: {
       ru: [
         'Чтобы прочитать число, поставим пробелы через каждые три цифры, считая справа. Первая группа справа это класс единиц.',
@@ -824,42 +850,43 @@ const CONTENT = {
         "Sonni o'qish uchun o'ngdan boshlab har uch xonadan keyin bo'sh joy qo'yamiz. O'ngdagi birinchi guruh bu birlar sinfi.",
         "Keyingi guruh bu minglar sinfi.",
         "Chapda esa millionlar sinfi turadi. Endi son bittalab emas, guruhlar bo'yicha o'qiladi."
-      ]
+      ],
+      en: ['To read the number we put spaces after every three digits, counting from the right. The first group on the right is the ones group.', 'The next group is the thousands group.', 'And on the left is the millions group. Now the number is read group by group instead of digit by digit.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Класс', uz: 'Sinf' },
-    rule_1: { ru: 'Многозначное число делят на классы по три разряда, считая справа налево.', uz: "Ko'p xonali son o'ngdan chapga uch xonadan sinflarga ajratiladi." },
-    rule_2: { ru: 'Каждый класс — это группа из трёх цифр. Между классами ставят пробел.', uz: "Har bir sinf — uchta raqamdan iborat guruh. Sinflar orasiga bo'sh joy qo'yiladi." },
-    example: { ru: '149 600 000  →  149 | 600 | 000', uz: '149 600 000  →  149 | 600 | 000' },
-    audio: { ru: 'Запомним правило. Многозначное число делят на классы по три разряда, считая справа налево. Каждый класс это группа из трёх цифр, и между классами ставят пробел.', uz: "Qoidani eslab qolamiz. Ko'p xonali son o'ngdan chapga uch xonadan sinflarga ajratiladi. Har bir sinf uchta raqamdan iborat guruh, va sinflar orasiga bo'sh joy qo'yiladi." }
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Класс', uz: 'Sinf', en: 'Group' },
+    rule_1: { ru: 'Многозначное число делят на классы по три разряда, считая справа налево.', uz: "Ko'p xonali son o'ngdan chapga uch xonadan sinflarga ajratiladi.", en: 'A long number is split into groups of three places, counting from right to left.' },
+    rule_2: { ru: 'Каждый класс — это группа из трёх цифр. Между классами ставят пробел.', uz: "Har bir sinf — uchta raqamdan iborat guruh. Sinflar orasiga bo'sh joy qo'yiladi.", en: 'Each group is three digits. A space is put between the groups.' },
+    example: { ru: '149 600 000  →  149 | 600 | 000', uz: '149 600 000  →  149 | 600 | 000', en: '149 600 000  →  149 | 600 | 000' },
+    audio: { ru: 'Запомним правило. Многозначное число делят на классы по три разряда, считая справа налево. Каждый класс это группа из трёх цифр, и между классами ставят пробел.', uz: "Qoidani eslab qolamiz. Ko'p xonali son o'ngdan chapga uch xonadan sinflarga ajratiladi. Har bir sinf uchta raqamdan iborat guruh, va sinflar orasiga bo'sh joy qo'yiladi.", en: 'Let us remember the rule. A long number is split into groups of three places, counting from right to left. Each group is three digits, and a space is put between the groups.' }
   },
 
   s4: {
-    eyebrow: { ru: 'Тренировка · 1 из 6', uz: 'Mashq · 6 dan 1' },
-    bridge: { ru: 'Расстояние до Луны записано без пробелов. Раздели его на классы.', uz: "Oygacha masofa bo'shliqsiz yozilgan. Uni sinflarga ajrating." },
-    label: { ru: 'Расставь пробелы', uz: "Bo'shliqlarni qo'ying" },
-    context: { ru: 'Расстояние от Земли до Луны, км.', uz: 'Yerdan Oygacha masofa, km.' },
+    eyebrow: { ru: 'Тренировка · 1 из 6', uz: 'Mashq · 6 dan 1', en: 'Practice · 1 of 6' },
+    bridge: { ru: 'Расстояние до Луны записано без пробелов. Раздели его на классы.', uz: "Oygacha masofa bo'shliqsiz yozilgan. Uni sinflarga ajrating.", en: 'The distance to the Moon is written without spaces. Split it into groups.' },
+    label: { ru: 'Расставь пробелы', uz: "Bo'shliqlarni qo'ying", en: 'Put in the spaces' },
+    context: { ru: 'Расстояние от Земли до Луны, км.', uz: 'Yerdan Oygacha masofa, km.', en: 'The distance from the Earth to the Moon, km.' },
     raw: '384400',
     correct: '384 400',
-    hint: { ru: 'Отсчитай три цифры справа и поставь пробел перед ними.', uz: "O'ngdan uchta xonani sanang va ulardan oldin bo'sh joy qo'ying." },
-    fb_correct: { ru: 'Верно. Пробел через три цифры справа: 384 400. Это триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. Bo'sh joy o'ngdan uch xonadan keyin: 384 400. Bu uch yuz sakson to'rt ming to'rt yuz." },
-    fb_wrong: { ru: 'Считай три цифры справа и ставь пробел только там. Так число делится на класс тысяч и класс единиц.', uz: "O'ngdan uchta xonani sanang va faqat o'sha yerga bo'sh joy qo'ying. Shunda son minglar sinfi va birlar sinfiga bo'linadi." },
+    hint: { ru: 'Отсчитай три цифры справа и поставь пробел перед ними.', uz: "O'ngdan uchta xonani sanang va ulardan oldin bo'sh joy qo'ying.", en: 'Count three digits from the right and put a space in front of them.' },
+    fb_correct: { ru: 'Верно. Пробел через три цифры справа: 384 400. Это триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. Bo'sh joy o'ngdan uch xonadan keyin: 384 400. Bu uch yuz sakson to'rt ming to'rt yuz.", en: 'That is right. A space after three digits from the right: 384 400. That is three hundred and eighty four thousand four hundred.' },
+    fb_wrong: { ru: 'Считай три цифры справа и ставь пробел только там. Так число делится на класс тысяч и класс единиц.', uz: "O'ngdan uchta xonani sanang va faqat o'sha yerga bo'sh joy qo'ying. Shunda son minglar sinfi va birlar sinfiga bo'linadi.", en: 'Count three digits from the right and put the space only there. That splits the number into the thousands group and the ones group.' },
     audio: {
-      intro: { ru: 'Расстояние до Луны записано без пробелов. Поставь пробел так, чтобы число делилось на классы. Потом нажми кнопку проверить.', uz: "Oygacha masofa bo'shliqsiz yozilgan. Son sinflarga bo'linishi uchun bo'sh joy qo'ying. Keyin tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Через три цифры справа число разделилось на классы. Читается оно как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. O'ngdan uch xonadan keyin son sinflarga bo'lindi. U uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." },
-      on_wrong: { ru: 'Пока не так. Считай три цифры справа.', uz: "Hali emas. O'ngdan uchta xonani sanang." }
+      intro: { ru: 'Расстояние до Луны записано без пробелов. Поставь пробел так, чтобы число делилось на классы. Потом нажми кнопку проверить.', uz: "Oygacha masofa bo'shliqsiz yozilgan. Son sinflarga bo'linishi uchun bo'sh joy qo'ying. Keyin tekshirish tugmasini bosing.", en: 'The distance to the Moon is written without spaces. Put a space in so the number splits into groups. Then tap the check button.' },
+      on_correct: { ru: 'Верно. Через три цифры справа число разделилось на классы. Читается оно как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. O'ngdan uch xonadan keyin son sinflarga bo'lindi. U uch yuz sakson to'rt ming to'rt yuz deb o'qiladi.", en: 'That is right. After three digits from the right the number split into groups. It reads as three hundred and eighty four thousand four hundred.' },
+      on_wrong: { ru: 'Пока не так. Считай три цифры справа.', uz: "Hali emas. O'ngdan uchta xonani sanang.", en: 'Not yet. Count three digits from the right.' }
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    bridge: { ru: 'Заглянем внутрь одного класса.', uz: "Bitta sinfning ichiga qaraymiz." },
-    title: { ru: 'Три разряда в каждом классе', uz: 'Har bir sinfda uchta xona' },
-    fact: { ru: 'Слово «миллион» появилось около 700 лет назад — раньше таких больших чисел почти не считали.', uz: "«Million» so'zi taxminan 700 yil avval paydo bo'lgan — ilgari bunday katta sonlarni deyarli sanashmagan." },
-    fact_audio: { ru: 'Интересно: слово миллион появилось лишь около семисот лет назад. Раньше людям почти не приходилось считать такие большие количества.', uz: "Qiziq: million so'zi atigi yetti yuz yilcha avval paydo bo'lgan. Ilgari odamlarga bunday katta miqdorlarni sanash deyarli kerak bo'lmagan." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    bridge: { ru: 'Заглянем внутрь одного класса.', uz: "Bitta sinfning ichiga qaraymiz.", en: 'Let us look inside one group.' },
+    title: { ru: 'Три разряда в каждом классе', uz: 'Har bir sinfda uchta xona', en: 'Three places in every group' },
+    fact: { ru: 'Слово «миллион» появилось около 700 лет назад — раньше таких больших чисел почти не считали.', uz: "«Million» so'zi taxminan 700 yil avval paydo bo'lgan — ilgari bunday katta sonlarni deyarli sanashmagan.", en: 'The word million appeared about 700 years ago. Before that people hardly ever counted such big amounts.' },
+    fact_audio: { ru: 'Интересно: слово миллион появилось лишь около семисот лет назад. Раньше людям почти не приходилось считать такие большие количества.', uz: "Qiziq: million so'zi atigi yetti yuz yilcha avval paydo bo'lgan. Ilgari odamlarga bunday katta miqdorlarni sanash deyarli kerak bo'lmagan.", en: 'Here is something interesting. The word million appeared only about seven hundred years ago. Before that people hardly ever had to count such big amounts.' },
     audio: {
       ru: [
         'В каждом классе всегда три разряда, и считаем их справа налево. Самый правый разряд это единицы.',
@@ -870,49 +897,50 @@ const CONTENT = {
         "Har bir sinfda doimo uchta xona bor, va ularni o'ngdan chapga sanaymiz. Eng o'ngdagi xona bu birlar.",
         "Birlardan chapda o'nlar xonasi turadi.",
         "Undan ham chapda yuzlar xonasi. Bu uchta xona har bir sinfda takrorlanadi, shuning uchun har qanday son bitta qoida bilan o'qiladi."
-      ]
+      ],
+      en: ['Every group always has three places and we count them from right to left. The place furthest right is the ones.', 'To the left of the ones is the tens place.', 'Further left is the hundreds place. These three places repeat in every group, so any number is read by the same rule.']
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Как читать число', uz: "Sonni qanday o'qiymiz" },
-    rule_1: { ru: 'Читаем слева направо: называем число в каждом классе и добавляем название класса.', uz: "Chapdan o'ngga o'qiymiz: har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz." },
-    rule_2: { ru: 'Класс единиц название не получает — его просто называют.', uz: "Birlar sinfining nomi aytilmaydi — uni shunchaki aytamiz." },
-    example: { ru: '384 400  →  триста восемьдесят четыре тысячи четыреста', uz: "384 400  →  uch yuz sakson to'rt ming to'rt yuz" },
-    audio: { ru: 'Правило чтения. Идём слева направо, называем число в каждом классе и добавляем название класса. Класс единиц название не получает, его просто называют. Например, число на экране читается как триста восемьдесят четыре тысячи четыреста.', uz: "O'qish qoidasi. Chapdan o'ngga boramiz, har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz. Birlar sinfining nomi aytilmaydi, uni shunchaki aytamiz. Masalan, ekrandagi son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." }
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Как читать число', uz: "Sonni qanday o'qiymiz", en: 'How to read a number' },
+    rule_1: { ru: 'Читаем слева направо: называем число в каждом классе и добавляем название класса.', uz: "Chapdan o'ngga o'qiymiz: har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz.", en: 'We read from left to right: we say the number in each group and add the name of the group.' },
+    rule_2: { ru: 'Класс единиц название не получает — его просто называют.', uz: "Birlar sinfining nomi aytilmaydi — uni shunchaki aytamiz.", en: 'The ones group has no name of its own, you just say it.' },
+    example: { ru: '384 400  →  триста восемьдесят четыре тысячи четыреста', uz: "384 400  →  uch yuz sakson to'rt ming to'rt yuz", en: '384 400 → three hundred and eighty four thousand four hundred' },
+    audio: { ru: 'Правило чтения. Идём слева направо, называем число в каждом классе и добавляем название класса. Класс единиц название не получает, его просто называют. Например, число на экране читается как триста восемьдесят четыре тысячи четыреста.', uz: "O'qish qoidasi. Chapdan o'ngga boramiz, har bir sinfdagi sonni aytamiz va sinf nomini qo'shamiz. Birlar sinfining nomi aytilmaydi, uni shunchaki aytamiz. Masalan, ekrandagi son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi.", en: 'The reading rule. We go from left to right, say the number in each group and add the name of the group. The ones group has no name of its own, you just say it. For example, the number on the screen reads as three hundred and eighty four thousand four hundred.' }
   },
 
   s7: {
-    eyebrow: { ru: 'Тренировка · 2 из 6', uz: 'Mashq · 6 dan 2' },
-    bridge: { ru: 'Три числа прочитаны верно, одно — с ошибкой. Найди ошибку.', uz: "Uch son to'g'ri o'qilgan, bittasi — xato. Xatoni toping." },
-    question: { ru: 'В каком числе чтение ошибочно?', uz: "Qaysi sonda o'qish xato?" },
-    lead: { ru: 'Сравни число и его чтение. Тапни ошибочное.', uz: "Sonni va uning o'qilishini solishtiring. Xato bo'lganini bosing." },
+    eyebrow: { ru: 'Тренировка · 2 из 6', uz: 'Mashq · 6 dan 2', en: 'Practice · 2 of 6' },
+    bridge: { ru: 'Три числа прочитаны верно, одно — с ошибкой. Найди ошибку.', uz: "Uch son to'g'ri o'qilgan, bittasi — xato. Xatoni toping.", en: 'Three of the numbers are read correctly and one has a mistake. Find the mistake.' },
+    question: { ru: 'В каком числе чтение ошибочно?', uz: "Qaysi sonda o'qish xato?", en: 'Which number is read wrongly?' },
+    lead: { ru: 'Сравни число и его чтение. Тапни ошибочное.', uz: "Sonni va uning o'qilishini solishtiring. Xato bo'lganini bosing.", en: 'Compare the number with the way it is read. Tap the wrong one.' },
     errorIdx: 1,
     items: [
-      { num: '5 000', reading: { ru: 'пять тысяч', uz: 'besh ming' } },
-      { num: '384 400', reading: { ru: 'триста восемьдесят четыре тысячи сорок', uz: "uch yuz sakson to'rt ming qirq" } },
-      { num: '60 200', reading: { ru: 'шестьдесят тысяч двести', uz: 'oltmish ming ikki yuz' } },
-      { num: '1 392 000', reading: { ru: 'один миллион триста девяносто две тысячи', uz: "bir million uch yuz to'qson ikki ming" } }
+      { num: '5 000', reading: { ru: 'пять тысяч', uz: 'besh ming', en: 'five thousand' } },
+      { num: '384 400', reading: { ru: 'триста восемьдесят четыре тысячи сорок', uz: "uch yuz sakson to'rt ming qirq", en: 'three hundred and eighty four thousand and forty' } },
+      { num: '60 200', reading: { ru: 'шестьдесят тысяч двести', uz: 'oltmish ming ikki yuz', en: 'sixty thousand two hundred' } },
+      { num: '1 392 000', reading: { ru: 'один миллион триста девяносто две тысячи', uz: "bir million uch yuz to'qson ikki ming", en: 'one million three hundred and ninety two thousand' } }
     ],
-    correct_text: { ru: 'Верно. В 384 400 класс единиц это 400 — четыреста, а не сорок. Потерян ноль: правильно триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. 384 400 da birlar sinfi 400 — to'rt yuz, qirq emas. Nol yo'qolgan: to'g'risi uch yuz sakson to'rt ming to'rt yuz." },
-    wrong_0: { ru: 'Пять тысяч прочитано верно: в классе тысяч пятёрка, класс единиц пустой. Ищи число, где потеряли ноль.', uz: "Besh ming to'g'ri o'qilgan: minglar sinfida besh, birlar sinfi bo'sh. Nol yo'qolgan sonni qidiring." },
-    wrong_2: { ru: 'Шестьдесят тысяч двести прочитано верно. Ищи, где в классе единиц вместо сотен назвали десятки.', uz: "Oltmish ming ikki yuz to'g'ri o'qilgan. Birlar sinfida yuzlar o'rniga o'nlar aytilgan sonni qidiring." },
-    wrong_3: { ru: 'Один миллион триста девяносто две тысячи прочитано верно. Ошибка в другом числе.', uz: "Bir million uch yuz to'qson ikki ming to'g'ri o'qilgan. Xato boshqa sonda." },
+    correct_text: { ru: 'Верно. В 384 400 класс единиц это 400 — четыреста, а не сорок. Потерян ноль: правильно триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. 384 400 da birlar sinfi 400 — to'rt yuz, qirq emas. Nol yo'qolgan: to'g'risi uch yuz sakson to'rt ming to'rt yuz.", en: 'That is right. In 384 400 the ones group is 400, four hundred, not forty. A zero was lost: it should be three hundred and eighty four thousand four hundred.' },
+    wrong_0: { ru: 'Пять тысяч прочитано верно: в классе тысяч пятёрка, класс единиц пустой. Ищи число, где потеряли ноль.', uz: "Besh ming to'g'ri o'qilgan: minglar sinfida besh, birlar sinfi bo'sh. Nol yo'qolgan sonni qidiring.", en: 'Five thousand is read correctly: there is a five in the thousands group and the ones group is empty. Look for the number where a zero was lost.' },
+    wrong_2: { ru: 'Шестьдесят тысяч двести прочитано верно. Ищи, где в классе единиц вместо сотен назвали десятки.', uz: "Oltmish ming ikki yuz to'g'ri o'qilgan. Birlar sinfida yuzlar o'rniga o'nlar aytilgan sonni qidiring.", en: 'Sixty thousand two hundred is read correctly. Look for the one where tens were said instead of hundreds in the ones group.' },
+    wrong_3: { ru: 'Один миллион триста девяносто две тысячи прочитано верно. Ошибка в другом числе.', uz: "Bir million uch yuz to'qson ikki ming to'g'ri o'qilgan. Xato boshqa sonda.", en: 'One million three hundred and ninety two thousand is read correctly. The mistake is in another number.' },
     audio: {
-      intro: { ru: 'Три числа прочитаны верно, а в одном чтение ошибочно. Найди число с ошибкой и тапни его.', uz: "Uch son to'g'ri o'qilgan, bittasida o'qish xato. Xato sonni toping va uni bosing." },
-      on_correct: { ru: 'Верно. Ноль в классе единиц нельзя терять. Правильно это число читается как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. Birlar sinfidagi nolni yo'qotib bo'lmaydi. To'g'risi bu son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi." },
-      on_wrong: { ru: 'Это число прочитано правильно. Ищи потерянный ноль.', uz: "Bu son to'g'ri o'qilgan. Yo'qolgan nolni qidiring." }
+      intro: { ru: 'Три числа прочитаны верно, а в одном чтение ошибочно. Найди число с ошибкой и тапни его.', uz: "Uch son to'g'ri o'qilgan, bittasida o'qish xato. Xato sonni toping va uni bosing.", en: 'Three of the numbers are read correctly and one is read wrongly. Find the number with the mistake and tap it.' },
+      on_correct: { ru: 'Верно. Ноль в классе единиц нельзя терять. Правильно это число читается как триста восемьдесят четыре тысячи четыреста.', uz: "To'g'ri. Birlar sinfidagi nolni yo'qotib bo'lmaydi. To'g'risi bu son uch yuz sakson to'rt ming to'rt yuz deb o'qiladi.", en: 'That is right. You must not lose the zero in the ones group. This number reads as three hundred and eighty four thousand four hundred.' },
+      on_wrong: { ru: 'Это число прочитано правильно. Ищи потерянный ноль.', uz: "Bu son to'g'ri o'qilgan. Yo'qolgan nolni qidiring.", en: 'This number is read correctly. Look for the lost zero.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    bridge: { ru: 'Вернёмся к числу Солнца и проверим, что делает ноль.', uz: "Quyosh soniga qaytamiz va nol nima qilishini tekshiramiz." },
-    title: { ru: 'Ноль держит разряд', uz: 'Nol xonani ushlaydi' },
-    number_a: { ru: '149 600 000', uz: '149 600 000' },
-    number_b: { ru: '14 960 000', uz: '14 960 000' },
-    warn: { ru: 'Если разряд пустой, в нём пишут ноль. Выбросить такой ноль нельзя — иначе цифры сдвинутся и число станет в разы меньше.', uz: "Agar xona bo'sh bo'lsa, unga nol yoziladi. Bunday nolni tashlab bo'lmaydi — aks holda raqamlar suriladi va son necha barobar kichik bo'lib qoladi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    bridge: { ru: 'Вернёмся к числу Солнца и проверим, что делает ноль.', uz: "Quyosh soniga qaytamiz va nol nima qilishini tekshiramiz.", en: "Let us go back to the Sun's number and see what a zero does." },
+    title: { ru: 'Ноль держит разряд', uz: 'Nol xonani ushlaydi', en: 'Zero holds the place' },
+    number_a: { ru: '149 600 000', uz: '149 600 000', en: '149 600 000' },
+    number_b: { ru: '14 960 000', uz: '14 960 000', en: '14 960 000' },
+    warn: { ru: 'Если разряд пустой, в нём пишут ноль. Выбросить такой ноль нельзя — иначе цифры сдвинутся и число станет в разы меньше.', uz: "Agar xona bo'sh bo'lsa, unga nol yoziladi. Bunday nolni tashlab bo'lmaydi — aks holda raqamlar suriladi va son necha barobar kichik bo'lib qoladi.", en: 'If a place is empty, a zero is written in it. You cannot throw such a zero away, or the digits shift and the number becomes many times smaller.' },
     audio: {
       ru: [
         'В числе Солнца много нулей, и они держат разряды. Уберём всего один ноль.',
@@ -923,37 +951,38 @@ const CONTENT = {
         "Quyosh sonida nollar ko'p, va ular xonalarni ushlab turadi. Atigi bitta nolni olib tashlaymiz.",
         "Barcha raqamlar o'ngga surildi va o'n to'rt million to'qqiz yuz oltmish ming hosil bo'ldi — o'n barobar kichik.",
         "Eslab qolamiz. Agar xona bo'sh bo'lsa, unga nol yoziladi. Bunday nolni tashlab bo'lmaydi, aks holda qolgan raqamlar suriladi va son boshqacha bo'lib qoladi."
-      ]
+      ],
+      en: ["The Sun's number has many zeros and they hold the places. Let us remove just one zero.", 'All the digits shifted to the right and it became fourteen million nine hundred and sixty thousand, ten times smaller.', 'Let us remember. If a place is empty, a zero is written in it. You must not throw such a zero away, or the other digits shift and the number becomes a different one.']
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Тренировка · 3 из 6', uz: 'Mashq · 6 dan 3' },
-    bridge: { ru: 'Теперь запиши число цифрами, не теряя нули.', uz: "Endi sonni raqamlar bilan yozing, nollarni yo'qotmay." },
-    label: { ru: 'Запиши цифрами', uz: 'Raqamlar bilan yozing' },
-    context: { ru: 'Диаметр Солнца, км.', uz: 'Quyosh diametri, km.' },
-    question: { ru: 'Запиши цифрами: один миллион триста девяносто две тысячи.', uz: "Raqamlar bilan yozing: bir million uch yuz to'qson ikki ming." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Тренировка · 3 из 6', uz: 'Mashq · 6 dan 3', en: 'Practice · 3 of 6' },
+    bridge: { ru: 'Теперь запиши число цифрами, не теряя нули.', uz: "Endi sonni raqamlar bilan yozing, nollarni yo'qotmay.", en: 'Now write the number in digits without losing any zeros.' },
+    label: { ru: 'Запиши цифрами', uz: 'Raqamlar bilan yozing', en: 'Write it in digits' },
+    context: { ru: 'Диаметр Солнца, км.', uz: 'Quyosh diametri, km.', en: 'The diameter of the Sun, km.' },
+    question: { ru: 'Запиши цифрами: один миллион триста девяносто две тысячи.', uz: "Raqamlar bilan yozing: bir million uch yuz to'qson ikki ming.", en: 'Write in digits: one million three hundred and ninety two thousand.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     answer: '1392000',
-    hint: { ru: 'Класс единиц здесь пустой — держи его тремя нулями.', uz: "Bu yerda birlar sinfi bo'sh — uni uchta nol bilan ushlang." },
-    fb_correct: { ru: 'Правильно. Миллионы — 1, тысячи — 392, класс единиц пуст и держится нулями: 1 392 000.', uz: "To'g'ri. Millionlar — 1, minglar — 392, birlar sinfi bo'sh va nollar bilan ushlanadi: 1 392 000." },
-    fb_wrong: { ru: 'Проверь класс единиц. Он пустой, держи его тремя нулями: миллион, потом триста девяносто две тысячи, потом три нуля.', uz: "Birlar sinfini tekshiring. U bo'sh, uni uchta nol bilan ushlang: million, keyin uch yuz to'qson ikki ming, keyin uchta nol." },
-    fact: { ru: 'В нашей галактике около 100 000 000 000 звёзд — их не сосчитать поштучно.', uz: "Bizning galaktikamizda taxminan 100 000 000 000 yulduz bor — ularni bittalab sanab bo'lmaydi." },
-    fact_audio: { ru: 'Кстати, в нашей галактике около ста миллиардов звёзд. Столько по одной не сосчитать за всю жизнь.', uz: "Aytgancha, bizning galaktikamizda yuz milliardga yaqin yulduz bor. Bunchani bittalab butun umr sanab bo'lmaydi." },
+    hint: { ru: 'Класс единиц здесь пустой — держи его тремя нулями.', uz: "Bu yerda birlar sinfi bo'sh — uni uchta nol bilan ushlang.", en: 'The ones group here is empty, so hold it with three zeros.' },
+    fb_correct: { ru: 'Правильно. Миллионы — 1, тысячи — 392, класс единиц пуст и держится нулями: 1 392 000.', uz: "To'g'ri. Millionlar — 1, minglar — 392, birlar sinfi bo'sh va nollar bilan ushlanadi: 1 392 000.", en: 'Correct. Millions is 1, thousands is 392, and the ones group is empty and held by zeros: 1 392 000.' },
+    fb_wrong: { ru: 'Проверь класс единиц. Он пустой, держи его тремя нулями: миллион, потом триста девяносто две тысячи, потом три нуля.', uz: "Birlar sinfini tekshiring. U bo'sh, uni uchta nol bilan ushlang: million, keyin uch yuz to'qson ikki ming, keyin uchta nol.", en: 'Check the ones group. It is empty, so hold it with three zeros: a million, then three hundred and ninety two thousand, then three zeros.' },
+    fact: { ru: 'В нашей галактике около 100 000 000 000 звёзд — их не сосчитать поштучно.', uz: "Bizning galaktikamizda taxminan 100 000 000 000 yulduz bor — ularni bittalab sanab bo'lmaydi.", en: 'There are about 100 000 000 000 stars in our galaxy, far too many to count one by one.' },
+    fact_audio: { ru: 'Кстати, в нашей галактике около ста миллиардов звёзд. Столько по одной не сосчитать за всю жизнь.', uz: "Aytgancha, bizning galaktikamizda yuz milliardga yaqin yulduz bor. Bunchani bittalab butun umr sanab bo'lmaydi.", en: 'By the way, there are about a hundred billion stars in our galaxy. You could not count that many one by one in a whole lifetime.' },
     audio: {
-      intro: { ru: 'Запиши цифрами число один миллион триста девяносто две тысячи. Потом нажми кнопку проверить.', uz: "Bir million uch yuz to'qson ikki ming sonini raqamlar bilan yozing. Keyin tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Класс единиц пустой и держится тремя нулями.', uz: "To'g'ri. Birlar sinfi bo'sh va uchta nol bilan ushlanadi." },
-      on_wrong: { ru: 'Проверь нули в пустом классе.', uz: "Bo'sh sinfdagi nollarni tekshiring." }
+      intro: { ru: 'Запиши цифрами число один миллион триста девяносто две тысячи. Потом нажми кнопку проверить.', uz: "Bir million uch yuz to'qson ikki ming sonini raqamlar bilan yozing. Keyin tekshirish tugmasini bosing.", en: 'Write the number one million three hundred and ninety two thousand in digits. Then tap the check button.' },
+      on_correct: { ru: 'Верно. Класс единиц пустой и держится тремя нулями.', uz: "To'g'ri. Birlar sinfi bo'sh va uchta nol bilan ushlanadi.", en: 'That is right. The ones group is empty and held by three zeros.' },
+      on_wrong: { ru: 'Проверь нули в пустом классе.', uz: "Bo'sh sinfdagi nollarni tekshiring.", en: 'Check the zeros in the empty group.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    bridge: { ru: 'А вот число без единого нуля.', uz: "Mana birorta ham nolsiz son." },
-    title: { ru: 'Самое плотное число', uz: 'Eng zich son' },
-    number_grouped: { ru: '299 792 458', uz: '299 792 458' },
-    fact: { ru: 'Свет от Солнца долетает до Земли примерно за 8 минут, проходя эти 149 600 000 км.', uz: "Quyoshdan yorug'lik Yergacha taxminan 8 daqiqada yetib keladi, shu 149 600 000 km ni bosib o'tib." },
-    fact_audio: { ru: 'Интересно: свет от Солнца долетает до Земли примерно за восемь минут. За это время он проходит сто сорок девять миллионов шестьсот тысяч километров.', uz: "Qiziq: Quyoshdan yorug'lik Yergacha taxminan sakkiz daqiqada yetib keladi. Shu vaqtda u bir yuz qirq to'qqiz million olti yuz ming kilometrni bosib o'tadi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    bridge: { ru: 'А вот число без единого нуля.', uz: "Mana birorta ham nolsiz son.", en: 'And here is a number without a single zero.' },
+    title: { ru: 'Самое плотное число', uz: 'Eng zich son', en: 'The most packed number' },
+    number_grouped: { ru: '299 792 458', uz: '299 792 458', en: '299 792 458' },
+    fact: { ru: 'Свет от Солнца долетает до Земли примерно за 8 минут, проходя эти 149 600 000 км.', uz: "Quyoshdan yorug'lik Yergacha taxminan 8 daqiqada yetib keladi, shu 149 600 000 km ni bosib o'tib.", en: 'Light from the Sun reaches the Earth in about 8 minutes, crossing those 149 600 000 km.' },
+    fact_audio: { ru: 'Интересно: свет от Солнца долетает до Земли примерно за восемь минут. За это время он проходит сто сорок девять миллионов шестьсот тысяч километров.', uz: "Qiziq: Quyoshdan yorug'lik Yergacha taxminan sakkiz daqiqada yetib keladi. Shu vaqtda u bir yuz qirq to'qqiz million olti yuz ming kilometrni bosib o'tadi.", en: 'Here is something interesting. Light from the Sun reaches the Earth in about eight minutes. In that time it crosses one hundred and forty nine million six hundred thousand kilometres.' },
     audio: {
       ru: [
         'Скорость света очень плотное число, в нём нет ни одного нуля. В классе миллионов двести девяносто девять.',
@@ -964,36 +993,37 @@ const CONTENT = {
         "Yorug'lik tezligi juda zich son, unda birorta ham nol yo'q. Millionlar sinfida ikki yuz to'qson to'qqiz.",
         "Minglar sinfida yetti yuz to'qson ikki.",
         "Birlar sinfida to'rt yuz ellik sakkiz. Chapdan o'ngga o'qib, butun sonni olamiz."
-      ]
+      ],
+      en: ['The speed of light is a very packed number, with not a single zero in it. In the millions group there is two hundred and ninety nine.', 'In the thousands group there is seven hundred and ninety two.', 'In the ones group there is four hundred and fifty eight. We read from left to right and get the whole number.']
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренировка · 4 из 6', uz: 'Mashq · 6 dan 4' },
-    bridge: { ru: 'Собери числа урока с их чтением.', uz: "Darsdagi sonlarni o'qilishi bilan moslang." },
-    title: { ru: 'Сопоставь число и чтение', uz: "Sonni o'qilishi bilan mosla" },
-    lead: { ru: 'Тапни число, потом выбери его чтение.', uz: "Songa bosing, keyin o'qilishini tanlang." },
+    eyebrow: { ru: 'Тренировка · 4 из 6', uz: 'Mashq · 6 dan 4', en: 'Practice · 4 of 6' },
+    bridge: { ru: 'Собери числа урока с их чтением.', uz: "Darsdagi sonlarni o'qilishi bilan moslang.", en: 'Match the numbers of the lesson with the way they are read.' },
+    title: { ru: 'Сопоставь число и чтение', uz: "Sonni o'qilishi bilan mosla", en: 'Match the number and the reading' },
+    lead: { ru: 'Тапни число, потом выбери его чтение.', uz: "Songa bosing, keyin o'qilishini tanlang.", en: 'Tap a number, then choose how it is read.' },
     pairs: [
-      { number: '384 400', label: { ru: 'Луна, км', uz: 'Oy, km' }, reading: { ru: 'триста восемьдесят четыре тысячи четыреста', uz: "uch yuz sakson to'rt ming to'rt yuz" } },
-      { number: '1 392 000', label: { ru: 'диаметр Солнца', uz: 'Quyosh diametri' }, reading: { ru: 'один миллион триста девяносто две тысячи', uz: "bir million uch yuz to'qson ikki ming" } },
-      { number: '299 792 458', label: { ru: 'скорость света', uz: "yorug'lik tezligi" }, reading: { ru: 'двести девяносто девять миллионов семьсот девяносто две тысячи четыреста пятьдесят восемь', uz: "ikki yuz to'qson to'qqiz million yetti yuz to'qson ikki ming to'rt yuz ellik sakkiz" } }
+      { number: '384 400', label: { ru: 'Луна, км', uz: 'Oy, km', en: 'The Moon, km' }, reading: { ru: 'триста восемьдесят четыре тысячи четыреста', uz: "uch yuz sakson to'rt ming to'rt yuz", en: 'three hundred and eighty four thousand four hundred' } },
+      { number: '1 392 000', label: { ru: 'диаметр Солнца', uz: 'Quyosh diametri', en: 'the diameter of the Sun' }, reading: { ru: 'один миллион триста девяносто две тысячи', uz: "bir million uch yuz to'qson ikki ming", en: 'one million three hundred and ninety two thousand' } },
+      { number: '299 792 458', label: { ru: 'скорость света', uz: "yorug'lik tezligi", en: 'the speed of light' }, reading: { ru: 'двести девяносто девять миллионов семьсот девяносто две тысячи четыреста пятьдесят восемь', uz: "ikki yuz to'qson to'qqiz million yetti yuz to'qson ikki ming to'rt yuz ellik sakkiz", en: 'two hundred and ninety nine million seven hundred and ninety two thousand four hundred and fifty eight' } }
     ],
-    hint: { ru: 'Раздели число на классы по три справа и читай по классам слева направо.', uz: "Sonni o'ngdan uch xonadan sinflarga ajrating va chapdan o'ngga sinflar bo'yicha o'qing." },
-    correct_text: { ru: 'Верно. Все числа прочитаны по классам.', uz: "To'g'ri. Barcha sonlar sinflar bo'yicha o'qildi." },
+    hint: { ru: 'Раздели число на классы по три справа и читай по классам слева направо.', uz: "Sonni o'ngdan uch xonadan sinflarga ajrating va chapdan o'ngga sinflar bo'yicha o'qing.", en: 'Split the number into groups of three from the right and read it group by group from left to right.' },
+    correct_text: { ru: 'Верно. Все числа прочитаны по классам.', uz: "To'g'ri. Barcha sonlar sinflar bo'yicha o'qildi.", en: 'That is right. All the numbers are read group by group.' },
     audio: {
-      intro: { ru: 'Сопоставь каждое число с тем, как оно читается. Тапни число, потом выбери чтение.', uz: "Har bir sonni qanday o'qilishi bilan mosla. Songa bosing, keyin o'qilishini tanlang." },
-      on_correct: { ru: 'Верно, все числа сопоставлены по классам.', uz: "To'g'ri, barcha sonlar sinflar bo'yicha moslandi." },
-      on_wrong: { ru: 'Это не то чтение. Раздели число на классы.', uz: "Bu o'qilishi mos emas. Sonni sinflarga ajrating." }
+      intro: { ru: 'Сопоставь каждое число с тем, как оно читается. Тапни число, потом выбери чтение.', uz: "Har bir sonni qanday o'qilishi bilan mosla. Songa bosing, keyin o'qilishini tanlang.", en: 'Match each number with the way it is read. Tap a number, then choose the reading.' },
+      on_correct: { ru: 'Верно, все числа сопоставлены по классам.', uz: "To'g'ri, barcha sonlar sinflar bo'yicha moslandi.", en: 'That is right, all the numbers are matched group by group.' },
+      on_wrong: { ru: 'Это не то чтение. Раздели число на классы.', uz: "Bu o'qilishi mos emas. Sonni sinflarga ajrating.", en: 'That is not the right reading. Split the number into groups.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Тренировка · 5 из 6', uz: 'Mashq · 6 dan 5' },
-    bridge: { ru: 'Разложи числа по самому старшему классу.', uz: "Sonlarni eng yuqori sinfi bo'yicha ajrating." },
-    title: { ru: 'До какого класса доходит число?', uz: 'Son qaysi sinfgacha yetadi?' },
-    lead: { ru: 'Число появляется по одному. Тапни корзину, куда оно попадает.', uz: "Son bittalab chiqadi. U tushadigan savatni bosing." },
-    bin_th: { ru: 'До класса тысяч', uz: 'Minglar sinfigacha' },
-    bin_mln: { ru: 'До класса миллионов', uz: 'Millionlar sinfigacha' },
+    eyebrow: { ru: 'Тренировка · 5 из 6', uz: 'Mashq · 6 dan 5', en: 'Practice · 5 of 6' },
+    bridge: { ru: 'Разложи числа по самому старшему классу.', uz: "Sonlarni eng yuqori sinfi bo'yicha ajrating.", en: 'Sort the numbers by their highest group.' },
+    title: { ru: 'До какого класса доходит число?', uz: 'Son qaysi sinfgacha yetadi?', en: 'Which group does the number reach?' },
+    lead: { ru: 'Число появляется по одному. Тапни корзину, куда оно попадает.', uz: "Son bittalab chiqadi. U tushadigan savatni bosing.", en: 'The numbers appear one at a time. Tap the basket each one belongs in.' },
+    bin_th: { ru: 'До класса тысяч', uz: 'Minglar sinfigacha', en: 'Up to the thousands group' },
+    bin_mln: { ru: 'До класса миллионов', uz: 'Millionlar sinfigacha', en: 'Up to the millions group' },
     cards: [
       { label: '7 500', bin: 'th' },
       { label: '384 400', bin: 'th' },
@@ -1002,49 +1032,49 @@ const CONTENT = {
       { label: '149 600 000', bin: 'mln' },
       { label: '299 792 458', bin: 'mln' }
     ],
-    hint: { ru: 'Раздели на классы и посмотри, есть ли группа миллионов слева.', uz: "Sinflarga ajrating va chapda millionlar guruhi bor-yo'qligini qarang." },
-    correct_text: { ru: 'Верно. Если слева есть третья группа — число доходит до миллионов.', uz: "To'g'ri. Agar chapda uchinchi guruh bo'lsa — son millionlargacha yetadi." },
+    hint: { ru: 'Раздели на классы и посмотри, есть ли группа миллионов слева.', uz: "Sinflarga ajrating va chapda millionlar guruhi bor-yo'qligini qarang.", en: 'Split it into groups and see whether there is a millions group on the left.' },
+    correct_text: { ru: 'Верно. Если слева есть третья группа — число доходит до миллионов.', uz: "To'g'ri. Agar chapda uchinchi guruh bo'lsa — son millionlargacha yetadi.", en: 'That is right. If there is a third group on the left, the number reaches the millions.' },
     audio: {
-      intro: { ru: 'Числа появляются по одному. Реши, до какого старшего класса доходит каждое, и тапни нужную корзину.', uz: "Sonlar bittalab chiqadi. Har biri qaysi yuqori sinfgacha yetishini aniqlang va kerakli savatni bosing." },
-      on_correct: { ru: 'Верно. Третья группа слева — это миллионы.', uz: "To'g'ri. Chapdagi uchinchi guruh — bu millionlar." },
-      on_wrong: { ru: 'Посчитай группы по три справа.', uz: "O'ngdan uchtalik guruhlarni sanang." }
+      intro: { ru: 'Числа появляются по одному. Реши, до какого старшего класса доходит каждое, и тапни нужную корзину.', uz: "Sonlar bittalab chiqadi. Har biri qaysi yuqori sinfgacha yetishini aniqlang va kerakli savatni bosing.", en: 'The numbers appear one at a time. Decide which highest group each one reaches and tap the right basket.' },
+      on_correct: { ru: 'Верно. Третья группа слева — это миллионы.', uz: "To'g'ri. Chapdagi uchinchi guruh — bu millionlar.", en: 'That is right. The third group from the left is the millions.' },
+      on_wrong: { ru: 'Посчитай группы по три справа.', uz: "O'ngdan uchtalik guruhlarni sanang.", en: 'Count the groups of three from the right.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi' },
-    bridge: { ru: 'Финал — то самое число Солнца из начала урока.', uz: "Yakun — dars boshidagi o'sha Quyosh soni." },
-    label: { ru: 'Запиши цифрами', uz: 'Raqamlar bilan yozing' },
-    context: { ru: 'Расстояние от Земли до Солнца, км.', uz: 'Yerdan Quyoshgacha masofa, km.' },
-    question: { ru: 'Запиши цифрами: сто сорок девять миллионов шестьсот тысяч.', uz: "Raqamlar bilan yozing: bir yuz qirq to'qqiz million olti yuz ming." },
-    placeholder: { ru: '0', uz: '0' },
+    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi', en: 'Knowledge check' },
+    bridge: { ru: 'Финал — то самое число Солнца из начала урока.', uz: "Yakun — dars boshidagi o'sha Quyosh soni.", en: 'The finish is that same number of the Sun from the start of the lesson.' },
+    label: { ru: 'Запиши цифрами', uz: 'Raqamlar bilan yozing', en: 'Write it in digits' },
+    context: { ru: 'Расстояние от Земли до Солнца, км.', uz: 'Yerdan Quyoshgacha masofa, km.', en: 'The distance from the Earth to the Sun, km.' },
+    question: { ru: 'Запиши цифрами: сто сорок девять миллионов шестьсот тысяч.', uz: "Raqamlar bilan yozing: bir yuz qirq to'qqiz million olti yuz ming.", en: 'Write in digits: one hundred and forty nine million six hundred thousand.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
     answer: '149600000',
-    hint: { ru: 'Миллионы, потом тысячи, потом пустой класс единиц из трёх нулей.', uz: "Millionlar, keyin minglar, keyin uchta noldan iborat bo'sh birlar sinfi." },
-    fb_correct: { ru: 'Правильно. Миллионы — 149, тысячи — 600, класс единиц пуст: 149 600 000. Ты прочитал число из начала урока.', uz: "To'g'ri. Millionlar — 149, minglar — 600, birlar sinfi bo'sh: 149 600 000. Dars boshidagi sonni o'qidingiz." },
-    fb_wrong: { ru: 'Не теряй нули. Сто сорок девять миллионов, шестьсот тысяч, и пустой класс единиц из трёх нулей.', uz: "Nollarni yo'qotmang. Bir yuz qirq to'qqiz million, olti yuz ming, va uchta noldan iborat bo'sh birlar sinfi." },
-    fact: { ru: 'Память обычного смартфона — это миллиарды байтов. Большие числа окружают нас каждый день.', uz: "Oddiy smartfon xotirasi — milliardlab bayt. Katta sonlar bizni har kuni o'rab turadi." },
-    fact_audio: { ru: 'Кстати, память обычного смартфона измеряется миллиардами байтов. Большие числа окружают нас каждый день.', uz: "Aytgancha, oddiy smartfon xotirasi milliardlab bayt bilan o'lchanadi. Katta sonlar bizni har kuni o'rab turadi." },
+    hint: { ru: 'Миллионы, потом тысячи, потом пустой класс единиц из трёх нулей.', uz: "Millionlar, keyin minglar, keyin uchta noldan iborat bo'sh birlar sinfi.", en: 'Millions, then thousands, then an empty ones group of three zeros.' },
+    fb_correct: { ru: 'Правильно. Миллионы — 149, тысячи — 600, класс единиц пуст: 149 600 000. Ты прочитал число из начала урока.', uz: "To'g'ri. Millionlar — 149, minglar — 600, birlar sinfi bo'sh: 149 600 000. Dars boshidagi sonni o'qidingiz.", en: 'Correct. Millions is 149, thousands is 600 and the ones group is empty: 149 600 000. You have read the number from the start of the lesson.' },
+    fb_wrong: { ru: 'Не теряй нули. Сто сорок девять миллионов, шестьсот тысяч, и пустой класс единиц из трёх нулей.', uz: "Nollarni yo'qotmang. Bir yuz qirq to'qqiz million, olti yuz ming, va uchta noldan iborat bo'sh birlar sinfi.", en: 'Do not lose the zeros. One hundred and forty nine million, six hundred thousand, and an empty ones group of three zeros.' },
+    fact: { ru: 'Память обычного смартфона — это миллиарды байтов. Большие числа окружают нас каждый день.', uz: "Oddiy smartfon xotirasi — milliardlab bayt. Katta sonlar bizni har kuni o'rab turadi.", en: "An ordinary smartphone's memory is billions of bytes. Big numbers are around us every day." },
+    fact_audio: { ru: 'Кстати, память обычного смартфона измеряется миллиардами байтов. Большие числа окружают нас каждый день.', uz: "Aytgancha, oddiy smartfon xotirasi milliardlab bayt bilan o'lchanadi. Katta sonlar bizni har kuni o'rab turadi.", en: "By the way, an ordinary smartphone's memory is measured in billions of bytes. Big numbers are around us every day." },
     audio: {
-      intro: { ru: 'Запиши цифрами расстояние до Солнца: сто сорок девять миллионов шестьсот тысяч. Потом нажми кнопку проверить.', uz: "Quyoshgacha masofani raqamlar bilan yozing: bir yuz qirq to'qqiz million olti yuz ming. Keyin tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Ты записал число из начала урока без потерянных нулей.', uz: "To'g'ri. Dars boshidagi sonni nollarni yo'qotmay yozdingiz." },
-      on_wrong: { ru: 'Проверь нули в пустом классе единиц.', uz: "Bo'sh birlar sinfidagi nollarni tekshiring." }
+      intro: { ru: 'Запиши цифрами расстояние до Солнца: сто сорок девять миллионов шестьсот тысяч. Потом нажми кнопку проверить.', uz: "Quyoshgacha masofani raqamlar bilan yozing: bir yuz qirq to'qqiz million olti yuz ming. Keyin tekshirish tugmasini bosing.", en: 'Write the distance to the Sun in digits: one hundred and forty nine million six hundred thousand. Then tap the check button.' },
+      on_correct: { ru: 'Верно. Ты записал число из начала урока без потерянных нулей.', uz: "To'g'ri. Dars boshidagi sonni nollarni yo'qotmay yozdingiz.", en: 'That is right. You wrote the number from the start of the lesson without losing any zeros.' },
+      on_wrong: { ru: 'Проверь нули в пустом классе единиц.', uz: "Bo'sh birlar sinfidagi nollarni tekshiring.", en: 'Check the zeros in the empty ones group.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    heading: { ru: 'Теперь ты читаешь любое огромное число', uz: "Endi istalgan katta sonni o'qiysiz" },
-    title: { ru: 'Помнишь вопрос про Солнце? Теперь ответ у тебя есть.', uz: "Quyosh haqidagi savolni eslaysizmi? Endi javob sizda." },
-    hook_close: { ru: 'Расстояние до Солнца 149 600 000 — это сто сорок девять миллионов шестьсот тысяч километров. В начале урока его было трудно прочитать, теперь — нет.', uz: "Quyoshgacha masofa 149 600 000 — bu bir yuz qirq to'qqiz million olti yuz ming kilometr. Dars boshida uni o'qish qiyin edi, endi — yo'q." },
-    score_label: { ru: 'вопросов решено с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
-    main_label: { ru: 'Главное', uz: 'Asosiysi' },
-    main_1: { ru: 'Разбей число на классы по три цифры справа.', uz: "Sonni o'ngdan uch xonadan sinflarga ajrating." },
-    main_2: { ru: 'В каждом классе три разряда; читай слева направо по классам.', uz: "Har bir sinfda uchta xona; chapdan o'ngga sinflar bo'yicha o'qing." },
-    main_3: { ru: 'Ноль держит пустой разряд — без него число в разы меньше.', uz: "Nol bo'sh xonani ushlaydi — usiz son necha barobar kichik." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'разряды и классы из начальной школы', uz: "boshlang'ich sinfdagi xona va sinflar" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'сравнение и округление многозначных чисел', uz: "ko'p xonali sonlarni taqqoslash va yaxlitlash" },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    heading: { ru: 'Теперь ты читаешь любое огромное число', uz: "Endi istalgan katta sonni o'qiysiz", en: 'Now you can read any huge number' },
+    title: { ru: 'Помнишь вопрос про Солнце? Теперь ответ у тебя есть.', uz: "Quyosh haqidagi savolni eslaysizmi? Endi javob sizda.", en: 'Remember the question about the Sun? Now you have the answer.' },
+    hook_close: { ru: 'Расстояние до Солнца 149 600 000 — это сто сорок девять миллионов шестьсот тысяч километров. В начале урока его было трудно прочитать, теперь — нет.', uz: "Quyoshgacha masofa 149 600 000 — bu bir yuz qirq to'qqiz million olti yuz ming kilometr. Dars boshida uni o'qish qiyin edi, endi — yo'q.", en: 'The distance to the Sun, 149 600 000, is one hundred and forty nine million six hundred thousand kilometres. At the start of the lesson it was hard to read, and now it is not.' },
+    score_label: { ru: 'вопросов решено с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob", en: 'questions answered right first time' },
+    main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
+    main_1: { ru: 'Разбей число на классы по три цифры справа.', uz: "Sonni o'ngdan uch xonadan sinflarga ajrating.", en: 'Split the number into groups of three digits from the right.' },
+    main_2: { ru: 'В каждом классе три разряда; читай слева направо по классам.', uz: "Har bir sinfda uchta xona; chapdan o'ngga sinflar bo'yicha o'qing.", en: 'Every group has three places; read from left to right group by group.' },
+    main_3: { ru: 'Ноль держит пустой разряд — без него число в разы меньше.', uz: "Nol bo'sh xonani ushlaydi — usiz son necha barobar kichik.", en: 'A zero holds an empty place; without it the number is many times smaller.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'разряды и классы из начальной школы', uz: "boshlang'ich sinfdagi xona va sinflar", en: 'places and groups from primary school' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'сравнение и округление многозначных чисел', uz: "ko'p xonali sonlarni taqqoslash va yaxlitlash", en: 'comparing and rounding long numbers' },
     audio: {
       ru: [
         'Вернёмся к вопросу урока: как прочитать огромные числа вокруг нас.',
@@ -1057,7 +1087,8 @@ const CONTENT = {
         "Sonni o'ngdan uch xonadan sinflarga ajratamiz, har bir sinfda uchta xona, va chapdan o'ngga o'qiymiz.",
         "Nol bo'sh xonani ushlaydi, uni tashlab bo'lmaydi, aks holda son necha barobar kichik bo'lib qoladi.",
         "Endi hatto Quyoshgacha masofa ham qo'lingizdan keladi. Keyingi safar katta sonlarni taqqoslash va yaxlitlash kutadi."
-      ]
+      ],
+      en: ['Let us go back to the question of the lesson: how to read the huge numbers around us.', 'We split the number into groups of three digits from the right, every group has three places, and we read from left to right.', 'A zero holds an empty place and you must not throw it away, or the number becomes many times smaller.', 'Now even the distance to the Sun is within your reach. Next come comparing and rounding big numbers.']
     }
   }
 };
@@ -1140,9 +1171,9 @@ const PlaceGrid = ({ answer, filled }) => {
 // ============================================================
 // FACTCARD — ovozli fakt to'g'ri javobdan keyin (ko'k tema + darsga xos Anim*).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',    uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',    uz: "Bilasizmi? · IT",    en: 'Did you know? · IT' };
+const FB_SCI  = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan", en: 'Did you know? · Science' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
   return (
@@ -1187,7 +1218,7 @@ const HintBlock = ({ show, children }) => {
   if (!show) return null;
   return (
     <div className="frame-tip fade-up" style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
-      <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+      <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
       <p className="body" style={{ margin: 0, color: T.ink }}>{children}</p>
     </div>
   );
@@ -1290,12 +1321,12 @@ const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAn
         </div>
         {!solved && (
           <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={!value} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
+            <button className="btn-white-accent" disabled={!value} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
           </FeedbackBlock>
         )}
@@ -1370,7 +1401,7 @@ const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnsw
           })}
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}</p>
           <p className="body" style={{ margin: 0 }}>{t(solved ? c.correct_text : (c[`wrong_${picked}`] || c.audio.on_wrong))}</p>
         </FeedbackBlock>
         {solved && factNode}
@@ -1450,7 +1481,7 @@ const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswe
         {wrongBin && !solved && <HintBlock show={true}>{t(c.hint)}</HintBlock>}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
           </FeedbackBlock>
         )}
@@ -1519,10 +1550,10 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
                   {placedPair !== null ? (
                     <>
                       <span style={{ flex: 1, fontSize: readingFont, lineHeight: 1.3, color: solved ? T.success : T.ink }}>{t(pairs[placedPair].reading)}</span>
-                      {!solved && <button onClick={(e) => clearSlot(k, e)} aria-label={lang === 'uz' ? 'tozalash' : 'очистить'} className="mono" style={{ border: 'none', background: 'transparent', color: T.ink3, cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 4 }}>×</button>}
+                      {!solved && <button onClick={(e) => clearSlot(k, e)} aria-label={lang === 'uz' ? 'tozalash' : lang === 'en' ? "clear" : 'очистить'} className="mono" style={{ border: 'none', background: 'transparent', color: T.ink3, cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 4 }}>×</button>}
                     </>
                   ) : (
-                    <span className="small" style={{ color: active ? T.accent : T.ink3 }}>{active ? (lang === 'uz' ? "ro'yxatdan tanlang ↓" : 'выбери из списка ↓') : (lang === 'uz' ? 'tanlash' : 'выбрать')}</span>
+                    <span className="small" style={{ color: active ? T.accent : T.ink3 }}>{active ? (lang === 'uz' ? "ro'yxatdan tanlang ↓" : lang === 'en' ? "choose from the list ↓" : 'выбери из списка ↓') : (lang === 'uz' ? 'tanlash' : lang === 'en' ? "choose" : 'выбрать')}</span>
                   )}
                 </div>
               </div>
@@ -1545,12 +1576,12 @@ const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScree
         )}
         {!solved && (
           <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={!allPlaced} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
+            <button className="btn-white-accent" disabled={!allPlaced} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
           </FeedbackBlock>
         )}
@@ -1602,7 +1633,7 @@ const SpacesInteractive = ({ screen, screenContent, storedAnswer, onAnswer, onNe
           <div className="display" style={{ fontSize: 'clamp(34px, 7vw, 56px)', display: 'flex', alignItems: 'center' }}>
             {digits.map((d, i) => (
               <React.Fragment key={i}>
-                {i > 0 && (<button onClick={() => toggleGap(i)} disabled={solved} aria-label={lang === 'uz' ? "bo'sh joy" : 'пробел'} className="gap-slot" style={{ width: spaces.has(i) ? 'clamp(14px,3vw,24px)' : 'clamp(7px,1.6vw,12px)', background: spaces.has(i) ? T.accent : 'transparent' }}/>)}
+                {i > 0 && (<button onClick={() => toggleGap(i)} disabled={solved} aria-label={lang === 'uz' ? "bo'sh joy" : lang === 'en' ? "space" : 'пробел'} className="gap-slot" style={{ width: spaces.has(i) ? 'clamp(14px,3vw,24px)' : 'clamp(7px,1.6vw,12px)', background: spaces.has(i) ? T.accent : 'transparent' }}/>)}
                 <span style={{ color: T.ink }}>{d}</span>
               </React.Fragment>
             ))}
@@ -1610,12 +1641,12 @@ const SpacesInteractive = ({ screen, screenContent, storedAnswer, onAnswer, onNe
         </div>
         {!solved && (
           <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={solved} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
+            <button className="btn-white-accent" disabled={solved} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
           </FeedbackBlock>
         )}
@@ -1698,7 +1729,7 @@ const Screen3 = (props) => (<RuleScreen {...props} screenContent={CONTENT.s3} to
 
 const Screen4 = (props) => <SpacesInteractive {...props} screenContent={CONTENT.s4} totalScreens={TOTAL_SCREENS}/>;
 
-const RANKS = [{ ru: 'сотни', uz: 'yuzlar' }, { ru: 'десятки', uz: "o'nlar" }, { ru: 'единицы', uz: 'birlar' }];
+const RANKS = [{ ru: 'сотни', uz: 'yuzlar', en: 'hundreds' }, { ru: 'десятки', uz: "o'nlar", en: 'tens' }, { ru: 'единицы', uz: 'birlar', en: 'ones' }];
 const Screen5 = (props) => (
   <StepExploration {...props} screenContent={CONTENT.s5} totalScreens={TOTAL_SCREENS} factOnLast
     renderBody={({ t, lang, step, last }) => {
@@ -1784,7 +1815,7 @@ const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const correct = scoredIdx.filter(i => answers[i]?.correct).length;
   const total = scoredIdx.length;
   const mains = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : lang === 'en' ? "Do it again" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
@@ -1968,7 +1999,7 @@ export default function NaturalNumbersLesson({
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
   const lang = langProp || 'ru';
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
 

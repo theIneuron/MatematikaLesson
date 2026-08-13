@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, CheckStrip, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, TaskTable, configureLesson, getAudioEngine, nextPraise, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , pickSib , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -125,8 +125,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-19',
-  lessonTitle: { ru: 'Урок 19. Деление с остатком', uz: "19-dars. Qoldiqli bo'lish" }
+  lessonId: 'grade3-19',
+  lessonTitle: { ru: 'Урок 19. Деление с остатком', uz: "19-dars. Qoldiqli bo'lish", en: 'Lesson 19. Division with a remainder' }
 };
 // STRUKTURA (KONTENT_3SINF.md «Dars 19»): s0 xuk 11:2 · s1 tarqatish · s2 11:3 va 11:4 ·
 // s3 savol-oldin-QOIDA · s4 Bit tuzog'i · s5 saralash · s6 test 25:2 · s7 konsol 38:3 ·
@@ -160,15 +160,15 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish' },
-    topic: { ru: 'Деление с остатком', uz: "Qoldiqli bo'lish" },
-    lead: { ru: '11 деталей раздают на 2 стола поровну', uz: "11 ta detal 2 stolga tengdan tarqatiladi" },
-    order_cap: { ru: 'раздать поровну, лишнее — в лоток', uz: "tengdan tarqatish, ortiqchasi — laganga" },
-    q: { ru: 'Сколько деталей на каждом столе и сколько останется?', uz: "Har bir stolda nechta detal bo'ladi va nechtasi ortadi?" },
-    opt0: { ru: 'по 5, останется 1', uz: "5 tadan, 1 ta ortadi" },
-    opt1: { ru: 'по 6, не останется', uz: "6 tadan, ortmaydi" },
-    opt2: { ru: 'по 5, останется 2', uz: "5 tadan, 2 ta ortadi" },
-    opt3: { ru: 'по 4, останется 3', uz: "4 tadan, 3 ta ortadi" },
+    eyebrow: { ru: 'Крючок', uz: 'Qiziqtirish', en: 'Hook' },
+    topic: { ru: 'Деление с остатком', uz: "Qoldiqli bo'lish", en: 'Division with a remainder' },
+    lead: { ru: '11 деталей раздают на 2 стола поровну', uz: "11 ta detal 2 stolga tengdan tarqatiladi", en: '11 parts are shared out equally onto 2 tables' },
+    order_cap: { ru: 'раздать поровну, лишнее — в лоток', uz: "tengdan tarqatish, ortiqchasi — laganga", en: 'share out equally, the extra goes in the tray' },
+    q: { ru: 'Сколько деталей на каждом столе и сколько останется?', uz: "Har bir stolda nechta detal bo'ladi va nechtasi ortadi?", en: 'How many parts on each table and how many will be left?' },
+    opt0: { ru: 'по 5, останется 1', uz: "5 tadan, 1 ta ortadi", en: '5 each, 1 left' },
+    opt1: { ru: 'по 6, не останется', uz: "6 tadan, ortmaydi", en: '6 each, none left' },
+    opt2: { ru: 'по 5, останется 2', uz: "5 tadan, 2 ta ortadi", en: '5 each, 2 left' },
+    opt3: { ru: 'по 4, останется 3', uz: "4 tadan, 3 ta ortadi", en: '4 each, 3 left' },
     audio: {
       intro: {
         ru: [
@@ -182,38 +182,44 @@ const CONTENT = {
           "Tarqatish stoliga o'n bitta detal keldi. Ular ikki stolga tengdan tarqatiladi.",
           "O'n bir tengdan bo'linmaydi. Albatta biror narsa ortib qoladi.",
           "Sizningcha, har bir stolda nechtadan bo'ladi va nechtasi ortadi?"
-        ]
+        ],
+        en: ['The topic of the lesson is called division with a remainder.', 'Eleven parts were brought to the sharing table. They are shared out equally onto two tables.', 'Eleven does not divide equally. Something is bound to be left.', 'How many do you think there will be on each table and how many will be left?']
       },
       on_correct: {
         ru: 'Верно! По пять на стол, и одна деталь лишняя. Эту лишнюю и называют остатком.',
-        uz: "To'g'ri! Har stolga beshtadan, bitta detal ortiqcha. Ana shu ortiqchani qoldiq deyishadi."
+        uz: "To'g'ri! Har stolga beshtadan, bitta detal ortiqcha. Ana shu ortiqchani qoldiq deyishadi.",
+        en: 'Right! Five per table, and one part is extra. That extra one is called the remainder.'
       },
       on_wrong1: {
         ru: 'По шесть на два стола это двенадцать, а деталей одиннадцать. Одной не хватит.',
-        uz: "Ikki stolga oltitadan bu o'n ikki, detal esa o'n bitta. Bittasi yetmaydi."
+        uz: "Ikki stolga oltitadan bu o'n ikki, detal esa o'n bitta. Bittasi yetmaydi.",
+        en: 'Six onto two tables is twelve, and there are eleven parts. One would be missing.'
       },
       on_wrong2: {
         ru: 'По пять на два стола это десять. Останется одна деталь, а не две.',
-        uz: "Ikki stolga beshtadan bu o'n. Bitta detal ortadi, ikkita emas."
+        uz: "Ikki stolga beshtadan bu o'n. Bitta detal ortadi, ikkita emas.",
+        en: 'Five onto two tables is ten. One part will be left, not two.'
       },
       on_idk: {
         ru: 'По четыре на два стола это восемь. Тогда останется три, но их ещё можно раздать.',
-        uz: "Ikki stolga to'rttadan bu sakkiz. Unda uchta ortadi, lekin ularni yana tarqatsa bo'ladi."
+        uz: "Ikki stolga to'rttadan bu sakkiz. Unda uchta ortadi, lekin ularni yana tarqatsa bo'ladi.",
+        en: 'Four onto two tables is eight. Then three would be left, but they can still be shared out.'
       }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz' },
-    lead: { ru: 'Раздаём 11 деталей на 2 стола', uz: "11 ta detalni 2 stolga tarqatamiz" },
+    eyebrow: { ru: 'Разбираем', uz: 'Ajratamiz', en: 'Taking it apart' },
+    lead: { ru: 'Раздаём 11 деталей на 2 стола', uz: "11 ta detalni 2 stolga tarqatamiz", en: 'We share 11 parts onto 2 tables' },
     rows: 2,
     per: 5,
     rest: 1,
     formula: '11 : 2 = 5 (ост. 1)',
     formula_uz: '11 : 2 = 5 (qold. 1)',
-    btn1: { ru: 'Раздать поровну', uz: 'Tengdan tarqatish' },
-    btn2: { ru: 'Что осталось?', uz: 'Nima ortdi?' },
-    done_text: { ru: 'Пять на столе, одна в лотке. Лишнее и есть остаток.', uz: "Beshtadan stolda, bittasi laganda. Ortiqchasi qoldiq bo'ladi." },
+    formula_en: '11 : 2 = 5 (rem. 1)',
+    btn1: { ru: 'Раздать поровну', uz: 'Tengdan tarqatish', en: 'Share out equally' },
+    btn2: { ru: 'Что осталось?', uz: 'Nima ortdi?', en: 'What is left?' },
+    done_text: { ru: 'Пять на столе, одна в лотке. Лишнее и есть остаток.', uz: "Beshtadan stolda, bittasi laganda. Ortiqchasi qoldiq bo'ladi.", en: 'Five on the table, one in the tray. The extra is the remainder.' },
     audio: {
       ru: [
         'Раздаём одиннадцать деталей на два стола.',
@@ -224,21 +230,22 @@ const CONTENT = {
         "O'n bitta detalni ikki stolga tarqatamiz.",
         "Har bir stolga beshtadan. Bu o'nta detal.",
         "Bitta detal tarqatishga sig'madi. Uni laganga qo'yishadi. Bu qoldiq."
-      ]
+      ],
+      en: ['We share eleven parts onto two tables.', 'Five on each table. That is ten parts.', 'One part did not fit into the sharing. It goes in the tray. That is the remainder.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Те же 11 деталей на 3 и на 4 стола', uz: "O'sha 11 detal 3 va 4 stolga" },
-    book_note: { ru: 'рисунок из учебника, стр. 30', uz: 'kitobdagi rasm, 30-bet' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Те же 11 деталей на 3 и на 4 стола', uz: "O'sha 11 detal 3 va 4 stolga", en: 'The same 11 parts onto 3 and onto 4 tables' },
+    book_note: { ru: 'рисунок из учебника, стр. 30', uz: 'kitobdagi rasm, 30-bet', en: 'a picture from the textbook, page 30' },
     cases: [
       { div: 3, per: 3, rest: 2, line: '11 : 3 = 3 (ост. 2)', line_uz: '11 : 3 = 3 (qold. 2)' },
       { div: 4, per: 2, rest: 3, line: '11 : 4 = 2 (ост. 3)', line_uz: '11 : 4 = 2 (qold. 3)' }
     ],
-    btn1: { ru: 'На 3 стола', uz: '3 stolga' },
-    btn2: { ru: 'На 4 стола', uz: '4 stolga' },
-    done_text: { ru: 'Число одно, а остатки разные. Всё зависит от того, на сколько делим.', uz: "Son bitta, qoldiqlar esa har xil. Hammasi nechaga bo'lishga bog'liq." },
+    btn1: { ru: 'На 3 стола', uz: '3 stolga', en: 'Onto 3 tables' },
+    btn2: { ru: 'На 4 стола', uz: '4 stolga', en: 'Onto 4 tables' },
+    done_text: { ru: 'Число одно, а остатки разные. Всё зависит от того, на сколько делим.', uz: "Son bitta, qoldiqlar esa har xil. Hammasi nechaga bo'lishga bog'liq.", en: 'The number is the same, but the remainders differ. It all depends on how many we divide onto.' },
     audio: {
       ru: [
         'Возьмём те же одиннадцать деталей, но столов будет больше.',
@@ -249,26 +256,27 @@ const CONTENT = {
         "O'sha o'n bitta detalni olamiz, lekin stollar ko'proq bo'ladi.",
         "Uch stolga uchtadan, ikkitasi ortadi.",
         "To'rt stolga ikkitadan, uchtasi ortadi. Son bitta, qoldiqlar esa har xil."
-      ]
+      ],
+      en: ['Let us take the same eleven parts, but with more tables.', 'Onto three tables, three parts each, and two will be left.', 'Onto four tables, two parts each, and three will be left. The number is the same, and the remainders differ.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Каким должен быть остаток?', uz: 'Qoldiq qanday bo\'lishi kerak?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Каким должен быть остаток?', uz: 'Qoldiq qanday bo\'lishi kerak?', en: 'What must the remainder be like?' },
     opts: [
-      { ru: 'меньше делителя', uz: "bo'luvchidan kichik" },
-      { ru: 'меньше частного', uz: "bo'linmadan kichik" },
-      { ru: 'больше делителя', uz: "bo'luvchidan katta" },
-      { ru: 'любым', uz: 'har qanday' }
+      { ru: 'меньше делителя', uz: "bo'luvchidan kichik", en: 'smaller than the divisor' },
+      { ru: 'меньше частного', uz: "bo'linmadan kichik", en: 'smaller than the quotient' },
+      { ru: 'больше делителя', uz: "bo'luvchidan katta", en: 'bigger than the divisor' },
+      { ru: 'любым', uz: 'har qanday', en: 'anything' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'На частное остаток не смотрит. Сравнивай его с тем, на сколько делим.', uz: "Qoldiq bo'linmaga qaramaydi. Uni nechaga bo'layotganingiz bilan solishtiring." },
-      2: { ru: 'Если остаток больше делителя, значит каждому можно дать ещё по одной.', uz: "Qoldiq bo'luvchidan katta bo'lsa, demak har biriga yana bittadan berish mumkin." },
-      3: { ru: 'Не любым. Из остатка нельзя раздать ещё один полный круг.', uz: "Har qanday emas. Qoldiqdan yana bitta to'liq aylana tarqatib bo'lmaydi." }
+      1: { ru: 'На частное остаток не смотрит. Сравнивай его с тем, на сколько делим.', uz: "Qoldiq bo'linmaga qaramaydi. Uni nechaga bo'layotganingiz bilan solishtiring.", en: 'The remainder does not look at the quotient. Compare it with what we divide onto.' },
+      2: { ru: 'Если остаток больше делителя, значит каждому можно дать ещё по одной.', uz: "Qoldiq bo'luvchidan katta bo'lsa, demak har biriga yana bittadan berish mumkin.", en: 'If the remainder is bigger than the divisor, then everyone can be given one more.' },
+      3: { ru: 'Не любым. Из остатка нельзя раздать ещё один полный круг.', uz: "Har qanday emas. Qoldiqdan yana bitta to'liq aylana tarqatib bo'lmaydi.", en: 'Not anything. You cannot share one more full round out of the remainder.' }
     },
-    on_correct: { ru: 'Верно! Остаток всегда меньше делителя.', uz: "To'g'ri! Qoldiq doim bo'luvchidan kichik." },
+    on_correct: { ru: 'Верно! Остаток всегда меньше делителя.', uz: "To'g'ri! Qoldiq doim bo'luvchidan kichik.", en: 'Right! The remainder is always smaller than the divisor.' },
     rule_lines: {
       ru: [
         'остаток всегда меньше делителя',
@@ -279,33 +287,37 @@ const CONTENT = {
         "qoldiq doim bo'luvchidan kichik",
         "aks holda yana bittadan tarqatish mumkin",
         "qoldiq nol ham bo'ladi — u holda tekis bo'linadi"
-      ]
+      ],
+      en: ['the remainder is always smaller than the divisor', 'otherwise one more each can be shared out', 'the remainder can be zero too — then it divides exactly']
     },
     rule_ex: '11 : 2 = 5 (1) · 11 : 3 = 3 (2) · 11 : 4 = 2 (3)',
     rule_speech: {
       ru: 'Правило такое. Остаток всегда меньше делителя. Если он получился больше или равен, значит каждому можно дать ещё по одной детали. А если остаток ноль, число разделилось ровно.',
-      uz: "Qoida shunday. Qoldiq doim bo'luvchidan kichik. Agar u katta yoki teng chiqsa, demak har biriga yana bittadan berish mumkin. Qoldiq nol bo'lsa, son tekis bo'lingan."
+      uz: "Qoida shunday. Qoldiq doim bo'luvchidan kichik. Agar u katta yoki teng chiqsa, demak har biriga yana bittadan berish mumkin. Qoldiq nol bo'lsa, son tekis bo'lingan.",
+      en: 'The rule is this. The remainder is always smaller than the divisor. If it came out bigger or equal, then everyone can be given one more part. And if the remainder is zero, the number divided exactly.'
     },
     audio: {
-      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.' }
+      intro: { ru: 'Теперь главный вопрос урока.', uz: 'Endi darsning asosiy savoli.', en: 'Now the main question of the lesson.' }
     }
   },
 
   s4: {
-    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi' },
-    lead: { ru: 'Бит разделил 11 на 3 вот так', uz: "Bit 11 ni 3 ga mana bunday bo'ldi" },
-    lines: ['11 : 3 = 2', { ru: '(ост. 5)', uz: '(qold. 5)' }],
-    line_cap: { ru: 'два на каждый стол, пять в лотке', uz: 'har stolga ikkitadan, beshtasi laganda' },
-    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    eyebrow: { ru: 'Ловушка Бита', uz: 'Bit tuzogi', en: "Bit's trap" },
+    lead: { ru: 'Бит разделил 11 на 3 вот так', uz: "Bit 11 ni 3 ga mana bunday bo'ldi", en: 'Bit divided 11 by 3 like this' },
+    lines: ['11 : 3 = 2', { ru: '(ост. 5)', uz: '(qold. 5)', en: '(rem. 5)' }],
+    line_cap: { ru: 'два на каждый стол, пять в лотке', uz: 'har stolga ikkitadan, beshtasi laganda', en: 'two on each table, five in the tray' },
+    trap_label: { ru: 'Прав ли Бит?', uz: 'Bit haqmi?', en: 'Is Bit right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     trap_correct: {
       ru: 'Точно! Пять больше трёх, значит каждому столу можно дать ещё по одной. Останется два.',
-      uz: "Aniq! Besh uchdan katta, demak har bir stolga yana bittadan berish mumkin. Ikkitasi ortadi."
+      uz: "Aniq! Besh uchdan katta, demak har bir stolga yana bittadan berish mumkin. Ikkitasi ortadi.",
+      en: 'Exactly! Five is bigger than three, so each table can be given one more. Two will be left.'
     },
     trap_wrong: {
       ru: 'Посмотри на лоток. Там пять деталей, а столов три. Каждому хватит ещё по одной.',
-      uz: "Laganga qarang. U yerda beshta detal, stollar esa uchta. Har biriga yana bittadan yetadi."
+      uz: "Laganga qarang. U yerda beshta detal, stollar esa uchta. Har biriga yana bittadan yetadi.",
+      en: 'Look at the tray. There are five parts there and three tables. There is enough for one more each.'
     },
     audio: {
       ru: [
@@ -315,118 +327,120 @@ const CONTENT = {
       uz: [
         "Bit o'n bitta detalni uch stolga tarqatdi. Har stolga ikkitadan, beshtasini laganga qo'ydi.",
         "Bit haqmi?"
-      ]
+      ],
+      en: ['Bit shared eleven parts onto three tables. Two per table, and he put five in the tray.', 'Is Bit right?']
     }
   },
 
   s5: {
-    eyebrow: { ru: 'Сортировка', uz: 'Saralash' },
-    lead: { ru: 'Разложи примеры по полкам', uz: 'Misollarni tokchalarga ajrating' },
-    bin_a: { ru: 'делится ровно', uz: "tekis bo'linadi" },
-    bin_b: { ru: 'с остатком', uz: 'qoldiq bilan' },
+    eyebrow: { ru: 'Сортировка', uz: 'Saralash', en: 'Sorting' },
+    lead: { ru: 'Разложи примеры по полкам', uz: 'Misollarni tokchalarga ajrating', en: 'Lay the examples out on the shelves' },
+    bin_a: { ru: 'делится ровно', uz: "tekis bo'linadi", en: 'divides exactly' },
+    bin_b: { ru: 'с остатком', uz: 'qoldiq bilan', en: 'with a remainder' },
     items: [
-      { n: '24 : 3', a: true, hint: { ru: 'Двадцать четыре на три, восемь. В лотке пусто.', uz: "Yigirma to'rtni uchga bo'lsak, sakkiz. Lagan bo'sh." } },
-      { n: '25 : 2', a: false, hint: { ru: 'По двенадцать на два стола это двадцать четыре. Одна деталь останется.', uz: "Ikki stolga o'n ikkitadan bu yigirma to'rt. Bitta detal ortadi." } },
-      { n: '36 : 6', a: true, hint: { ru: 'Тридцать шесть на шесть, шесть. Лишних нет.', uz: "O'ttiz oltini oltiga bo'lsak, olti. Ortiqcha yo'q." } },
-      { n: '38 : 3', a: false, hint: { ru: 'По двенадцать на три стола это тридцать шесть. Две детали останутся.', uz: "Uch stolga o'n ikkitadan bu o'ttiz olti. Ikkita detal ortadi." } }
+      { n: '24 : 3', a: true, hint: { ru: 'Двадцать четыре на три, восемь. В лотке пусто.', uz: "Yigirma to'rtni uchga bo'lsak, sakkiz. Lagan bo'sh.", en: 'Twenty four by three, eight. The tray is empty.' } },
+      { n: '25 : 2', a: false, hint: { ru: 'По двенадцать на два стола это двадцать четыре. Одна деталь останется.', uz: "Ikki stolga o'n ikkitadan bu yigirma to'rt. Bitta detal ortadi.", en: 'Twelve onto two tables is twenty four. One part will be left.' } },
+      { n: '36 : 6', a: true, hint: { ru: 'Тридцать шесть на шесть, шесть. Лишних нет.', uz: "O'ttiz oltini oltiga bo'lsak, olti. Ortiqcha yo'q.", en: 'Thirty six by six, six. Nothing extra.' } },
+      { n: '38 : 3', a: false, hint: { ru: 'По двенадцать на три стола это тридцать шесть. Две детали останутся.', uz: "Uch stolga o'n ikkitadan bu o'ttiz olti. Ikkita detal ortadi.", en: 'Twelve onto three tables is thirty six. Two parts will be left.' } }
     ],
     audio: {
-      intro: { ru: 'Разложи примеры по полкам. Слева те, где в лотке пусто, справа те, где что-то остаётся.', uz: "Misollarni tokchalarga ajrating. Chapda lagan bo'sh qoladiganlari, o'ngda biror narsa ortadiganlari." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Раздели и посмотри в лоток.', uz: "Bo'ling va laganga qarang." }
+      intro: { ru: 'Разложи примеры по полкам. Слева те, где в лотке пусто, справа те, где что-то остаётся.', uz: "Misollarni tokchalarga ajrating. Chapda lagan bo'sh qoladiganlari, o'ngda biror narsa ortadiganlari.", en: 'Lay the examples out on the shelves. On the left those where the tray is empty, on the right those where something is left.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Раздели и посмотри в лоток.', uz: "Bo'ling va laganga qarang.", en: 'Divide and look in the tray.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: '25 : 2. Сколько останется?', uz: '25 : 2. Nechtasi ortadi?' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: '25 : 2. Сколько останется?', uz: '25 : 2. Nechtasi ortadi?', en: '25 : 2. How many will be left?' },
     opts: [
-      { ru: '1', uz: '1' },
-      { ru: '2', uz: '2' },
-      { ru: '5', uz: '5' },
-      { ru: '0', uz: '0' }
+      { ru: '1', uz: '1', en: '1' },
+      { ru: '2', uz: '2', en: '2' },
+      { ru: '5', uz: '5', en: '5' },
+      { ru: '0', uz: '0', en: '0' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Остаток должен быть меньше двух. Двойка не подходит.', uz: "Qoldiq ikkidan kichik bo'lishi kerak. Ikki to'g'ri kelmaydi." },
-      2: { ru: 'Пять больше двух, значит можно раздать ещё. Раздай до конца.', uz: "Besh ikkidan katta, demak yana tarqatish mumkin. Oxirigacha tarqating." },
-      3: { ru: 'Двадцать пять на два ровно не делится, ведь число нечётное.', uz: "Yigirma beshni ikkiga tekis bo'lib bo'lmaydi, chunki son toq." }
+      1: { ru: 'Остаток должен быть меньше двух. Двойка не подходит.', uz: "Qoldiq ikkidan kichik bo'lishi kerak. Ikki to'g'ri kelmaydi.", en: 'The remainder must be smaller than two. A two does not fit.' },
+      2: { ru: 'Пять больше двух, значит можно раздать ещё. Раздай до конца.', uz: "Besh ikkidan katta, demak yana tarqatish mumkin. Oxirigacha tarqating.", en: 'Five is bigger than two, so more can be shared out. Share them all out.' },
+      3: { ru: 'Двадцать пять на два ровно не делится, ведь число нечётное.', uz: "Yigirma beshni ikkiga tekis bo'lib bo'lmaydi, chunki son toq.", en: 'Twenty five does not divide by two exactly, the number is odd.' }
     },
     audio: {
-      intro: { ru: 'Двадцать пять деталей на два стола. Сколько окажется в лотке?', uz: "Yigirma beshta detal ikki stolga. Laganda nechtasi qoladi?" },
-      on_correct: { ru: 'Верно! По двенадцать на стол, и одна в лотке.', uz: "To'g'ri! Har stolga o'n ikkitadan, bittasi laganda." },
-      on_wrong: { ru: 'Раздавай, пока в лотке не станет меньше двух.', uz: "Laganda ikkitadan kam qolguncha tarqating." }
+      intro: { ru: 'Двадцать пять деталей на два стола. Сколько окажется в лотке?', uz: "Yigirma beshta detal ikki stolga. Laganda nechtasi qoladi?", en: 'Twenty five parts onto two tables. How many will end up in the tray?' },
+      on_correct: { ru: 'Верно! По двенадцать на стол, и одна в лотке.', uz: "To'g'ri! Har stolga o'n ikkitadan, bittasi laganda.", en: 'Right! Twelve per table, and one in the tray.' },
+      on_wrong: { ru: 'Раздавай, пока в лотке не станет меньше двух.', uz: "Laganda ikkitadan kam qolguncha tarqating.", en: 'Keep sharing until the tray has fewer than two.' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Консоль', uz: 'Konsol' },
-    lead: { ru: '38 : 3 — частное и остаток', uz: "38 : 3 — bo'linma va qoldiq" },
+    eyebrow: { ru: 'Консоль', uz: 'Konsol', en: 'Console' },
+    lead: { ru: '38 : 3 — частное и остаток', uz: "38 : 3 — bo'linma va qoldiq", en: '38 : 3 — the quotient and the remainder' },
     swap_line: '38 : 3',
     cells: [
-      { head: { ru: 'на каждый стол', uz: 'har stolga' }, label: '38 : 3', ans: 12, hint: { ru: 'По сколько выйдет на стол? Тридцать шесть раздаются поровну.', uz: "Har stolga nechtadan chiqadi? O'ttiz olti tengdan tarqaladi." } },
-      { head: { ru: 'в лотке', uz: 'laganda' }, label: '38 − 36', ans: 2, hint: { ru: 'Раздали тридцать шесть. Сколько осталось от тридцати восьми?', uz: "O'ttiz olti tarqatildi. O'ttiz sakkizdan nechtasi qoldi?" } }
+      { head: { ru: 'на каждый стол', uz: 'har stolga', en: 'on each table' }, label: '38 : 3', ans: 12, hint: { ru: 'По сколько выйдет на стол? Тридцать шесть раздаются поровну.', uz: "Har stolga nechtadan chiqadi? O'ttiz olti tengdan tarqaladi.", en: 'How many will there be per table? Thirty six are shared out equally.' } },
+      { head: { ru: 'в лотке', uz: 'laganda', en: 'in the tray' }, label: '38 − 36', ans: 2, hint: { ru: 'Раздали тридцать шесть. Сколько осталось от тридцати восьми?', uz: "O'ttiz olti tarqatildi. O'ttiz sakkizdan nechtasi qoldi?", en: 'Thirty six were shared out. How many are left out of thirty eight?' } }
     ],
     check: '12 · 3 + 2 = 38',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
     audio: {
-      intro: { ru: 'Тридцать восемь деталей на три стола. Сначала найди, по сколько на стол, потом сколько в лотке.', uz: "O'ttiz sakkizta detal uch stolga. Avval har stolga nechtadan tushishini, keyin laganda nechta qolishini toping." },
-      on_correct: { ru: 'Верно! Двенадцать на стол и две в лотке.', uz: "To'g'ri! Har stolga o'n ikkitadan, ikkitasi laganda." }
+      intro: { ru: 'Тридцать восемь деталей на три стола. Сначала найди, по сколько на стол, потом сколько в лотке.', uz: "O'ttiz sakkizta detal uch stolga. Avval har stolga nechtadan tushishini, keyin laganda nechta qolishini toping.", en: 'Thirty eight parts onto three tables. First find how many per table, then how many in the tray.' },
+      on_correct: { ru: 'Верно! Двенадцать на стол и две в лотке.', uz: "To'g'ri! Har stolga o'n ikkitadan, ikkitasi laganda.", en: 'Right! Twelve per table and two in the tray.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'В записи спряталась ошибка. Где она?', uz: 'Yozuvga xato yashiringan. U qayerda?' },
-    fig_line: { ru: '53 : 4 = 12 (ост. 5)', uz: '53 : 4 = 12 (qold. 5)' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'В записи спряталась ошибка. Где она?', uz: 'Yozuvga xato yashiringan. U qayerda?', en: 'A mistake is hiding in the line. Where is it?' },
+    fig_line: { ru: '53 : 4 = 12 (ост. 5)', uz: '53 : 4 = 12 (qold. 5)', en: '53 : 4 = 12 (rem. 5)' },
     opts: [
-      { ru: 'остаток больше делителя', uz: "qoldiq bo'luvchidan katta" },
-      { ru: 'частное слишком большое', uz: "bo'linma juda katta" },
-      { ru: 'делитель записан неверно', uz: "bo'luvchi noto'g'ri yozilgan" },
-      { ru: 'ошибки нет', uz: "xato yo'q" }
+      { ru: 'остаток больше делителя', uz: "qoldiq bo'luvchidan katta", en: 'the remainder is bigger than the divisor' },
+      { ru: 'частное слишком большое', uz: "bo'linma juda katta", en: 'the quotient is too big' },
+      { ru: 'делитель записан неверно', uz: "bo'luvchi noto'g'ri yozilgan", en: 'the divisor is written wrongly' },
+      { ru: 'ошибки нет', uz: "xato yo'q", en: 'there is no mistake' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Частное как раз маловато. Но сначала посмотри на лоток.', uz: "Bo'linma aksincha kichik. Lekin avval laganga qarang." },
-      2: { ru: 'Делитель четыре, так и было в задании.', uz: "Bo'luvchi to'rt, topshiriqda ham shunday edi." },
-      3: { ru: 'Сравни остаток и делитель. Пять больше четырёх.', uz: "Qoldiq bilan bo'luvchini solishtiring. Besh to'rtdan katta." }
+      1: { ru: 'Частное как раз маловато. Но сначала посмотри на лоток.', uz: "Bo'linma aksincha kichik. Lekin avval laganga qarang.", en: 'The quotient is actually a bit small. But look at the tray first.' },
+      2: { ru: 'Делитель четыре, так и было в задании.', uz: "Bo'luvchi to'rt, topshiriqda ham shunday edi.", en: 'The divisor is four, just as in the task.' },
+      3: { ru: 'Сравни остаток и делитель. Пять больше четырёх.', uz: "Qoldiq bilan bo'luvchini solishtiring. Besh to'rtdan katta.", en: 'Compare the remainder and the divisor. Five is bigger than four.' }
     },
     audio: {
       intro: {
         ru: ['Пятьдесят три детали на четыре стола. Кто-то раздал по двенадцать и оставил пять.', 'Найди ошибку в записи.'],
-        uz: ["Ellik uchta detal to'rt stolga. Kimdir o'n ikkitadan tarqatib, beshtasini qoldirdi.", 'Yozuvdagi xatoni toping.']
+        uz: ["Ellik uchta detal to'rt stolga. Kimdir o'n ikkitadan tarqatib, beshtasini qoldirdi.", 'Yozuvdagi xatoni toping.'],
+        en: ['Fifty three parts onto four tables. Someone shared out twelve each and left five.', 'Find the mistake in the line.']
       },
-      on_correct: { ru: 'Точно! Пять больше четырёх. Раздаём ещё по одной. Тринадцать на стол и одна в лотке.', uz: "Aniq! Besh to'rtdan katta. Yana bittadan tarqatamiz. Har stolga o'n uchtadan, bittasi laganda." },
-      on_wrong: { ru: 'Сравни остаток с делителем.', uz: "Qoldiqni bo'luvchi bilan solishtiring." }
+      on_correct: { ru: 'Точно! Пять больше четырёх. Раздаём ещё по одной. Тринадцать на стол и одна в лотке.', uz: "Aniq! Besh to'rtdan katta. Yana bittadan tarqatamiz. Har stolga o'n uchtadan, bittasi laganda.", en: 'Exactly! Five is bigger than four. We share one more each. Thirteen per table and one in the tray.' },
+      on_wrong: { ru: 'Сравни остаток с делителем.', uz: "Qoldiqni bo'luvchi bilan solishtiring.", en: 'Compare the remainder with the divisor.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'А если столов двенадцать?', uz: "Stollar o'n ikkita bo'lsa-chi?" },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'А если столов двенадцать?', uz: "Stollar o'n ikkita bo'lsa-chi?", en: 'And what if there are twelve tables?' },
     task_line: '95 : 12',
-    task_cap: { ru: 'подбираем, как в прошлом уроке', uz: "o'tgan darsdagidek tanlaymiz" },
+    task_cap: { ru: 'подбираем, как в прошлом уроке', uz: "o'tgan darsdagidek tanlaymiz", en: 'we pick it out, as in the last lesson' },
     step1: '12 · 7 = 84',
-    step1_cap: { ru: 'помещается', uz: "sig'adi" },
+    step1_cap: { ru: 'помещается', uz: "sig'adi", en: 'it fits' },
     step2: '12 · 8 = 96',
-    step2_cap: { ru: 'уже много', uz: "bu ko'p" },
-    res: { ru: '95 : 12 = 7 (ост. 11)', uz: '95 : 12 = 7 (qold. 11)' },
-    btn1: { ru: 'Взять семь раз', uz: 'Yetti marta olish' },
-    btn2: { ru: 'А восемь?', uz: 'Sakkiz-chi?' },
-    mc_q: { ru: 'Остаток 11 — так можно?', uz: 'Qoldiq 11 — shunday bo\'ladimi?' },
+    step2_cap: { ru: 'уже много', uz: "bu ko'p", en: 'that is already too many' },
+    res: { ru: '95 : 12 = 7 (ост. 11)', uz: '95 : 12 = 7 (qold. 11)', en: '95 : 12 = 7 (rem. 11)' },
+    btn1: { ru: 'Взять семь раз', uz: 'Yetti marta olish', en: 'Take it seven times' },
+    btn2: { ru: 'А восемь?', uz: 'Sakkiz-chi?', en: 'And eight?' },
+    mc_q: { ru: 'Остаток 11 — так можно?', uz: 'Qoldiq 11 — shunday bo\'ladimi?', en: 'A remainder of 11 — is that allowed?' },
     mc_opts: [
-      { ru: 'да, ведь 11 меньше 12', uz: "ha, chunki 11 son 12 dan kichik" },
-      { ru: 'нет, остаток слишком большой', uz: "yo'q, qoldiq juda katta" },
-      { ru: 'нет, остаток всегда меньше десяти', uz: "yo'q, qoldiq doim o'ndan kichik" },
-      { ru: 'да, остаток может быть любым', uz: "ha, qoldiq har qanday bo'ladi" }
+      { ru: 'да, ведь 11 меньше 12', uz: "ha, chunki 11 son 12 dan kichik", en: 'yes, because 11 is smaller than 12' },
+      { ru: 'нет, остаток слишком большой', uz: "yo'q, qoldiq juda katta", en: 'no, the remainder is too big' },
+      { ru: 'нет, остаток всегда меньше десяти', uz: "yo'q, qoldiq doim o'ndan kichik", en: 'no, a remainder is always smaller than ten' },
+      { ru: 'да, остаток может быть любым', uz: "ha, qoldiq har qanday bo'ladi", en: 'yes, a remainder can be anything' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Большой он только на вид. Сравнивать надо с делителем, а не с другими остатками.', uz: "U faqat ko'rinishdan katta. Bo'luvchi bilan solishtirish kerak, boshqa qoldiqlar bilan emas." },
-      2: { ru: 'Такого правила нет. Остаток сравнивают только с делителем.', uz: "Bunday qoida yo'q. Qoldiq faqat bo'luvchi bilan solishtiriladi." },
-      3: { ru: 'Любым он быть не может: двенадцать в остатке означало бы ещё один полный круг.', uz: "Har qanday bo'la olmaydi: qoldiqda o'n ikki bo'lsa, yana bitta to'liq aylana chiqadi." }
+      1: { ru: 'Большой он только на вид. Сравнивать надо с делителем, а не с другими остатками.', uz: "U faqat ko'rinishdan katta. Bo'luvchi bilan solishtirish kerak, boshqa qoldiqlar bilan emas.", en: 'It only looks big. It has to be compared with the divisor, not with other remainders.' },
+      2: { ru: 'Такого правила нет. Остаток сравнивают только с делителем.', uz: "Bunday qoida yo'q. Qoldiq faqat bo'luvchi bilan solishtiriladi.", en: 'There is no such rule. A remainder is compared only with the divisor.' },
+      3: { ru: 'Любым он быть не может: двенадцать в остатке означало бы ещё один полный круг.', uz: "Har qanday bo'la olmaydi: qoldiqda o'n ikki bo'lsa, yana bitta to'liq aylana chiqadi.", en: 'It cannot be anything: a remainder of twelve would mean one more full round.' }
     },
-    mc_ok: { ru: 'Верно! Одиннадцать меньше двенадцати, значит остаток правильный.', uz: "To'g'ri! O'n bir o'n ikkidan kichik, demak qoldiq to'g'ri." },
+    mc_ok: { ru: 'Верно! Одиннадцать меньше двенадцати, значит остаток правильный.', uz: "To'g'ri! O'n bir o'n ikkidan kichik, demak qoldiq to'g'ri.", en: 'Right! Eleven is smaller than twelve, so the remainder is correct.' },
     audio: {
       ru: [
         'Небольшой бонус. А если столов сразу двенадцать? Разложить на части тут не выйдет.',
@@ -439,178 +453,184 @@ const CONTENT = {
         "O'tgan darsdagidek tanlaymiz. O'n ikki karra yetti, sakson to'rt. Sig'adi.",
         "O'n ikki karra sakkiz, to'qson olti. Bu to'qson beshdan katta.",
         "Demak, har stolga yettitadan, laganda esa o'n bitta detal."
-      ]
+      ],
+      en: ['A small bonus. And what if there are twelve tables at once? Splitting into parts will not work here.', 'We pick it out, as in the last lesson. Twelve times seven, eighty four. It fits.', 'Twelve times eight, ninety six. That is already more than ninety five.', 'So seven per table, and eleven parts in the tray.']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тест', uz: 'Test' },
-    q: { ru: 'В какой записи остаток возможен?', uz: 'Qaysi yozuvda qoldiq mumkin?' },
+    eyebrow: { ru: 'Тест', uz: 'Test', en: 'Test' },
+    q: { ru: 'В какой записи остаток возможен?', uz: 'Qaysi yozuvda qoldiq mumkin?', en: 'In which line is the remainder possible?' },
     opts: [
-      { ru: '29 : 5 = 5 (ост. 4)', uz: '29 : 5 = 5 (qold. 4)' },
-      { ru: '29 : 5 = 4 (ост. 9)', uz: '29 : 5 = 4 (qold. 9)' },
-      { ru: '29 : 5 = 5 (ост. 5)', uz: '29 : 5 = 5 (qold. 5)' },
-      { ru: '29 : 5 = 6 (ост. 1)', uz: '29 : 5 = 6 (qold. 1)' }
+      { ru: '29 : 5 = 5 (ост. 4)', uz: '29 : 5 = 5 (qold. 4)', en: '29 : 5 = 5 (rem. 4)' },
+      { ru: '29 : 5 = 4 (ост. 9)', uz: '29 : 5 = 4 (qold. 9)', en: '29 : 5 = 4 (rem. 9)' },
+      { ru: '29 : 5 = 5 (ост. 5)', uz: '29 : 5 = 5 (qold. 5)', en: '29 : 5 = 5 (rem. 5)' },
+      { ru: '29 : 5 = 6 (ост. 1)', uz: '29 : 5 = 6 (qold. 1)', en: '29 : 5 = 6 (rem. 1)' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Девять больше пяти. Из лотка можно раздать ещё по одной.', uz: "To'qqiz beshdan katta. Lagandan yana bittadan tarqatsa bo'ladi." },
-      2: { ru: 'Остаток равен делителю. Это тоже ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng. Bu ham yana bitta to'liq aylana." },
-      3: { ru: 'Шесть на пять это тридцать, а деталей двадцать девять. Столько раздать нельзя.', uz: "Olti karra besh o'ttiz, detal esa yigirma to'qqizta. Bunchasini tarqatib bo'lmaydi." }
+      1: { ru: 'Девять больше пяти. Из лотка можно раздать ещё по одной.', uz: "To'qqiz beshdan katta. Lagandan yana bittadan tarqatsa bo'ladi.", en: 'Nine is bigger than five. One more each can be shared out of the tray.' },
+      2: { ru: 'Остаток равен делителю. Это тоже ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng. Bu ham yana bitta to'liq aylana.", en: 'The remainder equals the divisor. That is one more full round too.' },
+      3: { ru: 'Шесть на пять это тридцать, а деталей двадцать девять. Столько раздать нельзя.', uz: "Olti karra besh o'ttiz, detal esa yigirma to'qqizta. Bunchasini tarqatib bo'lmaydi.", en: 'Six times five is thirty, and there are twenty nine parts. You cannot share out that many.' }
     },
     audio: {
-      intro: { ru: 'Четыре записи одного деления. Верной может быть только одна.', uz: "Bitta bo'lishning to'rt yozuvi. Faqat bittasi to'g'ri bo'lishi mumkin." },
-      on_correct: { ru: 'Верно! Пять на пять двадцать пять, и четыре в лотке. Четыре меньше пяти.', uz: "To'g'ri! Besh karra besh yigirma besh, to'rttasi laganda. To'rt beshdan kichik." },
-      on_wrong: { ru: 'Проверь два условия. Раздали не больше, чем было, и остаток меньше делителя.', uz: "Ikki shartni tekshiring. Boridan ko'p tarqatilmagan va qoldiq bo'luvchidan kichik." }
+      intro: { ru: 'Четыре записи одного деления. Верной может быть только одна.', uz: "Bitta bo'lishning to'rt yozuvi. Faqat bittasi to'g'ri bo'lishi mumkin.", en: 'Four lines of one division. Only one of them can be correct.' },
+      on_correct: { ru: 'Верно! Пять на пять двадцать пять, и четыре в лотке. Четыре меньше пяти.', uz: "To'g'ri! Besh karra besh yigirma besh, to'rttasi laganda. To'rt beshdan kichik.", en: 'Right! Five times five is twenty five, and four in the tray. Four is smaller than five.' },
+      on_wrong: { ru: 'Проверь два условия. Раздали не больше, чем было, и остаток меньше делителя.', uz: "Ikki shartni tekshiring. Boridan ko'p tarqatilmagan va qoldiq bo'luvchidan kichik.", en: 'Check two conditions. No more was shared out than there was, and the remainder is smaller than the divisor.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
-    q: { ru: '53 : 4. Сколько на каждом столе?', uz: '53 : 4. Har bir stolda nechta?' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
+    q: { ru: '53 : 4. Сколько на каждом столе?', uz: '53 : 4. Har bir stolda nechta?', en: '53 : 4. How many on each table?' },
     ans: 13,
     check: '13 · 4 + 1 = 53',
-    check_label: { ru: 'проверка', uz: 'tekshirish' },
-    hint: { ru: 'Сорок на четыре это десять, ещё двенадцать на четыре это три. Вместе тринадцать, и одна останется.', uz: "Qirqni to'rtga bo'lsak o'n, yana o'n ikkini to'rtga bo'lsak uch. Birgalikda o'n uch, bittasi ortadi." },
+    check_label: { ru: 'проверка', uz: 'tekshirish', en: 'check' },
+    hint: { ru: 'Сорок на четыре это десять, ещё двенадцать на четыре это три. Вместе тринадцать, и одна останется.', uz: "Qirqni to'rtga bo'lsak o'n, yana o'n ikkini to'rtga bo'lsak uch. Birgalikda o'n uch, bittasi ortadi.", en: 'Forty by four is ten, and twelve by four is three more. Thirteen together, and one will be left.' },
     audio: {
-      intro: { ru: 'Пятьдесят три детали на четыре стола. Набери, по сколько выйдет на стол.', uz: "Ellik uchta detal to'rt stolga. Har stolga nechtadan chiqishini tering." },
-      on_correct: { ru: 'Верно! Тринадцать на стол, одна в лотке. Проверка сошлась.', uz: "To'g'ri! Har stolga o'n uchtadan, bittasi laganda. Tekshirish mos keldi." }
+      intro: { ru: 'Пятьдесят три детали на четыре стола. Набери, по сколько выйдет на стол.', uz: "Ellik uchta detal to'rt stolga. Har stolga nechtadan chiqishini tering.", en: 'Fifty three parts onto four tables. Type how many there will be per table.' },
+      on_correct: { ru: 'Верно! Тринадцать на стол, одна в лотке. Проверка сошлась.', uz: "To'g'ri! Har stolga o'n uchtadan, bittasi laganda. Tekshirish mos keldi.", en: 'Right! Thirteen per table, one in the tray. The check adds up.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-    q: { ru: 'В мастерской 74 детали. В один ящик входит 6 деталей. Сколько ящиков наполнится и сколько деталей останется?', uz: "Ustaxonada 74 ta detal bor. Bitta yashikka 6 ta detal sig'adi. Nechta yashik to'ladi va nechta detal ortadi?" },
-    q_speech: { ru: 'Семьдесят четыре детали, в ящик входит шесть. Сколько ящиков наполнится и сколько останется?', uz: "Yetmish to'rtta detal, yashikka oltita sig'adi. Nechta yashik to'ladi va nechtasi ortadi?" },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+    q: { ru: 'В мастерской 74 детали. В один ящик входит 6 деталей. Сколько ящиков наполнится и сколько деталей останется?', uz: "Ustaxonada 74 ta detal bor. Bitta yashikka 6 ta detal sig'adi. Nechta yashik to'ladi va nechta detal ortadi?", en: 'The workshop has 74 parts. One box holds 6 parts. How many boxes will be filled and how many parts will be left?' },
+    q_speech: { ru: 'Семьдесят четыре детали, в ящик входит шесть. Сколько ящиков наполнится и сколько останется?', uz: "Yetmish to'rtta detal, yashikka oltita sig'adi. Nechta yashik to'ladi va nechtasi ortadi?", en: 'Seventy four parts, a box holds six. How many boxes will be filled and how many will be left?' },
     tbl_heads: [
-      { ru: 'Всего деталей', uz: 'Jami detal' },
-      { ru: 'В ящик входит', uz: "Yashikka sig'adi" },
-      { ru: 'Ящиков', uz: 'Yashiklar' }
+      { ru: 'Всего деталей', uz: 'Jami detal', en: 'Parts in all' },
+      { ru: 'В ящик входит', uz: "Yashikka sig'adi", en: 'A box holds' },
+      { ru: 'Ящиков', uz: 'Yashiklar', en: 'Boxes' }
     ],
     tbl_cells: ['74', '6', '?'],
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '74 : 6', uz: '74 : 6' },
-      { ru: '74 · 6', uz: '74 · 6' },
-      { ru: '74 − 6', uz: '74 − 6' },
-      { ru: '6 : 74', uz: '6 : 74' }
+      { ru: '74 : 6', uz: '74 : 6', en: '74 : 6' },
+      { ru: '74 · 6', uz: '74 · 6', en: '74 · 6' },
+      { ru: '74 − 6', uz: '74 − 6', en: '74 − 6' },
+      { ru: '6 : 74', uz: '6 : 74', en: '6 : 74' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Умножение соберёт ещё больше деталей, а их всего семьдесят четыре.', uz: "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish to'rtta." },
-      2: { ru: 'Вычитание уберёт один ящик, а нужно число ящиков.', uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak." },
-      3: { ru: 'Делят большее на меньшее. Детали раскладывают по ящикам.', uz: "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi." }
+      1: { ru: 'Умножение соберёт ещё больше деталей, а их всего семьдесят четыре.', uz: "Ko'paytirish yana ko'p detal yig'adi, ular esa jami yetmish to'rtta.", en: 'Multiplication will gather even more parts, and there are only seventy four.' },
+      2: { ru: 'Вычитание уберёт один ящик, а нужно число ящиков.', uz: "Ayirish bitta yashikni olib qo'yadi, bizga esa yashiklar soni kerak.", en: 'Subtraction takes away one box, and we need the number of boxes.' },
+      3: { ru: 'Делят большее на меньшее. Детали раскладывают по ящикам.', uz: "Kattani kichigiga bo'ladilar. Detallar yashiklarga taqsimlanadi.", en: 'The bigger one is divided by the smaller one. The parts are laid out into boxes.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang." },
-    step1_q: { ru: 'Сколько ящиков наполнится?', uz: "Nechta yashik to'ladi?" },
+    pick_ok: { ru: 'Запись верная. Теперь считай по шагам.', uz: "Yozuv to'g'ri. Endi qadamlab hisoblang.", en: 'The line is correct. Now count step by step.' },
+    step1_q: { ru: 'Сколько ящиков наполнится?', uz: "Nechta yashik to'ladi?", en: 'How many boxes will be filled?' },
     ans1: 12,
-    hint1: { ru: 'Шестьдесят на шесть это десять, ещё двенадцать на шесть это два.', uz: "Oltmishni oltiga bo'lsak o'n, yana o'n ikkini oltiga bo'lsak ikki." },
-    step2_q: { ru: 'Сколько деталей останется?', uz: 'Nechta detal ortadi?' },
+    hint1: { ru: 'Шестьдесят на шесть это десять, ещё двенадцать на шесть это два.', uz: "Oltmishni oltiga bo'lsak o'n, yana o'n ikkini oltiga bo'lsak ikki.", en: 'Sixty by six is ten, and twelve by six is two more.' },
+    step2_q: { ru: 'Сколько деталей останется?', uz: 'Nechta detal ortadi?', en: 'How many parts will be left?' },
     ans2: 2,
-    hint2: { ru: 'Двенадцать ящиков по шесть это семьдесят две детали. Сколько осталось от семидесяти четырёх?', uz: "O'n ikki yashik oltitadan bu yetmish ikkita detal. Yetmish to'rttadan nechtasi qoldi?" },
+    hint2: { ru: 'Двенадцать ящиков по шесть это семьдесят две детали. Сколько осталось от семидесяти четырёх?', uz: "O'n ikki yashik oltitadan bu yetmish ikkita detal. Yetmish to'rttadan nechtasi qoldi?", en: 'Twelve boxes of six is seventy two parts. How many are left out of seventy four?' },
     check: '12 · 6 + 2 = 74',
-    setup_audio: { ru: 'Задача из мастерской. Семьдесят четыре детали и ящики по шесть. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Yetmish to'rtta detal va oltitadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang." },
+    setup_audio: { ru: 'Задача из мастерской. Семьдесят четыре детали и ящики по шесть. Сначала выбери запись, потом считай по шагам.', uz: "Ustaxonadan masala. Yetmish to'rtta detal va oltitadan yashiklar. Avval yozuvni tanlang, keyin qadamlab hisoblang.", en: 'A problem from the workshop. Seventy four parts and boxes of six. First choose the line, then count step by step.' },
     audio: {
-      intro: { ru: 'Тут пригодятся и частное, и остаток.', uz: "Bu yerda bo'linma ham, qoldiq ham kerak bo'ladi." },
-      on_correct: { ru: 'Двенадцать полных ящиков и две детали сверху! Проверка сошлась.', uz: "O'n ikkita to'la yashik va ikkita ortiqcha detal! Tekshirish mos keldi." },
-      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.' }
+      intro: { ru: 'Тут пригодятся и частное, и остаток.', uz: "Bu yerda bo'linma ham, qoldiq ham kerak bo'ladi.", en: 'Both the quotient and the remainder come in handy here.' },
+      on_correct: { ru: 'Двенадцать полных ящиков и две детали сверху! Проверка сошлась.', uz: "O'n ikkita to'la yashik va ikkita ortiqcha detal! Tekshirish mos keldi.", en: 'Twelve full boxes and two parts on top! The check adds up.' },
+      on_wrong: { ru: 'Посчитай ещё раз, по шагам.', uz: 'Yana bir bor, qadamlab hisoblang.', en: 'Count it again, step by step.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Три примера — и остаток твой', uz: 'Uch misol va qoldiq sizniki' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Три примера — и остаток твой', uz: 'Uch misol va qoldiq sizniki', en: 'Three examples and the remainder is yours' },
     items: [
       {
         kind: 'num',
-        q: { ru: '75 : 6. Сколько останется? Набери ответ.', uz: '75 : 6. Nechtasi ortadi? Javobni tering.' },
-        q_speech: { ru: 'Семьдесят пять разделить на шесть. Сколько останется?', uz: "Yetmish beshni oltiga bo'lish. Nechtasi ortadi?" },
+        q: { ru: '75 : 6. Сколько останется? Набери ответ.', uz: '75 : 6. Nechtasi ortadi? Javobni tering.', en: '75 : 6. How many will be left? Type the answer.' },
+        q_speech: { ru: 'Семьдесят пять разделить на шесть. Сколько останется?', uz: "Yetmish beshni oltiga bo'lish. Nechtasi ortadi?", en: 'Seventy five divided by six. How many will be left?' },
         ans: 3,
-        hint: { ru: 'По двенадцать на шесть столов это семьдесят две.', uz: "Olti stolga o'n ikkitadan bu yetmish ikki." }
+        hint: { ru: 'По двенадцать на шесть столов это семьдесят две.', uz: "Olti stolga o'n ikkitadan bu yetmish ikki.", en: 'Twelve onto six tables is seventy two.' }
       },
       {
         kind: 'mc',
-        q: { ru: '55 : 3 = ?', uz: '55 : 3 = ?' },
-        q_speech: { ru: 'Пятьдесят пять разделить на три.', uz: "Ellik beshni uchga bo'lish." },
-        opt0: { ru: '18 (ост. 1)', uz: '18 (qold. 1)' },
-        opt1: { ru: '17 (ост. 4)', uz: '17 (qold. 4)' },
-        opt2: { ru: '18 (ост. 3)', uz: '18 (qold. 3)' },
-        opt3: { ru: '19 (ост. 2)', uz: '19 (qold. 2)' },
-        wrong_1: { ru: 'Четыре больше трёх, значит можно раздать ещё по одной.', uz: "To'rt uchdan katta, demak yana bittadan tarqatish mumkin." },
-        wrong_2: { ru: 'Остаток равен делителю. Это ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng. Bu yana bitta to'liq aylana." },
-        wrong_3: { ru: 'Девятнадцать на три это пятьдесят семь, а деталей пятьдесят пять.', uz: "O'n to'qqiz karra uch ellik yetti, detal esa ellik beshta." }
+        q: { ru: '55 : 3 = ?', uz: '55 : 3 = ?', en: '55 : 3 = ?' },
+        q_speech: { ru: 'Пятьдесят пять разделить на три.', uz: "Ellik beshni uchga bo'lish.", en: 'Fifty five divided by three.' },
+        opt0: { ru: '18 (ост. 1)', uz: '18 (qold. 1)', en: '18 (rem. 1)' },
+        opt1: { ru: '17 (ост. 4)', uz: '17 (qold. 4)', en: '17 (rem. 4)' },
+        opt2: { ru: '18 (ост. 3)', uz: '18 (qold. 3)', en: '18 (rem. 3)' },
+        opt3: { ru: '19 (ост. 2)', uz: '19 (qold. 2)', en: '19 (rem. 2)' },
+        wrong_1: { ru: 'Четыре больше трёх, значит можно раздать ещё по одной.', uz: "To'rt uchdan katta, demak yana bittadan tarqatish mumkin.", en: 'Four is bigger than three, so one more each can be shared out.' },
+        wrong_2: { ru: 'Остаток равен делителю. Это ещё один полный круг.', uz: "Qoldiq bo'luvchiga teng. Bu yana bitta to'liq aylana.", en: 'The remainder equals the divisor. That is one more full round.' },
+        wrong_3: { ru: 'Девятнадцать на три это пятьдесят семь, а деталей пятьдесят пять.', uz: "O'n to'qqiz karra uch ellik yetti, detal esa ellik beshta.", en: 'Nineteen times three is fifty seven, and there are fifty five parts.' }
       },
       {
         kind: 'mc',
-        q: { ru: '47 : 5 = ?', uz: '47 : 5 = ?' },
-        q_speech: { ru: 'Сорок семь разделить на пять.', uz: "Qirq yettini beshga bo'lish." },
-        opt0: { ru: '9 (ост. 2)', uz: '9 (qold. 2)' },
-        opt1: { ru: '8 (ост. 7)', uz: '8 (qold. 7)' },
-        opt2: { ru: '9 (ост. 5)', uz: '9 (qold. 5)' },
-        opt3: { ru: '10 (ост. 3)', uz: '10 (qold. 3)' },
-        wrong_1: { ru: 'Семь больше пяти. Раздай ещё по одной.', uz: "Yetti beshdan katta. Yana bittadan tarqating." },
-        wrong_2: { ru: 'Остаток равен делителю, так не бывает.', uz: "Qoldiq bo'luvchiga teng, bunday bo'lmaydi." },
-        wrong_3: { ru: 'Десять на пять это пятьдесят, а деталей сорок семь.', uz: "O'n karra besh ellik, detal esa qirq yettita." }
+        q: { ru: '47 : 5 = ?', uz: '47 : 5 = ?', en: '47 : 5 = ?' },
+        q_speech: { ru: 'Сорок семь разделить на пять.', uz: "Qirq yettini beshga bo'lish.", en: 'Forty seven divided by five.' },
+        opt0: { ru: '9 (ост. 2)', uz: '9 (qold. 2)', en: '9 (rem. 2)' },
+        opt1: { ru: '8 (ост. 7)', uz: '8 (qold. 7)', en: '8 (rem. 7)' },
+        opt2: { ru: '9 (ост. 5)', uz: '9 (qold. 5)', en: '9 (rem. 5)' },
+        opt3: { ru: '10 (ост. 3)', uz: '10 (qold. 3)', en: '10 (rem. 3)' },
+        wrong_1: { ru: 'Семь больше пяти. Раздай ещё по одной.', uz: "Yetti beshdan katta. Yana bittadan tarqating.", en: 'Seven is bigger than five. Share one more each.' },
+        wrong_2: { ru: 'Остаток равен делителю, так не бывает.', uz: "Qoldiq bo'luvchiga teng, bunday bo'lmaydi.", en: 'The remainder equals the divisor, that does not happen.' },
+        wrong_3: { ru: 'Десять на пять это пятьдесят, а деталей сорок семь.', uz: "O'n karra besh ellik, detal esa qirq yettita.", en: 'Ten times five is fifty, and there are forty seven parts.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
     fact_text: {
       ru: 'Остаток работает как часы. Если сегодня среда и прошло двадцать дней, какой будет день? Двадцать разделить на семь это две недели и остаток шесть. Две полные недели ничего не меняют, важен только остаток: отсчитай шесть дней от среды и получишь вторник. Поэтому календарь и расписание держатся на остатке.',
-      uz: "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim: chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi."
+      uz: "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim: chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi.",
+      en: 'A remainder works like a clock. If today is Wednesday and twenty days have passed, what day will it be? Twenty divided by seven is two weeks and a remainder of six. Two full weeks change nothing, only the remainder matters: count six days from Wednesday and you get Tuesday. That is why calendars and timetables rest on the remainder.'
     },
     fact_audio: {
       ru: 'Остаток работает как часы. Если сегодня среда и прошло двадцать дней, какой будет день? Двадцать разделить на семь это две недели и остаток шесть. Две полные недели ничего не меняют, важен только остаток. Отсчитай шесть дней от среды и получишь вторник. Поэтому календарь и расписание держатся на остатке. Мы весь урок искали то, что остаётся, и вот где это работает каждый день.',
-      uz: "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim. Chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi. Butun dars ortib qoladigan narsani qidirdik, mana u har kuni qayerda ishlaydi."
+      uz: "Qoldiq soatdek ishlaydi. Bugun chorshanba bo'lsa va yigirma kun o'tsa, qaysi kun bo'ladi? Yigirmani yettiga bo'lsak, ikki hafta va olti qoldiq. Ikki to'liq hafta hech narsani o'zgartirmaydi, faqat qoldiq muhim. Chorshanbadan olti kun sanang, seshanba chiqadi. Shuning uchun taqvim va jadval qoldiqqa tayanadi. Butun dars ortib qoladigan narsani qidirdik, mana u har kuni qayerda ishlaydi.",
+      en: 'A remainder works like a clock. If today is Wednesday and twenty days have passed, what day will it be? Twenty divided by seven is two weeks and a remainder of six. Two full weeks change nothing, only the remainder matters. Count six days from Wednesday and you get Tuesday. That is why calendars and timetables rest on the remainder. All lesson we looked for what is left over, and here is where it works every day.'
     },
     audio: {
-      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Раздавай, пока в лотке не станет меньше делителя.', uz: "Laganda bo'luvchidan kam qolguncha tarqating." }
+      intro: { ru: 'Финальная проверка, три примера.', uz: 'Yakuniy tekshiruv, uch misol.', en: 'The final check, three examples.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Раздавай, пока в лотке не станет меньше делителя.', uz: "Laganda bo'luvchidan kam qolguncha tarqating.", en: 'Keep sharing until the tray has fewer than the divisor.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Раздача закончена, лоток на месте!', uz: 'Tarqatish tugadi, lagan joyida!' },
-    cando: { ru: 'Теперь ты делишь с остатком и знаешь, каким остаток быть не может.', uz: "Endi siz qoldiq bilan bo'lasiz va qoldiq qanday bo'la olmasligini bilasiz." },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Раздача закончена, лоток на месте!', uz: 'Tarqatish tugadi, lagan joyida!', en: 'The sharing is finished, the tray is in place!' },
+    cando: { ru: 'Теперь ты делишь с остатком и знаешь, каким остаток быть не может.', uz: "Endi siz qoldiq bilan bo'lasiz va qoldiq qanday bo'la olmasligini bilasiz.", en: 'Now you divide with a remainder and you know what a remainder cannot be.' },
     rule_recap: {
       ru: '11 : 2 = 5 (ост. 1). Остаток всегда меньше делителя, иначе можно раздать ещё по одной.',
-      uz: "11 : 2 = 5 (qold. 1). Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin."
+      uz: "11 : 2 = 5 (qold. 1). Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin.",
+      en: '11 : 2 = 5 (rem. 1). The remainder is always smaller than the divisor, otherwise one more each can be shared out.'
     },
-    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi' },
-    conn_refs: { ru: 'урок 16: делится ровно или нет; урок 18: деление по частям', uz: "16-dars: tekis bo'linadimi; 18-dars: qismlab bo'lish" },
-    conn_label_next: { ru: 'дальше', uz: 'keyingi' },
-    conn_next: { ru: 'проверка деления с остатком', uz: "qoldiqli bo'lishni tekshirish" },
+    conn_label_refs: { ru: 'опирается на', uz: 'tayanadi', en: 'builds on' },
+    conn_refs: { ru: 'урок 16: делится ровно или нет; урок 18: деление по частям', uz: "16-dars: tekis bo'linadimi; 18-dars: qismlab bo'lish", en: 'lesson 16: divides exactly or not; lesson 18: dividing by parts' },
+    conn_label_next: { ru: 'дальше', uz: 'keyingi', en: 'next' },
+    conn_next: { ru: 'проверка деления с остатком', uz: "qoldiqli bo'lishni tekshirish", en: 'checking division with a remainder' },
     audio: {
       ru: 'Раздача закончена, и лоток стоит на месте. Запомни главное. Остаток всегда меньше делителя, иначе можно раздать ещё по одной. А как убедиться, что разделил верно? В следующий раз научимся проверять!',
-      uz: "Tarqatish tugadi, lagan joyida turibdi. Asosiysini eslab qoling. Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin. To'g'ri bo'lganiga qanday ishonch hosil qilamiz? Keyingi safar tekshirishni o'rganamiz!"
+      uz: "Tarqatish tugadi, lagan joyida turibdi. Asosiysini eslab qoling. Qoldiq doim bo'luvchidan kichik, aks holda yana bittadan tarqatish mumkin. To'g'ri bo'lganiga qanday ishonch hosil qilamiz? Keyingi safar tekshirishni o'rganamiz!",
+      en: 'The sharing is finished and the tray is in place. Remember the main thing. The remainder is always smaller than the divisor, otherwise one more each can be shared out. And how can you make sure you divided correctly? Next time we will learn to check!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Начнём с раздачи.', uz: 'Tarqatishdan boshlaymiz.' },
-  s2:  { ru: 'То же число, но столов больше.', uz: "O'sha son, lekin stollar ko'proq." },
-  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz." },
-  s4:  { ru: 'А вот и Бит со своей раздачей.', uz: "Mana Bit ham o'z tarqatishi bilan." },
-  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.' },
-  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.' },
-  s7:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz." },
-  s8:  { ru: 'Кто-то ошибся в записи.', uz: 'Kimdir yozuvda xato qildi.' },
-  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s10: { ru: 'Четыре записи, одна верная.', uz: "To'rt yozuv, bittasi to'g'ri." },
-  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang." },
-  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Раздача закончена. Идём дальше!', uz: 'Tarqatish tugadi. Davom etamiz!' }
+  s1:  { ru: 'Начнём с раздачи.', uz: 'Tarqatishdan boshlaymiz.', en: 'Let us start with the sharing.' },
+  s2:  { ru: 'То же число, но столов больше.', uz: "O'sha son, lekin stollar ko'proq.", en: 'The same number, but more tables.' },
+  s3:  { ru: "Соберём это в правило.", uz: "Buni qoidaga yig'amiz.", en: 'Let us gather this into a rule.' },
+  s4:  { ru: 'А вот и Бит со своей раздачей.', uz: "Mana Bit ham o'z tarqatishi bilan.", en: 'And here is Bit with his sharing.' },
+  s5:  { ru: 'Разложи по полкам.', uz: 'Tokchalarga ajrating.', en: 'Lay them out on the shelves.' },
+  s6:  { ru: 'Быстрый вопрос.', uz: 'Tez savol.', en: 'A quick question.' },
+  s7:  { ru: 'Соберём по частям.', uz: "Qismlab yig'amiz.", en: 'Let us put it together part by part.' },
+  s8:  { ru: 'Кто-то ошибся в записи.', uz: 'Kimdir yozuvda xato qildi.', en: 'Someone made a mistake in the line.' },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s10: { ru: 'Четыре записи, одна верная.', uz: "To'rt yozuv, bittasi to'g'ri.", en: 'Four lines, one correct.' },
+  s11: { ru: 'Теперь считай сам.', uz: "Endi o'zingiz hisoblang.", en: 'Now count on your own.' },
+  s12: { ru: 'Задача из мастерской.', uz: 'Ustaxonadan masala.', en: 'A problem from the workshop.' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Раздача закончена. Идём дальше!', uz: 'Tarqatish tugadi. Davom etamiz!', en: 'The sharing is finished. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Детали разданы поровну, лишние в лотке, и теперь ты знаешь слово остаток. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Detallar tengdan tarqatildi, ortiqchasi laganda, endi siz qoldiq so'zini bilasiz. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Detallar tengdan tarqatildi, ortiqchasi laganda, endi siz qoldiq so'zini bilasiz. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The parts are shared out equally, the extras are in the tray, and now you know the word remainder. Thank you for your help!'
 };
 
 // ============================================================
@@ -808,13 +828,13 @@ const ShareBg = () => {
         ))}
       </g>
     ))}
-    <text x="172" y="116" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ПОРОВНУ' : 'TENGDAN'}</text>
+    <text x="172" y="116" textAnchor="middle" fontSize="7.5" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ПОРОВНУ', 'TENGDAN', 'EQUALLY')}</text>
     {/* ORTIQCHA LAGANI: bitta detal */}
     <g transform="translate(300 124)">
       <path d="M0 6 h58 l-6 30 h-46 Z" fill="#C3A87E" stroke="#9A8058" strokeWidth="1.4"/>
       <rect x="-2" y="1" width="62" height="6" rx="2.4" fill="#D9C29D" stroke="#9A8058" strokeWidth="1.2"/>
       <rect x="21" y="14" width="16" height="11" rx="2.5" fill="#F2A85C" stroke="#C97F35" strokeWidth="0.9"/>
-      <text x="29" y="46" textAnchor="middle" fontSize="7" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? 'ОСТАТОК' : 'ORTDI'}</text>
+      <text x="29" y="46" textAnchor="middle" fontSize="7" fontWeight="800" fill="#8A7452" fontFamily="'JetBrains Mono', monospace">{tri(lang, 'ОСТАТОК', 'ORTDI', 'REMAINDER')}</text>
     </g>
     <path d="M150 174 h100 l10 18 h-120 Z" fill="#C3A87E"/><rect x="146" y="190" width="108" height="4" fill="#A98C64"/>
     <g transform="translate(12 128)">
@@ -954,7 +974,7 @@ const WeekFig = () => {
     })}
     <g className="d19-arc"><path d="M100 58 L100 26" stroke="#FF4F28" strokeWidth="2.6" strokeLinecap="round"/></g>
     <text x="100" y="62" textAnchor="middle" fontSize="9" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">20 : 7</text>
-    <text x="100" y="112" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{lang === 'ru' ? '2 недели и 6 в остатке' : '2 hafta va 6 qoldiq'}</text>
+    <text x="100" y="112" textAnchor="middle" fontSize="9" fontWeight="800" fill="#8A8378" fontFamily="'JetBrains Mono', monospace">{tri(lang, '2 недели и 6 в остатке', '2 hafta va 6 qoldiq', '2 weeks and 6 as a remainder')}</text>
   </svg>
   );
 };
@@ -1087,7 +1107,7 @@ const NumOne = ({ props, ck }) => {
         <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
           <FrameFx/>
           <NumPad value={solved ? String(c.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>}
+          {!solved && <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
         </div>
@@ -1200,7 +1220,7 @@ const Screen1 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const trayLabel = lang === 'ru' ? 'в лотке' : 'laganda';
+  const trayLabel = tri(lang, 'в лотке', 'laganda', 'in the tray');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1213,7 +1233,7 @@ const Screen1 = (props) => {
               <ShareBoard rows={c.rows} per={c.per} rest={step >= 2 ? c.rest : 0} label={trayLabel}/>
             </span>
           )}
-          {step >= 2 && <span className="mono d19-final lm-reveal">{lang === 'ru' ? c.formula : c.formula_uz}</span>}
+          {step >= 2 && <span className="mono d19-final lm-reveal">{pickSib(c, 'formula', lang)}</span>}
           {!done && (
             <button className="btn-white-accent" disabled={!canAct} onClick={tap}
               style={{ fontSize: 'clamp(13px, 2.1vw, 16px)' }}>{t(step === 0 ? c.btn1 : c.btn2)}</button>
@@ -1252,7 +1272,7 @@ const Screen2 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const trayLabel = lang === 'ru' ? 'в лотке' : 'laganda';
+  const trayLabel = tri(lang, 'в лотке', 'laganda', 'in the tray');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(5px, 1.2vw, 9px)' }}>
@@ -1397,7 +1417,7 @@ const Screen4 = (props) => {
       <NavNext disabled={!canAdv} onClick={props.onNext} label={<NextLabel/>}/>
     </>
   );
-  const trayLabel = lang === 'ru' ? 'в лотке' : 'laganda';
+  const trayLabel = tri(lang, 'в лотке', 'laganda', 'in the tray');
   return (
     <Stage eyebrow={c.eyebrow} screen={props.screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(6px, 1.4vw, 10px)' }}>
@@ -1599,7 +1619,7 @@ const Screen7 = (props) => {
           {!solved && (
             <>
               <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {solved && <CheckStrip expr={c.check} cap={t(c.check_label)} ok/>}
@@ -1830,7 +1850,7 @@ const Screen12 = (props) => {
                 <>
                   <span className="d19-steplabel lm-reveal">{t(stepNum === 0 ? c.step1_q : c.step2_q)}</span>
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={2} state={numState}/>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </>
               )}
               {solved && <span className="mono d19-res lm-reveal">{c.ans1} · {c.ans2}</span>}
@@ -1945,7 +1965,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -2016,7 +2036,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         <div className="d19-final-scene fade-up delay-1"><ShareScene gathered/></div>
@@ -2037,7 +2057,7 @@ export default function RemainderLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2104,7 +2124,7 @@ export default function RemainderLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

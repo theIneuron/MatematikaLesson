@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -755,8 +781,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // ============================================================
 const TOTAL_SCREENS = 14;
 const LESSON_META = {
-  lessonId: 'frac_5_13',
-  lessonTitle: { ru: 'Правильные, неправильные, смешанные числа', uz: "To'g'ri, noto'g'ri va aralash sonlar" }
+  lessonId: 'grade5-21',
+  lessonTitle: { ru: 'Правильные, неправильные, смешанные числа', uz: "To'g'ri, noto'g'ri va aralash sonlar", en: 'Proper fractions, improper fractions and mixed numbers' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0
@@ -781,48 +807,49 @@ const SCREEN_META = [
 const CONTENT = {
   // s0 — HOOK: Madina non 9/4, Kamol "xato" dedi. Ekranda FAQAT sarlavha + FillWholes anim; qolgani OVOZDA.
   s0: {
-    eyebrow: { ru: 'Загадка', uz: "Jumboq" },
-    title: { ru: 'Приложение показало 9/4 — это ошибка?', uz: "Ilova 9/4 ko'rsatdi — bu xatomi?" },
-    lead: { ru: 'Мадина испекла лепёшки. Каждая лепёшка разделена на 4 равные доли.', uz: "Madina non yopdi. Har bir non 4 ta teng bo'lakka bo'lingan." },
-    opt0: { ru: 'Да, это ошибка', uz: "Ha, bu xato" },
-    opt1: { ru: 'Нет, так бывает', uz: "Yo'q, bunday bo'ladi" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    reveal0: { ru: 'Проверим вместе: посмотрим, ошибка это или нет.', uz: "Birga tekshiramiz: bu xatomi yoki yo'qmi, ko'ramiz." },
-    reveal1: { ru: 'Верное чутьё. Сейчас увидим, почему так бывает.', uz: "To'g'ri sezgi. Hozir nega bunday bo'lishini ko'ramiz." },
-    reveal2: { ru: 'Ничего страшного — к концу урока ответишь уверенно.', uz: "Hechqisi yo'q — dars oxirida ishonch bilan javob berasiz." },
+    eyebrow: { ru: 'Загадка', uz: "Jumboq", en: 'A puzzle' },
+    title: { ru: 'Приложение показало 9/4 — это ошибка?', uz: "Ilova 9/4 ko'rsatdi — bu xatomi?", en: 'The app showed 9/4, is that a mistake?' },
+    lead: { ru: 'Мадина испекла лепёшки. Каждая лепёшка разделена на 4 равные доли.', uz: "Madina non yopdi. Har bir non 4 ta teng bo'lakka bo'lingan.", en: 'Madina has baked some flatbreads. Each flatbread is split into 4 equal parts.' },
+    opt0: { ru: 'Да, это ошибка', uz: "Ha, bu xato", en: 'Yes, it is a mistake' },
+    opt1: { ru: 'Нет, так бывает', uz: "Yo'q, bunday bo'ladi", en: 'No, that does happen' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    reveal0: { ru: 'Проверим вместе: посмотрим, ошибка это или нет.', uz: "Birga tekshiramiz: bu xatomi yoki yo'qmi, ko'ramiz.", en: 'Let us check together and see whether it is a mistake or not.' },
+    reveal1: { ru: 'Верное чутьё. Сейчас увидим, почему так бывает.', uz: "To'g'ri sezgi. Hozir nega bunday bo'lishini ko'ramiz.", en: 'Good instinct. Now let us see why that happens.' },
+    reveal2: { ru: 'Ничего страшного — к концу урока ответишь уверенно.', uz: "Hechqisi yo'q — dars oxirida ishonch bilan javob berasiz.", en: 'That is fine, by the end of the lesson you will answer with confidence.' },
     audio: {
       ru: 'Мадина испекла лепёшки. Каждая лепёшка разделена на четыре равные доли. Она насчитала девять долей, и приложение показало девять четвёртых. Её друг Камол сказал так не бывает, верх не может быть больше низа, это ошибка. Как думаешь, Камол прав? Выбери ответ.',
-      uz: "Madina non yopdi. Har bir non to'rtta teng bo'lakka bo'lingan. U to'qqizta bo'lak sanadi va ilova to'rtdan to'qqizni ko'rsatdi. Do'sti Kamol bunday bo'lmaydi, surat maxrajdan katta bo'lolmaydi, bu xato dedi. Sizningcha, Kamol haqmi? Javobni tanlang."
+      uz: "Madina non yopdi. Har bir non to'rtta teng bo'lakka bo'lingan. U to'qqizta bo'lak sanadi va ilova to'rtdan to'qqizni ko'rsatdi. Do'sti Kamol bunday bo'lmaydi, surat maxrajdan katta bo'lolmaydi, bu xato dedi. Sizningcha, Kamol haqmi? Javobni tanlang.",
+      en: 'Madina has baked some flatbreads. Each flatbread is split into four equal parts. She counted nine parts and the app showed nine quarters. Her friend Kamol said that cannot happen, the top cannot be bigger than the bottom, it is a mistake. Do you think Kamol is right? Choose an answer.'
     }
   },
 
   // s1 — WARMUP (spaced retrieval): 4/4 = 1 (noto'g'ri kasrga ko'prik)
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz" },
-    bridge: { ru: 'Сначала вспомним одну простую вещь.', uz: "Avval bitta oddiy narsani eslaymiz." },
-    title: { ru: 'Одно целое — это сколько долей?', uz: "Bitta butun — bu necha ulush?" },
-    question: { ru: 'Лепёшка разделена на 4 доли. Сколько будет 4/4?', uz: "Non 4 ulushga bo'lingan. To'rtdan to'rt nechaga teng?" },
-    opt0: { ru: '1', uz: '1' },
-    opt1: { ru: '4', uz: '4' },
-    opt2: { ru: '1/4', uz: '1/4' },
-    correct_text: { ru: 'Верно. Четыре четвёртых доли вместе дают одно целое: 4/4 = 1.', uz: "To'g'ri. To'rtta to'rtdan bir ulush birgalikda bitta butun beradi: 4/4 = 1." },
-    hint_1: { ru: 'Четыре — это не доли, а сколько частей в целом. А сколько целых получается из всех четырёх долей?', uz: "To'rt — bu ulush emas, butundagi qismlar soni. Hamma to'rtta ulushdan nechta butun chiqadi?" },
-    hint_2: { ru: 'Одна четвёртая это только одна доля. А тут собрали все четыре доли.', uz: "To'rtdan bir bu faqat bitta ulush. Bu yerda esa to'rtala ulush yig'ilgan." },
-    wrong_default: { ru: 'Все доли целого вместе дают ровно одно целое. Значит четыре четвёртых это один.', uz: "Butunning hamma ulushi birgalikda roppa rosa bitta butun beradi. Demak to'rtta to'rtdan bir bitta." },
+    eyebrow: { ru: 'Вспомним', uz: "Eslaymiz", en: 'Let us remember' },
+    bridge: { ru: 'Сначала вспомним одну простую вещь.', uz: "Avval bitta oddiy narsani eslaymiz.", en: 'First let us remember one simple thing.' },
+    title: { ru: 'Одно целое — это сколько долей?', uz: "Bitta butun — bu necha ulush?", en: 'How many parts make one whole?' },
+    question: { ru: 'Лепёшка разделена на 4 доли. Сколько будет 4/4?', uz: "Non 4 ulushga bo'lingan. To'rtdan to'rt nechaga teng?", en: 'A flatbread is split into 4 parts. How much is 4/4?' },
+    opt0: { ru: '1', uz: '1', en: '1' },
+    opt1: { ru: '4', uz: '4', en: '4' },
+    opt2: { ru: '1/4', uz: '1/4', en: '1/4' },
+    correct_text: { ru: 'Верно. Четыре четвёртых доли вместе дают одно целое: 4/4 = 1.', uz: "To'g'ri. To'rtta to'rtdan bir ulush birgalikda bitta butun beradi: 4/4 = 1.", en: 'That is right. Four quarter parts together make one whole: 4/4 = 1.' },
+    hint_1: { ru: 'Четыре — это не доли, а сколько частей в целом. А сколько целых получается из всех четырёх долей?', uz: "To'rt — bu ulush emas, butundagi qismlar soni. Hamma to'rtta ulushdan nechta butun chiqadi?", en: 'Four is not the parts, it is how many parts there are in a whole. How many wholes do all four parts make?' },
+    hint_2: { ru: 'Одна четвёртая это только одна доля. А тут собрали все четыре доли.', uz: "To'rtdan bir bu faqat bitta ulush. Bu yerda esa to'rtala ulush yig'ilgan.", en: 'One quarter is only one part. Here all four parts have been gathered together.' },
+    wrong_default: { ru: 'Все доли целого вместе дают ровно одно целое. Значит четыре четвёртых это один.', uz: "Butunning hamma ulushi birgalikda roppa rosa bitta butun beradi. Demak to'rtta to'rtdan bir bitta.", en: 'All the parts of a whole together make exactly one whole. So four quarters is one.' },
     audio: {
-      intro: { ru: 'Сначала разминка. Одна лепёшка разделена на четыре доли. Сколько будет четыре четвёртых? Выбери ответ.', uz: "Avval mashq. Bitta non to'rtta ulushga bo'lingan. To'rtdan to'rt nechaga teng? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Все четыре доли вместе это одно целое. Это нам сейчас пригодится.', uz: "To'g'ri. To'rtala ulush birgalikda bitta butun. Bu hozir asqotadi." },
-      on_wrong: { ru: 'Не совсем. Все доли целого вместе дают одно целое.', uz: "Unchalik emas. Butunning hamma ulushi birgalikda bitta butun beradi." }
+      intro: { ru: 'Сначала разминка. Одна лепёшка разделена на четыре доли. Сколько будет четыре четвёртых? Выбери ответ.', uz: "Avval mashq. Bitta non to'rtta ulushga bo'lingan. To'rtdan to'rt nechaga teng? Javobni tanlang.", en: 'First a warm up. One flatbread is split into four parts. How much is four quarters? Choose an answer.' },
+      on_correct: { ru: 'Верно. Все четыре доли вместе это одно целое. Это нам сейчас пригодится.', uz: "To'g'ri. To'rtala ulush birgalikda bitta butun. Bu hozir asqotadi.", en: 'That is right. All four parts together make one whole. That will be useful in a moment.' },
+      on_wrong: { ru: 'Не совсем. Все доли целого вместе дают одно целое.', uz: "Unchalik emas. Butunning hamma ulushi birgalikda bitta butun beradi.", en: 'Not quite. All the parts of a whole together make one whole.' }
     }
   },
 
   // s2 — EXPLORATION (FillWholes step): noto'g'ri kasr tug'iladi (9/4, surat>maxraj)
   s2: {
-    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    bridge: { ru: 'Раз 4/4 это одно целое, посмотрим, что будет с девятью долями.', uz: "To'rtdan to'rt bitta butun ekan, to'qqizta ulushga nima bo'lishini ko'ramiz." },
-    title: { ru: 'Когда долей больше, чем в одном целом', uz: "Ulush bitta butundagidan ko'p bo'lganda" },
-    note: { ru: 'Долей оказалось 9, а в одной лепёшке только 4. Верх больше низа — это правильно, так и должно быть. Такую дробь называют неправильной.', uz: "Ulush 9 ta chiqdi, bitta nonda esa atigi 4 ta. Surat maxrajdan katta — bu to'g'ri, shunday bo'lishi kerak. Bunday kasr noto'g'ri kasr deyiladi." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
+    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz", en: 'Let us explore' },
+    bridge: { ru: 'Раз 4/4 это одно целое, посмотрим, что будет с девятью долями.', uz: "To'rtdan to'rt bitta butun ekan, to'qqizta ulushga nima bo'lishini ko'ramiz.", en: 'Since 4/4 is one whole, let us see what happens with nine parts.' },
+    title: { ru: 'Когда долей больше, чем в одном целом', uz: "Ulush bitta butundagidan ko'p bo'lganda", en: 'When there are more parts than fit in one whole' },
+    note: { ru: 'Долей оказалось 9, а в одной лепёшке только 4. Верх больше низа — это правильно, так и должно быть. Такую дробь называют неправильной.', uz: "Ulush 9 ta chiqdi, bitta nonda esa atigi 4 ta. Surat maxrajdan katta — bu to'g'ri, shunday bo'lishi kerak. Bunday kasr noto'g'ri kasr deyiladi.", en: 'There turned out to be 9 parts, and one flatbread only holds 4. The top is bigger than the bottom, which is correct and just how it should be. A fraction like this is called improper.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
     audio: {
       ru: [
         'Будем добавлять доли по одной лепёшке. Первая лепёшка заполнилась — четыре доли, это одно целое. Нажми кнопку дальше.',
@@ -835,17 +862,18 @@ const CONTENT = {
         "Ikkinchi non ham to'ldi — yana bitta butun. Endi ikkita butun, sakkizta ulush.",
         "Uchinchi nonga yana bitta ulush qo'shildi. Hammasi bo'lib to'qqizta ulush — bu to'rtdan to'qqiz.",
         "Kasrning surati to'qqiz, maxraji to'rt. Surat maxrajdan katta, va bu normal. Bunday kasr noto'g'ri kasr deyiladi."
-      ]
+      ],
+      en: ['Let us add parts one flatbread at a time. The first flatbread is full, four parts, which is one whole. Tap the next button.', 'The second flatbread is full too, another whole. That makes two wholes now, eight parts.', 'We have added one more part to the third flatbread. Nine parts in all, which is nine quarters.', 'The top of the fraction is nine and the bottom is four. The top is bigger than the bottom, and that is perfectly fine. A fraction like this is called improper.']
     }
   },
 
   // s3 — EXPLORATION (FillWholes mixed + bo'lish-qoldiq): aralash son tug'iladi
   s3: {
-    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz" },
-    bridge: { ru: 'А теперь прочитаем те же девять долей по-другому.', uz: "Endi o'sha to'qqizta ulushni boshqacha o'qiymiz." },
-    title: { ru: 'Рождение смешанного числа', uz: "Aralash sonning paydo bo'lishi" },
-    note: { ru: 'Две лепёшки заполнены целиком — это 2 целых. В третьей одна доля — это 1/4. Вместе: 2 целых и 1/4. Это смешанное число. А найти его просто: 9 разделить на 4 — два, остаток один.', uz: "Ikkita non to'liq to'ldi — bu 2 butun. Uchinchisida bitta ulush — bu 1/4. Birgalikda: 2 butun va 1/4. Bu aralash son. Topish oson: 9 ni 4 ga bo'lsak — ikki, qoldiq bir." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
+    eyebrow: { ru: 'Исследуем', uz: "Tekshiramiz", en: 'Let us explore' },
+    bridge: { ru: 'А теперь прочитаем те же девять долей по-другому.', uz: "Endi o'sha to'qqizta ulushni boshqacha o'qiymiz.", en: 'And now let us read those same nine parts a different way.' },
+    title: { ru: 'Рождение смешанного числа', uz: "Aralash sonning paydo bo'lishi", en: 'How a mixed number is born' },
+    note: { ru: 'Две лепёшки заполнены целиком — это 2 целых. В третьей одна доля — это 1/4. Вместе: 2 целых и 1/4. Это смешанное число. А найти его просто: 9 разделить на 4 — два, остаток один.', uz: "Ikkita non to'liq to'ldi — bu 2 butun. Uchinchisida bitta ulush — bu 1/4. Birgalikda: 2 butun va 1/4. Bu aralash son. Topish oson: 9 ni 4 ga bo'lsak — ikki, qoldiq bir.", en: 'Two flatbreads are completely full, which is 2 wholes. The third has one part, which is 1/4. Together: 2 and 1/4. That is a mixed number. And it is easy to find: 9 divided by 4 is two, remainder one.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
     audio: {
       ru: [
         'Те же девять долей сгруппируем. Две лепёшки заполнены целиком — это два целых. Нажми кнопку дальше.',
@@ -858,24 +886,25 @@ const CONTENT = {
         "Uchinchi nonda to'rttadan bitta ulush qoldi — bu to'rtdan bir.",
         "Birgalikda ikki butun va to'rtdan bir bo'ladi. Mana shu aralash son.",
         "Uni bo'lish bilan topsa bo'ladi. To'qqizni to'rtga bo'lsak ikki bo'ladi, qoldiq bir. Ikki — bu butun, qoldiq bir — bu kasrning yangi surati."
-      ]
+      ],
+      en: ['Let us group those same nine parts. Two flatbreads are completely full, which is two wholes. Tap the next button.', 'The third flatbread has one part out of four, which is one quarter.', 'Together that makes two and one quarter. And that is a mixed number.', 'You can find it by dividing. Nine divided by four is two, remainder one. The two is the whole number and the remainder one is the new top of the fraction.']
     }
   },
 
   // s4 — RULE: 3 ta'rif + "yig'indi, ko'paytma emas" ogohlantirish + fakt
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    bridge: { ru: 'Соберём три новых слова в одно короткое правило.', uz: "Uchta yangi so'zni bitta qisqa qoidaga yig'amiz." },
-    title: { ru: 'Три вида чисел из долей', uz: "Ulushlardan uch xil son" },
-    def1_h: { ru: 'Правильная дробь', uz: "To'g'ri kasr" },
-    def1: { ru: 'верх меньше низа, она меньше единицы. Например 3/4.', uz: "surat maxrajdan kichik, u birdan kichik. Masalan 3/4." },
-    def2_h: { ru: 'Неправильная дробь', uz: "Noto'g'ri kasr" },
-    def2: { ru: 'верх больше низа или равен ему, она больше единицы или равна. Например 9/4, 4/4.', uz: "surat maxrajdan katta yoki teng, u birdan katta yoki teng. Masalan 9/4, 4/4." },
-    def3_h: { ru: 'Смешанное число', uz: "Aralash son" },
-    def3: { ru: 'целое и правильная дробь рядом. Например 2 1/4.', uz: "butun son va to'g'ri kasr yonma-yon. Masalan 2 1/4." },
-    warn: { ru: 'Смешанное число — это сумма целого и дроби, а не произведение. 2 1/4 = 2 + 1/4.', uz: "Aralash son — bu butun va kasrning yig'indisi, ko'paytmasi emas. 2 1/4 = 2 + 1/4." },
-    fact: { ru: 'Записывать смешанное число — целое рядом с дробью — начали индийские математики больше тысячи лет назад. Поэтому и мы пишем целое слева от дроби.', uz: "Aralash sonni — butunni kasr yoniga — yozishni hind matematiklari ming yildan ko'proq oldin boshlagan. Shuning uchun biz ham butunni kasrning chap tomoniga yozamiz." },
-    fact_btn: { ru: 'Интересный факт', uz: "Qiziqarli fakt" },
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    bridge: { ru: 'Соберём три новых слова в одно короткое правило.', uz: "Uchta yangi so'zni bitta qisqa qoidaga yig'amiz.", en: 'Let us gather the three new words into one short rule.' },
+    title: { ru: 'Три вида чисел из долей', uz: "Ulushlardan uch xil son", en: 'Three kinds of number made from parts' },
+    def1_h: { ru: 'Правильная дробь', uz: "To'g'ri kasr", en: 'Proper fraction' },
+    def1: { ru: 'верх меньше низа, она меньше единицы. Например 3/4.', uz: "surat maxrajdan kichik, u birdan kichik. Masalan 3/4.", en: 'the top is smaller than the bottom and it is less than one. For example 3/4.' },
+    def2_h: { ru: 'Неправильная дробь', uz: "Noto'g'ri kasr", en: 'Improper fraction' },
+    def2: { ru: 'верх больше низа или равен ему, она больше единицы или равна. Например 9/4, 4/4.', uz: "surat maxrajdan katta yoki teng, u birdan katta yoki teng. Masalan 9/4, 4/4.", en: 'the top is bigger than the bottom or equal to it, and it is more than one or equal to it. For example 9/4 and 4/4.' },
+    def3_h: { ru: 'Смешанное число', uz: "Aralash son", en: 'Mixed number' },
+    def3: { ru: 'целое и правильная дробь рядом. Например 2 1/4.', uz: "butun son va to'g'ri kasr yonma-yon. Masalan 2 1/4.", en: 'a whole number and a proper fraction side by side. For example 2 1/4.' },
+    warn: { ru: 'Смешанное число — это сумма целого и дроби, а не произведение. 2 1/4 = 2 + 1/4.', uz: "Aralash son — bu butun va kasrning yig'indisi, ko'paytmasi emas. 2 1/4 = 2 + 1/4.", en: 'A mixed number is a whole number and a fraction added together, not multiplied. 2 1/4 = 2 + 1/4.' },
+    fact: { ru: 'Записывать смешанное число — целое рядом с дробью — начали индийские математики больше тысячи лет назад. Поэтому и мы пишем целое слева от дроби.', uz: "Aralash sonni — butunni kasr yoniga — yozishni hind matematiklari ming yildan ko'proq oldin boshlagan. Shuning uchun biz ham butunni kasrning chap tomoniga yozamiz.", en: 'Indian mathematicians started writing mixed numbers, with the whole number next to the fraction, more than a thousand years ago. That is why we write the whole number to the left of the fraction.' },
+    fact_btn: { ru: 'Интересный факт', uz: "Qiziqarli fakt", en: 'An interesting fact' },
     audio: {
       ru: [
         'Запомни три слова. Первое. Правильная дробь, у неё верх меньше низа, она меньше одного целого. Второе. Неправильная дробь, у неё верх больше низа или равен ему, она больше одного целого или равна. Третье. Смешанное число, это целое и правильная дробь рядом. И самое важное. Смешанное число это сумма целого и дроби, а не произведение. Два целых одна четвёртая это два плюс одна четвёртая.',
@@ -884,221 +913,222 @@ const CONTENT = {
       uz: [
         "Uchta so'zni eslab qoling. Birinchi. To'g'ri kasr, uning surati maxrajdan kichik, u bitta butundan kichik. Ikkinchi. Noto'g'ri kasr, uning surati maxrajdan katta yoki teng, u bitta butundan katta yoki teng. Uchinchi. Aralash son, bu butun va to'g'ri kasr yonma-yon. Va eng muhimi. Aralash son butun va kasrning yig'indisi, ko'paytmasi emas. Ikki butun to'rtdan bir bu ikki qo'shuv to'rtdan bir.",
         "Qiziqarli fakt. Aralash sonni, butunni kasr yoniga yozishni hind matematiklari ming yildan ko'proq oldin boshlagan. Shuning uchun biz ham butunni kasrning chap tomoniga yozamiz."
-      ]
+      ],
+      en: ['Remember three words. First, a proper fraction, where the top is smaller than the bottom and it is less than one whole. Second, an improper fraction, where the top is bigger than the bottom or equal to it, and it is more than one whole or equal to it. Third, a mixed number, a whole number and a proper fraction side by side. And most important of all: a mixed number is a whole number and a fraction added together, not multiplied. Two and one quarter is two plus one quarter.', 'An interesting fact. Indian mathematicians started writing mixed numbers, with the whole number next to the fraction, more than a thousand years ago. That is why we write the whole number to the left of the fraction.']
     }
   },
 
   // s5 — TEST SeqMC: 5 ta OSON savol (to'g'ri javob pozitsiyalari A/B/C/A/B bo'ylab)
   s5: {
-    eyebrow: { ru: 'Разминка · 5 вопросов', uz: "Mashq · 5 ta savol" },
-    bridge: { ru: 'Правило ясно — закрепим на пяти быстрых вопросах.', uz: "Qoida tushunarli — beshta tezkor savolda mustahkamlaymiz." },
-    title: { ru: 'Пять быстрых вопросов', uz: "Beshta tezkor savol" },
-    lead: { ru: 'Определи вид числа или ответь коротко.', uz: "Son turini aniqlang yoki qisqa javob bering." },
+    eyebrow: { ru: 'Разминка · 5 вопросов', uz: "Mashq · 5 ta savol", en: 'Warm up · 5 questions' },
+    bridge: { ru: 'Правило ясно — закрепим на пяти быстрых вопросах.', uz: "Qoida tushunarli — beshta tezkor savolda mustahkamlaymiz.", en: 'The rule is clear, so let us fix it with five quick questions.' },
+    title: { ru: 'Пять быстрых вопросов', uz: "Beshta tezkor savol", en: 'Five quick questions' },
+    lead: { ru: 'Определи вид числа или ответь коротко.', uz: "Son turini aniqlang yoki qisqa javob bering.", en: 'Say what kind of number it is or give a short answer.' },
     questions: [
-      { q: { ru: 'Какая это дробь: 3/4?', uz: '3/4 — qaysi kasr?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri" }, { ru: 'Неправильная', uz: "Noto'g'ri" }, { ru: 'Смешанное', uz: "Aralash" }], correct: 0,
-        ok: { ru: 'Верно. Верх меньше низа — дробь правильная.', uz: "To'g'ri. Surat maxrajdan kichik — kasr to'g'ri." },
-        no: { ru: 'Посмотри на верх и низ: верх меньше низа.', uz: "Surat va maxrajga qarang: surat maxrajdan kichik." },
-        say: { ru: 'Какая это дробь, три четвёртых?', uz: "To'rtdan uch — qaysi kasr?" } },
-      { q: { ru: 'Какая это дробь: 7/4?', uz: '7/4 — qaysi kasr?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri" }, { ru: 'Неправильная', uz: "Noto'g'ri" }, { ru: 'Смешанное', uz: "Aralash" }], correct: 1,
-        ok: { ru: 'Верно. Верх больше низа — дробь неправильная.', uz: "To'g'ri. Surat maxrajdan katta — kasr noto'g'ri." },
-        no: { ru: 'Верх больше низа, значит дробь больше целого.', uz: "Surat maxrajdan katta, demak kasr butundan katta." },
-        say: { ru: 'Какая это дробь, семь четвёртых?', uz: "To'rtdan yetti — qaysi kasr?" } },
-      { q: { ru: 'Какое это число: 2 1/3?', uz: '2 1/3 — qaysi son?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri" }, { ru: 'Неправильная', uz: "Noto'g'ri" }, { ru: 'Смешанное', uz: "Aralash" }], correct: 2,
-        ok: { ru: 'Верно. Целое и дробь рядом — смешанное число.', uz: "To'g'ri. Butun va kasr yonma-yon — aralash son." },
-        no: { ru: 'Тут есть целое число рядом с дробью.', uz: "Bu yerda kasr yonida butun son bor." },
-        say: { ru: 'Какое это число, два целых одна третья?', uz: "Ikki butun uchdan bir — qaysi son?" } },
-      { q: { ru: 'В неправильной дроби верх...', uz: "Noto'g'ri kasrda surat..." }, opts: [{ ru: 'больше или равен', uz: "katta yoki teng" }, { ru: 'всегда меньше', uz: "doim kichik" }, { ru: 'всегда равен', uz: "doim teng" }], correct: 0,
-        ok: { ru: 'Верно. Верх больше низа или равен ему.', uz: "To'g'ri. Surat maxrajdan katta yoki unga teng." },
-        no: { ru: 'Вспомни 9/4 и 4/4: верх не меньше низа.', uz: "9/4 va 4/4 ni eslang: surat maxrajdan kichik emas." },
-        say: { ru: 'В неправильной дроби верх какой?', uz: "Noto'g'ri kasrda surat qanday?" } },
-      { q: { ru: 'Сколько целых в 5/4?', uz: "5/4 da nechta butun bor?" }, opts: [{ ru: '5', uz: '5' }, { ru: '1', uz: '1' }, { ru: '4', uz: '4' }], correct: 1,
-        ok: { ru: 'Верно. 5/4 это одно целое и одна четвёртая.', uz: "To'g'ri. 5/4 bu bitta butun va to'rtdan bir." },
-        no: { ru: 'Раздели 5 на 4: сколько целых лепёшек получится?', uz: "5 ni 4 ga bo'ling: nechta to'la non chiqadi?" },
-        say: { ru: 'Сколько целых в пяти четвёртых?', uz: "To'rtdan beshda nechta butun bor?" } }
+      { q: { ru: 'Какая это дробь: 3/4?', uz: '3/4 — qaysi kasr?', en: 'What kind of fraction is 3/4?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri", en: 'Proper' }, { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' }, { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' }], correct: 0,
+        ok: { ru: 'Верно. Верх меньше низа — дробь правильная.', uz: "To'g'ri. Surat maxrajdan kichik — kasr to'g'ri.", en: 'That is right. The top is smaller than the bottom, so the fraction is proper.' },
+        no: { ru: 'Посмотри на верх и низ: верх меньше низа.', uz: "Surat va maxrajga qarang: surat maxrajdan kichik.", en: 'Look at the top and the bottom: the top is smaller than the bottom.' },
+        say: { ru: 'Какая это дробь, три четвёртых?', uz: "To'rtdan uch — qaysi kasr?", en: 'What kind of fraction is three quarters?' } },
+      { q: { ru: 'Какая это дробь: 7/4?', uz: '7/4 — qaysi kasr?', en: 'What kind of fraction is 7/4?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri", en: 'Proper' }, { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' }, { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' }], correct: 1,
+        ok: { ru: 'Верно. Верх больше низа — дробь неправильная.', uz: "To'g'ri. Surat maxrajdan katta — kasr noto'g'ri.", en: 'That is right. The top is bigger than the bottom, so the fraction is improper.' },
+        no: { ru: 'Верх больше низа, значит дробь больше целого.', uz: "Surat maxrajdan katta, demak kasr butundan katta.", en: 'The top is bigger than the bottom, so the fraction is more than a whole.' },
+        say: { ru: 'Какая это дробь, семь четвёртых?', uz: "To'rtdan yetti — qaysi kasr?", en: 'What kind of fraction is seven quarters?' } },
+      { q: { ru: 'Какое это число: 2 1/3?', uz: '2 1/3 — qaysi son?', en: 'What kind of number is 2 1/3?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri", en: 'Proper' }, { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' }, { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' }], correct: 2,
+        ok: { ru: 'Верно. Целое и дробь рядом — смешанное число.', uz: "To'g'ri. Butun va kasr yonma-yon — aralash son.", en: 'That is right. A whole number and a fraction side by side make a mixed number.' },
+        no: { ru: 'Тут есть целое число рядом с дробью.', uz: "Bu yerda kasr yonida butun son bor.", en: 'There is a whole number here next to a fraction.' },
+        say: { ru: 'Какое это число, два целых одна третья?', uz: "Ikki butun uchdan bir — qaysi son?", en: 'What kind of number is two and one third?' } },
+      { q: { ru: 'В неправильной дроби верх...', uz: "Noto'g'ri kasrda surat...", en: 'In an improper fraction the top is…' }, opts: [{ ru: 'больше или равен', uz: "katta yoki teng", en: 'bigger than or equal to the bottom' }, { ru: 'всегда меньше', uz: "doim kichik", en: 'always smaller' }, { ru: 'всегда равен', uz: "doim teng", en: 'always equal' }], correct: 0,
+        ok: { ru: 'Верно. Верх больше низа или равен ему.', uz: "To'g'ri. Surat maxrajdan katta yoki unga teng.", en: 'That is right. The top is bigger than the bottom or equal to it.' },
+        no: { ru: 'Вспомни 9/4 и 4/4: верх не меньше низа.', uz: "9/4 va 4/4 ni eslang: surat maxrajdan kichik emas.", en: 'Remember 9/4 and 4/4: the top is not smaller than the bottom.' },
+        say: { ru: 'В неправильной дроби верх какой?', uz: "Noto'g'ri kasrda surat qanday?", en: 'In an improper fraction, what is the top like?' } },
+      { q: { ru: 'Сколько целых в 5/4?', uz: "5/4 da nechta butun bor?", en: 'How many wholes are there in 5/4?' }, opts: [{ ru: '5', uz: '5', en: '5' }, { ru: '1', uz: '1', en: '1' }, { ru: '4', uz: '4', en: '4' }], correct: 1,
+        ok: { ru: 'Верно. 5/4 это одно целое и одна четвёртая.', uz: "To'g'ri. 5/4 bu bitta butun va to'rtdan bir.", en: 'That is right. 5/4 is one whole and one quarter.' },
+        no: { ru: 'Раздели 5 на 4: сколько целых лепёшек получится?', uz: "5 ni 4 ga bo'ling: nechta to'la non chiqadi?", en: 'Divide 5 by 4: how many whole flatbreads does that make?' },
+        say: { ru: 'Сколько целых в пяти четвёртых?', uz: "To'rtdan beshda nechta butun bor?", en: 'How many wholes are there in five quarters?' } }
     ],
     audio: {
-      intro: { ru: 'Разминка. Пять быстрых вопросов. Первый. Какая это дробь, три четвёртых? Выбери ответ.', uz: "Mashq. Beshta tezkor savol. Birinchi. To'rtdan uch — qaysi kasr? Javobni tanlang." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang." },
-      on_done: { ru: 'Все пять верно. Виды чисел ты различаешь уверенно.', uz: "Beshalasi to'g'ri. Son turlarini ishonch bilan ajratyapsiz." }
+      intro: { ru: 'Разминка. Пять быстрых вопросов. Первый. Какая это дробь, три четвёртых? Выбери ответ.', uz: "Mashq. Beshta tezkor savol. Birinchi. To'rtdan uch — qaysi kasr? Javobni tanlang.", en: 'Warm up. Five quick questions. The first one: what kind of fraction is three quarters? Choose an answer.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: "Unchalik emas. Maslahatga qarang.", en: 'Not quite. Look at the hint.' },
+      on_done: { ru: 'Все пять верно. Виды чисел ты различаешь уверенно.', uz: "Beshalasi to'g'ri. Son turlarini ishonch bilan ajratyapsiz.", en: 'All five right. You can tell the kinds of number apart with confidence.' }
     }
   },
 
   // s6 — TEST DragClassify: kasrlarni To'g'ri / Noto'g'ri / Aralash savatlariga sudrash
   s6: {
-    eyebrow: { ru: 'Перетащи · разбери', uz: "Sudrab ajrating" },
-    bridge: { ru: 'Теперь сам разложи числа по трём корзинам.', uz: "Endi sonlarni uchta savatga o'zingiz ajrating." },
-    title: { ru: 'Разложи по видам', uz: "Turlarga ajrating" },
-    lead: { ru: 'Перетащи каждое число в нужную корзину (или нажми число, потом корзину).', uz: "Har bir sonni kerakli savatga suring (yoki sonni, keyin savatni bosing)." },
-    bin_T: { ru: 'Правильная', uz: "To'g'ri" },
-    bin_N: { ru: 'Неправильная', uz: "Noto'g'ri" },
-    bin_A: { ru: 'Смешанное', uz: "Aralash" },
-    tray_label: { ru: 'Числа', uz: "Sonlar" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Не всё на месте. Правильная — верх меньше низа; неправильная — верх не меньше низа; смешанное — есть целое рядом.', uz: "Hammasi joyida emas. To'g'ri — surat maxrajdan kichik; noto'g'ri — surat maxrajdan kichik emas; aralash — yonida butun bor." },
-    fb_correct: { ru: 'Верно. Каждое число в своей корзине: вид определяется по верху, низу и наличию целого.', uz: "To'g'ri. Har bir son o'z savatida: tur surat, maxraj va butun bor-yo'qligi bilan aniqlanadi." },
+    eyebrow: { ru: 'Перетащи · разбери', uz: "Sudrab ajrating", en: 'Drag · sort them out' },
+    bridge: { ru: 'Теперь сам разложи числа по трём корзинам.', uz: "Endi sonlarni uchta savatga o'zingiz ajrating.", en: 'Now sort the numbers into three baskets yourself.' },
+    title: { ru: 'Разложи по видам', uz: "Turlarga ajrating", en: 'Sort them by kind' },
+    lead: { ru: 'Перетащи каждое число в нужную корзину (или нажми число, потом корзину).', uz: "Har bir sonni kerakli savatga suring (yoki sonni, keyin savatni bosing).", en: 'Drag each number into the right basket (or tap the number, then the basket).' },
+    bin_T: { ru: 'Правильная', uz: "To'g'ri", en: 'Proper' },
+    bin_N: { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' },
+    bin_A: { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' },
+    tray_label: { ru: 'Числа', uz: "Sonlar", en: 'Numbers' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Не всё на месте. Правильная — верх меньше низа; неправильная — верх не меньше низа; смешанное — есть целое рядом.', uz: "Hammasi joyida emas. To'g'ri — surat maxrajdan kichik; noto'g'ri — surat maxrajdan kichik emas; aralash — yonida butun bor.", en: 'Not everything is in place. Proper means the top is smaller than the bottom; improper means the top is not smaller than the bottom; mixed means there is a whole number alongside.' },
+    fb_correct: { ru: 'Верно. Каждое число в своей корзине: вид определяется по верху, низу и наличию целого.', uz: "To'g'ri. Har bir son o'z savatida: tur surat, maxraj va butun bor-yo'qligi bilan aniqlanadi.", en: 'That is right. Every number is in its own basket: the kind is decided by the top, the bottom and whether there is a whole number.' },
     audio: {
-      intro: { ru: 'Разложи шесть чисел по трём корзинам. Правильная дробь, неправильная дробь и смешанное число. Перетащи число в корзину или нажми число, потом корзину. Когда разложишь все, нажми кнопку проверить.', uz: "Olti sonni uchta savatga ajrating. To'g'ri kasr, noto'g'ri kasr va aralash son. Sonni savatga suring yoki sonni, keyin savatni bosing. Hammasini ajratgach, tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Все числа на своих местах.', uz: "To'g'ri. Hamma son o'z joyida." },
-      on_wrong: { ru: 'Пока не всё на месте. Правильная меньше целого, неправильная не меньше целого, у смешанного есть целое рядом.', uz: "Hozircha hammasi joyida emas. To'g'ri kasr butundan kichik, noto'g'ri kichik emas, aralash sonda yonida butun bor." }
+      intro: { ru: 'Разложи шесть чисел по трём корзинам. Правильная дробь, неправильная дробь и смешанное число. Перетащи число в корзину или нажми число, потом корзину. Когда разложишь все, нажми кнопку проверить.', uz: "Olti sonni uchta savatga ajrating. To'g'ri kasr, noto'g'ri kasr va aralash son. Sonni savatga suring yoki sonni, keyin savatni bosing. Hammasini ajratgach, tekshirish tugmasini bosing.", en: 'Sort six numbers into three baskets: proper fraction, improper fraction and mixed number. Drag a number into a basket or tap the number and then the basket. When you have sorted them all, tap the check button.' },
+      on_correct: { ru: 'Верно. Все числа на своих местах.', uz: "To'g'ri. Hamma son o'z joyida.", en: 'That is right. Every number is in its place.' },
+      on_wrong: { ru: 'Пока не всё на месте. Правильная меньше целого, неправильная не меньше целого, у смешанного есть целое рядом.', uz: "Hozircha hammasi joyida emas. To'g'ri kasr butundan kichik, noto'g'ri kichik emas, aralash sonda yonida butun bor.", en: 'Not everything is in place yet. A proper fraction is less than a whole, an improper one is not less than a whole, and a mixed number has a whole number alongside.' }
     }
   },
 
   // s7 — TEST MixedInput: 7/4 = 1 butun 3/4
   s7: {
-    eyebrow: { ru: 'Переведи', uz: "O'tkazing" },
-    bridge: { ru: 'Переведём неправильную дробь в смешанное число сами.', uz: "Noto'g'ri kasrni aralash songa o'zimiz o'tkazamiz." },
-    title: { ru: 'Из неправильной дроби в смешанное число', uz: "Noto'g'ri kasrdan aralash songa" },
-    question: { ru: 'Запиши 7/4 как смешанное число: 7/4 = ? целых ?/4', uz: "7/4 ni aralash son qilib yozing: 7/4 = ? butun ?/4" },
-    label_whole: { ru: 'целых', uz: "butun" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint: { ru: 'Раздели верх на низ: семь разделить на четыре. Целая часть это сколько раз четыре уложилось, остаток это новый верх.', uz: "Suratni maxrajga bo'ling: yettini to'rtga bo'ling. Butun qism — to'rt necha marta joylashgani, qoldiq — yangi surat." },
-    fb_correct: { ru: 'Верно. 7 разделить на 4 — один, остаток три. Значит 7/4 = 1 целая 3/4.', uz: "To'g'ri. 7 ni 4 ga bo'lsak — bir, qoldiq uch. Demak 7/4 = 1 butun 3/4." },
+    eyebrow: { ru: 'Переведи', uz: "O'tkazing", en: 'Change the units' },
+    bridge: { ru: 'Переведём неправильную дробь в смешанное число сами.', uz: "Noto'g'ri kasrni aralash songa o'zimiz o'tkazamiz.", en: 'Let us turn an improper fraction into a mixed number ourselves.' },
+    title: { ru: 'Из неправильной дроби в смешанное число', uz: "Noto'g'ri kasrdan aralash songa", en: 'From an improper fraction to a mixed number' },
+    question: { ru: 'Запиши 7/4 как смешанное число: 7/4 = ? целых ?/4', uz: "7/4 ni aralash son qilib yozing: 7/4 = ? butun ?/4", en: 'Write 7/4 as a mixed number: 7/4 = ? and ?/4' },
+    label_whole: { ru: 'целых', uz: "butun", en: 'wholes' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint: { ru: 'Раздели верх на низ: семь разделить на четыре. Целая часть это сколько раз четыре уложилось, остаток это новый верх.', uz: "Suratni maxrajga bo'ling: yettini to'rtga bo'ling. Butun qism — to'rt necha marta joylashgani, qoldiq — yangi surat.", en: 'Divide the top by the bottom: seven divided by four. The whole number part is how many times four fitted in and the remainder is the new top.' },
+    fb_correct: { ru: 'Верно. 7 разделить на 4 — один, остаток три. Значит 7/4 = 1 целая 3/4.', uz: "To'g'ri. 7 ni 4 ga bo'lsak — bir, qoldiq uch. Demak 7/4 = 1 butun 3/4.", en: 'That is right. 7 divided by 4 is one, remainder three. So 7/4 = 1 and 3/4.' },
     audio: {
-      intro: { ru: 'Переведи семь четвёртых в смешанное число. Сколько целых и сколько четвёртых останется? Раздели семь на четыре. Введи целую часть и верх дроби, потом нажми кнопку проверить.', uz: "To'rtdan yettini aralash songa o'tkazing. Nechta butun va to'rtdan nechta qoladi? Yettini to'rtga bo'ling. Butun qismni va kasrning suratini kiriting, keyin tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Семь разделить на четыре будет один, остаток три. Семь четвёртых это одно целое и три четвёртых.', uz: "To'g'ri. Yettini to'rtga bo'lsak bir bo'ladi, qoldiq uch. To'rtdan yetti bu bitta butun va to'rtdan uch." },
-      on_wrong: { ru: 'Не совсем. Раздели семь на четыре: целая часть один, остаток три.', uz: "Unchalik emas. Yettini to'rtga bo'ling: butun qism bir, qoldiq uch." }
+      intro: { ru: 'Переведи семь четвёртых в смешанное число. Сколько целых и сколько четвёртых останется? Раздели семь на четыре. Введи целую часть и верх дроби, потом нажми кнопку проверить.', uz: "To'rtdan yettini aralash songa o'tkazing. Nechta butun va to'rtdan nechta qoladi? Yettini to'rtga bo'ling. Butun qismni va kasrning suratini kiriting, keyin tekshirish tugmasini bosing.", en: 'Turn seven quarters into a mixed number. How many wholes are there and how many quarters are left? Divide seven by four. Type the whole number part and the top of the fraction, then tap the check button.' },
+      on_correct: { ru: 'Верно. Семь разделить на четыре будет один, остаток три. Семь четвёртых это одно целое и три четвёртых.', uz: "To'g'ri. Yettini to'rtga bo'lsak bir bo'ladi, qoldiq uch. To'rtdan yetti bu bitta butun va to'rtdan uch.", en: 'That is right. Seven divided by four is one, remainder three. Seven quarters is one whole and three quarters.' },
+      on_wrong: { ru: 'Не совсем. Раздели семь на четыре: целая часть один, остаток три.', uz: "Unchalik emas. Yettini to'rtga bo'ling: butun qism bir, qoldiq uch.", en: 'Not quite. Divide seven by four: the whole number part is one and the remainder is three.' }
     }
   },
 
   // s8 — TEST: noto'g'risini top (error-spotting). To'g'ri javob = XATO yozuv (opt0).
   s8: {
-    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping" },
-    bridge: { ru: 'А теперь поймай ошибку в чужой записи.', uz: "Endi birovning yozuvidagi xatoni toping." },
-    title: { ru: 'Найди неверную запись', uz: "Noto'g'ri yozuvni toping" },
-    question: { ru: 'Какая запись НЕВЕРНА?', uz: "Qaysi yozuv NOTO'G'RI?" },
-    opt0: { ru: '5/4 = 5 целых 1/4', uz: '5/4 = 5 butun 1/4' },
-    opt1: { ru: '9/4 = 2 целых 1/4', uz: '9/4 = 2 butun 1/4' },
-    opt2: { ru: '3/4 — правильная дробь', uz: "3/4 — to'g'ri kasr" },
-    correct_text: { ru: 'Верно — неверна именно эта. Целое берут не из верха, а из числа целых лепёшек: 5/4 = 1 целая 1/4, а не 5 целых.', uz: "To'g'ri — aynan shu noto'g'ri. Butun surat sonidan emas, to'la nonlar sonidan olinadi: 5/4 = 1 butun 1/4, 5 butun emas." },
-    hint_1: { ru: 'Эта запись верная: девять четвёртых это две целых лепёшки и одна доля.', uz: "Bu yozuv to'g'ri: to'rtdan to'qqiz bu ikkita to'la non va bitta ulush." },
-    hint_2: { ru: 'Эта запись верная: верх меньше низа, значит дробь правильная.', uz: "Bu yozuv to'g'ri: surat maxrajdan kichik, demak kasr to'g'ri." },
-    wrong_default: { ru: 'Ищи запись, где целую часть взяли прямо из верха дроби. Так нельзя.', uz: "Butun qismni to'g'ridan to'g'ri kasrning suratidan olgan yozuvni qidiring. Bunday qilib bo'lmaydi." },
-    fact: { ru: 'В рецептах часто пишут смешанным числом: полтора стакана муки — это 1 1/2 стакана, а дробью 3/2.', uz: "Retseptlarda ko'pincha aralash son yoziladi: bir yarim stakan un — bu 1 1/2 stakan, kasr bilan 3/2." },
+    eyebrow: { ru: 'Найди ошибку', uz: "Xatoni toping", en: 'Find the mistake' },
+    bridge: { ru: 'А теперь поймай ошибку в чужой записи.', uz: "Endi birovning yozuvidagi xatoni toping.", en: "And now catch the mistake in someone else's working." },
+    title: { ru: 'Найди неверную запись', uz: "Noto'g'ri yozuvni toping", en: 'Find the one written wrongly' },
+    question: { ru: 'Какая запись НЕВЕРНА?', uz: "Qaysi yozuv NOTO'G'RI?", en: 'Which one is WRONG?' },
+    opt0: { ru: '5/4 = 5 целых 1/4', uz: '5/4 = 5 butun 1/4', en: '5/4 = 5 and 1/4' },
+    opt1: { ru: '9/4 = 2 целых 1/4', uz: '9/4 = 2 butun 1/4', en: '9/4 = 2 and 1/4' },
+    opt2: { ru: '3/4 — правильная дробь', uz: "3/4 — to'g'ri kasr", en: '3/4 is a proper fraction' },
+    correct_text: { ru: 'Верно — неверна именно эта. Целое берут не из верха, а из числа целых лепёшек: 5/4 = 1 целая 1/4, а не 5 целых.', uz: "To'g'ri — aynan shu noto'g'ri. Butun surat sonidan emas, to'la nonlar sonidan olinadi: 5/4 = 1 butun 1/4, 5 butun emas.", en: 'Right, that is the wrong one. The whole number does not come from the top, it comes from the number of whole flatbreads: 5/4 = 1 and 1/4, not 5 wholes.' },
+    hint_1: { ru: 'Эта запись верная: девять четвёртых это две целых лепёшки и одна доля.', uz: "Bu yozuv to'g'ri: to'rtdan to'qqiz bu ikkita to'la non va bitta ulush.", en: 'That one is right: nine quarters is two whole flatbreads and one part.' },
+    hint_2: { ru: 'Эта запись верная: верх меньше низа, значит дробь правильная.', uz: "Bu yozuv to'g'ri: surat maxrajdan kichik, demak kasr to'g'ri.", en: 'That one is right: the top is smaller than the bottom, so the fraction is proper.' },
+    wrong_default: { ru: 'Ищи запись, где целую часть взяли прямо из верха дроби. Так нельзя.', uz: "Butun qismni to'g'ridan to'g'ri kasrning suratidan olgan yozuvni qidiring. Bunday qilib bo'lmaydi.", en: 'Look for the one where the whole number part was taken straight from the top of the fraction. That is not allowed.' },
+    fact: { ru: 'В рецептах часто пишут смешанным числом: полтора стакана муки — это 1 1/2 стакана, а дробью 3/2.', uz: "Retseptlarda ko'pincha aralash son yoziladi: bir yarim stakan un — bu 1 1/2 stakan, kasr bilan 3/2.", en: 'Recipes often use mixed numbers: a cup and a half of flour is 1 1/2 cups, or 3/2 as a fraction.' },
     audio: {
-      intro: { ru: 'Поймай ошибку. Среди трёх записей одна неверна. Найди, где целую часть взяли прямо из верха дроби. Выбери неверную запись.', uz: "Xatoni toping. Uchta yozuvdan biri noto'g'ri. Butun qismni to'g'ridan to'g'ri kasr suratidan olgan joyni toping. Noto'g'ri yozuvni tanlang." },
-      on_correct: { ru: 'Верно. Целую часть берут из числа целых лепёшек, а не из верха дроби. Кстати, в рецептах полтора стакана это смешанное число.', uz: "To'g'ri. Butun qism to'la nonlar sonidan olinadi, kasr suratidan emas. Aytmoqchi, retseptdagi bir yarim stakan — bu aralash son." },
-      on_wrong: { ru: 'Эта запись верная. Ищи ту, где целую часть взяли из верха дроби.', uz: "Bu yozuv to'g'ri. Butun qismni kasr suratidan olgan yozuvni qidiring." }
+      intro: { ru: 'Поймай ошибку. Среди трёх записей одна неверна. Найди, где целую часть взяли прямо из верха дроби. Выбери неверную запись.', uz: "Xatoni toping. Uchta yozuvdan biri noto'g'ri. Butun qismni to'g'ridan to'g'ri kasr suratidan olgan joyni toping. Noto'g'ri yozuvni tanlang.", en: 'Catch the mistake. One of the three is wrong. Find the one where the whole number part was taken straight from the top of the fraction. Choose the wrong one.' },
+      on_correct: { ru: 'Верно. Целую часть берут из числа целых лепёшек, а не из верха дроби. Кстати, в рецептах полтора стакана это смешанное число.', uz: "To'g'ri. Butun qism to'la nonlar sonidan olinadi, kasr suratidan emas. Aytmoqchi, retseptdagi bir yarim stakan — bu aralash son.", en: 'That is right. The whole number part comes from the number of whole flatbreads, not from the top of the fraction. By the way, a cup and a half in a recipe is a mixed number.' },
+      on_wrong: { ru: 'Эта запись верная. Ищи ту, где целую часть взяли из верха дроби.', uz: "Bu yozuv to'g'ri. Butun qismni kasr suratidan olgan yozuvni qidiring.", en: 'That one is right. Look for the one where the whole number part was taken from the top of the fraction.' }
     }
   },
 
   // s9 — CASE intro (Oybek): 11/4 stakan sharbat
   s9: {
-    eyebrow: { ru: 'Задача · Ойбек', uz: "Masala · Oybek" },
-    bridge: { ru: 'Смешанные числа встречаются в жизни. Помоги Ойбеку.', uz: "Aralash sonlar hayotda uchraydi. Oybekka yordam bering." },
-    title: { ru: 'У Ойбека 11/4 стакана сока.', uz: "Oybekda 11/4 stakan sharbat bor." },
-    body: { ru: 'Каждый стакан делится на 4 равные части, и у Ойбека 11 таких частей. Сколько это полных стаканов и сколько останется? Сначала прикинь, потом проверим.', uz: "Har stakan 4 ta teng qismga bo'linadi, Oybekda esa 11 ta shunday qism bor. Bu nechta to'la stakan va qancha ortadi? Avval chamalang, keyin tekshiramiz." },
-    hint_card: { ru: 'Раздели 11 на 4: целая часть и остаток.', uz: "11 ni 4 ga bo'ling: butun qism va qoldiq." },
-    audio: { ru: 'У Ойбека одиннадцать четвёртых стакана сока. Каждый стакан делится на четыре части, и таких частей одиннадцать. Сколько это полных стаканов и сколько останется? Раздели одиннадцать на четыре. Прикинь ответ, на следующем шаге проверим.', uz: "Oybekda to'rtdan o'n bir stakan sharbat bor. Har stakan to'rtta qismga bo'linadi, shunday qism o'n bitta. Bu nechta to'la stakan va qancha ortadi? O'n birni to'rtga bo'ling. Javobni chamalang, keyingi qadamda tekshiramiz." }
+    eyebrow: { ru: 'Задача · Ойбек', uz: "Masala · Oybek", en: 'Problem · Oybek' },
+    bridge: { ru: 'Смешанные числа встречаются в жизни. Помоги Ойбеку.', uz: "Aralash sonlar hayotda uchraydi. Oybekka yordam bering.", en: 'Mixed numbers turn up in real life. Help Oybek.' },
+    title: { ru: 'У Ойбека 11/4 стакана сока.', uz: "Oybekda 11/4 stakan sharbat bor.", en: 'Oybek has 11/4 cups of juice.' },
+    body: { ru: 'Каждый стакан делится на 4 равные части, и у Ойбека 11 таких частей. Сколько это полных стаканов и сколько останется? Сначала прикинь, потом проверим.', uz: "Har stakan 4 ta teng qismga bo'linadi, Oybekda esa 11 ta shunday qism bor. Bu nechta to'la stakan va qancha ortadi? Avval chamalang, keyin tekshiramiz.", en: 'Each cup is split into 4 equal parts and Oybek has 11 of those parts. How many full cups is that and how much is left over? Make a guess first and then we will check.' },
+    hint_card: { ru: 'Раздели 11 на 4: целая часть и остаток.', uz: "11 ni 4 ga bo'ling: butun qism va qoldiq.", en: 'Divide 11 by 4: the whole number part and the remainder.' },
+    audio: { ru: 'У Ойбека одиннадцать четвёртых стакана сока. Каждый стакан делится на четыре части, и таких частей одиннадцать. Сколько это полных стаканов и сколько останется? Раздели одиннадцать на четыре. Прикинь ответ, на следующем шаге проверим.', uz: "Oybekda to'rtdan o'n bir stakan sharbat bor. Har stakan to'rtta qismga bo'linadi, shunday qism o'n bitta. Bu nechta to'la stakan va qancha ortadi? O'n birni to'rtga bo'ling. Javobni chamalang, keyingi qadamda tekshiramiz.", en: 'Oybek has eleven quarters of a cup of juice. Each cup is split into four parts and there are eleven of those parts. How many full cups is that and how much is left over? Divide eleven by four. Make a guess and we will check on the next step.' }
   },
 
   // s10 — CASE MC: 11/4 = 2 3/4 (to'g'ri = opt0; order [2,0,3,1])
   s10: {
-    eyebrow: { ru: 'Задача · Ойбек', uz: "Masala · Oybek" },
-    bridge: { ru: 'Теперь посчитаем точно.', uz: "Endi aniq hisoblaymiz." },
-    title: { ru: 'Сок Ойбека', uz: "Oybekning sharbati" },
-    question: { ru: 'Сколько это стаканов? 11/4 = ?', uz: "Bu necha stakan? 11/4 = ?" },
-    opt0: { ru: '2 целых 3/4', uz: '2 butun 3/4' },
-    opt1: { ru: '2 целых 1/4', uz: '2 butun 1/4' },
-    opt2: { ru: '4 целых 3/4', uz: '4 butun 3/4' },
-    opt3: { ru: '11 целых 1/4', uz: '11 butun 1/4' },
-    correct_text: { ru: 'Верно. 11 разделить на 4 — два, остаток три. Значит 11/4 = 2 целых 3/4 стакана.', uz: "To'g'ri. 11 ni 4 ga bo'lsak — ikki, qoldiq uch. Demak 11/4 = 2 butun 3/4 stakan." },
-    hint_1: { ru: 'Раздели 11 на 4. Сколько раз четыре уложилось целиком и что в остатке?', uz: "11 ni 4 ga bo'ling. To'rt necha marta to'la joylashdi va qoldiqda nima qoldi?" },
-    hint_2: { ru: 'Целых тут больше двух не получится: два целых стакана и остаток.', uz: "Bu yerda ikkitadan ortiq butun chiqmaydi: ikkita to'la stakan va qoldiq." },
-    hint_3: { ru: 'Целое берут из числа полных стаканов, а не из верха дроби.', uz: "Butun to'la stakanlar sonidan olinadi, kasr suratidan emas." },
-    wrong_default: { ru: 'Раздели одиннадцать на четыре: целая часть два, остаток три. Это два целых и три четвёртых.', uz: "O'n birni to'rtga bo'ling: butun qism ikki, qoldiq uch. Bu ikki butun, to'rtdan uch." },
-    fact: { ru: 'Время тоже мерят смешанным числом: 1 час 30 минут — это 1 целый и 1/2 часа.', uz: "Vaqt ham aralash son bilan o'lchanadi: 1 soat 30 daqiqa — bu 1 butun va 1/2 soat." },
+    eyebrow: { ru: 'Задача · Ойбек', uz: "Masala · Oybek", en: 'Problem · Oybek' },
+    bridge: { ru: 'Теперь посчитаем точно.', uz: "Endi aniq hisoblaymiz.", en: 'Now let us work it out exactly.' },
+    title: { ru: 'Сок Ойбека', uz: "Oybekning sharbati", en: "Oybek's juice" },
+    question: { ru: 'Сколько это стаканов? 11/4 = ?', uz: "Bu necha stakan? 11/4 = ?", en: 'How many cups is that? 11/4 = ?' },
+    opt0: { ru: '2 целых 3/4', uz: '2 butun 3/4', en: '2 and 3/4' },
+    opt1: { ru: '2 целых 1/4', uz: '2 butun 1/4', en: '2 and 1/4' },
+    opt2: { ru: '4 целых 3/4', uz: '4 butun 3/4', en: '4 and 3/4' },
+    opt3: { ru: '11 целых 1/4', uz: '11 butun 1/4', en: '11 and 1/4' },
+    correct_text: { ru: 'Верно. 11 разделить на 4 — два, остаток три. Значит 11/4 = 2 целых 3/4 стакана.', uz: "To'g'ri. 11 ni 4 ga bo'lsak — ikki, qoldiq uch. Demak 11/4 = 2 butun 3/4 stakan.", en: 'That is right. 11 divided by 4 is two, remainder three. So 11/4 = 2 and 3/4 cups.' },
+    hint_1: { ru: 'Раздели 11 на 4. Сколько раз четыре уложилось целиком и что в остатке?', uz: "11 ni 4 ga bo'ling. To'rt necha marta to'la joylashdi va qoldiqda nima qoldi?", en: 'Divide 11 by 4. How many times did four fit in completely and what is left over?' },
+    hint_2: { ru: 'Целых тут больше двух не получится: два целых стакана и остаток.', uz: "Bu yerda ikkitadan ortiq butun chiqmaydi: ikkita to'la stakan va qoldiq.", en: 'There cannot be more than two wholes here: two full cups and a remainder.' },
+    hint_3: { ru: 'Целое берут из числа полных стаканов, а не из верха дроби.', uz: "Butun to'la stakanlar sonidan olinadi, kasr suratidan emas.", en: 'The whole number comes from the number of full cups, not from the top of the fraction.' },
+    wrong_default: { ru: 'Раздели одиннадцать на четыре: целая часть два, остаток три. Это два целых и три четвёртых.', uz: "O'n birni to'rtga bo'ling: butun qism ikki, qoldiq uch. Bu ikki butun, to'rtdan uch.", en: 'Divide eleven by four: the whole number part is two and the remainder is three. That is two and three quarters.' },
+    fact: { ru: 'Время тоже мерят смешанным числом: 1 час 30 минут — это 1 целый и 1/2 часа.', uz: "Vaqt ham aralash son bilan o'lchanadi: 1 soat 30 daqiqa — bu 1 butun va 1/2 soat.", en: 'Time is measured with mixed numbers too: 1 hour 30 minutes is 1 and 1/2 hours.' },
     audio: {
-      intro: { ru: 'Теперь точный счёт. Сколько это стаканов? Одиннадцать четвёртых. Выбери ответ.', uz: "Endi aniq hisob. Bu necha stakan? To'rtdan o'n bir. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Одиннадцать разделить на четыре будет два, остаток три. Это два целых и три четвёртых стакана. Кстати, время тоже мерят смешанным числом, час тридцать это полтора часа.', uz: "To'g'ri. O'n birni to'rtga bo'lsak ikki bo'ladi, qoldiq uch. Bu ikki butun va to'rtdan uch stakan. Aytmoqchi, vaqt ham aralash son bilan o'lchanadi, bir soat o'ttiz daqiqa bu bir yarim soat." },
-      on_wrong: { ru: 'Не совсем. Раздели одиннадцать на четыре: целых два, остаток три.', uz: "Unchalik emas. O'n birni to'rtga bo'ling: butun ikki, qoldiq uch." }
+      intro: { ru: 'Теперь точный счёт. Сколько это стаканов? Одиннадцать четвёртых. Выбери ответ.', uz: "Endi aniq hisob. Bu necha stakan? To'rtdan o'n bir. Javobni tanlang.", en: 'Now the exact working out. How many cups is that? Eleven quarters. Choose an answer.' },
+      on_correct: { ru: 'Верно. Одиннадцать разделить на четыре будет два, остаток три. Это два целых и три четвёртых стакана. Кстати, время тоже мерят смешанным числом, час тридцать это полтора часа.', uz: "To'g'ri. O'n birni to'rtga bo'lsak ikki bo'ladi, qoldiq uch. Bu ikki butun va to'rtdan uch stakan. Aytmoqchi, vaqt ham aralash son bilan o'lchanadi, bir soat o'ttiz daqiqa bu bir yarim soat.", en: 'That is right. Eleven divided by four is two, remainder three. That is two and three quarter cups. By the way, time is measured with mixed numbers too: one thirty is an hour and a half.' },
+      on_wrong: { ru: 'Не совсем. Раздели одиннадцать на четыре: целых два, остаток три.', uz: "Unchalik emas. O'n birni to'rtga bo'ling: butun ikki, qoldiq uch.", en: 'Not quite. Divide eleven by four: two wholes, remainder three.' }
     }
   },
 
   // s11 — TEST DragOrder: kichikdan kattaga (1/2, 5/4, 2/3, 1 1/2)
   s11: {
-    eyebrow: { ru: 'Перетащи · по порядку', uz: "Sudrab tartiblang" },
-    bridge: { ru: 'Сравним правильные, неправильные и смешанные вместе.', uz: "To'g'ri, noto'g'ri va aralash sonlarni birga solishtiramiz." },
-    title: { ru: 'Расставь от меньшего к большему', uz: "Kichikdan kattaga joylashtiring" },
-    lead: { ru: 'Перетащи числа в слоты по возрастанию (или нажми число, потом слот).', uz: "Sonlarni o'sish tartibida kataklarga suring (yoki sonni, keyin katakni bosing)." },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Не по порядку. Меньше единицы — это правильные дроби, больше единицы — неправильные и смешанные.', uz: "Tartib noto'g'ri. Birdan kichigi — to'g'ri kasrlar, birdan kattasi — noto'g'ri va aralash sonlar." },
-    fb_correct: { ru: 'Верно. По возрастанию: 1/2, 2/3, 5/4, 1 1/2. Правильные дроби меньше единицы, неправильная и смешанное больше.', uz: "To'g'ri. O'sish tartibida: 1/2, 2/3, 5/4, 1 1/2. To'g'ri kasrlar birdan kichik, noto'g'ri va aralash kattaroq." },
+    eyebrow: { ru: 'Перетащи · по порядку', uz: "Sudrab tartiblang", en: 'Drag · in order' },
+    bridge: { ru: 'Сравним правильные, неправильные и смешанные вместе.', uz: "To'g'ri, noto'g'ri va aralash sonlarni birga solishtiramiz.", en: 'Let us compare proper fractions, improper fractions and mixed numbers together.' },
+    title: { ru: 'Расставь от меньшего к большему', uz: "Kichikdan kattaga joylashtiring", en: 'Put them in order from smallest to biggest' },
+    lead: { ru: 'Перетащи числа в слоты по возрастанию (или нажми число, потом слот).', uz: "Sonlarni o'sish tartibida kataklarga suring (yoki sonni, keyin katakni bosing).", en: 'Drag the numbers into the slots from smallest to biggest (or tap the number, then the slot).' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Не по порядку. Меньше единицы — это правильные дроби, больше единицы — неправильные и смешанные.', uz: "Tartib noto'g'ri. Birdan kichigi — to'g'ri kasrlar, birdan kattasi — noto'g'ri va aralash sonlar.", en: 'Not in order. Less than one means proper fractions, and more than one means improper fractions and mixed numbers.' },
+    fb_correct: { ru: 'Верно. По возрастанию: 1/2, 2/3, 5/4, 1 1/2. Правильные дроби меньше единицы, неправильная и смешанное больше.', uz: "To'g'ri. O'sish tartibida: 1/2, 2/3, 5/4, 1 1/2. To'g'ri kasrlar birdan kichik, noto'g'ri va aralash kattaroq.", en: 'That is right. In order: 1/2, 2/3, 5/4, 1 1/2. The proper fractions are less than one and the improper fraction and the mixed number are more.' },
     audio: {
-      intro: { ru: 'Расставь четыре числа от меньшего к большему. Перетащи число в слот или нажми число, потом слот. Когда расставишь все, нажми кнопку проверить.', uz: "To'rtta sonni kichikdan kattaga joylashtiring. Sonni katakka suring yoki sonni, keyin katakni bosing. Hammasini joylagach, tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Порядок правильный: половина, две третьих, пять четвёртых, полтора.', uz: "To'g'ri. Tartib to'g'ri: yarim, uchdan ikki, to'rtdan besh, bir yarim." },
-      on_wrong: { ru: 'Пока не по порядку. Меньше одного целого идут правильные дроби, потом больше единицы.', uz: "Hozircha tartib noto'g'ri. Bitta butundan kichigi to'g'ri kasrlar, keyin birdan kattasi keladi." }
+      intro: { ru: 'Расставь четыре числа от меньшего к большему. Перетащи число в слот или нажми число, потом слот. Когда расставишь все, нажми кнопку проверить.', uz: "To'rtta sonni kichikdan kattaga joylashtiring. Sonni katakka suring yoki sonni, keyin katakni bosing. Hammasini joylagach, tekshirish tugmasini bosing.", en: 'Put four numbers in order from smallest to biggest. Drag a number into a slot or tap the number and then the slot. When you have placed them all, tap the check button.' },
+      on_correct: { ru: 'Верно. Порядок правильный: половина, две третьих, пять четвёртых, полтора.', uz: "To'g'ri. Tartib to'g'ri: yarim, uchdan ikki, to'rtdan besh, bir yarim.", en: 'That is right. The order is correct: a half, two thirds, five quarters, one and a half.' },
+      on_wrong: { ru: 'Пока не по порядку. Меньше одного целого идут правильные дроби, потом больше единицы.', uz: "Hozircha tartib noto'g'ri. Bitta butundan kichigi to'g'ri kasrlar, keyin birdan kattasi keladi.", en: 'Not in order yet. The proper fractions, which are less than one whole, come first, then the ones more than one.' }
     }
   },
 
   // s12 — YAKUNIY TEST (SeqMix): 7 misol oson->qiyin, har xil tur (mc/minput/place)
   s12: {
-    eyebrow: { ru: 'Итоговое · 7 заданий', uz: "Yakuniy · 7 ta topshiriq" },
-    bridge: { ru: 'Финал: соберём всё на семи заданиях.', uz: "Final: hammasini yettita topshiriqda birlashtiramiz." },
-    title: { ru: 'Итог: от лёгкого к трудному', uz: "Yakun: oddiydan qiyinga" },
-    lead: { ru: 'Семь заданий разного типа. Не торопись.', uz: "Yettita har xil turdagi topshiriq. Shoshmang." },
-    done_text: { ru: 'Все семь пройдены. Ты уверенно различаешь дроби и переводишь их в смешанные числа.', uz: "Yettalasi bajarildi. Siz kasrlarni ishonch bilan ajratib, aralash songa o'tkazyapsiz." },
+    eyebrow: { ru: 'Итоговое · 7 заданий', uz: "Yakuniy · 7 ta topshiriq", en: 'Final · 7 tasks' },
+    bridge: { ru: 'Финал: соберём всё на семи заданиях.', uz: "Final: hammasini yettita topshiriqda birlashtiramiz.", en: 'The finish: let us put it all together in seven tasks.' },
+    title: { ru: 'Итог: от лёгкого к трудному', uz: "Yakun: oddiydan qiyinga", en: 'Final round: from easy to hard' },
+    lead: { ru: 'Семь заданий разного типа. Не торопись.', uz: "Yettita har xil turdagi topshiriq. Shoshmang.", en: 'Seven tasks of different kinds. Take your time.' },
+    done_text: { ru: 'Все семь пройдены. Ты уверенно различаешь дроби и переводишь их в смешанные числа.', uz: "Yettalasi bajarildi. Siz kasrlarni ishonch bilan ajratib, aralash songa o'tkazyapsiz.", en: 'All seven are done. You can tell the fractions apart and turn them into mixed numbers with confidence.' },
     items: [
       // 1 — mc-classify oson
-      { type: 'mc', prompt: { ru: 'Какая это дробь: 2/5?', uz: '2/5 — qaysi kasr?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri" }, { ru: 'Неправильная', uz: "Noto'g'ri" }, { ru: 'Смешанное', uz: "Aralash" }], correct: 0,
-        say: { ru: 'Какая это дробь, две пятых?', uz: "Beshdan ikki — qaysi kasr?" },
-        ok: { ru: 'Верх меньше низа — правильная.', uz: "Surat maxrajdan kichik — to'g'ri." },
-        no: { ru: 'Верх меньше низа.', uz: "Surat maxrajdan kichik." } },
+      { type: 'mc', prompt: { ru: 'Какая это дробь: 2/5?', uz: '2/5 — qaysi kasr?', en: 'What kind of fraction is 2/5?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri", en: 'Proper' }, { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' }, { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' }], correct: 0,
+        say: { ru: 'Какая это дробь, две пятых?', uz: "Beshdan ikki — qaysi kasr?", en: 'What kind of fraction is two fifths?' },
+        ok: { ru: 'Верх меньше низа — правильная.', uz: "Surat maxrajdan kichik — to'g'ri.", en: 'The top is smaller than the bottom, so it is proper.' },
+        no: { ru: 'Верх меньше низа.', uz: "Surat maxrajdan kichik.", en: 'The top is smaller than the bottom.' } },
       // 2 — mc-classify
-      { type: 'mc', prompt: { ru: 'Какая это дробь: 8/5?', uz: '8/5 — qaysi kasr?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri" }, { ru: 'Неправильная', uz: "Noto'g'ri" }, { ru: 'Смешанное', uz: "Aralash" }], correct: 1,
-        say: { ru: 'Какая это дробь, восемь пятых?', uz: "Beshdan sakkiz — qaysi kasr?" },
-        ok: { ru: 'Верх больше низа — неправильная.', uz: "Surat maxrajdan katta — noto'g'ri." },
-        no: { ru: 'Верх больше низа.', uz: "Surat maxrajdan katta." } },
+      { type: 'mc', prompt: { ru: 'Какая это дробь: 8/5?', uz: '8/5 — qaysi kasr?', en: 'What kind of fraction is 8/5?' }, opts: [{ ru: 'Правильная', uz: "To'g'ri", en: 'Proper' }, { ru: 'Неправильная', uz: "Noto'g'ri", en: 'Improper' }, { ru: 'Смешанное', uz: "Aralash", en: 'Mixed' }], correct: 1,
+        say: { ru: 'Какая это дробь, восемь пятых?', uz: "Beshdan sakkiz — qaysi kasr?", en: 'What kind of fraction is eight fifths?' },
+        ok: { ru: 'Верх больше низа — неправильная.', uz: "Surat maxrajdan katta — noto'g'ri.", en: 'The top is bigger than the bottom, so it is improper.' },
+        no: { ru: 'Верх больше низа.', uz: "Surat maxrajdan katta.", en: 'The top is bigger than the bottom.' } },
       // 3 — minput oson
-      { type: 'minput', prompt: { ru: 'Переведи: 5/4 = ? целых ?/4', uz: '5/4 ni o\'tkaz: 5/4 = ? butun ?/4' }, w: 1, num: 1, den: 4,
-        say: { ru: 'Переведи пять четвёртых в смешанное число.', uz: "To'rtdan beshni aralash songa o'tkazing." },
-        ok: { ru: '5 разделить на 4 — один, остаток один.', uz: "5 ni 4 ga bo'lsak — bir, qoldiq bir." },
-        no: { ru: 'Раздели 5 на 4: целое один, остаток один.', uz: "5 ni 4 ga bo'ling: butun bir, qoldiq bir." } },
+      { type: 'minput', prompt: { ru: 'Переведи: 5/4 = ? целых ?/4', uz: '5/4 ni o\'tkaz: 5/4 = ? butun ?/4', en: 'Convert: 5/4 = ? and ?/4' }, w: 1, num: 1, den: 4,
+        say: { ru: 'Переведи пять четвёртых в смешанное число.', uz: "To'rtdan beshni aralash songa o'tkazing.", en: 'Turn five quarters into a mixed number.' },
+        ok: { ru: '5 разделить на 4 — один, остаток один.', uz: "5 ni 4 ga bo'lsak — bir, qoldiq bir.", en: '5 divided by 4 is one, remainder one.' },
+        no: { ru: 'Раздели 5 на 4: целое один, остаток один.', uz: "5 ni 4 ga bo'ling: butun bir, qoldiq bir.", en: 'Divide 5 by 4: the whole number is one and the remainder is one.' } },
       // 4 — place oson (5/4 = 1.25 sonlar nurida)
-      { type: 'place', prompt: { ru: 'Поставь 5/4 на числовой прямой', uz: "5/4 ni sonlar nuriga qo'ying" }, max: 2, den: 4, targetK: 5,
-        say: { ru: 'Поставь пять четвёртых на числовой прямой. Это между одним и двумя.', uz: "To'rtdan beshni sonlar nuriga qo'ying. Bu bir bilan ikki orasida." },
-        ok: { ru: 'Верно. 5/4 это чуть больше одного целого.', uz: "To'g'ri. 5/4 bu bitta butundan sal kattaroq." },
-        no: { ru: '5/4 больше единицы, но меньше двух.', uz: "5/4 birdan katta, lekin ikkidan kichik." } },
+      { type: 'place', prompt: { ru: 'Поставь 5/4 на числовой прямой', uz: "5/4 ni sonlar nuriga qo'ying", en: 'Put 5/4 on the number line' }, max: 2, den: 4, targetK: 5,
+        say: { ru: 'Поставь пять четвёртых на числовой прямой. Это между одним и двумя.', uz: "To'rtdan beshni sonlar nuriga qo'ying. Bu bir bilan ikki orasida.", en: 'Put five quarters on the number line. It is between one and two.' },
+        ok: { ru: 'Верно. 5/4 это чуть больше одного целого.', uz: "To'g'ri. 5/4 bu bitta butundan sal kattaroq.", en: 'That is right. 5/4 is a little more than one whole.' },
+        no: { ru: '5/4 больше единицы, но меньше двух.', uz: "5/4 birdan katta, lekin ikkidan kichik.", en: '5/4 is more than one but less than two.' } },
       // 5 — mc find-wrong
-      { type: 'mc', prompt: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" }, opts: [{ ru: '3/2 = 1 1/2', uz: '3/2 = 1 1/2' }, { ru: '6/6 = 1 целая 1/6', uz: '6/6 = 1 butun 1/6' }, { ru: '2/3 — правильная', uz: "2/3 — to'g'ri" }], correct: 1,
-        say: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        ok: { ru: '6/6 это ровно одно целое, без остатка.', uz: "6/6 bu roppa rosa bitta butun, qoldiqsiz." },
-        no: { ru: '6/6 это один, остатка нет.', uz: "6/6 bu bir, qoldiq yo'q." } },
+      { type: 'mc', prompt: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' }, opts: [{ ru: '3/2 = 1 1/2', uz: '3/2 = 1 1/2', en: '3/2 = 1 1/2' }, { ru: '6/6 = 1 целая 1/6', uz: '6/6 = 1 butun 1/6', en: '6/6 = 1 and 1/6' }, { ru: '2/3 — правильная', uz: "2/3 — to'g'ri", en: '2/3 is proper' }], correct: 1,
+        say: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
+        ok: { ru: '6/6 это ровно одно целое, без остатка.', uz: "6/6 bu roppa rosa bitta butun, qoldiqsiz.", en: '6/6 is exactly one whole, with nothing left over.' },
+        no: { ru: '6/6 это один, остатка нет.', uz: "6/6 bu bir, qoldiq yo'q.", en: '6/6 is one and there is no remainder.' } },
       // 6 — minput qiyin (11/4 = 2 3/4)
-      { type: 'minput', prompt: { ru: 'Переведи: 11/4 = ? целых ?/4', uz: '11/4 ni o\'tkaz: 11/4 = ? butun ?/4' }, w: 2, num: 3, den: 4,
-        say: { ru: 'Переведи одиннадцать четвёртых в смешанное число.', uz: "To'rtdan o'n birni aralash songa o'tkazing." },
-        ok: { ru: '11 разделить на 4 — два, остаток три.', uz: "11 ni 4 ga bo'lsak — ikki, qoldiq uch." },
-        no: { ru: 'Раздели 11 на 4: целое два, остаток три.', uz: "11 ni 4 ga bo'ling: butun ikki, qoldiq uch." } },
+      { type: 'minput', prompt: { ru: 'Переведи: 11/4 = ? целых ?/4', uz: '11/4 ni o\'tkaz: 11/4 = ? butun ?/4', en: 'Convert: 11/4 = ? and ?/4' }, w: 2, num: 3, den: 4,
+        say: { ru: 'Переведи одиннадцать четвёртых в смешанное число.', uz: "To'rtdan o'n birni aralash songa o'tkazing.", en: 'Turn eleven quarters into a mixed number.' },
+        ok: { ru: '11 разделить на 4 — два, остаток три.', uz: "11 ni 4 ga bo'lsak — ikki, qoldiq uch.", en: '11 divided by 4 is two, remainder three.' },
+        no: { ru: 'Раздели 11 на 4: целое два, остаток три.', uz: "11 ni 4 ga bo'ling: butun ikki, qoldiq uch.", en: 'Divide 11 by 4: the whole number is two and the remainder is three.' } },
       // 7 — place qiyin (2 1/3 sonlar nurida, max 3 den 3 -> k=7)
-      { type: 'place', prompt: { ru: 'Поставь 2 1/3 на числовой прямой', uz: "2 1/3 ni sonlar nuriga qo'ying" }, max: 3, den: 3, targetK: 7,
-        say: { ru: 'Поставь два целых одну третью на числовой прямой. Это между двумя и тремя.', uz: "Ikki butun uchdan birni sonlar nuriga qo'ying. Bu ikki bilan uch orasida." },
-        ok: { ru: 'Верно. Самое трудное — и оно сделано.', uz: "To'g'ri. Eng qiyini — u ham bajarildi." },
-        no: { ru: '2 1/3 чуть больше двух целых.', uz: "2 1/3 ikki butundan sal kattaroq." } }
+      { type: 'place', prompt: { ru: 'Поставь 2 1/3 на числовой прямой', uz: "2 1/3 ni sonlar nuriga qo'ying", en: 'Put 2 1/3 on the number line' }, max: 3, den: 3, targetK: 7,
+        say: { ru: 'Поставь два целых одну третью на числовой прямой. Это между двумя и тремя.', uz: "Ikki butun uchdan birni sonlar nuriga qo'ying. Bu ikki bilan uch orasida.", en: 'Put two and one third on the number line. It is between two and three.' },
+        ok: { ru: 'Верно. Самое трудное — и оно сделано.', uz: "To'g'ri. Eng qiyini — u ham bajarildi.", en: 'That is right. The hardest one, and it is done.' },
+        no: { ru: '2 1/3 чуть больше двух целых.', uz: "2 1/3 ikki butundan sal kattaroq.", en: '2 1/3 is a little more than two wholes.' } }
     ],
     audio: {
-      intro: { ru: 'Итоговый тренажёр. Семь заданий от лёгкого к трудному, форматы разные. Первое. Какая это дробь, две пятых?', uz: "Yakuniy trenajyor. Yettita topshiriq oddiydan qiyinga, formatlar har xil. Birinchi. Beshdan ikki — qaysi kasr?" },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку и попробуй снова.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring." },
-      on_done: { ru: 'Все семь пройдены, включая самое трудное. Отличная работа.', uz: "Yettalasi, eng qiyini bilan birga, bajarildi. Ajoyib ish." }
+      intro: { ru: 'Итоговый тренажёр. Семь заданий от лёгкого к трудному, форматы разные. Первое. Какая это дробь, две пятых?', uz: "Yakuniy trenajyor. Yettita topshiriq oddiydan qiyinga, formatlar har xil. Birinchi. Beshdan ikki — qaysi kasr?", en: 'The final practice. Seven tasks from easy to hard, in different formats. The first one: what kind of fraction is two fifths?' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку и попробуй снова.', uz: "Unchalik emas. Maslahatga qarang va yana urinib ko'ring.", en: 'Not quite. Look at the hint and try again.' },
+      on_done: { ru: 'Все семь пройдены, включая самое трудное. Отличная работа.', uz: "Yettalasi, eng qiyini bilan birga, bajarildi. Ajoyib ish.", en: 'All seven are done, including the hardest. Excellent work.' }
     }
   },
 
   // s13 — SUMMARY (Dars09-13 kanonik): score + hookni yopadi + ConnectionsBlock
   s13: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    title: { ru: 'Девять четвёртых — не ошибка', uz: "To'rtdan to'qqiz — xato emas" },
-    score_caption: { ru: 'верных ответов с первой попытки', uz: "birinchi urinishda to'g'ri javob" },
-    hook_label: { ru: 'Ответ на загадку', uz: "Jumboqqa javob" },
-    hook_text: { ru: 'Мадина насчитала 9 долей. 9/4 — это неправильная дробь, а не ошибка. Она равна 2 целым и 1/4: 9/4 = 2 1/4. Камол ошибся: верх может быть больше низа.', uz: "Madina 9 ta ulush sanadi. 9/4 — bu noto'g'ri kasr, xato emas. U 2 butun va 1/4 ga teng: 9/4 = 2 1/4. Kamol xato qildi: surat maxrajdan katta bo'lishi mumkin." },
-    main_label: { ru: 'Что запомнить', uz: "Nimani eslab qolish kerak" },
-    main_1: { ru: '1. Правильная дробь меньше целого, неправильная больше или равна целому.', uz: "1. To'g'ri kasr butundan kichik, noto'g'ri kasr butundan katta yoki teng." },
-    main_2: { ru: '2. Смешанное число — это целое плюс правильная дробь, а не произведение.', uz: "2. Aralash son — bu butun qo'shuv to'g'ri kasr, ko'paytma emas." },
-    main_3: { ru: '3. Из неправильной дроби в смешанное: верх делим на низ, целое = частное, остаток = новый верх.', uz: "3. Noto'g'ri kasrdan aralashga: suratni maxrajga bo'lamiz, butun = bo'linma, qoldiq = yangi surat." },
-    next_note: { ru: 'А обратный перевод — из смешанного числа в неправильную дробь — на следующем уроке.', uz: "Teskari o'tkazish — aralash sondan noto'g'ri kasrga — keyingi darsda." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: 'Понятие дроби; сравнение дробей.', uz: "Kasr tushunchasi; kasrlarni taqqoslash." },
-    conn_label_next: { ru: 'Следующий урок', uz: "Keyingi dars" },
-    conn_next: { ru: 'Перевод смешанного числа в неправильную дробь и обратно.', uz: "Aralash sonni noto'g'ri kasrga va aksincha o'tkazish." },
-    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish" },
-    audio: { ru: 'Подведём итог. Мадина насчитала девять долей. Девять четвёртых это неправильная дробь, а не ошибка. Она равна двум целым и одной четвёртой. Камол ошибся, ведь верх может быть больше низа. Запомни. Правильная дробь меньше целого, неправильная больше целого или равна ему. Смешанное число это целое плюс правильная дробь, а не произведение. Чтобы перевести неправильную дробь в смешанное число, делим верх на низ, целое это частное, остаток это новый верх. А обратный перевод мы изучим на следующем уроке.', uz: "Yakun qilamiz. Madina to'qqizta ulush sanadi. To'rtdan to'qqiz bu noto'g'ri kasr, xato emas. U ikki butun va to'rtdan birga teng. Kamol xato qildi, chunki surat maxrajdan katta bo'lishi mumkin. Eslab qoling. To'g'ri kasr butundan kichik, noto'g'ri kasr butundan katta yoki unga teng. Aralash son bu butun qo'shuv to'g'ri kasr, ko'paytma emas. Noto'g'ri kasrni aralash songa o'tkazish uchun suratni maxrajga bo'lamiz, butun bu bo'linma, qoldiq bu yangi surat. Teskari o'tkazishni esa keyingi darsda o'rganamiz." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    title: { ru: 'Девять четвёртых — не ошибка', uz: "To'rtdan to'qqiz — xato emas", en: 'Nine quarters is not a mistake' },
+    score_caption: { ru: 'верных ответов с первой попытки', uz: "birinchi urinishda to'g'ri javob", en: 'correct answers first time' },
+    hook_label: { ru: 'Ответ на загадку', uz: "Jumboqqa javob", en: 'The answer to the puzzle' },
+    hook_text: { ru: 'Мадина насчитала 9 долей. 9/4 — это неправильная дробь, а не ошибка. Она равна 2 целым и 1/4: 9/4 = 2 1/4. Камол ошибся: верх может быть больше низа.', uz: "Madina 9 ta ulush sanadi. 9/4 — bu noto'g'ri kasr, xato emas. U 2 butun va 1/4 ga teng: 9/4 = 2 1/4. Kamol xato qildi: surat maxrajdan katta bo'lishi mumkin.", en: 'Madina counted 9 parts. 9/4 is an improper fraction, not a mistake. It equals 2 and 1/4: 9/4 = 2 1/4. Kamol was wrong: the top can be bigger than the bottom.' },
+    main_label: { ru: 'Что запомнить', uz: "Nimani eslab qolish kerak", en: 'What to remember' },
+    main_1: { ru: '1. Правильная дробь меньше целого, неправильная больше или равна целому.', uz: "1. To'g'ri kasr butundan kichik, noto'g'ri kasr butundan katta yoki teng.", en: '1. A proper fraction is less than a whole and an improper one is more than a whole or equal to it.' },
+    main_2: { ru: '2. Смешанное число — это целое плюс правильная дробь, а не произведение.', uz: "2. Aralash son — bu butun qo'shuv to'g'ri kasr, ko'paytma emas.", en: '2. A mixed number is a whole number plus a proper fraction, not the two multiplied.' },
+    main_3: { ru: '3. Из неправильной дроби в смешанное: верх делим на низ, целое = частное, остаток = новый верх.', uz: "3. Noto'g'ri kasrdan aralashga: suratni maxrajga bo'lamiz, butun = bo'linma, qoldiq = yangi surat.", en: '3. From improper fraction to mixed number: divide the top by the bottom, the answer is the whole number and the remainder is the new top.' },
+    next_note: { ru: 'А обратный перевод — из смешанного числа в неправильную дробь — на следующем уроке.', uz: "Teskari o'tkazish — aralash sondan noto'g'ri kasrga — keyingi darsda.", en: 'The other way round, from a mixed number to an improper fraction, comes in the next lesson.' },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: 'Понятие дроби; сравнение дробей.', uz: "Kasr tushunchasi; kasrlarni taqqoslash.", en: 'What a fraction is, and comparing fractions.' },
+    conn_label_next: { ru: 'Следующий урок', uz: "Keyingi dars", en: 'Next lesson' },
+    conn_next: { ru: 'Перевод смешанного числа в неправильную дробь и обратно.', uz: "Aralash sonni noto'g'ri kasrga va aksincha o'tkazish.", en: 'Converting a mixed number into an improper fraction and back.' },
+    btn_restart: { ru: 'Пройти заново', uz: "Qaytadan o'tish", en: 'Go through it again' },
+    audio: { ru: 'Подведём итог. Мадина насчитала девять долей. Девять четвёртых это неправильная дробь, а не ошибка. Она равна двум целым и одной четвёртой. Камол ошибся, ведь верх может быть больше низа. Запомни. Правильная дробь меньше целого, неправильная больше целого или равна ему. Смешанное число это целое плюс правильная дробь, а не произведение. Чтобы перевести неправильную дробь в смешанное число, делим верх на низ, целое это частное, остаток это новый верх. А обратный перевод мы изучим на следующем уроке.', uz: "Yakun qilamiz. Madina to'qqizta ulush sanadi. To'rtdan to'qqiz bu noto'g'ri kasr, xato emas. U ikki butun va to'rtdan birga teng. Kamol xato qildi, chunki surat maxrajdan katta bo'lishi mumkin. Eslab qoling. To'g'ri kasr butundan kichik, noto'g'ri kasr butundan katta yoki unga teng. Aralash son bu butun qo'shuv to'g'ri kasr, ko'paytma emas. Noto'g'ri kasrni aralash songa o'tkazish uchun suratni maxrajga bo'lamiz, butun bu bo'linma, qoldiq bu yangi surat. Teskari o'tkazishni esa keyingi darsda o'rganamiz.", en: 'Let us sum up. Madina counted nine parts. Nine quarters is an improper fraction, not a mistake. It equals two and one quarter. Kamol was wrong, because the top can be bigger than the bottom. Remember: a proper fraction is less than a whole and an improper one is more than a whole or equal to it. A mixed number is a whole number plus a proper fraction, not the two multiplied. To turn an improper fraction into a mixed number, divide the top by the bottom: the answer is the whole number and the remainder is the new top. We will learn the other way round in the next lesson.' }
   }
 };
 
@@ -1133,8 +1163,8 @@ const ConnectionsBlock = ({ c }) => {
 };
 
 // FAKT-BLOK — ko'k karta (Dars28 etalonidan)
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
-const FB_LIFE = { ru: 'Знаешь ли ты? · Из жизни', uz: "Bilasizmi? · Hayotdan" };
+const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix", en: 'Did you know? · History' };
+const FB_LIFE = { ru: 'Знаешь ли ты? · Из жизни', uz: "Bilasizmi? · Hayotdan", en: 'Did you know? · From real life' };
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
   return (
@@ -1281,7 +1311,7 @@ const MixedInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1352,7 +1382,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma savol yechildi." : 'Все вопросы решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma savol yechildi." : lang === 'en' ? "All the questions are done." : 'Все вопросы решены.'}</p>
           </div>
         ) : (
           <>
@@ -1375,7 +1405,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1455,7 +1485,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
   useEffect(() => () => { if (advRef.current) clearTimeout(advRef.current); }, []);
 
   const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!done} onClick={onNext} label={<NextLabel/>}/></>);
-  const typeBadge = { mc: lang === 'uz' ? 'Tanlash' : 'Выбор', minput: lang === 'uz' ? 'Yozish' : 'Ввод', place: lang === 'uz' ? "Son o'qi" : 'Прямая' }[it ? it.type : 'mc'];
+  const typeBadge = { mc: lang === 'uz' ? 'Tanlash' : lang === 'en' ? "Choose" : 'Выбор', minput: lang === 'uz' ? 'Yozish' : lang === 'en' ? "Type" : 'Ввод', place: lang === 'uz' ? "Son o'qi" : lang === 'en' ? "Line" : 'Прямая' }[it ? it.type : 'mc'];
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.1vw, 16px)' }}>
@@ -1500,14 +1530,14 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
               <div className="fade-up delay-1" style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                 <input type="text" inputMode="numeric" className={`answer-input ${solvedItem ? 'correct' : ''}`} value={whole} placeholder="0" disabled={solvedItem}
                   onChange={e => { setWhole(e.target.value); setWrongShown(false); }} onKeyDown={e => e.key === 'Enter' && submitMinput()} style={{ width: 'clamp(60px, 13vw, 80px)' }}/>
-                <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? 'butun' : 'целых'}</span>
+                <span className="small mono" style={{ color: T.ink2 }}>{lang === 'uz' ? 'butun' : lang === 'en' ? "wholes" : 'целых'}</span>
                 <div className="mix-frac">
                   <input type="text" inputMode="numeric" className={`answer-input mix-top ${solvedItem ? 'correct' : ''}`} value={top} placeholder="0" disabled={solvedItem}
                     onChange={e => { setTop(e.target.value); setWrongShown(false); }} onKeyDown={e => e.key === 'Enter' && submitMinput()}/>
                   <span className="mix-bar"/>
                   <span className="mix-den">{it.den}</span>
                 </div>
-                {!solvedItem && <button className="btn-white-accent" onClick={submitMinput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                {!solvedItem && <button className="btn-white-accent" onClick={submitMinput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>}
               </div>
             )}
 
@@ -1519,7 +1549,7 @@ const SeqMix = ({ screen, screenContent, storedAnswer, onAnswer, onNext, onPrev 
 
             <FeedbackBlock show={solvedItem || wrongShown} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? it.ok : it.no))}</p>
             </FeedbackBlock>
@@ -1619,7 +1649,7 @@ const DragClassify = ({ screen, idx, screenContent, storedAnswer, onAnswer, onNe
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1691,10 +1721,10 @@ const DragOrder = ({ screen, idx, screenContent, storedAnswer, onAnswer, onNext,
             );
           })}
         </div>
-        <div className="small mono fade-up delay-1" style={{ textAlign: 'center', color: T.ink3 }}>{lang === 'uz' ? "kichik  →  katta" : 'меньше  →  больше'}</div>
+        <div className="small mono fade-up delay-1" style={{ textAlign: 'center', color: T.ink3 }}>{lang === 'uz' ? "kichik  →  katta" : lang === 'en' ? "smaller  →  bigger" : 'меньше  →  больше'}</div>
         {!solved && (
           <div className="dnd-tray fade-up delay-2">
-            <span className="dnd-tray-lbl">{lang === 'uz' ? 'Sonlar' : 'Числа'}:</span>
+            <span className="dnd-tray-lbl">{lang === 'uz' ? 'Sonlar' : lang === 'en' ? "Numbers" : 'Числа'}:</span>
             {trayChips.length === 0 && <span className="small" style={{ color: T.ink3 }}>—</span>}
             {trayChips.map(i => (
               <span key={i} className={`dnd-chip${sel === i ? ' dnd-chip-sel' : ''}`}
@@ -1716,7 +1746,7 @@ const DragOrder = ({ screen, idx, screenContent, storedAnswer, onAnswer, onNext,
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1949,12 +1979,12 @@ const Screen13 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const scoredTotal = SCREEN_META.filter(s => s.scored).length;
   const correctCount = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
   const restart = () => { onReset(); };
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={restart} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={restart} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div className="has-amb" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(11px, 2vw, 14px)' }}>
         <Floaters/>
-        <p className="eyebrow fade-up" style={{ color: T.success, display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Dars yakunlandi" : 'Урок пройден'}</p>
+        <p className="eyebrow fade-up" style={{ color: T.success, display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "Dars yakunlandi" : lang === 'en' ? "Lesson finished" : 'Урок пройден'}</p>
         <Title node={c.title}/>
         <div className="frame-success fade-up delay-1" style={{ display: 'flex', alignItems: 'baseline', gap: 12 }}>
           <span className="dm-prob" style={{ color: T.success }}>{correctCount} / {scoredTotal}</span>
@@ -1989,7 +2019,7 @@ export default function MixedNumbersLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -2042,7 +2072,7 @@ export default function MixedNumbersLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -731,7 +757,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -757,8 +783,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 
 const TOTAL_SCREENS = 13;
 const LESSON_META = {
-  lessonId: 'nat_5_04',
-  lessonTitle: { ru: 'Умножение столбиком', uz: "Ustun shaklida ko'paytirish" }
+  lessonId: 'grade5-04',
+  lessonTitle: { ru: 'Умножение столбиком', uz: "Ustun shaklida ko'paytirish", en: 'Multiplying in columns' }
 };
 
 // Jonli `screen` idx — qattiq kod yo'q. Reorderda SCREEN_META + screens massivini bir xil yangilang.
@@ -780,59 +806,62 @@ const SCREEN_META = [
 
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
-    global_q: { ru: 'Куда уходят разряды при умножении?', uz: "Ko'paytirishda xonalar qayerga ketadi?" },
+    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli', en: 'The question of the lesson' },
+    global_q: { ru: 'Куда уходят разряды при умножении?', uz: "Ko'paytirishda xonalar qayerga ketadi?", en: 'Where do the places go when you multiply?' },
     claim_lead: {
       ru: 'Шахзода снимает видео про быстрый счёт. На экране телефона Бекзод умножает 213 на 12 столбиком, но обе строки пишет одна под другой — без сдвига, складывает и говорит:',
-      uz: "Shahzoda tez hisoblash haqida video olyapti. Telefon ekranida Bekzod 213 ni 12 ga ustun shaklida ko'paytiryapti, lekin ikkala qatorni surishsiz bir-birining tagiga yozadi, qo'shadi va deydi:"
+      uz: "Shahzoda tez hisoblash haqida video olyapti. Telefon ekranida Bekzod 213 ni 12 ga ustun shaklida ko'paytiryapti, lekin ikkala qatorni surishsiz bir-birining tagiga yozadi, qo'shadi va deydi:",
+      en: 'Shahzoda is filming a video about quick calculation. On the phone screen Bekzod is multiplying 213 by 12 in columns, but he writes both rows one under the other with no shift, adds them up and says:'
     },
-    claim_em: { ru: '213 × 12 = 639', uz: '213 × 12 = 639' },
-    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?' },
-    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq' },
-    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti' },
-    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
+    claim_em: { ru: '213 × 12 = 639', uz: '213 × 12 = 639', en: '213 × 12 = 639' },
+    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?', en: 'Is Bekzod right?' },
+    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq', en: 'Bekzod is right' },
+    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti', en: 'Bekzod is wrong' },
+    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas', en: 'I am not sure' },
     audio: {
       intro: {
         ru: 'Шахзода снимает видео про быстрый счёт. На экране телефона Бекзод умножает двести тринадцать на двенадцать столбиком. Но обе строки он пишет одна под другой, без сдвига, складывает и получает шестьсот тридцать девять. Как думаешь, он прав?',
-        uz: "Shahzoda tez hisoblash haqida video olyapti. Telefon ekranida Bekzod ikki yuz o'n uchni o'n ikkiga ustun shaklida ko'paytiryapti. Lekin ikkala qatorni surishsiz bir-birining tagiga yozadi, qo'shadi va olti yuz o'ttiz to'qqiz oladi. Sizningcha, u haqmi?"
+        uz: "Shahzoda tez hisoblash haqida video olyapti. Telefon ekranida Bekzod ikki yuz o'n uchni o'n ikkiga ustun shaklida ko'paytiryapti. Lekin ikkala qatorni surishsiz bir-birining tagiga yozadi, qo'shadi va olti yuz o'ttiz to'qqiz oladi. Sizningcha, u haqmi?",
+        en: 'Shahzoda is filming a video about quick calculation. On the phone screen Bekzod is multiplying two hundred and thirteen by twelve in columns. But he writes both rows one under the other with no shift, adds them up and gets six hundred and thirty nine. Do you think he is right?'
       },
-      on_correct: { ru: 'Сейчас проверим вместе.', uz: 'Hozir birga tekshiramiz.' },
-      on_wrong: { ru: 'Сейчас проверим вместе.', uz: 'Hozir birga tekshiramiz.' }
+      on_correct: { ru: 'Сейчас проверим вместе.', uz: 'Hozir birga tekshiramiz.', en: 'Let us check it together.' },
+      on_wrong: { ru: 'Сейчас проверим вместе.', uz: 'Hozir birga tekshiramiz.', en: 'Let us check it together.' }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz' },
-    bridge: { ru: 'Прежде чем считать — вспомним разряды из прошлых уроков.', uz: "Hisoblashdan oldin — o'tgan darslardagi xonalarni eslaymiz." },
-    question: { ru: 'В числе 2130 цифра 1 стоит в разряде…', uz: '2130 sonida 1 raqami qaysi xonada turibdi…' },
-    opt0: { ru: 'единиц', uz: 'birlar' },
-    opt1: { ru: 'десятков', uz: "o'nlar" },
-    opt2: { ru: 'сотен', uz: 'yuzlar' },
-    opt3: { ru: 'тысяч', uz: 'minglar' },
+    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Let us remember' },
+    bridge: { ru: 'Прежде чем считать — вспомним разряды из прошлых уроков.', uz: "Hisoblashdan oldin — o'tgan darslardagi xonalarni eslaymiz.", en: 'Before we calculate, let us remember the places from the earlier lessons.' },
+    question: { ru: 'В числе 2130 цифра 1 стоит в разряде…', uz: '2130 sonida 1 raqami qaysi xonada turibdi…', en: 'In the number 2130 the digit 1 stands in the place of…' },
+    opt0: { ru: 'единиц', uz: 'birlar', en: 'ones' },
+    opt1: { ru: 'десятков', uz: "o'nlar", en: 'tens' },
+    opt2: { ru: 'сотен', uz: 'yuzlar', en: 'hundreds' },
+    opt3: { ru: 'тысяч', uz: 'minglar', en: 'thousands' },
     correctIndex: 2,
-    correct_text: { ru: 'Верно. 2130 — это 2 тысячи, 1 сотня, 3 десятка, 0 единиц. Разряд решает, сколько стоит цифра.', uz: "To'g'ri. 2130 — bu 2 mingta, 1 yuzta, 3 o'nta, 0 birta. Xona raqamning qiymatini belgilaydi." },
-    wrong_0: { ru: 'Единицы — самый правый разряд, там стоит ноль. Считай разряды справа налево: единицы, десятки, сотни.', uz: "Birlar — eng o'ngdagi xona, u yerda nol turibdi. Xonalarni o'ngdan chapga sanang: birlar, o'nlar, yuzlar." },
-    wrong_1: { ru: 'В десятках стоит тройка. Единица — на одну позицию левее десятков.', uz: "O'nlar xonasida uch turibdi. Bir undan bitta chap tomonda." },
-    wrong_3: { ru: 'В тысячах стоит двойка. Единица — на разряд правее тысяч.', uz: "Minglar xonasida ikki turibdi. Bir undan bitta o'ng tomonda." },
+    correct_text: { ru: 'Верно. 2130 — это 2 тысячи, 1 сотня, 3 десятка, 0 единиц. Разряд решает, сколько стоит цифра.', uz: "To'g'ri. 2130 — bu 2 mingta, 1 yuzta, 3 o'nta, 0 birta. Xona raqamning qiymatini belgilaydi.", en: 'That is right. 2130 is 2 thousands, 1 hundred, 3 tens and 0 ones. The place decides what a digit is worth.' },
+    wrong_0: { ru: 'Единицы — самый правый разряд, там стоит ноль. Считай разряды справа налево: единицы, десятки, сотни.', uz: "Birlar — eng o'ngdagi xona, u yerda nol turibdi. Xonalarni o'ngdan chapga sanang: birlar, o'nlar, yuzlar.", en: 'The ones is the place furthest right and there is a zero there. Count the places from right to left: ones, tens, hundreds.' },
+    wrong_1: { ru: 'В десятках стоит тройка. Единица — на одну позицию левее десятков.', uz: "O'nlar xonasida uch turibdi. Bir undan bitta chap tomonda.", en: 'There is a three in the tens. The one is one position to the left of the tens.' },
+    wrong_3: { ru: 'В тысячах стоит двойка. Единица — на разряд правее тысяч.', uz: "Minglar xonasida ikki turibdi. Bir undan bitta o'ng tomonda.", en: 'There is a two in the thousands. The one is one place to the right of the thousands.' },
     audio: {
-      intro: { ru: 'Короткий разогрев. В числе две тысячи сто тридцать в каком разряде стоит цифра один? Выбери ответ.', uz: "Qisqa mashq. Ikki ming bir yuz o'ttiz sonida bir raqami qaysi xonada turibdi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разряд держит цифру на месте.', uz: "To'g'ri. Xona raqamni o'z o'rnida ushlaydi." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Короткий разогрев. В числе две тысячи сто тридцать в каком разряде стоит цифра один? Выбери ответ.', uz: "Qisqa mashq. Ikki ming bir yuz o'ttiz sonida bir raqami qaysi xonada turibdi? Javobni tanlang.", en: 'A quick warm up. In the number two thousand one hundred and thirty, which place does the digit one stand in? Choose an answer.' },
+      on_correct: { ru: 'Верно. Разряд держит цифру на месте.', uz: "To'g'ri. Xona raqamni o'z o'rnida ushlaydi.", en: 'That is right. The place holds the digit where it belongs.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    bridge: { ru: 'Бекзод сложил без сдвига. Посмотрим, что теряется.', uz: "Bekzod surishsiz qo'shdi. Nima yo'qolishini ko'ramiz." },
-    title: { ru: 'Почему строки сдвигаются', uz: 'Nega qatorlar suriladi' },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
-    btn_final: { ru: 'Дальше', uz: 'Davom etish' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    bridge: { ru: 'Бекзод сложил без сдвига. Посмотрим, что теряется.', uz: "Bekzod surishsiz qo'shdi. Nima yo'qolishini ko'ramiz.", en: 'Bekzod added them with no shift. Let us see what gets lost.' },
+    title: { ru: 'Почему строки сдвигаются', uz: 'Nega qatorlar suriladi', en: 'Why the rows are shifted' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
+    btn_final: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     why_caption: {
       ru: 'Двенадцать — это десять плюс два. Умножаем 213 на 2 и на 10 отдельно, а строку «×10» сдвигаем на разряд влево. Сложить без сдвига — потерять разряды.',
-      uz: "O'n ikki — bu o'n qo'shuv ikki. 213 ni 2 ga va 10 ga alohida ko'paytiramiz, '×10' qatorini esa bir xona chapga suramiz. Surishsiz qo'shish — xonalarni yo'qotish."
+      uz: "O'n ikki — bu o'n qo'shuv ikki. 213 ni 2 ga va 10 ga alohida ko'paytiramiz, '×10' qatorini esa bir xona chapga suramiz. Surishsiz qo'shish — xonalarni yo'qotish.",
+      en: 'Twelve is ten plus two. We multiply 213 by 2 and by 10 separately, and the ×10 row is shifted one place to the left. Adding without the shift means losing the places.'
     },
-    fact: { ru: 'Сдвиг на разряд влево — это умножение на 10. Поэтому строка десятков стоит левее: она в десять раз больше.', uz: "Bir xona chapga surish — bu 10 ga ko'paytirish. Shuning uchun o'nlar qatori chaproqda turadi: u o'n barobar katta." },
-    fact_audio: { ru: 'Запомни: сдвинуть строку на разряд влево — это то же самое, что умножить её на десять. Вот почему сдвиг нельзя пропускать.', uz: "Eslab qoling: qatorni bir xona chapga surish — uni o'nga ko'paytirish bilan bir xil. Mana nega surishni tashlab bo'lmaydi." },
+    fact: { ru: 'Сдвиг на разряд влево — это умножение на 10. Поэтому строка десятков стоит левее: она в десять раз больше.', uz: "Bir xona chapga surish — bu 10 ga ko'paytirish. Shuning uchun o'nlar qatori chaproqda turadi: u o'n barobar katta.", en: 'Shifting one place to the left is multiplying by 10. That is why the tens row stands further left: it is ten times bigger.' },
+    fact_audio: { ru: 'Запомни: сдвинуть строку на разряд влево — это то же самое, что умножить её на десять. Вот почему сдвиг нельзя пропускать.', uz: "Eslab qoling: qatorni bir xona chapga surish — uni o'nga ko'paytirish bilan bir xil. Mana nega surishni tashlab bo'lmaydi.", en: 'Remember: shifting a row one place to the left is the same as multiplying it by ten. That is why the shift must not be skipped.' },
     audio: { ru: [
       'Проверим вместе. Сначала умножаем двести тринадцать на единицы, то есть на два. Два на три шесть, два на один два, два на два четыре. Выходит четыреста двадцать шесть.',
       'Теперь умножаем на десятки. Цифра десятков это один, но стоит она в разряде десятков, поэтому двести тринадцать пишем со сдвигом на одну клетку влево. На самом деле это две тысячи сто тридцать.',
@@ -841,65 +870,65 @@ const CONTENT = {
       "Birga tekshiramiz. Avval ikki yuz o'n uchni birlarga, ya'ni ikkiga ko'paytiramiz. Ikki karra uch olti, ikki karra bir ikki, ikki karra ikki to'rt. To'rt yuz yigirma olti chiqadi.",
       "Endi o'nlarga ko'paytiramiz. O'nlar raqami bir, lekin u o'nlar xonasida turibdi, shuning uchun ikki yuz o'n uchni bir katak chapga surib yozamiz. Aslida bu ikki ming bir yuz o'ttiz.",
       "Surilgan qatorlarni qo'shamiz va ikki ming besh yuz ellik olti chiqadi. O'n ikki bu o'n qo'shuv ikki, har bir qismni alohida ko'paytiramiz. Bekzoddek surishsiz qo'shish xonalarni yo'qotish demakdir."
-    ] }
+    ], en: ['Let us check it together. First we multiply two hundred and thirteen by the ones, that is by two. Two times three is six, two times one is two, two times two is four. That gives four hundred and twenty six.', 'Now we multiply by the tens. The tens digit is one, but it stands in the tens place, so we write two hundred and thirteen shifted one square to the left. In fact that is two thousand one hundred and thirty.', 'We add the rows with the shift and get two thousand five hundred and fifty six. Twelve is ten plus two and we multiply by each part separately. Adding without the shift, the way Bekzod did, means losing the places.'] }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Умножение столбиком', uz: "Ustun shaklida ko'paytirish" },
-    rule_1: { ru: 'Записываем числа разряд под разрядом, выравнивая справа. Умножаем верхнее число на каждую цифру нижнего по очереди, справа налево.', uz: "Sonlarni xonama-xona, o'ngdan tekislab yozamiz. Yuqori sonni pastki sonning har bir raqamiga navbatma-navbat, o'ngdan chapga ko'paytiramiz." },
-    rule_2: { ru: 'Каждый результат пишем со сдвигом: под единицами — без сдвига, под десятками — на разряд левее. В конце складываем строки.', uz: "Har bir natijani surib yozamiz: birlar tagida — surishsiz, o'nlar tagida — bir xona chaproq. Oxirida qatorlarni qo'shamiz." },
-    term: { ru: 'Результат умножения на одну цифру — это отдельная строка. Сдвиг показывает разряд этой цифры.', uz: "Bir raqamga ko'paytirish natijasi — alohida qator. Surish shu raqamning xonasini ko'rsatadi." },
-    ref: { ru: 'Разряды — из уроков о многозначных числах (nat_5_01).', uz: "Xonalar — ko'p xonali sonlar darslaridan (nat_5_01)." },
-    audio: { ru: 'Закрепим. Числа пишем разряд под разрядом и умножаем верхнее на каждую цифру нижнего справа налево. Каждый результат это отдельная строка, и пишем её со сдвигом по разряду цифры: под единицами без сдвига, под десятками на клетку левее. В конце складываем строки.', uz: "Mustahkamlaymiz. Sonlarni xonama-xona yozamiz va yuqorini pastning har bir raqamiga o'ngdan chapga ko'paytiramiz. Har bir natija alohida qator, uni raqam xonasiga qarab surib yozamiz: birlar tagida surishsiz, o'nlar tagida bir katak chaproq. Oxirida qatorlarni qo'shamiz." }
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Умножение столбиком', uz: "Ustun shaklida ko'paytirish", en: 'Multiplying in columns' },
+    rule_1: { ru: 'Записываем числа разряд под разрядом, выравнивая справа. Умножаем верхнее число на каждую цифру нижнего по очереди, справа налево.', uz: "Sonlarni xonama-xona, o'ngdan tekislab yozamiz. Yuqori sonni pastki sonning har bir raqamiga navbatma-navbat, o'ngdan chapga ko'paytiramiz.", en: 'We write the numbers place under place, lined up on the right. We multiply the top number by each digit of the bottom one in turn, from right to left.' },
+    rule_2: { ru: 'Каждый результат пишем со сдвигом: под единицами — без сдвига, под десятками — на разряд левее. В конце складываем строки.', uz: "Har bir natijani surib yozamiz: birlar tagida — surishsiz, o'nlar tagida — bir xona chaproq. Oxirida qatorlarni qo'shamiz.", en: 'We write each result with a shift: under the ones with no shift, under the tens one place further left. At the end we add the rows.' },
+    term: { ru: 'Результат умножения на одну цифру — это отдельная строка. Сдвиг показывает разряд этой цифры.', uz: "Bir raqamga ko'paytirish natijasi — alohida qator. Surish shu raqamning xonasini ko'rsatadi.", en: 'The result of multiplying by one digit is a row of its own. The shift shows the place of that digit.' },
+    ref: { ru: 'Разряды — из уроков о многозначных числах (nat_5_01).', uz: "Xonalar — ko'p xonali sonlar darslaridan (nat_5_01).", en: 'Places come from the lessons on long numbers (nat_5_01).' },
+    audio: { ru: 'Закрепим. Числа пишем разряд под разрядом и умножаем верхнее на каждую цифру нижнего справа налево. Каждый результат это отдельная строка, и пишем её со сдвигом по разряду цифры: под единицами без сдвига, под десятками на клетку левее. В конце складываем строки.', uz: "Mustahkamlaymiz. Sonlarni xonama-xona yozamiz va yuqorini pastning har bir raqamiga o'ngdan chapga ko'paytiramiz. Har bir natija alohida qator, uni raqam xonasiga qarab surib yozamiz: birlar tagida surishsiz, o'nlar tagida bir katak chaproq. Oxirida qatorlarni qo'shamiz.", en: 'Let us fix it. We write the numbers place under place and multiply the top one by each digit of the bottom one from right to left. Each result is a row of its own and we write it with a shift according to the place of the digit: under the ones with no shift, under the tens one square further left. At the end we add the rows.' }
   },
 
   s4: {
-    eyebrow: { ru: 'Тренировка · 1 из 6', uz: 'Mashq · 6 dan 1' },
-    bridge: { ru: 'Правило знаем — теперь умножь сам, по разрядам.', uz: "Qoidani bilamiz — endi o'zingiz xonama-xona ko'paytiring." },
-    label: { ru: 'Умножь сам', uz: "O'zingiz ko'paytiring" },
-    question: { ru: 'Шахзода считает кадры: 245 кадров в секунду, запись 4 секунды. Сколько кадров? Реши 245 × 4 в столбик.', uz: "Shahzoda kadrlarni sanaydi: sekundiga 245 kadr, yozuv 4 sekund. Necha kadr? 245 × 4 ni ustun shaklida yeching." },
+    eyebrow: { ru: 'Тренировка · 1 из 6', uz: 'Mashq · 6 dan 1', en: 'Practice · 1 of 6' },
+    bridge: { ru: 'Правило знаем — теперь умножь сам, по разрядам.', uz: "Qoidani bilamiz — endi o'zingiz xonama-xona ko'paytiring.", en: 'We know the rule, so now multiply it yourself, place by place.' },
+    label: { ru: 'Умножь сам', uz: "O'zingiz ko'paytiring", en: 'Multiply it yourself' },
+    question: { ru: 'Шахзода считает кадры: 245 кадров в секунду, запись 4 секунды. Сколько кадров? Реши 245 × 4 в столбик.', uz: "Shahzoda kadrlarni sanaydi: sekundiga 245 kadr, yozuv 4 sekund. Necha kadr? 245 × 4 ni ustun shaklida yeching.", en: 'Shahzoda is counting frames: 245 frames a second for a 4 second recording. How many frames is that? Work out 245 × 4 in columns.' },
     top: '245', mul: '4', result: '980',
-    hint: { ru: 'Умножай справа налево: сначала единицы, потом десятки, потом сотни. Перенос держи над чертой и прибавляй к следующему разряду.', uz: "O'ngdan chapga ko'paytiring: avval birlar, keyin o'nlar, keyin yuzlar. Ko'chirishni chiziq ustida saqlang va keyingi xonaga qo'shing." },
-    fb_correct: { ru: 'Правильно. 5×4=20 — пишем 0, держим 2; 4×4=16, плюс 2 — 18, пишем 8, держим 1; 2×4=8, плюс 1 — 9. Итог 980.', uz: "To'g'ri. 5×4=20 — 0 yozamiz, 2 dilda; 4×4=16, 2 bilan — 18, 8 yozamiz, 1 dilda; 2×4=8, 1 bilan — 9. Natija 980." },
-    fb_wrong: { ru: 'Главное — не потерять перенос. Умножь каждый разряд и прибавь перенос из предыдущего.', uz: "Asosiysi — ko'chirishni yo'qotmaslik. Har bir xonani ko'paytiring va oldingisidan ko'chirishni qo'shing." },
+    hint: { ru: 'Умножай справа налево: сначала единицы, потом десятки, потом сотни. Перенос держи над чертой и прибавляй к следующему разряду.', uz: "O'ngdan chapga ko'paytiring: avval birlar, keyin o'nlar, keyin yuzlar. Ko'chirishni chiziq ustida saqlang va keyingi xonaga qo'shing.", en: 'Multiply from right to left: the ones first, then the tens, then the hundreds. Keep the carry above the line and add it to the next place.' },
+    fb_correct: { ru: 'Правильно. 5×4=20 — пишем 0, держим 2; 4×4=16, плюс 2 — 18, пишем 8, держим 1; 2×4=8, плюс 1 — 9. Итог 980.', uz: "To'g'ri. 5×4=20 — 0 yozamiz, 2 dilda; 4×4=16, 2 bilan — 18, 8 yozamiz, 1 dilda; 2×4=8, 1 bilan — 9. Natija 980.", en: 'Correct. 5×4=20, so we write 0 and keep 2; 4×4=16 plus 2 makes 18, so we write 8 and keep 1; 2×4=8 plus 1 makes 9. The total is 980.' },
+    fb_wrong: { ru: 'Главное — не потерять перенос. Умножь каждый разряд и прибавь перенос из предыдущего.', uz: "Asosiysi — ko'chirishni yo'qotmaslik. Har bir xonani ko'paytiring va oldingisidan ko'chirishni qo'shing.", en: 'The main thing is not to lose the carry. Multiply each place and add the carry from the one before.' },
     audio: {
-      intro: { ru: 'Теперь твоя очередь. Умножь двести сорок пять на четыре в столбик. Иди справа налево и не теряй перенос.', uz: "Endi sizning navbatingiz. Ikki yuz qirq beshni to'rtga ustun shaklida ko'paytiring. O'ngdan chapga yuring va ko'chirishni yo'qotmang." },
-      on_correct: { ru: 'Верно. Перенос на месте.', uz: "To'g'ri. Ko'chirish joyida." },
-      on_wrong: { ru: 'Пока не сходится. Проверь перенос в каждом разряде.', uz: "Hali mos emas. Har bir xonadagi ko'chirishni tekshiring." }
+      intro: { ru: 'Теперь твоя очередь. Умножь двести сорок пять на четыре в столбик. Иди справа налево и не теряй перенос.', uz: "Endi sizning navbatingiz. Ikki yuz qirq beshni to'rtga ustun shaklida ko'paytiring. O'ngdan chapga yuring va ko'chirishni yo'qotmang.", en: 'Now it is your turn. Multiply two hundred and forty five by four in columns. Go from right to left and do not lose the carry.' },
+      on_correct: { ru: 'Верно. Перенос на месте.', uz: "To'g'ri. Ko'chirish joyida.", en: 'That is right. The carry is where it should be.' },
+      on_wrong: { ru: 'Пока не сходится. Проверь перенос в каждом разряде.', uz: "Hali mos emas. Har bir xonadagi ko'chirishni tekshiring.", en: 'It does not add up yet. Check the carry in every place.' }
     }
   },
 
   // s5 — error-spotting (custom). solvers: 3 ustun-yechim; errorIdx surilmagan. correctIndex = errorIdx.
   s5: {
-    eyebrow: { ru: 'Тренировка · 2 из 6', uz: 'Mashq · 6 dan 2' },
-    bridge: { ru: 'Теперь — глаз на ошибку. Один пример сделан неправильно.', uz: "Endi — xatoni topish. Bir misol noto'g'ri yechilgan." },
-    question: { ru: 'Трое считали 245 × 14. Кто ошибся?', uz: '245 × 14 ni uch kishi hisobladi. Kim xato qildi?' },
-    lead: { ru: 'Сравни строки и сдвиг. Тапни решение с ошибкой.', uz: "Qatorlar va surishni solishtiring. Xato yechimni bosing." },
+    eyebrow: { ru: 'Тренировка · 2 из 6', uz: 'Mashq · 6 dan 2', en: 'Practice · 2 of 6' },
+    bridge: { ru: 'Теперь — глаз на ошибку. Один пример сделан неправильно.', uz: "Endi — xatoni topish. Bir misol noto'g'ri yechilgan.", en: 'Now an eye for mistakes. One of these is done wrongly.' },
+    question: { ru: 'Трое считали 245 × 14. Кто ошибся?', uz: '245 × 14 ni uch kishi hisobladi. Kim xato qildi?', en: 'Three of them worked out 245 × 14. Who made a mistake?' },
+    lead: { ru: 'Сравни строки и сдвиг. Тапни решение с ошибкой.', uz: "Qatorlar va surishni solishtiring. Xato yechimni bosing.", en: 'Compare the rows and the shift. Tap the working with the mistake.' },
     top: '245', mul: '14', errorIdx: 2,
     solvers: [
-      { name: { ru: 'Карим', uz: 'Karim' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 1 }], result: '3430', wrong: false },
-      { name: { ru: 'Севара', uz: 'Sevara' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 1 }], result: '3430', wrong: false },
-      { name: { ru: 'Жасур', uz: 'Jasur' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 0 }], result: '1225', wrong: true }
+      { name: { ru: 'Карим', uz: 'Karim', en: 'Karim' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 1 }], result: '3430', wrong: false },
+      { name: { ru: 'Севара', uz: 'Sevara', en: 'Sevara' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 1 }], result: '3430', wrong: false },
+      { name: { ru: 'Жасур', uz: 'Jasur', en: 'Jasur' }, rows: [{ digits: '980', shift: 0 }, { digits: '245', shift: 0 }], result: '1225', wrong: true }
     ],
-    correct_text: { ru: 'Верно, ошибся Жасур. Он не сдвинул строку «×10» — сложил 980 и 245 без сдвига. Со сдвигом это 980 и 2450, сумма 3430.', uz: "To'g'ri, Jasur xato qildi. U '×10' qatorini surmadi — 980 va 245 ni surishsiz qo'shdi. Surilganda bu 980 va 2450, yig'indi 3430." },
-    wrong_0: { ru: 'У Карима всё верно: строку десятков он сдвинул на разряд влево. Ошибка — у того, кто сложил без сдвига.', uz: "Karimda hammasi to'g'ri: o'nlar qatorini bir xona chapga surgan. Xato — surishsiz qo'shganda." },
-    wrong_1: { ru: 'У Севары верно: сдвиг на месте, строки сложены правильно. Ищи того, кто забыл сдвинуть.', uz: "Sevarada to'g'ri: surish joyida, qatorlar to'g'ri qo'shilgan. Surishni unutganni qidiring." },
+    correct_text: { ru: 'Верно, ошибся Жасур. Он не сдвинул строку «×10» — сложил 980 и 245 без сдвига. Со сдвигом это 980 и 2450, сумма 3430.', uz: "To'g'ri, Jasur xato qildi. U '×10' qatorini surmadi — 980 va 245 ni surishsiz qo'shdi. Surilganda bu 980 va 2450, yig'indi 3430.", en: 'That is right, Jasur made the mistake. He did not shift the ×10 row and added 980 and 245 with no shift. With the shift it is 980 and 2450, giving 3430.' },
+    wrong_0: { ru: 'У Карима всё верно: строку десятков он сдвинул на разряд влево. Ошибка — у того, кто сложил без сдвига.', uz: "Karimda hammasi to'g'ri: o'nlar qatorini bir xona chapga surgan. Xato — surishsiz qo'shganda.", en: "Karim's is all right: he shifted the tens row one place to the left. The mistake belongs to whoever added with no shift." },
+    wrong_1: { ru: 'У Севары верно: сдвиг на месте, строки сложены правильно. Ищи того, кто забыл сдвинуть.', uz: "Sevarada to'g'ri: surish joyida, qatorlar to'g'ri qo'shilgan. Surishni unutganni qidiring.", en: "Sevara's is right: the shift is there and the rows are added correctly. Look for the one who forgot to shift." },
     audio: {
-      intro: { ru: 'Трое умножали двести сорок пять на четырнадцать. У одного строка десятков не сдвинута. Найди ошибочное решение.', uz: "Uch kishi ikki yuz qirq beshni o'n to'rtga ko'paytirdi. Bittasida o'nlar qatori surilmagan. Xato yechimni toping." },
-      on_correct: { ru: 'Верно. Без сдвига строки сложить нельзя.', uz: "To'g'ri. Qatorlarni surishsiz qo'shib bo'lmaydi." },
-      on_wrong: { ru: 'Это решение верное. Посмотри, где строка не сдвинута.', uz: "Bu yechim to'g'ri. Qaysi birida qator surilmaganini qarang." }
+      intro: { ru: 'Трое умножали двести сорок пять на четырнадцать. У одного строка десятков не сдвинута. Найди ошибочное решение.', uz: "Uch kishi ikki yuz qirq beshni o'n to'rtga ko'paytirdi. Bittasida o'nlar qatori surilmagan. Xato yechimni toping.", en: 'Three of them multiplied two hundred and forty five by fourteen. In one of them the tens row is not shifted. Find the working with the mistake.' },
+      on_correct: { ru: 'Верно. Без сдвига строки сложить нельзя.', uz: "To'g'ri. Qatorlarni surishsiz qo'shib bo'lmaydi.", en: 'That is right. You cannot add the rows without the shift.' },
+      on_wrong: { ru: 'Это решение верное. Посмотри, где строка не сдвинута.', uz: "Bu yechim to'g'ri. Qaysi birida qator surilmaganini qarang.", en: 'This working is correct. Look for the one where the row is not shifted.' }
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    bridge: { ru: 'А если в множителе есть ноль? Посмотрим.', uz: "Agar ko'paytuvchida nol bo'lsa-chi? Ko'ramiz." },
-    title: { ru: 'Что делать с нулём в множителе', uz: "Ko'paytuvchidagi nol bilan nima qilamiz" },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
-    btn_final: { ru: 'Дальше', uz: 'Davom etish' },
-    fact: { ru: 'Компьютеры умножают так же: сдвигают строки и складывают, только в двоичной системе. Тот же приём «сдвиг и сложение».', uz: "Kompyuterlar ham shunday ko'paytiradi: qatorlarni surib qo'shadi, faqat ikkilik sanoqda. Xuddi o'sha surib qo'shish usuli." },
-    fact_audio: { ru: 'Интересно: компьютеры умножают тем же способом, что и ты сейчас. Они сдвигают строки и складывают, только в двоичной системе. Приём называется сдвиг и сложение.', uz: "Qiziq: kompyuterlar ham siz hozir qilayotgan usulda ko'paytiradi. Ular qatorlarni surib qo'shadi, faqat ikkilik sanoqda. Bu usul surib qo'shish deyiladi." },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    bridge: { ru: 'А если в множителе есть ноль? Посмотрим.', uz: "Agar ko'paytuvchida nol bo'lsa-chi? Ko'ramiz.", en: 'And what if there is a zero in the number you multiply by? Let us see.' },
+    title: { ru: 'Что делать с нулём в множителе', uz: "Ko'paytuvchidagi nol bilan nima qilamiz", en: 'What to do with a zero in the multiplier' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
+    btn_final: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
+    fact: { ru: 'Компьютеры умножают так же: сдвигают строки и складывают, только в двоичной системе. Тот же приём «сдвиг и сложение».', uz: "Kompyuterlar ham shunday ko'paytiradi: qatorlarni surib qo'shadi, faqat ikkilik sanoqda. Xuddi o'sha surib qo'shish usuli.", en: 'Computers multiply the same way: they shift rows and add them, only in binary. It is the same shift and add method.' },
+    fact_audio: { ru: 'Интересно: компьютеры умножают тем же способом, что и ты сейчас. Они сдвигают строки и складывают, только в двоичной системе. Приём называется сдвиг и сложение.', uz: "Qiziq: kompyuterlar ham siz hozir qilayotgan usulda ko'paytiradi. Ular qatorlarni surib qo'shadi, faqat ikkilik sanoqda. Bu usul surib qo'shish deyiladi.", en: 'Here is something interesting. Computers multiply the same way you do now. They shift rows and add them, only in binary. The method is called shift and add.' },
     audio: { ru: [
       'Умножаем сто тридцать два на двести четыре. Сначала единицы, четыре. Четыре на два восемь, четыре на три двенадцать, четыре на один четыре, с переносом выходит пятьсот двадцать восемь.',
       'В разряде десятков стоит ноль. Умножать не на что, вся строка это ноль. Но место разряда мы держим, поэтому ставим ноль и идём дальше.',
@@ -910,126 +939,126 @@ const CONTENT = {
       "O'nlar xonasida nol turibdi. Ko'paytirishga narsa yo'q, butun qator nol. Lekin xona o'rnini saqlaymiz, shuning uchun nol qo'yib oldinga yuramiz.",
       "Endi yuzlar, ikki. Bir yuz o'ttiz ikki karra ikki ikki yuz oltmish to'rt, buni ikki xona chapga surib yozamiz, chunki bu yuzlar.",
       "Qatorlarni qo'shamiz va yigirma olti ming to'qqiz yuz yigirma sakkiz chiqadi. Ko'paytuvchidagi nolni tashlab ketmaymiz, u xonani saqlaydi."
-    ] }
+    ], en: ['We multiply one hundred and thirty two by two hundred and four. First the ones, four. Four times two is eight, four times three is twelve, four times one is four, and with the carry it comes to five hundred and twenty eight.', 'There is a zero in the tens place. There is nothing to multiply by, so the whole row is zero. But we hold the place, so we put a zero and move on.', 'Now the hundreds, the two. One hundred and thirty two times two is two hundred and sixty four, and we write it shifted two places to the left because these are hundreds.', 'We add the rows and get twenty six thousand nine hundred and twenty eight. We do not skip the zero in the multiplier, it holds the place.'] }
   },
 
   s7: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Сдвиг и ноль в множителе', uz: "Surish va ko'paytuvchidagi nol" },
-    rule_1: { ru: 'Каждая следующая строка сдвигается на один разряд левее предыдущей — по разряду цифры, на которую умножаем.', uz: "Har bir keyingi qator oldingisidan bir xona chaproqqa suriladi — ko'paytirilayotgan raqamning xonasiga qarab." },
-    rule_2: { ru: 'Если цифра множителя ноль, строка целиком равна нулю, но разряд держим: ставим ноль и переходим к следующей цифре.', uz: "Agar ko'paytuvchi raqami nol bo'lsa, qator butunlay nol, lekin xonani baribir saqlaymiz: nol qo'yib keyingi raqamga o'tamiz." },
-    warn: { ru: 'Ноль держит разряд. Пропустишь нулевую строку — все следующие строки встанут не на своё место.', uz: "Nol xonani saqlaydi. Nol qatorini tashlab ketsangiz — keyingi barcha qatorlar o'z o'rnida turmaydi." },
-    term: { ru: 'Сдвиг — это запись строки на разряд левее, потому что цифра множителя стоит в старшем разряде.', uz: "Surish — bu qatorni bir xona chaproq yozish, chunki ko'paytuvchi raqami yuqori xonada turibdi." },
-    ref: { ru: 'Сложение строк — из урока сложения столбиком (nat_5_03).', uz: "Qatorlarni qo'shish — ustun shaklida qo'shish darsidan (nat_5_03)." },
-    fact: { ru: 'Ноль придумали как знак «здесь пусто, но разряд есть». Без него запись 204 и 24 нельзя было бы различить.', uz: "Nol 'bu yer bo'sh, lekin xona bor' degan belgi sifatida o'ylab topilgan. Usiz 204 va 24 yozuvini farqlab bo'lmasdi." },
-    fact_audio: { ru: 'Ноль придумали не сразу. Это знак того, что разряд пустой, но он есть. Без нуля нельзя было бы отличить двести четыре от двадцати четырёх.', uz: "Nol birdan o'ylab topilmagan. Bu xona bo'sh, lekin u mavjud degan belgi. Nolsiz ikki yuz to'rtni yigirma to'rtdan ajratib bo'lmasdi." },
-    audio: { ru: 'Запомним два момента. Первый: каждая строка сдвигается на разряд левее, по разряду цифры множителя. Второй: если цифра множителя ноль, вся строка ноль, но разряд держим, ставим ноль и идём дальше. А в конце складываем строки, не теряя перенос.', uz: "Ikki narsani eslab qolamiz. Birinchi: har bir qator bir xona chaproqqa suriladi, ko'paytuvchi raqamining xonasiga qarab. Ikkinchi: agar ko'paytuvchi raqami nol bo'lsa, butun qator nol, lekin xonani saqlaymiz, nol qo'yib oldinga yuramiz. Oxirida esa qatorlarni ko'chirishni yo'qotmay qo'shamiz." }
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Сдвиг и ноль в множителе', uz: "Surish va ko'paytuvchidagi nol", en: 'The shift and a zero in the multiplier' },
+    rule_1: { ru: 'Каждая следующая строка сдвигается на один разряд левее предыдущей — по разряду цифры, на которую умножаем.', uz: "Har bir keyingi qator oldingisidan bir xona chaproqqa suriladi — ko'paytirilayotgan raqamning xonasiga qarab.", en: 'Each next row is shifted one place further left than the one before, according to the place of the digit we are multiplying by.' },
+    rule_2: { ru: 'Если цифра множителя ноль, строка целиком равна нулю, но разряд держим: ставим ноль и переходим к следующей цифре.', uz: "Agar ko'paytuvchi raqami nol bo'lsa, qator butunlay nol, lekin xonani baribir saqlaymiz: nol qo'yib keyingi raqamga o'tamiz.", en: 'If a digit of the multiplier is zero, the whole row is zero, but we hold the place: we put a zero and move on to the next digit.' },
+    warn: { ru: 'Ноль держит разряд. Пропустишь нулевую строку — все следующие строки встанут не на своё место.', uz: "Nol xonani saqlaydi. Nol qatorini tashlab ketsangiz — keyingi barcha qatorlar o'z o'rnida turmaydi.", en: 'A zero holds the place. Skip the zero row and all the following rows end up in the wrong place.' },
+    term: { ru: 'Сдвиг — это запись строки на разряд левее, потому что цифра множителя стоит в старшем разряде.', uz: "Surish — bu qatorni bir xona chaproq yozish, chunki ko'paytuvchi raqami yuqori xonada turibdi.", en: 'The shift means writing a row one place further left, because that digit of the multiplier stands in a higher place.' },
+    ref: { ru: 'Сложение строк — из урока сложения столбиком (nat_5_03).', uz: "Qatorlarni qo'shish — ustun shaklida qo'shish darsidan (nat_5_03).", en: 'Adding the rows comes from the lesson on adding in columns (nat_5_03).' },
+    fact: { ru: 'Ноль придумали как знак «здесь пусто, но разряд есть». Без него запись 204 и 24 нельзя было бы различить.', uz: "Nol 'bu yer bo'sh, lekin xona bor' degan belgi sifatida o'ylab topilgan. Usiz 204 va 24 yozuvini farqlab bo'lmasdi.", en: 'Zero was invented as a sign meaning it is empty here but the place exists. Without it you could not tell 204 and 24 apart.' },
+    fact_audio: { ru: 'Ноль придумали не сразу. Это знак того, что разряд пустой, но он есть. Без нуля нельзя было бы отличить двести четыре от двадцати четырёх.', uz: "Nol birdan o'ylab topilmagan. Bu xona bo'sh, lekin u mavjud degan belgi. Nolsiz ikki yuz to'rtni yigirma to'rtdan ajratib bo'lmasdi.", en: 'Zero was not invented straight away. It is a sign that a place is empty but is still there. Without zero you could not tell two hundred and four from twenty four.' },
+    audio: { ru: 'Запомним два момента. Первый: каждая строка сдвигается на разряд левее, по разряду цифры множителя. Второй: если цифра множителя ноль, вся строка ноль, но разряд держим, ставим ноль и идём дальше. А в конце складываем строки, не теряя перенос.', uz: "Ikki narsani eslab qolamiz. Birinchi: har bir qator bir xona chaproqqa suriladi, ko'paytuvchi raqamining xonasiga qarab. Ikkinchi: agar ko'paytuvchi raqami nol bo'lsa, butun qator nol, lekin xonani saqlaymiz, nol qo'yib oldinga yuramiz. Oxirida esa qatorlarni ko'chirishni yo'qotmay qo'shamiz.", en: 'Let us remember two things. First: each row is shifted one place further left, according to the place of the digit of the multiplier. Second: if a digit of the multiplier is zero, the whole row is zero, but we hold the place, put a zero and move on. And at the end we add the rows without losing the carry.' }
   },
 
   // s8 — partial-products (MulSumSolver). Tayyor qatorlar berilgan, o'quvchi YIG'INDIni teradi (nol qator bilan).
   s8: {
-    eyebrow: { ru: 'Тренировка · 3 из 6', uz: 'Mashq · 6 dan 3' },
-    bridge: { ru: 'Теперь собери строки сам — с нулём в середине.', uz: "Endi qatorlarni o'zingiz yig'ing — o'rtada nol bilan." },
-    label: { ru: 'Сложи строки', uz: "Qatorlarni qo'shing" },
-    question: { ru: 'Строки умножения 213 × 103 уже посчитаны. Сложи их со сдвигом.', uz: "213 × 103 ko'paytirish qatorlari hisoblangan. Ularni surib qo'shing." },
+    eyebrow: { ru: 'Тренировка · 3 из 6', uz: 'Mashq · 6 dan 3', en: 'Practice · 3 of 6' },
+    bridge: { ru: 'Теперь собери строки сам — с нулём в середине.', uz: "Endi qatorlarni o'zingiz yig'ing — o'rtada nol bilan.", en: 'Now put the rows together yourself, with a zero in the middle.' },
+    label: { ru: 'Сложи строки', uz: "Qatorlarni qo'shing", en: 'Add the rows' },
+    question: { ru: 'Строки умножения 213 × 103 уже посчитаны. Сложи их со сдвигом.', uz: "213 × 103 ko'paytirish qatorlari hisoblangan. Ularni surib qo'shing.", en: 'The rows for 213 × 103 are already worked out. Add them with the shift.' },
     result: '21939',
-    hint: { ru: 'Строка десятков нулевая, но разряд держи. Строку сотен сдвигай на два разряда влево, потом складывай по разрядам.', uz: "O'nlar qatori nol, lekin xonani saqlang. Yuzlar qatorini ikki xona chapga suring, keyin xonama-xona qo'shing." },
-    fb_correct: { ru: 'Правильно. 639, нулевая строка, 213 со сдвигом на два разряда это 21300, сумма 21939.', uz: "To'g'ri. 639, nol qatori, 213 ikki xona surilganda 21300, yig'indi 21939." },
+    hint: { ru: 'Строка десятков нулевая, но разряд держи. Строку сотен сдвигай на два разряда влево, потом складывай по разрядам.', uz: "O'nlar qatori nol, lekin xonani saqlang. Yuzlar qatorini ikki xona chapga suring, keyin xonama-xona qo'shing.", en: 'The tens row is zero, but hold the place. Shift the hundreds row two places to the left, then add place by place.' },
+    fb_correct: { ru: 'Правильно. 639, нулевая строка, 213 со сдвигом на два разряда это 21300, сумма 21939.', uz: "To'g'ri. 639, nol qatori, 213 ikki xona surilganda 21300, yig'indi 21939.", en: 'Correct. 639, then the zero row, then 213 shifted two places is 21300, giving 21939.' },
     audio: {
-      intro: { ru: 'Строки уже посчитаны. Сложи их по разрядам, не забывая про сдвиг и нулевую строку.', uz: "Qatorlar hisoblangan. Ularni xonama-xona qo'shing, surish va nol qatorini unutmang." },
-      on_correct: { ru: 'Верно. Ноль удержал разряд, сотни встали на место.', uz: "To'g'ri. Nol xonani ushladi, yuzlar o'z o'rniga turdi." },
-      on_wrong: { ru: 'Пока не сходится. Проверь сдвиг и нулевую строку.', uz: "Hali mos emas. Surish va nol qatorini tekshiring." }
+      intro: { ru: 'Строки уже посчитаны. Сложи их по разрядам, не забывая про сдвиг и нулевую строку.', uz: "Qatorlar hisoblangan. Ularni xonama-xona qo'shing, surish va nol qatorini unutmang.", en: 'The rows are already worked out. Add them place by place without forgetting the shift and the zero row.' },
+      on_correct: { ru: 'Верно. Ноль удержал разряд, сотни встали на место.', uz: "To'g'ri. Nol xonani ushladi, yuzlar o'z o'rniga turdi.", en: 'That is right. The zero held the place and the hundreds landed where they belong.' },
+      on_wrong: { ru: 'Пока не сходится. Проверь сдвиг и нулевую строку.', uz: "Hali mos emas. Surish va nol qatorini tekshiring.", en: 'It does not add up yet. Check the shift and the zero row.' }
     }
   },
 
   // s9 — ordering (custom). steps display random; correctOrder bo'yicha tartibga sol. веди-до-верного.
   s9: {
-    eyebrow: { ru: 'Тренировка · 4 из 6', uz: 'Mashq · 6 dan 4' },
-    bridge: { ru: 'Помнишь 132 на 204? Расставь шаги по порядку.', uz: "132 ni 204 ga eslaysizmi? Qadamlarni tartibga soling." },
-    title: { ru: 'В каком порядке умножаем 132 × 204 столбиком?', uz: "132 × 204 ni ustun shaklida qaysi tartibda ko'paytiramiz?" },
-    lead: { ru: 'Поставь шаги в правильном порядке — сверху вниз.', uz: "Qadamlarni to'g'ri tartibda joylashtiring — yuqoridan pastga." },
+    eyebrow: { ru: 'Тренировка · 4 из 6', uz: 'Mashq · 6 dan 4', en: 'Practice · 4 of 6' },
+    bridge: { ru: 'Помнишь 132 на 204? Расставь шаги по порядку.', uz: "132 ni 204 ga eslaysizmi? Qadamlarni tartibga soling.", en: 'Remember 132 by 204? Put the steps in order.' },
+    title: { ru: 'В каком порядке умножаем 132 × 204 столбиком?', uz: "132 × 204 ni ustun shaklida qaysi tartibda ko'paytiramiz?", en: 'In what order do we multiply 132 × 204 in columns?' },
+    lead: { ru: 'Поставь шаги в правильном порядке — сверху вниз.', uz: "Qadamlarni to'g'ri tartibda joylashtiring — yuqoridan pastga.", en: 'Put the steps in the right order, from top to bottom.' },
     steps: [
-      { id: 'a', text: { ru: 'Умножаем на единицы (4): первая строка', uz: "Birlarga (4) ko'paytiramiz: birinchi qator" } },
-      { id: 'b', text: { ru: 'Цифра десятков — ноль: нулевая строка, держим разряд', uz: "O'nlar raqami nol: nol qatori, xonani saqlaymiz" } },
-      { id: 'c', text: { ru: 'Умножаем на сотни (2): пишем со сдвигом на два разряда', uz: "Yuzlarga (2) ko'paytiramiz: ikki xona surib yozamiz" } },
-      { id: 'd', text: { ru: 'Складываем все строки со сдвигом', uz: "Barcha qatorlarni surib qo'shamiz" } }
+      { id: 'a', text: { ru: 'Умножаем на единицы (4): первая строка', uz: "Birlarga (4) ko'paytiramiz: birinchi qator", en: 'Multiply by the ones (4): the first row' } },
+      { id: 'b', text: { ru: 'Цифра десятков — ноль: нулевая строка, держим разряд', uz: "O'nlar raqami nol: nol qatori, xonani saqlaymiz", en: 'The tens digit is zero: a zero row, and we hold the place' } },
+      { id: 'c', text: { ru: 'Умножаем на сотни (2): пишем со сдвигом на два разряда', uz: "Yuzlarga (2) ko'paytiramiz: ikki xona surib yozamiz", en: 'Multiply by the hundreds (2): write it shifted two places' } },
+      { id: 'd', text: { ru: 'Складываем все строки со сдвигом', uz: "Barcha qatorlarni surib qo'shamiz", en: 'Add all the rows with their shifts' } }
     ],
     correctOrder: ['a', 'b', 'c', 'd'],
-    correct_text: { ru: 'Верно. Идём по разрядам справа налево: единицы, нулевая строка десятков, сотни со сдвигом, потом сложение.', uz: "To'g'ri. Xonalar bo'yicha o'ngdan chapga: birlar, o'nlar nol qatori, surilgan yuzlar, keyin qo'shish." },
-    hint: { ru: 'Начинай справа, с единиц. Десятки нулевые, но разряд держи. Сотни сдвигаются дальше всех. Сложение — в конце.', uz: "O'ngdan, birlardan boshlang. O'nlar nol, lekin xonani saqlang. Yuzlar eng uzoq suriladi. Qo'shish — oxirida." },
+    correct_text: { ru: 'Верно. Идём по разрядам справа налево: единицы, нулевая строка десятков, сотни со сдвигом, потом сложение.', uz: "To'g'ri. Xonalar bo'yicha o'ngdan chapga: birlar, o'nlar nol qatori, surilgan yuzlar, keyin qo'shish.", en: 'That is right. We go place by place from right to left: the ones, the zero row for the tens, the hundreds with the shift, and then the adding.' },
+    hint: { ru: 'Начинай справа, с единиц. Десятки нулевые, но разряд держи. Сотни сдвигаются дальше всех. Сложение — в конце.', uz: "O'ngdan, birlardan boshlang. O'nlar nol, lekin xonani saqlang. Yuzlar eng uzoq suriladi. Qo'shish — oxirida.", en: 'Start on the right, with the ones. The tens are zero, but hold the place. The hundreds are shifted furthest. The adding comes last.' },
     audio: {
-      intro: { ru: 'Расставь шаги умножения сто тридцать два на двести четыре по порядку, сверху вниз. Начинай с единиц.', uz: "Bir yuz o'ttiz ikkini ikki yuz to'rtga ko'paytirish qadamlarini tartibga soling, yuqoridan pastga. Birlardan boshlang." },
-      on_correct: { ru: 'Верно. Разряды идут справа налево, сложение в конце.', uz: "To'g'ri. Xonalar o'ngdan chapga boradi, qo'shish oxirida." },
-      on_wrong: { ru: 'Этот шаг не на своём месте. Иди по разрядам справа.', uz: "Bu qadam o'z o'rnida emas. Xonalar bo'yicha o'ngdan yuring." }
+      intro: { ru: 'Расставь шаги умножения сто тридцать два на двести четыре по порядку, сверху вниз. Начинай с единиц.', uz: "Bir yuz o'ttiz ikkini ikki yuz to'rtga ko'paytirish qadamlarini tartibga soling, yuqoridan pastga. Birlardan boshlang.", en: 'Put the steps of multiplying one hundred and thirty two by two hundred and four in order, from top to bottom. Start with the ones.' },
+      on_correct: { ru: 'Верно. Разряды идут справа налево, сложение в конце.', uz: "To'g'ri. Xonalar o'ngdan chapga boradi, qo'shish oxirida.", en: 'That is right. The places go from right to left and the adding comes last.' },
+      on_wrong: { ru: 'Этот шаг не на своём месте. Иди по разрядам справа.', uz: "Bu qadam o'z o'rnida emas. Xonalar bo'yicha o'ngdan yuring.", en: 'This step is in the wrong place. Go through the places from the right.' }
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренировка · 5 из 6', uz: 'Mashq · 6 dan 5' },
-    bridge: { ru: 'Применим на жизненной задаче.', uz: "Hayotiy masalada qo'llaymiz." },
-    title: { ru: 'Задача про наклейки', uz: 'Stikerlar haqida masala' },
-    question: { ru: 'Нигора собирает альбомы. В одном альбоме 124 наклейки. Сколько наклеек в 36 альбомах? 124 × 36.', uz: "Nigora albomlar yig'yapti. Bitta albomda 124 ta stiker. 36 ta albomda nechta stiker? 124 × 36." },
+    eyebrow: { ru: 'Тренировка · 5 из 6', uz: 'Mashq · 6 dan 5', en: 'Practice · 5 of 6' },
+    bridge: { ru: 'Применим на жизненной задаче.', uz: "Hayotiy masalada qo'llaymiz.", en: 'Let us use it on a real life problem.' },
+    title: { ru: 'Задача про наклейки', uz: 'Stikerlar haqida masala', en: 'A problem about stickers' },
+    question: { ru: 'Нигора собирает альбомы. В одном альбоме 124 наклейки. Сколько наклеек в 36 альбомах? 124 × 36.', uz: "Nigora albomlar yig'yapti. Bitta albomda 124 ta stiker. 36 ta albomda nechta stiker? 124 × 36.", en: 'Nigora collects albums. One album holds 124 stickers. How many stickers are there in 36 albums? 124 × 36.' },
     result: '4464',
-    opt0: { ru: '4464', uz: '4464' },
-    opt1: { ru: '1116', uz: '1116' },
-    opt2: { ru: '888', uz: '888' },
-    opt3: { ru: '4092', uz: '4092' },
+    opt0: { ru: '4464', uz: '4464', en: '4464' },
+    opt1: { ru: '1116', uz: '1116', en: '1116' },
+    opt2: { ru: '888', uz: '888', en: '888' },
+    opt3: { ru: '4092', uz: '4092', en: '4092' },
     correctIndex: 0,
-    correct_text: { ru: 'Правильно. 124×6=744, 124×3=372 со сдвигом это 3720, сумма 4464.', uz: "To'g'ri. 124×6=744, 124×3=372 surilganda 3720, yig'indi 4464." },
-    wrong_1: { ru: 'Здесь сложили только цифры множителя. Тридцать шесть это тридцать плюс шесть — умножь на каждую часть отдельно и сложи со сдвигом.', uz: "Bu yerda faqat ko'paytuvchi raqamlari qo'shilgan. O'ttiz olti bu o'ttiz qo'shuv olti — har bir qismga alohida ko'paytirib, surib qo'shing." },
-    wrong_2: { ru: 'Это слишком мало для такого произведения. Нужно умножить на обе цифры множителя и сложить строки со сдвигом.', uz: "Bunday ko'paytma uchun bu juda kam. Ko'paytuvchining ikkala raqamiga ko'paytirib, qatorlarni surib qo'shish kerak." },
-    wrong_3: { ru: 'Строку десятков забыли сдвинуть. Результат умножения на десятки стоит на разряд левее.', uz: "O'nlar qatorini surishni unutdingiz. O'nlarga ko'paytirish natijasi bir xona chaproqda turadi." },
+    correct_text: { ru: 'Правильно. 124×6=744, 124×3=372 со сдвигом это 3720, сумма 4464.', uz: "To'g'ri. 124×6=744, 124×3=372 surilganda 3720, yig'indi 4464.", en: 'Correct. 124×6=744, and 124×3=372 shifted is 3720, giving 4464.' },
+    wrong_1: { ru: 'Здесь сложили только цифры множителя. Тридцать шесть это тридцать плюс шесть — умножь на каждую часть отдельно и сложи со сдвигом.', uz: "Bu yerda faqat ko'paytuvchi raqamlari qo'shilgan. O'ttiz olti bu o'ttiz qo'shuv olti — har bir qismga alohida ko'paytirib, surib qo'shing.", en: 'Here only the digits of the multiplier were added. Thirty six is thirty plus six, so multiply by each part separately and add them with the shift.' },
+    wrong_2: { ru: 'Это слишком мало для такого произведения. Нужно умножить на обе цифры множителя и сложить строки со сдвигом.', uz: "Bunday ko'paytma uchun bu juda kam. Ko'paytuvchining ikkala raqamiga ko'paytirib, qatorlarni surib qo'shish kerak.", en: 'That is far too small for this product. You have to multiply by both digits of the multiplier and add the rows with the shift.' },
+    wrong_3: { ru: 'Строку десятков забыли сдвинуть. Результат умножения на десятки стоит на разряд левее.', uz: "O'nlar qatorini surishni unutdingiz. O'nlarga ko'paytirish natijasi bir xona chaproqda turadi.", en: 'The tens row was not shifted. The result of multiplying by the tens stands one place further left.' },
     audio: {
-      intro: { ru: 'Задача про наклейки. В одном альбоме сто двадцать четыре наклейки, альбомов тридцать шесть. Посчитай и выбери верный ответ.', uz: "Stikerlar haqida masala. Bitta albomda bir yuz yigirma to'rt stiker, albomlar o'ttiz oltita. Hisoblab to'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Строки сложены со сдвигом.', uz: "To'g'ri. Qatorlar surib qo'shilgan." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Задача про наклейки. В одном альбоме сто двадцать четыре наклейки, альбомов тридцать шесть. Посчитай и выбери верный ответ.', uz: "Stikerlar haqida masala. Bitta albomda bir yuz yigirma to'rt stiker, albomlar o'ttiz oltita. Hisoblab to'g'ri javobni tanlang.", en: 'A problem about stickers. One album holds one hundred and twenty four stickers and there are thirty six albums. Work it out and choose the right answer.' },
+      on_correct: { ru: 'Верно. Строки сложены со сдвигом.', uz: "To'g'ri. Qatorlar surib qo'shilgan.", en: 'That is right. The rows are added with the shift.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi' },
-    bridge: { ru: 'Финал — большое число с нулём в множителе.', uz: "Yakun — ko'paytuvchida nol bor katta son." },
-    title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring" },
-    question: { ru: 'Сколько будет 1248 × 104?', uz: '1248 × 104 nechaga teng?' },
+    eyebrow: { ru: 'Проверка знаний', uz: 'Bilim tekshiruvi', en: 'Knowledge check' },
+    bridge: { ru: 'Финал — большое число с нулём в множителе.', uz: "Yakun — ko'paytuvchida nol bor katta son.", en: 'The finish is a big number with a zero in the multiplier.' },
+    title: { ru: 'Проверь себя', uz: "O'zingizni tekshiring", en: 'Check yourself' },
+    question: { ru: 'Сколько будет 1248 × 104?', uz: '1248 × 104 nechaga teng?', en: 'How much is 1248 × 104?' },
     result: '129792',
-    opt0: { ru: '129792', uz: '129792' },
-    opt1: { ru: '12480', uz: '12480' },
-    opt2: { ru: '13728', uz: '13728' },
-    opt3: { ru: '124800', uz: '124800' },
+    opt0: { ru: '129792', uz: '129792', en: '129792' },
+    opt1: { ru: '12480', uz: '12480', en: '12480' },
+    opt2: { ru: '13728', uz: '13728', en: '13728' },
+    opt3: { ru: '124800', uz: '124800', en: '124800' },
     correctIndex: 0,
-    correct_text: { ru: 'Правильно. 1248×4=4992, строка десятков нулевая, 1248×1 со сдвигом на два разряда это 124800, сумма 129792.', uz: "To'g'ri. 1248×4=4992, o'nlar qatori nol, 1248×1 ikki xona surilganda 124800, yig'indi 129792." },
-    wrong_1: { ru: 'Здесь умножили только на единицы как на десять. Нужна ещё строка единиц и строка сотен со сдвигом.', uz: "Bu yerda faqat o'nga ko'paytirilgan. Birlar qatori va surilgan yuzlar qatori ham kerak." },
-    wrong_2: { ru: 'Здесь умножили как на одиннадцать. Средняя цифра ноль, а сотни сдвигаются на два разряда.', uz: "Bu o'n birga ko'paytirilganga o'xshaydi. O'rtadagi raqam nol, yuzlar ikki xona suriladi." },
-    wrong_3: { ru: 'Это только строка сотен. Не хватает строки единиц, её тоже надо прибавить.', uz: "Bu faqat yuzlar qatori. Birlar qatori yetishmaydi, uni ham qo'shish kerak." },
+    correct_text: { ru: 'Правильно. 1248×4=4992, строка десятков нулевая, 1248×1 со сдвигом на два разряда это 124800, сумма 129792.', uz: "To'g'ri. 1248×4=4992, o'nlar qatori nol, 1248×1 ikki xona surilganda 124800, yig'indi 129792.", en: 'Correct. 1248×4=4992, the tens row is zero, and 1248×1 shifted two places is 124800, giving 129792.' },
+    wrong_1: { ru: 'Здесь умножили только на единицы как на десять. Нужна ещё строка единиц и строка сотен со сдвигом.', uz: "Bu yerda faqat o'nga ko'paytirilgan. Birlar qatori va surilgan yuzlar qatori ham kerak.", en: 'Here it was multiplied only by the ones as if by ten. You also need the ones row and the hundreds row with its shift.' },
+    wrong_2: { ru: 'Здесь умножили как на одиннадцать. Средняя цифра ноль, а сотни сдвигаются на два разряда.', uz: "Bu o'n birga ko'paytirilganga o'xshaydi. O'rtadagi raqam nol, yuzlar ikki xona suriladi.", en: 'Here it was multiplied as if by eleven. The middle digit is zero and the hundreds are shifted two places.' },
+    wrong_3: { ru: 'Это только строка сотен. Не хватает строки единиц, её тоже надо прибавить.', uz: "Bu faqat yuzlar qatori. Birlar qatori yetishmaydi, uni ham qo'shish kerak.", en: 'This is only the hundreds row. The ones row is missing and has to be added too.' },
     audio: {
-      intro: { ru: 'Проверь себя на большом числе. Сколько будет тысяча двести сорок восемь на сто четыре? Выбери верный ответ.', uz: "Katta sonda o'zingizni tekshiring. Bir ming ikki yuz qirq sakkiz karra bir yuz to'rt nechaga teng? To'g'ri javobni tanlang." },
-      on_correct: { ru: 'Верно. Все строки и сдвиги на месте.', uz: "To'g'ri. Barcha qatorlar va surishlar joyida." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
+      intro: { ru: 'Проверь себя на большом числе. Сколько будет тысяча двести сорок восемь на сто четыре? Выбери верный ответ.', uz: "Katta sonda o'zingizni tekshiring. Bir ming ikki yuz qirq sakkiz karra bir yuz to'rt nechaga teng? To'g'ri javobni tanlang.", en: 'Check yourself on a big number. How much is one thousand two hundred and forty eight times one hundred and four? Choose the right answer.' },
+      on_correct: { ru: 'Верно. Все строки и сдвиги на месте.', uz: "To'g'ri. Barcha qatorlar va surishlar joyida.", en: 'That is right. All the rows and shifts are where they belong.' },
+      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang.", en: 'Look at the explanation on the right.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    heading: { ru: 'Разряды никуда не уходят', uz: 'Xonalar hech qayerga ketmaydi' },
-    title: { ru: 'Сдвиг — это разряд, а не украшение.', uz: "Surish — bu xona, bezak emas." },
-    hook_close: { ru: 'Помнишь Бекзода и его 639? Он сложил строки без сдвига и потерял разряды. На самом деле 213 × 12 = 2556.', uz: "Bekzodni va uning 639 ini eslaysizmi? U qatorlarni surishsiz qo'shib, xonalarni yo'qotdi. Aslida 213 × 12 = 2556." },
-    main_label: { ru: 'Главное', uz: 'Asosiysi' },
-    main_1: { ru: 'Умножаем на каждую цифру отдельно и пишем строки со сдвигом по разряду.', uz: "Har bir raqamga alohida ko'paytiramiz va qatorlarni xonaga qarab surib yozamiz." },
-    main_2: { ru: 'Ноль в множителе держит разряд; в конце складываем строки, не теряя перенос.', uz: "Ko'paytuvchidagi nol xonani saqlaydi; oxirida qatorlarni ko'chirishni yo'qotmay qo'shamiz." },
-    main_3: { ru: 'Сдвиг — это разряд: строка «×10» в десять раз больше, поэтому стоит на разряд левее.', uz: "Surish — bu xona: '×10' qatori o'n barobar katta, shuning uchun bir xona chaproqda turadi." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'Разряды · сдвиг · перенос (nat_5_01 — nat_5_03)', uz: "Xonalar · surish · ko'chirish (nat_5_01 — nat_5_03)" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'Деление уголком: как разложить число на равные части.', uz: "Burchak usulida bo'lish: sonni teng qismlarga ajratish." },
-    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan o\'tish' },
-    audio: { ru: 'Подведём итог. Бекзод получил шестьсот тридцать девять, потому что сложил строки без сдвига и потерял разряды. На самом деле двести тринадцать на двенадцать дают две тысячи пятьсот пятьдесят шесть. Главное: умножаем на каждую цифру отдельно, пишем строки со сдвигом по разряду, ноль держит разряд, а в конце складываем. Дальше нас ждёт деление уголком.', uz: "Yakunlaymiz. Bekzod olti yuz o'ttiz to'qqiz oldi, chunki qatorlarni surishsiz qo'shib xonalarni yo'qotdi. Aslida ikki yuz o'n uch karra o'n ikki ikki ming besh yuz ellik olti beradi. Asosiysi: har bir raqamga alohida ko'paytiramiz, qatorlarni xonaga qarab surib yozamiz, nol xonani saqlaydi, oxirida qo'shamiz. Keyingi safar burchak usulida bo'lish kutadi." }
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    heading: { ru: 'Разряды никуда не уходят', uz: 'Xonalar hech qayerga ketmaydi', en: 'The places do not go anywhere' },
+    title: { ru: 'Сдвиг — это разряд, а не украшение.', uz: "Surish — bu xona, bezak emas.", en: 'The shift is a place, not a decoration.' },
+    hook_close: { ru: 'Помнишь Бекзода и его 639? Он сложил строки без сдвига и потерял разряды. На самом деле 213 × 12 = 2556.', uz: "Bekzodni va uning 639 ini eslaysizmi? U qatorlarni surishsiz qo'shib, xonalarni yo'qotdi. Aslida 213 × 12 = 2556.", en: 'Remember Bekzod and his 639? He added the rows with no shift and lost the places. In fact 213 × 12 = 2556.' },
+    main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
+    main_1: { ru: 'Умножаем на каждую цифру отдельно и пишем строки со сдвигом по разряду.', uz: "Har bir raqamga alohida ko'paytiramiz va qatorlarni xonaga qarab surib yozamiz.", en: 'We multiply by each digit separately and write the rows shifted by the place.' },
+    main_2: { ru: 'Ноль в множителе держит разряд; в конце складываем строки, не теряя перенос.', uz: "Ko'paytuvchidagi nol xonani saqlaydi; oxirida qatorlarni ko'chirishni yo'qotmay qo'shamiz.", en: 'A zero in the multiplier holds the place, and at the end we add the rows without losing the carry.' },
+    main_3: { ru: 'Сдвиг — это разряд: строка «×10» в десять раз больше, поэтому стоит на разряд левее.', uz: "Surish — bu xona: '×10' qatori o'n barobar katta, shuning uchun bir xona chaproqda turadi.", en: 'The shift is a place: the ×10 row is ten times bigger, so it stands one place further left.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'Разряды · сдвиг · перенос (nat_5_01 — nat_5_03)', uz: "Xonalar · surish · ko'chirish (nat_5_01 — nat_5_03)", en: 'Places · shift · carry (nat_5_01 to nat_5_03)' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyingi', en: 'Next' },
+    conn_next: { ru: 'Деление уголком: как разложить число на равные части.', uz: "Burchak usulida bo'lish: sonni teng qismlarga ajratish.", en: 'Long division: how to split a number into equal parts.' },
+    btn_restart: { ru: 'Пройти заново', uz: 'Qaytadan o\'tish', en: 'Go through it again' },
+    audio: { ru: 'Подведём итог. Бекзод получил шестьсот тридцать девять, потому что сложил строки без сдвига и потерял разряды. На самом деле двести тринадцать на двенадцать дают две тысячи пятьсот пятьдесят шесть. Главное: умножаем на каждую цифру отдельно, пишем строки со сдвигом по разряду, ноль держит разряд, а в конце складываем. Дальше нас ждёт деление уголком.', uz: "Yakunlaymiz. Bekzod olti yuz o'ttiz to'qqiz oldi, chunki qatorlarni surishsiz qo'shib xonalarni yo'qotdi. Aslida ikki yuz o'n uch karra o'n ikki ikki ming besh yuz ellik olti beradi. Asosiysi: har bir raqamga alohida ko'paytiramiz, qatorlarni xonaga qarab surib yozamiz, nol xonani saqlaydi, oxirida qo'shamiz. Keyingi safar burchak usulida bo'lish kutadi.", en: 'Let us sum up. Bekzod got six hundred and thirty nine because he added the rows with no shift and lost the places. In fact two hundred and thirteen times twelve makes two thousand five hundred and fifty six. The main thing: we multiply by each digit separately, write the rows shifted by the place, a zero holds the place, and at the end we add them. Next comes long division.' }
   }
 };
 
 // Ovozli javob (ANSWER_VOICE) — to'g'ri kiritishda. Yangi idx natijalariga moslangan.
 const ANSWER_VOICE = {
-  '980':   { ru: 'Верно. Ответ девятьсот восемьдесят.', uz: "To'g'ri. Javob to'qqiz yuz sakson." },
-  '21939': { ru: 'Верно. Ответ двадцать одна тысяча девятьсот тридцать девять.', uz: "To'g'ri. Javob yigirma bir ming to'qqiz yuz o'ttiz to'qqiz." }
+  '980':   { ru: 'Верно. Ответ девятьсот восемьдесят.', uz: "To'g'ri. Javob to'qqiz yuz sakson.", en: 'That is right. The answer is nine hundred and eighty.' },
+  '21939': { ru: 'Верно. Ответ двадцать одна тысяча девятьсот тридцать девять.', uz: "To'g'ri. Javob yigirma bir ming to'qqiz yuz o'ttiz to'qqiz.", en: 'That is right. The answer is twenty one thousand nine hundred and thirty nine.' }
 };
 
 // SOLUTIONS — ozvuchli razbor (AnimatedMulSolution). Yangi idx: s4=245×4, s8=213×103.
@@ -1048,7 +1077,8 @@ const SOLUTIONS = {
       uz: [
         "O'ngdan chapga yuramiz. Besh karra to'rt yigirma. Nolni yozamiz, ikkini dilda saqlaymiz. To'rt karra to'rt o'n olti, dildagi ikki bilan o'n sakkiz. Sakkizni yozamiz, bir dilda. Ikki karra to'rt sakkiz, dildagi bir bilan to'qqiz.",
         "To'qqiz yuz sakson chiqadi. Mana to'g'ri javob."
-      ]
+      ],
+      en: ['We go from right to left. Five times four is twenty. We write the zero and keep two in our head. Four times four is sixteen, plus the two from our head, eighteen. We write the eight and keep one in our head. Two times four is eight, plus the one from our head, nine.', 'That gives nine hundred and eighty. That is the right answer.']
     }
   },
   8: {
@@ -1070,7 +1100,8 @@ const SOLUTIONS = {
         "O'nlar xonasida nol turibdi. Butun qator nol, lekin xonani saqlaymiz: nol qo'yib oldinga yuramiz.",
         "Endi yuzlar, bir. Ikki yuz o'n uchni ikki xona chapga surib yozamiz. Aslida bu yigirma bir ming uch yuz.",
         "Qatorlarni qo'shamiz va yigirma bir ming to'qqiz yuz o'ttiz to'qqiz chiqadi. Mana to'g'ri javob."
-      ]
+      ],
+      en: ['We work it out in columns. First the ones, three. Three times three is nine, one times three is three, two times three is six. The first row is six hundred and thirty nine.', 'There is a zero in the tens place. The whole row is zero, but we hold the place: we put a zero and move on.', 'Now the hundreds, the one. We write two hundred and thirteen shifted two places to the left. In fact that is twenty one thousand three hundred.', 'We add the rows and get twenty one thousand nine hundred and thirty nine. That is the right answer.']
     }
   }
 };
@@ -1112,9 +1143,9 @@ const Floaters = () => (
 // ============================================================
 // FAKT-BLOK — ko'k karta, KATTA animatsiya + kam matn (to'g'ridan keyin).
 // ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix" };
-const FB_MATH = { ru: 'Полезно знать · Математика', uz: "Bilib qo'ying · Matematika" };
+const FB_IT   = { ru: 'Знаешь ли ты? · IT',       uz: "Bilasizmi? · IT",       en: 'Did you know? · IT' };
+const FB_HIST = { ru: 'Знаешь ли ты? · История',  uz: "Bilasizmi? · Tarix",  en: 'Did you know? · History' };
+const FB_MATH = { ru: 'Полезно знать · Математика', uz: "Bilib qo'ying · Matematika", en: 'Worth knowing · Maths' };
 
 const FactCard = ({ text, anim, badge }) => {
   const t = useT();
@@ -1180,13 +1211,13 @@ const DecInputScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         {hintShown && !solved && (
           <div className="frame-tip fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: T.ink2, textTransform: 'uppercase', letterSpacing: '0.08em' }}>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.hint))}</p>
           </div>
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.fb_correct))}</p>
           </FeedbackBlock>
         )}
@@ -1254,7 +1285,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : 'Разминка пройдена.')}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{scored ? (lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.') : (lang === 'uz' ? "Mashq tugadi." : lang === 'en' ? "The warm up is done." : 'Разминка пройдена.')}</p>
           </div>
         ) : (
           <>
@@ -1279,7 +1310,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1400,20 +1431,20 @@ const DistributiveWhy = ({ top, mult, tens, units, caption }) => {
 };
 
 const UI = {
-  hint:         { ru: 'Подсказка', uz: 'Maslahat' },
-  hide:         { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish' },
-  solution:     { ru: 'Решение', uz: 'Yechim' },
-  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish" },
-  replay:       { ru: '↻ Повторить', uz: '↻ Qaytarish' },
-  tryAgain:     { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring." },
-  retryOk:      { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi." },
-  gaveUp:       { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring." },
-  wrongAudio:   { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring." }
+  hint:         { ru: 'Подсказка', uz: 'Maslahat', en: 'Hint' },
+  hide:         { ru: 'Скрыть подсказку', uz: 'Maslahatni yashirish', en: 'Hide the hint' },
+  solution:     { ru: 'Решение', uz: 'Yechim', en: 'Working' },
+  showSolution: { ru: 'Показать решение', uz: "Yechimni ko'rsatish", en: 'Show the working' },
+  replay:       { ru: '↻ Повторить', uz: '↻ Qaytarish', en: '↻ Again' },
+  tryAgain:     { ru: 'Не сходится. Загляни в подсказку и попробуй ещё раз.', uz: "To'g'ri kelmadi. Maslahatga qarang va yana urinib ko'ring.", en: 'It does not add up. Look at the hint and try again.' },
+  retryOk:      { ru: 'Теперь верно. В счёт идёт первая попытка.', uz: "Endi to'g'ri. Hisobga birinchi urinish kiradi.", en: 'That is right now. Only the first try counts towards your score.' },
+  gaveUp:       { ru: 'Ничего страшного. Посмотри разбор решения ниже.', uz: "Hechqisi yo'q. Quyida yechim tahlilini ko'ring.", en: 'Never mind. Look at the working below.' },
+  wrongAudio:   { ru: 'Не совсем. Попробуй ещё раз.', uz: "Unchalik emas. Yana urinib ko'ring.", en: 'Not quite. Try again.' }
 };
 
 const CheckLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Tekshirish' : 'Проверить';
+  return lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить';
 };
 
 const AnimatedMulSolution = ({ sol, onDone }) => {
@@ -1560,11 +1591,11 @@ const MulColumnSolver = ({ top, mul, result, texts, narrSol, onResolved }) => {
         </div>
       )}
       {wrongFlash && !solved && (
-        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
+        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : lang === 'en' ? "It does not work out yet, check it and tap again" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
       )}
       {solved && (
         <div className="frame-success fade-up">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
           <p className="body" style={{ margin: 0 }}>{firstRef.current === 'ok' ? (texts && texts.correct ? t(texts.correct) : '') : UI.retryOk[lang]}</p>
         </div>
       )}
@@ -1700,11 +1731,11 @@ const MulSumSolver = ({ sol, onResolved }) => {
         </div>
       )}
       {wrongFlash && !solved && (
-        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
+        <p className="small" style={{ margin: 0, color: T.accent }}>{lang === 'uz' ? "Hali mos emas — qaytadan tekshiring" : lang === 'en' ? "It does not work out yet, check it and tap again" : 'Пока не сходится — проверь и нажми ещё раз'}</p>
       )}
       {solved && (
         <div className="frame-success fade-up">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "Endi to'g'ri" : 'Теперь верно'}</p>
+          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "Endi to'g'ri" : lang === 'en' ? "Now it is right" : 'Теперь верно'}</p>
           <p className="body" style={{ margin: 0 }}>{UI.retryOk[lang]}</p>
         </div>
       )}
@@ -1930,7 +1961,7 @@ const Screen5 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>{mt(solved ? t(c.correct_text) : t(c[`wrong_${picked}`] || c.audio.on_wrong))}</p>
         </FeedbackBlock>
@@ -2120,7 +2151,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
         )}
         {solved && (
           <div className="frame-success fade-up">
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </div>
         )}
@@ -2152,7 +2183,7 @@ const Screen12 = ({ screen, onPrev, onReset, finishLesson }) => {
   const lang = useLang(); const t = useT(); const c = CONTENT.s12;
   const audio = useAudio(makeAudioSegments(c, lang));
   const points = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{t(c.btn_restart)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(9px, 1.7vw, 13px)' }}>
@@ -2181,7 +2212,7 @@ export default function NatMultiplyLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -2234,7 +2265,7 @@ export default function NatMultiplyLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

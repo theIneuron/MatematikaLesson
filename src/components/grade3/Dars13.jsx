@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, createContext, useContext } from 'react';
-import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols } from './_kit/index.jsx';
+import { BackLabel, BitSVG, Chiroq, Confetti, D2Defs, D2Motes, FREE_NAV, FeedbackBlock, FoldRow, FrameFx, GradientDefs, HeroContext, LUMO_CAST, LangContext, Lenta, NavBack, NavNext, NextLabel, Panel, ProgressContext, Reaction, ReadinessMeter, Stage, StageHero, T, configureLesson, getAudioEngine, npKey, shuffleArr, ttsConfig, useAdvanceGate, useAudio, useCanAnswer, useLang, useMobileZoom, usePrefersReducedMotion, useRevealScroll, useSfx, useT, useTapSteps, makeBrgSeg, gridCols , tri } from './_kit/index.jsx';
 import { BASE_STYLES } from './_kit/styles.js';
 
 // ============================================================================
@@ -147,8 +147,8 @@ async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText
 
 const TOTAL_SCREENS = 15;
 const LESSON_META = {
-  lessonId: 'num-3-13',
-  lessonTitle: { ru: 'Урок 13. Порядок действий', uz: '13-dars. Amallar tartibi' }
+  lessonId: 'grade3-13',
+  lessonTitle: { ru: 'Урок 13. Порядок действий', uz: '13-dars. Amallar tartibi', en: 'Lesson 13. The order of operations' }
 };
 // STRUKTURA (metodist tasdig'i 2026-08-05, KONTENT_3SINF.md «Dars 13»): bitta yozuv
 // 3 + 6 × 2 ustida qurilgan. s0 xuk (ikki savat, 15 va 18) · s1 ko'prik · s2 SVYORTKA
@@ -189,18 +189,18 @@ const SCREEN_META = [
 // ============================================================
 const CONTENT = {
   s0: {
-    eyebrow: { ru: 'Миссия', uz: 'Missiya' },
-    topic: { ru: 'Тема: порядок действий', uz: 'Mavzu: amallar tartibi' },
-    lead: { ru: 'Доска заказа и две разные корзины.', uz: 'Buyurtma taxtasi va ikki xil savat.' },
-    board: { ru: '3 + 6 × 2', uz: '3 + 6 × 2' },
-    board_cap: { ru: 'заказ на доске', uz: 'taxtadagi buyurtma' },
-    basket_a: { ru: 'Анвар', uz: 'Anvar' },
-    basket_b: { ru: 'Зухра', uz: 'Zuhra' },
-    q: { ru: 'Заказ один, а корзины разные. Почему?', uz: 'Buyurtma bitta, savatlar esa boshqacha. Nega?' },
-    opt0: { ru: 'Считали в разном порядке', uz: 'Har xil tartibda hisoblagan' },
-    opt1: { ru: 'Кто-то ошибся в таблице', uz: 'Kimdir jadvalda xato qilgan' },
-    opt2: { ru: 'На доске два заказа', uz: 'Taxtada ikki buyurtma bor' },
-    opt3: { ru: 'Не знаю', uz: 'Bilmayman' },
+    eyebrow: { ru: 'Миссия', uz: 'Missiya', en: 'Mission' },
+    topic: { ru: 'Тема: порядок действий', uz: 'Mavzu: amallar tartibi', en: 'Topic: the order of operations' },
+    lead: { ru: 'Доска заказа и две разные корзины.', uz: 'Buyurtma taxtasi va ikki xil savat.', en: 'The order board and two different baskets.' },
+    board: { ru: '3 + 6 × 2', uz: '3 + 6 × 2', en: '3 + 6 × 2' },
+    board_cap: { ru: 'заказ на доске', uz: 'taxtadagi buyurtma', en: 'the order on the board' },
+    basket_a: { ru: 'Анвар', uz: 'Anvar', en: 'Anvar' },
+    basket_b: { ru: 'Зухра', uz: 'Zuhra', en: 'Zuhra' },
+    q: { ru: 'Заказ один, а корзины разные. Почему?', uz: 'Buyurtma bitta, savatlar esa boshqacha. Nega?', en: 'The order is one, but the baskets differ. Why?' },
+    opt0: { ru: 'Считали в разном порядке', uz: 'Har xil tartibda hisoblagan', en: 'They counted in a different order' },
+    opt1: { ru: 'Кто-то ошибся в таблице', uz: 'Kimdir jadvalda xato qilgan', en: 'Someone made a table mistake' },
+    opt2: { ru: 'На доске два заказа', uz: 'Taxtada ikki buyurtma bor', en: 'There are two orders on the board' },
+    opt3: { ru: 'Не знаю', uz: 'Bilmayman', en: "I don't know" },
     audio: {
       intro: {
         ru: [
@@ -214,23 +214,24 @@ const CONTENT = {
           "Yorug' bog' kirishida buyurtma taxtasi turadi. Unda nechta lampa yig'ish yozilgan.",
           "Anvar va Zuhra bitta taxtani o'qib, yig'ishga ketdi. Anvar o'n beshta lampa keltirdi, Zuhra o'n sakkizta.",
           "Bit buyurtmani yubora olmaydi, chunki bog' bitta, javob esa ikkita. Sizningcha, savatlar nega boshqacha?"
-        ]
+        ],
+        en: ['The topic of the lesson is called the order of operations. We will find out which operation in an example is done first.', 'An order board hangs at the entrance to the glowing garden. It says how many lamps to collect.', 'Anvar and Zuhra read the very same board and went to collect. Anvar brought fifteen lamps, Zuhra brought eighteen.', 'Bit cannot send the order off, because there is one garden and two answers. Why do you think the baskets differ?']
       },
-      on_correct: { ru: 'Верно! Числа одни, а порядок разный. Сейчас разберёмся, чей порядок правильный.', uz: "To'g'ri! Sonlar bir xil, tartib esa boshqacha. Hozir kimning tartibi to'g'riligini aniqlaymiz." },
-      on_wrong1: { ru: 'Оба считали верно. Ошибки в таблице нет, дело в другом.', uz: "Ikkisi ham to'g'ri hisobladi. Jadvalda xato yo'q, gap boshqada." },
-      on_wrong2: { ru: 'Доска одна, запись одна. А корзины всё равно разные.', uz: "Taxta bitta, yozuv bitta. Savatlar esa baribir boshqacha." },
-      on_idk: { ru: 'Сейчас увидишь, в чём дело. Ответ прячется в одном слове, и это порядок.', uz: "Hozir gap nimada ekanini ko'rasiz. Javob bitta so'zda yashiringan, u tartib." }
+      on_correct: { ru: 'Верно! Числа одни, а порядок разный. Сейчас разберёмся, чей порядок правильный.', uz: "To'g'ri! Sonlar bir xil, tartib esa boshqacha. Hozir kimning tartibi to'g'riligini aniqlaymiz.", en: 'Right! The numbers are the same, but the order is different. Now we will find out whose order is correct.' },
+      on_wrong1: { ru: 'Оба считали верно. Ошибки в таблице нет, дело в другом.', uz: "Ikkisi ham to'g'ri hisobladi. Jadvalda xato yo'q, gap boshqada.", en: 'Both counted correctly. There is no table mistake, it is something else.' },
+      on_wrong2: { ru: 'Доска одна, запись одна. А корзины всё равно разные.', uz: "Taxta bitta, yozuv bitta. Savatlar esa baribir boshqacha.", en: 'There is one board and one line. And still the baskets differ.' },
+      on_idk: { ru: 'Сейчас увидишь, в чём дело. Ответ прячется в одном слове, и это порядок.', uz: "Hozir gap nimada ekanini ko'rasiz. Javob bitta so'zda yashiringan, u tartib.", en: 'You will see what is going on. The answer hides in one word, and that word is order.' }
     }
   },
 
   s1: {
-    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz' },
-    lead: { ru: 'Оба действия тебе знакомы.', uz: 'Ikkala amal ham sizga tanish.' },
-    card1: { ru: '6 × 2 = 12', uz: '6 × 2 = 12' },
-    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars" },
-    card2: { ru: '3 + 12 = 15', uz: '3 + 12 = 15' },
-    card2_cap: { ru: 'сложение, второй класс', uz: "qo'shish, ikkinchi sinf" },
-    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching' },
+    eyebrow: { ru: 'Вспомним и откроем', uz: 'Eslaymiz va ochamiz', en: 'Recall and discover' },
+    lead: { ru: 'Оба действия тебе знакомы.', uz: 'Ikkala amal ham sizga tanish.', en: 'You know both operations.' },
+    card1: { ru: '6 × 2 = 12', uz: '6 × 2 = 12', en: '6 × 2 = 12' },
+    card1_cap: { ru: 'таблица умножения, урок 9', uz: "ko'paytirish jadvali, 9-dars", en: 'the multiplication table, lesson 9' },
+    card2: { ru: '3 + 12 = 15', uz: '3 + 12 = 15', en: '3 + 12 = 15' },
+    card2_cap: { ru: 'сложение, второй класс', uz: "qo'shish, ikkinchi sinf", en: 'addition, second grade' },
+    tap_label: { ru: 'Открой карточки по одной', uz: 'Kartalarni bittalab oching', en: 'Open the cards one by one' },
     audio: {
       ru: [
         'Смотри, оба действия ты уже умеешь. Открой первую карточку.',
@@ -243,17 +244,18 @@ const CONTENT = {
         "Olti karra ikki, o'n ikki. Bu jadvaldan.",
         "Uch qo'shuv o'n ikki, o'n besh. Bu ham oson.",
         "Amallar tanish. Yangisi faqat bitta, qaysi biridan boshlash kerak."
-      ]
+      ],
+      en: ['Look, you can already do both operations. Open the first card.', 'Six times two is twelve. That is from the table.', 'Three plus twelve is fifteen. Easy too.', 'The operations are familiar. Only one thing is new, which of them to start with.']
     }
   },
 
   s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Считаем заказ с доски.', uz: 'Taxtadagi buyurtmani hisoblaymiz.' },
-    btn1: { ru: 'Найти умножение', uz: "Ko'paytirishni topish" },
-    btn2: { ru: 'Свернуть', uz: 'Yig\'ish' },
-    btn3: { ru: 'Сложить', uz: 'Qo\'shish' },
-    done_text: { ru: 'Три плюс шесть умножить на два, пятнадцать. Прав оказался Анвар.', uz: "Uch qo'shuv olti karra ikki, o'n besh. Anvar haq bo'lib chiqdi." },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Считаем заказ с доски.', uz: 'Taxtadagi buyurtmani hisoblaymiz.', en: 'We work out the order from the board.' },
+    btn1: { ru: 'Найти умножение', uz: "Ko'paytirishni topish", en: 'Find the multiplication' },
+    btn2: { ru: 'Свернуть', uz: 'Yig\'ish', en: 'Fold it up' },
+    btn3: { ru: 'Сложить', uz: 'Qo\'shish', en: 'Add' },
+    done_text: { ru: 'Три плюс шесть умножить на два, пятнадцать. Прав оказался Анвар.', uz: "Uch qo'shuv olti karra ikki, o'n besh. Anvar haq bo'lib chiqdi.", en: 'Three plus six times two is fifteen. Anvar turned out to be right.' },
     audio: {
       ru: [
         'Вот запись с доски. Три плюс шесть умножить на два.',
@@ -268,43 +270,45 @@ const CONTENT = {
         "Uni hisoblab, o'rniga natijani qo'yamiz. O'n ikki. Yozuv qisqardi, uch qo'shuv o'n ikki.",
         "Endi qo'shish. Uch qo'shuv o'n ikki, o'n besh. Misol tugadi.",
         "Asosiy narsani sezdingizmi? Har amal ikki sonni yeb, bittasini qoldiradi. Misol javob qolgancha qisqaradi."
-      ]
+      ],
+      en: ['Here is the line from the board. Three plus six times two.', 'First we look for multiplication and division. There is a multiplication here, six times two.', 'We work it out and put the result in its place. Twelve. The line got shorter, three plus twelve.', 'Now the addition. Three plus twelve, fifteen. The example is finished.', 'Do you see the main thing? Each operation eats two numbers and leaves one. The example gets shorter until only the answer is left.']
     }
   },
 
   s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    q: { ru: 'Какое действие в примере считают первым?', uz: 'Misolda qaysi amal birinchi hisoblanadi?' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    q: { ru: 'Какое действие в примере считают первым?', uz: 'Misolda qaysi amal birinchi hisoblanadi?', en: 'Which operation in an example is done first?' },
     opts: [
-      { ru: 'Умножение и деление, слева направо', uz: "Ko'paytirish va bo'lish, chapdan o'ngga" },
-      { ru: 'То, что написано левее всех', uz: 'Eng chapda yozilgani' },
-      { ru: 'Сложение и вычитание', uz: "Qo'shish va ayirish" },
-      { ru: 'Любое, ответ не изменится', uz: "Xohlagani, javob o'zgarmaydi" }
+      { ru: 'Умножение и деление, слева направо', uz: "Ko'paytirish va bo'lish, chapdan o'ngga", en: 'Multiplication and division, from left to right' },
+      { ru: 'То, что написано левее всех', uz: 'Eng chapda yozilgani', en: 'The one written furthest to the left' },
+      { ru: 'Сложение и вычитание', uz: "Qo'shish va ayirish", en: 'Addition and subtraction' },
+      { ru: 'Любое, ответ не изменится', uz: "Xohlagani, javob o'zgarmaydi", en: 'Any of them, the answer will not change' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Так прочитала Зухра и получила восемнадцать. Мы читаем слева направо, но считаем не так.', uz: "Zuhra shunday o'qib, o'n sakkiz chiqardi. Biz chapdan o'ngga o'qiymiz, hisoblash esa boshqacha." },
-      2: { ru: 'Наоборот. Сложение и вычитание ждут своей очереди, они последние.', uz: "Teskarisi. Qo'shish va ayirish navbatini kutadi, ular oxirgi." },
-      3: { ru: 'Две корзины у входа как раз показывают, ответ меняется. Пятнадцать и восемнадцать.', uz: "Kirishdagi ikki savat aynan shuni ko'rsatadi, javob o'zgaradi. O'n besh va o'n sakkiz." }
+      1: { ru: 'Так прочитала Зухра и получила восемнадцать. Мы читаем слева направо, но считаем не так.', uz: "Zuhra shunday o'qib, o'n sakkiz chiqardi. Biz chapdan o'ngga o'qiymiz, hisoblash esa boshqacha.", en: 'That is how Zuhra read it and got eighteen. We read from left to right, but we do not count that way.' },
+      2: { ru: 'Наоборот. Сложение и вычитание ждут своей очереди, они последние.', uz: "Teskarisi. Qo'shish va ayirish navbatini kutadi, ular oxirgi.", en: 'The other way round. Addition and subtraction wait their turn, they come last.' },
+      3: { ru: 'Две корзины у входа как раз показывают, ответ меняется. Пятнадцать и восемнадцать.', uz: "Kirishdagi ikki savat aynan shuni ko'rsatadi, javob o'zgaradi. O'n besh va o'n sakkiz.", en: 'The two baskets at the entrance show exactly that the answer changes. Fifteen and eighteen.' }
     },
     rule_lines: {
       ru: ['1) сначала действия в скобках', '2) потом умножение и деление, слева направо', '3) в конце сложение и вычитание, слева направо'],
-      uz: ['1) avval qavs ichidagi amallar', "2) keyin ko'paytirish va bo'lish, chapdan o'ngga", "3) oxirida qo'shish va ayirish, chapdan o'ngga"]
+      uz: ['1) avval qavs ichidagi amallar', "2) keyin ko'paytirish va bo'lish, chapdan o'ngga", "3) oxirida qo'shish va ayirish, chapdan o'ngga"],
+      en: ['1) first what is in brackets', '2) then multiplication and division, from left to right', '3) at the end addition and subtraction, from left to right']
     },
-    rule: { ru: 'Порядок действий: 1) сначала действия в скобках; 2) потом умножение и деление, слева направо; 3) в конце сложение и вычитание, слева направо. 3 + 6 × 2 = 3 + 12 = 15.', uz: "Amallar tartibi: 1) avval qavs ichidagi amallar; 2) keyin ko'paytirish va bo'lish, chapdan o'ngga; 3) oxirida qo'shish va ayirish, chapdan o'ngga." },
-    rule_speech: { ru: 'Порядок действий такой. Сначала то, что в скобках. Потом умножение и деление, слева направо. В конце сложение и вычитание, тоже слева направо.', uz: "Amallar tartibi shunday. Avval qavs ichidagisi. Keyin ko'paytirish va bo'lish, chapdan o'ngga. Oxirida qo'shish va ayirish, u ham chapdan o'ngga." },
+    rule: { ru: 'Порядок действий: 1) сначала действия в скобках; 2) потом умножение и деление, слева направо; 3) в конце сложение и вычитание, слева направо. 3 + 6 × 2 = 3 + 12 = 15.', uz: "Amallar tartibi: 1) avval qavs ichidagi amallar; 2) keyin ko'paytirish va bo'lish, chapdan o'ngga; 3) oxirida qo'shish va ayirish, chapdan o'ngga.", en: 'The order of operations: 1) first what is in brackets; 2) then multiplication and division, from left to right; 3) at the end addition and subtraction, from left to right. 3 + 6 × 2 = 3 + 12 = 15.' },
+    rule_speech: { ru: 'Порядок действий такой. Сначала то, что в скобках. Потом умножение и деление, слева направо. В конце сложение и вычитание, тоже слева направо.', uz: "Amallar tartibi shunday. Avval qavs ichidagisi. Keyin ko'paytirish va bo'lish, chapdan o'ngga. Oxirida qo'shish va ayirish, u ham chapdan o'ngga.", en: 'The order of operations is this. First what is in brackets. Then multiplication and division, from left to right. At the end addition and subtraction, also from left to right.' },
     audio: {
-      intro: { ru: 'Мы посчитали одну запись. Теперь главный вопрос урока.', uz: 'Bitta yozuvni hisobladik. Endi darsning asosiy savoli.' }
+      intro: { ru: 'Мы посчитали одну запись. Теперь главный вопрос урока.', uz: 'Bitta yozuvni hisobladik. Endi darsning asosiy savoli.', en: 'We worked out one line. Now the main question of the lesson.' }
     },
-    on_correct: { ru: 'Именно так! Умножение и деление сильнее, они идут вперёд.', uz: "Aynan shunday! Ko'paytirish va bo'lish kuchliroq, ular oldinda boradi." }
+    on_correct: { ru: 'Именно так! Умножение и деление сильнее, они идут вперёд.', uz: "Aynan shunday! Ko'paytirish va bo'lish kuchliroq, ular oldinda boradi.", en: 'Exactly so! Multiplication and division are stronger, they go first.' }
   },
 
   s4: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Бит читает как книгу. Проверим?', uz: 'Bit kitob kabi o\'qiydi. Tekshiramizmi?' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Бит читает как книгу. Проверим?', uz: 'Bit kitob kabi o\'qiydi. Tekshiramizmi?', en: 'Bit reads it like a book. Shall we check?' },
     lines: ['3 + 6 × 2', '3 + 6 = 9', '9 × 2 = 18'],
-    trap_label: { ru: 'Бит получил 18. Верно?', uz: 'Bit 18 chiqardi. To\'g\'rimi?' },
-    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"] },
+    trap_label: { ru: 'Бит получил 18. Верно?', uz: 'Bit 18 chiqardi. To\'g\'rimi?', en: 'Bit got 18. Is that right?' },
+    trap_opts: { ru: ['Верно', 'Неверно'], uz: ["To'g'ri", "Noto'g'ri"], en: ['Right', 'Wrong'] },
     trap_ci: 1,
     audio: {
       ru: [
@@ -314,37 +318,38 @@ const CONTENT = {
       uz: [
         "Bit kitob o'qigandek, chapdan o'ngga o'qiydi. Uch qo'shuv olti, to'qqiz. To'qqiz karra ikki, o'n sakkiz!",
         "Bit to'g'ri hisobladimi?"
-      ]
+      ],
+      en: ['Bit reads it like a book, from left to right. Three plus six, nine. Nine times two, eighteen!', 'Did Bit count correctly?']
     },
-    trap_correct: { ru: 'Точно! Но смотри, как интересно, восемнадцать не выдумка. Это ответ на другую запись, где сложение стоит в скобках. Сейчас увидишь.', uz: "Aniq! Lekin qarang, qanchalik qiziq, o'n sakkiz o'ydirma emas. Bu boshqa yozuvning javobi, unda qo'shish qavs ichida turadi. Hozir ko'rasiz." },
-    trap_wrong: { ru: 'Умножение считают раньше сложения. Сначала шесть умножить на два, потом прибавить три.', uz: "Ko'paytirish qo'shishdan avval hisoblanadi. Avval olti karra ikki, keyin uch qo'shiladi." }
+    trap_correct: { ru: 'Точно! Но смотри, как интересно, восемнадцать не выдумка. Это ответ на другую запись, где сложение стоит в скобках. Сейчас увидишь.', uz: "Aniq! Lekin qarang, qanchalik qiziq, o'n sakkiz o'ydirma emas. Bu boshqa yozuvning javobi, unda qo'shish qavs ichida turadi. Hozir ko'rasiz.", en: 'Exactly! But look how interesting, eighteen is not made up. It is the answer to a different line, where the addition stands in brackets. You will see now.' },
+    trap_wrong: { ru: 'Умножение считают раньше сложения. Сначала шесть умножить на два, потом прибавить три.', uz: "Ko'paytirish qo'shishdan avval hisoblanadi. Avval olti karra ikki, keyin uch qo'shiladi.", en: 'Multiplication is done before addition. First six times two, then add three.' }
   },
 
   s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    lead: { ru: 'Числа одинаковые, разница только в скобках.', uz: 'Sonlar bir xil, farq faqat qavsda.' },
-    left_title: { ru: 'без скобок', uz: 'qavssiz' },
-    right_title: { ru: 'со скобками', uz: 'qavs bilan' },
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    lead: { ru: 'Числа одинаковые, разница только в скобках.', uz: 'Sonlar bir xil, farq faqat qavsda.', en: 'The numbers are the same, the only difference is the brackets.' },
+    left_title: { ru: 'без скобок', uz: 'qavssiz', en: 'without brackets' },
+    right_title: { ru: 'со скобками', uz: 'qavs bilan', en: 'with brackets' },
     left_lines: ['3 + 6 × 2', '3 + 12', '15'],
     right_lines: ['(3 + 6) × 2', '9 × 2', '18'],
-    left_cap: { ru: 'корзина Анвара', uz: 'Anvarning savati' },
-    right_cap: { ru: 'корзина Зухры', uz: 'Zuhraning savati' },
-    btn1: { ru: 'Посчитать без скобок', uz: 'Qavssiz hisoblash' },
-    btn2: { ru: 'Посчитать со скобками', uz: 'Qavs bilan hisoblash' },
-    mc_q: { ru: 'Для чего нужны скобки?', uz: 'Qavs nima uchun kerak?' },
+    left_cap: { ru: 'корзина Анвара', uz: 'Anvarning savati', en: "Anvar's basket" },
+    right_cap: { ru: 'корзина Зухры', uz: 'Zuhraning savati', en: "Zuhra's basket" },
+    btn1: { ru: 'Посчитать без скобок', uz: 'Qavssiz hisoblash', en: 'Work it out without brackets' },
+    btn2: { ru: 'Посчитать со скобками', uz: 'Qavs bilan hisoblash', en: 'Work it out with brackets' },
+    mc_q: { ru: 'Для чего нужны скобки?', uz: 'Qavs nima uchun kerak?', en: 'What are brackets for?' },
     mc_opts: [
-      { ru: 'Отметить действие, которое делаем первым', uz: 'Birinchi bajaradigan amalni belgilash uchun' },
-      { ru: 'Скобки ничего не меняют', uz: 'Qavs hech narsani o\'zgartirmaydi' },
-      { ru: 'Отделить большие числа', uz: 'Katta sonlarni ajratish uchun' },
-      { ru: 'Заменить умножение сложением', uz: 'Ko\'paytirishni qo\'shishga almashtirish uchun' }
+      { ru: 'Отметить действие, которое делаем первым', uz: 'Birinchi bajaradigan amalni belgilash uchun', en: 'To mark the operation we do first' },
+      { ru: 'Скобки ничего не меняют', uz: 'Qavs hech narsani o\'zgartirmaydi', en: 'Brackets change nothing' },
+      { ru: 'Отделить большие числа', uz: 'Katta sonlarni ajratish uchun', en: 'To separate big numbers' },
+      { ru: 'Заменить умножение сложением', uz: 'Ko\'paytirishni qo\'shishga almashtirish uchun', en: 'To replace multiplication with addition' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Здесь скобки поменяли ответ с пятнадцати на восемнадцать. Числа те же, а ответ другой.', uz: "Bu yerda qavs javobni o'n beshdan o'n sakkizga o'zgartirdi. Sonlar o'sha, javob boshqa." },
-      2: { ru: 'Размер чисел тут ни при чём. Скобки говорят про очередь.', uz: "Sonning kattaligi bunga aloqasi yo'q. Qavs navbat haqida gapiradi." },
-      3: { ru: 'Умножение осталось умножением. Изменилась только его очередь.', uz: "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi." }
+      1: { ru: 'Здесь скобки поменяли ответ с пятнадцати на восемнадцать. Числа те же, а ответ другой.', uz: "Bu yerda qavs javobni o'n beshdan o'n sakkizga o'zgartirdi. Sonlar o'sha, javob boshqa.", en: 'Here the brackets changed the answer from fifteen to eighteen. The numbers are the same, the answer is different.' },
+      2: { ru: 'Размер чисел тут ни при чём. Скобки говорят про очередь.', uz: "Sonning kattaligi bunga aloqasi yo'q. Qavs navbat haqida gapiradi.", en: 'The size of the numbers has nothing to do with it. Brackets are about the queue.' },
+      3: { ru: 'Умножение осталось умножением. Изменилась только его очередь.', uz: "Ko'paytirish ko'paytirishligida qoldi. Faqat uning navbati o'zgardi.", en: 'Multiplication stayed multiplication. Only its turn changed.' }
     },
-    mc_ok: { ru: 'Вот и разгадка! Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.', uz: "Mana javob! Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisoblang." },
+    mc_ok: { ru: 'Вот и разгадка! Зухра считала верно, но для записи со скобками. А на доске скобок не было. Скобки командуют, меня считай первым.', uz: "Mana javob! Zuhra to'g'ri hisobladi, lekin qavsli yozuv uchun. Taxtada esa qavs yo'q edi. Qavs buyuradi, avval meni hisoblang.", en: 'Here is the solution! Zuhra counted correctly, but for the line with brackets. And there were no brackets on the board. Brackets give an order, count me first.' },
     audio: {
       ru: [
         'Две записи, числа одинаковые, три, шесть и два. Разница только в скобках.',
@@ -357,134 +362,135 @@ const CONTENT = {
         "Qavssiz avval ko'paytirish boradi. Uch qo'shuv o'n ikki, o'n besh. Anvarning savati.",
         "Qavs bilan avval qo'shish boradi. To'qqiz karra ikki, o'n sakkiz. Zuhraning savati.",
         'Endi savol.'
-      ]
+      ],
+      en: ['Two lines, the numbers are the same, three, six and two. The only difference is the brackets.', "Without brackets multiplication comes first. Three plus twelve, fifteen. Anvar's basket.", "With brackets addition comes first. Nine times two, eighteen. Zuhra's basket.", 'Now a question.']
     }
   },
 
   s6: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Сколько будет 20 − 3 × 5?', uz: '20 − 3 × 5 nechta bo\'ladi?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Сколько будет 20 − 3 × 5?', uz: '20 − 3 × 5 nechta bo\'ladi?', en: 'What is 20 − 3 × 5?' },
     items: [
       {
         ci: 0,
-        opts: [{ ru: '5', uz: '5' }, { ru: '85', uz: '85' }, { ru: '15', uz: '15' }, { ru: '25', uz: '25' }],
+        opts: [{ ru: '5', uz: '5', en: '5' }, { ru: '85', uz: '85', en: '85' }, { ru: '15', uz: '15', en: '15' }, { ru: '25', uz: '25', en: '25' }],
         hints: {
-          1: { ru: 'Так считают слева направо. Сначала умножение, три умножить на пять.', uz: "Bu chapdan o'ngga hisoblash. Avval ko'paytirish, uch karra besh." },
-          2: { ru: 'Это только первое действие, три умножить на пять. Осталось вычесть.', uz: "Bu faqat birinchi amal, uch karra besh. Ayirish qoldi." },
-          3: { ru: 'Здесь вычитание, а не сложение. Двадцать минус пятнадцать.', uz: "Bu yerda ayirish, qo'shish emas. Yigirma ayiruv o'n besh." }
+          1: { ru: 'Так считают слева направо. Сначала умножение, три умножить на пять.', uz: "Bu chapdan o'ngga hisoblash. Avval ko'paytirish, uch karra besh.", en: 'That is counting from left to right. First the multiplication, three times five.' },
+          2: { ru: 'Это только первое действие, три умножить на пять. Осталось вычесть.', uz: "Bu faqat birinchi amal, uch karra besh. Ayirish qoldi.", en: 'That is only the first operation, three times five. The subtraction is still left.' },
+          3: { ru: 'Здесь вычитание, а не сложение. Двадцать минус пятнадцать.', uz: "Bu yerda ayirish, qo'shish emas. Yigirma ayiruv o'n besh.", en: 'There is subtraction here, not addition. Twenty minus fifteen.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Проверь себя. Двадцать минус три умножить на пять. Пять секунд подумай.', uz: "O'zingizni sinang. Yigirma ayiruv uch karra besh. Besh soniya o'ylang." },
-      on_correct: { ru: 'Пять! Сначала умножение, потом вычитание.', uz: "Besh! Avval ko'paytirish, keyin ayirish." },
-      on_wrong: { ru: 'Найди сначала умножение или деление.', uz: "Avval ko'paytirish yoki bo'lishni toping." }
+      intro: { ru: 'Проверь себя. Двадцать минус три умножить на пять. Пять секунд подумай.', uz: "O'zingizni sinang. Yigirma ayiruv uch karra besh. Besh soniya o'ylang.", en: 'Test yourself. Twenty minus three times five. Think for five seconds.' },
+      on_correct: { ru: 'Пять! Сначала умножение, потом вычитание.', uz: "Besh! Avval ko'paytirish, keyin ayirish.", en: 'Five! First the multiplication, then the subtraction.' },
+      on_wrong: { ru: 'Найди сначала умножение или деление.', uz: "Avval ko'paytirish yoki bo'lishni toping.", en: 'First find the multiplication or the division.' }
     }
   },
 
   s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    q: { ru: 'Какое действие делаем первым?', uz: 'Qaysi amalni birinchi bajaramiz?' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    q: { ru: 'Какое действие делаем первым?', uz: 'Qaysi amalni birinchi bajaramiz?', en: 'Which operation do we do first?' },
     items: [
       {
         expr: '20 − 3 × 5', ci: 0,
-        opts: [{ ru: '3 × 5', uz: '3 × 5' }, { ru: '20 − 3', uz: '20 − 3' }, { ru: '20 × 5', uz: '20 × 5' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        opts: [{ ru: '3 × 5', uz: '3 × 5', en: '3 × 5' }, { ru: '20 − 3', uz: '20 − 3', en: '20 − 3' }, { ru: '20 × 5', uz: '20 × 5', en: '20 × 5' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas', en: 'The order does not matter' }],
         hints: {
-          1: { ru: 'Это чтение слева направо. Умножение сильнее, оно идёт первым.', uz: "Bu chapdan o'ngga o'qish. Ko'paytirish kuchliroq, u birinchi boradi." },
-          2: { ru: 'Двадцать и пять не стоят рядом. Умножается три на пять.', uz: "Yigirma va besh yonma-yon turmagan. Uch beshga ko'paytiriladi." },
-          3: { ru: 'Важен. Слева направо получится восемьдесят пять, а верно пять.', uz: "Muhim. Chapdan o'ngga sakson besh chiqadi, to'g'risi esa besh." }
+          1: { ru: 'Это чтение слева направо. Умножение сильнее, оно идёт первым.', uz: "Bu chapdan o'ngga o'qish. Ko'paytirish kuchliroq, u birinchi boradi.", en: 'That is reading from left to right. Multiplication is stronger, it goes first.' },
+          2: { ru: 'Двадцать и пять не стоят рядом. Умножается три на пять.', uz: "Yigirma va besh yonma-yon turmagan. Uch beshga ko'paytiriladi.", en: 'Twenty and five are not next to each other. It is three that is multiplied by five.' },
+          3: { ru: 'Важен. Слева направо получится восемьдесят пять, а верно пять.', uz: "Muhim. Chapdan o'ngga sakson besh chiqadi, to'g'risi esa besh.", en: 'It does matter. From left to right you get eighty five, and the right answer is five.' }
         }
       },
       {
         expr: '(8 + 4) : 2', ci: 0,
-        opts: [{ ru: '8 + 4', uz: '8 + 4' }, { ru: '4 : 2', uz: '4 : 2' }, { ru: '8 : 2', uz: '8 : 2' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        opts: [{ ru: '8 + 4', uz: '8 + 4', en: '8 + 4' }, { ru: '4 : 2', uz: '4 : 2', en: '4 : 2' }, { ru: '8 : 2', uz: '8 : 2', en: '8 : 2' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas', en: 'The order does not matter' }],
         hints: {
-          1: { ru: 'Деление обычно первое, но скобки сильнее. Сначала то, что внутри них.', uz: "Bo'lish odatda birinchi, lekin qavs kuchliroq. Avval uning ichidagisi." },
-          2: { ru: 'Восьмёрка стоит в скобках вместе с четвёркой. Их и складываем.', uz: "Sakkiz qavs ichida to'rt bilan turadi. Ularni qo'shamiz." },
-          3: { ru: 'Со скобками получится шесть, без них восемь плюс два, десять.', uz: "Qavs bilan olti chiqadi, qavssiz esa sakkiz qo'shuv ikki, o'n." }
+          1: { ru: 'Деление обычно первое, но скобки сильнее. Сначала то, что внутри них.', uz: "Bo'lish odatda birinchi, lekin qavs kuchliroq. Avval uning ichidagisi.", en: 'Division usually comes first, but brackets are stronger. First what is inside them.' },
+          2: { ru: 'Восьмёрка стоит в скобках вместе с четвёркой. Их и складываем.', uz: "Sakkiz qavs ichida to'rt bilan turadi. Ularni qo'shamiz.", en: 'The eight stands in the brackets together with the four. Those are what we add.' },
+          3: { ru: 'Со скобками получится шесть, без них восемь плюс два, десять.', uz: "Qavs bilan olti chiqadi, qavssiz esa sakkiz qo'shuv ikki, o'n.", en: 'With the brackets you get six, without them eight plus two, ten.' }
         }
       },
       {
         expr: '12 : 2 + 3 × 4', ci: 0,
-        opts: [{ ru: '12 : 2', uz: '12 : 2' }, { ru: '3 × 4', uz: '3 × 4' }, { ru: '2 + 3', uz: '2 + 3' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas' }],
+        opts: [{ ru: '12 : 2', uz: '12 : 2', en: '12 : 2' }, { ru: '3 × 4', uz: '3 × 4', en: '3 × 4' }, { ru: '2 + 3', uz: '2 + 3', en: '2 + 3' }, { ru: 'Порядок не важен', uz: 'Tartib muhim emas', en: 'The order does not matter' }],
         hints: {
-          1: { ru: 'Это тоже умножение, но оно правее. Идём слева направо, значит первым деление.', uz: "Bu ham ko'paytirish, lekin o'ngroqda. Chapdan o'ngga boramiz, demak birinchi bo'lish." },
-          2: { ru: 'Двойка и тройка не пара, одна при делении, другая при умножении.', uz: "Ikki va uch juft emas, biri bo'lishda, biri ko'paytirishda." },
-          3: { ru: 'Тут два сильных действия и одно слабое. Сильные первые, слева направо.', uz: "Bu yerda ikki kuchli amal va bitta kuchsiz bor. Kuchlilar birinchi, chapdan o'ngga." }
+          1: { ru: 'Это тоже умножение, но оно правее. Идём слева направо, значит первым деление.', uz: "Bu ham ko'paytirish, lekin o'ngroqda. Chapdan o'ngga boramiz, demak birinchi bo'lish.", en: 'That is multiplication too, but it is further right. We go from left to right, so the division comes first.' },
+          2: { ru: 'Двойка и тройка не пара, одна при делении, другая при умножении.', uz: "Ikki va uch juft emas, biri bo'lishda, biri ko'paytirishda.", en: 'The two and the three are not a pair, one belongs to the division, the other to the multiplication.' },
+          3: { ru: 'Тут два сильных действия и одно слабое. Сильные первые, слева направо.', uz: "Bu yerda ikki kuchli amal va bitta kuchsiz bor. Kuchlilar birinchi, chapdan o'ngga.", en: 'There are two strong operations here and one weak one. The strong ones come first, from left to right.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Главный навык. Не считай, а покажи, какое действие первое. Три задания.', uz: "Asosiy ko'nikma. Hisoblamang, qaysi amal birinchi ekanini ko'rsating. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Поищи умножение, деление или скобки. Попробуй ещё.', uz: "Ko'paytirish, bo'lish yoki qavsni qidiring. Yana urinib ko'ring." }
+      intro: { ru: 'Главный навык. Не считай, а покажи, какое действие первое. Три задания.', uz: "Asosiy ko'nikma. Hisoblamang, qaysi amal birinchi ekanini ko'rsating. Uchta topshiriq.", en: 'The main skill. Do not count, just show which operation comes first. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Поищи умножение, деление или скобки. Попробуй ещё.', uz: "Ko'paytirish, bo'lish yoki qavsni qidiring. Yana urinib ko'ring.", en: 'Look for multiplication, division or brackets. Try again.' }
     }
   },
 
   s8: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     items: [
       {
-        q: { ru: 'Сколько будет 3 + 6 × 2?', uz: '3 + 6 × 2 nechta bo\'ladi?' }, expr: '3 + 6 × 2', ci: 0,
-        opts: [{ ru: '15', uz: '15' }, { ru: '18', uz: '18' }, { ru: '12', uz: '12' }, { ru: '30', uz: '30' }],
+        q: { ru: 'Сколько будет 3 + 6 × 2?', uz: '3 + 6 × 2 nechta bo\'ladi?', en: 'What is 3 + 6 × 2?' }, expr: '3 + 6 × 2', ci: 0,
+        opts: [{ ru: '15', uz: '15', en: '15' }, { ru: '18', uz: '18', en: '18' }, { ru: '12', uz: '12', en: '12' }, { ru: '30', uz: '30', en: '30' }],
         hints: {
-          1: { ru: 'Так посчитала Зухра. Это ответ для записи со скобками.', uz: "Zuhra shunday hisobladi. Bu qavsli yozuvning javobi." },
-          2: { ru: 'Это только умножение. Осталось прибавить три.', uz: "Bu faqat ko'paytirish. Uchni qo'shish qoldi." },
-          3: { ru: 'Так было бы, если сложить в скобках три и два. Но скобок нет.', uz: "Qavs ichida uch va ikki qo'shilsa shunday bo'lardi. Lekin qavs yo'q." }
+          1: { ru: 'Так посчитала Зухра. Это ответ для записи со скобками.', uz: "Zuhra shunday hisobladi. Bu qavsli yozuvning javobi.", en: 'That is how Zuhra counted. It is the answer for the line with brackets.' },
+          2: { ru: 'Это только умножение. Осталось прибавить три.', uz: "Bu faqat ko'paytirish. Uchni qo'shish qoldi.", en: 'That is only the multiplication. Three still has to be added.' },
+          3: { ru: 'Так было бы, если сложить в скобках три и два. Но скобок нет.', uz: "Qavs ichida uch va ikki qo'shilsa shunday bo'lardi. Lekin qavs yo'q.", en: 'That would be so if three and two were added in brackets. But there are no brackets.' }
         }
       },
       {
-        q: { ru: 'Сколько будет (20 − 8) : 4?', uz: '(20 − 8) : 4 nechta bo\'ladi?' }, expr: '(20 − 8) : 4', ci: 0,
-        opts: [{ ru: '3', uz: '3' }, { ru: '18', uz: '18' }, { ru: '12', uz: '12' }, { ru: '5', uz: '5' }],
+        q: { ru: 'Сколько будет (20 − 8) : 4?', uz: '(20 − 8) : 4 nechta bo\'ladi?', en: 'What is (20 − 8) : 4?' }, expr: '(20 − 8) : 4', ci: 0,
+        opts: [{ ru: '3', uz: '3', en: '3' }, { ru: '18', uz: '18', en: '18' }, { ru: '12', uz: '12', en: '12' }, { ru: '5', uz: '5', en: '5' }],
         hints: {
-          1: { ru: 'Скобки сильнее деления. Сначала двадцать минус восемь.', uz: "Qavs bo'lishdan kuchliroq. Avval yigirma ayiruv sakkiz." },
-          2: { ru: 'Это только скобки. Осталось разделить на четыре.', uz: "Bu faqat qavs. To'rtga bo'lish qoldi." },
-          3: { ru: 'Это двадцать разделить на четыре. А восьмёрку надо сначала вычесть.', uz: "Bu yigirmani to'rtga bo'lish. Sakkizni esa avval ayirish kerak." }
+          1: { ru: 'Скобки сильнее деления. Сначала двадцать минус восемь.', uz: "Qavs bo'lishdan kuchliroq. Avval yigirma ayiruv sakkiz.", en: 'Brackets are stronger than division. First twenty minus eight.' },
+          2: { ru: 'Это только скобки. Осталось разделить на четыре.', uz: "Bu faqat qavs. To'rtga bo'lish qoldi.", en: 'That is only the brackets. It still has to be divided by four.' },
+          3: { ru: 'Это двадцать разделить на четыре. А восьмёрку надо сначала вычесть.', uz: "Bu yigirmani to'rtga bo'lish. Sakkizni esa avval ayirish kerak.", en: 'That is twenty divided by four. But the eight has to be subtracted first.' }
         }
       },
       {
-        q: { ru: 'Сколько будет 40 : 5 + 2 × 3?', uz: '40 : 5 + 2 × 3 nechta bo\'ladi?' }, expr: '40 : 5 + 2 × 3', ci: 0,
-        opts: [{ ru: '14', uz: '14' }, { ru: '30', uz: '30' }, { ru: '8', uz: '8' }, { ru: '6', uz: '6' }],
+        q: { ru: 'Сколько будет 40 : 5 + 2 × 3?', uz: '40 : 5 + 2 × 3 nechta bo\'ladi?', en: 'What is 40 : 5 + 2 × 3?' }, expr: '40 : 5 + 2 × 3', ci: 0,
+        opts: [{ ru: '14', uz: '14', en: '14' }, { ru: '30', uz: '30', en: '30' }, { ru: '8', uz: '8', en: '8' }, { ru: '6', uz: '6', en: '6' }],
         hints: {
-          1: { ru: 'Это счёт слева направо, подряд. Сильные действия считают первыми.', uz: "Bu chapdan o'ngga ketma-ket hisoblash. Kuchli amallar birinchi hisoblanadi." },
-          2: { ru: 'Это только деление. Осталось умножение и сложение.', uz: "Bu faqat bo'lish. Ko'paytirish va qo'shish qoldi." },
-          3: { ru: 'Это только умножение. Сорок на пять тоже надо посчитать.', uz: "Bu faqat ko'paytirish. Qirqni beshga ham hisoblash kerak." }
+          1: { ru: 'Это счёт слева направо, подряд. Сильные действия считают первыми.', uz: "Bu chapdan o'ngga ketma-ket hisoblash. Kuchli amallar birinchi hisoblanadi.", en: 'That is counting from left to right, one after another. The strong operations are done first.' },
+          2: { ru: 'Это только деление. Осталось умножение и сложение.', uz: "Bu faqat bo'lish. Ko'paytirish va qo'shish qoldi.", en: 'That is only the division. The multiplication and the addition are still left.' },
+          3: { ru: 'Это только умножение. Сорок на пять тоже надо посчитать.', uz: "Bu faqat ko'paytirish. Qirqni beshga ham hisoblash kerak.", en: 'That is only the multiplication. Forty by five has to be worked out too.' }
         }
       }
     ],
     audio: {
-      intro: { ru: 'Теперь считаем до конца. Сначала скобки, потом умножение и деление, в конце сложение. Три задания.', uz: "Endi oxirigacha hisoblaymiz. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish. Uchta topshiriq." },
-      on_correct: { ru: 'Верно.', uz: "To'g'ri." },
-      on_wrong: { ru: 'Проверь очередь действий. Попробуй ещё.', uz: 'Amallar navbatini tekshiring. Yana urinib ko\'ring.' }
+      intro: { ru: 'Теперь считаем до конца. Сначала скобки, потом умножение и деление, в конце сложение. Три задания.', uz: "Endi oxirigacha hisoblaymiz. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish. Uchta topshiriq.", en: 'Now we count to the end. First brackets, then multiplication and division, at the end addition. Three tasks.' },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Correct.' },
+      on_wrong: { ru: 'Проверь очередь действий. Попробуй ещё.', uz: 'Amallar navbatini tekshiring. Yana urinib ko\'ring.', en: 'Check the queue of operations. Try again.' }
     }
   },
 
   s9: {
-    eyebrow: { ru: 'Бонус', uz: 'Bonus' },
-    lead: { ru: 'Большие числа: порядок тот же, а считаем столбиком.', uz: "Katta sonlar: tartib o'sha, hisoblash esa ustunda." },
-    a_title: { ru: '128 + 24 × 3', uz: '128 + 24 × 3' },
-    b_title: { ru: '250 − 8 × 20', uz: '250 − 8 × 20' },
-    a_total: { ru: '128 + 24 × 3 = 200', uz: '128 + 24 × 3 = 200' },
-    b_line: { ru: '8 × 20 = 160', uz: '8 × 20 = 160' },
-    b_total: { ru: '250 − 8 × 20 = 90', uz: '250 − 8 × 20 = 90' },
-    btn1: { ru: 'Умножить в столбик', uz: 'Ustunda ko\'paytirish' },
-    btn2: { ru: 'Сложить в столбик', uz: 'Ustunda qo\'shish' },
-    btn3: { ru: 'Второй заказ', uz: 'Ikkinchi buyurtma' },
-    btn4: { ru: 'Вычесть в столбик', uz: 'Ustunda ayirish' },
-    mc_q: { ru: 'Почему нельзя было сразу сложить 128 и 24 в столбик?', uz: 'Nega 128 va 24 ni darrov ustunda qo\'shib bo\'lmaydi?' },
+    eyebrow: { ru: 'Бонус', uz: 'Bonus', en: 'Bonus' },
+    lead: { ru: 'Большие числа: порядок тот же, а считаем столбиком.', uz: "Katta sonlar: tartib o'sha, hisoblash esa ustunda.", en: 'Big numbers: the order is the same, but we count in a column.' },
+    a_title: { ru: '128 + 24 × 3', uz: '128 + 24 × 3', en: '128 + 24 × 3' },
+    b_title: { ru: '250 − 8 × 20', uz: '250 − 8 × 20', en: '250 − 8 × 20' },
+    a_total: { ru: '128 + 24 × 3 = 200', uz: '128 + 24 × 3 = 200', en: '128 + 24 × 3 = 200' },
+    b_line: { ru: '8 × 20 = 160', uz: '8 × 20 = 160', en: '8 × 20 = 160' },
+    b_total: { ru: '250 − 8 × 20 = 90', uz: '250 − 8 × 20 = 90', en: '250 − 8 × 20 = 90' },
+    btn1: { ru: 'Умножить в столбик', uz: 'Ustunda ko\'paytirish', en: 'Multiply in a column' },
+    btn2: { ru: 'Сложить в столбик', uz: 'Ustunda qo\'shish', en: 'Add in a column' },
+    btn3: { ru: 'Второй заказ', uz: 'Ikkinchi buyurtma', en: 'The second order' },
+    btn4: { ru: 'Вычесть в столбик', uz: 'Ustunda ayirish', en: 'Subtract in a column' },
+    mc_q: { ru: 'Почему нельзя было сразу сложить 128 и 24 в столбик?', uz: 'Nega 128 va 24 ni darrov ustunda qo\'shib bo\'lmaydi?', en: 'Why could we not simply add 128 and 24 in a column first?' },
     mc_opts: [
-      { ru: 'Умножение считают раньше сложения', uz: "Ko'paytirish qo'shishdan avval hisoblanadi" },
-      { ru: '128 больше, чем 24', uz: '128 son 24 dan katta' },
-      { ru: 'Столбик всегда пишут первым', uz: 'Ustun har doim birinchi yoziladi' },
-      { ru: 'Можно было, ответ тот же', uz: 'Mumkin edi, javob o\'sha' }
+      { ru: 'Умножение считают раньше сложения', uz: "Ko'paytirish qo'shishdan avval hisoblanadi", en: 'Multiplication is done before addition' },
+      { ru: '128 больше, чем 24', uz: '128 son 24 dan katta', en: '128 is bigger than 24' },
+      { ru: 'Столбик всегда пишут первым', uz: 'Ustun har doim birinchi yoziladi', en: 'A column is always written first' },
+      { ru: 'Можно было, ответ тот же', uz: 'Mumkin edi, javob o\'sha', en: 'We could, the answer is the same' }
     ],
     mc_ci: 0,
     mc_hints: {
-      1: { ru: 'Размер чисел не решает очередь. Решает знак действия.', uz: "Sonning kattaligi navbatni hal qilmaydi. Amal belgisi hal qiladi." },
-      2: { ru: 'Столбик это способ записи, а не очередь. Очередь задают знаки.', uz: "Ustun — yozish usuli, navbat emas. Navbatni belgilar beradi." },
-      3: { ru: 'Проверь. Сто двадцать восемь плюс двадцать четыре, это сто пятьдесят два. Умножить на три, четыреста пятьдесят шесть. Совсем другой ответ.', uz: "Tekshiring. Bir yuz yigirma sakkiz qo'shuv yigirma to'rt, bu bir yuz ellik ikki. Uchga ko'paytirsak, to'rt yuz ellik olti. Butunlay boshqa javob." }
+      1: { ru: 'Размер чисел не решает очередь. Решает знак действия.', uz: "Sonning kattaligi navbatni hal qilmaydi. Amal belgisi hal qiladi.", en: 'The size of the numbers does not decide the queue. The operation sign does.' },
+      2: { ru: 'Столбик это способ записи, а не очередь. Очередь задают знаки.', uz: "Ustun — yozish usuli, navbat emas. Navbatni belgilar beradi.", en: 'A column is a way of writing, not a queue. The signs set the queue.' },
+      3: { ru: 'Проверь. Сто двадцать восемь плюс двадцать четыре, это сто пятьдесят два. Умножить на три, четыреста пятьдесят шесть. Совсем другой ответ.', uz: "Tekshiring. Bir yuz yigirma sakkiz qo'shuv yigirma to'rt, bu bir yuz ellik ikki. Uchga ko'paytirsak, to'rt yuz ellik olti. Butunlay boshqa javob.", en: 'Check it. One hundred twenty eight plus twenty four is one hundred fifty two. Times three, four hundred fifty six. A completely different answer.' }
     },
-    mc_ok: { ru: 'Верно! Порядок решает, что считать, а столбик показывает, как считать.', uz: "To'g'ri! Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi." },
+    mc_ok: { ru: 'Верно! Порядок решает, что считать, а столбик показывает, как считать.', uz: "To'g'ri! Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi.", en: 'Right! The order decides what to count, and the column shows how to count.' },
     audio: {
       ru: [
         'Бонус. В саду попались заказы с большими числами. Порядок тот же, а считать будем столбиком.',
@@ -501,163 +507,166 @@ const CONTENT = {
         "Ikkinchi buyurtma. Sakkiz karra yigirma, bir yuz oltmish. Bu o'nliklar haqidagi darsdan.",
         "Va ustunda ayiramiz. Ikki yuz ellikdan bir yuz oltmishni. Noldan nol, nol. Beshdan oltini ayirib bo'lmaydi, o'nlik olamiz, o'n beshdan olti, to'qqiz. Ikkidan bir va olingan birni, nol. To'qson!",
         "Uch dars qanday birlashganini ko'rdingizmi? Tartib nimani hisoblashni hal qiladi, ustun esa qanday hisoblashni ko'rsatadi. Endi savol."
-      ]
+      ],
+      en: ['Bonus. Orders with big numbers turned up in the garden. The order of operations is the same, but we will count in a column.', 'First the multiplication. Twenty four times three, in a column. Three times four, twelve, the two goes down, the one is kept back. Three times two, six, and one kept back, seven. Seventy two.', 'Now the addition. One hundred twenty eight plus seventy two, in a column. Eight and two, ten, the zero goes down, the one is kept back. Two and seven and one, ten, again the zero goes down and the one is kept back. One and one, two. Two hundred!', 'The second order. Eight times twenty, one hundred sixty. That is from the lesson about tens.', 'And we subtract in a column. Two hundred fifty minus one hundred sixty. Zero take zero, zero. You cannot take six from five, we borrow a ten, fifteen minus six, nine. Two minus one and minus the borrowed one, zero. Ninety!', 'Do you see how three lessons came together? The order decides what to count, and the column shows how to count. Now a question.']
     }
   },
 
   s10: {
-    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor' },
+    eyebrow: { ru: 'Тренажёр', uz: 'Trenajyor', en: 'Trainer' },
     items: [
-      { q: { ru: 'Набери ответ: 5 + 4 × 3.', uz: 'Javobni tering: 5 + 4 × 3.' }, ans: 17, hint: { ru: 'Сначала четыре умножить на три.', uz: "Avval to'rt karra uch." } },
-      { q: { ru: 'Набери ответ: (10 + 8) : 2.', uz: 'Javobni tering: (10 + 8) : 2.' }, ans: 9, hint: { ru: 'Сначала скобки, десять плюс восемь.', uz: "Avval qavs, o'n qo'shuv sakkiz." } },
-      { q: { ru: 'Набери ответ: 18 : 3 + 5 × 2.', uz: 'Javobni tering: 18 : 3 + 5 × 2.' }, ans: 16, hint: { ru: 'Два сильных действия, потом сложи.', uz: 'Ikki kuchli amal, keyin qo\'shing.' } }
+      { q: { ru: 'Набери ответ: 5 + 4 × 3.', uz: 'Javobni tering: 5 + 4 × 3.', en: 'Type the answer: 5 + 4 × 3.' }, ans: 17, hint: { ru: 'Сначала четыре умножить на три.', uz: "Avval to'rt karra uch.", en: 'First four times three.' } },
+      { q: { ru: 'Набери ответ: (10 + 8) : 2.', uz: 'Javobni tering: (10 + 8) : 2.', en: 'Type the answer: (10 + 8) : 2.' }, ans: 9, hint: { ru: 'Сначала скобки, десять плюс восемь.', uz: "Avval qavs, o'n qo'shuv sakkiz.", en: 'First the brackets, ten plus eight.' } },
+      { q: { ru: 'Набери ответ: 18 : 3 + 5 × 2.', uz: 'Javobni tering: 18 : 3 + 5 × 2.', en: 'Type the answer: 18 : 3 + 5 × 2.' }, ans: 16, hint: { ru: 'Два сильных действия, потом сложи.', uz: 'Ikki kuchli amal, keyin qo\'shing.', en: 'Two strong operations, then add.' } }
     ],
     audio: {
-      intro: { ru: 'Теперь без вариантов. Определи очередь, посчитай и набери ответ.', uz: "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering." },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" }
+      intro: { ru: 'Теперь без вариантов. Определи очередь, посчитай и набери ответ.', uz: "Endi variantlarsiz. Navbatni aniqlang, hisoblang va javobni tering.", en: 'Now without answer choices. Work out the queue, count and type the answer.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' }
     }
   },
 
   s11: {
-    eyebrow: { ru: 'Задача', uz: 'Masala' },
-    lead: { ru: 'Заказ на сегодня.', uz: 'Bugungi buyurtma.' },
-    q: { ru: 'На трёх полках по 8 ламп, и ещё 6 ламп лежат на земле. Сколько ламп всего?', uz: 'Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi. Jami nechta lampa?' },
-    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang' },
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    lead: { ru: 'Заказ на сегодня.', uz: 'Bugungi buyurtma.', en: "Today's order." },
+    q: { ru: 'На трёх полках по 8 ламп, и ещё 6 ламп лежат на земле. Сколько ламп всего?', uz: 'Uch tokchada sakkiztadan lampa, yana 6 lampa yerda yotibdi. Jami nechta lampa?', en: 'There are 8 lamps on each of three shelves, and 6 more lamps on the ground. How many lamps in all?' },
+    pick_label: { ru: 'Сначала выбери запись', uz: 'Avval yozuvni tanlang', en: 'First choose the line' },
     opts: [
-      { ru: '8 × 3 + 6', uz: '8 × 3 + 6' },
-      { ru: '8 + 3 × 6', uz: '8 + 3 × 6' },
-      { ru: '(8 + 6) × 3', uz: '(8 + 6) × 3' },
-      { ru: '8 × 3 × 6', uz: '8 × 3 × 6' }
+      { ru: '8 × 3 + 6', uz: '8 × 3 + 6', en: '8 × 3 + 6' },
+      { ru: '8 + 3 × 6', uz: '8 + 3 × 6', en: '8 + 3 × 6' },
+      { ru: '(8 + 6) × 3', uz: '(8 + 6) × 3', en: '(8 + 6) × 3' },
+      { ru: '8 × 3 × 6', uz: '8 × 3 × 6', en: '8 × 3 × 6' }
     ],
     ci: 0,
     hints: {
-      1: { ru: 'Здесь шесть ламп умножаются на три. А они лежат отдельно, их только прибавляют.', uz: "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi." },
-      2: { ru: 'Скобки говорят, что на каждой полке восемь и шесть. Но шести ламп на полках нет.', uz: "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q." },
-      3: { ru: 'Тогда полок было бы восемнадцать. Шесть ламп надо прибавить, а не умножить.', uz: "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas." }
+      1: { ru: 'Здесь шесть ламп умножаются на три. А они лежат отдельно, их только прибавляют.', uz: "Bu yerda olti lampa uchga ko'paytiriladi. Ular esa alohida yotibdi, faqat qo'shiladi.", en: 'Here the six lamps are multiplied by three. But they lie separately, they are only added.' },
+      2: { ru: 'Скобки говорят, что на каждой полке восемь и шесть. Но шести ламп на полках нет.', uz: "Qavs har tokchada sakkiz va olti bor deydi. Lekin tokchalarda olti lampa yo'q.", en: 'The brackets say that each shelf has eight and six. But there are no six lamps on the shelves.' },
+      3: { ru: 'Тогда полок было бы восемнадцать. Шесть ламп надо прибавить, а не умножить.', uz: "Unda tokchalar o'n sakkizta bo'lardi. Olti lampani qo'shish kerak, ko'paytirish emas.", en: 'Then there would be eighteen shelves. The six lamps must be added, not multiplied.' }
     },
-    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering." },
+    pick_ok: { ru: 'Запись верная. Теперь набери ответ.', uz: "Yozuv to'g'ri. Endi javobni tering.", en: 'The line is correct. Now type the answer.' },
     ans: 30,
-    setup_audio: { ru: 'Заказ на сегодня. Три полки, на каждой по восемь ламп. И ещё шесть ламп на земле. Сначала выбери запись, потом посчитай.', uz: "Bugungi buyurtma. Uch tokcha, har birida sakkizta lampa. Yana oltita lampa yerda. Avval yozuvni tanlang, keyin hisoblang." },
+    setup_audio: { ru: 'Заказ на сегодня. Три полки, на каждой по восемь ламп. И ещё шесть ламп на земле. Сначала выбери запись, потом посчитай.', uz: "Bugungi buyurtma. Uch tokcha, har birida sakkizta lampa. Yana oltita lampa yerda. Avval yozuvni tanlang, keyin hisoblang.", en: "Today's order. Three shelves with eight lamps each. And six more lamps on the ground. First choose the line, then count." },
     audio: {
-      intro: { ru: 'Порядок действий начинается уже при записи условия.', uz: "Amallar tartibi shart yozilayotganda boshlanadi." },
-      on_correct: { ru: 'Тридцать ламп! И запись выбрана верно, и порядок соблюдён.', uz: "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi." },
-      on_wrong: { ru: 'Сначала восемь умножить на три, это двадцать четыре. Потом прибавь шесть.', uz: "Avval sakkiz karra uch, bu yigirma to'rt. Keyin oltini qo'shing." }
+      intro: { ru: 'Порядок действий начинается уже при записи условия.', uz: "Amallar tartibi shart yozilayotganda boshlanadi.", en: 'The order of operations starts already when you write the condition down.' },
+      on_correct: { ru: 'Тридцать ламп! И запись выбрана верно, и порядок соблюдён.', uz: "O'ttizta lampa! Yozuv ham to'g'ri tanlandi, tartib ham saqlandi.", en: 'Thirty lamps! The line was chosen correctly and the order was kept.' },
+      on_wrong: { ru: 'Сначала восемь умножить на три, это двадцать четыре. Потом прибавь шесть.', uz: "Avval sakkiz karra uch, bu yigirma to'rt. Keyin oltini qo'shing.", en: 'First eight times three, that is twenty four. Then add six.' }
     }
   },
 
   s12: {
-    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping' },
-    q: { ru: 'В одной записи порядок сбился. Найди её.', uz: 'Bitta yozuvda tartib buzilgan. Uni toping.' },
+    eyebrow: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    q: { ru: 'В одной записи порядок сбился. Найди её.', uz: 'Bitta yozuvda tartib buzilgan. Uni toping.', en: 'In one line the order went wrong. Find it.' },
     items: [
       {
         stmts: ['2 + 5 × 4 = 22', '(3 + 7) × 2 = 20', '30 − 4 × 5 = 130', '40 : 4 + 6 = 16'],
         wrong: 2,
-        hint: { ru: 'Эта запись верна. Проверь остальные, везде ли умножение и деление посчитали первыми.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring, hamma joyda ko'paytirish va bo'lish birinchi hisoblanganmi." }
+        hint: { ru: 'Эта запись верна. Проверь остальные, везде ли умножение и деление посчитали первыми.', uz: "Bu yozuv to'g'ri. Boshqalarini tekshiring, hamma joyda ko'paytirish va bo'lish birinchi hisoblanganmi.", en: 'This line is correct. Check the others, was multiplication and division done first everywhere?' }
       }
     ],
     audio: {
-      intro: { ru: 'Бит записал четыре примера, в одном порядок сбился. Найди его.', uz: "Bit to'rtta misol yozdi, bittasida tartib buzilgan. Uni toping." },
-      on_correct: { ru: 'Да! Здесь посчитали слева направо, тридцать минус четыре, двадцать шесть, и на пять. Надо было сначала четыре умножить на пять, двадцать. Тридцать минус двадцать, десять.', uz: "Ha! Bu yerda chapdan o'ngga hisoblagan, o'ttiz ayiruv to'rt, yigirma olti, keyin beshga. Kerak edi, avval to'rt karra besh, yigirma. O'ttiz ayiruv yigirma, o'n." },
-      on_wrong: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+      intro: { ru: 'Бит записал четыре примера, в одном порядок сбился. Найди его.', uz: "Bit to'rtta misol yozdi, bittasida tartib buzilgan. Uni toping.", en: 'Bit wrote four examples, and in one the order went wrong. Find it.' },
+      on_correct: { ru: 'Да! Здесь посчитали слева направо, тридцать минус четыре, двадцать шесть, и на пять. Надо было сначала четыре умножить на пять, двадцать. Тридцать минус двадцать, десять.', uz: "Ha! Bu yerda chapdan o'ngga hisoblagan, o'ttiz ayiruv to'rt, yigirma olti, keyin beshga. Kerak edi, avval to'rt karra besh, yigirma. O'ttiz ayiruv yigirma, o'n.", en: 'Yes! Here it was counted from left to right, thirty minus four, twenty six, and times five. First four had to be multiplied by five, twenty. Thirty minus twenty, ten.' },
+      on_wrong: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' }
     }
   },
 
   s13: {
-    eyebrow: { ru: 'Финал', uz: 'Final' },
-    intro_line: { ru: 'Финальная проверка. Пять заданий.', uz: 'Yakuniy tekshiruv. Beshta topshiriq.' },
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Финальная проверка. Пять заданий.', uz: 'Yakuniy tekshiruv. Beshta topshiriq.', en: 'The final check. Five tasks.' },
     items: [
       {
         kind: 'num', ans: 14,
-        q: { ru: 'Набери ответ: 4 + 5 × 2.', uz: 'Javobni tering: 4 + 5 × 2.' },
-        hint: { ru: 'Сначала пять умножить на два.', uz: 'Avval besh karra ikki.' }
+        q: { ru: 'Набери ответ: 4 + 5 × 2.', uz: 'Javobni tering: 4 + 5 × 2.', en: 'Type the answer: 4 + 5 × 2.' },
+        hint: { ru: 'Сначала пять умножить на два.', uz: 'Avval besh karra ikki.', en: 'First five times two.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Сколько будет (12 − 4) : 2?', uz: '(12 − 4) : 2 nechta bo\'ladi?' },
-        opt0: { ru: '4', uz: '4' },
-        opt1: { ru: '10', uz: '10' },
-        opt2: { ru: '8', uz: '8' },
-        opt3: { ru: '6', uz: '6' },
-        wrong_1: { ru: 'Скобки сильнее. Сначала двенадцать минус четыре.', uz: "Qavs kuchliroq. Avval o'n ikki ayiruv to'rt." },
-        wrong_2: { ru: 'Это только скобки. Осталось разделить на два.', uz: "Bu faqat qavs. Ikkiga bo'lish qoldi." },
-        wrong_3: { ru: 'Это двенадцать разделить на два. Четвёрку надо вычесть первой.', uz: "Bu o'n ikkini ikkiga bo'lish. To'rtni avval ayirish kerak." }
+        q: { ru: 'Сколько будет (12 − 4) : 2?', uz: '(12 − 4) : 2 nechta bo\'ladi?', en: 'What is (12 − 4) : 2?' },
+        opt0: { ru: '4', uz: '4', en: '4' },
+        opt1: { ru: '10', uz: '10', en: '10' },
+        opt2: { ru: '8', uz: '8', en: '8' },
+        opt3: { ru: '6', uz: '6', en: '6' },
+        wrong_1: { ru: 'Скобки сильнее. Сначала двенадцать минус четыре.', uz: "Qavs kuchliroq. Avval o'n ikki ayiruv to'rt.", en: 'Brackets are stronger. First twelve minus four.' },
+        wrong_2: { ru: 'Это только скобки. Осталось разделить на два.', uz: "Bu faqat qavs. Ikkiga bo'lish qoldi.", en: 'That is only the brackets. It still has to be divided by two.' },
+        wrong_3: { ru: 'Это двенадцать разделить на два. Четвёрку надо вычесть первой.', uz: "Bu o'n ikkini ikkiga bo'lish. To'rtni avval ayirish kerak.", en: 'That is twelve divided by two. The four has to be subtracted first.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какое действие первое в 24 : 3 + 2 × 5?', uz: '24 : 3 + 2 × 5 da qaysi amal birinchi?' },
-        opt0: { ru: '24 : 3', uz: '24 : 3' },
-        opt1: { ru: '3 + 2', uz: '3 + 2' },
-        opt2: { ru: '2 × 5', uz: '2 × 5' },
-        opt3: { ru: 'Порядок не важен', uz: 'Tartib muhim emas' },
-        wrong_1: { ru: 'Сложение последнее. Первыми деление и умножение.', uz: "Qo'shish oxirgi. Birinchi bo'lish va ko'paytirish." },
-        wrong_2: { ru: 'Тоже сильное действие, но оно правее. Идём слева направо.', uz: "Bu ham kuchli amal, lekin o'ngroqda. Chapdan o'ngga boramiz." },
-        wrong_3: { ru: 'Важен всегда. Иначе ответы у всех разные.', uz: "Har doim muhim. Aks holda hammaning javobi boshqacha bo'ladi." }
+        q: { ru: 'Какое действие первое в 24 : 3 + 2 × 5?', uz: '24 : 3 + 2 × 5 da qaysi amal birinchi?', en: 'Which operation comes first in 24 : 3 + 2 × 5?' },
+        opt0: { ru: '24 : 3', uz: '24 : 3', en: '24 : 3' },
+        opt1: { ru: '3 + 2', uz: '3 + 2', en: '3 + 2' },
+        opt2: { ru: '2 × 5', uz: '2 × 5', en: '2 × 5' },
+        opt3: { ru: 'Порядок не важен', uz: 'Tartib muhim emas', en: 'The order does not matter' },
+        wrong_1: { ru: 'Сложение последнее. Первыми деление и умножение.', uz: "Qo'shish oxirgi. Birinchi bo'lish va ko'paytirish.", en: 'Addition is last. Division and multiplication come first.' },
+        wrong_2: { ru: 'Тоже сильное действие, но оно правее. Идём слева направо.', uz: "Bu ham kuchli amal, lekin o'ngroqda. Chapdan o'ngga boramiz.", en: 'That is a strong operation too, but it is further right. We go from left to right.' },
+        wrong_3: { ru: 'Важен всегда. Иначе ответы у всех разные.', uz: "Har doim muhim. Aks holda hammaning javobi boshqacha bo'ladi.", en: 'It always matters. Otherwise everyone gets different answers.' }
       },
       {
         kind: 'num', ans: 44,
-        q: { ru: 'Набери ответ: 100 − 7 × 8.', uz: 'Javobni tering: 100 − 7 × 8.' },
-        hint: { ru: 'Сначала семь умножить на восемь.', uz: 'Avval yetti karra sakkiz.' }
+        q: { ru: 'Набери ответ: 100 − 7 × 8.', uz: 'Javobni tering: 100 − 7 × 8.', en: 'Type the answer: 100 − 7 × 8.' },
+        hint: { ru: 'Сначала семь умножить на восемь.', uz: 'Avval yetti karra sakkiz.', en: 'First seven times eight.' }
       },
       {
         kind: 'mc',
-        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?" },
-        opt0: { ru: '40 − 3 × 6 = 222', uz: '40 − 3 × 6 = 222' },
-        opt1: { ru: '3 + 6 × 5 = 33', uz: '3 + 6 × 5 = 33' },
-        opt2: { ru: '(3 + 7) × 2 = 20', uz: '(3 + 7) × 2 = 20' },
-        opt3: { ru: '40 : 4 + 6 = 16', uz: '40 : 4 + 6 = 16' },
-        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." },
-        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring." }
+        q: { ru: 'Какая запись неверна?', uz: "Qaysi yozuv noto'g'ri?", en: 'Only one zero appeared. By a hundred means two zeros.' },
+        opt0: { ru: '40 − 3 × 6 = 222', uz: '40 − 3 × 6 = 222', en: '40 − 3 × 6 = 222' },
+        opt1: { ru: '3 + 6 × 5 = 33', uz: '3 + 6 × 5 = 33', en: '3 + 6 × 5 = 33' },
+        opt2: { ru: '(3 + 7) × 2 = 20', uz: '(3 + 7) × 2 = 20', en: '(3 + 7) × 2 = 20' },
+        opt3: { ru: '40 : 4 + 6 = 16', uz: '40 : 4 + 6 = 16', en: '40 : 4 + 6 = 16' },
+        wrong_1: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_2: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' },
+        wrong_3: { ru: 'Эта запись верна. Ищи другую.', uz: "Bu yozuv to'g'ri. Boshqasini qidiring.", en: 'Now without ready answers. Type the answer yourself.' }
       }
     ],
-    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?' },
-    fact_text: { ru: 'Семечки подсолнуха уложены спиралями: двадцать одна в одну сторону, тридцать четыре в другую, а у больших цветов пятьдесят пять. Ведь двадцать один плюс тридцать четыре и есть пятьдесят пять.', uz: "Kungaboqar urug'lari spiral bo'ylab terilgan: bir tomonga yigirma bitta, boshqasiga o'ttiz to'rtta, katta gullarda esa ellik beshta. Yigirma bir qo'shuv o'ttiz to'rt aynan ellik beshga teng." },
-    fact_audio: { ru: 'У подсолнуха семечки уложены спиралями. Спиралей обычно двадцать одна в одну сторону и тридцать четыре в другую, а у больших цветов пятьдесят пять. Сложи двадцать один и тридцать четыре и получишь как раз пятьдесят пять. Мы весь урок соблюдали порядок в примере, а у подсолнуха свой порядок, и в нём тоже спрятано сложение.', uz: "Kungaboqar urug'lari spiral bo'ylab joylashadi. Spirallar odatda bir tomonga yigirma bitta, boshqa tomonga o'ttiz to'rtta, katta gullarda esa ellik beshta bo'ladi. Yigirma bir va o'ttiz to'rtni qo'shsangiz, aynan ellik besh chiqadi. Butun dars misolda tartibga amal qildik, kungaboqarning esa o'z tartibi bor va unda ham qo'shish yashiringan." },
+    fact_badge: { ru: 'Знаешь ли ты?', uz: 'Bilasizmi?', en: 'Which line is wrong?' },
+    fact_text: { ru: 'Семечки подсолнуха уложены спиралями: двадцать одна в одну сторону, тридцать четыре в другую, а у больших цветов пятьдесят пять. Ведь двадцать один плюс тридцать четыре и есть пятьдесят пять.', uz: "Kungaboqar urug'lari spiral bo'ylab terilgan: bir tomonga yigirma bitta, boshqasiga o'ttiz to'rtta, katta gullarda esa ellik beshta. Yigirma bir qo'shuv o'ttiz to'rt aynan ellik beshga teng.", en: 'Sunflower seeds are laid out in spirals: twenty one one way, thirty four the other, and in big flowers fifty five. After all, twenty one plus thirty four is exactly fifty five.' },
+    fact_audio: { ru: 'У подсолнуха семечки уложены спиралями. Спиралей обычно двадцать одна в одну сторону и тридцать четыре в другую, а у больших цветов пятьдесят пять. Сложи двадцать один и тридцать четыре и получишь как раз пятьдесят пять. Мы весь урок соблюдали порядок в примере, а у подсолнуха свой порядок, и в нём тоже спрятано сложение.', uz: "Kungaboqar urug'lari spiral bo'ylab joylashadi. Spirallar odatda bir tomonga yigirma bitta, boshqa tomonga o'ttiz to'rtta, katta gullarda esa ellik beshta bo'ladi. Yigirma bir va o'ttiz to'rtni qo'shsangiz, aynan ellik besh chiqadi. Butun dars misolda tartibga amal qildik, kungaboqarning esa o'z tartibi bor va unda ham qo'shish yashiringan.", en: 'In a sunflower the seeds are laid out in spirals. Usually there are twenty one spirals one way and thirty four the other, and in big flowers fifty five. Add twenty one and thirty four and you get exactly fifty five. All lesson we kept the order in an example, and the sunflower has its own order, and addition is hidden in it too.' },
     audio: {
-      intro: { ru: 'Финальная проверка. Пять заданий, потом интересный факт.', uz: 'Yakuniy tekshiruv. Beshta topshiriq, keyin qiziq fakt.' },
-      on_correct: { ru: 'Верно!', uz: "To'g'ri!" },
-      on_wrong: { ru: 'Проверь очередь действий.', uz: 'Amallar navbatini tekshiring.' }
+      intro: { ru: 'Финальная проверка. Пять заданий, потом интересный факт.', uz: 'Yakuniy tekshiruv. Beshta topshiriq, keyin qiziq fakt.', en: 'The final check. Five tasks, then an interesting fact.' },
+      on_correct: { ru: 'Верно!', uz: "To'g'ri!", en: 'Correct!' },
+      on_wrong: { ru: 'Проверь очередь действий.', uz: 'Amallar navbatini tekshiring.', en: 'Check the queue of operations.' }
     }
   },
 
   s14: {
-    eyebrow: { ru: 'Итог', uz: 'Yakun' },
-    mission_done: { ru: 'Заказ собран верно, сад светится!', uz: "Buyurtma to'g'ri yig'ildi, bog' porlayapti!" },
-    cando: { ru: 'Теперь ты знаешь, какое действие в примере считают первым.', uz: "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz." },
-    rule_recap: { ru: 'Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.', uz: "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi' },
-    conn_refs: { ru: 'уроки 11 и 12: умножение и деление суммы; урок 7: столбик', uz: "11 va 12-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyin' },
-    conn_next: { ru: 'связь компонентов', uz: 'komponentlar bog\'lanishi' },
+    eyebrow: { ru: 'Итог', uz: 'Yakun', en: 'Result' },
+    mission_done: { ru: 'Заказ собран верно, сад светится!', uz: "Buyurtma to'g'ri yig'ildi, bog' porlayapti!", en: 'The order is filled correctly, the garden is glowing!' },
+    cando: { ru: 'Теперь ты знаешь, какое действие в примере считают первым.', uz: "Endi siz misolda qaysi amal birinchi hisoblanishini bilasiz.", en: 'Now you know which operation in an example is done first.' },
+    rule_recap: { ru: 'Сначала скобки, потом умножение и деление слева направо, в конце сложение и вычитание. 3 + 6 × 2 = 15, а (3 + 6) × 2 = 18.', uz: "Avval qavs, keyin ko'paytirish va bo'lish chapdan o'ngga, oxirida qo'shish va ayirish.", en: 'First brackets, then multiplication and division from left to right, at the end addition and subtraction. 3 + 6 × 2 = 15, but (3 + 6) × 2 = 18.' },
+    conn_label_refs: { ru: 'Опирается на', uz: 'Tayanadi', en: 'Builds on' },
+    conn_refs: { ru: 'уроки 11 и 12: умножение и деление суммы; урок 7: столбик', uz: "11 va 12-darslar: yig'indini ko'paytirish va bo'lish; 7-dars: ustun", en: 'lessons 11 and 12: multiplying and dividing a sum; lesson 7: the column' },
+    conn_label_next: { ru: 'Дальше', uz: 'Keyin', en: 'Next' },
+    conn_next: { ru: 'связь компонентов', uz: 'komponentlar bog\'lanishi', en: 'the link between the parts' },
     audio: {
       ru: 'Заказ отправлен, и у тебя новое правило. Сначала скобки, потом умножение и деление, в конце сложение и вычитание. Слева направо. И запомни главное, скобки это не украшение, они меняют ответ. А если ответ известен, а одно из чисел спряталось? Например, какое число умножили на пять, чтобы вышло сорок? Об этом в следующем уроке!',
-      uz: "Buyurtma yuborildi, sizda esa yangi qoida bor. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Chapdan o'ngga. Va asosiysini eslab qoling, qavs bezak emas, u javobni o'zgartiradi. Agar javob ma'lum bo'lsa, sonlardan biri yashiringan bo'lsa-chi? Masalan, qirq chiqishi uchun qaysi son beshga ko'paytirilgan? Bu haqda keyingi darsda!"
+      uz: "Buyurtma yuborildi, sizda esa yangi qoida bor. Avval qavs, keyin ko'paytirish va bo'lish, oxirida qo'shish va ayirish. Chapdan o'ngga. Va asosiysini eslab qoling, qavs bezak emas, u javobni o'zgartiradi. Agar javob ma'lum bo'lsa, sonlardan biri yashiringan bo'lsa-chi? Masalan, qirq chiqishi uchun qaysi son beshga ko'paytirilgan? Bu haqda keyingi darsda!",
+      en: 'The order is sent off and you have a new rule. First brackets, then multiplication and division, at the end addition and subtraction. From left to right. And remember the main thing, brackets are not a decoration, they change the answer. And what if the answer is known but one of the numbers is hidden? For example, which number was multiplied by five to get forty? That is in the next lesson!'
     }
   }
 };
 
 // v9 KO'PRIK — ekranda ko'rinmaydi, faqat ovozda (brgSeg orqali birinchi segment).
 const BRIDGES = {
-  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.' },
-  s2:  { ru: 'Теперь к доске заказа.', uz: 'Endi buyurtma taxtasiga.' },
-  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.' },
-  s4:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan." },
-  s5:  { ru: 'Теперь про скобки.', uz: 'Endi qavs haqida.' },
-  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang." },
-  s7:  { ru: 'Потренируем главный навык.', uz: "Asosiy ko'nikmani mashq qilamiz." },
-  s8:  { ru: 'Теперь считаем до конца.', uz: 'Endi oxirigacha hisoblaymiz.' },
-  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.' },
-  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering." },
-  s11: { ru: 'Биту нужна помощь с заказом.', uz: 'Bitga buyurtmada yordam kerak.' },
-  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.' },
-  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.' },
-  s14: { ru: 'Заказ готов. Идём дальше!', uz: 'Buyurtma tayyor. Davom etamiz!' }
+  s1:  { ru: 'Сначала вспомним, что умеем.', uz: 'Avval bilganimizni eslaymiz.', en: 'First let us recall what we can do.' },
+  s2:  { ru: 'Теперь к доске заказа.', uz: 'Endi buyurtma taxtasiga.', en: 'Now to the order board.' },
+  s3:  { ru: 'Запишем это правилом.', uz: 'Buni qoida qilib olamiz.', en: 'Let us write this down as a rule.' },
+  s4:  { ru: 'А вот и Бит со своим счётом.', uz: "Mana Bit ham o'z hisobi bilan.", en: 'And here is Bit with his counting.' },
+  s5:  { ru: 'Теперь про скобки.', uz: 'Endi qavs haqida.', en: 'Now about brackets.' },
+  s6:  { ru: 'Проверь себя на скорость.', uz: "O'zingizni tezlikka sinang.", en: 'That is a hundred plus six. But we need six times a hundred.' },
+  s7:  { ru: 'Потренируем главный навык.', uz: "Asosiy ko'nikmani mashq qilamiz.", en: 'Let us practise the main skill.' },
+  s8:  { ru: 'Теперь считаем до конца.', uz: 'Endi oxirigacha hisoblaymiz.', en: 'Now we count to the end.' },
+  s9:  { ru: 'Открою тебе один секрет.', uz: 'Sizga bir sirni ochaman.', en: 'Let me tell you one secret.' },
+  s10: { ru: 'Теперь набирай ответы сам.', uz: "Endi javoblarni o'zingiz tering.", en: '6 × 100 = 60' },
+  s11: { ru: 'Биту нужна помощь с заказом.', uz: 'Bitga buyurtmada yordam kerak.', en: 'Bit needs help with the order.' },
+  s12: { ru: 'Проверим записи Бита.', uz: 'Bitning yozuvlarini tekshiramiz.', en: '30 × 10 = 300' },
+  s13: { ru: 'Финальная проверка.', uz: 'Yakuniy tekshiruv.', en: 'The final check.' },
+  s14: { ru: 'Заказ готов. Идём дальше!', uz: 'Buyurtma tayyor. Davom etamiz!', en: 'The order is ready. Let us move on!' }
 };
 
 // s14 payoff (xulosadan oldin aytiladi)
 const S14_PAYOFF = {
   ru: 'Миссия выполнена! Заказ собран по правилу, и корзина у входа теперь одна. Спасибо за помощь!',
-  uz: "Missiya bajarildi! Buyurtma qoida bo'yicha yig'ildi, kirishdagi savat endi bitta. Yordamingiz uchun rahmat!"
+  uz: "Missiya bajarildi! Buyurtma qoida bo'yicha yig'ildi, kirishdagi savat endi bitta. Yordamingiz uchun rahmat!",
+  en: 'Mission complete! The order was filled by the rule, and there is only one basket at the entrance now. Thank you for your help!'
 };
 
 
@@ -1107,7 +1116,7 @@ const CountdownClock = ({ n, total = 5, lang }) => {
           strokeDasharray={C} strokeDashoffset={C * (1 - frac)} transform="rotate(-90 40 40)" style={{ transition: 'stroke-dashoffset 1s linear' }}/>
         <text x="40" y="40" textAnchor="middle" dominantBaseline="central" fontSize="30" fontWeight="800" fill="#3A3530" fontFamily="'JetBrains Mono', monospace">{Math.max(0, n)}</text>
       </svg>
-      <span className="lm-clock-cap mono">{lang === 'ru' ? 'Подумай…' : "O'ylab ko'ring…"}</span>
+      <span className="lm-clock-cap mono">{tri(lang, 'Подумай…', "O'ylab ko'ring…", 'Think…')}</span>
     </div>
   );
 };
@@ -1462,7 +1471,7 @@ const Screen2 = (props) => {
           <FoldRow items={rows[step]}/>
           {step >= 1 && step < 3 && (
             <span className="mono" style={{ fontSize: 'clamp(10px, 1.5vw, 12px)', fontWeight: 800, color: T.ink3 }}>
-              {lang === 'ru' ? '× и : считают первыми' : "× va : birinchi hisoblanadi"}
+              {tri(lang, '× и : считают первыми', '× va : birinchi hisoblanadi', '× and : are counted first')}
             </span>
           )}
           {!done && (
@@ -2011,7 +2020,7 @@ const Screen10 = (props) => {
             <div className="frame fade-up delay-1" style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'clamp(8px, 1.6vw, 12px)', padding: 'clamp(12px, 2.4vw, 18px)' }}>
               <FrameFx/>
               <NumPad value={done ? String(it.ans) : val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || done} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || done || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
               {hintMsg && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
             </div>
           </>
@@ -2123,7 +2132,7 @@ const Screen11 = (props) => {
             <>
               <span className="mono lm-reveal" style={{ fontSize: 'clamp(17px, 3.2vw, 24px)', fontWeight: 800, color: '#1F7A4D' }}>{t(c.opts[c.ci])}</span>
               <NumPad value={val} setValue={(u) => { setNumState(null); setVal(u); }} disabled={!canAct || numLock || solved} max={3} state={numState}/>
-              <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+              <button className="btn-white-accent" disabled={!canAct || numLock || solved || val === ''} onClick={check}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
             </>
           )}
           {hintMsg && !solved && <p className="lm-hint-bad fade-up">{t(hintMsg)}</p>}
@@ -2305,7 +2314,7 @@ const Screen13 = (props) => {
                   <NumPad value={val} setValue={setVal} disabled={!canAct || numLock} max={3} state={numState}/>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{lang === 'ru' ? 'Проверить' : 'Tekshir'}</button>
+                  <button className="btn-white-accent" disabled={!canAct || numLock || val === ''} onClick={checkNum}>{tri(lang, 'Проверить', 'Tekshiring', 'Check')}</button>
                 </div>
                 {hintMsg && <p className="lm-hint-bad fade-up">{t(it.hint)}</p>}
               </>
@@ -2376,7 +2385,7 @@ const Screen14 = (props) => {
           <p className="title" style={{ margin: 'clamp(4px, 1vw, 8px) 0 0', fontSize: 'clamp(14px, 2vw, 17px)', color: '#1F7A4D', textAlign: 'center' }}>{t(c.cando)}</p>
         </div>
         <div className="d2-rulecard fade-up delay-1">
-          <span className="d2-rulecard-badge mono">{lang === 'ru' ? 'Помни' : 'Yodda tut'}</span>
+          <span className="d2-rulecard-badge mono">{tri(lang, 'Помни', 'Yodda tuting', 'Remember')}</span>
           <p className="d2-rulecard-txt">{t(c.rule_recap)}</p>
         </div>
         {/* yakuniy sahna — ETALON o'lchamida (Dars01 s14) */}
@@ -2398,7 +2407,7 @@ export default function OrderOpsLesson({
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
   const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f' });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'f', lessonId: (LESSON_META && LESSON_META.lessonId) || '', lessonTitle: (LESSON_META && LESSON_META.lessonTitle) || null });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
     console.log('[Preview] onFinished payload:', payload);
@@ -2465,7 +2474,7 @@ export default function OrderOpsLesson({
         <ReadinessMeter screen={current} total={TOTAL_SCREENS} lang={lang}/>
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>

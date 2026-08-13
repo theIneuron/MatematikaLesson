@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -750,57 +776,64 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 const CONTENT = {
   // ───────────────────────────── s0 · HOOK ─────────────────────────────
   s0: {
-    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli' },
+    eyebrow: { ru: 'Вопрос урока', uz: 'Dars savoli', en: 'The question of the lesson' },
     global_q: {
       ru: 'Как понять, какое из двух космических чисел больше?',
-      uz: "Ikki kosmik sondan qaysi biri katta ekanini qanday bilish mumkin?"
+      uz: "Ikki kosmik sondan qaysi biri katta ekanini qanday bilish mumkin?",
+      en: 'How do you tell which of two space numbers is bigger?'
     },
-    claim_lead: { ru: 'Бекзод смотрит на Марс и Землю и говорит:', uz: 'Bekzod Marsga va Yerga qarab shunday deydi:' },
+    claim_lead: { ru: 'Бекзод смотрит на Марс и Землю и говорит:', uz: 'Bekzod Marsga va Yerga qarab shunday deydi:', en: 'Bekzod looks at Mars and the Earth and says:' },
     claim_em: {
       ru: 'Марс больше — у него 6 779 начинается с шестёрки, а у Земли 12 742 с единицы.',
-      uz: "Mars katta — uning 6 779 i oltidan, Yerning 12 742 si esa birdan boshlanadi."
+      uz: "Mars katta — uning 6 779 i oltidan, Yerning 12 742 si esa birdan boshlanadi.",
+      en: "Mars is bigger, because its 6 779 starts with a six and the Earth's 12 742 starts with a one."
     },
-    planet_mars: { ru: 'Марс', uz: 'Mars' },
-    planet_earth: { ru: 'Земля', uz: 'Yer' },
-    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?' },
-    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq' },
-    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti' },
-    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas' },
+    planet_mars: { ru: 'Марс', uz: 'Mars', en: 'Mars' },
+    planet_earth: { ru: 'Земля', uz: 'Yer', en: 'The Earth' },
+    question: { ru: 'Бекзод прав?', uz: 'Bekzod haqmi?', en: 'Is Bekzod right?' },
+    opt_yes: { ru: 'Бекзод прав', uz: 'Bekzod haq', en: 'Bekzod is right' },
+    opt_no: { ru: 'Бекзод ошибается', uz: 'Bekzod xato qilyapti', en: 'Bekzod is wrong' },
+    opt_idk: { ru: 'Не уверен', uz: 'Ishonchim komil emas', en: 'I am not sure' },
     correctIndex: null,
     audio: {
       intro: {
         ru: 'Бекзод смотрит на два диаметра. У Марса шесть тысяч семьсот семьдесят девять километров, у Земли двенадцать тысяч семьсот сорок два. Он говорит: Марс больше, ведь его число начинается с шестёрки. Прав ли он?',
-        uz: "Bekzod ikki diametrga qaraydi. Marsda olti ming yetti yuz yetmish to'qqiz kilometr, Yerda o'n ikki ming yetti yuz qirq ikki. U aytadi: Mars katta, chunki uning soni oltidan boshlanadi. U haqmi?"
+        uz: "Bekzod ikki diametrga qaraydi. Marsda olti ming yetti yuz yetmish to'qqiz kilometr, Yerda o'n ikki ming yetti yuz qirq ikki. U aytadi: Mars katta, chunki uning soni oltidan boshlanadi. U haqmi?",
+        en: 'Bekzod is looking at two diameters. Mars is six thousand seven hundred and seventy nine kilometres and the Earth is twelve thousand seven hundred and forty two. He says Mars is bigger because its number starts with a six. Is he right?'
       },
-      on_correct: { ru: 'Хорошо. Сейчас проверим.', uz: 'Yaxshi. Hozir tekshiramiz.' },
-      on_wrong: { ru: 'Хорошо. Сейчас проверим.', uz: 'Yaxshi. Hozir tekshiramiz.' }
+      on_correct: { ru: 'Хорошо. Сейчас проверим.', uz: 'Yaxshi. Hozir tekshiramiz.', en: 'Good. Let us check.' },
+      on_wrong: { ru: 'Хорошо. Сейчас проверим.', uz: 'Yaxshi. Hozir tekshiramiz.', en: 'Good. Let us check.' }
     }
   },
 
   // ─────────────────────── s1 · EXPLORATION (step-by-step) ───────────────────────
   s1: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Разложим диаметры по разрядам', uz: 'Diametrlarni xonalarga ajratamiz' },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Разложим диаметры по разрядам', uz: 'Diametrlarni xonalarga ajratamiz', en: 'Let us lay the diameters out by place' },
     intro: {
       ru: 'Поставим оба числа в таблицу разрядов и посмотрим, сколько в каждом разрядов.',
-      uz: "Ikkala sonni xonalar jadvaliga qo'yamiz va har birida nechta xona borligini ko'ramiz."
+      uz: "Ikkala sonni xonalar jadvaliga qo'yamiz va har birida nechta xona borligini ko'ramiz.",
+      en: 'Let us put both numbers into a place table and see how many places each one has.'
     },
-    step1_label: { ru: 'Марс — 6 779', uz: 'Mars — 6 779' },
+    step1_label: { ru: 'Марс — 6 779', uz: 'Mars — 6 779', en: 'Mars, 6 779' },
     step1_text: {
       ru: 'Четыре разряда: тысячи, сотни, десятки, единицы.',
-      uz: "To'rt xona: minglar, yuzlar, o'nlar, birlar."
+      uz: "To'rt xona: minglar, yuzlar, o'nlar, birlar.",
+      en: 'Four places: thousands, hundreds, tens and ones.'
     },
-    step2_label: { ru: 'Земля — 12 742', uz: 'Yer — 12 742' },
+    step2_label: { ru: 'Земля — 12 742', uz: 'Yer — 12 742', en: 'The Earth, 12 742' },
     step2_text: {
       ru: 'Пять разрядов: есть десятки тысяч, которых у Марса нет.',
-      uz: "Besh xona: Marsda yo'q bo'lgan o'n minglar bor."
+      uz: "Besh xona: Marsda yo'q bo'lgan o'n minglar bor.",
+      en: 'Five places: there are ten thousands, which Mars does not have.'
     },
-    step3_label: { ru: 'Вывод', uz: 'Xulosa' },
+    step3_label: { ru: 'Вывод', uz: 'Xulosa', en: 'The conclusion' },
     step3_text: {
       ru: 'У Земли разрядов больше — значит, она больше. Шестёрка в начале Марса ничего не решает.',
-      uz: "Yerda xona ko'proq — demak, u katta. Marsning boshidagi olti hech narsani hal qilmaydi."
+      uz: "Yerda xona ko'proq — demak, u katta. Marsning boshidagi olti hech narsani hal qilmaydi.",
+      en: 'The Earth has more places, so it is bigger. The six at the start of Mars decides nothing.'
     },
-    btn_step: { ru: 'Дальше', uz: 'Davom etish' },
+    btn_step: { ru: 'Дальше', uz: 'Davom etish', en: 'Next' },
     audio: {
       ru: [
         'Поставим шесть тысяч семьсот семьдесят девять в таблицу разрядов. В нём четыре разряда: тысячи, сотни, десятки и единицы.',
@@ -811,112 +844,124 @@ const CONTENT = {
         "Olti ming yetti yuz yetmish to'qqizni xonalar jadvaliga qo'yamiz. Unda to'rt xona bor: minglar, yuzlar, o'nlar va birlar.",
         "Endi o'n ikki ming yetti yuz qirq ikki. Unda besh xona bor. Marsda yo'q bo'lgan o'n minglar xonasi mavjud.",
         "Yerda xona ko'proq, shuning uchun u katta. Marsning boshidagi yirik olti hech narsani o'zgartirmaydi."
-      ]
+      ],
+      en: ['Let us put six thousand seven hundred and seventy nine into the place table. It has four places: thousands, hundreds, tens and ones.', 'Now twelve thousand seven hundred and forty two. It has five places. There is a ten thousands place, which Mars does not have.', 'The Earth has more places, so it is bigger. The big six at the start of Mars changes nothing.']
     }
   },
 
   // ───────────────────────────── s2 · RULE (сравнение) ─────────────────────────────
   s2: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Как сравнивать многозначные числа?', uz: "Ko'p xonali sonlarni qanday taqqoslash mumkin?" },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Как сравнивать многозначные числа?', uz: "Ko'p xonali sonlarni qanday taqqoslash mumkin?", en: 'How do you compare long numbers?' },
     rule_1: {
       ru: 'У какого числа разрядов больше — то и больше.',
-      uz: "Qaysi sonda xona ko'p bo'lsa, o'sha katta."
+      uz: "Qaysi sonda xona ko'p bo'lsa, o'sha katta.",
+      en: 'The number with more places is the bigger one.'
     },
     rule_2: {
       ru: 'Если разрядов поровну — сравниваем слева направо до первой разной цифры.',
-      uz: "Agar xona soni teng bo'lsa — chapdan o'ngga, birinchi farqli raqamgacha taqqoslaymiz."
+      uz: "Agar xona soni teng bo'lsa — chapdan o'ngga, birinchi farqli raqamgacha taqqoslaymiz.",
+      en: 'If they have the same number of places, we compare from left to right up to the first digit that differs.'
     },
-    example_1: { ru: '4 879 < 139 820 — у Юпитера разрядов больше.', uz: "4 879 < 139 820 — Yupiterda xona ko'proq." },
-    example_2: { ru: '50 724 > 49 244 — разрядов поровну, но слева 5 больше 4.', uz: '50 724 > 49 244 — xona teng, lekin chapda 5 — 4 dan katta.' },
+    example_1: { ru: '4 879 < 139 820 — у Юпитера разрядов больше.', uz: "4 879 < 139 820 — Yupiterda xona ko'proq.", en: '4 879 < 139 820, Jupiter has more places.' },
+    example_2: { ru: '50 724 > 49 244 — разрядов поровну, но слева 5 больше 4.', uz: '50 724 > 49 244 — xona teng, lekin chapda 5 — 4 dan katta.', en: '50 724 > 49 244, the same number of places, but on the left 5 is more than 4.' },
     audio: {
       ru: 'Если у одного числа разрядов больше, оно больше. Если разрядов поровну, идём слева направо и сравниваем цифры до первого различия. Например, пятьдесят тысяч семьсот двадцать четыре больше сорока девяти тысяч двухсот сорока четырёх, потому что слева пять больше четырёх.',
-      uz: "Agar bir sonda xona ko'p bo'lsa, u katta. Agar xona teng bo'lsa, chapdan o'ngga raqamlarni birinchi farqgacha taqqoslaymiz. Masalan, ellik ming yetti yuz yigirma to'rt qirq to'qqiz ming ikki yuz qirq to'rtdan katta, chunki chapda besh to'rtdan katta."
+      uz: "Agar bir sonda xona ko'p bo'lsa, u katta. Agar xona teng bo'lsa, chapdan o'ngga raqamlarni birinchi farqgacha taqqoslaymiz. Masalan, ellik ming yetti yuz yigirma to'rt qirq to'qqiz ming ikki yuz qirq to'rtdan katta, chunki chapda besh to'rtdan katta.",
+      en: 'If one number has more places, it is bigger. If they have the same number of places, we go from left to right and compare the digits up to the first difference. For example, fifty thousand seven hundred and twenty four is bigger than forty nine thousand two hundred and forty four, because on the left five is more than four.'
     }
   },
 
   // ─────────────────────── s3 · TEST choice (разная длина) ───────────────────────
   s3: {
-    eyebrow: { ru: 'Тренировка · 1 из 4', uz: 'Mashq · 4 dan 1' },
-    label: { ru: 'Сравни планеты', uz: 'Sayyoralarni taqqoslang' },
-    question: { ru: 'Какая планета больше: Меркурий (4 879 км) или Юпитер (139 820 км)?', uz: 'Qaysi sayyora katta: Merkuriy (4 879 km) yoki Yupiter (139 820 km)?' },
-    opt0: { ru: 'Юпитер — у него больше разрядов', uz: "Yupiter — unda xona ko'proq" },
-    opt1: { ru: 'Меркурий — у него первая цифра 4', uz: 'Merkuriy — uning birinchi raqami 4' },
-    opt2: { ru: 'Нельзя сказать без подсчёта цифр', uz: "Raqamlarni sanamasdan aytib bo'lmaydi" },
+    eyebrow: { ru: 'Тренировка · 1 из 4', uz: 'Mashq · 4 dan 1', en: 'Practice · 1 of 4' },
+    label: { ru: 'Сравни планеты', uz: 'Sayyoralarni taqqoslang', en: 'Compare the planets' },
+    question: { ru: 'Какая планета больше: Меркурий (4 879 км) или Юпитер (139 820 км)?', uz: 'Qaysi sayyora katta: Merkuriy (4 879 km) yoki Yupiter (139 820 km)?', en: 'Which planet is bigger, Mercury (4 879 km) or Jupiter (139 820 km)?' },
+    opt0: { ru: 'Юпитер — у него больше разрядов', uz: "Yupiter — unda xona ko'proq", en: 'Jupiter, it has more places' },
+    opt1: { ru: 'Меркурий — у него первая цифра 4', uz: 'Merkuriy — uning birinchi raqami 4', en: 'Mercury, its first digit is 4' },
+    opt2: { ru: 'Нельзя сказать без подсчёта цифр', uz: "Raqamlarni sanamasdan aytib bo'lmaydi", en: 'You cannot tell without counting the digits' },
     correctIndex: 0,
     correct_text: {
       ru: 'Правильно. У Юпитера шесть разрядов, а у Меркурия четыре, поэтому он больше.',
-      uz: "To'g'ri. Yupiterda olti xona, Merkuriyda esa to'rt, shuning uchun u katta."
+      uz: "To'g'ri. Yupiterda olti xona, Merkuriyda esa to'rt, shuning uchun u katta.",
+      en: 'Correct. Jupiter has six places and Mercury has four, so Jupiter is bigger.'
     },
     wrong_1: {
       ru: 'Первая цифра не решает. У Юпитера на два разряда больше, значит, он больше при любых цифрах.',
-      uz: "Birinchi raqam hal qilmaydi. Yupiterda ikkita xona ko'proq, demak u istalgan raqamlarda ham katta."
+      uz: "Birinchi raqam hal qilmaydi. Yupiterda ikkita xona ko'proq, demak u istalgan raqamlarda ham katta.",
+      en: 'The first digit does not decide it. Jupiter has two more places, so it is bigger whatever the digits are.'
     },
     wrong_2: {
       ru: 'Считать долго не нужно. Достаточно сравнить число разрядов: шесть против четырёх.',
-      uz: "Uzoq sanash shart emas. Xona sonini taqqoslash kifoya: olti va to'rt."
+      uz: "Uzoq sanash shart emas. Xona sonini taqqoslash kifoya: olti va to'rt.",
+      en: 'There is no need for a long count. Just compare the number of places: six against four.'
     },
-    hint_1: { ru: 'Сравни, сколько разрядов в каждом числе, а не первую цифру.', uz: "Birinchi raqamni emas, har bir sonda nechta xona borligini taqqoslang." },
-    hint_2: { ru: 'Сравнить можно сразу, посмотри на число разрядов.', uz: "Darrov taqqoslash mumkin, xonalar soniga qarang." },
+    hint_1: { ru: 'Сравни, сколько разрядов в каждом числе, а не первую цифру.', uz: "Birinchi raqamni emas, har bir sonda nechta xona borligini taqqoslang.", en: 'Compare how many places each number has, not the first digit.' },
+    hint_2: { ru: 'Сравнить можно сразу, посмотри на число разрядов.', uz: "Darrov taqqoslash mumkin, xonalar soniga qarang.", en: 'You can compare them at once, just look at the number of places.' },
     audio: {
-      intro: { ru: 'Какая планета больше: Меркурий, четыре тысячи восемьсот семьдесят девять километров, или Юпитер, сто тридцать девять тысяч восемьсот двадцать? Выбери ответ.', uz: "Qaysi sayyora katta: Merkuriy, to'rt ming sakkiz yuz yetmish to'qqiz kilometr, yoki Yupiter, bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirma? Javobni tanlang." },
-      on_correct: { ru: 'Верно. У Юпитера шесть разрядов, а у Меркурия четыре, поэтому он больше.', uz: "To'g'ri. Yupiterda olti xona, Merkuriyda esa to'rt, shuning uchun u katta." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Какая планета больше: Меркурий, четыре тысячи восемьсот семьдесят девять километров, или Юпитер, сто тридцать девять тысяч восемьсот двадцать? Выбери ответ.', uz: "Qaysi sayyora katta: Merkuriy, to'rt ming sakkiz yuz yetmish to'qqiz kilometr, yoki Yupiter, bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirma? Javobni tanlang.", en: 'Which planet is bigger, Mercury at four thousand eight hundred and seventy nine kilometres, or Jupiter at one hundred and thirty nine thousand eight hundred and twenty? Choose an answer.' },
+      on_correct: { ru: 'Верно. У Юпитера шесть разрядов, а у Меркурия четыре, поэтому он больше.', uz: "To'g'ri. Yupiterda olti xona, Merkuriyda esa to'rt, shuning uchun u katta.", en: 'That is right. Jupiter has six places and Mercury has four, so Jupiter is bigger.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ─────────────────────── s4 · TEST choice (равная длина) ───────────────────────
   s4: {
-    eyebrow: { ru: 'Тренировка · 2 из 4', uz: 'Mashq · 4 dan 2' },
-    label: { ru: 'Сравни планеты', uz: 'Sayyoralarni taqqoslang' },
-    question: { ru: 'Какая планета больше: Нептун (49 244 км) или Уран (50 724 км)?', uz: 'Qaysi sayyora katta: Neptun (49 244 km) yoki Uran (50 724 km)?' },
-    opt0: { ru: 'Нептун — в нём есть крупная девятка', uz: "Neptun — unda yirik to'qqiz bor" },
-    opt1: { ru: 'Уран — слева 5 больше 4', uz: 'Uran — chapda 5 — 4 dan katta' },
-    opt2: { ru: 'Они почти равны', uz: 'Ular deyarli teng' },
+    eyebrow: { ru: 'Тренировка · 2 из 4', uz: 'Mashq · 4 dan 2', en: 'Practice · 2 of 4' },
+    label: { ru: 'Сравни планеты', uz: 'Sayyoralarni taqqoslang', en: 'Compare the planets' },
+    question: { ru: 'Какая планета больше: Нептун (49 244 км) или Уран (50 724 км)?', uz: 'Qaysi sayyora katta: Neptun (49 244 km) yoki Uran (50 724 km)?', en: 'Which planet is bigger, Neptune (49 244 km) or Uranus (50 724 km)?' },
+    opt0: { ru: 'Нептун — в нём есть крупная девятка', uz: "Neptun — unda yirik to'qqiz bor", en: 'Neptune, it has a big nine in it' },
+    opt1: { ru: 'Уран — слева 5 больше 4', uz: 'Uran — chapda 5 — 4 dan katta', en: 'Uranus, on the left 5 is more than 4' },
+    opt2: { ru: 'Они почти равны', uz: 'Ular deyarli teng', en: 'They are almost equal' },
     correctIndex: 1,
     correct_text: {
       ru: 'Правильно. Разрядов поровну, а в разряде десятков тысяч 5 больше 4.',
-      uz: "To'g'ri. Xona soni teng, o'n minglar xonasida esa 5 — 4 dan katta."
+      uz: "To'g'ri. Xona soni teng, o'n minglar xonasida esa 5 — 4 dan katta.",
+      en: 'Correct. They have the same number of places, and in the ten thousands place 5 is more than 4.'
     },
     wrong_0: {
       ru: 'Девятка не делает число больше. Сравниваем слева: 5 больше 4, дальше смотреть не нужно.',
-      uz: "To'qqiz sonni katta qilmaydi. Chapdan taqqoslaymiz: 5 — 4 dan katta, keyingisiga qarash shart emas."
+      uz: "To'qqiz sonni katta qilmaydi. Chapdan taqqoslaymiz: 5 — 4 dan katta, keyingisiga qarash shart emas.",
+      en: 'A nine does not make a number bigger. We compare from the left: 5 is more than 4, and there is no need to look further.'
     },
     wrong_2: {
       ru: 'Близкие числа — это ещё не равные. В разряде десятков тысяч цифры разные, поэтому Уран больше.',
-      uz: "Yaqin sonlar — bu hali teng emas. O'n minglar xonasida raqamlar har xil, shuning uchun Uran katta."
+      uz: "Yaqin sonlar — bu hali teng emas. O'n minglar xonasida raqamlar har xil, shuning uchun Uran katta.",
+      en: 'Close numbers are not equal numbers. The digits in the ten thousands place are different, so Uranus is bigger.'
     },
-    hint_0: { ru: 'Разрядов поровну. Сравни старшие цифры слева, а не ищи крупную девятку.', uz: "Xona teng. Yirik to'qqizni qidirma, chapdagi katta raqamlarni taqqoslang." },
-    hint_2: { ru: 'Числа близкие, но не равные. Сравни цифры в старшем разряде.', uz: "Sonlar yaqin, lekin teng emas. Katta xonadagi raqamlarni taqqoslang." },
+    hint_0: { ru: 'Разрядов поровну. Сравни старшие цифры слева, а не ищи крупную девятку.', uz: "Xona teng. Yirik to'qqizni qidirma, chapdagi katta raqamlarni taqqoslang.", en: 'They have the same number of places. Compare the leading digits on the left instead of looking for a big nine.' },
+    hint_2: { ru: 'Числа близкие, но не равные. Сравни цифры в старшем разряде.', uz: "Sonlar yaqin, lekin teng emas. Katta xonadagi raqamlarni taqqoslang.", en: 'The numbers are close but not equal. Compare the digits in the highest place.' },
     audio: {
-      intro: { ru: 'Какая планета больше: Нептун, сорок девять тысяч двести сорок четыре, или Уран, пятьдесят тысяч семьсот двадцать четыре? Выбери ответ.', uz: "Qaysi sayyora katta: Neptun, qirq to'qqiz ming ikki yuz qirq to'rt, yoki Uran, ellik ming yetti yuz yigirma to'rt? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Разрядов поровну, а в разряде десятков тысяч пять больше четырёх.', uz: "To'g'ri. Xona soni teng, o'n minglar xonasida esa besh to'rtdan katta." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Какая планета больше: Нептун, сорок девять тысяч двести сорок четыре, или Уран, пятьдесят тысяч семьсот двадцать четыре? Выбери ответ.', uz: "Qaysi sayyora katta: Neptun, qirq to'qqiz ming ikki yuz qirq to'rt, yoki Uran, ellik ming yetti yuz yigirma to'rt? Javobni tanlang.", en: 'Which planet is bigger, Neptune at forty nine thousand two hundred and forty four, or Uranus at fifty thousand seven hundred and twenty four? Choose an answer.' },
+      on_correct: { ru: 'Верно. Разрядов поровну, а в разряде десятков тысяч пять больше четырёх.', uz: "To'g'ri. Xona soni teng, o'n minglar xonasida esa besh to'rtdan katta.", en: 'That is right. They have the same number of places, and in the ten thousands place five is more than four.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ─────────────────────── s5 · EXPLORATION (slider, зум-ось) ───────────────────────
   s5: {
-    eyebrow: { ru: 'Исследуем', uz: 'Tekshiramiz' },
-    title: { ru: 'К какому круглому числу ближе?', uz: 'Qaysi yaxlit songa yaqinroq?' },
+    eyebrow: { ru: 'Исследуем', uz: 'Tekshiramiz', en: 'Let us explore' },
+    title: { ru: 'К какому круглому числу ближе?', uz: 'Qaysi yaxlit songa yaqinroq?', en: 'Which round number is it closer to?' },
     intro: {
       ru: 'Перед тобой число между 12 000 и 13 000. Поставь ползунок в любое место и смотри, к какому круглому числу оно ближе.',
-      uz: "Oldingizda 12 000 bilan 13 000 oralig'idagi son. Slayderni xohlagan joyga qo'ying va u qaysi yaxlit songa yaqinroq ekanini ko'ring."
+      uz: "Oldingizda 12 000 bilan 13 000 oralig'idagi son. Slayderni xohlagan joyga qo'ying va u qaysi yaxlit songa yaqinroq ekanini ko'ring.",
+      en: 'Here is a number between 12 000 and 13 000. Put the slider anywhere and see which round number it is closer to.'
     },
-    axis_left: { ru: '12 000', uz: '12 000' },
-    axis_point: { ru: '12 742', uz: '12 742' },
-    axis_right: { ru: '13 000', uz: '13 000' },
-    axis_left_note: { ru: 'ближайшая круглая тысяча снизу', uz: "pastdan eng yaqin yaxlit ming" },
-    axis_right_note: { ru: 'ближайшая круглая тысяча сверху', uz: "tepadan eng yaqin yaxlit ming" },
-    prompt: { ru: 'Двигай ползунок и наблюдай, к какому круглому ближе.', uz: "Slayderni harakatlantiring va qaysi yaxlit songa yaqinroq ekanini kuzating." },
-    bars_caption: { ru: 'Расстояние до каждой границы:', uz: "Har bir chegaragacha masofa:" },
-    near_tag: { ru: 'ближе', uz: "yaqinroq" },
+    axis_left: { ru: '12 000', uz: '12 000', en: '12 000' },
+    axis_point: { ru: '12 742', uz: '12 742', en: '12 742' },
+    axis_right: { ru: '13 000', uz: '13 000', en: '13 000' },
+    axis_left_note: { ru: 'ближайшая круглая тысяча снизу', uz: "pastdan eng yaqin yaxlit ming", en: 'the nearest round thousand below' },
+    axis_right_note: { ru: 'ближайшая круглая тысяча сверху', uz: "tepadan eng yaqin yaxlit ming", en: 'the nearest round thousand above' },
+    prompt: { ru: 'Двигай ползунок и наблюдай, к какому круглому ближе.', uz: "Slayderni harakatlantiring va qaysi yaxlit songa yaqinroq ekanini kuzating.", en: 'Move the slider and watch which round number it is closer to.' },
+    bars_caption: { ru: 'Расстояние до каждой границы:', uz: "Har bir chegaragacha masofa:", en: 'The distance to each end:' },
+    near_tag: { ru: 'ближе', uz: "yaqinroq", en: 'closer' },
     near_note: {
       ru: 'Оранжевая — ближняя граница: к ней и округляем.',
-      uz: "To'q sariq — yaqin chegara: shu tomonga yaxlitlaymiz."
+      uz: "To'q sariq — yaqin chegara: shu tomonga yaxlitlaymiz.",
+      en: 'The orange one is the nearer end, and that is what we round to.'
     },
-    play_hint: { ru: 'Подвигай ползунок и попробуй разные числа — так легче почувствовать, к какому круглому каждое ближе.', uz: "Slayderni harakatlantiring va turli sonlarni sinab ko'ring — har biri qaysi yaxlit songa yaqinroq ekanini his qilish osonroq bo'ladi." },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    play_hint: { ru: 'Подвигай ползунок и попробуй разные числа — так легче почувствовать, к какому круглому каждое ближе.', uz: "Slayderni harakatlantiring va turli sonlarni sinab ko'ring — har biri qaysi yaxlit songa yaqinroq ekanini his qilish osonroq bo'ladi.", en: 'Move the slider and try different numbers, it makes it easier to feel which round number each one is closer to.' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     audio: {
       ru: [
         'Это число стоит между двенадцатью и тринадцатью тысячами. Двигай ползунок и смотри, к какой из двух круглых отметок оно ближе.',
@@ -925,48 +970,53 @@ const CONTENT = {
       uz: [
         "Bu son o'n ikki ming bilan o'n uch ming oralig'ida. Slayderni harakatlantiring va u ikki yaxlit belgidan qaysi biriga yaqinroq ekanini ko'ring.",
         "Slayderni harakatlantiring va turli sonlarni sinab ko'ring. Shunda har biri qaysi yaxlit songa yaqinroq ekanini his qilasiz va yaxlitlash qanday ishlashini tushunasiz."
-      ]
+      ],
+      en: ['This number stands between twelve and thirteen thousand. Move the slider and see which of the two round marks it is closer to.', 'Move the slider and try different numbers. That way you will feel which round number each one is closer to and understand how rounding works.']
     }
   },
 
   // ───────────────────────────── s6 · RULE (округление, ось) ─────────────────────────────
   s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Как округлять число', uz: 'Sonni qanday yaxlitlash' },
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Как округлять число', uz: 'Sonni qanday yaxlitlash', en: 'How to round a number' },
     rule_meaning: {
       ru: 'Округлить — значит выбрать ближайшее круглое число нужного разряда.',
-      uz: "Yaxlitlash — kerakli xonadagi eng yaqin yaxlit sonni tanlash demakdir."
+      uz: "Yaxlitlash — kerakli xonadagi eng yaqin yaxlit sonni tanlash demakdir.",
+      en: 'Rounding means choosing the nearest round number of the place you need.'
     },
     rule_trick: {
       ru: 'Посмотри на следующую младшую цифру: от 0 до 4 — берём меньшее круглое число, от 5 до 9 — большее. Младшие разряды становятся нулями.',
-      uz: "Keyingi kichik raqamga qarang: 0 dan 4 gacha — kichik yaxlit son, 5 dan 9 gacha — katta yaxlit son. Kichik xonalar nolga aylanadi."
+      uz: "Keyingi kichik raqamga qarang: 0 dan 4 gacha — kichik yaxlit son, 5 dan 9 gacha — katta yaxlit son. Kichik xonalar nolga aylanadi.",
+      en: 'Look at the next digit down: from 0 to 4 we take the smaller round number, from 5 to 9 the bigger one. The lower places become zeros.'
     },
     rule_mid: {
       ru: 'Если число ровно посередине (цифра 5), берём большее круглое число.',
-      uz: "Agar son aynan o'rtada bo'lsa (raqam 5), katta yaxlit sonni olamiz."
+      uz: "Agar son aynan o'rtada bo'lsa (raqam 5), katta yaxlit sonni olamiz.",
+      en: 'If the number is exactly in the middle (the digit 5), we take the bigger round number.'
     },
-    example: { ru: '12 742 ≈ 13 000', uz: '12 742 ≈ 13 000' },
+    example: { ru: '12 742 ≈ 13 000', uz: '12 742 ≈ 13 000', en: '12 742 ≈ 13 000' },
     audio: {
       ru: 'Округлить число значит выбрать ближайшее круглое число нужного разряда. Смотрим на следующую младшую цифру. Если она от нуля до четырёх, берём меньшее круглое число. Если от пяти до девяти, берём большее. Например, двенадцать тысяч семьсот сорок два приблизительно равно тринадцати тысячам.',
-      uz: "Sonni yaxlitlash kerakli xonadagi eng yaqin yaxlit sonni tanlash demakdir. Keyingi kichik raqamga qaraymiz. Agar u noldan to'rtgacha bo'lsa, kichik yaxlit sonni olamiz. Beshdan to'qqizgacha bo'lsa, katta yaxlit sonni olamiz. Masalan, o'n ikki ming yetti yuz qirq ikki taxminan o'n uch mingga teng."
+      uz: "Sonni yaxlitlash kerakli xonadagi eng yaqin yaxlit sonni tanlash demakdir. Keyingi kichik raqamga qaraymiz. Agar u noldan to'rtgacha bo'lsa, kichik yaxlit sonni olamiz. Beshdan to'qqizgacha bo'lsa, katta yaxlit sonni olamiz. Masalan, o'n ikki ming yetti yuz qirq ikki taxminan o'n uch mingga teng.",
+      en: 'Rounding a number means choosing the nearest round number of the place you need. We look at the next digit down. If it is from zero to four we take the smaller round number. If it is from five to nine we take the bigger one. For example, twelve thousand seven hundred and forty two is about thirteen thousand.'
     }
   },
 
   // ─────────────────────── s7 · TEST choice (округл. до тысяч) ───────────────────────
   s7: {
-    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz" },
-    title: { ru: 'Округлять можно до любого разряда', uz: 'Sonni istalgan xonagacha yaxlitlash mumkin' },
-    intro: { ru: 'Возьмём число 12 742. Нажимай на разряд и смотри, до какого круглого числа оно округлится.', uz: "12 742 sonini olamiz. Xonani bosing, u qaysi yaxlit songacha yaxlitlanishini ko'ring." },
-    tap_prompt: { ru: 'Открывай разряды по порядку — все четыре', uz: 'Xonalarni tartib bilan bosing — barchasini' },
-    r_tens: { ru: 'до десятков', uz: "o'nlar xonasigacha" },
-    r_hundreds: { ru: 'до сотен', uz: 'yuzlar xonasigacha' },
-    r_thousands: { ru: 'до тысяч', uz: 'minglar xonasigacha' },
-    r_tenK: { ru: 'до десятков тысяч', uz: "o'n minglar xonasigacha" },
-    why_tens: { ru: 'Смотрим на единицы (2) — это вниз.', uz: 'Birlarga (2) qaraymiz — bu pastga.' },
-    why_hundreds: { ru: 'Смотрим на десятки (4) — это вниз.', uz: "O'nlarga (4) qaraymiz — bu pastga." },
-    why_thousands: { ru: 'Смотрим на сотни (7) — это вверх.', uz: 'Yuzlarga (7) qaraymiz — bu yuqoriga.' },
-    why_tenK: { ru: 'Смотрим на тысячи (2) — это вниз.', uz: 'Minglarga (2) qaraymiz — bu pastga.' },
-    conclusion: { ru: 'Чем выше разряд, тем грубее округление. Округление до тысяч и крупнее — это уже округление до целого класса.', uz: "Xona qancha katta bo'lsa, yaxlitlash shunchalik qo'pol. Minglar xonasigacha va undan kattagacha yaxlitlash — bu butun sinfgacha yaxlitlash." },
+    eyebrow: { ru: 'Разберём', uz: "Ko'rib chiqamiz", en: 'Let us look into it' },
+    title: { ru: 'Округлять можно до любого разряда', uz: 'Sonni istalgan xonagacha yaxlitlash mumkin', en: 'You can round to any place' },
+    intro: { ru: 'Возьмём число 12 742. Нажимай на разряд и смотри, до какого круглого числа оно округлится.', uz: "12 742 sonini olamiz. Xonani bosing, u qaysi yaxlit songacha yaxlitlanishini ko'ring.", en: 'Let us take the number 12 742. Tap a place and see which round number it rounds to.' },
+    tap_prompt: { ru: 'Открывай разряды по порядку — все четыре', uz: 'Xonalarni tartib bilan bosing — barchasini', en: 'Open the places in order, all four of them' },
+    r_tens: { ru: 'до десятков', uz: "o'nlar xonasigacha", en: 'to the nearest ten' },
+    r_hundreds: { ru: 'до сотен', uz: 'yuzlar xonasigacha', en: 'to the nearest hundred' },
+    r_thousands: { ru: 'до тысяч', uz: 'minglar xonasigacha', en: 'to the nearest thousand' },
+    r_tenK: { ru: 'до десятков тысяч', uz: "o'n minglar xonasigacha", en: 'to the nearest ten thousand' },
+    why_tens: { ru: 'Смотрим на единицы (2) — это вниз.', uz: 'Birlarga (2) qaraymiz — bu pastga.', en: 'We look at the ones (2), so it rounds down.' },
+    why_hundreds: { ru: 'Смотрим на десятки (4) — это вниз.', uz: "O'nlarga (4) qaraymiz — bu pastga.", en: 'We look at the tens (4), so it rounds down.' },
+    why_thousands: { ru: 'Смотрим на сотни (7) — это вверх.', uz: 'Yuzlarga (7) qaraymiz — bu yuqoriga.', en: 'We look at the hundreds (7), so it rounds up.' },
+    why_tenK: { ru: 'Смотрим на тысячи (2) — это вниз.', uz: 'Minglarga (2) qaraymiz — bu pastga.', en: 'We look at the thousands (2), so it rounds down.' },
+    conclusion: { ru: 'Чем выше разряд, тем грубее округление. Округление до тысяч и крупнее — это уже округление до целого класса.', uz: "Xona qancha katta bo'lsa, yaxlitlash shunchalik qo'pol. Minglar xonasigacha va undan kattagacha yaxlitlash — bu butun sinfgacha yaxlitlash.", en: 'The higher the place, the rougher the rounding. Rounding to thousands and above is already rounding to a whole group.' },
     audio: {
       ru: [
         'Возьмём число двенадцать тысяч семьсот сорок два. Округлим его до разных разрядов. Открывай их по порядку, от десятков.',
@@ -981,255 +1031,283 @@ const CONTENT = {
         "Yuzlar xonasigacha o'n ikki ming yetti yuz bo'ladi.",
         "Minglar xonasigacha o'n uch ming bo'ladi.",
         "O'n minglar xonasigacha o'n ming bo'ladi. Xona qancha katta bo'lsa, chama shunchalik qo'pol."
-      ]
+      ],
+      en: ['Let us take the number twelve thousand seven hundred and forty two. We will round it to different places. Open them in order, starting with the tens.', 'To the nearest ten it comes out as twelve thousand seven hundred and forty.', 'To the nearest hundred it comes out as twelve thousand seven hundred.', 'To the nearest thousand it comes out as thirteen thousand.', 'To the nearest ten thousand it comes out as ten thousand. The higher the place, the rougher the estimate.']
     }
   },
   s8: {
-    eyebrow: { ru: 'Тренировка · 3 из 4', uz: 'Mashq · 4 dan 3' },
-    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang' },
-    question: { ru: 'Округли диаметр Земли 12 742 до тысяч.', uz: 'Yer diametri 12 742 ni minglar xonasigacha yaxlitlang.' },
-    opt0: { ru: '12 000', uz: '12 000' },
-    opt1: { ru: '12 700', uz: '12 700' },
-    opt2: { ru: '13 000', uz: '13 000' },
+    eyebrow: { ru: 'Тренировка · 3 из 4', uz: 'Mashq · 4 dan 3', en: 'Practice · 3 of 4' },
+    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang', en: 'Round the number' },
+    question: { ru: 'Округли диаметр Земли 12 742 до тысяч.', uz: 'Yer diametri 12 742 ni minglar xonasigacha yaxlitlang.', en: "Round the Earth's diameter, 12 742, to the nearest thousand." },
+    opt0: { ru: '12 000', uz: '12 000', en: '12 000' },
+    opt1: { ru: '12 700', uz: '12 700', en: '12 700' },
+    opt2: { ru: '13 000', uz: '13 000', en: '13 000' },
     correctIndex: 2,
     correct_text: {
       ru: 'Правильно. В разряде сотен 7, это больше 5, поэтому округляем вверх до 13 000.',
-      uz: "To'g'ri. Yuzlar xonasida 7, bu 5 dan katta, shuning uchun 13 000 gacha yuqoriga yaxlitlaymiz."
+      uz: "To'g'ri. Yuzlar xonasida 7, bu 5 dan katta, shuning uchun 13 000 gacha yuqoriga yaxlitlaymiz.",
+      en: 'Correct. There is a 7 in the hundreds place, which is more than 5, so we round up to 13 000.'
     },
     wrong_0: {
       ru: 'Это вниз. Смотреть надо на сотни, а там 7 — это вверх, к 13 000.',
-      uz: "Bu pastga. Yuzlarga qarash kerak, u yerda 7 — bu yuqoriga, 13 000 ga."
+      uz: "Bu pastga. Yuzlarga qarash kerak, u yerda 7 — bu yuqoriga, 13 000 ga.",
+      en: 'That is rounding down. You have to look at the hundreds, and there is a 7 there, so it rounds up, to 13 000.'
     },
     wrong_1: {
       ru: 'Это округление до сотен, а нужно до тысяч. До тысяч младшие разряды становятся нулями.',
-      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa minglar xonasigacha. Minglar xonasigacha kichik xonalar nolga aylanadi."
+      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa minglar xonasigacha. Minglar xonasigacha kichik xonalar nolga aylanadi.",
+      en: 'That is rounding to the nearest hundred, but you need the nearest thousand. For thousands the lower places become zeros.'
     },
-    hint_0: { ru: 'Посмотри на разряд сотен, он подсказывает, в какую сторону округлять.', uz: "Yuzlar xonasiga qarang, u qaysi tomonga yaxlitlashni aytadi." },
-    hint_1: { ru: 'Тебя просили округлить до тысяч, а не до сотен. До какого разряда округляем?', uz: "Sendan minglar xonasigacha so'rashdi, yuzlar xonasigacha emas. Qaysi xonagacha yaxlitlaymiz?" },
+    hint_0: { ru: 'Посмотри на разряд сотен, он подсказывает, в какую сторону округлять.', uz: "Yuzlar xonasiga qarang, u qaysi tomonga yaxlitlashni aytadi.", en: 'Look at the hundreds place, it tells you which way to round.' },
+    hint_1: { ru: 'Тебя просили округлить до тысяч, а не до сотен. До какого разряда округляем?', uz: "Sendan minglar xonasigacha so'rashdi, yuzlar xonasigacha emas. Qaysi xonagacha yaxlitlaymiz?", en: 'You were asked to round to the nearest thousand, not the nearest hundred. Which place are we rounding to?' },
     audio: {
-      intro: { ru: 'Округли диаметр Земли, двенадцать тысяч семьсот сорок два, до тысяч. Выбери ответ.', uz: "Yer diametrini, o'n ikki ming yetti yuz qirq ikkini, minglar xonasigacha yaxlitlang. Javobni tanlang." },
-      on_correct: { ru: 'Верно. В разряде сотен семь, это больше пяти, поэтому округляем вверх до тринадцати тысяч.', uz: "To'g'ri. Yuzlar xonasida yetti, bu beshdan katta, shuning uchun o'n uch minggacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Округли диаметр Земли, двенадцать тысяч семьсот сорок два, до тысяч. Выбери ответ.', uz: "Yer diametrini, o'n ikki ming yetti yuz qirq ikkini, minglar xonasigacha yaxlitlang. Javobni tanlang.", en: "Round the Earth's diameter, twelve thousand seven hundred and forty two, to the nearest thousand. Choose an answer." },
+      on_correct: { ru: 'Верно. В разряде сотен семь, это больше пяти, поэтому округляем вверх до тринадцати тысяч.', uz: "To'g'ri. Yuzlar xonasida yetti, bu beshdan katta, shuning uchun o'n uch minggacha yuqoriga yaxlitlaymiz.", en: 'That is right. There is a seven in the hundreds place, which is more than five, so we round up to thirteen thousand.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ─────────────────────── s8 · TEST input (серединный случай) ───────────────────────
   s9: {
-    eyebrow: { ru: 'Тренировка · ввод', uz: 'Mashq · kiritish' },
-    label: { ru: 'Напиши сам', uz: "O'zingiz yozing" },
-    question: { ru: 'Округли диаметр Венеры 12 104 до тысяч. Введи ответ.', uz: "Venera diametri 12 104 ni minglar xonasigacha yaxlitlang. Javobni kiriting." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    eyebrow: { ru: 'Тренировка · ввод', uz: 'Mashq · kiritish', en: 'Practice · typing' },
+    label: { ru: 'Напиши сам', uz: "O'zingiz yozing", en: 'Write it yourself' },
+    question: { ru: 'Округли диаметр Венеры 12 104 до тысяч. Введи ответ.', uz: "Venera diametri 12 104 ni minglar xonasigacha yaxlitlang. Javobni kiriting.", en: "Round Venus's diameter, 12 104, to the nearest thousand. Type the answer." },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     correctValue: '12000',
-    hint: { ru: 'Посмотри на разряд сотен, он решает, в какую сторону округлять. Округляем до тысяч.', uz: "Yuzlar xonasiga qarang, u qaysi tomonga yaxlitlashni hal qiladi. Minglar xonasigacha yaxlitlaymiz." },
-    fb_correct: { ru: 'Правильно. В сотнях 1, это меньше 5 — округляем вниз, до 12 000.', uz: "To'g'ri. Yuzlarda 1, bu 5 dan kichik — pastga, 12 000 gacha yaxlitlaymiz." },
+    hint: { ru: 'Посмотри на разряд сотен, он решает, в какую сторону округлять. Округляем до тысяч.', uz: "Yuzlar xonasiga qarang, u qaysi tomonga yaxlitlashni hal qiladi. Minglar xonasigacha yaxlitlaymiz.", en: 'Look at the hundreds place, it decides which way to round. We are rounding to the nearest thousand.' },
+    fb_correct: { ru: 'Правильно. В сотнях 1, это меньше 5 — округляем вниз, до 12 000.', uz: "To'g'ri. Yuzlarda 1, bu 5 dan kichik — pastga, 12 000 gacha yaxlitlaymiz.", en: 'Correct. There is a 1 in the hundreds, which is less than 5, so we round down, to 12 000.' },
     audio: {
-      intro: { ru: 'Округли диаметр Венеры, двенадцать тысяч сто четыре, до тысяч. Введи ответ и нажми проверить.', uz: "Venera diametrini, o'n ikki ming bir yuz to'rtni, minglar xonasigacha yaxlitlang. Javobni kiriting va tekshirishni bosing." },
-      on_correct: { ru: 'Верно. В разряде сотен один, это меньше пяти, округляем вниз до двенадцати тысяч.', uz: "To'g'ri. Yuzlar xonasida bir, bu beshdan kichik, o'n ikki minggacha pastga yaxlitlaymiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: 'Unchalik emas. Maslahatga qarang.' }
+      intro: { ru: 'Округли диаметр Венеры, двенадцать тысяч сто четыре, до тысяч. Введи ответ и нажми проверить.', uz: "Venera diametrini, o'n ikki ming bir yuz to'rtni, minglar xonasigacha yaxlitlang. Javobni kiriting va tekshirishni bosing.", en: "Round Venus's diameter, twelve thousand one hundred and four, to the nearest thousand. Type the answer and tap check." },
+      on_correct: { ru: 'Верно. В разряде сотен один, это меньше пяти, округляем вниз до двенадцати тысяч.', uz: "To'g'ri. Yuzlar xonasida bir, bu beshdan kichik, o'n ikki minggacha pastga yaxlitlaymiz.", en: 'That is right. There is a one in the hundreds place, which is less than five, so we round down to twelve thousand.' },
+      on_wrong: { ru: 'Не совсем. Посмотри подсказку.', uz: 'Unchalik emas. Maslahatga qarang.', en: 'Not quite. Look at the hint.' }
     }
   },
   s10: {
-    eyebrow: { ru: 'Тренировка · 4 из 4', uz: 'Mashq · 4 dan 4' },
-    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang' },
-    question: { ru: 'Спутник летит на высоте 750 км. Округли до сотен. Введи ответ.', uz: "Sun'iy yo'ldosh 750 km balandlikda uchadi. Yuzlar xonasigacha yaxlitlang. Javobni kiriting." },
-    hint: { ru: 'Это число ровно посередине между 700 и 800. Куда округляют серединное число?', uz: "Bu son 700 bilan 800 ning aynan o'rtasida. O'rtadagi son qayoqqa yaxlitlanadi?" },
-    audio_hint: { ru: 'Это число ровно посередине между семьюстами и восемьюстами. Вспомни, куда округляют серединное.', uz: "Bu son yetti yuz bilan sakkiz yuzning aynan o'rtasida. O'rtadagi son qayoqqa yaxlitlanishini eslang." },
-    placeholder: { ru: '0', uz: '0' },
-    btn_check: { ru: 'Проверить', uz: 'Tekshirish' },
+    eyebrow: { ru: 'Тренировка · 4 из 4', uz: 'Mashq · 4 dan 4', en: 'Practice · 4 of 4' },
+    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang', en: 'Round the number' },
+    question: { ru: 'Спутник летит на высоте 750 км. Округли до сотен. Введи ответ.', uz: "Sun'iy yo'ldosh 750 km balandlikda uchadi. Yuzlar xonasigacha yaxlitlang. Javobni kiriting.", en: 'A satellite is flying at a height of 750 km. Round it to the nearest hundred. Type the answer.' },
+    hint: { ru: 'Это число ровно посередине между 700 и 800. Куда округляют серединное число?', uz: "Bu son 700 bilan 800 ning aynan o'rtasida. O'rtadagi son qayoqqa yaxlitlanadi?", en: 'This number is exactly in the middle between 700 and 800. Which way is a middle number rounded?' },
+    audio_hint: { ru: 'Это число ровно посередине между семьюстами и восемьюстами. Вспомни, куда округляют серединное.', uz: "Bu son yetti yuz bilan sakkiz yuzning aynan o'rtasida. O'rtadagi son qayoqqa yaxlitlanishini eslang.", en: 'This number is exactly in the middle between seven hundred and eight hundred. Remember which way a middle number is rounded.' },
+    placeholder: { ru: '0', uz: '0', en: '0' },
+    btn_check: { ru: 'Проверить', uz: 'Tekshirish', en: 'Check' },
     correctValue: '800',
     fb_correct: {
       ru: 'Правильно. 750 стоит ровно между 700 и 800, поэтому берём большее — 800.',
-      uz: "To'g'ri. 750 aynan 700 bilan 800 oralig'ida, shuning uchun kattasini — 800 ni olamiz."
+      uz: "To'g'ri. 750 aynan 700 bilan 800 oralig'ida, shuning uchun kattasini — 800 ni olamiz.",
+      en: 'Correct. 750 stands exactly between 700 and 800, so we take the bigger one, 800.'
     },
     fb_wrong: {
       ru: 'Здесь число ровно посередине. По правилу серединное число округляем вверх — до 800.',
-      uz: "Bu yerda son aynan o'rtada. Qoidaga ko'ra o'rtadagi sonni yuqoriga — 800 ga yaxlitlaymiz."
+      uz: "Bu yerda son aynan o'rtada. Qoidaga ko'ra o'rtadagi sonni yuqoriga — 800 ga yaxlitlaymiz.",
+      en: 'This number is exactly in the middle. By the rule a middle number rounds up, to 800.'
     },
     audio: {
-      intro: { ru: 'Спутник летит на высоте семьсот пятьдесят километров. Округли до сотен, введи ответ и нажми кнопку проверить.', uz: "Sun'iy yo'ldosh yetti yuz ellik kilometr balandlikda uchadi. Yuzlar xonasigacha yaxlitlang, javobni kiriting va tekshirish tugmasini bosing." },
-      on_correct: { ru: 'Верно. Это ровно середина между семьюстами и восемьюстами. Серединное округляют к большему, к восьмистам.', uz: "To'g'ri. Bu yetti yuz bilan sakkiz yuzning aynan o'rtasi. O'rtadagi son kattaga yaxlitlanadi, sakkiz yuzga." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Спутник летит на высоте семьсот пятьдесят километров. Округли до сотен, введи ответ и нажми кнопку проверить.', uz: "Sun'iy yo'ldosh yetti yuz ellik kilometr balandlikda uchadi. Yuzlar xonasigacha yaxlitlang, javobni kiriting va tekshirish tugmasini bosing.", en: 'A satellite is flying at a height of seven hundred and fifty kilometres. Round it to the nearest hundred, type the answer and tap the check button.' },
+      on_correct: { ru: 'Верно. Это ровно середина между семьюстами и восемьюстами. Серединное округляют к большему, к восьмистам.', uz: "To'g'ri. Bu yetti yuz bilan sakkiz yuzning aynan o'rtasi. O'rtadagi son kattaga yaxlitlanadi, sakkiz yuzga.", en: 'That is right. It is exactly the middle between seven hundred and eight hundred. A middle number rounds to the bigger one, to eight hundred.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ───────────────────────────── s9 · CASE setup ─────────────────────────────
   s11: {
-    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat' },
-    title: { ru: 'Расставим планеты по росту', uz: "Sayyoralarni o'lchami bo'yicha tartiblaymiz" },
+    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat', en: 'A case from space' },
+    title: { ru: 'Расставим планеты по росту', uz: "Sayyoralarni o'lchami bo'yicha tartiblaymiz", en: 'Let us line the planets up by size' },
     intro: {
       ru: 'Точные диаметры сравнивать трудно. Округлим их до круглых чисел — и сразу станет видно, кто больше.',
-      uz: "Aniq diametrlarni taqqoslash qiyin. Ularni yaxlit sonlargacha yaxlitlaymiz — va kim katta ekani darrov ko'rinadi."
+      uz: "Aniq diametrlarni taqqoslash qiyin. Ularni yaxlit sonlargacha yaxlitlaymiz — va kim katta ekani darrov ko'rinadi.",
+      en: 'Exact diameters are hard to compare. Let us round them to round numbers and it will be clear at once which is bigger.'
     },
-    fact_1: { ru: 'Марс — 6 779 км', uz: 'Mars — 6 779 km' },
-    fact_2: { ru: 'Земля — 12 742 км', uz: 'Yer — 12 742 km' },
-    fact_3: { ru: 'Юпитер — 139 820 км', uz: 'Yupiter — 139 820 km' },
-    cta: { ru: 'Начать', uz: 'Boshlash' },
+    fact_1: { ru: 'Марс — 6 779 км', uz: 'Mars — 6 779 km', en: 'Mars, 6 779 km' },
+    fact_2: { ru: 'Земля — 12 742 км', uz: 'Yer — 12 742 km', en: 'The Earth, 12 742 km' },
+    fact_3: { ru: 'Юпитер — 139 820 км', uz: 'Yupiter — 139 820 km', en: 'Jupiter, 139 820 km' },
+    cta: { ru: 'Начать', uz: 'Boshlash', en: 'Start' },
     audio: {
       ru: 'У нас три планеты: Марс, Земля и Юпитер. Их точные диаметры сравнивать неудобно, поэтому сначала округлим каждый, а потом расставим планеты по размеру.',
-      uz: "Bizda uchta sayyora bor: Mars, Yer va Yupiter. Ularning aniq diametrlarini taqqoslash noqulay, shuning uchun avval har birini yaxlitlaymiz, keyin sayyoralarni o'lchami bo'yicha tartiblaymiz."
+      uz: "Bizda uchta sayyora bor: Mars, Yer va Yupiter. Ularning aniq diametrlarini taqqoslash noqulay, shuning uchun avval har birini yaxlitlaymiz, keyin sayyoralarni o'lchami bo'yicha tartiblaymiz.",
+      en: 'We have three planets: Mars, the Earth and Jupiter. Their exact diameters are awkward to compare, so first we round each one and then line the planets up by size.'
     }
   },
 
   // ───────────────────────────── s10 · CASE step ─────────────────────────────
   s12: {
-    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat' },
-    label: { ru: 'Округли диаметр', uz: 'Diametrni yaxlitlang' },
-    question: { ru: 'Округли диаметр Юпитера 139 820 до десятков тысяч.', uz: "Yupiter diametri 139 820 ni o'n minglar xonasigacha yaxlitlang." },
-    opt0: { ru: '140 000', uz: '140 000' },
-    opt1: { ru: '130 000', uz: '130 000' },
-    opt2: { ru: '139 800', uz: '139 800' },
+    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat', en: 'A case from space' },
+    label: { ru: 'Округли диаметр', uz: 'Diametrni yaxlitlang', en: 'Round the diameter' },
+    question: { ru: 'Округли диаметр Юпитера 139 820 до десятков тысяч.', uz: "Yupiter diametri 139 820 ni o'n minglar xonasigacha yaxlitlang.", en: "Round Jupiter's diameter, 139 820, to the nearest ten thousand." },
+    opt0: { ru: '140 000', uz: '140 000', en: '140 000' },
+    opt1: { ru: '130 000', uz: '130 000', en: '130 000' },
+    opt2: { ru: '139 800', uz: '139 800', en: '139 800' },
     correctIndex: 0,
     correct_text: {
       ru: 'Правильно. В разряде тысяч 9, это больше 5, округляем вверх до 140 000.',
-      uz: "To'g'ri. Minglar xonasida 9, bu 5 dan katta, 140 000 gacha yuqoriga yaxlitlaymiz."
+      uz: "To'g'ri. Minglar xonasida 9, bu 5 dan katta, 140 000 gacha yuqoriga yaxlitlaymiz.",
+      en: 'Correct. There is a 9 in the thousands place, which is more than 5, so we round up to 140 000.'
     },
     wrong_1: {
       ru: 'Это вниз. В разряде тысяч 9, а это округление вверх — до 140 000.',
-      uz: "Bu pastga. Minglar xonasida 9, bu esa yuqoriga — 140 000 gacha yaxlitlash."
+      uz: "Bu pastga. Minglar xonasida 9, bu esa yuqoriga — 140 000 gacha yaxlitlash.",
+      en: 'That is rounding down. There is a 9 in the thousands place, so it rounds up, to 140 000.'
     },
     wrong_2: {
       ru: 'Это округление до сотен, а нужно до десятков тысяч. Младшие разряды становятся нулями.',
-      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa o'n minglar xonasigacha. Kichik xonalar nolga aylanadi."
+      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa o'n minglar xonasigacha. Kichik xonalar nolga aylanadi.",
+      en: 'That is rounding to the nearest hundred, but you need the nearest ten thousand. The lower places become zeros.'
     },
-    hint_1: { ru: 'Посмотри на разряд тысяч в 139 820, он решает, вверх или вниз.', uz: "139 820 dagi minglar xonasiga qarang, u yuqorimi yoki pastmi hal qiladi." },
-    audio_hint_1: { ru: 'Посмотри на разряд тысяч в числе сто тридцать девять тысяч восемьсот двадцать. Он решает, вверх или вниз.', uz: "Bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirma sonidagi minglar xonasiga qarang. U yuqorimi yoki pastmi hal qiladi." },
-    hint_2: { ru: 'Это округление до сотен. А просят до десятков тысяч, какой это разряд?', uz: "Bu yuzlar xonasigacha yaxlitlash. So'rashayotgani o'n minglar xonasigacha, bu qaysi xona?" },
+    hint_1: { ru: 'Посмотри на разряд тысяч в 139 820, он решает, вверх или вниз.', uz: "139 820 dagi minglar xonasiga qarang, u yuqorimi yoki pastmi hal qiladi.", en: 'Look at the thousands place in 139 820, it decides up or down.' },
+    audio_hint_1: { ru: 'Посмотри на разряд тысяч в числе сто тридцать девять тысяч восемьсот двадцать. Он решает, вверх или вниз.', uz: "Bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirma sonidagi minglar xonasiga qarang. U yuqorimi yoki pastmi hal qiladi.", en: 'Look at the thousands place in the number one hundred and thirty nine thousand eight hundred and twenty. It decides up or down.' },
+    hint_2: { ru: 'Это округление до сотен. А просят до десятков тысяч, какой это разряд?', uz: "Bu yuzlar xonasigacha yaxlitlash. So'rashayotgani o'n minglar xonasigacha, bu qaysi xona?", en: 'That is rounding to the nearest hundred. But you are asked for the nearest ten thousand, so which place is that?' },
     audio: {
-      intro: { ru: 'Округли диаметр Юпитера, сто тридцать девять тысяч восемьсот двадцать, до десятков тысяч. Выбери ответ.', uz: "Yupiter diametrini, bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirmani, o'n minglar xonasigacha yaxlitlang. Javobni tanlang." },
-      on_correct: { ru: 'Верно. В разряде тысяч девять, это больше пяти, округляем вверх до ста сорока тысяч.', uz: "To'g'ri. Minglar xonasida to'qqiz, bu beshdan katta, bir yuz qirq minggacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Округли диаметр Юпитера, сто тридцать девять тысяч восемьсот двадцать, до десятков тысяч. Выбери ответ.', uz: "Yupiter diametrini, bir yuz o'ttiz to'qqiz ming sakkiz yuz yigirmani, o'n minglar xonasigacha yaxlitlang. Javobni tanlang.", en: "Round Jupiter's diameter, one hundred and thirty nine thousand eight hundred and twenty, to the nearest ten thousand. Choose an answer." },
+      on_correct: { ru: 'Верно. В разряде тысяч девять, это больше пяти, округляем вверх до ста сорока тысяч.', uz: "To'g'ri. Minglar xonasida to'qqiz, bu beshdan katta, bir yuz qirq minggacha yuqoriga yaxlitlaymiz.", en: 'That is right. There is a nine in the thousands place, which is more than five, so we round up to one hundred and forty thousand.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ───────────────────────────── s11 · CASE conclusion ─────────────────────────────
   s13: {
-    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat' },
-    label: { ru: 'Расставь по размеру', uz: "O'lchami bo'yicha tartiblang" },
+    eyebrow: { ru: 'Случай из космоса', uz: 'Kosmik holat', en: 'A case from space' },
+    label: { ru: 'Расставь по размеру', uz: "O'lchami bo'yicha tartiblang", en: 'Line them up by size' },
     question: {
       ru: 'Округлили: Марс ≈ 7 000, Земля ≈ 13 000, Юпитер ≈ 140 000 км. Расставь от меньшей к большей.',
-      uz: "Yaxlitladik: Mars ≈ 7 000, Yer ≈ 13 000, Yupiter ≈ 140 000 km. Kichikdan kattaga tartiblang."
+      uz: "Yaxlitladik: Mars ≈ 7 000, Yer ≈ 13 000, Yupiter ≈ 140 000 km. Kichikdan kattaga tartiblang.",
+      en: 'Rounded: Mars ≈ 7 000, the Earth ≈ 13 000, Jupiter ≈ 140 000 km. Line them up from smallest to biggest.'
     },
-    opt0: { ru: 'Юпитер, Земля, Марс', uz: 'Yupiter, Yer, Mars' },
-    opt1: { ru: 'Марс, Земля, Юпитер', uz: 'Mars, Yer, Yupiter' },
-    opt2: { ru: 'Земля, Марс, Юпитер', uz: 'Yer, Mars, Yupiter' },
+    opt0: { ru: 'Юпитер, Земля, Марс', uz: 'Yupiter, Yer, Mars', en: 'Jupiter, the Earth, Mars' },
+    opt1: { ru: 'Марс, Земля, Юпитер', uz: 'Mars, Yer, Yupiter', en: 'Mars, the Earth, Jupiter' },
+    opt2: { ru: 'Земля, Марс, Юпитер', uz: 'Yer, Mars, Yupiter', en: 'The Earth, Mars, Jupiter' },
     correctIndex: 1,
     correct_text: {
       ru: 'Правильно. 7 000 меньше 13 000, а 13 000 меньше 140 000 — порядок от меньшей к большей.',
-      uz: "To'g'ri. 7 000 — 13 000 dan kichik, 13 000 esa 140 000 dan kichik — kichikdan kattaga tartib."
+      uz: "To'g'ri. 7 000 — 13 000 dan kichik, 13 000 esa 140 000 dan kichik — kichikdan kattaga tartib.",
+      en: 'Correct. 7 000 is less than 13 000 and 13 000 is less than 140 000, so that is the order from smallest to biggest.'
     },
     wrong_0: {
       ru: 'Это от большей к меньшей. Нас просили наоборот — от меньшей к большей.',
-      uz: "Bu kattadan kichikka. Bizdan teskarisi — kichikdan kattaga so'ralgan."
+      uz: "Bu kattadan kichikka. Bizdan teskarisi — kichikdan kattaga so'ralgan.",
+      en: 'That is from biggest to smallest. You were asked for the other way round, smallest to biggest.'
     },
     wrong_2: {
       ru: 'Марс 7 000 — самый маленький, он должен быть первым. Сравни округлённые числа по разрядам.',
-      uz: "Mars 7 000 — eng kichigi, u birinchi bo'lishi kerak. Yaxlit sonlarni xonalar bo'yicha taqqoslang."
+      uz: "Mars 7 000 — eng kichigi, u birinchi bo'lishi kerak. Yaxlit sonlarni xonalar bo'yicha taqqoslang.",
+      en: 'Mars at 7 000 is the smallest, so it should come first. Compare the rounded numbers place by place.'
     },
-    hint_0: { ru: 'Нас просили от меньшей к большей. Сравни округлённые числа.', uz: "Bizdan kichikdan kattaga so'rashdi. Yaxlit sonlarni taqqoslang." },
-    hint_2: { ru: 'Сравни округлённые: 7 000, 13 000, 140 000, какое меньше?', uz: "Yaxlit sonlarni taqqoslang: 7 000, 13 000, 140 000, qaysi biri kichik?" },
-    audio_hint_2: { ru: 'Сравни округлённые: семь тысяч, тринадцать тысяч, сто сорок тысяч. Какое меньше?', uz: "Yaxlit sonlarni taqqoslang: yetti ming, o'n uch ming, bir yuz qirq ming. Qaysi biri kichik?" },
+    hint_0: { ru: 'Нас просили от меньшей к большей. Сравни округлённые числа.', uz: "Bizdan kichikdan kattaga so'rashdi. Yaxlit sonlarni taqqoslang.", en: 'You were asked for smallest to biggest. Compare the rounded numbers.' },
+    hint_2: { ru: 'Сравни округлённые: 7 000, 13 000, 140 000, какое меньше?', uz: "Yaxlit sonlarni taqqoslang: 7 000, 13 000, 140 000, qaysi biri kichik?", en: 'Compare the rounded numbers: 7 000, 13 000, 140 000. Which is smallest?' },
+    audio_hint_2: { ru: 'Сравни округлённые: семь тысяч, тринадцать тысяч, сто сорок тысяч. Какое меньше?', uz: "Yaxlit sonlarni taqqoslang: yetti ming, o'n uch ming, bir yuz qirq ming. Qaysi biri kichik?", en: 'Compare the rounded numbers: seven thousand, thirteen thousand, one hundred and forty thousand. Which is smallest?' },
     audio: {
-      intro: { ru: 'Округлённые диаметры: Марс около семи тысяч, Земля около тринадцати тысяч, Юпитер около ста сорока тысяч. Расставь планеты от меньшей к большей.', uz: "Yaxlit diametrlar: Mars yetti ming atrofida, Yer o'n uch ming atrofida, Yupiter bir yuz qirq ming atrofida. Sayyoralarni kichikdan kattaga tartiblang." },
-      on_correct: { ru: 'Верно. Семь тысяч меньше тринадцати тысяч, а тринадцать тысяч меньше ста сорока тысяч. Порядок от меньшего к большему.', uz: "To'g'ri. Yetti ming o'n uch mingdan kichik, o'n uch ming esa bir yuz qirq mingdan kichik. Kichikdan kattaga tartib." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Округлённые диаметры: Марс около семи тысяч, Земля около тринадцати тысяч, Юпитер около ста сорока тысяч. Расставь планеты от меньшей к большей.', uz: "Yaxlit diametrlar: Mars yetti ming atrofida, Yer o'n uch ming atrofida, Yupiter bir yuz qirq ming atrofida. Sayyoralarni kichikdan kattaga tartiblang.", en: 'The rounded diameters are: Mars about seven thousand, the Earth about thirteen thousand, Jupiter about one hundred and forty thousand. Line the planets up from smallest to biggest.' },
+      on_correct: { ru: 'Верно. Семь тысяч меньше тринадцати тысяч, а тринадцать тысяч меньше ста сорока тысяч. Порядок от меньшего к большему.', uz: "To'g'ri. Yetti ming o'n uch mingdan kichik, o'n uch ming esa bir yuz qirq mingdan kichik. Kichikdan kattaga tartib.", en: 'That is right. Seven thousand is less than thirteen thousand and thirteen thousand is less than one hundred and forty thousand. That is the order from smallest to biggest.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ─────────────────────── s12 · TEST choice · FINAL (сравнение) ───────────────────────
   s14: {
-    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1' },
-    label: { ru: 'Сравни числа', uz: 'Sonlarni taqqoslang' },
-    question: { ru: 'Зонд показал два расстояния: 5 000 009 км и 5 000 010 км. Какое больше?', uz: "Zond ikki masofani ko'rsatdi: 5 000 009 km va 5 000 010 km. Qaysi biri katta?" },
-    opt0: { ru: '5 000 009 — в нём есть девятка', uz: "5 000 009 — unda to'qqiz bor" },
-    opt1: { ru: 'Они равны', uz: 'Ular teng' },
-    opt2: { ru: '5 000 010', uz: '5 000 010' },
+    eyebrow: { ru: 'Итог · 1 из 2', uz: 'Yakun · 2 dan 1', en: 'Final · 1 of 2' },
+    label: { ru: 'Сравни числа', uz: 'Sonlarni taqqoslang', en: 'Compare the numbers' },
+    question: { ru: 'Зонд показал два расстояния: 5 000 009 км и 5 000 010 км. Какое больше?', uz: "Zond ikki masofani ko'rsatdi: 5 000 009 km va 5 000 010 km. Qaysi biri katta?", en: 'The probe showed two distances: 5 000 009 km and 5 000 010 km. Which is bigger?' },
+    opt0: { ru: '5 000 009 — в нём есть девятка', uz: "5 000 009 — unda to'qqiz bor", en: '5 000 009, it has a nine in it' },
+    opt1: { ru: 'Они равны', uz: 'Ular teng', en: 'They are equal' },
+    opt2: { ru: '5 000 010', uz: '5 000 010', en: '5 000 010' },
     correctIndex: 2,
     correct_text: {
       ru: 'Правильно. Старшие разряды совпадают, а в десятках у второго числа 1 против 0.',
-      uz: "To'g'ri. Katta xonalar bir xil, o'nlarda esa ikkinchi sonda 0 ga qarshi 1 turibdi."
+      uz: "To'g'ri. Katta xonalar bir xil, o'nlarda esa ikkinchi sonda 0 ga qarshi 1 turibdi.",
+      en: 'Correct. The higher places match, and in the tens the second number has a 1 against a 0.'
     },
     wrong_0: {
       ru: 'Девятка в единицах не делает число больше. Различие в десятках: 1 больше 0.',
-      uz: "Birlardagi to'qqiz sonni katta qilmaydi. Farq o'nlarda: 1 — 0 dan katta."
+      uz: "Birlardagi to'qqiz sonni katta qilmaydi. Farq o'nlarda: 1 — 0 dan katta.",
+      en: 'A nine in the ones does not make a number bigger. The difference is in the tens: 1 is more than 0.'
     },
     wrong_1: {
       ru: 'Совпадение старших разрядов — не равенство. Идём дальше до первой разной цифры.',
-      uz: "Katta xonalarning bir xilligi — tenglik emas. Birinchi farqli raqamgacha davom etamiz."
+      uz: "Katta xonalarning bir xilligi — tenglik emas. Birinchi farqli raqamgacha davom etamiz.",
+      en: 'Matching higher places does not mean the numbers are equal. We carry on to the first digit that differs.'
     },
-    hint_0: { ru: 'Старшие разряды совпадают, иди дальше, к младшим, до первой разной цифры.', uz: "Katta xonalar bir xil, kichigiga, birinchi farqli raqamgacha o't." },
-    hint_1: { ru: 'Числа не равны. Найди первый разряд, где цифры отличаются.', uz: "Sonlar teng emas. Raqamlar farq qiladigan birinchi xonani toping." },
+    hint_0: { ru: 'Старшие разряды совпадают, иди дальше, к младшим, до первой разной цифры.', uz: "Katta xonalar bir xil, kichigiga, birinchi farqli raqamgacha o't.", en: 'The higher places match, so carry on down to the first digit that differs.' },
+    hint_1: { ru: 'Числа не равны. Найди первый разряд, где цифры отличаются.', uz: "Sonlar teng emas. Raqamlar farq qiladigan birinchi xonani toping.", en: 'The numbers are not equal. Find the first place where the digits differ.' },
     audio: {
-      intro: { ru: 'Зонд показал два расстояния: пять миллионов девять и пять миллионов десять километров. Какое больше? Выбери ответ.', uz: "Zond ikki masofani ko'rsatdi: besh million to'qqiz va besh million o'n kilometr. Qaysi biri katta? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Старшие разряды совпадают, а в разряде десятков у второго числа один против нуля.', uz: "To'g'ri. Katta xonalar bir xil, o'nlar xonasida esa ikkinchi sonda nolga qarshi bir turibdi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Зонд показал два расстояния: пять миллионов девять и пять миллионов десять километров. Какое больше? Выбери ответ.', uz: "Zond ikki masofani ko'rsatdi: besh million to'qqiz va besh million o'n kilometr. Qaysi biri katta? Javobni tanlang.", en: 'The probe showed two distances: five million and nine, and five million and ten kilometres. Which is bigger? Choose an answer.' },
+      on_correct: { ru: 'Верно. Старшие разряды совпадают, а в разряде десятков у второго числа один против нуля.', uz: "To'g'ri. Katta xonalar bir xil, o'nlar xonasida esa ikkinchi sonda nolga qarshi bir turibdi.", en: 'That is right. The higher places match, and in the tens place the second number has a one against a zero.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ─────────────────────── s13 · TEST choice · FINAL (переход через разряд) ───────────────────────
   s15: {
-    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2' },
-    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang' },
-    question: { ru: 'Астероид пролетел в 9 859 км от станции. Округли до тысяч.', uz: "Asteroid stansiyadan 9 859 km uzoqlikda uchib o'tdi. Minglar xonasigacha yaxlitlang." },
-    opt0: { ru: '9 000', uz: '9 000' },
-    opt1: { ru: '9 800', uz: '9 800' },
-    opt2: { ru: '9 900', uz: '9 900' },
-    opt3: { ru: '10 000', uz: '10 000' },
+    eyebrow: { ru: 'Итог · 2 из 2', uz: 'Yakun · 2 dan 2', en: 'Final · 2 of 2' },
+    label: { ru: 'Округли число', uz: 'Sonni yaxlitlang', en: 'Round the number' },
+    question: { ru: 'Астероид пролетел в 9 859 км от станции. Округли до тысяч.', uz: "Asteroid stansiyadan 9 859 km uzoqlikda uchib o'tdi. Minglar xonasigacha yaxlitlang.", en: 'An asteroid passed 9 859 km from the station. Round it to the nearest thousand.' },
+    opt0: { ru: '9 000', uz: '9 000', en: '9 000' },
+    opt1: { ru: '9 800', uz: '9 800', en: '9 800' },
+    opt2: { ru: '9 900', uz: '9 900', en: '9 900' },
+    opt3: { ru: '10 000', uz: '10 000', en: '10 000' },
     correctIndex: 3,
     correct_text: {
       ru: 'Правильно. В сотнях 8, это вверх. 9 тысяч плюс одна дают ровно 10 000.',
-      uz: "To'g'ri. Yuzlarda 8, bu yuqoriga. 9 ming va yana bir ming aynan 10 000 ni beradi."
+      uz: "To'g'ri. Yuzlarda 8, bu yuqoriga. 9 ming va yana bir ming aynan 10 000 ni beradi.",
+      en: 'Correct. There is an 8 in the hundreds, so it rounds up. 9 thousand plus one makes exactly 10 000.'
     },
     wrong_0: {
       ru: 'Это вниз. В сотнях 8 — это округление вверх, через разряд к 10 000.',
-      uz: "Bu pastga. Yuzlarda 8 — bu yuqoriga, xonadan o'tib 10 000 ga yaxlitlash."
+      uz: "Bu pastga. Yuzlarda 8 — bu yuqoriga, xonadan o'tib 10 000 ga yaxlitlash.",
+      en: 'That is rounding down. There is an 8 in the hundreds, so it rounds up, carrying over to 10 000.'
     },
     wrong_1: {
       ru: 'Это округление до сотен, а нужно до тысяч. Округляя до тысяч, смотрим на сотни (8) и обнуляем младшие разряды.',
-      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa minglar xonasigacha. Minglar xonasigacha yaxlitlaganda yuzlarga (8) qaraymiz va kichik xonalarni nolga aylantiramiz."
+      uz: "Bu yuzlar xonasigacha yaxlitlash, kerak esa minglar xonasigacha. Minglar xonasigacha yaxlitlaganda yuzlarga (8) qaraymiz va kichik xonalarni nolga aylantiramiz.",
+      en: 'That is rounding to the nearest hundred, but you need the nearest thousand. Rounding to thousands we look at the hundreds (8) and turn the lower places into zeros.'
     },
     wrong_2: {
       ru: 'Недостаточно. 9 тысяч округляются вверх до целых 10 000, а не до 9 900.',
-      uz: "Yetarli emas. 9 ming yuqoriga to'liq 10 000 gacha yaxlitlanadi, 9 900 gacha emas."
+      uz: "Yetarli emas. 9 ming yuqoriga to'liq 10 000 gacha yaxlitlanadi, 9 900 gacha emas.",
+      en: 'Not enough. 9 thousand rounds up to a whole 10 000, not to 9 900.'
     },
-    hint_0: { ru: 'Посмотри на сотни, это вверх или вниз?', uz: "Yuzlarga qarang, bu yuqorimi yoki pastmi?" },
-    hint_1: { ru: 'Это округление до сотен. А нужно до тысяч.', uz: "Bu yuzlar xonasigacha yaxlitlash. Kerak esa minglar xonasigacha." },
-    hint_2: { ru: 'Округляем до тысяч, а не до сотен. Что станет с младшими разрядами?', uz: "Minglar xonasigacha yaxlitlaymiz, yuzlar xonasigacha emas. Kichik xonalar nima bo'ladi?" },
+    hint_0: { ru: 'Посмотри на сотни, это вверх или вниз?', uz: "Yuzlarga qarang, bu yuqorimi yoki pastmi?", en: 'Look at the hundreds. Is it up or down?' },
+    hint_1: { ru: 'Это округление до сотен. А нужно до тысяч.', uz: "Bu yuzlar xonasigacha yaxlitlash. Kerak esa minglar xonasigacha.", en: 'That is rounding to the nearest hundred. You need the nearest thousand.' },
+    hint_2: { ru: 'Округляем до тысяч, а не до сотен. Что станет с младшими разрядами?', uz: "Minglar xonasigacha yaxlitlaymiz, yuzlar xonasigacha emas. Kichik xonalar nima bo'ladi?", en: 'We are rounding to the nearest thousand, not the nearest hundred. What happens to the lower places?' },
     audio: {
-      intro: { ru: 'Астероид пролетел в девяти тысячах восьмистах пятидесяти девяти километрах от станции. Округли до тысяч. Выбери ответ.', uz: "Asteroid stansiyadan to'qqiz ming sakkiz yuz ellik to'qqiz kilometr uzoqlikda uchib o'tdi. Minglar xonasigacha yaxlitlang. Javobni tanlang." },
-      on_correct: { ru: 'Верно. В разряде сотен восемь, это вверх. Девять тысяч и ещё одна дают ровно десять тысяч.', uz: "To'g'ri. Yuzlar xonasida sakkiz, bu yuqoriga. To'qqiz ming va yana bir ming aynan o'n mingni beradi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.' }
+      intro: { ru: 'Астероид пролетел в девяти тысячах восьмистах пятидесяти девяти километрах от станции. Округли до тысяч. Выбери ответ.', uz: "Asteroid stansiyadan to'qqiz ming sakkiz yuz ellik to'qqiz kilometr uzoqlikda uchib o'tdi. Minglar xonasigacha yaxlitlang. Javobni tanlang.", en: 'An asteroid passed nine thousand eight hundred and fifty nine kilometres from the station. Round it to the nearest thousand. Choose an answer.' },
+      on_correct: { ru: 'Верно. В разряде сотен восемь, это вверх. Девять тысяч и ещё одна дают ровно десять тысяч.', uz: "To'g'ri. Yuzlar xonasida sakkiz, bu yuqoriga. To'qqiz ming va yana bir ming aynan o'n mingni beradi.", en: 'That is right. There is an eight in the hundreds place, so it rounds up. Nine thousand and one more makes exactly ten thousand.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: 'Unchalik emas. Tushuntirishga qarang.', en: 'Not quite. Look at the working.' }
     }
   },
 
   // ───────────────────────────── s14 · SUMMARY / ВЫВОД (кольцо) ─────────────────────────────
   s16: {
-    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
-    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz' },
+    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni', en: 'The end of the lesson' },
+    title: { ru: 'Что ты теперь умеешь', uz: 'Endi nimani bilasiz', en: 'What you can do now' },
     ring_back: {
       ru: 'Помнишь Марс и Землю? Бекзод ошибся: у Земли больше разрядов, поэтому 12 742 больше, чем 6 779.',
-      uz: "Mars va Yer esingizdami? Bekzod xato qildi: Yerda xona ko'proq, shuning uchun 12 742 — 6 779 dan katta."
+      uz: "Mars va Yer esingizdami? Bekzod xato qildi: Yerda xona ko'proq, shuning uchun 12 742 — 6 779 dan katta.",
+      en: 'Remember Mars and the Earth? Bekzod was wrong: the Earth has more places, so 12 742 is bigger than 6 779.'
     },
     learned_1: {
       ru: 'Сравнивать большие числа по разрядам, а не по крупным цифрам.',
-      uz: "Katta sonlarni yirik raqamlar bo'yicha emas, xonalar bo'yicha taqqoslash."
+      uz: "Katta sonlarni yirik raqamlar bo'yicha emas, xonalar bo'yicha taqqoslash.",
+      en: 'Compare big numbers by their places, not by big looking digits.'
     },
     learned_2: {
       ru: 'Округлять число до нужного разряда, выбирая ближайшее круглое на числовой оси.',
-      uz: "Sonlar nuridagi eng yaqin yaxlit sonni tanlab, sonni kerakli xonagacha yaxlitlash."
+      uz: "Sonlar nuridagi eng yaqin yaxlit sonni tanlab, sonni kerakli xonagacha yaxlitlash.",
+      en: 'Round a number to the place you need by choosing the nearest round number on the number line.'
     },
-    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak' },
+    why_heading: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why this is useful' },
     why_1: {
       ru: 'Сравнение и прикидка помогают понять масштаб: что больше и насколько примерно.',
-      uz: 'Taqqoslash va chama miqyosni tushunishga yordam beradi: nima katta va taxminan qancha.'
+      uz: 'Taqqoslash va chama miqyosni tushunishga yordam beradi: nima katta va taxminan qancha.',
+      en: 'Comparing and estimating help you get a sense of scale: which is bigger and roughly by how much.'
     },
     why_2: {
       ru: 'Округление помогает проверить, разумный ли получился ответ в любой задаче.',
-      uz: "Yaxlitlash istalgan masalada javob mantiqiymi yo'qmi, tekshirishga yordam beradi."
+      uz: "Yaxlitlash istalgan masalada javob mantiqiymi yo'qmi, tekshirishga yordam beradi.",
+      en: 'Rounding helps you check whether an answer is sensible in any problem.'
     },
     teaser: {
       ru: 'Дальше — сложение и вычитание столбиком, где прикидка проверит твой результат. А позже округление вернётся уже для десятичных дробей.',
-      uz: "Keyin — ustun usulida qo'shish va ayirish, u yerda chama natijangizni tekshiradi. Keyinroq yaxlitlash o'nli kasrlar uchun qaytadi."
+      uz: "Keyin — ustun usulida qo'shish va ayirish, u yerda chama natijangizni tekshiradi. Keyinroq yaxlitlash o'nli kasrlar uchun qaytadi.",
+      en: 'Next come adding and subtracting in columns, where estimating will check your result. And later rounding comes back for decimals.'
     },
     audio: {
       ru: [
@@ -1243,7 +1321,8 @@ const CONTENT = {
         "Endi siz katta sonlarni xonalar bo'yicha taqqoslay olasiz va ularni sonlar nurida kerakli xonagacha yaxlitlay olasiz.",
         "Bu miqyosni tushunishga, nima katta va taxminan qancha ekanini ko'rishga, hamda javob mantiqiy chiqdimi tekshirishga yordam beradi.",
         "Keyin ustun usulida qo'shish va ayirish bo'ladi, u yerda chama natijani tekshiradi. Keyinroq yaxlitlash o'nli kasrlar uchun qaytadi."
-      ]
+      ],
+      en: ['Let us go back to the start. Bekzod thought Mars was bigger than the Earth, but he was wrong: the Earth has more places, so twelve thousand is bigger than six.', 'Now you can compare big numbers by their places and round them to the place you need on the number line.', 'That helps you get a sense of scale, see which is bigger and roughly by how much, and check whether an answer came out sensible.', 'Next come adding and subtracting in columns, where estimating will check the result. And later rounding comes back for decimals.']
     }
   }
 };
@@ -1252,8 +1331,8 @@ const CONTENT = {
 // SCREEN-КОМПОНЕНТЫ (nat_5_02 — keep-visible rebuild, Dars28 infra, 14 ekran)
 // ============================================================
 const LESSON_META = {
-  lessonId: 'nat-5-02-v2',
-  lessonTitle: { ru: 'Сравнение и округление больших чисел', uz: "Katta sonlarni taqqoslash va yaxlitlash" }
+  lessonId: 'grade5-02',
+  lessonTitle: { ru: 'Сравнение и округление больших чисел', uz: "Katta sonlarni taqqoslash va yaxlitlash", en: 'Comparing and rounding big numbers' }
 };
 const SCREEN_META = [
   { id: 's0',  type: 'hook',        scored: false, scope: 'hook' },      // 0
@@ -1275,82 +1354,82 @@ const TOTAL_SCREENS = SCREEN_META.length;
 
 // ── Bloklar uchun o'ram matni (sarlavha/lead/yakun) ──
 const W_ROUND = {
-  eyebrow: { ru: 'Тренировка · округление', uz: 'Mashq · yaxlitlash' },
-  title: { ru: 'Округли числа по очереди', uz: 'Sonlarni navbat bilan yaxlitlang' },
-  lead: { ru: 'Реши три примера один за другим. Где написано — введи ответ сам.', uz: "Uch misolni birin-ketin yeching. Yozish kerak bo'lsa, javobni o'zingiz kiriting." },
-  done_text: { ru: 'Все три числа округлены верно. Разряд решает, куда округлять.', uz: "Uchala son to'g'ri yaxlitlandi. Qaysi tomonga yaxlitlashni xona hal qiladi." }
+  eyebrow: { ru: 'Тренировка · округление', uz: 'Mashq · yaxlitlash', en: 'Practice · rounding' },
+  title: { ru: 'Округли числа по очереди', uz: 'Sonlarni navbat bilan yaxlitlang', en: 'Round the numbers one after another' },
+  lead: { ru: 'Реши три примера один за другим. Где написано — введи ответ сам.', uz: "Uch misolni birin-ketin yeching. Yozish kerak bo'lsa, javobni o'zingiz kiriting.", en: 'Work through three examples one after another. Where it says so, type the answer yourself.' },
+  done_text: { ru: 'Все три числа округлены верно. Разряд решает, куда округлять.', uz: "Uchala son to'g'ri yaxlitlandi. Qaysi tomonga yaxlitlashni xona hal qiladi.", en: 'All three numbers are rounded correctly. The place decides which way to round.' }
 };
 const W_MIX = {
-  eyebrow: { ru: 'Случай и итог', uz: 'Holat va yakun' },
-  title: { ru: 'Расставь планеты и проверь себя', uz: "Sayyoralarni tartiblang va o'zingizni tekshiring" },
-  lead: { ru: 'Четыре задания подряд: округление, порядок и сравнение.', uz: "To'rt topshiriq ketma-ket: yaxlitlash, tartib va taqqoslash." },
-  done_text: { ru: 'Готово. Ты округлил, расставил по размеру и сравнил близкие числа.', uz: "Tayyor. Yaxlitladingiz, o'lchami bo'yicha tartibladingiz va yaqin sonlarni taqqosladingiz." }
+  eyebrow: { ru: 'Случай и итог', uz: 'Holat va yakun', en: 'The case and the finish' },
+  title: { ru: 'Расставь планеты и проверь себя', uz: "Sayyoralarni tartiblang va o'zingizni tekshiring", en: 'Line the planets up and check yourself' },
+  lead: { ru: 'Четыре задания подряд: округление, порядок и сравнение.', uz: "To'rt topshiriq ketma-ket: yaxlitlash, tartib va taqqoslash.", en: 'Four tasks in a row: rounding, order and comparing.' },
+  done_text: { ru: 'Готово. Ты округлил, расставил по размеру и сравнил близкие числа.', uz: "Tayyor. Yaxlitladingiz, o'lchami bo'yicha tartibladingiz va yaqin sonlarni taqqosladingiz.", en: 'Done. You rounded, lined them up by size and compared close numbers.' }
 };
 const W_HARD1 = {
-  eyebrow: { ru: 'Сложные примеры · 1', uz: 'Qiyin misollar · 1' },
-  title: { ru: 'Округление с переносом', uz: "Ko'tarish bilan yaxlitlash" },
-  lead: { ru: 'Здесь округление поднимает соседний разряд. Реши по очереди.', uz: "Bu yerda yaxlitlash qo'shni xonani ko'taradi. Navbat bilan yeching." },
-  done_text: { ru: 'Отлично. Когда цифра 5 или больше, перенос может дойти до старшего класса.', uz: "Zo'r. Raqam 5 yoki katta bo'lsa, ko'tarish katta sinfgacha yetishi mumkin." }
+  eyebrow: { ru: 'Сложные примеры · 1', uz: 'Qiyin misollar · 1', en: 'Harder examples · 1' },
+  title: { ru: 'Округление с переносом', uz: "Ko'tarish bilan yaxlitlash", en: 'Rounding with a carry' },
+  lead: { ru: 'Здесь округление поднимает соседний разряд. Реши по очереди.', uz: "Bu yerda yaxlitlash qo'shni xonani ko'taradi. Navbat bilan yeching.", en: 'Here rounding pushes the next place up. Work through them one at a time.' },
+  done_text: { ru: 'Отлично. Когда цифра 5 или больше, перенос может дойти до старшего класса.', uz: "Zo'r. Raqam 5 yoki katta bo'lsa, ko'tarish katta sinfgacha yetishi mumkin.", en: 'Excellent. When the digit is 5 or more, the carry can reach all the way to a higher group.' }
 };
 const W_HARD2 = {
-  eyebrow: { ru: 'Сложные примеры · 2', uz: 'Qiyin misollar · 2' },
-  title: { ru: 'Середина и цепной перенос', uz: "O'rta holat va zanjirli ko'tarish" },
-  lead: { ru: 'Серединное число округляем вверх, а перенос идёт цепочкой. Реши все три.', uz: "O'rtadagi sonni yuqoriga yaxlitlaymiz, ko'tarish esa zanjir bo'lib boradi. Uchalasini yeching." },
-  done_text: { ru: 'Ты справился со сложными случаями округления — переносом и серединой.', uz: "Yaxlitlashning qiyin holatlarini — ko'tarish va o'rtani — uddaladingiz." }
+  eyebrow: { ru: 'Сложные примеры · 2', uz: 'Qiyin misollar · 2', en: 'Harder examples · 2' },
+  title: { ru: 'Середина и цепной перенос', uz: "O'rta holat va zanjirli ko'tarish", en: 'The middle and a chain of carries' },
+  lead: { ru: 'Серединное число округляем вверх, а перенос идёт цепочкой. Реши все три.', uz: "O'rtadagi sonni yuqoriga yaxlitlaymiz, ko'tarish esa zanjir bo'lib boradi. Uchalasini yeching.", en: 'A middle number rounds up and the carry runs in a chain. Work through all three.' },
+  done_text: { ru: 'Ты справился со сложными случаями округления — переносом и серединой.', uz: "Yaxlitlashning qiyin holatlarini — ko'tarish va o'rtani — uddaladingiz.", en: 'You managed the harder cases of rounding, the carry and the middle.' }
 };
 
 // ── Yangi qiyin misollar (draft, RU+UZ, TTS-toza) ──
 const HARD1_ITEMS = [
   { type: 'mc', correct: 1, optKeys: ['opt0', 'opt1', 'opt2'], order: [1, 0, 2], c: {
-    question: { ru: 'Округли 2 999 500 до тысяч.', uz: "2 999 500 ni minglar xonasigacha yaxlitlang." },
-    opt0: { ru: '2 999 000', uz: '2 999 000' }, opt1: { ru: '3 000 000', uz: '3 000 000' }, opt2: { ru: '2 990 000', uz: '2 990 000' },
-    hint_0: { ru: 'В разряде сотен 5, округляем вверх, а перенос идёт дальше.', uz: "Yuzlar xonasida 5, yuqoriga yaxlitlaymiz, ko'tarish davom etadi." },
-    hint_2: { ru: 'Смотри на сотни, а не на десятки тысяч.', uz: "O'n minglarga emas, yuzlarga qarang." },
-    audio: { intro: { ru: 'Округли два миллиона девятьсот девяносто девять тысяч пятьсот до тысяч.', uz: "Ikki million to'qqiz yuz to'qson to'qqiz ming besh yuzni minglar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. В сотнях пять, округляем вверх, перенос проходит через все девятки и даёт три миллиона.', uz: "To'g'ri. Yuzlarda besh, yuqoriga yaxlitlaymiz, ko'tarish hamma to'qqizlardan o'tib uch million beradi." },
-      on_wrong: { ru: 'Посмотри на разряд сотен.', uz: "Yuzlar xonasiga qarang." } } } },
+    question: { ru: 'Округли 2 999 500 до тысяч.', uz: "2 999 500 ni minglar xonasigacha yaxlitlang.", en: 'Round 2 999 500 to the nearest thousand.' },
+    opt0: { ru: '2 999 000', uz: '2 999 000', en: '2 999 000' }, opt1: { ru: '3 000 000', uz: '3 000 000', en: '3 000 000' }, opt2: { ru: '2 990 000', uz: '2 990 000', en: '2 990 000' },
+    hint_0: { ru: 'В разряде сотен 5, округляем вверх, а перенос идёт дальше.', uz: "Yuzlar xonasida 5, yuqoriga yaxlitlaymiz, ko'tarish davom etadi.", en: 'There is a 5 in the hundreds place, so we round up and the carry runs on.' },
+    hint_2: { ru: 'Смотри на сотни, а не на десятки тысяч.', uz: "O'n minglarga emas, yuzlarga qarang.", en: 'Look at the hundreds, not at the ten thousands.' },
+    audio: { intro: { ru: 'Округли два миллиона девятьсот девяносто девять тысяч пятьсот до тысяч.', uz: "Ikki million to'qqiz yuz to'qson to'qqiz ming besh yuzni minglar xonasigacha yaxlitlang.", en: 'Round two million nine hundred and ninety nine thousand five hundred to the nearest thousand.' },
+      on_correct: { ru: 'Верно. В сотнях пять, округляем вверх, перенос проходит через все девятки и даёт три миллиона.', uz: "To'g'ri. Yuzlarda besh, yuqoriga yaxlitlaymiz, ko'tarish hamma to'qqizlardan o'tib uch million beradi.", en: 'That is right. There is a five in the hundreds, so we round up, the carry runs through all the nines and gives three million.' },
+      on_wrong: { ru: 'Посмотри на разряд сотен.', uz: "Yuzlar xonasiga qarang.", en: 'Look at the hundreds place.' } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 0, 1], c: {
-    question: { ru: 'Округли 149 600 000 до миллионов.', uz: "149 600 000 ni millionlar xonasigacha yaxlitlang." },
-    opt0: { ru: '150 000 000', uz: '150 000 000' }, opt1: { ru: '149 000 000', uz: '149 000 000' }, opt2: { ru: '140 000 000', uz: '140 000 000' },
-    hint_1: { ru: 'Смотри на разряд сотен тысяч: там 6, это вверх.', uz: "Yuz minglar xonasiga qarang: u yerda 6, bu yuqoriga." },
-    hint_2: { ru: 'Это округление до десятков миллионов. А нужно до миллионов.', uz: "Bu o'n millionlargacha yaxlitlash. Kerak esa millionlargacha." },
-    audio: { intro: { ru: 'Округли сто сорок девять миллионов шестьсот тысяч до миллионов.', uz: "Bir yuz qirq to'qqiz million olti yuz mingni millionlar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. В разряде сотен тысяч шесть, это больше пяти, округляем вверх до ста пятидесяти миллионов.', uz: "To'g'ri. Yuz minglar xonasida olti, bu beshdan katta, bir yuz ellik milliongacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Найди разряд после миллионов.', uz: "Millionlardan keyingi xonani toping." } } } },
+    question: { ru: 'Округли 149 600 000 до миллионов.', uz: "149 600 000 ni millionlar xonasigacha yaxlitlang.", en: 'Round 149 600 000 to the nearest million.' },
+    opt0: { ru: '150 000 000', uz: '150 000 000', en: '150 000 000' }, opt1: { ru: '149 000 000', uz: '149 000 000', en: '149 000 000' }, opt2: { ru: '140 000 000', uz: '140 000 000', en: '140 000 000' },
+    hint_1: { ru: 'Смотри на разряд сотен тысяч: там 6, это вверх.', uz: "Yuz minglar xonasiga qarang: u yerda 6, bu yuqoriga.", en: 'Look at the hundred thousands place: there is a 6 there, so it rounds up.' },
+    hint_2: { ru: 'Это округление до десятков миллионов. А нужно до миллионов.', uz: "Bu o'n millionlargacha yaxlitlash. Kerak esa millionlargacha.", en: 'That is rounding to the nearest ten million. You need the nearest million.' },
+    audio: { intro: { ru: 'Округли сто сорок девять миллионов шестьсот тысяч до миллионов.', uz: "Bir yuz qirq to'qqiz million olti yuz mingni millionlar xonasigacha yaxlitlang.", en: 'Round one hundred and forty nine million six hundred thousand to the nearest million.' },
+      on_correct: { ru: 'Верно. В разряде сотен тысяч шесть, это больше пяти, округляем вверх до ста пятидесяти миллионов.', uz: "To'g'ri. Yuz minglar xonasida olti, bu beshdan katta, bir yuz ellik milliongacha yuqoriga yaxlitlaymiz.", en: 'That is right. There is a six in the hundred thousands place, which is more than five, so we round up to one hundred and fifty million.' },
+      on_wrong: { ru: 'Найди разряд после миллионов.', uz: "Millionlardan keyingi xonani toping.", en: 'Find the place after the millions.' } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [1, 2, 0], c: {
-    question: { ru: 'Округли 45 678 до тысяч.', uz: "45 678 ni minglar xonasigacha yaxlitlang." },
-    opt0: { ru: '46 000', uz: '46 000' }, opt1: { ru: '45 000', uz: '45 000' }, opt2: { ru: '45 700', uz: '45 700' },
-    hint_1: { ru: 'В сотнях 6, это больше пяти, значит вверх.', uz: "Yuzlarda 6, bu beshdan katta, demak yuqoriga." },
-    hint_2: { ru: 'Это округление до сотен, а нужно до тысяч.', uz: "Bu yuzlargacha yaxlitlash, kerak esa minglargacha." },
-    audio: { intro: { ru: 'Округли сорок пять тысяч шестьсот семьдесят восемь до тысяч.', uz: "Qirq besh ming olti yuz yetmish sakkizni minglar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. В сотнях шесть, округляем вверх до сорока шести тысяч.', uz: "To'g'ri. Yuzlarda olti, qirq olti minggacha yuqoriga yaxlitlaymiz." },
-      on_wrong: { ru: 'Посмотри на сотни.', uz: "Yuzlarga qarang." } } } }
+    question: { ru: 'Округли 45 678 до тысяч.', uz: "45 678 ni minglar xonasigacha yaxlitlang.", en: 'Round 45 678 to the nearest thousand.' },
+    opt0: { ru: '46 000', uz: '46 000', en: '46 000' }, opt1: { ru: '45 000', uz: '45 000', en: '45 000' }, opt2: { ru: '45 700', uz: '45 700', en: '45 700' },
+    hint_1: { ru: 'В сотнях 6, это больше пяти, значит вверх.', uz: "Yuzlarda 6, bu beshdan katta, demak yuqoriga.", en: 'There is a 6 in the hundreds, which is more than five, so it rounds up.' },
+    hint_2: { ru: 'Это округление до сотен, а нужно до тысяч.', uz: "Bu yuzlargacha yaxlitlash, kerak esa minglargacha.", en: 'That is rounding to the nearest hundred, but you need the nearest thousand.' },
+    audio: { intro: { ru: 'Округли сорок пять тысяч шестьсот семьдесят восемь до тысяч.', uz: "Qirq besh ming olti yuz yetmish sakkizni minglar xonasigacha yaxlitlang.", en: 'Round forty five thousand six hundred and seventy eight to the nearest thousand.' },
+      on_correct: { ru: 'Верно. В сотнях шесть, округляем вверх до сорока шести тысяч.', uz: "To'g'ri. Yuzlarda olti, qirq olti minggacha yuqoriga yaxlitlaymiz.", en: 'That is right. There is a six in the hundreds, so we round up to forty six thousand.' },
+      on_wrong: { ru: 'Посмотри на сотни.', uz: "Yuzlarga qarang.", en: 'Look at the hundreds.' } } } }
 ];
 const HARD2_ITEMS = [
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 1, 0], c: {
-    question: { ru: 'Округли 8 500 до тысяч.', uz: "8 500 ni minglar xonasigacha yaxlitlang." },
-    opt0: { ru: '9 000', uz: '9 000' }, opt1: { ru: '8 000', uz: '8 000' }, opt2: { ru: '8 500', uz: '8 500' },
-    hint_1: { ru: 'Это ровно середина. Серединное число округляют вверх.', uz: "Bu aynan o'rta. O'rtadagi son yuqoriga yaxlitlanadi." },
-    hint_2: { ru: 'Округление убирает младшие разряды, они становятся нулями.', uz: "Yaxlitlash kichik xonalarni olib tashlaydi, ular nolga aylanadi." },
-    audio: { intro: { ru: 'Округли восемь тысяч пятьсот до тысяч.', uz: "Sakkiz ming besh yuzni minglar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. Это ровно посередине, серединное округляем вверх, до девяти тысяч.', uz: "To'g'ri. Bu aynan o'rtada, o'rtadagini yuqoriga, to'qqiz minggacha yaxlitlaymiz." },
-      on_wrong: { ru: 'Вспомни правило про середину.', uz: "O'rta haqidagi qoidani eslang." } } } },
+    question: { ru: 'Округли 8 500 до тысяч.', uz: "8 500 ni minglar xonasigacha yaxlitlang.", en: 'Round 8 500 to the nearest thousand.' },
+    opt0: { ru: '9 000', uz: '9 000', en: '9 000' }, opt1: { ru: '8 000', uz: '8 000', en: '8 000' }, opt2: { ru: '8 500', uz: '8 500', en: '8 500' },
+    hint_1: { ru: 'Это ровно середина. Серединное число округляют вверх.', uz: "Bu aynan o'rta. O'rtadagi son yuqoriga yaxlitlanadi.", en: 'This is exactly the middle. A middle number rounds up.' },
+    hint_2: { ru: 'Округление убирает младшие разряды, они становятся нулями.', uz: "Yaxlitlash kichik xonalarni olib tashlaydi, ular nolga aylanadi.", en: 'Rounding clears the lower places and they become zeros.' },
+    audio: { intro: { ru: 'Округли восемь тысяч пятьсот до тысяч.', uz: "Sakkiz ming besh yuzni minglar xonasigacha yaxlitlang.", en: 'Round eight thousand five hundred to the nearest thousand.' },
+      on_correct: { ru: 'Верно. Это ровно посередине, серединное округляем вверх, до девяти тысяч.', uz: "To'g'ri. Bu aynan o'rtada, o'rtadagini yuqoriga, to'qqiz minggacha yaxlitlaymiz.", en: 'That is right. It is exactly in the middle, and a middle number rounds up, to nine thousand.' },
+      on_wrong: { ru: 'Вспомни правило про середину.', uz: "O'rta haqidagi qoidani eslang.", en: 'Remember the rule about the middle.' } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [1, 0, 2], c: {
-    question: { ru: 'Округли 199 950 до сотен.', uz: "199 950 ni yuzlar xonasigacha yaxlitlang." },
-    opt0: { ru: '200 000', uz: '200 000' }, opt1: { ru: '199 900', uz: '199 900' }, opt2: { ru: '199 000', uz: '199 000' },
-    hint_1: { ru: 'В десятках 5, это вверх. Перенос пройдёт цепочкой через девятки.', uz: "O'nlarda 5, yuqoriga. Ko'tarish to'qqizlar orqali zanjir bo'lib o'tadi." },
-    hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha." },
-    audio: { intro: { ru: 'Округли сто девяносто девять тысяч девятьсот пятьдесят до сотен.', uz: "Bir yuz to'qson to'qqiz ming to'qqiz yuz ellikni yuzlar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. В десятках пять, округляем вверх, и цепной перенос даёт двести тысяч.', uz: "To'g'ri. O'nlarda besh, yuqoriga yaxlitlaymiz, zanjirli ko'tarish ikki yuz ming beradi." },
-      on_wrong: { ru: 'Посмотри на разряд десятков.', uz: "O'nlar xonasiga qarang." } } } },
+    question: { ru: 'Округли 199 950 до сотен.', uz: "199 950 ni yuzlar xonasigacha yaxlitlang.", en: 'Round 199 950 to the nearest hundred.' },
+    opt0: { ru: '200 000', uz: '200 000', en: '200 000' }, opt1: { ru: '199 900', uz: '199 900', en: '199 900' }, opt2: { ru: '199 000', uz: '199 000', en: '199 000' },
+    hint_1: { ru: 'В десятках 5, это вверх. Перенос пройдёт цепочкой через девятки.', uz: "O'nlarda 5, yuqoriga. Ko'tarish to'qqizlar orqali zanjir bo'lib o'tadi.", en: 'There is a 5 in the tens, so it rounds up. The carry will run in a chain through the nines.' },
+    hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha.", en: 'That is rounding to the nearest thousand, but you need the nearest hundred.' },
+    audio: { intro: { ru: 'Округли сто девяносто девять тысяч девятьсот пятьдесят до сотен.', uz: "Bir yuz to'qson to'qqiz ming to'qqiz yuz ellikni yuzlar xonasigacha yaxlitlang.", en: 'Round one hundred and ninety nine thousand nine hundred and fifty to the nearest hundred.' },
+      on_correct: { ru: 'Верно. В десятках пять, округляем вверх, и цепной перенос даёт двести тысяч.', uz: "To'g'ri. O'nlarda besh, yuqoriga yaxlitlaymiz, zanjirli ko'tarish ikki yuz ming beradi.", en: 'That is right. There is a five in the tens, so we round up, and the chain of carries gives two hundred thousand.' },
+      on_wrong: { ru: 'Посмотри на разряд десятков.', uz: "O'nlar xonasiga qarang.", en: 'Look at the tens place.' } } } },
   { type: 'mc', correct: 0, optKeys: ['opt0', 'opt1', 'opt2'], order: [2, 0, 1], c: {
-    question: { ru: 'Округли 6 449 до сотен.', uz: "6 449 ni yuzlar xonasigacha yaxlitlang." },
-    opt0: { ru: '6 400', uz: '6 400' }, opt1: { ru: '6 500', uz: '6 500' }, opt2: { ru: '6 000', uz: '6 000' },
-    hint_1: { ru: 'Смотри на десятки: там 4, это меньше пяти, значит вниз.', uz: "O'nlarga qarang: u yerda 4, bu beshdan kichik, demak pastga." },
-    hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha." },
-    audio: { intro: { ru: 'Округли шесть тысяч четыреста сорок девять до сотен.', uz: "Olti ming to'rt yuz qirq to'qqizni yuzlar xonasigacha yaxlitlang." },
-      on_correct: { ru: 'Верно. В десятках четыре, это меньше пяти, округляем вниз до шести тысяч четырёхсот.', uz: "To'g'ri. O'nlarda to'rt, bu beshdan kichik, olti ming to'rt yuzgacha pastga yaxlitlaymiz." },
-      on_wrong: { ru: 'Посмотри на десятки.', uz: "O'nlarga qarang." } } } }
+    question: { ru: 'Округли 6 449 до сотен.', uz: "6 449 ni yuzlar xonasigacha yaxlitlang.", en: 'Round 6 449 to the nearest hundred.' },
+    opt0: { ru: '6 400', uz: '6 400', en: '6 400' }, opt1: { ru: '6 500', uz: '6 500', en: '6 500' }, opt2: { ru: '6 000', uz: '6 000', en: '6 000' },
+    hint_1: { ru: 'Смотри на десятки: там 4, это меньше пяти, значит вниз.', uz: "O'nlarga qarang: u yerda 4, bu beshdan kichik, demak pastga.", en: 'Look at the tens: there is a 4 there, which is less than five, so it rounds down.' },
+    hint_2: { ru: 'Это округление до тысяч, а нужно до сотен.', uz: "Bu minglargacha yaxlitlash, kerak esa yuzlargacha.", en: 'That is rounding to the nearest thousand, but you need the nearest hundred.' },
+    audio: { intro: { ru: 'Округли шесть тысяч четыреста сорок девять до сотен.', uz: "Olti ming to'rt yuz qirq to'qqizni yuzlar xonasigacha yaxlitlang.", en: 'Round six thousand four hundred and forty nine to the nearest hundred.' },
+      on_correct: { ru: 'Верно. В десятках четыре, это меньше пяти, округляем вниз до шести тысяч четырёхсот.', uz: "To'g'ri. O'nlarda to'rt, bu beshdan kichik, olti ming to'rt yuzgacha pastga yaxlitlaymiz.", en: 'That is right. There is a four in the tens, which is less than five, so we round down to six thousand four hundred.' },
+      on_wrong: { ru: 'Посмотри на десятки.', uz: "O'nlarga qarang.", en: 'Look at the tens.' } } } }
 ];
 
 // ============================================================
@@ -1366,7 +1445,7 @@ const HintBlock = ({ show, children }) => {
   if (!show) return null;
   return (
     <div className="frame-tip fade-up" style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
-      <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
+      <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка'}</p>
       <p className="body" style={{ margin: 0, color: T.ink }}>{children}</p>
     </div>
   );
@@ -1487,7 +1566,7 @@ const SeqSolve = ({ screen, totalScreens, screenContent, items, scope, storedAns
         {results.length > 0 && results.slice(0, idx).map((ft, k) => (
           <div key={k} className="frame-success fade-up" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: 'clamp(9px, 1.6vw, 12px) clamp(12px, 2vw, 16px)' }}>
             <span className="mono small" style={{ color: T.success, fontWeight: 700 }} aria-hidden="true">✓</span>
-            <span className="small" style={{ color: T.ink2 }}>{(lang === 'uz' ? 'Misol ' : 'Пример ') + (k + 1) + (lang === 'uz' ? " — to'g'ri" : ' — верно')}</span>
+            <span className="small" style={{ color: T.ink2 }}>{(lang === 'uz' ? 'Misol ' : lang === 'en' ? "Example " : 'Пример ') + (k + 1) + (lang === 'uz' ? " — to'g'ri" : lang === 'en' ? " — correct" : ' — верно')}</span>
           </div>
         ))}
         {/* joriy misol */}
@@ -1518,7 +1597,7 @@ const SeqSolve = ({ screen, totalScreens, screenContent, items, scope, storedAns
                 </div>
                 {picked === null && (
                   <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                    <button className="btn-white-accent" disabled={!value} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
+                    <button className="btn-white-accent" disabled={!value} onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>
                   </div>
                 )}
               </>
@@ -1529,7 +1608,7 @@ const SeqSolve = ({ screen, totalScreens, screenContent, items, scope, storedAns
         {/* blok yakuni */}
         {done && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : 'Готово'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? 'Tayyor' : lang === 'en' ? "Done" : 'Готово'}</p>
             <p className="body" style={{ margin: 0 }}>{t(w.done_text)}</p>
           </FeedbackBlock>
         )}
@@ -1731,7 +1810,7 @@ const Screen5 = ({ screen, totalScreens, onNext, onPrev }) => {
           </div>
         )}
         {checked && (<div className="frame-success fade-up">
-          <p className="body" style={{ margin: 0 }}>{t({ ru: `${value} ближе к ${nearer}.${value === MID ? ' Ровно посередине — берём большее.' : ''}`, uz: `${value} ${nearer} ga yaqinroq.${value === MID ? " Aynan o'rtada — kattasini olamiz." : ''}` })}</p>
+          <p className="body" style={{ margin: 0 }}>{t({ ru: `${value} ближе к ${nearer}.${value === MID ? ' Ровно посередине — берём большее.' : ''}`, uz: `${value} ${nearer} ga yaqinroq.${value === MID ? " Aynan o'rtada — kattasini olamiz." : ''}`, en: `${value} is closer to ${nearer}.${value === MID ? ' Exactly halfway, so we take the bigger one.' : ''}` })}</p>
         </div>)}
       </div>
     </Stage>
@@ -1888,7 +1967,7 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
   const scoredIdx = SCREEN_META.map((m, i) => (m.scored ? i : -1)).filter(i => i >= 0);
   const correct = scoredIdx.filter(i => answers[i]?.correct).length;
   const total = scoredIdx.length;
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : lang === 'en' ? "Do it again" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)', justifyContent: 'center' }}>
@@ -1897,7 +1976,7 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
         <div className="frame-tip fade-up delay-1" style={{ position: 'relative' }}><p className="body" style={{ margin: 0 }}>{t(c.ring_back)}</p></div>
         <div className="frame-success fade-up delay-1" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 14 }}>
           <span className="mono" style={{ fontSize: 'clamp(24px, 5.5vw, 32px)', fontWeight: 700, color: T.success, lineHeight: 1, flexShrink: 0 }}>{correct} / {total}</span>
-          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "blok birinchi urinishda to'g'ri" : 'блоков решено с первой попытки'}</span>
+          <span className="body" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "blok birinchi urinishda to'g'ri" : lang === 'en' ? "blocks answered correctly first time" : 'блоков решено с первой попытки'}</span>
         </div>
         <div className="frame fade-up delay-2" style={{ position: 'relative' }}>
           <ul className="body" style={{ paddingLeft: 20, color: T.ink2, display: 'flex', flexDirection: 'column', gap: 6, margin: 0 }}>
@@ -1906,7 +1985,7 @@ const Screen13 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson
           </ul>
         </div>
         <div className="frame-tip fade-up delay-3" style={{ position: 'relative' }}>
-          <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.accent }}>➡️ {lang === 'uz' ? 'Keyingi' : 'Дальше'}:</span> {t(c.teaser)}</p>
+          <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.accent }}>➡️ {lang === 'uz' ? 'Keyingi' : lang === 'en' ? "Next" : 'Дальше'}:</span> {t(c.teaser)}</p>
         </div>
       </div>
     </Stage>
@@ -2033,7 +2112,7 @@ export default function NumbersLesson_5_02({
   correctSoundUrl, wrongSoundUrl, aiGradingEndpoint, onFinished,
 }) {
   const lang = langProp || 'ru';
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
 

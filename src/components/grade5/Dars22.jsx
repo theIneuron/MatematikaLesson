@@ -43,9 +43,34 @@ const stripAudioTags = (s) => typeof s === 'string'
       .replace(/\s{2,}/g, ' ').trim()
   : s;
 
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык — маркерами внутри text (только смешанные строки языковых курсов); math шлёт без маркеров,
-// сервер определяет язык сам (ru=кириллица, uz=латиница). Движок свой тег НЕ добавляет.
+// Ведущий маркер языка для TTS: без него голос читает базовый язык неправильно.
+// Ставится ОДИН раз — движком, перед отправкой (playSegment), а не в CONTENT: строки
+// склеиваются и уходят через pushOneOff, в тексте маркер попал бы в середину.
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim();
+  if (!s) return s;
+  if (LEAD_TAG_RE.test(s)) return s;
+  return (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + s;
+};
+
+// Метка урока в запросе озвучки: сервер по ней отделяет кэш одного урока от другого
+// (без неё ключ — только текст, и озвучка всех уроков лежит вперемешку).
+// student_uuid не шлём: LMS не передаёт его уроку.
+const lessonMetaQuery = (lang) => {
+  const meta = (typeof LESSON_META !== 'undefined' && LESSON_META) || null;
+  if (!meta || !meta.lessonId) return '';
+  const title = meta.lessonTitle || {};
+  const name = title[lang] || title.ru || '';
+  return '&lesson_id=' + encodeURIComponent(meta.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '');
+};
+
+// HTTP TTS: {base}/api/tts?text=<encoded>&g=m|f&lesson_id=<id>&lesson_name=<название>.
+// text и g — контракт v5.2; lesson_id и lesson_name добавлены, чтобы сервер раскладывал
+// кэш озвучки по урокам, а не в общую кучу (решение методиста, 2026-08-12).
+// Язык — ведущим маркером внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
+// Маркер ставит движок (withLangTag) перед отправкой; сервер по нему выбирает произношение.
 function buildTtsUrl(base, text, gender) {
   const raw = String(text);
   const enc = encodeURIComponent(raw.slice(0, 1000)).replace(/%5B/g, '[').replace(/%5D/g, ']');
@@ -183,7 +208,7 @@ class AudioEngine {
     return el;
   }
 
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
+  setLang(lang) { this.currentLang = lang; }              // язык ведущего маркера TTS + preview Web Speech
   setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
 
   loadQueue(segments) {
@@ -224,7 +249,8 @@ class AudioEngine {
     };
 
     const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender);
+    const lang = segment.lang || this.currentLang;
+    el.src = buildTtsUrl(base, withLangTag(segment.text, lang), gender) + lessonMetaQuery(lang);
     const p = el.play();
     if (p && typeof p.then === 'function') {
       p.then(() => {
@@ -604,12 +630,12 @@ const NavNext = ({ disabled, label, onClick }) => (
 
 const NextLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
+  return lang === 'uz' ? 'Davom etish' : lang === 'en' ? "Next" : 'Дальше';
 };
 
 const BackLabel = () => {
   const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
+  return lang === 'uz' ? 'Orqaga' : lang === 'en' ? "Back" : 'Назад';
 };
 
 // ============================================================
@@ -730,7 +756,7 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
         </div>
         <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
           <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
           </p>
           <p className="body" style={{ margin: 0 }}>
             {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
@@ -754,8 +780,8 @@ const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, 
 // Drag-and-drop: 3 metod (fill / classify / order), Dars37 gibrid tap+drag.
 // ============================================================
 const LESSON_META = {
-  lessonId: 'frac-5-14-v2',
-  lessonTitle: { ru: 'Перевод смешанного числа в неправильную дробь и обратно', uz: "Aralash sonni noto'g'ri kasrga va aksincha o'tkazish" }
+  lessonId: 'grade5-22',
+  lessonTitle: { ru: 'Перевод смешанного числа в неправильную дробь и обратно', uz: "Aralash sonni noto'g'ri kasrga va aksincha o'tkazish", en: 'Converting a mixed number into an improper fraction and back' }
 };
 const TOTAL_SCREENS = 13;
 const SCREEN_META = [
@@ -778,22 +804,22 @@ const CONTENT = {
   // s0 — HOOK: Bahodir 2 to'la quti (5 tadan) + 3 ochiq olma. Hammasini beshlik kasr qilib yozmoqchi:
   //      2 va 3/5 ni noto'g'ri (2+3)/5 = 5/5 deb yozdi. Lekin 5/5 — bitta quti, u esa 2 qutidan ko'p.
   s0: {
-    eyebrow: { ru: 'Вопрос', uz: "Savol" },
-    lead: { ru: 'У Баходира 2 полные коробки яблок (по 5 в каждой) и ещё 3 яблока. Это 2 целых 3/5 коробки. Он перевёл в неправильную дробь так: (2 + 3)/5 = 5/5.', uz: "Bahodirda 2 ta to'la olma qutisi bor (har birida 5 tadan) va yana 3 ta olma. Bu 2 butun 3/5 quti. U buni noto'g'ri kasrga shunday o'tkazdi: (2 + 3)/5 = 5/5." },
-    question: { ru: 'Но 5/5 — это ровно 1 коробка. А у Баходира больше двух коробок. В чём ошибка?', uz: "Lekin 5/5 — bu roppa-rosa 1 quti. Bahodirda esa ikki qutidan ko'proq. Xato nimada?" },
-    opt0: { ru: 'Целое нельзя просто прибавлять — сначала умножь его на знаменатель', uz: "Butunni shunchaki qo'shib bo'lmaydi — avval uni maxrajga ko'paytirish kerak" },
-    opt1: { ru: 'Всё верно, ответ 5/5', uz: "Hammasi to'g'ri, javob 5/5" },
-    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas" },
-    audio: { ru: 'У Баходира две полные коробки яблок, по пять в каждой, и ещё три яблока сверху. Это два целых три пятых коробки. Он захотел записать всё одной неправильной дробью и сложил два и три, получил пять пятых. Но пять пятых это ровно одна коробка, а у него коробок больше двух. Значит где-то ошибка. Подумай и выбери ответ.', uz: "Bahodirda ikkita to'la olma qutisi bor, har birida beshtadan, va yana uchta olma ortiqcha. Bu ikki butun beshdan uch quti. U hammasini bitta noto'g'ri kasr qilib yozmoqchi bo'ldi va ikki bilan uchni qo'shib, beshdan besh oldi. Lekin beshdan besh roppa-rosa bitta quti, uning qutilari esa ikkitadan ko'p. Demak qayerdadir xato bor. O'ylab, javobni tanlang." }
+    eyebrow: { ru: 'Вопрос', uz: "Savol", en: 'Question' },
+    lead: { ru: 'У Баходира 2 полные коробки яблок (по 5 в каждой) и ещё 3 яблока. Это 2 целых 3/5 коробки. Он перевёл в неправильную дробь так: (2 + 3)/5 = 5/5.', uz: "Bahodirda 2 ta to'la olma qutisi bor (har birida 5 tadan) va yana 3 ta olma. Bu 2 butun 3/5 quti. U buni noto'g'ri kasrga shunday o'tkazdi: (2 + 3)/5 = 5/5.", en: 'Bahodir has 2 full boxes of apples (5 in each) and 3 more apples. That is 2 and 3/5 boxes. He turned it into an improper fraction like this: (2 + 3)/5 = 5/5.' },
+    question: { ru: 'Но 5/5 — это ровно 1 коробка. А у Баходира больше двух коробок. В чём ошибка?', uz: "Lekin 5/5 — bu roppa-rosa 1 quti. Bahodirda esa ikki qutidan ko'proq. Xato nimada?", en: 'But 5/5 is exactly 1 box. And Bahodir has more than two boxes. Where is the mistake?' },
+    opt0: { ru: 'Целое нельзя просто прибавлять — сначала умножь его на знаменатель', uz: "Butunni shunchaki qo'shib bo'lmaydi — avval uni maxrajga ko'paytirish kerak", en: 'The whole number cannot just be added, it has to be multiplied by the denominator first' },
+    opt1: { ru: 'Всё верно, ответ 5/5', uz: "Hammasi to'g'ri, javob 5/5", en: 'It is all fine, the answer is 5/5' },
+    opt2: { ru: 'Пока не уверен(а)', uz: "Hozircha aniq emas", en: 'I am not sure yet' },
+    audio: { ru: 'У Баходира две полные коробки яблок, по пять в каждой, и ещё три яблока сверху. Это два целых три пятых коробки. Он захотел записать всё одной неправильной дробью и сложил два и три, получил пять пятых. Но пять пятых это ровно одна коробка, а у него коробок больше двух. Значит где-то ошибка. Подумай и выбери ответ.', uz: "Bahodirda ikkita to'la olma qutisi bor, har birida beshtadan, va yana uchta olma ortiqcha. Bu ikki butun beshdan uch quti. U hammasini bitta noto'g'ri kasr qilib yozmoqchi bo'ldi va ikki bilan uchni qo'shib, beshdan besh oldi. Lekin beshdan besh roppa-rosa bitta quti, uning qutilari esa ikkitadan ko'p. Demak qayerdadir xato bor. O'ylab, javobni tanlang.", en: 'Bahodir has two full boxes of apples, five in each, and three more apples on top. That is two and three fifths boxes. He wanted to write it all as one improper fraction, so he added two and three and got five fifths. But five fifths is exactly one box, and he has more than two boxes. So there is a mistake somewhere. Think about it and choose an answer.' }
   },
 
   // s1 — EXPLORATION step: aralash son nimani anglatadi (quti modeli)
   s1: {
-    eyebrow: { ru: 'Разбор', uz: "Tahlil" },
-    title: { ru: 'Что значит смешанное число?', uz: "Aralash son nimani anglatadi?" },
-    conclusion: { ru: 'Целое — это полные коробки. Числитель — отдельные яблоки. Знаменатель — сколько яблок в одной коробке.', uz: "Butun — to'la qutilar. Surat — alohida olmalar. Maxraj — bitta qutida nechta olma." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Как перевести в дробь?', uz: "Kasrga qanday o'tkazamiz?" },
+    eyebrow: { ru: 'Разбор', uz: "Tahlil", en: 'Working it out' },
+    title: { ru: 'Что значит смешанное число?', uz: "Aralash son nimani anglatadi?", en: 'What does a mixed number mean?' },
+    conclusion: { ru: 'Целое — это полные коробки. Числитель — отдельные яблоки. Знаменатель — сколько яблок в одной коробке.', uz: "Butun — to'la qutilar. Surat — alohida olmalar. Maxraj — bitta qutida nechta olma.", en: 'The whole number is the full boxes. The numerator is the loose apples. The denominator is how many apples fit in one box.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Как перевести в дробь?', uz: "Kasrga qanday o'tkazamiz?", en: 'How do we turn it into a fraction?' },
     audio: {
       ru: [
         'Разберём, что значит два целых три пятых. Нажимай кнопку дальше.',
@@ -806,20 +832,21 @@ const CONTENT = {
         "Ikki soni ikkita to'la quti. Har birida beshtadan olma.",
         "Beshdan uch bu uchta alohida olma. Qutiga beshta sig'adi, shuning uchun maxraj besh.",
         "Eslab qoling. Butun bu to'la qutilar, surat bu alohida olmalar, maxraj bu bitta qutida nechta olma."
-      ]
+      ],
+      en: ['Let us work out what two and three fifths means. Tap the next button.', 'The two means two full boxes. Each one holds five apples.', 'The three fifths means three loose apples. A box holds five, which is why the denominator is five.', 'Remember: the whole number is the full boxes, the numerator is the loose apples and the denominator is how many apples fit in one box.']
     }
   },
 
   // s2 — EXPLORATION (mixed -> improper): qutilarni ochib donalarni sanaymiz. 2x5=10, +3=13 -> 13/5
   s2: {
-    eyebrow: { ru: 'Считаем', uz: "Sanaymiz" },
-    title: { ru: 'Открываем коробки: сколько всего яблок?', uz: "Qutilarni ochamiz: jami nechta olma?" },
-    step_lbl: { ru: 'Всего яблок', uz: "Jami olma" },
-    s1: { ru: '2 коробки по 5 — это 2 × 5 = 10 яблок.', uz: "2 ta quti 5 tadan — bu 2 × 5 = 10 olma." },
-    s2: { ru: 'Плюс 3 отдельных яблока: 10 + 3 = 13.', uz: "Ustiga 3 ta alohida olma: 10 + 3 = 13." },
-    s3: { ru: 'Всего 13 яблок по пятой части. Значит 2 целых 3/5 = 13/5.', uz: "Jami 13 ta olma, har biri beshdan bir. Demak 2 butun 3/5 = 13/5." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'А как обратно?', uz: "Orqaga-chi?" },
+    eyebrow: { ru: 'Считаем', uz: "Sanaymiz", en: 'Counting' },
+    title: { ru: 'Открываем коробки: сколько всего яблок?', uz: "Qutilarni ochamiz: jami nechta olma?", en: 'Let us open the boxes: how many apples are there altogether?' },
+    step_lbl: { ru: 'Всего яблок', uz: "Jami olma", en: 'Apples in all' },
+    s1: { ru: '2 коробки по 5 — это 2 × 5 = 10 яблок.', uz: "2 ta quti 5 tadan — bu 2 × 5 = 10 olma.", en: '2 boxes of 5 is 2 × 5 = 10 apples.' },
+    s2: { ru: 'Плюс 3 отдельных яблока: 10 + 3 = 13.', uz: "Ustiga 3 ta alohida olma: 10 + 3 = 13.", en: 'Plus 3 loose apples: 10 + 3 = 13.' },
+    s3: { ru: 'Всего 13 яблок по пятой части. Значит 2 целых 3/5 = 13/5.', uz: "Jami 13 ta olma, har biri beshdan bir. Demak 2 butun 3/5 = 13/5.", en: '13 apples in all, each a fifth of a box. So 2 and 3/5 = 13/5.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'А как обратно?', uz: "Orqaga-chi?", en: 'And how do we go back?' },
     audio: {
       ru: [
         'Откроем коробки и сосчитаем все яблоки по отдельности. Нажимай дальше.',
@@ -832,19 +859,20 @@ const CONTENT = {
         "Ikkita quti, har birida beshtadan olma. Ikkini beshga ko'paytirsak o'n olma bo'ladi.",
         "Uchta alohida olmani qo'shamiz. O'n plyus uch o'n uch bo'ladi.",
         "Jami o'n uchta olma, har biri qutining beshdan biri. Demak ikki butun beshdan uch teng beshdan o'n uch."
-      ]
+      ],
+      en: ['Let us open the boxes and count all the apples one by one. Tap next.', 'Two boxes of five apples. Two times five is ten apples.', 'Let us add the three loose apples. Ten plus three is thirteen.', 'Thirteen apples in all, and each one is a fifth of a box. So two and three fifths equals thirteen fifths.']
     }
   },
 
   // s3 — EXPLORATION (improper -> mixed): 13 donani 5 talik qutilarga joylaymiz. 13:5 = 2 qoldiq 3 -> 2 3/5
   s3: {
-    eyebrow: { ru: 'Раскладываем', uz: "Joylaymiz" },
-    title: { ru: 'Обратно: раскладываем 13 яблок по коробкам', uz: "Orqaga: 13 olmani qutilarga joylaymiz" },
-    s1: { ru: 'Заполнили первую коробку — 5 яблок. Осталось 8.', uz: "Birinchi qutini to'ldirdik — 5 olma. 8 tasi qoldi." },
-    s2: { ru: 'Заполнили вторую — ещё 5. Осталось 3. Третьей коробки не хватает.', uz: "Ikkinchisini to'ldirdik — yana 5. 3 tasi qoldi. Uchinchi quti to'lmaydi." },
-    s3: { ru: '2 полные коробки и 3 яблока. Это 13 : 5 = 2 остаток 3, то есть 2 целых 3/5.', uz: "2 ta to'la quti va 3 ta olma. Bu 13 : 5 = 2 qoldiq 3, ya'ni 2 butun 3/5." },
-    btn_step: { ru: 'Дальше', uz: "Davom etish" },
-    btn_final: { ru: 'Понятно, к правилу', uz: "Tushunarli, qoidaga" },
+    eyebrow: { ru: 'Раскладываем', uz: "Joylaymiz", en: 'Splitting it up' },
+    title: { ru: 'Обратно: раскладываем 13 яблок по коробкам', uz: "Orqaga: 13 olmani qutilarga joylaymiz", en: 'Going back: putting 13 apples into boxes' },
+    s1: { ru: 'Заполнили первую коробку — 5 яблок. Осталось 8.', uz: "Birinchi qutini to'ldirdik — 5 olma. 8 tasi qoldi.", en: 'The first box is full with 5 apples. 8 are left.' },
+    s2: { ru: 'Заполнили вторую — ещё 5. Осталось 3. Третьей коробки не хватает.', uz: "Ikkinchisini to'ldirdik — yana 5. 3 tasi qoldi. Uchinchi quti to'lmaydi.", en: 'The second is full with 5 more. 3 are left, not enough for a third box.' },
+    s3: { ru: '2 полные коробки и 3 яблока. Это 13 : 5 = 2 остаток 3, то есть 2 целых 3/5.', uz: "2 ta to'la quti va 3 ta olma. Bu 13 : 5 = 2 qoldiq 3, ya'ni 2 butun 3/5.", en: '2 full boxes and 3 apples. That is 13 : 5 = 2 remainder 3, which is 2 and 3/5.' },
+    btn_step: { ru: 'Дальше', uz: "Davom etish", en: 'Next' },
+    btn_final: { ru: 'Понятно, к правилу', uz: "Tushunarli, qoidaga", en: 'Got it, on to the rule' },
     audio: {
       ru: [
         'Теперь наоборот. У нас тринадцать отдельных яблок, раскладываем их по коробкам на пять. Нажимай дальше.',
@@ -857,214 +885,215 @@ const CONTENT = {
         "Birinchi qutini to'ldirdik, unga beshta olma sig'di. Sakkiztasi qoldi.",
         "Ikkinchi qutini to'ldirdik, yana beshta. Uchta olma qoldi, butun qutiga ular yetmaydi.",
         "Ikkita to'la quti va uchta olma chiqdi. Bu o'n uchni beshga bo'lish, ikki butun va qoldiq uch bo'ladi. Demak beshdan o'n uch teng ikki butun beshdan uch."
-      ]
+      ],
+      en: ['Now the other way round. We have thirteen loose apples and we are putting them into boxes of five. Tap next.', 'The first box is full and five apples went into it. Eight are left.', 'The second box is full with five more. Three apples are left, not enough for a whole box.', 'That gives two full boxes and three apples. It is thirteen divided by five, which is two remainder three. So thirteen fifths equals two and three fifths.']
     }
   },
 
   // s4 — RULE: ikki yo'l
   s4: {
-    eyebrow: { ru: 'Правило', uz: "Qoida" },
-    title: { ru: 'Два направления — две короткие записи.', uz: "Ikki yo'nalish — ikkita qisqa yozuv." },
-    rule1_lbl: { ru: 'Смешанное → неправильная', uz: "Aralash → noto'g'ri" },
-    rule1_a: { ru: 'Целое умножь на знаменатель и прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, ustiga suratni qo'shing." },
-    rule1_b: { ru: 'Знаменатель не меняется.', uz: "Maxraj o'zgarmaydi." },
-    rule1_eq: { ru: '2 3/5 = (2·5 + 3)/5 = 13/5', uz: "2 3/5 = (2·5 + 3)/5 = 13/5" },
-    rule2_lbl: { ru: 'Неправильная → смешанное', uz: "Noto'g'ri → aralash" },
-    rule2_a: { ru: 'Числитель раздели на знаменатель.', uz: "Suratni maxrajga bo'ling." },
-    rule2_b: { ru: 'Частное — целое, остаток — новый числитель.', uz: "Bo'linma — butun, qoldiq — yangi surat." },
-    rule2_eq: { ru: '13/5 = 13 : 5 = 2 ост. 3 = 2 3/5', uz: "13/5 = 13 : 5 = 2 qold. 3 = 2 3/5" },
-    audio: { ru: 'Запомни два пути. Первый: смешанное число в неправильную дробь. Целое умножь на знаменатель и прибавь числитель, а знаменатель оставь. Два целых три пятых: два умножить на пять это десять, плюс три это тринадцать, получаем тринадцать пятых. Второй путь: неправильную дробь в смешанное число. Числитель раздели на знаменатель. Частное это целая часть, а остаток это новый числитель. Тринадцать разделить на пять это два и остаток три, значит два целых три пятых.', uz: "Ikki yo'lni eslab qoling. Birinchi: aralash sonni noto'g'ri kasrga. Butunni maxrajga ko'paytiring va ustiga suratni qo'shing, maxraj o'zgarmaydi. Ikki butun beshdan uch: ikkini beshga ko'paytirsak o'n, plyus uch o'n uch, beshdan o'n uch chiqadi. Ikkinchi yo'l: noto'g'ri kasrni aralash songa. Suratni maxrajga bo'ling. Bo'linma butun qism, qoldiq esa yangi surat. O'n uchni beshga bo'lsak ikki va qoldiq uch, demak ikki butun beshdan uch." }
+    eyebrow: { ru: 'Правило', uz: "Qoida", en: 'Rule' },
+    title: { ru: 'Два направления — две короткие записи.', uz: "Ikki yo'nalish — ikkita qisqa yozuv.", en: 'Two directions, two short rules.' },
+    rule1_lbl: { ru: 'Смешанное → неправильная', uz: "Aralash → noto'g'ri", en: 'Mixed → improper' },
+    rule1_a: { ru: 'Целое умножь на знаменатель и прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, ustiga suratni qo'shing.", en: 'Multiply the whole number by the denominator and add the numerator.' },
+    rule1_b: { ru: 'Знаменатель не меняется.', uz: "Maxraj o'zgarmaydi.", en: 'The denominator does not change.' },
+    rule1_eq: { ru: '2 3/5 = (2·5 + 3)/5 = 13/5', uz: "2 3/5 = (2·5 + 3)/5 = 13/5", en: '2 3/5 = (2·5 + 3)/5 = 13/5' },
+    rule2_lbl: { ru: 'Неправильная → смешанное', uz: "Noto'g'ri → aralash", en: 'Improper → mixed' },
+    rule2_a: { ru: 'Числитель раздели на знаменатель.', uz: "Suratni maxrajga bo'ling.", en: 'Divide the numerator by the denominator.' },
+    rule2_b: { ru: 'Частное — целое, остаток — новый числитель.', uz: "Bo'linma — butun, qoldiq — yangi surat.", en: 'The answer is the whole number and the remainder is the new numerator.' },
+    rule2_eq: { ru: '13/5 = 13 : 5 = 2 ост. 3 = 2 3/5', uz: "13/5 = 13 : 5 = 2 qold. 3 = 2 3/5", en: '13/5 = 13 : 5 = 2 rem. 3 = 2 3/5' },
+    audio: { ru: 'Запомни два пути. Первый: смешанное число в неправильную дробь. Целое умножь на знаменатель и прибавь числитель, а знаменатель оставь. Два целых три пятых: два умножить на пять это десять, плюс три это тринадцать, получаем тринадцать пятых. Второй путь: неправильную дробь в смешанное число. Числитель раздели на знаменатель. Частное это целая часть, а остаток это новый числитель. Тринадцать разделить на пять это два и остаток три, значит два целых три пятых.', uz: "Ikki yo'lni eslab qoling. Birinchi: aralash sonni noto'g'ri kasrga. Butunni maxrajga ko'paytiring va ustiga suratni qo'shing, maxraj o'zgarmaydi. Ikki butun beshdan uch: ikkini beshga ko'paytirsak o'n, plyus uch o'n uch, beshdan o'n uch chiqadi. Ikkinchi yo'l: noto'g'ri kasrni aralash songa. Suratni maxrajga bo'ling. Bo'linma butun qism, qoldiq esa yangi surat. O'n uchni beshga bo'lsak ikki va qoldiq uch, demak ikki butun beshdan uch.", en: 'Remember the two ways. The first: a mixed number into an improper fraction. Multiply the whole number by the denominator, add the numerator and leave the denominator. Two and three fifths: two times five is ten, plus three is thirteen, giving thirteen fifths. The second way: an improper fraction into a mixed number. Divide the numerator by the denominator. The answer is the whole number part and the remainder is the new numerator. Thirteen divided by five is two remainder three, so two and three fifths.' }
   },
 
   // sfill — DRAG-FILL: 2 3/5 -> noto'g'ri kasr algoritmini sonlar bilan to'ldirish
   sfill: {
-    eyebrow: { ru: 'Перетащи', uz: "Sudrang" },
-    title: { ru: 'Собери перевод перетаскиванием', uz: "O'tkazishni sudrab yig'ing" },
-    lead: { ru: 'Переведи 2 3/5 в неправильную дробь за два шага. Перетащи (или нажми) числа в клетки.', uz: "2 3/5 ni noto'g'ri kasrga ikki qadamda o'tkazing. Sonlarni kataklarga sudrang yoki bosing." },
-    lbl_mul: { ru: '1-шаг · целое × знаменатель', uz: "1-qadam · butun × maxraj" },
-    lbl_add: { ru: '2-шаг · прибавь числитель', uz: "2-qadam · suratni qo'shing" },
-    goal_lbl: { ru: 'Цель', uz: "Maqsad" },
-    tray_label: { ru: 'Числа', uz: "Sonlar" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Сначала 2 × 5 = 10, потом 10 + 3 = 13. Знаменатель остаётся 5.', uz: "Avval 2 × 5 = 10, keyin 10 + 3 = 13. Maxraj 5 bo'lib qoladi." },
-    correct_text: { ru: 'Верно! 2 × 5 = 10, 10 + 3 = 13. Значит 2 3/5 = 13/5.', uz: "To'g'ri! 2 × 5 = 10, 10 + 3 = 13. Demak 2 3/5 = 13/5." },
-    fact: { ru: 'Программы для рецептов хранят такие количества как неправильные дроби — так их проще складывать.', uz: "Retsept dasturlari bunday miqdorlarni noto'g'ri kasr ko'rinishida saqlaydi — shunda qo'shish osonroq." },
+    eyebrow: { ru: 'Перетащи', uz: "Sudrang", en: 'Drag them' },
+    title: { ru: 'Собери перевод перетаскиванием', uz: "O'tkazishni sudrab yig'ing", en: 'Build the conversion by dragging' },
+    lead: { ru: 'Переведи 2 3/5 в неправильную дробь за два шага. Перетащи (или нажми) числа в клетки.', uz: "2 3/5 ni noto'g'ri kasrga ikki qadamda o'tkazing. Sonlarni kataklarga sudrang yoki bosing.", en: 'Turn 2 3/5 into an improper fraction in two steps. Drag (or tap) the numbers into the boxes.' },
+    lbl_mul: { ru: '1-шаг · целое × знаменатель', uz: "1-qadam · butun × maxraj", en: 'Step 1 · whole number × denominator' },
+    lbl_add: { ru: '2-шаг · прибавь числитель', uz: "2-qadam · suratni qo'shing", en: 'Step 2 · add the numerator' },
+    goal_lbl: { ru: 'Цель', uz: "Maqsad", en: 'Target' },
+    tray_label: { ru: 'Числа', uz: "Sonlar", en: 'Numbers' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Сначала 2 × 5 = 10, потом 10 + 3 = 13. Знаменатель остаётся 5.', uz: "Avval 2 × 5 = 10, keyin 10 + 3 = 13. Maxraj 5 bo'lib qoladi.", en: 'First 2 × 5 = 10, then 10 + 3 = 13. The denominator stays 5.' },
+    correct_text: { ru: 'Верно! 2 × 5 = 10, 10 + 3 = 13. Значит 2 3/5 = 13/5.', uz: "To'g'ri! 2 × 5 = 10, 10 + 3 = 13. Demak 2 3/5 = 13/5.", en: 'Right! 2 × 5 = 10 and 10 + 3 = 13. So 2 3/5 = 13/5.' },
+    fact: { ru: 'Программы для рецептов хранят такие количества как неправильные дроби — так их проще складывать.', uz: "Retsept dasturlari bunday miqdorlarni noto'g'ri kasr ko'rinishida saqlaydi — shunda qo'shish osonroq.", en: 'Recipe apps store amounts like these as improper fractions, because they are easier to add up that way.' },
     audio: {
-      intro: { ru: 'Собери перевод. Перетащи или нажми числа в клетки. Сначала два умножить на пять, потом прибавь три, потом запиши числитель. Затем нажми проверить.', uz: "O'tkazishni yig'ing. Sonlarni kataklarga sudrang yoki bosing. Avval ikkini beshga ko'paytiring, keyin uchni qo'shing, keyin suratni yozing. So'ng tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Целое умножили на знаменатель и прибавили числитель.', uz: "To'g'ri. Butunni maxrajga ko'paytirdik va suratni qo'shdik." },
-      on_wrong: { ru: 'Пока не так. Целое умножь на знаменатель, потом прибавь числитель.', uz: "Hozircha emas. Butunni maxrajga ko'paytiring, keyin suratni qo'shing." }
+      intro: { ru: 'Собери перевод. Перетащи или нажми числа в клетки. Сначала два умножить на пять, потом прибавь три, потом запиши числитель. Затем нажми проверить.', uz: "O'tkazishni yig'ing. Sonlarni kataklarga sudrang yoki bosing. Avval ikkini beshga ko'paytiring, keyin uchni qo'shing, keyin suratni yozing. So'ng tekshirishni bosing.", en: 'Build the conversion. Drag or tap the numbers into the boxes. First two times five, then add three, then write the numerator. After that tap check.' },
+      on_correct: { ru: 'Верно. Целое умножили на знаменатель и прибавили числитель.', uz: "To'g'ri. Butunni maxrajga ko'paytirdik va suratni qo'shdik.", en: 'That is right. The whole number was multiplied by the denominator and the numerator was added.' },
+      on_wrong: { ru: 'Пока не так. Целое умножь на знаменатель, потом прибавь числитель.', uz: "Hozircha emas. Butunni maxrajga ko'paytiring, keyin suratni qo'shing.", en: 'Not right yet. Multiply the whole number by the denominator, then add the numerator.' }
     }
   },
 
   // sbins — DRAG-CLASSIFY: noto'g'ri kasrlar — butun son chiqadi / aralash son chiqadi
   sbins: {
-    eyebrow: { ru: 'Перетащи', uz: "Sudrang" },
-    title: { ru: 'Что получится: целое или смешанное?', uz: "Nima chiqadi: butun yoki aralash?" },
-    lead: { ru: 'Раздели числитель на знаменатель. Делится без остатка — целое, есть остаток — смешанное.', uz: "Suratni maxrajga bo'ling. Qoldiqsiz bo'linsa — butun, qoldiq bo'lsa — aralash." },
-    binW: { ru: 'Целое число', uz: "Butun son" },
-    binM: { ru: 'Смешанное число', uz: "Aralash son" },
-    it0: { ru: '10/5', uz: "10/5" },
-    it1: { ru: '7/5', uz: "7/5" },
-    it2: { ru: '9/3', uz: "9/3" },
-    it3: { ru: '8/3', uz: "8/3" },
-    tray_label: { ru: 'Дроби', uz: "Kasrlar" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: '10:5=2 и 9:3=3 — без остатка, целые. 7:5 и 8:3 — с остатком, смешанные.', uz: "10:5=2 va 9:3=3 — qoldiqsiz, butun. 7:5 va 8:3 — qoldiq bilan, aralash." },
-    correct_text: { ru: 'Верно! 10/5 = 2 и 9/3 = 3 — целые. 7/5 = 1 2/5 и 8/3 = 2 2/3 — смешанные.', uz: "To'g'ri! 10/5 = 2 va 9/3 = 3 — butun. 7/5 = 1 2/5 va 8/3 = 2 2/3 — aralash." },
-    fact: { ru: 'Дробь равна целому числу, когда числитель делится на знаменатель нацело.', uz: "Surat maxrajga to'liq bo'linsa, kasr butun songa teng bo'ladi." },
+    eyebrow: { ru: 'Перетащи', uz: "Sudrang", en: 'Drag them' },
+    title: { ru: 'Что получится: целое или смешанное?', uz: "Nima chiqadi: butun yoki aralash?", en: 'Will it come out as a whole number or a mixed number?' },
+    lead: { ru: 'Раздели числитель на знаменатель. Делится без остатка — целое, есть остаток — смешанное.', uz: "Suratni maxrajga bo'ling. Qoldiqsiz bo'linsa — butun, qoldiq bo'lsa — aralash.", en: 'Divide the numerator by the denominator. No remainder means a whole number, a remainder means a mixed number.' },
+    binW: { ru: 'Целое число', uz: "Butun son", en: 'Whole number' },
+    binM: { ru: 'Смешанное число', uz: "Aralash son", en: 'Mixed number' },
+    it0: { ru: '10/5', uz: "10/5", en: '10/5' },
+    it1: { ru: '7/5', uz: "7/5", en: '7/5' },
+    it2: { ru: '9/3', uz: "9/3", en: '9/3' },
+    it3: { ru: '8/3', uz: "8/3", en: '8/3' },
+    tray_label: { ru: 'Дроби', uz: "Kasrlar", en: 'Fractions' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: '10:5=2 и 9:3=3 — без остатка, целые. 7:5 и 8:3 — с остатком, смешанные.', uz: "10:5=2 va 9:3=3 — qoldiqsiz, butun. 7:5 va 8:3 — qoldiq bilan, aralash.", en: '10:5=2 and 9:3=3 have no remainder, so they are whole numbers. 7:5 and 8:3 have a remainder, so they are mixed numbers.' },
+    correct_text: { ru: 'Верно! 10/5 = 2 и 9/3 = 3 — целые. 7/5 = 1 2/5 и 8/3 = 2 2/3 — смешанные.', uz: "To'g'ri! 10/5 = 2 va 9/3 = 3 — butun. 7/5 = 1 2/5 va 8/3 = 2 2/3 — aralash.", en: 'Right! 10/5 = 2 and 9/3 = 3 are whole numbers. 7/5 = 1 2/5 and 8/3 = 2 2/3 are mixed numbers.' },
+    fact: { ru: 'Дробь равна целому числу, когда числитель делится на знаменатель нацело.', uz: "Surat maxrajga to'liq bo'linsa, kasr butun songa teng bo'ladi.", en: 'A fraction equals a whole number when the numerator divides by the denominator exactly.' },
     audio: {
-      intro: { ru: 'Перетащи каждую дробь в нужную корзину. Раздели числитель на знаменатель: если без остатка, получится целое, если с остатком, получится смешанное. Потом нажми проверить.', uz: "Har bir kasrni kerakli savatga sudrang. Suratni maxrajga bo'ling: qoldiqsiz bo'linsa butun, qoldiq qolsa aralash chiqadi. Keyin tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Ты проверяешь, делится ли числитель на знаменатель нацело.', uz: "To'g'ri. Surat maxrajga to'liq bo'linadimi, shuni tekshiryapsiz." },
-      on_wrong: { ru: 'Пока не так. Раздели числитель на знаменатель и посмотри на остаток.', uz: "Hozircha emas. Suratni maxrajga bo'ling va qoldiqqa qarang." }
+      intro: { ru: 'Перетащи каждую дробь в нужную корзину. Раздели числитель на знаменатель: если без остатка, получится целое, если с остатком, получится смешанное. Потом нажми проверить.', uz: "Har bir kasrni kerakli savatga sudrang. Suratni maxrajga bo'ling: qoldiqsiz bo'linsa butun, qoldiq qolsa aralash chiqadi. Keyin tekshirishni bosing.", en: 'Drag each fraction into the right basket. Divide the numerator by the denominator: no remainder gives a whole number, a remainder gives a mixed number. Then tap check.' },
+      on_correct: { ru: 'Верно. Ты проверяешь, делится ли числитель на знаменатель нацело.', uz: "To'g'ri. Surat maxrajga to'liq bo'linadimi, shuni tekshiryapsiz.", en: 'That is right. You are checking whether the numerator divides by the denominator exactly.' },
+      on_wrong: { ru: 'Пока не так. Раздели числитель на знаменатель и посмотри на остаток.', uz: "Hozircha emas. Suratni maxrajga bo'ling va qoldiqqa qarang.", en: 'Not right yet. Divide the numerator by the denominator and look at the remainder.' }
     }
   },
 
   // s7 — 5 TA OSON SAVOL (SeqMC)
   s7: {
-    eyebrow: { ru: 'Разминка', uz: "Mashq" },
-    title: { ru: '5 быстрых вопросов', uz: "5 ta tez savol" },
-    lead: { ru: 'Короткие шаги перевода. Жми ответ.', uz: "O'tkazishning qisqa qadamlari. Javobni bosing." },
+    eyebrow: { ru: 'Разминка', uz: "Mashq", en: 'Warm up' },
+    title: { ru: '5 быстрых вопросов', uz: "5 ta tez savol", en: '5 quick questions' },
+    lead: { ru: 'Короткие шаги перевода. Жми ответ.', uz: "O'tkazishning qisqa qadamlari. Javobni bosing.", en: 'Short steps of the conversion. Tap an answer.' },
     audio: {
-      intro: { ru: 'Пять быстрых вопросов про перевод дробей. Помни два пути: умножить и прибавить, либо разделить с остатком. Нажимай ответ.', uz: "Kasrlarni o'tkazish haqida besh ta tez savol. Ikki yo'lni eslang: ko'paytirib qo'shish yoki qoldiq bilan bo'lish. Javobni bosing." },
-      on_wrong: { ru: 'Не совсем. Подумай ещё.', uz: "Unchalik emas. Yana o'ylang." },
-      on_done: { ru: 'Готово. Пять верных шагов.', uz: "Tayyor. Besh to'g'ri qadam." }
+      intro: { ru: 'Пять быстрых вопросов про перевод дробей. Помни два пути: умножить и прибавить, либо разделить с остатком. Нажимай ответ.', uz: "Kasrlarni o'tkazish haqida besh ta tez savol. Ikki yo'lni eslang: ko'paytirib qo'shish yoki qoldiq bilan bo'lish. Javobni bosing.", en: 'Five quick questions about converting fractions. Remember the two ways: multiply and add, or divide with a remainder. Tap an answer.' },
+      on_wrong: { ru: 'Не совсем. Подумай ещё.', uz: "Unchalik emas. Yana o'ylang.", en: 'Not quite. Think again.' },
+      on_done: { ru: 'Готово. Пять верных шагов.', uz: "Tayyor. Besh to'g'ri qadam.", en: 'Done. Five right steps.' }
     },
     questions: [
-      { q: { ru: '2 1/3: чему равно 2 × 3?', uz: "2 1/3: 2 × 3 nechaga teng?" }, opts: ['6', '5', '23'], correct: 0,
-        say: { ru: 'В числе два целых одна третья, сколько будет два умножить на три?', uz: "Ikki butun uchdan bir sonida ikkini uchga ko'paytirsak nechta bo'ladi?" },
-        ok: { ru: 'Верно, шесть. Дальше прибавим числитель.', uz: "To'g'ri, olti. Keyin suratni qo'shamiz." }, no: { ru: 'Умножь целое на знаменатель.', uz: "Butunni maxrajga ko'paytiring." } },
-      { q: { ru: '2 1/3 = ?/3', uz: "2 1/3 = ?/3" }, opts: ['7', '6', '3'], correct: 0,
-        say: { ru: 'Два умножить на три это шесть, плюс один. Какой числитель?', uz: "Ikkini uchga ko'paytirsak olti, plyus bir. Surat qancha?" },
-        ok: { ru: 'Верно, 7/3.', uz: "To'g'ri, 7/3." }, no: { ru: 'К произведению прибавь числитель.', uz: "Ko'paytmaga suratni qo'shing." } },
-      { q: { ru: '7/5 = 1 ?/5', uz: "7/5 = 1 ?/5" }, opts: ['2', '5', '7'], correct: 0,
-        say: { ru: 'Семь разделить на пять это один и остаток. Какой остаток?', uz: "Yettini beshga bo'lsak bir va qoldiq. Qoldiq qancha?" },
-        ok: { ru: 'Верно, остаток 2. Значит 1 2/5.', uz: "To'g'ri, qoldiq 2. Demak 1 2/5." }, no: { ru: 'Остаток это что осталось после деления.', uz: "Qoldiq — bo'lishdan keyin ortib qolgani." } },
-      { q: { ru: 'Сколько целых в 11/4?', uz: "11/4 da nechta butun bor?" }, opts: ['2', '3', '11'], correct: 0,
-        say: { ru: 'Сколько целых коробок по четыре в одиннадцати?', uz: "O'n bittada to'rttadan nechta to'la quti bor?" },
-        ok: { ru: 'Верно, 2 целых (и 3 в остатке).', uz: "To'g'ri, 2 butun (va qoldiq 3)." }, no: { ru: 'Раздели числитель на знаменатель.', uz: "Suratni maxrajga bo'ling." } },
-      { q: { ru: '3/3 = ?', uz: "3/3 = ?" }, opts: ['1', '3', '0'], correct: 0,
-        say: { ru: 'Три третьих, сколько это целых?', uz: "Uchdan uch, bu nechta butun?" },
-        ok: { ru: 'Верно, ровно 1 целое.', uz: "To'g'ri, roppa-rosa 1 butun." }, no: { ru: 'Числитель равен знаменателю — выходит одно целое.', uz: "Surat maxrajga teng — bitta butun chiqadi." } }
+      { q: { ru: '2 1/3: чему равно 2 × 3?', uz: "2 1/3: 2 × 3 nechaga teng?", en: '2 1/3: what is 2 × 3?' }, opts: ['6', '5', '23'], correct: 0,
+        say: { ru: 'В числе два целых одна третья, сколько будет два умножить на три?', uz: "Ikki butun uchdan bir sonida ikkini uchga ko'paytirsak nechta bo'ladi?", en: 'In the number two and one third, how much is two times three?' },
+        ok: { ru: 'Верно, шесть. Дальше прибавим числитель.', uz: "To'g'ri, olti. Keyin suratni qo'shamiz.", en: 'That is right, six. Next we add the numerator.' }, no: { ru: 'Умножь целое на знаменатель.', uz: "Butunni maxrajga ko'paytiring.", en: 'Multiply the whole number by the denominator.' } },
+      { q: { ru: '2 1/3 = ?/3', uz: "2 1/3 = ?/3", en: '2 1/3 = ?/3' }, opts: ['7', '6', '3'], correct: 0,
+        say: { ru: 'Два умножить на три это шесть, плюс один. Какой числитель?', uz: "Ikkini uchga ko'paytirsak olti, plyus bir. Surat qancha?", en: 'Two times three is six, plus one. What is the numerator?' },
+        ok: { ru: 'Верно, 7/3.', uz: "To'g'ri, 7/3.", en: 'That is right, 7/3.' }, no: { ru: 'К произведению прибавь числитель.', uz: "Ko'paytmaga suratni qo'shing.", en: 'Add the numerator to what you multiplied out.' } },
+      { q: { ru: '7/5 = 1 ?/5', uz: "7/5 = 1 ?/5", en: '7/5 = 1 ?/5' }, opts: ['2', '5', '7'], correct: 0,
+        say: { ru: 'Семь разделить на пять это один и остаток. Какой остаток?', uz: "Yettini beshga bo'lsak bir va qoldiq. Qoldiq qancha?", en: 'Seven divided by five is one and a remainder. What is the remainder?' },
+        ok: { ru: 'Верно, остаток 2. Значит 1 2/5.', uz: "To'g'ri, qoldiq 2. Demak 1 2/5.", en: 'That is right, the remainder is 2. So 1 2/5.' }, no: { ru: 'Остаток это что осталось после деления.', uz: "Qoldiq — bo'lishdan keyin ortib qolgani.", en: 'The remainder is what is left after dividing.' } },
+      { q: { ru: 'Сколько целых в 11/4?', uz: "11/4 da nechta butun bor?", en: 'How many wholes are there in 11/4?' }, opts: ['2', '3', '11'], correct: 0,
+        say: { ru: 'Сколько целых коробок по четыре в одиннадцати?', uz: "O'n bittada to'rttadan nechta to'la quti bor?", en: 'How many full boxes of four are there in eleven?' },
+        ok: { ru: 'Верно, 2 целых (и 3 в остатке).', uz: "To'g'ri, 2 butun (va qoldiq 3).", en: 'That is right, 2 wholes (with 3 left over).' }, no: { ru: 'Раздели числитель на знаменатель.', uz: "Suratni maxrajga bo'ling.", en: 'Divide the numerator by the denominator.' } },
+      { q: { ru: '3/3 = ?', uz: "3/3 = ?", en: '3/3 = ?' }, opts: ['1', '3', '0'], correct: 0,
+        say: { ru: 'Три третьих, сколько это целых?', uz: "Uchdan uch, bu nechta butun?", en: 'Three thirds, how many wholes is that?' },
+        ok: { ru: 'Верно, ровно 1 целое.', uz: "To'g'ri, roppa-rosa 1 butun.", en: 'That is right, exactly 1 whole.' }, no: { ru: 'Числитель равен знаменателю — выходит одно целое.', uz: "Surat maxrajga teng — bitta butun chiqadi.", en: 'The numerator equals the denominator, so it comes to one whole.' } }
     ]
   },
 
   // s8 — 6-8 MISOL OSON->QIYIN (SeqMix: input / mc / multi), ikki yo'nalish aralash
   s8: {
-    eyebrow: { ru: 'Тренировка', uz: "Mashq" },
-    title: { ru: 'Примеры: от простого к сложному', uz: "Misollar: oddiydan murakkabga" },
-    lead: { ru: 'Переводи туда и обратно. Каждый пример чуть сложнее.', uz: "U yoqdan bu yoqqa o'tkazing. Har misol biroz qiyinroq." },
+    eyebrow: { ru: 'Тренировка', uz: "Mashq", en: 'Training' },
+    title: { ru: 'Примеры: от простого к сложному', uz: "Misollar: oddiydan murakkabga", en: 'Examples: from easy to hard' },
+    lead: { ru: 'Переводи туда и обратно. Каждый пример чуть сложнее.', uz: "U yoqdan bu yoqqa o'tkazing. Har misol biroz qiyinroq.", en: 'Convert them both ways. Each example is a little harder.' },
     audio: {
-      intro: { ru: 'Восемь примеров, от простого к сложному. Переводи смешанное в неправильное и обратно. Поехали.', uz: "Sakkiz misol, oddiydan murakkabga. Aralashni noto'g'riga va aksincha o'tkazing. Boshladik." },
-      on_wrong: { ru: 'Не совсем. Вспомни: умножить и прибавить, или разделить с остатком.', uz: "Unchalik emas. Eslang: ko'paytirib qo'shish yoki qoldiq bilan bo'lish." },
-      on_done: { ru: 'Отлично. Ты прошёл от простого примера до самого трудного.', uz: "Zo'r. Oson misoldan eng qiyiniga qadar yetib bordingiz." }
+      intro: { ru: 'Восемь примеров, от простого к сложному. Переводи смешанное в неправильное и обратно. Поехали.', uz: "Sakkiz misol, oddiydan murakkabga. Aralashni noto'g'riga va aksincha o'tkazing. Boshladik.", en: 'Eight examples, from easy to hard. Convert mixed numbers into improper fractions and back. Off we go.' },
+      on_wrong: { ru: 'Не совсем. Вспомни: умножить и прибавить, или разделить с остатком.', uz: "Unchalik emas. Eslang: ko'paytirib qo'shish yoki qoldiq bilan bo'lish.", en: 'Not quite. Remember: multiply and add, or divide with a remainder.' },
+      on_done: { ru: 'Отлично. Ты прошёл от простого примера до самого трудного.', uz: "Zo'r. Oson misoldan eng qiyiniga qadar yetib bordingiz.", en: 'Well done. You went from the easy example all the way to the hardest.' }
     },
     items: [
-      { type: 'input', q: { ru: '1 1/2 = ?/2', uz: "1 1/2 = ?/2" }, answer: 3,
-        say: { ru: 'Одна целая одна вторая. Один умножить на два плюс один.', uz: "Bir butun ikkidan bir. Birni ikkiga ko'paytirib bir qo'shing." },
-        ok: { ru: 'Верно. 1 × 2 + 1 = 3, значит 3/2.', uz: "To'g'ri. 1 × 2 + 1 = 3, demak 3/2." },
-        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing." } },
-      { type: 'mc', q: { ru: '2 1/4 = ?', uz: "2 1/4 = ?" }, opts: ['9/4', '3/4', '7/4'], correct: 0,
-        say: { ru: 'Два целых одна четвёртая в неправильную дробь.', uz: "Ikki butun to'rtdan birni noto'g'ri kasrga." },
-        ok: { ru: 'Верно. 2 × 4 + 1 = 9, значит 9/4.', uz: "To'g'ri. 2 × 4 + 1 = 9, demak 9/4." },
-        no: { ru: 'Два умножь на четыре и прибавь один.', uz: "Ikkini to'rtga ko'paytiring va bir qo'shing." } },
-      { type: 'input', q: { ru: '7/4 = 1 ?/4', uz: "7/4 = 1 ?/4" }, answer: 3,
-        say: { ru: 'Семь четвёртых в смешанное. Семь разделить на четыре, какой остаток?', uz: "To'rtdan yettini aralashga. Yettini to'rtga bo'lsak, qoldiq qancha?" },
-        ok: { ru: 'Верно. 7 : 4 = 1 остаток 3, значит 1 3/4.', uz: "To'g'ri. 7 : 4 = 1 qoldiq 3, demak 1 3/4." },
-        no: { ru: 'Раздели семь на четыре и посмотри остаток.', uz: "Yettini to'rtga bo'ling va qoldiqqa qarang." } },
-      { type: 'mc', q: { ru: '9/2 = ?', uz: "9/2 = ?" }, opts: ['4 1/2', '4 1/4', '3 1/2'], correct: 0,
-        say: { ru: 'Девять вторых в смешанное число.', uz: "Ikkidan to'qqizni aralash songa." },
-        ok: { ru: 'Верно. 9 : 2 = 4 остаток 1, значит 4 1/2.', uz: "To'g'ri. 9 : 2 = 4 qoldiq 1, demak 4 1/2." },
-        no: { ru: 'Раздели девять на два: частное это целое, остаток это числитель.', uz: "To'qqizni ikkiga bo'ling: bo'linma butun, qoldiq surat." } },
-      { type: 'multi', q: { ru: 'Какие дроби неправильные?', uz: "Qaysi kasrlar noto'g'ri?" }, opts: ['7/5', '3/8', '9/9'], correctSet: [0, 2],
-        say: { ru: 'Отметь все неправильные дроби. Неправильная это когда числитель больше или равен знаменателю.', uz: "Barcha noto'g'ri kasrlarni belgilang. Noto'g'ri — surat maxrajdan katta yoki teng bo'lganda." },
-        ok: { ru: 'Верно. 7/5 и 9/9 неправильные, а 3/8 правильная.', uz: "To'g'ri. 7/5 va 9/9 noto'g'ri, 3/8 esa to'g'ri." },
-        no: { ru: 'Сравни числитель и знаменатель в каждой дроби.', uz: "Har kasrda surat va maxrajni solishtiring." } },
-      { type: 'input', q: { ru: '3 2/5 = ?/5', uz: "3 2/5 = ?/5" }, answer: 17,
-        say: { ru: 'Три целых две пятых. Три умножить на пять плюс два.', uz: "Uch butun beshdan ikki. Uchni beshga ko'paytirib ikki qo'shing." },
-        ok: { ru: 'Верно. 3 × 5 + 2 = 17, значит 17/5.', uz: "To'g'ri. 3 × 5 + 2 = 17, demak 17/5." },
-        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing." } },
-      { type: 'mc', q: { ru: '23/4 = ?', uz: "23/4 = ?" }, opts: ['5 3/4', '4 3/4', '5 1/4'], correct: 0,
-        say: { ru: 'Двадцать три четвёртых в смешанное число.', uz: "To'rtdan yigirma uchni aralash songa." },
-        ok: { ru: 'Верно. 23 : 4 = 5 остаток 3, значит 5 3/4.', uz: "To'g'ri. 23 : 4 = 5 qoldiq 3, demak 5 3/4." },
-        no: { ru: 'Раздели двадцать три на четыре с остатком.', uz: "Yigirma uchni to'rtga qoldiq bilan bo'ling." } },
-      { type: 'input', q: { ru: '4 5/6 = ?/6', uz: "4 5/6 = ?/6" }, answer: 29,
-        say: { ru: 'Четыре целых пять шестых. Четыре умножить на шесть плюс пять.', uz: "To'rt butun oltidan besh. To'rtni oltiga ko'paytirib besh qo'shing." },
-        ok: { ru: 'Верно. 4 × 6 + 5 = 29, значит 29/6.', uz: "To'g'ri. 4 × 6 + 5 = 29, demak 29/6." },
-        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing." } }
+      { type: 'input', q: { ru: '1 1/2 = ?/2', uz: "1 1/2 = ?/2", en: '1 1/2 = ?/2' }, answer: 3,
+        say: { ru: 'Одна целая одна вторая. Один умножить на два плюс один.', uz: "Bir butun ikkidan bir. Birni ikkiga ko'paytirib bir qo'shing.", en: 'One and one half. One times two plus one.' },
+        ok: { ru: 'Верно. 1 × 2 + 1 = 3, значит 3/2.', uz: "To'g'ri. 1 × 2 + 1 = 3, demak 3/2.", en: 'That is right. 1 × 2 + 1 = 3, so 3/2.' },
+        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing.", en: 'Multiply the whole number by the denominator, then add the numerator.' } },
+      { type: 'mc', q: { ru: '2 1/4 = ?', uz: "2 1/4 = ?", en: '2 1/4 = ?' }, opts: ['9/4', '3/4', '7/4'], correct: 0,
+        say: { ru: 'Два целых одна четвёртая в неправильную дробь.', uz: "Ikki butun to'rtdan birni noto'g'ri kasrga.", en: 'Two and one quarter into an improper fraction.' },
+        ok: { ru: 'Верно. 2 × 4 + 1 = 9, значит 9/4.', uz: "To'g'ri. 2 × 4 + 1 = 9, demak 9/4.", en: 'That is right. 2 × 4 + 1 = 9, so 9/4.' },
+        no: { ru: 'Два умножь на четыре и прибавь один.', uz: "Ikkini to'rtga ko'paytiring va bir qo'shing.", en: 'Multiply two by four and add one.' } },
+      { type: 'input', q: { ru: '7/4 = 1 ?/4', uz: "7/4 = 1 ?/4", en: '7/4 = 1 ?/4' }, answer: 3,
+        say: { ru: 'Семь четвёртых в смешанное. Семь разделить на четыре, какой остаток?', uz: "To'rtdan yettini aralashga. Yettini to'rtga bo'lsak, qoldiq qancha?", en: 'Seven quarters into a mixed number. Seven divided by four, what is the remainder?' },
+        ok: { ru: 'Верно. 7 : 4 = 1 остаток 3, значит 1 3/4.', uz: "To'g'ri. 7 : 4 = 1 qoldiq 3, demak 1 3/4.", en: 'That is right. 7 : 4 = 1 remainder 3, so 1 3/4.' },
+        no: { ru: 'Раздели семь на четыре и посмотри остаток.', uz: "Yettini to'rtga bo'ling va qoldiqqa qarang.", en: 'Divide seven by four and look at the remainder.' } },
+      { type: 'mc', q: { ru: '9/2 = ?', uz: "9/2 = ?", en: '9/2 = ?' }, opts: ['4 1/2', '4 1/4', '3 1/2'], correct: 0,
+        say: { ru: 'Девять вторых в смешанное число.', uz: "Ikkidan to'qqizni aralash songa.", en: 'Nine halves into a mixed number.' },
+        ok: { ru: 'Верно. 9 : 2 = 4 остаток 1, значит 4 1/2.', uz: "To'g'ri. 9 : 2 = 4 qoldiq 1, demak 4 1/2.", en: 'That is right. 9 : 2 = 4 remainder 1, so 4 1/2.' },
+        no: { ru: 'Раздели девять на два: частное это целое, остаток это числитель.', uz: "To'qqizni ikkiga bo'ling: bo'linma butun, qoldiq surat.", en: 'Divide nine by two: the answer is the whole number and the remainder is the numerator.' } },
+      { type: 'multi', q: { ru: 'Какие дроби неправильные?', uz: "Qaysi kasrlar noto'g'ri?", en: 'Which fractions are improper?' }, opts: ['7/5', '3/8', '9/9'], correctSet: [0, 2],
+        say: { ru: 'Отметь все неправильные дроби. Неправильная это когда числитель больше или равен знаменателю.', uz: "Barcha noto'g'ri kasrlarni belgilang. Noto'g'ri — surat maxrajdan katta yoki teng bo'lganda.", en: 'Mark all the improper fractions. Improper means the numerator is bigger than the denominator or equal to it.' },
+        ok: { ru: 'Верно. 7/5 и 9/9 неправильные, а 3/8 правильная.', uz: "To'g'ri. 7/5 va 9/9 noto'g'ri, 3/8 esa to'g'ri.", en: 'That is right. 7/5 and 9/9 are improper and 3/8 is proper.' },
+        no: { ru: 'Сравни числитель и знаменатель в каждой дроби.', uz: "Har kasrda surat va maxrajni solishtiring.", en: 'Compare the numerator and the denominator in each fraction.' } },
+      { type: 'input', q: { ru: '3 2/5 = ?/5', uz: "3 2/5 = ?/5", en: '3 2/5 = ?/5' }, answer: 17,
+        say: { ru: 'Три целых две пятых. Три умножить на пять плюс два.', uz: "Uch butun beshdan ikki. Uchni beshga ko'paytirib ikki qo'shing.", en: 'Three and two fifths. Three times five plus two.' },
+        ok: { ru: 'Верно. 3 × 5 + 2 = 17, значит 17/5.', uz: "To'g'ri. 3 × 5 + 2 = 17, demak 17/5.", en: 'That is right. 3 × 5 + 2 = 17, so 17/5.' },
+        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing.", en: 'Multiply the whole number by the denominator, then add the numerator.' } },
+      { type: 'mc', q: { ru: '23/4 = ?', uz: "23/4 = ?", en: '23/4 = ?' }, opts: ['5 3/4', '4 3/4', '5 1/4'], correct: 0,
+        say: { ru: 'Двадцать три четвёртых в смешанное число.', uz: "To'rtdan yigirma uchni aralash songa.", en: 'Twenty three quarters into a mixed number.' },
+        ok: { ru: 'Верно. 23 : 4 = 5 остаток 3, значит 5 3/4.', uz: "To'g'ri. 23 : 4 = 5 qoldiq 3, demak 5 3/4.", en: 'That is right. 23 : 4 = 5 remainder 3, so 5 3/4.' },
+        no: { ru: 'Раздели двадцать три на четыре с остатком.', uz: "Yigirma uchni to'rtga qoldiq bilan bo'ling.", en: 'Divide twenty three by four with a remainder.' } },
+      { type: 'input', q: { ru: '4 5/6 = ?/6', uz: "4 5/6 = ?/6", en: '4 5/6 = ?/6' }, answer: 29,
+        say: { ru: 'Четыре целых пять шестых. Четыре умножить на шесть плюс пять.', uz: "To'rt butun oltidan besh. To'rtni oltiga ko'paytirib besh qo'shing.", en: 'Four and five sixths. Four times six plus five.' },
+        ok: { ru: 'Верно. 4 × 6 + 5 = 29, значит 29/6.', uz: "To'g'ri. 4 × 6 + 5 = 29, demak 29/6.", en: 'That is right. 4 × 6 + 5 = 29, so 29/6.' },
+        no: { ru: 'Целое умножь на знаменатель, потом прибавь числитель.', uz: "Butunni maxrajga ko'paytiring, keyin suratni qo'shing.", en: 'Multiply the whole number by the denominator, then add the numerator.' } }
     ]
   },
 
   // sorder — DRAG-ORDER: kichikdan kattaga. 5/4 (1 1/4) < 7/4 < 2 1/4 (9/4)
   sorder: {
-    eyebrow: { ru: 'Перетащи', uz: "Sudrang" },
-    title: { ru: 'Расставь от меньшей к большей', uz: "Kichikdan kattaga joylashtiring" },
-    lead: { ru: 'Приведи всё к четвертям и сравни. Слева — меньшая, справа — большая.', uz: "Hammasini to'rtdanlarga keltiring va solishtiring. Chapda — kichigi, o'ngda — kattasi." },
-    slot0: { ru: 'Меньшая', uz: "Eng kichik" },
-    slot1: { ru: 'Средняя', uz: "O'rtacha" },
-    slot2: { ru: 'Большая', uz: "Eng katta" },
-    tray_label: { ru: 'Числа', uz: "Sonlar" },
-    btn_check: { ru: 'Проверить', uz: "Tekshirish" },
-    hint_wrong: { ru: 'Переведи в четверти: 5/4, 7/4, а 2 1/4 = 9/4. Чем больше числитель, тем больше дробь.', uz: "To'rtdanlarga o'tkazing: 5/4, 7/4, va 2 1/4 = 9/4. Surat qancha katta bo'lsa, son shuncha katta." },
-    correct_text: { ru: 'Верно! 5/4 = 1 1/4, 7/4 = 1 3/4, 2 1/4 = 9/4 — по возрастанию.', uz: "To'g'ri! 5/4 = 1 1/4, 7/4 = 1 3/4, 2 1/4 = 9/4 — o'sish tartibida." },
-    fact: { ru: 'Чтобы сравнить смешанные и неправильные дроби, их приводят к одному виду — как здесь к четвертям.', uz: "Aralash va noto'g'ri kasrlarni solishtirish uchun ularni bir ko'rinishga keltiriladi — bu yerda to'rtdanlarga." },
+    eyebrow: { ru: 'Перетащи', uz: "Sudrang", en: 'Drag them' },
+    title: { ru: 'Расставь от меньшей к большей', uz: "Kichikdan kattaga joylashtiring", en: 'Put them in order from smallest to biggest' },
+    lead: { ru: 'Приведи всё к четвертям и сравни. Слева — меньшая, справа — большая.', uz: "Hammasini to'rtdanlarga keltiring va solishtiring. Chapda — kichigi, o'ngda — kattasi.", en: 'Change them all into quarters and compare. The smallest on the left and the biggest on the right.' },
+    slot0: { ru: 'Меньшая', uz: "Eng kichik", en: 'Smallest' },
+    slot1: { ru: 'Средняя', uz: "O'rtacha", en: 'Middle' },
+    slot2: { ru: 'Большая', uz: "Eng katta", en: 'Biggest' },
+    tray_label: { ru: 'Числа', uz: "Sonlar", en: 'Numbers' },
+    btn_check: { ru: 'Проверить', uz: "Tekshirish", en: 'Check' },
+    hint_wrong: { ru: 'Переведи в четверти: 5/4, 7/4, а 2 1/4 = 9/4. Чем больше числитель, тем больше дробь.', uz: "To'rtdanlarga o'tkazing: 5/4, 7/4, va 2 1/4 = 9/4. Surat qancha katta bo'lsa, son shuncha katta.", en: 'Change them into quarters: 5/4, 7/4, and 2 1/4 = 9/4. The bigger the numerator, the bigger the fraction.' },
+    correct_text: { ru: 'Верно! 5/4 = 1 1/4, 7/4 = 1 3/4, 2 1/4 = 9/4 — по возрастанию.', uz: "To'g'ri! 5/4 = 1 1/4, 7/4 = 1 3/4, 2 1/4 = 9/4 — o'sish tartibida.", en: 'Right! 5/4 = 1 1/4, 7/4 = 1 3/4, 2 1/4 = 9/4, in order from smallest to biggest.' },
+    fact: { ru: 'Чтобы сравнить смешанные и неправильные дроби, их приводят к одному виду — как здесь к четвертям.', uz: "Aralash va noto'g'ri kasrlarni solishtirish uchun ularni bir ko'rinishga keltiriladi — bu yerda to'rtdanlarga.", en: 'To compare mixed numbers and improper fractions, they are put into the same form, as they are into quarters here.' },
     audio: {
-      intro: { ru: 'Расставь числа от меньшего к большему. Переведи всё в четверти и сравни числители. Перетащи или нажми, потом нажми проверить.', uz: "Sonlarni kichikdan kattaga joylashtiring. Hammasini to'rtdanlarga o'tkazing va suratlarni solishtiring. Sudrang yoki bosing, keyin tekshirishni bosing." },
-      on_correct: { ru: 'Верно. Пять четвёртых меньше семи четвёртых, а два целых одна четвёртая это девять четвёртых, самое большое.', uz: "To'g'ri. To'rtdan besh to'rtdan yettidan kichik, ikki butun to'rtdan bir esa to'rtdan to'qqiz, eng kattasi." },
-      on_wrong: { ru: 'Пока не так. Приведи всё к четвертям и сравни числители.', uz: "Hozircha emas. Hammasini to'rtdanlarga keltiring va suratlarni solishtiring." }
+      intro: { ru: 'Расставь числа от меньшего к большему. Переведи всё в четверти и сравни числители. Перетащи или нажми, потом нажми проверить.', uz: "Sonlarni kichikdan kattaga joylashtiring. Hammasini to'rtdanlarga o'tkazing va suratlarni solishtiring. Sudrang yoki bosing, keyin tekshirishni bosing.", en: 'Put the numbers in order from smallest to biggest. Change them all into quarters and compare the numerators. Drag or tap them, then tap check.' },
+      on_correct: { ru: 'Верно. Пять четвёртых меньше семи четвёртых, а два целых одна четвёртая это девять четвёртых, самое большое.', uz: "To'g'ri. To'rtdan besh to'rtdan yettidan kichik, ikki butun to'rtdan bir esa to'rtdan to'qqiz, eng kattasi.", en: 'That is right. Five quarters is less than seven quarters, and two and one quarter is nine quarters, the biggest of all.' },
+      on_wrong: { ru: 'Пока не так. Приведи всё к четвертям и сравни числители.', uz: "Hozircha emas. Hammasini to'rtdanlarga keltiring va suratlarni solishtiring.", en: 'Not right yet. Change them all into quarters and compare the numerators.' }
     }
   },
 
   // s10 — CASE setup: Iroda 23 tuxumni 4 talik qutilarga joylaydi
   s10: {
-    eyebrow: { ru: 'Задача · упаковка', uz: "Masala · qadoqlash" },
-    title: { ru: 'Ирода раскладывает 23 яйца по коробкам.', uz: "Iroda 23 ta tuxumni qutilarga joylaydi." },
-    body_p1: { ru: 'В одной коробке помещается 4 яйца. Сколько получится полных коробок и сколько яиц останется?', uz: "Bitta qutiga 4 ta tuxum sig'adi. Nechta to'la quti chiqadi va nechta tuxum ortib qoladi?" },
-    cap_label: { ru: 'Всего яиц', uz: "Jami tuxum" },
-    box_label: { ru: 'В коробке', uz: "Qutida" },
-    outro: { ru: 'Это перевод 23/4 в смешанное число. Раздели 23 на 4 с остатком.', uz: "Bu 23/4 ni aralash songa o'tkazish. 23 ni 4 ga qoldiq bilan bo'ling." },
-    btn_help: { ru: 'Помочь Ироде', uz: "Irodaga yordam berish" },
-    audio: { ru: 'Ирода раскладывает двадцать три яйца по коробкам, в каждую помещается четыре яйца. Сколько выйдет полных коробок и сколько яиц останется? Это перевод двадцати трёх четвёртых в смешанное число. Раздели двадцать три на четыре с остатком. Помоги на следующем шаге.', uz: "Iroda yigirma uchta tuxumni qutilarga joylaydi, har biriga to'rttadan sig'adi. Nechta to'la quti chiqadi va nechta tuxum ortib qoladi? Bu to'rtdan yigirma uchni aralash songa o'tkazish. Yigirma uchni to'rtga qoldiq bilan bo'ling. Keyingi bosqichda yordam bering." }
+    eyebrow: { ru: 'Задача · упаковка', uz: "Masala · qadoqlash", en: 'Problem · packing' },
+    title: { ru: 'Ирода раскладывает 23 яйца по коробкам.', uz: "Iroda 23 ta tuxumni qutilarga joylaydi.", en: 'Iroda is packing 23 eggs into boxes.' },
+    body_p1: { ru: 'В одной коробке помещается 4 яйца. Сколько получится полных коробок и сколько яиц останется?', uz: "Bitta qutiga 4 ta tuxum sig'adi. Nechta to'la quti chiqadi va nechta tuxum ortib qoladi?", en: 'One box holds 4 eggs. How many full boxes will there be and how many eggs will be left?' },
+    cap_label: { ru: 'Всего яиц', uz: "Jami tuxum", en: 'Eggs in all' },
+    box_label: { ru: 'В коробке', uz: "Qutida", en: 'In a box' },
+    outro: { ru: 'Это перевод 23/4 в смешанное число. Раздели 23 на 4 с остатком.', uz: "Bu 23/4 ni aralash songa o'tkazish. 23 ni 4 ga qoldiq bilan bo'ling.", en: 'This is converting 23/4 into a mixed number. Divide 23 by 4 with a remainder.' },
+    btn_help: { ru: 'Помочь Ироде', uz: "Irodaga yordam berish", en: 'Help Iroda' },
+    audio: { ru: 'Ирода раскладывает двадцать три яйца по коробкам, в каждую помещается четыре яйца. Сколько выйдет полных коробок и сколько яиц останется? Это перевод двадцати трёх четвёртых в смешанное число. Раздели двадцать три на четыре с остатком. Помоги на следующем шаге.', uz: "Iroda yigirma uchta tuxumni qutilarga joylaydi, har biriga to'rttadan sig'adi. Nechta to'la quti chiqadi va nechta tuxum ortib qoladi? Bu to'rtdan yigirma uchni aralash songa o'tkazish. Yigirma uchni to'rtga qoldiq bilan bo'ling. Keyingi bosqichda yordam bering.", en: 'Iroda is packing twenty three eggs into boxes, and each one holds four eggs. How many full boxes will there be and how many eggs will be left? This is converting twenty three quarters into a mixed number. Divide twenty three by four with a remainder. Help her on the next step.' }
   },
 
   // s11 — CASE final MC: 23/4 = 5 3/4 (keep-visible, scored final)
   s11: {
-    eyebrow: { ru: 'Задача · итог', uz: "Masala · natija" },
-    label: { ru: 'Сколько полных коробок и остаток?', uz: "Nechta to'la quti va qoldiq?" },
-    question: { ru: '23/4 = ?', uz: "23/4 = ?" },
-    correct_text: { ru: 'Правильно. 23 : 4 = 5 остаток 3. Значит 5 полных коробок и 3 яйца: 5 3/4.', uz: "To'g'ri. 23 : 4 = 5 qoldiq 3. Demak 5 ta to'la quti va 3 ta tuxum: 5 3/4." },
-    wrong_1: { ru: 'Это меньше. 23 : 4 = 5 остаток 3, целых пять, а не четыре. Ответ 5 3/4.', uz: "Bu kamroq. 23 : 4 = 5 qoldiq 3, butun besh, to'rt emas. Javob 5 3/4." },
-    wrong_2: { ru: 'Остаток найден неверно. 5 × 4 = 20, осталось 23 − 20 = 3. Значит 5 3/4.', uz: "Qoldiq noto'g'ri topilgan. 5 × 4 = 20, qolgani 23 − 20 = 3. Demak 5 3/4." },
-    wrong_3: { ru: 'Это округление вверх. На самом деле 5 полных коробок и 3 яйца: 5 3/4.', uz: "Bu tepaga yaxlitlash. Aslida 5 ta to'la quti va 3 ta tuxum: 5 3/4." },
-    wrong_default: { ru: 'Раздели 23 на 4: частное 5, остаток 3. Значит 5 3/4.', uz: "23 ni 4 ga bo'ling: bo'linma 5, qoldiq 3. Demak 5 3/4." },
-    audio_hint_1: { ru: 'Целая часть это сколько раз четыре помещается в двадцати трёх. Их больше четырёх.', uz: "Butun qism — to'rt yigirma uchga necha marta sig'ishi. Ular to'rttadan ko'p." },
-    audio_hint_2: { ru: 'Остаток это что осталось после деления. Умножь частное на знаменатель и вычти.', uz: "Qoldiq — bo'lishdan keyin ortib qolgani. Bo'linmani maxrajga ko'paytirib ayiring." },
-    audio_hint_3: { ru: 'Не округляй вверх. Возьми целую часть и остаток отдельно.', uz: "Tepaga yaxlitlamang. Butun qism va qoldiqni alohida oling." },
-    fact: { ru: 'Логистические программы так считают паллеты: целые коробки и остаток отдельно, как смешанное число.', uz: "Logistika dasturlari pallalarni shunday sanaydi: butun qutilar va qoldiq alohida, aralash sondek." },
+    eyebrow: { ru: 'Задача · итог', uz: "Masala · natija", en: 'Problem · the answer' },
+    label: { ru: 'Сколько полных коробок и остаток?', uz: "Nechta to'la quti va qoldiq?", en: 'How many full boxes and what is left?' },
+    question: { ru: '23/4 = ?', uz: "23/4 = ?", en: '23/4 = ?' },
+    correct_text: { ru: 'Правильно. 23 : 4 = 5 остаток 3. Значит 5 полных коробок и 3 яйца: 5 3/4.', uz: "To'g'ri. 23 : 4 = 5 qoldiq 3. Demak 5 ta to'la quti va 3 ta tuxum: 5 3/4.", en: 'Correct. 23 : 4 = 5 remainder 3. So 5 full boxes and 3 eggs: 5 3/4.' },
+    wrong_1: { ru: 'Это меньше. 23 : 4 = 5 остаток 3, целых пять, а не четыре. Ответ 5 3/4.', uz: "Bu kamroq. 23 : 4 = 5 qoldiq 3, butun besh, to'rt emas. Javob 5 3/4.", en: 'That is too few. 23 : 4 = 5 remainder 3, so five wholes, not four. The answer is 5 3/4.' },
+    wrong_2: { ru: 'Остаток найден неверно. 5 × 4 = 20, осталось 23 − 20 = 3. Значит 5 3/4.', uz: "Qoldiq noto'g'ri topilgan. 5 × 4 = 20, qolgani 23 − 20 = 3. Demak 5 3/4.", en: 'The remainder is wrong. 5 × 4 = 20, so 23 − 20 = 3 are left. That makes 5 3/4.' },
+    wrong_3: { ru: 'Это округление вверх. На самом деле 5 полных коробок и 3 яйца: 5 3/4.', uz: "Bu tepaga yaxlitlash. Aslida 5 ta to'la quti va 3 ta tuxum: 5 3/4.", en: 'That is rounding up. In fact there are 5 full boxes and 3 eggs: 5 3/4.' },
+    wrong_default: { ru: 'Раздели 23 на 4: частное 5, остаток 3. Значит 5 3/4.', uz: "23 ni 4 ga bo'ling: bo'linma 5, qoldiq 3. Demak 5 3/4.", en: 'Divide 23 by 4: the answer is 5 and the remainder is 3. That makes 5 3/4.' },
+    audio_hint_1: { ru: 'Целая часть это сколько раз четыре помещается в двадцати трёх. Их больше четырёх.', uz: "Butun qism — to'rt yigirma uchga necha marta sig'ishi. Ular to'rttadan ko'p.", en: 'The whole number part is how many times four fits into twenty three. It is more than four.' },
+    audio_hint_2: { ru: 'Остаток это что осталось после деления. Умножь частное на знаменатель и вычти.', uz: "Qoldiq — bo'lishdan keyin ortib qolgani. Bo'linmani maxrajga ko'paytirib ayiring.", en: 'The remainder is what is left after dividing. Multiply the answer by the denominator and subtract.' },
+    audio_hint_3: { ru: 'Не округляй вверх. Возьми целую часть и остаток отдельно.', uz: "Tepaga yaxlitlamang. Butun qism va qoldiqni alohida oling.", en: 'Do not round up. Take the whole number part and the remainder separately.' },
+    fact: { ru: 'Логистические программы так считают паллеты: целые коробки и остаток отдельно, как смешанное число.', uz: "Logistika dasturlari pallalarni shunday sanaydi: butun qutilar va qoldiq alohida, aralash sondek.", en: 'Warehouse software counts pallets this way: full boxes and the remainder separately, just like a mixed number.' },
     audio: {
-      intro: { ru: 'Раздели двадцать три яйца по коробкам на четыре. Сколько полных коробок и сколько останется? Выбери ответ.', uz: "Yigirma uchta tuxumni to'rttalik qutilarga bo'ling. Nechta to'la quti va nechtasi qoladi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Двадцать три разделить на четыре это пять и остаток три. Пять целых три четвёртых. Логистика считает паллеты так же.', uz: "To'g'ri. Yigirma uchni to'rtga bo'lsak besh va qoldiq uch. Besh butun to'rtdan uch. Logistika ham pallalarni shunday sanaydi." },
-      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang." }
+      intro: { ru: 'Раздели двадцать три яйца по коробкам на четыре. Сколько полных коробок и сколько останется? Выбери ответ.', uz: "Yigirma uchta tuxumni to'rttalik qutilarga bo'ling. Nechta to'la quti va nechtasi qoladi? Javobni tanlang.", en: 'Pack twenty three eggs into boxes of four. How many full boxes will there be and how many will be left? Choose an answer.' },
+      on_correct: { ru: 'Верно. Двадцать три разделить на четыре это пять и остаток три. Пять целых три четвёртых. Логистика считает паллеты так же.', uz: "To'g'ri. Yigirma uchni to'rtga bo'lsak besh va qoldiq uch. Besh butun to'rtdan uch. Logistika ham pallalarni shunday sanaydi.", en: 'That is right. Twenty three divided by four is five remainder three. Five and three quarters. Warehouses count pallets the same way.' },
+      on_wrong: { ru: 'Не совсем. Посмотри разбор.', uz: "Unchalik emas. Tushuntirishga qarang.", en: 'Not quite. Look at the working.' }
     }
   },
 
   // s12 — SUMMARY (kanonik Dars09-13 layout)
   s12: {
-    eyebrow: { ru: 'Итог', uz: "Yakun" },
-    label: { ru: 'Урок пройден', uz: "Dars tugadi" },
-    title: { ru: 'Теперь ты переводишь смешанное число в неправильную дробь и обратно.', uz: "Endi siz aralash sonni noto'g'ri kasrga va aksincha o'tkazasiz." },
-    score_caption: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob" },
-    main_label: { ru: 'Главное', uz: "Asosiysi" },
-    main_1: { ru: 'Целое — это полные коробки, числитель — отдельные яблоки, знаменатель — сколько в коробке.', uz: "Butun — to'la qutilar, surat — alohida olmalar, maxraj — qutida nechta." },
-    main_2: { ru: 'Смешанное → неправильная: целое умножь на знаменатель и прибавь числитель (2 3/5 = 13/5).', uz: "Aralash → noto'g'ri: butunni maxrajga ko'paytirib suratni qo'shing (2 3/5 = 13/5)." },
-    main_3: { ru: 'Неправильная → смешанное: числитель раздели на знаменатель, остаток — новый числитель (13/5 = 2 3/5).', uz: "Noto'g'ri → aralash: suratni maxrajga bo'ling, qoldiq — yangi surat (13/5 = 2 3/5)." },
-    main_4: { ru: 'Знаменатель в обоих переводах не меняется.', uz: "Maxraj ikkala o'tkazishda ham o'zgarmaydi." },
-    back_to_hook: { ru: 'Ошибка Баходира: (2+3)/5 = 5/5. Правильно: 2×5+3 = 13, то есть 13/5.', uz: "Bahodir xatosi: (2+3)/5 = 5/5. To'g'risi: 2×5+3 = 13, ya'ni 13/5." },
-    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi" },
-    conn_refs: { ru: '«Правильные, неправильные и смешанные числа» и деление с остатком.', uz: "«To'g'ri, noto'g'ri va aralash sonlar» va qoldiqli bo'lish." },
-    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars" },
-    conn_next: { ru: 'сложение и вычитание смешанных чисел.', uz: "aralash sonlarni qo'shish va ayirish." },
-    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash" },
-    audio: { ru: 'Отлично. Теперь ты переводишь смешанное число в неправильную дробь и обратно. Чтобы перевести смешанное в неправильную, умножь целое на знаменатель и прибавь числитель. Чтобы перевести обратно, раздели числитель на знаменатель с остатком. Знаменатель при этом не меняется. Ошибка Баходира была в том, что он сложил два и три. Правильно умножить два на пять и прибавить три, получится тринадцать пятых. Дальше научимся складывать и вычитать смешанные числа.', uz: "Zo'r. Endi siz aralash sonni noto'g'ri kasrga va aksincha o'tkazasiz. Aralashni noto'g'riga o'tkazish uchun butunni maxrajga ko'paytirib suratni qo'shing. Orqaga o'tkazish uchun suratni maxrajga qoldiq bilan bo'ling. Maxraj bunda o'zgarmaydi. Bahodirning xatosi ikki bilan uchni qo'shgani edi. To'g'risi ikkini beshga ko'paytirib uch qo'shish, beshdan o'n uch chiqadi. Keyin aralash sonlarni qo'shish va ayirishni o'rganamiz." }
+    eyebrow: { ru: 'Итог', uz: "Yakun", en: 'Result' },
+    label: { ru: 'Урок пройден', uz: "Dars tugadi", en: 'Lesson finished' },
+    title: { ru: 'Теперь ты переводишь смешанное число в неправильную дробь и обратно.', uz: "Endi siz aralash sonni noto'g'ri kasrga va aksincha o'tkazasiz.", en: 'Now you can convert a mixed number into an improper fraction and back.' },
+    score_caption: { ru: 'верных ответов с первой попытки', uz: "savolga birinchi urinishda to'g'ri javob", en: 'correct answers first time' },
+    main_label: { ru: 'Главное', uz: "Asosiysi", en: 'The main thing' },
+    main_1: { ru: 'Целое — это полные коробки, числитель — отдельные яблоки, знаменатель — сколько в коробке.', uz: "Butun — to'la qutilar, surat — alohida olmalar, maxraj — qutida nechta.", en: 'The whole number is the full boxes, the numerator is the loose apples and the denominator is how many fit in a box.' },
+    main_2: { ru: 'Смешанное → неправильная: целое умножь на знаменатель и прибавь числитель (2 3/5 = 13/5).', uz: "Aralash → noto'g'ri: butunni maxrajga ko'paytirib suratni qo'shing (2 3/5 = 13/5).", en: 'Mixed → improper: multiply the whole number by the denominator and add the numerator (2 3/5 = 13/5).' },
+    main_3: { ru: 'Неправильная → смешанное: числитель раздели на знаменатель, остаток — новый числитель (13/5 = 2 3/5).', uz: "Noto'g'ri → aralash: suratni maxrajga bo'ling, qoldiq — yangi surat (13/5 = 2 3/5).", en: 'Improper → mixed: divide the numerator by the denominator and the remainder is the new numerator (13/5 = 2 3/5).' },
+    main_4: { ru: 'Знаменатель в обоих переводах не меняется.', uz: "Maxraj ikkala o'tkazishda ham o'zgarmaydi.", en: 'The denominator does not change either way.' },
+    back_to_hook: { ru: 'Ошибка Баходира: (2+3)/5 = 5/5. Правильно: 2×5+3 = 13, то есть 13/5.', uz: "Bahodir xatosi: (2+3)/5 = 5/5. To'g'risi: 2×5+3 = 13, ya'ni 13/5.", en: "Bahodir's mistake: (2+3)/5 = 5/5. It should be 2×5+3 = 13, that is 13/5." },
+    conn_label_refs: { ru: 'Опирается на', uz: "Tayanadi", en: 'Builds on' },
+    conn_refs: { ru: '«Правильные, неправильные и смешанные числа» и деление с остатком.', uz: "«To'g'ri, noto'g'ri va aralash sonlar» va qoldiqli bo'lish.", en: 'Proper fractions, improper fractions and mixed numbers, and division with a remainder.' },
+    conn_label_next: { ru: 'Дальше', uz: "Keyingi dars", en: 'Next' },
+    conn_next: { ru: 'сложение и вычитание смешанных чисел.', uz: "aralash sonlarni qo'shish va ayirish.", en: 'adding and subtracting mixed numbers.' },
+    btn_reset: { ru: 'Пройти заново', uz: "Qaytadan boshlash", en: 'Go through it again' },
+    audio: { ru: 'Отлично. Теперь ты переводишь смешанное число в неправильную дробь и обратно. Чтобы перевести смешанное в неправильную, умножь целое на знаменатель и прибавь числитель. Чтобы перевести обратно, раздели числитель на знаменатель с остатком. Знаменатель при этом не меняется. Ошибка Баходира была в том, что он сложил два и три. Правильно умножить два на пять и прибавить три, получится тринадцать пятых. Дальше научимся складывать и вычитать смешанные числа.', uz: "Zo'r. Endi siz aralash sonni noto'g'ri kasrga va aksincha o'tkazasiz. Aralashni noto'g'riga o'tkazish uchun butunni maxrajga ko'paytirib suratni qo'shing. Orqaga o'tkazish uchun suratni maxrajga qoldiq bilan bo'ling. Maxraj bunda o'zgarmaydi. Bahodirning xatosi ikki bilan uchni qo'shgani edi. To'g'risi ikkini beshga ko'paytirib uch qo'shish, beshdan o'n uch chiqadi. Keyin aralash sonlarni qo'shish va ayirishni o'rganamiz.", en: "Well done. Now you can convert a mixed number into an improper fraction and back. To turn a mixed number into an improper fraction, multiply the whole number by the denominator and add the numerator. To go back, divide the numerator by the denominator with a remainder. The denominator does not change either way. Bahodir's mistake was adding two and three. He should have multiplied two by five and added three, which gives thirteen fifths. Next we will learn to add and subtract mixed numbers." }
   }
 };
 
@@ -1111,7 +1140,7 @@ const Mixed = ({ w, n, d, color, size = 'mid' }) => (
 // ============================================================
 // FAKT-BLOK (ko'k karta, to'g'ri javobdan keyin)
 // ============================================================
-const FACT_BADGE = { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT" };
+const FACT_BADGE = { ru: 'Знаешь ли ты? · IT', uz: "Bilasizmi? · IT", en: 'Did you know? · IT' };
 const AnimProgress = () => (<div className="fa-prog"><div className="fa-prog-fill"/></div>);
 const FactCard = ({ text, anim, badge = FACT_BADGE }) => {
   const t = useT();
@@ -1220,7 +1249,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
         {done ? (
           <div className="frame-success fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma savol yechildi." : 'Все вопросы решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma savol yechildi." : lang === 'en' ? "All the questions are done." : 'Все вопросы решены.'}</p>
           </div>
         ) : (
           <>
@@ -1245,7 +1274,7 @@ const SeqMC = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext, 
             </div>
             <FeedbackBlock show={picked !== null || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? q.ok : q.no))}</p>
             </FeedbackBlock>
@@ -1343,7 +1372,7 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
         {done ? (
           <div className="frame-success fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ color: T.success }}><IconOk/></span>
-            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : 'Все примеры решены.'}</p>
+            <p className="body" style={{ margin: 0, fontWeight: 600 }}>{lang === 'uz' ? "Hamma misol yechildi." : lang === 'en' ? "All the examples are done." : 'Все примеры решены.'}</p>
           </div>
         ) : (
           <>
@@ -1355,7 +1384,7 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
                   <input type="text" inputMode="numeric" className={`answer-input ${solvedItem ? 'correct' : ''}`} value={solvedItem ? String(it.answer) : val} placeholder="0" disabled={solvedItem}
                     onChange={e => { setVal(e.target.value); setShowHint(false); }} onKeyDown={e => e.key === 'Enter' && submitInput()} style={{ width: 'clamp(90px, 20vw, 120px)' }}/>
-                  {!solvedItem && <button className="btn-white-accent" onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>}
+                  {!solvedItem && <button className="btn-white-accent" onClick={submitInput} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button>}
                 </div>
               )}
             </div>
@@ -1388,12 +1417,12 @@ const SeqMix = ({ screen, screenContent, scored, storedAnswer, onAnswer, onNext,
                     );
                   })}
                 </div>
-                {!solvedItem && <div className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMulti} disabled={sel.size === 0} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button></div>}
+                {!solvedItem && <div className="fade-up" style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}><button className="btn-white-accent" onClick={submitMulti} disabled={sel.size === 0} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(16px, 2.2vw, 22px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : lang === 'en' ? "Check" : 'Проверить'}</button></div>}
               </>
             )}
             <FeedbackBlock show={solvedItem || showHint || wrong.size > 0} isCorrect={solvedItem} wrongClass="frame-tip">
               <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: solvedItem ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
+                <span aria-hidden="true">{solvedItem ? '✓' : '✗'}</span>{solvedItem ? (lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно') : (lang === 'uz' ? 'Maslahat' : lang === 'en' ? "Hint" : 'Подсказка')}
               </p>
               <p className="body" style={{ margin: 0 }}>{mt(tx(solvedItem ? it.ok : it.no))}</p>
             </FeedbackBlock>
@@ -1473,7 +1502,7 @@ const DragToSlots = ({ screen, idx, c, chips, correct, renderBoard, slotSize = '
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1561,7 +1590,7 @@ const DragToBins = ({ screen, idx, c, items, bins, correct, factOnCorrect, store
         )}
         {solved && (
           <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
+            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><IconOk/>{lang === 'uz' ? "To'g'ri" : lang === 'en' ? "Correct" : 'Верно'}</p>
             <p className="body" style={{ margin: 0 }}>{mt(t(c.correct_text))}</p>
           </FeedbackBlock>
         )}
@@ -1632,7 +1661,7 @@ const Screen1 = ({ screen, onNext, onPrev }) => {
             {step >= 1 && <span className="qb-fade"><Op>=</Op></span>}
             {step >= 1 && <div className="qb-fade"><MixedBoxes whole={step >= 1 ? 2 : 0} num={step >= 2 ? 3 : 0} den={5} color={T.accent}/></div>}
           </div>
-          {step >= 1 && <p className="small qb-fade" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "2 ta to'la quti" : '2 полные коробки'}</p>}
+          {step >= 1 && <p className="small qb-fade" style={{ margin: 0, color: T.ink2 }}>{lang === 'uz' ? "2 ta to'la quti" : lang === 'en' ? "2 full boxes" : '2 полные коробки'}</p>}
           {step >= 3 && <p className="body qb-fade" style={{ margin: 0, textAlign: 'center', fontWeight: 600 }}>{mt(t(c.conclusion))}</p>}
         </div>
       </div>
@@ -1833,7 +1862,7 @@ const Screen12 = ({ screen, answers, onPrev, onReset, finishLesson }) => {
   const total = scoredScreens.length;
   const correct = (answers || []).filter((a, i) => a && SCREEN_META[i]?.scored && a.correct).length;
   const mains = [c.main_1, c.main_2, c.main_3, c.main_4];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={onReset} style={{ marginLeft: 'auto', padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-white-accent" onClick={onReset} style={{ marginLeft: 'auto', padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{t(c.btn_reset)}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : lang === 'en' ? "Finish the lesson" : 'Завершить урок'}</button></>);
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={TOTAL_SCREENS} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
@@ -1865,7 +1894,7 @@ export default function MixedNumberLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('ru');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
+  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : lang === 'en' ? "Pupil" : 'Ученик');
   configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => {
     // eslint-disable-next-line no-console
@@ -1918,7 +1947,7 @@ export default function MixedNumberLesson({
       <div className="lesson-root">
         {isPreview && (
           <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
+            {['ru', 'uz', 'en'].map(l => (
               <button key={l} onClick={() => setPreviewLang(l)}
                 style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
                          background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
