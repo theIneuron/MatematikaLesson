@@ -1548,7 +1548,124 @@ async function visibleRoundingFeedback(page, kind, timeout = 2_000) {
   return waitForVisibleMatch(inLesson(page, `[data-g4-feedback="${kind}"]`), timeout);
 }
 
-async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = false } = {}) {
+async function assertRoundingLineVisualContract(root, flow, issuePrefix) {
+  const line = await waitForVisibleMatch(root.locator('.rounding-number-line'), 4_000);
+  if (!line) throw new Error(`${issuePrefix}: sonlar o'qi ko'rinmadi`);
+
+  const result = await line.evaluate((element, flowName) => {
+    const visible = (node) => {
+      if (!node) return false;
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && Number.parseFloat(style.opacity || '1') > 0.01
+        && rect.width > 0
+        && rect.height > 0;
+    };
+    const rgba = (value) => {
+      const match = String(value).match(/rgba?\((\d+(?:\.\d+)?)[, ]+(\d+(?:\.\d+)?)[, ]+(\d+(?:\.\d+)?)(?:[, /]+(\d+(?:\.\d+)?))?\)/i);
+      return match
+        ? { r: Number(match[1]), g: Number(match[2]), b: Number(match[3]), a: match[4] === undefined ? 1 : Number(match[4]) }
+        : null;
+    };
+    const lineStyle = getComputedStyle(element);
+    const lineColour = rgba(lineStyle.backgroundColor);
+    const endpoints = flowName === 'practice'
+      ? [...element.querySelectorAll('button[data-g4-branch="line-point"]')]
+      : [];
+
+    return {
+      lineColour,
+      endpointCount: endpoints.length,
+      endpoints: endpoints.map((button) => {
+        const style = getComputedStyle(button);
+        const rect = button.getBoundingClientRect();
+        const dot = button.querySelector('i');
+        const dotStyle = dot ? getComputedStyle(dot) : null;
+        const dotRect = dot?.getBoundingClientRect();
+        return {
+          width: rect.width,
+          height: rect.height,
+          background: rgba(style.backgroundColor),
+          backgroundImage: style.backgroundImage,
+          borderWidths: [style.borderTopWidth, style.borderRightWidth, style.borderBottomWidth, style.borderLeftWidth]
+            .map((value) => Number.parseFloat(value) || 0),
+          boxShadow: style.boxShadow,
+          dotVisible: visible(dot),
+          dotWidth: dotRect?.width ?? 0,
+          dotHeight: dotRect?.height ?? 0,
+          dotColour: dotStyle ? rgba(dotStyle.backgroundColor) : null,
+        };
+      }),
+    };
+  }, flow);
+
+  const colour = result.lineColour;
+  const lightBlue = colour
+    && colour.a >= 0.75
+    && colour.r >= 190
+    && colour.g >= 210
+    && colour.b >= 210
+    && Math.max(colour.g, colour.b) >= colour.r + 5;
+  if (!lightBlue) {
+    const shown = colour ? `${colour.r},${colour.g},${colour.b},${colour.a}` : 'parse bo\'lmadi';
+    throw new Error(`${issuePrefix}: ${flow} sonlar o'qi och ko'k frame emas (${shown})`);
+  }
+
+  if (flow !== 'practice') return;
+  if (result.endpointCount !== 2) {
+    throw new Error(`${issuePrefix}: practice endpoint visual kontrakti uchun 2 ta tugma kerak, ${result.endpointCount} topildi`);
+  }
+  result.endpoints.forEach((endpoint, index) => {
+    if (endpoint.width < 44 || endpoint.height < 44) {
+      throw new Error(`${issuePrefix}: practice endpoint ${index + 1} hit-area ${endpoint.width.toFixed(1)}×${endpoint.height.toFixed(1)}, kamida 44×44 kerak`);
+    }
+    const opaqueButton = endpoint.background && endpoint.background.a > 0.05;
+    const hasCardChrome = opaqueButton
+      || endpoint.backgroundImage !== 'none'
+      || endpoint.borderWidths.some((width) => width > 0.5)
+      || endpoint.boxShadow !== 'none';
+    if (hasCardChrome) {
+      throw new Error(`${issuePrefix}: practice endpoint ${index + 1} hit-area kartochka bo'lib ko'rinmoqda; fon, border va shadow shaffof bo'lishi kerak`);
+    }
+    if (!endpoint.dotVisible || endpoint.dotWidth < 10 || endpoint.dotHeight < 10 || !endpoint.dotColour || endpoint.dotColour.a < 0.5) {
+      throw new Error(`${issuePrefix}: practice endpoint ${index + 1} da ko'rinadigan nuqta yo'q`);
+    }
+  });
+}
+
+async function assertRoundingSolutionFeedback(feedback, lang, issuePrefix) {
+  const expectedLabel = { uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }[lang] ?? 'SOLUTION';
+  const result = await feedback.evaluate((element) => {
+    const visible = (node) => {
+      if (!node) return false;
+      const style = getComputedStyle(node);
+      const rect = node.getBoundingClientRect();
+      return style.display !== 'none'
+        && style.visibility !== 'hidden'
+        && Number.parseFloat(style.opacity || '1') > 0.01
+        && rect.width > 0
+        && rect.height > 0;
+    };
+    const bit = element.querySelector('.g1-char-bit');
+    const label = [...element.querySelectorAll('strong,[data-g4-role="feedback-label"]')].find(visible);
+    return {
+      bitVisible: visible(bit),
+      bitWidth: bit?.getBoundingClientRect().width ?? 0,
+      bitHeight: bit?.getBoundingClientRect().height ?? 0,
+      label: label?.textContent?.replace(/\s+/g, ' ').trim() ?? '',
+    };
+  });
+  if (!result.bitVisible || result.bitWidth < 20 || result.bitHeight < 20) {
+    throw new Error(`${issuePrefix}: correct feedback ichida ko'rinadigan Bit yo'q`);
+  }
+  if (result.label.toLocaleUpperCase(lang === 'en' ? 'en-GB' : lang).trim() !== expectedLabel) {
+    throw new Error(`${issuePrefix}: correct feedback labeli “${result.label || 'yo\'q'}”, kutilgan “${expectedLabel}”`);
+  }
+}
+
+async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = false, lang = 'en' } = {}) {
   const root = await visibleRoundingLineRoot(page);
   if (!root) return false;
 
@@ -1563,6 +1680,7 @@ async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = fa
 
   for (let step = initialStep; step < 3; step += 1) {
     await assertRoundingLineStep(root, step, `${issuePrefix} ${flow}`, 4_000);
+    await assertRoundingLineVisualContract(root, flow, `${issuePrefix} ${flow} ${step + 1}-qadam`);
     const outerNext = await theoryNextButton(page);
 
     if (flow === 'guided') {
@@ -1611,6 +1729,7 @@ async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = fa
       if (!await visibleRoundingFeedback(page, 'wrong', 4_000)) {
         throw new Error(`${issuePrefix}: practice ${step + 1}-qadam wrong feedback ko'rinmadi`);
       }
+      await assertRoundingLineVisualContract(root, flow, `${issuePrefix} practice ${step + 1}-qadam wrong`);
     }
 
     if (!alreadySolved) {
@@ -1619,9 +1738,12 @@ async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = fa
       }
       await correct.first().click();
     }
-    if (!await visibleRoundingFeedback(page, 'solution', 4_000)) {
+    const solutionFeedback = await visibleRoundingFeedback(page, 'solution', 4_000);
+    if (!solutionFeedback) {
       throw new Error(`${issuePrefix}: practice ${step + 1}-qadam solution feedback ko'rinmadi`);
     }
+    await assertRoundingSolutionFeedback(solutionFeedback, lang, `${issuePrefix} practice ${step + 1}-qadam`);
+    await assertRoundingLineVisualContract(root, flow, `${issuePrefix} practice ${step + 1}-qadam solution`);
     if (!await waitForVisibleMatch(root.locator('[data-qa-rounding-equation]'), 4_000)) {
       throw new Error(`${issuePrefix}: practice ${step + 1}-qadam tengligi ochilmadi`);
     }
@@ -2543,7 +2665,7 @@ async function naturallyUnlockStrictTheoryScreen(
   { auditBranches = false, lang = 'en', requireAction = false } = {},
 ) {
   await muteLesson(page);
-  const componentOptions = { auditWrong: auditBranches };
+  const componentOptions = { auditWrong: auditBranches, lang };
   if (await auditVisibleRoundingLineFlow(page, issuePrefix, componentOptions)) return;
   const next = await theoryNextButton(page);
   if (await next.isEnabled()) {
