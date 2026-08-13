@@ -520,6 +520,30 @@ const CUI = {
   cos: L('Kosinus', 'Косинус', 'Cosine'),
   sin: L('Sinus', 'Синус', 'Sine'),
   sum: L('Kvadratlar', 'Квадраты', 'Squares'),
+  // 1-dars: burchak UZUNLIK bilan o'lchanadi. Tablo yozuvlari shu yerda,
+  // dars faylida emas: ular hamma darsda bir xil.
+  laid: L('Yotgan radius', 'Уложено радиусов', 'Radii laid'),
+  laidChord: L('Yotgan vatar', 'Уложено хорд', 'Chords laid'),
+  arcLen: L('Yoy uzunligi', 'Длина дуги', 'Arc length'),
+  chainLen: L('Siniq chiziq uzunligi', 'Длина ломаной', 'Length of the chain'),
+  rest: L('Qoldiq', 'Остаток', 'Remainder'),
+  radiusLbl: L('Radius', 'Радиус', 'Radius'),
+  ratio: L("Yoy ÷ radius", 'Дуга ÷ радиус', 'Arc ÷ radius'),
+  layAsk: L(
+    "Radiusni yoy bo'ylab yotqizing: keyingi yoy oldingisi tugagan joydan boshlanadi.",
+    'Укладывай радиус по дуге: следующая дуга начинается там, где кончилась прошлая.',
+    'Lay the radius along the arc: the next arc starts where the previous one ended.',
+  ),
+  layClose: L(
+    "Aylanani yoping: qolgan bo'lak radiusdan qisqa.",
+    'Замкни круг: оставшийся кусок короче радиуса.',
+    'Close the circle: the piece left is shorter than the radius.',
+  ),
+  layMiss: L(
+    "Yoy oldingisi tugagan joydan boshlanadi va UZUNLIGI o'sha-o'sha.",
+    'Дуга начинается там, где кончилась прошлая, и длина у неё та же.',
+    'The arc starts where the previous ended, and its length is the same.',
+  ),
   // Ikki ekranda topshiriq satri UMUMAN yo'q edi: jadval va «xatoni top»
   // ekranida o'quvchi nima qilish kerakligini o'zi taxmin qilardi.
   tableAsk: L(
@@ -652,7 +676,12 @@ function ArcArrow({ cx, cy, r, from, to, size = 268, tone }) {
 
 // Ko'rsatkichlar paneli. Chizmaning ichida ham, o'ng ustunda ham turadi --
 // keng ekranda uni ustunga chiqarish chizmani bo'shatadi va bo'sh joyni to'ldiradi.
-export function Readout({ angle, ghost = null, counter = false, live = false }) {
+// `hide` -- ekranga TEGISHLI bo'lmagan qatorlarni olib tashlaydi. Nima uchun:
+// tablo to'rt qatorda, va ba'zi ekranda ulardan ikkitasi savolga aloqador emas
+// («sinus 1,2 bo'la oladimi?» ekranida kosinus va sinus qiymatlari emas,
+// KVADRATLAR yig'indisi guvoh). Ortiqcha ikki qator 120 px, va yakuniy holatda
+// ekran budjetdan chiqib, pastki qatorlar jimgina kesilardi.
+export function Readout({ angle, ghost = null, counter = false, live = false, hide = [] }) {
   const t = useT()
   const has = angle !== null && angle !== undefined
   const [ex, ey] = has ? exactOf(angle) : ['', '']
@@ -671,18 +700,24 @@ export function Readout({ angle, ghost = null, counter = false, live = false }) 
   return (
     <div className="g10-readout">
       <div className="g10-readout-body">
-        <div className="g10-rd">
-          <span className="g10-rd-key">{t(CUI.angle)}</span>
-          <span className="g10-rd-val">{has ? Math.round(angle) + '°' + (radLabel ? '  ·  ' + radLabel : '') : wait}</span>
-        </div>
-        <div className="g10-rd">
-          <span className="g10-rd-key">{t(CUI.cos)}</span>
-          <span className="g10-rd-val g10-rd-val-accent">{has ? ex : wait}</span>
-        </div>
-        <div className="g10-rd">
-          <span className="g10-rd-key">{t(CUI.sin)}</span>
-          <span className="g10-rd-val g10-rd-val-accent">{has ? ey : wait}</span>
-        </div>
+        {hide.indexOf('angle') === -1 ? (
+          <div className="g10-rd">
+            <span className="g10-rd-key">{t(CUI.angle)}</span>
+            <span className="g10-rd-val">{has ? Math.round(angle) + '°' + (radLabel ? '  ·  ' + radLabel : '') : wait}</span>
+          </div>
+        ) : null}
+        {hide.indexOf('cos') === -1 ? (
+          <div className="g10-rd">
+            <span className="g10-rd-key">{t(CUI.cos)}</span>
+            <span className="g10-rd-val g10-rd-val-accent">{has ? ex : wait}</span>
+          </div>
+        ) : null}
+        {hide.indexOf('sin') === -1 ? (
+          <div className="g10-rd">
+            <span className="g10-rd-key">{t(CUI.sin)}</span>
+            <span className="g10-rd-val g10-rd-val-accent">{has ? ey : wait}</span>
+          </div>
+        ) : null}
         {counter ? (
           <div className="g10-rd g10-rd-sum">
             <span className="g10-rd-key">{t(CUI.sum)}</span>
@@ -721,6 +756,18 @@ export function UnitCircle({
   ticks = false, // 15° li shtrixlar, RAQAMSIZ: mo'ljal bor, javob yo'q
   start = null,  // nuqta yo'q paytda «meni ushla» markeri shu burchakda
   meaning = false, // o'q yorlig'i tagida MA'NOSI: balandlik / siljish
+  // YOY -- 1-dars uchun (radianlar). {to, laid, label}: 0 dan `to` gacha yoy
+  // YO'G'ON chiziq bilan ajratiladi, `laid` berilsa har RADIAN chegarasida
+  // ajratuvchi shtrix chiziladi -- «radius yoyga necha marta yotdi» KO'RINADI.
+  // Bu yerda burchak UZUNLIK bilan o'lchanadi, koordinata bilan emas.
+  arc = null,
+  // Uzunligi radiusga teng VATAR (0 dan). Yoy bilan yonma-yon turadi va
+  // ular boshqa nuqtada tugaydi: vatar 60°, yoy esa 57° da (З1 ni yopadi).
+  unitChord = false,
+  // Ko'pburchak: berilgan burchaklarni TO'G'RI kesmalar bilan tutashtiradi.
+  // Vatarlarni yotqizganda oltitasi aylanani AYNAN yopadi (muntazam oltiburchak),
+  // yoylarni yotqizganda esa yopmaydi -- farq shu ikki rasmda ko'rinadi.
+  poly = [],
 }) {
   const t = useT()
   const ref = useRef(null)
@@ -733,6 +780,22 @@ export function UnitCircle({
 
   const px = (x, y) => [cx + R * x, cy - R * y]
   const ptOf = (deg) => px(Math.cos(rad(deg)), Math.sin(rad(deg)))
+
+  // Yoy yo'li. `sweep = 0` -- SVG da y teskari, shuning uchun soat miliga
+  // QARSHI yo'nalish (musbat, darslik str. 133) shu bayroq bilan chiqadi.
+  // To'liq aylanani bitta `A` bilan chizib bo'lmaydi (boshi oxiriga tegib
+  // ketadi va yoy YO'QOLADI) -- shuning uchun ikkiga bo'linadi.
+  const arcPath = (toDeg) => {
+    const d = Math.min(359.99, Math.max(0, toDeg))
+    if (d <= 180) {
+      const [x2, y2] = ptOf(d)
+      return `M ${cx + R} ${cy} A ${R} ${R} 0 0 0 ${x2} ${y2}`
+    }
+    const [mx, my] = ptOf(180)
+    const [x2, y2] = ptOf(d)
+    return `M ${cx + R} ${cy} A ${R} ${R} 0 0 0 ${mx} ${my} A ${R} ${R} 0 0 0 ${x2} ${y2}`
+  }
+  const DEG_PER_RAD = 180 / Math.PI
 
   const pick = (event) => {
     if (locked || !onAngle) return
@@ -802,6 +865,57 @@ export function UnitCircle({
           <circle className="g10-hotring" cx={cx} cy={cy} r={R} fill="none" stroke={T.accent} strokeWidth="6" opacity=".18" />
         ) : null}
 
+        {/* YOY: burchakning UZUNLIK o'lchovi. Aylananing ustiga yo'g'onroq
+            chiziq bilan yotadi, shuning uchun «qaysi qismi» degan savol
+            tug'ilmaydi. Radius chegaralari shtrix bilan: nechta radius
+            yotgani sanaladi, aytilmaydi. */}
+        {arc && arc.to > 0 ? (
+          <g>
+            <path d={arcPath(arc.to)} fill="none" stroke={T.accent} strokeWidth="4.4" strokeLinecap="round" opacity=".9" />
+            {arc.laid
+              ? Array.from({ length: arc.laid }, (unused, i) => (i + 1) * DEG_PER_RAD)
+                .filter((d) => d <= arc.to + 0.5)
+                .map((d) => {
+                  const [x1, y1] = px(Math.cos(rad(d)) * 0.93, Math.sin(rad(d)) * 0.93)
+                  const [x2, y2] = px(Math.cos(rad(d)) * 1.07, Math.sin(rad(d)) * 1.07)
+                  return <line key={'lr' + d} x1={x1} y1={y1} x2={x2} y2={y2} stroke={T.ink} strokeWidth="1.8" opacity=".8" />
+                })
+              : null}
+            {/* Boshlanish nuqtasi: nolda ham shtrix turadi, aks holda birinchi
+                yoyning qayerdan boshlanganini ko'rsatib bo'lmaydi. */}
+            <line x1={cx + R * 0.93} y1={cy} x2={cx + R * 1.07} y2={cy} stroke={T.ink} strokeWidth="1.8" opacity=".8" />
+          </g>
+        ) : null}
+
+        {/* Yotqizilgan VATARLAR: to'g'ri kesmalar zanjiri. */}
+        {poly.length > 1 ? (
+          <g>
+            {poly.slice(1).map((d, i) => {
+              const [x1, y1] = ptOf(poly[i])
+              const [x2, y2] = ptOf(d)
+              return <line key={'pl' + d} x1={x1} y1={y1} x2={x2} y2={y2} stroke={T.graph} strokeWidth="3.2" strokeLinecap="round" />
+            })}
+            {poly.map((d) => {
+              const [x1, y1] = ptOf(d)
+              return <circle key={'pv' + d} cx={x1} cy={y1} r={rMark} fill={T.graph} />
+            })}
+          </g>
+        ) : null}
+
+        {/* VATAR uzunligi radiusga teng: to'g'ri chiziq 60° da tugaydi,
+            yoy esa 57° da. Ikki nuqta orasidagi TIRQISH ko'rinadi -- shu
+            farq uchun bu ikkisi bir vaqtda chiziladi. */}
+        {unitChord ? (
+          <g>
+            <line
+              x1={cx + R} y1={cy}
+              x2={ptOf(60)[0]} y2={ptOf(60)[1]}
+              stroke={T.graph} strokeWidth="2.4" strokeDasharray="5 4"
+            />
+            <circle cx={ptOf(60)[0]} cy={ptOf(60)[1]} r={rMark} fill={T.graph} />
+          </g>
+        ) : null}
+
         {/* Shtrixlar 15° da, RAQAMSIZ: nishon bor, javob yo'q. Halqadan
             TASHQARIDA chiziladi, aks holda ular ko'rinmay qolardi. */}
         {ticks ? (
@@ -861,7 +975,11 @@ export function UnitCircle({
 
         {marks.map((m) => {
           const [mx, my] = ptOf(m.deg)
-          const tone = m.tone || T.ink3
+          // `tone` MA'NO nomi bilan beriladi ('graph', 'accent', 'ink3'), rangni
+          // asbob tanlaydi. Dars faylida faqat ma'lumot bo'lishi kerak (etalon
+          // §5.3): palitraga murojaat qilgan dars fayli statik tekshiruvda
+          // o'qilmaydi ham. Tayyor rang ham qabul qilinadi -- eski chaqiriqlar uchun.
+          const tone = (typeof m.tone === 'string' && T[m.tone]) || m.tone || T.ink3
           return (
             <g key={'m' + m.deg + (m.label || '')}>
               <line x1={cx} y1={cy} x2={mx} y2={my} stroke={tone} strokeWidth="1.1" strokeDasharray="3 3" opacity=".65" />
@@ -1397,7 +1515,11 @@ export function ExploreCircle({ prompt, need = 3, okText, notes, audio, onSolved
         )}
         note={(
           <div className="g10-side">
-            <Readout angle={angle} counter live />
+            {/* Burchak qatori bu ekranda YO'Q. Bu yerda savol «burchak qancha»
+                emas: o'quvchi nuqtani yurgizadi va KVADRATLAR yig'indisiga
+                qaraydi. Ortiqcha qator kompakt telefonda 40 px, va yakuniy
+                holatda pastki qatorlar kesilardi. */}
+            <Readout angle={angle} counter live hide={['angle']} />
             {/* Xulosa qatorlari FAQAT tekshirishdan keyin: aks holda javob
                 harakatdan oldin ekranda turadi (metodist P0, 2026-08-07). */}
             {done ? notes.map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
@@ -1418,7 +1540,248 @@ export function ExploreCircle({ prompt, need = 3, okText, notes, audio, onSolved
   )
 }
 
+// ============================================================
+// RADIUSNI YOY BO'YLAB YOTQIZISH -- 1-darsning ASOSIY guvohi.
+//
+// O'quvchi radius uzunligidagi yoylarni birin-ketin qo'yadi va TO'LIQ
+// aylanaga ularning oltitasi sig'ib, ustiga radiusdan qisqa bo'lak
+// qolganini KO'RADI. Shu bilan `pi` son bo'lib qoladi: yarim aylana uch
+// yarim radius, 360 emas. Dastur «noto'g'ri» deb yozmaydi -- u yoyni
+// yotqizadi va sanoq o'zi ko'rinadi.
+//
+// Nishon: keyingi yoyning oxiri, ya'ni (yotganlar + 1) radian. Bosish
+// aniqligi 22° -- yoy uzunligi 57°, ya'ni yarmidan kam.
+// ============================================================
+export function LayRadius({ prompt, need = 6, mode = 'arc', okText, notes, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [laid, setLaid] = useState(0)
+  const [closed, setClosed] = useState(false)
+  const [miss, setMiss] = useState(false)
+  // Yoy rejimida qadam bir radian (57,3°), vatar rejimida esa AYNAN 60°:
+  // uzunligi radiusga teng vatar muntazam oltiburchak tomonidir. Shuning
+  // uchun vatarlar aylanani yopadi, yoylar esa yopmaydi -- 1-darsning
+  // «vatar yoy emas» farqi shu ikki sanoqda ko'rinadi.
+  const chord = mode === 'chord'
+  const DEG = chord ? 60 : 180 / Math.PI
+  const to = closed ? 359.99 : laid * DEG
+  const restRad = chord ? 0 : round2(2 * Math.PI - need)
+  // Vatar rejimida oltinchi vatar aylanani o'zi yopadi, qo'shimcha bosish
+  // kerak emas: bu ayni farqning o'zi.
+  const total = chord ? need : need + 1
+
+  const gap = (a, b) => Math.min(Math.abs(a - b), 360 - Math.abs(a - b))
+
+  const put = (deg) => {
+    if (closed) return
+    const target = laid < need ? (laid + 1) * DEG : 360
+    if (gap(norm(deg), norm(target)) > 22) {
+      setMiss(true)
+      fx.wrong(CUI.layMiss)
+      return
+    }
+    setMiss(false)
+    const next = laid + 1
+    if (next < total) {
+      setLaid(Math.min(next, need))
+      return
+    }
+    setLaid(need)
+    setClosed(true)
+    fx.right(okText)
+    if (onSolved) onSolved({ correct: true })
+  }
+
+  return (
+    <>
+      {!closed ? <Cue kind="tap">{t(laid < need ? (prompt || CUI.layAsk) : CUI.layClose)}</Cue> : null}
+      <Scene
+        fig={(
+          <UnitCircle
+            angle={null}
+            onAngle={put}
+            arc={chord ? null : { to, laid: closed ? need : laid }}
+            poly={chord ? Array.from({ length: laid + 1 }, (unused, i) => i * 60) : []}
+            ticks
+            start={laid === 0 ? 0 : null}
+            tween={false}
+          />
+        )}
+        note={(
+          <div className="g10-side">
+            {/* Tablo asbobning O'SHA tablosi: nomi qiymat USTIDA, o'lchamlari
+                etalon §6.4 dagi shkala bo'yicha. Ko'rsatkich yo'q joyda tinch
+                chiziqcha turadi, shkala esa qoladi -- «o'chiq asbob» ko'rinishi. */}
+            <div className="g10-readout">
+              <div className="g10-readout-body">
+                <div className="g10-rd">
+                  <span className="g10-rd-key">{t(chord ? CUI.laidChord : CUI.laid)}</span>
+                  <span className="g10-rd-val">{laid || <i className="g10-rd-wait" aria-label="—" />}</span>
+                </div>
+                <div className="g10-rd">
+                  <span className="g10-rd-key">{t(chord ? CUI.chainLen : CUI.arcLen)}</span>
+                  <span className="g10-rd-val g10-rd-val-accent">{laid ? String(laid) + ',00' : <i className="g10-rd-wait" aria-label="—" />}</span>
+                </div>
+                {/* Qoldiq FAQAT aylana yopilgach: undan oldin u javobni berib qo'yardi. */}
+                <div className="g10-rd g10-rd-sum">
+                  <span className="g10-rd-key">{t(CUI.rest)}</span>
+                  <span className="g10-rd-val g10-rd-val-sum">{closed ? String(restRad).replace('.', ',') : <i className="g10-rd-wait" aria-label="—" />}</span>
+                </div>
+              </div>
+            </div>
+            {closed && notes ? notes.map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
+            <Slot mh={56} className="g10-fb-sm">
+              <Feedback show={closed || miss} ok={closed}>
+                {closed ? t(okText) : t(CUI.layMiss)}
+              </Feedback>
+            </Slot>
+          </div>
+        )}
+      />
+    </>
+  )
+}
+
+// ============================================================
+// IKKI AYLANA -- radianning radiusga BOG'LIQ EMASLIGI.
+//
+// Bitta va o'sha burchak ikki aylanada boshqa uzunlikdagi yoy qoldiradi,
+// lekin `yoy / radius` nisbati JOYIDA turadi. O'quvchi radiusni ikki
+// tomonga ham suradi; ekran yopiladi, qachonki nisbat qimirlamagani ikki
+// chekkada ham ko'rilsa. Shu bilan «yoy uzunroq -- burchak kattaroq»
+// tugaydi.
+// ============================================================
+// Chizmaning o'zi: o'lchamni `Scene` beradi (`cloneElement` bilan), foizda
+// hisoblash MUMKIN EMAS -- flex ichida balandlik foizi hisoblanmaydi va SVG
+// qutidan chiqib ketadi (etalon §5.2 dagi grabli).
+function TwoCirclesFig({ size = 268, k = 0.62, angle = 57.3 }) {
+  const cx = size / 2
+  const cy = size / 2
+  const R = size * 0.42
+  const r = R * k
+  const aRad = rad(angle)
+  const pathOf = (rr) => {
+    const x2 = cx + rr * Math.cos(aRad)
+    const y2 = cy - rr * Math.sin(aRad)
+    return `M ${cx + rr} ${cy} A ${rr} ${rr} 0 0 0 ${x2} ${y2}`
+  }
+  return (
+    <div className="g10-circle-wrap">
+      <svg
+        className="g10-circle g10-circle-locked"
+        width={size} height={size}
+        style={{ maxWidth: size, maxHeight: size }}
+        viewBox={'0 0 ' + size + ' ' + size}
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+      >
+        <line x1={cx - R * 1.12} y1={cy} x2={cx + R * 1.12} y2={cy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+        <circle cx={cx} cy={cy} r={r} fill="none" stroke={T.graph} strokeWidth="1.4" />
+        <line
+          x1={cx} y1={cy}
+          x2={cx + R * Math.cos(aRad)} y2={cy - R * Math.sin(aRad)}
+          stroke={T.ink3} strokeWidth="1" strokeDasharray="3 3"
+        />
+        <path d={pathOf(R)} fill="none" stroke={T.accent} strokeWidth="4.2" strokeLinecap="round" />
+        <path d={pathOf(r)} fill="none" stroke={T.graph} strokeWidth="4.2" strokeLinecap="round" />
+      </svg>
+    </div>
+  )
+}
+
+export function ScaleCircles({ prompt, angle = 57.3, okText, notes, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [k, setK] = useState(0.62)
+  const [seen, setSeen] = useState([])
+  const [done, setDone] = useState(false)
+  // Ekran O'ZI bir marta «nafas oladi»: radius kengayadi va qisqaradi, nisbat
+  // esa joyida turadi. Shusiz o'quvchi polzunokni tortmaguncha ekran QOTIB
+  // turardi, ovoz esa harakat haqida gapirardi (etalon §5.1).
+  const [demo, setDemo] = useState(0)
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined
+    const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) return undefined
+    const steps = [0.9, 0.45, 0.62]
+    const timers = steps.map((v, i) => setTimeout(() => setDemo(v), 900 + i * 1100))
+    return () => timers.forEach(clearTimeout)
+  }, [])
+  // Qo'l bilan tortilgach demo TO'XTAYDI: o'quvchi boshqarganda ekran o'zi
+  // qimirlamasligi kerak.
+  const kShown = useTween(seen.length || done ? k : (demo || k), 700)
+  const arcBig = round2(angle / (180 / Math.PI))
+  const arcSmall = round2(arcBig * kShown)
+
+  const move = (v) => {
+    if (done) return
+    setK(v)
+    const edge = v <= 0.5 ? 'low' : v >= 0.9 ? 'high' : null
+    if (!edge || seen.indexOf(edge) !== -1) return
+    const next = seen.concat(edge)
+    setSeen(next)
+    if (next.length >= 2) {
+      setDone(true)
+      fx.right(okText)
+      if (onSolved) onSolved({ correct: true })
+    }
+  }
+
+  return (
+    <>
+      {!done ? <Cue kind="drag">{t(prompt)}</Cue> : null}
+      <Scene
+        fig={<TwoCirclesFig k={kShown} angle={angle} />}
+        note={(
+          <div className="g10-side">
+            <div className="g10-readout">
+              <div className="g10-readout-body">
+                <div className="g10-rd">
+                  <span className="g10-rd-key">{t(CUI.radiusLbl)}</span>
+                  <span className="g10-rd-val">{String(round2(kShown)).replace('.', ',')}</span>
+                </div>
+                <div className="g10-rd">
+                  <span className="g10-rd-key">{t(CUI.arcLen)}</span>
+                  <span className="g10-rd-val g10-rd-val-accent">{String(arcSmall).replace('.', ',')}</span>
+                </div>
+                {/* Nisbat -- ASOSIY ko'rsatkich: radius o'zgarganda ham JOYIDA turadi. */}
+                <div className="g10-rd g10-rd-sum">
+                  <span className="g10-rd-key">{t(CUI.ratio)}</span>
+                  <span className="g10-rd-val g10-rd-val-sum">{String(round2(arcSmall / kShown)).replace('.', ',')}</span>
+                </div>
+              </div>
+            </div>
+            {/* Bajarilgach polzunok OLIB TASHLANADI, o'chirilgan holda
+                qoldirilmaydi: yakuniy holatda uning o'rniga xulosa satrlari
+                keladi. Etalon §6.2: yangi qadam oldingisini O'RNINI OLADI,
+                aks holda ekran budjetdan chiqadi (1-darsning 5-ekrani
+                1366x615 da 27 px chiqib ketgan edi). */}
+            {!done ? (
+              <input
+                className="g10-range"
+                type="range"
+                min={35}
+                max={95}
+                value={Math.round(k * 100)}
+                onChange={(e) => move(Number(e.target.value) / 100)}
+                aria-label={t(CUI.radiusLbl)}
+              />
+            ) : null}
+            {done && notes ? notes.map((n, i) => <NoteLine key={i} i={i}>{typeof n === 'string' ? n : t(n)}</NoteLine>) : null}
+            <Slot mh={56} className="g10-fb-sm">
+              <Feedback show={done} ok={done}>{done ? t(okText) : null}</Feedback>
+            </Slot>
+          </div>
+        )}
+      />
+    </>
+  )
+}
+
 // Nuqtani BERILGAN burchakka qo'yish. Bir nechta nishon -- ketma-ket.
+// `extra.arcLive` -- yoy nuqta bilan BIRGA o'sadi: 1-darsda o'quvchi burchakni
+// uzunlik bilan o'lchaydi, shuning uchun yoy javob emas, O'LCHOV asbobi.
 export function PlaceAngle({ prompt, targets, tolerance = 12, steps, okText, wrongText, audio, onSolved, extra }) {
   const t = useT()
   const fx = useAnswerFx(audio)
@@ -1475,6 +1838,9 @@ export function PlaceAngle({ prompt, targets, tolerance = 12, steps, okText, wro
             values={done}
             locked={done}
             {...extra}
+            // Yoy nuqta bilan birga o'sadi. `extra` dan KEYIN turadi: aks holda
+            // `extra` dagi tayyor `arc` uni bosib ketardi va yoy qotib qolardi.
+            arc={extra && extra.arcLive ? { to: shown === null || shown === undefined ? 0 : norm(shown) } : (extra && extra.arc) || null}
             marks={extraMarks.concat(foundMarks)}
           />
         )}
@@ -1553,19 +1919,28 @@ export function NumberEntry({ prompt, answer, okText, hints, audio, onSolved, co
           {state !== 'ok' ? <span className="g10-entry-caret">|</span> : null}
         </div>
       </Slot>
-      <Slot mh={compact ? 36 : 40}>
-        <div className="g10-pad">
-          {KEYS.map((k) => (
-            <button type="button" key={k} className="g10-key" style={compact ? { minHeight: 34, fontSize: 13 } : undefined} disabled={state === 'ok'} onClick={() => push(k)}>{k}</button>
-          ))}
-        </div>
-      </Slot>
-      <Slot mh={compact ? 40 : 44}>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          <Btn tone="ghost" onClick={back} disabled={state === 'ok' || !text} style={compact ? { minHeight: 36, padding: '6px 14px' } : undefined}>⌫</Btn>
-          <Btn tone="accent" ready={!!text && state !== 'ok'} onClick={check} disabled={!text || state === 'ok'} style={compact ? { minHeight: 36, padding: '6px 16px' } : undefined}>{t(UI.check)}</Btn>
-        </div>
-      </Slot>
+      {/* Javob TO'G'RI bo'lgach klaviatura ham, tugmalar ham OLIB TASHLANADI.
+          Ular o'chirilgan holda ham 110 px egallaydi va yakuniy holatda ekran
+          budjetdan chiqib ketadi (etalon §6.2: yangi qadam oldingisining
+          O'RNINI OLADI). Bosiladigan narsa qolmagach, joyni ushlab turishning
+          ma'nosi ham yo'q: razbor o'sha joyga chiqadi. */}
+      {state !== 'ok' ? (
+        <>
+          <Slot mh={compact ? 36 : 40}>
+            <div className="g10-pad">
+              {KEYS.map((k) => (
+                <button type="button" key={k} className="g10-key" style={compact ? { minHeight: 34, fontSize: 13 } : undefined} onClick={() => push(k)}>{k}</button>
+              ))}
+            </div>
+          </Slot>
+          <Slot mh={compact ? 40 : 44}>
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+              <Btn tone="ghost" onClick={back} disabled={!text} style={compact ? { minHeight: 36, padding: '6px 14px' } : undefined}>⌫</Btn>
+              <Btn tone="accent" ready={!!text} onClick={check} disabled={!text} style={compact ? { minHeight: 36, padding: '6px 16px' } : undefined}>{t(UI.check)}</Btn>
+            </div>
+          </Slot>
+        </>
+      ) : null}
       <Slot mh={compact ? 54 : 62} className={compact ? 'g10-fb-sm' : undefined}>
         <Feedback show={!!hint} ok={state === 'ok'}>{hint ? t(hint) : null}</Feedback>
       </Slot>
@@ -1612,13 +1987,18 @@ export function ReachLimit({ prompt, entry, okText, tryText, audio, onSolved }) 
               ghost={phase === 'try' ? null : { x: 0.5, y: 1.2 }}
               counter={phase !== 'try'}
               live
+              // Rad etish fazasida guvoh -- KVADRATLAR yig'indisi (1,69), koordinatalar
+              // emas. Ular ikki qator, ya'ni 120 px, va yakuniy holat budjetga sig'masdi.
+              hide={phase === 'try' ? [] : ['angle', 'cos', 'sin']}
             />
             {phase === 'try' ? (
               <Slot mh={58} className="g10-fb-sm"><Feedback show={tries > 0} ok={false}>{t(tryText)}</Feedback></Slot>
             ) : (
               <>
-                <NoteLine i={0}>sin α = 1,2</NoteLine>
-                <NoteLine i={1}>cos²α = 1 − 1,44</NoteLine>
+                {/* ОДНА строка, не две: вывод целиком читается и так, а вторая
+                    строка стоила 24 px — с ней конечное состояние экрана не
+                    влезало в бюджет и низ обрезался. */}
+                <NoteLine i={0}>{'sin α = 1,2   →   cos²α = 1 − 1,44'}</NoteLine>
                 <NumberEntry compact prompt={entry.prompt} answer={entry.answer} okText={okText} hints={entry.hints} audio={audio}
                   onSolved={() => { setPhase('done'); if (onSolved) onSolved({ correct: true }) }} />
               </>
@@ -1669,7 +2049,12 @@ export function OrderRow({ prompt, items, answer, marks, okText, badText, audio,
     setHint(badText || CUI.orderBad)
     fx.wrong(badText || CUI.orderBad)
   }
-  const labelOf = (id) => { const x = items.find((y) => y.id === id); return x ? x.label : '?' }
+  // Yorliq SO'Z bo'lishi ham mumkin (masalan «45 ga qisqartirish»), formula ham.
+  // So'z bo'lsa u `L(...)` obyekti bo'lib keladi va uni `t()` dan O'TKAZISH shart:
+  // aks holda React obyektni chizmoqchi bo'lib DARSNI YIQITADI («Objects are not
+  // valid as a React child»). Aynan shu 1-darsning 10-ekranida bo'ldi.
+  const lab = (v) => (v && typeof v === 'object' ? t(v) : v)
+  const labelOf = (id) => { const x = items.find((y) => y.id === id); return x ? lab(x.label) : '?' }
 
   return (
     <>
@@ -1698,7 +2083,7 @@ export function OrderRow({ prompt, items, answer, marks, okText, badText, audio,
                   disabled={slots.indexOf(x.id) !== -1 || done}
                   onClick={() => put(x.id)}
                 >
-                  <Fx>{x.label}</Fx>
+                  <Fx>{lab(x.label)}</Fx>
                 </button>
               ))}
             </div>
@@ -1770,7 +2155,7 @@ export function MultiPick({ prompt, items, okText, audio, onSolved }) {
               onClick={() => toggle(x.id)}
             >
               <span className="g10-opt-badge">{isOn ? '✓' : '○'}</span>
-              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{x.label}</Fx></span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{x.label && typeof x.label === 'object' ? t(x.label) : x.label}</Fx></span>
             </button>
           )
         })}
@@ -1837,7 +2222,7 @@ export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved
               style={{ width: 'auto', minWidth: 92, justifyContent: 'center' }}
               onClick={() => { setPick(l); setBad(null); setHint(null) }}
             >
-              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{l.label}</Fx></span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{l.label && typeof l.label === 'object' ? t(l.label) : l.label}</Fx></span>
             </button>
           ))}
         </div>
@@ -1850,7 +2235,7 @@ export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved
               disabled={!pick}
               onClick={() => tapRight(r)}
             >
-              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{r.label}</Fx></span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{r.label && typeof r.label === 'object' ? t(r.label) : r.label}</Fx></span>
             </button>
           ))}
         </div>

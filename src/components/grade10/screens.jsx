@@ -1,0 +1,403 @@
+// ============================================================================
+// 10-sinf: EKRAN QATLAMI. Bir marta yozilgan o'ram, hamma darslar uchun.
+//
+// NEGA BU FAYL BOR. `Dars03.jsx` da har ekran atrofida bir xil o'ram yotardi:
+// segmentlar, `useAudio`, `useNarratedSteps`, `solved` holati, `Frame`, tegni
+// hisobotga uzatish -- ekranga o'rtacha 35 satr, darsga 570 satr. 53 darsda bu
+// 30 mingdan ortiq satr, va har birida tegni yoki ovozni unutish MUMKIN.
+//
+// Endi dars faylida faqat MA'LUMOT va matematika qoladi (etalon §5.3).
+//
+// NIMA BU YERDA:
+//   A, buildAuto, textsOf   -- ovoz bo'laklari
+//   UI                      -- hamma darsda bir xil yozuvlar (Davom, Orqaga, ...)
+//   Screen                  -- o'ram: ovoz, faza, solved, Frame, teg
+//   HookBody, RuleBody, BlitzBody, SummaryBody -- to'rt rolning TAYYOR tanasi:
+//       ular matematikaga bog'liq emas, faqat ma'lumotga
+//   makeLesson              -- darsning ildiz komponenti
+//
+// NIMA BU YERDA YO'Q: tushuntirish va mashq ekranlarining tanasi. Ularda
+// matematika har darsda boshqa, tayyor qolipga solish -- 7-sinf xatosi.
+//
+// `import React` SHART (LMS klassik rejim).
+// ============================================================================
+// eslint-disable-next-line no-unused-vars
+import React, { useCallback, useMemo, useRef, useState } from 'react'
+import {
+  BgCurves,
+  Btn,
+  Col,
+  Cols,
+  Expr,
+  Insight,
+  L,
+  LangProvider,
+  LangSetProvider,
+  Panel,
+  PrintSheet,
+  RingProgress,
+  STYLES,
+  Stage,
+  T,
+  Tag,
+  Title,
+  configureLesson,
+  tr,
+  useAdvanceGate,
+  useAudio,
+  useMobileZoom,
+  useNarratedSteps,
+  useT,
+} from './core.jsx'
+import { Probe, ProbeChain, RuleGate, Scene } from './tools.jsx'
+
+export const TOTAL = 15
+
+// ============================================================
+// OVOZ. `A(on, uz, ru, en)` -- bitta bo'lak. `on` -- nomi: shu nom
+// `waitFor` ro'yxatida bo'lsa, bo'lak ekran hodisasini KUTADI.
+// ============================================================
+export const A = (on, uz, ru, en) => ({ on, text: L(uz, ru, en) })
+
+export const buildAuto = (list, lang, waitFor = []) =>
+  (list || []).map((s, i) => ({
+    id: 'a' + i,
+    text: tr(s.text, lang),
+    trigger: waitFor.indexOf(s.on) !== -1
+      ? 'on_event:' + s.on
+      : (i === 0 ? 'on_mount' : 'after_previous'),
+    waits_for: null,
+  }))
+
+export const textsOf = (list, lang) => (list || []).map((s) => tr(s.text, lang))
+
+// ============================================================
+// HAMMA DARSDA BIR XIL YOZUVLAR. Darsga tegishli yozuvlar (shpargalka
+// sarlavhasi, layfxak) dars faylida qoladi.
+// ============================================================
+export const UI = {
+  next: L('Davom etish', 'Продолжить', 'Continue'),
+  back: L('Orqaga', 'Назад', 'Back'),
+  finish: L('Darsni yakunlash', 'Завершить урок', 'Finish the lesson'),
+  saved: L('Natija saqlandi', 'Результат сохранён', 'Result saved'),
+  predictToProved: L('Boshdagi taxmin → tekshirilgan javob', 'Прогноз в начале → проверенный ответ', 'Initial guess → verified answer'),
+  learned: L("Nimani o'rgandingiz", 'Что ты узнал', 'What you learned'),
+  readiness: L('Tayyorlik', 'Готовность', 'Readiness'),
+  // Inglizcha qisqa: brovkada o'ngda blok xaritasi ham turadi, uzun yozuv
+  // telefonda chapdagini siqib qo'yardi (etalon §6.4).
+  goesToResult: L('Natijaga kiradi', 'Идёт в результат', 'Counts to result'),
+}
+
+// ============================================================
+// EKRAN O'RAMI. Sarlavha, blok xaritasi, navigatsiya -- va ekranning
+// o'z tanasi funksiya sifatida beriladi.
+//
+// Tanaga beriladigan narsalar:
+//   audio  -- ovoz dvijoki (asboblarga uzatiladi)
+//   phase  -- ochilish fazasi: ovoz bo'lagi tugagach o'sadi
+//   solved -- topshiriq yopildimi
+//   solve  -- yopish: `solved` ni qo'yadi VA tegni hisobotga uzatadi
+//   stage  -- bir ekranda ikki qadam bo'lganda (masalan son, keyin tartib)
+//   setStage, setTitle
+// ============================================================
+export function Screen({ data, block, waitFor, right, screen, onAnswer, children, ...rest }) {
+  const t = useT()
+  const segments = useMemo(() => buildAuto(data.audio, rest.lang, waitFor), [rest.lang]) // eslint-disable-line react-hooks/exhaustive-deps
+  const audio = useAudio(segments)
+  const phase = useNarratedSteps(audio, textsOf(data.audio, rest.lang))
+  const [solved, setSolved] = useState(false)
+  const [stage, setStage] = useState(0)
+  const [title, setTitle] = useState(null)
+  const canNext = useAdvanceGate(data.role === 'summary' ? true : solved, audio)
+  const last = screen === TOTAL - 1
+
+  // Teg hisobotga SHU yerdan ketadi. Ekran tanasi uni unutishi mumkin emas.
+  const solve = useCallback((r) => {
+    setSolved(true)
+    if (onAnswer) onAnswer({ ...(r || {}), screen, tag: data.tag })
+  }, [onAnswer, screen, data.tag])
+
+  const nav = {
+    // 1-4-sinf naqshi (metodist, 2026-08-11): yorliqda STRELKA bor, birinchi
+    // ekranda tugma umuman chizilmaydi -- bo'sh joy, kulrang tugma emas.
+    back: screen === 0 ? null : (
+      <Btn tone="ghost" onClick={rest.onPrev}>
+        <span aria-hidden="true">{'←'}</span>{'  '}{t(UI.back)}
+      </Btn>
+    ),
+    next: last ? (
+      <Btn tone="accent" ready={!rest.finished} onClick={rest.onFinish} disabled={rest.finished}>
+        {rest.finished ? t(UI.saved) : t(UI.finish)}
+      </Btn>
+    ) : (
+      <Btn onClick={rest.onNext} disabled={!canNext} ready={solved}>{t(UI.next)}</Btn>
+    ),
+  }
+
+  return (
+    <Stage
+      eyebrow={t(data.eyebrow)}
+      // «Идёт в результат» ставит ОБЩИЙ слой: оценивается ровно один экран
+      // (§4.2), и это правило класса, а не решение автора урока.
+      right={right || (data.role === 'blitz' ? t(UI.goesToResult) : undefined)}
+      block={block}
+      screen={screen}
+      total={TOTAL}
+      audio={audio}
+      nav={nav}
+    >
+      <Title>{t(title || data.title)}</Title>
+      {children({ audio, phase, solved, solve, stage, setStage, setTitle, t })}
+    </Stage>
+  )
+}
+
+// ============================================================
+// XUK (1-ekran). Ikki raqib yozuv, orasida `≠`, plus «ikkisi ham» va
+// «hech qaysi». Baho YO'Q, yashil YO'Q: bu taxmin (etalon §4.4).
+// Matematikaga bog'liq emas -- shuning uchun tanasi shu yerda.
+//
+// Ma'lumot: rows[{id, name, value}], probe, expr, fig (ixtiyoriy).
+// ============================================================
+export function HookBody({ data, phase, solve, fig, t }) {
+  const [picked, setPicked] = useState(null)
+  const open = Math.min(phase, data.rows.length)
+  return (
+    <Cols l={1} r={1}>
+      <Col>
+        <Tag tone="accent">{t(data.eyebrow)}</Tag>
+        {data.expr ? <Expr size="hero" style={{ textAlign: 'left' }}>{data.expr}</Expr> : null}
+        {phase >= 2 ? (
+          <div className="g10-in">
+            <Probe
+              data={data.probe}
+              cols={2}
+              fbSlot={52}
+              noShuffle
+              unscored
+              dense
+              onSolved={(r) => { setPicked(r.picked); solve(r) }}
+            />
+          </div>
+        ) : null}
+      </Col>
+      <Col>
+        {data.rows.map((r, i) => (
+          <Panel
+            key={r.id}
+            tone={i < open ? 'paper' : 'quiet'}
+            className={i < open ? 'g10-reveal' : undefined}
+            style={{ display: 'flex', flexDirection: 'column', gap: 4, opacity: i < open ? 1 : 0.32 }}
+          >
+            <Tag tone={i === 0 ? 'graph' : 'quiet'}>{t(r.name)}</Tag>
+            <Expr size="big" style={{ textAlign: 'left' }}>{i < open ? r.value : '?'}</Expr>
+          </Panel>
+        ))}
+        {fig ? <Panel tone="quiet" style={{ padding: 4 }}>{fig(!!picked)}</Panel> : null}
+      </Col>
+    </Cols>
+  )
+}
+
+// ============================================================
+// QOIDA (8-ekran). Chapda chizma, o'ngda farqlash savoli va uning
+// ortidagi qoida kartochkasi. Kartochka javobdan KEYIN ochiladi,
+// gacha o'sha balandlikda qulf turadi.
+// ============================================================
+export function RuleBody({ data, audio, solved, solve, fig }) {
+  return (
+    <Cols l={1} r={1.05}>
+      <Col>{fig ? fig(solved) : null}</Col>
+      <Col>
+        {/* `onStep` SHART. Qoida ekranining ikkinchi replikasi `on_event:rule`
+            ni kutadi, ya'ni kartochka ochilishini. Bu hodisani `RuleGate`
+            `onStep` orqali yuboradi, va u uzatilmasa replika HECH QACHON
+            aytilmaydi -- straj ham yordam bermaydi, chunki hodisani kutayotgan
+            bo'lak taymer bilan siljimaydi. 3-darsda shu sababli qoida jim
+            turgan edi (topildi 2026-08-12). */}
+        <RuleGate
+          probe={data.probe}
+          rule={data.rule}
+          audio={audio}
+          onStep={(name) => audio.step(name)}
+          onSolved={solve}
+        />
+      </Col>
+    </Cols>
+  )
+}
+
+// ============================================================
+// BLITS (14-ekran). To'rt savol bitta panelda, YAGONA baholanadigan ekran.
+// Ballga BIRINCHI urinish kiradi. Savollar soni MA'LUMOTDAN hisoblanadi,
+// son bilan yozilmaydi (etalon §4.2).
+// ============================================================
+export function BlitzBody({ data, audio, solve, fig, screen, onAnswer }) {
+  const [round, setRound] = useState(0)
+  const first = useRef([])
+  return (
+    <Cols l={1} r={1}>
+      <Col>{fig ? fig(round) : null}</Col>
+      <Col>
+        <ProbeChain
+          items={data.items}
+          cols={2}
+          audio={audio}
+          onStep={() => setRound((r) => r + 1)}
+          onEach={(r) => { first.current = first.current.concat(r.attempts === 1) }}
+          onSolved={() => solve({
+            correct: true,
+            blitz: { total: data.items.length, first: first.current.filter(Boolean).length },
+          })}
+        />
+      </Col>
+    </Cols>
+  )
+}
+
+// ============================================================
+// YAKUN (15-ekran). Ikki ustun: chapda taxmin va natija, tayyorlik SO'Z
+// bilan; o'ngda «endi nima qilaman» va chop etiladigan shpargalka.
+// Yangi matematika va yangi kiritish YO'Q. Qoralama bloki OLIB TASHLANDI
+// (metodist, 2026-08-11).
+// ============================================================
+export function SummaryBody({ data, answers, t }) {
+  const hook = answers && answers[0] ? answers[0].picked : null
+  const blitz = (answers || []).reduce((acc, a) => (a && a.blitz ? a.blitz : acc), null)
+  const got = blitz ? blitz.first : 0
+  const total = blitz ? blitz.total : (data.blitzTotal || 4)
+  const level = got >= total ? data.levels.full : got >= total - 1 ? data.levels.gap : data.levels.back
+  const guess = hook && data.hookLabels ? data.hookLabels[hook] : null
+
+  return (
+    <>
+      <Cols l={1} r={1}>
+        <Col>
+          <Panel style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
+            <Tag tone="graph">{t(UI.predictToProved)}</Tag>
+            <Expr size="mid" style={{ textAlign: 'left', color: T.ink2 }}>
+              {(guess || '?') + '   →   ' + data.proved}
+            </Expr>
+          </Panel>
+          <Panel tone="quiet" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <RingProgress value={got} total={total} label={t(UI.readiness)} size={76} />
+            <span className="g10-hint" style={{ textAlign: 'left' }}>{t(level)}</span>
+          </Panel>
+          <Insight label="→">{t(data.bridge)}</Insight>
+        </Col>
+        <Col>
+          <Panel style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <Tag tone="ok">{t(UI.learned)}</Tag>
+            {data.can.map((c, i) => (
+              <span key={i} className="g10-hint" style={{ textAlign: 'left', fontSize: 13, lineHeight: 1.34 }}>
+                {'✓  ' + t(c)}
+              </span>
+            ))}
+          </Panel>
+        </Col>
+      </Cols>
+      <PrintSheet
+        title={t(data.sheetTitle)}
+        law={data.law}
+        steps={data.sheetSteps}
+        lifehack={t(data.lifehack)}
+        source={t(data.sheetSrc)}
+      />
+    </>
+  )
+}
+
+// ============================================================
+// DARSNING ILDIZI. LMS proplari, til, ovoz sozlamasi, ekranlar bo'yicha
+// yurish, natijani yuborish. Hamma darsda bir xil, shuning uchun bu yerda.
+//
+// `meta` = { id, no, title } -- dars belgisi. `lesson_id` va uch tildagi
+// `lesson_name` ovoz so'roviga ham, LMS ga ham shundan ketadi.
+// ============================================================
+export function makeLesson({ meta, block, screens, voice = 'm' }) {
+  return function Grade10Lesson({
+    lang: langProp,
+    ttsApiBase,
+    voiceGender,
+    correctSoundUrl,
+    wrongSoundUrl,
+    studentName,
+    onFinished,
+  }) {
+    useMobileZoom()
+    const preview = langProp === undefined || langProp === null
+    const [previewLang, setPreviewLang] = useState('ru')
+    const lang = langProp || previewLang
+
+    configureLesson({
+      ttsApiBase: ttsApiBase || '',
+      correctSoundUrl: correctSoundUrl || '',
+      wrongSoundUrl: wrongSoundUrl || '',
+      studentName: studentName || '',
+      voiceGender: voiceGender || voice,
+      lessonId: meta.id,
+      lessonTitle: meta.title,
+    })
+
+    const [screen, setScreen] = useState(0)
+    const [answers, setAnswers] = useState([])
+    const [finished, setFinished] = useState(false)
+
+    const record = useCallback((data) => {
+      setAnswers((prev) => {
+        const nextAns = prev.slice()
+        nextAns[data.screen] = data
+        return nextAns
+      })
+    }, [])
+
+    const next = useCallback(() => setScreen((s) => Math.min(TOTAL - 1, s + 1)), [])
+    const prev = useCallback(() => setScreen((s) => Math.max(0, s - 1)), [])
+
+    const finish = useCallback(() => {
+      setFinished(true)
+      if (!onFinished) return
+      // Baholanadigan YAGONA ekran -- blits. Son MA'LUMOTDAN hisoblanadi.
+      const blitz = answers.reduce((acc, a) => (a && a.blitz ? a.blitz : acc), null)
+      const tags = answers
+        .filter((a) => a && a.tag && (a.correct === false || (a.attempts || 1) > 1))
+        .map((a) => a.tag)
+      onFinished({
+        lessonId: meta.id,
+        lessonTitle: tr(meta.title, lang),
+        totalQuestions: blitz ? blitz.total : 0,
+        correctAnswers: blitz ? blitz.first : 0,
+        tags,
+        answers: answers.filter(Boolean),
+      })
+    }, [answers, lang, onFinished])
+
+    const Current = screens[screen]
+
+    return (
+      <LangProvider value={lang}>
+        <LangSetProvider value={preview ? setPreviewLang : null}>
+          <div className="lesson-root">
+            <style>{STYLES}</style>
+            <BgCurves />
+            <Current
+              key={screen}
+              lang={lang}
+              block={block}
+              screen={screen}
+              answers={answers}
+              onAnswer={record}
+              onNext={next}
+              onPrev={prev}
+              onFinish={finish}
+              finished={finished}
+            />
+          </div>
+        </LangSetProvider>
+      </LangProvider>
+    )
+  }
+}
+
+// Scene bu yerda ham kerak bo'ladi: rol tanalari chizmani `fig` sifatida oladi.
+export { Scene }

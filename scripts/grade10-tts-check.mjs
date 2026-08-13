@@ -19,7 +19,19 @@ import { chromium } from 'playwright'
 import { readFile } from 'node:fs/promises'
 
 const PORT = process.env.GRADE10_PORT || '5210'
-const SLUG = 'dars03-trigonometrik-doira'
+// Dars ARGUMENT bilan tanlanadi, aks holda tekshiruv bitta darsga qadalib qoladi.
+//   node scripts/grade10-tts-check.mjs dars01
+const LESSON = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars03'
+const LESSONS = {
+  dars03: { slug: 'dars03-trigonometrik-doira', no: 3, segments: 4 },
+  dars01: { slug: 'dars01-radianlar', no: 1, segments: 4 },
+}
+if (!LESSONS[LESSON]) {
+  console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)
+  process.exit(1)
+}
+const SLUG = LESSONS[LESSON].slug
+const NO = LESSONS[LESSON].no
 const TTS_HOST = 'https://tts.check.local'
 const LANGS = ['ru', 'uz', 'en']
 
@@ -29,15 +41,16 @@ const MARKER = {
   en: '[English pronunciation]',
 }
 // Dars nomi = raqam + REJADAGI tema aynan (metodist qarori 2026-08-12).
-// Manba: Math_1-11_Поурочно_RUz_v4 (2).xlsx, «10 класс», 3-satr -- «Триг. круг».
-const NAME = {
-  ru: 'Урок 3. Триг. круг',
-  uz: '3-dars. Trig. doira',
-  en: 'Lesson 3. Trig. circle',
+// Temaning O'ZI bu yerda tekshirilmaydi -- uni statik tekshiruv rejaga solishtiradi.
+// Bu yerda muhimi: nom BO'SH emas va tilga MOS boshlanadi.
+const PREFIX = {
+  ru: `Урок ${NO}. `,
+  uz: `${NO}-dars. `,
+  en: `Lesson ${NO}. `,
 }
-const LESSON_ID = 'grade10-03'
-// Birinchi ekrandagi ovoz bo'laklari soni (Dars03.jsx, S1.audio).
-const EXPECTED_SEGMENTS = 4
+const LESSON_ID = `grade10-${String(NO).padStart(2, '0')}`
+// Birinchi ekrandagi ovoz bo'laklari soni (DarsNN.jsx, S1.audio).
+const EXPECTED_SEGMENTS = LESSONS[LESSON].segments
 const CYR = /[А-Яа-яЁё]/
 
 // Javob HAQIQIY ovoz bo'lishi kerak: bo'sh javobda media-element `error` beradi,
@@ -134,7 +147,9 @@ for (const lang of LANGS) {
 
   if (!text.startsWith(MARKER[lang])) problems.push(`${lang}: matn boshida marker yo'q -- «${text.slice(0, 40)}»`)
   if (q.get('lesson_id') !== LESSON_ID) problems.push(`${lang}: lesson_id = ${q.get('lesson_id')}, kutilgani ${LESSON_ID}`)
-  if (q.get('lesson_name') !== NAME[lang]) problems.push(`${lang}: lesson_name = ${q.get('lesson_name')}, kutilgani «${NAME[lang]}»`)
+  const nm = q.get('lesson_name') || ''
+  if (!nm.startsWith(PREFIX[lang])) problems.push(`${lang}: lesson_name = «${nm}», «${PREFIX[lang]}...» bilan boshlanishi kerak`)
+  if (nm.length <= PREFIX[lang].length) problems.push(`${lang}: lesson_name da tema yo'q, faqat raqam`)
   if (q.get('g') !== 'm') problems.push(`${lang}: g = ${q.get('g')}, 10-sinfda erkak ovoz kutiladi`)
   // Marker o'zi ruscha yozilgan, shuning uchun uni olib tashlab tekshiramiz.
   const body = text.slice(MARKER[lang].length)

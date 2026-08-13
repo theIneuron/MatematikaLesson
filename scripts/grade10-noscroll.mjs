@@ -19,9 +19,14 @@ import { chromium } from 'playwright'
 import { mkdir } from 'node:fs/promises'
 
 const PORT = process.env.GRADE10_PORT || '5210'
-const SLUG = 'dars03-trigonometrik-doira'
+// Dars slug ARGUMENT bilan beriladi: skript bitta darsga bog'lanmagan bo'lishi
+// kerak, aks holda har yangi darsga uni ko'chirib yozish kerak bo'ladi.
+//   node scripts/grade10-noscroll.mjs dars01-radianlar
+const SLUG = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars03-trigonometrik-doira'
 const BASE = `http://localhost:${PORT}/10-sinf/matematika/nazariy/${SLUG}?g10fast=1`
-const OUT = '.tmp/grade10-noscroll'
+// Kadrlar dars bo'yicha ajratiladi: bir papkaga yozilsa, ikkinchi darsning
+// suratlari birinchisining ustiga tushadi va nimani ko'rganini bilib bo'lmaydi.
+const OUT = `.tmp/grade10-noscroll/${SLUG}`
 const TOTAL_SLIDES = 15
 const MAX_STEPS_PER_SLIDE = 22
 
@@ -128,6 +133,25 @@ async function measure(page, where) {
   if (m.overY > 1) {
     problems.push(`${where}: kontent ${m.overY}px oshib ketdi (budjet ${m.budget}px)`)
     if (m.overY > worst.over) worst = { over: m.overY, where }
+    // NIMA joy egallaganini darhol aytamiz. Bu tekshiruv UCH TILDA yuradi, va
+    // matn uzunligi tilga qarab boshqa: 3-darsning 12-ekrani ruschada sig'ib,
+    // o'zbekcha va inglizchada 12 px chiqib ketgan edi. Tarkibsiz bu «qaysi
+    // satr uzun» degan savolga taxmin bilan javob berish demakdir (yarim kun
+    // shunga ketdi, 2026-08-13).
+    const parts = await page.evaluate(() => {
+      const c = document.querySelector('.stage-content')
+      const out = []
+      const walk = (el, depth) => {
+        for (const ch of el.children) {
+          const h = Math.round(ch.getBoundingClientRect().height)
+          if (h > 14) out.push('  '.repeat(depth) + String(ch.className).slice(0, 26) + ' ' + h)
+          if (depth < 4) walk(ch, depth + 1)
+        }
+      }
+      if (c) walk(c, 0)
+      return out
+    })
+    problems.push(`${where}: tarkibi -> ` + parts.join(' | '))
   }
   if (m.overX > 1) problems.push(`${where}: gorizontal oshib ketish ${m.overX}px`)
   if (m.docOverX > 1) problems.push(`${where}: sahifa gorizontal skroll ${m.docOverX}px`)

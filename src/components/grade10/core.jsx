@@ -84,7 +84,10 @@ export const UI_TXT = {
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
   subject: L('Matematika', 'Математика', 'Mathematics'),
-  lessonNo: L('3-dars', 'Урок 3', 'Lesson 3'),
+  // Dars raqami MA'LUMOTDAN olinadi, yozib qo'yilmaydi. Ilgari bu yerda
+  // «Урок 3» qotib turgan edi -- ya'ni HAR dars yuqori panelda «UROK 3» deb
+  // ko'rsatardi (1-darsda ko'rindi, 2026-08-13). Raqam `block.current` da.
+  lessonWord: L('dars', 'Урок', 'Lesson'),
   setChanged: L(
     "yechimlar to'plami O'ZGARDI",
     'множество решений ИЗМЕНИЛОСЬ',
@@ -177,8 +180,14 @@ const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB
 // Bo'lakni o'qish uchun BAHOLANGAN vaqt. Straj uchun va ovoz o'chiq bo'lganda
 // ochilish tezligi uchun: ovoz yo'q bo'lsa ham ekran ASTA ochiladi.
 // `?g10fast=1` -- FAQAT avtotekshiruv uchun tezlatish.
-const NARRATION_DIVISOR =
-  typeof window !== 'undefined' && /[?&]g10fast=1/.test(window.location.search) ? 8 : 1
+const FAST = typeof window !== 'undefined' && /[?&]g10fast=1/.test(window.location.search)
+const NARRATION_DIVISOR = FAST ? 8 : 1
+// Strajning QAT'IY qo'shimchasi ham tezlashishi kerak. Aks holda `g10fast`
+// deyarli ishlamaydi: TTS bo'lmasa har bo'lak `baho + 1500 ms` kutadi, va
+// 1500 ms bo'linmaganda BOSH hadga aylanadi -- to'rt bo'lakli ekran 6 sekund
+// ochilardi, `grade10-hand.mjs` esa 3 sekunddan keyin bosardi va «qo'l bilan
+// yechilmadi» deb yozardi. Tekshiruv darsni emas, taymerni o'lchayotgan edi.
+export const WATCHDOG_PAD = FAST ? 200 : 1500
 
 export function estimateSpeech(text) {
   const words = String(text || '').trim().split(/\s+/).filter(Boolean).length
@@ -312,7 +321,7 @@ class AudioEngine {
   // o'tsa, o'zimiz davom etamiz.
   armWatchdog(text, finish) {
     this.clearWatchdog()
-    const guard = estimateSpeech(text) + 1500
+    const guard = estimateSpeech(text) + WATCHDOG_PAD
     const done = typeof finish === 'function' ? finish : () => this.afterSegment()
     this.watchdog = setTimeout(() => {
       this.watchdog = null
@@ -1253,7 +1262,10 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 // ============================================================
 export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, children }) => {
   const t = useT()
+  const lang = useLang()
   const sect = sectionOf(screen)
+  // Dars raqami blokdan: `block.current` -- rejadagi TUTASH raqam.
+  const lessonNo = (block && block.current) || 1
 
   // Tugmalar IKKI joyda chiziladi: keng ekranda yuqori qatorda, telefonda
   // brovka qatorida. Ikkalasi ham bitta `audio` bilan ishlaydi, shuning uchun
@@ -1283,7 +1295,12 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, childr
         <div className="g10-top">
           <span className="g10-mark" aria-hidden="true">M<b>10</b></span>
           <span className="g10-top-title">
-            {t(UI_TXT.subject)}<span className="g10-dot">{'·'}</span>{t(UI_TXT.lessonNo)}
+            {t(UI_TXT.subject)}
+            <span className="g10-dot">{'·'}</span>
+            {/* O'zbekchada raqam OLDIN keladi: «3-dars», ruschada keyin. */}
+            {lang === 'uz'
+              ? String(lessonNo) + '-' + t(UI_TXT.lessonWord)
+              : t(UI_TXT.lessonWord) + ' ' + String(lessonNo)}
           </span>
           <span className="g10-seg" role="img" aria-label={String(screen + 1) + '/' + String(total)}>
             {Array.from({ length: total }, (_, i) => (
@@ -2152,7 +2169,14 @@ sup.g10-idx { vertical-align: .46em; }
 .g10-scene-note { flex: 0 1 auto; align-self: center; min-width: 0; display: flex; flex-direction: column; gap: clamp(3px, .8vw, 7px); justify-content: center; }
 @media (max-width: 639.98px) {
   .g10-scene { flex-direction: column; gap: 6px; }
-  .g10-scene-fig { flex: 1 1 auto; align-self: stretch; min-height: 120px; }
+  /* 120 px poli ISHCHI yuza uchun: o'quvchi u yerda nuqta qo'yadi. YORDAMCHI
+     chizma (balandligi aniq berilgan) bu poldan ozod -- etalon §6.3 da unga pol
+     umuman qo'yilmagan. Ilgari pol unga ham tegardi va «chizmani kichraytiraman»
+     degan har qanday urinish hech narsa bermasdi.
+     DIQQAT: bu STYLES shabloni ichida, teskari qo'shtirnoq YOZIB BO'LMAYDI --
+     u shablonni yopadi va fayl yiqiladi (loyihada to'rtinchi marta). */
+  .g10-scene-fig:not(.g10-scene-fig-fixed) { flex: 1 1 auto; align-self: stretch; min-height: 120px; }
+  .g10-scene-fig-fixed { flex: 1 1 auto; align-self: stretch; }
   .g10-scene-note { align-self: stretch; }
 }
 .g10-side { display: flex; flex-direction: column; gap: 7px; width: clamp(248px, 34vw, 400px); min-width: 0; }
