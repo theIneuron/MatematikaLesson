@@ -374,11 +374,12 @@ function inspectAst(file, source, ast, practice) {
 const requested = new Set(process.argv.slice(2).map((value) => value.replace(/\.jsx$/, '')));
 const targetNames = new Set([
   ...Array.from({ length: 51 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}.jsx`),
-  ...Array.from({ length: 21 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice.jsx`),
+  ...Array.from({ length: 30 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice.jsx`),
 ]);
 const discoveredEntries = (await readdir(GRADE4_DIR))
   .filter((name) => /^Dars\d{2}(?:Practice)?\.jsx$/.test(name))
   .sort();
+const unexpectedEntries = discoveredEntries.filter((name) => !targetNames.has(name));
 const allEntries = discoveredEntries.filter((name) => targetNames.has(name));
 const entries = requested.size === 0
   ? allEntries
@@ -386,9 +387,10 @@ const entries = requested.size === 0
 
 const theory = allEntries.filter((name) => !name.includes('Practice'));
 const practice = allEntries.filter((name) => name.includes('Practice'));
-if (requested.size === 0 && allEntries.length !== 72) failures.push(`Inventory — jami ${allEntries.length}, kutilgan 72`);
+if (requested.size === 0 && unexpectedEntries.length) failures.push(`Inventory — scope tashqarisidagi fayllar: ${unexpectedEntries.join(', ')}`);
+if (requested.size === 0 && allEntries.length !== 81) failures.push(`Inventory — jami ${allEntries.length}, kutilgan 81`);
 if (requested.size === 0 && theory.length !== 51) failures.push(`Inventory — theory ${theory.length}, kutilgan 51`);
-if (requested.size === 0 && practice.length !== 21) failures.push(`Inventory — practice ${practice.length}, kutilgan 21`);
+if (requested.size === 0 && practice.length !== 30) failures.push(`Inventory — practice ${practice.length}, kutilgan 30`);
 if (requested.size > 0 && entries.length !== requested.size) failures.push(`Inventory — so'ralgan ${requested.size} fayldan ${entries.length} tasi topildi`);
 
 for (const file of entries) {

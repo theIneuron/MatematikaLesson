@@ -19,6 +19,7 @@ const SCREENSHOT_DIR = process.env.GRADE4_SCREENSHOT_DIR
   ? path.resolve(ROOT, process.env.GRADE4_SCREENSHOT_DIR)
   : null;
 const RAPID_BACK_ONLY = process.env.GRADE4_RAPID_BACK_ONLY === '1';
+const AUDIO_ONLY = process.env.GRADE4_AUDIO_ONLY === '1';
 const DEEP_VIEWPORT = process.env.GRADE4_DEEP_VIEWPORT || 'desktop';
 const LANGS = ['uz', 'ru', 'en'];
 const ALL_VIEWPORTS = [
@@ -45,11 +46,19 @@ const CHECK_ACTION = '.p4-actions .p4-btn:not(.p4-btn-ghost):not(.p4-btn-ready),
 const RETRY_ACTION = '.p4-actions .p4-btn-ghost, .g4p-actions .g4p-btn.is-ghost';
 const READY_ACTION = '.p4-actions .p4-btn-ready, .g4p-actions .g4p-btn.is-ready';
 const RESULT_SCREEN = '.p4-done, .g4p-result';
+const TITLE_OVERLAY_SELECTOR = '.rank-boost-overlay[data-g4-role="rank-overlay"]';
+const REVIEW_LESSONS = new Set([
+  'Dars02.jsx', 'Dars07.jsx', 'Dars12.jsx', 'Dars18.jsx',
+  'Dars22.jsx', 'Dars28.jsx', 'Dars42.jsx', 'Dars51.jsx',
+]);
+const feedbackScreenshotKeys = new Set();
+const finalScreenshotKeys = new Set();
 const failures = [];
 let theoryScreensTraversed = 0;
 let practiceTasksTraversed = 0;
 let theoryGateFallbacks = 0;
 let audioContractChecked = false;
+let activePracticeLang = 'en';
 let normalMotionTitleTimingsChecked = 0;
 let choiceBranchScreensChecked = 0;
 let choiceBranchesChecked = 0;
@@ -71,7 +80,7 @@ const registeredLessons = [...registry.matchAll(/slug:\s*'([^']+)'[\s\S]*?Compon
 const numberedFile = (number, suffix = '') => 'Dars' + String(number).padStart(2, '0') + suffix + '.jsx';
 const targetLessonFiles = new Set([
   ...Array.from({ length: 51 }, (_, index) => numberedFile(index + 1)),
-  ...Array.from({ length: 21 }, (_, index) => numberedFile(index + 1, 'Practice')),
+  ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1, 'Practice')),
 ]);
 const allLessons = registeredLessons.filter((lesson) => targetLessonFiles.has(lesson.file));
 const registryOnlyLessons = registeredLessons.filter((lesson) => !targetLessonFiles.has(lesson.file));
@@ -103,14 +112,14 @@ if (unexpectedUnavailable.length) {
   console.error('Grade 4 registryda kutilmagan mavjud bo\'lmagan componentlar: ' + unexpectedUnavailable.join(', ') + '.');
   process.exit(1);
 }
-if ((requested.size === 0 && lessons.length !== 72) || (requested.size > 0 && lessons.length !== requested.size)) {
-  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 72) + '.');
+if ((requested.size === 0 && lessons.length !== 81) || (requested.size > 0 && lessons.length !== requested.size)) {
+  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 81) + '.');
   process.exit(1);
 }
 if (registryOnlyLessons.length) {
   console.log(
     '[Grade 4 smoke scope] ' + registryOnlyLessons.map((lesson) => lesson.file).join(', ')
-    + ' registry-only route sifatida tashlab ketildi; smoke Dars01–Dars51 va Dars01Practice–Dars21Practice bilan cheklangan.',
+    + ' registry-only route sifatida tashlab ketildi; smoke Dars01–Dars51 va Dars01Practice–Dars30Practice bilan cheklangan.',
   );
 }
 
@@ -146,6 +155,7 @@ const hasCyrillic = (value) => /[\u0400-\u052f]/u.test(String(value ?? ''));
 const localize = (value) => {
   if (value === null || value === undefined) return '';
   if (typeof value !== 'object') return String(value);
+  if (Object.hasOwn(value, activePracticeLang)) return String(value[activePracticeLang]);
   if (Object.hasOwn(value, 'en')) return String(value.en);
   if (Object.hasOwn(value, 'text')) return localize(value.text);
   if (Object.hasOwn(value, 'label')) return localize(value.label);
@@ -239,10 +249,14 @@ async function extractPracticeTasks(lesson) {
     correct,
     wrong: wrongRu ? b(wrongRu, wrongUz, wrongEn) : null,
   });
+  const decimal = (comma, point) => b(comma, comma, point);
   const expression = source.slice(initializer.start, initializer.end);
   const tasks = runInNewContext('(' + expression + ')', {
     addEnglish: (value) => value,
     b,
+    d: decimal,
+    dec: decimal,
+    decimal,
     option,
   }, { timeout: 2_000 });
   if (!Array.isArray(tasks) || tasks.length !== 10) {
@@ -439,6 +453,93 @@ async function lessonSnapshot(page) {
       });
     const rootStyle = root ? getComputedStyle(root) : null;
     const contentStyle = stageContent ? getComputedStyle(stageContent) : null;
+    const visualFrameIssues = root ? [...root.querySelectorAll('[data-g4-role~="visual-frame"]')]
+      .filter(visible)
+      .flatMap((frame) => {
+        const style = getComputedStyle(frame);
+        const frameRect = frame.getBoundingClientRect();
+        const issues = [];
+        if (style.position !== 'relative' || style.isolation !== 'isolate'
+          || !['hidden', 'clip'].includes(style.overflowX)
+          || !['hidden', 'clip'].includes(style.overflowY)) {
+          issues.push(`${describe(frame)} boundary=${style.position}/${style.isolation}/${style.overflowX}/${style.overflowY}`);
+        }
+        for (const media of frame.querySelectorAll('img,svg,canvas')) {
+          if (!visible(media)) continue;
+          const mediaRect = media.getBoundingClientRect();
+          if (!Number.isFinite(mediaRect.width) || !Number.isFinite(mediaRect.height)
+            || mediaRect.width <= 0 || mediaRect.height <= 0) continue;
+          const effectiveWidth = Math.max(0, Math.min(mediaRect.right, frameRect.right) - Math.max(mediaRect.left, frameRect.left));
+          const effectiveHeight = Math.max(0, Math.min(mediaRect.bottom, frameRect.bottom) - Math.max(mediaRect.top, frameRect.top));
+          if (effectiveWidth <= 0 || effectiveHeight <= 0) {
+            issues.push(`${describe(media)} frame bilan kesishmaydi`);
+          }
+        }
+        for (const textElement of frame.querySelectorAll('h1,h2,h3,h4,p,span,strong,small,b,label,li,output')) {
+          if (!visible(textElement) || textElement.closest('.sr-only,[aria-hidden="true"]')) continue;
+          const hasDirectText = [...textElement.childNodes]
+            .some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+          if (!hasDirectText) continue;
+          const textRect = textElement.getBoundingClientRect();
+          if (textRect.left < frameRect.left - 1 || textRect.right > frameRect.right + 1
+            || textRect.top < frameRect.top - 1 || textRect.bottom > frameRect.bottom + 1) {
+            issues.push(`${describeBox(textElement)} frame matni kesilgan`);
+            continue;
+          }
+          let clippingAncestor = textElement.parentElement;
+          while (clippingAncestor && clippingAncestor !== frame) {
+            const ancestorStyle = getComputedStyle(clippingAncestor);
+            if (['hidden', 'clip'].includes(ancestorStyle.overflowX)
+              || ['hidden', 'clip'].includes(ancestorStyle.overflowY)) {
+              const ancestorRect = clippingAncestor.getBoundingClientRect();
+              const clippedX = ['hidden', 'clip'].includes(ancestorStyle.overflowX)
+                && (textRect.left < ancestorRect.left - 1 || textRect.right > ancestorRect.right + 1);
+              const clippedY = ['hidden', 'clip'].includes(ancestorStyle.overflowY)
+                && (textRect.top < ancestorRect.top - 1 || textRect.bottom > ancestorRect.bottom + 1);
+              if (clippedX || clippedY) {
+                issues.push(`${describeBox(textElement)} ${describeBox(clippingAncestor)} ichida kesilgan`);
+                break;
+              }
+            }
+            clippingAncestor = clippingAncestor.parentElement;
+          }
+        }
+        return issues;
+      }).slice(0, 10) : [];
+    if (root) {
+      const unframedMedia = [...root.querySelectorAll('.stage-content img,.stage-content svg,.stage-content canvas')]
+        .filter(visible)
+        .filter((media) => !media.closest(
+          '[data-g4-role~="visual-frame"], [data-g4-role~="hook-bit"], [data-g4-role~="feedback-bit"], '
+            + '[data-g4-role~="reward-bit"], .heading, .finale-happy-bit, .finale-reward-bit, '
+            + '.audio-controls, .audio-indicator, .feedback, .reward-stage, .g4-title-card-stage',
+        ))
+        .map((media) => `${describe(media)} visual-frame yo‘q`)
+        .slice(0, 10);
+      visualFrameIssues.push(...unframedMedia);
+    }
+    const typographyIssues = root?.matches('.lesson-root,.d8-root') ? (() => {
+      const issues = [];
+      const rootFont = getComputedStyle(root).fontFamily;
+      if (!/Manrope/i.test(rootFont)) issues.push(`${describe(root)} base=${rootFont}`);
+      for (const heading of root.querySelectorAll('h1')) {
+        if (!visible(heading)) continue;
+        const font = getComputedStyle(heading).fontFamily;
+        if (!/Source Serif 4/i.test(font)) issues.push(`${describe(heading)}=${font}`);
+      }
+      for (const question of root.querySelectorAll('.question h2,[data-g4-role~="hook-question"]')) {
+        if (!visible(question) || question.closest('.summary-stack,.summary-complete,.final-reflection,[data-g4-role~="reflection"]')) continue;
+        const target = question.matches('h2') ? question : question.querySelector('h2') ?? question;
+        const font = getComputedStyle(target).fontFamily;
+        if (!/Manrope/i.test(font)) issues.push(`${describe(target)} question=${font}`);
+      }
+      for (const technical of root.querySelectorAll('.screen-count,[class*="formula"],[class*="equation"],.proof-label')) {
+        if (!visible(technical) || !String(technical.textContent ?? '').trim()) continue;
+        const font = getComputedStyle(technical).fontFamily;
+        if (!/JetBrains Mono/i.test(font)) issues.push(`${describe(technical)} technical=${font}`);
+      }
+      return issues.slice(0, 10);
+    })() : [];
     return {
       text,
       canonicalText,
@@ -463,6 +564,8 @@ async function lessonSnapshot(page) {
       emptyAriaLabels,
       clippedText,
       panelIssues: [...new Set(panelIssues)].slice(0, 10),
+      visualFrameIssues,
+      typographyIssues,
       languageLabels: buttons.map((button) => button.textContent?.trim()),
       activeLanguage: buttons.find((button) => button.classList.contains('is-active'))?.textContent?.trim(),
     };
@@ -502,6 +605,8 @@ function snapshotIssues(snapshot, lang) {
   if (snapshot.emptyAriaLabels.length) issues.push('bo\'sh aria-label: ' + snapshot.emptyAriaLabels.join(', '));
   if (snapshot.clippedText.length) issues.push('matn clip: ' + snapshot.clippedText.join(', '));
   if (snapshot.panelIssues.length) issues.push('panel collision: ' + snapshot.panelIssues.join(', '));
+  if (snapshot.visualFrameIssues.length) issues.push('visual-frame containment: ' + snapshot.visualFrameIssues.join(', '));
+  if (snapshot.typographyIssues.length) issues.push('typography: ' + snapshot.typographyIssues.join(', '));
   return issues;
 }
 
@@ -509,6 +614,262 @@ const isTheoryContractLesson = (lesson) => lesson.section === 'nazariy'
   && /^Dars(?:0[2-9]|[1-4]\d|5[01])\.jsx$/.test(lesson.file);
 
 const isStrictEtalonLesson = isTheoryContractLesson;
+
+async function assertCanonicalHookVisual(page, viewport, lesson, lang) {
+  const hook = await firstVisible(inLesson(page, '[data-g4-screen="hook"]'));
+  if (!hook) throw new Error('canonical hook topilmadi');
+  const contract = await hook.evaluate((root, mobile) => {
+    const byRole = (role) => root.querySelector(`[data-g4-role~="${role}"]`);
+    const topic = byRole('hook-topic');
+    const titleHost = byRole('hook-title');
+    const questionHost = byRole('hook-question');
+    const scene = byRole('hook-scene');
+    const frame = byRole('visual-frame');
+    const bit = byRole('hook-bit');
+    const answer = root.querySelector('button[data-g4-role~="answer-card"]');
+    const answerCount = root.querySelectorAll('button[data-g4-role~="answer-card"]').length;
+    const title = titleHost?.matches('h1') ? titleHost : titleHost?.querySelector('h1') ?? titleHost;
+    const question = questionHost?.matches('h2') ? questionHost : questionHost?.querySelector('h2') ?? questionHost;
+    const titleStyle = title ? getComputedStyle(title) : null;
+    const questionStyle = question ? getComputedStyle(question) : null;
+    const frameStyle = frame ? getComputedStyle(frame) : null;
+    const titleRect = title?.getBoundingClientRect() ?? null;
+    const questionRect = question?.getBoundingClientRect() ?? null;
+    const sceneRect = scene?.getBoundingClientRect() ?? null;
+    const frameRect = frame?.getBoundingClientRect() ?? null;
+    const bitRect = bit?.getBoundingClientRect() ?? null;
+    const contentRect = root.closest('.stage-content')?.getBoundingClientRect() ?? null;
+    const layoutIssues = [];
+    for (const card of root.querySelectorAll('button[data-g4-role~="answer-card"]')) {
+      if (!card.offsetParent) continue;
+      const rect = card.getBoundingClientRect();
+      if (contentRect && (rect.left < contentRect.left - 1 || rect.right > contentRect.right + 1
+        || rect.top < contentRect.top - 1 || rect.bottom > contentRect.bottom + 1)) {
+        layoutIssues.push(`answer-card ${Math.round(rect.left)}/${Math.round(rect.top)}/${Math.round(rect.width)}/${Math.round(rect.height)}`);
+      }
+    }
+    for (const textElement of root.querySelectorAll('h1,h2,h3,h4,p,span,strong,small,b,label,li,button')) {
+      if (!textElement.offsetParent || textElement.closest('.sr-only,[aria-hidden="true"],[data-g4-role~="hook-bit"]')) continue;
+      const hasDirectText = [...textElement.childNodes]
+        .some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+      if (!hasDirectText) continue;
+      const rect = textElement.getBoundingClientRect();
+      let ancestor = textElement.parentElement;
+      while (ancestor && ancestor !== root.parentElement) {
+        const style = getComputedStyle(ancestor);
+        const ancestorRect = ancestor.getBoundingClientRect();
+        const clippedX = ['hidden', 'clip'].includes(style.overflowX)
+          && (rect.left < ancestorRect.left - 1 || rect.right > ancestorRect.right + 1);
+        const clippedY = ['hidden', 'clip'].includes(style.overflowY)
+          && (rect.top < ancestorRect.top - 1 || rect.bottom > ancestorRect.bottom + 1);
+        if (clippedX || clippedY) {
+          layoutIssues.push(`${textElement.tagName.toLowerCase()} ${Math.round(rect.left)}/${Math.round(rect.top)}/${Math.round(rect.width)}/${Math.round(rect.height)}`);
+          break;
+        }
+        ancestor = ancestor.parentElement;
+      }
+    }
+    let following = null;
+    let cursor = scene;
+    while (cursor && cursor !== root && !following) {
+      let sibling = cursor.nextElementSibling;
+      while (sibling && !following) {
+        const rect = sibling.getBoundingClientRect();
+        const style = getComputedStyle(sibling);
+        if (rect.width > 0 && rect.height > 0 && style.display !== 'none' && style.visibility !== 'hidden') {
+          following = sibling;
+        }
+        sibling = sibling.nextElementSibling;
+      }
+      cursor = cursor.parentElement;
+    }
+    const nodes = [topic, titleHost, questionHost, scene, answer];
+    const ordered = nodes.every(Boolean) && nodes.slice(0, -1).every((node, index) => (
+      Boolean(node.compareDocumentPosition(nodes[index + 1]) & Node.DOCUMENT_POSITION_FOLLOWING)
+    ));
+    return {
+      missing: [
+        ['hook-topic', topic],
+        ['hook-title', titleHost],
+        ['hook-question', questionHost],
+        ['hook-scene', scene],
+        ['visual-frame', frame],
+        ['hook-bit', bit],
+        ['answer-card', answer],
+      ].filter(([, element]) => !element).map(([role]) => role),
+      ordered,
+      answerCount,
+      titleAlign: titleStyle?.textAlign ?? '',
+      titleFont: titleStyle?.fontFamily ?? '',
+      titleSize: Number.parseFloat(titleStyle?.fontSize ?? '0'),
+      questionAlign: questionStyle?.textAlign ?? '',
+      questionFont: questionStyle?.fontFamily ?? '',
+      questionSize: Number.parseFloat(questionStyle?.fontSize ?? '0'),
+      titleBottom: titleRect?.bottom ?? 0,
+      questionTop: questionRect?.top ?? 0,
+      questionBottom: questionRect?.bottom ?? 0,
+      sceneTop: sceneRect?.top ?? 0,
+      sceneBottom: sceneRect?.bottom ?? 0,
+      followingTop: following?.getBoundingClientRect().top ?? null,
+      layoutIssues: [...new Set(layoutIssues)].slice(0, 8),
+      frameWidth: frameRect?.width ?? 0,
+      availableWidth: root.getBoundingClientRect().width,
+      frameHeight: frameRect?.height ?? 0,
+      frameRadius: Number.parseFloat(frameStyle?.borderTopLeftRadius ?? '0'),
+      frameOverflow: `${frameStyle?.overflowX ?? ''}/${frameStyle?.overflowY ?? ''}`,
+      frameIsolation: frameStyle?.isolation ?? '',
+      frameBackground: frameStyle?.backgroundImage ?? '',
+      frameShadow: frameStyle?.boxShadow ?? '',
+      bitWidth: bitRect?.width ?? 0,
+      bitHeight: bitRect?.height ?? 0,
+      bitRight: frameRect && bitRect ? frameRect.right - bitRect.right : Number.NaN,
+      bitBottom: frameRect && bitRect ? frameRect.bottom - bitRect.bottom : Number.NaN,
+      callout: /kod qanday tuzilgan\??/i.test(root.textContent ?? ''),
+      mobile,
+    };
+  }, viewport.width < 640);
+
+  const prefix = `${lesson.file} ${lang} ${viewport.name}`;
+  if (contract.missing.length) throw new Error(`${prefix}: hook markerlari yetishmaydi (${contract.missing.join(', ')})`);
+  if (!contract.ordered || contract.answerCount < 2) throw new Error(`${prefix}: hook tartibi topic → title → question → scene → answers emas`);
+  if (contract.callout) throw new Error(`${prefix}: Dars01-only “Kod qanday tuzilgan?” callout ko‘chirildi`);
+  const expectedTitle = contract.mobile ? 25 : 36;
+  const expectedQuestion = contract.mobile ? 17 : 21;
+  if (contract.titleAlign !== 'left' || !/Source Serif 4/i.test(contract.titleFont)
+    || Math.abs(contract.titleSize - expectedTitle) > 1.1) {
+    throw new Error(`${prefix}: H1 ${contract.titleAlign}/${contract.titleFont}/${contract.titleSize}px`);
+  }
+  if (contract.questionAlign !== 'left' || !/Manrope/i.test(contract.questionFont)
+    || Math.abs(contract.questionSize - expectedQuestion) > 1.1) {
+    throw new Error(`${prefix}: hook savoli ${contract.questionAlign}/${contract.questionFont}/${contract.questionSize}px`);
+  }
+  if (contract.titleBottom > contract.questionTop + 1
+    || contract.questionBottom > contract.sceneTop + 1
+    || (contract.followingTop !== null && contract.sceneBottom > contract.followingTop + 1)) {
+    throw new Error(`${prefix}: hook bloklari ustma-ust (title ${contract.titleBottom}/${contract.questionTop}, question ${contract.questionBottom}/${contract.sceneTop}, scene ${contract.sceneBottom}/${contract.followingTop})`);
+  }
+  if (contract.layoutIssues.length) {
+    throw new Error(`${prefix}: hook content kesilgan (${contract.layoutIssues.join(', ')})`);
+  }
+  const expectedMinHeight = contract.mobile ? 164 : 206;
+  const expectedRadius = contract.mobile ? 18 : 24;
+  const expectedFrameWidth = Math.min(760, contract.availableWidth);
+  if (Math.abs(contract.frameWidth - expectedFrameWidth) > 1.1 || contract.frameHeight + 1 < expectedMinHeight
+    || Math.abs(contract.frameRadius - expectedRadius) > 1
+    || !/hidden|clip/.test(contract.frameOverflow) || contract.frameIsolation !== 'isolate'
+    || !/87% 24%/.test(contract.frameBackground)
+    || !/rgba\(121, 211, 218, 0\.16\)/.test(contract.frameBackground)
+    || !/9% 88%/.test(contract.frameBackground)
+    || !/rgba\(149, 201, 61, 0\.11\)/.test(contract.frameBackground)
+    || !/rgba\(22, 143, 163, 0\.25\)/.test(contract.frameBackground)
+    || !/rgb\(21, 59, 80\)/.test(contract.frameBackground)
+    || !/rgb\(11, 34, 50\)/.test(contract.frameBackground)
+    || !/rgba\(14, 33, 44, 0\.75\)/.test(contract.frameShadow)
+    || !/0px 22px 50px -30px/.test(contract.frameShadow)) {
+    throw new Error(`${prefix}: visual frame ${contract.frameWidth}×${contract.frameHeight}, r${contract.frameRadius}, ${contract.frameOverflow}`);
+  }
+  const expectedBit = contract.mobile
+    ? { width: 68, height: 85, right: 12, bottom: -7 }
+    : { width: 88, height: 110, right: 42, bottom: -4 };
+  if (Math.abs(contract.bitWidth - expectedBit.width) > 1.1
+    || Math.abs(contract.bitHeight - expectedBit.height) > 1.1
+    || Math.abs(contract.bitRight - expectedBit.right) > 1.1
+    || Math.abs(contract.bitBottom - expectedBit.bottom) > 1.1) {
+    throw new Error(`${prefix}: hook Bit ${contract.bitWidth}×${contract.bitHeight}, right ${contract.bitRight}, bottom ${contract.bitBottom}`);
+  }
+}
+
+async function assertRankOverlayVisual(page, issuePrefix) {
+  const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
+  const result = await overlay.evaluate((element) => {
+    const card = element.querySelector('.rank-boost-card,.g4-title-reveal-card');
+    const medal = element.querySelector('.rank-boost-medal,.g4-title-reveal-medal');
+    const title = element.querySelector('h2');
+    const rect = element.getBoundingClientRect();
+    const titleStyle = title ? getComputedStyle(title) : null;
+    const overlayStyle = getComputedStyle(element);
+    const medalStyle = medal ? getComputedStyle(medal) : null;
+    const confetti = element.querySelector('.rank-boost-confetti,.g4-title-reveal-confetti');
+    return {
+      width: rect.width,
+      height: rect.height,
+      viewportWidth: innerWidth,
+      viewportHeight: innerHeight,
+      card: Boolean(card),
+      medal: Boolean(medal),
+      confetti: Boolean(confetti),
+      rays: Boolean(element.querySelector('.rank-boost-rays,.g4-title-reveal-rays')),
+      // The Dars01 medal deliberately scales in from .25. Validate its
+      // canonical CSS box, not the transient transformed bounding box.
+      medalWidth: Number.parseFloat(medalStyle?.width ?? '0'),
+      medalHeight: Number.parseFloat(medalStyle?.height ?? '0'),
+      titleFont: titleStyle?.fontFamily ?? '',
+      titleSize: Number.parseFloat(titleStyle?.fontSize ?? '0'),
+      overlayAnimation: overlayStyle.animationName,
+      medalAnimation: medalStyle?.animationName ?? '',
+      titleAnimation: titleStyle?.animationName ?? '',
+      confettiDisplay: confetti ? getComputedStyle(confetti).display : '',
+      reduced: matchMedia('(prefers-reduced-motion: reduce)').matches,
+      mobile: innerWidth < 640,
+    };
+  });
+  if (Math.abs(result.width - result.viewportWidth) > 1 || Math.abs(result.height - result.viewportHeight) > 1
+    || !result.card || !result.medal || !result.confetti || !result.rays
+    || !/Source Serif 4/i.test(result.titleFont)) {
+    throw new Error(`${issuePrefix}: rank overlay full-screen kompozitsiyasi noto‘g‘ri`);
+  }
+  const expectedMedal = result.mobile ? 88 : 112;
+  const expectedTitle = result.mobile ? 29 : 58;
+  if (Math.abs(result.medalWidth - expectedMedal) > 1.1 || Math.abs(result.medalHeight - expectedMedal) > 1.1
+    || Math.abs(result.titleSize - expectedTitle) > 1.1) {
+    throw new Error(`${issuePrefix}: rank overlay medal/title ${result.medalWidth}×${result.medalHeight}/${result.titleSize}px`);
+  }
+  if (result.reduced) {
+    if (result.overlayAnimation !== 'none' || result.medalAnimation !== 'none'
+      || result.titleAnimation !== 'none' || result.confettiDisplay !== 'none') {
+      throw new Error(`${issuePrefix}: reduced-motion rank animatsiyasi qisqartirilmagan`);
+    }
+  } else if (result.overlayAnimation === 'none' || result.medalAnimation === 'none'
+    || result.titleAnimation === 'none' || result.confettiDisplay === 'none') {
+    throw new Error(`${issuePrefix}: normal-motion rank animatsiyasi ishlamaydi`);
+  }
+}
+
+async function assertPersistentRewardVisual(titleCard, issuePrefix) {
+  const result = await titleCard.evaluate((element) => {
+    const bit = element.querySelector('[data-g4-role~="reward-bit"]');
+    const medal = element.querySelector('[data-g4-role~="reward-medal"]');
+    const title = element.querySelector('h1,h2');
+    const style = getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    const bitRect = bit?.getBoundingClientRect();
+    const medalRect = medal?.getBoundingClientRect();
+    return {
+      bit: Boolean(bit),
+      medal: Boolean(medal),
+      confetti: Boolean(element.querySelector('[data-g4-role~="reward-confetti"]')),
+      height: rect.height,
+      radius: Number.parseFloat(style.borderTopLeftRadius || '0'),
+      background: style.backgroundImage,
+      bitWidth: bitRect?.width ?? 0,
+      bitHeight: bitRect?.height ?? 0,
+      medalWidth: medalRect?.width ?? 0,
+      medalHeight: medalRect?.height ?? 0,
+      titleFont: title ? getComputedStyle(title).fontFamily : '',
+      mobile: innerWidth < 640,
+    };
+  });
+  const expected = result.mobile
+    ? { minHeight: 88, radius: 14, bitWidth: 57, bitHeight: 71, medal: 34 }
+    : { minHeight: 116, radius: 17, bitWidth: 72, bitHeight: 90, medal: 44 };
+  if (!result.bit || !result.medal || !result.confetti || !/Source Serif 4/i.test(result.titleFont)
+    || result.height + 1 < expected.minHeight || Math.abs(result.radius - expected.radius) > 1.1
+    || Math.abs(result.bitWidth - expected.bitWidth) > 1.1 || Math.abs(result.bitHeight - expected.bitHeight) > 1.1
+    || Math.abs(result.medalWidth - expected.medal) > 1.1 || Math.abs(result.medalHeight - expected.medal) > 1.1
+    || !/rgb\(23, 59, 82\)/.test(result.background) || !/rgb\(14, 105, 120\)/.test(result.background)) {
+    throw new Error(`${issuePrefix}: persistent reward ${result.height}px/r${result.radius}, Bit ${result.bitWidth}×${result.bitHeight}, medal ${result.medalWidth}×${result.medalHeight}`);
+  }
+}
 
 async function runInitialRouteSmoke(page, diagnostics, viewport, lesson, lang) {
   diagnostics.reset();
@@ -525,9 +886,18 @@ async function runInitialRouteSmoke(page, diagnostics, viewport, lesson, lang) {
   diagnostics.pageErrors.forEach((message) => failures.push(prefix + ': pageerror ' + message));
 
   if (isTheoryContractLesson(lesson)) {
+    const internalLanguagePicker = await firstVisible(inLesson(page, '.preview-language'));
+    if (internalLanguagePicker) {
+      failures.push(prefix + ': host ichida duplicate internal language picker ko\'rinmoqda');
+    }
     const count = await currentScreenCount(page);
     if (count.current !== 1 || count.total < 13 || count.total > 17) {
       failures.push(prefix + ': screen-count ' + count.text + ', kutilgan 1 / 13–17');
+    }
+    try {
+      await assertCanonicalHookVisual(page, viewport, lesson, lang);
+    } catch (error) {
+      failures.push(prefix + ': ' + error.message);
     }
   }
 
@@ -619,32 +989,37 @@ async function speechState(page) {
   }));
 }
 
-async function waitForSpeechCount(page, minimum, timeout = 15_000) {
-  await page.waitForFunction(
-    (count) => (window.__grade4SpeechSmoke?.utterances.length ?? 0) >= count,
-    minimum,
-    { timeout },
-  );
+async function waitForSpeechCount(page, minimum, timeout = 15_000, checkpoint = 'speech') {
+  try {
+    await page.waitForFunction(
+      (count) => (window.__grade4SpeechSmoke?.utterances.length ?? 0) >= count,
+      minimum,
+      { timeout },
+    );
+  } catch (error) {
+    const state = await speechState(page);
+    throw new Error(`${checkpoint}: ${error.message}; cancelCount=${state.cancelCount}, utterances=${state.utterances.length}`);
+  }
 }
 
-async function waitForCancellation(page, previous, timeout = 15_000) {
-  await page.waitForFunction(
-    (count) => (window.__grade4SpeechSmoke?.cancelCount ?? 0) > count,
-    previous,
-    { timeout },
-  );
+async function waitForCancellation(page, previous, timeout = 15_000, checkpoint = 'cancellation') {
+  try {
+    await page.waitForFunction(
+      (count) => (window.__grade4SpeechSmoke?.cancelCount ?? 0) > count,
+      previous,
+      { timeout },
+    );
+  } catch (error) {
+    const state = await speechState(page);
+    throw new Error(`${checkpoint}: ${error.message}; cancelCount=${state.cancelCount}, utterances=${state.utterances.length}`);
+  }
 }
 
 async function lessonLanguageControl(page, code) {
   const label = code.toUpperCase();
-  const host = page.locator('.lesson-language button', { hasText: label });
-  if (await host.count()) {
-    return {
-      button: host,
-      active: page.locator('.lesson-language button.is-active', { hasText: label }),
-      internalPreview: false,
-    };
-  }
+  // Prefer the self-contained lesson picker when it exists. The host picker
+  // may perform a full route reload, which recreates the speech mock and makes
+  // cancellation counters incomparable across the language switch.
   const preview = inLesson(page, '.preview-language button').filter({ hasText: label });
   const visiblePreview = await firstVisible(preview);
   if (visiblePreview) {
@@ -652,6 +1027,14 @@ async function lessonLanguageControl(page, code) {
       button: visiblePreview,
       active: inLesson(page, '.preview-language button.preview-active').filter({ hasText: label }),
       internalPreview: true,
+    };
+  }
+  const host = page.locator('.lesson-language button', { hasText: label });
+  if (await host.count()) {
+    return {
+      button: host,
+      active: page.locator('.lesson-language button.is-active', { hasText: label }),
+      internalPreview: false,
     };
   }
   return {
@@ -689,7 +1072,7 @@ async function runAudioContractSmoke(browser) {
     const speechPage = await speechContext.newPage();
     try {
       await openLesson(speechPage, lesson, 'en');
-      await waitForSpeechCount(speechPage, 1);
+      await waitForSpeechCount(speechPage, 1, 15_000, 'initial narration');
       const initial = await speechState(speechPage);
       if (initial.utterances.some((item) => item.lang !== 'en-GB')) {
         throw new Error('EN utterance lang en-GB emas');
@@ -704,13 +1087,13 @@ async function runAudioContractSmoke(browser) {
         await waitForEnabledCard(hookCards);
         const beforeFeedback = (await speechState(speechPage)).utterances.length;
         await hookCards.first().click();
-        await waitForSpeechCount(speechPage, beforeFeedback + 1);
+        await waitForSpeechCount(speechPage, beforeFeedback + 1, 15_000, 'hook feedback');
       }
 
       const mute = await waitForVisible(speechPage, 'button[aria-label="Turn sound off"]');
       const beforeMuteCancel = (await speechState(speechPage)).cancelCount;
       await mute.click();
-      await waitForCancellation(speechPage, beforeMuteCancel);
+      await waitForCancellation(speechPage, beforeMuteCancel, 15_000, 'mute cancellation');
       if (await firstVisible(inLesson(speechPage, 'button[aria-label="Replay"]'))) {
         throw new Error('mute holatida Replay yashirilmadi');
       }
@@ -720,15 +1103,15 @@ async function runAudioContractSmoke(browser) {
       const replay = await waitForVisible(speechPage, 'button[aria-label="Replay"]');
       const beforeReplay = (await speechState(speechPage)).utterances.length;
       await replay.click();
-      await waitForSpeechCount(speechPage, beforeReplay + 1);
+      await waitForSpeechCount(speechPage, beforeReplay + 1, 15_000, 'Replay');
 
       const beforeSwitchCancel = (await speechState(speechPage)).cancelCount;
       await switchLessonLanguage(speechPage, 'ru');
-      await waitForCancellation(speechPage, beforeSwitchCancel);
+      await waitForCancellation(speechPage, beforeSwitchCancel, 15_000, 'language switch cancellation');
 
       const beforeEnglish = (await speechState(speechPage)).utterances.length;
       await switchLessonLanguage(speechPage, 'en');
-      await waitForSpeechCount(speechPage, beforeEnglish + 1);
+      await waitForSpeechCount(speechPage, beforeEnglish + 1, 15_000, 'EN language switch');
       const afterSwitch = await speechState(speechPage);
       if (afterSwitch.utterances.slice(beforeEnglish).some((item) => item.lang !== 'en-GB')) {
         throw new Error('EN ga qaytganda utterance en-GB emas');
@@ -1018,6 +1401,55 @@ async function solvePracticeTask(page, task) {
   throw new Error(task.id + ': qo\'llab-quvvatlanmagan practice kind "' + task.kind + '"');
 }
 
+async function solveWrongMatch(page, task) {
+  if (!Array.isArray(task.pairs) || task.pairs.length < 2) {
+    throw new Error(task.id + ': wrong-first uchun kamida ikki match jufti kerak');
+  }
+  const correctRights = task.pairs.map((pair) => (
+    task.right?.find((item) => item.id === pair.correctRight) ?? pair.correctRight
+  ));
+  const wrongRights = [...correctRights.slice(1), correctRights[0]];
+  for (let index = 0; index < task.pairs.length; index += 1) {
+    await clickMatchingButton(page, '.p4-match-col:first-child button, .g4p-match-col:first-child button', localize(task.pairs[index].left));
+    await clickMatchingButton(page, '.p4-match-col:last-child button, .g4p-match-col:last-child button', localize(wrongRights[index]?.text ?? wrongRights[index]));
+  }
+}
+
+async function solveWrongOrder(page, task) {
+  if (!Array.isArray(task.steps) || !Array.isArray(task.cards) || task.steps.length < 2) {
+    throw new Error(task.id + ': wrong-first uchun steps/cards order sxemasi kerak');
+  }
+  const cards = task.steps.map((step, index) => task.cards.find((candidate) => (
+    step.correct === undefined ? candidate.order === index : candidate.id === step.correct
+  )));
+  [cards[0], cards[1]] = [cards[1], cards[0]];
+  for (let index = 0; index < task.steps.length; index += 1) {
+    await clickLocatorIndex(page, '.p4-order-slots button', index);
+    await clickMatchingButton(page, '.p4-card-bank button', localize(cards[index]?.text ?? cards[index]?.label ?? cards[index]?.id));
+  }
+}
+
+async function solveWrongPracticeTask(page, task) {
+  if (['mc', 'state', 'place', 'sign', 'card'].includes(task.kind)
+    || (task.kind === 'missing' && task.answer === undefined)) {
+    await selectChoice(page, task, false);
+    return;
+  }
+  if (task.kind === 'numpad' || task.kind === 'missing') {
+    await enterNumber(page, String(task.answer) === '0' ? '1' : '0');
+    return;
+  }
+  if (task.kind === 'match') {
+    await solveWrongMatch(page, task);
+    return;
+  }
+  if (task.kind === 'order') {
+    await solveWrongOrder(page, task);
+    return;
+  }
+  throw new Error(task.id + ': wrong-first qo\'llab-quvvatlamaydigan kind "' + task.kind + '"');
+}
+
 async function clickCheck(page) {
   const button = await waitForVisible(page, CHECK_ACTION);
   if (!(await button.isEnabled())) throw new Error('Check tugmasi disabled qoldi');
@@ -1036,17 +1468,112 @@ async function waitForPracticeOutcome(page, timeout = 4_000) {
   throw new Error('Practice check natijasi ko\'rinmadi');
 }
 
-async function validateCompletion(prefix, diagnostics, lesson = null) {
+const practiceLessonNumber = (lesson) => {
+  const match = lesson?.file?.match(/^Dars(\d{2})Practice\.jsx$/);
+  return match ? Number(match[1]) : null;
+};
+const isModernPracticeLesson = (lesson) => {
+  const number = practiceLessonNumber(lesson);
+  return number !== null && number >= 17 && number <= 30;
+};
+const requiresPracticeRestartAudit = (lesson) => {
+  const number = practiceLessonNumber(lesson);
+  return number !== null && number >= 22 && number <= 30;
+};
+
+async function validateCompletion(prefix, diagnostics, lesson = null, lang = 'en', tasks = [], wrongFirstEveryTask = false, expectedTitle = '') {
   await waitForCompletion(diagnostics);
   if (diagnostics.completionCalls.length !== 1) {
     throw new Error(prefix + ': [Lesson preview] onFinished soni ' + diagnostics.completionCalls.length + ', kutilgan 1');
   }
   const payload = diagnostics.completionCalls[0];
   const title = payload?.lessonTitle;
-  if (typeof title !== 'string' || !title.trim() || hasCyrillic(title)) {
-    throw new Error(prefix + ': English lessonTitle noto\'g\'ri: ' + JSON.stringify(title));
+  if (typeof title !== 'string' || !title.trim()
+    || ((lang === 'en' || lang === 'uz') && hasCyrillic(title))) {
+    throw new Error(prefix + ': ' + lang + ' lessonTitle noto\'g\'ri: ' + JSON.stringify(title));
   }
-  if (lesson && isStrictEtalonLesson(lesson) && lesson.file !== 'Dars51.jsx') {
+  if (requiresPracticeRestartAudit(lesson) && expectedTitle && normalizeText(title) !== expectedTitle) {
+    throw new Error(prefix + ': payload lessonTitle visible title bilan mos emas');
+  }
+  if (isModernPracticeLesson(lesson)) {
+    const lessonNumber = practiceLessonNumber(lesson);
+    const expectedLessonId = `num-4-${String(lessonNumber).padStart(2, '0')}-practice`;
+    if (payload?.lessonId !== expectedLessonId || payload?.activityType !== 'practice' || payload?.completed !== true) {
+      throw new Error(prefix + ': modern practice identity/completion kontrakti noto\'g\'ri');
+    }
+    if (payload?.totalQuestions !== 10 || payload?.answeredQuestions !== 10 || payload?.finalTotal !== 10) {
+      throw new Error(prefix + ': modern practice total/answered/finalTotal 10 emas');
+    }
+    if (!Array.isArray(payload?.answers) || payload.answers.length !== 10) {
+      throw new Error(prefix + ': modern practice answers massivi 10 ta emas');
+    }
+    if (!Number.isInteger(payload?.attemptsTotal) || payload.attemptsTotal < 10) {
+      throw new Error(prefix + ': modern practice attemptsTotal noto\'g\'ri');
+    }
+    if (!Number.isInteger(payload?.durationSec) || payload.durationSec < 0) {
+      throw new Error(prefix + ': modern practice durationSec noto\'g\'ri');
+    }
+    if (!Number.isInteger(payload?.correctAnswers)
+      || payload.correctAnswers !== payload.firstTryCorrect
+      || payload.correctAnswers !== payload.finalScore) {
+      throw new Error(prefix + ': modern practice correctAnswers/firstTryCorrect/finalScore mos emas');
+    }
+    const expectedPercent = Math.round(payload.correctAnswers / 10 * 100);
+    if (payload.scorePercent !== expectedPercent || payload.passed !== (payload.correctAnswers >= 6)) {
+      throw new Error(prefix + ': modern practice scorePercent/passed mos emas');
+    }
+    if (!payload.levelBreakdown || !Array.isArray(payload.skillTags) || payload.skillTags.length < 1
+      || !payload.lessonMeta || !Array.isArray(payload.screenMeta) || payload.screenMeta.length !== 10) {
+      throw new Error(prefix + ': modern practice diagnostik payload to\'liq emas');
+    }
+    const expectedTags = [...new Set(tasks.map((task) => task.skillTag))];
+    if (JSON.stringify(payload.skillTags) !== JSON.stringify(expectedTags)
+      || payload.lessonMeta.lessonId !== expectedLessonId) {
+      throw new Error(prefix + ': modern practice skillTags/lessonMeta mos emas');
+    }
+    const expectedLevels = { green: 2, yellow: 5, red: 3 };
+    for (const [level, total] of Object.entries(expectedLevels)) {
+      const actual = payload.levelBreakdown[level];
+      const expectedFirstTry = payload.answers.filter((answer) => answer.level === level && answer.firstTry).length;
+      if (actual?.total !== total || actual?.firstTry !== expectedFirstTry) {
+        throw new Error(prefix + ': modern practice levelBreakdown ' + level + ' noto\'g\'ri');
+      }
+    }
+    const answerIds = payload.answers.map((answer) => answer.taskId).join(',');
+    if (answerIds !== '01,02,03,04,05,06,07,08,09,10') {
+      throw new Error(prefix + ': modern practice answer task ID/order noto\'g\'ri: ' + answerIds);
+    }
+    payload.answers.forEach((answer, index) => {
+      const task = tasks[index];
+      const expectedAttempts = wrongFirstEveryTask ? (index === 0 ? 4 : 2) : (index === 0 ? 2 : 1);
+      if (answer.attempts !== expectedAttempts
+        || answer.firstTry !== (answer.attempts === 1) || answer.correct !== true
+        || answer.level !== task.level || answer.kind !== task.kind || answer.skillTag !== task.skillTag
+        || !Object.hasOwn(answer, 'studentAnswer') || !Object.hasOwn(answer, 'correctAnswer')
+        || answer.screenMeta?.taskId !== task.id) {
+        throw new Error(prefix + ': modern practice answer record ' + task.id + ' noto\'g\'ri');
+      }
+    });
+    const derivedFirstTry = payload.answers.filter((answer) => answer.firstTry).length;
+    const expectedFirstTry = wrongFirstEveryTask ? 0 : 9;
+    const expectedAttemptsTotal = wrongFirstEveryTask ? 22 : 11;
+    if (derivedFirstTry !== expectedFirstTry || payload.attemptsTotal !== expectedAttemptsTotal) {
+      throw new Error(prefix + ': modern practice wrong-first urinish profili noto\'g\'ri');
+    }
+    const derivedPercent = Math.round(derivedFirstTry / 10 * 100);
+    if (payload.correctAnswers !== derivedFirstTry || payload.firstTryCorrect !== derivedFirstTry
+      || payload.finalScore !== derivedFirstTry || payload.scorePercent !== derivedPercent
+      || payload.passed !== (derivedFirstTry >= 6)) {
+      throw new Error(prefix + ': modern practice score answer recordlardan hisoblangan natijaga mos emas');
+    }
+    if (payload.firstTryStats?.total !== 10 || payload.firstTryStats?.answered !== 10
+      || payload.firstTryStats?.firstTryCorrect !== derivedFirstTry
+      || payload.firstTryStats?.correct !== derivedFirstTry
+      || payload.firstTryStats?.scorePercent !== derivedPercent) {
+      throw new Error(prefix + ': modern practice firstTryStats noto\'g\'ri');
+    }
+  }
+  if (lesson && isStrictEtalonLesson(lesson)) {
     if (typeof payload?.lessonId !== 'string' || !payload.lessonId.trim()) {
       throw new Error(prefix + ': lessonId bo‘sh');
     }
@@ -1089,34 +1616,84 @@ async function validateCompletion(prefix, diagnostics, lesson = null) {
     }
   }
   if (lesson?.file === 'Dars51.jsx') {
-    if (payload?.assessment !== false) throw new Error(prefix + ': Dars51 assessment:false emas');
-    for (const field of ['totalQuestions', 'correctAnswers', 'scorePercent', 'finalScore', 'finalTotal', 'passed']) {
-      if (payload?.[field] !== null) throw new Error(prefix + ': Dars51 ' + field + ' null emas');
+    if (payload?.assessment !== true) throw new Error(prefix + ': Dars51 assessment:true emas');
+    if (payload.totalQuestions !== 5 || payload.finalTotal !== 5
+      || payload.finalScore !== payload.correctAnswers
+      || payload.scorePercent !== Math.round(payload.correctAnswers / 5 * 100)
+      || payload.passed !== (payload.correctAnswers / 5 >= 0.6)) {
+      throw new Error(prefix + ': Dars51 5-savollik first-try assessment natijasi mos emas');
     }
-    if (!Array.isArray(payload?.answers) || payload.answers.length < 1) {
-      throw new Error(prefix + ': Dars51 ixtiyoriy javob LMS answers ichida qayd qilinmadi');
+    if (payload.firstTryStats?.total !== 5
+      || payload.firstTryStats?.firstTryCorrect !== payload.correctAnswers) {
+      throw new Error(prefix + ': Dars51 firstTryStats noto‘g‘ri');
     }
+    const scoredScreens = new Set([8, 9, 10, 12, 13]);
+    const scoredAnswers = (payload.answers ?? []).filter((answer) => scoredScreens.has(answer?.screenIdx));
+    if (scoredAnswers.length !== 5 || scoredAnswers.some((answer) => typeof answer.firstTry !== 'boolean')) {
+      throw new Error(prefix + ': Dars51 s8/s9/s10/s12/s13 first-try yozuvlari to‘liq emas');
+    }
+  }
+  return payload;
+}
+
+async function auditPracticeRestart(page, diagnostics, lesson, tasks, prefix) {
+  if (!requiresPracticeRestartAudit(lesson)) return;
+  const restart = await waitForVisible(page, '.p4-done .p4-btn, .p4-done button, .g4p-result button');
+  await restart.click();
+  await waitForVisible(page, CHECK_ACTION);
+  const counterSelector = '.p4-counter, .g4p-counter, .p4-task-top > span:first-child, .p4-root > header > div:last-child > b';
+  const firstCounter = normalizeText(await inLesson(page, counterSelector).first().innerText());
+  if (!/\b1\s*\/\s*10\b/.test(firstCounter)) {
+    throw new Error(prefix + ': restartdan keyin counter 1/10 emas: ' + firstCounter);
+  }
+  await solvePracticeTask(page, tasks[0]);
+  await clickCheck(page);
+  const outcome = await waitForPracticeOutcome(page);
+  if (outcome.kind !== 'ready') throw new Error(prefix + ': restartdan keyin 1-topshiriq yechilmadi');
+  await outcome.button.click();
+  await waitForVisible(page, CHECK_ACTION);
+  const secondCounter = normalizeText(await inLesson(page, counterSelector).first().innerText());
+  if (!/\b2\s*\/\s*10\b/.test(secondCounter)) {
+    throw new Error(prefix + ': restartdan keyin 2-topshiriqqa o\'tmadi: ' + secondCounter);
+  }
+  if (diagnostics.completionCalls.length !== 1) {
+    throw new Error(prefix + ': restart onFinished chaqiruvini takrorladi');
   }
 }
 
-async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
-  const prefix = 'deep practice ' + lesson.file;
+async function runPracticeTraversal(page, diagnostics, lesson, tasks, lang = 'en', wrongFirstEveryTask = false) {
+  const prefix = 'deep practice ' + lesson.file + ' ' + lang;
+  const strictPractice = requiresPracticeRestartAudit(lesson);
+  activePracticeLang = lang;
   diagnostics.reset();
-  await openLesson(page, lesson, 'en');
+  await openLesson(page, lesson, lang);
+  const titleNode = await firstVisible(inLesson(page, '.p4-header h1, .p4-title, .p4-root > header > div:last-child > span'));
+  const expectedTitle = titleNode ? normalizeText(await titleNode.innerText()) : '';
+  if (strictPractice && !expectedTitle) throw new Error(prefix + ': visible lesson title topilmadi');
 
   for (let index = 0; index < tasks.length; index += 1) {
     const task = tasks[index];
     const snapshot = await lessonSnapshot(page);
-    const issues = snapshotIssues(snapshot, 'en');
+    const issues = snapshotIssues(snapshot, lang);
     issues.forEach((issue) => failures.push(prefix + ' task ' + task.id + ': ' + issue));
 
-    if (index === 0) {
-      await selectChoice(page, task, false);
+    const wrongRounds = wrongFirstEveryTask ? (index === 0 ? 3 : 1) : (index === 0 ? 1 : 0);
+    for (let round = 0; round < wrongRounds; round += 1) {
+      await solveWrongPracticeTask(page, task);
       await clickCheck(page);
       const wrongOutcome = await waitForPracticeOutcome(page);
       if (wrongOutcome.kind !== 'retry') throw new Error(prefix + ': wrong answer retry bermadi');
       const retryLabel = normalizeText(await wrongOutcome.button.innerText());
-      if (!retryLabel || hasCyrillic(retryLabel)) throw new Error(prefix + ': retry label English emas');
+      if (!retryLabel || (lang === 'en' && hasCyrillic(retryLabel))) throw new Error(prefix + ': retry label ' + lang + ' emas');
+      const feedback = await firstVisible(inLesson(page, '.p4-feedback, .g4p-feedback'));
+      const feedbackText = feedback ? normalizeText(await feedback.innerText()) : '';
+      if (strictPractice && !feedbackText) throw new Error(prefix + ' task ' + task.id + ': wrong feedback ko\'rinmadi');
+      if (strictPractice && round >= 1) {
+        const expectedHint = localize(round === 1 ? task.secondHint : task.thirdHint);
+        if (expectedHint && !feedbackText.includes(normalizeText(expectedHint))) {
+          throw new Error(prefix + ' task ' + task.id + ': ' + (round === 1 ? 'secondHint' : 'thirdHint') + ' ko\'rinmadi');
+        }
+      }
       await wrongOutcome.button.click();
       await waitForVisible(page, CHECK_ACTION);
     }
@@ -1133,8 +1710,8 @@ async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
     }
     if (index === tasks.length - 1) {
       const finishLabel = normalizeText(await outcome.button.innerText());
-      if (!/finish|complete|next|continue/i.test(finishLabel) || hasCyrillic(finishLabel)) {
-        throw new Error(prefix + ': final transition English emas: ' + finishLabel);
+      if (!finishLabel || (lang === 'en' && (!/finish|complete|next|continue/i.test(finishLabel) || hasCyrillic(finishLabel)))) {
+        throw new Error(prefix + ': final transition ' + lang + ' emas: ' + finishLabel);
       }
     }
     if (index === tasks.length - 1) {
@@ -1154,9 +1731,10 @@ async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
   }
 
   const finalSnapshot = await lessonSnapshot(page);
-  const finalIssues = snapshotIssues(finalSnapshot, 'en');
+  const finalIssues = snapshotIssues(finalSnapshot, lang);
   finalIssues.forEach((issue) => failures.push(prefix + ' result: ' + issue));
-  await validateCompletion(prefix, diagnostics);
+  await validateCompletion(prefix, diagnostics, lesson, lang, tasks, wrongFirstEveryTask, expectedTitle);
+  await auditPracticeRestart(page, diagnostics, lesson, tasks, prefix);
   diagnostics.pageErrors.forEach((message) => failures.push(prefix + ': pageerror ' + message));
 }
 
@@ -1779,8 +2357,46 @@ async function assertStrictFeedback(
   const feedback = await waitForVisibleMatch(inLesson(page, strictFeedbackSelector(kind)));
   if (!feedback) throw new Error(`${issuePrefix}: ${kind} feedback ko'rinmadi`);
   if (requireBit) {
-    const bit = await waitForVisibleMatch(feedback.locator('svg'));
+    const bit = await waitForVisibleMatch(feedback.locator('[data-g4-role~="feedback-bit"]'));
     if (!bit) throw new Error(`${issuePrefix}: ${kind} feedbackda Bit yo'q`);
+    const visual = await feedback.evaluate((element, feedbackKind) => {
+      const bitElement = element.querySelector('[data-g4-role~="feedback-bit"]');
+      const style = getComputedStyle(element);
+      const bitRect = bitElement?.getBoundingClientRect();
+      const rect = element.getBoundingClientRect();
+      const comment = element.matches('[data-g4-role~="bit-answer-comment"]');
+      const generic = element.matches('[data-g4-role~="feedback-frame"]')
+        || Boolean(element.querySelector('[data-g4-role~="feedback-frame"]'));
+      return {
+        feedbackKind,
+        comment,
+        generic,
+        mobile: innerWidth < 640,
+        width: bitRect?.width ?? 0,
+        height: bitRect?.height ?? 0,
+        frameHeight: rect.height,
+        radius: Number.parseFloat(style.borderTopLeftRadius || '0'),
+        background: style.backgroundImage,
+      };
+    }, kind);
+    if (!visual.comment && !visual.generic) {
+      throw new Error(`${issuePrefix}: ${kind} feedback-frame/bit-answer-comment markeri yo'q`);
+    }
+    const expected = visual.comment
+      ? (visual.mobile ? { width: 47, height: 59, minHeight: 68, radius: 15 } : { width: 51, height: 64, minHeight: 72, radius: 15 })
+      : (visual.mobile ? { width: 54, height: 68, minHeight: 88, radius: 18 } : { width: 62, height: 76, minHeight: 88, radius: 18 });
+    if (Math.abs(visual.width - expected.width) > 1.1
+      || Math.abs(visual.height - expected.height) > 1.1
+      || visual.frameHeight + 1 < expected.minHeight
+      || Math.abs(visual.radius - expected.radius) > 1.1) {
+      throw new Error(`${issuePrefix}: ${kind} feedback geometriyasi Bit ${visual.width}×${visual.height}, frame ${visual.frameHeight}px/r${visual.radius}`);
+    }
+    const expectedGradient = kind === 'wrong'
+      ? /linear-gradient\(135deg, rgb\(255, 255, 255\), rgb\(255, 245, 217\)\)/
+      : /linear-gradient\(135deg, rgb\(255, 255, 255\), rgb\(231, 243, 236\)\)/;
+    if (!expectedGradient.test(visual.background)) {
+      throw new Error(`${issuePrefix}: ${kind} feedback etalon gradienti yo'q`);
+    }
   }
   const feedbackText = normalizeText(await feedback.innerText());
   if (!feedbackText) throw new Error(`${issuePrefix}: ${kind} feedback matni bo'sh`);
@@ -1795,6 +2411,26 @@ async function assertStrictFeedback(
     const label = { uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }[lang];
     if (!feedbackText.toUpperCase().includes(label)) {
       throw new Error(`${issuePrefix}: ${lang} solution label ${label} yo'q`);
+    }
+  }
+  if (SCREENSHOT_DIR && lang === 'en') {
+    const activeLesson = lessons.find((lesson) => page.url().includes(`/${lesson.slug}`));
+    const viewport = page.viewportSize();
+    const viewportName = ALL_VIEWPORTS.find((item) => (
+      item.width === viewport?.width && item.height === viewport?.height
+    ))?.name;
+    if (activeLesson && REVIEW_LESSONS.has(activeLesson.file)
+      && ['compact-mobile', 'mobile', 'desktop'].includes(viewportName)) {
+      const key = `${activeLesson.file}:${viewportName}:${kind}`;
+      if (!feedbackScreenshotKeys.has(key)) {
+        feedbackScreenshotKeys.add(key);
+        await page.screenshot({
+          path: path.join(
+            SCREENSHOT_DIR,
+            `${activeLesson.file.replace('.jsx', '')}-en-${viewportName}-${kind}-feedback.png`,
+          ),
+        });
+      }
     }
   }
   return feedbackText;
@@ -2674,8 +3310,8 @@ async function naturallyUnlockStrictTheoryScreen(
   }
 
   // Multi-phase components need their own deterministic traversal. These run
-  // for every viewport; desktop branch QA additionally exercises each wrong
-  // path, while mobile/tablet take the same natural correct path a learner can.
+  // for every viewport, and the strict matrix exercises each wrong/correct
+  // path at every target size so responsive feedback geometry is verified.
   if (await auditVisibleRapidConsole(page, issuePrefix, lang, componentOptions)) return;
   if (await auditVisibleReasoningRounds(page, issuePrefix, lang, componentOptions)) return;
   if (await auditVisibleGuidedChoiceSteps(page, issuePrefix, lang, componentOptions)) return;
@@ -2839,6 +3475,7 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
   const firstCount = await currentScreenCount(page);
   const visited = [];
   const auditedMatchingScreens = new Set();
+  let observedMedalTier = null;
 
   for (let expected = 1; expected <= firstCount.total; expected += 1) {
     const count = await currentScreenCount(page);
@@ -2871,7 +3508,7 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
     } else {
       if (isStrictEtalonLesson(lesson)) await naturallyRevealStrictFinalReward(page, prefix + ' final screen ' + expected);
       let claim = await firstVisible(inLesson(page, '.g4-title-claim'));
-      const revealBeforeClaim = await firstVisible(page.locator('.g4-title-reveal-overlay'));
+      const revealBeforeClaim = await firstVisible(page.locator(TITLE_OVERLAY_SELECTOR));
       const cardBeforeClaim = await firstVisible(inLesson(page, '[data-g4-role="title-card"]'));
       if (revealBeforeClaim || cardBeforeClaim) throw new Error(prefix + ': unvon claim bosilishidan oldin chiqdi');
       if (isStrictEtalonLesson(lesson) && !claim) throw new Error(prefix + ': majburiy Unvonni olish tugmasi topilmadi');
@@ -2899,7 +3536,7 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
           }
           await clickEnabledTheoryButton(preClaimForward, prefix + ' pre-claim-back', false);
           await waitForScreenChange(page, preClaimPrevious.text);
-          if (await firstVisible(page.locator('.g4-title-reveal-overlay'))
+          if (await firstVisible(page.locator(TITLE_OVERLAY_SELECTOR))
             || await firstVisible(inLesson(page, '[data-g4-role="title-card"]'))) {
             throw new Error(prefix + ': pre-claim Back→Forward unvonni avtomatik ochdi');
           }
@@ -2927,8 +3564,9 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
         if (await next.isEnabled()) throw new Error(prefix + ': Finish claimdan oldin faol');
         if (!(await claim.isEnabled())) throw new Error(prefix + ': reflectiondan keyin claim ochilmadi');
         await claim.click({ timeout: 8_000 });
-        const revealOverlay = page.locator('.g4-title-reveal-overlay');
+        const revealOverlay = page.locator(TITLE_OVERLAY_SELECTOR);
         await revealOverlay.waitFor({ state: 'visible', timeout: 2_000 });
+        await assertRankOverlayVisual(page, `${prefix} rank overlay`);
         const reducedRevealStarted = Date.now();
         await revealOverlay.waitFor({ state: 'hidden', timeout: 1_200 });
         const reducedRevealElapsed = Date.now() - reducedRevealStarted;
@@ -2937,6 +3575,16 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
         }
         const titleCard = inLesson(page, '[data-g4-role="title-card"]');
         await titleCard.waitFor({ state: 'visible', timeout: 4_000 });
+        await assertPersistentRewardVisual(titleCard, `${prefix} title card`);
+        if (lesson.file === 'Dars51.jsx') observedMedalTier = await titleCard.getAttribute('data-medal-tier');
+        const rewardParts = await titleCard.evaluate((element) => ({
+          bit: Boolean(element.querySelector('[data-g4-role~="reward-bit"]')),
+          medal: Boolean(element.querySelector('[data-g4-role~="reward-medal"]')),
+          confetti: Boolean(element.querySelector('[data-g4-role~="reward-confetti"]')),
+        }));
+        if (!rewardParts.bit || !rewardParts.medal || !rewardParts.confetti) {
+          throw new Error(prefix + ': persistent reward card Bit/medal/confetti to‘liq emas');
+        }
         if (!(await next.isEnabled())) throw new Error(prefix + ': Finish claimdan keyin ochilmadi');
         if (isStrictEtalonLesson(lesson)) {
           const navButtons = inLesson(page, '.stage-nav button');
@@ -2948,7 +3596,7 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
           if (!(await forward.isEnabled())) await naturallyUnlockStrictTheoryScreen(page, prefix + ' final-back ' + previous.text);
           await clickEnabledTheoryButton(forward, prefix + ' final-back', false);
           await waitForScreenChange(page, previous.text);
-          if (await firstVisible(page.locator('.g4-title-reveal-overlay'))) {
+          if (await firstVisible(page.locator(TITLE_OVERLAY_SELECTOR))) {
             throw new Error(prefix + ': finalga qaytganda full-screen reveal avtomatik takrorlandi');
           }
           await inLesson(page, '[data-g4-role="title-card"]').waitFor({ state: 'visible', timeout: 2_000 });
@@ -2985,7 +3633,13 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
   if (new Set(visited).size !== firstCount.total) {
     throw new Error(prefix + ': ' + visited.length + '/' + firstCount.total + ' unique screen traversed');
   }
-  await validateCompletion(prefix, diagnostics, lesson);
+  const payload = await validateCompletion(prefix, diagnostics, lesson);
+  if (lesson.file === 'Dars51.jsx') {
+    const expectedMedalTier = payload.correctAnswers === 5 ? 'gold' : payload.correctAnswers === 4 ? 'silver' : 'bronze';
+    if (observedMedalTier !== expectedMedalTier) {
+      throw new Error(`${prefix}: medal tier ${observedMedalTier ?? 'yo‘q'}, kutilgan ${expectedMedalTier}`);
+    }
+  }
   diagnostics.pageErrors.forEach((message) => failures.push(prefix + ': pageerror ' + message));
 }
 
@@ -3081,6 +3735,45 @@ function strictHookAnswerCards(page, lesson) {
   return inLesson(page, '[data-g4-role="answer-card"]');
 }
 
+async function runPracticeProgressPersistence(browser) {
+  const practiceLessons = lessons.filter((item) => requiresPracticeRestartAudit(item));
+  if (!practiceLessons.length) return;
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  try {
+    for (const lesson of practiceLessons) {
+      try {
+        const tasks = practiceTasks.get(lesson.file);
+        activePracticeLang = 'uz';
+        await openLesson(page, lesson, 'uz');
+        await solvePracticeTask(page, tasks[0]);
+        await clickCheck(page);
+        const ready = await waitForPracticeOutcome(page);
+        if (ready.kind !== 'ready') throw new Error('1-topshiriq yechilmadi');
+        await ready.button.click();
+        await waitForVisible(page, CHECK_ACTION);
+        const counterSelector = '.p4-counter, .g4p-counter, .p4-task-top > span:first-child, .p4-root > header > div:last-child > b';
+        const before = normalizeText(await inLesson(page, counterSelector).first().innerText());
+        const beforeCount = parseScreenCount(before);
+        if (beforeCount?.current !== 2 || beforeCount.total !== 10) throw new Error('task counter 2/10 emas: ' + before);
+        for (const code of ['ru', 'en', 'uz']) {
+          await page.locator('.lesson-language button', { hasText: code.toUpperCase() }).click();
+          await waitForVisible(page, CHECK_ACTION);
+          const after = normalizeText(await inLesson(page, counterSelector).first().innerText());
+          const afterCount = parseScreenCount(after);
+          if (afterCount?.current !== beforeCount.current || afterCount.total !== beforeCount.total) {
+            failures.push('practice progress ' + lesson.file + ': ' + code + 'ga o\'tganda ' + before + ' -> ' + after);
+          }
+        }
+      } catch (error) {
+        failures.push('practice progress ' + lesson.file + ': ' + error.message);
+      }
+    }
+  } finally {
+    await context.close();
+  }
+}
+
 const strictHookCardContract = (lesson) => (
   lesson.file === 'Dars05.jsx'
     ? { min: 2, max: 2, minFontSize: 12, label: '2' }
@@ -3108,6 +3801,7 @@ async function runStrictHookContracts(browser) {
           const hook = await firstVisible(inLesson(page, '[data-g4-screen="hook"]'));
           const scene = await firstVisible(inLesson(page, '[data-g4-role="hook-scene"]'));
           if (!hook || !scene) throw new Error(`${lesson.file} ${lang}: canonical hook/scene marker topilmadi`);
+          await assertCanonicalHookVisual(page, { name: 'desktop', width: 1366, height: 768 }, lesson, lang);
           const cards = strictHookAnswerCards(page, lesson);
           const cardCount = await cards.count();
           const cardContract = strictHookCardContract(lesson);
@@ -3157,11 +3851,12 @@ async function runStrictHookContracts(browser) {
           const neutralDiagnostic = strictHookUsesNeutralDiagnostic(lesson) && rawKind === 'diagnostic';
           const kind = neutralDiagnostic ? 'solution' : canonicalFeedbackKind(rawKind);
           if (!neutralDiagnostic) {
-            const feedbackBit = feedback.first().locator('svg').first();
-            try {
-              await feedbackBit.waitFor({ state: 'visible', timeout: 2_000 });
-            } catch {
-              throw new Error(`${lesson.file} ${lang}: ${rawKind} feedbackda Bit yo'q`);
+            await assertStrictFeedback(page, `strict hook ${lesson.file} ${lang}`, kind, lang);
+            if (kind === 'solution') {
+              const role = await feedback.first().getAttribute('data-g4-role');
+              if (!String(role ?? '').split(/\s+/).includes('bit-answer-comment')) {
+                throw new Error(`${lesson.file} ${lang}: choice solution BitAnswerComment emas`);
+              }
             }
           }
           const feedbackText = normalizeText(await feedback.first().innerText());
@@ -3245,16 +3940,19 @@ async function runStrictNormalMotionTitleTiming(browser) {
       try {
         await reachStrictFinalScreen(page, lesson, prefix);
         const claim = await enableStrictTitleClaim(page, prefix);
-        const overlay = page.locator('.g4-title-reveal-overlay');
+        const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
         await claim.click({ timeout: 8_000 });
         await overlay.waitFor({ state: 'visible', timeout: 2_000 });
+        await assertRankOverlayVisual(page, prefix);
         const visibleAt = Date.now();
         await overlay.waitFor({ state: 'hidden', timeout: 5_000 });
         const elapsed = Date.now() - visibleAt;
-        if (elapsed < 2_800 || elapsed > 4_500) {
-          throw new Error(`${prefix}: reveal ${elapsed}ms, kutilgan 3200ms (2800–4500ms tolerantlik)`);
+        if (elapsed < 3_400 || elapsed > 4_700) {
+          throw new Error(`${prefix}: rank boost ${elapsed}ms, kutilgan 3900ms (3400–4700ms tolerantlik)`);
         }
-        await inLesson(page, '[data-g4-role="title-card"]').waitFor({ state: 'visible', timeout: 2_000 });
+        const titleCard = inLesson(page, '[data-g4-role="title-card"]');
+        await titleCard.waitFor({ state: 'visible', timeout: 2_000 });
+        await assertPersistentRewardVisual(titleCard, prefix);
         normalMotionTitleTimingsChecked += 1;
       } catch (error) {
         failures.push(prefix + ': ' + error.message);
@@ -3311,6 +4009,91 @@ async function runStrictBackNavigation(browser) {
     }
   } catch (error) {
     failures.push('strict back-navigation: ' + error.message);
+  } finally {
+    await context.close();
+  }
+}
+
+async function runDars51MedalTierMatrix(browser) {
+  const lesson = lessons.find((item) => item.file === 'Dars51.jsx');
+  if (!lesson) return;
+  const scoredScreens = new Set([8, 9, 10, 12, 13]);
+  const scenarios = [
+    { label: 'gold', wrongScreens: new Set(), expectedScore: 5 },
+    { label: 'silver', wrongScreens: new Set([8]), expectedScore: 4 },
+    { label: 'bronze', wrongScreens: new Set([8, 9]), expectedScore: 3 },
+  ];
+  const context = await browser.newContext({
+    viewport: { width: 1366, height: 768 },
+    reducedMotion: 'reduce',
+  });
+  const page = await context.newPage();
+  const diagnostics = monitorPage(page);
+  try {
+    for (const scenario of scenarios) {
+      const prefix = `Dars51 ${scenario.label} medal`;
+      try {
+        diagnostics.reset();
+        await openLesson(page, lesson, 'en');
+        let count = await currentScreenCount(page);
+        while (count.current < count.total) {
+          const screenIndex = count.current - 1;
+          await muteLesson(page);
+          if (scoredScreens.has(screenIndex)) {
+            const choices = inLesson(page, '[data-g4-branch="choice"]');
+            const correct = inLesson(page, '[data-g4-branch="choice"][data-g4-correct="true"]');
+            const wrong = inLesson(page, '[data-g4-branch="choice"][data-g4-correct="false"]');
+            if (await correct.count() !== 1 || await wrong.count() < 1) {
+              throw new Error(`s${screenIndex} deterministic choice markerlari noto'g'ri`);
+            }
+            await waitForEnabledCard(choices);
+            if (scenario.wrongScreens.has(screenIndex)) {
+              await wrong.first().click();
+              await assertStrictFeedback(page, `${prefix} s${screenIndex} wrong`, 'wrong', 'en');
+              if (await (await theoryNextButton(page)).isEnabled()) {
+                throw new Error(`s${screenIndex} wrong javobdan keyin Next ochildi`);
+              }
+            }
+            const liveCorrect = inLesson(page, '[data-g4-branch="choice"][data-g4-correct="true"]');
+            await liveCorrect.first().click();
+            await assertStrictFeedback(page, `${prefix} s${screenIndex} correct`, 'solution', 'en');
+          } else {
+            await naturallyUnlockStrictTheoryScreen(page, `${prefix} s${screenIndex}`, {
+              auditBranches: false,
+              lang: 'en',
+              requireAction: theoryScreenMeta.get(lesson.file)?.[screenIndex]?.active === true,
+            });
+          }
+          const next = await theoryNextButton(page);
+          await clickEnabledTheoryButton(next, `${prefix} s${screenIndex}`, false);
+          count = await waitForScreenChange(page, count.text);
+        }
+
+        await naturallyRevealStrictFinalReward(page, `${prefix} final`);
+        const claim = await enableStrictTitleClaim(page, `${prefix} final`);
+        await claim.click({ timeout: 8_000 });
+        const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
+        await overlay.waitFor({ state: 'visible', timeout: 2_000 });
+        await assertRankOverlayVisual(page, prefix);
+        await overlay.waitFor({ state: 'hidden', timeout: 1_200 });
+        const titleCard = inLesson(page, '[data-g4-role="title-card"]');
+        await titleCard.waitFor({ state: 'visible', timeout: 2_000 });
+        await assertPersistentRewardVisual(titleCard, prefix);
+        const tier = await titleCard.getAttribute('data-medal-tier');
+        if (tier !== scenario.label) {
+          throw new Error(`medal tier ${tier ?? 'yo\'q'}, kutilgan ${scenario.label}`);
+        }
+        const finish = await theoryNextButton(page);
+        if (!(await finish.isEnabled())) throw new Error('Finish claimdan keyin ochilmadi');
+        await finish.click();
+        const payload = await validateCompletion(prefix, diagnostics, lesson);
+        if (payload.correctAnswers !== scenario.expectedScore) {
+          throw new Error(`payload ${payload.correctAnswers}/5, kutilgan ${scenario.expectedScore}/5`);
+        }
+      } catch (error) {
+        failures.push(`${prefix}: ${error.message}`);
+      }
+    }
   } finally {
     await context.close();
   }
@@ -3525,7 +4308,7 @@ async function runDars08RapidBackPersistence(browser) {
     const claim = inLesson(page, '.g4-title-claim').first();
     if (!(await waitForEnabledLocator(claim))) throw new Error('reflectiondan keyin claim ochilmadi');
     await claim.click();
-    const overlay = page.locator('.g4-title-reveal-overlay');
+    const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
     await overlay.waitFor({ state: 'visible', timeout: 2_000 });
     await overlay.waitFor({ state: 'hidden', timeout: 5_000 });
     await inLesson(page, '[data-g4-role="title-card"]').waitFor({ state: 'visible', timeout: 2_000 });
@@ -3589,14 +4372,17 @@ async function runStrictScreenMatrix(browser) {
               }
               const snapshot = await lessonSnapshot(page);
               snapshotIssues(snapshot, lang).forEach((issue) => failures.push(`${prefix} screen ${expected}: ${issue}`));
-              const matchingAudited = viewport.name === 'desktop'
-                ? await auditVisibleTheoryMatching(page, `${prefix} screen ${expected}`, lang, false)
-                : false;
+              const matchingAudited = await auditVisibleTheoryMatching(
+                page,
+                `${prefix} screen ${expected}`,
+                lang,
+                false,
+              );
 
               if (expected < first.total) {
                 if (!matchingAudited) {
                   await naturallyUnlockStrictTheoryScreen(page, `${prefix} screen ${expected}`, {
-                    auditBranches: viewport.name === 'desktop',
+                    auditBranches: true,
                     lang,
                     requireAction: theoryScreenMeta.get(lesson.file)?.[expected - 1]?.active === true,
                   });
@@ -3621,14 +4407,29 @@ async function runStrictScreenMatrix(browser) {
               claim = await firstVisible(inLesson(page, '.g4-title-claim'));
               if (!claim || !(await claim.isEnabled())) throw new Error('reflectiondan keyin claim ochilmadi');
               await claim.click({ timeout: 8_000 });
-              const overlay = page.locator('.g4-title-reveal-overlay');
+              const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
               await overlay.waitFor({ state: 'visible', timeout: 2_000 });
+              await assertRankOverlayVisual(page, prefix);
               const duringReveal = await lessonSnapshot(page);
               snapshotIssues(duringReveal, lang).forEach((issue) => failures.push(`${prefix} reveal: ${issue}`));
               await overlay.waitFor({ state: 'hidden', timeout: 5_000 });
-              await inLesson(page, '[data-g4-role="title-card"]').waitFor({ state: 'visible', timeout: 2_000 });
+              const titleCard = inLesson(page, '[data-g4-role="title-card"]');
+              await titleCard.waitFor({ state: 'visible', timeout: 2_000 });
+              await assertPersistentRewardVisual(titleCard, prefix);
               const claimed = await lessonSnapshot(page);
               snapshotIssues(claimed, lang).forEach((issue) => failures.push(`${prefix} claimed: ${issue}`));
+              if (SCREENSHOT_DIR && lang === 'en' && REVIEW_LESSONS.has(lesson.file)) {
+                const key = `${lesson.file}:${viewport.name}:final`;
+                if (!finalScreenshotKeys.has(key)) {
+                  finalScreenshotKeys.add(key);
+                  await page.screenshot({
+                    path: path.join(
+                      SCREENSHOT_DIR,
+                      `${lesson.file.replace('.jsx', '')}-en-${viewport.name}-final.png`,
+                    ),
+                  });
+                }
+              }
             }
             await diagnostics.flush();
             diagnostics.pageErrors.forEach((message) => failures.push(`${prefix}: pageerror ${message}`));
@@ -3654,6 +4455,9 @@ async function startViteServer() {
       host: HOST,
       port: Number(process.env.GRADE4_PORT || PORT),
       strictPort: false,
+      // Browser smoke does not need hot reload; disabling it prevents a save in
+      // a parallel authoring session from resetting in-flight screen progress.
+      hmr: false,
     },
   });
   await viteServer.listen();
@@ -3684,6 +4488,8 @@ try {
   try {
     if (RAPID_BACK_ONLY) {
       await runDars08RapidBackPersistence(browser);
+    } else if (AUDIO_ONLY) {
+      await runAudioContractSmoke(browser);
     } else {
       for (const viewport of VIEWPORTS) {
       const context = await browser.newContext({
@@ -3707,13 +4513,15 @@ try {
 
       await runStrictHookContracts(browser);
       await runStrictNormalMotionTitleTiming(browser);
+      await runDars51MedalTierMatrix(browser);
       await runStrictBackNavigation(browser);
       await runDars05RoundingBackPersistence(browser);
       await runDars08RapidBackPersistence(browser);
       await runStrictScreenMatrix(browser);
-      await runAudioContractSmoke(browser);
-      await runProgressPersistence(browser);
-      await runInvalidLanguageFallback(browser);
+    await runAudioContractSmoke(browser);
+    await runProgressPersistence(browser);
+    await runPracticeProgressPersistence(browser);
+    await runInvalidLanguageFallback(browser);
 
       const deepContext = await browser.newContext({
         viewport: { width: deepViewport.width, height: deepViewport.height },
@@ -3724,11 +4532,18 @@ try {
       for (let lessonIndex = 0; lessonIndex < lessons.length; lessonIndex += 1) {
         const lesson = lessons[lessonIndex];
         try {
-          if (lesson.section === 'nazariy') {
-            await runTheoryTraversal(deepPage, deepDiagnostics, lesson);
+        if (lesson.section === 'nazariy') {
+          await runTheoryTraversal(deepPage, deepDiagnostics, lesson);
+        } else {
+          const number = practiceLessonNumber(lesson);
+          if (number !== null && number >= 22 && number <= 30) {
+            for (const lang of LANGS) {
+              await runPracticeTraversal(deepPage, deepDiagnostics, lesson, practiceTasks.get(lesson.file), lang, true);
+            }
           } else {
             await runPracticeTraversal(deepPage, deepDiagnostics, lesson, practiceTasks.get(lesson.file));
           }
+        }
         } catch (error) {
           failures.push(error.message);
         }
@@ -3754,6 +4569,10 @@ if (failures.length) {
   const practiceCount = lessons.filter((lesson) => lesson.section === 'amaliy').length;
   if (RAPID_BACK_ONLY) {
     console.log(`Grade 4 Dars08 rapid partial Back persistence o'tdi: ${rapidBackPersistenceChecked} flow.`);
+    process.exit(0);
+  }
+  if (AUDIO_ONLY) {
+    console.log(`Grade 4 audio runtime contract o'tdi: ${lessons.length} route.`);
     process.exit(0);
   }
   console.log(

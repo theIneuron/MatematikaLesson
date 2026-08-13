@@ -439,4 +439,58 @@ export const grade4Amaliy = [
     desc: "10 topshiriq: teng maxrajli kasrlarni ayirish, qoldiq, noma'lum ayiriluvchi, nol natija va qo'shish bilan tekshirish.",
     Component: lazy(() => import('../components/grade4/Dars21Practice.jsx')),
   },
+  {
+    slug: 'dars22-amaliyot-sonning-kasr-qismini-topish',
+    title: 'Dars 22. Amaliyot: sonning kasr qismini topish',
+    desc: "10 topshiriq: teng ulushni topish, maxrajga bo'lish, suratga ko'paytirish, butun kasr va xatoni tahlil qilish.",
+    Component: lazy(() => import('../components/grade4/Dars22Practice.jsx')),
+  },
+  {
+    slug: 'dars23-amaliyot-kasrli-masalalar',
+    title: 'Dars 23. Amaliyot: kasrli masalalar',
+    desc: "10 topshiriq: butundan qismni, ma'lum qismdan butunni topish, masala yo'nalishini ajratish va qoldiq orqali transfer.",
+    Component: lazy(() => import('../components/grade4/Dars23Practice.jsx')),
+  },
+  {
+    slug: 'dars24-amaliyot-onli-kasrlar',
+    title: "Dars 24. Amaliyot: o'nli kasrlar",
+    desc: "10 topshiriq: o'ndan, yuzdan va mingdan birlar, xona jadvali, nol o'rintutgichi va o'nli yozuv strategiyasi.",
+    Component: lazy(() => import('../components/grade4/Dars24Practice.jsx')),
+  },
+  {
+    slug: 'dars25-amaliyot-toplamlar-eyler-venn-diagrammasi',
+    title: "Dars 25. Amaliyot: to'plamlar va Eyler–Venn diagrammasi",
+    desc: "10 topshiriq: ikki belgi bo'yicha faqat A, ikkala, faqat B va tashqaridagi elementlarni tasniflash hamda sanash.",
+    Component: lazy(() => import('../components/grade4/Dars25Practice.jsx')),
+  },
+  {
+    slug: 'dars26-amaliyot-uzunlik-birliklari',
+    title: 'Dars 26. Amaliyot: uzunlik birliklari',
+    desc: "10 topshiriq: mm, cm, dm, m va km orasida aylantirish, aralash birliklar, qoldiq va masala strategiyasi.",
+    Component: lazy(() => import('../components/grade4/Dars26Practice.jsx')),
+  },
+  {
+    slug: 'dars27-amaliyot-massa-birliklari',
+    title: 'Dars 27. Amaliyot: massa birliklari',
+    desc: "10 topshiriq: g, kg, sentner va tonna orasida aylantirish, aralash birliklar, tartiblash va xato tahlili.",
+    Component: lazy(() => import('../components/grade4/Dars27Practice.jsx')),
+  },
+  {
+    slug: 'dars28-amaliyot-vaqt-birliklari',
+    title: 'Dars 28. Amaliyot: vaqt birliklari',
+    desc: "10 topshiriq: sekunddan yilgacha vaqt birliklari, aralash vaqt, normallashtirish, kalendar chegarasi va davomiylik.",
+    Component: lazy(() => import('../components/grade4/Dars28Practice.jsx')),
+  },
+  {
+    slug: 'dars29-amaliyot-yuza-birliklari',
+    title: 'Dars 29. Amaliyot: yuza birliklari',
+    desc: "10 topshiriq: kvadrat birliklar, koeffitsiyentning kvadrati, mos birlik, yuza masalasi va xato tahlili.",
+    Component: lazy(() => import('../components/grade4/Dars29Practice.jsx')),
+  },
+  {
+    slug: 'dars30-amaliyot-kattalik-birliklarini-aylantirish',
+    title: 'Dars 30. Amaliyot: kattalik birliklarini aylantirish',
+    desc: "10 topshiriq: uzunlik, massa, vaqt va yuza birliklari uchun oilaga xos koeffitsiyent va natijani tekshirish.",
+    Component: lazy(() => import('../components/grade4/Dars30Practice.jsx')),
+  },
 ]

@@ -304,18 +304,18 @@ function G4TitleReveal({ active, playNow = active, title, lang }) {
       const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
       shownRef.current = true;
       setVisible(true);
-      timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3200);
+      timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3900);
     });
     return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); };
   }, [active, playNow]);
   if (!visible || typeof document === 'undefined') return null;
   const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
-  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${copy.revealPrefix}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${copy.revealPrefix}: ${title}`}><div className="rank-boost-card g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
 }
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
   const copy = G4_TITLE_COPY[lang] ?? G4_TITLE_COPY.uz;
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
 }
 
 // ============================================================================
@@ -346,7 +346,8 @@ const CONTENT = {
   },
   s0: {
     eyebrow: B('Загадка Бита', "Bitning topishmog'i", "Bit's puzzle"),
-    title: B('Знак I означает число 1. Бит прав?', 'I belgisi 1 sonini bildiradi. Bit haqmi?', 'The symbol I represents the number 1. Is Bit right?'),
+    title: B('Знак I означает число 1.', 'I belgisi 1 sonini bildiradi.', 'The symbol I represents the number 1.'),
+    question: B('Бит прав?', 'Bit haqmi?', 'Is Bit right?'),
     options: [
       B('Да, этот знак читается как 1.', "Ha, bu raqam 1 deb o'qiladi.", 'Yes, this symbol is read as 1.'),
       B('Нет, число один записывается иначе.', "Yo'q, bir soni boshqacha yoziladi.", 'No, the number one is written differently.'),
@@ -996,11 +997,12 @@ const FeedbackBlock = ({ show, correct, children }) => {
   return (
     <div
       className={`feedback feedback-slot ${show ? 'feedback-slot-visible' : 'feedback-slot-hidden'} ${correct ? 'feedback-correct' : 'feedback-wrong'}`}
+      data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'}
       data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined}
       role="status"
       aria-hidden={!show}
     >
-      <div className="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
+      <div className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
       <div className="feedback-copy">
         <strong>{t(correct ? B('РЕШЕНИЕ', 'YECHIM', 'SOLUTION') : B('ЕЩЁ РАЗ', 'QAYTA URINISH', 'TRY AGAIN'))}</strong>
         <div>{children}</div>
@@ -1326,15 +1328,20 @@ const Screen0 = ({ screen, onPrev, onNext, onAnswer }) => {
         ? B('Десятичная цифра 1 и римский знак I выглядят по-разному, но оба означают один. Сверься с I = 1 и попробуй снова.', "O'nlik raqami 1 va Rim belgisi I turlicha ko'rinadi, ammo ikkalasi ham birni bildiradi. I = 1 tayanchini tekshirib, qayta urinib ko'ring.", 'The decimal digit 1 and the Roman symbol I look different, but both represent one. Check I = 1, then try again.')
         : B('Знак I похож на черту, но в римской записи это знак числа один. Сверься с I = 1 и попробуй снова.', "I belgisi chiziqqa o'xshaydi, ammo Rim yozuvida u bir sonining belgisidir. I = 1 tayanchini tekshirib, qayta urinib ko'ring.", 'The symbol I looks like a line, but in Roman numerals it represents one. Check I = 1, then try again.');
     audio.pushOneOff(t(feedbackAudio));
-    onAnswer?.({ stage: 'hook', screenIdx: screen, question: t(c.title), options: c.options.map((option) => t(option)), correctIndex: 0,
+    onAnswer?.({ stage: 'hook', screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: 0,
       correctAnswer: t(c.options[0]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: isCorrect,
       firstTry: isCorrect && nextAttempts === 1, attempts: nextAttempts });
   };
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} title={null} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved}>
       <div className="hook-screen" data-g4-screen="hook" data-g4-mechanic="HookChoice">
-      <div className="hook-scene" data-g4-role="hook-scene">
-        <div className="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+      <header className="hook-contract-intro">
+        <span data-g4-role="hook-topic">{t(c.eyebrow)}</span>
+        <h1 data-g4-role="hook-title">{t(c.title)}</h1>
+        <h2 data-g4-role="hook-question">{t(c.question)}</h2>
+      </header>
+      <div className="hook-scene" data-g4-role="hook-scene visual-frame">
+        <div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
         <div className="hook-topic-copy"><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>
         <div className="hook-terminal" aria-label="I"><span>I</span><i /></div>
       </div>
@@ -1704,7 +1711,7 @@ const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
 
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={Object.keys(pairs).length !== 4}>
-      <div className="matching-board" ref={boardRef} data-g4-mechanic="MatchingBoard">
+      <div className="matching-board" ref={boardRef} data-g4-role="visual-frame" data-g4-mechanic="MatchingBoard">
         <div className="matching-column">
           {[4, 9, 14, 20].map((value) => (
             <button
@@ -2055,6 +2062,7 @@ const Screen14 = ({ screen, onPrev, finishLesson, answers = {}, titleClaimed = f
             <button
               type="button"
               className="btn-white-accent g4-title-claim"
+              data-g4-role="title-claim"
               disabled={!finalBeat || reflection === null}
               onClick={() => { onClaimTitle?.(); setRevealNow(true); }}
               aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
@@ -2189,7 +2197,7 @@ html, body { margin: 0; padding: 0; }
   position: fixed; inset: 0; width: 100%; height: 100dvh; min-height: 0;
   --shadow: rgba(${T.shadowBase}, .13);
   overflow: hidden; background: ${T.bg}; color: ${T.ink};
-  font-family: 'Manrope', Arial, sans-serif; isolation: isolate;
+  font-family: 'Manrope', system-ui, sans-serif; isolation: isolate;
   zoom: var(--g4z, 1);
 }
 .lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root p,
@@ -2676,5 +2684,60 @@ html, body { margin: 0; padding: 0; }
   .finale-payoff,
   .summary-points li,
   .finale-reward { opacity: 1 !important; transform: none !important; }
+}
+/* Grade 4 Dars01 local visual contract */
+.lesson-frame .preview-language{display:none!important}
+:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
+:is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) .question h2,
+:is(.lesson-root,.d8-root) .question-card h2{font-family:'Manrope',system-ui,sans-serif}
+.screen-count,[class*="formula"],[class*="equation"],[class*="proof-label"]{font-family:'JetBrains Mono',monospace}
+.lead,.screen-heading p,.heading-copy p{font-size:clamp(14px,1.8vw,16px)}
+[data-g4-role~="hook-title"],[data-g4-role~="hook-question"]{width:100%;text-align:left}
+[data-g4-role~="hook-title"]{font:650 clamp(26px,4.2vw,36px)/1.08 'Source Serif 4',Georgia,serif;letter-spacing:-.012em}
+[data-g4-role~="hook-question"]{font:750 clamp(17px,2.5vw,21px)/1.3 'Manrope',system-ui,sans-serif}
+[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
+[data-g4-role~="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}
+[data-g4-role~="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}
+[data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
+[data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+[data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+[data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
+[data-g4-role~="hook-bit"]>.bit,[data-g4-role~="hook-bit"]>.g1-char,[data-g4-role~="hook-bit"]>svg{width:100%!important;height:100%!important}
+[data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center}
+[data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+[data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}
+[data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}
+[data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+[data-g4-role~="bit-answer-comment"] p,[data-g4-role~="bit-answer-comment"] .feedback-copy{font:700 clamp(15px,2vw,18px)/1.35 'Source Serif 4',Georgia,serif}
+.rank-boost-overlay{animation-duration:3.8s}
+@media(max-width:639.98px){
+  [data-g4-role~="hook-title"]{font-size:25px}
+  [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  [data-g4-role~="hook-bit"]{right:12px!important;bottom:-7px!important;width:68px!important;height:85px!important}
+  [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  [data-g4-feedback="solution"]{min-height:68px}
+  [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
+.hook-contract-intro{width:100%;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
 }
 `;

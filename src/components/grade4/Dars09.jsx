@@ -287,16 +287,16 @@ const G4_TITLE_STYLES = `
 
 function G4TitleReveal({ active, title, lang, onDismiss }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => { setVisible(false); onDismiss?.(); }, reduced ? 120 : 3200); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, onDismiss]);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => { setVisible(false); onDismiss?.(); }, reduced ? 120 : 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, onDismiss]);
   if (!visible || typeof document === 'undefined') return null;
   const titleLabel = selectLocale(lang, { uz: 'Unvon', ru: 'Звание', en: 'Title' });
-  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
+  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="rank-boost-card g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
 }
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
   const kicker = selectLocale(lang, { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' });
   const scoreLabel = selectLocale(lang, { uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' });
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{kicker}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{scoreLabel}</span></div></div>;
 }
 
 // 4-SINF · 9-DARS · Ko'p xonali sonni bir xonali songa ko'paytirish
@@ -1092,14 +1092,14 @@ const playSfx = (kind) => {
 };
 
 // Dars01 dagi canonical Bit SVG. Geometriya va holatlar o'zgartirilmagan.
-const BitSVG = ({ state = 'present', className = '' }) => {
+const BitSVG = ({ state = 'present', className = '', dataRole }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
   const isThinking = state === 'hint' || state === 'think';
   const isAwkward = state === 'awkward';
 
   return (
-  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
+    <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} data-g4-role={dataRole} viewBox="0 0 120 150" aria-hidden="true">
     <defs>
       <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#E2ECF2" />
@@ -1350,22 +1350,23 @@ const FeedbackBlock = ({ visible, correct, children }) => {
     <div
       role="status"
       aria-live="polite"
+      data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'}
       data-g4-feedback={correct ? 'solution' : 'wrong'}
       className={`feedback-block ${correct ? 'feedback-correct' : 'feedback-wrong'} ${mounted ? 'feedback-visible' : ''}`}
     >
-      <span className="feedback-bit" aria-hidden="true"><BitSVG state={correct ? 'nod' : 'awkward'} /></span>
+      <span className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true"><BitSVG state={correct ? 'nod' : 'awkward'} /></span>
       <p><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</p>
     </div>
   );
 };
 
-const PageTitle = ({ c, lead, bitState = null }) => {
+const PageTitle = ({ c, lead, bitState = null, hook = false }) => {
   const t = useT();
   return (
     <div className={`page-title ${bitState ? 'page-title-bit' : ''}`}>
       <div>
-        <span>{t(c.eyebrow)}</span>
-        <h1>{t(c.title)}</h1>
+        <span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span>
+        <h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1>
         {lead && <p>{typeof lead === 'string' ? lead : t(lead)}</p>}
       </div>
       {bitState && <BitSVG state={bitState} />}
@@ -1558,8 +1559,9 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   return (
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={picked === 1 ? onNext : undefined}>
       <div className="screen-stack" data-g4-screen="hook">
-        <PageTitle c={c} />
-        <section className="hook-scene" data-g4-role="hook-scene">
+        <PageTitle c={c} hook />
+        <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2>
+        <section className="hook-scene" data-g4-role="hook-scene visual-frame">
           <div className="hook-copy">
             <span>{t({ uz: 'ZAYNABNING HISOBI', ru: 'РАСЧЁТ ЗАЙНАБ', en: "ZAYNAB'S CALCULATION" })}</span>
             <strong>3 × 2 408</strong>
@@ -1578,10 +1580,9 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
             <i />
             <span>≈ 7 200</span>
           </div>
-          <BitSVG state={picked === null ? 'think' : picked === 1 ? 'nod' : 'awkward'} />
+          <span className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : picked === 1 ? 'nod' : 'awkward'} /></span>
         </section>
         <section className="question-card">
-          <h2>{t(c.question)}</h2>
           <OptionGrid options={c.options} picked={picked} correctIndex={1} showWrong onPick={pick} disabled={!ready} dataRole="answer-card" branch />
           <FeedbackBlock visible={picked !== null} correct={picked === 1}>
             {picked !== null ? t(c.wrong[picked]) : ''}
@@ -2363,7 +2364,7 @@ function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}>
       <div className="screen-stack">
         <PageTitle c={c} />
-        <section className="matching-board" ref={boardRef} role="group" aria-label={t(c.question)}>
+        <section className="matching-board" ref={boardRef} data-g4-role="visual-frame" role="group" aria-label={t(c.question)}>
           <div className="matching-column">
             {left.map((item, index) => (
               <button
@@ -2592,6 +2593,7 @@ function Screen14({ screen, finishLesson, onPrev, answers = [], titleClaimed, re
             <button
               type="button"
               className="btn-white-accent g4-title-claim"
+              data-g4-role="title-claim"
               disabled={!(corrected && reflectionChoice !== null)}
               onClick={onClaimTitle}
               aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
@@ -2783,7 +2785,7 @@ const STYLES = `
       radial-gradient(circle at 8% 8%, rgba(22, 143, 163, .10), transparent 29%),
       radial-gradient(circle at 92% 92%, rgba(255, 91, 53, .08), transparent 31%),
       ${T.bg};
-    font-family: Manrope, Arial, sans-serif;
+    font-family: Manrope, system-ui, sans-serif;
     zoom: var(--g4z, 1);
   }
 
@@ -5690,4 +5692,58 @@ const STYLES = `
       transform: translateX(180px) !important;
     }
   }
+/* Grade 4 Dars01 local visual contract */
+.lesson-frame .preview-language{display:none!important}
+:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
+:is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) .question h2,
+:is(.lesson-root,.d8-root) .question-card h2{font-family:'Manrope',system-ui,sans-serif}
+.screen-count,[class*="formula"],[class*="equation"],[class*="proof-label"]{font-family:'JetBrains Mono',monospace}
+.lead,.screen-heading p,.heading-copy p{font-size:clamp(14px,1.8vw,16px)}
+[data-g4-role~="hook-title"],[data-g4-role~="hook-question"]{width:100%;text-align:left}
+[data-g4-role~="hook-title"]{font:650 clamp(26px,4.2vw,36px)/1.08 'Source Serif 4',Georgia,serif;letter-spacing:-.012em}
+[data-g4-role~="hook-question"]{font:750 clamp(17px,2.5vw,21px)/1.3 'Manrope',system-ui,sans-serif}
+[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
+[data-g4-role~="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}
+[data-g4-role~="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}
+[data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
+[data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+[data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+[data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
+[data-g4-role~="hook-bit"]>.bit,[data-g4-role~="hook-bit"]>.g1-char,[data-g4-role~="hook-bit"]>svg{width:100%!important;height:100%!important}
+[data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center}
+[data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+[data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}
+[data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}
+[data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+[data-g4-role~="bit-answer-comment"] p,[data-g4-role~="bit-answer-comment"] .feedback-copy{font:700 clamp(15px,2vw,18px)/1.35 'Source Serif 4',Georgia,serif}
+.rank-boost-overlay{animation-duration:3.8s}
+@media(max-width:639.98px){
+  [data-g4-role~="hook-title"]{font-size:25px}
+  [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  [data-g4-role~="hook-bit"]{right:12px!important;bottom:-7px!important;width:68px!important;height:85px!important}
+  [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  [data-g4-feedback="solution"]{min-height:68px}
+  [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
 `;

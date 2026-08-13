@@ -1138,7 +1138,7 @@ for (const [lessonText, slug] of selectedEntries) {
   if (!/min-height:\s*(?:4[4-9]|[5-9]\d)px/.test(source)) fail(lesson, '44px touch target dalili yoq');
   if (!/width:min\(936px,100%\)/.test(source)) fail(lesson, '936px stage kontrakti topilmadi');
   if (!/const BitSVG/.test(source)) fail(lesson, 'tasdiqlangan BitSVG topilmadi');
-  if (!/function HookScreen[\s\S]{0,5000}<Heading[^>]*state=\{?(?:['"]think['"]|[^}>]*\?[^:}]*:[^:}]*['"]think['"])[^>]*showBit/.test(source)) fail(lesson, 'S1 Bit think holati topilmadi');
+  if (!/function HookScreen[\s\S]{0,8000}data-g4-role=['"]hook-bit['"][\s\S]{0,300}<BitSVG[^>]*state=['"]think['"]/.test(source)) fail(lesson, 'S1 dark frame ichida Bit think holati topilmadi');
   if (!/screen\s*===\s*7\s*\?\s*['"]happy['"]/.test(source) || !/\[['"]focus['"],\s*['"]point['"],\s*['"]idea['"]\]/.test(source)) {
     fail(lesson, 'S2-S8 Bit focus/point/idea/happy holatlari topilmadi');
   }
@@ -1156,9 +1156,18 @@ for (const [lessonText, slug] of selectedEntries) {
   }
   if (!/studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode/.test(source)) fail(lesson, 'platform props toliq emas');
   if (lesson === 51) {
-    if (!/assessment:\s*false/.test(source)) fail(lesson, 'yakuniy review payloadida assessment:false yoq');
-    for (const field of ['totalQuestions', 'correctAnswers', 'scorePercent', 'finalScore', 'finalTotal', 'passed']) {
-      if (!new RegExp(`${field}\\s*:\\s*null`).test(source)) fail(lesson, `yakuniy review payloadida ${field}: null yoq`);
+    if (!/assessment:\s*true/.test(source)) fail(lesson, 'yakuniy review payloadida assessment:true yoq');
+    if (!/totalQuestions:\s*(?:5|scored\.length)/.test(source)) fail(lesson, 'yakuniy review payloadida totalQuestions:5 yoq');
+    if (!/correctAnswers:\s*firstTryCorrect/.test(source)) fail(lesson, 'yakuniy review correctAnswers first-try emas');
+    if (!/scorePercent:\s*Math\.round\(firstTryCorrect\s*\/\s*5\s*\*\s*100\)/.test(source)) fail(lesson, 'yakuniy review scorePercent first-try/5 emas');
+    if (!/finalScore:\s*firstTryCorrect/.test(source) || !/finalTotal:\s*5/.test(source)) fail(lesson, 'yakuniy review finalScore/finalTotal noto‘g‘ri');
+    if (!/passed:\s*firstTryCorrect\s*\/\s*5\s*>=\s*0\.6/.test(source)) fail(lesson, 'yakuniy review passed 60% gate emas');
+    if (!/firstTryStats:\s*\{\s*total:\s*5,\s*firstTryCorrect\s*\}/.test(source)) fail(lesson, 'yakuniy review firstTryStats yoq');
+    if (!/data-medal-tier=\{medalTier\}/.test(source)
+      || !/(?:['"]gold['"]|oltin)/i.test(source)
+      || !/(?:['"]silver['"]|kumush)/i.test(source)
+      || !/(?:['"]bronze['"]|bronza)/i.test(source)) {
+      fail(lesson, 'yakuniy review gold/silver/bronze medal tier kontrakti topilmadi');
     }
     if (/function Screen14[\s\S]{0,1800}<G4TitleReward/.test(source)) fail(lesson, 'yakuniy review ekranida ball ko‘rsatuvchi reward card bor');
   }

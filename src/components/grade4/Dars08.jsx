@@ -117,30 +117,29 @@ const CONTENT = {
     topic: L("8-dars. Ko'p xonali sonlarni qo'shish va ayirish", 'Урок 8. Сложение и вычитание многозначных чисел', 'Lesson 8. Adding and subtracting multi-digit numbers'),
     title: L('Kutubxona hisobini tiklaymiz', 'Восстановим расчёт библиотеки', 'Restore the library calculation'),
     lead: L("Kutubxonada 72 384 ta kitob bor edi. Yana 8 596 ta kitob keldi. Bit sonlarni ustun usulida yozishi kerak.", 'В библиотеке было 72 384 книги. Поступило ещё 8 596 книг. Биту нужно записать числа столбиком.', 'The library had 72,384 books. Another 8,596 books arrived. Bit needs to use the column method.'),
-    question: L("Qaysi yozuvda sonlar xona bo'yicha to'g'ri tekislangan?", 'В какой записи числа верно выровнены по разрядам?', 'Which layout aligns the numbers correctly by place value?'),
+    question: L("Bit sonlarni ustun qilib qo'shmoqchi. U sonlarni to'g'ri joylashtira oldimi?", 'Бит хочет сложить числа столбиком. Правильно ли он расположил числа?', 'Bit wants to add the numbers using the column method. Has he aligned them correctly?'),
     options: [
-      L('Birlar ostiga birlar', 'Единицы под единицами', 'Ones under ones'),
-      L('Sonlar chapdan tekislangan', 'Числа выровнены слева', 'Numbers aligned on the left'),
-      L('Ikkinchi son bir xona surilgan', 'Второе число сдвинуто на разряд', 'Second number shifted by one place'),
+      L("Yo'q, sonlar chapdan tekislangan.", 'Нет, числа выровнены слева.', 'No, the numbers are aligned on the left.'),
+      L("Ha, sonlar o'ngdan tekislanishi kerak.", 'Да, числа нужно выровнять справа.', 'Yes, the numbers should be aligned on the right.'),
     ],
-    correctIndex: 0,
-    correctText: L("To'g'ri. Birlar birlar ostida turgani uchun har bir raqam aynan o'z xonasidagi raqam bilan qo'shiladi.", 'Верно. Единицы стоят под единицами, поэтому каждая цифра складывается с цифрой того же разряда.', 'Correct. The ones are under the ones, so each digit is added to a digit with the same place value.'),
-    wrong: [null,
-      L("Chapdan tekislash 8 raqamini o'n minglar xonasiga suradi. Eng o'ngdagi birliklarni bir chiziqqa keltiring.", 'При выравнивании слева цифра 8 попадает в разряд десятков тысяч. Совмести крайние правые цифры единиц.', 'Aligning on the left moves 8 into the ten-thousands place. Line up the ones on the far right.'),
-      L("Ikkinchi son bir xona ortiqcha surilgan. Uning 6 birligi 4 birlik ostida turishi kerak.", 'Второе число сдвинуто на один разряд лишний. Его 6 единиц должны стоять под 4 единицами.', 'The second number is shifted one place too far. Its 6 ones must be under the 4 ones.'),
+    correctIndex: 1,
+    correctText: L("To'g'ri. Bit sonlarni o'ngdan tekisladi: birlar birlar ostida turibdi.", 'Верно. Бит выровнял числа справа: единицы стоят под единицами.', 'Correct. Bit aligned the numbers on the right: the ones are under the ones.'),
+    wrong: [
+      L("Sonlar chapdan emas, o'ngdan tekislangan. 8 596 sonidagi 6 birlik 72 384 sonidagi 4 birlik ostida turibdi.", 'Числа выровнены не слева, а справа. 6 единиц числа 8 596 стоят под 4 единицами числа 72 384.', 'The numbers are aligned on the right, not the left. The 6 ones in 8,596 are under the 4 ones in 72,384.'),
+      null,
     ],
-    wrongAudio: [null,
-      L("Chapdan tekislash sakkiz raqamini o'n minglar xonasiga suradi. Eng o'ngdagi birliklarni bir chiziqqa keltiring.", 'При выравнивании слева цифра восемь попадает в разряд десятков тысяч. Совмести крайние правые цифры единиц.', 'Aligning on the left moves eight into the ten-thousands place. Line up the ones on the far right.'),
-      L("Ikkinchi son bir xona ortiqcha surilgan. Uning olti birligi to'rt birlik ostida turishi kerak.", 'Второе число сдвинуто на один разряд лишний. Его шесть единиц должны стоять под четырьмя единицами.', 'The second number is shifted one place too far. Its six ones must be under the four ones.'),
+    wrongAudio: [
+      L("Sonlar chapdan emas, o'ngdan tekislangan. Sakkiz ming besh yuz to'qson olti sonidagi olti birlik yetmish ikki ming uch yuz sakson to'rt sonidagi to'rt birlik ostida turibdi.", 'Числа выровнены не слева, а справа. Шесть единиц числа восемь тысяч пятьсот девяносто шесть стоят под четырьмя единицами числа семьдесят две тысячи триста восемьдесят четыре.', 'The numbers are aligned on the right, not the left. The six ones in eight thousand five hundred and ninety-six are under the four ones in seventy-two thousand three hundred and eighty-four.'),
+      null,
     ],
     solution: { title: Y, steps: [
       L("8 596 sonining oxirgi raqami 6 birlikni bildiradi.", 'Последняя цифра числа 8 596 показывает 6 единиц.', 'The final digit of 8,596 represents 6 ones.'),
       L("6 raqami 72 384 sonidagi 4 birlik ostiga yoziladi.", 'Цифру 6 записываем под 4 единицами числа 72 384.', 'Write the digit 6 under the 4 ones in 72,384.'),
     ]},
     audio: {
-      intro: L("Lumo City kutubxonasida yetmish ikki ming uch yuz sakson to'rtta kitob bor edi. Yana sakkiz ming besh yuz to'qson oltita kitob keldi. Har bir xona o'ziga teng xona ostida turadigan yozuvni tanlang.", 'В библиотеке Lumo City было семьдесят две тысячи триста восемьдесят четыре книги. Поступило ещё восемь тысяч пятьсот девяносто шесть книг. Выбери запись, в которой одинаковые разряды стоят друг под другом.', 'The Lumo City library had seventy-two thousand three hundred and eighty-four books. Another eight thousand five hundred and ninety-six books arrived. Choose the layout with matching place values under each other.'),
-      on_correct: L("To'g'ri. Birlar ostiga birlar yozildi. Endi har bir ustun o'z xona qiymatini saqlaydi.", 'Верно. Единицы записаны под единицами. Теперь каждый столбец сохраняет своё разрядное значение.', 'Correct. The ones are under the ones, so every column keeps its place value.'),
-      on_wrong: L("Bu yozuvda ayrim raqamlarning xona qiymati o'zgaradi. Eng o'ngdagi birliklarni tekshiring.", 'В этой записи меняется разрядное значение некоторых цифр. Проверь единицы на правом краю.', 'This layout changes the place value of some digits. Check the ones on the far right.'),
+      intro: L("Lumo City kutubxonasida yetmish ikki ming uch yuz sakson to'rtta kitob bor edi. Yana sakkiz ming besh yuz to'qson oltita kitob keldi. Bit sonlarni ustun qilib qo'shmoqchi. U sonlarni to'g'ri joylashtira oldimi?", 'В библиотеке Lumo City было семьдесят две тысячи триста восемьдесят четыре книги. Поступило ещё восемь тысяч пятьсот девяносто шесть книг. Бит хочет сложить числа столбиком. Правильно ли он расположил числа?', 'The Lumo City library had seventy-two thousand three hundred and eighty-four books. Another eight thousand five hundred and ninety-six books arrived. Bit wants to add the numbers using the column method. Has he aligned them correctly?'),
+      on_correct: L("To'g'ri. Bit sonlarni o'ngdan tekisladi. Birlar birlar ostida turibdi.", 'Верно. Бит выровнял числа справа. Единицы стоят под единицами.', 'Correct. Bit aligned the numbers on the right. The ones are under the ones.'),
+      on_wrong: L("Sonlar chapdan emas, o'ngdan tekislangan. Birliklar bir chiziqda turibdi.", 'Числа выровнены не слева, а справа. Единицы стоят на одной линии.', 'The numbers are aligned on the right, not the left. The ones are in the same column.'),
     },
   },
 
@@ -1045,9 +1044,9 @@ const FeedbackBlock = ({ show, correct, children }) => {
     ? B('YECHIM', 'РЕШЕНИЕ', 'SOLUTION')[lang]
     : B("YANA O'YLANG", 'ПРОВЕРЬТЕ СПОСОБ', 'CHECK THE METHOD')[lang];
   return (
-    <div className={`feedback ${show ? 'feedback-visible' : ''}`} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} aria-hidden={!show} aria-live="polite">
-      <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
-        <div className="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
+    <div className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+      <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined}>
+        <div className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
         <div className="feedback-copy"><strong>{label}</strong><div>{children}</div></div>
       </div>
     </div>
@@ -1057,8 +1056,8 @@ const FeedbackBlock = ({ show, correct, children }) => {
 const BitAnswerComment = ({ formula, label, children }) => {
   const lang = useLang();
   return (
-    <div className="bit-answer-comment" data-g4-feedback="solution" aria-live="polite">
-      <div className="bit-answer-comment-figure"><BitSVG state="nod" /></div>
+    <div className="bit-answer-comment" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback="solution" aria-live="polite">
+      <div className="bit-answer-comment-figure" data-g4-role="feedback-bit"><BitSVG state="nod" /></div>
       <div><span>{B('YECHIM', 'РЕШЕНИЕ', 'SOLUTION')[lang]}</span>{formula && <strong>{formula}</strong>}{label && <small>{label}</small>}{children}</div>
     </div>
   );
@@ -1086,9 +1085,9 @@ function Stage({ screen, eyebrow, audio, children, nav }) {
   );
 }
 
-const Heading = ({ c, lead }) => {
+const Heading = ({ c, lead, hook = false }) => {
   const t = useT();
-  return <header className="screen-heading"><div><span className="eyebrow">{t(c.eyebrow)}</span><h1>{t(c.title)}</h1>{lead && <p>{t(lead)}</p>}</div></header>;
+  return <header className="screen-heading"><div><span className="eyebrow" data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1>{lead && <p>{t(lead)}</p>}</div></header>;
 };
 
 const PlaceHeader = () => {
@@ -1213,9 +1212,10 @@ function ChoiceScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, figur
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
       <div className={`screen-stack choice-screen ${screen === 0 ? 'hook-screen' : ''}`} data-g4-screen={screen === 0 ? 'hook' : undefined}>
-        <Heading c={c} lead={screen === 0 ? (c.lead ?? c.story) : (c.story ?? c.lead)} />
+        <Heading c={c} lead={screen === 0 ? (c.lead ?? c.story) : (c.story ?? c.lead)} hook={screen === 0} />
+        {screen === 0 && <h2 className="question-title" data-g4-role="hook-question">{t(c.question)}</h2>}
         {figure?.({ solved, picked })}
-        <h2 className="question-title">{t(c.question)}</h2>
+        {screen !== 0 && <h2 className="question-title">{t(c.question)}</h2>}
         <div className="answer-stage">
           <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
             <div className={`options-grid ${c.options.length === 3 ? 'options-three' : ''}`}>
@@ -1955,7 +1955,7 @@ function MatchingScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
           <FeedbackBlock show={Boolean(message)} correct={false}><p>{message}</p></FeedbackBlock>
         </section> : !matchingStarted ? <BitAnswerComment formula={c.estimateOptions[c.estimateCorrectIndex]} label={t(c.estimateCorrectText)}><button type="button" className="btn btn-secondary" data-qa-matching-start="true" disabled={!audio.muted && audio.isPlaying} onClick={startMatching}>{B('Juftlashni boshlash', 'Начать сопоставление', 'Start matching')[lang]} →</button></BitAnswerComment> : <>
           <h2 className="question-title">{t(c.matchingInstruction)}</h2>
-          <section className="matching-board" ref={boardRef} data-g4-mechanic="MatchingBoard" role="group" aria-label={t(c.matchingInstruction)}>
+          <section className="matching-board" ref={boardRef} data-g4-role="visual-frame" data-g4-mechanic="MatchingBoard" role="group" aria-label={t(c.matchingInstruction)}>
             <div className="matching-column">{c.calculations.map((item) => <button type="button" className={`match-card ${selected === item.id ? 'match-selected' : ''} ${pairs[item.id] ? 'match-done' : ''}`} aria-pressed={selected === item.id} aria-label={pairs[item.id] ? pairLabel(item.id, pairs[item.id]) : item.text} disabled={Boolean(pairs[item.id])} onClick={() => { setSelected(item.id); setMessage(t(c.aria.selectedLeft)); }} data-match-left={item.id} key={item.id}>{item.text}</button>)}</div>
             <MatchingLines boardRef={boardRef} pairs={connectorPairs} wrongPair={wrongPair} localeKey={lang} />
             <div className="matching-column">{c.checks.map((item) => {
@@ -1980,16 +1980,16 @@ function TitleReveal({ active, title, lang, onDone }) {
   const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   useEffect(() => {
     if (!active) return undefined;
-    const timer = window.setTimeout(onDone, reduced ? 80 : 3200);
+    const timer = window.setTimeout(onDone, reduced ? 120 : 3900);
     return () => window.clearTimeout(timer);
   }, [active, onDone, reduced]);
   if (!active || typeof document === 'undefined') return null;
-  return createPortal(<div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-label={`${B('Unvon', 'Звание', 'Title')[lang]}: ${title}`}><div className="g4-title-reveal-card"><div className="g4-title-reveal-rays" /><div className="g4-title-reveal-medal">★</div><h2>{title}</h2></div></div>, document.body);
+  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-label={`${B('Unvon', 'Звание', 'Title')[lang]}: ${title}`}><div className="rank-boost-card g4-title-reveal-card"><div className="g4-title-reveal-rays" /><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} />)}</div><div className="rank-boost-medal g4-title-reveal-medal">★</div><h2>{title}</h2></div></div>, document.body);
 }
 
 function TitleCard({ title, score, earnedLabel, scoreLabel }) {
   const lang = useLang();
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-medal">★</div><span>{earnedLabel || B('SIZ OLGAN UNVON', 'ПОЛУЧЕННОЕ ЗВАНИЕ', 'TITLE EARNED')[lang]}</span><h2>{title}</h2><strong>{scoreLabel || B('Birinchi urinishdagi natija', 'Результат с первой попытки', 'First-attempt score')[lang]}: {score}/4</strong><BitSVG state="happy" /></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-medal" data-g4-role="reward-medal">★</div><span>{earnedLabel || B('SIZ OLGAN UNVON', 'ПОЛУЧЕННОЕ ЗВАНИЕ', 'TITLE EARNED')[lang]}</span><h2>{title}</h2><strong>{scoreLabel || B('Birinchi urinishdagi natija', 'Результат с первой попытки', 'First-attempt score')[lang]}: {score}/4</strong><div data-g4-role="reward-bit"><BitSVG state="happy" /></div></div>;
 }
 
 const CASE_SUCCESS_LABELS = {
@@ -2154,14 +2154,14 @@ function SummaryScreen({ screen, c, answers, storedAnswer, onAnswer, titleState,
         <div className="summary-grid"><section className="summary-payoff"><BitSVG state={claimed ? 'happy' : 'nod'} /><strong>80 980</strong><span>72 384 + 8 596</span></section><div><strong className="summary-label">{t(c.mainLabel)}</strong><ul>{c.main.map((point, index) => <li key={index}><span>✓</span>{t(point)}</li>)}</ul></div></div>
         {!claimed && <section className="final-reflection" data-g4-role="reflection"><span>{t(c.reflectionStart)}</span><strong>{t(c.reflectionQuestion)}</strong><div>{c.reflectionOptions.map((option, index) => <button type="button" className={reflection === index ? (reflectionSolved ? 'reflection-correct' : 'reflection-selected') : ''} aria-pressed={reflection === index} disabled={!finalBeat || reflectionSolved} onClick={() => chooseReflection(index)} data-g4-branch="choice" data-g4-correct={index === c.reflectionCorrectIndex ? 'true' : 'false'} key={index}>{t(option)}</button>)}</div></section>}
         <FeedbackBlock show={Boolean(reflectionMessage)} correct={false}><p>{reflectionMessage}</p></FeedbackBlock>
-        {!claimed && !revealing && <button type="button" className="g4-title-claim" disabled={!finalBeat || !reflectionSolved} onClick={claim}>★ {t(c.claimLabel)}</button>}
+        {!claimed && !revealing && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={!finalBeat || !reflectionSolved} onClick={claim}>★ {t(c.claimLabel)}</button>}
         {claimed && <><TitleCard title={t(c.awardTitle)} score={score} earnedLabel={t(c.earnedLabel)} scoreLabel={t(c.scoreLabel)} /><div className="next-mission"><strong>{t(c.nextLabel)}</strong><span>{t(c.nextText)}</span></div></>}
       </div>
     </Stage>
   );
 }
 
-const Screen0 = (props) => <ChoiceScreen {...props} screen={0} c={CONTENT.s0} resetOnReturn figure={() => <div className="hook-story-frame" data-g4-role="hook-scene"><div className="hook-story-bit"><BitSVG state="think" /></div><div className="hook-story-model"><ColumnAlgorithm top="72384" bottom="8596" result="     " compact /></div></div>} />;
+const Screen0 = (props) => <ChoiceScreen {...props} screen={0} c={CONTENT.s0} resetOnReturn figure={() => <div className="hook-story-frame" data-g4-role="hook-scene visual-frame"><div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div><div className="hook-story-model"><ColumnAlgorithm top="72384" bottom="8596" result="     " compact /></div></div>} />;
 const Screen1 = (props) => <ReasoningRoundsScreen {...props} screen={1} c={CONTENT.s1} visual={({ round, roundSolved }) => <div className="foundation-model">{round === 0 ? <PlaceValueGrid number="4862" highlight={3} /> : round === 1 ? <RegroupModel step={roundSolved ? 1 : 0} count={10} tens={1} ones={0} /> : <PlaceValueGrid number="205" highlight={4} />}</div>} />;
 const Screen2 = (props) => <ExplanationScreen {...props} screen={2} c={CONTENT.s2} visualKind="align" />;
 const Screen3 = (props) => <ColumnRoundsScreen {...props} screen={3} c={CONTENT.s3} />;
@@ -2269,4 +2269,61 @@ html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-r
 @media(max-width:639.98px) and (max-height:680px){.build-screen.build-solved .build-slots,.build-screen.build-solved .card-tray,.build-screen.build-solved .inline-action{display:none}.rule-screen .rule-builder{padding:5px}.rule-screen .rule-built,.rule-screen .fragment-tray{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.rule-screen .rule-built{min-height:50px;padding:3px}.rule-screen .rule-built>span{grid-column:1/-1;align-self:center}.rule-screen .fragment-tray{margin-top:3px}.rule-screen .rule-built button,.rule-screen .fragment{min-height:44px;padding:3px 4px;font-size:9px;line-height:1.1}}
 @media(min-width:640px) and (max-height:780px){.explanation-result{min-height:79px}.explanation-result .bit-answer-comment{min-height:79px;padding-top:5px;padding-bottom:5px}}
 @media(prefers-reduced-motion:reduce){.d8-root *,.d8-root *::before,.d8-root *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+/* Grade 4 Dars01 local visual contract */
+.lesson-frame .preview-language{display:none!important}
+:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>.screen-stack{transform:none!important}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
+.hook-story-frame[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
+.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
+@media(max-width:639.98px){.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{padding-right:84px}}
+:is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) .question h2,
+:is(.lesson-root,.d8-root) .question-card h2{font-family:'Manrope',system-ui,sans-serif}
+.screen-count,[class*="formula"],[class*="equation"],[class*="proof-label"]{font-family:'JetBrains Mono',monospace}
+.lead,.screen-heading p,.heading-copy p{font-size:clamp(14px,1.8vw,16px)}
+[data-g4-role~="hook-title"],[data-g4-role~="hook-question"]{width:100%;text-align:left}
+[data-g4-role~="hook-title"]{font:650 clamp(26px,4.2vw,36px)/1.08 'Source Serif 4',Georgia,serif;letter-spacing:-.012em}
+[data-g4-role~="hook-question"]{font:750 clamp(17px,2.5vw,21px)/1.3 'Manrope',system-ui,sans-serif}
+[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
+[data-g4-role~="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}
+[data-g4-role~="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}
+[data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
+[data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+[data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+[data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
+[data-g4-role~="hook-bit"]>.bit,[data-g4-role~="hook-bit"]>.g1-char,[data-g4-role~="hook-bit"]>svg{width:100%!important;height:100%!important}
+[data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center}
+[data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+[data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}
+[data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}
+[data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+[data-g4-role~="bit-answer-comment"] p,[data-g4-role~="bit-answer-comment"] .feedback-copy{font:700 clamp(15px,2vw,18px)/1.35 'Source Serif 4',Georgia,serif}
+.rank-boost-overlay{animation-duration:3.8s}
+@media(max-width:639.98px){
+  [data-g4-role~="hook-title"]{font-size:25px}
+  [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  [data-g4-role~="hook-bit"]{right:12px!important;bottom:-7px!important;width:68px!important;height:85px!important}
+  [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  [data-g4-feedback="solution"]{min-height:68px}
+  [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
 `;

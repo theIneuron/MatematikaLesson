@@ -7,7 +7,7 @@ import { spawnSync } from 'node:child_process';
 const ROOT = process.cwd();
 const targetLessons = [
   ...Array.from({ length: 30 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}`),
-  ...Array.from({ length: 21 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice`),
+  ...Array.from({ length: 30 }, (_, index) => `Dars${String(index + 1).padStart(2, '0')}Practice`),
 ];
 
 const result = spawnSync(

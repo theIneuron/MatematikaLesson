@@ -5,7 +5,7 @@ import { ESLint } from 'eslint';
 const lessonName = (index) => `Dars${String(index).padStart(2, '0')}`;
 const targetFiles = [
   ...Array.from({ length: 51 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}.jsx`),
-  ...Array.from({ length: 21 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}Practice.jsx`),
+  ...Array.from({ length: 30 }, (_, index) => `src/components/grade4/${lessonName(index + 1)}Practice.jsx`),
   'src/components/shared/LessonPage.jsx',
   'scripts/check-grade4.mjs',
   'scripts/grade4-i18n-audit.mjs',
@@ -16,9 +16,12 @@ const targetFiles = [
   'scripts/grade4-lessons-17-21-audit.mjs',
   'scripts/grade4-lessons-22-30-audit.mjs',
   'scripts/grade4-practice-17-21-audit.mjs',
+  'scripts/grade4-practice-22-30-audit.mjs',
   'scripts/grade4-trilingual-audit.mjs',
   'scripts/grade4-trilingual-browser-smoke.mjs',
   'scripts/grade4-trilingual-lint.mjs',
+  'scripts/grade4-migration-immutability-guard.mjs',
+  'src/lessons/grade4.js',
 ];
 
 const eslint = new ESLint();

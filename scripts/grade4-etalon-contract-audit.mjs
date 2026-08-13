@@ -264,6 +264,77 @@ for (const lesson of lessons) {
   const hookMarkers = has(source, /data-g4-screen=["'{][^\n>]*hook/)
     && has(source, /data-g4-role=["'{][^\n>]*hook-scene/)
     && has(source, /data-g4-role=["'{][^\n>]*answer-card/);
+  const canonicalHookMarkers = [
+    'hook-topic',
+    'hook-title',
+    'hook-question',
+    'hook-scene',
+    'visual-frame',
+    'hook-bit',
+  ].every((role) => new RegExp(`data-g4-role=["'{][^\\n>]*${role}`).test(source));
+  const canonicalHookFrame = [
+    /width\s*:\s*min\(760px\s*,\s*100%\)/,
+    /min-height\s*:\s*206px/,
+    /border-radius\s*:\s*24px/,
+    /overflow\s*:\s*(?:hidden|clip)/,
+    /isolation\s*:\s*isolate/,
+    /radial-gradient\(circle at 87% 24%,\s*rgba\(121\s*,\s*211\s*,\s*218\s*,\s*\.16\)/,
+    /radial-gradient\(circle at 9% 88%,\s*rgba\(149\s*,\s*201\s*,\s*61\s*,\s*\.11\)/,
+    /linear-gradient\(145deg,\s*rgba\(22\s*,\s*143\s*,\s*163\s*,\s*\.25\)\s*,\s*transparent 48%\)/,
+    /linear-gradient\(135deg,\s*#153B50\s*,\s*#0B2232 72%\)/i,
+    /box-shadow\s*:\s*0 22px 50px -30px rgba\(14\s*,\s*33\s*,\s*44\s*,\s*\.75\)/,
+    /min-height\s*:\s*164px/,
+    /border-radius\s*:\s*18px/,
+  ].every((pattern) => pattern.test(source));
+  const canonicalHookBit = [
+    /width\s*:\s*88px/,
+    /height\s*:\s*110px/,
+    /right\s*:\s*42px/,
+    /bottom\s*:\s*-4px/,
+    /width\s*:\s*68px/,
+    /height\s*:\s*85px/,
+    /right\s*:\s*12px/,
+    /bottom\s*:\s*-7px/,
+  ].every((pattern) => pattern.test(source));
+  const canonicalTypography = [
+    /font-family\s*:\s*['"]Source Serif 4['"]/,
+    /font-family\s*:\s*['"]Manrope['"]/,
+    /font-family\s*:\s*['"]JetBrains Mono['"]/,
+    /clamp\(26px\s*,\s*4\.2vw\s*,\s*36px\)/,
+    /font-size\s*:\s*25px/,
+    /clamp\(17px\s*,\s*2\.5vw\s*,\s*21px\)/,
+    /clamp\(14px\s*,\s*1\.8vw\s*,\s*16px\)/,
+    /clamp\(15px\s*,\s*2vw\s*,\s*18px\)/,
+    /text-align\s*:\s*left/,
+  ].every((pattern) => pattern.test(source)) && !/(?:Nunito Sans|Fraunces|Arial)/.test(source);
+  const canonicalFeedbackVisual = [
+    /data-g4-role=["'{][^\n>]*feedback-frame/,
+    /data-g4-role=["'{][^\n>]*feedback-bit/,
+    /data-g4-role=["'{][^\n>]*bit-answer-comment/,
+    /data-g4-feedback=[{][^}]*['"](?:solution|correct)['"]/,
+    /data-g4-feedback=[{][^}]*['"]wrong['"]/,
+    /min-height\s*:\s*88px/,
+    /padding\s*:\s*8px 15px 8px 9px/,
+    /width\s*:\s*62px/,
+    /height\s*:\s*76px/,
+    /width\s*:\s*54px/,
+    /height\s*:\s*68px/,
+    /width\s*:\s*51px/,
+    /height\s*:\s*64px/,
+    /width\s*:\s*47px/,
+    /height\s*:\s*59px/,
+    /linear-gradient\(135deg\s*,\s*#(?:FFF|FFFFFF)\s*,\s*#E7F3EC\)/i,
+    /linear-gradient\(135deg\s*,\s*#(?:FFF|FFFFFF)\s*,\s*#FFF5D9\)/i,
+    /#227A53/i,
+    /#A96F13/i,
+  ].every((pattern) => pattern.test(source));
+  const visualFrameContainment = /data-g4-role=["'{][^\n>]*visual-frame/.test(source)
+    && /position\s*:\s*relative/.test(source)
+    && /min-width\s*:\s*0/.test(source)
+    && /isolation\s*:\s*isolate/.test(source)
+    && /overflow\s*:\s*(?:hidden|clip)/.test(source)
+    && /(?:svg|img|canvas)[^{]*\{[^}]*max-width\s*:\s*100%/s.test(source);
+  const noEtalonOnlyCallout = !/Kod qanday tuzilgan\??/i.test(source);
   // Returning to the hook must preserve the learner's answer. Accept either
   // the explicit metadata marker used by older shells or a parent-owned answer
   // snapshot restored through storedAnswer in the hook itself.
@@ -375,7 +446,10 @@ for (const lesson of lessons) {
   const reflectionBeforeClaim = (directHandlerGate && directButtonGate)
     || delegatedButtonGate
     || delegatedInlineGate;
-  const gatedReveal = /<(?:G4)?TitleReveal\s+active=\{titleClaimed\}/.test(source)
+  const rankOverlay = /className=["'{][^\n>]*rank-boost-overlay/.test(source)
+    && /data-g4-role=["'{][^\n>]*rank-overlay/.test(source)
+    && /rank-boost-(?:card|medal|confetti)/.test(source);
+  const gatedReveal = rankOverlay || /<(?:G4)?TitleReveal\s+active=\{titleClaimed\}/.test(source)
     || (/<(?:G4)?TitleReveal\s+active=\{revealRequested\}/.test(source)
       && /setRevealRequested\(true\)/.test(source))
     || (/<(?:G4)?TitleReveal\s+active=\{titleState\s*===\s*["']revealing["']\}/.test(source)
@@ -398,13 +472,15 @@ for (const lesson of lessons) {
     && /setReflectionSolved\(true\)/.test(source)
     && /(?:disabled=\{[^}]*!reflectionSolved|if\s*\([^)]*!reflectionSolved[^)]*\)\s*return)/.test(source);
   const titleRevealBlock = source.match(
-    /(?:function\s+(?:G4)?TitleReveal|const\s+(?:G4)?TitleReveal\s*=)[\s\S]*?(?=(?:function\s+(?:G4)?TitleCard|const\s+(?:G4)?TitleCard\s*=))/,
+    /(?:function\s+(?:(?:G4)?TitleReveal|(?:G4)?RankBoost)|const\s+(?:(?:G4)?TitleReveal|(?:G4)?RankBoost)\s*=)[\s\S]*?(?=(?:function\s+(?:G4)?TitleCard|const\s+(?:G4)?TitleCard\s*=))/,
   )?.[0] ?? '';
-  const revealDuration = /setTimeout\([\s\S]*?3200/.test(titleRevealBlock);
-  const reducedRevealDuration = /matchMedia\?\.\(['"]\(prefers-reduced-motion:\s*reduce\)['"]\)[\s\S]*?\?\s*(?:0|80|120)\s*:\s*3200/.test(titleRevealBlock);
-  const literalHappyCount = count(source, /<BitSVG\b[^>]*\bstate=["']happy["']/g);
-  const noPermanentHappy = !/(?:PersistentHappyBit|PrimaryHappyBit|StageHappyBit)/.test(source)
-    && literalHappyCount <= 4;
+  const revealDuration = /setTimeout\([\s\S]*?3900/.test(titleRevealBlock);
+  const reducedRevealDuration = /matchMedia\?\.\(['"]\(prefers-reduced-motion:\s*reduce\)['"]\)[\s\S]*?\?\s*(?:0|80|120)\s*:\s*3900/.test(titleRevealBlock);
+  const persistentHappyReward = /(?:reward-stage|g4-title-card-stage)/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-bit/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && /<BitSVG\b[^>]*\bstate=\{?[^>]*["']happy["']/.test(source);
 
   const explicitLocaleTriples = count(source, /\buz\s*:/g) >= 10
     && count(source, /\bru\s*:/g) >= 10
@@ -468,9 +544,9 @@ for (const lesson of lessons) {
 
   const motionFinalChecks = [
     { points: 2, pass: claimState && claimButton && reflectionUi },
-    { points: 2, pass: gatedReveal && persistentTitle },
+    { points: 2, pass: gatedReveal && rankOverlay && persistentTitle },
     { points: 2, pass: claimBeforeFinish && (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim },
-    { points: 2, pass: revealDuration && noPermanentHappy },
+    { points: 2, pass: revealDuration && persistentHappyReward },
     { points: 2, pass: reducedMotion && reducedRevealDuration },
   ];
 
@@ -509,6 +585,19 @@ for (const lesson of lessons) {
       /visual=\{\(\{\s*stageIndex\s*,\s*stageSolved/.test(source)
         && /stageSolved\s*\?\s*['"]72 000 − 19 000 ≈ 53 000['"]/.test(source)],
   ];
+  const dars51ScoredIds = meta.filter((screen) => screen.scored === true).map((screen) => screen.id);
+  const dars51Critical = lesson !== 51 ? [] : [
+    ['Dars51 five scored screens', JSON.stringify(dars51ScoredIds) === JSON.stringify(['s8', 's9', 's10', 's12', 's13'])],
+    ['Dars51 assessment payload', /assessment\s*:\s*true/.test(source)
+      && /totalQuestions\s*:\s*(?:5|scored\.length)/.test(source)
+      && /correctAnswers\s*:\s*firstTryCorrect/.test(source)
+      && /finalScore\s*:\s*firstTryCorrect/.test(source)
+      && /finalTotal\s*:\s*(?:5|scored\.length)/.test(source)
+      && /firstTryStats\s*:\s*\{/.test(source)],
+    ['Dars51 medal tiers', /(?:gold|oltin)/i.test(source)
+      && /(?:silver|kumush)/i.test(source)
+      && /(?:bronze|bronza)/i.test(source)],
+  ];
 
   const categories = {
     methodology: award(methodologyChecks),
@@ -526,12 +615,19 @@ for (const lesson of lessons) {
     ['max two passive screens', methodologyChecks[2].pass],
     ['methodical arc', methodologyChecks[4].pass],
     ['first-slide UX', interactionChecks[0].pass],
+    ['Dars01 hook structure markers', canonicalHookMarkers],
+    ['Dars01 hook frame tokens', canonicalHookFrame],
+    ['Dars01 hook Bit geometry', canonicalHookBit],
+    ['Dars01 typography roles', canonicalTypography],
+    ['Dars01 feedback geometry', canonicalFeedbackVisual],
+    ['visual-frame containment', visualFrameContainment],
+    ['Dars01-only callout absent', noEtalonOnlyCallout],
     ['feedback Bit', interactionChecks[1].pass],
     ['yechim frame', interactionChecks[2].pass],
     ['four mechanics', interactionChecks[4].pass],
     ['activity-gated Continue', activityGate.pass],
     ['matching connector', interactionChecks[5].pass],
-    ['click-gated title reveal', motionFinalChecks.slice(0, 3).every((item) => item.pass)],
+    ['click-gated rank boost', motionFinalChecks.slice(0, 3).every((item) => item.pass)],
     ['reflection-before-title dual gate', reflectionBeforeClaim],
     ['pre-claim reflection Back persistence', preClaimReflectionPersistence],
     ['finite/reduced motion', visualChecks[3].pass && motionFinalChecks.slice(3).every((item) => item.pass)],
@@ -542,6 +638,7 @@ for (const lesson of lessons) {
     ['audio contract', technicalChecks[1].pass],
     ['LMS payload', technicalChecks[3].pass],
     ...dars08Critical,
+    ...dars51Critical,
   ];
   const brokenCritical = critical.filter(([, pass]) => !pass).map(([name]) => name);
 

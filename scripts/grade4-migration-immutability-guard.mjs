@@ -8,7 +8,9 @@ import process from 'node:process';
 const ROOT = process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src', 'components', 'grade4');
 const DARS01_PATH = path.join(GRADE4_DIR, 'Dars01.jsx');
-const DARS01_BASELINE_SHA256 = '982f8fd8a76a884da75866f772174ac6e11fcf5db69152d1c555d6b26b29a282';
+// Rebaselined to the user-owned Dars01.jsx working-tree version present before
+// the D22-D30 practice migration. The migration does not edit the theory file.
+const DARS01_BASELINE_SHA256 = '8153117aa65389ce62375fb2ffa60c020b9e94198605d99ad4fcdff320eb6f16';
 const PRACTICE_BASELINE_SHA256 = {
   'Dars01Practice.jsx': '8a25d45799e0212217385c33832b1d849c2dd4ae1e751fd5ca9e9bc8760f1afd',
   'Dars02Practice.jsx': 'a76c3faf495255e857f80786df0f2a88a307cfe0291716417c71c97bee6bbb9f',
@@ -31,6 +33,15 @@ const PRACTICE_BASELINE_SHA256 = {
   'Dars19Practice.jsx': 'aaca7b7a8a99feecdd5ddeb1ab718088de813e799eefed4df197e28d4a641862',
   'Dars20Practice.jsx': 'ad28aa6764355f31d2a63f1ca3d47c69ba7973d2989990629e3d65f81ebd8652',
   'Dars21Practice.jsx': '8d28a71c75677c23ad5c95ab55ab2438a73db68e815f722c13d8cb6c40a7bcf8',
+  'Dars22Practice.jsx': '2abe72e5e78513ae79e66177a0e5a8b4bd5433b14732afafdab6819cc53e2cf1',
+  'Dars23Practice.jsx': 'b2bb70934e3c0fd9e7e5d29908c0ad761c4553baadc7f05c8514ca11bbf881b8',
+  'Dars24Practice.jsx': '9a293ea4ed899d3b37a8b4e353f7aba44077ebdf6ffbba2f96202dab2a18004e',
+  'Dars25Practice.jsx': '1ae67b1e1184cc80d214d8dfba1d65bc1c0be5415e07b7280ea62a766e78af3c',
+  'Dars26Practice.jsx': 'cd02be04bce6828e0c90ef4e947a2c6f712cb8e8b017f463ac31fbed511c6c79',
+  'Dars27Practice.jsx': '0896387405f8b5177029ec46b586c5e8134cfe6760ebcd981f3de9982f972b04',
+  'Dars28Practice.jsx': '97732a61c572cfb8e50a83ae5f478ad1777a9ff1250671be3f4a31234e2984b1',
+  'Dars29Practice.jsx': '274d271b580633b0d75fb366672ff0354533ecdbe4f5ea9d06e3f3deff247d35',
+  'Dars30Practice.jsx': '3985a16cc842331230fcd870d03fa6674dffea05dacd5e9c00b798c84a59fa38',
 };
 
 const sha256 = (value) => createHash('sha256').update(value).digest('hex');

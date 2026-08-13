@@ -31,6 +31,7 @@ let theoryScreensTraversed = 0;
 let practiceTasksTraversed = 0;
 let theoryGateFallbacks = 0;
 let audioContractChecked = false;
+let activePracticeLang = 'en';
 const requested = new Set(process.argv.slice(2).map((value) => value.replace(/\.jsx$/, '')));
 
 const registryPath = path.join(ROOT, 'src/lessons/grade4.js');
@@ -40,7 +41,7 @@ const registeredLessons = [...registry.matchAll(/slug:\s*'([^']+)'[\s\S]*?Compon
 const numberedFile = (number, suffix = '') => 'Dars' + String(number).padStart(2, '0') + suffix + '.jsx';
 const targetLessonFiles = new Set([
   ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1)),
-  ...Array.from({ length: 21 }, (_, index) => numberedFile(index + 1, 'Practice')),
+  ...Array.from({ length: 30 }, (_, index) => numberedFile(index + 1, 'Practice')),
 ]);
 const allLessons = registeredLessons.filter((lesson) => targetLessonFiles.has(lesson.file));
 const registryOnlyLessons = registeredLessons.filter((lesson) => !targetLessonFiles.has(lesson.file));
@@ -72,14 +73,14 @@ if (unexpectedUnavailable.length) {
   console.error('Grade 4 registryda kutilmagan mavjud bo\'lmagan componentlar: ' + unexpectedUnavailable.join(', ') + '.');
   process.exit(1);
 }
-if ((requested.size === 0 && lessons.length !== 51) || (requested.size > 0 && lessons.length !== requested.size)) {
-  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 51) + '.');
+if ((requested.size === 0 && lessons.length !== 60) || (requested.size > 0 && lessons.length !== requested.size)) {
+  console.error('Grade 4 registrydan ' + lessons.length + ' mavjud route topildi, kutilgan ' + (requested.size || 60) + '.');
   process.exit(1);
 }
 if (registryOnlyLessons.length) {
   console.log(
     '[Grade 4 smoke scope] ' + registryOnlyLessons.map((lesson) => lesson.file).join(', ')
-    + ' registry-only route sifatida tashlab ketildi; smoke Dars01–Dars30 va Dars01Practice–Dars21Practice bilan cheklangan.',
+    + ' registry-only route sifatida tashlab ketildi; smoke Dars01–Dars30 va Dars01Practice–Dars30Practice bilan cheklangan.',
   );
 }
 
@@ -115,6 +116,7 @@ const hasCyrillic = (value) => /[\u0400-\u052f]/u.test(String(value ?? ''));
 const localize = (value) => {
   if (value === null || value === undefined) return '';
   if (typeof value !== 'object') return String(value);
+  if (Object.hasOwn(value, activePracticeLang)) return String(value[activePracticeLang]);
   if (Object.hasOwn(value, 'en')) return String(value.en);
   if (Object.hasOwn(value, 'text')) return localize(value.text);
   if (Object.hasOwn(value, 'label')) return localize(value.label);
@@ -153,10 +155,14 @@ async function extractPracticeTasks(lesson) {
     correct,
     wrong: wrongRu ? b(wrongRu, wrongUz, wrongEn) : null,
   });
+  const decimal = (comma, point) => b(comma, comma, point);
   const expression = source.slice(initializer.start, initializer.end);
   const tasks = runInNewContext('(' + expression + ')', {
     addEnglish: (value) => value,
     b,
+    d: decimal,
+    dec: decimal,
+    decimal,
     option,
   }, { timeout: 2_000 });
   if (!Array.isArray(tasks) || tasks.length !== 10) {
@@ -281,6 +287,7 @@ async function lessonSnapshot(page) {
     const clippedText = root ? [...root.querySelectorAll('h1,h2,h3,h4,p,button,label,span,strong,small')]
       .filter((element) => {
         if (!visible(element)) return false;
+        if (element.closest('.sr-only')) return false;
         const hasDirectText = [...element.childNodes]
           .some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
         if (!hasDirectText) return false;
@@ -303,6 +310,7 @@ async function lessonSnapshot(page) {
         panelIssues.push(describeBox(hostPanels[left]) + ' viewportdan tashqarida');
       }
       for (let right = left + 1; right < hostPanels.length; right += 1) {
+        if (hostPanels[left].contains(hostPanels[right]) || hostPanels[right].contains(hostPanels[left])) continue;
         if (intersects(rect, hostPanels[right].getBoundingClientRect())) {
           panelIssues.push(describeBox(hostPanels[left]) + ' ↔ ' + describeBox(hostPanels[right]));
         }
@@ -311,6 +319,8 @@ async function lessonSnapshot(page) {
         const candidates = [...root.querySelectorAll('button,a,input,select,textarea,.chrome-actions > *,.p4-head-row > *,.g4p-head-row > *')]
           .filter(visible);
         for (const candidate of candidates) {
+          if (hostPanels[left].contains(candidate) || candidate.contains(hostPanels[left])) continue;
+          if (candidate.closest('.lesson-language, .preview-language')) continue;
           if (intersects(rect, candidate.getBoundingClientRect())) {
             panelIssues.push(describeBox(hostPanels[left]) + ' ↔ ' + describeBox(candidate));
           }
@@ -833,6 +843,55 @@ async function solvePracticeTask(page, task) {
   throw new Error(task.id + ': qo\'llab-quvvatlanmagan practice kind "' + task.kind + '"');
 }
 
+async function solveWrongMatch(page, task) {
+  if (!Array.isArray(task.pairs) || task.pairs.length < 2) {
+    throw new Error(task.id + ': wrong-first uchun kamida ikki match jufti kerak');
+  }
+  const correctRights = task.pairs.map((pair) => (
+    task.right?.find((item) => item.id === pair.correctRight) ?? pair.correctRight
+  ));
+  const wrongRights = [...correctRights.slice(1), correctRights[0]];
+  for (let index = 0; index < task.pairs.length; index += 1) {
+    await clickMatchingButton(page, '.p4-match-col:first-child button, .g4p-match-col:first-child button', localize(task.pairs[index].left));
+    await clickMatchingButton(page, '.p4-match-col:last-child button, .g4p-match-col:last-child button', localize(wrongRights[index]?.text ?? wrongRights[index]));
+  }
+}
+
+async function solveWrongOrder(page, task) {
+  if (!Array.isArray(task.steps) || !Array.isArray(task.cards) || task.steps.length < 2) {
+    throw new Error(task.id + ': wrong-first uchun steps/cards order sxemasi kerak');
+  }
+  const cards = task.steps.map((step, index) => task.cards.find((candidate) => (
+    step.correct === undefined ? candidate.order === index : candidate.id === step.correct
+  )));
+  [cards[0], cards[1]] = [cards[1], cards[0]];
+  for (let index = 0; index < task.steps.length; index += 1) {
+    await clickLocatorIndex(page, '.p4-order-slots button', index);
+    await clickMatchingButton(page, '.p4-card-bank button', localize(cards[index]?.text ?? cards[index]?.label ?? cards[index]?.id));
+  }
+}
+
+async function solveWrongPracticeTask(page, task) {
+  if (['mc', 'state', 'place', 'sign', 'card'].includes(task.kind)
+    || (task.kind === 'missing' && task.answer === undefined)) {
+    await selectChoice(page, task, false);
+    return;
+  }
+  if (task.kind === 'numpad' || task.kind === 'missing') {
+    await enterNumber(page, String(task.answer) === '0' ? '1' : '0');
+    return;
+  }
+  if (task.kind === 'match') {
+    await solveWrongMatch(page, task);
+    return;
+  }
+  if (task.kind === 'order') {
+    await solveWrongOrder(page, task);
+    return;
+  }
+  throw new Error(task.id + ': wrong-first qo\'llab-quvvatlamaydigan kind "' + task.kind + '"');
+}
+
 async function clickCheck(page) {
   const button = await waitForVisible(page, CHECK_ACTION);
   if (!(await button.isEnabled())) throw new Error('Check tugmasi disabled qoldi');
@@ -851,36 +910,171 @@ async function waitForPracticeOutcome(page, timeout = 4_000) {
   throw new Error('Practice check natijasi ko\'rinmadi');
 }
 
-async function validateCompletion(prefix, diagnostics) {
+const practiceLessonNumber = (lesson) => {
+  const match = lesson?.file?.match(/^Dars(\d{2})Practice\.jsx$/);
+  return match ? Number(match[1]) : null;
+};
+const isModernPracticeLesson = (lesson) => {
+  const number = practiceLessonNumber(lesson);
+  return number !== null && number >= 17 && number <= 30;
+};
+const requiresPracticeRestartAudit = (lesson) => {
+  const number = practiceLessonNumber(lesson);
+  return number !== null && number >= 22 && number <= 30;
+};
+
+async function validateCompletion(prefix, diagnostics, lesson = null, lang = 'en', tasks = [], wrongFirstEveryTask = false, expectedTitle = '') {
   await waitForCompletion(diagnostics);
   if (diagnostics.completionCalls.length !== 1) {
     throw new Error(prefix + ': [Lesson preview] onFinished soni ' + diagnostics.completionCalls.length + ', kutilgan 1');
   }
   const payload = diagnostics.completionCalls[0];
   const title = payload?.lessonTitle;
-  if (typeof title !== 'string' || !title.trim() || hasCyrillic(title)) {
-    throw new Error(prefix + ': English lessonTitle noto\'g\'ri: ' + JSON.stringify(title));
+  if (typeof title !== 'string' || !title.trim()
+    || ((lang === 'en' || lang === 'uz') && hasCyrillic(title))) {
+    throw new Error(prefix + ': ' + lang + ' lessonTitle noto\'g\'ri: ' + JSON.stringify(title));
+  }
+  if (requiresPracticeRestartAudit(lesson) && expectedTitle && normalizeText(title) !== expectedTitle) {
+    throw new Error(prefix + ': payload lessonTitle visible title bilan mos emas');
+  }
+  if (isModernPracticeLesson(lesson)) {
+    const lessonNumber = practiceLessonNumber(lesson);
+    const expectedLessonId = `num-4-${String(lessonNumber).padStart(2, '0')}-practice`;
+    if (payload?.lessonId !== expectedLessonId || payload?.activityType !== 'practice' || payload?.completed !== true) {
+      throw new Error(prefix + ': modern practice identity/completion kontrakti noto\'g\'ri');
+    }
+    if (payload?.totalQuestions !== 10 || payload?.answeredQuestions !== 10 || payload?.finalTotal !== 10) {
+      throw new Error(prefix + ': modern practice total/answered/finalTotal 10 emas');
+    }
+    if (!Array.isArray(payload?.answers) || payload.answers.length !== 10) {
+      throw new Error(prefix + ': modern practice answers massivi 10 ta emas');
+    }
+    if (!Number.isInteger(payload?.attemptsTotal) || payload.attemptsTotal < 10) {
+      throw new Error(prefix + ': modern practice attemptsTotal noto\'g\'ri');
+    }
+    if (!Number.isInteger(payload?.durationSec) || payload.durationSec < 0) {
+      throw new Error(prefix + ': modern practice durationSec noto\'g\'ri');
+    }
+    if (!Number.isInteger(payload?.correctAnswers)
+      || payload.correctAnswers !== payload.firstTryCorrect
+      || payload.correctAnswers !== payload.finalScore) {
+      throw new Error(prefix + ': modern practice correctAnswers/firstTryCorrect/finalScore mos emas');
+    }
+    const expectedPercent = Math.round(payload.correctAnswers / 10 * 100);
+    if (payload.scorePercent !== expectedPercent || payload.passed !== (payload.correctAnswers >= 6)) {
+      throw new Error(prefix + ': modern practice scorePercent/passed mos emas');
+    }
+    if (!payload.levelBreakdown || !Array.isArray(payload.skillTags) || payload.skillTags.length < 1
+      || !payload.lessonMeta || !Array.isArray(payload.screenMeta) || payload.screenMeta.length !== 10) {
+      throw new Error(prefix + ': modern practice diagnostik payload to\'liq emas');
+    }
+    const expectedTags = [...new Set(tasks.map((task) => task.skillTag))];
+    if (JSON.stringify(payload.skillTags) !== JSON.stringify(expectedTags)
+      || payload.lessonMeta.lessonId !== expectedLessonId) {
+      throw new Error(prefix + ': modern practice skillTags/lessonMeta mos emas');
+    }
+    const expectedLevels = { green: 2, yellow: 5, red: 3 };
+    for (const [level, total] of Object.entries(expectedLevels)) {
+      const actual = payload.levelBreakdown[level];
+      const expectedFirstTry = payload.answers.filter((answer) => answer.level === level && answer.firstTry).length;
+      if (actual?.total !== total || actual?.firstTry !== expectedFirstTry) {
+        throw new Error(prefix + ': modern practice levelBreakdown ' + level + ' noto\'g\'ri');
+      }
+    }
+    const answerIds = payload.answers.map((answer) => answer.taskId).join(',');
+    if (answerIds !== '01,02,03,04,05,06,07,08,09,10') {
+      throw new Error(prefix + ': modern practice answer task ID/order noto\'g\'ri: ' + answerIds);
+    }
+    payload.answers.forEach((answer, index) => {
+      const task = tasks[index];
+      const expectedAttempts = wrongFirstEveryTask ? (index === 0 ? 4 : 2) : (index === 0 ? 2 : 1);
+      if (answer.attempts !== expectedAttempts
+        || answer.firstTry !== (answer.attempts === 1) || answer.correct !== true
+        || answer.level !== task.level || answer.kind !== task.kind || answer.skillTag !== task.skillTag
+        || !Object.hasOwn(answer, 'studentAnswer') || !Object.hasOwn(answer, 'correctAnswer')
+        || answer.screenMeta?.taskId !== task.id) {
+        throw new Error(prefix + ': modern practice answer record ' + task.id + ' noto\'g\'ri');
+      }
+    });
+    const derivedFirstTry = payload.answers.filter((answer) => answer.firstTry).length;
+    const expectedFirstTry = wrongFirstEveryTask ? 0 : 9;
+    const expectedAttemptsTotal = wrongFirstEveryTask ? 22 : 11;
+    if (derivedFirstTry !== expectedFirstTry || payload.attemptsTotal !== expectedAttemptsTotal) {
+      throw new Error(prefix + ': modern practice wrong-first urinish profili noto\'g\'ri');
+    }
+    const derivedPercent = Math.round(derivedFirstTry / 10 * 100);
+    if (payload.correctAnswers !== derivedFirstTry || payload.firstTryCorrect !== derivedFirstTry
+      || payload.finalScore !== derivedFirstTry || payload.scorePercent !== derivedPercent
+      || payload.passed !== (derivedFirstTry >= 6)) {
+      throw new Error(prefix + ': modern practice score answer recordlardan hisoblangan natijaga mos emas');
+    }
+    if (payload.firstTryStats?.total !== 10 || payload.firstTryStats?.answered !== 10
+      || payload.firstTryStats?.firstTryCorrect !== derivedFirstTry
+      || payload.firstTryStats?.correct !== derivedFirstTry
+      || payload.firstTryStats?.scorePercent !== derivedPercent) {
+      throw new Error(prefix + ': modern practice firstTryStats noto\'g\'ri');
+    }
   }
 }
 
-async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
-  const prefix = 'deep practice ' + lesson.file;
+async function auditPracticeRestart(page, diagnostics, lesson, tasks, prefix) {
+  if (!requiresPracticeRestartAudit(lesson)) return;
+  const restart = await waitForVisible(page, '.p4-done .p4-btn, .p4-done button, .g4p-result button');
+  await restart.click();
+  await waitForVisible(page, CHECK_ACTION);
+  const counterSelector = '.p4-counter, .g4p-counter, .p4-task-top > span:first-child, .p4-root > header > div:last-child > b';
+  const firstCounter = normalizeText(await inLesson(page, counterSelector).first().innerText());
+  if (!/\b1\s*\/\s*10\b/.test(firstCounter)) {
+    throw new Error(prefix + ': restartdan keyin counter 1/10 emas: ' + firstCounter);
+  }
+  await solvePracticeTask(page, tasks[0]);
+  await clickCheck(page);
+  const outcome = await waitForPracticeOutcome(page);
+  if (outcome.kind !== 'ready') throw new Error(prefix + ': restartdan keyin 1-topshiriq yechilmadi');
+  await outcome.button.click();
+  await waitForVisible(page, CHECK_ACTION);
+  const secondCounter = normalizeText(await inLesson(page, counterSelector).first().innerText());
+  if (!/\b2\s*\/\s*10\b/.test(secondCounter)) {
+    throw new Error(prefix + ': restartdan keyin 2-topshiriqqa o\'tmadi: ' + secondCounter);
+  }
+  if (diagnostics.completionCalls.length !== 1) {
+    throw new Error(prefix + ': restart onFinished chaqiruvini takrorladi');
+  }
+}
+
+async function runPracticeTraversal(page, diagnostics, lesson, tasks, lang = 'en', wrongFirstEveryTask = false) {
+  const prefix = 'deep practice ' + lesson.file + ' ' + lang;
+  const strictPractice = requiresPracticeRestartAudit(lesson);
+  activePracticeLang = lang;
   diagnostics.reset();
-  await openLesson(page, lesson, 'en');
+  await openLesson(page, lesson, lang);
+  const titleNode = await firstVisible(inLesson(page, '.p4-header h1, .p4-title, .p4-root > header > div:last-child > span'));
+  const expectedTitle = titleNode ? normalizeText(await titleNode.innerText()) : '';
+  if (strictPractice && !expectedTitle) throw new Error(prefix + ': visible lesson title topilmadi');
 
   for (let index = 0; index < tasks.length; index += 1) {
     const task = tasks[index];
     const snapshot = await lessonSnapshot(page);
-    const issues = snapshotIssues(snapshot, 'en');
+    const issues = snapshotIssues(snapshot, lang);
     issues.forEach((issue) => failures.push(prefix + ' task ' + task.id + ': ' + issue));
 
-    if (index === 0) {
-      await selectChoice(page, task, false);
+    const wrongRounds = wrongFirstEveryTask ? (index === 0 ? 3 : 1) : (index === 0 ? 1 : 0);
+    for (let round = 0; round < wrongRounds; round += 1) {
+      await solveWrongPracticeTask(page, task);
       await clickCheck(page);
       const wrongOutcome = await waitForPracticeOutcome(page);
       if (wrongOutcome.kind !== 'retry') throw new Error(prefix + ': wrong answer retry bermadi');
       const retryLabel = normalizeText(await wrongOutcome.button.innerText());
-      if (!retryLabel || hasCyrillic(retryLabel)) throw new Error(prefix + ': retry label English emas');
+      if (!retryLabel || (lang === 'en' && hasCyrillic(retryLabel))) throw new Error(prefix + ': retry label ' + lang + ' emas');
+      const feedback = await firstVisible(inLesson(page, '.p4-feedback, .g4p-feedback'));
+      const feedbackText = feedback ? normalizeText(await feedback.innerText()) : '';
+      if (strictPractice && !feedbackText) throw new Error(prefix + ' task ' + task.id + ': wrong feedback ko\'rinmadi');
+      if (strictPractice && round >= 1) {
+        const expectedHint = localize(round === 1 ? task.secondHint : task.thirdHint);
+        if (expectedHint && !feedbackText.includes(normalizeText(expectedHint))) {
+          throw new Error(prefix + ' task ' + task.id + ': ' + (round === 1 ? 'secondHint' : 'thirdHint') + ' ko\'rinmadi');
+        }
+      }
       await wrongOutcome.button.click();
       await waitForVisible(page, CHECK_ACTION);
     }
@@ -897,8 +1091,8 @@ async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
     }
     if (index === tasks.length - 1) {
       const finishLabel = normalizeText(await outcome.button.innerText());
-      if (!/finish|complete|next|continue/i.test(finishLabel) || hasCyrillic(finishLabel)) {
-        throw new Error(prefix + ': final transition English emas: ' + finishLabel);
+      if (!finishLabel || (lang === 'en' && (!/finish|complete|next|continue/i.test(finishLabel) || hasCyrillic(finishLabel)))) {
+        throw new Error(prefix + ': final transition ' + lang + ' emas: ' + finishLabel);
       }
     }
     if (index === tasks.length - 1) {
@@ -918,9 +1112,10 @@ async function runPracticeTraversal(page, diagnostics, lesson, tasks) {
   }
 
   const finalSnapshot = await lessonSnapshot(page);
-  const finalIssues = snapshotIssues(finalSnapshot, 'en');
+  const finalIssues = snapshotIssues(finalSnapshot, lang);
   finalIssues.forEach((issue) => failures.push(prefix + ' result: ' + issue));
-  await validateCompletion(prefix, diagnostics);
+  await validateCompletion(prefix, diagnostics, lesson, lang, tasks, wrongFirstEveryTask, expectedTitle);
+  await auditPracticeRestart(page, diagnostics, lesson, tasks, prefix);
   diagnostics.pageErrors.forEach((message) => failures.push(prefix + ': pageerror ' + message));
 }
 
@@ -1141,6 +1336,45 @@ async function runProgressPersistence(browser) {
   }
 }
 
+async function runPracticeProgressPersistence(browser) {
+  const practiceLessons = lessons.filter((item) => requiresPracticeRestartAudit(item));
+  if (!practiceLessons.length) return;
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  try {
+    for (const lesson of practiceLessons) {
+      try {
+        const tasks = practiceTasks.get(lesson.file);
+        activePracticeLang = 'uz';
+        await openLesson(page, lesson, 'uz');
+        await solvePracticeTask(page, tasks[0]);
+        await clickCheck(page);
+        const ready = await waitForPracticeOutcome(page);
+        if (ready.kind !== 'ready') throw new Error('1-topshiriq yechilmadi');
+        await ready.button.click();
+        await waitForVisible(page, CHECK_ACTION);
+        const counterSelector = '.p4-counter, .g4p-counter, .p4-task-top > span:first-child, .p4-root > header > div:last-child > b';
+        const before = normalizeText(await inLesson(page, counterSelector).first().innerText());
+        const beforeCount = parseScreenCount(before);
+        if (beforeCount?.current !== 2 || beforeCount.total !== 10) throw new Error('task counter 2/10 emas: ' + before);
+        for (const code of ['ru', 'en', 'uz']) {
+          await page.locator('.lesson-language button', { hasText: code.toUpperCase() }).click();
+          await waitForVisible(page, CHECK_ACTION);
+          const after = normalizeText(await inLesson(page, counterSelector).first().innerText());
+          const afterCount = parseScreenCount(after);
+          if (afterCount?.current !== beforeCount.current || afterCount.total !== beforeCount.total) {
+            failures.push('practice progress ' + lesson.file + ': ' + code + 'ga o\'tganda ' + before + ' -> ' + after);
+          }
+        }
+      } catch (error) {
+        failures.push('practice progress ' + lesson.file + ': ' + error.message);
+      }
+    }
+  } finally {
+    await context.close();
+  }
+}
+
 async function runInvalidLanguageFallback(browser) {
   const lesson = allLessons.find((item) => item.file === 'Dars01.jsx') ?? lessons[0];
   if (!lesson) return;
@@ -1174,6 +1408,9 @@ async function startViteServer() {
       host: HOST,
       port: Number(process.env.GRADE4_PORT || PORT),
       strictPort: false,
+      // Browser smoke does not need hot reload; disabling it prevents a save in
+      // a parallel authoring session from resetting in-flight screen progress.
+      hmr: false,
     },
   });
   await viteServer.listen();
@@ -1224,6 +1461,7 @@ try {
 
     await runAudioContractSmoke(browser);
     await runProgressPersistence(browser);
+    await runPracticeProgressPersistence(browser);
     await runInvalidLanguageFallback(browser);
 
     const deepContext = await browser.newContext({
@@ -1239,7 +1477,14 @@ try {
         if (lesson.section === 'nazariy') {
           await runTheoryTraversal(deepPage, deepDiagnostics, lesson);
         } else {
-          await runPracticeTraversal(deepPage, deepDiagnostics, lesson, practiceTasks.get(lesson.file));
+          const number = practiceLessonNumber(lesson);
+          if (number !== null && number >= 22 && number <= 30) {
+            for (const lang of LANGS) {
+              await runPracticeTraversal(deepPage, deepDiagnostics, lesson, practiceTasks.get(lesson.file), lang, true);
+            }
+          } else {
+            await runPracticeTraversal(deepPage, deepDiagnostics, lesson, practiceTasks.get(lesson.file));
+          }
         }
       } catch (error) {
         failures.push(error.message);
