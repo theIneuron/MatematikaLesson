@@ -58,6 +58,8 @@ let matchingBranchScreensChecked = 0;
 let buildBranchScreensChecked = 0;
 let rapidBranchScreensChecked = 0;
 let rapidBackPersistenceChecked = 0;
+let roundingLineScreensChecked = 0;
+let roundingBackPersistenceChecked = 0;
 const requested = new Set(process.argv.slice(2).map((value) => value.replace(/\.jsx$/, '')));
 
 if (SCREENSHOT_DIR) await mkdir(SCREENSHOT_DIR, { recursive: true });
@@ -1528,6 +1530,117 @@ async function assertOuterNextLocked(page, issuePrefix) {
   }
 }
 
+async function visibleRoundingLineRoot(page, flow = null, timeout = 2_000) {
+  const selector = flow
+    ? `[data-qa-rounding-flow="${flow}"][data-qa-rounding-step]`
+    : '[data-qa-rounding-flow][data-qa-rounding-step]';
+  return waitForVisibleMatch(inLesson(page, selector), timeout);
+}
+
+async function assertRoundingLineStep(root, expectedStep, issuePrefix, timeout = 2_000) {
+  if (!await waitForAttributeValue(root, 'data-qa-rounding-step', expectedStep, timeout)) {
+    const actual = await root.getAttribute('data-qa-rounding-step').catch(() => null);
+    throw new Error(`${issuePrefix}: rounding step ${actual ?? 'yo\'q'}, kutilgan ${expectedStep}`);
+  }
+}
+
+async function visibleRoundingFeedback(page, kind, timeout = 2_000) {
+  return waitForVisibleMatch(inLesson(page, `[data-g4-feedback="${kind}"]`), timeout);
+}
+
+async function auditVisibleRoundingLineFlow(page, issuePrefix, { auditWrong = false } = {}) {
+  const root = await visibleRoundingLineRoot(page);
+  if (!root) return false;
+
+  const flow = await root.getAttribute('data-qa-rounding-flow');
+  if (flow !== 'guided' && flow !== 'practice') {
+    throw new Error(`${issuePrefix}: rounding flow ${flow ?? 'yo\'q'} noto'g'ri`);
+  }
+  const initialStep = Number(await root.getAttribute('data-qa-rounding-step'));
+  if (!Number.isInteger(initialStep) || initialStep < 0 || initialStep > 2) {
+    throw new Error(`${issuePrefix}: rounding boshlang'ich step ${initialStep} noto'g'ri`);
+  }
+
+  for (let step = initialStep; step < 3; step += 1) {
+    await assertRoundingLineStep(root, step, `${issuePrefix} ${flow}`, 4_000);
+    const outerNext = await theoryNextButton(page);
+
+    if (flow === 'guided') {
+      const equation = await waitForVisibleMatch(root.locator('[data-qa-rounding-equation]'), 4_000);
+      if (!equation) throw new Error(`${issuePrefix}: guided ${step + 1}-qadam tengligi ochilmadi`);
+
+      if (step < 2) {
+        await assertOuterNextLocked(page, `${issuePrefix} guided ${step + 1}-qadam`);
+        const innerNext = await waitForVisibleMatch(root.locator('[data-qa-rounding-next]:not(:disabled)'), 4_000);
+        if (!innerNext) throw new Error(`${issuePrefix}: guided ${step + 1}-qadam ichki Next ochilmadi`);
+        await innerNext.click();
+        await assertRoundingLineStep(root, step + 1, `${issuePrefix} guided transition`, 4_000);
+      } else if (!(await waitForEnabledLocator(outerNext, 4_000))) {
+        throw new Error(`${issuePrefix}: guided uchinchi qadamdan keyin outer Next ochilmadi`);
+      }
+      continue;
+    }
+
+    const endpoints = root.locator('button[data-g4-branch="line-point"]');
+    if (!await waitForAttached(endpoints, 4_000)) {
+      throw new Error(`${issuePrefix}: practice ${step + 1}-qadam endpointlari topilmadi`);
+    }
+    const endpointCount = await endpoints.count();
+    const correct = root.locator('button[data-g4-branch="line-point"][data-g4-correct="true"]');
+    const wrong = root.locator('button[data-g4-branch="line-point"][data-g4-correct="false"]');
+    const correctCount = await correct.count();
+    const wrongCount = await wrong.count();
+    if (endpointCount !== 2 || correctCount !== 1 || wrongCount !== 1) {
+      throw new Error(
+        `${issuePrefix}: practice ${step + 1}-qadam endpoint semantikasi `
+          + `correct=${correctCount}, wrong=${wrongCount}, total=${endpointCount}`,
+      );
+    }
+
+    const existingSolution = await firstVisible(inLesson(page, '[data-g4-feedback="solution"]'));
+    const existingEquation = await firstVisible(root.locator('[data-qa-rounding-equation]'));
+    const alreadySolved = Boolean(existingSolution && existingEquation);
+
+    if (!alreadySolved && auditWrong) {
+      if (!(await waitForEnabledLocator(wrong.first(), 4_000))) {
+        throw new Error(`${issuePrefix}: practice ${step + 1}-qadam wrong endpoint faol emas`);
+      }
+      await wrong.first().click();
+      await assertRoundingLineStep(root, step, `${issuePrefix} practice wrong`, 4_000);
+      await assertOuterNextLocked(page, `${issuePrefix} practice ${step + 1}-qadam wrong`);
+      if (!await visibleRoundingFeedback(page, 'wrong', 4_000)) {
+        throw new Error(`${issuePrefix}: practice ${step + 1}-qadam wrong feedback ko'rinmadi`);
+      }
+    }
+
+    if (!alreadySolved) {
+      if (!(await waitForEnabledLocator(correct.first(), 4_000))) {
+        throw new Error(`${issuePrefix}: practice ${step + 1}-qadam correct endpoint faol emas`);
+      }
+      await correct.first().click();
+    }
+    if (!await visibleRoundingFeedback(page, 'solution', 4_000)) {
+      throw new Error(`${issuePrefix}: practice ${step + 1}-qadam solution feedback ko'rinmadi`);
+    }
+    if (!await waitForVisibleMatch(root.locator('[data-qa-rounding-equation]'), 4_000)) {
+      throw new Error(`${issuePrefix}: practice ${step + 1}-qadam tengligi ochilmadi`);
+    }
+
+    if (step < 2) {
+      await assertOuterNextLocked(page, `${issuePrefix} practice ${step + 1}-qadam solved`);
+      const innerNext = await waitForVisibleMatch(root.locator('[data-qa-rounding-next]:not(:disabled)'), 4_000);
+      if (!innerNext) throw new Error(`${issuePrefix}: practice ${step + 1}-qadam ichki Next ochilmadi`);
+      await innerNext.click();
+      await assertRoundingLineStep(root, step + 1, `${issuePrefix} practice transition`, 4_000);
+    } else if (!(await waitForEnabledLocator(outerNext, 4_000))) {
+      throw new Error(`${issuePrefix}: practice uchinchi qadamdan keyin outer Next ochilmadi`);
+    }
+  }
+
+  roundingLineScreensChecked += 1;
+  return true;
+}
+
 const strictFeedbackSelector = (kind) => kind === 'solution'
   ? '[data-g4-feedback="solution"], [data-g4-feedback="correct"]'
   : `[data-g4-feedback="${kind}"]`;
@@ -2430,6 +2543,8 @@ async function naturallyUnlockStrictTheoryScreen(
   { auditBranches = false, lang = 'en', requireAction = false } = {},
 ) {
   await muteLesson(page);
+  const componentOptions = { auditWrong: auditBranches };
+  if (await auditVisibleRoundingLineFlow(page, issuePrefix, componentOptions)) return;
   const next = await theoryNextButton(page);
   if (await next.isEnabled()) {
     if (requireAction) throw new Error(`${issuePrefix}: faol ekranda javobsiz Continue ochiq`);
@@ -2439,7 +2554,6 @@ async function naturallyUnlockStrictTheoryScreen(
   // Multi-phase components need their own deterministic traversal. These run
   // for every viewport; desktop branch QA additionally exercises each wrong
   // path, while mobile/tablet take the same natural correct path a learner can.
-  const componentOptions = { auditWrong: auditBranches };
   if (await auditVisibleRapidConsole(page, issuePrefix, lang, componentOptions)) return;
   if (await auditVisibleReasoningRounds(page, issuePrefix, lang, componentOptions)) return;
   if (await auditVisibleGuidedChoiceSteps(page, issuePrefix, lang, componentOptions)) return;
@@ -2845,6 +2959,12 @@ function strictHookAnswerCards(page, lesson) {
   return inLesson(page, '[data-g4-role="answer-card"]');
 }
 
+const strictHookCardContract = (lesson) => (
+  lesson.file === 'Dars05.jsx'
+    ? { min: 2, max: 2, minFontSize: 12, label: '2' }
+    : { min: 3, max: 4, minFontSize: 14, label: '3–4' }
+);
+
 const strictHookRequiresCorrectAnswer = (lesson) => !/^Dars(?:1[2-6]|29|3[0-4]|3[6-9]|4[01])\.jsx$/.test(lesson.file);
 const strictHookRequiresWrongBranch = (lesson) => !/^Dars(?:1[4-6]|1[8-9]|2[0-7]|29|3[0-4]|3[6-9]|4[01])\.jsx$/.test(lesson.file);
 const strictHookUsesNeutralDiagnostic = (lesson) => /^Dars(?:29|3[0-4]|3[6-9]|4[01])\.jsx$/.test(lesson.file);
@@ -2868,7 +2988,10 @@ async function runStrictHookContracts(browser) {
           if (!hook || !scene) throw new Error(`${lesson.file} ${lang}: canonical hook/scene marker topilmadi`);
           const cards = strictHookAnswerCards(page, lesson);
           const cardCount = await cards.count();
-          if (cardCount < 3 || cardCount > 4) throw new Error(`${lesson.file} ${lang}: hook ${cardCount} ta answer card, kutilgan 3–4`);
+          const cardContract = strictHookCardContract(lesson);
+          if (cardCount < cardContract.min || cardCount > cardContract.max) {
+            throw new Error(`${lesson.file} ${lang}: hook ${cardCount} ta answer card, kutilgan ${cardContract.label}`);
+          }
           if (lesson.file === 'Dars06.jsx') {
             const structure = await hook.evaluate((root) => {
               const selectors = [
@@ -2894,8 +3017,8 @@ async function runStrictHookContracts(browser) {
             if (structure.nestedModelPanel) throw new Error(`${lesson.file} ${lang}: ko'k hook scene ichida .model-panel qolgan`);
           }
           const fontSizes = await cards.evaluateAll((elements) => elements.map((element) => Number.parseFloat(getComputedStyle(element).fontSize)));
-          if (fontSizes.some((fontSize) => !Number.isFinite(fontSize) || fontSize < 14)) {
-            throw new Error(`${lesson.file} ${lang}: hook answer shrifti 14px dan kichik (${fontSizes.join(', ')})`);
+          if (fontSizes.some((fontSize) => !Number.isFinite(fontSize) || fontSize < cardContract.minFontSize)) {
+            throw new Error(`${lesson.file} ${lang}: hook answer shrifti ${cardContract.minFontSize}px dan kichik (${fontSizes.join(', ')})`);
           }
           if (await firstVisible(scene.locator('.bit-dark-speech, [data-g4-role="bit-transcript"]'))) {
             throw new Error(`${lesson.file} ${lang}: Bit replikasi hookda yozma ko‘rsatilgan; u faqat audioda qolishi kerak`);
@@ -3066,6 +3189,110 @@ async function runStrictBackNavigation(browser) {
     }
   } catch (error) {
     failures.push('strict back-navigation: ' + error.message);
+  } finally {
+    await context.close();
+  }
+}
+
+async function runDars05RoundingBackPersistence(browser) {
+  const lesson = lessons.find((item) => item.file === 'Dars05.jsx');
+  if (!lesson) return;
+  const context = await browser.newContext({ viewport: { width: 1366, height: 768 }, reducedMotion: 'reduce' });
+  const page = await context.newPage();
+  const prefix = 'Dars05 rounding Back persistence';
+
+  try {
+    await openLesson(page, lesson, 'en');
+    let count = await currentScreenCount(page);
+    await naturallyUnlockStrictTheoryScreen(page, `${prefix} hook`, { lang: 'en' });
+    await clickEnabledTheoryButton(await theoryNextButton(page), `${prefix} hook`, false);
+    count = await waitForScreenChange(page, count.text);
+    if (count.current !== 2) throw new Error(`guided ekran ${count.text}, kutilgan 2 / 15`);
+
+    if (!await auditVisibleRoundingLineFlow(page, `${prefix} guided complete`)) {
+      throw new Error('2-slaydda guided rounding flow topilmadi');
+    }
+    await clickEnabledTheoryButton(await theoryNextButton(page), `${prefix} guided forward`, false);
+    const practiceCount = await waitForScreenChange(page, count.text);
+    if (practiceCount.current !== 3) throw new Error(`practice ekran ${practiceCount.text}, kutilgan 3 / 15`);
+
+    let back = inLesson(page, '.stage-nav button').first();
+    if (!(await back.isVisible()) || !(await back.isEnabled())) throw new Error('guided persistence uchun Back faol emas');
+    await back.click();
+    count = await waitForScreenChange(page, practiceCount.text);
+    if (count.current !== 2) throw new Error(`guided Back ${count.text} ga o'tdi, kutilgan 2 / 15`);
+    const restoredGuided = await visibleRoundingLineRoot(page, 'guided', 4_000);
+    if (!restoredGuided) throw new Error('Backdan keyin guided rounding flow tiklanmadi');
+    await assertRoundingLineStep(restoredGuided, 2, `${prefix} restored guided`, 4_000);
+    if (!await waitForVisibleMatch(restoredGuided.locator('[data-qa-rounding-equation]'), 4_000)) {
+      throw new Error('Backdan keyin guided uchinchi tenglik saqlanmadi');
+    }
+    if (!(await waitForEnabledLocator(await theoryNextButton(page), 4_000))) {
+      throw new Error('Backdan keyin guided complete outer Next saqlanmadi');
+    }
+    await clickEnabledTheoryButton(await theoryNextButton(page), `${prefix} restored guided forward`, false);
+    count = await waitForScreenChange(page, count.text);
+    if (count.current !== 3) throw new Error(`guided Forward ${count.text} ga o'tdi, kutilgan 3 / 15`);
+
+    const practice = await visibleRoundingLineRoot(page, 'practice', 4_000);
+    if (!practice) throw new Error('3-slaydda practice rounding flow topilmadi');
+    await assertRoundingLineStep(practice, 0, `${prefix} practice start`, 4_000);
+    const stepZeroCorrect = practice.locator(
+      'button[data-g4-branch="line-point"][data-g4-correct="true"]',
+    ).first();
+    if (!(await waitForEnabledLocator(stepZeroCorrect, 4_000))) throw new Error('practice step 0 correct endpoint faol emas');
+    await stepZeroCorrect.click();
+    if (!await visibleRoundingFeedback(page, 'solution', 4_000)
+      || !await waitForVisibleMatch(practice.locator('[data-qa-rounding-equation]'), 4_000)) {
+      throw new Error("practice step 0 yechim/tenglik holatiga o'tmadi");
+    }
+    const practiceNext = await waitForVisibleMatch(practice.locator('[data-qa-rounding-next]:not(:disabled)'), 4_000);
+    if (!practiceNext) throw new Error('practice step 0 ichki Next ochilmadi');
+    await practiceNext.click();
+    await assertRoundingLineStep(practice, 1, `${prefix} practice step 1`, 4_000);
+
+    const stepOneWrong = practice.locator(
+      'button[data-g4-branch="line-point"][data-g4-correct="false"]',
+    ).first();
+    if (!(await waitForEnabledLocator(stepOneWrong, 4_000))) throw new Error('practice step 1 wrong endpoint faol emas');
+    await stepOneWrong.click();
+    await assertRoundingLineStep(practice, 1, `${prefix} practice wrong`, 4_000);
+    if (!await visibleRoundingFeedback(page, 'wrong', 4_000)) throw new Error("practice step 1 wrong feedback ko'rinmadi");
+    await assertOuterNextLocked(page, `${prefix} practice partial`);
+
+    back = inLesson(page, '.stage-nav button').first();
+    if (!(await back.isVisible()) || !(await back.isEnabled())) throw new Error('practice persistence uchun Back faol emas');
+    await back.click();
+    const guidedAgainCount = await waitForScreenChange(page, count.text);
+    if (guidedAgainCount.current !== 2) {
+      throw new Error(`practice Back ${guidedAgainCount.text} ga o'tdi, kutilgan 2 / 15`);
+    }
+    const guidedAgain = await visibleRoundingLineRoot(page, 'guided', 4_000);
+    if (!guidedAgain) throw new Error('practice Backdan keyin guided flow tiklanmadi');
+    await assertRoundingLineStep(guidedAgain, 2, `${prefix} guided again`, 4_000);
+    if (!(await waitForEnabledLocator(await theoryNextButton(page), 4_000))) {
+      throw new Error('practice Backdan keyin guided outer Next yopildi');
+    }
+    await clickEnabledTheoryButton(await theoryNextButton(page), `${prefix} practice restore forward`, false);
+    count = await waitForScreenChange(page, guidedAgainCount.text);
+    if (count.current !== 3) throw new Error(`practice Forward ${count.text} ga o'tdi, kutilgan 3 / 15`);
+
+    const restoredPractice = await visibleRoundingLineRoot(page, 'practice', 4_000);
+    if (!restoredPractice) throw new Error('Forwarddan keyin practice rounding flow tiklanmadi');
+    await assertRoundingLineStep(restoredPractice, 1, `${prefix} restored practice`, 4_000);
+    if (!await visibleRoundingFeedback(page, 'wrong', 4_000)) {
+      throw new Error('Forwarddan keyin practice step 1 wrong holati saqlanmadi');
+    }
+    await assertOuterNextLocked(page, `${prefix} restored practice`);
+    if (!await auditVisibleRoundingLineFlow(page, `${prefix} finish practice`, { auditWrong: false })) {
+      throw new Error('tiklangan practice rounding flow tugatilmadi');
+    }
+    if (!(await waitForEnabledLocator(await theoryNextButton(page), 4_000))) {
+      throw new Error('tiklangan practice tugagach outer Next ochilmadi');
+    }
+    roundingBackPersistenceChecked += 1;
+  } catch (error) {
+    failures.push(`${prefix}: ${error.message}`);
   } finally {
     await context.close();
   }
@@ -3359,6 +3586,7 @@ try {
       await runStrictHookContracts(browser);
       await runStrictNormalMotionTitleTiming(browser);
       await runStrictBackNavigation(browser);
+      await runDars05RoundingBackPersistence(browser);
       await runDars08RapidBackPersistence(browser);
       await runStrictScreenMatrix(browser);
       await runAudioContractSmoke(browser);
@@ -3416,6 +3644,8 @@ if (failures.length) {
     + buildBranchScreensChecked + ' build wrong/retry/correct screens; '
     + matchingBranchScreensChecked + ' matching wrong/correct connector screens; '
     + rapidBranchScreensChecked + ' rapid four-round branch screens; '
+    + roundingLineScreensChecked + ' rounding-line three-step screens; '
+    + roundingBackPersistenceChecked + ' rounding-line Back persistence; '
     + rapidBackPersistenceChecked + ' rapid partial Back persistence; '
     + normalMotionTitleTimingsChecked + ' normal-motion title timing; '
     + (audioContractChecked ? 'audio runtime contract checked.' : 'audio runtime contract skipped.'),

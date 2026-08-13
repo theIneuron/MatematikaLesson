@@ -34,6 +34,19 @@ const REQUIRED_IDENTITIES = {
   ],
 };
 
+const REQUIRED_ROUNDING_LINE_FLOWS = {
+  guided: [
+    { id: 'tens', value: 48764, lower: 48760, upper: 48770, result: 48760 },
+    { id: 'hundreds', value: 48764, lower: 48700, upper: 48800, result: 48800 },
+    { id: 'thousands', value: 48764, lower: 48000, upper: 49000, result: 49000 },
+  ],
+  practice: [
+    { id: 'tens', value: 27364, lower: 27360, upper: 27370, result: 27360 },
+    { id: 'hundreds', value: 27364, lower: 27300, upper: 27400, result: 27400 },
+    { id: 'thousands', value: 27364, lower: 27000, upper: 28000, result: 27000 },
+  ],
+};
+
 const failures = [];
 const notes = [];
 const compact = (value) => String(value).replace(/[\s,_\u00a0]/g, '');
@@ -134,6 +147,115 @@ function romanValue(value) {
   return total;
 }
 
+function astPropertyName(property) {
+  if (!property || property.computed || property.type !== 'ObjectProperty') return null;
+  if (property.key.type === 'Identifier') return property.key.name;
+  if (property.key.type === 'StringLiteral') return property.key.value;
+  return null;
+}
+
+function astObjectProperties(node) {
+  if (node?.type !== 'ObjectExpression') return null;
+  const properties = new Map();
+  for (const property of node.properties) {
+    const name = astPropertyName(property);
+    if (!name || properties.has(name)) return null;
+    properties.set(name, property.value);
+  }
+  return properties;
+}
+
+function findTopLevelVariable(ast, name) {
+  for (const statement of ast.program.body) {
+    const declaration = statement.type === 'VariableDeclaration'
+      ? statement
+      : statement.type === 'ExportNamedDeclaration' && statement.declaration?.type === 'VariableDeclaration'
+        ? statement.declaration
+        : null;
+    if (!declaration) continue;
+    const match = declaration.declarations.find((item) => item.id?.type === 'Identifier' && item.id.name === name);
+    if (match) return { initializer: match.init, kind: declaration.kind };
+  }
+  return null;
+}
+
+function auditRoundingLineFlows(source, label) {
+  const ast = parse(source, { sourceType: 'module', plugins: ['jsx'] });
+  const declaration = findTopLevelVariable(ast, 'ROUNDING_LINE_FLOWS');
+  const root = astObjectProperties(declaration?.initializer);
+  if (!root) {
+    failures.push(`${label}: ROUNDING_LINE_FLOWS top-level object literal topilmadi`);
+    return;
+  }
+  if (declaration.kind !== 'const') {
+    failures.push(`${label}: ROUNDING_LINE_FLOWS const bilan e'lon qilinishi kerak`);
+  }
+
+  const expectedFlowNames = Object.keys(REQUIRED_ROUNDING_LINE_FLOWS);
+  if (root.size !== expectedFlowNames.length || expectedFlowNames.some((flow) => !root.has(flow))) {
+    failures.push(`${label}: ROUNDING_LINE_FLOWS faqat guided va practice massivlaridan iborat bo'lishi kerak`);
+    return;
+  }
+
+  let checked = 0;
+  for (const flow of expectedFlowNames) {
+    const array = root.get(flow);
+    const expectedSteps = REQUIRED_ROUNDING_LINE_FLOWS[flow];
+    if (array?.type !== 'ArrayExpression' || array.elements.length !== expectedSteps.length) {
+      failures.push(`${label}: ROUNDING_LINE_FLOWS.${flow} aniq 3 ta qadamli literal massiv bo'lishi kerak`);
+      continue;
+    }
+
+    array.elements.forEach((element, index) => {
+      const expected = expectedSteps[index];
+      const step = astObjectProperties(element);
+      const issuePrefix = `${label}: ROUNDING_LINE_FLOWS.${flow}[${index}]`;
+      const requiredFields = ['id', 'value', 'lower', 'upper', 'result'];
+      if (!step || step.size !== requiredFields.length || requiredFields.some((field) => !step.has(field))) {
+        failures.push(`${issuePrefix} faqat id/value/lower/upper/result literal maydonlariga ega bo'lishi kerak`);
+        return;
+      }
+
+      const idNode = step.get('id');
+      if (idNode?.type !== 'StringLiteral' || idNode.value !== expected.id) {
+        failures.push(`${issuePrefix}.id ${expected.id} bo'lishi va tens→hundreds→thousands tartibini saqlashi kerak`);
+      }
+
+      const actual = {};
+      for (const field of requiredFields.slice(1)) {
+        const node = step.get(field);
+        if (node?.type !== 'NumericLiteral' || !Number.isSafeInteger(node.value)) {
+          failures.push(`${issuePrefix}.${field} aniq butun NumericLiteral bo'lishi kerak`);
+          continue;
+        }
+        actual[field] = node.value;
+        if (node.value !== expected[field]) {
+          failures.push(`${issuePrefix}.${field} = ${node.value}, kutilgan ${expected[field]}`);
+        }
+      }
+
+      if (Object.keys(actual).length !== 4) return;
+      if (!(actual.lower < actual.value && actual.value < actual.upper)) {
+        failures.push(`${issuePrefix}: ${actual.value} soni ${actual.lower} va ${actual.upper} chegaralari orasida emas`);
+      }
+      if (actual.result !== actual.lower && actual.result !== actual.upper) {
+        failures.push(`${issuePrefix}: natija quyi yoki yuqori endpoint bo'lishi kerak`);
+      }
+      const lowerDistance = actual.value - actual.lower;
+      const upperDistance = actual.upper - actual.value;
+      const nearest = lowerDistance < upperDistance ? actual.lower : actual.upper;
+      if (actual.result !== nearest) {
+        failures.push(
+          `${issuePrefix}: ${actual.result} eng yaqin endpoint emas; `
+            + `masofalar ${lowerDistance} va ${upperDistance}, kutilgan ${nearest}`,
+        );
+      }
+      checked += 1;
+    });
+  }
+  notes.push(`${label}: ROUNDING_LINE_FLOWS dagi ${checked} ta sonlar o'qi qadamining tuple, chegara va yaqin natijasi tekshirildi`);
+}
+
 for (const label of lessonLabels) {
   const filename = path.join(ROOT, 'src', 'components', 'grade4', `${label}.jsx`);
   const source = await readFile(filename, 'utf8');
@@ -201,6 +323,8 @@ for (const label of lessonLabels) {
     }
     notes.push(`Dars07: ${pairs.length} ta Rim jufti I/V/X va 1-20 chegarasida tekshirildi`);
   }
+
+  if (label === 'Dars05') auditRoundingLineFlows(source, label);
 }
 
 for (const note of notes) console.log(`OK ${note}`);

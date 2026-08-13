@@ -251,6 +251,134 @@ const T = {
   shadowBase: '58, 53, 48',
 };
 
+const ROUNDING_LINE_FLOWS = {
+  guided: [
+    { id: 'tens', value: 48764, lower: 48760, upper: 48770, result: 48760 },
+    { id: 'hundreds', value: 48764, lower: 48700, upper: 48800, result: 48800 },
+    { id: 'thousands', value: 48764, lower: 48000, upper: 49000, result: 49000 },
+  ],
+  practice: [
+    { id: 'tens', value: 27364, lower: 27360, upper: 27370, result: 27360 },
+    { id: 'hundreds', value: 27364, lower: 27300, upper: 27400, result: 27400 },
+    { id: 'thousands', value: 27364, lower: 27000, upper: 28000, result: 27000 },
+  ],
+};
+
+const ROUNDING_LINE_COPY = {
+  guided: {
+    eyebrow: { uz: "Sonlar o'qida yaxlitlash", ru: 'Округление на числовой прямой', en: 'Rounding on a number line' },
+    title: { uz: "48 764 ni uch miqyosda yaxlitlaymiz", ru: 'Округляем 48 764 в трёх масштабах', en: 'Round 48,764 at three scales' },
+    lead: { uz: "Har qadamda sonlar o'qidagi yaqin yaxlit qo'shnini topamiz.", ru: 'На каждом шаге найдём ближайшего круглого соседа на числовой прямой.', en: 'At each step, find the nearest round neighbour on the number line.' },
+    steps: [
+      {
+        label: { uz: "O'nlikkacha", ru: 'До десятков', en: 'To the nearest ten' },
+        explanation: { uz: "48 764 soni 48 760 ga yaqinroq: masofalar 4 va 6.", ru: '48 764 ближе к 48 760: расстояния равны 4 и 6.', en: '48,764 is closer to 48,760: the distances are 4 and 6.' },
+        audio: {
+          intro: {
+            uz: [
+              "Yaxlitlash sonni unga yaqin, ishlatish qulayroq bo'lgan yaxlit son bilan almashtirishdir. Qirq sakkiz ming yetti yuz oltmish to'rt sonini o'nlikkacha yaxlitlaymiz. Kesmaga qarang.",
+              "Son qirq sakkiz ming yetti yuz oltmish va qirq sakkiz ming yetti yuz yetmish orasida. U quyi o'nlikka to'rt birlik, yuqori o'nlikka olti birlik masofada. Demak, quyi o'nlikka yaqinroq.",
+            ],
+            ru: [
+              'Округление означает замену числа близким круглым числом, с которым удобнее работать. Округлим сорок восемь тысяч семьсот шестьдесят четыре до десятков. Посмотри на отрезок.',
+              'Число находится между сорока восемью тысячами семьюстами шестьюдесятью и сорока восемью тысячами семьюстами семьюдесятью. До нижнего десятка четыре единицы, до верхнего шесть. Значит, нижний десяток ближе.',
+            ],
+            en: [
+              'Rounding replaces a number with a nearby round number that is easier to use. Round forty-eight thousand seven hundred and sixty-four to the nearest ten. Look at the number line.',
+              'The number lies between forty-eight thousand seven hundred and sixty and forty-eight thousand seven hundred and seventy. It is four units from the lower ten and six from the upper ten, so the lower ten is closer.',
+            ],
+          },
+        },
+      },
+      {
+        label: { uz: 'Yuzlikkacha', ru: 'До сотен', en: 'To the nearest hundred' },
+        explanation: { uz: "48 764 soni 48 800 ga yaqinroq: masofalar 64 va 36.", ru: '48 764 ближе к 48 800: расстояния равны 64 и 36.', en: '48,764 is closer to 48,800: the distances are 64 and 36.' },
+        audio: {
+          intro: {
+            uz: [
+              "Endi qirq sakkiz ming yetti yuz oltmish to'rt sonini yuzlikkacha yaxlitlaymiz. Kesmada u qirq sakkiz ming yetti yuz va qirq sakkiz ming sakkiz yuz orasida turibdi.",
+              "Quyi yuzlikkacha oltmish to'rt birlik, yuqori yuzlikkacha o'ttiz olti birlik bor. Shuning uchun yuqori yuzlik yaqinroq.",
+            ],
+            ru: [
+              'Теперь округлим сорок восемь тысяч семьсот шестьдесят четыре до сотен. На отрезке число находится между сорока восемью тысячами семьюстами и сорока восемью тысячами восемьюстами.',
+              'До нижней сотни шестьдесят четыре единицы, а до верхней тридцать шесть. Поэтому верхняя сотня ближе.',
+            ],
+            en: [
+              'Now round forty-eight thousand seven hundred and sixty-four to the nearest hundred. On the number line it lies between forty-eight thousand seven hundred and forty-eight thousand eight hundred.',
+              'The lower hundred is sixty-four units away, while the upper hundred is thirty-six units away. Therefore, the upper hundred is closer.',
+            ],
+          },
+        },
+      },
+      {
+        label: { uz: 'Minglikkacha', ru: 'До тысяч', en: 'To the nearest thousand' },
+        explanation: { uz: "48 764 soni 49 000 ga yaqinroq: masofalar 764 va 236.", ru: '48 764 ближе к 49 000: расстояния равны 764 и 236.', en: '48,764 is closer to 49,000: the distances are 764 and 236.' },
+        audio: {
+          intro: {
+            uz: [
+              "Uchinchi qadamda qirq sakkiz ming yetti yuz oltmish to'rt sonini minglikkacha yaxlitlaymiz. Kesmada u qirq sakkiz ming va qirq to'qqiz ming orasida turibdi.",
+              "Quyi minglikkacha yetti yuz oltmish to'rt birlik, yuqori minglikkacha ikki yuz o'ttiz olti birlik bor. Demak, qirq to'qqiz ming yaqinroq.",
+            ],
+            ru: [
+              'На третьем шаге округлим сорок восемь тысяч семьсот шестьдесят четыре до тысяч. На отрезке число находится между сорока восемью тысячами и сорока девятью тысячами.',
+              'До нижней тысячи семьсот шестьдесят четыре единицы, а до верхней двести тридцать шесть. Значит, сорок девять тысяч ближе.',
+            ],
+            en: [
+              'At the third step, round forty-eight thousand seven hundred and sixty-four to the nearest thousand. On the number line it lies between forty-eight thousand and forty-nine thousand.',
+              'The lower thousand is seven hundred and sixty-four units away, while the upper thousand is two hundred and thirty-six units away. Therefore, forty-nine thousand is closer.',
+            ],
+          },
+        },
+      },
+    ],
+  },
+  practice: {
+    eyebrow: { uz: "Chizmada o'zingiz ishlang", ru: 'Работаем по чертежу', en: 'Work from the diagram' },
+    title: { uz: "27 364 uchun yaqin sonni tanlang", ru: 'Выбери ближайшее число для 27 364', en: 'Choose the nearest number for 27,364' },
+    lead: { uz: "Har qadamda kesmaning to'g'ri chegarasini bevosita bosing.", ru: 'На каждом шаге нажми на верную границу отрезка.', en: 'At each step, select the correct endpoint on the number line.' },
+    steps: [
+      {
+        label: { uz: "O'nlikkacha", ru: 'До десятков', en: 'To the nearest ten' },
+        audio: {
+          intro: { uz: "Yigirma yetti ming uch yuz oltmish to'rt sonini o'nlikkacha yaxlitlang. Kesmada yaqinroq chegarani tanlang.", ru: 'Округли двадцать семь тысяч триста шестьдесят четыре до десятков. Выбери ближайшую границу отрезка.', en: 'Round twenty-seven thousand three hundred and sixty-four to the nearest ten. Select the closer endpoint on the number line.' },
+          on_correct: { uz: "To'g'ri. Son quyi o'nlikka to'rt birlik masofada, shuning uchun quyi chegara yaqinroq.", ru: 'Верно. До нижнего десятка четыре единицы, поэтому нижняя граница ближе.', en: 'Correct. The lower ten is four units away, so the lower endpoint is closer.' },
+          on_wrong: { uz: "Yuqori o'nlikkacha masofa kattaroq. Kesmada berilgan son bilan ikki chegara orasidagi masofani yana solishtiring.", ru: 'До верхнего десятка расстояние больше. Ещё раз сравни расстояния от числа до двух границ.', en: 'The upper ten is farther away. Compare the distances from the number to both endpoints again.' },
+        },
+      },
+      {
+        label: { uz: 'Yuzlikkacha', ru: 'До сотен', en: 'To the nearest hundred' },
+        audio: {
+          intro: { uz: "Yigirma yetti ming uch yuz oltmish to'rt sonini yuzlikkacha yaxlitlang. Yaqinroq yuzlikni tanlang.", ru: 'Округли двадцать семь тысяч триста шестьдесят четыре до сотен. Выбери ближайшую сотню.', en: 'Round twenty-seven thousand three hundred and sixty-four to the nearest hundred. Select the closer hundred.' },
+          on_correct: { uz: "To'g'ri. Yuqori yuzlikkacha o'ttiz olti birlik, quyi yuzlikkacha oltmish to'rt birlik bor. Yuqori chegara yaqinroq.", ru: 'Верно. До верхней сотни тридцать шесть единиц, а до нижней шестьдесят четыре. Верхняя граница ближе.', en: 'Correct. The upper hundred is thirty-six units away and the lower hundred is sixty-four units away. The upper endpoint is closer.' },
+          on_wrong: { uz: "Quyi yuzlikkacha masofa kattaroq. Kesmada ikki masofani yana solishtiring.", ru: 'До нижней сотни расстояние больше. Ещё раз сравни два расстояния на отрезке.', en: 'The lower hundred is farther away. Compare the two distances on the number line again.' },
+        },
+      },
+      {
+        label: { uz: 'Minglikkacha', ru: 'До тысяч', en: 'To the nearest thousand' },
+        audio: {
+          intro: { uz: "Yigirma yetti ming uch yuz oltmish to'rt sonini minglikkacha yaxlitlang. Yaqinroq minglikni tanlang.", ru: 'Округли двадцать семь тысяч триста шестьдесят четыре до тысяч. Выбери ближайшую тысячу.', en: 'Round twenty-seven thousand three hundred and sixty-four to the nearest thousand. Select the closer thousand.' },
+          on_correct: { uz: "To'g'ri. Quyi minglikkacha uch yuz oltmish to'rt birlik, yuqori minglikkacha olti yuz o'ttiz olti birlik bor. Quyi chegara yaqinroq.", ru: 'Верно. До нижней тысячи триста шестьдесят четыре единицы, а до верхней шестьсот тридцать шесть. Нижняя граница ближе.', en: 'Correct. The lower thousand is three hundred and sixty-four units away and the upper thousand is six hundred and thirty-six units away. The lower endpoint is closer.' },
+          on_wrong: { uz: "Yuqori minglikkacha masofa kattaroq. Kesmada ikki masofani yana solishtiring.", ru: 'До верхней тысячи расстояние больше. Ещё раз сравни два расстояния на отрезке.', en: 'The upper thousand is farther away. Compare the two distances on the number line again.' },
+        },
+      },
+    ],
+  },
+};
+
+const createRoundingFlowState = () => ({
+  guided: {
+    step: 0,
+    completed: [false, false, false],
+  },
+  practice: {
+    step: 0,
+    selected: [null, null, null],
+    wrongValues: [[], [], []],
+    attempts: [0, 0, 0],
+    completed: [false, false, false],
+  },
+});
+
 const CONTENT = {
   s0: {
     eyebrow: { ru: 'Новая миссия', uz: 'Yangi missiya' , en: "New mission"},
@@ -277,8 +405,6 @@ const CONTENT = {
     options: [
       { ru: 'Сначала определить, нужна точная или приблизительная запись', uz: 'Avval aniq yoki taqribiy yozuv kerakligini aniqlash', en: "First decide whether an exact or approximate form is needed" },
       { ru: 'Всегда заменять число ближайшей тысячей', uz: 'Har doim sonni eng yaqin minglik bilan almashtirish', en: "Always round to the nearest thousand" },
-      { ru: 'Всегда оставлять все цифры без изменений', uz: "Har doim barcha raqamlarni o'zgartirmay qoldirish", en: "Always leave every digit unchanged" },
-      { ru: 'Округлять каждую цифру отдельно', uz: 'Har bir raqamni alohida yaxlitlash', en: "Round each digit separately" },
     ],
     correctIndex: 0,
     correctText: {
@@ -289,8 +415,6 @@ const CONTENT = {
     wrong: [
       null,
       { ru: 'Тысячная точность подходит не каждой задаче.', uz: "Minglik aniqligi har bir vazifaga mos kelmaydi.", en: "Rounding to the nearest thousand does not suit every task." },
-      { ru: 'Для обзора все цифры иногда мешают быстро понять масштаб.', uz: "Umumiy ko'rishda barcha raqamlar miqyosni tez tushunishga xalaqit berishi mumkin.", en: "For an overview, too many digits can make the scale harder to see quickly." },
-      { ru: 'Цифры одного числа нельзя округлять независимо друг от друга.', uz: "Bitta son raqamlarini bir-biridan alohida yaxlitlab bo'lmaydi.", en: "The digits in one number cannot be rounded separately." },
     ],
     audio: {
       intro: {
@@ -318,8 +442,6 @@ const CONTENT = {
       on_wrong: [
         null,
         { ru: 'Сначала решаем, какая точность нужна в этой ситуации.', uz: "Avval bu vaziyatda qanday aniqlik kerakligini hal qilamiz.", en: "First, we decide what accuracy is needed in this situation." },
-        { ru: 'Приблизительная запись помогает быстрее увидеть масштаб.', uz: "Taqribiy yozuv miqyosni tezroq ko'rishga yordam beradi.", en: "An approximate value makes the scale easier to see." },
-        { ru: 'Округляем число целиком до выбранного разряда.', uz: 'Sonni tanlangan xonagacha yaxlitlaymiz.', en: "Round the whole number to the selected place." },
       ],
     },
   },
@@ -1272,8 +1394,8 @@ const PRACTICE_CONTENT = {
 
 const SCREEN_PLAN = [
   { id: 's0', type: 'hook', subtype: 'rounding-mission', template: 'HookChoice', goal: 'Distinguish exact data from approximation', misconceptions: ['always round'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'round-to-tens', template: 'GuidedReveal', goal: 'Explain rounding to tens', misconceptions: ['wrong deciding digit'], active: true, scored: false, scope: null },
-  { id: 's2', contentKey: 's3', type: 'exploration', subtype: 'round-to-hundreds', template: 'ModelCompare', goal: 'Explain the rounding threshold', misconceptions: ['five rounds down'], active: true, scored: false, scope: null },
+  { id: 's1', type: 'exploration', subtype: 'guided-rounding-line', template: 'GuidedRoundingLine', goal: 'Discover rounding to tens, hundreds and thousands on number lines', misconceptions: ['wrong deciding digit', 'one result for every target'], active: true, scored: false, scope: null },
+  { id: 's2', type: 'exploration', subtype: 'rounding-line-selection', template: 'RoundingLineSelection', goal: 'Choose the nearest endpoint at three rounding scales', misconceptions: ['choose the farther endpoint', 'one result for every target'], active: true, scored: false, scope: null },
   { id: 's3', contentKey: 'p1', type: 'test', subtype: 'round-to-tens-check', template: 'MCScreen', goal: 'Round to tens after the decision rule is known', misconceptions: ['round down on six'], active: true, scored: true, scope: 'module-mikro' },
   { id: 's4', contentKey: 's2', type: 'exploration', subtype: 'multi-scale-rounding', template: 'ModelCompare', goal: 'Connect one number to tens, hundreds and thousands models', misconceptions: ['one result for every target'], active: true, scored: false, scope: null },
   { id: 's5', contentKey: 'p2', type: 'test', subtype: 'round-to-hundreds-check', template: 'MCScreen', goal: 'Round to hundreds', misconceptions: ['keep tens'], active: true, scored: true, scope: 'module-mikro' },
@@ -2207,15 +2329,21 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
     >
       <div className={`screen-stack ${isHook ? 'hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
         {isHook ? (
-          <section className="hook-topic-scene" data-g4-role="hook-scene">
-            <div className="hook-topic-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
-            <div className="hook-topic-copy">
-              <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · MISSION' : lang === 'ru' ? 'LUMO CITY · МИССИЯ' : 'LUMO CITY · MISSIYA'}</span>
-              <h1>{t(c.title)}</h1>
-              <p>{t(c.lead)}</p>
-              <ModelPanel model={c.model} solved={solved} />
+          <>
+            <div className="screen-heading hook-topic-heading">
+              <div className="heading-copy">
+                <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · MISSION' : lang === 'ru' ? 'LUMO CITY · МИССИЯ' : 'LUMO CITY · MISSIYA'}</span>
+                <h1>{t(c.title)}</h1>
+                <p>{t(c.lead)}</p>
+              </div>
             </div>
-          </section>
+            <section className="hook-topic-scene" data-g4-role="hook-scene">
+              <div className="hook-topic-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+              <div className="hook-topic-model">
+                <ModelPanel model={c.model} solved={solved} />
+              </div>
+            </section>
+          </>
         ) : (
           <>
             <div className="screen-heading">
@@ -2782,6 +2910,335 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
     </Stage>
   );
 };
+const ROUNDING_LINE_UI = {
+  step: { uz: 'Qadam', ru: 'Шаг', en: 'Step' },
+  nextStep: { uz: 'Keyingi qadam', ru: 'Следующий шаг', en: 'Next step' },
+  allStepsDone: { uz: 'Uch qadam bajarildi', ru: 'Три шага выполнены', en: 'All three steps are complete' },
+  listenFirst: { uz: 'Avval tushuntirishni tinglang', ru: 'Сначала послушай объяснение', en: 'Listen to the explanation first' },
+  approximateEquals: { uz: 'taqriban teng', ru: 'приблизительно равно', en: 'is approximately equal to' },
+  lowerEndpoint: { uz: 'Quyi chegara', ru: 'Нижняя граница', en: 'Lower endpoint' },
+  upperEndpoint: { uz: 'Yuqori chegara', ru: 'Верхняя граница', en: 'Upper endpoint' },
+  givenNumber: { uz: 'Berilgan son', ru: 'Данное число', en: 'Given number' },
+  numberLine: { uz: "Gorizontal sonlar o'qi", ru: 'Горизонтальная числовая прямая', en: 'Horizontal number line' },
+};
+
+const formatRoundingNumber = (value) => String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+
+const RoundingProgress = ({ step }) => {
+  const t = useT();
+  return (
+    <div className="rounding-progress" aria-label={`${t(ROUNDING_LINE_UI.step)} ${step + 1} / 3`}>
+      {[0, 1, 2].map((index) => (
+        <span
+          key={index}
+          className={index < step ? 'is-done' : index === step ? 'is-current' : ''}
+          aria-hidden="true"
+        />
+      ))}
+      <b>{t(ROUNDING_LINE_UI.step)} {step + 1} / 3</b>
+    </div>
+  );
+};
+
+const RoundingNumberLine = ({ data, interactive = false, selected = null, wrongValues = [], complete = false, disabled = false, onSelect }) => {
+  const t = useT();
+  const markerPosition = ((data.value - data.lower) / (data.upper - data.lower)) * 100;
+  const endpointValues = [data.lower, data.upper];
+  const lineLabel = `${t(ROUNDING_LINE_UI.numberLine)}. ${formatRoundingNumber(data.lower)}, ${t(ROUNDING_LINE_UI.givenNumber)} ${formatRoundingNumber(data.value)}, ${formatRoundingNumber(data.upper)}.`;
+
+  return (
+    <div className={`rounding-number-line ${interactive ? 'is-interactive' : ''}`} aria-label={lineLabel}>
+      <div className="rounding-source-number">{formatRoundingNumber(data.value)}</div>
+      <div className="rounding-axis" aria-hidden={!interactive}>
+        <span className="rounding-midpoint" aria-hidden="true" />
+        <span
+          className="rounding-given-point"
+          style={{ '--rounding-position': `${markerPosition}%` }}
+          aria-hidden="true"
+        >
+          <i />
+          <b>{formatRoundingNumber(data.value)}</b>
+        </span>
+        {endpointValues.map((value, index) => {
+          const side = index === 0 ? 'lower' : 'upper';
+          const isCorrect = value === data.result;
+          const isWrong = wrongValues.includes(value);
+          const isSelected = selected === value;
+          const className = [
+            'rounding-endpoint',
+            `rounding-endpoint-${side}`,
+            isWrong ? 'is-wrong' : '',
+            complete && isCorrect ? 'is-correct' : '',
+            isSelected ? 'is-selected' : '',
+          ].filter(Boolean).join(' ');
+          const endpointLabel = side === 'lower' ? ROUNDING_LINE_UI.lowerEndpoint : ROUNDING_LINE_UI.upperEndpoint;
+
+          if (!interactive) {
+            return (
+              <span className={className} key={value} aria-hidden="true">
+                <i />
+                <b>{formatRoundingNumber(value)}</b>
+              </span>
+            );
+          }
+
+          return (
+            <button
+              type="button"
+              className={className}
+              key={value}
+              data-g4-branch="line-point"
+              data-g4-correct={String(isCorrect)}
+              data-qa-rounding-endpoint={side}
+              aria-label={`${t(endpointLabel)}: ${formatRoundingNumber(value)}`}
+              aria-pressed={isSelected}
+              disabled={disabled || complete || isWrong}
+              onClick={() => onSelect?.(value)}
+            >
+              <i aria-hidden="true" />
+              <b>{formatRoundingNumber(value)}</b>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const RoundingEquation = ({ data, show }) => {
+  const t = useT();
+  const left = formatRoundingNumber(data.value);
+  const right = formatRoundingNumber(data.result);
+  return (
+    <div className="rounding-equation-slot" aria-live="polite">
+      {show && (
+        <div
+          className="rounding-equation"
+          data-qa-rounding-equation
+          role="img"
+          aria-label={`${left} ${t(ROUNDING_LINE_UI.approximateEquals)} ${right}`}
+        >
+          <span aria-hidden="true">{left}</span>
+          <strong aria-hidden="true">≈</strong>
+          <span aria-hidden="true">{right}</span>
+        </div>
+      )}
+    </div>
+  );
+};
+
+const RoundingFeedback = ({ kind, children }) => (
+  <div className="rounding-feedback-slot" aria-live="polite">
+    {kind && (
+      <div className={`rounding-feedback rounding-feedback-${kind}`} data-g4-feedback={kind} role="status">
+        <span aria-hidden="true">{kind === 'solution' ? '✓' : '↺'}</span>
+        <p>{children}</p>
+      </div>
+    )}
+  </div>
+);
+
+const GuidedRoundingLineStep = ({ screen, onNext, onPrev, roundingFlowState, onRoundingFlowState }) => {
+  const lang = useLang();
+  const t = useT();
+  const flowState = roundingFlowState.guided;
+  const step = Math.max(0, Math.min(2, flowState.step));
+  const data = ROUNDING_LINE_FLOWS.guided[step];
+  const copy = ROUNDING_LINE_COPY.guided;
+  const stepCopy = copy.steps[step];
+  const segments = useMemo(
+    () => localizedSegments(stepCopy.audio.intro, lang, `s1-rounding-${data.id}`),
+    [data.id, lang, stepCopy.audio.intro],
+  );
+  const audio = useAudio(segments);
+  const narrationDone = audio.muted || audio.completed;
+  const storedComplete = flowState.completed[step] === true;
+  const revealed = storedComplete || narrationDone;
+
+  useEffect(() => {
+    if (!narrationDone || storedComplete) return;
+    onRoundingFlowState('guided', (previous) => {
+      if (previous.completed[step]) return previous;
+      const completed = [...previous.completed];
+      completed[step] = true;
+      return { ...previous, completed };
+    });
+  }, [narrationDone, onRoundingFlowState, step, storedComplete]);
+
+  const goToNextStep = () => {
+    if (!revealed || !narrationDone || step >= 2) return;
+    onRoundingFlowState('guided', (previous) => ({ ...previous, step: step + 1 }));
+  };
+  const canAdvance = step === 2 && revealed && narrationDone;
+
+  return (
+    <Stage
+      screen={screen}
+      eyebrow={copy.eyebrow}
+      audio={audio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
+    >
+      <div
+        className="screen-stack rounding-flow-screen"
+        data-g4-mechanic="GuidedRoundingLine"
+        data-qa-rounding-flow="guided"
+        data-qa-rounding-step={step}
+      >
+        <div className="rounding-flow-heading">
+          <span className="lesson-kicker">LUMO CITY · {t(stepCopy.label)}</span>
+          <h1>{t(copy.title)}</h1>
+          <p>{t(copy.lead)}</p>
+        </div>
+        <section className="rounding-flow-card">
+          <RoundingProgress step={step} />
+          <RoundingNumberLine data={data} />
+          <RoundingEquation data={data} show={revealed} />
+          <div className={`rounding-guided-explanation ${revealed ? 'is-visible' : ''}`} aria-live="polite">
+            <span aria-hidden="true">{revealed ? '✓' : '♪'}</span>
+            <p>{revealed ? t(stepCopy.explanation) : t(ROUNDING_LINE_UI.listenFirst)}</p>
+          </div>
+          <div className="rounding-action-slot">
+            {step < 2 ? (
+              <button
+                type="button"
+                className="btn btn-white-accent rounding-step-next"
+                data-qa-rounding-next
+                disabled={!revealed || !narrationDone}
+                onClick={goToNextStep}
+              >
+                {t(ROUNDING_LINE_UI.nextStep)} <span aria-hidden="true">→</span>
+              </button>
+            ) : (
+              <span className={`rounding-complete-note ${canAdvance ? 'is-visible' : ''}`}>
+                <i aria-hidden="true">✓</i> {t(ROUNDING_LINE_UI.allStepsDone)}
+              </span>
+            )}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+};
+
+const GuidedRoundingLineScreen = (props) => {
+  const lang = useLang();
+  const step = props.roundingFlowState.guided.step;
+  return <GuidedRoundingLineStep key={`guided-${lang}-${step}`} {...props} />;
+};
+
+const RoundingLinePracticeStep = ({ screen, onNext, onPrev, roundingFlowState, onRoundingFlowState }) => {
+  const lang = useLang();
+  const t = useT();
+  const flowState = roundingFlowState.practice;
+  const step = Math.max(0, Math.min(2, flowState.step));
+  const data = ROUNDING_LINE_FLOWS.practice[step];
+  const copy = ROUNDING_LINE_COPY.practice;
+  const stepCopy = copy.steps[step];
+  const selected = flowState.selected[step];
+  const wrongValues = flowState.wrongValues[step];
+  const complete = flowState.completed[step] === true;
+  const segments = useMemo(
+    () => localizedSegments(stepCopy.audio.intro, lang, `s2-rounding-${data.id}`),
+    [data.id, lang, stepCopy.audio.intro],
+  );
+  const audio = useAudio(segments);
+  const audioReady = audio.muted || audio.completed;
+
+  const selectEndpoint = (value) => {
+    if (!audioReady || complete || wrongValues.includes(value)) return;
+    const correct = value === data.result;
+    onRoundingFlowState('practice', (previous) => {
+      const nextSelected = [...previous.selected];
+      const nextWrongValues = previous.wrongValues.map((items) => [...items]);
+      const nextAttempts = [...previous.attempts];
+      const nextCompleted = [...previous.completed];
+      nextSelected[step] = value;
+      nextAttempts[step] += 1;
+      if (correct) nextCompleted[step] = true;
+      else if (!nextWrongValues[step].includes(value)) nextWrongValues[step].push(value);
+      return {
+        ...previous,
+        selected: nextSelected,
+        wrongValues: nextWrongValues,
+        attempts: nextAttempts,
+        completed: nextCompleted,
+      };
+    });
+    playSfx(correct ? 'correct' : 'wrong');
+    audio.pushOneOff(t(correct ? stepCopy.audio.on_correct : stepCopy.audio.on_wrong));
+  };
+
+  const goToNextStep = () => {
+    if (!complete || !audioReady || step >= 2) return;
+    onRoundingFlowState('practice', (previous) => ({ ...previous, step: step + 1 }));
+  };
+  const feedbackKind = selected === null ? null : complete ? 'solution' : 'wrong';
+  const canAdvance = step === 2 && complete && audioReady;
+
+  return (
+    <Stage
+      screen={screen}
+      eyebrow={copy.eyebrow}
+      audio={audio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
+    >
+      <div
+        className="screen-stack rounding-flow-screen"
+        data-g4-mechanic="RoundingLineSelection"
+        data-qa-rounding-flow="practice"
+        data-qa-rounding-step={step}
+      >
+        <div className="rounding-flow-heading">
+          <span className="lesson-kicker">LUMO CITY · {t(stepCopy.label)}</span>
+          <h1>{t(copy.title)}</h1>
+          <p>{t(copy.lead)}</p>
+        </div>
+        <section className="rounding-flow-card rounding-practice-card">
+          <RoundingProgress step={step} />
+          <RoundingNumberLine
+            data={data}
+            interactive
+            selected={selected}
+            wrongValues={wrongValues}
+            complete={complete}
+            disabled={!audioReady}
+            onSelect={selectEndpoint}
+          />
+          <RoundingEquation data={data} show={complete} />
+          <RoundingFeedback kind={feedbackKind}>
+            {feedbackKind === 'solution'
+              ? t(stepCopy.audio.on_correct)
+              : t(stepCopy.audio.on_wrong)}
+          </RoundingFeedback>
+          <div className="rounding-action-slot">
+            {step < 2 ? (
+              <button
+                type="button"
+                className="btn btn-white-accent rounding-step-next"
+                data-qa-rounding-next
+                disabled={!complete || !audioReady}
+                onClick={goToNextStep}
+              >
+                {t(ROUNDING_LINE_UI.nextStep)} <span aria-hidden="true">→</span>
+              </button>
+            ) : (
+              <span className={`rounding-complete-note ${canAdvance ? 'is-visible' : ''}`}>
+                <i aria-hidden="true">✓</i> {t(ROUNDING_LINE_UI.allStepsDone)}
+              </span>
+            )}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+};
+
+const RoundingLinePracticeScreen = (props) => {
+  const lang = useLang();
+  const step = props.roundingFlowState.practice.step;
+  return <RoundingLinePracticeStep key={`practice-${lang}-${step}`} {...props} />;
+};
+
 const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   const lang = useLang();
   const t = useT();
@@ -2867,8 +3324,8 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
 };
 
 const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" />;
-const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
-const Screen2 = (props) => <MicroTheoryScreen {...props} contentKey="s3" />;
+const Screen1 = (props) => <GuidedRoundingLineScreen {...props} />;
+const Screen2 = (props) => <RoundingLinePracticeScreen {...props} />;
 const Screen3 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
 const Screen4 = (props) => <MicroTheoryScreen {...props} contentKey="s2" />;
 const Screen5 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
@@ -2905,6 +3362,7 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
+  const [roundingFlowState, setRoundingFlowState] = useState(createRoundingFlowState);
   const [titleClaimed, setTitleClaimed] = useState(false);
   const [finalReflection, setFinalReflection] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- duration requires a mount timestamp
@@ -2916,6 +3374,14 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
       const next = [...previous];
       next[data.screenIdx] = data;
       return next;
+    });
+  }, []);
+
+  const updateRoundingFlowState = useCallback((flow, updater) => {
+    setRoundingFlowState((previous) => {
+      const nextFlow = typeof updater === 'function' ? updater(previous[flow]) : updater;
+      if (nextFlow === previous[flow]) return previous;
+      return { ...previous, [flow]: nextFlow };
     });
   }, []);
 
@@ -2975,6 +3441,8 @@ export default function Grade4Dars05({ studentName, lang: langProp, ttsApiBase, 
           onClaimTitle={() => setTitleClaimed(true)}
           reflectionChoice={finalReflection}
           onReflectionChoice={setFinalReflection}
+          roundingFlowState={roundingFlowState}
+          onRoundingFlowState={updateRoundingFlowState}
         />
       </div>
     </LangContext.Provider>
@@ -3137,21 +3605,23 @@ html, body { margin: 0; padding: 0; }
 .stage-content > .screen-stack { max-height: 100%; transform-origin: top center; }
 .hook-topic-scene { min-height: 196px; padding: 14px 18px; display: grid; grid-template-columns: 96px minmax(0,1fr); align-items: center; gap: 16px; overflow: hidden; border-radius: 23px; color: ${T.paper}; background: radial-gradient(circle at 87% 24%, rgba(121,211,218,.16), transparent 24%),radial-gradient(circle at 9% 88%, rgba(149,201,61,.11), transparent 25%),linear-gradient(145deg, rgba(22,143,163,.25), transparent 48%),linear-gradient(135deg, #153B50, #0B2232 72%); box-shadow: 0 20px 38px -27px rgba(23,59,82,.78); }
 .hook-screen { gap: 8px; }
-.hook-screen .hook-topic-scene { min-height: 156px; padding-block: 9px; }
+.hook-screen .hook-topic-scene { min-height: 116px; padding-block: 8px; }
 .hook-screen .hook-topic-bit { width: 78px; height: 102px; }
 .hook-screen .hook-question-card { padding-block: 9px; }
+.hook-screen .hook-question-card .option { font-size: 12px; }
 .hook-screen .feedback { height: 74px; margin-top: 6px; }
 .hook-screen .feedback-card { min-height: 74px; padding-block: 5px; grid-template-columns: 64px minmax(0,1fr); }
 .hook-screen .feedback-card .g1-char { width: 56px; height: 60px; }
 .hook-topic-bit { width: 92px; height: 120px; align-self: end; }
 .hook-topic-bit .g1-char { width: 100%; height: 100%; }
-.hook-topic-copy { min-width: 0; display: grid; gap: 7px; }
-.hook-topic-copy .lesson-kicker { color: #9DEBF7; }
-.hook-topic-copy h1 { margin: 0; color: ${T.paper}; font: 650 clamp(21px,3.3vw,31px)/1.08 'Source Serif 4',serif; }
-.hook-topic-copy > p { color: rgba(255,255,255,.76); font-size: 12px; line-height: 1.38; }
-.hook-topic-copy .model-panel { min-height: 0; margin-top: 3px; padding: 10px 12px; color: ${T.ink}; background: rgba(255,255,255,.94); }
-.hook-topic-copy .model-heading { margin-bottom: 5px; }
-.hook-topic-copy .context-card { min-height: 54px; padding: 7px 9px; }
+.hook-topic-heading { grid-template-columns: minmax(0,1fr); }
+.hook-topic-heading .heading-copy h1 { font-size: clamp(24px,3.4vw,34px); }
+.hook-topic-heading .heading-copy p { margin-top: 5px; font-size: 12px; line-height: 1.35; }
+.hook-topic-model { min-width: 0; }
+.hook-topic-model .model-panel { min-height: 0; padding: 8px 10px; border-radius: 0; background: transparent; box-shadow: none; }
+.hook-topic-model .model-panel::after { display: none; }
+.hook-topic-model .model-heading { margin-bottom: 5px; }
+.hook-topic-model .context-card { min-height: 54px; padding: 7px 9px; }
 .hook-question-card { padding: 13px 15px; }
 .hook-question-card .options-grid { margin-top: 10px; }
 .micro-theory-screen { width: 100%; max-height: 100%; gap: 10px; }
@@ -3191,6 +3661,214 @@ html, body { margin: 0; padding: 0; }
 .micro-theory-result-visible { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
 .micro-theory-result .g1-char { width: 52px; height: 65px; }
 .micro-theory-result p { color: inherit; font-size: 12px; line-height: 1.4; font-weight: 750; }
+.rounding-flow-screen {
+  height: 100%;
+  max-height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0,1fr);
+  gap: 9px;
+  overflow: hidden;
+}
+.rounding-flow-heading { min-width: 0; }
+.rounding-flow-heading .lesson-kicker { margin-bottom: 5px; }
+.rounding-flow-heading h1 {
+  font: 650 clamp(24px,3.8vw,38px)/1.04 'Source Serif 4',serif;
+  letter-spacing: -.02em;
+}
+.rounding-flow-heading p {
+  margin-top: 5px;
+  color: ${T.ink2};
+  font-size: 12px;
+  line-height: 1.35;
+}
+.rounding-flow-card {
+  min-height: 0;
+  padding: 10px 14px;
+  display: grid;
+  grid-template-rows: 20px minmax(126px,1fr) 48px 62px 46px;
+  gap: 5px;
+  overflow: hidden;
+  border-radius: 20px;
+  background: rgba(255,255,255,.9);
+  box-shadow: 0 14px 32px -22px rgba(${T.shadowBase},.44);
+}
+.rounding-progress {
+  display: grid;
+  grid-template-columns: repeat(3,minmax(24px,1fr)) auto;
+  align-items: center;
+  gap: 6px;
+}
+.rounding-progress > span {
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(135,148,157,.22);
+}
+.rounding-progress > span.is-current { background: ${T.accent}; box-shadow: 0 0 9px rgba(255,91,53,.38); }
+.rounding-progress > span.is-done { background: ${T.success}; }
+.rounding-progress b {
+  color: ${T.ink2};
+  font: 800 9px/1 'JetBrains Mono',monospace;
+  white-space: nowrap;
+}
+.rounding-number-line {
+  min-height: 126px;
+  padding: 5px 11px 0;
+  display: grid;
+  grid-template-rows: 37px minmax(82px,1fr);
+  align-content: center;
+  border-radius: 15px;
+  color: ${T.paper};
+  background:
+    radial-gradient(circle at 84% 16%,rgba(149,201,61,.14),transparent 25%),
+    linear-gradient(145deg,${T.navy},#0D2B3E);
+  box-shadow: 0 12px 28px -22px rgba(23,59,82,.72);
+}
+.rounding-source-number {
+  align-self: center;
+  color: ${T.paper};
+  font: 850 clamp(23px,4vw,35px)/1 'JetBrains Mono',monospace;
+  letter-spacing: .05em;
+  text-align: center;
+}
+.rounding-axis {
+  position: relative;
+  min-height: 82px;
+  margin: 21px 48px 0;
+  border-top: 3px solid rgba(255,255,255,.66);
+}
+.rounding-midpoint {
+  position: absolute;
+  top: -9px;
+  left: 50%;
+  width: 2px;
+  height: 15px;
+  border-radius: 2px;
+  background: rgba(255,255,255,.58);
+  transform: translateX(-50%);
+}
+.rounding-endpoint,
+.rounding-given-point {
+  position: absolute;
+  top: -23px;
+  width: 96px;
+  min-height: 70px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 31px 3px 7px;
+  color: ${T.paper};
+  background: transparent;
+  border: 0;
+  border-radius: 12px;
+  font: 800 12px/1 'JetBrains Mono',monospace;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.rounding-endpoint-lower { left: 0; }
+.rounding-endpoint-upper { left: 100%; }
+.rounding-given-point { left: var(--rounding-position); color: #9DE3E7; pointer-events: none; }
+.rounding-endpoint i,
+.rounding-given-point i {
+  position: absolute;
+  top: 15px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  border: 3px solid ${T.navy};
+  border-radius: 50%;
+  background: ${T.paper};
+  box-shadow: 0 0 0 2px rgba(255,255,255,.38);
+  transform: translate(-50%,-50%);
+}
+.rounding-given-point i { background: ${T.cyan}; box-shadow: 0 0 0 2px #9DE3E7,0 0 12px rgba(91,214,242,.42); }
+.rounding-endpoint b,
+.rounding-given-point b { padding: 4px 5px; border-radius: 7px; }
+.rounding-number-line.is-interactive .rounding-endpoint { cursor: pointer; transition: color .18s ease,background .18s ease,transform .18s ease; }
+.rounding-number-line.is-interactive .rounding-endpoint:hover:not(:disabled),
+.rounding-number-line.is-interactive .rounding-endpoint:focus-visible { color: ${T.navy}; background: ${T.cyanSoft}; transform: translateX(-50%) translateY(-1px); }
+.rounding-number-line.is-interactive .rounding-endpoint:disabled { cursor: default; }
+.rounding-endpoint.is-wrong { color: #FFD4C9; background: rgba(255,91,53,.18); }
+.rounding-endpoint.is-wrong i { background: ${T.accent}; box-shadow: 0 0 0 2px #FFB4A3; }
+.rounding-endpoint.is-correct { color: ${T.navy}; background: ${T.successSoft}; }
+.rounding-endpoint.is-correct i { background: ${T.lime}; box-shadow: 0 0 0 2px #C8E88D,0 0 12px rgba(149,201,61,.42); }
+.rounding-equation-slot {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+}
+.rounding-equation {
+  min-height: 44px;
+  padding: 6px 15px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 13px;
+  color: ${T.navy};
+  background: ${T.cyanSoft};
+  font: 850 clamp(17px,2.8vw,24px)/1 'JetBrains Mono',monospace;
+  animation: explanation-copy-in .35s ease both;
+}
+.rounding-equation strong { color: ${T.accent}; font-size: 1.2em; }
+.rounding-guided-explanation,
+.rounding-feedback-slot {
+  min-height: 62px;
+}
+.rounding-guided-explanation,
+.rounding-feedback {
+  height: 100%;
+  min-height: 62px;
+  padding: 7px 10px;
+  display: grid;
+  grid-template-columns: 31px minmax(0,1fr);
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+  border-radius: 13px;
+  color: ${T.warn};
+  background: ${T.warnSoft};
+  box-shadow: inset 4px 0 0 ${T.warn};
+}
+.rounding-guided-explanation.is-visible,
+.rounding-feedback-solution { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
+.rounding-guided-explanation > span,
+.rounding-feedback > span {
+  width: 29px;
+  height: 29px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: ${T.paper};
+  background: ${T.warn};
+  font-weight: 900;
+}
+.rounding-guided-explanation.is-visible > span,
+.rounding-feedback-solution > span { background: ${T.success}; }
+.rounding-feedback-wrong > span { background: ${T.accent}; }
+.rounding-guided-explanation > span,
+.rounding-feedback > span { text-shadow: 0 1px 0 rgba(0,0,0,.18); }
+.rounding-guided-explanation p,
+.rounding-feedback p { color: ${T.ink2}; font-size: 11px; line-height: 1.3; font-weight: 730; }
+.rounding-feedback-wrong { color: ${T.accent}; background: ${T.accentSoft}; box-shadow: inset 4px 0 0 ${T.accent}; }
+.rounding-action-slot {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+.rounding-step-next { min-height: 44px; }
+.rounding-complete-note {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: ${T.success};
+  font-size: 12px;
+  font-weight: 850;
+  opacity: 0;
+}
+.rounding-complete-note.is-visible { opacity: 1; }
+.rounding-complete-note i { width: 26px; height: 26px; display: grid; place-items: center; border-radius: 50%; color: ${T.paper}; background: ${T.success}; font-style: normal; }
 .hook-question { display: flex; align-items: center; gap: 10px; min-width: 0; padding: 10px 14px; border-radius: 16px; color: ${T.navy}; background: ${T.cyanSoft}; }
 .hook-question span { width: 28px; height: 28px; flex: 0 0 28px; display: grid; place-items: center; border-radius: 50%; color: white; background: ${T.cyan}; font-weight: 900; }
 .hook-question strong { font-size: clamp(13px, 2vw, 17px); overflow-wrap: anywhere; }
@@ -3704,22 +4382,30 @@ html, body { margin: 0; padding: 0; }
   .screen-type { display: none; }
   .chrome-title { max-width: 170px; font-size: 11px; }
   .screen-stack { gap: 12px; }
-  .hook-topic-scene { min-height: 142px; padding: 8px 10px; grid-template-columns: 62px minmax(0,1fr); gap: 7px; border-radius: 19px; }
-  .hook-topic-bit { width: 66px; height: 88px; }
+  .hook-screen { gap: 6px; }
+  .hook-topic-heading .lesson-kicker { margin-bottom: 3px; font-size: 9px; }
+  .hook-topic-heading .heading-copy h1 { font-size: 20px; line-height: 1.05; }
+  .hook-topic-heading .heading-copy p { margin-top: 3px; font-size: 10px; line-height: 1.22; }
+  .hook-screen .hook-topic-scene { min-height: 108px; padding: 5px 8px; grid-template-columns: 56px minmax(0,1fr); gap: 5px; border-radius: 19px; }
+  .hook-screen .hook-topic-bit { width: 56px; height: 78px; }
+  .hook-topic-model .model-panel { padding: 4px 6px; }
   .hook-topic-copy h1 { font-size: 20px; }
   .hook-topic-copy > p { font-size: 10px; line-height: 1.28; }
   .hook-topic-copy .model-panel { padding: 7px 8px; }
   .hook-screen .model-dashboard .model-heading { margin-bottom: 5px; font-size: 8px; }
   .hook-screen .model-dashboard .context-cards { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; }
-  .hook-screen .model-dashboard .context-card { min-height: 76px; padding: 6px; gap: 4px; }
+  .hook-screen .model-dashboard .context-card { min-height: 58px; padding: 4px 5px; gap: 3px; }
   .hook-screen .model-dashboard .context-card span { font-size: 7px; letter-spacing: .04em; }
   .hook-screen .model-dashboard .context-card strong { font-size: 16px; }
   .hook-screen .model-dashboard .context-card em { padding: 4px 5px; font-size: 8px; }
-  .hook-question-card { padding: 10px 11px; }
+  .hook-question-card { padding: 7px 9px; }
   .hook-question-card .question-topline { margin-bottom: 4px; }
-  .hook-question-card h2 { font-size: 17px; }
+  .hook-question-card h2 { font-size: 16px; line-height: 1.15; }
   .hook-question-card .options-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; }
   .hook-question-card .option { min-height: 54px; padding: 7px 8px; font-size: 11px; }
+  .hook-screen .feedback { height: 64px; margin-top: 4px; }
+  .hook-screen .feedback-card { min-height: 64px; padding-block: 4px; grid-template-columns: 54px minmax(0,1fr); }
+  .hook-screen .feedback-card .g1-char { width: 48px; height: 54px; }
   .micro-action-row button { min-height: 44px; }
   .micro-scale-model { grid-template-columns: 1fr; gap: 6px; padding: 7px 8px; }
   .micro-scale-model > strong { font-size: 17px; text-align: center; }
@@ -3733,6 +4419,24 @@ html, body { margin: 0; padding: 0; }
   .micro-error-drafts > div { padding: 5px 3px; }
   .micro-error-drafts span { font-size: 7px; }
   .micro-error-drafts strong { font-size: 10px; }
+  .rounding-flow-screen { gap: 7px; }
+  .rounding-flow-heading .lesson-kicker { margin-bottom: 3px; font-size: 9px; }
+  .rounding-flow-heading h1 { font-size: 23px; }
+  .rounding-flow-heading p { margin-top: 3px; font-size: 10px; line-height: 1.25; }
+  .rounding-flow-card { padding: 8px 9px; grid-template-rows: 18px minmax(122px,1fr) 46px 60px 44px; gap: 4px; border-radius: 16px; }
+  .rounding-progress { gap: 4px; }
+  .rounding-progress b { font-size: 8px; }
+  .rounding-number-line { min-height: 122px; padding-inline: 5px; grid-template-rows: 34px minmax(80px,1fr); }
+  .rounding-source-number { font-size: 25px; }
+  .rounding-axis { min-height: 80px; margin: 20px 47px 0; }
+  .rounding-endpoint,.rounding-given-point { width: 92px; min-height: 68px; font-size: 11px; }
+  .rounding-equation-slot { min-height: 46px; }
+  .rounding-equation { min-height: 42px; padding-inline: 10px; gap: 8px; font-size: 17px; }
+  .rounding-guided-explanation,.rounding-feedback-slot { min-height: 60px; }
+  .rounding-guided-explanation,.rounding-feedback { min-height: 60px; padding: 5px 7px; grid-template-columns: 27px minmax(0,1fr); gap: 6px; }
+  .rounding-guided-explanation > span,.rounding-feedback > span { width: 26px; height: 26px; }
+  .rounding-guided-explanation p,.rounding-feedback p { font-size: 9px; line-height: 1.23; }
+  .rounding-action-slot { min-height: 44px; }
   .screen-heading { grid-template-columns: minmax(0,1fr) 76px; gap: 8px; }
   .heading-copy h1 { font-size: 27px; }
   .heading-copy p { margin-top: 7px; font-size: 13px; line-height: 1.4; }
@@ -3808,7 +4512,31 @@ html, body { margin: 0; padding: 0; }
   .stage-nav { min-height: 54px; padding-top: 4px; padding-bottom: 4px; }
   .btn, .option, .micro-action-row button, .final-reflection button { min-height: 44px; }
   .screen-stack { gap: 7px; }
+  .hook-topic-heading .heading-copy h1 { font-size: 18px; line-height: 1.02; }
+  .hook-topic-heading .heading-copy p { margin-top: 2px; font-size: 9px; line-height: 1.16; }
+  .hook-screen .hook-topic-scene { min-height: 90px; padding-block: 3px; }
+  .hook-screen .hook-topic-bit { width: 50px; height: 68px; }
+  .hook-question-card h2 { font-size: 14px; line-height: 1.1; }
+  .hook-question-card .option { min-height: 48px; padding-block: 5px; font-size: 11px; line-height: 1.18; }
+  .hook-screen .feedback { height: 54px; }
+  .hook-screen .feedback-card { min-height: 54px; grid-template-columns: 46px minmax(0,1fr); }
+  .hook-screen .feedback-card .g1-char { width: 42px; height: 48px; }
+  .hook-screen .feedback-card p { font-size: 9px; line-height: 1.2; }
   .screen-heading { grid-template-columns: minmax(0,1fr) 58px; gap: 6px; }
+  .rounding-flow-screen { gap: 4px; }
+  .rounding-flow-heading h1 { font-size: 19px; }
+  .rounding-flow-heading p { font-size: 9px; line-height: 1.18; }
+  .rounding-flow-card { padding: 5px 7px; grid-template-rows: 16px minmax(112px,1fr) 40px 54px 44px; gap: 3px; }
+  .rounding-progress > span { height: 4px; }
+  .rounding-number-line { min-height: 112px; grid-template-rows: 29px minmax(76px,1fr); border-radius: 13px; }
+  .rounding-source-number { font-size: 21px; }
+  .rounding-axis { min-height: 76px; margin-top: 18px; }
+  .rounding-endpoint,.rounding-given-point { top: -22px; min-height: 65px; padding-top: 29px; font-size: 10px; }
+  .rounding-equation-slot { min-height: 40px; }
+  .rounding-equation { min-height: 38px; font-size: 15px; }
+  .rounding-guided-explanation,.rounding-feedback-slot { min-height: 54px; }
+  .rounding-guided-explanation,.rounding-feedback { min-height: 54px; }
+  .rounding-guided-explanation p,.rounding-feedback p { font-size: 8px; line-height: 1.18; }
   .heading-copy h1 { font-size: 21px; }
   .heading-copy p { margin-top: 3px; font-size: 11px; line-height: 1.25; }
   .bit-coach { width: 58px; height: 62px; }

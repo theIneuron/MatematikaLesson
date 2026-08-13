@@ -1266,7 +1266,6 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
         </div>
       </header>
       <section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>
-        <div className="stage-happy-bit" data-primary-bit="present" role="img" aria-label="Bit"><BitSVG state="present" /></div>
         {children}
       </section>
       <footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>
@@ -2449,8 +2448,6 @@ html, body { margin: 0; padding: 0; }
   max-height: 100%;
   transform-origin: top center;
 }
-.stage-happy-bit { position: absolute; z-index: 2; top: 5px; right: 7px; width: 26px; height: 32px; display: grid; place-items: center; pointer-events: none; }
-.stage-happy-bit .g1-char { width: 26px; height: 32px; overflow: visible; }
 .micro-theory-screen { width: 100%; max-height: 100%; gap: 12px; }
 .micro-theory-card { display: grid; gap: 8px; min-width: 0; padding: clamp(12px, 2vw, 18px); border-radius: 20px; background: rgba(255,255,255,.9); box-shadow: 0 12px 30px -22px rgba(${T.shadowBase},.45); }
 .micro-theory-card > span { color: ${T.cyan}; font-size: 10px; font-weight: 900; letter-spacing: .12em; }
