@@ -849,21 +849,13 @@
   line-height: 1.5 !important;
 }
 
-/* 13-slayd: tasniflash frame'lari va yozuvlari. */
-.grade6-dars01 .screen-13 .option {
-  min-height: clamp(112px, 18vw, 150px);
-  padding: clamp(18px, 3vw, 25px) !important;
-  gap: 12px !important;
-}
-
-.grade6-dars01 .screen-13 .option > .small {
-  font-size: inherit !important;
-}
-
-.grade6-dars01 .screen-13 .option .mono.small {
-  font-size: var(--g6-task-option-size) !important;
-  padding: 5px 10px !important;
-}
+/* 13-slayd uchun tasniflash qoidalari OLIB TASHLANDI (metodist 2026-08-14).
+   Ular 17 ekranli tuzilishga yozilgan edi: o'sha paytda 13-ekran Classify edi
+   va uzun matnli variantlar uchun 150 px balandlik kerak bo'lgan. Dars 15
+   ekranga qayta yig'ilgach, 13-ekran «Turnir suratlari» bo'ldi, va bu qoida
+   bitta raqamli to'rtta tugmani 150 px ga cho'zib, ekranni foldan chiqarardi.
+   Saboq: `.screen-N` bilan yozilgan qoida ekranlar qayta raqamlanganda
+   BOSHQA ekranga tushadi va buni hech qanday tekshiruv ushlamaydi. */
 
 .grade6-dars01 .egg-sort {
   display: flex;
