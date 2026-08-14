@@ -4,71 +4,81 @@ import { lazy } from 'react'
 // Yondashuv: src/books/grade10/PODXOD_10SINF.md — avval asboblar, keyin darslar.
 // Yadro `components/grade10/core.jsx`, asboblar `components/grade10/tools.jsx`.
 //
-// Ishlab chiqarish tartibi dars raqami bo'yicha EMAS, asbob bo'yicha:
-// pilot = Dars 3 (1-asbob, birlik aylana), keyin 1, 2, 4, 5.
+// ISHLAB CHIQARISH tartibi dars raqami bo'yicha EMAS, asbob bo'yicha bo'ldi:
+// pilot = 3-dars, keyin 1, 2, 4, 5, 6, keyin 8, 9, 10, oxirida 7.
+//
+// RO'YXAT esa RAQAM bo'yicha turadi (metodist qarori 2026-08-14): saytda dars
+// uchinchidan boshlanardi, va bu o'quvchi uchun tartibsizlik edi. Ishlab
+// chiqarish tartibi bilan ko'rsatish tartibi bir narsa emas.
 //
 // Darsda faqat MA'LUMOT bo'ladi: o'ram `components/grade10/screens.jsx` da.
 // Yangi dars karkasi buyruq bilan yasaladi:
 //   node scripts/grade10-new-lesson.mjs <raqam> <slug> "<tema UZ>" "<tema EN>"
 export const grade10Nazariy = [
-  {
-    slug: 'dars03-trigonometrik-doira',
-    title: 'Dars 3. Trigonometrik doira',
-    desc: "Birlik aylana: nuqta koordinatalari kosinus va sinus. 15 slayd, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade10/Dars03.jsx')),
-  },
-  {
+{
     slug: 'dars01-radianlar',
     title: 'Dars 1. Radianlar',
     desc: "Burchak yoy uzunligi bilan o'lchanadi: radiusni yoy bo'ylab yotqizamiz. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars01.jsx')),
   },
-  {
+{
     slug: 'dars02-sin-cos-tg',
     title: 'Dars 2. sin/cos/tg',
     desc: "Nuqtaning koordinatalari: birinchi son kosinus, ikkinchisi sinus, nisbati tangens. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars02.jsx')),
   },
-  {
+{
+    slug: 'dars03-trigonometrik-doira',
+    title: 'Dars 3. Trigonometrik doira',
+    desc: "Birlik aylana: nuqta koordinatalari kosinus va sinus. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars03.jsx')),
+  },
+{
     slug: 'dars04-ishoralar-qiymatlar',
     title: 'Dars 4. Ishoralar va qiymatlar',
     desc: "Ishora bu yo'nalish, yodlangan qoida emas. Choraklar, tangens ishorasi, o'tkir burchakka keltirish. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars04.jsx')),
   },
-  {
+{
     slug: 'dars05-juftlik-davr',
     title: 'Dars 5. Juftlik va davr',
     desc: "Ko'zgu: siljish qoladi, balandlik ishorasini almashtiradi. To'liq aylana o'sha nuqtaga qaytaradi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars05.jsx')),
   },
-  {
+{
     slug: 'dars06-grafiklar',
     title: 'Dars 6. Grafiklar',
     desc: "Grafik jadvaldan emas: aylana yoyiladi va nuqtaning balandligi egri chiziqni chizadi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars06.jsx')),
   },
-  {
+{
+    slug: 'dars07-funksiyalar',
+    title: 'Dars 7. Funksiyalar',
+    desc: "Aniqlanish sohasi gorizontal, qiymatlar to'plami vertikal bo'yicha o'qiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars07.jsx')),
+  },
+{
     slug: 'dars08-arkfunksiyalar',
     title: 'Dars 8. Arkfunksiyalar',
     desc: "Gorizontal chiziq ikkita nuqta beradi, javob esa bitta: u bir qiymatlilik oynasidan olinadi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars08.jsx')),
   },
-  {
+{
     slug: 'dars09-sodda-tenglamalar',
     title: 'Dars 9. Sodda tenglamalar',
     desc: "Ikkita nuqta va to'liq aylana: ildiz cheksiz ko'p, javob esa ikkita seriya. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars09.jsx')),
   },
-  {
+{
     slug: 'dars10-sin-x-a',
     title: 'Dars 10. sin x = a',
     desc: "Ikki seriya bitta qatorga yig'iladi: (−1) daraja n ishorani almashtiradi, qadam esa yarim aylana. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars10.jsx')),
   },
   {
-    slug: 'dars07-funksiyalar',
-    title: 'Dars 7. Funksiyalar',
-    desc: "Aniqlanish sohasi gorizontal, qiymatlar to'plami vertikal bo'yicha o'qiladi. 15 slayd, UZ/RU/EN.",
-    Component: lazy(() => import('../components/grade10/Dars07.jsx')),
+    slug: 'dars11-cos-x-a',
+    title: 'Dars 11. cos x = a',
+    desc: "Vertikal chiziq ikkita nuqta beradi, ular bir-birining ostida: shuning uchun plyus-minus yetadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars11.jsx')),
   },
 ]

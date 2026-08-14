@@ -21,6 +21,7 @@ const SLUGS = {
   dars09: 'dars09-sodda-tenglamalar',
   dars10: 'dars10-sin-x-a',
   dars07: 'dars07-funksiyalar',
+  dars11: 'dars11-cos-x-a',
 }
 if (!SLUGS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(SLUGS).join(', ')}`)
@@ -1099,6 +1100,98 @@ PLANS.dars07 = [
     n: 14,
     act: async (p) => {
       for (const a of ['по горизонтали', 'ровно один', 'отрезок', 'нет']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 11-dars: cos x = a. Nuqtalar bir-birining ostida: 60 va 300 gradus.
+PLANS.dars11 = [
+  { n: 1, act: async (p) => clickText(p, 'перв'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      for (const a of ['вертикальная', 'от нуля до ста', 'целое число оборотов']) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitCircle(p); await circleClick(p, 300) }, done: '.g10-fb-ok' },
+  { n: 4, act: async (p) => { await waitCircle(p); await circleClick(p, 300) }, done: '.g10-fb-ok' },
+  { n: 5, act: async (p) => { await waitCircle(p); await circleClick(p, 60) }, done: '.g10-fb-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeNumber(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeNumber(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'симметричны'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const pairs = [
+        ['cos x = 1/2', '± 60° + 360°n'],
+        [{ text: 'cos x = 1', not: '/' }, '360°n'],
+        ['cos x = −1', '180° + 360°n'],
+        ['cos x = 0', '± 90° + 360°n'],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0])
+        await clickText(p, { text: pr[1], exact: true })
+        await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['проводим вертикаль', 'угол в окне', 'знак плюс-минус', 'прибавляем обороты']) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeNumber(p, ['4', '2', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      for (const c of ['−60°', { text: '60°', not: '−' }, '300°', '420°']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, '60° + 360°n')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeNumber(p, ['2'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitCircle(p)
+      await circleClick(p, 300)
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of ['−60°', '660°', '−420°']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of [{ text: 'плюс-минус', not: 'только' }, 'триста шестьдесят', 'одна', 'ни одного']) {
         await clickText(p, a); await p.waitForTimeout(1700)
       }
     },

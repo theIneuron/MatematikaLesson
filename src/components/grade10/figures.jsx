@@ -1874,3 +1874,82 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
     />
   )
 }
+
+// ============================================================================
+// TANGENSLAR CHIZIG'I. 12-DARSNING SHOHIDI.
+//
+// O'ng tomonda vertikal chiziq (`x = 1`). Markazdan chiqqan nur AYLANADAN
+// KEYIN ham davom etadi va shu chiziqni kesadi -- kesish balandligi tangens.
+//
+// NIMA ISBOTLANADI. Nurni yarim aylanaga burasak, aylanadagi nuqta BOSHQA
+// bo'ladi (diametral qarama-qarshi), kesish esa O'SHA joyda qoladi. Ya'ni
+// tangensning davri yuz sakson, uch yuz oltmish emas. Buni gapirib emas,
+// ko'rsatib aytish kerak: `step` 2 da nur aylanib, kesish qimirlamaydi.
+//
+// `deg` -- boshlang'ich burchak. `step`: 0 chizma, 1 kesish, 2 yarim aylana.
+// ============================================================================
+export function TanLine({ size = 268, step = 0, deg = 30 }) {
+  const turn = useTween(step >= 2 ? deg + 180 : deg, 2200)
+  const mark = useTween(step >= 1 ? 1 : 0, 700)
+  // Kesish EKRANDAN chiqib ketmasligi kerak: `tg 120` minus bir butun yetti,
+  // kamera esa bir butun oltigacha ko'rsatadi -- belgisi ko'rinmay qolardi.
+  // Shuning uchun chizishda chegaralanadi, o'lchov esa haqiqiy.
+  const tvRaw = Math.tan(rad(deg))
+  const tv = Math.max(-1.15, Math.min(1.15, tvRaw))
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.42, y: 0.5, r: 0.3 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const c = Math.cos(rad(turn))
+        const s = Math.sin(rad(turn))
+        const [px, py] = P(c, s)
+        // Nur chizig'i: markazdan `x = 1` gacha. Burchak yuz sakson dan katta
+        // bo'lsa nur ORQAGA cho'ziladi -- kesish o'sha yerda qoladi.
+        const [tx, ty] = P(1, tv)
+        // TO'LIQ CHIZIQ, nur emas: nuqta chap yarmida bo'lganda kesish o'ng
+        // tomonda qoladi, va nurning davomi TESKARI tomonga ketardi -- ko'zga
+        // kesish qayerdan chiqqani ko'rinmasdi (stend, 2026-08-14).
+        const [ax, ay] = P(-1.18, -1.18 * tv)
+        const [ex, ey] = P(1.18, 1.18 * tv)
+
+        return (
+          <g>
+            <line x1={ox - R * 1.25} y1={oy} x2={ox + R * 1.45} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.25} x2={ox} y2={oy + R * 1.25} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* TANGENSLAR CHIZIG'I -- doim ekranda, u o'lchov asbobi. */}
+            <line
+              x1={P(1, -1.25)[0]} y1={P(1, -1.25)[1]} x2={P(1, 1.25)[0]} y2={P(1, 1.25)[1]}
+              stroke={T.ink2} strokeWidth="2"
+            />
+
+            {/* NUR: markazdan chetgacha, aylanadan keyin ham davom etadi. */}
+            <line x1={ax} y1={ay} x2={ex} y2={ey} stroke={T.accent} strokeWidth="1.6" strokeDasharray="5 4" opacity=".7" />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.accent} strokeWidth="2.4" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            {/* KESISH: burchak o'zgarganda ham SHU yerda qoladi. */}
+            <g opacity={mark}>
+              <line x1={P(1, 0)[0]} y1={P(1, 0)[1]} x2={tx} y2={ty} stroke={T.ok} strokeWidth="3.4" strokeLinecap="round" />
+              <circle cx={tx} cy={ty} r={rDot} fill={T.ok} />
+              <text
+                x={tx + fs * 0.5} y={ty} dominantBaseline="middle"
+                fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ok} {...halo(size)}
+              >
+                {'tg'}
+              </text>
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
