@@ -2008,6 +2008,27 @@ sup.g7-idx { vertical-align: .46em; }
 .g7-fxnum { font-family: ${MATH_FONT}; font-weight: 800; }
 .g7-ask .g7-fxnum, .g7-qpill .g7-fxnum, .g7-hint .g7-fxnum,
 .g7-fb-body .g7-fxnum, .g7-sumcard-ul .g7-fxnum { font-size: 1.16em; }
+/* ============ YOZUVNI O'QISH NAMOYISHI (ReadViz) ============ */
+.g7-rv {
+  display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: center;
+  gap: 2px clamp(6px, 1vw, 12px); min-width: 0;
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: var(--g7-num); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.g7-rv-tok {
+  position: relative; display: inline-block;
+  animation: g7-in .32s ease-out both;
+  transition: opacity .35s ease, color .35s ease;
+}
+.g7-rv-tok.is-dim { opacity: .22; }
+.g7-rv-tok.is-lit { color: ${T.accent}; }
+/* Navbat raqami belgining USTIDA -- kichkina va to'q sariq. */
+.g7-rv-no {
+  position: absolute; top: -.72em; left: 50%; transform: translateX(-50%);
+  font-family: 'Manrope', sans-serif; font-style: normal;
+  font-size: .42em; font-weight: 800; color: ${T.accent};
+}
 /* ============ QOIDA LESTNITSASI ============ */
 .g7-stairs { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .g7-stairs-svg { display: block; width: 100%; height: auto; max-height: clamp(96px, 17vh, 150px); margin-inline: auto; }

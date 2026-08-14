@@ -619,8 +619,8 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
                 // Metodist qarori 2026-08-14: javobdan keyin qatorlar
                 // KICHRAYMAYDI va o'lcham hamma yerdagidek -- yagona
                 // son o'lchami.
-                minHeight: solved ? 26 : 38,
-                padding: solved ? '2px 12px' : '4px 12px',
+                minHeight: solved ? 26 : 34,
+                padding: solved ? '2px 12px' : '2px 12px',
                 fontSize: solved ? 'clamp(14px, 1.7vw, 18px)' : 'var(--g7-num)',
                 transition: 'min-height .4s, padding .4s, font-size .4s',
               }}
@@ -2078,6 +2078,41 @@ export function HookMachines({ tokens, left, right, sign = '≠', fix }) {
 // Harakat BIR MARTA o'tadi va to'xtaydi (§7.1, pulsatsiya cheksiz emas).
 // Faqat CSS va SVG, rasm fayli yo'q (CLAUDE.md §5).
 // ============================================================
+// ============================================================
+// ReadViz -- YOZUVNI O'QISH namoyishi (2-ekran, metodist tasdiqladi
+// 2026-08-14). To'g'ri javobdan KEYIN chiqadi va javobni YOZUVNING
+// O'ZIDA ko'rsatadi -- so'z bilan takrorlamaydi.
+//   count   -- har amal belgisi ustida navbat raqami: 1, 2, 3, 4
+//   pair    -- belgi va uning IKKI SONI yoritiladi, qolgani xiralashadi
+//   bracket -- qavs ichidagi qism yoritiladi, tashqarisi xiralashadi
+// ============================================================
+export function ReadViz({ tokens, mode, mark }) {
+  const isOp = (tok) => ['+', '−', '·', ':'].indexOf(tok) !== -1
+  let opNo = 0
+  return (
+    <div className="g7-rv">
+      {tokens.map((tok, i) => {
+        const op = isOp(tok)
+        if (op) opNo += 1
+        let lit = false
+        if (mode === 'pair') lit = i >= mark - 1 && i <= mark + 1
+        if (mode === 'bracket') lit = i >= mark[0] && i <= mark[1]
+        const dim = (mode === 'pair' || mode === 'bracket') && !lit
+        return (
+          <span
+            key={i}
+            className={'g7-rv-tok' + stageOf(tok) + (lit ? ' is-lit' : '') + (dim ? ' is-dim' : '')}
+            style={{ animationDelay: (i * 0.07).toFixed(2) + 's' }}
+          >
+            {tok}
+            {mode === 'count' && op ? <i className="g7-rv-no">{opNo}</i> : null}
+          </span>
+        )
+      })}
+    </div>
+  )
+}
+
 export function StairsReveal({ items, sweep }) {
   const n = items.length
   const W = 620

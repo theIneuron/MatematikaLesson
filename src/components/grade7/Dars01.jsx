@@ -57,11 +57,13 @@ import {
   BracketGap,
   CollapseFilm,
   CollapseTrack,
+  HistoryTape,
   HookMachines,
   NumberLineTracks,
   StairsReveal,
   Probe,
   ProbeChain,
+  ReadViz,
   RuleBuilder,
   SolutionSteps,
   SlotFill,
@@ -340,6 +342,7 @@ const S2 = {
     {
       prompt: '40 : 8 + 3 · 2 − 5',
       question: L('Yozuvda nechta amal bor?', 'Сколько действий в записи?', 'How many operations are there?'),
+      viz: () => <ReadViz tokens={['40', ':', '8', '+', '3', '·', '2', '−', '5']} mode="count" />,
       ok: L("To'rtta: bo'lish, qo'shish, ko'paytirish, ayirish.", 'Четыре: деление, сложение, умножение, вычитание.', 'Four: division, addition, multiplication, subtraction.'),
       items: [
         { id: 'a', label: '4', correct: true },
@@ -351,6 +354,7 @@ const S2 = {
     {
       prompt: '18 − 6 : 3 + 4',
       question: L("Bo'lish belgisi qaysi ikki songa tegishli?", 'К каким двум числам относится знак деления?', 'Which two numbers does the division sign belong to?'),
+      viz: () => <ReadViz tokens={['18', '−', '6', ':', '3', '+', '4']} mode="pair" mark={3} />,
       ok: L("Belgi O'ZI turgan ikki sonni biriktiradi: 6 va 3.", 'Знак связывает те два числа, между которыми он стоит: 6 и 3.', 'A sign links the two numbers it stands between: 6 and 3.'),
       items: [
         { id: 'a', label: L('6 va 3', '6 и 3', '6 and 3'), correct: true },
@@ -362,6 +366,7 @@ const S2 = {
     {
       prompt: '2 · (3 + 4)',
       question: L('Qavs nimani qamrab olgan?', 'Что охватывает скобка?', 'What does the bracket hold?'),
+      viz: () => <ReadViz tokens={['2', '·', '(', '3', '+', '4', ')']} mode="bracket" mark={[2, 6]} />,
       ok: L("Faqat qavs ICHIDAGISINI: uch qo'shish to'rt.", 'Только то, что ВНУТРИ неё: три плюс четыре.', 'Only what is INSIDE it: three plus four.'),
       items: [
         { id: 'a', label: '3 + 4', correct: true },
@@ -1195,6 +1200,11 @@ const S11 = {
   eyebrow: L("FAQAT O'ZINGIZ", 'ТОЛЬКО САМ', 'ON YOUR OWN ONLY'),
   title: L('Asbobsiz', 'Без прибора', 'Without the tool'),
   template: ['50 − ', { slot: 0 }, ' + 2 = ', { slot: 1 }],
+  // Javobdan keyingi yig'ilish: ko'paytirish birinchi (order[0] = 1).
+  nums: [50, 6, 4, 2],
+  ops: ['−', '·', '+'],
+  order: [1, 0, 2],
+  vizLabel: L("Qoida bo'yicha", 'По правилу', 'By the rule'),
   parts: [{ id: 'p24', label: '24' }, { id: 'p26', label: '26' }, { id: 'p28', label: '28' }, { id: 'p178', label: '178' }],
   answer: ['p24', 'p28'],
   // Topshiriq AYTIB beradi, qaysi katakka nima tushishini: ilgari o'quvchi
@@ -1218,6 +1228,7 @@ const S11 = {
 }
 
 function Screen11({ screen, onAnswer, ...rest }) {
+  const t = useT()
   const lang = rest.lang
   const segments = useMemo(() => buildSegments(S11.audio, lang), [lang])
   const audio = useAudio(segments)
@@ -1236,6 +1247,12 @@ function Screen11({ screen, onAnswer, ...rest }) {
         disabled={!canAnswer}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'practice' }) }}
       />
+      {/* Javobdan KEYIN yozuv o'zi yig'iladi: ko'paytirish birinchi, so'ng
+          chapdan o'ngga. O'quvchi o'zini tekshiradi. Javobdan OLDIN
+          ko'rsatilmaydi -- bu ekran asbobsiz ishlashni tekshiradi (§8.1). */}
+      {done ? (
+        <CollapseTrack nums={S11.nums} ops={S11.ops} order={S11.order} label={t(S11.vizLabel)} tone="ok" />
+      ) : null}
     </Frame>
   )
 }
@@ -1257,10 +1274,13 @@ const S12 = {
   // qilish kerak. Ilgari birinchi ikkitasi faqat ovozda edi.
   step1Cap: L('1-QADAM', 'ШАГ 1', 'STEP 1'),
   step2Cap: L('2-QADAM', 'ШАГ 2', 'STEP 2'),
+  // Matn QISQARTIRILDI (to'liq prognoz 2026-08-14: uzun variant o'zbekcha
+  // va ruschada uch satrga cho'zilib, ekranni 41px oshirib yuborardi).
+  // Izlash BELGISI saqlanib qoldi: qator yuqoridagisidan kelib chiqadimi.
   ask: L(
-    "Har qator yuqoridagisidan kelib chiqadi. Qaysi qatorda yuqoridagisiga TO'G'RI KELMAY qolganini toping va o'sha qatorni bosing.",
-    'Каждая строка получена из строки над ней. Найди строку, которая перестала соответствовать верхней, и нажми на неё.',
-    'Each line comes from the line above it. Find the line that stopped matching the one above and tap it.',
+    "Yuqoridagi qatordan kelib chiqmagan qatorni toping.",
+    'Найди строку, которая не следует из строки над ней.',
+    'Find the line that does not follow from the line above it.',
   ),
   rows: [
     { id: 'r1', text: '36 : 4 + 2 · 5 − 3' },
@@ -1612,6 +1632,7 @@ const S15 = {
     'Простой калькулятор теперь считает по правилу. Восемь стало двадцатью, и обе машины дают одно значение. Ты его научил.',
     'The basic calculator now counts by the rule. The eight became twenty, and both machines give one value. You taught it.',
   ),
+  tapeLabel: L("Bosib o'tilgan yo'l", 'Пройденный путь', 'The path you walked'),
   banner: L('Matematika · Amallar tartibi', 'Математика · Порядок действий', 'Mathematics · Order of operations'),
   mainLabel: L('Asosiysi', 'Главное', 'The main thing'),
   briefs: [
@@ -1728,6 +1749,12 @@ function Screen15({ screen, answers, ...rest }) {
 
       {/* «ASOSIYSI» KARTOCHKASI OLIB TASHLANDI (metodist qarori
           2026-08-14). Yakunda bitta kartochka qoldi. */}
+      {/* SQVOZ LENTA (metodist tasdiqladi 2026-08-14). Dars davomida
+          o'quvchi qo'li bilan bajargan qadamlar birma-bir chiqadi -- butun
+          yo'l bitta qatorda. Joy bannerni va «Asosiysi» kartochkasini
+          olib tashlagach bo'shadi. */}
+      <HistoryTape items={S5.chips} label={S15.tapeLabel} />
+
       <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
