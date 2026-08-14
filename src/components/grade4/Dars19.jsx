@@ -420,7 +420,7 @@ const ScreenTypeLabel = ({ type }) => { const lang = useLang(); const labels = {
 function Stage({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) {
   const t = useT(); const mobile = useIsMobile(); const lesson = useLesson(); const c = lesson.screens[screen]; const pad = mobile ? 14 : 48;
   const captionVisible = Boolean(audio.caption && (audio.muted || audio.visualOnly));
-  return <main className={`stage stage-${c.type}`} data-g4-screen={c.type === 'hook' ? 'hook' : c.type}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${captionVisible ? 'is-visible' : ''}`} aria-live="polite"><span>{captionVisible ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
+  return <main className={`stage stage-${c.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${captionVisible ? 'is-visible' : ''}`} aria-live="polite"><span>{captionVisible ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
 }
 
 const Heading = ({ c, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{c.bit && !hook && <BitSVG state={c.bit}/>}</div>; };
@@ -472,15 +472,17 @@ function G4TitleReveal({ active, title, onComplete }) {
   const t = useT();
   const [visible, setVisible] = useState(false);
   const wasActiveRef = useRef(active);
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
   useEffect(() => {
     const wasActive = wasActiveRef.current;
     wasActiveRef.current = active;
     if (!active || wasActive || typeof window === 'undefined') return undefined;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const frame = window.requestAnimationFrame(() => setVisible(true));
-    const timer = window.setTimeout(() => { setVisible(false); onComplete?.(); }, reduced ? 120 : 3900);
+    const timer = window.setTimeout(() => { setVisible(false); onCompleteRef.current?.(); }, reduced ? 120 : 3900);
     return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); };
-  }, [active, onComplete]);
+  }, [active]);
   if (!visible || typeof document === 'undefined') return null;
   const localizedTitle = t(title);
   const ariaLabel = `${t(bi('Unvon', 'Звание', 'Title'))}: ${localizedTitle}`;
@@ -577,14 +579,14 @@ function LessonScreen({ screen, storedAnswer, answers, onAnswer, onPrev, onNext,
 }
 
 export function FractionLessonShell({ lesson, studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const preview = previewMode ?? (langProp === undefined || langProp === null); const [previewLang, setPreviewLang] = useState(normalizeLang(langProp)); const lang = normalizeLang(preview ? previewLang : langProp);
+  const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const [previewLang, setPreviewLang] = useState(normalizeLang(langProp)); const lang = normalizeLang(showPreviewControls ? previewLang : langProp);
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
   const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]);
   // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
   const started = useRef(Date.now()); const finished = useRef(false);
   const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []);
   const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = [9, 10, 11, 12, 13, 14]; const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: 6, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / 6 * 100), finalScore: firstTryCorrect, finalTotal: 6, passed: firstTryCorrect / 6 >= 0.6, firstTryStats: { total: 6, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: lesson.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log(`[${lesson.slug} preview]`, payload); }, [answers, lang, lesson, onFinished, studentName]);
-  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={UI.language[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
+  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{showPreviewControls && <div className="preview-language" aria-label={UI.language[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} aria-pressed={lang === code} className={lang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
 }
 
 export default function Grade4Dars19({ studentName, lang, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { return <FractionLessonShell lesson={LESSON_META} studentName={studentName} lang={lang} ttsApiBase={ttsApiBase} voiceGender={voiceGender} correctSoundUrl={correctSoundUrl} wrongSoundUrl={wrongSoundUrl} onFinished={onFinished} previewMode={previewMode}/>; }
@@ -621,9 +623,10 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
 .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:51px!important;height:64px!important}
 .lesson-root .feedback[data-g4-feedback="wrong"]{height:auto!important;min-height:88px!important;border-radius:18px!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;box-shadow:inset 5px 0 #A96F13,0 13px 26px -23px rgba(169,111,19,.72)!important}
 .lesson-root .feedback[data-g4-role~="feedback-frame"] p{min-width:0;margin:0;font-family:'Manrope',system-ui,sans-serif!important;font-size:15px!important;line-height:1.42!important;text-align:left}
-.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}
+.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.rank-boost-overlay .g4-title-reveal-title{font-size:58px!important}
 [data-g4-role="title-card"]{position:relative;isolation:isolate;max-width:100%;overflow:hidden}
 [data-g4-role="title-claim"]{font-family:'Manrope',system-ui,sans-serif}
+.hook-scene-visual{width:min(760px,100%)!important;margin-inline:auto!important}
 .lesson-frame .preview-language{display:none!important}
 @media(max-width:639.98px){
   .lesson-root h1,.lesson-root [data-g4-role="hook-title"] h1{font-size:clamp(22px,6.2vw,28px)!important}
@@ -639,10 +642,68 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
   .lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-role~="feedback-frame"]>.feedback-bit{width:54px!important;height:68px!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]{height:auto!important;min-height:68px!important;border-radius:15px!important;grid-template-columns:47px minmax(0,1fr)!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:47px!important;height:59px!important}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}
+  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}.rank-boost-overlay .g4-title-reveal-title{font-size:29px!important}
 }
 @media(prefers-reduced-motion:reduce){.rank-boost-overlay,.rank-boost-overlay * ,[data-g4-role="title-card"],[data-g4-role="title-card"] *{animation:none!important;transition:none!important}.rank-boost-overlay{opacity:1}.g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}}
-@media(max-width:639.98px) and (max-height:700px){.hook-stack>.beat-list{display:none!important}}
+.lesson-root [class*="formula"],.lesson-root [class*="equation"]{font-family:'JetBrains Mono',monospace!important}
+.hook-stack>.question[data-g4-role="answer-card"]{display:contents!important}
+.hook-stack>.question[data-g4-role="answer-card"]:has(.feedback.open)>.options{display:none!important}
+.lesson-root .question:has(.feedback[data-g4-feedback="solution"].open)>.options{display:none!important}
+.lesson-root [data-g4-role="title-card"]{width:100%!important;min-height:116px!important;height:auto!important;margin:0!important;padding:12px 82px 11px 67px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;color:#FFF!important;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978)!important;box-shadow:0 28px 58px -27px rgba(22,143,163,.8)!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:72px!important;height:90px!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:44px!important;height:44px!important}
+@media(max-width:639.98px){
+  .lesson-root [data-g4-role="title-card"]{min-height:88px!important;padding:9px 59px 8px 51px!important;border-radius:14px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:57px!important;height:71px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:34px!important;height:34px!important}
+}
+.hook-stack>.beat-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;padding:5px!important}
+.hook-stack>.beat-list .beat{min-height:38px!important;padding:4px!important;grid-template-columns:23px minmax(0,1fr)!important;gap:4px!important}
+.hook-stack>.beat-list .beat>b{width:22px!important;height:22px!important}.hook-stack>.beat-list .beat>span{font-size:9px!important;line-height:1.12!important}
+@media(max-width:639.98px) and (max-height:700px){.hook-stack>.beat-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:2px!important;gap:2px!important}.hook-stack>.beat-list .beat{min-height:26px!important;padding:2px!important;grid-template-columns:16px minmax(0,1fr)!important;gap:2px!important}.hook-stack>.beat-list .beat>b{width:16px!important;height:16px!important}.hook-stack>.beat-list .beat>span{font-size:7px!important;line-height:1.05!important}}
+/* Keep lesson-owned fraction models inside the height assigned by the stage grid. */
+.feedback.feedback-slot[aria-hidden="true"]{display:none!important}
+.stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model{height:100%!important;min-height:0!important;max-height:none!important;padding:8px!important;gap:4px!important;grid-template-rows:minmax(0,1fr) auto!important}
+.stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model{height:100%;min-height:0;grid-template-rows:minmax(18px,1fr) auto!important;gap:3px!important}
+.stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model>.fraction-bar{height:100%!important;min-height:18px}
+.stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model>b{font-size:16px!important;line-height:18px!important}
+.stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>strong{font-size:18px!important;line-height:20px!important}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare{height:100%!important;min-height:0!important;max-height:none!important;padding:8px!important;gap:4px!important;grid-template-rows:minmax(0,1fr) 24px!important}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare>.compare-model{height:100%;min-height:0;align-items:stretch;gap:12px}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-model{height:100%;min-height:0;grid-template-rows:minmax(18px,1fr) auto!important;gap:3px!important}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-bar{height:100%!important;min-height:18px}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-model>b{font-size:16px!important;line-height:18px!important}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula{height:24px;gap:8px}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula s,.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula b{font-size:16px!important;line-height:18px!important}
+.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula span{font-size:18px!important;line-height:20px!important}
+.hook-scene-visual>.visual-shell{height:100%!important;min-height:0!important}
+.hook-scene-visual>.visual-shell>.model-card.compare-model{height:100%!important;min-height:0!important;max-height:none!important;padding:8px!important;gap:4px!important;grid-template-rows:minmax(0,1fr) auto!important}
+.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model{height:100%;min-height:0;grid-template-rows:minmax(18px,1fr) auto!important;gap:3px!important}
+.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model>.fraction-bar{height:100%!important;min-height:18px}
+.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model>b{font-size:16px!important;line-height:18px!important}
+.hook-scene-visual>.visual-shell>.model-card.compare-model>strong{font-size:18px!important;line-height:20px!important}
+@media(max-width:639.98px){
+  .different-wholes{grid-template-columns:.65fr 1.35fr!important;align-items:end!important}
+  .stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model,.hook-scene-visual>.visual-shell>.model-card.compare-model{padding:3px!important;gap:2px!important}
+  .stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model,.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model{grid-template-rows:minmax(14px,1fr) auto!important;gap:1px!important}
+  .stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model>.fraction-bar,.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model>.fraction-bar{min-height:14px}
+  .stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>.fraction-model>b,.hook-scene-visual>.visual-shell>.model-card.compare-model>.fraction-model>b{font-size:10px!important;line-height:12px!important}
+  .stage:not(.stage-hook) .visual-shell:not(:has(.optional-lab))>.model-card.compare-model>strong,.hook-scene-visual>.visual-shell>.model-card.compare-model>strong{font-size:11px!important;line-height:14px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare{padding:4px!important;gap:2px!important;grid-template-rows:minmax(0,1fr) 18px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare>.compare-model{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-model{grid-template-rows:minmax(14px,1fr) auto!important;gap:1px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-bar{min-height:14px}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .fraction-model>b{font-size:10px!important;line-height:12px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula{height:18px;gap:5px}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula s,.stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula b{font-size:11px!important;line-height:13px!important}
+  .stage:not(.stage-hook) .visual-shell>.model-card.error-compare .error-formula span{font-size:13px!important;line-height:15px!important}
+  .hook-scene-visual>.visual-shell{height:100%!important;min-height:0!important}
+  .stage-summary .visual-shell{min-height:49px!important}
+  .stage-summary .beat-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:2px!important;padding:3px!important}
+  .stage-summary .beat{min-height:29px!important;padding:2px!important;grid-template-columns:16px minmax(0,1fr)!important;gap:2px!important}
+  .stage-summary .beat>b{width:16px!important;height:16px!important;font-size:7px!important}
+  .stage-summary .beat>span{font-size:7px!important;line-height:1.05!important}
+}
 `;
 
 const STYLES = `

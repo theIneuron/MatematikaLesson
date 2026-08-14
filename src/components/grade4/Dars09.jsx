@@ -1369,7 +1369,7 @@ const PageTitle = ({ c, lead, bitState = null, hook = false }) => {
         <h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1>
         {lead && <p>{typeof lead === 'string' ? lead : t(lead)}</p>}
       </div>
-      {bitState && <BitSVG state={bitState} />}
+      {bitState && <span className="page-title-bit-figure" data-g4-role="visual-frame" aria-hidden="true"><BitSVG state={bitState} /></span>}
     </div>
   );
 };
@@ -1697,7 +1697,7 @@ function Screen3({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} activityDone={picked === 2}>
       <div className="screen-stack">
         <PageTitle c={c} />
-        <section className="column-placement">
+        <section className="column-placement" data-g4-role="visual-frame">
           <PlaceConveyorSVG beat={audio.beat} />
           <div className="place-headings">
             {[{ uz: 'ming', ru: 'тыс.', en: 'thousands' }, { uz: 'yuz', ru: 'сот.', en: 'hundreds' }, { uz: "o'n", ru: 'дес.', en: 'tens' }, { uz: 'bir', ru: 'ед.', en: 'ones' }].map((label) => <span key={t(label)}>{t(label)}</span>)}
@@ -1796,7 +1796,7 @@ function Screen6({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
     <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} activityDone={picked === 1}>
       <div className="screen-stack">
         <PageTitle c={c} />
-        <section className="zero-carry-model">
+        <section className="zero-carry-model" data-g4-role="visual-frame">
           <ZeroCheckpointSVG beat={visualBeat} solved={solvedPrediction} />
           <MiniCoach state="focus" cue="0 + 3" />
           <div className="mini-column">
@@ -5738,6 +5738,11 @@ const STYLES = `
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+.lesson-root [data-g4-role~="feedback-bit"]>svg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;display:block!important;transform:none!important;animation:none!important}
+.lesson-root .page-title-bit-figure{width:72px;height:90px;flex:0 0 72px;display:block}
+.lesson-root .page-title-bit-figure>svg{width:100%!important;height:100%!important}
+.lesson-root .stage-screen-15 .stage-fit{zoom:1!important}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -5745,5 +5750,21 @@ const STYLES = `
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root .page-title-bit-figure{width:44px;height:55px;flex-basis:44px}
+  .lesson-root .stage-screen-1 .hook-estimate{bottom:20px}
+  .lesson-root [data-g4-feedback="wrong"]{min-height:calc(88px / var(--g4z,1));grid-template-columns:calc(54px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root [data-g4-feedback="wrong"] [data-g4-role~="feedback-bit"]{width:calc(54px / var(--g4z,1));height:calc(68px / var(--g4z,1))}
+  .lesson-root [data-g4-feedback="solution"]{min-height:calc(68px / var(--g4z,1));grid-template-columns:calc(47px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:calc(47px / var(--g4z,1));height:calc(59px / var(--g4z,1))}
+  .lesson-root .stage-screen-1 [data-g4-feedback="wrong"]{min-height:88px;grid-template-columns:54px minmax(0,1fr)}
+  .lesson-root .stage-screen-1 [data-g4-feedback="wrong"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  .lesson-root .stage-screen-1 [data-g4-feedback="solution"]{min-height:68px;grid-template-columns:47px minmax(0,1fr)}
+  .lesson-root .stage-screen-1 [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root .screen-stack:has(.construction-board + [data-g4-feedback])>.page-title{display:none!important}
+  .lesson-root .screen-stack:has(.compact-proof + .question-card [data-g4-feedback])>:is(.page-title,.compact-proof){display:none!important}
+  .lesson-root .screen-stack:has(.warehouse-scene + .question-card [data-g4-feedback])>:is(.page-title,.warehouse-scene){display:none!important}
+  .lesson-root .stage-screen-15 .g4-title-card-stage{min-height:calc(88px / var(--g4z,1));padding:calc(9px / var(--g4z,1)) calc(59px / var(--g4z,1)) calc(8px / var(--g4z,1)) calc(51px / var(--g4z,1))}
+  .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-bit{width:calc(57px / var(--g4z,1));height:calc(71px / var(--g4z,1))}
+  .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-medal{width:calc(34px / var(--g4z,1));height:calc(34px / var(--g4z,1))}
 }
 `;

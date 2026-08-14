@@ -3323,11 +3323,6 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-function useRevealScroll() {
-  const ref = useRef(null);
-  return ref;
-}
-
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
@@ -3509,9 +3504,9 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 
 const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
-  const revealRef = useRevealScroll(show);
+  const visible = show && children !== null && children !== undefined && String(children).trim().length > 0;
   return (
-    <div ref={revealRef} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+    <div data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={visible ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${visible ? 'feedback-visible' : ''}`} aria-hidden={!visible} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <span className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true">
           <BitSVG state={correct ? 'nod' : 'awkward'} />
@@ -3736,7 +3731,7 @@ const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => 
             <h1>{t(copy.title)}</h1>
             <p>{t(copy.lead)}</p>
           </div>
-          <div className={`bit-coach bit-coach-${activeStep === contents.length - 1 ? 'idea' : 'point'}`}>
+          <div className={`bit-coach bit-coach-${activeStep === contents.length - 1 ? 'idea' : 'point'}`} data-g4-role="visual-frame">
             <BitSVG state={activeStep === contents.length - 1 ? 'idea' : 'point'} />
           </div>
         </div>
@@ -3800,7 +3795,7 @@ const PlaceValueLadderScreen = ({ screen, contentKey, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-idea"><BitSVG state="idea" /></div>
+          <div className="bit-coach bit-coach-idea" data-g4-role="visual-frame"><BitSVG state="idea" /></div>
         </div>
 
         <section className="place-ladder-board" aria-label={t(c.instruction)}>
@@ -3860,7 +3855,7 @@ const ZeroCoefficientScreen = ({ screen, contentKey, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-think"><BitSVG state="think" /></div>
+          <div className="bit-coach bit-coach-think" data-g4-role="visual-frame"><BitSVG state="think" /></div>
         </div>
 
         <section className="zero-place-board" aria-label={t(c.instruction)}>
@@ -3929,7 +3924,7 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-point"><BitSVG state="point" /></div>
+          <div className="bit-coach bit-coach-point" data-g4-role="visual-frame"><BitSVG state="point" /></div>
         </div>
 
         <section className="card-lab-solution" key={replayKey} aria-label={t(c.instruction)}>
@@ -4177,7 +4172,7 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className={`bit-coach bit-coach-${THEORY_BIT_STATES[screen]}`}>
+          <div className={`bit-coach bit-coach-${THEORY_BIT_STATES[screen]}`} data-g4-role="visual-frame">
             <BitSVG state={THEORY_BIT_STATES[screen]} />
           </div>
         </div>
@@ -4288,7 +4283,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-point"><BitSVG state="point" /></div>
+          <div className="bit-coach bit-coach-point" data-g4-role="visual-frame"><BitSVG state="point" /></div>
         </div>
         <section className="worked-example-grid">
           {c.items.map((item, index) => (
@@ -4401,13 +4396,15 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
             <h1 data-g4-role={isHook ? 'hook-title' : undefined}>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          {!isHook && <div className="bit-coach"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'present'} /></div>}
+          {!isHook && <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'present'} /></div>}
         </div>
         {isHook && <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.instruction)}</h2>}
         {isHook ? (
-          <section className="hook-story-frame" data-g4-role="hook-scene visual-frame">
-            <div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'think'} /></div>
-            <div className="hook-story-model"><ModelPanel model={c.model} solved={solved} /></div>
+          <section className="hook-story-scene" data-g4-role="hook-scene">
+            <div className="hook-story-frame" data-g4-role="visual-frame">
+              <div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'think'} /></div>
+              <div className="hook-story-model"><ModelPanel model={c.model} solved={solved} /></div>
+            </div>
           </section>
         ) : <ModelPanel model={c.model} solved={solved} />}
         <section className="question-card" aria-labelledby={`question-${screen}`}>
@@ -4538,7 +4535,7 @@ const NumericInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'nod' : 'present'} /></div>
+          <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : 'present'} /></div>
         </div>
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={'question-' + screen}>
@@ -4600,7 +4597,7 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
       <div className="screen-stack micro-theory-screen">
-        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{t({ uz: 'LUMO CITY · BIR QADAM', ru: 'LUMO CITY · ОДИН ШАГ', en: 'LUMO CITY · ONE STEP' })}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div></div>
+        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{t({ uz: 'LUMO CITY · BIR QADAM', ru: 'LUMO CITY · ОДИН ШАГ', en: 'LUMO CITY · ONE STEP' })}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="point" /></div></div>
         <section className="micro-theory-card">
           <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
           {example && <strong className="micro-theory-example">{t(example)}</strong>}
@@ -6067,11 +6064,11 @@ html, body { margin: 0; padding: 0; }
 /* Grade 4 Dars01 local visual contract */
 .lesson-frame .preview-language{display:none!important}
 :is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
-@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
-@media(max-width:390px) and (max-height:700px){.etalon-hook-screen .screen-heading .heading-copy p{display:none}.etalon-hook-screen .question-card{padding:7px 8px}.etalon-hook-screen .question-topline{margin-bottom:4px}.etalon-hook-screen .question-card h2{font-size:14px;line-height:1.14}.etalon-hook-screen .options-grid{margin-top:4px;gap:4px}.etalon-hook-screen .option{min-height:48px;padding:5px 6px;font-size:10px;line-height:1.2}.etalon-hook-screen .option-letter{width:24px;height:24px;flex-basis:24px}}
-.hook-story-frame[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
-.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
-@media(max-width:639.98px){.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{padding-right:84px}}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root){width:100%!important;max-width:100%!important;zoom:1!important;transform:none!important}:is(.lesson-root,.d8-root) .stage{width:100%!important;max-width:100%!important}:is(.lesson-root,.d8-root) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}}
+@media(max-width:390px) and (max-height:700px){.etalon-hook-screen .screen-heading .heading-copy p{display:none}.etalon-hook-screen .question-card{padding:7px 8px}.etalon-hook-screen .question-topline{margin-bottom:4px}.etalon-hook-screen .question-card h2{font-size:14px;line-height:1.14}.etalon-hook-screen .options-grid{margin-top:4px;gap:4px}.etalon-hook-screen .option{min-height:48px;padding:5px 6px;font-size:10px;line-height:1.2}.etalon-hook-screen .option>span:last-child{font-size:11px;line-height:1.2}.etalon-hook-screen .option-letter{width:24px;height:24px;flex-basis:24px}}
+.hook-story-frame[data-g4-role="visual-frame"]{grid-template-columns:minmax(0,1fr)!important}
+.hook-story-frame[data-g4-role="visual-frame"] .hook-story-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
+@media(max-width:639.98px){.hook-story-frame[data-g4-role="visual-frame"] .hook-story-model{padding-right:84px}}
 :is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
 :is(.lesson-root,.d8-root) .question h2,
@@ -6105,8 +6102,8 @@ html, body { margin: 0; padding: 0; }
   [data-g4-feedback="solution"]{min-height:68px}
   [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
 }
-:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
-:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:36px!important;font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:21px!important;font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
@@ -6115,11 +6112,166 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
 @media(max-width:639.98px){
-  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:17px!important}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
+/* Canonical full-width feedback adapter for the nested early-family card. */
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card){
+  width:100%!important;max-width:100%;box-sizing:border-box;display:block!important;
+  padding:0!important;grid-template-columns:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:88px!important;border-radius:18px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;
+  box-shadow:inset 4px 0 #A96F13!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:72px!important;border-radius:15px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#E7F3EC)!important;
+  box-shadow:inset 4px 0 #227A53!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card)>.feedback-card{
+  width:100%;min-height:inherit;box-sizing:border-box;display:grid!important;align-items:center;
+  background:transparent!important;box-shadow:none!important;border-radius:inherit
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:62px minmax(0,1fr)!important;gap:9px;padding:6px 15px 6px 9px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:51px minmax(0,1fr)!important;gap:8px;padding:4px 12px 4px 6px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][aria-hidden="true"]:has(>.feedback-card){
+  height:0!important;min-height:0!important;margin-top:0!important;padding:0!important;
+  overflow:hidden!important;background:none!important;box-shadow:none!important;border-radius:0!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]>:is(.bit,.g1-char,svg){
+  width:100%!important;height:100%!important
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:54px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:47px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){min-height:68px!important}
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .stage-content{overflow:hidden!important;overscroll-behavior:contain}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:72px!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px!important;height:64px!important}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px!important;height:59px!important}
+}
+/* Feedback replaces non-essential teaching chrome; no programmatic scroll. */
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){
+    height:auto!important;min-height:0!important;max-height:100%!important;
+    align-content:start!important;gap:6px!important;transform:none!important;animation:none!important
+  }
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>:is(.screen-heading,.heading-block){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>.model-panel{display:none!important}
+  :is(.lesson-root,.d8-root) :is(.etalon-hook-screen,.hook-screen,.hook-stack):has([data-g4-feedback])>:is(
+    .screen-heading,.heading-block,.hook-question-title,.topic-chip,.h-title,.question-title,
+    [data-g4-role~="hook-scene"]
+  ){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) :is(.fact-card,.bridge-card){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{
+    flex:0 0 auto;max-width:100%
+  }
+  :is(.lesson-root,.d8-root) .strategy-builder-screen:has([data-g4-feedback="solution"])>.strategy-builder-frame,
+  :is(.lesson-root,.d8-root) .reading-matching-screen:has([data-g4-feedback="solution"])>.reading-matching-board{
+    display:none!important
+  }
+  :is(.lesson-root,.d8-root) .builder-interactive-frame:has(>[data-g4-feedback="solution"])>:not([data-g4-feedback]){
+    display:none!important
+  }
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){gap:4px!important}
+  :is(.lesson-root,.d8-root) .etalon-hook-screen>.question-card>h2{display:none!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"],
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{
+    height:164px!important;min-height:164px!important;max-height:164px!important;box-sizing:border-box!important
+  }
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]),
+  :is(.lesson-root,.d8-root) .hook-decision:has(+[data-g4-feedback]){padding:7px 8px!important}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .question-topline{margin-bottom:4px}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) h2{font-size:14px!important;line-height:1.14}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .options-grid,
+  :is(.lesson-root,.d8-root) .hook-answer-panel:has([data-g4-feedback]) .options-grid{margin-top:4px;gap:4px}
+  :is(.lesson-root,.d8-root) .deep-sequence-screen{gap:4px!important}
+  :is(.lesson-root,.d8-root) .deep-sequence-tabs{gap:4px!important}
+  :is(.lesson-root,.d8-root) .deep-sequence-tabs button{min-height:40px!important;padding:4px!important}
+  :is(.lesson-root,.d8-root) .deep-sequence-stage{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important}
+  :is(.lesson-root,.d8-root) .deep-sequence-stage>:is(.model-panel,.deep-sequence-explanation){min-width:0!important;padding:6px!important}
+  :is(.lesson-root,.d8-root) .deep-sequence-stage .model-row-list>div{min-height:34px!important;padding:3px 4px!important}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .ladder-screen .place-ladder-board{padding:8px}
+  .ladder-screen .place-ladder-track{grid-template-columns:repeat(4,minmax(0,1fr));margin-top:6px;gap:3px}
+  .ladder-screen .place-ladder-step{min-height:70px;padding:4px 2px;gap:2px}
+  .ladder-screen .place-ladder-step>span{min-height:18px;font-size:8px}
+  .ladder-screen .place-ladder-step>strong{font-size:17px}
+  .ladder-screen .place-ladder-step>i{padding:3px;font-size:7px}
+  :is(.ladder-screen,.zero-coefficient-screen) .theory-callout{padding:7px 9px 7px 6px;grid-template-columns:34px minmax(0,1fr);gap:6px}
+  :is(.ladder-screen,.zero-coefficient-screen) .theory-callout-mark{width:32px;height:32px}
+  :is(.ladder-screen,.zero-coefficient-screen) .theory-callout-copy>p{font-size:10px;line-height:1.25}
+  :is(.ladder-screen,.zero-coefficient-screen) .theory-callout-copy>strong{font-size:11px;line-height:1.2}
+  .zero-coefficient-screen .heading-copy h1{font-size:20px}
+  .zero-coefficient-screen .heading-copy p{margin-top:2px;font-size:10px;line-height:1.2}
+  .zero-coefficient-screen .screen-heading{grid-template-columns:minmax(0,1fr) 54px}
+  .zero-coefficient-screen .bit-coach{width:54px;height:58px}
+  .zero-coefficient-screen .bit-coach .g1-char{width:46px;height:56px}
+  .zero-coefficient-screen .zero-place-board{padding:7px}
+  .zero-coefficient-screen .zero-place-heading{gap:5px}
+  .zero-coefficient-screen .zero-place-heading>span{max-width:170px;font-size:9px;line-height:1.15}
+  .zero-coefficient-screen .zero-place-heading>strong{font-size:23px}
+  .zero-coefficient-screen .zero-place-grid{margin-top:4px;gap:2px}
+  .zero-coefficient-screen .zero-place-grid>div{min-height:50px;padding:3px 1px}
+  .zero-coefficient-screen .zero-place-grid>div>span{min-height:16px;font-size:7px}
+  .zero-coefficient-screen .zero-place-grid>div>strong{font-size:17px}
+  .zero-coefficient-screen .zero-place-grid>div>i{min-height:10px;font-size:7px}
+  .zero-coefficient-screen .zero-contrast-grid article{padding:7px;gap:3px}
+  .zero-coefficient-screen .zero-contrast-grid article>p{font-size:8px;line-height:1.2}
+  .zero-coefficient-screen .zero-contrast-grid article>strong{font-size:10px;line-height:1.25}
+  .zero-coefficient-screen .zero-contrast-notation>div strong{font-size:15px}
+  .deep-sequence-screen .screen-heading{grid-template-columns:minmax(0,1fr) 56px;gap:5px}
+  .deep-sequence-screen .heading-copy h1{font-size:20px;line-height:1.03}
+  .deep-sequence-screen .bit-coach{width:56px;height:60px}
+  .deep-sequence-screen .bit-coach .g1-char{width:47px;height:58px}
+  .deep-sequence-screen .deep-sequence-stage>:is(.model-panel,.deep-sequence-explanation){padding:4px!important}
+  .deep-sequence-screen .deep-sequence-explanation{gap:3px}
+  .deep-sequence-screen .deep-sequence-explanation h2{font-size:17px;line-height:1.08}
+  .deep-sequence-screen .deep-sequence-explanation p{font-size:9px;line-height:1.2}
+  .deep-sequence-screen .deep-sequence-explanation strong{padding:5px;font-size:10px;line-height:1.2}
+  .deep-sequence-screen .deep-sequence-stage .model-row-list>div{min-height:30px!important;padding:2px 3px!important}
+  .deep-sequence-screen .deep-sequence-stage .model-row-list span{font-size:8px}
+  .deep-sequence-screen .deep-sequence-stage .model-row-list strong{font-size:10px}
+  .finale-screen{gap:4px}
+  .finale-screen .finale-heading{padding:5px 8px}
+  .finale-screen .finale-layout{grid-template-columns:1fr!important;align-items:start;gap:4px}
+  .finale-screen .finale-main,.finale-screen .finale-actions{gap:4px}
+  .finale-screen .finale-reflection{padding:6px}
+  .finale-screen .finale-reflection>strong{font-size:10px}
+  .finale-screen .finale-reflection>div{margin-top:4px;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .finale-screen .finale-reflection button{min-height:50px;padding:4px;grid-template-columns:18px minmax(0,1fr);gap:3px;font-size:8px;line-height:1.15}
+  .finale-screen .finale-actions .g4-title-claim{min-height:52px}
+  .finale-screen .finale-actions:has([data-g4-role~="title-card"]) .finale-reflection{display:none}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  transform:none!important;animation:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
 }
 `;

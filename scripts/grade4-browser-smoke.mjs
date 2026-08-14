@@ -639,6 +639,10 @@ async function assertCanonicalHookVisual(page, viewport, lesson, lang) {
     const frameRect = frame?.getBoundingClientRect() ?? null;
     const bitRect = bit?.getBoundingClientRect() ?? null;
     const contentRect = root.closest('.stage-content')?.getBoundingClientRect() ?? null;
+    const contentStyle = root.closest('.stage-content') ? getComputedStyle(root.closest('.stage-content')) : null;
+    const contentInnerWidth = contentRect
+      ? contentRect.width - Number.parseFloat(contentStyle?.paddingLeft ?? '0') - Number.parseFloat(contentStyle?.paddingRight ?? '0')
+      : root.getBoundingClientRect().width;
     const layoutIssues = [];
     for (const card of root.querySelectorAll('button[data-g4-role~="answer-card"]')) {
       if (!card.offsetParent) continue;
@@ -713,7 +717,7 @@ async function assertCanonicalHookVisual(page, viewport, lesson, lang) {
       followingTop: following?.getBoundingClientRect().top ?? null,
       layoutIssues: [...new Set(layoutIssues)].slice(0, 8),
       frameWidth: frameRect?.width ?? 0,
-      availableWidth: root.getBoundingClientRect().width,
+      availableWidth: contentInnerWidth,
       frameHeight: frameRect?.height ?? 0,
       frameRadius: Number.parseFloat(frameStyle?.borderTopLeftRadius ?? '0'),
       frameOverflow: `${frameStyle?.overflowX ?? ''}/${frameStyle?.overflowY ?? ''}`,
@@ -778,6 +782,15 @@ async function assertCanonicalHookVisual(page, viewport, lesson, lang) {
     throw new Error(`${prefix}: hook Bit ${contract.bitWidth}×${contract.bitHeight}, right ${contract.bitRight}, bottom ${contract.bitBottom}`);
   }
 }
+
+const screenRequiresExplicitAction = (lessonFile, screenIndex) => {
+  const meta = theoryScreenMeta.get(lessonFile)?.[screenIndex];
+  if (!meta || meta.active !== true) return false;
+  if (meta.scored === true || meta.assessed === true) return true;
+  return /choice|test|input|builder|matching|match|sort|rapid|round|construct|slider|tap|select|reflection/i.test(
+    `${meta.mechanic ?? ''} ${meta.template ?? ''} ${meta.subtype ?? ''}`,
+  );
+};
 
 async function assertRankOverlayVisual(page, issuePrefix) {
   const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
@@ -1058,6 +1071,32 @@ async function switchLessonLanguage(page, code) {
   await control.active.waitFor();
 }
 
+async function lessonLocalizedAnchor(page) {
+  const text = normalizeText(await inLesson(
+    page,
+    '[data-g4-role="hook-title"], [data-g4-role="hook-question"], .hook-intro h1, .hook-intro h2',
+  ).evaluateAll((elements) => elements
+    .filter((element) => {
+      const style = getComputedStyle(element);
+      return element.getClientRects().length > 0 && style.display !== 'none' && style.visibility !== 'hidden';
+    })
+    .map((element) => element.textContent ?? '')
+    .join('\n')));
+  if (!text) throw new Error('lokalizatsiya anchor matni topilmadi');
+  return text;
+}
+
+async function waitForLessonAnchor(page, baseline, shouldMatch, checkpoint, timeout = 5_000) {
+  const deadline = Date.now() + timeout;
+  let current = '';
+  while (Date.now() < deadline) {
+    current = await lessonLocalizedAnchor(page);
+    if ((current === baseline) === shouldMatch) return current;
+    await sleep(25);
+  }
+  throw new Error(`${checkpoint}: anchor ${shouldMatch ? 'tiklanmadi' : 'o‘zgarmadi'}; baseline="${baseline}", current="${current}"`);
+}
+
 async function runAudioContractSmoke(browser) {
   const audioLessons = lessons.filter((item) => item.section === 'nazariy');
   if (!audioLessons.length) return;
@@ -1073,6 +1112,7 @@ async function runAudioContractSmoke(browser) {
     try {
       await openLesson(speechPage, lesson, 'en');
       await waitForSpeechCount(speechPage, 1, 15_000, 'initial narration');
+      const englishAnchor = await lessonLocalizedAnchor(speechPage);
       const initial = await speechState(speechPage);
       if (initial.utterances.some((item) => item.lang !== 'en-GB')) {
         throw new Error('EN utterance lang en-GB emas');
@@ -1108,10 +1148,12 @@ async function runAudioContractSmoke(browser) {
       const beforeSwitchCancel = (await speechState(speechPage)).cancelCount;
       await switchLessonLanguage(speechPage, 'ru');
       await waitForCancellation(speechPage, beforeSwitchCancel, 15_000, 'language switch cancellation');
+      await waitForLessonAnchor(speechPage, englishAnchor, false, 'RU language switch content');
 
       const beforeEnglish = (await speechState(speechPage)).utterances.length;
       await switchLessonLanguage(speechPage, 'en');
       await waitForSpeechCount(speechPage, beforeEnglish + 1, 15_000, 'EN language switch');
+      await waitForLessonAnchor(speechPage, englishAnchor, true, 'EN language switch content');
       const afterSwitch = await speechState(speechPage);
       if (afterSwitch.utterances.slice(beforeEnglish).some((item) => item.lang !== 'en-GB')) {
         throw new Error('EN ga qaytganda utterance en-GB emas');
@@ -2356,17 +2398,70 @@ async function assertStrictFeedback(
 ) {
   const feedback = await waitForVisibleMatch(inLesson(page, strictFeedbackSelector(kind)));
   if (!feedback) throw new Error(`${issuePrefix}: ${kind} feedback ko'rinmadi`);
+  const settleDeadline = Date.now() + 1_000;
+  let feedbackSettled = false;
+  while (Date.now() < settleDeadline) {
+    feedbackSettled = await feedback.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const bit = element.querySelector('[data-g4-role~="feedback-bit"]');
+      const bitStyle = bit ? getComputedStyle(bit) : null;
+      return Number.parseFloat(style.opacity || '1') >= 0.95
+        && style.visibility !== 'hidden'
+        && (!bitStyle || (Number.parseFloat(bitStyle.opacity || '1') >= 0.95 && bitStyle.visibility !== 'hidden'));
+    }).catch(() => false);
+    if (feedbackSettled) break;
+    await sleep(25);
+  }
+  if (!feedbackSettled) throw new Error(`${issuePrefix}: ${kind} feedback animatsiyadan keyin to'liq ko'rinmadi`);
   if (requireBit) {
-    const bit = await waitForVisibleMatch(feedback.locator('[data-g4-role~="feedback-bit"]'));
+    let currentFeedback = feedback;
+    const bit = await waitForVisibleMatch(currentFeedback.locator('[data-g4-role~="feedback-bit"]'));
     if (!bit) throw new Error(`${issuePrefix}: ${kind} feedbackda Bit yo'q`);
-    const visual = await feedback.evaluate((element, feedbackKind) => {
+    const readVisual = (element, feedbackKind) => {
       const bitElement = element.querySelector('[data-g4-role~="feedback-bit"]');
+      const bitGraphic = bitElement?.matches('svg') ? bitElement : bitElement?.querySelector('svg');
       const style = getComputedStyle(element);
       const bitRect = bitElement?.getBoundingClientRect();
+      const bitGraphicRect = bitGraphic?.getBoundingClientRect();
       const rect = element.getBoundingClientRect();
+      const stageContent = element.closest('.stage-content');
+      const stageRect = stageContent?.getBoundingClientRect() ?? null;
+      const navRect = element.closest('.stage')?.querySelector('.stage-nav')?.getBoundingClientRect() ?? null;
+      const innerCard = element.querySelector(':scope > .feedback-card');
+      const innerCardRect = innerCard?.getBoundingClientRect() ?? null;
       const comment = element.matches('[data-g4-role~="bit-answer-comment"]');
       const generic = element.matches('[data-g4-role~="feedback-frame"]')
         || Boolean(element.querySelector('[data-g4-role~="feedback-frame"]'));
+      const visible = (target) => {
+        if (!target) return false;
+        const targetRect = target.getBoundingClientRect();
+        const targetStyle = getComputedStyle(target);
+        return targetRect.width > 0 && targetRect.height > 0
+          && targetStyle.display !== 'none' && targetStyle.visibility !== 'hidden'
+          && Number.parseFloat(targetStyle.opacity || '1') > 0.05;
+      };
+      const outsideFrame = [];
+      for (const target of element.querySelectorAll('p,span,strong,small,b,label')) {
+        if (!visible(target) || target.closest('.sr-only,[aria-hidden="true"]')) continue;
+        const hasDirectText = [...target.childNodes]
+          .some((node) => node.nodeType === Node.TEXT_NODE && node.textContent?.trim());
+        if (!hasDirectText) continue;
+        const targetRect = target.getBoundingClientRect();
+        if (targetRect.left < rect.left - 2 || targetRect.right > rect.right + 2
+          || targetRect.top < rect.top - 2 || targetRect.bottom > rect.bottom + 2) {
+          outsideFrame.push(`${target.tagName.toLowerCase()} ${Math.round(targetRect.left)}/${Math.round(targetRect.top)}/${Math.round(targetRect.width)}/${Math.round(targetRect.height)}`);
+        }
+      }
+      const optionOverlaps = [];
+      for (const option of element.closest('.stage-content')?.querySelectorAll('button.option,[data-g4-role~="answer-card"]') ?? []) {
+        if (!visible(option) || element.contains(option)) continue;
+        const optionRect = option.getBoundingClientRect();
+        const overlapX = Math.min(rect.right, optionRect.right) - Math.max(rect.left, optionRect.left);
+        const overlapY = Math.min(rect.bottom, optionRect.bottom) - Math.max(rect.top, optionRect.top);
+        if (overlapX > 2 && overlapY > 2) optionOverlaps.push(Math.round(overlapX) + '×' + Math.round(overlapY));
+      }
+      const visibleBottom = Math.min(innerHeight, stageRect?.bottom ?? innerHeight, navRect?.top ?? innerHeight);
+      const visibleTop = Math.max(0, stageRect?.top ?? 0);
       return {
         feedbackKind,
         comment,
@@ -2374,22 +2469,51 @@ async function assertStrictFeedback(
         mobile: innerWidth < 640,
         width: bitRect?.width ?? 0,
         height: bitRect?.height ?? 0,
+        graphicWidth: bitGraphicRect?.width ?? 0,
+        graphicHeight: bitGraphicRect?.height ?? 0,
         frameHeight: rect.height,
+        frameWidth: rect.width,
         radius: Number.parseFloat(style.borderTopLeftRadius || '0'),
         background: style.backgroundImage,
+        innerCardWidth: innerCardRect?.width ?? null,
+        fullyInStage: rect.left >= (stageRect?.left ?? 0) - 2
+          && rect.right <= (stageRect?.right ?? innerWidth) + 2
+          && rect.top >= visibleTop - 2
+          && rect.bottom <= visibleBottom + 2,
+        outsideFrame,
+        optionOverlaps,
       };
-    }, kind);
+    };
+    const geometryDeadline = Date.now() + 1_000;
+    let visual;
+    while (Date.now() < geometryDeadline) {
+      const latestFeedback = await firstVisible(inLesson(page, strictFeedbackSelector(kind)));
+      if (latestFeedback) currentFeedback = latestFeedback;
+      visual = await currentFeedback.evaluate(readVisual, kind);
+      const expected = kind === 'solution'
+        ? (visual.mobile ? { width: 47, height: 59, minHeight: 68, radius: 15 } : { width: 51, height: 64, minHeight: 72, radius: 15 })
+        : (visual.mobile ? { width: 54, height: 68, minHeight: 88, radius: 18 } : { width: 62, height: 76, minHeight: 88, radius: 18 });
+      if (Math.abs(visual.width - expected.width) <= 1.1
+        && Math.abs(visual.height - expected.height) <= 1.1
+        && Math.abs(visual.graphicWidth - expected.width) <= 1.1
+        && Math.abs(visual.graphicHeight - expected.height) <= 1.1
+        && visual.frameHeight + 1 >= expected.minHeight
+        && Math.abs(visual.radius - expected.radius) <= 1.1) break;
+      await sleep(20);
+    }
     if (!visual.comment && !visual.generic) {
       throw new Error(`${issuePrefix}: ${kind} feedback-frame/bit-answer-comment markeri yo'q`);
     }
-    const expected = visual.comment
+    const expected = kind === 'solution'
       ? (visual.mobile ? { width: 47, height: 59, minHeight: 68, radius: 15 } : { width: 51, height: 64, minHeight: 72, radius: 15 })
       : (visual.mobile ? { width: 54, height: 68, minHeight: 88, radius: 18 } : { width: 62, height: 76, minHeight: 88, radius: 18 });
     if (Math.abs(visual.width - expected.width) > 1.1
       || Math.abs(visual.height - expected.height) > 1.1
+      || Math.abs(visual.graphicWidth - expected.width) > 1.1
+      || Math.abs(visual.graphicHeight - expected.height) > 1.1
       || visual.frameHeight + 1 < expected.minHeight
       || Math.abs(visual.radius - expected.radius) > 1.1) {
-      throw new Error(`${issuePrefix}: ${kind} feedback geometriyasi Bit ${visual.width}×${visual.height}, frame ${visual.frameHeight}px/r${visual.radius}`);
+      throw new Error(`${issuePrefix}: ${kind} feedback geometriyasi Bit wrapper ${visual.width}×${visual.height}, SVG ${visual.graphicWidth}×${visual.graphicHeight}, frame ${visual.frameHeight}px/r${visual.radius}`);
     }
     const expectedGradient = kind === 'wrong'
       ? /linear-gradient\(135deg, rgb\(255, 255, 255\), rgb\(255, 245, 217\)\)/
@@ -2397,8 +2521,29 @@ async function assertStrictFeedback(
     if (!expectedGradient.test(visual.background)) {
       throw new Error(`${issuePrefix}: ${kind} feedback etalon gradienti yo'q`);
     }
+    if (visual.frameWidth < (visual.mobile ? 260 : 400)) {
+      throw new Error(`${issuePrefix}: ${kind} feedback frame eni ${visual.frameWidth}px`);
+    }
+    if (visual.innerCardWidth !== null && visual.innerCardWidth + 4 < visual.frameWidth) {
+      throw new Error(`${issuePrefix}: ${kind} ichki feedback-card eni ${visual.innerCardWidth}/${visual.frameWidth}px`);
+    }
+    if (!visual.fullyInStage) {
+      throw new Error(`${issuePrefix}: ${kind} feedback stage/nav ko'rinadigan hududidan chiqdi`);
+    }
+    if (visual.outsideFrame.length) {
+      throw new Error(`${issuePrefix}: ${kind} feedback matni framedan chiqdi: ${visual.outsideFrame.join(', ')}`);
+    }
+    if (visual.optionOverlaps.length) {
+      throw new Error(`${issuePrefix}: ${kind} feedback ko'rinadigan variant bilan ustma-ust: ${visual.optionOverlaps.join(', ')}`);
+    }
   }
-  const feedbackText = normalizeText(await feedback.innerText());
+  const textDeadline = Date.now() + 250;
+  let feedbackText = '';
+  while (Date.now() < textDeadline) {
+    feedbackText = normalizeText(await feedback.innerText().catch(() => ''));
+    if (feedbackText) break;
+    await sleep(20);
+  }
   if (!feedbackText) throw new Error(`${issuePrefix}: ${kind} feedback matni bo'sh`);
   // Newer families use the explicit semantic value `solution` and include a
   // visible label. Dars12–17 use the approved equivalent `correct`; their
@@ -3188,6 +3333,16 @@ async function clearBuildBoard(board, issuePrefix) {
   if (await uncleared.count()) throw new Error(`${issuePrefix}: build retryda ${await uncleared.count()} slot tozalanmadi`);
 }
 
+async function submitBuildBoardWhenExplicit(board, page, feedbackKind, issuePrefix) {
+  await sleep(40);
+  if (await firstVisible(inLesson(page, strictFeedbackSelector(feedbackKind)))) return;
+  const check = board.locator('[data-qa-build-check="true"]').first();
+  if (!(await waitForEnabledLocator(check))) {
+    throw new Error(`${issuePrefix}: explicit build Tekshirish markeri yo'q yoki bloklangan`);
+  }
+  await check.click();
+}
+
 async function auditVisibleBuildBranches(page, issuePrefix, lang) {
   const board = await firstVisible(inLesson(page, '[data-qa-build-answer]'));
   if (!board) return false;
@@ -3207,6 +3362,7 @@ async function auditVisibleBuildBranches(page, issuePrefix, lang) {
   const wrongOrder = [...answer];
   [wrongOrder[0], wrongOrder[swapIndex]] = [wrongOrder[swapIndex], wrongOrder[0]];
   await fillBuildBoard(board, wrongOrder, mode, issuePrefix + ' wrong');
+  await submitBuildBoardWhenExplicit(board, page, 'wrong', issuePrefix + ' wrong');
   await assertStrictFeedback(page, issuePrefix + ' wrong build', 'wrong', lang);
   if (await (await theoryNextButton(page)).isEnabled()) {
     throw new Error(`${issuePrefix}: wrong builddan keyin Next ochildi`);
@@ -3214,6 +3370,7 @@ async function auditVisibleBuildBranches(page, issuePrefix, lang) {
 
   await clearBuildBoard(board, issuePrefix);
   await fillBuildBoard(board, answer, mode, issuePrefix + ' correct');
+  await submitBuildBoardWhenExplicit(board, page, 'solution', issuePrefix + ' correct');
   await assertStrictFeedback(page, issuePrefix + ' correct build', 'solution', lang);
   if (!(await waitForEnabledLocator(await theoryNextButton(page)))) {
     throw new Error(`${issuePrefix}: correct builddan keyin Next ochilmadi`);
@@ -3774,10 +3931,12 @@ async function runPracticeProgressPersistence(browser) {
   }
 }
 
+// The lesson-specific distractor set is content, not presentation. Preserve
+// approved two-, three- or four-choice hooks while enforcing one visual shell.
 const strictHookCardContract = (lesson) => (
   lesson.file === 'Dars05.jsx'
     ? { min: 2, max: 2, minFontSize: 12, label: '2' }
-    : { min: 3, max: 4, minFontSize: 14, label: '3–4' }
+    : { min: 2, max: 4, minFontSize: 14, label: '2–4' }
 );
 
 const strictHookRequiresCorrectAnswer = (lesson) => !/^Dars(?:1[2-6]|29|3[0-4]|3[6-9]|4[01])\.jsx$/.test(lesson.file);
@@ -3798,8 +3957,8 @@ async function runStrictHookContracts(browser) {
           let expectedCardCount = null;
           for (let optionIndex = 0; optionIndex < 4; optionIndex += 1) {
           await openLesson(page, lesson, lang);
-          const hook = await firstVisible(inLesson(page, '[data-g4-screen="hook"]'));
-          const scene = await firstVisible(inLesson(page, '[data-g4-role="hook-scene"]'));
+          const hook = await waitForVisibleMatch(inLesson(page, '[data-g4-screen="hook"]'));
+          const scene = await waitForVisibleMatch(inLesson(page, '[data-g4-role~="hook-scene"]'));
           if (!hook || !scene) throw new Error(`${lesson.file} ${lang}: canonical hook/scene marker topilmadi`);
           await assertCanonicalHookVisual(page, { name: 'desktop', width: 1366, height: 768 }, lesson, lang);
           const cards = strictHookAnswerCards(page, lesson);
@@ -3814,7 +3973,7 @@ async function runStrictHookContracts(browser) {
                 '[data-g4-role="hook-topic"]',
                 '[data-g4-role="hook-title"]',
                 '[data-g4-role="hook-question"]',
-                '[data-g4-role="hook-scene"]',
+                '[data-g4-role~="hook-scene"]',
                 '[data-g4-role="answer-card"]',
               ];
               const nodes = selectors.map((selector) => root.querySelector(selector));
@@ -4061,7 +4220,7 @@ async function runDars51MedalTierMatrix(browser) {
             await naturallyUnlockStrictTheoryScreen(page, `${prefix} s${screenIndex}`, {
               auditBranches: false,
               lang: 'en',
-              requireAction: theoryScreenMeta.get(lesson.file)?.[screenIndex]?.active === true,
+              requireAction: screenRequiresExplicitAction(lesson.file, screenIndex),
             });
           }
           const next = await theoryNextButton(page);
@@ -4384,7 +4543,7 @@ async function runStrictScreenMatrix(browser) {
                   await naturallyUnlockStrictTheoryScreen(page, `${prefix} screen ${expected}`, {
                     auditBranches: true,
                     lang,
-                    requireAction: theoryScreenMeta.get(lesson.file)?.[expected - 1]?.active === true,
+                    requireAction: screenRequiresExplicitAction(lesson.file, expected - 1),
                   });
                 }
                 const next = await theoryNextButton(page);

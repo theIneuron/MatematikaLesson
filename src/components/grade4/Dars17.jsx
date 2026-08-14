@@ -538,7 +538,7 @@ const ScaleSVG = ({ min = 20, max = 40, intervals = 4, pointer = null, frame = 3
   const ticks = Array.from({ length: intervals + 1 }, (_, index) => index);
   const xAt = (index) => 55 + index * (510 / intervals);
   const pointerX = pointer == null ? null : 55 + ((pointer - min) / (max - min)) * 510;
-  return <svg className={`scale-svg ${slow ? 'scale-slow' : ''} ${className}`} viewBox="0 0 620 170" role="img" aria-label={`${min}–${max}`}>
+  return <svg className={`scale-svg ${slow ? 'scale-slow' : ''} ${className}`} data-g4-role="visual-frame" viewBox="0 0 620 170" role="img" aria-label={`${min}–${max}`}>
     <rect x="18" y="18" width="584" height="134" rx="24" fill="#FFFFFF" stroke="rgba(23,59,82,.12)"/>
     <path className={`scale-line ${frame >= 0 ? 'drawn' : ''} ${activePart === 0 ? 'part-highlight' : ''}`} d="M55 91 H565" stroke={T.navy} strokeWidth="6" strokeLinecap="round"/>
     <g className={`scale-divisions ${activePart === 2 ? 'part-highlight' : ''}`}>{Array.from({ length: intervals }, (_, index) => <rect key={index} x={xAt(index) + 7} y="80" width={(510 / intervals) - 14} height="22" rx="10"/>)}</g>
@@ -553,7 +553,7 @@ const ScaleSVG = ({ min = 20, max = 40, intervals = 4, pointer = null, frame = 3
 
 const ThermometerSVG = ({ frame }) => {
   const ticks = [10, 15, 20, 25, 30];
-  return <svg className="thermo-svg" viewBox="0 0 240 330" role="img" aria-label="10–30 °C">
+  return <svg className="thermo-svg" data-g4-role="visual-frame" viewBox="0 0 240 330" role="img" aria-label="10–30 °C">
     <rect x="18" y="16" width="204" height="298" rx="28" fill="#FFFFFF" stroke="rgba(23,59,82,.12)"/>
     <path d="M92 56 V248" stroke={T.navy} strokeWidth="28" strokeLinecap="round" opacity=".16"/>
     <path className={frame >= 4 ? 'mercury full' : frame >= 3 ? 'mercury warm' : 'mercury'} d="M92 248 V104" stroke={T.accent} strokeWidth="16" strokeLinecap="round"/>
@@ -569,7 +569,7 @@ const ThermometerSVG = ({ frame }) => {
 const FuelGaugeSVG = ({ frame = 2 }) => {
   const t = useT();
   const ticks = Array.from({ length: 7 }, (_, index) => 200 + index * 50);
-  return <svg className="fuel-svg" viewBox="0 0 640 230" role="img" aria-label={t({ uz: "200 dan 500 litrgacha bo'lgan shkala", ru: 'Шкала от 200 до 500 литров', en: 'Scale from 200 to 500 litres' })}>
+  return <svg className="fuel-svg" data-g4-role="visual-frame" viewBox="0 0 640 230" role="img" aria-label={t({ uz: "200 dan 500 litrgacha bo'lgan shkala", ru: 'Шкала от 200 до 500 литров', en: 'Scale from 200 to 500 litres' })}>
     <rect x="18" y="18" width="604" height="194" rx="28" fill="#FFFFFF" stroke="rgba(23,59,82,.12)"/>
     <path d="M95 166 A225 225 0 0 1 545 166" fill="none" stroke="rgba(23,59,82,.13)" strokeWidth="22" strokeLinecap="round"/>
     <path className={frame >= 1 ? 'gauge-fill show' : 'gauge-fill'} d="M95 166 A225 225 0 0 1 417 56" fill="none" stroke={T.cyan} strokeWidth="16" strokeLinecap="round"/>
@@ -632,7 +632,7 @@ const HeroShip = () => (
 const BitFlightScale = ({ frame = 3 }) => {
   const t = useT();
   const marks = [0, 10, 20, 30, 40];
-  return <div className="bit-flight-scale" data-g4-role="visual-frame" role="img" aria-label={t({ uz: "Bit kemasi 0 dan 40 gacha bo'lgan shkalada 30 nuqtada turibdi", ru: 'Корабль Бита находится в точке 30 на шкале от 0 до 40', en: "Bit's ship is at point 30 on a scale from 0 to 40" })}>
+  return <div className="bit-flight-scale" role="img" aria-label={t({ uz: "Bit kemasi 0 dan 40 gacha bo'lgan shkalada 30 nuqtada turibdi", ru: 'Корабль Бита находится в точке 30 на шкале от 0 до 40', en: "Bit's ship is at point 30 on a scale from 0 to 40" })}>
     <svg viewBox="0 0 620 150" aria-hidden="true">
       <path className={frame >= 0 ? 'flight-line drawn' : 'flight-line'} d="M48 105 H572"/>
       <g className={frame >= 1 ? 'flight-ticks visible' : 'flight-ticks'}>{marks.map((value, index) => { const x = 48 + index * 131; return <g key={value} style={{ '--delay': `${index * 90}ms` }}><path d={`M${x} 94 V116`}/><text x={x} y="139" textAnchor="middle">{value}</text></g>; })}</g>
@@ -647,7 +647,7 @@ function Screen0({ screen, onNext, hookAnswer, onHookAnswer }) {
   const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const picked = hookAnswer.studentAnswerIndex;
   const correct = picked === c.correctIndex;
   const pick = (index) => { if (correct) return; onHookAnswer(index, index === c.correctIndex); audio.pushOneOff(t(c.audio.on_pick[index])); };
-  return <Stage screen={screen} audio={audio} onNext={onNext} activityDone={correct}><div className="stack hook-stack" data-g4-screen="hook"><section className="hook-intro"><span className="hook-kicker" data-g4-role="hook-topic">{t(c.eyebrow)}</span><h1 data-g4-role="hook-title">{t(c.title)}</h1><p>{t(c.story)}</p></section><h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2><section className="hook-mission-frame" data-g4-role="hook-scene"><div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : correct ? 'nod' : 'awkward'}/></div><BitFlightScale frame={audio.frame}/></section><section className="hook-question"><div className="hook-answer-frames"><Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={correct}/></div><FeedbackBlock show={picked !== null} correct={correct} withBit bitState={correct ? 'nod' : 'awkward'}>{picked !== null && <><span>{t(c.feedback[picked])}</span>{correct && <strong className="feedback-proof">{t(c.proof)}</strong>}</>}</FeedbackBlock></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onNext={onNext} activityDone={correct}><div className="stack hook-stack" data-g4-screen="hook"><section className="hook-intro"><span className="hook-kicker" data-g4-role="hook-topic">{t(c.eyebrow)}</span><h1 data-g4-role="hook-title">{t(c.title)}</h1><p>{t(c.story)}</p></section><h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2><section className="hook-mission-frame" data-g4-role="hook-scene visual-frame"><div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : correct ? 'nod' : 'awkward'}/></div><BitFlightScale frame={audio.frame}/></section><section className="hook-question"><div className="hook-answer-frames"><Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={correct}/></div><FeedbackBlock show={picked !== null} correct={correct} withBit bitState={correct ? 'nod' : 'awkward'}>{picked !== null && <><span>{t(c.feedback[picked])}</span>{correct && <strong className="feedback-proof">{t(c.proof)}</strong>}</>}</FeedbackBlock></section></div></Stage>;
 }
 
 function Screen1({ screen, onNext, onPrev }) {
@@ -820,7 +820,7 @@ function Screen14({ screen, answers, onPrev, finishLesson }) {
 const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
 
 export default function Grade4Dars17({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const normalizedLang = normalizeLang(langProp); const preview = previewMode ?? (langProp === undefined || langProp === null); const [previewLang, setPreviewLang] = useState(normalizedLang); const lang = preview ? previewLang : normalizedLang;
+  const normalizedLang = normalizeLang(langProp); const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const [previewLang, setPreviewLang] = useState(normalizedLang); const lang = showPreviewControls ? previewLang : normalizedLang;
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
   const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [activityState, setActivityState] = useState({}); const [finalRewardState, setFinalRewardState] = useState({ reflectionChoice: null, titleState: 'unclaimed' }); const [hookAnswer, setHookAnswer] = useState({ studentAnswerIndex: null, attempts: 0, firstTry: null, correct: false });
   // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
@@ -830,7 +830,7 @@ export default function Grade4Dars17({ studentName, lang: langProp, ttsApiBase, 
   const recordAnswer = useCallback((answer) => { setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }); if (!SCREEN_META[answer.screenIdx].scored || answer.correct) markActivity(answer.screenIdx, answer.studentAnswerIndex ?? true); }, [markActivity]);
   const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars17 preview]', payload); }, [answers, lang, onFinished, studentName]);
   const Current = SCREENS[current];
-  return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={{ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} hookAnswer={hookAnswer} onHookAnswer={recordHookAnswer} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></ActivityContext.Provider></LangContext.Provider>;
+  return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{showPreviewControls && <div className="preview-language" aria-label={{ uz: "Ko'rib chiqish tili", ru: 'Язык предпросмотра', en: 'Preview language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} hookAnswer={hookAnswer} onHookAnswer={recordHookAnswer} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></ActivityContext.Provider></LangContext.Provider>;
 }
 
 const STYLES = `
@@ -902,5 +902,9 @@ html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-pa
 .lesson-root [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 .lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 .lesson-root [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root .hook-mission-frame[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
+.lesson-root .hook-mission-frame[data-g4-role~="hook-scene"][data-g4-role~="visual-frame"]{width:min(760px,100%);min-height:206px;border-radius:24px}
+.lesson-root .hook-mission-frame[data-g4-role~="hook-scene"] .bit-flight-scale{grid-column:1/-1;padding-right:116px}
 @media(max-width:639.98px){.lesson-root [data-g4-role~="hook-title"]{font-size:25px}.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}.lesson-root [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px}.lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}}
+@media(max-width:639.98px){.lesson-root .hook-mission-frame[data-g4-role~="hook-scene"][data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}.lesson-root .hook-mission-frame[data-g4-role~="hook-scene"] .bit-flight-scale{padding-right:84px}}
 `;

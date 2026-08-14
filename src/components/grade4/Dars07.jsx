@@ -1177,7 +1177,7 @@ const SceneBit = ({ state = 'point', className = '' }) => (
 );
 
 const RomanGalleryIllustration = ({ beat }) => (
-  <div className={`roman-gallery-illustration gallery-beat-${Math.min(beat, 3)}`} aria-hidden="true">
+  <div className={`roman-gallery-illustration gallery-beat-${Math.min(beat, 3)}`} data-g4-role="visual-frame" aria-hidden="true">
     <SceneBit state={beat >= 2 ? 'idea' : 'point'} className="roman-gallery-bit" />
     <svg viewBox="0 0 520 116" role="presentation">
       <defs>
@@ -1204,7 +1204,7 @@ const RomanGalleryIllustration = ({ beat }) => (
 );
 
 const PlaceValueCityIllustration = ({ moved }) => (
-  <div className={`place-value-city ${moved ? 'place-value-city-moved' : ''}`} aria-hidden="true">
+  <div className={`place-value-city ${moved ? 'place-value-city-moved' : ''}`} data-g4-role="visual-frame" aria-hidden="true">
     <svg viewBox="0 0 520 105" role="presentation">
       <path d="M20 91H500" stroke="#173B52" strokeOpacity=".16" strokeWidth="3" strokeLinecap="round" />
       <g className="city-tens">
@@ -1227,7 +1227,7 @@ const PlaceValueCityIllustration = ({ moved }) => (
 );
 
 const SystemRouteIllustration = ({ beat }) => (
-  <div className={`system-route-illustration route-beat-${beat}`} aria-hidden="true">
+  <div className={`system-route-illustration route-beat-${beat}`} data-g4-role="visual-frame" aria-hidden="true">
     <svg viewBox="0 0 520 82" role="presentation">
       <rect x="36" y="19" width="118" height="44" rx="16" fill="#FFF0EA" />
       <rect x="366" y="19" width="118" height="44" rx="16" fill="#E5F5F6" />
@@ -1246,7 +1246,7 @@ const SystemRouteIllustration = ({ beat }) => (
 );
 
 const StrategyScannerIllustration = ({ beat }) => (
-  <div className={`strategy-scanner scanner-beat-${beat}`} aria-hidden="true">
+  <div className={`strategy-scanner scanner-beat-${beat}`} data-g4-role="visual-frame" aria-hidden="true">
     <SceneBit state={beat >= 2 ? 'nod' : 'point'} className="strategy-scanner-bit" />
     <svg viewBox="0 0 420 86" role="presentation">
       <rect x="30" y="19" width="136" height="50" rx="14" fill="#173B52" />
@@ -1385,15 +1385,17 @@ const Screen1 = (props) => {
         const active = selected ?? Math.min(beat, numbers.length - 1);
         return (
           <div className="recall-layout" data-g4-mechanic="RecallSelector">
-            <SceneBit state={selected !== null ? 'nod' : 'point'} className="recall-bit" />
-            <div className="number-row" aria-label="4, 9, 14, 20">
-              {numbers.map((number, index) => (
-                <button type="button" key={number} aria-pressed={selected === index} onClick={() => setSelected(index)} className={`number-chip ${active === index ? 'number-speaking' : ''}`}>{number}</button>
-              ))}
-            </div>
-            <p className={`system-caption ${beat >= 1 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
-            <div className={`roman-preview ${beat >= 1 ? 'reveal-visible' : ''}`}>
-              <span>IV</span><span>IX</span><span>XIV</span><span>XX</span>
+            <div className="recall-visual" data-g4-role="visual-frame">
+              <SceneBit state={selected !== null ? 'nod' : 'point'} className="recall-bit" />
+              <div className="number-row" aria-label="4, 9, 14, 20">
+                {numbers.map((number, index) => (
+                  <button type="button" key={number} aria-pressed={selected === index} onClick={() => setSelected(index)} className={`number-chip ${active === index ? 'number-speaking' : ''}`}>{number}</button>
+                ))}
+              </div>
+              <p className={`system-caption ${beat >= 1 ? 'reveal-visible' : ''}`}>{t(c.caption)}</p>
+              <div className={`roman-preview ${beat >= 1 ? 'reveal-visible' : ''}`}>
+                <span>IV</span><span>IX</span><span>XIV</span><span>XX</span>
+              </div>
             </div>
             <p className={`bridge-line ${beat >= 2 ? 'reveal-visible' : ''}`}>{t(c.bridge)}</p>
           </div>
@@ -1915,7 +1917,7 @@ const Screen12 = (props) => {
       contentScreen={12}
       extra={(
         <div className="error-claim">
-          <div className="error-bit"><BitSVG state="awkward" /></div>
+          <div className="error-bit" data-g4-role="visual-frame"><BitSVG state="awkward" /></div>
           <p>{t(CONTENT.s12.claim)}</p>
         </div>
       )}
@@ -2287,6 +2289,7 @@ html, body { margin: 0; padding: 0; }
 
 .recall-layout, .single-model-layout, .roman-board, .comparison-layout, .system-zones, .strategy-layout, .summary-layout { margin-top: 26px; }
 .recall-layout, .roman-board, .single-model-layout, .system-zone-layout, .strategy-layout { position: relative; }
+.recall-visual { position: relative; }
 .scene-bit { width: 72px; height: 90px; flex: 0 0 72px; pointer-events: none; filter: drop-shadow(0 9px 17px rgba(23,59,82,.14)); }
 .scene-bit .g1-char { width: 100%; height: 100%; }
 .recall-bit { position: absolute; z-index: 2; right: 2px; top: -18px; width: 66px; height: 82px; opacity: .96; }
@@ -2732,6 +2735,9 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root .g4-title-card-stage{min-height:116px;padding:12px 82px 11px 67px;border-radius:17px}
+.lesson-root .g4-title-card-stage .g4-title-card-bit{width:72px;height:90px}
+.lesson-root .g4-title-card-stage .g4-title-card-medal{width:44px;height:44px}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -2739,5 +2745,27 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
+  .lesson-root .g4-title-card-stage .g4-title-card-bit{width:57px;height:71px}
+  .lesson-root .g4-title-card-stage .g4-title-card-medal{width:34px;height:34px}
+  .lesson-root .hook-screen>.feedback-slot-hidden{display:none!important}
+  .lesson-root .hook-screen>.choice-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+  .lesson-root .hook-screen>.choice-grid .choice-card{min-height:44px;padding:5px 6px;gap:5px;font-size:11px;line-height:1.2}
+  .lesson-root .hook-screen>.choice-grid .choice-letter{width:24px;height:24px;flex-basis:24px}
+  .lesson-root .hook-screen:has([data-g4-feedback]){display:grid;align-content:start;gap:6px}
+  .lesson-root .hook-screen:has([data-g4-feedback])>.hook-contract-intro{gap:0}
+  .lesson-root .hook-screen:has([data-g4-feedback])>.hook-contract-intro>[data-g4-role~="hook-topic"],
+  .lesson-root .hook-screen:has([data-g4-feedback])>[data-g4-role~="hook-scene"]{display:none!important}
+  .lesson-root .hook-screen:has([data-g4-feedback])>.hook-contract-intro>[data-g4-role~="hook-question"]{margin:0}
+  .lesson-root .hook-screen:has([data-g4-feedback])>.choice-grid{grid-template-columns:1fr;margin-top:0}
+  .lesson-root .hook-screen:has([data-g4-feedback])>.feedback{margin-top:0!important}
+  .lesson-root .stage:not(.stage-hook) .stage-fit:has([data-g4-feedback]) [data-g4-feedback]{zoom:1.3888889}
+  .lesson-root .stage:not(.stage-hook) .stage-fit:has([data-g4-feedback]) [data-g4-feedback="wrong"]{min-height:calc(88px / var(--g4z,1));grid-template-columns:calc(54px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root .stage:not(.stage-hook) .stage-fit:has([data-g4-feedback]) [data-g4-feedback="wrong"] [data-g4-role~="feedback-bit"]{width:calc(54px / var(--g4z,1));height:calc(68px / var(--g4z,1))}
+  .lesson-root .stage:not(.stage-hook) .stage-fit:has([data-g4-feedback]) [data-g4-feedback="solution"]{min-height:calc(68px / var(--g4z,1));grid-template-columns:calc(47px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root .stage:not(.stage-hook) .stage-fit:has([data-g4-feedback]) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:calc(47px / var(--g4z,1));height:calc(59px / var(--g4z,1))}
+  .lesson-root .stage-summary .g4-title-card-stage{zoom:1.3888889;min-height:calc(88px / var(--g4z,1));padding:calc(9px / var(--g4z,1)) calc(59px / var(--g4z,1)) calc(8px / var(--g4z,1)) calc(51px / var(--g4z,1))}
+  .lesson-root .stage-summary .g4-title-card-stage .g4-title-card-bit{width:calc(57px / var(--g4z,1));height:calc(71px / var(--g4z,1))}
+  .lesson-root .stage-summary .g4-title-card-stage .g4-title-card-medal{width:calc(34px / var(--g4z,1));height:calc(34px / var(--g4z,1))}
 }
 `;

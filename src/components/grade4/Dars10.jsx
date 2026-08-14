@@ -1600,7 +1600,7 @@ const ScreenHeading = ({ c, bit = 'present', className = '', hook = false }) => 
       </div>
       {bit && (
         <div className={'bit-coach bit-' + bit}>
-          <BitSVG state={bit} />
+          <BitSVG state={bit} dataRole="visual-frame" />
         </div>
       )}
     </div>
@@ -1648,6 +1648,7 @@ const Formula = ({ children, tone = 'cyan', className = '' }) => (
 const ProductionRails = ({ current, reached }) => (
   <svg
     className={'production-rails ' + (reached >= 1 ? 'production-rails-visible' : '')}
+    data-g4-role="visual-frame"
     viewBox="0 0 720 190"
     aria-hidden="true"
     focusable="false"
@@ -1699,6 +1700,7 @@ const ShiftWorkshopGraphic = ({ start, settled }) => (
       + (start ? ' shift-workshop-running' : '')
       + (settled ? ' shift-workshop-settled' : '')
     }
+    data-g4-role="visual-frame"
     viewBox="0 0 480 92"
     aria-hidden="true"
     focusable="false"
@@ -1723,6 +1725,7 @@ const ShiftWorkshopGraphic = ({ start, settled }) => (
 const SensorPanelArray = () => (
   <svg
     className="sensor-panels-svg"
+    data-g4-role="visual-frame"
     viewBox="0 0 540 178"
     aria-hidden="true"
     focusable="false"
@@ -2387,6 +2390,7 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
       <div
         className="matching-board matching-board-connectors math-card"
         data-g4-role="visual-frame"
+        data-matching-solved={solved ? 'true' : undefined}
         ref={boardRef}
         role="group"
         aria-label={t({ ru: 'Соединение разряда со сдвигом', uz: "Xonani siljish bilan bog'lash", en: 'Match each place to its shift' })}
@@ -2622,7 +2626,7 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="error-layout">
-        <div className="error-column math-card" aria-label={t({ ru: 'Вычисление Бита', uz: 'Bitning hisobi', en: "Bit's calculation" })}>
+        <div className="error-column math-card" data-g4-role="visual-frame" aria-label={t({ ru: 'Вычисление Бита', uz: 'Bitning hisobi', en: "Bit's calculation" })}>
           <pre>{' 1 205\n×   30\n──────\n 3 615'}</pre>
           <BitSVG state="awkward" />
         </div>
@@ -4593,6 +4597,21 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+.lesson-root [data-g4-role~="feedback-bit"]>svg{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;display:block!important;transform:none!important;animation:none!important}
+.lesson-root [data-g4-role~="hook-question"]{font-size:21px!important;font-family:'Manrope',system-ui,sans-serif!important;line-height:1.3!important}
+.lesson-root .stage-screen-15 .stage-fit{zoom:1!important}
+.lesson-root .hook-scene[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
+.lesson-root .hook-scene[data-g4-role~="hook-scene"] .terminal-card{grid-column:1/-1;min-width:0;padding-right:140px}
+.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading{min-height:0!important;display:block;grid-template-columns:1fr;margin-bottom:8px}
+.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading :is(.lesson-kicker,.bit-coach){display:none!important}
+.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading [data-g4-role~="hook-question"]{margin:0}
+.lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack>[data-g4-role~="hook-scene"]{display:none!important}
+.lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack{display:grid;align-content:start;gap:8px}
+.lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-choices{margin-top:0}
+.lesson-root .hook-contract-root:has([data-g4-feedback]) [data-g4-feedback]{margin-top:0!important}
+.lesson-root .stage-fit>div:has(.matching-board[data-matching-solved="true"])>.screen-heading,
+.lesson-root .matching-board[data-matching-solved="true"]{display:none!important}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -4600,5 +4619,21 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root [data-g4-role~="hook-question"]{font-size:17px!important}
+  .lesson-root [data-g4-feedback="wrong"]{min-height:calc(88px / var(--g4z,1));grid-template-columns:calc(54px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root [data-g4-feedback="wrong"] [data-g4-role~="feedback-bit"]{width:calc(54px / var(--g4z,1));height:calc(68px / var(--g4z,1))}
+  .lesson-root [data-g4-feedback="solution"]{min-height:calc(68px / var(--g4z,1));grid-template-columns:calc(47px / var(--g4z,1)) minmax(0,1fr)}
+  .lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:calc(47px / var(--g4z,1));height:calc(59px / var(--g4z,1))}
+  .lesson-root .stage-screen-1 [data-g4-feedback="wrong"]{min-height:88px;grid-template-columns:54px minmax(0,1fr)}
+  .lesson-root .stage-screen-1 [data-g4-feedback="wrong"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
+  .lesson-root .stage-screen-1 [data-g4-feedback="solution"]{min-height:68px;grid-template-columns:47px minmax(0,1fr)}
+  .lesson-root .stage-screen-1 [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack{gap:6px}
+  .lesson-root .hook-scene[data-g4-role~="hook-scene"] .terminal-card{padding-right:84px}
+  .lesson-root .error-layout:has([data-g4-feedback]){grid-template-columns:minmax(0,1fr)!important}
+  .lesson-root .error-layout:has([data-g4-feedback])>.error-column{display:none!important}
+  .lesson-root .stage-screen-15 .g4-title-card-stage{min-height:calc(88px / var(--g4z,1));padding:calc(9px / var(--g4z,1)) calc(59px / var(--g4z,1)) calc(8px / var(--g4z,1)) calc(51px / var(--g4z,1))}
+  .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-bit{width:calc(57px / var(--g4z,1));height:calc(71px / var(--g4z,1))}
+  .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-medal{width:calc(34px / var(--g4z,1));height:calc(34px / var(--g4z,1))}
 }
 `;

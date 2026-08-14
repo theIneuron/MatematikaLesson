@@ -93,7 +93,7 @@ const G4_TITLE_STYLES = `
   width: min(680px, calc(100vw - 48px));
   margin: 0;
   font-family: 'Source Serif 4', Georgia, serif;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: 58px;
   line-height: 1.02;
   text-shadow: 0 4px 24px rgba(0,0,0,.72);
   transform: translateX(-50%);
@@ -1966,11 +1966,6 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-function useRevealScroll() {
-  const ref = useRef(null);
-  return ref;
-}
-
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
@@ -2152,9 +2147,9 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 
 const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
-  const revealRef = useRevealScroll(show);
+  const visible = show && children !== null && children !== undefined && String(children).trim().length > 0;
   return (
-    <div ref={revealRef} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+    <div data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={visible ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${visible ? 'feedback-visible' : ''}`} aria-hidden={!visible} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <span className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true">
           <BitSVG state={correct ? 'nod' : 'awkward'} />
@@ -2398,9 +2393,11 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
         </div>
         {isHook && <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.instruction)}</h2>}
         {isHook ? (
-          <section className="hook-story-frame" data-g4-role="hook-scene visual-frame">
-            <div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'think'} /></div>
-            <div className="hook-story-model"><ModelPanel model={c.model} solved={solved} /></div>
+          <section className="hook-story-scene" data-g4-role="hook-scene">
+            <div className="hook-story-frame" data-g4-role="visual-frame">
+              <div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'think'} /></div>
+              <div className="hook-story-model"><ModelPanel model={c.model} solved={solved} /></div>
+            </div>
           </section>
         ) : (
           <>
@@ -2794,7 +2791,7 @@ const DeepSequenceScreen = ({ screen, contentKeys, copyKey, onNext, onPrev }) =>
             <h1>{t(copy.title)}</h1>
             <p>{t(copy.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory"><BitSVG state={activeStep === contents.length - 1 ? 'idea' : 'point'} /></div>
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state={activeStep === contents.length - 1 ? 'idea' : 'point'} /></div>
         </div>
         <div className="deep-sequence-tabs" role="tablist" aria-label={t(copy.title)}>
           {contents.map((item, index) => (
@@ -2948,6 +2945,50 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
     finalSlots: nextSlots,
   });
 
+  const evaluateSlots = (nextSlots, nextAttempts) => {
+    const correct = nextSlots.every((slot, index) => slot?.value === c.targetDigits[index]);
+    setAttempts(nextAttempts);
+    setChecked(true);
+    if (!correct) {
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+      onAnswer({
+        stage: null,
+        screenIdx: screen,
+        question: t(c.prompt),
+        options: null,
+        correctIndex: null,
+        correctAnswer: c.targetDigits.join(''),
+        studentAnswerIndex: null,
+        studentAnswer: nextSlots.map((slot) => slot?.value ?? '').join(''),
+        correct: false,
+        firstTry: false,
+        attempts: nextAttempts,
+        solved: false,
+        finalSlots: nextSlots,
+      });
+      return;
+    }
+    setSolved(true);
+    playSfx('correct');
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      stage: null,
+      screenIdx: screen,
+      question: t(c.prompt),
+      options: null,
+      correctIndex: null,
+      correctAnswer: c.targetDigits.join(''),
+      studentAnswerIndex: null,
+      studentAnswer: c.targetDigits.join(''),
+      correct: true,
+      firstTry: nextAttempts === 1,
+      attempts: nextAttempts,
+      solved: true,
+      finalSlots: nextSlots,
+    });
+  };
+
   const place = (digitId, slotIndex) => {
     if (!canAnswer || solved) return;
     const digit = sourceDigits.find((item) => item.id === digitId);
@@ -2974,48 +3015,7 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
 
   const check = () => {
     if (!canAnswer || solved || available.length > 0) return;
-    const nextAttempts = attempts + 1;
-    const correct = slots.every((slot, index) => slot?.value === c.targetDigits[index]);
-    setAttempts(nextAttempts);
-    setChecked(true);
-    if (!correct) {
-      playSfx('wrong');
-      audio.pushOneOff(t(c.audio.on_wrong));
-      onAnswer({
-        stage: null,
-        screenIdx: screen,
-        question: t(c.prompt),
-        options: null,
-        correctIndex: null,
-        correctAnswer: c.targetDigits.join(''),
-        studentAnswerIndex: null,
-        studentAnswer: slots.map((slot) => slot?.value ?? '').join(''),
-        correct: false,
-        firstTry: false,
-        attempts: nextAttempts,
-        solved: false,
-        finalSlots: slots,
-      });
-      return;
-    }
-    setSolved(true);
-    playSfx('correct');
-    audio.pushOneOff(t(c.audio.on_correct));
-    onAnswer({
-      stage: null,
-      screenIdx: screen,
-      question: t(c.prompt),
-      options: null,
-      correctIndex: null,
-      correctAnswer: c.targetDigits.join(''),
-      studentAnswerIndex: null,
-      studentAnswer: c.targetDigits.join(''),
-      correct: true,
-      firstTry: nextAttempts === 1,
-      attempts: nextAttempts,
-      solved: true,
-      finalSlots: slots,
-    });
+    evaluateSlots(slots, attempts + 1);
   };
 
   return (
@@ -3032,7 +3032,7 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory"><BitSVG state={builderPhase ? 'focus' : 'point'} /></div>
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state={builderPhase ? 'focus' : 'point'} /></div>
         </div>
         {!builderPhase ? (
           <section className="builder-guided-frame" aria-live="polite">
@@ -3046,13 +3046,20 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
             <p>{t(c.guidedCaption)}</p>
           </section>
         ) : (
-          <section className="builder-interactive-frame" aria-live="polite">
+          <section
+            className="builder-interactive-frame"
+            data-qa-build-answer={JSON.stringify(c.targetDigits)}
+            data-qa-build-mode="select-slot"
+            aria-live="polite"
+          >
             <div className="builder-prompt"><span>02</span><h2>{t(c.prompt)}</h2></div>
             <div className="builder-slots" aria-label={t(c.prompt)}>
               {slots.map((slot, index) => (
                 <button
                   type="button"
                   className={`builder-slot ${selectedId ? 'builder-slot-ready' : ''} ${index === 3 ? 'builder-class-gap' : ''}`}
+                  data-qa-build-slot={index}
+                  data-qa-filled={slot ? 'true' : 'false'}
                   key={`slot-${index}`}
                   onClick={() => clearSlot(index)}
                   onDragOver={(event) => event.preventDefault()}
@@ -3072,11 +3079,13 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
                 <button
                   type="button"
                   className={`builder-digit ${selectedId === digit.id ? 'builder-digit-selected' : ''}`}
+                  data-qa-build-card={digit.value}
                   draggable={!solved}
                   key={digit.id}
                   onDragStart={(event) => event.dataTransfer.setData('text/plain', digit.id)}
                   onClick={() => setSelectedId((current) => (current === digit.id ? null : digit.id))}
                   disabled={!canAnswer || solved}
+                  aria-pressed={selectedId === digit.id}
                 >
                   {digit.value}
                 </button>
@@ -3085,7 +3094,7 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
             </div>
             {!solved && (
               <div className="builder-action-row">
-                <button type="button" className="btn btn-white-accent" disabled={!canAnswer || available.length > 0} onClick={check}>
+                <button type="button" className="btn btn-white-accent" data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
                   {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
                 </button>
               </div>
@@ -3209,27 +3218,32 @@ const StrategyBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
             <p>{t(c.lead)}</p>
           </div>
         </div>
-        <section className="strategy-builder-frame">
+        <section
+          className="strategy-builder-frame"
+          data-qa-rule-builder="true"
+          data-qa-rule-answer={JSON.stringify(fragments)}
+        >
           <div className="strategy-built" aria-live="polite">
             {built.length === 0 && <span>{lang === 'en' ? 'Build the sentence here' : lang === 'ru' ? 'Собери предложение здесь' : 'Gapni shu yerda yig\'ing'}</span>}
             {built.map((index) => (
-              <button type="button" key={index} onClick={() => remove(index)} disabled={solved}>{fragments[index]}</button>
+              <button type="button" data-qa-build-slot={index} key={index} onClick={() => remove(index)} disabled={solved}>{fragments[index]}</button>
             ))}
           </div>
           <div className="strategy-fragment-tray">
             {order.filter((index) => !built.includes(index)).map((index) => (
-              <button type="button" key={index} className="strategy-fragment" onClick={() => add(index)} disabled={!canAnswer || solved}>
+              <button type="button" data-qa-build-card={fragments[index]} key={index} className="strategy-fragment" onClick={() => add(index)} disabled={!canAnswer || solved}>
                 {fragments[index]}
               </button>
             ))}
           </div>
           {!solved && (
             <div className="builder-action-row">
-              <button type="button" className="btn btn-white-accent" disabled={!canAnswer || built.length !== fragments.length} onClick={check}>
+              <button type="button" className="btn btn-white-accent" data-qa-rule-check="true" disabled={!canAnswer || built.length !== fragments.length} onClick={check}>
                 {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
               </button>
             </div>
           )}
+          {solved && <span className="sr-only" data-qa-rule-complete="true">complete</span>}
         </section>
         <FeedbackBlock show={checked || solved} correct={solved}>{t(solved ? c.rule : c.audio.on_wrong)}</FeedbackBlock>
       </div>
@@ -3397,7 +3411,7 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
       audio={audio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
     >
-      <div className="screen-stack reading-matching-screen">
+      <div className={`screen-stack reading-matching-screen ${solved ? 'is-solved' : ''}`}>
         <div className="screen-heading bit-free-heading">
           <div className="heading-copy">
             <span className="lesson-kicker">LUMO CITY · MATCH LAB</span>
@@ -3660,7 +3674,7 @@ const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory">
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame">
             <BitSVG state={theoryMoodFor(meta.subtype)} />
           </div>
         </div>
@@ -3701,7 +3715,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory"><BitSVG state="focus" /></div>
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="focus" /></div>
         </div>
         <section className="worked-featured-example">
           <ModelPanel model={{ ...guided.model, number: guided.options[guided.correctIndex] }} solved />
@@ -3806,7 +3820,7 @@ const CityCodeLabScreen = ({ screen, onNext, onPrev }) => {
               <p>{t(active.readBack)}</p>
             </article>
           </div>
-          <div className="city-lab-note"><BitSVG state="point" /><p>{t(active.note)}</p></div>
+          <div className="city-lab-note" data-g4-role="visual-frame"><BitSVG state="point" /><p>{t(active.note)}</p></div>
         </section>
         <button type="button" className="deep-replay city-lab-next" onClick={() => selectStep(activeStep < c.items.length - 1 ? activeStep + 1 : 0)}>
           <span aria-hidden="true">{activeStep < c.items.length - 1 ? '→' : '↻'}</span>
@@ -3843,7 +3857,7 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
       <div className="screen-stack micro-theory-screen">
         <div className="screen-heading">
           <div className="heading-copy"><span className="lesson-kicker">{t({ uz: 'LUMO CITY · BIR QADAM', ru: 'LUMO CITY · ОДИН ШАГ', en: 'LUMO CITY · ONE STEP' })}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div>
-          <div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div>
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="point" /></div>
         </div>
         {c.hookQuestion && <div className="hook-question"><span>?</span><strong>{t(c.hookQuestion)}</strong></div>}
         <section className="micro-theory-card">
@@ -5278,11 +5292,11 @@ html, body { margin: 0; padding: 0; }
 /* Grade 4 Dars01 local visual contract */
 .lesson-frame .preview-language{display:none!important}
 :is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
-@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
-@media(max-width:390px) and (max-height:700px){.etalon-hook-screen .screen-heading .heading-copy p{display:none}.etalon-hook-screen .question-card{padding:7px 8px}.etalon-hook-screen .question-topline{margin-bottom:4px}.etalon-hook-screen .question-card h2{font-size:14px;line-height:1.14}.etalon-hook-screen .options-grid{margin-top:4px;gap:4px}.etalon-hook-screen .option{min-height:48px;padding:5px 6px;font-size:10px;line-height:1.2}.etalon-hook-screen .option-letter{width:24px;height:24px;flex-basis:24px}}
-.hook-story-frame[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
-.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
-@media(max-width:639.98px){.hook-story-frame[data-g4-role~="hook-scene"] .hook-story-model{padding-right:84px}}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root) .stage{width:100%!important;max-width:100%!important}}
+@media(max-width:390px) and (max-height:700px){.etalon-hook-screen .screen-heading .heading-copy p{display:none}.etalon-hook-screen .question-card{padding:7px 8px}.etalon-hook-screen .question-topline{margin-bottom:4px}.etalon-hook-screen .question-card h2{font-size:14px;line-height:1.14}.etalon-hook-screen .options-grid{margin-top:4px;gap:4px}.etalon-hook-screen .option{min-height:48px;padding:5px 6px;font-size:10px;line-height:1.2}.etalon-hook-screen .option>span:last-child{font-size:11px;line-height:1.2}.etalon-hook-screen .option-letter{width:24px;height:24px;flex-basis:24px}}
+.hook-story-frame[data-g4-role="visual-frame"]{grid-template-columns:minmax(0,1fr)!important}
+.hook-story-frame[data-g4-role="visual-frame"] .hook-story-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
+@media(max-width:639.98px){.hook-story-frame[data-g4-role="visual-frame"] .hook-story-model{padding-right:84px}}
 :is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
 :is(.lesson-root,.d8-root) .question h2,
@@ -5316,8 +5330,10 @@ html, body { margin: 0; padding: 0; }
   [data-g4-feedback="solution"]{min-height:68px}
   [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
 }
-:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
-:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
+@media(min-width:640px){.etalon-hook-screen{gap:5px}}
+@media(max-width:390px) and (max-height:700px){.spoken-builder-screen .heading-copy p{display:none}}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:36px!important;font-family:'Source Serif 4',Georgia,serif}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:21px!important;font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
@@ -5326,11 +5342,146 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
 @media(max-width:639.98px){
-  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:17px!important}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}
-  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
-  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
-  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px!important;height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px!important;height:59px!important}
+}
+/* Canonical full-width feedback adapter for the nested early-family card. */
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card){
+  width:100%!important;max-width:100%;box-sizing:border-box;display:block!important;
+  padding:0!important;grid-template-columns:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:88px!important;border-radius:18px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;
+  box-shadow:inset 4px 0 #A96F13!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:72px!important;border-radius:15px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#E7F3EC)!important;
+  box-shadow:inset 4px 0 #227A53!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card)>.feedback-card{
+  width:100%;min-height:inherit;box-sizing:border-box;display:grid!important;align-items:center;
+  background:transparent!important;box-shadow:none!important;border-radius:inherit
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:62px minmax(0,1fr)!important;gap:9px;padding:6px 15px 6px 9px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:51px minmax(0,1fr)!important;gap:8px;padding:4px 12px 4px 6px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][aria-hidden="true"]:has(>.feedback-card){
+  height:0!important;min-height:0!important;margin-top:0!important;padding:0!important;
+  overflow:hidden!important;background:none!important;box-shadow:none!important;border-radius:0!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]>:is(.bit,.g1-char,svg){
+  width:100%!important;height:100%!important
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:54px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:47px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){min-height:68px!important}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:72px!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px!important;height:64px!important}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px!important;height:59px!important}
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .stage-content{overscroll-behavior:contain}
+}
+:is(.lesson-root,.d8-root) .stage-content{overflow:hidden!important}
+@media(min-width:640px){
+  :is(.lesson-root,.d8-root) .etalon-hook-screen .feedback{margin-top:0}
+  :is(.lesson-root,.d8-root) .etalon-hook-screen .question-card{padding-bottom:12px}
+}
+@media(min-width:640px) and (max-width:1024px){
+  .g4-title-reveal-card h2{font-size:58px}
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .finale-screen{gap:3px}
+  :is(.lesson-root,.d8-root) .finale-heading{padding:5px 8px}
+  :is(.lesson-root,.d8-root) .finale-layout{gap:4px}
+  :is(.lesson-root,.d8-root) .finale-main,
+  :is(.lesson-root,.d8-root) .finale-actions{gap:3px}
+  :is(.lesson-root,.d8-root) .finale-mastery{gap:3px}
+  :is(.lesson-root,.d8-root) .finale-takeaway{min-height:0;padding:4px 6px}
+  :is(.lesson-root,.d8-root) .finale-proof,
+  :is(.lesson-root,.d8-root) .finale-bridge{padding:4px 6px}
+  :is(.lesson-root,.d8-root) .finale-reflection{padding:5px}
+  :is(.lesson-root,.d8-root) .finale-reflection>div{margin-top:3px;gap:3px}
+  :is(.lesson-root,.d8-root) .finale-reflection button{min-height:36px;padding:3px 5px}
+  :is(.lesson-root,.d8-root) .finale-actions .g4-title-claim{min-height:50px;padding:4px 7px}
+  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:96px!important;flex:0 0 auto}
+  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-feedback="solution"]>.feedback-card{min-height:96px!important}
+}
+@media(max-width:390px) and (max-height:700px){
+  :is(.lesson-root,.d8-root) .finale-heading>span{display:none}
+  :is(.lesson-root,.d8-root) .finale-heading h1{font-size:16px}
+  :is(.lesson-root,.d8-root) .finale-mastery{grid-template-columns:repeat(3,minmax(0,1fr))}
+  :is(.lesson-root,.d8-root) .finale-takeaway{display:block;padding:4px}
+  :is(.lesson-root,.d8-root) .finale-takeaway>span{width:18px;height:18px;margin-bottom:2px}
+  :is(.lesson-root,.d8-root) .finale-takeaway p{font-size:7px;line-height:1.1}
+  :is(.lesson-root,.d8-root) .finale-proof{grid-template-columns:auto auto minmax(0,1fr);gap:4px}
+  :is(.lesson-root,.d8-root) .finale-bridge{grid-template-columns:20px minmax(0,1fr);gap:4px}
+  :is(.lesson-root,.d8-root) .finale-bridge>span{width:20px;height:20px}
+  :is(.lesson-root,.d8-root) .finale-reflection>strong{font-size:9px}
+  :is(.lesson-root,.d8-root) .finale-reflection>div{grid-template-columns:repeat(3,minmax(0,1fr))}
+  :is(.lesson-root,.d8-root) .finale-reflection button{min-height:34px;display:block;padding:3px;font-size:7px;line-height:1.05}
+  :is(.lesson-root,.d8-root) .finale-reflection button span{float:left;width:16px;height:16px;margin-right:3px}
+  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-role~="feedback-frame"][data-g4-feedback="solution"],
+  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-feedback="solution"]>.feedback-card{min-height:112px!important}
+}
+/* Feedback replaces non-essential teaching chrome; no programmatic scroll. */
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){
+    height:auto!important;min-height:0!important;max-height:100%!important;
+    align-content:start!important;gap:6px!important;transform:none!important;animation:none!important
+  }
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>:is(.screen-heading,.heading-block){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>.model-panel{display:none!important}
+  :is(.lesson-root,.d8-root) :is(.etalon-hook-screen,.hook-screen,.hook-stack):has([data-g4-feedback])>:is(
+    .screen-heading,.heading-block,.hook-question-title,.topic-chip,.h-title,.question-title,
+    [data-g4-role~="hook-scene"]
+  ){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) :is(.fact-card,.bridge-card){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{
+    flex:0 0 auto;max-width:100%
+  }
+  :is(.lesson-root,.d8-root) .strategy-builder-screen:has([data-g4-feedback="solution"])>.strategy-builder-frame,
+  :is(.lesson-root,.d8-root) .reading-matching-screen.is-solved:has([data-g4-feedback="solution"])>.reading-matching-board{
+    display:none!important
+  }
+  :is(.lesson-root,.d8-root) .builder-interactive-frame:has(>[data-g4-feedback="solution"])>:not([data-g4-feedback]){
+    display:none!important
+  }
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){gap:4px!important}
+  :is(.lesson-root,.d8-root) .etalon-hook-screen>.question-card>h2{display:none!important}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]),
+  :is(.lesson-root,.d8-root) .hook-decision:has(+[data-g4-feedback]){padding:7px 8px!important}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .question-topline{margin-bottom:4px}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) h2{font-size:14px!important;line-height:1.14}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .options-grid,
+  :is(.lesson-root,.d8-root) .hook-answer-panel:has([data-g4-feedback]) .options-grid{margin-top:4px;gap:4px}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  transform:none!important;animation:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
 }
 `;

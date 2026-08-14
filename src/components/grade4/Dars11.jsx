@@ -979,7 +979,7 @@ const RowShift = ({ raw, full, shift, active, label }) => (
 );
 
 const ZeroPlaceholderIllustration = ({ solved }) => (
-  <svg className={`flat-math-svg zero-placeholder-svg ${solved ? 'is-solved' : ''}`} viewBox="0 0 680 168" aria-hidden="true" focusable="false">
+  <svg className={`flat-math-svg zero-placeholder-svg ${solved ? 'is-solved' : ''}`} data-g4-role="visual-frame" viewBox="0 0 680 168" aria-hidden="true" focusable="false">
     <rect className="zero-scene-shell" x="2" y="2" width="676" height="164" rx="22" />
     <g className="zero-multiplier">
       <rect x="22" y="30" width="132" height="108" rx="18" />
@@ -2395,6 +2395,71 @@ button:disabled { cursor: default; opacity: .55; }
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root .stage-screen-15 .stage-fit{zoom:1!important}
+.lesson-root .stage-screen-15 .g4-title-card-stage{min-height:116px;padding:12px 82px 11px 67px;border-radius:17px}
+.lesson-root .stage-screen-15 .g4-title-card-bit{width:72px;height:90px}
+.lesson-root .stage-screen-15 .g4-title-card-medal{width:44px;height:44px}
+.lesson-root [data-g4-role~="hook-scene"] .range-hint{right:128px}
+@media(max-width:639.98px){
+  .lesson-root{zoom:1!important}
+  .lesson-root .stage-fit{zoom:1!important;transform:none!important}
+  .lesson-root .stack[data-g4-screen="hook"]:has([data-g4-feedback])>[data-g4-role~="hook-scene"]{display:none}
+  .lesson-root .stack:has(>.matching [data-match-left][disabled]):has(>[data-g4-feedback])>.heading{display:none}
+  .lesson-root .stack:has(>.matching [data-match-left][disabled]):has(>[data-g4-feedback])>.matching{min-height:170px}
+  .lesson-root .stack:has(>.matching + [data-g4-feedback])>.heading{display:none}
+  .lesson-root .stack:has(>.matching + [data-g4-feedback])>.matching{min-height:170px;padding-block:6px}
+  .lesson-root :is(.stage-screen-9,.stage-screen-13) .stack:has(>.question [data-g4-feedback])>:is(.heading,.strategy-visual,.error-visual,.blocks-visual){display:none}
+  .lesson-root :is(.stage-screen-9,.stage-screen-13) .question .options{height:140px;min-height:140px}
+  .lesson-root :is(.stage-screen-9,.stage-screen-13) .question .option{transform:none!important;transition-property:background,box-shadow}
+  .lesson-root :is(.stage-screen-9,.stage-screen-13) .question:has([data-g4-feedback]) .feedback.open{height:auto;max-height:none;transition:none;transform:none}
+  .lesson-root .stack:has(>.construction + [data-g4-feedback])>.heading{display:none}
+  .lesson-root .stack:has(>.construction + [data-g4-feedback])>.construction>:is(.zero-placeholder-svg,.aligned-zero,p){display:none}
+  .lesson-root .stack:has(>.construction + [data-g4-feedback])>.construction{gap:4px;padding-block:6px}
+  .lesson-root .stage-screen-11 .stack:has([data-g4-feedback])>.heading,
+  .lesson-root .stage-screen-11 .question:has([data-g4-feedback])>:is(h2,.input-row){display:none}
+  .lesson-root .stage-screen-10 .stage-fit{zoom:1!important}
+  .lesson-root .stage-screen-10 .stack{gap:8px}
+  .lesson-root .stage-screen-10 :is(.question,.decompose,.construction){padding:12px}
+  .lesson-root .stage-screen-10 .options{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;margin-top:5px}
+  .lesson-root .stage-screen-10 .heading h1{font-size:25px;line-height:1.03}
+  .lesson-root .stage-screen-10 .heading span{margin-bottom:4px}
+  .lesson-root .stage-screen-10 .construction{gap:7px}
+  .lesson-root .stage-screen-10 .zero-placeholder-svg{max-height:118px}
+  .lesson-root .stage-screen-15 .stage-fit{zoom:1!important;transform:none!important;width:100%}
+  .lesson-root .stage-screen-15 .finale-layout{gap:3px}
+  .lesson-root .stage-screen-15 .finale-heading{padding:5px 7px}
+  .lesson-root .stage-screen-15 .finale-heading>p{margin-top:2px;font-size:8px;line-height:1.18}
+  .lesson-root .stage-screen-15 .finale-main-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:4px}
+  .lesson-root .stage-screen-15 :is(.finale-payoff-card,.finale-mastery-card){padding:5px}
+  .lesson-root .stage-screen-15 .finale-payoff-card .summary{margin-top:3px;grid-template-columns:minmax(0,1fr) 96px;gap:3px}
+  .lesson-root .stage-screen-15 .finale-payoff-card .row-rail{min-height:30px;padding:2px 4px;font-size:8px}
+  .lesson-root .stage-screen-15 .finale-payoff-card .aligned-rows{width:96px;padding:3px 5px;font-size:9px}
+  .lesson-root .stage-screen-15 .finale-payoff-card .range-result{padding:3px;font-size:7px}
+  .lesson-root .stage-screen-15 .finale-payoff-copy{font-size:7px;line-height:1.15}
+  .lesson-root .stage-screen-15 .finale-mastery-card .rules{margin-top:3px;grid-template-columns:1fr;gap:2px}
+  .lesson-root .stage-screen-15 .finale-mastery-card .rules>div{min-height:26px;padding:2px;grid-template-columns:20px 1fr;gap:3px;font-size:7px}
+  .lesson-root .stage-screen-15 .finale-mastery-card .rules>div>b{width:20px;height:20px}
+  .lesson-root .stage-screen-15 .finale-reflection{padding:4px;gap:3px}
+  .lesson-root .stage-screen-15 .finale-reflection h2{font-size:9px}
+  .lesson-root .stage-screen-15 .reflection-options{gap:3px}
+  .lesson-root .stage-screen-15 .reflection-options button{min-height:42px;padding:3px;font-size:7px}
+  .lesson-root .stage-screen-15 .g4-title-claim{min-height:48px;padding-block:4px}
+  .lesson-root .stage-screen-15 .bridge{padding:4px 7px}
+  .lesson-root .stage-screen-15 .bridge strong{font-size:11px}
+  .lesson-root .stage-screen-15 .finale-layout:has([data-g4-role~="title-card"])>:is(.finale-heading,.finale-main-grid){display:none}
+}
+@media(max-width:639.98px) and (min-height:701px){
+  .lesson-root :is(.stage-screen-9,.stage-screen-13) .question .options{height:172px;min-height:172px}
+}
+@media(min-width:640px) and (max-height:780px){
+  .lesson-root .stage-screen-15 .finale-heading{padding:7px 10px}
+  .lesson-root .stage-screen-15 .finale-main-grid{gap:6px}
+  .lesson-root .stage-screen-15 .finale-payoff-card,
+  .lesson-root .stage-screen-15 .finale-mastery-card{padding:7px}
+  .lesson-root .stage-screen-15 .finale-mastery-card .rules{gap:4px}
+  .lesson-root .stage-screen-15 .finale-mastery-card .rules>div{min-height:32px;padding:4px;font-size:9px}
+  .lesson-root .stage-screen-15 .bridge{padding:5px 8px}
+}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -2402,5 +2467,9 @@ button:disabled { cursor: default; opacity: .55; }
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .lesson-root .stage-screen-15 .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
+  .lesson-root .stage-screen-15 .g4-title-card-bit{width:57px;height:71px}
+  .lesson-root .stage-screen-15 .g4-title-card-medal{width:34px;height:34px}
+  .lesson-root [data-g4-role~="hook-scene"] .range-hint{right:90px}
 }
 `;

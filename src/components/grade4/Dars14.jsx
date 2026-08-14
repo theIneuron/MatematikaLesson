@@ -622,7 +622,7 @@ const Feedback = ({ show, correct, children }) => {
     const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); });
     return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
   }, [show]);
-  return <div role="status" aria-hidden={!show} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'} className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p>{show && <><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</>}</p></div>;
+  return <div role="status" aria-hidden={!show} data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p>{show && <><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</>}</p></div>;
 };
 
 const ContractActivity = ({ screen, value, onComplete }) => {
@@ -637,7 +637,7 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone, ch
   const storedActivity = Object.prototype.hasOwnProperty.call(activityState, screen); const activityReady = !meta.active || activityDone === true || storedActivity; const audioReady = !audio || audio.muted || audio.visualOnly || audio.completed; const canAdvance = activityReady && audioReady;
   useEffect(() => { if (activityDone === true && !storedActivity) markActivity(screen, true); }, [activityDone, markActivity, screen, storedActivity]);
   const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly));
-  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{meta.type === 'summary' && <div className="summary-happy-bit"><BitSVG state="happy" /></div>}<div className="stage-body">{children}<ContractActivity screen={screen} value={activityState[screen]} onComplete={markActivity}/></div><div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>{showCaption ? audio.caption : ''}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' , en: "Back"})}</button>}<button type="button" className="btn next" onClick={onNext} disabled={!canAdvance}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' , en: "Finish lesson"}) : t({ uz: "Davom etish", ru: 'Продолжить' , en: "Continue"})} →</button></footer></main>;
+  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{meta.type === 'summary' && <div className="summary-happy-bit" data-g4-role="summary-bit visual-frame"><BitSVG state="happy" /></div>}<div className="stage-body">{children}<ContractActivity screen={screen} value={activityState[screen]} onComplete={markActivity}/></div><div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>{showCaption ? audio.caption : ''}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span /> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' , en: "Back"})}</button>}<button type="button" className="btn next" onClick={onNext} disabled={!canAdvance}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' , en: "Finish lesson"}) : t({ uz: "Davom etish", ru: 'Продолжить' , en: "Continue"})} →</button></footer></main>;
 };
 
 const Heading = ({ c }) => {
@@ -657,7 +657,7 @@ const FixedTrack = ({ distance, chunks = 3, progress = 1, labels = [] }) => {
   const start = 54; const end = 666; const width = end - start;
   const ticks = Array.from({ length: chunks + 1 }, (_, index) => start + width * index / chunks);
   return (
-    <svg className="route-svg" viewBox="0 0 720 168" aria-hidden="true" focusable="false">
+    <svg className="route-svg" data-g4-role="route-model visual-frame" viewBox="0 0 720 168" aria-hidden="true" focusable="false">
       <rect className="route-panel" x="2" y="2" width="716" height="164" rx="24" />
       <path className="route-road" d={`M${start} 104H${end}`} />
       <path className="route-trail" d={`M${start} 104H${start + width * safeProgress}`} />
@@ -920,9 +920,10 @@ const BASE_SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Scre
 const SCREENS = SCREEN_FLOW.map((sourceIndex) => BASE_SCREENS[sourceIndex]);
 
 export default function Grade4Dars14({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const preview = previewMode ?? (langProp === undefined || langProp === null);
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
   const [previewLang, setPreviewLang] = useState(normalizeLang(langProp));
-  const lang = preview ? previewLang : normalizeLang(langProp);
+  const lang = showPreviewControls ? normalizeLang(previewLang) : normalizeLang(langProp);
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
   const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [activityState, setActivityState] = useState({}); const [finalRewardState, setFinalRewardState] = useState({ reflectionChoice: null, titleState: 'unclaimed' });
   // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
@@ -938,7 +939,7 @@ export default function Grade4Dars14({ studentName, lang: langProp, ttsApiBase, 
     if (onFinished) onFinished(payload); else console.log('[Grade4 Dars14 preview]', payload);
   }, [answers, lang, onFinished, studentName]);
   const Current = SCREENS[current];
-  return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={{ uz: 'Dars tili', ru: 'Язык урока', en: 'Lesson language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></ActivityContext.Provider></LangContext.Provider>;
+  return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{showPreviewControls && <div className="preview-language" aria-label={{ uz: 'Dars tili', ru: 'Язык урока', en: 'Lesson language' }[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson} /></div></ActivityContext.Provider></LangContext.Provider>;
 }
 
 const STYLES = `
@@ -1563,5 +1564,53 @@ button:disabled { cursor: default; opacity: .55; }
 .lesson-root [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 .lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 .lesson-root [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.lesson-root :is(.route-svg,.summary-happy-bit)[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
+.lesson-root [data-g4-role~="hook-scene"] .hook-facts>div:last-child{justify-items:start;padding-right:100px;text-align:left}
+.lesson-root .feedback[aria-hidden="true"]{height:0!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}
+@media(min-width:640px){
+  .lesson-root .stage-hook .stack{grid-template-columns:minmax(0,1fr)!important}
+  .lesson-root .stage-hook :is(.heading,[data-g4-role~="hook-question"],[data-g4-role~="hook-scene"],.question){grid-column:1/-1}
+  .lesson-root .stage-hook .heading{min-height:44px}
+  .lesson-root .stage-hook .heading>div>span{margin-bottom:2px}
+  .lesson-root .stage-hook [data-g4-role~="hook-question"]{margin-top:-2px}
+  .lesson-root .stage-hook .stack{gap:5px}
+  .lesson-root .stage-hook .question{padding-block:5px}
+  .lesson-root .stage-hook .stage-content{padding-bottom:47px!important}
+  .lesson-root .stage-hook .options{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lesson-root .stage-hook .option{min-height:48px}
+}
+@media(max-width:639.98px){
+  .lesson-root,.lesson-root .stage,.lesson-root .stage-body,.lesson-root .stack{width:100%;max-width:100%;min-width:0;zoom:1!important}
+  .lesson-root .stage:not(.stage-summary) .stage-content{padding-bottom:47px!important}
+  .lesson-root .stage-body{height:auto}
+  .lesson-root .activity-slot{min-height:44px;margin-top:3px}
+  .lesson-root .stage-summary .stack{grid-template-columns:minmax(0,1fr)!important;gap:4px}
+  .lesson-root .stage-summary .finale-heading{padding-block:5px}
+  .lesson-root .stage-summary .finale-main,
+  .lesson-root .stage-summary .finale-bottom{gap:4px}
+  .lesson-root .stage-summary .finale-main{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .lesson-root .stage-summary .finale-bottom{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .lesson-root .stage-summary :is(.stack,.finale-main,.finale-bottom,.finale-reward,.contract-final-reward,.g4-title-card){width:100%;max-width:100%;min-width:0}
+  .lesson-root .stage-summary .finale-reflection{padding:4px;gap:3px}
+  .lesson-root .stage-summary .finale-reflection button{min-height:42px;padding:3px;font-size:8px;overflow-wrap:anywhere}
+  .lesson-root .stage-summary :is(.g4-title-claim,.g4-title-claim strong,.g4-title-card-kicker,.g4-title-card-title){min-width:0;max-width:100%;overflow-wrap:anywhere;white-space:normal}
+  .lesson-root .stage-summary .stack:has([data-g4-role~="title-card"])>:is(.finale-heading,.finale-main){display:none}
+  .lesson-root .stage-summary .stack:has([data-g4-role~="title-card"])>.finale-bottom{grid-template-columns:minmax(0,1fr)}
+  .lesson-root .stage-summary .stack:has([data-g4-role~="title-card"]) .finale-bridge{display:none}
+  .lesson-root .stage-summary .g4-title-claim{min-height:58px;padding-block:5px}
+  .lesson-root .stage-summary .stage-content{padding-bottom:47px!important}
+  .lesson-root .stage-summary .finale-heading p{font-size:8px;line-height:1.15}
+  .lesson-root .stage-summary .finale-track .route-svg{max-height:58px}
+  .lesson-root .stage-summary .finale-takeaway{min-height:27px;padding-block:2px}
+  .lesson-root .stage-summary .finale-bridge{padding-block:5px}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stage-summary .stage-content{padding-bottom:31px!important}
+}
+@media(min-width:640px) and (max-height:800px){
+  .lesson-root .stage-hook .question{padding:6px}
+  .lesson-root .stage-hook .option{min-height:44px}
+}
 @media(max-width:639.98px){.lesson-root [data-g4-role~="hook-title"]{font-size:25px}.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}.lesson-root [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px}.lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}}
+@media(max-width:639.98px){.lesson-root [data-g4-role~="hook-scene"] .hook-facts>div:last-child{padding-right:58px}}
 `;

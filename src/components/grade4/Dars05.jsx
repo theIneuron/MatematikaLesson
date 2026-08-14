@@ -123,9 +123,9 @@ const G4_TITLE_STYLES = `
   justify-content: center;
   gap: 4px;
   overflow: hidden;
-  color: #173B52;
-  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.22), transparent 30%), linear-gradient(135deg,#F2FBFC,#E5F5F6);
-  box-shadow: inset 0 0 0 1px rgba(22,143,163,.18),0 28px 58px -29px rgba(22,143,163,.44);
+  color: #FFFFFF;
+  background: radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%), linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
   transform: translateY(-2px);
 }
 .g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
@@ -147,8 +147,8 @@ const G4_TITLE_STYLES = `
   font-size: 19px;
   transform: translateY(-50%);
 }
-.g4-title-card-kicker { position: relative; z-index: 2; color: #227A53; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
-.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #173B52; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
+.g4-title-card-kicker { position: relative; z-index: 2; color: #A8EAF0; font: 900 10px/1 'JetBrains Mono', monospace; letter-spacing: .13em; }
+.g4-title-card-stage h2 { position: relative; z-index: 2; margin: 0; color: #FFFFFF; font: 750 clamp(16px, 2.2vw, 21px)/1.05 'Source Serif 4', Georgia, serif; }
 .g4-title-card-score {
   position: relative;
   z-index: 2;
@@ -1796,11 +1796,6 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-function useRevealScroll() {
-  const ref = useRef(null);
-  return ref;
-}
-
 function useAudioSegmentReveal(audio, segments, count) {
   const [visible, setVisible] = useState(0);
   const reducedMotion = typeof window !== 'undefined'
@@ -2015,9 +2010,9 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 
 const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
-  const revealRef = useRevealScroll(show);
+  const visible = show && children !== null && children !== undefined && String(children).trim().length > 0;
   return (
-    <div ref={revealRef} className={`feedback ${show ? 'feedback-visible' : ''}`} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'} aria-hidden={!show} aria-live="polite">
+    <div className={`feedback ${visible ? 'feedback-visible' : ''}`} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={visible ? (correct ? 'solution' : 'wrong') : undefined} aria-hidden={!visible} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'} /></span>
         <div>
@@ -2353,7 +2348,7 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
                 <h1>{t(c.title)}</h1>
                 <p>{t(c.lead)}</p>
               </div>
-              <div className="bit-coach"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
+              <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
             </div>
             <ModelPanel model={c.model} solved={solved} />
           </>
@@ -2483,7 +2478,7 @@ const NumberInputScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) =
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach"><BitSVG state={solved ? 'nod' : 'present'} /></div>
+          <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : 'present'} /></div>
         </div>
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={`question-${screen}`}>
@@ -2641,7 +2636,7 @@ const TheoryBody = ({ screen, c, meta, label, canAdvance, audioReveal = null }) 
   if (meta.type === 'summary') {
     return (
       <div className="summary-theory-layout">
-        <div className="summary-signal"><BitSVG state="nod" /><strong>{t(c.model?.number)}</strong></div>
+        <div className="summary-signal" data-g4-role="visual-frame"><BitSVG state="nod" /><strong>{t(c.model?.number)}</strong></div>
         <div className="summary-theory-cards">
           <div><span>01</span><p>{lang === 'en' ? "Choose the accuracy that suits the situation and mark the target place." : lang === 'ru' ? 'Выбери точность по ситуации и отметь целевой разряд.' : 'Vaziyatga mos aniqlik va maqsad xonasini tanlang.'}</p></div>
           <div><span>02</span><p>{lang === 'en' ? "Use the next digit on the right to decide whether to round down or up." : lang === 'ru' ? 'По соседней цифре справа реши, округлять вниз или вверх.' : "Darhol o'ngdagi raqam bo'yicha pastga yoki yuqoriga qaror qiling."}</p></div>
@@ -2844,7 +2839,7 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory">
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame">
             <BitSVG state={theoryMoodFor(meta.subtype)} />
           </div>
         </div>
@@ -2889,7 +2884,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-theory"><BitSVG state="focus" /></div>
+          <div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="focus" /></div>
         </div>
         <div className="worked-examples-grid">
           {c.items.map((item, index) => (
@@ -2903,7 +2898,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
             </article>
           ))}
         </div>
-        <div className="worked-examples-finish">
+        <div className="worked-examples-finish" data-g4-role="visual-frame">
           <BitSVG state="nod" />
           <p>{t(c.completionText)}</p>
         </div>
@@ -3288,7 +3283,7 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
       <div className="screen-stack micro-theory-screen" data-g4-mechanic={meta.template}>
-        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory"><BitSVG state="point" /></div></div>
+        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="point" /></div></div>
         {c.hookQuestion && <div className="hook-question"><span>?</span><strong>{t(c.hookQuestion)}</strong></div>}
         <section className="micro-theory-card">
           <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
@@ -3329,7 +3324,7 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
               <button type="button" className={step >= 1 ? 'micro-action-active' : ''} disabled={!canInteract || step >= 1} onClick={() => advanceStep(1)}>{meta.template === 'ErrorRepair' ? copy.next : copy.reveal}</button>
             )}
           </div>
-          <div className={`micro-theory-result ${step >= requiredStep ? 'micro-theory-result-visible' : ''}`} aria-live="polite">
+          <div className={`micro-theory-result ${step >= requiredStep ? 'micro-theory-result-visible' : ''}`} data-g4-role="visual-frame" aria-live="polite">
             <BitSVG state={step >= requiredStep ? 'nod' : 'think'} />
             <p>{step >= requiredStep && explanation ? t(explanation) : copy.waiting}</p>
           </div>
@@ -4602,7 +4597,7 @@ html, body { margin: 0; padding: 0; }
 /* Grade 4 Dars01 local visual contract */
 .lesson-frame .preview-language{display:none!important}
 :is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
-@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root){width:100%!important;max-width:100%!important;zoom:1!important;transform:none!important}:is(.lesson-root,.d8-root) .stage{width:100%!important;max-width:100%!important}:is(.lesson-root,.d8-root) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}}
 :is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
 :is(.lesson-root,.d8-root) .question h2,
@@ -4616,6 +4611,7 @@ html, body { margin: 0; padding: 0; }
 [data-g4-role~="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}
 [data-g4-role~="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}
 [data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
+[data-g4-role~="hook-scene"] .hook-topic-model{grid-column:1/-1;width:100%;min-width:0;padding-right:116px}
 [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
 [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
 [data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
@@ -4653,4 +4649,137 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
 }
+/* Canonical full-width feedback adapter for the nested early-family card. */
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card){
+  width:100%!important;max-width:100%;box-sizing:border-box;display:block!important;
+  padding:0!important;grid-template-columns:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:88px!important;border-radius:18px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;
+  box-shadow:inset 4px 0 #A96F13!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:72px!important;border-radius:15px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#E7F3EC)!important;
+  box-shadow:inset 4px 0 #227A53!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card)>.feedback-card{
+  width:100%;min-height:inherit;box-sizing:border-box;display:grid!important;align-items:center;
+  background:transparent!important;box-shadow:none!important;border-radius:inherit
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:62px minmax(0,1fr)!important;gap:9px;padding:6px 15px 6px 9px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:51px minmax(0,1fr)!important;gap:8px;padding:4px 12px 4px 6px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][aria-hidden="true"]:has(>.feedback-card){
+  height:0!important;min-height:0!important;margin-top:0!important;padding:0!important;
+  overflow:hidden!important;background:none!important;box-shadow:none!important;border-radius:0!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]>:is(.bit,.g1-char,svg){
+  width:100%!important;height:100%!important
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:54px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:47px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){min-height:68px!important}
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .stage-content{overflow:hidden!important;overscroll-behavior:contain}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:72px!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px!important;height:64px!important}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px!important;height:59px!important}
+}
+/* Feedback replaces non-essential teaching chrome; no programmatic scroll. */
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){
+    height:auto!important;min-height:0!important;max-height:100%!important;
+    align-content:start!important;gap:6px!important;transform:none!important;animation:none!important
+  }
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>:is(.screen-heading,.heading-block){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>.model-panel{display:none!important}
+  :is(.lesson-root,.d8-root) :is(.etalon-hook-screen,.hook-screen,.hook-stack):has([data-g4-feedback])>:is(
+    .screen-heading,.heading-block,.hook-question-title,.topic-chip,.h-title,.question-title,
+    [data-g4-role~="hook-scene"]
+  ){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) :is(.fact-card,.bridge-card){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{
+    flex:0 0 auto;max-width:100%
+  }
+  :is(.lesson-root,.d8-root) .strategy-builder-screen:has([data-g4-feedback="solution"])>.strategy-builder-frame,
+  :is(.lesson-root,.d8-root) .reading-matching-screen:has([data-g4-feedback="solution"])>.reading-matching-board{
+    display:none!important
+  }
+  :is(.lesson-root,.d8-root) .builder-interactive-frame:has(>[data-g4-feedback="solution"])>:not([data-g4-feedback]){
+    display:none!important
+  }
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){gap:4px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px!important;line-height:1.08!important}
+  :is(.lesson-root,.d8-root) .hook-topic-heading{display:block!important;width:100%;grid-template-columns:minmax(0,1fr)!important}
+  :is(.lesson-root,.d8-root) .hook-topic-heading .heading-copy{width:100%;max-width:none!important}
+  :is(.lesson-root,.d8-root) .hook-question-card>h2{display:none!important}
+  :is(.lesson-root,.d8-root) .hook-question-card{padding:7px!important}
+  :is(.lesson-root,.d8-root) .hook-question-card .options-grid{margin-top:4px!important;gap:4px!important}
+  :is(.lesson-root,.d8-root) .hook-question-card .option{gap:4px!important;padding-inline:4px!important}
+  :is(.lesson-root,.d8-root) .hook-question-card .option-letter{width:24px!important;height:24px!important;flex-basis:24px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]{
+    height:164px!important;min-height:164px!important;max-height:164px!important;
+    box-sizing:border-box!important;grid-template-columns:minmax(0,1fr)!important;padding:8px 82px 8px 10px!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .hook-topic-model{
+    grid-column:1/-1;width:100%;min-width:0;padding-right:0
+  }
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]),
+  :is(.lesson-root,.d8-root) .hook-decision:has(+[data-g4-feedback]){padding:7px 8px!important}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .question-topline{margin-bottom:4px}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) h2{font-size:14px!important;line-height:1.14}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .options-grid,
+  :is(.lesson-root,.d8-root) .hook-answer-panel:has([data-g4-feedback]) .options-grid{margin-top:4px;gap:4px}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .screen-heading{grid-template-columns:minmax(0,1fr) 54px;gap:5px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .heading-copy h1{font-size:20px;line-height:1.04}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .heading-copy p{margin-top:2px;font-size:10px;line-height:1.2}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .bit-coach{width:54px;height:58px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .bit-coach .g1-char{width:46px;height:56px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-theory-card{padding:8px;gap:5px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-model{grid-template-columns:54px minmax(0,1fr);gap:5px;padding:6px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-model>strong{font-size:15px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-model>div{gap:3px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-row{grid-template-columns:46px minmax(76px,1fr) 54px;gap:3px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-row>span,
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-row b{font-size:7px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-scale-row>div{height:18px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-theory-card h2{font-size:14px;line-height:1.14}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-action-row{min-height:42px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-action-row button{min-height:42px;padding:6px 12px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-theory-result{min-height:68px;padding:4px 8px;grid-template-columns:47px minmax(0,1fr);gap:7px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-theory-result .g1-char{width:47px;height:59px}
+  .micro-theory-screen[data-g4-mechanic="ModelCompare"] .micro-theory-result p{font-size:10px;line-height:1.25}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  transform:none!important;animation:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
+}
+.lesson-root .hook-topic-heading .heading-copy h1[data-g4-role~="hook-title"]{font-size:36px}
+.lesson-root .hook-screen .hook-question-card{padding:7px 9px}
+.lesson-root .hook-screen .hook-question-card>h2{display:none}
+.lesson-root .hook-screen .hook-question-card .question-topline{margin-bottom:0}
+.lesson-root .hook-screen .hook-question-card .options-grid{margin-top:4px;gap:7px}
+.lesson-root .hook-screen:has(.hook-question-card .feedback-visible)>[data-g4-role~="hook-scene"]{display:none}
 `;

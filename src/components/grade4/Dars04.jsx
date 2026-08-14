@@ -1130,11 +1130,6 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
   return order;
 };
 
-function useRevealScroll() {
-  const ref = useRef(null);
-  return ref;
-}
-
 function useTimedReveal(count, interval = 520) {
   const [visible, setVisible] = useState(0);
   const [runKey, setRunKey] = useState(0);
@@ -1435,7 +1430,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 };
 
 const BitCoach = ({ text, mood = 'present', actionKey = 0 }) => (
-  <div className="bit-coach" key={actionKey}>
+  <div className="bit-coach" data-g4-role="visual-frame" key={actionKey}>
     <div className="bit-coach-figure"><BitSVG state={mood} /></div>
     <div className="bit-speech"><span>{text}</span></div>
   </div>
@@ -1443,9 +1438,9 @@ const BitCoach = ({ text, mood = 'present', actionKey = 0 }) => (
 
 const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
-  const revealRef = useRevealScroll(show);
+  const visible = show && children !== null && children !== undefined && String(children).trim().length > 0;
   return (
-    <div ref={revealRef} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show} aria-live="polite">
+    <div data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={visible ? (correct ? 'solution' : 'wrong') : undefined} className={`feedback ${visible ? 'feedback-visible' : ''}`} aria-hidden={!visible} aria-live="polite">
       <div className={`feedback-card ${correct ? 'feedback-correct' : 'feedback-hint'}`}>
         <div className={`g4-bit-reaction-figure ${correct ? 'g4-bit-reaction-ok' : 'g4-bit-reaction-hint'}`} data-g4-role="feedback-bit">
           <BitSVG state={correct ? 'nod' : 'awkward'} />
@@ -1892,7 +1887,7 @@ const DiscoveryScreen = ({ screen, onNext, onPrev }) => {
             })}
           </div>
           <div className={`proof-strip reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`}>{t(c.proof)}</div>
-          <div className={`discovery-rule reveal-item ${reveal.visible >= 4 ? 'is-visible' : ''}`}><BitSVG state="idea" /><strong>{t(c.discovery)}</strong></div>
+          <div className={`discovery-rule reveal-item ${reveal.visible >= 4 ? 'is-visible' : ''}`} data-g4-role="visual-frame"><BitSVG state="idea" /><strong>{t(c.discovery)}</strong></div>
         </div>
         <GuidedRevealControl reveal={reveal} />
       </div>
@@ -1966,7 +1961,7 @@ const StrategyScreen = ({ screen, onNext, onPrev }) => {
             </article>
           ))}
         </div>
-        <div className={`strategy-note reveal-item ${reveal.visible >= 4 ? 'is-visible' : ''}`}><BitSVG state="focus" /><span>{t(c.note)}</span></div>
+        <div className={`strategy-note reveal-item ${reveal.visible >= 4 ? 'is-visible' : ''}`} data-g4-role="visual-frame"><BitSVG state="focus" /><span>{t(c.note)}</span></div>
         <GuidedRevealControl reveal={reveal} />
       </div>
     </Stage>
@@ -2962,7 +2957,7 @@ html, body { margin: 0; padding: 0; }
 /* Grade 4 Dars01 local visual contract */
 .lesson-frame .preview-language{display:none!important}
 :is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}
-@media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important;zoom:1!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
+@media(max-width:639.98px){:is(.lesson-root,.d8-root){width:100%!important;max-width:100%!important;zoom:1!important;transform:none!important}:is(.lesson-root,.d8-root) .stage{width:100%!important;max-width:100%!important}:is(.lesson-root,.d8-root) .stage-content>:is(.stage-fit,.screen-stack){zoom:1!important;transform:none!important}}
 :is(.lesson-root,.d8-root){font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) h1{font-family:'Source Serif 4',Georgia,serif}
 :is(.lesson-root,.d8-root) .question h2,
@@ -3012,5 +3007,146 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+}
+/* Canonical full-width feedback adapter for the nested early-family card. */
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card){
+  width:100%!important;max-width:100%;box-sizing:border-box;display:block!important;
+  padding:0!important;grid-template-columns:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:88px!important;border-radius:18px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;
+  box-shadow:inset 4px 0 #A96F13!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){
+  height:auto!important;min-height:72px!important;border-radius:15px!important;
+  overflow:hidden!important;background:linear-gradient(135deg,#FFFFFF,#E7F3EC)!important;
+  box-shadow:inset 4px 0 #227A53!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]:has(>.feedback-card)>.feedback-card{
+  width:100%;min-height:inherit;box-sizing:border-box;display:grid!important;align-items:center;
+  background:transparent!important;box-shadow:none!important;border-radius:inherit
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:62px minmax(0,1fr)!important;gap:9px;padding:6px 15px 6px 9px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+  grid-template-columns:51px minmax(0,1fr)!important;gap:8px;padding:4px 12px 4px 6px!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][aria-hidden="true"]:has(>.feedback-card){
+  height:0!important;min-height:0!important;margin-top:0!important;padding:0!important;
+  overflow:hidden!important;background:none!important;box-shadow:none!important;border-radius:0!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]>:is(.bit,.g1-char,svg){
+  width:100%!important;height:100%!important
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:54px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]:has(>.feedback-card)>.feedback-card{
+    grid-template-columns:47px minmax(0,1fr)!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-feedback="solution"][aria-hidden="false"]:has(>.feedback-card){min-height:68px!important}
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .stage-content{overflow:hidden!important;overscroll-behavior:contain}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:72px!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px!important;height:64px!important}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:68px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"][data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px!important;height:59px!important}
+}
+/* Feedback replaces non-essential teaching chrome; no programmatic scroll. */
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){
+    height:auto!important;min-height:0!important;max-height:100%!important;
+    align-content:start!important;gap:6px!important;transform:none!important;animation:none!important
+  }
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>:is(.screen-heading,.heading-block){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback])>.model-panel{display:none!important}
+  :is(.lesson-root,.d8-root) :is(.etalon-hook-screen,.hook-screen,.hook-stack):has([data-g4-feedback])>:is(
+    .screen-heading,.heading-block,.hook-question-title,.topic-chip,.h-title,.question-title,
+    [data-g4-role~="hook-scene"]
+  ){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) :is(.fact-card,.bridge-card){display:none!important}
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{
+    flex:0 0 auto;max-width:100%
+  }
+  :is(.lesson-root,.d8-root) .strategy-builder-screen:has([data-g4-feedback="solution"])>.strategy-builder-frame,
+  :is(.lesson-root,.d8-root) .reading-matching-screen:has([data-g4-feedback="solution"])>.reading-matching-board{
+    display:none!important
+  }
+  :is(.lesson-root,.d8-root) .builder-interactive-frame:has(>[data-g4-feedback="solution"])>:not([data-g4-feedback]){
+    display:none!important
+  }
+}
+@media(max-width:639.98px){
+  :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]){gap:4px!important}
+  :is(.lesson-root,.d8-root) .hook-stack{gap:2px!important}
+  :is(.lesson-root,.d8-root) .hook-stack .lead{font-size:9px!important;line-height:1.15!important}
+  :is(.lesson-root,.d8-root) .hook-decision>strong{display:none!important}
+  :is(.lesson-root,.d8-root) .hook-decision{padding:6px!important}
+  :is(.lesson-root,.d8-root) .hook-answer-grid{margin-top:0!important;gap:4px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]{
+    height:164px!important;min-height:164px!important;max-height:164px!important;
+    box-sizing:border-box!important;padding:8px 82px 8px 10px!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .sort-console{gap:5px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .route-order{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important
+  }
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .route-card{padding:6px!important;border-radius:11px}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .route-card small{font-size:9px;letter-spacing:.08em}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .route-card strong{margin-top:3px;font-size:14px!important}
+  :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"] .sort-alert{padding:4px 6px;font-size:9px;line-height:1.15}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]),
+  :is(.lesson-root,.d8-root) .hook-decision:has(+[data-g4-feedback]){padding:7px 8px!important}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .question-topline{margin-bottom:4px}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) h2{font-size:14px!important;line-height:1.14}
+  :is(.lesson-root,.d8-root) .question-card:has([data-g4-feedback]) .options-grid,
+  :is(.lesson-root,.d8-root) .hook-answer-panel:has([data-g4-feedback]) .options-grid{margin-top:4px;gap:4px}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .recap-stack .recap-steps{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .recap-stack .model-step{min-height:54px;padding:5px 4px;display:grid;grid-template-columns:22px minmax(0,1fr);justify-items:start;text-align:left;gap:4px}
+  .recap-stack .model-step>span{width:22px;height:22px;flex-basis:22px}
+  .recap-stack .model-step p{font-size:8px;line-height:1.2}
+  .recap-stack .recap-result{grid-template-columns:24px minmax(90px,auto) minmax(0,1fr);padding:5px;gap:4px}
+  .recap-stack .recap-result>p{font-size:8px;line-height:1.2}
+  .recap-stack .bit-coach{min-height:56px}
+  .recap-stack .bit-coach-figure{width:44px;height:54px;flex-basis:44px}
+  .recap-stack .bit-speech{font-size:9px;line-height:1.2}
+  .rule-stack .rule-path{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .rule-stack .rule-card{min-height:0;padding:7px;gap:4px}
+  .rule-stack .rule-card>span{width:25px;height:25px}
+  .rule-stack .rule-card h2{font-size:11px;line-height:1.15}
+  .rule-stack .rule-card p{margin-top:3px;font-size:8px;line-height:1.25}
+  .rule-stack .bit-coach{min-height:58px}
+  .rule-stack .bit-coach-figure{width:46px;height:57px;flex-basis:46px}
+  .rule-stack .bit-speech{font-size:9px;line-height:1.2}
+  .strategy-stack .strategy-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+  .strategy-stack .strategy-card{min-height:0;padding:7px;gap:4px}
+  .strategy-stack .strategy-icon{width:28px;height:28px;font-size:14px}
+  .strategy-stack .strategy-card h2{font-size:11px;line-height:1.15}
+  .strategy-stack .strategy-card p{font-size:8px;line-height:1.25}
+  .strategy-stack .strategy-card code{font-size:8px}
+  .strategy-stack .strategy-note{min-height:60px;padding:3px 8px 3px 5px;gap:6px;font-size:9px;line-height:1.2}
+  .strategy-stack .strategy-note>svg{width:46px;height:56px;flex-basis:46px}
+  .strategy-stack .guided-reveal-control{min-height:42px;padding:6px 12px}
+  .finale-screen .finale-reflection{padding:6px}
+  .finale-screen .finale-reflection>strong{font-size:10px}
+  .finale-screen .finale-reflection>div{margin-top:4px;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .finale-screen .finale-reflection button{min-height:52px;padding:4px;grid-template-columns:18px minmax(0,1fr);gap:3px;font-size:8px;line-height:1.15}
+  .finale-screen .finale-actions .g4-title-claim{min-height:52px}
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  transform:none!important;animation:none!important
+}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
+:is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
+  position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
 }
 `;

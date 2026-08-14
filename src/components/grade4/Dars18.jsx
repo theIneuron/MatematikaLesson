@@ -444,7 +444,7 @@ const ScreenTypeLabel = ({ type }) => { const lang = useLang(); const labels = {
 function Stage({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) {
   const t = useT(); const mobile = useIsMobile(); const lesson = useLesson(); const c = lesson.screens[screen]; const pad = mobile ? 14 : 48;
   const captionVisible = Boolean(audio.caption && (audio.muted || audio.visualOnly));
-  return <main className={`stage stage-${c.type}`} data-g4-screen={c.type === 'hook' ? 'hook' : c.type}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${captionVisible ? 'is-visible' : ''}`} aria-live="polite"><span>{captionVisible ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
+  return <main className={`stage stage-${c.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${lesson.screens.length}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / lesson.screens.length * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={c.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {lesson.screens.length}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${captionVisible ? 'is-visible' : ''}`} aria-live="polite"><span>{captionVisible ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>;
 }
 
 const Heading = ({ c, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{c.bit && !hook && <BitSVG state={c.bit}/>}</div>; };
@@ -496,6 +496,9 @@ function G4TitleReveal({ active, title, onComplete }) {
   const t = useT();
   const [visible, setVisible] = useState(false);
   const wasActiveRef = useRef(active);
+  const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
     const wasActive = wasActiveRef.current;
@@ -503,12 +506,12 @@ function G4TitleReveal({ active, title, onComplete }) {
     if (!active || wasActive || typeof window === 'undefined') return undefined;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const frame = window.requestAnimationFrame(() => setVisible(true));
-    const timer = window.setTimeout(() => { setVisible(false); onComplete?.(); }, reduced ? 120 : 3900);
+    const timer = window.setTimeout(() => { setVisible(false); onCompleteRef.current?.(); }, reduced ? 120 : 3900);
     return () => {
       window.cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [active, onComplete]);
+  }, [active]);
 
   if (!visible || typeof document === 'undefined') return null;
   const localizedTitle = t(title);
@@ -629,7 +632,7 @@ function LessonScreen({ screen, storedAnswer, answers, onAnswer, onPrev, onNext,
 }
 
 export function FractionLessonShell({ lesson, studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const preview = previewMode ?? (langProp === undefined || langProp === null); const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = preview ? normalizeLang(previewLang) : initialLang;
+  const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang;
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
   const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]);
   useMobileZoom();
@@ -637,7 +640,7 @@ export function FractionLessonShell({ lesson, studentName, lang: langProp, ttsAp
   const started = useRef(Date.now()); const finished = useRef(false);
   const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry }; return next; }), []);
   const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = [9, 10, 11, 12, 13, 14]; const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - started.current) / 1000), totalQuestions: 6, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / 6 * 100), finalScore: firstTryCorrect, finalTotal: 6, passed: firstTryCorrect / 6 >= 0.6, firstTryStats: { total: 6, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: lesson.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log(`[${lesson.slug} preview]`, payload); }, [answers, lang, lesson, onFinished, studentName]);
-  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{preview && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
+  return <LessonContext.Provider value={lesson}><LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={`lesson-root ${preview ? 'lesson-root-preview' : ''}`}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<LessonScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(lesson.screens.length - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider></LessonContext.Provider>;
 }
 
 export default function Grade4Dars18({ studentName, lang, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { return <FractionLessonShell lesson={LESSON_META} studentName={studentName} lang={lang} ttsApiBase={ttsApiBase} voiceGender={voiceGender} correctSoundUrl={correctSoundUrl} wrongSoundUrl={wrongSoundUrl} onFinished={onFinished} previewMode={previewMode}/>; }
@@ -674,9 +677,10 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
 .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:51px!important;height:64px!important}
 .lesson-root .feedback[data-g4-feedback="wrong"]{height:auto!important;min-height:88px!important;border-radius:18px!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;box-shadow:inset 5px 0 #A96F13,0 13px 26px -23px rgba(169,111,19,.72)!important}
 .lesson-root .feedback[data-g4-role~="feedback-frame"] p{min-width:0;margin:0;font-family:'Manrope',system-ui,sans-serif!important;font-size:15px!important;line-height:1.42!important;text-align:left}
-.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}
+.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.rank-boost-overlay .g4-title-reveal-title{font-size:58px!important}
 [data-g4-role="title-card"]{position:relative;isolation:isolate;max-width:100%;overflow:hidden}
 [data-g4-role="title-claim"]{font-family:'Manrope',system-ui,sans-serif}
+.hook-scene-visual{width:min(760px,100%)!important;margin-inline:auto!important}
 .lesson-frame .preview-language{display:none!important}
 @media(max-width:639.98px){.lesson-root{zoom:1!important;width:100%!important}.stage{width:min(390px,100%)!important}}
 @media(max-width:639.98px){
@@ -693,10 +697,69 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
   .lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-role~="feedback-frame"]>.feedback-bit{width:54px!important;height:68px!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]{height:auto!important;min-height:68px!important;border-radius:15px!important;grid-template-columns:47px minmax(0,1fr)!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:47px!important;height:59px!important}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}
+  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}.rank-boost-overlay .g4-title-reveal-title{font-size:29px!important}
 }
 @media(prefers-reduced-motion:reduce){.rank-boost-overlay,.rank-boost-overlay * ,[data-g4-role="title-card"],[data-g4-role="title-card"] *{animation:none!important;transition:none!important}.rank-boost-overlay{opacity:1}.g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}}
-@media(max-width:639.98px) and (max-height:700px){.hook-stack>.beat-list{display:none!important}}
+.lesson-root [class*="formula"],.lesson-root [class*="equation"]{font-family:'JetBrains Mono',monospace!important}
+.hook-stack>.question[data-g4-role="answer-card"]{display:contents!important}
+.hook-stack>.question[data-g4-role="answer-card"]:has(.feedback.open)>.options{display:none!important}
+.lesson-root .question:has(.feedback[data-g4-feedback="solution"].open)>.options{display:none!important}
+.visual-shell{overflow:hidden!important}
+.visual-shell>.model-card{min-height:0!important;max-height:none!important;padding:8px!important;gap:5px!important;overflow:hidden!important}
+.visual-shell>.model-card .fraction-model{gap:4px!important}
+.visual-shell>.model-card .fraction-model>b{font-size:16px!important;line-height:1!important}
+.visual-shell>.model-card .fraction-bar{height:54px!important}
+.visual-shell>.model-card.three-models,.visual-shell>.model-card.choice-models,.visual-shell>.model-card.summary-model{min-height:0!important;height:auto!important}
+.visual-shell>.model-card.three-models{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+.visual-shell>.model-card.three-models .model-zoom{min-height:96px!important;padding:3px!important;overflow:hidden!important}
+.visual-shell>.model-card.three-models .fraction-circle{width:84px!important;height:84px!important}
+.visual-shell>.model-card.three-models .grid-model i{height:24px!important}
+.visual-shell>.model-card.choice-models{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:6px!important}
+.visual-shell>.model-card.choice-models .model-answer{min-width:0!important;min-height:96px!important;height:auto!important;padding:5px!important;grid-template-columns:24px minmax(0,1fr)!important;gap:3px!important;overflow:hidden!important}
+.visual-shell>.model-card.choice-models .model-answer>b{width:23px!important;height:23px!important}
+.visual-shell>.model-card.choice-models .model-answer>span{min-width:0;font-size:10px!important;line-height:1.12!important}
+.visual-shell>.model-card.choice-models .model-answer>.fraction-model,.visual-shell>.model-card.choice-models .model-answer>.loose-shapes{grid-column:1/-1}
+.visual-shell>.model-card.choice-models .fraction-bar{height:30px!important}
+.visual-shell>.model-card.choice-models .loose-shapes i{width:24px!important;height:24px!important}
+.visual-shell>.model-card.summary-model{padding-block:7px!important;grid-template-columns:1fr 1fr!important;gap:5px!important}
+.visual-shell>.model-card.summary-model .number-line-wrap,.visual-shell>.model-card.summary-model .number-line-svg{height:68px!important}
+.stack:has(>.visual-shell>.summary-model)>.visual-shell{min-height:88px!important}
+.stack:has(>.visual-shell>.summary-model)>.beat-list{padding:6px!important}
+.stack:has(>.visual-shell>.summary-model)>.beat-list .beat{min-height:44px!important;padding:4px!important;gap:4px!important}
+.stack:has(>.visual-shell>.summary-model)>.beat-list .beat>span{font-size:10px!important;line-height:1.1!important}
+@media(max-width:639.98px){
+  .visual-shell>.model-card{padding:5px!important;gap:3px!important}
+  .visual-shell>.model-card .fraction-bar{height:36px!important}
+  .visual-shell>.model-card .fraction-model>b{font-size:12px!important}
+  .visual-shell>.model-card.three-models{min-height:0!important;max-height:none!important;padding-block:3px!important}
+  .visual-shell>.model-card.three-models .model-zoom{min-height:82px!important;padding:2px!important}
+  .visual-shell>.model-card.three-models .fraction-circle{width:70px!important;height:70px!important}
+  .visual-shell>.model-card.three-models .grid-model i{height:20px!important}
+  .visual-shell>.model-card.choice-models{gap:3px!important}
+  .visual-shell>.model-card.choice-models .model-answer{min-height:80px!important;padding:3px!important;grid-template-columns:20px minmax(0,1fr)!important}
+  .visual-shell>.model-card.choice-models .model-answer>b{width:19px!important;height:19px!important;font-size:7px!important}
+  .visual-shell>.model-card.choice-models .model-answer>span{font-size:7px!important;line-height:1.05!important}
+  .visual-shell>.model-card.choice-models .fraction-bar{height:23px!important;border-width:2px!important}
+  .visual-shell>.model-card.choice-models .loose-shapes i{width:18px!important;height:18px!important}
+  .visual-shell>.model-card.summary-model{min-height:0!important;max-height:none!important;padding-block:4px!important;grid-template-columns:1fr 1fr!important;gap:3px!important}
+  .visual-shell>.model-card.summary-model .number-line-wrap,.visual-shell>.model-card.summary-model .number-line-svg{height:52px!important}
+  .stack:has(>.visual-shell>.summary-model)>.visual-shell{min-height:62px!important}
+  .stack:has(>.visual-shell>.summary-model)>.beat-list{padding:4px!important}
+  .stack:has(>.visual-shell>.summary-model)>.beat-list .beat{min-height:34px!important;padding:3px!important}
+  .stack:has(>.visual-shell>.summary-model)>.beat-list .beat>span{font-size:8px!important;line-height:1.05!important}
+}
+.lesson-root [data-g4-role="title-card"]{width:100%!important;min-height:116px!important;height:auto!important;margin:0!important;padding:12px 82px 11px 67px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;color:#FFF!important;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978)!important;box-shadow:0 28px 58px -27px rgba(22,143,163,.8)!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:72px!important;height:90px!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:44px!important;height:44px!important}
+@media(max-width:639.98px){
+  .lesson-root [data-g4-role="title-card"]{min-height:88px!important;padding:9px 59px 8px 51px!important;border-radius:14px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:57px!important;height:71px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:34px!important;height:34px!important}
+}
+.hook-stack>.beat-list{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;padding:5px!important}
+.hook-stack>.beat-list .beat{min-height:38px!important;padding:4px!important;grid-template-columns:23px minmax(0,1fr)!important;gap:4px!important}
+.hook-stack>.beat-list .beat>b{width:22px!important;height:22px!important}.hook-stack>.beat-list .beat>span{font-size:9px!important;line-height:1.12!important}
+@media(max-width:639.98px) and (max-height:700px){.hook-stack>.beat-list{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;padding:2px!important;gap:2px!important}.hook-stack>.beat-list .beat{min-height:26px!important;padding:2px!important;grid-template-columns:16px minmax(0,1fr)!important;gap:2px!important}.hook-stack>.beat-list .beat>b{width:16px!important;height:16px!important}.hook-stack>.beat-list .beat>span{font-size:7px!important;line-height:1.05!important}}
 `;
 
 const STYLES = `

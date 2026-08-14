@@ -1035,7 +1035,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
 };
 
 const BitCoach = ({ text, mood = 'present' }) => (
-  <aside className={`bit-coach bit-coach-${mood}`}><div className="bit-coach-figure"><BitSVG state={mood} /></div><p>{text}</p></aside>
+  <aside className={`bit-coach bit-coach-${mood}`} data-g4-role="visual-frame"><div className="bit-coach-figure"><BitSVG state={mood} /></div><p>{text}</p></aside>
 );
 
 const FeedbackBlock = ({ show, correct, children }) => {
@@ -1973,7 +1973,7 @@ function MatchingScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
 }
 
 const TITLE_STYLES = `
-.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:hidden;background:rgba(8,13,24,.78);animation:title-life 3.2s ease both}.g4-title-reveal-card{position:relative;width:100%;min-height:100dvh;display:grid;place-items:center;color:#fff;text-align:center;background:radial-gradient(circle,rgba(255,214,80,.2),transparent 34%)}.g4-title-reveal-rays{position:absolute;width:150vmax;height:150vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);animation:title-rays 3.2s linear 1}.g4-title-reveal-medal{z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);font-size:52px;box-shadow:0 0 54px rgba(255,204,63,.5)}.g4-title-reveal-card h2{position:absolute;top:calc(50% + 82px);z-index:2;width:min(680px,calc(100vw - 48px));font:750 clamp(30px,5vw,58px)/1.05 'Source Serif 4',serif;text-shadow:0 4px 24px #000}.g4-title-card-stage{position:relative;min-height:116px;padding:14px 88px 14px 70px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#173B52,#0E6978);overflow:hidden}.g4-title-card-stage .g1-char{position:absolute;right:4px;bottom:0;width:78px;height:98px}.g4-title-card-medal{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:#FFC23C}.g4-title-card-stage h2{font:750 clamp(17px,2.3vw,22px)/1.1 'Source Serif 4',serif}.g4-title-card-stage strong{color:#FFE284}.g4-title-claim{min-height:64px;width:100%;border:0;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);font-weight:850;cursor:pointer}@keyframes title-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes title-rays{to{transform:rotate(360deg)}}@media(prefers-reduced-motion:reduce){.g4-title-reveal-overlay,.g4-title-reveal-rays{animation:none}.g4-title-reveal-rays{display:none}}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;display:grid;place-items:center;overflow:hidden;background:rgba(8,13,24,.78);animation:title-life 3.2s ease both}.g4-title-reveal-card{position:relative;width:100%;min-height:100dvh;display:grid;place-items:center;color:#fff;text-align:center;background:radial-gradient(circle,rgba(255,214,80,.2),transparent 34%)}.g4-title-reveal-rays{position:absolute;width:150vmax;height:150vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);animation:title-rays 3.2s linear 1}.g4-title-reveal-medal{z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);font-size:52px;box-shadow:0 0 54px rgba(255,204,63,.5);animation:title-medal-in .9s cubic-bezier(.16,1,.3,1) both}.g4-title-reveal-card h2{position:absolute;top:calc(50% + 82px);z-index:2;width:min(680px,calc(100vw - 48px));font:750 clamp(30px,5vw,58px)/1.05 'Source Serif 4',serif;text-shadow:0 4px 24px #000;animation:title-copy-in .7s ease .35s both}.g4-title-card-stage{position:relative;min-height:116px;padding:14px 88px 14px 70px;border-radius:18px;color:#fff;background:linear-gradient(135deg,#173B52,#0E6978);overflow:hidden}.g4-title-card-bit{position:absolute;right:4px;bottom:0;width:72px;height:90px}.g4-title-card-bit .g1-char{position:static;width:100%;height:100%}.g4-title-card-medal{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:#FFC23C}.g4-title-card-stage h2{font:750 clamp(17px,2.3vw,22px)/1.1 'Source Serif 4',serif}.g4-title-card-stage strong{color:#FFE284}.g4-title-claim{min-height:64px;width:100%;border:0;border-radius:16px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);font-weight:850;cursor:pointer}@keyframes title-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes title-rays{to{transform:rotate(360deg)}}@keyframes title-medal-in{from{opacity:0;transform:scale(.35) rotate(-18deg)}to{opacity:1;transform:scale(1) rotate(0)}}@keyframes title-copy-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}@media(max-width:639.98px){.g4-title-reveal-medal{width:88px;height:88px;font-size:40px}.g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}.g4-title-card-stage{height:88px;min-height:88px;padding:9px 59px 8px 51px;border-radius:14px;box-sizing:border-box}.g4-title-card-stage>span{display:block;font-size:9px;line-height:1.1}.g4-title-card-stage h2{margin:1px 0;font-size:14px;line-height:1.05}.g4-title-card-stage>strong{display:block;font-size:9px;line-height:1.1;white-space:nowrap}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-medal{left:8px;width:34px;height:34px}}@media(prefers-reduced-motion:reduce){.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-card h2{animation:none!important}.g4-title-reveal-rays,.g4-title-reveal-confetti{display:none!important}}
 `;
 
 function TitleReveal({ active, title, lang, onDone }) {
@@ -1989,7 +1989,7 @@ function TitleReveal({ active, title, lang, onDone }) {
 
 function TitleCard({ title, score, earnedLabel, scoreLabel }) {
   const lang = useLang();
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-medal" data-g4-role="reward-medal">★</div><span>{earnedLabel || B('SIZ OLGAN UNVON', 'ПОЛУЧЕННОЕ ЗВАНИЕ', 'TITLE EARNED')[lang]}</span><h2>{title}</h2><strong>{scoreLabel || B('Birinchi urinishdagi natija', 'Результат с первой попытки', 'First-attempt score')[lang]}: {score}/4</strong><div data-g4-role="reward-bit"><BitSVG state="happy" /></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-medal" data-g4-role="reward-medal">★</div><span>{earnedLabel || B('SIZ OLGAN UNVON', 'ПОЛУЧЕННОЕ ЗВАНИЕ', 'TITLE EARNED')[lang]}</span><h2>{title}</h2><strong>{scoreLabel || B('Birinchi urinishdagi natija', 'Результат с первой попытки', 'First-attempt score')[lang]}: {score}/4</strong><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div></div>;
 }
 
 const CASE_SUCCESS_LABELS = {
@@ -2151,7 +2151,7 @@ function SummaryScreen({ screen, c, answers, storedAnswer, onAnswer, titleState,
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!claimed} finish label={t(c.finishLabel)} /></>}>
       <div className="screen-stack summary-screen" data-qa-final-state={titleState}><style>{TITLE_STYLES}</style><TitleReveal active={revealing} title={t(c.awardTitle)} lang={lang} onDone={finishReveal} />
         <Heading c={c} lead={c.hookClose} />
-        <div className="summary-grid"><section className="summary-payoff"><BitSVG state={claimed ? 'happy' : 'nod'} /><strong>80 980</strong><span>72 384 + 8 596</span></section><div><strong className="summary-label">{t(c.mainLabel)}</strong><ul>{c.main.map((point, index) => <li key={index}><span>✓</span>{t(point)}</li>)}</ul></div></div>
+        <div className="summary-grid"><section className="summary-payoff" data-g4-role="visual-frame"><BitSVG state={claimed ? 'happy' : 'nod'} /><strong>80 980</strong><span>72 384 + 8 596</span></section><div><strong className="summary-label">{t(c.mainLabel)}</strong><ul>{c.main.map((point, index) => <li key={index}><span>✓</span>{t(point)}</li>)}</ul></div></div>
         {!claimed && <section className="final-reflection" data-g4-role="reflection"><span>{t(c.reflectionStart)}</span><strong>{t(c.reflectionQuestion)}</strong><div>{c.reflectionOptions.map((option, index) => <button type="button" className={reflection === index ? (reflectionSolved ? 'reflection-correct' : 'reflection-selected') : ''} aria-pressed={reflection === index} disabled={!finalBeat || reflectionSolved} onClick={() => chooseReflection(index)} data-g4-branch="choice" data-g4-correct={index === c.reflectionCorrectIndex ? 'true' : 'false'} key={index}>{t(option)}</button>)}</div></section>}
         <FeedbackBlock show={Boolean(reflectionMessage)} correct={false}><p>{reflectionMessage}</p></FeedbackBlock>
         {!claimed && !revealing && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={!finalBeat || !reflectionSolved} onClick={claim}>★ {t(c.claimLabel)}</button>}
@@ -2167,7 +2167,7 @@ const Screen2 = (props) => <ExplanationScreen {...props} screen={2} c={CONTENT.s
 const Screen3 = (props) => <ColumnRoundsScreen {...props} screen={3} c={CONTENT.s3} />;
 const Screen4 = (props) => <ExplanationScreen {...props} screen={4} c={CONTENT.s4} visualKind="regroup" />;
 const Screen5 = (props) => <BuildPracticeScreen {...props} screen={5} c={CONTENT.s5} />;
-const Screen6 = (props) => <ReasoningRoundsScreen {...props} screen={6} c={CONTENT.s6} visual={({ current, roundSolved }) => <div className="bit-error-board"><BitSVG state={roundSolved ? 'point' : 'awkward'} /><div><span>{current.bitWork}</span>{roundSolved && <strong>{current.id === 'write12' ? '12 → 2 + 1↑' : '6 + 8 + 1↑ = 15'}</strong>}</div></div>} />;
+const Screen6 = (props) => <ReasoningRoundsScreen {...props} screen={6} c={CONTENT.s6} visual={({ current, roundSolved }) => <div className="bit-error-board" data-g4-role="visual-frame"><BitSVG state={roundSolved ? 'point' : 'awkward'} /><div><span>{current.bitWork}</span>{roundSolved && <strong>{current.id === 'write12' ? '12 → 2 + 1↑' : '6 + 8 + 1↑ = 15'}</strong>}</div></div>} />;
 const Screen7 = (props) => <GuidedChoiceStepsScreen {...props} screen={7} c={CONTENT.s7} visual={({ activeStep, complete }) => <ColumnAlgorithm top="15430" bottom="3210" result={complete ? '12220' : '     '} operator="−" active={activeStep < 0 ? -1 : Math.min(4, Math.max(0, 5 - activeStep))} />} />;
 const Screen8 = (props) => <GuidedChoiceStepsScreen {...props} screen={8} c={CONTENT.s8} visual={({ activeStep, complete }) => {
   const borrow = activeStep >= 0 ? CONTENT.s8.states[activeStep].split('|').map((value) => value.trim()) : [];
@@ -2318,6 +2318,16 @@ html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-r
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
+.d8-root .rapid-console .answer-proof-layer .bit-answer-comment:has(.rapid-complete){min-height:94px}
+.d8-root .bit-answer-comment>div:last-child{min-width:0;width:100%;max-width:none;justify-self:stretch;overflow:visible}
+.d8-root .bit-answer-comment :is(strong,p,small,.solution-steps){min-width:0;max-width:100%;overflow-wrap:anywhere}
+.d8-root .answer-proof-layer .bit-answer-comment:has(p){min-height:112px}
+.d8-root .answer-stage:has(.answer-proof-layer .bit-answer-comment){min-height:120px}
+.d8-root .answer-proof-layer .bit-answer-comment{min-height:120px}
+.d8-root .bit-answer-comment .rapid-complete{display:block;width:auto;max-width:100%}
+.d8-root .rapid-console .answer-stage:has(.rapid-complete){min-height:124px}
+.d8-root .rapid-console .answer-proof-layer .bit-answer-comment:has(.rapid-complete){min-height:120px;padding-block:8px;align-items:start}
+.d8-root .rapid-console .answer-proof-layer .bit-answer-comment:has(.rapid-complete) .solution-steps{grid-template-columns:1fr 1fr}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -2325,5 +2335,39 @@ html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-r
   :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:68px}
   :is(.lesson-root,.d8-root) [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
+  .d8-root .hook-screen .answer-stage{min-height:68px}
+  .d8-root .hook-screen .answer-layer{justify-content:flex-start}
+  .d8-root .hook-screen .option{min-height:64px;padding:5px 7px;font-size:10px;line-height:1.18}
+  .d8-root .hook-screen:has(.feedback-visible)>[data-g4-role~="hook-scene"]{display:none}
+  .d8-root .hook-screen:has(.answer-proof-layer .bit-answer-comment)>[data-g4-role~="hook-scene"]{display:none}
+  .d8-root .hook-screen .answer-stage:has(.answer-proof-layer .bit-answer-comment){min-height:142px}
+  .d8-root .hook-screen .answer-proof-layer .bit-answer-comment:has(p){min-height:142px}
+  .d8-root .hook-screen:has(.answer-proof-layer .bit-answer-comment)>.screen-heading{display:none}
+  .d8-root .reasoning-screen:has(>.feedback-visible)>:is(.screen-heading,.round-meter,.foundation-model,.bit-error-board,.question-title){display:none}
+  .d8-root .reasoning-screen>.feedback-visible{height:auto;min-height:92px}
+  .d8-root .reasoning-screen>.feedback-visible>.feedback-card{height:auto;min-height:88px}
+  .d8-root .explanation-screen:has(>.explanation-result)>:is(.screen-heading,.explanation-layout,.explanation-timeline){display:none}
+  .d8-root .case-screen .answer-layer-hidden{display:none}
+  .d8-root .build-screen:has(>.feedback-visible)>:is(.screen-heading,.round-meter){display:none}
+  .d8-root .build-screen:has(>.feedback-visible) .build-model{display:none}
+  .d8-root .build-screen:has(>.feedback-visible)>.feedback-visible{height:auto;min-height:92px}
+  .d8-root .build-screen:has(>.feedback-visible)>.feedback-visible>.feedback-card{height:auto;min-height:88px}
+  .d8-root .guided-choice-screen:has(>.feedback-visible)>:is(.screen-heading,.column-algorithm,.state-reveal){display:none}
+  .d8-root .guided-choice-screen:has(>.feedback-visible)>.feedback-visible{height:auto;min-height:112px}
+  .d8-root .guided-choice-screen:has(>.feedback-visible)>.feedback-visible>.feedback-card{height:auto;min-height:108px}
+  .d8-root .guided-choice-screen:has([data-qa-guided-complete])>:is(.screen-heading,.column-algorithm,.state-reveal){display:none}
+  .d8-root .guided-step-stage:has([data-qa-guided-complete])>:is(.bit-coach,.explanation-timeline){display:none}
+  .d8-root .rapid-console .answer-layer-hidden{display:none}
+  .d8-root .rapid-console:has(>.feedback-visible)>.screen-heading,
+  .d8-root .rapid-console:has(>.feedback-visible) .rapid-panel>:is(.quick-test-meter,.rapid-proof,.zero-chain-model){display:none}
+  .d8-root .rapid-console:has(>.feedback-visible) .rapid-panel{padding:7px}
+  .d8-root :is(.rapid-console,.case-screen)>.feedback-visible{height:auto;min-height:112px}
+  .d8-root :is(.rapid-console,.case-screen)>.feedback-visible>.feedback-card{height:auto;min-height:108px}
+  .d8-root .case-screen:has(>.feedback-visible)>:is(.screen-heading,.round-meter,.case-model){display:none}
+  .d8-root .rapid-console:has(.rapid-complete)>.screen-heading,
+  .d8-root .rapid-console:has(.rapid-complete) .rapid-panel>:is(.quick-test-meter,.question-title,.rapid-proof,.zero-chain-model){display:none}
+  .d8-root .rapid-console:has(.rapid-complete) .rapid-panel{padding:7px}
+  .d8-root .rapid-console .answer-stage:has(.rapid-complete){min-height:158px}
+  .d8-root .rapid-console .answer-proof-layer .bit-answer-comment:has(.rapid-complete){min-height:154px}
 }
 `;

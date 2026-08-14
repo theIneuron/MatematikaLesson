@@ -703,7 +703,7 @@ function ScreenRenderer({ c, screen, storedAnswer, answers, onAnswer, onPrev, on
 
 function createDivisionLesson({ meta, content, frameVector }) {
   return function DivisionLesson({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-    const preview = previewMode ?? (langProp === undefined || langProp === null); const [previewLang, setPreviewLang] = useState(normalizeLang(langProp)); const lang = preview ? normalizeLang(previewLang) : normalizeLang(langProp);
+    const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const [previewLang, setPreviewLang] = useState(normalizeLang(langProp)); const lang = showPreviewControls ? normalizeLang(previewLang) : normalizeLang(langProp);
     configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
     const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [activityState, setActivityState] = useState({}); const [finalRewardState, setFinalRewardState] = useState({ reflectionChoice: null, titleState: 'unclaimed' });
     const started = useRef(Date.now());
@@ -717,7 +717,7 @@ function createDivisionLesson({ meta, content, frameVector }) {
     }, [answers, lang, onFinished, studentName]);
     const c = content[current];
     const selectorLabel = ({ uz: 'Til', ru: 'Язык', en: 'Language' })[lang] ?? 'Til';
-    return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'preview' : ''}`} data-frame-count={frameVector[current]}>{preview && <div className="preview-language" aria-label={selectorLabel}>{SUPPORTED_LANGS.map((code) => <button type="button" className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)} key={code}>{code.toUpperCase()}</button>)}</div>}<ScreenRenderer key={`${current}-${lang}`} c={c} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(14, value + 1))} finishLesson={finishLesson}/></div></ActivityContext.Provider></LangContext.Provider>;
+    return <LangContext.Provider value={lang}><ActivityContext.Provider value={{ activityState, markActivity, finalRewardState, setFinalRewardState }}><style>{STYLES}</style><div className={`lesson-root ${preview ? 'preview' : ''}`} data-frame-count={frameVector[current]}>{showPreviewControls && <div className="preview-language" aria-label={selectorLabel}>{SUPPORTED_LANGS.map((code) => <button type="button" className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)} key={code}>{code.toUpperCase()}</button>)}</div>}<ScreenRenderer key={`${current}-${lang}`} c={c} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(14, value + 1))} finishLesson={finishLesson}/></div></ActivityContext.Provider></LangContext.Provider>;
   };
 }
 
