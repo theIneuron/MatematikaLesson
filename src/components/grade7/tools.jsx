@@ -64,6 +64,7 @@ export const UI = {
   askAct: L('Bu qaysi bosqich amali?', 'Какой это ступени действие?', 'Which stage is this operation?'),
   ruleFirst: L('Qoidada nima BIRINCHI keladi?', 'Что в правиле идёт первым?', 'What comes first in the rule?'),
   ruleNext: L('Keyin nima keladi?', 'Что идёт дальше?', 'What comes next?'),
+  ruleHere: L("Qoida shu yerda yig'iladi", 'Здесь собирается правило', 'The rule is built here'),
   step: L('qadam', 'шаг', 'step'),
 }
 
@@ -132,9 +133,11 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
       {/* Savol va variantlar BITTA ZONADA: yorliq, savol, variantlar.
           11-sinf tuzilishi -- ekranda «osilib qolgan» element bo'lmaydi. */}
       <div className={zone ? 'g7-zone' : 'g7-nozone'}>
-        {data.question && zone ? <span className="g7-zone-cap">{t(UI_TXT.question)}</span> : null}
         {data.question ? <p className="g7-qpill">{t(data.question)}</p> : null}
-        {/* Qayerga bosish kerakligi KO'RINIB tursin (texnik topshiriq 5-band) */}
+        {/* Qayerga bosish kerakligi KO'RINIB tursin (texnik topshiriq 5-band).
+            Belgi variantlar bilan BIR CHIZIQDA: variantlar cheklangan
+            kenglikda, ya'ni belgi ham o'sha ustunda turishi kerak. */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 'inherit' }}>
         <CallToAct kind="pick" done={!!picked || disabled} />
         <Options
           items={items}
@@ -146,6 +149,7 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
           minH={minH}
           neutral={unscored}
         />
+        </div>
       </div>
       {/* fbSlot={0} -- joyni OLDINDAN band qilmaslik. Sahnali slaydlarda
           shu 80px sahnaga beriladi: javobdan keyin variantlar yig'ilib,
@@ -353,7 +357,7 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 // SlotFill -- bo'sh uyalarni to'ldirish: belgilar yoki bo'laklar.
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
-export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, disabled, audio }) {
+export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, wide, disabled, audio }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => answer.map(() => null))
@@ -408,8 +412,11 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
     return p ? t(p.label) : ''
   }
 
+  // `wide` -- topshiriq matni uzun bo'lgan ekran uchun (12-ekran): 660px da
+  // inglizcha matn uchinchi satrga o'tib, ekran 23px oshib ketardi
+  // (o'lchov 2026-08-14).
   return (
-    <>
+    <div className="g7-col">
       {/* Topshiriq e'loni endi UMUMIY asbob (core.jsx `Ask`): shakl bitta
           joyda turadi, ilgari o'sha razmetka bu yerda va `BracketGap` da
           ikki marta ko'chirilgan edi. */}
@@ -441,19 +448,17 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
         })}
       </div>
 
-      <Slot mh={46}>
-        {/* Chapga tekislangan: ekranda hamma narsa chapdan boshlanadi,
-            markazlangan qator «suzib yurgandek» ko'rinardi. */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 8, justifyContent: 'flex-start' }}>
+      <Slot mh={50}>
+        {/* MARKAZDA va YIRIK. Ilgari bo'laklar chap chetda, mayda shriftda
+            turardi va yozuvdan uzoqda edi -- ko'z ular orasida sakrardi
+            (metodist 2026-08-14). Endi ular yozuvning TAGIDA, o'sha o'qda. */}
+        <div className="g7-partsrow">
           <CallToAct kind="tap" done={correct || disabled} />
           {parts.map((p) => (
             <button
               type="button"
               key={p.id}
-              className="g7-opt"
-              // 34px lik chipslar bosish nishoni uchun KICHIK edi (telefonda
-              // eng kam 44px). 5-sinf variantlari kabi baland qilindi.
-              style={{ minHeight: 48, minWidth: 56, width: 'auto', padding: '8px 18px', fontFamily: MATH_FONT, fontSize: 'clamp(16px, 2vw, 19px)', display: 'inline-flex', justifyContent: 'center' }}
+              className="g7-opt g7-part"
               disabled={correct || disabled}
               onClick={() => put(p.id)}
             >
@@ -464,7 +469,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
       </Slot>
 
       <Slot mh={46}>
-        <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-start' }}>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
           <Btn tone="accent" ready={complete && !correct && !disabled} onClick={check} disabled={!complete || correct || disabled}>
             {t(UI.check)}
           </Btn>
@@ -476,7 +481,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
         {correct && checkNote ? <Feedback show ok>{t(checkNote)}</Feedback> : null}
         {!correct ? <Feedback show={!!hint} ok={false}>{hint ? t(hint) : null}</Feedback> : null}
       </Slot>
-    </>
+    </div>
   )
 }
 
@@ -592,7 +597,12 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
     <>
       {!solved ? <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask> : null}
       <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
-        {rows.map((row, i) => {
+        {/* Qator topilgach ekranda FAQAT IKKI qator qoladi: boshlang'ich
+            yozuv va topilgan qator. Qolganlari kerak emas -- isbot aynan
+            shu ikkitasini solishtiradi, va ular ketgach isbot shakli
+            uchun joy bo'shaydi (o'lchov 2026-08-14: beshta yirik qator
+            bilan ekran 179px oshib ketardi). */}
+        {(solved ? rows.filter((r, i) => i === 0 || r.id === answerId) : rows).map((row, i) => {
           const isWrongPick = wrong.indexOf(row.id) !== -1
           const isAnswer = solved && row.id === answerId
           return (
@@ -606,10 +616,13 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
                    2026-08-13: 26 -> 23. Tuzoq ekranida qatorlar ustiga qarshi
                    misol yig'ilishi qo'shiladi va noutbukda 12px oshib ketardi.
                    Kichraytirish faqat YECHILGAN holatga tegadi. */
-                minHeight: solved ? 23 : 33,
-                padding: solved ? '1px 11px' : '5px 11px',
-                fontSize: solved ? 'clamp(12px, 1.6vw, 14px)' : 'clamp(14px, 1.9vw, 17px)',
-                transition: 'min-height .5s, padding .5s, font-size .5s',
+                // Metodist qarori 2026-08-14: javobdan keyin qatorlar
+                // KICHRAYMAYDI va o'lcham hamma yerdagidek -- yagona
+                // son o'lchami.
+                minHeight: solved ? 26 : 38,
+                padding: solved ? '2px 12px' : '4px 12px',
+                fontSize: solved ? 'clamp(14px, 1.7vw, 18px)' : 'var(--g7-num)',
+                transition: 'min-height .4s, padding .4s, font-size .4s',
               }}
               disabled={solved || isWrongPick || disabled}
               onClick={() => pick(row.id)}
@@ -623,6 +636,8 @@ export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCa
       {/* Qatorlar TUGMA ekani ko'rinib tursin: boshqa asboblarda bu belgi
           bor edi, bu yerda esa yo'q edi -- yozuvlar oddiy ro'yxatga
           o'xshardi. Javob berilgach belgi yo'qoladi. */}
+      {/* Belgi panel bilan BIR CHIZIQDA: panel torayganda u chekkada
+          osilib qolmasin. */}
       <CallToAct kind="tap" done={solved || disabled} />
       {solved && proof ? <DoneRow>{t(proof)}</DoneRow> : null}
       {!solved ? (
@@ -889,7 +904,8 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
       {/* Balandlik OLDINDAN band: o'tgan qatorlar ixcham (27px), joriy qator
           yirik (46px), pastda esa bo'sh qator uchun joy. Panel to'ladi,
           O'SMAYDI (§6.1). */}
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: steps.length * 26 + 100 }}>
+      <Slot mh={steps.length * 36 + 64} style={{ alignItems: 'stretch', justifyContent: 'flex-start' }}>
+      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
         {/* Qatorlar SODDA: yozuv va boshqa hech narsa. 2026-08-13 da bu yerga
             o'qituvchi gapi qo'shib ko'rildi va qator flex-konteynerga o'raldi --
             natijada noutbukda 133px oshib ketdi. Gap 4-ekranda, alohida
@@ -952,15 +968,11 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
             </div>
           )
         })}
-        {/* Bo'sh qator: «bu yerga keyingi satr tushadi». U ham IXCHAM --
-            yirik bo'lsa panel budjetdan chiqib ketardi. */}
-        {!finished ? (
-          <div className="g7-expr g7-expr-row g7-tf-past g7-frame g7-pulse" style={{ opacity: 0.5 }}>?</div>
-        ) : null}
       </div>
+      </Slot>
 
 
-      <Slot mh={78}>
+      <Slot mh={72}>
         {!finished && part ? (
           <div className="g7-shakebox" style={{ width: '100%' }}>
             <div key={shake} className={shake ? 'g7-shake' : undefined}>
@@ -970,7 +982,7 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
                 wrong={[]}
                 onPick={(o) => act(o.id)}
                 disabled={disabled}
-                cols={2}
+                cols={3}
                 minH={40}
                 collapse={false}
                 badges={false}
@@ -1773,7 +1785,10 @@ export function RuleBuilder({
   if (solved) {
     return (
       <>
-        <DoneRow>{answer.map(labelOf).join(', ')}</DoneRow>
+        {/* Yig'ilgan zanjir satri OLIB TASHLANDI (metodist 2026-08-14):
+            javob chiqqach u kerak emas -- o'sha gap qoida kartochkasida
+            yana bir marta turadi, faqat darslik so'zlari bilan. Ikkitasi
+            birga esa ekranning yarmini yeb qo'yardi. */}
         <RuleCard {...rule} />
         {after}
       </>
@@ -1797,7 +1812,15 @@ export function RuleBuilder({
             </button>
           ))
         ) : (
-          <span className="g7-rb-empty">…</span>
+          /* Bo'sh maydon endi NIMA uchun turganini AYTADI. Ilgari u yerda
+             uchta nuqta turardi va o'quvchi ramka nima ekanini tushunmasdi
+             (metodist 2026-08-14). Endi: gap, va uning oxirida yozuv
+             kursori miltillaydi -- «bu yerga yozilyapti» degan tanish
+             ishora. */
+          <span className="g7-rb-empty">
+            {t(UI.ruleHere)}
+            <i className="g7-rb-caret" aria-hidden="true" />
+          </span>
         )}
       </div>
 
@@ -2043,6 +2066,54 @@ export function HookMachines({ tokens, left, right, sign = '≠', fix }) {
 // chiziq chapdan o'ngga o'tadi -- «bitta bosqich ichida chapdan o'ngga».
 // Javobni ochmaydi: o'quvchi qoidani ALLAQACHON yig'ib bo'lgan.
 // ============================================================
+// ============================================================
+// StairsReveal -- QOIDA LESTNITSASI (metodist tasdiqladi 2026-08-14).
+// Qoida endi satr emas, RASM: to'rt pog'ona, ular bo'ylab yozuv yuqoridan
+// pastga tushadi. Har pog'onada o'z chipi yonadi -- qavs, uchinchi, ikkinchi,
+// birinchi bosqich. Pastda esa chiziq chapdan o'ngga o'tadi: «bitta bosqich
+// ichida chapdan o'ngga».
+//
+// Nega lestnitsa: «bosqich» so'zining O'ZI pog'ona degani, va o'quvchi
+// qoidani kontrol ishda aynan shu rasm bilan eslaydi.
+// Harakat BIR MARTA o'tadi va to'xtaydi (§7.1, pulsatsiya cheksiz emas).
+// Faqat CSS va SVG, rasm fayli yo'q (CLAUDE.md §5).
+// ============================================================
+export function StairsReveal({ items, sweep }) {
+  const n = items.length
+  const W = 620
+  const H = 150
+  const stepW = (W - 60) / n
+  const stepH = (H - 46) / n
+  return (
+    <div className="g7-stairs">
+      <svg viewBox={'0 0 ' + W + ' ' + H} className="g7-stairs-svg" role="img" aria-label={items.map((x) => (x && x.label) || x).join(' ')}>
+        {items.map((x, i) => {
+          const xL = 30 + i * stepW
+          const yT = 22 + i * stepH
+          const tone = x && x.tone ? x.tone : 'off'
+          return (
+            <g key={i} className={'g7-stair is-' + tone} style={{ animationDelay: (i * 0.45).toFixed(2) + 's' }}>
+              {/* Pog'onaning YUZASI va undan pastga tushadigan QIRRASI --
+                  ikkalasi birga haqiqiy lestnitsani beradi. */}
+              <rect className="g7-stair-top" x={xL} y={yT} width={stepW - 6} height="10" rx="5" />
+              {i < n - 1 ? (
+                <rect className="g7-stair-riser" x={xL + stepW - 12} y={yT + 8} width="6" height={stepH} rx="3" />
+              ) : null}
+              {/* Pog'ona yorlig'i: qavs, III, II, I */}
+              <text className="g7-stair-lab" x={xL + (stepW - 6) / 2} y={yT - 8} textAnchor="middle">
+                {(x && x.label !== undefined ? x.label : x)}
+              </text>
+            </g>
+          )
+        })}
+        {/* Yozuv pog'onalar bo'ylab pastga tushadi */}
+        <circle className="g7-stair-ball" cx={30 + (stepW - 6) / 2} cy="15" r="10" />
+      </svg>
+      {sweep ? <p className="g7-stairs-sweep">{sweep}</p> : null}
+    </div>
+  )
+}
+
 export function LawReveal({ items, sweep }) {
   return (
     <div className="g7-lawrev">

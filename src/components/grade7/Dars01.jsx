@@ -56,9 +56,10 @@ import {
   AuditRows,
   BracketGap,
   CollapseFilm,
+  CollapseTrack,
   HookMachines,
   NumberLineTracks,
-  LawReveal,
+  StairsReveal,
   Probe,
   ProbeChain,
   RuleBuilder,
@@ -709,7 +710,6 @@ function Screen5({ screen, onAnswer, ...rest }) {
         start={S5.start}
         steps={S5.steps}
         actions={ACTIONS}
-        footNote={t(S5.footNote)}
         disabled={!canAnswer}
         onStep={(st) => audio.step(st)}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'explain' }) }}
@@ -724,10 +724,16 @@ function Screen5({ screen, onAnswer, ...rest }) {
 // KVOTA EKRANI: bu yerda yagona harakat -- to'rt variantdan bittasi (§4.2).
 // ============================================================
 const S6 = {
-  hack: L("Bir bosqich ichida chapdagi belgi birinchi. Bu qoida, odat emas.", 'Внутри одной ступени первым идёт знак, стоящий левее. Это правило, а не привычка.', 'Inside one stage the sign further left goes first. That is a rule, not a habit.'),
+  // LAYFXAK bu ekranda YO'Q: uning gapi endi IKKI YO'LAK bilan
+  // ko'rsatiladi, va ikkalasi birga 488px ga sig'masdi (o'lchov
+  // 2026-08-14). Ko'rsatish so'zdan kuchliroq.
   eyebrow: L("O'ZINGIZ", 'САМ', 'ON YOUR OWN'),
   title: L('Ikkalasi ham ikkinchi bosqichda', 'Обе на второй ступени', 'Both on the second stage'),
   expr: '24 : 6 · 2',
+  nums: [24, 6, 2],
+  ops: [':', '·'],
+  rightLabel: L("qoida bo'yicha: chapdan o'ngga", 'по правилу: слева направо', 'by the rule: left to right'),
+  wrongLabel: L("«avval ko'paytirish»", '«сначала умножение»', 'multiplication first'),
   probe: {
     // O'sha savol, o'sha so'zlar bilan: 2, 6 va 14-ekran bir xil so'raydi.
     question: ASK_VALUE,
@@ -746,6 +752,7 @@ const S6 = {
 }
 
 function Screen6({ screen, onAnswer, ...rest }) {
+  const t = useT()
   const lang = rest.lang
   const segments = useMemo(() => buildSegments(S6.audio, lang), [lang])
   const audio = useAudio(segments)
@@ -763,6 +770,17 @@ function Screen6({ screen, onAnswer, ...rest }) {
         disabled={!canAnswer}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'explain' }) }}
       />
+      {/* IKKI YO'L javobdan KEYIN (metodist tasdiqladi 2026-08-14).
+          Bu ekranning butun ma'nosi «nega sakkiz, nega ikki emas» degan
+          savolda. Endi ikkala yo'l YONMA-YON hisoblanadi: qoida bo'yicha
+          chapdan o'ngga, va «avval ko'paytirish». Javobdan oldin
+          ko'rsatilmaydi -- aks holda javobni aytib qo'yardi. */}
+      {done ? (
+        <div className="g7-so-out">
+          <CollapseTrack nums={S6.nums} ops={S6.ops} order={[0, 1]} label={t(S6.rightLabel)} tone="ok" />
+          <CollapseTrack nums={S6.nums} ops={S6.ops} order={[1, 0]} label={t(S6.wrongLabel)} tone="tip" delay={900} />
+        </div>
+      ) : null}
     </Frame>
   )
 }
@@ -933,16 +951,19 @@ const S8 = {
     // DIQQAT: ETALON_7SINF.md §6.5 «paragraf va bet SHART» deydi -- bu
     // talabdan chekinish, va u ataylab qilingan, unutilgani uchun emas.
     badge: L('Qoida', 'Правило', 'The rule'),
+    // Metodist qarori 2026-08-14: kartochkadagi matn QISQARTIRILDI.
+    // Ta'rifning MA'NOSI o'zgarmadi, faqat darslikning uzun qurilishi
+    // olib tashlandi -- kartochka ekranning yarmini egallardi.
     lines: [
       L(
-        "Sonli ifoda deb sonlar va bir yoki bir necha amallar yordamida birlashtirilgan matematik yozuvga aytiladi.",
-        'Числовое выражение это математическая запись, которая состоит из чисел и одной или нескольких арифметических операций.',
-        'A numerical expression is a mathematical record made of numbers and one or more arithmetic operations.',
+        "Sonli ifoda -- sonlar va amallardan tuzilgan yozuv.",
+        'Числовое выражение — запись из чисел и действий.',
+        'A numerical expression is a record made of numbers and operations.',
       ),
       L(
-        "Sonli ifodaning qiymati deb shu sonli ifodada ko'rsatilgan amallarni bajarish natijasida hosil bo'lgan songa aytiladi.",
-        'Значением числового выражения является число, полученное в результате действий, указанных в этом числовом выражении.',
-        'The value of a numerical expression is the number obtained by carrying out the operations shown in it.',
+        "Uning qiymati -- amallarni bajarib olingan son.",
+        'Его значение — число, полученное после выполнения действий.',
+        'Its value is the number you get after carrying the operations out.',
       ),
     ],
   },
@@ -958,7 +979,7 @@ const S8 = {
   audio: [
     A('mount', "Hamma narsani ko'rdik. Endi qoidani so'z bilan yig'amiz.", 'Всё, что нужно, мы увидели. Теперь соберём правило словами.', 'We have seen everything we need. Now let us put the rule into words.'),
     A('mount', "Bo'laklarni to'g'ri tartibda joylashtiring.", 'Разложи фрагменты в верном порядке.', 'Put the pieces in the right order.'),
-    A('ok', "To'g'ri. Endi darslik buni qanday aytishini o'qing, biz so'zlarni o'zgartirmadik.", 'Верно. Теперь прочитай, как это говорит учебник, слов мы не меняли.', 'Correct. Now read how the textbook says it. We did not change the wording.'),
+    A('ok', "To'g'ri. Endi shu qoidaning qisqa ta'rifini o'qing.", 'Верно. Теперь прочитай короткое определение этого правила.', 'Correct. Now read the short definition of this rule.'),
     A('ok', "Va birinchi ekranga qayting. Sakkiz o'chdi, yigirma qoldi. Bitta yozuvning qiymati bitta bo'ladi.", 'И вернёмся к первому экрану. Восемь погасло, двадцать осталось. У одной записи значение одно.', 'And back to the first screen. The eight is gone, the twenty stays. One expression has one value.'),
   ],
 }
@@ -991,7 +1012,7 @@ function Screen8({ screen, onAnswer, ...rest }) {
         )}
         after={(
           <>
-            <LawReveal items={S8.lawChips} sweep={t(S8.lawSweep)} />
+            <StairsReveal items={S8.lawChips} sweep={t(S8.lawSweep)} />
             <TwoValues left={S1.left} right={S1.right} dim="left" ok="right" />
             <Hint>{t(S8.hookCap)}</Hint>
           </>
@@ -1157,7 +1178,6 @@ function Screen10({ screen, onAnswer, ...rest }) {
         start={S10.start}
         steps={S10.steps}
         actions={ACTIONS}
-        footNote={t(S10.footNote)}
         disabled={!canAnswer}
         onStep={(s) => audio.step(s)}
         onSolved={(r) => { setDone(true); onAnswer({ ...r, screen, role: 'practice' }) }}
@@ -1274,10 +1294,13 @@ const S12 = {
     // Ilgari bu yerda «To'g'ri qiymatni hisoblang» deb turardi va o'quvchi
     // 9 bilan 3 qayerdan kelganini tushunmasdi. Endi aytiladi: bu -- O'SHA
     // birinchi qator, faqat to'g'ri hisoblangani.
+    // Matn QISQARTIRILDI (o'lchov 2026-08-14): uzun variant inglizchada
+    // uchinchi satrga o'tib, ekranni 23px oshirib yuborardi. Ma'no o'sha:
+    // bu O'SHA birinchi qator, faqat to'g'ri hisoblangani.
     prompt: L(
-      "Birinchi qatorni to'g'ri hisoblaymiz: 36 ni 4 ga bo'lsak 9 bo'ladi. Endi 2 ni 5 ga ko'paytiring va butun qiymatni yig'ing.",
-      'Считаем первую строку правильно: 36 разделить на 4 это 9. Теперь умножь 2 на 5 и собери значение всей записи.',
-      'We work out the first line correctly: 36 divided by 4 is 9. Now multiply 2 by 5 and build the value of the whole expression.',
+      "Birinchi qator to'g'ri hisoblanganda: 36 : 4 bu 9. Endi 2 ni 5 ga ko'paytiring va qiymatni yig'ing.",
+      'Первая строка, посчитанная верно: 36 : 4 это 9. Умножь 2 на 5 и собери значение.',
+      'The first line worked out correctly: 36 : 4 is 9. Multiply 2 by 5 and build the value.',
     ),
     checkNote: L('16 va 27. Sonlar farq qildi, demak ikkinchi qator birinchisiga teng emas', '16 и 27. Числа разошлись, значит вторая строка не равна первой', '16 and 27. The numbers differ, so the second line is not equal to the first'),
     wrongs: [
@@ -1340,6 +1363,7 @@ function Screen12({ screen, onAnswer, ...rest }) {
           prompt={S12.proofFill.prompt}
           promptCap={S12.step2Cap}
           tightAsk
+          wide
           checkNote={S12.proofFill.checkNote}
           wrongs={S12.proofFill.wrongs}
           disabled={!canAnswer}
@@ -1690,12 +1714,8 @@ function Screen15({ screen, answers, ...rest }) {
           joy sahnaga berildi -- yakun endi interaktiv, mashina bosiladi.
           Gliflar bosqich ranglarida: yakun ham darsning o'sha tili bilan
           gapiradi. */}
-      <div className="g7-sumbanner">
-        <span className="g7-sumbanner-tag">{t(S15.banner)}</span>
-        <span className="g7-sumbanner-gl" aria-hidden="true">
-          <i className="g7-op2">{'·'}</i><i className="g7-op2">{':'}</i><i className="g7-op1">{'+'}</i>
-        </span>
-      </div>
+      {/* BANNER OLIB TASHLANDI (metodist qarori 2026-08-14): u faqat
+          mavzu nomini takrorlardi, mavzu esa sarlavhada turibdi. */}
 
       <div className="g7-sumscene">
         <HookMachines
@@ -1706,14 +1726,9 @@ function Screen15({ screen, answers, ...rest }) {
         />
       </div>
 
-      <div className="g7-sumcards">
-        <div className="g7-sumcard">
-          <p className="g7-sumcard-h">{t(S15.mainLabel)}</p>
-          <ul className="g7-sumcard-ul">
-            {S15.briefs.map((b, i) => <li key={i}>{t(b)}</li>)}
-          </ul>
-        </div>
-
+      {/* «ASOSIYSI» KARTOCHKASI OLIB TASHLANDI (metodist qarori
+          2026-08-14). Yakunda bitta kartochka qoldi. */}
+      <div className="g7-sumcards g7-sumcards-one">
         <div className="g7-sumcard">
           <p className="g7-sumcard-h">{t(S15.twoLabel)}</p>
           {/* Yozuvlar bosqich rangida -- darsdagi kabi. Ikki satr yonma-yon
@@ -1733,15 +1748,14 @@ function Screen15({ screen, answers, ...rest }) {
           <p className="g7-sumcard-note">
             <b>{t(S15.nextLabel)}:</b> {t(S15.nextTopic)}
           </p>
+          {/* §8.5: kamchilik SO'Z bilan ataladi. Metodist 2026-08-14 da
+              alohida turgan satrni olib tashladi, shuning uchun u shu
+              kartochkaning ichiga ko'chdi -- talab bajarilgan, ekranda
+              esa ortiqcha element yo'q. */}
+          <p className="g7-sumcard-note g7-readyline">{gapLine}</p>
         </div>
 
       </div>
-
-      {/* Metodist qarori 2026-08-13: halqa OLIB TASHLANDI, «nimani takrorlash
-          kerak» esa BITTA SATR bo'lib qoladi -- ramkasiz, yakunning eng
-          pastida. §8.5 talabi (kamchilik SO'Z bilan ataladi) shu satr bilan
-          bajariladi; ball ko'rsatilmaydi. */}
-      <p className="g7-sumgap g7-readyline">{gapLine}</p>
 
     </Frame>
   )
