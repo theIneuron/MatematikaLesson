@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -1121,10 +1122,20 @@ const playSfx = (kind) => {
   }
 };
 
-const buildOptionOrder = (length, correctIndex, seed = 0) => {
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
   const natural = Array.from({ length }, (_, index) => index);
   if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = Math.abs(seed * 3 + 1) % length;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
   const order = natural.filter((index) => index !== correctIndex);
   order.splice(target, 0, correctIndex);
   return order;
@@ -1216,8 +1227,9 @@ const NavBack = ({ onClick, hidden = false }) => (
 
 const NavNext = ({ onClick, disabled, finish = false }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={disabled}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : <NextLabel />}
       <span aria-hidden="true">→</span>
     </button>
@@ -1504,16 +1516,19 @@ const GuidedRevealControl = ({ reveal }) => {
   );
 };
 
-const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
+const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const c = CONTENT.s0;
   const t = useT();
   const lang = useLang();
   const audio = useAudio(localizedSegments(c.audio, lang, 's0'));
   const reveal = useTimedReveal(3, 560);
-  const [attempted, setAttempted] = useState([]);
-  const [solved, setSolved] = useState(false);
-  const [wrongIndex, setWrongIndex] = useState(null);
-  const order = useMemo(() => buildOptionOrder(c.options.length, c.correctIndex, screen), [c.options.length, c.correctIndex, screen]);
+  const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [wrongIndex, setWrongIndex] = useState(storedAnswer?.correct === true ? null : storedAnswer?.lastWrong ?? null);
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 0),
+    [c.options.length, c.correctIndex],
+  );
   const canChoose = useCanAdvance(audio);
   const canNext = useAdvanceGate(solved, audio);
 
@@ -1596,6 +1611,7 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
                   type="button"
                   data-g4-role="answer-card"
                   data-g4-branch="choice"
+                  data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                   className={`option ${inactiveWrong ? 'option-wrong' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
@@ -1749,7 +1765,7 @@ const EqualityScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
-const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => {
+const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext, onPrev }) => {
   const t = useT();
   const lang = useLang();
   const intro = c.audio.intro;
@@ -1757,7 +1773,10 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
   const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [wrongIndex, setWrongIndex] = useState(storedAnswer?.lastWrong ?? null);
-  const order = useMemo(() => buildOptionOrder(c.options.length, c.correctIndex, screen), [c.options.length, c.correctIndex, screen]);
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal),
+    [c.options.length, c.correctIndex, choiceOrdinal],
+  );
   const canChoose = useCanAdvance(audio);
   const canNext = useAdvanceGate(solved, audio);
 
@@ -1819,6 +1838,7 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
                 <button
                   type="button"
                   data-g4-branch="choice"
+                  data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                   className={`option ${inactiveWrong ? 'option-wrong' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
@@ -2191,18 +2211,18 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
 
 const Screen0 = (props) => <StoryHookScreen {...props} screen={0} />;
 const Screen1 = (props) => <RecapScreen {...props} screen={1} />;
-const Screen2 = (props) => <ChoiceScreen {...props} screen={2} c={PRACTICE_CONTENT.p1} />;
+const Screen2 = (props) => <ChoiceScreen {...props} screen={2} c={PRACTICE_CONTENT.p1} choiceOrdinal={1} />;
 const Screen3 = (props) => <PlaceTableScreen {...props} screen={3} />;
-const Screen4 = (props) => <ChoiceScreen {...props} screen={4} c={PRACTICE_CONTENT.p2} />;
+const Screen4 = (props) => <ChoiceScreen {...props} screen={4} c={PRACTICE_CONTENT.p2} choiceOrdinal={2} />;
 const Screen5 = (props) => <NumberLineScreen {...props} screen={5} />;
-const Screen6 = (props) => <ChoiceScreen {...props} screen={6} c={PRACTICE_CONTENT.p3} />;
+const Screen6 = (props) => <ChoiceScreen {...props} screen={6} c={PRACTICE_CONTENT.p3} choiceOrdinal={3} />;
 const Screen7 = (props) => <EqualityScreen {...props} screen={7} />;
-const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={PRACTICE_CONTENT.p4} />;
+const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={PRACTICE_CONTENT.p4} choiceOrdinal={4} />;
 const Screen9 = (props) => <DiscoveryScreen {...props} screen={9} />;
-const Screen10 = (props) => <ChoiceScreen {...props} screen={10} c={PRACTICE_CONTENT.p5} />;
+const Screen10 = (props) => <ChoiceScreen {...props} screen={10} c={PRACTICE_CONTENT.p5} choiceOrdinal={5} />;
 const Screen11 = (props) => <RuleRevealScreen {...props} screen={11} />;
 const Screen12 = (props) => <StrategyScreen {...props} screen={12} />;
-const Screen13 = (props) => <ChoiceScreen {...props} screen={13} c={PRACTICE_CONTENT.p6} />;
+const Screen13 = (props) => <ChoiceScreen {...props} screen={13} c={PRACTICE_CONTENT.p6} choiceOrdinal={6} />;
 const Screen14 = (props) => <SummaryScreen {...props} screen={14} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.

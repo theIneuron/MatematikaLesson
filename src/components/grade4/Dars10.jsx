@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
 
@@ -1285,6 +1286,25 @@ const playSfx = (kind) => {
   }
 };
 
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
 const AudioIndicator = ({ audio }) => {
   const lang = useLang();
   const muteLabel = audio.muted
@@ -1498,8 +1518,9 @@ const NavBack = ({ onClick, hidden = false }) => (
 
 const NavNext = ({ onClick, disabled = false, finish = false }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled && Boolean(onClick), finish);
   return (
-    <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick} disabled={disabled || !onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {finish ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' }) : <NextLabel />}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -1848,6 +1869,8 @@ const ScoredChoice = ({
   c,
   options,
   correctIndex,
+  choiceOrdinal,
+  shuffleOptions = true,
   storedAnswer,
   onAnswer,
   audio,
@@ -1861,6 +1884,9 @@ const ScoredChoice = ({
     ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi.", en: "Correct. The solution is shown below." }
     : (storedAnswer ? c.wrong?.[storedAnswer.answer] : null);
   const [message, setMessage] = useState(initialMessage);
+  const optionOrder = shuffleOptions
+    ? buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal)
+    : options.map((_, index) => index);
 
   const choose = (index) => {
     if (solved) return;
@@ -1889,22 +1915,23 @@ const ScoredChoice = ({
   return (
     <>
       <div className="choice-grid">
-        {options.map((option, index) => (
+        {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
-            key={index}
-            data-g4-branch="choice"
-            data-g4-correct={index === correctIndex ? 'true' : 'false'}
+            key={sourceIndex}
+            data-g4-branch={shuffleOptions ? 'choice' : undefined}
+            data-g4-source-index={shuffleOptions ? sourceIndex : undefined}
+            data-g4-correct={shuffleOptions ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined}
             className={
               'choice-card'
-              + (selected === index ? ' choice-selected' : '')
-              + (solved && index === correctIndex ? ' choice-correct' : '')
+              + (selected === sourceIndex ? ' choice-selected' : '')
+              + (solved && sourceIndex === correctIndex ? ' choice-correct' : '')
             }
-            onClick={() => choose(index)}
+            onClick={() => choose(sourceIndex)}
             disabled={solved}
           >
-            <span>{String.fromCharCode(65 + index)}</span>
-            <b>{t(option)}</b>
+            <span>{String.fromCharCode(65 + displayIndex)}</span>
+            <b>{t(options[sourceIndex])}</b>
           </button>
         ))}
       </div>
@@ -1923,6 +1950,7 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
   const { current, reached } = useNarrationBeats(audio, 3);
   const picked = storedAnswer?.studentAnswerIndex ?? null;
   const ready = audio.completed || audio.muted;
+  const optionOrder = buildOptionOrder(c.options.length, 1, LESSON_META.lessonId, 0);
   const pick = (index) => {
     if (!ready) return;
     playSfx(index === 1 ? 'correct' : 'wrong');
@@ -1950,7 +1978,7 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
       c={c}
       audio={audio}
       bit={null}
-      onNext={picked === 1 ? onNext : undefined}
+      onNext={canUseGrade4TheoryContinue(picked === 1, false) ? onNext : undefined}
       onPrev={onPrev}
       finishLesson={finishLesson}
     >
@@ -1970,20 +1998,21 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
         </div>
       </div>
       <div className="choice-grid hook-choices">
-        {c.options.map((option, index) => (
+        {optionOrder.map((index) => (
           <button
             type="button"
             className={'choice-card ' + (picked === index ? 'choice-selected' : '')}
             key={index}
             data-g4-role="answer-card"
             data-g4-branch="choice"
+            data-g4-source-index={index}
             data-g4-correct={index === 1 ? 'true' : 'false'}
             aria-pressed={picked === index}
             disabled={!ready}
             onClick={() => pick(index)}
           >
             <span>{index === 0 ? '✓?' : (index === 1 ? '…' : '≈')}</span>
-            <b>{t(option)}</b>
+            <b>{t(c.options[index])}</b>
           </button>
         ))}
       </div>
@@ -2386,7 +2415,7 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   ];
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={canUseGrade4TheoryContinue(solved, false) ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
       <div
         className="matching-board matching-board-connectors math-card"
         data-g4-role="visual-frame"
@@ -2469,7 +2498,7 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={canUseGrade4TheoryContinue(solved, false) ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="numeric-card math-card">
         <Formula>984 + 2 460 = ?</Formula>
         <label htmlFor="d10-sum-answer">{t(c.lead)}</label>
@@ -2552,7 +2581,7 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={canUseGrade4TheoryContinue(solved, false) ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
       <div className="numeric-card math-card">
         <Formula>417 × 2 = ?</Formula>
         <label htmlFor="d10-answer">{t(c.lead)}</label>
@@ -2604,6 +2633,7 @@ function StrategyScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
         c={c}
         options={c.options}
         correctIndex={0}
+        shuffleOptions={false}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
         audio={audio}
@@ -2636,6 +2666,7 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
             c={c}
             options={c.options}
             correctIndex={0}
+            choiceOrdinal={1}
             storedAnswer={storedAnswer}
             onAnswer={onAnswer}
             audio={audio}
@@ -2666,6 +2697,7 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
         c={c}
         options={c.options}
         correctIndex={0}
+        choiceOrdinal={2}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
         audio={audio}
@@ -2948,7 +2980,7 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
           answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
-          onNext={canAdvance ? next : undefined}
+          onNext={canUseGrade4TheoryContinue(canAdvance, false) ? next : undefined}
           onPrev={previous}
           finishLesson={titleClaimed ? finishLesson : undefined}
           titleClaimed={titleClaimed}

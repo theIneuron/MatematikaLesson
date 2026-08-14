@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 // 4-SINF · 13-DARS · Ko'p xonali sonni ikki xonali songa bo'lish
 
@@ -398,6 +399,27 @@ const playSfx = (kind) => {
   try { new Audio(url).play().catch(() => {}); } catch { /* optional */ }
 };
 
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
+const ANSWER_ORDINAL_BY_SCREEN = Object.freeze({ 0: 0, 2: 1, 4: 2, 6: 3, 10: 4, 12: 5 });
+
 const BitSVG = ({ state = 'present', className = '' }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
@@ -490,7 +512,9 @@ const ContractActivity = ({ screen, value, onComplete }) => {
 const Stage = ({ screen, c, audio, onPrev, onNext, finish, activityDone, children }) => {
   const t = useT(); const meta = SCREEN_META[screen]; const { activityState, markActivity } = useContext(ActivityContext);
   const storedActivity = Object.prototype.hasOwnProperty.call(activityState, screen); const activityReady = !meta.active || activityDone === true || storedActivity;
-  const audioReady = audio.muted || audio.visualOnly || audio.completed; const canAdvance = activityReady && audioReady;
+  const audioReady = audio.muted || audio.visualOnly || audio.completed;
+  const originalGatePassed = activityReady && audioReady;
+  const canAdvance = canUseGrade4TheoryContinue(originalGatePassed, finish);
   useEffect(() => { if (activityDone === true && !storedActivity) markActivity(screen, true); }, [activityDone, markActivity, screen, storedActivity]);
   const showCaption = Boolean(audio.caption && (audio.muted || audio.visualOnly));
   return <main className={`stage stage-${meta.type}`} data-screen={screen}><header className="stage-header"><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/><AudioIndicator audio={audio}/><span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content"><div className="stage-body">{children}<ContractActivity screen={screen} value={activityState[screen]} onComplete={markActivity}/></div><div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>{showCaption ? audio.caption : ''}</div></section><footer className="stage-nav">{screen === 0 ? <span/> : <button type="button" className="btn ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: "Back" })}</button>}<button type="button" className="btn next" onClick={onNext} disabled={!canAdvance}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: "Finish lesson" }) : t({ uz: "Davom etish", ru: 'Продолжить', en: "Continue" })} →</button></footer></main>;
@@ -501,9 +525,9 @@ const Heading = ({ c }) => {
   return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{!hook && <BitSVG state="happy" className="primary-happy-bit"/>}</div>;
 };
 
-const Options = ({ values, picked, correctIndex, solved, onPick }) => {
+const Options = ({ values, order, marked, diagnosticAdvance, picked, correctIndex, solved, onPick }) => {
   const t = useT();
-  return <div className="options">{values.map((value, index) => <button type="button" key={`${index}-${t(value)}`} data-g4-role="answer-card" className={`option ${picked === index ? 'picked' : ''} ${solved && index === correctIndex ? 'right' : ''} ${picked === index && !solved ? 'bad' : ''}`} onClick={() => onPick(index)} disabled={solved}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>;
+  return <div className="options">{order.map((sourceIndex, displayIndex) => <button type="button" key={`${sourceIndex}-${t(values[sourceIndex])}`} data-g4-role="answer-card" data-g4-branch={marked ? 'choice' : undefined} data-g4-source-index={marked ? sourceIndex : undefined} data-g4-correct={marked ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} data-g4-diagnostic-advance={diagnosticAdvance ? 'true' : undefined} className={`option ${picked === sourceIndex ? 'picked' : ''} ${solved && sourceIndex === correctIndex ? 'right' : ''} ${picked === sourceIndex && !solved ? 'bad' : ''}`} onClick={() => onPick(sourceIndex)} disabled={solved}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(values[sourceIndex])}</span></button>)}</div>;
 };
 
 const HookVisual = ({ c, beat }) => {
@@ -531,14 +555,17 @@ const ConceptVisual = ({ c, beat }) => {
   </section>;
 };
 
-function ChoiceTask({ c, screen, storedAnswer, onAnswer, audio }) {
+function ChoiceTask({ c, screen, lessonId, choiceOrdinal, storedAnswer, onAnswer, audio }) {
   const t = useT(); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [solved, setSolved] = useState(storedAnswer?.correct === true); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry !== false);
+  const marked = Number.isInteger(choiceOrdinal);
+  const diagnosticAdvance = c.kind === 'hook' && SCREEN_META[screen].scored === false;
+  const optionOrder = marked ? buildOptionOrder(c.options.length, c.correctIndex, lessonId, choiceOrdinal) : c.options.map((_, index) => index);
   const pick = (index) => {
     if (solved) return; attempts.current += 1; const ok = index === c.correctIndex; if (!ok) clean.current = false;
     setPicked(index); setSolved(ok); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(c.feedbackAudio[index]));
     onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok });
   };
-  return <><Heading c={c}/>{c.kind === 'hook' && <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2>}<ConceptVisual c={c} beat={audio.beat}/><section className="question">{c.kind !== 'hook' && <h2>{t(c.question)}</h2>}<Options values={c.options} picked={picked} correctIndex={c.correctIndex} solved={solved} onPick={pick}/><Feedback show={picked !== null} correct={solved}>{picked !== null ? t(c.feedback[picked]) : ''}</Feedback>{solved && c.visual?.proof && <div className="proof">{c.visual.proof}</div>}</section></>;
+  return <><Heading c={c}/>{c.kind === 'hook' && <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2>}<ConceptVisual c={c} beat={audio.beat}/><section className="question">{c.kind !== 'hook' && <h2>{t(c.question)}</h2>}<Options values={c.options} order={optionOrder} marked={marked} diagnosticAdvance={diagnosticAdvance} picked={picked} correctIndex={c.correctIndex} solved={solved} onPick={pick}/><Feedback show={picked !== null} correct={solved}>{picked !== null ? t(c.feedback[picked]) : ''}</Feedback>{solved && c.visual?.proof && <div className="proof">{c.visual.proof}</div>}</section></>;
 }
 
 function DigitTask({ c, screen, storedAnswer, onAnswer, audio }) {
@@ -688,8 +715,9 @@ function Summary({ c, audio, answers }) {
 
 function ScreenRenderer({ c, screen, storedAnswer, answers, onAnswer, onPrev, onNext, finishLesson }) {
   const t = useT(); const audio = useAudio(c.audio, screen);
+  const choiceOrdinal = ANSWER_ORDINAL_BY_SCREEN[screen];
   let body;
-  if (c.kind === 'choice' || c.kind === 'hook') body = <ChoiceTask c={c} screen={screen} storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio}/>;
+  if (c.kind === 'choice' || c.kind === 'hook') body = <ChoiceTask c={c} screen={screen} lessonId={LESSON_META.lessonId} choiceOrdinal={choiceOrdinal} storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio}/>;
   else if (c.kind === 'digits') body = <DigitTask c={c} screen={screen} storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio}/>;
   else if (c.kind === 'input') body = <InputTask c={c} screen={screen} storedAnswer={storedAnswer} onAnswer={onAnswer} audio={audio}/>;
   else if (c.kind === 'summary') body = <Summary c={c} audio={audio} answers={answers}/>;
@@ -786,4 +814,5 @@ html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-pa
 .lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
 .lesson-root [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
 @media(max-width:639.98px){.lesson-root [data-g4-role~="hook-title"]{font-size:25px}.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}.lesson-root [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px}.lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}}
+@media(min-width:641px) and (min-height:701px) and (max-height:800px){.lesson-root .stage:is([data-screen="0"],[data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .stack{gap:7px}.lesson-root .stage:is([data-screen="0"],[data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .heading{min-height:72px}.lesson-root .stage:is([data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .heading .bit{width:64px;height:80px}.lesson-root .stage:is([data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .concept-visual{min-height:170px;padding:12px;gap:8px}.lesson-root .stage:is([data-screen="0"],[data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .question{padding:12px 16px}.lesson-root .stage:is([data-screen="0"],[data-screen="2"],[data-screen="4"],[data-screen="6"],[data-screen="10"],[data-screen="12"]) .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:8px}}
 `;

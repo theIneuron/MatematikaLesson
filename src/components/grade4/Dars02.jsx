@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -1464,47 +1465,103 @@ const D2_REVISION_CONTENT = {
         en: 'One hundred and nine thousand seven hundred and sixty-two has been built correctly.',
       },
       on_wrong: {
-        ru: 'Проверь сначала класс тысяч, затем три места класса единиц.',
-        uz: 'Avval minglar sinfini, keyin birlar sinfining uchta xonasini tekshiring.',
-        en: 'Check the thousands group first, then the three places in the ones group.',
+        ru: 'Сначала проверь класс тысяч, затем три места класса единиц. Нужно собрать число сто девять тысяч семьсот шестьдесят два.',
+        uz: 'Avval minglar sinfini, keyin birlar sinfining uchta xonasini tekshiring. Yasashingiz kerak bo\'lgan son bir yuz to\'qqiz ming yetti yuz oltmish ikki.',
+        en: 'Check the thousands group first, then the three places in the ones group. The number to build is one hundred and nine thousand seven hundred and sixty-two.',
       },
     },
   },
-  strategyBuilder: {
-    eyebrow: { ru: 'Собери проверку', uz: 'Tekshiruvni yig\'ing', en: 'Build the checking rule' },
-    title: { ru: 'Восстанови правильный порядок действий', uz: 'Harakatlarni to\'g\'ri tartibda joylashtiring', en: 'Put the checking steps in order' },
+  errorRepairInput: {
+    eyebrow: { ru: 'Исправление записи', uz: 'Yozuvni tuzatish', en: 'Correct the notation' },
+    title: { ru: 'Исправь ошибку Бита', uz: 'Bitning xatosini tuzating', en: "Correct Bit's mistake" },
     lead: {
-      ru: 'Нажимай на фрагменты, чтобы собрать надёжную проверку записи.',
-      uz: 'Yozuvni ishonchli tekshirish uchun bo\'laklarni bosing.',
-      en: 'Select the fragments to build a reliable way to check the notation.',
+      ru: 'Бит услышал семьдесят две тысячи сорок пять, но записал это число неверно.',
+      uz: 'Bit yetmish ikki ming qirq besh sonini eshitdi, ammo bu sonni noto\'g\'ri yozdi.',
+      en: 'Bit heard seventy-two thousand and forty-five but wrote the number incorrectly.',
     },
-    fragments: {
-      uz: ['Sonni', 'sinflarga ajrating', 'qayta o\'qing', 'va', 'shart bilan solishtiring'],
-      ru: ['Раздели число', 'на классы', 'прочитай обратно', 'и', 'сверь с условием'],
-      en: ['Divide the number', 'into groups', 'read it back', 'and', 'compare with the prompt'],
+    instruction: {
+      ru: 'Бит записал 7 245. Введи правильное число.',
+      uz: 'Bit 7 245 deb yozdi. To\'g\'ri sonni kiriting.',
+      en: 'Bit wrote 7 245. Enter the correct number.',
     },
-    rule: {
-      ru: 'Раздели число на классы, прочитай обратно и сверь с условием.',
-      uz: 'Sonni sinflarga ajrating, qayta o\'qing va shart bilan solishtiring.',
-      en: 'Divide the number into groups, read it back and compare with the prompt.',
+    model: {
+      kind: 'code',
+      badge: { ru: 'Черновик Бита', uz: 'Bit qoralamasi', en: "Bit's draft" },
+      number: '7 245',
     },
+    options: ['72 045', '7 245', '72 450', '720 045'],
+    correctIndex: 0,
+    inputWrongDefault: {
+      ru: 'Раздели число на классы. Слева должно быть 72 тысячи, а справа — три места: 0 сотен, 4 десятка и 5 единиц.',
+      uz: 'Sonni sinflarga ajrating. Chapda 72 ming, o\'ngda esa uchta xona bo\'lishi kerak: 0 yuzlik, 4 o\'nlik va 5 birlik.',
+      en: 'Split the number into groups. The thousands group contains 72, and the ones group needs three places: 0 hundreds, 4 tens and 5 ones.',
+    },
+    inputWrongAudio: {
+      ru: 'Сохрани семьдесят две тысячи слева. Справа нужны ноль сотен, четыре десятка и пять единиц.',
+      uz: 'Chapda yetmish ikki mingni saqlang. O\'ngda nol yuzlik, to\'rt o\'nlik va besh birlik kerak.',
+      en: 'Keep seventy-two in the thousands group. In the ones group, use zero hundreds, four tens and five ones.',
+    },
+    correctText: {
+      ru: '72 045: ноль сохраняет место сотен в классе единиц.',
+      uz: '72 045: nol birlar sinfidagi yuzlar xonasini saqlaydi.',
+      en: '72 045: the zero keeps the hundreds place in the ones group.',
+    },
+    wrong: [
+      null,
+      {
+        ru: '7 245 читается как семь тысяч двести сорок пять. Сохрани 72 в классе тысяч и запиши справа 045.',
+        uz: '7 245 yetti ming ikki yuz qirq besh deb o\'qiladi. Minglar sinfida 72 ni saqlab, o\'ngda 045 ni yozing.',
+        en: '7 245 reads as seven thousand two hundred and forty-five. Keep 72 in the thousands group and write 045 in the ones group.',
+      },
+      {
+        ru: '72 450 читается как семьдесят две тысячи четыреста пятьдесят. Для сорока пяти справа нужна группа 045.',
+        uz: '72 450 yetmish ikki ming to\'rt yuz ellik deb o\'qiladi. Qirq besh uchun o\'ngda 045 guruhi kerak.',
+        en: '72 450 reads as seventy-two thousand four hundred and fifty. Forty-five needs 045 in the ones group.',
+      },
+      {
+        ru: '720 045 читается как семьсот двадцать тысяч сорок пять. В условии названо семьдесят две тысячи.',
+        uz: '720 045 yetti yuz yigirma ming qirq besh deb o\'qiladi. Shartda yetmish ikki ming aytilgan.',
+        en: '720 045 reads as seven hundred and twenty thousand and forty-five. The prompt says seventy-two thousand.',
+      },
+    ],
     audio: {
       intro: {
-        ru: ['Собери короткую проверку из пяти частей. Сначала раздели число на классы, затем прочитай его обратно и сравни с условием.'],
-        uz: ['Besh bo\'lakdan qisqa tekshiruv tuzing. Avval sonni sinflarga ajrating, keyin qayta o\'qib, shart bilan solishtiring.'],
-        en: ['Build the short checking rule from five fragments. First divide the number into groups, then read it back and compare it with the prompt.'],
+        ru: ['Бит услышал семьдесят две тысячи сорок пять, но записал семь тысяч двести сорок пять. Найди потерянное место и введи правильное число.'],
+        uz: ['Bit yetmish ikki ming qirq besh sonini eshitdi, ammo yetti ming ikki yuz qirq besh deb yozdi. Tushib qolgan o\'rinni topib, to\'g\'ri sonni kiriting.'],
+        en: ['Bit heard seventy-two thousand and forty-five but wrote seven thousand two hundred and forty-five. Find the missing place and enter the correct number.'],
       },
-      on_correct: { ru: 'Порядок действий собран верно.', uz: 'Harakatlar tartibi to\'g\'ri yig\'ildi.', en: 'The checking steps are in the correct order.' },
-      on_wrong: { ru: 'Начни с числа и деления на классы. Сравнение выполняется последним.', uz: 'Son va sinflarga ajratishdan boshlang. Solishtirish oxirida bajariladi.', en: 'Start with the number and divide it into groups. The comparison comes last.' },
+      on_correct: {
+        ru: 'Верно. Ноль возвращает правой группе три места и восстанавливает семьдесят две тысячи сорок пять.',
+        uz: 'To\'g\'ri. Nol o\'ng guruhga uchta o\'rinni qaytarib, yetmish ikki ming qirq besh sonini tiklaydi.',
+        en: 'Correct. The zero restores three places in the ones group and rebuilds seventy-two thousand and forty-five.',
+      },
+      on_wrong: [
+        null,
+        {
+          ru: 'Сохрани семьдесят две тысячи слева. Справа нужны ноль сотен, четыре десятка и пять единиц.',
+          uz: 'Chapda yetmish ikki mingni saqlang. O\'ngda nol yuzlik, to\'rt o\'nlik va besh birlik kerak.',
+          en: 'Keep seventy-two in the thousands group. In the ones group, use zero hundreds, four tens and five ones.',
+        },
+        {
+          ru: 'Справа нужно сорок пять, а не четыреста пятьдесят. Поставь ноль в разряд сотен.',
+          uz: 'O\'ngda to\'rt yuz ellik emas, qirq besh kerak. Yuzlar xonasiga nol qo\'ying.',
+          en: 'The ones group is forty-five, not four hundred and fifty. Put zero in its hundreds place.',
+        },
+        {
+          ru: 'Слева названо семьдесят две тысячи, а не семьсот двадцать тысяч. Проверь класс тысяч.',
+          uz: 'Chapda yetti yuz yigirma ming emas, yetmish ikki ming aytilgan. Minglar sinfini tekshiring.',
+          en: 'The thousands group is seventy-two, not seven hundred and twenty. Check the thousands group.',
+        },
+      ],
     },
   },
   readingMatch: {
     eyebrow: { ru: 'Соедини пары', uz: 'Juftliklarni ulang', en: 'Match the pairs' },
     title: { ru: 'Число и его чтение', uz: 'Son va uning o\'qilishi', en: 'Match each number to its reading' },
     lead: {
-      ru: 'Соедини каждую цифровую запись с точным чтением.',
-      uz: 'Har bir raqamli yozuvni uning aniq o\'qilishi bilan ulang.',
-      en: 'Connect each numeral to its exact reading.',
+      ru: 'Соедини каждую цифровую запись с точным чтением, затем нажми «Проверить».',
+      uz: 'Har bir raqamli yozuvni uning aniq o\'qilishi bilan ulang, so\'ng «Tekshirish» tugmasini bosing.',
+      en: 'Connect each numeral to its exact reading, then select Check.',
     },
     pairs: [
       { id: '7034', number: '7 034', reading: { ru: 'семь тысяч тридцать четыре', uz: 'yetti ming o\'ttiz to\'rt', en: 'seven thousand thirty-four' } },
@@ -1513,16 +1570,23 @@ const D2_REVISION_CONTENT = {
     ],
     rightOrder: ['7340', '7034', '7304'],
     doneText: { ru: 'Все три числа соединены с точным чтением.', uz: 'Uchala son ham aniq o\'qilishi bilan ulandi.', en: 'All three numbers are matched to their exact readings.' },
-    hint: { ru: 'Проверь сотни, десятки и единицы в правой группе.', uz: 'O\'ng guruhdagi yuzlar, o\'nlar va birlarni tekshiring.', en: 'Check the hundreds, tens and ones in the right-hand group.' },
+    hint: {
+      ru: 'Есть неверная пара. Все связи сброшены. Проверь сотни, десятки и единицы и соедини числа заново.',
+      uz: 'Noto\'g\'ri juftlik bor. Barcha bog\'lanishlar tozalandi. Yuzlar, o\'nlar va birlarni tekshirib, sonlarni qayta ulang.',
+      en: 'One or more pairs are incorrect. All links have been cleared. Check the hundreds, tens and ones, then match the numbers again.',
+    },
     audio: {
       intro: {
-        ru: ['Слева записаны три похожих числа. Справа даны их чтения. Соедини каждое число с точным чтением.'],
-        uz: ['Chap tomonda uchta o\'xshash son yozilgan. O\'ng tomonda ularning o\'qilishi berilgan. Har bir sonni to\'g\'ri o\'qilishi bilan ulang.'],
-        en: ['Three similar numbers are shown on the left, with their readings on the right. Match each number to its exact reading.'],
+        ru: ['Слева записаны три похожих числа. Справа даны их чтения. Соедини все три пары, затем нажми «Проверить».'],
+        uz: ['Chap tomonda uchta o\'xshash son yozilgan. O\'ng tomonda ularning o\'qilishi berilgan. Uchala juftlikni ulang, so\'ng «Tekshirish» tugmasini bosing.'],
+        en: ['Three similar numbers are shown on the left, with their readings on the right. Match all three pairs, then select Check.'],
       },
-      pair_correct: { ru: 'Эта пара составлена верно.', uz: 'Bu juftlik to\'g\'ri tuzildi.', en: 'This pair is correct.' },
       on_correct: { ru: 'Все три пары составлены верно.', uz: 'Uchala juftlik ham to\'g\'ri tuzildi.', en: 'All three pairs are correct.' },
-      on_wrong: { ru: 'Прочитай правую группу ещё раз и проверь место каждой цифры.', uz: 'O\'ng guruhni yana o\'qib, har bir raqam o\'rnini tekshiring.', en: 'Read the right-hand group again and check the place of each digit.' },
+      on_wrong: {
+        ru: 'Есть неверная пара. Связи сброшены. Прочитай правую группу ещё раз и соедини все три пары заново.',
+        uz: 'Noto\'g\'ri juftlik bor. Bog\'lanishlar tozalandi. O\'ng guruhni yana o\'qib, uchala juftlikni qayta ulang.',
+        en: 'One or more pairs are incorrect. The links have been cleared. Read the right-hand group again and rematch all three pairs.',
+      },
     },
   },
   s14: {
@@ -1595,10 +1659,10 @@ const SCREEN_META = [
   { id: 's8', contentKey: 'p4', type: 'test', subtype: 'internal-zero-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Preserve an internal zero', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro' },
   { id: 's9', contentKey: 's18', type: 'rule', subtype: 'city-code-rule-lab', template: 'DictationTabs', mechanic: 'DictationTabs', goal: 'Formulate and apply the read-write-recheck rule after discovery', misconceptions: ['partial checking'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's10', contentKey: 'p5', type: 'test', subtype: 'reconstruction-check', template: 'MCScreen', mechanic: 'MCScreen', goal: 'Reconstruct a number', misconceptions: ['place shift'], active: true, scored: true, scope: 'module-mikro' },
-  { id: 's11', contentKey: 'strategyBuilder', type: 'practice', subtype: 'strategy-builder', template: 'RuleBuilder', mechanic: 'RuleBuilder', goal: 'Assemble a reliable reverse-check strategy', misconceptions: ['step order changed'], active: true, scored: true, scope: 'module-mikro' },
+  { id: 's11', contentKey: 'errorRepairInput', type: 'practice', subtype: 'missing-zero-repair-input', template: 'NumInputScreen', mechanic: 'NumInputScreen', goal: 'Repair a written number after reading it back', misconceptions: ['internal zero removed', 'right class not padded'], active: true, scored: true, scope: 'module-mikro' },
   { id: 's12', contentKey: 'readingMatch', type: 'practice', subtype: 'reading-error-matching', template: 'MatchingBoard', mechanic: 'MatchingBoard', goal: 'Repair place-value reading errors by matching similar numbers to their exact readings', misconceptions: ['internal zero removed'], active: true, scored: true, scope: 'module-mikro' },
   { id: 's13', contentKey: 's14', type: 'test', subtype: 'city-transfer', template: 'TransferChoice', mechanic: 'TransferChoice', goal: 'Write six hundred and twenty thousand five', misconceptions: ['missing zeros', 'place shift'], active: true, scored: true, scope: 'final' },
-  { id: 's14', contentKey: 's15', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', mechanic: 'ReflectionClaim', goal: 'Reflect on the strategy and claim the title', misconceptions: ['partial checking'], active: true, scored: false, scope: null },
+  { id: 's14', contentKey: 's15', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'TitleClaim', goal: 'Review the strategy and claim the title', misconceptions: ['partial checking'], active: true, scored: false, scope: null },
 ];
 
 const TOTAL_SCREENS = 15;
@@ -1613,6 +1677,8 @@ const LESSON_META = {
     en: "Lesson 2: Reading and writing multi-digit numbers",
   },
   skillTags: ['multi_digit_reading', 'multi_digit_writing', 'class_grouping', 'internal_zero', 'reverse_check'],
+  // Methodist-approved Dars02 exception: slide 15 has no reflection choice frame.
+  finalReflectionRequired: false,
   notionFlow: NOTION_FLOW,
 };
 
@@ -1957,10 +2023,20 @@ const playSfx = (kind) => {
   }
 };
 
-const buildOptionOrder = (length, correctIndex, seed = 0) => {
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
   const natural = Array.from({ length }, (_, index) => index);
   if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = Math.abs(seed * 3 + 1) % length;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
   const order = natural.filter((index) => index !== correctIndex);
   order.splice(target, 0, correctIndex);
   return order;
@@ -2290,20 +2366,20 @@ const NavBack = ({ onClick, hidden = false }) => {
 
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} disabled={isDisabled} aria-disabled={isDisabled} onClick={onClick}>
       {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
 };
 
-const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
+const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
   const c = D2_REVISION_CONTENT[contentKey] ?? PRACTICE_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
-  const resetOnReturn = screen === 0 || SCREEN_META[screen].type === 'exploration';
-  const restorableAnswer = resetOnReturn ? null : storedAnswer;
+  const restorableAnswer = storedAnswer;
   const restored = restorableAnswer?.solved === true;
   const [picked, setPicked] = useState(restorableAnswer?.studentAnswerIndex ?? null);
   const [solved, setSolved] = useState(restored);
@@ -2318,7 +2394,7 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
   const canAdvance = useAdvanceGate(solved, audio);
   const isFinal = screen === TOTAL_SCREENS - 1;
   const isHook = screen === 0;
-  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, screen);
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
     if (!canAnswer || solved || wrongIndices.has(index)) return;
@@ -2422,6 +2498,7 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
                   type="button"
                   data-g4-role={isHook ? 'answer-card' : undefined}
                   data-g4-branch="choice"
+                  data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
                   className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
@@ -2450,7 +2527,7 @@ const normalizeNumberEntry = (value) => String(value ?? '').replace(/\s/g, '');
 const NumberInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPrev }) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT[contentKey ?? `s${screen}`];
+  const c = D2_REVISION_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
   const restored = storedAnswer?.solved === true;
   const [value, setValue] = useState(storedAnswer?.studentAnswer ?? '');
   const [solved, setSolved] = useState(restored);
@@ -2950,6 +3027,9 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
     setAttempts(nextAttempts);
     setChecked(true);
     if (!correct) {
+      const resetSlots = Array(c.targetDigits.length).fill(null);
+      setSlots(resetSlots);
+      setSelectedId(null);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio.on_wrong));
       onAnswer({
@@ -2965,7 +3045,7 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
         firstTry: false,
         attempts: nextAttempts,
         solved: false,
-        finalSlots: nextSlots,
+        finalSlots: resetSlots,
       });
       return;
     }
@@ -3107,150 +3187,6 @@ const SpokenNumberBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onP
   );
 };
 
-const StrategyBuilderScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
-  const lang = useLang();
-  const t = useT();
-  const c = D2_REVISION_CONTENT.strategyBuilder;
-  const fragments = c.fragments[lang] ?? c.fragments.uz;
-  const order = [3, 0, 4, 1, 2];
-  const [built, setBuilt] = useState(storedAnswer?.built ?? []);
-  const [checked, setChecked] = useState(storedAnswer?.solved === true);
-  const [solved, setSolved] = useState(storedAnswer?.solved === true);
-  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
-  const segments = useMemo(
-    () => localizedSegments(c.audio.intro, lang, `s${screen}-strategy`),
-    [c.audio.intro, lang, screen],
-  );
-  const audio = useAudio(segments);
-  const canAnswer = useCanAnswer(audio);
-  const canAdvance = useAdvanceGate(solved, audio);
-
-  const recordDraft = (nextBuilt) => onAnswer({
-    stage: SCREEN_META[screen].scope,
-    screenIdx: screen,
-    question: t(c.title),
-    options: fragments,
-    correctIndex: null,
-    correctAnswer: t(c.rule),
-    studentAnswerIndex: null,
-    studentAnswer: nextBuilt.map((index) => fragments[index]).join(' '),
-    correct: false,
-    firstTry: false,
-    attempts,
-    solved: false,
-    built: nextBuilt,
-  });
-
-  const add = (index) => {
-    if (!canAnswer || solved || built.includes(index)) return;
-    const nextBuilt = [...built, index];
-    setChecked(false);
-    setBuilt(nextBuilt);
-    recordDraft(nextBuilt);
-  };
-
-  const remove = (index) => {
-    if (!canAnswer || solved) return;
-    const nextBuilt = built.filter((item) => item !== index);
-    setChecked(false);
-    setBuilt(nextBuilt);
-    recordDraft(nextBuilt);
-  };
-
-  const check = () => {
-    if (!canAnswer || solved || built.length !== fragments.length) return;
-    const nextAttempts = attempts + 1;
-    const correct = built.join(',') === '0,1,2,3,4';
-    setAttempts(nextAttempts);
-    setChecked(true);
-    if (!correct) {
-      playSfx('wrong');
-      audio.pushOneOff(t(c.audio.on_wrong));
-      onAnswer({
-        stage: SCREEN_META[screen].scope,
-        screenIdx: screen,
-        question: t(c.title),
-        options: fragments,
-        correctIndex: null,
-        correctAnswer: t(c.rule),
-        studentAnswerIndex: null,
-        studentAnswer: built.map((index) => fragments[index]).join(' '),
-        correct: false,
-        firstTry: false,
-        attempts: nextAttempts,
-        solved: false,
-        built,
-      });
-      return;
-    }
-    setSolved(true);
-    playSfx('correct');
-    audio.pushOneOff(t(c.audio.on_correct));
-    onAnswer({
-      stage: SCREEN_META[screen].scope,
-      screenIdx: screen,
-      question: t(c.title),
-      options: fragments,
-      correctIndex: null,
-      correctAnswer: t(c.rule),
-      studentAnswerIndex: null,
-      studentAnswer: t(c.rule),
-      correct: true,
-      firstTry: nextAttempts === 1,
-      attempts: nextAttempts,
-      solved: true,
-      built,
-    });
-  };
-
-  return (
-    <Stage
-      screen={screen}
-      eyebrow={c.eyebrow}
-      audio={audio}
-      nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
-    >
-      <div className="screen-stack strategy-builder-screen">
-        <div className="screen-heading bit-free-heading">
-          <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · CHECK LAB</span>
-            <h1>{t(c.title)}</h1>
-            <p>{t(c.lead)}</p>
-          </div>
-        </div>
-        <section
-          className="strategy-builder-frame"
-          data-qa-rule-builder="true"
-          data-qa-rule-answer={JSON.stringify(fragments)}
-        >
-          <div className="strategy-built" aria-live="polite">
-            {built.length === 0 && <span>{lang === 'en' ? 'Build the sentence here' : lang === 'ru' ? 'Собери предложение здесь' : 'Gapni shu yerda yig\'ing'}</span>}
-            {built.map((index) => (
-              <button type="button" data-qa-build-slot={index} key={index} onClick={() => remove(index)} disabled={solved}>{fragments[index]}</button>
-            ))}
-          </div>
-          <div className="strategy-fragment-tray">
-            {order.filter((index) => !built.includes(index)).map((index) => (
-              <button type="button" data-qa-build-card={fragments[index]} key={index} className="strategy-fragment" onClick={() => add(index)} disabled={!canAnswer || solved}>
-                {fragments[index]}
-              </button>
-            ))}
-          </div>
-          {!solved && (
-            <div className="builder-action-row">
-              <button type="button" className="btn btn-white-accent" data-qa-rule-check="true" disabled={!canAnswer || built.length !== fragments.length} onClick={check}>
-                {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
-              </button>
-            </div>
-          )}
-          {solved && <span className="sr-only" data-qa-rule-complete="true">complete</span>}
-        </section>
-        <FeedbackBlock show={checked || solved} correct={solved}>{t(solved ? c.rule : c.audio.on_wrong)}</FeedbackBlock>
-      </div>
-    </Stage>
-  );
-};
-
 const readMatchingPoint = (element, board, side) => {
   const box = element.getBoundingClientRect();
   const host = board.getBoundingClientRect();
@@ -3260,7 +3196,7 @@ const readMatchingPoint = (element, board, side) => {
   };
 };
 
-const MatchingLines = ({ boardRef, pairs, wrongPair, localeKey }) => {
+const MatchingLines = ({ boardRef, pairs, localeKey }) => {
   const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
 
   useLayoutEffect(() => {
@@ -3271,15 +3207,14 @@ const MatchingLines = ({ boardRef, pairs, wrongPair, localeKey }) => {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const host = board.getBoundingClientRect();
-        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
-        const lines = allPairs.map((pair) => {
+        const lines = pairs.map((pair) => {
           const left = board.querySelector(`[data-match-left="${pair.left}"]`);
           const right = board.querySelector(`[data-match-right="${pair.right}"]`);
           if (!left || !right) return null;
           return {
             from: readMatchingPoint(left, board, 'left'),
             to: readMatchingPoint(right, board, 'right'),
-            wrong: pair.wrong,
+            status: pair.status ?? 'correct',
           };
         }).filter(Boolean);
         setGeometry({ width: host.width, height: host.height, lines });
@@ -3295,23 +3230,29 @@ const MatchingLines = ({ boardRef, pairs, wrongPair, localeKey }) => {
       observer?.disconnect();
       window.removeEventListener('resize', measure);
     };
-  }, [boardRef, localeKey, pairs, wrongPair]);
+  }, [boardRef, localeKey, pairs]);
 
   return (
     <svg className="reading-match-connectors" width={geometry.width} height={geometry.height} viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`} aria-hidden="true">
       {geometry.lines.map((line, index) => {
         const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
         const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
+        const stroke = line.status === 'wrong' ? T.warn : line.status === 'pending' ? T.cyan : T.success;
+        const connectorClass = {
+          pending: 'matching-connector-pending',
+          correct: 'matching-connector-correct',
+          wrong: 'matching-connector-wrong',
+        }[line.status] ?? 'matching-connector-correct';
         return (
           <path
             key={`${path}-${index}`}
-            className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'}
+            className={connectorClass}
             d={path}
             fill="none"
-            stroke={line.wrong ? T.warn : T.success}
-            strokeWidth="4"
+            stroke={stroke}
+            strokeWidth={line.status === 'pending' ? 3 : 4}
             strokeLinecap="round"
-            strokeDasharray={line.wrong ? '8 7' : undefined}
+            strokeDasharray={line.status === 'wrong' ? '8 7' : undefined}
           />
         );
       })}
@@ -3326,84 +3267,105 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
   const boardRef = useRef(null);
   const [selected, setSelected] = useState(null);
   const [pairs, setPairs] = useState(storedAnswer?.pairs ?? {});
-  const [wrongPair, setWrongPair] = useState(null);
-  const [feedback, setFeedback] = useState(storedAnswer?.solved ? c.doneText : null);
-  const [lastCorrect, setLastCorrect] = useState(storedAnswer?.solved === true ? true : null);
+  const [solved, setSolved] = useState(storedAnswer?.solved === true);
+  const [feedback, setFeedback] = useState(storedAnswer?.solved ? c.doneText : (storedAnswer?.feedback ?? null));
+  const [lastCorrect, setLastCorrect] = useState(storedAnswer?.solved === true ? true : (storedAnswer?.feedback ? false : null));
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
-  const wrongTimerRef = useRef(null);
   const segments = useMemo(
     () => localizedSegments(c.audio.intro, lang, `s${screen}-matching`),
     [c.audio.intro, lang, screen],
   );
   const audio = useAudio(segments);
   const canAnswer = useCanAnswer(audio);
-  const solved = Object.keys(pairs).length === c.pairs.length;
+  const allPaired = Object.keys(pairs).length === c.pairs.length;
   const canAdvance = useAdvanceGate(solved, audio);
-
-  useEffect(() => () => {
-    if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
-  }, []);
+  const correctAnswer = c.pairs.map((pair) => `${pair.number} — ${t(pair.reading)}`).join('; ');
 
   const match = (rightId, leftId = selected) => {
-    if (!canAnswer || solved || !leftId || pairs[leftId]) return;
-    if (wrongTimerRef.current !== null) window.clearTimeout(wrongTimerRef.current);
-    setWrongPair(null);
-    const correct = leftId === rightId;
-    if (!correct) {
-      const nextAttempts = attempts + 1;
-      setAttempts(nextAttempts);
-      setWrongPair({ left: leftId, right: rightId });
-      setLastCorrect(false);
-      setFeedback(c.hint);
-      playSfx('wrong');
-      audio.pushOneOff(t(c.audio.on_wrong));
-      wrongTimerRef.current = window.setTimeout(() => {
-        setWrongPair(null);
-        wrongTimerRef.current = null;
-      }, 1200);
-      onAnswer({
-        stage: SCREEN_META[screen].scope,
-        screenIdx: screen,
-        question: t(c.title),
-        options: null,
-        correctIndex: null,
-        correctAnswer: c.pairs.map((pair) => `${pair.number} — ${t(pair.reading)}`).join('; '),
-        studentAnswerIndex: null,
-        studentAnswer: `${leftId} — ${rightId}`,
-        correct: false,
-        firstTry: false,
-        attempts: nextAttempts,
-        solved: false,
-        pairs,
-      });
-      return;
-    }
+    if (!canAnswer || solved || !leftId || pairs[leftId] || Object.values(pairs).includes(rightId)) return;
     const nextPairs = { ...pairs, [leftId]: rightId };
-    const complete = Object.keys(nextPairs).length === c.pairs.length;
     setPairs(nextPairs);
     setSelected(null);
-    setLastCorrect(true);
-    setFeedback(complete ? c.doneText : c.audio.pair_correct);
-    playSfx('correct');
-    audio.pushOneOff(t(complete ? c.audio.on_correct : c.audio.pair_correct));
+    setLastCorrect(null);
+    setFeedback(null);
     onAnswer({
       stage: SCREEN_META[screen].scope,
       screenIdx: screen,
       question: t(c.title),
       options: null,
       correctIndex: null,
-      correctAnswer: c.pairs.map((pair) => `${pair.number} — ${t(pair.reading)}`).join('; '),
+      correctAnswer,
       studentAnswerIndex: null,
       studentAnswer: JSON.stringify(nextPairs),
-      correct: complete,
-      firstTry: complete && attempts === 0,
-      attempts: attempts + 1,
-      solved: complete,
+      correct: false,
+      firstTry: false,
+      attempts,
+      solved: false,
       pairs: nextPairs,
     });
   };
 
-  const connectorPairs = Object.entries(pairs).map(([left, right]) => ({ left, right }));
+  const check = () => {
+    if (!canAnswer || solved || !allPaired) return;
+    const nextAttempts = attempts + 1;
+    const correct = Object.entries(pairs).every(([left, right]) => left === right);
+    setAttempts(nextAttempts);
+
+    if (!correct) {
+      const attemptedPairs = { ...pairs };
+      setPairs({});
+      setSelected(null);
+      setLastCorrect(false);
+      setFeedback(c.hint);
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+      onAnswer({
+        stage: SCREEN_META[screen].scope,
+        screenIdx: screen,
+        question: t(c.title),
+        options: null,
+        correctIndex: null,
+        correctAnswer,
+        studentAnswerIndex: null,
+        studentAnswer: JSON.stringify(attemptedPairs),
+        correct: false,
+        firstTry: false,
+        attempts: nextAttempts,
+        solved: false,
+        pairs: {},
+        attemptedPairs,
+        feedback: c.hint,
+      });
+      return;
+    }
+
+    setSolved(true);
+    setLastCorrect(true);
+    setFeedback(c.doneText);
+    playSfx('correct');
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      stage: SCREEN_META[screen].scope,
+      screenIdx: screen,
+      question: t(c.title),
+      options: null,
+      correctIndex: null,
+      correctAnswer,
+      studentAnswerIndex: null,
+      studentAnswer: JSON.stringify(pairs),
+      correct: true,
+      firstTry: nextAttempts === 1,
+      attempts: nextAttempts,
+      solved: true,
+      pairs,
+    });
+  };
+
+  const connectorPairs = Object.entries(pairs).map(([left, right]) => ({
+    left,
+    right,
+    status: solved ? 'correct' : 'pending',
+  }));
   return (
     <Stage
       screen={screen}
@@ -3424,21 +3386,21 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
             {c.pairs.map((pair) => (
               <button
                 type="button"
-                draggable={!pairs[pair.id]}
+                draggable={canAnswer && !solved && !pairs[pair.id]}
                 data-match-left={pair.id}
-                className={`reading-match-card reading-number-card ${selected === pair.id ? 'reading-match-selected' : ''} ${pairs[pair.id] ? 'reading-match-done' : ''} ${wrongPair?.left === pair.id ? 'reading-match-wrong' : ''}`}
+                className={`reading-match-card reading-number-card ${selected === pair.id ? 'reading-match-selected' : ''} ${pairs[pair.id] ? (solved ? 'reading-match-done' : 'reading-match-paired') : ''}`}
                 key={pair.id}
-                aria-pressed={selected === pair.id}
+                aria-pressed={selected === pair.id || Boolean(pairs[pair.id])}
                 onDragStart={(event) => event.dataTransfer.setData('text/plain', pair.id)}
-                onClick={() => !pairs[pair.id] && setSelected(pair.id)}
+                onClick={() => !pairs[pair.id] && setSelected(selected === pair.id ? null : pair.id)}
                 disabled={!canAnswer || Boolean(pairs[pair.id])}
               >
                 {pair.number}
               </button>
             ))}
           </div>
-          <MatchingLines boardRef={boardRef} pairs={connectorPairs} wrongPair={wrongPair} localeKey={lang} />
-          <div className="reading-matching-column">
+          <MatchingLines boardRef={boardRef} pairs={connectorPairs} localeKey={lang} />
+          <div className="reading-matching-column reading-matching-readings">
             {c.rightOrder.map((id) => {
               const pair = c.pairs.find((item) => item.id === id);
               const used = Object.values(pairs).includes(id);
@@ -3446,7 +3408,7 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
                 <button
                   type="button"
                   data-match-right={id}
-                  className={`reading-match-card reading-text-card ${used ? 'reading-match-done' : ''} ${wrongPair?.right === id ? 'reading-match-wrong' : ''}`}
+                  className={`reading-match-card reading-text-card ${used ? (solved ? 'reading-match-done' : 'reading-match-paired') : ''}`}
                   key={id}
                   onDragOver={(event) => event.preventDefault()}
                   onDrop={(event) => match(id, event.dataTransfer.getData('text/plain'))}
@@ -3458,6 +3420,19 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
               );
             })}
           </div>
+          {!solved && (
+            <div className="builder-action-row reading-matching-actions">
+              <button
+                type="button"
+                className={`btn btn-white-accent ${allPaired ? 'btn-ready' : ''}`}
+                data-qa-matching-check="true"
+                disabled={!canAnswer || !allPaired}
+                onClick={check}
+              >
+                {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
+              </button>
+            </div>
+          )}
         </section>
         <span className="sr-only" aria-live="polite">{feedback ? t(feedback) : ''}</span>
         <FeedbackBlock show={Boolean(feedback)} correct={lastCorrect === true}>{t(feedback)}</FeedbackBlock>
@@ -3469,7 +3444,6 @@ const ReadingMatchingScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev 
 const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, finishLesson }) => {
   const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
   const [revealRequested, setRevealRequested] = useState(false);
-  const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null);
   const lang = useLang();
   const t = useT();
   const c = D2_REVISION_CONTENT.finale;
@@ -3495,47 +3469,29 @@ const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, fi
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const complete = visible >= 4;
   const totalScored = scoredIndexes.length;
-  const finalState = complete || audio.completed || audio.muted || reduced;
+  const canClaimTitle = audio.completed || audio.muted;
   const rewardTitle = firstTry === totalScored
     ? { ru: 'Архитектор чисел', uz: "Sonlar me'mori", en: 'Number Architect' }
     : firstTry >= Math.max(1, totalScored - 1)
       ? { ru: 'Знаток классов', uz: 'Sinflar bilimdoni', en: 'Place-value Expert' }
       : { ru: 'Исследователь чисел', uz: 'Sonlar tadqiqotchisi', en: 'Number Explorer' };
-  const reflectionOptions = [
-    { ru: 'Сначала делю число на классы справа.', uz: "Avval sonni o'ngdan sinflarga ajrataman.", en: 'First, I split the number into groups from the right.' },
-    { ru: 'Сохраняю три места в каждом правом классе.', uz: "Har bir o'ng sinfda uchta o'rinni saqlayman.", en: 'I keep three places in every group to the right.' },
-    { ru: 'Проверяю запись обратным чтением.', uz: "Yozuvni qayta o'qib tekshiraman.", en: 'I check the notation by reading it back.' },
-  ];
-  const chooseReflection = (index) => {
-    if (titleClaimed) return;
-    setReflectionChoice(index);
-    onAnswer({
-      ...(storedAnswer ?? {}),
-      stage: null,
-      screenIdx: screen,
-      reflectionChoice: index,
-      titleClaimed: false,
-    });
-    audio.pushOneOff(t(reflectionOptions[index]));
-  };
   const claimTitle = () => {
-    if (!finalState || reflectionChoice === null || titleClaimed) return;
+    if (!canClaimTitle || titleClaimed) return;
     setTitleClaimed(true);
     setRevealRequested(true);
     onAnswer({
       stage: null,
       screenIdx: screen,
-      question: t({ ru: 'Какой шаг ты будешь использовать?', uz: 'Qaysi qadamdan foydalanasiz?', en: 'Which step will you use?' }),
-      options: reflectionOptions.map((option) => t(option)),
+      question: t({ ru: 'Получить звание', uz: 'Unvonni olish', en: 'Claim title' }),
+      options: null,
       correctIndex: null,
       correctAnswer: null,
-      studentAnswerIndex: reflectionChoice,
-      studentAnswer: t(reflectionOptions[reflectionChoice]),
+      studentAnswerIndex: null,
+      studentAnswer: t(rewardTitle),
       correct: true,
       firstTry: true,
       attempts: 1,
       solved: true,
-      reflectionChoice,
       titleClaimed: true,
     });
   };
@@ -3564,7 +3520,7 @@ const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, fi
       audio={audio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}
     >
-      <div className="screen-stack finale-screen">
+      <div className="screen-stack finale-screen" data-g4-final-reflection="none">
         <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} />
         <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
@@ -3595,30 +3551,19 @@ const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, fi
           </div>
 
           <aside className="finale-actions">
-          <section className="finale-reflection" aria-labelledby="d2-reflection-question">
-            <strong id="d2-reflection-question">{t({ ru: 'Какой шаг ты будешь использовать?', uz: 'Qaysi qadamdan foydalanasiz?', en: 'Which step will you use?' })}</strong>
-            <div>
-              {reflectionOptions.map((option, index) => (
-                <button type="button" className={reflectionChoice === index ? 'is-selected' : ''} aria-pressed={reflectionChoice === index} disabled={titleClaimed} onClick={() => chooseReflection(index)} key={t(option)}>
-                  <span>{index + 1}</span>{t(option)}
-                </button>
-              ))}
-            </div>
-          </section>
-
           {!titleClaimed && (
             <button
               type="button"
               className="btn-white-accent g4-title-claim"
               data-g4-role="title-claim"
-              disabled={!finalState || reflectionChoice === null}
+              disabled={!canClaimTitle}
               onClick={claimTitle}
               aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
             >
               <span aria-hidden="true">★</span>
-              <strong>{finalState && reflectionChoice !== null
+              <strong>{canClaimTitle
                 ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
-                : t({ uz: "Avval fikringizni tanlang", ru: 'Сначала выбери свой вывод', en: 'Choose your reflection first' })}</strong>
+                : t({ uz: "Avval yakuniy xulosani tinglang", ru: 'Сначала дослушай итог', en: 'Listen to the summary first' })}</strong>
             </button>
           )}
           {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
@@ -3812,7 +3757,7 @@ const CityCodeLabScreen = ({ screen, onNext, onPrev }) => {
             <i aria-hidden="true">→</i>
             <article>
               <span>02</span><small>{lang === 'en' ? 'notation' : lang === 'ru' ? 'запись' : 'yozuv'}</small>
-              <div><strong>{active.written}</strong></div>
+              <div><strong>{active.written.replace(/\s+/g, '')}</strong></div>
             </article>
             <i aria-hidden="true">→</i>
             <article>
@@ -3871,20 +3816,20 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   );
 };
 
-const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" />;
+const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" choiceOrdinal={0} />;
 const Screen1 = (props) => <GroupedNumberLessonScreen {...props} contentKey="foundation" />;
-const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" choiceOrdinal={0} />;
 const Screen3 = (props) => <GroupedNumberLessonScreen {...props} contentKey="zeroReading" />;
-const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
+const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" choiceOrdinal={1} />;
 const Screen5 = (props) => <SpokenNumberBuilderScreen {...props} />;
-const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
+const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" choiceOrdinal={2} />;
 const Screen7 = (props) => <NumberInputScreen {...props} contentKey="s7" />;
-const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
+const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" choiceOrdinal={3} />;
 const Screen9 = (props) => <CityCodeLabScreen {...props} />;
-const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
-const Screen11 = (props) => <StrategyBuilderScreen {...props} />;
+const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" choiceOrdinal={4} />;
+const Screen11 = (props) => <NumberInputScreen {...props} contentKey="errorRepairInput" />;
 const Screen12 = (props) => <ReadingMatchingScreen {...props} />;
-const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s14" />;
+const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s14" choiceOrdinal={0} />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
@@ -4173,6 +4118,12 @@ html, body { margin: 0; padding: 0; }
 .choice-slide-14 .question-card, .input-slide-8 > .model-panel { background: ${T.cyanSoft}; }
 .input-slide-8 .class-group strong { transition: transform .36s ease, color .36s ease; }
 .input-slide-8 .group-accent strong { color: ${T.accent}; animation: digit-group-in .48s ease both; }
+.input-slide-8 > .model-panel,
+.input-slide-8 > .model-panel .model-heading,
+.input-slide-8 > .model-panel .class-group strong,
+.input-slide-8 > .model-panel .class-group span {
+  color: #000000;
+}
 
 .grouped-number-lesson { gap: 10px; }
 .grouped-number-frame {
@@ -4216,7 +4167,7 @@ html, body { margin: 0; padding: 0; }
 .grouped-number-caption p { color: ${T.ink}; font-size: clamp(13px,1.8vw,16px); line-height: 1.42; font-weight: 720; }
 
 .spoken-builder-screen { gap: 9px; }
-.builder-guided-frame, .builder-interactive-frame, .strategy-builder-frame {
+.builder-guided-frame, .builder-interactive-frame {
   width: min(100%, 820px);
   margin: 0 auto;
   padding: clamp(14px,2.5vw,22px);
@@ -4252,19 +4203,15 @@ html, body { margin: 0; padding: 0; }
 .builder-digit-tray > span { color: ${T.success}; font-size: 12px; font-weight: 850; }
 .builder-action-row { display: flex; justify-content: flex-end; }
 
-.strategy-builder-frame { background: ${T.paper}; }
-.strategy-built { min-height: 118px; padding: 12px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; border-radius: 16px; color: ${T.ink3}; background: ${T.cyanSoft}; }
-.strategy-built button, .strategy-fragment { min-height: 44px; padding: 9px 12px; border: 0; border-radius: 11px; cursor: pointer; font-size: 14px; font-weight: 780; }
-.strategy-built button { color: ${T.paper}; background: ${T.cyan}; }
-.strategy-fragment-tray { min-height: 72px; margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; }
-.strategy-fragment { color: ${T.navy}; background: ${T.paper}; box-shadow: 0 8px 18px -14px rgba(${T.shadowBase},.6); }
-
 .reading-matching-board { position: relative; width: min(100%,840px); min-height: 290px; margin: 0 auto; padding: 12px; display: grid; grid-template-columns: minmax(145px,.75fr) 90px minmax(260px,1.45fr); gap: 10px; align-items: center; border-radius: 22px; background: ${T.cyanSoft}; box-shadow: 0 16px 36px -27px rgba(${T.shadowBase},.45); }
 .reading-matching-column { display: grid; gap: 12px; }
+.reading-matching-readings { grid-column: 3; min-width: 0; }
+.reading-matching-actions { grid-column: 1 / -1; width: 100%; align-self: end; }
 .reading-match-card { position: relative; z-index: 2; min-height: 62px; padding: 9px 13px; border: 0; border-radius: 14px; color: ${T.navy}; background: ${T.paper}; cursor: pointer; box-shadow: 0 7px 18px -13px rgba(${T.shadowBase},.52); transition: transform .2s, background .2s, box-shadow .2s; }
 .reading-number-card { font: 900 clamp(20px,3.2vw,28px)/1 'JetBrains Mono',monospace; }
 .reading-text-card { font-size: clamp(13px,1.7vw,16px); line-height: 1.32; font-weight: 760; text-align: left; }
 .reading-match-selected { color: ${T.paper}; background: ${T.accent}; transform: translateY(-3px); }
+.reading-match-paired { color: ${T.cyan}; background: rgba(255,255,255,.92); box-shadow: inset 0 0 0 2px rgba(22,143,163,.28), 0 7px 18px -13px rgba(${T.shadowBase},.52); }
 .reading-match-done { color: ${T.success}; background: ${T.successSoft}; }
 .reading-match-wrong { color: ${T.warn}; background: ${T.warnSoft}; box-shadow: inset 0 0 0 3px rgba(169,111,19,.36); }
 .reading-match-connectors { position: absolute; inset: 0; z-index: 1; overflow: visible; pointer-events: none; }
@@ -4626,12 +4573,6 @@ html, body { margin: 0; padding: 0; }
 .finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(340px,.58fr); gap: 12px; align-items: stretch; }
 .finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
 .finale-actions { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.finale-reflection { padding: 10px; border-radius: 15px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); }
-.finale-reflection > strong { display: block; color: ${T.navy}; font: 700 13px/1.25 'Source Serif 4',serif; }
-.finale-reflection > div { margin-top: 7px; display: grid; gap: 5px; }
-.finale-reflection button { min-height: 36px; padding: 6px 7px; border: 0; border-radius: 10px; display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; gap: 6px; color: ${T.ink2}; background: ${T.cyanSoft}; text-align: left; font-size: 9px; line-height: 1.25; cursor: pointer; }
-.finale-reflection button span { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: ${T.paper}; background: ${T.cyan}; font: 900 9px/1 'JetBrains Mono',monospace; }
-.finale-reflection button.is-selected { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 3px 0 0 ${T.success}; }
 .finale-actions .g4-title-claim { min-height: 70px; padding: 9px 12px; }
 .finale-mastery { min-width: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
 .finale-takeaway { min-width: 0; min-height: 66px; padding: 10px; display: grid; grid-template-columns: 34px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease, transform .34s ease; }
@@ -4639,17 +4580,39 @@ html, body { margin: 0; padding: 0; }
 .finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 10px/1 'JetBrains Mono', monospace; }
 .finale-takeaway:nth-child(2) > span { background: ${T.accent}; }
 .finale-takeaway:nth-child(3) > span { background: ${T.success}; }
-.finale-takeaway p { color: ${T.ink}; font-size: 11px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
+.finale-takeaway p { color: ${T.ink}; font-size: 14px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
 .finale-proof, .finale-bridge { min-width: 0; opacity: 0; transform: translateY(7px); transition: opacity .34s ease, transform .34s ease; }
 .finale-proof.is-visible, .finale-bridge.is-visible { opacity: 1; transform: none; }
 .finale-proof { padding: 9px 12px; display: grid; grid-template-columns: auto auto minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
-.finale-proof > span, .finale-bridge strong { color: ${T.success}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .1em; }
-.finale-proof > strong { color: ${T.navy}; font: 800 15px/1 'JetBrains Mono', monospace; white-space: nowrap; }
-.finale-proof p, .finale-bridge p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+.finale-proof > span, .finale-bridge strong { color: ${T.success}; font: 900 11px/1.2 'JetBrains Mono', monospace; letter-spacing: .1em; }
+.finale-proof > strong { color: ${T.navy}; font: 800 17px/1 'JetBrains Mono', monospace; white-space: nowrap; }
+.finale-proof p, .finale-bridge p { color: ${T.ink2}; font-size: 13px; line-height: 1.35; overflow-wrap: anywhere; }
 .finale-bridge { padding: 9px 11px; display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.accentSoft}; }
 .finale-bridge > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: ${T.paper}; background: ${T.accent}; font-weight: 900; }
 .finale-bridge strong { color: ${T.accent}; }
 .finale-bridge p { margin-top: 3px; }
+@media (min-width: 640px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(0,1fr) minmax(270px,.58fr);
+    gap: 9px 12px;
+  }
+  .finale-screen[data-g4-final-reflection="none"] .finale-main { display: contents; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-mastery { grid-column: 1; grid-row: 1; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions { grid-column: 2; grid-row: 1; height: 100%; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-proof { grid-column: 1 / -1; grid-row: 2; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-bridge { grid-column: 1 / -1; grid-row: 3; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions > .g4-title-card-stage {
+    flex: 0 0 calc(100% + 2px);
+    height: calc(100% + 2px);
+    min-height: calc(100% + 2px);
+    transform: translateY(-2px);
+  }
+}
+@media (min-width: 761px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(0,1fr) minmax(340px,.58fr);
+  }
+}
 .finale-reward { position: relative; min-width: 0; min-height: 206px; padding: 15px 76px 14px 62px; display: flex; align-items: center; overflow: hidden; border-radius: 18px; color: ${T.paper}; background: linear-gradient(145deg, ${T.navy}, #0f2c40); box-shadow: 0 16px 32px -22px rgba(${T.shadowBase},.58); }
 .finale-reward-copy { position: relative; z-index: 2; min-width: 0; }
 .finale-reward-copy > span { color: ${T.lime}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .12em; }
@@ -5174,7 +5137,7 @@ html, body { margin: 0; padding: 0; }
   .spoken-builder-screen .screen-heading { grid-template-columns: minmax(0,1fr) 66px; }
   .spoken-builder-screen .bit-coach { width: 66px; height: 68px; }
   .spoken-builder-screen .bit-coach .g1-char { width: 52px; height: 65px; }
-  .builder-guided-frame, .builder-interactive-frame, .strategy-builder-frame { padding: 10px; border-radius: 17px; }
+  .builder-guided-frame, .builder-interactive-frame { padding: 10px; border-radius: 17px; }
   .builder-guided-digits, .builder-slots { gap: 4px; }
   .builder-guided-digits strong, .builder-slot { min-height: 58px; font-size: 27px; border-radius: 10px; }
   .builder-class-gap { margin-left: 8px; }
@@ -5184,9 +5147,6 @@ html, body { margin: 0; padding: 0; }
   .builder-prompt h2 { font-size: 16px; }
   .builder-digit-tray { min-height: 57px; padding: 7px; gap: 7px; }
   .builder-digit { width: 44px; height: 44px; font-size: 21px; }
-  .strategy-built { min-height: 96px; padding: 9px; }
-  .strategy-built button, .strategy-fragment { min-height: 44px; padding: 7px 9px; font-size: 11px; }
-  .strategy-fragment-tray { min-height: 58px; margin-top: 8px; gap: 6px; }
   .reading-matching-board { min-height: 250px; padding: 8px; grid-template-columns: minmax(78px,.6fr) 20px minmax(180px,1.4fr); gap: 4px; border-radius: 17px; }
   .reading-matching-column { gap: 8px; }
   .reading-match-card { min-height: 54px; padding: 7px 8px; border-radius: 11px; }
@@ -5251,16 +5211,11 @@ html, body { margin: 0; padding: 0; }
   .finale-takeaway > span { width: 22px; height: 22px; border-radius: 7px; font-size: 8px; }
   .finale-takeaway p { font-size: 8px; line-height: 1.2; }
   .finale-proof { padding: 6px 7px; gap: 3px; border-radius: 10px; }
-  .finale-proof > span, .finale-bridge strong { font-size: 7px; }
-  .finale-proof > strong { font-size: 12px; }
-  .finale-proof p, .finale-bridge p { font-size: 8px; line-height: 1.2; }
+  .finale-proof > span, .finale-bridge strong { font-size: 9px; }
+  .finale-proof > strong { font-size: 14px; }
+  .finale-proof p, .finale-bridge p { font-size: 10px; line-height: 1.2; }
   .finale-bridge { padding: 6px; grid-template-columns: 24px minmax(0,1fr); gap: 5px; border-radius: 10px; }
   .finale-bridge > span { width: 24px; height: 24px; border-radius: 7px; }
-  .finale-reflection { padding: 7px; border-radius: 11px; }
-  .finale-reflection > strong { font-size: 11px; line-height: 1.15; }
-  .finale-reflection > div { margin-top: 5px; gap: 4px; }
-  .finale-reflection button { min-height: 44px; padding: 4px 5px; grid-template-columns: 20px minmax(0,1fr); gap: 4px; border-radius: 8px; font-size: 8px; line-height: 1.15; }
-  .finale-reflection button span { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
   .finale-actions .g4-title-claim { min-height: 58px; padding: 6px 8px; gap: 7px; }
   .finale-actions .g4-title-claim > span { width: 34px; height: 34px; }
   .finale-actions .g4-title-claim > strong { font-size: 12px; }
@@ -5418,12 +5373,7 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) .finale-takeaway{min-height:0;padding:4px 6px}
   :is(.lesson-root,.d8-root) .finale-proof,
   :is(.lesson-root,.d8-root) .finale-bridge{padding:4px 6px}
-  :is(.lesson-root,.d8-root) .finale-reflection{padding:5px}
-  :is(.lesson-root,.d8-root) .finale-reflection>div{margin-top:3px;gap:3px}
-  :is(.lesson-root,.d8-root) .finale-reflection button{min-height:36px;padding:3px 5px}
   :is(.lesson-root,.d8-root) .finale-actions .g4-title-claim{min-height:50px;padding:4px 7px}
-  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-role~="feedback-frame"][data-g4-feedback="solution"]{min-height:96px!important;flex:0 0 auto}
-  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-feedback="solution"]>.feedback-card{min-height:96px!important}
 }
 @media(max-width:390px) and (max-height:700px){
   :is(.lesson-root,.d8-root) .finale-heading>span{display:none}
@@ -5435,12 +5385,6 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) .finale-proof{grid-template-columns:auto auto minmax(0,1fr);gap:4px}
   :is(.lesson-root,.d8-root) .finale-bridge{grid-template-columns:20px minmax(0,1fr);gap:4px}
   :is(.lesson-root,.d8-root) .finale-bridge>span{width:20px;height:20px}
-  :is(.lesson-root,.d8-root) .finale-reflection>strong{font-size:9px}
-  :is(.lesson-root,.d8-root) .finale-reflection>div{grid-template-columns:repeat(3,minmax(0,1fr))}
-  :is(.lesson-root,.d8-root) .finale-reflection button{min-height:34px;display:block;padding:3px;font-size:7px;line-height:1.05}
-  :is(.lesson-root,.d8-root) .finale-reflection button span{float:left;width:16px;height:16px;margin-right:3px}
-  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-role~="feedback-frame"][data-g4-feedback="solution"],
-  :is(.lesson-root,.d8-root) .strategy-builder-screen [data-g4-feedback="solution"]>.feedback-card{min-height:112px!important}
 }
 /* Feedback replaces non-essential teaching chrome; no programmatic scroll. */
 @media(max-width:639.98px){
@@ -5458,7 +5402,6 @@ html, body { margin: 0; padding: 0; }
   :is(.lesson-root,.d8-root) .screen-stack:has([data-g4-feedback]) [data-g4-role~="feedback-frame"]{
     flex:0 0 auto;max-width:100%
   }
-  :is(.lesson-root,.d8-root) .strategy-builder-screen:has([data-g4-feedback="solution"])>.strategy-builder-frame,
   :is(.lesson-root,.d8-root) .reading-matching-screen.is-solved:has([data-g4-feedback="solution"])>.reading-matching-board{
     display:none!important
   }

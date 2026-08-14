@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
 
@@ -1091,6 +1092,25 @@ const playSfx = (kind) => {
   }
 };
 
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
 // Dars01 dagi canonical Bit SVG. Geometriya va holatlar o'zgartirilmagan.
 const BitSVG = ({ state = 'present', className = '', dataRole }) => {
   const isWave = state === 'wave';
@@ -1319,8 +1339,9 @@ const NavBack = ({ onClick, hidden = false }) => {
 
 const NavNext = ({ onClick, disabled = false, finish = false }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled && Boolean(onClick), finish);
   return (
-    <button type="button" className="btn btn-white-accent" onClick={onClick} disabled={disabled || !onClick}>
+    <button type="button" className="btn btn-white-accent" onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {finish
         ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' })
         : selectLocale(lang, { uz: 'Davom etish', ru: 'Продолжить', en: 'Continue' })} →
@@ -1468,26 +1489,29 @@ const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone = t
   );
 };
 
-const OptionGrid = ({ options, picked, correctIndex = null, solved = false, showWrong = false, onPick, disabled = false, dataRole = null, branch = false }) => {
+const OptionGrid = ({ options, order = null, picked, correctIndex = null, solved = false, showWrong = false, onPick, disabled = false, dataRole = null, branch = false }) => {
   const t = useT();
+  const optionOrder = order ?? options.map((_, index) => index);
   return (
     <div className="options">
-      {options.map((option, index) => {
-        const isCorrect = solved && index === correctIndex;
-        const isWrong = picked === index && (solved || showWrong) && index !== correctIndex;
+      {optionOrder.map((sourceIndex, displayIndex) => {
+        const option = options[sourceIndex];
+        const isCorrect = solved && sourceIndex === correctIndex;
+        const isWrong = picked === sourceIndex && (solved || showWrong) && sourceIndex !== correctIndex;
         return (
           <button
             type="button"
             data-g4-role={dataRole === 'answer-card' ? 'answer-card' : undefined}
             data-g4-branch={branch ? 'choice' : undefined}
-            data-g4-correct={branch ? (index === correctIndex ? 'true' : 'false') : undefined}
-            key={`${index}-${t(option)}`}
-            className={`option ${picked === index ? 'option-picked' : ''} ${isCorrect ? 'option-correct' : ''} ${isWrong ? 'option-wrong' : ''}`}
-            onClick={() => onPick(index)}
+            data-g4-source-index={branch ? sourceIndex : undefined}
+            data-g4-correct={branch ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined}
+            key={`${sourceIndex}-${t(option)}`}
+            className={`option ${picked === sourceIndex ? 'option-picked' : ''} ${isCorrect ? 'option-correct' : ''} ${isWrong ? 'option-wrong' : ''}`}
+            onClick={() => onPick(sourceIndex)}
             disabled={disabled}
-            aria-pressed={picked === index}
+            aria-pressed={picked === sourceIndex}
           >
-            <b>{String.fromCharCode(65 + index)}</b>
+            <b>{String.fromCharCode(65 + displayIndex)}</b>
             <span>{t(option)}</span>
           </button>
         );
@@ -1535,6 +1559,7 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   const audio = useNarration(c.audio, screen);
   const picked = storedAnswer?.studentAnswerIndex ?? null;
   const ready = audio.completed || audio.muted;
+  const optionOrder = buildOptionOrder(c.options.length, 1, LESSON_META.lessonId, 0);
 
   const pick = (index) => {
     if (!ready) return;
@@ -1557,7 +1582,7 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
   };
 
   return (
-    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={picked === 1 ? onNext : undefined}>
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={canUseGrade4TheoryContinue(picked === 1, false) ? onNext : undefined}>
       <div className="screen-stack" data-g4-screen="hook">
         <PageTitle c={c} hook />
         <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2>
@@ -1583,7 +1608,7 @@ function Screen0({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
           <span className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : picked === 1 ? 'nod' : 'awkward'} /></span>
         </section>
         <section className="question-card">
-          <OptionGrid options={c.options} picked={picked} correctIndex={1} showWrong onPick={pick} disabled={!ready} dataRole="answer-card" branch />
+          <OptionGrid options={c.options} order={optionOrder} picked={picked} correctIndex={1} showWrong onPick={pick} disabled={!ready} dataRole="answer-card" branch />
           <FeedbackBlock visible={picked !== null} correct={picked === 1}>
             {picked !== null ? t(c.wrong[picked]) : ''}
           </FeedbackBlock>
@@ -1857,6 +1882,7 @@ function ScoredChoice({
   c,
   options = c.options,
   correctIndex,
+  choiceOrdinal,
   feedback,
   feedbackAudio,
   storedAnswer,
@@ -1876,6 +1902,7 @@ function ScoredChoice({
   );
   const attemptsRef = useRef(storedAnswer?.attempts ?? 0);
   const firstTryRef = useRef(storedAnswer?.firstTry ?? true);
+  const optionOrder = buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const pick = (index) => {
     if (solved) return;
@@ -1913,6 +1940,7 @@ function ScoredChoice({
           <h2>{t(c.question)}</h2>
           <OptionGrid
             options={options}
+            order={optionOrder}
             picked={picked}
             correctIndex={correctIndex}
             solved={solved}
@@ -1971,6 +1999,7 @@ function Screen8(props) {
     <ScoredChoice
       {...props}
       c={c}
+      choiceOrdinal={1}
       correctIndex={0}
       feedback={feedback}
       feedbackAudio={feedbackAudio}
@@ -2256,6 +2285,7 @@ function Screen11(props) {
       {...props}
       c={{ ...c, options }}
       options={options}
+      choiceOrdinal={2}
       correctIndex={0}
       feedback={feedback}
       feedbackAudio={feedbackAudio}
@@ -2738,7 +2768,7 @@ export default function Grade4Dars09({
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
           onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
-          onNext={canAdvance ? () => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1)) : undefined}
+          onNext={canUseGrade4TheoryContinue(canAdvance, false) ? () => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1)) : undefined}
           finishLesson={finishLesson}
           titleClaimed={titleClaimed}
           revealRequested={revealRequested}

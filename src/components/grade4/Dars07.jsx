@@ -9,6 +9,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const readPoint = (element, board, side) => {
   const box = element.getBoundingClientRect();
@@ -347,7 +348,11 @@ const CONTENT = {
   s0: {
     eyebrow: B('Загадка Бита', "Bitning topishmog'i", "Bit's puzzle"),
     title: B('Знак I означает число 1.', 'I belgisi 1 sonini bildiradi.', 'The symbol I represents the number 1.'),
-    question: B('Бит прав?', 'Bit haqmi?', 'Is Bit right?'),
+    question: B(
+      'Компьютер получил код, не похожий на обычное число. Бит не узнал этот знак. Бит решил, что этот знак похож на число 1. Бит прав?',
+      "Kompyuterga oddiy songa o'xshash bo'lmagan kod keldi. Bit bu belgini tanimadi. Bit bu belgini 1 soniga o'xshatdi. Bit haqmi?",
+      'The computer received a code that did not look like an ordinary number. Bit did not recognise the symbol. Bit thought it looked like the number 1. Is Bit right?',
+    ),
     options: [
       B('Да, этот знак читается как 1.', "Ha, bu raqam 1 deb o'qiladi.", 'Yes, this symbol is read as 1.'),
       B('Нет, число один записывается иначе.', "Yo'q, bir soni boshqacha yoziladi.", 'No, the number one is written differently.'),
@@ -391,9 +396,9 @@ const CONTENT = {
     title: B('Как позиция цифры 1 меняет её значение?', "1 raqamining pozitsiyasi uning qiymatini qanday o'zgartiradi?", 'How does the place of the digit 1 change its value?'),
     conclusion: B('Десятичная запись позиционная: значение цифры зависит от её позиции, то есть места.', "O'nlik yozuv pozitsion: raqam qiymati uning pozitsiyasiga, ya'ni o'rniga bog'liq.", 'Decimal notation is positional: the value of a digit depends on its place.'),
     audio: B(
-      ['В числе четырнадцать цифра один стоит в десятках и означает десять.', 'Теперь переместим её в разряд единиц.', 'В этой позиции цифра один означает единицу.', 'Поэтому десятичная запись называется позиционной: значение цифры зависит от её позиции, то есть места.'],
-      ["O'n to'rt sonida bir raqami o'nlar xonasida turib, o'nni bildiradi.", "Endi uni birlar xonasiga ko'chiramiz.", 'Bu pozitsiyada bir raqami birni bildiradi.', "Shuning uchun o'nlik yozuv pozitsion deyiladi: raqam qiymati uning pozitsiyasiga, ya'ni o'rniga bog'liq."],
-      ['In the number fourteen, the digit one is in the tens place and represents ten.', 'Now let us move it to the ones place.', 'In this place, the digit one represents one.', 'This is why decimal notation is positional: the value of a digit depends on its place.'],
+      ['Посмотрите на число четырнадцать. Цифра один стоит в разряде десятков, а цифра четыре стоит в разряде единиц. Одна кассета показывает один десяток, а четыре отдельные батарейки показывают четыре единицы. Значит, четырнадцать состоит из одного десятка и четырёх единиц.', 'Теперь поменяем цифры местами и получим число сорок один. Цифра четыре переходит в разряд десятков, а цифра один переходит в разряд единиц. Четыре кассеты показывают четыре десятка, а одна отдельная батарейка показывает одну единицу.', 'В числе четырнадцать цифра один стояла в разряде десятков, поэтому её значение было равно десяти. В числе сорок один эта же цифра стоит в разряде единиц, поэтому её значение равно единице. Цифра не изменилась, но её значение изменилось.', 'Значит, десятичная запись позиционная. Значение каждой цифры зависит от разряда, то есть от места, в котором она стоит. Нажмите на модель и ещё раз сравните числа четырнадцать и сорок один.'],
+      ["O'n to'rt soniga qarang. Bir raqami o'nlar xonasida, to'rt raqami esa birlar xonasida turibdi. Bitta kasseta bir o'nlikni, to'rtta alohida batareya esa to'rt birlikni ko'rsatadi. Demak, o'n to'rt bir o'nlik va to'rt birlikdan tuzilgan.", "Endi raqamlarning o'rnini almashtirib, qirq bir sonini hosil qilamiz. To'rt raqami o'nlar xonasiga, bir raqami esa birlar xonasiga o'tadi. To'rtta kasseta to'rt o'nlikni, bitta alohida batareya esa bir birlikni ko'rsatadi.", "O'n to'rtda bir raqami o'nlar xonasida turgani uchun uning qiymati o'n edi. Qirq birda esa shu raqam birlar xonasida turibdi, shuning uchun uning qiymati bir bo'ldi. Raqam o'zgarmadi, lekin uning qiymati o'zgardi.", "Demak, o'nlik yozuv pozitsion. Har bir raqamning qiymati uning qaysi xonada, ya'ni qaysi o'rinda turganiga bog'liq. Modelni bosing va o'n to'rt bilan qirq birni yana bir marta solishtiring."],
+      ['Look at the number fourteen. The digit one is in the tens place, and the digit four is in the ones place. One cassette represents one ten, while four separate batteries represent four ones. So, fourteen is made of one ten and four ones.', 'Now we swap the digits to make forty-one. The digit four moves into the tens place, and the digit one moves into the ones place. Four cassettes represent four tens, while one separate battery represents one unit.', 'In fourteen, the digit one was in the tens place, so its value was ten. In forty-one, the same digit is in the ones place, so its value is one. The digit has not changed, but its value has changed.', 'This shows that decimal notation is positional. The value of each digit depends on its place in the number. Press the model and compare fourteen with forty-one once more.'],
     ),
   },
   s4: {
@@ -881,7 +886,13 @@ function useAudio(segments) {
 
   return {
     ...state,
-    replay: () => getAudioEngine()?.replay(),
+    replay: () => {
+      const engine = getAudioEngine();
+      if (!engine) return;
+      setState((prev) => ({ ...prev, completed: engine.muted, currentSegment: null }));
+      engine.loadQueue(stableSegments);
+      engine.start();
+    },
     toggleMute: () => getAudioEngine()?.toggleMute(),
     pushOneOff: (text) => getAudioEngine()?.pushOneOff(text),
   };
@@ -914,7 +925,7 @@ function useNarratedSequence(screen, audioValue, beatCount, interval = 1050) {
   }, [baseAudio]);
 
   const timedBeat = timeline.run === run ? timeline.beat : 0;
-  return [{ ...baseAudio, replay }, Number.isFinite(narratedBeat) ? narratedBeat : timedBeat];
+  return [{ ...baseAudio, sequenceRun: run, replay }, Number.isFinite(narratedBeat) ? narratedBeat : timedBeat];
 }
 
 const playSfx = (kind) => {
@@ -927,6 +938,25 @@ const playSfx = (kind) => {
   } catch {
     // Sound effects never block the lesson.
   }
+};
+
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
 };
 
 const AudioIndicator = ({ audio }) => {
@@ -985,8 +1015,9 @@ const NavBack = ({ onClick, hidden = false }) => {
 
 const NavNext = ({ onClick, finish = false, disabled = false }) => {
   const t = useT();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${disabled ? '' : 'btn-ready'}`} onClick={onClick} disabled={disabled}>
+    <button type="button" className={`btn btn-white-accent ${isDisabled ? '' : 'btn-ready'}`} onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {t(finish ? CONTENT.common.finish : CONTENT.common.next)} <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
@@ -1203,28 +1234,121 @@ const RomanGalleryIllustration = ({ beat }) => (
   </div>
 );
 
-const PlaceValueCityIllustration = ({ moved }) => (
-  <div className={`place-value-city ${moved ? 'place-value-city-moved' : ''}`} data-g4-role="visual-frame" aria-hidden="true">
-    <svg viewBox="0 0 520 105" role="presentation">
-      <path d="M20 91H500" stroke="#173B52" strokeOpacity=".16" strokeWidth="3" strokeLinecap="round" />
-      <g className="city-tens">
-        <rect x="74" y="20" width="112" height="71" rx="14" fill="#FFF0EA" stroke="#FF5B35" strokeOpacity=".35" strokeWidth="2" />
-        {Array.from({ length: 10 }, (_, index) => <rect key={index} x={92 + (index % 2) * 39} y={27 + Math.floor(index / 2) * 12} width="20" height="8" rx="3" fill="#FF5B35" fillOpacity=".55" />)}
-        <path d="M68 20h124L174 7H86z" fill="#FF5B35" fillOpacity=".22" />
-      </g>
-      <g className="city-ones">
-        <rect x="337" y="52" width="94" height="39" rx="13" fill="#E5F5F6" stroke="#168FA3" strokeOpacity=".4" strokeWidth="2" />
-        <rect x="370" y="65" width="28" height="26" rx="6" fill="#168FA3" fillOpacity=".55" />
-        <path d="M328 52h112l-18-13h-76z" fill="#168FA3" fillOpacity=".2" />
-      </g>
-      <path className="city-route" d="M191 56C240 17 283 17 330 57" fill="none" stroke="#95C93D" strokeWidth="4" strokeLinecap="round" strokeDasharray="7 8" />
-      <path className="city-route-arrow" d="M321 48l12 10-15 5" fill="none" stroke="#95C93D" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />
-      <circle className="city-signal city-signal-one" cx={moved ? 329 : 193} cy="57" r="7" fill="#FF5B35" />
-      <circle className="city-signal city-signal-four" cx={moved ? 193 : 329} cy="57" r="7" fill="#168FA3" />
-    </svg>
-    <SceneBit state={moved ? 'nod' : 'focus'} className="place-value-bit" />
-  </div>
+const PlaceValueBatteryDefs = () => (
+  <defs>
+    <linearGradient id="g4D7BatteryBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#0E6E96" />
+      <stop offset="22%" stopColor="#43B6E0" />
+      <stop offset="50%" stopColor="#8FE0F4" />
+      <stop offset="74%" stopColor="#2FA0CC" />
+      <stop offset="100%" stopColor="#0A5876" />
+    </linearGradient>
+    <linearGradient id="g4D7BatteryCap" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#8FA0AE" />
+      <stop offset="35%" stopColor="#EEF3F7" />
+      <stop offset="65%" stopColor="#C6D2DB" />
+      <stop offset="100%" stopColor="#7E93A2" />
+    </linearGradient>
+    <linearGradient id="g4D7BatteryBand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#B23A26" />
+      <stop offset="30%" stopColor="#FF7A5E" />
+      <stop offset="100%" stopColor="#C7401F" />
+    </linearGradient>
+    <linearGradient id="g4D7CassetteBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#4E5E82" />
+      <stop offset="24%" stopColor="#7385AB" />
+      <stop offset="52%" stopColor="#8C9EC4" />
+      <stop offset="76%" stopColor="#63739A" />
+      <stop offset="100%" stopColor="#4E5E82" />
+    </linearGradient>
+  </defs>
 );
+
+const PlaceValueBatterySvg = ({ x, y, width, height, className = '', unitIndex }) => (
+  <svg
+    className={`place-battery-svg ${className}`}
+    x={x}
+    y={y}
+    width={width}
+    height={height}
+    viewBox="0 0 22 34"
+    overflow="visible"
+    data-g4-place-value-kind="one"
+    data-g4-place-value-index={unitIndex}
+  >
+    <rect x="8" y="0.6" width="6" height="3.6" rx="1.5" fill="url(#g4D7BatteryCap)" stroke="#6E828F" strokeWidth="0.6" />
+    <rect x="9.4" y="0.2" width="3.2" height="1.4" rx="0.7" fill="#F4F8FA" />
+    <rect x="1.4" y="4" width="19.2" height="29.4" rx="4.2" fill="url(#g4D7BatteryBody)" stroke="#093F55" strokeWidth="1" />
+    <rect x="1.4" y="4" width="19.2" height="29.4" rx="4.2" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.6" />
+    <rect x="1.4" y="12.5" width="19.2" height="9" fill="url(#g4D7BatteryBand)" opacity="0.95" />
+    <path d="M12.6 14L8.8 20.4h2.4l-1.4 5.2 4.6-7.2h-2.6z" fill="#FFE9A6" stroke="#D89A18" strokeWidth="0.4" />
+    <rect x="3.4" y="6" width="2.4" height="25" rx="1.2" fill="rgba(255,255,255,0.4)" />
+    <rect x="16.4" y="6" width="1.4" height="25" rx="0.7" fill="rgba(0,0,0,0.18)" />
+  </svg>
+);
+
+const PlaceValueCassetteSvg = ({ x, y, width, height, className = '', unitIndex }) => (
+  <svg
+    className={`place-cassette-svg ${className}`}
+    x={x}
+    y={y}
+    width={width}
+    height={height}
+    viewBox="0 0 48 66"
+    overflow="visible"
+    data-g4-place-value-kind="ten"
+    data-g4-place-value-index={unitIndex}
+  >
+    <rect x="1" y="4" width="46" height="61" rx="7" fill="url(#g4D7CassetteBody)" stroke="#33415F" strokeWidth="1.4" />
+    <rect x="1" y="4" width="46" height="61" rx="7" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="0.7" />
+    <g fill="rgba(0,0,0,0.22)">
+      <rect x="3.4" y="18" width="2" height="30" rx="1" />
+      <rect x="42.6" y="18" width="2" height="30" rx="1" />
+    </g>
+    <g fill="#8494AE">
+      <circle cx="6" cy="9.5" r="1.3" /><circle cx="42" cy="9.5" r="1.3" />
+      <circle cx="6" cy="60" r="1.3" /><circle cx="42" cy="60" r="1.3" />
+    </g>
+    <rect x="17" y="6.6" width="14" height="5.2" rx="2.6" fill="#0C121F" stroke="#2A3550" strokeWidth="0.6" />
+    <circle cx="24" cy="9.2" r="2" fill="#6EF29B" stroke="#10182A" strokeWidth="0.6" />
+    <circle cx="24" cy="9.2" r="4.4" fill="rgba(110,242,155,0.4)" />
+    {Array.from({ length: 10 }, (_, index) => {
+      const column = index % 2;
+      const row = Math.floor(index / 2);
+      return (
+        <g key={index} transform={`translate(${6.5 + column * 19.5} ${16 + row * 9.4})`}>
+          <rect width="15" height="7.4" rx="2.4" fill="#33415F" stroke="#5A6B88" strokeOpacity=".25" strokeWidth="0.5" />
+          <rect x="1" y="1" width="13" height="5.4" rx="1.8" fill="url(#g4D7BatteryBody)" stroke="#093F55" strokeWidth="0.4" />
+          <rect x="1.8" y="1.6" width="11.4" height="1.5" rx="0.7" fill="rgba(255,255,255,0.3)" />
+        </g>
+      );
+    })}
+  </svg>
+);
+
+const PlaceValueCityIllustration = ({ moved }) => {
+  const cassettePositions = moved ? [83, 147, 211, 275] : [116];
+  const batteryPositions = moved ? [363] : [204, 246, 288, 330];
+  return (
+    <div
+      className={`place-value-city ${moved ? 'place-value-city-moved' : ''}`}
+      data-g4-place-value-state={moved ? '41' : '14'}
+      aria-hidden="true"
+    >
+      <svg viewBox="0 0 520 105" role="presentation">
+        <PlaceValueBatteryDefs />
+        <path d="M20 91H500" stroke="#173B52" strokeOpacity=".16" strokeWidth="3" strokeLinecap="round" />
+        {cassettePositions.map((x, index) => (
+          <PlaceValueCassetteSvg key={`ten-${index}`} className="place-quantity-ten" x={x} y="11" width="58" height="80" unitIndex={index} />
+        ))}
+        {batteryPositions.map((x, index) => (
+          <PlaceValueBatterySvg key={`one-${index}`} className="place-quantity-one" x={x} y="39" width="34" height="52" unitIndex={index} />
+        ))}
+      </svg>
+      <SceneBit state={moved ? 'nod' : 'focus'} className="place-value-bit" />
+    </div>
+  );
+};
 
 const SystemRouteIllustration = ({ beat }) => (
   <div className={`system-route-illustration route-beat-${beat}`} data-g4-role="visual-frame" aria-hidden="true">
@@ -1306,14 +1430,16 @@ const TheoryStage = ({ screen, contentScreen = screen, children, onPrev, onNext,
   );
 };
 
-const Screen0 = ({ screen, onPrev, onNext, onAnswer }) => {
+const Screen0 = ({ screen, storedAnswer, onPrev, onNext, onAnswer }) => {
   const c = CONTENT.s0;
   const t = useT();
-  const [picked, setPicked] = useState(null);
-  const [attempts, setAttempts] = useState(0);
-  const [solved, setSolved] = useState(false);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const optionOrder = buildOptionOrder(c.options.length, 0, LESSON_META.lessonId, 0);
   const [audio] = useNarratedSequence(screen, c.audio, 3, 1250);
   const canChoose = audio.muted || audio.completed;
+  const narrationLocked = !canChoose && !solved;
   const choose = (index) => {
     if (!canChoose || solved) return;
     const nextAttempts = attempts + 1;
@@ -1343,23 +1469,32 @@ const Screen0 = ({ screen, onPrev, onNext, onAnswer }) => {
       <div className="hook-scene" data-g4-role="hook-scene visual-frame">
         <div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
         <div className="hook-topic-copy"><span>{t(c.eyebrow)}</span><h1>{t(c.title)}</h1></div>
-        <div className="hook-terminal" aria-label="I"><span>I</span><i /></div>
+        <div className="hook-monitor" aria-label="I">
+          <div className="hook-terminal">
+            <span>I</span>
+            <i className="hook-terminal-scan" />
+          </div>
+          <div className="hook-monitor-controls" aria-hidden="true"><i /><span /></div>
+          <div className="hook-monitor-stand" aria-hidden="true" />
+        </div>
       </div>
       <div className="choice-grid">
-        {c.options.map((option, index) => (
+        {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
-            key={index}
-            className={`choice-card ${picked === index ? 'choice-picked' : ''}`}
+            key={sourceIndex}
+            className={`choice-card ${picked === sourceIndex ? 'choice-picked' : ''}`}
             data-g4-role="answer-card"
             data-g4-branch="choice"
-            data-g4-correct={index === 0 ? 'true' : 'false'}
-            aria-pressed={picked === index}
+            data-g4-source-index={sourceIndex}
+            data-g4-correct={sourceIndex === 0 ? 'true' : 'false'}
+            data-g4-narration-locked={narrationLocked ? 'true' : undefined}
+            aria-pressed={picked === sourceIndex}
             disabled={!canChoose || solved}
-            onClick={() => choose(index)}
+            onClick={() => choose(sourceIndex)}
           >
-            <span className="choice-letter">{String.fromCharCode(65 + index)}</span>
-            <span>{t(option)}</span>
+            <span className="choice-letter">{String.fromCharCode(65 + displayIndex)}</span>
+            <span>{t(c.options[sourceIndex])}</span>
           </button>
         ))}
       </div>
@@ -1440,10 +1575,30 @@ const Screen2 = (props) => {
   );
 };
 
-const DecimalSwap = ({ moved, onToggle }) => {
+const DecimalSwap = ({ moved, onToggle, disabled }) => {
   const t = useT();
+  const toggleLabel = moved
+    ? B(
+      'Сейчас показано число 41: четыре кассеты и одна батарейка. Показать модель числа 14.',
+      "Hozir 41 soni ko'rsatilgan: to'rtta kasseta va bitta batareya. 14 soni modelini ko'rsatish.",
+      'The model shows 41: four cassettes and one battery. Show the model for 14.',
+    )
+    : B(
+      'Сейчас показано число 14: одна кассета и четыре батарейки. Показать модель числа 41.',
+      "Hozir 14 soni ko'rsatilgan: bitta kasseta va to'rtta batareya. 41 soni modelini ko'rsatish.",
+      'The model shows 14: one cassette and four batteries. Show the model for 41.',
+    );
   return (
-  <button type="button" className="swap-scene" onClick={onToggle} aria-label={t(B('14 и 41', '14 va 41', '14 and 41'))}>
+  <button
+    type="button"
+    className="swap-scene place-value-swap"
+    onClick={onToggle}
+    disabled={disabled}
+    aria-label={t(toggleLabel)}
+    aria-pressed={moved}
+    data-g4-place-value-state={moved ? '41' : '14'}
+  >
+    <PlaceValueCityIllustration moved={moved} />
     <div className="place-labels"><span>10</span><span>1</span></div>
     <div className={`digit-track ${moved ? 'digit-track-moved' : ''}`}>
       <span className="digit digit-one">1<small>{moved ? '1' : '10'}</small></span>
@@ -1454,20 +1609,37 @@ const DecimalSwap = ({ moved, onToggle }) => {
   );
 };
 
+const NarrationReplayReset = ({ sequenceRun, onReplayStart }) => {
+  const sequenceRunRef = useRef(sequenceRun);
+  useEffect(() => {
+    const replayStarted = sequenceRunRef.current !== sequenceRun;
+    sequenceRunRef.current = sequenceRun;
+    if (replayStarted) {
+      const timer = window.setTimeout(() => onReplayStart(null), 0);
+      return () => window.clearTimeout(timer);
+    }
+    return undefined;
+  }, [onReplayStart, sequenceRun]);
+  return null;
+};
+
 const Screen3 = (props) => {
   const c = CONTENT.s3;
   const t = useT();
   const [manual, setManual] = useState(null);
   return (
     <TheoryStage {...props} screen={props.screen} contentScreen={3} beatCount={4} interval={1200} nextDisabled={manual === null}>
-      {({ beat }) => {
-        const moved = manual ?? beat >= 1;
+      {({ beat, audio }) => {
+        const audioReady = audio.muted || audio.completed;
+        const moved = audioReady ? (manual ?? false) : beat >= 1;
         return (
-          <div className="single-model-layout" data-g4-mechanic="ModelToggle">
-            <PlaceValueCityIllustration moved={moved} />
-            <DecimalSwap moved={moved} onToggle={() => setManual((value) => !(value ?? moved))} />
-            <div className={`conclusion-band ${beat >= 3 ? 'reveal-visible' : ''}`}>{t(c.conclusion)}</div>
-          </div>
+          <>
+            <NarrationReplayReset sequenceRun={audio.sequenceRun} onReplayStart={setManual} />
+            <div className="single-model-layout place-value-model-frame" data-g4-role="visual-frame" data-g4-mechanic="ModelToggle">
+              <DecimalSwap moved={moved} disabled={!audioReady} onToggle={() => setManual((value) => !(value ?? moved))} />
+              <div className={`conclusion-band place-value-conclusion-frame ${beat >= 3 ? 'reveal-visible' : ''}`}>{t(c.conclusion)}</div>
+            </div>
+          </>
         );
       }}
     </TheoryStage>
@@ -1597,13 +1769,14 @@ const Screen7 = (props) => {
   );
 };
 
-const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer, onPrev, onNext, extra }) => {
+const ChoicePractice = ({ screen, contentScreen = screen, choiceOrdinal, storedAnswer, onAnswer, onPrev, onNext, extra }) => {
   const c = CONTENT[`s${contentScreen}`];
   const t = useT();
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [audio] = useNarratedSequence(screen, c.audio, Array.isArray(t(c.audio)) ? t(c.audio).length : 1, 1200);
   const correct = picked === c.correct;
+  const optionOrder = buildOptionOrder(c.options.length, c.correct, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
     if (correct) return;
@@ -1627,18 +1800,19 @@ const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer
     <Stage screen={screen} eyebrow={c.eyebrow} title={c.title} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!correct}>
       {extra}
       <div className="choice-grid">
-        {c.options.map((option, index) => (
+        {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
-            key={index}
+            key={sourceIndex}
             data-g4-branch="choice"
-            data-g4-correct={index === c.correct ? 'true' : 'false'}
-            className={`choice-card ${picked === index ? 'choice-picked' : ''} ${picked === index && correct ? 'choice-correct' : ''}`}
-            aria-pressed={picked === index}
+            data-g4-source-index={sourceIndex}
+            data-g4-correct={sourceIndex === c.correct ? 'true' : 'false'}
+            className={`choice-card ${picked === sourceIndex ? 'choice-picked' : ''} ${picked === sourceIndex && correct ? 'choice-correct' : ''}`}
+            aria-pressed={picked === sourceIndex}
             disabled={correct}
-            onClick={() => choose(index)}
+            onClick={() => choose(sourceIndex)}
           >
-            <span className="choice-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span>
+            <span className="choice-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span>
           </button>
         ))}
       </div>
@@ -1647,7 +1821,7 @@ const ChoicePractice = ({ screen, contentScreen = screen, storedAnswer, onAnswer
   );
 };
 
-const Screen8 = (props) => <ChoicePractice {...props} screen={props.screen} contentScreen={8} />;
+const Screen8 = (props) => <ChoicePractice {...props} screen={props.screen} contentScreen={8} choiceOrdinal={1} />;
 
 const MATCH_PAIRS = { 4: 'IV', 9: 'IX', 14: 'XIV', 20: 'XX' };
 const Screen9 = ({ screen, storedAnswer, onAnswer, onPrev, onNext }) => {
@@ -1915,6 +2089,7 @@ const Screen12 = (props) => {
       {...props}
       screen={props.screen}
       contentScreen={12}
+      choiceOrdinal={2}
       extra={(
         <div className="error-claim">
           <div className="error-bit" data-g4-role="visual-frame"><BitSVG state="awkward" /></div>
@@ -2249,21 +2424,35 @@ html, body { margin: 0; padding: 0; }
 .btn-check:disabled { opacity: .36; cursor: default; transform: none; box-shadow: none; }
 .nav-hidden { visibility: hidden; pointer-events: none; }
 
-.hook-scene { margin-top: 10px; min-height: 226px; padding: 20px clamp(18px, 4vw, 46px); border-radius: 28px; display: grid; grid-template-columns: minmax(92px,.42fr) minmax(180px,.9fr) minmax(190px,1.18fr); align-items: center; gap: 22px; overflow: hidden; position: relative; background: radial-gradient(circle at 78% 48%, rgba(91,214,242,.13), transparent 34%), ${T.navy}; box-shadow: 0 18px 44px rgba(23,59,82,.22); }
+.hook-scene { margin-top: 10px; min-height: 226px; padding: 20px clamp(18px, 4vw, 46px); border-radius: 28px; display: grid; grid-template-columns: minmax(92px,1fr) minmax(180px,1.18fr) minmax(92px,1fr); align-items: center; gap: 22px; overflow: hidden; position: relative; background: radial-gradient(circle at 78% 48%, rgba(91,214,242,.13), transparent 34%), ${T.navy}; box-shadow: 0 18px 44px rgba(23,59,82,.22); }
 .hook-scene::before { content: ''; position: absolute; inset: 0; opacity: .17; background-image: linear-gradient(rgba(255,255,255,.12) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.09) 1px, transparent 1px); background-size: 34px 34px; mask-image: linear-gradient(to left, #000, transparent 88%); }
+.hook-scene::after { content: ''; position: absolute; inset: 1px; z-index: -1; border: 1px solid rgba(144,228,235,.12); border-radius: 23px; pointer-events: none; }
 .hook-bit { height: 132px; position: relative; z-index: 1; display: flex; justify-content: center; align-items: flex-end; }
 .hook-bit .g1-char { height: 100%; }
 .hook-topic-copy { position: relative; z-index: 2; align-self: start; padding-top: 10px; display: grid; gap: 8px; color: white; }
 .hook-topic-copy span { color: #9DEBF7; font-size: 10px; font-weight: 900; letter-spacing: .11em; text-transform: uppercase; }
 .hook-topic-copy h1 { color: white; font-family: 'Source Serif 4', Georgia, serif; font-size: clamp(20px,2.7vw,31px); line-height: 1.1; }
-.hook-terminal { min-height: 174px; position: relative; z-index: 1; border-radius: 20px; display: grid; place-items: center; overflow: hidden; background: #0C202F; box-shadow: inset 0 0 0 3px rgba(91,214,242,.13), 0 0 44px rgba(91,214,242,.13); }
+.hook-monitor {
+  min-height: 174px; position: relative; z-index: 1; align-self: center; padding: 10px 10px 25px;
+  border-radius: 20px; display: grid; background: linear-gradient(155deg, #315469, #173342 58%, #0A1D28);
+  box-shadow: inset 0 0 0 1px rgba(144,228,235,.2), inset 0 1px 0 rgba(255,255,255,.1), 0 15px 28px rgba(1,13,22,.35), 0 0 38px rgba(91,214,242,.12);
+}
+.hook-monitor::before { content: ''; position: absolute; z-index: 3; top: 4px; left: 50%; width: 4px; height: 4px; border-radius: 50%; background: #79D3DA; box-shadow: 0 0 8px rgba(121,211,218,.82); transform: translateX(-50%); }
+.hook-terminal { min-height: 139px; position: relative; border-radius: 12px; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 44%, rgba(91,214,242,.08), transparent 44%), #061721; box-shadow: inset 0 0 0 2px rgba(144,228,235,.18), inset 0 0 32px rgba(91,214,242,.08), 0 8px 18px rgba(1,13,22,.38); }
 .hook-terminal::before { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(0deg, rgba(255,255,255,.025) 0 1px, transparent 1px 5px); }
-.hook-terminal span { position: relative; color: white; font-family: 'Source Serif 4', serif; font-size: clamp(80px, 13vw, 132px); line-height: 1; text-shadow: 0 0 24px rgba(91,214,242,.72); animation: roman-pulse 2.4s ease-in-out 2; }
-.hook-terminal i { position: absolute; width: 64%; height: 2px; bottom: 24px; background: rgba(91,214,242,.45); box-shadow: 0 0 12px rgba(91,214,242,.8); animation: scan-line 2.8s ease-in-out 2; }
+.hook-terminal::after { content: ''; position: absolute; inset: 0; background: linear-gradient(120deg, rgba(255,255,255,.06), transparent 30% 72%, rgba(91,214,242,.045)); pointer-events: none; }
+.hook-terminal span { position: relative; z-index: 2; color: white; font-family: 'Source Serif 4', serif; font-size: clamp(80px, 13vw, 132px); line-height: 1; text-shadow: 0 0 24px rgba(91,214,242,.72); animation: roman-pulse 2.4s ease-in-out 2; }
+.hook-terminal-scan { position: absolute; z-index: 1; width: 64%; height: 2px; bottom: 18px; background: rgba(91,214,242,.45); box-shadow: 0 0 12px rgba(91,214,242,.8); animation: scan-line 2.8s ease-in-out 2; }
+.hook-monitor-controls { position: absolute; right: 11px; bottom: 10px; display: flex; align-items: center; gap: 5px; }
+.hook-monitor-controls i { width: 6px; height: 6px; border-radius: 50%; background: ${T.lime}; box-shadow: 0 0 9px rgba(149,201,61,.8); }
+.hook-monitor-controls span { width: 16px; height: 3px; border-radius: 99px; background: rgba(234,249,251,.3); }
+.hook-monitor-stand { position: absolute; left: 50%; bottom: -8px; width: 46%; height: 7px; border-radius: 2px 2px 8px 8px; background: linear-gradient(180deg, #244657, #102733); box-shadow: 0 5px 9px rgba(1,13,22,.3); transform: translateX(-50%); }
+.hook-monitor-stand::before { content: ''; position: absolute; left: 50%; bottom: 5px; width: 34%; height: 13px; border-radius: 3px 3px 1px 1px; background: linear-gradient(90deg, #173442, #2A5062, #173442); transform: translateX(-50%); }
 .choice-grid { margin-top: 18px; display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
 .choice-grid-two { grid-template-columns: repeat(2, minmax(0,1fr)); }
 .choice-card { min-height: 72px; border: 0; border-radius: 17px; padding: 13px 15px; display: flex; align-items: center; gap: 12px; text-align: left; color: ${T.ink}; background: ${T.paper}; box-shadow: 0 7px 22px var(--shadow); cursor: pointer; font-weight: 750; line-height: 1.35; transition: transform .22s, box-shadow .22s, background .22s; }
 .choice-card:hover { transform: translateY(-3px); box-shadow: 0 12px 26px rgba(${T.shadowBase},.16); }
+.hook-screen .choice-card[data-g4-narration-locked="true"]:disabled { opacity: 1; cursor: default; transform: none; box-shadow: 0 7px 22px var(--shadow); }
 .choice-letter { width: 32px; height: 32px; flex: 0 0 32px; border-radius: 10px; display: grid; place-items: center; color: ${T.cyan}; background: ${T.cyanSoft}; font-family: 'JetBrains Mono', monospace; font-weight: 900; }
 .choice-picked { background: ${T.accentSoft}; box-shadow: 0 0 0 2px rgba(255,91,53,.4), 0 9px 24px rgba(255,91,53,.12); }
 .choice-picked .choice-letter { color: white; background: ${T.accent}; }
@@ -2276,7 +2465,9 @@ html, body { margin: 0; padding: 0; }
   .stage-content { padding-top: 3px; padding-bottom: 6px; }
   .stage-fit > h1 { font-size: clamp(24px, 3vw, 34px); }
   .hook-scene { min-height: 174px; margin-top: 10px; padding-block: 12px; }
-  .hook-terminal { min-height: 132px; }
+  .hook-monitor { min-height: 132px; padding: 7px 7px 20px; border-radius: 16px; }
+  .hook-terminal { min-height: 105px; border-radius: 10px; }
+  .hook-terminal span { font-size: 92px; }
   .hook-bit { height: 108px; }
   .choice-grid { margin-top: 10px; gap: 8px; }
   .choice-card { min-height: 58px; padding: 9px 11px; }
@@ -2324,14 +2515,35 @@ html, body { margin: 0; padding: 0; }
 .rule-strip, .conclusion-band { margin-top: 16px; border-radius: 16px; padding: 15px 18px; color: ${T.navy}; background: ${T.cyanSoft}; font-weight: 850; line-height: 1.45; text-align: center; }
 
 .single-model-layout { display: grid; justify-items: center; gap: 18px; }
-.place-value-city { width: min(100%, 600px); height: 105px; margin-bottom: -18px; position: relative; overflow: hidden; border-radius: 20px; background: linear-gradient(180deg, rgba(229,245,246,.82), rgba(255,255,255,.14)); }
+.place-value-model-frame {
+  width: min(760px, 100%);
+  margin: 18px auto 0;
+  padding: 8px 16px;
+  border: 1px solid rgba(22,143,163,.13);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 85% 18%, rgba(255,91,53,.10), transparent 30%),
+    linear-gradient(145deg, #FFFFFF, #F1F8F6);
+  box-shadow: 0 20px 42px -31px rgba(${T.shadowBase},.58);
+}
+.place-value-city { width: min(100%, 600px); height: 105px; margin-bottom: -18px; position: relative; overflow: hidden; background: transparent; }
 .place-value-city > svg { display: block; width: 100%; height: 100%; }
+.place-battery-svg, .place-cassette-svg { filter: drop-shadow(0 4px 5px rgba(23,59,82,.25)); }
 .place-value-bit { position: absolute; right: 13px; bottom: -8px; width: 62px; height: 78px; }
-.city-tens, .city-ones { transform-box: fill-box; transform-origin: center bottom; }
-.city-signal { transition: cx 1.1s cubic-bezier(.16,1,.3,1), filter .4s; filter: drop-shadow(0 0 6px rgba(23,59,82,.22)); }
-.city-route { stroke-dashoffset: 42; animation: city-route 2.4s linear 2; }
-.place-value-city-moved .city-route-arrow { transform-box: fill-box; transform-origin: center; transform: rotate(180deg); }
+.place-quantity-ten, .place-quantity-one { transform-box: fill-box; transform-origin: center bottom; animation: token-drop .45s ease both; }
+.place-value-model-frame .conclusion-band {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border: 1px solid rgba(22,143,163,.18);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(229,245,246,.9));
+  box-shadow: 0 7px 18px -16px rgba(23,59,82,.55);
+  text-align: left;
+}
 .swap-scene { width: min(100%, 560px); min-height: 280px; border: 0; border-radius: 26px; padding: 24px; color: ${T.ink}; background: transparent; cursor: pointer; position: relative; }
+.place-value-swap { width: min(100%, 600px); }
+.place-value-swap:disabled { opacity: 1; cursor: default; }
 .place-labels { display: grid; grid-template-columns: repeat(2, 1fr); color: ${T.ink3}; font-size: 11px; font-weight: 900; text-transform: uppercase; }
 .digit-track { width: 280px; height: 115px; margin: 18px auto; display: grid; grid-template-columns: repeat(2, 1fr); position: relative; }
 .digit { width: 96px; height: 105px; border-radius: 22px; display: grid; place-items: center; position: absolute; top: 0; color: white; background: ${T.navy}; box-shadow: 0 13px 28px rgba(23,59,82,.22); font-family: 'JetBrains Mono', monospace; font-size: 48px; font-weight: 900; transition: transform 1.1s cubic-bezier(.16,1,.3,1), background .3s; }
@@ -2546,7 +2758,6 @@ html, body { margin: 0; padding: 0; }
 @keyframes bit-nod-hand { 0%,100% { transform: rotate(0); } 48% { transform: rotate(-11deg); } }
 @keyframes bit-check { 0%,100% { transform: scale(.86); opacity: .72; } 50% { transform: scale(1.08); opacity: 1; } }
 @keyframes gallery-scan { 0%,100% { opacity: .18; transform: translateX(-32px); } 50% { opacity: .75; transform: translateX(32px); } }
-@keyframes city-route { to { stroke-dashoffset: -42; } }
 
 @media (max-width: 640px) {
   .lesson-root { width: 390px; height: 100dvh; }
@@ -2560,13 +2771,21 @@ html, body { margin: 0; padding: 0; }
   .stage-fit > h1 { font-size: 25px; line-height: 1.08; }
   .stage-nav { min-height: 66px; padding-top: 7px; padding-bottom: 9px; }
   .btn { min-height: 44px; padding: 0 15px; font-size: 12px; }
-  .hook-scene { margin-top: 8px; min-height: 174px; padding: 9px 11px; grid-template-columns: 62px minmax(0,1fr) 82px; gap: 8px; border-radius: 21px; }
+  .hook-scene { margin-top: 8px; min-height: 174px; padding: 9px 11px; grid-template-columns: 72px minmax(0,1fr) 72px; gap: 8px; border-radius: 21px; }
+  .hook-scene::after { border-radius: 17px; }
   .hook-bit { height: 102px; }
   .hook-topic-copy { padding-top: 3px; gap: 5px; }
   .hook-topic-copy span { font-size: 7px; }
   .hook-topic-copy h1 { font-size: 15px; }
-  .hook-terminal { min-height: 122px; }
+  .hook-monitor { min-height: 122px; padding: 6px 6px 18px; border-radius: 14px; }
+  .hook-terminal { min-height: 98px; border-radius: 9px; }
   .hook-terminal span { font-size: 68px; }
+  .hook-terminal-scan { bottom: 13px; }
+  .hook-monitor-controls { right: 7px; bottom: 7px; gap: 3px; }
+  .hook-monitor-controls i { width: 4px; height: 4px; }
+  .hook-monitor-controls span { width: 10px; height: 2px; }
+  .hook-monitor-stand { bottom: -6px; height: 5px; }
+  .hook-monitor-stand::before { bottom: 4px; height: 9px; }
   .choice-grid { grid-template-columns: 1fr; gap: 8px; margin-top: 12px; }
   .choice-card { min-height: 58px; border-radius: 14px; padding: 9px 11px; font-size: 12px; }
   .choice-letter { width: 28px; height: 28px; flex-basis: 28px; }
@@ -2586,7 +2805,9 @@ html, body { margin: 0; padding: 0; }
   .roman-row { gap: 4px; }
   .roman-row span { min-height: 39px; font-size: 15px; border-radius: 8px; }
   .rule-strip, .conclusion-band { margin-top: 10px; padding: 10px 12px; font-size: 11px; }
-  .place-value-city { height: 78px; margin-bottom: -13px; border-radius: 15px; }
+  .place-value-model-frame { margin-top: 17px; padding: 8px 12px; }
+  .place-value-model-frame .conclusion-band { margin-top: 8px; padding: 8px 10px; }
+  .place-value-city { height: 78px; margin-bottom: -13px; }
   .place-value-bit { right: 5px; bottom: -6px; width: 45px; height: 57px; }
   .swap-scene { min-height: 240px; padding: 12px; }
   .digit-track { width: 250px; }
@@ -2768,4 +2989,10 @@ html, body { margin: 0; padding: 0; }
   .lesson-root .stage-summary .g4-title-card-stage .g4-title-card-bit{width:calc(57px / var(--g4z,1));height:calc(71px / var(--g4z,1))}
   .lesson-root .stage-summary .g4-title-card-stage .g4-title-card-medal{width:calc(34px / var(--g4z,1));height:calc(34px / var(--g4z,1))}
 }
+.lesson-root [data-g4-screen="hook"]>.hook-contract-intro>[data-g4-role~="hook-title"]{font-size:clamp(25px,calc(4.2vw - 1px),35px)}
+@media(max-width:639.98px){
+  .lesson-root [data-g4-screen="hook"]>.hook-contract-intro>[data-g4-role~="hook-title"]{font-size:24px}
+}
+.lesson-root [data-g4-screen="hook"]>[data-g4-role~="feedback-frame"] .feedback-copy>strong{font-size:16px}
+.lesson-root [data-g4-screen="hook"]>[data-g4-role~="feedback-frame"] .feedback-copy>div{font-size:14px}
 `;

@@ -18,6 +18,7 @@ const failures = [];
 const criticalFailures = [];
 
 const THEORY_TYPES = new Set(['exploration', 'model', 'discovery', 'rule', 'strategy', 'consolidation']);
+const NO_FINAL_REFLECTION_LESSONS = new Set([2]);
 const has = (source, pattern) => pattern.test(source);
 const count = (source, pattern) => (source.match(pattern) || []).length;
 const award = (checks) => checks.reduce((score, check) => score + (check.pass ? check.points : 0), 0);
@@ -409,6 +410,9 @@ for (const lesson of lessons) {
     && /Unvonni olish/.test(source);
   const contextReflectionState = /\{\s*reflectionChoice,\s*titleState\s*\}\s*=\s*finalRewardState/.test(source)
     && /const\s+setReflectionChoice\s*=\s*useCallback\(\s*\(value\)\s*=>\s*setFinalRewardState\(/.test(source);
+  const finalReflectionRemoved = NO_FINAL_REFLECTION_LESSONS.has(lesson)
+    && /finalReflectionRequired\s*:\s*false/.test(source)
+    && /data-g4-final-reflection=["']none["']/.test(source);
   const reflectionUi = /(?:data-g4-role=["'{][^\n>]*reflection|className=["'{][^\n>]*(?:finale-reflection|final-reflection))/.test(source)
     && (/\[(?:reflection|reflectionChoice),\s*set(?:Reflection|ReflectionChoice)\]\s*=\s*useState\(/.test(source)
       || contextReflectionState);
@@ -446,6 +450,9 @@ for (const lesson of lessons) {
   const reflectionBeforeClaim = (directHandlerGate && directButtonGate)
     || delegatedButtonGate
     || delegatedInlineGate;
+  const finalStateClaimGate = /const\s+canClaimTitle\s*=\s*audio\.completed\s*\|\|\s*audio\.muted/.test(source)
+    && /disabled=\{!canClaimTitle\}/.test(source)
+    && /if\s*\([^)]*!canClaimTitle[^)]*\)\s*return/.test(source);
   const rankOverlay = /className=["'{][^\n>]*rank-boost-overlay/.test(source)
     && /data-g4-role=["'{][^\n>]*rank-overlay/.test(source)
     && /rank-boost-(?:card|medal|confetti)/.test(source);
@@ -543,9 +550,11 @@ for (const lesson of lessons) {
   ];
 
   const motionFinalChecks = [
-    { points: 2, pass: claimState && claimButton && reflectionUi },
+    { points: 2, pass: claimState && claimButton && (reflectionUi || finalReflectionRemoved) },
     { points: 2, pass: gatedReveal && rankOverlay && persistentTitle },
-    { points: 2, pass: claimBeforeFinish && (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim },
+    { points: 2, pass: claimBeforeFinish && (finalReflectionRemoved
+      ? !reflectionUi && finalStateClaimGate
+      : (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim) },
     { points: 2, pass: revealDuration && persistentHappyReward },
     { points: 2, pass: reducedMotion && reducedRevealDuration },
   ];
@@ -628,8 +637,10 @@ for (const lesson of lessons) {
     ['activity-gated Continue', activityGate.pass],
     ['matching connector', interactionChecks[5].pass],
     ['click-gated rank boost', motionFinalChecks.slice(0, 3).every((item) => item.pass)],
-    ['reflection-before-title dual gate', reflectionBeforeClaim],
-    ['pre-claim reflection Back persistence', preClaimReflectionPersistence],
+    [finalReflectionRemoved ? 'explicit no-reflection final gate' : 'reflection-before-title dual gate',
+      finalReflectionRemoved ? !reflectionUi && finalStateClaimGate : reflectionBeforeClaim],
+    [finalReflectionRemoved ? 'no-reflection final policy marker' : 'pre-claim reflection Back persistence',
+      finalReflectionRemoved || preClaimReflectionPersistence],
     ['finite/reduced motion', visualChecks[3].pass && motionFinalChecks.slice(3).every((item) => item.pass)],
     ['fixed viewport root', visualChecks[0].pass],
     ['no scroll', visualChecks[1].pass],

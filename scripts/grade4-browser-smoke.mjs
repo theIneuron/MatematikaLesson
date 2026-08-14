@@ -10,6 +10,13 @@ import { chromium } from 'playwright';
 
 const { parse } = babelParser;
 const ROOT = process.cwd();
+const THEORY_NAVIGATION_PATH = path.join(ROOT, 'src', 'components', 'grade4', 'theoryNavigation.js');
+const THEORY_NAVIGATION_SOURCE = existsSync(THEORY_NAVIGATION_PATH)
+  ? await readFile(THEORY_NAVIGATION_PATH, 'utf8')
+  : '';
+const THEORY_CONTINUE_UNLOCKED = /^\s*export\s+const\s+GRADE4_THEORY_CONTINUE_UNLOCKED\s*=\s*true\s*;/m.test(
+  THEORY_NAVIGATION_SOURCE,
+);
 const HOST = '127.0.0.1';
 const PORT = 4173;
 let baseUrl = process.env.GRADE4_BASE_URL || 'http://' + HOST + ':' + PORT;
@@ -51,6 +58,23 @@ const REVIEW_LESSONS = new Set([
   'Dars02.jsx', 'Dars07.jsx', 'Dars12.jsx', 'Dars18.jsx',
   'Dars22.jsx', 'Dars28.jsx', 'Dars42.jsx', 'Dars51.jsx',
 ]);
+const NO_FINAL_REFLECTION_LESSONS = new Set(['Dars02.jsx']);
+const EXPECTED_ANSWER_ORDER_GROUPS = new Map([
+  ['Dars02.jsx', 7], ['Dars03.jsx', 6], ['Dars04.jsx', 7], ['Dars05.jsx', 6], ['Dars06.jsx', 7],
+  ['Dars07.jsx', 3], ['Dars08.jsx', 23], ['Dars09.jsx', 3], ['Dars10.jsx', 3], ['Dars11.jsx', 3],
+  ['Dars12.jsx', 4], ['Dars13.jsx', 6], ['Dars14.jsx', 3], ['Dars15.jsx', 3], ['Dars16.jsx', 2],
+  ['Dars17.jsx', 8], ['Dars18.jsx', 4], ['Dars19.jsx', 5], ['Dars20.jsx', 5], ['Dars21.jsx', 5],
+  ['Dars22.jsx', 6], ['Dars23.jsx', 5], ['Dars24.jsx', 5], ['Dars25.jsx', 5], ['Dars26.jsx', 4],
+  ['Dars27.jsx', 4], ['Dars28.jsx', 6], ['Dars29.jsx', 5], ['Dars30.jsx', 5],
+  ...Array.from({ length: 4 }, (_, index) => [`Dars${String(index + 31).padStart(2, '0')}.jsx`, 5]),
+  ['Dars35.jsx', 6],
+  ...Array.from({ length: 6 }, (_, index) => [`Dars${String(index + 36).padStart(2, '0')}.jsx`, 5]),
+  ...Array.from({ length: 10 }, (_, index) => [`Dars${String(index + 42).padStart(2, '0')}.jsx`, 6]),
+]);
+// Dars04/Dars10 legacy scored-choice records intentionally omit options/correctIndex.
+// Preserve their established onFinished payload shape; source-index correctness is
+// still covered by the static audit and the rendered-card interaction checks.
+const ANSWER_SOURCE_ALIGNMENT_EXEMPT = new Set(['Dars04.jsx', 'Dars10.jsx']);
 const feedbackScreenshotKeys = new Set();
 const finalScreenshotKeys = new Set();
 const failures = [];
@@ -69,6 +93,8 @@ let rapidBranchScreensChecked = 0;
 let rapidBackPersistenceChecked = 0;
 let roundingLineScreensChecked = 0;
 let roundingBackPersistenceChecked = 0;
+let answerOrderGroupsChecked = 0;
+let answerOrderPersistenceChecked = 0;
 const requested = new Set(process.argv.slice(2).map((value) => value.replace(/\.jsx$/, '')));
 
 if (SCREENSHOT_DIR) await mkdir(SCREENSHOT_DIR, { recursive: true });
@@ -1523,12 +1549,48 @@ const requiresPracticeRestartAudit = (lesson) => {
   return number !== null && number >= 22 && number <= 30;
 };
 
+function assertAnswerIndexContract(prefix, payload) {
+  const visit = (value, pathLabel) => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      value.forEach((entry, index) => visit(entry, `${pathLabel}[${index}]`));
+      return;
+    }
+
+    if (Array.isArray(value.options)) {
+      const assertIndex = (indexKey, answerKey) => {
+        if (!Object.hasOwn(value, indexKey)) return;
+        const index = value[indexKey];
+        // Null means this interaction is intentionally not represented by an
+        // option-array coordinate (matching, reflection, composite answers).
+        if (index === null) return;
+        if (!Number.isInteger(index) || index < 0 || index >= value.options.length) {
+          throw new Error(`${prefix}: ${pathLabel}.${indexKey} variant chegarasidan tashqarida`);
+        }
+        if (!Object.hasOwn(value, answerKey)
+          || JSON.stringify(value.options[index]) !== JSON.stringify(value[answerKey])) {
+          throw new Error(
+            `${prefix}: ${pathLabel} options[${indexKey}] !== ${answerKey}`,
+          );
+        }
+      };
+      assertIndex('correctIndex', 'correctAnswer');
+      assertIndex('studentAnswerIndex', 'studentAnswer');
+    }
+
+    Object.entries(value).forEach(([key, entry]) => visit(entry, `${pathLabel}.${key}`));
+  };
+
+  visit(payload, 'payload');
+}
+
 async function validateCompletion(prefix, diagnostics, lesson = null, lang = 'en', tasks = [], wrongFirstEveryTask = false, expectedTitle = '') {
   await waitForCompletion(diagnostics);
   if (diagnostics.completionCalls.length !== 1) {
     throw new Error(prefix + ': [Lesson preview] onFinished soni ' + diagnostics.completionCalls.length + ', kutilgan 1');
   }
   const payload = diagnostics.completionCalls[0];
+  assertAnswerIndexContract(prefix, payload);
   const title = payload?.lessonTitle;
   if (typeof title !== 'string' || !title.trim()
     || ((lang === 'en' || lang === 'uz') && hasCyrillic(title))) {
@@ -1794,6 +1856,248 @@ async function currentScreenCount(page) {
   return { ...parsed, text };
 }
 
+async function visibleAnswerOrderSnapshot(page) {
+  return inLesson(page, '[data-g4-source-index][data-g4-correct]').evaluateAll((elements) => {
+    const isVisible = (element) => {
+      const style = getComputedStyle(element);
+      return element.getClientRects().length > 0
+        && style.display !== 'none'
+        && style.visibility !== 'hidden';
+    };
+    const visible = elements.filter(isVisible);
+    const visibleSet = new Set(visible);
+    const rootSelector = '.lesson-root, .d8-root, .p4-root, .g4p-root';
+    const ownerFor = (element) => {
+      let candidate = element.parentElement;
+      while (candidate && !candidate.matches(rootSelector)) {
+        const markedDescendants = [...candidate.querySelectorAll('[data-g4-source-index][data-g4-correct]')]
+          .filter((descendant) => visibleSet.has(descendant));
+        if (markedDescendants.length > 1) return candidate;
+        candidate = candidate.parentElement;
+      }
+      return element.parentElement;
+    };
+
+    const grouped = new Map();
+    visible.forEach((element) => {
+      const owner = ownerFor(element);
+      if (!grouped.has(owner)) grouped.set(owner, []);
+      grouped.get(owner).push(element);
+    });
+
+    return [...grouped.entries()].map(([owner, group]) => {
+      const entries = group.map((element) => {
+        const directChildren = [...element.children];
+        const label = directChildren.find((child) => (
+          /^[A-D]$/.test(String(child.textContent ?? '').trim().toUpperCase())
+        )) ?? null;
+        const clone = element.cloneNode(true);
+        const labelIndex = label ? directChildren.indexOf(label) : -1;
+        if (labelIndex >= 0) clone.children[labelIndex]?.remove();
+        return {
+          sourceIndex: Number(element.getAttribute('data-g4-source-index')),
+          correctFlag: element.getAttribute('data-g4-correct'),
+          displayLabel: String(label?.textContent ?? '').trim().toUpperCase(),
+          semanticText: String(clone.textContent ?? '').replace(/\s+/g, ' ').trim(),
+          visualChoice: element.matches('.model-choice, .scale-choice')
+            || Boolean(element.querySelector('svg, canvas, [data-g4-role~="visual-frame"]')),
+          state: {
+            sourceIndex: Number(element.getAttribute('data-g4-source-index')),
+            ariaPressed: element.getAttribute('aria-pressed'),
+            disabled: Boolean(element.disabled),
+            state: element.getAttribute('data-state'),
+            semanticClasses: String(element.className ?? '')
+              .split(/\s+/)
+              .filter((token) => /(?:selected|picked|correct|right|wrong|error|disabled|tried)/i.test(token))
+              .sort(),
+          },
+        };
+      });
+      const visibleButtons = [...owner.querySelectorAll('button')].filter(isVisible);
+      const context = owner.closest('.question, [data-g4-screen], section, article') ?? owner.parentElement;
+      const prompt = String(context?.querySelector('h2, h3, [data-g4-role="hook-question"]')?.textContent ?? '')
+        .replace(/\s+/g, ' ')
+        .trim();
+      const semanticKey = JSON.stringify({
+        prompt,
+        options: [...entries]
+          .sort((left, right) => left.sourceIndex - right.sourceIndex)
+          .map(({ sourceIndex, correctFlag, semanticText }) => [sourceIndex, correctFlag, semanticText]),
+      });
+      return {
+        order: entries.map((entry) => entry.sourceIndex),
+        correctFlags: entries.map((entry) => entry.correctFlag),
+        displayLabels: entries.map((entry) => entry.displayLabel),
+        sourceTexts: [...entries]
+          .sort((left, right) => left.sourceIndex - right.sourceIndex)
+          .map((entry) => entry.semanticText),
+        hasVisualChoice: entries.some((entry) => entry.visualChoice),
+        states: entries.map((entry) => entry.state),
+        semanticKey,
+        answerButtonCount: visibleButtons.length,
+      };
+    });
+  });
+}
+
+function answerOrderIdentity(groups) {
+  return groups.map((group) => ({
+    order: group.order,
+    correctPosition: group.correctFlags.indexOf('true'),
+  }));
+}
+
+function answerOrderStateIdentity(groups) {
+  return groups.map((group) => ({
+    order: group.order,
+    correctPosition: group.correctFlags.indexOf('true'),
+    states: group.states.map(({ sourceIndex, ariaPressed, disabled, state, semanticClasses }) => ({
+      sourceIndex,
+      ariaPressed,
+      disabled,
+      state,
+      semanticClasses,
+    })),
+  }));
+}
+
+function validateAnswerOrderGroups(groups, issuePrefix) {
+  groups.forEach((group, groupIndex) => {
+    const length = group.order.length;
+    if (length !== group.answerButtonCount) {
+      throw new Error(
+        `${issuePrefix}: ${groupIndex + 1}-variant guruhida ${group.answerButtonCount} ta karta, `
+          + `ammo ${length} tasida source/correct marker bor`,
+      );
+    }
+    const expected = Array.from({ length }, (_, index) => index);
+    const sorted = [...group.order].sort((left, right) => left - right);
+    if (JSON.stringify(sorted) !== JSON.stringify(expected)) {
+      throw new Error(`${issuePrefix}: ${groupIndex + 1}-variant guruhi permutation emas (${group.order.join(',')})`);
+    }
+    if (group.correctFlags.some((flag) => flag !== 'true' && flag !== 'false')) {
+      throw new Error(`${issuePrefix}: ${groupIndex + 1}-variant guruhida data-g4-correct qiymati noto'g'ri`);
+    }
+    if (group.correctFlags.filter((flag) => flag === 'true').length !== 1) {
+      throw new Error(`${issuePrefix}: ${groupIndex + 1}-variant guruhida aynan bitta to'g'ri karta yo'q`);
+    }
+    const expectedLabels = Array.from({ length }, (_, index) => String.fromCharCode(65 + index));
+    const labelledCards = group.displayLabels.filter(Boolean).length;
+    if (labelledCards > 0 && JSON.stringify(group.displayLabels) !== JSON.stringify(expectedLabels)) {
+      throw new Error(
+        `${issuePrefix}: ${groupIndex + 1}-variant guruhi display label tartibi `
+          + `${group.displayLabels.join(',')} (kutilgan ${expectedLabels.join(',')})`,
+      );
+    }
+  });
+}
+
+async function auditVisibleAnswerOrders(page, issuePrefix) {
+  const groups = await visibleAnswerOrderSnapshot(page);
+  validateAnswerOrderGroups(groups, issuePrefix);
+  answerOrderGroupsChecked += groups.length;
+  return groups;
+}
+
+async function collectAnswerOrderGroupsDuring(page, issuePrefix, action) {
+  const observed = new Map();
+  let collecting = true;
+  let pollingError = null;
+  const capture = async () => {
+    const groups = await visibleAnswerOrderSnapshot(page);
+    validateAnswerOrderGroups(groups, issuePrefix);
+    groups.forEach((group) => {
+      if (!observed.has(group.semanticKey)) observed.set(group.semanticKey, group);
+    });
+  };
+
+  await capture();
+  const polling = (async () => {
+    while (collecting) {
+      await sleep(12);
+      if (!collecting) break;
+      try {
+        await capture();
+      } catch (error) {
+        pollingError = error;
+        collecting = false;
+      }
+    }
+  })();
+
+  try {
+    await action();
+    if (!pollingError) await capture();
+  } finally {
+    collecting = false;
+    await polling;
+  }
+  if (pollingError) throw pollingError;
+  const groups = [...observed.values()];
+  answerOrderGroupsChecked += groups.length;
+  return groups;
+}
+
+function assertBalancedVisibleAnswerPositions(groups, issuePrefix) {
+  const byLength = new Map();
+  groups.forEach((group) => {
+    if (!byLength.has(group.order.length)) byLength.set(group.order.length, []);
+    byLength.get(group.order.length).push(group.correctFlags.indexOf('true'));
+  });
+  byLength.forEach((positions, length) => {
+    for (let start = 0; start < positions.length; start += length) {
+      const block = positions.slice(start, start + length);
+      if (new Set(block).size !== block.length) {
+        throw new Error(
+          `${issuePrefix}: ${length} variantli ${start / length + 1}-blok balanssiz (${block.join(',')})`,
+        );
+      }
+    }
+  });
+}
+
+function indexedAnswerRecords(payload) {
+  const records = [];
+  const visit = (value) => {
+    if (!value || typeof value !== 'object') return;
+    if (Array.isArray(value)) {
+      value.forEach(visit);
+      return;
+    }
+    if (Array.isArray(value.options) && Number.isInteger(value.correctIndex)) records.push(value);
+    Object.values(value).forEach(visit);
+  };
+  visit(payload);
+  return records;
+}
+
+function assertDisplayedOptionSourceAlignment(groups, payload, issuePrefix) {
+  const records = indexedAnswerRecords(payload);
+  let comparableGroups = 0;
+  groups.forEach((group, groupIndex) => {
+    const sourceTexts = group.sourceTexts.map((text) => normalizeText(text));
+    const sortedSourceTexts = [...sourceTexts].sort();
+    const correctSourceIndex = group.order[group.correctFlags.indexOf('true')];
+    const candidate = records.find((record) => {
+      if (record.options.length !== sourceTexts.length || record.correctIndex !== correctSourceIndex) return false;
+      const optionTexts = record.options.map((option) => (
+        typeof option === 'string' || typeof option === 'number' ? normalizeText(String(option)) : null
+      ));
+      return optionTexts.every((text) => text !== null)
+        && JSON.stringify([...optionTexts].sort()) === JSON.stringify(sortedSourceTexts);
+    });
+    if (!candidate) return;
+    comparableGroups += 1;
+    const optionTexts = candidate.options.map((option) => normalizeText(String(option)));
+    if (JSON.stringify(sourceTexts) !== JSON.stringify(optionTexts)) {
+      throw new Error(
+        `${issuePrefix}: ${groupIndex + 1}-savolda DOM matni sourceIndex bo'yicha payload options bilan mos emas`,
+      );
+    }
+  });
+  return comparableGroups;
+}
+
 async function theoryNextButton(page) {
   const buttons = inLesson(page, '.stage-nav button');
   const visible = [];
@@ -1876,6 +2180,43 @@ async function matchingWrongConnectorSnapshot(page) {
   })));
 }
 
+async function matchingPendingConnectorSnapshot(page) {
+  return inLesson(page, '.matching-connector-pending').evaluateAll((nodes) => nodes.map((node) => ({
+    d: node.getAttribute('d') ?? '',
+    x1: node.getAttribute('x1') ?? '',
+    y1: node.getAttribute('y1') ?? '',
+    x2: node.getAttribute('x2') ?? '',
+    y2: node.getAttribute('y2') ?? '',
+  })));
+}
+
+async function waitForDeferredMatchingPair(page, leftButton, rightButton, expectedCount, timeout = 2_000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const endpointsConsumed = await leftButton.isDisabled().catch(() => false)
+      && await rightButton.isDisabled().catch(() => false);
+    const pending = await matchingPendingConnectorSnapshot(page);
+    if (
+      endpointsConsumed
+      && pending.length === expectedCount
+      && pending.every((line) => line.d || (line.x1 && line.y1 && line.x2 && line.y2))
+    ) return true;
+    await sleep(25);
+  }
+  return false;
+}
+
+async function waitForDeferredMatchingReset(page, timeout = 2_000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const pendingCount = await inLesson(page, '.matching-connector-pending').count();
+    const pairedCardCount = await inLesson(page, '.reading-match-paired').count();
+    if (pendingCount === 0 && pairedCardCount === 0) return true;
+    await sleep(25);
+  }
+  return false;
+}
+
 async function waitForMatchingOutcome(
   page,
   correctBefore,
@@ -1931,37 +2272,103 @@ async function auditVisibleTheoryMatching(
 
   let wrongSeen = false;
   let correctSeen = false;
-  // A wrong branch can trigger narration and a React rerender between the two
-  // keyboard presses. Retry the still-enabled endpoints in bounded passes so
-  // that this real async lifecycle cannot make the audit skip one pair.
-  for (let pass = 0; pass < Math.max(2, leftCount); pass += 1) {
-    for (let leftIndex = 0; leftIndex < leftCount; leftIndex += 1) {
-      for (let rightIndex = 0; rightIndex < rightCount; rightIndex += 1) {
-        const leftButton = left.nth(leftIndex);
-        const rightButton = right.nth(rightIndex);
-        if (!(await leftButton.isEnabled()) || !(await rightButton.isEnabled())) continue;
-        const correctBefore = await inLesson(page, '.matching-connector-correct').count();
-        const wrongBefore = await matchingWrongConnectorSnapshot(page);
-        await leftButton.focus();
-        await leftButton.press('Enter');
-        await rightButton.focus();
-        await rightButton.press('Enter');
-        const outcome = await waitForMatchingOutcome(
-          page,
-          correctBefore,
-          leftButton,
-          rightButton,
-          wrongBefore,
-        );
-        if (!outcome) throw new Error(`${issuePrefix}: matching tanlovi connector holatiga o'tmadi`);
-        wrongSeen ||= outcome === 'wrong';
-        const connected = outcome === 'correct';
-        correctSeen ||= connected;
-        if (connected) break;
+  const deferredCheck = inLesson(page, '[data-qa-matching-check="true"]');
+  const usesDeferredCheck = await deferredCheck.count() > 0;
+
+  if (usesDeferredCheck) {
+    if (leftCount !== rightCount || leftCount < 2) {
+      throw new Error(`${issuePrefix}: deferred matching to'liq juftliklar to'plamiga ega emas`);
+    }
+    if (await deferredCheck.isEnabled()) {
+      throw new Error(`${issuePrefix}: Tekshirish uchala juftlikdan oldin faol`);
+    }
+
+    const leftIds = await left.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-match-left')));
+    const rightIds = new Set(await right.evaluateAll((nodes) => nodes.map((node) => node.getAttribute('data-match-right'))));
+    const wrongRightIds = leftIds.map((_, index) => leftIds[(index + 1) % leftIds.length]);
+    if (leftIds.some((id, index) => !id || !rightIds.has(wrongRightIds[index]) || id === wrongRightIds[index])) {
+      throw new Error(`${issuePrefix}: noto'g'ri to'liq bijeksiya tuzib bo'lmadi`);
+    }
+
+    const connectDeferredPair = async (leftId, rightId, expectedCount, phase) => {
+      const leftButton = inLesson(page, `[data-match-left="${leftId}"]`).first();
+      const rightButton = inLesson(page, `[data-match-right="${rightId}"]`).first();
+      if (!(await waitForEnabledLocator(leftButton, 5_000)) || !(await waitForEnabledLocator(rightButton, 5_000))) {
+        throw new Error(`${issuePrefix}: ${phase} juftlik endpointi faol emas`);
+      }
+      await leftButton.focus();
+      await leftButton.press('Enter');
+      await rightButton.focus();
+      await rightButton.press('Enter');
+      if (!(await waitForDeferredMatchingPair(page, leftButton, rightButton, expectedCount))) {
+        throw new Error(`${issuePrefix}: ${phase} juftlik pending connectorga o'tmadi`);
+      }
+    };
+
+    for (let index = 0; index < leftIds.length; index += 1) {
+      await connectDeferredPair(leftIds[index], wrongRightIds[index], index + 1, 'wrong');
+      if (index < leftIds.length - 1 && await deferredCheck.isEnabled()) {
+        throw new Error(`${issuePrefix}: Tekshirish ${index + 1}-juftlikdan keyin erta faollashdi`);
       }
     }
-    if (await inLesson(page, '.matching-connector-correct').count() >= Math.min(leftCount, rightCount)) break;
-    await sleep(50);
+    if (!(await waitForEnabledLocator(deferredCheck))) {
+      throw new Error(`${issuePrefix}: uchala juftlikdan keyin Tekshirish ochilmadi`);
+    }
+    await deferredCheck.click();
+    if (!(await waitForDeferredMatchingReset(page))) {
+      throw new Error(`${issuePrefix}: xato Tekshirishdan keyin barcha juftliklar tozalanmadi`);
+    }
+    await assertStrictFeedback(page, issuePrefix + ' deferred matching wrong', 'wrong', lang);
+    await assertOuterNextLocked(page, issuePrefix + ' deferred matching wrong');
+    if (await deferredCheck.isEnabled()) {
+      throw new Error(`${issuePrefix}: resetdan keyin Tekshirish faol qolib ketdi`);
+    }
+    wrongSeen = true;
+
+    for (let index = 0; index < leftIds.length; index += 1) {
+      await connectDeferredPair(leftIds[index], leftIds[index], index + 1, 'correct');
+      if (index < leftIds.length - 1 && await deferredCheck.isEnabled()) {
+        throw new Error(`${issuePrefix}: qayta urinishda Tekshirish ${index + 1}-juftlikdan keyin erta faollashdi`);
+      }
+    }
+    if (!(await waitForEnabledLocator(deferredCheck))) {
+      throw new Error(`${issuePrefix}: qayta juftlashdan keyin Tekshirish ochilmadi`);
+    }
+    await deferredCheck.click();
+    correctSeen = true;
+  } else {
+    // A wrong branch can trigger narration and a React rerender between the two
+    // keyboard presses. Retry the still-enabled endpoints in bounded passes so
+    // that this real async lifecycle cannot make the audit skip one pair.
+    for (let pass = 0; pass < Math.max(2, leftCount); pass += 1) {
+      for (let leftIndex = 0; leftIndex < leftCount; leftIndex += 1) {
+        for (let rightIndex = 0; rightIndex < rightCount; rightIndex += 1) {
+          const leftButton = left.nth(leftIndex);
+          const rightButton = right.nth(rightIndex);
+          if (!(await leftButton.isEnabled()) || !(await rightButton.isEnabled())) continue;
+          const correctBefore = await inLesson(page, '.matching-connector-correct').count();
+          const wrongBefore = await matchingWrongConnectorSnapshot(page);
+          await leftButton.focus();
+          await leftButton.press('Enter');
+          await rightButton.focus();
+          await rightButton.press('Enter');
+          const outcome = await waitForMatchingOutcome(
+            page,
+            correctBefore,
+            leftButton,
+            rightButton,
+            wrongBefore,
+          );
+          if (!outcome) throw new Error(`${issuePrefix}: matching tanlovi connector holatiga o'tmadi`);
+          wrongSeen ||= outcome === 'wrong';
+          const connected = outcome === 'correct';
+          correctSeen ||= connected;
+          if (connected) break;
+        }
+      }
+      if (await inLesson(page, '.matching-connector-correct').count() >= Math.min(leftCount, rightCount)) break;
+      await sleep(50);
+    }
   }
   if (!correctSeen) throw new Error(issuePrefix + ': keyboard orqali to‘g‘ri matching connector hosil bo‘lmadi');
   if (rightCount > 1 && !wrongSeen) throw new Error(issuePrefix + ': noto‘g‘ri juft uchun vaqtinchalik qizil connector ko‘rinmadi');
@@ -2145,7 +2552,7 @@ async function waitForNumericSubmit(input, timeout = 2_000) {
 }
 
 async function assertOuterNextLocked(page, issuePrefix) {
-  if (await (await theoryNextButton(page)).isEnabled()) {
+  if (!THEORY_CONTINUE_UNLOCKED && await (await theoryNextButton(page)).isEnabled()) {
     throw new Error(`${issuePrefix}: ichki faoliyat tugamasidan outer Next ochildi`);
   }
 }
@@ -2426,6 +2833,11 @@ async function assertStrictFeedback(
       const rect = element.getBoundingClientRect();
       const stageContent = element.closest('.stage-content');
       const stageRect = stageContent?.getBoundingClientRect() ?? null;
+      const layout = element.closest('.test-layout');
+      const layoutRect = layout?.getBoundingClientRect() ?? null;
+      const questionRect = element.closest('.question')?.getBoundingClientRect() ?? null;
+      const feedbackSlotRect = element.closest('.feedback-slot')?.getBoundingClientRect() ?? null;
+      const feedbackStackRect = element.closest('.feedback-stack')?.getBoundingClientRect() ?? null;
       const navRect = element.closest('.stage')?.querySelector('.stage-nav')?.getBoundingClientRect() ?? null;
       const innerCard = element.querySelector(':scope > .feedback-card');
       const innerCardRect = innerCard?.getBoundingClientRect() ?? null;
@@ -2453,7 +2865,7 @@ async function assertStrictFeedback(
         }
       }
       const optionOverlaps = [];
-      for (const option of element.closest('.stage-content')?.querySelectorAll('button.option,[data-g4-role~="answer-card"]') ?? []) {
+      for (const option of element.closest('.stage-content')?.querySelectorAll('button.option,button[data-g4-role~="answer-card"]') ?? []) {
         if (!visible(option) || element.contains(option)) continue;
         const optionRect = option.getBoundingClientRect();
         const overlapX = Math.min(rect.right, optionRect.right) - Math.max(rect.left, optionRect.left);
@@ -2473,6 +2885,27 @@ async function assertStrictFeedback(
         graphicHeight: bitGraphicRect?.height ?? 0,
         frameHeight: rect.height,
         frameWidth: rect.width,
+        frameLeft: rect.left,
+        frameRight: rect.right,
+        frameTop: rect.top,
+        frameBottom: rect.bottom,
+        visibleLeft: stageRect?.left ?? 0,
+        visibleRight: stageRect?.right ?? innerWidth,
+        layoutRect: layoutRect
+          ? [layoutRect.left, layoutRect.right, layoutRect.top, layoutRect.bottom]
+          : null,
+        layoutColumns: layout ? getComputedStyle(layout).gridTemplateColumns : null,
+        questionRect: questionRect
+          ? [questionRect.left, questionRect.right, questionRect.top, questionRect.bottom]
+          : null,
+        feedbackSlotRect: feedbackSlotRect
+          ? [feedbackSlotRect.left, feedbackSlotRect.right, feedbackSlotRect.top, feedbackSlotRect.bottom]
+          : null,
+        feedbackStackRect: feedbackStackRect
+          ? [feedbackStackRect.left, feedbackStackRect.right, feedbackStackRect.top, feedbackStackRect.bottom]
+          : null,
+        visibleTop,
+        visibleBottom,
         radius: Number.parseFloat(style.borderTopLeftRadius || '0'),
         background: style.backgroundImage,
         innerCardWidth: innerCardRect?.width ?? null,
@@ -2498,7 +2931,10 @@ async function assertStrictFeedback(
         && Math.abs(visual.graphicWidth - expected.width) <= 1.1
         && Math.abs(visual.graphicHeight - expected.height) <= 1.1
         && visual.frameHeight + 1 >= expected.minHeight
-        && Math.abs(visual.radius - expected.radius) <= 1.1) break;
+        && Math.abs(visual.radius - expected.radius) <= 1.1
+        && visual.fullyInStage
+        && visual.outsideFrame.length === 0
+        && visual.optionOverlaps.length === 0) break;
       await sleep(20);
     }
     if (!visual.comment && !visual.generic) {
@@ -2528,7 +2964,17 @@ async function assertStrictFeedback(
       throw new Error(`${issuePrefix}: ${kind} ichki feedback-card eni ${visual.innerCardWidth}/${visual.frameWidth}px`);
     }
     if (!visual.fullyInStage) {
-      throw new Error(`${issuePrefix}: ${kind} feedback stage/nav ko'rinadigan hududidan chiqdi`);
+      throw new Error(
+        `${issuePrefix}: ${kind} feedback stage/nav ko'rinadigan hududidan chiqdi `
+          + `(frame ${Math.round(visual.frameLeft)}–${Math.round(visual.frameRight)} × `
+          + `${Math.round(visual.frameTop)}–${Math.round(visual.frameBottom)}, `
+          + `visible ${Math.round(visual.visibleLeft)}–${Math.round(visual.visibleRight)} × `
+          + `${Math.round(visual.visibleTop)}–${Math.round(visual.visibleBottom)}; `
+          + `layout ${JSON.stringify(visual.layoutRect)}/${visual.layoutColumns}; `
+          + `question ${JSON.stringify(visual.questionRect)}; `
+          + `slot ${JSON.stringify(visual.feedbackSlotRect)}; `
+          + `stack ${JSON.stringify(visual.feedbackStackRect)})`,
+      );
     }
     if (visual.outsideFrame.length) {
       throw new Error(`${issuePrefix}: ${kind} feedback matni framedan chiqdi: ${visual.outsideFrame.join(', ')}`);
@@ -2679,7 +3125,7 @@ async function auditVisibleRapidConsole(page, issuePrefix, lang, { auditWrong = 
       await assertStrictFeedback(page, `${issuePrefix} rapid ${round + 1} correct numeric`, 'solution', lang);
     }
     if (round < expectedUnits - 1) {
-      if (await (await theoryNextButton(page)).isEnabled()) {
+      if (!THEORY_CONTINUE_UNLOCKED && await (await theoryNextButton(page)).isEnabled()) {
         throw new Error(`${issuePrefix}: rapid ${round + 1} tugaganda outer Next erta ochildi`);
       }
       const rapidNext = await waitForVisibleMatch(panel.locator('[data-qa-rapid-next]:not(:disabled)'));
@@ -3169,13 +3615,28 @@ async function auditVisibleCaseConsole(page, issuePrefix, lang, { auditWrong = f
 }
 
 async function auditVisibleChoiceBranches(page, issuePrefix, lang) {
-  const choices = inLesson(page, '[data-g4-branch="choice"]');
+  const choices = inLesson(page, 'button[data-g4-source-index][data-g4-correct]');
   const choiceCount = await choices.count();
   if (!choiceCount) return false;
   await waitForEnabledCard(choices);
+  const requiresStrictChoiceContract = await choices.evaluateAll((elements) => (
+    elements.every((element) => element.getAttribute('data-g4-branch') === 'choice')
+  ));
+  const genericHook = await choices.evaluateAll((elements) => (
+    elements.every((element) => Boolean(element.closest(
+      '[data-g4-screen="hook"], .hook-answers, .stage-hook, .stage-diagnostic',
+    )))
+  ));
+  const allowsDiagnosticAdvance = await choices.evaluateAll((elements) => (
+    elements.every((element) => element.getAttribute('data-g4-diagnostic-advance') === 'true')
+  ));
+  const requiresDistinctWrongFeedback = requiresStrictChoiceContract || !genericHook;
+  const feedbackAuditOptions = requiresStrictChoiceContract
+    ? {}
+    : { requireBit: false, requireSolutionLabel: false };
 
-  const correct = inLesson(page, '[data-g4-branch="choice"][data-g4-correct="true"]');
-  const wrong = inLesson(page, '[data-g4-branch="choice"][data-g4-correct="false"]');
+  const correct = inLesson(page, 'button[data-g4-source-index][data-g4-correct="true"]');
+  const wrong = inLesson(page, 'button[data-g4-source-index][data-g4-correct="false"]');
   const correctCount = await correct.count();
   const wrongCount = await wrong.count();
   if (correctCount !== 1 || wrongCount < 1 || correctCount + wrongCount !== choiceCount) {
@@ -3187,20 +3648,43 @@ async function auditVisibleChoiceBranches(page, issuePrefix, lang) {
     const option = wrong.nth(index);
     if (!(await option.isEnabled())) throw new Error(`${issuePrefix}: wrong choice ${index + 1} retrydan oldin bloklangan`);
     await option.click();
-    const feedbackText = await assertStrictFeedback(page, `${issuePrefix} wrong ${index + 1}`, 'wrong', lang);
+    const feedbackText = await assertStrictFeedback(
+      page,
+      `${issuePrefix} wrong ${index + 1}`,
+      'wrong',
+      lang,
+      feedbackAuditOptions,
+    );
     wrongFeedbacks.add(feedbackText);
-    if (await (await theoryNextButton(page)).isEnabled()) {
+    if (genericHook && !allowsDiagnosticAdvance) {
+      const retryAvailable = await choices.evaluateAll((elements) => elements.some((element) => {
+        const style = getComputedStyle(element);
+        return !element.disabled
+          && element.getClientRects().length > 0
+          && style.display !== 'none'
+          && style.visibility !== 'hidden'
+          && Number.parseFloat(style.opacity || '1') > 0.01;
+      }));
+      if (!retryAvailable) {
+        throw new Error(`${issuePrefix}: wrong hook feedback retry variantlarini yashirdi`);
+      }
+    }
+    const nextEnabled = await (await theoryNextButton(page)).isEnabled();
+    if (!allowsDiagnosticAdvance && !THEORY_CONTINUE_UNLOCKED && nextEnabled) {
       throw new Error(`${issuePrefix}: wrong choice ${index + 1} dan keyin Next ochildi`);
     }
+    if (allowsDiagnosticAdvance && !nextEnabled) {
+      throw new Error(`${issuePrefix}: diagnostik wrong choice ${index + 1} dan keyin Next ochilmadi`);
+    }
   }
-  if (wrongCount > 1 && wrongFeedbacks.size !== wrongCount) {
+  if (requiresDistinctWrongFeedback && wrongCount > 1 && wrongFeedbacks.size !== wrongCount) {
     throw new Error(`${issuePrefix}: ${wrongCount} distractor uchun xatoga xos feedbacklar takrorlangan`);
   }
 
   const correctOption = correct.first();
   if (!(await correctOption.isEnabled())) throw new Error(`${issuePrefix}: correct choice retrydan keyin bloklangan`);
   await correctOption.click();
-  await assertStrictFeedback(page, `${issuePrefix} correct`, 'solution', lang);
+  await assertStrictFeedback(page, `${issuePrefix} correct`, 'solution', lang, feedbackAuditOptions);
   const next = await theoryNextButton(page);
   if (!(await waitForEnabledLocator(next))) throw new Error(`${issuePrefix}: correct choicedan keyin Next ochilmadi`);
   choiceBranchScreensChecked += 1;
@@ -3231,7 +3715,7 @@ async function auditVisibleNumericBranches(page, issuePrefix, lang) {
     await submit.click();
   }
   await assertStrictFeedback(page, `${issuePrefix} wrong numeric`, 'wrong', lang);
-  if (await (await theoryNextButton(page)).isEnabled()) {
+  if (!THEORY_CONTINUE_UNLOCKED && await (await theoryNextButton(page)).isEnabled()) {
     throw new Error(`${issuePrefix}: wrong numeric javobdan keyin Next ochildi`);
   }
 
@@ -3364,7 +3848,7 @@ async function auditVisibleBuildBranches(page, issuePrefix, lang) {
   await fillBuildBoard(board, wrongOrder, mode, issuePrefix + ' wrong');
   await submitBuildBoardWhenExplicit(board, page, 'wrong', issuePrefix + ' wrong');
   await assertStrictFeedback(page, issuePrefix + ' wrong build', 'wrong', lang);
-  if (await (await theoryNextButton(page)).isEnabled()) {
+  if (!THEORY_CONTINUE_UNLOCKED && await (await theoryNextButton(page)).isEnabled()) {
     throw new Error(`${issuePrefix}: wrong builddan keyin Next ochildi`);
   }
 
@@ -3461,8 +3945,14 @@ async function naturallyUnlockStrictTheoryScreen(
   const componentOptions = { auditWrong: auditBranches, lang };
   if (await auditVisibleRoundingLineFlow(page, issuePrefix, componentOptions)) return;
   const next = await theoryNextButton(page);
-  if (await next.isEnabled()) {
-    if (requireAction) throw new Error(`${issuePrefix}: faol ekranda javobsiz Continue ochiq`);
+  const nextAlreadyEnabled = await next.isEnabled();
+  const markedChoiceCount = auditBranches
+    ? await inLesson(page, 'button[data-g4-source-index][data-g4-correct]').count()
+    : 0;
+  if (nextAlreadyEnabled && requireAction && !THEORY_CONTINUE_UNLOCKED) {
+    throw new Error(`${issuePrefix}: faol ekranda javobsiz Continue ochiq`);
+  }
+  if (nextAlreadyEnabled && !(auditBranches && markedChoiceCount)) {
     return;
   }
 
@@ -3556,15 +4046,46 @@ async function naturallyUnlockStrictTheoryScreen(
   throw new Error(issuePrefix + ': ' + count.text + ' tabiiy interaksiya bilan ochilmadi; candidates=' + JSON.stringify(candidates));
 }
 
-async function naturallyRevealStrictFinalReward(page, issuePrefix) {
+async function finalReflectionIsRemoved(page, lesson) {
+  if (!NO_FINAL_REFLECTION_LESSONS.has(lesson?.file)) return false;
+  return Boolean(await firstVisible(inLesson(page, '[data-g4-final-reflection="none"]')));
+}
+
+async function naturallyRevealStrictFinalReward(page, lesson, issuePrefix) {
+  if (await finalReflectionIsRemoved(page, lesson)) {
+    let claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+    if (!claim) throw new Error(issuePrefix + ': no-reflection final title claim topilmadi');
+    if (await lessonAudioIsMuted(page) && !(await unmuteLesson(page))) {
+      throw new Error(issuePrefix + ': no-reflection final audio qayta yoqilmadi');
+    }
+    if (!(await replayLessonAudio(page))) {
+      throw new Error(issuePrefix + ': no-reflection final audio qayta boshlanmadi');
+    }
+    claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+    if (!claim || !(await waitForDisabledLocator(claim))) {
+      throw new Error(issuePrefix + ': no-reflection final claim audio davomida yopilmadi');
+    }
+    const lingeringReflection = await firstVisible(inLesson(
+      page,
+      '.finale-reflection, .final-reflection, [data-g4-role="reflection"], .reflection-options',
+    ));
+    if (lingeringReflection) throw new Error(issuePrefix + ': no-reflection finalda eski reflection UI bor');
+    await muteLesson(page);
+    claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+    if (!claim || !(await waitForEnabledLocator(claim))) {
+      throw new Error(issuePrefix + ': no-reflection final claim audio o\'chirilgach ochilmadi');
+    }
+    return;
+  }
   await muteLesson(page);
-  const rewardIsVisible = async () => Boolean(
-    await firstVisible(inLesson(page, '.g4-title-claim'))
-    && await firstVisible(inLesson(
+  const rewardIsVisible = async () => {
+    const claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+    if (!claim) return false;
+    return Boolean(await firstVisible(inLesson(
       page,
       '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button',
-    )),
-  );
+    )));
+  };
   if (await rewardIsVisible()) return;
 
   const clickCounts = new Map();
@@ -3591,7 +4112,7 @@ async function naturallyRevealStrictFinalReward(page, issuePrefix) {
     if (!clicked) break;
   }
   const count = await currentScreenCount(page);
-  throw new Error(issuePrefix + ': ' + count.text + ' final reflection tabiiy interaksiya bilan ochilmadi');
+  throw new Error(issuePrefix + ': ' + count.text + ' final reward boshqaruvi tabiiy interaksiya bilan ochilmadi');
 }
 
 async function advanceTheoryNormallyOrFallback(page, next, issuePrefix) {
@@ -3625,6 +4146,94 @@ async function waitForScreenChange(page, previous, timeout = 4_000) {
   throw new Error('Theory screen ' + previous + ' dan keyingisiga o\'tmadi');
 }
 
+async function auditAnswerOrderLanguagePersistence(page, issuePrefix, currentCount, baselineGroups) {
+  const baseline = JSON.stringify(answerOrderIdentity(baselineGroups));
+  for (const code of ['ru', 'uz', 'en']) {
+    await switchLessonLanguage(page, code);
+    const afterSwitch = await currentScreenCount(page);
+    if (afterSwitch.text !== currentCount.text) {
+      throw new Error(
+        `${issuePrefix}: ${code.toUpperCase()} tilida savol ekrani ${currentCount.text} dan ${afterSwitch.text} ga o'zgardi`,
+      );
+    }
+    const switched = await visibleAnswerOrderSnapshot(page);
+    validateAnswerOrderGroups(switched, `${issuePrefix} ${code.toUpperCase()}`);
+    if (JSON.stringify(answerOrderIdentity(switched)) !== baseline) {
+      throw new Error(`${issuePrefix}: ${code.toUpperCase()} tiliga o'tganda variant tartibi o'zgardi`);
+    }
+  }
+}
+
+async function auditSolvedAnswerOrderBackPersistence(page, issuePrefix, currentCount, baselineGroups) {
+  const baseline = baselineGroups.length
+    ? JSON.stringify(answerOrderStateIdentity(baselineGroups))
+    : null;
+  for (const code of ['ru', 'uz', 'en']) {
+    await switchLessonLanguage(page, code);
+    const afterSwitch = await currentScreenCount(page);
+    if (afterSwitch.text !== currentCount.text) {
+      throw new Error(
+        `${issuePrefix}: yechimdan keyin ${code.toUpperCase()} tilida ekran `
+          + `${currentCount.text} dan ${afterSwitch.text} ga o'zgardi`,
+      );
+    }
+    const switched = await visibleAnswerOrderSnapshot(page);
+    if (baseline === null) {
+      if (switched.length) {
+        throw new Error(`${issuePrefix}: ${code.toUpperCase()} tilida yashirilgan yechilgan kartalar qayta ochildi`);
+      }
+    } else {
+      validateAnswerOrderGroups(switched, `${issuePrefix} solved ${code.toUpperCase()}`);
+      if (JSON.stringify(answerOrderStateIdentity(switched)) !== baseline) {
+        throw new Error(
+          `${issuePrefix}: ${code.toUpperCase()} tiliga o'tganda yechilgan source javob holati o'zgardi`,
+        );
+      }
+    }
+  }
+  const next = await theoryNextButton(page);
+  if (!(await waitForEnabledLocator(next, 4_000))) {
+    throw new Error(`${issuePrefix}: yechilgan savolda Next ochilmadi`);
+  }
+  await clickEnabledTheoryButton(next, issuePrefix, false);
+  const advanced = await waitForScreenChange(page, currentCount.text);
+  const back = inLesson(page, '.stage-nav button').first();
+  if (!(await back.isVisible()) || !(await back.isEnabled())) throw new Error(`${issuePrefix}: Back ishlamaydi`);
+  await back.click();
+  const returned = await waitForScreenChange(page, advanced.text);
+  if (returned.text !== currentCount.text) throw new Error(`${issuePrefix}: Back boshqa ekranga qaytardi`);
+
+  // FeedbackBlock remounts with `open=false` and reveals a stored solution
+  // after two animation frames. Wait for that restored state before checking
+  // whether its solution layout keeps answer cards hidden.
+  const restoredSolution = await waitForVisibleMatch(inLesson(
+    page,
+    '[data-g4-feedback="solution"], [data-g4-feedback="correct"], [data-g4-feedback="diagnostic"]',
+  ), 4_000);
+  if (!restoredSolution) {
+    throw new Error(`${issuePrefix}: Backdan keyin yechilgan feedback holati tiklanmadi`);
+  }
+
+  const restored = await visibleAnswerOrderSnapshot(page);
+  if (baseline === null) {
+    if (restored.length) {
+      throw new Error(`${issuePrefix}: yechimda yashirilgan kartalar Backdan keyin qayta ochildi`);
+    }
+  } else {
+    validateAnswerOrderGroups(restored, `${issuePrefix} Back`);
+    if (JSON.stringify(answerOrderStateIdentity(restored)) !== baseline) {
+      throw new Error(`${issuePrefix}: Backdan keyin variant tartibi yoki source javob holati o'zgardi`);
+    }
+  }
+  const forward = await theoryNextButton(page);
+  if (!(await waitForEnabledLocator(forward, 4_000))) {
+    throw new Error(`${issuePrefix}: Backdan keyin yechilgan savol Next holatini saqlamadi`);
+  }
+  await clickEnabledTheoryButton(forward, `${issuePrefix} restored`, false);
+  await waitForScreenChange(page, returned.text);
+  answerOrderPersistenceChecked += 1;
+}
+
 async function runTheoryTraversal(page, diagnostics, lesson) {
   const prefix = 'deep theory ' + lesson.file;
   diagnostics.reset();
@@ -3632,6 +4241,9 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
   const firstCount = await currentScreenCount(page);
   const visited = [];
   const auditedMatchingScreens = new Set();
+  const visibleAnswerGroups = [];
+  let answerOrderLanguageChecked = false;
+  let answerOrderStateChecked = false;
   let observedMedalTier = null;
 
   for (let expected = 1; expected <= firstCount.total; expected += 1) {
@@ -3641,11 +4253,17 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
     }
     visited.push(count.current);
     theoryScreensTraversed += 1;
-    if (lesson.file === 'Dars51.jsx' && expected === 9) {
-      const option = await firstVisible(inLesson(page, '.option'));
-      if (!option) throw new Error(prefix + ': Dars51 ixtiyoriy javob varianti topilmadi');
-      await option.click();
-      await sleep(40);
+    const screenAnswerGroups = lesson.file === 'Dars01.jsx'
+      ? []
+      : await auditVisibleAnswerOrders(page, `${prefix} screen ${expected}`);
+    if (screenAnswerGroups.length && !answerOrderLanguageChecked && isStrictEtalonLesson(lesson)) {
+      await auditAnswerOrderLanguagePersistence(
+        page,
+        `${prefix} screen ${expected} language persistence`,
+        count,
+        screenAnswerGroups,
+      );
+      answerOrderLanguageChecked = true;
     }
     const snapshot = await lessonSnapshot(page);
     const issues = snapshotIssues(snapshot, 'en');
@@ -3658,19 +4276,80 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
     }
     if (expected < firstCount.total) {
       if (isStrictEtalonLesson(lesson)) {
-        await naturallyUnlockStrictTheoryScreen(page, prefix + ' screen ' + expected);
-        await clickEnabledTheoryButton(next, prefix + ' screen ' + expected, false);
-      } else await advanceTheoryNormallyOrFallback(page, next, prefix + ' screen ' + expected);
-      await waitForScreenChange(page, count.text);
+        const observedGroups = lesson.file === 'Dars01.jsx'
+          ? []
+          : await collectAnswerOrderGroupsDuring(
+            page,
+            `${prefix} screen ${expected}`,
+            () => naturallyUnlockStrictTheoryScreen(page, prefix + ' screen ' + expected, {
+              auditBranches: THEORY_CONTINUE_UNLOCKED,
+              lang: 'en',
+            }),
+          );
+        if (lesson.file === 'Dars01.jsx') {
+          await naturallyUnlockStrictTheoryScreen(page, prefix + ' screen ' + expected, {
+            auditBranches: THEORY_CONTINUE_UNLOCKED,
+            lang: 'en',
+          });
+        } else {
+          visibleAnswerGroups.push(...observedGroups);
+        }
+
+        let advancedByPersistenceAudit = false;
+        if (screenAnswerGroups.length && !answerOrderStateChecked) {
+          const solvedFeedback = await firstVisible(inLesson(
+            page,
+            '[data-g4-feedback="solution"], [data-g4-feedback="correct"], [data-g4-feedback="diagnostic"]',
+          ));
+          if (!solvedFeedback) {
+            throw new Error(`${prefix} screen ${expected} persistence: yechilgan feedback markeri yo'q`);
+          }
+          const solvedGroups = await visibleAnswerOrderSnapshot(page);
+          validateAnswerOrderGroups(solvedGroups, `${prefix} screen ${expected} solved`);
+          await auditSolvedAnswerOrderBackPersistence(
+            page,
+            `${prefix} screen ${expected} persistence`,
+            count,
+            solvedGroups,
+          );
+          answerOrderStateChecked = true;
+          advancedByPersistenceAudit = true;
+        }
+        if (!advancedByPersistenceAudit) {
+          next = await theoryNextButton(page);
+          await clickEnabledTheoryButton(next, prefix + ' screen ' + expected, false);
+          await waitForScreenChange(page, count.text);
+        }
+      } else {
+        visibleAnswerGroups.push(...screenAnswerGroups);
+        await advanceTheoryNormallyOrFallback(page, next, prefix + ' screen ' + expected);
+        await waitForScreenChange(page, count.text);
+      }
     } else {
-      if (isStrictEtalonLesson(lesson)) await naturallyRevealStrictFinalReward(page, prefix + ' final screen ' + expected);
+      if (isStrictEtalonLesson(lesson)) {
+        const observedGroups = lesson.file === 'Dars01.jsx'
+          ? []
+          : await collectAnswerOrderGroupsDuring(
+            page,
+            `${prefix} final screen ${expected}`,
+            () => naturallyRevealStrictFinalReward(page, lesson, prefix + ' final screen ' + expected),
+          );
+        if (lesson.file === 'Dars01.jsx') {
+          await naturallyRevealStrictFinalReward(page, lesson, prefix + ' final screen ' + expected);
+        } else {
+          visibleAnswerGroups.push(...observedGroups);
+        }
+      } else {
+        visibleAnswerGroups.push(...screenAnswerGroups);
+      }
       let claim = await firstVisible(inLesson(page, '.g4-title-claim'));
       const revealBeforeClaim = await firstVisible(page.locator(TITLE_OVERLAY_SELECTOR));
       const cardBeforeClaim = await firstVisible(inLesson(page, '[data-g4-role="title-card"]'));
       if (revealBeforeClaim || cardBeforeClaim) throw new Error(prefix + ': unvon claim bosilishidan oldin chiqdi');
       if (isStrictEtalonLesson(lesson) && !claim) throw new Error(prefix + ': majburiy Unvonni olish tugmasi topilmadi');
       if (claim) {
-        if (isStrictEtalonLesson(lesson)) {
+        const reflectionRemoved = await finalReflectionIsRemoved(page, lesson);
+        if (isStrictEtalonLesson(lesson) && !reflectionRemoved) {
           const reflection = await firstVisible(inLesson(
             page,
             '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button',
@@ -3709,8 +4388,22 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
               + '.reflection-options button.picked, .reflection-options button.is-selected, .reflection-options button.reflection-active, .reflection-options button.reflection-selected',
           ));
           if (!restoredReflection) throw new Error(prefix + ': pre-claim Back→Forward reflection tanlovini saqlamadi');
+          await muteLesson(page);
           claim = await firstVisible(inLesson(page, '.g4-title-claim'));
-          if (!claim || !(await claim.isEnabled())) throw new Error(prefix + ': pre-claim Back→Forward claim gate saqlanmadi');
+          if (!claim || !(await waitForEnabledLocator(claim, 4_000))) {
+            throw new Error(prefix + ': pre-claim Back→Forward claim gate saqlanmadi');
+          }
+        } else if (reflectionRemoved) {
+          const lingeringReflection = await firstVisible(inLesson(
+            page,
+            '.finale-reflection, .final-reflection, [data-g4-role="reflection"], .reflection-options',
+          ));
+          if (lingeringReflection) throw new Error(prefix + ': no-reflection finalda eski reflection UI saqlanib qolgan');
+          await muteLesson(page);
+          claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+          if (!claim || !(await waitForEnabledLocator(claim, 4_000))) {
+            throw new Error(prefix + ': no-reflection finalda claim audio tugagach ochilmadi');
+          }
         } else if (!(await claim.isEnabled())) {
           await muteLesson(page);
           const reflection = await firstVisible(inLesson(page, '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button'));
@@ -3719,7 +4412,7 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
           claim = await firstVisible(inLesson(page, '.g4-title-claim'));
         }
         if (await next.isEnabled()) throw new Error(prefix + ': Finish claimdan oldin faol');
-        if (!(await claim.isEnabled())) throw new Error(prefix + ': reflectiondan keyin claim ochilmadi');
+        if (!(await claim.isEnabled())) throw new Error(prefix + ': final gate tugagach claim ochilmadi');
         await claim.click({ timeout: 8_000 });
         const revealOverlay = page.locator(TITLE_OVERLAY_SELECTOR);
         await revealOverlay.waitFor({ state: 'visible', timeout: 2_000 });
@@ -3757,8 +4450,11 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
             throw new Error(prefix + ': finalga qaytganda full-screen reveal avtomatik takrorlandi');
           }
           await inLesson(page, '[data-g4-role="title-card"]').waitFor({ state: 'visible', timeout: 2_000 });
+          await muteLesson(page);
           next = await theoryNextButton(page);
-          if (!(await next.isEnabled())) throw new Error(prefix + ': finalga qaytganda olingan unvon saqlanmadi');
+          if (!(await waitForEnabledLocator(next, 4_000))) {
+            throw new Error(prefix + ': finalga qaytganda olingan unvon saqlanmadi');
+          }
           if (SCREENSHOT_DIR) {
             await page.screenshot({ path: path.join(SCREENSHOT_DIR, `${lesson.file.replace('.jsx', '')}-en-desktop-final.png`) });
           }
@@ -3790,7 +4486,25 @@ async function runTheoryTraversal(page, diagnostics, lesson) {
   if (new Set(visited).size !== firstCount.total) {
     throw new Error(prefix + ': ' + visited.length + '/' + firstCount.total + ' unique screen traversed');
   }
+  if (lesson.file !== 'Dars01.jsx') {
+    if (!visibleAnswerGroups.length) throw new Error(prefix + ': aralashtiriladigan javob kartalari topilmadi');
+    const expectedAnswerGroups = EXPECTED_ANSWER_ORDER_GROUPS.get(lesson.file);
+    if (visibleAnswerGroups.length !== expectedAnswerGroups) {
+      throw new Error(
+        `${prefix}: ${visibleAnswerGroups.length} ta shuffled savol kuzatildi, kutilgan ${expectedAnswerGroups}`,
+      );
+    }
+    if (!answerOrderLanguageChecked) throw new Error(prefix + ': variant order til almashtirishda tekshirilmadi');
+    if (!answerOrderStateChecked) throw new Error(prefix + ': variant order/state til va Back orqali tekshirilmadi');
+    assertBalancedVisibleAnswerPositions(visibleAnswerGroups, prefix);
+  }
   const payload = await validateCompletion(prefix, diagnostics, lesson);
+  if (lesson.file !== 'Dars01.jsx') {
+    const comparedGroups = assertDisplayedOptionSourceAlignment(visibleAnswerGroups, payload, prefix);
+    if (!comparedGroups && !ANSWER_SOURCE_ALIGNMENT_EXEMPT.has(lesson.file)) {
+      throw new Error(prefix + ': DOM option matni va LMS payload source-index mosligi tekshirilmadi');
+    }
+  }
   if (lesson.file === 'Dars51.jsx') {
     const expectedMedalTier = payload.correctAnswers === 5 ? 'gold' : payload.correctAnswers === 4 ? 'silver' : 'bronze';
     if (observedMedalTier !== expectedMedalTier) {
@@ -3870,6 +4584,53 @@ async function muteLesson(page) {
   }
 }
 
+async function lessonAudioIsMuted(page) {
+  const controls = inLesson(page, '.audio-controls button, [data-audio-control="mute"]');
+  for (let index = 0; index < await controls.count(); index += 1) {
+    const button = controls.nth(index);
+    if (!(await button.isVisible())) continue;
+    const label = normalizeText(await button.getAttribute('aria-label'));
+    const icon = normalizeText(await button.innerText());
+    if (icon.includes('🔇') || /turn sound on|ovozni yoqish|включить звук/i.test(label)) return true;
+  }
+  return false;
+}
+
+async function unmuteLesson(page) {
+  const controls = inLesson(page, '.audio-controls button, [data-audio-control="mute"]');
+  for (let index = 0; index < await controls.count(); index += 1) {
+    const button = controls.nth(index);
+    if (!(await button.isVisible())) continue;
+    const label = normalizeText(await button.getAttribute('aria-label'));
+    const icon = normalizeText(await button.innerText());
+    if (icon.includes('🔇') || /turn sound on|ovozni yoqish|включить звук/i.test(label)) {
+      await button.click();
+      await sleep(40);
+      return true;
+    }
+  }
+  return false;
+}
+
+async function replayLessonAudio(page, timeout = 2_000) {
+  const deadline = Date.now() + timeout;
+  while (Date.now() < deadline) {
+    const controls = inLesson(page, '.audio-controls button');
+    for (let index = 0; index < await controls.count(); index += 1) {
+      const button = controls.nth(index);
+      if (!(await button.isVisible())) continue;
+      const label = normalizeText(await button.getAttribute('aria-label'));
+      if (/replay|qayta eshitish|повторить/i.test(label)) {
+        await button.click();
+        await sleep(40);
+        return true;
+      }
+    }
+    await sleep(25);
+  }
+  return false;
+}
+
 async function waitForEnabledCard(cards, timeout = 4_000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
@@ -3886,7 +4647,7 @@ function strictHookAnswerCards(page, lesson) {
   // sr-only description); their real, visible answer branches are `.option`
   // buttons. Keep this family mapping narrow so malformed answer-card markup
   // in other lessons cannot silently pass the hook contract.
-  if (/^Dars(?:1[2-9]|2[0-7]|(?:29|3[0-4]|3[6-9]|4[01]))\.jsx$/.test(lesson.file)) {
+  if (/^Dars(?:1[2-9]|2[0-9]|3[0-9]|4[01])\.jsx$/.test(lesson.file)) {
     return inLesson(page, '.option');
   }
   return inLesson(page, '[data-g4-role="answer-card"]');
@@ -4022,7 +4783,7 @@ async function runStrictHookContracts(browser) {
           if (kind === 'wrong') {
             wrongSeen = true;
             const next = await theoryNextButton(page);
-            if (strictHookRequiresCorrectAnswer(lesson) && await next.isEnabled()) {
+            if (!THEORY_CONTINUE_UNLOCKED && strictHookRequiresCorrectAnswer(lesson) && await next.isEnabled()) {
               throw new Error(`${lesson.file} ${lang}: wrong javobdan keyin Next ochildi`);
             }
           } else if (kind === 'solution') {
@@ -4064,14 +4825,23 @@ async function reachStrictFinalScreen(page, lesson, issuePrefix) {
     await clickEnabledTheoryButton(liveNext, `${issuePrefix} screen ${count.current}`, false);
     count = await waitForScreenChange(page, count.text);
   }
-  await naturallyRevealStrictFinalReward(page, `${issuePrefix} final screen ${count.current}`);
+  await naturallyRevealStrictFinalReward(page, lesson, `${issuePrefix} final screen ${count.current}`);
   return count;
 }
 
-async function enableStrictTitleClaim(page, issuePrefix) {
+async function enableStrictTitleClaim(page, lesson, issuePrefix) {
   await muteLesson(page);
   let claim = await firstVisible(inLesson(page, '.g4-title-claim'));
   if (!claim) throw new Error(issuePrefix + ': title claim topilmadi');
+  if (await finalReflectionIsRemoved(page, lesson)) {
+    const lingeringReflection = await firstVisible(inLesson(
+      page,
+      '.finale-reflection, .final-reflection, [data-g4-role="reflection"], .reflection-options',
+    ));
+    if (lingeringReflection) throw new Error(issuePrefix + ': no-reflection finalda eski reflection UI bor');
+    if (!(await waitForEnabledLocator(claim))) throw new Error(issuePrefix + ': no-reflection final claim ochilmadi');
+    return claim;
+  }
   const reflection = await firstVisible(inLesson(
     page,
     '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button',
@@ -4098,7 +4868,7 @@ async function runStrictNormalMotionTitleTiming(browser) {
       const prefix = `normal-motion title ${lesson.file}`;
       try {
         await reachStrictFinalScreen(page, lesson, prefix);
-        const claim = await enableStrictTitleClaim(page, prefix);
+        const claim = await enableStrictTitleClaim(page, lesson, prefix);
         const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
         await claim.click({ timeout: 8_000 });
         await overlay.waitFor({ state: 'visible', timeout: 2_000 });
@@ -4133,7 +4903,14 @@ async function runStrictBackNavigation(browser) {
         await openLesson(page, lesson, 'en');
         const hookCount = await currentScreenCount(page);
         const next = await theoryNextButton(page);
-        await naturallyUnlockStrictTheoryScreen(page, 'hook-back ' + lesson.file);
+        const initialAnswerOrder = lesson.file === 'Dars01.jsx'
+          ? []
+          : await auditVisibleAnswerOrders(page, `hook-back ${lesson.file}`);
+        await naturallyUnlockStrictTheoryScreen(page, 'hook-back ' + lesson.file, {
+          auditBranches: THEORY_CONTINUE_UNLOCKED,
+          lang: 'en',
+        });
+        const solvedAnswerOrder = initialAnswerOrder.length ? await visibleAnswerOrderSnapshot(page) : [];
         await clickEnabledTheoryButton(next, 'hook-back ' + lesson.file, false);
         const second = await waitForScreenChange(page, hookCount.text);
         const back = inLesson(page, '.stage-nav button').first();
@@ -4141,15 +4918,19 @@ async function runStrictBackNavigation(browser) {
         await back.click();
         const returned = await waitForScreenChange(page, second.text);
         if (returned.current !== 1) throw new Error(lesson.file + ': Back hookka qaytarmadi');
+        if (solvedAnswerOrder.length) {
+          const restoredAnswerOrder = await visibleAnswerOrderSnapshot(page);
+          if (JSON.stringify(answerOrderIdentity(restoredAnswerOrder))
+            !== JSON.stringify(answerOrderIdentity(solvedAnswerOrder))) {
+            throw new Error(lesson.file + ": Backdan keyin variant tartibi o'zgardi");
+          }
+          if (JSON.stringify(restoredAnswerOrder.map((group) => group.states))
+            !== JSON.stringify(solvedAnswerOrder.map((group) => group.states))) {
+            throw new Error(lesson.file + ": Backdan keyin javob holati boshqa source variantga ko'chdi");
+          }
+          answerOrderPersistenceChecked += 1;
+        }
         await muteLesson(page);
-        const cards = strictHookAnswerCards(page, lesson);
-        // A solved diagnostic may intentionally lock its cards while keeping
-        // the restored selection, feedback and Continue gate visible.
-        const anySelected = await cards.evaluateAll((elements) => elements.some((element) => (
-          element.getAttribute('aria-pressed') === 'true'
-            || /(?:selected|picked|correct|right)/.test(element.className)
-        )));
-        if (!anySelected) await waitForEnabledCard(cards);
         const restoredFeedback = await firstVisible(inLesson(page, '[data-g4-feedback]:not([aria-hidden="true"])'));
         if (restoredFeedback) {
           const restoredKind = canonicalFeedbackKind(await restoredFeedback.getAttribute('data-g4-feedback'));
@@ -4160,7 +4941,19 @@ async function runStrictBackNavigation(browser) {
             throw new Error(lesson.file + ': hook javobi Backdan keyin noto\'g\'ri tiklandi');
           }
         } else if (await (await theoryNextButton(page)).isEnabled()) {
-          throw new Error(lesson.file + ': hook javobisiz Next oldindan ochiq');
+          if (!THEORY_CONTINUE_UNLOCKED) {
+            throw new Error(lesson.file + ': hook javobisiz Next oldindan ochiq');
+          }
+        } else {
+          const cards = strictHookAnswerCards(page, lesson);
+          // An unanswered hook must become interactive after narration is
+          // muted. Solved hooks are handled above through feedback + Next and
+          // may intentionally replace their cards with a proof layer.
+          const anySelected = await cards.evaluateAll((elements) => elements.some((element) => (
+            element.getAttribute('aria-pressed') === 'true'
+              || /(?:selected|picked|correct|right)/.test(element.className)
+          )));
+          if (!anySelected) await waitForEnabledCard(cards);
         }
       } catch (error) {
         failures.push('strict back-navigation ' + lesson.file + ': ' + error.message);
@@ -4209,7 +5002,7 @@ async function runDars51MedalTierMatrix(browser) {
             if (scenario.wrongScreens.has(screenIndex)) {
               await wrong.first().click();
               await assertStrictFeedback(page, `${prefix} s${screenIndex} wrong`, 'wrong', 'en');
-              if (await (await theoryNextButton(page)).isEnabled()) {
+              if (!THEORY_CONTINUE_UNLOCKED && await (await theoryNextButton(page)).isEnabled()) {
                 throw new Error(`s${screenIndex} wrong javobdan keyin Next ochildi`);
               }
             }
@@ -4228,8 +5021,8 @@ async function runDars51MedalTierMatrix(browser) {
           count = await waitForScreenChange(page, count.text);
         }
 
-        await naturallyRevealStrictFinalReward(page, `${prefix} final`);
-        const claim = await enableStrictTitleClaim(page, `${prefix} final`);
+        await naturallyRevealStrictFinalReward(page, lesson, `${prefix} final`);
+        const claim = await enableStrictTitleClaim(page, lesson, `${prefix} final`);
         await claim.click({ timeout: 8_000 });
         const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
         await overlay.waitFor({ state: 'visible', timeout: 2_000 });
@@ -4552,19 +5345,34 @@ async function runStrictScreenMatrix(browser) {
                 continue;
               }
 
-              await naturallyRevealStrictFinalReward(page, `${prefix} final screen ${expected}`);
+              await naturallyRevealStrictFinalReward(page, lesson, `${prefix} final screen ${expected}`);
               let claim = await firstVisible(inLesson(page, '.g4-title-claim'));
-              const reflection = await firstVisible(inLesson(
-                page,
-                '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button',
-              ));
-              if (!claim || !reflection) throw new Error('final reflection yoki claim topilmadi');
-              if (await claim.isEnabled()) throw new Error('reflection tanlanmasidan claim faol');
-              await muteLesson(page);
-              await reflection.click();
-              await sleep(50);
-              claim = await firstVisible(inLesson(page, '.g4-title-claim'));
-              if (!claim || !(await claim.isEnabled())) throw new Error('reflectiondan keyin claim ochilmadi');
+              const reflectionRemoved = await finalReflectionIsRemoved(page, lesson);
+              if (!claim) throw new Error('final claim topilmadi');
+              if (reflectionRemoved) {
+                const lingeringReflection = await firstVisible(inLesson(
+                  page,
+                  '.finale-reflection, .final-reflection, [data-g4-role="reflection"], .reflection-options',
+                ));
+                if (lingeringReflection) throw new Error('no-reflection finalda eski reflection UI bor');
+                await muteLesson(page);
+                claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+                if (!claim || !(await waitForEnabledLocator(claim))) {
+                  throw new Error('no-reflection final claim ochilmadi');
+                }
+              } else {
+                const reflection = await firstVisible(inLesson(
+                  page,
+                  '.finale-reflection button, .final-reflection button, [data-g4-role="reflection"] button, .reflection-options button',
+                ));
+                if (!reflection) throw new Error('final reflection topilmadi');
+                if (await claim.isEnabled()) throw new Error('reflection tanlanmasidan claim faol');
+                await muteLesson(page);
+                await reflection.click();
+                await sleep(50);
+                claim = await firstVisible(inLesson(page, '.g4-title-claim'));
+                if (!claim || !(await claim.isEnabled())) throw new Error('reflectiondan keyin claim ochilmadi');
+              }
               await claim.click({ timeout: 8_000 });
               const overlay = page.locator(TITLE_OVERLAY_SELECTOR);
               await overlay.waitFor({ state: 'visible', timeout: 2_000 });
@@ -4747,6 +5555,8 @@ if (failures.length) {
     + roundingLineScreensChecked + ' rounding-line three-step screens; '
     + roundingBackPersistenceChecked + ' rounding-line Back persistence; '
     + rapidBackPersistenceChecked + ' rapid partial Back persistence; '
+    + answerOrderGroupsChecked + ' answer-order groups; '
+    + answerOrderPersistenceChecked + ' answer-order language/Back persistence; '
     + normalMotionTitleTimingsChecked + ' normal-motion title timing; '
     + (audioContractChecked ? 'audio runtime contract checked.' : 'audio runtime contract skipped.'),
 );

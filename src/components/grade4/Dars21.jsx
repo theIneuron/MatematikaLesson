@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 // 4-SINF · 21-DARS · Kasrlarni ayirish
 // Approved frame vector: 3,4,4,4,4,4,4,5,2,2,2,2,2,3,5.
@@ -9,6 +10,24 @@ const T = {
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
   navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
+};
+
+const stableChoiceOffset = (lessonId, length) => {
+  let hash = 2166136261;
+  for (const char of `${lessonId}:${length}`) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length: Math.max(0, length) }, (_, index) => index);
+  if (length < 2 || !Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
 };
 
 const TOTAL_SCREENS = 15;
@@ -603,16 +622,19 @@ const FeedbackBlock = ({ show, correct, children, proof = null }) => {
   return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
 };
 
-const Stage = ({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) => {
+const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabled = false, finish = false, children }) => {
+  const originalGatePassed = !originalNextDisabled && Boolean(onNext);
+  const nextDisabled = !canUseGrade4TheoryContinue(originalGatePassed, finish);
   const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = CONTENT[`s${screen}`]; const meta = SCREEN_META[screen];
   return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
 };
 
 const Heading = ({ c, bit, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
 const Frac = ({ n, d, size = 'sm' }) => <span className={'frac ' + (size === 'lg' ? 'frac-lg' : '')}><span>{n}</span><i/><span>{d}</span></span>;
-const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false }) => {
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, order = null }) => {
   const t = useT();
-  return <div className="options">{values.map((value, index) => <button type="button" data-g4-role="answer-card" key={index + '-' + t(value)} className={'option ' + (picked === index ? 'picked ' : '') + (!neutral && solved && index === correctIndex ? 'right ' : '') + (!neutral && picked === index && picked !== correctIndex ? 'bad' : '')} disabled={disabled || (!neutral && solved)} onClick={() => onPick(index)}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>;
+  const sourceOrder = order ?? values.map((_, index) => index);
+  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; return <button type="button" data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} key={sourceIndex + '-' + t(value)} className={'option ' + (picked === sourceIndex ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '') + (!neutral && picked === sourceIndex && picked !== correctIndex ? 'bad' : '')} disabled={disabled || (!neutral && solved)} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
 };
 
 const FractionBar = ({ den = 8, filled = 0, removed = 0, label = null, compact = false }) => {
@@ -642,10 +664,11 @@ const SubtractionLine = ({ den = 10, start = 7, amount = 3, frame = 0, marker = 
   </div>;
 };
 
-const ModelChoices = ({ picked, solved, correctIndex, onPick, options = [], disabled = false }) => {
+const ModelChoices = ({ picked, solved, correctIndex, onPick, options = [], disabled = false, order = null }) => {
   const t = useT();
   const items = [{ den: 8, filled: 5 }, { den: 6, filled: 5 }, { den: 8, filled: 2 }];
-  return <div className="model-choices">{items.map((item, index) => <button type="button" key={index} className={`model-choice ${picked === index ? 'picked' : ''} ${solved && correctIndex === index ? 'right' : ''} ${picked === index && !solved ? 'bad' : ''}`} onClick={() => onPick(index)} disabled={disabled || solved}><b>{String.fromCharCode(65 + index)}</b><span>{t(options[index])}</span><FractionBar {...item} compact/></button>)}</div>;
+  const sourceOrder = order ?? items.map((_, index) => index);
+  return <div className="model-choices">{sourceOrder.map((sourceIndex, displayIndex) => { const item = items[sourceIndex]; return <button type="button" key={sourceIndex} data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'} className={`model-choice ${picked === sourceIndex ? 'picked' : ''} ${solved && correctIndex === sourceIndex ? 'right' : ''} ${picked === sourceIndex && !solved ? 'bad' : ''}`} onClick={() => onPick(sourceIndex)} disabled={disabled || solved}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(options[sourceIndex])}</span><FractionBar {...item} compact/></button>; })}</div>;
 };
 
 const RuleBoundaryModels = ({ operation }) => <div className="rule-boundary-models"><div><Frac n="1" d="4"/><FractionBar den={4} filled={1} compact/></div><strong>{operation}</strong><div><Frac n="1" d="6"/><FractionBar den={6} filled={1} compact/></div></div>;
@@ -653,6 +676,8 @@ const RuleBoundaryModels = ({ operation }) => <div className="rule-boundary-mode
 function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual = null, renderVisual = null, bit = null, modelChoices = false }) {
   const t = useT();
   const c = CONTENT['s' + screen];
+  const ordinal = [8, 9, 11, 12, 13].indexOf(screen);
+  const order = ordinal >= 0 ? buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, ordinal) : null;
   const audio = useNarration(c.audio, screen);
   const narrationReady = audio.muted || audio.completed;
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
@@ -672,8 +697,8 @@ function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual
     audio.pushOneOff(t(ok ? c.audio.on_correct : c.feedback[index]));
     onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok });
   };
-  const contextVisual = modelChoices ? <ModelChoices picked={picked} solved={solved} correctIndex={c.correctIndex} onPick={pick} options={c.options} disabled={!narrationReady}/> : renderVisual ? renderVisual({ frame: Math.min(audio.frame, 1), solved }) : visual;
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack"><Heading c={c} bit={bit}/>{contextVisual && <div className={'attempt-model ' + (hintLevel > 0 ? 'attempt-highlight' : '')}>{contextVisual}</div>}<section className={'question ' + (hintLevel > 0 ? 'attempt-highlight' : '')}><h2>{t(c.question)}</h2>{hintLevel > 0 && <div className="attempt-cue" role="status">{t({ uz: "Modelda teng bo'linmalarni ajrating: ayirishda maxraj ulush o'lchamini saqlaydi.", ru: 'Выделите равные деления модели: при вычитании знаменатель сохраняет размер доли.', en: 'Identify the equal divisions in the model: during subtraction, the denominator keeps the size of each part unchanged.' })}</div>}{!modelChoices && <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!narrationReady}/>}<FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
+  const contextVisual = modelChoices ? <ModelChoices picked={picked} solved={solved} correctIndex={c.correctIndex} onPick={pick} options={c.options} disabled={!narrationReady} order={order}/> : renderVisual ? renderVisual({ frame: Math.min(audio.frame, 1), solved }) : visual;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack"><Heading c={c} bit={bit}/>{contextVisual && <div className={'attempt-model ' + (hintLevel > 0 ? 'attempt-highlight' : '')}>{contextVisual}</div>}<section className={'question ' + (hintLevel > 0 ? 'attempt-highlight' : '')}><h2>{t(c.question)}</h2>{hintLevel > 0 && <div className="attempt-cue" role="status">{t({ uz: "Modelda teng bo'linmalarni ajrating: ayirishda maxraj ulush o'lchamini saqlaydi.", ru: 'Выделите равные деления модели: при вычитании знаменатель сохраняет размер доли.', en: 'Identify the equal divisions in the model: during subtraction, the denominator keeps the size of each part unchanged.' })}</div>}{!modelChoices && <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!narrationReady} order={order}/>}<FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
 }
 
 function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
