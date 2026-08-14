@@ -30,19 +30,25 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import {
   ACT,
+  Ask,
   Btn,
   CallToAct,
   DoneRow,
   T,
   Expr,
   Feedback,
+  Fx,
+  Hint,
   L,
   MATH_FONT,
   Options,
   Panel,
   RuleCard,
   Slot,
+  TapMark,
   UI_TXT,
+  useLang,
+  useNarratedSteps,
   useSfx,
   useT,
 } from './core.jsx'
@@ -54,6 +60,11 @@ export const UI = {
   pickPart: L('Qismni tanlang', 'Выберите часть', 'Pick a part'),
   nextRow: L('Keyingi qatorni hisoblash', 'Посчитать следующую строку', 'Compute the next row'),
   whichNum: L("Qaysi sonni qo'yamiz?", 'Какое число подставить?', 'Which number shall we substitute?'),
+  askPart: L("Nimani birinchi hisoblaymiz? Yozuvdagi amal belgisini bosing.", 'Что считаем первым? Нажми на знак действия в записи.', 'What do we do first? Tap an operation sign in the expression.'),
+  askAct: L('Bu qaysi bosqich amali?', 'Какой это ступени действие?', 'Which stage is this operation?'),
+  ruleFirst: L('Qoidada nima BIRINCHI keladi?', 'Что в правиле идёт первым?', 'What comes first in the rule?'),
+  ruleNext: L('Keyin nima keladi?', 'Что идёт дальше?', 'What comes next?'),
+  step: L('qadam', 'шаг', 'step'),
 }
 
 // Xato/to'g'ri javobning umumiy ishlovi: tovush + ovozli razbor.
@@ -66,6 +77,8 @@ export function useAnswerFx(audio) {
       sfx.playWrong()
       if (audio && audio.say && hint) audio.say(t(hint))
     },
+    // Yozuvning ICHIDAGI bosish: baho emas, kalkulyator klavishasi.
+    tap: () => sfx.playTap(),
   }
 }
 
@@ -91,7 +104,10 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
     if (unscored) {
       setPicked(opt.id)
       // Prognoz: to'g'ri-noto'g'ri YO'Q, lekin javobdan keyin izoh chiqadi.
-      if (data.afterPredict) { setOk(false); setHint(data.afterPredict) }
+      // Variantning O'Z izohi bo'lsa, aynan u chiqadi (§8.3: har bir variantga
+      // o'z razbori). Bo'lmasa -- hamma uchun umumiy `afterPredict`.
+      const own = src && src.hint ? src.hint : data.afterPredict
+      if (own) { setOk(false); setHint(own) }
       if (onSolved) onSolved({ picked: opt.id, correct: null })
       return
     }
@@ -156,8 +172,14 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
 //
 // onItem -- har savol yopilganda: {index, correct, attempts, tags}. Blits
 // YAGONA baholanadigan ekran, unga birinchi urinishlar soni kerak (8.5).
+//
+// `question` -- butun zanjir uchun SAVOL, yozuvning USTIDA turadi. Ilgari
+// ekranda faqat yozuv va to'rt variant bo'lardi: `7 · 4 − 5 =` nimani
+// so'rayotgani hech qayerda aytilmasdi (metodist 2026-08-14).
+// Savolni SO'Z bilan beradigan bandda `question: null` yoziladi -- u o'zi
+// savol, tepasiga yana bittasini qo'yish TAKROR bo'lardi.
 // ============================================================
-export function ProbeChain({ items, cols = 4, onSolved, onStep, onItem, disabled, audio }) {
+export function ProbeChain({ items, cols = 4, question, onSolved, onStep, onItem, disabled, audio }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [idx, setIdx] = useState(0)
@@ -170,6 +192,9 @@ export function ProbeChain({ items, cols = 4, onSolved, onStep, onItem, disabled
   const [allTags, setAllTags] = useState([])
 
   const current = items[idx]
+  // Bandning O'Z savoli zanjir savolidan USTUN. `null` ham javob: u savolni
+  // O'CHIRADI, ya'ni «hech narsa berilmagan» bilan «ataylab yo'q» farqlanadi.
+  const ask = current && current.question !== undefined ? current.question : question
 
   const pick = (opt) => {
     const src = current.items.find((it) => it.id === opt.id)
@@ -212,7 +237,29 @@ export function ProbeChain({ items, cols = 4, onSolved, onStep, onItem, disabled
       ))}
       {current ? (
         <div className="g7-in" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-          <Expr size="row">{t(current.prompt)}</Expr>
+          <Ask tight>{ask ? t(ask) : null}</Ask>
+          {/* `wrap` -- savol SO'Z bilan berilgan holat. `.g7-expr` da
+              `white-space: nowrap` turadi va proza chetga chiqib KO'RINMAY
+              qoladi: skroll yo'q, shuning uchun kesilgani bilinmaydi
+              (ETALON_7SINF.md §6.2, 11-sinfda 557px chiqib ketgan edi). */}
+          {/* `wrap` -- savol PROZA bilan berilgan. Unda bosqich rangi
+              o'chiriladi: gapdagi tire amal belgisi emas.
+              To'g'ri javob YOZUVGA KELIB TUSHADI: son yozuvning o'ng
+              chetida qalqib chiqadi va shundan keyingina qator yig'iladi.
+              Bu darsning o'sha qo'l yozuvi -- kadrlarda, yo'laklarda va
+              qayta yozishda son AYNAN shunday tug'iladi. */}
+          <Expr
+            size="row"
+            plain={current.wrap}
+            className={current.wrap ? 'g7-wrap' : undefined}
+            tail={okId && !current.wrap ? (
+              <span className="g7-tf-tok is-born g7-probe-val">
+                {t((current.items.find((x) => x.id === okId) || {}).label)}
+              </span>
+            ) : null}
+          >
+            {t(current.prompt)}
+          </Expr>
           <CallToAct kind="pick" done={!!okId || disabled} />
           {/* Namoyish faqat TO'G'RI JAVOBDAN KEYIN. Ilgari u savoldan OLDIN,
               markazlangan oq kartochkada turardi va O'SHA IFODANI boshqa
@@ -306,7 +353,7 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, disabled, audio 
 // SlotFill -- bo'sh uyalarni to'ldirish: belgilar yoki bo'laklar.
 // Tekshiruv SON QO'YIB bajariladi.
 // ============================================================
-export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, disabled, audio }) {
+export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved, onStep, prompt, promptCap, tightAsk, disabled, audio }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => answer.map(() => null))
@@ -320,6 +367,7 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
 
   const put = (partId) => {
     if (correct) return
+    fx.tap()
     const next = filled.slice()
     next[active] = partId
     setFilled(next)
@@ -362,12 +410,10 @@ export function SlotFill({ template, parts, answer, checkNote, wrongs, onSolved,
 
   return (
     <>
-      {prompt ? (
-        <div className="g7-zone" style={{ gap: 4, paddingBottom: 6 }}>
-          <span className="g7-zone-cap">{t(UI_TXT.zoneTask)}</span>
-          <p className="g7-qpill">{t(prompt)}</p>
-        </div>
-      ) : null}
+      {/* Topshiriq e'loni endi UMUMIY asbob (core.jsx `Ask`): shakl bitta
+          joyda turadi, ilgari o'sha razmetka bu yerda va `BracketGap` da
+          ikki marta ko'chirilgan edi. */}
+      <Ask kind="task" tight={tightAsk} cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask>
       <div className="g7-panel g7-panel-paper g7-expr g7-expr-big g7-slotfill-panel" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'center', alignItems: 'center', minHeight: 48 }}>
         {template.map((piece, i) => {
           if (typeof piece === 'string') return <span key={i}>{piece}</span>
@@ -511,7 +557,12 @@ export function CompareCards({ left, right }) {
 // AuditRows -- BIRINCHI xato qadamni topish. Javobdan keyin xato
 // SON QO'YIB isbotlanadi, «bu yerda xato» degan matn bilan emas.
 // ============================================================
-export function AuditRows({ rows, answerId, hints, tags, proof, onSolved, onStep, disabled, audio }) {
+// `prompt` -- TOPSHIRIQ. Qatorlar tugma ekani ham, ULARDAN QAYSI BIRI
+// so'ralayotgani ham ekranda yozilmagan edi: sarlavha mavzuni ataydi,
+// «birinchi xato qator» esa faqat ovozda aytilardi (metodist 2026-08-14).
+// Yechilgach e'lon YO'QOLADI -- uning o'rniga isbot topshirig'i keladi
+// (§6.1: yangi qadam avvalgisini almashtiradi, ustiga qo'shilmaydi).
+export function AuditRows({ rows, answerId, hints, tags, proof, prompt, promptCap, onSolved, onStep, disabled, audio }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [picked, setPicked] = useState(null)
@@ -539,6 +590,7 @@ export function AuditRows({ rows, answerId, hints, tags, proof, onSolved, onStep
 
   return (
     <>
+      {!solved ? <Ask kind="task" tight cap={promptCap ? t(promptCap) : undefined}>{prompt ? t(prompt) : null}</Ask> : null}
       <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: solved ? 2 : 4 }}>
         {rows.map((row, i) => {
           const isWrongPick = wrong.indexOf(row.id) !== -1
@@ -550,9 +602,12 @@ export function AuditRows({ rows, answerId, hints, tags, proof, onSolved, onStep
               className={'g7-opt' + (isAnswer ? ' g7-opt-ok' : '') + (isWrongPick ? ' g7-opt-tip' : '')}
               style={{
                 fontFamily: MATH_FONT,
-                /* yechilgach qatorlar KOMPAKT: ikkinchi savolga joy bo'shaydi */
-                minHeight: solved ? 26 : 33,
-                padding: solved ? '2px 11px' : '5px 11px',
+                /* yechilgach qatorlar KOMPAKT: ikkinchi savolga joy bo'shaydi.
+                   2026-08-13: 26 -> 23. Tuzoq ekranida qatorlar ustiga qarshi
+                   misol yig'ilishi qo'shiladi va noutbukda 12px oshib ketardi.
+                   Kichraytirish faqat YECHILGAN holatga tegadi. */
+                minHeight: solved ? 23 : 33,
+                padding: solved ? '1px 11px' : '5px 11px',
                 fontSize: solved ? 'clamp(12px, 1.6vw, 14px)' : 'clamp(14px, 1.9vw, 17px)',
                 transition: 'min-height .5s, padding .5s, font-size .5s',
               }}
@@ -565,6 +620,10 @@ export function AuditRows({ rows, answerId, hints, tags, proof, onSolved, onStep
           )
         })}
       </div>
+      {/* Qatorlar TUGMA ekani ko'rinib tursin: boshqa asboblarda bu belgi
+          bor edi, bu yerda esa yo'q edi -- yozuvlar oddiy ro'yxatga
+          o'xshardi. Javob berilgach belgi yo'qoladi. */}
+      <CallToAct kind="tap" done={solved || disabled} />
       {solved && proof ? <DoneRow>{t(proof)}</DoneRow> : null}
       {!solved ? (
         <Slot mh={70}>
@@ -768,6 +827,9 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
   const fx = useAnswerFx(audio)
   const [lines, setLines] = useState([start])
   const [part, setPart] = useState(null)
+  // Qo'shilayotgan JUFT: to'g'ri amaldan keyin 420 ms davomida shu juft
+  // bir-biriga siljiydi, so'ng yangi qator keladi.
+  const [merging, setMerging] = useState(null)
   const [hint, setHint] = useState(null)
   const [shake, setShake] = useState(0)
   const [tags, setTags] = useState([])
@@ -794,15 +856,23 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
       return
     }
     if (actionId === step.action) {
-      const next = lines.concat(step.to)
-      setLines(next)
-      setPart(null)
-      setHint(null)
       fx.right()
-      if (onStep) onStep('step' + next.length)
-      if (next.length - 1 >= steps.length && onSolved) {
-        onSolved({ correct: true, lines: next, attempts: misses + 1, tags })
-      }
+      // JUFT AVVAL QO'SHILADI, keyin yangi qator keladi. Bu darsning bitta
+      // qo'l yozuvi: kadrlarda va yo'laklarda ikkita son bir-biriga siljib
+      // BITTA songa aylanadi, bu yerda esa shu paytgacha qator shunchaki
+      // paydo bo'lardi. Endi hamma joyda bir xil: hisoblash KO'RINADI.
+      setMerging(part)
+      setTimeout(() => {
+        setMerging(null)
+        const next = lines.concat(step.to)
+        setLines(next)
+        setPart(null)
+        setHint(null)
+        if (onStep) onStep('step' + next.length)
+        if (next.length - 1 >= steps.length && onSolved) {
+          onSolved({ correct: true, lines: next, attempts: misses + 1, tags })
+        }
+      }, 420) // §7.1: yozuv ICHIDAGI harakatning belgilangan vaqti
       return
     }
     const w = (step.wrongs || []).find((x) => x.action === actionId)
@@ -811,39 +881,87 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
 
   return (
     <>
-      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-        {lines.map((line, i) => (
-          <div key={i} className={'g7-expr g7-expr-row' + (i === lines.length - 1 && i > 0 ? ' g7-pop' : '')} style={{ minHeight: 31 }}>
-            {line}
-          </div>
-        ))}
+      {/* Topshiriq e'loni umumiy `Ask` bilan -- darsdagi qolgan ekranlar
+          kabi. Ilgari bu yerda o'z razmetkasi turardi: yorliqsiz va
+          kartochkali, ya'ni boshqa ekranlardan farq qilardi va balandroq edi. */}
+      {!finished ? <Ask kind="task" tight>{t(part ? UI.askAct : UI.askPart)}</Ask> : null}
+      {/* Ramka YIRIKROQ: qatorlar markazda va ular uchun joy oldindan band. */}
+      {/* Balandlik OLDINDAN band: o'tgan qatorlar ixcham (27px), joriy qator
+          yirik (46px), pastda esa bo'sh qator uchun joy. Panel to'ladi,
+          O'SMAYDI (§6.1). */}
+      <div className="g7-panel g7-panel-paper" style={{ display: 'flex', flexDirection: 'column', gap: 2, minHeight: steps.length * 26 + 100 }}>
+        {/* Qatorlar SODDA: yozuv va boshqa hech narsa. 2026-08-13 da bu yerga
+            o'qituvchi gapi qo'shib ko'rildi va qator flex-konteynerga o'raldi --
+            natijada noutbukda 133px oshib ketdi. Gap 4-ekranda, alohida
+            `SolutionSteps` blokida qoladi: u yerda o'lchov toza. */}
+        {lines.map((line, i) => {
+          const live = !finished && i === lines.length - 1
+          if (!live) {
+            // O'TGAN QATORLAR IXCHAM. Ilgari hamma qator bir xil yirik edi va
+            // panel har qadamda o'sardi: 170 -> 214 -> 258px, noutbukda 65px
+            // oshib ketardi (o'lchov 2026-08-14 -- obhod buni ko'rmagan,
+            // chunki u asbobni oxirigacha to'g'ri o'tmaydi).
+            // Ixchamlashtirish METODIK jihatdan ham to'g'ri: ish JORIY
+            // qatorda ketadi, o'tganlari esa daftardagidek yuqorida turadi.
+            return (
+              <div key={i} className={'g7-expr g7-expr-row g7-tf-past' + (i === lines.length - 1 && i > 0 ? ' g7-pop' : '')}>
+                <Fx>{line}</Fx>
+              </div>
+            )
+          }
+          // FAOL QATOR: o'quvchi CHIPSNI emas, YOZUVNING O'ZINI bosadi.
+          // Amal belgisini bosish uning IKKI YONIDAGI sonni ham oladi -- ya'ni
+          // «juftni tanlash» bitta harakat. Ilgari bu ikkita alohida savol edi
+          // (mayda chipslar va uchta tugma), va o'quvchi nimaga javob
+          // berayotganini tushunmasdi (metodist surati 2026-08-13).
+          const toks = String(line).split(' ')
+          // Qavs songa YOPISHIB keladi: «(12», «2)». Juftni solishtirishda u
+          // olib tashlanadi, aks holda «12 − 4» hech qachon mos kelmaydi va
+          // qavsli ekran (10-ekran) QOTIB qoladi -- metodist 2026-08-13 da
+          // aynan shuni topdi.
+          const bare = (x) => String(x === undefined ? '' : x).replace(/[()]/g, '')
+          const trioAt = (k) => [bare(toks[k - 1]), toks[k], bare(toks[k + 1])].join(' ')
+          return (
+            <div key={i} className="g7-expr g7-expr-row g7-tf-live" style={{ minHeight: 31 }}>
+              {toks.map((tok, k) => {
+                const isOp = ['+', '−', '·', ':'].indexOf(tok) !== -1
+                const trio = isOp ? trioAt(k) : null
+                const can = isOp && currentParts.indexOf(trio) !== -1
+                const inPart = part && trio && part === trio
+                const lit = part && (part === trio || (!isOp && ((toks[k + 1] && part === trioAt(k + 1)) || (toks[k - 1] && part === trioAt(k - 1)))))
+                // Qo'shilish: chap son o'ngga, o'ng son chapga siljiydi,
+                // belgi esa ular bilan birga so'nadi.
+                const mL = merging && toks[k + 1] && merging === trioAt(k + 1)
+                const mR = merging && toks[k - 1] && merging === trioAt(k - 1)
+                const mOp = merging && trio && merging === trio
+                const mCls = mL ? ' is-mergeL' : mR ? ' is-mergeR' : mOp ? ' is-mergeOp' : ''
+                return can ? (
+                  <button
+                    key={k}
+                    type="button"
+                    className={'g7-tf-op' + (inPart ? ' is-picked' : '') + (!part && !disabled ? ' is-hint' : '') + mCls}
+                    disabled={disabled || !!merging}
+                    onClick={() => { fx.tap(); setPart(trio); setHint(null) }}
+                  >
+                    {tok}
+                  </button>
+                ) : (
+                  <span key={k} className={'g7-tf-tok' + stageOf(tok) + (lit ? ' is-lit' : '') + mCls}>{tok}</span>
+                )
+              })}
+            </div>
+          )
+        })}
+        {/* Bo'sh qator: «bu yerga keyingi satr tushadi». U ham IXCHAM --
+            yirik bo'lsa panel budjetdan chiqib ketardi. */}
         {!finished ? (
-          <div className="g7-expr g7-expr-row g7-frame g7-pulse" style={{ minHeight: 31, opacity: 0.5 }}>?</div>
+          <div className="g7-expr g7-expr-row g7-tf-past g7-frame g7-pulse" style={{ opacity: 0.5 }}>?</div>
         ) : null}
       </div>
 
-      <Slot mh={38}>
-        {!finished && currentParts.length ? (
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            <span className="g7-eyebrow" style={{ display: 'inline' }}>{t(UI.pickPart)}</span>
-            {currentParts.map((p) => (
-              <button
-                type="button"
-                key={p}
-                className={'g7-opt' + (part === p ? ' g7-picked' : '')}
-                style={{ minHeight: 32, padding: '5px 10px', fontFamily: MATH_FONT, width: 'auto', display: 'inline-flex' }}
-                disabled={disabled}
-                onClick={() => { setPart(p); setHint(null) }}
-              >
-                {p}
-              </button>
-            ))}
-          </div>
-        ) : null}
-      </Slot>
 
-      <Slot mh={92}>
-        {!finished ? (
+      <Slot mh={78}>
+        {!finished && part ? (
           <div className="g7-shakebox" style={{ width: '100%' }}>
             <div key={shake} className={shake ? 'g7-shake' : undefined}>
               <Options
@@ -859,12 +977,15 @@ export function Transform({ start, steps, parts, actions, onSolved, onStep, foot
               />
             </div>
           </div>
-        ) : footNote ? (
+        ) : finished && footNote ? (
+          /* FAQAT yakunda. Ilgari bu satr birinchi soniyadan turardi va
+             o'quvchi hali hech nima hisoblamasdan «Qiymat topildi» degan
+             yozuvni o'qirdi (metodist surati 2026-08-14). */
           <Expr size="sm">{footNote}</Expr>
         ) : null}
       </Slot>
 
-      <Slot mh={74}>
+      <Slot mh={58}>
         <Feedback show={!!hint} ok={false}>{hint ? t(hint) : null}</Feedback>
       </Slot>
     </>
@@ -1160,6 +1281,1205 @@ export function ExplainClip({ steps, render, autoMs = 1900, onDone }) {
         ))}
         <button type="button" className="g7-clip-replay" onClick={replay} aria-label="replay">↺</button>
       </div>
+    </>
+  )
+}
+
+// ============================================================================
+// UCHTA YANGI ASBOB (2026-08-13, metodist qarori). 1-4-sinf darslaridan
+// ko'chirilgan usullar, 7-sinf kontraktiga moslangan.
+//
+//   StepOrder   -- o'quvchi amallar tartibini YOZUVNING O'ZIDA belgilaydi,
+//                  asbob esa UNING tartibi bo'yicha hisoblaydi va natijani
+//                  qoida bo'yicha natija bilan yonma-yon qo'yadi.
+//                  (4-sinf DividerPlacement usuli: qo'l yozuvning ichida)
+//   BracketGap  -- o'quvchi qavsni yozuv ichidagi tirqishga qo'yadi.
+//                  (o'sha 4-sinf usuli, ajratgich o'rniga qavs)
+//   RuleBuilder -- qoidani o'quvchi bo'laklardan YIG'ADI, tayyor kartochkani
+//                  o'qimaydi. (4-sinf RuleBuilderScreen)
+//
+// Uchalasi ham 5.1 qoidalariga bo'ysunadi: «javobni ko'rsatish» tugmasi YO'Q,
+// asbob faqat o'quvchi qadam qo'ygandan KEYIN ishga tushadi, oxirgi qatorni
+// asbob yozmaydi.
+//
+// ARIFMETIKA SHU YERDA. Asbob javobni jadvaldan qidirmaydi, HISOBLAYDI --
+// shuning uchun uni istalgan darsga istalgan son bilan berish mumkin.
+// ============================================================================
+
+const STAGE2 = ['·', ':']
+// Belgi qaysi bosqichda ekanini QAYTARADI. Rang shu yerdan keladi, ya'ni
+// bitta joydan: yozuv, yo'lak va kino bir xil bo'yaladi.
+// KO'RSATUVCHI QURILMA. Metodist qarori 2026-08-13: «sichqoncha tortadi,
+// barmoq bosadi». Sabab -- telefonda tortish sahifa SKROLLI bilan raqobat
+// qiladi va brauzer ko'pincha jestni o'zi olib qo'yadi: o'quvchi qavsni emas,
+// ekranni tortadi. Shuning uchun tortish FAQAT aniq ko'rsatuvchi qurilmada
+// (sichqoncha) yoqiladi, barmoqda esa avvalgidek bosish qoladi.
+export const canDrag = () =>
+  typeof window !== 'undefined' &&
+  typeof window.matchMedia === 'function' &&
+  window.matchMedia('(hover: hover) and (pointer: fine)').matches
+
+export const stageOf = (tok) => (STAGE2.indexOf(tok) !== -1 ? ' is-s2' : (tok === '+' || tok === '−' ? ' is-s1' : ''))
+
+const applyOp = (a, op, b) => {
+  if (op === '+') return a + b
+  if (op === '−') return a - b
+  if (op === '·') return a * b
+  if (op === ':') return b === 0 ? NaN : a / b
+  return NaN
+}
+
+// Qoida bo'yicha: avval II bosqich chapdan o'ngga, so'ng I bosqich chapdan o'ngga.
+export const evalByRule = (nums, ops) => {
+  const n = nums.slice()
+  const o = ops.slice()
+  for (let i = 0; i < o.length;) {
+    if (STAGE2.indexOf(o[i]) !== -1) {
+      n.splice(i, 2, applyOp(n[i], o[i], n[i + 1]))
+      o.splice(i, 1)
+    } else i++
+  }
+  while (o.length) {
+    n.splice(0, 2, applyOp(n[0], o[0], n[1]))
+    o.splice(0, 1)
+  }
+  return n[0]
+}
+
+// O'quvchi bergan tartib bo'yicha: `order` -- amal indekslari bosilgan navbatda.
+export const evalByOrder = (nums, ops, order) => {
+  const n = nums.slice()
+  const live = ops.map((op, i) => ({ op, i }))
+  order.forEach((opIdx) => {
+    const pos = live.findIndex((x) => x.i === opIdx)
+    if (pos === -1) return
+    n.splice(pos, 2, applyOp(n[pos], live[pos].op, n[pos + 1]))
+    live.splice(pos, 1)
+  })
+  return n[0]
+}
+
+// Qavs `from..to` (nums indekslari, ikki chekkasi ham kiradi) ichini oladi.
+export const evalWithBracket = (nums, ops, from, to) => {
+  const inner = evalByRule(nums.slice(from, to + 1), ops.slice(from, to))
+  const n = nums.slice(0, from).concat([inner], nums.slice(to + 1))
+  const o = ops.slice(0, from).concat(ops.slice(to))
+  return evalByRule(n, o)
+}
+
+// Butun son butun bo'lib qoladi; kasr uch xonagacha, RU va UZ da VERGUL bilan
+// (darslik ham vergul yozadi, 12-bet), EN da nuqta bilan.
+export const fmtNum = (v, lang) => {
+  if (v === null || v === undefined || !isFinite(v)) return '—'
+  const r = Math.round(v * 1000) / 1000
+  const s = String(r)
+  return lang === 'en' ? s : s.replace('.', ',')
+}
+
+const exprText = (nums, ops, labels) =>
+  nums.map((x, i) => {
+    const s = labels && labels[i] !== undefined ? labels[i] : String(x)
+    return i ? ' ' + ops[i - 1] + ' ' + s : s
+  }).join('')
+
+// ============================================================
+// StepOrder -- amallar tartibini o'quvchi belgilaydi.
+// Amal belgisini bosish unga NAVBAT RAQAMINI beradi. Hamma raqam qo'yilgach
+// asbob ikkita sonni yonma-yon qo'yadi: o'quvchi tartibi va qoida tartibi.
+// Bu 1-dars uchun SON GUVOHINING o'rnini bosadi: darsda harf yo'q, shuning
+// uchun son qo'yish emas, IKKI TARTIB bilan qayta hisoblash ishlatiladi
+// (PODXOD_7SINF.md §9).
+// ============================================================
+// `prompt` -- TOPSHIRIQ. Bu asbobda «to'g'ri javob» yo'q, shuning uchun
+// o'quvchi undan nima kutilayotganini o'zi taxmin qila olmaydi: belgilarni
+// bosish kerakligini ham, ularni QAYSI MA'NODA bosishini ham (hisoblash
+// navbati) faqat ovoz aytardi. Ovoz o'chiq bo'lsa ekran jim edi.
+export function StepOrder({
+  nums, ops, ruleOrder, yoursLabel, ruleLabel, note, sameNote, tag, prompt,
+  onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const lang = useLang()
+  const fx = useAnswerFx(audio)
+  const [order, setOrder] = useState([])
+  const [fired, setFired] = useState(false)
+  // Sichqoncha amal ustida bo'lsa, uning IKKI SONI yoritiladi: amal nimani
+  // biriktirishini ko'rsatadi, lekin QAYSI BIRI birinchi ekanini AYTMAYDI.
+  // Telefonda hover yo'q -- u yerda bosish o'zi shu ishni bajaradi.
+  const [hoverOp, setHoverOp] = useState(null)
+
+  const done = order.length === ops.length
+  // Sonlarni endi YO'LAKLAR o'zi hisoblaydi va ko'rsatadi (CollapseTrack),
+  // shuning uchun bu yerda ular saqlanmaydi. Faqat TARTIBLAR solishtiriladi.
+  const same = done && order.join(',') === (ruleOrder || []).join(',')
+
+  useEffect(() => {
+    if (!done || fired) return
+    setFired(true)
+    fx.right()
+    if (onStep) onStep('done')
+    // Bu ekranda «xato javob» yo'q: har ikkala tartib ham ko'rsatiladi.
+    // Teg esa o'quvchi qoidadan boshqa tartib qo'ygan bo'lsa yoziladi --
+    // aynan o'sha yanglish tushuncha ishga tushgan bo'ladi (§8.5).
+    if (onSolved) onSolved({ correct: true, attempts: 1, tags: !same && tag ? [tag] : [] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [done, fired])
+
+  const tapOp = (i) => {
+    if (disabled || done) return
+    if (order.indexOf(i) !== -1) return
+    fx.tap()
+    setOrder((prev) => prev.concat(i))
+  }
+
+  const reset = () => {
+    if (disabled) return
+    setOrder([])
+    setFired(false)
+  }
+
+  return (
+    <>
+      {/* Topshiriq YECHILGANDAN KEYIN HAM qoladi (§5.3: ekranga qaytgan
+          o'quvchi savolni va o'z javobini ko'radi). Tor shakl: bu ekranda
+          ikkita yo'lak va izoh uchun joy oldindan band qilingan. */}
+      <Ask kind="task" tight>{prompt ? t(prompt) : null}</Ask>
+      <div className="g7-panel g7-panel-paper g7-steporder">
+        <div className="g7-so-row">
+          {nums.map((x, i) => (
+            <React.Fragment key={'n' + i}>
+              {i ? (
+                <button
+                  type="button"
+                  className={'g7-so-op' + stageOf(ops[i - 1]) + (order.indexOf(i - 1) !== -1 ? ' is-set' : '')}
+                  disabled={disabled || done || order.indexOf(i - 1) !== -1}
+                  onClick={() => tapOp(i - 1)}
+                  onMouseEnter={() => setHoverOp(i - 1)}
+                  onMouseLeave={() => setHoverOp(null)}
+                  onFocus={() => setHoverOp(i - 1)}
+                  onBlur={() => setHoverOp(null)}
+                  aria-label={ops[i - 1]}
+                >
+                  <span className={'g7-so-sign' + stageOf(ops[i - 1])}>{ops[i - 1]}</span>
+                  <span className="g7-so-num">
+                    {order.indexOf(i - 1) !== -1 ? order.indexOf(i - 1) + 1 : ''}
+                  </span>
+                </button>
+              ) : null}
+              <span className={'g7-so-val' + (hoverOp !== null && (hoverOp === i || hoverOp === i - 1) ? ' is-lit' : '')}>{x}</span>
+            </React.Fragment>
+          ))}
+        </div>
+      </div>
+
+      {/* QADAM HISOBI. Metodist 2026-08-14: bosgandan keyin nima
+          bo'lganini ko'rish kerak edi -- belgi burchagida 11 px raqam
+          yetarli emas. Endi «qadam 1 / 3» yozuv ostida turadi. */}
+      {/* Tartib qo'yilgach bu qator KERAK EMAS: belgi ham, hisoblagich ham,
+          «Qaytadan» ham. Bo'sh 34px esa layfxak yangi shaklga o'tgach
+          budjetdan chiqib ketardi (o'lchov 2026-08-14, 3-ekran +3px).
+          Ekran QISQARADI, o'smaydi -- §6.1 buni taqiqlamaydi. */}
+      <Slot mh={done ? 0 : 34}>
+        <div className="g7-so-bar" style={done ? { display: 'none' } : undefined}>
+          <CallToAct kind="tap" done={done || disabled} />
+          <span className="g7-so-count">
+            {t(UI.step)} {Math.min(order.length + (done ? 0 : 1), ops.length)} / {ops.length}
+          </span>
+          {order.length && !done ? (
+            <Btn tone="ghost" onClick={reset}>{t(UI.again)}</Btn>
+          ) : null}
+        </div>
+      </Slot>
+
+      {/* Ikki YO'LAK BIRINCHI soniyadan joy egallaydi: ekran «o'sib» ketmaydi,
+          faqat to'ladi (§6.1). Ikkalasi BIR VAQTDA yig'iladi -- ma'no aynan
+          ularning AJRALIB ketishida, shuning uchun ular yonma-yon ketishi
+          kerak, navbat bilan emas. */}
+      {/* IKKI YO'LAK BIRINCHI soniyadan KO'RINADI, bo'sh bo'lsa ham.
+          Metodist 2026-08-14: ilgari bu yer javobgacha BO'SH turardi va
+          o'quvchi nima uchun bosayotganini bilmasdi. Endi u nima to'lishini
+          oldindan ko'radi: o'z tartibi va qoida tartibi. */}
+      <Slot mh={96}>
+        <div className="g7-so-out">
+          {done ? (
+            <>
+              <CollapseTrack nums={nums} ops={ops} order={order} label={t(yoursLabel)} tone="tip" />
+              <CollapseTrack nums={nums} ops={ops} order={ruleOrder || order} label={t(ruleLabel)} tone="ok" />
+            </>
+          ) : (
+            <>
+              <div className="g7-so-out-row is-wait">
+                <span className="g7-so-out-cap">{t(yoursLabel)}</span>
+                <span className="g7-so-wait">{'—'}</span>
+              </div>
+              <div className="g7-so-out-row is-rule is-wait">
+                <span className="g7-so-out-cap">{t(ruleLabel)}</span>
+                <span className="g7-so-wait">{'—'}</span>
+              </div>
+            </>
+          )}
+        </div>
+      </Slot>
+
+      <Slot mh={58}>
+        {done ? (
+          <Feedback show ok={!same} tone={same ? 'neutral' : undefined}>
+            {same ? t(sameNote || note) : t(note)}
+          </Feedback>
+        ) : null}
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// BracketGap -- qavsni yozuv ichiga QO'YISH. 4-sinfdagi ajratgich usuli:
+// o'quvchi tayyor yozuvlardan birini TANLAMAYDI, qavsni o'zi qo'yadi.
+// Shu sababli bu ekran «to'rt variantdan bittasi» kvotasiga KIRMAYDI.
+//
+// Tirqishlar: 0 dan nums.length gacha. Birinchi bosish -- ochuvchi qavs,
+// ikkinchisi -- yopuvchi. `answer` {from, to}: qavs nums[from..to] ni oladi.
+// ============================================================
+export function BracketGap({ rounds, onSolved, onStep, disabled, audio }) {
+  const t = useT()
+  const lang = useLang()
+  const fx = useAnswerFx(audio)
+  const [ri, setRi] = useState(0)
+  const [open, setOpen] = useState(null)
+  const [okRounds, setOkRounds] = useState([])
+  const [hint, setHint] = useState(null)
+  const [tags, setTags] = useState([])
+  const [misses, setMisses] = useState(0)
+
+  const r = rounds[ri]
+  const finished = ri >= rounds.length
+
+  const settle = (from, to) => {
+    const value = evalWithBracket(r.nums, r.ops, from, to)
+    const key = from + '-' + to
+    const hit = from === r.answer.from && to === r.answer.to
+    if (hit) {
+      fx.right()
+      const row = '( ' + exprText(r.nums.slice(from, to + 1), r.ops.slice(from, to), r.labels && r.labels.slice(from, to + 1)) + ' ) → ' + fmtNum(value, lang)
+      setOkRounds((prev) => prev.concat(row))
+      setHint(null)
+      setOpen(null)
+      const next = ri + 1
+      setRi(next)
+      if (onStep) onStep('ok' + (ri + 1))
+      if (next >= rounds.length && onSolved) {
+        onSolved({ correct: true, attempts: misses + 1, tags })
+      }
+      return
+    }
+    const h = (r.hints && r.hints[key]) || (r.hints && r.hints['*']) || null
+    const tg = (r.tagsBy && r.tagsBy[key]) || r.tag || null
+    if (tg) setTags((prev) => (prev.indexOf(tg) === -1 ? prev.concat(tg) : prev))
+    setMisses((m) => m + 1)
+    setHint(h)
+    setOpen(null)
+    fx.wrong(h)
+  }
+
+
+  return (
+    <>
+      {okRounds.map((row, i) => <DoneRow key={i}>{row}</DoneRow>)}
+
+      {!finished ? (
+        <>
+          <Ask kind="task">{r.prompt ? t(r.prompt) : null}</Ask>
+
+          <div className="g7-panel g7-panel-paper g7-brgap">
+            <div className="g7-so-row">
+              {/* Tirqishlar IKKI XIL. Ochuvchi qavs son OLDIDA, yopuvchi esa
+                  son ORTIDA -- BELGIDAN OLDIN. Ilgari ikkalasi ham son oldida
+                  turardi va yopuvchi qavs belgidan KEYIN tushardi:
+                  «18 − 6 : ) 3» -- matematik jihatdan ma'nosiz yozuv
+                  (metodist surati 2026-08-13). */}
+              {/* BO'SH TIRQISH JOY EGALLAMAYDI (metodist surati 2026-08-14).
+                  Ilgari har tirqish 26px turardi qachonki u bo'sh bo'lsa ham,
+                  va yozuv uzilib ketardi: 18 [bo'shliq] − [.] 6 [bo'shliq] : ...
+                  Endi tirqish faqat KERAK bo'lganda ochiladi:
+                    ochuvchi  -- qavs qo'yilmagunicha hammasi,
+                                 qo'yilgach faqat TANLANGANI qoladi;
+                    yopuvchi  -- faqat ochuvchidan O'NGDAGILARI.
+                  Qolgani nolga yig'iladi, ya'ni yozuv zich turadi. */}
+              {r.nums.map((x, i) => {
+                const openOn = open === null || open === i
+                const closeOn = open !== null && i >= open
+                return (
+                <React.Fragment key={'b' + i}>
+                  <button
+                    type="button"
+                    className={'g7-brgap-slot' + (open === i ? ' is-open' : '') + (open === null && !disabled ? ' is-hint' : '') + (openOn ? '' : ' is-idle')}
+                    /* Qo'yilgan ochuvchi qavsni BOSIB OLIB TASHLASH mumkin.
+                       Ilgari u qulflanardi: o'quvchi noto'g'ri joyni tanlasa,
+                       fikridan qaytolmasdi va MAJBURAN xato javob berardi
+                       (metodist 2026-08-14: «ya oshibayus kuda stavit»). */
+                    disabled={disabled || (open !== null && open !== i)}
+                    onClick={() => { fx.tap(); setHint(null); setOpen(open === i ? null : i) }}
+                    aria-label="("
+                    aria-hidden={openOn ? undefined : 'true'}
+                    tabIndex={openOn ? undefined : -1}
+                  >
+                    {/* Tirqishda NUQTA emas, XIRA QAVS turadi. Nuqta darsdagi
+                        KO'PAYTIRISH belgisi bilan bir xil edi va o'quvchi
+                        «· 3» ni «uchga ko'paytirish» deb o'qirdi -- ko'z
+                        chalg'irdi va qavs noto'g'ri joyga qo'yilardi
+                        (metodist surati 2026-08-14). Xira qavs esa darrov
+                        aytadi: bu yerga QAVS qo'yiladi. */}
+                    <span>{open === i ? '(' : (open === null ? '(' : '')}</span>
+                  </button>
+                  <span className="g7-so-val">{r.labels && r.labels[i] !== undefined ? r.labels[i] : x}</span>
+                  <button
+                    type="button"
+                    className={'g7-brgap-slot' + (closeOn ? ' is-close is-hint' : ' is-idle')}
+                    disabled={disabled || !closeOn}
+                    onClick={() => { if (closeOn) settle(open, i) }}
+                    aria-label=")"
+                    aria-hidden={closeOn ? undefined : 'true'}
+                    tabIndex={closeOn ? undefined : -1}
+                  >
+                    <span>{closeOn ? ')' : ''}</span>
+                  </button>
+                  {i < r.nums.length - 1 ? (
+                    <span className="g7-so-sign g7-so-sign-flat">{r.ops[i]}</span>
+                  ) : null}
+                </React.Fragment>
+                )
+              })}
+            </div>
+          </div>
+
+          <Slot mh={30}>
+            <CallToAct kind="tap" done={disabled} />
+          </Slot>
+
+          {/* Qavssiz qiymat BIRINCHI soniyadan turadi: o'quvchi nimadan
+              boshlaganini ko'rib tursin. */}
+          {/* Proza HINT bilan chiqadi, Expr bilan EMAS: `.g7-expr` monoshrift va
+              `white-space: nowrap`, ya'ni gap chetga chiqib KO'RINMAY qolardi
+              (ETALON_7SINF.md §6.2). Faqat matematika monoshrift bilan. */}
+          <Slot mh={30}>
+            {r.baseNote ? <Hint>{t(r.baseNote)}</Hint> : null}
+          </Slot>
+        </>
+      ) : null}
+
+      <Slot mh={62}>
+        <Feedback show={!!hint} ok={false}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
+// RuleBuilder -- qoidani o'quvchi YIG'ADI (4-sinf usuli). Tayyor kartochka
+// to'g'ri yig'ilgandan KEYIN ochiladi va yig'ish maydonini ALMASHTIRADI:
+// ikkalasi birga 400px ga sig'maydi (§6.1, «yangi qadam avvalgisini
+// almashtiradi»).
+// ============================================================
+// `help` -- BIRINCHI xatodan KEYIN ochiladigan lug'at (metodist qarori
+// 2026-08-13). §8.4: yordam urinishlar bo'yicha o'sadi va JAVOBNI ochmaydi.
+// Bosqichlar lug'ati javob emas: tartibni u aytmaydi, faqat qaysi amal qaysi
+// bosqichda ekanini eslatadi.
+export function RuleBuilder({
+  fragments, answer, wrongHint, tag, rule, after, help, onSolved, onStep, disabled, audio,
+}) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [built, setBuilt] = useState([])
+  const [solved, setSolved] = useState(false)
+  const [hint, setHint] = useState(null)
+  const [misses, setMisses] = useState(0)
+
+  // Variantlar har kirishda aralashadi (§8.3).
+  const shuffled = useMemo(() => {
+    const a = fragments.slice()
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const tmp = a[i]; a[i] = a[j]; a[j] = tmp
+    }
+    return a
+  }, [fragments])
+
+  const complete = built.length === answer.length
+
+  const [dragOn] = useState(() => canDrag())
+  const [over, setOver] = useState(false)
+
+  // ZANJIR (metodist qarori 2026-08-13). Ilgari o'quvchi beshta bo'lakni
+  // BIR YO'LA tartiblardi -- bu 120 ta variant, va yordam faqat xatodan keyin
+  // kelardi. Endi har qadamda BITTA savol: «keyin nima?». Qolgan bo'laklar
+  // variant bo'lib turadi, to'g'risi qatorga qo'shiladi, xatosi izoh beradi.
+  // Qadamlar oson, natija esa o'sha -- qoidani o'quvchi O'ZI yig'adi.
+  const add = (id) => {
+    if (disabled || solved || built.indexOf(id) !== -1) return
+    if (id === answer[built.length]) {
+      setHint(null)
+      const next = built.concat(id)
+      setBuilt(next)
+      if (next.length === answer.length) {
+        setSolved(true)
+        fx.right()
+        if (onStep) onStep('ok')
+        if (onSolved) onSolved({ correct: true, attempts: misses + 1, tags: misses && tag ? [tag] : [] })
+      }
+      return
+    }
+    setMisses((m) => m + 1)
+    setHint(wrongHint || null)
+    fx.wrong(wrongHint)
+  }
+
+  // Tortish HTML5 drag bilan: u faqat sichqonchada yoqiladi, shuning uchun
+  // telefondagi skroll bilan raqobatga umuman kirmaydi.
+  const dragProps = (id) => (dragOn ? {
+    draggable: !disabled && !solved,
+    onDragStart: (e) => { e.dataTransfer.setData('text/plain', id); e.dataTransfer.effectAllowed = 'move' },
+  } : {})
+
+  const dropProps = dragOn ? {
+    onDragOver: (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; if (!over) setOver(true) },
+    onDragLeave: () => setOver(false),
+    onDrop: (e) => { e.preventDefault(); setOver(false); add(e.dataTransfer.getData('text/plain')) },
+  } : {}
+
+  const drop = (id) => {
+    if (disabled || solved) return
+    setHint(null)
+    setBuilt((prev) => prev.filter((x) => x !== id))
+  }
+
+  const check = () => {
+    if (built.join('|') === answer.join('|')) {
+      setSolved(true)
+      fx.right()
+      if (onStep) onStep('ok')
+      if (onSolved) onSolved({ correct: true, attempts: misses + 1, tags: misses && tag ? [tag] : [] })
+      return
+    }
+    setMisses((m) => m + 1)
+    setHint(wrongHint || null)
+    fx.wrong(wrongHint)
+  }
+
+  const labelOf = (id) => {
+    const f = fragments.find((x) => x.id === id)
+    return f ? t(f.label) : ''
+  }
+
+  if (solved) {
+    return (
+      <>
+        <DoneRow>{answer.map(labelOf).join(', ')}</DoneRow>
+        <RuleCard {...rule} />
+        {after}
+      </>
+    )
+  }
+
+  return (
+    <>
+      <div className={'g7-panel g7-panel-paper g7-rb-built' + (over ? ' is-over' : '') + (dragOn ? ' is-drag' : '')} {...dropProps}>
+        {built.length ? (
+          built.map((id, i) => (
+            <button
+              type="button"
+              key={id}
+              className="g7-rb-chip is-built"
+              disabled={disabled}
+              onClick={() => drop(id)}
+            >
+              <span className="g7-rb-no">{i + 1}</span>
+              {labelOf(id)}
+            </button>
+          ))
+        ) : (
+          <span className="g7-rb-empty">…</span>
+        )}
+      </div>
+
+      <div className="g7-zone" style={{ gap: 4, paddingBottom: 6 }}>
+        <p className="g7-qpill">{t(built.length ? UI.ruleNext : UI.ruleFirst)}</p>
+      </div>
+      <Slot mh={104}>
+        <div className="g7-rb-pool">
+          <CallToAct kind="tap" done={complete || disabled} />
+          {/* Har qadamda FAQAT IKKI variant: to'g'risi va bitta yaqin xatosi
+              (metodist qarori 2026-08-13). Beshta bo'lakni birdan ko'rish
+              o'quvchini bosib qo'yardi. Xato variant qolganlardan olinadi,
+              ya'ni u har doim ishonarli. */}
+          {shuffled
+            .filter((f) => built.indexOf(f.id) === -1)
+            .filter((f, _i, rest) => {
+              const right = answer[built.length]
+              if (f.id === right) return true
+              const others = rest.filter((x) => x.id !== right)
+              return others.length ? others[built.length % others.length].id === f.id : false
+            })
+            .map((f) => (
+            <button
+              type="button"
+              key={f.id}
+              className="g7-rb-chip"
+              disabled={disabled || built.indexOf(f.id) !== -1}
+              onClick={() => add(f.id)}
+              {...dragProps(f.id)}
+            >
+              {t(f.label)}
+            </button>
+          ))}
+        </div>
+      </Slot>
+
+
+      <Slot mh={56}>
+        <Feedback show={!!hint} ok={false}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+
+      {misses > 0 && help ? help : null}
+    </>
+  )
+}
+
+// ============================================================
+// HookMachines -- XUK SAHNASI. Metodist qarori 2026-08-13: 1-ekranda sahna
+// bo'lishi va u HARAKATLANISHI kerak (1-4-sinf naqshi: elementlar kaskad
+// bilan kiradi va keyin «yashaydi»).
+//
+// Sahna JUMBOQ QO'YADI, uni YECHMAYDI. Ikkala mashina bir xil ko'rinadi,
+// hech biri to'g'ri deb belgilanmaydi, hisoblash TARTIBI ko'rsatilmaydi --
+// aks holda 1-ekrandagi taxminning ma'nosi qolmaydi (§6.5: xukda na ball,
+// na yashil rang, na belgi).
+//
+// Personaj YO'Q (§7.4). Rasm fayli ham yo'q -- faqat SVG va CSS.
+// ============================================================
+// YETTI SEGMENTLI RAQAM. Shrift EMAS, GEOMETRIYA: har raqam yettita
+// ko'pburchak. Sababi ikkita. Birinchi -- haqiqiy kalkulyator ko'rinishi
+// aynan shunday chiqadi, o'chgan segmentlar ham xira ko'rinib turadi.
+// Ikkinchi -- xususiy shrift ishlatish TAQIQLANGAN (CLAUDE.md §5), o'zimiz
+// chizgan shakl esa hech kimga tegishli emas.
+const SEG_ON = {
+  '0': 'abcdef', '1': 'bc', '2': 'abged', '3': 'abgcd', '4': 'fgbc',
+  '5': 'afgcd', '6': 'afgedc', '7': 'abc', '8': 'abcdefg', '9': 'abcdfg',
+  '-': 'g', '−': 'g', ' ': '',
+}
+// Katak 22 x 38, qalinlik 4. Nuqtalar qo'lda emas, bitta jadvaldan.
+const SEG_PTS = {
+  a: '4,1 18,1 15,5 7,5',
+  b: '19,2 19,17 15.5,14.5 15.5,6',
+  c: '19,21 19,36 15.5,32 15.5,23.5',
+  d: '4,37 18,37 15,33 7,33',
+  e: '3,21 3,36 6.5,32 6.5,23.5',
+  f: '3,2 3,17 6.5,14.5 6.5,6',
+  g: '4,19 18,19 15,22 7,22',
+}
+function SegDigit({ ch, x, y, scale = 1 }) {
+  const on = SEG_ON[ch] === undefined ? 'abcdefg' : SEG_ON[ch]
+  return (
+    <g transform={'translate(' + x + ',' + y + ') scale(' + scale + ')'}>
+      {Object.keys(SEG_PTS).map((k) => (
+        <polygon
+          key={k}
+          /* `g7-lcdseg`, `g7-seg` EMAS. Eski nom yuqori paneldagi progress
+             bo'laklari bilan URISHARDI, va telefon uslublarida o'sha nom
+             `display: none` bilan yopilardi -- ya'ni TELEFONDA kalkulyator
+             raqamlari umuman ko'rinmasdi. Xuk esa aynan «sonlar farq qildi»
+             ustiga qurilgan: telefonda darsning birinchi ekrani ma'nosini
+             yo'qotardi (2026-08-14 o'lchovi, 860px dan pastda). */
+          className={'g7-lcdseg' + (on.indexOf(k) !== -1 ? ' is-on' : '')}
+          points={SEG_PTS[k]}
+        />
+      ))}
+    </g>
+  )
+}
+
+// Sonni segmentli raqamlarga yoyadi va O'NGGA tekislaydi -- kalkulyatorda
+// son har doim o'ng chetdan boshlanadi.
+function SegNumber({ value, cx, y, scale = 1, cells = 3 }) {
+  const s = String(value)
+  const w = 26 * scale
+  const chars = s.split('')
+  const pad = cells - chars.length
+  const all = (pad > 0 ? Array(pad).fill(' ') : []).concat(chars)
+  const total = all.length * w
+  const x0 = cx - total / 2
+  return (
+    <g>
+      {all.map((ch, i) => (
+        <SegDigit key={i} ch={ch} x={x0 + i * w} y={y} scale={scale} />
+      ))}
+    </g>
+  )
+}
+
+// `fix` -- YAKUNDAGI intreaktiv. O'quvchi oddiy kalkulyatorni BOSADI, u
+// qoida bo'yicha qayta hisoblaydi: sakkiz yigirmaga aylanadi, «teng emas»
+// esa «teng» bo'ladi. Dars o'quvchi mashinani O'RGATGANI bilan tugaydi.
+// Tugma alohida qatorda EMAS -- yakunning balandlik budjetida bo'sh qator
+// yo'q, shuning uchun bosiladigan narsa mashinaning O'ZI.
+//   fix = { value, sign, hint, doneHint, onFix }
+export function HookMachines({ tokens, left, right, sign = '≠', fix }) {
+  const t = useT()
+  const [fixed, setFixed] = useState(false)
+  const n = tokens.length
+  const step = 34
+  const x0 = 310 - ((n - 1) * step) / 2
+  const canFix = !!fix && !fixed
+  const leftVal = fixed && fix ? fix.value : left.value
+  const shownSign = fixed && fix && fix.sign ? fix.sign : sign
+  const doFix = () => {
+    if (!canFix) return
+    setFixed(true)
+    if (fix.onFix) fix.onFix()
+  }
+  return (
+    /* Topshiriq satri sahnaning TASHQARISIDA turadi. Ilgari u `g7-hookscene`
+       ICHIDA edi, o'sha blokda esa `max-height` bor: sahna balandligi
+       cheklangani uchun satr blokdan chiqib ketardi va uni keyingi kartochka
+       yopib qo'yardi (metodist surati 2026-08-14). */
+    <div className="g7-scenewrap">
+    <div className="g7-scene g7-hookscene">
+      <svg viewBox="0 0 620 176" className="g7-scene-svg" role="img" aria-label={tokens.join(' ')}>
+        {/* Yozuv lentasi: belgilar birma-bir tushadi */}
+        <rect className="g7-hk-tape" x={x0 - 22} y="4" width={(n - 1) * step + 44} height="40" rx="11" />
+        {tokens.map((tok, i) => (
+          <text
+            key={i}
+            /* Amal belgisi bosqich rangida -- darsdagi hamma yozuv kabi. */
+            className={'g7-hk-tok' + stageOf(tok)}
+            x={x0 + i * step}
+            y="32"
+            textAnchor="middle"
+            style={{ animationDelay: (0.08 * i).toFixed(2) + 's' }}
+          >
+            {tok}
+          </text>
+        ))}
+
+        {/* Ikki kabel: yozuv ikkala mashinaga BIR XIL ketadi */}
+        <path className="g7-hk-wire" d="M262 46 C 200 62, 168 66, 152 84" style={{ animationDelay: '.62s' }} />
+        <path className="g7-hk-wire" d="M358 46 C 420 62, 452 66, 468 84" style={{ animationDelay: '.62s' }} />
+        {/* Kabel bo'ylab yuguradigan impuls: sahna tirik turadi */}
+        <path className="g7-hk-pulse" d="M262 46 C 200 62, 168 66, 152 84" style={{ animationDelay: '1.5s' }} />
+        <path className="g7-hk-pulse" d="M358 46 C 420 62, 452 66, 468 84" style={{ animationDelay: '1.5s' }} />
+
+        {/* Mashinalar. Ikkalasi BIR XIL: hech qaysisi ajratib ko'rsatilmaydi */}
+        {[{ cx: 148, val: leftVal, cap: left.cap, d: 1.0, wide: false }, { cx: 468, val: right.value, cap: right.cap, d: 1.0, wide: true }].map((m, i) => (
+          <g
+            key={i}
+            className={'g7-hk-dev' + (i === 0 && canFix ? ' is-fixable' : '') + (i === 0 && fixed ? ' is-fixed' : '')}
+            style={{ animationDelay: (m.d).toFixed(2) + 's' }}
+            role={i === 0 && canFix ? 'button' : undefined}
+            tabIndex={i === 0 && canFix ? 0 : undefined}
+            aria-label={i === 0 && fix ? t(fix.hint) : undefined}
+            onClick={i === 0 ? doFix : undefined}
+            onKeyDown={i === 0 && canFix ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); doFix() } } : undefined}
+          >
+            {/* Korpus. Ikkita mashina endi BIR XIL EMAS: oddiysi ixcham va
+                qalin ramkali, muhandisligi keng va tugmalar qatoriga ega.
+                Farq xukning O'ZI haqida -- ular boshqa-boshqa asboblar. */}
+            <rect className="g7-hk-body" x={m.cx - (m.wide ? 104 : 84)} y="80" width={m.wide ? 208 : 168} height={m.wide ? 74 : 62} rx="14" />
+            {/* LCD: to'q maydon, ichida xira segmentlar ham ko'rinadi */}
+            <rect className="g7-hk-lcd" x={m.cx - (m.wide ? 88 : 68)} y={88} width={m.wide ? 176 : 136} height="38" rx="6" />
+            <rect className="g7-hk-gloss" x={m.cx - (m.wide ? 84 : 64)} y="91" width={m.wide ? 168 : 128} height="8" rx="4" />
+            {/* KURSOR: son chiqquncha miltillab turadi, keyin so'nadi */}
+            <rect className="g7-hk-cur" x={m.cx + (m.wide ? 66 : 56)} y="97" width="4" height="24"
+              style={{ animationDelay: (m.d + 0.1).toFixed(2) + 's' }} />
+            {/* `key` da qiymat turibdi: son o'zgarganda guruh QAYTA
+                chiziladi va yonish animatsiyasi boshidan ketadi -- ya'ni
+                raqamlar «qayta terilgandek» ko'rinadi. */}
+            {/* Qayta hisoblagach son KUTMAYDI: kirish animatsiyasining
+                kechikishi faqat birinchi chiqishda kerak edi. */}
+            <g key={'num' + m.val} className="g7-hk-num" style={{ animationDelay: (fixed && i === 0 ? 0 : m.d + 0.85).toFixed(2) + 's' }}>
+              <SegNumber value={m.val} cx={m.cx + (m.wide ? 40 : 30)} y={91} scale={0.82} cells={3} />
+            </g>
+            {/* Bosish nishoni: ramka element ICHIDA va besh marta chaqnaydi
+                (metodist qoidasi -- pulsatsiya cheksiz emas). */}
+            {i === 0 && canFix ? (
+              <rect className="g7-hk-tap" x={m.cx - 86} y="78" width="172" height="66" rx="15" />
+            ) : null}
+            {/* Muhandislik mashinasida tugmalar qatori */}
+            {m.wide ? (
+              <g className="g7-hk-keys">
+                {[0, 1, 2, 3, 4, 5].map((k) => (
+                  <rect key={k} x={m.cx - 84 + k * 29} y="132" width="24" height="14" rx="4" />
+                ))}
+              </g>
+            ) : null}
+            <text className="g7-hk-cap" x={m.cx} y={m.wide ? 170 : 158} textAnchor="middle">{t(m.cap)}</text>
+          </g>
+        ))}
+
+        {/* «Teng emas» -- oxirida chiqadi va pulsatsiya qiladi. Yakunda u
+            «teng» ga AYLANADI: `key` almashgani uchun belgi qayta chiziladi. */}
+        <g key={'sg' + shownSign} className={'g7-hk-ne' + (fixed ? ' is-fixed' : '')} style={{ animationDelay: fixed ? '0s' : '2.05s' }}>
+          <circle className="g7-hk-ring" cx="310" cy="112" r="21" />
+          <text x="310" y="120" textAnchor="middle">{shownSign}</text>
+        </g>
+
+      </svg>
+    </div>
+      {/* Topshiriq SVG ning ICHIDA emas. Sahna telefonda kichrayadi va u
+          bilan birga SVG matni ham kichrayardi: yozuv mashina imzolari
+          ustiga tushib, o'qilmay qolardi. Oddiy matn esa sahna o'lchamidan
+          MUSTAQIL va har ekranda bir xil o'qiladi. */}
+      {fix ? (
+        <p className={'g7-hk-ask' + (fixed ? ' is-done' : '')}>
+          {!fixed ? <i className="g7-hk-ask-dot" aria-hidden="true" /> : null}
+          {t(fixed ? fix.doneHint : fix.hint)}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
+// ============================================================
+// LawReveal -- QONUN JONLANADI. Qoida yig'ilgandan KEYIN uning qismlari
+// birma-bir yonadi: qavs, uchinchi bosqich, ikkinchi, birinchi. So'ngida
+// chiziq chapdan o'ngga o'tadi -- «bitta bosqich ichida chapdan o'ngga».
+// Javobni ochmaydi: o'quvchi qoidani ALLAQACHON yig'ib bo'lgan.
+// ============================================================
+export function LawReveal({ items, sweep }) {
+  return (
+    <div className="g7-lawrev">
+      {items.map((x, i) => (
+        <React.Fragment key={i}>
+          {i ? (
+            <span className="g7-lawrev-arr" style={{ animationDelay: (i * 0.42 - 0.14).toFixed(2) + 's' }}>
+              {'→'}
+            </span>
+          ) : null}
+          {/* Qism O'Z bosqichining rangida yonadi -- darsda yozuvlar shu
+              ranglar bilan yozilgan, ya'ni qoida tanish ranglardan yig'iladi.
+              Ro'yxat elementi `{ label, tone }` bo'lishi ham mumkin. */}
+          <span
+            className={'g7-lawrev-chip' + (x && x.tone ? ' is-' + x.tone : '')}
+            style={{ animationDelay: (i * 0.42).toFixed(2) + 's' }}
+          >
+            {x && x.label !== undefined ? x.label : x}
+          </span>
+        </React.Fragment>
+      ))}
+      {sweep ? (
+        <span className="g7-lawrev-sweep" style={{ animationDelay: (items.length * 0.42).toFixed(2) + 's' }}>
+          {sweep}
+        </span>
+      ) : null}
+    </div>
+  )
+}
+
+// ============================================================
+// TwoValues -- ikkita oq kartochka, o'rtasida aylanada «teng emas» belgisi.
+// ETALON_7SINF.md §6.5 xuk uchun aynan shu shaklni talab qiladi. Qoida
+// ekranida O'SHA blok qaytadan chiqadi: bittasi so'nadi, ikkinchisi yashil
+// bo'ladi -- xuk savoli javobini QOIDA ekranida oladi (2 va 3-sinf usuli).
+// 390 da kartochkalar bir-birining OSTIGA tushadi (§6.2).
+// ============================================================
+export function TwoValues({ left, right, dim, ok, sign = '≠' }) {
+  const t = useT()
+  const card = (d, side) => (
+    <div className={'g7-tv' + (dim === side ? ' is-dim' : '') + (ok === side ? ' is-ok' : '')}>
+      <span className="g7-tv-cap">{t(d.cap)}</span>
+      <span className="g7-tv-val">{d.value}</span>
+    </div>
+  )
+  return (
+    <div className="g7-tv-row">
+      {card(left, 'left')}
+      {/* Belgi HECH QACHON «teng» ga aylanmaydi: sakkiz bilan yigirma qoida
+          topilgandan keyin ham teng emas. Yashil rang «qaysi biri QIYMAT»
+          ekanini bildiradi, tenglikni emas. Ilgari bu yerda `=` chiqardi --
+          matematik jihatdan YOLG'ON edi. */}
+      <span className="g7-tv-ne" aria-hidden="true">{sign}</span>
+      {card(right, 'right')}
+    </div>
+  )
+}
+
+// ============================================================
+// CollapseTrack -- YO'LAK: yozuv BERILGAN TARTIB bo'yicha o'zi yig'iladi.
+// Har qadamda juft bir-biriga siljiydi va bitta songa aylanadi.
+//
+// Bu asbob JAVOB BERILGANDAN KEYIN ishlaydi: 2-ekranda to'g'ri javobdan
+// so'ng, 3 va 7-ekranlarda o'quvchi tartibni qo'ygandan so'ng. Shuning
+// uchun u javobni ochib qo'ymaydi -- allaqachon ma'lum narsani KO'RSATADI.
+//
+// Kadrlar tartibdan HISOBLANADI, qo'lda yozilmaydi: bitta yo'lak istalgan
+// yozuv va istalgan tartib uchun ishlaydi.
+// ============================================================
+const interleave = (nums, ops, lang) =>
+  nums.flatMap((x, i) => (i ? [ops[i - 1], fmtNum(x, lang)] : [fmtNum(x, lang)]))
+
+export const collapseFrames = (nums, ops, order, lang) => {
+  const frames = []
+  const n = nums.slice()
+  const live = ops.map((op, i) => ({ op, i }))
+  frames.push({ toks: interleave(n, live.map((l) => l.op), lang) })
+  order.forEach((opIdx) => {
+    const pos = live.findIndex((x) => x.i === opIdx)
+    if (pos === -1) return
+    // Belgilar ro'yxatida son 2k o'rinda, amal 2k+1 o'rinda turadi.
+    frames.push({ toks: interleave(n, live.map((l) => l.op), lang), merge: [pos * 2, pos * 2 + 2] })
+    const val = applyOp(n[pos], live[pos].op, n[pos + 1])
+    n.splice(pos, 2, val)
+    live.splice(pos, 1)
+    frames.push({ toks: interleave(n, live.map((l) => l.op), lang), born: pos * 2 })
+  })
+  return frames
+}
+
+export function CollapseTrack({ nums, ops, order, label, tone, delay = 0, stepMs = 520, onDone }) {
+  const lang = useLang()
+  const frames = useMemo(() => collapseFrames(nums, ops, order, lang), [nums, ops, order, lang])
+  const [i, setI] = useState(0)
+  const [started, setStarted] = useState(delay === 0)
+
+  useEffect(() => {
+    if (started) return undefined
+    const tmr = setTimeout(() => setStarted(true), delay)
+    return () => clearTimeout(tmr)
+  }, [started, delay])
+
+  useEffect(() => {
+    if (!started || i >= frames.length - 1) return undefined
+    const tmr = setTimeout(() => setI((v) => v + 1), stepMs)
+    return () => clearTimeout(tmr)
+  }, [started, i, frames.length, stepMs])
+
+  const f = frames[started ? i : 0]
+  const done = i >= frames.length - 1
+
+  useEffect(() => {
+    if (done && onDone) onDone()
+  }, [done, onDone])
+
+  return (
+    <div className={'g7-track-row' + (tone ? ' is-' + tone : '') + (done ? ' is-done' : '')}>
+      <span className="g7-track-cap">{label}</span>
+      <span className="g7-track-expr">
+        {f.toks.map((tok, k) => (
+          <span
+            key={i + '-' + k}
+            className={
+              'g7-film-tok' + stageOf(tok) +
+              (f.merge && f.merge[0] === k ? ' is-mergeL' : '') +
+              (f.merge && f.merge[1] === k ? ' is-mergeR' : '') +
+              (f.born === k ? ' is-born' : '')
+            }
+          >
+            {tok}
+          </span>
+        ))}
+      </span>
+    </div>
+  )
+}
+
+// ============================================================
+// CollapseFilm -- TUSHUNTIRISH KADRLARI. Metodist qarori 2026-08-13:
+// 3-7-ekranlarda tushuntirish EKRANDA ko'rinishi kerak, ovozda emas.
+//
+// Har kadrda ikkita son BIR-BIRIGA SILJIYDI va bitta songa aylanadi -- ya'ni
+// harakat aynan MATEMATIK o'zgarishni ko'rsatadi (§7.1). Kengligi emas,
+// faqat `transform` o'zgaradi: 390 da yozuv kesilmasin.
+//
+// Kadrni OVOZ boshqaradi (`useNarratedSteps`, §7.2): bo'lak tugagach keyingi
+// kadr keladi; ovoz o'chiq bo'lsa -- taymer bo'yicha. Pastdagi nuqtalar bilan
+// o'quvchi orqaga qaytishi mumkin (6-sinf naqshi).
+//
+// `frames[k]`:
+//   tokens -- ekrandagi belgilar ro'yxati
+//   merge  -- [chap, o'ng] qo'shiluvchi indekslari: ular BIR-BIRIGA siljiydi
+//   born   -- shu kadrda TUG'ILGAN son indeksi: u paydo bo'ladi
+//   cap    -- kadr izohi (SO'Z bilan, matematik yozuv emas)
+// ============================================================
+export function CollapseFilm({ frames, audio, onDone, hold = false }) {
+  const t = useT()
+  const caps = useMemo(() => frames.map((f) => t(f.cap)), [frames, t])
+  const voiced = useNarratedSteps(audio, caps)
+  const [manual, setManual] = useState(null)
+
+  // POL. `useNarratedSteps` ovoz bo'laklariga ergashadi, TTS ishlamasa esa
+  // navbat BIR ZUMDA oxirigacha uchib ketadi va kino umuman ko'rinmay qoladi
+  // (2026-08-13 da aynan shunday bo'ldi: 5-ekran darrov asbobni ko'rsatdi).
+  // Shuning uchun kadr sekundiga bir martadan tez ALMASHMAYDI. Bu §7.2 dagi
+  // qorovulning teskarisi: u kechikishdan, bu esa SHOSHILISHDAN saqlaydi.
+  const target = Math.min(voiced, frames.length - 1)
+  const [gate, setGate] = useState(0)
+  useEffect(() => {
+    if (gate >= target) return undefined
+    const tmr = setTimeout(() => setGate((g) => (g < target ? g + 1 : g)), 1500)
+    return () => clearTimeout(tmr)
+  }, [gate, target])
+
+  const idx = manual === null ? gate : manual
+  const last = gate >= frames.length - 1
+
+  useEffect(() => {
+    if (last && onDone) onDone()
+  }, [last, onDone])
+
+  const f = frames[idx]
+
+  return (
+    <>
+      <div className="g7-panel g7-panel-paper g7-film">
+        <div className="g7-film-row">
+          {f.tokens.map((tok, i) => {
+            const isL = f.merge && f.merge[0] === i
+            const isR = f.merge && f.merge[1] === i
+            const isBorn = f.born === i
+            const cls =
+              'g7-film-tok' + stageOf(tok) +
+              (isL ? ' is-mergeL' : '') +
+              (isR ? ' is-mergeR' : '') +
+              (isBorn ? ' is-born' : '')
+            return (
+              <span key={idx + '-' + i} className={cls}>
+                {tok}
+              </span>
+            )
+          })}
+        </div>
+      </div>
+
+      {/* Izoh SO'Z bilan. Balandligi oldindan band: kadr almashganda ekran
+          sakramaydi. */}
+      <Slot mh={44}>
+        <p className="g7-film-cap" key={idx}>{caps[idx]}</p>
+      </Slot>
+
+      {/* Nuqtalar: o'quvchi kadrga qaytishi mumkin. Oldinga o'tkazmaydi --
+          kino o'zi ketadi, aks holda o'quvchi tushuntirishni «tez o'tkazib»
+          yuborardi. */}
+      {frames.length > 1 ? (
+        <div className="g7-clip-bar">
+          {frames.map((_, n) => (
+            <button
+              key={n}
+              type="button"
+              className={'g7-clip-dot' + (n === idx ? ' g7-clip-dot-on' : '') + (n < idx ? ' g7-clip-dot-past' : '')}
+              onClick={() => { if (n <= gate) setManual(n) }}
+              aria-label={String(n + 1)}
+            />
+          ))}
+          {manual !== null ? (
+            <button type="button" className="g7-clip-replay" onClick={() => setManual(null)} aria-label="now">{'▸'}</button>
+          ) : null}
+        </div>
+      ) : null}
+      {hold ? null : null}
+    </>
+  )
+}
+
+// ============================================================
+// HistoryTape -- BOSILGAN YO'L. Har bajarilgan qadam kichik plashka qoldiradi:
+// «6 : 3 -> 2». Ekran oxirida BUTUN yo'l ko'rinib turadi.
+//
+// Ikki vazifasi bor. Birinchi -- usul bajarilgach ekran BO'SHAB qolmaydi.
+// Ikkinchi va muhimi -- 8-ekranda ikkala usulning lentasi yonma-yon qo'yiladi
+// va ular BIR XIL ekani ko'rinadi: qoida shu yerdan chiqadi.
+//
+// Belgi bosqich rangida: lenta ham o'sha bog'lovchi rangni davom ettiradi.
+// ============================================================
+export function HistoryTape({ items, label }) {
+  const t = useT()
+  if (!items || !items.length) return null
+  return (
+    <div className="g7-tape">
+      {label ? <span className="g7-tape-cap">{t(label)}</span> : null}
+      <div className="g7-tape-row">
+        {items.map((it, i) => (
+          <span key={i} className="g7-tape-chip" style={{ animationDelay: (i * 0.06).toFixed(2) + 's' }}>
+            {String(it).split(/(\s[·:+−]\s)/).map((part, k) => (
+              <span key={k} className={stageOf(part.trim())}>{part}</span>
+            ))}
+          </span>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ============================================================
+// SolutionSteps -- O'QITUVCHI YECHIMI. Metodist qarori 2026-08-13 (surat:
+// darslikdagi to'liq yechim). Har qator OLDINGISIDAN kelib chiqadi, yonida
+// esa o'qituvchining TIRIK gapi turadi -- «avval qavs ichini hisoblaymiz».
+//
+// Qatorlar BIRMA-BIR o'sadi, pachka bo'lib chiqmaydi (1-4-sinf naqshi).
+// O'quvchi O'Z harakatini qilgandan KEYIN ishga tushadi: shuning uchun bu
+// javobni ochish emas, allaqachon olingan javobning YO'LINI ko'rsatish (§8.1).
+//
+// Atamalar so'zma-so'z (§3), izoh esa jonli tilda -- metodist 2026-08-13.
+// ============================================================
+// `rowH` -- bitta qatorning balandligi. Ramka BUTUN yechim uchun joyni
+// BIRINCHI soniyadan band qiladi va qator qo'shilganda O'SMAYDI (§6.1,
+// metodist talabi 2026-08-13). Aks holda ekran har qatorda sakraydi va
+// budjetdan oshib ketishi mumkin.
+export function SolutionSteps({ lines, label, stepMs = 1250, rowH = 44, onDone }) {
+  const t = useT()
+  const [n, setN] = useState(1)
+  const last = n >= lines.length
+
+  useEffect(() => {
+    if (last) { if (onDone) onDone(); return undefined }
+    const tmr = setTimeout(() => setN((v) => v + 1), stepMs)
+    return () => clearTimeout(tmr)
+  }, [n, last, stepMs, onDone])
+
+  return (
+    <div className="g7-panel g7-panel-paper g7-sol" style={{ minHeight: lines.length * rowH + (label ? 26 : 0) }}>
+      {label ? <span className="g7-sol-cap">{t(label)}</span> : null}
+      {lines.slice(0, n).map((ln, i) => (
+        <div key={i} className="g7-sol-row">
+          {/* Amal belgilari BOSQICH rangida: yozuvda ko'z avval AMALGA tushadi,
+              songa emas -- mavzu aynan amallar tartibi haqida. Ranglar butun
+              darsdagi bilan bir xil (metodist qarori 2026-08-13). */}
+          <span className="g7-sol-expr">
+            {String(ln.expr).split(' ').map((tok, k) => (
+              <span key={k} className={'g7-sol-tok' + stageOf(tok) + (tok === '(' || tok === ')' ? ' is-par' : '')}>
+                {tok}
+              </span>
+            ))}
+          </span>
+          <span className="g7-sol-say">{t(ln.say)}</span>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// ============================================================
+// NumberLineTracks -- SON O'QIDA ikki yo'l. 7-ekran uchun (metodist qarori
+// 2026-08-13): «bitta bosqich ichida chapdan o'ngga» ni SO'Z bilan emas,
+// HARAKAT bilan ko'rsatish.
+//
+// Yuqorida qoida bo'yicha: nuqta 20 dan 5 ga ORQAGA, so'ng 3 ga OLDINGA -- 18.
+// Pastda esa «avval qo'shish»: 5 va 3 qo'shilib 8 bo'ladi, nuqta 8 ga orqaga
+// ketadi -- 12. Ikki nuqta boshqa joyda TO'XTAYDI, va buni ko'rish uchun
+// hech qanday izoh kerak emas.
+//
+// Javobni ochmaydi: o'quvchi 7-ekranda tartibni O'ZI qo'ygandan keyin
+// chiziladi (§8.1).
+// ============================================================
+// `manual` -- sakrashni TAYMER emas, O'QUVCHI boshqaradi: u chiziqni bosadi
+// va keyingi sakrash chiziladi. Ikki sabab. Birinchi -- kontrakt: qadamni
+// taymer yetaklashi mumkin emas (ETALON_7SINF.md §7). Ikkinchi -- 7-ekranda
+// o'quvchi javob bergandan KEYIN faqat tomosha qilardi, ya'ni darsning
+// eng muhim xulosasi uning qo'lidan chiqib ketardi (metodist 2026-08-14).
+export function NumberLineTracks({ from = 10, to = 22, tracks, audio, stepMs = 2200, manual, prompt }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  // BOSQICHMA-BOSQICH ochilish (metodist qarori 2026-08-13). Ilgari hamma
+  // yoylar deyarli birdan chiqardi va o'quvchi harakatni ko'rib ulgurmasdi.
+  const total = tracks.reduce((n, tr) => n + tr.jumps.length + 1, 0)
+  const [tick, setTick] = useState(manual ? 1 : 0)
+  useEffect(() => {
+    if (manual) return undefined
+    if (tick >= total) return undefined
+    const tmr = setTimeout(() => setTick((v) => v + 1), stepMs)
+    return () => clearTimeout(tmr)
+  }, [tick, total, stepMs, manual])
+  const done = tick >= total
+  const advance = () => {
+    if (!manual || done) return
+    fx.tap()
+    setTick((v) => v + 1)
+  }
+  // Nechta element ochilgani: yo'lak boshlanishi + har sakrash.
+  let seen = 0
+  const W = 620
+  const pad = 44
+  const x = (v) => pad + ((v - from) / (to - from)) * (W - 2 * pad)
+  const ticks = []
+  for (let v = from; v <= to; v += 2) ticks.push(v)
+
+  return (
+    <>
+    {/* TURTKI. Metodist 2026-08-14: topshiriqdan OLDIN o'quvchini ekranga
+        tegishga undash kerak. Ilgari bu yerda faqat pastdagi «Bosing»
+        belgisi turardi -- ikkita yo'lakdan KEYIN, ya'ni ko'z unga
+        yetmasdi va chiziq shunchaki turaverardi.
+        Endi taklif TEPADA, sahnaning o'zi esa chaqnaydi (besh marta,
+        keyin tinchiydi -- pulsatsiya cheksiz emas). */}
+    {manual && !done ? <Ask kind="task" tight>{prompt ? t(prompt) : null}</Ask> : null}
+    <div
+      className={'g7-nl' + (manual && !done ? ' is-tappable' : '') + (manual && tick <= 1 ? ' is-inviting' : '')}
+      role={manual && !done ? 'button' : undefined}
+      tabIndex={manual && !done ? 0 : undefined}
+      onClick={manual ? advance : undefined}
+      onKeyDown={manual && !done ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); advance() } } : undefined}
+    >
+      {/* BOSISH STIKERI: tegish belgisi birinchi bosishgacha uradi. */}
+      {manual && tick <= 1 ? <TapMark /> : null}
+      {tracks.map((tr, i) => {
+        const base = seen
+        seen += tr.jumps.length + 1
+        const shownJumps = Math.max(0, Math.min(tr.jumps.length, tick - base))
+        const rowOn = tick > base - 1
+        if (!rowOn) return <div key={i} className="g7-nl-row is-wait" />
+        return (
+        <div key={i} className="g7-nl-row">
+          <span className="g7-nl-cap">{t(tr.cap)}</span>
+          <svg viewBox={'0 0 ' + W + ' 74'} className="g7-nl-svg" role="img" aria-label={String(tr.end)}>
+            <line className="g7-nl-axis" x1={pad} y1="52" x2={W - pad} y2="52" />
+            {ticks.map((v) => (
+              <g key={v}>
+                <line className="g7-nl-tick" x1={x(v)} y1="47" x2={x(v)} y2="57" />
+                <text className="g7-nl-num" x={x(v)} y="70" textAnchor="middle">{v}</text>
+              </g>
+            ))}
+            {tr.jumps.slice(0, shownJumps).map((j, k) => {
+              const x1 = x(j.from)
+              const x2 = x(j.to)
+              const mid = (x1 + x2) / 2
+              const back = j.to < j.from
+              // Yoyning BALANDLIGI navbat bo'yicha o'zgaradi: ikkita sakrash
+              // bir xil balandlikda bo'lsa, ular ustma-ust tushadi va yorliqlar
+              // aralashib ketadi (metodist surati 2026-08-13).
+              const apex = k === 0 ? 12 : 26
+              // O'Q UCHI harakat YO'NALISHINI ko'rsatadi: orqaga -- chapga,
+              // oldinga -- o'ngga. Busiz ikkala yoy bir xil ko'rinadi va
+              // «orqaga qadam, oldinga qadam» degan ma'no ekranda yo'qoladi.
+              // Uch aynan BORIB TO'XTAGAN nuqtada turadi va harakat tomonga
+              // qaraydi. Ilgari orqaga va oldinga uchun bir xil shakl
+              // chizilardi va yo'nalish o'qilmasdi (metodist surati).
+              const dir = x2 >= x1 ? 1 : -1
+              const head = 'M' + x2 + ' 48 l ' + (-9 * dir) + ' -5 l 0 10 z'
+              return (
+                <g key={k} className="g7-nl-jump">
+                  <path
+                    className={'g7-nl-arc' + (back ? ' is-back' : ' is-fwd')}
+                    d={'M' + x1 + ' 48 Q ' + mid + ' ' + apex + ' ' + x2 + ' 48'}
+                  />
+                  <path className={'g7-nl-head' + (back ? ' is-back' : ' is-fwd')} d={head} />
+                  <text className="g7-nl-lab" x={mid} y={apex + 2} textAnchor="middle">{j.label}</text>
+                </g>
+              )
+            })}
+            {shownJumps >= tr.jumps.length ? (
+              <>
+                <circle className="g7-nl-dot" cx={x(tr.end)} cy="52" r="7" />
+                <text className="g7-nl-end" x={x(tr.end)} y="38" textAnchor="middle">{tr.end}</text>
+              </>
+            ) : (
+              <circle className="g7-nl-dot is-start" cx={x(tr.jumps[0].from)} cy="52" r="7" />
+            )}
+          </svg>
+        </div>
+        )
+      })}
+      {/* Bosish nishoni chiziqning O'ZIDA emas, pastida: sahna bosiladi,
+          belgi esa qayerga bosishni aytadi. Hamma sakrash chizilgach
+          belgi yo'qoladi. */}
+      {manual ? <CallToAct kind="tap" done={done} /> : null}
+    </div>
     </>
   )
 }

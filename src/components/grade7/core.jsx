@@ -66,6 +66,17 @@ export const T = {
   line: 'rgba(24, 34, 36, 0.12)',
   grid: 'rgba(24, 34, 36, 0.025)',
   shadow: '24,34,36',
+  // BOSQICH RANGLARI (metodist qarori 2026-08-13). Palitradagi qolgan
+  // ranglar MA'NOGA band: accent -- «matematik o'zgardi», ok -- «to'g'ri»,
+  // tip -- «noto'g'ri», graph -- «baholanmaydi». Bosqichni ular bilan
+  // bo'yash mumkin emas: o'quvchi buni «to'g'ri va xato» deb o'qiydi.
+  // Shuning uchun ikkita YANGI rang kiritildi, ular FAQAT bosqichni
+  // bildiradi va boshqa hech qayerda ishlatilmaydi. 3-sinfdagi naqsh:
+  // rang ikki usulni bir-biriga BOG'LAYDI (razryadlar rangi, Dars01 s4).
+  stage2: '#2C5FA8',      // II bosqich: ko'paytirish va bo'lish
+  stage2Soft: '#DEE8F6',
+  stage1: '#7A4FA3',      // I bosqich: qo'shish va ayirish
+  stage1Soft: '#EBE1F4',
   // Ekran fonlari
   fieldHook: '#EDF5F1',
   fieldRule: '#FFF1E7',
@@ -101,6 +112,7 @@ export const MATH_FONT = "'JetBrains Mono', 'SFMono-Regular', Consolas, monospac
 
 export const UI_TXT = {
   hint: L('Maslahat', 'Подсказка', 'Hint'),
+  hack: L('Layfxak', 'Лайфхак', 'Lifehack'),
   question: L('Savol', 'Вопрос', 'Question'),
   zoneCheck: L('Tekshiruv', 'Проверка', 'Check'),
   zoneTask: L('Topshiriq', 'Задание', 'Task'),
@@ -559,6 +571,32 @@ function chime(up) {
   })
 }
 
+// KLAVISHA TOVUSHI. Dars kalkulyatorlar bilan boshlanadi, shuning uchun
+// yozuv ustidagi har bosish kalkulyator klavishasidek eshitiladi: qisqa,
+// quruq, past. Bu «to'g'ri-noto'g'ri» signali EMAS -- u hech nima baholamaydi,
+// faqat harakat sodir bo'lganini bildiradi (metodist taklifi 2026-08-14).
+function keyTick() {
+  if (typeof window === 'undefined') return
+  const AC = window.AudioContext || window.webkitAudioContext
+  if (!AC) return
+  if (!chimeCtx) chimeCtx = new AC()
+  if (chimeCtx.state === 'suspended') { try { chimeCtx.resume() } catch { /* avtoplay cheklovi */ } }
+  const now = chimeCtx.currentTime
+  const o = chimeCtx.createOscillator()
+  const g = chimeCtx.createGain()
+  o.type = 'square'
+  o.frequency.setValueAtTime(1420, now)
+  o.frequency.exponentialRampToValueAtTime(620, now + 0.032)
+  // Balandligi past: u fonda turadi, ovoz ustidan bosmaydi.
+  g.gain.setValueAtTime(0.0001, now)
+  g.gain.exponentialRampToValueAtTime(0.045, now + 0.004)
+  g.gain.exponentialRampToValueAtTime(0.0001, now + 0.055)
+  o.connect(g)
+  g.connect(chimeCtx.destination)
+  o.start(now)
+  o.stop(now + 0.06)
+}
+
 export function useSfx() {
   const okRef = useRef(null)
   const noRef = useRef(null)
@@ -575,7 +613,8 @@ export function useSfx() {
     if (!a) { chime(up); return }
     try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}) } catch { chime(up) }
   }, [])
-  return { playCorrect: () => play(true), playWrong: () => play(false) }
+  const playTap = useCallback(() => { if (!mutedGlobal) keyTick() }, [])
+  return { playCorrect: () => play(true), playWrong: () => play(false), playTap }
 }
 
 // ============================================================
@@ -714,9 +753,22 @@ function italicVars(txt, out) {
   if (plain) out.push(plain)
 }
 
-export function Fx({ children }) {
+// BOSQICH RANGI YOZUVNING O'ZIDA. Ilgari rang faqat ikkita asbobda bor edi
+// (StepOrder belgilarida va kadrlarda), qolgan yozuvlar qora turardi -- ya'ni
+// rang har ekranda paydo bo'lib, yo'qolib turardi va TIL bo'lolmasdi.
+// Endi u yozuv chizilgan HAMMA joyda bir xil: ko'paytirish va bo'lish --
+// ikkinchi bosqich rangi, qo'shish va ayirish -- birinchisi, qavs esa
+// bog'lanish rangida. Rang -- yadroning ODATIY xatti-harakati, sozlama emas.
+const STAGE_CLS = {
+  '·': 'g7-op2', ':': 'g7-op2', '×': 'g7-op2', '÷': 'g7-op2',
+  '+': 'g7-op1', '−': 'g7-op1',
+  '(': 'g7-par', ')': 'g7-par',
+}
+
+export function Fx({ children, stage }) {
   if (typeof children !== 'string' || !children) return children === undefined ? null : children
   children = mathMinus(children)
+  const on = stage !== false
   const out = []
   let buf = ''
   let mode = null
@@ -734,6 +786,11 @@ export function Fx({ children }) {
     if (sup !== undefined) { if (mode !== 'sup') { flush(); mode = 'sup' } buf += sup; continue }
     if (mode === 'sub' && ch === ',') { buf += ','; continue }
     if (mode) { flush(); mode = null }
+    if (on && STAGE_CLS[ch]) {
+      flush()
+      out.push(<span key={out.length} className={STAGE_CLS[ch]}>{ch}</span>)
+      continue
+    }
     buf += ch
   }
   flush()
@@ -774,6 +831,97 @@ export const CallToAct = ({ kind = 'pick', text, done }) => {
   )
 }
 
+// ============================================================
+// Ask -- TOPSHIRIQ E'LONI. `CallToAct` qayerga bosishni ko'rsatadi, `Ask`
+// esa NIMA so'ralayotganini AYTADI. Ikkalasi bir-birini almashtirmaydi:
+// «Tanlang» degan yozuv o'quvchiga nimani tanlashini aytmaydi.
+//
+// Metodist 2026-08-14: 2, 3, 7, 12 va 14-ekranlarda o'quvchi undan nima
+// talab qilinayotganini tushunmagan. Sarlavha MAVZUNI ataydi, topshiriqni
+// esa faqat ovoz aytardi -- ovoz o'chiq bo'lsa hech narsa qolmasdi.
+//
+// Shakl BITTA bo'lishi uchun bu yerda turibdi: ilgari o'sha razmetka
+// `SlotFill` va `BracketGap` ichida ikki marta ko'chirilgan edi.
+//   kind='task'     -> TOPSHIRIQ    kind='question' -> SAVOL
+//   tight           -> kartochkasiz, yorliq va gap BITTA satrda. Balandlik
+//                      budjeti tor ekranlar uchun: kartochka ~58px yeydi,
+//                      tor shakl ~26px.
+// ============================================================
+// `cap` -- yorliqni O'ZI berish. Ikki bosqichli ekranda («xato qatorni top»,
+// so'ng «hisoblab isbotla») yorliq bosqich NOMERINI aytadi -- o'quvchi
+// qayerda turganini ko'rib turadi (metodist 2026-08-14).
+export const Ask = ({ children, kind = 'question', tight, cap: capOwn }) => {
+  const lang = useContext(LangContext)
+  if (!children) return null
+  const cap = capOwn || tr(kind === 'task' ? UI_TXT.zoneTask : UI_TXT.question, lang)
+  if (tight) {
+    return (
+      <p className="g7-ask g7-ask-row">
+        <span className="g7-zone-cap">{cap}</span>
+        <span>{children}</span>
+      </p>
+    )
+  }
+  return (
+    <div className="g7-zone g7-ask-card">
+      <span className="g7-zone-cap">{cap}</span>
+      <p className="g7-qpill">{children}</p>
+    </div>
+  )
+}
+
+// ============================================================
+// TapMark -- BOSISH STIKERI. Metodist qarori 2026-08-14: QO'L CHIZILMAYDI,
+// tayyor belgi olinadi. Shuning uchun bu yerda emoji turibdi, o'zimiz
+// chizgan shakl emas: u tanish ko'rinadi va «bu nimaga o'xshaydi» degan
+// savol tug'dirmaydi (chizilgan qo'lning birinchi varianti aynan shu
+// sababdan rad etilgan edi).
+//
+// Ostida tegish to'lqini: barmoq bosgan joydan halqa tarqaladi.
+//
+// DIQQAT: belgi VAQT bo'yicha YO'QOLMAYDI. Avvalgi variant yettinchi
+// soniyada so'nardi va metodist ekranni ochganda hech nima ko'rmasdi.
+// Endi HARAKAT to'xtaydi (besh urish -- pulsatsiya cheksiz emas), belgining
+// O'ZI esa o'quvchi bosmaguncha turaveradi.
+// ============================================================
+export const TapMark = () => (
+  <span className="g7-tapmark" aria-hidden="true">
+    <span className="g7-tapmark-ring" />
+    <span className="g7-tapmark-emoji">👆</span>
+  </span>
+)
+
+// ============================================================
+// HackNote -- LAYFXAK va BONUS. Metodist qarori 2026-08-14: ikkalasi ham
+// TO'G'RI JAVOB IZOHI bilan bir xil shaklda bo'ladi -- chapda rangli
+// polosa, tepada CAPS yorliq belgisi bilan, ostida gap. Rang o'zgarmaydi:
+// u sariq qoladi va shu bilan izohdan farq qiladi.
+//
+// Chiqish vaqti: FAQAT o'quvchi ishni bajargandan keyin. Avval ish, keyin
+// usul haqidagi gap -- aks holda layfxak javobni oldindan aytib qo'yadi.
+//
+// `tone='ok'` -- ISH BAJARILGANIDAGI javob (9 va 10-ekran): ular hech nima
+// bilan tugamasdi va o'quvchi «bo'ldimi» deb turardi.
+// ============================================================
+export const HackNote = ({ title, children, bottom, tone }) => {
+  const lang = useContext(LangContext)
+  if (!children) return null
+  const ok = tone === 'ok'
+  return (
+    <div className={'g7-fb ' + (ok ? 'g7-fb-ok' : 'g7-fb-hack') + ' g7-fb-on' + (bottom ? ' g7-fb-bottom' : '')}>
+      <span className="g7-fb-cap">
+        {ok ? (
+          <span aria-hidden="true">{'✓'}</span>
+        ) : (
+          <b className="g7-fb-star" aria-hidden="true">{'★'}</b>
+        )}
+        {title || tr(ok ? UI_TXT.right : UI_TXT.hack, lang)}
+      </span>
+      <span className="g7-fb-body">{children}</span>
+    </div>
+  )
+}
+
 export const Eyebrow = ({ children, right }) => (
   <div className="g7-eyebrow">
     <span>{children}</span>
@@ -783,12 +931,17 @@ export const Eyebrow = ({ children, right }) => (
 
 export const Title = ({ children }) => <h1 className="g7-title">{children}</h1>
 
-export const Expr = ({ children, size = 'mid', tone, pop, style, className }) => (
+// `plain` -- bu yozuv EMAS, PROZA (so'z bilan berilgan savol): unda bosqich
+// rangi ishlamaydi, gapdagi tire minus emas.
+// `tail` -- yozuvning O'NGIGA qo'shiladigan tayyor tugun (masalan, javob
+// soni): matn Fx dan o'tadi, tail esa o'zgarmaydi.
+export const Expr = ({ children, size = 'mid', tone, pop, style, className, plain, tail }) => (
   <div
     className={'g7-expr g7-expr-' + size + (pop ? ' g7-pop' : '') + (className ? ' ' + className : '')}
     style={{ ...(tone ? { color: tone } : null), ...style }}
   >
-    <Fx>{children}</Fx>
+    <Fx stage={plain ? false : undefined}>{children}</Fx>
+    {tail}
   </div>
 )
 
@@ -857,7 +1010,11 @@ const BADGES = ['A', 'B', 'C', 'D', 'E', 'F']
 
 // Variantlar. To'g'risi YASHIL faqat tasdiqdan keyin, xatosi AMBER (qizil emas).
 // Javobdan keyin qolganlari yig'ilib ketadi -- joy razbor uchun bo'shaydi.
+// Ustunlar SONI variantlar soniga qarab: uchta bo'lsa BITTA qatorda, to'rtta
+// bo'lsa 2x2 (metodist qarori 2026-08-13). Ilgari uchta variant 2 va 1 bo'lib
+// buzilib turardi -- oxirgisi yolg'iz qolardi va «boshqacha» ko'rinardi.
 export const Options = ({ items, picked, wrong, onPick, disabled, cols = 2, minH, collapse = true, badges = true, dense = false, neutral = false }) => {
+  cols = items.length === 3 ? 3 : (items.length === 4 ? 2 : cols)
   const solved = !!picked
   const shrink = solved && collapse
   // YIG'ILISH IKKI FAZADA. Javob berilgach panjara DARROV bitta ustunga
@@ -1317,7 +1474,13 @@ html, body { margin: 0; padding: 0; }
 /* ============ FON: faqat CSS ============ */
 .lesson-root {
   position: fixed;
-  inset: 0;
+  /* inset 0 EMAS: yuqoridan qobiqning o'z tugmalari uchun joy qoldiriladi.
+     O'zgaruvchini sayt qobig'i beradi (shared/LessonPage.css), keng ekranda u
+     nol, tor ekranda 60px. Busiz telefonda ovoz tugmasiga BOSIB BO'LMAYDI. */
+  top: var(--lesson-safe-top, 0px);
+  right: 0;
+  bottom: 0;
+  left: 0;
   overflow: clip;
   overscroll-behavior: none;
   isolation: isolate;
@@ -1407,8 +1570,14 @@ html, body { margin: 0; padding: 0; }
    JIMGINA kesiladi), demak ularning ichida markazlashga joy yo'q.
    auto-margin xavfsiz: joy qolmasa 0 ga tushadi, ya'ni baland kontent
    yuqoridan kesilmaydi. */
+/* KONTENT TEPADA. Metodist qarori 2026-08-13: markazlash olib tashlanadi.
+   Bu ETALON_7SINF.md §6.1 ga QAYTISH: u yerda «ish zonasi kontenti tepaga
+   qisiladi, band bo'lmagan past esa zahiraga olingan slot» deb yozilgan.
+   2026-08-10 da qo'yilgan margin-block auto o'sha talabga ZID edi va
+   ekranlar «suzib yurgandek» ko'rinardi: asbobning ko'rinmas zahira slotlari
+   pastda turgani uchun ko'rinadigan kontent markazdan YUQORIDA qolardi. */
 .stage-content > .g7-stack,
-.stage-content > .g7-field { margin-block: auto; width: 100%; }
+.stage-content > .g7-field { margin-block: 0; width: 100%; }
 /* height:100% bo'lsa ustun butun kadrni egallaydi va auto-margin uchun BO'SH
    JOY QOLMAYDI -- markazlash ishlamay qolardi. Balandlik kontent bo'yicha. */
 .stage-content > .g7-stack { height: auto; }
@@ -1519,7 +1688,7 @@ html, body { margin: 0; padding: 0; }
   font-weight: 600;
   line-height: 1.05;
   letter-spacing: -.015em;
-  font-size: clamp(20px, 2.9vw, 34px);
+  font-size: clamp(22px, 3.2vw, 38px);
   flex-shrink: 0;
 }
 .g7-expr, .g7-mono {
@@ -1542,7 +1711,7 @@ html, body { margin: 0; padding: 0; }
 .g7-expr-hero { font-size: clamp(26px, 3.1vw, 40px); letter-spacing: -.02em; }
 .g7-expr-big { font-size: clamp(22px, 2.4vw, 30px); }
 .g7-expr-mid { font-size: clamp(18px, 1.8vw, 24px); }
-.g7-expr-row { font-size: clamp(17px, 1.9vw, 24px); text-align: left; }
+.g7-expr-row { font-size: clamp(20px, 2.3vw, 28px); text-align: center; }
 .g7-expr-sm { font-size: clamp(14px, 1.4vw, 16.5px); text-align: left; }
 /* Serifda indeks monoshriftdagidan kichikroq va boshqa balandlikda
    o'tiradi; og'irligi bir pog'ona ko'tarildi -- aks holda mayda indeks
@@ -1550,8 +1719,8 @@ html, body { margin: 0; padding: 0; }
 .g7-idx { font-size: max(10.5px, .68em); font-weight: 700; letter-spacing: .01em; font-style: normal; }
 sub.g7-idx { vertical-align: -.20em; }
 sup.g7-idx { vertical-align: .46em; }
-.g7-hint { font-size: clamp(14.5px, 1.8vw, 16.5px); line-height: 1.45; color: ${T.ink2}; }
-.g7-ask { font-size: clamp(15px, 1.9vw, 17.5px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
+.g7-hint { font-size: clamp(15.5px, 2vw, 18.5px); line-height: 1.45; color: ${T.ink2}; }
+.g7-ask { font-size: clamp(16px, 2.1vw, 19.5px); line-height: 1.4; font-weight: 700; color: ${T.ink}; }
 .g7-tag {
   display: inline-flex; align-items: center; gap: 6px;
   /* Flex ustun ichida inline-flex ham CHO'ZILADI (align-items: stretch),
@@ -1785,7 +1954,7 @@ sup.g7-idx { vertical-align: .46em; }
   background: ${T.paper};
   color: ${T.ink};
   font-family: 'Manrope', sans-serif;
-  font-size: clamp(14px, 1.9vw, 16.5px);
+  font-size: clamp(15.5px, 2.1vw, 19px);
   font-weight: 500;
   text-align: left;
   cursor: pointer;
@@ -1883,6 +2052,27 @@ sup.g7-idx { vertical-align: .46em; }
   font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
 }
 .g7-fb-ok .g7-fb-cap { color: ${T.ok}; }
+/* LAYFXAK va BONUS -- javob izohi bilan BIR XIL shakl, boshqa rang.
+   Sariq metodist qarori bo'yicha O'ZGARMAYDI (2026-08-14). */
+.g7-fb-hack { background: #FFF6DC; border-left-color: #C7A44A; }
+.g7-fb-hack .g7-fb-cap { color: #8A6A16; }
+/* Yulduzcha YIRIKROQ va JONLI: u yorliqning belgisi. Pulsatsiya CHEKSIZ
+   EMAS: besh urinish, keyin tinchiydi. Past qator balandligi va manfiy
+   chekka uni satr ichida ushlab turadi -- busiz 3-ekran 3px oshib ketardi. */
+.g7-fb-star {
+  display: inline-block; font-size: 1.55em;
+  line-height: .74; margin-block: -3px;
+  color: #C7A44A; transform-origin: center;
+  animation: g7-starbeat 1.05s cubic-bezier(.33,0,.2,1) 5;
+}
+@keyframes g7-starbeat {
+  0%, 100% { transform: none; }
+  38% { transform: scale(1.24) rotate(-11deg); }
+  64% { transform: scale(1.05) rotate(5deg); }
+}
+@media (prefers-reduced-motion: reduce) { .g7-fb-star { animation: none; } }
+/* Layfxak ekranning ENG PASTIDA: zahira slotlarning o'rnini egallaydi. */
+.g7-fb-bottom { margin-top: auto; }
 .g7-fb-tip .g7-fb-cap { color: ${T.tip}; }
 .g7-fb-body {
   min-width: 0;
@@ -1971,11 +2161,14 @@ sup.g7-idx { vertical-align: .46em; }
   background: ${T.graphSoft};
 }
 .g7-insight-accent { border-left-color: ${T.accent}; background: ${T.accentSoft}; }
+/* «ok» ohangi YO'Q edi: yakunda «yopildi» yashil emas, biruza chiqardi. */
+.g7-insight-ok { border-left-color: ${T.ok}; background: ${T.okSoft}; }
 .g7-insight-label {
   font-size: clamp(9.5px, .8vw, 11px); font-weight: 800;
   letter-spacing: .18em; text-transform: uppercase; color: ${T.graph};
 }
 .g7-insight-accent .g7-insight-label { color: ${T.accent}; }
+.g7-insight-ok .g7-insight-label { color: ${T.ok}; }
 .g7-insight-body { font-size: clamp(14px, 1.7vw, 16px); line-height: 1.42; color: ${T.ink}; }
 
 /* ============ HALQA, TAYMER ============ */
@@ -2358,6 +2551,10 @@ sup.g7-idx { vertical-align: .46em; }
   flex-shrink: 0;
 }
 .g7-scene-svg { width: 100%; height: 100%; display: block; }
+/* Sahna va uning ostidagi satr uchun umumiy o'ram: max-height faqat
+   SAHNAGA tegadi, satr esa o'ramda erkin turadi -- aks holda u sahnadan
+   chiqib ketardi va keyingi kartochka uni yopib qo'yardi. */
+.g7-scenewrap { display: flex; flex-direction: column; min-width: 0; }
 .g7-move { transition: transform .8s cubic-bezier(.33, 0, .2, 1); }
 .g7-crate { transition: opacity .5s ease .3s; }
 .g7-crate-lid { transition: transform .55s cubic-bezier(.34, 1.3, .64, 1); }
@@ -2505,7 +2702,7 @@ sup.g7-idx { vertical-align: .46em; }
   color: ${T.accent};
   font-family: 'Source Serif 4', Georgia, serif;
   font-weight: 700;
-  font-size: clamp(14px, 1.9vw, 17px);
+  font-size: clamp(16px, 2.1vw, 20px);
   line-height: 1.3;
   text-align: center;
   flex-shrink: 0;
@@ -2576,6 +2773,21 @@ sup.g7-idx { vertical-align: .46em; }
 
 /* Zonasiz variant: kartochka yo'q, faqat ustun (xuk kabi bitta savolli ekranlar) */
 .g7-nozone { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* TOPSHIRIQ E'LONI (Ask). Kartochkali shakl -- 4, 9, 11 va 13-ekrandagi
+   bilan bir xil, ya'ni o'quvchi uni allaqachon tanigan joyda ko'radi. */
+.g7-ask-card { gap: 4px; padding-bottom: 6px; }
+/* Tor shakl: yorliq va gap BITTA satrda, oq kartochkasiz. Balandlik
+   budjeti tor ekranlarda ishlatiladi -- kartochka o'rniga bir satr. */
+.g7-ask-row {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  margin: 0; text-align: left; flex-shrink: 0;
+  /* O'lcham SHU YERDA qayta beriladi: umumiy .g7-ask telefonda 13px ga
+     tushadi, topshiriq esa o'qilishi SHART -- metodist brifi 15-18. */
+  font-size: clamp(15px, 1.9vw, 17.5px);
+  line-height: 1.35;
+}
+.g7-ask-row > span:last-child { min-width: 0; flex: 1; }
 
 /* Konteynerning old paneli YONGA suriladi (aylanmaydi) */
 .g7-panel-slide { transition: transform .6s cubic-bezier(.33,0,.2,1), opacity .5s ease .15s; }
@@ -2684,4 +2896,868 @@ sup.g7-idx { vertical-align: .46em; }
   color: ${T.ink2};
 }
 @media (prefers-reduced-motion: reduce) { .g7-plotline { animation: none; } }
+
+/* ============================================================
+   UCH YANGI ASBOB: StepOrder, BracketGap, RuleBuilder (2026-08-13)
+   Yozuvning O'ZI bosiladigan yuzaga aylanadi -- 4-sinfdagi kabi,
+   u yerda o'quvchi ajratgichni sonning ICHIGA qo'yardi.
+   ============================================================ */
+
+/* Yozuv qatori: sonlar va bosiladigan amal belgilari. 390 da o'ralib
+   tushadi -- bitta qatorda turishga majburlash CHETGA CHIQARADI. */
+.g7-so-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 2px 4px;
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(20px, 2.5vw, 30px);
+  color: ${T.ink};
+  min-width: 0;
+}
+.g7-so-val { padding: 0 2px; font-variant-numeric: tabular-nums lining-nums; border-radius: 7px; transition: background .18s ease, color .18s ease; }
+/* Amal ustiga sichqoncha kelganda uning IKKI SONI yoritiladi: amal nimani
+   biriktirishini ko'rsatadi, tartibni AYTMAYDI. */
+.g7-so-val.is-lit { background: ${T.accentSoft}; color: ${T.accent}; }
+.g7-so-sign { line-height: 1; }
+/* BOSQICH RANGI. Bitta rang ikkala usulni bog'laydi: 4-ekranda ham,
+   5-ekranda ham, 8-ekrandagi qonunda ham bir xil. */
+.g7-so-sign.is-s2, .g7-film-tok.is-s2, .g7-track-expr .is-s2 { color: ${T.stage2}; }
+.g7-so-sign.is-s1, .g7-film-tok.is-s1, .g7-track-expr .is-s1 { color: ${T.stage1}; }
+.g7-so-op.is-s2 { border-color: ${T.stage2}; background: ${T.stage2Soft}; }
+.g7-so-op.is-s1 { border-color: ${T.stage1}; background: ${T.stage1Soft}; }
+/* Bosqich rangi HAR QANDAY yozuvda (Fx). Bitta joyda e'lon qilingan, ya'ni
+   yozuv qayerda chizilsa ham bir xil gapiradi: sahnada, kartochkada,
+   blitsda, yakunda. */
+.g7-tf-tok.is-s2 { color: ${T.stage2}; }
+.g7-tf-tok.is-s1 { color: ${T.stage1}; }
+.g7-op2 { color: ${T.stage2}; }
+.g7-op1 { color: ${T.stage1}; }
+.g7-par { color: ${T.graph}; }
+/* O'tgan qatorlar: daftardagi yuqori qatorlar kabi -- kichikroq va
+   xiraroq, ish esa PASTDAGI joriy qatorda ketadi. Busiz panel har qadamda
+   o'sardi va 5-ekran 65px oshib ketardi (o'lchov 2026-08-14). */
+.g7-tf-past {
+  min-height: 24px;
+  font-size: clamp(13.5px, 1.6vw, 17px);
+  color: ${T.ink2};
+  transition: font-size .32s ease, min-height .32s ease, color .32s ease;
+}
+/* Joriy qator o'tganlaridan yirikroq, lekin 30px emas: besh qator birga
+   488px budjetiga sig'ishi kerak. */
+.g7-tf-live { font-size: clamp(18px, 2.1vw, 25px); }
+/* Javob soni yozuvga kelib tushadi (ProbeChain). */
+.g7-probe-val { margin-left: .35em; color: ${T.ok}; font-weight: 800; }
+/* O'SHA qo'l yozuvi qayta yozish asbobida ham: juft qo'shiladi, keyin
+   yangi qator keladi. Belgi juft bilan birga so'nadi. */
+.g7-tf-tok.is-mergeL, .g7-tf-op.is-mergeL { animation: g7-mergeL 420ms cubic-bezier(.33,0,.2,1) both; }
+.g7-tf-tok.is-mergeR, .g7-tf-op.is-mergeR { animation: g7-mergeR 420ms cubic-bezier(.33,0,.2,1) both; }
+.g7-tf-tok.is-mergeOp, .g7-tf-op.is-mergeOp { animation: g7-mergeOp 420ms cubic-bezier(.33,0,.2,1) both; }
+@keyframes g7-mergeOp {
+  from { transform: none; opacity: 1; }
+  to { transform: translateY(4px) scale(.7); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g7-tf-tok.is-mergeL, .g7-tf-tok.is-mergeR, .g7-tf-tok.is-mergeOp,
+  .g7-tf-op.is-mergeL, .g7-tf-op.is-mergeR, .g7-tf-op.is-mergeOp { animation-duration: .01ms; }
+}
+.g7-so-sign-flat { padding: 0 2px; color: ${T.ink2}; }
+
+/* Amal belgisi -- tugma. Ustida navbat raqami uchun joy DOIM band:
+   raqam paydo bo'lganda qator SILJIMAYDI. */
+.g7-so-op {
+  position: relative;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: flex-end;
+  min-width: 44px; min-height: 52px; padding: 0 4px 2px;
+  border: 1px dashed ${T.line}; border-radius: 11px;
+  background: rgba(255,253,248,.6);
+  font: inherit; color: inherit; cursor: pointer;
+  transition: background .2s ease, box-shadow .2s ease, border-color .2s ease;
+}
+.g7-so-op:hover:not(:disabled) { background: ${T.accentSoft}; border-color: ${T.accent}; }
+.g7-so-op:disabled { cursor: default; }
+.g7-so-op.is-set { border-style: solid; border-color: ${T.accent}; background: ${T.accentSoft}; }
+.g7-so-num {
+  display: block; min-height: 15px;
+  font-family: 'Manrope', sans-serif; font-size: 12px; font-weight: 800;
+  line-height: 15px; color: ${T.accent};
+}
+
+/* Ikki natija yonma-yon. Ikkinchi qator -- qoida bo'yicha, u YASHIL. */
+.g7-so-out { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.g7-so-out-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 5px 12px; border-radius: 11px;
+  background: ${T.tipSoft};
+}
+.g7-so-out-row.is-rule { background: ${T.okSoft}; }
+.g7-so-out-cap {
+  min-width: 0; flex: 1; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif; font-size: clamp(12.5px, 1.5vw, 14px);
+  color: ${T.ink2};
+}
+.g7-so-out-val {
+  flex-shrink: 0;
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: clamp(18px, 2.1vw, 24px); color: ${T.tip};
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.g7-so-out-row.is-rule .g7-so-out-val { color: ${T.ok}; }
+
+/* Qavs qo'yiladigan tirqish. Nuqta -- «bu yerga qo'yish mumkin» belgisi. */
+.g7-brgap-slot {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 26px; min-height: 44px; padding: 0;
+  border: 0; background: none; cursor: pointer;
+  font: inherit; color: ${T.ink3};
+  transition: color .2s ease, transform .2s ease,
+              min-width .24s ease, width .24s ease, margin .24s ease, opacity .18s ease;
+}
+/* Tirqish KERAK EMAS -- joy ham egallamaydi. 26px lik bo'sh tugma yozuvni
+   uzib qo'yardi (metodist surati 2026-08-14). */
+.g7-brgap-slot.is-idle {
+  min-width: 0; width: 0; margin-inline: -2px;
+  opacity: 0; overflow: hidden; pointer-events: none;
+}
+.g7-brgap-slot:hover:not(:disabled) { color: ${T.accent}; }
+.g7-brgap-slot:disabled { cursor: default; opacity: .35; }
+.g7-brgap-slot.is-open { color: ${T.accent}; font-weight: 800; }
+/* Bo'sh tirqishdagi qavs XIRA: u taklif, hali qo'yilgan qavs emas.
+   Nuqta bu yerda turolmaydi -- u KO'PAYTIRISH belgisi bilan bir xil edi. */
+.g7-brgap-slot.is-hint:not(.is-open):not(.is-close) { color: rgba(231,90,44,.42); }
+/* Yopish MUMKIN bo'lgan tirqishlar: ular ham to'q sariq, ya'ni bosiladigan
+   ekani KO'RINADI. */
+.g7-brgap-slot.is-close { color: ${T.accent}; opacity: .72; }
+.g7-brgap-slot.is-close:hover:not(:disabled) { opacity: 1; }
+/* BOSISH NISHONI. Nuqta juda kichkina edi -- o'quvchi qayerga bosishni
+   ko'rmasdi (metodist surati 2026-08-13). Endi tirqish KO'RINADIGAN ramka
+   bo'ladi va besh marta chaqnaydi.
+   Pulsatsiya CHEKSIZ EMAS: metodist qarori -- ramka element ICHIDA, besh
+   chaqnash, harakatdan keyin o'chadi. Bu yerda u o'chadi, chunki is-hint
+   klass qavs qo'yilishi bilan olib tashlanadi. */
+.g7-brgap-slot.is-hint {
+  border: 1.5px dashed ${T.accent};
+  border-radius: 9px;
+  background: ${T.accentSoft};
+  animation: g7-tapbeat 1.15s ease-in-out 5;
+}
+.g7-brgap-slot.is-hint:hover:not(:disabled) { background: ${T.accent}; color: #fff; }
+@keyframes g7-tapbeat {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(231,90,44,0); }
+  45% { box-shadow: 0 0 0 5px rgba(231,90,44,.22); }
+}
+@media (prefers-reduced-motion: reduce) { .g7-brgap-slot.is-hint { animation: none; } }
+
+/* RuleBuilder: yig'ilgan qator va bo'laklar hovuzi. */
+.g7-rb-built {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+  min-height: 62px;
+}
+.g7-rb-empty { color: ${T.ink3}; font-size: 20px; }
+/* Tortish FAQAT sichqonchada: is-drag klassini asbob qoyadi. Telefonda bu
+   klass umuman chiqmaydi, ya'ni jest skroll bilan raqobatga kirmaydi. */
+.g7-rb-built.is-drag { border: 1.5px dashed ${T.line}; transition: box-shadow .18s ease, background .18s ease; }
+.g7-rb-built.is-over { box-shadow: inset 0 0 0 2px ${T.accent}; background: ${T.accentSoft}; }
+.g7-rb-built.is-drag .g7-rb-chip { cursor: grab; }
+.g7-rb-built.is-drag .g7-rb-chip:active { cursor: grabbing; }
+.g7-rb-pool { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.g7-rb-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 7px 13px;
+  border: 0; border-radius: 12px;
+  background: ${T.paperSolid};
+  box-shadow: inset 0 0 0 1px ${T.line};
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(12.5px, 1.5vw, 14.5px); font-weight: 600;
+  color: ${T.ink}; text-align: left; cursor: pointer;
+  /* Uzun o'zbekcha bo'lak tugmadan CHIQIB KETMASIN (§9.1, 390 dagi kamchilik) */
+  min-width: 0; overflow-wrap: anywhere;
+  transition: box-shadow .2s ease, background .2s ease;
+}
+.g7-rb-chip:hover:not(:disabled) { box-shadow: inset 0 0 0 1px ${T.accent}; }
+.g7-rb-chip:disabled { cursor: default; opacity: .32; }
+.g7-rb-chip.is-built { background: ${T.graphSoft}; box-shadow: inset 0 0 0 1px rgba(18,110,115,.28); opacity: 1; }
+.g7-rb-no {
+  flex-shrink: 0;
+  min-width: 18px; height: 18px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: ${T.graph}; color: #fff; font-size: 11px; font-weight: 800;
+}
+
+/* Yakun: yorliq va matn BITTA qatorda. */
+.g7-sumrow {
+  display: flex; align-items: flex-start; gap: 8px; min-width: 0;
+  font-size: clamp(14px, 1.8vw, 16.5px); line-height: 1.34; color: ${T.ink2};
+}
+/* Yorliq QISQARMAYDI. Unda white-space nowrap turadi, flex element esa sukut
+   bo'yicha qisqaradi va min-width 0 ga tushadi: quti o'z matnidan tor bo'lib
+   qoladi, matn fondan CHIQIB ketadi va yonidagi matnga MINADI (metodist
+   surati 2026-08-13, «QANDAY CHIQDI»).
+   DIQQAT: bu satrlar STYLES shablon-satri ICHIDA. Teskari apostrof qo'yish
+   shablonni YOPADI va butun fayl buziladi -- shuning uchun bu yerda ular
+   umuman ishlatilmaydi. */
+.g7-sumrow > .g7-tag { flex-shrink: 0; }
+.g7-sumrow > span { min-width: 0; overflow-wrap: anywhere; }
+
+/* ============================================================
+   CollapseFilm -- tushuntirish kadrlari. Ikki son BIR-BIRIGA siljiydi va
+   bitta songa aylanadi. Faqat transform o'zgaradi: kenglik o'zgarmaydi,
+   shuning uchun 390 da yozuv kesilmaydi (§6.2).
+   ============================================================ */
+.g7-film { display: flex; align-items: center; justify-content: center; min-height: 74px; }
+.g7-film-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 2px 8px; min-width: 0;
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(22px, 3vw, 34px); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.g7-film-tok { display: inline-block; will-change: transform; }
+/* 420 ms -- yozuvning O'ZIDAGI javob harakati uchun belgilangan vaqt (§7.1). */
+.g7-film-tok.is-mergeL { animation: g7-mergeL 420ms cubic-bezier(.33,0,.2,1) both; }
+.g7-film-tok.is-mergeR { animation: g7-mergeR 420ms cubic-bezier(.33,0,.2,1) both; }
+.g7-film-tok.is-born {
+  animation: g7-born 420ms cubic-bezier(.33,0,.2,1) both;
+  color: ${T.accent};
+}
+/* CHUQURLIK VA OG'IRLIK (metodist qarori 2026-08-13). Juft bir-biriga
+   siljiganda u CHO'KADI: pastga tushadi, kichrayadi va so'nadi. Natija esa
+   PRUJINA bilan QALQIB chiqadi va soya tashlaydi. Perspektiva YO'Q -- yozuv
+   qiyshaymaydi va o'qilishi buzilmaydi (PODXOD_7SINF.md §10, «daftardagidek»). */
+@keyframes g7-mergeL {
+  from { transform: none; opacity: 1; }
+  to { transform: translateX(.62em) translateY(4px) scale(.86); opacity: .18; }
+}
+@keyframes g7-mergeR {
+  from { transform: none; opacity: 1; }
+  to { transform: translateX(-.62em) translateY(4px) scale(.86); opacity: .18; }
+}
+@keyframes g7-born {
+  0% { transform: translateY(10px) scale(.5); opacity: 0; text-shadow: none; }
+  62% { transform: translateY(-3px) scale(1.09); opacity: 1; text-shadow: 0 6px 12px rgba(24,34,36,.20); }
+  100% { transform: none; opacity: 1; text-shadow: 0 2px 5px rgba(24,34,36,.13); }
+}
+.g7-film-cap {
+  margin: 0; text-align: center;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(15px, 1.9vw, 19px); line-height: 1.34; color: ${T.ink2};
+  /* Proza MONOSHRIFT emas va nowrap emas: aks holda chetga chiqib yo'qoladi (§6.2) */
+  white-space: normal; overflow-wrap: anywhere;
+  animation: g7-in .34s ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .g7-film-tok.is-mergeL, .g7-film-tok.is-mergeR, .g7-film-tok.is-born, .g7-film-cap {
+    animation-duration: .01ms;
+  }
+}
+
+/* YO'LAK: yozuv o'zi yig'iladi. Ikkitasi yonma-yon ketadi va AJRALADI. */
+.g7-track-row {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 5px 12px; border-radius: 11px;
+  background: rgba(23,26,29,.04);
+  transition: background .4s ease;
+}
+.g7-track-row.is-tip { background: ${T.tipSoft}; }
+.g7-track-row.is-ok { background: ${T.okSoft}; }
+.g7-track-cap {
+  flex: 0 0 auto; max-width: 44%;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(13px, 1.5vw, 15px); color: ${T.ink2};
+  min-width: 0; overflow-wrap: anywhere;
+}
+.g7-track-expr {
+  flex: 1; min-width: 0;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 1px 6px;
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: clamp(18px, 2.3vw, 25px);
+  font-variant-numeric: tabular-nums lining-nums;
+  color: ${T.ink};
+}
+.g7-track-row.is-tip .g7-track-expr { color: ${T.tip}; }
+.g7-track-row.is-ok .g7-track-expr { color: ${T.ok}; }
+/* Yig'ilib bo'lgach qolgan yagona son bir pog'ona yiriklashadi: ikki
+   yo'lakning FARQI ko'zga tashlanishi kerak. */
+.g7-track-row.is-done .g7-track-expr { font-size: clamp(19px, 2.4vw, 26px); }
+
+/* ============================================================
+   XUK SAHNASI: yozuv lentadan ikkala mashinaga ketadi, sonlar ajraladi.
+   Rasm fayli yo'q -- faqat SVG va CSS. Personaj yo'q (§7.4).
+   ============================================================ */
+/* Sahna kengligi BOSHQA ekranlardagi panel bilan BIR XIL: metodist 2026-08-13
+   da xuk paneli torroq ekanini belgilab ko'rsatdi. Endi u ham ish zonasining
+   butun kengligini oladi, balandligi esa nisbat bo'yicha chiqadi. */
+.g7-hookscene { width: 100%; aspect-ratio: 620 / 176; max-height: clamp(150px, 30vh, 250px); margin-inline: auto; }
+.g7-hk-tape { fill: ${T.paperSolid}; stroke: ${T.line}; stroke-width: 1; }
+.g7-hk-tok {
+  font-family: ${MATH_FONT}; font-weight: 800; font-size: 25px; fill: ${T.ink};
+  animation: g7-hk-drop .38s cubic-bezier(.33,0,.2,1) both;
+}
+.g7-hk-wire {
+  fill: none; stroke: ${T.graph}; stroke-width: 2.4; stroke-linecap: round;
+  stroke-dasharray: 120; stroke-dashoffset: 120;
+  animation: g7-hk-draw .5s ease-out both;
+}
+/* Kabel bo'ylab IMPULS yuguradi: yozuv mashinaga uzluksiz ketayotgandek.
+   Bu «kutish pulsatsiyasi» (§7.1 ruxsat beradi), matematik holat emas --
+   shuning uchun u hech nimani aytmaydi va aldamaydi. */
+.g7-hk-pulse {
+  fill: none; stroke: ${T.accent}; stroke-width: 3.4; stroke-linecap: round;
+  stroke-dasharray: 8 112;
+  animation: g7-hk-run 1.9s linear infinite;
+}
+/* Mashinalar OG'IR: soya tashlaydi va pastdan ko'tarilib joyiga tushadi. */
+.g7-hk-dev { animation: g7-hk-rise .52s cubic-bezier(.22,.9,.3,1.06) both; filter: drop-shadow(0 8px 12px rgba(24,34,36,.16)); }
+.g7-hk-body { fill: ${T.paperSolid}; stroke: ${T.line}; stroke-width: 1; }
+/* Ekranning yuqori qirrasida BLIK: shisha yuza sezilsin */
+/* LCD: to'q kulrang-yashil maydon. Segmentlar unda YONADI, o'chganlari esa
+   xira ko'rinib turadi -- haqiqiy kalkulyatordagidek. */
+.g7-hk-lcd { fill: #23312F; }
+.g7-hk-gloss { fill: #fff; opacity: .09; }
+/* Kalkulyator raqamining SEGMENTI. Nomi g7-lcdseg -- yuqori paneldagi
+   g7-seg (progress bo'laklari) bilan URISHMASLIGI uchun: telefon
+   uslublarida u nom display none bilan yopiladi va raqamlar ham
+   ko'rinmay qolardi (o'lchov 2026-08-14, 860px dan pastda). */
+.g7-lcdseg { fill: #3C4F4B; transition: fill .2s ease; }
+.g7-lcdseg.is-on { fill: #8FF3C6; filter: drop-shadow(0 0 3px rgba(143,243,198,.55)); }
+.g7-hk-keys rect { fill: #E7E2D8; stroke: rgba(24,34,36,.14); stroke-width: 1; }
+.g7-hk-num { transform-box: fill-box; transform-origin: center; animation: g7-hk-pop .42s cubic-bezier(.33,0,.2,1) both; }
+/* Kiritish kursori: son chiqquncha miltillaydi, keyin butunlay so'nadi. */
+.g7-hk-cur { fill: #8FF3C6; animation: g7-hk-caret 1.9s steps(1) both; }
+@keyframes g7-hk-caret {
+  0%, 14% { opacity: 0; }
+  15%, 30% { opacity: .95; }
+  31%, 46% { opacity: 0; }
+  47%, 62% { opacity: .95; }
+  63%, 100% { opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .g7-hk-cur { animation: none; opacity: 0; } }
+/* Skaner TAKRORLANADI: mashina ishlab turgandek. Uzoq pauza bilan, aks holda
+   u diqqatni javob variantlaridan tortib oladi. */
+.g7-hk-scan { display: none; }
+/* Ikkala son BIR XIL rangda: xukda hech biri to'g'ri deb belgilanmaydi */
+/* SVG da scale HOLST burchagidan hisoblanadi: transform-box bo'lmasa element
+   chap yuqori burchakdan uchib keladi. Shuning uchun har bir kattalashadigan
+   element o'z qutisiga bog'lanadi. */
+.g7-hk-val {
+  font-family: ${MATH_FONT}; font-weight: 800; font-size: 30px; fill: ${T.ink};
+  transform-box: fill-box; transform-origin: center;
+  animation: g7-hk-pop .42s cubic-bezier(.33,0,.2,1) both;
+}
+.g7-hk-cap {
+  font-family: 'Manrope', sans-serif; font-size: 12.5px; font-weight: 600; fill: ${T.ink2};
+}
+/* Amal belgisi sahnada ham bosqich rangida. */
+.g7-hk-tok.is-s2 { fill: ${T.stage2}; }
+.g7-hk-tok.is-s1 { fill: ${T.stage1}; }
+/* YAKUNDAGI INTERAKTIV: oddiy kalkulyator bosiladigan bo'ladi. */
+.g7-hk-dev.is-fixable { cursor: pointer; }
+.g7-hk-dev.is-fixable:hover .g7-hk-body, .g7-hk-dev.is-fixable:focus-visible .g7-hk-body { stroke: ${T.accent}; stroke-width: 2; }
+.g7-hk-dev.is-fixable:focus-visible { outline: none; }
+.g7-hk-tap {
+  fill: none; stroke: ${T.accent}; stroke-width: 2; stroke-dasharray: 7 6;
+  animation: g7-hk-tapbeat 1.15s ease-in-out 2.4s 5 both;
+  opacity: 0;
+}
+@keyframes g7-hk-tapbeat {
+  0%, 100% { opacity: .35; }
+  45% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .g7-hk-tap { animation: none; opacity: .6; } }
+.g7-hk-dev.is-fixed .g7-hk-body { stroke: ${T.ok}; stroke-width: 2; transition: stroke .5s ease; }
+.g7-hk-ne.is-fixed circle { fill: ${T.okSoft}; stroke: ${T.ok}; }
+.g7-hk-ne.is-fixed text { fill: ${T.ok}; }
+/* Topshiriq satri sahna OSTIDA, oddiy matn bilan. */
+.g7-hk-ask {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin: 2px 0 0; min-height: 18px;
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(12.5px, 1.5vw, 14.5px); color: ${T.accent};
+  animation: g7-in .34s ease 2.2s both;
+}
+.g7-hk-ask.is-done { color: ${T.ok}; animation: g7-in .34s ease both; }
+.g7-hk-ask-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: ${T.accent};
+  flex-shrink: 0; animation: g7-cta-pulse 1.9s ease-out 5;
+}
+@media (prefers-reduced-motion: reduce) { .g7-hk-ask-dot { animation: none; } }
+.g7-hk-ne { transform-box: fill-box; transform-origin: center; animation: g7-hk-pop .42s cubic-bezier(.33,0,.2,1) both; }
+.g7-hk-ne circle { fill: ${T.graphSoft}; stroke: ${T.graph}; stroke-width: 1.5; }
+.g7-hk-ring { transform-box: fill-box; transform-origin: center; animation: g7-hk-breathe 2.6s ease-in-out 2.6s infinite; }
+.g7-hk-ne text { font-family: ${MATH_FONT}; font-weight: 800; font-size: 21px; fill: ${T.graph}; }
+/* Belgi tushadi va bir marta sakraydi -- og'irligi bordek */
+@keyframes g7-hk-drop {
+  0% { opacity: 0; transform: translateY(-14px); }
+  70% { opacity: 1; transform: translateY(3px); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes g7-hk-draw { to { stroke-dashoffset: 0; } }
+@keyframes g7-hk-run { from { stroke-dashoffset: 120; } to { stroke-dashoffset: 0; } }
+/* «Teng emas» halqasi sekin nafas oladi: sahna tirik, lekin diqqat tortmaydi */
+@keyframes g7-hk-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+@keyframes g7-hk-rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+/* Son PRUJINA bilan qalqib chiqadi va soya tashlaydi */
+@keyframes g7-hk-pop {
+  0% { opacity: 0; transform: translateY(8px) scale(.5); }
+  60% { opacity: 1; transform: translateY(-3px) scale(1.12); }
+  100% { opacity: 1; transform: none; }
+}
+/* Skaner ekran bo'ylab o'tadi va so'nadi: mashina «o'ylayapti» */
+@keyframes g7-hk-scan {
+  0% { transform: translateX(0); opacity: 0; }
+  4% { opacity: .3; }
+  30% { transform: translateX(130px); opacity: .3; }
+  36% { transform: translateX(130px); opacity: 0; }
+  100% { transform: translateX(130px); opacity: 0; }
+}
+/* Telefonda sahna 620 dan 360 ga siqiladi, ya'ni HAMMA narsa 0,58 barobar
+   kichrayadi va yorliq 7px ga tushib O'QILMAY qoladi. O'lchamlar HOLST
+   birligida berilgan, shuning uchun ularni aynan tor ekran uchun kattalashtirish
+   mumkin: siqilgandan keyin ular yana o'qiladigan bo'ladi. */
+@media (max-width: 640px) {
+  .g7-hk-tok { font-size: 30px; }
+  .g7-hk-val { font-size: 40px; }
+  .g7-hk-cap { font-size: 19px; }
+  .g7-hk-ne text { font-size: 26px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g7-hk-tok, .g7-hk-wire, .g7-hk-dev, .g7-hk-val, .g7-hk-ne { animation-duration: .01ms; }
+  .g7-hk-scan { animation: none; opacity: 0; }
+}
+
+/* QONUN JONLANADI: qismlar birma-bir yonadi, so'ng chiziq chapdan o'ngga. */
+.g7-lawrev {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+  gap: 4px clamp(6px, 1vw, 12px); min-width: 0;
+}
+.g7-lawrev-chip {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 46px; min-height: 34px; padding: 3px 12px;
+  border-radius: 10px; background: ${T.accentSoft}; color: ${T.accent};
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: clamp(15px, 1.9vw, 20px);
+  animation: g7-lawpop .42s cubic-bezier(.33,0,.2,1) both;
+}
+/* Qoida qismlari BOSQICH ranglarida: o'quvchi ularni yozuvlardan taniydi. */
+.g7-lawrev-chip.is-s2 { background: ${T.stage2Soft}; color: ${T.stage2}; }
+.g7-lawrev-chip.is-s1 { background: ${T.stage1Soft}; color: ${T.stage1}; }
+.g7-lawrev-chip.is-par { background: ${T.graphSoft}; color: ${T.graph}; }
+.g7-lawrev-chip.is-off { background: rgba(24,34,36,.05); color: ${T.ink3}; }
+.g7-lawrev-arr {
+  color: ${T.ink3}; font-weight: 700; font-size: clamp(13px, 1.6vw, 17px);
+  animation: g7-in .3s ease-out both;
+}
+.g7-lawrev-sweep {
+  position: relative; flex-basis: 100%; text-align: center; overflow: hidden;
+  margin-top: 2px; padding: 3px 0;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: clamp(11.5px, 1.4vw, 13.5px); color: ${T.graph};
+  animation: g7-in .34s ease-out both;
+}
+.g7-lawrev-sweep::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(18,110,115,.22), transparent);
+  transform: translateX(-100%);
+  animation: g7-sweep 1.5s ease-in-out .3s infinite;
+}
+@keyframes g7-lawpop { from { opacity: 0; transform: translateY(8px) scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes g7-sweep { to { transform: translateX(100%); } }
+@media (prefers-reduced-motion: reduce) {
+  .g7-lawrev-chip, .g7-lawrev-arr, .g7-lawrev-sweep { animation-duration: .01ms; }
+  .g7-lawrev-sweep::after { animation: none; opacity: 0; }
+}
+
+/* ★ LAYFXAK. 3-sinfdagi «Bonus» qutisi naqshi: alohida ramka, yulduzcha,
+   qisqa gap. Ekranning ENG PASTIDA turadi va matematikani takrorlamaydi --
+   u mavzuni HAYOT bilan bog'laydi yoki tekshirish usulini beradi. */
+.g7-hack {
+  display: flex; align-items: flex-start; gap: 8px; min-width: 0;
+  margin-top: auto;
+  padding: 7px clamp(9px, 1.2vw, 13px);
+  border-radius: 11px;
+  background: #FFF6DC; box-shadow: inset 0 0 0 1px rgba(199,164,74,.42);
+  animation: g7-in .34s ease-out both;
+}
+.g7-hack > b { flex-shrink: 0; color: #A5761A; font-size: 13px; line-height: 1.35; }
+.g7-hack > span {
+  min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(13.5px, 1.6vw, 15.5px); line-height: 1.34; color: ${T.ink};
+}
+@media (prefers-reduced-motion: reduce) { .g7-hack { animation: none; } }
+
+/* YAKUN 6-sinf naqshida: banner, sahna, uch TENG kartochka. Bloklar kaskad
+   bilan chiqadi: 0, 120, 240 ms. */
+.g7-sumbanner {
+  display: flex; align-items: center; gap: 10px; min-width: 0;
+  padding: 7px clamp(10px, 1.3vw, 15px); border-radius: 12px;
+  background: ${T.paperSolid}; box-shadow: inset 0 0 0 1px ${T.line};
+  animation: g7-in .34s ease-out both;
+}
+.g7-sumbanner-tag {
+  flex-shrink: 0; font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: clamp(9.5px, 1.1vw, 11px); letter-spacing: .16em;
+  text-transform: uppercase; color: ${T.accent};
+}
+.g7-sumbanner-h {
+  flex: 1; min-width: 0; overflow-wrap: anywhere; margin: 0;
+  font-family: 'Source Serif 4', Georgia, serif; font-weight: 600;
+  font-size: clamp(15px, 2vw, 21px); line-height: 1.1; color: ${T.ink};
+}
+.g7-sumbanner-gl { flex-shrink: 0; display: inline-flex; gap: 7px; }
+.g7-sumbanner-gl i {
+  font-family: ${MATH_FONT}; font-style: normal; font-weight: 800;
+  font-size: clamp(13px, 1.5vw, 16px); color: ${T.ink3};
+}
+.g7-sumscene { animation: g7-in .34s ease-out .12s both; }
+/* Sahna YAKUNDA endi INTERAKTIV: mashina bosiladi, ya'ni ko'rinishi kerak.
+   O'lcham BALANDLIKKA bog'liq: past noutbukda kichrayadi. */
+.g7-sumscene .g7-hookscene { max-height: clamp(96px, 17vh, 178px); }
+@media (max-height: 660px) {
+  .g7-sumscene .g7-hookscene { max-height: 122px; }
+}
+/* Metodist qarori 2026-08-13: yakun kontenti TIK turadi, yonma-yon emas. */
+.g7-sumcards {
+  /* IKKI USTUN. Metodist qarori 2026-08-14: kartochkalar yonma-yon tursin
+     va shrift kattaroq bo'lsin. Bu 2026-08-13 dagi «yakun TIK» qarorini
+     almashtiradi. Telefonda bitta ustun qoladi. */
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: start;
+  gap: clamp(6px, 1vw, 12px); min-width: 0;
+  animation: g7-in .34s ease-out .24s both;
+}
+.g7-sumcard {
+  display: flex; flex-direction: column; gap: 5px; min-width: 0;
+  padding: 8px clamp(9px, 1.2vw, 13px); border-radius: 12px;
+  background: ${T.paperSolid}; box-shadow: inset 0 0 0 1px ${T.line};
+}
+.g7-sumcard-h {
+  margin: 0; font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: clamp(10.5px, 1.25vw, 12.5px); letter-spacing: .13em;
+  text-transform: uppercase; color: ${T.accent};
+}
+.g7-sumcard-ul { margin: 0; padding-left: 15px; display: flex; flex-direction: column; gap: 1px; }
+.g7-sumcard-ul li {
+  min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(13.5px, 1.65vw, 16px); line-height: 1.38; color: ${T.ink};
+}
+.g7-sumcard-note {
+  margin: 0; min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(13px, 1.55vw, 15px); line-height: 1.38; color: ${T.ink2};
+}
+/* Faol qator: amal belgisi TUGMA. Yozuvning o'zi bosiladigan yuzaga aylanadi,
+   chipslar qatori endi umuman yo'q. */
+/* Yozuv ramka MARKAZIDA turadi (metodist qarori 2026-08-13): u ekranning
+   asosiy obyekti, chetga surilgan holda ikkinchi darajali ko'rinardi. */
+.g7-tf-live { display: flex; flex-wrap: wrap; align-items: center; gap: 3px 8px; justify-content: center; }
+.g7-tf-tok { transition: color .18s ease; }
+.g7-tf-tok.is-lit { color: ${T.accent}; font-weight: 800; }
+.g7-tf-op {
+  min-width: 32px; min-height: 32px; padding: 0 7px;
+  border: 1.5px dashed ${T.accent}; border-radius: 9px;
+  background: ${T.accentSoft}; color: ${T.accent};
+  font: inherit; font-weight: 800; cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.g7-tf-op:hover:not(:disabled) { background: ${T.accent}; color: #fff; }
+.g7-tf-op.is-picked { border-style: solid; background: ${T.accent}; color: #fff; }
+.g7-tf-op.is-hint { animation: g7-tapbeat 1.15s ease-in-out 5; }
+@media (prefers-reduced-motion: reduce) { .g7-tf-op.is-hint { animation: none; } }
+
+.g7-sumgap {
+  margin: 2px 0 0; min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: clamp(12px, 1.4vw, 14px); line-height: 1.3; color: ${T.tip};
+}
+.g7-sumcard-note b { color: ${T.ink3}; font-weight: 800; font-size: .9em; text-transform: uppercase; letter-spacing: .06em; }
+@media (max-width: 640px) {
+  .g7-sumcards { grid-template-columns: 1fr; }
+  /* Telefonda uch kartochka ustma-ust turadi va sahna 39px oshirib yuborardi
+     (o'lchov 2026-08-13). Sahna YASHIRILMAYDI -- u darsni yopadigan zal --
+     faqat pasaytiriladi. */
+  /* Telefonda sahna endi BOSILADI -- juda kichkina bo'lolmaydi. */
+  .g7-sumscene .g7-hookscene { max-height: clamp(104px, 17vh, 138px); }
+  /* Banner telefonda BITTA qatorga sig'maydi: sarlavha pastga tushadi.
+     Glifllar olib tashlanadi, ular bezak. */
+  .g7-sumbanner { flex-wrap: wrap; gap: 4px 8px; }
+  .g7-sumbanner-gl { display: none; }
+  .g7-sumcards { gap: 5px; }
+  .g7-sumcard { padding: 6px 10px; gap: 2px; }
+}
+@media (prefers-reduced-motion: reduce) { .g7-sumbanner, .g7-sumscene, .g7-sumcards { animation: none; } }
+
+/* YAKUN 6-sinf naqshida: mavzu svodi. Uch TENG kartochka, so'ng bitta
+   yozuvning ikki yo'li, so'ng «tayanadi / keyingi». */
+.g7-sumbrief { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.g7-sumbrief-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(6px, 1vw, 12px); }
+.g7-sumbrief-card {
+  min-width: 0; overflow-wrap: anywhere;
+  padding: 8px clamp(9px, 1.2vw, 13px); border-radius: 11px;
+  background: ${T.paperSolid}; box-shadow: inset 0 0 0 1px ${T.line};
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: clamp(12.5px, 1.5vw, 14.5px); line-height: 1.3; color: ${T.ink};
+}
+.g7-sumtwo { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.g7-sumtwo-row { display: flex; flex-wrap: wrap; gap: 6px clamp(10px, 1.6vw, 20px); }
+.g7-sumtwo-line {
+  min-width: 0; overflow-wrap: anywhere;
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(15px, 1.9vw, 19px); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.g7-sumgap {
+  margin: 2px 0 0; min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif; font-weight: 600;
+  font-size: clamp(12px, 1.4vw, 14px); line-height: 1.3; color: ${T.tip};
+}
+.g7-sumconn {
+  display: flex; flex-wrap: wrap; gap: 4px clamp(12px, 2vw, 26px); min-width: 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(12px, 1.4vw, 13.5px); line-height: 1.3; color: ${T.ink2};
+}
+.g7-sumconn b { color: ${T.ink3}; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; font-size: .88em; }
+@media (max-width: 640px) { .g7-sumbrief-row { grid-template-columns: 1fr; } }
+
+/* Qayta yozish qatori: yozuv chapda, o'qituvchi gapi o'ngda. 390 da ular
+   ustma-ust tushadi -- yonma-yon sig'maydi. */
+.g7-tf-row { display: flex; align-items: baseline; gap: clamp(8px, 1.4vw, 18px); min-width: 0; }
+.g7-tf-row > .g7-expr { flex: 0 0 auto; }
+.g7-tf-row > .g7-sol-say { flex: 1; min-width: 0; }
+@media (max-width: 640px) { .g7-tf-row { flex-direction: column; gap: 0; } }
+
+/* O'QITUVCHI YECHIMI: alohida ramkada, YIRIK yozuv, amallar rangli. */
+.g7-sol { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.g7-sol-cap {
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: clamp(10.5px, 1.2vw, 12px); letter-spacing: .15em;
+  text-transform: uppercase; color: ${T.accent}; margin-bottom: 3px;
+}
+.g7-sol-row {
+  display: flex; align-items: baseline; gap: clamp(10px, 1.6vw, 22px); min-width: 0;
+  padding: 3px 0;
+  animation: g7-in .3s ease-out both;
+}
+.g7-sol-expr {
+  flex: 0 0 auto; display: inline-flex; align-items: baseline; gap: .32em;
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: clamp(19px, 2.6vw, 28px); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums;
+}
+/* Amal belgisi YIRIKROQ va rangli: ko'z avval unga tushadi. */
+/* Bosqich RANGI ham bo'lishi kerak edi: ilgari bu yerda faqat o'lcham
+   turardi, shuning uchun yechimda belgilar qora qolib ketgandi. */
+.g7-sol-tok.is-s2 { font-size: 1.12em; color: ${T.stage2}; }
+.g7-sol-tok.is-s1 { font-size: 1.12em; color: ${T.stage1}; }
+.g7-sol-tok.is-par { color: ${T.accent}; font-size: 1.12em; }
+.g7-sol-say {
+  flex: 1; min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(12.5px, 1.5vw, 14.5px); line-height: 1.3; color: ${T.ink2};
+}
+@media (max-width: 640px) {
+  .g7-sol-row { flex-direction: column; gap: 0; padding: 2px 0; }
+  .g7-sol-expr { font-size: clamp(18px, 5.4vw, 24px); }
+}
+@media (prefers-reduced-motion: reduce) { .g7-sol-row { animation: none; } }
+
+/* SON O'QI: ikki yo'l, ikki to'xtash joyi. */
+.g7-nl { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.g7-nl-row { display: flex; flex-direction: column; gap: 1px; min-width: 0; min-height: 96px; }
+.g7-nl { padding: 5px 7px; border-radius: 12px; }
+.g7-nl.is-tappable { cursor: pointer; }
+.g7-nl.is-tappable:focus-visible { outline: 2px solid ${T.accent}; outline-offset: 3px; }
+/* TURTKI -- BOSISH STIKERI (metodist qarori 2026-08-14). Sahna ustida
+   turadi, bosishga xalaqit bermaydi, o'quvchi bosishi bilan yo'qoladi.
+   VAQT bo'yicha so'nmaydi: harakat tugaydi, belgi qoladi. */
+.g7-nl.is-inviting { position: relative; }
+.g7-tapmark {
+  position: absolute; left: 50%; top: 41%;
+  transform: translateX(-50%);
+  display: inline-flex; align-items: center; justify-content: center;
+  pointer-events: none; z-index: 2;
+  animation: g7-tapfade .3s ease both;
+}
+.g7-tapmark-emoji {
+  position: relative; z-index: 1;
+  font-size: clamp(32px, 3.6vw, 42px); line-height: 1;
+  filter: drop-shadow(0 3px 5px rgba(24,34,36,.22));
+  animation: g7-tappress 1.4s cubic-bezier(.33,0,.2,1) 5;
+}
+.g7-tapmark-ring {
+  position: absolute; left: 50%; top: 60%;
+  width: clamp(32px, 3.6vw, 42px); height: clamp(32px, 3.6vw, 42px);
+  margin-left: calc(clamp(32px, 3.6vw, 42px) / -2);
+  margin-top: calc(clamp(32px, 3.6vw, 42px) / -2);
+  border-radius: 50%;
+  border: 3px solid ${T.accent};
+  opacity: 0;
+  animation: g7-tapwave 1.4s cubic-bezier(.2,.7,.3,1) 5;
+}
+@keyframes g7-tappress {
+  0%, 100% { transform: translateY(0); }
+  20% { transform: translateY(7px) scale(.94); }
+  46% { transform: translateY(0); }
+}
+@keyframes g7-tapwave {
+  0%, 16% { transform: scale(.35); opacity: 0; }
+  26% { opacity: .75; }
+  62% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes g7-tapfade { from { opacity: 0; transform: translateX(-50%) translateY(6px); } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .g7-tapmark-emoji, .g7-tapmark-ring { animation: none; }
+  .g7-tapmark-ring { opacity: .5; }
+}
+.g7-nl-row.is-wait { min-height: 96px; }
+.g7-nl-cap {
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(11px, 1.3vw, 13px); color: ${T.ink2};
+}
+.g7-nl-svg { width: 100%; height: auto; display: block; max-height: 96px; }
+.g7-nl-axis { stroke: ${T.ink3}; stroke-width: 1.6; }
+.g7-nl-tick { stroke: ${T.ink3}; stroke-width: 1.4; }
+.g7-nl-num { font-family: ${MATH_FONT}; font-size: 13px; font-weight: 700; fill: ${T.ink2}; }
+.g7-nl-jump { animation: g7-in .4s ease-out both; }
+.g7-nl-arc { fill: none; stroke-width: 2.6; stroke-linecap: round; }
+.g7-nl-arc.is-back { stroke: ${T.stage1}; }
+.g7-nl-arc.is-fwd { stroke: ${T.stage2}; }
+.g7-nl-head { stroke: none; }
+.g7-nl-head.is-back { fill: ${T.stage1}; }
+.g7-nl-head.is-fwd { fill: ${T.stage2}; }
+.g7-nl-lab { font-family: ${MATH_FONT}; font-size: 14px; font-weight: 800; fill: ${T.ink}; }
+.g7-nl-dot.is-start { fill: ${T.ink3}; }
+.g7-nl-dot { fill: ${T.accent}; transform-box: fill-box; transform-origin: center; animation: g7-hk-pop .42s cubic-bezier(.33,0,.2,1) both; }
+.g7-nl-end { font-family: ${MATH_FONT}; font-size: 17px; font-weight: 800; fill: ${T.accent}; transform-box: fill-box; transform-origin: center; animation: g7-hk-pop .42s cubic-bezier(.33,0,.2,1) both; }
+@media (prefers-reduced-motion: reduce) { .g7-nl-jump, .g7-nl-dot, .g7-nl-end { animation: none; } }
+
+/* LENTA: bosilgan yo'l. Plashkalar birma-bir chiqadi va QOLADI. */
+.g7-tape { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.g7-tape-cap {
+  font-family: 'Manrope', sans-serif; font-weight: 700;
+  font-size: clamp(10px, 1.1vw, 11.5px); letter-spacing: .16em;
+  text-transform: uppercase; color: ${T.ink3};
+}
+.g7-tape-row { display: flex; flex-wrap: wrap; gap: 6px; min-width: 0; }
+.g7-tape-chip {
+  display: inline-flex; align-items: center;
+  padding: 5px 11px; border-radius: 9px;
+  background: ${T.paperSolid}; box-shadow: inset 0 0 0 1px ${T.line};
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(13px, 1.5vw, 15.5px); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums;
+  animation: g7-lawpop .38s cubic-bezier(.33,0,.2,1) both;
+}
+@media (prefers-reduced-motion: reduce) { .g7-tape-chip { animation: none; } }
+
+/* BONUS -- 3-sinf Dars01 s4 naqshi: sariq ramka, yulduzcha, sarlavha va bir
+   gap. Layfxakdan farqi -- unda SARLAVHA bor va u mavzuning yana bir tomonini
+   ochadi. Usul ekranlarida bonus layfxakning o'rnini egallaydi. */
+.g7-bonus {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0;
+  margin-top: auto;
+  padding: 8px clamp(10px, 1.3vw, 15px);
+  border-radius: 12px;
+  background: #FFF6DC; box-shadow: inset 0 0 0 1.5px rgba(199,164,74,.5);
+  animation: g7-in .34s ease-out both;
+}
+.g7-bonus-cap {
+  font-family: 'Manrope', sans-serif; font-weight: 800;
+  font-size: clamp(12px, 1.4vw, 14px); letter-spacing: .04em; color: #9A6C12;
+}
+.g7-bonus-text {
+  min-width: 0; overflow-wrap: anywhere;
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(13.5px, 1.6vw, 15.5px); line-height: 1.34; color: ${T.ink};
+}
+@media (prefers-reduced-motion: reduce) { .g7-bonus { animation: none; } }
+
+/* Birinchi xatodan keyin ochiladigan lug'at polosasi. */
+.g7-helpstrip {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px clamp(10px, 1.6vw, 20px);
+  padding: 7px clamp(9px, 1.2vw, 13px); border-radius: 11px;
+  background: ${T.graphSoft};
+  font-family: ${MATH_FONT}; font-weight: 700;
+  font-size: clamp(12px, 1.4vw, 14px); color: ${T.graph};
+  animation: g7-in .34s ease-out both;
+}
+.g7-helpstrip > span { min-width: 0; overflow-wrap: anywhere; }
+@media (prefers-reduced-motion: reduce) { .g7-helpstrip { animation: none; } }
+
+/* Yakun TIK: halqa va tayyorlik matni yonma-yon, qolgani ustma-ust. */
+.g7-sumready { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.g7-sumready > .g7-insight { flex: 1; min-width: 0; }
+.g7-sumcan { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+/* «Endi men» to'rt bandi ikki ustunda: tik yakunda to'rt qator juda uzun. */
+.g7-sumcan-list {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 2px clamp(10px, 1.6vw, 22px);
+}
+.g7-sumcan-item {
+  display: flex; gap: 6px; min-width: 0;
+  font-size: clamp(12.5px, 1.5vw, 14.5px); line-height: 1.3; color: ${T.ink};
+}
+.g7-sumcan-item > b { color: ${T.ok}; font-weight: 800; flex-shrink: 0; }
+.g7-sumcan-item > span { min-width: 0; overflow-wrap: anywhere; }
+.g7-sumfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.g7-sumfoot > .g7-hint { margin: 0; min-width: 0; }
+@media (max-width: 640px) {
+  .g7-sumready { align-items: flex-start; }
+  .g7-sumcan-list { grid-template-columns: 1fr; }
+  .g7-sumfoot { flex-direction: column; align-items: stretch; }
+  /* Telefonda qobiq uchun 60px yuqoridan berildi, ya'ni budjet 607 dan 547 ga
+     tushdi va yakun 8px sig'may qoldi. Ikki joydan qisqartiriladi:
+     halqa kichrayadi va keyingi darsga KO'PRIK olib tashlanadi -- u ovozda
+     aytiladi va matematika tashimaydi. Hech qanday son, javob yoki razbor
+     yo'qolmaydi. */
+  .g7-sumready .g7-ring svg { width: 64px; height: 64px; }
+  .g7-sumfoot > .g7-hint { display: none; }
+}
+
+/* Ikki kartochka va «teng emas» belgisi (xuk, §6.5). */
+.g7-tv-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: clamp(8px, 2vw, 18px); width: 100%; min-width: 0;
+}
+.g7-tv {
+  flex: 1 1 0; min-width: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  padding: 10px 12px; border-radius: 14px;
+  background: ${T.paperSolid};
+  box-shadow: 0 14px 30px -22px rgba(${T.shadow},.6), inset 0 0 0 1px ${T.line};
+  transition: opacity .5s ease, box-shadow .5s ease;
+}
+.g7-tv-cap {
+  font-family: 'Manrope', sans-serif;
+  font-size: clamp(11px, 1.3vw, 13px); font-weight: 600;
+  color: ${T.ink2}; text-align: center;
+  min-width: 0; overflow-wrap: anywhere;
+}
+.g7-tv-val {
+  font-family: ${MATH_FONT}; font-weight: 800;
+  font-size: clamp(24px, 3.4vw, 38px); color: ${T.ink};
+  font-variant-numeric: tabular-nums lining-nums; line-height: 1.1;
+}
+.g7-tv.is-dim { opacity: .34; }
+.g7-tv.is-ok { box-shadow: 0 14px 30px -22px rgba(40,119,74,.6), inset 0 0 0 2px rgba(40,119,74,.45); }
+.g7-tv.is-ok .g7-tv-val { color: ${T.ok}; }
+.g7-tv-ne {
+  flex-shrink: 0;
+  width: clamp(30px, 4vw, 40px); height: clamp(30px, 4vw, 40px); border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: ${T.graphSoft}; color: ${T.graph};
+  font-family: ${MATH_FONT}; font-weight: 800; font-size: clamp(15px, 2vw, 20px);
+}
+
+@media (max-width: 640px) {
+  .g7-so-row { font-size: clamp(18px, 5vw, 24px); }
+  .g7-so-op { min-width: 46px; min-height: 54px; }
+  .g7-rb-chip { min-height: 46px; }
+  /* Yonma-yon turgan ikki kartochka 390 da yozuvni uch qatorga yorardi (§6.2) */
+  .g7-tv-row { flex-direction: column; gap: 6px; }
+  .g7-tv { width: 100%; flex: 0 0 auto; flex-direction: row; justify-content: space-between; }
+  .g7-tv-val { font-size: clamp(22px, 7vw, 30px); }
+}
 `
