@@ -153,6 +153,45 @@ async function run(lang, width, height) {
     if (under) fail(`ekran ${i + 1} (${name}): kontent pastki paneldan ${under}px pastga chiqdi`);
   }
 
+  // ---- XUK KONTRAKTI (metodist qarori 2026-08-14) ----
+  // Xuk bolaning TAXMINI ni qabul qiladi va O'ZI yopiladi — sinfning qolgan
+  // darslaridagidek (8-46 darslar movtori va 2-7 darslar bir xil ishlaydi).
+  // Shuning uchun xukda BO'LMASLIGI kerak: komanda qutilari, zaxira, formula,
+  // ikki holatning taqqoslanishi, xulosa, «bu yana qayerda kerak» va javob
+  // rangi. Tanlovdan keyin dars keyingi ekranga o'tadi.
+  await page.goto(`${BASE}/6-sinf/matematika/nazariy/${SLUG}?lang=${lang}&screen=1`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.hk', { timeout: 12000 });
+  {
+    const b = page.locator('button[title="Sound off"]').first();
+    if (await b.count()) await b.click().catch(() => {});
+  }
+  await page.waitForTimeout(900);
+  const opts = page.locator('.g6-hook-options .option');
+  if (await opts.count() !== 2) fail(`xuk: ikkita variant emas, ${await opts.count()} ta`);
+  if (!(await page.locator('.g6-hook-note').count())) fail("xuk: «javobni hozir ochmaymiz» qatori yo'q");
+  const underHook = await page.evaluate(() => {
+    const el = document.querySelector('.lesson-root .stage-content');
+    return el ? Math.max(0, Math.round(el.scrollHeight - el.clientHeight)) : 0;
+  });
+  if (underHook) fail(`xuk: kontent pastki paneldan ${underHook}px pastga chiqdi`);
+  await opts.first().click();
+  // Javob oshkor bo'lmasligi TANLOV PAYTIDA tekshiriladi: agar razbor qaytsa,
+  // u aynan shu yerda, ekran yopilishidan oldin chiqadi.
+  await page.waitForTimeout(260);
+  for (const [sel, what] of [
+    ['.hk-team', 'komanda qutilari'], ['.hk-bench', 'zaxira'], ['.hk-eq', 'formula'],
+    ['.hk-both', 'ikki holat taqqoslanishi'], ['.hk-why', '«yana qayerda kerak» bloki'],
+    ['.hk-other', '«ikkinchisida qanday» tugmasi'],
+    ['.option-correct', "to'g'ri javob rangi"], ['.option-picked-wrong', 'xato javob rangi'],
+  ]) {
+    if (await page.locator(sel).count()) fail(`xuk: tanlovdan keyin ${what} chiqdi (javob oshkor bo'ldi)`);
+  }
+  note('xuk: javob oshkor qilinmadi');
+  await page.waitForTimeout(1400);
+  const afterPick = (await page.locator('.chrome .mono').first().innerText().catch(() => '')).trim();
+  if (!afterPick.startsWith('02')) fail(`xuk: tanlovdan keyin dars o'tmadi, hisoblagich "${afterPick}"`);
+  else note("xuk: taxmin qabul qilindi, dars 02 ga o'tdi");
+
   await browser.close();
   return errors;
 }

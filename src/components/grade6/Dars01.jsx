@@ -1504,68 +1504,35 @@ const CONTENT = {
     },
     opt_5: { ru: 'По 5 в команде', uz: 'Beshtadan', en: 'Teams of 5' },
     opt_6: { ru: 'По 6 в команде', uz: 'Oltitadan', en: 'Teams of 6' },
-    gesture: { ru: 'Нажми один из вариантов', uz: 'Variantlardan birini bosing', en: 'Tap one of the options' },
-    team_label: { ru: 'Команда', uz: 'Komanda', en: 'Team' },
-    bench_bad: { ru: 'Остались без команды: 4', uz: 'Komandasiz qoldi: 4', en: 'Left without a team: 4' },
-    bench_ok: { ru: 'Все играют', uz: "Hamma o'ynaydi", en: 'Everyone plays' },
-    other_btn: { ru: 'А что у второго?', uz: 'Ikkinchisida qanday?', en: 'And what about the other one?' },
-    cmp_5: { ru: 'По 5', uz: 'Beshtadan', en: 'Teams of 5' },
-    cmp_6: { ru: 'По 6', uz: 'Oltitadan', en: 'Teams of 6' },
-    conclusion: {
-      ru: 'Команд получилось четыре и там, и там. Но по пять четверо не играют: 24 не делится на 5 без остатка. На 6 делится. Сегодня научимся видеть это заранее.',
-      uz: "Ikkala holatda ham to'rtta komanda chiqdi. Lekin beshtadan bo'lganda to'rt kishi o'ynamaydi: 24 soni 5 ga qoldiqsiz bo'linmaydi. 6 ga bo'linadi. Bugun buni oldindan ko'rishni o'rganamiz.",
-      en: 'Both ways give four teams. But with teams of five, four players do not play: 24 does not divide by 5 without a remainder. By 6 it does. Today we will learn to see this in advance.'
-    },
-    why_label: { ru: 'Где это ещё нужно', uz: 'Bu yana qayerda kerak', en: 'Where else you need this' },
-    why_1: {
-      ru: 'Разбить класс на группы для проекта: 24 человека делятся по 4, по 6, по 8 — а по 5 нет.',
-      uz: "Sinfni loyiha uchun guruhlarga bo'lish: 24 kishi 4 tadan, 6 tadan, 8 tadan bo'linadi, 5 tadan esa yo'q.",
-      en: 'Splitting the class into project groups: 24 students split into 4, into 6, into 8 — but not into 5.'
-    },
-    why_2: {
-      ru: 'Расписание матчей: игры идут каждые 15 минут — 15, 30, 45 и дальше.',
-      uz: "O'yinlar jadvali: har 15 daqiqada — 15, 30, 45 va shu tariqa.",
-      en: 'A match schedule: games start every 15 minutes — 15, 30, 45 and on.'
-    },
-    why_3: {
-      ru: 'Сетка фото в галерее: 12 снимков ровно ложатся по 3 в ряд, 13 — уже нет.',
-      uz: "Galereyadagi rasm to'ri: 12 rasm 3 tadan tekis joylashadi, 13 tasi esa yo'q.",
-      en: 'A photo grid in a gallery: 12 photos fit exactly 3 per row, 13 do not.'
+    // Хук ПРИНИМАЕТ прогноз и на этом заканчивается (методист 2026-08-14).
+    // Обещание «ответ не открываем» — то же, что в остальных уроках класса
+    // (движок FractionTheoryLesson): ребёнок должен понимать, что его выбор
+    // сейчас не оценивают. Ответ он добывает сам на экране 6, где урок
+    // возвращается к тому же числу 24 и спрашивает, делится ли оно на 5.
+    // Одна строка, не две: на ноутбучном 1280x800 вторая строка выдавливала
+    // варианты под нижнюю панель.
+    gesture: {
+      ru: 'Нажми один из вариантов. Ответ проверим по ходу урока.',
+      uz: "Variantlardan birini bosing. Javobni dars davomida tekshiramiz.",
+      en: 'Tap one of the options. We will check the answer during the lesson.'
     },
     audio: {
       intro: {
+        // Обещание «ответ проверим по ходу урока» звучит ЗДЕСЬ, до выбора.
+        // Реплики на сам выбор нет: она бы прозвучала уже на следующем экране,
+        // потому что после ответа хук закрывается сам.
         ru: [
           'В школе турнир. Записались двадцать четыре участника, и тренер должен разбить их на команды.',
-          'Азиз предлагает команды по пять человек, Дилноза по шесть. Как ты думаешь, при каком размере никто не останется вне игры? Выбери ответ.'
+          'Азиз предлагает команды по пять человек, Дилноза по шесть. Как ты думаешь, при каком размере никто не останется вне игры? Выбери ответ. Проверим его по ходу урока.'
         ],
         uz: [
           "Maktabda turnir. Yigirma to'rt kishi yozildi va murabbiy ularni komandalarga bo'lishi kerak.",
-          "Aziz beshtadan komanda tuzishni taklif qiladi, Dilnoza esa oltitadan. Sizningcha, qaysi holatda hech kim o'yindan tashqarida qolmaydi? Javobni tanlang."
+          "Aziz beshtadan komanda tuzishni taklif qiladi, Dilnoza esa oltitadan. Sizningcha, qaysi holatda hech kim o'yindan tashqarida qolmaydi? Javobni tanlang. Uni dars davomida tekshiramiz."
         ],
         en: [
           'There is a tournament at school. Twenty four players signed up, and the coach has to split them into teams.',
-          'Aziz suggests teams of five, Dilnoza suggests teams of six. What do you think, with which size will nobody be left out? Choose an answer.'
+          'Aziz suggests teams of five, Dilnoza suggests teams of six. What do you think, with which size will nobody be left out? Choose an answer. We will check it during the lesson.'
         ]
-      },
-      res_5: {
-        ru: 'Смотри. Четыре команды по пять человек это двадцать. Четверо остались без команды, потому что двадцать четыре не делится на пять без остатка.',
-        uz: "Qarang. To'rtta beshtalik komanda yigirmata kishi bo'ladi. To'rt kishi komandasiz qoldi, chunki yigirma to'rt soni beshga qoldiqsiz bo'linmaydi.",
-        en: 'Look. Four teams of five make twenty. Four players are left without a team, because twenty four does not divide by five without a remainder.'
-      },
-      res_6: {
-        ru: 'Смотри. Четыре команды по шесть человек это ровно двадцать четыре. Скамейка пустая, все играют.',
-        uz: "Qarang. To'rtta oltitalik komanda aynan yigirma to'rt kishi. Zaxira bo'sh, hamma o'ynaydi.",
-        en: 'Look. Four teams of six make exactly twenty four. The bench is empty, everyone plays.'
-      },
-      compare: {
-        ru: 'Теперь сравни оба случая. Команд четыре и там, и там, но при пятёрках четверо не играют.',
-        uz: "Endi ikkala holatni solishtiring. Komanda soni ikkalasida ham to'rtta, lekin beshtadan bo'lganda to'rt kishi o'ynamaydi.",
-        en: 'Now compare the two cases. Both give four teams, but with teams of five four players do not play.'
-      },
-      why: {
-        ru: 'Такой выбор встречается часто. Разбить класс на группы, составить расписание, разложить фото в ряды. Везде важно, делится число без остатка или нет.',
-        uz: "Bunday tanlov hayotda ko'p uchraydi. Sinfni guruhlarga bo'lish, jadval tuzish, rasmlarni qatorlarga joylash. Hammasida son qoldiqsiz bo'linadimi yoki yo'qmi degan savol muhim.",
-        en: 'A choice like this comes up often. Splitting a class into groups, making a schedule, arranging photos in rows. Everywhere it matters whether a number divides with no remainder.'
       }
     }
   },
@@ -2434,47 +2401,60 @@ const CONTENT = {
   },
 
   // Ekran 13 — MASALA. Suratlar to'ri. Zamonaviy syujet (metodist 2026-08-13).
-  // MUHIM: chetki joylashuvlar (1 tadan va 24 tadan) HISOBGA OLINADI —
+  // MUHIM: chetki to'rlar (1 tadan va 24 tadan) HISOBGA OLINADI —
   // aks holda javob 6 chiqadi va imtihondagi «24 ning bo'luvchilari nechta»
   // savoliga qarama-qarshi bo'lardi.
   s_grid: {
     eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
     title: { ru: 'Фотографии с турнира', uz: 'Turnir suratlari', en: 'Photos from the tournament' },
     lead: { ru: 'Фотографии выкладывают в школьную галерею одинаковыми рядами.', uz: 'Suratlar maktab galereyasiga bir xil qatorlar qilib joylanadi.', en: 'The photos go into the school gallery in equal rows.' },
-    q1: { ru: 'Фотографий 24. По скольку можно ставить в ряд, чтобы все ряды были полными?', uz: "Suratlar 24 ta. Barcha qatorlar to'la bo'lishi uchun nechtadan qo'yish mumkin?", en: 'There are 24 photos. How many per row can we set so that every row is full?' },
+    // Условие — УТВЕРЖДЕНИЕ, а не второй вопрос. Раньше на экране стояли два
+    // вопроса подряд: «по скольку можно ставить в ряд?» и «сколько раскладок?».
+    // Ребёнок отвечал на первый и выбирал 6, хотя спрашивали количество.
+    q1: { ru: 'Фотографий 24. Каждый ряд должен быть полным.', uz: "Suratlar 24 ta. Har bir qator to'la bo'lishi kerak.", en: 'There are 24 photos. Every row has to be full.' },
     q2: { ru: 'А если фотографий 25?', uz: "Suratlar 25 ta bo'lsa-chi?", en: 'And if there are 25 photos?' },
-    ask_count: { ru: 'Сколько раскладок?', uz: 'Nechta joylashuv?', en: 'How many layouts?' },
+    // «Joylashuv» / «раскладка» ребёнку непонятны (методист 2026-08-14): это
+    // отглагольное существительное, и на экране ему ничего не соответствует.
+    // Считаем то, что ВИДНО на стене — сетку снимков: «6 tadan · 4 qator» это
+    // одна сетка, и вопрос спрашивает, сколько разных сеток бывает. Слово `to'r`
+    // на этом экране уже стояло («kvadrat to'r»), теперь экран говорит одним
+    // словом вместо двух.
+    ask_count: { ru: 'Сколько разных сеток получится?', uz: "Necha xil to'r chiqadi?", en: 'How many different grids come out?' },
     // Варианты и разборы идут в ОДНОМ порядке: 4 / 6 / 8 / 24 и 1 / 3 / 5 / 25.
     opts_24: { ru: ['4', '6', '8', '24'], uz: ['4', '6', '8', '24'], en: ['4', '6', '8', '24'] },
     right_24: 2,
     opts_25: { ru: ['1', '3', '5', '25'], uz: ['1', '3', '5', '25'], en: ['1', '3', '5', '25'] },
     right_25: 1,
-    wrong_all: { ru: '24 — это количество фотографий, а не раскладок. Раскладок столько, сколько делителей.', uz: "24 — bu suratlar soni, joylashuvlar soni emas. Joylashuv nechta bo'luvchi bo'lsa, shuncha.", en: '24 is the number of photos, not of layouts. There are as many layouts as divisors.' },
-    wrong_all_audio: { ru: 'Двадцать четыре это количество фотографий, а не раскладок. Раскладок столько, сколько у числа делителей.', uz: "Yigirma to'rt bu suratlar soni, joylashuvlar soni emas. Joylashuv sonning bo'luvchilari qancha bo'lsa, shuncha.", en: 'Twenty four is the number of photos, not of layouts. There are as many layouts as the number has divisors.' },
-    wrong_one: { ru: 'Квадратная раскладка одна, но есть ещё по 1 в ряд и по 25 в ряд. Всего три.', uz: "Kvadrat joylashuv bitta, lekin 1 tadan va 25 tadan ham bor. Jami uchta.", en: 'There is one square layout, but there are also one per row and twenty five per row. Three in all.' },
-    wrong_one_audio: { ru: 'Квадратная раскладка действительно одна. Но есть ещё по одной в ряд и по двадцать пять в ряд. Всего получается три.', uz: "Kvadrat joylashuv haqiqatan bitta. Lekin bittadan qator va yigirma beshtadan qator ham bor. Jami uchta chiqadi.", en: 'There really is only one square layout. But there are also one per row and twenty five per row. Three in all.' },
-    wrong_five: { ru: '5 — это сколько в ряду, а не сколько раскладок. Делителей у 25 три: 1, 5, 25.', uz: "5 — bu qatordagi soni, joylashuvlar soni emas. 25 ning bo'luvchilari uchta: 1, 5, 25.", en: '5 is how many per row, not how many layouts. 25 has three divisors: 1, 5, 25.' },
-    wrong_five_audio: { ru: 'Пять это сколько фотографий в ряду, а не сколько раскладок. Делителей у двадцати пяти три. Один, пять и двадцать пять.', uz: "Besh bu qatordagi suratlar soni, joylashuvlar soni emas. Yigirma beshning bo'luvchilari uchta. Bir, besh va yigirma besh.", en: 'Five is how many photos are in a row, not how many layouts. Twenty five has three divisors. One, five and twenty five.' },
-    wrong_all25: { ru: '25 — это количество фотографий. Раскладок столько, сколько делителей, а их три.', uz: "25 — bu suratlar soni. Joylashuv nechta bo'luvchi bo'lsa shuncha, ular esa uchta.", en: '25 is the number of photos. There are as many layouts as divisors, and there are three.' },
-    wrong_all25_audio: { ru: 'Двадцать пять это количество фотографий. Раскладок столько, сколько делителей, а делителей три.', uz: "Yigirma besh bu suratlar soni. Joylashuv bo'luvchilar qancha bo'lsa shuncha, bo'luvchilar esa uchta.", en: 'Twenty five is the number of photos. There are as many layouts as divisors, and there are three divisors.' },
+    wrong_all: { ru: '24 — это количество фотографий, а не сеток. Сеток столько, сколько делителей.', uz: "24 — bu suratlar soni, to'rlar soni emas. To'r nechta bo'luvchi bo'lsa, shuncha.", en: '24 is the number of photos, not of grids. There are as many grids as divisors.' },
+    wrong_all_audio: { ru: 'Двадцать четыре это количество фотографий, а не сеток. Сеток столько, сколько у числа делителей.', uz: "Yigirma to'rt bu suratlar soni, to'rlar soni emas. To'r sonning bo'luvchilari qancha bo'lsa, shuncha.", en: 'Twenty four is the number of photos, not of grids. There are as many grids as the number has divisors.' },
+    wrong_one: { ru: 'Квадратная сетка одна, но есть ещё по 1 в ряд и по 25 в ряд. Всего три.', uz: "Kvadrat to'r bitta, lekin 1 tadan va 25 tadan ham bor. Jami uchta.", en: 'There is one square grid, but there are also one per row and twenty five per row. Three in all.' },
+    wrong_one_audio: { ru: 'Квадратная сетка действительно одна. Но есть ещё по одной в ряд и по двадцать пять в ряд. Всего получается три.', uz: "Kvadrat to'r haqiqatan bitta. Lekin bittadan qator va yigirma beshtadan qator ham bor. Jami uchta chiqadi.", en: 'There really is only one square grid. But there are also one per row and twenty five per row. Three in all.' },
+    wrong_five: { ru: '5 — это сколько в ряду, а не сколько сеток. Делителей у 25 три: 1, 5, 25.', uz: "5 — bu qatordagi soni, to'rlar soni emas. 25 ning bo'luvchilari uchta: 1, 5, 25.", en: '5 is how many per row, not how many grids. 25 has three divisors: 1, 5, 25.' },
+    wrong_five_audio: { ru: 'Пять это сколько фотографий в ряду, а не сколько сеток. Делителей у двадцати пяти три. Один, пять и двадцать пять.', uz: "Besh bu qatordagi suratlar soni, to'rlar soni emas. Yigirma beshning bo'luvchilari uchta. Bir, besh va yigirma besh.", en: 'Five is how many photos are in a row, not how many grids. Twenty five has three divisors. One, five and twenty five.' },
+    wrong_all25: { ru: '25 — это количество фотографий. Сеток столько, сколько делителей, а их три.', uz: "25 — bu suratlar soni. To'r nechta bo'luvchi bo'lsa shuncha, ular esa uchta.", en: '25 is the number of photos. There are as many grids as divisors, and there are three.' },
+    wrong_all25_audio: { ru: 'Двадцать пять это количество фотографий. Сеток столько, сколько делителей, а делителей три.', uz: "Yigirma besh bu suratlar soni. To'r bo'luvchilar qancha bo'lsa shuncha, bo'luvchilar esa uchta.", en: 'Twenty five is the number of photos. There are as many grids as divisors, and there are three divisors.' },
+    // Подпись под сценой НАЗЫВАЕТ то, что на ней стоит. Без этого слова вопрос
+    // «сколько разных сеток» висел в воздухе: на экране сетка была, а имени у
+    // неё не было.
+    grid_word: { ru: 'Сетка', uz: "To'r", en: 'Grid' },
     per_row: { ru: 'по {k} в ряд', uz: '{k} tadan', en: '{k} per row' },
     // Русский требует согласования: 1 ряд, 4 ряда, 5 рядов. Формы лежат
     // тройкой, подставляет их plRu. В узбекском и английском счётное слово
     // не меняется, поэтому там обычный шаблон.
     rows_word: { ru: '{r} {w}', uz: '{r} qator', en: '{r} rows' },
     rows_forms: { ru: ['ряд', 'ряда', 'рядов'] },
-    out_1: { ru: 'Восемь раскладок: по 1, 2, 3, 4, 6, 8, 12, 24', uz: 'Sakkizta joylashuv: 1, 2, 3, 4, 6, 8, 12, 24 tadan', en: 'Eight layouts: 1, 2, 3, 4, 6, 8, 12, 24 per row' },
-    out_2: { ru: 'Три раскладки: по 1, 5, 25. Квадратная одна — 5 на 5.', uz: "Uchta joylashuv: 1, 5, 25 tadan. Kvadrati bittasi — 5 ga 5.", en: 'Three layouts: 1, 5, 25 per row. Only one is square — 5 by 5.' },
-    done: { ru: 'Сколько делителей — столько и раскладок.', uz: "Nechta bo'luvchi bo'lsa, shuncha joylashuv bo'ladi.", en: 'As many divisors as there are, that many layouts.' },
+    out_1: { ru: 'Восемь сеток: по 1, 2, 3, 4, 6, 8, 12, 24', uz: "Sakkizta to'r: 1, 2, 3, 4, 6, 8, 12, 24 tadan", en: 'Eight grids: 1, 2, 3, 4, 6, 8, 12, 24 per row' },
+    out_2: { ru: 'Три сетки: по 1, 5, 25. Квадратная одна — 5 на 5.', uz: "Uchta to'r: 1, 5, 25 tadan. Kvadrati bittasi — 5 ga 5.", en: 'Three grids: 1, 5, 25 per row. Only one is square — 5 by 5.' },
+    done: { ru: 'Сколько делителей — столько и сеток.', uz: "Nechta bo'luvchi bo'lsa, shuncha to'r bo'ladi.", en: 'As many divisors as there are, that many grids.' },
     square: { ru: 'Квадратная сетка получается, только когда число делится само на себя поровну: 5 · 5 = 25.', uz: "Kvadrat to'r faqat son o'ziga o'zi teng bo'linganda chiqadi: 5 · 5 = 25.", en: 'A square grid appears only when the number splits into two equal parts: 5 · 5 = 25.' },
-    wrong_6: { ru: 'Забыты крайние. По одной в ряд и по двадцать четыре в ряд — тоже полные ряды. Единица и само число делители всегда.', uz: "Chetkilari esdan chiqdi. Bittadan qator ham, yigirma to'rttadan qator ham to'la qator. Bir va sonning o'zi doim bo'luvchi.", en: 'The edge layouts were forgotten. One per row and twenty four per row are full rows too. One and the number itself are always divisors.' },
-    wrong_6_audio: { ru: 'Забыты крайние раскладки. По одной в ряд это длинный столбец, по двадцать четыре в ряд это одна длинная лента. Ряды в обоих случаях полные, а единица и само число делители всегда.', uz: "Chetki joylashuvlar esdan chiqdi. Bittadan qator uzun ustun, yigirma to'rttadan qator bitta uzun lenta. Ikkalasida ham qatorlar to'la, bir va sonning o'zi esa doim bo'luvchi.", en: 'The edge layouts were forgotten. One per row is a long column, twenty four per row is one long strip. In both cases the rows are full, and one and the number itself are always divisors.' },
-    wrong_pair: { ru: 'По 3 в ряд и по 8 в ряд выглядят по-разному. Пара одна, а раскладки две.', uz: "3 tadan va 8 tadan qator har xil ko'rinadi. Juftlik bitta, joylashuv esa ikkita.", en: 'Three per row and eight per row look different. One pair, but two layouts.' },
-    wrong_pair_audio: { ru: 'По три в ряд и по восемь в ряд выглядят по-разному. Пара одна, а раскладки получаются две.', uz: "Uchtadan qator va sakkiztadan qator har xil ko'rinadi. Juftlik bitta, joylashuv esa ikkita chiqadi.", en: 'Three per row and eight per row look different. One pair, but there are two layouts.' },
+    wrong_6: { ru: 'Забыты крайние. По одной в ряд и по двадцать четыре в ряд — тоже полные ряды. Единица и само число делители всегда.', uz: "Chetkilari esdan chiqdi. Bittadan qator ham, yigirma to'rttadan qator ham to'la qator. Bir va sonning o'zi doim bo'luvchi.", en: 'The edge grids were forgotten. One per row and twenty four per row are full rows too. One and the number itself are always divisors.' },
+    wrong_6_audio: { ru: 'Забыты крайние сетки. По одной в ряд это длинный столбец, по двадцать четыре в ряд это одна длинная лента. Ряды в обоих случаях полные, а единица и само число делители всегда.', uz: "Chetki to'rlar esdan chiqdi. Bittadan qator uzun ustun, yigirma to'rttadan qator bitta uzun lenta. Ikkalasida ham qatorlar to'la, bir va sonning o'zi esa doim bo'luvchi.", en: 'The edge grids were forgotten. One per row is a long column, twenty four per row is one long strip. In both cases the rows are full, and one and the number itself are always divisors.' },
+    wrong_pair: { ru: 'По 3 в ряд и по 8 в ряд выглядят по-разному. Пара одна, а сетки две.', uz: "3 tadan va 8 tadan qator har xil ko'rinadi. Juftlik bitta, to'r esa ikkita.", en: 'Three per row and eight per row look different. One pair, but two grids.' },
+    wrong_pair_audio: { ru: 'По три в ряд и по восемь в ряд выглядят по-разному. Пара одна, а сетки получаются две.', uz: "Uchtadan qator va sakkiztadan qator har xil ko'rinadi. Juftlik bitta, to'r esa ikkita chiqadi.", en: 'Three per row and eight per row look different. One pair, but there are two grids.' },
     audio: {
-      intro: { ru: 'Задача из жизни. Фотографии с турнира выкладывают в школьную галерею одинаковыми рядами. Фотографий двадцать четыре. По скольку можно ставить в ряд, чтобы ни один ряд не остался неполным?', uz: "Hayotiy masala. Turnir suratlari maktab galereyasiga bir xil qatorlar qilib joylanadi. Suratlar yigirma to'rtta. Birorta qator to'la bo'lmay qolmasligi uchun nechtadan qo'yish mumkin?", en: 'A problem from life. Photos from the tournament go into the school gallery in equal rows. There are twenty four photos. How many per row can we set so that no row is left unfinished?' },
-      a1: { ru: 'Это тот же второй способ, только в другой одежде. Каждый делитель двадцати четырёх это своя раскладка. По одной в ряд получится длинный столбец. По двадцать четыре в ряд одна длинная лента. И то и другое ряды полные. Всего восемь раскладок, потому что делителей у двадцати четырёх восемь.', uz: "Bu o'sha ikkinchi usul, faqat boshqa libosda. Yigirma to'rtning har bir bo'luvchisi o'z joylashuvi. Bittadan qo'ysak uzun ustun chiqadi. Yigirma to'rttadan qo'ysak bitta uzun lenta. Ikkalasida ham qatorlar to'la. Jami sakkizta joylashuv, chunki yigirma to'rtning bo'luvchilari sakkizta.", en: 'This is the second method again, just in different clothes. Every divisor of twenty four is a layout of its own. One per row gives a long column. Twenty four per row gives one long strip. In both cases the rows are full. Eight layouts in all, because twenty four has eight divisors.' },
-      a2: { ru: 'А теперь двадцать пять фотографий. Здесь раскладок всего три, и только одна из них квадратная. Пять на пять. Так бывает, когда пара сходится сама с собой.', uz: "Endi yigirma beshta surat. Bu yerda joylashuv atigi uchta va ulardan faqat bittasi kvadrat. Besh ga besh. Juftlik o'zi bilan o'zi uchrashganda shunday bo'ladi.", en: 'Now twenty five photos. Here there are only three layouts, and only one of them is square. Five by five. That happens when a pair meets itself.' },
+      intro: { ru: 'Задача из жизни. Фотографии с турнира выкладывают в школьную галерею одинаковыми рядами. Фотографий двадцать четыре, и ни один ряд не должен остаться неполным. Сколько разных сеток может получиться?', uz: "Hayotiy masala. Turnir suratlari maktab galereyasiga bir xil qatorlar qilib joylanadi. Suratlar yigirma to'rtta va birorta qator to'la bo'lmay qolmasligi kerak. Necha xil to'r chiqishi mumkin?", en: 'A problem from life. Photos from the tournament go into the school gallery in equal rows. There are twenty four photos and no row may be left unfinished. How many different grids can come out?' },
+      a1: { ru: 'Это тот же второй способ, только в другой одежде. Каждый делитель двадцати четырёх даёт свою сетку. По одной в ряд получится длинный столбец. По двадцать четыре в ряд одна длинная лента. И то и другое ряды полные. Всего восемь сеток, потому что делителей у двадцати четырёх восемь.', uz: "Bu o'sha ikkinchi usul, faqat boshqa libosda. Yigirma to'rtning har bir bo'luvchisi o'z to'rini beradi. Bittadan qo'ysak uzun ustun chiqadi. Yigirma to'rttadan qo'ysak bitta uzun lenta. Ikkalasida ham qatorlar to'la. Jami sakkizta to'r, chunki yigirma to'rtning bo'luvchilari sakkizta.", en: 'This is the second method again, just in different clothes. Every divisor of twenty four gives a grid of its own. One per row gives a long column. Twenty four per row gives one long strip. In both cases the rows are full. Eight grids in all, because twenty four has eight divisors.' },
+      a2: { ru: 'А теперь двадцать пять фотографий. Здесь сеток всего три, и только одна из них квадратная. Пять на пять. Так бывает, когда пара сходится сама с собой.', uz: "Endi yigirma beshta surat. Bu yerda to'r atigi uchta va ulardan faqat bittasi kvadrat. Besh ga besh. Juftlik o'zi bilan o'zi uchrashganda shunday bo'ladi.", en: 'Now twenty five photos. Here there are only three grids, and only one of them is square. Five by five. That happens when a pair meets itself.' },
       on_wrong: { ru: 'Посмотри разбор.', uz: 'Tushuntirishga qarang.', en: 'Look at the explanation.' }
     }
   },
@@ -2852,7 +2832,6 @@ const RevealScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, ren
 // Оценки здесь нет: выбор ученика — ПРОГНОЗ, а не ответ на тест, поэтому
 // ни «верно», ни «ошибка», ни баллов на экране не появляется.
 // ============================================================
-const TOTAL_PLAYERS = 24;
 
 // Кисть-СТИКЕР (методист 2026-08-13, образец — 1 класс, урок 1).
 // Было: две серые фигуры, кружок и прямоугольник. На экране это читалось как
@@ -3147,47 +3126,15 @@ const FinalScene = () => (
   </svg>
 );
 
-const PlayerFig = ({ out = false, drop = false, delay = 0 }) => (
-  <span className={'hk-fig' + (out ? ' hk-fig-out' : '') + (drop ? ' hk-drop' : ' hk-in')}
-    style={{ animationDelay: delay + 'ms' }} aria-hidden="true"/>
-);
-
-// Единый движок сцены: TOTAL_PLAYERS фигурок, размер команды `size`,
-// не поместившиеся уезжают на скамейку. Фигурка не проявляется на месте —
-// она приезжает: в команду слева, на скамейку сверху.
-const TeamScene = ({ size, compact = false, labels }) => {
-  const teams = Math.floor(TOTAL_PLAYERS / size);
-  const rest = TOTAL_PLAYERS - teams * size;
-  let n = 0;
-  return (
-    <div className={'hk-scene' + (compact ? ' hk-compact' : '')}>
-      <div className="hk-teams" style={{ gridTemplateColumns: `repeat(${teams}, 1fr)` }}>
-        {Array.from({ length: teams }).map((_, ti) => (
-          <div key={ti} className="hk-team">
-            {!compact && <span className="hk-team-cap">{labels.team} {ti + 1}</span>}
-            <span className="hk-slots">
-              {Array.from({ length: size }).map((_, i) => <PlayerFig key={i} delay={(n++) * 25}/>)}
-            </span>
-          </div>
-        ))}
-      </div>
-      <div className={'hk-bench ' + (rest > 0 ? 'hk-bench-bad' : 'hk-bench-ok')}>
-        <span className="hk-bench-cap">{rest > 0 ? labels.bad : labels.ok}</span>
-        <span className="hk-slots">
-          {Array.from({ length: rest }).map((_, i) => (
-            <PlayerFig key={i} out drop delay={TOTAL_PLAYERS * 25 + i * 70}/>
-          ))}
-        </span>
-      </div>
-      <p className="mono hk-eq">
-        {rest > 0
-          ? `${TOTAL_PLAYERS} : ${size} = ${teams}, ${labels.rest} ${rest}`
-          : `${TOTAL_PLAYERS} : ${size} = ${teams}`}
-      </p>
-    </div>
-  );
-};
-
+// ХУК ПРИНИМАЕТ ОТВЕТ И ЗАКРЫВАЕТСЯ (методист 2026-08-14).
+// Так работают хуки 1-5 классов (в 5 классе прогноз вообще уходит без реакции)
+// и — что важнее — так работают все остальные уроки 6 класса: и движок
+// FractionTheoryLesson (уроки 8-46), и собранные вручную уроки 2-7 делают
+// pick -> onAnswer -> onNext, без разбора и без оценки. Урок 1 был здесь
+// единственным исключением: он показывал разлёт по командам, скамейку с
+// четырьмя лишними, формулу 24 : 5 = 4 и вывод. Это тот самый факт, который
+// ребёнок должен получить сам на экране 6 («решаем вместе: 24»), поэтому весь
+// разбор и движок сцены с командами убраны.
 const HookScreen = ({ screen, totalScreens, onAnswer, onNext, onPrev }) => {
   const c = CONTENT.s_hook;
   const t = useT();
@@ -3197,7 +3144,7 @@ const HookScreen = ({ screen, totalScreens, onAnswer, onNext, onPrev }) => {
     { id: 'hook_a1', text: pickL(c.audio.intro, lang)[1], trigger: 'after_previous', waits_for: { type: 'option_picked' } },
   ]);
   const [picked, setPicked] = useState(null);
-  const [both, setBoth] = useState(false);
+  const pickedRef = useRef(false);
   const askReady = audio.muted
     || audio.currentSegment === 'hook_a1'
     || audio.lastCompletedSegment === 'hook_a0'
@@ -3206,39 +3153,22 @@ const HookScreen = ({ screen, totalScreens, onAnswer, onNext, onPrev }) => {
   // два состояния и два таймера гоняли кисть над кнопками. Держать мёртвый
   // код «на случай возврата» нельзя — он выглядит рабочим и вводит в заблуждение.
 
-  const say = (text, id) => {
-    if (audio.muted) return;
-    const engine = getAudioEngine();
-    if (engine) engine.pushOneOff(text, undefined, id);
-  };
   const pick = (size) => {
-    if (picked !== null) return;
+    if (pickedRef.current) return;
+    pickedRef.current = true;
     setPicked(size);
     audio.triggerEvent('option_picked');
-    // firstTry не передаём: экран вне оценки, статистика его не считает.
-    onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: size === 6 ? 'po 6' : 'po 5' });
-    say(size === 6 ? c.audio.res_6[lang] : c.audio.res_5[lang], `hook_res_${size}`);
-  };
-  const showOther = () => {
-    if (both) return;
-    setBoth(true);
-    say(picked === 6 ? c.audio.res_5[lang] : c.audio.res_6[lang], 'hook_res_other');
-    say(c.audio.compare[lang], 'hook_cmp');
-    say(c.audio.why[lang], 'hook_why');
+    // correct и firstTry — null: экран вне оценки, статистика его не считает.
+    onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: size === 6 ? 'po 6' : 'po 5', correct: null, firstTry: null });
+    // Ответ принят — экран закрывается сам, как в остальных уроках класса.
+    // Задержка нужна, чтобы ребёнок увидел, какая плитка отметилась выбранной.
+    setTimeout(onNext, 320);
   };
 
-  // «остаток» берём из общего трёхъязычного узла: тернарник lang === 'uz' ? … : …
-  // молча показывал бы английскому ученику русское слово.
-  const labels = {
-    team: t(c.team_label),
-    bad: t(c.bench_bad),
-    ok: t(c.bench_ok),
-    rest: t(CONTENT.s4.rest_label),
-  };
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={navLocked(!both || !audio.canAdvance)} label={<NextLabel/>} onClick={onNext}/>
+      <NavNext disabled={navLocked(picked === null || !audio.canAdvance)} label={<NextLabel/>} onClick={onNext}/>
     </>
   );
   return (
@@ -3257,61 +3187,33 @@ const HookScreen = ({ screen, totalScreens, onAnswer, onNext, onPrev }) => {
           </div>
         </div>
 
-        {picked === null && (
-          <>
-            {/* Участники стоят НА полу зала, а не в пустоте. */}
-            {/* Ребята нарисованы ВНУТРИ сцены: только так их можно поставить
-                полукругом и дать ближним больший размер. Отдельный ряд фигурок
-                поверх картинки перспективу не даёт. */}
-            <div className="frame hk-frame fade-up delay-1">
-              <div className="hk-gym"><GymBg/></div>
-            </div>
-          </>
-        )}
+        {/* Зал стоит на экране всё время, пока экран открыт: сцена больше не
+            подменяется разбором. Ребята нарисованы ВНУТРИ сцены — только так их
+            можно поставить полукругом и дать ближним больший размер. */}
+        <div className="frame hk-frame fade-up delay-1">
+          <div className="hk-gym"><GymBg/></div>
+        </div>
 
-        {picked === null && askReady && (
+        {askReady && (
           <div className="hk-ask fade-up">
             <p className="body" style={{ margin: 0, fontWeight: 600 }}>{t(c.ask)}</p>
             {/* Стикер руки над вариантами снят (методист 2026-08-14): он
-                проезжал поверх кнопок и мешал. Подпись «нажми один из
-                вариантов» остаётся — жест объяснён словами. */}
-            <div className="hk-opts">
-              <button className="option hk-opt" onClick={() => pick(5)}>{t(c.opt_5)}</button>
-              <button className="option hk-opt" onClick={() => pick(6)}>{t(c.opt_6)}</button>
-            </div>
-            <p className="small hk-gesture-cap">{t(c.gesture)}</p>
-          </div>
-        )}
-
-        {picked !== null && !both && (
-          <>
-            <TeamScene size={picked} labels={labels}/>
-            <button className="btn-white-accent hk-other" onClick={showOther}>{t(c.other_btn)}</button>
-          </>
-        )}
-
-        {both && (
-          <>
-            <div className="hk-both">
-              <div className="hk-both-col">
-                <p className="eyebrow" style={{ color: T.ink2 }}>{t(c.cmp_5)}</p>
-                <TeamScene size={5} compact labels={labels}/>
-              </div>
-              <div className="hk-both-col">
-                <p className="eyebrow" style={{ color: T.ink2 }}>{t(c.cmp_6)}</p>
-                <TeamScene size={6} compact labels={labels}/>
-              </div>
-            </div>
-            <div className="frame-success fade-up">
-              <p className="body" style={{ margin: 0 }}>{t(c.conclusion)}</p>
-            </div>
-            <div className="frame fade-up delay-1 hk-why">
-              <p className="eyebrow" style={{ color: T.ink2, marginBottom: 4 }}>{t(c.why_label)}</p>
-              {[c.why_1, c.why_2, c.why_3].map((w, i) => (
-                <p key={i} className="small hk-why-line">{t(w)}</p>
+                проезжал поверх кнопок и мешал. Подпись остаётся — и жест, и
+                обещание «ответ не открываем» объяснены словами. */}
+            <p className="small g6-hook-note">{t(c.gesture)}</p>
+            {/* Разметка вариантов — классная: `g6-hook-options` и
+                `is-hook-picked` из Grade6TheoryTheme.css, те же, что в уроках
+                8-46. Своих правил хук больше не держит: одинаковый хук должен
+                выглядеть одинаково, включая телефон и низкие экраны. */}
+            <div className="g6-hook-options">
+              {[5, 6].map((size) => (
+                <button key={size} className={'option' + (picked === size ? ' is-hook-picked' : '')}
+                  disabled={picked !== null} onClick={() => pick(size)}>
+                  {t(size === 5 ? c.opt_5 : c.opt_6)}
+                </button>
               ))}
             </div>
-          </>
+          </div>
         )}
       </div>
     </Stage>
@@ -4976,7 +4878,7 @@ const FindError = (props) => {
   );
 };
 // ЭКРАН 13 — ЗАДАЧА. Сетка фотографий с турнира.
-// Крайние раскладки (по 1 и по 24) СЧИТАЮТСЯ. Если их выбросить ради
+// Крайние сетки (по 1 и по 24) СЧИТАЮТСЯ. Если их выбросить ради
 // «реалистичности галереи», ответ станет 6 и разойдётся с экзаменационным
 // «сколько делителей у 24» — то есть урок научил бы неверному числу.
 // Снимки с турнира: те же три цвета, что футболки в зале, плюс тёплый пол.
@@ -5009,6 +4911,11 @@ const GridTask = (props) => {
   }, []);
   const done = part >= 2;
   const fbRef = useRevealScroll(ok || done, 320);
+  // Разбор неверного ответа тоже подтягивается в кадр: на ноутбуке он выходил
+  // на 94 пикселя ниже нижней панели, то есть ребёнок его просто не видел.
+  // В active идёт ЧИСЛО попыток, а не флаг: на второй ошибке разбор меняется, и
+  // флаг остался бы true, то есть подтяжка не сработала бы второй раз.
+  const hintRef = useRevealScroll(ok ? 0 : dead.length, 320);
 
   useEffect(() => () => timersRef.current.forEach(clearTimeout), []);
   const say = (node, id) => {
@@ -5107,7 +5014,7 @@ const GridTask = (props) => {
               </div>
             </div>
             <p className="gr-cap mono">
-              {String(t(c.per_row)).replace('{k}', String(per))} · {rowsWord(t(c.rows_word), c.rows_forms, lang, rows)}
+              {t(c.grid_word)}: {String(t(c.per_row)).replace('{k}', String(per))} · {rowsWord(t(c.rows_word), c.rows_forms, lang, rows)}
             </p>
           </div>
 
@@ -5122,7 +5029,9 @@ const GridTask = (props) => {
                 ))}
               </div>
               {dead.length > 0 && !ok && (
-                <HintBlock show>{mt(t(wrongNodes[dead[dead.length - 1]] || c.wrong_6))}</HintBlock>
+                <div ref={hintRef}>
+                  <HintBlock show>{mt(t(wrongNodes[dead[dead.length - 1]] || c.wrong_6))}</HintBlock>
+                </div>
               )}
             </>
           )}
@@ -6326,22 +6235,22 @@ html, body { margin: 0; padding: 0; }
 .pn-opt:hover:not(:disabled) { background: #F9EDC4; border-color: #D8A93A; }
 .pn-sel { border-color: #D8A93A; background: #F7E7B4; transform: translateY(-2px); box-shadow: 0 10px 22px -6px rgba(180, 138, 30, 0.45); }
 .pn-right { font-weight: 700; border-color: #1F7A4D; background: #E3F0E8; color: #1F7A4D; box-shadow: 0 8px 20px -6px rgba(31, 122, 77, 0.4); }
-/* ===== ХУК (s_hook) — турнир: прогноз, разлёт по командам, скамейка =====
-   Единый визуальный движок: N фигурок, размер команды, остаток на скамейке.
-   Тот же движок пойдёт в интерактивный блок урока (12 единиц по рядам).
-   Расширение контракта движения 6 класса (решение методиста 2026-08-13):
-   математическое преобразование, запущенное учеником, получает своё движение —
-   фигурки НЕ проявляются на месте, а приезжают. Декор по-прежнему не плавает. */
-.hk { display: flex; flex-direction: column; gap: clamp(9px, 1.7vw, 14px); }
+/* ===== ХУК (s_hook) — турнир: вопрос урока и прогноз ученика =====
+   Разбор с командами и скамейкой снят (методист 2026-08-14), вместе с ним
+   ушли .hk-scene, .hk-team*, .hk-bench*, .hk-eq, .hk-both*, .hk-why*,
+   .hk-other, .hk-fig* и .hk-pool*: хук принимает выбор и заканчивается,
+   как в 1-5 классах. Зал остаётся на экране до конца слайда. */
+/* Интервалы хука ужаты (2026-08-14): на ноутбучных 1280x800 зал, вопрос и
+   строка принятия не влезали в экран и появлялся скролл. Сцену не уменьшаем —
+   она главная, срезаны только пустоты между блоками. */
+.hk { display: flex; flex-direction: column; gap: clamp(7px, 1vw, 9px); }
 .hk-voices { display: flex; gap: 9px; flex-wrap: wrap; }
-.hk-voice { flex: 1 1 210px; display: flex; gap: 9px; align-items: flex-start; background: #FFFFFF; border-radius: 13px; padding: clamp(9px, 1.7vw, 13px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
+.hk-voice { flex: 1 1 210px; display: flex; gap: 9px; align-items: flex-start; background: #FFFFFF; border-radius: 13px; padding: clamp(8px, 1.3vw, 11px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
 .hk-who { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #FFE8E1; color: #FF4F28; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
 .hk-who-b { background: #E3F0E8; color: #1F7A4D; }
-/* To'da javobdan OLDIN turadi va sahnaning o'zi bo'ladi — shuning uchun
-   figuralar kattaroq: bo'sh ekran "yig'ilmagan" ko'rinmasin. */
 /* Сцена ЗАЛИВАЕТ рамку и имеет ту же ширину, что заголовок, вопрос и кнопки.
    Так сделано в хуках 1 и 2 класса: разной ширины блоков там нет. */
-.hk-frame { padding: clamp(6px, 1vw, 9px) !important; }
+.hk-frame { padding: clamp(5px, 0.7vw, 7px) !important; }
 .hk-gym { position: relative; width: 100%; aspect-ratio: 400 / 154; border-radius: 10px; overflow: hidden; }
 .hk-bg { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 /* Баннер покачивается, мяч один раз прокатывается на входе. Оба движения
@@ -6353,59 +6262,15 @@ html, body { margin: 0; padding: 0; }
 .hk-kid { transform-origin: center bottom; animation: hkStep 520ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
 @keyframes hkStep { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .hk-banner, .hk-ball, .hk-kid { animation: none; } }
-.hk-pool { display: flex; flex-wrap: wrap; justify-content: center; align-items: flex-end; gap: clamp(6px, 1.2vw, 10px); padding: clamp(8px, 1.8vw, 16px) 0; }
-.hk-pool .hk-fig { width: 30px; height: 37px; }
-.hk-pool .hk-fig::before { left: 9px; width: 13px; height: 13px; }
-.hk-pool .hk-fig::after { left: 2px; width: 27px; height: 21px; border-radius: 12px 12px 5px 5px; }
-.hk-pool-cap { margin: 0; text-align: center; color: #8A8883; }
-.hk-ask { display: flex; flex-direction: column; gap: 9px; }
-.hk-opts { position: relative; display: flex; gap: 10px; }
-.hk-opt { padding: clamp(12px, 2.2vw, 16px); font-size: clamp(15px, 2.7vw, 18px); font-weight: 600; text-align: center; min-height: 48px; }
-.hk-gesture-cap { margin: 0; color: #8A8883; }
-.hk-scene { display: flex; flex-direction: column; gap: 9px; }
-.hk-teams { display: grid; gap: 8px; }
-.hk-team { border: 1px solid #e9e3d9; border-radius: 12px; background: #FFFFFF; padding: 7px 5px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px; min-height: 78px; }
-.hk-team-cap { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.05em; color: #8A8883; }
-.hk-slots { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
-.hk-bench { display: flex; align-items: center; gap: 10px; min-height: 50px; padding: 8px 12px; border-radius: 12px; border: 1px solid transparent; }
-.hk-bench-bad { background: #FFE8E1; border-color: #FF4F28; }
-.hk-bench-ok { background: #E3F0E8; border-color: #1F7A4D; }
-.hk-bench-cap { font-size: clamp(14px, 2.4vw, 16px); font-weight: 600; }
-.hk-bench-bad .hk-bench-cap { color: #FF4F28; }
-.hk-bench-ok .hk-bench-cap { color: #1F7A4D; }
-.hk-eq { margin: 0; text-align: center; font-size: clamp(18px, 3.2vw, 24px); font-weight: 700; color: #0E0E10; }
-.hk-other { align-self: center; padding: clamp(10px, 1.8vw, 13px) clamp(18px, 2.6vw, 26px); font-size: clamp(13px, 1.6vw, 15px); }
-.hk-both { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.hk-both-col { display: flex; flex-direction: column; gap: 6px; }
-.hk-why { display: flex; flex-direction: column; gap: 6px; }
-.hk-why-line { margin: 0; }
-/* Фигурка участника — только фигуры, ни картинок, ни эмодзи. */
-.hk-fig { position: relative; width: 21px; height: 26px; flex-shrink: 0; }
-.hk-fig::before { content: ''; position: absolute; left: 6px; top: 0; width: 9px; height: 9px; border-radius: 50%; background: #019ACB; }
-.hk-fig::after { content: ''; position: absolute; left: 1px; bottom: 0; width: 19px; height: 15px; border-radius: 9px 9px 4px 4px; background: #7ECBE6; }
-.hk-fig-out::before { background: #FF4F28; }
-.hk-fig-out::after { background: #FFB59F; }
-.hk-compact .hk-fig { width: 15px; height: 19px; }
-.hk-compact .hk-fig::before { left: 4px; width: 7px; height: 7px; }
-.hk-compact .hk-fig::after { width: 14px; height: 11px; }
-.hk-compact .hk-team { min-height: 58px; padding: 5px 4px; }
-.hk-compact .hk-eq { font-size: clamp(15px, 2.4vw, 18px); }
-.hk-compact .hk-bench { min-height: 40px; padding: 6px 9px; }
-.hk-in { animation: hk-slide var(--g6-motion-base, 440ms) cubic-bezier(0.22, 0.61, 0.36, 1) both; }
-.hk-drop { animation: hk-drop 380ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
-@keyframes hk-slide { from { opacity: 0; transform: translateX(-20px) scale(0.85); } to { opacity: 1; transform: none; } }
-@keyframes hk-drop { from { opacity: 0; transform: translateY(-26px); } to { opacity: 1; transform: none; } }
+.hk-ask { display: flex; flex-direction: column; gap: 7px; }
+/* Варианты и отметка выбора берутся из Grade6TheoryTheme.css:
+   класс g6-hook-options и класс is-hook-picked. Своих правил у хука нет. */
 /* Показ жеста на хуке СНЯТ (методист 2026-08-14): кисть проезжала поверх
    вариантов и мешала. Решение от 13 августа «полупрозрачная кисть проходит над
    вариантами» этим отменено. Стикер остался на экране 4, где он стоит на месте
    и показывает точку нажатия, а не ездит. */
 /* Кисть-стикер: тень отделяет её от сцены, кончик пальца стоит в точке показа. */
 .hs { position: absolute; left: -9px; top: 0; width: 34px; height: auto; filter: drop-shadow(0 6px 12px rgba(58, 53, 48, 0.32)); }
-@media (max-width: 639.98px) {
-  .hk-both { grid-template-columns: 1fr; }
-  .hk-opts { flex-direction: column; }
-  .hk-teams { grid-template-columns: repeat(2, 1fr) !important; }
-}
 
 /* ===== ЭКРАН 06: 12 плиток перестраиваются по рядам (rs = rows slider) =====
    Перенесено из утверждённого макета artifacts/grade6-dars01-design.
