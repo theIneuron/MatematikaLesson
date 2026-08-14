@@ -587,6 +587,9 @@ const S15 = {
 // Число из контента: там оно записано так, как читает методист («−0,34»), а
 // прибору нужно настоящее число. Один источник истины — документ контента.
 const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
+// Градус тоже через нормализатор: в контенте минус это U+2212, `parseInt` его
+// не понимает и даёт NaN (в уроке 5 это уронило координаты).
+const deg = (s) => parseInt(String(s).replace(/−/g, '-'), 10)
 
 // Строки таблицы знаков разбираются ИЗ КОНТЕНТА, а не переписываются здесь:
 // «40°  →  (+; +)» даёт угол и пару чипов. Иначе значения жили бы в двух
@@ -594,7 +597,7 @@ const num = (s) => parseFloat(String(s).replace(/−/g, '-').replace(',', '.'))
 const SIGN_ROWS = S9.table.rows.map((r) => {
   const [a, b] = r.split('→').map((x) => x.trim())
   const [c, s] = b.replace(/[()]/g, '').split(';').map((x) => x.trim())
-  return { deg: parseInt(a, 10), label: a, cos: c === '+' ? 'p' : 'm', sin: s === '+' ? 'p' : 'm' }
+  return { deg: deg(a), label: a, cos: c === '+' ? 'p' : 'm', sin: s === '+' ? 'p' : 'm' }
 })
 const SIGN_CHIPS = [
   { id: 'p', label: '+', value: 1 },
@@ -921,7 +924,7 @@ const Screen13 = (p) => (
     ) : (
       <PlaceAngle
         prompt={S13.place.prompt}
-        targets={[parseInt(S13.place.target, 10)]}
+        targets={[deg(S13.place.target)]}
         steps={[S13.place.step]}
         okText={S13.place.ok}
         wrongText={S13.place.wrong}
@@ -940,7 +943,7 @@ const Screen14 = (p) => (
         {...s}
         data={S14}
         fig={() => (
-          <Scene fig={<UnitCircle angle={parseInt(S14.angles[0], 10)} locked drop />} max={300} />
+          <Scene fig={<UnitCircle angle={deg(S14.angles[0])} locked drop />} max={300} />
         )}
       />
     )}

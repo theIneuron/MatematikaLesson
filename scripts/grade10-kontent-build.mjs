@@ -349,7 +349,13 @@ function build(scr) {
         const body = subKeys.sort((a, b) => a - b).map((x) => `      ${leaf(sub[x])},`).join('\n')
         return `    ${k}: [\n${body}\n    ],`
       }
-      const deep = subKeys.map((x) => `      ${x}: ${leaf(sub[x])},`).join('\n')
+      // У ключа бывает И СВОЁ значение, И дети: `match.d` это подпись
+      // «впадина», а `match.d.hint` — разбор к ней. Общая ветка выводила
+      // только детей, и подпись исчезала молча — ровно та же потеря, что
+      // ловилась в вариантах вопроса. Своё значение выходит под именем
+      // `label`, как у вариантов.
+      const own = sub.__self ? [`      label: ${sub.__self.code},`] : []
+      const deep = own.concat(subKeys.map((x) => `      ${x}: ${leaf(sub[x])},`)).join('\n')
       return `    ${k}: {\n${deep}\n    },`
     }).join('\n')
     out.push(`  ${g}: {\n${inner}\n  },`)
@@ -429,6 +435,8 @@ const LESSON_TITLE = L(
 const BLOCK = { label: 'B1', from: 1, to: 7, current: ${NO} }
 
 ${data.join('\n\n')}
+
+${MARK}
 
 ${stubs}
 

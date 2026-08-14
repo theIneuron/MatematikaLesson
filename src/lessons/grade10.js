@@ -35,4 +35,16 @@ export const grade10Nazariy = [
     desc: "Ishora bu yo'nalish, yodlangan qoida emas. Choraklar, tangens ishorasi, o'tkir burchakka keltirish. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars04.jsx')),
   },
+  {
+    slug: 'dars05-juftlik-davr',
+    title: 'Dars 5. Juftlik va davr',
+    desc: "Ko'zgu: siljish qoladi, balandlik ishorasini almashtiradi. To'liq aylana o'sha nuqtaga qaytaradi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars05.jsx')),
+  },
+  {
+    slug: 'dars06-grafiklar',
+    title: 'Dars 6. Grafiklar',
+    desc: "Grafik jadvaldan emas: aylana yoyiladi va nuqtaning balandligi egri chiziqni chizadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars06.jsx')),
+  },
 ]

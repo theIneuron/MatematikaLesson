@@ -1356,3 +1356,157 @@ export function QuadNames({ size = 268, step = 0, deg = null }) {
     />
   )
 }
+
+// ============================================================
+// ZERKALO GORIZONTAL O'Q BO'YLAB -- 5-darsning BIRINCHI guvohi.
+//
+// Nuqta o'q bo'ylab aks etadi: SILJISH o'sha joyda qoladi, BALANDLIK esa
+// ishorasini almashtiradi. Shundan `cos(−α) = cos α` va `sin(−α) = −sin α`
+// kelib chiqadi -- va bu ikki yodlanadigan formula emas, BITTA rasm.
+//
+// NEGA AKS ETTIRISH, ikkinchi nuqtani shunchaki qo'yish emas. Ikki nuqta
+// alohida qo'yilganda ular IKKI BOSHQA nuqta bo'lib ko'rinadi va tenglikni
+// yana yodlash kerak bo'ladi. Aks etganda esa ko'rinadi: gorizontal kesma
+// QIMIRLAMADI, tik kesma esa aylanib tushdi. Ya'ni tenglik va qarama-qarshilik
+// bitta harakatdan chiqadi.
+//
+// Kadrlar:
+//   0  nuqta musbat burchakda, ikki proyeksiya
+//   1  nuqta o'q bo'ylab pastga AKS ETADI (manfiy burish shu yerda kiritiladi)
+//   2  ikki nuqta birga: siljish bitta, balandliklar qarama-qarshi
+// ============================================================
+export function MirrorAxis({ size = 268, step = 0, deg = 60 }) {
+  const live = useMounted()
+  // Aks etish -- burchakning ISHORASI bo'yicha: `k = 1` yuqorida, `k = −1`
+  // pastda. Oraliq holat esa nuqtaning o'q bo'ylab tushishi.
+  // Boshlang'ich qiymat HAR DOIM «yuqorida», nishon esa kadr bo'yicha. Shu
+  // sababli figura 1-kadrda ochilganda ham aks etish KO'RINADI: xuk ekrani
+  // aynan shunday ishlatadi. Ilgari `useTween` nishondan boshlanardi va
+  // birinchi kadrda qo'yilgan figura umuman qimirlamasdi.
+  const k = useTween(live ? (step >= 1 ? -1 : 1) : 1, 1400)
+  const both = useTween(step >= 2 ? 1 : 0, 640)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.34 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const c = Math.cos(rad(deg))
+        const s = Math.sin(rad(deg)) * k
+        const [px, py] = P(c, s)
+        const [fx, fy] = P(c, 0)
+        const [ux, uy] = P(c, Math.sin(rad(deg)))
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const down = k < -0.05
+        return (
+          <g>
+            <line x1={ox - R * 1.2} y1={oy} x2={ox + R * 1.2} y2={oy} stroke="rgba(23,26,29,.34)" strokeWidth="1.3" />
+            <line x1={ox} y1={oy - R * 1.2} x2={ox} y2={oy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* Boshlang'ich nuqta 2-kadrda QOLADI: ikkisi solishtiriladi. */}
+            {both > 0.01 ? (
+              <g opacity={both}>
+                <line x1={ox} y1={oy} x2={ux} y2={uy} stroke={T.ink3} strokeWidth="1.4" strokeDasharray="4 3" />
+                <line x1={fx} y1={fy} x2={ux} y2={uy} stroke={T.graph} strokeWidth="2.4" />
+                <circle cx={ux} cy={uy} r={rDot * 0.92} fill="none" stroke={T.ink2} strokeWidth="2" />
+              </g>
+            ) : null}
+
+            {/* SILJISH: aks etishda U QIMIRLAMAYDI. Shuning uchun u doim bir
+                xil rangda va bir xil uzunlikda -- ko'z shuni ushlaydi. */}
+            <line x1={ox} y1={oy} x2={fx} y2={fy} stroke={T.accent} strokeWidth="3.4" />
+            {/* BALANDLIK: aylanib tushadi va ishorasini almashtiradi. */}
+            <line x1={fx} y1={fy} x2={px} y2={py} stroke={T.graph} strokeWidth="2.8" />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.5" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" {...halo(size)}>
+              {/* Burchak yorlig'i ishorasi bilan: manfiy burish shu yerda
+                  ko'rinadi, ta'rifdan oldin. */}
+              <text
+                x={ox + R * 0.3} y={oy + (down ? fs * 1.25 : -fs * 0.4)}
+                textAnchor="start" fontSize={Math.max(11, fs * 0.92)} fill={T.ink2}
+              >
+                {(down ? '−' : '') + String(deg) + '°'}
+              </text>
+              {both > 0.5 ? (
+                <g className="g10-valpop">
+                  <text x={(ox + fx) / 2} y={oy - fs * 0.45} textAnchor="middle" fill={T.accent}>
+                    cos
+                  </text>
+                  <text x={px + fs * 0.45} y={(fy + py) / 2 + fs * 0.34} textAnchor="start" fill={T.graph}>
+                    −sin
+                  </text>
+                  <text x={ux + fs * 0.45} y={(fy + uy) / 2 + fs * 0.34} textAnchor="start" fill={T.graph}>
+                    sin
+                  </text>
+                </g>
+              ) : null}
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// TO'LIQ AYLANA O'SHA NUQTAGA QAYTARADI -- 5-darsning IKKINCHI guvohi.
+//
+// Etalon §2 dagi priyom `period-bez-vozvrata` uchun: «to'liq aylana nuqtani
+// o'sha joyga qaytaradi». Ya'ni davr bu «funksiya qaytadan boshlanadi» degan
+// so'z emas, balki NUQTANING O'SHA JOYGA qaytishi. Shuning uchun boshlang'ich
+// joy halqa bilan belgilanadi va nuqta aylanib kelib, aynan uning ustiga
+// tushadi -- ustma-ust.
+//
+// `turns` -- nechta aylana. Ikkitasi kerak: bitta aylana bilan o'quvchi «uch
+// yuz oltmish qo'shildi» deb xususiy holni yodlaydi, ikkitasi bilan qoida
+// ko'rinadi.
+// ============================================================
+export function SameSpot({ size = 268, step = 0, deg = 30, turns = 1 }) {
+  const live = useMounted()
+  const at = useTween(step >= 1 ? deg + 360 * turns : (live ? deg : deg), step >= 1 ? 2600 : 0)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.36 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const [sx, sy] = P(Math.cos(rad(deg)), Math.sin(rad(deg)))
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const done = at >= deg + 360 * turns - 1
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* BOSHLANG'ICH joy: halqa. Nuqta aynan uning ustiga qaytadi. */}
+            <circle cx={sx} cy={sy} r={rDot * 1.75} fill="none" stroke={T.ink2} strokeWidth="2" opacity=".8" />
+
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.accent} strokeWidth="2.4" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            {done ? (
+              <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ok} {...halo(size)} className="g10-valpop">
+                <text x={ox} y={oy - R * 0.25} textAnchor="middle">{'+ ' + 360 * turns + '°'}</text>
+              </g>
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}

@@ -2227,6 +2227,10 @@ export function MultiPick({ prompt, items, okText, audio, onSolved }) {
 // ============================================================
 export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved }) {
   const t = useT()
+  // Подпись бывает и формулой (`π/6` — одна на все языки), и словами (`вершина`
+  // — тогда это `L(...)`). Собранная строка склеивала подпись как есть, и
+  // словесная давала «[object Object]». Один переводчик на все три места.
+  const lab = (x) => (x && typeof x === 'object' ? t(x) : x)
   const fx = useAnswerFx(audio)
   const [rights] = useState(() => shuffled(right))
   const [pick, setPick] = useState(null)
@@ -2256,36 +2260,39 @@ export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved
     <>
       {!finished ? <Cue kind="match">{t(prompt || CUI.matchAsk)}</Cue> : null}
       {done.map((d) => (
-        <DoneRow key={d.l.id}><Fx>{d.l.label + '  →  ' + d.r.label}</Fx></DoneRow>
+        <DoneRow key={d.l.id}><Fx>{lab(d.l.label) + '  →  ' + lab(d.r.label)}</Fx></DoneRow>
       ))}
-      <div style={{ display: 'flex', gap: 'clamp(10px, 3vw, 28px)', justifyContent: 'center', alignItems: 'flex-start' }}>
+      <div style={{
+        display: 'flex', gap: 'clamp(8px, 2.6vw, 28px)', justifyContent: 'center',
+        alignItems: 'flex-start', flexWrap: 'wrap', maxWidth: '100%',
+      }}>
         {bad && marks ? (
-          <div style={{ width: 'clamp(150px, 22vw, 240px)', flexShrink: 0 }}>
+          <div style={{ width: 'clamp(118px, 22vw, 240px)', flexShrink: 0 }}>
             <Scene fig={<UnitCircle angle={null} marks={marks} locked />} max={240} h={240} />
           </div>
         ) : null}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0 }}>
           {openLeft.map((l) => (
             <button
               type="button" key={l.id}
               className={'g10-opt' + (pick && pick.id === l.id ? ' g10-opt-ok' : '')}
-              style={{ width: 'auto', minWidth: 92, justifyContent: 'center' }}
+              style={{ width: 'auto', minWidth: 84, maxWidth: '100%', justifyContent: 'center' }}
               onClick={() => { setPick(l); setBad(null); setHint(null) }}
             >
-              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{l.label && typeof l.label === 'object' ? t(l.label) : l.label}</Fx></span>
+              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{lab(l.label)}</Fx></span>
             </button>
           ))}
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 7 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 7, minWidth: 0, maxWidth: 208 }}>
           {openRight.map((r) => (
             <button
               type="button" key={r.id}
               className={'g10-opt' + (bad === r.id ? ' g10-opt-tip' : '')}
-              style={{ width: 'auto', minWidth: 132, justifyContent: 'center', opacity: pick ? 1 : 0.72 }}
+              style={{ width: 'auto', minWidth: 118, maxWidth: '100%', justifyContent: 'center', opacity: pick ? 1 : 0.72 }}
               disabled={!pick}
               onClick={() => tapRight(r)}
             >
-              <span className="g10-opt-text" style={{ flex: 'none' }}><Fx>{r.label && typeof r.label === 'object' ? t(r.label) : r.label}</Fx></span>
+              <span className="g10-opt-text"><Fx>{lab(r.label)}</Fx></span>
             </button>
           ))}
         </div>

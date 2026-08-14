@@ -211,8 +211,19 @@ const MOTION = {
   // (podstavim) ma'nosida ham keladi, ikkinchisi «to'ldiradi» (dopolnyaet)
   // ma'nosida -- ikkalasi ham harakat emas, va tekshiruv yolg'on gapirardi.
   uz: /(yotqizamiz|yotadi|ko'tariladi|tushadi|aylanadi|buriladi|o'sadi|yo'qoladi|suriladi|aylanmoqda|ko'tarilmoqda)/i,
-  en: /(we lay|lays down|is moving|moves|rises|falls|is turning|turns|rotates|grows|disappears|sweeps|rolls|unfolds)/i,
+  // `turns` OLIB TASHLANDI: u `returns` ichida ham topiladi, va ingliz tilida
+  // «a whole number of turns» -- OT, fe'l emas. Harakat ma'nosi `is turning`
+  // va `rotates` bilan qoplanadi. Yolg'on gapiradigan tekshiruvni o'qimay
+  // qo'yishadi, shuning uchun ro'yxat ATAYIN tor (2026-08-13).
+  en: /(we lay|lays down|is moving|moves|rises|falls|is turning|rotates|grows|disappears|sweeps|rolls|unfolds)/i,
 }
+
+// SO'Z CHEGARASI. Regex bo'lakni so'z ICHIDAN ham topadi: `turns` `returns` da,
+// `moves` `removes` da. Shuning uchun har ro'yxat harf bo'lmagan belgi bilan
+// o'ralib qidiriladi. `` ishlatilmadi: uni kod generatori orqali yozish
+// ikki marta ko'rinmas boshqaruv belgisiga aylangan edi.
+const WORD = (re) => new RegExp('(^|[^\p{L}])(?:' + re.source + ')(?![\p{L}])', 'iu')
+const MOTION_W = { ru: WORD(MOTION.ru), uz: WORD(MOTION.uz), en: WORD(MOTION.en) }
 
 // Показ идёт только на этих ролях. На практике движение — ответ на действие
 // ученика, и там обещаний нет.
@@ -245,7 +256,7 @@ function checkMotion(screens) {
         }
         return out.join(' ')
       }
-      const hit = LANGS.find((k) => MOTION[k] && MOTION[k].test(clean(seg.text[k])))
+      const hit = LANGS.find((k) => MOTION_W[k] && MOTION_W[k].test(clean(seg.text[k])))
       if (!hit) continue
       if (declared.indexOf(seg.on) !== -1) continue
       bad(
@@ -508,6 +519,33 @@ const todo = (src.match(/TODO/g) || []).length
 if (todo && RELEASE) bad(`в файле ${todo} заглушек TODO -- урок не заполнен`)
 else if (todo) note(`заглушек TODO: ${todo} (каркас ещё не заполнен)`)
 
+// ---------------------------------------------------------------------------
+// МНОЖИТЕЛЬ РАЗМЕРА ШРИФТА НЕ ПРОБИВАЕТ ПОЛ.
+//
+// Мелкая подпись внутри фигуры пишется долей от базовой: `fontSize={fs * 0,82}`.
+// Но `fs` сам стоит на полу (`Math.max(11, ...)`), и произведение даёт 9–10 px,
+// то есть НИЖЕ порога 10,5 px. Ошибка не видна при чтении и не ловится сборкой:
+// её находит только прогон вёрстки, то есть через семь минут после правки.
+//
+// За один день 2026-08-13 она повторилась ЧЕТЫРЕ раза — в `HypShrink`,
+// `TriangleVanish`, `EquiFig`, `WheelBridge`, `QuadNames` и `MirrorAxis`.
+// Поэтому теперь она ловится грепом за секунду.
+function checkFontFloor() {
+  for (const f of ['src/components/grade10/figures.jsx', 'src/components/grade10/tools.jsx']) {
+    const src = fs.readFileSync(path.resolve(f), 'utf8')
+    src.split(String.fromCharCode(10)).forEach((line, i) => {
+      const m = line.match(/fontSize=\{([^}]*fs\s*\*\s*0\.[0-9]+[^}]*)\}/)
+      if (!m) return
+      if (m[1].indexOf('Math.max') !== -1) return
+      bad(
+        `${f}:${i + 1}: множитель размера шрифта без пола — «${m[1].trim()}».`
+        + ' При `fs` на полу это даёт меньше 10,5 px. Писать `Math.max(11, fs * ...)`.',
+      )
+    })
+  }
+}
+
+checkFontFloor()
 checkPlan(screens, tags)
 checkStrings(screens)
 checkMotion(screens)
