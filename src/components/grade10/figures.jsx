@@ -1741,3 +1741,136 @@ export function SeriesTicks({ size = 268, step = 0, deg = 30, turns = 2, alt = f
     />
   )
 }
+
+// ============================================================================
+// KOORDINATA TEKISLIGI. 4-ASBOBNING SODDALASHTIRILGAN KO'RINISHI.
+//
+// `PODXOD_10SINF.md` §7: 7, 31 va 34-darslar uchun bitta oyna, jadval va
+// formula yetadi. Bu yerda o'sha bitta oyna.
+//
+// NIMA QILADI (`show` bilan tanlanadi):
+//   `point` -- nuqta grafik bo'ylab yuradi, IKKALA o'qqa proyeksiya tushiradi;
+//   `vline` -- vertikal to'g'ri chiziq chizma bo'ylab suriladi. Funksiya
+//              bo'lmagan egri chiziqda u BIR joyda ikki marta kesadi -- shu
+//              darsning shohidi;
+//   `dom`   -- gorizontal polosa: qaysi `x` lar umuman olinadi;
+//   `rng`   -- vertikal polosa: qanday `y` lar chiqadi.
+//
+// `curve`: `sin` (funksiya), `circle` (funksiya EMAS), `line` (to'g'ri chiziq).
+// Egri chiziq FORMULADAN chiziladi, nuqtalar ro'yxatidan emas -- shuning uchun
+// «grafik jadvaldan olinmaydi» degan gap chizmada ham rost bo'ladi.
+// ============================================================================
+const CURVES = {
+  sin: { fn: (x) => Math.sin(x), dom: [-3.4, 3.4], rng: [-1.15, 1.15] },
+  line: { fn: (x) => 0.45 * x, dom: [-2.2, 2.2], rng: [-1, 1] },
+  // Aylana funksiya EMAS, lekin o'qlar unga ham kerak: sinusning keng
+  // o'qlarini olsak, chizma bir tomonga og'ib qoladi (stendda ko'rindi).
+  circle: { fn: () => 0, dom: [-1.7, 1.7], rng: [-1, 1] },
+}
+
+export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at = 1.1 }) {
+  const grow = useTween(step >= 1 ? 1 : 0, 1800)
+  const band = useTween(step >= 2 ? 1 : 0, 800)
+  const ring = curve === 'circle'
+  const C = CURVES[curve] || CURVES.sin
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.3 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const rDot = Math.max(4, R * 0.06)
+        const fs = Math.max(11, Math.round(S * 0.048))
+        // Kamera birlik uzunlikni R piksel qiladi. Gorizontal bo'yicha 3,4 ta
+        // birlik sig'ishi kerak, shuning uchun X ni siqamiz.
+        const kx = 0.42
+        const PX = (x, y) => P(x * kx, y)
+
+        // Egri chiziq FORMULADAN.
+        const pts = []
+        const N = 120
+        for (let i = 0; i <= N; i += 1) {
+          const x = C.dom[0] + ((C.dom[1] - C.dom[0]) * i) / N
+          pts.push({ x, y: C.fn(x) })
+        }
+        const cut = Math.max(1, Math.round(pts.length * (ring ? 1 : grow)))
+        const dPath = pts.slice(0, cut)
+          .map((p, i) => (i ? 'L' : 'M') + PX(p.x, p.y).join(' '))
+          .join(' ')
+
+        // Yuruvchi nuqta: `grow` bo'ylab.
+        const px = C.dom[0] + (C.dom[1] - C.dom[0]) * (ring ? 1 : grow) * 0.999
+        const py = C.fn(px)
+        const [sx, sy] = PX(px, py)
+        const [vx] = PX(at, 0)
+
+        return (
+          <g>
+            {/* O'qlar HAR kadrda o'sha joyda: ular umumiy chiziq. */}
+            <line x1={PX(C.dom[0] - 0.2, 0)[0]} y1={oy} x2={PX(C.dom[1] + 0.2, 0)[0]} y2={oy} stroke={T.ink3} strokeWidth="1.4" />
+            <line x1={ox} y1={PX(0, -1.35)[1]} x2={ox} y2={PX(0, 1.35)[1]} stroke={T.ink3} strokeWidth="1.4" />
+            <text x={PX(C.dom[1] + 0.2, 0)[0]} y={oy - fs * 0.45} textAnchor="end" fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3}>x</text>
+            {/* `y` CHAPDA turadi: qiymatlar polosasi vertikal o'qni bosadi va
+                yorliq uning tagida qolib ketardi. */}
+            <text x={ox - fs * 0.5} y={PX(0, 1.35)[1] + fs * 0.9} textAnchor="end" fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3}>y</text>
+
+            {/* POLOSALAR: `dom` gorizontal, `rng` vertikal. */}
+            {show === 'dom' ? (
+              <rect
+                x={PX(C.dom[0], 0)[0]} y={oy - Math.max(5, R * 0.05)}
+                width={PX(C.dom[1], 0)[0] - PX(C.dom[0], 0)[0]} height={Math.max(10, R * 0.1)}
+                fill={T.ok} opacity={band * 0.35} rx={4}
+              />
+            ) : null}
+            {show === 'rng' ? (
+              <rect
+                x={ox - Math.max(5, R * 0.05)} y={PX(0, C.rng[1])[1]}
+                width={Math.max(10, R * 0.1)} height={PX(0, C.rng[0])[1] - PX(0, C.rng[1])[1]}
+                fill={T.ok} opacity={band * 0.35} rx={4}
+              />
+            ) : null}
+
+            {/* EGRI CHIZIQ yoki AYLANA (funksiya emas). */}
+            {ring
+              ? <circle cx={ox} cy={oy} r={R * 0.62} fill="none" stroke={T.accent} strokeWidth="2.4" />
+              : <path d={dPath} fill="none" stroke={T.accent} strokeWidth="2.4" strokeLinecap="round" />}
+
+            {/* VERTIKAL CHIZIQ: funksiya bo'lmasa IKKI marta kesadi. */}
+            {show === 'vline' ? (
+              <g>
+                <line
+                  x1={ring ? ox + R * 0.62 * 0.5 : vx} y1={PX(0, -1.3)[1]}
+                  x2={ring ? ox + R * 0.62 * 0.5 : vx} y2={PX(0, 1.3)[1]}
+                  stroke={T.ink2} strokeWidth="2" strokeDasharray="6 4"
+                />
+                {ring ? [1, -1].map((k) => (
+                  <circle
+                    key={k}
+                    cx={ox + R * 0.62 * 0.5}
+                    cy={oy - k * R * 0.62 * Math.sqrt(1 - 0.25)}
+                    r={rDot} fill={T.tip}
+                  />
+                )) : (
+                  <circle cx={vx} cy={PX(at, C.fn(at))[1]} r={rDot} fill={T.accent} />
+                )}
+              </g>
+            ) : null}
+
+            {/* NUQTA va IKKALA proyeksiya: kirish va chiqish bir vaqtda. */}
+            {show === 'point' && !ring ? (
+              <g>
+                <line x1={sx} y1={sy} x2={sx} y2={oy} stroke={T.ink3} strokeWidth="1.2" strokeDasharray="4 4" />
+                <line x1={sx} y1={sy} x2={ox} y2={sy} stroke={T.ink3} strokeWidth="1.2" strokeDasharray="4 4" />
+                <circle cx={sx} cy={oy} r={rDot * 0.62} fill={T.ink2} />
+                <circle cx={ox} cy={sy} r={rDot * 0.62} fill={T.ink2} />
+                <circle cx={sx} cy={sy} r={rDot} fill={T.accent} />
+              </g>
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}

@@ -65,4 +65,10 @@ export const grade10Nazariy = [
     desc: "Ikki seriya bitta qatorga yig'iladi: (−1) daraja n ishorani almashtiradi, qadam esa yarim aylana. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars10.jsx')),
   },
+  {
+    slug: 'dars07-funksiyalar',
+    title: 'Dars 7. Funksiyalar',
+    desc: "Aniqlanish sohasi gorizontal, qiymatlar to'plami vertikal bo'yicha o'qiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars07.jsx')),
+  },
 ]

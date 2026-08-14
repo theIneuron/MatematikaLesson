@@ -20,6 +20,7 @@ const SLUGS = {
   dars08: 'dars08-arkfunksiyalar',
   dars09: 'dars09-sodda-tenglamalar',
   dars10: 'dars10-sin-x-a',
+  dars07: 'dars07-funksiyalar',
 }
 if (!SLUGS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(SLUGS).join(', ')}`)
@@ -1004,6 +1005,100 @@ PLANS.dars10 = [
     n: 14,
     act: async (p) => {
       for (const a of ['переключает', 'сто восемьдесят', 'в первую', 'одна']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 7-dars: FUNKSIYALAR. Sinfda AYLANA yo'q bitta dars: hamma javob son yoki
+// tanlov, nuqta qo'yish yo'q.
+PLANS.dars07 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      for (const a of ['по горизонтали', 'от минус единицы', 'при любых']) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeNumber(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await waitKeys(p); return typeNumber(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeNumber(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeNumber(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeNumber(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'горизонтальной'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      // Yorliqlar `Fx` orqali chiziladi, shuning uchun to'liq taqqoslashga
+      // tayanmaymiz: qism va `not` yetadi.
+      const pairs = [
+        [{ text: 'y = sin x', not: '+' }, '[−1; 1]'],
+        ['2 sin x', '[−2; 2]'],
+        [{ text: 'y = x', not: 'sin' }, '(−∞'],
+        ['sin x + 3', '[2; 4]'],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0])
+        await clickText(p, pr[1])
+        await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['горизонтальная', 'область', 'вертикальная', 'множество']) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeNumber(p, ['2'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      for (const c of ['0,5 sin x', 'sin x', '2 sin x', '3 sin x']) {
+        await clickText(p, { text: c, exact: true })
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'D(y) = [−1; 1]')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeNumber(p, ['1'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of [{ text: 'y = sin x', not: '2' }, 'y = 2 sin x', 'y = cos x']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['по горизонтали', 'ровно один', 'отрезок', 'нет']) {
         await clickText(p, a); await p.waitForTimeout(1700)
       }
     },

@@ -5,7 +5,7 @@
 import React, { useState, useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 import { STYLES } from '../src/components/grade10/core.jsx'
-import { LevelLine, SeriesTicks, WindowArc } from '../src/components/grade10/figures.jsx'
+import { LevelLine, Plane, SeriesTicks, WindowArc } from '../src/components/grade10/figures.jsx'
 
 function App() {
   const [s, setS] = useState(0)
@@ -25,6 +25,12 @@ function App() {
         <SeriesTicks size={300} step={s} deg={30} turns={3} alt />
         <SeriesTicks size={212} step={s} deg={30} turns={3} alt />
         <SeriesTicks size={212} step={s} deg={30} turns={2} />
+        <Plane size={300} step={s} curve="sin" show="point" />
+        <Plane size={212} step={s} curve="sin" show="point" />
+        <Plane size={300} step={s} curve="circle" show="vline" />
+        <Plane size={300} step={s} curve="sin" show="dom" />
+        <Plane size={212} step={s} curve="sin" show="rng" />
+        <Plane size={300} step={s} curve="line" show="vline" at={1.1} />
       </div>
       <div id="stepnow" style={{ fontFamily: 'monospace', marginTop: 6 }}>{'step ' + s}</div>
     </div>
