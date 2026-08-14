@@ -47,4 +47,22 @@ export const grade10Nazariy = [
     desc: "Grafik jadvaldan emas: aylana yoyiladi va nuqtaning balandligi egri chiziqni chizadi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars06.jsx')),
   },
+  {
+    slug: 'dars08-arkfunksiyalar',
+    title: 'Dars 8. Arkfunksiyalar',
+    desc: "Gorizontal chiziq ikkita nuqta beradi, javob esa bitta: u bir qiymatlilik oynasidan olinadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars08.jsx')),
+  },
+  {
+    slug: 'dars09-sodda-tenglamalar',
+    title: 'Dars 9. Sodda tenglamalar',
+    desc: "Ikkita nuqta va to'liq aylana: ildiz cheksiz ko'p, javob esa ikkita seriya. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars09.jsx')),
+  },
+  {
+    slug: 'dars10-sin-x-a',
+    title: 'Dars 10. sin x = a',
+    desc: "Ikki seriya bitta qatorga yig'iladi: (−1) daraja n ishorani almashtiradi, qadam esa yarim aylana. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars10.jsx')),
+  },
 ]

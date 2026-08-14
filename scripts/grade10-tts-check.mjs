@@ -29,6 +29,9 @@ const LESSONS = {
   dars04: { slug: 'dars04-ishoralar-qiymatlar', no: 4, segments: 4 },
   dars05: { slug: 'dars05-juftlik-davr', no: 5, segments: 4 },
   dars06: { slug: 'dars06-grafiklar', no: 6, segments: 4 },
+  dars08: { slug: 'dars08-arkfunksiyalar', no: 8, segments: 4 },
+  dars09: { slug: 'dars09-sodda-tenglamalar', no: 9, segments: 4 },
+  dars10: { slug: 'dars10-sin-x-a', no: 10, segments: 4 },
 }
 if (!LESSONS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)

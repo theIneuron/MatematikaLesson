@@ -1510,3 +1510,234 @@ export function SameSpot({ size = 268, step = 0, deg = 30, turns = 1 }) {
     />
   )
 }
+
+// ============================================================================
+// BLOK 2 NING SHOHIDI: GORIZONTAL CHIZIQ IKKITA NUQTA BERADI.
+//
+// `sin x = a` da eng ko'p uchraydigan xato -- bitta ildiz yozish. Sabab: ekranda
+// bitta nuqta ko'rsatiladi. Bu figura chiziqni tushiradi va IKKALA kesishishni
+// birdan yoqadi, keyin ular ekranda QOLADI: javob berilayotganda ikkinchisi
+// ko'rinib turadi.
+//
+// `axis`: `y` -- gorizontal (sinus), `x` -- vertikal (kosinus).
+// `a` birdan katta bo'lsa chiziq aylanadan yuqorida to'xtaydi va nuqta umuman
+// paydo bo'lmaydi -- `sin x = 2` ning javobi aynan shu.
+// ============================================================================
+export function LevelLine({ size = 268, step = 0, a = 0.5, axis = 'y', arcs = false }) {
+  const vert = axis === 'x'
+  const start = 1.42
+  // `a` birdan katta bo'lsa chiziq KAMERADAN chiqib ketadi va ekranda umuman
+  // ko'rinmaydi -- ya'ni «to'g'ri chiziq aylananing yonidan o'tdi» degan
+  // shohid yo'q bo'ladi. Stend shuni ko'rsatdi: `a = 2` da faqat aylana
+  // qolgan edi. Shuning uchun chiziq ko'rinadigan joyda to'xtaydi, yozuvda
+  // esa HAQIQIY qiymat turadi.
+  const stop = Math.abs(a) <= 1 ? a : Math.sign(a) * 1.22
+  const at = useTween(step >= 1 ? stop : start, 1500)
+  const settled = Math.abs(at - stop) < 0.02
+  const cut = Math.abs(a) <= 1 ? Math.sqrt(Math.max(0, 1 - a * a)) : null
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.36 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        // Chiziqning ikki uchi va kesishish nuqtalari BIR hisobdan chiqadi.
+        const end0 = vert ? P(at, -1.3) : P(-1.3, at)
+        const end1 = vert ? P(at, 1.3) : P(1.3, at)
+        const pts = cut === null ? [] : (vert ? [[a, cut], [a, -cut]] : [[cut, a], [-cut, a]])
+        const tag = (vert ? 'x = ' : 'y = ') + String(a).replace('.', ',').replace('-', '−')
+
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            <line
+              x1={end0[0]} y1={end0[1]} x2={end1[0]} y2={end1[1]}
+              stroke={T.accent} strokeWidth="2" strokeDasharray="6 4" opacity=".85"
+            />
+
+            {settled && pts.length ? pts.map((pt, i) => {
+              const sp = P(pt[0], pt[1])
+              return <circle key={i} cx={sp[0]} cy={sp[1]} r={rDot} fill={T.accent} />
+            }) : null}
+
+            {settled && arcs && pts.length ? pts.map((pt, i) => {
+              const d = ((Math.atan2(pt[1], pt[0]) * 180) / Math.PI + 360) % 360
+              const lp = P(pt[0] * 1.26, pt[1] * 1.26)
+              return (
+                <text
+                  key={'l' + i} x={lp[0]} y={lp[1]} textAnchor="middle" dominantBaseline="middle"
+                  fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ink2} {...halo(size)}
+                >
+                  {Math.round(d) + '°'}
+                </text>
+              )
+            }) : null}
+
+            {settled ? (
+              <text
+                // Vertikal holatda yozuv chiziqning YONIDA turadi: stendda u
+                // chiziq ustiga tushib «x =↓0,5» bo'lib o'qilgan edi.
+                x={vert ? P(stop, 0)[0] + fs * 0.7 : ox - R * 0.14}
+                y={vert ? P(0, -1.16)[1] : P(0, stop)[1] - fs * 0.45}
+                textAnchor={vert ? 'start' : 'end'}
+                fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.accent} {...halo(size)}
+              >
+                {tag}
+              </text>
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================================
+// BIR QIYMATLILIK OYNASI. `arcsin` shu yerdan tug'iladi.
+//
+// Gorizontal chiziq ikkita nuqta beradi, teskari amal esa BITTA son berishi
+// shart. Kelishuv: aylananing bir bo'lagi tanlanadi, va javob faqat undan
+// olinadi. Figura oynani bo'yaydi va tashqaridagi nuqtani SO'NDIRADI, lekin
+// o'chirmaydi: u bor, shunchaki javobga olinmaydi.
+// ============================================================================
+export function WindowArc({ size = 268, step = 0, a = 0.5, from = -90, to = 90, axis = 'y' }) {
+  const vert = axis === 'x'
+  const paint = useTween(step >= 1 ? 1 : 0, 800)
+  const pick = useTween(step >= 2 ? 1 : 0, 700)
+  const cut = Math.abs(a) <= 1 ? Math.sqrt(Math.max(0, 1 - a * a)) : 0
+  // ARKKOSINUS uchun chiziq VERTIKAL. Gorizontal chiziq bilan `0…180` oynasiga
+  // IKKALA nuqta ham tushadi (ikkovining balandligi bir xil), ya'ni oyna hech
+  // narsani ajratmaydi -- stendda aynan shu chiqdi.
+  const pts = vert ? [[a, cut], [a, -cut]] : [[cut, a], [-cut, a]]
+  const inWin = (pt) => {
+    const d = ((Math.atan2(pt[1], pt[0]) * 180) / Math.PI + 360) % 360
+    const lo = ((from % 360) + 360) % 360
+    const hi = ((to % 360) + 360) % 360
+    return lo <= hi ? d >= lo && d <= hi : d >= lo || d <= hi
+  }
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.36 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const A0 = P(Math.cos(rad(from)), Math.sin(rad(from)))
+        const A1 = P(Math.cos(rad(to)), Math.sin(rad(to)))
+        const big = Math.abs(to - from) > 180 ? 1 : 0
+
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            <g opacity={paint}>
+              <path
+                d={'M ' + A0[0] + ' ' + A0[1] + ' A ' + R + ' ' + R + ' 0 ' + big + ' 0 ' + A1[0] + ' ' + A1[1]}
+                fill="none" stroke={T.ok} strokeWidth={Math.max(4, R * 0.075)} strokeLinecap="round" opacity=".5"
+              />
+            </g>
+
+            <line
+              x1={vert ? P(a, -1.3)[0] : P(-1.3, a)[0]} y1={vert ? P(a, -1.3)[1] : P(-1.3, a)[1]}
+              x2={vert ? P(a, 1.3)[0] : P(1.3, a)[0]} y2={vert ? P(a, 1.3)[1] : P(1.3, a)[1]}
+              stroke={T.accent} strokeWidth="2" strokeDasharray="6 4" opacity=".8"
+            />
+
+            {pts.map((pt, i) => {
+              const sp = P(pt[0], pt[1])
+              const here = inWin(pt)
+              // Tanlash IKKINCHI kadrda bo'ladi. Birinchi kadrda ikkala nuqta
+              // ham bir xil: oyna endi bo'yaldi, javob hali olinmadi. Rangni
+              // darrov o'zgartirsak, ikkinchi kadr bo'sh qoladi.
+              const dim = here ? 0 : pick
+              const op = 1 - dim * 0.72
+              const tone = dim > 0.5 ? T.ink3 : T.accent
+              return (
+                <g key={i} opacity={op}>
+                  <line x1={ox} y1={oy} x2={sp[0]} y2={sp[1]} stroke={tone} strokeWidth={dim > 0.5 ? 1.6 : 2.4} />
+                  <circle cx={sp[0]} cy={sp[1]} r={rDot} fill={tone} />
+                </g>
+              )
+            })}
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+
+            {step >= 2 ? (
+              <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ok} {...halo(size)} className="g10-valpop">
+                <text x={ox} y={oy + R * 1.36} textAnchor="middle">
+                  {/* Minus TIPOGRAFIK bo'lishi kerak: `-90` klaviatura defisi. */}
+                  {String(from).replace('-', '−') + '°  …  ' + String(to).replace('-', '−') + '°'}
+                </text>
+              </g>
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================================
+// SERIYA: BITTA NUQTA, KO'P YOZUV.
+//
+// To'liq aylana nuqtani o'sha joyga qaytaradi, ya'ni bitta nuqtaga cheksiz ko'p
+// yozuv mos keladi. Figura yozuvlarni BIRIN-KETIN chiqaradi: `n` harfi keyin
+// shu qatordan o'sib chiqadi, ta'rifdan emas.
+// ============================================================================
+export function SeriesTicks({ size = 268, step = 0, deg = 30, turns = 2, alt = false }) {
+  const shown = Math.min(step, turns)
+  // `alt` -- 10-DARS uchun: ikkita seriya bitta yozuvga yig'ilganda nuqta ikki
+  // joy orasida ALMASHIB boradi, qadam esa yarim aylana bo'lib qoladi.
+  // Formula: (−1)^k · burchak + 180°k. k = 0, 1, 2, 3 -> 30, 150, 390, 510.
+  const valueAt = (k) => (alt ? (k % 2 === 0 ? deg : 180 - deg) + 360 * Math.floor(k / 2) : deg + 360 * k)
+  const at = useTween(valueAt(shown), 2200)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.34 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const sp = P(Math.cos(rad(deg)), Math.sin(rad(deg)))
+        const pp = P(Math.cos(rad(at)), Math.sin(rad(at)))
+        // `alt` da ikkinchi joy ham HALQA bilan belgilanadi: nuqta ular
+        // orasida almashib boradi, va ikkalasi ham ko'rinib turishi kerak.
+        const ap = P(Math.cos(rad(180 - deg)), Math.sin(rad(180 - deg)))
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(S * 0.046))
+        const rows = []
+        for (let k = 0; k <= shown; k += 1) rows.push(valueAt(k) + '°')
+
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            <circle cx={sp[0]} cy={sp[1]} r={rDot * 1.75} fill="none" stroke={T.ink2} strokeWidth="2" opacity=".8" />
+            {alt ? <circle cx={ap[0]} cy={ap[1]} r={rDot * 1.75} fill="none" stroke={T.ink2} strokeWidth="2" opacity=".8" /> : null}
+            <line x1={ox} y1={oy} x2={pp[0]} y2={pp[1]} stroke={T.accent} strokeWidth="2.4" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={pp[0]} cy={pp[1]} r={rDot} fill={T.accent} />
+
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ink2} {...halo(size)}>
+              <text x={ox} y={oy + R * 1.4} textAnchor="middle">{rows.join('   ')}</text>
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
