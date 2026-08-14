@@ -81,4 +81,10 @@ export const grade10Nazariy = [
     desc: "Vertikal chiziq ikkita nuqta beradi, ular bir-birining ostida: shuning uchun plyus-minus yetadi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars11.jsx')),
   },
+  {
+    slug: 'dars12-tg-x-a',
+    title: 'Dars 12. tg x = a',
+    desc: "Qarama-qarshi ikki nuqta bitta kesish beradi: seriya bitta, qadam esa yarim aylana. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars12.jsx')),
+  },
 ]
