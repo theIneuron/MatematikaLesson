@@ -1766,6 +1766,16 @@ const CURVES = {
   // Aylana funksiya EMAS, lekin o'qlar unga ham kerak: sinusning keng
   // o'qlarini olsak, chizma bir tomonga og'ib qoladi (stendda ko'rindi).
   circle: { fn: () => 0, dom: [-1.7, 1.7], rng: [-1, 1] },
+  // KO'RSATKICHLI va LOGARIFMIK egri chiziqlar (5-blok). Ikkalasi ham `y = x`
+  // ga nisbatan bir-birining aksi, va shu ikki qatorda ko'rinadi.
+  // `asym` -- ASIMPTOTA: egri chiziq unga yaqinlashadi, lekin tegmaydi. Bu
+  // 27-darsning shohidi: qiymatlar to'plami noldan boshlanadi, LEKIN nolni
+  // o'z ichiga olmaydi.
+  // ASIMPTOTA O'QNING O'ZI. Birinchi redaksiyada egri chiziq siljitilgan edi va
+  // chizilgan o'qni KESIB o'tardi -- `y = 2^x` esa hech qachon kesmaydi.
+  // Stend shuni ko'rsatdi (2026-08-14): shohid yolg'on gapirardi.
+  exp: { fn: (x) => Math.pow(2, x) / 3, dom: [-3.2, 1.55], rng: [0, 1.15], asym: 0 },
+  log: { fn: (x) => Math.log2(x) / 2.4, dom: [0.05, 1.6], rng: [-1.15, 1.15], vasym: 0 },
 }
 
 export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at = 1.1 }) {
@@ -1829,6 +1839,22 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
                 x={ox - Math.max(5, R * 0.05)} y={PX(0, C.rng[1])[1]}
                 width={Math.max(10, R * 0.1)} height={PX(0, C.rng[0])[1] - PX(0, C.rng[1])[1]}
                 fill={T.ok} opacity={band * 0.35} rx={4}
+              />
+            ) : null}
+
+            {/* ASIMPTOTA: uzuq chiziq, egri chiziq unga yetmaydi. */}
+            {C.asym !== undefined ? (
+              <line
+                x1={PX(C.dom[0] - 0.2, C.asym)[0]} y1={PX(0, C.asym)[1]}
+                x2={PX(C.dom[1] + 0.2, C.asym)[0]} y2={PX(0, C.asym)[1]}
+                stroke={T.ok} strokeWidth="2" strokeDasharray="6 4" opacity=".75"
+              />
+            ) : null}
+            {C.vasym !== undefined ? (
+              <line
+                x1={PX(C.vasym, 0)[0]} y1={PX(0, -1.3)[1]}
+                x2={PX(C.vasym, 0)[0]} y2={PX(0, 1.3)[1]}
+                stroke={T.ok} strokeWidth="2" strokeDasharray="6 4" opacity=".75"
               />
             ) : null}
 
