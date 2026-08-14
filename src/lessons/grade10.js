@@ -23,4 +23,16 @@ export const grade10Nazariy = [
     desc: "Burchak yoy uzunligi bilan o'lchanadi: radiusni yoy bo'ylab yotqizamiz. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars01.jsx')),
   },
+  {
+    slug: 'dars02-sin-cos-tg',
+    title: 'Dars 2. sin/cos/tg',
+    desc: "Nuqtaning koordinatalari: birinchi son kosinus, ikkinchisi sinus, nisbati tangens. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars02.jsx')),
+  },
+  {
+    slug: 'dars04-ishoralar-qiymatlar',
+    title: 'Dars 4. Ishoralar va qiymatlar',
+    desc: "Ishora bu yo'nalish, yodlangan qoida emas. Choraklar, tangens ishorasi, o'tkir burchakka keltirish. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars04.jsx')),
+  },
 ]

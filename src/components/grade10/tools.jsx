@@ -508,17 +508,41 @@ export const RAD = {
 const norm = (d) => ((d % 360) + 360) % 360
 const rad = (d) => (d * Math.PI) / 180
 const round2 = (v) => Math.round(v * 100) / 100
+// O'nlik VERGUL bilan: butun dars «3,14» deb yozadi, tablo esa «3.14» deb
+// ko'rsatardi -- bitta sahifada ikki xil yozuv. Aniq qiymat jadvalda bo'lmagan
+// burchakda (o'quvchi nuqtani o'zi surganda) shu yo'l ishlaydi.
 const fmt = (v) => {
   const r = round2(v)
-  return (Math.abs(r) < 0.005 ? '0' : String(r)).replace('-', '−')
+  return (Math.abs(r) < 0.005 ? '0' : String(r)).replace('-', '−').replace('.', ',')
 }
 export const exactOf = (deg) => EXACT[norm(deg)] || [fmt(Math.cos(rad(deg))), fmt(Math.sin(rad(deg)))]
 export const radOf = (deg) => RAD[norm(deg)] || null
+
+// TANGENS -- 2-dars. Nisbat `y/x`, ya'ni ALLAQACHON o'qilgan ikki son.
+// `null` bu «qiymat YO'Q»: abscissa nol, bo'lish yo'q. Nol EMAS, cheksizlik ham
+// emas -- shuning uchun jadvalda ham `null` turadi, nol turmaydi.
+export const TAN = {
+  0: '0', 30: '√3/3', 45: '1', 60: '√3', 90: null,
+  120: '−√3', 135: '−1', 150: '−√3/3', 180: '0',
+  210: '√3/3', 225: '1', 240: '√3', 270: null,
+  300: '−√3', 315: '−1', 330: '−√3/3',
+}
+export const tanOf = (deg) => {
+  const d = norm(deg)
+  if (d in TAN) return TAN[d]
+  const c = Math.cos(rad(d))
+  // Chegara aniq 90° dan kengroq: o'quvchi barmoq bilan aynan 90 ga tushmaydi,
+  // 89,7° da esa bo'lish hali ham bor va ko'rsatkich O'SIB boradi -- uzilish
+  // faqat abscissa amalda nolga aylanganda.
+  if (Math.abs(c) < 0.005) return null
+  return fmt(Math.sin(rad(d)) / c)
+}
 
 const CUI = {
   angle: L('Burchak', 'Угол', 'Angle'),
   cos: L('Kosinus', 'Косинус', 'Cosine'),
   sin: L('Sinus', 'Синус', 'Sine'),
+  tan: L('Tangens', 'Тангенс', 'Tangent'),
   sum: L('Kvadratlar', 'Квадраты', 'Squares'),
   // 1-dars: burchak UZUNLIK bilan o'lchanadi. Tablo yozuvlari shu yerda,
   // dars faylida emas: ular hamma darsda bir xil.
@@ -681,7 +705,9 @@ function ArcArrow({ cx, cy, r, from, to, size = 268, tone }) {
 // («sinus 1,2 bo'la oladimi?» ekranida kosinus va sinus qiymatlari emas,
 // KVADRATLAR yig'indisi guvoh). Ortiqcha ikki qator 120 px, va yakuniy holatda
 // ekran budjetdan chiqib, pastki qatorlar jimgina kesilardi.
-export function Readout({ angle, ghost = null, counter = false, live = false, hide = [] }) {
+// `tan` -- 2-dars uchun tangens qatori. Nega alohida prop: tangens BOR ekrandan
+// ko'ra yo'q ekran ko'proq, va ortiqcha qator kompakt telefonda 40 px.
+export function Readout({ angle, ghost = null, counter = false, live = false, tan = false, hide = [] }) {
   const t = useT()
   const has = angle !== null && angle !== undefined
   const [ex, ey] = has ? exactOf(angle) : ['', '']
@@ -716,6 +742,26 @@ export function Readout({ angle, ghost = null, counter = false, live = false, hi
           <div className="g10-rd">
             <span className="g10-rd-key">{t(CUI.sin)}</span>
             <span className="g10-rd-val g10-rd-val-accent">{has ? ey : wait}</span>
+          </div>
+        ) : null}
+        {/* TANGENS. Uzilish shu yerda KO'RINADI: abscissa nolga aylanganda
+            ko'rsatkich issiq rangdagi CHIZIQCHAGA aylanadi. Dastur «cheksizlik»
+            deb yozmaydi -- cheksizlik son emas, va uni sonday ko'rsatish aynan
+            `tangens-bez-nulya` xatosini o'rgatgan bo'lardi.
+            Qator BALANDLIGI o'zgarmaydi: chiziqcha ham, son ham bitta satr.
+            Ikkinchi satr («qiymat yo'q») qo'yilmadi -- u paydo bo'lganda
+            raskladka sakraydi va yakuniy holat budjetdan chiqadi. Ma'nosini
+            ekranning javob qatori SO'Z bilan aytadi. */}
+        {tan && hide.indexOf('tan') === -1 ? (
+          <div className="g10-rd">
+            <span className="g10-rd-key">{t(CUI.tan)}</span>
+            {!has ? (
+              <span className="g10-rd-val">{wait}</span>
+            ) : tanOf(angle) === null ? (
+              <span className="g10-rd-val" style={{ color: T.tip }}>—</span>
+            ) : (
+              <span className="g10-rd-val g10-rd-val-accent">{tanOf(angle)}</span>
+            )}
           </div>
         ) : null}
         {counter ? (
@@ -1335,7 +1381,7 @@ export function WheelBridge({ size = 268, step = 0 }) {
             {pair > 0.01 ? (
               <text
                 x={px} y={py - fs * 0.75} fill={T.ink} textAnchor="middle" opacity={pair * (1 - sqr)}
-                fontSize={fs * 0.92} {...halo}
+                fontSize={Math.max(11, fs * 0.92)} {...halo}
               >
                 (b; a)
               </text>
@@ -1464,8 +1510,12 @@ export function EquiFig({ size = 268, step = 0 }) {
         </text>
         <text x={(bx + ax) / 2} y={by + fs + 3} fontSize={fs} fill={T.ink} textAnchor="middle">1/2</text>
         <text x={(ax + dx) / 2} y={by + fs + 3} fontSize={fs} fill={T.ink} textAnchor="middle">1/2</text>
-        <text x={ax + fs * 0.5} y={ay + h * 0.34} fontSize={fs * 0.78} fill={T.ink2} textAnchor="start">30°</text>
-        <text x={dx - side * 0.3} y={by - 8} fontSize={fs * 0.78} fill={T.ink2} textAnchor="middle">60°</text>
+        {/* Ko'paytiruvchi 10,5 px polini bosmasin: `fs` ning o'zi polda
+            turganda `fs * 0.78` 8,6 px chiqadi. Shu xato 2-darsda tutildi
+            (2026-08-13), bu yerda esa hozircha chizma katta bo'lgani uchun
+            ko'rinmagan -- ya'ni kutib turgan xato edi. */}
+        <text x={ax + fs * 0.5} y={ay + h * 0.34} fontSize={Math.max(11, fs * 0.78)} fill={T.ink2} textAnchor="start">30°</text>
+        <text x={dx - side * 0.3} y={by - 8} fontSize={Math.max(11, fs * 0.78)} fill={T.ink2} textAnchor="middle">60°</text>
       </g>
     </svg>
   )
@@ -2249,7 +2299,14 @@ export function MatchPairs({ prompt, left, right, marks, okText, audio, onSolved
 
 // Uch burchak jadvali: har qator RADIUS bilan tekshiriladi. Xato juftlik
 // nuqtani aylanadan chiqarib yuboradi, dastur «noto'g'ri» demaydi.
-export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, okText }) {
+// `figH` -- chizmani YORDAMCHI tirga o'tkazadi (`g10-scene-fig-fixed`, poli
+// 100 px). Nima uchun kerak: 4-darsning 9-ekranida jadvalda TO'RT qator bor
+// (har chorakdan bittasi), va 393 px da ishchi tirdagi 212 px li chizma bilan
+// birga ekran budjetdan 17 px chiqib ketardi. Katakchani kichraytirish MUMKIN
+// EMAS: 30 px bu barmoq. Chizma esa bu ekranda ishchi yuza emas -- o'quvchi
+// jadvalda ishlaydi, chizma faqat burchakni belgilab turadi, ya'ni aynan
+// yordamchi. Prop berilmasa hech narsa o'zgarmaydi (3-darsning jadvali).
+export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, okText, figH }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [filled, setFilled] = useState(() => rows.map(() => [null, null]))
@@ -2295,6 +2352,8 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
     <>
       {!(checked && allRight) ? <Cue kind="fill" compact>{t(CUI.tableAsk)}</Cue> : null}
     <Scene
+      h={figH}
+      max={figH || 620}
       fig={<UnitCircle angle={rows[active[0]] ? rows[active[0]].deg : null} ghost={ghost} locked />}
       note={(
         <div className="g10-side">
@@ -2349,7 +2408,10 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
 
 // «O'zing yasa»: berilgan xossali nuqta. Tekshiruv KOORDINATA bilan,
 // chorak NOMI bilan emas (chorak 4-darsda kiritiladi).
-export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap }) {
+// `readout` -- tabloning sozlamasi (masalan `{ tan: true }`). Nima uchun prop:
+// tablo ekranning SAVOLIGA tegishli, asbobning o'ziga emas -- 2-darsda
+// tangens qatori kerak, 3-darsda esa u ekranni budjetdan chiqarardi.
+export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap, readout }) {
   const t = useT()
   const fx = useAnswerFx(audio)
   const [angle, setAngle] = useState(null)
@@ -2379,7 +2441,7 @@ export function BuildPoint({ prompt, test, hints, okText, onSolved, audio, snap 
         fig={<UnitCircle angle={angle} onAngle={put} snap={snap} ticks start={angle === null ? 0 : null} locked={state === 'ok'} values={state === 'ok'} />}
         note={(
           <div className="g10-side">
-            <Readout angle={angle} />
+            <Readout angle={angle} {...(readout || {})} />
             <Slot mh={70} className="g10-fb-sm">
               <Feedback show={!!hint} ok={state === 'ok'}>{hint ? t(hint) : null}</Feedback>
             </Slot>

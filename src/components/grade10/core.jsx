@@ -1705,7 +1705,15 @@ sup.g10-idx { vertical-align: .46em; }
   font-size: 1.06em;
 }
 .g10-opt-badge { flex-shrink: 0; min-width: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; font-weight: 700; }
-.g10-opt-text { flex: 1; }
+/* UZUN SO'Z kesilmasin, ko'chsin. Nima uchun: g10-opt da overflow hidden
+   turadi, va bo'linish joyi yo'q bitta uzun so'z (rus tilidagi
+   «противолежащего») kartochka ichida JIMGINA kesilardi: 390 px da 16 px
+   yo'qolardi va bu faqat bitta tilda chiqardi (2026-08-13, 2-dars 2-ekrani).
+   Kesilgan matn yo'qolgan matn, shuning uchun bu yerda chiroyliroq emas,
+   KO'RINADIGAN variant tanlanadi.
+   DIQQAT: bu satr STYLES shablon-satri ICHIDA. Teskari apostrof (backtick)
+   yozib bo'lmaydi -- u shablonni yopadi va butun fayl yiqiladi. */
+.g10-opt-text { flex: 1; overflow-wrap: anywhere; }
 /* YASHIL faqat tasdiqdan keyin. */
 .g10-opt-ok { background: ${T.okSoft}; color: ${T.ok}; box-shadow: 0 10px 24px -14px rgba(40,119,74,.5), inset 0 0 0 1px rgba(40,119,74,.3); }
 /* Xato urinish AMBER, qizil EMAS. */

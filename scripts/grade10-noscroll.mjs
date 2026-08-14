@@ -41,7 +41,17 @@ const VIEWPORTS = [
   { name: 'telefon-390x745', w: 390, h: 745 },
   { name: 'telefon-393x660', w: 393, h: 660 },
   { name: 'telefon-360x690', w: 360, h: 690 },
-].filter((vp) => !process.env.GRADE10_ONLY || vp.name.indexOf(process.env.GRADE10_ONLY) !== -1)
+// TEZ YARUS. `GRADE10_ONLY` bir nechta o'lchamni vergul bilan qabul qiladi:
+//   GRADE10_ONLY=1366x615,393x660   -- ishlash paytida, ~2,5 daqiqa
+//   (bo'sh)                          -- to'liq prognon, kommitdan oldin
+// Nima uchun aynan shu ikkisi: 1366x615 balandligi bo'yicha eng tor, 393x660 esa
+// haqiqiy telefon. 2026-08-13 dagi ikki nuqsonni ham shu ikkisi ushlaydi.
+// TILNI qisqartirish MUMKIN EMAS: uzun so'zning kesilishi FAQAT rus tilida
+// chiqdi, mayda `α` esa birinchi o'zbekchada -- matn uzunligi tilga bog'liq.
+].filter((vp) => {
+  const only = (process.env.GRADE10_ONLY || '').split(',').map((s) => s.trim()).filter(Boolean)
+  return !only.length || only.some((o) => vp.name.indexOf(o) !== -1)
+})
 
 await mkdir(OUT, { recursive: true })
 const browser = await chromium.launch({ headless: true })

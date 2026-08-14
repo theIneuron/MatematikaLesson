@@ -30,8 +30,35 @@
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { MATH_FONT, T, useSpin, useTween } from './core.jsx'
+
+// NOL KADRDA ham harakat bo'lsin.
+//
+// `useTween` boshlang'ich qiymat sifatida NISHONNI oladi -- ya'ni komponent
+// paydo bo'lganda hech narsa qimirlamaydi, va birinchi replika QOTIB turgan
+// rasm ustida aytiladi. Kadrlar oralig'ida harakat bor, kirishda esa yo'q.
+//
+// Bu ilgak birinchi kadrda nishonni bir marta o'zgartiradi: mount dan keyingi
+// kadrda `true` bo'ladi, va shu bilan tween ishga tushadi. `prefers-reduced-
+// motion` ni hurmat qilish `useTween` ning ichida qolaveradi.
+export function useMounted() {
+  const [on, setOn] = useState(false)
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setOn(true))
+    return () => cancelAnimationFrame(id)
+  }, [])
+  return on
+}
+
+const rad = (d) => (d * Math.PI) / 180
+// Ikki chiziqli yorliq: chizmadagi har yozuv fonda «halqa» bilan turadi, aks
+// holda u chiziq ustiga tushib o'qilmay qoladi.
+const halo = (size) => ({
+  stroke: T.bg,
+  strokeWidth: Math.max(3, size * 0.013),
+  paintOrder: 'stroke',
+})
 
 // Kamera holati kadr bo'yicha. `x`, `y` -- kvadratning ulushi, `r` -- birlik
 // uzunlik ham ulushda. Ro'yxat kadrlardan qisqa bo'lsa, oxirgisi qoladi.
@@ -412,6 +439,917 @@ export function Carousel({ size = 268, step = 1, secPerTurn = 30, seats = 6 }) {
               )
             })}
             <circle cx={ox} cy={oy} r={Math.max(3, R * 0.05)} fill={T.ink3} />
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// MAXRAJ YO'QOLADI -- 2-darsning BIRINCHI guvohi.
+//
+// 8-sinf ta'rifi: `sin α = a / c`. Bu ta'rif YO'QOLMAYDI, u shu yerda birlik
+// aylana ta'rifiga AYLANADI: gipotenuza birga qadar SIQILADI va maxraj o'zi
+// yo'qoladi -- `a / 1`, keyin `a`. Ya'ni sinus nuqtaning BALANDLIGI.
+//
+// Nega siqilish kerak. Ikki alohida rasm («mana uchburchak, mana aylana»)
+// o'quvchi uchun IKKI BOSHQA ta'rif bo'lib qoladi, va u ikkisini yodlashga
+// urinadi. Siqilish esa bittasi ikkinchisiga aylanganini KO'RSATADI.
+//
+// Kadrlar: 0 -- gipotenuzasi `c` uchburchak; 1 -- `c` birga siqiladi, aylana
+// chiziladi; 2 -- balandlik o'qqa ko'chiriladi: `a` bu ordinata.
+//
+// Kamera QO'ZG'ALMAYDI: aks holda gipotenuza siqilganda kamera yaqinlashib,
+// uchburchak EKRANDA o'sha bo'yida qolardi -- ya'ni siqilish ko'rinmasdi.
+// ============================================================
+// `focus` -- 2-ekran (tayanch) uchun. Chizma savolga JAVOB berib boradi: har
+// javobdan keyin ayni o'sha narsa yonadi. Nima uchun: tayanch ekranida uch
+// savol uchburchak HAQIDA, uchburchak esa qimirlamay turardi -- o'quvchi
+// savolni o'qiydi, chizma esa unda ishtirok etmaydi.
+//   1 -- sinus nisbati: `a` va `c` yonadi, `b` so'nadi
+//   2 -- birlik aylana chiziladi, va uchburchak undan CHIQIB turadi
+//        (3-ekranning kelishuvi shu yerdan boshlanadi: sig'ishi uchun siqilish kerak)
+//   3 -- o'qlar va gorizontal o'qqa proyeksiya: birinchi koordinata
+export function HypShrink({ size = 268, step = 0, deg = 30, focus = 0, tight = false }) {
+  const h = useTween(step >= 1 ? 1 : 1.62, 1250)
+  const circ = useTween(step >= 1 || focus >= 2 ? 1 : 0, 700)
+  const axes = useTween(step >= 1 || focus >= 3 ? 1 : 0, 620)
+  const ratio = useTween(focus >= 1 && step === 0 ? 1 : 0, 560)
+  const proj = useTween(focus >= 3 && step === 0 ? 1 : 0, 620)
+  const cast = useTween(step >= 2 ? 1 : 0, 620)
+  // KAMERA aylana bilan birga ortga chekinadi.
+  //
+  // 2-ekranda (tayanch) hali aylana yo'q, faqat uchburchak bor -- va standart
+  // kamerada u kvadratning oltidan biriga sig'ib, chetda yotgan eskiz bo'lib
+  // ko'rinardi (surat, 2026-08-13). Aylana YOKI o'qlar chiqqanda esa kamera
+  // keng bo'lishi shart, aks holda ular kadrdan chiqadi.
+  //
+  // `Film` ga beriladigan indeks -- KAMERANING indeksi, figuraning kadri emas:
+  // figura o'z kadrini `step` va `focus` proplaridan oladi. Shu bilan bitta
+  // figura ikki xil ekranda ikki xil masshtabda ishlaydi va o'tish YUMSHOQ
+  // bo'ladi: aylana paydo bo'lishi bilan kamera ortga chekinadi.
+  //
+  // `tight` SHART, va u faqat 2-ekranda beriladi. 3-ekranda kamera QOTIB
+  // turishi kerak: u yerda gipotenuzaning O'ZI siqiladi, va ayni paytda kamera
+  // ham qo'zg'alsa, o'quvchi nima kichrayganini ayirib bo'lmaydi -- uchburchakmi
+  // yoki kadrmi. Guvoh ikkiga bo'linsa, guvoh bo'lmay qoladi.
+  const view = tight && step === 0 && focus < 2 ? 0 : 1
+
+  return (
+    <Film
+      size={size}
+      step={view}
+      cam={[{ x: 0.34, y: 0.66, r: 0.38 }, { x: 0.4, y: 0.6, r: 0.28 }]}
+      draw={({ P, R }) => {
+        const [ox, oy] = P(0, 0)
+        const hx = h * Math.cos(rad(deg))
+        const hy = h * Math.sin(rad(deg))
+        const [px, py] = P(hx, hy)
+        const [fx, fy] = P(hx, 0)
+        const rDot = Math.max(4, R * 0.07)
+        const fs = Math.max(11, Math.round(size * 0.052))
+        const sq = Math.max(6, R * 0.09)
+        const arcR = R * 0.3
+        return (
+          <g>
+            {/* O'qlar va aylana AYRIM boshqariladi: 3-ekranda ikkisi ham
+                gipotenuza birga tushganda keladi, 2-ekranda esa aylana ikkinchi
+                savoldan keyin, o'qlar uchinchisidan keyin chiqadi. */}
+            {circ > 0.01 ? (
+              <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" opacity={circ} />
+            ) : null}
+            {axes > 0.01 ? (
+              <g opacity={axes}>
+                <line x1={ox - R * 1.2} y1={oy} x2={ox + R * 1.2} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+                <line x1={ox} y1={oy - R * 1.2} x2={ox} y2={oy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+              </g>
+            ) : null}
+
+            {/* Uchburchak: asos, balandlik, gipotenuza. Uchtasi ham HAR kadrda
+                joyida -- faqat uzunligi o'zgaradi.
+                `ratio` -- 2-ekranning birinchi javobi: sinus `a` ni `c` ga
+                bo'ladi, demak asos ORQAGA chekinadi. */}
+            <line x1={ox} y1={oy} x2={fx} y2={fy} stroke={T.ink3} strokeWidth="2.4" opacity={1 - ratio * 0.72} />
+            <line x1={fx} y1={fy} x2={px} y2={py} stroke={T.graph} strokeWidth={2.8 + ratio * 1.4} />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.accent} strokeWidth={2.8 + ratio * 1.4} />
+
+            {/* Uchinchi javob: birinchi koordinata bu ASOSning o'qdagi izi. */}
+            {proj > 0.01 ? (
+              <g opacity={proj}>
+                <line x1={ox} y1={oy} x2={fx} y2={fy} stroke={T.accent} strokeWidth="3.6" />
+                <line x1={fx} y1={fy - sq * 0.55} x2={fx} y2={fy + sq * 0.55} stroke={T.accent} strokeWidth="2.4" />
+              </g>
+            ) : null}
+            <rect x={fx - sq} y={fy - sq} width={sq} height={sq} fill="none" stroke={T.ink3} strokeWidth="1" />
+            <path
+              d={'M ' + (ox + arcR) + ' ' + oy + ' A ' + arcR + ' ' + arcR + ' 0 0 0 '
+                + (ox + arcR * Math.cos(rad(deg))) + ' ' + (oy - arcR * Math.sin(rad(deg)))}
+              fill="none" stroke={T.ink2} strokeWidth="1.2"
+            />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            {/* Balandlik O'QQA ko'chiriladi: shu qadamda `a` ordinata bo'lib
+                qoladi, ya'ni ikkinchi koordinata. */}
+            {cast > 0.01 ? (
+              <g opacity={cast}>
+                <line x1={px} y1={py} x2={ox} y2={py} stroke={T.graph} strokeWidth="1.3" strokeDasharray="4 4" />
+                <line x1={ox - sq * 0.5} y1={py} x2={ox + sq * 0.5} y2={py} stroke={T.graph} strokeWidth="2.4" />
+              </g>
+            ) : null}
+
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" {...halo(size)}>
+              {/* `c` yorlig'i `1` ga AYLANADI: shu bitta almashish butun
+                  ekranning mazmuni, shuning uchun u `g10-valpop` bilan chiqadi. */}
+              <text
+                key={step >= 1 ? 'c1' : 'c0'} className={step >= 1 ? 'g10-valpop' : undefined}
+                x={(ox + px) / 2 - fs * 0.7} y={(oy + py) / 2 - fs * 0.2}
+                fill={T.accent} textAnchor="end"
+              >
+                {step >= 1 ? '1' : 'c'}
+              </text>
+              <text x={fx + fs * 0.4} y={(fy + py) / 2 + fs * 0.34} fill={T.graph} textAnchor="start">a</text>
+              <text x={(ox + fx) / 2} y={fy + fs} fill={T.ink3} textAnchor="middle">b</text>
+              {/* MAYDA yorliqning ham o'z POLI bor. `fs * 0.82` yozilganda
+                  `fs` ning o'zi 11 px ga tushgan joyda 9 px chiqardi -- ya'ni
+                  10,5 px polidan past, va tekshiruv buni 393 va 390 px da
+                  ushladi (2026-08-13). Ko'paytiruvchi polni bosmaydi. */}
+              <text x={ox + arcR * 0.82} y={oy - arcR * 0.3} fontSize={Math.max(11, fs * 0.82)} fill={T.ink2} textAnchor="start">α</text>
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// UCHBURCHAK YO'QOLADI, NUQTA QOLADI -- 2-darsning IKKINCHI guvohi.
+//
+// Nuqta 60 dan 120 gradusga BORADI. To'qson gradusdan o'tganda uchburchak
+// yo'qolishga MAJBUR: o'tkir burchak endi yo'q. Balandlik esa joyida qoladi va
+// O'SHA -- ikki nuqtaning ordinatasi teng. Siljish esa belgisini almashtiradi.
+//
+// Shu bilan bir vaqtda ikki xato yopiladi:
+//   `oba-rastut` -- burchak o'sdi, sinus O'SMADI, kosinus esa manfiy bo'ldi;
+//   «120 gradusning kosinusi yo'q» -- uchburchak yo'q, koordinata bor.
+//
+// Etalon §2 dagi priyom: IKKI nuqta bir vaqtda ko'rinadi va proyeksiyalari
+// solishtiriladi. Shuning uchun 60 gradusdagi nuqta yo'qolmaydi -- bo'sh
+// halqa bo'lib qoladi.
+//
+// Uchburchakning so'nishi KADRGA emas, BURCHAKKA bog'langan: u aynan 90
+// gradusdan o'tayotganda so'nadi. Kadrga bog'lansa, «o'tkir burchak
+// qolmadi» degan gap tasodifiy paytda aytilardi.
+// ============================================================
+export function TriangleVanish({ size = 268, step = 0, from = 60, to = 120 }) {
+  // Nuqta noldan KELADI. Bu bezak emas: burchak musbat yo'nalishda, o'ngdagi
+  // o'qdan sanalishini aynan shu ko'rsatadi -- ya'ni bugungi kelishuvni.
+  const live = useMounted()
+  const at = useTween(step >= 1 ? to : (live ? from : 0), step >= 1 ? 1600 : 900)
+  const cmp = useTween(step >= 2 ? 1 : 0, 640)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.52, r: 0.34 }]}
+      draw={({ P, R }) => {
+        const [ox, oy] = P(0, 0)
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const [fx, fy] = P(c, 0)
+        const [wx, wy] = P(Math.cos(rad(from)), Math.sin(rad(from)))
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(size * 0.05))
+        const sq = Math.max(6, R * 0.085)
+        // O'tkir burchak 88 gradusga qadar bor, 96 dan keyin yo'q. Oradagi
+        // sakkiz gradus -- so'nish yo'li: sakrash bo'lmasin.
+        const tri = at <= 88 ? 1 : at >= 96 ? 0 : (96 - at) / 8
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* Boshlang'ich nuqta QOLADI: ikkisi solishtiriladi. */}
+            {step >= 1 ? (
+              <g opacity=".75">
+                <line x1={ox} y1={oy} x2={wx} y2={wy} stroke={T.ink3} strokeWidth="1.4" strokeDasharray="4 3" />
+                <circle cx={wx} cy={wy} r={rDot * 0.92} fill="none" stroke={T.ink2} strokeWidth="2" />
+              </g>
+            ) : null}
+
+            {/* Ikki balandlik BIR sathda: gorizontal punktir ularni tutashtiradi
+                va tenglik ko'z bilan ko'rinadi. */}
+            {cmp > 0.01 ? (
+              <g opacity={cmp}>
+                <line x1={wx} y1={wy} x2={px} y2={py} stroke={T.graph} strokeWidth="1.4" strokeDasharray="5 4" />
+                <line x1={ox - sq * 0.55} y1={py} x2={ox + sq * 0.55} y2={py} stroke={T.graph} strokeWidth="2.4" />
+              </g>
+            ) : null}
+
+            {/* Uchburchak: asos va to'g'ri burchak. So'nadi, balandlik qoladi. */}
+            {tri > 0.01 ? (
+              <g opacity={tri}>
+                <line x1={ox} y1={oy} x2={fx} y2={fy} stroke={T.ink3} strokeWidth="2.2" />
+                <rect x={fx - (c >= 0 ? sq : 0)} y={fy - sq} width={sq} height={sq} fill="none" stroke={T.ink3} strokeWidth="1" />
+              </g>
+            ) : null}
+
+            {/* SILJISH: uchburchak yo'qolgach ham qoladi va manfiy bo'lganda
+                issiq rangga o'tadi -- «chapga» degani shu. */}
+            <line
+              x1={ox} y1={oy} x2={fx} y2={fy}
+              stroke={c < -0.02 ? T.tip : T.accent} strokeWidth="2.6" opacity={c < -0.02 ? 1 : 1 - tri * 0.55}
+            />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.accent} strokeWidth="2.4" />
+            <line x1={fx} y1={fy} x2={px} y2={py} stroke={T.graph} strokeWidth="2.8" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" {...halo(size)}>
+              <text
+                x={px + (c >= 0 ? fs * 0.42 : -fs * 0.42)} y={(fy + py) / 2 + fs * 0.34}
+                fill={T.graph} textAnchor={c >= 0 ? 'start' : 'end'}
+              >
+                {cmp > 0.5 ? '√3/2' : 'a'}
+              </text>
+              {cmp > 0.5 ? (
+                <g className="g10-valpop">
+                  <text x={fx} y={oy + fs * 1.15} fill={T.tip} textAnchor="middle">−1/2</text>
+                  <text x={(ox + wx) / 2} y={oy + fs * 1.15} fill={T.accent} textAnchor="middle">1/2</text>
+                </g>
+              ) : null}
+              {tri > 0.5 ? (
+                /* Ko'paytiruvchi 10,5 px polini bosmaydi -- `HypShrink` dagi
+                   bilan bir xil sabab. */
+                <text x={ox + R * 0.3} y={oy - R * 0.09} fontSize={Math.max(11, fs * 0.82)} fill={T.ink2} textAnchor="start" opacity={tri}>α</text>
+              ) : null}
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// NISBAT O'SADI VA UZILADI -- 2-darsning UCHINCHI guvohi (tangens).
+//
+// Tangens bu `y / x`, ya'ni ALLAQACHON o'qilgan ikki sonning nisbati: yangi
+// kattalik yo'q. Nuqta yuqoriga borganda `y` deyarli o'zgarmaydi, `x` esa
+// nolga intiladi -- va nisbat KO'Z OLDIDA o'sadi. Eng yuqorida bo'lish yo'q:
+// ko'rsatkich chiziqchaga aylanadi.
+//
+// Nega «cheksizlik» yozilmaydi. Cheksizlikni SON qilib ko'rsatgan ekran
+// o'quvchini keyin uni hisobga qo'yishga o'rgatadi. Shuning uchun ekranda
+// aynan UZILISH turadi: qiymat yo'q.
+//
+// Kadrlar: 0 -- nuqta 45 gradusda, ikki son teng, nisbat bir; 1 -- nuqta
+// yuqoriga BORADI, `x` qisqaradi, nisbat o'sadi; 2 -- nuqta tepada, `x` nol,
+// ko'rsatkich uziladi.
+// ============================================================
+export function RatioRise({ size = 268, step = 0 }) {
+  // Kirishda ham harakat: nuqta noldan qirq besh gradusga chiqadi va nisbat
+  // nolda emas, BIRDA to'xtaydi -- ikki son teng bo'lgan joy shu.
+  const live = useMounted()
+  const at = useTween(step >= 2 ? 90 : step >= 1 ? 76 : (live ? 45 : 0), step >= 1 ? 1700 : 1000)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.56, r: 0.34 }]}
+      draw={({ P, R }) => {
+        const [ox, oy] = P(0, 0)
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const [fx, fy] = P(c, 0)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(size * 0.05))
+        const broke = Math.abs(c) < 0.005
+        const ratio = broke ? null : s / c
+        // Katta son butun ko'rsatiladi: «5729,58» yorlig'i chizmadan chiqib
+        // ketardi, va bu yerda muhimi ANIQLIK emas, O'SISH.
+        const show = ratio === null ? '—'
+          : Math.abs(ratio) >= 100 ? String(Math.round(ratio))
+            : String(Math.round(ratio * 100) / 100).replace('.', ',')
+        return (
+          <g>
+            <line x1={ox - R * 1.18} y1={oy} x2={ox + R * 1.18} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.18} x2={ox} y2={oy + R * 1.18} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* Ikki proyeksiya: gorizontal `x`, tik `y`. Nuqta ko'tarilganda
+                birinchisi ko'z oldida qisqaradi. */}
+            <line x1={ox} y1={oy} x2={fx} y2={fy} stroke={T.accent} strokeWidth="3.4" />
+            <line x1={fx} y1={fy} x2={px} y2={py} stroke={T.graph} strokeWidth="2.8" strokeDasharray="4 3" />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.6" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            <g fontFamily={MATH_FONT} fontWeight="700" {...halo(size)}>
+              {/* Nisbat CHIZMADA turadi: o'sish shu yerda ko'rinadi. */}
+              <text
+                x={ox - R * 0.5} y={oy - R * 0.78} fontSize={fs * 1.12}
+                fill={broke ? T.tip : T.accent} textAnchor="middle"
+              >
+                {'y/x = ' + show}
+              </text>
+              <text x={(ox + fx) / 2} y={oy + fs * 1.2} fontSize={fs} fill={T.accent} textAnchor="middle">
+                {broke ? '0' : 'x'}
+              </text>
+              <text
+                x={px + (c >= -0.02 ? fs * 0.4 : -fs * 0.4)} y={(fy + py) / 2 + fs * 0.34}
+                fontSize={fs} fill={T.graph} textAnchor={c >= -0.02 ? 'start' : 'end'}
+              >
+                y
+              </text>
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// JUFTLIK IKKI TOMONGA O'QILADI -- 2-darsning 5-ekrani.
+//
+// NEGA BU FIGURA BOR. 5-ekranda ko'rsatish UMUMAN yo'q edi: sarlavha «juftlik
+// ikki tomonga ham o'qiladi» deb turardi, ekranda esa ikkita asbob ketma-ket
+// chiqardi va o'quvchi ikki marta nuqta qo'yardi. Ya'ni ekran O'ZI aytgan
+// narsani ko'rsatmasdi. Tekshiruv buni tuta olmasdi ham: u «aytildi, lekin
+// ko'rsatilmadi» ni ushlaydi, hech narsa va'da qilmagan ekran esa u uchun toza.
+//
+// Kadrlar:
+//   0  nuqta noldan KELADI va burchakka turadi; proyeksiyalar tushadi, ikki
+//      son o'z o'qlarida turadi;
+//   1  TO'G'RI o'qish: sonlar o'qlardan uchib, pastdagi juftlik yozuviga
+//      yig'iladi;
+//   2  TESKARI o'qish: o'sha sonlar yozuvdan qaytib o'qlarga tushadi, ulardan
+//      yo'l-yo'riq chiziqlari o'sadi va kesishgan joyda nuqta yonadi.
+//
+// Ya'ni bitta harakat ikki tomonga qaytariladi. Almashish yo'q: aylana, o'qlar
+// va nuqta hamma kadrda o'sha joyda -- ko'chadigan narsa faqat IKKI SON.
+// ============================================================
+export function PairBothWays({ size = 268, step = 0, deg = 135, labels = ['−√2/2', '√2/2'] }) {
+  const live = useMounted()
+  const at = useTween(live ? deg : 0, 1000)
+  // 0 -- sonlar o'qlarda, 1 -- sonlar yozuvda. 2-kadrda yana nolga qaytadi,
+  // va aynan shu qaytish TESKARI o'qish bo'ladi.
+  const u = useTween(step === 1 ? 1 : 0, 1250)
+  const guide = useTween(step >= 2 ? 1 : 0, 1250)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.42, r: 0.3 }]}
+      draw={({ P, R }) => {
+        const [ox, oy] = P(0, 0)
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const rDot = Math.max(4, R * 0.062)
+        const fs = Math.max(11, Math.round(size * 0.05))
+        // Sonning ikki uyi: o'qdagi joyi va yozuvdagi joyi. Oradagi yo'l `u`.
+        const home = [P(c, -0.17), P(-0.24, s)]
+        const slot = [P(-0.32, -1.3), P(0.34, -1.3)]
+        const mix = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k]
+        const [cx1, cy1] = mix(home[0], slot[0], u)
+        const [sx1, sy1] = mix(home[1], slot[1], u)
+        // Teskari o'qishda yo'l-yo'riq chiziqlari o'qdan NUQTAGA qarab o'sadi.
+        const gx = P(c, 0)
+        const gy = P(0, s)
+        return (
+          <g>
+            <line x1={ox - R * 1.2} y1={oy} x2={ox + R * 1.2} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.2} x2={ox} y2={oy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+
+            {/* Juftlik yozuvi: bo'sh QUTI qavslar bilan HAR kadrda turadi,
+                sonlar esa kelib-ketadi. Bo'sh quti «ko'chish shu yerga boradi»
+                deb turadi, ya'ni yo'nalish oldindan ko'rinadi. Ortidagi yengil
+                to'rtburchak usiz qavslar chizmadan ajralib, tarqoq belgi bo'lib
+                ko'rinardi (surat, 2026-08-13). */}
+            <rect
+              x={P(-0.86, -1.3)[0]} y={P(0, -1.3)[1] - fs * 1.05}
+              width={P(0.86, 0)[0] - P(-0.86, 0)[0]} height={fs * 1.55}
+              rx={fs * 0.42} fill="rgba(23,26,29,.035)" stroke={T.line || 'rgba(23,26,29,.10)'} strokeWidth="1"
+            />
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ink3} {...halo(size)}>
+              <text x={P(-0.72, -1.3)[0]} y={P(-0.72, -1.3)[1]} textAnchor="middle">(</text>
+              <text x={P(0, -1.3)[0]} y={P(0, -1.3)[1]} textAnchor="middle">;</text>
+              <text x={P(0.74, -1.3)[0]} y={P(0.74, -1.3)[1]} textAnchor="middle">)</text>
+            </g>
+
+            {/* Proyeksiyalar: nuqtadan ikkala o'qqa. Teskari yo'l boshlanganda
+                ular SO'NADI: aks holda o'sib boradigan yo'l-yo'riq chizig'i
+                aynan o'sha joyda yotadi va harakat KO'RINMAYDI -- ikki chiziq
+                bir-birining ustida (surat, 2026-08-13). */}
+            <g opacity={1 - guide * 0.85}>
+              <line x1={px} y1={py} x2={gx[0]} y2={gx[1]} stroke={T.accent} strokeWidth="1.4" strokeDasharray="4 3" />
+              <line x1={px} y1={py} x2={gy[0]} y2={gy[1]} stroke={T.graph} strokeWidth="1.4" strokeDasharray="4 3" />
+            </g>
+            <line x1={gx[0] - 1} y1={oy - R * 0.05} x2={gx[0] - 1} y2={oy + R * 0.05} stroke={T.accent} strokeWidth="2.6" />
+            <line x1={ox - R * 0.05} y1={gy[1]} x2={ox + R * 0.05} y2={gy[1]} stroke={T.graph} strokeWidth="2.6" />
+
+            {/* TESKARI yo'l: o'qdagi izlardan nuqtaga qarab chiziq o'sadi. */}
+            {guide > 0.01 ? (
+              <g opacity={guide}>
+                <line x1={gx[0]} y1={gx[1]} x2={gx[0] + (px - gx[0]) * guide} y2={gx[1] + (py - gx[1]) * guide} stroke={T.accent} strokeWidth="2.2" />
+                <line x1={gy[0]} y1={gy[1]} x2={gy[0] + (px - gy[0]) * guide} y2={gy[1] + (py - gy[1]) * guide} stroke={T.graph} strokeWidth="2.2" />
+              </g>
+            ) : null}
+
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.6" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+            {/* Nuqta teskari o'qish oxirida YONADI: yo'l-yo'riq chiziqlari
+                kesishgan joy aynan u ekani ko'rinadi. */}
+            {guide > 0.9 ? (
+              <circle cx={px} cy={py} r={rDot * 1.7} fill="none" stroke={T.accent} strokeWidth="2" opacity={(guide - 0.9) * 6} />
+            ) : null}
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" {...halo(size)}>
+              <text x={cx1} y={cy1} fill={T.accent} textAnchor="middle">{labels[0]}</text>
+              <text x={sx1} y={sy1} fill={T.graph} textAnchor="middle">{labels[1]}</text>
+            </g>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// CHEGARA O'LCHANADI -- 2-darsning 7-ekrani.
+//
+// NEGA BU FIGURA BOR. Ekran «koordinata birdan katta bo'la olmaydi, nisbat esa
+// bo'la oladi» deydi. Ilgari bu shunchaki AYTILARDI, chizmada esa oltmish
+// gradusdagi qimirlamaydigan nuqta turardi. Endi chegara o'lchanadi: aylana
+// yonida bitta shkalada uchta ustun turadi va shkalada BIR belgisi bor.
+//
+// Kadrlar:
+//   0  nuqta oltmish gradusda, ikki ustun -- kosinus va sinus, ikkisi ham
+//      belgidan past;
+//   1  nuqta aylanani AYLANIB chiqadi, ustunlar u bilan nafas oladi va
+//      belgidan BIRON MARTA ham o'tmaydi -- chegara da'vo emas, kuzatuv;
+//   2  tangens ustuni yonadi va belgidan o'tib ketadi.
+//
+// Nima uchun aylanib chiqish, bitta burchak emas: bitta burchakda «shunchaki
+// shu yerda kichik» deb o'ylash mumkin. Butun aylanada esa istisno yo'qligi
+// ko'rinadi.
+// ============================================================
+export function BoundBars({ size = 268, step = 0, deg = 60 }) {
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.28, y: 0.5, r: 0.22 }]}
+      spinAt={{ 1: 54 }}
+      draw={({ P, R, spin }) => {
+        const [ox, oy] = P(0, 0)
+        const at = step === 1 ? deg + spin : deg
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const rDot = Math.max(4, R * 0.07)
+        const fs = Math.max(11, Math.round(size * 0.046))
+        // Shkala: tag chizig'i va bir birlikning balandligi.
+        const yB = size * 0.84
+        const unit = size * 0.4
+        const bw = size * 0.075
+        const bx = [size * 0.6, size * 0.72, size * 0.84]
+        const one = yB - unit
+        // Tangens uziladigan joyda ustun ham chizilmaydi.
+        const tv = Math.abs(c) < 0.02 ? null : Math.abs(s / c)
+        const bars = [
+          { v: Math.abs(c), tone: T.accent, name: 'cos', on: true },
+          { v: Math.abs(s), tone: T.graph, name: 'sin', on: true },
+          { v: tv, tone: T.tip, name: 'tg', on: step >= 2 },
+        ]
+        const dec = (v) => v.toFixed(2).replace('.', ',')
+        return (
+          <g>
+            <line x1={ox - R * 1.2} y1={oy} x2={ox + R * 1.2} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.2} x2={ox} y2={oy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+            <line x1={ox} y1={oy} x2={px} y2={oy} stroke={T.accent} strokeWidth="3" />
+            <line x1={px} y1={oy} x2={px} y2={py} stroke={T.graph} strokeWidth="2.6" />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.5" />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            {/* BIR belgisi: uchala ustun uchun bitta chiziq. */}
+            <line x1={size * 0.55} y1={one} x2={size * 0.93} y2={one} stroke={T.ink2} strokeWidth="1.4" strokeDasharray="5 4" />
+            <line x1={size * 0.55} y1={yB} x2={size * 0.93} y2={yB} stroke={T.ink3} strokeWidth="1.4" />
+
+            {bars.map((b, i) => {
+              if (!b.on) return null
+              const v = b.v === null ? null : b.v
+              const hgt = v === null ? 0 : Math.min(v, 1.9) * unit
+              return (
+                <g key={b.name}>
+                  {v !== null ? (
+                    <rect
+                      x={bx[i] - bw / 2} y={yB - hgt} width={bw} height={hgt}
+                      fill={b.tone} opacity={b.name === 'tg' ? 0.9 : 0.72} rx={2}
+                    />
+                  ) : null}
+                  <text
+                    x={bx[i]} y={yB + fs * 1.15} textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={b.tone} {...halo(size)}
+                  >
+                    {b.name}
+                  </text>
+                  {/* TANGENS ustunining SONI yozilmaydi -- hech qachon.
+                      Ekranning topshirig'i aynan shu sonni hisoblash, va uni
+                      chizmada yozib qo'yish javobni harakatdan OLDIN berish
+                      bo'lardi. Ustunning belgidan o'tgani ko'rinadi, qancha
+                      o'tgani esa o'quvchining ishi. Kosinus va sinus sonlari
+                      qoladi: ular berilgan ma'lumot, javob emas. */}
+                  {step !== 1 && b.name !== 'tg' ? (
+                    <text
+                      x={bx[i]} y={yB - hgt - fs * 0.4} textAnchor="middle"
+                      fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={b.tone} {...halo(size)}
+                    >
+                      {v === null ? '—' : dec(v)}
+                    </text>
+                  ) : null}
+                </g>
+              )
+            })}
+            <text
+              x={size * 0.53} y={one + fs * 0.36} textAnchor="end"
+              fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ink2} {...halo(size)}
+            >
+              1
+            </text>
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// AYLANA GRAFIKKA YOZILADI -- 6-darsning ASOSIY guvohi.
+//
+// Etalon §2 dagi priyom: «yoyilma: nuqtaning ordinatasi sinusoidani chizadi».
+// Ya'ni grafik alohida tema emas: bu O'SHA nuqta, faqat balandligi VAQT bo'ylab
+// yozilgan. Shuning uchun chapda aylana, o'ngda vaqt o'qi, va ular orasida
+// ko'chiruvchi chiziq -- balandlik aynan shu chiziq bilan o'ngga ko'chadi.
+//
+// NEGA AMPLITUDA RADIUSGA TENG QILINGAN. Grafikning balandligi va aylananing
+// radiusi ekranda BIR XIL uzunlik. Aks holda «qiymat birdan katta bo'lmaydi»
+// degan gap grafikda tekshirilmaydi: to'lqin qanchalik baland ekani masshtabga
+// bog'liq bo'lib qoladi. Bir xil uzunlikda esa polosa ko'z bilan o'lchanadi.
+//
+// Kadrlar:
+//   0  aylana va bo'sh vaqt o'qi, nuqta nolda
+//   1  nuqta aylanani AYLANIB chiqadi, egri chiziq o'zi chiziladi
+//   2  bitta to'lqin tugadi, davr belgilanadi: to'lqin uzunligi = to'liq aylana
+//   3  polosa: to'lqin minus birdan bir orasidan chiqmaydi
+//
+// `pick` -- nima ko'chiriladi: `sin` (balandlik, gorizontal ko'chiruvchi) yoki
+// `cos` (siljish). Siljish gorizontal uzunlik, shuning uchun u vaqt o'qida TIK
+// kesma bo'lib qo'yiladi va ikkisi bir xil rangda, bir xil uzunlikda turadi --
+// «burdik» degani shu.
+// ============================================================
+export function Unroll({ size = 268, step = 0, from = 0, label = 'y = sin α', turns = 1 }) {
+  const live = useMounted()
+  // Nuqta va egri chiziq BIR vaqtda o'sadi: bittasi ikkinchisini chizadi.
+  const at = useTween(step >= 1 ? 360 * turns : (live ? 0 : 0), 4200)
+  const band = useTween(step >= 3 ? 1 : 0, 700)
+  const mark = useTween(step >= 2 ? 1 : 0, 700)
+
+  // Grafik chizmaning O'NG yarmida, aylana chapda. Ikkisi bitta kvadratda
+  // turadi, shuning uchun o'lchamlar ulushda.
+  const cxC = 0.21
+  const R = 0.17
+  const gx0 = 0.42
+  const gx1 = 0.965
+  const yMid = 0.5
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: cxC, y: yMid, r: R }]}
+      draw={({ P, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const amp = R * S
+        const px = (u) => gx0 * S + (gx1 - gx0) * S * u
+        // Chizilayotgan qiymat -- HAR DOIM balandlik, faqat sanoq `from` dan
+        // boshlanadi. Kosinus uchun `from = 90`: nuqta tepadan yo'lga chiqadi va
+        // uning balandligi kosinus to'lqinini chizadi, chunki `sin(90 + t)` bu
+        // `cos t`. Ya'ni yangi qurilma ham, burilgan chizma ham kerak emas:
+        // qurilma AYNI O'SHA, boshlanish nuqtasi boshqa. Va bu darsning mazmuni
+        // ham shu -- kosinus o'sha to'lqin, sanoq chorak aylana oldin boshlangan.
+        //
+        // Birinchi variant chizmani BURIB, siljishni tikka qo'ymoqchi edi.
+        // Ko'chiruvchi diagonal bo'lib chiqdi, keyin esa nuqta burilgan, o'q
+        // yorliqlari esa burilmagan holat paydo bo'ldi -- chizma o'ziga qarshi
+        // gapirardi (surat, 2026-08-13). Rad etildi.
+        const val = (d) => Math.sin(rad(from + d))
+        const c = Math.cos(rad(from + at))
+        const s = Math.sin(rad(from + at))
+        const [ptx, pty] = P(c, s)
+        const v = val(at)
+        const u = Math.min(1, at / (360 * turns))
+        const nowX = px(u)
+        const nowY = yMid * S - amp * v
+        const fs = Math.max(11, Math.round(S * 0.045))
+        const rDot = Math.max(3.6, amp * 0.09)
+
+        // Egri chiziq: nuqta bosib o'tgan yo'l. Nuqta qancha yursa, chiziq
+        // shuncha uzun -- ya'ni chiziqni nuqta CHIZADI, tayyor turmaydi.
+        const N = 96
+        const pts = []
+        for (let i = 0; i <= N; i += 1) {
+          const d = (at * i) / N
+          pts.push([px((d / (360 * turns))), yMid * S - amp * val(d)])
+        }
+        const path = pts.length > 1 ? 'M ' + pts.map(([x, y]) => x + ' ' + y).join(' L ') : ''
+        const tone = from === 0 ? T.graph : T.accent
+        return (
+          <g>
+            {/* POLOSA: minus birdan birgacha. To'lqin undan chiqmaydi. */}
+            {band > 0.01 ? (
+              <g opacity={band}>
+                <rect
+                  x={gx0 * S} y={yMid * S - amp} width={(gx1 - gx0) * S} height={amp * 2}
+                  fill="rgba(23,108,112,.07)" stroke="none"
+                />
+                <line x1={gx0 * S} y1={yMid * S - amp} x2={gx1 * S} y2={yMid * S - amp} stroke={T.ink2} strokeWidth="1.2" strokeDasharray="5 4" />
+                <line x1={gx0 * S} y1={yMid * S + amp} x2={gx1 * S} y2={yMid * S + amp} stroke={T.ink2} strokeWidth="1.2" strokeDasharray="5 4" />
+              </g>
+            ) : null}
+
+            {/* AYLANA va o'qlari */}
+            <line x1={ox - R * S * 1.25} y1={oy} x2={ox + R * S * 1.25} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * S * 1.25} x2={ox} y2={oy + R * S * 1.25} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R * S} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+
+            {/* VAQT o'qi */}
+            <line x1={gx0 * S} y1={yMid * S} x2={gx1 * S} y2={yMid * S} stroke="rgba(23,26,29,.32)" strokeWidth="1.2" />
+
+            {/* O'lchanadigan uzunlik AYLANADA: chizma burilgani uchun ikki
+                holatda ham u TIKKA turadi, va ko'chiruvchi ikkisida ham
+                gorizontal bo'ladi. */}
+            <line x1={ptx} y1={oy} x2={ptx} y2={pty} stroke={tone} strokeWidth="3.2" />
+            <line x1={ox} y1={oy} x2={ptx} y2={pty} stroke={T.ink3} strokeWidth="1.4" />
+            <circle cx={ptx} cy={pty} r={rDot * 1.1} fill={T.accent} />
+
+            {/* Nima chizilayotgani YOZILADI: grafik o'z nomi bilan turadi. */}
+            <text
+              x={gx1 * S} y={yMid * S - amp * 1.32} textAnchor="end"
+              fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={tone} {...halo(size)}
+            >
+              {label}
+            </text>
+            {/* Sanoq QAYERDAN boshlangani: boshlanish nuqtasi halqa bilan
+                belgilanadi. Kosinusda u tepada, va farq shundan ko'rinadi. */}
+            <circle
+              cx={P(Math.cos(rad(from)), Math.sin(rad(from)))[0]}
+              cy={P(Math.cos(rad(from)), Math.sin(rad(from)))[1]}
+              r={rDot * 1.5} fill="none" stroke={T.ink2} strokeWidth="1.6" opacity=".7"
+            />
+
+            {/* KO'CHIRUVCHI: uzunlik o'ngga ko'chadi va grafikdagi joyini topadi. */}
+            {at > 1 ? (
+              <g>
+                <line
+                  x1={ptx} y1={pty} x2={nowX} y2={nowY}
+                  stroke={tone} strokeWidth="1.1" strokeDasharray="3 3" opacity=".7"
+                />
+                <line x1={nowX} y1={yMid * S} x2={nowX} y2={nowY} stroke={tone} strokeWidth="3" />
+                <circle cx={nowX} cy={nowY} r={rDot} fill={tone} />
+              </g>
+            ) : null}
+
+            {path ? <path d={path} fill="none" stroke={tone} strokeWidth="2.6" strokeLinecap="round" /> : null}
+
+            {/* DAVR: bitta to'lqin uzunligi = to'liq aylana. */}
+            {mark > 0.01 ? (
+              <g opacity={mark}>
+                <line x1={gx0 * S} y1={yMid * S + amp * 1.5} x2={gx1 * S} y2={yMid * S + amp * 1.5} stroke={T.tip} strokeWidth="2" />
+                <line x1={gx0 * S} y1={yMid * S + amp * 1.35} x2={gx0 * S} y2={yMid * S + amp * 1.65} stroke={T.tip} strokeWidth="2" />
+                <line x1={gx1 * S} y1={yMid * S + amp * 1.35} x2={gx1 * S} y2={yMid * S + amp * 1.65} stroke={T.tip} strokeWidth="2" />
+                <text
+                  x={(gx0 + gx1) * S / 2} y={yMid * S + amp * 1.5 + fs * 1.5} textAnchor="middle"
+                  fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.tip} {...halo(size)}
+                >
+                  2π
+                </text>
+              </g>
+            ) : null}
+
+            {band > 0.5 ? (
+              /* Yorliqlar polosaning ICHIDA, chap chetidan o'ngga. Tashqarida
+                 turganda ular kichik chizmada (212 px, haqiqiy telefon) aylanaga
+                 tegib ketardi -- surat ko'rsatdi (2026-08-13). */
+              <g fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={T.ink2} {...halo(size)}>
+                <text x={gx0 * S + fs * 0.25} y={yMid * S - amp + fs * 1.05} textAnchor="start">1</text>
+                <text x={gx0 * S + fs * 0.25} y={yMid * S + amp - fs * 0.35} textAnchor="start">−1</text>
+              </g>
+            ) : null}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// ISHORA BU YO'NALISH -- 4-darsning ASOSIY guvohi.
+//
+// Nuqta aylana bo'ylab yuradi, chizma tagida esa ikki (yoki uch) ishorali
+// shkala turadi. Ishora shkalada AYNAN o'sha paytda almashadi, qachonki nuqta
+// o'qdan o'tadi. Shundan keyin mnemonika kerak emas: ishorani bilish uchun
+// yo'nalishga qarash yetarli.
+//
+// NEGA SHKALA, oddiy son emas. Son almashganda «minus paydo bo'ldi» deb
+// aytish mumkin, lekin QAYSI PAYTDA almashgani ko'rinmaydi. Ustun esa nol
+// chizig'idan o'tadi, va o'tish payti ko'z bilan bog'lanadi: nuqta o'qda --
+// ustun nolda.
+//
+// `tan` -- uchinchi shkala: tangens. U ikki ishoradan chiqadi, shuning uchun
+// 5-ekranda ikkisi bilan birga turadi.
+// ============================================================
+export function SignScales({ size = 268, step = 0, angles = [30, 130, 210], tan = false }) {
+  const live = useMounted()
+  const target = angles[Math.min(step, angles.length - 1)]
+  const at = useTween(live ? target : 0, step === 0 ? 1100 : 1500)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.26, y: 0.44, r: 0.2 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const c = Math.cos(rad(at))
+        const s = Math.sin(rad(at))
+        const [px, py] = P(c, s)
+        const [fx] = P(c, 0)
+        const rDot = Math.max(4, R * 0.08)
+        const fs = Math.max(11, Math.round(S * 0.044))
+        // Shkala: nol chizig'i va bir birlikning balandligi.
+        const y0 = S * 0.5
+        const unit = S * 0.27
+        const bw = S * 0.07
+        const bx = tan ? [S * 0.58, S * 0.72, S * 0.86] : [S * 0.62, S * 0.8]
+        const tv = Math.abs(c) < 0.03 ? null : s / c
+        const bars = [
+          { v: c, tone: T.accent, name: 'cos' },
+          { v: s, tone: T.graph, name: 'sin' },
+        ]
+        if (tan) bars.push({ v: tv, tone: T.tip, name: 'tg' })
+        // O'qdan o'tish PAYTI: nol chizig'i yonadi.
+        const near = Math.min(Math.abs(c), Math.abs(s)) < 0.09
+        return (
+          <g>
+            {/* AYLANA va nuqta */}
+            <line x1={ox - R * 1.3} y1={oy} x2={ox + R * 1.3} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.3} x2={ox} y2={oy + R * 1.3} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+            <line x1={ox} y1={oy} x2={fx} y2={oy} stroke={T.accent} strokeWidth="3" />
+            <line x1={fx} y1={oy} x2={px} y2={py} stroke={T.graph} strokeWidth="2.6" />
+            <line x1={ox} y1={oy} x2={px} y2={py} stroke={T.ink3} strokeWidth="1.3" />
+            <circle cx={px} cy={py} r={rDot} fill={T.accent} />
+
+            {/* NOL chizig'i: ishora almashadigan joy. */}
+            <line
+              x1={S * 0.52} y1={y0} x2={S * 0.95} y2={y0}
+              stroke={near ? T.tip : T.ink3} strokeWidth={near ? 2.2 : 1.3}
+            />
+
+            {bars.map((b, i) => {
+              const v = b.v
+              const h = v === null ? 0 : Math.min(Math.abs(v), 1.45) * unit
+              const up = v !== null && v >= 0
+              return (
+                <g key={b.name}>
+                  {v === null ? null : (
+                    <rect
+                      x={bx[i] - bw / 2} y={up ? y0 - h : y0}
+                      width={bw} height={Math.max(1, h)}
+                      fill={b.tone} opacity=".72" rx={2}
+                    />
+                  )}
+                  <text
+                    x={bx[i]} y={y0 + unit * 1.42} textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={b.tone} {...halo(size)}
+                  >
+                    {b.name}
+                  </text>
+                  {/* ISHORA ustunning ICHIDA, nol chizig'i yonida.
+                      Ilgari u ustunning UCHIDA turardi, va uzun ustunda (masalan
+                      tangens 1,19) pastdagi nom yozuviga tegib, uni chizib
+                      tashlardi -- stendda `tg` ustidan chiziq o'tib turdi
+                      (2026-08-13). Nol chizig'i yonida joy har doim bir xil, va
+                      ma'no ham aynan shu yerda: ishora nolda almashadi. */}
+                  <text
+                    x={bx[i]} y={up ? y0 - fs * 0.42 : y0 + fs * 1.02}
+                    textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={fs * 1.15} fontWeight="700"
+                    fill={v === null ? T.tip : T.paper}
+                  >
+                    {v === null ? '—' : Math.abs(v) < 0.02 ? '0' : up ? '+' : '−'}
+                  </text>
+                </g>
+              )
+            })}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================
+// CHORAKLAR NOM OLADI -- 4-darsning 4-ekrani.
+//
+// Bu yerda «chorak» so'zi SINFDA BIRINCHI MARTA aytiladi: 2 va 3-darsda u
+// ataylab yo'q. Shuning uchun ekran ikki qadamda ishlaydi: avval qismlar nom
+// oladi, keyin har biriga ishoralar juftligi yoziladi.
+//
+// Juftlik YOZILADI, lekin yodlash uchun emas: har juftlik o'z choragida
+// turadi, ya'ni o'quvchi uni chizmadan o'qiydi, jadvaldan emas.
+// ============================================================
+export function QuadNames({ size = 268, step = 0, deg = null }) {
+  const live = useMounted()
+  const names = useTween(live ? 1 : 0, 700)
+  const pairs = useTween(step >= 1 ? 1 : 0, 700)
+  const at = useTween(deg === null ? 0 : deg, 1300)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.34 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const rDot = Math.max(4, R * 0.062)
+        const ROMAN = ['I', 'II', 'III', 'IV']
+        const PAIR = ['(+; +)', '(−; +)', '(−; −)', '(+; −)']
+        const mid = [45, 135, 225, 315]
+        return (
+          <g>
+            <line x1={ox - R * 1.22} y1={oy} x2={ox + R * 1.22} y2={oy} stroke="rgba(23,26,29,.34)" strokeWidth="1.2" />
+            <line x1={ox} y1={oy - R * 1.22} x2={ox} y2={oy + R * 1.22} stroke="rgba(23,26,29,.34)" strokeWidth="1.2" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+
+            {mid.map((d, i) => {
+              // Nom va juftlik BIR guruh bo'lib, chorakning o'rtasida turadi.
+              // Ilgari juftlik pastga surilardi va pastdagi choraklarda nom
+              // o'qqa tegib qolardi (stend, 2026-08-13).
+              const cxq = Math.cos(rad(d)) * 0.54
+              const cyq = Math.sin(rad(d)) * 0.54
+              const [lx, ly] = P(cxq, cyq + 0.13)
+              const [qx, qy] = P(cxq, cyq - 0.17)
+              return (
+                <g key={d}>
+                  <text
+                    x={lx} y={ly} textAnchor="middle" opacity={names}
+                    fontFamily={MATH_FONT} fontSize={fs * 1.1} fontWeight="700" fill={T.ink2} {...halo(size)}
+                  >
+                    {ROMAN[i]}
+                  </text>
+                  {pairs > 0.01 ? (
+                    <text
+                      x={qx} y={qy} textAnchor="middle" opacity={pairs}
+                      fontFamily={MATH_FONT} fontSize={Math.max(11, fs * 0.92)} fontWeight="700" fill={T.accent} {...halo(size)}
+                    >
+                      {PAIR[i]}
+                    </text>
+                  ) : null}
+                </g>
+              )
+            })}
+
+            {deg !== null ? (
+              <g>
+                <line
+                  x1={ox} y1={oy}
+                  x2={P(Math.cos(rad(at)), Math.sin(rad(at)))[0]}
+                  y2={P(Math.cos(rad(at)), Math.sin(rad(at)))[1]}
+                  stroke={T.accent} strokeWidth="2.4"
+                />
+                <circle
+                  cx={P(Math.cos(rad(at)), Math.sin(rad(at)))[0]}
+                  cy={P(Math.cos(rad(at)), Math.sin(rad(at)))[1]}
+                  r={rDot} fill={T.accent}
+                />
+              </g>
+            ) : null}
           </g>
         )
       }}

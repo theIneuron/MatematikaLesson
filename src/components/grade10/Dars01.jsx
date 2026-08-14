@@ -343,6 +343,10 @@ const S5 = {
   eyebrow: L('TUSHUNTIRISH', 'ОБЪЯСНЕНИЕ', 'EXPLANATION'),
   title: L("Radiusga bog'liq emas", 'От радиуса не зависит', 'It does not depend on the radius'),
   tag: 'radian-zavisit-ot-r',
+  // Bu ekranda KO'RSATISH yo'q va bu ataylab: radiusni o'quvchining O'ZI
+  // suradi, aylanalar uning qo'li ostida o'zgaradi. Harakat bor, lekin u
+  // dasturniki emas. Tekshiruv shuni aytib turishi uchun ochiq e'lon qilinadi.
+  motionBy: 'student',
   prompt: L(
     "Kichik aylananing radiusini ikki tomonga ham suring va nisbatga qarang.",
     'Подвигай радиус маленькой окружности в обе стороны и следи за отношением.',
@@ -466,14 +470,18 @@ const S7 = {
       L("Qirqni yuz saksonga bo'lib, pi ga ko'paytiring.", 'Раздели сорок на сто восемьдесят и умножь на пи.', 'Divide forty by one hundred eighty and multiply by pi.'),
       L("Ikki pi to'qqizdan taxminan nol butun etti.", 'Две пи девятых это примерно ноль целых семь.', 'Two pi ninths is about zero point seven.'),
     ],
+    // Bu satr AYTILADI (`useAnswerFx` uni `say()` ga uzatadi), shuning uchun
+    // unda belgi bo'lmaydi: `π/6` o'rniga «pi oltidan». Tekshiruv 2026-08-13 da
+    // shu turdagi 19 joyni topdi -- ilgari razborlar umuman qaralmagan edi.
     ok: L(
-      "Qirq gradus bu ikki pi to'qqizdan, taxminan nol butun etti. O'lchov π/6 ga karrali bo'lishi shart emas.",
-      'Сорок градусов это две пи девятых, примерно ноль целых семь. Мера не обязана быть кратной π/6.',
-      'Forty degrees is two pi ninths, about zero point seven. The measure need not be a multiple of π/6.',
+      "Qirq gradus bu ikki pi to'qqizdan, taxminan nol butun etti. O'lchov pi oltidanga karrali bo'lishi shart emas.",
+      'Сорок градусов это две пи девятых, примерно ноль целых семь. Мера не обязана быть кратной пи шестых.',
+      'Forty degrees is two pi ninths, about zero point seven. The measure need not be a multiple of pi sixths.',
     ),
   },
+  motion: ['mount'],
   audio: [
-    A('mount', "O'tkazishni ravon chiqadigan sonda ko'rsataman: o'ttiz gradus.", 'Покажу перевод на числе, которое проходит гладко: тридцать градусов.', 'I will show the conversion on a number that works out neatly: thirty degrees.'),
+    A('mount', "O'tkazishni ravon chiqadigan sonda ko'rsataman. Yoy o'ttiz gradusgacha o'sadi.", 'Покажу перевод на числе, которое проходит гладко. Дуга растёт до тридцати градусов.', 'I will show the conversion on a number that works out neatly. The arc grows to thirty degrees.'),
     A('rule', "Har gradus pi bo'lingan yuz sakson radian. Shuning uchun gradusni shu songa ko'paytiramiz.", 'Каждый градус это пи делить на сто восемьдесят радиана. Поэтому градусы умножаем на это число.', 'Each degree is pi over one hundred eighty of a radian. So we multiply degrees by that number.'),
     A('work', "Endi ravon chiqmaydigan son: qirq gradus. O'zingiz yozing.", 'Теперь число, которое гладко не проходит: сорок градусов. Запиши сам.', 'Now a number that does not work out neatly: forty degrees. Write it yourself.'),
   ],
@@ -482,8 +490,13 @@ const S7 = {
 const Screen7 = (p) => (
   <Screen data={S7} {...p}>
     {({ audio, phase, solved, solve }) => (phase < S7.show.length && !solved ? (
+      /* Yoy O'ZI chiziladi, tayyor turmaydi. Ilgari bu yerda qotib qolgan
+         aylana turardi va butun ekran faqat matn bilan tushuntirardi
+         (tekshiruv 2026-08-13 da shuni ko'rsatdi). Yoy bu darsda burchakning
+         O'LCHOVI, shuning uchun o'tkazish ham o'sib boradigan yoy ustida
+         ko'rsatiladi. */
       <Scene
-        fig={<UnitCircle angle={30} locked arc={{ to: 30 }} marks={[{ deg: 30, tone: 'graph', label: 'π/6' }]} />}
+        fig={<SweepArc to={30} label="π/6" ms={1200} />}
         note={<NoteList items={S7.show[phase]} />}
       />
     ) : (
@@ -606,9 +619,9 @@ const S9 = {
         id: 'd60',
         label: 'π/3',
         hint: L(
-          "Maxraj kichrayganda burchak KATTALASHADI: π/3 π/6 dan katta.",
-          'Чем меньше знаменатель, тем БОЛЬШЕ угол: π/3 больше π/6.',
-          'The smaller the denominator, the LARGER the angle: π/3 is bigger than π/6.',
+          "Maxraj kichrayganda burchak KATTALASHADI. Pi uchdan pi oltidandan katta.",
+          'Чем меньше знаменатель, тем БОЛЬШЕ угол. Пи третьих больше пи шестых.',
+          'The smaller the denominator, the LARGER the angle. Pi thirds is bigger than pi sixths.',
         ),
       },
       { id: 'd90', label: 'π/2' },
@@ -719,7 +732,7 @@ const S11 = {
       answer: 36,
       ok: L("To'g'ri. Yuz saksonni beshga bo'ldingiz.", 'Верно. Сто восемьдесят разделить на пять.', 'Correct. One hundred eighty divided by five.'),
       hints: [
-        L("π bu yuz sakson gradus.", 'Пи это сто восемьдесят градусов.', 'Pi is one hundred eighty degrees.'),
+        L("Pi bu yuz sakson gradus.", 'Пи это сто восемьдесят градусов.', 'Pi is one hundred eighty degrees.'),
         L("Yuz saksonni beshga bo'ling.", 'Раздели сто восемьдесят на пять.', 'Divide one hundred eighty by five.'),
         L("O'ttiz olti.", 'Тридцать шесть.', 'Thirty six.'),
       ],
@@ -744,9 +757,9 @@ const S11 = {
       'You brought them all to one measure: 45, 50, 57, 60.',
     ),
     bad: L(
-      "Hammasini graduslarga keltiring: π/4 bu 45, bir radian esa 57.",
-      'Приведи всё к градусам: π/4 это 45, а один радиан 57.',
-      'Bring them all to degrees: π/4 is 45, and one radian is 57.',
+      "Hammasini graduslarga keltiring. Pi to'rtdan bu 45, bir radian esa 57.",
+      'Приведи всё к градусам. Пи четвёртых это 45, а один радиан 57.',
+      'Bring them all to degrees. Pi quarters is 45, and one radian is 57.',
     ),
     title: L("Qaysi burchak kattaroq?", 'Какой угол больше?', 'Which angle is larger?'),
   },
@@ -967,7 +980,7 @@ const S13 = {
     ],
     ok: L(
       "Uchtasi ham bitta burchak: yozuvi boshqa, o'lchovi o'sha.",
-      'Все три — один угол: запись другая, величина та же.',
+      'Все три это один угол. Запись другая, величина та же.',
       'All three are one angle: different writing, same size.',
     ),
     title: L("Qaysi yozuvlar bir xil burchak beradi?", 'Какие записи задают один угол?', 'Which readings give the same angle?'),
@@ -1030,9 +1043,9 @@ const S14 = {
       done: 'π/4 = 45°',
       items: [
         { id: 'a', label: '45°', correct: true },
-        { id: 'b', label: '90°', hint: L("Bu π/2.", 'Это π/2.', 'That is π/2.') },
+        { id: 'b', label: '90°', hint: L("Bu pi ikkidan.", 'Это пи вторых.', 'That is pi halves.') },
         { id: 'c', label: '4°', hint: L("Maxraj burchakni bo'ladi, gradusni emas.", 'Знаменатель делит оборот, а не градус.', 'The denominator divides the turn, not one degree.') },
-        { id: 'd', label: '180°', hint: L("Bu π ning o'zi.", 'Это само π.', 'That is pi itself.') },
+        { id: 'd', label: '180°', hint: L("Bu pi ning o'zi.", 'Это само пи.', 'That is pi itself.') },
       ],
     },
     {
@@ -1044,7 +1057,7 @@ const S14 = {
         { id: 'a', label: '3π/2', correct: true },
         { id: 'b', label: '2π/3', hint: L("Bu 120 gradus.", 'Это 120 градусов.', 'That is 120 degrees.') },
         { id: 'c', label: '3π/4', hint: L("Bu 135 gradus.", 'Это 135 градусов.', 'That is 135 degrees.') },
-        { id: 'd', label: '270π', hint: L("π/180 ga ko'paytirish kerak, π ga emas.", 'Умножать надо на π/180, а не на π.', 'You multiply by π/180, not by π.') },
+        { id: 'd', label: '270π', hint: L("Pi bo'lingan yuz saksonga ko'paytirish kerak, pi ning o'ziga emas.", 'Умножать надо на пи делить на сто восемьдесят, а не на само пи.', 'You multiply by pi over one hundred eighty, not by pi itself.') },
       ],
     },
     {

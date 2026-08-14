@@ -25,6 +25,8 @@ const LESSON = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars03
 const LESSONS = {
   dars03: { slug: 'dars03-trigonometrik-doira', no: 3, segments: 4 },
   dars01: { slug: 'dars01-radianlar', no: 1, segments: 4 },
+  dars02: { slug: 'dars02-sin-cos-tg', no: 2, segments: 4 },
+  dars04: { slug: 'dars04-ishoralar-qiymatlar', no: 4, segments: 4 },
 }
 if (!LESSONS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)

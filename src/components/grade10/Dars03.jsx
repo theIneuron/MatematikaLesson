@@ -167,7 +167,7 @@ const S2 = {
       },
     ],
   ],
-  wrong: L("Bu boshqa burchak. π butun yarim aylana.", 'Это другой угол. π — половина окружности.', 'That is a different angle. π is half the circle.'),
+  wrong: L("Bu boshqa burchak. Pi butun yarim aylana.", 'Это другой угол. Пи это половина окружности.', 'That is a different angle. Pi is half the circle.'),
   ok: L("Radian -- yoy uzunligi, gradus emas.", 'Радиан это длина дуги, а не градус.', 'A radian is an arc length, not a degree.'),
   // Kadrlar: 0 charx (hayotiy kontekst, darslik 133-bet), 1-3 ko'prik
   // (8-9-sinf ta'rifidan aylanaga), 4 -- o'quvchining ishi.
@@ -642,7 +642,7 @@ const S10 = {
   ],
   steps: ['y = 1/2  →  30°', 'y = 1/2  →  150°'],
   wrong: L("Bu nuqtaning ordinatasi boshqa. Chiziq aylanani qayerda kesganiga qarang.", 'У этой точки другая ордината. Смотри, где горизонталь пересекает окружность.', 'That point has a different y-coordinate. Look where the line crosses the circle.'),
-  ok: L("Ikkita nuqta. Bitta son — ikkita burchak, va ikkalasi ham javob.", 'Две точки. Одно число — два угла, и оба являются ответом.', 'Two points. One number gives two angles, and both are answers.'),
+  ok: L("Ikkita nuqta. Bitta son ikkita burchak beradi, va ikkalasi ham javob.", 'Две точки. Одно число даёт два угла, и оба являются ответом.', 'Two points. One number gives two angles, and both are answers.'),
   // Ikkinchi bosqich -- MOSLASHTIRISH (`match`): burchak <-> koordinatalar.
   match: {
     prompt: L(
@@ -663,8 +663,8 @@ const S10 = {
       { id: 'p2', label: '(0; 1)' },
     ],
     ok: L(
-      "Jadval yig'ildi: har bir burchak — bitta nuqta.",
-      'Таблица собралась: каждый угол — это одна точка.',
+      "Jadval yig'ildi. Har bir burchak bitta nuqta.",
+      'Таблица собралась. Каждый угол это одна точка.',
       'The table is assembled: each angle is one point.',
     ),
     title: L('Burchak va koordinatalar', 'Угол и его координаты', 'The angle and its coordinates'),
@@ -723,10 +723,10 @@ const S11 = {
     {
       prompt: 'cos 60° + sin 30°',
       answer: 1,
-      ok: L("To'g'ri. Ikkala qiymat ham 1/2.", 'Верно. Оба значения равны 1/2.', 'Correct. Both values are 1/2.'),
+      ok: L("To'g'ri. Ikkala qiymat ham bir ikkidan.", 'Верно. Оба значения равны одной второй.', 'Correct. Both values equal one half.'),
       hints: [
         L("Ikkala qo'shiluvchi bir xil songa teng. Qaysi songa?", 'Оба слагаемых равны одному числу. Какому?', 'Both terms equal the same number. Which one?'),
-        L("60° ning kosinusi nuqtaning birinchi koordinatasi, u 1/2.", 'Косинус 60° — первая координата точки, она 1/2.', 'The cosine of 60° is the first coordinate, one half.'),
+        L("60 gradusning kosinusi nuqtaning birinchi koordinatasi, u bir ikkidan.", 'Косинус 60 градусов это первая координата точки, она равна одной второй.', 'The cosine of 60 degrees is the first coordinate, one half.'),
         L("Bir ikkidan qo'shuv bir ikkidan.", 'Одна вторая плюс одна вторая.', 'One half plus one half.'),
       ],
     },
@@ -1000,9 +1000,9 @@ const S14 = {
           label: L("30° nuqtasini vertikal o'qdan aks ettirish", 'Отразить точку 30° через вертикальную ось', 'Reflect the point 30° in the vertical axis'),
           correct: true,
           ok: L(
-            "Ha. Aks ettirishda uzunlik saqlanadi, ishora almashadi: cos 150° = −cos 30°.",
-            'Да. При отражении длина сохраняется, знак меняется: cos 150° = −cos 30°.',
-            'Yes. Reflection keeps the length and flips the sign: cos 150° = −cos 30°.',
+            "Ha. Aks ettirishda uzunlik saqlanadi, ishora esa almashadi.",
+            'Да. При отражении длина сохраняется, а знак меняется на противоположный.',
+            'Yes. Reflection keeps the length and flips the sign.',
           ),
         },
         {
@@ -1035,7 +1035,7 @@ const S14 = {
         { id: 'a', label: L('ikkita', 'два', 'two'), correct: true },
         { id: 'b', label: L('bitta', 'один', 'one'), hint: L("Chiziqni chapga davom ettiring.", 'Продолжи горизонталь влево.', 'Extend the line to the left.') },
         { id: 'c', label: L('uchta', 'три', 'three'), hint: L("To'g'ri chiziq aylanani ko'pi bilan ikki joyda kesadi.", 'Прямая пересекает окружность не более чем в двух точках.', 'A line meets a circle at most twice.') },
-        { id: 'd', label: L('birorta ham', 'ни одного', 'none'), hint: L("1/2 birdan kichik, chiziq aylanaga yetadi.", 'Одна вторая меньше единицы, прямая достаёт.', 'One half is less than one, the line reaches it.') },
+        { id: 'd', label: L('birorta ham', 'ни одного', 'none'), hint: L("Bir ikkidan birdan kichik, chiziq aylanaga yetadi.", 'Одна вторая меньше единицы, прямая достаёт.', 'One half is less than one, the line reaches it.') },
       ],
     },
   ],
