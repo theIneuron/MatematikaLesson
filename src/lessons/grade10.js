@@ -87,4 +87,10 @@ export const grade10Nazariy = [
     desc: "Qarama-qarshi ikki nuqta bitta kesish beradi: seriya bitta, qadam esa yarim aylana. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars12.jsx')),
   },
+  {
+    slug: 'dars13-usullar',
+    title: 'Dars 13. Usullar',
+    desc: "Ko'paytuvchi chiqariladi, bo'linmaydi: bo'lish kosinus nol bo'lgan ildizlarni yo'qotadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars13.jsx')),
+  },
 ]

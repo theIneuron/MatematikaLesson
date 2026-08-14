@@ -23,6 +23,7 @@ const SLUGS = {
   dars07: 'dars07-funksiyalar',
   dars11: 'dars11-cos-x-a',
   dars12: 'dars12-tg-x-a',
+  dars13: 'dars13-usullar',
 }
 if (!SLUGS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(SLUGS).join(', ')}`)
@@ -71,10 +72,16 @@ async function circleClick(page, deg) {
 // `exact` NIMA UCHUN kerak: 6-darsning moslashtirishida chap ustun `0°`, `90°`,
 // `180°`, `270°`. Qism sifatida `0°` uchtasiga ham tushadi, va `not` bilan buni
 // yozib bo'lmaydi -- taqqoslash to'liq bo'lishi kerak.
+//
+// `scope` NIMA UCHUN kerak: TELEFONDA progress qatori `.stage-content` ichida
+// chiziladi, va uning nuqtalari ham TUGMA. 13-darsning moslashtirishida javob
+// chiplari bir xonali son (`2`, `3`), va to'liq taqqoslash progress nuqtasini
+// bosardi -- desktopda o'sha reja o'tardi, telefonda esa yo'q. `scope` bilan
+// qidiruv faqat javob tugmalari ichida boradi.
 async function clickText(page, text) {
   const spec = typeof text === 'string' ? { text, not: null, exact: false } : text
-  const ok = await page.evaluate(({ needle, avoid, whole }) => {
-    const nodes = Array.from(document.querySelectorAll('.stage-content button'))
+  const ok = await page.evaluate(({ needle, avoid, whole, within }) => {
+    const nodes = Array.from(document.querySelectorAll(within || '.stage-content button'))
     const hit = nodes.find((b) => {
       const t = (b.textContent || '').replace(/\s+/g, ' ').trim()
       if (b.disabled) return false
@@ -85,7 +92,7 @@ async function clickText(page, text) {
     if (!hit) return false
     hit.click()
     return true
-  }, { needle: spec.text, avoid: spec.not, whole: !!spec.exact })
+  }, { needle: spec.text, avoid: spec.not, whole: !!spec.exact, within: spec.scope || null })
   await page.waitForTimeout(300)
   return ok
 }
@@ -1293,6 +1300,99 @@ PLANS.dars12 = [
   { n: 15, act: async () => {}, done: '.g10-print' },
 ]
 
+// 13-dars: USULLAR. To'rt ildiz: 90 va 270 (kosinusdan), 30 va 150 (sinusdan).
+PLANS.dars13 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      for (const a of ['хотя бы один', 'девяносто и', 'от минус единицы']) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitCircle(p); await circleClick(p, 90) }, done: '.g10-fb-ok' },
+  { n: 4, act: async (p) => { await waitCircle(p); await circleClick(p, 270) }, done: '.g10-fb-ok' },
+  { n: 5, act: async (p) => { await waitCircle(p); await circleClick(p, 90) }, done: '.g10-fb-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeNumber(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeNumber(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'были корни'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      // Yorliqlar `Fx` orqali chiziladi -- qism bo'yicha qidiramiz.
+      // O'ng ustun bir xonali son: qidiruv FAQAT javob tugmalari ichida.
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        [{ text: 'sin x cos x', not: '2' }, num('2')],
+        ['2 sin x cos x', num('3')],
+        ['sin x = −1', num('1')],
+        ['sin x = 2', num('0')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0])
+        await clickText(p, pr[1])
+        await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['в одну часть', 'выносим', 'два простейших', 'обе серии']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeNumber(p, ['3'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      for (const c of ['30°', { text: '90°', not: '2' }, '150°', '270°']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, '2 sin x = 1')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeNumber(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitCircle(p)
+      await circleClick(p, 90)
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of [{ text: '90°', not: '4' }, '270°', '450°']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['выносят', 'где косинус равен нулю', 'проверяют границы', 'две']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
 const PLAN = PLANS[LESSON]
 
 const browser = await chromium.launch({ headless: true })
@@ -1370,7 +1470,17 @@ for (const vp of VIEWPORTS) {
     })
     const flag = solved ? 'OK ' : 'NET'
     console.log(`${vp.name} ekran ${String(step.n).padStart(2)} ${flag} chizma ${String(m.svg).padStart(3)} oshish ${m.over}${m.clipped.length ? '  OBREZKA: ' + m.clipped.join(' | ') : ''}`)
-    if (!solved) problems.push(`${vp.name} ekran ${step.n}: qo'l bilan yechilmadi`)
+    if (!solved) {
+      problems.push(`${vp.name} ekran ${step.n}: qo'l bilan yechilmadi`)
+      // EKRANDAGI TUGMALARNI darhol chiqaramiz. Sabab: «yechilmadi» degan gap
+      // o'zi hech narsa aytmaydi, va 13-darsda men uni ikki marta taxmin bilan
+      // tuzatmoqchi bo'ldim -- birinchisi rejadagi matn, ikkinchisi progress
+      // qatori. Ikkalasi ham noto'g'ri edi. Endi ro'yxat ko'rinadi.
+      const seen = await page.evaluate(() => Array.from(
+        document.querySelectorAll('.stage-content button'),
+      ).map((b) => (b.disabled ? '[off] ' : '') + (b.textContent || '').replace(/\s+/g, ' ').trim()))
+      problems.push(`    ekranda: ${seen.map((x) => JSON.stringify(x)).join(', ').slice(0, 600)}`)
+    }
     if (m.over > 1) {
       problems.push(`${vp.name} ekran ${step.n}: kontent ${m.over}px oshdi`)
       // NIMA joy egallaganini DARHOL aytamiz. Aks holda «40 px oshdi» degan son

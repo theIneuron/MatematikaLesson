@@ -1953,3 +1953,64 @@ export function TanLine({ size = 268, step = 0, deg = 30 }) {
     />
   )
 }
+
+// ============================================================================
+// YO'QOLGAN ILDIZLAR. 13-DARSNING SHOHIDI.
+//
+// Tenglamani `cos x` ga bo'lish qulay ko'rinadi, lekin `cos x = 0` bo'lgan
+// nuqtalar YECHIM edi va bo'lishdan keyin javobda qolmaydi. Buni gap bilan
+// aytish foydasiz: o'quvchi «ehtiyot bo'ling» degan gapni eslamaydi. Shuning
+// uchun ikkala seriya ekranda YONADI, keyin bo'linish paytida bittasi
+// SO'NADI -- va ekranda ko'rinib turadi, nima yo'qolgani.
+//
+// `keep` -- qoladigan burchaklar, `lost` -- bo'lishda yo'qoladigan.
+// `step`: 0 aylana, 1 ikkala guruh yonadi, 2 `lost` so'nadi.
+// ============================================================================
+export function LostRoots({ size = 268, step = 0, keep = [30, 150], lost = [90, 270] }) {
+  const show = useTween(step >= 1 ? 1 : 0, 700)
+  const fade = useTween(step >= 2 ? 1 : 0, 900)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.34 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const rDot = Math.max(4, R * 0.066)
+        const fs = Math.max(11, Math.round(S * 0.048))
+        const dot = (d, tone, op) => {
+          const p = P(Math.cos(rad(d)), Math.sin(rad(d)))
+          const l = P(Math.cos(rad(d)) * 1.24, Math.sin(rad(d)) * 1.24)
+          return (
+            <g key={tone + d} opacity={op}>
+              <line x1={ox} y1={oy} x2={p[0]} y2={p[1]} stroke={tone} strokeWidth="2" />
+              <circle cx={p[0]} cy={p[1]} r={rDot} fill={tone} />
+              <text
+                x={l[0]} y={l[1]} textAnchor="middle" dominantBaseline="middle"
+                fontFamily={MATH_FONT} fontSize={fs} fontWeight="700" fill={tone} {...halo(size)}
+              >
+                {d + '°'}
+              </text>
+            </g>
+          )
+        }
+
+        return (
+          <g>
+            <line x1={ox - R * 1.2} y1={oy} x2={ox + R * 1.2} y2={oy} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <line x1={ox} y1={oy - R * 1.2} x2={ox} y2={oy + R * 1.2} stroke="rgba(23,26,29,.28)" strokeWidth="1" />
+            <circle cx={ox} cy={oy} r={R} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+            <circle cx={ox} cy={oy} r={rDot * 0.5} fill={T.ink3} />
+
+            {/* QOLADIGAN seriya -- doim yorqin. */}
+            {keep.map((d) => dot(d, T.accent, show))}
+            {/* YO'QOLADIGAN seriya -- ikkinchi kadrda so'nadi, lekin o'chmaydi:
+                u bor edi, va shuni ko'rish kerak. */}
+            {lost.map((d) => dot(d, T.ok, show * (1 - fade * 0.82)))}
+          </g>
+        )
+      }}
+    />
+  )
+}

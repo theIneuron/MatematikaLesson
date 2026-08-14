@@ -313,6 +313,28 @@ function build(scr) {
   // «ОТМЕТЬ ВСЕ»: у `MultiPick` верный вариант помечается полем `ok`, а не
   // `correct`. Без своей ветки флаг «верно» терялся и все пять записей
   // становились неверными — экран было бы не пройти.
+  // СПИСОК СЛЕВА И ВАРИАНТЫ СПРАВА -- ОДНОЙ ДЛИНЫ.
+  //
+  // Разделитель списка это ` · `, и он совпадает со знаком умножения. В уроке
+  // 13 подпись `sin x · cos x = 0` развалилась на две записи: слева стало шесть
+  // вариантов вместо четырёх, и экран стало НЕВОЗМОЖНО пройти -- при этом
+  // сборка сказала «успешно». Длины должны совпадать, и это проверяется.
+  const mt = get('match')
+  if (mt && !mt.__leaf) {
+    const leftLeaf = self(mt.left)
+    const leftLen = leftLeaf && /·/.test(String(leftLeaf.raw ? leftLeaf.raw.value : '')) 
+      ? String(leftLeaf.raw.value).split('·').length
+      : null
+    const rightLen = kids(mt).filter((k) => /^[a-z]$/.test(k)).length
+    if (leftLen && rightLen && leftLen !== rightLen) {
+      problems.push(
+        `экран ${n}: слева ${leftLen} записей, справа ${rightLen}. `
+        + 'Разделитель списка ` · ` совпал со знаком умножения внутри записи — '
+        + 'пиши умножение без точки',
+      )
+    }
+  }
+
   const multi = get('multi')
   if (multi && !multi.__leaf) {
     const ids = kids(multi).filter((k) => !['prompt', 'title', 'ok'].includes(k))

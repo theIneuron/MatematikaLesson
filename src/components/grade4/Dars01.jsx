@@ -7150,28 +7150,6 @@ button { font: inherit; }
   font-weight: 900;
 }
 .timeline-step strong { font-size: 10px; line-height: 1.2; }
-.explanation-screen-2 .explanation-timeline {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px;
-}
-.explanation-screen-2 .timeline-step {
-  min-height: 64px;
-  padding: 10px 12px;
-  gap: 10px;
-  border-radius: 14px;
-}
-.explanation-screen-2 .timeline-step > span {
-  width: 30px;
-  height: 30px;
-  flex-basis: 30px;
-  font-size: 11px;
-}
-.explanation-screen-2 .timeline-step strong {
-  min-width: 0;
-  font-size: 14px;
-  line-height: 1.25;
-  overflow-wrap: anywhere;
-}
 .timeline-active {
   border-color: rgba(255,91,53,.34);
   color: ${T.ink};
@@ -8484,10 +8462,6 @@ button { font: inherit; }
   background: rgba(255,255,255,.93);
   box-shadow: 0 16px 34px -26px rgba(${T.shadowBase},.55);
 }
-.strategy-screen .strategy-phase {
-  display: grid;
-  gap: 20px;
-}
 .strategy-digit-row {
   min-height: 70px;
   display: flex;
@@ -9553,25 +9527,6 @@ button { font: inherit; }
   .timeline-step { min-height: 43px; padding: 5px; gap: 4px; }
   .timeline-step > span { width: 20px; height: 20px; flex-basis: 20px; font-size: 8px; }
   .timeline-step strong { font-size: 8px; line-height: 1.12; }
-  .explanation-screen-2 .explanation-timeline {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 7px;
-  }
-  .explanation-screen-2 .timeline-step {
-    min-height: 64px;
-    padding: 9px 10px;
-    gap: 8px;
-  }
-  .explanation-screen-2 .timeline-step > span {
-    width: 28px;
-    height: 28px;
-    flex-basis: 28px;
-    font-size: 11px;
-  }
-  .explanation-screen-2 .timeline-step strong {
-    font-size: 14px;
-    line-height: 1.2;
-  }
   .explanation-finish-row { grid-template-columns: 1fr auto; gap: 5px; }
   .explanation-result { padding: 7px 8px; font-size: 10px; line-height: 1.25; }
   .explanation-replay { min-height: 36px; padding: 6px 8px; font-size: 10px; }
@@ -9618,7 +9573,6 @@ button { font: inherit; }
   .city-clue strong { font-size: 18px; }
   .city-code-result { min-height: 24px; font-size: 8px; }
   .strategy-decomposition { min-height: 132px; padding: 9px 7px; }
-  .strategy-screen .strategy-phase { gap: 12px; }
   .strategy-digit-row { min-height: 58px; gap: 3px; }
   .strategy-digit-row > span { width: 38px; height: 49px; border-radius: 10px; font-size: 22px; }
   .strategy-boundary { height: 48px; }

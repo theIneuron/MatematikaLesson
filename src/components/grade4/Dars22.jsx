@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 // 4-SINF · 22-DARS · Sonning kasr qismini topish
 // Approved frame vector: 3,4,4,4,4,4,4,5,2,2,2,2,2,3,5.
@@ -10,24 +9,6 @@ const T = {
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
   navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
-};
-
-const stableChoiceOffset = (lessonId, length) => {
-  let hash = 2166136261;
-  for (const char of `${lessonId}:${length}`) {
-    hash ^= char.charCodeAt(0);
-    hash = Math.imul(hash, 16777619);
-  }
-  return length > 0 ? (hash >>> 0) % length : 0;
-};
-
-const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
-  const natural = Array.from({ length: Math.max(0, length) }, (_, index) => index);
-  if (length < 2 || !Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return natural;
-  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
-  const order = natural.filter((index) => index !== correctIndex);
-  order.splice(target, 0, correctIndex);
-  return order;
 };
 
 const TOTAL_SCREENS = 15;
@@ -692,19 +673,16 @@ const FeedbackBlock = ({ show, correct, children, proof = null }) => {
   return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
 };
 
-const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabled = false, finish = false, children }) => {
-  const originalGatePassed = !originalNextDisabled && Boolean(onNext);
-  const nextDisabled = !canUseGrade4TheoryContinue(originalGatePassed, finish);
+const Stage = ({ screen, audio, onPrev, onNext, nextDisabled = false, finish = false, children }) => {
   const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = CONTENT[`s${screen}`]; const meta = SCREEN_META[screen];
   return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
 };
 
 const Heading = ({ c, bit, hook = false }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
 const Frac = ({ n, d, size = 'sm' }) => <span className={'frac ' + (size === 'lg' ? 'frac-lg' : '')}><span>{n}</span><i/><span>{d}</span></span>;
-const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, wrongChoices = [], order = null }) => {
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, wrongChoices = [] }) => {
   const t = useT();
-  const sourceOrder = order ?? values.map((_, index) => index);
-  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; return <button type="button" key={sourceIndex + '-' + t(value)} data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} data-g4-wrong-choice={wrongChoices.includes(sourceIndex) || undefined} className={'option ' + (picked === sourceIndex ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '') + ((!neutral && picked === sourceIndex && picked !== correctIndex) || wrongChoices.includes(sourceIndex) ? 'bad' : '')} disabled={disabled || wrongChoices.includes(sourceIndex) || (!neutral && solved)} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
+  return <div className="options">{values.map((value, index) => <button type="button" key={index + '-' + t(value)} data-g4-role="answer-card" data-g4-wrong-choice={wrongChoices.includes(index) || undefined} className={'option ' + (picked === index ? 'picked ' : '') + (!neutral && solved && index === correctIndex ? 'right ' : '') + ((!neutral && picked === index && picked !== correctIndex) || wrongChoices.includes(index) ? 'bad' : '')} disabled={disabled || wrongChoices.includes(index) || (!neutral && solved)} onClick={() => onPick(index)}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>;
 };
 
 const FractionBar = ({ den = 8, filled = 0, removed = 0, label = null, compact = false }) => {
@@ -761,8 +739,6 @@ const NeutralWholeFraction = () => {
 function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual = null, renderVisual = null, bit = null }) {
   const t = useT();
   const c = CONTENT['s' + screen];
-  const ordinal = [8, 9, 11, 12, 13].indexOf(screen);
-  const order = ordinal >= 0 ? buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, ordinal + 1) : null;
   const audio = useNarration(c.audio, screen);
   const narrationReady = audio.muted || audio.completed;
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
@@ -783,18 +759,17 @@ function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual
     onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok });
   };
   const contextVisual = renderVisual ? renderVisual({ frame: audio.frame, solved }) : visual;
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack"><Heading c={c} bit={bit}/><FrameNotes items={c.frames} frame={audio.frame}/>{contextVisual && <div className={'attempt-model ' + (hintLevel > 0 ? 'attempt-highlight' : '')}>{contextVisual}</div>}<section className={'question ' + (hintLevel > 0 ? 'attempt-highlight' : '')}><h2>{t(c.question)}</h2>{hintLevel > 0 && <div className="attempt-cue" role="status">{t(bi("Avval maxraj bo'yicha bitta teng guruhni toping.", "Сначала найди одну равную группу по знаменателю.", 'First use the denominator to find one equal group.'))}</div>}<Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!narrationReady} order={order}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock>{solved && c.proof && <div className="proof">{t(c.proof)}</div>}</section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack"><Heading c={c} bit={bit}/><FrameNotes items={c.frames} frame={audio.frame}/>{contextVisual && <div className={'attempt-model ' + (hintLevel > 0 ? 'attempt-highlight' : '')}>{contextVisual}</div>}<section className={'question ' + (hintLevel > 0 ? 'attempt-highlight' : '')}><h2>{t(c.question)}</h2>{hintLevel > 0 && <div className="attempt-cue" role="status">{t(bi("Avval maxraj bo'yicha bitta teng guruhni toping.", "Сначала найди одну равную группу по знаменателю.", 'First use the denominator to find one equal group.'))}</div>}<Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!narrationReady}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock>{solved && c.proof && <div className="proof">{t(c.proof)}</div>}</section></div></Stage>;
 }
 
 function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
   const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const narrationReady = audio.muted || audio.completed; const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const solved = storedAnswer?.correct === true || picked === 0; const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true);
-  const order = buildOptionOrder(c.options.length, 0, LESSON_META.lessonId, 0);
   const correctFeedback = bi("To'g'ri: 24 ÷ 6 × 5 = 20.", 'Верно: 24 ÷ 6 × 5 = 20.', 'Correct: 24 ÷ 6 × 5 = 20.');
   const wrongFeedback = bi("Avval 24 ni 6 teng guruhga ajrating, so'ng 5 guruhni oling.", 'Сначала разделите 24 на 6 равных групп, затем возьмите 5 групп.', 'First divide 24 into 6 equal groups, then take 5 groups.');
   const correctAudio = bi("To'g'ri. Yigirma to'rtni oltiga bo'lib, natijani beshga ko'paytiramiz. Javob yigirma.", 'Верно. Делим двадцать четыре на шесть и умножаем результат на пять. Ответ двадцать.', 'Correct. Divide twenty-four by six and multiply the result by five. The answer is twenty.');
   const wrongAudio = bi("Avval yigirma to'rtni oltita teng guruhga ajrating, so'ng beshta guruhni oling.", 'Сначала разделите двадцать четыре на шесть равных групп, затем возьмите пять групп.', 'First divide twenty-four into six equal groups, then take five groups.');
   const pick = (index) => { if (!narrationReady || solved) return; attempts.current += 1; const ok = index === 0; if (!ok) clean.current = false; const nextWrongChoices = ok || wrongChoices.includes(index) ? wrongChoices : [...wrongChoices, index]; setPicked(index); setWrongChoices(nextWrongChoices); audio.pushOneOff(t(ok ? correctAudio : wrongAudio)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: 0, correctAnswer: t(c.options[0]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok, wrongChoices: nextWrongChoices }); };
-  return <Stage screen={screen} audio={audio} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} bit="think" hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="hook-scene-adapter" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><FrameNotes items={c.frames} frame={audio.frame}/><section className="hook-model"><GroupBoard total={24} groups={6} selected={audio.frame >= 2 ? 5 : 0} condensed/></section><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} correctIndex={0} neutral disabled={!narrationReady || solved} answerCards wrongChoices={wrongChoices} order={order}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved ? '24 ÷ 6 × 5 = 20' : null}>{picked !== null ? t(solved ? correctFeedback : wrongFeedback) : ''}</FeedbackBlock></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onNext={onNext} nextDisabled={!solved || !narrationReady}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} bit="think" hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="hook-scene-adapter" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><FrameNotes items={c.frames} frame={audio.frame}/><section className="hook-model"><GroupBoard total={24} groups={6} selected={audio.frame >= 2 ? 5 : 0} condensed/></section><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} neutral disabled={!narrationReady || solved} answerCards wrongChoices={wrongChoices}/><FeedbackBlock show={picked !== null} correct={solved} proof={solved ? '24 ÷ 6 × 5 = 20' : null}>{picked !== null ? t(solved ? correctFeedback : wrongFeedback) : ''}</FeedbackBlock></section></div></Stage>;
 }
 
 function StrategyReplay({ used, onUse, audio }) {

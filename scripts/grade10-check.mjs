@@ -71,7 +71,12 @@ steps.push([
 if (!FAST) steps.push(['озвучка', 'node', ['scripts/grade10-tts-check.mjs', LESSON]])
 
 console.log(`Урок ${LESSON}  ·  ${slug}  ·  ${file}`)
+// Пауза после сборки. `vite preview` отдаёт файлы из `dist`, а сборка их
+// перезаписывает: если браузер зайдёт в этот момент, страница окажется пустой
+// и проверка скажет «экрана нет» вместо настоящей причины.
+const settle = (ms) => spawnSync(process.execPath, ['-e', `setTimeout(()=>{}, ${ms})`])
 for (const [title, cmd, cmdArgs, env] of steps) {
+  if (title === 'контракт эталона') settle(2500)
   if (!run(title, cmd, cmdArgs, env)) {
     console.log(`\nОСТАНОВЛЕНО на шаге «${title}». Остальные проверки не запускались.`)
     process.exit(1)

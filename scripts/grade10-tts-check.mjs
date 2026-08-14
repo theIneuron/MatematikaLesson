@@ -35,6 +35,7 @@ const LESSONS = {
   dars07: { slug: 'dars07-funksiyalar', no: 7, segments: 4 },
   dars11: { slug: 'dars11-cos-x-a', no: 11, segments: 4 },
   dars12: { slug: 'dars12-tg-x-a', no: 12, segments: 4 },
+  dars13: { slug: 'dars13-usullar', no: 13, segments: 4 },
 }
 if (!LESSONS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)

@@ -1,6 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 // 4-SINF · 16-DARS · Formulalar
 // Approved frame vector: 3,4,4,3,4,4,4,5,2,2,2,2,2,3,5.
@@ -335,25 +334,6 @@ const playSfx = (kind) => {
   try { new Audio(url).play().catch(() => {}); } catch { /* optional */ }
 };
 
-const stableChoiceOffset = (lessonId, length) => {
-  const input = `${lessonId}:${length}`;
-  let hash = 2166136261;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 16777619);
-  }
-  return length > 0 ? (hash >>> 0) % length : 0;
-};
-
-const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
-  const natural = Array.from({ length }, (_, index) => index);
-  if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
-  const order = natural.filter((index) => index !== correctIndex);
-  order.splice(target, 0, correctIndex);
-  return order;
-};
-
 const BitSVG = ({ state = 'present', className = '' }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
@@ -567,16 +547,14 @@ const ContractActivity = ({ screen, value, onComplete }) => {
 
 const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone, children }) => {
   const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = ORDERED_CONTENT[screen]; const meta = SCREEN_META[screen]; const { activityState, markActivity } = useContext(ActivityContext);
-  const storedActivity = Object.prototype.hasOwnProperty.call(activityState, screen); const activityReady = !meta.active || activityDone === true || storedActivity; const audioReady = !audio || audio.muted || audio.visualOnly || audio.completed;
-  const originalGatePassed = activityReady && audioReady;
-  const canAdvance = canUseGrade4TheoryContinue(originalGatePassed, finish);
+  const storedActivity = Object.prototype.hasOwnProperty.call(activityState, screen); const activityReady = !meta.active || activityDone === true || storedActivity; const audioReady = !audio || audio.muted || audio.visualOnly || audio.completed; const canAdvance = activityReady && audioReady;
   useEffect(() => { if (activityDone === true && !storedActivity) markActivity(screen, true); }, [activityDone, markActivity, screen, storedActivity]);
   const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly));
   return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}<ContractActivity screen={screen} value={activityState[screen]} onComplete={markActivity}/></div><div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>{showCaption ? audio.caption : ''}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' , en: "Back"})}</button>}<button type="button" className="btn-white-accent" onClick={onNext} disabled={!canAdvance}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' , en: "Finish lesson"}) : t({ uz: "Davom etish", ru: 'Продолжить' , en: "Continue"})} →</button></footer></main>;
 };
 
 const Heading = ({ c }) => { const t = useT(); const hook = c === CONTENT.s0; return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{!hook && <BitSVG state="happy" className="primary-happy-bit"/>}</div>; };
-const Options = ({ values, order = null, picked, onPick, correctIndex, solved, neutral = false }) => { const t = useT(); const optionOrder = order ?? values.map((_, index) => index); return <div className="options">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" key={`${sourceIndex}-${t(values[sourceIndex])}`} data-g4-role="answer-card" data-g4-branch={order ? 'choice' : undefined} data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} className={`option ${picked === sourceIndex ? 'picked' : ''} ${!neutral && solved && sourceIndex === correctIndex ? 'right' : ''} ${!neutral && picked === sourceIndex && picked !== correctIndex ? 'bad' : ''}`} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(values[sourceIndex])}</span></button>)}</div>; };
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false }) => { const t = useT(); return <div className="options">{values.map((value, index) => <button type="button" key={`${index}-${t(value)}`} data-g4-role="answer-card" className={`option ${picked === index ? 'picked' : ''} ${!neutral && solved && index === correctIndex ? 'right' : ''} ${!neutral && picked === index && picked !== correctIndex ? 'bad' : ''}`} onClick={() => onPick(index)}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>; };
 
 const FormulaFlow = ({ items, frame }) => <div className="formula-flow">{items.map((item, index) => <React.Fragment key={item}><div className={`formula-chip ${frame >= index ? 'show' : ''}`}>{item}</div>{index < items.length - 1 && <i className={frame >= index + 1 ? 'show' : ''}>→</i>}</React.Fragment>)}</div>;
 
@@ -594,12 +572,11 @@ const RectangleDiagram = ({ a, b, frame = 0, letters = false, square = false, ti
   </div>;
 };
 
-function ChoiceExercise({ screen, choiceOrdinal = ({ 10: 0, 12: 1 }[screen] ?? 0), storedAnswer, onAnswer, onNext, onPrev, visual = null }) {
+function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual = null }) {
   const t = useT(); const c = ORDERED_CONTENT[screen]; const audio = useNarration(c.audio, screen);
   const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [solved, setSolved] = useState(storedAnswer?.correct === true); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true);
-  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
   const pick = (index) => { if (solved) return; attempts.current += 1; const ok = index === c.correctIndex; if (!ok) clean.current = false; setPicked(index); setSolved(ok); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok }); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit={screen === 12 ? 'awkward' : null}/>{visual}<section className="question"><h2>{t(c.question)}</h2><Options values={c.options} order={optionOrder} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved}/><FeedbackBlock show={picked !== null} correct={solved}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
+  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit={screen === 12 ? 'awkward' : null}/>{visual}<section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved}/><FeedbackBlock show={picked !== null} correct={solved}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
 }
 
 function NumericExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, proof }) {
