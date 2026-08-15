@@ -37,7 +37,9 @@ function Spot({ v, on, tick, name }) {
 }
 
 // Фазы: 0 — буква, 1 — число подставлено, 2 — части посчитаны, 3 — итог.
-export function FeedNumber({ nums, num, den, varName = 'x', ask, broke, onSolved, audio }) {
+export function FeedNumber({
+  nums, num, den, varName = 'x', ask, broke, predict, onSolved, audio,
+}) {
   const t = useT()
   const sfx = useSfx()
   const [at, setAt] = useState(null)
@@ -45,6 +47,9 @@ export function FeedNumber({ nums, num, den, varName = 'x', ask, broke, onSolved
   const [seen, setSeen] = useState({})
   const [found, setFound] = useState(false)
   const [tick, setTick] = useState(0)
+  // Прогноз ДО действия — это и делает экран хуком, а не тренажёром:
+  // ученик берёт на себя обязательство, и проверка становится его делом.
+  const [bet, setBet] = useState(predict ? null : 'skip')
   const timers = useRef([])
 
   // Таймеры держим в ref и гасим при уходе с экрана: иначе фаза доедет уже
@@ -118,7 +123,21 @@ export function FeedNumber({ nums, num, den, varName = 'x', ask, broke, onSolved
           )}
         </div>
 
-        <div className="g8-fd-nums">
+        {bet === null ? (
+          <div className="g8-fd-bet">
+            <span className="g8-fd-betq">{t(predict.question)}</span>
+            <div className="g8-fd-betopts">
+              {predict.items.map((i) => (
+                <button key={i.id} type="button" className="g8-fd-betbtn"
+                  onClick={() => { setBet(i.id); if (audio && i.say) audio.say(t(i.say)) }}>
+                  {t(i.label)}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className={'g8-fd-nums' + (bet === null ? ' is-locked' : '')}>
           {nums.map((x) => (
             <button
               key={x}
@@ -127,6 +146,7 @@ export function FeedNumber({ nums, num, den, varName = 'x', ask, broke, onSolved
                 + (at === x ? ' is-now' : '')
                 + (seen[x] && den(x) === 0 ? ' is-dead' : seen[x] ? ' is-seen' : '')}
               style={{ fontFamily: MATH_FONT }}
+              disabled={bet === null}
               onClick={() => feed(x)}
             >
               {fmt(x)}
@@ -151,6 +171,8 @@ export const FEED_STYLES = `
   flex: 1 1 auto; justify-content: center; min-height: 0; }
 
 .g8-fd-expr { display: flex; align-items: center; justify-content: center;
+  padding: 26px 54px; border-radius: 22px; background: ${T.paper};
+  box-shadow: 0 26px 60px -40px rgba(${T.shadow},1), inset 0 0 0 1px rgba(23,26,29,.05);
   min-height: 148px; font-size: clamp(30px, 3.4vw, 46px); color: ${T.ink}; }
 .g8-fd-frac { display: inline-flex; flex-direction: column; align-items: center; }
 .g8-fd-n, .g8-fd-d { display: flex; align-items: baseline; justify-content: center;
@@ -159,7 +181,9 @@ export const FEED_STYLES = `
    записи. Иначе на шаге «ноль на ноль» дробь схлопывается в чёрточку, и
    разрыв черты становится не виден. */
 .g8-fd-frac { min-width: 5.6em; }
-.g8-fd-op { color: ${T.ink}; }
+/* pre: пробелы вокруг знака действия html СХЛОПЫВАЕТ, и «x · x − 4»
+   превращается в «x·x− 4». Второй раз за сессию на этом же. */
+.g8-fd-op { color: ${T.ink}; white-space: pre; }
 .g8-fd-var { font-style: italic; color: ${T.ink}; }
 
 /* Черта дроби. При нуле в знаменателе она РВЁТСЯ: делить не на что, и это
@@ -189,6 +213,16 @@ export const FEED_STYLES = `
   74% { transform: translateX(-3px); }
 }
 
+.g8-fd-bet { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.g8-fd-betq { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 18px);
+  font-weight: 700; color: ${T.ink}; text-align: center; }
+.g8-fd-betopts { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-fd-betbtn { border: 0; cursor: pointer; border-radius: 12px; min-height: 54px; padding: 0 22px;
+  background: ${T.paper}; color: ${T.ink}; font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(14px, 1.25vw, 16px); font-weight: 600;
+  box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07); }
+.g8-fd-betbtn:hover { transform: translateY(-2px); }
+.g8-fd-nums.is-locked { opacity: .35; pointer-events: none; }
 .g8-fd-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .g8-fd-btn { min-width: 74px; min-height: 74px; border: 0; cursor: pointer; border-radius: 14px;
   background: ${T.paper}; color: ${T.ink}; font-size: clamp(24px, 2.4vw, 32px);

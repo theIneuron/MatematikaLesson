@@ -185,6 +185,35 @@ const S1 = {
     num: (x) => x * x - 4,
     den: (x) => x - 2,
     varName: 'x',
+    // ХУК: сначала ПРОГНОЗ, потом проверка. Ответ на хуке не называется —
+    // ученик добывает его сам, подставляя числа (§5).
+    predict: {
+      question: L(
+        "Bu yozuv har qanday son bilan ishlaydimi?",
+        'Эта запись работает с любым числом?',
+        'Does this record work with any number?',
+      ),
+      items: [
+        {
+          id: 'yes',
+          label: L('Ha, har qanday son bilan', 'Да, с любым', 'Yes, with any number'),
+          say: L(
+            "Tekshiramiz. Sonlarni birma-bir bosing.",
+            'Проверим. Нажимай числа по очереди.',
+            'Let us check. Tap the numbers one by one.',
+          ),
+        },
+        {
+          id: 'no',
+          label: L("Yo'q, biror son bilan ishlamaydi", 'Нет, с каким-то не сработает', 'No, some number will fail'),
+          say: L(
+            "Qaysi son bilan? Toping.",
+            'С каким именно? Найди его.',
+            'With which one exactly? Find it.',
+          ),
+        },
+      ],
+    },
     ask: L(
       "Istalgan sonni bosing: u harf o'rniga turadi",
       'Нажми любое число — оно встанет на место буквы',

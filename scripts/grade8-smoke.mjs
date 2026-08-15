@@ -275,6 +275,9 @@ for (const size of SIZES) {
     }
     // Хук: жмём числа по порядку и доводим до того, на котором машина встала.
     if (s.feed !== undefined) {
+      // Хук: сначала прогноз, он отпирает числа.
+      const bet = page.locator('.g8-fd-betbtn')
+      if (await bet.count()) { await tap(bet.first(), at); await page.waitForTimeout(260) }
       const btns = page.locator('.g8-fd-btn')
       const n = await btns.count()
       for (let k = 0; k < n; k += 1) {
