@@ -683,6 +683,17 @@ export const Slot = ({ h, mh, children, style, className }) => {
 }
 
 
+// Точки шагов: сколько шагов на экране и где ученик сейчас.
+export const StepDots = ({ total, at }) => (
+  total > 1 ? (
+    <span className="g8-dots" role="img" aria-label={String(at + 1) + '/' + String(total)}>
+      {Array.from({ length: total }, (_, i) => (
+        <i key={i} className={i < at ? 'is-done' : i === at ? 'is-now' : ''} />
+      ))}
+    </span>
+  ) : null
+)
+
 export const Eyebrow = ({ children, right }) => (
   <div className="g8-eyebrow">
     <span>{children}</span>
@@ -1646,13 +1657,24 @@ html, body { margin: 0; padding: 0; }
   box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05);
 }
 
-/* «Дальше» — белая пилюля с акцентной обводкой, не сплошная заливка. */
+/* «Продолжить» — СПЛОШНАЯ, как в уроке 1 седьмого класса (методист,
+   2026-08-15). Белая пилюля пришла из 6 класса и на крупной шкале терялась:
+   главная кнопка экрана не должна быть тише вариантов ответа. */
 .g8-btn-solid {
-  background: ${T.paper}; color: ${T.accent};
-  box-shadow: inset 0 0 0 1.5px rgba(${T.accentRgb},.45), 0 10px 26px -18px rgba(${T.accentRgb},.8);
+  background: ${T.accent}; color: #fff;
+  box-shadow: 0 12px 28px -14px rgba(${T.accentRgb},.8);
 }
-.g8-btn-solid:hover:not(:disabled) { background: #FFF; transform: translateY(-2px); }
-.g8-btn-solid:disabled { color: ${T.ink3}; box-shadow: inset 0 0 0 1.5px rgba(23,26,29,.10); }
+.g8-btn-solid:hover:not(:disabled) { background: #B44822; transform: translateY(-2px); }
+.g8-btn-solid:disabled { background: ${T.ink4}; color: ${T.paper}; box-shadow: none; }
+
+/* ТОЧКИ ШАГОВ. Показывают, сколько шагов на экране и где ты сейчас: без них
+   ученик не знает, впереди ещё один шаг или пять. Стоят по центру под
+   содержимым, как в 7 классе. */
+.g8-dots { display: flex; gap: 7px; justify-content: center; align-items: center; padding: 2px 0; }
+.g8-dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(23,26,29,.16);
+  transition: background .3s ease, transform .3s ease; }
+.g8-dots i.is-done { background: rgba(${T.accentRgb},.45); }
+.g8-dots i.is-now { background: ${T.accent}; transform: scale(1.25); }
 
 /* Вариант ответа: белая карточка, текст по центру, буквы нет. */
 .g8-opt-badge { display: none; }

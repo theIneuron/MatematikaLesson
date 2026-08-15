@@ -15,7 +15,7 @@
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
 import React, { useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Slot, T, useInstructionGate, useSfx, useT } from './core.jsx'
+import { Ask, L, MATH_FONT, Note, Slot, StepDots, T, useInstructionGate, useSfx, useT } from './core.jsx'
 
 const TXT = {
   next: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
@@ -165,6 +165,10 @@ export function SolveTogether({ task, lines, method, onSolved, audio, onStep }) 
           ))}
         </div>
       </div>
+
+      {/* Сколько шагов в решении и где ученик сейчас: без этого он не знает,
+          впереди ещё один шаг или пять (образец — урок 1 седьмого класса). */}
+      <StepDots total={lines.length} at={open - 1} />
 
       <Slot mh={50}>
         {waiting ? (
