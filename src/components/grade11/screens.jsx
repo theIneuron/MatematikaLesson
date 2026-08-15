@@ -80,6 +80,7 @@ import {
   SignFill,
   SolutionLine,
   SupportCards,
+  SpinBoard,
   TestPointRows,
   TransformChain,
 } from './tools.jsx'
@@ -190,6 +191,12 @@ export const TAG_NAMES = {
   mean_vs_median: L("o'rtacha va mediana", 'среднее и медиана', 'mean and median'),
   bell_middle: L("qo'ng'iroq o'rtasi", 'середина колокола', 'the middle of the bell'),
   corr_vs_cause: L("bog'liqlik va sabab", 'связь и причина', 'link and cause'),
+  axis_matters: L("qaysi o'q, shunday jism", 'какая ось, такое тело', 'the axis decides the solid'),
+  axial_section: L("o'q kesimi", 'осевое сечение', 'the axial section'),
+  slant_vs_height: L("yasovchi va balandlik", 'образующая и высота', 'generator and height'),
+  section_radius: L('kesim radiusi', 'радиус сечения', 'the section radius'),
+  ball_vs_sphere: L('shar va sfera', 'шар и сфера', 'ball and sphere'),
+  lateral_vs_total: L("yon va to'liq sirt", 'боковая и полная', 'side and total'),
   order_matters: L('tartib muhimmi', 'важен ли порядок', 'whether the order matters'),
   sum_vs_product: L('VA yoki YOKI', 'И или ИЛИ', 'AND or OR'),
   cross_section: L('kesim yuzasi', 'площадь сечения', 'the section area'),
@@ -483,7 +490,23 @@ export function GraphBody({ data, phase, audio, solve, t }) {
               tarjima qilinadi, asbob ichida emas. */}
           {/* B3 bloki: `graph` roli natijalar daraxtini chizadi. Rol
               o'zgarmaydi -- MA'LUMOT o'zgaradi, xuddi B1 dagidek. */}
-          {data.cells
+          {data.solid
+            ? (
+              <SpinBoard
+                {...data.solid}
+                spin={data.solid.spin !== undefined ? data.solid.spin : Math.min(1, (graphPhase + 1) / (data.spinSteps || 3))}
+                cut={data.solid.cuts ? data.solid.cuts[Math.min(graphPhase, data.solid.cuts.length - 1)] : data.solid.cut}
+                disks={data.solid.diskSteps ? data.solid.diskSteps[Math.min(graphPhase, data.solid.diskSteps.length - 1)] : data.solid.disks}
+                fill={data.solid.fills ? data.solid.fills[Math.min(graphPhase, data.solid.fills.length - 1)] : data.solid.fill}
+                tilt0={data.solid.tilt0}
+                interactive={data.solid.interactive}
+                caption={data.solid.caption !== undefined ? t(data.solid.caption) : undefined}
+                note={data.solid.note !== undefined ? t(data.solid.note) : undefined}
+                vLabel={data.solid.vLabel !== undefined ? t(data.solid.vLabel) : undefined}
+                rLabel={data.solid.rLabel !== undefined ? t(data.solid.rLabel) : undefined}
+              />
+            )
+            : data.cells
             ? (
               <FrequencyBoard
                 {...data.cells}

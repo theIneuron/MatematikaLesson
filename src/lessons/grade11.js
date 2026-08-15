@@ -122,6 +122,27 @@ export const grade11Nazariy = [
     ownLangSwitch: true,
   },
   {
+    slug: 'dars27-silindr',
+    title: 'Dars 27. Silindr',
+    desc: "To'rtburchakning tomoni atrofida aylanishi; qaysi o'q -- shunday jism; o'q kesimi 2r x l; V = pi r kvadrat l. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars27.jsx')),
+    ownLangSwitch: true,
+  },
+  {
+    slug: 'dars28-konus',
+    title: 'Dars 28. Konus',
+    desc: "Uchburchakning katet atrofida aylanishi; balandlik va yasovchi Pifagor bilan bog'langan; o'q kesimi teng yonli uchburchak. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars28.jsx')),
+    ownLangSwitch: true,
+  },
+  {
+    slug: 'dars29-shar-sfera',
+    title: 'Dars 29. Shar va sfera',
+    desc: "Yarim doiraning aylanishi; har qanday kesim doira, radiusi r kvadrat = R kvadrat minus d kvadrat; sfera sirt, shar jism. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars29.jsx')),
+    ownLangSwitch: true,
+  },
+  {
     slug: 'dars09-korsatkichli-tenglamalar',
     title: 'Dars 9. Ko\'rsatkichli tenglamalar',
     desc: "Bitta asosga keltirish, almashtirish t = aˣ va t > 0 sharti, ildizni qo'yib tekshirish. 15 slayd, UZ/RU/EN.",

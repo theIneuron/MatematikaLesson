@@ -2370,3 +2370,388 @@ export function FrequencyBoard({
     </div>
   )
 }
+
+
+// ============================================================
+// SpinBoard -- AYLANISH JISMI. B4 blokining yagona asbobi (9 dars: 26-33
+// va 52), shuning uchun u bitta emas, BESHTA harakatni olib yuradi. Har
+// harakatning `DINAMIKA_VA_ILLUSTRATSIYA.md` bo'yicha bitta roli bor:
+//
+//   spin    -- tekis figura jismni SUPURADI        (tushunchani ko'rsatish)
+//   section -- tekislik o'q bo'ylab yuradi          (tushunchani ko'rsatish)
+//   net     -- yon sirt yoyiladi                    (belgining ma'nosi)
+//   pour    -- konus silindrga uch marta to'kiladi  (hayot bilan bog'lash)
+//   disks   -- jism disklarga bo'linadi             (umumlashtirish)
+//
+// WebGL YO'Q -- metodist qarori, `PODXOD_11SINF.md` §12. Jism tekis
+// proyeksiyada chiziladi: o'q gorizontal, profil o'qdan yuqorida, uning
+// aksi pastda, uchlarda ellips.
+//
+// IKKI O'Q BIR XIL MASSHTABDA. Birinchi variantda x va y alohida
+// cho'zilardi, va shar sigaraga aylanib qolgandi -- kesim esa tor yoriqqa.
+// Bu bezak masalasi emas: bunday rasmdan o'quvchi sharning kesimi ellips
+// degan xulosa chiqaradi. Shuning uchun masshtab BITTA va chizma markazga
+// tekislanadi.
+//
+// Hajmni asbob O'ZI sanaydi: V = pi * integral f kvadrat dx, o'sha
+// `areaUnder`. Formula oldindan yozib qo'yilmaydi -- aks holda ekranda
+// tekshiruv emas, mening javobim turgan bo'lardi.
+// ============================================================
+
+// Aylanada ko'ringan doira ellipsga aylanadi. Yassilanish koeffitsienti
+// butun blok bo'yicha BITTA: har darsda boshqacha bo'lsa, jismlar bir
+// biriga o'xshamay qoladi va o'quvchi ularni solishtira olmaydi.
+const FLAT = 0.30
+
+const volumeOf = (fn, a, b) => areaUnder((x) => Math.PI * fn(x) * fn(x), a, b)
+
+export function SpinBoard({
+  fn,                 // profil: o'q ustidagi radius, y = f(x)
+  a,                  // aylanadigan oraliq
+  b,
+  xDomain,
+  yDomain,
+  mode = 'spin',      // spin | section | net | pour | disks
+  spin = 1,           // 0 -- tekis figura, 1 -- to'liq jism
+  cut,                // section: kesim qayerda
+  disks = 4,          // disks: nechta disk
+  solid = 'cyl',      // net va pour uchun: cyl | cone
+  R = 2,              // net/pour o'lchamlari
+  hh = 3,
+  fill = 0,           // pour: nechta to'kish bo'ldi (0..3)
+  showV = false,      // hajm sonini ko'rsatish
+  vLabel,
+  rLabel,
+  note,
+  caption,
+  height = 172,
+  // Ko'rish burchagi va sudrash. `tilt0` -- boshlang'ich qiya (radian),
+  // 0,30 taxminan 17 gradus: shu paytgacha butun blok shu ko'rinishda
+  // chizilgan. `interactive` bo'lsa, o'quvchi jismni O'ZI buradi.
+  tilt0 = 0.305,
+  interactive = false,
+}) {
+  // HOOKLAR ENG BOSHDA. Quyida `net` va `pour` rejimlari erta `return`
+  // qiladi, va hooklar ulardan keyin turganda React qoidasi buzilardi:
+  // rejim almashsa, «Rendered fewer hooks than expected» bilan yiqilardi.
+  //
+  // KO'RISH BURCHAGI. Jismning o'qi ekranda gorizontal, kesim doirasi esa
+  // vertikal tekislikda yotadi. Tikka qaraganda u chiziqqa aylanadi,
+  // tepadan qaraganda ellipsga ochiladi. Yassilanish = sinus(qiya), ya'ni
+  // qotirilgan son emas, ko'rish burchagining natijasi.
+  const [tiltUser, setTiltUser] = useState(null)
+  const [angUser, setAngUser] = useState(null)
+  const svgRef = useRef(null)
+  const dragRef = useRef(null)
+
+  const W = 640
+  const padX = 26
+  const padT = 14
+  const padB = 16
+  const H = height
+
+  // ---------- yoyilma ----------
+  if (mode === 'net') {
+    // Yon sirt yoyiladi. Silindrda to'g'ri to'rtburchak chiqadi, konusda
+    // sektor: radiusi yasovchi l, yoyi 2 pi r. Yuza 8-sinf planimetriyasi
+    // bilan sanaladi, S yon = 2 pi r l esa YOYILMANING NATIJASI bo'lib
+    // chiqadi, oldindan berilgan qoida emas.
+    const l = Math.sqrt(R * R + hh * hh)
+    const k = Math.max(0, Math.min(1, spin))
+    const arc = 2 * Math.PI * R
+    // Masshtab: chap tomonda jism (eni 2R), o'ngda yoyilma. Silindrda
+    // yoyilma eni 2piR, konusda esa sektor diametri 2l. Ikkalasi ham
+    // sig'ishi kerak, aks holda yoyilma kadrdan chiqib ketadi.
+    const needW = 2 * R + 1.2 + (solid === 'cyl' ? arc : 2 * l)
+    const needH = solid === 'cyl' ? Math.max(hh, hh) + 1.2 : Math.max(hh, 2 * l * 0.5) + 1.2
+    const sc = Math.min((W - padX * 2) / needW, (H - padT - padB - 12) / needH)
+    const bodyX = padX + R * sc
+    const midY = padT + (H - padT - padB - 12) / 2
+    const netX = padX + 2 * R * sc + 1.2 * sc
+    return (
+      <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+        <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+          {solid === 'cyl' ? (
+            <>
+              <ellipse cx={bodyX} cy={midY - hh * sc / 2} rx={R * sc} ry={R * sc * FLAT} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+              <ellipse cx={bodyX} cy={midY + hh * sc / 2} rx={R * sc} ry={R * sc * FLAT} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+              <line x1={bodyX - R * sc} y1={midY - hh * sc / 2} x2={bodyX - R * sc} y2={midY + hh * sc / 2} stroke={T.ink3} strokeWidth="1.4" />
+              <line x1={bodyX + R * sc} y1={midY - hh * sc / 2} x2={bodyX + R * sc} y2={midY + hh * sc / 2} stroke={T.ink3} strokeWidth="1.4" />
+              {/* Animatsiya klassi ROVOTGA qo'yiladi, shaffoflik esa
+                  shaklning o'ziga: `g11-in` opacity ni nolgacha va birgacha
+                  yuritadi va atributni bosib ketadi. Bu 10-sinfda bir marta
+                  yozib olingan grabli. */}
+              <g className="g11-in">
+                <rect
+                  x={netX}
+                  y={midY - hh * sc / 2}
+                  width={Math.max(1, k * arc * sc)}
+                  height={hh * sc}
+                  fill={T.graph} fillOpacity="0.18" stroke={T.graph} strokeWidth="1.6"
+                />
+              </g>
+              {k > 0.9 ? (
+                <>
+                  <text x={netX + arc * sc / 2} y={midY + hh * sc / 2 + 15} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>2πr</text>
+                  <text x={netX - 5} y={midY + 4} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>l</text>
+                </>
+              ) : null}
+            </>
+          ) : (
+            <>
+              <ellipse cx={bodyX} cy={midY + hh * sc / 2} rx={R * sc} ry={R * sc * FLAT} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+              <line x1={bodyX - R * sc} y1={midY + hh * sc / 2} x2={bodyX} y2={midY - hh * sc / 2} stroke={T.ink3} strokeWidth="1.4" />
+              <line x1={bodyX + R * sc} y1={midY + hh * sc / 2} x2={bodyX} y2={midY - hh * sc / 2} stroke={T.ink3} strokeWidth="1.4" />
+              {(() => {
+                const full = arc / l              // sektorning to'liq burchagi
+                const ang = k * full
+                const r = l * sc
+                const ox = netX + r
+                const oy = midY + r * 0.42
+                const x1 = ox - r
+                const y1 = oy
+                const x2 = ox - r * Math.cos(ang)
+                const y2 = oy - r * Math.sin(ang)
+                const large = ang > Math.PI ? 1 : 0
+                return (
+                  <>
+                    <g className="g11-in">
+                      <path
+                        d={'M ' + ox + ' ' + oy + ' L ' + x1 + ' ' + y1 + ' A ' + r + ' ' + r + ' 0 ' + large + ' 1 ' + x2 + ' ' + y2 + ' Z'}
+                        fill={T.accent} fillOpacity="0.16" stroke={T.accent} strokeWidth="1.6"
+                      />
+                    </g>
+                    {k > 0.9 ? (
+                      <>
+                        <text x={ox - r * 0.5} y={oy - 7} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>l</text>
+                        <text x={ox - r - 5} y={oy + 15} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>2πr</text>
+                      </>
+                    ) : null}
+                  </>
+                )
+              })()}
+            </>
+          )}
+        </svg>
+        {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+        {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+      </div>
+    )
+  }
+
+  // ---------- to'kish ----------
+  if (mode === 'pour') {
+    // Konus silindrga TO'KILADI. Uch marta to'kish silindrni to'ldiradi, va
+    // uchdan bir koeffitsienti shu yerda TAXMIN bo'lib tug'iladi. Isbot
+    // keyin, integral bilan -- darslikdagi yo'l.
+    const sc = Math.min((H - padT - padB - 22) / (hh * 1.1), (W - padX * 2) / (6 * R))
+    const rr = R * sc
+    const hp = hh * sc
+    const leftX = W * 0.34
+    const rightX = W * 0.62
+    const baseY = H - padB - 12
+    const topY = baseY - hp
+    const k = Math.max(0, Math.min(3, fill)) / 3
+    const fillY = baseY - hp * k
+    // Konusdagi qolgan suyuqlik: uchta to'kishdan nechtasi ketgan.
+    const left = Math.max(0, 1 - (Math.max(0, Math.min(3, fill)) - Math.floor(Math.max(0, Math.min(3, fill)))))
+    return (
+      <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+        <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+          <line x1={leftX - rr} y1={baseY} x2={leftX} y2={topY} stroke={T.ink3} strokeWidth="1.5" />
+          <line x1={leftX + rr} y1={baseY} x2={leftX} y2={topY} stroke={T.ink3} strokeWidth="1.5" />
+          <ellipse cx={leftX} cy={baseY} rx={rr} ry={rr * FLAT} fill={T.accent} fillOpacity={fill >= 3 ? 0.06 : 0.18 * left} stroke={T.ink3} strokeWidth="1.4" />
+          <ellipse cx={rightX} cy={topY} rx={rr} ry={rr * FLAT} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+          <line x1={rightX - rr} y1={topY} x2={rightX - rr} y2={baseY} stroke={T.ink3} strokeWidth="1.5" />
+          <line x1={rightX + rr} y1={topY} x2={rightX + rr} y2={baseY} stroke={T.ink3} strokeWidth="1.5" />
+          <ellipse cx={rightX} cy={baseY} rx={rr} ry={rr * FLAT} fill="none" stroke={T.ink3} strokeWidth="1.5" />
+          {k > 0 ? (
+            <g className="g11-in">
+              <rect x={rightX - rr} y={fillY} width={rr * 2} height={baseY - fillY} fill={T.accent} fillOpacity="0.18" />
+              <ellipse cx={rightX} cy={fillY} rx={rr} ry={rr * FLAT} fill={T.accent} fillOpacity="0.26" stroke={T.accent} strokeWidth="1.5" />
+            </g>
+          ) : null}
+          <text x={rightX} y={topY - 9} textAnchor="middle" fontSize="13" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {Math.min(3, Math.max(0, Math.round(fill))) + ' / 3'}
+          </text>
+        </svg>
+        {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+        {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+      </div>
+    )
+  }
+
+  // ---------- aylanish, kesim va disklar ----------
+  const xd = xDomain || [a, b]
+  const yd = yDomain || [-3, 3]
+  // Hajm soni uchun tepada joy ajratiladi: aks holda u jismning ustiga
+  // chiqib qoladi va ikkalasini ham o'qib bo'lmaydi.
+  const padTop = padT + (showV ? 13 : 0)
+  const sc = (H - padTop - padB) / (yd[1] - yd[0])
+  const WD = (xd[1] - xd[0]) * sc + padX * 2
+  const cx0 = (xd[0] + xd[1]) / 2
+  const cy0 = (yd[0] + yd[1]) / 2
+  const px = (x) => WD / 2 + (x - cx0) * sc
+  const py = (y) => padTop + (H - padTop - padB) / 2 - (y - cy0) * sc
+
+  const tilt = tiltUser !== null ? tiltUser : tilt0
+  const flat = Math.sin(tilt)
+  // Meridian (yasovchi) burchagi: sudralganda u o'q atrofida yuradi.
+  const ang = angUser !== null ? angUser : Math.max(0, Math.min(1, spin)) * Math.PI
+
+  const onDown = (e) => {
+    if (!interactive) return
+    const el = svgRef.current
+    if (!el) return
+    el.setPointerCapture(e.pointerId)
+    dragRef.current = { x: e.clientX, y: e.clientY, ang, tilt }
+  }
+  const onMove = (e) => {
+    const d = dragRef.current
+    if (!d) return
+    const box = svgRef.current.getBoundingClientRect()
+    const kx = box.width || 1
+    // Bir ekran eni = to'liq aylanish. Shunda barmoq harakati va jismning
+    // burilishi mos keladi.
+    setAngUser(d.ang + ((e.clientX - d.x) / kx) * Math.PI * 2)
+    // Qiya 6 dan 46 gradusgacha: 6 dan pastda asos chiziqqa aylanadi va
+    // jism yassi ko'rinadi, 46 dan yuqorida u tepadan qaralgan disk bo'ladi.
+    const nt = d.tilt - ((e.clientY - d.y) / 220) * 0.9
+    setTiltUser(Math.max(0.1, Math.min(0.8, nt)))
+  }
+  const onUp = () => { dragRef.current = null }
+
+  const N = 90
+  const prof = []
+  for (let i = 0; i <= N; i += 1) {
+    const x = a + ((b - a) * i) / N
+    const y = fn(x)
+    prof.push([x, isFinite(y) ? y : 0])
+  }
+  const pathAt = (c) => prof.map(([x, y], i) => (i ? 'L ' : 'M ') + px(x) + ' ' + py(y * c)).join(' ')
+
+  // MERIDIAN. (x, f cos t, f sin t) nuqtasi ekranga tushadi: vertikal
+  // f cos t, chuqurlik esa gorizontalga `flat` bilan siqiladi. Bu haqiqiy
+  // proyeksiya, bezak emas -- shuning uchun burilganda jism yolg'on
+  // gapirmaydi.
+  const meridian = (t) => prof
+    .map(([x, y], i) => (i ? 'L ' : 'M ') + (px(x) + y * Math.sin(t) * flat * sc) + ' ' + py(y * Math.cos(t)))
+    .join(' ')
+
+  // Parallellar: bir necha stansiyadagi kesim doiralari.
+  const RINGS = 5
+  const rings = []
+  if (spin >= 0.98) {
+    for (let i = 0; i <= RINGS; i += 1) {
+      const x = a + ((b - a) * i) / RINGS
+      const r = fn(x)
+      if (isFinite(r) && Math.abs(r) > 0.02) rings.push({ x, r })
+    }
+  }
+
+  const V = volumeOf(fn, a, b)
+  const rCut = cut !== undefined ? fn(cut) : null
+
+  const dw = disks > 0 ? (b - a) / disks : 0
+  const diskList = []
+  if (mode === 'disks') {
+    for (let i = 0; i < disks; i += 1) {
+      const xc = a + (i + 0.5) * dw
+      diskList.push({ x0: a + i * dw, xc, r: fn(xc) })
+    }
+  }
+  const vDisks = diskList.reduce((s, d) => s + Math.PI * d.r * d.r * dw, 0)
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg
+        ref={svgRef}
+        viewBox={'0 0 ' + WD + ' ' + H}
+        width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img"
+        style={{ display: 'block', maxHeight: H, touchAction: interactive ? 'none' : undefined, cursor: interactive ? 'grab' : undefined, userSelect: interactive ? 'none' : undefined, WebkitUserSelect: interactive ? 'none' : undefined }}
+        onPointerDown={onDown}
+        onPointerMove={onMove}
+        onPointerUp={onUp}
+        onPointerCancel={onUp}
+      >
+        {/* Aylanish o'qi. U shunchaki chiziq emas -- jism aynan uning
+            atrofida yig'iladi, shuning uchun u har doim ko'rinadi. */}
+        <line x1={px(xd[0])} y1={py(0)} x2={px(xd[1])} y2={py(0)} stroke="rgba(23,26,29,.42)" strokeWidth="1.5" strokeDasharray="7 5" />
+
+        {mode === 'disks'
+          ? diskList.map((d, i) => (
+            <g key={'d' + i} className="g11-in">
+              <rect x={px(d.x0)} y={py(d.r)} width={Math.max(1, px(d.x0 + dw) - px(d.x0))} height={Math.max(1, py(-d.r) - py(d.r))} fill={T.graph} fillOpacity="0.14" stroke={T.graph} strokeWidth="0.8" strokeOpacity="0.5" />
+              {/* Yon yuza faqat ICHKI chegaralarda: oxirgisida ellips
+                  jismdan chiqib turadi va chegara yolg'on ko'rinadi. */}
+              {disks <= 8 && i < diskList.length - 1
+                ? <ellipse cx={px(d.x0 + dw)} cy={py(0)} rx={Math.max(2, Math.abs(d.r * sc) * flat)} ry={Math.abs(d.r * sc)} fill="none" stroke={T.graph} strokeWidth="1.1" strokeOpacity="0.7" />
+                : null}
+            </g>
+          ))
+          : null}
+
+        {/* Supurilgan yuza: meridianning izi. Aylanish qanchalik bo'lgan
+            bo'lsa, shuncha nusxa turadi -- ya'ni iz HARAKATNING o'zi. */}
+        {spin > 0
+          ? Array.from({ length: 9 }, (_, i) => {
+            const t = (ang * (i + 1)) / 9
+            return <path key={'m' + i} d={meridian(t)} fill="none" stroke={T.graph} strokeWidth="1.1" opacity={0.10 + 0.12 * ((i + 1) / 9)} />
+          })
+          : null}
+
+        {/* Parallellar: kesim doiralari. Qiya o'zgarganda ular ochiladi va
+            yopiladi -- jism aynan shundan «aylanayotgandek» ko'rinadi. */}
+        {rings.map((g, i) => (
+          <ellipse
+            key={'r' + i}
+            cx={px(g.x)} cy={py(0)}
+            rx={Math.max(1, Math.abs(g.r * sc) * flat)} ry={Math.abs(g.r * sc)}
+            fill="none" stroke={T.graph} strokeWidth="1" strokeOpacity="0.45"
+          />
+        ))}
+
+        {/* Jismning konturi: profil va uning o'qdagi aksi. */}
+        <path d={pathAt(1)} fill="none" stroke={T.ink} strokeWidth="2" />
+        {spin >= 0.98 ? <path d={pathAt(-1)} fill="none" stroke={T.ink} strokeWidth="2" /> : null}
+        {spin >= 0.98 ? (
+          <>
+            <ellipse cx={px(b)} cy={py(0)} rx={Math.max(2, Math.abs(fn(b) * sc) * flat)} ry={Math.abs(fn(b) * sc)} fill={T.graph} fillOpacity="0.12" stroke={T.ink} strokeWidth="1.4" />
+            {fn(a) > 0.01
+              ? <ellipse cx={px(a)} cy={py(0)} rx={Math.max(2, Math.abs(fn(a) * sc) * flat)} ry={Math.abs(fn(a) * sc)} fill="none" stroke={T.ink} strokeWidth="1.2" opacity="0.5" />
+              : null}
+          </>
+        ) : null}
+
+        {/* Hozirgi yasovchi: qolganlaridan qalinroq, chunki aynan u
+            aylanadi. Sudralganda u jism sirtida yuradi. */}
+        {spin > 0 ? <path d={meridian(ang)} fill="none" stroke={T.accent} strokeWidth="2" /> : null}
+
+        {/* Kesim: tekislik o'q bo'ylab yuradi, kesimda DOIRA ko'rinadi. */}
+        {mode === 'section' && rCut !== null ? (
+          <g className="g11-in">
+            <line x1={px(cut)} y1={padTop} x2={px(cut)} y2={H - padB} stroke={T.accent} strokeWidth="1.6" strokeDasharray="4 4" />
+            <ellipse cx={px(cut)} cy={py(0)} rx={Math.max(2, Math.abs(rCut * sc) * flat)} ry={Math.abs(rCut * sc)} fill={T.accent} fillOpacity="0.22" stroke={T.accent} strokeWidth="1.8" />
+          </g>
+        ) : null}
+        {mode === 'section' && rCut !== null ? (
+          <text
+            x={px(cut) + 8}
+            y={Math.max(padTop + 11, py(rCut) - 6)}
+            textAnchor="start" fontSize="12" fontWeight="700" fill={T.accent} fontFamily={MATH_FONT}
+          >
+            {(rLabel || 'r') + ' = ' + areaText(rCut)}
+          </text>
+        ) : null}
+
+        {showV ? (
+          <text x={WD - padX} y={padT + 10} textAnchor="end" fontSize="13" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {(vLabel || 'V') + ' = ' + areaText(mode === 'disks' ? vDisks : V)}
+          </text>
+        ) : null}
+      </svg>
+      {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+      {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+    </div>
+  )
+}
