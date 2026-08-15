@@ -1,105 +1,142 @@
 // ============================================================================
-// 8 КЛАСС — ПРИБОР `FeedNumber`: УЧЕНИК САМ ЛОМАЕТ ЗАПИСЬ.
+// 8 КЛАСС — ПРИБОР `FeedNumber`: ПОДСТАНОВКА ПРОИСХОДИТ В САМОЙ ЗАПИСИ.
 //
-// На экране запись и ряд чисел. Ученик жмёт любое — машина считает и печатает
-// результат. Одно из чисел останавливает машину: вместо значения прочерк и
-// строка о делении на нуль.
+// Ученик жмёт число — оно ВСТАЁТ НА МЕСТО БУКВЫ в дроби, числитель и
+// знаменатель считаются на глазах, дробь схлопывается в результат.
+// На запрещённом числе знаменатель становится нулём и ЧЕРТА ДРОБИ РВЁТСЯ:
+// делить не на что.
 //
-// Почему так, а не спор двух приборов: ученик НАХОДИТ поломку сам, а не
-// смотрит на чужой конфликт. Он выбирает число, он получает отказ, и вопрос
-// «почему именно это число?» рождается у него. Хук перестаёт быть картинкой и
-// становится первым действием урока.
+// Почему не отдельное табло сбоку (первая версия, отклонена методистом
+// 2026-08-15): ученик смотрел на коробку, а математика происходила где-то
+// ещё. Запрет берётся ИЗ ЗНАМЕНАТЕЛЯ, и увидеть это можно только одним
+// способом — подставив число туда, где стоит буква.
 //
-// Контракт хука (ETALON_8SINF.md §5): экран принимает действие и закрывается.
-// Ни разбора, ни вывода — ответ ученик добывает на экране 6 и видит на 15.
+// Разрыв черты — тот же приём, что в `TapPart` на экране 4: хук и объяснение
+// говорят одним языком.
+//
+// Контракт хука (§5): экран принимает действие и закрывается. Разбора нет.
 // ============================================================================
 
 // eslint-disable-next-line no-unused-vars -- LMS грузит сырой jsx в КЛАССИЧЕСКОМ режиме
-import React, { useState } from 'react'
-import { Ask, L, MATH_FONT, Note, Row, Slot, T, fmt, useSfx, useT } from './core.jsx'
+import React, { useEffect, useRef, useState } from 'react'
+import { Ask, L, MATH_FONT, Note, Slot, T, fmt, useSfx, useT } from './core.jsx'
 
 const TXT = {
   tap: L(
-    "Istalgan sonni bosing: mashina hisoblaydi",
-    'Нажми любое число — машина посчитает',
-    'Tap any number and the machine will compute',
+    "Istalgan sonni bosing: u harf o'rniga turadi",
+    'Нажми любое число — оно встанет на место буквы',
+    'Tap any number and it will take the place of the letter',
   ),
-  waiting: L('kutmoqda', 'ждёт числа', 'waiting for a number'),
-  stopped: L("mashina to'xtadi", 'машина остановилась', 'the machine stopped'),
 }
 
-export function FeedNumber({ expr, rows, ask, broke, onSolved, audio }) {
+// Место буквы: до подстановки стоит буква, после — прилетевшее число.
+function Spot({ v, on, tick, name }) {
+  return on
+    ? <span key={'s' + tick} className="g8-fd-in">{fmt(v)}</span>
+    : <span className="g8-fd-var">{name}</span>
+}
+
+// Фазы: 0 — буква, 1 — число подставлено, 2 — части посчитаны, 3 — итог.
+export function FeedNumber({ nums, num, den, varName = 'x', ask, broke, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [at, setAt] = useState(null)
+  const [phase, setPhase] = useState(0)
   const [seen, setSeen] = useState({})
   const [found, setFound] = useState(false)
-  // Счётчик нажатий: он идёт в key табло, поэтому реакция играет ЗАНОВО
-  // даже когда ученик жмёт то же самое число второй раз.
   const [tick, setTick] = useState(0)
+  const timers = useRef([])
 
-  const cur = at === null ? null : rows.find((r) => r.x === at)
-  const dead = cur ? cur.v === null : false
+  // Таймеры держим в ref и гасим при уходе с экрана: иначе фаза доедет уже
+  // на следующем экране и уронит его обращением к снятому состоянию.
+  useEffect(() => () => timers.current.forEach(clearTimeout), [])
+
+  const dead = at !== null && den(at) === 0
 
   const feed = (x) => {
-    const row = rows.find((r) => r.x === x)
+    timers.current.forEach(clearTimeout)
+    timers.current = []
     setAt(x)
+    setPhase(1)
     setTick((n) => n + 1)
     setSeen((p) => ({ ...p, [x]: true }))
-    if (row && row.v === null) {
-      sfx.playWrong()
-      if (!found) {
-        setFound(true)
-        if (audio && broke) audio.say(t(broke))
-        // Хук вне оценки: `correct: null`. Прогноз — число, на котором
-        // машина встала: он нужен экрану 15 для сверки.
-        if (onSolved) onSolved({ correct: null, tries: 1, predicted: String(x) })
+    timers.current.push(setTimeout(() => setPhase(2), 750))
+    timers.current.push(setTimeout(() => {
+      setPhase(3)
+      if (den(x) === 0) {
+        sfx.playWrong()
+        setFound((was) => {
+          if (!was) {
+            if (audio && broke) audio.say(t(broke))
+            // Хук вне оценки: `correct: null`. Число, на котором запись
+            // сломалась, уходит на экран 15 для сверки.
+            if (onSolved) onSolved({ correct: null, tries: 1, predicted: String(x) })
+          }
+          return true
+        })
+      } else {
+        sfx.playCorrect()
       }
-      return
-    }
-    sfx.playCorrect()
+    }, 1500))
   }
+
+  const top = phase === 0 ? null : phase === 1 ? 'sub' : 'val'
+  const showResult = phase === 3 && !dead
 
   return (
     <>
-      <Row size="big" align="center">{expr}</Row>
-
       <div className="g8-fd">
-        {/* ТАБЛО. Высота под ответ забронирована с первой секунды: экран
-            дозаполняется, а не растёт (§11). */}
-        <div key={tick} className={'g8-fd-screen' + (dead ? ' is-dead g8-fd-shake' : '')}>
-          <span key={'i' + tick} className="g8-fd-in g8-fd-fly" style={{ fontFamily: MATH_FONT }}>
-            {at === null ? '' : 'x = ' + fmt(at)}
-          </span>
-          <span key={'o' + tick} className={'g8-fd-out' + (at === null ? ' is-idle' : ' g8-fd-pop')}
-            style={{ fontFamily: MATH_FONT }}>
-            {at === null ? t(TXT.waiting) : dead ? '—' : fmt(cur.v)}
-          </span>
+        <div className={'g8-fd-expr' + (dead && phase >= 2 ? ' is-dead' : '')} style={{ fontFamily: MATH_FONT }}>
+          {showResult ? (
+            <span key={'r' + tick} className="g8-fd-res">{fmt(num(at) / den(at))}</span>
+          ) : (
+            <span className="g8-fd-frac">
+              <span className="g8-fd-n">
+                {top === 'val'
+                  ? <span key={'nv' + tick} className="g8-fd-pop">{fmt(num(at))}</span>
+                  : (
+                    <>
+                      <Spot v={at} on={top === 'sub'} tick={tick} name={varName}/>
+                      <span className="g8-fd-op">{' · '}</span>
+                      <Spot v={at} on={top === 'sub'} tick={tick + 100} name={varName}/>
+                      <span className="g8-fd-op">{' − 4'}</span>
+                    </>
+                  )}
+              </span>
+              <span className={'g8-fd-bar' + (dead && phase >= 2 ? ' is-torn' : '')} />
+              <span className="g8-fd-d">
+                {top === 'val'
+                  ? <span key={'dv' + tick} className={'g8-fd-pop' + (dead ? ' is-zero' : '')}>{fmt(den(at))}</span>
+                  : (
+                    <>
+                      <Spot v={at} on={top === 'sub'} tick={tick + 200} name={varName}/>
+                      <span className="g8-fd-op">{' − 2'}</span>
+                    </>
+                  )}
+              </span>
+            </span>
+          )}
         </div>
 
         <div className="g8-fd-nums">
-          {rows.map((r) => (
+          {nums.map((x) => (
             <button
-              key={r.x}
+              key={x}
               type="button"
               className={'g8-fd-btn'
-                + (at === r.x ? ' is-now' : '')
-                + (seen[r.x] && r.v === null ? ' is-dead' : seen[r.x] ? ' is-seen' : '')}
+                + (at === x ? ' is-now' : '')
+                + (seen[x] && den(x) === 0 ? ' is-dead' : seen[x] ? ' is-seen' : '')}
               style={{ fontFamily: MATH_FONT }}
-              onClick={() => feed(r.x)}
+              onClick={() => feed(x)}
             >
-              {fmt(r.x)}
+              {fmt(x)}
             </button>
           ))}
         </div>
       </div>
 
       <Slot mh={54}>
-        {found ? (
-          <Note kind="no">{t(broke)}</Note>
-        ) : (
-          <Ask>{t(ask || TXT.tap)}</Ask>
-        )}
+        {found && phase === 3 ? <Note kind="no">{t(broke)}</Note> : <Ask>{t(ask || TXT.tap)}</Ask>}
       </Slot>
     </>
   )
@@ -110,37 +147,47 @@ export function FeedNumber({ expr, rows, ask, broke, onSolved, audio }) {
 // внутри неё, даже в комментарии, дают белую страницу.
 // ============================================================
 export const FEED_STYLES = `
-.g8-fd { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%;
+.g8-fd { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%;
   flex: 1 1 auto; justify-content: center; min-height: 0; }
 
-.g8-fd-screen { display: flex; align-items: center; justify-content: center; gap: 22px;
-  min-width: 420px; min-height: 128px; padding: 18px 34px; border-radius: 18px;
-  background: ${T.paper}; box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9),
-  inset 0 0 0 1px rgba(23,26,29,.06); transition: box-shadow .3s ease; }
-.g8-fd-screen.is-dead { box-shadow: 0 18px 40px -30px rgba(${T.tipRgb},.8),
-  inset 0 0 0 2px rgba(${T.tipRgb},.45); }
-.g8-fd-in { font-size: clamp(22px, 2.2vw, 30px); color: ${T.ink2}; min-width: 74px; text-align: right; }
-.g8-fd-out { font-size: clamp(38px, 4.4vw, 62px); color: ${T.ink}; min-width: 92px; text-align: left; }
-/* Пока числа не дали, табло ждёт — надпись служебная и не должна кричать. */
-.g8-fd-out.is-idle { font-size: clamp(15px, 1.4vw, 18px); color: ${T.ink3};
-  font-family: 'Manrope', system-ui, sans-serif; letter-spacing: .04em; }
+.g8-fd-expr { display: flex; align-items: center; justify-content: center;
+  min-height: 148px; font-size: clamp(30px, 3.4vw, 46px); color: ${T.ink}; }
+.g8-fd-frac { display: inline-flex; flex-direction: column; align-items: center; }
+.g8-fd-n, .g8-fd-d { display: flex; align-items: baseline; justify-content: center;
+  padding: 0 .3em; line-height: 1.2; }
+/* Ширина дроби НЕ прыгает при счёте: она задана заранее по самой длинной
+   записи. Иначе на шаге «ноль на ноль» дробь схлопывается в чёрточку, и
+   разрыв черты становится не виден. */
+.g8-fd-frac { min-width: 5.6em; }
+.g8-fd-op { color: ${T.ink}; }
+.g8-fd-var { font-style: italic; color: ${T.ink}; }
 
-/* РЕАКЦИЯ НА НАЖАТИЕ. Без неё табло просто меняет текст, и ученик не видит,
-   что машина отработала. Число ВЛЕТАЕТ слева, результат ВЫСКАКИВАЕТ, а на
-   запрещённом числе табло вздрагивает. key по счётчику нажатий заставляет
-   React пересобрать узел, поэтому реакция играет и на повторный тап. */
-.g8-fd-fly { animation: g8-fd-fly 340ms cubic-bezier(.22,.9,.3,1) both; }
-@keyframes g8-fd-fly { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
-.g8-fd-pop { animation: g8-fd-pop 420ms cubic-bezier(.34,1.5,.64,1) 140ms both; }
+/* Черта дроби. При нуле в знаменателе она РВЁТСЯ: делить не на что, и это
+   видно на самой записи, а не сказано словами. */
+.g8-fd-bar { display: block; width: 100%; height: 4px; background: ${T.ink};
+  margin: .16em 0; border-radius: 2px; transition: background .3s ease; }
+.g8-fd-bar.is-torn { background: none;
+  background-image: linear-gradient(to right, ${T.tip} 0 34%, transparent 34% 66%, ${T.tip} 66% 100%);
+  animation: g8-fd-tear 420ms ease-out both; }
+@keyframes g8-fd-tear { from { transform: scaleX(1); } 60% { transform: scaleX(1.06); } to { transform: scaleX(1); } }
+
+/* Число ВСТАЁТ на место буквы: прилетает сверху и укрупняется. */
+.g8-fd-in { color: ${T.accent}; font-weight: 600;
+  animation: g8-fd-drop 420ms cubic-bezier(.34,1.5,.64,1) both; }
+@keyframes g8-fd-drop { from { opacity: 0; transform: translateY(-26px) scale(.6); } to { opacity: 1; transform: none; } }
+
+.g8-fd-pop { animation: g8-fd-pop 380ms cubic-bezier(.34,1.5,.64,1) both; }
 @keyframes g8-fd-pop { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: scale(1); } }
-.g8-fd-shake { animation: g8-fd-shake 420ms ease-in-out 140ms 1; }
+.g8-fd-pop.is-zero { color: ${T.tip}; font-weight: 700; }
+.g8-fd-res { font-size: clamp(44px, 5vw, 72px); color: ${T.ok}; font-weight: 600;
+  animation: g8-fd-pop 460ms cubic-bezier(.34,1.5,.64,1) both; }
+.g8-fd-expr.is-dead { animation: g8-fd-shake 420ms ease-in-out 1; }
 @keyframes g8-fd-shake {
   0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-7px); }
-  45% { transform: translateX(6px); }
-  70% { transform: translateX(-3px); }
+  22% { transform: translateX(-7px); }
+  48% { transform: translateX(6px); }
+  74% { transform: translateX(-3px); }
 }
-.g8-fd-screen.is-dead .g8-fd-out { color: ${T.tip}; }
 
 .g8-fd-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .g8-fd-btn { min-width: 74px; min-height: 74px; border: 0; cursor: pointer; border-radius: 14px;
@@ -154,11 +201,11 @@ export const FEED_STYLES = `
 .g8-fd-btn.is-dead { background: ${T.tipSoft}; color: ${T.tip}; }
 
 @media (max-height: 680px) {
-  .g8-fd-screen { min-height: 78px; padding: 10px 22px; }
-  .g8-fd-btn { min-width: 54px; min-height: 54px; }
+  .g8-fd { gap: 16px; }
+  .g8-fd-expr { min-height: 112px; }
+  .g8-fd-btn { min-width: 58px; min-height: 58px; }
 }
 @media (max-width: 640px) {
-  .g8-fd-screen { min-width: 0; width: 100%; gap: 12px; }
-  .g8-fd-btn { min-width: 52px; min-height: 52px; }
+  .g8-fd-btn { min-width: 54px; min-height: 54px; }
 }
 `

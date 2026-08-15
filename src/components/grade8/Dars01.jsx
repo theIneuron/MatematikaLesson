@@ -31,7 +31,7 @@
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
 import React from 'react'
-import { L, MATH_FONT, Row, T, useT } from './core.jsx'
+import { L, MATH_FONT, Row, T } from './core.jsx'
 import { Plot } from './plot.jsx'
 import { SceneBand } from './method.jsx'
 import { A, W, makeLesson } from './screens.jsx'
@@ -156,70 +156,6 @@ const M_CHECK = {
 // Сцена ЗАДАЁТ вопрос и ответа не даёт — ответ ученик получит на экране 6,
 // а увидит на финальной сцене.
 // ============================================================
-const SC_PLOT = L('PLOTTER', 'ПЛОТТЕР', 'PLOTTER')
-const SC_TABLE = L('JADVAL', 'ТАБЛИЦА', 'TABLE')
-
-// Кадр сцены 400 на 154, и панели обязаны занимать его ПОЧТИ ЦЕЛИКОМ.
-// Было 14..132: сверху 14 единиц пустоты, снизу 22 — и они растягивались
-// вместе с рисунком, давая белые поля внутри карточки, которых CSS не
-// видит. Стало 6..148, внутренние координаты пересчитаны тем же множителем.
-const hx = (x) => 26 + ((x + 1) / 6) * 130
-const hy = (y) => 131 - (y / 7) * 89
-
-// Сцена — компонент, а не готовый элемент: подписи панелей обязаны
-// переводиться, а до `useT` можно дотянуться только изнутри компонента.
-// Правило fast-refresh ругается на компонент в файле с данными — это
-// ограничение горячей перезагрузки в разработке, к уроку отношения не имеет.
-// eslint-disable-next-line react-refresh/only-export-components
-const HookScene = () => {
-  const t = useT()
-  return (
-  <SceneBand kind="hook" label={L(
-    "Ikki asbob, bitta yozuv",
-    'Два прибора, одна запись',
-    'Two machines, one record',
-  )}>
-    {/* стол */}
-
-    {/* ЛЕВЫЙ ПРИБОР: плоттер */}
-    <rect x="14" y="6" width="164" height="142" rx="12" fill={T.paper}
-      stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
-    <text x="96" y="24" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-      fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_PLOT)}</text>
-    <line x1="26" y1={hy(0)} x2="168" y2={hy(0)} stroke={T.ink3} strokeWidth="1"/>
-    <line x1={hx(0)} y1="131" x2={hx(0)} y2="36" stroke={T.ink3} strokeWidth="1"/>
-    {/* линия идёт СКВОЗЬ двойку: плоттер соединяет посчитанные точки */}
-    <line x1={hx(-1)} y1={hy(1)} x2={hx(5)} y2={hy(7)} stroke={T.accent} strokeWidth="2.4" strokeLinecap="round"/>
-    <circle cx={hx(2)} cy={hy(4)} r="3.6" fill={T.accent}/>
-    <text x={hx(2)} y={hy(4) - 8} textAnchor="middle" fontFamily={MATH_FONT} fontSize="11" fill={T.accent}>4</text>
-
-    {/* ЗНАК ВОПРОСА между приборами */}
-    <circle cx="200" cy="77" r="13" fill={T.paper} stroke="rgba(23,26,29,.12)" strokeWidth="1"/>
-    <text x="200" y="82" textAnchor="middle" fontFamily={MATH_FONT} fontSize="16" fill={T.ink2}>?</text>
-
-    {/* ПРАВЫЙ ПРИБОР: таблица */}
-    <rect x="222" y="6" width="164" height="142" rx="12" fill={T.paper}
-      stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
-    <text x="304" y="24" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-      fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_TABLE)}</text>
-    {[0, 1, 2, 3].map((i) => (
-      <g key={'c' + i}>
-        <rect x={234 + i * 36} y="40" width="32" height="34" rx="7" fill={T.bg}/>
-        <rect x={234 + i * 36} y="82" width="32" height="34" rx="7"
-          fill={i === 2 ? T.tipSoft : T.bg}/>
-        <text x={250 + i * 36} y="62" textAnchor="middle" fontFamily={MATH_FONT}
-          fontSize="14" fill={T.ink2}>{[1, 2, 3, 4][i] - 1}</text>
-        <text x={250 + i * 36} y="104" textAnchor="middle" fontFamily={MATH_FONT}
-          fontSize="14" fill={i === 2 ? T.tip : T.ink}>{i === 2 ? '—' : String([2, 3, 5, 6][i])}</text>
-      </g>
-    ))}
-    <text x="304" y="132" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-      fontSize="9" fill={T.ink3}>x</text>
-  </SceneBand>
-  )
-}
-
-// ============================================================
 // EKRAN 1. XUK. Bitta yozuv, ikki mashina, boshqa javob.
 // Plotter nuqtalarni birlashtiradi va teshikni CHIZMAYDI, jadval esa
 // chiziqcha qo'yadi. Fakt haqiqiy va tekshirib ko'rish mumkin.
@@ -243,29 +179,22 @@ const S1 = {
       'Try the numbers one by one. Among them there is one that stops the machine.'),
   ],
   props: {
-    expr: <Row size="big" align="center">{F('x · x − 4', 'x − 2')}</Row>,
-    // Qiymatlar: (x·x − 4) / (x − 2) = x + 2, lekin ikkilikda YO'Q.
-    rows: [
-      { x: 0, v: 2 },
-      { x: 1, v: 3 },
-      { x: 2, v: null },
-      { x: 3, v: 5 },
-      { x: 4, v: 6 },
-    ],
-    hole: 2,
-    holeValue: 4,
-    sign: '?',
+    // Запись рисует САМ прибор: он подставляет число на место буквы и считает
+    // части, поэтому дробь не может прийти готовым узлом.
+    nums: [0, 1, 2, 3, 4],
+    num: (x) => x * x - 4,
+    den: (x) => x - 2,
+    varName: 'x',
     ask: L(
-      "Istalgan sonni bosing: mashina hisoblaydi",
-      'Нажми любое число — машина посчитает',
-      'Tap any number and the machine will compute',
+      "Istalgan sonni bosing: u harf o'rniga turadi",
+      'Нажми любое число — оно встанет на место буквы',
+      'Tap any number and it will take the place of the letter',
     ),
     broke: L(
-      "Mashina to'xtadi. Ikkilikda maxraj nolga aylanadi, nolga esa bo'lish mumkin emas.",
-      'Машина остановилась. При двойке знаменатель обращается в нуль, а на нуль делить нельзя.',
-      'The machine stopped. At two the denominator becomes zero, and division by zero is impossible.',
+      "Maxraj nolga aylandi va kasr chizig'i uzildi. Nolga bo'lish mumkin emas.",
+      'Знаменатель обратился в нуль, и черта дроби разорвалась. На нуль делить нельзя.',
+      'The denominator became zero and the fraction bar tore. Division by zero is impossible.',
     ),
-    sceneNode: <HookScene/>,
     after: L(
       "Jadval haq. Endi topamiz, bunday sonlarni qanday oldindan ko'rish mumkin.",
       'Права таблица. Теперь найдём, как такие числа увидеть заранее.',
