@@ -15,11 +15,32 @@
 import { chromium } from 'playwright'
 import { mkdir } from 'node:fs/promises'
 
+// Skript BITTA darsga qotib qolmasin: dars slug bilan tanlanadi, to'g'ri
+// javoblar va yakun matnlari esa shu jadvalda turadi. Yangi dars -- shu yerga
+// bitta qator, yangi fayl EMAS.
+const LESSONS = {
+  'dars01-sonli-ifodalar': {
+    right: ['16', '18', '20', 'число, полученное в результате действий'],
+    noGap: /Пробелов нет/i,
+    // Yakun 2026-08-13 da 6-sinf naqshiga o'tkazildi: HALQA olib tashlandi,
+    // tayyorlik esa kartochka ichida SO'Z bilan turadi. Tekshiruv shu
+    // tuzilishni kutadi -- eskisini emas.
+    ring: false,
+    readySel: '.g7-readyline',   // aynan TAYYORLIK satri, boshqa izohlar emas
+  },
+}
+
 const PORT = process.env.GRADE7_PORT || '5299'
-const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/dars05-qavslarni-ochish`
+const SLUG = process.env.GRADE7_SLUG || 'dars01-sonli-ifodalar'
+const CFG = LESSONS[SLUG]
+if (!CFG) {
+  console.error(`Noma'lum dars: ${SLUG}. LESSONS jadvaliga qo'shing.`)
+  process.exit(1)
+}
+const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade7-blitz'
 const BLITZ = 13 // 0 dan hisoblanadi: 14-ekran
-const RIGHT = ['x + 8', '−2a + 6', 'x + y − 3', '9 − x + 4']
+const RIGHT = CFG.right
 
 await mkdir(OUT, { recursive: true })
 const problems = []
@@ -51,7 +72,11 @@ const shown = await page.evaluate(() => {
   const c = document.querySelector('.g7-count')
   return c ? c.textContent : ''
 })
-if (shown !== '14/15') problems.push(`blits kutildi (14/15), hisoblagichda "${shown}"`)
+// Hisoblagich yadroda `{screen + 1} / {total}` bo'lib chiziladi, ya'ni
+// probellar bilan. Skript ilgari `14/15` ni kutardi va SHU SABABLI 5-darsda
+// ham yiqilardi (tekshirildi 2026-08-13). Taqqoslash probelsiz qilinadi.
+const norm = (s) => String(s || '').replace(/\s+/g, '')
+if (norm(shown) !== '14/15') problems.push(`blits kutildi (14/15), hisoblagichda "${shown}"`)
 
 // --- to'rt savolga BIRINCHI urinishda to'g'ri javob
 for (const want of RIGHT) {
@@ -82,30 +107,57 @@ await page.evaluate(() => {
 })
 await page.waitForTimeout(1200)
 
+await page.evaluate((sel) => { window.__readySel = sel }, CFG.readySel)
 const wrap = await page.evaluate(() => {
   const ring = document.querySelector('.g7-ring svg')
   const texts = ring ? Array.from(ring.querySelectorAll('text')).map((t) => t.textContent) : []
-  const insight = document.querySelector('.g7-insight-body')
+  const insight = document.querySelector(window.__readySel)
   return { count: document.querySelector('.g7-count')?.textContent || '', ring: texts, insight: insight ? insight.innerText : null }
 })
-if (wrap.count !== '15/15') problems.push(`yakun kutildi (15/15), hisoblagichda "${wrap.count}"`)
-if (wrap.ring.join(' ') !== '4 / 4') problems.push(`halqada 4 va / 4 kutildi, bor: ${JSON.stringify(wrap.ring)}`)
-if (!wrap.insight || !/закрыт/i.test(wrap.insight)) problems.push(`tayyorlik matni kutilgandek emas: ${JSON.stringify(wrap.insight)}`)
-if (wrap.insight && !/Мест для повтора нет/i.test(wrap.insight)) problems.push(`teg yo'q edi, lekin kamchilik yozilgan: ${JSON.stringify(wrap.insight)}`)
+if (norm(wrap.count) !== '15/15') problems.push(`yakun kutildi (15/15), hisoblagichda "${wrap.count}"`)
+if (CFG.ring && wrap.ring.join(' ') !== '4 / 4') problems.push(`halqada 4 va / 4 kutildi, bor: ${JSON.stringify(wrap.ring)}`)
+// «zakryt» so'zi FAQAT halqasi bor darsda bo'ladi: 1-darsda yakun 6-sinf
+// naqshiga o'tkazilgan va u yerda tayyorlik DARAJASI ko'rsatilmaydi, faqat
+// kamchilik satri turadi (metodist qarori 2026-08-13).
+if (!wrap.insight) problems.push(`tayyorlik matni topilmadi`)
+else if (CFG.ring && !/закрыт/i.test(wrap.insight)) problems.push(`tayyorlik matni kutilgandek emas: ${JSON.stringify(wrap.insight)}`)
+if (wrap.insight && !CFG.noGap.test(wrap.insight)) problems.push(`teg yo'q edi, lekin kamchilik yozilgan: ${JSON.stringify(wrap.insight)}`)
 await page.screenshot({ path: `${OUT}/yakun.png` })
 
-// --- til almashtirgich
-await page.evaluate(() => {
-  const b = Array.from(document.querySelectorAll('.g7-langsw-b')).find((x) => x.textContent.trim() === 'UZ')
-  if (b) b.click()
-})
+// --- o'zbek tili
+// Ilgari bu yerda DARS ICHIDAGI til almashtirgichi bosilardi. Bunday
+// almashtirgich endi YO'Q: metodist uni 2026-08-06 da olib tashlagan
+// (ETALON_7SINF.md §4.5 -- «sayt o'zinikini chizadi, ikkita bo'lib ketgandi»).
+// `LangSwitch` yadroda qolgan, lekin hech qayerda chizilmaydi, shuning uchun
+// eski tekshiruv HAR DOIM yiqilardi: bosiladigan tugma yo'q, sahifa rus tilida
+// qolardi va kirill «topilardi». 5-darsda ham xuddi shunday (2026-08-13).
+// Til endi qanday kelsa, shunday tekshiriladi: manzildagi `?lang=uz` bilan.
+await page.goto(`${BASE}?lang=uz`, { waitUntil: 'domcontentloaded', timeout: 60000 })
+await page.waitForSelector('.stage-content', { timeout: 60000 })
 await page.waitForTimeout(700)
+for (let i = 0; i < 14; i += 1) {
+  const ok = await page.evaluate(() => {
+    const nav = document.querySelector('.stage-nav')
+    const btns = nav ? Array.from(nav.querySelectorAll('button')).filter((b) => !b.disabled) : []
+    const next = btns[btns.length - 1]
+    if (!next) return false
+    next.click()
+    return true
+  })
+  if (!ok) break
+  await page.waitForTimeout(240)
+}
 const uz = await page.evaluate(() => {
   const root = document.querySelector('.lesson-root')
   const txt = root ? root.innerText : ''
-  return { cyr: /[А-Яа-я]{3,}/.test(txt), sample: (root.querySelector('.g7-title') || {}).innerText || '' }
+  return {
+    cyr: /[А-Яа-я]{3,}/.test(txt),
+    count: (root.querySelector('.g7-count') || {}).textContent || '',
+    sample: (root.querySelector('.g7-title') || {}).innerText || '',
+  }
 })
-if (uz.cyr) problems.push(`UZ ga o'tgandan keyin ekranda kirill matni qoldi: ${uz.sample}`)
+if (norm(uz.count) !== '15/15') problems.push(`UZ da yakunga yetib borilmadi, hisoblagich "${uz.count}"`)
+if (uz.cyr) problems.push(`UZ ekranida kirill matni qoldi: ${uz.sample}`)
 await page.screenshot({ path: `${OUT}/yakun-uz.png` })
 
 if (errors.length) problems.push('konsol: ' + errors.slice(0, 3).join(' | '))
@@ -116,5 +168,5 @@ if (problems.length) {
   problems.forEach((p) => console.error('  ' + p))
   process.exitCode = 1
 } else {
-  console.log("OK: blits 4/4, halqa to'g'ri, teg yo'q, til almashtirgich ishlaydi, konsol toza.")
+  console.log("OK: blits 4/4, halqa to'g'ri, teg yo'q, dars UZ da to'liq o'tiladi, konsol toza.")
 }

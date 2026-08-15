@@ -20,8 +20,9 @@ import { readFileSync } from 'node:fs'
 import { mkdir } from 'node:fs/promises'
 
 const PORT = process.env.GRADE7_PORT || '5261'
-// Yangi dars alohida manzilda turibdi: GRADE7_SLUG bilan tanlanadi.
-const SLUG = process.env.GRADE7_SLUG || 'dars05-qavslarni-ochish'
+// Dars GRADE7_SLUG bilan tanlanadi. Defolt -- sinf ETALONI (1-dars):
+// 5-dars 2026-08-15 da ro'yxatdan olib tashlandi va qayta yoziladi.
+const SLUG = process.env.GRADE7_SLUG || 'dars01-sonli-ifodalar'
 const BASE = `http://localhost:${PORT}/7-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade7-noscroll'
 const TOTAL_SLIDES = 15
@@ -32,7 +33,7 @@ const MAX_STEPS_PER_SLIDE = 22
 // javobni ko'rmasin» dedi, shuning uchun razmetkada javob YO'Q.
 const ANSWERS = (() => {
   try {
-    const src = readFileSync('src/components/grade7/Dars05v2.jsx', 'utf8')
+    const src = readFileSync('src/components/grade7/Dars01.jsx', 'utf8')
     const blk = src.slice(src.indexOf('const S9 = {'), src.indexOf('const S10 = {'))
     return [...blk.matchAll(/solution: '([^']+)'/g)].map((m) => m[1])
   } catch { return [] }
