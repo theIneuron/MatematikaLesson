@@ -1668,6 +1668,33 @@ html, body { margin: 0; padding: 0; }
 .g8-scene-hook svg  { max-height: clamp(170px, 33vh, 290px); }
 .g8-scene-final svg { max-height: clamp(80px, 13vh, 150px); }
 
+/* ====================================================================
+   ШКАЛА КРУПНЕЕ (методист, 2026-08-15). Урок 1 — эталон класса, и мелкая
+   математика на нём читалась как служебная. Поднято примерно на пятую
+   часть: заголовок, вопрос, дробь, вариант, поле ответа.
+   Числа растут ВМЕСТЕ с чертой дроби — при кегле 40 черта в один пиксель
+   выглядит случайной царапиной, а не знаком деления.
+   ==================================================================== */
+/* ЦЕНТР, как в уроке 1 седьмого класса (методист, 2026-08-15). Слева заголовок
+   и вопрос читаются как документ; по центру — как доска, и взгляд идёт сверху
+   вниз по одной оси: заголовок, математика, вопрос. */
+.g8-title { font-size: clamp(24px, 3.3vw, 46px); text-align: center; }
+.g8-lead  { text-align: center; }
+.g8-ask   { text-align: center; }
+.g8-lead  { font-size: clamp(16px, 1.5vw, 20px); }
+.g8-ask   { font-size: clamp(17px, 1.65vw, 22px); }
+
+.g8-frac-big .g8-frac-n, .g8-frac-big .g8-frac-d { font-size: clamp(28px, 3.3vw, 44px); }
+.g8-frac-row .g8-frac-n, .g8-frac-row .g8-frac-d { font-size: clamp(21px, 2.2vw, 31px); }
+.g8-frac-sm  .g8-frac-n, .g8-frac-sm  .g8-frac-d { font-size: clamp(15px, 1.35vw, 18px); }
+.g8-frac-bar { height: 2px; }
+
+.g8-opt { font-size: clamp(16px, 1.5vw, 20px); }
+.g8-choice-dense .g8-opt { font-size: clamp(14px, 1.15vw, 16px); }
+.g8-input, .g8-field-val { font-size: clamp(21px, 2.2vw, 30px); }
+.g8-sv-line { font-size: clamp(18px, 1.8vw, 24px); }
+.g8-ts-rec { font-size: clamp(23px, 2.3vw, 32px); }
+
 /* НИЗКИЙ ЭКРАН. Полоса прогресса отдельной строкой стоит 12 пикселей высоты:
    рабочая зона на ноутбуке 1366 на 615 упала с 487 до 475, и экраны 7 и 10
    вышли за фолд на 3 и 11 пикселей (замер 2026-08-15). Поэтому там, где
@@ -1677,5 +1704,29 @@ html, body { margin: 0; padding: 0; }
   .g8-top { row-gap: 0; }
   .g8-seg { flex-basis: auto; flex: 1; min-width: 40px; order: 0; }
   .g8-scene-hook svg { max-height: 22vh; }
+  /* Крупная шкала — там, где есть высота. На ноутбуке 615 px она не влезает:
+     экраны 7 и 10 вышли за фолд на 11 и 30 px (замер 2026-08-15), поэтому
+     здесь возвращается прежний кегль. Растягивать урок нельзя, прокрутки нет. */
+  .g8-title { font-size: clamp(18px, 2.35vw, 30px); }
+  .g8-lead  { font-size: clamp(14px, 1.15vw, 16px); }
+  .g8-ask   { font-size: clamp(14px, 1.2vw, 16px); }
+  .g8-frac-big .g8-frac-n, .g8-frac-big .g8-frac-d { font-size: clamp(22px, 2.4vw, 30px); }
+  .g8-frac-row .g8-frac-n, .g8-frac-row .g8-frac-d { font-size: clamp(16px, 1.6vw, 22px); }
+  .g8-opt { font-size: clamp(13px, 1.1vw, 15px); }
+  .g8-input, .g8-field-val { font-size: clamp(16px, 1.6vw, 22px); }
+  .g8-sv-line { font-size: 17px; }
+  .g8-ts-rec { font-size: clamp(20px, 2vw, 28px); }
+}
+
+/* Телефон: макет 390 и увеличивается zoom-ом, поэтому крупный кегль там
+   дорог вдвойне — экран 11 вылезал на 4 px. */
+@media (max-width: 640px) {
+  .g8-title { font-size: 22px; }
+  .g8-ask   { font-size: 16px; }
+  .g8-opt   { font-size: 15px; }
+  .g8-sv-line { font-size: 16px; }
+  .g8-input, .g8-field-val { font-size: 18px; }
+  .g8-lead { font-size: 14.5px; }
+  .g8-frac-big .g8-frac-n, .g8-frac-big .g8-frac-d { font-size: 26px; }
 }
 `

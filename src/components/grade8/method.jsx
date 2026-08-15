@@ -229,6 +229,31 @@ export const METHOD_STYLES = `
   inset 0 0 0 1px rgba(23,26,29,.05); }
 .g8-scene svg { display: block; margin: 0 auto; }
 
+/* РИСУЕТСЯ НА ГЛАЗАХ, А НЕ ПОЯВЛЯЕТСЯ ГОТОВЫМ — требование общего стандарта
+   показа (src/books/DINAMIKA_VA_ILLUSTRATSIYA.md §2). Линия выходит из своего
+   начала, и только потом встаёт то, ради чего чертёж нарисован.
+
+   pathLength="1" на самой фигуре обязателен: он нормирует длину, и одна и та
+   же анимация работает на линии любой длины. Без него dasharray пришлось бы
+   считать под каждый отрезок.
+
+   Задержку писать ВНУТРИ сокращённой записи animation: отдельный
+   animation-delay рядом с animation React встречает предупреждением.
+
+   ЗАДЕРЖКА КРУПНАЯ И ЭТО НАМЕРЕННО. Сцена монтируется РАНО — пока грузится
+   страница. С задержкой в четверть секунды анимация успевала пройти до того,
+   как человек вообще посмотрел на экран: замер 2026-08-15 показал линию уже
+   дорисованной на 350-й мс после networkidle. Поэтому старт отодвинут почти
+   на секунду, а сама отрисовка растянута. */
+.g8-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: g8-draw 1400ms ease-out 900ms forwards; }
+@keyframes g8-draw { to { stroke-dashoffset: 0; } }
+
+/* Прозрачность — на РОДИТЕЛЬСКИЙ g, а не на саму фигуру: css-анимация
+   перебивает атрибут opacity, и элемент останется видимым с первого кадра. */
+.g8-late  { opacity: 0; animation: g8-late 420ms ease-out 2200ms forwards; }
+.g8-late2 { opacity: 0; animation: g8-late 420ms ease-out 2700ms forwards; }
+@keyframes g8-late { to { opacity: 1; } }
+
 .g8-sv { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .g8-sv-lines { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .g8-sv-line { display: flex; align-items: baseline; gap: 10px; font-size: 17px;

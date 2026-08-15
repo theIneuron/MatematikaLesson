@@ -41,7 +41,7 @@ const SOLVE = [
   // Лента кадров: жмём кадры по порядку, на втором отвечаем на вопрос.
   { frames: ['k1', 'k2'], picksAfter: ['none'], frames2: ['k3'] },       // 3 ПОКАЗ, кадры
   { part: 'den', nums: ['3'], picksAfter: ['none'], fields: ['x != 3'] }, // 4 САМ
-  { part: 'den', nums: ['1', '5'], picksAfter: ['no'], none: true },     // 5 разграничение: числа нет
+  { part: 'den', nums: ['1', '5'], picksAfter: ['no'], none: true },     // 5 разграничение
   { solve: true },                                                       // 6 решаем вместе
   { fields: ['0'] },                                                    // 7 граница
   { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
@@ -63,6 +63,53 @@ const cuts = []
 const freeNav = /export const FREE_NAV = true/.test(
   fs.readFileSync('src/components/grade8/core.jsx', 'utf8'),
 )
+
+
+// ============================================================================
+// СТОРОЖ СТРОК СТИЛЕЙ. Стоит ПЕРВЫМ, до браузера: обратная кавычка или
+// обратный слэш внутри шаблонной строки со стилями рвут её, урок отдаёт 500 и
+// белую страницу, а причину браузер не показывает. Поймано 2026-08-15 на
+// plot.jsx: слово в обратных кавычках внутри КОММЕНТАРИЯ оборвало PLOT_STYLES.
+// В 6 классе такой сторож есть с 14 августа, в 8 классе его не было.
+// ============================================================================
+const STYLE_FILES = [
+  ['src/components/grade8/core.jsx', 'STYLES'],
+  ['src/components/grade8/tools.jsx', 'TOOLS_STYLES'],
+  ['src/components/grade8/plot.jsx', 'PLOT_STYLES'],
+  ['src/components/grade8/method.jsx', 'METHOD_STYLES'],
+  ['src/components/grade8/twosides.jsx', 'TWOSIDES_STYLES'],
+  ['src/components/grade8/math.jsx', 'MATH_STYLES'],
+]
+let styleBroken = 0
+for (const [file, name] of STYLE_FILES) {
+  let src
+  try { src = fs.readFileSync(file, 'utf8') } catch { continue }
+  const open = src.indexOf('export const ' + name + ' = ')
+  if (open < 0) continue
+  const from = src.indexOf('`', open)
+  if (from < 0) continue
+  const rest = src.slice(from + 1)
+  const to = rest.indexOf('`')
+  const body = to < 0 ? rest : rest.slice(0, to)
+  // Правило простое и проверяемое: настоящая строка стилей длинная и полна
+  // фигурных скобок. Стоит внутри появиться обратной кавычке — строка
+  // обрывается на ней, и «тело» становится коротким огрызком без правил.
+  // Первая версия проверки сравнивала позицию последней скобки с длиной и
+  // на пробе НЕ сработала: у огрызка длина меньше порога.
+  const braces = (body.match(/\}/g) || []).length
+  if (to < 0 || braces < 3 || body.length < 200) {
+    console.log(`  ✗ ${file}: ${name} — обратная кавычка внутри строки стилей`)
+    styleBroken += 1
+  }
+  if (/\\(?!n)/.test(body)) {
+    console.log(`  ✗ ${file}: ${name} — обратный слэш внутри строки стилей`)
+    styleBroken += 1
+  }
+}
+if (styleBroken) {
+  console.log('  строки стилей сломаны: браузер покажет белую страницу. Прогон остановлен.')
+  process.exit(1)
+}
 
 const measure = (page) => page.evaluate(() => {
   const body = document.querySelector('.g8-body')
@@ -224,6 +271,24 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Лупа: жмём «Приблизить», пока кнопка не погаснет, потом отвечаем.
+    // Вопрос появляется ТОЛЬКО на последнем окне — иначе меряли бы не тот экран.
+    if (s.zoom) {
+      // Приближение теперь ползунок: доводим его до края.
+      const zs = page.locator('.g8-hz-track input')
+      if (await zs.count()) {
+        const max = await zs.first().getAttribute('max')
+        await zs.first().fill(String(max)).catch(() => {})
+        await page.waitForTimeout(320)
+      }
+      const opts = page.locator('.g8-hz-opts .g8-opt')
+      const n = await opts.count()
+      for (let o = 0; o < n; o += 1) {
+        await tap(opts.nth(o), at)
+        await page.waitForTimeout(200)
+        if (await page.locator('.g8-hz-opts').count() === 0) break
       }
     }
     // Сборка правила: по стабильным id, потому что фрагменты перемешаны.
