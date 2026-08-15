@@ -34,6 +34,9 @@ export function FeedNumber({ expr, rows, ask, broke, onSolved, audio }) {
   const [at, setAt] = useState(null)
   const [seen, setSeen] = useState({})
   const [found, setFound] = useState(false)
+  // Счётчик нажатий: он идёт в key табло, поэтому реакция играет ЗАНОВО
+  // даже когда ученик жмёт то же самое число второй раз.
+  const [tick, setTick] = useState(0)
 
   const cur = at === null ? null : rows.find((r) => r.x === at)
   const dead = cur ? cur.v === null : false
@@ -41,6 +44,7 @@ export function FeedNumber({ expr, rows, ask, broke, onSolved, audio }) {
   const feed = (x) => {
     const row = rows.find((r) => r.x === x)
     setAt(x)
+    setTick((n) => n + 1)
     setSeen((p) => ({ ...p, [x]: true }))
     if (row && row.v === null) {
       sfx.playWrong()
@@ -63,11 +67,12 @@ export function FeedNumber({ expr, rows, ask, broke, onSolved, audio }) {
       <div className="g8-fd">
         {/* ТАБЛО. Высота под ответ забронирована с первой секунды: экран
             дозаполняется, а не растёт (§11). */}
-        <div className={'g8-fd-screen' + (dead ? ' is-dead' : '')}>
-          <span className="g8-fd-in" style={{ fontFamily: MATH_FONT }}>
+        <div key={tick} className={'g8-fd-screen' + (dead ? ' is-dead g8-fd-shake' : '')}>
+          <span key={'i' + tick} className="g8-fd-in g8-fd-fly" style={{ fontFamily: MATH_FONT }}>
             {at === null ? '' : 'x = ' + fmt(at)}
           </span>
-          <span className="g8-fd-out" style={{ fontFamily: MATH_FONT }}>
+          <span key={'o' + tick} className={'g8-fd-out' + (at === null ? ' is-idle' : ' g8-fd-pop')}
+            style={{ fontFamily: MATH_FONT }}>
             {at === null ? t(TXT.waiting) : dead ? '—' : fmt(cur.v)}
           </span>
         </div>
@@ -116,6 +121,25 @@ export const FEED_STYLES = `
   inset 0 0 0 2px rgba(${T.tipRgb},.45); }
 .g8-fd-in { font-size: clamp(22px, 2.2vw, 30px); color: ${T.ink2}; min-width: 74px; text-align: right; }
 .g8-fd-out { font-size: clamp(38px, 4.4vw, 62px); color: ${T.ink}; min-width: 92px; text-align: left; }
+/* Пока числа не дали, табло ждёт — надпись служебная и не должна кричать. */
+.g8-fd-out.is-idle { font-size: clamp(15px, 1.4vw, 18px); color: ${T.ink3};
+  font-family: 'Manrope', system-ui, sans-serif; letter-spacing: .04em; }
+
+/* РЕАКЦИЯ НА НАЖАТИЕ. Без неё табло просто меняет текст, и ученик не видит,
+   что машина отработала. Число ВЛЕТАЕТ слева, результат ВЫСКАКИВАЕТ, а на
+   запрещённом числе табло вздрагивает. key по счётчику нажатий заставляет
+   React пересобрать узел, поэтому реакция играет и на повторный тап. */
+.g8-fd-fly { animation: g8-fd-fly 340ms cubic-bezier(.22,.9,.3,1) both; }
+@keyframes g8-fd-fly { from { opacity: 0; transform: translateX(-18px); } to { opacity: 1; transform: none; } }
+.g8-fd-pop { animation: g8-fd-pop 420ms cubic-bezier(.34,1.5,.64,1) 140ms both; }
+@keyframes g8-fd-pop { from { opacity: 0; transform: scale(.55); } to { opacity: 1; transform: scale(1); } }
+.g8-fd-shake { animation: g8-fd-shake 420ms ease-in-out 140ms 1; }
+@keyframes g8-fd-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  45% { transform: translateX(6px); }
+  70% { transform: translateX(-3px); }
+}
 .g8-fd-screen.is-dead .g8-fd-out { color: ${T.tip}; }
 
 .g8-fd-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
@@ -124,6 +148,7 @@ export const FEED_STYLES = `
   box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07);
   transition: transform .2s ease, box-shadow .2s ease; }
 .g8-fd-btn:hover { transform: translateY(-2px); }
+.g8-fd-btn:active { transform: translateY(1px) scale(.96); }
 .g8-fd-btn.is-seen { color: ${T.ink2}; background: ${T.okSoft}; }
 .g8-fd-btn.is-now { box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.5); }
 .g8-fd-btn.is-dead { background: ${T.tipSoft}; color: ${T.tip}; }
