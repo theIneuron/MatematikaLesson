@@ -84,7 +84,10 @@ export const UI_TXT = {
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
   subject: L('Matematika', 'Математика', 'Mathematics'),
-  lessonNo: L('12-dars', 'Урок 12', 'Lesson 12'),
+  // FAQAT SO'Z. Raqam `block.current` dan olinadi (rejadagi tutash raqam):
+  // ilgari bu yerda «Урок 12» qotib turardi va HAR YANGI dars shu yozuv bilan
+  // chiqardi. 10-sinfda aynan shu xato bo'lgan.
+  lessonWord: L('dars', 'Урок', 'Lesson'),
   setChanged: L(
     "yechimlar to'plami O'ZGARDI",
     'множество решений ИЗМЕНИЛОСЬ',
@@ -108,12 +111,34 @@ export const UI_TXT = {
   },
 }
 
-// Ekran -> bo'lim. 1 xuk / 2-8 tushuntirish / 9-14 mashq / 15 yakun.
-export const sectionOf = (screen) => {
+// EKRAN ROLI -> BO'LIM. Bo'lim yorlig'i endi ekran RAQAMIDAN emas, ekran
+// ROLIDAN olinadi. Sabab: raqam bilan bog'lash 15 ekranli darsga qotib
+// qolgan edi, va boshqa uzunlikdagi dars yolg'on yorliq ko'rsatardi.
+export const SECTION_OF_ROLE = {
+  hook: 'hook',
+  support: 'explain',
+  points: 'explain',
+  graph: 'explain',
+  rule: 'explain',
+  newcase: 'explain',
+  twoway: 'explain',
+  explain: 'explain',
+  sign: 'practice',
+  chain: 'practice',
+  blitz: 'practice',
+  audit: 'practice',
+  build: 'practice',
+  practice: 'practice',
+  summary: 'result',
+}
+export const sectionOfRole = (role) => SECTION_OF_ROLE[role] || 'explain'
+
+// Zaxira: rol berilmagan bo'lsa. Raqamlar QOTIB qolmasin uchun umumiy sondan
+// hisoblanadi -- birinchi ekran xuk, oxirgisi yakun, qolgani teng ikkiga.
+export const sectionOf = (screen, total = 15) => {
   if (screen <= 0) return 'hook'
-  if (screen <= 7) return 'explain'
-  if (screen <= 13) return 'practice'
-  return 'result'
+  if (screen >= total - 1) return 'result'
+  return screen < Math.ceil((total - 1) / 2) ? 'explain' : 'practice'
 }
 
 // ============================================================
@@ -129,15 +154,52 @@ let ttsConfig = {
   aiGradingEndpoint: '',
   studentName: '',
   voiceGender: 'm', // 11-sinf: erkak ovoz
+  lessonId: '',
+  lessonTitle: null,
 }
 export const configureLesson = (next) => {
   ttsConfig = { ...ttsConfig, ...next }
 }
 
-export function buildTtsUrl(base, text, gender) {
+// TIL MARKERI. Platforma talabi (ElevenLabs v3): ovozga ketayotgan HAR satr
+// oldida til markeri turishi shart.
+//
+// 11-sinfda bu boshqa sinflardagidan ham MUHIMROQ. `MIGRATION_v5_2_math.md`
+// da «server tilni o'zi aniqlaydi: ru kirill, uz lotin» deb yozilgan, lekin
+// bu IKKI tilli dars uchun yozilgan qoida. 11-sinfda uchta til bor, va
+// o'zbekcha bilan inglizcha IKKALASI ham lotin: server ularni ajrata olmaydi
+// va o'zbekcha matn ingliz talaffuzida (yoki teskarisi) o'qiladi.
+//
+// Markerni KONTENTGA yozib bo'lmaydi: satrlar birikadi va marker o'rtada
+// qolib ketadi. Yagona to'g'ri joy -- jo'natishdan oldin, shu yer.
+// 2, 3, 5, 6 va 10-sinflarda ham aynan shunday.
+const LANG_TAG = {
+  ru: '[Русское произношение]',
+  uz: "[O'zbekcha tallaffuz]",
+  en: '[English pronunciation]',
+}
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/
+
+// Dars belgisi. Serverda kesh kaliti faqat MATN bo'lsa, turli darslarning bir
+// xil jumlalari (masalan «Hisoblaymiz.») bitta yozuvga tushadi va darslar
+// ovozi aralashadi. `student_uuid` jo'natilmaydi -- LMS uni darsga bermaydi.
+const lessonMetaQuery = (lang) => {
+  const id = ttsConfig.lessonId || ''
+  if (!id) return ''
+  const title = ttsConfig.lessonTitle || {}
+  const name = (typeof title === 'string' ? title : title[lang] || title.ru) || ''
+  return '&lesson_id=' + encodeURIComponent(id) + (name ? '&lesson_name=' + encodeURIComponent(name) : '')
+}
+
+export function buildTtsUrl(base, text, gender, lang) {
   const clean = String(base || '').replace(/\/$/, '')
+  const body = String(text || '')
+  // Marker allaqachon bo'lsa ikkinchisini qo'ymaymiz.
+  const tagged = LEAD_TAG_RE.test(body) ? body : (LANG_TAG[lang] || LANG_TAG.ru) + ' ' + body
+  // `[` va `]` server marker sifatida ko'rsin uchun ATAYIN ochib qo'yiladi.
+  const enc = encodeURIComponent(tagged).replace(/%5B/g, '[').replace(/%5D/g, ']')
   const g = gender === 'f' ? 'f' : 'm'
-  return clean + '/api/tts?text=' + encodeURIComponent(String(text || '')) + '&g=' + g
+  return clean + '/api/tts?text=' + enc + '&g=' + g + lessonMetaQuery(lang)
 }
 
 const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ')
@@ -154,9 +216,9 @@ const speechLocale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB
 // UZ so'zlari DRAFT: o'zbek metodisti tasdiqlashi kerak.
 // ============================================================
 const SPEAK_WORDS = {
-  uz: { eq: 'teng', ne: 'teng emas', lt: 'kichik', gt: 'katta', le: 'kichik yoki teng', ge: 'katta yoki teng', equiv: 'teng kuchli', minus: 'minus', plus: 'plyus', times: 'karra', inf: 'cheksizlik' },
-  ru: { eq: 'равно', ne: 'не равно', lt: 'меньше', gt: 'больше', le: 'меньше или равно', ge: 'больше или равно', equiv: 'равносильно', minus: 'минус', plus: 'плюс', times: 'умножить на', inf: 'бесконечность' },
-  en: { eq: 'equals', ne: 'is not equal to', lt: 'is less than', gt: 'is greater than', le: 'is less than or equal to', ge: 'is greater than or equal to', equiv: 'is equivalent to', minus: 'minus', plus: 'plus', times: 'times', inf: 'infinity' },
+  uz: { eq: 'teng', ne: 'teng emas', lt: 'kichik', gt: 'katta', le: 'kichik yoki teng', ge: 'katta yoki teng', equiv: 'teng kuchli', minus: 'minus', plus: 'plyus', times: 'karra', inf: 'cheksizlik', integral: 'integral', abs: 'modul' },
+  ru: { eq: 'равно', ne: 'не равно', lt: 'меньше', gt: 'больше', le: 'меньше или равно', ge: 'больше или равно', equiv: 'равносильно', minus: 'минус', plus: 'плюс', times: 'умножить на', inf: 'бесконечность', integral: 'интеграл от', abs: 'модуль' },
+  en: { eq: 'equals', ne: 'is not equal to', lt: 'is less than', gt: 'is greater than', le: 'is less than or equal to', ge: 'is greater than or equal to', equiv: 'is equivalent to', minus: 'minus', plus: 'plus', times: 'times', inf: 'infinity', integral: 'the integral of', abs: 'the absolute value of' },
 }
 
 export function speakable(text, lang) {
@@ -183,6 +245,15 @@ export function speakable(text, lang) {
     .replace(/(^|[\s(])[−–-](?=\d)/g, '$1' + w.minus + ' ')
     .replace(/\s*\+\s*(?=\d)/g, ' ' + w.plus + ' ')
     .replace(/\s*[×·]\s*/g, ' ' + w.times + ' ')
+    // B1 bloki: integral belgisi va modul. Tahlil OVOZ bilan o'qiladi, ya'ni
+    // «∫ dx/x = ln |x| + C» dinamikka ikkita o'qilmagan belgi bilan ketardi.
+    // `dx` ni olib tashlaymiz: u yozuvning qismi, gapda esa ortiqcha.
+    .replace(/∫\s*/g, w.integral + ' ')
+    // `dx` dan keyin kasr chizig'i kelsa TEGILMAYDI: «∫ dx/x» dan `dx` ni
+    // olib tashlash «/x» ni osilib qoldirardi. Bunday yozuv ovozga umuman
+    // tushmasligi kerak -- kasr so'z bilan yoziladi.
+    .replace(/\s*\bd([a-z])\b(?!\s*\/)/g, '')
+    .replace(/\|([^|]{1,24})\|/g, w.abs + ' $1')
     .replace(/\s{2,}/g, ' ')
     .trim()
 }
@@ -237,8 +308,12 @@ const whenVoicesReady = (synth, cb) => {
 // Bo'lakni o'qish uchun BAHOLANGAN vaqt. Straj uchun va ovoz o'chiq bo'lganda
 // ochilish tezligi uchun: ovoz yo'q bo'lsa ham ekran ASTA ochiladi.
 // `?g11fast=1` -- FAQAT avtotekshiruv uchun tezlatish.
-const NARRATION_DIVISOR =
-  typeof window !== 'undefined' && /[?&]g11fast=1/.test(window.location.search) ? 8 : 1
+const FAST = typeof window !== 'undefined' && /[?&]g11fast=1/.test(window.location.search)
+const NARRATION_DIVISOR = FAST ? 8 : 1
+// Strajning QAT'IY qo'shimchasi ham tezlashishi kerak. Aks holda `g11fast`
+// yarim ishlaydi: TTS bo'lmasa har bo'lak «baho + 1500 ms» kutadi, va
+// bo'linmagan 1500 ms BOSH hadga aylanadi.
+export const WATCHDOG_PAD = FAST ? 200 : 1500
 
 export function estimateSpeech(text) {
   const words = String(text || '').trim().split(/\s+/).filter(Boolean).length
@@ -263,6 +338,8 @@ class AudioEngine {
     this.watchdog = null
     // Kechiktirilgan ishga tushirish uchun belgi: `stop()` da o'sadi.
     this.runToken = 0
+    // Joriy o'qishning belgisi: bitta o'qishni FAQAT bitta hodisa yopadi.
+    this.turn = 0
   }
 
   setGender(g) { this.gender = g === 'f' ? 'f' : 'm' }
@@ -330,27 +407,34 @@ class AudioEngine {
     const raw = String(seg.text || '')
     if (!raw) { this.afterSegment(); return }
     // Belgilar so'zga aylantiriladi. Ekranga ketadigan matn TEGILMAYDI.
-    const text = speakable(raw, seg.lang || this.lang)
+    const lang = seg.lang || this.lang
+    const text = speakable(raw, lang)
     // Faza indeksi: ekran ochilishi SHU songa qarab boradi.
     this.emit({ isPlaying: true, index: this.idx })
+    // Bu o'qishni YOPADIGAN yagona qo'ng'iroq. Server xato bersa `onerror` ham,
+    // `play()` va'dasining rad javobi ham keladi -- ikkalasi ham navbatni
+    // surardi, va bir bo'lak OVOZSIZ o'tib ketardi. Yomoni: ochilish fazasi
+    // ham shu indeksga qarab boradi, ya'ni KADR ham sakrardi.
+    // Endi kim birinchi kelsa o'sha yopadi, qolganlari eskirgan hisoblanadi.
+    const finish = this.closer()
     const base = ttsConfig.ttsApiBase
     if (base) {
       if (!this.el) this.el = new Audio()
       const el = this.el
       el.onended = null
       el.onerror = null
-      el.src = buildTtsUrl(base, text, seg.g || this.gender)
-      el.onended = () => this.afterSegment()
-      el.onerror = () => this.afterSegment()
+      el.src = buildTtsUrl(base, text, seg.g || this.gender, lang)
+      el.onended = finish
+      el.onerror = finish
       this.isPlaying = true
-      this.armWatchdog(text)
+      this.armWatchdog(text, finish)
       const started = el.play()
-      if (started && typeof started.catch === 'function') started.catch(() => this.afterSegment())
+      if (started && typeof started.catch === 'function') started.catch(finish)
       return
     }
-    if (typeof window === 'undefined' || !window.speechSynthesis) { this.afterSegment(); return }
+    if (typeof window === 'undefined' || !window.speechSynthesis) { finish(); return }
     const synth = window.speechSynthesis
-    const want = speechLocale(seg.lang || this.lang)
+    const want = speechLocale(lang)
     const voice = pickVoice(synth, want, this.gender)
     if (!voice) {
       // Bu til uchun ovoz YO'Q. Boshqa til ovozi bilan o'qish -- eng yomoni:
@@ -358,7 +442,7 @@ class AudioEngine {
       // taymer navbatni o'z vaqtida suradi.
       this.isPlaying = false
       this.emit({ isPlaying: false })
-      this.armWatchdog(text)
+      this.armWatchdog(text, finish)
       return
     }
     try { synth.cancel() } catch { /* previu cheklovi */ }
@@ -366,17 +450,28 @@ class AudioEngine {
     u.lang = want
     u.voice = voice
     u.rate = 0.98
-    u.onend = () => this.afterSegment()
-    u.onerror = () => this.afterSegment()
+    u.onend = finish
+    u.onerror = finish
     this.isPlaying = true
-    this.armWatchdog(text)
-    try { synth.speak(u) } catch { this.afterSegment() }
+    this.armWatchdog(text, finish)
+    try { synth.speak(u) } catch { finish() }
+  }
+
+  // Joriy o'qish uchun BIR MARTALIK yopuvchi. Ikkinchi chaqiriq -- bo'sh gap.
+  closer() {
+    this.turn += 1
+    const mine = this.turn
+    return () => {
+      if (this.turn !== mine) return
+      this.turn += 1
+      this.afterSegment()
+    }
   }
 
   // STRAJ. Jim yoki mavjud bo'lmagan TTS da tugash xabari KELMAYDI (headless da
   // speechSynthesis gapirmaydi) -- ochilish qotib qolardi. Baholangan vaqt
   // o'tsa, o'zimiz davom etamiz.
-  armWatchdog(text) {
+  armWatchdog(text, finish) {
     this.clearWatchdog()
     // Qo'riqchi uchun shift YO'Q. `estimateSpeech` 30 s da to'xtaydi (ochilish
     // tezligi uchun shu yetadi), lekin qo'riqchi o'sha songa tayansa, 30 s dan
@@ -385,10 +480,13 @@ class AudioEngine {
     // ishlagani yaxshi, ertaroq emas.
     const words = String(text || '').trim().split(/\s+/).filter(Boolean).length
     const full = Math.max(1600, 900 + words * 400) / NARRATION_DIVISOR
-    const guard = Math.round(full) + 1500
+    const guard = Math.round(full) + WATCHDOG_PAD
+    // Straj ham SHU o'qishning yopuvchisidan o'tadi: aks holda kechikkan
+    // `onended` bilan birga ikki marta surardi.
+    const done = typeof finish === 'function' ? finish : () => this.afterSegment()
     this.watchdog = setTimeout(() => {
       this.watchdog = null
-      this.afterSegment()
+      done()
     }, guard)
   }
 
@@ -433,8 +531,16 @@ class AudioEngine {
     const base = ttsConfig.ttsApiBase
     if (base) {
       const el = new Audio()
-      el.src = buildTtsUrl(base, speakable(text, this.lang), this.gender)
-      const done = () => { this.isPlaying = false; this.emit({ isPlaying: false }) }
+      el.src = buildTtsUrl(base, speakable(text, this.lang), this.gender, this.lang)
+      // Bu yerda ham yopuvchi BIR MARTALIK: `onerror` va rad javobi birga
+      // kelganda `isPlaying` ikki marta o'chirilardi va tugma miltillardi.
+      let closed = false
+      const done = () => {
+        if (closed) return
+        closed = true
+        this.isPlaying = false
+        this.emit({ isPlaying: false })
+      }
       el.onended = done
       el.onerror = done
       this.isPlaying = true
@@ -476,6 +582,9 @@ class AudioEngine {
     // Ovozlar ro'yxatini kutayotgan `start` endi uyg'onmaydi: ekran
     // almashgan bo'lsa, eski navbat gapirib yubormasligi kerak.
     this.runToken += 1
+    // To'xtatilgan o'qishning KECHIKKAN hodisasi ham bekor qilinadi: aks
+    // holda u yangi ekranning navbatini surib yuborardi.
+    this.turn += 1
     this.clearWatchdog()
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       try { window.speechSynthesis.cancel() } catch { /* previu cheklovi */ }
@@ -734,6 +843,10 @@ const SUP_MAP = {
   '⁰': '0', '¹': '1', '²': '2', '³': '3', '⁴': '4',
   '⁵': '5', '⁶': '6', '⁷': '7', '⁸': '8', '⁹': '9',
   '⁻': '−', 'ᶜ': 'c', 'ⁿ': 'n',
+  // Ko'rsatkichli tenglamalar uchun: daraja ko'rsatkichida IFODA turadi
+  // (`2³ˣ⁺³`), faqat son emas. Bularsiz `ˣ` va `⁺` asosiy satrga tushib
+  // qolardi va yozuv `2³x+3` bo'lib o'qilardi.
+  'ˣ': 'x', '⁺': '+', 'ᵃ': 'a', 'ᵇ': 'b',
 }
 
 // Matematik minus: faqat SON yoki QAVS yonidagi defis almashadi.
@@ -796,7 +909,34 @@ function italicVars(txt, out) {
   if (plain) out.push(plain)
 }
 
+// Uch tilli obyektmi. Asboblarda kerak: ba'zi «belgi» yoki «qiymat»
+// maydonlari SO'Z bo'lib chiqadi («mediana»), va ular tilga bog'liq.
+export function isTri(v) {
+  return !!v && typeof v === 'object' && !Array.isArray(v)
+    && !v.$$typeof && ('ru' in v || 'uz' in v || 'en' in v)
+}
+
 export function Fx({ children }) {
+  // UCH TILLI OBYEKT KELSA, UNI SHU YERDA TARJIMA QILAMIZ.
+  //
+  // Sabab: asbobning maydoni FORMULA uchun o'ylangan bo'ladi (masalan
+  // nomzodning yozuvi yoki javob yorlig'i), va formula tarjimaga muhtoj
+  // emas. Keyin dars o'sha maydonga SO'Z qo'yadi -- «ширина полосы»,
+  // «порядков» -- va u uch tilli obyekt bo'ladi. Ilgari bunday obyekt
+  // to'g'ridan to'g'ri React ga tushib, EKRANNI BUTUNLAY yiqitardi: oq
+  // sahifa, `.stage-content` yo'q, tekshiruv slayddan o'tolmaydi.
+  //
+  // 2026-08-15 gacha bu uch marta uchradi (`note`, nomzod yorlig'i, javob
+  // yorlig'i) va har safar bitta joyda tuzatildi. Endi sinf butun bo'yicha
+  // yopildi: matn maydoni formula maydoniga tushsa, u shunchaki tarjima
+  // qilinadi.
+  const t = useT()
+  if (
+    children && typeof children === 'object' && !Array.isArray(children)
+    && !children.$$typeof && ('ru' in children || 'uz' in children || 'en' in children)
+  ) {
+    children = t(children)
+  }
   if (typeof children !== 'string' || !children) return children === undefined ? null : children
   children = mathMinus(children)
   const out = []
@@ -1175,9 +1315,16 @@ export const PrintSheet = ({ title, law, steps, lifehack, source }) => (
 // til / qayta / ovoz), kontent, pastki navigatsiya.
 // .stage-content -- overflow: clip, SKROLL YO'Q.
 // ============================================================
-export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, children }) => {
+// `section` -- ixtiyoriy: odatda bo'lim ekran RAQAMIDAN olinadi, lekin
+// darsga qo'shimcha ekran qo'yilsa raqamlar siljiydi va yorliq yolg'on
+// gapiradi. O'shanda dars bo'limni O'ZI aytadi.
+export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, section, children }) => {
   const t = useT()
-  const sect = sectionOf(screen)
+  const lang = useLang()
+  const sect = section || sectionOf(screen, total)
+  // Dars raqami BLOKDAN: `block.current` -- rejadagi tutash raqam. Shu bilan
+  // shapka har darsda o'zining raqamini ko'rsatadi, qotib qolgan sonni emas.
+  const lessonNo = (block && block.current) || 1
 
   return (
     <div className="stage">
@@ -1185,7 +1332,11 @@ export const Stage = ({ eyebrow, right, block, screen, total, audio, nav, childr
         <div className="g11-top">
           <span className="g11-mark" aria-hidden="true">M<b>11</b></span>
           <span className="g11-top-title">
-            {t(UI_TXT.subject)}<span className="g11-dot">{'·'}</span>{t(UI_TXT.lessonNo)}
+            {t(UI_TXT.subject)}<span className="g11-dot">{'·'}</span>
+            {/* O'zbekchada raqam OLDIN keladi: «12-dars», ruschada keyin. */}
+            {lang === 'uz'
+              ? String(lessonNo) + '-' + t(UI_TXT.lessonWord)
+              : t(UI_TXT.lessonWord) + ' ' + String(lessonNo)}
           </span>
           <span className="g11-seg" role="img" aria-label={String(screen + 1) + '/' + String(total)}>
             {Array.from({ length: total }, (_, i) => (
@@ -1486,10 +1637,15 @@ html, body { margin: 0; padding: 0; }
 /* Serifda indeks monoshriftdagidan kichikroq va boshqa balandlikda
    o'tiradi; og'irligi bir pog'ona ko'tarildi -- aks holda mayda indeks
    asosiy satrdan solg'in ko'rinadi. */
-.g11-idx { font-size: max(10.5px, .68em); font-weight: 700; letter-spacing: .01em; font-style: normal; }
+/* Indeks: pol 10,5px (mayda kontekstda nol «o» ga o'xshamasin) VA SHIFT 17px.
+   Shiftsiz katta savolda (26-40px) indeks .68em bo'lib asosiy matn bilan bir
+   bo'yga chiqardi va «log₀,₃» ekranda «logo,₃» bo'lib o'qilardi. Buni faqat
+   KO'Z ko'radi: geometriya toza, DOM ham to'g'ri. */
+.g11-idx { font-size: clamp(10.5px, .6em, 17px); font-weight: 700; letter-spacing: .01em; font-style: normal; }
 sub.g11-idx { vertical-align: -.20em; }
 sup.g11-idx { vertical-align: .46em; }
 .g11-hint { font-size: clamp(14px, 1.15vw, 16px); line-height: 1.45; color: ${T.ink2}; }
+
 /* Kirish gapi: sarlavha ostida, tushuntirishdan oldin. Prozadan kattaroq,
    lekin sarlavhadan kichik -- u o'qishga taklif, e'lon emas. */
 .g11-lead {
@@ -2228,9 +2384,9 @@ sup.g11-idx { vertical-align: .46em; }
   .g11-fb { padding: 5px 8px; }
   .g11-rule { padding: 7px 9px; gap: 1px; }
   .g11-law { padding: 6px 8px; }
-  .g11-claims { gap: 4px; }
-  .g11-claim { padding: 4px 7px !important; row-gap: 0; }
-  .g11-tprow { min-height: 22px !important; gap: 5px !important; }
+  .g11-claims { gap: 3px; }
+  .g11-claim { padding: 3px 7px !important; row-gap: 0; }
+  .g11-tprow { min-height: 20px !important; gap: 5px !important; }
   .g11-note-lines { gap: 0; }
   .g11-ex { gap: 0; }
   .g11-insight { padding: 5px 8px; }

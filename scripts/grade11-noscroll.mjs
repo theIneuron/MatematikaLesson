@@ -19,7 +19,36 @@ import { chromium } from 'playwright'
 import { mkdir } from 'node:fs/promises'
 
 const PORT = process.env.GRADE11_PORT || '5263'
-const SLUG = 'dars12-logarifmik-tengsizliklar'
+// Dars ARGUMENT bilan tanlanadi: sinfda endi bitta dars emas, va tekshiruv
+// bittasiga qadalib qolmasligi kerak.
+//   node scripts/grade11-noscroll.mjs            -- 12-dars (etalon)
+//   node scripts/grade11-noscroll.mjs dars09     -- 9-dars
+const LESSONS = {
+  dars01: 'dars01-boshlangich-funksiya',
+  dars02: 'dars02-qoidalar',
+  dars03: 'dars03-aniqmas-integral',
+  dars04: 'dars04-aniq-integral',
+  dars05: 'dars05-nyuton-leybnits',
+  dars06: 'dars06-figura-yuzasi',
+  dars07: 'dars07-tatbiqlar',
+  dars16: 'dars16-orin-almashtirishlar',
+  dars17: 'dars17-orinlashtirishlar',
+  dars18: 'dars18-guruhlashlar',
+  dars19: 'dars19-nyuton-binomi',
+  dars20: 'dars20-ehtimollik',
+  dars21: 'dars21-qoshish-kopaytirish',
+  dars22: 'dars22-ortacha-mediana',
+  dars23: 'dars23-ikki-qator',
+  dars24: 'dars24-taqsimotlar',
+  dars09: 'dars09-korsatkichli-tenglamalar',
+  dars10: 'dars10-korsatkichli-tengsizliklar',
+  dars11: 'dars11-logarifmik-tenglamalar',
+  dars12: 'dars12-logarifmik-tengsizliklar',
+  dars13: 'dars13-sistemalar',
+  dars14: 'dars14-masalalar',
+}
+const WANT = process.argv.slice(2).find((a) => !a.startsWith('--')) || 'dars12'
+const SLUG = LESSONS[WANT] || WANT
 const BASE = `http://localhost:${PORT}/11-sinf/matematika/nazariy/${SLUG}`
 const OUT = '.tmp/grade11-noscroll'
 const TOTAL_SLIDES = 15
@@ -103,6 +132,36 @@ async function measure(page, where) {
       }
     }
 
+    // GORIZONTAL KESILISH. `.stage-content` da `overflow: clip` turibdi, va
+    // clip skroll konteyneri YARATMAYDI: ichkaridagi uzun formula ekrandan
+    // chiqib ketsa, `content.scrollWidth` o'smaydi va tekshiruv «toza» deydi.
+    // 2-darsning xuki telefonda «(2x + 1» da kesilgan edi, o'lchov esa nol
+    // ko'rsatgan. Shuning uchun HAR BIR matnli element o'zi bilan solishtiriladi.
+    let cutX = null
+    {
+      const busyX = (el) => {
+        try {
+          return typeof el.getAnimations === 'function'
+            && el.getAnimations({ subtree: true }).some((an) => an.playState === 'running')
+        } catch { return false }
+      }
+      for (const el of content.querySelectorAll('*')) {
+        if (el instanceof SVGElement) continue
+        const over = el.scrollWidth - el.clientWidth
+        if (over <= 2) continue
+        if (el.clientWidth < 2) continue
+        const cs = getComputedStyle(el)
+        if (cs.overflowX === 'auto' || cs.overflowX === 'scroll') continue
+        if (busyX(el)) continue
+        cutX = {
+          over,
+          cls: (el.className || el.tagName).toString().slice(0, 26),
+          txt: (el.textContent || '').trim().slice(0, 30),
+        }
+        break
+      }
+    }
+
     // YUQORI PANEL va NAVIGATSIYA ham o'lchanadi. Ilgari faqat ish maydoni
     // tekshirilardi, panel esa telefonda 199px ga chiqib ketib, til
     // almashtirgichni ekrandan tashqariga chiqarib qo'ygan edi -- `overflow:
@@ -134,6 +193,7 @@ async function measure(page, where) {
       docOverY: document.documentElement.scrollHeight - window.innerHeight,
       budget: content.clientHeight,
       clash,
+      cutX,
     }
   })
   if (!m) {
@@ -151,6 +211,10 @@ async function measure(page, where) {
   if (m.clash) {
     problems.push(`${where}: BLOKLAR USTMA-UST ${m.clash.over}px -> "${m.clash.a}" va "${m.clash.b}"`)
     if (m.clash.over > worst.over) worst = { over: m.clash.over, where: where + ' (ustma-ust)' }
+  }
+  if (m.cutX) {
+    problems.push(`${where}: MATN KESILDI ${m.cutX.over}px -> "${m.cutX.cls}" : ${m.cutX.txt}`)
+    if (m.cutX.over > worst.over) worst = { over: m.cutX.over, where: where + ' (kesildi)' }
   }
   if (m.overX > 1) problems.push(`${where}: gorizontal oshib ketish ${m.overX}px`)
   if (m.docOverX > 1) problems.push(`${where}: sahifa gorizontal skroll ${m.docOverX}px`)

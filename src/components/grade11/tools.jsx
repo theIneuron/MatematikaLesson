@@ -25,6 +25,7 @@ import {
   Expr,
   Feedback,
   Fx,
+  isTri,
   L,
   Options,
   Panel,
@@ -52,6 +53,9 @@ const UI = {
   supportShow: L('Uch tayanchni ochish', 'Показать три опоры', 'Show the three basics'),
   supportHide: L('Yashirish', 'Свернуть', 'Collapse'),
   why: L('chunki', 'потому что', 'because'),
+  // Ikki ildiz orasidagi bog'lovchi. Bu SO'Z, belgi emas: `;` ni ovoz o'qimaydi
+  // va ekranda ham javob «nol nuqta-vergul ikki» bo'lib ko'rinardi.
+  andWord: L('va', 'и', 'and'),
 }
 
 export { UI as TOOL_UI }
@@ -213,7 +217,7 @@ export function Probe({ data, cols = 2, unscored = false, onSolved, disabled, mi
           bor edi, ya'ni faqat ikki slaydda. Endi hamma savolda. */}
       {data.question ? (
         <p className="g11-ask">
-          {t(data.question)}
+          <Fx>{t(data.question)}</Fx>
           {picked && !unscored ? (
             <span className="g11-answer-in g11-ok-text g11-ans-tail">
               {'\u2192\u00a0\u00a0' + t((data.items.find((it) => it.id === picked) || {}).label)}
@@ -305,7 +309,7 @@ export function ProbeChain({ items, cols = 2, onSolved, onEach, onStep, audio, s
             ? (
               <div className="g11-qframe">
                 <Expr size="quest">
-                  {t(current.prompt)}
+                  <Fx>{t(current.prompt)}</Fx>
                   {okId ? (
                     <span className="g11-answer-in g11-ok-text" style={{ paddingLeft: '.4em' }}>
                       {(String(t(current.prompt)).trim().endsWith('=') ? '' : '\u2192  ')
@@ -318,7 +322,7 @@ export function ProbeChain({ items, cols = 2, onSolved, onEach, onStep, audio, s
             : (
               <div className="g11-qframe">
                 <p className="g11-ask g11-ask-big">
-                  {t(current.prompt)}
+                  <Fx>{t(current.prompt)}</Fx>
                   {okId ? (
                     <span className="g11-answer-in g11-ok-text g11-ans-tail">
                       {'\u2192\u00a0\u00a0' + t((current.items.find((it) => it.id === okId) || {}).label)}
@@ -620,7 +624,10 @@ export function TestPointRows({ points, pickLabel, onRevealed, onStep, single = 
                 opacity: isShown ? 1 : 0.28,
               }}
             >
-              {single ? null : <span>{p.label}</span>}
+              {/* Nom ustuni 100px, `g11-expr` esa nowrap qo'yadi: uzunroq
+                  nom («orol, orol») telefonda chetdan chiqib ketardi va buni
+                  faqat kesilish tekshiruvi ko'rardi. Nom PROZA, unga wrap. */}
+              {single ? null : <span className="g11-wrap">{p.label}</span>}
               {/* `calc` uch tilli bo'lishi mumkin (ikki bilan solishtirish
                   so'z bilan yozilgan), shuning uchun `t()` SHART. */}
               <span className={'g11-wrap' + (isShown ? ' g11-in' : '')}>
@@ -731,7 +738,11 @@ export function BaseSlider({ height = 92, initial = 0.5, onChange, min = 0.2, ma
 // ODZ shu yerda QOIDA emas: chegaradan chapda kirivi YO'Q.
 // Fazalar: 0 bo'sh o'qlar, 1 kirivi, 2 gorizontal to'g'ri chiziq, 3 soya.
 // ============================================================
-export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross, shade, xTicks, yTicks, phase, shadeLabel, height = 190, probe = false, onProbe }) {
+// `drop` va `hline2` -- TENGLAMA rejimi (9-dars). Tengsizlikda javob ORALIQ va
+// u `shade` bilan bo'yaladi; tenglamada javob NUQTA, shuning uchun kesishishdan
+// o'qqa tushadigan chiziq kerak. `hline2` esa kirivi bilan UCHRASHMAYDIGAN
+// to'g'ri chiziq: «yechim yo'q» shu bilan ko'rsatiladi, so'z bilan emas.
+export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, hline2, cross, drop, dropLabel, shade, xTicks, yTicks, phase, shadeLabel, height = 190, probe = false, onProbe }) {
   const W = 640
   const H = height
   const padL = 44
@@ -853,6 +864,20 @@ export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross,
           <line x1={padL} y1={py(hline)} x2={W - padR} y2={py(hline)} stroke={T.graph} strokeWidth="2.2" className="g11-in" />
         ) : null}
 
+        {/* IKKINCHI to'g'ri chiziq -- u kirivi bilan UCHRASHMAYDI. Uzuq chiziq
+            bilan chiziladi: bu «bor, lekin kesishmaydi» degani. */}
+        {phase >= 4 && hline2 !== undefined ? (
+          <line x1={padL} y1={py(hline2)} x2={W - padR} y2={py(hline2)} stroke={T.tip} strokeWidth="2.2" strokeDasharray="7 5" className="g11-in" />
+        ) : null}
+
+        {/* NUQTA rejimi: kesishishdan o'qqa tushish. Javob shu nuqta. */}
+        {phase >= 3 && drop && cross !== undefined && hline !== undefined ? (
+          <g className="g11-in">
+            <line x1={px(cross)} y1={py(hline)} x2={px(cross)} y2={py(0)} stroke={T.accent} strokeWidth="2" strokeDasharray="4 3" />
+            <circle cx={px(cross)} cy={py(0)} r="5.5" fill={T.accent} />
+          </g>
+        ) : null}
+
         {/* kirivi */}
         {phase >= 1 ? (
           <path
@@ -899,6 +924,13 @@ export function GraphProjection({ fn, xDomain, yDomain, asymptote, hline, cross,
             {shadeLabel}
           </text>
         ) : null}
+        {/* Nuqta rejimida javob yozuvi tushish bilan BIR VAQTDA: aks holda
+            «mana ildiz» degan gap bo'shga aytilardi. */}
+        {phase >= 3 && drop && dropLabel && cross !== undefined ? (
+          <text x={px(cross)} y={H - padB + 30} textAnchor="middle" fontSize="13" fill={T.accent} fontWeight="700" fontFamily={MATH_FONT} className="g11-in g11-d1">
+            {dropLabel}
+          </text>
+        ) : null}
       </svg>
     </div>
   )
@@ -929,7 +961,9 @@ export function RuleGate({ probe, rule, swap, onSolved, onStep, audio }) {
         <>
           <RuleCard
             badge={t(card.badge)}
-            law={card.law}
+            /* Qonun FORMULA ham, SO'Z ham bo'lishi mumkin («sistema = VA»),
+               shuning uchun `t()` SHART. */
+            law={t(card.law)}
             laws={card.laws}
             lawLabel={card.lawLabel ? t(card.lawLabel) : null}
             lines={card.lines.map((l) => t(l))}
@@ -958,17 +992,25 @@ export function SignFill({ template, signs, answer, checkNote, wrongs, prompt, o
   const [filled, setFilled] = useState(null)
   const [checked, setChecked] = useState(false)
   const [hint, setHint] = useState(null)
-  const correct = checked && filled === answer
+  // «Belgi» har doim ham belgi emas: 22-darsda tanlov `mediana` va
+  // `o'rtacha` so'zlari orasida, ya'ni uch tilli obyekt. Obyekt holida u
+  // React ga tushib ekranni yiqitardi, va hamma tugmalar bitta kalit olardi.
+  // Shuning uchun bu yerda hammasi bir marta satrga keltiriladi.
+  const tri = (v) => (isTri(v) ? t(v) : v)
+  const signList = (signs || []).map(tri)
+  const ans = tri(answer)
+  const wrongList = (wrongs || []).map((w) => ({ ...w, key: tri(w.key) }))
+  const correct = checked && filled === ans
 
   const check = () => {
     setChecked(true)
-    if (filled === answer) {
+    if (filled === ans) {
       fx.right(checkNote)
       if (onStep) onStep('checked')
       if (onSolved) onSolved({ correct: true, filled })
       return
     }
-    const w = (wrongs || []).find((x) => x.key === filled)
+    const w = wrongList.find((x) => x.key === filled)
     const h = w ? w.hint : null
     setHint(h)
     fx.wrong(h)
@@ -978,12 +1020,15 @@ export function SignFill({ template, signs, answer, checkNote, wrongs, prompt, o
     <>
       {prompt ? <p className="g11-ask">{t(prompt)}</p> : null}
       <Panel className="g11-expr g11-expr-big" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center', alignItems: 'center', minHeight: 64 }}>
+        {/* Shablon bo'lagi SO'Z ham bo'lishi mumkin («narx · »), shuning
+            uchun uya `slot` maydoni bo'yicha aniqlanadi, «satr emas» degan
+            mezon bo'yicha emas. */}
         {template.map((piece, i) =>
-          typeof piece === 'string' ? (
+          !(piece && typeof piece === 'object' && piece.slot !== undefined) ? (
             /* Fx SHART: aks holda shablondagi `2x` tik, yuqoridagi
                tengsizlikdagi `2x` esa kursiv bo'lib, bir ifoda ikki xil
                teriladi. */
-            <span key={i}><Fx>{piece}</Fx></span>
+            <span key={i}><Fx>{t(piece)}</Fx></span>
           ) : (
             <span
               key={i}
@@ -1004,7 +1049,7 @@ export function SignFill({ template, signs, answer, checkNote, wrongs, prompt, o
       </Panel>
       <Slot mh={50}>
         <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
-          {signs.map((s) => (
+          {signList.map((s) => (
             <button
               type="button"
               key={s}
@@ -1123,6 +1168,136 @@ export function AnswerInterval({ numbers, answer, wrongs, prompt, onSolved, onSt
 }
 
 // ============================================================
+// AnswerValue -- o'quvchi javobni SON bilan yozadi: x = ⬚  (yoki ikkita ildiz).
+//
+// `AnswerInterval` dan farqi: u oraliq uchun, bu esa TENGLAMA javobi uchun.
+// Tenglamalar darslarida (9, 11, 13) javob nuqta, oraliq emas.
+//
+// IKKI ILDIZ. `slots: 2` da tartib AHAMIYATSIZ: «nol va ikki» ham, «ikki va
+// nol» ham to'g'ri. Va tekshirish BITTA katak to'ldirilganda ham ishlaydi --
+// aks holda «men bitta ildiz topdim» degan xato UMUMAN bildirilmasdi, va eng
+// muhim razbor («ikkinchisini ham tekshiring») hech qachon chiqmasdi.
+// ============================================================
+// `labels` -- HAR katakka o'z yorlig'i: sistemada javob JUFT bo'ladi
+// (`x = 2`, `y = 1`), va ularni «va» bilan ulash ma'noni buzadi.
+export function AnswerValue({ numbers: rawNumbers, answer: rawAnswer, wrongs: rawWrongs, prompt, onSolved, onStep, audio, slots = 1, label = 'x =', labels, padSlot = 44, fbSlot = 70 }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [cells, setCells] = useState(() => Array.from({ length: slots }, () => null))
+  const [active, setActive] = useState(0)
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(null)
+
+  // Javob har doim ham son emas: 23-darsda palitrada `umumiy sabab` kabi
+  // SO'ZLAR turadi, ya'ni uch tilli obyektlar. Obyekt React ga tushsa ekran
+  // yiqiladi va hamma tugma bitta kalit oladi. Kalit massiv ham bo'lishi
+  // mumkin -- bir necha uyali javobda uni qo'lda birlashtirib bo'lmaydi.
+  const tri = (v) => (isTri(v) ? t(v) : v)
+  const numbers = (rawNumbers || []).map(tri)
+  const answer = (rawAnswer || []).map(tri)
+  const wrongs = (rawWrongs || []).map((w) => ({
+    ...w,
+    key: Array.isArray(w.key) ? w.key.map(tri).join('|') : tri(w.key),
+  }))
+
+  const filled = cells.filter((c) => c !== null)
+  // Yorliqli kataklarda TARTIB muhim: `x = 2, y = 1` va `x = 1, y = 2` -- ikki
+  // xil javob. Yorliqsiz (ikki ildiz) esa tartib ahamiyatsiz.
+  const norm = (list) => (labels ? list.join('|') : list.slice().sort().join('|'))
+  const isRight = filled.length === answer.length && norm(filled) === norm(answer)
+  const correct = checked && isRight
+
+  const put = (n) => {
+    if (correct) return
+    const next = cells.slice()
+    next[active] = n
+    setCells(next)
+    setChecked(false)
+    setHint(null)
+    setActive(slots === 1 ? 0 : (active + 1) % slots)
+  }
+
+  const clear = () => {
+    if (correct) return
+    setCells(Array.from({ length: slots }, () => null))
+    setActive(0)
+    setChecked(false)
+    setHint(null)
+  }
+
+  const check = () => {
+    setChecked(true)
+    if (isRight) {
+      fx.right(null)
+      if (onStep) onStep('answered')
+      if (onSolved) onSolved({ correct: true, answer: filled })
+      return
+    }
+    const key = norm(filled)
+    const exact = (wrongs || []).find((x) => norm(String(x.key).split('|')) === key)
+    const any = (wrongs || []).find((x) => x.key === '*')
+    const h = (exact && exact.hint) || (any && any.hint) || null
+    setHint(h)
+    fx.wrong(h)
+    if (onSolved) onSolved({ correct: false, answer: filled })
+  }
+
+  return (
+    <>
+      {prompt ? <p className="g11-ask">{t(prompt)}</p> : null}
+      <div className="g11-expr g11-expr-big g11-ansbox" style={{ display: 'flex', gap: 7, justifyContent: 'center', alignItems: 'center', minHeight: 58, flexWrap: 'wrap' }}>
+        {labels ? null : <span><Fx>{label}</Fx></span>}
+        {cells.map((v, i) => (
+          <React.Fragment key={i}>
+            {labels
+              ? <span style={{ marginLeft: i > 0 ? 10 : 0 }}><Fx>{labels[i]}</Fx></span>
+              : (i > 0 ? <span className="g11-expr g11-expr-sm" style={{ color: T.ink3 }}>{t(UI.andWord)}</span> : null)}
+            <button
+              type="button"
+              className={'g11-slotframe' + (active === i && !correct ? ' g11-picked' : '') + (v !== null ? ' g11-snap' : '')}
+              style={{
+                minWidth: 64, minHeight: 50, padding: '0 10px', cursor: 'pointer', font: 'inherit',
+                color: v !== null ? (correct ? T.ok : T.ink) : T.ink3,
+                background: correct ? T.okSoft : 'rgba(255,253,248,.75)',
+                boxShadow: correct ? '0 0 0 2px ' + T.ok : undefined,
+              }}
+              onClick={() => { setActive(i); setHint(null) }}
+            >
+              {v !== null ? v : '?'}
+            </button>
+          </React.Fragment>
+        ))}
+      </div>
+      <Slot mh={padSlot}>
+        <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {numbers.map((n) => (
+            <button
+              type="button"
+              key={n}
+              className="g11-opt"
+              style={{ minHeight: 38, width: 'auto', padding: '5px 14px', fontFamily: MATH_FONT, display: 'inline-flex', justifyContent: 'center' }}
+              disabled={correct}
+              onClick={() => put(n)}
+            >
+              {n}
+            </button>
+          ))}
+          {slots > 1 && !correct ? (
+            <Btn tone="ghost" onClick={clear}>{t(UI.reset)}</Btn>
+          ) : null}
+          <Btn tone="accent" ready={filled.length > 0 && !correct} onClick={check} disabled={!filled.length || correct}>
+            {t(UI.check)}
+          </Btn>
+        </div>
+      </Slot>
+      <Slot mh={fbSlot}>
+        <Feedback show={!!hint && !correct} ok={false}>{hint ? t(hint) : null}</Feedback>
+      </Slot>
+    </>
+  )
+}
+
+// ============================================================
 // TransformChain -- qadamba-qadam qayta yozish. Darsning ish oti.
 // O'quvchi AMALNI tanlaydi, yangi satr paydo bo'ladi. «Darrov javob» YO'Q.
 // Son o'qi FAQAT xato qadamda yonadi (razbor) -- shuning uchun to'g'ri
@@ -1179,7 +1354,10 @@ export function TransformChain({ start, steps, actions, axis, correctSet, answer
                   ichiga qo'yilsa, `log`, indeks va qolgan qism ALOHIDA flex
                   elementga aylanadi va `gap: 10` ularni bir-biridan uzoqlash-
                   tiradi: ekranda `log ₀,₅` bo'lib ko'rinardi. */}
-              <span style={{ minWidth: 0 }}><Fx>{line}</Fx></span>
+              {/* Qadam FORMULA ham, GAP ham bo'lishi mumkin («argument 12 > 0 —
+                  ildiz qoladi»), shuning uchun `t()` SHART: aks holda uch tilli
+                  qiymat React bolasi sifatida tushib, ekran yiqilardi. */}
+              <span style={{ minWidth: 0 }}><Fx>{t(line)}</Fx></span>
             </div>
           ))}
           {!finished ? (
@@ -1225,22 +1403,46 @@ export function TransformChain({ start, steps, actions, axis, correctSet, answer
           </div>
         </div>
       ) : (
-        <AnswerInterval
-          numbers={answer.numbers}
-          answer={answer.value}
-          wrongs={answer.wrongs}
-          prompt={answer.prompt || UI.writeAnswer}
-          padSlot={answer.padSlot}
-          fbSlot={answer.fbSlot}
-          audio={audio}
-          onStep={onStep}
-          onSolved={(r) => {
-            if (r.correct) {
-              setAnswered(true)
-              if (onSolved) onSolved({ correct: true, lines })
-            }
-          }}
-        />
+        /* Javob shakli TEMADAN keladi: tengsizlikda oraliq, tenglamada son.
+           Zanjir ikkalasini ham biladi -- aks holda tenglama darsi uchun
+           butun asbobni ikkinchi marta yozishga to'g'ri kelardi. */
+        answer.kind === 'value' ? (
+          <AnswerValue
+            numbers={answer.numbers}
+            answer={answer.value}
+            wrongs={answer.wrongs}
+            prompt={answer.prompt || UI.writeAnswer}
+            slots={answer.slots || 1}
+            label={answer.label}
+            padSlot={answer.padSlot}
+            fbSlot={answer.fbSlot}
+            audio={audio}
+            onStep={onStep}
+            onSolved={(r) => {
+              if (r.correct) {
+                setAnswered(true)
+                if (onSolved) onSolved({ correct: true, lines })
+              }
+            }}
+          />
+        ) : (
+          <AnswerInterval
+            numbers={answer.numbers}
+            answer={answer.value}
+            wrongs={answer.wrongs}
+            prompt={answer.prompt || UI.writeAnswer}
+            padSlot={answer.padSlot}
+            fbSlot={answer.fbSlot}
+            audio={audio}
+            onStep={onStep}
+            onSolved={(r) => {
+              if (r.correct) {
+                setAnswered(true)
+                if (onSolved) onSolved({ correct: true, lines })
+              }
+            }}
+          />
+        )
       )}
 
       {!finished ? (
@@ -1340,7 +1542,7 @@ export function AuditRows({ rows, answerId, hints, proof, onSolved, onStep, audi
               onClick={() => pick(row.id)}
             >
               <span className="g11-opt-badge">{i + 1}</span>
-              <span className="g11-opt-text">{row.text}</span>
+              <span className="g11-opt-text">{t(row.text)}</span>
             </button>
           )
         })}
@@ -1375,10 +1577,27 @@ export function BuildExpr({ tasks, onSolved, onStep, audio }) {
   const [checked, setChecked] = useState(false)
   const [hint, setHint] = useState(null)
 
-  const task = tasks[idx]
-  if (!task) return <DoneRow>{done.join('   ')}</DoneRow>
+  const rawTask = tasks[idx]
+  if (!rawTask) return <DoneRow>{done.join('   ')}</DoneRow>
 
-  const nSlots = task.template.filter((p) => typeof p !== 'string').length
+  // Bo'lak har doim ham formula emas: 22-darsda yig'iladigan narsa
+  // `mediana` va `o'rtacha` so'zlari, ya'ni uch tilli obyekt. Obyekt
+  // React ga tushsa ekran yiqiladi va tugmalar bitta kalit oladi, shuning
+  // uchun bo'laklar, javob va noto'g'ri kalitlar bir marta satrga keladi.
+  const tri = (v) => (isTri(v) ? t(v) : v)
+  const task = {
+    ...rawTask,
+    parts: (rawTask.parts || []).map(tri),
+    answer: (rawTask.answer || []).map(tri),
+    // Kalit MASSIV ham bo'lishi mumkin: uyalar so'zlar bilan to'lganda
+    // uni qo'lda birlashtirib bo'lmaydi, chunki so'z tilga bog'liq.
+    wrongs: (rawTask.wrongs || []).map((w) => ({
+      ...w,
+      key: Array.isArray(w.key) ? w.key.map(tri).join('|') : tri(w.key),
+    })),
+  }
+
+  const nSlots = task.template.filter((p) => !(typeof p === 'string' || isTri(p))).length
   const filledAll = Array.from({ length: nSlots }, (_, i) => slots[i]).every((v) => v !== undefined)
   const key = Array.from({ length: nSlots }, (_, i) => slots[i]).join('|')
   const correct = checked && key === task.answer.join('|')
@@ -1424,7 +1643,7 @@ export function BuildExpr({ tasks, onSolved, onStep, audio }) {
       <p className="g11-ask">{t(task.prompt)}</p>
       <Panel className="g11-expr g11-expr-big" style={{ display: 'flex', flexWrap: 'wrap', gap: 5, justifyContent: 'center', alignItems: 'center', minHeight: 64 }}>
         {task.template.map((piece, i) => {
-          if (typeof piece === 'string') return <span key={i}>{piece}</span>
+          if (!(piece && typeof piece === 'object' && piece.slot !== undefined)) return <span key={i}><Fx>{t(piece)}</Fx></span>
           // Uya raqami shablonda oldindan yozilgan -- render vaqtida
           // hisoblagichni o'zgartirmaymiz.
           const si = piece.slot
@@ -1474,5 +1693,680 @@ export function BuildExpr({ tasks, onSolved, onStep, audio }) {
         <Feedback show={!!hint && !correct} ok={false}>{hint ? t(hint) : null}</Feedback>
       </Slot>
     </>
+  )
+}
+
+// ============================================================
+// ddx -- SONLI hosila. Asbob o'quvchi tanlagan funksiyani ROSTDAN
+// differensiallaydi: formulani men oldindan hisoblab qo'ymayman, aks holda
+// ekranda «tekshiruv» emas, mening javobim turgan bo'lardi.
+// Markaziy ayirma: (F(x+h) − F(x−h)) / 2h -- oldinga ayirmadan aniqroq.
+// ============================================================
+export const ddx = (F, h = 0.001) => (x) => (F(x + h) - F(x - h)) / (2 * h)
+
+// ============================================================
+// CurveBoard -- bir necha egri chiziq BITTA o'qda.
+//
+// Ikki ish uchun:
+//   1) f va o'quvchi tanlagan F ning HOSILASI ustma-ust: mos tushdimi;
+//   2) F, F+2, F−3 oilasi va berilgan nuqtadagi urinmalar: qiyalik BIR XIL,
+//      ya'ni «+C hech narsani o'zgartirmaydi» ko'rinadi, aytilmaydi.
+//
+// `curves`: [{ fn, tone, width, dash, from, label }]  -- `from` qaysi fazada
+// paydo bo'lishi. `tangentAt` -- shu x da har egriga urinma chiziladi.
+// ============================================================
+export function CurveBoard({ curves = [], xDomain, yDomain, xTicks = [], yTicks = [], height = 168, phase = 99, tangentAt, note }) {
+  const W = 640
+  const H = height
+  const padL = 40
+  const padR = 24
+  const padT = 12
+  const padB = 30
+  const [x0, x1] = xDomain
+  const [y0, y1] = yDomain
+  const px = (x) => padL + ((x - x0) / (x1 - x0)) * (W - padL - padR)
+  const py = (y) => padT + ((y1 - y) / (y1 - y0)) * (H - padT - padB)
+
+  const path = (fn) => {
+    const pts = []
+    const N = 220
+    for (let i = 0; i <= N; i += 1) {
+      const x = x0 + ((x1 - x0) * i) / N
+      const y = fn(x)
+      if (!isFinite(y) || y < y0 - 2 || y > y1 + 2) { continue }
+      pts.push((pts.length ? 'L' : 'M') + px(x).toFixed(1) + ' ' + py(y).toFixed(1))
+    }
+    return pts.join(' ')
+  }
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+        <g stroke={T.line} strokeWidth="1" opacity=".55">
+          {xTicks.map((tk) => <line key={'gx' + tk.v} x1={px(tk.v)} y1={padT} x2={px(tk.v)} y2={H - padB} />)}
+          {yTicks.map((tk) => <line key={'gy' + tk.v} x1={padL} y1={py(tk.v)} x2={W - padR} y2={py(tk.v)} />)}
+        </g>
+        <line x1={padL} y1={py(0)} x2={W - padR} y2={py(0)} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+        <line x1={px(0)} y1={padT} x2={px(0)} y2={H - padB} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+
+        {curves.map((c, i) => (
+          (c.from === undefined || phase >= c.from) ? (
+            <path
+              key={'c' + i}
+              d={path(c.fn)}
+              fill="none"
+              stroke={TONES[c.tone || 'ink']}
+              strokeWidth={c.width || 2.4}
+              strokeDasharray={c.dash || undefined}
+              strokeLinecap="round"
+              className="g11-in"
+            />
+          ) : null
+        ))}
+
+        {/* URINMALAR: qiyalik bir xil ekani ko'rinadi. */}
+        {tangentAt !== undefined ? curves.map((c, i) => {
+          if (c.from !== undefined && phase < c.from) return null
+          if (c.noTangent) return null
+          const x = tangentAt
+          const y = c.fn(x)
+          const k = (c.fn(x + 0.001) - c.fn(x - 0.001)) / 0.002
+          if (!isFinite(y) || !isFinite(k)) return null
+          const dx = (x1 - x0) / 7
+          return (
+            <g key={'t' + i} className="g11-in">
+              <line
+                x1={px(x - dx)} y1={py(y - k * dx)} x2={px(x + dx)} y2={py(y + k * dx)}
+                stroke={T.accent} strokeWidth="1.6" strokeDasharray="5 4"
+              />
+              <circle cx={px(x)} cy={py(y)} r="4" fill={T.accent} />
+            </g>
+          )
+        }) : null}
+
+        {xTicks.map((tk) => (
+          <text key={'tx' + tk.v} x={px(tk.v)} y={H - padB + 16} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {tk.label !== undefined ? tk.label : tk.v}
+          </text>
+        ))}
+        {yTicks.map((tk) => (
+          <text key={'ty' + tk.v} x={padL - 8} y={py(tk.v) + 4} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {tk.label !== undefined ? tk.label : tk.v}
+          </text>
+        ))}
+      </svg>
+      {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+    </div>
+  )
+}
+
+// ============================================================
+// ASBOB 2 (PODXOD_11SINF.md §4). EGRI CHIZIQ OSTIDAGI YUZA.
+//
+// B1 blokining 4-7 darslari va 47-dars shu asbobga tayanadi -- sakkiz dars.
+// Shuning uchun u DARSDAN OLDIN yoziladi, dars ichida emas.
+//
+// Chap chegara `a` qotirilgan, o'ng chegarani `b` o'quvchi tortadi. Bo'yalgan
+// yuza o'zgaradi, soni yuguradi. `trace` yoqilsa, pastda ikkinchi panel
+// ochiladi: to'plangan yuzaning GRAFIGI. O'quvchi chegarani oxirigacha
+// tortadi va to'plangan yuzaning o'z egri chizig'i borligini ko'radi -- bu F.
+//
+// IKKI PANEL, ikkita alohida o'q. Bitta o'qqa qo'yish yolg'on bo'lardi:
+// S odatda f dan bir necha barobar katta, va bitta masshtabda ulardan biri
+// tekis chiziqqa aylanadi.
+//
+// O'qdan PASTDAGI yuza boshqa rangda bo'yaladi va AYIRILADI: integral manfiy
+// bo'lishi mumkin, figuraning yuzasi esa yo'q. Bu ikki xil masala.
+// ============================================================
+const areaUnder = (fn, a, b, n = 400) => {
+  if (!(b > a)) return 0
+  const h = (b - a) / n
+  let s = 0
+  for (let i = 0; i < n; i += 1) {
+    const y0 = fn(a + i * h)
+    const y1 = fn(a + (i + 1) * h)
+    if (!isFinite(y0) || !isFinite(y1)) continue
+    s += ((y0 + y1) / 2) * h
+  }
+  return s
+}
+
+const areaText = (v) => {
+  if (Math.abs(v) < 0.005) return '0'
+  return v.toFixed(2).replace(/0$/, '').replace(/\.$/, '').replace('.', ',')
+}
+
+// `fn2` -- polosaning PASTKI chegarasi. Berilmasa nol, ya'ni o'q: eski
+// xatti-harakat o'zgarmaydi. 6-darsda ikki egri chiziq orasidagi yuza kerak,
+// va u alohida asbob emas -- o'sha asbobning bir holati. «Yuqoridagi minus
+// pastdagi» degan bitta ta'rif uchala holatni ham qoplaydi.
+export function AreaBoard({
+  fn,
+  fn2,
+  xDomain,
+  yDomain,
+  xTicks = [],
+  yTicks = [],
+  a,
+  b,
+  onB,
+  step = 0.1,
+  trace = false,
+  sDomain,
+  fLabel,
+  sLabel,
+  areaLabel,
+  note,
+  height = 168,
+  phase = 99,
+}) {
+  const W = 640
+  const padL = 44
+  const padR = 22
+  const padT = 10
+  const padB = 26
+  const traceH = trace ? 64 : 0
+  const gap = trace ? 8 : 0
+  const topH = height
+  const H = topH + traceH + gap
+  const [x0, x1] = xDomain
+  const [y0, y1] = yDomain
+  const px = (x) => padL + ((x - x0) / (x1 - x0)) * (W - padL - padR)
+  const py = (y) => padT + ((y1 - y) / (y1 - y0)) * (topH - padT - padB)
+
+  const bb = Math.max(a, Math.min(x1, b === undefined ? a : b))
+  const low = fn2 || (() => 0)
+  const dy = (x) => fn(x) - low(x)
+  const S = areaUnder(dy, a, bb)
+
+  const curve = (f) => {
+    const pts = []
+    const N = 240
+    for (let i = 0; i <= N; i += 1) {
+      const x = x0 + ((x1 - x0) * i) / N
+      const y = f(x)
+      if (!isFinite(y) || y < y0 - 2 || y > y1 + 2) continue
+      pts.push((pts.length ? 'L' : 'M') + px(x).toFixed(1) + ' ' + py(y).toFixed(1))
+    }
+    return pts.join(' ')
+  }
+
+  // Bo'yalgan yuza ISHORA bo'yicha bo'laklarga bo'linadi: nol chizig'ini
+  // kesib o'tganda yangi bo'lak boshlanadi va rangi almashadi.
+  const bands = []
+  if (bb > a) {
+    const N = 160
+    const h = (bb - a) / N
+    let cur = null
+    for (let i = 0; i <= N; i += 1) {
+      const x = a + i * h
+      const y = fn(x)
+      const yl = low(x)
+      const sign = y - yl >= 0 ? 1 : -1
+      if (!cur || cur.sign !== sign) {
+        if (cur && cur.pts.length > 1) bands.push(cur)
+        cur = { sign, pts: [], low: [] }
+      }
+      cur.pts.push([px(x), py(y)])
+      cur.low.push([px(x), py(yl)])
+    }
+    if (cur && cur.pts.length > 1) bands.push(cur)
+  }
+
+  // Pastki panel: to'plangan yuza. Masshtab butun oraliq bo'yicha olinadi,
+  // aks holda chegarani tortganda o'q sakrab turardi.
+  const sTop = padT + topH + gap
+  const sVals = []
+  if (trace) {
+    const N = 120
+    for (let i = 0; i <= N; i += 1) {
+      const x = x0 + ((x1 - x0) * i) / N
+      sVals.push([x, x <= a ? 0 : areaUnder(dy, a, x, 120)])
+    }
+  }
+  const ys = sVals.map((v) => v[1])
+  const sLo = sDomain ? sDomain[0] : Math.min(0, ...(ys.length ? ys : [0]))
+  const sHi = sDomain ? sDomain[1] : Math.max(0.001, ...(ys.length ? ys : [1]))
+  const spy = (v) => sTop + ((sHi - v) / (sHi - sLo)) * (traceH - 14)
+  const sPath = trace
+    ? sVals
+      .filter((v) => v[0] <= bb + 1e-9)
+      .map((v, i) => (i ? 'L' : 'M') + px(v[0]).toFixed(1) + ' ' + spy(v[1]).toFixed(1))
+      .join(' ')
+    : ''
+
+  // Tortish. Ko'rsatkichning ekrandagi joyi viewBox birligiga, keyin iksga
+  // aylantiriladi -- ya'ni `px` ning teskarisi. Qadamga yaxlitlanadi, aks
+  // holda son titraydi va uni o'qib bo'lmaydi.
+  const pull = (ev) => {
+    if (!onB) return
+    const box = ev.currentTarget.getBoundingClientRect()
+    if (!box.width) return
+    const vx = ((ev.clientX - box.left) / box.width) * W
+    const raw = x0 + ((vx - padL) / (W - padL - padR)) * (x1 - x0)
+    const snapped = Math.round(raw / step) * step
+    onB(Math.max(a, Math.min(x1, Number(snapped.toFixed(4)))))
+  }
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg
+        viewBox={'0 0 ' + W + ' ' + H}
+        width="100%"
+        height="100%"
+        preserveAspectRatio="xMidYMid meet"
+        role="img"
+        style={{ display: 'block', maxHeight: H, touchAction: 'none', cursor: onB ? 'ew-resize' : 'default' }}
+        onPointerDown={(e) => { if (onB) { e.currentTarget.setPointerCapture(e.pointerId); pull(e) } }}
+        onPointerMove={(e) => { if (onB && e.buttons) pull(e) }}
+      >
+        <g stroke={T.line} strokeWidth="1" opacity=".55">
+          {xTicks.map((tk) => <line key={'gx' + tk.v} x1={px(tk.v)} y1={padT} x2={px(tk.v)} y2={topH - padB} />)}
+          {yTicks.map((tk) => <line key={'gy' + tk.v} x1={padL} y1={py(tk.v)} x2={W - padR} y2={py(tk.v)} />)}
+        </g>
+
+        {bands.map((bd, i) => (
+          <path
+            key={'bd' + i}
+            d={'M' + bd.low[0][0].toFixed(1) + ' ' + bd.low[0][1].toFixed(1)
+              + ' ' + bd.pts.map((p) => 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ')
+              + ' ' + bd.low.slice().reverse().map((p) => 'L' + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ') + ' Z'}
+            fill={bd.sign > 0 ? T.graphSoft : T.accentSoft}
+            stroke="none"
+          />
+        ))}
+
+        <line x1={padL} y1={py(0)} x2={W - padR} y2={py(0)} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+        <line x1={px(0)} y1={padT} x2={px(0)} y2={topH - padB} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+
+        <path d={curve(fn)} fill="none" stroke={T.ink} strokeWidth="2.4" strokeLinecap="round" />
+        {fn2 ? <path d={curve(fn2)} fill="none" stroke={T.graph} strokeWidth="2.2" strokeLinecap="round" /> : null}
+
+        <line x1={px(a)} y1={padT} x2={px(a)} y2={topH - padB} stroke={T.ink3} strokeWidth="1.4" strokeDasharray="4 4" />
+        {phase >= 1 ? (
+          <g>
+            <line x1={px(bb)} y1={padT} x2={px(bb)} y2={topH - padB} stroke={T.accent} strokeWidth="2" />
+            <circle cx={px(bb)} cy={py(0)} r="5" fill={T.accent} />
+          </g>
+        ) : null}
+
+        {xTicks.map((tk) => (
+          <text key={'tx' + tk.v} x={px(tk.v)} y={topH - padB + 15} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {tk.label !== undefined ? tk.label : tk.v}
+          </text>
+        ))}
+        {yTicks.map((tk) => (
+          <text key={'ty' + tk.v} x={padL - 8} y={py(tk.v) + 4} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {tk.label !== undefined ? tk.label : tk.v}
+          </text>
+        ))}
+        {fLabel ? (
+          <text x={W - padR} y={padT + 12} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink3} fontFamily={MATH_FONT}>{fLabel}</text>
+        ) : null}
+
+        {trace ? (
+          <g>
+            <line x1={padL} y1={spy(0)} x2={W - padR} y2={spy(0)} stroke="rgba(23,26,29,.2)" strokeWidth="1" />
+            <path d={sPath} fill="none" stroke={T.graph} strokeWidth="2.2" strokeLinecap="round" />
+            {phase >= 1 ? <circle cx={px(bb)} cy={spy(S)} r="4.5" fill={T.graph} /> : null}
+            {sLabel ? (
+              <text x={W - padR} y={sTop + 11} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink3} fontFamily={MATH_FONT}>{sLabel}</text>
+            ) : null}
+          </g>
+        ) : null}
+      </svg>
+
+      {areaLabel !== undefined ? (
+        <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}>
+          <Fx>{areaLabel + '  ' + areaText(S)}</Fx>
+        </div>
+      ) : null}
+      {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+    </div>
+  )
+}
+
+// ============================================================
+// ASBOB 3 (B3 bloki). NATIJALAR DARAXTI.
+//
+// 16-19 va 21-darslar shu asbobga tayanadi. Metodist qarori 2026-08-15.
+//
+// NEGA AYNAN DARAXT. Kombinatorikaning bosh xatosi tadqiqotlarda aniq
+// nomlangan: o'quvchi oltita buyumdan tanlashda 6 + 5 + 4 + 3 + 2 + 1 = 21
+// deb yozadi, ya'ni KO'PAYTIRISH o'rniga QO'SHADI. Bu arifmetik xato emas:
+// u ketma-ket tanlov qanday ishlashini ko'rmagan. Va bu faqat bitta narsa
+// bilan tuzaladi -- daraxtni O'Z QO'LI bilan qurish bilan.
+//
+// Shuning uchun asbobda barglar soni yonida IKKITA hisob turadi: yig'indi va
+// ko'paytma. O'quvchi qaysi biri barglar soniga mos kelganini o'zi ko'radi.
+// Xato aytilmaydi, u o'ladi.
+//
+// `collapse` yoqilsa, bir xil TO'PLAMLar birlashtiriladi: ABC va CBA bitta
+// to'plam. Shunda o'rin almashtirishdan gruppalashga o'tish ko'rinadi.
+// ============================================================
+// `markPaths` -- 19-dars uchun: daraxtning har bargi bu YO'L, va yo'llarni
+// ichidagi «be» soniga qarab bo'yash mumkin. Shunda binom koeffitsienti
+// ko'rinadi: uchta yo'lda «be» bir marta uchraydi, va formulada uchlik shundan.
+export function OutcomeTree({
+  levels = [],
+  depth,
+  collapse = false,
+  markPaths,
+  pathLabels,
+  showCounts = true,
+  sumLabel,
+  prodLabel,
+  leafLabel,
+  note,
+  height = 168,
+}) {
+  const W = 640
+  const padT = 16
+  const padB = 26
+  const shown = Math.max(0, Math.min(levels.length, depth === undefined ? levels.length : depth))
+  const H = height
+
+  // Har qatlamda nechta shox: `levels[i].n`. Ochilgan qatlamlar bo'yicha
+  // barglar soni ko'paytma bo'ladi.
+  const counts = levels.slice(0, shown).map((lv) => lv.n)
+  const prod = counts.reduce((a, b) => a * b, 1)
+  const sum = counts.reduce((a, b) => a + b, 0)
+  // Bir xil to'plamlar birlashtirilsa: n! ga bo'linadi (tartib ahamiyatsiz).
+  const fact = (k) => (k <= 1 ? 1 : k * fact(k - 1))
+  const leaves = collapse ? Math.round(prod / fact(counts.length)) : prod
+
+  const rowY = (i) => padT + ((H - padT - padB) * i) / Math.max(1, levels.length)
+  const nodesAt = (i) => counts.slice(0, i).reduce((a, b) => a * b, 1)
+
+  const dots = []
+  for (let i = 0; i <= shown; i += 1) {
+    const total = nodesAt(i)
+    // Ekranga sig'adigan chegara: 24 tugundan ko'pi nuqta bo'lib qoladi.
+    const cap = Math.min(total, 24)
+    for (let k = 0; k < cap; k += 1) {
+      const x = 40 + ((W - 80) * (k + 0.5)) / cap
+      dots.push({ x, y: rowY(i), i, k, total, cap })
+    }
+  }
+
+  const edges = []
+  for (let i = 1; i <= shown; i += 1) {
+    const from = dots.filter((d) => d.i === i - 1)
+    const to = dots.filter((d) => d.i === i)
+    for (const b of to) {
+      const parent = from[Math.min(from.length - 1, Math.floor((b.k * from.length) / b.cap))]
+      if (parent) edges.push({ x1: parent.x, y1: parent.y, x2: b.x, y2: b.y, i })
+    }
+  }
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+        {edges.map((e, i) => (
+          <line key={'e' + i} x1={e.x1} y1={e.y1} x2={e.x2} y2={e.y2} stroke={T.line} strokeWidth="1.4" className="g11-in" />
+        ))}
+        {dots.map((d, i) => {
+          // Barg yo'lining «be» soni: pastki qatlamda k ta shoxdan nechtasi
+          // ikkinchi tanlov bo'lgani. `markPaths` berilsa, shu son bo'yicha
+          // bo'yaladi va binom koeffitsienti KO'RINADI.
+          let mark = null
+          if (markPaths !== undefined && d.i === shown && shown > 0) {
+            let ones = 0
+            let rest = d.k
+            for (let lv = shown - 1; lv >= 0; lv -= 1) {
+              const base = counts[lv] || 1
+              if (rest % base === 1) ones += 1
+              rest = Math.floor(rest / base)
+            }
+            mark = ones === markPaths
+          }
+          return (
+            <circle
+              key={'d' + i}
+              cx={d.x}
+              cy={d.y}
+              r={mark ? 6 : d.i === shown ? 5 : 4}
+              fill={mark ? T.ok : d.i === shown ? T.accent : T.ink3}
+              className="g11-in"
+            />
+          )
+        })}
+        {levels.slice(0, shown).map((lv, i) => (
+          <text key={'l' + i} x={8} y={rowY(i + 1) + 4} fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+            {'×' + lv.n}
+          </text>
+        ))}
+      </svg>
+
+      {showCounts ? (
+        <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {/* IKKITA hisob yonma yon: o'quvchi qaysi biri barglarga mos
+              kelganini o'zi ko'radi. Xato ko'rsatilmaydi, u o'ladi. */}
+          <span className="g11-expr g11-expr-sm" style={{ color: T.ink3 }}>
+            <Fx>{(sumLabel || 'sum') + ' ' + counts.join(' + ') + ' = ' + sum}</Fx>
+          </span>
+          <span className="g11-expr g11-expr-sm" style={{ color: T.graph }}>
+            <Fx>{(prodLabel || 'prod') + ' ' + counts.join(' · ') + ' = ' + prod}</Fx>
+          </span>
+        </div>
+      ) : null}
+      {leafLabel !== undefined ? (
+        <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.accent }}>
+          <Fx>{leafLabel + '  ' + leaves}</Fx>
+        </div>
+      ) : null}
+      {pathLabels !== undefined ? (
+        <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ok }}>
+          <Fx>{pathLabels}</Fx>
+        </div>
+      ) : null}
+      {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+    </div>
+  )
+}
+
+// ============================================================
+// ASBOB 4 (B3 bloki). CHASTOTA TAXTASI. Uch rejim, bitta asbob.
+//
+// 20-24-darslar shu asbobga tayanadi. Metodist qarori 2026-08-15.
+//
+// NEGA ODAMLAR BILAN, ULUSH BILAN EMAS. Ikki hodisali tajribada bir xil
+// masala CHASTOTA bilan berilganda 78 foiz to'g'ri yechilgan, ULUSH bilan
+// berilganda 23 foiz. Uch barobar. Va «birgalikdagi ehtimollikni shartli
+// bilan chalkashtirish» xatosi 56 foizdan 11 foizga tushgan. Ya'ni yozuv
+// formati bu yerda tushuntirishdan kuchliroq.
+//
+// TASODIF YO'Q. Sinov rejimida katakchalar `order` bo'yicha ochiladi, va
+// uni DARS beradi. Sababi: vyorstka tekshiruvi har safar bir xil holatni
+// ko'rishi kerak, aks holda «toza» degan javobga ishonib bo'lmaydi.
+// ============================================================
+export function FrequencyBoard({
+  total = 100,
+  groups = [],
+  order,
+  filled,
+  cols = 20,
+  mode = 'grid',
+  bars = [],
+  barMax,
+  lineAt,
+  lineLabel,
+  caption,
+  note,
+  height = 140,
+  points = [],
+  trend = false,
+  xLabel,
+  yLabel,
+  xMin,
+  xMax,
+  yMin,
+  yMax,
+}) {
+  const W = 640
+  const padX = 14
+
+  if (mode === 'bars') {
+    const H = height
+    const padB = 24
+    const padT = 12
+    const top = barMax || Math.max(1, ...bars.map((b) => b.n), lineAt || 0)
+    const bw = (W - padX * 2) / Math.max(1, bars.length)
+    const by = (v) => padT + ((top - v) / top) * (H - padT - padB)
+    return (
+      <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+        <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+          <line x1={padX} y1={by(0)} x2={W - padX} y2={by(0)} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+          {bars.map((b, i) => (
+            <g key={'b' + i} className="g11-in">
+              <rect
+                x={padX + i * bw + bw * 0.16}
+                y={by(b.n)}
+                width={bw * 0.68}
+                height={Math.max(0, by(0) - by(b.n))}
+                fill={TONES[b.tone || 'graph']}
+                opacity="0.85"
+                rx="3"
+              />
+              <text x={padX + i * bw + bw / 2} y={H - 8} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>{b.label}</text>
+              <text x={padX + i * bw + bw / 2} y={by(b.n) - 5} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>{b.n}</text>
+            </g>
+          ))}
+          {lineAt !== undefined ? (
+            <g>
+              <line x1={padX} y1={by(lineAt)} x2={W - padX} y2={by(lineAt)} stroke={T.accent} strokeWidth="1.8" strokeDasharray="6 4" />
+              {lineLabel ? (
+                <text x={W - padX} y={by(lineAt) - 6} textAnchor="end" fontSize="12" fontWeight="700" fill={T.accent} fontFamily={MATH_FONT}>{lineLabel}</text>
+              ) : null}
+            </g>
+          ) : null}
+        </svg>
+        {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+        {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+      </div>
+    )
+  }
+
+  // ============================================================
+  // NUQTALAR BULUTI. 23-dars uchun: ikkita qatorning bog'liqligi
+  // KO'RINADI, lekin sabab ko'rinmaydi. Shuning uchun asbob faqat
+  // nuqtalarni va (so'ralganda) yo'nalish chizig'ini chizadi -- sabab
+  // haqida bir og'iz ham demaydi, uni dars matni aytadi.
+  //
+  // Nuqtalarni DARS beradi. Bu shu faylning boshidagi qoida bilan bir xil:
+  // tasodifiy generator har yuklanishda boshqa rasm berardi va o'lchov
+  // tekshiruvi hech narsani ushlamas edi.
+  if (mode === 'scatter') {
+    const H = height
+    const padB = 26
+    const padT = 10
+    const padL = 30
+    const xs = points.map((p) => p.x)
+    const ys = points.map((p) => p.y)
+    const x0 = xMin !== undefined ? xMin : Math.min(...xs, 0)
+    const x1 = xMax !== undefined ? xMax : Math.max(...xs, 1)
+    const y0 = yMin !== undefined ? yMin : Math.min(...ys, 0)
+    const y1 = yMax !== undefined ? yMax : Math.max(...ys, 1)
+    const px = (v) => padL + ((v - x0) / (x1 - x0 || 1)) * (W - padL - padX)
+    const py = (v) => padT + ((y1 - v) / (y1 - y0 || 1)) * (H - padT - padB)
+    // Yo'nalish chizig'i eng kichik kvadratlar usuli bilan: uni ham dars
+    // emas, asbob hisoblaydi -- aks holda ekranda mening javobim turardi.
+    let fit = null
+    if (trend && points.length > 1) {
+      const n = points.length
+      const sx = xs.reduce((a, b) => a + b, 0)
+      const sy = ys.reduce((a, b) => a + b, 0)
+      const sxy = points.reduce((a, p) => a + p.x * p.y, 0)
+      const sxx = points.reduce((a, p) => a + p.x * p.x, 0)
+      const den = n * sxx - sx * sx
+      if (den !== 0) {
+        const k = (n * sxy - sx * sy) / den
+        const b = (sy - k * sx) / n
+        fit = { k, b }
+      }
+    }
+    return (
+      <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+        <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+          <line x1={padL} y1={py(y0)} x2={W - padX} y2={py(y0)} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+          <line x1={padL} y1={py(y0)} x2={padL} y2={padT} stroke="rgba(23,26,29,.34)" strokeWidth="1.5" />
+          {xLabel ? <text x={W - padX} y={H - 7} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>{xLabel}</text> : null}
+          {yLabel ? <text x={padL - 4} y={padT + 9} textAnchor="end" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>{yLabel}</text> : null}
+          {fit ? (
+            <line
+              x1={px(x0)} y1={py(fit.k * x0 + fit.b)}
+              x2={px(x1)} y2={py(fit.k * x1 + fit.b)}
+              stroke={T.accent} strokeWidth="1.8" strokeDasharray="6 4" className="g11-in"
+            />
+          ) : null}
+          {points.map((p, i) => (
+            <circle
+              key={'p' + i}
+              cx={px(p.x)}
+              cy={py(p.y)}
+              r={p.big ? 7 : 5}
+              fill={TONES[p.tone || 'graph']}
+              opacity={p.dim ? 0.3 : 0.85}
+              className="g11-in"
+            />
+          ))}
+        </svg>
+        {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+        {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+      </div>
+    )
+  }
+
+  const tone = []
+  let at = 0
+  groups.forEach((g, gi) => {
+    for (let k = 0; k < g.n && at < total; k += 1, at += 1) tone[at] = gi
+  })
+  for (let i = at; i < total; i += 1) tone[i] = -1
+  const place = (i) => (order && order.length === total ? order[i] : i)
+  const openTo = filled === undefined ? total : Math.max(0, Math.min(total, filled))
+
+  const rows = Math.ceil(total / cols)
+  const cell = (W - padX * 2) / cols
+  const boxH = rows * cell + 8
+
+  return (
+    <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+      <svg viewBox={'0 0 ' + W + ' ' + boxH} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: Math.min(height, boxH) }}>
+        {Array.from({ length: total }, (_, i) => {
+          const idx = place(i)
+          const open = i < openTo
+          const g = tone[idx]
+          const r = Math.floor(idx / cols)
+          const c = idx % cols
+          return (
+            <rect
+              key={'c' + i}
+              x={padX + c * cell + 1.2}
+              y={4 + r * cell + 1.2}
+              width={cell - 2.4}
+              height={cell - 2.4}
+              rx="2.4"
+              fill={open && g >= 0 ? TONES[groups[g].tone || 'graph'] : T.paper}
+              stroke={T.line}
+              strokeWidth="1"
+              opacity={open ? 1 : 0.45}
+            />
+          )
+        })}
+      </svg>
+      {groups.length ? (
+        <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
+          {groups.map((g, i) => (
+            <span key={'g' + i} className="g11-expr g11-expr-sm" style={{ color: TONES[g.tone || 'graph'], display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+              <span style={{ width: 10, height: 10, borderRadius: 2, background: TONES[g.tone || 'graph'], display: 'inline-block' }} />
+              <Fx>{g.label !== undefined ? g.label + ' ' + g.n : String(g.n)}</Fx>
+            </span>
+          ))}
+        </div>
+      ) : null}
+      {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+      {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+    </div>
   )
 }

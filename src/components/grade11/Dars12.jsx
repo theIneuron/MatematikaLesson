@@ -1,204 +1,37 @@
 // ============================================================================
 // 11-sinf, Dars 12. LOGARIFMIK TENGSIZLIKLAR.  (Логарифмические неравенства)
 //
-// PILOT dars: PODXOD_11SINF.md yondashuvi bo'yicha birinchi dars.
-// Bu faylda FAQAT MA'LUMOT va asboblarni ulash bor. Mexanika `tools.jsx` da,
-// yadro `core.jsx` da.
-//   raskadrovka: src/books/grade11/DARS12_SKELET.md (redaksiya 2)
+// SINFNING ETALON DARSI. Bu faylda FAQAT MA'LUMOT bor: qaysi tengsizlik,
+// qaysi variantlar, qaysi razbor, qaysi ovoz. Ekranning TANASI `screens.jsx`
+// da (rol bo'yicha), mexanika `tools.jsx` da, infratuzilma `core.jsx` da.
+//   raskadrovka: src/books/grade11/DARS12_SKELET.md
 //   kontent:     src/books/grade11/DARS12_CONTENT.md
 //
 // Tuzilishi (metodist tasdiqladi 2026-08-06): 15 ekran
-//   1      xuk
-//   2-8    temani tushuntirish
-//   9-14   o'rganilganni mashq qilish
-//   15     yakun
+//   1      xuk                          rol: hook
+//   2-8    temani tushuntirish          support, points, graph, rule, newcase, twoway, rule
+//   9-14   o'rganilganni mashq qilish   sign, chain, chain, blitz, audit, build
+//   15     yakun                        summary
 //
-// Baholanadi FAQAT 12-slayd (blits). Qolgan ekranlar diagnostik teg beradi.
+// Baholanadi FAQAT blits (12-slayd, olti savol). Qolgan ekranlar ball
+// bermaydi, diagnostik teg beradi.
 //
 // `import React` SHART (LMS klassik rejim).
 // ============================================================================
 // `React` LMS klassik rejimi uchun SHART, kodda to'g'ridan-to'g'ri ishlatilmaydi.
 // eslint-disable-next-line no-unused-vars
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import {
-  BgCurves,
-  Btn,
-  Col,
-  Cols,
-  Expr,
-  FREE_NAV,
-  Fx,
-  Insight,
-  L,
-  LangProvider,
-  LangSetProvider,
-  Panel,
-  PrintSheet,
-  RingProgress,
-  STYLES,
-  Slot,
-  SoftTimer,
-  Stage,
-  T,
-  Tag,
-  Title,
-  configureLesson,
-  tr,
-  useAdvanceGate,
-  useAudio,
-  useMobileZoom,
-  useNarratedSteps,
-  useT,
-} from './core.jsx'
-import {
-  AnswerInterval,
-  AuditRows,
-  BaseSlider,
-  BuildExpr,
-  GraphProjection,
-  Probe,
-  ProbeChain,
-  RuleGate,
-  SignFill,
-  SolutionLine,
-  SupportCards,
-  TestPointRows,
-  TransformChain,
-} from './tools.jsx'
+import React from 'react'
+import { L } from './core.jsx'
+import { A, UI, makeLesson } from './screens.jsx'
+import { BaseSlider } from './tools.jsx'
 
-const LESSON_ID = 'alg_11_12'
-const LESSON_TITLE = L('Logarifmik tengsizliklar', 'Логарифмические неравенства', 'Logarithmic inequalities')
-const TOTAL = 15
-
-// Ovoz bo'laklari. `on: 'mount'` -- ekran ochilganda, `on: '<nom>'` -- shu nomli
-// qadam bosilganda. Ovoz TAYMER bilan emas, o'quvchining qadami bilan boradi.
-const A = (on, uz, ru, en) => ({ on, text: L(uz, ru, en) })
-
-// Ovoz OCHILISHNI boshqaradigan ekranlar uchun: hamma bo'lak avtomatik
-// zanjirlanadi, `waitFor` dagilar esa o'quvchining javobini kutadi.
-const TP_IN = L('kiradi', 'входит', 'is a solution')
-const TP_OUT = L('kirmaydi', 'не входит', 'is not a solution')
-
-const buildAuto = (list, lang, waitFor = []) =>
-  list.map((s, i) => ({
-    id: 'a' + i,
-    text: tr(s.text, lang),
-    trigger: waitFor.indexOf(s.on) !== -1
-      ? 'on_event:' + s.on
-      : (i === 0 ? 'on_mount' : 'after_previous'),
-    waits_for: null,
-  }))
-
-const textsOf = (list, lang) => list.map((s) => tr(s.text, lang))
-
-const buildSegments = (list, lang) =>
-  list.map((s, i) => ({
-    id: 'a' + i,
-    text: tr(s.text, lang),
-    trigger: s.on === 'mount'
-      ? (i === 0 ? 'on_mount' : 'after_previous')
-      : s.on === 'next' ? 'after_previous' : 'on_event:' + s.on,
-    waits_for: null,
-  }))
-
-const UI = {
-  next: L('Davom etish', 'Продолжить', 'Continue'),
-  back: L('← Orqaga', '← Назад', '← Back'),
-  finish: L('Darsni yakunlash', 'Завершить урок', 'Finish the lesson'),
-  saved: L('Natija saqlandi', 'Результат сохранён', 'Result saved'),
-  substitute: L("Qo'yish:", 'Подставить', 'Substitute'),
-  // Vaqt da'vosi olib tashlandi: 1-slaydda haqiqiy taymer yo'q, taymer
-  // faqat blitsda (12-slayd). Metodist qarori 2026-08-07.
-  mock: L('Sinov DTM', 'Пробный ДТМ', 'Mock exam'),
-  answerA: L('A varianti', 'Вариант A', 'Option A'),
-  answerB: L('B varianti', 'Вариант B', 'Option B'),
-  was: L('Edi', 'Было', 'Before'),
-  now: L("Bo'ldi", 'Стало', 'Now'),
-  target: L("Maqsad oralig'i", 'Целевой интервал', 'Target interval'),
-  learned: L("Nimani o'rgandingiz", 'Что нового на уроке', 'What you learned'),
-  predictToProved: L('Boshdagi taxmin \u2192 isbotlangan javob', 'Прогноз в начале \u2192 доказанный ответ', 'Initial guess \u2192 proved answer'),
-  dtmReady: L('DTM ga tayyorlik', 'Готовность к ДТМ', 'Exam readiness'),
-  weakSpot: L('Takrorlash kerak', 'Требует повтора', 'Needs review'),
-  caseUp: L("a > 1 \u00b7 o'sadi", 'a > 1 \u00b7 возрастает', 'a > 1 \u00b7 increasing'),
-  caseDown: L('0 < a < 1 \u00b7 kamayadi', '0 < a < 1 \u00b7 убывает', '0 < a < 1 \u00b7 decreasing'),
-  // 3-ekran: TEKSHIRISH MEZONI. Ilgari ekranda faqat «Qaysi nuqtani olamiz?»
-  // turardi -- nima uchun olayotganimiz va nimani kutayotganimiz yozilmagan edi.
-  s3rule: L(
-    "Yechim bo'lgan son to'g'ri javobning ICHIDA yotishi shart. Ikki javobni ajratadigan sonni izlaymiz.",
-    'Число-решение обязано лежать ВНУТРИ верного ответа. Ищем число, которое разводит эти два ответа.',
-    'A number that is a solution must lie INSIDE the correct answer. We are looking for a number that separates these two answers.',
-  ),
-  // Qisqa: uzun yorliq telefonda o'z satriga tushib, 25px qo'shardi.
-  s3goal: L('chap tomon 2 dan KICHIK', 'слева МЕНЬШЕ 2', 'the left side is LESS than 2'),
-  yourPick: L('sizning taxminingiz', 'твой прогноз', 'your guess'),
-  agrees: L('mos keldi', 'сходится', 'consistent'),
-  breaks: L('ZIDDIYAT', 'ПРОТИВОРЕЧИЕ', 'CONTRADICTION'),
-  breakHas: L(
-    'ichida {v} bor, {v} esa yechim emas',
-    'содержит {v}, а {v} — не решение',
-    'contains {v}, but {v} is not a solution',
-  ),
-  breakMiss: L(
-    "{v} yo'q, lekin {v} yechim",
-    'нет {v}, хотя {v} — решение',
-    'lacks {v}, although {v} is a solution',
-  ),
-  headPut: L("qo'ydik", 'подставили', 'substituted'),
-  headGot: L('chapda chiqdi', 'слева получилось', 'left side gives'),
-  headVerdict: L('xulosa', 'вывод', 'verdict'),
-  need: L('kerak', 'нужно', 'needed'),
-  soAnswer: L('Demak javob', 'Значит ответ', 'So the answer is'),
-  ourBase: L('misolda', 'в примере', 'in our example'),
-  bonusLabel: L('BONUS', 'БОНУС', 'BONUS'),
-  bonus: L(
-    "pH, detsibel, magnituda \u2014 hammasi logarifmik shkala: teng qadam teng NISBATni beradi, teng farqni emas.",
-    'pH, децибелы, магнитуда \u2014 всё это логарифмические шкалы: равный шаг даёт равное ОТНОШЕНИЕ, а не равную разницу.',
-    'pH, decibels and magnitude are logarithmic scales: an equal step means an equal RATIO, not an equal difference.',
-  ),
-  sheetTitle: L('Logarifmik tengsizliklar \u00b7 shpargalka', 'Логарифмические неравенства \u00b7 шпаргалка', 'Logarithmic inequalities \u00b7 cheat sheet'),
-  sheetSrc: L("11-sinf, 12-dars \u00b7 masalalar to'plami, 2-qism, 100-bet, \u2116 32", '11 класс, урок 12 \u00b7 задачник, часть 2, стр. 100, \u2116 32', 'Grade 11, lesson 12 \u00b7 exercise book, part 2, p. 100, no. 32'),
-  lifehack: L(
-    "10 sekundlik tekshiruv: javob ICHIDAN bitta butun son va TASHQARISIDAN bitta butun son ol. Boshlang'ich tengsizlikka qo'y: biri o'tishi, ikkinchisi o'tmasligi kerak.",
-    'Проверка за 10 секунд: возьми целое число ВНУТРИ ответа и целое СНАРУЖИ. Подставь в исходное: одно должно пройти, другое нет.',
-    'A 10-second check: take a whole number INSIDE your answer and one OUTSIDE. Substitute into the original: one must pass, the other must fail.',
-  ),
-  goesToResult: L('Natijaga kiradi', 'Идёт в результат', 'Counts towards the result'),
+const META = {
+  id: 'alg_11_12',
+  title: L('Logarifmik tengsizliklar', 'Логарифмические неравенства', 'Logarithmic inequalities'),
 }
 
-// ============================================================
-// Umumiy ramka: sarlavha, qulf, navigatsiya.
-// ============================================================
-function Frame({ meta, right, screen, audio, solved, onPrev, onNext, onFinish, finished, children }) {
-  const t = useT()
-  const canNext = useAdvanceGate(solved, audio)
-  const last = screen === TOTAL - 1
-  const nav = {
-    // 1-4 sinf naqshi: birinchi ekranda tugma UMUMAN chizilmaydi (kulrang
-    // faolsiz emas), yorlig'ida strelka turadi.
-    back: screen === 0 ? null : (
-      <Btn tone="ghost" onClick={onPrev}>
-        {t(UI.back)}
-      </Btn>
-    ),
-    next: last ? (
-      <Btn tone="accent" ready={!finished} onClick={onFinish} disabled={finished}>
-        {finished ? t(UI.saved) : t(UI.finish)}
-      </Btn>
-    ) : (
-      <Btn onClick={onNext} disabled={!canNext} ready={solved}>
-        {t(UI.next)}
-      </Btn>
-    ),
-  }
-  return (
-    <Stage eyebrow={t(meta.eyebrow)} right={right} block={BLOCK} screen={screen} total={TOTAL} audio={audio} nav={nav}>
-      <Title>{t(meta.title)}</Title>
-      {children}
-    </Stage>
-  )
-}
-
-// Dars B2 blokining nechanchi qadami: 9-14 darslar, hozir 12-si.
+// Dars B2 blokining nechanchi qadami: 9-14 darslar, hozir 12-si. Shapkadagi
+// «12-dars / Урок 12» ham SHU sondan olinadi.
 // Manba: src/books/Math_1-11_Поурочно_RUz.xlsx, «11 класс» varag'i.
 // `B2` -- LOTIN harfi bilan: uch tilda ham bir xil, UZ/EN ekranida kirill
 // paydo bo'lmasligi kerak (prokliklash skripti buni tekshiradi).
@@ -210,37 +43,38 @@ const AXIS_2 = { min: 0, max: 8, ticks: [{ v: 2 }, { v: 3 }] }
 const AXIS_3 = { min: -2, max: 10, ticks: [{ v: 0 }, { v: 3 }] }
 const AXIS_4 = { min: 0, max: 10, ticks: [{ v: 3 }, { v: 7 }] }
 
+const EXPR_1 = 'log₅(x − 3) < 2'
+const EXPR_2 = 'log₀,₅(2x − 4) > −1'
+
+const OUR_BASE = L('misolda', 'в примере', 'in our example')
+
 // ============================================================
 // SLAYD 1. XUK. Ikki javob, umumiy soni YO'Q. Baholanmaydi.
 // ============================================================
 const S1 = {
+  role: 'hook',
   eyebrow: L('Logarifmik tengsizliklar', 'Логарифмические неравенства', 'Logarithmic inequalities'),
-  title: L(
-    'Ikki javob. Kim haq?',
-    'Два ответа. Кто прав?',
-    'Two answers. Who is right?',
-  ),
-  expr: 'log₅(x − 3) < 2',
+  title: L('Ikki javob. Kim haq?', 'Два ответа. Кто прав?', 'Two answers. Who is right?'),
+  expr: EXPR_1,
+  axis: AXIS_1,
   rows: [
     {
       id: 'a',
       name: L('birinchi yechim', 'первое решение', 'first solution'),
       value: '(3; 28)',
-      btn: L("Birinchi yechimni ko'rsatish", 'Показать первое решение', 'Show the first solution'),
       set: { from: 3, to: 28, tone: 'ink' },
     },
     {
       id: 'b',
       name: L('ikkinchi yechim', 'второе решение', 'second solution'),
       value: '(−∞; 28)',
-      btn: L("Ikkinchi yechimni ko'rsatish", 'Показать второе решение', 'Show the second solution'),
       set: { from: null, to: 28, tone: 'tip' },
     },
   ],
   probe: {
     question: L("Qaysi javob to'g'ri?", 'Какой ответ верный?', 'Which answer is correct?'),
     afterPredict: L(
-      "Javobingiz yozib olindi. Endi uni nuqta bilan tekshiramiz.",
+      'Javobingiz yozib olindi. Endi uni nuqta bilan tekshiramiz.',
       'Твой ответ записан. Сейчас проверим его точкой.',
       'Your answer is saved. Now we will check it with a point.',
     ),
@@ -262,57 +96,16 @@ const S1 = {
   ],
 }
 
-function Screen1({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S1.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S1.audio, rest.lang), S1.holds)
-  const [picked, setPicked] = useState(null)
-  const open = Math.min(phase, S1.rows.length)
-
-  return (
-    <Frame meta={S1} screen={screen} audio={audio} solved={!!picked} {...rest}>
-      <Cols l={1.05} r={1}>
-        <Col>
-          <Tag tone="accent">{t(UI.mock)}</Tag>
-          <Expr size="hero" style={{ textAlign: 'left' }}>{S1.expr}</Expr>
-          {phase >= 3 ? (
-            <div className="g11-in">
-              <Probe audio={audio} data={S1.probe} cols={2} fbSlot={58} noShuffle unscored dense
-                onSolved={(r) => { setPicked(r.picked); onAnswer({ ...r, screen }) }} />
-            </div>
-          ) : null}
-        </Col>
-        <Col>
-          {S1.rows.map((r, i) => (
-            <Panel
-              key={r.id}
-              tone={i < open ? 'paper' : 'quiet'}
-              className={i < open ? 'g11-reveal' : undefined}
-              style={{ display: 'flex', flexDirection: 'column', gap: 5, opacity: i < open ? 1 : 0.32 }}
-            >
-              <Tag tone={i === 0 ? 'graph' : 'quiet'}>{t(r.name)}</Tag>
-              <Expr size="big" style={{ textAlign: 'left' }} className={i < open ? 'g11-drop' : undefined}>
-                {i < open ? r.value : '?'}
-              </Expr>
-              {i < open ? (
-                <SolutionLine axis={AXIS_1} sets={[r.set]} />
-              ) : <Slot mh={60} />}
-            </Panel>
-          ))}
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 2. TAYANCH. Uch kartochka, keyin uch topshiriq. Baholanmaydi.
 // ============================================================
 const S2 = {
+  role: 'support',
+  // Tegi YO'Q ataylab: bu ekran baho ham, diagnoz ham bermaydi -- tayanch
+  // tiklanadi, xolos. Teglar ro'yxati ETALON §5 da, va u faqat XATO turlari
+  // uchun.
   eyebrow: L('Tayanchni tekshirish', 'Проверка опоры', 'Checking the basics'),
   title: L('Uch tayanch', 'Три опоры', 'Three basics'),
-  toTasks: L('Endi uchta qisqa topshiriq', 'Теперь три коротких задания', 'Now three short tasks'),
   // Kirish: NIMA UCHUN eslayapmiz. Ilgari bu faqat ovozda edi, ekranda
   // esa uch kartochka darrov turardi (metodist, 2026-08-10).
   lead: L(
@@ -329,7 +122,6 @@ const S2 = {
         { e: 'log₅ 25 = 2', why: '5² = 25' },
         { e: 'log₅ 125 = 3', why: '5³ = 125' },
       ],
-      btn: L('Birinchi tayanch', 'Первая опора', 'First basic'),
     },
     {
       id: 'c2',
@@ -339,7 +131,6 @@ const S2 = {
         { e: '(0,5)⁻¹ = 2', why: '1 : 0,5 = 2' },
         { e: 'log₀,₅ 4 = −2', why: '(0,5)⁻² = 4' },
       ],
-      btn: L('Ikkinchi tayanch', 'Вторая опора', 'Second basic'),
     },
     {
       // Bu tayanch bugungi darsning O'ZAGI, shuning uchun u SONLARDA
@@ -357,7 +148,6 @@ const S2 = {
           why: L('argument o\'sdi — logarifm PASAYDI', 'аргумент вырос — а логарифм УПАЛ', 'the argument grew, the logarithm FELL'),
         },
       ],
-      btn: L('Uchinchi tayanch', 'Третья опора', 'Third basic'),
     },
   ],
   tasks: [
@@ -395,8 +185,6 @@ const S2 = {
       ],
     },
   ],
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [4500, 19500, 16500, 21000, 9000, 7000],
   audio: [
     A('mount', 'Bahsni hal qilishdan oldin uch narsani eslaymiz. Bu baho emas.', 'Прежде чем решать спор, восстановим три вещи. Это не оценка.', 'Before we settle the argument, let us recall three things. This is not graded.'),
@@ -433,50 +221,40 @@ const S2 = {
   ],
 }
 
-function Screen2({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S2.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S2.audio, rest.lang), S2.holds)
-  const [done, setDone] = useState(false)
-  return (
-    <Frame meta={S2} screen={screen} audio={audio} solved={done} {...rest}>
-      {/* Kirish gapi savollar ochilgunga qadar turadi: o'quvchi nima uchun
-          eslayotganini bilishi kerak. Savollar chiqqach u joyni bo'shatadi. */}
-      {phase < 5 ? <p className="g11-lead g11-drop">{t(S2.lead)}</p> : null}
-      <SupportCards
-        cards={S2.cards}
-        tasks={S2.tasks}
-        open={Math.min(phase, S2.cards.length)}
-        showTasks={phase >= 5}
-        audio={audio}
-        onStep={audio.step}
-        onSolved={() => { setDone(true); onAnswer({ screen, correct: null, tag: 'support' }) }}
-      />
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 3. BIRINCHI MODEL: bahsni NUQTA hal qiladi.
 // ============================================================
 const S3 = {
+  role: 'points',
+  led: 'student',
+  tag: 'check_by_point',
   eyebrow: L('Nuqta bilan tekshiramiz', 'Проверим точкой', 'Let us check with a point'),
   title: L('Bahsni nuqta hal qiladi', 'Спор решает точка', 'A point settles it'),
+  expr: EXPR_1,
+  // Qisqa: uzun yorliq telefonda o'z satriga tushib, 25px qo'shardi.
+  goal: L('chap tomon 2 dan KICHIK', 'слева МЕНЬШЕ 2', 'the left side is LESS than 2'),
+  // TEKSHIRISH MEZONI. Ilgari ekranda faqat «Qaysi nuqtani olamiz?» turardi --
+  // nima uchun olayotganimiz va nimani kutayotganimiz yozilmagan edi.
+  rule: L(
+    "Yechim bo'lgan son to'g'ri javobning ICHIDA yotishi shart. Ikki javobni ajratadigan sonni izlaymiz.",
+    'Число-решение обязано лежать ВНУТРИ верного ответа. Ищем число, которое разводит эти два ответа.',
+    'A number that is a solution must lie INSIDE the correct answer. We are looking for a number that separates these two answers.',
+  ),
   pick: L('Qaysi nuqtani olamiz?', 'Какую точку взять?', 'Which point shall we take?'),
-  // Har nuqtaning ROLI bor va u tugmada yozilgan: o'quvchi tugmani
-  // ko'r-ko'rona bosmaydi, nima uchun aynan shu sonni olayotganini biladi.
-  // `sol` -- bu son tengsizlikning yechimimi. `inA`, `inB` -- u da'vogar
-  // javoblarning ichidami. Ziddiyat aynan `sol` va `in` mos kelmaganda chiqadi.
+  claims: [
+    { id: 'a', key: 'inA', name: L('birinchi yechim', 'первое решение', 'first solution'), value: '(3; 28)' },
+    { id: 'b', key: 'inB', name: L('ikkinchi yechim', 'второе решение', 'second solution'), value: '(−∞; 28)' },
+  ],
+  axis: AXIS_1,
+  sets: [{ from: 3, to: 28, tone: 'graph' }, { from: null, to: 28, tone: 'tip' }],
+  // Har nuqtaning ROLI bor va u tugmada yozilgan: o'quvchi tugmani ko'r-ko'rona
+  // bosmaydi. `sol` -- bu son tengsizlikning yechimimi. `inA`, `inB` -- u
+  // da'vogar javoblarning ichidami. Ziddiyat `sol` va `in` mos kelmaganda chiqadi.
   points: [
     {
       id: 'p0', label: 'x = 0', num: '0', mark: 0, step: 'calc', verdict: 'out',
       role: L('uchdan chapda', 'левее тройки', 'left of three'),
-      calc: L(
-        "log₅(0 − 3) — logarifm YO'Q",
-        'log₅(0 − 3) — логарифма НЕТ',
-        'log₅(0 − 3) — NO logarithm',
-      ),
+      calc: L("log₅(0 − 3) — logarifm YO'Q", 'log₅(0 − 3) — логарифма НЕТ', 'log₅(0 − 3) — NO logarithm'),
       sol: false, inA: false, inB: true,
     },
     {
@@ -505,8 +283,6 @@ const S3 = {
       },
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [2500, 13500, 8500, 2500, 14500, 4500],
   audio: [
     A('mount', 'Tayanch tiklandi. Bahsga qaytamiz.', 'Опора восстановлена. Вернёмся к спору.', 'The basics are back. Let us return to the argument.'),
@@ -531,128 +307,43 @@ const S3 = {
     ),
     A(
       'next',
-      "Bitta son ikki javobni ajratdi. Qaysi javob mezonni buzdi?",
+      'Bitta son ikki javobni ajratdi. Qaysi javob mezonni buzdi?',
       'Одно число развело два ответа. Какой из них нарушил правило?',
       'One number separated the two answers. Which of them broke the rule?',
     ),
   ],
 }
 
-function Screen3({ screen, answers, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildSegments(S3.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S3.audio, rest.lang), S3.holds)
-  const [shown, setShown] = useState([])
-  const [solved, setSolved] = useState(false)
-  const [marked, setMarked] = useState(false)
-  const all = shown.length >= S3.points.length
-  const marks = S3.points
-    .filter((p) => shown.indexOf(p.id) !== -1 && p.mark !== undefined)
-    .map((p) => ({ v: p.mark, tone: 'accent' }))
-
-  // 1-ekrandagi taxmin: qaysi javobni tanlagan edi.
-  const rec = (answers || []).find((a) => a && a.screen === 0 && a.picked)
-  const predicted = rec ? rec.picked : null
-
-  // Xulosa ovozi UCHINCHI hisob TUGAGACH aytiladi. Ilgari u 400 ms dan keyin
-  // chaqirilardi va oxirgi hisobning ustidan gapirib ketardi.
-  useEffect(() => {
-    if (!all || marked || audio.muted || audio.isPlaying) return undefined
-    const id = setTimeout(() => { setMarked(true); audio.step('mark') }, 300)
-    return () => clearTimeout(id)
-  }, [all, marked, audio.muted, audio.isPlaying]) // eslint-disable-line react-hooks/exhaustive-deps
-
-  // Da'vogar javobning xulosasi: TEKSHIRILGAN sonlar ichida mezonni buzgani
-  // bormi. Muhim: xulosa faqat o'quvchi javob bergandan KEYIN bosiladi --
-  // aks holda savol tekin bo'lib qoladi.
-  const breachOf = (key) => S3.points.find(
-    (p) => shown.indexOf(p.id) !== -1 && p.sol !== p[key],
-  ) || null
-
-  return (
-    <Frame meta={S3} screen={screen} audio={audio} solved={solved} {...rest}>
-      {/* Tengsizlik va NIMANI kutayotganimiz bir joyda. */}
-      <Panel tone="teal" pad={8} style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <Expr size="row" style={{ textAlign: 'left' }}>{S1.expr}</Expr>
-        <Tag tone="graph">{t(UI.s3goal)}</Tag>
-      </Panel>
-
-      {/* MEZON bir gapda: nima uchun son qo'yayotganimiz. */}
-      <Slot mh={20}>
-        {phase >= 1 ? <p className="g11-ask g11-drop">{t(UI.s3rule)}</p> : null}
-      </Slot>
-
-      {/* Ikki da'vogar javob EKRANDA turadi: o'quvchi nimani hal qilayotganini
-          ko'radi. Xulosa o'rni hozircha savol belgisi. */}
-      {phase >= 1 ? (
-        <div className="g11-claims g11-reveal">
-          {S1.rows.map((r) => {
-            const key = r.id === 'a' ? 'inA' : 'inB'
-            const bad = solved ? breachOf(key) : null
-            const why = bad
-              ? tr(bad.sol ? UI.breakMiss : UI.breakHas, rest.lang).replace(/\{v\}/g, bad.num)
-              : null
-            return (
-              <Panel key={r.id} tone={solved && !bad ? 'paper' : 'quiet'} pad={8} className="g11-claim">
-                <Tag tone="quiet">{t(r.name)}</Tag>
-                <span className="g11-claim-v"><Fx>{r.value}</Fx></span>
-                {predicted === r.id ? <Tag tone="quiet">{t(UI.yourPick)}</Tag> : null}
-                {solved
-                  ? <Tag tone={bad ? 'tip' : 'ok'} className="g11-drop">{bad ? t(UI.breaks) : t(UI.agrees)}</Tag>
-                  : <span className="g11-claim-q">?</span>}
-                {why ? <span className="g11-hint g11-wrap">{why}</span> : null}
-              </Panel>
-            )
-          })}
-        </div>
-      ) : <Slot mh={44} />}
-
-      <Cols l={1} r={0.82}>
-        <Col>
-          {/* Bitta tugma va u O'ZI nima qilishini aytadi: «Qo'yish: x = 0».
-              Ilgari uch tugma va bo'sh jadval turardi -- nima qilish kerakligi
-              ekrandan ko'rinmasdi. */}
-          <TestPointRows
-            points={S3.points}
-            sequential
-            /* Tugma UCHINCHI gapdan keyin ochiladi: MEZON («yechim to'g'ri
-               javob ichida yotishi shart») va «nuqtani tanlang» aynan
-               1- va 2-bo'lakda aytiladi. Ilgari tugma birinchi soniyadan
-               bosilardi va o'sha ikki gap tushib qolardi. */
-            lock={phase < 2}
-            pickLabel={S3.pick}
-            subLabel={UI.substitute}
-            onStep={audio.step}
-            onRevealed={({ id }) => setShown((v) => (v.indexOf(id) === -1 ? v.concat(id) : v))}
-          />
-        </Col>
-        <Col>
-          {all ? (
-            <div className="g11-in">
-              <SolutionLine axis={AXIS_1} sets={[{ from: 3, to: 28, tone: 'graph' }, { from: null, to: 28, tone: 'tip' }]} marks={marks} />
-              <Probe audio={audio} data={S3.probe} cols={2} fbSlot={46} dense
-                onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'check_by_point' }) }} />
-            </div>
-          ) : null}
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 4. GRAFIK va uning O'QDAGI SOYASI.
 // ODZ shu yerda qoida emas: chegaradan chapda kirivi YO'Q.
 // ============================================================
+const LOG5 = (x) => Math.log(x - 3) / Math.log(5)
+
 const S4 = {
+  role: 'graph',
+  tag: 'log_domain',
   eyebrow: L('Bu tengsizlik qayerda yashaydi', 'Где живёт это неравенство', 'Where this inequality lives'),
   title: L('Tengsizlik qayerda yashaydi', 'Где живёт неравенство', 'Where the inequality lives'),
-  btns: [
-    L('Chiziqni chizish', 'Нарисовать кривую', 'Draw the curve'),
-    L("y = 2 to'g'ri chizig'ini o'tkazish", 'Провести прямую y = 2', 'Draw the line y = 2'),
-    L("O'qdagi soyani ko'rsatish", 'Показать тень на оси', 'Show the shadow on the axis'),
-  ],
+  chip: 'y = log₅(x − 3)',
+  graph: {
+    fn: LOG5,
+    xDomain: [1, 34],
+    yDomain: [-3, 3],
+    asymptote: 3,
+    hline: 2,
+    cross: 28,
+    shade: { from: 3, to: 28 },
+    shadeLabel: '(3; 28)',
+    xTicks: [{ v: 3 }, { v: 4 }, { v: 28 }],
+    yTicks: [{ v: 0 }, { v: 2 }],
+    height: 168,
+  },
+  bonus: L(
+    "pH, detsibel, magnituda — hammasi logarifmik shkala: teng qadam teng NISBATni beradi, teng farqni emas.",
+    'pH, децибелы, магнитуда — всё это логарифмические шкалы: равный шаг даёт равное ОТНОШЕНИЕ, а не равную разницу.',
+    'pH, decibels and magnitude are logarithmic scales: an equal step means an equal RATIO, not an equal difference.',
+  ),
   probe: {
     question: L('Nega yechimlar uchdan chapda bo\'lolmaydi?', 'Почему решения не могут быть левее тройки?', 'Why can there be no solutions to the left of three?'),
     items: [
@@ -662,8 +353,6 @@ const S4 = {
       { id: 'd', label: L("u yerda 28 nuqtasi yo'q", 'там нет точки 28', 'the point 28 is not there'), hint: L("Yigirma sakkiz nuqtasi bu o'ng chegara. Savol chap chegara haqida.", 'Точка двадцать восемь это правая граница. Вопрос про левую.', 'Twenty eight is the right boundary. The question is about the left one.') },
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [5000, 6500, 3000, 6500, 6500],
   audio: [
     A('mount', "Nuqta qaysi javob to'g'ri ekanini ko'rsatdi. Endi ikkala chegara qayerdan kelishini ko'ramiz.", 'Точка показала, какой ответ верный. Теперь посмотрим, откуда берутся обе границы.', 'The point showed which answer is correct. Now let us see where both boundaries come from.'),
@@ -674,85 +363,29 @@ const S4 = {
   ],
 }
 
-const LOG5 = (x) => Math.log(x - 3) / Math.log(5)
-
-function Screen4({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S4.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S4.audio, rest.lang), S4.holds)
-  const [solved, setSolved] = useState(false)
-  const [pt, setPt] = useState(null)
-  // Grafikda TO'RT qadam, ovoz bo'lagi beshta: 0 mount, 1 kirivi, 2 to'g'ri
-  // chiziq, 3 to'ldirish, 4 O'QDAGI SOYA (javob). Ilgari bu yerda
-  // `Math.min(phase, 3)` turardi -- to'rtinchi qadam grafikka umuman
-  // yetmasdi va javob uchinchi qadamda, gapidan oldin ochilardi.
-  const graphPhase = Math.min(phase, 4)
-
-  return (
-    <Frame meta={S4} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1.9} r={1} align="start">
-        <Col>
-          <Panel tone="paper" pad={10} style={{ minWidth: 0 }}>
-            <GraphProjection
-              fn={LOG5}
-              xDomain={[1, 34]}
-              yDomain={[-3, 3]}
-              asymptote={3}
-              hline={2}
-              cross={28}
-              shade={{ from: 3, to: 28 }}
-              shadeLabel="(3; 28)"
-              xTicks={[{ v: 3 }, { v: 4 }, { v: 28 }]}
-              yTicks={[{ v: 0 }, { v: 2 }]}
-              phase={graphPhase}
-              height={168}
-              probe
-              onProbe={setPt}
-            />
-          </Panel>
-        </Col>
-        <Col>
-          {/* Yorliq emas, FORMULA: Tag uni katta harfga ko'taradi va
-              «Y = LOG₅(X − 3)» bo'lib chiqadi. Matematika kaps bo'lmaydi. */}
-          <span className="g11-formula-chip"><Fx>{'y = log₅(x − 3)'}</Fx></span>
-          {/* Tortiladigan nuqtaning o'qishi + BONUS: bitta panel, balandlik tejaladi */}
-          {phase >= 3 ? (
-            <Panel tone="quiet" pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-              <Tag tone="quiet">{t(UI.dragMe)}</Tag>
-              {pt && isFinite(pt.y) ? (
-                <span className="g11-expr g11-expr-sm">
-                  {'x = ' + pt.x.toFixed(1).replace('.', ',') + '   \u2192   ' + pt.y.toFixed(2).replace('.', ',') + '   '}
-                  <span className={pt.y < 2 ? 'g11-ok-text' : 'g11-tip-text'}>{pt.y < 2 ? '< 2' : '\u2265 2'}</span>
-                </span>
-              ) : (
-                <span className="g11-expr g11-expr-sm g11-dim">{'x = ?'}</span>
-              )}
-            </Panel>
-          ) : null}
-          {phase >= 4 ? (
-            <Insight label={t(UI.bonusLabel)} tone="graph">{t(UI.bonus)}</Insight>
-          ) : null}
-        </Col>
-      </Cols>
-      {phase >= 4 ? (
-        <div className="g11-in">
-          <Probe audio={audio} data={S4.probe} cols={2} fbSlot={52} dense
-            onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'log_domain' }) }} />
-        </div>
-      ) : null}
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 5. USUL c = logₐ a^c va 1-QOIDA. Savol-oldin-qoida.
 // ============================================================
+const RULE_1_LINE = L(
+  "a > 1: o'sadi — katta logarifmga katta argument",
+  'a > 1: возрастает — большему логарифму больший аргумент',
+  'a > 1: increasing — a bigger logarithm has a bigger argument',
+)
+const RULE_2_LINE = L(
+  '0 < a < 1: kamayadi — katta logarifmga KICHIK argument',
+  '0 < a < 1: убывает — большему логарифму МЕНЬШИЙ аргумент',
+  '0 < a < 1: decreasing — a bigger logarithm has a SMALLER argument',
+)
+
 const S5 = {
+  role: 'rule',
+  tag: 'base_direction',
+  waitFor: ['rule'],
+  numbered: true,
+  pulseRow: 1,
   eyebrow: L('Qoida', 'Правило', 'The rule'),
   title: L("O'ngda ham logarifm", 'Справа тоже логарифм', 'The right side too'),
   rows: ['log₅(x − 3) < 2', '2 = log₅ 25', 'log₅(x − 3) < log₅ 25'],
-  btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
   probe: {
     question: L(
       "Asos 5 birdan katta, funksiya o'sadi. Unda argumentlar uchun nima to'g'ri?",
@@ -769,17 +402,17 @@ const S5 = {
   rule: {
     badge: L('1-qoida. Asos birdan katta', 'Правило 1. Основание больше единицы', 'Rule 1. Base greater than one'),
     lawLabel: L('Qonun', 'Закон', 'Law'),
-    law: 'log\u2090 f(x) < c  \u27fa  0 < f(x) < a\u1d9c',
+    law: 'logₐ f(x) < c  ⟺  0 < f(x) < aᶜ',
     lines: [
       L("c = logₐ aᶜ  —  o'ngda ham logarifm, va aᶜ > 0", 'c = logₐ aᶜ — справа тоже логарифм, и aᶜ > 0', 'c = logₐ aᶜ — the right side is a logarithm too, and aᶜ > 0'),
-      L("a > 1: o'sadi — katta logarifmga katta argument", 'a > 1: возрастает — большему логарифму больший аргумент', 'a > 1: increasing — a bigger logarithm has a bigger argument'),
+      RULE_1_LINE,
       L('logₐ f(x) < c  ⟺  0 < f(x) < aᶜ  ·  nol kerak: f yuqoridan qisilgan', 'logₐ f(x) < c ⟺ 0 < f(x) < aᶜ  ·  ноль нужен: f зажат сверху', 'logₐ f(x) < c ⟺ 0 < f(x) < aᶜ  ·  the zero is needed: f is bounded above'),
       L('logₐ f(x) > c  ⟺  f(x) > aᶜ  ·  nol kerak emas: aᶜ musbat', 'logₐ f(x) > c ⟺ f(x) > aᶜ  ·  ноль не нужен: aᶜ положительно', 'logₐ f(x) > c ⟺ f(x) > aᶜ  ·  no zero needed: aᶜ is positive'),
     ],
-    example: L('namuna: masalalar to\'plami, 2-qism, 100-bet, № 32(3)', 'образец: задачник, часть 2, стр. 100, № 32(3)', 'source: exercise book, part 2, p. 100, no. 32(3)'),
+    // Ekranda MANBAGA havola yo'q (metodist qarori 2026-08-14): o'quvchiga
+    // bet raqami emas, QO'LLANGAN misol kerak.
+    example: L('misol:  log₅(x − 3) < 2  →  (3; 28)', 'пример:  log₅(x − 3) < 2  →  (3; 28)', 'example:  log₅(x − 3) < 2  →  (3; 28)'),
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [4000, 7000, 6500],
   audio: [
     A('mount', "Rasmni ko'rdik. Endi shuning o'zini yozuv bilan olamiz.", 'Картинку мы увидели. Теперь получим то же самое записью.', 'We have seen the picture. Now let us get the same thing in writing.'),
@@ -789,58 +422,26 @@ const S5 = {
   ],
 }
 
-function Screen5({ screen, onAnswer, ...rest }) {
-  const segments = useMemo(() => buildAuto(S5.audio, rest.lang, ['rule']), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S5.audio, rest.lang), S5.holds)
-  const [solved, setSolved] = useState(false)
-  const open = Math.min(phase + 1, S5.rows.length)
-
-  return (
-    <Frame meta={S5} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1} r={1} align="start">
-        <Col>
-          <Panel>
-            <div className="g11-note-lines">
-              {S5.rows.map((r, i) => (
-                <div
-                  key={i}
-                  className={'g11-expr g11-expr-row' + (i === open - 1 && i > 0 ? ' g11-drop' : '')}
-                  style={{ minHeight: 34, opacity: i < open ? 1 : 0.16, display: 'flex', alignItems: 'center', gap: 10 }}
-                >
-                  <span className="g11-mono" style={{ fontSize: '.6em', color: T.ink3, minWidth: 14, fontWeight: 700 }}>{i + 1}</span>
-                  <span className={i === 1 && open >= 2 ? 'g11-accent-pulse' : undefined}>
-                    <Expr size="row" style={{ textAlign: 'left' }}>{i < open ? r : '?'}</Expr>
-                  </span>
-                </div>
-              ))}
-            </div>
-          </Panel>
-        </Col>
-        <Col>
-          {phase >= 3 ? (
-            <RuleGate probe={S5.probe} rule={S5.rule} audio={audio} onStep={audio.step}
-              onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
-          ) : (
-            <Panel tone="quiet" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>
-              <Tag tone="quiet">{'\u2026'}</Tag>
-            </Panel>
-          )}
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 6. YANGI HOLAT: asos birdan kichik. Savol + prognoz.
+// Asosni SURIB ko'rish: monotonlik qachon almashishini o'quvchi o'zi topadi.
 // ============================================================
 const S6 = {
+  role: 'newcase',
+  tag: 'base_direction',
+  waitFor: ['q2'],
   eyebrow: L('Yangi holat', 'Новый случай', 'A new case'),
   title: L('Asos birdan kichik', 'Основание меньше единицы', 'The base is less than one'),
-  was: { label: L('edi', 'было', 'before'), expr: 'log₅(x − 3) < 2' },
-  now: { label: L("bo'ldi", 'стало', 'now'), expr: 'log₀,₅(2x − 4) > −1' },
-  btnShow: L("Yangi yozuvni ko'rsatish", 'Показать новую запись', 'Show the new record'),
+  was: {
+    label: UI.was,
+    expr: EXPR_1,
+    fig: (t) => <BaseSlider height={64} initial={5} min={1.1} max={8} step={0.1} mark={t(OUR_BASE) + ' a = 5'} />,
+  },
+  now: {
+    label: UI.now,
+    expr: EXPR_2,
+    fig: (t) => <BaseSlider height={64} initial={0.5} min={0.1} max={0.9} step={0.05} mark={t(OUR_BASE) + ' a = 0,5'} />,
+  },
   probe1: {
     question: L('Ikkinchi yozuv birinchisidan nimasi bilan farq qiladi?', 'Чем вторая запись отличается от первой?', 'How does the second record differ from the first?'),
     items: [
@@ -860,8 +461,6 @@ const S6 = {
       { id: 'd', label: '(−∞; 3)' },
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [5000, 5500, 3000, 3000],
   audio: [
     A('mount', "Birinchi qoida tayyor. Lekin u har doim ishlamaydi, nima o'zganiga qarang.", 'Первое правило готово. Но оно работает не всегда. Смотри, что изменилось.', 'The first rule is ready. But it does not always work. Look at what has changed.'),
@@ -871,66 +470,34 @@ const S6 = {
   ],
 }
 
-function Screen6({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S6.audio, rest.lang, ['q2']), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S6.audio, rest.lang), S6.holds)
-  const [q1done, setQ1done] = useState(false)
-  const [picked, setPicked] = useState(null)
-  const shown = phase >= 1
-
-  return (
-    <Frame meta={S6} screen={screen} audio={audio} solved={!!picked} {...rest}>
-      <Cols l={1} r={1} align="start">
-        <Col>
-          <Panel tone="quiet" pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <Tag tone="quiet">{t(UI.was)}</Tag>
-            <Expr size="big" style={{ textAlign: 'left' }}>{S6.was.expr}</Expr>
-            {shown ? <BaseSlider height={64} initial={5} min={1.1} max={8} step={0.1} mark={t(UI.ourBase) + ' a = 5'} /> : null}
-          </Panel>
-        </Col>
-        <Col>
-          <Panel
-            tone={shown ? 'paper' : 'quiet'}
-            className={shown ? 'g11-reveal' : undefined}
-            style={{ display: 'flex', flexDirection: 'column', gap: 7, opacity: shown ? 1 : 0.3 }}
-          >
-            <Tag tone="accent">{t(UI.now)}</Tag>
-            <span className={shown ? 'g11-accent-pulse' : undefined}>
-              <Expr size="big" style={{ textAlign: 'left' }}>{shown ? S6.now.expr : '?'}</Expr>
-            </span>
-            {/* Asosni SURIB ko'rish: monotonlik qachon almashishini o'quvchi
-                o'zi topadi. Ilgari bu so'z bilan aytilardi. */}
-            {shown ? <BaseSlider height={64} initial={0.5} min={0.1} max={0.9} step={0.05} mark={t(UI.ourBase) + ' a = 0,5'} /> : null}
-          </Panel>
-        </Col>
-      </Cols>
-      {phase >= 2 && !q1done ? (
-        <Probe audio={audio} data={S6.probe1} cols={2} fbSlot={50} dense
-          onSolved={(r) => { setQ1done(true); audio.step('q2'); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
-      ) : null}
-      {q1done ? (
-        <div className="g11-in">
-          <Probe audio={audio} data={S6.probe2} cols={4} fbSlot={54} unscored dense
-            onSolved={(r) => { setPicked(r.picked); onAnswer({ ...r, screen, predict: true }) }} />
-        </div>
-      ) : null}
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 7. IKKI NUQTA va IKKI TO'PLAM. Darsning ma'no burilishi.
 // Javobni o'quvchi O'ZI yozadi.
 // ============================================================
 const S7 = {
+  role: 'twoway',
+  tag: 'base_direction',
   eyebrow: L('Nuqtalar bilan tekshiramiz', 'Проверим точками', 'Let us check with points'),
-  title: L('Ikki nuqta \u2014 ikki javob', 'Две точки \u2014 два ответа', 'Two points, two answers'),
-  expr: 'log₀,₅(2x − 4) > −1',
-  points: [
-    { id: 'p25', label: 'x = 2,5', calc: 'log₀,₅ 1 = 0', verdict: 'in', step: 'p1' },
-    { id: 'p4', label: 'x = 4', calc: 'log₀,₅ 4 = −2', verdict: 'out', step: 'p2' },
+  title: L('Ikki nuqta — ikki javob', 'Две точки — два ответа', 'Two points, two answers'),
+  expr: EXPR_2,
+  axis: AXIS_2,
+  need: '> −1',
+  answerLabel: 'A',
+  cards: [
+    {
+      tag: UI.answerA,
+      set: { from: 2, to: 3, tone: 'graph' },
+      txt: '(2; 3)',
+      mark: 2.5,
+      point: { label: 'x = 2,5', calc: 'log₀,₅ 1 = 0', verdict: 'in' },
+    },
+    {
+      tag: UI.answerB,
+      set: { from: 3, to: null, tone: 'tip' },
+      txt: '(3; +∞)',
+      mark: 4,
+      point: { label: 'x = 4', calc: 'log₀,₅ 4 = −2', verdict: 'out' },
+    },
   ],
   answer: {
     numbers: ['2', '3', '4', '+∞'],
@@ -941,8 +508,6 @@ const S7 = {
       { key: '*', hint: L('Ikki nuqta bilan tekshiring: ikki yarim kirishi kerak, to\'rt esa yo\'q.', 'Проверь двумя точками: два с половиной должно входить, а четыре не должно.', 'Check with two points: two and a half must be in, four must not.') },
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [3000, 5500, 4500, 5500],
   audio: [
     A('mount', 'Siz javobni taxmin qildingiz. Uni nuqtalar bilan tekshiramiz.', 'Прогноз есть. Проверим его точками.', 'You made a guess. Let us check it with points.'),
@@ -952,97 +517,24 @@ const S7 = {
   ],
 }
 
-function Screen7({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S7.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S7.audio, rest.lang), S7.holds)
-  const [solved, setSolved] = useState(false)
-  const cards = [
-    { tag: UI.answerA, set: { from: 2, to: 3, tone: 'graph' }, txt: '(2; 3)', p: S7.points[0] },
-    { tag: UI.answerB, set: { from: 3, to: null, tone: 'tip' }, txt: '(3; +\u221e)', p: S7.points[1] },
-  ]
-
-  return (
-    <Frame meta={S7} screen={screen} audio={audio} solved={solved} {...rest}>
-      {/* 7-slayd tor noutbukda 4px ga sig'masdi: sarlavha satri bir pog'ona ixcham. */}
-      <Expr size="sm" className="g11-s7-expr">{S7.expr}</Expr>
-      <Cols l={1} r={1} align="start">
-        {cards.map((c, i) => {
-          const on = phase >= i + 1
-          return (
-            <Col key={i}>
-              <Panel tone={on ? 'paper' : 'quiet'} className={on ? 'g11-reveal' : undefined} pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 4, opacity: on ? 1 : 0.32 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
-                  <Tag tone={i === 0 ? 'graph' : 'quiet'}>{t(c.tag)}</Tag>
-                  <span className="g11-expr g11-expr-row g11-graph-text">{c.txt}</span>
-                </div>
-                <SolutionLine axis={AXIS_2} sets={[c.set]} marks={on ? [{ v: i === 0 ? 2.5 : 4, tone: 'accent' }] : []} />
-                {/* Qo'yish AJRATILGAN satrlarda: nima qo'ydik, nima chiqdi,
-                    nima kerak, xulosa. Ilgari hammasi bir satrda yopishgan edi. */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                  <div className="g11-expr g11-expr-sm" style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ color: T.ink3 }}>{t(UI.headPut)}</span>
-                    <span className={on ? 'g11-drop' : 'g11-dim'}>{on ? c.p.label : '?'}</span>
-                  </div>
-                  <div className="g11-expr g11-expr-sm" style={{ display: 'flex', justifyContent: 'space-between', gap: 8 }}>
-                    <span style={{ color: T.ink3 }}>{t(UI.headGot)}</span>
-                    <span className={on ? 'g11-drop' : 'g11-dim'}>{on ? c.p.calc : '?'}</span>
-                  </div>
-                  {/* Xulosa yorlig'i AYNAN shu satrda: alohida satr 28px
-                      olardi va ekran sig'masdi. */}
-                  <div className="g11-expr g11-expr-sm" style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'center' }}>
-                    <span style={{ color: T.ink3 }}>{t(UI.need)}</span>
-                    <span className="g11-graph-text">{'> \u22121'}</span>
-                    {/* Xulosa JAVOBDAN KEYIN: aks holda yashil yorliq kerakli
-                        kartochkani ko'rsatib qo'yadi va javobni ko'chirish
-                        qoladi. Qo'yish va hisob ko'rinib turadi -- xulosani
-                        o'quvchi o'zi chiqaradi. */}
-                    <Slot mh={0}>
-                      {solved ? <Tag tone={c.p.verdict === 'in' ? 'ok' : 'tip'} className="g11-drop">{c.p.verdict === 'in' ? t(TP_IN) : t(TP_OUT)}</Tag> : null}
-                    </Slot>
-                  </div>
-                </div>
-              </Panel>
-            </Col>
-          )
-        })}
-      </Cols>
-      {phase >= 3 ? (
-        <div className="g11-in" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-          {/* Xulosa javob YOZILGANDAN keyin chiqadi. Ilgari u konstruktordan
-              YUQORIDA turardi: qaysi variant to'g'ri ekani aytilgan, variant
-              qiymati esa kartochkada ko'rinib turgan -- o'quvchiga ko'chirib
-              yozish qolardi. */}
-          {solved ? (
-            <div style={{ display: 'flex', gap: 10, justifyContent: 'center', alignItems: 'center' }}>
-              <span className="g11-expr g11-expr-sm g11-ok-text g11-drop">{t(UI.soAnswer) + ': A'}</span>
-            </div>
-          ) : null}
-          <AnswerInterval
-            numbers={S7.answer.numbers}
-            answer={S7.answer.value}
-            wrongs={S7.answer.wrongs}
-            prompt={S7.answer.prompt}
-            padSlot={20}
-            fbSlot={54}
-            audio={audio}
-            onSolved={(r) => { if (r.correct) { setSolved(true); onAnswer({ screen, correct: true, tag: 'base_direction' }) } }}
-          />
-        </div>
-      ) : null}
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 8. 2-QOIDA va BITTA JAMLANMA.
+// Ikki holat yonma-yon: chapda o'suvchi, o'ngda kamayuvchi.
 // ============================================================
 const S8 = {
+  role: 'rule',
+  tag: 'base_direction',
+  layout: 'stack',
+  gateAt: 2,
+  pulseRow: -1,
+  waitFor: ['rule', 'both'],
   eyebrow: L('Qoida', 'Правило', 'The rule'),
   title: L('Bitta qoida', 'Одно правило', 'One rule'),
+  cases: [
+    { label: L("a > 1 · o'sadi", 'a > 1 · возрастает', 'a > 1 · increasing'), text: RULE_1_LINE, tone: 'graph' },
+    { label: L('0 < a < 1 · kamayadi', '0 < a < 1 · убывает', '0 < a < 1 · decreasing'), text: RULE_2_LINE, tone: 'accent' },
+  ],
   rows: ['−1 = log₀,₅ 2', 'log₀,₅(2x − 4) > log₀,₅ 2'],
-  btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
   probe: {
     question: L("Argumentlar uchun nima to'g'ri?", 'Что верно для аргументов?', 'What is true for the arguments?'),
     items: [
@@ -1055,20 +547,20 @@ const S8 = {
   rule: {
     badge: L('2-qoida. Asos birdan kichik', 'Правило 2. Основание меньше единицы', 'Rule 2. Base less than one'),
     lawLabel: L('Qonun', 'Закон', 'Law'),
-    law: 'log\u2090 f(x) > c  \u27fa  0 < f(x) < a\u1d9c',
+    law: 'logₐ f(x) > c  ⟺  0 < f(x) < aᶜ',
     lines: [
       L("usul o'sha: c = logₐ aᶜ", 'приём тот же: c = logₐ aᶜ', 'the same device: c = logₐ aᶜ'),
-      L('0 < a < 1: kamayadi — katta logarifmga KICHIK argument', '0 < a < 1: убывает — большему логарифму МЕНЬШИЙ аргумент', '0 < a < 1: decreasing — a bigger logarithm has a SMALLER argument'),
+      RULE_2_LINE,
       L('logₐ f(x) > c  ⟺  0 < f(x) < aᶜ  ·  nol kerak: f yuqoridan qisilgan', 'logₐ f(x) > c ⟺ 0 < f(x) < aᶜ  ·  ноль нужен: f зажат сверху', 'logₐ f(x) > c ⟺ 0 < f(x) < aᶜ  ·  the zero is needed: f is bounded above'),
       L('logₐ f(x) < c  ⟺  f(x) > aᶜ  ·  nol kerak emas: aᶜ musbat', 'logₐ f(x) < c ⟺ f(x) > aᶜ  ·  ноль не нужен: aᶜ положительно', 'logₐ f(x) < c ⟺ f(x) > aᶜ  ·  no zero needed: aᶜ is positive'),
     ],
-    example: L("namuna: masalalar to'plami, 2-qism, 100-bet, № 32(4)", 'образец: задачник, часть 2, стр. 100, № 32(4)', 'source: exercise book, part 2, p. 100, no. 32(4)'),
+    example: L('misol:  log₀,₅(2x − 4) > −1  →  (2; 3)', 'пример:  log₀,₅(2x − 4) > −1  →  (2; 3)', 'example:  log₀,₅(2x − 4) > −1  →  (2; 3)'),
   },
   swap: {
     button: L('Bitta qoidaga yig\'ish', 'Собрать одно правило', 'Combine into one rule'),
     badge: L('Darsning bitta qoidasi', 'Одно правило урока', 'The one rule of this lesson'),
     lawLabel: L('Qonun', 'Закон', 'Law'),
-    law: 'c = log\u2090 a\u1d9c',
+    law: 'c = logₐ aᶜ',
     lines: [
       L("1. o'ng tomonni logarifmga aylantir: c = logₐ aᶜ,  aᶜ > 0", '1. справа сделай логарифм: c = logₐ aᶜ, aᶜ > 0', '1. make the right side a logarithm: c = logₐ aᶜ, aᶜ > 0'),
       L("2. logarifm belgisini olib tashla: o'sadi — ishora o'zgarmaydi, kamayadi — o'zgaradi", '2. отбрось логарифмы: возрастает — знак тот же, убывает — другой', '2. drop the logarithms: increasing — same sign, decreasing — opposite'),
@@ -1076,8 +568,6 @@ const S8 = {
       L('4. javobni ichkaridagi va tashqaridagi nuqta bilan tekshir', '4. проверь ответ точкой внутри и точкой снаружи', '4. check the answer with a point inside and a point outside'),
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
   holds: [4500, 5000, 6500, 5000],
   audio: [
     A('mount', "Nuqtalar javobni ko'rsatdi. Uni o'sha usul bilan, yozuv orqali olamiz.", 'Точки показали ответ. Получим его записью, тем же приёмом.', 'The points showed the answer. Let us get it in writing, with the same device.'),
@@ -1088,56 +578,13 @@ const S8 = {
   ],
 }
 
-function Screen8({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S8.audio, rest.lang, ['rule', 'both']), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S8.audio, rest.lang), S8.holds)
-  const [solved, setSolved] = useState(false)
-  const open = Math.min(phase + 1, S8.rows.length)
-
-  return (
-    <Frame meta={S8} screen={screen} audio={audio} solved={solved} {...rest}>
-      {/* Ikki holat yonma-yon: chapda o'suvchi, o'ngda kamayuvchi */}
-      <Cols l={1} r={1} align="start">
-        <Col>
-          <Panel tone="quiet" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <Tag tone="graph">{t(UI.caseUp)}</Tag>
-            <span className="g11-expr g11-expr-sm g11-wrap"><Fx>{t(S5.rule.lines[1])}</Fx></span>
-          </Panel>
-        </Col>
-        <Col>
-          <Panel tone="quiet" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-            <Tag tone="accent">{t(UI.caseDown)}</Tag>
-            <span className="g11-expr g11-expr-sm g11-wrap"><Fx>{t(S8.rule.lines[1])}</Fx></span>
-          </Panel>
-        </Col>
-      </Cols>
-      <Panel>
-        <div className="g11-note-lines">
-          {S8.rows.map((r, i) => (
-            <div key={i} className={'g11-expr g11-expr-row' + (i === open - 1 && i > 0 ? ' g11-drop' : '')} style={{ minHeight: 32, opacity: i < open ? 1 : 0.16 }}>
-              <Fx>{i < open ? r : '?'}</Fx>
-            </div>
-          ))}
-        </div>
-      </Panel>
-      {phase >= 2 ? (
-        <div className="g11-reveal">
-          <RuleGate probe={S8.probe} rule={S8.rule} swap={S8.swap} audio={audio} onStep={audio.step}
-            onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
-        </div>
-      ) : (
-        <Slot mh={44} />
-      )}
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 9. BELGINI O'ZI QO'YADI. Kuzatishdan harakatga o'tish.
 // ============================================================
 const S9 = {
+  role: 'sign',
+  led: 'student',
+  tag: 'base_direction',
   eyebrow: L("O'zingiz qo'ying", 'Поставь сам', 'Place it yourself'),
   title: L("Belgini qo'ying", 'Поставь знак', 'Place the sign'),
   left: 'log₀,₅(2x − 4) > log₀,₅ 2',
@@ -1164,45 +611,6 @@ const S9 = {
   ],
 }
 
-function Screen9({ screen, onAnswer, ...rest }) {
-  const segments = useMemo(() => buildSegments(S9.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [placed, setPlaced] = useState(false)
-  const [solved, setSolved] = useState(false)
-
-  return (
-    <Frame meta={S9} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1.2} r={1} align="start">
-        <Col>
-          <Expr size="mid" style={{ textAlign: 'left' }}>{S9.left}</Expr>
-          <SignFill
-            template={S9.template}
-            signs={S9.signs}
-            answer={S9.answer}
-            checkNote={S9.checkNote}
-            wrongs={S9.wrongs}
-            audio={audio}
-            onStep={(n) => { audio.step(n); if (n === 'checked') setPlaced(true) }}
-            onSolved={() => setPlaced(true)}
-          />
-        </Col>
-        <Col>
-          {placed ? (
-            <div className="g11-in">
-              <Probe audio={audio} data={S9.probe} cols={1} fbSlot={58} dense
-                onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'base_direction' }) }} />
-            </div>
-          ) : (
-            <Panel tone="quiet" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>
-              <Tag tone="quiet">{'\u2026'}</Tag>
-            </Panel>
-          )}
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 10. BIRGALIKDA MASHQ: to'liq tahlil.
 // Son o'qi FAQAT xato qadamda va javobdan keyin.
@@ -1221,9 +629,15 @@ const NOT_YET = L(
 )
 
 const S10 = {
+  role: 'chain',
+  led: 'student',
+  tag: 'base_direction',
   eyebrow: L('Tahlil', 'Разбор', 'Worked solution'),
   title: L('Qadamba-qadam', 'Разбор по шагам', 'Step by step'),
-  start: 'log₀,₅(2x − 4) > −1',
+  start: EXPR_2,
+  actions: ACTIONS_10,
+  axis: AXIS_2,
+  correctSet: { from: 2, to: 3 },
   steps: [
     {
       action: 'toLog',
@@ -1270,28 +684,6 @@ const S10 = {
   ],
 }
 
-function Screen10({ screen, onAnswer, ...rest }) {
-  const segments = useMemo(() => buildSegments(S10.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [solved, setSolved] = useState(false)
-  return (
-    <Frame meta={S10} screen={screen} audio={audio} solved={solved} {...rest}>
-      <TransformChain
-        split
-        start={S10.start}
-        steps={S10.steps}
-        actions={ACTIONS_10}
-        axis={AXIS_2}
-        correctSet={{ from: 2, to: 3 }}
-        answer={S10.answer}
-        audio={audio}
-        onStep={audio.step}
-        onSolved={() => { setSolved(true); onAnswer({ screen, correct: true, tag: 'base_direction' }) }}
-      />
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 11. MUSTAQIL, SON O'QISIZ. Ikkala xato birga ishlaydi.
 // Bu ekran ataylab imtihondagidek: o'q YO'Q, razbor faqat son bilan.
@@ -1303,9 +695,17 @@ const ACTIONS_11 = [
 ]
 
 const S11 = {
+  role: 'chain',
+  led: 'student',
+  tag: 'log_domain',
+  noLine: true,
+  solo: true,
   eyebrow: L('Mustaqil', 'Самостоятельно', 'On your own'),
   title: L('Tengsizlikni yeching', 'Реши неравенство', 'Solve the inequality'),
   start: 'log₀,₅ x² > log₀,₅ 3x',
+  actions: ACTIONS_11,
+  axis: AXIS_3,
+  correctSet: { from: 0, to: 3 },
   hint: L("Asos nol butun besh o'ndan. Chiziq yuqoriga ketadimi yoki pastga?", 'Основание ноль целых пять десятых. Кривая идёт вверх или вниз?', 'The base is zero point five. Does the curve go up or down?'),
   steps: [
     {
@@ -1345,44 +745,21 @@ const S11 = {
   ],
 }
 
-function Screen11({ screen, onAnswer, ...rest }) {
-  const segments = useMemo(() => buildSegments(S11.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [solved, setSolved] = useState(false)
-  return (
-    <Frame meta={S11} screen={screen} audio={audio} solved={solved} {...rest}>
-      <TransformChain
-        split
-        noLine
-        solo
-        start={S11.start}
-        steps={S11.steps}
-        actions={ACTIONS_11}
-        axis={AXIS_3}
-        correctSet={{ from: 0, to: 3 }}
-        answer={S11.answer}
-        hintText={S11.hint}
-        audio={audio}
-        onStep={audio.step}
-        onSolved={() => { setSolved(true); onAnswer({ screen, correct: true, tag: 'log_domain' }) }}
-      />
-    </Frame>
-  )
-}
-
 // ============================================================
-// SLAYD 12. BLITS. TO'RT SAVOL, YAGONA BAHOLANADIGAN EKRAN.
+// SLAYD 12. BLITS. OLTI SAVOL, YAGONA BAHOLANADIGAN EKRAN.
 // ============================================================
 const S12 = {
+  role: 'blitz',
+  led: 'student',
   eyebrow: L('Blits', 'Блиц', 'Quick round'),
-  title: L("Olti savol", 'Шесть вопросов', 'Six questions'),
+  title: L('Olti savol', 'Шесть вопросов', 'Six questions'),
   items: [
     {
       // Nol KERAKMI -- bu ko'nikma darsda alohida mashq qilinmagan edi,
       // ayni paytda DTM da aynan shu yerda ball yo'qoladi.
       id: 'b1', tag: 'log_domain', ask: true, cols: 2,
       done: L(
-        "nol argument YUQORIDAN qisilgan joyda kerak",
+        'nol argument YUQORIDAN qisilgan joyda kerak',
         'ноль нужен там, где аргумент зажат СВЕРХУ',
         'the zero is needed where the argument is bounded ABOVE',
       ),
@@ -1492,11 +869,7 @@ const S12 = {
     {
       // Javobni SISTEMA ko'rinishida yozish: ikki shart bir vaqtda.
       id: 'b6', tag: 'intersection', ask: true, cols: 2,
-      done: L(
-        'ikki shart bir vaqtda',
-        'два условия одновременно',
-        'two conditions at once',
-      ),
+      done: L('ikki shart bir vaqtda', 'два условия одновременно', 'two conditions at once'),
       prompt: L(
         "log₃(x − 2) < 2 uchun qaysi sistema to'g'ri?",
         'Какая система верна для log₃(x − 2) < 2 ?',
@@ -1536,76 +909,18 @@ const S12 = {
     A('q2', 'Bu yerda chapda ikki logarifm.', 'Здесь два логарифма слева.', 'Here there are two logarithms on the left.'),
     A('q3', 'Asoslarga qarang.', 'Смотри на основания.', 'Look at the bases.'),
     A('q4', 'Oxirgi savol: tekshiruv haqida.', 'Последний вопрос: про проверку.', 'Last question: about checking.'),
-    A(
-      'q5',
-      "Beshinchi. Asos birdan kichik va logarifm ikkala tomonda.",
-      'Пятый. Основание меньше единицы, и логарифм с обеих сторон.',
-      'Fifth. The base is less than one and there is a logarithm on both sides.',
-    ),
-    A(
-      'q6',
-      "Oxirgi. Javobni sistema ko'rinishida yozing.",
-      'Последний. Запиши ответ системой.',
-      'Last one. Write the answer as a system.',
-    ),
+    A('q5', 'Beshinchi. Asos birdan kichik va logarifm ikkala tomonda.', 'Пятый. Основание меньше единицы, и логарифм с обеих сторон.', 'Fifth. The base is less than one and there is a logarithm on both sides.'),
+    A('q6', "Oxirgi. Javobni sistema ko'rinishida yozing.", 'Последний. Запиши ответ системой.', 'Last one. Write the answer as a system.'),
   ],
-}
-
-function Screen12({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildSegments(S12.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [n, setN] = useState(0)
-  const [solved, setSolved] = useState(false)
-
-  return (
-    <Frame meta={S12} right={(n + (solved ? 0 : 1)) + '/' + S12.items.length} screen={screen} audio={audio} solved={solved} {...rest}>
-      {/* Yuqorida: savollar holati, yumshoq taymer, «natijaga kiradi».
-          Hisoblagich savollar SONIDAN olinadi -- ilgari 4 deb qotib qolgan edi. */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
-        <span style={{ display: 'flex', gap: 6 }}>
-          {S12.items.map((q, i) => (
-            <span
-              key={q.id}
-              className="g11-mono"
-              style={{
-                width: 22, height: 22, borderRadius: 7,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 12, fontWeight: 700,
-                background: i < n ? T.okSoft : i === n ? T.accentSoft : 'rgba(23,26,29,.05)',
-                color: i < n ? T.ok : i === n ? T.accent : T.ink3,
-                boxShadow: i === n ? 'inset 0 0 0 1px rgba(201,84,44,.35)' : 'none',
-                transition: 'background .24s cubic-bezier(.22,.61,.36,1), color .24s',
-              }}
-            >
-              {i < n ? '\u2713' : i + 1}
-            </span>
-          ))}
-        </span>
-        <SoftTimer running={!solved} />
-        <Tag tone="quiet">{t(UI.goesToResult)}</Tag>
-      </div>
-      <Panel>
-        <ProbeChain
-          items={S12.items}
-          cols={2}
-          audio={audio}
-          onStep={audio.step}
-          onEach={(r) => {
-            setN((prev) => prev + 1)
-            onAnswer({ screen, blitz: true, id: r.id, tag: r.tag, correct: r.correct, attempts: r.attempts })
-          }}
-          onSolved={() => setSolved(true)}
-        />
-      </Panel>
-    </Frame>
-  )
 }
 
 // ============================================================
 // SLAYD 13. TIPIK XATO. Hamma qadam to'g'ri ko'rinadi, javob esa XATO.
 // ============================================================
 const S13 = {
+  role: 'audit',
+  led: 'student',
+  tag: 'log_domain',
   eyebrow: L('Xatoni toping', 'Найди ошибку', 'Find the error'),
   title: L("Qadamlar to'g'ri, javob xato", 'Шаги верны, ответ нет', 'Steps right, answer wrong'),
   rows: [
@@ -1620,6 +935,7 @@ const S13 = {
     r3: L("2-satrdan bu to'g'ri kelib chiqadi. Xato oldin kelgan.", 'Из строки 2 это следует верно. Ошибка пришла раньше.', 'This follows correctly from line 2. The error came earlier.'),
     r4: L("Javob haqiqatan xato. Lekin u oldin xato bo'lgan, qayerda ekanini toping.", 'Ответ действительно неверный. Но неверным он стал раньше, найди, где именно.', 'The answer is indeed wrong. But it became wrong earlier, find exactly where.'),
   },
+  proofPoint: 'x = 0',
   proof: L('x = 0 → logarifm ostida −3, yechim bo\'lolmaydi.  To\'g\'risi: 0 < x − 3 < 4, javob (3; 7)', 'x = 0 → под логарифмом −3, решением быть не может.  Верно: 0 < x − 3 < 4, ответ (3; 7)', 'x = 0 → −3 under the logarithm, it cannot be a solution.  Correct: 0 < x − 3 < 4, answer (3; 7)'),
   probe: {
     question: L('Qaysi qoida buzilgan?', 'Какое правило нарушено?', 'Which rule was broken?'),
@@ -1638,66 +954,28 @@ const S13 = {
   ],
 }
 
-function Screen13({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildSegments(S13.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [found, setFound] = useState(false)
-  const [solved, setSolved] = useState(false)
-
-  return (
-    <Frame meta={S13} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1} r={0.92} align="start">
-        <Col>
-          <AuditRows
-            hideProof
-            rows={S13.rows}
-            answerId={S13.answerId}
-            hints={S13.hints}
-            proof={S13.proof}
-            audio={audio}
-            onStep={(nm) => { audio.step(nm); if (nm === 'proof') { setFound(true); setTimeout(() => audio.step('q2'), 900) } }}
-            onSolved={(r) => onAnswer({ ...r, screen, tag: 'check_by_point' })}
-          />
-        </Col>
-        <Col>
-          {found ? (
-            <>
-              {/* Mustaqil tekshiruv: nuqta x = 0 */}
-              <Panel tone="teal" className="g11-in" style={{ display: 'flex', flexDirection: 'column', gap: 5 }}>
-                <span className="g11-formula-chip"><Fx>{'x = 0'}</Fx></span>
-                <span className="g11-expr g11-expr-sm g11-wrap" style={{ color: T.ink }}><Fx>{t(S13.proof)}</Fx></span>
-              </Panel>
-              <Probe audio={audio} data={S13.probe} cols={1} fbSlot={40} dense
-                onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'log_domain' }) }} />
-            </>
-          ) : (
-            <Panel tone="quiet" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 90 }}>
-              <Tag tone="quiet">{'\u2026'}</Tag>
-            </Panel>
-          )}
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 14. TESKARI MASALA: berilgan to'plam bo'yicha tengsizlik yig'ish.
 // ============================================================
+const PARTS_14 = ['log₂', 'log₀,₅', '<', '>', '2', '−2']
+
 const S14 = {
+  role: 'build',
+  led: 'student',
+  tag: 'intersection',
+  right: '2/2',
   eyebrow: L("O'zingiz yig'ing", 'Собери сам', 'Build it yourself'),
   title: L('Teskari yig\'ing', 'Собери обратно', 'Build it back'),
+  axis: AXIS_4,
+  sets: [{ from: 3, to: 7, tone: 'graph' }],
+  targetValue: '(3; 7)',
   tasks: [
     {
       prompt: L('Asosi 2 bo\'lsin', 'Пусть основание будет 2', 'Let the base be 2'),
       template: [{ slot: 0 }, '(x − 3)', { slot: 1 }, { slot: 2 }],
-      parts: ['log₂', 'log₀,₅', '<', '>', '2', '−2'],
+      parts: PARTS_14,
       answer: ['log₂', '<', '2'],
       doneLabel: L("birinchi usul:  log₂(x − 3) < 2", 'первый способ: log₂(x − 3) < 2', 'first way: log₂(x − 3) < 2'),
-      axis: AXIS_4,
-      set: { from: 3, to: 7 },
-      matchedLabel: L('maqsad bilan mos keldi', 'совпало с целью', 'matches the target'),
       wrongs: [
         { key: 'log₂|>|2', hint: L("Bu to'plam yettidan o'ngda, kerak esa uch bilan yetti orasida.", 'Это множество правее семёрки, а нужно между тройкой и семёркой.', 'This set is to the right of seven, but we need between three and seven.') },
         { key: 'log₂|<|−2', hint: L('x = 4 ni tekshiring: chapda nol, nol minus ikkidan kichikmi — yo\'q.', 'Проверь x = 4: слева ноль, ноль меньше минус двух — нет.', 'Check x = 4: the left side is zero, zero is not less than minus two.') },
@@ -1707,12 +985,9 @@ const S14 = {
     {
       prompt: L("Endi asosi 0,5 bo'lsin, javob esa o'sha", 'А теперь основание 0,5, а ответ тот же', 'Now let the base be 0,5, with the same answer'),
       template: [{ slot: 0 }, '(x − 3)', { slot: 1 }, { slot: 2 }],
-      parts: ['log₂', 'log₀,₅', '<', '>', '2', '−2'],
+      parts: PARTS_14,
       answer: ['log₀,₅', '>', '−2'],
       doneLabel: L("ikkinchi usul:  log₀,₅(x − 3) > −2", 'второй способ: log₀,₅(x − 3) > −2', 'second way: log₀,₅(x − 3) > −2'),
-      axis: AXIS_4,
-      set: { from: 3, to: 7 },
-      matchedLabel: L('maqsad bilan mos keldi', 'совпало с целью', 'matches the target'),
       wrongs: [
         { key: 'log₀,₅|<|−2', hint: L("Asos birdan kichik. x = 4 ni tekshiring: chapda nol, nol minus ikkidan kichikmi — yo'q. Lekin to'rt kirishi kerak.", 'Основание меньше единицы. Проверь x = 4: слева ноль, а ноль меньше минус двух — нет. Но четвёрка входить должна.', 'The base is less than one. Check x = 4: the left side is zero, and zero is not less than minus two. But four must be included.') },
         { key: 'log₀,₅|>|2', hint: L('x = 4 ni tekshiring: nol ikkidan kattami — yo\'q.', 'Проверь x = 4: ноль больше двух — нет.', 'Check x = 4: zero is not greater than two.') },
@@ -1726,66 +1001,31 @@ const S14 = {
   ],
 }
 
-function Screen14({ screen, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildSegments(S14.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const [solved, setSolved] = useState(false)
-  return (
-    <Frame meta={S14} right="2/2" screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1.15} r={1} align="start">
-        <Col>
-          <BuildExpr
-            tasks={S14.tasks}
-            audio={audio}
-            onStep={audio.step}
-            onSolved={() => { setSolved(true); onAnswer({ screen, correct: true, tag: 'intersection' }) }}
-          />
-        </Col>
-        <Col>
-          <Panel tone="teal" style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-            <Tag tone="graph">{t(UI.target)}</Tag>
-            <Expr size="big" style={{ textAlign: 'left' }}>{'(3; 7)'}</Expr>
-            <SolutionLine axis={AXIS_4} sets={[{ from: 3, to: 7, tone: 'graph' }]} />
-          </Panel>
-        </Col>
-      </Cols>
-    </Frame>
-  )
-}
-
 // ============================================================
 // SLAYD 15. YAKUN. Prognozlarga qaytish, qoida, DTM darajasi.
 // Medal va konfetti YO'Q.
 // ============================================================
 const S15 = {
+  role: 'summary',
+  tag: 'check_by_point',
   eyebrow: L('Yakun', 'Итог', 'Summary'),
   title: L("Nimani o'rgandingiz", 'Что нового на уроке', 'What you learned'),
-  youPicked: L('siz tanladingiz', 'твой выбор', 'you picked'),
-  correctIs: L("to'g'ri javob", 'верно', 'correct'),
-  levelLabel: L("Blits bo'yicha daraja", 'Уровень по блицу', 'Level from the quick round'),
-  btnNext: L('Keyingi qadam', 'Следующий шаг', 'Next step'),
-  // Prognoz javobini oraliq bilan ko'rsatamiz. «ikkisi ham» va «hech qaysi»
-  // uchun oraliq yo'q, shuning uchun chiziqcha.
-  predicts: [
-    { screen: 0, expr: 'log₅(x − 3) < 2', right: '(3; 28)', map: { a: '(3; 28)', b: '(−∞; 28)', both: '—', none: '—' } },
-    { screen: 5, expr: 'log₀,₅(2x − 4) > −1', right: '(2; 3)', map: { a: '(2; 3)', b: '(3; +∞)', c: '(2; +∞)', d: '(−∞; 3)' } },
-  ],
+  law: 'c = logₐ aᶜ',
   ruleLines: [
     L("1. o'ng tomonni logarifmga aylantir", '1. справа сделай логарифм', '1. make the right side a logarithm'),
     L("2. o'sadi — ishora o'zgarmaydi, kamayadi — o'zgaradi", '2. возрастает — знак тот же, убывает — другой', '2. increasing — same sign, decreasing — opposite'),
     L('3. argument sondan kichik — «noldan katta» deb yoz', '3. аргумент меньше числа — допиши «больше нуля»', '3. argument smaller than the number — add «greater than zero»'),
   ],
+  // Prognoz javobini oraliq bilan ko'rsatamiz. «ikkisi ham» va «hech qaysi»
+  // uchun oraliq yo'q, shuning uchun chiziqcha.
+  predicts: [
+    { screen: 0, expr: EXPR_1, right: '(3; 28)', map: { a: '(3; 28)', b: '(−∞; 28)', both: '—', none: '—' } },
+    { screen: 5, expr: EXPR_2, right: '(2; 3)', map: { a: '(2; 3)', b: '(3; +∞)', c: '(2; +∞)', d: '(−∞; 3)' } },
+  ],
   levels: {
     full: L('Bu turdagi masalalar DTM da siz uchun yopildi', 'Этот тип задач на ДТМ у тебя закрыт', 'This task type is covered for the exam'),
     one: L('Bitta joy takrorlashni talab qiladi', 'Одно место требует повтора', 'One spot needs review'),
     low: L('Qoidaga va ikki nuqtali ekranga qayting', 'Вернись к правилу и к экрану с двумя точками', 'Go back to the rule and to the two-points screen'),
-  },
-  tagNames: {
-    log_domain: L('argumentga shart', 'условие на аргумент', 'the condition on the argument'),
-    base_direction: L("asosga qarab ishora yo'nalishi", 'направление знака по основанию', 'the sign direction from the base'),
-    check_by_point: L('nuqta bilan tekshirish', 'проверка точкой', 'checking with a point'),
-    intersection: L('ikki shartning kesishmasi', 'пересечение двух условий', 'the intersection of two conditions'),
   },
   probe: {
     question: L('Ishonchingiz bo\'lmasa, javobingizni qanday tekshirasiz?', 'Как проверить свой ответ, если сомневаешься?', 'How do you check your answer when you are unsure?'),
@@ -1796,8 +1036,13 @@ const S15 = {
       { id: 'd', label: L('hech qanday', 'никак', 'there is no way'), hint: L('Butun dars tekshirdik. Nima bilan ekanini eslang.', 'Мы весь урок проверяли. Вспомни, чем.', 'We were checking all lesson. Recall with what.') },
     ],
   },
-  // Kadrni ekranda ushlab turish, ms. Ovoz kechiksa yoki kelmasa ham
-  // kadr shundan tez almashmaydi. MATN O'ZGARSA -- sonni ham to'g'rila.
+  sheetTitle: L('Logarifmik tengsizliklar · shpargalka', 'Логарифмические неравенства · шпаргалка', 'Logarithmic inequalities · cheat sheet'),
+  sheetSrc: L('11-sinf · 12-dars', '11 класс · урок 12', 'Grade 11 · lesson 12'),
+  lifehack: L(
+    "10 sekundlik tekshiruv: javob ICHIDAN bitta butun son va TASHQARISIDAN bitta butun son ol. Boshlang'ich tengsizlikka qo'y: biri o'tishi, ikkinchisi o'tmasligi kerak.",
+    'Проверка за 10 секунд: возьми целое число ВНУТРИ ответа и целое СНАРУЖИ. Подставь в исходное: одно должно пройти, другое нет.',
+    'A 10-second check: take a whole number INSIDE your answer and one OUTSIDE. Substitute into the original: one must pass, the other must fail.',
+  ),
   holds: [2500, 7500, 3000, 4500],
   audio: [
     A('mount', 'Dars tugadi. Boshiga qaytamiz.', 'Урок закончен. Вернёмся к началу.', 'The lesson is over. Let us go back to the start.'),
@@ -1807,188 +1052,9 @@ const S15 = {
   ],
 }
 
-function Screen15({ screen, answers, onAnswer, ...rest }) {
-  const t = useT()
-  const segments = useMemo(() => buildAuto(S15.audio, rest.lang), [rest.lang])
-  const audio = useAudio(segments)
-  const phase = useNarratedSteps(audio, textsOf(S15.audio, rest.lang), S15.holds)
-  const [solved, setSolved] = useState(false)
-
-  const blitz = answers.filter((a2) => a2 && a2.blitz)
-  const firstTry = blitz.filter((a2) => a2.correct && (a2.attempts || 1) === 1)
-  const level = firstTry.length >= 6 ? 'full' : firstTry.length >= 4 ? 'one' : 'low'
-  const weakTag = blitz.find((a2) => !a2.correct || (a2.attempts || 1) > 1)
-
-  return (
-    <Frame meta={S15} screen={screen} audio={audio} solved={solved} {...rest}>
-      <Cols l={1.25} r={1} align="start">
-        <Col>
-          <span className="g11-hide-tight"><Tag tone="quiet">{t(UI.learned)}</Tag></span>
-          <Panel tone="quiet" pad={9} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-            {S15.ruleLines.map((l, i) => (
-              <div
-                key={i}
-                className={phase >= 2 ? 'g11-reveal' : undefined}
-                style={{
-                  display: 'flex', alignItems: 'flex-start', gap: 9, minHeight: 22,
-                  opacity: phase >= 2 ? 1 : 0.22, animationDelay: i * 0.09 + 's',
-                }}
-              >
-                <span className="g11-mono" style={{ fontSize: 11, fontWeight: 800, color: T.accent, minWidth: 14 }}>
-                  {'0' + (i + 1)}
-                </span>
-                <span className="g11-expr g11-expr-sm g11-wrap" style={{ color: T.ink }}><Fx>{t(l)}</Fx></span>
-              </div>
-            ))}
-          </Panel>
-
-          {/* Prognoz -> isbotlangan javob */}
-          <Tag tone="accent">{t(UI.predictToProved)}</Tag>
-          <Panel pad={10} style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            {S15.predicts.map((pr) => {
-              const rec = answers.find((a2) => a2 && a2.screen === pr.screen && a2.picked)
-              const mine = rec ? pr.map[rec.picked] || '\u2014' : '\u2014'
-              const hit = mine === pr.right
-              return (
-                <div
-                  key={pr.screen}
-                  className="g11-expr g11-expr-sm"
-                  style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1.25fr) auto 14px auto', gap: 8, alignItems: 'center', minHeight: 26, opacity: phase >= 1 ? 1 : 0.16 }}
-                >
-                  <span><Fx>{pr.expr}</Fx></span>
-                  <span style={{ color: hit ? T.ok : T.ink2 }}>{phase >= 1 ? mine : '?'}</span>
-                  <span style={{ color: T.ink3, textAlign: 'center' }}>{'\u2192'}</span>
-                  <span className={phase >= 1 ? 'g11-ok-text' : undefined}>{phase >= 1 ? pr.right : '?'}</span>
-                </div>
-              )
-            })}
-          </Panel>
-
-          {phase >= 3 ? (
-            <Probe audio={audio} data={S15.probe} cols={2} fbSlot={38} dense
-              onSolved={(r) => { setSolved(true); onAnswer({ ...r, screen, tag: 'check_by_point' }) }} />
-          ) : null}
-        </Col>
-
-        <Col>
-          <Panel style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'center' }}>
-            <RingProgress
-              value={firstTry.length}
-              total={6}
-              size={84}
-              label={t(UI.dtmReady)}
-              sub={phase >= 3 ? t(S15.levels[level]) : ''}
-            />
-            {phase >= 3 && level === 'one' && weakTag && weakTag.tag ? (
-              <Tag tone="tip">{t(UI.weakSpot) + ': ' + t(S15.tagNames[weakTag.tag] || '')}</Tag>
-            ) : null}
-          </Panel>
-        </Col>
-      </Cols>
-      <PrintSheet
-        title={t(UI.sheetTitle)}
-        law={'c = log\u2090 a\u1d9c'}
-        steps={S15.ruleLines.map((l) => t(l))}
-        lifehack={t(UI.lifehack)}
-        source={t(UI.sheetSrc)}
-      />
-    </Frame>
-  )
-}
-
-// ============================================================
-// ILDIZ KOMPONENT
-// ============================================================
-const SCREENS = [
-  Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8,
-  Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15,
-]
-
-export default function Grade11Dars12({
-  studentName,
-  lang: langProp,
-  ttsApiBase,
-  voiceGender,
-  aiGradingEndpoint,
-  onFinished,
-}) {
-  // Til darsning ICHIDA almashtiriladi: boshlang'ich qiymat propdan keladi.
-  const [lang, setLang] = useState(
-    langProp === 'uz' || langProp === 'ru' || langProp === 'en' ? langProp : 'uz',
-  )
-  useEffect(() => {
-    if (langProp === 'uz' || langProp === 'ru' || langProp === 'en') setLang(langProp)
-  }, [langProp])
-  configureLesson({
-    ttsApiBase: ttsApiBase || '',
-    aiGradingEndpoint: aiGradingEndpoint || '',
-    studentName: studentName || '',
-    voiceGender: voiceGender || 'm', // 11-sinf: erkak ovoz
-  })
-  useMobileZoom()
-
-  const [screen, setScreen] = useState(0)
-  const [answers, setAnswers] = useState([])
-  const [finished, setFinished] = useState(false)
-  // Vaqtni renderda emas, effektda olamiz: render toza qolishi kerak.
-  const startedAt = useRef(0)
-  useEffect(() => { startedAt.current = Date.now() }, [])
-
-  const onAnswer = useCallback((payload) => {
-    setAnswers((prev) => prev.concat(payload))
-  }, [])
-
-  const next = useCallback(() => setScreen((s) => Math.min(s + 1, TOTAL - 1)), [])
-  const prev = useCallback(() => setScreen((s) => Math.max(s - 1, 0)), [])
-
-  const finish = useCallback(() => {
-    setFinished(true)
-    // Baholanadi FAQAT blits. Qolgan ekranlar diagnostik teg beradi.
-    const blitz = answers.filter((a) => a && a.blitz)
-    const firstTry = blitz.filter((a) => a.correct && (a.attempts || 1) === 1)
-    const gaps = {}
-    answers.forEach((a) => {
-      if (a && a.tag && a.correct === false) gaps[a.tag] = (gaps[a.tag] || 0) + 1
-      if (a && a.tag && a.attempts && a.attempts > 1) gaps[a.tag] = (gaps[a.tag] || 0) + 1
-    })
-    const payload = {
-      lessonId: LESSON_ID,
-      lessonTitle: tr(LESSON_TITLE, lang),
-      lang,
-      completed: true,
-      durationSec: startedAt.current ? Math.floor((Date.now() - startedAt.current) / 1000) : 0,
-      scoredScreen: 12,
-      totalQuestions: blitz.length,
-      correctAnswers: blitz.filter((a) => a.correct).length,
-      firstTryStats: { total: blitz.length, firstTryCorrect: firstTry.length },
-      gaps,
-      freeNav: FREE_NAV,
-      answers,
-    }
-    if (onFinished) onFinished(payload)
-    else console.log('[Grade11 Dars12] onFinished', payload)
-  }, [answers, lang, onFinished])
-
-  const Current = SCREENS[screen]
-
-  return (
-    <LangProvider value={lang}>
-      <LangSetProvider value={setLang}>
-      <style>{STYLES}</style>
-      <div className="lesson-root" lang={lang}>
-        <BgCurves />
-        <Current
-          screen={screen}
-          lang={lang}
-          answers={answers}
-          onAnswer={onAnswer}
-          onNext={next}
-          onPrev={prev}
-          onFinish={finish}
-          finished={finished}
-        />
-      </div>
-      </LangSetProvider>
-    </LangProvider>
-  )
-}
+export default makeLesson({
+  meta: META,
+  block: BLOCK,
+  voice: 'm', // 11-sinf: erkak ovoz
+  screens: [S1, S2, S3, S4, S5, S6, S7, S8, S9, S10, S11, S12, S13, S14, S15],
+})
