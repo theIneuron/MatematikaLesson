@@ -229,7 +229,7 @@ export const METHOD_STYLES = `
    Потолок высоты задаётся в core.jsx (блок «вид как в 6 классе») — здесь его
    ставить нельзя: этот файл подключается ПОСЛЕ и перебил бы правку. */
 .g8-scene { width: 100%; display: block; background: ${T.paper}; border-radius: 18px;
-  padding: 0; box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9),
+  padding: 10px; box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9),
   inset 0 0 0 1px rgba(23,26,29,.05); }
 .g8-scene svg { display: block; margin: 0 auto; }
 
