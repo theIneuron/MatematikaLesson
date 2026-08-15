@@ -249,14 +249,23 @@ export const METHOD_STYLES = `
    как человек вообще посмотрел на экран: замер 2026-08-15 показал линию уже
    дорисованной на 350-й мс после networkidle. Поэтому старт отодвинут почти
    на секунду, а сама отрисовка растянута. */
-.g8-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: g8-draw 1400ms ease-out 900ms forwards; }
+.g8-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: g8-draw 2000ms ease-out 900ms forwards; }
 @keyframes g8-draw { to { stroke-dashoffset: 0; } }
 
 /* Прозрачность — на РОДИТЕЛЬСКИЙ g, а не на саму фигуру: css-анимация
    перебивает атрибут opacity, и элемент останется видимым с первого кадра. */
-.g8-late  { opacity: 0; animation: g8-late 420ms ease-out 2200ms forwards; }
-.g8-late2 { opacity: 0; animation: g8-late 420ms ease-out 2700ms forwards; }
+.g8-late  { opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: g8-pop-in 620ms cubic-bezier(.34,1.5,.64,1) 2900ms forwards; }
+.g8-late2 { opacity: 0; transform-box: fill-box; transform-origin: center;
+  animation: g8-pop-in 620ms cubic-bezier(.34,1.5,.64,1) 3500ms forwards; }
 @keyframes g8-late { to { opacity: 1; } }
+/* Результат не проступает, а ВЫХОДИТ: он главное на сцене, и его появление
+   должно быть событием. transform-box: fill-box обязателен — без него точка
+   в SVG масштабируется от угла холста и уезжает с места. */
+@keyframes g8-pop-in {
+  0%   { opacity: 0; transform: scale(.4); }
+  100% { opacity: 1; transform: scale(1); }
+}
 
 .g8-sv { display: flex; flex-direction: column; gap: 8px; width: 100%; }
 .g8-sv-lines { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
