@@ -1492,26 +1492,31 @@ const S15 = {
 // графике стоит выколотая точка и написано условие. Объект тот же, изменилось
 // ровно то, что объяснил урок. Математическая сцена, без персонажей.
 // ============================================================
-const px1 = (x) => 40 + ((x + 1) / 6) * 320
-const py1 = (y) => 80 - (y / 7) * 68
 
 const FinalScene = (
   <SceneBand kind="final" label={L(
-    "Ikkilikda teshik bor grafik",
-    'График с выколотой точкой при двойке',
-    'The graph with a hole at two',
+    "Ikkilikda kasr chizig'i uziladi",
+    'При двойке черта дроби разрывается',
+    'At two the fraction bar tears',
   )}>
-    <line x1="30" y1={py1(0)} x2="374" y2={py1(0)} stroke={T.ink2} strokeWidth="1.4"/>
-    <polygon points={'374,' + py1(0) + ' 367,' + (py1(0) - 3.5) + ' 367,' + (py1(0) + 3.5)} fill={T.ink2}/>
-    <line x1={px1(0)} y1="84" x2={px1(0)} y2="8" stroke={T.ink2} strokeWidth="1.4"/>
-    <polygon points={px1(0) + ',8 ' + (px1(0) - 3.5) + ',15 ' + (px1(0) + 3.5) + ',15'} fill={T.ink2}/>
-    {/* прямая y = x + 2: та самая, которую рисовал плоттер */}
-    <line x1={px1(-1)} y1={py1(1)} x2={px1(5)} y2={py1(7)} stroke={T.accent} strokeWidth="2.4" strokeLinecap="round"/>
-    {/* выколотая точка: её плоттер не нарисовал, а таблица показала прочерком */}
-    <circle cx={px1(2)} cy={py1(4)} r="4.6" fill={T.paper} stroke={T.accent} strokeWidth="2.2"/>
-    <line x1={px1(2)} y1={py1(4) + 7} x2={px1(2)} y2={py1(0)} stroke={T.ink3} strokeWidth="1.1" strokeDasharray="3 3"/>
-    <text x={px1(2)} y={py1(0) + 13} textAnchor="middle" fontFamily={MATH_FONT} fontSize="11" fill={T.ink3}>2</text>
-    <text x={px1(2) + 12} y={py1(4) - 6} fontFamily={MATH_FONT} fontSize="15" fill={T.accent}>x ≠ 2</text>
+    {/* Та же дробь, что на хуке: там она сломалась, здесь названо, при каком
+        числе. Сцена финала обязана отвечать на вопрос сцены хука (§6). */}
+    <text x="126" y="34" textAnchor="middle" fontFamily={MATH_FONT} fontSize="19" fill={T.ink}>x · x − 4</text>
+    <line x1="72" y1="44" x2="180" y2="44" stroke={T.ink} strokeWidth="2.4"/>
+    <text x="126" y="68" textAnchor="middle" fontFamily={MATH_FONT} fontSize="19" fill={T.ink}>x − 2</text>
+
+    <text x="216" y="52" textAnchor="middle" fontFamily={MATH_FONT} fontSize="17" fill={T.ink3}>→</text>
+
+    {/* Запрет: знаменатель в нуле, черта разорвана. */}
+    <text x="300" y="34" textAnchor="middle" fontFamily={MATH_FONT} fontSize="19" fill={T.ink2}>0</text>
+    <line x1="258" y1="44" x2="290" y2="44" stroke={T.tip} strokeWidth="2.6"/>
+    <line x1="310" y1="44" x2="342" y2="44" stroke={T.tip} strokeWidth="2.6"/>
+    <text x="300" y="70" textAnchor="middle" fontFamily={MATH_FONT} fontSize="21" fill={T.tip} fontWeight="700">0</text>
+
+    <g className="g8-late">
+      <rect x="238" y="76" width="124" height="14" rx="7" fill={T.tipSoft}/>
+      <text x="300" y="87" textAnchor="middle" fontFamily={MATH_FONT} fontSize="11" fill={T.tip}>x ≠ 2</text>
+    </g>
   </SceneBand>
 )
 
