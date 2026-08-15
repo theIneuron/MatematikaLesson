@@ -34,7 +34,7 @@ const SIZES = [
 //   part  -- тап по части записи (data-part)
 //   chips -- сборка правила по data-id
 const SOLVE = [
-  { picks: ['table'] },                                                  // 1 хук: график против таблицы
+  { feed: 2 },                                                           // 1 хук: ученик кормит запись, ломает на двойке
   { fields: ['2', '7', '0'] },                                           // 2 опора
   // Порядок шагов в прогоне: part -> nums -> picksAfter -> fields.
   // Вопрос по ходу появляется ПОСЛЕ подстановки, поле ОДЗ — после вопроса.
@@ -271,6 +271,15 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Хук: жмём числа по порядку и доводим до того, на котором машина встала.
+    if (s.feed !== undefined) {
+      const btns = page.locator('.g8-fd-btn')
+      const n = await btns.count()
+      for (let k = 0; k < n; k += 1) {
+        await tap(btns.nth(k), at)
+        await page.waitForTimeout(200)
       }
     }
     // Лупа: жмём «Приблизить», пока кнопка не погаснет, потом отвечаем.

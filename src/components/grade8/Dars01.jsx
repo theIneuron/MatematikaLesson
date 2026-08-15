@@ -228,19 +228,19 @@ const HookScene = () => {
 const S1 = {
   eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
   title: L(
-    'Ikki mashina, ikki javob',
-    'Две машины — разные ответы',
-    'Two machines, different answers',
+    "Bitta son mashinani to'xtatadi",
+    'Одно число останавливает машину',
+    'One number stops the machine',
   ),
   audio: [
     A('mount',
-      "Bitta yozuv ikki mashinaga berildi. Plotter grafik chizadi, jadval qiymatlarni sanaydi. Ikkisi ham ishlaydi, lekin javoblari boshqa.",
-      'Одну запись дали двум машинам. Плоттер рисует график, таблица считает значения. Обе работают, а ответы у них разные.',
-      'One record was given to two machines. The plotter draws a graph, the table computes values. Both work, yet their answers differ.'),
+      "Mashinaga yozuv berilgan. Istalgan sonni bosing, u hisoblab, natijani chiqaradi.",
+      'Машине дали запись. Нажми любое число, она посчитает и покажет результат.',
+      'The machine was given a record. Tap any number and it will compute and show the result.'),
     A('why',
-      "Ikkilikda plotter to'rtni ko'rsatadi, jadval esa chiziqcha qo'yadi. Ikkisi bir vaqtda to'g'ri bo'lishi mumkin emas.",
-      'При двойке плоттер показывает четыре, а таблица ставит прочерк. Обе правыми быть не могут.',
-      'At two the plotter shows four while the table puts a dash. They cannot both be right.'),
+      "Sonlarni birma-bir sinab ko'ring. Ular orasida bittasi bor, unda mashina to'xtaydi.",
+      'Попробуй числа по очереди. Среди них есть одно, на котором машина остановится.',
+      'Try the numbers one by one. Among them there is one that stops the machine.'),
   ],
   props: {
     expr: <Row size="big" align="center">{F('x · x − 4', 'x − 2')}</Row>,
@@ -255,47 +255,16 @@ const S1 = {
     hole: 2,
     holeValue: 4,
     sign: '?',
-    ask: {
-      question: L(
-        'Qaysi mashina haq?',
-        'Какая машина права?',
-        'Which machine is right?',
-      ),
-      items: [
-        {
-          id: 'table',
-          right: true,
-          label: L('Jadval haq', 'Права таблица', 'The table is right'),
-        },
-        {
-          id: 'plot',
-          label: L('Plotter haq', 'Прав плоттер', 'The plotter is right'),
-          hint: L(
-            "Ikkilikni maxrajga qo'ying: ikki minus ikki, nol chiqadi. Nolga bo'lish mumkin emas.",
-            'Подставь двойку в знаменатель: два минус два, получится нуль. На нуль делить нельзя.',
-            'Put two into the denominator: two minus two gives zero. Division by zero is impossible.',
-          ),
-        },
-        {
-          id: 'both',
-          label: L('Ikkisi ham haq', 'Обе правы', 'Both are right'),
-          hint: L(
-            "Bitta yozuvning bitta sonda bitta qiymati bo'ladi. Chiziq ostiga qarang.",
-            'У одной записи при одном числе одно значение. Смотри под черту.',
-            'One record at one number has one value. Look below the bar.',
-          ),
-        },
-        {
-          id: 'broken',
-          label: L('Plotter buzuq', 'Плоттер сломан', 'The plotter is broken'),
-          hint: L(
-            "Plotter buzuq emas. U sanalgan nuqtalarni birlashtiradi va teshikni chizmaydi.",
-            'Плоттер не сломан. Он соединяет посчитанные точки и дырку не рисует.',
-            'The plotter is not broken. It joins the computed points and does not draw the hole.',
-          ),
-        },
-      ],
-    },
+    ask: L(
+      "Istalgan sonni bosing: mashina hisoblaydi",
+      'Нажми любое число — машина посчитает',
+      'Tap any number and the machine will compute',
+    ),
+    broke: L(
+      "Mashina to'xtadi. Ikkilikda maxraj nolga aylanadi, nolga esa bo'lish mumkin emas.",
+      'Машина остановилась. При двойке знаменатель обращается в нуль, а на нуль делить нельзя.',
+      'The machine stopped. At two the denominator becomes zero, and division by zero is impossible.',
+    ),
     sceneNode: <HookScene/>,
     after: L(
       "Jadval haq. Endi topamiz, bunday sonlarni qanday oldindan ko'rish mumkin.",
@@ -1596,7 +1565,7 @@ const FinalScene = (
 // `method` — карточка способа НАД заданием (§4), `scene` — сцена урока (§6).
 // ============================================================
 export const SCREENS = [
-  { role: 'hook',     tool: 'plot',      ...S1 },
+  { role: 'hook',     tool: 'feed',      ...S1 },
   { role: 'support',  tool: 'chain',     ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },

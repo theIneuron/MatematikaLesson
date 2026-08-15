@@ -30,6 +30,7 @@ import {
   Ask, Btn, L, LangProvider, Lead, Note, STYLES, Stage, Title, UI_TXT,
   configureLesson, tr, useAdvanceGate, useAudio, useMobileZoom, useT,
 } from './core.jsx'
+import { FEED_STYLES, FeedNumber } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { PLOT_STYLES } from './plot.jsx'
@@ -210,6 +211,9 @@ export function ScreenBody(props) {
     // XUK: bitta yozuv, ikki mashina (7-sinf urok 1 naqshi).
     case 'plot':
       return <PlotVsTable {...p} audio={audio} onSolved={onSolved} />
+    // ХУК: ученик сам кормит запись числами и сам находит поломку.
+    case 'feed':
+      return <FeedNumber {...p} audio={audio} onSolved={onSolved} />
     // KADRLAR LENTASI: tepada bitta obyekt, pastda kadrlar (4-sinf naqshi).
     case 'film':
       return <FilmScreen p={p} audio={audio} onSolved={onSolved} step={step} />
@@ -336,7 +340,7 @@ export function makeLesson({ META, STATEMENTS, MISS, SCREENS }) {
 
     return (
       <LangProvider value={lang}>
-        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}</style>
+        <style>{STYLES}{MATH_STYLES}{TOOLS_STYLES}{PLOT_STYLES}{METHOD_STYLES}{TWOSIDES_STYLES}{FEED_STYLES}</style>
         <div className="lesson-root">
           <Frame
             key={screen}
