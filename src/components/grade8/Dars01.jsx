@@ -182,7 +182,7 @@ const HookScene = () => {
     {/* стол */}
 
     {/* ЛЕВЫЙ ПРИБОР: плоттер */}
-    <rect x="14" y="6" width="164" height="142" rx="12" fill={T.paper}
+    <rect x="8" y="2" width="176" height="150" rx="14" fill={T.paper}
       stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
     <text x="96" y="24" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
       fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_PLOT)}</text>
@@ -198,7 +198,7 @@ const HookScene = () => {
     <text x="200" y="82" textAnchor="middle" fontFamily={MATH_FONT} fontSize="16" fill={T.ink2}>?</text>
 
     {/* ПРАВЫЙ ПРИБОР: таблица */}
-    <rect x="222" y="6" width="164" height="142" rx="12" fill={T.paper}
+    <rect x="216" y="2" width="176" height="150" rx="14" fill={T.paper}
       stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
     <text x="304" y="24" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
       fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_TABLE)}</text>
