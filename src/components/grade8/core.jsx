@@ -1758,6 +1758,9 @@ html, body { margin: 0; padding: 0; }
 .g8-input {
   box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.35);
   border-radius: 12px;
+  /* Текст начинался вплотную к рамке и читался как приклеенный. */
+  padding-left: 16px;
+  padding-right: 16px;
 }
 .g8-input:focus { box-shadow: inset 0 0 0 2px ${T.accent}, 0 0 0 4px rgba(${T.accentRgb},.14); }
 
