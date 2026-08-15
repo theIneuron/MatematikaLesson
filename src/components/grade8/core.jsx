@@ -1795,7 +1795,11 @@ html, body { margin: 0; padding: 0; }
   align-items: center;
   justify-content: center;
 }
-.g8-scene-hook svg, .g8-frame-fig .g8-plotc { max-height: 100%; }
+/* Чертёж ЗАНИМАЕТ выросшую карточку, а не висит в ней. Жёсткая высота в vh
+   оставляла пустоту внутри белой карточки: контейнер растянулся, рисунок нет.
+   Ширина идёт из пропорции кадра, поэтому карточка сама облегает рисунок. */
+.g8-scene-hook svg { height: 100%; max-height: none; width: auto; }
+.g8-frame-fig .g8-plotc { max-height: 100%; }
 
 @media (max-height: 680px) {
   .g8-top { row-gap: 0; }
