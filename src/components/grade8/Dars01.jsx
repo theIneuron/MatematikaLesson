@@ -1,3266 +1,1612 @@
-import React, {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+// ============================================================================
+// 8-sinf, Dars 1. RATSIONAL IFODALAR VA RATSIONAL KASRLAR.
+//
+// NOLDAN yozildi 2026-08-13, metodist topshirig'i bo'yicha: oldingi variant
+// o'chirildi, bu dars 7-SINF UROK 1 NAQSHIDA qurilgan va 3-SINFNING
+// tushuntirish usullarini oladi.
+//
+// METODIST TASDIQLAGAN TO'RT QARORI (2026-08-13):
+//   1. KO'RSATISH, keyin O'ZI. 3-ekranda dastur misolni O'ZI yechadi: qo'l
+//      ko'rsatkichi, son kasrga uchib tushadi, izoh qadamni nomlaydi — va
+//      yo'l-yo'lakay SAVOL beriladi, javobsiz demo to'xtab turadi (3-sinf
+//      `TapBinDemo`). 4-ekranda xuddi shu uch qadamni o'quvchi O'ZI bajaradi.
+//   2. ASOSIY ASBOB — qo'l YOZUVNING ICHIDA: o'quvchi kasrning qaysi qismidan
+//      taqiq kelib chiqishini o'zi bosadi, keyin o'z sonini qo'yadi
+//      (`TapPart`, 7-sinfdagi `StepOrder` ning tarjimasi).
+//   3. XUK — bitta yozuv, IKKI MASHINA, boshqa javob: plotter uzluksiz chiziq
+//      chizadi, jadval esa chiziqcha qo'yadi (`PlotVsTable`). 7-sinfda bu
+//      «oddiy va injener kalkulyator».
+//   4. HARAKAT: qo'l va sonning uchishi, chiziqning uzilishi, jadvalning
+//      yacheyka-yacheyka to'lishi, ODZ satrining bir taktda miltillashi.
+//      Boshqa hech narsa harakatlanmaydi.
+//
+// 3-SINFDAN OLINGAN USULLAR: demo-ko'rsatish (`TapBinDemo`), qadamlarning
+// kaskad bilan ochilishi, xukka QAYTISH qoida ekranida (2 va 3-sinf `s7`).
+// 4-SINFDAN: qoidani o'quvchi YIG'ADI (`RuleBuilder`).
+//
+// Bu faylda FAQAT MA'LUMOT (ETALON_8SINF.md §13.2). Mexanika `tools.jsx` da,
+// o'ram `screens.jsx` da, yadro `core.jsx` da, javob tekshiruvi `mathcore.js` da.
+// Raskadrovka: src/books/grade8/DARS01_SKELET.md
+// `import React` SHART (LMS xom jsx ni klassik rejimda yuklaydi).
+// ============================================================================
+// eslint-disable-next-line no-unused-vars
+import React from 'react'
+import { L, MATH_FONT, Row, T, useT } from './core.jsx'
+import { Plot } from './plot.jsx'
+import { SceneBand } from './method.jsx'
+import { A, W, makeLesson } from './screens.jsx'
+import { F } from './tools.jsx'
 
-// Dars 1 · Ratsional ifodalar va ratsional kasrlar
-// Monolit lesson: infrastructure + CONTENT + screens + styles.
-
-const T = {
-  bg: '#F6F4EF',
-  ink: '#0E0E10',
-  ink2: '#5A5A60',
-  ink3: '#A7A6A2',
-  paper: '#FFFFFF',
-  accent: '#FF4F28',
-  accentSoft: '#FFE8E1',
-  success: '#1F7A4D',
-  successSoft: '#E3F0E8',
-  blue: '#019ACB',
-  blueSoft: '#EAF6FB',
-  shadowBase: '58, 53, 48',
-}
-
-let ttsConfig = {
-  ttsApiBase: '',
-  correctSoundUrl: '',
-  wrongSoundUrl: '',
-  voiceGender: 'm',
-}
-
-const configureLesson = (config) => {
-  ttsConfig = { ...ttsConfig, ...config }
-}
-
-const stripAudioTags = (text) =>
-  typeof text === 'string'
-    ? text
-        .replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
-        .replace(/\s{2,}/g, ' ')
-        .trim()
-    : text
-
-function buildTtsUrl(base, text, gender) {
-  const encoded = encodeURIComponent(String(text).slice(0, 1000))
-  return `${base}/api/tts?text=${encoded}&g=${gender || 'm'}`
-}
-
-const LangContext = createContext('ru')
-const useLang = () => useContext(LangContext)
-
-function useT() {
-  const lang = useLang()
-  return useCallback(
-    (node) => {
-      if (node === null || node === undefined) return ''
-      if (typeof node === 'string' || typeof node === 'number') return node
-      if (React.isValidElement(node)) return node
-      return stripAudioTags(node[lang] ?? node.ru ?? node.uz ?? node.en ?? '')
-    },
-    [lang],
-  )
-}
-
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false,
-  )
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined
-    const onResize = () => setIsMobile(window.innerWidth < breakpoint)
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [breakpoint])
-
-  return isMobile
-}
-
-class AudioEngine {
-  constructor() {
-    this.queue = []
-    this.currentIdx = 0
-    this.isPlaying = false
-    this.waitingFor = null
-    this.onStateChange = null
-    this.audioEl = null
-    this.lang = 'ru'
-  }
-
-  ensureElement() {
-    if (this.audioEl || typeof window === 'undefined') return this.audioEl
-    const audio = new Audio()
-    audio.preload = 'auto'
-    audio.crossOrigin = 'anonymous'
-    this.audioEl = audio
-    return audio
-  }
-
-  setLang(lang) {
-    this.lang = lang
-  }
-
-  loadQueue(segments) {
-    this.stop()
-    this.queue = segments || []
-    this.currentIdx = 0
-    this.waitingFor = null
-  }
-
-  playSegment(segment) {
-    if (!segment || !segment.text) {
-      this.handleEnd(segment)
-      return
-    }
-
-    const base = ttsConfig.ttsApiBase
-    if (!base) {
-      this.isPlaying = false
-      this.onStateChange?.({ isPlaying: false, currentSegment: null })
-      return
-    }
-
-    const audio = this.ensureElement()
-    if (!audio) return
-    audio.onended = () => this.handleEnd(segment)
-    audio.onerror = () => this.handleEnd(segment)
-    audio.src = buildTtsUrl(base, segment.text, segment.g || ttsConfig.voiceGender)
-    const promise = audio.play()
-    if (promise?.then) {
-      promise
-        .then(() => {
-          this.isPlaying = true
-          this.onStateChange?.({ isPlaying: true, currentSegment: segment.id })
-        })
-        .catch(() => {
-          this.isPlaying = false
-          this.onStateChange?.({ isPlaying: false, currentSegment: null })
-        })
-    }
-  }
-
-  handleEnd(segment) {
-    this.isPlaying = false
-    this.onStateChange?.({ isPlaying: false, currentSegment: null })
-    if (segment?.waits_for) {
-      this.waitingFor = segment.waits_for
-      this.onStateChange?.({ waitingFor: segment.waits_for })
-      return
-    }
-    this.currentIdx += 1
-    this.playNext()
-  }
-
-  playNext() {
-    if (this.currentIdx >= this.queue.length) return
-    this.playSegment(this.queue[this.currentIdx])
-  }
-
-  start() {
-    this.currentIdx = 0
-    this.waitingFor = null
-    this.playNext()
-  }
-
-  triggerEvent(type, target) {
-    if (!this.waitingFor) return
-    const matches =
-      this.waitingFor.type === type &&
-      (!this.waitingFor.target || this.waitingFor.target === target)
-    if (!matches) return
-    this.waitingFor = null
-    this.currentIdx += 1
-    this.playNext()
-  }
-
-  pushOneOff(text, gender) {
-    if (!text) return
-    const segment = {
-      id: `oneoff_${Date.now()}`,
-      text,
-      trigger: 'manual',
-      waits_for: null,
-      g: gender,
-    }
-    this.queue = [segment]
-    this.currentIdx = 0
-    this.waitingFor = null
-    this.playNext()
-  }
-
-  replay() {
-    if (!this.queue.length) return
-    this.currentIdx = Math.max(0, this.currentIdx - 1)
-    this.waitingFor = null
-    this.playNext()
-  }
-
-  stop() {
-    if (this.audioEl) {
-      try {
-        this.audioEl.pause()
-        this.audioEl.onended = null
-        this.audioEl.onerror = null
-      } catch {
-        // Audio cleanup is best-effort.
-      }
-    }
-    this.isPlaying = false
-    this.onStateChange?.({ isPlaying: false, currentSegment: null })
-  }
-}
-
-let audioEngineInstance = null
-
-function getAudioEngine() {
-  if (typeof window === 'undefined') return null
-  if (!audioEngineInstance) audioEngineInstance = new AudioEngine()
-  return audioEngineInstance
-}
-
-function useAudio(segments) {
-  const lang = useLang()
-  const [state, setState] = useState({
-    isPlaying: false,
-    currentSegment: null,
-    waitingFor: null,
-    muted: false,
-  })
-  const engineRef = useRef(null)
-  const stableSegments = useMemo(() => segments || [], [segments])
-
-  useEffect(() => {
-    const engine = getAudioEngine()
-    if (!engine) return undefined
-    engineRef.current = engine
-    engine.setLang(lang)
-    engine.onStateChange = (next) => setState((prev) => ({ ...prev, ...next }))
-    if (!state.muted && stableSegments.length) {
-      engine.loadQueue(stableSegments)
-      const timer = window.setTimeout(() => engine.start(), 300)
-      return () => {
-        window.clearTimeout(timer)
-        engine.stop()
-      }
-    }
-    return () => engine.stop()
-  }, [stableSegments, lang, state.muted])
-
-  const replay = useCallback(() => engineRef.current?.replay(), [])
-  const toggleMute = useCallback(() => {
-    setState((prev) => {
-      const muted = !prev.muted
-      if (muted) engineRef.current?.stop()
-      return { ...prev, muted }
-    })
-  }, [])
-
-  return { ...state, replay, toggleMute }
-}
-
-function makeAudioSegments(screenContent, lang, waitsFor = null) {
-  const source = screenContent?.audio?.[lang]
-  if (Array.isArray(source)) {
-    return source.map((text, index) => ({
-      id: `aud_${index}`,
-      text,
-      trigger: index === 0 ? 'on_mount' : 'after_previous',
-      waits_for: index === 0 ? waitsFor : null,
-    }))
-  }
-  if (!source) return []
-  return [{ id: 'aud_0', text: source, trigger: 'on_mount', waits_for: waitsFor }]
-}
-
-function makePromptSegments(audio, lang, waitsFor) {
-  if (!audio?.intro) return []
-  return [
-    {
-      id: 'intro',
-      text: audio.intro[lang] ?? audio.intro.ru,
-      trigger: 'on_mount',
-      waits_for: waitsFor,
-    },
-  ]
-}
-
-function useSfx() {
-  const play = useCallback((kind) => {
-    const source = kind === 'correct' ? ttsConfig.correctSoundUrl : ttsConfig.wrongSoundUrl
-    if (source && typeof Audio !== 'undefined') {
-      const audio = new Audio(source)
-      audio.volume = 0.55
-      audio.play().catch(() => {})
-      return
-    }
-    if (typeof window === 'undefined') return
-    try {
-      const AudioContextClass = window.AudioContext || window.webkitAudioContext
-      if (!AudioContextClass) return
-      const context = new AudioContextClass()
-      const oscillator = context.createOscillator()
-      const gain = context.createGain()
-      oscillator.frequency.value = kind === 'correct' ? 720 : 250
-      gain.gain.setValueAtTime(0.12, context.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.0001, context.currentTime + 0.18)
-      oscillator.connect(gain)
-      gain.connect(context.destination)
-      oscillator.start()
-      oscillator.stop(context.currentTime + 0.2)
-    } catch {
-      // SFX is optional.
-    }
-  }, [])
-
-  return {
-    playCorrect: () => play('correct'),
-    playWrong: () => play('wrong'),
-  }
-}
-
-const L = (uz, ru, en) => ({ uz, ru, en })
-
-const TOTAL_SCREENS = 16
-
-const LESSON_META = {
-  lessonId: 'rat-8-01-v1',
-  lessonTitle: L(
+export const META = {
+  id: 'alg-8-01',
+  n: 1,
+  row: 1,
+  block: 'Б1',
+  topic: L(
     'Ratsional ifodalar va ratsional kasrlar',
     'Рациональные выражения и рациональные дроби',
     'Rational expressions and rational fractions',
   ),
+  voice: 'm',
+  total: 15,
 }
 
-const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'MCScreen', scored: false, scope: 'hook' },
-  { id: 's1', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's2', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's3', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's4', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's5', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's6', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's7', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's8', type: 'rule', template: 'custom', scored: false, scope: null },
-  { id: 's9', type: 'test', template: 'NumInputScreen', scored: true, scope: 'module-mikro' },
-  { id: 's10', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's11', type: 'test', template: 'MCScreen', scored: true, scope: 'module-mikro' },
-  { id: 's12', type: 'exploration', template: 'custom', scored: false, scope: null },
-  { id: 's13', type: 'test', template: 'NumInputScreen', scored: true, scope: 'final' },
-  { id: 's14', type: 'test', template: 'MCScreen', scored: true, scope: 'final' },
-  { id: 's15', type: 'summary', template: 'custom', scored: false, scope: null },
+// Uchta tasdiq: 8-ekrandagi kartochka va 15-ekrandagi jamlanma (§13.2 p. 5).
+export const STATEMENTS = [
+  L(
+    "Songa bo'linsa — butun ifoda, harfga bo'linsa — kasr ifoda",
+    'Делят на число — целое, делят на букву — дробное',
+    'Divide by a number and it is integral, by a letter and it is fractional',
+  ),
+  L(
+    "ODZ ni maxraj beradi: maxrajning nollari taqiqlangan",
+    'ОДЗ задаёт знаменатель: нули знаменателя недопустимы',
+    'The denominator sets the domain: its zeros are not admissible',
+  ),
+  L(
+    "Suratdagi nol — qiymat nol, maxrajdagi nol — qiymat yo'q",
+    'Нуль в числителе — значение нуль, нуль в знаменателе — значения нет',
+    'Zero above the bar gives zero, zero below it gives no value',
+  ),
 ]
 
-const CONTENT = {
-  ui: {
-    back: L('Orqaga', 'Назад', 'Back'),
-    next: L('Davom etish', 'Далее', 'Continue'),
-    check: L('Tekshirish', 'Проверить', 'Check'),
-    calculate: L('Hisoblash', 'Вычислить', 'Calculate'),
-    save: L('Gipotezani saqlash', 'Сохранить гипотезу', 'Save hypothesis'),
-    finish: L('Darsni yakunlash', 'Завершить урок', 'Finish lesson'),
-    correct: L("To'g'ri", 'Верно', 'Correct'),
-    hint: L('Maslahat', 'Подсказка', 'Hint'),
-    step: L('Qadam', 'Шаг', 'Step'),
-    undefined: L('Aniqlanmagan', 'Не определено', 'Undefined'),
+// Adashishlar (§11). `at` — kontrprimer uchun SON.
+// З18 va З19 — §11 ro'yxatida YO'Q va metodist so'zini kutadi (DARS01_SKELET §3).
+export const MISS = {
+  'З2': {
+    what: L(
+      "ODZ topilmadi yoki yo'qoldi",
+      'ОДЗ не найдена или потеряна',
+      'the domain was not found or was lost',
+    ),
+    wrong: '(x*x-4)/(x-2)',
+    at: 2,
   },
-
-  s0: {
-    eyebrow: L('TADQIQOT SAVOLI', 'ИССЛЕДОВАТЕЛЬСКИЙ ВОПРОС', 'INVESTIGATION QUESTION'),
-    title: L(
-      'Formula barcha qiymatlarni qabul qiladimi?',
-      'Принимает ли формула все значения?',
-      'Does the formula accept every value?',
+  'З16': {
+    what: L(
+      'javob son bilan tekshirilmadi',
+      'ответ не проверен числом',
+      'the answer was not checked with a number',
     ),
-    question: L(
-      "Sizningcha, to'rtta qiymatning barchasida hisoblash mumkinmi?",
-      'Как вы думаете, можно ли выполнить вычисление при каждом из четырёх значений?',
-      'Do you think the calculation can be completed for all four values?',
-    ),
-    options: [
-      L("Ha, to'rttalasi ham qabul qilinadi", 'Да, подходят все четыре', 'Yes, all four are accepted'),
-      L(
-        "Yo'q, qiymatlardan biri muammo tug'diradi",
-        'Нет, одно из значений создаст проблему',
-        'No, one value will cause a problem',
-      ),
-      L("Hozircha ishonchim komil emas", 'Пока не уверен', 'I am not sure yet'),
-    ],
-    note: L(
-      'Bu prognoz. Javob hozircha baholanmaydi.',
-      'Это прогноз. Сейчас ответ не оценивается.',
-      'This is a prediction. It is not graded yet.',
-    ),
-    audio: {
-      intro: L(
-        "K iks ifodani ko'rib chiqing. Nol, ikki, uch va to'rt qiymatlarining barchasida hisoblash mumkinligini oldindan taxmin qiling.",
-        'Рассмотрите выражение ка от икс. Предположите, можно ли выполнить вычисление при нуле, двух, трёх и четырёх.',
-        'Study the expression K of x. Predict whether it can be evaluated at zero, two, three, and four.',
-      ),
-      on_correct: L(
-        'Prognozingiz saqlandi. Keyingi ekranlarda uni hisoblash natijalari bilan tekshirasiz.',
-        'Ваш прогноз сохранён. На следующих экранах вы проверите его вычислениями.',
-        'Your prediction has been saved. You will test it with calculations on the next screens.',
-      ),
-      on_wrong: L(
-        "Prognozingiz saqlandi. Bu bosqichda xato javob yo'q, chunki tadqiqot endi boshlanmoqda.",
-        'Ваш прогноз сохранён. Здесь нет ошибочного ответа, потому что исследование только начинается.',
-        'Your prediction has been saved. There is no wrong answer because the investigation is just beginning.',
-      ),
-    },
+    wrong: null,
+    at: 0,
   },
-
-  s1: {
-    eyebrow: L('ASBOBLARNI TEKSHIRISH', 'ПРОВЕРКА ИНСТРУМЕНТОВ', 'SKILLS CHECK'),
-    title: L("Uchta zarur ko'nikma", 'Три необходимых навыка', 'Three skills you will need'),
-    lead: L(
-      'Har bir mikroqadamni alohida bajaring.',
-      'Выполните каждый микрошаг отдельно.',
-      'Complete each micro-step separately.',
+  'З18': {
+    what: L(
+      'suratdagi nol va maxrajdagi nol aralashtirildi',
+      'нуль в числителе и нуль в знаменателе смешаны',
+      'zero in the numerator confused with zero in the denominator',
     ),
-    steps: [
-      {
-        prompt: L(
-          "x = 2 bo'lganda 2x + 1 ifodaning qiymatini toping.",
-          'Найдите значение выражения 2x + 1 при x = 2.',
-          'Find the value of 2x + 1 when x = 2.',
-        ),
-        answer: 5,
-        success: L('2 · 2 + 1 = 5.', '2 · 2 + 1 = 5.', '2 · 2 + 1 = 5.'),
-      },
-      {
-        prompt: L(
-          "Kasrning maxrajini ko'rsating.",
-          'Укажите знаменатель дроби.',
-          'Identify the denominator of the fraction.',
-        ),
-        options: ['5', 'x − 3', 'x', '3'],
-        answer: 1,
-        success: L(
-          'Maxraj kasr chizig’ining ostida: x − 3.',
-          'Под чертой дроби находится знаменатель x − 3.',
-          'The expression below the fraction bar is the denominator x − 3.',
-        ),
-      },
-      {
-        prompt: L('x − 3 = 0 tenglamani yeching.', 'Решите уравнение x − 3 = 0.', 'Solve x − 3 = 0.'),
-        answer: 3,
-        success: L(
-          "x = 3 bo'lganda x − 3 nolga teng.",
-          'При x = 3 выражение x − 3 равно нулю.',
-          'When x equals 3, x − 3 equals zero.',
-        ),
-      },
-    ],
-    wrong: L(
-      "Qadamni yana tekshiring. Bu yerda faqat o'rniga qo'yish, maxrajni aniqlash yoki oddiy tenglamani yechish kerak.",
-      'Проверьте шаг ещё раз. Здесь нужна только подстановка, определение знаменателя или решение простого уравнения.',
-      'Check the step again. It only requires substitution, identifying the denominator, or solving a simple equation.',
-    ),
-    audio: L(
-      [
-        "Tadqiqot uchun uchta vosita kerak. O'rniga qo'yish, maxrajni aniqlash va oddiy tenglamani yechishni tekshiramiz.",
-        "Birinchi qadamda iks o'rniga ikki qo'ying va sonli ifodani hisoblang.",
-        "Ikkinchi qadamda kasr chizig'i ostida joylashgan ifodani toping.",
-        "Uchinchi qadamda iks minus uch qachon nol bo'lishini aniqlang.",
-      ],
-      [
-        'Для исследования нужны три инструмента. Проверим подстановку, определение знаменателя и решение простого уравнения.',
-        'На первом шаге подставьте вместо икс число два и вычислите выражение.',
-        'На втором шаге найдите выражение под чертой дроби.',
-        'На третьем шаге определите, когда икс минус три обращается в ноль.',
-      ],
-      [
-        'The investigation needs three tools. We will check substitution, identifying a denominator, and solving a simple equation.',
-        'For the first step, replace x with two and evaluate the expression.',
-        'For the second step, identify the expression below the fraction bar.',
-        'For the third step, determine when x minus three becomes zero.',
-      ],
-    ),
+    wrong: '0/(x-1)',
+    at: 5,
   },
-
-  s2: {
-    eyebrow: L('STRUKTURA TAHLILI', 'АНАЛИЗ СТРУКТУРЫ', 'STRUCTURE ANALYSIS'),
-    title: L('Ifodalarni ikki guruhga ajrating', 'Разделите выражения на две группы', 'Sort the expressions into two groups'),
-    groups: [
-      L("O'zgaruvchi maxrajda yo'q", 'Переменной в знаменателе нет', 'No variable in the denominator'),
-      L("O'zgaruvchi maxrajda bor", 'Переменная находится в знаменателе', 'A variable appears in the denominator'),
-    ],
-    items: [
-      { expression: '3x + 1', group: 0 },
-      { expression: 'x² − 4', group: 0 },
-      { expression: '5 / (x − 2)', group: 1 },
-      { expression: '(x + 1) / (2x − 3)', group: 1 },
-    ],
-    correct_text: L(
-      "Oxirgi ikki ifodada o'zgaruvchi maxrajning tarkibiga kiradi.",
-      'В двух последних выражениях переменная входит в знаменатель.',
-      'In the final two expressions, the variable is part of the denominator.',
+  'З19': {
+    what: L(
+      "songa bo'lish harfli ifodaga bo'lish deb olindi",
+      'деление на число принято за деление на выражение с буквой',
+      'dividing by a number taken for dividing by an expression with a letter',
     ),
-    wrong_text: L(
-      "Butun ifodaga emas, kasr chizig'i ostidagi qismga qarang.",
-      'Смотрите не на всё выражение, а на часть под чертой дроби.',
-      'Look specifically at the part below the fraction bar.',
-    ),
-    audio: L(
-      "To'rtta ifodani taqqoslang. O'zgaruvchi kasr chizig'i ostida bor yoki yo'qligiga qarab ularni ikki guruhga ajrating.",
-      'Сравните четыре выражения. Разделите их на группы в зависимости от того, находится ли переменная под чертой дроби.',
-      'Compare the four expressions. Sort them according to whether a variable appears below the fraction bar.',
-    ),
+    wrong: '(2*x+6)/3',
+    at: 1,
   },
+}
 
-  s3: {
-    eyebrow: L('GIPOTEZA', 'ГИПОТЕЗА', 'HYPOTHESIS'),
-    title: L(
-      "Qaysi qiymat muammo tug'dirishi mumkin?",
-      'Какое значение может создать проблему?',
-      'Which value might cause a problem?',
-    ),
-    valueQuestion: L(
-      'Hisoblashdan oldin bitta qiymatni tanlang.',
-      'До вычислений выберите одно значение.',
-      'Choose one value before calculating.',
-    ),
-    reasonQuestion: L(
-      'Nega aynan shu qiymatni tanladingiz?',
-      'Почему вы выбрали именно это значение?',
-      'Why did you choose that value?',
-    ),
-    values: [0, 2, 3, 4],
-    reasons: [
-      L("Surat nolga teng bo'lishi mumkin", 'Числитель может стать равным нулю', 'The numerator might become zero'),
-      L("Maxraj nolga teng bo'lishi mumkin", 'Знаменатель может стать равным нулю', 'The denominator might become zero'),
-      L("Natija manfiy bo'lishi mumkin", 'Результат может быть отрицательным', 'The result might be negative'),
-      L(
-        "O'zgaruvchi formulada ikki marta qatnashgan",
-        'Переменная встречается в формуле дважды',
-        'The variable appears twice in the formula',
-      ),
-    ],
-    note: L(
-      "Javob keyingi tajribadan so'ng tekshiriladi.",
-      'Ответ будет проверен после следующего эксперимента.',
-      'The answer will be checked after the next experiment.',
-    ),
-    audio: L(
-      "Hisoblashni boshlamasdan oldin muammoli qiymat haqida gipoteza tuzing. Qiymatni va tanlovingiz sababini belgilang.",
-      'До начала вычислений сформулируйте гипотезу о проблемном значении. Выберите значение и причину своего решения.',
-      'Before calculating, form a hypothesis about the problematic value. Select the value and the reason for your choice.',
-    ),
-  },
+// ============================================================
+// СПОСОБЫ (§4 эталона). Урок держится на них, а не на перечне экранов.
+// Способ имеет имя, записан шагами и применяется в практике: одна и та же
+// карточка стоит там, где способ вводится, и рядом с заданием, которое им
+// решается. Не подсказка после ошибки: карточка на экране стоит всегда.
+//
+// Объявлены ДО экранов: экран 6 берёт M_ODZ, а обращение к const выше по
+// файлу падает с «Cannot access before initialization».
+// ============================================================
+const M_KIND = {
+  name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
+  steps: [
+    L("Kasr chizig'ini toping.", 'Найди черту дроби.', 'Find the fraction bar.'),
+    L("Chiziq ostida harf bormi?", 'Посмотри, есть ли под чертой буква.', 'Check whether a letter is below the bar.'),
+    L("Bor — kasr, yo'q — butun.", 'Есть — дробное, нет — целое.', 'If yes it is fractional, if no it is integral.'),
+  ],
+}
 
-  s4: {
-    eyebrow: L('SONLI TAJRIBA', 'ЧИСЛОВОЙ ЭКСПЕРИМЕНТ', 'NUMERICAL EXPERIMENT'),
-    title: L("Qiymatlar jadvalini to'ldiring", 'Заполните таблицу значений', 'Complete the value table'),
-    columns: [
-      L('x', 'x', 'x'),
-      L('Surat', 'Числитель', 'Numerator'),
-      L('Maxraj', 'Знаменатель', 'Denominator'),
-      L('K(x)', 'K(x)', 'K(x)'),
-    ],
+const M_ODZ = {
+  name: L('2-USUL. TAQIQNI TOPISH', 'СПОСОБ 2. НАЙТИ ЗАПРЕТ', 'METHOD 2. FIND THE RESTRICTION'),
+  steps: [
+    L('Maxrajni yozib oling.', 'Выпиши знаменатель.', 'Write out the denominator.'),
+    L('Uni nolga tenglang.', 'Приравняй его к нулю.', 'Set it equal to zero.'),
+    L('Yeching — bu taqiqlangan sonlar.', 'Реши — это запрещённые числа.', 'Solve: these are the forbidden numbers.'),
+    L("Shartni «teng emas» bilan yozing.", 'Запиши условие со знаком «не равно».', 'Write the condition with the not-equal sign.'),
+  ],
+}
+
+const M_CHECK = {
+  name: L('3-USUL. SON BILAN TEKSHIRISH', 'СПОСОБ 3. ПРОВЕРИТЬ ЧИСЛОМ', 'METHOD 3. CHECK WITH A NUMBER'),
+  steps: [
+    L("Ruxsat etilgan sonni oling.", 'Возьми разрешённое число.', 'Take an allowed number.'),
+    L('Ikkala yozuvga qo\'ying.', 'Подставь в обе записи.', 'Substitute it into both records.'),
+    L("Qiymatlar ajralsa — yozuvlar teng emas.", 'Значения разошлись — записи не равны.', 'If the values differ, the records are not equal.'),
+  ],
+}
+
+// ============================================================
+// СЦЕНА ХУКА (§6). Пропорция 400 на 154. Сцена МАТЕМАТИЧЕСКАЯ: два прибора
+// на одном столе, у каждого свой ответ про одно и то же число.
+// Слева плоттер: линия идёт СКВОЗЬ двойку, дырку он не рисует. Справа
+// таблица: в ячейке при двойке прочерк. Между ними знак вопроса.
+// Сцена ЗАДАЁТ вопрос и ответа не даёт — ответ ученик получит на экране 6,
+// а увидит на финальной сцене.
+// ============================================================
+const SC_PLOT = L('PLOTTER', 'ПЛОТТЕР', 'PLOTTER')
+const SC_TABLE = L('JADVAL', 'ТАБЛИЦА', 'TABLE')
+
+const hx = (x) => 26 + ((x + 1) / 6) * 130
+const hy = (y) => 118 - (y / 7) * 74
+
+// Сцена — компонент, а не готовый элемент: подписи панелей обязаны
+// переводиться, а до `useT` можно дотянуться только изнутри компонента.
+// Правило fast-refresh ругается на компонент в файле с данными — это
+// ограничение горячей перезагрузки в разработке, к уроку отношения не имеет.
+// eslint-disable-next-line react-refresh/only-export-components
+const HookScene = () => {
+  const t = useT()
+  return (
+  <SceneBand kind="hook" label={L(
+    "Ikki asbob, bitta yozuv",
+    'Два прибора, одна запись',
+    'Two machines, one record',
+  )}>
+    {/* стол */}
+
+    {/* ЛЕВЫЙ ПРИБОР: плоттер */}
+    <rect x="14" y="14" width="164" height="118" rx="12" fill={T.paper}
+      stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
+    <text x="96" y="30" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+      fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_PLOT)}</text>
+    <line x1="26" y1={hy(0)} x2="166" y2={hy(0)} stroke={T.ink3} strokeWidth="1"/>
+    <line x1={hx(0)} y1="118" x2={hx(0)} y2="40" stroke={T.ink3} strokeWidth="1"/>
+    {/* линия идёт СКВОЗЬ двойку: плоттер соединяет посчитанные точки */}
+    <line x1={hx(-1)} y1={hy(1)} x2={hx(5)} y2={hy(7)} stroke={T.accent} strokeWidth="2.4" strokeLinecap="round"/>
+    <circle cx={hx(2)} cy={hy(4)} r="3.6" fill={T.accent}/>
+    <text x={hx(2)} y={hy(4) - 8} textAnchor="middle" fontFamily={MATH_FONT} fontSize="11" fill={T.accent}>4</text>
+
+    {/* ЗНАК ВОПРОСА между приборами */}
+    <circle cx="200" cy="74" r="13" fill={T.paper} stroke="rgba(23,26,29,.12)" strokeWidth="1"/>
+    <text x="200" y="79" textAnchor="middle" fontFamily={MATH_FONT} fontSize="16" fill={T.ink2}>?</text>
+
+    {/* ПРАВЫЙ ПРИБОР: таблица */}
+    <rect x="222" y="14" width="164" height="118" rx="12" fill={T.paper}
+      stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
+    <text x="304" y="30" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+      fontSize="8" letterSpacing="1.6" fill={T.ink3}>{t(SC_TABLE)}</text>
+    {[0, 1, 2, 3].map((i) => (
+      <g key={'c' + i}>
+        <rect x={234 + i * 36} y="44" width="32" height="26" rx="6" fill={T.bg}/>
+        <rect x={234 + i * 36} y="76" width="32" height="26" rx="6"
+          fill={i === 2 ? T.tipSoft : T.bg}/>
+        <text x={250 + i * 36} y="62" textAnchor="middle" fontFamily={MATH_FONT}
+          fontSize="12" fill={T.ink2}>{[1, 2, 3, 4][i] - 1}</text>
+        <text x={250 + i * 36} y="94" textAnchor="middle" fontFamily={MATH_FONT}
+          fontSize="12" fill={i === 2 ? T.tip : T.ink}>{i === 2 ? '—' : String([2, 3, 5, 6][i])}</text>
+      </g>
+    ))}
+    <text x="304" y="118" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+      fontSize="9" fill={T.ink3}>x</text>
+  </SceneBand>
+  )
+}
+
+// ============================================================
+// EKRAN 1. XUK. Bitta yozuv, ikki mashina, boshqa javob.
+// Plotter nuqtalarni birlashtiradi va teshikni CHIZMAYDI, jadval esa
+// chiziqcha qo'yadi. Fakt haqiqiy va tekshirib ko'rish mumkin.
+// Taxmin baholanmaydi: firuza, yashil yo'q, galochka yo'q (§14).
+// ============================================================
+const S1 = {
+  eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
+  title: L(
+    'Ikki mashina, ikki javob',
+    'Две машины — разные ответы',
+    'Two machines, different answers',
+  ),
+  audio: [
+    A('mount',
+      "Bitta yozuv ikki mashinaga berildi. Plotter grafik chizadi, jadval qiymatlarni sanaydi. Ikkisi ham ishlaydi, lekin javoblari boshqa.",
+      'Одну запись дали двум машинам. Плоттер рисует график, таблица считает значения. Обе работают, а ответы у них разные.',
+      'One record was given to two machines. The plotter draws a graph, the table computes values. Both work, yet their answers differ.'),
+    A('why',
+      "Ikkilikda plotter to'rtni ko'rsatadi, jadval esa chiziqcha qo'yadi. Ikkisi bir vaqtda to'g'ri bo'lishi mumkin emas.",
+      'При двойке плоттер показывает четыре, а таблица ставит прочерк. Обе правыми быть не могут.',
+      'At two the plotter shows four while the table puts a dash. They cannot both be right.'),
+  ],
+  props: {
+    expr: <Row size="big" align="center">{F('x · x − 4', 'x − 2')}</Row>,
+    // Qiymatlar: (x·x − 4) / (x − 2) = x + 2, lekin ikkilikda YO'Q.
     rows: [
-      { x: 0, numerator: 1, denominator: -3, value: '−1/3' },
-      { x: 2, numerator: 5, denominator: -1, value: '−5' },
-      { x: 3, numerator: 7, denominator: 0, value: 'undefined' },
-      { x: 4, numerator: 9, denominator: 1, value: '9' },
+      { x: 0, v: 2 },
+      { x: 1, v: 3 },
+      { x: 2, v: null },
+      { x: 3, v: 5 },
+      { x: 4, v: 6 },
     ],
-    conclusion: L(
-      "Faqat x = 3 da maxraj nolga teng bo'ldi. Shu sababli K(3) aniqlanmagan.",
-      'Только при x = 3 знаменатель стал равен нулю. Поэтому K(3) не определено.',
-      'Only x = 3 makes the denominator zero. Therefore K(3) is undefined.',
-    ),
-    audio: L(
-      [
-        "Har bir iks qiymatini surat va maxrajga qo'ying. Ularni alohida hisoblab, keyin natijani toping.",
-        "Uch qiymatida surat yettiga, maxraj esa nolga teng bo'ladi. Nolga bo'lish aniqlanmagan.",
+    hole: 2,
+    holeValue: 4,
+    sign: '?',
+    ask: {
+      question: L(
+        'Qaysi mashina haq?',
+        'Какая машина права?',
+        'Which machine is right?',
+      ),
+      items: [
+        {
+          id: 'table',
+          right: true,
+          label: L('Jadval haq', 'Права таблица', 'The table is right'),
+        },
+        {
+          id: 'plot',
+          label: L('Plotter haq', 'Прав плоттер', 'The plotter is right'),
+          hint: L(
+            "Ikkilikni maxrajga qo'ying: ikki minus ikki, nol chiqadi. Nolga bo'lish mumkin emas.",
+            'Подставь двойку в знаменатель: два минус два, получится нуль. На нуль делить нельзя.',
+            'Put two into the denominator: two minus two gives zero. Division by zero is impossible.',
+          ),
+        },
+        {
+          id: 'both',
+          label: L('Ikkisi ham haq', 'Обе правы', 'Both are right'),
+          hint: L(
+            "Bitta yozuvning bitta sonda bitta qiymati bo'ladi. Chiziq ostiga qarang.",
+            'У одной записи при одном числе одно значение. Смотри под черту.',
+            'One record at one number has one value. Look below the bar.',
+          ),
+        },
+        {
+          id: 'broken',
+          label: L('Plotter buzuq', 'Плоттер сломан', 'The plotter is broken'),
+          hint: L(
+            "Plotter buzuq emas. U sanalgan nuqtalarni birlashtiradi va teshikni chizmaydi.",
+            'Плоттер не сломан. Он соединяет посчитанные точки и дырку не рисует.',
+            'The plotter is not broken. It joins the computed points and does not draw the hole.',
+          ),
+        },
       ],
-      [
-        'Подставьте каждое значение икс в числитель и знаменатель. Вычислите их отдельно, затем найдите результат.',
-        'При значении три числитель равен семи, а знаменатель равен нулю. Деление на ноль не определено.',
-      ],
-      [
-        'Substitute each value of x into the numerator and denominator. Evaluate them separately, and then determine the result.',
-        'At three, the numerator equals seven and the denominator equals zero. Division by zero is undefined.',
-      ],
+    },
+    sceneNode: <HookScene/>,
+    after: L(
+      "Jadval haq. Endi topamiz, bunday sonlarni qanday oldindan ko'rish mumkin.",
+      'Права таблица. Теперь найдём, как такие числа увидеть заранее.',
+      'The table is right. Now we will find how to see such numbers in advance.',
     ),
   },
+}
 
-  s5: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
-    title: L('Ikki xil nol', 'Два разных нуля', 'Two different zeros'),
-    question: L(
-      "x = 3 bo'lganda qaysi ifoda aniqlangan?",
-      'Какое выражение определено при x = 3?',
-      'Which expression is defined when x = 3?',
-    ),
-    options: [
-      L('Ikkalasi ham', 'Оба выражения', 'Both expressions'),
-      L('Faqat P(x)', 'Только P(x)', 'Only P(x)'),
-      L('Faqat Q(x)', 'Только Q(x)', 'Only Q(x)'),
-      L('Ikkalasi ham emas', 'Ни одно', 'Neither expression'),
+// ============================================================
+// EKRAN 2. TAYANCH. Uchta topshiriq, javob YOZILADI. Natijaga hech narsa
+// ketmaydi (§17): bu tekshiruv emas, darsning oldi.
+// ============================================================
+const S2 = {
+  eyebrow: L('TAYANCH', 'ОПОРА', 'PRIOR KNOWLEDGE'),
+  title: L(
+    "Uchta qisqa savol",
+    'Три коротких вопроса',
+    'Three short questions',
+  ),
+  audio: [
+    A('mount',
+      "Jadval nima uchun haq ekanini hozir tekshiramiz. Avval uchta qisqa topshiriq. Qiymat topish, maxrajni nolga aylantirish va suratdagi nol.",
+      'Почему права таблица, сейчас проверим. Сначала три коротких задания. Найти значение, обратить знаменатель в нуль и нуль в числителе.',
+      'Why the table is right we will check now. First three short tasks. Find a value, make a denominator zero, and zero in the numerator.'),
+    W('t1',
+      "Birinchisi bajarildi. Endi maxraj. Qaysi sonda u nolga aylanadi.",
+      'Первое сделано. Теперь знаменатель. При каком числе он обращается в нуль.',
+      'The first one is done. Now the denominator. At which number does it become zero.'),
+    W('t2',
+      "Uchinchisi qoldi. Nol qayerda turganiga qarang, yuqorida yoki pastda.",
+      'Осталось третье. Смотри, где стоит нуль, сверху или снизу.',
+      'The third one is left. Look where the zero stands, above or below.'),
+  ],
+  props: {
+    items: [
+      {
+        prompt: L(
+          "3a − 4 ifodaning qiymatini a = 2 da toping",
+          'Найди значение выражения 3a − 4 при a = 2',
+          'Find the value of 3a − 4 at a = 2',
+        ),
+        show: <Row size="row" align="center">{'3a − 4,   a = 2'}</Row>,
+        answer: '2',
+        accepts: ['3*2-4', '6-4'],
+        closed: L('3a − 4 da a = 2   →   2', '3a − 4 при a = 2   →   2', '3a − 4 at a = 2   →   2'),
+        hints: {
+          '10': L(
+            "Uchni ikkiga ko'paytirib, keyin to'rtni ayirish kerak. Ayirish tashlab ketilgan.",
+            'Три умножить на два, а потом вычесть четыре. Вычитание пропущено.',
+            'Multiply three by two, then subtract four. The subtraction was skipped.',
+          ),
+        },
+      },
+      {
+        prompt: L(
+          "x − 7 maxraji qaysi x da nolga aylanadi? Sonni yozing",
+          'При каком x знаменатель x − 7 обращается в нуль? Запиши число',
+          'At which x does the denominator x − 7 become zero? Type the number',
+        ),
+        show: <Row size="row" align="center">{'x − 7'}</Row>,
+        answer: '7',
+        accepts: ['14/2', '7*1'],
+        closed: L('x − 7 = 0   →   x = 7', 'x − 7 = 0   →   x = 7', 'x − 7 = 0   →   x = 7'),
+        hints: {
+          '-7': L(
+            "Minus yettini qo'ying: minus yetti minus yetti, minus o'n to'rt chiqadi, nol emas.",
+            'Подставь минус семь: минус семь минус семь, получится минус четырнадцать, а не нуль.',
+            'Put minus seven: minus seven minus seven gives minus fourteen, not zero.',
+          ),
+        },
+      },
+      {
+        prompt: L(
+          "Nolni to'qqizga bo'lsak nima chiqadi? Sonni yozing",
+          'Что получится, если нуль разделить на девять? Запиши число',
+          'What do you get if you divide zero by nine? Type the number',
+        ),
+        show: <Row size="row" align="center">{F('0', '9')}</Row>,
+        answer: '0',
+        accepts: ['0/9', '0*5'],
+        closed: L("nolni to'qqizga bo'lsak   →   0", 'нуль разделить на девять   →   0', 'zero divided by nine   →   0'),
+        hints: {
+          '9': L(
+            "Yuqorida nol turadi. Nol nechta bo'lakka bo'linsa ham nol qoladi.",
+            'Сверху стоит нуль. На сколько частей нуль ни делили, он остаётся нулём.',
+            'There is zero above. However many parts you divide zero into, it stays zero.',
+          ),
+        },
+      },
     ],
-    correctIndex: 1,
-    correct_text: L(
-      'P(3) = 0/4 = 0, shuning uchun P aniqlangan. Q ning maxraji nol, shuning uchun Q(3) aniqlanmagan.',
-      'P(3) = 0/4 = 0, поэтому P определено. Знаменатель Q равен нулю, поэтому Q(3) не определено.',
-      'P(3) = 0/4 = 0, so P is defined. The denominator of Q is zero, so Q(3) is undefined.',
+  },
+}
+
+// ============================================================
+// EKRAN 3. KO'RSATISH. Dastur misolni O'ZI yechadi: qo'l ko'rsatkichi
+// maxrajga keladi, nol kasrga uchib tushadi, chiziq uziladi. Yo'l-yo'lakay
+// SAVOL beriladi va javobsiz demo to'xtab turadi. Oxirgi qadamni — ODZ ni —
+// dastur YOZMAYDI: uni o'quvchi yozadi (§2.2.1).
+// ============================================================
+const S3 = {
+  eyebrow: L('QARANG, QANDAY QILINADI', 'СМОТРИ, КАК ЭТО ДЕЛАЮТ', 'WATCH HOW IT IS DONE'),
+  title: L('Taqiq qayerdan keladi', 'Откуда берётся запрет', 'Where the restriction comes from'),
+  audio: [
+    A('mount',
+      "Uch kadr, uchta qadam. Kadrni bosing, yozuv o'zgaradi va men nima bo'layotganini aytaman.",
+      'Три кадра, три шага. Нажимай кадр, запись меняется, а я говорю, что происходит.',
+      'Three frames, three steps. Press a frame, the record changes and I say what happens.'),
+    W('k2',
+      "Ikkinchi qadam. Maxrajni nolga aylantiradigan sonni qo'ydim.",
+      'Второй шаг. Я поставил число, которое обращает знаменатель в нуль.',
+      'Step two. I put the number that makes the denominator zero.'),
+    W('k3',
+      "Uchinchi qadam. Shu shartning nomi bor. Aniqlanish sohasi, qisqasi ODZ.",
+      'Третий шаг. У этого условия есть название. Область допустимых значений, коротко ОДЗ.',
+      'Step three. This condition has a name. The domain of admissible values, in short the domain.'),
+  ],
+  props: {
+    film: {
+      fig: 'frac',
+      data: {
+        num: 'a + 5',
+        den: 'a',
+        varName: 'a',
+        at: 0,
+        odz: 'a \u2260 0',
+      },
+      frames: [
+        {
+          id: 'k1',
+          phase: 1,
+          label: L("chiziq ostiga", 'под черту', 'below the bar'),
+          text: L(
+            "Taqiq faqat chiziq ostidagi qismdan kelib chiqadi.",
+            'Запрет приходит только от того, что стоит под чертой.',
+            'The restriction comes only from what stands below the bar.',
+          ),
+        },
+        {
+          id: 'k2',
+          phase: 2,
+          label: L('nolga aylantiramiz', 'обращаем в нуль', 'make it zero'),
+          text: L(
+            "Nolni qo'ydim: maxraj nol bo'ldi va kasr chizig'i uzildi.",
+            'Я поставил нуль: знаменатель стал нулём, и черта дроби разорвалась.',
+            'I put zero: the denominator became zero and the fraction bar broke.',
+          ),
+          ask: {
+            question: L(
+              'Bu yozuv uchun nimani bildiradi?',
+              'Что это значит для записи?',
+              'What does that mean for the record?',
+            ),
+            items: [
+              { id: 'none', right: true, label: L("qiymat yo'q", 'значения нет', 'no value') },
+              {
+                id: 'zero',
+                label: L('qiymat nolga teng', 'значение равно нулю', 'the value is zero'),
+                hint: L(
+                  "Nol YUQORIDA bo'lsa qiymat nol bo'ladi. Minus beshni qo'ying: yuqorida nol, qiymat bor. Bu yerda nol PASTDA.",
+                  'Нуль СВЕРХУ даёт значение нуль. Подставь минус пять: сверху нуль, значение есть. А здесь нуль СНИЗУ.',
+                  'Zero ABOVE gives the value zero. Put minus five: zero above, the value exists. Here the zero is BELOW.',
+                ),
+              },
+            ],
+          },
+        },
+        {
+          id: 'k3',
+          phase: 3,
+          label: L('shartni yozamiz', 'пишем условие', 'write the condition'),
+          text: L(
+            "Taqiq shart bo'lib yoziladi. Buni ODZ deb ataydilar.",
+            'Запрет записывают условием. Его называют ОДЗ.',
+            'The restriction is written as a condition. It is called the domain.',
+          ),
+        },
+      ],
+    },
+  },
+}
+
+// ============================================================
+// EKRAN 4. O'ZI. Uch qadam, boshqa yozuv, qo'l endi o'quvchining.
+// Maxraj x − 3: nolga aylantiruvchi sonni asbob AYTMAYDI, o'quvchi topadi.
+// ============================================================
+const S4 = {
+  eyebrow: L("ENDI O'ZINGIZ", 'ТЕПЕРЬ САМ', 'NOW YOU'),
+  title: L(
+    "Uch qadam, boshqa yozuv",
+    'Три шага, другая запись',
+    'Three steps, another record',
+  ),
+  audio: [
+    A('mount',
+      "Ko'rdingiz, qanday qilinadi. Endi xuddi shu uch qadamni o'zingiz bajarasiz. Yozuv boshqa, tartib esa o'sha.",
+      'Ты видел, как это делают. Теперь те же три шага делаешь сам. Запись другая, порядок тот же.',
+      'You saw how it is done. Now you take the same three steps. The record differs, the order is the same.'),
+    W('p1',
+      "Qism tanlandi. Endi shu qismni nolga aylantiradigan sonni qo'ying. Son mos kelmasa, boshqasini olasiz.",
+      'Часть выбрана. Теперь поставь число, которое обращает эту часть в нуль. Если не подойдёт, возьмёшь другое.',
+      'The part is chosen. Now put a number that makes this part zero. If it does not fit, take another.'),
+    W('p3',
+      "Maxraj nol bo'ldi. Savol o'sha, javobni o'zingiz bilasiz.",
+      'Знаменатель стал нулём. Вопрос тот же, и ответ ты уже знаешь.',
+      'The denominator became zero. The question is the same and you already know the answer.'),
+  ],
+  props: {
+    demo: false,
+    varName: 'x',
+    num: 'x + 1',
+    den: 'x − 3',
+    tapAsk: L(
+      "Yozuvning qaysi qismidan taqiq kelib chiqadi? Bosing",
+      'По какой части записи находят запрет? Нажми',
+      'Which part of the record gives the restriction? Tap it',
     ),
-    wrong_0: L(
-      'P aniqlangan, ammo Q aniqlanmagan. Q ifodaning maxraji x = 3 da nolga teng.',
-      'P определено, но Q не определено. Знаменатель Q при x = 3 равен нулю.',
-      'P is defined, but Q is not. The denominator of Q becomes zero when x equals three.',
+    tapWrong: L(
+      "Bu surat, u chiziq USTIDA. Taqiq esa bo'linadigan narsadan kelib chiqadi.",
+      'Это числитель, он НАД чертой. А запрет приходит от того, на что делят.',
+      'This is the numerator, above the bar. The restriction comes from what you divide by.',
     ),
-    wrong_2: L(
-      "Nolga teng surat taqiqlanmaydi. P ning qiymati nol, Q ning maxraji esa nol.",
-      'Нулевой числитель допустим. Значение P равно нулю, а у Q нулю равен знаменатель.',
-      'A zero numerator is allowed. P equals zero, while Q has a zero denominator.',
-    ),
-    wrong_3: L(
-      "P aniqlangan. Nolni nolga teng bo'lmagan to'rtga bo'lish mumkin.",
-      'P определено. Ноль можно разделить на ненулевое число четыре.',
-      'P is defined. Zero can be divided by the nonzero number four.',
-    ),
-    audio: {
-      intro: L(
-        "Iks uchga teng bo'lganda ikkala kasrni tekshiring. Suratning nolga tengligi bilan maxrajning nolga tengligini farqlang.",
-        'Проверьте обе дроби при икс, равном трём. Различайте нулевой числитель и нулевой знаменатель.',
-        'Check both fractions when x equals three. Distinguish a zero numerator from a zero denominator.',
+    probe: {
+      at: 3,
+      label: L("Son:", 'Число:', 'Number:'),
+      question: L(
+        "Uchda bu yozuv bilan nima bo'ladi?",
+        'Что происходит с этой записью при трёх?',
+        'What happens to this record at three?',
       ),
-      on_correct: L(
-        "To'g'ri. Nolga teng surat kasrning qiymatini nol qiladi, nolga teng maxraj esa bo'lishni imkonsiz qiladi.",
-        'Верно. Нулевой числитель даёт значение ноль, а нулевой знаменатель делает деление невозможным.',
-        'Correct. A zero numerator gives zero, while a zero denominator makes division impossible.',
+      items: [
+        {
+          id: 'none',
+          right: true,
+          label: L("qiymat yo'q", 'значения нет', 'there is no value'),
+        },
+        {
+          id: 'zero',
+          label: L('qiymat nolga teng', 'значение равно нулю', 'the value equals zero'),
+          hint: L(
+            "Nol PASTDA turganda qiymat umuman yo'q. Nol nolga teng bo'lishi uchun u YUQORIDA turishi kerak: minus birni qo'ying.",
+            'Когда нуль СНИЗУ, значения нет вовсе. Чтобы значение было нулём, нуль должен быть СВЕРХУ: подставь минус один.',
+            'When the zero is BELOW there is no value at all. For the value to be zero the zero must be ABOVE: put minus one.',
+          ),
+        },
+      ],
+    },
+    odz: {
+      excluded: [3],
+      ask: L(
+        'ODZ ni yozing',
+        'Запиши ОДЗ',
+        'Write the domain',
       ),
-      on_wrong: L(
-        "Surat va maxrajni alohida tekshiring. Taqiq nolga bo'lishdan kelib chiqadi.",
-        'Проверьте числитель и знаменатель отдельно. Запрет возникает из-за деления на ноль.',
-        'Check the numerator and denominator separately. The restriction comes from division by zero.',
+      accepts: ['x != 3', 'x - 3 != 0'],
+      hints: {
+        'x != -3': L(
+          "Minus uchni qo'ying: minus uch minus uch, minus olti chiqadi, nol emas.",
+          'Подставь минус три: минус три минус три, получится минус шесть, а не нуль.',
+          'Put minus three: minus three minus three gives minus six, not zero.',
+        ),
+        'x != -1': L(
+          "Minus bir SURATNI nolga aylantiradi. Bunda qiymat bor va u nolga teng.",
+          'Минус один обращает в нуль ЧИСЛИТЕЛЬ. При нём значение есть, и оно равно нулю.',
+          'Minus one makes the NUMERATOR zero. Then the value exists and equals zero.',
+        ),
+      },
+    },
+    // XULOSA FIGURASI: taqiq son o'qida BO'SH nuqta bo'lib ko'rinadi.
+    fig: {
+      kind: 'line',
+      // ODZ bu yerda TAKRORLANMAYDI: u yuqorida, o'quvchi yozgan satrda turadi.
+      data: { from: 0, to: 6, hole: 3 },
+    },
+    hint: L(
+      "Uch qadamni o'zingiz bajardingiz. Taqiq o'qda bo'sh nuqta bo'lib turadi.",
+      'Три шага ты сделал сам. Запрет стоит на прямой пустой точкой.',
+      'You took the three steps yourself. The restriction stands on the line as a hollow point.',
+    ),
+  },
+}
+
+// ============================================================
+// EKRAN 5. FARQLASH. Harf BOR, lekin songa bo'linadi -> taqiq YO'Q.
+// «Taqiqlangan qiymat yo'q» — TUGMA, matn emas (§10.1).
+// ============================================================
+const S5 = {
+  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'THE DISTINCTION'),
+  title: L("Bu yerda taqiq yo'q", 'Здесь запрета нет', 'No restriction here'),
+  audio: [
+    A('mount',
+      "Uchinchi yozuv. Xuddi shu uch qadamni bajaring. Pastga qarang, son qo'ying, shartni yozing.",
+      'Третья запись. Сделай те же три шага. Посмотри вниз, поставь число, запиши условие.',
+      'A third record. Take the same three steps. Look below, put a number, write the condition.'),
+    W('p2',
+      "Maxraj o'zgarmadi. Boshqa son bilan yana ko'ring.",
+      'Знаменатель не изменился. Попробуй другим числом.',
+      'The denominator did not change. Try another number.'),
+    W('p3',
+      "Ikki son ham maxrajni o'zgartirmadi. Endi savol.",
+      'Оба числа знаменатель не изменили. Теперь вопрос.',
+      'Neither number changed the denominator. Now the question.'),
+  ],
+  props: {
+    demo: false,
+    varName: 'x',
+    num: '2x + 6',
+    den: '3',
+    tapAsk: L(
+      'Qaysi qismdan taqiq kelib chiqadi?',
+      'По какой части находят запрет?',
+      'Which part gives the restriction?',
+    ),
+    tapWrong: L(
+      'Bu surat, u chiziq ustida.',
+      'Это числитель, он над чертой.',
+      'This is the numerator, above the bar.',
+    ),
+    probe: {
+      none: true,
+      tries: 2,
+      label: L('Son:', 'Число:', 'Number:'),
+      question: L(
+        'Uchlikni nolga aylantiradigan son bormi?',
+        'Есть число, обращающее тройку в нуль?',
+        'Is there a number making the three zero?',
+      ),
+      items: [
+        {
+          id: 'no',
+          right: true,
+          label: L("bunday son yo'q", 'такого числа нет', 'no such number'),
+        },
+        {
+          id: 'yes',
+          label: L('bor, u nol', 'есть, это нуль', 'yes, it is zero'),
+          hint: L(
+            "Nolni qo'ying. Pastda uchlik qoladi, yuqorida olti. Uchlik iksga bog'liq emas.",
+            'Подставь нуль. Снизу останется тройка, сверху шесть. Тройка от икса не зависит.',
+            'Put zero. Three stays below, six above. The three does not depend on x.',
+          ),
+        },
+      ],
+    },
+    odz: {
+      excluded: [],
+      none: true,
+      noneValue: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
+      noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
+      ask: L(
+        'ODZ ni yozing yoki tugmani bosing',
+        'Запиши ОДЗ или нажми кнопку',
+        'Type the domain or press the button',
+      ),
+      accepts: ['barcha', 'любое'],
+      hints: {
+        'x != 3': L(
+          "Uchni qo'ying. Pastda uchlik, natija to'rt. Uchlik nolga aylanmaydi.",
+          'Подставь три. Снизу тройка, результат четыре. Тройка в нуль не обращается.',
+          'Put three. Three below, result four. The three never becomes zero.',
+        ),
+      },
+    },
+    hint: L(
+      "Songa bo'linsa, ifoda butun. Harfga bo'linsa, ifoda kasr.",
+      'Делят на число, значит выражение целое. Делят на букву, значит дробное.',
+      'Divide by a number and it is integral. By a letter and it is fractional.',
+    ),
+  },
+}
+
+// ============================================================
+// EKRAN 6. IKKINCHI KO'RINISH. Xuddi shu fikr JADVAL bilan: yacheykalar
+// birma-bir to'ladi, chiziqcha OXIRIDA keladi va bir taktda miltillaydi.
+// Bu 1-ekrandagi jadvalning o'zi — endi o'quvchi uni O'QIYDI.
+// ============================================================
+const S6 = {
+  eyebrow: L('BIRGA YECHAMIZ', 'РЕШАЕМ ВМЕСТЕ', 'SOLVING TOGETHER'),
+  title: L(
+    "Butun yechim, boshdan oxirigacha",
+    'Решение целиком, от начала до конца',
+    'A full solution, start to finish',
+  ),
+  audio: [
+    A('mount',
+      "Bitta misolni butunlay yechamiz. Hech narsa o'chirilmaydi: har bir qator ekranda qoladi.",
+      'Разберём один пример целиком. Ничего стирать не будем: каждая строка останется на экране.',
+      'We will solve one example completely. Nothing gets erased: every line stays on the screen.'),
+    W('s3',
+      "Ko'paytma nolga aylanishi uchun bitta ko'paytuvchining noli yetarli. Shuning uchun ikkita alohida tenglama chiqdi.",
+      'Чтобы произведение стало нулём, хватает нуля у одного множителя. Поэтому получилось два отдельных уравнения.',
+      'For a product to be zero, one factor being zero is enough. That is why we got two separate equations.'),
+    W('s5',
+      "Uchlikni qo'yib ko'ramiz. Birinchi qavs nolga aylanadi, demak butun maxraj nol. Bu rad javob, va uni ko'rish kerak.",
+      'Подставляем тройку. Первая скобка обращается в нуль, значит и весь знаменатель нуль. Это отказ, и его надо увидеть.',
+      'We substitute three. The first bracket becomes zero, so the whole denominator is zero. That is a refusal, and it must be seen.'),
+    W('s7',
+      "Javob ikki shartdan iborat. Ikkala son ham taqiqlangan, chunki har biri maxrajni nolga aylantiradi.",
+      'Ответ состоит из двух условий. Оба числа запрещены, потому что каждое обращает знаменатель в нуль.',
+      'The answer consists of two conditions. Both numbers are forbidden because each turns the denominator into zero.'),
+  ],
+  props: {
+    task: L(
+      "Ushbu ifodaning ODZ sini topamiz",
+      'Найдём ОДЗ этого выражения',
+      'Let us find the domain of this expression',
+    ),
+    method: M_ODZ,
+    lines: [
+      {
+        text: '(x + 5) : (x² − 9)',
+        note: L('ifoda', 'выражение', 'the expression'),
+      },
+      {
+        text: 'x² − 9 = (x − 3)(x + 3)',
+        note: L("maxrajni ko'paytuvchilarga ajratamiz", 'раскладываем знаменатель на множители', 'we factor the denominator'),
+        ask: {
+          question: L(
+            "Ko'paytma qachon nolga teng?",
+            'Когда произведение равно нулю?',
+            'When is a product equal to zero?',
+          ),
+          items: [
+            {
+              id: 'one',
+              right: true,
+              label: L(
+                "Kamida bitta ko'paytuvchi nol bo'lganda",
+                'Когда хотя бы один множитель нуль',
+                'When at least one factor is zero',
+              ),
+            },
+            {
+              id: 'both',
+              label: L(
+                "Ikkala ko'paytuvchi ham nol bo'lganda",
+                'Когда оба множителя нули',
+                'When both factors are zero',
+              ),
+              hint: L(
+                "Bittasi yetarli. Birinchisi nol bo'lsa, ko'paytma allaqachon nol.",
+                'Хватает одного. Если первый нуль, произведение уже нуль.',
+                'One is enough. If the first is zero, the product is already zero.',
+              ),
+            },
+            {
+              id: 'none',
+              label: L(
+                "Ikkalasi ham nol bo'lmaganda",
+                'Когда оба множителя не нули',
+                'When neither factor is zero',
+              ),
+              hint: L(
+                "Unda ko'paytma aynan nolga teng emas.",
+                'Тогда произведение как раз не нуль.',
+                'Then the product is precisely not zero.',
+              ),
+            },
+          ],
+        },
+      },
+      { text: '(x − 3)(x + 3) = 0' },
+      { text: 'x − 3 = 0        x + 3 = 0' },
+      {
+        text: 'x = 3        x = −3',
+        ask: {
+          question: L(
+            "Uchlikda maxraj nima beradi?",
+            'Что даёт знаменатель при тройке?',
+            'What does the denominator give at three?',
+          ),
+          items: [
+            {
+              id: 'zero',
+              right: true,
+              label: L(
+                "Nol, demak son taqiqlangan",
+                'Нуль, значит число запрещено',
+                'Zero, so the number is forbidden',
+              ),
+            },
+            {
+              id: 'four',
+              label: L("To'rt", 'Четыре', 'Four'),
+              hint: L(
+                "Olti — bu ikkinchi qavs. Birinchisi nolga aylandi, va butun ko'paytma nol bo'ldi.",
+                'Шесть — это вторая скобка. Первая обнулилась, и всё произведение стало нулём.',
+                'Six is the second bracket. The first became zero, so the whole product became zero.',
+              ),
+            },
+            {
+              id: 'twelve',
+              label: L("O'n ikki", 'Двенадцать', 'Twelve'),
+              hint: L(
+                "Uch minus uch nolga teng, nolni istalgan songa ko'paytirsangiz ham nol chiqadi.",
+                'Три минус три это нуль, а нуль умножить на любое число — снова нуль.',
+                'Three minus three is zero, and zero times any number is zero again.',
+              ),
+            },
+          ],
+        },
+      },
+      {
+        text: 'x = 3:   (3 − 3)(3 + 3) = 0',
+        tone: 'no',
+        note: L("nolga bo'lish mumkin emas", 'на нуль делить нельзя', 'division by zero is impossible'),
+      },
+      {
+        text: 'x = 0:   (0 − 3)(0 + 3) = −9',
+        tone: 'ok',
+        note: L('qiymat bor', 'значение есть', 'the value exists'),
+      },
+      {
+        text: 'x ≠ 3        x ≠ −3',
+        tone: 'ok',
+        note: L('javob', 'ответ', 'the answer'),
+      },
+    ],
+  },
+}
+
+// ============================================================
+// EKRAN 7. CHEGARA (§20 p. 7 — aynan 7-ekranda). Ikki yozuv, ikki ODZ satri.
+// Javob — qiymatlar TO'PLAMI, variant bilan berilmaydi.
+// ============================================================
+const S7 = {
+  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
+  title: L(
+    "Qayerda ajraladi",
+    'Где расходятся',
+    'Where they part',
+  ),
+  audio: [
+    A('mount',
+      "Endi chegara. Ikki yozuv, va ular deyarli bir xil narsa.",
+      'Теперь граница. Две записи, и они почти одно и то же.',
+      'Now the boundary. Two records, and they are almost the same thing.'),
+    A('why',
+      "Chapda iksni iksga bo'lish, o'ngda birlik. Darrov qisqartirgingiz keladi, lekin avval qarang, qaysi sonlarda bu ikki yozuv umuman mavjud.",
+      'Слева икс делят на икс, справа единица. Сократить хочется сразу, но сначала посмотри, при каких числах обе записи вообще существуют.',
+      'On the left x is divided by x, on the right there is one. You want to cancel at once, but first look at which numbers make both records exist at all.'),
+  ],
+  props: {
+    left: <Row size="big" align="center">{F('x', 'x')}</Row>,
+    right: <Row size="big" align="center">{'1'}</Row>,
+    odzLeft: 'x ≠ 0',
+    odzRight: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
+    // IKKI YOZUV BITTA O'QDA. Yashil nuqtalar — o'ng yozuv, jigarrang — chap.
+    // Nolda chap yozuvning nuqtasi YO'Q: ajralish shu yerda KO'RINADI.
+    // КООРДИНАТНАЯ ПЛОСКОСТЬ, а не схема точек: обе записи дают одну и ту же
+    // горизонталь, и вся разница между ними — ОДНА выколотая точка в нуле.
+    // Кривая строится ИЗ функции, список точек в данных урока запрещён (§7.2).
+    fig: (
+      <Plot
+        f={(x) => (x === 0 ? null : 1)}
+        from={-4} to={4} yFrom={0} yTo={2} h={72}
+        holes={[{ x: 0, y: 1 }]}
+        grid={false}
+      />
+    ),
+    answer: [0],
+    question: L(
+      "Qaysi qiymatda bu ikki yozuv ajraladi? Barcha shunday sonlarni yozing",
+      'При каком значении эти две записи расходятся? Запиши все такие числа',
+      'At which value do these two records part ways? Type all such numbers',
+    ),
+    hints: {
+      '1': L(
+        "Birni qo'ying: chapda bir, o'ngda ham bir. Ajralish yo'q. Chap yozuvning pastini nolga aylantiradigan sonni oling.",
+        'Подставь один: слева один, справа тоже один. Расхождения нет. Возьми число, которое обращает в нуль нижнюю часть левой записи.',
+        'Put one: one on the left, one on the right. No divergence. Take the number that makes the lower part of the left record zero.',
+      ),
+      '*': L(
+        "Chap yozuvning pastida nima turgan bo'lsa, uni nolga aylantiradigan sonni oling.",
+        'Возьми число, которое обращает в нуль то, что стоит внизу левой записи.',
+        'Take the number that makes what stands below in the left record equal to zero.',
+      ),
+    },
+    note: L(
+      "Nolda chapda yozuv yo'q, o'ngda esa birlik bor. Ya'ni bu yozuvlar faqat ODZ da teng.",
+      'При нуле слева записи нет, а справа единица. Значит эти записи равны только на ОДЗ.',
+      'At zero the left record does not exist while the right one is one. So these records are equal only on the domain.',
+    ),
+  },
+}
+
+// ============================================================
+// EKRAN 8. QOIDA. Formulirovkani O'QUVCHI YIG'ADI (4-sinf usuli), va faqat
+// to'g'ri yig'ilgandan keyin darslik matni ochiladi. Kartochka ostida
+// 1-ekrandagi ikki mashina QAYTADI (2 va 3-sinf usuli): xukning savoli
+// yakunda emas, AYNAN qoida ekranida javob oladi.
+// ============================================================
+const S8 = {
+  eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
+  title: L(
+    "Qoidani yig'ing",
+    'Собери правило',
+    'Assemble the rule',
+  ),
+  audio: [
+    A('mount',
+      "Formulirovka uchun kerak bo'lgan hamma narsani siz allaqachon qildingiz. Endi uni o'zingiz yig'ing va bo'laklarni tartib bilan qo'ying.",
+      'Всё, что нужно для формулировки, уже сделано твоими руками. Теперь собери её сам и складывай фрагменты по порядку.',
+      'Everything the wording needs is already done by your hands. Now assemble it yourself and put the fragments in order.'),
+    W('card',
+      "Qoida yig'ildi va darslik matni ochildi. Pastda esa birinchi ekrandagi ikki mashina qaytdi.",
+      'Правило собрано, и открылся текст учебника. А внизу вернулись две машины с первого экрана.',
+      'The rule is assembled and the textbook wording opened. Below, the two machines from the first screen are back.'),
+  ],
+  props: {
+    fragments: [
+      { id: 'f1', label: L('ODZ ni topish uchun', 'Чтобы найти ОДЗ,', 'To find the domain,') },
+      { id: 'f2', label: L('maxrajga qaraladi', 'смотрят на знаменатель', 'look at the denominator') },
+      { id: 'f3', label: L('va shunday sonlar taqiqlanadi', 'и запрещают те числа,', 'and forbid those numbers') },
+      { id: 'f4', label: L('ular maxrajni nolga aylantiradi', 'при которых он равен нулю', 'that make it zero') },
+      { id: 'w1', label: L('suratga qaraladi', 'смотрят на числитель', 'look at the numerator') },
+      { id: 'w2', label: L('ular maxrajni birga aylantiradi', 'при которых он равен единице', 'that make it one') },
+    ],
+    answer: ['f1', 'f2', 'f3', 'f4'],
+    wrongHint: L(
+      "Bunday yig'ilmadi. Darsda taqiq HAR SAFAR bir joydan keldi: chiziq ostidan, va aynan nolda.",
+      'Так не складывается. В уроке запрет КАЖДЫЙ раз приходил из одного места: из-под черты, и именно при нуле.',
+      'That does not fit. In the lesson the restriction came from one place every time: from below the bar, and exactly at zero.',
+    ),
+    card: {
+      title: L('QOIDA', 'ПРАВИЛО', 'RULE'),
+      lines: [
+        L(
+          "Ratsional kasr: A va B ko'phadlar, B nolga teng emas",
+          'Рациональная дробь: A и B многочлены, B не равно нулю',
+          'A rational fraction: A and B are polynomials, B is not zero',
+        ),
+        STATEMENTS[0],
+        STATEMENTS[1],
+        STATEMENTS[2],
+      ],
+      // METODIST: parag'raf raqami va BET shu yerga yoziladi (§20 p. 12).
+      // Darslik skanerlangan PDF, matn chiqarib bo'lmadi — DARS01_SKELET.md §8.
+      source: L(
+        "Algebra, 8-sinf — ratsional ifodalar parag'rafi",
+        'Алгебра, 8 класс — параграф о рациональных выражениях',
+        'Algebra, grade 8 — the section on rational expressions',
+      ),
+      locked: L(
+        "Qoida to'g'ri yig'ilgandan keyin ochiladi",
+        'Правило откроется после верной сборки',
+        'The rule opens once assembled correctly',
+      ),
+    },
+    // XUKKA QAYTISH: plotter o'chadi, jadval yashil bo'ladi.
+    recall: {
+      left: L('plotter: 4', 'плоттер: 4', 'plotter: 4'),
+      right: L("jadval: qiymat yo'q", 'таблица: значения нет', 'table: no value'),
+      winner: 'right',
+      note: L(
+        "Ikkilikda maxraj nolga aylanadi, ya'ni qiymat yo'q. Plotter nuqtalarni birlashtirgan edi.",
+        'При двойке знаменатель обращается в нуль, значит значения нет. Плоттер просто соединил точки.',
+        'At two the denominator becomes zero, so there is no value. The plotter merely joined the points.',
       ),
     },
   },
+}
 
-  s6: {
-    eyebrow: L('ALGORITM', 'АЛГОРИТМ', 'ALGORITHM'),
-    title: L('Shartni uch qadamda tuzing', 'Составьте условие за три шага', 'Build the condition in three steps'),
-    steps: [
-      L('Maxrajni ajrating: x − 3', 'Выделите знаменатель: x − 3', 'Identify the denominator: x − 3'),
-      L(
-        "Maxraj nolga teng bo'lmasin: x − 3 ≠ 0",
-        'Знаменатель не должен быть равен нулю: x − 3 ≠ 0',
-        'Require a nonzero denominator: x − 3 ≠ 0',
-      ),
-      L('Shartni yeching: x ≠ 3', 'Решите условие: x ≠ 3', 'Solve the condition: x ≠ 3'),
+// ============================================================
+// EKRAN 9. MASHQ 1: ZANJIR. To'rt qisqa yozuv, har birining ODZ si.
+// «Taqiqlangan qiymat yo'q» tugmasi HAMMA topshiriqda turadi.
+// ============================================================
+const S9 = {
+  eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
+  title: L(
+    "To'rt soha",
+    'Четыре области',
+    'Four domains',
+  ),
+  audio: [
+    A('mount',
+      "Qoida yig'ildi. Endi to'rtta qisqa yozuv, va har birining o'z sohasi bor. Ba'zilarida taqiq umuman bo'lmasligi mumkin.",
+      'Правило собрано. Теперь четыре коротких записи, и у каждой своя область. У некоторых запрета может не быть вовсе.',
+      'The rule is assembled. Now four short records, each with its own domain. Some may have no restriction at all.'),
+    W('t2',
+      "Maxrajga butunlay qarang. Agar u ko'paytma bo'lsa, taqiq bittadan ko'p bo'lishi mumkin.",
+      'Смотри на знаменатель целиком. Если он произведение, запретов может быть больше одного.',
+      'Look at the denominator as a whole. If it is a product, there may be more than one restriction.'),
+  ],
+  props: {
+    items: [
+      {
+        kind: 'odz',
+        varName: 'x',
+        excluded: [-4],
+        none: false,
+        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
+        noneWrong: L(
+          "Bu yerda taqiq bor. Minus to'rtni qo'ying: maxraj nolga aylanadi.",
+          'Здесь запрет есть. Подставь минус четыре: знаменатель обратится в нуль.',
+          'There is a restriction here. Put minus four: the denominator becomes zero.',
+        ),
+        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+        show: <Row size="row" align="center">{F('7', 'x + 4')}</Row>,
+        answer: 'x != -4',
+        accepts: ['x != -4', '-4 != x'],
+        closed: L('7 / (x + 4)   →   x ≠ −4', '7 / (x + 4)   →   x ≠ −4', '7 / (x + 4)   →   x ≠ −4'),
+        hints: {
+          'x != 4': L(
+            "To'rtni qo'ying: maxraj sakkiz bo'ladi, nol emas. Belgiga qarang.",
+            'Подставь четыре: знаменатель станет восемь, а не нуль. Смотри на знак.',
+            'Put four: the denominator becomes eight, not zero. Look at the sign.',
+          ),
+        },
+      },
+      {
+        kind: 'odz',
+        varName: 'x',
+        excluded: [3],
+        none: false,
+        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
+        noneWrong: L(
+          "Taqiq bor. Maxrajni nolga tenglashtirib ko'ring.",
+          'Запрет есть. Приравняй знаменатель к нулю и посмотри.',
+          'There is a restriction. Set the denominator equal to zero and look.',
+        ),
+        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+        show: <Row size="row" align="center">{F('x', '2x − 6')}</Row>,
+        answer: 'x != 3',
+        accepts: ['x != 3', '2*x - 6 != 0'],
+        closed: L('x / (2x − 6)   →   x ≠ 3', 'x / (2x − 6)   →   x ≠ 3', 'x / (2x − 6)   →   x ≠ 3'),
+        hints: {
+          'x != 6': L(
+            "Oltini qo'ying: ikki marta olti minus olti, olti chiqadi, nol emas. Ikkilikni ham hisobga oling.",
+            'Подставь шесть: два раза шесть минус шесть, получится шесть, а не нуль. Учти двойку.',
+            'Put six: two times six minus six gives six, not zero. Account for the two.',
+          ),
+          'x != 0': L(
+            "Nol SURATNI nolga aylantiradi. Nolda kasr nolga teng, qiymat bor.",
+            'Нуль обращает в нуль ЧИСЛИТЕЛЬ. При нуле дробь равна нулю, значение есть.',
+            'Zero makes the NUMERATOR zero. At zero the fraction equals zero, the value exists.',
+          ),
+        },
+      },
+      {
+        kind: 'odz',
+        varName: 'x',
+        excluded: [],
+        none: true,
+        noneValue: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
+        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
+        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+        show: <Row size="row" align="center">{F('x − 1', 'x² + 1')}</Row>,
+        answer: 'barcha',
+        accepts: ['barcha', 'любое'],
+        closed: L("(x − 1) / (x² + 1)   →   taqiq yo'q", '(x − 1) / (x² + 1)   →   запретов нет', '(x − 1) / (x² + 1)   →   no restrictions'),
+        hints: {
+          'x != -1': L(
+            "Minus birni qo'ying: kvadrat plyus bir, ikki chiqadi. Kvadrat manfiy bo'lmaydi, shuning uchun pastda hech qachon nol chiqmaydi.",
+            'Подставь минус один: квадрат плюс один, получится два. Квадрат не бывает отрицательным, поэтому внизу нуль не получится никогда.',
+            'Put minus one: a square plus one gives two. A square is never negative, so the bottom never becomes zero.',
+          ),
+          'x != 1': L(
+            "Bir SURATNI nolga aylantiradi. Bunda kasr nolga teng, ya'ni qiymat bor.",
+            'Единица обращает в нуль ЧИСЛИТЕЛЬ. При ней дробь равна нулю, то есть значение есть.',
+            'One makes the NUMERATOR zero. Then the fraction equals zero, so the value exists.',
+          ),
+        },
+      },
+      {
+        kind: 'odz',
+        varName: 'x',
+        excluded: [0, 5],
+        none: false,
+        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
+        noneWrong: L(
+          "Taqiq bor, hatto ikkita. Maxrajning har bir ko'paytuvchisiga qarang.",
+          'Запрет есть, и даже два. Смотри на каждый множитель знаменателя.',
+          'There are restrictions, two of them. Look at each factor of the denominator.',
+        ),
+        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+        show: <Row size="row" align="center">{F('3', 'x(x − 5)')}</Row>,
+        answer: 'x != 0, x != 5',
+        accepts: ['x != 0, x != 5', 'x != 5, x != 0'],
+        closed: L('3 / x(x − 5)   →   x ≠ 0,  x ≠ 5', '3 / x(x − 5)   →   x ≠ 0,  x ≠ 5', '3 / x(x − 5)   →   x ≠ 0,  x ≠ 5'),
+        hints: {
+          'x != 5': L(
+            "Bitta shart yetmaydi. Nolni qo'ying: ko'paytmaning birinchi ko'paytuvchisi nol bo'ladi.",
+            'Одного условия не хватает. Подставь нуль: первый множитель произведения станет нулём.',
+            'One condition is missing. Put zero: the first factor of the product becomes zero.',
+          ),
+          'x != 0': L(
+            "Bitta shart yetmaydi. Beshni qo'ying: ikkinchi ko'paytuvchi nol bo'ladi.",
+            'Одного условия не хватает. Подставь пять: второй множитель станет нулём.',
+            'One condition is missing. Put five: the second factor becomes zero.',
+          ),
+        },
+      },
     ],
-    conclusion: L(
-      'K(x) ifoda x = 3 dan boshqa barcha haqiqiy qiymatlarda aniqlangan.',
-      'Выражение K(x) определено при всех действительных x, кроме x = 3.',
-      'K(x) is defined for every real x except x = 3.',
-    ),
-    wrong: L(
-      'Qadamlar tartibini tekshiring: maxraj, nolga teng bo‘lmaslik sharti, yechim.',
-      'Проверьте порядок: знаменатель, условие ненулевого значения, решение.',
-      'Check the order: denominator, nonzero condition, solution.',
-    ),
-    audio: L(
-      [
-        "Ishonchli usul uch qadamdan iborat. Maxrajni toping, uning nolga teng bo'lmaslik shartini yozing va shartni yeching.",
-        "Iks minus uch nol bo'ladigan qiymat uchdir. Demak, aynan uch qiymati chiqarib tashlanadi.",
-      ],
-      [
-        'Надёжный способ состоит из трёх шагов. Найдите знаменатель, потребуйте его ненулевое значение и решите условие.',
-        'Икс минус три обращается в ноль при значении три. Значит, исключается именно число три.',
-      ],
-      [
-        'The reliable method has three steps. Identify the denominator, require it to be nonzero, and solve the condition.',
-        'The expression x minus three becomes zero at three. Therefore, three must be excluded.',
-      ],
-    ),
   },
+}
 
-  s7: {
-    eyebrow: L('ANIQ TIL', 'ТОЧНЫЙ ЯЗЫК', 'PRECISE LANGUAGE'),
-    title: L(
-      "Ifoda turi va mumkin bo'lgan qiymatlar",
-      'Тип выражения и допустимые значения',
-      'Expression type and permissible values',
-    ),
-    terms: [
+// ============================================================
+// EKRAN 10. MASHQ 2: YO'NALTIRILGAN. Qadamlar nomlangan. Bu yerda З18
+// ochiladi: surat noli ODZ ga TUSHMAYDI.
+// ============================================================
+const S10 = {
+  eyebrow: L("YO'NALTIRILGAN MASHQ", 'НАПРАВЛЯЕМАЯ ПРАКТИКА', 'GUIDED PRACTICE'),
+  title: L(
+    "Ikki xil nol bir yozuvda",
+    'Два разных нуля в одной записи',
+    'Two kinds of zero in one record',
+  ),
+  audio: [
+    A('mount',
+      "Endi topshiriq uzunroq, va qadamlari nomlangan. Oxirida bitta g'alati narsa chiqadi.",
+      'Теперь задание длиннее, и шаги названы. В конце получится одна странная вещь.',
+      'Now the task is longer and the steps are named. At the end one strange thing will come out.'),
+    W('f2',
+      "ODZ yozildi. Endi toping, qaysi sonda surat nolga aylanadi.",
+      'ОДЗ записана. Теперь найди, при каком числе обращается в нуль числитель.',
+      'The domain is written. Now find at which number the numerator becomes zero.'),
+    W('f3',
+      "Surat to'rtda nolga aylanadi, lekin to'rt taqiqlangan. Ya'ni bu yozuvning qiymati hech qanday sonda nolga teng emas.",
+      'Числитель обращается в нуль при четырёх, но четыре запрещено. Значит значения нуль у этой записи нет ни при каком числе.',
+      'The numerator becomes zero at four, but four is forbidden. So this record never takes the value zero.'),
+  ],
+  props: {
+    show: <Row size="big" align="center">{F('x − 4', 'x² − 16')}</Row>,
+    fields: [
       {
-        name: L('Ratsional algebraik ifoda', 'Рациональное выражение', 'Rational algebraic expression'),
-        definition: L(
-          "Sonlar, o'zgaruvchilar va arifmetik amallardan tuzilgan ifoda.",
-          'Выражение, составленное из чисел, переменных и арифметических действий.',
-          'An expression built from numbers, variables, and arithmetic operations.',
+        ask: L(
+          "Maxraj ikki ko'paytuvchiga ajraladi. Birinchisi x − 4. Ikkinchisini yozing",
+          'Знаменатель раскладывается на два множителя. Первый — x − 4. Запиши второй',
+          'The denominator splits into two factors. The first is x − 4. Type the second',
         ),
+        answer: 'x+4',
+        accepts: ['4+x', '(x+4)'],
+        hints: {
+          'x-4': L(
+            "Unda ikki ko'paytuvchi bir xil bo'ladi. Nolni qo'ying: o'n olti chiqadi, boshlang'ich maxrajda esa minus o'n olti.",
+            'Тогда оба множителя совпадут. Подставь нуль: получится шестнадцать, а в исходном знаменателе минус шестнадцать.',
+            'Then both factors coincide. Put zero: you get sixteen, while the original denominator gives minus sixteen.',
+          ),
+        },
       },
       {
-        name: L('Butun ratsional ifoda', 'Целое рациональное выражение', 'Whole rational expression'),
-        definition: L(
-          "O'zgaruvchiga bo'lish qatnashmaydigan ratsional ifoda.",
-          'Рациональное выражение без деления на выражение с переменной.',
-          'A rational expression with no division by an expression containing a variable.',
-        ),
+        kind: 'odz',
+        varName: 'x',
+        excluded: [4, -4],
+        ask: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+        accepts: ['x != 4, x != -4', 'x != -4, x != 4'],
+        hints: {
+          'x != 4': L(
+            "Bitta shart yetmaydi. Minus to'rtni qo'ying: maxraj yana nolga aylanadi.",
+            'Одного условия не хватает. Подставь минус четыре: знаменатель снова обращается в нуль.',
+            'One condition is missing. Put minus four: the denominator becomes zero again.',
+          ),
+        },
       },
       {
-        name: L('Ratsional kasr', 'Рациональная дробь', 'Rational fraction'),
-        definition: L(
-          "A(x) / B(x) ko'rinishidagi ifoda, bunda B(x) nolga teng bo'lmaydi.",
-          'Выражение вида A(x) / B(x), где B(x) не равно нулю.',
-          'An expression of the form A(x) / B(x), where B(x) is not zero.',
+        ask: L(
+          "Qaysi x da SURAT nolga aylanadi? Sonni yozing",
+          'При каком x обращается в нуль ЧИСЛИТЕЛЬ? Запиши число',
+          'At which x does the NUMERATOR become zero? Type the number',
         ),
+        answer: '4',
+        accepts: ['8/2', '2+2'],
+        hints: {
+          '-4': L(
+            "Minus to'rt MAXRAJNI nolga aylantiradi. Surat x − 4.",
+            'Минус четыре обращает в нуль ЗНАМЕНАТЕЛЬ. Числитель это x − 4.',
+            'Minus four makes the DENOMINATOR zero. The numerator is x − 4.',
+          ),
+          '0': L(
+            "Nolni qo'ying: surat minus to'rt bo'ladi, nol emas.",
+            'Подставь нуль: числитель станет минус четыре, а не нуль.',
+            'Put zero: the numerator becomes minus four, not zero.',
+          ),
+        },
       },
     ],
     note: L(
-      'Atamalarni navbat bilan oching.',
-      'Откройте определения по очереди.',
-      'Open the definitions one by one.',
-    ),
-    audio: L(
-      [
-        "Endi kuzatilgan qonuniyatni aniq matematik tilda ifodalaymiz. Ratsional kasrda o'zgaruvchi maxrajda bo'lishi mumkin.",
-        "Kasr A iks ning B iks ga nisbatidir. Asosiy shart shuki, B iks nolga teng bo'lmasligi kerak.",
-      ],
-      [
-        'Теперь сформулируем обнаруженную закономерность точным математическим языком. В рациональной дроби переменная может входить в знаменатель.',
-        'Дробь является отношением A от икс к B от икс. Главное условие состоит в том, что B от икс не равно нулю.',
-      ],
-      [
-        'Now we can state the discovered pattern using precise mathematical language. A variable may appear in the denominator of a rational fraction.',
-        'The fraction is A of x divided by B of x. The essential condition is that B of x must not be zero.',
-      ],
+      "To'rt suratni nolga aylantiradi, lekin ODZ ga kirmaydi. Shuning uchun bu kasr hech qachon nolga teng emas.",
+      'Четыре обращает в нуль числитель, но не входит в ОДЗ. Поэтому эта дробь не равна нулю никогда.',
+      'Four makes the numerator zero but is not in the domain. So this fraction is never equal to zero.',
     ),
   },
+}
 
-  s8: {
-    eyebrow: L('NAMUNA', 'ОБРАЗЕЦ', 'WORKED EXAMPLE'),
-    title: L("To'liq yechim namunasi", 'Образец полного решения', 'A complete worked example'),
-    steps: [
-      {
-        result: 'B(x) = x + 4',
-        reason: L('Cheklov maxrajga bog‘liq.', 'Ограничение определяется знаменателем.', 'The restriction is determined by the denominator.'),
-      },
-      {
-        result: 'x + 4 ≠ 0',
-        reason: L("Nolga bo'lish aniqlanmagan.", 'Деление на ноль не определено.', 'Division by zero is undefined.'),
-      },
-      {
-        result: 'x ≠ −4',
-        reason: L(
-          'x + 4 faqat x = −4 da nolga teng.',
-          'x + 4 равно нулю только при x = −4.',
-          'x + 4 is zero only when x = −4.',
+// ============================================================
+// EKRAN 11. MASHQ 3: ASBOBSIZ (§20 p. 5g). Amallar qatori YO'Q, ODZ satri
+// o'zi to'lmaydi, yordam YO'Q. Yozuv, ikki maydon va O'Z SONI.
+// ============================================================
+const S11 = {
+  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'WITHOUT THE TOOL'),
+  title: L(
+    "Asbob yo'q",
+    'Прибора нет',
+    'No tool',
+  ),
+  audio: [
+    A('mount',
+      "Bu ekranda asbob yo'q. Bosiladigan qismlar ham, tayyor soha satri ham yo'q. Faqat yozuv va ikki maydon.",
+      'На этом экране прибора нет. Ни нажимаемых частей, ни готовой строки области. Только запись и два поля.',
+      'There is no tool on this screen. No tappable parts, no ready domain line. Only the record and two fields.'),
+    A('why',
+      "Xayolda va qoralamada sanang. Imtihonda kalkulyator bo'lmaydi.",
+      'Считай в уме и на черновике. На экзамене калькулятора не будет.',
+      'Count in your head and on the draft. There will be no calculator at the exam.'),
+  ],
+  props: {
+    show: <Row size="big" align="center">{F('2x + 10', 'x² − 25')}</Row>,
+    result: {
+      ask: L(
+        "x = 1 dagi qiymatni toping. Sonni yozing",
+        'Найди значение при x = 1. Запиши число',
+        'Find the value at x = 1. Type the number',
+      ),
+      answer: '-0.5',
+      accepts: ['-1/2', '12/(-24)'],
+      hints: {
+        '0.5': L(
+          "Belgini tekshiring: pastda bir minus yigirma besh, ya'ni minus yigirma to'rt.",
+          'Проверь знак: снизу один минус двадцать пять, то есть минус двадцать четыре.',
+          'Check the sign: below is one minus twenty five, that is minus twenty four.',
+        ),
+        '-2': L(
+          "Yuqorida ikki marta bir plyus o'n, ya'ni o'n ikki. Pastda minus yigirma to'rt.",
+          'Сверху два раза один плюс десять, то есть двенадцать. Снизу минус двадцать четыре.',
+          'Above is two times one plus ten, that is twelve. Below is minus twenty four.',
         ),
       },
-      {
-        result: L(
-          '−4 dan boshqa barcha qiymatlar mumkin',
-          'допустимы все значения, кроме −4',
-          'every value except −4 is permissible',
+    },
+    odz: {
+      varName: 'x',
+      excluded: [5, -5],
+      ask: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
+      accepts: ['x != 5, x != -5', 'x != -5, x != 5'],
+      hints: {
+        'x != 5': L(
+          "Bitta shart yetmaydi. Minus beshni qo'ying: maxraj yana nolga aylanadi.",
+          'Одного условия не хватает. Подставь минус пять: знаменатель снова обращается в нуль.',
+          'One condition is missing. Put minus five: the denominator becomes zero again.',
         ),
-        reason: L(
-          'Boshqa qiymatlarda maxraj nolga teng emas.',
-          'При остальных значениях знаменатель не равен нулю.',
-          'For every other value, the denominator is nonzero.',
+        'x != 25': L(
+          "Yigirma beshni qo'ying: maxraj olti yuzga yaqin bo'ladi, nol emas. Yigirma besh kvadrat ostida turgan edi.",
+          'Подставь двадцать пять: знаменатель станет около шестисот, а не нуль. Двадцать пять стояло под квадратом.',
+          'Put twenty five: the denominator becomes about six hundred, not zero. Twenty five stood under the square.',
         ),
       },
-    ],
-    audio: L(
-      [
-        "Namunada natijani va har bir o'tish sababini kuzating. Avval maxraj ajratiladi.",
-        "Iks plus to'rt nolga teng bo'lmasligi kerak. U minus to'rtda nolga aylanadi, shuning uchun minus to'rt chiqariladi.",
-      ],
-      [
-        'В образце следите за результатом и причиной каждого перехода. Сначала выделяется знаменатель.',
-        'Икс плюс четыре не должно равняться нулю. Оно обращается в ноль при минус четырёх, поэтому минус четыре исключается.',
-      ],
-      [
-        'In the example, follow both the result and the reason for each transition. Begin by identifying the denominator.',
-        'The expression x plus four must be nonzero. It becomes zero at minus four, so minus four is excluded.',
-      ],
-    ),
-  },
-
-  s9: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
-    title: L('Taqiqlangan qiymatni toping', 'Найдите запрещённое значение', 'Find the excluded value'),
-    question: L(
-      'F(x) qaysi x qiymatida aniqlanmagan?',
-      'При каком значении x выражение F(x) не определено?',
-      'For which value of x is F(x) undefined?',
-    ),
-    answer: 3,
-    correct_text: L(
-      "To'g'ri: 2x − 6 = 0 tenglamadan x = 3. Shuning uchun x = 3 taqiqlangan.",
-      'Верно: из уравнения 2x − 6 = 0 получаем x = 3. Поэтому x = 3 запрещено.',
-      'Correct: solving 2x − 6 = 0 gives x = 3. Therefore x = 3 is excluded.',
-    ),
-    wrongByValue: {
-      '-3': L(
-        'Belgi xatosi. 2x − 6 = 0 dan 2x = 6, shuning uchun x musbat.',
-        'Ошибка знака. Из 2x − 6 = 0 следует 2x = 6, поэтому x положительно.',
-        'Check the sign. From 2x − 6 = 0 we obtain 2x = 6, so x is positive.',
+    },
+    proof: {
+      varName: 'x',
+      from: '(2*x+10)/(x*x-25)',
+      to: '(2*x+10)/((x-5)*(x+5))',
+      ask: L(
+        "O'zingizni tekshiring: o'z sonini ikki yozuvga ham qo'ying",
+        'Проверь себя: поставь своё число в обе записи',
+        'Check yourself: put your own number into both records',
       ),
-      6: L(
-        "6 maxrajdagi son, lekin x ning qiymati emas. Ikki tomonni 2 ga bo'ling.",
-        'Число 6 входит в знаменатель, но не является значением x. Разделите обе части на 2.',
-        'Six appears in the denominator, but it is not x. Divide both sides by two.',
+      done: L('tekshirildi:', 'проверено при:', 'checked at:'),
+      hole: L(
+        "Bu sonda ikki yozuvning ham qiymati yo'q: bu aynan taqiqlangan qiymat. Boshqa son oling.",
+        'При этом числе ни одна из записей не считается: это и есть запрещённое значение. Возьми другое число.',
+        'At this number neither record works: this is exactly a forbidden value. Take another number.',
+      ),
+      diff: L(
+        "Qiymatlar ajraldi. Ajratish qiymatlarni o'zgartirmasligi kerak — hisobni qaytadan qarang.",
+        'Значения разошлись. Разложение не должно менять значения — проверь счёт.',
+        'The values diverged. Factorising must not change values, so check the arithmetic.',
       ),
     },
-    wrong_default: L(
-      'Maxrajni nolga tenglashtirib, hosil bo‘lgan tenglamani yeching.',
-      'Приравняйте знаменатель к нулю и решите полученное уравнение.',
-      'Set the denominator equal to zero and solve the resulting equation.',
+    note: L(
+      "Ajratish qiymatlarni o'zgartirmadi. U faqat taqiqlarni ko'rinadigan qildi.",
+      'Разложение не изменило значений. Оно только сделало запреты видимыми.',
+      'Factorising changed no values. It only made the restrictions visible.',
     ),
-    audio: {
-      intro: L(
-        "Maxraj qaysi qiymatda nol bo'lishini aniqlang. Javob maydoniga faqat taqiqlangan iks qiymatini kiriting.",
-        'Определите, при каком значении знаменатель станет равен нулю. Введите только запрещённое значение икс.',
-        'Determine which value makes the denominator zero. Enter only the excluded value of x.',
+  },
+}
+
+// ============================================================
+// EKRAN 12. TUZOQ (§2.2.2). Har bir qadam to'g'ri ko'rinadi, javob esa
+// noto'g'ri. Noto'g'ri satrdan KEYINGI satr undan to'g'ri chiqadi, shuning
+// uchun BIRINCHI noto'g'risini izlash kerak. Kontrprimerni O'QUVCHI kiritadi.
+// ============================================================
+const S12 = {
+  eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
+  title: L(
+    "Birinchi xato qaysi satrda",
+    'В какой строке первая ошибка',
+    'Which line has the first mistake',
+  ),
+  audio: [
+    A('mount',
+      "Endi begona yechim. To'rt satrning hammasi to'g'ri ko'rinadi, javob esa noto'g'ri. Birinchi noto'g'ri satrni toping, chunki undan keyingilari undan to'g'ri kelib chiqadi.",
+      'Теперь чужое решение. Все четыре строки выглядят верными, а ответ неверен. Найди первую неверную строку, потому что следующие из неё выводятся верно.',
+      'Now a solution written by someone else. All four lines look right but the answer is wrong. Find the first wrong line, because the ones after it follow from it correctly.'),
+    W('proof',
+      "Satr topildi. Endi buni son bilan isbotlang, so'z bilan emas.",
+      'Строка найдена. Теперь докажи это числом, а не словами.',
+      'The line is found. Now prove it with a number, not with words.'),
+  ],
+  props: {
+    rows: [
+      { id: 'r1', show: <Row size="row" align="center">{'x² − 4x'}</Row> },
+      { id: 'r2', show: <Row size="row" align="center">{'x² − 4x = x(x − 4)'}</Row> },
+      { id: 'r3', show: <Row size="row" align="center">{'x − 4 = 0,   x = 4'}</Row> },
+      { id: 'r4', show: L('ODZ:  x ≠ 4', 'ОДЗ:  x ≠ 4', 'Domain:  x ≠ 4') },
+    ],
+    answerId: 'r3',
+    hints: {
+      r1: L(
+        "Maxraj to'g'ri ko'chirilgan: chiziq ostida aynan shu turadi.",
+        'Знаменатель выписан верно: под чертой стоит именно это.',
+        'The denominator is copied correctly: this is exactly what is under the bar.',
       ),
-      on_correct: L(
-        "To'g'ri. Ikki iks minus olti nolga teng bo'lganda iks uchga teng.",
-        'Верно. Когда два икс минус шесть равно нулю, икс равен трём.',
-        'Correct. When two x minus six equals zero, x equals three.',
+      r2: L(
+        "Ajratish to'g'ri. Ikkini qo'ying: chapda ham, o'ngda ham minus to'rt chiqadi.",
+        'Разложение верное. Подставь два: и слева, и справа получится минус четыре.',
+        'The factorisation is right. Put two: both sides give minus four.',
       ),
-      on_wrong: L(
-        "Maxrajdagi tayyor sonni ko'chirmang. Maxrajni nolga tenglashtirib, iks uchun tenglamani yeching.",
-        'Не переносите готовое число из знаменателя в ответ. Приравняйте знаменатель к нулю и решите уравнение.',
-        'Do not copy a number from the denominator. Set the denominator equal to zero and solve for x.',
+      r4: L(
+        "Bu satr oldingisidan to'g'ri chiqadi: taqiq bitta bo'lsa, aynan shunday yoziladi. Xato yuqorida.",
+        'Эта строка следует из предыдущей верно: если запрет один, так и записывают. Ошибка выше.',
+        'This line follows from the previous one correctly: with one restriction that is how you write it. The mistake is above.',
       ),
     },
-  },
-
-  s10: {
-    eyebrow: L('MIKROTEKSHIRUV', 'МИКРОПРОВЕРКА', 'MICRO CHECK'),
-    title: L('Ifodalarni aniq tasniflang', 'Точно классифицируйте выражения', 'Classify the expressions precisely'),
-    question: L("Qaysi xulosa to'liq to'g'ri?", 'Какое утверждение полностью верно?', 'Which statement is completely correct?'),
-    options: [
-      L(
-        "A — butun ratsional ifoda, bo'lishga bog'liq cheklovi yo'q. B — ratsional kasr, x ≠ 5.",
-        'A — целое рациональное выражение без ограничения из-за деления. B — рациональная дробь, x ≠ 5.',
-        'A is a whole rational expression with no division-based restriction. B is a rational fraction with x ≠ 5.',
+    ask: {
+      varName: 'x',
+      of: '(x+1)/x',
+      label: L('Kontrprimer', 'Контрпример', 'Counterexample'),
+      wrong: L(
+        "Bu sonni javob allaqachon taqiqlagan. Javobga tushmagan sonni toping.",
+        'Это число ответ уже запретил. Найди то, которое в ответ не попало.',
+        'The answer already forbids this number. Find the one that did not get into the answer.',
       ),
-      L(
-        'Ikkala ifodada ham x qatnashgani uchun ikkalasida cheklov bor.',
-        'Оба выражения имеют ограничения, потому что оба содержат x.',
-        'Both expressions have restrictions because both contain x.',
-      ),
-      L(
-        "A — butun ifoda; B ning maxraji faqat qiymat qo'yilgandan keyin paydo bo'ladi.",
-        'A — целое выражение; знаменатель B появляется только после подстановки.',
-        'A is whole, and the denominator of B appears only after substitution.',
-      ),
-      L('A — butun ifoda; B uchun x ≠ −5.', 'A — целое выражение; для B выполняется x ≠ −5.', 'A is whole, and B requires x ≠ −5.'),
-    ],
-    correctIndex: 0,
-    correct_text: L(
-      "A da o'zgaruvchili maxraj yo'q. B ning maxraji x − 5 bo'lib, u x = 5 da nolga teng.",
-      'У A нет знаменателя с переменной. Знаменатель B равен x − 5 и обращается в ноль при x = 5.',
-      'A has no variable denominator. The denominator of B is x − 5, which becomes zero at x = 5.',
-    ),
-    wrong_1: L(
-      "O'zgaruvchining mavjudligi o'zi cheklov yaratmaydi. Cheklov o'zgaruvchili maxraj tufayli paydo bo'ladi.",
-      'Само наличие переменной не создаёт ограничения. Ограничение возникает из-за знаменателя с переменной.',
-      'A variable does not create a restriction by itself. The restriction comes from a variable denominator.',
-    ),
-    wrong_2: L(
-      "B ning maxraji boshidanoq x − 5. Qiymat qo'yish faqat uning sonli qiymatini topadi.",
-      'Знаменатель B изначально равен x − 5. Подстановка лишь вычисляет его числовое значение.',
-      'The denominator of B is x − 5 from the start. Substitution only evaluates it.',
-    ),
-    wrong_3: L(
-      'x − 5 = 0 tenglamaning yechimi x = 5.',
-      'Уравнение x − 5 = 0 имеет решение x = 5.',
-      'The equation x − 5 = 0 has solution x = 5.',
-    ),
-    audio: {
-      intro: L(
-        "Ikki ifodaning tuzilishini taqqoslang. O'zgaruvchining maxrajda qatnashishini tekshiring.",
-        'Сравните строение двух выражений. Проверяйте присутствие переменной в знаменателе.',
-        'Compare the two expressions. Check whether the variable appears in a denominator.',
-      ),
-      on_correct: L(
-        "To'g'ri. Birinchi ifodada bo'lish cheklovi yo'q, ikkinchisida besh maxrajni nol qiladi.",
-        'Верно. У первого выражения нет ограничения из-за деления, а во втором пять обращает знаменатель в ноль.',
-        'Correct. The first has no division restriction, while five makes the second denominator zero.',
-      ),
-      on_wrong: L(
-        "Ifodalarni tashqi ko'rinishi bo'yicha emas, tuzilishi bo'yicha tahlil qiling.",
-        'Анализируйте выражения по структуре, а не по внешнему виду.',
-        'Analyze the expressions by structure, not by appearance.',
+      note: L(
+        "Nol maxrajni nolga aylantiradi, lekin javobda yo'q. Ya'ni uchinchi satr x ko'paytuvchisini tashlab ketgan.",
+        'Нуль обращает знаменатель в нуль, но в ответе его нет. Значит третья строка потеряла множитель x.',
+        'Zero makes the denominator zero but is missing from the answer. So the third line lost the factor x.',
       ),
     },
   },
+}
 
-  s11: {
-    eyebrow: L('YECHIM AUDITI', 'АУДИТ РЕШЕНИЯ', 'SOLUTION AUDIT'),
-    title: L('Yechimdagi birinchi xatoni toping', 'Найдите первую ошибку в решении', 'Find the first error in the solution'),
-    question: L("Birinchi noto'g'ri qadam qaysi?", 'Какой шаг является первым неверным?', 'Which step is the first incorrect step?'),
-    solutionSteps: [
-      L('1-qadam. x = 4 da surat nolga teng.', 'Шаг 1. При x = 4 числитель равен нулю.', 'Step 1. At x = 4, the numerator equals zero.'),
-      L('2-qadam. Demak, x = 4 taqiqlangan.', 'Шаг 2. Следовательно, x = 4 запрещено.', 'Step 2. Therefore, x = 4 is excluded.'),
-      L("3-qadam. Boshqa cheklovlar yo'q.", 'Шаг 3. Других ограничений нет.', 'Step 3. There are no other restrictions.'),
-    ],
-    options: [
-      L('Birinchi qadam', 'Первый шаг', 'Step one'),
-      L('Ikkinchi qadam', 'Второй шаг', 'Step two'),
-      L('Uchinchi qadam', 'Третий шаг', 'Step three'),
-      L("Xato yo'q", 'Ошибок нет', 'There is no error'),
-    ],
-    correctIndex: 1,
-    correct_text: L(
-      "Birinchi qadam to'g'ri, lekin nol surat taqiq yaratmaydi. Maxrajdan x ≠ −2 kelib chiqadi.",
-      'Первый шаг верен, но нулевой числитель не создаёт запрета. Из знаменателя получаем x ≠ −2.',
-      'Step one is correct, but a zero numerator creates no restriction. The denominator gives x ≠ −2.',
-    ),
-    wrong_0: L(
-      "Birinchi hisob to'g'ri. Xato keyingi xulosada boshlanadi.",
-      'Первое вычисление верно. Ошибка начинается в следующем выводе.',
-      'The first calculation is correct. The error begins in the next conclusion.',
-    ),
-    wrong_2: L(
-      'Uchinchi qadam ham noto‘g‘ri, lekin xato oldinroq, ikkinchi qadamda boshlangan.',
-      'Третий шаг тоже неверен, но ошибка появилась раньше, во втором шаге.',
-      'Step three is also incorrect, but the error appeared earlier in step two.',
-    ),
-    wrong_3: L(
-      'Xato bor: nol suratdan taqiqlangan qiymat haqida xulosa chiqarilgan.',
-      'Ошибка есть: из нулевого числителя сделан вывод о запрещённом значении.',
-      'There is an error: a restriction was inferred from a zero numerator.',
-    ),
-    audio: {
-      intro: L(
-        "Anonim yechimdagi qadamlarni ketma-ket tekshiring. Birinchi noto'g'ri o'tishni toping.",
-        'Проверьте шаги анонимного решения по порядку. Найдите первый неверный переход.',
-        'Examine the anonymous solution in order. Find the first invalid transition.',
-      ),
-      on_correct: L(
-        "To'g'ri. Nol surat mumkin, shuning uchun xato ikkinchi qadamdagi taqiq xulosasida boshlanadi.",
-        'Верно. Нулевой числитель допустим, поэтому ошибка начинается во втором шаге.',
-        'Correct. A zero numerator is allowed, so the error begins in step two.',
-      ),
-      on_wrong: L(
-        "Qadamlarni boshidan tekshiring. Birinchi hisob to'g'ri, ammo undan chiqarilgan taqiq asosli emas.",
-        'Проверяйте шаги с начала. Первое вычисление верно, но вывод о запрете необоснован.',
-        'Check from the beginning. The first calculation is correct, but the restriction is unjustified.',
-      ),
-    },
-  },
-
-  s12: {
-    eyebrow: L('KONSTRUKTOR', 'КОНСТРУКТОР', 'CONSTRUCTOR'),
-    title: L('Cheklovi berilgan kasrni tuzing', 'Составьте дробь с заданным ограничением', 'Construct a fraction with a given restriction'),
+// ============================================================
+// EKRAN 13. KO'CHIRISH: TESKARI TOPSHIRIQ. Javob ko'p, ikki xossa
+// tekshiriladi: qiymatlar mos keldimi va taqiqlangan sonlar mos keldimi.
+// ============================================================
+const S13 = {
+  eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
+  title: L(
+    "Yozuvni o'zingiz tuzing",
+    'Запись составь сам',
+    'Build the record yourself',
+  ),
+  audio: [
+    A('mount',
+      "Oxirgi mazmunli topshiriq, va u teskari. Javob berilgan, yozuvni siz tuzasiz.",
+      'Последнее содержательное задание, и оно обратное. Ответ дан, запись составляешь ты.',
+      'The last substantial task, and it is the inverse one. The answer is given, you build the record.'),
+    A('why',
+      "Javoblar ko'p, va bu normal. Ikki narsa tekshiriladi. Qiymatlar mos keldimi va taqiqlangan sonlar mos keldimi.",
+      'Ответов много, и это нормально. Проверяются две вещи. Совпали значения и совпали запрещённые числа.',
+      'There are many answers, and that is normal. Two things are checked. Whether the values match and whether the forbidden numbers match.'),
+  ],
+  props: {
+    varName: 'x',
     prompt: L(
-      'x = −2 da aniqlanmaydigan ratsional kasr tuzing.',
-      'Составьте рациональную дробь, не определённую при x = −2.',
-      'Construct a rational fraction that is undefined when x = −2.',
+      "Shunday kasr ifoda yozing: barcha ruxsat etilgan x da qiymati birga teng, taqiqlangan sonlari esa aynan uch va minus uch",
+      'Запиши дробное выражение: при всех допустимых x его значение равно единице, а запрещённых чисел ровно два — три и минус три',
+      'Write a fractional expression whose value is one for all admissible x and whose forbidden numbers are exactly three and minus three',
     ),
-    numerators: ['x − 1', '2x + 3', '5'],
-    denominators: ['x − 2', 'x + 2', '2x + 4', 'x + 4'],
-    validDenominators: [1, 2],
-    followup: L(
-      'Tanlangan kasrning qaysi qismi cheklovni kafolatlaydi?',
-      'Какая часть выбранной дроби гарантирует ограничение?',
-      'Which part of the selected fraction guarantees the restriction?',
-    ),
-    followupOptions: [
-      L('Surat', 'Числитель', 'Numerator'),
-      L('Maxraj', 'Знаменатель', 'Denominator'),
-      L("Kasr chizig'i", 'Черта дроби', 'Fraction bar'),
-    ],
-    correct_text: L(
-      'x + 2 ham, 2x + 4 ham x = −2 da nolga teng. Suratni bir necha usulda tanlash mumkin.',
-      'И x + 2, и 2x + 4 равны нулю при x = −2. Числитель можно выбрать несколькими способами.',
-      'Both x + 2 and 2x + 4 equal zero at x = −2. The numerator can be chosen in several ways.',
-    ),
-    wrong_text: L(
-      'Tanlangan maxrajga x = −2 ni qo‘ying. Natija nol bo‘lishi kerak.',
-      'Подставьте x = −2 в выбранный знаменатель. Результат должен быть равен нулю.',
-      'Substitute x = −2 into the selected denominator. The result must be zero.',
-    ),
-    audio: L(
-      [
-        "Bu safar tayyor ifodani tekshirmaysiz, kerakli xususiyatga ega kasrni o'zingiz tuzasiz.",
-        "Minus ikki qiymatida nolga aylanadigan maxrajni tanlang. To'g'ri maxraj bitta emas.",
-        "Cheklovni surat emas, aynan maxraj yaratishini izohlang.",
-      ],
-      [
-        'На этот раз вы самостоятельно строите дробь с нужным свойством.',
-        'Выберите знаменатель, который обращается в ноль при минус двух. Правильных знаменателей несколько.',
-        'Объясните, что ограничение создаётся знаменателем, а не числителем.',
-      ],
-      [
-        'This time, construct a fraction with the required property.',
-        'Choose a denominator that becomes zero at minus two. More than one denominator is valid.',
-        'Explain that the denominator, rather than the numerator, creates the restriction.',
-      ],
-    ),
-  },
-
-  s13: {
-    eyebrow: L('YAKUNIY TEKSHIRUV · 1', 'ИТОГОВАЯ ПРОВЕРКА · 1', 'FINAL CHECK · 1'),
-    title: L('Taqiqlangan p qiymati', 'Запрещённое значение p', 'The excluded value of p'),
-    question: L(
-      'C(p) ifoda qaysi p qiymatida aniqlanmagan?',
-      'При каком значении p выражение C(p) не определено?',
-      'For which value of p is C(p) undefined?',
-    ),
-    answer: -4,
-    correct_text: L(
-      "To'g'ri: 2p + 8 = 0 tenglamadan p = −4. Demak, p ≠ −4.",
-      'Верно: из уравнения 2p + 8 = 0 получаем p = −4. Значит, p ≠ −4.',
-      'Correct: solving 2p + 8 = 0 gives p = −4. Therefore, p ≠ −4.',
-    ),
-    wrongByValue: {
-      4: L(
-        'Musbat to‘rt maxrajni nol qilmaydi. Tenglamada sakkiz qarama-qarshi ishora bilan o‘tadi.',
-        'Положительное четыре не обращает знаменатель в ноль. Восемь переносится с противоположным знаком.',
-        'Positive four does not make the denominator zero. Eight moves with the opposite sign.',
+    reduceTo: '1',
+    excluded: [3, -3],
+    hints: {
+      '(x-3)/(x-3)': L(
+        "Qiymati birga teng, lekin taqiq bitta. Minus uch ham taqiqlanishi kerak: maxrajga ikkinchi ko'paytuvchi kerak.",
+        'Значение равно единице, но запрет один. Минус три тоже должно быть запрещено: знаменателю нужен второй множитель.',
+        'The value is one but there is only one restriction. Minus three must be forbidden too: the denominator needs a second factor.',
       ),
-      '-8': L(
-        "Manfiy sakkiz oraliq natija, p ning qiymati emas. Uni ikki koeffitsiyentiga bo'ling.",
-        'Минус восемь — промежуточное значение, а не значение p. Разделите его на два.',
-        'Minus eight is an intermediate value, not p. Divide it by two.',
-      ),
-      12: L(
-        'O‘n ikki suratdagi son. Aniqlanish sharti uchun maxrajni tekshiring.',
-        'Число двенадцать находится в числителе. Для условия определённости проверьте знаменатель.',
-        'Twelve appears in the numerator. Examine the denominator for the restriction.',
+      '1': L(
+        "Birlikning taqiqi yo'q: uni har qanday sonda hisoblash mumkin. Bo'linish kerak, va maxraj uch va minus uchda nolga aylanishi kerak.",
+        'У единицы запретов нет: её можно посчитать при любом числе. Нужно деление, и знаменатель должен обращаться в нуль при трёх и минус трёх.',
+        'One has no restrictions: it works for any number. You need a division whose denominator becomes zero at three and minus three.',
       ),
     },
-    wrong_default: L(
-      'Maxrajni nolga tenglashtirib, chiziqli tenglamani oxirigacha yeching.',
-      'Приравняйте знаменатель к нулю и полностью решите линейное уравнение.',
-      'Set the denominator equal to zero and completely solve the linear equation.',
+    note: L(
+      "Qiymat va soha — ikki boshqa narsa. Bir xil qiymatli yozuvlarning sohasi boshqa bo'lishi mumkin.",
+      'Значение и область — две разные вещи. У записей с одинаковым значением область может быть разной.',
+      'Value and domain are two different things. Records with the same value may have different domains.',
     ),
-    audio: {
-      intro: L(
-        "Yangi o'zgaruvchili kasr uchun taqiqlangan qiymatni mustaqil toping. Faqat p qiymatini kiriting.",
-        'Самостоятельно найдите запрещённое значение для дроби с новой переменной. Введите только значение пэ.',
-        'Independently find the excluded value for the fraction with a new variable. Enter only p.',
-      ),
-      on_correct: L(
-        "To'g'ri. Ikki p plus sakkiz nolga teng bo'lganda p minus to'rtga teng.",
-        'Верно. Когда два пэ плюс восемь равно нулю, пэ равно минус четырём.',
-        'Correct. When two p plus eight equals zero, p equals minus four.',
-      ),
-      on_wrong: L(
-        'Suratni emas, maxrajni tekshiring. Maxrajni nolga tenglashtirib, tenglamani yeching.',
-        'Проверяйте знаменатель, а не числитель. Приравняйте знаменатель к нулю и решите уравнение.',
-        'Examine the denominator, not the numerator. Set it equal to zero and solve.',
-      ),
-    },
   },
+}
 
-  s14: {
-    eyebrow: L('YAKUNIY TEKSHIRUV · 2', 'ИТОГОВАЯ ПРОВЕРКА · 2', 'FINAL CHECK · 2'),
-    title: L('Nol natija mumkinmi?', 'Допустим ли нулевой результат?', 'Is a zero result allowed?'),
-    question: L('p = 12 qiymati C(p) uchun mumkinmi?', 'Допустимо ли p = 12 для C(p)?', 'Is p = 12 permissible for C(p)?'),
-    options: [
-      L('Ha. C(12) = 0, maxraj esa 32.', 'Да. C(12) = 0, а знаменатель равен 32.', 'Yes. C(12) = 0, and the denominator is 32.'),
-      L("Yo'q, chunki surat nolga teng.", 'Нет, потому что числитель равен нулю.', 'No, because the numerator is zero.'),
-      L('Ha, lekin C(12) = 32.', 'Да, но C(12) = 32.', 'Yes, but C(12) = 32.'),
-      L("Yo'q, chunki kasrning qiymati nol.", 'Нет, потому что значение дроби равно нулю.', 'No, because the value is zero.'),
+// ============================================================
+// EKRAN 14. BLITS. To'rt savol BITTA panelda, BELGI haqida. Ball YO'Q:
+// birinchi urinishlardan tayyorlik darajasi SO'Z bilan yig'iladi (§2.2.5).
+// ============================================================
+const S14 = {
+  eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
+  title: L(
+    "To'rt savol",
+    'Четыре вопроса',
+    'Four questions',
+  ),
+  audio: [
+    A('mount',
+      "To'rt savol bitta panelda. Ular yozuvni emas, belgini so'raydi, ya'ni nimaga qarab ajratasiz.",
+      'Четыре вопроса в одной панели. Они спрашивают не запись, а признак, то есть по чему ты различаешь.',
+      'Four questions in one panel. They ask not for a record but for the sign, that is what you tell things apart by.'),
+    A('why',
+      "Ball bu yerda yo'q. Birinchi urinishlardan takrorlash kerak bo'lgan narsa yig'iladi.",
+      'Балла здесь нет. Из первых попыток соберётся то, что стоит повторить.',
+      'There is no mark here. Your first attempts will show what is worth another pass.'),
+  ],
+  props: {
+    items: [
+      {
+        id: 'q1',
+        tag: 'З2',
+        ask: L(
+          "Yozuvning qaysi qismi bo'yicha ODZ topiladi?",
+          'По какой части записи находят ОДЗ?',
+          'Which part of the record gives the domain?',
+        ),
+        options: [
+          { id: 'num', label: L('surat', 'числитель', 'the numerator') },
+          { id: 'den', right: true, label: L('maxraj', 'знаменатель', 'the denominator') },
+        ],
+        hint: L(
+          "Qiymat bo'lmasligi bo'lish mumkin bo'lmaganda yuz beradi. Bo'linadigan narsa chiziq ostida turadi.",
+          'Значения нет тогда, когда делить нельзя. Делят на то, что стоит под чертой.',
+          'A value is missing when division is impossible. You divide by what is under the bar.',
+        ),
+      },
+      {
+        id: 'q2',
+        tag: 'З19',
+        ask: L(
+          "2x + 6 ni 3 ga bo'lish — butun ifodami yoki kasrmi?",
+          'Выражение 2x + 6, делённое на 3 — целое или дробное?',
+          'The expression 2x + 6 divided by 3 — integral or fractional?',
+        ),
+        options: [
+          { id: 'int', right: true, label: L('butun', 'целое', 'integral') },
+          { id: 'frac', label: L('kasr', 'дробное', 'fractional') },
+        ],
+        hint: L(
+          "Uchga, ya'ni songa bo'linadi. Istalgan x ni qo'ying: qiymat doim bor.",
+          'Делят на три, то есть на число. Подставь любой x: значение есть всегда.',
+          'You divide by three, that is by a number. Put any x: the value always exists.',
+        ),
+      },
+      {
+        id: 'q3',
+        tag: 'З18',
+        ask: L(
+          "Nolni x − 1 ga bo'lish, x = 5 da. Qiymat bormi?",
+          'Нуль, делённый на x − 1, при x = 5. Значение есть?',
+          'Zero divided by x − 1 at x = 5. Is there a value?',
+        ),
+        options: [
+          { id: 'yes', right: true, label: L('bor, u nolga teng', 'есть, оно равно нулю', 'yes, it equals zero') },
+          { id: 'no', label: L("yo'q", 'нет значения', 'no value') },
+        ],
+        hint: L(
+          "Yuqoridagi nol — mumkin: yuqorida nol, pastda to'rt. Mumkin bo'lmagani — nol pastda turgani.",
+          'Нуль сверху — можно: сверху нуль, снизу четыре. Нельзя, когда нуль снизу.',
+          'Zero above is fine: zero above, four below. What is impossible is zero below.',
+        ),
+      },
+      {
+        id: 'q4',
+        tag: 'З16',
+        ask: L(
+          'ODZ yozildi. Ishni tugallangan qiladigan narsa nima?',
+          'ОДЗ записана. Что делает работу законченной?',
+          'The domain is written. What makes the work complete?',
+        ),
+        options: [
+          {
+            id: 'sub',
+            right: true,
+            label: L(
+              "son qo'yib hisoblash",
+              'подставить число и посчитать',
+              'substitute a number and compute',
+            ),
+          },
+          {
+            id: 'copy',
+            label: L(
+              "javobni chiroyliroq ko'chirish",
+              'переписать ответ аккуратнее',
+              'rewrite the answer more neatly',
+            ),
+          },
+        ],
+        hint: L(
+          "Tekshirilmagan javob — so'zga ishonish. Sonni qo'ying va o'zingiz ko'ring.",
+          'Ответ без проверки — это ответ на слово. Подставь число и посмотри сам.',
+          'An unchecked answer is an answer on trust. Put a number in and see for yourself.',
+        ),
+      },
     ],
-    correctIndex: 0,
-    correct_text: L(
-      "p = 12 da surat 0, maxraj 32. Nolni nolga teng bo'lmagan songa bo'lish mumkin.",
-      'При p = 12 числитель равен 0, знаменатель равен 32. Ноль можно разделить на ненулевое число.',
-      'At p = 12, the numerator is zero and the denominator is 32. Zero may be divided by a nonzero number.',
-    ),
-    wrong_1: L(
-      'Nol surat mumkin. Taqiq faqat maxraj nolga teng bo‘lganda paydo bo‘ladi.',
-      'Нулевой числитель допустим. Запрет возникает только при нулевом знаменателе.',
-      'A zero numerator is allowed. A restriction occurs only with a zero denominator.',
-    ),
-    wrong_2: L(
-      '32 — maxrajning qiymati. Butun kasrning qiymati 0/32 = 0.',
-      'Число 32 — значение знаменателя. Вся дробь равна 0/32 = 0.',
-      'Thirty-two is the denominator. The entire fraction equals 0/32 = 0.',
-    ),
-    wrong_3: L(
-      'Kasrning nolga teng natijasi taqiqlanmaydi.',
-      'Нулевое значение дроби не запрещено.',
-      'A fraction is allowed to equal zero.',
-    ),
-    audio: {
-      intro: L(
-        "P ning o'n ikki qiymatini surat va maxrajga qo'ying. Qiymatning mumkinligini tekshiring.",
-        'Подставьте пэ, равное двенадцати, в числитель и знаменатель. Проверьте допустимость.',
-        'Substitute twelve for p in the numerator and denominator. Check whether it is permissible.',
-      ),
-      on_correct: L(
-        "To'g'ri. Surat nol, maxraj esa o'ttiz ikki. Kasrning qiymati nolga teng.",
-        'Верно. Числитель равен нулю, знаменатель равен тридцати двум. Значение дроби равно нулю.',
-        'Correct. The numerator is zero, the denominator is thirty-two, and the fraction equals zero.',
-      ),
-      on_wrong: L(
-        "Nol natija bilan nolga bo'lishni aralashtirmang. Bu yerda maxraj o'ttiz ikki.",
-        'Не смешивайте нулевой результат с делением на ноль. Здесь знаменатель равен тридцати двум.',
-        'Do not confuse a zero result with division by zero. Here the denominator is thirty-two.',
-      ),
-    },
   },
+}
 
-  s15: {
-    eyebrow: L('TADQIQOT XULOSASI', 'ВЫВОД ИССЛЕДОВАНИЯ', 'INVESTIGATION SUMMARY'),
-    title: L(
-      'Formulaning chegarasini maxraj belgilaydi',
-      'Границу применимости задаёт знаменатель',
-      'The denominator determines where the formula is defined',
+// ============================================================
+// EKRAN 15. YAKUN. Yangi matematika va yangi kiritish YO'Q. Foiz YO'Q:
+// bo'shliq SO'Z bilan aytiladi. Taxmin natija bilan YONMA-YON turadi.
+// Oxirgi izohda FAKT: matematika va fan bir kartochkada (1-3-sinf usuli).
+// ============================================================
+const S15 = {
+  eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
+  title: L(
+    "Uch tasdiq",
+    'Три утверждения',
+    'Three statements',
+  ),
+  audio: [
+    A('s0',
+      "Uch tasdiq. Chapda boshdagi taxminingiz va tekshirilgan natija yonma-yon turadi.",
+      'Три утверждения. Слева твой прогноз с начала и проверенный результат стоят рядом.',
+      'Three statements. On the left your prediction and the verified result stand side by side.'),
+    A('s1',
+      "Bugun siz uch qadamni o'rgandingiz. Chiziq ostiga qarash, nolga aylantiruvchi sonni topish va shartni yozish.",
+      'Сегодня освоены три шага. Посмотреть под черту, найти число, обращающее её в нуль, и записать условие.',
+      'Today you learned three steps. Look below the bar, find the number that makes it zero, and write the condition.'),
+    A('s2',
+      "Keyingi darsda kasrning asosiy xossasi. Surat va maxrajni bir xil narsaga ko'paytiradilar, va soha o'sha bo'lib qolishi shart.",
+      'В следующем уроке основное свойство дроби. Числитель и знаменатель умножают на одно и то же, и область обязана остаться той же.',
+      'The next lesson covers the main property of a fraction. Numerator and denominator are multiplied by the same thing, and the domain must stay the same.'),
+  ],
+  props: {
+    readyLabel: L('Tayyorlik', 'Готовность', 'Readiness'),
+    predictedLabel: L('Taxmin', 'Прогноз', 'Prediction'),
+    gotLabel: L('Natija', 'Результат', 'Result'),
+    proved: L(
+      "jadval haq: ikkilikda qiymat yo'q",
+      'права таблица: при двойке значения нет',
+      'the table is right: no value at two',
     ),
-    summary: L(
-      "Ratsional kasrning qiymati maxraj nolga teng bo'lmaganda aniqlangan.",
-      'Значение рациональной дроби определено, когда её знаменатель не равен нулю.',
-      'A rational fraction is defined whenever its denominator is nonzero.',
-    ),
-    canDo: [
-      L('Men ratsional kasrning maxrajini aniqlay olaman.', 'Я умею находить знаменатель рациональной дроби.', 'I can identify the denominator of a rational fraction.'),
-      L(
-        'Men maxrajni nolga tenglashtirib, taqiqlangan qiymatni topa olaman.',
-        'Я умею находить запрещённое значение, приравнивая знаменатель к нулю.',
-        'I can find an excluded value by setting the denominator equal to zero.',
-      ),
-      L(
-        'Men nol surat bilan nol maxrajning farqini tushuntira olaman.',
-        'Я умею объяснять различие между нулевым числителем и нулевым знаменателем.',
-        'I can explain the difference between a zero numerator and a zero denominator.',
-      ),
+    canLabel: L("Endi nima qila olaman", 'Что теперь умею', 'What I can do now'),
+    notesLabel: L('Sizning yozuvlaringiz', 'Твои записи', 'Your notes'),
+    cheat: L('Shpargalkani chiqarish', 'Печать шпаргалки', 'Print the cheat sheet'),
+    screenRef: L('3-ekran', 'экран 3', 'screen 3'),
+    // Uchta satr, to'rtta emas: ekran VERTIKAL (metodist, 2026-08-13).
+    can: [
+      L("Taqiqni chiziq ostidan topaman", 'Нахожу запрет под чертой', 'I find the restriction below the bar'),
+      L("Butun va kasrni farqlayman", 'Различаю целое и дробное', 'I tell integral from fractional'),
+      L("Javobni son bilan tekshiraman", 'Проверяю ответ числом', 'I check the answer with a number'),
     ],
-    hypothesisReturn: L(
-      'Boshlang‘ich prognozni tajriba bilan solishtiring: K(x) uchun faqat x = 3 mumkin emas.',
-      'Сравните прогноз с экспериментом: для K(x) запрещено только x = 3.',
-      'Compare the prediction with the experiment: for K(x), only x = 3 is excluded.',
+    proofNote: L(
+      "Fakt. Dasturlash tillarida butun sonni nolga bo'lish dasturni to'xtatadi, kasr sonni bo'lish esa Infinity beradi. Shuning uchun ma'lumot bazalarida maxraj hisobdan OLDIN tekshiriladi — xuddi darsdagidek.",
+      'Факт. В языках программирования деление целого на нуль останавливает программу, а деление дробного даёт Infinity. Поэтому в базах данных знаменатель проверяют ДО вычисления — ровно как в этом уроке.',
+      'A fact. In programming languages integer division by zero halts the program while float division yields Infinity. That is why databases check the denominator BEFORE computing, exactly as in this lesson.',
     ),
     bridge: L(
-      "Keyingi dars: surat va maxraj bir xil nolga teng bo'lmagan ko'paytuvchiga o'zgartirilsa, nega kasrning qiymati saqlanadi?",
-      'Следующий урок: почему значение дроби сохраняется, если числитель и знаменатель изменить одним ненулевым множителем?',
-      'Next lesson: why is a fraction unchanged when its numerator and denominator are transformed by the same nonzero factor?',
-    ),
-    audio: L(
-      [
-        "Tadqiqotning asosiy xulosasi shuki, ratsional kasrda mumkin bo'lmagan qiymatlar maxraj orqali topiladi.",
-        "Nolga teng surat mumkin va kasr qiymatini nol qiladi. Nolga teng maxraj ifodani aniqlanmagan qiladi.",
-        "Keyingi darsda ratsional kasrning qiymatini saqlaydigan o'zgartirishlarni tadqiq qilamiz.",
-      ],
-      [
-        'Главный вывод исследования состоит в том, что запрещённые значения рациональной дроби определяются по знаменателю.',
-        'Нулевой числитель допустим и даёт ноль. Нулевой знаменатель делает выражение неопределённым.',
-        'На следующем уроке исследуем преобразования, сохраняющие значение рациональной дроби.',
-      ],
-      [
-        'The central conclusion is that excluded values of a rational fraction are determined from its denominator.',
-        'A zero numerator is allowed and gives zero. A zero denominator makes the expression undefined.',
-        'In the next lesson, we will investigate transformations that preserve the value of a rational fraction.',
-      ],
+      "Keyingisi: 2-dars, ratsional kasrning asosiy xossasi.",
+      'Дальше: урок 2, основное свойство рациональной дроби.',
+      'Next: lesson 2, the main property of a rational fraction.',
     ),
   },
 }
 
-const Op = React.memo(function Op({ children, size = 'mid', tone = 'ink' }) {
-  return <span className={`mop mop-${size} tone-${tone}`}>{children}</span>
-})
-
-const Frac = React.memo(function Frac({ n, d, size = 'mid', color }) {
-  return (
-    <span className={`frac frac-${size}`} style={{ color }}>
-      <span className="n">{n}</span>
-      <span className="bar" />
-      <span className="d">{d}</span>
-    </span>
-  )
-})
-
-function InlineMath({ children }) {
-  return <span className="inline-math">{children}</span>
-}
-
-function ExpressionVisual({ expression }) {
-  const parts = expression.split(' / ')
-  if (parts.length !== 2) return <InlineMath>{expression}</InlineMath>
-  const unwrap = (value) => {
-    const trimmed = value.trim()
-    return trimmed.startsWith('(') && trimmed.endsWith(')')
-      ? trimmed.slice(1, -1)
-      : trimmed
-  }
-  return (
-    <InlineMath>
-      <Frac n={unwrap(parts[0])} d={unwrap(parts[1])} size="sm" />
-    </InlineMath>
-  )
-}
-
-function renderRationalText(text) {
-  if (typeof text !== 'string' || !text.includes('A(x) / B(x)')) return text
-  const [before, after] = text.split('A(x) / B(x)')
-  return (
-    <>
-      {before}
-      <Frac n="A(x)" d="B(x)" size="sm" />
-      {after}
-    </>
-  )
-}
-
-function FormulaK({ compact = false }) {
-  return (
-    <span className={compact ? 'formula compact' : 'formula'}>
-      K(x) = <Frac n="2x + 1" d="x − 3" size={compact ? 'sm' : 'mid'} />
-    </span>
-  )
-}
-
-function FormulaPair() {
-  return (
-    <div className="formula-pair">
-      <span className="formula compact">
-        P(x) = <Frac n="x − 3" d="x + 1" size="sm" />
-      </span>
-      <span className="formula compact">
-        Q(x) = <Frac n="x + 1" d="x − 3" size="sm" />
-      </span>
-    </div>
-  )
-}
-
-function FormulaR() {
-  return (
-    <span className="formula">
-      R(x) = <Frac n="3x − 2" d="x + 4" size="mid" />
-    </span>
-  )
-}
-
-function FormulaF() {
-  return (
-    <span className="formula">
-      F(x) = <Frac n="5" d="2x − 6" size="mid" />
-    </span>
-  )
-}
-
-function FormulaAB() {
-  return (
-    <div className="formula-pair">
-      <span className="formula compact">A(x) = x² − 5x + 4</span>
-      <span className="formula compact">
-        B(x) = <Frac n="x + 7" d="x − 5" size="sm" />
-      </span>
-    </div>
-  )
-}
-
-function FormulaH() {
-  return (
-    <span className="formula">
-      H(x) = <Frac n="x − 4" d="x + 2" size="mid" />
-    </span>
-  )
-}
-
-function FormulaC() {
-  return (
-    <span className="formula">
-      C(p) = <Frac n="12 − p" d="2p + 8" size="mid" />
-    </span>
-  )
-}
-
-const FRACTION_PATTERN = /(-?\d+)\/(-?\d+)/g
-
-function renderMathText(text) {
-  if (typeof text !== 'string' || !text.includes('/')) return text
-  const parts = []
-  let lastIndex = 0
-  let match
-  let key = 0
-  while ((match = FRACTION_PATTERN.exec(text)) !== null) {
-    if (match.index > lastIndex) parts.push(text.slice(lastIndex, match.index))
-    parts.push(<Frac key={`frac_${key}`} n={match[1]} d={match[2]} size="sm" />)
-    key += 1
-    lastIndex = match.index + match[0].length
-  }
-  if (lastIndex < text.length) parts.push(text.slice(lastIndex))
-  return parts
-}
-
-function AudioIndicator({ audio }) {
-  const t = useT()
-  const labels = {
-    sound: L('Ovoz', 'Озвучка', 'Audio'),
-    mute: L("Ovozni o'chirish", 'Выключить звук', 'Mute audio'),
-    unmute: L('Ovozni yoqish', 'Включить звук', 'Enable audio'),
-    replay: L('Qayta tinglash', 'Повторить', 'Replay'),
-  }
-
-  return (
-    <div className="audio-tools" aria-label={t(labels.sound)}>
-      <span className={`audio-pulse ${audio.isPlaying ? 'is-playing' : ''}`} aria-hidden="true" />
-      <button
-        type="button"
-        className="icon-button"
-        onClick={audio.toggleMute}
-        aria-label={t(audio.muted ? labels.unmute : labels.mute)}
-        title={t(audio.muted ? labels.unmute : labels.mute)}
-      >
-        {audio.muted ? '×' : '◖'}
-      </button>
-      <button
-        type="button"
-        className="icon-button"
-        onClick={audio.replay}
-        aria-label={t(labels.replay)}
-        title={t(labels.replay)}
-      >
-        ↻
-      </button>
-    </div>
-  )
-}
-
-function NavBack({ onClick, disabled }) {
-  const t = useT()
-  return (
-    <button type="button" className="btn-ghost nav-button" onClick={onClick} disabled={disabled}>
-      <span aria-hidden="true">←</span>
-      {t(CONTENT.ui.back)}
-    </button>
-  )
-}
-
-function NavNext({ onClick, disabled, finish = false }) {
-  const t = useT()
-  return (
-    <button type="button" className="btn-white-accent nav-button" onClick={onClick} disabled={disabled}>
-      {t(finish ? CONTENT.ui.finish : CONTENT.ui.next)}
-      <span aria-hidden="true">{finish ? '✓' : '→'}</span>
-    </button>
-  )
-}
-
-function Stage({
-  screen,
-  totalScreens,
-  eyebrow,
-  title,
-  audio,
-  onPrev,
-  onNext,
-  canNext = true,
-  finish = false,
-  children,
-}) {
-  const isMobile = useIsMobile()
-  const progress = ((screen + 1) / totalScreens) * 100
-
-  return (
-    <main className="stage" style={{ paddingInline: isMobile ? 12 : 100 }}>
-      <header className="stage-header">
-        <div className="progress-track" aria-hidden="true">
-          <div className="progress-bar" style={{ width: `${progress}%` }} />
-        </div>
-        <div className="chrome">
-          <div className="chrome-left">
-            <span className="dot" />
-            <span className="mono lab-label">MATH.LAB 8</span>
-            <span className="mono screen-counter">
-              {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
-            </span>
-          </div>
-          <AudioIndicator audio={audio} />
-        </div>
-      </header>
-
-      <section className="stage-content">
-        <div className="screen-heading fade-up">
-          {eyebrow ? <p className="eyebrow">{eyebrow}</p> : null}
-          {title ? <h1 className="title h-title">{title}</h1> : null}
-        </div>
-        {children}
-      </section>
-
-      <nav className="stage-nav">
-        <NavBack onClick={onPrev} disabled={screen === 0} />
-        <span className="nav-spacer" />
-        <NavNext onClick={onNext} disabled={!canNext} finish={finish} />
-      </nav>
-    </main>
-  )
-}
-
-function FeedbackBlock({ show, correct, children }) {
-  return (
-    <div className={`feedback-block ${show ? 'visible' : ''}`}>
-      <div className={correct ? 'frame-success' : 'frame-tip'}>{children}</div>
-    </div>
-  )
-}
-
-function FeedbackLabel({ correct }) {
-  const t = useT()
-  return (
-    <p className={`feedback-label ${correct ? 'is-correct' : 'is-hint'}`}>
-      <span aria-hidden="true">{correct ? '✓' : '↗'}</span>
-      {t(correct ? CONTENT.ui.correct : CONTENT.ui.hint)}
-    </p>
-  )
-}
-
-function QuestionScreen({
-  screen,
-  totalScreens,
-  screenMeta,
-  content,
-  figure,
-  prelude,
-  storedAnswer,
-  onAnswer,
-  onPrev,
-  onNext,
-}) {
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null)
-  const [solved, setSolved] = useState(storedAnswer?.correct === true)
-  const [wrongOptions, setWrongOptions] = useState(
-    () => new Set(storedAnswer?.wrongAnswerIndices || []),
-  )
-  const firstTryRef = useRef(storedAnswer?.firstTry ?? true)
-  const options = content.options
-  const audio = useAudio(
-    useMemo(
-      () => makePromptSegments(content.audio, lang, { type: 'option_picked' }),
-      [content.audio, lang],
-    ),
-  )
-
-  const pick = (index) => {
-    if (solved || wrongOptions.has(index)) return
-    const correct = index === content.correctIndex
-    setPicked(index)
-    if (correct) {
-      setSolved(true)
-      sfx.playCorrect()
-    } else {
-      firstTryRef.current = false
-      setWrongOptions((previous) => new Set(previous).add(index))
-      sfx.playWrong()
-    }
-
-    getAudioEngine()?.pushOneOff(
-      t(correct ? content.audio.on_correct : content.audio.on_wrong),
-    )
-
-    onAnswer({
-      stage: screenMeta.scope,
-      screenIdx: screen,
-      question: t(content.question),
-      options: options.map((option) => t(option)),
-      correctIndex: content.correctIndex,
-      correctAnswer: t(options[content.correctIndex]),
-      studentAnswerIndex: index,
-      studentAnswer: t(options[index]),
-      correct,
-      firstTry: correct && firstTryRef.current,
-      wrongAnswerIndices: correct
-        ? Array.from(wrongOptions)
-        : Array.from(new Set(wrongOptions).add(index)),
-    })
-  }
-
-  const feedback = solved
-    ? content.correct_text
-    : content[`wrong_${picked}`] || content.wrong_default
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(content.eyebrow)}
-      title={t(content.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={solved}
-    >
-      <div className="screen-stack">
-        {prelude}
-        {figure ? <div className="formula-card fade-up delay-1">{figure}</div> : null}
-        <p className="body question-text fade-up delay-1">{t(content.question)}</p>
-        <div className="option-grid fade-up delay-2">
-          {options.map((option, index) => {
-            const isCorrect = index === content.correctIndex
-            const isWrong = wrongOptions.has(index)
-            let className = 'option'
-            if (solved && isCorrect) className += ' option-correct'
-            else if (isWrong) className += ' option-picked-wrong'
-            else if (solved) className += ' option-wrong'
-
-            return (
-              <button
-                type="button"
-                className={className}
-                key={`${screenMeta.id}_${index}`}
-                onClick={() => pick(index)}
-                disabled={solved || isWrong}
-              >
-                <span className="option-index mono">
-                  {solved && isCorrect ? '✓' : isWrong ? '×' : String.fromCharCode(65 + index)}
-                </span>
-                <span>{renderMathText(t(option))}</span>
-              </button>
-            )
-          })}
-        </div>
-        <FeedbackBlock show={picked !== null} correct={solved}>
-          <FeedbackLabel correct={solved} />
-          <p className="body">{renderMathText(t(feedback))}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function NumInputScreen({
-  screen,
-  totalScreens,
-  screenMeta,
-  content,
-  figure,
-  support,
-  storedAnswer,
-  onAnswer,
-  onPrev,
-  onNext,
-}) {
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const [value, setValue] = useState(storedAnswer?.studentAnswer ?? '')
-  const [checked, setChecked] = useState(Boolean(storedAnswer))
-  const [solved, setSolved] = useState(storedAnswer?.correct === true)
-  const [feedback, setFeedback] = useState(
-    storedAnswer?.correct
-      ? content.correct_text
-      : storedAnswer
-        ? content.wrongByValue?.[String(storedAnswer.studentAnswer)] || content.wrong_default
-        : null,
-  )
-  const firstTryRef = useRef(storedAnswer?.firstTry ?? true)
-  const audio = useAudio(
-    useMemo(
-      () => makePromptSegments(content.audio, lang, { type: 'check_pressed' }),
-      [content.audio, lang],
-    ),
-  )
-
-  const normalized = String(value).trim().replace('−', '-').replace(',', '.')
-
-  const submit = () => {
-    if (!normalized || solved) return
-    const number = Number(normalized)
-    const correct = Number.isFinite(number) && number === content.answer
-    setChecked(true)
-    setSolved(correct)
-    const nextFeedback = correct
-      ? content.correct_text
-      : content.wrongByValue?.[normalized] || content.wrong_default
-    setFeedback(nextFeedback)
-    if (correct) sfx.playCorrect()
-    else {
-      firstTryRef.current = false
-      sfx.playWrong()
-    }
-    getAudioEngine()?.pushOneOff(
-      t(correct ? content.audio.on_correct : content.audio.on_wrong),
-    )
-    onAnswer({
-      stage: screenMeta.scope,
-      screenIdx: screen,
-      question: t(content.question),
-      options: null,
-      correctIndex: null,
-      correctAnswer: content.answer,
-      studentAnswerIndex: null,
-      studentAnswer: number,
-      correct,
-      firstTry: correct && firstTryRef.current,
-    })
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(content.eyebrow)}
-      title={t(content.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={solved}
-    >
-      <div className="screen-stack">
-        <div className="formula-card fade-up delay-1">{figure}</div>
-        <p className="body question-text fade-up delay-1">{t(content.question)}</p>
-        {support ? <div className="condition-chip mono fade-up delay-2">{support}</div> : null}
-        <div className="input-row fade-up delay-2">
-          <input
-            className={`answer-input ${checked ? (solved ? 'correct' : 'wrong') : ''}`}
-            inputMode="decimal"
-            value={value}
-            placeholder="0"
-            aria-label={t(content.question)}
-            onChange={(event) => {
-              setValue(event.target.value)
-              if (!solved) setChecked(false)
-            }}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter') submit()
-            }}
-            disabled={solved}
-          />
-          <button
-            type="button"
-            className="btn-white-accent check-button"
-            onClick={submit}
-            disabled={!normalized || solved}
-          >
-            {t(CONTENT.ui.check)}
-          </button>
-        </div>
-        <FeedbackBlock show={checked} correct={solved}>
-          <FeedbackLabel correct={solved} />
-          <p className="body">{t(feedback)}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen0({ screen, totalScreens, onAnswer, onPrev, onNext }) {
-  const c = CONTENT.s0
-  const lang = useLang()
-  const t = useT()
-  const [picked, setPicked] = useState(null)
-  const audio = useAudio(
-    useMemo(
-      () => makePromptSegments(c.audio, lang, { type: 'option_picked' }),
-      [c.audio, lang],
-    ),
-  )
-
-  const choose = (index) => {
-    setPicked(index)
-    getAudioEngine()?.pushOneOff(t(c.audio.on_correct))
-    onAnswer({
-      stage: 'hook',
-      screenIdx: screen,
-      question: t(c.question),
-      options: c.options.map((option) => t(option)),
-      correctIndex: null,
-      correctAnswer: null,
-      studentAnswerIndex: index,
-      studentAnswer: t(c.options[index]),
-      correct: null,
-    })
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={picked !== null}
-    >
-      <div className="screen-stack hook-layout">
-        <div className="formula-card formula-hero fade-up delay-1">
-          <FormulaK />
-          <div className="input-dots" aria-label="0, 2, 3, 4">
-            {[0, 2, 3, 4].map((value) => (
-              <span className="input-dot mono" key={value}>
-                {value}
-              </span>
-            ))}
-          </div>
-        </div>
-        <p className="body question-text fade-up delay-2">{t(c.question)}</p>
-        <div className="option-grid fade-up delay-3">
-          {c.options.map((option, index) => (
-            <button
-              type="button"
-              className={`option ${picked === index ? 'option-selected' : ''}`}
-              key={index}
-              onClick={() => choose(index)}
-            >
-              <span className="option-index mono">{String.fromCharCode(65 + index)}</span>
-              <span>{t(option)}</span>
-            </button>
-          ))}
-        </div>
-        <p className="small muted fade-up delay-4">{t(c.note)}</p>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen1({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s1
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const [step, setStep] = useState(0)
-  const [value, setValue] = useState('')
-  const [selected, setSelected] = useState(null)
-  const [feedback, setFeedback] = useState(null)
-  const audio = useAudio(
-    useMemo(() => [{ id: 'intro', text: c.audio[lang][0], trigger: 'on_mount' }], [c.audio, lang]),
-  )
-  const completed = step >= c.steps.length
-  const current = c.steps[Math.min(step, c.steps.length - 1)]
-
-  const check = () => {
-    if (completed) return
-    const response = current.options ? selected : Number(String(value).replace(',', '.'))
-    const correct = response === current.answer
-    setFeedback(correct ? current.success : c.wrong)
-    if (!correct) {
-      sfx.playWrong()
-      return
-    }
-    sfx.playCorrect()
-    getAudioEngine()?.pushOneOff(t(current.success))
-    window.setTimeout(() => {
-      setStep((previous) => previous + 1)
-      setValue('')
-      setSelected(null)
-      setFeedback(null)
-    }, 450)
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <p className="body muted fade-up">{t(c.lead)}</p>
-        <div className="step-rail fade-up delay-1">
-          {c.steps.map((_, index) => (
-            <span
-              className={`step-node ${index < step ? 'done' : index === step ? 'active' : ''}`}
-              key={index}
-            >
-              {index < step ? '✓' : index + 1}
-            </span>
-          ))}
-        </div>
-
-        {!completed ? (
-          <div className="frame fade-up delay-2">
-            <p className="eyebrow">
-              {t(CONTENT.ui.step)} {step + 1}
-            </p>
-            {step === 1 ? (
-              <div className="mini-formula">
-                <Frac n="5" d="x − 3" size="mid" />
-              </div>
-            ) : null}
-            <p className="body question-text">{t(current.prompt)}</p>
-            {current.options ? (
-              <div className="choice-chips">
-                {current.options.map((option, index) => (
-                  <button
-                    type="button"
-                    className={`chip ${selected === index ? 'selected' : ''}`}
-                    key={option}
-                    onClick={() => setSelected(index)}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            ) : (
-              <input
-                className="answer-input compact-input"
-                inputMode="decimal"
-                value={value}
-                placeholder="0"
-                onChange={(event) => setValue(event.target.value)}
-              />
-            )}
-            <div className="action-row">
-              <button
-                type="button"
-                className="btn-white-accent check-button"
-                onClick={check}
-                disabled={current.options ? selected === null : value.trim() === ''}
-              >
-                {t(CONTENT.ui.check)}
-              </button>
-            </div>
-            <FeedbackBlock show={feedback !== null} correct={feedback === current.success}>
-              <FeedbackLabel correct={feedback === current.success} />
-              <p className="body">{t(feedback)}</p>
-            </FeedbackBlock>
-          </div>
-        ) : (
-          <div className="frame-success fade-up">
-            <FeedbackLabel correct />
-            <p className="body">
-              {t(
-                L(
-                  "Uchala vosita tayyor. Endi formulani tadqiq qilishingiz mumkin.",
-                  'Все три инструмента готовы. Теперь можно исследовать формулу.',
-                  'All three tools are ready. You can now investigate the formula.',
-                ),
-              )}
-            </p>
-          </div>
-        )}
-      </div>
-    </Stage>
-  )
-}
-
-function Screen2({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s2
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const [groups, setGroups] = useState(Array(c.items.length).fill(null))
-  const [checked, setChecked] = useState(false)
-  const [solved, setSolved] = useState(false)
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-
-  const assign = (itemIndex, groupIndex) => {
-    setGroups((previous) =>
-      previous.map((group, index) => (index === itemIndex ? groupIndex : group)),
-    )
-    setChecked(false)
-  }
-
-  const check = () => {
-    const correct = groups.every((group, index) => group === c.items[index].group)
-    setChecked(true)
-    setSolved(correct)
-    if (correct) sfx.playCorrect()
-    else sfx.playWrong()
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={solved}
-    >
-      <div className="screen-stack">
-        <div className="sort-list fade-up delay-1">
-          {c.items.map((item, itemIndex) => (
-            <div className="sort-card" key={item.expression}>
-              <ExpressionVisual expression={item.expression} />
-              <div className="sort-actions">
-                {c.groups.map((group, groupIndex) => (
-                  <button
-                    type="button"
-                    className={`sort-button ${groups[itemIndex] === groupIndex ? 'selected' : ''}`}
-                    key={groupIndex}
-                    onClick={() => assign(itemIndex, groupIndex)}
-                  >
-                    <span className="sort-code mono">{groupIndex === 0 ? 'A' : 'B'}</span>
-                    <span>{t(group)}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-        <div className="action-row fade-up delay-2">
-          <button
-            type="button"
-            className="btn-white-accent check-button"
-            onClick={check}
-            disabled={groups.some((group) => group === null) || solved}
-          >
-            {t(CONTENT.ui.check)}
-          </button>
-        </div>
-        <FeedbackBlock show={checked} correct={solved}>
-          <FeedbackLabel correct={solved} />
-          <p className="body">{t(solved ? c.correct_text : c.wrong_text)}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen3({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s3
-  const lang = useLang()
-  const t = useT()
-  const [value, setValue] = useState(null)
-  const [reason, setReason] = useState(null)
-  const [saved, setSaved] = useState(false)
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={saved}
-    >
-      <div className="screen-stack">
-        <div className="formula-card fade-up delay-1"><FormulaK /></div>
-        <div className="hypothesis-grid fade-up delay-2">
-          <div className="frame">
-            <p className="body question-text">{t(c.valueQuestion)}</p>
-            <div className="choice-chips">
-              {c.values.map((item) => (
-                <button
-                  type="button"
-                  className={`chip value-chip ${value === item ? 'selected' : ''}`}
-                  key={item}
-                  onClick={() => {
-                    setValue(item)
-                    setSaved(false)
-                  }}
-                >
-                  {item}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="frame">
-            <p className="body question-text">{t(c.reasonQuestion)}</p>
-            <div className="reason-list">
-              {c.reasons.map((item, index) => (
-                <button
-                  type="button"
-                  className={`reason-button ${reason === index ? 'selected' : ''}`}
-                  key={index}
-                  onClick={() => {
-                    setReason(index)
-                    setSaved(false)
-                  }}
-                >
-                  <span className="mono">{String.fromCharCode(65 + index)}</span>
-                  {t(item)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="action-row">
-          <button
-            type="button"
-            className="btn-white-accent check-button"
-            disabled={value === null || reason === null || saved}
-            onClick={() => setSaved(true)}
-          >
-            {t(CONTENT.ui.save)}
-          </button>
-        </div>
-        <FeedbackBlock show={saved} correct>
-          <p className="body">{t(c.note)}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen4({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s4
-  const lang = useLang()
-  const t = useT()
-  const [revealed, setRevealed] = useState(() => new Set())
-  const audio = useAudio(
-    useMemo(() => [{ id: 'intro', text: c.audio[lang][0], trigger: 'on_mount' }], [c.audio, lang]),
-  )
-  const completed = revealed.size === c.rows.length
-
-  const reveal = (index) => {
-    setRevealed((previous) => new Set(previous).add(index))
-    if (index === 2) getAudioEngine()?.pushOneOff(c.audio[lang][1])
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <div className="formula-card fade-up delay-1"><FormulaK /></div>
-        <div className="data-table-wrap fade-up delay-2">
-          <table className="data-table">
-            <thead>
-              <tr>
-                {c.columns.map((column, index) => <th key={index}>{t(column)}</th>)}
-                <th aria-label={t(CONTENT.ui.calculate)} />
-              </tr>
-            </thead>
-            <tbody>
-              {c.rows.map((row, index) => {
-                const open = revealed.has(index)
-                return (
-                  <tr className={open && row.denominator === 0 ? 'critical-row' : ''} key={row.x}>
-                    <td className="mono">{row.x}</td>
-                    <td className="mono">{open ? row.numerator : '·'}</td>
-                    <td className="mono">{open ? row.denominator : '·'}</td>
-                    <td className="mono">
-                      {open
-                        ? row.value === 'undefined'
-                          ? t(CONTENT.ui.undefined)
-                          : renderMathText(row.value)
-                        : '·'}
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        className={`table-action ${open ? 'done' : ''}`}
-                        onClick={() => reveal(index)}
-                        disabled={open}
-                      >
-                        {open ? '✓' : t(CONTENT.ui.calculate)}
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
-        </div>
-        <FeedbackBlock show={completed} correct>
-          <FeedbackLabel correct />
-          <p className="body">{t(c.conclusion)}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen5(props) {
-  return (
-    <QuestionScreen
-      {...props}
-      screenMeta={SCREEN_META[5]}
-      content={CONTENT.s5}
-      figure={<FormulaPair />}
-    />
-  )
-}
-
-function Screen6({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s6
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const order = [2, 0, 1]
-  const [sequence, setSequence] = useState([])
-  const [wrong, setWrong] = useState(false)
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-  const completed = sequence.length === c.steps.length
-
-  const choose = (stepIndex) => {
-    if (sequence.includes(stepIndex) || completed) return
-    const expected = sequence.length
-    if (stepIndex !== expected) {
-      setWrong(true)
-      sfx.playWrong()
-      return
-    }
-    setWrong(false)
-    setSequence((previous) => [...previous, stepIndex])
-    sfx.playCorrect()
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <div className="formula-card fade-up delay-1"><FormulaK /></div>
-        <div className="sequence-layout fade-up delay-2">
-          <div className="sequence-bank">
-            {order.map((stepIndex) => (
-              <button
-                type="button"
-                className={`sequence-card ${sequence.includes(stepIndex) ? 'used' : ''}`}
-                key={stepIndex}
-                onClick={() => choose(stepIndex)}
-                disabled={sequence.includes(stepIndex)}
-              >
-                <span className="mono sequence-code">{String.fromCharCode(65 + stepIndex)}</span>
-                {t(c.steps[stepIndex])}
-              </button>
-            ))}
-          </div>
-          <div className="sequence-result">
-            {c.steps.map((stepText, index) => (
-              <div className={`sequence-slot ${sequence.includes(index) ? 'filled' : ''}`} key={index}>
-                <span className="mono">{index + 1}</span>
-                <span>{sequence.includes(index) ? t(stepText) : '…'}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-        <FeedbackBlock show={wrong || completed} correct={completed}>
-          <FeedbackLabel correct={completed} />
-          <p className="body">{t(completed ? c.conclusion : c.wrong)}</p>
-        </FeedbackBlock>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen7({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s7
-  const lang = useLang()
-  const t = useT()
-  const [opened, setOpened] = useState(() => new Set())
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-  const completed = opened.size === c.terms.length
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <p className="small muted">{t(c.note)}</p>
-        <div className="term-grid fade-up delay-1">
-          {c.terms.map((term, index) => {
-            const isOpen = opened.has(index)
-            return (
-              <button
-                type="button"
-                className={`term-card ${isOpen ? 'open' : ''}`}
-                key={index}
-                onClick={() => setOpened((previous) => new Set(previous).add(index))}
-              >
-                <span className="term-index mono">0{index + 1}</span>
-                <strong>{t(term.name)}</strong>
-                <span className="term-definition">
-                  {isOpen ? renderRationalText(t(term.definition)) : '＋'}
-                </span>
-              </button>
-            )
-          })}
-        </div>
-        <div className={`central-rule fade-up delay-2 ${completed ? 'visible' : ''}`}>
-          <Frac n="A(x)" d="B(x)" size="mid" />
-          <span className="rule-divider" />
-          <Op size="mid">B(x) ≠ 0</Op>
-        </div>
-      </div>
-    </Stage>
-  )
-}
-
-function Screen8({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s8
-  const lang = useLang()
-  const t = useT()
-  const [visibleSteps, setVisibleSteps] = useState(1)
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-  const completed = visibleSteps === c.steps.length
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <div className="formula-card fade-up delay-1"><FormulaR /></div>
-        <div className="worked-steps fade-up delay-2">
-          {c.steps.slice(0, visibleSteps).map((item, index) => (
-            <div className="worked-step" key={index}>
-              <span className="worked-index mono">0{index + 1}</span>
-              <div>
-                <p className="formula compact">{t(item.result)}</p>
-                <p className="small muted">{t(item.reason)}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-        {!completed ? (
-          <div className="action-row">
-            <button
-              type="button"
-              className="btn-white-accent check-button"
-              onClick={() => setVisibleSteps((previous) => previous + 1)}
-            >
-              {t(CONTENT.ui.next)}
-            </button>
-          </div>
-        ) : null}
-      </div>
-    </Stage>
-  )
-}
-
-function Screen9(props) {
-  return (
-    <NumInputScreen
-      {...props}
-      screenMeta={SCREEN_META[9]}
-      content={CONTENT.s9}
-      figure={<FormulaF />}
-      support="2x − 6 ≠ 0"
-    />
-  )
-}
-
-function Screen10(props) {
-  return (
-    <QuestionScreen
-      {...props}
-      screenMeta={SCREEN_META[10]}
-      content={CONTENT.s10}
-      figure={<FormulaAB />}
-    />
-  )
-}
-
-function Screen11(props) {
-  const t = useT()
-  return (
-    <QuestionScreen
-      {...props}
-      screenMeta={SCREEN_META[11]}
-      content={CONTENT.s11}
-      figure={<FormulaH />}
-      prelude={
-        <div className="audit-list fade-up delay-1">
-          {CONTENT.s11.solutionSteps.map((step, index) => (
-            <div className="audit-step" key={index}>
-              <span className="mono">{String(index + 1).padStart(2, '0')}</span>
-              <p>{t(step)}</p>
-            </div>
-          ))}
-        </div>
-      }
-    />
-  )
-}
-
-function Screen12({ screen, totalScreens, onPrev, onNext }) {
-  const c = CONTENT.s12
-  const lang = useLang()
-  const t = useT()
-  const sfx = useSfx()
-  const [numerator, setNumerator] = useState(null)
-  const [denominator, setDenominator] = useState(null)
-  const [built, setBuilt] = useState(false)
-  const [part, setPart] = useState(null)
-  const [checked, setChecked] = useState(false)
-  const audio = useAudio(
-    useMemo(() => [{ id: 'intro', text: c.audio[lang][0], trigger: 'on_mount' }], [c.audio, lang]),
-  )
-  const completed = built && part === 1
-
-  const build = () => {
-    const correct = c.validDenominators.includes(denominator)
-    setChecked(true)
-    setBuilt(correct)
-    if (correct) sfx.playCorrect()
-    else sfx.playWrong()
-  }
-
-  const choosePart = (index) => {
-    setPart(index)
-    if (index === 1) sfx.playCorrect()
-    else sfx.playWrong()
-  }
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={onNext}
-      canNext={completed}
-    >
-      <div className="screen-stack">
-        <p className="body question-text fade-up">{t(c.prompt)}</p>
-        <div className="target-chip mono fade-up delay-1">x ≠ −2</div>
-        <div className="constructor fade-up delay-2">
-          <div className="constructor-column">
-            <p className="eyebrow">{t(L('SURAT', 'ЧИСЛИТЕЛЬ', 'NUMERATOR'))}</p>
-            {c.numerators.map((item, index) => (
-              <button
-                type="button"
-                className={`constructor-option ${numerator === index ? 'selected' : ''}`}
-                key={item}
-                onClick={() => {
-                  setNumerator(index)
-                  setChecked(false)
-                  setBuilt(false)
-                  setPart(null)
-                }}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-          <div className="constructor-preview">
-            <Frac
-              n={numerator === null ? 'A(x)' : c.numerators[numerator]}
-              d={denominator === null ? 'B(x)' : c.denominators[denominator]}
-              size="display"
-            />
-          </div>
-          <div className="constructor-column">
-            <p className="eyebrow">{t(L('MAXRAJ', 'ЗНАМЕНАТЕЛЬ', 'DENOMINATOR'))}</p>
-            {c.denominators.map((item, index) => (
-              <button
-                type="button"
-                className={`constructor-option ${denominator === index ? 'selected' : ''}`}
-                key={item}
-                onClick={() => {
-                  setDenominator(index)
-                  setChecked(false)
-                  setBuilt(false)
-                  setPart(null)
-                }}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="action-row">
-          <button
-            type="button"
-            className="btn-white-accent check-button"
-            onClick={build}
-            disabled={numerator === null || denominator === null || built}
-          >
-            {t(CONTENT.ui.check)}
-          </button>
-        </div>
-        <FeedbackBlock show={checked} correct={built}>
-          <FeedbackLabel correct={built} />
-          <p className="body">{t(built ? c.correct_text : c.wrong_text)}</p>
-        </FeedbackBlock>
-        {built ? (
-          <div className="frame fade-up">
-            <p className="body question-text">{t(c.followup)}</p>
-            <div className="choice-chips">
-              {c.followupOptions.map((option, index) => (
-                <button
-                  type="button"
-                  className={`chip ${part === index ? (index === 1 ? 'correct-chip' : 'wrong-chip') : ''}`}
-                  key={index}
-                  onClick={() => choosePart(index)}
-                >
-                  {t(option)}
-                </button>
-              ))}
-            </div>
-          </div>
-        ) : null}
-      </div>
-    </Stage>
-  )
-}
-
-function Screen13(props) {
-  return (
-    <NumInputScreen
-      {...props}
-      screenMeta={SCREEN_META[13]}
-      content={CONTENT.s13}
-      figure={<FormulaC />}
-    />
-  )
-}
-
-function Screen14(props) {
-  return (
-    <QuestionScreen
-      {...props}
-      screenMeta={SCREEN_META[14]}
-      content={CONTENT.s14}
-      figure={<FormulaC />}
-    />
-  )
-}
-
-function Screen15({ screen, totalScreens, answers, onPrev, finishLesson }) {
-  const c = CONTENT.s15
-  const lang = useLang()
-  const t = useT()
-  const audio = useAudio(useMemo(() => makeAudioSegments(c, lang), [c, lang]))
-  const scored = SCREEN_META.reduce(
-    (list, meta, index) => (meta.scored ? [...list, { ...meta, index }] : list),
-    [],
-  )
-  const correct = scored.filter(({ index }) => answers[index]?.correct === true).length
-
-  return (
-    <Stage
-      screen={screen}
-      totalScreens={totalScreens}
-      eyebrow={t(c.eyebrow)}
-      title={t(c.title)}
-      audio={audio}
-      onPrev={onPrev}
-      onNext={finishLesson}
-      canNext
-      finish
-    >
-      <div className="screen-stack">
-        <div className="summary-rule fade-up delay-1">
-          <Frac n="A(x)" d="B(x)" size="display" />
-          <span className="summary-arrow">⇒</span>
-          <Op size="big">B(x) ≠ 0</Op>
-        </div>
-        <p className="body summary-lead fade-up delay-1">{t(c.summary)}</p>
-        <div className="summary-grid fade-up delay-2">
-          {c.canDo.map((item, index) => (
-            <div className="summary-item" key={index}>
-              <span className="summary-check">✓</span>
-              <p>{t(item)}</p>
-            </div>
-          ))}
-        </div>
-        <div className="summary-lower fade-up delay-3">
-          <div className="score-panel">
-            <span className="score-number">{correct}</span>
-            <span className="mono">/ {scored.length}</span>
-            <p className="small muted">
-              {t(L('baholanadigan topshiriqlar', 'оцениваемых заданий', 'scored tasks'))}
-            </p>
-          </div>
-          <div className="frame-soft">
-            <p className="body">{t(c.hypothesisReturn)}</p>
-          </div>
-        </div>
-        <div className="bridge-card fade-up delay-4">
-          <p className="eyebrow">{t(L('KEYINGI QADAM', 'СЛЕДУЮЩИЙ ШАГ', 'NEXT STEP'))}</p>
-          <p className="body">{t(c.bridge)}</p>
-        </div>
-      </div>
-    </Stage>
-  )
-}
-
-const SCREENS = [
-  Screen0,
-  Screen1,
-  Screen2,
-  Screen3,
-  Screen4,
-  Screen5,
-  Screen6,
-  Screen7,
-  Screen8,
-  Screen9,
-  Screen10,
-  Screen11,
-  Screen12,
-  Screen13,
-  Screen14,
-  Screen15,
+// ============================================================
+// СЦЕНА ФИНАЛА (§6). Пропорция 400 на 92 держится в SceneBand.
+// Сцена ОТВЕЧАЕТ на вопрос хука: там две машины спорили, здесь на том же
+// графике стоит выколотая точка и написано условие. Объект тот же, изменилось
+// ровно то, что объяснил урок. Математическая сцена, без персонажей.
+// ============================================================
+const px1 = (x) => 40 + ((x + 1) / 6) * 320
+const py1 = (y) => 80 - (y / 7) * 68
+
+const FinalScene = (
+  <SceneBand kind="final" label={L(
+    "Ikkilikda teshik bor grafik",
+    'График с выколотой точкой при двойке',
+    'The graph with a hole at two',
+  )}>
+    <line x1="30" y1={py1(0)} x2="374" y2={py1(0)} stroke={T.ink2} strokeWidth="1.4"/>
+    <polygon points={'374,' + py1(0) + ' 367,' + (py1(0) - 3.5) + ' 367,' + (py1(0) + 3.5)} fill={T.ink2}/>
+    <line x1={px1(0)} y1="84" x2={px1(0)} y2="8" stroke={T.ink2} strokeWidth="1.4"/>
+    <polygon points={px1(0) + ',8 ' + (px1(0) - 3.5) + ',15 ' + (px1(0) + 3.5) + ',15'} fill={T.ink2}/>
+    {/* прямая y = x + 2: та самая, которую рисовал плоттер */}
+    <line x1={px1(-1)} y1={py1(1)} x2={px1(5)} y2={py1(7)} stroke={T.accent} strokeWidth="2.4" strokeLinecap="round"/>
+    {/* выколотая точка: её плоттер не нарисовал, а таблица показала прочерком */}
+    <circle cx={px1(2)} cy={py1(4)} r="4.6" fill={T.paper} stroke={T.accent} strokeWidth="2.2"/>
+    <line x1={px1(2)} y1={py1(4) + 7} x2={px1(2)} y2={py1(0)} stroke={T.ink3} strokeWidth="1.1" strokeDasharray="3 3"/>
+    <text x={px1(2)} y={py1(0) + 13} textAnchor="middle" fontFamily={MATH_FONT} fontSize="11" fill={T.ink3}>2</text>
+    <text x={px1(2) + 12} y={py1(4) - 6} fontFamily={MATH_FONT} fontSize="15" fill={T.accent}>x ≠ 2</text>
+  </SceneBand>
+)
+
+// ============================================================
+// EKRANLAR. Rollar va tartib — `screens.jsx` dagi ROLE_ORDER bilan bir xil.
+// `scored` maydoni YO'Q (§13.2 invariant 4). `tag` — xato yoki bittadan ko'p
+// urinishda natijaga yoziladigan adashish kodi.
+//
+// `method` — карточка способа НАД заданием (§4), `scene` — сцена урока (§6).
+// ============================================================
+export const SCREENS = [
+  { role: 'hook',     tool: 'plot',      ...S1 },
+  { role: 'support',  tool: 'chain',     ...S2 },
+  { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
+  { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
+  { role: 'explain',  tool: 'tappart',   kind: 'divide',   tag: 'З19', ...S5 },
+  { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
+  { role: 'explain',  tool: 'boundary',  kind: 'boundary', tag: 'З2',  ...S7 },
+  { role: 'rule',     tool: 'rulebuild', tag: 'З19', ...S8 },
+  { role: 'practice', tool: 'chain',     kind: 'chain',    tag: 'З2',  method: M_ODZ,   ...S9 },
+  { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', method: M_ODZ,   ...S10 },
+  { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16', method: M_ODZ,   ...S11 },
+  { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', method: M_CHECK, ...S12 },
+  { role: 'transfer', tool: 'inverse',   tag: 'З2',        method: M_KIND, ...S13 },
+  { role: 'blitz',    tool: 'blitz',     ...S14 },
+  { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
 ]
 
-export default function RationalExpressionsLesson({
-  studentName,
-  lang: langProp,
-  ttsApiBase,
-  voiceGender,
-  correctSoundUrl,
-  wrongSoundUrl,
-  onFinished,
-}) {
-  const lang = ['uz', 'ru', 'en'].includes(langProp) ? langProp : 'ru'
-  configureLesson({
-    ttsApiBase: ttsApiBase || '',
-    voiceGender: voiceGender || 'm',
-    correctSoundUrl: correctSoundUrl || '',
-    wrongSoundUrl: wrongSoundUrl || '',
-  })
-  const safeOnFinished = useCallback(
-    (payload) => {
-      if (onFinished) {
-        onFinished(payload)
-        return
-      }
-      console.log('[Preview] onFinished payload:', payload)
-    },
-    [onFinished],
-  )
-
-  const [current, setCurrent] = useState(0)
-  const [answers, setAnswers] = useState([])
-  const [startedAt] = useState(() => Date.now())
-
-  const recordAnswer = useCallback((screenIndex, data) => {
-    setAnswers((previous) => {
-      const next = [...previous]
-      next[screenIndex] = data
-      return next
-    })
-  }, [])
-
-  const next = useCallback(
-    () => setCurrent((previous) => Math.min(previous + 1, TOTAL_SCREENS - 1)),
-    [],
-  )
-  const previous = useCallback(
-    () => setCurrent((currentScreen) => Math.max(currentScreen - 1, 0)),
-    [],
-  )
-  const answer = useCallback(
-    (data) => recordAnswer(current, data),
-    [current, recordAnswer],
-  )
-
-  const finishLesson = useCallback(() => {
-    const scoredAnswers = SCREEN_META.flatMap((meta, index) =>
-      meta.scored && answers[index] ? [answers[index]] : [],
-    )
-    const finalAnswers = SCREEN_META.flatMap((meta, index) =>
-      meta.scope === 'final' && answers[index] ? [answers[index]] : [],
-    )
-    const correctCount = scoredAnswers.filter((item) => item.correct).length
-    const finalCorrect = finalAnswers.filter((item) => item.correct).length
-    safeOnFinished({
-      lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle,
-      studentName: studentName || null,
-      lang,
-      durationSec: Math.floor((Date.now() - startedAt) / 1000),
-      totalQuestions: scoredAnswers.length,
-      correctAnswers: correctCount,
-      scorePercent: scoredAnswers.length
-        ? Math.round((correctCount / scoredAnswers.length) * 100)
-        : 0,
-      finalScore: finalCorrect,
-      finalTotal: finalAnswers.length,
-      passed: finalAnswers.length > 0 && finalCorrect === finalAnswers.length,
-      answers: answers.filter(Boolean),
-    })
-  }, [answers, lang, safeOnFinished, startedAt, studentName])
-
-  const CurrentScreen = SCREENS[current]
-
-  return (
-    <LangContext.Provider value={lang}>
-      <style>{STYLES}</style>
-      <div className="lesson-root">
-        <div className="ambient-grid" aria-hidden="true" />
-        <CurrentScreen
-          key={`screen_${current}`}
-          screen={current}
-          totalScreens={TOTAL_SCREENS}
-          storedAnswer={answers[current]}
-          answers={answers}
-          onAnswer={answer}
-          onPrev={previous}
-          onNext={next}
-          finishLesson={finishLesson}
-        />
-      </div>
-    </LangContext.Provider>
-  )
-}
-
-const STYLES = `
-html, body { margin: 0; padding: 0; }
-.lesson-root, .lesson-root * { box-sizing: border-box; }
-.lesson-root {
-  position: relative;
-  isolation: isolate;
-  height: 100dvh;
-  overflow: hidden;
-  color: ${T.ink};
-  background: ${T.bg};
-  font-family: Manrope, Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01", "cv11";
-}
-.lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root h4,
-.lesson-root p, .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
-button, input { font: inherit; }
-button { -webkit-tap-highlight-color: transparent; }
-
-.ambient-grid {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: .42;
-  background-image:
-    linear-gradient(rgba(14, 14, 16, .025) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(14, 14, 16, .025) 1px, transparent 1px),
-    radial-gradient(circle at 86% 14%, rgba(1,154,203,.12), transparent 24%),
-    radial-gradient(circle at 8% 92%, rgba(255,79,40,.10), transparent 26%);
-  background-size: 28px 28px, 28px 28px, auto, auto;
-}
-
-.stage {
-  max-width: 936px;
-  height: 100dvh;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-}
-.stage-header {
-  flex-shrink: 0;
-  padding-top: clamp(12px, 2vw, 18px);
-  padding-bottom: clamp(8px, 1.5vw, 12px);
-  background: ${T.bg};
-}
-.stage-content {
-  flex: 1;
-  min-height: 0;
-  padding-top: clamp(10px, 1.7vw, 16px);
-  padding-bottom: clamp(18px, 3.4vw, 32px);
-  overflow-x: hidden;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
-}
-.stage-nav {
-  flex-shrink: 0;
-  display: flex;
-  gap: 12px;
-  padding: 12px 0 15px;
-  background: ${T.bg};
-  border-top: 1px solid rgba(167,166,162,.25);
-}
-.nav-spacer { flex: 1; }
-.screen-heading { display: grid; gap: 7px; margin-bottom: clamp(16px, 2.8vw, 26px); }
-.screen-stack { display: grid; gap: clamp(14px, 2.2vw, 20px); }
-
-.progress-track {
-  width: 100%;
-  height: 6px;
-  margin-bottom: 12px;
-  overflow: visible;
-  border-radius: 99px;
-  background: rgba(167,166,162,.25);
-}
-.progress-bar {
-  height: 100%;
-  border-radius: 99px;
-  background: ${T.accent};
-  box-shadow: 0 0 10px rgba(255,79,40,.55), 0 0 3px rgba(255,79,40,.4);
-  transition: width .5s cubic-bezier(.4,0,.2,1);
-}
-.chrome { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-.chrome-left { display: flex; align-items: center; gap: 9px; color: ${T.ink2}; }
-.dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: ${T.accent};
-  box-shadow: 0 0 8px rgba(255,79,40,.55);
-}
-.lab-label { font-weight: 700; letter-spacing: .1em; }
-.screen-counter { color: ${T.ink3}; }
-
-.title {
-  font-family: "Source Serif 4", Georgia, serif;
-  font-weight: 600;
-  line-height: 1.08;
-  letter-spacing: -.012em;
-}
-.h-title { max-width: 790px; font-size: clamp(25px, 4vw, 39px); }
-.body { font-size: clamp(14px, 1.8vw, 16px); line-height: 1.52; }
-.small { font-size: clamp(12px, 1.45vw, 13px); line-height: 1.45; }
-.eyebrow {
-  color: ${T.accent};
-  font-size: clamp(10px, 1.25vw, 11px);
-  font-weight: 800;
-  letter-spacing: .17em;
-  text-transform: uppercase;
-}
-.mono { font-family: "JetBrains Mono", "SFMono-Regular", Consolas, monospace; }
-.muted { color: ${T.ink2}; }
-.question-text { max-width: 780px; font-weight: 560; }
-
-.formula-card {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: clamp(94px, 16vw, 138px);
-  padding: clamp(15px, 3vw, 26px);
-  overflow: hidden;
-  border: none;
-  border-radius: 18px;
-  background:
-    linear-gradient(135deg, rgba(255,255,255,.98), rgba(255,255,255,.84)),
-    ${T.paper};
-  box-shadow:
-    0 14px 34px -16px rgba(${T.shadowBase},.32),
-    inset 0 0 0 1px rgba(14,14,16,.035);
-}
-.formula-hero { flex-direction: column; gap: 22px; min-height: clamp(170px, 28vw, 240px); }
-.formula, .inline-math, .mini-formula {
-  color: ${T.ink};
-  font-family: "STIX Two Math", "Cambria Math", Georgia, serif;
-  font-size: clamp(25px, 5vw, 43px);
-  font-weight: 560;
-  line-height: 1.15;
-}
-.formula.compact { font-size: clamp(18px, 3.2vw, 27px); }
-.mini-formula { margin: 12px 0; text-align: center; }
-.inline-math { font-size: clamp(17px, 2.6vw, 23px); }
-.mop { display: inline-block; font-family: "STIX Two Math", "Cambria Math", Georgia, serif; }
-.mop-big { font-size: clamp(28px, 5vw, 43px); }
-.mop-mid { font-size: clamp(20px, 3.7vw, 31px); }
-.mop-sm { font-size: clamp(15px, 2.3vw, 19px); }
-.frac {
-  display: inline-flex;
-  flex-direction: column;
-  align-items: center;
-  vertical-align: middle;
-  margin: 0 .09em;
-  line-height: 1;
-  font-family: "STIX Two Math", "Cambria Math", Georgia, serif;
-}
-.frac .n, .frac .d { padding: 0 .15em; white-space: nowrap; }
-.frac .bar { width: 100%; height: .075em; margin: .08em 0; border-radius: 2px; background: currentColor; }
-.frac-display { font-size: clamp(35px, 7vw, 62px); }
-.frac-mid { font-size: clamp(27px, 5vw, 43px); }
-.frac-sm { font-size: clamp(17px, 3vw, 25px); }
-.formula-pair { width: 100%; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
-.formula-pair > * {
-  display: flex;
-  min-height: 74px;
-  align-items: center;
-  justify-content: center;
-  padding: 12px;
-  border-radius: 13px;
-  background: rgba(246,244,239,.72);
-}
-.input-dots { display: flex; gap: 10px; }
-.input-dot {
-  display: grid;
-  width: 42px;
-  height: 42px;
-  place-items: center;
-  border-radius: 50%;
-  background: ${T.blueSoft};
-  color: ${T.blue};
-  box-shadow: 0 6px 16px -8px rgba(1,154,203,.45);
-}
-
-.frame {
-  padding: clamp(17px, 3.4vw, 29px);
-  border: none;
-  border-radius: 16px;
-  background: ${T.paper};
-  box-shadow: 0 8px 22px -6px rgba(${T.shadowBase},.14);
-}
-.frame-success, .frame-tip, .frame-soft {
-  padding: clamp(14px, 2.5vw, 20px);
-  border-radius: 12px;
-}
-.frame-success {
-  border-left: 4px solid ${T.success};
-  background: ${T.successSoft};
-  box-shadow: 0 6px 16px -6px rgba(31,122,77,.22);
-}
-.frame-tip {
-  border-left: 4px solid #D8A93A;
-  background: #FBF3D6;
-  box-shadow: 0 6px 16px -6px rgba(180,138,30,.22);
-}
-.frame-soft {
-  border-left: 4px solid ${T.accent};
-  background: ${T.accentSoft};
-  box-shadow: 0 6px 16px -6px rgba(255,79,40,.22);
-}
-.feedback-block {
-  max-height: 0;
-  margin-top: 0;
-  overflow: hidden;
-  opacity: 0;
-  transition: max-height .45s ease, opacity .3s ease .08s, margin-top .4s ease;
-}
-.feedback-block.visible { max-height: 700px; margin-top: 2px; opacity: 1; }
-.feedback-label {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-bottom: 7px !important;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: .1em;
-  text-transform: uppercase;
-}
-.feedback-label.is-correct { color: ${T.success}; }
-.feedback-label.is-hint { color: #9A741A; }
-
-.btn, .btn-white-accent, .btn-ghost {
-  min-height: 44px;
-  padding: 10px 17px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  letter-spacing: .01em;
-  cursor: pointer;
-  transition: transform .2s, background .2s, color .2s, box-shadow .2s, opacity .2s;
-}
-.btn-white-accent {
-  color: ${T.accent};
-  background: ${T.paper};
-  box-shadow: 0 8px 22px -4px rgba(255,79,40,.35), 0 0 0 1px rgba(255,79,40,.12);
-}
-.btn-white-accent:hover:not(:disabled) {
-  color: ${T.paper};
-  background: ${T.accent};
-  transform: translateY(-1px);
-  box-shadow: 0 12px 28px -6px rgba(255,79,40,.55);
-}
-.btn-ghost { color: ${T.ink}; background: transparent; box-shadow: none; }
-.btn-ghost:hover:not(:disabled) { background: ${T.paper}; box-shadow: 0 6px 18px -6px rgba(${T.shadowBase},.18); }
-.btn-white-accent:disabled, .btn-ghost:disabled { cursor: not-allowed; opacity: .42; box-shadow: none; }
-.nav-button { display: inline-flex; align-items: center; gap: 8px; }
-.check-button { min-width: 130px; }
-.action-row { display: flex; justify-content: flex-end; }
-
-.option-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
-.option {
-  display: flex;
-  min-height: 58px;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  padding: 12px 15px;
-  border: none;
-  border-radius: 12px;
-  color: ${T.ink};
-  background: ${T.paper};
-  box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
-  cursor: pointer;
-  text-align: left;
-  transition: transform .2s, background .2s, color .2s, box-shadow .2s, opacity .2s;
-}
-.option:hover:not(:disabled) { transform: translateY(-1px); background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(${T.shadowBase},.22); }
-.option:disabled { cursor: default; }
-.option-index {
-  display: grid;
-  flex: 0 0 27px;
-  width: 27px;
-  height: 27px;
-  place-items: center;
-  border-radius: 8px;
-  color: ${T.ink3};
-  background: rgba(167,166,162,.11);
-  font-size: 12px;
-}
-.option-selected { background: ${T.blueSoft}; box-shadow: 0 8px 22px -6px rgba(1,154,203,.3); }
-.option-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 8px 22px -6px rgba(31,122,77,.32); }
-.option-correct .option-index { color: white; background: ${T.success}; }
-.option-picked-wrong { color: ${T.accent}; background: ${T.accentSoft}; box-shadow: 0 8px 22px -6px rgba(255,79,40,.36); }
-.option-picked-wrong .option-index { color: white; background: ${T.accent}; }
-.option-wrong { color: ${T.ink3}; opacity: .55; box-shadow: 0 4px 12px -6px rgba(${T.shadowBase},.08); }
-
-.answer-input {
-  width: min(210px, 48vw);
-  min-height: 56px;
-  padding: 8px 12px;
-  border: none;
-  border-radius: 12px;
-  outline: none;
-  color: ${T.ink};
-  background: ${T.paper};
-  box-shadow: 0 6px 16px -6px rgba(${T.shadowBase},.14);
-  font-family: "STIX Two Math", Georgia, serif;
-  font-size: clamp(22px,4vw,28px);
-  text-align: center;
-  transition: box-shadow .2s, background .2s, color .2s;
-}
-.answer-input:focus { box-shadow: 0 10px 22px -6px rgba(255,79,40,.3), 0 0 0 1px rgba(255,79,40,.2); }
-.answer-input.correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 8px 20px -6px rgba(31,122,77,.3); }
-.answer-input.wrong { color: ${T.accent}; background: ${T.accentSoft}; box-shadow: 0 8px 20px -6px rgba(255,79,40,.36); }
-.compact-input { width: 150px; margin-top: 14px; }
-.input-row { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.condition-chip, .target-chip {
-  justify-self: center;
-  padding: 9px 14px;
-  border-radius: 99px;
-  color: ${T.blue};
-  background: ${T.blueSoft};
-  font-size: clamp(14px,2vw,17px);
-  font-weight: 700;
-}
-
-.audio-tools { display: flex; align-items: center; gap: 6px; }
-.audio-pulse {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: ${T.ink3};
-}
-.audio-pulse.is-playing { background: ${T.blue}; box-shadow: 0 0 0 5px rgba(1,154,203,.13); animation: pulse 1.2s ease-in-out infinite; }
-.icon-button {
-  display: grid;
-  width: 31px;
-  height: 31px;
-  place-items: center;
-  border: none;
-  border-radius: 9px;
-  color: ${T.ink2};
-  background: rgba(255,255,255,.72);
-  box-shadow: 0 5px 14px -7px rgba(${T.shadowBase},.25);
-  cursor: pointer;
-}
-
-.step-rail { display: flex; align-items: center; justify-content: center; gap: 10px; }
-.step-node {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 50%;
-  color: ${T.ink3};
-  background: rgba(167,166,162,.14);
-  font-family: "JetBrains Mono", monospace;
-  font-size: 12px;
-}
-.step-node.active { color: white; background: ${T.accent}; box-shadow: 0 0 12px rgba(255,79,40,.45); }
-.step-node.done { color: white; background: ${T.success}; }
-.choice-chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 14px; }
-.chip {
-  min-height: 42px;
-  padding: 8px 13px;
-  border: none;
-  border-radius: 10px;
-  color: ${T.ink};
-  background: ${T.paper};
-  box-shadow: 0 5px 14px -6px rgba(${T.shadowBase},.2);
-  cursor: pointer;
-}
-.chip.selected { color: ${T.blue}; background: ${T.blueSoft}; box-shadow: 0 6px 18px -6px rgba(1,154,203,.4); }
-.chip.correct-chip { color: ${T.success}; background: ${T.successSoft}; }
-.chip.wrong-chip { color: ${T.accent}; background: ${T.accentSoft}; }
-.value-chip { min-width: 48px; font-family: "JetBrains Mono", monospace; }
-
-.sort-list { display: grid; gap: 10px; }
-.sort-card {
-  display: grid;
-  grid-template-columns: minmax(150px,.75fr) 1.5fr;
-  align-items: center;
-  gap: 14px;
-  padding: 13px;
-  border-radius: 14px;
-  background: ${T.paper};
-  box-shadow: 0 7px 18px -8px rgba(${T.shadowBase},.2);
-}
-.sort-actions { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 8px; }
-.sort-button {
-  display: flex;
-  min-height: 46px;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 10px;
-  color: ${T.ink2};
-  background: rgba(246,244,239,.85);
-  cursor: pointer;
-  text-align: left;
-}
-.sort-button.selected { color: ${T.blue}; background: ${T.blueSoft}; box-shadow: inset 0 0 0 1px rgba(1,154,203,.12); }
-.sort-code { font-size: 11px; font-weight: 800; }
-
-.hypothesis-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 12px; }
-.reason-list { display: grid; gap: 8px; margin-top: 14px; }
-.reason-button {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 44px;
-  padding: 9px 11px;
-  border: none;
-  border-radius: 10px;
-  color: ${T.ink2};
-  background: rgba(246,244,239,.8);
-  cursor: pointer;
-  text-align: left;
-}
-.reason-button.selected { color: ${T.blue}; background: ${T.blueSoft}; }
-
-.data-table-wrap { overflow-x: auto; padding: 2px 2px 10px; }
-.data-table { width: 100%; min-width: 620px; border-collapse: separate; border-spacing: 0 8px; }
-.data-table th { padding: 6px 10px; color: ${T.ink3}; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; text-align: left; }
-.data-table td { padding: 11px 10px; background: ${T.paper}; box-shadow: 0 6px 16px -9px rgba(${T.shadowBase},.2); }
-.data-table td:first-child { border-radius: 11px 0 0 11px; }
-.data-table td:last-child { border-radius: 0 11px 11px 0; }
-.data-table .critical-row td { color: ${T.accent}; background: ${T.accentSoft}; }
-.table-action {
-  min-height: 34px;
-  padding: 6px 10px;
-  border: none;
-  border-radius: 9px;
-  color: ${T.accent};
-  background: white;
-  box-shadow: 0 5px 13px -7px rgba(255,79,40,.4);
-  cursor: pointer;
-}
-.table-action.done { color: ${T.success}; background: transparent; box-shadow: none; }
-
-.sequence-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-.sequence-bank, .sequence-result { display: grid; gap: 9px; }
-.sequence-card, .sequence-slot {
-  display: flex;
-  min-height: 56px;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 13px;
-  border: none;
-  border-radius: 12px;
-  text-align: left;
-}
-.sequence-card { color: ${T.ink}; background: ${T.paper}; box-shadow: 0 6px 16px -7px rgba(${T.shadowBase},.2); cursor: pointer; }
-.sequence-card.used { opacity: .32; box-shadow: none; }
-.sequence-code { color: ${T.accent}; font-size: 11px; }
-.sequence-slot { color: ${T.ink3}; background: rgba(167,166,162,.08); box-shadow: inset 0 0 0 1px rgba(167,166,162,.16); }
-.sequence-slot.filled { color: ${T.success}; background: ${T.successSoft}; box-shadow: none; }
-
-.term-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
-.term-card {
-  display: grid;
-  min-height: 164px;
-  align-content: start;
-  gap: 11px;
-  padding: 17px;
-  border: none;
-  border-radius: 15px;
-  color: ${T.ink};
-  background: ${T.paper};
-  box-shadow: 0 8px 22px -9px rgba(${T.shadowBase},.22);
-  cursor: pointer;
-  text-align: left;
-}
-.term-card.open { box-shadow: 0 11px 28px -10px rgba(1,154,203,.3); }
-.term-index { color: ${T.blue}; font-size: 11px; }
-.term-definition { color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
-.central-rule {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 22px;
-  min-height: 106px;
-  padding: 16px;
-  border-radius: 16px;
-  opacity: .22;
-  background: ${T.blueSoft};
-  transition: opacity .45s, box-shadow .45s;
-}
-.central-rule.visible { opacity: 1; box-shadow: 0 10px 28px -12px rgba(1,154,203,.34); }
-.rule-divider { width: 1px; height: 48px; background: rgba(1,154,203,.24); }
-
-.worked-steps { display: grid; gap: 9px; }
-.worked-step {
-  display: grid;
-  grid-template-columns: 44px 1fr;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 15px;
-  border-radius: 13px;
-  background: ${T.paper};
-  box-shadow: 0 7px 18px -9px rgba(${T.shadowBase},.2);
-}
-.worked-index { color: ${T.blue}; font-size: 12px; }
-
-.audit-list { display: grid; gap: 8px; }
-.audit-step {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  gap: 10px;
-  padding: 11px 13px;
-  border-radius: 11px;
-  color: ${T.ink2};
-  background: rgba(255,255,255,.72);
-  box-shadow: 0 5px 14px -9px rgba(${T.shadowBase},.2);
-}
-.audit-step > span { color: ${T.blue}; font-size: 11px; }
-
-.constructor {
-  display: grid;
-  grid-template-columns: 1fr minmax(180px,.8fr) 1fr;
-  align-items: stretch;
-  gap: 12px;
-}
-.constructor-column { display: grid; align-content: start; gap: 8px; }
-.constructor-option {
-  min-height: 44px;
-  padding: 8px 10px;
-  border: none;
-  border-radius: 10px;
-  color: ${T.ink};
-  background: ${T.paper};
-  box-shadow: 0 5px 14px -7px rgba(${T.shadowBase},.2);
-  cursor: pointer;
-}
-.constructor-option.selected { color: ${T.blue}; background: ${T.blueSoft}; }
-.constructor-preview {
-  display: grid;
-  min-height: 190px;
-  place-items: center;
-  padding: 14px;
-  border-radius: 16px;
-  background: ${T.paper};
-  box-shadow: 0 10px 26px -10px rgba(${T.shadowBase},.25);
-}
-
-.summary-rule {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: clamp(16px,4vw,38px);
-  min-height: 142px;
-  padding: 18px;
-  border-radius: 18px;
-  background: ${T.paper};
-  box-shadow: 0 14px 34px -15px rgba(${T.shadowBase},.3);
-}
-.summary-arrow { color: ${T.accent}; font-size: clamp(24px,4vw,38px); }
-.summary-lead { max-width: 720px; margin-inline: auto !important; text-align: center; }
-.summary-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 10px; }
-.summary-item {
-  display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: 9px;
-  padding: 14px;
-  border-radius: 13px;
-  background: ${T.successSoft};
-  color: ${T.success};
-  font-size: 13px;
-  line-height: 1.42;
-}
-.summary-check { display: grid; width: 25px; height: 25px; place-items: center; border-radius: 50%; color: white; background: ${T.success}; }
-.summary-lower { display: grid; grid-template-columns: .7fr 1.3fr; gap: 10px; }
-.score-panel {
-  display: grid;
-  grid-template-columns: auto auto;
-  align-items: baseline;
-  justify-content: center;
-  column-gap: 6px;
-  padding: 15px;
-  border-radius: 13px;
-  background: ${T.blueSoft};
-  color: ${T.blue};
-}
-.score-panel p { grid-column: 1 / -1; text-align: center; }
-.score-number { font-family: "Source Serif 4", Georgia, serif; font-size: 46px; font-weight: 700; }
-.bridge-card {
-  display: grid;
-  gap: 7px;
-  padding: 15px;
-  border-radius: 13px;
-  border-left: 4px solid ${T.blue};
-  background: ${T.blueSoft};
-  box-shadow: 0 7px 18px -9px rgba(1,154,203,.3);
-}
-.bridge-card .eyebrow { color: ${T.blue}; }
-
-@keyframes fade-in-up {
-  from { opacity: 0; transform: translateY(11px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-@keyframes pulse {
-  0%,100% { transform: scale(.9); opacity: .75; }
-  50% { transform: scale(1.15); opacity: 1; }
-}
-.fade-up { opacity: 0; animation: fade-in-up .42s ease-out forwards; }
-.delay-1 { animation-delay: .1s; }
-.delay-2 { animation-delay: .2s; }
-.delay-3 { animation-delay: .3s; }
-.delay-4 { animation-delay: .4s; }
-
-@media (max-width: 720px) {
-  .formula-pair, .option-grid, .hypothesis-grid, .sequence-layout,
-  .summary-lower { grid-template-columns: 1fr; }
-  .term-grid, .summary-grid { grid-template-columns: 1fr; }
-  .constructor { grid-template-columns: 1fr 1fr; }
-  .constructor-preview { grid-column: 1 / -1; grid-row: 1; min-height: 135px; }
-  .sort-card { grid-template-columns: 1fr; }
-  .stage-nav { padding-bottom: max(12px, env(safe-area-inset-bottom)); }
-}
-
-@media (max-width: 480px) {
-  .stage-content { padding-top: 7px; }
-  .screen-heading { margin-bottom: 13px; }
-  .screen-stack { gap: 12px; }
-  .option-grid { gap: 8px; }
-  .option { min-height: 52px; padding: 10px 12px; }
-  .sort-actions { grid-template-columns: 1fr; }
-  .sort-button { min-height: 42px; }
-  .input-row { align-items: stretch; flex-direction: column; }
-  .answer-input { width: 100%; }
-  .check-button { width: 100%; }
-  .constructor { gap: 8px; }
-  .constructor-option { padding: 7px 6px; font-size: 13px; }
-  .formula-card { min-height: 82px; }
-  .formula-hero { min-height: 160px; }
-  .lab-label { display: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after {
-    animation-duration: .01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: .01ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-`
+export default makeLesson({ META, STATEMENTS, MISS, SCREENS })

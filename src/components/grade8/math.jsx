@@ -138,7 +138,7 @@ function pointText(point) {
 // --------------------------------------------------------------------------
 export const MathField = ({
   value, onChange, onSubmit, kind = 'expr', disabled, done,
-  none, onNone, placeholder, label, width,
+  none, onNone, noneLabel, placeholder, label, width,
 }) => {
   const t = useT()
   const phone = useIsPhone()
@@ -206,9 +206,12 @@ export const MathField = ({
           </button>
         ) : null}
       </div>
+      {/* Tugma YOZUV bilan emas, TUGMA bilan beriladi (§10.1). Yozuvi darsga
+          qarab o'zgaradi: 1-darsda «taqiqlangan qiymat yo'q», 3-darsda
+          «qisqartirish mumkin emas» — shuning uchun `noneLabel`. */}
       {none ? (
         <button type="button" className="g8-none" onClick={onNone} disabled={disabled || done}>
-          {t(TXT.none)}
+          {t(noneLabel || TXT.none)}
         </button>
       ) : null}
       {phone && !done && !disabled ? <Keyboard kind={kind} onKey={insert} onBack={backspace} /> : null}
@@ -258,10 +261,22 @@ export const MATH_STYLES = `
 }
 .g8-field-on { box-shadow: 0 10px 24px -14px rgba(${T.accentRgb},.4), inset 0 0 0 1.5px rgba(${T.accentRgb},.5); }
 .g8-field-done { background: ${T.okSoft}; box-shadow: inset 0 0 0 1px rgba(${T.okRgb},.32); }
+/* Yozuv QISQARADI va KO'CHADI. flex-shrink: 0 turgan paytda uzun yozuv
+   maydonni va «Tekshirish» tugmasini o'ng chetdan CHIQARIB yuborardi: 390 px
+   da tugma x = 475 da turgan, ya'ni ekranda YO'Q edi, va overflow clip
+   sababli skroll ham yo'q — izsiz g'oyib bo'lgan (o'lchandi 2026-08-13,
+   12-ekran). Bu §14 dagi «monoshirinali nowrap chetdan chiqib ketadi» ning
+   aynan o'zi, faqat boshqa joyda.
+   DIQQAT: STYLES ichida BEKTIK ishlatilmaydi — u shablon satrni uzib
+   qo'yadi va fayl yig'ilmaydi (shu izohda aynan shunday bo'ldi). */
 .g8-field-label {
-  flex-shrink: 0;
+  flex-shrink: 1;
+  min-width: 0;
+  max-width: 46%;
+  overflow-wrap: anywhere;
   font-family: 'Manrope', sans-serif;
   font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  line-height: 1.25;
   color: ${T.ink3}; font-weight: 700;
 }
 /* Kiritish maydoni SERIF: o'quvchi yozgan narsa ekranda ham darslikdagidek

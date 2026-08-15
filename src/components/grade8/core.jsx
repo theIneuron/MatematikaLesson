@@ -34,6 +34,17 @@ import React, {
 } from 'react'
 
 // Ishlab chiqishda erkin, sinf topshirilishidan oldin false. BITTA joyda.
+//
+// 2026-08-14, metodist so'radi: KO'RISH uchun qulf o'chirilsin — slaydlarni
+// yechmasdan varaqlash kerak. Shuning uchun TRUE.
+//
+// NIMA O'CHDI va NIMA O'CHMADI. `FREE_NAV` faqat O'TISH qulfini oladi:
+// «Davom etish» topshiriq yechilmasa ham ochiq. JAVOB qulfi bunga BOG'LIQ
+// EMAS — u `useInstructionGate` da va `FREE_NAV` ni umuman o'qimaydi
+// (§13.3 p. 8): ovoz yoniq bo'lsa javob baribir ko'rsatma tugaguncha yopiq.
+//
+// SINF TOPSHIRILISHIDAN OLDIN QAYTA `false` QILINADI (§20 p. 36a).
+// `check-grade8.mjs` har yugurishda bu haqda ogohlantiradi.
 export const FREE_NAV = true
 
 // Ranglar. 11-SINF ETALONIDAN olindi (metodist qarori: «11-sinf etaloni
@@ -52,9 +63,13 @@ export const T = {
   accent: '#C9542C',
   accentSoft: '#F8E7DE',
   accentRgb: '201,84,44',
-  graph: '#176C70',
-  graphSoft: '#DCECEB',
-  graphRgb: '23,108,112',
+  // 2026-08-13, metodist: «ko'k rang buzadi» -- SOVUQ rang butunlay olib
+  // tashlandi. Ilgari bu firuza #176C70 / #DCECEB edi (11-sinf etalonidan).
+  // O'rnida ILIQ TOSH rangi: ma'nosi o'sha -- tekshiruv qatlami, ODZ satri,
+  // taxmin; lekin qog'oz fonidan chiqib turmaydi.
+  graph: '#6B5B45',
+  graphSoft: '#EDE4D3',
+  graphRgb: '107,91,69',
   ok: '#28774A',
   okSoft: '#E5F2E9',
   okRgb: '40,119,74',
@@ -65,8 +80,8 @@ export const T = {
   // «no» -- xato javob rangi. QIZIL EMAS, amber.
   no: '#A55D19',
   // Uchta maxsus ekran uchun (§14): xuk, qoida, yakun.
-  cool: '#176C70',
-  coolSoft: '#DCECEB',
+  cool: '#6B5B45',
+  coolSoft: '#EDE4D3',
   dark: '#1F292B',
   line: 'rgba(23,26,29,.13)',
   line2: 'rgba(23,26,29,.06)',
@@ -82,10 +97,14 @@ export const MATH_FONT = "'Source Serif 4', Georgia, 'Times New Roman', serif"
 
 // Ekran -> bo'lim. 1 xuk / 2 tayanch / 3-8 tushuntirish / 9-13 mashq /
 // 14 blits / 15 yakun. Pastki panelning markazida shu bo'lim ko'rsatiladi.
+// QOIDA ekrani ALOHIDA bo'lim: §13 da uchastkalar «1 xuk · 2 tayanch ·
+// 3-7 tushuntirish · 8 QOIDA · 9-14 mashq · 15 yakun». Ilgari 8-ekran
+// tushuntirishga kirib qolgan va pastda «Tushuntirish 6 / 6» yozilgan edi.
 export const sectionOf = (screen) => {
   if (screen <= 0) return 'hook'
   if (screen <= 1) return 'support'
-  if (screen <= 7) return 'explain'
+  if (screen <= 6) return 'explain'
+  if (screen <= 7) return 'rule'
   if (screen <= 12) return 'practice'
   if (screen <= 13) return 'blitz'
   return 'result'
@@ -93,7 +112,8 @@ export const sectionOf = (screen) => {
 export const SECTION_RANGE = {
   hook: [0, 0],
   support: [1, 1],
-  explain: [2, 7],
+  explain: [2, 6],
+  rule: [7, 7],
   practice: [8, 12],
   blitz: [13, 13],
   result: [14, 14],
@@ -165,12 +185,17 @@ export const UI_TXT = {
     'Four questions, each about the sign',
   ),
   subject: L('Matematika', 'Математика', 'Mathematics'),
-  lessonNo: L('8-sinf · 3-dars', '8 класс · урок 3', 'Grade 8 · lesson 3'),
+  // Dars RAQAMI bu yerda TURMAYDI: u `META.n` dan `configureLesson` orqali
+  // keladi (`lessonNoLabel`). Qotib qolgan raqam 10-sinfda butun sinfga
+  // «3-dars» yozib qo'ygan edi — shu xato bu yerda ham turgan (topildi
+  // 2026-08-13). Bu zaxira yozuv: raqam berilmasa faqat sinf ko'rinadi.
+  lessonNo: L('8-sinf', '8 класс', 'Grade 8'),
   notes: L('Qoralama', 'Черновик', 'Notes'),
   sections: {
     hook: L('Xuk', 'Хук', 'Hook'),
     support: L('Tayanch', 'Опора', 'Prior knowledge'),
     explain: L('Tushuntirish', 'Объяснение', 'Explanation'),
+    rule: L('Qoida', 'Правило', 'Rule'),
     practice: L('Mashq', 'Практика', 'Practice'),
     blitz: L('Blits', 'Блиц', 'Blitz'),
     result: L('Yakun', 'Итог', 'Summary'),
@@ -190,13 +215,50 @@ let cfg = {
   aiGradingEndpoint: '',
   studentName: '',
   voiceGender: 'm', // 8-sinf: erkak ovoz (metodist qarori 2026-08-06)
+  lessonId: '',     // ovoz keshi darslar bo'yicha ajralsin
+  lessonTitle: null,
+  lessonNo: null,   // yuqori paneldagi «8 класс · урок N». MA'LUMOTDAN keladi.
 }
 export const configureLesson = (next) => { cfg = { ...cfg, ...next } }
 
-export function buildTtsUrl(base, text, gender) {
+// Yuqori paneldagi yozuv. Raqam `META.n` dan keladi, yadroda qotmaydi.
+export const lessonNoLabel = () => {
+  const n = cfg.lessonNo
+  if (!n) return UI_TXT.lessonNo
+  return L('8-sinf · ' + n + '-dars', '8 класс · урок ' + n, 'Grade 8 · lesson ' + n)
+}
+
+// Til — matn ichida yetakchi marker: [O'zbekcha tallaffuz] / [Русское произношение].
+// Uni BIR marta qo'yamiz — dvigatel, TTSga jo'natishdan oldin.
+const LANG_TAG = {
+  uz: "[O'zbekcha tallaffuz]",
+  ru: '[Русское произношение]',
+  en: '[English pronunciation]',
+}
+const LEAD_TAG_RE = /^\s*\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/
+const withLangTag = (text, lang) => {
+  const s = String(text == null ? '' : text).trim()
+  if (!s) return s
+  if (LEAD_TAG_RE.test(s)) return s
+  return (LANG_TAG[lang] || LANG_TAG.uz) + ' ' + s
+}
+
+// lesson_id va lesson_name — server ovoz keshini darslar bo'yicha ajratsin,
+// hammasi bitta uyumda yotmasin. student_uuid yubormaymiz: LMS uni bermaydi.
+const lessonMetaQuery = (lang) => {
+  if (!cfg.lessonId) return ''
+  const title = cfg.lessonTitle || null
+  const name = title ? (title[lang] || title.ru || title.uz || '') : ''
+  return '&lesson_id=' + encodeURIComponent(cfg.lessonId)
+       + (name ? '&lesson_name=' + encodeURIComponent(name) : '')
+}
+
+export function buildTtsUrl(base, text, gender, lang) {
   const clean = String(base || '').replace(/\/$/, '')
   const g = gender === 'f' ? 'f' : 'm'
-  return clean + '/api/tts?text=' + encodeURIComponent(String(text || '')) + '&g=' + g
+  const raw = withLangTag(text, lang)
+  const enc = encodeURIComponent(String(raw || '')).replace(/%5B/g, '[').replace(/%5D/g, ']')
+  return clean + '/api/tts?text=' + enc + '&g=' + g + lessonMetaQuery(lang)
 }
 
 const locale = (lang) => (lang === 'ru' ? 'ru-RU' : lang === 'en' ? 'en-GB' : 'uz-UZ')
@@ -253,6 +315,9 @@ class AudioEngine {
   }
 
   speak(seg) {
+    // Bo'lak yo'q bo'lsa JIM qolamiz va navbatni SURMAYMIZ: `after()` chaqirsak,
+    // mavjud bo'lmagan bo'lak uchun keyingisi o'tkazib yuborilardi.
+    if (!seg) { this.isPlaying = false; this.emit({ isPlaying: false }); return }
     const text = String(seg.text || '')
     if (!text) { this.after(); return }
     if (cfg.ttsApiBase) {
@@ -260,7 +325,7 @@ class AudioEngine {
       const el = this.el
       el.onended = null
       el.onerror = null
-      el.src = buildTtsUrl(cfg.ttsApiBase, text, seg.g || this.gender)
+      el.src = buildTtsUrl(cfg.ttsApiBase, text, seg.g || this.gender, seg.lang || this.lang)
       el.onended = () => this.after()
       el.onerror = () => this.after()
       this.isPlaying = true
@@ -307,14 +372,26 @@ class AudioEngine {
   }
 
   // Navbatdan tashqari bitta gap: kontrprimer razbori shu yerdan aytiladi.
+  //
+  // `idx` NAVBAT ICHIDA turishiga kafolat YO'Q: dvijok modul darajasidagi
+  // yakka nusxa, navbat effektlardan va `setTimeout` dan o'zgaradi, ekran
+  // almashganda esa eski ekranning `say` i yangi navbatga tushishi mumkin.
+  // Shuning uchun joy QISQARTIRILADI. Qisqartirmaganda `queue[idx]`
+  // undefined bo'lib, `speak` yiqilardi — va bu XATO JAVOB yo'lida edi:
+  // razbor aytilishi kerak bo'lgan joyda dars butunlay to'xtardi
+  // (topildi 2026-08-13, telefon o'lchamida prokliklashda).
   once(text) {
     if (!text) return
-    this.queue.splice(this.idx, 0, { text, trigger: 'manual' })
-    this.speak(this.queue[this.idx])
+    const at = Math.min(Math.max(this.idx, 0), this.queue.length)
+    this.queue.splice(at, 0, { text, trigger: 'manual' })
+    this.idx = at
+    this.speak(this.queue[at])
   }
 
   replay() {
+    if (!this.queue.length) return
     if (this.idx > 0) this.idx -= 1
+    if (this.idx >= this.queue.length) this.idx = this.queue.length - 1
     this.speak(this.queue[this.idx])
   }
 
@@ -584,13 +661,26 @@ export const NextStep = ({ onClick, show = true, label }) => {
 // UI PRIMITIVLARI. Kattalar uchun: zich, tinch, kam harakat.
 // ============================================================
 
-// Balandligi OLDINDAN band qilingan joy: kontent ichida paydo bo'ladi,
-// ekran balandligi o'zgarmaydi.
-export const Slot = ({ h, mh, children, style, className }) => (
-  <div className={className} style={{ height: h, minHeight: mh, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', ...style }}>
-    {children}
-  </div>
-)
+// Joy egallaydigan blok. BO'SH bo'lsa — umuman chizilmaydi.
+//
+// Metodist, 2026-08-14: «hamma kontent YUQORIDA bo'lsin». Ilgari bo'sh slot
+// ham o'z balandligini band qilardi, va u KONTENT ORASIDA turardi: maydon
+// bilan ODZ satri orasida 74 pikselli teshik paydo bo'lardi. Endi bo'sh slot
+// yo'q, ya'ni bloklar tepaga zich yig'iladi, bo'sh joy esa hammasi PASTDA.
+//
+// Ekran shundan «sakramaydi»: yangi blok doim OXIRGIsining ostida paydo
+// bo'ladi, tepasidagi hech narsa siljimaydi (§14 p. 4 — kontent yuqoridan).
+// `h` berilgan bo'lsa balandlik qat'iy va bo'sh bo'lsa ham saqlanadi:
+// chizma yoki jadval o'z joyini oldindan oladi.
+export const Slot = ({ h, mh, children, style, className }) => {
+  const empty = React.Children.toArray(children).length === 0
+  if (empty && h === undefined) return null
+  return (
+    <div className={className} style={{ height: h, minHeight: mh, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'center', ...style }}>
+      {children}
+    </div>
+  )
+}
 
 
 export const Eyebrow = ({ children, right }) => (
@@ -644,7 +734,10 @@ export const OdzLine = ({ value, blink, empty, children }) => {
   return (
     <div className={'g8-odz' + (blink ? ' g8-odz-blink' : '') + (empty ? ' g8-odz-empty' : '')}>
       <span className="g8-odz-tag">{t(UI_TXT.odz)}</span>
-      <span className="g8-odz-body">{children || value}</span>
+      {/* Qiymat uch tilli yozuv ham bo'lishi mumkin («taqiq yo'q»), shuning
+          uchun t() SHART: L obyekti to'g'ridan-to'g'ri chizilsa React yiqiladi
+          (xato 31, topildi 2026-08-13 brauzer prokliklashida). */}
+      <span className="g8-odz-body">{children || t(value)}</span>
     </div>
   )
 }
@@ -832,13 +925,47 @@ export const Stage = ({
   const [from, to] = SECTION_RANGE[sect] || [screen, screen]
   const inSection = screen - from + 1
   const sectionSize = to - from + 1
+
+  // Asboblar IKKI joyda chizilishi kerak: kompyuterda yuqori qatorda,
+  // telefonda brovka qatorida. Sabab §14 da: 390 px da sayt qobig'ining til
+  // almashtirgichi (fiksirlangan, o'ngdan 8 px, eni 144) AYNAN yuqori qator
+  // ustida turadi va ovoz tugmasini BOSISHGA QO'YMAYDI -- Playwright buni
+  // «pointer events intercepted» deb ko'rsatdi (o'lchandi 2026-08-13).
+  // Yonida joy yo'q, shuning uchun yuqori qator telefonda olib tashlanadi.
+  const tools = (
+    <>
+      <button
+        type="button"
+        className={'g8-tool' + (notesOpen ? ' is-on' : '')}
+        onClick={() => setNotesOpen((v) => !v)}
+        title={t(UI_TXT.notes)}
+        aria-label={t(UI_TXT.notes)}
+      >
+        <b aria-hidden="true">✎</b><i>{t(UI_TXT.notes)}</i>
+      </button>
+      <button type="button" className="g8-tool" onClick={audio.replay} title={t(UI_TXT.again)} aria-label={t(UI_TXT.again)}>
+        <b aria-hidden="true">↺</b>
+      </button>
+      <button
+        type="button"
+        className={'g8-tool g8-tool-sound' + (audio.muted ? ' is-off' : ' is-on')}
+        onClick={audio.toggleMute}
+        title={t(UI_TXT.sound)}
+        aria-label={t(UI_TXT.sound)}
+      >
+        <b aria-hidden="true">{audio.muted ? '✕' : '♪'}</b>
+        {audio.isPlaying ? <s className="g8-tool-wave" aria-hidden="true" /> : null}
+      </button>
+    </>
+  )
+
   return (
     <div className="g8-stage">
       <div className="g8-head">
         <div className="g8-top">
           <span className="g8-mark" aria-hidden="true">M<b>8</b></span>
           <span className="g8-top-title">
-            {t(UI_TXT.subject)}<span className="g8-dot">·</span>{t(UI_TXT.lessonNo)}
+            {t(UI_TXT.subject)}<span className="g8-dot">·</span>{t(lessonNoLabel())}
           </span>
           <span className="g8-seg" role="img" aria-label={String(screen + 1) + '/' + String(total)}>
             {Array.from({ length: total }, (_, i) => (
@@ -847,41 +974,19 @@ export const Stage = ({
           </span>
           <span className="g8-top-sect">{t(UI_TXT.sections[sect])}</span>
           <span className="g8-count">{screen + 1}/{total}</span>
-          <span className="g8-top-tools">
-            <button
-              type="button"
-              className={'g8-tool' + (notesOpen ? ' is-on' : '')}
-              onClick={() => setNotesOpen((v) => !v)}
-              title={t(UI_TXT.notes)}
-              aria-label={t(UI_TXT.notes)}
-            >
-              <b aria-hidden="true">✎</b><i>{t(UI_TXT.notes)}</i>
-            </button>
-            <button type="button" className="g8-tool" onClick={audio.replay} title={t(UI_TXT.again)} aria-label={t(UI_TXT.again)}>
-              <b aria-hidden="true">↺</b>
-            </button>
-            <button
-              type="button"
-              className={'g8-tool g8-tool-sound' + (audio.muted ? ' is-off' : ' is-on')}
-              onClick={audio.toggleMute}
-              title={t(UI_TXT.sound)}
-              aria-label={t(UI_TXT.sound)}
-            >
-              <b aria-hidden="true">{audio.muted ? '✕' : '♪'}</b>
-              {audio.isPlaying ? <s className="g8-tool-wave" aria-hidden="true" /> : null}
-            </button>
-          </span>
+          <span className="g8-top-tools">{tools}</span>
         </div>
-        {eyebrow || right ? (
-          <div className="g8-eyebrow">
-            <span>{eyebrow}</span>
-            {right ? <span className="g8-eyebrow-right">{right}</span> : null}
-          </div>
-        ) : null}
+        <div className="g8-eyebrow">
+          <span>{eyebrow}</span>
+          {right ? <span className="g8-eyebrow-right">{right}</span> : null}
+          <span className="g8-tools-phone">{tools}</span>
+        </div>
       </div>
 
       <div className="g8-body">
-        <div className={'g8-stack' + (field ? ' g8-zone g8-zone-' + field : '')}>{children}</div>
+        {/* `g8-cascade`: bloklar ketma-ket chiqadi (1-5-sinf naqshi, fade-up
+            delay-1/2/3). O'qish tartibi HARAKAT bilan beriladi. */}
+        <div className={'g8-stack g8-cascade' + (field ? ' g8-zone g8-zone-' + field : '')}>{children}</div>
         <NotesPanel open={notesOpen} onClose={() => setNotesOpen(false)} value={notes} onChange={onNotes} />
       </div>
 
@@ -1125,6 +1230,30 @@ html, body { margin: 0; padding: 0; }
 }
 .g8-eyebrow > span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .g8-eyebrow-right { color: ${T.accent}; flex-shrink: 0; letter-spacing: .06em; }
+.g8-tools-phone { display: none; }
+
+/* ============ SAYT QOBIG'I BILAN TO'QNASHUV: TELEFON ============
+   Qobiqning tugmalari FIKSIRLANGAN: chapda «Darslar ro'yxati», o'ngda til
+   almashtirgich (o'ngdan 8 px, eni ~144, balandligi 50). 390 px da ular
+   darsning yuqori qatori USTIDA turadi, ya'ni ovoz va «qayta» tugmalari
+   bosilmaydi -- §20 p. 35b buzilgan holat. Yonida joy yo'q: 390 dan 144 ni
+   olib qo'ysak, yuqori qatorga hech narsa qolmaydi.
+   Yechim 10-sinfda o'lchab topilgan va shu yerda takrorlanadi: TELEFONDA
+   yuqori qator butunlay olib tashlanadi (unda faqat belgi, fan nomi va
+   segmentlar bor, ya'ni bezak), o'rniga to'ldirma qo'yiladi, asboblar esa
+   brovka qatoriga tushadi -- balandlik budjeti deyarli yeyilmaydi.
+   Bo'lim hisobi pastdagi panelda qoladi, ya'ni ma'lumot yo'qolmaydi. */
+@media (max-width: 639.98px) {
+  .g8-top { display: none; }
+  .g8-head { padding-top: 54px; }
+  .g8-eyebrow { align-items: center; }
+  .g8-tools-phone { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .g8-tools-phone .g8-tool { height: 30px; min-width: 30px; padding: 0 7px; }
+  /* Qoralamaning YOZUVI tushadi, faqat belgisi qoladi: brovka qatorida uch
+     tugma va ekran roli birga turishi kerak. */
+  .g8-tools-phone .g8-tool i { display: none; }
+  .g8-eyebrow-right { display: none; }
+}
 .g8-title {
   font-family: 'Fraunces', 'Source Serif 4', Georgia, serif;
   font-weight: 600;
@@ -1407,8 +1536,14 @@ html, body { margin: 0; padding: 0; }
 }
 
 /* ============ YAKUN: IKKI USTUN (§13) ============ */
-.g8-sum { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 1.6vw, 26px); flex-shrink: 0; min-height: min-content; }
+/* 2026-08-13, metodist: HAMMA ekranda kontent VERTIKAL, bitta ustun.
+   Ikki ustun bekor qilindi: ekran ko'z bilan ikkiga bo'linardi va o'quvchi
+   qaysi tomondan o'qishni izlardi. Vertikalga sig'ishi uchun matn QISQARDI. */
+.g8-sum { display: flex; flex-direction: column; gap: clamp(5px, 1vh, 10px); flex-shrink: 0; min-height: min-content; }
 .g8-sum-col { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+/* Taxmin -> natija: bitta qatorda, o'q bilan. Ranglar 1-ekrandan. */
+.g8-sum-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.g8-sum-arrow { color: ${T.ink4}; font-family: ${MATH_FONT}; }
 .g8-sum-h { font-size: 10px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: ${T.ink2}; }
 .g8-chip {
   display: inline-flex; align-items: center; align-self: flex-start;
@@ -1434,7 +1569,7 @@ html, body { margin: 0; padding: 0; }
 
 /* ============ TELEFON: ustunlar bo'lim bo'lib ketadi ============ */
 @media (max-width: 859.98px) {
-  .g8-sum { grid-template-columns: minmax(0, 1fr) !important; gap: clamp(6px, 1.2vh, 10px); }
+  .g8-sum { gap: clamp(4px, 1vh, 8px); }
   .g8-sum-col { gap: 3px; }
   .g8-sum-h { font-size: 9.5px; letter-spacing: .1em; }
   .g8-chip { min-height: 23px; font-size: 12px; padding: 0 9px; }
@@ -1472,5 +1607,75 @@ html, body { margin: 0; padding: 0; }
     transition-duration: .01ms !important;
   }
   .g8-in, .g8-rule-line, .g8-rule-src, .g8-cx, .g8-note { opacity: 1; }
+}
+
+/* ====================================================================
+   ВИД КАК В УРОКЕ 1 ШЕСТОГО КЛАССА (методист, 2026-08-15).
+   Блок стоит последним и перебивает правила выше — так правку видно
+   целиком и её можно снять одним куском, не разбирая двадцать мест.
+
+   Что меняется: шапка становится минимальной (полоса прогресса во всю
+   ширину, бровка слева, звук и счётчик справа), большая бежевая плашка
+   вокруг содержимого убирается, содержимое живёт в БЕЛЫХ карточках на
+   светлом поле, «Дальше» — белая пилюля с акцентной обводкой, варианты
+   без букв A B C D и по центру.
+   ==================================================================== */
+
+/* Шапка: ни знака М8, ни строки предмета, ни названия раздела. */
+.g8-mark, .g8-top-title, .g8-top-sect { display: none; }
+.g8-top { flex-wrap: wrap; row-gap: 8px; }
+/* Полоса прогресса — ОТДЕЛЬНОЙ строкой во всю ширину и первой. */
+.g8-seg { flex-basis: 100%; order: -1; gap: 0; min-width: 0; }
+.g8-seg-i { height: 4px; border-radius: 0; background: rgba(23,26,29,.10); transition: background .3s ease; }
+.g8-seg-i:first-child { border-radius: 3px 0 0 3px; }
+.g8-seg-i:last-child { border-radius: 0 3px 3px 0; }
+/* Пройденное и текущий — одним цветом: полоса читается как ЗАЛИВКА,
+   а не как набор плиток. Утолщения нет, иначе бар прыгает. */
+.g8-seg-i.is-done, .g8-seg-i.is-now { background: ${T.accent}; transform: none; }
+.g8-count { margin-left: auto; font-size: clamp(11px, 1vw, 13px); color: ${T.ink2}; }
+
+/* Плашка особого экрана убрана: поле светлое, форму держат карточки. */
+.g8-zone, .g8-zone-hook, .g8-zone-rule, .g8-zone-summary {
+  background: transparent; box-shadow: none; padding: 0;
+}
+
+/* Карточка: белая бумага, мягкая тень, крупный радиус. */
+.g8-frame {
+  background: ${T.paper};
+  border-radius: 18px;
+  box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05);
+}
+
+/* «Дальше» — белая пилюля с акцентной обводкой, не сплошная заливка. */
+.g8-btn-solid {
+  background: ${T.paper}; color: ${T.accent};
+  box-shadow: inset 0 0 0 1.5px rgba(${T.accentRgb},.45), 0 10px 26px -18px rgba(${T.accentRgb},.8);
+}
+.g8-btn-solid:hover:not(:disabled) { background: #FFF; transform: translateY(-2px); }
+.g8-btn-solid:disabled { color: ${T.ink3}; box-shadow: inset 0 0 0 1.5px rgba(23,26,29,.10); }
+
+/* Вариант ответа: белая карточка, текст по центру, буквы нет. */
+.g8-opt-badge { display: none; }
+.g8-opt {
+  justify-content: center; text-align: center;
+  background: ${T.paper};
+  box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07);
+}
+
+/* Сцена: ширину задаёт карточка, высоту — пропорция. Потолок в vh, иначе
+   на ноутбуке 615 px сцена съедает экран (замер 2026-08-15). */
+.g8-scene svg { width: 100%; height: auto; }
+.g8-scene-hook svg  { max-height: clamp(170px, 33vh, 290px); }
+.g8-scene-final svg { max-height: clamp(80px, 13vh, 150px); }
+
+/* НИЗКИЙ ЭКРАН. Полоса прогресса отдельной строкой стоит 12 пикселей высоты:
+   рабочая зона на ноутбуке 1366 на 615 упала с 487 до 475, и экраны 7 и 10
+   вышли за фолд на 3 и 11 пикселей (замер 2026-08-15). Поэтому там, где
+   высоты мало, полоса возвращается в общую строку шапки. Вид шестого класса
+   остаётся на нормальных экранах, где он и смотрится. */
+@media (max-height: 680px) {
+  .g8-top { row-gap: 0; }
+  .g8-seg { flex-basis: auto; flex: 1; min-width: 40px; order: 0; }
+  .g8-scene-hook svg { max-height: 22vh; }
 }
 `
