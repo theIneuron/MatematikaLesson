@@ -143,6 +143,13 @@ export const grade11Nazariy = [
     ownLangSwitch: true,
   },
   {
+    slug: 'dars30-sirtlar',
+    title: 'Dars 30. Sirtlar yuzasi',
+    desc: "Yon sirt yoyiladi: silindrda to'rtburchak, konusda sektor; pi r l yoyilmadan chiqadi; to'liq sirtga asoslar qo'shiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars30.jsx')),
+    ownLangSwitch: true,
+  },
+  {
     slug: 'dars09-korsatkichli-tenglamalar',
     title: 'Dars 9. Ko\'rsatkichli tenglamalar',
     desc: "Bitta asosga keltirish, almashtirish t = aˣ va t > 0 sharti, ildizni qo'yib tekshirish. 15 slayd, UZ/RU/EN.",
