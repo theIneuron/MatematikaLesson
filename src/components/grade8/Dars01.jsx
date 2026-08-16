@@ -121,11 +121,8 @@ export const MISS = {
 // файлу падает с «Cannot access before initialization».
 // ============================================================
 const SC_PRICE = L('BIR DONA NARXI', 'ЦЕНА ЗА ШТУКУ', 'PRICE PER ITEM')
-const SC_SAME = L(
-  "Dastur bitta. Farq faqat ma'lumotlarda",
-  'Программа одна. Различаются только данные',
-  'The program is the same. Only the data differs',
-)
+const SC_APP = L('SAVDO ILOVASI', 'ПРИЛОЖЕНИЕ МАГАЗИНА', 'SHOP APP')
+const SC_QTY = L('miqdor k', 'количество k', 'quantity k')
 
 const M_KIND = {
   name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
@@ -167,34 +164,45 @@ const M_CHECK = {
 // eslint-disable-next-line react-refresh/only-export-components
 const HookScene = () => {
   const t = useT()
+  // Телефон рисуется как ПРЕДМЕТ: корпус, динамик, шапка приложения, поле
+  // ввода количества и строка результата. Две карточки с текстом сценой не
+  // читались — они могли быть чем угодно.
+  const phone = (x, bad) => (
+    <g key={x}>
+      <rect x={x} y="6" width="132" height="142" rx="16"
+        fill={T.paper} stroke={bad ? T.tip : 'rgba(23,26,29,.16)'} strokeWidth={bad ? 2 : 1.4}
+        pathLength="1" className="g8-draw"/>
+      <rect x={x + 52} y="14" width="28" height="3" rx="1.5" fill="rgba(23,26,29,.18)"/>
+      <rect x={x + 10} y="24" width="112" height="16" rx="6" fill={T.bg}/>
+      <text x={x + 66} y="35" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="7" letterSpacing="1.1" fill={T.ink3}>{t(SC_APP)}</text>
+      <rect x={x + 10} y="48" width="112" height="22" rx="7" fill={T.bg}/>
+      <text x={x + 18} y="63" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="7.5" fill={T.ink3}>{t(SC_QTY)}</text>
+      <text x={x + 114} y="64" textAnchor="end" fontFamily={MATH_FONT} fontSize="13"
+        fill={bad ? T.tip : T.ink}>{bad ? '0' : '3'}</text>
+    </g>
+  )
   return (
     <SceneBand kind="hook" label={L(
-      "Ikki foydalanuvchi, bitta dastur",
-      'Два пользователя, одна программа',
-      'Two users, one program',
+      "Ikki foydalanuvchi, bitta ilova",
+      'Два пользователя, одно приложение',
+      'Two users, one app',
     )}>
-      {[0, 1].map((i) => (
-        <rect key={'p' + i} x={i ? 214 : 42} width="144" height="118" y="10" rx="14"
-          fill={T.paper} stroke={i ? T.tip : 'rgba(23,26,29,.14)'} strokeWidth={i ? 2 : 1.4}
-          pathLength="1" className="g8-draw"/>
-      ))}
+      {phone(48, false)}
+      {phone(220, true)}
 
       <g className="g8-late">
-        <text x="114" y="52" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-          fontSize="9" letterSpacing="1.2" fill={T.ink3}>{t(SC_PRICE)}</text>
-        <text x="114" y="86" textAnchor="middle" fontFamily={MATH_FONT} fontSize="30" fill={T.ok}>200</text>
-        <text x="114" y="112" textAnchor="middle" fontFamily={MATH_FONT} fontSize="12" fill={T.ink3}>k = 3</text>
+        <text x="114" y="88" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+          fontSize="7.5" letterSpacing="1" fill={T.ink3}>{t(SC_PRICE)}</text>
+        <text x="114" y="116" textAnchor="middle" fontFamily={MATH_FONT} fontSize="26" fill={T.ok}>200</text>
       </g>
-
       <g className="g8-late2">
-        <text x="286" y="52" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-          fontSize="9" letterSpacing="1.2" fill={T.ink3}>{t(SC_PRICE)}</text>
-        <text x="286" y="86" textAnchor="middle" fontFamily={MATH_FONT} fontSize="24" fill={T.tip}>Error</text>
-        <text x="286" y="112" textAnchor="middle" fontFamily={MATH_FONT} fontSize="12" fill={T.tip}>k = 0</text>
+        <rect x="230" y="82" width="112" height="40" rx="8" fill={T.tipSoft}/>
+        <text x="286" y="99" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+          fontSize="7.5" letterSpacing="1" fill={T.tip}>{t(SC_PRICE)}</text>
+        <text x="286" y="115" textAnchor="middle" fontFamily={MATH_FONT} fontSize="17" fill={T.tip}>Error</text>
       </g>
-
-      <text x="200" y="146" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-        fontSize="10" fill={T.ink3}>{t(SC_SAME)}</text>
     </SceneBand>
   )
 }
