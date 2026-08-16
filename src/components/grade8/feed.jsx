@@ -90,7 +90,7 @@ export function FeedNumber({
 
   return (
     <>
-      <div className="g8-fd">
+      <div className={'g8-fd' + (table ? ' g8-fd-has-tab' : '')}>
         <div className={'g8-fd-expr' + (dead && phase >= 2 ? ' is-dead' : '')} style={{ fontFamily: MATH_FONT }}>
           {showResult ? (
             <span key={'r' + tick} className="g8-fd-res">{fmt(num(at) / den(at))}</span>
@@ -230,12 +230,15 @@ export const FEED_STYLES = `
   74% { transform: translateX(-3px); }
 }
 
+.g8-fd-has-tab .g8-fd-expr { min-height: 108px; padding: 16px 40px; }
+.g8-fd-has-tab .g8-fd-btn { min-width: 58px; min-height: 58px; }
+.g8-fd-has-tab { gap: 12px; }
 .g8-fd-tab { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .g8-fd-cell { display: flex; flex-direction: column; align-items: center; gap: 2px;
-  min-width: 62px; padding: 8px 10px; border-radius: 12px; background: ${T.paper};
+  min-width: 58px; padding: 6px 9px; border-radius: 12px; background: ${T.paper};
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); transition: background .3s ease; }
 .g8-fd-cx { font-size: 13px; color: ${T.ink3}; }
-.g8-fd-cv { font-size: clamp(19px, 1.9vw, 24px); color: ${T.ink}; min-height: 1.2em; }
+.g8-fd-cv { font-size: clamp(17px, 1.7vw, 22px); color: ${T.ink}; min-height: 1.15em; line-height: 1.15; }
 .g8-fd-cell.is-full { background: ${T.okSoft}; }
 .g8-fd-cell.is-full .g8-fd-cv { color: ${T.ok}; }
 .g8-fd-cell.is-dead { background: ${T.tipSoft}; }

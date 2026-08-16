@@ -509,95 +509,46 @@ const S4 = {
 // EKRAN 5. FARQLASH. Harf BOR, lekin songa bo'linadi -> taqiq YO'Q.
 // «Taqiqlangan qiymat yo'q» — TUGMA, matn emas (§10.1).
 // ============================================================
+// EKRAN 5. O'ZINGIZ TO'LDIRING. Xuddi shu usul, BOSHQA yozuv: taqiq endi
+// boshqa sonda. Jadvalni o'quvchi O'ZI to'ldiradi -- katak unga
+// ko'rsatilgan emas, u O'ZI olgan natija bilan to'ladi.
+// ============================================================
 const S5 = {
-  eyebrow: L('FARQLASH', 'РАЗГРАНИЧЕНИЕ', 'THE DISTINCTION'),
-  title: L("Bu yerda taqiq yo'q", 'Здесь запрета нет', 'No restriction here'),
+  eyebrow: L("JADVALNI TO'LDIRING", 'ЗАПОЛНИ ТАБЛИЦУ', 'FILL THE TABLE'),
+  title: L(
+    "Boshqa yozuv, boshqa taqiq",
+    'Другая запись — другой запрет',
+    'Another record, another restriction',
+  ),
   audio: [
     A('mount',
-      "Uchinchi yozuv. Xuddi shu uch qadamni bajaring. Pastga qarang, son qo'ying, shartni yozing.",
-      'Третья запись. Сделай те же три шага. Посмотри вниз, поставь число, запиши условие.',
-      'A third record. Take the same three steps. Look below, put a number, write the condition.'),
-    W('p2',
-      "Maxraj o'zgarmadi. Boshqa son bilan yana ko'ring.",
-      'Знаменатель не изменился. Попробуй другим числом.',
-      'The denominator did not change. Try another number.'),
-    W('p3',
-      "Ikki son ham maxrajni o'zgartirmadi. Endi savol.",
-      'Оба числа знаменатель не изменили. Теперь вопрос.',
-      'Neither number changed the denominator. Now the question.'),
+      "Yozuv boshqa. Sonlarni birma-bir qo'ying va jadvalni to'ldiring.",
+      'Запись другая. Подставляй числа по очереди и заполняй таблицу.',
+      'The record is different. Substitute the numbers one by one and fill the table.'),
+    A('why',
+      "Taqiq yana bitta sonda bo'ladi, lekin bu safar boshqasida. Uni maxraj belgilaydi.",
+      'Запрет снова будет на одном числе, но в этот раз на другом. Его задаёт знаменатель.',
+      'Again there will be one forbidden number, but a different one this time. The denominator sets it.'),
   ],
   props: {
-    demo: false,
-    varName: 'x',
-    num: '2x + 6',
-    den: '3',
-    tapAsk: L(
-      'Qaysi qismdan taqiq kelib chiqadi?',
-      'По какой части находят запрет?',
-      'Which part gives the restriction?',
+    nums: [1, 2, 3, 4, 5],
+    num: (a) => a + 5,
+    den: (a) => a - 3,
+    varName: 'a',
+    table: true,
+    ask: L(
+      "Har bir sonni qo'ying: jadval sizning natijalaringiz bilan to'ladi",
+      'Подставь каждое число — таблица заполнится твоими результатами',
+      'Substitute each number: the table fills with your own results',
     ),
-    tapWrong: L(
-      'Bu surat, u chiziq ustida.',
-      'Это числитель, он над чертой.',
-      'This is the numerator, above the bar.',
-    ),
-    probe: {
-      none: true,
-      tries: 2,
-      label: L('Son:', 'Число:', 'Number:'),
-      question: L(
-        'Uchlikni nolga aylantiradigan son bormi?',
-        'Есть число, обращающее тройку в нуль?',
-        'Is there a number making the three zero?',
-      ),
-      items: [
-        {
-          id: 'no',
-          right: true,
-          label: L("bunday son yo'q", 'такого числа нет', 'no such number'),
-        },
-        {
-          id: 'yes',
-          label: L('bor, u nol', 'есть, это нуль', 'yes, it is zero'),
-          hint: L(
-            "Nolni qo'ying. Pastda uchlik qoladi, yuqorida olti. Uchlik iksga bog'liq emas.",
-            'Подставь нуль. Снизу останется тройка, сверху шесть. Тройка от икса не зависит.',
-            'Put zero. Three stays below, six above. The three does not depend on x.',
-          ),
-        },
-      ],
-    },
-    odz: {
-      excluded: [],
-      none: true,
-      noneValue: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
-      noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
-      ask: L(
-        'ODZ ni yozing yoki tugmani bosing',
-        'Запиши ОДЗ или нажми кнопку',
-        'Type the domain or press the button',
-      ),
-      accepts: ['barcha', 'любое'],
-      hints: {
-        'x != 3': L(
-          "Uchni qo'ying. Pastda uchlik, natija to'rt. Uchlik nolga aylanmaydi.",
-          'Подставь три. Снизу тройка, результат четыре. Тройка в нуль не обращается.',
-          'Put three. Three below, result four. The three never becomes zero.',
-        ),
-      },
-    },
-    hint: L(
-      "Songa bo'linsa, ifoda butun. Harfga bo'linsa, ifoda kasr.",
-      'Делят на число, значит выражение целое. Делят на букву, значит дробное.',
-      'Divide by a number and it is integral. By a letter and it is fractional.',
+    broke: L(
+      "Uchlikda maxraj nolga aylandi. Taqiq ikkilikda emas, uchlikda: uni maxraj belgilaydi.",
+      'При тройке знаменатель обратился в нуль. Запрет не на двойке, а на тройке: его задаёт знаменатель.',
+      'At three the denominator became zero. The restriction is not at two but at three: the denominator sets it.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 6. IKKINCHI KO'RINISH. Xuddi shu fikr JADVAL bilan: yacheykalar
-// birma-bir to'ladi, chiziqcha OXIRIDA keladi va bir taktda miltillaydi.
-// Bu 1-ekrandagi jadvalning o'zi — endi o'quvchi uni O'QIYDI.
 // ============================================================
 const S6 = {
   eyebrow: L('BIRGA YECHAMIZ', 'РЕШАЕМ ВМЕСТЕ', 'SOLVING TOGETHER'),
@@ -1532,7 +1483,7 @@ export const SCREENS = [
   { role: 'support',  tool: 'chain',     ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
-  { role: 'explain',  tool: 'tappart',   kind: 'divide',   tag: 'З19', ...S5 },
+  { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'boundary',  kind: 'boundary', tag: 'З2',  ...S7 },
   { role: 'rule',     tool: 'rulebuild', tag: 'З19', ...S8 },
