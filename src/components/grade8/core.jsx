@@ -947,7 +947,7 @@ export const Stage = ({
     <>
       <button
         type="button"
-        className={'g8-tool' + (notesOpen ? ' is-on' : '')}
+        className={'g8-tool g8-tool-notes' + (notesOpen ? ' is-on' : '')}
         onClick={() => setNotesOpen((v) => !v)}
         title={t(UI_TXT.notes)}
         aria-label={t(UI_TXT.notes)}
@@ -1914,6 +1914,13 @@ html, body { margin: 0; padding: 0; }
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.06);
 }
 .g8-film .g8-film-k { box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+
+/* Убрано по решению методиста 2026-08-16: черновик в шапке, кнопка печати
+   шпаргалки и счётчик внутри раздела в нижней панели. Кнопки и состояние
+   оставлены в коде — если решение пересмотрят, вернуть их одной строкой. */
+.g8-tool-notes { display: none; }
+.g8-cheat { display: none; }
+.g8-nav-c { visibility: hidden; }
 
 @media (max-height: 680px) {
   .g8-top { row-gap: 0; }
