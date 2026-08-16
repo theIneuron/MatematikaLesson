@@ -157,6 +157,13 @@ export const grade11Nazariy = [
     ownLangSwitch: true,
   },
   {
+    slug: 'dars32-hajm-konus',
+    title: 'Dars 32. Piramida va konus hajmi',
+    desc: "To'kish uchdan birni ko'rsatadi, disklar isbotlaydi: kesim yuzasi kvadratik kamayadi. V = 1/3 S h. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars32.jsx')),
+    ownLangSwitch: true,
+  },
+  {
     slug: 'dars09-korsatkichli-tenglamalar',
     title: 'Dars 9. Ko\'rsatkichli tenglamalar',
     desc: "Bitta asosga keltirish, almashtirish t = aˣ va t > 0 sharti, ildizni qo'yib tekshirish. 15 slayd, UZ/RU/EN.",
