@@ -223,54 +223,35 @@ const S1 = {
       'Try the numbers one by one. Among them there is one that stops the machine.'),
   ],
   props: {
-    // Запись рисует САМ прибор: он подставляет число на место буквы и считает
-    // части, поэтому дробь не может прийти готовым узлом.
-    // СИТУАЦИЯ УРОКА: формула приложения. Цена за штуку = сумма делить на
-    // количество. У одного пользователя считается, у другого падает —
-    // различаются только ДАННЫЕ, а программа одна.
-    nums: [0, 1, 2, 3, 4],
-    top: ['600'],
-    bot: ['k'],
-    num: () => 600,
-    den: (k) => k,
-    varName: 'k',
-    compact: true,
-    predict: {
-      question: L(
-        "Dilnozada ilova nega yiqildi?",
-        'Почему приложение упало у Дилнозы?',
-        'Why did the app crash for Dilnoza?',
-      ),
-      items: [
-        {
-          id: 'phone',
-          label: L('Telefoni buzuq', 'Сломан телефон', 'Her phone is broken'),
-          say: L(
-            "Dastur bitta. Tekshiramiz: sonlarni qo'ying.",
-            'Программа одна и та же. Проверим: подставляй числа.',
-            'The program is the same. Let us check: substitute the numbers.',
-          ),
-        },
-        {
-          id: 'data',
-          label: L("Ma'lumotlari boshqa", 'Другие данные', 'Her data is different'),
-          say: L(
-            "Tekshiramiz. Qaysi sonda formula yiqiladi?",
-            'Проверим. На каком числе формула падает?',
-            'Let us check. At which number does the formula crash?',
-          ),
-        },
-      ],
-    },
+    // ХУК = ТОЛЬКО ПРОГНОЗ (§5). Одно действие на экране: ученик отвечает и
+    // экран закрывается. Подстановка чисел переехала на экран 3, где ей и
+    // место. Раньше на хуке было два действия подряд, и это нарушало
+    // правило «один вопрос на экране».
     ask: L(
-      "Miqdorni qo'ying: ilova nechada yiqiladi?",
-      'Подставь количество — на каком приложение упадёт?',
-      'Substitute the quantity: at which one does the app crash?',
+      "Dilnozada ilova nega yiqildi?",
+      'Почему приложение упало у Дилнозы?',
+      'Why did the app crash for Dilnoza?',
     ),
-    broke: L(
-      "Miqdor nol. Maxraj nolga aylandi va chiziq uzildi — ilova shu yerda yiqiladi.",
-      'Количество ноль. Знаменатель обратился в нуль, черта разорвалась — здесь приложение и падает.',
-      'The quantity is zero. The denominator became zero and the bar tore: this is where the app crashes.',
+    items: [
+      {
+        id: 'phone',
+        show: L('Telefoni buzuq', 'Сломан телефон', 'Her phone is broken'),
+        hint: L(
+          "Dastur ikkalasida bitta. Buzuq telefon boshqa sonlarda ham yiqilardi.",
+          'Программа у обоих одна. Сломанный телефон падал бы и на других числах.',
+          'Both have the same program. A broken phone would crash on other numbers too.',
+        ),
+      },
+      {
+        id: 'data',
+        right: true,
+        show: L("Ma'lumotlari boshqa", 'Другие данные', 'Her data is different'),
+      },
+    ],
+    after: L(
+      "Ha. Ekranga qarang: miqdor nolga teng. Sababni dars davomida topamiz.",
+      'Да. Посмотри на экран: количество равно нулю. Причину найдём по ходу урока.',
+      'Yes. Look at the screen: the quantity is zero. We will find the reason during the lesson.',
     ),
   },
 }
@@ -1481,7 +1462,7 @@ const FinalScene = (
 // `method` — карточка способа НАД заданием (§4), `scene` — сцена урока (§6).
 // ============================================================
 export const SCREENS = [
-  { role: 'hook',     tool: 'feed',      scene: <HookScene/>, ...S1 },
+  { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },

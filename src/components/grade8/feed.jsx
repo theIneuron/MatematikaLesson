@@ -233,7 +233,9 @@ export function PickBroken({ items, ask, after, onSolved, audio }) {
             disabled={!!picked}
             onClick={() => pick(it)}
           >
-            {it.show}
+            {/* `show` бывает записью (строка) и бывает текстом на трёх языках:
+                на опоре это формула, на хуке — вариант ответа словами. */}
+            {typeof it.show === 'string' ? it.show : t(it.show)}
           </button>
         ))}
       </div>
