@@ -165,50 +165,68 @@ const M_CHECK = {
 // eslint-disable-next-line react-refresh/only-export-components
 const HookScene = () => {
   const t = useT()
-  // ТЕЛЕФОН, А НЕ КАРТОЧКА. Узнаваемым его делают мелочи, а не корпус:
-  // строка состояния со временем и батареей, кнопки на торце, шапка с
-  // кружком приложения, поле ввода с подписью, оранжевая кнопка действия.
-  // Без них прямоугольник читается как абстрактная плашка (методист,
-  // 2026-08-16, дважды).
+  // РЕАЛИЗМ СОБИРАЕТСЯ ИЗ МЕЛОЧЕЙ, а не из корпуса. Здесь их семь: тень под
+  // телефоном, вырез камеры, строка состояния со связью и батареей, шапка с
+  // иконкой и стрелкой назад, поле ввода с курсором, кнопка с тенью, полоса
+  // жеста внизу. Убрать любую — и рисунок опять станет плашкой.
   const phone = (x, bad) => (
     <g key={x}>
-      {/* торцевые кнопки — они первыми выдают, что это смартфон */}
-      <rect x={x - 3} y="46" width="3" height="14" rx="1.5" fill="rgba(23,26,29,.22)"/>
-      <rect x={x - 3} y="64" width="3" height="22" rx="1.5" fill="rgba(23,26,29,.22)"/>
-      <rect x={x + 140} y="52" width="3" height="26" rx="1.5" fill="rgba(23,26,29,.22)"/>
+      {/* тень под корпусом: без неё телефон лежит в бумаге, а не на ней */}
+      <rect x={x + 6} y="12" width="140" height="146" rx="20" fill="rgba(23,26,29,.10)"/>
 
-      <rect x={x} y="4" width="140" height="146" rx="18"
-        fill={T.paper} stroke={bad ? T.tip : 'rgba(23,26,29,.18)'} strokeWidth={bad ? 2.2 : 1.4}
+      <rect x={x - 3} y="48" width="3" height="12" rx="1.5" fill="rgba(23,26,29,.26)"/>
+      <rect x={x - 3} y="64" width="3" height="20" rx="1.5" fill="rgba(23,26,29,.26)"/>
+      <rect x={x + 142} y="54" width="3" height="26" rx="1.5" fill="rgba(23,26,29,.26)"/>
+
+      <rect x={x} y="6" width="142" height="146" rx="20"
+        fill={T.paper} stroke={bad ? T.tip : 'rgba(23,26,29,.20)'} strokeWidth={bad ? 2.2 : 1.4}
         pathLength="1" className="g8-draw"/>
+      {/* экран внутри корпуса: рамка телефона видна как поле вокруг */}
+      <rect x={x + 5} y="11" width="132" height="136" rx="16" fill={T.bg} opacity=".55"/>
 
-      {/* строка состояния */}
-      <text x={x + 12} y="17" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6.5"
-        fill={T.ink3}>9:41</text>
-      <rect x={x + 108} y="12" width="14" height="6" rx="2" fill="none"
-        stroke="rgba(23,26,29,.3)" strokeWidth="0.9"/>
-      <rect x={x + 109.5} y="13.5" width={bad ? 4 : 10} height="3" rx="1"
-        fill={bad ? T.tip : 'rgba(23,26,29,.42)'}/>
-      <circle cx={x + 100} cy="15" r="1.6" fill="rgba(23,26,29,.32)"/>
-      <circle cx={x + 95} cy="15" r="1.6" fill="rgba(23,26,29,.32)"/>
+      {/* вырез камеры */}
+      <rect x={x + 58} y="14" width="26" height="7" rx="3.5" fill="rgba(23,26,29,.82)"/>
 
-      {/* шапка приложения: кружок и название */}
-      <circle cx={x + 18} cy="32" r="6" fill={bad ? T.tipSoft : T.okSoft}/>
-      <text x={x + 30} y="35" fontFamily="'Manrope', system-ui, sans-serif" fontSize="7.5"
+      {/* строка состояния: время, связь, батарея */}
+      <text x={x + 14} y="20" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6"
+        fontWeight="700" fill={T.ink2}>9:41</text>
+      {[0, 1, 2].map((i) => (
+        <rect key={'w' + i} x={x + 96 + i * 3.4} y={19 - i * 1.6} width="2.2" height={3 + i * 1.6}
+          rx="0.6" fill="rgba(23,26,29,.40)"/>
+      ))}
+      <rect x={x + 110} y="14" width="15" height="6.5" rx="2" fill="none"
+        stroke="rgba(23,26,29,.34)" strokeWidth="0.9"/>
+      <rect x={x + 125.6} y="16" width="1.4" height="2.5" rx="0.7" fill="rgba(23,26,29,.34)"/>
+      <rect x={x + 111.5} y="15.5" width={bad ? 3.5 : 12} height="3.5" rx="1"
+        fill={bad ? T.tip : T.ok}/>
+
+      {/* шапка приложения: стрелка назад, иконка, название */}
+      <text x={x + 13} y="38" fontFamily="'Manrope', system-ui, sans-serif" fontSize="8"
+        fill={T.ink3}>{'‹'}</text>
+      <rect x={x + 21} y="29" width="11" height="11" rx="3.2" fill={bad ? T.tipSoft : T.okSoft}/>
+      <text x={x + 26.5} y="37.5" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="6.5" fontWeight="700" fill={bad ? T.tip : T.ok}>M</text>
+      <text x={x + 37} y="38" fontFamily="'Manrope', system-ui, sans-serif" fontSize="7"
         fontWeight="700" fill={T.ink}>{t(SC_APP)}</text>
-      <line x1={x + 10} y1="42" x2={x + 130} y2="42" stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
+      <line x1={x + 8} y1="45" x2={x + 134} y2="45" stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
 
-      {/* поле ввода с подписью над ним */}
-      <text x={x + 12} y="56" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6.5"
+      {/* поле ввода: подпись, рамка, курсор */}
+      <text x={x + 13} y="58" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6"
         fill={T.ink3}>{t(SC_QTY)}</text>
-      <rect x={x + 10} y="60" width="120" height="20" rx="6" fill={T.bg}
-        stroke="rgba(23,26,29,.10)" strokeWidth="0.9"/>
-      <text x={x + 122} y="74" textAnchor="end" fontFamily={MATH_FONT} fontSize="13"
-        fill={bad ? T.tip : T.ink}>{bad ? '0' : '3'}</text>
+      <rect x={x + 11} y="62" width="120" height="21" rx="7" fill={T.paper}
+        stroke={bad ? 'rgba(165,93,25,.45)' : 'rgba(23,26,29,.14)'} strokeWidth="1"/>
+      <rect x={x + 18} y="67" width="1.2" height="11" rx="0.6" fill={T.ink3} opacity=".5"/>
+      <text x={x + 124} y="77" textAnchor="end" fontFamily={MATH_FONT} fontSize="13"
+        fontWeight="600" fill={bad ? T.tip : T.ink}>{bad ? '0' : '3'}</text>
 
-      {/* кнопка действия */}
-      <rect x={x + 10} y="86" width="120" height="16" rx="8" fill={T.accent} opacity="0.92"/>
-      <text x={x + 70} y="97" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-        fontSize="7" fontWeight="700" fill="#fff">{t(SC_CALC)}</text>
+      {/* кнопка с тенью */}
+      <rect x={x + 13} y="91" width="116" height="17" rx="8.5" fill="rgba(201,84,44,.22)"/>
+      <rect x={x + 11} y="89" width="120" height="17" rx="8.5" fill={T.accent}/>
+      <text x={x + 71} y="100" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="7" fontWeight="700" letterSpacing="0.4" fill="#fff">{t(SC_CALC)}</text>
+
+      {/* полоса жеста */}
+      <rect x={x + 51} y="143" width="40" height="2.6" rx="1.3" fill="rgba(23,26,29,.22)"/>
     </g>
   )
   return (
@@ -217,23 +235,22 @@ const HookScene = () => {
       'Два пользователя, одно приложение',
       'Two users, one app',
     )}>
-      {phone(44, false)}
-      {phone(216, true)}
+      {phone(42, false)}
+      {phone(214, true)}
 
-      {/* результат приложения */}
       <g className="g8-late">
-        <rect x="54" y="108" width="120" height="34" rx="8" fill={T.okSoft}/>
-        <text x="114" y="120" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-          fontSize="6.5" letterSpacing="0.8" fill={T.ink3}>{t(SC_PRICE)}</text>
-        <text x="114" y="136" textAnchor="middle" fontFamily={MATH_FONT} fontSize="17"
-          fill={T.ok}>200</text>
+        <rect x="53" y="112" width="120" height="26" rx="7" fill={T.okSoft}/>
+        <text x="60" y="122" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6"
+          letterSpacing="0.6" fill={T.ink3}>{t(SC_PRICE)}</text>
+        <text x="166" y="132" textAnchor="end" fontFamily={MATH_FONT} fontSize="15"
+          fontWeight="600" fill={T.ok}>200</text>
       </g>
       <g className="g8-late2">
-        <rect x="226" y="108" width="120" height="34" rx="8" fill={T.tipSoft}/>
-        <circle cx="240" cy="125" r="6" fill="none" stroke={T.tip} strokeWidth="1.4"/>
-        <text x="240" y="128" textAnchor="middle" fontFamily={MATH_FONT} fontSize="9"
-          fill={T.tip}>!</text>
-        <text x="256" y="129" fontFamily="'Manrope', system-ui, sans-serif" fontSize="9"
+        <rect x="225" y="112" width="120" height="26" rx="7" fill={T.tipSoft}/>
+        <circle cx="238" cy="125" r="5.6" fill="none" stroke={T.tip} strokeWidth="1.3"/>
+        <text x="238" y="128" textAnchor="middle" fontFamily={MATH_FONT} fontSize="8"
+          fontWeight="700" fill={T.tip}>!</text>
+        <text x="249" y="128" fontFamily="'Manrope', system-ui, sans-serif" fontSize="8"
           fontWeight="700" fill={T.tip}>Error</text>
       </g>
     </SceneBand>
