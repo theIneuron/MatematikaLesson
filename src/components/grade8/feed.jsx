@@ -53,7 +53,7 @@ function Tokens({ parts, sub, v, tick, name }) {
 
 // Фазы: 0 — буква, 1 — число подставлено, 2 — части посчитаны, 3 — итог.
 export function FeedNumber({
-  nums, num, den, top, bot, varName = 'x', ask, broke, predict, table, onSolved, audio,
+  nums, num, den, top, bot, varName = 'x', ask, broke, predict, table, compact, onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -104,7 +104,7 @@ export function FeedNumber({
 
   return (
     <>
-      <div className={'g8-fd' + (table ? ' g8-fd-has-tab' : '')}>
+      <div className={'g8-fd' + (table ? ' g8-fd-has-tab' : '') + (compact ? ' g8-fd-compact' : '')}>
         <div className={'g8-fd-expr' + (dead && phase >= 2 ? ' is-dead' : '')} style={{ fontFamily: MATH_FONT }}>
           {showResult ? (
             <span key={'r' + tick} className="g8-fd-res">{fmt(num(at) / den(at))}</span>
@@ -395,6 +395,11 @@ export const FEED_STYLES = `
   74% { transform: translateX(-3px); }
 }
 
+/* Экран со своей сценой: запись уже показана на сцене, и во весь рост её
+   держать незачем — два блока начинают бороться за высоту и налезают. */
+.g8-fd-compact { gap: 12px; }
+.g8-fd-compact .g8-fd-expr { min-height: 82px; padding: 10px 26px; font-size: clamp(22px, 2.2vw, 30px);
+  box-shadow: none; background: transparent; }
 .g8-fd-has-tab .g8-fd-expr { min-height: 108px; padding: 16px 40px; }
 .g8-fd-has-tab .g8-fd-btn { min-width: 58px; min-height: 58px; }
 .g8-fd-has-tab { gap: 12px; }

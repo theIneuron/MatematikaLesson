@@ -31,7 +31,7 @@
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
 import React from 'react'
-import { L, MATH_FONT, Row, T } from './core.jsx'
+import { L, MATH_FONT, Row, T, useT } from './core.jsx'
 import { CaseStrip } from './feed.jsx'
 import { SceneBand } from './method.jsx'
 import { A, W, makeLesson } from './screens.jsx'
@@ -120,6 +120,13 @@ export const MISS = {
 // Объявлены ДО экранов: экран 6 берёт M_ODZ, а обращение к const выше по
 // файлу падает с «Cannot access before initialization».
 // ============================================================
+const SC_PRICE = L('BIR DONA NARXI', 'ЦЕНА ЗА ШТУКУ', 'PRICE PER ITEM')
+const SC_SAME = L(
+  "Dastur bitta. Farq faqat ma'lumotlarda",
+  'Программа одна. Различаются только данные',
+  'The program is the same. Only the data differs',
+)
+
 const M_KIND = {
   name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
   steps: [
@@ -149,12 +156,49 @@ const M_CHECK = {
 }
 
 // ============================================================
-// СЦЕНА ХУКА (§6). Пропорция 400 на 154. Сцена МАТЕМАТИЧЕСКАЯ: два прибора
-// на одном столе, у каждого свой ответ про одно и то же число.
-// Слева плоттер: линия идёт СКВОЗЬ двойку, дырку он не рисует. Справа
-// таблица: в ячейке при двойке прочерк. Между ними знак вопроса.
-// Сцена ЗАДАЁТ вопрос и ответа не даёт — ответ ученик получит на экране 6,
-// а увидит на финальной сцене.
+// СЦЕНА ХУКА (§6). Два экрана приложения: у одного пользователя цена
+// посчиталась, у второго — ошибка. Программа ОДНА, различаются данные, и
+// это видно по подписям под телефонами.
+//
+// Анимация: сначала прочерчиваются корпуса, потом на левом проступает цена,
+// последней на правом вспыхивает ошибка. Порядок неслучаен — ученик успевает
+// увидеть, что «нормально» бывает, прежде чем увидит поломку.
+// ============================================================
+// eslint-disable-next-line react-refresh/only-export-components
+const HookScene = () => {
+  const t = useT()
+  return (
+    <SceneBand kind="hook" label={L(
+      "Ikki foydalanuvchi, bitta dastur",
+      'Два пользователя, одна программа',
+      'Two users, one program',
+    )}>
+      {[0, 1].map((i) => (
+        <rect key={'p' + i} x={i ? 214 : 42} width="144" height="118" y="10" rx="14"
+          fill={T.paper} stroke={i ? T.tip : 'rgba(23,26,29,.14)'} strokeWidth={i ? 2 : 1.4}
+          pathLength="1" className="g8-draw"/>
+      ))}
+
+      <g className="g8-late">
+        <text x="114" y="52" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+          fontSize="9" letterSpacing="1.2" fill={T.ink3}>{t(SC_PRICE)}</text>
+        <text x="114" y="86" textAnchor="middle" fontFamily={MATH_FONT} fontSize="30" fill={T.ok}>200</text>
+        <text x="114" y="112" textAnchor="middle" fontFamily={MATH_FONT} fontSize="12" fill={T.ink3}>k = 3</text>
+      </g>
+
+      <g className="g8-late2">
+        <text x="286" y="52" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+          fontSize="9" letterSpacing="1.2" fill={T.ink3}>{t(SC_PRICE)}</text>
+        <text x="286" y="86" textAnchor="middle" fontFamily={MATH_FONT} fontSize="24" fill={T.tip}>Error</text>
+        <text x="286" y="112" textAnchor="middle" fontFamily={MATH_FONT} fontSize="12" fill={T.tip}>k = 0</text>
+      </g>
+
+      <text x="200" y="146" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="10" fill={T.ink3}>{t(SC_SAME)}</text>
+    </SceneBand>
+  )
+}
+
 // ============================================================
 // EKRAN 1. XUK. Bitta yozuv, ikki mashina, boshqa javob.
 // Plotter nuqtalarni birlashtiradi va teshikni CHIZMAYDI, jadval esa
@@ -190,6 +234,7 @@ const S1 = {
     num: () => 600,
     den: (k) => k,
     varName: 'k',
+    compact: true,
     predict: {
       question: L(
         "Dilnozada ilova nega yiqildi?",
@@ -1436,7 +1481,7 @@ const FinalScene = (
 // `method` — карточка способа НАД заданием (§4), `scene` — сцена урока (§6).
 // ============================================================
 export const SCREENS = [
-  { role: 'hook',     tool: 'feed',      ...S1 },
+  { role: 'hook',     tool: 'feed',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
