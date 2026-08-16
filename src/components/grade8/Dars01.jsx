@@ -33,6 +33,7 @@
 import React from 'react'
 import { L, MATH_FONT, Row, T } from './core.jsx'
 import { Plot } from './plot.jsx'
+import { CaseStrip } from './feed.jsx'
 import { SceneBand } from './method.jsx'
 import { A, W, makeLesson } from './screens.jsx'
 import { F } from './tools.jsx'
@@ -1470,7 +1471,24 @@ export const SCREENS = [
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'boundary',  kind: 'boundary', tag: 'З2',  ...S7 },
-  { role: 'rule',     tool: 'rulebuild', tag: 'З19', ...S8 },
+  {
+    role: 'rule',
+    tool: 'rulebuild',
+    tag: 'З19',
+    // Три собственных отказа ученика с экранов 1, 5 и 7 — над правилом.
+    // Правило не даётся сверху, оно выводится из того, что он уже видел.
+    scene: (
+      <CaseStrip
+        lead={L('SIZ OLGAN NATIJALAR', 'ТВОИ РЕЗУЛЬТАТЫ', 'YOUR OWN RESULTS')}
+        cases={[
+          { rec: '(x · x − 4) : (x − 2)', at: 'x = 2', den: '0' },
+          { rec: '(a + 5) : (a − 3)', at: 'a = 3', den: '0' },
+          { rec: '7 : (a − 5)', at: 'a = 5', den: '0' },
+        ]}
+      />
+    ),
+    ...S8,
+  },
   { role: 'practice', tool: 'chain',     kind: 'chain',    tag: 'З2',  method: M_ODZ,   ...S9 },
   { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', method: M_ODZ,   ...S10 },
   { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16', method: M_ODZ,   ...S11 },

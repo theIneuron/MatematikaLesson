@@ -242,6 +242,34 @@ export function PickBroken({ items, ask, after, onSolved, audio }) {
   )
 }
 
+
+// ============================================================
+// `CaseStrip` — ТРИ СОБСТВЕННЫХ РЕЗУЛЬТАТА УЧЕНИКА ПЕРЕД ПРАВИЛОМ.
+//
+// На экранах 1, 5 и 7 ученик сам получил три отказа на разных записях и при
+// разных числах. Здесь они стоят рядом — и правило перестаёт быть данным
+// сверху: оно ВЫВОДИТСЯ из того, что он уже видел своими руками.
+//
+// Общее у всех трёх подсвечено: нуль под чертой.
+// ============================================================
+export function CaseStrip({ cases, lead }) {
+  const t = useT()
+  return (
+    <div className="g8-cs">
+      {lead ? <span className="g8-cs-lead">{t(lead)}</span> : null}
+      <div className="g8-cs-row">
+        {cases.map((c, i) => (
+          <div key={i} className="g8-cs-item" style={{ fontFamily: MATH_FONT }}>
+            <span className="g8-cs-rec">{c.rec}</span>
+            <span className="g8-cs-at">{c.at}</span>
+            <span className="g8-cs-den">{c.den}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -296,6 +324,37 @@ export const FEED_STYLES = `
 .g8-fd-has-tab .g8-fd-expr { min-height: 108px; padding: 16px 40px; }
 .g8-fd-has-tab .g8-fd-btn { min-width: 58px; min-height: 58px; }
 .g8-fd-has-tab { gap: 12px; }
+.g8-cs { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
+.g8-cs-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; letter-spacing: .12em;
+  text-transform: uppercase; color: ${T.ink3}; }
+.g8-cs-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.g8-cs-item { flex: 1 1 0; min-width: 132px; display: flex; flex-direction: column; align-items: center;
+  gap: 2px; padding: 10px 12px; border-radius: 14px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); }
+.g8-cs-rec { font-size: clamp(15px, 1.4vw, 19px); color: ${T.ink2}; }
+.g8-cs-at { font-size: clamp(13px, 1.2vw, 15px); color: ${T.ink3}; }
+.g8-cs-den { font-size: clamp(19px, 1.9vw, 24px); color: ${T.tip}; font-weight: 700; }
+/* На телефоне полоса результатов встаёт в столбец и добавляет 40 пикселей —
+   экран правила выходит за фолд (замер: +42 и +35). Там она сжимается в одну
+   строку мелким кеглем: это НАПОМИНАНИЕ, а не третий текст экрана. */
+/* Ноутбук 615: там своя теснота, и полоса сжимается так же. */
+@media (max-height: 680px) {
+  .g8-cs { gap: 4px; }
+  .g8-cs-item { padding: 6px 10px; }
+  .g8-cs-rec { font-size: 14px; }
+  .g8-cs-at { font-size: 12px; }
+  .g8-cs-den { font-size: 17px; }
+  .g8-cs-lead { display: none; }
+}
+@media (max-width: 640px) {
+  .g8-cs-row { gap: 6px; }
+  .g8-cs-item { flex-direction: row; align-items: baseline; gap: 6px;
+    min-width: 0; padding: 5px 8px; }
+  .g8-cs-rec { font-size: 12px; }
+  .g8-cs-at { font-size: 11px; }
+  .g8-cs-den { font-size: 14px; }
+  .g8-cs-lead { display: none; }
+}
 .g8-pb { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
 .g8-pb-card { flex: 1 1 0; min-width: 150px; min-height: 96px; border: 0; cursor: pointer;
   border-radius: 16px; background: ${T.paper}; color: ${T.ink};
