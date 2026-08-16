@@ -164,6 +164,13 @@ export const grade11Nazariy = [
     ownLangSwitch: true,
   },
   {
+    slug: 'dars33-shar-hajmi',
+    title: 'Dars 33. Shar hajmi',
+    desc: "Kesimlar har xil, disklar faqat yaqinlashadi: aniq javob limitda. V = 4/3 pi R kub; Arximed nisbati 3 : 2 : 1. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars33.jsx')),
+    ownLangSwitch: true,
+  },
+  {
     slug: 'dars09-korsatkichli-tenglamalar',
     title: 'Dars 9. Ko\'rsatkichli tenglamalar',
     desc: "Bitta asosga keltirish, almashtirish t = aˣ va t > 0 sharti, ildizni qo'yib tekshirish. 15 slayd, UZ/RU/EN.",

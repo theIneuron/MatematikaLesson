@@ -45,6 +45,7 @@ const LESSONS = {
   dars30: 'dars30-sirtlar',
   dars31: 'dars31-hajm-prizma',
   dars32: 'dars32-hajm-konus',
+  dars33: 'dars33-shar-hajmi',
   dars24: 'dars24-taqsimotlar',
   dars09: 'dars09-korsatkichli-tenglamalar',
   dars10: 'dars10-korsatkichli-tengsizliklar',

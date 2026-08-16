@@ -199,6 +199,7 @@ export const TAG_NAMES = {
   sector_not_circle: L("yoyilma sektor", 'развёртка это сектор', 'the net is a sector'),
   cavalieri: L("qiyalik va balandlik", 'наклон и высота', 'tilt and height'),
   third_coefficient: L("uchdan bir", 'коэффициент 1/3', 'the one third'),
+  limit_needed: L("limit kerak", 'нужен предел', 'a limit is needed'),
   lateral_vs_total: L("yon va to'liq sirt", 'боковая и полная', 'side and total'),
   order_matters: L('tartib muhimmi', 'важен ли порядок', 'whether the order matters'),
   sum_vs_product: L('VA yoki YOKI', 'И или ИЛИ', 'AND or OR'),
