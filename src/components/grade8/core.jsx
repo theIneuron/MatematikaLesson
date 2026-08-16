@@ -1892,6 +1892,29 @@ html, body { margin: 0; padding: 0; }
    стоять она должна под полем, а не висеть слева отдельным элементом. */
 .g8-none { display: block; margin: 8px auto 0; }
 
+/* ====================================================================
+   ЭКРАН-ЛЕНТА: карточка по содержимому, кадры в общем боксе.
+   Замер: карточка чертежа 900 на 454, а сам чертёж внутри 868 на 166 —
+   почти три сотни пикселей пустой бумаги. Карточка растягивалась, потому
+   что забирает свободную высоту; но растягиваться должен ЧЕРТЁЖ, а не поле
+   вокруг него.
+   ==================================================================== */
+/* Ширину карточке НЕ сжимаем: внутри чертёж на 100% ширины, и fit-content
+   даёт замкнутый круг — карточка схлопнулась до 148 пикселей (замер).
+   Растягиваться должен ЧЕРТЁЖ, а не поле вокруг него. */
+.g8-frame-fig { padding: 14px 18px; }
+.g8-frame-fig .g8-fig { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+.g8-frame-fig .g8-fig > svg { max-height: 100%; height: auto; width: auto; max-width: 100%; }
+
+/* Кадры ленты — один бокс, а не три отдельные плашки в ряд: это ОДНА
+   дорожка шагов, и читаться она должна как одна вещь. */
+.g8-film {
+  display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;
+  background: ${T.paper}; border-radius: 14px; padding: 8px;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.06);
+}
+.g8-film .g8-film-k { box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+
 @media (max-height: 680px) {
   .g8-top { row-gap: 0; }
   .g8-seg { flex-basis: auto; flex: 1; min-width: 40px; order: 0; }
