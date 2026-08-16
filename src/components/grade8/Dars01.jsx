@@ -236,92 +236,76 @@ const S1 = {
 // EKRAN 2. TAYANCH. Uchta topshiriq, javob YOZILADI. Natijaga hech narsa
 // ketmaydi (§17): bu tekshiruv emas, darsning oldi.
 // ============================================================
+// EKRAN 2. TAYANCH. To'rtta yozuv, bittasida chiziq ostida HARF turadi.
+// Ekran davolaydigan adashish: «kasrning o'zi xavfli». Xavfli kasr emas,
+// xavfli CHIZIQ OSTIDAGI HARF — shuning uchun variantlar orasida maxraji
+// son bo'lgan kasr ham bor.
+// ============================================================
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'PRIOR KNOWLEDGE'),
   title: L(
-    "Uchta qisqa savol",
-    'Три коротких вопроса',
-    'Three short questions',
+    "Qaysi yozuv har doim ham sanalmaydi",
+    'Какая запись считается не всегда',
+    'Which record does not always compute',
   ),
   audio: [
     A('mount',
-      "Jadval nima uchun haq ekanini hozir tekshiramiz. Avval uchta qisqa topshiriq. Qiymat topish, maxrajni nolga aylantirish va suratdagi nol.",
-      'Почему права таблица, сейчас проверим. Сначала три коротких задания. Найти значение, обратить знаменатель в нуль и нуль в числителе.',
-      'Why the table is right we will check now. First three short tasks. Find a value, make a denominator zero, and zero in the numerator.'),
-    W('t1',
-      "Birinchisi bajarildi. Endi maxraj. Qaysi sonda u nolga aylanadi.",
-      'Первое сделано. Теперь знаменатель. При каком числе он обращается в нуль.',
-      'The first one is done. Now the denominator. At which number does it become zero.'),
-    W('t2',
-      "Uchinchisi qoldi. Nol qayerda turganiga qarang, yuqorida yoki pastda.",
-      'Осталось третье. Смотри, где стоит нуль, сверху или снизу.',
-      'The third one is left. Look where the zero stands, above or below.'),
+      "To'rtta yozuv. Uchtasi istalgan son bilan ishlaydi, bittasi esa yo'q.",
+      'Четыре записи. Три работают с любым числом, а одна нет.',
+      'Four records. Three work with any number, one does not.'),
+    A('why',
+      "Farqni chiziq ostidan qidiring. Nima turibdi u yerda: son yoki harf.",
+      'Разницу ищи под чертой. Что там стоит: число или буква.',
+      'Look for the difference below the bar. What stands there: a number or a letter.'),
   ],
   props: {
+    ask: L(
+      "Qaysi yozuvda har bir a uchun qiymat YO'Q?",
+      'В какой записи не при каждом a есть значение?',
+      'In which record is there no value for every a?',
+    ),
     items: [
       {
-        prompt: L(
-          "3a − 4 ifodaning qiymatini a = 2 da toping",
-          'Найди значение выражения 3a − 4 при a = 2',
-          'Find the value of 3a − 4 at a = 2',
+        id: 'lin',
+        show: '3a − 4',
+        hint: L(
+          "Bu yerda harf ko'paytiriladi va ayiriladi. Buni istalgan son bilan qilish mumkin.",
+          'Здесь буква умножается и вычитается. Такое можно с любым числом.',
+          'Here the letter is multiplied and subtracted. That works with any number.',
         ),
-        show: <Row size="row" align="center">{'3a − 4,   a = 2'}</Row>,
-        answer: '2',
-        accepts: ['3*2-4', '6-4'],
-        closed: L('3a − 4 da a = 2   →   2', '3a − 4 при a = 2   →   2', '3a − 4 at a = 2   →   2'),
-        hints: {
-          '10': L(
-            "Uchni ikkiga ko'paytirib, keyin to'rtni ayirish kerak. Ayirish tashlab ketilgan.",
-            'Три умножить на два, а потом вычесть четыре. Вычитание пропущено.',
-            'Multiply three by two, then subtract four. The subtraction was skipped.',
-          ),
-        },
       },
       {
-        prompt: L(
-          "x − 7 maxraji qaysi x da nolga aylanadi? Sonni yozing",
-          'При каком x знаменатель x − 7 обращается в нуль? Запиши число',
-          'At which x does the denominator x − 7 become zero? Type the number',
+        id: 'num',
+        show: '(a + 1) : 2',
+        hint: L(
+          "Chiziq ostida ikkilik turibdi. U hech qanday a da nolga aylanmaydi.",
+          'Под чертой двойка. Она не станет нулём ни при каком a.',
+          'Below the bar there is a two. It never becomes zero for any a.',
         ),
-        show: <Row size="row" align="center">{'x − 7'}</Row>,
-        answer: '7',
-        accepts: ['14/2', '7*1'],
-        closed: L('x − 7 = 0   →   x = 7', 'x − 7 = 0   →   x = 7', 'x − 7 = 0   →   x = 7'),
-        hints: {
-          '-7': L(
-            "Minus yettini qo'ying: minus yetti minus yetti, minus o'n to'rt chiqadi, nol emas.",
-            'Подставь минус семь: минус семь минус семь, получится минус четырнадцать, а не нуль.',
-            'Put minus seven: minus seven minus seven gives minus fourteen, not zero.',
-          ),
-        },
       },
       {
-        prompt: L(
-          "Nolni to'qqizga bo'lsak nima chiqadi? Sonni yozing",
-          'Что получится, если нуль разделить на девять? Запиши число',
-          'What do you get if you divide zero by nine? Type the number',
+        id: 'var',
+        right: true,
+        show: '7 : (a − 5)',
+      },
+      {
+        id: 'sq',
+        show: 'a · a + a',
+        hint: L(
+          "Bu yerda kasr chizig'i umuman yo'q, demak taqiq ham yo'q.",
+          'Здесь черты дроби нет вовсе, значит и запрета нет.',
+          'There is no fraction bar here at all, so there is no restriction either.',
         ),
-        show: <Row size="row" align="center">{F('0', '9')}</Row>,
-        answer: '0',
-        accepts: ['0/9', '0*5'],
-        closed: L("nolni to'qqizga bo'lsak   →   0", 'нуль разделить на девять   →   0', 'zero divided by nine   →   0'),
-        hints: {
-          '9': L(
-            "Yuqorida nol turadi. Nol nechta bo'lakka bo'linsa ham nol qoladi.",
-            'Сверху стоит нуль. На сколько частей нуль ни делили, он остаётся нулём.',
-            'There is zero above. However many parts you divide zero into, it stays zero.',
-          ),
-        },
       },
     ],
+    after: L(
+      "Ha. Chiziq ostida harf turibdi, va beshlikda u nolga aylanadi.",
+      'Да. Под чертой стоит буква, и при пятёрке она обращается в нуль.',
+      'Yes. A letter stands below the bar, and at five it becomes zero.',
+    ),
   },
 }
 
-// ============================================================
-// EKRAN 3. KO'RSATISH. Dastur misolni O'ZI yechadi: qo'l ko'rsatkichi
-// maxrajga keladi, nol kasrga uchib tushadi, chiziq uziladi. Yo'l-yo'lakay
-// SAVOL beriladi va javobsiz demo to'xtab turadi. Oxirgi qadamni — ODZ ni —
-// dastur YOZMAYDI: uni o'quvchi yozadi (§2.2.1).
 // ============================================================
 const S3 = {
   eyebrow: L('QARANG, QANDAY QILINADI', 'СМОТРИ, КАК ЭТО ДЕЛАЮТ', 'WATCH HOW IT IS DONE'),
@@ -1480,7 +1464,7 @@ const FinalScene = (
 // ============================================================
 export const SCREENS = [
   { role: 'hook',     tool: 'feed',      ...S1 },
-  { role: 'support',  tool: 'chain',     ...S2 },
+  { role: 'support',  tool: 'pick',      ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },

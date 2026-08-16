@@ -183,6 +183,65 @@ export function FeedNumber({
   )
 }
 
+
+// ============================================================
+// `PickBroken` — НАЙДИ ЗАПИСЬ, КОТОРАЯ НЕ СЧИТАЕТСЯ.
+//
+// Четыре записи в ряд, у одной под чертой буква. Заблуждение, которое экран
+// лечит: «дробь опасна сама по себе». Опасна не дробь, а БУКВА ПОД ЧЕРТОЙ —
+// поэтому среди вариантов есть и дробь со знаменателем-числом.
+//
+// Разбор на каждый неверный указывает на признак, а не даёт ответ.
+// ============================================================
+export function PickBroken({ items, ask, after, onSolved, audio }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [picked, setPicked] = useState(null)
+  const [wrong, setWrong] = useState([])
+  const [note, setNote] = useState(null)
+
+  const pick = (it) => {
+    if (picked) return
+    if (it.right) {
+      setPicked(it.id)
+      setNote(after || null)
+      sfx.playCorrect()
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: wrong.length + 1 })
+      return
+    }
+    setWrong((p) => (p.indexOf(it.id) === -1 ? p.concat(it.id) : p))
+    setNote(it.hint || null)
+    sfx.playWrong()
+    if (audio && it.hint) audio.say(t(it.hint))
+  }
+
+  return (
+    <>
+      <Ask>{t(ask)}</Ask>
+      <div className="g8-pb">
+        {items.map((it) => (
+          <button
+            key={it.id}
+            type="button"
+            className={'g8-pb-card'
+              + (picked === it.id ? ' is-ok' : '')
+              + (wrong.indexOf(it.id) !== -1 ? ' is-tip' : '')}
+            style={{ fontFamily: MATH_FONT }}
+            disabled={!!picked}
+            onClick={() => pick(it)}
+          >
+            {it.show}
+          </button>
+        ))}
+      </div>
+      <Slot mh={64}>
+        <Note kind={picked ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
+      </Slot>
+    </>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -237,6 +296,18 @@ export const FEED_STYLES = `
 .g8-fd-has-tab .g8-fd-expr { min-height: 108px; padding: 16px 40px; }
 .g8-fd-has-tab .g8-fd-btn { min-width: 58px; min-height: 58px; }
 .g8-fd-has-tab { gap: 12px; }
+.g8-pb { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.g8-pb-card { flex: 1 1 0; min-width: 150px; min-height: 96px; border: 0; cursor: pointer;
+  border-radius: 16px; background: ${T.paper}; color: ${T.ink};
+  font-size: clamp(20px, 2vw, 27px);
+  box-shadow: 0 14px 34px -26px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07);
+  transition: transform .2s ease, box-shadow .2s ease; }
+.g8-pb-card:hover:not(:disabled) { transform: translateY(-3px); }
+.g8-pb-card.is-ok { background: ${T.okSoft}; color: ${T.ok};
+  box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.5); }
+.g8-pb-card.is-tip { background: ${T.tipSoft}; color: ${T.tip};
+  box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.45); }
+.g8-pb-card:disabled { cursor: default; }
 .g8-fd-tab { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
 .g8-fd-cell { display: flex; flex-direction: column; align-items: center; gap: 2px;
   min-width: 58px; padding: 6px 9px; border-radius: 12px; background: ${T.paper};

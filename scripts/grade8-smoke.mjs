@@ -35,7 +35,7 @@ const SIZES = [
 //   chips -- сборка правила по data-id
 const SOLVE = [
   { feed: 2 },                                                           // 1 хук: ученик кормит запись, ломает на двойке
-  { fields: ['2', '7', '0'] },                                           // 2 опора
+  { cards: 2 },                                                          // 2 опора: выбрать запись с буквой под чертой
   // Порядок шагов в прогоне: part -> nums -> picksAfter -> fields.
   // Вопрос по ходу появляется ПОСЛЕ подстановки, поле ОДЗ — после вопроса.
   // Лента кадров: жмём кадры по порядку, на втором отвечаем на вопрос.
@@ -276,6 +276,16 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Опора: карточки записей, верная — третья по порядку данных урока.
+    if (s.cards !== undefined) {
+      const cards = page.locator('.g8-pb-card')
+      const n = await cards.count()
+      for (let k = 0; k < n; k += 1) {
+        await tap(cards.nth(k), at)
+        await page.waitForTimeout(220)
+        if (await page.locator('.g8-pb-card.is-ok').count()) break
       }
     }
     // Хук: жмём числа по порядку и доводим до того, на котором машина встала.
