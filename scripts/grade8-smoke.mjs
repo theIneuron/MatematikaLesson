@@ -43,7 +43,7 @@ const SOLVE = [
   { part: 'den', nums: ['3'], picksAfter: ['none'], fields: ['x != 3'] }, // 4 САМ
   { feed: 3 },                                                           // 5 заполняем таблицу, запрет на тройке
   { solve: true },                                                       // 6 решаем вместе
-  { fields: ['0'] },                                                    // 7 граница
+  { pair: true },                                                        // 7 граница: тапаем числа до расхождения
   { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
   { fields: ['x != -4', 'x != 3'], none: true, fields2: ['x != 0, x != 5'] }, // 9 цепочка
   { fields: ['x+4', 'x != 4, x != -4', '4'] },                           // 10 направляемая
@@ -277,6 +277,12 @@ for (const size of SIZES) {
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
       }
+    }
+    // Граница: тапаем числа, пока записи не разойдутся.
+    if (s.pair) {
+      const btns = page.locator('.g8-tr-nums .g8-fd-btn')
+      const n = await btns.count()
+      for (let k = 0; k < n; k += 1) { await tap(btns.nth(k), at); await page.waitForTimeout(200) }
     }
     // Опора: карточки записей, верная — третья по порядку данных урока.
     if (s.cards !== undefined) {

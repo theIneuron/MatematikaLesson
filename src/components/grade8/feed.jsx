@@ -270,6 +270,78 @@ export function CaseStrip({ cases, lead }) {
   )
 }
 
+
+// ============================================================
+// `TwoRecords` — ГДЕ ДВЕ ЗАПИСИ РАСХОДЯТСЯ.
+//
+// Ученик тапает числа; обе записи считаются РЯДОМ и на одном числе.
+// Пока значения совпадают, обе панели зелёные. На числе, где левая теряет
+// значение, она гаснет, а правая продолжает считать — расхождение видно, а
+// не названо.
+//
+// Заблуждение, которое лечит: «сократили — значит равны». Равны везде,
+// КРОМЕ одной точки, и эта точка не исчезает от сокращения.
+// ============================================================
+export function TwoRecords({ nums, left, right, ask, after, onSolved, audio }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [at, setAt] = useState(null)
+  const [seen, setSeen] = useState({})
+  const [found, setFound] = useState(false)
+
+  const lv = at === null ? null : left.f(at)
+  const rv = at === null ? null : right.f(at)
+  const gap = at !== null && (lv === null || !isFinite(lv))
+
+  const tap = (x) => {
+    setAt(x)
+    setSeen((p) => ({ ...p, [x]: true }))
+    const v = left.f(x)
+    if (v === null || !isFinite(v)) {
+      sfx.playWrong()
+      if (!found) {
+        setFound(true)
+        if (audio && after) audio.say(t(after))
+        if (onSolved) onSolved({ correct: true, tries: 1, value: x })
+      }
+      return
+    }
+    sfx.playCorrect()
+  }
+
+  const cell = (rec, v, dim) => (
+    <div className={'g8-tr-panel' + (dim ? ' is-dim' : '')}>
+      <span className="g8-tr-rec" style={{ fontFamily: MATH_FONT }}>{rec}</span>
+      <span className="g8-tr-val" style={{ fontFamily: MATH_FONT }}>
+        {at === null ? '' : (v === null || !isFinite(v)) ? '—' : fmt(v)}
+      </span>
+    </div>
+  )
+
+  return (
+    <>
+      <div className="g8-tr">
+        <div className="g8-tr-pair">
+          {cell(left.show, lv, gap)}
+          <span className={'g8-tr-sign' + (gap ? ' is-gap' : '')}>{gap ? '≠' : '='}</span>
+          {cell(right.show, rv, false)}
+        </div>
+        <div className="g8-tr-nums">
+          {nums.map((x) => (
+            <button key={x} type="button" style={{ fontFamily: MATH_FONT }}
+              className={'g8-fd-btn' + (at === x ? ' is-now' : '')
+                + (seen[x] ? ((left.f(x) === null || !isFinite(left.f(x))) ? ' is-dead' : ' is-seen') : '')}
+              onClick={() => tap(x)}>{fmt(x)}</button>
+          ))}
+        </div>
+      </div>
+      <Slot mh={64}>
+        {found ? <Note kind="ok">{t(after)}</Note> : <Ask>{t(ask)}</Ask>}
+      </Slot>
+    </>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -324,6 +396,19 @@ export const FEED_STYLES = `
 .g8-fd-has-tab .g8-fd-expr { min-height: 108px; padding: 16px 40px; }
 .g8-fd-has-tab .g8-fd-btn { min-width: 58px; min-height: 58px; }
 .g8-fd-has-tab { gap: 12px; }
+.g8-tr { display: flex; flex-direction: column; align-items: center; gap: 20px; width: 100%;
+  flex: 1 1 auto; justify-content: center; min-height: 0; }
+.g8-tr-pair { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; justify-content: center; }
+.g8-tr-panel { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-width: 168px; padding: 16px 20px; border-radius: 16px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); transition: opacity .3s ease; }
+.g8-tr-panel.is-dim { opacity: .55; box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.4); }
+.g8-tr-rec { font-size: clamp(17px, 1.7vw, 22px); color: ${T.ink2}; }
+.g8-tr-val { font-size: clamp(26px, 2.8vw, 38px); color: ${T.ink}; min-height: 1.15em; }
+.g8-tr-panel.is-dim .g8-tr-val { color: ${T.tip}; }
+.g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
+.g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
+.g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .g8-cs { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .g8-cs-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; letter-spacing: .12em;
   text-transform: uppercase; color: ${T.ink3}; }

@@ -32,7 +32,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react'
 import { L, MATH_FONT, Row, T } from './core.jsx'
-import { Plot } from './plot.jsx'
 import { CaseStrip } from './feed.jsx'
 import { SceneBand } from './method.jsx'
 import { A, W, makeLesson } from './screens.jsx'
@@ -684,72 +683,47 @@ const S6 = {
 // EKRAN 7. CHEGARA (§20 p. 7 — aynan 7-ekranda). Ikki yozuv, ikki ODZ satri.
 // Javob — qiymatlar TO'PLAMI, variant bilan berilmaydi.
 // ============================================================
+// EKRAN 7. CHEGARA. Ikki yozuv YONMA-YON va BIR XIL sonda sanaladi.
+// Qiymatlar mos kelaversa, ikkala panel ham yashil. Chap yozuv qiymatini
+// yo'qotgan sonda u so'nadi, o'ngi esa sanashda davom etadi.
+//
+// Davolanadigan adashish: «qisqartirdik -- demak teng». Teng, faqat BITTA
+// nuqtadan tashqari, va bu nuqta qisqartirishdan yo'qolmaydi.
+// ============================================================
 const S7 = {
   eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
   title: L(
-    "Qayerda ajraladi",
-    'Где расходятся',
-    'Where they part',
+    "Bu ikki yozuv qayerda ajraladi",
+    'Где эти две записи расходятся',
+    'Where these two records part ways',
   ),
   audio: [
     A('mount',
-      "Endi chegara. Ikki yozuv, va ular deyarli bir xil narsa.",
-      'Теперь граница. Две записи, и они почти одно и то же.',
-      'Now the boundary. Two records, and they are almost the same thing.'),
+      "Ikki yozuv. Ular bir xil sonda sanaladi, va siz natijalarni yonma-yon ko'rasiz.",
+      'Две записи. Они считаются на одном и том же числе, и результаты ты видишь рядом.',
+      'Two records. They are computed at the same number, and you see the results side by side.'),
     A('why',
-      "Chapda iksni iksga bo'lish, o'ngda birlik. Darrov qisqartirgingiz keladi, lekin avval qarang, qaysi sonlarda bu ikki yozuv umuman mavjud.",
-      'Слева икс делят на икс, справа единица. Сократить хочется сразу, но сначала посмотри, при каких числах обе записи вообще существуют.',
-      'On the left x is divided by x, on the right there is one. You want to cancel at once, but first look at which numbers make both records exist at all.'),
+      "Sonlarni birma-bir bosing. Ular deyarli hamma joyda mos keladi, lekin hamma joyda emas.",
+      'Нажимай числа по очереди. Они совпадают почти везде, но не везде.',
+      'Tap the numbers one by one. They agree almost everywhere, but not everywhere.'),
   ],
   props: {
-    left: <Row size="big" align="center">{F('x', 'x')}</Row>,
-    right: <Row size="big" align="center">{'1'}</Row>,
-    odzLeft: 'x ≠ 0',
-    odzRight: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
-    // IKKI YOZUV BITTA O'QDA. Yashil nuqtalar — o'ng yozuv, jigarrang — chap.
-    // Nolda chap yozuvning nuqtasi YO'Q: ajralish shu yerda KO'RINADI.
-    // КООРДИНАТНАЯ ПЛОСКОСТЬ, а не схема точек: обе записи дают одну и ту же
-    // горизонталь, и вся разница между ними — ОДНА выколотая точка в нуле.
-    // Кривая строится ИЗ функции, список точек в данных урока запрещён (§7.2).
-    fig: (
-      <Plot
-        f={(x) => (x === 0 ? null : 1)}
-        from={-4} to={4} yFrom={0} yTo={2} h={72}
-        holes={[{ x: 0, y: 1 }]}
-        grid={false}
-      />
+    nums: [-2, -1, 0, 1, 2],
+    left: { show: 'x : x', f: (x) => (x === 0 ? null : x / x) },
+    right: { show: '1', f: () => 1 },
+    ask: L(
+      "Sonlarni bosing: qaysinisida yozuvlar ajraladi?",
+      'Нажимай числа: на каком записи разойдутся?',
+      'Tap the numbers: at which one do the records part ways?',
     ),
-    answer: [0],
-    question: L(
-      "Qaysi qiymatda bu ikki yozuv ajraladi? Barcha shunday sonlarni yozing",
-      'При каком значении эти две записи расходятся? Запиши все такие числа',
-      'At which value do these two records part ways? Type all such numbers',
-    ),
-    hints: {
-      '1': L(
-        "Birni qo'ying: chapda bir, o'ngda ham bir. Ajralish yo'q. Chap yozuvning pastini nolga aylantiradigan sonni oling.",
-        'Подставь один: слева один, справа тоже один. Расхождения нет. Возьми число, которое обращает в нуль нижнюю часть левой записи.',
-        'Put one: one on the left, one on the right. No divergence. Take the number that makes the lower part of the left record zero.',
-      ),
-      '*': L(
-        "Chap yozuvning pastida nima turgan bo'lsa, uni nolga aylantiradigan sonni oling.",
-        'Возьми число, которое обращает в нуль то, что стоит внизу левой записи.',
-        'Take the number that makes what stands below in the left record equal to zero.',
-      ),
-    },
-    note: L(
-      "Nolda chapda yozuv yo'q, o'ngda esa birlik bor. Ya'ni bu yozuvlar faqat ODZ da teng.",
-      'При нуле слева записи нет, а справа единица. Значит эти записи равны только на ОДЗ.',
-      'At zero the left record does not exist while the right one is one. So these records are equal only on the domain.',
+    after: L(
+      "Nolda chap yozuv qiymatini yo'qotdi, o'ngi esa bir bo'lib qoldi. Yozuvlar bitta nuqtadan tashqari hamma joyda teng.",
+      'При нуле левая запись потеряла значение, а правая осталась единицей. Записи равны везде, кроме одной точки.',
+      'At zero the left record lost its value while the right one stayed one. The records agree everywhere except one point.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 8. QOIDA. Formulirovkani O'QUVCHI YIG'ADI (4-sinf usuli), va faqat
-// to'g'ri yig'ilgandan keyin darslik matni ochiladi. Kartochka ostida
-// 1-ekrandagi ikki mashina QAYTADI (2 va 3-sinf usuli): xukning savoli
-// yakunda emas, AYNAN qoida ekranida javob oladi.
 // ============================================================
 const S8 = {
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
@@ -1470,7 +1444,7 @@ export const SCREENS = [
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
-  { role: 'explain',  tool: 'boundary',  kind: 'boundary', tag: 'З2',  ...S7 },
+  { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
   {
     role: 'rule',
     tool: 'rulebuild',
