@@ -287,6 +287,12 @@ export const METHOD_STYLES = `
 @keyframes g8-sv-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
 @media (max-width: 640px) {
+  /* Контент прижат кверху (решение 2026-08-16), и центрирование больше не
+     съедает лишнее — на телефоне экраны практики выходили за фолд на 8 px.
+     Лента способа там плотнее: она напоминание, а не текст экрана. */
+  .g8-mc.is-compact { padding: 4px 8px; gap: 2px 8px; }
+  .g8-mc-item { font-size: 11.5px; line-height: 1.25; }
+  .g8-mc-h { font-size: 10px; }
   .g8-sv { flex-direction: column; gap: 8px; }
   .g8-sv .g8-mc { width: 100%; }
   .g8-sv-line { font-size: 15px; }

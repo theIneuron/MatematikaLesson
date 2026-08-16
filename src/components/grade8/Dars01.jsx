@@ -580,161 +580,98 @@ const S5 = {
 }
 
 // ============================================================
+// EKRAN 6. TAQIQNI IKKI USUL BILAN TOPAMIZ. Naqsh 1-sinf 2-darsdan («345 ni
+// ikki usul bilan»): bitta javob, ikkita yo'l, ikkalasi ham ekranda qoladi.
+//
+// 1-usul: sonlarni birma-bir qo'yish. O'quvchi buni allaqachon uch marta
+// qilgan, va u ishlaydi, lekin uzoq.
+// 2-usul: maxrajni nolga tenglash. Bitta satr, taxmin qilish shart emas.
+//
+// Ekranning mazmuni shundaki, ikkala usul BIR XIL sonni beradi.
+// ============================================================
 const S6 = {
-  eyebrow: L('BIRGA YECHAMIZ', 'РЕШАЕМ ВМЕСТЕ', 'SOLVING TOGETHER'),
+  eyebrow: L('IKKI USUL', 'ДВА СПОСОБА', 'TWO METHODS'),
   title: L(
-    "Butun yechim, boshdan oxirigacha",
-    'Решение целиком, от начала до конца',
-    'A full solution, start to finish',
+    "Taqiqni ikki usul bilan topamiz",
+    'Найдём запрет двумя способами',
+    'Finding the restriction two ways',
   ),
   audio: [
     A('mount',
-      "Bitta misolni butunlay yechamiz. Hech narsa o'chirilmaydi: har bir qator ekranda qoladi.",
-      'Разберём один пример целиком. Ничего стирать не будем: каждая строка останется на экране.',
-      'We will solve one example completely. Nothing gets erased: every line stays on the screen.'),
-    W('s3',
-      "Ko'paytma nolga aylanishi uchun bitta ko'paytuvchining noli yetarli. Shuning uchun ikkita alohida tenglama chiqdi.",
-      'Чтобы произведение стало нулём, хватает нуля у одного множителя. Поэтому получилось два отдельных уравнения.',
-      'For a product to be zero, one factor being zero is enough. That is why we got two separate equations.'),
-    W('s5',
-      "Uchlikni qo'yib ko'ramiz. Birinchi qavs nolga aylanadi, demak butun maxraj nol. Bu rad javob, va uni ko'rish kerak.",
-      'Подставляем тройку. Первая скобка обращается в нуль, значит и весь знаменатель нуль. Это отказ, и его надо увидеть.',
-      'We substitute three. The first bracket becomes zero, so the whole denominator is zero. That is a refusal, and it must be seen.'),
+      "Bitta yozuv va ikkita yo'l. Ikkalasi ham bir xil sonni beradi.",
+      'Одна запись и два пути. Оба дают одно и то же число.',
+      'One record and two ways. Both give the same number.'),
+    W('s4',
+      "Birinchi usul ishlaydi, lekin uzoq: har bir sonni sinab ko'rish kerak.",
+      'Первый способ работает, но он долгий: приходится пробовать каждое число.',
+      'The first method works but it is slow: you have to try every number.'),
     W('s7',
-      "Javob ikki shartdan iborat. Ikkala son ham taqiqlangan, chunki har biri maxrajni nolga aylantiradi.",
-      'Ответ состоит из двух условий. Оба числа запрещены, потому что каждое обращает знаменатель в нуль.',
-      'The answer consists of two conditions. Both numbers are forbidden because each turns the denominator into zero.'),
+      "Ikkinchi usul taxmin qilishni talab qilmaydi. Maxrajni nolga tenglaymiz va yechamiz.",
+      'Второй способ не требует угадывать. Приравниваем знаменатель к нулю и решаем.',
+      'The second method needs no guessing. We set the denominator to zero and solve.'),
   ],
   props: {
     task: L(
-      "Ushbu ifodaning ODZ sini topamiz",
-      'Найдём ОДЗ этого выражения',
-      'Let us find the domain of this expression',
+      "600 : (k − 4) yozuvida taqiq qayerda?",
+      'Где запрет у записи 600 : (k − 4)?',
+      'Where is the restriction in 600 : (k − 4)?',
     ),
-    method: M_ODZ,
     lines: [
+      { text: '1-usul · СПОСОБ 1 · METHOD 1', note: L('sonlarni sinaymiz', 'пробуем числа', 'we try numbers') },
+      { text: 'k = 1:   600 : (1 − 4) = −200', tone: 'ok' },
+      { text: 'k = 2:   600 : (2 − 4) = −300', tone: 'ok' },
       {
-        text: '(x + 5) : (x² − 9)',
-        note: L('ifoda', 'выражение', 'the expression'),
-      },
-      {
-        text: 'x² − 9 = (x − 3)(x + 3)',
-        note: L("maxrajni ko'paytuvchilarga ajratamiz", 'раскладываем знаменатель на множители', 'we factor the denominator'),
+        text: 'k = 3:   600 : (3 − 4) = −600',
+        tone: 'ok',
         ask: {
           question: L(
-            "Ko'paytma qachon nolga teng?",
-            'Когда произведение равно нулю?',
-            'When is a product equal to zero?',
-          ),
-          items: [
-            {
-              id: 'one',
-              right: true,
-              label: L(
-                "Kamida bitta ko'paytuvchi nol bo'lganda",
-                'Когда хотя бы один множитель нуль',
-                'When at least one factor is zero',
-              ),
-            },
-            {
-              id: 'both',
-              label: L(
-                "Ikkala ko'paytuvchi ham nol bo'lganda",
-                'Когда оба множителя нули',
-                'When both factors are zero',
-              ),
-              hint: L(
-                "Bittasi yetarli. Birinchisi nol bo'lsa, ko'paytma allaqachon nol.",
-                'Хватает одного. Если первый нуль, произведение уже нуль.',
-                'One is enough. If the first is zero, the product is already zero.',
-              ),
-            },
-            {
-              id: 'none',
-              label: L(
-                "Ikkalasi ham nol bo'lmaganda",
-                'Когда оба множителя не нули',
-                'When neither factor is zero',
-              ),
-              hint: L(
-                "Unda ko'paytma aynan nolga teng emas.",
-                'Тогда произведение как раз не нуль.',
-                'Then the product is precisely not zero.',
-              ),
-            },
-          ],
-        },
-      },
-      { text: '(x − 3)(x + 3) = 0' },
-      { text: 'x − 3 = 0        x + 3 = 0' },
-      {
-        text: 'x = 3        x = −3',
-        ask: {
-          question: L(
-            "Uchlikda maxraj nima beradi?",
-            'Что даёт знаменатель при тройке?',
-            'What does the denominator give at three?',
+            "Keyingisi to'rtlik. Nima bo'ladi?",
+            'Дальше четвёрка. Что будет?',
+            'Next comes four. What happens?',
           ),
           items: [
             {
               id: 'zero',
               right: true,
-              label: L(
-                "Nol, demak son taqiqlangan",
-                'Нуль, значит число запрещено',
-                'Zero, so the number is forbidden',
+              label: L("Maxraj nol bo'ladi", 'Знаменатель станет нулём', 'The denominator becomes zero'),
+            },
+            {
+              id: 'big',
+              label: L('Juda katta son', 'Очень большое число', 'A very large number'),
+              hint: L(
+                "To'rt minus to'rt nolga teng, va nolga bo'lish mumkin emas.",
+                'Четыре минус четыре это нуль, а на нуль делить нельзя.',
+                'Four minus four is zero, and division by zero is impossible.',
               ),
             },
             {
-              id: 'four',
-              label: L("To'rt", 'Четыре', 'Four'),
+              id: 'same',
+              label: L("O'sha −600", 'Те же −600', 'The same −600'),
               hint: L(
-                "Olti — bu ikkinchi qavs. Birinchisi nolga aylandi, va butun ko'paytma nol bo'ldi.",
-                'Шесть — это вторая скобка. Первая обнулилась, и всё произведение стало нулём.',
-                'Six is the second bracket. The first became zero, so the whole product became zero.',
-              ),
-            },
-            {
-              id: 'twelve',
-              label: L("O'n ikki", 'Двенадцать', 'Twelve'),
-              hint: L(
-                "Uch minus uch nolga teng, nolni istalgan songa ko'paytirsangiz ham nol chiqadi.",
-                'Три минус три это нуль, а нуль умножить на любое число — снова нуль.',
-                'Three minus three is zero, and zero times any number is zero again.',
+                "Har bir sonda maxraj o'zgaradi. To'rtlikda u nolga aylanadi.",
+                'При каждом числе знаменатель меняется. При четвёрке он обращается в нуль.',
+                'The denominator changes at every number. At four it becomes zero.',
               ),
             },
           ],
         },
       },
+      { text: 'k = 4:   600 : (4 − 4) = 600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
+      { text: '2-usul · СПОСОБ 2 · METHOD 2', note: L('taxminsiz', 'без перебора', 'no guessing') },
+      { text: 'k − 4 = 0' },
+      { text: 'k = 4', tone: 'ok', note: L('bitta satr', 'одна строка', 'one line') },
       {
-        text: 'x = 3:   (3 − 3)(3 + 3) = 0',
-        tone: 'no',
-        note: L("nolga bo'lish mumkin emas", 'на нуль делить нельзя', 'division by zero is impossible'),
-      },
-      {
-        text: 'x = 0:   (0 − 3)(0 + 3) = −9',
+        text: L(
+          "Ikkala usul ham to'rtlikni berdi",
+          'Оба способа дали четвёрку',
+          'Both methods gave four',
+        ),
         tone: 'ok',
-        note: L('qiymat bor', 'значение есть', 'the value exists'),
-      },
-      {
-        text: 'x ≠ 3        x ≠ −3',
-        tone: 'ok',
-        note: L('javob', 'ответ', 'the answer'),
       },
     ],
   },
 }
 
-// ============================================================
-// EKRAN 7. CHEGARA (§20 p. 7 — aynan 7-ekranda). Ikki yozuv, ikki ODZ satri.
-// Javob — qiymatlar TO'PLAMI, variant bilan berilmaydi.
-// ============================================================
-// EKRAN 7. CHEGARA. Ikki yozuv YONMA-YON va BIR XIL sonda sanaladi.
-// Qiymatlar mos kelaversa, ikkala panel ham yashil. Chap yozuv qiymatini
-// yo'qotgan sonda u so'nadi, o'ngi esa sanashda davom etadi.
-//
-// Davolanadigan adashish: «qisqartirdik -- demak teng». Teng, faqat BITTA
-// nuqtadan tashqari, va bu nuqta qisqartirishdan yo'qolmaydi.
 // ============================================================
 const S7 = {
   eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
