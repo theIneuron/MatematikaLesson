@@ -164,9 +164,9 @@ const M_CHECK = {
 const S1 = {
   eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
   title: L(
-    "Bitta son mashinani to'xtatadi",
-    'Одно число останавливает машину',
-    'One number stops the machine',
+    "Ilova bir foydalanuvchida yiqiladi",
+    'Приложение падает у одного из двух',
+    'The app crashes for one user out of two',
   ),
   audio: [
     A('mount',
@@ -181,53 +181,51 @@ const S1 = {
   props: {
     // Запись рисует САМ прибор: он подставляет число на место буквы и считает
     // части, поэтому дробь не может прийти готовым узлом.
+    // СИТУАЦИЯ УРОКА: формула приложения. Цена за штуку = сумма делить на
+    // количество. У одного пользователя считается, у другого падает —
+    // различаются только ДАННЫЕ, а программа одна.
     nums: [0, 1, 2, 3, 4],
-    num: (x) => x * x - 4,
-    den: (x) => x - 2,
-    varName: 'x',
-    // ХУК: сначала ПРОГНОЗ, потом проверка. Ответ на хуке не называется —
-    // ученик добывает его сам, подставляя числа (§5).
+    top: ['600'],
+    bot: ['k'],
+    num: () => 600,
+    den: (k) => k,
+    varName: 'k',
     predict: {
       question: L(
-        "Bu yozuv har qanday son bilan ishlaydimi?",
-        'Эта запись работает с любым числом?',
-        'Does this record work with any number?',
+        "Dilnozada ilova nega yiqildi?",
+        'Почему приложение упало у Дилнозы?',
+        'Why did the app crash for Dilnoza?',
       ),
       items: [
         {
-          id: 'yes',
-          label: L('Ha, har qanday son bilan', 'Да, с любым', 'Yes, with any number'),
+          id: 'phone',
+          label: L('Telefoni buzuq', 'Сломан телефон', 'Her phone is broken'),
           say: L(
-            "Tekshiramiz. Sonlarni birma-bir bosing.",
-            'Проверим. Нажимай числа по очереди.',
-            'Let us check. Tap the numbers one by one.',
+            "Dastur bitta. Tekshiramiz: sonlarni qo'ying.",
+            'Программа одна и та же. Проверим: подставляй числа.',
+            'The program is the same. Let us check: substitute the numbers.',
           ),
         },
         {
-          id: 'no',
-          label: L("Yo'q, biror son bilan ishlamaydi", 'Нет, с каким-то не сработает', 'No, some number will fail'),
+          id: 'data',
+          label: L("Ma'lumotlari boshqa", 'Другие данные', 'Her data is different'),
           say: L(
-            "Qaysi son bilan? Toping.",
-            'С каким именно? Найди его.',
-            'With which one exactly? Find it.',
+            "Tekshiramiz. Qaysi sonda formula yiqiladi?",
+            'Проверим. На каком числе формула падает?',
+            'Let us check. At which number does the formula crash?',
           ),
         },
       ],
     },
     ask: L(
-      "Istalgan sonni bosing: u harf o'rniga turadi",
-      'Нажми любое число — оно встанет на место буквы',
-      'Tap any number and it will take the place of the letter',
+      "Miqdorni qo'ying: ilova nechada yiqiladi?",
+      'Подставь количество — на каком приложение упадёт?',
+      'Substitute the quantity: at which one does the app crash?',
     ),
     broke: L(
-      "Maxraj nolga aylandi va kasr chizig'i uzildi. Nolga bo'lish mumkin emas.",
-      'Знаменатель обратился в нуль, и черта дроби разорвалась. На нуль делить нельзя.',
-      'The denominator became zero and the fraction bar tore. Division by zero is impossible.',
-    ),
-    after: L(
-      "Jadval haq. Endi topamiz, bunday sonlarni qanday oldindan ko'rish mumkin.",
-      'Права таблица. Теперь найдём, как такие числа увидеть заранее.',
-      'The table is right. Now we will find how to see such numbers in advance.',
+      "Miqdor nol. Maxraj nolga aylandi va chiziq uzildi — ilova shu yerda yiqiladi.",
+      'Количество ноль. Знаменатель обратился в нуль, черта разорвалась — здесь приложение и падает.',
+      'The quantity is zero. The denominator became zero and the bar tore: this is where the app crashes.',
     ),
   },
 }

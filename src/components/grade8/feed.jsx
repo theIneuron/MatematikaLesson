@@ -36,9 +36,24 @@ function Spot({ v, on, tick, name }) {
     : <span className="g8-fd-var">{name}</span>
 }
 
+// Запись урока собирается из токенов: строка, равная имени переменной, —
+// это МЕСТО ПОДСТАНОВКИ. Так один прибор показывает любую формулу, а не
+// только ту, что была вшита в разметку.
+function Tokens({ parts, sub, v, tick, name }) {
+  return (
+    <>
+      {(parts || []).map((p, i) => (
+        p === name
+          ? <Spot key={i} v={v} on={sub} tick={tick + i * 10} name={name}/>
+          : <span key={i} className="g8-fd-op">{p}</span>
+      ))}
+    </>
+  )
+}
+
 // Фазы: 0 — буква, 1 — число подставлено, 2 — части посчитаны, 3 — итог.
 export function FeedNumber({
-  nums, num, den, varName = 'x', ask, broke, predict, table, onSolved, audio,
+  nums, num, den, top, bot, varName = 'x', ask, broke, predict, table, onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -85,7 +100,6 @@ export function FeedNumber({
     }, 1500))
   }
 
-  const top = phase === 0 ? null : phase === 1 ? 'sub' : 'val'
   const showResult = phase === 3 && !dead
 
   return (
@@ -97,27 +111,15 @@ export function FeedNumber({
           ) : (
             <span className="g8-fd-frac">
               <span className="g8-fd-n">
-                {top === 'val'
+                {phase >= 2
                   ? <span key={'nv' + tick} className="g8-fd-pop">{fmt(num(at))}</span>
-                  : (
-                    <>
-                      <Spot v={at} on={top === 'sub'} tick={tick} name={varName}/>
-                      <span className="g8-fd-op">{' · '}</span>
-                      <Spot v={at} on={top === 'sub'} tick={tick + 100} name={varName}/>
-                      <span className="g8-fd-op">{' − 4'}</span>
-                    </>
-                  )}
+                  : <Tokens parts={top} sub={phase === 1} v={at} tick={tick} name={varName}/>}
               </span>
               <span className={'g8-fd-bar' + (dead && phase >= 2 ? ' is-torn' : '')} />
               <span className="g8-fd-d">
-                {top === 'val'
+                {phase >= 2
                   ? <span key={'dv' + tick} className={'g8-fd-pop' + (dead ? ' is-zero' : '')}>{fmt(den(at))}</span>
-                  : (
-                    <>
-                      <Spot v={at} on={top === 'sub'} tick={tick + 200} name={varName}/>
-                      <span className="g8-fd-op">{' − 2'}</span>
-                    </>
-                  )}
+                  : <Tokens parts={bot} sub={phase === 1} v={at} tick={tick + 200} name={varName}/>}
               </span>
             </span>
           )}
