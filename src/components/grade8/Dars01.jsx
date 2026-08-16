@@ -123,6 +123,7 @@ export const MISS = {
 const SC_PRICE = L('BIR DONA NARXI', 'ЦЕНА ЗА ШТУКУ', 'PRICE PER ITEM')
 const SC_APP = L('SAVDO ILOVASI', 'ПРИЛОЖЕНИЕ МАГАЗИНА', 'SHOP APP')
 const SC_QTY = L('miqdor k', 'количество k', 'quantity k')
+const SC_CALC = L('HISOBLASH', 'РАССЧИТАТЬ', 'CALCULATE')
 
 const M_KIND = {
   name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
@@ -164,23 +165,50 @@ const M_CHECK = {
 // eslint-disable-next-line react-refresh/only-export-components
 const HookScene = () => {
   const t = useT()
-  // Телефон рисуется как ПРЕДМЕТ: корпус, динамик, шапка приложения, поле
-  // ввода количества и строка результата. Две карточки с текстом сценой не
-  // читались — они могли быть чем угодно.
+  // ТЕЛЕФОН, А НЕ КАРТОЧКА. Узнаваемым его делают мелочи, а не корпус:
+  // строка состояния со временем и батареей, кнопки на торце, шапка с
+  // кружком приложения, поле ввода с подписью, оранжевая кнопка действия.
+  // Без них прямоугольник читается как абстрактная плашка (методист,
+  // 2026-08-16, дважды).
   const phone = (x, bad) => (
     <g key={x}>
-      <rect x={x} y="6" width="132" height="142" rx="16"
-        fill={T.paper} stroke={bad ? T.tip : 'rgba(23,26,29,.16)'} strokeWidth={bad ? 2 : 1.4}
+      {/* торцевые кнопки — они первыми выдают, что это смартфон */}
+      <rect x={x - 3} y="46" width="3" height="14" rx="1.5" fill="rgba(23,26,29,.22)"/>
+      <rect x={x - 3} y="64" width="3" height="22" rx="1.5" fill="rgba(23,26,29,.22)"/>
+      <rect x={x + 140} y="52" width="3" height="26" rx="1.5" fill="rgba(23,26,29,.22)"/>
+
+      <rect x={x} y="4" width="140" height="146" rx="18"
+        fill={T.paper} stroke={bad ? T.tip : 'rgba(23,26,29,.18)'} strokeWidth={bad ? 2.2 : 1.4}
         pathLength="1" className="g8-draw"/>
-      <rect x={x + 52} y="14" width="28" height="3" rx="1.5" fill="rgba(23,26,29,.18)"/>
-      <rect x={x + 10} y="24" width="112" height="16" rx="6" fill={T.bg}/>
-      <text x={x + 66} y="35" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-        fontSize="7" letterSpacing="1.1" fill={T.ink3}>{t(SC_APP)}</text>
-      <rect x={x + 10} y="48" width="112" height="22" rx="7" fill={T.bg}/>
-      <text x={x + 18} y="63" fontFamily="'Manrope', system-ui, sans-serif"
-        fontSize="7.5" fill={T.ink3}>{t(SC_QTY)}</text>
-      <text x={x + 114} y="64" textAnchor="end" fontFamily={MATH_FONT} fontSize="13"
+
+      {/* строка состояния */}
+      <text x={x + 12} y="17" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6.5"
+        fill={T.ink3}>9:41</text>
+      <rect x={x + 108} y="12" width="14" height="6" rx="2" fill="none"
+        stroke="rgba(23,26,29,.3)" strokeWidth="0.9"/>
+      <rect x={x + 109.5} y="13.5" width={bad ? 4 : 10} height="3" rx="1"
+        fill={bad ? T.tip : 'rgba(23,26,29,.42)'}/>
+      <circle cx={x + 100} cy="15" r="1.6" fill="rgba(23,26,29,.32)"/>
+      <circle cx={x + 95} cy="15" r="1.6" fill="rgba(23,26,29,.32)"/>
+
+      {/* шапка приложения: кружок и название */}
+      <circle cx={x + 18} cy="32" r="6" fill={bad ? T.tipSoft : T.okSoft}/>
+      <text x={x + 30} y="35" fontFamily="'Manrope', system-ui, sans-serif" fontSize="7.5"
+        fontWeight="700" fill={T.ink}>{t(SC_APP)}</text>
+      <line x1={x + 10} y1="42" x2={x + 130} y2="42" stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
+
+      {/* поле ввода с подписью над ним */}
+      <text x={x + 12} y="56" fontFamily="'Manrope', system-ui, sans-serif" fontSize="6.5"
+        fill={T.ink3}>{t(SC_QTY)}</text>
+      <rect x={x + 10} y="60" width="120" height="20" rx="6" fill={T.bg}
+        stroke="rgba(23,26,29,.10)" strokeWidth="0.9"/>
+      <text x={x + 122} y="74" textAnchor="end" fontFamily={MATH_FONT} fontSize="13"
         fill={bad ? T.tip : T.ink}>{bad ? '0' : '3'}</text>
+
+      {/* кнопка действия */}
+      <rect x={x + 10} y="86" width="120" height="16" rx="8" fill={T.accent} opacity="0.92"/>
+      <text x={x + 70} y="97" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+        fontSize="7" fontWeight="700" fill="#fff">{t(SC_CALC)}</text>
     </g>
   )
   return (
@@ -189,19 +217,24 @@ const HookScene = () => {
       'Два пользователя, одно приложение',
       'Two users, one app',
     )}>
-      {phone(48, false)}
-      {phone(220, true)}
+      {phone(44, false)}
+      {phone(216, true)}
 
+      {/* результат приложения */}
       <g className="g8-late">
-        <text x="114" y="88" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-          fontSize="7.5" letterSpacing="1" fill={T.ink3}>{t(SC_PRICE)}</text>
-        <text x="114" y="116" textAnchor="middle" fontFamily={MATH_FONT} fontSize="26" fill={T.ok}>200</text>
+        <rect x="54" y="108" width="120" height="34" rx="8" fill={T.okSoft}/>
+        <text x="114" y="120" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
+          fontSize="6.5" letterSpacing="0.8" fill={T.ink3}>{t(SC_PRICE)}</text>
+        <text x="114" y="136" textAnchor="middle" fontFamily={MATH_FONT} fontSize="17"
+          fill={T.ok}>200</text>
       </g>
       <g className="g8-late2">
-        <rect x="230" y="82" width="112" height="40" rx="8" fill={T.tipSoft}/>
-        <text x="286" y="99" textAnchor="middle" fontFamily="'Manrope', system-ui, sans-serif"
-          fontSize="7.5" letterSpacing="1" fill={T.tip}>{t(SC_PRICE)}</text>
-        <text x="286" y="115" textAnchor="middle" fontFamily={MATH_FONT} fontSize="17" fill={T.tip}>Error</text>
+        <rect x="226" y="108" width="120" height="34" rx="8" fill={T.tipSoft}/>
+        <circle cx="240" cy="125" r="6" fill="none" stroke={T.tip} strokeWidth="1.4"/>
+        <text x="240" y="128" textAnchor="middle" fontFamily={MATH_FONT} fontSize="9"
+          fill={T.tip}>!</text>
+        <text x="256" y="129" fontFamily="'Manrope', system-ui, sans-serif" fontSize="9"
+          fontWeight="700" fill={T.tip}>Error</text>
       </g>
     </SceneBand>
   )
