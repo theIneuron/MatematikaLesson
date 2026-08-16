@@ -452,9 +452,13 @@ export const FEED_STYLES = `
 .g8-pb { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
 .g8-pb-card { flex: 1 1 0; min-width: 150px; min-height: 96px; border: 0; cursor: pointer;
   border-radius: 16px; background: ${T.paper}; color: ${T.ink};
-  font-size: clamp(20px, 2vw, 27px);
+  font-size: clamp(19px, 1.9vw, 26px);
   box-shadow: 0 14px 34px -26px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07);
   transition: transform .2s ease, box-shadow .2s ease; }
+/* Вариант СЛОВАМИ набирается крупнее, чем вариант-формула: прозу читают
+   строкой, и мелкий кегль в ней мешает сильнее, чем в записи. */
+.g8-pb-card { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600;
+  font-size: clamp(17px, 1.6vw, 22px); padding: 14px 18px; }
 .g8-pb-card:hover:not(:disabled) { transform: translateY(-3px); }
 .g8-pb-card.is-ok { background: ${T.okSoft}; color: ${T.ok};
   box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.5); }

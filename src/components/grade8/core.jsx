@@ -1937,7 +1937,7 @@ html, body { margin: 0; padding: 0; }
 .g8-note {
   border-radius: 0 14px 14px 0;
   border-left: 4px solid ${T.ink4};
-  font-size: clamp(14px, 1.25vw, 17px);
+  font-size: clamp(15px, 1.45vw, 20px);
   font-weight: 600;
   color: ${T.ink};
   box-shadow: none;
@@ -1952,7 +1952,14 @@ html, body { margin: 0; padding: 0; }
 /* Выноска крупнее прежней плашки на 7 пикселей — на телефоне этого хватило,
    чтобы экран 10 вышел за фолд. Там она набирается прежним кеглем. */
 @media (max-width: 640px) {
-  .g8-note { font-size: 13.5px; padding: 6px 10px; line-height: 1.35; }
+  .g8-note { font-size: 14px; padding: 6px 10px; line-height: 1.35; }
+  .g8-mc + * .g8-note, .g8-mc ~ .g8-note { font-size: 13.5px; }
+}
+
+/* Крупный разбор стоит 14 пикселей; на тесной высоте и на телефоне экран
+   практики с лентой способа выходит за фолд. Там кегль прежний. */
+@media (max-height: 680px), (max-width: 640px) {
+  .g8-note { font-size: clamp(13.5px, 1.2vw, 16px); }
 }
 
 @media (max-height: 680px) {
