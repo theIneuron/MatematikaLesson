@@ -184,13 +184,13 @@ const S3 = {
   points: [
     {
       id: 'q1', label: L('4 disk', '4 слоя', '4 layers'), num: '116,6', step: 'calc', verdict: 'out',
-      role: L("aniqdan katta", 'больше точного', 'above the exact'),
+      role: L("katta", 'больше', 'above'),
       calc: L('farq 3,5', 'разница 3,5', 'gap 3,5'),
       sol: false, inA: false, inB: true,
     },
     {
       id: 'q2', label: L('8 disk', '8 слоёв', '8 layers'), num: '114,0', step: 'calc', verdict: 'out',
-      role: L('yaqinlashdi', 'приблизилось', 'closer'),
+      role: L('yaqinroq', 'ближе', 'closer'),
       calc: L('farq 0,9', 'разница 0,9', 'gap 0,9'),
       sol: false, inA: false, inB: true,
     },
@@ -205,7 +205,7 @@ const S3 = {
     question: L("Nega sharda yig'indi aniq emas?", 'Почему у шара сумма не точна?', 'Why is the ball sum not exact?'),
     items: [
       {
-        id: 'b', label: L('kesimlar har xil, disk chetdan chiqib turadi', 'сечения разные, слой выступает за тело', 'the sections differ, a layer sticks out'), correct: true,
+        id: 'b', label: L('kesimlar har xil', 'сечения разные', 'the sections differ'), correct: true,
         ok: L(
           "To'g'ri. Har bir disk o'z markazidagi radius bilan chizilgan, chetlarida esa shar torroq. Shuning uchun disklar biroz ortiqcha oladi, va yig'indi yuqoridan yaqinlashadi.",
           'Верно. Каждый слой построен по радиусу в своей середине, а по краям шар уже. Поэтому слои берут лишнее, и сумма приближается сверху.',
