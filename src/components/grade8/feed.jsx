@@ -38,7 +38,7 @@ function Spot({ v, on, tick, name }) {
 
 // Фазы: 0 — буква, 1 — число подставлено, 2 — части посчитаны, 3 — итог.
 export function FeedNumber({
-  nums, num, den, varName = 'x', ask, broke, predict, onSolved, audio,
+  nums, num, den, varName = 'x', ask, broke, predict, table, onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -137,6 +137,23 @@ export function FeedNumber({
           </div>
         ) : null}
 
+        {/* ТАБЛИЦА СОБСТВЕННЫХ РЕЗУЛЬТАТОВ. Клетка заполняется тем, что
+            ученик получил САМ, а не тем, что ему показали. Пустая клетка на
+            запрещённом числе — его собственный результат, и спорить с ним
+            он не станет. */}
+        {table ? (
+          <div className="g8-fd-tab">
+            {nums.map((x) => (
+              <div key={x} className={'g8-fd-cell' + (seen[x] ? (den(x) === 0 ? ' is-dead' : ' is-full') : '')}>
+                <span className="g8-fd-cx" style={{ fontFamily: MATH_FONT }}>{fmt(x)}</span>
+                <span className="g8-fd-cv" style={{ fontFamily: MATH_FONT }}>
+                  {seen[x] ? (den(x) === 0 ? '—' : fmt(num(x) / den(x))) : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        ) : null}
+
         <div className={'g8-fd-nums' + (bet === null ? ' is-locked' : '')}>
           {nums.map((x) => (
             <button
@@ -213,6 +230,16 @@ export const FEED_STYLES = `
   74% { transform: translateX(-3px); }
 }
 
+.g8-fd-tab { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+.g8-fd-cell { display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 62px; padding: 8px 10px; border-radius: 12px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); transition: background .3s ease; }
+.g8-fd-cx { font-size: 13px; color: ${T.ink3}; }
+.g8-fd-cv { font-size: clamp(19px, 1.9vw, 24px); color: ${T.ink}; min-height: 1.2em; }
+.g8-fd-cell.is-full { background: ${T.okSoft}; }
+.g8-fd-cell.is-full .g8-fd-cv { color: ${T.ok}; }
+.g8-fd-cell.is-dead { background: ${T.tipSoft}; }
+.g8-fd-cell.is-dead .g8-fd-cv { color: ${T.tip}; font-weight: 700; }
 .g8-fd-bet { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .g8-fd-betq { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(15px, 1.4vw, 18px);
   font-weight: 700; color: ${T.ink}; text-align: center; }

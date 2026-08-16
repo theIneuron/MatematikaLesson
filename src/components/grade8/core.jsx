@@ -1755,14 +1755,36 @@ html, body { margin: 0; padding: 0; }
    ширину поле не показывает, что писать — цифру или выражение. Рамка
    акцентом: это единственное место экрана, где ждут действия. */
 .g8-field { max-width: 560px; margin-left: auto; margin-right: auto; }
-.g8-input {
-  box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.35);
-  border-radius: 12px;
-  /* Текст начинался вплотную к рамке и читался как приклеенный. */
-  padding-left: 16px;
-  padding-right: 16px;
+/* ОДНА РАМКА, А НЕ ДВЕ. Обводка стояла и на контейнере, и на самом поле —
+   получалась рамка в рамке, а кнопка проверки липла к краю. Акцент теперь
+   один и на всей строке ввода; поле внутри без собственной обводки. */
+.g8-field {
+  border-radius: 14px;
+  padding: 4px 4px 4px 6px;
+  gap: 8px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.30);
+  transition: box-shadow .25s ease;
 }
-.g8-input:focus { box-shadow: inset 0 0 0 2px ${T.accent}, 0 0 0 4px rgba(${T.accentRgb},.14); }
+.g8-field:focus-within { box-shadow: inset 0 0 0 2px ${T.accent}, 0 0 0 4px rgba(${T.accentRgb},.13); }
+.g8-input {
+  box-shadow: none;
+  background: transparent;
+  border-radius: 10px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.g8-input:focus { box-shadow: none; }
+/* Кнопка проверки — сплошная и читаемая: она главное действие строки. */
+.g8-field-go {
+  background: ${T.accent};
+  color: #fff;
+  border-radius: 10px;
+  min-height: 44px;
+  padding: 0 18px;
+  font-weight: 700;
+}
+.g8-field-go:disabled { background: ${T.ink4}; color: ${T.paper}; }
 
 @media (max-width: 640px) {
   .g8-choice { flex-wrap: wrap; }
