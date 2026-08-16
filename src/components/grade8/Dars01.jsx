@@ -208,9 +208,9 @@ const HookScene = () => {
 const S1 = {
   eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
   title: L(
-    "Ilova bir foydalanuvchida yiqiladi",
-    'Приложение падает у одного из двух',
-    'The app crashes for one user out of two',
+    'Ilovani tuzatish kerak',
+    'Приложение надо починить',
+    'The app needs fixing',
   ),
   audio: [
     A('mount',

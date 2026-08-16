@@ -1927,6 +1927,34 @@ html, body { margin: 0; padding: 0; }
 .g8-cheat { display: none; }
 .g8-nav-c { visibility: hidden; }
 
+/* ====================================================================
+   РАЗБОР — ВЫНОСКА, А НЕ ЕЩЁ ОДНА ПЛАШКА (методист, 2026-08-16, образец —
+   урок 1 второго класса). Там реплика стоит с цветной чертой слева и
+   набрана жирным: её видно как ОТВЕТ на действие, а не как очередной блок
+   текста. Маскота во 2 классе рисует робот; в 8 классе персонажа нет —
+   его роль берёт на себя черта и кегль.
+   ==================================================================== */
+.g8-note {
+  border-radius: 0 14px 14px 0;
+  border-left: 4px solid ${T.ink4};
+  font-size: clamp(14px, 1.25vw, 17px);
+  font-weight: 600;
+  color: ${T.ink};
+  box-shadow: none;
+  animation: g8-note-in .38s cubic-bezier(.22,.9,.3,1) both;
+}
+.g8-note-ok { border-left-color: ${T.ok}; color: ${T.ok}; box-shadow: none; }
+.g8-note-no { border-left-color: ${T.tip}; color: ${T.tip}; box-shadow: none; }
+@keyframes g8-note-in {
+  from { opacity: 0; transform: translateX(-10px); }
+  to { opacity: 1; transform: none; }
+}
+/* Выноска крупнее прежней плашки на 7 пикселей — на телефоне этого хватило,
+   чтобы экран 10 вышел за фолд. Там она набирается прежним кеглем. */
+@media (max-width: 640px) {
+  .g8-note { font-size: 14px; padding: 8px 11px; }
+}
+
 @media (max-height: 680px) {
   .g8-top { row-gap: 0; }
   .g8-seg { flex-basis: auto; flex: 1; min-width: 40px; order: 0; }
