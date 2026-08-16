@@ -254,6 +254,25 @@ export const METHOD_STYLES = `
 
 /* Прозрачность — на РОДИТЕЛЬСКИЙ g, а не на саму фигуру: css-анимация
    перебивает атрибут opacity, и элемент останется видимым с первого кадра. */
+/* Бегущая проверка: подсветка идёт по строкам сверху вниз и останавливается
+   на третьей — там, где приложение споткнулось. Отметки встают следом за ней,
+   каждая в свой момент. Движение ОБЪЯСНЯЕТ ход проверки, а не украшает. */
+.g8-scan { animation: g8-scan 4.4s cubic-bezier(.5,0,.5,1) 700ms forwards; }
+@keyframes g8-scan {
+  0%   { transform: translateY(0); opacity: 0; }
+  6%   { opacity: 1; }
+  22%  { transform: translateY(0); }
+  30%  { transform: translateY(25px); }
+  48%  { transform: translateY(25px); }
+  56%  { transform: translateY(50px); }
+  100% { transform: translateY(50px); opacity: 1; }
+}
+.g8-mark { opacity: 0; }
+.g8-mark-0 { animation: g8-late 300ms ease-out 1700ms forwards; }
+.g8-mark-1 { animation: g8-late 300ms ease-out 2900ms forwards; }
+.g8-mark-2 { animation: g8-pop-in 460ms cubic-bezier(.34,1.5,.64,1) 4100ms forwards;
+  transform-box: fill-box; transform-origin: center; }
+
 .g8-late  { opacity: 0; transform-box: fill-box; transform-origin: center;
   animation: g8-pop-in 620ms cubic-bezier(.34,1.5,.64,1) 2900ms forwards; }
 .g8-late2 { opacity: 0; transform-box: fill-box; transform-origin: center;

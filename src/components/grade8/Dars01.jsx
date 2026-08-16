@@ -124,6 +124,63 @@ const SC_PRICE = L('BIR DONA NARXI', 'ЦЕНА ЗА ШТУКУ', 'PRICE PER ITEM
 const SC_APP = L('SAVDO ILOVASI', 'ПРИЛОЖЕНИЕ МАГАЗИНА', 'SHOP APP')
 const SC_QTY = L('miqdor k', 'количество k', 'quantity k')
 const SC_CALC = L('HISOBLASH', 'РАССЧИТАТЬ', 'CALCULATE')
+const SC_FILE = L('narx.js', 'цена.js', 'price.js')
+
+// ============================================================
+// СЦЕНА ЭКРАНА 2 — КОД ПРИЛОЖЕНИЯ. Четыре формулы печатаются построчно, как
+// в редакторе: номера строк, каретка, подсветка текущей. Ученик видит, что
+// это не абстрактные записи, а код, который он и чинит.
+//
+// Строки появляются по очереди (каскад в g8-late), последней встаёт та, где
+// под чертой буква, — но НИЧЕМ не выделена: находит её ученик.
+// ============================================================
+// eslint-disable-next-line react-refresh/only-export-components
+const CodeScene = () => {
+  const t = useT()
+  // ДВИЖЕНИЕ ДОЛЖНО ОБЪЯСНЯТЬ, А НЕ УКРАШАТЬ. Первая версия просто выводила
+  // строки по очереди — смотреть было не на что, и методист это сразу сказал.
+  // Теперь приложение ПРОВЕРЯЕТ строки: подсветка идёт сверху вниз, у каждой
+  // проверенной встаёт галочка, а на третьей вспыхивает восклицательный знак.
+  // Какая именно строка опасна, сцена НЕ называет — её находит ученик.
+  // Имён переменных нет: они добавляли шум, ученик читал price вместо
+  // математики. Остались сами вычисления — то, что приложение и считает.
+  const rows = ['3a − 4', '(a + 1) : 2', '7 : (a − 5)', 'a · a + a']
+  return (
+    <SceneBand kind="hook" label={L(
+      'Ilova kodni tekshirmoqda',
+      'Приложение проверяет код',
+      'The app is checking the code',
+    )}>
+      <rect x="18" y="6" width="364" height="142" rx="14" fill={T.paper}
+        stroke="rgba(23,26,29,.16)" strokeWidth="1.4"/>
+      {[0, 1, 2].map((i) => (
+        <circle key={'d' + i} cx={34 + i * 11} cy="20" r="3.4"
+          fill={i === 0 ? 'rgba(201,84,44,.55)' : 'rgba(23,26,29,.18)'}/>
+      ))}
+      <text x="200" y="23" textAnchor="middle" fontFamily="'JetBrains Mono', monospace"
+        fontSize="7.5" fill={T.ink3}>{t(SC_FILE)}</text>
+      <line x1="18" y1="30" x2="382" y2="30" stroke="rgba(23,26,29,.10)" strokeWidth="1"/>
+
+      {/* бегущая подсветка: она и есть «приложение сейчас на этой строке» */}
+      <rect x="26" y="36" width="348" height="24" rx="6" fill="rgba(201,84,44,.10)"
+        className="g8-scan"/>
+
+      {rows.map((r, i) => (
+        <g key={'r' + i}>
+          <text x="36" y={53 + i * 25} fontFamily="'JetBrains Mono', monospace"
+            fontSize="9" fill={T.ink4}>{i + 1}</text>
+          <text x="52" y={53 + i * 25} fontFamily={MATH_FONT} fontSize="15" fill={T.ink}>{r}</text>
+          {/* отметка проверки: галочка у обычных строк, знак у третьей */}
+          <text x="364" y={53 + i * 25} textAnchor="end"
+            fontFamily="'Manrope', system-ui, sans-serif" fontSize="12" fontWeight="700"
+            fill={i === 2 ? T.tip : T.ok}
+            className={'g8-mark g8-mark-' + i}>{i === 2 ? '!' : '✓'}</text>
+        </g>
+      ))}
+    </SceneBand>
+  )
+}
+
 
 const M_KIND = {
   name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
@@ -360,9 +417,9 @@ const S2 = {
         id: 'num',
         show: '(a + 1) : 2',
         hint: L(
-          "Chiziq ostida ikkilik turibdi. U hech qanday a da nolga aylanmaydi.",
-          'Под чертой двойка. Она не станет нулём ни при каком a.',
-          'Below the bar there is a two. It never becomes zero for any a.',
+          "Bu yerda ikkiga bo'lamiz. Ikkilik hech qachon nolga aylanmaydi.",
+          'Здесь делят на два. Двойка нулём не станет никогда.',
+          'Here we divide by two. A two never becomes zero.',
         ),
       },
       {
@@ -374,16 +431,16 @@ const S2 = {
         id: 'sq',
         show: 'a · a + a',
         hint: L(
-          "Bu yerda kasr chizig'i umuman yo'q, demak taqiq ham yo'q.",
-          'Здесь черты дроби нет вовсе, значит и запрета нет.',
-          'There is no fraction bar here at all, so there is no restriction either.',
+          "Bu yerda bo'lish umuman yo'q, faqat ko'paytirish va qo'shish.",
+          'Здесь деления нет вовсе — только умножение и сложение.',
+          'There is no division here at all, only multiplication and addition.',
         ),
       },
     ],
     after: L(
-      "Ha. Chiziq ostida harf turibdi, va beshlikda u nolga aylanadi.",
-      'Да. Под чертой стоит буква, и при пятёрке она обращается в нуль.',
-      'Yes. A letter stands below the bar, and at five it becomes zero.',
+      "Ha. Bu yerda 7 ni (a − 5) ga bo'lamiz. Beshlikda (a − 5) nolga aylanadi.",
+      'Да. Здесь 7 делят на (a − 5). При пятёрке (a − 5) обращается в нуль.',
+      'Yes. Here 7 is divided by (a − 5). At five (a − 5) becomes zero.',
     ),
   },
 }
@@ -1521,7 +1578,7 @@ const FinalScene = (
 // ============================================================
 export const SCREENS = [
   { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
-  { role: 'support',  tool: 'pick',      ...S2 },
+  { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
   { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
