@@ -1523,7 +1523,11 @@ export function SameSpot({ size = 268, step = 0, deg = 30, turns = 1 }) {
 // `a` birdan katta bo'lsa chiziq aylanadan yuqorida to'xtaydi va nuqta umuman
 // paydo bo'lmaydi -- `sin x = 2` ning javobi aynan shu.
 // ============================================================================
-export function LevelLine({ size = 268, step = 0, a = 0.5, axis = 'y', arcs = false }) {
+// `arcSide` -- 34-DARSNING SHOHIDI. Tenglamada yechim ikki NUQTA edi,
+// tengsizlikda esa ular orasidagi butun YOY. `up` -- chiziqdan yuqoridagi yoy
+// (`sin x > a`), `down` -- pastdagisi. Yoy chiziqning o'zidan va ikki
+// kesishish nuqtasidan chiqadi, ya'ni yangi hisob yo'q.
+export function LevelLine({ size = 268, step = 0, a = 0.5, axis = 'y', arcs = false, arcSide = null }) {
   const vert = axis === 'x'
   const start = 1.42
   // `a` birdan katta bo'lsa chiziq KAMERADAN chiqib ketadi va ekranda umuman
@@ -1561,6 +1565,29 @@ export function LevelLine({ size = 268, step = 0, a = 0.5, axis = 'y', arcs = fa
               x1={end0[0]} y1={end0[1]} x2={end1[0]} y2={end1[1]}
               stroke={T.accent} strokeWidth="2" strokeDasharray="6 4" opacity=".85"
             />
+
+            {/* YECHIM YOYI: ikki nuqta orasidagi butun uchastka. */}
+            {settled && arcSide && cut !== null ? (() => {
+              const ang = (pt) => Math.atan2(pt[1], pt[0])
+              const a0 = ang(pts[1])
+              const a1 = ang(pts[0])
+              // Yuqoridagi yoy: burchak kichikdan kattaga soat miliga QARSHI.
+              const from = arcSide === 'up' ? Math.min(a0, a1) : Math.max(a0, a1)
+              const to = arcSide === 'up' ? Math.max(a0, a1) : Math.min(a0, a1) + 2 * Math.PI
+              const q = []
+              const N4 = 64
+              for (let i = 0; i <= N4; i += 1) {
+                const t = from + ((to - from) * i) / N4
+                q.push(P(Math.cos(t), Math.sin(t)))
+              }
+              return (
+                <path
+                  d={q.map((p, i) => (i ? 'L' : 'M') + p.join(' ')).join(' ')}
+                  fill="none" stroke={T.ok} strokeWidth={Math.max(5, R * 0.09)}
+                  strokeLinecap="round" opacity=".55"
+                />
+              )
+            })() : null}
 
             {settled && pts.length ? pts.map((pt, i) => {
               const sp = P(pt[0], pt[1])
@@ -1760,52 +1787,182 @@ export function SeriesTicks({ size = 268, step = 0, deg = 30, turns = 2, alt = f
 // Egri chiziq FORMULADAN chiziladi, nuqtalar ro'yxatidan emas -- shuning uchun
 // «grafik jadvaldan olinmaydi» degan gap chizmada ham rost bo'ladi.
 // ============================================================================
+// IKKI TURDAGI EGRI CHIZIQ.
+//
+// 1-7 darslarning egri chiziqlari NORMALLASHTIRILGAN: `rng` -- chizmadagi
+// balandlik, va qiymat yozilmaydi. Sinus uchun bu to'g'ri: uning qiymati
+// baribir birdan oshmaydi.
+//
+// 5-BLOK uchun bu YARAMAYDI. `2^x = 8` tenglamasining shohidi -- sakkiz
+// darajasidagi gorizontal egri chiziqni QAYERDA uchratishi, va uchrashuv
+// `x = 3` deb yozilgan joyda bo'lishi kerak. Normallashtirilgan chizmada u
+// boshqa joyda turadi, ya'ni SHOHID YOLG'ON GAPIRADI. Shuning uchun blok 5
+// ning egri chiziqlari HAQIQIY qiymatlarda yoziladi (`ymax` bor), o'qlarda
+// esa bo'linmalar imzolanadi (`tx`, `ty`).
+//
+// `asym` -- ASIMPTOTA: egri chiziq unga yaqinlashadi, lekin tegmaydi. Bu
+// 27-darsning shohidi: qiymatlar to'plami noldan boshlanadi, LEKIN nolni
+// o'z ichiga olmaydi. ASIMPTOTA O'QNING O'ZI: birinchi redaksiyada egri chiziq
+// siljitilgan edi va chizilgan o'qni KESIB o'tardi -- `y = 2^x` esa hech
+// qachon kesmaydi. Stend shuni ko'rsatdi (2026-08-14).
 const CURVES = {
   sin: { fn: (x) => Math.sin(x), dom: [-3.4, 3.4], rng: [-1.15, 1.15] },
   line: { fn: (x) => 0.45 * x, dom: [-2.2, 2.2], rng: [-1, 1] },
   // Aylana funksiya EMAS, lekin o'qlar unga ham kerak: sinusning keng
   // o'qlarini olsak, chizma bir tomonga og'ib qoladi (stendda ko'rindi).
   circle: { fn: () => 0, dom: [-1.7, 1.7], rng: [-1, 1] },
-  // KO'RSATKICHLI va LOGARIFMIK egri chiziqlar (5-blok). Ikkalasi ham `y = x`
-  // ga nisbatan bir-birining aksi, va shu ikki qatorda ko'rinadi.
-  // `asym` -- ASIMPTOTA: egri chiziq unga yaqinlashadi, lekin tegmaydi. Bu
-  // 27-darsning shohidi: qiymatlar to'plami noldan boshlanadi, LEKIN nolni
-  // o'z ichiga olmaydi.
-  // ASIMPTOTA O'QNING O'ZI. Birinchi redaksiyada egri chiziq siljitilgan edi va
-  // chizilgan o'qni KESIB o'tardi -- `y = 2^x` esa hech qachon kesmaydi.
-  // Stend shuni ko'rsatdi (2026-08-14): shohid yolg'on gapirardi.
-  exp: { fn: (x) => Math.pow(2, x) / 3, dom: [-3.2, 1.55], rng: [0, 1.15], asym: 0 },
-  log: { fn: (x) => Math.log2(x) / 2.4, dom: [0.05, 1.6], rng: [-1.15, 1.15], vasym: 0 },
+  // KO'RSATKICHLI: asos birdan katta -- o'sadi; asos birdan kichik -- kamayadi.
+  // Ikkalasi `Oy` o'qiga nisbatan bir-birining aksi, va 27-darsda shu ko'rinadi.
+  exp: {
+    fn: (x) => Math.pow(2, x), dom: [-3, 3.1], ymax: 9, asym: 0,
+    tx: [-2, -1, 1, 2, 3], ty: [1, 2, 4, 8],
+  },
+  expdown: {
+    fn: (x) => Math.pow(0.5, x), dom: [-3.1, 3], ymax: 9, asym: 0,
+    tx: [-3, -2, -1, 1, 2], ty: [1, 2, 4, 8],
+  },
+  // ASOS BIRGA TENG: to'g'ri chiziq. 27-darsning 7-ekrani -- nega `a ≠ 1`.
+  // ASIMPTOTA YO'Q ATAYIN: bu chiziq o'qqa yaqinlashmaydi, u shunchaki
+  // gorizontal. Uzuq chiziq bo'lsa, ekran yolg'on gapirardi.
+  one: { fn: () => 1, dom: [-3, 3], ymax: 9, tx: [-2, -1, 1, 2], ty: [1, 2] },
+  // ASOSI UCH: 13-ekranda `(1; 3)` nuqtasi berilgan, asos esa izlanadi.
+  expthree: {
+    fn: (x) => Math.pow(3, x), dom: [-2, 1.2], ymax: 9, asym: 0,
+    tx: [-1, 1], ty: [1, 3],
+  },
+  // LOGARIFMIK egri chiziq -- ko'rsatkichlining `y = x` ga nisbatan aksi.
+  // Qiymatlar PASTGA ham ketadi, shuning uchun `ymin` kerak: `ymax` sxemasi
+  // pastki chegarani nol deb hisoblaydi, logarifmda esa u manfiy.
+  // `vasym` -- TIK asimptota: egri chiziq unga yaqinlashadi va yetmaydi.
+  // `kx` va `camX`: logarifmda `x` noldan sakkizgacha ketadi, ya'ni HAMMASI
+  // o'ngda. Ko'rsatkichlining 0,42 siqilishi va markazdagi kamerasi bilan
+  // egri chiziq kadrdan chiqib ketadi -- stendda shunday ko'rindi.
+  // Boshi chapda 14 foizda, sakkiz esa 86 foizda turadi.
+  log: {
+    fn: (x) => Math.log2(x), dom: [0.055, 8.6], ymin: -4.2, ymax: 3.3, vasym: 0,
+    kx: 0.3, camX: 0.14, tx: [1, 2, 4, 8], ty: [-3, -2, -1, 1, 2, 3],
+  },
+  // Asosi birdan KICHIK logarifm: o'sha egri chiziq, faqat pastga ketadi.
+  logdown: {
+    fn: (x) => -Math.log2(x), dom: [0.055, 8.6], ymin: -3.3, ymax: 4.2, vasym: 0,
+    kx: 0.3, camX: 0.14, tx: [1, 2, 4, 8], ty: [-3, -2, -1, 1, 2, 3],
+  },
+  // JUFTLIK: ko'rsatkichli va logarifmik BIR oynada, orasida `y = x`.
+  //
+  // 30-darsning yuragi shu: ikkalasi bir-birining AKSI, va shuni ko'rsatish
+  // uchun ikkala o'qning masshtabi BIR XIL bo'lishi shart (`ky` majburan
+  // `kx` ga teng). Aks holda «aks» degan gap chizmada yolg'on bo'ladi:
+  // to'g'ri chiziq qiyshiq ketadi va nuqtalar bir-biriga tushmaydi.
+  pair: {
+    fn: (x) => Math.log2(x), dom: [0.06, 8.5], ymin: -4.5, ymax: 8.5,
+    kx: 0.2077, ky: 0.2077, camX: 0.38,
+    also: { fn: (x) => Math.pow(2, x), dom: [-4.5, 3.09] },
+    mirror: [-4.2, 8.2],
+    tx: [-2, 1, 2, 4, 8], ty: [-2, 1, 2, 4, 8],
+  },
 }
 
-export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at = 1.1 }) {
+// Gorizontal `level` darajasi bilan uchrashuv NUQTASI. Yechim formuladan
+// olinmaydi (egri chiziq har xil bo'lishi mumkin), ikkiga bo'lish bilan
+// izlanadi: monoton egri chiziqda bu aniq va bitta javob beradi.
+const meetAt = (C, level) => {
+  let a = C.dom[0]
+  let b = C.dom[1]
+  const fa = C.fn(a) - level
+  const fb = C.fn(b) - level
+  if (fa === 0) return a
+  if (fb === 0) return b
+  if (fa * fb > 0) return null
+  for (let i = 0; i < 60; i += 1) {
+    const m = (a + b) / 2
+    if ((C.fn(a) - level) * (C.fn(m) - level) <= 0) b = m
+    else a = m
+  }
+  return (a + b) / 2
+}
+
+const fmtTick = (v) => String(v).replace('.', ',').replace('-', '−')
+
+export function Plane({
+  size = 268, step = 0, curve = 'sin', show = 'point', at = 1.1,
+  // 5-blok: chegaralarni va bo'linmalarni dars o'zi tanlaydi. 27-darsning
+  // `(0; 1)` ekranida `ymax` kichik bo'lishi kerak, 28-darsning sakkiz
+  // darajasida esa katta.
+  xmin, xmax, ymax, tx, ty, level = null, mark = null,
+  // TENGSIZLIK: yechim -- nuqta emas, UCHASTKA. `region` egri chiziq
+  // darajadan PAST (yoki BALAND) bo'lgan joyni bo'yaydi va uni gorizontal
+  // o'qqa tushiradi. Darslikning o'z usuli, 123-bet: «yechim shunday x lar
+  // to'plamiki, ularda grafik `y = b` to'g'ri chiziqdan pastda yotadi».
+  region = null,
+}) {
   const grow = useTween(step >= 1 ? 1 : 0, 1800)
   const band = useTween(step >= 2 ? 1 : 0, 800)
+  const lift = useTween(step >= 1 ? 1 : 0, 900)
   const ring = curve === 'circle'
-  const C = CURVES[curve] || CURVES.sin
+  const C0 = CURVES[curve] || CURVES.sin
+  const C = {
+    ...C0,
+    dom: [xmin === undefined ? C0.dom[0] : xmin, xmax === undefined ? C0.dom[1] : xmax],
+    ymax: ymax === undefined ? C0.ymax : ymax,
+    tx: tx === undefined ? C0.tx : tx,
+    ty: ty === undefined ? C0.ty : ty,
+  }
+  // HAQIQIY qiymatni chizmadagi balandlikka o'giruvchi koeffitsiyent. `ymax`
+  // yo'q bo'lsa (1-7 darslarning egri chiziqlari) hech narsa o'zgarmaydi.
+  // IKKI TOMONGA KETADIGAN QIYMATLAR (`ymin`). Logarifmda qiymatlar pastga
+  // ham ketadi, `ymax` sxemasi esa pastki chegarani nol deb hisoblaydi.
+  // `ymin` bo'lsa: butun oraliq kadrga sig'diriladi va kamera shunga suriladi.
+  // `ymin` YO'Q bo'lsa hech narsa o'zgarmaydi -- 26-28-darslar tekshirilgan.
+  const twoWay = C.ymin !== undefined
+  // `ky` egri chiziqda ATAYIN berilgan bo'lishi mumkin: juftlikda ikkala
+  // o'qning masshtabi bir xil bo'lishi shart.
+  const ky = C.ky !== undefined
+    ? C.ky
+    : (C.ymax === undefined ? 1 : (twoWay ? 2.24 / (C.ymax - C.ymin) : 1.12 / C.ymax))
+  const camX = C.camX === undefined ? 0.5 : C.camX
+  const camY = C.ymax === undefined ? 0.5 : (twoWay ? 0.5 + 0.3 * ky * (C.ymax + C.ymin) / 2 : 0.6)
+  const rngTop = C.ymax ? C.ymax : (C.rng ? C.rng[1] : 1)
+  const rngBottom = C.ymax ? (twoWay ? C.ymin : 0) : (C.rng ? C.rng[0] : -1)
+  // 5-BLOKDA EGRI CHIZIQ BIRINCHI KADRDAN CHIZILGAN.
+  //
+  // 1-7 darslarda `grow` bilan o'sadi, va nol kadrda faqat bitta nuqta
+  // qoladi. Stendda (2026-08-14) bu shunday ko'rindi: chap chetda yolg'iz
+  // nuqta va ikkita uzuq chiziq -- buzilgan asbob. Blok 5 da funksiyaning
+  // O'ZI dars mavzusi, u ochilmaydi: slot birinchi soniyadan to'la (§5.2),
+  // harakat esa nuqta, polosa va gorizontalda bo'ladi.
+  // JUFTLIKDA IKKINCHI EGRI CHIZIQ BIRDANIGA CHIQMAYDI.
+  //
+  // Tadqiqotlar «qo'shilgan grafik» xatosini nomlaydi: ko'rsatkichli va
+  // logarifmik bir vaqtda paydo bo'lsa, o'quvchi ularni bitta rasm deb ko'radi
+  // va qaysi biri qaysi ekanini ajratmaydi. Shuning uchun tanish egri chiziq
+  // (`also`) birinchi kadrdan turadi, ASOSIYSI esa ikkinchi kadrda O'ZINI
+  // CHIZADI -- bu ham «ko'z oldida chiziladi» tamoyili
+  // (`src/books/DINAMIKA_VA_ILLUSTRATSIYA.md` §2 va §5).
+  const grown = C.also ? grow : (C.ymax ? 1 : grow)
 
   return (
     <Film
       size={size}
       step={step}
-      cam={[{ x: 0.5, y: 0.5, r: 0.3 }]}
+      cam={[{ x: camX, y: camY, r: 0.3 }]}
       draw={({ P, R, size: S }) => {
         const [ox, oy] = P(0, 0)
         const rDot = Math.max(4, R * 0.06)
         const fs = Math.max(11, Math.round(S * 0.048))
         // Kamera birlik uzunlikni R piksel qiladi. Gorizontal bo'yicha 3,4 ta
-        // birlik sig'ishi kerak, shuning uchun X ni siqamiz.
-        const kx = 0.42
-        const PX = (x, y) => P(x * kx, y)
+        // birlik sig'ishi kerak, shuning uchun X ni siqamiz. Logarifmda `x`
+        // noldan sakkizgacha ketadi, va u o'z siqilishini beradi (`kx`).
+        const kx = C.kx === undefined ? 0.42 : C.kx
+        const PX = (x, y) => P(x * kx, y * ky)
 
         // Egri chiziq FORMULADAN.
         const pts = []
-        const N = 120
+        const N = 160
         for (let i = 0; i <= N; i += 1) {
           const x = C.dom[0] + ((C.dom[1] - C.dom[0]) * i) / N
           pts.push({ x, y: C.fn(x) })
         }
-        const cut = Math.max(1, Math.round(pts.length * (ring ? 1 : grow)))
+        const cut = Math.max(1, Math.round(pts.length * (ring ? 1 : grown)))
         const dPath = pts.slice(0, cut)
           .map((p, i) => (i ? 'L' : 'M') + PX(p.x, p.y).join(' '))
           .join(' ')
@@ -1815,16 +1972,95 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
         const py = C.fn(px)
         const [sx, sy] = PX(px, py)
         const [vx] = PX(at, 0)
+        const yTop = C.ymax ? C.ymax * 1.02 : 1.35
+        // Manfiy daraja chizilgan o'qdan PASTDA qolmasligi kerak: 28-darsda
+        // gorizontal minus ikkida turadi, va u ko'rinishi shart.
+        const yBot = C.ymax
+          ? (twoWay
+            ? C.ymin * 1.02
+            : Math.min(-C.ymax * 0.06, level !== null && level < 0 ? level * 1.3 : 0))
+          : -1.35
+        // Uchrashuv: bor yoki YO'Q. Yo'qligi ham shohid.
+        const met = level === null ? null : meetAt(C, level)
 
         return (
           <g>
             {/* O'qlar HAR kadrda o'sha joyda: ular umumiy chiziq. */}
             <line x1={PX(C.dom[0] - 0.2, 0)[0]} y1={oy} x2={PX(C.dom[1] + 0.2, 0)[0]} y2={oy} stroke={T.ink3} strokeWidth="1.4" />
-            <line x1={ox} y1={PX(0, -1.35)[1]} x2={ox} y2={PX(0, 1.35)[1]} stroke={T.ink3} strokeWidth="1.4" />
-            <text x={PX(C.dom[1] + 0.2, 0)[0]} y={oy - fs * 0.45} textAnchor="end" fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3}>x</text>
+            <line x1={ox} y1={PX(0, yTop)[1]} x2={ox} y2={PX(0, yBot)[1]} stroke={T.ink3} strokeWidth="1.4" />
+            {/* O'Q YORLIQLARI BO'LINMALAR IMZOSI BILAN TO'QNASHMAYDI.
+                Stend 2026-08-14: `y` eng yuqori bo'linma imzosining ustiga
+                tushdi («4» va «y» bir joyda), `x` esa nuqtaning tik izi bilan
+                kesishdi. Bo'linmalar bo'lganda yorliqlar chetga chiqadi. */}
+            <text
+              x={PX(C.dom[1] + (C.tx ? 0.3 : 0.2), 0)[0]}
+              y={C.tx ? oy + fs * 1.35 : oy - fs * 0.45}
+              textAnchor={C.tx ? 'middle' : 'end'}
+              fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3} {...halo(size)}
+            >x</text>
             {/* `y` CHAPDA turadi: qiymatlar polosasi vertikal o'qni bosadi va
                 yorliq uning tagida qolib ketardi. */}
-            <text x={ox - fs * 0.5} y={PX(0, 1.35)[1] + fs * 0.9} textAnchor="end" fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3}>y</text>
+            <text
+              x={C.ty ? ox - fs * 0.55 : ox - fs * 0.5}
+              y={PX(0, yTop)[1] + (C.ty ? -fs * 0.3 : fs * 0.9)}
+              textAnchor="end" fontFamily={MATH_FONT} fontSize={fs} fill={T.ink3} {...halo(size)}
+            >y</text>
+
+            {/* YECHIM UCHASTKASI. Avval yuza (egri chiziq bilan daraja
+                orasi), keyin uning o'qdagi izi -- IKKI kadrda, bir vaqtda
+                emas: kadrda bitta narsa harakat qiladi
+                (`DINAMIKA_VA_ILLUSTRATSIYA.md` §2). Rangi BIR XIL: boshqa
+                rang bo'lsa, o'quvchi ularni ikki har xil narsa deb o'qiydi. */}
+            {region && met !== null ? (() => {
+              const lo = region === 'below' ? C.dom[0] : met
+              const hi = region === 'below' ? met : C.dom[1]
+              // O'suvchi egri chiziqda «pastda» chapda, kamayuvchida o'ngda.
+              const up = C.fn(C.dom[1]) > C.fn(C.dom[0])
+              const a = up ? lo : (region === 'below' ? met : C.dom[0])
+              const b = up ? hi : (region === 'below' ? C.dom[1] : met)
+              const pts2 = []
+              const N3 = 90
+              for (let i = 0; i <= N3; i += 1) {
+                const x = a + ((b - a) * i) / N3
+                pts2.push(PX(x, C.fn(x)))
+              }
+              const top = pts2.map((p, i) => (i ? 'L' : 'M') + p.join(' ')).join(' ')
+              const back = ` L ${PX(b, level)[0]} ${PX(0, level)[1]} L ${PX(a, level)[0]} ${PX(0, level)[1]} Z`
+              return (
+                <g>
+                  <path d={top + back} fill={T.ok} opacity={0.28 * lift} stroke="none" />
+                  {step >= 2 ? (
+                    <rect
+                      x={Math.min(PX(a, 0)[0], PX(b, 0)[0])} y={oy - Math.max(5, R * 0.05)}
+                      width={Math.abs(PX(b, 0)[0] - PX(a, 0)[0])} height={Math.max(10, R * 0.1)}
+                      fill={T.ok} opacity={band * 0.55} rx={4}
+                    />
+                  ) : null}
+                </g>
+              )
+            })() : null}
+
+            {/* BO'LINMALAR IMZOSI. Ular bo'lmasa gorizontal «sakkiz darajada»
+                degan gap chizmada tekshirilmaydi -- 28-darsning shohidi shunga
+                tayanadi. Faqat `ymax` bor egri chiziqlarda chiqadi. */}
+            {C.tx ? C.tx.map((v) => (
+              <g key={'tx' + v}>
+                <line x1={PX(v, 0)[0]} y1={oy - 3} x2={PX(v, 0)[0]} y2={oy + 3} stroke={T.ink3} strokeWidth="1.2" />
+                <text
+                  x={PX(v, 0)[0]} y={oy + fs * 1.25} textAnchor="middle"
+                  fontFamily={MATH_FONT} fontSize={Math.max(10.5, fs * 0.86)} fill={T.ink3} {...halo(size)}
+                >{fmtTick(v)}</text>
+              </g>
+            )) : null}
+            {C.ty ? C.ty.map((v) => (
+              <g key={'ty' + v}>
+                <line x1={ox - 3} y1={PX(0, v)[1]} x2={ox + 3} y2={PX(0, v)[1]} stroke={T.ink3} strokeWidth="1.2" />
+                <text
+                  x={ox - fs * 0.45} y={PX(0, v)[1] + fs * 0.34} textAnchor="end"
+                  fontFamily={MATH_FONT} fontSize={Math.max(10.5, fs * 0.86)} fill={T.ink3} {...halo(size)}
+                >{fmtTick(v)}</text>
+              </g>
+            )) : null}
 
             {/* POLOSALAR: `dom` gorizontal, `rng` vertikal. */}
             {show === 'dom' ? (
@@ -1834,10 +2070,14 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
                 fill={T.ok} opacity={band * 0.35} rx={4}
               />
             ) : null}
+            {/* Qiymatlar polosasi o'qning O'NG tomonida: bo'linmalar imzosi
+                chapda turadi, va markazlangan polosa ularni bosardi (stend
+                2026-08-14). Bo'linmalar yo'q bo'lsa (1-7 darslar) -- o'sha
+                joyda, markazda. */}
             {show === 'rng' ? (
               <rect
-                x={ox - Math.max(5, R * 0.05)} y={PX(0, C.rng[1])[1]}
-                width={Math.max(10, R * 0.1)} height={PX(0, C.rng[0])[1] - PX(0, C.rng[1])[1]}
+                x={C.ty ? ox : ox - Math.max(5, R * 0.05)} y={PX(0, rngTop)[1]}
+                width={Math.max(10, R * 0.1)} height={PX(0, rngBottom)[1] - PX(0, rngTop)[1]}
                 fill={T.ok} opacity={band * 0.35} rx={4}
               />
             ) : null}
@@ -1852,9 +2092,19 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
             ) : null}
             {C.vasym !== undefined ? (
               <line
-                x1={PX(C.vasym, 0)[0]} y1={PX(0, -1.3)[1]}
-                x2={PX(C.vasym, 0)[0]} y2={PX(0, 1.3)[1]}
+                x1={PX(C.vasym, 0)[0]} y1={PX(0, yBot)[1]}
+                x2={PX(C.vasym, 0)[0]} y2={PX(0, yTop)[1]}
                 stroke={T.ok} strokeWidth="2" strokeDasharray="6 4" opacity=".75"
+              />
+            ) : null}
+
+            {/* `y = x` -- AKS CHIZIG'I. Juftlikda u ikkala egri chiziq
+                orasida turadi va aks ekanini ko'rsatadi. */}
+            {C.mirror ? (
+              <line
+                x1={PX(C.mirror[0], C.mirror[0])[0]} y1={PX(C.mirror[0], C.mirror[0])[1]}
+                x2={PX(C.mirror[1], C.mirror[1])[0]} y2={PX(C.mirror[1], C.mirror[1])[1]}
+                stroke={T.ink3} strokeWidth="1.4" strokeDasharray="5 5" opacity=".7"
               />
             ) : null}
 
@@ -1862,6 +2112,48 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
             {ring
               ? <circle cx={ox} cy={oy} r={R * 0.62} fill="none" stroke={T.accent} strokeWidth="2.4" />
               : <path d={dPath} fill="none" stroke={T.accent} strokeWidth="2.4" strokeLinecap="round" />}
+
+            {/* IKKINCHI egri chiziq (juftlik). Rangi boshqa: ular bir xil
+                emas, ular bir-birining aksi. */}
+            {C.also ? (
+              <path
+                d={(() => {
+                  const q = []
+                  const N2 = 140
+                  for (let i = 0; i <= N2; i += 1) {
+                    const x = C.also.dom[0] + ((C.also.dom[1] - C.also.dom[0]) * i) / N2
+                    q.push((i ? 'L' : 'M') + PX(x, C.also.fn(x)).join(' '))
+                  }
+                  return q.join(' ')
+                })()}
+                fill="none" stroke={T.tip} strokeWidth="2.4" strokeLinecap="round"
+              />
+            ) : null}
+
+            {/* GORIZONTAL `level` darajada: uchrashuv soni -- ildizlar soni.
+                Musbat darajada bitta, nol va manfiyda -- birontasi ham yo'q.
+                28-darsning shohidi. */}
+            {level !== null ? (
+              <g>
+                <line
+                  x1={PX(C.dom[0] - 0.2, level)[0]} y1={PX(0, level)[1]}
+                  x2={PX(C.dom[1] + 0.2, level)[0]} y2={PX(0, level)[1]}
+                  stroke={T.tip} strokeWidth="2" strokeDasharray="7 4"
+                  opacity={0.35 + 0.65 * lift}
+                />
+                {met !== null && step >= 1 ? (
+                  <g opacity={lift}>
+                    <line
+                      x1={PX(met, level)[0]} y1={PX(0, level)[1]}
+                      x2={PX(met, level)[0]} y2={oy}
+                      stroke={T.ink3} strokeWidth="1.2" strokeDasharray="4 4"
+                    />
+                    <circle cx={PX(met, level)[0]} cy={PX(0, level)[1]} r={rDot} fill={T.accent} />
+                    <circle cx={PX(met, level)[0]} cy={oy} r={rDot * 0.62} fill={T.ink2} />
+                  </g>
+                ) : null}
+              </g>
+            ) : null}
 
             {/* VERTIKAL CHIZIQ: funksiya bo'lmasa IKKI marta kesadi. */}
             {show === 'vline' ? (
@@ -1894,6 +2186,26 @@ export function Plane({ size = 268, step = 0, curve = 'sin', show = 'point', at 
                 <circle cx={sx} cy={sy} r={rDot} fill={T.accent} />
               </g>
             ) : null}
+
+            {/* BELGILANGAN NUQTA yoki NUQTALAR: `(0; 1)` kabi. Yozuvsiz,
+                chunki formulaning matni uch tilda bir xil bo'lishi kerak.
+                Juftlikda ikkita nuqta kerak: `(0; 1)` va `(1; 0)` -- ular
+                bir-biriga o'tadi, va aks shundan ko'rinadi. */}
+            {mark ? (Array.isArray(mark[0]) ? mark : [mark]).map((m, i) => (
+              // Juftlikda ikkinchi nuqta ikkinchi egri chiziq bilan birga
+              // keladi: u o'sha nuqtaning aksi, va oldin chiqsa ma'nosi yo'q.
+              <g key={'m' + i} opacity={C.also && i > 0 ? grow : 1}>
+                <circle cx={PX(m[0], m[1])[0]} cy={PX(m[0], m[1])[1]} r={rDot} fill={T.tip} />
+                <text
+                  x={PX(m[0], m[1])[0] + (i % 2 ? -fs * 0.5 : fs * 0.5)}
+                  /* Toq yorliq bo'linmalar imzosidan PASTGA tushadi: 212 px
+                     da u `−2` bilan to'qnashardi (stend 2026-08-15). */
+                  y={PX(m[0], m[1])[1] + (i % 2 ? fs * 2.35 : -fs * 0.4)}
+                  textAnchor={i % 2 ? 'end' : 'start'}
+                  fontFamily={MATH_FONT} fontSize={Math.max(11, fs * 0.9)} fontWeight="700" fill={T.ink2} {...halo(size)}
+                >{'(' + fmtTick(m[0]) + '; ' + fmtTick(m[1]) + ')'}</text>
+              </g>
+            )) : null}
           </g>
         )
       }}
@@ -2034,6 +2346,371 @@ export function LostRoots({ size = 268, step = 0, keep = [30, 150], lost = [90, 
             {/* YO'QOLADIGAN seriya -- ikkinchi kadrda so'nadi, lekin o'chmaydi:
                 u bor edi, va shuni ko'rish kerak. */}
             {lost.map((d) => dot(d, T.ok, show * (1 - fade * 0.82)))}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// ============================================================================
+// DARAJALAR POLOSASI. 26-DARSNING SHOHIDI.
+//
+// NEGA U KERAK. 26-darsning nomi «haqiqiy ko'rsatkichli daraja», ya'ni asosiy
+// yangilik shu: ko'rsatkich butun ham, kasr ham, IRRATSIONAL ham bo'lishi
+// mumkin. `2^√2` -- son, lekin buni gap bilan aytib bo'lmaydi: o'quvchi yoki
+// «bunday son yo'q» deydi, yoki uni `2√2` bilan tenglashtiradi.
+//
+// SHOHID: polosa TORAYADI.
+//   `2^1 = 2` va `2^2 = 4` -- ko'rsatkich bir va ikki orasida, demak qiymat
+//   ikki va to'rt orasida. Keyin `2^1,4` va `2^1,5` -- polosa toraydi. Keyin
+//   `2^1,41` va `2^1,42` -- polosa yana toraydi, va ichida BITTA son qoladi.
+//
+// ENG KUCHLI JOYI. `2√2` bu AYNAN `2^1,5`, ya'ni birinchi polosaning O'NG
+// CHETI. Polosa keng bo'lganda xato javob uning chetida turadi va to'g'ri
+// ko'rinadi; polosa torayganda esa u TASHQARIDA qoladi. Shohid taxminni
+// rad etadi, lekin to'g'ri javobni aytmaydi -- etalon §2 shuni talab qiladi.
+//
+// IKKINCHI REJIM (`mode="squares"`): kvadratlar polosasi. Har son kvadratga
+// o'tadi va HAMMASI o'ng yarimda tushadi. Minus to'rt chap yarimda qoladi,
+// ya'ni `(−4)^(1/2)` son bermaydi -- shundan `a > 0` talabi chiqadi.
+//
+// `step`: 0 boshlang'ich polosa, 1 torayadi, 2 oxirgi torayish va yorliqlar.
+// ============================================================================
+const SQUEEZE = [
+  { lo: 1.9, hi: 4.15, band: [2, 4], ticks: [2, 3, 4] },
+  { lo: 2.55, hi: 2.95, band: [2.639, 2.8284], ticks: [2.6, 2.7, 2.8, 2.9] },
+  { lo: 2.55, hi: 2.95, band: [2.657, 2.6753], ticks: [2.6, 2.7, 2.8, 2.9] },
+]
+
+// Chapdagi son -> kvadrati. Hammasi o'ng yarimda tushadi, va shu ko'rinadi.
+const SQUARES = [-2, -1, 1, 2]
+const SQ_TICKS = [-4, -2, -1, 1, 2, 4]
+const SQ_EDGE = 4.7
+
+// ============================================================================
+// 5-ASBOB: JOIZ QIYMATLAR POLOSASI. 31-DARSNING SHOHIDI.
+//
+// NEGA U KERAK. Logarifmik tenglamada begona ildiz «tekshirdim, to'g'ri
+// kelmadi» degan marosim emas: u BOSHIDANOQ joiz emas edi. Polosa yozuvning
+// TAGIDA turadi va birinchi almashtirishdan OLDIN bo'yaladi -- shunda ildiz
+// tushganda uning tashqarida ekani ko'rinadi, aytilmaydi.
+//
+// `from` -- bo'yalgan qismning chap chekkasi (ochiq nuqta, halqa bilan).
+// `roots` -- [{ v, ok }] tushadigan ildizlar: `ok` bo'lsa polosa ichida
+// qoladi va yonadi, aks holda so'nadi.
+// `step`: 0 bo'sh polosa, 1 bo'yash, 2 ildizlar tushadi.
+//
+// 32-35-darslarga ham shu polosa ketadi, shuning uchun `hole` bor: polosa
+// ICHIDA teshik (kasr tengsizlikda nolga bo'linadigan nuqta).
+// ============================================================================
+// ISHORALAR LENTASI (33-dars). `signs` berilsa polosa boshqa ishni bajaradi:
+// `zeros` o'qni kesadi, `signs` har bo'lakka ishora qo'yadi, `sol` esa JAVOBni
+// bo'yaydi. Ishoralar BITTALAB chiqadi (`pick`): kadrda bitta narsa harakat
+// qiladi (DINAMIKA_VA_ILLUSTRATSIYA.md §2).
+//
+// Ishora RANGSIZ, javob esa rangli: aks holda o'quvchi ishorani javobning bir
+// qismi deb o'qiydi.
+export function DomainBand({
+  size = 268, step = 0, lo = -1, hi = 9, from = 0, hole = null,
+  roots = [], ticks = [0, 2, 4, 6, 8],
+  zeros = [], signs = [], sol = [], pick = 0,
+}) {
+  const paint = useTween(step >= 1 ? 1 : 0, 900)
+  const drop = useTween(step >= 2 ? 1 : 0, 1000)
+  const shown = useTween(pick, 700)
+  const solT = useTween(sol.length ? 1 : 0, 900)
+  const signMode = signs.length > 0 || zeros.length > 0
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.5, r: 0.28 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const rDot = Math.max(4, R * 0.062)
+        const V = (v) => P((3 * (v - (lo + hi) / 2)) / (hi - lo), 0)[0]
+        const bandH = Math.max(10, R * 0.16)
+        const fmt = (v) => String(v).replace('.', ',').replace('-', '−')
+
+        return (
+          <g>
+            <line x1={V(lo)} y1={oy} x2={V(hi)} y2={oy} stroke={T.ink3} strokeWidth="1.6" />
+            {ticks.map((v) => (
+              <g key={'t' + v}>
+                <line x1={V(v)} y1={oy - 4} x2={V(v)} y2={oy + 4} stroke={T.ink3} strokeWidth="1.2" />
+                <text
+                  x={V(v)} y={oy + fs * 1.55} textAnchor="middle"
+                  fontFamily={MATH_FONT} fontSize={Math.max(10.5, fs * 0.8)} fill={T.ink3} {...halo(size)}
+                >{fmt(v)}</text>
+              </g>
+            ))}
+
+            {/* BO'YALGAN QISM: qayerda yozuv ma'noga ega. */}
+            {!signMode ? (
+              <g>
+                <rect
+                  x={V(from)} y={oy - bandH / 2}
+                  width={Math.max(2, (V(hi) - V(from)) * paint)} height={bandH}
+                  fill={T.ok} opacity={0.34} rx={3}
+                />
+                {/* Chap chekka OCHIQ: nuqtaning o'zi kirmaydi. */}
+                <circle
+                  cx={V(from)} cy={oy} r={rDot * 0.72}
+                  fill={T.bg} stroke={T.ok} strokeWidth="2" opacity={paint}
+                />
+                {/* Polosa ICHIDAGI teshik (32-35-darslar uchun). */}
+                {hole !== null ? (
+                  <circle
+                    cx={V(hole)} cy={oy} r={rDot * 0.72}
+                    fill={T.bg} stroke={T.ok} strokeWidth="2" opacity={paint}
+                  />
+                ) : null}
+              </g>
+            ) : null}
+
+            {/* JAVOB: bo'laklar bo'yaladi, ochiq chekka -- ichi bo'sh doira. */}
+            {sol.map((s, i) => (
+              <g key={'sol' + i} opacity={solT}>
+                <rect
+                  x={V(s.from)} y={oy - bandH / 2}
+                  width={Math.max(2, (V(s.to) - V(s.from)) * solT)} height={bandH}
+                  fill={T.ok} opacity={0.34} rx={3}
+                />
+                {s.openL !== false && s.from > lo ? (
+                  <circle cx={V(s.from)} cy={oy} r={rDot * 0.72} fill={T.bg} stroke={T.ok} strokeWidth="2" />
+                ) : null}
+                {s.openR !== false && s.to < hi ? (
+                  <circle cx={V(s.to)} cy={oy} r={rDot * 0.72} fill={T.bg} stroke={T.ok} strokeWidth="2" />
+                ) : null}
+              </g>
+            ))}
+
+            {/* NOLLAR O'QNI KESADI. Surat noli TO'LDIRILGAN (u javobga kiradi),
+                maxraj noli ICHI BO'SH: u yerda yozuv ma'nosini yo'qotadi. */}
+            {zeros.map((z) => (
+              <g key={'z' + z.v} opacity={paint}>
+                <line
+                  x1={V(z.v)} y1={oy - bandH * 1.15} x2={V(z.v)} y2={oy + bandH * 1.15}
+                  stroke={T.ink3} strokeWidth="1.2" strokeDasharray="3 3"
+                />
+                <circle
+                  cx={V(z.v)} cy={oy} r={rDot * 0.72}
+                  fill={z.kind === 'den' ? T.bg : T.ink2}
+                  stroke={z.kind === 'den' ? T.ink2 : 'none'} strokeWidth="2"
+                />
+              </g>
+            ))}
+
+            {/* ISHORALAR BITTALAB. Rangsiz: ular javob emas, tekshiruv. */}
+            {signs.map((s, i) => {
+              const on = Math.max(0, Math.min(1, shown - i))
+              const mid = (V(Math.max(s.from, lo)) + V(Math.min(s.to, hi))) / 2
+              return (
+                <text
+                  key={'s' + i} x={mid} y={oy - bandH * 1.5}
+                  textAnchor="middle" fontFamily={MATH_FONT} fontSize={fs * 1.15}
+                  fontWeight="700" fill={T.ink2} opacity={on} {...halo(size)}
+                >{s.sign}</text>
+              )
+            })}
+
+            {/* ILDIZLAR TUSHADI. Tashqaridagisi so'nadi, lekin O'CHMAYDI:
+                u topilgan edi, va shuni ko'rish kerak (13-darsdagi kabi). */}
+            {roots.map((r) => {
+              const y = oy - bandH * 2.2 * (1 - drop)
+              // Tashqaridagi ildiz SO'NADI, lekin o'chmaydi: u topilgan edi,
+              // va shuni ko'rish kerak (13-darsdagi so'ngan seriya kabi).
+              const on = r.ok ? 1 : 1 - drop * 0.55
+              return (
+                <g key={'r' + r.v} opacity={step >= 1 ? 1 : 0}>
+                  <circle cx={V(r.v)} cy={y} r={rDot} fill={r.ok ? T.accent : T.tip} opacity={on} />
+                  <text
+                    x={V(r.v)} y={y - fs * 0.9} textAnchor="middle"
+                    fontFamily={MATH_FONT} fontSize={fs} fontWeight="700"
+                    fill={r.ok ? T.accent : T.tip} opacity={on} {...halo(size)}
+                  >{fmt(r.v)}</text>
+                </g>
+              )
+            })}
+          </g>
+        )
+      }}
+    />
+  )
+}
+
+// DARAJA YOZUVI chizmada: asos va KO'TARILGAN ko'rsatkich. `2^√2` ni bitta
+// satrda yozib bo'lmaydi -- kichraytirilgan va ko'tarilgan matn kerak.
+// Pol 9 px: koeffitsiyent polni TESHIB o'tmasligi kerak (START, grabli).
+function Pw({ x, y, base, ex, fs, size, tone }) {
+  return (
+    <g fontFamily={MATH_FONT} fontWeight="700" fill={tone || T.ink2} {...halo(size)}>
+      <text x={x} y={y} textAnchor="middle" fontSize={fs}>{base}</text>
+      <text
+        x={x + fs * 0.42} y={y - fs * 0.42} textAnchor="start"
+        fontSize={Math.max(9, fs * 0.72)}
+      >{ex}</text>
+    </g>
+  )
+}
+
+export function PowerBand({ size = 268, step = 0, mode = 'squeeze' }) {
+  const sq = mode === 'squares'
+  const w = SQUEEZE[Math.min(step, SQUEEZE.length - 1)]
+  // Oyna va polosa YUMSHOQ suriladi: sakrash bo'lsa, o'quvchi uchun bu boshqa
+  // rasm, va «toraydi» degan gap yolg'on bo'ladi (etalon §5.1).
+  const lo = useTween(sq ? -SQ_EDGE : w.lo, 1100)
+  const hi = useTween(sq ? SQ_EDGE : w.hi, 1100)
+  const bl = useTween(sq ? 0 : w.band[0], 1100)
+  const br = useTween(sq ? SQ_EDGE : w.band[1], 1100)
+  const fill = useTween(step >= 1 ? 1 : 0, 800)
+  const jump = useTween(step >= 1 ? 1 : 0, 1200)
+  const late = useTween(step >= 2 ? 1 : 0, 700)
+
+  return (
+    <Film
+      size={size}
+      step={step}
+      cam={[{ x: 0.5, y: 0.52, r: 0.27 }]}
+      draw={({ P, R, size: S }) => {
+        const [ox, oy] = P(0, 0)
+        const fs = Math.max(11, Math.round(S * 0.05))
+        const rDot = Math.max(4, R * 0.062)
+        // Qiymat -> chizmadagi nuqta. Oyna kengligi doim uch birlik: shuning
+        // uchun torayish MASSHTAB o'zgarishi bo'lib ko'rinadi, silkinish emas.
+        const V = (v) => P((3 * (v - (lo + hi) / 2)) / (hi - lo), 0)[0]
+        const bandH = Math.max(10, R * 0.15)
+        const x1 = V(bl)
+        const x2 = V(br)
+        const ticks = sq ? SQ_TICKS : w.ticks
+        const label = (v) => (sq ? String(v).replace('-', '−') : String(v).replace('.', ','))
+        // Oldingi kadrning polosasi XIRA bo'lib qoladi: torayish «shundan
+        // SHUNGA» bo'lib o'qiladi, va `2√2` ning o'sha xira chetda turgani
+        // ko'rinadi. Almashtirish emas, aynan torayish (etalon §5.1).
+        const prev = !sq && step >= 2 ? SQUEEZE[1].band : null
+
+        return (
+          <g>
+            {/* SON O'QI: hamma kadrda o'sha joyda. */}
+            <line x1={V(lo)} y1={oy} x2={V(hi)} y2={oy} stroke={T.ink3} strokeWidth="1.6" />
+            {ticks.map((v) => (
+              <g key={'t' + v}>
+                <line x1={V(v)} y1={oy - 4} x2={V(v)} y2={oy + 4} stroke={T.ink3} strokeWidth="1.2" />
+                <text
+                  x={V(v)} y={oy + fs * 1.5} textAnchor="middle"
+                  fontFamily={MATH_FONT} fontSize={Math.max(10.5, fs * 0.8)} fill={T.ink3} {...halo(size)}
+                >{label(v)}</text>
+              </g>
+            ))}
+
+            {/* OLDINGI polosa xira konturda. */}
+            {prev ? (
+              <rect
+                x={V(prev[0])} y={oy - bandH / 2} width={V(prev[1]) - V(prev[0])} height={bandH}
+                fill="none" stroke={T.ok} strokeWidth="1.2" strokeDasharray="4 3" opacity={0.5} rx={3}
+              />
+            ) : null}
+
+            {/* POLOSA. `squeeze` da u toraydi, `squares` da o'ng yarim to'ladi. */}
+            <rect
+              x={Math.min(x1, x2)} y={oy - bandH / 2}
+              width={Math.max(2, Math.abs(x2 - x1))} height={bandH}
+              fill={T.ok} opacity={(sq ? fill : 1) * 0.34} rx={3}
+            />
+            {!sq ? [x1, x2].map((x, i) => (
+              <line
+                key={'e' + i} x1={x} y1={oy - bandH * 0.85} x2={x} y2={oy + bandH * 0.85}
+                stroke={T.ok} strokeWidth="2"
+              />
+            )) : null}
+
+            {/* CHETLARNING IMZOSI. Uchinchi kadrda polosa o'n piksel: ikki
+                yorliq bir-birining ustiga tushadi va o'qilmaydi (stend
+                2026-08-14). Shuning uchun oxirgi kadrda chetlar imzolanmaydi,
+                polosa ustida bitta yorliq turadi. */}
+            {!sq && step === 0 ? (
+              <g>
+                <Pw x={x1} y={oy - bandH} base="2" ex="1" fs={fs} size={size} />
+                <Pw x={x2} y={oy - bandH} base="2" ex="2" fs={fs} size={size} />
+              </g>
+            ) : null}
+            {!sq && step === 1 ? (
+              <g opacity={jump}>
+                <Pw x={x1} y={oy - bandH} base="2" ex="1,4" fs={fs} size={size} />
+                <Pw x={x2} y={oy - bandH} base="2" ex="1,5" fs={fs} size={size} />
+              </g>
+            ) : null}
+
+            {/* `2√2` -- xato javob. U `2^1,5` ning o'zi, ya'ni birinchi
+                polosaning o'ng cheti; torayganda tashqarida qoladi. Yorliq
+                YUQORIDA, ikkinchi qatorda: pastda u `2,8` bo'linmasi bilan
+                to'qnashardi. */}
+            {!sq && step >= 1 ? (
+              <g opacity={jump}>
+                <line
+                  x1={V(2.8284)} y1={oy - bandH * 3.1} x2={V(2.8284)} y2={oy - bandH * 0.7}
+                  stroke={T.ink3} strokeWidth="1.2"
+                />
+                <text
+                  x={V(2.8284)} y={oy - bandH * 3.35} textAnchor="middle"
+                  fontFamily={MATH_FONT} fontSize={fs} fontWeight="700"
+                  fill={T.ink3} {...halo(size)}
+                >{'2√2'}</text>
+              </g>
+            ) : null}
+
+            {/* Ichida qolgan BITTA son. */}
+            {!sq && step >= 2 ? (
+              <g opacity={late}>
+                <circle cx={V(2.66514)} cy={oy} r={rDot * 0.7} fill={T.accent} />
+                <line
+                  x1={V(2.66514)} y1={oy - bandH * 1.15} x2={V(2.66514)} y2={oy - bandH * 0.7}
+                  stroke={T.accent} strokeWidth="1.2"
+                />
+                <Pw
+                  x={V(2.66514)} y={oy - bandH * 1.25} base="2" ex="√2"
+                  fs={fs} size={size} tone={T.accent}
+                />
+              </g>
+            ) : null}
+
+            {/* SQUARES: har son kvadratiga o'tadi, hammasi o'ngda tushadi.
+                Nuqtaning YONIDA yozuv yo'q: u bo'linmalar imzosi bilan
+                to'qnashardi, va son o'qidan o'qilaveradi. Qaydan kelgani --
+                xira halqa va uzuq yoy bilan ko'rinadi. */}
+            {sq ? SQUARES.map((v) => {
+              const from = V(v)
+              const to = V(v * v)
+              const at = from + (to - from) * jump
+              const arc = 'M ' + from + ' ' + (oy - 2)
+                + ' Q ' + (from + to) / 2 + ' ' + (oy - bandH * 2.4)
+                + ' ' + to + ' ' + (oy - 2)
+              return (
+                <g key={'s' + v}>
+                  {step >= 1 ? (
+                    <g opacity={jump * 0.7}>
+                      <path d={arc} fill="none" stroke={T.ink3} strokeWidth="1.2" strokeDasharray="4 3" />
+                      <circle cx={from} cy={oy} r={rDot * 0.6} fill="none" stroke={T.ink3} strokeWidth="1.2" />
+                    </g>
+                  ) : null}
+                  <circle cx={at} cy={oy} r={rDot * 0.72} fill={T.accent} />
+                </g>
+              )
+            }) : null}
+
+            {/* Chap yarimda kvadrat YO'Q, va minus to'rt aynan o'sha yerda.
+                Imzo takrorlanmaydi: `−4` bo'linmasi o'qning tagida turadi. */}
+            {sq && step >= 2 ? (
+              <g opacity={late}>
+                <circle
+                  cx={V(-4)} cy={oy} r={rDot * 1.35} fill="none"
+                  stroke={T.tip} strokeWidth="2" strokeDasharray="3 3"
+                />
+              </g>
+            ) : null}
           </g>
         )
       }}

@@ -2110,7 +2110,12 @@ export function OrderRow({ prompt, items, answer, marks, okText, badText, audio,
     <>
       {!done ? <Cue kind="order">{t(prompt || CUI.orderAsk)}</Cue> : null}
       <Scene
-        fig={checked && !done ? <UnitCircle angle={null} marks={marks || []} locked /> : null}
+        /* AYLANA FAQAT `marks` berilganda chiziladi.
+           Ilgari u xato javobda HAR DOIM chiqardi, `marks` bo'sh bo'lsa ham:
+           7-darsda (aylanasi yo'q yagona dars) o'quvchi qadamlarni xato
+           joylashtirsa, ekranda quruq birlik aylana paydo bo'lardi. 5-blokda
+           esa u umuman o'rinsiz -- daraja haqidagi darsda aylana yo'q. */
+        fig={marks && marks.length && checked && !done ? <UnitCircle angle={null} marks={marks} locked /> : null}
         note={(
           <div className="g10-side">
             <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -2409,6 +2414,122 @@ export function TableFill({ rows, chips, onSolved, audio, wrongNote, swapNote, o
         </div>
       )}
     />
+    </>
+  )
+}
+
+// ============================================================
+// XOSSALAR JADVALI. BITTA USTUNLI, AYLANASIZ.
+//
+// NEGA ALOHIDA MEXANIKA. `TableFill` burchak uchun yasalgan: uning ikki
+// ustuni `cos` va `sin` deb IMZOLANGAN, chizmasi esa har doim birlik aylana.
+// 5-blokda jadval boshqacha: chapda xossaning nomi (`D(y)`, `E(y)`, `Oy`),
+// o'ngda bitta yozuv, chizmasi esa koordinata tekisligi yoki umuman yo'q.
+// `TableFill` ni o'zgartirish 4, 5, 6-darslarni qayta tekshirishni talab
+// qiladi, shuning uchun yangi mexanika yoziladi -- eski darslarga tegmaydi.
+//
+// `rows`: [{ id, key, answer }] -- `key` chapdagi imzo, `answer` to'g'ri chip.
+// `chips`: [{ id, label }]. `fig` -- ixtiyoriy chizma (masalan `Plane`).
+// ============================================================
+// `figH` -- chizmani KICHRAYTIRISH. Telefonda (393x660) jadval, chiplar,
+// tugma va fikr-mulohaza qatori chizma bilan birga budjetdan 26 px chiqib
+// ketardi. Chizma bu ekranda ishchi yuza emas: ish jadvalda, chizma esa
+// xossalarni qayerdan o'qish kerakligini ko'rsatib turadi (4-darsdagi
+// `TableFill` da ham shunday hal qilingan).
+export function SlotTable({ prompt, rows, chips, okText, wrongText, fig, figH, audio, onSolved }) {
+  const t = useT()
+  const fx = useAnswerFx(audio)
+  const [filled, setFilled] = useState(() => rows.map(() => null))
+  const [checked, setChecked] = useState(false)
+  const [hint, setHint] = useState(null)
+  const [active, setActive] = useState(0)
+
+  const complete = filled.every((x) => x !== null)
+  const allRight = rows.every((r, i) => filled[i] === r.answer)
+  const lab = (v) => (v && typeof v === 'object' ? t(v) : v)
+
+  const put = (id) => {
+    if (checked && allRight) return
+    const next = filled.slice()
+    next[active] = id
+    setFilled(next); setChecked(false); setHint(null)
+    const free = next.indexOf(null)
+    setActive(free === -1 ? active : free)
+  }
+
+  const check = () => {
+    setChecked(true)
+    if (allRight) {
+      fx.right(okText); setHint(null)
+      if (onSolved) onSolved({ correct: true })
+      return
+    }
+    setHint(wrongText || null)
+    fx.wrong(wrongText)
+  }
+
+  const labelOf = (id) => { const c = chips.find((x) => x.id === id); return c ? lab(c.label) : '?' }
+
+  return (
+    <>
+      {!(checked && allRight) ? <Cue kind="fill" compact>{t(prompt || CUI.tableAsk)}</Cue> : null}
+      <Scene
+        h={figH}
+        max={figH || 620}
+        fig={fig || null}
+        note={(
+          <div className="g10-side">
+            <Panel style={{ display: 'grid', gridTemplateColumns: 'auto 1fr', gap: 6, alignItems: 'center' }}>
+              {rows.map((r, i) => (
+                <React.Fragment key={r.id}>
+                  <span className="g10-expr g10-expr-sm" style={{ textAlign: 'right', paddingRight: 6 }}>
+                    <Fx>{lab(r.key)}</Fx>
+                  </span>
+                  <button
+                    type="button"
+                    className={'g10-cell'
+                      + (i === active && !allRight ? ' g10-cell-active' : '')
+                      + (checked && filled[i] === r.answer ? ' g10-cell-ok' : '')
+                      + (checked && filled[i] !== null && filled[i] !== r.answer ? ' g10-cell-bad' : '')}
+                    style={{ minHeight: 38 }}
+                    onClick={() => { setActive(i); setHint(null) }}
+                  >
+                    {filled[i] ? <Fx>{labelOf(filled[i])}</Fx> : '?'}
+                  </button>
+                </React.Fragment>
+              ))}
+            </Panel>
+            <Slot mh={40}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
+                {chips.map((c) => (
+                  <button
+                    type="button" key={c.id} className="g10-chip"
+                    disabled={checked && allRight}
+                    onClick={() => put(c.id)}
+                  ><Fx>{lab(c.label)}</Fx></button>
+                ))}
+              </div>
+            </Slot>
+            <Slot mh={42}>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'center' }}>
+                <Btn
+                  tone="accent" ready={complete && !(checked && allRight)}
+                  onClick={check} disabled={!complete || (checked && allRight)}
+                >{t(UI.check)}</Btn>
+                {checked && !allRight ? (
+                  <Btn
+                    tone="ghost"
+                    onClick={() => { setFilled(rows.map(() => null)); setActive(0); setChecked(false); setHint(null) }}
+                  >{t(UI.reset)}</Btn>
+                ) : null}
+              </div>
+            </Slot>
+            <Slot mh={58} className="g10-fb-sm">
+              <Feedback show={checked} ok={allRight}>{checked ? t(allRight ? okText : hint) : null}</Feedback>
+            </Slot>
+          </div>
+        )}
+      />
     </>
   )
 }

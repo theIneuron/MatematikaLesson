@@ -36,6 +36,17 @@ const LESSONS = {
   dars11: { slug: 'dars11-cos-x-a', no: 11, segments: 4 },
   dars12: { slug: 'dars12-tg-x-a', no: 12, segments: 4 },
   dars13: { slug: 'dars13-usullar', no: 13, segments: 4 },
+  dars26: { slug: 'dars26-daraja', no: 26, segments: 4 },
+  dars27: { slug: 'dars27-korsatkichli-funksiya', no: 27, segments: 4 },
+  dars28: { slug: 'dars28-korsatkichli-tenglamalar', no: 28, segments: 4 },
+  dars29: { slug: 'dars29-logarifm', no: 29, segments: 4 },
+  dars30: { slug: 'dars30-logarifmik-funksiya', no: 30, segments: 4 },
+  dars31: { slug: 'dars31-logarifmik-tenglamalar', no: 31, segments: 4 },
+  dars32: { slug: 'dars32-irratsional-tenglamalar', no: 32, segments: 4 },
+  dars33: { slug: 'dars33-ratsional-tengsizliklar', no: 33, segments: 4 },
+  dars34: { slug: 'dars34-logarifmik-ifodalar', no: 34, segments: 4 },
+  dars35: { slug: 'dars35-korsatkichli-logarifmik-tengsizliklar', no: 35, segments: 4 },
+  dars36: { slug: 'dars36-trigonometrik-tengsizliklar', no: 36, segments: 4 },
 }
 if (!LESSONS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(LESSONS).join(', ')}`)

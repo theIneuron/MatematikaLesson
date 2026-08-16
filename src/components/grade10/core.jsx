@@ -787,7 +787,30 @@ export function Fx({ children }) {
     else italicVars(buf, out)
     buf = ''
   }
-  for (const ch of children) {
+  // KARETKA: `2^{1/3}`, `a^{m/n}`, `2^{√2}` va bitta belgi uchun `2^n`.
+  //
+  // NEGA U KERAK. Yuqori indeksning unikod belgilari faqat raqamlar, minus va
+  // `n` uchun bor. 5-blokda esa ko'rsatkichda KASR va ILDIZ turadi
+  // (`8^{1/3}`, `2^{√2}`) -- ularni unikod bilan yozib bo'lmaydi, `8^(1/3)`
+  // deb yozsak esa qavs ko'rsatkichning bir qismi bo'lib ko'rinadi.
+  for (let i = 0; i < children.length; i += 1) {
+    const ch = children[i]
+    if (ch === '^' && i + 1 < children.length) {
+      if (children[i + 1] === '{') {
+        const end = children.indexOf('}', i + 2)
+        if (end > 0) {
+          flush(); mode = null
+          out.push(<sup key={out.length} className="g10-idx">{mathMinus(children.slice(i + 2, end))}</sup>)
+          i = end
+          continue
+        }
+      } else {
+        flush(); mode = null
+        out.push(<sup key={out.length} className="g10-idx">{children[i + 1]}</sup>)
+        i += 1
+        continue
+      }
+    }
     const sub = SUB_MAP[ch]
     const sup = SUP_MAP[ch]
     if (sub !== undefined) { if (mode !== 'sub') { flush(); mode = 'sub' } buf += sub; continue }

@@ -24,6 +24,17 @@ const SLUGS = {
   dars11: 'dars11-cos-x-a',
   dars12: 'dars12-tg-x-a',
   dars13: 'dars13-usullar',
+  dars26: 'dars26-daraja',
+  dars27: 'dars27-korsatkichli-funksiya',
+  dars28: 'dars28-korsatkichli-tenglamalar',
+  dars29: 'dars29-logarifm',
+  dars30: 'dars30-logarifmik-funksiya',
+  dars31: 'dars31-logarifmik-tenglamalar',
+  dars32: 'dars32-irratsional-tenglamalar',
+  dars33: 'dars33-ratsional-tengsizliklar',
+  dars34: 'dars34-logarifmik-ifodalar',
+  dars35: 'dars35-korsatkichli-logarifmik-tengsizliklar',
+  dars36: 'dars36-trigonometrik-tengsizliklar',
 }
 if (!SLUGS[LESSON]) {
   console.log(`nomalum dars: ${LESSON}. Bor: ${Object.keys(SLUGS).join(', ')}`)
@@ -114,6 +125,19 @@ async function clickChip(page, label) {
 async function typeNumber(page, digits) {
   for (const ch of digits) {
     const ok = await clickText(page, ch)
+    if (!ok) return false
+  }
+  return clickText(page, 'Проверить')
+}
+
+// SON KLAVIATURA TUGMALARI bilan yoziladi, boshqa tugmalar bilan emas.
+//
+// `typeNumber` raqamni HAR QANDAY tugmada qidiradi, va 5-blokda bu xato beradi:
+// variantlar ham, tartib chiplari ham, progress nuqtalari ham bir xonali son
+// bo'lishi mumkin. Bu yerda qidiruv FAQAT `.g10-key` ichida.
+async function typeKeys(page, digits) {
+  for (const ch of digits) {
+    const ok = await clickText(page, { text: ch, exact: true, scope: '.stage-content .g10-key' })
     if (!ok) return false
   }
   return clickText(page, 'Проверить')
@@ -1385,6 +1409,1116 @@ PLANS.dars13 = [
     n: 14,
     act: async (p) => {
       for (const a of ['выносят', 'где косинус равен нулю', 'проверяют границы', 'две']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// ===========================================================================
+// 5-BLOK. Aylana bu darslarda YO'Q: 26-darsda polosa va yozuv, 27 va 28-darsda
+// koordinata tekisligi. Shuning uchun `circleClick` ishlatilmaydi umuman.
+//
+// FORMULA YORLIQLARI `Fx` orqali chiziladi, va tugmaning matni MANBA satriga
+// teng emas: `8^{1/3}` ekranda «81/3» bo'lib chiqadi, `2^{−3}` esa «2−3».
+// Shuning uchun formulalar KESIM bilan qidiriladi, aniq tenglik bilan esa
+// faqat bir xonali javob tugmalari (va ular `.g10-opt` ichida cheklangan --
+// progress qatorining nuqtalari ham bir xonali son).
+// ===========================================================================
+
+// 26-dars: HAQIQIY KO'RSATKICHLI DARAJA.
+PLANS.dars26 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('три'), o('два в пятой'), o('три')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  {
+    n: 3,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['выписываем', 'ставим записи', 'считаем', 'складываем']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['основание дважды', 'раскрыть', 'шесть множителей', 'перемножены']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['6']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'положительное и не равное'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [['81/3', num('2')], ['2−3', num('1/8')], ['50', num('1')], ['91/2', num('3')]]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['умножить', 'стал целым', 'сложить', 'ноль даёт']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['4'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of ['2−2', '20', '21/2', '22']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, '2·1/2')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['2'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['−', '2'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of ['3−2', '9−1']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['складывают', 'единица', 'корень', 'положительным']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 27-dars: KO'RSATKICHLI FUNKSIYA.
+PLANS.dars27 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      // «одна восьмая» KESIM «минус одна восьмая» ichida ham bor.
+      for (const a of [{ text: 'одна восьмая', not: 'минус' }, 'единица', 'корень']) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'в показателе'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['y = 2x', num('1/2')], ['y = 4x', num('1/4')],
+        ['y = 0,5x', num('2')], ['y = 0,25x', num('4')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['(−∞; +∞)', '(0; +∞)', '(0; 1)', '∅']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of ['0,52', '0,51', '0,50', '0,5−1']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'y ≥ 0')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of [{ text: 'y = 2x', not: ',' }, 'y = 1,5x']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['в показателе', 'положительные', 'меньше единицы', 'абсцисса ноль']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 28-dars: KO'RSATKICHLI TENGLAMALAR.
+PLANS.dars28 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      for (const a of ['два в трет', 'никогда', 'вверх и не']) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['правую часть', 'слева и справа', 'сравниваем', 'получаем корень']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 5,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['оба основания', 'приравниваем', 'решаем обычное', 'корень один']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'монотонна'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['2x = 32', num('5')], ['3x = 1/3', num('−1')],
+        ['5x = 1', num('0')], ['4x = 2', num('1/2')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['девять это', 'раскрыть', 'приравнять', 'получить корень']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['−', '3'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t, not) => ({ text: t, not, scope: '.stage-content .g10-chip' })
+      // «2x = 1» KESIM «2x = 1/4» ichida ham bor: kasrni chetlab o'tamiz.
+      for (const c of [chip('2x = 1/4'), chip('2x = 1', '/'), chip('2x = 2'), chip('2x = 8')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'x = 2')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '2', '5'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of ['2x = 4', '9x = 81']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['приравнивают', 'один', 'ни одного', 'положительно']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 29-dars: LOGARIFM. Logarifm yangi amal emas -- bu o'sha ko'rsatkich.
+PLANS.dars29 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('два в трет'), o('три', 'четыре'), o('складывают')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1', '/', '3']) }, done: '.g10-entry-ok' },
+  {
+    n: 5,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['множители как', 'показатели сложить', 'показатель это', 'логарифмы сложить']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'показатели складываются'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [['log2 32', num('5')], ['log3 9', num('2')], ['log8 2', num('1/3')], ['log2 1', num('0')]]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['разность в частное', 'посчитать частное', 'восемь это', 'ответ три']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['5'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['log2 1', 'log2 2', 'log2 8', 'log2 32']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // Строки AuditRows рисуются БЕЗ Fx: нижний индекс остаётся
+      // символом, а не тегом. В чипах и вариантах — наоборот.
+      await clickText(p, 'log₂ 4 + log₂ 4')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1', '2', '5'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of ['log3 9', 'log5 25']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['показатель степени', 'сумме логарифмов', 'только положительное', 'нулю']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 30-dars: LOGARIFMIK FUNKSIYA. Ko'rsatkichlining aksi.
+PLANS.dars30 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('три', 'одна'), o('нулю'), o('только положительное')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 4, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['−', '3']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'поменялись местами'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['y = log2 x', num('2')], ['y = log4 x', num('1')],
+        ['y = log0,5 x', num('−2')], ['y = log0,25 x', num('−1')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['(0; +∞)', '(−∞; +∞)', '(1; 0)', '∅']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-chip' })
+      for (const c of ['log2 1', 'log2 4', 'log2 8', 'log2 16']) await clickText(p, chip(c))
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // Строка AuditRows начинается с номера, точное сравнение не годится.
+      await clickText(p, 'x ≥ 0')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      for (const c of ['y = log0,5 x', 'y = log0,3 x']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['положительные числа', 'все числа', 'абсцисса один', 'меньше единицы']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 31-dars: LOGARIFMIK TENGLAMALAR. Polosa yechimdan OLDIN chiziladi.
+PLANS.dars31 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('логарифму произведения'), o('только положительное'), o('три', 'одна')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['условие для каждого', 'взять более строгое', 'закрасить', 'потом решать']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 5,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['свернуть сумму', 'справа тоже', 'снять знаки', 'решить обычное']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'не был допустимым'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['log2 x = 3', num('8')], ['log2 (x − 5) = 1', num('7')],
+        ['lg (2x − 2)', num('4')], ['log3 x = 0', num('1')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['начертить полосу', 'снять знаки', 'решить обычное', 'проверить по полосе']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['9'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t, not) => ({ text: t, not, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('log2 x', '('), chip('log2 (x − 1)'), chip('log2 (x − 5)'), chip('log2 (x − 9)')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // Двойной пробел в разметке схлопывается в один.
+      await clickText(p, 'x = 1; x = −3')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['−', '3'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['5'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      // «Отметь все» идёт с кружком в начале: точное сравнение там не работает.
+      // Ноль ищется с оговоркой: «0» есть и внутри «10».
+      const opt = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('5'), opt('0', '1')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      for (const a of ['до первого преобразования', 'не был допустимым', 'икс больше двух', 'основания совпали']) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 32-dars: IRRATSIONAL TENGLAMALAR. Ko'tarish yechim qo'shadi.
+PLANS.dars32 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('самому числу'), o('неотрицательным'), o('его в исходное')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['равенство неверно', 'возводим в квадрат', 'стало верным', 'решений стало больше']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'отсеивает'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['+ 6) = x', num('3')], ['+ 3) = 2', num('1')],
+        ['2x − 1', num('5')], ['x − 4', num('4')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['выписать условие', 'возвести в квадрат', 'решить квадратное', 'проверить оба числа']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2', '7'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('+ 7) = 1'), chip('+ 1) = 2'), chip('(2x) = 4'), chip('− 2) = 3')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // Двойной пробел в разметке схлопывается в один.
+      await clickText(p, 'x = 3; x = −2')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['−', '2'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('= −3'), opt('= −1')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('семь', 'корень'), o('никогда'), o('семь'), o('подставляют')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 33-dars: RATSIONAL TENGSIZLIKLAR. Javob -- o'q bo'laklari.
+PLANS.dars33 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('знаменатель ноль'), o('плюс'), o('все числа')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['умножили на знаменатель', 'получили один кусок', 'взяли ноль из ответа', 'вышел минус']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['3']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'перевернётся'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['x − 1)/(x − 3)', o('x < 1; x > 3')], ['(x + 2)/', o('−2 < x < 1')],
+        ['1/(x − 4)', o('x > 4')], ['(x + 3)/x', o('−3 < x < 0')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['найти нули', 'отметить на оси', 'расставить знаки', 'выбрать участки']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['3'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('(2; 4)'), chip('(0; 3)'), chip('(1; 5)'), chip('(−1; 7)')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      await clickText(p, 'x + 1 > 0')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('−5'), opt('3')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('на три'), o('выкалывают'), o('четыре'), o('перевернуться')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 34-dars: LOGARIFMIK IFODALAR. Chizma yo'q -- shohid yozuvda.
+PLANS.dars34 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('три', 'одна'), o('логарифму произведения'), o('нулю при любом')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['9']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['восемь в кубе', 'это пятьсот двенадцать', 'это два в девятой', 'логарифм равен девяти']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['−', '1']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['5']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'вперёд множителем'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const num = (t) => ({ text: t, exact: true, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['log2 32', num('5')], ['log3 9 + log3 3', num('3')],
+        ['log5 125 − log5 25', num('1')], ['log2 4', num('6')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['сумма в произведение', 'разность в частное', 'считаем под знаком', 'логарифм восьми']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['1'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('log7 7'), chip('log5 25'), chip('log2 8'), chip('log3 81')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // AuditRows qatorlari `Fx` orqali chizilmaydi, pastki indeks belgi bo'lib qoladi.
+      await clickText(p, 'log₂ 8 + log₂ 8')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['4'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2', '0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('(b·c)'), opt('p·log')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('единице'), o('вперёд множителем'), o('четыре'), o('логарифм числа')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 35-dars: KO'RSATKICHLI VA LOGARIFMIK TENGSIZLIKLAR. Javob -- tomon.
+PLANS.dars35 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('убывает'), o('три', 'четыре'), o('только положительное')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2']) }, done: '.g10-entry-ok' },
+  {
+    n: 4,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['горизонталь встречает', 'встреча даёт число', 'где кривая ниже', 'берём эту сторону']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['−', '2']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['8']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['1']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'направления кривой'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['2x > 8', o('x > 3')], ['0,5x > 8', o('x < −3')],
+        ['log2 x < 4', o('0 < x < 16')], ['log2 x > 0', o('x > 1')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['начертить полосу', 'найти встречу', 'выбрать сторону', 'взять пересечение']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['2'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('5x = 5'), chip('3x = 9'), chip('2x = 8'), chip('2x = 16')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // AuditRows qatorlari `Fx` orqali chizilmaydi.
+      await clickText(p, { text: 'x > −2', exact: false, scope: '.stage-content button', not: '∈' })
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['5'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('0,5'), opt('0,2')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('границу ответа'), o('меньше единицы'), o('икс больше двух'), o('чертят полосу')]) {
+        await clickText(p, a); await p.waitForTimeout(1700)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  { n: 15, act: async () => {}, done: '.g10-print' },
+]
+
+// 36-dars: TRIGONOMETRIK TENGSIZLIKLAR. Javob -- yoy va uning aylanishlari.
+PLANS.dars36 = [
+  { n: 1, act: async (p) => clickText(p, 'втор'), done: '.g10-fb' },
+  {
+    n: 2,
+    act: async (p) => {
+      const o = (t, not) => ({ text: t, not, scope: '.stage-content .g10-opt' })
+      for (const a of [o('вертикальной'), o('минус одним'), o('триста шестьдесят')]) {
+        await clickText(p, a); await p.waitForTimeout(1600)
+      }
+    },
+    done: { sel: '.g10-done', count: 3 },
+  },
+  { n: 3, act: async (p) => { await waitCircle(p); await circleClick(p, 30) }, done: '.g10-fb-ok' },
+  { n: 4, act: async (p) => { await waitCircle(p); await circleClick(p, 150) }, done: '.g10-fb-ok' },
+  { n: 5, act: async (p) => { await waitKeys(p); return typeKeys(p, ['3', '6', '0']) }, done: '.g10-entry-ok' },
+  { n: 6, act: async (p) => { await waitKeys(p); return typeKeys(p, ['2', '4', '0']) }, done: '.g10-entry-ok' },
+  { n: 7, act: async (p) => { await waitKeys(p); return typeKeys(p, ['0']) }, done: '.g10-entry-ok' },
+  { n: 8, act: async (p) => clickText(p, 'границы дуги'), done: '.g10-rule' },
+  {
+    n: 9,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      const pairs = [
+        ['sin x > 1/2', o('30°; 150°')], ['sin x > 0', o('0°; 180°')],
+        ['sin x < −1/2', o('210°; 330°')], ['sin x > √2/2', o('45°; 135°')],
+      ]
+      for (const pr of pairs) {
+        await clickText(p, pr[0]); await clickText(p, pr[1]); await p.waitForTimeout(500)
+      }
+    },
+    done: { sel: '.g10-done', count: 4 },
+  },
+  {
+    n: 10,
+    act: async (p) => {
+      await waitReady(p)
+      for (const c of ['провести прямую', 'найти две точки', 'взять дугу', 'добавить обороты']) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 11,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['6', '0'])
+      await p.waitForTimeout(2000)
+      await waitReady(p)
+      // «1/2» kichik qism sifatida «−1/2» ichida ham bor: needle uzunroq olinadi.
+      const chip = (t) => ({ text: t, scope: '.stage-content .g10-chip' })
+      for (const c of [chip('√3/2'), chip('x > 1/2'), chip('x > 0'), chip('x > −1/2')]) {
+        await clickText(p, c)
+      }
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 12,
+    act: async (p) => {
+      // AuditRows qatorlari `Fx` orqali chizilmaydi.
+      await clickText(p, 'sin x = 1/2')
+      await p.waitForTimeout(1200)
+      await waitKeys(p)
+      return typeKeys(p, ['1', '2', '0'])
+    },
+    done: '.g10-entry-ok',
+  },
+  {
+    n: 13,
+    act: async (p) => {
+      await waitKeys(p)
+      await typeKeys(p, ['9', '0'])
+      await p.waitForTimeout(2200)
+      await waitReady(p)
+      const opt = (t) => ({ text: t, exact: false, scope: '.stage-content .g10-opt' })
+      for (const c of [opt('90°'), opt('140°')]) await clickText(p, c)
+      await clickText(p, 'Проверить')
+    },
+    done: '.g10-fb-ok',
+  },
+  {
+    n: 14,
+    act: async (p) => {
+      const o = (t) => ({ text: t, scope: '.stage-content .g10-opt' })
+      for (const a of [o('дугой и её оборотами'), o('ни одного'), o('сто восемьдесят'), o('триста шестьдесят')]) {
         await clickText(p, a); await p.waitForTimeout(1700)
       }
     },

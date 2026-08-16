@@ -93,4 +93,73 @@ export const grade10Nazariy = [
     desc: "Ko'paytuvchi chiqariladi, bo'linmaydi: bo'lish kosinus nol bo'lgan ildizlarni yo'qotadi. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade10/Dars13.jsx')),
   },
+  // 5-BLOK boshlanadi. 3 va 4-bloklar (14-25) 10-sinfda qilinmaydi -- hosila
+  // 11-sinfda o'tiladi (metodist qarori 2026-08-14), shuning uchun raqamlarda
+  // uzilish bor va bu ATAYIN.
+  {
+    slug: 'dars26-daraja',
+    title: "Dars 26. Haqiqiy ko'rsatkichli daraja",
+    desc: "Ko'rsatkich zinapoyadan pastga tushadi: nol, manfiy, kasr va irratsional ko'rsatkich o'zi chiqadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars26.jsx')),
+  },
+  {
+    slug: 'dars27-korsatkichli-funksiya',
+    title: "Dars 27. Ko'rsatkichli funksiya",
+    desc: "Egri chiziq o'qqa yaqinlashadi va tegmaydi: qiymatlar noldan boshlanadi, lekin nol ularda yo'q. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars27.jsx')),
+  },
+  {
+    slug: 'dars28-korsatkichli-tenglamalar',
+    title: "Dars 28. Ko'rsatkichli tenglamalar",
+    desc: "Gorizontal egri chiziqni bir marta uchratadi: ildiz bitta, chunki funksiya monoton. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars28.jsx')),
+  },
+  {
+    slug: 'dars29-logarifm',
+    title: 'Dars 29. Logarifm',
+    desc: "Logarifm yangi amal emas: bu o'sha uchrashuvning ko'rsatkichi, faqat teskari tomondan o'qilgan. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars29.jsx')),
+  },
+  {
+    slug: 'dars30-logarifmik-funksiya',
+    title: 'Dars 30. Logarifmik funksiya',
+    desc: "Ko'rsatkichlining aksi: kirish va chiqish joy almashadi, asimptota esa tik bo'ladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars30.jsx')),
+  },
+  {
+    slug: 'dars31-logarifmik-tenglamalar',
+    title: 'Dars 31. Logarifmik tenglamalar',
+    desc: "Begona ildiz tekshiruvda emas, boshidanoq joiz emas edi: polosa yechimdan oldin chiziladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars31.jsx')),
+  },
+  {
+    slug: 'dars32-irratsional-tenglamalar',
+    title: 'Dars 32. Irratsional tenglamalar',
+    desc: "Kvadratga ko'tarish yechim qo'shadi: topilgan har bir son dastlabki tenglamada tekshiriladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars32.jsx')),
+  },
+  {
+    slug: 'dars33-ratsional-tengsizliklar',
+    title: 'Dars 33. Ratsional tengsizliklar',
+    desc: "Javob son emas, o'q bo'laklari: nollar o'qni kesadi, har bo'lakka ishora qo'yiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars33.jsx')),
+  },
+  {
+    slug: 'dars34-logarifmik-ifodalar',
+    title: 'Dars 34. Logarifmik ifodalar',
+    desc: "Ko'rsatkich belgi ostidan ko'paytuvchi bo'lib chiqadi, asos esa kasr bilan almashadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars34.jsx')),
+  },
+  {
+    slug: 'dars35-korsatkichli-logarifmik-tengsizliklar',
+    title: "Dars 35. Ko'rsatkichli va logarifmik tengsizliklar",
+    desc: "Javob uchrashuv nuqtasi emas, undan bir tomon: kamayuvchi egri chiziqda tomon almashadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars35.jsx')),
+  },
+  {
+    slug: 'dars36-trigonometrik-tengsizliklar',
+    title: 'Dars 36. Trigonometrik tengsizliklar',
+    desc: "Javob nuqta emas, yoy: u ikki kesishish orasida yotadi va har aylanishda takrorlanadi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade10/Dars36.jsx')),
+  },
 ]

@@ -78,10 +78,10 @@ const S1 = {
     },
     b: {
       name: L("mumkin emas, ildizlar yo'qoladi", 'нельзя, корни потеряются', 'no, roots get lost'),
-      value: ['cos x', '(2 sin x − 1) = 0'],
+      value: 'cos x·(2 sin x − 1) = 0',
     },
   },
-  expr: ['2 sin x', 'cos x = cos x'],
+  expr: '2 sin x·cos x = cos x',
 }
 
 const S2 = {
@@ -98,7 +98,7 @@ const S2 = {
       id: 'q1',
       ask: true,
       prompt: L("Ko'paytma qachon nolga teng?", 'Когда произведение равно нулю?', 'When is a product equal to zero?'),
-      done: ['a', 'b = 0'],
+      done: 'a·b = 0',
       items: [
         { id: 'a', label: L("bitta ko'paytuvchi nol", 'хотя бы один множитель ноль', 'at least one factor is zero'), correct: true },
         { id: 'b', label: L("hamma ko'paytuvchi nol", 'все множители нули', 'all factors are zero'), hint: L("Bittasi yetadi: qolganlari har qanday bo'lishi mumkin.", 'Достаточно одного: остальные могут быть любыми.', 'One is enough: the others may be anything.') },
@@ -325,7 +325,7 @@ const S8 = {
       L("Ikkala qismni noma'lumli ifodaga bo'lish mumkin emas: u nolga teng bo'lgan ildizlar yo'qoladi.", 'Делить обе части на выражение с неизвестным нельзя: корни, где оно равно нулю, теряются.', 'Both sides must not be divided by an expression with the unknown: the roots where it is zero get lost.'),
       L("Almashtirishdan keyin chegaralar tekshiriladi, oxirida esa o'zgaruvchiga qaytiladi.", 'После замены проверяют границы, а в конце возвращаются к переменной.', 'After a substitution the bounds are checked, and at the end we return to the variable.'),
     ],
-    law: ['a', 'b = 0   →   a = 0,  b = 0'],
+    law: 'a·b = 0   →   a = 0,  b = 0',
   },
 }
 
@@ -391,7 +391,7 @@ const S11 = {
       L('Kosinusda nuqtalar qarama-qarshi, seriyasi umumiy.', 'У косинуса точки противоположны, и серия у них общая.', 'For the cosine the points are opposite and share one series.'),
       L('Uchta.', 'Три.', 'Three.'),
     ],
-    prompt: ['cos x', '(2 sin x − 1) = 0   →   ?'],
+    prompt: 'cos x·(2 sin x − 1) = 0   →   ?',
     answer: '3',
   },
   order: {
@@ -432,7 +432,7 @@ const S12 = {
     answer: '3',
   },
   row: {
-    r1: ['2 sin x', 'cos x = cos x'],
+    r1: '2 sin x·cos x = cos x',
     r2: '2 sin x = 1',
     r3: 'sin x = 1/2',
     r4: '30° + 360°n,  150° + 360°n',
@@ -487,7 +487,7 @@ const S14 = {
       id: 'q1',
       ask: true,
       prompt: L("Umumiy ko'paytuvchini nima qiladilar?", 'Что делают с общим множителем?', 'What is done with a common factor?'),
-      done: ['a', 'b = 0'],
+      done: 'a·b = 0',
       items: [
         { id: 'a', label: L('chiqaradilar', 'выносят', 'it is factored out'), correct: true },
         { id: 'b', label: L('qisqartiradilar', 'сокращают', 'it is cancelled'), hint: L("Qisqartirish bu o'sha bo'lish, va ildizlar yo'qoladi.", 'Сокращение это то же деление, и корни теряются.', 'Cancelling is the same division, and roots get lost.') },
@@ -559,12 +559,12 @@ const S15 = {
   sheetSrc: L('10-sinf · 13-dars', '10 класс · урок 13', 'Grade 10 · lesson 13'),
   hook: {
     a: '2 sin x = 1',
-    b: ['a', 'b = 0'],
+    b: 'a·b = 0',
   },
-  proved: ['a', 'b = 0'],
-  law: ['a', 'b = 0   →   a = 0,  b = 0'],
+  proved: 'a·b = 0',
+  law: 'a·b = 0   →   a = 0,  b = 0',
   sheet: [
-    ['a', 'b = 0'],
+    'a·b = 0',
     'cos x = 0   →   90° + 180°n',
     'sin x = 1/2   →   30°,  150°',
     '−1 ≤ t ≤ 1',

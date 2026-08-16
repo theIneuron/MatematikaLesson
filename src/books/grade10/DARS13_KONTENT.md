@@ -36,9 +36,9 @@
 
 | Ключ | Значение |
 |---|---|
-| `expr` | `2 sin x · cos x = cos x` |
+| `expr` | `2 sin x·cos x = cos x` |
 | `row.a.value` | `2 sin x = 1` |
-| `row.b.value` | `cos x · (2 sin x − 1) = 0` |
+| `row.b.value` | `cos x·(2 sin x − 1) = 0` |
 
 ---
 
@@ -80,7 +80,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a · b = 0` |
+| `q1.done` | `a·b = 0` |
 | `q2.done` | `cos x = 0   →   90°,  270°` |
 | `q3.done` | `−1 ≤ sin x ≤ 1` |
 
@@ -253,7 +253,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `rule.law` | `a · b = 0   →   a = 0,  b = 0` |
+| `rule.law` | `a·b = 0   →   a = 0,  b = 0` |
 
 ---
 
@@ -329,7 +329,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `task.prompt` | `cos x · (2 sin x − 1) = 0   →   ?` |
+| `task.prompt` | `cos x·(2 sin x − 1) = 0   →   ?` |
 | `task.answer` | `3` |
 | `order.items` | `30°` · `90°` · `150°` · `270°` |
 | `order.answer` | `30°  90°  150°  270°` |
@@ -360,7 +360,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `row.r1` | `2 sin x · cos x = cos x` |
+| `row.r1` | `2 sin x·cos x = cos x` |
 | `row.r2` | `2 sin x = 1` |
 | `row.r3` | `sin x = 1/2` |
 | `row.r4` | `30° + 360°n,  150° + 360°n` |
@@ -445,7 +445,7 @@
 
 | Ключ | Значение |
 |---|---|
-| `q1.done` | `a · b = 0` |
+| `q1.done` | `a·b = 0` |
 | `q2.done` | `cos x = 0` |
 | `q3.done` | `−1 ≤ t ≤ 1` |
 | `q4.done` | `2` |
@@ -480,10 +480,10 @@
 | Ключ | Значение |
 |---|---|
 | `hook.a` | `2 sin x = 1` |
-| `hook.b` | `a · b = 0` |
-| `proved` | `a · b = 0` |
-| `law` | `a · b = 0   →   a = 0,  b = 0` |
-| `sheet.1` | `a · b = 0` |
+| `hook.b` | `a·b = 0` |
+| `proved` | `a·b = 0` |
+| `law` | `a·b = 0   →   a = 0,  b = 0` |
+| `sheet.1` | `a·b = 0` |
 | `sheet.2` | `cos x = 0   →   90° + 180°n` |
 | `sheet.3` | `sin x = 1/2   →   30°,  150°` |
 | `sheet.4` | `−1 ≤ t ≤ 1` |
