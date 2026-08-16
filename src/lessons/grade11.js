@@ -150,6 +150,13 @@ export const grade11Nazariy = [
     ownLangSwitch: true,
   },
   {
+    slug: 'dars31-hajm-prizma',
+    title: 'Dars 31. Prizma va silindr hajmi',
+    desc: "V = S karra h; qatlamlar bir xil, yig'indi aniq; Kavalyeri prinsipi: qiyalik hajmni o'zgartirmaydi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade11/Dars31.jsx')),
+    ownLangSwitch: true,
+  },
+  {
     slug: 'dars09-korsatkichli-tenglamalar',
     title: 'Dars 9. Ko\'rsatkichli tenglamalar',
     desc: "Bitta asosga keltirish, almashtirish t = aˣ va t > 0 sharti, ildizni qo'yib tekshirish. 15 slayd, UZ/RU/EN.",

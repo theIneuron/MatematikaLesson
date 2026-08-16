@@ -197,6 +197,7 @@ export const TAG_NAMES = {
   section_radius: L('kesim radiusi', 'радиус сечения', 'the section radius'),
   ball_vs_sphere: L('shar va sfera', 'шар и сфера', 'ball and sphere'),
   sector_not_circle: L("yoyilma sektor", 'развёртка это сектор', 'the net is a sector'),
+  cavalieri: L("qiyalik va balandlik", 'наклон и высота', 'tilt and height'),
   lateral_vs_total: L("yon va to'liq sirt", 'боковая и полная', 'side and total'),
   order_matters: L('tartib muhimmi', 'важен ли порядок', 'whether the order matters'),
   sum_vs_product: L('VA yoki YOKI', 'И или ИЛИ', 'AND or OR'),

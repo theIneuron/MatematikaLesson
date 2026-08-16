@@ -43,6 +43,7 @@ const LESSONS = {
   dars28: 'dars28-konus',
   dars29: 'dars29-shar-sfera',
   dars30: 'dars30-sirtlar',
+  dars31: 'dars31-hajm-prizma',
   dars24: 'dars24-taqsimotlar',
   dars09: 'dars09-korsatkichli-tenglamalar',
   dars10: 'dars10-korsatkichli-tengsizliklar',
