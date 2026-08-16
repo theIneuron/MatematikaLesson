@@ -255,8 +255,14 @@ export const MATH_STYLES = `
   border: 0;
   border-radius: 13px;
   background: ${T.paper};
-  box-shadow: 0 8px 20px -14px rgba(${T.shadow},.4), inset 0 0 0 1px ${T.line};
+  /* ОДНА обводка, акцентная. Прежняя тёмная линия рисовала внутри строки
+     чёрную рамку; правка в core.jsx её не брала, потому что этот файл
+     подключается ПОЗЖЕ и перебивает его. Правим там, где элемент описан. */
+  box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.30);
   transition: box-shadow .24s cubic-bezier(.22,.61,.36,1);
+}
+.g8-field:focus-within {
+  box-shadow: inset 0 0 0 2px ${T.accent}, 0 0 0 4px rgba(${T.accentRgb},.13);
   min-width: 0;
 }
 .g8-field-on { box-shadow: 0 10px 24px -14px rgba(${T.accentRgb},.4), inset 0 0 0 1.5px rgba(${T.accentRgb},.5); }

@@ -1763,10 +1763,8 @@ html, body { margin: 0; padding: 0; }
   padding: 4px 4px 4px 6px;
   gap: 8px;
   background: ${T.paper};
-  box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.30);
-  transition: box-shadow .25s ease;
+  /* Обводка задаётся в math.jsx: он подключается позже и перебил бы её здесь. */
 }
-.g8-field:focus-within { box-shadow: inset 0 0 0 2px ${T.accent}, 0 0 0 4px rgba(${T.accentRgb},.13); }
 .g8-input {
   box-shadow: none;
   background: transparent;
