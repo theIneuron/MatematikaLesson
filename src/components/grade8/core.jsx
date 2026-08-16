@@ -1799,7 +1799,7 @@ html, body { margin: 0; padding: 0; }
 
 /* Текст варианта — читаемый. Ответ это то, ЧТО выбирают: он не может быть
    мельче вопроса. Раньше вариант был 20-м кеглем при вопросе 22 и терялся. */
-.g8-opt { font-size: clamp(17px, 1.7vw, 23px); }
+.lesson-root .g8-opt { font-size: clamp(17px, 1.7vw, 23px); }
 .g8-opt-text { font-weight: 600; }
 
 /* ====================================================================
@@ -1843,8 +1843,8 @@ html, body { margin: 0; padding: 0; }
    (замер). Сорок пикселей ширины дешевле лишней строки. */
 .g8-title { font-size: clamp(22px, 2.8vw, 38px); }
 .g8-ask   { font-size: clamp(16px, 1.5vw, 19px); }
-.g8-opt {
-  font-size: clamp(14px, 1.25vw, 16px);
+.lesson-root .g8-opt {
+  font-size: clamp(15px, 1.4vw, 19px);
   min-height: 54px;
   border-radius: 12px;
 }

@@ -456,9 +456,15 @@ export const FEED_STYLES = `
   box-shadow: 0 14px 34px -26px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.07);
   transition: transform .2s ease, box-shadow .2s ease; }
 /* Вариант СЛОВАМИ набирается крупнее, чем вариант-формула: прозу читают
-   строкой, и мелкий кегль в ней мешает сильнее, чем в записи. */
-.g8-pb-card { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600;
-  font-size: clamp(17px, 1.6vw, 22px); padding: 14px 18px; }
+   строкой, и мелкий кегль в ней мешает сильнее, чем в записи.
+   ОСТОРОЖНО: смена гарнитуры на Manrope зрительно УМЕНЬШАЕТ текст при том же
+   числе — серифный 26 читался крупнее, чем Manrope 22. Кегль поднят с запасом. */
+/* ПРЕФИКС .lesson-root ОБЯЗАТЕЛЕН. В обвязке стоит правило вида
+   .lesson-root button с font inherit, и у него приоритет выше, чем у правила по одному
+   классу: без префикса кегль кнопки сбрасывается к унаследованным 16 px,
+   и любая правка размера молча не действует. */
+.lesson-root .g8-pb-card { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600;
+  font-size: clamp(20px, 2.1vw, 29px); padding: 16px 20px; line-height: 1.3; }
 .g8-pb-card:hover:not(:disabled) { transform: translateY(-3px); }
 .g8-pb-card.is-ok { background: ${T.okSoft}; color: ${T.ok};
   box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.5); }
