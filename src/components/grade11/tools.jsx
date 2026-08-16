@@ -2415,7 +2415,8 @@ export function SpinBoard({
   spin = 1,           // 0 -- tekis figura, 1 -- to'liq jism
   cut,                // section: kesim qayerda
   disks = 4,          // disks: nechta disk
-  solid = 'cyl',      // net va pour uchun: cyl | cone
+  solid = 'cyl',      // net va pour uchun: cyl | cone | prism
+  sides = 6,          // prism: asosdagi tomonlar soni
   R = 2,              // net/pour o'lchamlari
   hh = 3,
   fill = 0,           // pour: nechta to'kish bo'ldi (0..3)
@@ -2451,6 +2452,87 @@ export function SpinBoard({
   const H = height
 
   // ---------- yoyilma ----------
+  // PRIZMA YOYILMASI -- 26-dars. Yon yoqlar bitta lentaga yoyiladi, va
+  // ularning SONI asos tomonlari soniga teng. Darsning butun ma'nosi shu:
+  // formulani yodlash emas, sanashni ko'rish.
+  if (mode === 'net' && solid === 'prism') {
+    const n = Math.max(3, Math.min(10, sides))
+    const k = Math.max(0, Math.min(1, spin))
+    const H = height
+    const a = 1                       // asos tomoni, shartli birlik
+    const need = 2.2 + n * a + 0.6    // chapda jism, o'ngda lenta
+    const sc = Math.min((W - padX * 2) / need, (H - padT - padB - 14) / (hh + 1.6))
+    const midY = padT + (H - padT - padB - 14) / 2
+    const bodyX = padX + 1.1 * sc
+    const netX = padX + 2.2 * sc
+    const bh = hh * sc
+    const bw = a * sc
+    // Jism: oldingi ikki yoq va asoslar. Ko'p yoqli jismni tekis
+    // proyeksiyada chizamiz, WebGL yo'q.
+    const topY = midY - bh / 2
+    const botY = midY + bh / 2
+    const rr = 0.9 * sc
+    return (
+      <div className="g11-graph" style={{ width: '100%', flexShrink: 0, minWidth: 0 }}>
+        <svg viewBox={'0 0 ' + W + ' ' + H} width="100%" height="100%" preserveAspectRatio="xMidYMid meet" role="img" style={{ display: 'block', maxHeight: H }}>
+          {/* Asos KO'PBURCHAK bo'lib chiziladi, ellips emas: bu dars
+              ko'pyoqliklar haqida, va ellips u yerda silindr haqida
+              yolg'on gapirardi. Cho'qqilar burchak bo'yicha hisoblanadi,
+              chuqurlik `FLAT` bilan siqiladi. */}
+          {(() => {
+            const pt = (ang, y) => [bodyX + rr * Math.cos(ang), y + rr * FLAT * Math.sin(ang)]
+            const poly = (y) => Array.from({ length: n }, (_, i) => pt((2 * Math.PI * i) / n + Math.PI / n, y).join(',')).join(' ')
+            const verts = Array.from({ length: n }, (_, i) => (2 * Math.PI * i) / n + Math.PI / n)
+            return (
+              <>
+                <polygon points={poly(topY)} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+                <polygon points={poly(botY)} fill="none" stroke={T.ink3} strokeWidth="1.4" />
+                {verts.map((ang, i) => {
+                  const [x, dy] = pt(ang, 0)
+                  const front = Math.sin(ang) >= 0
+                  return (
+                    <line
+                      key={'v' + i}
+                      x1={x} y1={topY + dy} x2={x} y2={botY + dy}
+                      stroke={T.ink3} strokeWidth={front ? 1.4 : 1}
+                      strokeDasharray={front ? undefined : '4 3'}
+                      opacity={front ? 1 : 0.55}
+                    />
+                  )
+                })}
+              </>
+            )
+          })()}
+          {/* Lenta: har bir yoq alohida to'rtburchak, chegaralari ko'rinadi --
+              shunda ularni SANASH mumkin, va bu darsning maqsadi. */}
+          <g className="g11-in">
+            {Array.from({ length: n }, (_, i) => {
+              const open = Math.max(0, Math.min(1, k * n - i))
+              if (open <= 0) return null
+              return (
+                <rect
+                  key={'f' + i}
+                  x={netX + i * bw}
+                  y={midY - bh / 2}
+                  width={Math.max(1, bw * open)}
+                  height={bh}
+                  fill={T.graph} fillOpacity="0.16" stroke={T.graph} strokeWidth="1.4"
+                />
+              )
+            })}
+          </g>
+          {k > 0.95 ? (
+            <text x={netX + (n * bw) / 2} y={midY + bh / 2 + 15} textAnchor="middle" fontSize="12" fontWeight="700" fill={T.ink2} fontFamily={MATH_FONT}>
+              {n}
+            </text>
+          ) : null}
+        </svg>
+        {caption !== undefined ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{caption}</Fx></div> : null}
+        {note ? <div className="g11-expr g11-expr-sm g11-wrap" style={{ textAlign: 'center', color: T.ink2 }}><Fx>{note}</Fx></div> : null}
+      </div>
+    )
+  }
+
   if (mode === 'net') {
     // Yon sirt yoyiladi. Silindrda to'g'ri to'rtburchak chiqadi, konusda
     // sektor: radiusi yasovchi l, yoyi 2 pi r. Yuza 8-sinf planimetriyasi

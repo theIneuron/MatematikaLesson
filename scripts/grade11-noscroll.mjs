@@ -39,6 +39,7 @@ const LESSONS = {
   dars21: 'dars21-qoshish-kopaytirish',
   dars22: 'dars22-ortacha-mediana',
   dars23: 'dars23-ikki-qator',
+  dars26: 'dars26-kopyoqliklar',
   dars27: 'dars27-silindr',
   dars28: 'dars28-konus',
   dars29: 'dars29-shar-sfera',

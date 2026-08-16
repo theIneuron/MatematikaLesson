@@ -200,6 +200,8 @@ export const TAG_NAMES = {
   cavalieri: L("qiyalik va balandlik", 'наклон и высота', 'tilt and height'),
   third_coefficient: L("uchdan bir", 'коэффициент 1/3', 'the one third'),
   limit_needed: L("limit kerak", 'нужен предел', 'a limit is needed'),
+  net_faces: L("yoqlar soni", 'число граней', 'the face count'),
+  euler: L("Eyler formulasi", 'формула Эйлера', 'the Euler formula'),
   lateral_vs_total: L("yon va to'liq sirt", 'боковая и полная', 'side and total'),
   order_matters: L('tartib muhimmi', 'важен ли порядок', 'whether the order matters'),
   sum_vs_product: L('VA yoki YOKI', 'И или ИЛИ', 'AND or OR'),

@@ -68,6 +68,10 @@ function App() {
         <div style={{ width: 360 }}>
           <SpinBoard mode="net" solid="cone" R={1.6} hh={2.6} spin={spin} height={150} caption="konus yoyilmasi" />
         </div>
+        {/* 26-dars: prizma yon yoqlari lentaga yoyiladi. */}
+        <div style={{ width: 360 }}>
+          <SpinBoard mode="net" solid="prism" sides={6} hh={2.4} spin={spin} height={150} caption="prizma yoyilmasi" />
+        </div>
         {/* 32-dars: konus silindrga uch marta to'kiladi. */}
         <div style={{ width: 360 }}>
           <SpinBoard mode="pour" R={1.3} hh={2.6} fill={s + 1} height={150} caption="to'kish" />
