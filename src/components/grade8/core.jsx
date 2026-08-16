@@ -1952,7 +1952,7 @@ html, body { margin: 0; padding: 0; }
 /* Выноска крупнее прежней плашки на 7 пикселей — на телефоне этого хватило,
    чтобы экран 10 вышел за фолд. Там она набирается прежним кеглем. */
 @media (max-width: 640px) {
-  .g8-note { font-size: 14px; padding: 8px 11px; }
+  .g8-note { font-size: 13.5px; padding: 6px 10px; line-height: 1.35; }
 }
 
 @media (max-height: 680px) {
