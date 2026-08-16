@@ -438,91 +438,54 @@ const S2 = {
 }
 
 // ============================================================
+// EKRAN 3. NARXLAR JADVALINI O'ZINGIZ TO'LDIRING.
+//
+// O'quvchi miqdorni qo'yadi, ilova hisoblaydi va natija jadvalga tushadi.
+// Uchta qator uning O'Z natijalari bilan to'ladi, nolda esa qator bo'sh
+// qoladi — bu ham uning natijasi, va u bilan bahslashmaydi.
+//
+// Metodist qarori 2026-08-16: bu ekran KO'RSATISH emas, o'quvchi harakati.
+// 13-avgustdagi «ko'rsatish, keyin o'zi» juftligi 3-4 ekranlarda emas, 4-5
+// da qoladi: 4 — o'zi qo'yadi, 5 — boshqa yozuvda takrorlaydi.
+// ============================================================
 const S3 = {
-  eyebrow: L('QARANG, QANDAY QILINADI', 'СМОТРИ, КАК ЭТО ДЕЛАЮТ', 'WATCH HOW IT IS DONE'),
-  title: L('Taqiq qayerdan keladi', 'Откуда берётся запрет', 'Where the restriction comes from'),
+  eyebrow: L('NARXLAR JADVALI', 'ТАБЛИЦА ЦЕН', 'THE PRICE TABLE'),
+  title: L(
+    "Jadvalni o'zingiz to'ldiring",
+    'Заполни таблицу сам',
+    'Fill in the table yourself',
+  ),
   audio: [
     A('mount',
-      "Uch kadr, uchta qadam. Kadrni bosing, yozuv o'zgaradi va men nima bo'layotganini aytaman.",
-      'Три кадра, три шага. Нажимай кадр, запись меняется, а я говорю, что происходит.',
-      'Three frames, three steps. Press a frame, the record changes and I say what happens.'),
-    W('k2',
-      "Ikkinchi qadam. Maxrajni nolga aylantiradigan sonni qo'ydim.",
-      'Второй шаг. Я поставил число, которое обращает знаменатель в нуль.',
-      'Step two. I put the number that makes the denominator zero.'),
-    W('k3',
-      "Uchinchi qadam. Shu shartning nomi bor. Aniqlanish sohasi, qisqasi ODZ.",
-      'Третий шаг. У этого условия есть название. Область допустимых значений, коротко ОДЗ.',
-      'Step three. This condition has a name. The domain of admissible values, in short the domain.'),
+      "Ilovaga sotuv summasi berilgan: olti yuz. Miqdorni siz qo'yasiz.",
+      'Приложению дана сумма продажи: шестьсот. Количество подставляешь ты.',
+      'The app was given the sale total: six hundred. You supply the quantity.'),
+    A('why',
+      "Har bir sonni qo'ying va natijani jadvalda ko'ring. Bittasida jadval bo'sh qoladi.",
+      'Подставь каждое число и смотри результат в таблице. На одном таблица останется пустой.',
+      'Substitute each number and watch the result in the table. At one of them the table stays empty.'),
   ],
   props: {
-    film: {
-      fig: 'frac',
-      data: {
-        num: 'a + 5',
-        den: 'a',
-        varName: 'a',
-        at: 0,
-        odz: 'a \u2260 0',
-      },
-      frames: [
-        {
-          id: 'k1',
-          phase: 1,
-          label: L("chiziq ostiga", 'под черту', 'below the bar'),
-          text: L(
-            "Taqiq faqat chiziq ostidagi qismdan kelib chiqadi.",
-            'Запрет приходит только от того, что стоит под чертой.',
-            'The restriction comes only from what stands below the bar.',
-          ),
-        },
-        {
-          id: 'k2',
-          phase: 2,
-          label: L('nolga aylantiramiz', 'обращаем в нуль', 'make it zero'),
-          text: L(
-            "Nolni qo'ydim: maxraj nol bo'ldi va kasr chizig'i uzildi.",
-            'Я поставил нуль: знаменатель стал нулём, и черта дроби разорвалась.',
-            'I put zero: the denominator became zero and the fraction bar broke.',
-          ),
-          ask: {
-            question: L(
-              'Bu yozuv uchun nimani bildiradi?',
-              'Что это значит для записи?',
-              'What does that mean for the record?',
-            ),
-            items: [
-              { id: 'none', right: true, label: L("qiymat yo'q", 'значения нет', 'no value') },
-              {
-                id: 'zero',
-                label: L('qiymat nolga teng', 'значение равно нулю', 'the value is zero'),
-                hint: L(
-                  "Nol YUQORIDA bo'lsa qiymat nol bo'ladi. Minus beshni qo'ying: yuqorida nol, qiymat bor. Bu yerda nol PASTDA.",
-                  'Нуль СВЕРХУ даёт значение нуль. Подставь минус пять: сверху нуль, значение есть. А здесь нуль СНИЗУ.',
-                  'Zero ABOVE gives the value zero. Put minus five: zero above, the value exists. Here the zero is BELOW.',
-                ),
-              },
-            ],
-          },
-        },
-        {
-          id: 'k3',
-          phase: 3,
-          label: L('shartni yozamiz', 'пишем условие', 'write the condition'),
-          text: L(
-            "Taqiq shart bo'lib yoziladi. Buni ODZ deb ataydilar.",
-            'Запрет записывают условием. Его называют ОДЗ.',
-            'The restriction is written as a condition. It is called the domain.',
-          ),
-        },
-      ],
-    },
+    nums: [1, 2, 3, 4, 0],
+    top: ['600'],
+    bot: ['k'],
+    num: () => 600,
+    den: (k) => k,
+    varName: 'k',
+    table: true,
+    ask: L(
+      "Miqdorni qo'ying: ilova narxni hisoblaydi",
+      'Подставляй количество — приложение посчитает цену',
+      'Substitute the quantity and the app computes the price',
+    ),
+    broke: L(
+      "Nolda jadval bo'sh qoldi: olti yuzni nolga bo'lib bo'lmaydi.",
+      'На нуле таблица осталась пустой: шестьсот на нуль разделить нельзя.',
+      'At zero the table stayed empty: six hundred cannot be divided by zero.',
+    ),
   },
 }
 
-// ============================================================
-// EKRAN 4. O'ZI. Uch qadam, boshqa yozuv, qo'l endi o'quvchining.
-// Maxraj x − 3: nolga aylantiruvchi sonni asbob AYTMAYDI, o'quvchi topadi.
 // ============================================================
 const S4 = {
   eyebrow: L("ENDI O'ZINGIZ", 'ТЕПЕРЬ САМ', 'NOW YOU'),
@@ -1571,7 +1534,7 @@ const FinalScene = (
 export const SCREENS = [
   { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
-  { role: 'explain',  tool: 'film',      kind: 'model',    tag: 'З18', ...S3 },
+  { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
