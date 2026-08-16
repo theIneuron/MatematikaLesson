@@ -40,7 +40,7 @@ const SOLVE = [
   // Вопрос по ходу появляется ПОСЛЕ подстановки, поле ОДЗ — после вопроса.
   // Лента кадров: жмём кадры по порядку, на втором отвечаем на вопрос.
   { feed: 0 },                                                           // 3 таблица цен: заполняем, ломаем на нуле
-  { part: 'den', nums: ['3'], picksAfter: ['none'], fields: ['x != 3'] }, // 4 САМ
+  { slots: true },                                                       // 4 собираем запись: число сверху, буква снизу
   { feed: 3 },                                                           // 5 заполняем таблицу, запрет на тройке
   { solve: true },                                                       // 6 решаем вместе
   { pair: true },                                                        // 7 граница: тапаем числа до расхождения
@@ -276,6 +276,16 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Сборка записи: кладём число сверху и букву снизу — это и есть ответ.
+    if (s.slots) {
+      const cells = page.locator('.g8-fs-cell')
+      if (await cells.count() >= 2) {
+        await tap(cells.nth(0).locator('.g8-fs-btn').first(), at)
+        await page.waitForTimeout(220)
+        await tap(cells.nth(1).locator('.g8-fs-btn').last(), at)
+        await page.waitForTimeout(260)
       }
     }
     // Граница: тапаем числа, пока записи не разойдутся.

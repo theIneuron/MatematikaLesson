@@ -346,6 +346,73 @@ export function TwoRecords({ nums, left, right, ask, after, onSolved, audio }) {
   )
 }
 
+
+// ============================================================
+// `FormulaSlots` — УЧЕНИК СОБИРАЕТ ЗАПИСЬ САМ.
+//
+// Таблица в две ячейки: сверху и снизу. Кнопками ученик кладёт в каждую либо
+// ЧИСЛО, либо БУКВУ и сразу видит приговор: считает всегда или может упасть.
+// Перебрав четыре сочетания, он открывает правило сам — опасна только буква
+// внизу, сверху она безразлична.
+//
+// Устройство взято из урока 1 второго класса («Собери 24»): там кнопками
+// растят число в двух колонках, здесь — собирают запись.
+// ============================================================
+export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdicts, after, onSolved, audio }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [top, setTop] = useState(null)
+  const [bot, setBot] = useState(null)
+  const [done, setDone] = useState(false)
+
+  const risky = bot === 'var'
+  const full = top && bot
+
+  const put = (where, what) => {
+    if (done) return
+    const nextTop = where === 'top' ? what : top
+    const nextBot = where === 'bot' ? what : bot
+    if (where === 'top') setTop(what); else setBot(what)
+    if (nextTop && nextBot && nextBot === 'var' && !done) {
+      setDone(true)
+      sfx.playCorrect()
+      if (audio && after) audio.say(t(after))
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+      return
+    }
+    sfx.playCorrect()
+  }
+
+  const cell = (where, val, label) => (
+    <div className={'g8-fs-cell' + (val ? ' is-full' : '') + (where === 'bot' && val === 'var' ? ' is-risky' : '')}>
+      <span className="g8-fs-cap">{t(label)}</span>
+      <span className="g8-fs-val" style={{ fontFamily: MATH_FONT }}>
+        {val === 'num' ? '7' : val === 'var' ? 'a' : ''}
+      </span>
+      <span className="g8-fs-btns">
+        <button type="button" className="g8-fs-btn" onClick={() => put(where, 'num')}>{t(numWord)}</button>
+        <button type="button" className="g8-fs-btn" onClick={() => put(where, 'var')}>{t(varWord)}</button>
+      </span>
+    </div>
+  )
+
+  return (
+    <>
+      <Ask>{t(ask)}</Ask>
+      <div className="g8-fs">
+        {cell('top', top, topLabel)}
+        <span className="g8-fs-bar"/>
+        {cell('bot', bot, botLabel)}
+      </div>
+      <Slot mh={62}>
+        {full ? (
+          <Note kind={risky ? 'no' : 'ok'}>{t(risky ? verdicts.risky : verdicts.safe)}</Note>
+        ) : null}
+      </Slot>
+    </>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -418,6 +485,23 @@ export const FEED_STYLES = `
 .g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-fs { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
+.g8-fs-cell { display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 260px; padding: 10px 16px; border-radius: 14px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); transition: box-shadow .25s ease; }
+.g8-fs-cell.is-full { box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.35); }
+.g8-fs-cell.is-risky { box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.5); }
+.g8-fs-cap { font-family: 'Manrope', system-ui, sans-serif; font-size: 11.5px;
+  letter-spacing: .1em; text-transform: uppercase; color: ${T.ink3}; }
+.g8-fs-val { font-size: clamp(26px, 2.6vw, 36px); color: ${T.ink}; min-height: 1.1em; }
+.g8-fs-cell.is-risky .g8-fs-val { color: ${T.tip}; }
+.g8-fs-btns { display: flex; gap: 8px; }
+.lesson-root .g8-fs-btn { border: 0; cursor: pointer; border-radius: 10px; min-height: 40px;
+  padding: 0 16px; background: ${T.bg}; color: ${T.ink2};
+  font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 16px); font-weight: 600;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+.lesson-root .g8-fs-btn:hover { color: ${T.ink}; transform: translateY(-1px); }
+.g8-fs-bar { display: block; width: 240px; height: 3px; border-radius: 2px; background: ${T.ink}; }
 .g8-cs { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .g8-cs-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; letter-spacing: .12em;
   text-transform: uppercase; color: ${T.ink3}; }

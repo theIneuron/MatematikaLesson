@@ -487,109 +487,61 @@ const S3 = {
 }
 
 // ============================================================
+// EKRAN 4. YOZUVNI O'ZINGIZ YIG'ING. Ikki katak: tepada va pastda. Tugmalar
+// bilan o'quvchi har biriga SON yoki HARF qo'yadi va darhol hukmni ko'radi.
+// To'rtta juftlikni sinab, qoidani O'ZI ochadi: xavfli faqat pastdagi harf,
+// tepada u ahamiyatsiz.
+//
+// Naqsh 1-sinf 2-darsdan («24 ni yig'ing»): u yerda tugmalar bilan sonni
+// o'stiradilar, bu yerda yozuvni yig'adilar.
+// ============================================================
 const S4 = {
-  eyebrow: L("ENDI O'ZINGIZ", 'ТЕПЕРЬ САМ', 'NOW YOU'),
+  eyebrow: L('YOZUVNI YIG\'ING', 'СОБЕРИ ЗАПИСЬ', 'BUILD THE RECORD'),
   title: L(
-    "Uch qadam, boshqa yozuv",
-    'Три шага, другая запись',
-    'Three steps, another record',
+    "Qanday yozuv yiqilishi mumkin",
+    'Какая запись может упасть',
+    'Which record can crash',
   ),
   audio: [
     A('mount',
-      "Ko'rdingiz, qanday qilinadi. Endi xuddi shu uch qadamni o'zingiz bajarasiz. Yozuv boshqa, tartib esa o'sha.",
-      'Ты видел, как это делают. Теперь те же три шага делаешь сам. Запись другая, порядок тот же.',
-      'You saw how it is done. Now you take the same three steps. The record differs, the order is the same.'),
-    W('p1',
-      "Qism tanlandi. Endi shu qismni nolga aylantiradigan sonni qo'ying. Son mos kelmasa, boshqasini olasiz.",
-      'Часть выбрана. Теперь поставь число, которое обращает эту часть в нуль. Если не подойдёт, возьмёшь другое.',
-      'The part is chosen. Now put a number that makes this part zero. If it does not fit, take another.'),
-    W('p3',
-      "Maxraj nol bo'ldi. Savol o'sha, javobni o'zingiz bilasiz.",
-      'Знаменатель стал нулём. Вопрос тот же, и ответ ты уже знаешь.',
-      'The denominator became zero. The question is the same and you already know the answer.'),
+      "Ikki katak: tepada va pastda. Har biriga son yoki harf qo'ying.",
+      'Две ячейки: сверху и снизу. В каждую поставь число или букву.',
+      'Two cells: above and below. Put a number or a letter into each.'),
+    A('why',
+      "To'rtta juftlikni sinab ko'ring. Ulardan qaysi biri ilovani yiqitishi mumkin?",
+      'Попробуй все четыре сочетания. Какое из них может уронить приложение?',
+      'Try all four combinations. Which of them can crash the app?'),
   ],
   props: {
-    demo: false,
-    varName: 'x',
-    num: 'x + 1',
-    den: 'x − 3',
-    tapAsk: L(
-      "Yozuvning qaysi qismidan taqiq kelib chiqadi? Bosing",
-      'По какой части записи находят запрет? Нажми',
-      'Which part of the record gives the restriction? Tap it',
+    ask: L(
+      "Kamida bitta sonda yiqiladigan yozuvni yig'ing",
+      'Собери запись, которая упадёт хотя бы на одном числе',
+      'Build a record that crashes on at least one number',
     ),
-    tapWrong: L(
-      "Bu surat, u chiziq USTIDA. Taqiq esa bo'linadigan narsadan kelib chiqadi.",
-      'Это числитель, он НАД чертой. А запрет приходит от того, на что делят.',
-      'This is the numerator, above the bar. The restriction comes from what you divide by.',
-    ),
-    probe: {
-      at: 3,
-      label: L("Son:", 'Число:', 'Number:'),
-      question: L(
-        "Uchda bu yozuv bilan nima bo'ladi?",
-        'Что происходит с этой записью при трёх?',
-        'What happens to this record at three?',
+    topLabel: L('tepada', 'сверху', 'above'),
+    botLabel: L('pastda', 'снизу', 'below'),
+    numWord: L('son', 'число', 'a number'),
+    varWord: L('harf', 'буква', 'a letter'),
+    verdicts: {
+      safe: L(
+        "Bu yozuv har doim sanaladi: pastda son turibdi, u nolga aylanmaydi.",
+        'Эта запись считается всегда: снизу число, оно нулём не станет.',
+        'This record always computes: below is a number, and it never becomes zero.',
       ),
-      items: [
-        {
-          id: 'none',
-          right: true,
-          label: L("qiymat yo'q", 'значения нет', 'there is no value'),
-        },
-        {
-          id: 'zero',
-          label: L('qiymat nolga teng', 'значение равно нулю', 'the value equals zero'),
-          hint: L(
-            "Nol PASTDA turganda qiymat umuman yo'q. Nol nolga teng bo'lishi uchun u YUQORIDA turishi kerak: minus birni qo'ying.",
-            'Когда нуль СНИЗУ, значения нет вовсе. Чтобы значение было нулём, нуль должен быть СВЕРХУ: подставь минус один.',
-            'When the zero is BELOW there is no value at all. For the value to be zero the zero must be ABOVE: put minus one.',
-          ),
-        },
-      ],
-    },
-    odz: {
-      excluded: [3],
-      ask: L(
-        'ODZ ni yozing',
-        'Запиши ОДЗ',
-        'Write the domain',
+      risky: L(
+        "Bu yozuv yiqilishi mumkin: pastdagi harf biror sonda nolga aylanadi.",
+        'Эта запись может упасть: буква снизу при каком-то числе обратится в нуль.',
+        'This record can crash: the letter below becomes zero at some number.',
       ),
-      accepts: ['x != 3', 'x - 3 != 0'],
-      hints: {
-        'x != -3': L(
-          "Minus uchni qo'ying: minus uch minus uch, minus olti chiqadi, nol emas.",
-          'Подставь минус три: минус три минус три, получится минус шесть, а не нуль.',
-          'Put minus three: minus three minus three gives minus six, not zero.',
-        ),
-        'x != -1': L(
-          "Minus bir SURATNI nolga aylantiradi. Bunda qiymat bor va u nolga teng.",
-          'Минус один обращает в нуль ЧИСЛИТЕЛЬ. При нём значение есть, и оно равно нулю.',
-          'Minus one makes the NUMERATOR zero. Then the value exists and equals zero.',
-        ),
-      },
     },
-    // XULOSA FIGURASI: taqiq son o'qida BO'SH nuqta bo'lib ko'rinadi.
-    fig: {
-      kind: 'line',
-      // ODZ bu yerda TAKRORLANMAYDI: u yuqorida, o'quvchi yozgan satrda turadi.
-      data: { from: 0, to: 6, hole: 3 },
-    },
-    hint: L(
-      "Uch qadamni o'zingiz bajardingiz. Taqiq o'qda bo'sh nuqta bo'lib turadi.",
-      'Три шага ты сделал сам. Запрет стоит на прямой пустой точкой.',
-      'You took the three steps yourself. The restriction stands on the line as a hollow point.',
+    after: L(
+      "Topdingiz. Tepada nima turishi ahamiyatsiz — xavf faqat pastdan keladi.",
+      'Нашёл. Что стоит сверху — неважно; опасность приходит только снизу.',
+      'Found it. What stands above does not matter: the danger comes only from below.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 5. FARQLASH. Harf BOR, lekin songa bo'linadi -> taqiq YO'Q.
-// «Taqiqlangan qiymat yo'q» — TUGMA, matn emas (§10.1).
-// ============================================================
-// EKRAN 5. O'ZINGIZ TO'LDIRING. Xuddi shu usul, BOSHQA yozuv: taqiq endi
-// boshqa sonda. Jadvalni o'quvchi O'ZI to'ldiradi -- katak unga
-// ko'rsatilgan emas, u O'ZI olgan natija bilan to'ladi.
 // ============================================================
 const S5 = {
   eyebrow: L("JADVALNI TO'LDIRING", 'ЗАПОЛНИ ТАБЛИЦУ', 'FILL THE TABLE'),
@@ -1535,7 +1487,7 @@ export const SCREENS = [
   { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S3 },
-  { role: 'explain',  tool: 'tappart',   kind: 'selfstep', tag: 'З2',  ...S4 },
+  { role: 'explain',  tool: 'slots',     kind: 'build',    tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
