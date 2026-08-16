@@ -1855,6 +1855,43 @@ html, body { margin: 0; padding: 0; }
 .g8-stack { justify-content: center; }
 .g8-stack > .g8-title { margin-top: 0; }
 
+/* ====================================================================
+   ВОПРОС И ВАРИАНТЫ В ОДНОЙ КАРТОЧКЕ — структура урока 1 седьмого класса
+   (замер: карточка 860 на 180). У нас они лежали голыми на фоне, и экран
+   рассыпался на разрозненные блоки.
+
+   Сделано БЕЗ правки разметки: вопрос и варианты — соседние элементы, и
+   карточка собирается селектором :has(). Если браузер его не знает,
+   карточку получат только варианты — вид беднее, но ничего не ломается.
+   ==================================================================== */
+.g8-choice {
+  background: ${T.paper};
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05);
+}
+.g8-ask:has(+ .g8-choice) {
+  background: ${T.paper};
+  border-radius: 16px 16px 0 0;
+  padding: 16px 18px 2px;
+  margin-bottom: 0;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.05);
+}
+.g8-ask:has(+ .g8-choice) + .g8-choice {
+  border-radius: 0 0 16px 16px;
+  padding-top: 10px;
+  box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05);
+}
+/* Внутри карточки вариант не нуждается в собственной тени: две тени одна в
+   другой дают грязь. Остаётся тонкая обводка. */
+.g8-choice .g8-opt { box-shadow: inset 0 0 0 1px rgba(23,26,29,.09); background: ${T.bg}; }
+.g8-choice .g8-opt-ok { box-shadow: inset 0 0 0 2px rgba(${T.okRgb},.5); }
+.g8-choice .g8-opt-tip { box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.45); }
+
+/* Кнопка «запретов нет» — это ВТОРОЙ способ ответить на тот же вопрос, и
+   стоять она должна под полем, а не висеть слева отдельным элементом. */
+.g8-none { display: block; margin: 8px auto 0; }
+
 @media (max-height: 680px) {
   .g8-top { row-gap: 0; }
   .g8-seg { flex-basis: auto; flex: 1; min-width: 40px; order: 0; }
@@ -1874,6 +1911,11 @@ html, body { margin: 0; padding: 0; }
   /* Вариант в 62 пикселя — мерка 7 класса, но на ноутбуке 615 её не хватает
      по высоте: экран 10 вышел за фолд на 16 px. Там вариант ниже. */
   .g8-opt { min-height: 46px; }
+  /* Блиц держит четыре вопроса в одной панели: карточка вокруг каждого
+     добавляет по 30 px и выбивает экран 14 за фолд (замер: +18). Там
+     карточка плоская — без отступов и тени. */
+  .g8-choice { padding: 8px 10px; }
+  .g8-ask:has(+ .g8-choice) { padding: 10px 12px 2px; }
 }
 
 /* Телефон: макет 390 и увеличивается zoom-ом, поэтому крупный кегль там
