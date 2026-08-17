@@ -684,39 +684,77 @@ const S6 = {
 }
 
 // ============================================================
+// EKRAN 7. YOZUVNI QISMLARGA AJRATAMIZ. Naqsh 4-sinf 1-darsdan (sonni
+// sinflarga ajratish): tepada yozuv, unda navbat bilan qism yoritiladi,
+// ostida izoh polosalari to'planadi, pastda fakt kartochkasi.
+//
+// O'quvchi yangi mavzuni emas, ALLAQACHON tegilgan yozuvdagi ROLLARNI ko'radi.
+// ============================================================
 const S7 = {
-  eyebrow: L('CHEGARA', 'ГРАНИЦА', 'THE BOUNDARY'),
+  eyebrow: L('QISMLARGA AJRATAMIZ', 'РАЗБИРАЕМ ПО ЧАСТЯМ', 'BREAKING IT DOWN'),
   title: L(
-    "Bu ikki yozuv qayerda ajraladi",
-    'Где эти две записи расходятся',
-    'Where these two records part ways',
+    "Yozuvning har bir qismi nima qiladi",
+    'Что делает каждая часть записи',
+    'What each part of the record does',
   ),
   audio: [
     A('mount',
-      "Ikki yozuv. Ular bir xil sonda sanaladi, va siz natijalarni yonma-yon ko'rasiz.",
-      'Две записи. Они считаются на одном и том же числе, и результаты ты видишь рядом.',
-      'Two records. They are computed at the same number, and you see the results side by side.'),
-    A('why',
-      "Sonlarni birma-bir bosing. Ular deyarli hamma joyda mos keladi, lekin hamma joyda emas.",
-      'Нажимай числа по очереди. Они совпадают почти везде, но не везде.',
-      'Tap the numbers one by one. They agree almost everywhere, but not everywhere.'),
+      "Bitta yozuv, uchta qism. Har birining o'z roli bor.",
+      'Одна запись, три части. У каждой своя роль.',
+      'One record, three parts. Each has its own role.'),
+    W('p2',
+      "Maxraj hamma narsani hal qiladi: narx hisoblanadimi yoki yo'q — faqat undan bog'liq.",
+      'Знаменатель решает всё: посчитается цена или нет — зависит только от него.',
+      'The denominator decides everything: whether the price computes depends only on it.'),
+    W('p3',
+      "Siljish esa taqiq qayerda turishini belgilaydi.",
+      'А сдвиг задаёт, где именно стоит запрет.',
+      'The shift sets exactly where the restriction stands.'),
   ],
   props: {
-    nums: [-2, -1, 0, 1, 2],
-    left: { show: 'x : x', f: (x) => (x === 0 ? null : x / x) },
-    right: { show: '1', f: () => 1 },
-    ask: L(
-      "Sonlarni bosing: qaysinisida yozuvlar ajraladi?",
-      'Нажимай числа: на каком записи разойдутся?',
-      'Tap the numbers: at which one do the records part ways?',
-    ),
-    after: L(
-      "Nolda chap yozuv qiymatini yo'qotdi, o'ngi esa bir bo'lib qoldi. Yozuvlar bitta nuqtadan tashqari hamma joyda teng.",
-      'При нуле левая запись потеряла значение, а правая осталась единицей. Записи равны везде, кроме одной точки.',
-      'At zero the left record lost its value while the right one stayed one. The records agree everywhere except one point.',
-    ),
+    tokens: [
+      { t: '600', id: 'sum' },
+      { t: '  :  ' },
+      { t: '(k', id: 'den' },
+      { t: ' − 4)', id: 'shift' },
+    ],
+    steps: [
+      {
+        focus: 'sum',
+        text: L(
+          "600 — sotuv summasi. U istalgan bo'lishi mumkin, unga hech narsa ta'sir qilmaydi.",
+          '600 — сумма продажи. Она может быть любой, на неё ничего не влияет.',
+          '600 is the sale total. It can be anything; nothing depends on it.',
+        ),
+      },
+      {
+        focus: 'den',
+        text: L(
+          "k — maxrajdagi harf. Aynan maxraj narx hisoblanishini hal qiladi.",
+          'k — буква в знаменателе. Именно знаменатель решает, посчитается ли цена.',
+          'k is the letter in the denominator. The denominator decides whether the price computes.',
+        ),
+      },
+      {
+        focus: 'shift',
+        text: L(
+          "Minus to'rt — siljish. U tufayli taqiq nolda emas, to'rtlikda turadi.",
+          'Минус четыре — сдвиг. Из-за него запрет не на нуле, а на четвёрке.',
+          'Minus four is the shift. Because of it the restriction sits at four, not at zero.',
+        ),
+      },
+    ],
+    fact: {
+      cap: L('BILASIZMI · AMALIYOT', 'ЗНАЕШЬ ЛИ ТЫ · ПРАКТИКА', 'DID YOU KNOW · PRACTICE'),
+      text: L(
+        "Ma'lumotlar bazalarida maxraj hisobdan OLDIN tekshiriladi: aks holda butun so'rov yiqiladi, bitta qator emas.",
+        'В базах данных знаменатель проверяют ДО вычисления: иначе падает весь запрос, а не одна строка.',
+        'In databases the denominator is checked BEFORE computing: otherwise the whole query fails, not one row.',
+      ),
+    },
   },
 }
+
 
 // ============================================================
 const S8 = {
@@ -1438,7 +1476,7 @@ export const SCREENS = [
   { role: 'explain',  tool: 'pick',      kind: 'place',    tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'chain',     kind: 'move',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
-  { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
+  { role: 'explain',  tool: 'parts',     kind: 'roles',    tag: 'З2',  ...S7 },
   {
     role: 'rule',
     tool: 'rulebuild',

@@ -648,6 +648,56 @@ export function Chain({ items, conclusion, stepMs = 1800, onStep }) {
   )
 }
 
+
+// ============================================================
+// `Parts` — РАЗБОР ЗАПИСИ ПО ЧАСТЯМ.
+//
+// Устройство из урока 1 четвёртого класса (разбор числа по классам): сверху
+// запись, в ней по очереди подсвечивается часть, под ней копятся полосы с
+// пояснением, внизу карточка факта.
+//
+// Ученик видит не новую тему, а РОЛИ в записи, которую он уже трогал.
+// ============================================================
+export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
+  const t = useT()
+  const [shown, setShown] = useState(0)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+  useEffect(() => {
+    if (shown >= steps.length) return undefined
+    const id = setTimeout(() => {
+      setShown((n) => n + 1)
+      if (stepRef.current) stepRef.current('p' + (shown + 1))
+    }, shown === 0 ? 900 : stepMs)
+    return () => clearTimeout(id)
+  }, [shown, steps.length, stepMs])
+
+  const focus = shown > 0 ? steps[Math.min(shown, steps.length) - 1].focus : null
+
+  return (
+    <div className="g8-pt">
+      <div className="g8-pt-expr" style={{ fontFamily: MATH_FONT }}>
+        {tokens.map((tk, i) => (
+          <span key={i} className={'g8-pt-tk' + (tk.id && tk.id === focus ? ' is-on' : '')}>{tk.t}</span>
+        ))}
+      </div>
+
+      <div className="g8-pt-notes">
+        {steps.map((st, i) => (
+          <div key={i} className={'g8-pt-note' + (i < shown ? ' is-on' : '')}>{t(st.text)}</div>
+        ))}
+      </div>
+
+      {fact ? (
+        <div className={'g8-pt-fact' + (shown >= steps.length ? ' is-on' : '')}>
+          <span className="g8-pt-factcap">{t(fact.cap)}</span>
+          <span className="g8-pt-facttx">{t(fact.text)}</span>
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -720,6 +770,32 @@ export const FEED_STYLES = `
 .g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-pt { width: 100%; display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.g8-pt-expr { display: flex; align-items: baseline; gap: 4px; white-space: pre;
+  font-size: clamp(26px, 2.8vw, 40px); color: ${T.ink}; padding: 12px 20px;
+  background: ${T.paper}; border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.06); }
+.g8-pt-tk { padding: 2px 6px; border-radius: 8px; transition: background .35s ease, color .35s ease; }
+.g8-pt-tk.is-on { background: ${T.tipSoft}; color: ${T.tip}; }
+.g8-pt-notes { display: flex; flex-direction: column; gap: 6px; width: 100%; }
+.g8-pt-note { padding: 9px 14px; border-radius: 0 12px 12px 0; border-left: 4px solid ${T.accent};
+  background: ${T.paper}; font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(13.5px, 1.25vw, 17px); color: ${T.ink};
+  opacity: 0; transform: translateX(-8px); transition: opacity .4s ease, transform .4s ease; }
+.g8-pt-note.is-on { opacity: 1; transform: none; }
+.g8-pt-fact { display: flex; flex-direction: column; gap: 3px; width: 100%;
+  padding: 11px 15px; border-radius: 14px; background: ${T.graphSoft};
+  opacity: 0; transition: opacity .5s ease; }
+.g8-pt-fact.is-on { opacity: 1; }
+.g8-pt-factcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
+  letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.graph}; }
+.g8-pt-facttx { font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(13px, 1.2vw, 16px); color: ${T.ink}; }
+@media (max-height: 680px) {
+  .g8-pt-expr { font-size: 26px; padding: 8px 16px; }
+  .g8-pt-note { padding: 6px 12px; font-size: 13px; }
+  .g8-pt-fact { padding: 8px 12px; }
+}
 .g8-ch { width: 100%; background: ${T.paper}; border-radius: 18px; padding: 18px 20px;
   display: flex; flex-direction: column; align-items: center; gap: 16px;
   box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05); }
