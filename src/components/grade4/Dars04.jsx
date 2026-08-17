@@ -8,6 +8,8 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -116,7 +118,7 @@ const G4_TITLE_STYLES = `
   width: 100%;
   min-height: 116px;
   margin: 0;
-  padding: 12px 82px 11px 67px;
+  padding: 12px 14px 11px 67px;
   border-radius: 17px;
   display: flex;
   flex-direction: column;
@@ -128,8 +130,6 @@ const G4_TITLE_STYLES = `
   box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
   transform: translateY(-2px);
 }
-.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
-.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
 .g4-title-card-medal {
   position: absolute;
   z-index: 2;
@@ -164,60 +164,127 @@ const G4_TITLE_STYLES = `
 .g4-title-card-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
 .g4-title-card-score span { color: rgba(255,255,255,.72); font-size: 9px; }
 .g4-title-card-confetti { position: absolute; inset: 0; pointer-events: none; }
-.g4-title-card-confetti i { position: absolute; top: -16px; width: 7px; height: 12px; border-radius: 2px; animation: g4-title-card-confetti-fall 2.4s linear 2 both; }
+.g4-title-card-confetti i {
+  position: absolute;
+  top: -16px;
+  left: var(--g4-title-card-left);
+  width: 7px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0;
+  animation: g4-title-card-confetti-fall var(--g4-title-card-duration) linear var(--g4-title-card-delay) 4 both;
+}
 .g4-title-card-confetti i:nth-child(4n+1) { background: #FFC23C; }
 .g4-title-card-confetti i:nth-child(4n+2) { background: #FF5B35; }
 .g4-title-card-confetti i:nth-child(4n+3) { background: #77E1EA; }
 .g4-title-card-confetti i:nth-child(4n) { background: #95C93D; }
-.g4-title-card-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
-.g4-title-card-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
-.g4-title-card-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
-.g4-title-card-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
-.g4-title-card-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
-.g4-title-card-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
-.g4-title-card-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
-.g4-title-card-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
-.g4-title-card-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
-.g4-title-card-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
-.g4-title-card-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
-.g4-title-card-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
 @keyframes g4-title-reveal-overlay-life { 0% { opacity: 0; } 12%,84% { opacity: 1; } 100% { opacity: 0; } }
 @keyframes g4-title-reveal-medal-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.25) rotate(-25deg); } to { opacity: 1; transform: translate(-50%,-50%) scale(1) rotate(0); } }
 @keyframes g4-title-reveal-title-in { from { opacity: 0; transform: translate(-50%,14px); } to { opacity: 1; transform: translate(-50%,0); } }
 @keyframes g4-title-reveal-rays-in { from { opacity: 0; transform: translate(-50%,-50%) scale(.5); } to { opacity: .28; transform: translate(-50%,-50%) scale(1); } }
 @keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
 @keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
-@keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
-@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+@keyframes g4-title-card-confetti-fall {
+  0% { opacity: 0; transform: translate3d(0,-10px,0) rotate(0); }
+  16% { opacity: 1; }
+  84% { opacity: .92; }
+  100% { opacity: 0; transform: translate3d(var(--g4-title-card-drift),260px,0) rotate(420deg); }
+}
 @media (max-width: 639.98px) {
   .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
   .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
   .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
-  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 10px 8px 51px; border-radius: 14px; }
   .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
-  .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
+  @keyframes g4-title-card-confetti-fall {
+    0% { opacity: 0; transform: translate3d(0,-10px,0) rotate(0); }
+    16% { opacity: 1; }
+    84% { opacity: .92; }
+    100% { opacity: 0; transform: translate3d(var(--g4-title-card-drift),130px,0) rotate(420deg); }
+  }
 }
 .g4-title-claim{width:100%;min-height:96px;padding:12px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
+.lesson-root.g4-dars04-root .g4-shared-finale { gap: 6px; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-heading { padding-top: 8px; padding-bottom: 8px; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-layout { gap: 6px 9px; align-content: start; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-main,
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-mastery { gap: 5px; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-takeaway { min-height: 52px; padding-top: 5px; padding-bottom: 5px; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-proof,
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-bridge { min-height: 0; height: max-content; align-self: start; padding-top: 3px; padding-bottom: 3px; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-actions { min-height: 70px; justify-content: flex-start; }
+.lesson-root.g4-dars04-root .g4-shared-finale .finale-actions > :is(.g4-title-claim, .g4-title-card-stage) {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 70px;
+  transform: none;
+}
+.lesson-root.g4-dars04-root .g4-shared-finale .g4-title-card-stage {
+  min-height: 88px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+}
+@media (min-width: 640px) {
+  .lesson-root.g4-dars04-root .g4-shared-finale .finale-actions > :is(.g4-title-claim, .g4-title-card-stage) {
+    flex: 1 1 auto;
+    height: 100%;
+    min-height: 100%;
+    transform: none;
+  }
+}
+@media (max-width: 639.98px) {
+  .lesson-root.g4-dars04-root .g4-shared-finale .finale-takeaway { min-height: 0; padding-top: 4px; padding-bottom: 4px; }
+  .lesson-root.g4-dars04-root .g4-shared-finale .finale-proof,
+  .lesson-root.g4-dars04-root .g4-shared-finale .finale-bridge { padding-top: 3px; padding-bottom: 3px; }
+  .lesson-root.g4-dars04-root .g4-shared-finale .g4-title-card-stage { min-height: 76px; padding-top: 6px; padding-bottom: 6px; }
+}
 @media (prefers-reduced-motion: reduce) {
   .g4-title-reveal-overlay { opacity: 1; animation: none; }
   .g4-title-reveal-rays { opacity: .28; transform: translate(-50%,-50%); animation: none; }
   .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
   .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
   .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
-  .g4-title-card-bit { animation: none; }
 }
 `;
 
-function G4TitleReveal({ active, title, lang }) {
+function G4TitleReveal({ active, title, lang, onComplete }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => { setVisible(false); onComplete?.(); }, reduced ? 120 : 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, onComplete]);
   if (!visible || typeof document === 'undefined') return null;
   return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={lang === 'en' ? `Title: ${title}` : lang === 'ru' ? `Звание: ${title}` : `Unvon: ${title}`}><div className="rank-boost-card g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
 }
 
-function G4TitleCard({ title, lang, firstTry, totalScored }) {
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div></div>;
+function G4TitleCard({ title, lang, firstTry, totalScored, celebrate }) {
+  return (
+    <div className="g4-title-card-stage" data-g4-role="title-card" data-g4-title-bit="absent" role="status" aria-live="polite" aria-atomic="true">
+      {celebrate && (
+        <div className="g4-title-card-confetti" data-g4-role="reward-confetti" data-g4-duration-ms="5000" aria-hidden="true">
+          {Array.from({ length: 24 }, (_, index) => {
+            const delay = (index % 8) * 0.1;
+            return (
+              <i
+                key={index}
+                style={{
+                  '--g4-title-card-left': `${6 + ((index * 17) % 89)}%`,
+                  '--g4-title-card-delay': `${delay}s`,
+                  '--g4-title-card-duration': `${((5 - delay) / 4).toFixed(3)}s`,
+                  '--g4-title-card-drift': `${(index % 2 === 0 ? 1 : -1) * (5 + (index % 4) * 3)}px`,
+                }}
+              />
+            );
+          })}
+        </div>
+      )}
+      <div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div>
+      <span className="g4-title-card-kicker">{lang === 'en' ? 'TITLE EARNED' : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span>
+      <h2>{title}</h2>
+      <div className="g4-title-card-score">
+        <strong>{firstTry}/{totalScored}</strong>
+        <span>{lang === 'en' ? 'on the first attempt' : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span>
+      </div>
+    </div>
+  );
 }
 
 // ============================================================================
@@ -260,21 +327,18 @@ const CONTENT = {
     options: [
       { ru: 'Слева, со старшего разряда', uz: 'Chapdan, eng katta xonadan', en: 'From the left, at the highest place' },
       { ru: 'Справа, с последней цифры', uz: "O'ngdan, oxirgi raqamdan", en: 'From the right, at the last digit' },
-      { ru: 'Сложить цифры каждого числа', uz: "Har bir sonning raqamlarini qo'shish", en: 'Add the digits in each number' },
     ],
     correctIndex: 0,
     correctText: { ru: 'Начинаем слева: первое различие в разряде десятков, 0 < 9. Поэтому 842 107 < 842 190.', uz: "Chapdan boshlaymiz: birinchi farq o'nlar xonasida, 0 < 9. Shuning uchun 842 107 < 842 190.", en: 'Start from the left: the first difference is in the tens place, 0 < 9. Therefore 842,107 < 842,190.' },
     wrong: [
       null,
       { ru: 'Последняя цифра показывает только единицы. Она не может отменить более важное различие слева.', uz: "Oxirgi raqam faqat birliklarni ko'rsatadi. U chapdagi muhimroq farqni bekor qila olmaydi.", en: 'The last digit only shows ones. It cannot override a more important difference farther left.' },
-      { ru: 'Сумма цифр не определяет порядок многозначных чисел. Сравнивай одинаковые разряды слева направо.', uz: "Raqamlar yig'indisi ko'p xonali sonlar tartibini aniqlamaydi. Bir xil xonalarni chapdan o'ngga taqqoslang.", en: 'A digit sum does not determine the order of multi-digit numbers. Compare matching places from left to right.' },
     ],
     feedbackAudio: {
       on_correct: { ru: 'Верно. Сравнение начинаем слева и останавливаемся на первом различии.', uz: "To'g'ri. Taqqoslashni chapdan boshlaymiz va birinchi farqda to'xtaymiz.", en: 'Correct. Start comparing on the left and stop at the first difference.' },
       on_wrong: [
         null,
         { ru: 'Последняя цифра недостаточна. Начни со старшего разряда слева.', uz: "Oxirgi raqam yetarli emas. Chapdagi eng katta xonadan boshlang.", en: 'The last digit is not enough. Start at the highest place on the left.' },
-        { ru: 'Не складывай цифры. Сравни одинаковые разряды слева направо.', uz: "Raqamlarni qo'shmang. Bir xil xonalarni chapdan o'ngga taqqoslang.", en: 'Do not add the digits. Compare matching places from left to right.' },
       ],
     },
     audio: {
@@ -314,16 +378,19 @@ const CONTENT = {
     conclusion: { ru: 'Шестизначное число больше пятизначного.', uz: "Olti xonali son besh xonali sondan katta.", en: "A six-digit number is greater than a five-digit number." },
     audio: {
       ru: [
-        'Сначала считаем цифры. У первого числа пять цифр, а у второго шесть.',
-        'Во втором числе есть разряд сотен тысяч. Поэтому оно больше любого пятизначного числа.',
+        'Сначала считаем цифры в каждом числе. У первого числа пять цифр, у второго шесть.',
+        'У второго числа есть разряд сотен тысяч, которого нет у первого числа.',
+        'Поэтому сто две тысячи триста четыре больше любого пятизначного числа.',
       ],
       uz: [
-        "Avval raqamlarni sanaymiz. Birinchi sonda beshta, ikkinchi sonda esa oltita raqam bor.",
-        "Ikkinchi sonda yuz mingliklar xonasi bor. Shuning uchun u har qanday besh xonali sondan katta.",
+        "Avval har bir sondagi raqamlarni sanaymiz. Birinchi sonda beshta, ikkinchisida oltita raqam bor.",
+        "Ikkinchi sonda birinchi sonda bo'lmagan yuz mingliklar xonasi bor.",
+        "Shuning uchun bir yuz ikki ming uch yuz to'rt har qanday besh xonali sondan katta.",
       ],
       en: [
-        "First count the digits. The first number has five digits, and the second has six.",
-        "The second number has a hundred-thousands place, so it is greater than any five-digit number.",
+        "First count the digits in each number. The first number has five digits and the second has six.",
+        "The second number has a hundred-thousands place that the first number does not have.",
+        "Therefore, one hundred and two thousand three hundred and four is greater than any five-digit number.",
       ],
     },
   },
@@ -381,19 +448,41 @@ const CONTENT = {
     end: '705 100',
     left: '705 009',
     right: '705 090',
+    leftPercent: 9,
+    rightPercent: 90,
     formula: '705 009 < 705 090',
+    stepExplanations: [
+      {
+        ru: 'Отмечаем 705 009: точка находится на 9 единиц правее 705 000.',
+        uz: "705 009 sonini belgilaymiz: nuqta 705 000 dan 9 birlik o'ngda joylashgan.",
+        en: 'Mark 705,009: its point is 9 units to the right of 705,000.',
+      },
+      {
+        ru: 'Отмечаем 705 090: эта точка расположена правее точки 705 009.',
+        uz: "705 090 sonini belgilaymiz: bu nuqta 705 009 nuqtasidan o'ngroqda joylashgan.",
+        en: 'Mark 705,090: its point is farther to the right than the point for 705,009.',
+      },
+      {
+        ru: 'На числовой прямой число справа больше. Поэтому 705 009 < 705 090.',
+        uz: "Sonlar chizig'ida o'ngdagi son katta. Shuning uchun 705 009 < 705 090.",
+        en: 'On a number line, the number farther to the right is greater. Therefore, 705,009 < 705,090.',
+      },
+    ],
     audio: {
       ru: [
-        'Посмотрим на близкие числа на числовой прямой. Большее число находится правее.',
-        'Семьсот пять тысяч девяносто правее семисот пяти тысяч девяти, поэтому оно больше.',
+        'Сначала отметим семьсот пять тысяч девять. Это на девять единиц больше, чем семьсот пять тысяч, поэтому точка находится немного правее начала.',
+        'Теперь отметим семьсот пять тысяч девяносто. Эта точка находится правее первой.',
+        'На числовой прямой число справа больше. Поэтому первое число меньше второго.',
       ],
       uz: [
-        "Yaqin sonlarni sonlar chizig'ida ko'ramiz. Katta son o'ngroqda joylashadi.",
-        "Yetti yuz besh ming to'qson soni yetti yuz besh ming to'qqizdan o'ngroqda, shuning uchun u katta.",
+        "Avval yetti yuz besh ming to'qqiz sonini belgilaymiz. Bu yetti yuz besh mingdan to'qqiz birlikka katta, shuning uchun nuqta boshlanishdan biroz o'ngda joylashadi.",
+        "Endi yetti yuz besh ming to'qson sonini belgilaymiz. Bu nuqta birinchi nuqtadan o'ngroqda joylashadi.",
+        "Sonlar chizig'ida o'ngdagi son katta. Shuning uchun birinchi son ikkinchi sondan kichik.",
       ],
       en: [
-        "Let us look at close numbers on a number line. The greater number is farther to the right.",
-        "Seven hundred and five thousand and ninety is to the right of seven hundred and five thousand and nine, so it is greater.",
+        'First mark seven hundred and five thousand and nine. It is nine units past seven hundred and five thousand, so the point sits just right of the start.',
+        'Now mark seven hundred and five thousand and ninety. This point is farther to the right than the first.',
+        'On a number line, the number farther to the right is greater. Therefore, the first number is less than the second.',
       ],
     },
   },
@@ -411,16 +500,19 @@ const CONTENT = {
     conclusion: { ru: 'Все шесть разрядов совпали.', uz: 'Barcha oltita xona mos keldi.', en: "All six places match." },
     audio: {
       ru: [
-        'Если все разряды совпали, числа равны. Нули внутри числа тоже участвуют в сравнении.',
-        'В обоих числах каждая цифра занимает один и тот же разряд.',
+        'Сравниваем шесть разрядов по парам. В каждой паре стоят одинаковые цифры.',
+        'Ни в одном разряде различия нет, поэтому ставим знак равенства.',
+        'Все шесть разрядов совпали. Нули внутри числа тоже подтвердили равенство.',
       ],
       uz: [
-        "Barcha xonalar mos kelsa, sonlar teng bo'ladi. Son ichidagi nollar ham taqqoslashda qatnashadi.",
-        "Ikkala sonda har bir raqam bir xil xonani egallagan.",
+        "Oltita xonani juftlab taqqoslaymiz. Har bir juftlikda bir xil raqamlar turibdi.",
+        "Hech bir xonada farq yo'q, shuning uchun tenglik belgisini qo'yamiz.",
+        "Barcha oltita xona mos keldi. Son ichidagi nollar ham tenglikni tasdiqladi.",
       ],
       en: [
-        "If all the places match, the numbers are equal. Zeros inside a number are part of the comparison too.",
-        "In both numbers, each digit occupies the same place.",
+        "Compare the six places in pairs. Every pair contains the same two digits.",
+        "There is no difference in any place, so we use the equals sign.",
+        "All six places match. The zeros inside the number also confirm the equality.",
       ],
     },
   },
@@ -496,16 +588,22 @@ const CONTENT = {
     discovery: { ru: 'Старший различающийся разряд сильнее всех разрядов справа.', uz: "Eng katta farqli xona o'ngdagi barcha xonalardan kuchliroq.", en: "The highest place where the digits differ outweighs every place to its right." },
     audio: {
       ru: [
-        'Сравниваем цифры слева. Первое различие появляется в разряде десятков.',
-        'Ноль десятков меньше четырёх десятков. Единицы уже не могут изменить результат.',
+        'Сначала посмотрим на все шесть пар цифр слева направо.',
+        'Первые четыре пары равны. В разряде десятков ноль меньше четырёх, здесь сравнение решено.',
+        'После решения в десятках единицы становятся несущественными и уже не меняют результат.',
+        'Значит, старший различающийся разряд важнее всех младших разрядов справа.',
       ],
       uz: [
-        "Raqamlarni chapdan taqqoslaymiz. Birinchi farq o'nlar xonasida paydo bo'ladi.",
-        "Nol o'nlik to'rt o'nlikdan kichik. Birliklar natijani endi o'zgartira olmaydi.",
+        "Avval chapdan o'ngga barcha oltita raqamlar juftligiga birga qaraymiz.",
+        "Birinchi to'rtta juftlik teng. O'nlar xonasida nol to'rtdan kichik, shu yerda taqqoslash hal bo'ladi.",
+        "O'nlar xonasida javob topilgach, birliklar ahamiyatsiz bo'lib qoladi va natijani o'zgartirmaydi.",
+        "Demak, eng katta farqli xona o'ngdagi barcha kichik xonalardan muhimroq.",
       ],
       en: [
-        "Compare the digits from the left. The first difference is in the tens place.",
-        "Zero tens is less than four tens. The ones cannot change the result.",
+        "First look at all six pairs of digits together, moving from left to right.",
+        "The first four pairs are equal. In the tens place, zero is less than four, so the comparison is decided there.",
+        "Once the tens place decides the answer, the ones become unimportant and cannot change the result.",
+        "Therefore, the highest place where the digits differ outweighs every lower place to its right.",
       ],
     },
   },
@@ -518,18 +616,38 @@ const CONTENT = {
       { n: '02', title: { ru: 'Если длина равна, иди слева', uz: "Uzunlik teng bo'lsa, chapdan yuring", en: "If the lengths are equal, compare from the left" }, body: { ru: 'Найди первый разряд, где цифры различаются.', uz: 'Raqamlari farq qiladigan birinchi xonani toping.', en: "Find the first place where the digits differ." } },
       { n: '03', title: { ru: 'Поставь знак', uz: "Belgini qo'ying", en: "Choose the sign" }, body: { ru: 'Сравни цифры первого различающегося разряда. Если различий нет, числа равны.', uz: "Birinchi farqli xonadagi raqamlarni taqqoslang. Farq bo'lmasa, sonlar teng.", en: "Compare the digits in the first place where they differ. If there is no difference, the numbers are equal." } },
     ],
+    stepExplanations: [
+      {
+        ru: 'Посчитай цифры в каждом числе. Если количество цифр различается, больше число с большим количеством цифр.',
+        uz: "Har bir sondagi raqamlarni sanang. Raqamlar soni har xil bo'lsa, raqamlari ko'p son katta.",
+        en: 'Count the digits in each number. If the numbers have different numbers of digits, the number with more digits is greater.',
+      },
+      {
+        ru: 'Если цифр поровну, начни со старшего разряда и двигайся слева направо до первого различия.',
+        uz: "Raqamlar soni teng bo'lsa, eng katta xonadan boshlang va birinchi farqqacha chapdan o'ngga yuring.",
+        en: 'If the numbers have the same number of digits, start at the highest place and move from left to right until the first difference.',
+      },
+      {
+        ru: 'Сравни цифры первого различающегося разряда и поставь знак. Если все цифры совпали, поставь знак равенства.',
+        uz: "Birinchi farqli xonadagi raqamlarni taqqoslab, mos belgini qo'ying. Barcha raqamlar mos kelsa, tenglik belgisini qo'ying.",
+        en: 'Compare the digits in the first different place and choose the sign. If every digit matches, use the equals sign.',
+      },
+    ],
     audio: {
       ru: [
-        'Соберём правило. Сначала сравни количество цифр.',
-        'Если длина одинакова, двигайся слева направо до первого различия. Если различий нет, числа равны.',
+        'Первый шаг. Посчитай цифры в каждом числе. Если количество цифр различается, больше число с большим количеством цифр.',
+        'Второй шаг. Если цифр поровну, начни со старшего разряда и двигайся слева направо до первого различия.',
+        'Третий шаг. Сравни цифры первого различающегося разряда и поставь подходящий знак. Если все цифры совпали, поставь знак равенства.',
       ],
       uz: [
-        "Qoidani yig'amiz. Avval raqamlar sonini taqqoslang.",
-        "Uzunlik teng bo'lsa, birinchi farqqacha chapdan o'ngga yuring. Farq bo'lmasa, sonlar teng.",
+        "Birinchi qadam. Har bir sondagi raqamlarni sanang. Raqamlar soni har xil bo'lsa, raqamlari ko'p son katta.",
+        "Ikkinchi qadam. Raqamlar soni teng bo'lsa, eng katta xonadan boshlang va birinchi farqqacha chapdan o'ngga yuring.",
+        "Uchinchi qadam. Birinchi farqli xonadagi raqamlarni taqqoslab, mos belgini qo'ying. Barcha raqamlar mos kelsa, tenglik belgisini qo'ying.",
       ],
       en: [
-        "Let us make the rule. First compare the number of digits.",
-        "If the length is the same, move from left to right until the first difference. If there is no difference, the numbers are equal.",
+        'Step one. Count the digits in each number. If the numbers have different numbers of digits, the number with more digits is greater.',
+        'Step two. If the numbers have the same number of digits, start at the highest place and move from left to right until the first difference.',
+        'Step three. Compare the digits in the first different place and choose the correct sign. If every digit matches, use the equals sign.',
       ],
     },
   },
@@ -570,16 +688,22 @@ const CONTENT = {
     note: { ru: 'Таблица разрядов остаётся самым надёжным способом проверки.', uz: "Xonalar jadvali tekshirishning eng ishonchli usuli bo'lib qoladi.", en: "A place-value chart remains the most reliable way to check." },
     audio: {
       ru: [
-        'Для чисел разной длины достаточно посчитать цифры. Для одинаковой длины сравниваем разряды.',
-        'Если числа близки, порядок удобно показать на числовой прямой. Таблица разрядов подходит всегда.',
+        'Если количество цифр разное, сразу сравни длину записи двух чисел.',
+        'Если длина одинакова, ищи первую разную цифру, двигаясь слева направо.',
+        'Если числа очень близки, их порядок удобно показать на числовой прямой.',
+        'Таблица разрядов подходит для любой пары и остаётся самым надёжным способом проверки.',
       ],
       uz: [
-        "Uzunligi har xil sonlar uchun raqamlarni sanash yetarli. Uzunligi teng bo'lsa, xonalarni taqqoslaymiz.",
-        "Sonlar yaqin bo'lsa, tartibni sonlar chizig'ida ko'rsatish qulay. Xonalar jadvali doim mos keladi.",
+        "Raqamlar soni har xil bo'lsa, ikki son yozuvining uzunligini darhol taqqoslang.",
+        "Uzunlik teng bo'lsa, chapdan o'ngga yurib, birinchi farqli raqamni toping.",
+        "Sonlar juda yaqin bo'lsa, ularning tartibini sonlar chizig'ida ko'rsatish qulay.",
+        "Xonalar jadvali har qanday juftlikka mos keladi va eng ishonchli tekshirish usuli bo'lib qoladi.",
       ],
       en: [
-        "For numbers with different numbers of digits, just count the digits. If they have the same number of digits, compare their places.",
-        "If the numbers are close, a number line shows their order clearly. A place-value chart always works.",
+        "If the numbers have different numbers of digits, compare the lengths of their written forms straight away.",
+        "If the lengths are equal, move from left to right and find the first different digit.",
+        "If the numbers are very close, a number line shows their order clearly.",
+        "A place-value chart works for any pair and remains the most reliable way to check.",
       ],
     },
   },
@@ -713,15 +837,24 @@ const CONTENT = {
     finish: { ru: 'Завершить урок', uz: 'Darsni yakunlash' , en: "Finish lesson"},
     audio: {
       ru: [
-        'Маршруты восстановлены. Теперь Бит сначала сравнивает количество цифр, затем ищет первое различие слева.',
+        'Маршруты восстановлены. Сначала Бит сравнивает количество цифр в каждом числе.',
+        'Если длина одинакова, он двигается слева направо до первого различия.',
+        'Если все разряды совпали, числа равны.',
+        'Стартовая ошибка сортировки исправлена: Бит смотрит не на последнюю цифру, а на первое различие слева.',
         'В следующем уроке научимся заменять точное число близким круглым числом.',
       ],
       uz: [
-        "Yo'nalishlar tiklandi. Endi Bit avval raqamlar sonini taqqoslaydi, keyin chapdagi birinchi farqni topadi.",
+        "Yo'nalishlar tiklandi. Avval Bit har bir sondagi raqamlar sonini taqqoslaydi.",
+        "Uzunlik teng bo'lsa, u chapdan o'ngga birinchi farqqacha yuradi.",
+        "Barcha xonalar mos kelsa, sonlar teng bo'ladi.",
+        "Boshlang'ich saralash xatosi tuzatildi: Bit oxirgi raqamga emas, chapdagi birinchi farqqa qaraydi.",
         "Keyingi darsda aniq sonni yaqin yumaloq son bilan almashtirishni o'rganamiz.",
       ],
       en: [
-        "Routes restored. Now Bit compares the number of digits, then looks for the first difference on the left.",
+        "The routes are restored. First, Bit compares the number of digits in each number.",
+        "If the lengths are equal, Bit moves from left to right until the first difference.",
+        'If every place matches, the numbers are equal.',
+        'The opening sorting error is fixed: Bit looks for the first difference from the left, not at the last digit.',
         "In the next lesson, we will learn to replace the exact number with a close round number.",
       ],
     },
@@ -734,16 +867,180 @@ const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content })
 });
 
 const PRACTICE_CONTENT = {
-  p1: makeMicroPractice({ eyebrow: { ru: 'Практика 1', uz: '1-mashq' , en: "Practice 1"}, title: { ru: 'Сначала длина записи', uz: 'Avval yozuv uzunligi', en: "First count the digits" }, lead: { ru: 'У чисел разное количество цифр.', uz: 'Sonlardagi raqamlar soni har xil.', en: "The numbers have different numbers of digits." }, instruction: { ru: 'Какое число больше?', uz: 'Qaysi son katta?', en: "Which number is greater?" }, options: ['102 304', '98 765', { ru: 'числа равны', uz: 'sonlar teng', en: "the numbers are equal" }], correctIndex: 0, correctText: { ru: '102 304 — шестизначное число, поэтому оно больше пятизначного 98 765.', uz: '102 304 olti xonali, shuning uchun u besh xonali 98 765 dan katta.', en: "102,304 is a six-digit number, so it is larger than the five-digit 98,765." }, wrong: [null, { ru: '98 765 имеет только пять цифр.', uz: '98 765 sonida faqat beshta raqam bor.', en: "98,765 has only five digits." }, { ru: 'Количество цифр различается, поэтому числа не равны.', uz: 'Raqamlar soni har xil, shuning uchun sonlar teng emas.', en: "The number of digits varies, so the numbers are not equal." }], audioIntro: { ru: 'Сравни девяносто восемь тысяч семьсот шестьдесят пять и сто две тысячи триста четыре. Какое число больше?', uz: 'To\'qson sakkiz ming yetti yuz oltmish besh va bir yuz ikki ming uch yuz to\'rt sonlarini taqqoslang. Qaysi son katta?', en: "Compare ninety-eight thousand seven hundred and sixty-five with one hundred and two thousand three hundred and four. Which number is greater?" }, correctAudio: { ru: 'Верно. Шестизначное число больше пятизначного.', uz: 'To\'g\'ri. Olti xonali son besh xonali sondan katta.', en: "Correct. The six-digit number is greater than the five-digit number." }, wrongAudio: { ru: 'Сначала посчитай цифры в каждом числе.', uz: 'Avval har bir sondagi raqamlarni sanang.', en: "First count the digits in each number." } }),
-  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq' , en: "Practice 2"}, title: { ru: 'Первое различие', uz: 'Birinchi farq', en: "First difference" }, lead: { ru: 'Длина чисел одинакова.', uz: 'Sonlarning uzunligi teng.', en: "Number lengths are the same." }, instruction: { ru: 'В каком разряде впервые различаются 572 418 и 572 491?', uz: '572 418 va 572 491 sonlari birinchi marta qaysi xonada farq qiladi?', en: "At which place do 572,418 and 572,491 first differ?" }, options: [{ ru: 'в десятках', uz: 'o\'nlar xonasida' , en: "in the tens place"}, { ru: 'в сотнях', uz: 'yuzlar xonasida' , en: "in the hundreds place"}, { ru: 'в единицах', uz: 'birlar xonasida' , en: "in the ones place"}], correctIndex: 0, correctText: { ru: 'Слева совпадают 572 4. Первое различие — 1 и 9 в разряде десятков.', uz: 'Chapdan 572 4 qismi mos keladi. Birinchi farq o\'nlar xonasidagi 1 va 9.', en: "The first four digits, 5724, match. The first difference is between 1 and 9 in the tens place." }, wrong: [null, { ru: 'В сотнях обеих групп стоит цифра 4.', uz: 'Ikkala guruhning yuzlar xonasida 4 turibdi.', en: "The hundreds digit is 4 in both numbers." }, { ru: 'До единиц сравнение уже завершилось в десятках.', uz: 'Birliklargacha yetmasdan, taqqoslash o\'nliklarda tugaydi.', en: "The comparison ends in the tens place before you reach the ones." }], audioIntro: { ru: 'Сравни пятьсот семьдесят две тысячи четыреста восемнадцать и пятьсот семьдесят две тысячи четыреста девяносто один. Где первое различие?', uz: 'Besh yuz yetmish ikki ming to\'rt yuz o\'n sakkiz va besh yuz yetmish ikki ming to\'rt yuz to\'qson bir sonlarini taqqoslang. Birinchi farq qayerda?', en: "Compare five hundred and seventy-two thousand four hundred and eighteen with five hundred and seventy-two thousand four hundred and ninety-one. Where is the first difference?" }, correctAudio: { ru: 'Верно. Первое различие находится в разряде десятков.', uz: 'To\'g\'ri. Birinchi farq o\'nlar xonasida.', en: "Correct. The first difference is in the tens place." }, wrongAudio: { ru: 'Двигайся слева направо и остановись на первой разной цифре.', uz: 'Chapdan o\'ngga yuring va birinchi farqli raqamda to\'xtang.', en: "Move from left to right and stop at the first different digit." } }),
-  p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq' , en: "Practice 3"}, title: { ru: 'Выбираем знак', uz: 'Belgini tanlaymiz', en: "Choosing a sign" }, lead: { ru: 'Большее число на прямой находится правее.', uz: 'Sonlar chizig\'ida katta son o\'ngroqda joylashadi.', en: "The greater number is farther to the right on a number line." }, instruction: { ru: 'Какая запись верна?', uz: 'Qaysi yozuv to\'g\'ri?', en: "Which statement is correct?" }, options: ['705 009 < 705 090', '705 009 > 705 090', '705 009 = 705 090'], correctIndex: 0, correctText: { ru: 'В разряде десятков 0 меньше 9, поэтому первое число меньше.', uz: 'O\'nlar xonasida 0 soni 9 dan kichik, shuning uchun birinchi son kichik.', en: "In the tens place 0 is less than 9, so the first number is smaller." }, wrong: [null, { ru: 'Знак повёрнут неверно: 705 090 больше.', uz: 'Belgi noto\'g\'ri burilgan: 705 090 katta.', en: "The sign points the wrong way: 705,090 is greater." }, { ru: 'В разряде десятков стоят разные цифры.', uz: 'O\'nlar xonasida turli raqamlar turibdi.', en: "The tens digits are different." }], audioIntro: { ru: 'Сравни семьсот пять тысяч девять и семьсот пять тысяч девяносто. Выбери верную запись.', uz: 'Yetti yuz besh ming to\'qqiz va yetti yuz besh ming to\'qson sonlarini taqqoslang. To\'g\'ri yozuvni tanlang.', en: "Compare seven hundred and five thousand and nine with seven hundred and five thousand and ninety. Choose the correct statement." }, correctAudio: { ru: 'Верно. Первое число меньше второго.', uz: 'To\'g\'ri. Birinchi son ikkinchi sondan kichik.', en: "Correct. The first number is less than the second." }, wrongAudio: { ru: 'Проверь разряд десятков и направление знака.', uz: 'O\'nlar xonasini va belgi yo\'nalishini tekshiring.', en: "Check the tens place and the direction of the sign." } }),
-  p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq' , en: "Practice 4"}, title: { ru: 'Проверяем равенство', uz: 'Tenglikni tekshiramiz', en: "Checking equality" }, lead: { ru: 'Внутренние нули тоже занимают разряды.', uz: 'Ichki nollar ham xonalarni egallaydi.', en: "Zeros inside a number occupy places too." }, instruction: { ru: 'Какой знак нужен между 406 020 и 406 020?', uz: '406 020 va 406 020 orasiga qaysi belgi qo\'yiladi?', en: "Which sign belongs between 406,020 and 406,020?" }, options: ['=', '>', '<'], correctIndex: 0, correctText: { ru: 'Все шесть разрядов совпадают, поэтому числа равны.', uz: 'Barcha oltita xona mos keladi, shuning uchun sonlar teng.', en: "All six places are the same, so the numbers are equal." }, wrong: [null, { ru: 'Ни в одном разряде первое число не больше.', uz: 'Hech bir xonada birinchi son katta emas.', en: "There is no place where the first number is greater than the second." }, { ru: 'Ни в одном разряде первое число не меньше.', uz: 'Hech bir xonada birinchi son kichik emas.', en: "There is no place where the first number is less than the second." }], audioIntro: { ru: 'Сравни два одинаковых числа четыреста шесть тысяч двадцать. Какой знак нужен?', uz: 'Bir xil ikki dona to\'rt yuz olti ming yigirma sonini taqqoslang. Qaysi belgi kerak?', en: "Compare two identical numbers: four hundred and six thousand and twenty. Which sign is needed?" }, correctAudio: { ru: 'Верно. Все разряды совпали, значит числа равны.', uz: 'To\'g\'ri. Barcha xonalar mos keldi, demak sonlar teng.', en: "Correct. All the places match, so the numbers are equal." }, wrongAudio: { ru: 'Сравни все разряды. Различий нет.', uz: 'Barcha xonalarni taqqoslang. Farq yo\'q.', en: "Compare every place. There are no differences." } }),
-  p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Младшие разряды не меняют ответ', uz: 'Kichik xonalar javobni o\'zgartirmaydi', en: "Lower places do not change the answer" }, lead: { ru: 'Первое различие важнее всех цифр справа.', uz: 'Birinchi farq o\'ngdagi barcha raqamlardan muhimroq.', en: "The first difference matters more than every digit to its right." }, instruction: { ru: 'Как сравнить 631 204 и 631 240?', uz: '631 204 va 631 240 qanday taqqoslanadi?', en: "How do you compare 631 204 and 631 240?" }, options: ['631 204 < 631 240', '631 204 > 631 240', '631 204 = 631 240'], correctIndex: 0, correctText: { ru: 'Первое различие в десятках: 0 меньше 4. Единицы ответ не меняют.', uz: 'Birinchi farq o\'nliklarda: 0 soni 4 dan kichik. Birliklar javobni o\'zgartirmaydi.', en: "The first difference is in tens: 0 is less than 4. Units do not change the answer." }, wrong: [null, { ru: 'Сравнение завершается в разряде десятков.', uz: 'Taqqoslash o\'nlar xonasida tugaydi.', en: "The comparison ends in the tens place." }, { ru: 'В разряде десятков стоят 0 и 4, поэтому числа не равны.', uz: 'O\'nlar xonasida 0 va 4 turibdi, shuning uchun sonlar teng emas.', en: "In the tens place are 0 and 4, so the numbers are not equal." }], audioIntro: { ru: 'Сравни шестьсот тридцать одну тысячу двести четыре и шестьсот тридцать одну тысячу двести сорок.', uz: 'Olti yuz o\'ttiz bir ming ikki yuz to\'rt va olti yuz o\'ttiz bir ming ikki yuz qirq sonlarini taqqoslang.', en: "Compare six hundred and thirty-one thousand two hundred and four and six hundred and thirty-one thousand two hundred and forty." }, correctAudio: { ru: 'Верно. Ноль десятков меньше четырёх десятков.', uz: 'To\'g\'ri. Nol o\'nlik to\'rt o\'nlikdan kichik.', en: "Correct. Zero tens is less than four tens." }, wrongAudio: { ru: 'Остановись на первом различии слева.', uz: 'Chapdagi birinchi farqda to\'xtang.', en: "Stop at the first difference on the left." } }),
-  p6: makeMicroPractice({ eyebrow: { ru: 'Городской перенос', uz: 'Shahar vaziyati', en: 'City transfer' }, title: { ru: 'Расставляем маршрутные коды', uz: "Yo'nalish kodlarini tartiblaymiz", en: 'Ordering route codes' }, lead: { ru: 'Диспетчер ставит больший код первым.', uz: 'Dispetcher katta kodni birinchi qo\'yadi.', en: 'The dispatcher puts the greater code first.' }, instruction: { ru: 'Диспетчер сравнивает коды 618 420 и 618 402. Какая запись верна?', uz: 'Dispetcher 618 420 va 618 402 kodlarini taqqoslaydi. Qaysi yozuv to\'g\'ri?', en: 'A dispatcher compares the route codes 618,420 and 618,402. Which statement is correct?' }, options: ['618 420 > 618 402', '618 420 < 618 402', '618 420 = 618 402'], correctIndex: 0, correctText: { ru: 'Первые четыре цифры совпадают. В разряде десятков 2 больше 0, поэтому 618 420 > 618 402.', uz: 'Birinchi to\'rtta raqam mos keladi. O\'nlar xonasida 2 soni 0 dan katta, shuning uchun 618 420 > 618 402.', en: 'The first four digits match. In the tens place, 2 is greater than 0, so 618,420 > 618,402.' }, wrong: [null, { ru: 'Знак направлен неверно. Сравни слева и остановись в разряде десятков: 2 больше 0.', uz: 'Belgi noto\'g\'ri yo\'nalgan. Chapdan taqqoslab, o\'nlar xonasida to\'xtang: 2 soni 0 dan katta.', en: 'The sign points the wrong way. Compare from the left and stop in the tens place: 2 is greater than 0.' }, { ru: 'Коды не равны: первое различие находится в разряде десятков.', uz: 'Kodlar teng emas: birinchi farq o\'nlar xonasida.', en: 'The codes are not equal: their first difference is in the tens place.' }], audioIntro: { ru: 'Городской диспетчер сравнивает маршрутные коды шестьсот восемнадцать тысяч четыреста двадцать и шестьсот восемнадцать тысяч четыреста два. Выбери верную запись.', uz: 'Shahar dispetcheri olti yuz o\'n sakkiz ming to\'rt yuz yigirma va olti yuz o\'n sakkiz ming to\'rt yuz ikki yo\'nalish kodlarini taqqoslaydi. To\'g\'ri yozuvni tanlang.', en: 'A city dispatcher compares route codes six hundred and eighteen thousand four hundred and twenty and six hundred and eighteen thousand four hundred and two. Choose the correct statement.' }, correctAudio: { ru: 'Верно. В разряде десятков два больше нуля, поэтому первый код больше.', uz: 'To\'g\'ri. O\'nlar xonasida ikki noldan katta, shuning uchun birinchi kod katta.', en: 'Correct. In the tens place, two is greater than zero, so the first code is greater.' }, wrongAudio: { ru: 'Начни слева и остановись на первом различии.', uz: 'Chapdan boshlang va birinchi farqda to\'xtang.', en: 'Start on the left and stop at the first difference.' } }),
+  p1: makeMicroPractice({
+    eyebrow: { ru: 'Практика 1', uz: '1-mashq', en: 'Practice 1' },
+    title: { ru: 'Сначала длина записи', uz: 'Avval yozuv uzunligi', en: 'First count the digits' },
+    lead: {
+      ru: 'У чисел разное количество цифр. Сначала посчитай цифры в каждом числе.',
+      uz: 'Sonlardagi raqamlar soni har xil. Avval har bir sondagi raqamlarni sanang.',
+      en: 'The numbers have different numbers of digits. First count the digits in each number.',
+    },
+    instruction: {
+      ru: 'Сравни 87 946 и 120 305. Какое число больше?',
+      uz: '87 946 va 120 305 sonlarini taqqoslang. Qaysi son katta?',
+      en: 'Compare 87,946 and 120,305. Which number is greater?',
+    },
+    options: [
+      '120 305',
+      '87 946',
+      { ru: 'числа равны', uz: 'sonlar teng', en: 'the numbers are equal' },
+      { ru: 'числа нельзя сравнить', uz: "sonlarni taqqoslab bo'lmaydi", en: 'the numbers cannot be compared' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      ru: '120 305 — шестизначное число, поэтому оно больше пятизначного числа 87 946.',
+      uz: '120 305 olti xonali son, shuning uchun u besh xonali 87 946 sonidan katta.',
+      en: '120,305 is a six-digit number, so it is greater than the five-digit number 87,946.',
+    },
+    wrong: [
+      null,
+      { ru: 'В числе 87 946 пять цифр, а в числе 120 305 — шесть.', uz: '87 946 sonida beshta, 120 305 sonida esa oltita raqam bor.', en: '87,946 has five digits, while 120,305 has six.' },
+      { ru: 'Количество цифр различается, поэтому числа не равны.', uz: 'Raqamlar soni har xil, shuning uchun sonlar teng emas.', en: 'The numbers have different numbers of digits, so they are not equal.' },
+      { ru: 'Эти натуральные числа можно сравнить по количеству цифр.', uz: "Bu natural sonlarni raqamlar soni bo'yicha taqqoslash mumkin.", en: 'These natural numbers can be compared by counting their digits.' },
+    ],
+    audioIntro: {
+      ru: 'Сравни восемьдесят семь тысяч девятьсот сорок шесть и сто двадцать тысяч триста пять. Какое из двух чисел больше?',
+      uz: "Sakson yetti ming to'qqiz yuz qirq olti va bir yuz yigirma ming uch yuz besh sonlarini taqqoslang. Ikki sondan qaysi biri katta?",
+      en: 'Compare eighty-seven thousand nine hundred and forty-six with one hundred and twenty thousand three hundred and five. Which of the two numbers is greater?',
+    },
+    correctAudio: { ru: 'Верно. Шестизначное число больше пятизначного.', uz: "To'g'ri. Olti xonali son besh xonali sondan katta.", en: 'Correct. The six-digit number is greater than the five-digit number.' },
+    wrongAudio: { ru: 'Сначала посчитай цифры в каждом числе.', uz: 'Avval har bir sondagi raqamlarni sanang.', en: 'First count the digits in each number.' },
+  }),
+  p2: makeMicroPractice({
+    eyebrow: { ru: 'Практика 2', uz: '2-mashq', en: 'Practice 2' },
+    title: { ru: 'Первое различие', uz: 'Birinchi farq', en: 'First difference' },
+    lead: {
+      ru: 'Длина чисел одинакова. Сравнивай разряды слева направо и остановись на первом различии.',
+      uz: "Sonlarning uzunligi teng. Xonalarni chapdan o'ngga taqqoslang va birinchi farqda to'xtang.",
+      en: 'The numbers have the same number of digits. Compare the places from left to right and stop at the first difference.',
+    },
+    instruction: {
+      ru: 'Сравни 684 275 и 684 725 слева направо. В каком разряде они впервые различаются?',
+      uz: "684 275 va 684 725 sonlarini chapdan o'ngga taqqoslang. Ular birinchi marta qaysi xonada farq qiladi?",
+      en: 'Compare 684,275 and 684,725 from left to right. In which place do they first differ?',
+    },
+    options: [
+      { ru: 'в разряде сотен', uz: 'yuzlar xonasida', en: 'in the hundreds place' },
+      { ru: 'в разряде тысяч', uz: 'minglar xonasida', en: 'in the thousands place' },
+      { ru: 'в разряде десятков', uz: "o'nlar xonasida", en: 'in the tens place' },
+      { ru: 'в разряде единиц', uz: 'birlar xonasida', en: 'in the ones place' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      ru: 'Первые три цифры, 684, совпадают. Первое различие — 2 и 7 в разряде сотен.',
+      uz: 'Chapdagi birinchi uchta raqam, 684, mos keladi. Birinchi farq yuzlar xonasidagi 2 va 7.',
+      en: 'The first three digits, 684, match. The first difference is between 2 and 7 in the hundreds place.',
+    },
+    wrong: [
+      null,
+      { ru: 'В разряде тысяч в обоих числах стоит цифра 4.', uz: 'Ikkala sonning minglar xonasida 4 raqami turibdi.', en: 'The thousands digit is 4 in both numbers.' },
+      { ru: 'До десятков сравнение уже завершилось в разряде сотен.', uz: "O'nlar xonasigacha yetmasdan, taqqoslash yuzlar xonasida tugaydi.", en: 'The comparison is decided in the hundreds place before you reach the tens.' },
+      { ru: 'До единиц сравнение уже завершилось в разряде сотен.', uz: 'Birlar xonasigacha yetmasdan, taqqoslash yuzlar xonasida tugaydi.', en: 'The comparison is decided in the hundreds place before you reach the ones.' },
+    ],
+    audioIntro: {
+      ru: 'Длина чисел одинакова. Сравни слева направо шестьсот восемьдесят четыре тысячи двести семьдесят пять и шестьсот восемьдесят четыре тысячи семьсот двадцать пять. Остановись на первом различии. В каком разряде оно находится?',
+      uz: "Sonlarning uzunligi teng. Olti yuz sakson to'rt ming ikki yuz yetmish besh va olti yuz sakson to'rt ming yetti yuz yigirma besh sonlarini chapdan o'ngga taqqoslang. Birinchi farqda to'xtang. U qaysi xonada?",
+      en: 'The numbers have the same number of digits. Compare six hundred and eighty-four thousand two hundred and seventy-five with six hundred and eighty-four thousand seven hundred and twenty-five from left to right. Stop at the first difference. Which place is it in?',
+    },
+    correctAudio: { ru: 'Верно. Первое различие находится в разряде сотен.', uz: "To'g'ri. Birinchi farq yuzlar xonasida.", en: 'Correct. The first difference is in the hundreds place.' },
+    wrongAudio: { ru: 'Двигайся слева направо и остановись на первой различающейся цифре.', uz: "Chapdan o'ngga yuring va birinchi farqli raqamda to'xtang.", en: 'Move from left to right and stop at the first different digit.' },
+  }),
+  p3: makeMicroPractice({
+    eyebrow: { ru: 'Практика 3', uz: '3-mashq', en: 'Practice 3' },
+    title: { ru: 'Выбираем знак', uz: 'Belgini tanlaymiz', en: 'Choosing a sign' },
+    lead: { ru: 'Большее число на прямой находится правее.', uz: "Sonlar chizig'ida katta son o'ngroqda joylashadi.", en: 'The greater number is farther to the right on a number line.' },
+    instruction: {
+      ru: 'Сравни 418 032 и 418 079. Выбери запись с верным знаком.',
+      uz: "418 032 va 418 079 sonlarini taqqoslab, to'g'ri belgili yozuvni tanlang.",
+      en: 'Compare 418,032 and 418,079. Choose the statement with the correct sign.',
+    },
+    numberLine: {
+      start: '418 000',
+      end: '418 100',
+      left: '418 032',
+      right: '418 079',
+      leftPercent: 32,
+      rightPercent: 79,
+    },
+    options: ['418 032 < 418 079', '418 032 > 418 079', '418 032 = 418 079'],
+    correctIndex: 0,
+    correctText: {
+      ru: 'Первые четыре цифры совпадают. В разряде десятков 3 меньше 7, поэтому 418 032 < 418 079.',
+      uz: "Birinchi to'rtta raqam mos keladi. O'nlar xonasida 3 raqami 7 dan kichik, shuning uchun 418 032 < 418 079.",
+      en: 'The first four digits match. In the tens place, 3 is less than 7, so 418,032 < 418,079.',
+    },
+    wrong: [
+      null,
+      { ru: 'Знак направлен неверно: 418 079 больше.', uz: "Belgi noto'g'ri yo'nalgan: 418 079 katta.", en: 'The sign points the wrong way: 418,079 is greater.' },
+      { ru: 'Числа не равны: в разряде десятков стоят 3 и 7.', uz: "Sonlar teng emas: o'nlar xonasida 3 va 7 raqamlari turibdi.", en: 'The numbers are not equal: their tens digits are 3 and 7.' },
+    ],
+    audioIntro: {
+      ru: 'Сравни четыреста восемнадцать тысяч тридцать два и четыреста восемнадцать тысяч семьдесят девять. Посмотри на их точки на числовой прямой и выбери запись с верным знаком.',
+      uz: "To'rt yuz o'n sakkiz ming o'ttiz ikki va to'rt yuz o'n sakkiz ming yetmish to'qqiz sonlarini taqqoslang. Ularning sonlar chizig'idagi nuqtalariga qarang va to'g'ri belgili yozuvni tanlang.",
+      en: 'Compare four hundred and eighteen thousand and thirty-two with four hundred and eighteen thousand and seventy-nine. Look at their points on the number line and choose the statement with the correct sign.',
+    },
+    correctAudio: { ru: 'Верно. Второе число расположено правее, поэтому первое число меньше второго.', uz: "To'g'ri. Ikkinchi son o'ngroqda joylashgan, shuning uchun birinchi son ikkinchi sondan kichik.", en: 'Correct. The second number is farther to the right, so the first number is less than the second.' },
+    wrongAudio: { ru: 'Проверь, какая точка находится правее, и посмотри на направление знака.', uz: "Qaysi nuqta o'ngroqda joylashganini va belgi yo'nalishini tekshiring.", en: 'Check which point is farther to the right and look at the direction of the sign.' },
+  }),
+  p4: makeMicroPractice({
+    eyebrow: { ru: 'Практика 4', uz: '4-mashq', en: 'Practice 4' },
+    title: { ru: 'Проверяем равенство', uz: 'Tenglikni tekshiramiz', en: 'Checking equality' },
+    lead: { ru: 'Внутренние нули тоже занимают разряды.', uz: 'Ichki nollar ham xonalarni egallaydi.', en: 'Zeros inside a number occupy places too.' },
+    instruction: {
+      ru: 'Сравни каждый разряд чисел 530 406 и 530 406. Какой знак нужно поставить между ними?',
+      uz: "530 406 va 530 406 sonlarining har bir xonasini taqqoslang. Ular orasiga qaysi belgi qo'yiladi?",
+      en: 'Compare every place in 530,406 and 530,406. Which sign belongs between the numbers?',
+    },
+    options: ['=', '>', '<'],
+    correctIndex: 0,
+    correctText: { ru: 'Все шесть разрядов совпадают, поэтому числа равны.', uz: 'Barcha oltita xona mos keladi, shuning uchun sonlar teng.', en: 'All six places match, so the numbers are equal.' },
+    wrong: [
+      null,
+      { ru: 'Ни в одном разряде первое число не больше второго.', uz: 'Hech bir xonada birinchi son ikkinchi sondan katta emas.', en: 'There is no place where the first number is greater than the second.' },
+      { ru: 'Ни в одном разряде первое число не меньше второго.', uz: 'Hech bir xonada birinchi son ikkinchi sondan kichik emas.', en: 'There is no place where the first number is less than the second.' },
+    ],
+    audioIntro: {
+      ru: 'Сравни по разрядам два одинаковых числа: пятьсот тридцать тысяч четыреста шесть и пятьсот тридцать тысяч четыреста шесть. Какой знак нужно поставить между ними?',
+      uz: "Bir xil ikkita sonni xonalar bo'yicha taqqoslang: besh yuz o'ttiz ming to'rt yuz olti va besh yuz o'ttiz ming to'rt yuz olti. Ular orasiga qaysi belgi qo'yiladi?",
+      en: 'Compare two identical numbers place by place: five hundred and thirty thousand four hundred and six, and five hundred and thirty thousand four hundred and six. Which sign belongs between them?',
+    },
+    correctAudio: { ru: 'Верно. Все разряды совпали, значит числа равны.', uz: "To'g'ri. Barcha xonalar mos keldi, demak sonlar teng.", en: 'Correct. All the places match, so the numbers are equal.' },
+    wrongAudio: { ru: 'Сравни все разряды. Различий нет.', uz: "Barcha xonalarni taqqoslang. Farq yo'q.", en: 'Compare every place. There are no differences.' },
+  }),
+  p5: makeMicroPractice({
+    eyebrow: { ru: 'Практика 5', uz: '5-mashq', en: 'Practice 5' },
+    title: { ru: 'Младшие разряды не меняют ответ', uz: "Kichik xonalar javobni o'zgartirmaydi", en: 'Lower places do not change the answer' },
+    lead: { ru: 'Первое различие важнее всех цифр справа.', uz: "Birinchi farq o'ngdagi barcha raqamlardan muhimroq.", en: 'The first difference matters more than every digit to its right.' },
+    instruction: {
+      ru: 'Сравни 743 506 и 743 560 слева направо. Какая запись верна?',
+      uz: "743 506 va 743 560 sonlarini chapdan o'ngga taqqoslang. Qaysi yozuv to'g'ri?",
+      en: 'Compare 743,506 and 743,560 from left to right. Which statement is correct?',
+    },
+    options: ['743 506 < 743 560', '743 506 > 743 560', '743 506 = 743 560'],
+    correctIndex: 0,
+    correctText: {
+      ru: 'Первое различие — в разряде десятков: 0 меньше 6. Цифры единиц 6 и 0 уже не меняют ответ.',
+      uz: "Birinchi farq o'nlar xonasida: 0 soni 6 dan kichik. Birlar xonasidagi 6 va 0 raqamlari javobni endi o'zgartirmaydi.",
+      en: 'The first difference is in the tens place: 0 is less than 6. The ones digits, 6 and 0, cannot change the answer.',
+    },
+    wrong: [
+      null,
+      { ru: 'Сравнение завершается в разряде десятков: 0 меньше 6.', uz: "Taqqoslash o'nlar xonasida tugaydi: 0 soni 6 dan kichik.", en: 'The comparison is decided in the tens place: 0 is less than 6.' },
+      { ru: 'Числа не равны: в разряде десятков стоят 0 и 6.', uz: "Sonlar teng emas: o'nlar xonasida 0 va 6 raqamlari turibdi.", en: 'The numbers are not equal: their tens digits are 0 and 6.' },
+    ],
+    audioIntro: {
+      ru: 'Сравни слева направо семьсот сорок три тысячи пятьсот шесть и семьсот сорок три тысячи пятьсот шестьдесят. Выбери верную запись.',
+      uz: "Yetti yuz qirq uch ming besh yuz olti va yetti yuz qirq uch ming besh yuz oltmish sonlarini chapdan o'ngga taqqoslang. To'g'ri yozuvni tanlang.",
+      en: 'Compare seven hundred and forty-three thousand five hundred and six with seven hundred and forty-three thousand five hundred and sixty from left to right. Choose the correct statement.',
+    },
+    correctAudio: { ru: 'Верно. Ноль десятков меньше шести десятков. Цифры единиц ответ не меняют.', uz: "To'g'ri. Nol o'nlik olti o'nlikdan kichik. Birlar xonasidagi raqamlar javobni o'zgartirmaydi.", en: 'Correct. Zero tens is less than six tens. The ones digits do not change the answer.' },
+    wrongAudio: { ru: 'Остановись на первом различии слева.', uz: "Chapdagi birinchi farqda to'xtang.", en: 'Stop at the first difference on the left.' },
+  }),
+  p6: makeMicroPractice({ eyebrow: { ru: 'Городской перенос', uz: 'Shahar vaziyati', en: 'City transfer' }, title: { ru: 'Расставляем маршрутные коды', uz: "Yo'nalish kodlarini tartiblaymiz", en: 'Ordering route codes' }, lead: { ru: 'Диспетчер ставит больший код первым.', uz: 'Dispetcher katta kodni birinchi qo\'yadi.', en: 'The dispatcher puts the greater code first.' }, instruction: { ru: 'Диспетчеру нужно поставить больший код первым. Сравни 618 420 и 618 402. Какая запись верна?', uz: 'Dispetcher katta kodni birinchi qo\'yishi kerak. 618 420 va 618 402 kodlarini taqqoslang. Qaysi yozuv to\'g\'ri?', en: 'The dispatcher must put the greater code first. Compare 618,420 and 618,402. Which statement is correct?' }, options: ['618 420 > 618 402', '618 420 < 618 402', '618 420 = 618 402'], correctIndex: 0, correctText: { ru: 'Первые четыре цифры совпадают. В разряде десятков 2 больше 0, поэтому 618 420 > 618 402.', uz: 'Birinchi to\'rtta raqam mos keladi. O\'nlar xonasida 2 soni 0 dan katta, shuning uchun 618 420 > 618 402.', en: 'The first four digits match. In the tens place, 2 is greater than 0, so 618,420 > 618,402.' }, wrong: [null, { ru: 'Знак направлен неверно. Сравни слева и остановись в разряде десятков: 2 больше 0.', uz: 'Belgi noto\'g\'ri yo\'nalgan. Chapdan taqqoslab, o\'nlar xonasida to\'xtang: 2 soni 0 dan katta.', en: 'The sign points the wrong way. Compare from the left and stop in the tens place: 2 is greater than 0.' }, { ru: 'Коды не равны: первое различие находится в разряде десятков.', uz: 'Kodlar teng emas: birinchi farq o\'nlar xonasida.', en: 'The codes are not equal: their first difference is in the tens place.' }], audioIntro: { ru: 'Городскому диспетчеру нужно поставить больший маршрутный код первым. Сравни шестьсот восемнадцать тысяч четыреста двадцать и шестьсот восемнадцать тысяч четыреста два. Выбери верную запись.', uz: 'Shahar dispetcheri katta yo\'nalish kodini birinchi qo\'yishi kerak. Olti yuz o\'n sakkiz ming to\'rt yuz yigirma va olti yuz o\'n sakkiz ming to\'rt yuz ikki kodlarini taqqoslang. To\'g\'ri yozuvni tanlang.', en: 'The city dispatcher must put the greater route code first. Compare six hundred and eighteen thousand four hundred and twenty with six hundred and eighteen thousand four hundred and two. Choose the correct statement.' }, correctAudio: { ru: 'Верно. В разряде десятков два больше нуля, поэтому первый код больше.', uz: 'To\'g\'ri. O\'nlar xonasida ikki noldan katta, shuning uchun birinchi kod katta.', en: 'Correct. In the tens place, two is greater than zero, so the first code is greater.' }, wrongAudio: { ru: 'Начни слева и остановись на первом различии.', uz: 'Chapdan boshlang va birinchi farqda to\'xtang.', en: 'Start on the left and stop at the first difference.' } }),
 };
 
 const SCREEN_PLAN = [
-  { id: 's0', type: 'hook', subtype: 'story-decision', template: 'StoryChoice', goal: 'Repair Bit\'s route-order conflict by choosing a comparison direction', misconceptions: ['last digit decides', 'digit sum decides'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's0', type: 'hook', subtype: 'story-decision', template: 'StoryChoice', goal: 'Repair Bit\'s route-order conflict by choosing a comparison direction', misconceptions: ['last digit decides'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
   { id: 's1', type: 'exploration', subtype: 'digit-count', template: 'GuidedSteps', goal: 'Compare digit counts through a three-step model', misconceptions: ['larger last digit'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's2', contentKey: 'p1', type: 'test', subtype: 'digit-count-check', template: 'MCScreen', goal: 'Compare unequal-length numbers', misconceptions: ['ignore digit count'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
   { id: 's3', contentKey: 's2', type: 'exploration', subtype: 'first-difference', template: 'GuidedPlaceTable', goal: 'Find the first different place in two worked comparisons', misconceptions: ['compare from right'], active: true, scored: false, scope: null, resetOnReturn: true },
@@ -757,7 +1054,7 @@ const SCREEN_PLAN = [
   { id: 's11', contentKey: 's8', type: 'rule', subtype: 'comparison-rule', template: 'GuidedRule', goal: 'Assemble the comparison algorithm after discovery', misconceptions: ['partial algorithm'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's12', contentKey: 's10', type: 'practice', subtype: 'strategy-selection', template: 'GuidedStrategy', goal: 'Choose a fitting model for each comparison situation', misconceptions: ['one model for every pair'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's13', contentKey: 'p6', type: 'test', subtype: 'city-dispatch-life-transfer', template: 'TransferChoice', goal: 'Apply the comparison strategy to new city route codes', misconceptions: ['last digit decides', 'equal prefix means equal numbers'], active: true, scored: true, scope: 'final', resetOnReturn: false },
-  { id: 's14', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', goal: 'Reflect on comparison and claim the title', misconceptions: ['partial algorithm'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's14', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'title-claim', goal: 'Summarize comparison and claim the title', misconceptions: ['partial algorithm'], active: true, scored: false, scope: null, resetOnReturn: true },
 ];
 
 const SCREEN_META = SCREEN_PLAN.map((meta) => ({ ...meta, contentKey: meta.contentKey ?? meta.id }));
@@ -774,6 +1071,8 @@ const LESSON_META = {
     en: "Lesson 4: Comparing multi-digit numbers",
   },
   skillTags: ['multi_digit_comparison', 'digit_count', 'first_different_place', 'comparison_signs', 'number_ordering', 'ordered_chain_proof'],
+  // Methodist-approved Dars04 exception: slide 15 has no reflection choice frame.
+  finalReflectionRequired: false,
   notionFlow: NOTION_FLOW,
 };
 
@@ -1108,6 +1407,20 @@ function useAdvanceGate(solved, audio) {
   return !audio.isPlaying;
 }
 
+const WRONG_ANSWER_FLASH_MS = 2000;
+
+function useWrongAnswerFlash() {
+  const [wrongFlashIndex, setWrongFlashIndex] = useState(null);
+
+  useEffect(() => {
+    if (wrongFlashIndex === null || typeof window === 'undefined') return undefined;
+    const timer = window.setTimeout(() => setWrongFlashIndex(null), WRONG_ANSWER_FLASH_MS);
+    return () => window.clearTimeout(timer);
+  }, [wrongFlashIndex]);
+
+  return [wrongFlashIndex, setWrongFlashIndex];
+}
+
 const playSfx = (kind) => {
   const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl;
   if (!url || typeof window === 'undefined') return;
@@ -1121,10 +1434,20 @@ const playSfx = (kind) => {
   }
 };
 
-const buildOptionOrder = (length, correctIndex, seed = 0) => {
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
   const natural = Array.from({ length }, (_, index) => index);
   if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = Math.abs(seed * 3 + 1) % length;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
   const order = natural.filter((index) => index !== correctIndex);
   order.splice(target, 0, correctIndex);
   return order;
@@ -1216,8 +1539,9 @@ const NavBack = ({ onClick, hidden = false }) => (
 
 const NavNext = ({ onClick, disabled, finish = false }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={disabled}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : <NextLabel />}
       <span aria-hidden="true">→</span>
     </button>
@@ -1429,12 +1753,66 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 
-const BitCoach = ({ text, mood = 'present', actionKey = 0 }) => (
-  <div className="bit-coach" data-g4-role="visual-frame" key={actionKey}>
-    <div className="bit-coach-figure"><BitSVG state={mood} /></div>
-    <div className="bit-speech"><span>{text}</span></div>
-  </div>
-);
+const STEP_EXPLANATION_LABEL = {
+  ru: 'Объяснение шагов',
+  uz: 'Qadamlar izohi',
+  en: 'Step explanations',
+};
+
+const StepExplanationFrame = ({ steps, visible }) => {
+  const t = useT();
+  return (
+    <section className="step-explanation-frame" data-g4-role="visual-frame" aria-live="polite">
+      <strong className="step-explanation-title">{t(STEP_EXPLANATION_LABEL)}</strong>
+      <div className="step-explanation-list">
+        {steps.map((step, index) => (
+          <div
+            className={'step-explanation-row reveal-item ' + (visible >= index + 1 ? 'is-visible' : '')}
+            key={index + '-' + t(step)}
+            aria-hidden={visible < index + 1}
+          >
+            <span>{String(index + 1).padStart(2, '0')}</span>
+            <p>{t(step)}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const ComparisonNumberLine = ({ data, visible = 3, compact = false, showFormula = true }) => {
+  const leftPercent = data.leftPercent ?? 9;
+  const rightPercent = data.rightPercent ?? 90;
+  return (
+    <div className={'number-line-card ' + (compact ? 'number-line-card-compact' : '')} data-g4-role="visual-frame">
+      <div className="number-line-track">
+        <div className="line-scale"><span>{data.start}</span><span>{data.end}</span></div>
+        <div className="line-ticks" />
+        <div
+          className={'line-point point-left reveal-item ' + (visible >= 1 ? 'is-visible' : '')}
+          style={{ left: leftPercent + '%' }}
+        >
+          <i /><b>{data.left}</b>
+        </div>
+        <div
+          className={'line-point point-right reveal-item ' + (visible >= 2 ? 'is-visible' : '')}
+          style={{ left: rightPercent + '%' }}
+        >
+          <i /><b>{data.right}</b>
+        </div>
+        <div
+          className={'line-flight reveal-item ' + (visible >= 2 ? 'is-visible' : '')}
+          style={{ left: (leftPercent + 8) + '%', right: (100 - rightPercent + 8) + '%' }}
+        >
+          <span>→</span>
+        </div>
+      </div>
+      {showFormula && (
+        <div className={'formula-answer reveal-item ' + (visible >= 3 ? 'is-visible' : '')}>{data.formula}</div>
+      )}
+    </div>
+  );
+};
 
 const FeedbackBlock = ({ show, correct, children }) => {
   const lang = useLang();
@@ -1489,31 +1867,79 @@ const useGuidedReveal = (total, increment = 1) => {
     && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const [visible, setVisible] = useState(() => (reduced ? total : 0));
   const advance = () => setVisible((value) => Math.min(total, value + increment));
-  return { visible, advance, complete: visible >= total };
+  return { visible, advance, complete: visible >= total, canAdvance: true };
+};
+
+const useGuidedNarration = (value, screen, step) => {
+  const lang = useLang();
+  const texts = useMemo(() => {
+    const localized = value?.[lang] ?? value?.uz ?? [];
+    return (Array.isArray(localized) ? localized : [localized]).filter(Boolean);
+  }, [lang, value]);
+  const firstBeat = useMemo(
+    () => (texts[0] ? [{ id: `s${screen}-guided-0`, text: texts[0] }] : []),
+    [screen, texts],
+  );
+  const audio = useAudio(firstBeat);
+  const speakStep = useCallback((index) => {
+    const text = texts[index];
+    if (text) audio.pushOneOff(text);
+  }, [audio, texts]);
+  const replay = useCallback(() => {
+    const text = texts[step];
+    if (text) audio.pushOneOff(text);
+  }, [audio, step, texts]);
+  return { ...audio, replay, speakStep };
+};
+
+const useGuidedAudioReveal = (value, screen, total) => {
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(value, screen, step);
+  const canAdvance = useCanAdvance(audio);
+  const complete = step >= total - 1;
+  const advance = useCallback(() => {
+    if (!canAdvance || complete) return;
+    const nextStep = step + 1;
+    setStep(nextStep);
+    audio.speakStep(nextStep);
+  }, [audio, canAdvance, complete, step]);
+  return {
+    audio,
+    reveal: { visible: step + 1, advance, complete, canAdvance },
+  };
 };
 
 const GuidedRevealControl = ({ reveal }) => {
   const lang = useLang();
+  if (reveal.complete) return null;
   return (
-    <button type="button" className="guided-reveal-control" onClick={reveal.advance} disabled={reveal.complete}>
-      <span aria-hidden="true">{reveal.complete ? '✓' : '→'}</span>
-      {reveal.complete
-        ? (lang === 'en' ? 'All steps explored' : lang === 'ru' ? 'Все шаги исследованы' : "Barcha qadamlar ko'rildi")
-        : (lang === 'en' ? 'Show the next step' : lang === 'ru' ? 'Показать следующий шаг' : "Keyingi qadamni ko'rish")}
+    <button
+      type="button"
+      className="guided-reveal-control"
+      data-g4-role="guided-next"
+      onClick={reveal.advance}
+      disabled={reveal.canAdvance === false}
+    >
+      <span aria-hidden="true">→</span>
+      {lang === 'en' ? 'Show the next step' : lang === 'ru' ? 'Показать следующий шаг' : "Keyingi qadamni ko'rish"}
     </button>
   );
 };
 
-const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
+const StoryHookScreen = ({ screen, storedAnswer, onAnswer, onNext, onPrev }) => {
   const c = CONTENT.s0;
   const t = useT();
   const lang = useLang();
   const audio = useAudio(localizedSegments(c.audio, lang, 's0'));
   const reveal = useTimedReveal(3, 560);
-  const [attempted, setAttempted] = useState([]);
-  const [solved, setSolved] = useState(false);
-  const [wrongIndex, setWrongIndex] = useState(null);
-  const order = useMemo(() => buildOptionOrder(c.options.length, c.correctIndex, screen), [c.options.length, c.correctIndex, screen]);
+  const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [wrongIndex, setWrongIndex] = useState(storedAnswer?.correct === true ? null : storedAnswer?.lastWrong ?? null);
+  const [wrongFlashIndex, setWrongFlashIndex] = useWrongAnswerFlash();
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 0),
+    [c.options.length, c.correctIndex],
+  );
   const canChoose = useCanAdvance(audio);
   const canNext = useAdvanceGate(solved, audio);
 
@@ -1524,6 +1950,7 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
     if (sourceIndex === c.correctIndex) {
       setSolved(true);
       setWrongIndex(null);
+      setWrongFlashIndex(null);
       playSfx('correct');
       audio.pushOneOff(t(c.feedbackAudio.on_correct));
       onAnswer({
@@ -1539,6 +1966,7 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
       });
     } else {
       setWrongIndex(sourceIndex);
+      setWrongFlashIndex(sourceIndex);
       playSfx('wrong');
       audio.pushOneOff(t(c.feedbackAudio.on_wrong[sourceIndex]));
       onAnswer({
@@ -1572,11 +2000,11 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
             <span className="console-badge">{t(c.badge)}</span>
             <div className="route-order">
               <div className={`route-card route-wrong reveal-item ${reveal.visible >= 1 ? 'is-visible' : ''}`}>
-                <small>{lang === 'en' ? 'ROUTE A' : lang === 'ru' ? 'МАРШРУТ A' : "A YO'NALISHI"}</small><strong>842 107</strong><span>1</span>
+                <small>{lang === 'en' ? 'ROUTE A' : lang === 'ru' ? 'МАРШРУТ A' : "A YO'NALISHI"}</small><strong>842 10<span className="last-digit-emphasis">7</span></strong><span>1</span>
               </div>
               <div className={`route-arrow reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`} aria-hidden="true">›</div>
               <div className={`route-card reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}>
-                <small>{lang === 'en' ? 'ROUTE B' : lang === 'ru' ? 'МАРШРУТ B' : "B YO'NALISHI"}</small><strong>842 190</strong><span>2</span>
+                <small>{lang === 'en' ? 'ROUTE B' : lang === 'ru' ? 'МАРШРУТ B' : "B YO'NALISHI"}</small><strong>842 19<span className="last-digit-emphasis">0</span></strong><span>2</span>
               </div>
             </div>
             <div className={`sort-alert reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`}>{t(c.prompt)}</div>
@@ -1590,14 +2018,16 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
           <div className="hook-answer-grid" role="group" aria-label={t(c.hookQuestion)}>
             {order.map((sourceIndex, displayIndex) => {
               const inactiveWrong = attempted.includes(sourceIndex) && sourceIndex !== c.correctIndex;
+              const wrongFlash = !solved && wrongFlashIndex === sourceIndex;
               const correctReveal = solved && sourceIndex === c.correctIndex;
               return (
                 <button
                   type="button"
                   data-g4-role="answer-card"
                   data-g4-branch="choice"
+                  data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
+                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${wrongFlash ? 'option-wrong-flash' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
                   onClick={() => pick(sourceIndex)}
                   disabled={!canChoose || solved || inactiveWrong}
@@ -1618,34 +2048,31 @@ const StoryHookScreen = ({ screen, onAnswer, onNext, onPrev }) => {
 const RecapScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s1;
   const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's1'));
-  const reveal = useGuidedReveal(5);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 3);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
       <div className="screen-stack recap-stack">
         <ScreenHeading c={c} />
         <div className="recap-board">
-          <div className={`recap-number reveal-item ${reveal.visible >= 1 ? 'is-visible' : ''}`}>
+          <div className="recap-number reveal-item is-visible">
             <span>{c.left.number}</span><b>{t(c.left.count)}</b>
           </div>
-          <div className={`recap-vs reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}>vs</div>
-          <div className={`recap-number recap-number-big reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}>
+          <div className="recap-vs reveal-item is-visible">vs</div>
+          <div className="recap-number recap-number-big reveal-item is-visible">
             <span>{c.right.number}</span><b>{t(c.right.count)}</b>
           </div>
           <div className="step-rail recap-steps">
             {c.steps.map((step, index) => (
-              <div key={t(step)} className={`model-step reveal-item ${reveal.visible >= index + 2 ? 'is-visible' : ''}`}>
+              <div key={t(step)} className={`model-step reveal-item ${reveal.visible >= index + 1 ? 'is-visible' : ''}`}>
                 <span>{String(index + 1).padStart(2, '0')}</span><p>{t(step)}</p>
               </div>
             ))}
           </div>
-          <div className={`recap-result reveal-item ${reveal.visible >= 5 ? 'is-visible' : ''}`}>
+          <div className={`recap-result reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`}>
             <span aria-hidden="true">✓</span><b>{c.formula}</b><p>{t(c.conclusion)}</p>
           </div>
         </div>
         <GuidedRevealControl reveal={reveal} />
-        <BitCoach text={t(c.conclusion)} mood={reveal.complete ? 'nod' : 'point'} actionKey={reveal.visible} />
       </div>
     </Stage>
   );
@@ -1656,7 +2083,7 @@ const PlaceTableScreen = ({ screen, onNext, onPrev }) => {
   const t = useT();
   const lang = useLang();
   const audio = useAudio(localizedSegments(c.audio, lang, 's2'));
-  const reveal = useGuidedReveal(8, 2);
+  const reveal = useGuidedReveal(8, 1);
   const headers = c.headers[lang] ?? [];
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
@@ -1696,26 +2123,14 @@ const PlaceTableScreen = ({ screen, onNext, onPrev }) => {
 
 const NumberLineScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s3;
-  const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's3'));
-  const reveal = useGuidedReveal(3);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 3);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
       <div className="screen-stack line-stack">
         <ScreenHeading c={c} />
-        <div className="number-line-card">
-          <div className="line-scale"><span>{c.start}</span><span>{c.end}</span></div>
-          <div className="number-line-track">
-            <div className="line-ticks" />
-            <div className={`line-point point-left reveal-item ${reveal.visible >= 1 ? 'is-visible' : ''}`}><i /><b>{c.left}</b></div>
-            <div className={`line-point point-right reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}><i /><b>{c.right}</b></div>
-            <div className={`line-flight reveal-item ${reveal.visible >= 2 ? 'is-visible' : ''}`}><span>→</span></div>
-          </div>
-          <div className={`formula-answer reveal-item ${reveal.visible >= 3 ? 'is-visible' : ''}`}>{c.formula}</div>
-        </div>
+        <ComparisonNumberLine data={c} visible={reveal.visible} />
         <GuidedRevealControl reveal={reveal} />
-        <BitCoach text={t(c.lead)} mood={reveal.complete ? 'nod' : 'point'} actionKey={reveal.visible} />
+        <StepExplanationFrame steps={c.stepExplanations} visible={reveal.visible} />
       </div>
     </Stage>
   );
@@ -1724,9 +2139,7 @@ const NumberLineScreen = ({ screen, onNext, onPrev }) => {
 const EqualityScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s4;
   const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's4'));
-  const reveal = useGuidedReveal(3);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 3);
   const digits = c.a.replace(' ', '').split('');
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
@@ -1749,7 +2162,7 @@ const EqualityScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
-const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => {
+const ChoiceScreen = ({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext, onPrev }) => {
   const t = useT();
   const lang = useLang();
   const intro = c.audio.intro;
@@ -1757,7 +2170,11 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
   const [attempted, setAttempted] = useState(storedAnswer?.attempted ?? []);
   const [solved, setSolved] = useState(storedAnswer?.correct === true);
   const [wrongIndex, setWrongIndex] = useState(storedAnswer?.lastWrong ?? null);
-  const order = useMemo(() => buildOptionOrder(c.options.length, c.correctIndex, screen), [c.options.length, c.correctIndex, screen]);
+  const [wrongFlashIndex, setWrongFlashIndex] = useWrongAnswerFlash();
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal),
+    [c.options.length, c.correctIndex, choiceOrdinal],
+  );
   const canChoose = useCanAdvance(audio);
   const canNext = useAdvanceGate(solved, audio);
 
@@ -1768,6 +2185,7 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
     if (sourceIndex === c.correctIndex) {
       setSolved(true);
       setWrongIndex(null);
+      setWrongFlashIndex(null);
       playSfx('correct');
       audio.pushOneOff(t(c.audio.on_correct));
       onAnswer({
@@ -1783,6 +2201,7 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
       });
     } else {
       setWrongIndex(sourceIndex);
+      setWrongFlashIndex(sourceIndex);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio.on_wrong[sourceIndex]));
       onAnswer({
@@ -1808,19 +2227,23 @@ const ChoiceScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) => 
       audio={audio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canNext} /></>}
     >
-      <div className="screen-stack choice-stack">
+      <div className={`screen-stack choice-stack choice-screen-${screen}`}>
         <ScreenHeading c={c} />
+        <h2 className="choice-instruction" id={`d4-choice-${screen}`}>{t(c.instruction)}</h2>
+        {c.numberLine && <ComparisonNumberLine data={c.numberLine} compact showFormula={false} />}
         <div className="answer-stage">
-          <div className={`options-grid ${solved ? 'options-solved' : ''}`} role="group" aria-label={t(c.title)}>
+          <div className={`options-grid ${solved ? 'options-solved' : ''}`} role="group" aria-labelledby={`d4-choice-${screen}`}>
             {order.map((sourceIndex, displayIndex) => {
               const inactiveWrong = attempted.includes(sourceIndex) && sourceIndex !== c.correctIndex;
+              const wrongFlash = !solved && wrongFlashIndex === sourceIndex;
               const correctReveal = solved && sourceIndex === c.correctIndex;
               return (
                 <button
                   type="button"
                   data-g4-branch="choice"
+                  data-g4-source-index={sourceIndex}
                   data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
+                  className={`option ${inactiveWrong ? 'option-wrong' : ''} ${wrongFlash ? 'option-wrong-flash' : ''} ${correctReveal ? 'option-correct-reveal' : ''}`}
                   key={sourceIndex}
                   onClick={() => pick(sourceIndex)}
                   disabled={!canChoose || solved || inactiveWrong}
@@ -1866,9 +2289,7 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
 const DiscoveryScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s7;
   const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's7'));
-  const reveal = useGuidedReveal(4);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 4);
   const pairs = c.a.replace(' ', '').split('').map((digit, index) => [digit, c.b.replace(' ', '')[index]]);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
@@ -1877,11 +2298,12 @@ const DiscoveryScreen = ({ screen, onNext, onPrev }) => {
         <div className="discovery-lab">
           <div className="digit-lanes">
             {pairs.map((pair, index) => {
-              const decision = index === 4;
-              const faded = index > 4;
+              const decision = index === 4 && reveal.visible >= 2;
+              const faded = index > 4 && reveal.visible >= 3;
+              const sign = pair[0] === pair[1] ? '=' : Number(pair[0]) < Number(pair[1]) ? '<' : '>';
               return (
-                <div key={`${pair.join('')}-${index}`} className={`lane-pair ${decision ? 'lane-decision' : ''} ${faded ? 'lane-faded' : ''} reveal-item ${reveal.visible >= (decision ? 2 : 1) ? 'is-visible' : ''}`}>
-                  <span>{pair[0]}</span><i>{pair[0] === pair[1] ? '=' : '<'}</i><span>{pair[1]}</span>
+                <div key={`${pair.join('')}-${index}`} className={`lane-pair ${decision ? 'lane-decision' : ''} ${faded ? 'lane-faded' : ''} reveal-item is-visible`}>
+                  <span>{pair[0]}</span><i>{sign}</i><span>{pair[1]}</span>
                 </div>
               );
             })}
@@ -1898,9 +2320,7 @@ const DiscoveryScreen = ({ screen, onNext, onPrev }) => {
 const RuleRevealScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s8;
   const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's8'));
-  const reveal = useGuidedReveal(3);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 3);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
       <div className="screen-stack rule-stack">
@@ -1914,7 +2334,7 @@ const RuleRevealScreen = ({ screen, onNext, onPrev }) => {
           <div className="rule-path-line" />
         </div>
         <GuidedRevealControl reveal={reveal} />
-        <BitCoach text={t(c.rules[2].body)} mood={reveal.complete ? 'nod' : 'idea'} actionKey={reveal.visible} />
+        <StepExplanationFrame steps={c.stepExplanations} visible={reveal.visible} />
       </div>
     </Stage>
   );
@@ -1946,9 +2366,7 @@ const WorkedCheckpointScreen = ({ screen, onNext, onPrev }) => {
 const StrategyScreen = ({ screen, onNext, onPrev }) => {
   const c = CONTENT.s10;
   const t = useT();
-  const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's10'));
-  const reveal = useGuidedReveal(4);
+  const { audio, reveal } = useGuidedAudioReveal(c.audio, screen, 4);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<TheoryNav audio={audio} ready={reveal.complete} onNext={onNext} onPrev={onPrev} />}>
       <div className="screen-stack strategy-stack">
@@ -2034,135 +2452,93 @@ const ChainProofScreen = ({ screen, onNext, onPrev }) => {
 };
 
 const SummaryScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, finishLesson }) => {
-  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
-  const [revealRequested, setRevealRequested] = useState(false);
-  const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null);
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
-  const audio = useAudio(localizedSegments(c.audio, lang, 's14'));
-  const reveal = useTimedReveal(4, 430);
+  const segments = useMemo(() => localizedSegments(c.audio, lang, 's14'), [c.audio, lang]);
+  const audio = useAudio(segments);
+  const reveal = useAudioSegmentReveal(audio, segments, 5);
+  const syncedAudio = { ...audio, replay: reveal.replay, toggleMute: reveal.toggleMute };
+  const visible = reveal.visible;
+  const [titleCardCelebrationStarted, setTitleCardCelebrationStarted] = useState(false);
+  const startTitleCardCelebration = useCallback(() => setTitleCardCelebrationStarted(true), []);
   const scoredIndexes = useMemo(
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
-  const complete = reveal.visible >= 4;
+  const complete = visible >= 5;
   const totalScored = scoredIndexes.length;
-  const reduced = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const finalState = complete || audio.completed || audio.muted || reduced;
-  const rewardTitle = firstTry === totalScored
+  const rewardTitle = useMemo(() => firstTry === totalScored
     ? { ru: 'Мастер сравнения', uz: 'Taqqoslash ustasi', en: "Comparison master" }
     : firstTry >= Math.max(1, totalScored - 1)
       ? { ru: 'Знаток порядка', uz: 'Tartib bilimdoni', en: "Order expert" }
-      : { ru: 'Исследователь сравнений', uz: 'Taqqoslash tadqiqotchisi', en: "Comparison explorer" };
-  const reflectionOptions = [
-    { ru: 'Сначала сравню количество цифр.', uz: 'Avval raqamlar sonini taqqoslayman.', en: 'First, I will compare the number of digits.' },
-    { ru: 'При равной длине пойду слева направо.', uz: "Uzunligi teng bo'lsa, chapdan o'ngga yuraman.", en: 'If the lengths match, I will move from left to right.' },
-    { ru: 'Остановлюсь на первом различии.', uz: "Birinchi farqda to'xtayman.", en: 'I will stop at the first difference.' },
-  ];
-  const reflectionQuestion = { ru: 'Какой шаг ты точно возьмёшь в следующую задачу?', uz: 'Keyingi masalada qaysi qadamni albatta ishlatasiz?', en: 'Which step will you definitely use in the next problem?' };
-  const chooseReflection = (index) => {
-    if (titleClaimed) return;
-    setReflectionChoice(index);
-    onAnswer({
-      ...(storedAnswer ?? {}),
-      stage: null,
-      screenIdx: screen,
-      reflectionChoice: index,
-      titleClaimed: false,
-    });
-    audio.pushOneOff(t(reflectionOptions[index]));
-  };
-  const claimTitle = () => {
-    if (!finalState || reflectionChoice === null || titleClaimed) return;
-    setTitleClaimed(true);
-    setRevealRequested(true);
+      : { ru: 'Исследователь сравнений', uz: 'Taqqoslash tadqiqotchisi', en: "Comparison explorer" }, [firstTry, totalScored]);
+  const emitTitleClaim = useCallback(() => {
     onAnswer({
       stage: null,
       screenIdx: screen,
-      question: t(reflectionQuestion),
-      options: reflectionOptions.map((option) => t(option)),
+      question: t({ ru: 'Получить звание', uz: 'Unvonni olish', en: 'Claim title' }),
+      options: null,
       correctIndex: null,
       correctAnswer: null,
-      studentAnswerIndex: reflectionChoice,
-      studentAnswer: t(reflectionOptions[reflectionChoice]),
+      studentAnswerIndex: null,
+      studentAnswer: t(rewardTitle),
       correct: true,
       firstTry: true,
       attempts: 1,
       solved: true,
-      reflectionChoice,
       titleClaimed: true,
     });
-  };
+  }, [onAnswer, rewardTitle, screen, t]);
+  const { titleClaimed, canClaimTitle, revealRequested, claimTitle } = useGrade4TitleClaim({
+    storedAnswer,
+    audio: syncedAudio,
+    onClaim: emitTitleClaim,
+  });
   return (
     <Stage
       screen={screen}
       eyebrow={c.eyebrow}
-      audio={audio}
+      audio={titleClaimed ? { ...syncedAudio, completed: true } : syncedAudio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}
     >
-      <div className="screen-stack finale-screen">
-        <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} />
-        <style>{G4_TITLE_STYLES}</style>
-        <header className="finale-heading">
-          <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
-          <h1>{t(c.title)}</h1>
-          <p>{lang === 'en' ? "The sorting error from the start of the lesson is fixed: Bit now looks for the first difference from the left, not at the last digit." : lang === 'ru' ? 'Ошибочная сортировка из начала урока исправлена: Бит смотрит не на последнюю цифру, а на первое различие слева.' : "Dars boshidagi noto'g'ri saralash tuzatildi: Bit endi oxirgi raqamga emas, chapdagi birinchi farqqa qaraydi."}</p>
-        </header>
-
-        <div className="finale-layout">
-          <div className="finale-main">
-            <div className="finale-mastery">
-              {c.takeaways.map((item, index) => (
-                <article className={`finale-takeaway ${reveal.visible >= index + 1 ? 'is-visible' : ''}`} key={t(item)}>
-                  <span>{String(index + 1).padStart(2, '0')}</span><p>{t(item)}</p>
-                </article>
-              ))}
-            </div>
-            <div className={`finale-proof ${reveal.visible >= 3 ? 'is-visible' : ''}`}>
-              <span>{lang === 'en' ? "OPENING MISSION SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span>
-              <strong>{lang === 'en' ? "ROUTES RESTORED" : lang === 'ru' ? 'МАРШРУТЫ ВОССТАНОВЛЕНЫ' : "YO'NALISHLAR TIKLANDI"}</strong>
-              <p>{t(c.lead)}</p>
-            </div>
-            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}>
-              <span aria-hidden="true">→</span>
-              <div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div>
-            </div>
-          </div>
-
-          <aside className="finale-actions">
-          <section className="finale-reflection" aria-labelledby="d4-reflection-question">
-            <strong id="d4-reflection-question">{t(reflectionQuestion)}</strong>
-            <div>
-              {reflectionOptions.map((option, index) => (
-                <button type="button" className={reflectionChoice === index ? 'is-selected' : ''} aria-pressed={reflectionChoice === index} onClick={() => chooseReflection(index)} key={t(option)}>
-                  <span>{index + 1}</span>{t(option)}
-                </button>
-              ))}
-            </div>
-          </section>
-
-          {!titleClaimed && (
-            <button
-              type="button"
-              className="btn-white-accent g4-title-claim"
-              data-g4-role="title-claim"
-              disabled={!finalState || reflectionChoice === null}
-              onClick={claimTitle}
-              aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
-            >
-              <span aria-hidden="true">★</span>
-              <strong>{finalState && reflectionChoice !== null
-                ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
-                : t({ uz: "Avval fikringizni tanlang", ru: 'Сначала выбери свой вывод', en: 'Choose your reflection first' })}</strong>
-            </button>
-          )}
-          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
-          </aside>
-        </div>
-      </div>
+      <style>{G4_TITLE_STYLES}</style>
+      <Grade4Finale
+        lang={lang}
+        heading={{
+          eyebrow: t({ uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' }),
+          title: t(c.title),
+          lead: t({
+            uz: "Dars boshidagi noto'g'ri saralash tuzatildi: Bit endi oxirgi raqamga emas, chapdagi birinchi farqqa qaraydi.",
+            ru: 'Ошибочная сортировка из начала урока исправлена: Бит смотрит не на последнюю цифру, а на первое различие слева.',
+            en: 'The sorting error from the start of the lesson is fixed: Bit now looks for the first difference from the left, not at the last digit.',
+          }),
+        }}
+        takeaways={c.takeaways.slice(0, 3).map(t)}
+        proof={{
+          label: t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'OPENING MISSION SOLUTION' }),
+          value: t({ uz: "YO'NALISHLAR TIKLANDI", ru: 'МАРШРУТЫ ВОССТАНОВЛЕНЫ', en: 'ROUTES RESTORED' }),
+          text: t(c.lead),
+        }}
+        bridge={{
+          label: t({ uz: 'KEYINGI MISSIYA', ru: 'СЛЕДУЮЩАЯ МИССИЯ', en: 'NEXT MISSION' }),
+          text: t(c.bridge),
+          terminal: false,
+        }}
+        visible={visible}
+        complete={complete}
+        revealSteps={{ proof: 4, bridge: 5 }}
+        canClaimTitle={canClaimTitle}
+        titleClaimed={titleClaimed}
+        onClaimTitle={claimTitle}
+        claimLabel={t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' })}
+        pendingLabel={t({ uz: 'Avval yakuniy xulosani tinglang', ru: 'Сначала дослушайте итог', en: 'Listen to the summary first' })}
+        renderTitleReveal={() => <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} onComplete={startTitleCardCelebration} />}
+        renderTitleCard={() => <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} canFinish={titleClaimed} celebrate={titleCardCelebrationStarted} />}
+        bitSlot={null}
+        medalTier={firstTry === totalScored ? 'gold' : firstTry >= Math.max(1, totalScored - 1) ? 'silver' : 'bronze'}
+      />
     </Stage>
   );
 };
@@ -2191,18 +2567,18 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
 
 const Screen0 = (props) => <StoryHookScreen {...props} screen={0} />;
 const Screen1 = (props) => <RecapScreen {...props} screen={1} />;
-const Screen2 = (props) => <ChoiceScreen {...props} screen={2} c={PRACTICE_CONTENT.p1} />;
+const Screen2 = (props) => <ChoiceScreen {...props} screen={2} c={PRACTICE_CONTENT.p1} choiceOrdinal={1} />;
 const Screen3 = (props) => <PlaceTableScreen {...props} screen={3} />;
-const Screen4 = (props) => <ChoiceScreen {...props} screen={4} c={PRACTICE_CONTENT.p2} />;
+const Screen4 = (props) => <ChoiceScreen {...props} screen={4} c={PRACTICE_CONTENT.p2} choiceOrdinal={2} />;
 const Screen5 = (props) => <NumberLineScreen {...props} screen={5} />;
-const Screen6 = (props) => <ChoiceScreen {...props} screen={6} c={PRACTICE_CONTENT.p3} />;
+const Screen6 = (props) => <ChoiceScreen {...props} screen={6} c={PRACTICE_CONTENT.p3} choiceOrdinal={3} />;
 const Screen7 = (props) => <EqualityScreen {...props} screen={7} />;
-const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={PRACTICE_CONTENT.p4} />;
+const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={PRACTICE_CONTENT.p4} choiceOrdinal={4} />;
 const Screen9 = (props) => <DiscoveryScreen {...props} screen={9} />;
-const Screen10 = (props) => <ChoiceScreen {...props} screen={10} c={PRACTICE_CONTENT.p5} />;
+const Screen10 = (props) => <ChoiceScreen {...props} screen={10} c={PRACTICE_CONTENT.p5} choiceOrdinal={5} />;
 const Screen11 = (props) => <RuleRevealScreen {...props} screen={11} />;
 const Screen12 = (props) => <StrategyScreen {...props} screen={12} />;
-const Screen13 = (props) => <ChoiceScreen {...props} screen={13} c={PRACTICE_CONTENT.p6} />;
+const Screen13 = (props) => <ChoiceScreen {...props} screen={13} c={PRACTICE_CONTENT.p6} choiceOrdinal={6} />;
 const Screen14 = (props) => <SummaryScreen {...props} screen={14} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
@@ -2278,7 +2654,7 @@ export default function Grade4Dars04({ studentName, lang: langProp, ttsApiBase, 
   return (
     <LangContext.Provider value={lang}>
       <style>{STYLES}</style>
-      <div className={`lesson-root ${preview ? 'lesson-preview' : ''}`}>
+      <div className={`lesson-root g4-dars04-root ${preview ? 'lesson-preview' : ''}`}>
         {preview && (
           <div className="preview-language" aria-label={lang === 'en' ? 'Preview language' : lang === 'ru' ? 'Язык предпросмотра' : "Ko'rib chiqish tili"}>
             {SUPPORTED_LANGS.map((code) => (
@@ -2439,7 +2815,7 @@ html, body { margin: 0; padding: 0; }
   padding-bottom: 8px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .stage-content > .screen-stack {
   max-height: 100%;
@@ -2570,7 +2946,7 @@ html, body { margin: 0; padding: 0; }
 .city-sort-scene {
   position: relative;
   isolation: isolate;
-  width: min(790px, 100%);
+  width: 100%;
   min-height: 246px;
   margin: 0 auto;
   padding: 22px 190px 22px 22px;
@@ -2591,6 +2967,7 @@ html, body { margin: 0; padding: 0; }
 .route-card { position: relative; min-width: 0; padding: 12px; border: 1px solid rgba(121,211,218,.18); border-radius: 16px; background: rgba(1,13,22,.52); box-shadow: inset 0 0 22px rgba(121,211,218,.04); }
 .route-card small { display: block; color: #79D3DA; font: 800 11px 'JetBrains Mono', monospace; letter-spacing: .12em; }
 .route-card strong { display: block; margin-top: 7px; color: #FFFFFF; font: 850 clamp(18px,3vw,28px) 'JetBrains Mono', monospace; white-space: nowrap; }
+.route-card .last-digit-emphasis { display: inline-block; margin-left: 1px; padding: 0 3px; border-radius: 6px; color: #FFE284; background: rgba(255,91,53,.28); box-shadow: 0 0 0 2px rgba(255,226,132,.38); }
 .route-card > span { position: absolute; top: -9px; right: -7px; width: 25px; height: 25px; display: grid; place-items: center; border-radius: 50%; color: #FFFFFF; background: ${T.cyan}; font: 900 11px 'JetBrains Mono', monospace; }
 .route-wrong { border-color: rgba(255,91,53,.45); box-shadow: inset 0 0 30px rgba(255,91,53,.08), 0 0 0 3px rgba(255,91,53,.08); }
 .route-wrong > span { background: ${T.accent}; animation: alert-pulse 2.4s ease-in-out 2; }
@@ -2604,8 +2981,10 @@ html, body { margin: 0; padding: 0; }
 .hook-stack .lead { font-size: 12px; line-height: 1.35; }
 .hook-decision { padding: 9px; border-radius: 16px; background: rgba(255,255,255,.9); box-shadow: 0 12px 28px -22px rgba(${T.shadowBase},.46); }
 .hook-decision > strong { display: block; color: ${T.navy}; font: 700 16px/1.2 'Source Serif 4',serif; }
-.hook-answer-grid { margin-top: 7px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
-.hook-answer-grid .option { min-height: 54px; padding: 9px 12px; font-size: 14px; line-height: 1.3; }
+.hook-answer-grid { width: 100%; margin-top: 7px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 9px; }
+.hook-answer-grid .option { width: 100%; min-height: 54px; padding: 9px 12px; font-size: 16px; line-height: 1.3; }
+.hook-answer-grid .option-letter { font-size: 12px; }
+.hook-answer-grid .option > span:last-child { font-weight: 800; }
 @keyframes alert-pulse { 50% { transform: scale(1.12); box-shadow: 0 0 18px rgba(255,91,53,.65); } }
 
 /* Recap and digit-count explanation. */
@@ -2657,8 +3036,32 @@ html, body { margin: 0; padding: 0; }
 .guided-reveal-control { min-height: 46px; margin: 0 auto; padding: 8px 15px; border: 0; border-radius: 13px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; color: #FFFFFF; background: ${T.cyan}; box-shadow: 0 12px 24px -16px rgba(22,143,163,.72); font-weight: 800; cursor: pointer; transition: transform .5s ease,opacity .5s ease; }
 .guided-reveal-control > span { width: 25px; height: 25px; border-radius: 8px; display: grid; place-items: center; color: ${T.cyan}; background: #FFFFFF; }
 .guided-reveal-control:hover:not(:disabled) { transform: translateY(-2px); }
-.guided-reveal-control:disabled { color: ${T.success}; background: ${T.successSoft}; box-shadow: none; cursor: default; }
-.guided-reveal-control:disabled > span { color: #FFFFFF; background: ${T.success}; }
+.guided-reveal-control:disabled { opacity: .45; box-shadow: none; cursor: not-allowed; }
+.step-explanation-frame {
+  position: relative;
+  isolation: isolate;
+  width: min(790px,100%);
+  margin: 0 auto;
+  padding: 10px 12px;
+  border: 1px solid #B577D5;
+  border-left: 4px solid #75428F;
+  border-radius: 0 15px 15px 0;
+  display: grid;
+  gap: 7px;
+  overflow: hidden;
+  background: #B577D5;
+  box-shadow: 0 14px 28px -23px rgba(86,49,105,.62);
+  text-align: left;
+}
+.step-explanation-title { color: #12212C; font: 850 10px/1.2 'JetBrains Mono',monospace; letter-spacing: .08em; text-transform: uppercase; }
+.step-explanation-list { display: grid; gap: 5px; }
+.step-explanation-row { min-height: 34px; padding: 5px 7px; border-radius: 10px; display: grid; grid-template-columns: 27px minmax(0,1fr); align-items: center; gap: 8px; background: rgba(255,255,255,.92); text-align: left; }
+.step-explanation-row > span { width: 27px; height: 27px; display: grid; place-items: center; border-radius: 8px; color: #FFFFFF; background: #75428F; font: 850 9px 'JetBrains Mono',monospace; }
+.step-explanation-row p { color: ${T.ink2}; font-size: 11px; font-weight: 700; line-height: 1.35; text-align: left; }
+.line-stack .step-explanation-frame,
+.rule-stack .step-explanation-frame { border-color: #B577D5; background: #FFFFFF; }
+.line-stack .step-explanation-row,
+.rule-stack .step-explanation-row { border: 1px solid #B577D5; background: #FFFFFF; }
 
 /* Place table scanning. */
 .place-table-frame { position: relative; padding: 15px; overflow: hidden; }
@@ -2672,24 +3075,32 @@ html, body { margin: 0; padding: 0; }
 .place-table-grid > span.first-difference { color: #FFFFFF; background: ${T.accent}; transform: scale(.94); border-radius: 10px; box-shadow: 0 8px 18px -10px rgba(255,91,53,.7); }
 .table-scan-beam { position: absolute; top: 15px; bottom: 15px; left: 15px; width: calc((100% - 30px) / 6); pointer-events: none; border: 2px solid rgba(22,143,163,.35); border-radius: 11px; box-shadow: 0 0 22px rgba(22,143,163,.16); transition: transform .38s cubic-bezier(.22,.8,.3,1); }
 .beam-1 { transform: translateX(0); }.beam-2 { transform: translateX(100%); }.beam-3 { transform: translateX(200%); }.beam-4 { transform: translateX(300%); }.beam-5 { transform: translateX(400%); border-color: rgba(255,91,53,.55); }.beam-6 { transform: translateX(400%); border-color: rgba(255,91,53,.55); }
-.explanation-callout { width: min(700px,100%); margin: 0 auto; padding: 11px 14px; border-left: 4px solid ${T.accent}; border-radius: 0 13px 13px 0; color: ${T.ink2}; background: ${T.accentSoft}; font-size: 12px; font-weight: 750; line-height: 1.4; }
-.deep-contrast { width: min(700px,100%); margin: 0 auto; padding: 11px; border-radius: 15px; display: grid; grid-template-columns: 1fr auto 1.2fr; align-items: center; gap: 9px; background: #FFFFFF; box-shadow: 0 12px 25px -21px rgba(${T.shadowBase},.46); }
-.deep-contrast-numbers { display: flex; align-items: center; justify-content: center; gap: 6px; }.deep-contrast-numbers strong { color: ${T.navy}; font: 850 13px 'JetBrains Mono',monospace; }.deep-contrast-numbers i { color: ${T.accent}; font-style: normal; font-weight: 900; }
-.deep-contrast-trail { display: flex; gap: 4px; }.deep-contrast-trail span { padding: 5px 6px; border-radius: 8px; color: ${T.cyan}; background: ${T.cyanSoft}; font: 800 11px 'JetBrains Mono',monospace; }.deep-contrast-trail .trail-stop { color: #FFFFFF; background: ${T.accent}; }
-.deep-contrast-result { display: grid; gap: 2px; }.deep-contrast-result b { color: ${T.success}; font: 850 12px 'JetBrains Mono',monospace; }.deep-contrast-result small { color: ${T.ink2}; font-size: 11px; line-height: 1.35; }
+.explanation-callout { width: min(790px,100%); margin: 0 auto; padding: 11px 14px; border-left: 4px solid ${T.accent}; border-radius: 0 13px 13px 0; color: ${T.ink2}; background: ${T.accentSoft}; font-size: 16px; font-weight: 750; line-height: 1.4; }
+.deep-contrast { width: min(790px,100%); margin: 0 auto; padding: 11px; border-radius: 15px; display: grid; grid-template-columns: 1fr auto 1.2fr; align-items: center; gap: 9px; background: #FFFFFF; box-shadow: 0 12px 25px -21px rgba(${T.shadowBase},.46); }
+.deep-contrast-numbers { display: flex; align-items: center; justify-content: center; gap: 6px; }.deep-contrast-numbers strong { color: ${T.navy}; font: 850 15px 'JetBrains Mono',monospace; }.deep-contrast-numbers i { color: ${T.accent}; font-style: normal; font-weight: 900; }
+.deep-contrast-trail { display: flex; gap: 4px; }.deep-contrast-trail span { padding: 5px 6px; border-radius: 8px; color: ${T.cyan}; background: ${T.cyanSoft}; font: 800 13px 'JetBrains Mono',monospace; }.deep-contrast-trail .trail-stop { color: #FFFFFF; background: ${T.accent}; }
+.deep-contrast-result { display: grid; gap: 2px; }.deep-contrast-result b { color: ${T.success}; font: 850 14px 'JetBrains Mono',monospace; }.deep-contrast-result small { color: ${T.ink2}; font-size: 13px; line-height: 1.35; }
 
 /* Number line and first-difference scan. */
 .number-line-card { padding: 22px 26px 18px; }
-.line-scale { display: flex; justify-content: space-between; color: ${T.ink3}; font: 750 11px 'JetBrains Mono', monospace; }
-.number-line-track { position: relative; height: 116px; margin: 2px 16px 0; }
-.line-ticks { position: absolute; left: 0; right: 0; top: 58px; height: 4px; border-radius: 999px; background: linear-gradient(90deg, ${T.cyan}, ${T.accent}); }
+.number-line-card-compact { padding: 7px 20px 4px; }
+.number-line-card-compact .number-line-track { height: 76px; margin: 0 12px; }
+.number-line-card-compact .line-scale { top: 4px; }
+.number-line-card-compact .line-ticks { top: 31px; }
+.number-line-card-compact .line-point { top: 22px; }
+.number-line-card-compact .line-flight { top: 31px; font-size: 22px; }
+.line-scale { position: absolute; left: 0; right: 0; top: 21px; display: flex; justify-content: space-between; color: ${T.ink3}; font: 750 11px 'JetBrains Mono', monospace; }
+.number-line-track { position: relative; height: 104px; margin: 0 16px; }
+.line-ticks { position: absolute; left: 0; right: 0; top: 45px; height: 4px; border-radius: 999px; background: linear-gradient(90deg, ${T.cyan}, ${T.accent}); }
 .line-ticks::after { content: ''; position: absolute; inset: -8px 0; opacity: .25; background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), ${T.ink2} calc(10% - 1px) 10%); }
-.line-point { position: absolute; top: 22px; display: grid; justify-items: center; gap: 5px; }
+.line-point { position: absolute; top: 36px; display: grid; justify-items: center; gap: 5px; transform: translateX(-50%); }
+.line-point.reveal-item { transform: translateX(-50%) translateY(14px) scale(.985); }
+.line-point.reveal-item.is-visible { transform: translateX(-50%); }
 .line-point i { width: 18px; height: 18px; border: 5px solid #FFFFFF; border-radius: 50%; background: ${T.cyan}; box-shadow: 0 0 0 3px rgba(22,143,163,.18), 0 7px 13px -7px rgba(${T.shadowBase},.6); }
 .line-point b { padding: 5px 7px; border-radius: 8px; color: ${T.navy}; background: #FFFFFF; font: 800 10px 'JetBrains Mono', monospace; box-shadow: 0 8px 17px -13px rgba(${T.shadowBase},.5); }
-.point-left { left: 5%; }.point-right { right: 5%; }
+.point-left { left: 9%; }.point-right { left: 90%; }
 .point-right i { background: ${T.accent}; box-shadow: 0 0 0 3px rgba(255,91,53,.17), 0 7px 13px -7px rgba(${T.shadowBase},.6); }
-.line-flight { position: absolute; left: 25%; right: 25%; top: 58px; color: ${T.accent}; text-align: center; font-size: 28px; transform-origin: left; }
+.line-flight { position: absolute; left: 25%; right: 25%; top: 45px; color: ${T.accent}; text-align: center; font-size: 28px; transform-origin: left; }
 .line-flight.is-visible { animation: flight-in .8s cubic-bezier(.16,1,.3,1) both; }
 @keyframes flight-in { from { opacity: 0; transform: scaleX(.15); } to { opacity: 1; transform: scaleX(1); } }
 .scan-console { padding: 18px; display: grid; gap: 15px; background: linear-gradient(145deg,#173B52,#102C3E); color: #FFFFFF; }
@@ -2719,6 +3130,13 @@ html, body { margin: 0; padding: 0; }
 
 /* Two deliberate tests only. */
 .choice-stack { justify-content: flex-start; }
+.choice-instruction { width: 100%; padding: 11px 14px; border-left: 4px solid ${T.cyan}; border-radius: 0 13px 13px 0; color: ${T.navy}; background: ${T.cyanSoft}; font: 750 16px/1.4 'Manrope',sans-serif; }
+.choice-screen-2 .choice-instruction,
+.choice-screen-4 .choice-instruction,
+.choice-screen-6 .choice-instruction,
+.choice-screen-8 .choice-instruction,
+.choice-screen-10 .choice-instruction { font-size: 18px; }
+.choice-screen-13 .choice-instruction { font-size: 17px; }
 .options-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
 .option {
   min-height: 61px;
@@ -2741,9 +3159,24 @@ html, body { margin: 0; padding: 0; }
 @keyframes option-in { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: none; } }
 .option:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 14px 28px -16px rgba(${T.shadowBase},.5), 0 0 0 3px rgba(22,143,163,.07); }
 .option:disabled { cursor: default; }.option-wrong { opacity: .25; filter: grayscale(.65); }
-.option-correct-reveal { color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 0 0 2px rgba(34,122,83,.18), 0 12px 26px -17px rgba(34,122,83,.45); }
+.option-wrong.option-wrong-flash {
+  opacity: 1;
+  filter: none;
+  border-color: ${T.accent};
+  color: #9E321B;
+  background: ${T.accentSoft};
+  animation: option-wrong-border-flash 2s ease-out 1 both;
+}
+@keyframes option-wrong-border-flash {
+  0%, 45% { border-color: ${T.accent}; box-shadow: 0 0 0 5px rgba(255,91,53,.24), 0 12px 26px -17px rgba(255,91,53,.55); }
+  100% { border-color: rgba(80,97,109,.10); box-shadow: 0 10px 24px -17px rgba(${T.shadowBase},.44); opacity: .25; filter: grayscale(.65); }
+}
+.option-wrong.option-wrong-flash .option-letter { color: #FFFFFF; background: ${T.accent}; }
+.option-correct-reveal { border-color: ${T.success}; color: ${T.success}; background: ${T.successSoft}; box-shadow: 0 0 0 2px rgba(34,122,83,.18), 0 12px 26px -17px rgba(34,122,83,.45); }
+.option-correct-reveal .option-letter { color: #FFFFFF; background: ${T.success}; }
 .option-letter { width: 27px; height: 27px; flex: 0 0 27px; display: grid; place-items: center; border-radius: 8px; color: ${T.cyan}; background: ${T.cyanSoft}; font: 800 11px 'JetBrains Mono', monospace; }
 .feedback { height: 88px; margin-top: 8px; opacity: 0; visibility: hidden; overflow: visible; transform: translateY(8px); transition: opacity .3s ease, transform .3s ease; }
+.hook-stack:has([data-g4-feedback]) > .feedback { margin-top: 0; }
 .feedback-visible { opacity: 1; visibility: visible; transform: translateY(0); }
 .feedback-card { min-height: 88px; padding: 8px 15px 8px 9px; border: 1px solid transparent; border-radius: 18px; display: flex; gap: 13px; align-items: center; line-height: 1.42; font-size: 14px; box-shadow: 0 14px 28px -22px rgba(${T.shadowBase},.48); }
 .feedback-correct { border-color: rgba(34,122,83,.18); color: ${T.success}; background: linear-gradient(135deg,#FFFFFF,${T.successSoft}); }
@@ -2825,11 +3258,34 @@ html, body { margin: 0; padding: 0; }
 .finale-heading { min-width: 0; padding: 12px 15px; border-radius: 17px; background: linear-gradient(135deg,${T.paper},${T.cyanSoft}); box-shadow: 0 12px 28px -22px rgba(${T.shadowBase},.38); }
 .finale-heading > span { display: block; margin-bottom: 4px; color: ${T.accent}; font: 900 9px/1 'JetBrains Mono',monospace; letter-spacing: .15em; }.finale-heading h1 { color: ${T.navy}; font: 650 clamp(20px,3vw,28px)/1.08 'Source Serif 4',serif; overflow-wrap: anywhere; }.finale-heading p { max-width: 760px; margin-top: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.42; overflow-wrap: anywhere; }
 .finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(248px,.42fr); gap: 10px; align-items: stretch; }.finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
-.finale-actions { min-width: 0; display: flex; flex-direction: column; gap: 8px; }.finale-reflection { padding: 10px; border-radius: 15px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); }.finale-reflection > strong { display: block; color: ${T.navy}; font: 700 13px/1.25 'Source Serif 4',serif; }.finale-reflection > div { margin-top: 7px; display: grid; gap: 5px; }.finale-reflection button { min-height: 36px; padding: 6px 7px; border: 0; border-radius: 10px; display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; gap: 6px; color: ${T.ink2}; background: ${T.cyanSoft}; text-align: left; font-size: 9px; line-height: 1.25; cursor: pointer; }.finale-reflection button span { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: ${T.paper}; background: ${T.cyan}; font: 900 9px/1 'JetBrains Mono',monospace; }.finale-reflection button.is-selected { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 3px 0 0 ${T.success}; }.finale-actions .g4-title-claim { min-height: 70px; padding: 9px 12px; }
-.finale-mastery { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.finale-takeaway { min-width: 0; min-height: 88px; padding: 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: start; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease,transform .34s ease; }.finale-takeaway.is-visible { opacity: 1; transform: none; }.finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 10px/1 'JetBrains Mono',monospace; }.finale-takeaway:nth-child(2) > span { background: ${T.accent}; }.finale-takeaway:nth-child(3) > span { background: ${T.success}; }.finale-takeaway p { color: ${T.ink}; font-size: 11px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
+.finale-actions { min-width: 0; display: flex; flex-direction: column; gap: 8px; }.finale-reflection { padding: 10px; border-radius: 15px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); }.finale-reflection > strong { display: block; color: ${T.navy}; font: 700 13px/1.25 'Source Serif 4',serif; }.finale-reflection > div { margin-top: 7px; display: grid; gap: 5px; }.finale-reflection button { min-height: 36px; padding: 6px 7px; border: 0; border-radius: 10px; display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; gap: 6px; color: ${T.ink2}; background: ${T.cyanSoft}; text-align: left; font-size: 9px; line-height: 1.25; cursor: pointer; }.finale-reflection button span { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: ${T.paper}; background: ${T.cyan}; font: 900 9px/1 'JetBrains Mono',monospace; }.finale-reflection button.is-selected { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 3px 0 0 ${T.success}; }.finale-actions .g4-title-claim { min-height: 70px; padding: 7px 12px; }
+.finale-mastery { min-width: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
+.finale-takeaway { min-width: 0; min-height: 68px; padding: 7px 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: center; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease,transform .34s ease; }.finale-takeaway.is-visible { opacity: 1; transform: none; }.finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 13px/1 'JetBrains Mono',monospace; }.finale-takeaway:nth-child(2) > span { background: ${T.accent}; }.finale-takeaway:nth-child(3) > span { background: ${T.success}; }.finale-takeaway p { color: ${T.ink}; font-size: 14px; line-height: 1.26; font-weight: 720; overflow-wrap: anywhere; }
+.finale-screen[data-g4-final-reflection="none"] .finale-actions .g4-title-claim > strong { font-size: 18px; }
 .finale-proof,.finale-bridge { min-width: 0; opacity: 0; transform: translateY(7px); transition: opacity .34s ease,transform .34s ease; }.finale-proof.is-visible,.finale-bridge.is-visible { opacity: 1; transform: none; }.finale-proof { padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0,.7fr) minmax(0,1.3fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }.finale-proof > span,.finale-bridge strong { color: ${T.success}; font: 900 9px/1.2 'JetBrains Mono',monospace; letter-spacing: .1em; }.finale-proof > strong { min-width: 0; color: ${T.navy}; font: 800 12px/1.25 'JetBrains Mono',monospace; overflow-wrap: anywhere; }.finale-proof p,.finale-bridge p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
 .finale-bridge { padding: 9px 11px; display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.accentSoft}; }.finale-bridge > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: ${T.paper}; background: ${T.accent}; font-weight: 900; }.finale-bridge strong { color: ${T.accent}; }.finale-bridge p { margin-top: 3px; }
+@media (min-width: 640px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(270px,.58fr) minmax(0,1fr);
+    gap: 9px 12px;
+  }
+  .finale-screen[data-g4-final-reflection="none"] .finale-main { display: contents; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-mastery { grid-column: 2; grid-row: 1; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions { grid-column: 1; grid-row: 1; height: 100%; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-proof { grid-column: 1 / -1; grid-row: 2; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-bridge { grid-column: 1 / -1; grid-row: 3; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions > :is(.g4-title-claim, .g4-title-card-stage) {
+    flex: 0 0 calc(100% + 2px);
+    height: calc(100% + 2px);
+    min-height: calc(100% + 2px);
+    transform: translateY(-2px);
+  }
+}
+@media (min-width: 761px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(340px,.58fr) minmax(0,1fr);
+  }
+}
 .finale-reward { position: relative; min-width: 0; min-height: 206px; padding: 15px 76px 14px 62px; display: flex; align-items: center; overflow: hidden; border-radius: 18px; color: ${T.paper}; background: linear-gradient(145deg,${T.navy},#0f2c40); box-shadow: 0 16px 32px -22px rgba(${T.shadowBase},.58); }.finale-reward-copy { position: relative; z-index: 2; min-width: 0; }.finale-reward-copy > span { color: ${T.lime}; font: 900 9px/1.2 'JetBrains Mono',monospace; letter-spacing: .12em; }.finale-reward-copy h2 { margin-top: 5px; font: 650 19px/1.05 'Source Serif 4',serif; overflow-wrap: anywhere; }.finale-status { margin-top: 10px; }.finale-status strong { display: block; color: ${T.lime}; font: 850 25px/1 'JetBrains Mono',monospace; }.finale-status p { margin-top: 3px; font-size: 11px; line-height: 1.25; font-weight: 800; }.finale-status small { display: block; margin-top: 3px; color: rgba(255,255,255,.68); font-size: 9px; line-height: 1.3; }.finale-status-neutral strong { font-size: 22px; }
 .finale-medal { position: absolute; z-index: 2; left: 11px; top: 50%; width: 39px; height: 39px; display: grid; place-items: center; border-radius: 50%; color: ${T.navy}; background: ${T.lime}; box-shadow: 0 0 0 5px rgba(149,201,61,.14); transform: translateY(-50%) scale(.78); transition: transform .38s ease; }.finale-reward.is-complete .finale-medal { transform: translateY(-50%) scale(1); }.finale-reward-bit { position: absolute; z-index: 1; right: 1px; bottom: -5px; width: 76px; height: 96px; }.finale-reward-bit .g1-char { width: 100%; height: 100%; }.finale-reward.is-complete .finale-reward-bit { animation: finale-bit-float 3.2s ease-in-out 2; }
 .finale-confetti i { position: absolute; z-index: 0; top: 12px; left: 20%; width: 5px; height: 9px; border-radius: 3px; background: ${T.lime}; opacity: 0; }.finale-confetti i:nth-child(2) { left: 34%; background: ${T.accent}; transform: rotate(24deg); }.finale-confetti i:nth-child(3) { left: 49%; background: ${T.cyan}; transform: rotate(-20deg); }.finale-confetti i:nth-child(4) { left: 63%; top: 22px; background: ${T.paper}; }.finale-confetti i:nth-child(5) { left: 78%; background: ${T.accent}; transform: rotate(38deg); }.finale-confetti i:nth-child(6) { left: 27%; top: 34px; background: ${T.cyan}; }.finale-confetti i:nth-child(7) { left: 57%; top: 42px; background: ${T.lime}; transform: rotate(-34deg); }.finale-confetti i:nth-child(8) { left: 86%; top: 34px; background: ${T.paper}; }.finale-reward.is-complete .finale-confetti i { animation: finale-confetti-fall 1.45s ease-out both; }.finale-reward.is-complete .finale-confetti i:nth-child(even) { animation-delay: .1s; }
@@ -2886,13 +3342,24 @@ html, body { margin: 0; padding: 0; }
   .city-sort-scene { min-height: 224px; padding: 15px 112px 15px 14px; border-radius: 20px; }
   .route-order { grid-template-columns: 1fr; gap: 7px; }.route-arrow { display: none; }.route-card { padding: 9px; }.route-card strong { font-size: 18px; }.sort-alert { font-size: 11px; }
   .hook-bit { right: 8px; width: 104px; }.hook-bit > svg { width: 82px; height: 105px; }
-  .hook-stack .lead { font-size: 10px; }.hook-decision { padding: 8px; }.hook-decision > strong { font-size: 13px; }.hook-answer-grid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 6px; }.hook-answer-grid .option { min-height: 62px; padding: 7px 8px; display: grid; grid-template-columns: 25px minmax(0,1fr); gap: 6px; font-size: 13px; }.hook-answer-grid .option-letter { width: 25px; height: 25px; }
+  .hook-stack .lead { font-size: 10px; }.hook-decision { padding: 8px; }.hook-decision > strong { font-size: 13px; }.hook-answer-grid { grid-template-columns: 1fr; gap: 6px; }.hook-answer-grid .option { min-height: 62px; padding: 7px 8px; display: grid; grid-template-columns: 25px minmax(0,1fr); gap: 6px; font-size: 15px; }.hook-answer-grid .option-letter { width: 25px; height: 25px; }
   .recap-board { padding: 13px; gap: 7px; }.recap-number { min-height: 90px; padding: 9px; }.recap-number span { font-size: 19px; }.recap-number b { font-size: 11px; }
   .digit-count-model,.place-table-frame,.number-line-card,.scan-console,.equality-machine,.discovery-lab,.checkpoint-board,.error-workbench { border-radius: 17px; }
   .digit-count-model { padding: 12px; gap: 9px; }.formula-display { gap: 6px; }.formula-display span { padding: 9px 5px; font-size: 17px; }.formula-display i { font-size: 22px; }.step-rail { grid-template-columns: 1fr; gap: 5px; }.model-step { min-height: 64px; padding: 8px; display: grid; justify-items: center; text-align: center; }.model-step > span { width: 25px; height: 25px; }.model-step p { font-size: 11px; line-height: 1.38; }
   .place-table-frame { padding: 8px; }.place-table-head > span { min-height: 36px; font-size: 10px; line-height: 1.15; overflow-wrap: anywhere; }.place-table-row > span { min-height: 44px; font-size: 18px; }.table-scan-beam { top: 8px; bottom: 8px; left: 8px; width: calc((100% - 16px) / 6); }
   .deep-contrast { grid-template-columns: 1fr; gap: 6px; }.deep-contrast-trail { justify-content: center; }.deep-contrast-result { text-align: center; }
   .number-line-card { padding: 14px 11px 10px; }.line-point b { font-size: 10px; }.number-line-track { margin: 0 6px; }
+  .number-line-card-compact { padding: 4px 10px 2px; }
+  .number-line-card-compact .number-line-track { height: 64px; margin: 0 8px; }
+  .number-line-card-compact .line-scale { top: 2px; }
+  .number-line-card-compact .line-ticks { top: 27px; }
+  .number-line-card-compact .line-point { top: 18px; }
+  .number-line-card-compact .line-flight { top: 27px; }
+  .step-explanation-frame { padding: 7px 8px; gap: 5px; }
+  .step-explanation-list { gap: 4px; }
+  .step-explanation-row { min-height: 30px; padding: 4px 5px; grid-template-columns: 23px minmax(0,1fr); gap: 6px; }
+  .step-explanation-row > span { width: 23px; height: 23px; }
+  .step-explanation-row p { font-size: 10px; line-height: 1.25; }
   .scan-console { padding: 11px; gap: 9px; }.scan-numbers { gap: 7px; }.scan-numbers strong { padding: 9px 4px; font-size: 20px; }.comparison-scan { gap: 5px; }.scan-chip { min-height: 68px; padding: 6px 3px; }.scan-chip b { font-size: 13px; }.decision-banner { display: grid; text-align: center; }.decision-banner small { text-align: center; }
   .equality-machine { padding: 12px; gap: 8px; }.digit-pairs { gap: 3px; }.digit-pair { min-height: 74px; padding: 4px 2px; }.digit-pair span { font-size: 17px; }
   .options-grid { grid-template-columns: 1fr; gap: 7px; }.option { min-height: 50px; padding: 8px 10px; font-size: 11px; }.feedback-card { min-height: 76px; font-size: 12px; }.g4-bit-reaction-figure { width: 50px; height: 62px; flex-basis: 50px; }
@@ -2910,17 +3377,17 @@ html, body { margin: 0; padding: 0; }
   .finale-heading { padding: 8px 10px; }.finale-heading h1 { font-size: 19px; }.finale-heading p { display: none; }
   .finale-layout { gap: 6px; }
   .finale-main { gap: 5px; }
-  .finale-mastery { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; }
-  .finale-takeaway { min-height: 0; padding: 5px; grid-template-columns: 20px minmax(0,1fr); gap: 4px; }
-  .finale-takeaway > span { width: 20px; height: 20px; border-radius: 6px; font-size: 8px; }
-  .finale-takeaway p { font-size: 8px; line-height: 1.25; }
+  .finale-mastery { grid-template-columns: 1fr; gap: 4px; }
+  .finale-takeaway { min-height: 0; padding: 4px; grid-template-columns: 20px minmax(0,1fr); gap: 4px; }
+  .finale-takeaway > span { width: 20px; height: 20px; border-radius: 6px; font-size: 11px; }
+  .finale-takeaway p { font-size: 11px; line-height: 1.2; }
   .finale-proof { padding: 6px 8px; grid-template-columns: 1fr; gap: 2px; }
   .finale-proof > span { font-size: 8px; }.finale-proof > strong { font-size: 10px; }.finale-proof p { font-size: 9px; line-height: 1.25; }
   .finale-bridge { padding: 6px 8px; grid-template-columns: 24px minmax(0,1fr); gap: 6px; }.finale-bridge > span { width: 24px; height: 24px; }.finale-bridge p { font-size: 9px; line-height: 1.25; }
   .finale-actions { gap: 5px; }
   .finale-reflection { padding: 7px; }.finale-reflection > strong { font-size: 11px; }.finale-reflection > div { margin-top: 5px; gap: 3px; }
   .finale-reflection button { min-height: 44px; padding: 4px 5px; grid-template-columns: 18px minmax(0,1fr); gap: 4px; font-size: 8px; }.finale-reflection button span { width: 18px; height: 18px; border-radius: 5px; font-size: 8px; }
-  .finale-actions .g4-title-claim { min-height: 48px; padding: 6px 9px; }
+  .finale-actions .g4-title-claim { min-height: 44px; padding: 2px 9px; }
   .finale-reward { min-height: 116px; padding: 11px 65px 11px 51px; }.finale-reward-copy h2 { font-size: 17px; }.finale-medal { left: 8px; width: 34px; height: 34px; }.finale-reward-bit { width: 62px; height: 78px; }
 }
 @media (max-width: 639.98px) and (max-height: 700px) {
@@ -2970,7 +3437,7 @@ html, body { margin: 0; padding: 0; }
 [data-g4-role~="visual-frame"]{position:relative;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
 [data-g4-role~="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}
 [data-g4-role~="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}
-[data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
+[data-g4-role~="hook-scene"]{width:100%;min-width:0;margin-inline:auto}
 [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
 [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
 [data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
@@ -2994,7 +3461,7 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
 :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
-:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:min(760px,100%);margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
+:is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:100%;margin-inline:auto;min-height:206px;border-radius:24px;overflow:hidden}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
 :is(.lesson-root,.d8-root) [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
@@ -3123,9 +3590,14 @@ html, body { margin: 0; padding: 0; }
   .rule-stack .rule-card>span{width:25px;height:25px}
   .rule-stack .rule-card h2{font-size:11px;line-height:1.15}
   .rule-stack .rule-card p{margin-top:3px;font-size:8px;line-height:1.25}
-  .rule-stack .bit-coach{min-height:58px}
-  .rule-stack .bit-coach-figure{width:46px;height:57px;flex-basis:46px}
-  .rule-stack .bit-speech{font-size:9px;line-height:1.2}
+  .line-stack .step-explanation-list,
+  .rule-stack .step-explanation-list{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .line-stack .step-explanation-row,
+  .rule-stack .step-explanation-row{min-height:70px;padding:4px;display:grid;grid-template-columns:20px minmax(0,1fr);align-content:start;align-items:start;gap:4px}
+  .line-stack .step-explanation-row>span,
+  .rule-stack .step-explanation-row>span{width:20px;height:20px}
+  .line-stack .step-explanation-row p,
+  .rule-stack .step-explanation-row p{font-size:8px;line-height:1.2}
   .strategy-stack .strategy-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
   .strategy-stack .strategy-card{min-height:0;padding:7px;gap:4px}
   .strategy-stack .strategy-icon{width:28px;height:28px;font-size:14px}
@@ -3139,7 +3611,7 @@ html, body { margin: 0; padding: 0; }
   .finale-screen .finale-reflection>strong{font-size:10px}
   .finale-screen .finale-reflection>div{margin-top:4px;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
   .finale-screen .finale-reflection button{min-height:52px;padding:4px;grid-template-columns:18px minmax(0,1fr);gap:3px;font-size:8px;line-height:1.15}
-  .finale-screen .finale-actions .g4-title-claim{min-height:52px}
+  .finale-screen .finale-actions .g4-title-claim{min-height:44px}
 }
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
@@ -3148,5 +3620,10 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
   position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
+}
+.lesson-root.g4-dars04-root .hook-stack .lead{font-size:14px!important;line-height:1.35!important}
+.lesson-root.g4-dars04-root .strategy-stack .strategy-note>span{font-size:14px;line-height:1.35}
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root.g4-dars04-root .strategy-stack .strategy-note>span{font-size:12px}
 }
 `;

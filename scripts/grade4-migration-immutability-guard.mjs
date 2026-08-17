@@ -8,9 +8,9 @@ import process from 'node:process';
 const ROOT = process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src', 'components', 'grade4');
 const DARS01_PATH = path.join(GRADE4_DIR, 'Dars01.jsx');
-// Rebaselined to the user-owned Dars01.jsx working-tree version present before
-// the D22-D30 practice migration. The migration does not edit the theory file.
-const DARS01_BASELINE_SHA256 = '8153117aa65389ce62375fb2ffa60c020b9e94198605d99ad4fcdff320eb6f16';
+// Rebaselined after the approved Grade 4 theory answer-lock correction. The
+// migration guard continues to protect this reviewed Dars01.jsx version.
+const DARS01_BASELINE_SHA256 = '758c2075df9568ca63081b0dc99417e9745c7632dc02dcb346ae37344b5c5550';
 const PRACTICE_BASELINE_SHA256 = {
   'Dars01Practice.jsx': '8a25d45799e0212217385c33832b1d849c2dd4ae1e751fd5ca9e9bc8760f1afd',
   'Dars02Practice.jsx': 'a76c3faf495255e857f80786df0f2a88a307cfe0291716417c71c97bee6bbb9f',

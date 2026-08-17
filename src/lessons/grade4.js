@@ -41,7 +41,7 @@ export const grade4Nazariy = [
   {
     slug: 'dars07-pozitsion-va-nopozitsion-sanoq-sistemalari',
     title: 'Dars 7. Pozitsion va nopozitsion sanoq sistemalari',
-    desc: "Rim raqamlarini o'qish va yozish, so'ng pozitsion hamda nopozitsion yozuvlarni dalil bilan farqlash.",
+    desc: "Avval raqam pozitsiyasi va o'nlik pozitsion yozuvni, keyin Rim nopozitsion yozuvini o'rganish hamda ularning farqini dalil bilan tushuntirish.",
     Component: lazy(() => import('../components/grade4/Dars07.jsx')),
   },
   {

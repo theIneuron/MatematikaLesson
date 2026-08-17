@@ -8,6 +8,7 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -92,7 +93,7 @@ const G4_TITLE_STYLES = `
   width: min(680px, calc(100vw - 48px));
   margin: 0;
   font-family: 'Source Serif 4', Georgia, serif;
-  font-size: clamp(34px, 5vw, 58px);
+  font-size: 58px;
   line-height: 1.02;
   text-shadow: 0 4px 24px rgba(0,0,0,.72);
   transform: translateX(-50%);
@@ -116,7 +117,7 @@ const G4_TITLE_STYLES = `
   width: 100%;
   min-height: 116px;
   margin: 0;
-  padding: 12px 82px 11px 67px;
+  padding: 12px 18px 11px 67px;
   border-radius: 17px;
   display: flex;
   flex-direction: column;
@@ -128,8 +129,6 @@ const G4_TITLE_STYLES = `
   box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
   transform: translateY(-2px);
 }
-.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
-.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
 .g4-title-card-medal {
   position: absolute;
   z-index: 2;
@@ -188,14 +187,12 @@ const G4_TITLE_STYLES = `
 @keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
 @keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
 @keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
-@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @media (max-width: 639.98px) {
   .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
   .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
   .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
-  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 12px 8px 51px; border-radius: 14px; }
   .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
-  .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
 .g4-title-claim{width:100%;min-height:96px;padding:12px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
@@ -205,7 +202,6 @@ const G4_TITLE_STYLES = `
   .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
   .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
   .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
-  .g4-title-card-bit { animation: none; }
 }
 `;
 
@@ -243,9 +239,9 @@ function G4TitleReveal({ active, title, lang }) {
 }
 
 function G4TitleCard({ title, lang, firstTry, totalScored }) {
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true">
+  return <div className="g4-title-card-stage" data-g4-role="title-card" data-g4-title-bit="absent" role="status" aria-live="polite" aria-atomic="true">
     <div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
-    <div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div>
+    <div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div>
     <span className="g4-title-card-kicker">{lang === 'en' ? "TITLE EARNED" : lang === 'ru' ? 'ЗВАНИЕ ПОЛУЧЕНО' : 'UNVON OLINDI'}</span><h2>{title}</h2>
     <div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{lang === 'en' ? "on the first attempt" : lang === 'ru' ? 'с первой попытки' : 'birinchi urinishda'}</span></div>
   </div>;
@@ -330,11 +326,6 @@ const CONTENT = {
         "ru": "Оставить всем трём цифрам значение 4",
         "uz": "Uchala raqamga ham 4 qiymatini qoldirish",
         "en": "Assign the value 4 to all three digits",
-      },
-      {
-        "ru": "Сложить три цифры 4",
-        "uz": "Uchta 4 raqamini qo'shish",
-        "en": "Add the three digits 4",
       }
     ],
     "correctIndex": 0,
@@ -349,11 +340,6 @@ const CONTENT = {
         "ru": "Так ошибка Бита сохранится: одинаковая цифра может стоять в разных разрядах. Сначала найди каждое место.",
         "uz": "Bunday qilsangiz Bitning xatosi qoladi, bir xil raqam turli xonalarda turishi mumkin. Avval har bir o'rinni toping.",
         "en": "This keeps Bit's error: the same digit can be in different places. First, find each place.",
-      },
-      {
-        "ru": "Сумма цифр не показывает их вклад в число. Нужно определить разряд каждой цифры.",
-        "uz": "Raqamlar yig'indisi ularning sondagi hissasini ko'rsatmaydi. Har bir raqamning xonasini aniqlash kerak.",
-        "en": "The digit sum does not show each digit's place value. Find the place of each digit.",
       }
     ],
     "audio": {
@@ -382,11 +368,6 @@ const CONTENT = {
           "ru": "Одинаковая цифра может занимать разные разряды. Сначала найди её места.",
           "uz": "Bir xil raqam turli xonalarni egallashi mumkin. Avval uning o'rinlarini toping.",
           "en": "The same digit can occupy different places. First, find its place.",
-        },
-        {
-          "ru": "Складывать цифры не нужно. Проверь место каждой четвёрки.",
-          "uz": "Raqamlarni qo'shish kerak emas. Har bir to'rtning o'rnini tekshiring.",
-          "en": "Do not add the digits. Check the place of each four.",
         }
       ]
     }
@@ -1227,121 +1208,75 @@ const CONTENT = {
   },
   "s5": {
     "eyebrow": {
-      "ru": "Нулевой разряд",
-      "uz": "Nol qiymatli xona",
-      "en": "Zero place.",
+      "ru": "Две роли нуля",
+      "uz": "Nolning ikki vazifasi",
+      "en": "Two roles of zero",
     },
     "title": {
-      "ru": "В сумме ноль можно опустить, в числе — нельзя",
-      "uz": "Yig'indida nolni yozmaslik mumkin, sonda esa mumkin emas",
-      "en": "Omit zero-valued terms; keep zero places",
+      "ru": "Когда ноль можно не писать?",
+      "uz": "Nol qachon yozilmaydi?",
+      "en": "When may zero be omitted?",
     },
     "lead": {
-      "ru": "Ноль играет две разные роли: не меняет сумму и одновременно удерживает место цифр в обычной записи.",
-      "uz": "Nol ikki xil vazifani bajaradi: yig'indini o'zgartirmaydi va odatiy yozuvda raqamlar o'rnini saqlaydi.",
-      "en": "Zero does not change a sum, but it holds a digit's place in standard form.",
+      "ru": "Сравни две записи числа 530 407.",
+      "uz": "530 407 sonining ikki xil yozuvini solishtiring.",
+      "en": "Compare two forms of 530,407.",
     },
     "instruction": {
-      "ru": "Сравни два контраста на числе 530 407.",
-      "uz": "530 407 sonidagi ikki qarama-qarshi holatni solishtiring.",
-      "en": "Compare the two contrasts to the number 530,407.",
+      "ru": "Сравни роль нуля в сумме и в записи числа.",
+      "uz": "Nolning yig'indi va son yozuvidagi vazifasini solishtiring.",
+      "en": "Compare the role of zero in a sum and in a number.",
     },
-    "number": "530 407",
-    "places": [
+    "comparisons": [
       {
+        "tone": "sum",
         "label": {
-          "ru": "сотни тысяч",
-          "uz": "yuz minglar",
-          "en": "hundred thousand",
+          "ru": "Развёрнутая запись",
+          "uz": "Yoyiq yozuv",
+          "en": "Expanded form",
         },
-        "digit": "5"
+        "formula": "400 + 0 + 7 = 407",
+        "status": {
+          "ru": "Слагаемое 0 можно опустить",
+          "uz": "+0 ni yozmaslik mumkin",
+          "en": "The +0 term may be omitted",
+        },
       },
       {
+        "tone": "number",
         "label": {
-          "ru": "десятки тысяч",
-          "uz": "o'n minglar",
-          "en": "ten-thousands",
+          "ru": "Обычная запись",
+          "uz": "Oddiy yozuv",
+          "en": "Standard form",
         },
-        "digit": "3"
-      },
-      {
-        "label": {
-          "ru": "тысячи",
-          "uz": "minglar",
-          "en": "thousand",
+        "formula": "530 407 ≠ 53 407",
+        "status": {
+          "ru": "Без 0 число изменится",
+          "uz": "0 olib tashlansa, son o'zgaradi",
+          "en": "Without 0, the number changes",
         },
-        "digit": "0",
-        "zero": true
-      },
-      {
-        "label": {
-          "ru": "сотни",
-          "uz": "yuzlar",
-          "en": "hundred",
-        },
-        "digit": "4"
-      },
-      {
-        "label": {
-          "ru": "десятки",
-          "uz": "o'nlar",
-          "en": "tens",
-        },
-        "digit": "0",
-        "zero": true
-      },
-      {
-        "label": {
-          "ru": "единицы",
-          "uz": "birlar",
-          "en": "unit",
-        },
-        "digit": "7"
       }
     ],
-    "sumWithZeros": "500 000 + 30 000 + 0 + 400 + 0 + 7",
-    "sumCompact": "500 000 + 30 000 + 400 + 7",
-    "brokenNumber": "53 407",
-    "sumLabel": {
-      "ru": "СУММА НЕ ИЗМЕНИЛАСЬ",
-      "uz": "YIG'INDI O'ZGARMADI",
-      "en": "SUM IS UNCHANGED",
-    },
-    "sumExplanation": {
-      "ru": "Нулевые слагаемые можно убрать: прибавление нуля не меняет результат.",
-      "uz": "Nol qo'shiluvchilarni olib tashlash mumkin, chunki nol qo'shish natijani o'zgartirmaydi.",
-      "en": "Zero-valued terms may be omitted because adding zero does not change the sum.",
-    },
-    "notationLabel": {
-      "ru": "ЧИСЛО ИЗМЕНИЛОСЬ",
-      "uz": "SON O'ZGARDI",
-      "en": "NUMBER CHANGED.",
-    },
-    "notationExplanation": {
-      "ru": "Если убрать ноль тысяч из 530 407, получится 53 407. Все цифры слева займут другие разряды.",
-      "uz": "530 407 sonidan minglar xonasidagi nol olib tashlansa, 53 407 hosil bo'ladi. Chapdagi raqamlar boshqa xonalarni egallaydi.",
-      "en": "Removing the thousands-place zero turns 530,407 into 53,407 and shifts the digits on its left.",
-    },
     "conclusion": {
-      "ru": "Коэффициент нулевого разряда не пишем отдельным слагаемым, но сам разряд в обычной записи обязательно сохраняем нулём.",
-      "uz": "Nol qiymatli xona uchun alohida qo'shiluvchi yozmaymiz, ammo odatiy yozuvda shu xonani nol bilan albatta saqlaymiz.",
-      "en": "Omit a zero-valued term from expanded form, but keep its place with zero in standard form.",
+      "ru": "В сумме +0 можно не писать. Внутри числа 0 сохраняет разряд.",
+      "uz": "Yig'indida +0 ni yozmaslik mumkin. Son ichidagi 0 xonani saqlaydi.",
+      "en": "You may omit +0 from a sum. Inside a number, 0 holds its place.",
     },
     "audio": {
       "ru": [
-        "В числе пятьсот тридцать тысяч четыреста семь пусты разряды тысяч и десятков.",
-        "В развёрнутой сумме нулевые слагаемые можно не писать, потому что прибавление нуля не меняет результат.",
-        "В обычной записи нули удалять нельзя. Без нуля тысяч получится уже пятьдесят три тысячи четыреста семь, то есть другое число."
+        "В развёрнутой записи четыреста плюс ноль плюс семь нулевое слагаемое можно не писать. Значение останется тем же.",
+        "Если из записи числа убрать ноль в разряде тысяч, получится пятьдесят три тысячи четыреста семь. Число изменится.",
+        "Значит, нулевое слагаемое можно не писать, а ноль внутри числа сохраняет разряд."
       ],
       "uz": [
-        "Besh yuz o'ttiz ming to'rt yuz yetti sonida minglar va o'nlar xonalari bo'sh.",
-        "Yoyiq yig'indida nol qo'shiluvchilarni yozmaslik mumkin, chunki nol qo'shish natijani o'zgartirmaydi.",
-        "Odatiy yozuvdagi nollarni olib tashlab bo'lmaydi. Minglar xonasidagi nolsiz ellik uch ming to'rt yuz yetti, ya'ni boshqa son hosil bo'ladi."
+        "Yoyiq yozuvdagi to'rt yuz qo'shuv nol qo'shuv yetti ifodasida nol qo'shiluvchini yozmasak ham, qiymat o'zgarmaydi.",
+        "Son yozuvidan minglar xonasidagi nol olib tashlansa, ellik uch ming to'rt yuz yetti hosil bo'ladi. Son o'zgaradi.",
+        "Demak, nol qo'shiluvchini yozmaslik mumkin, ammo son ichidagi nol xonani saqlaydi."
       ],
       "en": [
-        "In five hundred and thirty thousand four hundred and seven, the thousands and tens places are empty.",
-        "In the expanded sum, terms with a value of zero may be omitted, because adding zero does not change the result.",
-        "In a standard form, you can't delete zeros. Without the zero in the thousands place, you get fifty-three thousand four hundred and seven, which is another number."
+        "In the expanded form four hundred plus zero plus seven, the zero-valued term may be omitted. The value stays the same.",
+        "If the zero in the thousands place is removed, the result is fifty-three thousand four hundred and seven. The number changes.",
+        "So a zero-valued term may be omitted, but a zero inside the number holds its place."
       ],
     }
   },
@@ -1354,9 +1289,9 @@ const CONTENT = {
           "en": "Opening",
         },
         "title": {
-          "ru": "Нулевое слагаемое не пишем, место сохраняем",
-          "uz": "Nol qo'shiluvchini yozmaymiz, o'rnini saqlaymiz",
-          "en": "We don't write zero, we save space.",
+          "ru": "Ноль в сумме и числе",
+          "uz": "Yig'indi va sondagi nol",
+          "en": "Zero in a sum and number",
         },
         "lead": {
           "ru": "Сравни обычную и развёрнутую записи числа 462 305.",
@@ -1364,9 +1299,9 @@ const CONTENT = {
           "en": "Compare the standard and expanded forms of the number 462 305.",
         },
         "instruction": {
-          "ru": "Какой вывод объясняет обе записи?",
-          "uz": "Qaysi xulosa ikkala yozuvni tushuntiradi?",
-          "en": "What conclusion explains both records?",
+          "ru": "Почему в сумме нет 0, а в числе он есть?",
+          "uz": "Nega yig'indida 0 yo'q, sonda esa bor?",
+          "en": "Why is 0 omitted from the sum but kept in the number?",
         },
         "model": {
           "kind": "rows",
@@ -1427,9 +1362,9 @@ const CONTENT = {
         ],
         "correctIndex": 0,
         "correctText": {
-          "ru": "Нулевое разрядное слагаемое не меняет сумму, поэтому его опускают. В записи 462 305 ноль остаётся и удерживает десятки.",
-          "uz": "Nol xona qo'shiluvchisi yig'indini o'zgartirmaydi, shuning uchun yozilmaydi. 462 305 yozuvida nol qolib, o'nlar xonasini saqlaydi.",
-          "en": "The zero-place-value term doesn't change the sum, so it's omitted. In the standard form 462,305, zero remains and holds the tens place.",
+          "ru": "0 не меняет сумму, но сохраняет разряд десятков.",
+          "uz": "0 yig'indini o'zgartirmaydi, ammo o'nlar xonasini saqlaydi.",
+          "en": "0 does not change the sum, but it holds the tens place.",
         },
         "wrong": [
           null,
@@ -1493,9 +1428,9 @@ const CONTENT = {
           "en": "Independently.",
         },
         "title": {
-          "ru": "Собери код без таблицы",
-          "uz": "Kodni jadvalsiz yig'ing",
-          "en": "Collect a code without a table.",
+          "ru": "Собери число",
+          "uz": "Sonni yig'ing",
+          "en": "Build the number",
         },
         "lead": {
           "ru": "Теперь разряды нужно удержать мысленно.",
@@ -1503,9 +1438,9 @@ const CONTENT = {
           "en": "Now the places must be held mentally.",
         },
         "instruction": {
-          "ru": "Введи число: 900 000 + 3 000 + 70.",
-          "uz": "Sonni kiriting: 900 000 + 3 000 + 70.",
-          "en": "Enter the number: 900,000 + 3000 + 70.",
+          "ru": "Собери: 900 000 + 3 000 + 70.",
+          "uz": "Yig'ing: 900 000 + 3 000 + 70.",
+          "en": "Build: 900,000 + 3,000 + 70.",
         },
         "model": {
           "kind": "rows",
@@ -1548,9 +1483,9 @@ const CONTENT = {
         },
         "correctValue": "903070",
         "correctText": {
-          "ru": "Код 903 070 восстановлен. Нули сохранили десятки тысяч, сотни и единицы.",
-          "uz": "903 070 kodi tiklandi. Nollar o'n minglar, yuzlar va birlar xonalarini saqladi.",
-          "en": "Code 903,070 recovered. Zeros saved tens of thousands, hundreds and ones.",
+          "ru": "903 070: нули сохраняют десятки тысяч, сотни и единицы.",
+          "uz": "903 070: nollar o'n minglar, yuzlar va birlar xonalarini saqlaydi.",
+          "en": "903,070: zeros hold the ten-thousands, hundreds and ones places.",
         },
         "wrongText": {
           "ru": "Проверь все шесть мест слева направо. Для отсутствующих значений запиши нули.",
@@ -2429,24 +2364,19 @@ const CONTENT = {
     },
     "options": [
       {
-        "ru": "Разместить значения в разрядной таблице, заполнить пустые места нулями и проверить сложением",
-        "uz": "Qiymatlarni xona jadvaliga joylashtirish, bo'sh o'rinlarni nollar bilan to'ldirish va qo'shib tekshirish",
-        "en": "Place the values in the place-value chart, fill the empty spaces with zeros and check with addition",
+        "ru": "Таблица разрядов, нули, проверка",
+        "uz": "Xona jadvali, nollar, tekshiruv",
+        "en": "Place-value chart, zeros, check",
       },
       {
-        "ru": "Сразу сложить все значения без разрядной таблицы",
-        "uz": "Barcha qiymatlarni xona jadvalisiz darhol qo'shish",
-        "en": "Put all the values together without a place-value chart.",
+        "ru": "Сложение без таблицы",
+        "uz": "Jadvalsiz qo'shish",
+        "en": "Addition without a chart",
       },
       {
-        "ru": "Записать подряд только ненулевые цифры",
-        "uz": "Faqat noldan farqli raqamlarni ketma-ket yozish",
-        "en": "Write down only non-zero numbers in a row",
-      },
-      {
-        "ru": "Посчитать количество карточек",
-        "uz": "Kartalar sonini sanash",
-        "en": "Count the number of cards",
+        "ru": "Только ненулевые цифры",
+        "uz": "Faqat noldan farqli raqamlar",
+        "en": "Only non-zero digits",
       }
     ],
     "correctIndex": 0,
@@ -2466,11 +2396,6 @@ const CONTENT = {
         "ru": "Так получится 6841 и пустые разряды исчезнут. Нули должны удержать их места.",
         "uz": "Bunday usulda 6841 hosil bo'lib, bo'sh xonalar yo'qoladi. Nollar ularning o'rnini saqlashi kerak.",
         "en": "That's 6,841, and the empty places are gone, and the zeros are supposed to hold their places.",
-      },
-      {
-        "ru": "Количество карточек не показывает разряды. Нужно разместить каждое значение по месту.",
-        "uz": "Kartalar soni xonalarni ko'rsatmaydi. Har bir qiymatni o'z o'rniga joylashtirish kerak.",
-        "en": "The number of cards does not show the places. Put each value in its correct place.",
       }
     ],
     "audio": {
@@ -2501,11 +2426,6 @@ const CONTENT = {
           "ru": "Ненулевые цифры без позиций дают другое число.",
           "uz": "Noldan farqli raqamlar xonalarsiz boshqa sonni beradi.",
           "en": "Non-zero numbers without positions give a different number.",
-        },
-        {
-          "ru": "Нужно знать место каждой карточки, а не их количество.",
-          "uz": "Kartalar sonini emas, har birining o'rnini bilish kerak.",
-          "en": "You need to know the place of each card, not the number.",
         }
       ]
     }
@@ -2916,6 +2836,211 @@ const CONTENT = {
   }
 };
 
+// Reviewed local revision package for slides 2, 6 and 15. The original
+// CONTENT entries remain as migration history; active screens use this data.
+const D3_REVISION_CONTENT = {
+  expandedBuilder: {
+    eyebrow: { ru: 'Разрядное разложение', uz: 'Xona qiymatlariga ajratish', en: 'Place-value expansion' },
+    title: { ru: 'От цифры к разрядному слагаемому', uz: "Raqamdan xona qo'shiluvchisiga", en: 'From digit to place-value term' },
+    lead: {
+      ru: 'Сначала голос разберёт шесть цифр, затем ты соберёшь развёрнутую запись нового числа.',
+      uz: "Avval ovoz oltita raqamni tahlil qiladi, keyin yangi sonning yoyiq yozuvini o'zingiz tuzasiz.",
+      en: 'First, the narration explores six digits. Then build the expanded form of a new number.',
+    },
+    guidedNumber: '305 678',
+    guidedDigits: ['3', '0', '5', '6', '7', '8'],
+    placeLabels: [
+      { ru: 'сотни тысяч', uz: 'yuz minglar', en: 'hundred-thousands' },
+      { ru: 'десятки тысяч', uz: "o'n minglar", en: 'ten-thousands' },
+      { ru: 'тысячи', uz: 'minglar', en: 'thousands' },
+      { ru: 'сотни', uz: 'yuzlar', en: 'hundreds' },
+      { ru: 'десятки', uz: "o'nlar", en: 'tens' },
+      { ru: 'единицы', uz: 'birlar', en: 'ones' },
+    ],
+    placeValues: ['300 000', '0', '5 000', '600', '70', '8'],
+    guidedCaptions: [
+      { ru: 'Следи за цифрой, которая звучит сейчас.', uz: "Hozir aytilayotgan raqamni kuzating.", en: 'Follow the digit being described now.' },
+      { ru: '3 стоит в разряде сотен тысяч и даёт 300 000.', uz: '3 yuz minglar xonasida turib, 300 000 ni beradi.', en: '3 is in the hundred-thousands place and gives 300,000.' },
+      { ru: '0 сохраняет место десятков тысяч и добавляет 0.', uz: "0 o'n minglar xonasini saqlab, 0 ni qo'shadi.", en: '0 holds the ten-thousands place and adds 0.' },
+      { ru: '5 стоит в разряде тысяч и даёт 5 000.', uz: '5 minglar xonasida turib, 5 000 ni beradi.', en: '5 is in the thousands place and gives 5,000.' },
+      { ru: '6 стоит в разряде сотен и даёт 600.', uz: '6 yuzlar xonasida turib, 600 ni beradi.', en: '6 is in the hundreds place and gives 600.' },
+      { ru: '7 стоит в разряде десятков и даёт 70.', uz: "7 o'nlar xonasida turib, 70 ni beradi.", en: '7 is in the tens place and gives 70.' },
+      { ru: '8 стоит в разряде единиц и даёт 8. Здесь ноль записан, чтобы показать все разряды. В развёрнутой записи его затем можно опустить.', uz: "8 birlar xonasida turib, 8 ni beradi. Bu yerda barcha xonalarni ko'rsatish uchun nol ham yozildi. Yoyiq yozuvda uni keyin tashlab ketish mumkin.", en: '8 is in the ones place and gives 8. Zero is shown here to display every place. It may then be omitted from the expanded form.' },
+    ],
+    builderNumber: '123 456',
+    targetTerms: ['100 000', '20 000', '3 000', '400', '50', '6'],
+    trayTerms: ['400', '100 000', '6', '3 000', '50', '20 000'],
+    prompt: {
+      ru: 'Расположи разрядные слагаемые числа 123 456 по порядку слева направо.',
+      uz: "123 456 sonining xona qo'shiluvchilarini chapdan o'ngga tartib bilan joylashtiring.",
+      en: 'Arrange the place-value terms of 123 456 in order from left to right.',
+    },
+    doneText: {
+      ru: 'Развёрнутая запись собрана точно: каждый разряд стоит на своём месте.',
+      uz: "Yoyiq yozuv aniq tuzildi. Har bir xona qo'shiluvchisi o'z o'rnida.",
+      en: 'The expanded form is correct. Every place-value term is in its proper position.',
+    },
+    hint: {
+      ru: 'Порядок нарушен. Начни с сотен тысяч и двигайся к единицам.',
+      uz: "Tartib buzildi. Yuz minglar xonasidan boshlab birlar xonasigacha qayta joylashtiring.",
+      en: 'The order is not correct. Start with the hundred-thousands place and move towards the ones place.',
+    },
+    audio: {
+      guided: {
+        ru: [
+          'Разложим число триста пять тысяч шестьсот семьдесят восемь по разрядам. Слушай, где стоит каждая цифра.',
+          'Цифра три стоит в разряде сотен тысяч. Её разрядное значение триста тысяч.',
+          'Цифра ноль стоит в разряде десятков тысяч. Её разрядное значение равно нулю.',
+          'Цифра пять стоит в разряде тысяч. Её разрядное значение пять тысяч.',
+          'Цифра шесть стоит в разряде сотен. Её разрядное значение шестьсот.',
+          'Цифра семь стоит в разряде десятков. Её разрядное значение семьдесят.',
+          'Цифра восемь стоит в разряде единиц. Её разрядное значение восемь. Здесь ноль записан, чтобы показать все разряды. В развёрнутой записи его затем можно опустить.',
+        ],
+        uz: [
+          "Uch yuz besh ming olti yuz yetmish sakkiz sonini xona qiymatlariga ajratamiz. Har bir raqam qaysi xonada turganini tinglang.",
+          'Uch raqami yuz minglar xonasida turibdi. Uning xona qiymati uch yuz ming.',
+          "Nol raqami o'n minglar xonasida turibdi. Uning xona qiymati nol.",
+          'Besh raqami minglar xonasida turibdi. Uning xona qiymati besh ming.',
+          'Olti raqami yuzlar xonasida turibdi. Uning xona qiymati olti yuz.',
+          "Yetti raqami o'nlar xonasida turibdi. Uning xona qiymati yetmish.",
+          "Sakkiz raqami birlar xonasida turibdi. Uning xona qiymati sakkiz. Bu yerda barcha xonalarni ko'rsatish uchun nol ham yozildi. Yoyiq yozuvda uni keyin tashlab ketish mumkin.",
+        ],
+        en: [
+          'Decompose the number three hundred and five thousand six hundred and seventy-eight by place value. Listen for the place of each digit.',
+          'The digit three is in the hundred-thousands place. Its place value is three hundred thousand.',
+          'The digit zero is in the ten-thousands place. Its place value is zero.',
+          'The digit five is in the thousands place. Its place value is five thousand.',
+          'The digit six is in the hundreds place. Its place value is six hundred.',
+          'The digit seven is in the tens place. Its place value is seventy.',
+          'The digit eight is in the ones place. Its place value is eight. Zero is shown here to display every place. It may then be omitted from the expanded form.',
+        ],
+      },
+      builder: {
+        ru: ['Теперь дано другое число: сто двадцать три тысячи четыреста пятьдесят шесть. Расположи шесть разрядных слагаемых по порядку.'],
+        uz: ["Endi boshqa son berildi: bir yuz yigirma uch ming to'rt yuz ellik olti. Oltita xona qo'shiluvchisini tartib bilan joylashtiring."],
+        en: ['Now use a different number: one hundred and twenty-three thousand four hundred and fifty-six. Arrange its six place-value terms in order.'],
+      },
+      on_correct: {
+        ru: 'Верно. Разрядные слагаемые расположены от сотен тысяч до единиц.',
+        uz: "To'g'ri. Xona qo'shiluvchilari yuz minglardan birlargacha tartib bilan joylashtirildi.",
+        en: 'Correct. The place-value terms run from hundred-thousands to ones.',
+      },
+      on_wrong: {
+        ru: 'Порядок нарушен. Начни с самого старшего разряда и двигайся вправо.',
+        uz: "Tartib buzildi. Eng yuqori xonadan boshlab o'ngga qarab joylashtiring.",
+        en: 'The order is not correct. Start with the highest place and move to the right.',
+      },
+    },
+  },
+  repeatedDigits: {
+    eyebrow: { ru: 'Одинаковые цифры', uz: 'Bir xil raqamlar', en: 'Repeated digits' },
+    title: { ru: 'Одна цифра, разные места', uz: 'Bitta raqam, turli xonalar', en: 'One digit, different places' },
+    lead: {
+      ru: 'Сначала исследуй три четвёрки по очереди, затем самостоятельно найди значения трёх троек.',
+      uz: "Avval uchta to'rt raqamini ketma-ket tekshiring, keyin uchta uch raqamining xona qiymatlarini mustaqil toping.",
+      en: 'First, explore three fours in order. Then identify the values of three threes independently.',
+    },
+    stepOne: {
+      number: '404 204',
+      digits: ['4', '0', '4', '2', '0', '4'],
+      targetIndices: [0, 2, 5],
+      values: ['400 000', '4 000', '4'],
+      places: [
+        { ru: 'сотни тысяч', uz: 'yuz minglar', en: 'hundred-thousands' },
+        { ru: 'тысячи', uz: 'minglar', en: 'thousands' },
+        { ru: 'единицы', uz: 'birlar', en: 'ones' },
+      ],
+      prompt: {
+        ru: 'Нажмите каждую цифру 4 и узнайте, в каком разряде она стоит.',
+        uz: "Har bir 4 raqamini bosib, qaysi xonada turganini bilib oling.",
+        en: 'Select each digit 4 to discover its place.',
+      },
+    },
+    stepTwo: {
+      number: '303 536',
+      options: ['300 000', '30 000', '3 000', '300', '30', '3'],
+      correctValues: ['300 000', '3 000', '30'],
+      prompt: {
+        ru: 'Отметь внизу разрядное значение каждой цифры 3.',
+        uz: 'Har bir 3 raqamining xona qiymatini pastdan belgilang.',
+        en: 'Select the place value of each digit 3 below.',
+      },
+    },
+    correctText: {
+      ru: 'Все три значения выбраны верно: 300 000, 3 000 и 30.',
+      uz: "Uchala qiymat ham to'g'ri tanlandi: 300 000, 3 000 va 30.",
+      en: 'All three values are correct: 300,000, 3,000 and 30.',
+    },
+    wrongText: {
+      ru: 'Хотя бы одно значение выбрано неверно. Все отметки сброшены, начни заново.',
+      uz: "Kamida bitta qiymat noto'g'ri tanlandi. Barcha belgilar bekor qilindi, qayta boshidan belgilang.",
+      en: 'At least one value is incorrect. All selections have been cleared, so start again.',
+    },
+    audio: {
+      intro: {
+        ru: 'Давай определим разряд каждой цифры четыре в этом числе. Нажми каждую четвёрку и узнай, где она стоит.',
+        uz: "Keling, bu sondagi har bir to'rt raqami qaysi xonada turganini aniqlaymiz. Har bir to'rt raqamini bosib, uning xonasini bilib oling.",
+        en: 'Let us identify the place of each digit four in this number. Select each four to discover its place.',
+      },
+      digitExplanations: [
+        {
+          ru: 'Левая цифра четыре стоит в разряде сотен тысяч и означает четыреста тысяч.',
+          uz: "Chapdagi to'rt raqami yuz minglar xonasida turib, to'rt yuz mingni bildiradi.",
+          en: 'The left digit four is in the hundred-thousands place and represents four hundred thousand.',
+        },
+        {
+          ru: 'Средняя цифра четыре стоит в разряде тысяч и означает четыре тысячи.',
+          uz: "O'rtadagi to'rt raqami minglar xonasida turib, to'rt mingni bildiradi.",
+          en: 'The middle digit four is in the thousands place and represents four thousand.',
+        },
+        {
+          ru: 'Правая цифра четыре стоит в разряде единиц и означает четыре.',
+          uz: "O'ngdagi to'rt raqami birlar xonasida turib, to'rtni bildiradi.",
+          en: 'The right digit four is in the ones place and represents four.',
+        },
+      ],
+      stepTwoIntro: {
+        ru: 'Теперь число триста три тысячи пятьсот тридцать шесть. Отметь разрядное значение каждой цифры три.',
+        uz: "Endi uch yuz uch ming besh yuz o'ttiz olti soni berildi. Har bir uch raqamining xona qiymatini belgilang.",
+        en: 'Now use the number three hundred and three thousand five hundred and thirty-six. Select the place value of each digit three.',
+      },
+      on_correct: {
+        ru: 'Верно. Три цифры три означают триста тысяч, три тысячи и тридцать.',
+        uz: "To'g'ri. Uchta uch raqami uch yuz ming, uch ming va o'ttizni bildiradi.",
+        en: 'Correct. The three digits represent three hundred thousand, three thousand and thirty.',
+      },
+      on_wrong: {
+        ru: 'Есть неверное значение. Все отметки сброшены. Начни выбор заново.',
+        uz: "Noto'g'ri qiymat bor. Barcha belgilar bekor qilindi. Tanlashni qayta boshlang.",
+        en: 'One value is incorrect. All selections have been cleared. Start again.',
+      },
+    },
+  },
+  finaleAudio: {
+    ru: [
+      'Сначала находим нужную цифру в записи числа.',
+      'Затем называем её разряд. Место цифры определяет её разрядное значение.',
+      'После этого записываем разрядное значение цифры.',
+      'Полная цепочка связывает цифру, разряд и значение. Она помогает разложить число и собрать его обратно.',
+      'На следующем уроке разрядные значения помогут сравнивать многозначные числа.',
+    ],
+    uz: [
+      'Avval son yozuvidan kerakli raqamni topamiz.',
+      "Keyin uning xonasini aytamiz. Raqamning o'rni uning xona qiymatini belgilaydi.",
+      'Shundan keyin raqamning xona qiymatini yozamiz.',
+      "To'liq ketma-ketlik raqam, xona va qiymatni bog'laydi. Shu usul sonni yoyish va qayta tiklashga yordam beradi.",
+      "Keyingi darsda xona qiymatlari ko'p xonali sonlarni taqqoslashga yordam beradi.",
+    ],
+    en: [
+      'First, find the required digit in the number.',
+      "Then name its place. A digit's position determines its place value.",
+      'Next, write the place value of the digit.',
+      'The complete chain links digit, place and value. It helps to expand a number and build it again.',
+      'In the next lesson, place values will help to compare multi-digit numbers.',
+    ],
+  },
+};
+
 // Connected ideas are grouped into deep screens; the lesson does not use
 // one slide per tiny fact.
 const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content }) => ({
@@ -2925,7 +3050,7 @@ const makeMicroPractice = ({ audioIntro, correctAudio, wrongAudio, ...content })
 
 const PRACTICE_CONTENT = {
   p1: makeMicroPractice({ eyebrow: { ru: 'Практика 1', uz: '1-mashq', en: "Practice 1" }, title: { ru: 'Цифра и её место', uz: 'Raqam va uning o\'rni', en: "The digit and its place" }, lead: { ru: 'Одна цифра получает значение от своего разряда.', uz: 'Bitta raqam qiymatni o\'z xonasidan oladi.', en: "One digit gets its value from its place." }, instruction: { ru: 'Каково значение цифры 4 в числе 347 205?', uz: '347 205 sonidagi 4 raqamining qiymati qancha?', en: "What is the value of the digit 4 in 347 205?" }, options: ['40 000', '4 000', '400 000'], correctIndex: 0, correctText: { ru: 'Цифра 4 стоит в разряде десятков тысяч, поэтому её значение 40 000.', uz: '4 raqami o\'n mingliklar xonasida, shuning uchun uning qiymati 40 000.', en: "The digit 4 is in the ten-thousands place, so its value is 40,000." }, wrong: [null, { ru: '4 000 получилось бы в разряде тысяч.', uz: '4 000 mingliklar xonasida hosil bo\'lardi.', en: "4,000 would be the value of a digit in the thousands place." }, { ru: '400 000 получилось бы в разряде сотен тысяч.', uz: '400 000 yuz mingliklar xonasida hosil bo\'lardi.', en: "400,000 would be the value of a digit in the hundred-thousands place." }], audioIntro: { ru: 'Найди значение цифры четыре в числе триста сорок семь тысяч двести пять.', uz: 'Uch yuz qirq yetti ming ikki yuz besh sonidagi to\'rt raqamining qiymatini toping.', en: "Find the value of the digit four in the number three hundred and forty-seven thousand two hundred and five." }, correctAudio: { ru: 'Верно. Четыре десятка тысяч дают сорок тысяч.', uz: 'To\'g\'ri. To\'rtta o\'n minglik qirq mingni beradi.', en: "That's right. Four tens of thousands make forty thousand." }, wrongAudio: { ru: 'Назови разряд цифры четыре и умножь цифру на значение разряда.', uz: 'To\'rt raqamining xonasini ayting va raqamni xona qiymatiga ko\'paytiring.', en: "Name the place of the digit four, then multiply the digit by the value of that place." } }),
-  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq', en: "Practice 2" }, title: { ru: 'Шаг влево', uz: 'Chapga bir qadam', en: "Step left" }, lead: { ru: 'Каждый шаг влево увеличивает значение цифры в десять раз.', uz: 'Chapga har bir qadam raqam qiymatini o\'n marta oshiradi.', en: "Each step to the left makes the value of the digit ten times greater." }, instruction: { ru: 'Что произойдёт со значением цифры 6 при сдвиге на один разряд влево?', uz: '6 raqami bir xona chapga siljisa, uning qiymati nima bo\'ladi?', en: "What happens to the value of the digit 6 when it moves one place to the left?" }, options: [{ ru: 'увеличится в 10 раз', uz: '10 marta ortadi', en: "will increase tenfold" }, { ru: 'увеличится на 1', uz: '1 ga ortadi', en: "increase by 1" }, { ru: 'не изменится', uz: 'o\'zgarmaydi', en: "will not change" }], correctIndex: 0, correctText: { ru: 'Соседний разряд слева имеет в десять раз большее значение.', uz: 'Chapdagi qo\'shni xona o\'n marta katta qiymatga ega.', en: "The neighbouring place on the left has ten times the value." }, wrong: [null, { ru: 'Меняется не сама цифра, а её разрядное значение.', uz: 'Raqamning o\'zi emas, uning xona qiymati o\'zgaradi.', en: "The digit itself does not change; its place value does." }, { ru: 'Положение изменилось, поэтому значение тоже изменится.', uz: 'O\'rni o\'zgardi, demak qiymati ham o\'zgaradi.', en: "The position has changed, so the value changes too." }], audioIntro: { ru: 'Представь цифру шесть. Что происходит с её значением после одного шага влево?', uz: 'Olti raqamini tasavvur qiling. U bir qadam chapga siljiganda qiymati nima bo\'ladi?', en: "Imagine the digit six. What happens to its value after one step to the left?" }, correctAudio: { ru: 'Верно. Один шаг влево увеличивает значение в десять раз.', uz: 'To\'g\'ri. Chapga bir qadam qiymatni o\'n marta oshiradi.', en: "Right. One step to the left increases the value tenfold." }, wrongAudio: { ru: 'Вспомни лестницу разрядов. Соседний разряд слева в десять раз крупнее.', uz: 'Xonalar zinapoyasini eslang. Chapdagi qo\'shni xona o\'n marta katta.', en: "Think of the place-value ladder. The next place on the left is ten times bigger." } }),
+  p2: makeMicroPractice({ eyebrow: { ru: 'Практика 2', uz: '2-mashq', en: "Practice 2" }, title: { ru: 'Шаг влево', uz: 'Chapga bir qadam', en: "Step left" }, lead: { ru: 'Каждый шаг влево увеличивает значение цифры в десять раз.', uz: 'Chapga har bir qadam raqam qiymatini o\'n marta oshiradi.', en: "Each step to the left makes the value of the digit ten times greater." }, instruction: { ru: 'Что произойдёт со значением цифры 6 при сдвиге на один разряд влево?', uz: '6 raqami joylashgan xonasidan bir xona chapga siljisa, uning qiymati nima o\'zgaradi?', en: "What happens to the value of the digit 6 when it moves one place to the left?" }, options: [{ ru: 'увеличится в 10 раз', uz: '10 marta ortadi', en: "will increase tenfold" }, { ru: 'увеличится на 1', uz: '1 ga ortadi', en: "increase by 1" }, { ru: 'не изменится', uz: 'o\'zgarmaydi', en: "will not change" }], correctIndex: 0, correctText: { ru: 'Соседний разряд слева имеет в десять раз большее значение.', uz: 'Chapdagi qo\'shni xona o\'n marta katta qiymatga ega.', en: "The neighbouring place on the left has ten times the value." }, wrong: [null, { ru: 'Меняется не сама цифра, а её разрядное значение.', uz: 'Raqamning o\'zi emas, uning xona qiymati o\'zgaradi.', en: "The digit itself does not change; its place value does." }, { ru: 'Положение изменилось, поэтому значение тоже изменится.', uz: 'O\'rni o\'zgardi, demak qiymati ham o\'zgaradi.', en: "The position has changed, so the value changes too." }], audioIntro: { ru: 'Представь цифру шесть. Что происходит с её значением после одного шага влево?', uz: 'Olti raqamini tasavvur qiling. U bir qadam chapga siljiganda qiymati nima bo\'ladi?', en: "Imagine the digit six. What happens to its value after one step to the left?" }, correctAudio: { ru: 'Верно. Один шаг влево увеличивает значение в десять раз.', uz: 'To\'g\'ri. Chapga bir qadam qiymatni o\'n marta oshiradi.', en: "Right. One step to the left increases the value tenfold." }, wrongAudio: { ru: 'Вспомни лестницу разрядов. Соседний разряд слева в десять раз крупнее.', uz: 'Xonalar zinapoyasini eslang. Chapdagi qo\'shni xona o\'n marta katta.', en: "Think of the place-value ladder. The next place on the left is ten times bigger." } }),
   p3: makeMicroPractice({ eyebrow: { ru: 'Практика 3', uz: '3-mashq', en: "Practice 3" }, title: { ru: 'Развёрнутая запись', uz: 'Yoyiq yozuv', en: "Expanded form" }, lead: { ru: 'Нулевые разряды можно не писать как слагаемые.', uz: 'Nol qiymatli xonalarni qo\'shiluvchi sifatida yozmaslik mumkin.', en: "Places with a value of zero can be omitted as terms." }, instruction: { ru: 'Какая развёрнутая запись соответствует числу 504 030?', uz: '504 030 soniga qaysi yoyiq yozuv mos keladi?', en: "Which expanded form represents 504,030?" }, options: ['500 000 + 4 000 + 30', '500 000 + 40 000 + 30', '500 000 + 4 000 + 300'], correctIndex: 0, correctText: { ru: 'Цифра 4 означает 4 000, а цифра 3 означает 30.', uz: '4 raqami 4 000 ni, 3 raqami esa 30 ni bildiradi.', en: "4 stands for 4,000 and 3 stands for 30." }, wrong: [null, { ru: 'Цифра 4 находится в тысячах, а не в десятках тысяч.', uz: '4 raqami o\'n mingliklarda emas, mingliklarda turibdi.', en: "The digit 4 is in the thousands place, not the ten-thousands place." }, { ru: 'Цифра 3 находится в десятках, а не в сотнях.', uz: '3 raqami yuzliklarda emas, o\'nliklarda turibdi.', en: "The digit 3 is in the tens place, not the hundreds place." }], audioIntro: { ru: 'Выбери развёрнутую запись числа пятьсот четыре тысячи тридцать.', uz: 'Besh yuz to\'rt ming o\'ttiz sonining yoyiq yozuvini tanlang.', en: "Select the expanded form of the number five hundred and four thousand thirty." }, correctAudio: { ru: 'Верно. Пятьсот тысяч, четыре тысячи и три десятка дают исходное число.', uz: 'To\'g\'ri. Besh yuz ming, to\'rt ming va uch o\'nlik boshlang\'ich sonni beradi.', en: "Right. Five hundred thousand, four thousand and three tens give the original number." }, wrongAudio: { ru: 'Проверь место каждой ненулевой цифры.', uz: 'Har bir noldan farqli raqamning o\'rnini tekshiring.', en: "Check the location of each non-zero digit." } }),
   p4: makeMicroPractice({ eyebrow: { ru: 'Практика 4', uz: '4-mashq', en: "Practice 4" }, title: { ru: 'Возвращаем нули', uz: 'Nollarni qaytaramiz', en: "Return the zeros." }, lead: { ru: 'Пустые разряды остаются в обычной записи числа.', uz: 'Bo\'sh xonalar sonning oddiy yozuvida saqlanadi.', en: "Empty places remain in the standard form." }, instruction: { ru: 'Какое число составлено из 300 000 + 7 000 + 5?', uz: '300 000 + 7 000 + 5 dan qaysi son tuziladi?', en: "What number is made up of 300,000 + 7000 + 5?" }, options: ['307 005', '370 005', '307 500'], correctIndex: 0, correctText: { ru: 'Нули сохранили пустые десятки тысяч, сотни и десятки.', uz: 'Nollar bo\'sh o\'n mingliklar, yuzliklar va o\'nliklarni saqladi.', en: "The zeros have kept empty tens of thousands, hundreds and tens." }, wrong: [null, { ru: 'Цифра 7 сдвинулась из тысяч в десятки тысяч.', uz: '7 raqami mingliklardan o\'n mingliklarga siljigan.', en: "The digit 7 has moved from thousands to tens of thousands." }, { ru: 'Пять единиц сдвинулись в сотни.', uz: 'Besh birlik yuzliklarga siljigan.', en: "Five units have moved into the hundreds." }], audioIntro: { ru: 'Собери число из трёхсот тысяч, семи тысяч и пяти единиц.', uz: 'Uch yuz ming, yetti ming va besh birlikdan son tuzing.', en: "Collect a number of three hundred thousand, seven thousand and five units." }, correctAudio: { ru: 'Верно. Пустые разряды записаны нулями.', uz: 'To\'g\'ri. Bo\'sh xonalar nollar bilan yozildi.', en: "Empty places are written in zeros." }, wrongAudio: { ru: 'Расставь слагаемые по разрядам и заполни пустые места нулями.', uz: 'Qo\'shiluvchilarni xonalarga joylang va bo\'sh o\'rinlarni nollar bilan to\'ldiring.', en: "Set them up and fill the empty spaces with zeros." } }),
   p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq', en: "Practice 5" }, title: { ru: 'Ноль как держатель места', uz: 'Nol o\'rin saqlaydi', en: "Zero as a placeholder" }, lead: { ru: 'В обычной записи внутренний ноль нельзя удалять.', uz: 'Oddiy yozuvda ichki nolni olib tashlab bo\'lmaydi.', en: "In a standard form, the inner zero cannot be deleted." }, instruction: { ru: 'Какая запись сохраняет все разряды числа четыреста двадцать тысяч шесть?', uz: 'To\'rt yuz yigirma ming olti sonining barcha xonalarini qaysi yozuv saqlaydi?', en: "Which notation preserves every place in the number four hundred and twenty thousand six?" }, options: ['420 006', '420 06', '42 006'], correctIndex: 0, correctText: { ru: 'Правый класс занимает три места: 006.', uz: 'O\'ng sinf uchta o\'rinni egallaydi: 006.', en: "The right-hand group occupies three places: 006." }, wrong: [null, { ru: 'В правой группе должно быть три цифры.', uz: 'O\'ng guruhda uchta raqam bo\'lishi kerak.', en: "The right group should have three digits." }, { ru: 'Потерян ноль в классе тысяч, поэтому число стало другим.', uz: 'Minglar sinfidagi nol yo\'qolgan, shuning uchun son o\'zgargan.', en: "A zero was lost from the thousands group, so the number changed." }], audioIntro: { ru: 'Выбери запись числа четыреста двадцать тысяч шесть. Сохрани три места в правом классе.', uz: 'To\'rt yuz yigirma ming olti sonining yozuvini tanlang. O\'ng sinfdagi uchta o\'rinni saqlang.', en: "Choose the notation for four hundred and twenty thousand six. Keep all three places in the group on the right." }, correctAudio: { ru: 'Верно. Два нуля сохраняют сотни и десятки правого класса.', uz: 'To\'g\'ri. Ikki nol o\'ng sinfdagi yuzlar va o\'nlar xonasini saqlaydi.', en: "That's right. Two zeros hold the hundreds and tens places in the right-hand group." }, wrongAudio: { ru: 'Проверь, что каждый класс справа содержит три цифры.', uz: 'O\'ngdagi har bir sinf uchta raqamdan iboratligini tekshiring.', en: "Check that every group to the right of the leftmost group contains three digits." } }),
@@ -2934,11 +3059,11 @@ const PRACTICE_CONTENT = {
 
 const SCREEN_PLAN = [
   { id: 's0', type: 'hook', subtype: 'story-decision', template: 'StoryChoice', goal: 'Choose how to investigate Bit\'s equal-digit error', misconceptions: ['equal digits always have equal values', 'digit sum gives place value'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'position-foundation', template: 'ModelTabs', goal: 'Connect a digit with its place through two guided models', misconceptions: ['digit equals value'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's1', type: 'exploration', subtype: 'expanded-value-builder', template: 'ExpandedValueBuilder', goal: 'Hear each digit place, then order six place-value terms', misconceptions: ['digit equals value', 'place-value terms in the wrong order'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's2', contentKey: 'p1', type: 'test', subtype: 'digit-place-check', template: 'MCScreen', goal: 'Find a digit value', misconceptions: ['wrong place'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
   { id: 's3', contentKey: 's2', type: 'exploration', subtype: 'tenfold-shift', template: 'PlaceValueLadder', goal: 'Explain the tenfold place ladder with two contrasted cases', misconceptions: ['left shift adds one'], active: false, scored: false, scope: null, resetOnReturn: true },
   { id: 's4', contentKey: 'p2', type: 'test', subtype: 'tenfold-check', template: 'MCScreen', goal: 'Apply a one-place shift', misconceptions: ['value unchanged'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
-  { id: 's5', contentKey: 's3', type: 'exploration', subtype: 'equal-digits-different-values', template: 'ModelTabs', goal: 'Compare equal digits in different places', misconceptions: ['equal digits always have equal values'], active: true, scored: false, scope: null, resetOnReturn: true },
+  { id: 's5', contentKey: 's3', type: 'exploration', subtype: 'repeated-digit-tap-select', template: 'RepeatedDigitPlaceFlow', goal: 'Reveal repeated digit places, then select all matching place values', misconceptions: ['equal digits always have equal values'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's6', contentKey: 'p3', type: 'test', subtype: 'expanded-form-check', template: 'MCScreen', goal: 'Choose an expanded form', misconceptions: ['place shifted'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
   { id: 's7', contentKey: 's4', type: 'exploration', subtype: 'expanded-form', template: 'ModelTabs', goal: 'Build expanded form from digit values', misconceptions: ['digit used instead of value'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's8', type: 'practice', subtype: 'number-reconstruction-input', template: 'NumInputScreen', goal: 'Reconstruct a six-place number from place values', misconceptions: ['empty places omitted', 'place shift'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
@@ -2947,7 +3072,7 @@ const SCREEN_PLAN = [
   { id: 's11', type: 'practice', subtype: 'strategy-choice', template: 'StrategyChoice', goal: 'Choose a dependable place-value strategy', misconceptions: ['digit-count check'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
   { id: 's12', type: 'practice', subtype: 'error-repair', template: 'ErrorRepairChoice', goal: 'Repair a tenfold place-value error', misconceptions: ['thousands as ten-thousands'], active: true, scored: true, scope: 'module-mikro', resetOnReturn: false },
   { id: 's13', type: 'test', subtype: 'life-transfer', template: 'TransferChoice', goal: 'Transfer place-value reasoning to a new city code', misconceptions: ['wrong place', 'internal zero removed'], active: true, scored: true, scope: 'final', resetOnReturn: false },
-  { id: 's14', type: 'summary', subtype: 'reflection-and-title', template: 'ReflectionClaim', goal: 'Reflect on the place-value strategy and claim the title', misconceptions: ['digit sum replaces place value'], active: true, scored: false, scope: null, resetOnReturn: false },
+  { id: 's14', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', goal: 'Summarize the place-value strategy and claim the title', misconceptions: ['digit sum replaces place value'], active: true, scored: false, scope: null, resetOnReturn: false },
 ];
 
 const SCREEN_META = SCREEN_PLAN.map((meta) => ({ ...meta, contentKey: meta.contentKey ?? meta.id }));
@@ -2964,6 +3089,8 @@ const LESSON_META = {
     en: 'Lesson 3: Place-value composition of a multi-digit number',
   },
   skillTags: ['digit_place_value', 'place_table', 'expanded_form', 'number_reconstruction', 'internal_zero'],
+  // Methodist-approved Dars03 exception: slide 15 has no reflection choice frame.
+  finalReflectionRequired: false,
   notionFlow: NOTION_FLOW,
 };
 
@@ -3257,6 +3384,10 @@ function useAudio(segments) {
     engine.setLang(lang);
     engine.onStateChange = (next) => setState((previous) => ({ ...previous, ...next }));
     engine.loadQueue(stableSegments);
+    engine.emit({
+      completed: engine.muted || !stableSegments?.length,
+      currentSegment: null,
+    });
     if (stableSegments?.length && !engine.muted) {
       const timer = window.setTimeout(() => engine.start(), 250);
       return () => {
@@ -3265,7 +3396,6 @@ function useAudio(segments) {
         engine.onStateChange = null;
       };
     }
-    engine.emit({ completed: true, currentSegment: null });
     return () => {
       engine.stop(false);
       engine.onStateChange = null;
@@ -3314,10 +3444,20 @@ const playSfx = (kind) => {
   }
 };
 
-const buildOptionOrder = (length, correctIndex, seed = 0) => {
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
   const natural = Array.from({ length }, (_, index) => index);
   if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = Math.abs(seed * 3 + 1) % length;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
   const order = natural.filter((index) => index !== correctIndex);
   order.splice(target, 0, correctIndex);
   return order;
@@ -3542,7 +3682,7 @@ const Stage = ({ screen, eyebrow, audio, children, nav }) => {
   const meta = SCREEN_META[screen];
 
   return (
-    <main className={`stage stage-${meta.type}`}>
+    <main className={`stage stage-${meta.type}`} data-g4-screen-id={meta.id}>
       <header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}>
         <div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}>
           <div className="progress-fill progress-bar" style={{ width: `${((screen + 1) / TOTAL_SCREENS) * 100}%` }} />
@@ -3619,8 +3759,9 @@ const NavBack = ({ onClick, hidden = false }) => {
 
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} disabled={isDisabled} aria-disabled={isDisabled} onClick={onClick}>
       {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -3680,20 +3821,476 @@ const DEEP_SCREEN_COPY = {
   zeros: {
     title: { ru: 'Ноль исчезает из суммы, но не из записи', uz: "Nol yig'indida ko'rinmaydi, yozuvda esa qoladi", en: "Zero disappears from the sum, but not from the standard form." },
     lead: {
-      ru: 'Сопоставим развёрнутую и обычную формы: пустое слагаемое не пишем, пустой разряд обязательно сохраняем.',
-      uz: "Yoyiq va oddiy shakllarni solishtiramiz: bo'sh qo'shiluvchini yozmaymiz, bo'sh xonani esa albatta saqlaymiz.",
-      en: "Let us compare the expanded and standard forms: we do not write the empty component, we necessarily save the empty place.",
+      ru: 'В сумме ноль опускаем, в записи числа — сохраняем.',
+      uz: "Yig'indida nolni yozmaymiz, son yozuvida esa saqlaymiz.",
+      en: 'Omit zero in the sum; keep it in the number.',
     },
   },
 };
 
-const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => {
+const phaseFromAudio = (audio, prefix, lastPhase) => {
+  if (audio.muted || audio.completed) return lastPhase;
+  const marker = `${prefix}-`;
+  if (!audio.currentSegment?.startsWith(marker)) return 0;
+  const parsed = Number(audio.currentSegment.slice(marker.length));
+  return Number.isInteger(parsed) ? Math.min(lastPhase, parsed) : 0;
+};
+
+const ExpandedFormBuilderScreen = ({ screen, onAnswer, onNext, onPrev }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = D3_REVISION_CONTENT.expandedBuilder;
+  const guidedPrefix = `s${screen}-guided`;
+  const builderPrefix = `s${screen}-builder`;
+  const guidedSegments = useMemo(
+    () => localizedSegments(c.audio.guided, lang, guidedPrefix),
+    [c.audio.guided, guidedPrefix, lang],
+  );
+  const builderSegments = useMemo(
+    () => localizedSegments(c.audio.builder, lang, builderPrefix),
+    [builderPrefix, c.audio.builder, lang],
+  );
+  const segments = useMemo(() => [...guidedSegments, ...builderSegments], [builderSegments, guidedSegments]);
+  const audio = useAudio(segments);
+  const builderPhase = audio.muted
+    || audio.completed
+    || audio.currentSegment?.startsWith(builderPrefix);
+  const narratedPhase = phaseFromAudio(audio, guidedPrefix, c.guidedDigits.length);
+  const [revealedPhase, setRevealedPhase] = useState(() => (builderPhase ? c.guidedDigits.length : 0));
+  useEffect(() => {
+    if (!builderPhase && narratedPhase <= 0) return undefined;
+    const revealTimer = window.setTimeout(() => {
+      setRevealedPhase((previous) => (
+        builderPhase ? c.guidedDigits.length : Math.max(previous, narratedPhase)
+      ));
+    }, 0);
+    return () => window.clearTimeout(revealTimer);
+  }, [builderPhase, c.guidedDigits.length, narratedPhase]);
+  const activeDigit = narratedPhase > 0 ? narratedPhase - 1 : -1;
+  const sourceTerms = useMemo(
+    () => c.trayTerms.map((value, index) => ({ id: `${value}-${index}`, value })),
+    [c.trayTerms],
+  );
+  const [slots, setSlots] = useState(() => Array(c.targetTerms.length).fill(null));
+  const [selectedId, setSelectedId] = useState(null);
+  const [solved, setSolved] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [attempts, setAttempts] = useState(0);
+  const audioReady = useCanAnswer(audio);
+  const canAnswer = builderPhase && audioReady;
+  const canAdvance = solved && (audio.muted || audio.completed);
+  const usedIds = new Set(slots.filter(Boolean).map((slot) => slot.id));
+  const available = sourceTerms.filter((term) => !usedIds.has(term.id));
+
+  const answerPayload = (nextSlots, overrides = {}) => ({
+    stage: null,
+    screenIdx: screen,
+    question: t(c.prompt),
+    options: c.trayTerms,
+    correctIndex: null,
+    correctAnswer: c.targetTerms.join(' + '),
+    studentAnswerIndex: null,
+    studentAnswer: nextSlots.map((slot) => slot?.value ?? '').join(' + '),
+    correct: false,
+    firstTry: false,
+    attempts,
+    skillTag: SCREEN_META[screen].subtype,
+    solved: false,
+    finalSlots: nextSlots,
+    ...overrides,
+  });
+
+  const recordDraft = (nextSlots) => onAnswer(answerPayload(nextSlots));
+
+  const place = (termId, slotIndex) => {
+    if (!canAnswer || solved) return;
+    const term = sourceTerms.find((item) => item.id === termId);
+    if (!term) return;
+    const nextSlots = slots.map((slot) => (slot?.id === termId ? null : slot));
+    nextSlots[slotIndex] = term;
+    setSlots(nextSlots);
+    setSelectedId(null);
+    setChecked(false);
+    recordDraft(nextSlots);
+  };
+
+  const handleSlot = (slotIndex) => {
+    if (!canAnswer || solved) return;
+    if (selectedId) {
+      place(selectedId, slotIndex);
+      return;
+    }
+    const nextSlots = slots.map((slot, index) => (index === slotIndex ? null : slot));
+    setSlots(nextSlots);
+    setChecked(false);
+    recordDraft(nextSlots);
+  };
+
+  const check = () => {
+    if (!canAnswer || solved || available.length > 0) return;
+    const nextAttempts = attempts + 1;
+    const correct = slots.every((slot, index) => slot?.value === c.targetTerms[index]);
+    setAttempts(nextAttempts);
+    setChecked(true);
+    if (!correct) {
+      const resetSlots = Array(c.targetTerms.length).fill(null);
+      setSlots(resetSlots);
+      setSelectedId(null);
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+      onAnswer(answerPayload(slots, {
+        attempts: nextAttempts,
+        finalSlots: resetSlots,
+      }));
+      return;
+    }
+    setSolved(true);
+    playSfx('correct');
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer(answerPayload(slots, {
+      correct: true,
+      firstTry: nextAttempts === 1,
+      attempts: nextAttempts,
+      solved: true,
+    }));
+  };
+
+  return (
+    <Stage
+      screen={screen}
+      eyebrow={c.eyebrow}
+      audio={audio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
+    >
+      <div className="screen-stack expanded-builder-screen">
+        <div className="screen-heading bit-free-heading">
+          <div className="heading-copy">
+            <span className="lesson-kicker">LUMO CITY · PLACE LAB</span>
+            <h1>{t(c.title)}</h1>
+            <p>{t(c.lead)}</p>
+          </div>
+        </div>
+        {!builderPhase ? (
+          <section className="expanded-guided-frame" aria-live="polite" data-qa-expanded-phase="guided">
+            <div className="revision-step-badge"><span>01</span><strong>{c.guidedNumber}</strong></div>
+            <div className="expanded-guided-digits" aria-label={c.guidedNumber}>
+              {c.guidedDigits.map((digit, index) => (
+                <div
+                  className={`expanded-digit ${activeDigit === index ? 'expanded-digit-active' : ''} ${index < revealedPhase && activeDigit !== index ? 'expanded-digit-seen' : ''} ${index === 3 ? 'expanded-class-gap' : ''}`}
+                  key={`${digit}-${index}`}
+                >
+                  <strong>{digit}</strong>
+                  <span>{t(c.placeLabels[index])}</span>
+                </div>
+              ))}
+            </div>
+            <div className="expanded-stream" aria-live="polite">
+              {revealedPhase === 0 && <span className="expanded-stream-wait">…</span>}
+              {c.placeValues.slice(0, revealedPhase).map((value, index) => (
+                <React.Fragment key={`${value}-${index}`}>
+                  <strong className={activeDigit === index ? 'is-active' : ''}>{value}</strong>
+                  {index < c.placeValues.length - 1 && <span aria-hidden="true">+</span>}
+                </React.Fragment>
+              ))}
+            </div>
+            <div className="expanded-caption">
+              <span>{String(Math.min(revealedPhase + 1, c.guidedCaptions.length)).padStart(2, '0')}</span>
+              <p>{t(c.guidedCaptions[Math.min(revealedPhase, c.guidedCaptions.length - 1)])}</p>
+            </div>
+          </section>
+        ) : (
+          <section
+            className="expanded-builder-frame"
+            data-qa-expanded-phase={solved ? 'solved' : 'builder'}
+            data-qa-build-answer={JSON.stringify(c.targetTerms)}
+            data-qa-build-mode="select-slot"
+          >
+            <div className="revision-step-badge"><span>02</span><strong>{c.builderNumber}</strong></div>
+            <div className="expanded-builder-prompt"><h2>{t(c.prompt)}</h2></div>
+            <div className="expanded-term-slots" aria-label={t(c.prompt)}>
+              {slots.map((slot, index) => (
+                <button
+                  type="button"
+                  className={`expanded-term-slot ${selectedId ? 'expanded-term-slot-ready' : ''} ${index === 3 ? 'expanded-class-gap' : ''}`}
+                  data-qa-build-slot={index}
+                  data-qa-filled={slot ? 'true' : 'false'}
+                  key={`term-slot-${index}`}
+                  onClick={() => handleSlot(index)}
+                  onDragOver={(event) => event.preventDefault()}
+                  onDrop={(event) => {
+                    event.preventDefault();
+                    place(event.dataTransfer.getData('text/plain'), index);
+                  }}
+                  aria-label={lang === 'en'
+                    ? `Position ${index + 1}: ${slot?.value ?? 'empty'}`
+                    : lang === 'ru'
+                      ? `Позиция ${index + 1}: ${slot?.value ?? 'пусто'}`
+                      : `${index + 1}-o'rin: ${slot?.value ?? "bo'sh"}`}
+                >
+                  {slot?.value ?? '·'}
+                </button>
+              ))}
+            </div>
+            <div className="expanded-term-tray">
+              {available.map((term) => (
+                <button
+                  type="button"
+                  className={`expanded-term-card ${selectedId === term.id ? 'expanded-term-selected' : ''}`}
+                  data-qa-build-card={term.value}
+                  draggable={canAnswer && !solved}
+                  key={term.id}
+                  onDragStart={(event) => event.dataTransfer.setData('text/plain', term.id)}
+                  onClick={() => {
+                    if (!canAnswer || solved) return;
+                    setSelectedId((current) => (current === term.id ? null : term.id));
+                    setChecked(false);
+                  }}
+                  disabled={!canAnswer || solved}
+                  aria-pressed={selectedId === term.id}
+                >
+                  {term.value}
+                </button>
+              ))}
+              {available.length === 0 && (
+                <span role="status" aria-live="polite">{lang === 'en' ? 'All terms are placed' : lang === 'ru' ? 'Все слагаемые размещены' : "Barcha qo'shiluvchilar joylashtirildi"}</span>
+              )}
+            </div>
+            {!solved && (
+              <div className="expanded-builder-actions">
+                <button type="button" className="btn btn-white-accent" data-qa-build-check="true" disabled={!canAnswer || available.length > 0} onClick={check}>
+                  {lang === 'en' ? 'Check' : lang === 'ru' ? 'Проверить' : 'Tekshirish'}
+                </button>
+              </div>
+            )}
+            <FeedbackBlock show={checked || solved} correct={solved}>{t(solved ? c.doneText : c.hint)}</FeedbackBlock>
+          </section>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+const RepeatedDigitPlaceScreen = ({ screen, onAnswer, onNext, onPrev }) => {
+  const lang = useLang();
+  const t = useT();
+  const c = D3_REVISION_CONTENT.repeatedDigits;
+  const [phase, setPhase] = useState('discover');
+  const [revealedCount, setRevealedCount] = useState(0);
+  const [awaitingFinalNarration, setAwaitingFinalNarration] = useState(false);
+  const [practiceQueueArmed, setPracticeQueueArmed] = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [solved, setSolved] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [attempts, setAttempts] = useState(0);
+  const audioValue = phase === 'discover' ? c.audio.intro : c.audio.stepTwoIntro;
+  const audioPrefix = phase === 'discover' ? `s${screen}-discover` : `s${screen}-practice`;
+  const segments = useMemo(
+    () => localizedSegments(audioValue, lang, audioPrefix),
+    [audioPrefix, audioValue, lang],
+  );
+  const audio = useAudio(segments);
+  const audioReady = useCanAnswer(audio);
+  const canDiscover = phase === 'discover' && audioReady;
+  const canPractice = phase === 'practice' && practiceQueueArmed && audioReady;
+  const canAdvance = solved && (audio.muted || audio.completed);
+
+  useEffect(() => {
+    if (!awaitingFinalNarration || (!audio.muted && !audio.completed)) return undefined;
+    const transitionTimer = window.setTimeout(() => {
+      setPhase('practice');
+      setAwaitingFinalNarration(false);
+      setPracticeQueueArmed(false);
+    }, 0);
+    return () => window.clearTimeout(transitionTimer);
+  }, [audio.completed, audio.muted, awaitingFinalNarration]);
+
+  useEffect(() => {
+    if (phase !== 'practice') return undefined;
+    const armTimer = window.setTimeout(() => setPracticeQueueArmed(true), 0);
+    return () => window.clearTimeout(armTimer);
+  }, [phase]);
+
+  const repeatedDigitLabel = (ordinal, state) => {
+    if (state === 'visited') {
+      const detail = `${t(c.stepOne.places[ordinal])}, ${c.stepOne.values[ordinal]}`;
+      if (lang === 'en') return `Digit 4, item ${ordinal + 1}: ${detail}`;
+      if (lang === 'ru') return `Цифра 4, номер ${ordinal + 1}: ${detail}`;
+      return `4 raqami, ${ordinal + 1}-navbat: ${detail}`;
+    }
+    if (state === 'current') {
+      if (lang === 'en') return `Digit 4, item ${ordinal + 1}. Select to discover its place.`;
+      if (lang === 'ru') return `Цифра 4, номер ${ordinal + 1}. Нажмите, чтобы узнать разряд.`;
+      return `4 raqami, ${ordinal + 1}-navbat. Xonasini bilish uchun bosing.`;
+    }
+    if (lang === 'en') return `Digit 4, item ${ordinal + 1}. Wait for the previous digit.`;
+    if (lang === 'ru') return `Цифра 4, номер ${ordinal + 1}. Сначала откройте предыдущую цифру.`;
+    return `4 raqami, ${ordinal + 1}-navbat. Avval oldingi raqamni oching.`;
+  };
+
+  const revealDigit = (ordinal) => {
+    if (!canDiscover || ordinal !== revealedCount) return;
+    const nextCount = revealedCount + 1;
+    setRevealedCount(nextCount);
+    if (nextCount === c.stepOne.targetIndices.length) setAwaitingFinalNarration(true);
+    audio.pushOneOff(t(c.audio.digitExplanations[ordinal]));
+  };
+
+  const chooseValue = (value) => {
+    if (!canPractice || solved || selected.includes(value)) return;
+    setFeedback(null);
+    const nextSelected = [...selected, value];
+    setSelected(nextSelected);
+    if (nextSelected.length < c.stepTwo.correctValues.length) return;
+    const nextAttempts = attempts + 1;
+    const correct = c.stepTwo.correctValues.every((item) => nextSelected.includes(item))
+      && nextSelected.every((item) => c.stepTwo.correctValues.includes(item));
+    setAttempts(nextAttempts);
+    if (!correct) {
+      setSelected([]);
+      setFeedback('wrong');
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+      onAnswer({
+        stage: null,
+        screenIdx: screen,
+        question: t(c.stepTwo.prompt),
+        options: c.stepTwo.options,
+        correctIndex: null,
+        correctAnswer: c.stepTwo.correctValues.join(', '),
+        studentAnswerIndex: null,
+        studentAnswer: nextSelected.join(', '),
+        correct: false,
+        firstTry: false,
+        attempts: nextAttempts,
+        skillTag: SCREEN_META[screen].subtype,
+        solved: false,
+        selectedValues: [],
+      });
+      return;
+    }
+    setSolved(true);
+    setFeedback('correct');
+    playSfx('correct');
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      stage: null,
+      screenIdx: screen,
+      question: t(c.stepTwo.prompt),
+      options: c.stepTwo.options,
+      correctIndex: null,
+      correctAnswer: c.stepTwo.correctValues.join(', '),
+      studentAnswerIndex: null,
+      studentAnswer: nextSelected.join(', '),
+      correct: true,
+      firstTry: nextAttempts === 1,
+      attempts: nextAttempts,
+      skillTag: SCREEN_META[screen].subtype,
+      solved: true,
+      selectedValues: nextSelected,
+    });
+  };
+
+  return (
+    <Stage
+      screen={screen}
+      eyebrow={c.eyebrow}
+      audio={audio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
+    >
+      <div
+        className="screen-stack repeated-digit-screen"
+        data-qa-repeated-place-flow="true"
+        data-qa-place-phase={solved ? 'solved' : phase}
+        data-qa-place-answer={JSON.stringify(c.stepTwo.correctValues)}
+        data-qa-place-attempts={attempts}
+        data-qa-place-reveals={JSON.stringify(c.stepOne.values.slice(0, revealedCount))}
+      >
+        <div className="screen-heading bit-free-heading">
+          <div className="heading-copy">
+            <span className="lesson-kicker">LUMO CITY · DIGIT LAB</span>
+            <h1>{t(c.title)}</h1>
+            <p>{t(c.lead)}</p>
+          </div>
+        </div>
+        {phase === 'discover' ? (
+          <section className="repeated-discovery-frame">
+            <div className="revision-step-badge"><span>01</span><strong>{c.stepOne.number}</strong></div>
+            <p className="repeated-prompt" id={`repeated-place-prompt-${screen}`}>{t(c.stepOne.prompt)}</p>
+            <div className="repeated-number" data-qa-place-number={c.stepOne.number} role="group" aria-labelledby={`repeated-place-prompt-${screen}`}>
+              {c.stepOne.digits.map((digit, digitIndex) => {
+                const ordinal = c.stepOne.targetIndices.indexOf(digitIndex);
+                if (ordinal === -1) return <span className={digitIndex === 3 ? 'repeated-class-gap' : ''} key={`${digit}-${digitIndex}`}>{digit}</span>;
+                const visited = ordinal < revealedCount;
+                const current = ordinal === revealedCount && canDiscover;
+                const state = visited ? 'visited' : current ? 'current' : 'locked';
+                return (
+                  <span className={`repeated-digit-target ${digitIndex === 3 ? 'repeated-class-gap' : ''}`} key={`${digit}-${digitIndex}`}>
+                    <button
+                      type="button"
+                      data-qa-place-digit={ordinal}
+                      data-qa-number-index={digitIndex}
+                      data-qa-place-state={state}
+                      className={`repeated-digit-button repeated-digit-${state}`}
+                      disabled={!current || !canDiscover}
+                      onClick={() => revealDigit(ordinal)}
+                      aria-label={repeatedDigitLabel(ordinal, state)}
+                    >
+                      {digit}
+                    </button>
+                  </span>
+                );
+              })}
+            </div>
+            <div className="repeated-reveals" aria-live="polite">
+              {c.stepOne.values.slice(0, revealedCount).map((value, index) => (
+                <article data-qa-place-reveal={index} key={`${value}-${index}`}>
+                  <span>{t(c.stepOne.places[index])}</span><strong>{value}</strong>
+                </article>
+              ))}
+            </div>
+          </section>
+        ) : (
+          <section className="repeated-practice-frame">
+            <div className="revision-step-badge" data-qa-place-number={c.stepTwo.number}><span>02</span><strong>{c.stepTwo.number}</strong></div>
+            <h2>{t(c.stepTwo.prompt)}</h2>
+            <div className="repeated-place-options">
+              {c.stepTwo.options.map((value) => {
+                const isSelected = selected.includes(value);
+                const isCorrect = c.stepTwo.correctValues.includes(value);
+                return (
+                  <button
+                    type="button"
+                    data-qa-place-option={value}
+                    data-g4-correct={isCorrect ? 'true' : 'false'}
+                    className={`repeated-place-option ${isSelected ? 'is-selected' : ''} ${solved && isCorrect ? 'is-correct' : ''}`}
+                    key={value}
+                    disabled={!canPractice || solved || isSelected}
+                    onClick={() => chooseValue(value)}
+                    aria-pressed={isSelected}
+                  >
+                    {value}
+                  </button>
+                );
+              })}
+            </div>
+            <FeedbackBlock show={feedback !== null} correct={feedback === 'correct'}>
+              {t(feedback === 'correct' ? c.correctText : c.wrongText)}
+            </FeedbackBlock>
+          </section>
+        )}
+      </div>
+    </Stage>
+  );
+};
+
+const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev, gateFirstStepNarration = false }) => {
   const lang = useLang();
   const t = useT();
   const contents = CONTENT[contentKey ?? `s${screen}`].parts;
   const copy = DEEP_SCREEN_COPY[copyKey];
   const [activeStep, setActiveStep] = useState(0);
   const [seenSteps, setSeenSteps] = useState(() => new Set([0]));
+  const [firstStepNarrated, setFirstStepNarrated] = useState(false);
   const active = contents[activeStep];
   const segments = useMemo(
     () => [
@@ -3704,8 +4301,23 @@ const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => 
   );
   const audio = useAudio(segments);
   const canContinue = useTheoryAdvanceGate(audio) && seenSteps.size >= contents.length;
+  useEffect(() => {
+    if (
+      gateFirstStepNarration
+      && activeStep === 0
+      && !firstStepNarrated
+      && (audio.muted || audio.completed)
+    ) {
+      const unlockTimer = window.setTimeout(() => setFirstStepNarrated(true), 0);
+      return () => window.clearTimeout(unlockTimer);
+    }
+    return undefined;
+  }, [activeStep, audio.completed, audio.muted, firstStepNarrated, gateFirstStepNarration]);
+  const firstStepLocked = gateFirstStepNarration && activeStep === 0 && !firstStepNarrated;
+  const compactExplanation = copyKey === 'zeros';
 
   const selectStep = (index) => {
+    if (firstStepLocked && index !== 0) return;
     setActiveStep(index);
     setSeenSteps((previous) => {
       if (previous.has(index)) return previous;
@@ -3725,14 +4337,11 @@ const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => 
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canContinue} /></>}
     >
       <div className="screen-stack deep-sequence-screen">
-        <div className="screen-heading">
+        <div className="screen-heading bit-free-heading">
           <div className="heading-copy">
             <span className="lesson-kicker">LUMO CITY · DEEP DIVE</span>
             <h1>{t(copy.title)}</h1>
             <p>{t(copy.lead)}</p>
-          </div>
-          <div className={`bit-coach bit-coach-${activeStep === contents.length - 1 ? 'idea' : 'point'}`} data-g4-role="visual-frame">
-            <BitSVG state={activeStep === contents.length - 1 ? 'idea' : 'point'} />
           </div>
         </div>
         <div className="deep-sequence-tabs" role="tablist" aria-label={t(copy.title)}>
@@ -3742,6 +4351,7 @@ const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => 
               role="tab"
               aria-selected={activeStep === index}
               className={activeStep === index ? 'deep-tab-active' : seenSteps.has(index) ? 'deep-tab-seen' : ''}
+              disabled={firstStepLocked && index !== 0}
               onClick={() => selectStep(index)}
               key={`s${screen}-part-${index}`}
             >
@@ -3754,12 +4364,18 @@ const DeepSequenceScreen = ({ screen, contentKey, copyKey, onNext, onPrev }) => 
           <section className="deep-sequence-explanation">
             <span>{lang === 'en' ? `STEP ${activeStep + 1}` : lang === 'ru' ? `ШАГ ${activeStep + 1}` : `${activeStep + 1}-QADAM`}</span>
             <h2>{t(active.instruction)}</h2>
-            {result && <strong>{result}</strong>}
+            {!compactExplanation && result && <strong>{result}</strong>}
             <p>{t(active.correctText)}</p>
-            {active.wrong?.[1] && <small className="deep-sequence-misconception">{t(active.wrong[1])}</small>}
+            {!compactExplanation && active.wrong?.[1] && <small className="deep-sequence-misconception">{t(active.wrong[1])}</small>}
           </section>
         </div>
-        <button type="button" className="deep-replay" onClick={() => selectStep(activeStep < contents.length - 1 ? activeStep + 1 : 0)}>
+        <button
+          type="button"
+          className="deep-replay"
+          disabled={firstStepLocked}
+          aria-disabled={firstStepLocked}
+          onClick={() => selectStep(activeStep < contents.length - 1 ? activeStep + 1 : 0)}
+        >
           <span aria-hidden="true">{activeStep < contents.length - 1 ? '→' : '↻'}</span>
           {activeStep < contents.length - 1
             ? (lang === 'en' ? "Show the following model" : lang === 'ru' ? 'Показать следующую модель' : "Keyingi modelni ko'rish")
@@ -3789,13 +4405,12 @@ const PlaceValueLadderScreen = ({ screen, contentKey, onNext, onPrev }) => {
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canContinue} /></>}
     >
       <div className="screen-stack ladder-screen">
-        <div className="screen-heading">
+        <div className="screen-heading bit-free-heading">
           <div className="heading-copy">
             <span className="lesson-kicker">LUMO CITY · PLACE-VALUE LIFT</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-idea" data-g4-role="visual-frame"><BitSVG state="idea" /></div>
         </div>
 
         <section className="place-ladder-board" aria-label={t(c.instruction)}>
@@ -3834,60 +4449,84 @@ const ZeroCoefficientScreen = ({ screen, contentKey, onNext, onPrev }) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT[contentKey ?? `s${screen}`];
+  const revealPrefix = `s${screen}-zero-contrast`;
   const segments = useMemo(
-    () => localizedSegments(c.audio, lang, `s${screen}-zero-contrast`),
-    [c.audio, lang, screen],
+    () => localizedSegments(c.audio, lang, revealPrefix),
+    [c.audio, lang, revealPrefix],
   );
   const audio = useAudio(segments);
+  const [visibleCount, setVisibleCount] = useState(0);
+  useEffect(() => {
+    const resetTimer = window.setTimeout(() => setVisibleCount(0), 0);
+    return () => window.clearTimeout(resetTimer);
+  }, [lang]);
+  useEffect(() => {
+    let nextVisible = visibleCount;
+    if (audio.muted || audio.completed) {
+      nextVisible = 3;
+    } else {
+      const match = new RegExp(`^${revealPrefix}-(\\d+)$`).exec(audio.currentSegment ?? '');
+      if (match) nextVisible = Math.max(visibleCount, Math.min(3, Number(match[1]) + 1));
+    }
+    if (nextVisible === visibleCount) return undefined;
+    const revealTimer = window.setTimeout(() => setVisibleCount(nextVisible), 0);
+    return () => window.clearTimeout(revealTimer);
+  }, [audio.completed, audio.currentSegment, audio.muted, revealPrefix, visibleCount]);
+  const renderedVisibleCount = audio.muted || audio.completed ? 3 : visibleCount;
+  const zeroAudio = {
+    ...audio,
+    replay: () => {
+      setVisibleCount(0);
+      audio.replay();
+    },
+  };
   const canContinue = useTheoryAdvanceGate(audio);
 
   return (
     <Stage
       screen={screen}
       eyebrow={c.eyebrow}
-      audio={audio}
+      audio={zeroAudio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canContinue} /></>}
     >
       <div className="screen-stack zero-coefficient-screen">
-        <div className="screen-heading">
+        <div className="screen-heading bit-free-heading">
           <div className="heading-copy">
-            <span className="lesson-kicker">LUMO CITY · ZERO LAB</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach bit-coach-think" data-g4-role="visual-frame"><BitSVG state="think" /></div>
         </div>
 
-        <section className="zero-place-board" aria-label={t(c.instruction)}>
-          <div className="zero-place-heading"><span>{t(c.instruction)}</span><strong>{c.number}</strong></div>
-          <div className="zero-place-grid">
-            {c.places.map((place, index) => (
-              <div className={place.zero ? 'zero-place-empty' : ''} key={`${t(place.label)}-${index}`} style={{ '--reveal-i': index }}>
-                <span>{t(place.label)}</span><strong>{place.digit}</strong>
-                {place.zero && <i>{lang === 'en' ? 'empty place' : lang === 'ru' ? 'пустой разряд' : "bo'sh xona"}</i>}
-              </div>
-            ))}
+        <section
+          className="zero-rule-frame"
+          data-g4-role="visual-frame"
+          data-qa-zero-rule="true"
+          data-qa-zero-rule-tone="light-blue"
+          data-qa-zero-visible-count={renderedVisibleCount}
+          aria-label={t(c.instruction)}
+        >
+          {c.comparisons.map((comparison, index) => (
+            <article
+              className={`zero-rule-card zero-rule-card-${comparison.tone} ${renderedVisibleCount > index ? 'is-visible' : ''}`}
+              data-qa-zero-rule-row={index}
+              data-qa-zero-reveal-step={index}
+              aria-hidden={renderedVisibleCount <= index}
+              key={comparison.formula}
+            >
+              <span>{t(comparison.label)}</span>
+              <strong>{comparison.formula}</strong>
+              <p>{t(comparison.status)}</p>
+            </article>
+          ))}
+          <div
+            className={`zero-rule-summary ${renderedVisibleCount >= 3 ? 'is-visible' : ''}`}
+            data-qa-zero-rule-summary="true"
+            data-qa-zero-reveal-step="2"
+            aria-hidden={renderedVisibleCount < 3}
+          >
+            <p>{t(c.conclusion)}</p>
           </div>
         </section>
-
-        <section className="zero-contrast-grid">
-          <article className="zero-contrast-sum">
-            <span>{t(c.sumLabel)}</span>
-            <strong>{c.sumWithZeros}</strong>
-            <i aria-hidden="true">↓</i>
-            <strong>{c.sumCompact}</strong>
-            <p>{t(c.sumExplanation)}</p>
-          </article>
-          <article className="zero-contrast-notation">
-            <span>{t(c.notationLabel)}</span>
-            <div><strong>{c.number}</strong><i aria-hidden="true">≠</i><strong>{c.brokenNumber}</strong></div>
-            <p>{t(c.notationExplanation)}</p>
-          </article>
-        </section>
-
-        <TheoryCallout screen={screen} result={lang === 'en' ? '0 term ≠ zero place' : lang === 'ru' ? 'слагаемое 0 ≠ разряд 0' : "0 qo'shiluvchi ≠ 0 xona"}>
-          {t(c.conclusion)}
-        </TheoryCallout>
       </div>
     </Stage>
   );
@@ -3972,91 +4611,68 @@ const CardSolutionLabScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
-function useFinaleReveal(count = 4, interval = 500) {
-  const [visible, setVisible] = useState(0);
-  useEffect(() => {
-    const reduced = typeof window !== 'undefined'
-      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      const frame = requestAnimationFrame(() => setVisible(count));
-      return () => cancelAnimationFrame(frame);
-    }
-    const resetFrame = requestAnimationFrame(() => setVisible(0));
-    const timers = Array.from({ length: count }, (_, index) => (
-      window.setTimeout(() => setVisible(index + 1), 300 + index * interval)
-    ));
-    return () => {
-      cancelAnimationFrame(resetFrame);
-      timers.forEach((timer) => window.clearTimeout(timer));
-    };
-  }, [count, interval]);
-  return visible;
-}
-
 const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, finishLesson }) => {
   const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
   const [revealRequested, setRevealRequested] = useState(false);
-  const [reflectionChoice, setReflectionChoice] = useState(storedAnswer?.reflectionChoice ?? null);
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s14;
-  const segments = useMemo(() => [
-    ...localizedSegments(c.audio?.intro ?? c.audio, lang, 's14-finale-intro'),
-    ...localizedSegments(c.audio?.on_correct ?? c.correctText, lang, 's14-finale-result'),
-  ], [c.audio, c.correctText, lang]);
+  const segments = useMemo(
+    () => localizedSegments(D3_REVISION_CONTENT.finaleAudio, lang, 's14-finale'),
+    [lang],
+  );
   const audio = useAudio(segments);
-  const visible = useFinaleReveal(4, 500);
+  const [visible, setVisible] = useState(() => (audioEngineInstance?.muted ? 5 : 0));
+  useEffect(() => {
+    let nextVisible = visible;
+    if (audio.muted || audio.completed) {
+      nextVisible = 5;
+    } else {
+      const match = /^s14-finale-(\d+)$/.exec(audio.currentSegment ?? '');
+      if (match) nextVisible = Math.max(visible, Math.min(5, Number(match[1]) + 1));
+    }
+    if (nextVisible === visible) return undefined;
+    const revealTimer = window.setTimeout(() => setVisible(nextVisible), 0);
+    return () => window.clearTimeout(revealTimer);
+  }, [audio.completed, audio.currentSegment, audio.muted, visible]);
   const scoredIndexes = useMemo(
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
-  const complete = visible >= 4;
+  const visibleCount = audio.muted || audio.completed ? 5 : visible;
+  const complete = visibleCount >= 5;
+  const finaleAudio = {
+    ...audio,
+    replay: () => {
+      setVisible(0);
+      audio.replay();
+    },
+  };
   const totalScored = scoredIndexes.length;
-  const reduced = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const finalState = complete || audio.completed || audio.muted || reduced;
+  const canClaimTitle = audio.completed || audio.muted;
   const rewardTitle = firstTry === totalScored
     ? { ru: 'Мастер разрядов', uz: 'Xonalar ustasi', en: "Master of places" }
     : firstTry >= Math.max(1, totalScored - 1)
       ? { ru: 'Знаток значений', uz: 'Qiymatlar bilimdoni', en: "Knowledge of values" }
       : { ru: 'Исследователь разрядов', uz: 'Xonalar tadqiqotchisi', en: "Place researcher" };
-  const reflectionOptions = [
-    { ru: 'Сначала нахожу разряд цифры.', uz: "Avval raqamning xonasini topaman.", en: 'First, I find the place of the digit.' },
-    { ru: 'Помню: шаг влево увеличивает значение в 10 раз.', uz: "Chapga bir qadam qiymatni 10 marta oshirishini eslayman.", en: 'I remember that one place left makes the value ten times greater.' },
-    { ru: 'Сохраняю нулями все пустые разряды.', uz: "Barcha bo'sh xonalarni nollar bilan saqlayman.", en: 'I keep every empty place with zeros.' },
-  ];
-  const reflectionQuestion = { ru: 'Какой вывод поможет тебе в следующей задаче?', uz: 'Keyingi masalada qaysi xulosa sizga yordam beradi?', en: 'Which conclusion will help you in the next problem?' };
-  const chooseReflection = (index) => {
-    if (titleClaimed) return;
-    setReflectionChoice(index);
-    onAnswer({
-      ...(storedAnswer ?? {}),
-      stage: null,
-      screenIdx: screen,
-      reflectionChoice: index,
-      titleClaimed: false,
-    });
-    audio.pushOneOff(t(reflectionOptions[index]));
-  };
   const claimTitle = () => {
-    if (!finalState || reflectionChoice === null || titleClaimed) return;
+    if (!canClaimTitle || titleClaimed) return;
     setTitleClaimed(true);
     setRevealRequested(true);
     onAnswer({
       stage: null,
       screenIdx: screen,
-      question: t(reflectionQuestion),
-      options: reflectionOptions.map((option) => t(option)),
+      question: t({ ru: 'Получить звание', uz: 'Unvonni olish', en: 'Claim title' }),
+      options: null,
       correctIndex: null,
       correctAnswer: null,
-      studentAnswerIndex: reflectionChoice,
-      studentAnswer: t(reflectionOptions[reflectionChoice]),
+      studentAnswerIndex: null,
+      studentAnswer: t(rewardTitle),
       correct: true,
       firstTry: true,
       attempts: 1,
       solved: true,
-      reflectionChoice,
       titleClaimed: true,
     });
   };
@@ -4065,10 +4681,10 @@ const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, fi
     <Stage
       screen={screen}
       eyebrow={c.eyebrow}
-      audio={audio}
+      audio={finaleAudio}
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}
     >
-      <div className="screen-stack finale-screen">
+      <div className="screen-stack finale-screen" data-g4-final-layout="title-left-steps-right" data-g4-final-reflection="none">
         <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} />
         <style>{G4_TITLE_STYLES}</style>
         <header className="finale-heading">
@@ -4081,48 +4697,41 @@ const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, fi
           <div className="finale-main">
             <div className="finale-mastery">
               {c.model.steps.map((item, index) => (
-                <article className={`finale-takeaway ${visible >= index + 1 ? 'is-visible' : ''}`} key={t(item)}>
+                <article
+                  className={`finale-takeaway ${visibleCount >= index + 1 ? 'is-visible' : ''}`}
+                  aria-hidden={visibleCount < index + 1}
+                  key={t(item)}
+                >
                   <span>{String(index + 1).padStart(2, '0')}</span>
                   <p>{t(item)}</p>
                 </article>
               ))}
             </div>
-            <div className={`finale-proof ${visible >= 3 ? 'is-visible' : ''}`}>
+            <div className={`finale-proof ${visibleCount >= 4 ? 'is-visible' : ''}`} aria-hidden={visibleCount < 4}>
               <span>{lang === 'en' ? 'STARTING MISSION SOLVED' : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span>
               <strong>{t(c.model.number)}</strong>
               <p>{t(c.options[c.correctIndex])}. {t(c.correctText)}</p>
             </div>
-            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}>
+            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`} aria-hidden={!complete}>
               <span aria-hidden="true">→</span>
               <div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div>
             </div>
           </div>
 
           <aside className="finale-actions">
-          <section className="finale-reflection" aria-labelledby="d3-reflection-question">
-            <strong id="d3-reflection-question">{t(reflectionQuestion)}</strong>
-            <div>
-              {reflectionOptions.map((option, index) => (
-                <button type="button" className={reflectionChoice === index ? 'is-selected' : ''} aria-pressed={reflectionChoice === index} onClick={() => chooseReflection(index)} key={t(option)}>
-                  <span>{index + 1}</span>{t(option)}
-                </button>
-              ))}
-            </div>
-          </section>
-
           {!titleClaimed && (
             <button
               type="button"
               className="btn-white-accent g4-title-claim"
               data-g4-role="title-claim"
-              disabled={!finalState || reflectionChoice === null}
+              disabled={!canClaimTitle}
               onClick={claimTitle}
               aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
             >
               <span aria-hidden="true">★</span>
-              <strong>{finalState && reflectionChoice !== null
+              <strong>{canClaimTitle
                 ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
-                : t({ uz: "Avval fikringizni tanlang", ru: 'Сначала выбери свой вывод', en: 'Choose your reflection first' })}</strong>
+                : t({ uz: "Avval yakuniy xulosani tinglang", ru: 'Сначала дослушай итог', en: 'Listen to the summary first' })}</strong>
             </button>
           )}
           {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
@@ -4304,30 +4913,51 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
-const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
+const WRONG_CHOICE_RESET_DELAY_MS = 320;
+
+const ChoiceScreen = ({ screen, contentKey, choiceOrdinal, shuffleOptions = true, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
   const c = PRACTICE_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
-  const resetOnReturn = SCREEN_META[screen].resetOnReturn === true;
-  const restorableAnswer = resetOnReturn ? null : storedAnswer;
+  const restorableAnswer = storedAnswer;
   const restored = restorableAnswer?.solved === true;
-  const [picked, setPicked] = useState(restorableAnswer?.studentAnswerIndex ?? null);
+  const [picked, setPicked] = useState(restored ? restorableAnswer?.studentAnswerIndex ?? null : null);
   const [solved, setSolved] = useState(restored);
   const [attempts, setAttempts] = useState(restorableAnswer?.attempts ?? 0);
   const [wrongIndices, setWrongIndices] = useState(() => new Set(restorableAnswer?.wrongIndices ?? []));
+  const [pendingWrongIndex, setPendingWrongIndex] = useState(null);
+  const [wrongResetArmed, setWrongResetArmed] = useState(false);
   const segments = useMemo(
     () => localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}`),
     [c.audio, lang, screen],
   );
   const audio = useAudio(segments);
+  useEffect(() => {
+    if (pendingWrongIndex === null) return undefined;
+    const armTimer = window.setTimeout(() => setWrongResetArmed(true), 0);
+    return () => window.clearTimeout(armTimer);
+  }, [pendingWrongIndex]);
+  useEffect(() => {
+    if (pendingWrongIndex === null
+      || !wrongResetArmed
+      || (!audio.muted && !audio.completed)) return undefined;
+    const resetTimer = window.setTimeout(() => {
+      if (!audio.muted) setPicked(null);
+      setPendingWrongIndex(null);
+      setWrongResetArmed(false);
+    }, WRONG_CHOICE_RESET_DELAY_MS);
+    return () => window.clearTimeout(resetTimer);
+  }, [audio.completed, audio.muted, pendingWrongIndex, wrongResetArmed]);
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
   const isFinal = screen === TOTAL_SCREENS - 1;
   const isHook = screen === 0;
-  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, screen);
+  const optionOrder = shuffleOptions
+    ? buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal)
+    : c.options.map((_, index) => index);
 
   const choose = (index) => {
-    if (!canAnswer || solved || wrongIndices.has(index)) return;
+    if (!canAnswer || solved || pendingWrongIndex !== null) return;
     const nextAttempts = attempts + 1;
     const correct = index === c.correctIndex;
     setPicked(index);
@@ -4336,6 +4966,8 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
       const nextWrong = new Set(wrongIndices);
       nextWrong.add(index);
       setWrongIndices(nextWrong);
+      setPendingWrongIndex(index);
+      setWrongResetArmed(false);
       playSfx('wrong');
       audio.pushOneOff(t(c.audio?.on_wrong?.[index] ?? c.wrong?.[index]));
       onAnswer({
@@ -4389,14 +5021,20 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
       audio={audio}
       nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={proceed} disabled={!canAdvance} finish={isFinal} /></>}
     >
-      <div className={`screen-stack choice-screen ${isHook ? 'etalon-hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
-        <div className="screen-heading">
+      <div
+        className={`screen-stack choice-screen choice-slide-${screen + 1} ${isHook ? 'etalon-hook-screen' : ''}`}
+        data-g4-screen={isHook ? 'hook' : undefined}
+        data-qa-choice-retry="after-wrong-audio"
+        data-qa-choice-attempts={attempts}
+        data-qa-choice-picked={picked ?? ''}
+        data-qa-choice-pending-wrong={pendingWrongIndex ?? ''}
+      >
+        <div className={`screen-heading ${isHook ? '' : 'bit-free-heading'}`}>
           <div className="heading-copy">
             <span className="lesson-kicker" data-g4-role={isHook ? 'hook-topic' : undefined}>LUMO CITY · DATA CENTER</span>
             <h1 data-g4-role={isHook ? 'hook-title' : undefined}>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          {!isHook && <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : picked !== null ? 'awkward' : 'present'} /></div>}
         </div>
         {isHook && <h2 className="hook-question-title" data-g4-role="hook-question">{t(c.instruction)}</h2>}
         {isHook ? (
@@ -4416,17 +5054,18 @@ const ChoiceScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext, onPr
           <div className="options-grid">
             {optionOrder.map((sourceIndex, displayIndex) => {
               const option = c.options[sourceIndex];
-              const isWrong = wrongIndices.has(sourceIndex);
+              const isWrong = pendingWrongIndex === sourceIndex && picked === sourceIndex;
               const isCorrect = solved && sourceIndex === c.correctIndex;
               return (
                 <button
                   type="button"
                   data-g4-role={isHook ? 'answer-card' : undefined}
-                  data-g4-branch="choice"
-                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
-                  className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
+                  data-g4-branch={shuffleOptions ? 'choice' : undefined}
+                  data-g4-source-index={shuffleOptions ? sourceIndex : undefined}
+                  data-g4-correct={shuffleOptions ? (sourceIndex === c.correctIndex ? 'true' : 'false') : undefined}
+                  className={`option ${!solved && isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''}`}
                   key={`${t(option)}-${sourceIndex}`}
-                  disabled={!canAnswer || solved || isWrong}
+                  disabled={!canAnswer || solved || pendingWrongIndex !== null}
                   onClick={() => choose(sourceIndex)}
                 >
                   <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
@@ -4529,13 +5168,12 @@ const NumericInputScreen = ({ screen, contentKey, storedAnswer, onAnswer, onNext
       nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}
     >
       <div className="screen-stack">
-        <div className="screen-heading">
+        <div className="screen-heading bit-free-heading">
           <div className="heading-copy">
             <span className="lesson-kicker">LUMO CITY · VALUE CONSOLE</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
           </div>
-          <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : 'present'} /></div>
         </div>
         <ModelPanel model={c.model} solved={solved} />
         <section className="question-card" aria-labelledby={'question-' + screen}>
@@ -4609,20 +5247,20 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   );
 };
 
-const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" />;
-const Screen1 = (props) => <DeepSequenceScreen {...props} contentKey="s1" copyKey="position" />;
-const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" choiceOrdinal={0} />;
+const Screen1 = (props) => <ExpandedFormBuilderScreen {...props} />;
+const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" choiceOrdinal={1} />;
 const Screen3 = (props) => <PlaceValueLadderScreen {...props} contentKey="s2" />;
-const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
-const Screen5 = (props) => <DeepSequenceScreen {...props} contentKey="s3" copyKey="values" />;
-const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
-const Screen7 = (props) => <DeepSequenceScreen {...props} contentKey="s4" copyKey="expansion" />;
+const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" choiceOrdinal={2} />;
+const Screen5 = (props) => <RepeatedDigitPlaceScreen {...props} />;
+const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" choiceOrdinal={3} />;
+const Screen7 = (props) => <DeepSequenceScreen {...props} contentKey="s4" copyKey="expansion" gateFirstStepNarration />;
 const Screen8 = (props) => <NumericInputScreen {...props} contentKey="s8" />;
 const Screen9 = (props) => <ZeroCoefficientScreen {...props} contentKey="s5" />;
-const Screen10 = (props) => <DeepSequenceScreen {...props} contentKey="s6" copyKey="zeros" />;
-const Screen11 = (props) => <ChoiceScreen {...props} contentKey="s11" />;
-const Screen12 = (props) => <ChoiceScreen {...props} contentKey="s12" />;
-const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s13" />;
+const Screen10 = (props) => <DeepSequenceScreen {...props} contentKey="s6" copyKey="zeros" gateFirstStepNarration />;
+const Screen11 = (props) => <ChoiceScreen {...props} contentKey="s11" choiceOrdinal={0} shuffleOptions={false} />;
+const Screen12 = (props) => <ChoiceScreen {...props} contentKey="s12" choiceOrdinal={0} />;
+const Screen13 = (props) => <ChoiceScreen {...props} contentKey="s13" choiceOrdinal={1} />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
@@ -4886,7 +5524,7 @@ html, body { margin: 0; padding: 0; }
   overflow: visible;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .stage-content > .screen-stack {
   max-height: 100%;
@@ -4917,6 +5555,7 @@ html, body { margin: 0; padding: 0; }
 .etalon-hook-screen .question-card h2 { font-size: 18px; }
 .etalon-hook-screen .options-grid { margin-top: 8px; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
 .etalon-hook-screen .option { min-height: 52px; padding: 9px 12px; font-size: 14px; }
+.etalon-hook-screen .option > span:last-child { font-weight: 800; }
 .choice-screen { gap: 10px; }
 .choice-screen > .model-panel .model-row-list { grid-template-columns: repeat(auto-fit,minmax(110px,1fr)); gap: 5px; }
 .choice-screen > .model-panel .model-row-list > div { min-height: 44px; padding: 6px 8px; gap: 6px; }
@@ -5314,30 +5953,50 @@ html, body { margin: 0; padding: 0; }
 .finale-layout { min-width: 0; display: grid; grid-template-columns: minmax(0,1fr) minmax(248px,.42fr); gap: 10px; align-items: stretch; }
 .finale-main { min-width: 0; display: flex; flex-direction: column; gap: 9px; }
 .finale-actions { min-width: 0; display: flex; flex-direction: column; gap: 8px; }
-.finale-reflection { padding: 10px; border-radius: 15px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); }
-.finale-reflection > strong { display: block; color: ${T.navy}; font: 700 13px/1.25 'Source Serif 4',serif; }
-.finale-reflection > div { margin-top: 7px; display: grid; gap: 5px; }
-.finale-reflection button { min-height: 36px; padding: 6px 7px; border: 0; border-radius: 10px; display: grid; grid-template-columns: 22px minmax(0,1fr); align-items: center; gap: 6px; color: ${T.ink2}; background: ${T.cyanSoft}; text-align: left; font-size: 9px; line-height: 1.25; cursor: pointer; }
-.finale-reflection button span { width: 22px; height: 22px; border-radius: 7px; display: grid; place-items: center; color: ${T.paper}; background: ${T.cyan}; font: 900 9px/1 'JetBrains Mono',monospace; }
-.finale-reflection button.is-selected { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 3px 0 0 ${T.success}; }
 .finale-actions .g4-title-claim { min-height: 70px; padding: 9px 12px; }
-.finale-mastery { min-width: 0; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 8px; }
-.finale-takeaway { min-width: 0; min-height: 88px; padding: 10px; display: grid; grid-template-columns: 28px minmax(0,1fr); align-items: start; gap: 7px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease, transform .34s ease; }
+.finale-mastery { min-width: 0; display: grid; grid-template-columns: 1fr; gap: 8px; }
+.finale-takeaway { min-width: 0; min-height: 66px; padding: 10px; display: grid; grid-template-columns: 34px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 14px; background: ${T.paper}; box-shadow: 0 10px 24px -19px rgba(${T.shadowBase},.36); opacity: 0; transform: translateY(8px); transition: opacity .34s ease, transform .34s ease; }
 .finale-takeaway.is-visible { opacity: 1; transform: none; }
 .finale-takeaway > span { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px; color: ${T.paper}; background: ${T.cyan}; font: 900 10px/1 'JetBrains Mono', monospace; }
 .finale-takeaway:nth-child(2) > span { background: ${T.accent}; }
 .finale-takeaway:nth-child(3) > span { background: ${T.success}; }
-.finale-takeaway p { color: ${T.ink}; font-size: 11px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
+.finale-takeaway p { color: ${T.ink}; font-size: 14px; line-height: 1.38; font-weight: 720; overflow-wrap: anywhere; }
 .finale-proof, .finale-bridge { min-width: 0; opacity: 0; transform: translateY(7px); transition: opacity .34s ease, transform .34s ease; }
 .finale-proof.is-visible, .finale-bridge.is-visible { opacity: 1; transform: none; }
 .finale-proof { padding: 9px 12px; display: grid; grid-template-columns: auto minmax(0,.7fr) minmax(0,1.3fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
-.finale-proof > span, .finale-bridge strong { color: ${T.success}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .1em; }
-.finale-proof > strong { min-width: 0; color: ${T.navy}; font: 800 12px/1.25 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
-.finale-proof p, .finale-bridge p { color: ${T.ink2}; font-size: 11px; line-height: 1.35; overflow-wrap: anywhere; }
+.finale-proof > span, .finale-bridge strong { color: ${T.success}; font: 900 12px/1.2 'JetBrains Mono', monospace; letter-spacing: .1em; }
+.finale-proof > strong { min-width: 0; color: ${T.navy}; font: 800 15px/1.25 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
+.finale-proof p, .finale-bridge p { color: ${T.ink2}; font-size: 14px; line-height: 1.35; overflow-wrap: anywhere; }
 .finale-bridge { padding: 9px 11px; display: grid; grid-template-columns: 30px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: ${T.accentSoft}; }
 .finale-bridge > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 10px; color: ${T.paper}; background: ${T.accent}; font-weight: 900; }
 .finale-bridge strong { color: ${T.accent}; }
 .finale-bridge p { margin-top: 3px; }
+.finale-screen[data-g4-final-reflection="none"] .finale-main { display: contents; }
+.finale-screen[data-g4-final-reflection="none"] .finale-actions { grid-column: 1; grid-row: 1; }
+.finale-screen[data-g4-final-reflection="none"] .finale-mastery { grid-column: 1; grid-row: 2; }
+.finale-screen[data-g4-final-reflection="none"] .finale-proof { grid-column: 1; grid-row: 3; }
+.finale-screen[data-g4-final-reflection="none"] .finale-bridge { grid-column: 1; grid-row: 4; }
+@media (min-width: 640px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(270px,.58fr) minmax(0,1fr);
+    gap: 9px 12px;
+  }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions { grid-column: 1; grid-row: 1; height: 100%; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-mastery { grid-column: 2; grid-row: 1; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-proof { grid-column: 1 / -1; grid-row: 2; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-bridge { grid-column: 1 / -1; grid-row: 3; }
+  .finale-screen[data-g4-final-reflection="none"] .finale-actions > :is(.g4-title-claim, .g4-title-card-stage) {
+    flex: 0 0 calc(100% + 2px);
+    height: calc(100% + 2px);
+    min-height: calc(100% + 2px);
+    transform: translateY(-2px);
+  }
+}
+@media (min-width: 761px) {
+  .finale-screen[data-g4-final-reflection="none"] .finale-layout {
+    grid-template-columns: minmax(340px,.58fr) minmax(0,1fr);
+  }
+}
 .finale-reward { position: relative; min-width: 0; min-height: 206px; padding: 15px 76px 14px 62px; display: flex; align-items: center; overflow: hidden; border-radius: 18px; color: ${T.paper}; background: linear-gradient(145deg, ${T.navy}, #0f2c40); box-shadow: 0 16px 32px -22px rgba(${T.shadowBase},.58); }
 .finale-reward-copy { position: relative; z-index: 2; min-width: 0; }
 .finale-reward-copy > span { color: ${T.lime}; font: 900 9px/1.2 'JetBrains Mono', monospace; letter-spacing: .12em; }
@@ -5387,7 +6046,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: inset 0 0 0 1px rgba(22,143,163,.13), 0 10px 22px -18px rgba(${T.shadowBase},.35);
   transition: transform .2s ease, color .2s ease, background .2s ease, box-shadow .2s ease;
 }
-.deep-sequence-tabs button:hover { transform: translateY(-1px); }
+.deep-sequence-tabs button:hover:not(:disabled) { transform: translateY(-1px); }
+.deep-sequence-tabs button:disabled { cursor: not-allowed; opacity: .48; transform: none; }
 .deep-sequence-tabs button > span {
   width: 34px;
   height: 34px;
@@ -5406,6 +6066,185 @@ html, body { margin: 0; padding: 0; }
 }
 .deep-sequence-tabs .deep-tab-active > span { color: ${T.paper}; background: ${T.cyan}; }
 .deep-sequence-tabs .deep-tab-seen > span { color: ${T.navy}; background: ${T.lime}; }
+.bit-free-heading { grid-template-columns: minmax(0,1fr); }
+.expanded-builder-screen, .repeated-digit-screen { gap: 9px; }
+.expanded-builder-screen .heading-copy h1,
+.repeated-digit-screen .heading-copy h1 { font-size: clamp(23px,3vw,32px); line-height: 1.06; }
+.expanded-builder-screen .heading-copy p,
+.repeated-digit-screen .heading-copy p { margin-top: 6px; font-size: 12px; line-height: 1.35; }
+.expanded-guided-frame,
+.expanded-builder-frame,
+.repeated-discovery-frame,
+.repeated-practice-frame {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: clamp(12px,2vw,18px);
+  display: grid;
+  gap: 9px;
+  border-radius: 22px;
+  background: ${T.cyanSoft};
+  box-shadow: 0 16px 36px -27px rgba(${T.shadowBase},.45);
+  animation: screen-in .45s ease both;
+}
+.revision-step-badge { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.revision-step-badge > span,
+.expanded-caption > span {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  color: ${T.paper};
+  background: ${T.cyan};
+  font: 900 10px/1 'JetBrains Mono',monospace;
+}
+.revision-step-badge > strong { color: ${T.navy}; font: 900 clamp(28px,5vw,42px)/1 'JetBrains Mono',monospace; letter-spacing: .06em; }
+.expanded-guided-digits { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 6px; }
+.expanded-digit {
+  min-width: 0;
+  min-height: 84px;
+  padding: 7px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  border-radius: 13px;
+  color: ${T.navy};
+  background: rgba(255,255,255,.72);
+  box-shadow: 0 8px 20px -16px rgba(${T.shadowBase},.42);
+  transition: transform .3s ease, background .3s ease, box-shadow .3s ease;
+}
+.expanded-digit strong { font: 900 clamp(27px,4.4vw,38px)/1 'JetBrains Mono',monospace; }
+.expanded-digit span { min-height: 22px; display: grid; place-items: end center; color: ${T.ink2}; font-size: 8px; line-height: 1.12; text-align: center; }
+.expanded-class-gap { margin-left: 10px; }
+.expanded-digit-active { transform: translateY(-5px) scale(1.035); color: ${T.paper}; background: ${T.accent}; box-shadow: 0 16px 26px -17px rgba(255,91,53,.72); }
+.expanded-digit-active span { color: rgba(255,255,255,.9); }
+.expanded-digit-seen { background: rgba(255,255,255,.97); box-shadow: inset 0 -4px 0 rgba(22,143,163,.36), 0 8px 20px -16px rgba(${T.shadowBase},.42); }
+.expanded-stream {
+  min-height: 52px;
+  padding: 8px 10px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 14px;
+  color: ${T.navy};
+  background: ${T.paper};
+  font-family: 'JetBrains Mono',monospace;
+}
+.expanded-stream strong { padding: 6px 8px; border-radius: 9px; background: rgba(22,143,163,.09); font-size: clamp(13px,2vw,18px); transition: color .25s, background .25s; }
+.expanded-stream strong.is-active { color: ${T.paper}; background: ${T.accent}; }
+.expanded-stream > span:not(.expanded-stream-wait) { color: ${T.accent}; font-size: 18px; font-weight: 900; }
+.expanded-stream-wait { color: ${T.cyan}; font-size: 24px; }
+.expanded-caption { min-height: 50px; padding: 7px 10px; display: grid; grid-template-columns: 34px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 13px; background: rgba(255,255,255,.72); }
+.expanded-caption p { color: ${T.ink}; font-size: 11px; line-height: 1.35; font-weight: 720; }
+.expanded-builder-prompt { padding: 8px 11px; border-radius: 13px; background: rgba(255,255,255,.7); }
+.expanded-builder-prompt h2 { color: ${T.navy}; font: 700 clamp(15px,2vw,20px)/1.25 'Source Serif 4',serif; }
+.expanded-term-slots { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 6px; }
+.expanded-term-slot {
+  min-width: 0;
+  min-height: 54px;
+  padding: 5px 3px;
+  border: 0;
+  border-radius: 11px;
+  display: grid;
+  place-items: center;
+  color: ${T.navy};
+  background: ${T.paper};
+  font: 850 clamp(10px,1.45vw,14px)/1.15 'JetBrains Mono',monospace;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px rgba(22,143,163,.17), 0 9px 22px -17px rgba(${T.shadowBase},.46);
+}
+.expanded-term-slot-ready { box-shadow: inset 0 0 0 3px rgba(255,91,53,.34), 0 9px 22px -17px rgba(${T.shadowBase},.46); }
+.expanded-term-tray { min-height: 56px; padding: 7px; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 7px; border-radius: 14px; background: rgba(255,255,255,.66); }
+.expanded-term-card {
+  min-width: 76px;
+  min-height: 42px;
+  padding: 6px 9px;
+  border: 0;
+  border-radius: 11px;
+  color: ${T.paper};
+  background: ${T.navy};
+  font: 850 13px/1 'JetBrains Mono',monospace;
+  cursor: grab;
+  box-shadow: 0 9px 18px -12px rgba(23,59,82,.72);
+  transition: transform .2s, background .2s;
+}
+.expanded-term-selected { background: ${T.accent}; transform: translateY(-3px); }
+.expanded-term-tray > span { color: ${T.success}; font-size: 12px; font-weight: 850; }
+.expanded-builder-actions { display: flex; justify-content: flex-end; }
+.repeated-prompt { padding: 8px 11px; border-radius: 13px; color: ${T.ink}; background: rgba(255,255,255,.72); font-size: 12px; line-height: 1.35; font-weight: 720; }
+.repeated-number { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 7px; align-items: end; }
+.repeated-number > span,
+.repeated-digit-button {
+  min-width: 0;
+  min-height: 66px;
+  border: 0;
+  border-radius: 13px;
+  display: grid;
+  place-items: center;
+  color: ${T.navy};
+  background: ${T.paper};
+  font: 900 clamp(29px,5vw,43px)/1 'JetBrains Mono',monospace;
+}
+.repeated-number > .repeated-digit-target { position: relative; display: grid; background: transparent; overflow: visible; }
+.repeated-digit-button { width: 100%; cursor: pointer; box-shadow: inset 0 0 0 2px rgba(22,143,163,.18), 0 9px 22px -17px rgba(${T.shadowBase},.46); }
+.repeated-digit-current { color: ${T.paper}; background: ${T.accent}; box-shadow: 0 13px 24px -14px rgba(255,91,53,.72); }
+.repeated-digit-visited { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.25); }
+.repeated-digit-locked { opacity: .5; }
+.repeated-class-gap { margin-left: 10px; }
+.repeated-reveals { min-height: 54px; display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; }
+.repeated-reveals article { min-height: 54px; padding: 7px 9px; display: flex; align-items: center; justify-content: space-between; gap: 8px; border-radius: 12px; background: ${T.paper}; animation: theory-item-in .42s ease both; }
+.repeated-reveals span { color: ${T.ink2}; font-size: 9px; font-weight: 800; }
+.repeated-reveals strong { color: ${T.navy}; font: 900 clamp(15px,2.4vw,21px)/1 'JetBrains Mono',monospace; }
+.repeated-practice-frame > h2 { padding: 8px 11px; border-radius: 13px; color: ${T.navy}; background: rgba(255,255,255,.72); font: 700 clamp(16px,2.2vw,21px)/1.25 'Source Serif 4',serif; }
+.repeated-place-options { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 7px; }
+.repeated-place-option { min-width: 0; min-height: 52px; padding: 7px 3px; border: 0; border-radius: 12px; color: ${T.paper}; background: ${T.navy}; font: 850 clamp(10px,1.5vw,14px)/1.15 'JetBrains Mono',monospace; cursor: pointer; box-shadow: 0 9px 18px -13px rgba(23,59,82,.65); transition: transform .2s, background .2s; }
+.repeated-place-option.is-selected { color: ${T.paper}; background: ${T.accent}; transform: translateY(-3px); }
+.repeated-place-option.is-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.28); }
+@media (max-width: 639.98px) {
+  .expanded-builder-screen,
+  .repeated-digit-screen { gap: 7px; }
+  .expanded-builder-screen .heading-copy p,
+  .repeated-digit-screen .heading-copy p { display: none; }
+  .expanded-guided-frame,
+  .expanded-builder-frame,
+  .repeated-discovery-frame,
+  .repeated-practice-frame { padding: 9px; gap: 7px; border-radius: 17px; }
+  .revision-step-badge > span,
+  .expanded-caption > span { width: 29px; height: 29px; flex-basis: 29px; }
+  .revision-step-badge > strong { font-size: 27px; }
+  .expanded-guided-digits { gap: 3px; }
+  .expanded-digit { min-height: 68px; padding: 5px 2px; border-radius: 10px; }
+  .expanded-digit strong { font-size: 24px; }
+  .expanded-digit span { min-height: 19px; font-size: 6px; }
+  .expanded-class-gap, .repeated-class-gap { margin-left: 6px; }
+  .expanded-stream { min-height: 43px; padding: 5px 6px; gap: 3px; }
+  .expanded-stream strong { padding: 4px; font-size: 10px; }
+  .expanded-stream > span:not(.expanded-stream-wait) { font-size: 13px; }
+  .expanded-caption { min-height: 42px; padding: 5px 7px; grid-template-columns: 29px minmax(0,1fr); gap: 6px; }
+  .expanded-caption p { font-size: 9px; line-height: 1.25; }
+  .expanded-builder-prompt { padding: 6px 8px; }
+  .expanded-builder-prompt h2 { font-size: 14px; }
+  .expanded-term-slots { gap: 3px; }
+  .expanded-term-slot { min-height: 48px; padding: 3px 1px; border-radius: 8px; font-size: 8px; overflow-wrap: anywhere; }
+  .expanded-term-tray { min-height: 49px; padding: 5px; gap: 4px; }
+  .expanded-term-card { min-width: 65px; min-height: 36px; padding: 5px 6px; font-size: 10px; }
+  .repeated-prompt { padding: 6px 8px; font-size: 10px; }
+  .repeated-number { gap: 4px; }
+  .repeated-number > span,
+  .repeated-digit-button { min-height: 56px; border-radius: 10px; font-size: 27px; }
+  .repeated-reveals { min-height: 46px; gap: 4px; }
+  .repeated-reveals article { min-height: 46px; padding: 5px; display: grid; gap: 2px; text-align: center; }
+  .repeated-reveals span { font-size: 7px; }
+  .repeated-reveals strong { font-size: 13px; }
+  .repeated-practice-frame > h2 { padding: 6px 8px; font-size: 14px; }
+  .repeated-place-options { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
+  .repeated-place-option { min-height: 44px; font-size: 11px; }
+}
 .deep-sequence-screen { gap: 10px; }
 .deep-sequence-screen .screen-heading { grid-template-columns: minmax(0,1fr) 86px; gap: 12px; }
 .deep-sequence-screen .heading-copy h1 { font-size: clamp(23px,3vw,32px); line-height: 1.06; }
@@ -5505,7 +6344,8 @@ html, body { margin: 0; padding: 0; }
   font-weight: 850;
   box-shadow: inset 0 0 0 1px rgba(22,143,163,.15);
 }
-.deep-replay:hover { transform: translateY(-1px); }
+.deep-replay:hover:not(:disabled) { transform: translateY(-1px); }
+.deep-replay:disabled { cursor: not-allowed; opacity: .48; transform: none; }
 .ladder-screen,.zero-coefficient-screen { gap: 10px; }
 @keyframes deep-stage-in {
   from { opacity: 0; transform: translateY(13px) scale(.985); }
@@ -5666,6 +6506,90 @@ html, body { margin: 0; padding: 0; }
 .zero-contrast-notation > div strong { color: ${T.navy}; font: 900 clamp(19px,3.4vw,29px)/1.2 'JetBrains Mono', monospace; text-align: center; }
 .zero-contrast-notation > div i { color: ${T.warn}; font-size: 25px; font-style: normal; font-weight: 900; }
 @keyframes zero-place-pulse { 50% { color: ${T.paper}; transform: scale(1.12); } }
+.zero-rule-frame {
+  padding: 15px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  overflow: hidden;
+  border-radius: 20px;
+  color: ${T.navy};
+  background: ${T.cyanSoft};
+  box-shadow: inset 4px 0 0 ${T.cyan}, 0 15px 34px -18px rgba(23,59,82,.28);
+  animation: theory-model-in .62s cubic-bezier(.16,1,.3,1) .08s both;
+}
+.zero-rule-card {
+  position: relative;
+  min-width: 0;
+  min-height: 138px;
+  padding: 13px;
+  display: grid;
+  grid-template-rows: auto minmax(44px,1fr) auto;
+  align-items: start;
+  gap: 8px;
+  overflow: hidden;
+  border-radius: 15px;
+  background: rgba(255,255,255,.84);
+  box-shadow: 0 11px 25px -22px rgba(${T.shadowBase},.48);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px) scale(.985);
+  transition: opacity .36s ease, transform .36s cubic-bezier(.16,1,.3,1), visibility .36s;
+}
+.zero-rule-card::before {
+  content: '';
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 4px;
+  border-radius: 15px 0 0 15px;
+  background: ${T.success};
+}
+.zero-rule-card-number::before { background: ${T.warn}; }
+.zero-rule-card.is-visible,
+.zero-rule-summary.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+}
+.zero-rule-card > span {
+  color: ${T.ink2};
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+}
+.zero-rule-card > strong {
+  min-width: 0;
+  align-self: center;
+  overflow-wrap: anywhere;
+  color: ${T.navy};
+  font: 900 clamp(17px,2.7vw,24px)/1.25 'JetBrains Mono',monospace;
+  text-align: center;
+}
+.zero-rule-card > p {
+  color: ${T.success};
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 850;
+  text-align: center;
+}
+.zero-rule-card-number > p { color: ${T.warn}; }
+.zero-rule-summary {
+  grid-column: 1 / -1;
+  min-height: 54px;
+  padding: 10px 13px;
+  display: flex;
+  align-items: center;
+  border-radius: 13px;
+  color: ${T.navy};
+  background: rgba(255,255,255,.88);
+  box-shadow: inset 4px 0 0 ${T.cyan};
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(8px);
+  transition: opacity .36s ease, transform .36s cubic-bezier(.16,1,.3,1), visibility .36s;
+}
+.zero-rule-summary > p { color: ${T.navy}; font-size: 13px; line-height: 1.35; font-weight: 850; }
 .card-lab-solution { padding: 17px; display: grid; gap: 11px; }
 .shuffled-card-zone,
 .ordered-card-zone,
@@ -5815,7 +6739,6 @@ html, body { margin: 0; padding: 0; }
 .option-picked-wrong { color: ${T.warn}; background: ${T.warnSoft}; box-shadow: inset 0 0 0 2px rgba(169,111,19,.28); opacity: .64; }
 .option-correct { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34,122,83,.28), 0 8px 20px -12px rgba(34,122,83,.35); }
 .option-correct .option-letter { color: ${T.paper}; background: ${T.success}; }
-.option-dismissed { opacity: .42; }
 .feedback { height: 82px; margin-top: 6px; overflow: visible; opacity: 0; visibility: hidden; transition: opacity .28s ease; }
 .feedback-visible { opacity: 1; visibility: visible; }
 .feedback-card { min-height: 82px; padding: 8px 13px 8px 5px; display: grid; grid-template-columns: 70px minmax(0,1fr); align-items: center; gap: 9px; border-radius: 15px; }
@@ -5992,7 +6915,7 @@ html, body { margin: 0; padding: 0; }
   .finale-heading { padding: 11px 12px; }
   .finale-heading h1 { font-size: 22px; }
   .finale-heading p { display: none; }
-  .finale-mastery { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 5px; }
+  .finale-mastery { grid-template-columns: 1fr; gap: 5px; }
   .finale-takeaway { min-height: 0; padding: 8px 9px; }
   .finale-takeaway p { font-size: 9px; line-height: 1.3; }
   .finale-proof { grid-template-columns: 1fr; gap: 5px; }
@@ -6042,13 +6965,11 @@ html, body { margin: 0; padding: 0; }
   .option { min-height: 44px; padding: 6px 8px; }
   .feedback-card { min-height: 66px; grid-template-columns: 52px minmax(0,1fr); padding: 5px 8px 5px 2px; }
   .feedback-card .g1-char { width: 50px; height: 61px; }
-  .finale-layout { grid-template-columns: minmax(0,1.25fr) minmax(152px,.75fr); gap: 6px; }
+  .finale-layout { grid-template-columns: 1fr; gap: 6px; }
   .finale-heading { padding: 7px 9px; }
   .finale-heading h1 { font-size: 18px; }
   .finale-mastery { gap: 3px; }
   .finale-takeaway { padding: 5px 6px; }
-  .finale-reflection { padding: 6px; }
-  .finale-reflection button { min-height: 44px; }
   .finale-actions .g4-title-claim { min-height: 54px; }
   .finale-reward { min-height: 90px; padding-top: 7px; padding-bottom: 7px; }
 }
@@ -6058,7 +6979,7 @@ html, body { margin: 0; padding: 0; }
     transition-duration: .01ms !important;
     scroll-behavior: auto !important;
   }
-  .finale-takeaway, .finale-proof, .finale-bridge { opacity: 1 !important; transform: none !important; }
+  .finale-takeaway, .finale-proof, .finale-bridge { transform: none !important; transition-duration: .01ms !important; }
   .finale-confetti { display: none; }
 }
 /* Grade 4 Dars01 local visual contract */
@@ -6257,14 +7178,85 @@ html, body { margin: 0; padding: 0; }
   .deep-sequence-screen .deep-sequence-stage .model-row-list strong{font-size:10px}
   .finale-screen{gap:4px}
   .finale-screen .finale-heading{padding:5px 8px}
+  .finale-screen .finale-heading h1{font-size:16px}
   .finale-screen .finale-layout{grid-template-columns:1fr!important;align-items:start;gap:4px}
   .finale-screen .finale-main,.finale-screen .finale-actions{gap:4px}
-  .finale-screen .finale-reflection{padding:6px}
-  .finale-screen .finale-reflection>strong{font-size:10px}
-  .finale-screen .finale-reflection>div{margin-top:4px;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
-  .finale-screen .finale-reflection button{min-height:50px;padding:4px;grid-template-columns:18px minmax(0,1fr);gap:3px;font-size:8px;line-height:1.15}
-  .finale-screen .finale-actions .g4-title-claim{min-height:52px}
-  .finale-screen .finale-actions:has([data-g4-role~="title-card"]) .finale-reflection{display:none}
+  .finale-screen .finale-mastery{gap:3px}
+  .finale-screen .finale-takeaway{padding:4px 6px;grid-template-columns:22px minmax(0,1fr);gap:4px}
+  .finale-screen .finale-takeaway>span{width:22px;height:22px;border-radius:7px;font-size:8px}
+  .finale-screen .finale-takeaway p{font-size:8px;line-height:1.2}
+  .finale-screen .finale-proof{padding:4px 6px;grid-template-columns:1fr;gap:2px}
+  .finale-screen .finale-proof p{font-size:12px;line-height:1.2}
+  .finale-screen .finale-bridge{padding:4px 6px;grid-template-columns:20px minmax(0,1fr);gap:4px}
+  .finale-screen .finale-bridge>span{width:20px;height:20px;border-radius:7px}
+  .finale-screen .finale-bridge p{font-size:12px;line-height:1.2}
+  .finale-screen .finale-actions .g4-title-claim{min-height:44px}
+}
+/* Lesson 3 methodist revisions: scoped typography and model-frame colours. */
+.screen-heading.bit-free-heading{grid-template-columns:minmax(0,1fr)!important}
+.etalon-hook-screen .options-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+.etalon-hook-screen .option{font-size:13px}
+.etalon-hook-screen .option>span:last-child{font-size:13px}
+.etalon-hook-screen .option-letter{font-size:13px}
+.stage:is([data-g4-screen-id="s11"],[data-g4-screen-id="s12"],[data-g4-screen-id="s13"]) .choice-screen>.model-panel{
+  color:${T.navy};background:${T.cyanSoft};box-shadow:0 15px 34px -18px rgba(23,59,82,.28)
+}
+.stage:is([data-g4-screen-id="s11"],[data-g4-screen-id="s12"],[data-g4-screen-id="s13"]) .choice-screen>.model-panel::after{
+  background:rgba(22,143,163,.10)
+}
+.stage:is([data-g4-screen-id="s11"],[data-g4-screen-id="s12"],[data-g4-screen-id="s13"]) .choice-screen>.model-panel :is(
+  .model-heading,.model-heading span,.model-heading i,.model-number,.model-row-list span,.model-row-list strong
+){color:${T.navy}}
+.stage:is([data-g4-screen-id="s11"],[data-g4-screen-id="s12"],[data-g4-screen-id="s13"]) .choice-screen>.model-panel .model-row-list>div{
+  background:rgba(255,255,255,.72)
+}
+.stage[data-g4-screen-id="s3"] .place-ladder-board{
+  color:${T.navy};background:${T.cyanSoft};box-shadow:0 15px 34px -18px rgba(23,59,82,.28)
+}
+.stage[data-g4-screen-id="s3"] .place-ladder-board :is(
+  .place-ladder-topline>span,.place-ladder-step>span,.place-ladder-step>strong
+){color:${T.navy}}
+.stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-heading{font-size:12px}
+.stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-row-list span{font-size:10px}
+.stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-row-list strong{font-size:clamp(14px,1.7vw,18px)}
+.stage[data-g4-screen-id="s11"] .choice-slide-12 .options-grid{grid-template-columns:1fr;gap:5px;margin-top:6px}
+.stage[data-g4-screen-id="s11"] .choice-slide-12 .option{min-height:44px;padding:6px 8px;border-radius:11px;gap:7px}
+.stage[data-g4-screen-id="s11"] .choice-slide-12 .option-letter{width:28px;height:28px;flex-basis:28px;font-size:12px}
+.stage[data-g4-screen-id="s11"] .choice-slide-12 .option>span:last-child{min-width:0;font-size:10px;white-space:nowrap}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel{padding:12px}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-heading{font-size:13px}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-number{font-size:clamp(33px,6vw,54px)}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list>div{min-height:46px;padding:8px 10px}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list span{font-size:11px}
+.stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list strong{font-size:clamp(15px,1.7vw,19px)}
+@media(max-width:639.98px){
+  .stage[data-g4-screen-id="s9"] .zero-rule-frame{padding:10px;grid-template-columns:1fr;gap:7px;border-radius:16px}
+  .stage[data-g4-screen-id="s9"] .zero-rule-card{min-height:82px;padding:9px 10px;grid-template-rows:auto auto auto;gap:4px;border-radius:11px}
+  .stage[data-g4-screen-id="s9"] .zero-rule-card>span{font-size:9px}
+  .stage[data-g4-screen-id="s9"] .zero-rule-card>strong{font-size:17px;line-height:1.2}
+  .stage[data-g4-screen-id="s9"] .zero-rule-card>p{font-size:10px;line-height:1.25}
+  .stage[data-g4-screen-id="s9"] .zero-rule-summary{grid-column:1;min-height:46px;padding:8px 10px}
+  .stage[data-g4-screen-id="s9"] .zero-rule-summary>p{font-size:11px;line-height:1.3}
+  .stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-heading{font-size:10px}
+  .stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-row-list span{font-size:8px}
+  .stage[data-g4-screen-id="s11"] .choice-slide-12>.model-panel .model-row-list strong{font-size:12px}
+  .stage[data-g4-screen-id="s11"] .choice-slide-12 .option>span:last-child{font-size:9px}
+  .stage[data-g4-screen-id="s11"] .choice-slide-12 .option-letter{font-size:12px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel{padding:10px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-heading{font-size:11px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-number{font-size:32px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list>div{min-height:40px;padding:6px 4px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list span{font-size:9px}
+  .stage[data-g4-screen-id="s12"] .choice-slide-13>.model-panel .model-row-list strong{font-size:13px}
+}
+@media(max-width:390px) and (max-height:700px){
+  .etalon-hook-screen .option>span:last-child{font-size:10px}
+  .etalon-hook-screen .option-letter{font-size:13px}
+}
+@media(min-width:640px) and (max-width:1100px){
+  .etalon-hook-screen .question-card:has([data-g4-feedback]){padding:10px}
+  .etalon-hook-screen .question-card:has([data-g4-feedback]) .options-grid{margin-top:5px}
 }
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"],
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{

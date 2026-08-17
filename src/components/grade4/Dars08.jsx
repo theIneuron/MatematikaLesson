@@ -3,12 +3,13 @@ import React, {
   useCallback,
   useContext,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 // 4-sinf, 8-dars: Ko'p xonali sonlarni qo'shish va ayirish.
 // Dars01 metodik yoyiga mos, LMS uchun self-contained nazariy dars.
@@ -26,7 +27,7 @@ const T = {
   ink3: '#82919A',
   navy: '#173B52',
   cyan: '#168FA3',
-  cyanSoft: '#E4F5F6',
+  cyanSoft: '#E5F5F6',
   blue: '#019ACB',
   accent: '#FF5B35',
   accentSoft: '#FFF0EA',
@@ -39,7 +40,7 @@ const T = {
   shadowBase: '58, 53, 48',
 };
 
-const TOTAL_SCREENS = 16;
+const TOTAL_SCREENS = 15;
 const LESSON_META = {
   lessonId: 'num-4-08-v1',
   lessonTitle: B(
@@ -48,26 +49,39 @@ const LESSON_META = {
     'Lesson 8. Adding and subtracting multi-digit numbers',
   ),
   skillTags: ['column_addition', 'column_subtraction', 'regrouping', 'zero_chain', 'inverse_check'],
+  finalReflectionRequired: false,
 };
 
 const SCREEN_META = [
   { id: 's0', type: 'hook', subtype: 'diagnostic-choice', template: 'MCScreen', active: true, goal: 'align-by-ones', misconceptions: ['left-alignment'], scored: false, scope: 'hook', resetOnReturn: true },
-  { id: 's1', type: 'exploration', subtype: 'foundation-review', template: 'ReasoningRounds', active: true, goal: 'restore-place-value-exchange', misconceptions: ['place-label-confusion'], scored: false, scope: null },
-  { id: 's2', type: 'exploration', subtype: 'step-by-step', template: 'AnimatedExplanation', active: true, goal: 'model-to-column-alignment', misconceptions: ['left-alignment'], scored: false, scope: null },
-  { id: 's3', type: 'exploration', subtype: 'step-by-step', template: 'AnimatedExplanation', active: true, goal: 'add-without-regrouping', misconceptions: ['calculate-from-left'], scored: false, scope: null },
+  { id: 's1', type: 'exploration', subtype: 'single-step-foundation-choice', template: 'MCScreen', active: true, goal: 'restore-place-value', misconceptions: ['place-label-confusion'], scored: false, scope: null },
+  { id: 's2', type: 'exploration', subtype: 'single-step-placement-map', template: 'PlacementMap', active: true, goal: 'model-to-column-alignment', misconceptions: ['left-alignment'], scored: false, scope: null },
+  { id: 's3', type: 'example', subtype: 'single-step-column-choice', template: 'MCScreen', active: true, goal: 'add-without-regrouping', misconceptions: ['calculate-from-left'], scored: false, scope: null },
   { id: 's4', type: 'exploration', subtype: 'step-by-step', template: 'AnimatedExplanation', active: true, goal: 'add-with-regrouping', misconceptions: ['write-two-digits-in-cell', 'forget-carry'], scored: false, scope: null },
-  { id: 's5', type: 'practice', subtype: 'digit-carry-builder', template: 'ColumnConstruction', active: true, goal: 'guided-addition', misconceptions: ['forget-carry'], scored: false, scope: null },
-  { id: 's6', type: 'exploration', subtype: 'reasoning', template: 'ReasoningRounds', active: true, goal: 'repair-addition-errors', misconceptions: ['write-two-digits-in-cell', 'forget-carry'], scored: false, scope: null },
-  { id: 's7', type: 'exploration', subtype: 'step-by-step', template: 'AnimatedExplanation', active: true, goal: 'subtract-without-exchange', misconceptions: ['subtract-smaller-from-larger-digit'], scored: false, scope: null },
-  { id: 's8', type: 'exploration', subtype: 'step-by-step', template: 'AnimatedExplanation', active: true, goal: 'subtract-with-exchange', misconceptions: ['donor-not-reduced'], scored: false, scope: null },
-  { id: 's9', type: 'exploration', subtype: 'zero-chain-reasoning', template: 'ReasoningRounds', active: true, goal: 'exchange-through-zeroes', misconceptions: ['borrow-directly-from-zero', 'lose-intermediate-nines'], scored: false, scope: null },
-  { id: 's10', type: 'rule', subtype: 'rule-builder', template: 'RuleBuilder', active: true, goal: 'assemble-algorithm', misconceptions: ['unordered-algorithm'], scored: false, scope: null },
-  { id: 's11', type: 'test', subtype: 'rapid-console', template: 'RapidTestConsole', active: true, goal: 'four-first-try-checks', misconceptions: ['left-alignment', 'forget-carry', 'borrow-directly-from-zero', 'lose-intermediate-nines'], scored: true, scope: 'final', scoreUnits: 4 },
-  { id: 's12', type: 'practice', subtype: 'matching-strategy', template: 'MatchingBoard', active: true, goal: 'estimate-and-inverse-check', misconceptions: ['estimate-as-exact-answer', 'wrong-inverse'], scored: false, scope: null },
-  { id: 's13', type: 'case', subtype: 'guided-transfer', template: 'ReasoningRounds', active: true, goal: 'library-addition-transfer', misconceptions: ['wrong-operation', 'forget-carry'], scored: false, scope: null },
-  { id: 's14', type: 'case', subtype: 'independent-transfer', template: 'ReasoningRounds', active: true, goal: 'library-subtraction-transfer', misconceptions: ['borrow-directly-from-zero', 'wrong-inverse'], scored: false, scope: null },
-  { id: 's15', type: 'summary', subtype: 'claim-title', template: 'custom', active: true, goal: 'reflect-and-finish', misconceptions: [], scored: false, scope: null },
+  { id: 's5', type: 'practice', subtype: 'single-step-carry-choice', template: 'MCScreen', active: true, goal: 'guided-addition', misconceptions: ['write-two-digits-in-cell', 'forget-carry'], scored: true, scope: 'final', scoreUnits: 1 },
+  { id: 's6', type: 'exploration', subtype: 'single-step-error-repair', template: 'ReasoningRounds', active: true, goal: 'repair-addition-error', misconceptions: ['write-two-digits-in-cell'], scored: false, scope: null },
+  { id: 's7', type: 'exploration', subtype: 'single-step-operation-choice', template: 'MCScreen', active: true, goal: 'subtract-without-exchange', misconceptions: ['subtract-smaller-from-larger-digit'], scored: false, scope: null },
+  { id: 's8', type: 'exploration', subtype: 'single-step-donor-choice', template: 'MCScreen', active: true, goal: 'subtract-with-exchange', misconceptions: ['donor-not-reduced'], scored: false, scope: null },
+  { id: 's9', type: 'exploration', subtype: 'three-step-zero-chain', template: 'GuidedChoiceSteps', active: true, goal: 'exchange-through-zeroes', misconceptions: ['borrow-directly-from-zero', 'lose-intermediate-nines'], scored: false, scope: null },
+  { id: 's10', type: 'practice', subtype: 'missing-digit', template: 'DigitGrid', active: true, goal: 'restore-zero-place', misconceptions: ['omit-zero-placeholder'], scored: true, scope: 'final', scoreUnits: 1 },
+  { id: 's11', type: 'test', subtype: 'single-numeric-check', template: 'RapidTestConsole', active: true, goal: 'exact-zero-chain-result', misconceptions: ['borrow-directly-from-zero', 'lose-intermediate-nines'], scored: true, scope: 'final', scoreUnits: 1 },
+  { id: 's12', type: 'practice', subtype: 'single-step-strategy-estimate-choice', template: 'MCScreen', active: true, goal: 'estimate-check', misconceptions: ['wrong-operation', 'estimate-as-exact-answer'], scored: false, scope: null },
+  { id: 's13', type: 'case', subtype: 'single-step-life-transfer', template: 'MCScreen', active: true, goal: 'library-addition-and-inverse-check', misconceptions: ['wrong-operation', 'wrong-inverse'], scored: true, scope: 'final', scoreUnits: 1 },
+  { id: 's14', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'title-claim', active: true, goal: 'Summarize and claim the title', misconceptions: [], scored: false, scope: null },
 ];
+
+const SCORED_SCREEN_INDEXES = SCREEN_META
+  .map((meta, index) => (meta.scored ? index : null))
+  .filter((index) => index !== null);
+
+const summarizeScoredAnswers = (answers = []) => {
+  const scoredAnswers = SCORED_SCREEN_INDEXES.map((index) => answers[index]);
+  return {
+    total: SCORED_SCREEN_INDEXES.length,
+    correct: scoredAnswers.filter((answer) => answer?.firstTry === true).length,
+    attempts: scoredAnswers.reduce((sum, answer) => sum + (answer?.attempts ?? 0), 0),
+  };
+};
 
 let runtimeConfig = {
   ttsApiBase: '',
@@ -119,7 +133,7 @@ const CONTENT = {
     lead: L("Kutubxonada 72 384 ta kitob bor edi. Yana 8 596 ta kitob keldi. Bit sonlarni ustun usulida yozishi kerak.", 'В библиотеке было 72 384 книги. Поступило ещё 8 596 книг. Биту нужно записать числа столбиком.', 'The library had 72,384 books. Another 8,596 books arrived. Bit needs to use the column method.'),
     question: L("Bit sonlarni ustun qilib qo'shmoqchi. U sonlarni to'g'ri joylashtira oldimi?", 'Бит хочет сложить числа столбиком. Правильно ли он расположил числа?', 'Bit wants to add the numbers using the column method. Has he aligned them correctly?'),
     options: [
-      L("Yo'q, sonlar chapdan tekislangan.", 'Нет, числа выровнены слева.', 'No, the numbers are aligned on the left.'),
+      L("Yo'q, sonlar chapdan tekislanishi kerak.", 'Нет, числа выровнены слева.', 'No, the numbers are aligned on the left.'),
       L("Ha, sonlar o'ngdan tekislanishi kerak.", 'Да, числа нужно выровнять справа.', 'Yes, the numbers should be aligned on the right.'),
     ],
     correctIndex: 1,
@@ -145,19 +159,20 @@ const CONTENT = {
 
   s1: {
     eyebrow: L('Tayanchni eslaymiz', 'Вспоминаем опору', 'Recall the foundation'),
-    title: L('Uchta qisqa tekshiruv', 'Три короткие проверки', 'Three quick checks'),
-    rounds: [
-      { id: 'place', question: L("4 862 sonida 6 raqami qaysi xonada turibdi?", 'В каком разряде стоит цифра 6 в числе 4 862?', 'Which place is the digit 6 in within 4,862?'), options: [L("o'nlar", 'десятки', 'tens'), L('yuzlar', 'сотни', 'hundreds'), L('birlar', 'единицы', 'ones')], correctIndex: 0, wrong: [null, L("6 o'ngdan ikkinchi turibdi, shuning uchun u yuzlik emas, o'nlik.", 'Цифра 6 стоит второй справа, поэтому это не сотни, а десятки.', 'The digit 6 is second from the right, so it is in the tens, not the hundreds.'), L("Birlar xonasida eng o'ngdagi 2 turibdi. Uning chapidagi 6 o'nlikni bildiradi.", 'В разряде единиц стоит крайняя правая цифра 2. Цифра 6 слева от неё обозначает десятки.', 'The far-right digit 2 is in the ones place. The 6 to its left represents tens.')], wrongAudio: [null, L("Olti o'ngdan ikkinchi turibdi, shuning uchun u yuzlik emas, o'nlik.", 'Цифра шесть стоит второй справа, поэтому это не сотни, а десятки.', 'The digit six is second from the right, so it is in the tens, not the hundreds.'), L("Birlar xonasida eng o'ngdagi ikki turibdi. Uning chapidagi olti o'nlikni bildiradi.", 'В разряде единиц стоит крайняя правая цифра два. Цифра шесть слева от неё обозначает десятки.', 'The far-right digit two is in the ones place. The six to its left represents tens.')], correctAudio: L("To'g'ri. Olti o'ngdan ikkinchi raqam, demak u o'nlar xonasida.", 'Верно. Цифра шесть стоит второй справа, значит, она находится в разряде десятков.', 'Correct. Six is the second digit from the right, so it is in the tens place.') },
-      { id: 'exchange', question: L('10 birlik nimaga teng?', 'Чему равны 10 единиц?', 'What are 10 ones equal to?'), options: [L("1 o'nlik", '1 десяток', '1 ten'), L("10 o'nlik", '10 десятков', '10 tens'), L('1 yuzlik', '1 сотня', '1 hundred')], correctIndex: 0, wrong: [null, L("10 birlikni yiriklashtirsak, 10 o'nlik emas, 1 o'nlik hosil bo'ladi.", 'При укрупнении 10 единиц получаем не 10 десятков, а 1 десяток.', 'Regrouping 10 ones makes 1 ten, not 10 tens.'), L("1 yuzlik uchun 100 birlik kerak. 10 birlik faqat 1 o'nlikni beradi.", 'Для 1 сотни нужны 100 единиц. 10 единиц дают только 1 десяток.', 'One hundred needs 100 ones. Ten ones make only 1 ten.')], wrongAudio: [null, L("O'nta birlikni yiriklashtirsak, o'nta o'nlik emas, bitta o'nlik hosil bo'ladi.", 'При укрупнении десяти единиц получаем не десять десятков, а один десяток.', 'Regrouping ten ones makes one ten, not ten tens.'), L("Bitta yuzlik uchun yuzta birlik kerak. O'nta birlik faqat bitta o'nlikni beradi.", 'Для одной сотни нужны сто единиц. Десять единиц дают только один десяток.', 'One hundred needs one hundred ones. Ten ones make only one ten.')], correctAudio: L("To'g'ri. O'nta birlikni yiriklashtirsak, bitta o'nlik hosil bo'ladi.", 'Верно. Десять единиц укрупняются в один десяток.', 'Correct. Ten ones regroup as one ten.') },
-      { id: 'align', question: L('205 sonini 4 731 ostiga qanday joylashtiramiz?', 'Как разместить число 205 под числом 4 731?', 'How should 205 be placed under 4,731?'), options: [L('5 ni 1 birligi ostiga', '5 под 1 единицей', '5 under the 1 one'), L('2 ni 4 mingligi ostiga', '2 под 4 тысячами', '2 under the 4 thousands'), L('0 ni 1 birligi ostiga', '0 под 1 единицей', '0 under the 1 one')], correctIndex: 0, wrong: [null, L("205 dagi 2 yuzlikni bildiradi. Uni 4 minglik ostiga emas, 7 yuzlik ostiga yozamiz.", 'Цифра 2 в числе 205 обозначает сотни. Её ставим под 7 сотнями, а не под 4 тысячами.', 'The 2 in 205 represents hundreds. Put it under the 7 hundreds, not under the 4 thousands.'), L("205 dagi 0 o'nlikni bildiradi. U 1 birlik ostiga emas, 3 o'nlik ostiga tushadi.", 'Цифра 0 в числе 205 обозначает десятки. Она стоит под 3 десятками, а не под 1 единицей.', 'The 0 in 205 represents tens. It goes under the 3 tens, not under the 1 one.')], wrongAudio: [null, L("Ikki yuzlikni bildiradi. Uni to'rt minglik ostiga emas, yetti yuzlik ostiga yozamiz.", 'Два обозначает сотни. Его ставим под семью сотнями, а не под четырьмя тысячами.', 'Two represents hundreds. Put it under the seven hundreds, not under the four thousands.'), L("Nol o'nlikni bildiradi. U bir birlik ostiga emas, uch o'nlik ostiga tushadi.", 'Ноль обозначает десятки. Он стоит под тремя десятками, а не под одной единицей.', 'Zero represents tens. It goes under the three tens, not under the one.')], correctAudio: L("To'g'ri. Ikki yuz besh sonining besh birligi to'rt ming yetti yuz o'ttiz bir sonining bir birligi ostida turadi.", 'Верно. Пять единиц числа двести пять стоят под одной единицей числа четыре тысячи семьсот тридцать один.', 'Correct. The five ones in two hundred and five sit under the one in four thousand seven hundred and thirty-one.') },
-    ],
-    correctText: L("To'g'ri. Xona qiymati va 10 dan 1 ga almashtirish tiklandi.", 'Верно. Разрядные значения и обмен десяти единиц на одну восстановлены.', 'Correct. Place value and the ten-to-one exchange are restored.'),
-    wrongText: L("Xonalarni o'ngdan sanang va 10 ta kichik xona birligi keyingi xonaning 1 birligini berishini eslang.", 'Считай разряды справа и вспомни, что 10 единиц одного разряда дают 1 единицу следующего.', 'Count places from the right and recall that 10 units of one place make 1 unit of the next.'),
+    title: L('Ikki tayanchni tekshiramiz', 'Проверяем две опоры', 'Check two foundations'),
+    lead: L("Xonalarni o'ngdan sanaymiz va 10 ta kichik birlikni keyingi xonaning 1 birligiga almashtiramiz.", 'Считаем разряды справа и обмениваем 10 меньших единиц на 1 единицу следующего разряда.', 'Count places from the right and exchange 10 smaller units for 1 unit of the next place.'),
+    question: L("Qaysi yozuvda ikkala tayanch ham to'g'ri?", 'В какой записи обе опоры верны?', 'Which line has both foundations correct?'),
+    options: [L("6 — o'nlik; 10 birlik = 1 o'nlik", '6 — десятки; 10 единиц = 1 десяток', '6 is tens; 10 ones = 1 ten'), L("6 — yuzlik; 10 birlik = 1 o'nlik", '6 — сотни; 10 единиц = 1 десяток', '6 is hundreds; 10 ones = 1 ten'), L("6 — o'nlik; 10 birlik = 10 o'nlik", '6 — десятки; 10 единиц = 10 десятков', '6 is tens; 10 ones = 10 tens')],
+    correctIndex: 0,
+    wrong: [null, L("6 o'ngdan ikkinchi turibdi, shuning uchun u yuzlik emas, o'nlik.", 'Цифра 6 стоит второй справа, поэтому это не сотни, а десятки.', 'The digit 6 is second from the right, so it is in the tens, not the hundreds.'), L("10 birlik 10 o'nlikni emas, 1 o'nlikni hosil qiladi.", '10 единиц образуют 1 десяток, а не 10 десятков.', 'Ten ones make 1 ten, not 10 tens.')],
+    wrongAudio: [null, L("Olti o'ngdan ikkinchi turibdi, shuning uchun u yuzlik emas, o'nlik.", 'Цифра шесть стоит второй справа, поэтому она обозначает десятки, а не сотни.', 'The digit six is second from the right, so it is in the tens place, not the hundreds place.'), L("O'nta birlik o'nta o'nlikni emas, bitta o'nlikni hosil qiladi.", 'Десять единиц образуют один десяток, а не десять десятков.', 'Ten ones make one ten, not ten tens.')],
+    correctText: L("To'g'ri. 6 o'nlar xonasida, 10 birlik esa 1 o'nlikka teng.", 'Верно. 6 стоит в разряде десятков, а 10 единиц равны 1 десятку.', 'Correct. Six is in the tens place, and 10 ones make 1 ten.'),
+    wrongText: L("Xonalarni o'ngdan sanang va 10 birlikni 1 o'nlikka almashtiring.", 'Считай разряды справа и обменивай 10 единиц на 1 десяток.', 'Count places from the right and exchange 10 ones for 1 ten.'),
     solution: { title: Y, steps: [L("Xonalar o'ngdan boshlanadi: birlar, o'nlar, yuzlar.", 'Разряды начинаются справа: единицы, десятки, сотни.', 'Places begin on the right: ones, tens, hundreds.'), L("10 birlik = 1 o'nlik.", '10 единиц = 1 десяток.', '10 ones = 1 ten.'), L('Ustun yozuvida birlar birlar ostida turadi.', 'В записи столбиком единицы стоят под единицами.', 'In the column method, ones are placed under ones.')]},
     audio: {
-      intro: L("Xona qiymati va almashtirishni uch qadamda eslang. Xonalarni o'ngdan sanang, o'nta birlikni bitta o'nlikka almashtiring va sonlarni birlar bo'yicha tekislang.", 'Вспомни разрядные значения и обмен за три шага. Считай разряды справа, обмени десять единиц на один десяток и выровняй числа по единицам.', 'Recall place value and exchange in three steps. Count places from the right, exchange ten ones for one ten, and align the numbers by their ones places.'),
-      on_correct: L("To'g'ri. Kerakli tayanch tiklandi.", 'Верно. Нужная опора восстановлена.', 'Correct. The required foundation is restored.'),
-      on_wrong: L("Eng o'ngdagi raqamdan boshlab xona qiymatini tekshiring.", 'Проверь разрядное значение, начиная с крайней правой цифры.', 'Check place value starting with the digit on the far right.'),
+      intro: L("To'rt ming sakkiz yuz oltmish ikki sonidagi olti qaysi xonada turadi va o'nta birlik nimaga teng? Ikkala fikr to'g'ri bo'lgan yozuvni tanlang.", 'В каком разряде стоит цифра шесть в числе четыре тысячи восемьсот шестьдесят два и чему равны десять единиц? Выбери запись, где оба утверждения верны.', 'Which place is the digit six in within four thousand eight hundred and sixty-two, and what do ten ones make? Choose the line where both statements are correct.'),
+      on_correct: L("To'g'ri. Olti o'nlar xonasida, o'nta birlik esa bitta o'nlikka teng.", 'Верно. Шесть стоит в разряде десятков, а десять единиц равны одному десятку.', 'Correct. Six is in the tens place, and ten ones make one ten.'),
+      on_wrong: L("Xonalarni o'ngdan sanang va o'nta birlikni bitta o'nlikka almashtiring.", 'Считай разряды справа и обменивай десять единиц на один десяток.', 'Count places from the right and exchange ten ones for one ten.'),
     },
   },
 
@@ -166,10 +181,10 @@ const CONTENT = {
     title: L('32 415 va 6 203 ni tekislaymiz', 'Выравниваем 32 415 и 6 203', 'Align 32,415 and 6,203'),
     lead: L("6 203 sonining raqamlarini o'z xonalariga joylashtiring.", 'Помести цифры числа 6 203 в их разряды.', 'Place the digits of 6,203 into their correct places.'),
     steps: [
-      { place: 'ones', prompt: L("3 raqamini qayerga qo'yamiz?", 'Куда поместить цифру 3?', 'Where should the digit 3 go?'), result: L('3 birligi 5 birligi ostida.', '3 единицы под 5 единицами.', '3 ones under 5 ones.') },
-      { place: 'tens', prompt: L("0 raqamini qayerga qo'yamiz?", 'Куда поместить цифру 0?', 'Where should the digit 0 go?'), result: L("0 o'nligi 1 o'nligi ostida.", '0 десятков под 1 десятком.', '0 tens under 1 ten.') },
-      { place: 'hundreds', prompt: L("2 raqamini qayerga qo'yamiz?", 'Куда поместить цифру 2?', 'Where should the digit 2 go?'), result: L('2 yuzligi 4 yuzligi ostida.', '2 сотни под 4 сотнями.', '2 hundreds under 4 hundreds.') },
-      { place: 'thousands', prompt: L("6 raqamini qayerga qo'yamiz?", 'Куда поместить цифру 6?', 'Where should the digit 6 go?'), result: L('6 mingligi 2 mingligi ostida.', '6 тысяч под 2 тысячами.', '6 thousands under 2 thousands.') },
+      { place: 'ones', prompt: L("3 raqamini birlar xonasiga qo'yamiz.", 'Цифру 3 помещаем в разряд единиц.', 'Place the digit 3 in the ones place.'), result: L('3 birligi 5 birligi ostida.', '3 единицы под 5 единицами.', '3 ones under 5 ones.') },
+      { place: 'tens', prompt: L("0 raqamini o'nlar xonasiga qo'yamiz.", 'Цифру 0 помещаем в разряд десятков.', 'Place the digit 0 in the tens place.'), result: L("0 o'nligi 1 o'nligi ostida.", '0 десятков под 1 десятком.', '0 tens under 1 ten.') },
+      { place: 'hundreds', prompt: L("2 raqamini yuzlar xonasiga qo'yamiz.", 'Цифру 2 помещаем в разряд сотен.', 'Place the digit 2 in the hundreds place.'), result: L('2 yuzligi 4 yuzligi ostida.', '2 сотни под 4 сотнями.', '2 hundreds under 4 hundreds.') },
+      { place: 'thousands', prompt: L("6 raqamini minglar xonasiga qo'yamiz.", 'Цифру 6 помещаем в разряд тысяч.', 'Place the digit 6 in the thousands place.'), result: L('6 mingligi 2 mingligi ostida.', '6 тысяч под 2 тысячами.', '6 thousands under 2 thousands.') },
     ],
     doneText: L("6 203 sonida o'n minglik yo'q. Uning katagi bo'sh qoladi.", 'В числе 6 203 нет десятков тысяч. Соответствующая клетка остаётся пустой.', 'There are no ten-thousands in 6,203, so that box stays empty.'),
     solution: { title: Y, steps: [L("Eng o'ngdagi 3 raqami birliklarni bildiradi.", 'Крайняя правая цифра 3 показывает единицы.', 'The digit 3 on the far right represents ones.'), L("Keyingi raqamlar o'ngdan chapga o'nlar, yuzlar va minglar xonalariga joylashadi.", 'Следующие цифры справа налево занимают десятки, сотни и тысячи.', 'The next digits from right to left occupy the tens, hundreds and thousands places.')]},
@@ -199,24 +214,23 @@ const CONTENT = {
   },
 
   s3: {
-    eyebrow: L('Tushuntirish · 2-qadam', 'Объяснение · шаг 2', 'Explanation · step 2'),
-    title: L("Almashtirishsiz qo'shish", 'Сложение без укрупнения', 'Addition without regrouping'),
+    eyebrow: L('1-misol · 1-qadam', 'Пример 1 · один шаг', 'Example 1 · one step'),
+    title: L("Almashtirishsiz qo'shing", 'Сложи без укрупнения', 'Add without regrouping'),
+    lead: L("Bir xil xonalarni qo'shing va to'liq natijani tanlang.", 'Сложи одинаковые разряды и выбери полный результат.', 'Add matching places and choose the complete result.'),
     expression: '32 415 + 6 203',
-    rounds: [
-      { place: 'ones', expression: '5 + 3', options: ['8', '2', '5'], correctIndex: 0 },
-      { place: 'tens', expression: '1 + 0', options: ['1', '4', '0'], correctIndex: 0 },
-      { place: 'hundreds', expression: '4 + 2', options: ['6', '2', '4'], correctIndex: 0 },
-      { place: 'thousands', expression: '2 + 6', options: ['8', '6', '2'], correctIndex: 0 },
-      { place: 'tenThousands', expression: '3 + 0', options: ['3', '9', '0'], correctIndex: 0 },
-    ],
-    correctText: L("To'g'ri. Faol ustun aniq hisoblandi.", 'Верно. Активный столбец вычислен точно.', 'Correct. The active column has been calculated accurately.'),
-    wrongText: L("Faqat faol ustundagi raqamlarni qo'shing.", 'Складывай только цифры активного столбца.', 'Add only the digits in the active column.'),
+    question: L("32 415 + 6 203 ning natijasi qaysi?", 'Чему равно 32 415 + 6 203?', 'What is 32,415 + 6,203?'),
+    options: ['38 618', '38 612', '26 212'],
+    correctIndex: 0,
+    wrong: [null, L("Birlar xonasida 5 + 3 = 8 bo'lishi kerak; natija 2 bilan tugamaydi.", 'В разряде единиц 5 + 3 = 8, поэтому результат не оканчивается на 2.', 'In the ones place, 5 + 3 = 8, so the result cannot end in 2.'), L("Bu yozuvda ayrishga yaqin natija olingan. Masalada sonlar qo'shilmoqda.", 'Этот результат похож на вычитание. В задаче числа складываются.', 'This result is closer to subtraction. The numbers are being added.')],
+    wrongAudio: [null, L("Birlar xonasida besh bilan uch sakkiz bo'ladi. Natija ikki bilan tugamaydi.", 'В разряде единиц пять плюс три равно восьми. Результат не оканчивается на два.', 'In the ones place, five plus three equals eight. The result cannot end in two.'), L("Bu natija ayirishga o'xshaydi. Masalada sonlar qo'shilmoqda.", 'Этот результат похож на вычитание. В задаче числа складываются.', 'This result looks like subtraction. The numbers are being added.')],
+    correctText: L("To'g'ri. Barcha xonalar bitta hisobda tekshirildi.", 'Верно. Все разряды проверены в одном вычислении.', 'Correct. Every place was checked in one calculation.'),
+    wrongText: L("Birliklardan boshlang va bir xil xonalarni qo'shing.", 'Начни с единиц и складывай одинаковые разряды.', 'Start with the ones and add matching places.'),
     resultText: L('32 415 + 6 203 = 38 618', '32 415 + 6 203 = 38 618', '32,415 + 6,203 = 38,618'),
     solution: { title: Y, steps: [L('5 + 3 = 8 birlik.', '5 + 3 = 8 единиц.', '5 + 3 = 8 ones.'), L("1 + 0 = 1 o'nlik; 4 + 2 = 6 yuzlik.", '1 + 0 = 1 десяток; 4 + 2 = 6 сотен.', '1 + 0 = 1 ten; 4 + 2 = 6 hundreds.'), L("2 + 6 = 8 minglik; 3 + 0 = 3 o'n minglik.", '2 + 6 = 8 тысяч; 3 + 0 = 3 десятка тысяч.', '2 + 6 = 8 thousands; 3 + 0 = 3 ten-thousands.')]},
     audio: {
-      uz: ['Hisoblashni birlar xonasidan boshlang.', "Besh birlik va uch birlik sakkiz birlik bo'ladi.", "Bir o'nlik va nol o'nlik bir o'nlik bo'ladi.", "To'rt yuzlik va ikki yuzlik olti yuzlik bo'ladi.", "Ikki minglik va olti minglik sakkiz minglik bo'ladi.", "Uch o'n minglik va nol o'n minglik uch o'n minglik bo'ladi.", "Natija o'ttiz sakkiz ming olti yuz o'n sakkiz."],
-      ru: ['Начинай вычисление с единиц.', 'Пять единиц плюс три единицы дают восемь.', 'Один десяток плюс ноль десятков дают один десяток.', 'Четыре сотни плюс две сотни дают шесть сотен.', 'Две тысячи плюс шесть тысяч дают восемь тысяч.', 'Три десятка тысяч плюс ноль десятков тысяч дают три десятка тысяч.', 'Результат: тридцать восемь тысяч шестьсот восемнадцать.'],
-      en: ['Start calculating in the ones place.', 'Five ones plus three ones make eight ones.', 'One ten plus zero tens makes one ten.', 'Four hundreds plus two hundreds make six hundreds.', 'Two thousands plus six thousands make eight thousands.', 'Three ten-thousands plus zero ten-thousands make three ten-thousands.', 'The result is thirty-eight thousand six hundred and eighteen.'],
+      intro: L("O'ttiz ikki ming to'rt yuz o'n beshga olti ming ikki yuz uchni qo'shing. Xonalar bo'yicha hisoblab, to'liq natijani tanlang.", 'Сложи тридцать две тысячи четыреста пятнадцать и шесть тысяч двести три. Вычисли по разрядам и выбери полный результат.', 'Add thirty-two thousand four hundred and fifteen and six thousand two hundred and three. Calculate by place and choose the complete result.'),
+      on_correct: L("To'g'ri. Natija o'ttiz sakkiz ming olti yuz o'n sakkiz.", 'Верно. Результат: тридцать восемь тысяч шестьсот восемнадцать.', 'Correct. The result is thirty-eight thousand six hundred and eighteen.'),
+      on_wrong: L("Birliklardan boshlab bir xil xonalarni qayta qo'shing.", 'Снова сложи одинаковые разряды, начиная с единиц.', 'Add matching places again, starting with the ones.'),
     },
   },
 
@@ -226,79 +240,72 @@ const CONTENT = {
     expression: '28 467 + 15 785',
     instruction: L("Har bir yiriklashtirishni ketma-ket oching.", 'Открывай каждое укрупнение по порядку.', 'Reveal each regrouping step in order.'),
     steps: [
-      { place: 'ones', expression: '7 + 5 = 12', action: L("2 birlikni yozamiz, 1 o'nlikni ko'chiramiz.", 'Записываем 2 единицы, переносим 1 десяток.', 'Write 2 ones and carry 1 ten.') },
-      { place: 'tens', expression: '6 + 8 + 1 = 15', action: L("5 o'nlikni yozamiz, 1 yuzlikni ko'chiramiz.", 'Записываем 5 десятков, переносим 1 сотню.', 'Write 5 tens and carry 1 hundred.') },
-      { place: 'hundreds', expression: '4 + 7 + 1 = 12', action: L("2 yuzlikni yozamiz, 1 minglikni ko'chiramiz.", 'Записываем 2 сотни, переносим 1 тысячу.', 'Write 2 hundreds and carry 1 thousand.') },
-      { place: 'thousands', expression: '8 + 5 + 1 = 14', action: L("4 minglikni yozamiz, 1 o'n minglikni ko'chiramiz.", 'Записываем 4 тысячи, переносим 1 десяток тысяч.', 'Write 4 thousands and carry 1 ten-thousand.') },
-      { place: 'tenThousands', expression: '2 + 1 + 1 = 4', action: L("4 o'n minglikni yozamiz.", 'Записываем 4 десятка тысяч.', 'Write 4 ten-thousands.') },
+      { place: 'ones-tens', expression: '7 + 5 = 12; 6 + 8 + 1 = 15', action: L("Birlar xonasiga 2, o'nlar xonasiga 5 yozamiz. Har safar 1 ni keyingi xonaga ko'chiramiz.", 'В единицах пишем 2, в десятках пишем 5. Каждый раз переносим 1 в следующий разряд.', 'Write 2 in the ones place and 5 in the tens place. Carry 1 to the next place each time.') },
+      { place: 'hundreds-thousands', expression: '4 + 7 + 1 = 12; 8 + 5 + 1 = 14', action: L("Yuzlar xonasiga 2, minglar xonasiga 4 yozamiz. Har ikki ustundan 1 keyingi xonaga ko'chadi.", 'В сотнях пишем 2, в тысячах пишем 4. Из каждого столбца переносим 1 в следующий разряд.', 'Write 2 in the hundreds place and 4 in the thousands place. Carry 1 from both columns.') },
+      { place: 'tenThousands', expression: '2 + 1 + 1 = 4', action: L("O'n minglar xonasiga 4 yozamiz. Natija 44 252.", 'В разряде десятков тысяч пишем 4. Результат: 44 252.', 'Write 4 in the ten-thousands place. The result is 44,252.') },
     ],
     resultText: L('28 467 + 15 785 = 44 252', '28 467 + 15 785 = 44 252', '28,467 + 15,785 = 44,252'),
     solution: { title: Y, steps: [L("12 birlik = 1 o'nlik + 2 birlik.", '12 единиц = 1 десяток + 2 единицы.', '12 ones = 1 ten + 2 ones.'), L("Ko'chgan 1 keyingi ustundagi yig'indiga qo'shiladi.", 'Перенесённая единица добавляется к сумме следующего столбца.', 'The carried unit is added to the sum in the next column.'), L("Natija 44 252.", 'Результат: 44 252.', 'The result is 44,252.')]},
     audio: {
       uz: [
         "Yigirma sakkiz ming to'rt yuz oltmish yettiga o'n besh ming yetti yuz sakson beshni qo'shamiz.",
-        "Yetti birlik va besh birlik o'n ikki birlik bo'ladi. Ikki birlikni yozib, bir o'nlikni ko'chiramiz.",
-        "Olti o'nlik, sakkiz o'nlik va ko'chgan bir o'nlik jami o'n besh o'nlik bo'ladi. Besh o'nlikni yozib, bir yuzlikni ko'chiramiz.",
-        "To'rt yuzlik, yetti yuzlik va ko'chgan bir yuzlik jami o'n ikki yuzlik bo'ladi. Ikki yuzlikni yozib, bir minglikni ko'chiramiz.",
-        "Sakkiz minglik, besh minglik va ko'chgan bir minglik jami o'n to'rt minglik bo'ladi. To'rt minglikni yozib, bir o'n minglikni ko'chiramiz.",
-        "Ikki o'n minglik, bir o'n minglik va ko'chgan bir o'n minglik jami to'rt o'n minglik bo'ladi.",
+        "Birlar xonasida ikki, o'nlar xonasida besh yoziladi. Har safar bir keyingi xonaga ko'chadi.",
+        "Yuzlar xonasida ikki, minglar xonasida to'rt yoziladi. Har ikki ustundan bir keyingi xonaga ko'chadi.",
+        "O'n minglar xonasidagi yig'indi to'rt bo'ladi.",
         "Natija qirq to'rt ming ikki yuz ellik ikki.",
       ],
       ru: [
         'Складываем двадцать восемь тысяч четыреста шестьдесят семь и пятнадцать тысяч семьсот восемьдесят пять.',
-        'Семь единиц плюс пять единиц дают двенадцать. Записываем две единицы и переносим один десяток.',
-        'Шесть десятков плюс восемь десятков и один перенесённый десяток дают пятнадцать десятков. Записываем пять десятков и переносим одну сотню.',
-        'Четыре сотни плюс семь сотен и одна перенесённая сотня дают двенадцать сотен. Записываем две сотни и переносим одну тысячу.',
-        'Восемь тысяч плюс пять тысяч и одна перенесённая тысяча дают четырнадцать тысяч. Записываем четыре тысячи и переносим один десяток тысяч.',
-        'Два десятка тысяч плюс один десяток тысяч и один перенесённый десяток тысяч дают четыре десятка тысяч.',
+        'В разряде единиц пишем два, а в разряде десятков пишем пять. Каждый раз переносим один в следующий разряд.',
+        'В разряде сотен пишем два, а в разряде тысяч пишем четыре. Из обоих столбцов переносим один дальше.',
+        'Сумма в разряде десятков тысяч равна четырём.',
         'Результат: сорок четыре тысячи двести пятьдесят два.',
       ],
       en: [
         'Add twenty-eight thousand four hundred and sixty-seven and fifteen thousand seven hundred and eighty-five.',
-        'Seven ones plus five ones make twelve ones. Write two ones and carry one ten.',
-        'Six tens plus eight tens plus the carried ten make fifteen tens. Write five tens and carry one hundred.',
-        'Four hundreds plus seven hundreds plus the carried hundred make twelve hundreds. Write two hundreds and carry one thousand.',
-        'Eight thousands plus five thousands plus the carried thousand make fourteen thousands. Write four thousands and carry one ten-thousand.',
-        'Two ten-thousands plus one ten-thousand plus the carried ten-thousand make four ten-thousands.',
+        'Write two in the ones place and five in the tens place. Carry one to the next place each time.',
+        'Write two in the hundreds place and four in the thousands place. Carry one from both columns.',
+        'The sum in the ten-thousands place is four.',
         'The result is forty-four thousand two hundred and fifty-two.',
       ],
     },
   },
 
   s5: {
-    eyebrow: L('Birga ishlaymiz', 'Решаем вместе', 'Work together'),
-    title: L('63 708 + 8 596 natijasini tuzing', 'Составь результат 63 708 + 8 596', 'Build the result of 63,708 + 8,596'),
-    instruction: L("Har bosqichda natija raqami va keyingi xonaga ko'chadigan raqamni kiriting.", 'На каждом шаге введи цифру ответа и перенос в следующий разряд.', 'At each step, enter the answer digit and the carry to the next place.'),
-    rounds: [
-      { place: 'ones', expression: '8 + 6 = 14', expectedDigit: 4, expectedCarry: 1 },
-      { place: 'tens', expression: '0 + 9 + 1 = 10', expectedDigit: 0, expectedCarry: 1 },
-      { place: 'hundreds', expression: '7 + 5 + 1 = 13', expectedDigit: 3, expectedCarry: 1 },
-      { place: 'thousands', expression: '3 + 8 + 1 = 12', expectedDigit: 2, expectedCarry: 1 },
-      { place: 'tenThousands', expression: '6 + 0 + 1 = 7', expectedDigit: 7, expectedCarry: 0 },
+    eyebrow: L('Bir qadamli mashq', 'Задание в один шаг', 'One-step task'),
+    title: L("Ko'chirish yozuvini tanlang", 'Выбери запись переноса', 'Choose the carrying record'),
+    lead: L("63 708 va 8 596 sonlari birlar xonasi bo'yicha tekislangan.", 'Числа 63 708 и 8 596 выровнены по разряду единиц.', 'The numbers 63,708 and 8,596 are aligned by their ones places.'),
+    question: L("Birinchi ikki ustun qaysi yozuvda to'g'ri hisoblangan?", 'В какой записи верно вычислены первые два столбца?', 'Which record correctly calculates the first two columns?'),
+    options: [
+      L("8 + 6 = 14: 4 yoziladi, 1 ko'chadi; 0 + 9 + 1 = 10: 0 yoziladi, 1 ko'chadi", '8 + 6 = 14: пишем 4, переносим 1; 0 + 9 + 1 = 10: пишем 0, переносим 1', '8 + 6 = 14: write 4, carry 1; 0 + 9 + 1 = 10: write 0, carry 1'),
+      L("14 va 10 sonlari bittadan katakka yoziladi", 'Числа 14 и 10 записываются каждое в одну клетку', 'Write 14 and 10, each in one box'),
+      L("4 va 0 yoziladi, ko'chgan birliklar keyingi ustunga qo'shilmaydi", 'Пишем 4 и 0, но переносы не добавляем в следующий столбец', 'Write 4 and 0, but do not add the carries to the next column'),
     ],
-    correctText: L("To'g'ri. Yoziladigan raqam ustunda qoldi, ko'chirish keyingi xonaga o'tdi.", 'Верно. Записываемая цифра осталась в столбце, перенос перешёл в следующий разряд.', 'Correct. The answer digit stays in the column and the carry moves to the next place.'),
-    wrongDigitText: L("Yig'indining birlik raqamini shu ustunga yozing.", 'Запиши в этот столбец цифру единиц суммы.', 'Write the ones digit of the column sum here.'),
-    wrongCarryText: L("Yig'indi 10 yoki undan katta bo'lsa, 1 keyingi xonaga ko'chadi.", 'Если сумма равна десяти или больше, перенеси 1 в следующий разряд.', 'If the sum is ten or more, carry 1 to the next place.'),
+    correctIndex: 0,
+    correctText: L("To'g'ri. Har katakda bitta raqam qoladi, ko'chgan 1 esa keyingi xonaga qo'shiladi.", 'Верно. В каждой клетке остаётся одна цифра, а перенос 1 добавляется в следующий разряд.', 'Correct. One digit stays in each box, and the carried 1 is added to the next place.'),
+    wrong: [
+      null,
+      L("Bir katakda faqat bitta raqam turadi. 14 dan 4 yoziladi va 1 ko'chadi; 10 dan 0 yoziladi va 1 ko'chadi.", 'В одной клетке может стоять только одна цифра. Из 14 пишем 4 и переносим 1; из 10 пишем 0 и переносим 1.', 'Only one digit belongs in a box. From 14, write 4 and carry 1; from 10, write 0 and carry 1.'),
+      L("Ko'chgan 1 keyingi ustun qiymatining bir qismidir. Uni tashlab yuborsak, keyingi xona kamayib qoladi.", 'Перенос 1 является частью значения следующего столбца. Если его пропустить, следующий разряд уменьшится.', 'The carried 1 is part of the next column value. Omitting it makes the next place too small.'),
+    ],
+    wrongAudio: [
+      null,
+      L("Bir katakda bitta raqam turadi. O'n to'rtdan to'rt yozilib, bir ko'chadi. O'ndan nol yozilib, bir ko'chadi.", 'В одной клетке стоит одна цифра. Из четырнадцати пишем четыре и переносим один. Из десяти пишем ноль и переносим один.', 'One digit belongs in each box. From fourteen, write four and carry one. From ten, write zero and carry one.'),
+      L("Ko'chgan bir keyingi ustun qiymatiga qo'shiladi. Uni hisobdan chiqarib yubormang.", 'Перенесённая единица добавляется к следующему столбцу. Не пропускай её.', 'Add the carried one to the next column. Do not omit it.'),
+    ],
     resultText: L('63 708 + 8 596 = 72 304', '63 708 + 8 596 = 72 304', '63,708 + 8,596 = 72,304'),
-    solution: { title: Y, steps: [L("Birlar: 8 + 6 = 14. 4 ni yozamiz, 1 ni ko'chiramiz.", 'Единицы: 8 + 6 = 14. Пишем 4, переносим 1.', 'Ones: 8 + 6 = 14. Write 4 and carry 1.'), L("O'nlar: 0 + 9 + 1 = 10. 0 ni yozamiz, 1 ni ko'chiramiz.", 'Десятки: 0 + 9 + 1 = 10. Пишем 0, переносим 1.', 'Tens: 0 + 9 + 1 = 10. Write 0 and carry 1.'), L("Yuzlar: 7 + 5 + 1 = 13. 3 ni yozamiz, 1 minglikni ko'chiramiz.", 'Сотни: 7 + 5 + 1 = 13. Пишем 3 и переносим 1 тысячу.', 'Hundreds: 7 + 5 + 1 = 13. Write 3 and carry 1 thousand.'), L("Minglar: 3 + 8 + 1 = 12. 2 ni yozamiz, 1 o'n minglikni ko'chiramiz.", 'Тысячи: 3 + 8 + 1 = 12. Пишем 2 и переносим 1 десяток тысяч.', 'Thousands: 3 + 8 + 1 = 12. Write 2 and carry 1 ten-thousand.'), L("O'n minglar: 6 + 0 + 1 = 7. Natija 72 304.", 'Десятки тысяч: 6 + 0 + 1 = 7. Результат: 72 304.', 'Ten-thousands: 6 + 0 + 1 = 7. The result is 72,304.')]},
+    solution: { title: Y, steps: [L("Birlar xonasiga 4 yoziladi, 1 o'nlik ko'chadi.", 'В единицах пишем 4 и переносим 1 десяток.', 'Write 4 in the ones place and carry 1 ten.'), L("O'nlar xonasiga 0 yoziladi, 1 yuzlik ko'chadi.", 'В десятках пишем 0 и переносим 1 сотню.', 'Write 0 in the tens place and carry 1 hundred.'), L("Ko'chirishlarni davom ettirsak, natija 72 304 bo'ladi.", 'Если продолжить учитывать переносы, получится 72 304.', 'Continuing the carries gives 72,304.')]},
     audio: {
-      intro: L("Oltmish uch ming yetti yuz sakkizga sakkiz ming besh yuz to'qson oltini qo'shing. Birliklardan boshlang va ko'chirishlarni alohida ko'rsating.", 'Сложи шестьдесят три тысячи семьсот восемь и восемь тысяч пятьсот девяносто шесть. Начинай с единиц и отдельно указывай переносы.', 'Add sixty-three thousand seven hundred and eight and eight thousand five hundred and ninety-six. Start with the ones and enter each carry separately.'),
-      steps: {
-        uz: ["Sakkiz birlik va olti birlik o'n to'rt birlik bo'ladi. To'rt birlikni yozing, bir o'nlikni ko'chiring.", "Nol o'nlik, to'qqiz o'nlik va ko'chgan bir o'nlik jami o'n o'nlik bo'ladi. Nol o'nlikni yozing, bir yuzlikni ko'chiring.", "Yetti yuzlik, besh yuzlik va ko'chgan bir yuzlik jami o'n uch yuzlik bo'ladi. Uch yuzlikni yozing, bir minglikni ko'chiring.", "Uch minglik, sakkiz minglik va ko'chgan bir minglik jami o'n ikki minglik bo'ladi. Ikki minglikni yozing, bir o'n minglikni ko'chiring.", "Olti o'n minglik, nol o'n minglik va ko'chgan bir o'n minglik jami yetti o'n minglik bo'ladi. Yetti o'n minglikni yozing. Bu safar ko'chirish yo'q."],
-        ru: ['Восемь единиц плюс шесть единиц дают четырнадцать единиц. Запиши четыре единицы и перенеси один десяток.', 'Ноль десятков плюс девять десятков и один перенесённый десяток дают десять десятков. Запиши ноль десятков и перенеси одну сотню.', 'Семь сотен плюс пять сотен и одна перенесённая сотня дают тринадцать сотен. Запиши три сотни и перенеси одну тысячу.', 'Три тысячи плюс восемь тысяч и одна перенесённая тысяча дают двенадцать тысяч. Запиши две тысячи и перенеси один десяток тысяч.', 'Шесть десятков тысяч плюс ноль десятков тысяч и один перенесённый десяток тысяч дают семь десятков тысяч. Запиши семь десятков тысяч. Переноса больше нет.'],
-        en: ['Eight ones plus six ones make fourteen ones. Write four ones and carry one ten.', 'Zero tens plus nine tens plus the carried ten make ten tens. Write zero tens and carry one hundred.', 'Seven hundreds plus five hundreds plus the carried hundred make thirteen hundreds. Write three hundreds and carry one thousand.', 'Three thousands plus eight thousands plus the carried thousand make twelve thousands. Write two thousands and carry one ten-thousand.', 'Six ten-thousands plus zero ten-thousands plus the carried ten-thousand make seven ten-thousands. Write seven ten-thousands. There is no carry this time.'],
-      },
-      wrongDigit: L("Ustunga yig'indining faqat birlik raqamini yozing.", 'Запиши в столбец только цифру единиц суммы.', 'Write only the ones digit of the column sum.'),
-      wrongCarry: L("Yig'indi o'n yoki undan katta bo'lsa, keyingi xonaga bir birlik ko'chiring.", 'Если сумма равна десяти или больше, перенеси одну единицу в следующий разряд.', 'If the sum is ten or more, carry one unit to the next place.'),
-      on_correct: L("To'g'ri. Ustun raqami va ko'chirish ajratildi.", 'Верно. Цифра столбца и перенос разделены.', 'Correct. The column digit and carry are separated.'),
-      on_wrong: L("Yig'indini birlik va o'nlik qismlariga ajrating.", 'Раздели сумму столбца на единицы и десятки.', 'Split the column sum into its ones and tens parts.'),
+      intro: L("Oltmish uch ming yetti yuz sakkizga sakkiz ming besh yuz to'qson oltini qo'shishda birlar va o'nlar ustunidagi to'g'ri ko'chirish yozuvini tanlang.", 'При сложении шестидесяти трёх тысяч семисот восьми и восьми тысяч пятисот девяноста шести выбери верную запись переноса в столбцах единиц и десятков.', 'When adding sixty-three thousand seven hundred and eight and eight thousand five hundred and ninety-six, choose the correct carrying record for the ones and tens columns.'),
+      on_correct: L("To'g'ri. Har katakda bitta raqam qoldi, ko'chgan bir esa keyingi ustunga qo'shildi.", 'Верно. В каждой клетке осталась одна цифра, а перенос был добавлен в следующий столбец.', 'Correct. One digit stayed in each box, and the carry was added to the next column.'),
+      on_wrong: L("Bir katakda bitta raqam qolishini va ko'chgan bir keyingi ustunga qo'shilishini tekshiring.", 'Проверь, что в клетке остаётся одна цифра, а перенос добавляется в следующий столбец.', 'Check that one digit stays in the box and the carry is added to the next column.'),
     },
   },
 
   s6: {
     eyebrow: L('Bitning xatosi', 'Ошибка Бита', "Bit's error"),
     title: L('Birinchi xatoni toping', 'Найди первую ошибку', 'Find the first error'),
-    lead: L("Bitning ikki yechimida ham xato birinchi noto'g'ri qadamdan boshlangan.", 'В двух решениях Бита ошибка начинается с первого неверного шага.', "In both of Bit's solutions, the error begins at the first incorrect step."),
+    lead: L("Bit 12 ni bitta katakka yozdi. Bir katakda faqat bitta raqam turishini eslang.", 'Бит записал 12 в одну клетку. Вспомни, что в одной клетке помещается только одна цифра.', 'Bit wrote 12 in one box. Remember that only one digit belongs in a box.'),
     rounds: [
       {
         id: 'write12',
@@ -309,25 +316,12 @@ const CONTENT = {
         wrong: [null, L("Bir katakda bitta raqam turadi. 2 birlikni yozing, 1 o'nlikni keyingi ustunga o'tkazing.", 'В одной клетке стоит одна цифра. Запиши 2 единицы, а 1 десяток перенеси.', 'One digit belongs in each box. Write 2 ones and carry 1 ten.'), L("Bu yozuvda birlik va o'nlik raqamlari almashib ketgan. 12 birlikdan 2 birlik yoziladi, 1 o'nlik ko'chiriladi.", 'Здесь цифры единиц и десятков перепутаны. Из 12 единиц записываем 2 единицы и переносим 1 десяток.', 'The ones and tens digits have been reversed. From 12 ones, write 2 ones and carry 1 ten.')],
         wrongAudio: [null, L("Bir katakda bitta raqam turadi. Ikki birlikni yozing, bir o'nlikni keyingi ustunga o'tkazing.", 'В одной клетке стоит одна цифра. Запиши две единицы, а один десяток перенеси.', 'One digit belongs in each box. Write two ones and carry one ten.'), L("Bu yozuvda birlik va o'nlik raqamlari almashib ketgan. O'n ikki birlikdan ikki birlik yoziladi, bir o'nlik ko'chiriladi.", 'Здесь цифры единиц и десятков перепутаны. Из двенадцати единиц записываем две единицы и переносим один десяток.', 'The ones and tens digits have been reversed. From twelve ones, write two ones and carry one ten.')],
       },
-      {
-        id: 'forgotCarry',
-        bitWork: '6 + 8 = 14',
-        question: L("Oldingi ustundan 1 o'nlik ko'chgan bo'lsa, yangi yig'indi qancha?", 'Какова новая сумма, если из предыдущего столбца перенесён 1 десяток?', 'What is the new sum if 1 ten was carried from the previous column?'),
-        options: ['14', '15', '16'],
-        correctIndex: 1,
-        wrong: [L("14 faqat ikki asosiy raqam yig'indisi. Ko'chgan 1 o'nlikni ham qo'shing.", '14 — сумма только двух основных цифр. Добавь перенесённый десяток.', 'Fourteen is the sum of the two original digits only. Add the carried ten.'), null, L("16 chiqishi uchun ko'chgan 1 ikki marta qo'shilgan bo'lardi. 6 + 8 = 14; ko'chgan 1 ni faqat bir marta qo'shib, 15 ni olamiz.", 'Чтобы получить 16, перенесённая единица должна быть добавлена дважды. 6 + 8 = 14; добавляем перенос только один раз и получаем 15.', 'A result of 16 would count the carried one twice. 6 + 8 = 14; add the carry once to get 15.')],
-        wrongAudio: [L("O'n to'rt faqat ikki asosiy raqam yig'indisi. Ko'chgan bir o'nlikni ham qo'shing.", 'Четырнадцать, это сумма только двух основных цифр. Добавь перенесённый десяток.', 'Fourteen is the sum of the two original digits only. Add the carried ten.'), null, L("O'n olti chiqishi uchun ko'chgan bir ikki marta qo'shilgan bo'lardi. Olti bilan sakkiz o'n to'rt; ko'chgan birni faqat bir marta qo'shib, o'n beshni olamiz.", 'Чтобы получить шестнадцать, перенос должен быть добавлен дважды. Шесть плюс восемь, четырнадцать; добавляем перенос только один раз и получаем пятнадцать.', 'A result of sixteen would count the carried one twice. Six plus eight is fourteen; add the carry once to get fifteen.')],
-      },
     ],
     correctText: L("To'g'ri. Birinchi noto'g'ri qadam aniqlandi va tuzatildi.", 'Верно. Первый неверный шаг найден и исправлен.', 'Correct. The first incorrect step has been found and fixed.'),
-    wrong: [
-      L("Bir katakda bitta raqam turadi. 2 birlikni yozing, 1 o'nlikni keyingi ustunga o'tkazing.", 'В одной клетке стоит одна цифра. Запиши 2 единицы, а 1 десяток перенеси.', 'One digit belongs in each box. Write 2 ones and carry 1 ten.'),
-      L("14 faqat ikki asosiy raqam yig'indisi. Ko'chgan 1 o'nlikni ham qo'shing.", '14 — сумма только двух основных цифр. Добавь перенесённый десяток.', 'Fourteen is the sum of the two original digits only. Add the carried ten.'),
-    ],
     solution: { title: Y, steps: [L("12 birlikdan 2 birlik yoziladi va 1 o'nlik ko'chiriladi.", 'Из 12 единиц записываются 2 единицы и переносится 1 десяток.', 'From 12 ones, write 2 ones and carry 1 ten.'), L("Keyingi ustunda ko'chgan 1 yig'indiga qo'shiladi.", 'В следующем столбце перенесённая единица добавляется к сумме.', 'The carried unit is added in the next column.')]},
     audio: {
-      intro: L("Bitning ikki yechimida ham birinchi noto'g'ri qadamni toping.", 'Найди первый неверный шаг в каждом из двух решений Бита.', "Find the first incorrect step in each of Bit's two solutions."),
-      steps: [L("Yetti birlik va besh birlik o'n ikki birlik bo'ladi. Katakka ikki birlik yoziladi, bir o'nlik ko'chiriladi.", 'Семь единиц плюс пять единиц дают двенадцать единиц. В клетку записываются две единицы, а один десяток переносится.', 'Seven ones plus five ones make twelve ones. Write two ones in the box and carry one ten.'), L("Olti o'nlik va sakkiz o'nlik o'n to'rt o'nlik bo'ladi. Ko'chgan bir o'nlikni qo'shsak, o'n besh o'nlik bo'ladi.", 'Шесть десятков плюс восемь десятков дают четырнадцать десятков. С перенесённым десятком получается пятнадцать десятков.', 'Six tens plus eight tens make fourteen tens. Adding the carried ten makes fifteen tens.')],
+      intro: L("Bit yetti birlikka besh birlikni qo'shib, o'n ikkini bitta katakka yozdi. Xatoni bitta tanlov bilan tuzating.", 'Бит сложил семь единиц и пять единиц и записал двенадцать в одну клетку. Исправь ошибку одним выбором.', 'Bit added seven ones and five ones, then wrote twelve in one box. Fix the error with one choice.'),
+      steps: [L("Yetti birlik va besh birlik o'n ikki birlik bo'ladi. Katakka ikki birlik yoziladi, bir o'nlik ko'chiriladi.", 'Семь единиц плюс пять единиц дают двенадцать единиц. В клетку записываются две единицы, а один десяток переносится.', 'Seven ones plus five ones make twelve ones. Write two ones in the box and carry one ten.')],
       on_correct: L("To'g'ri. Birinchi xato tuzatildi.", 'Верно. Первая ошибка исправлена.', 'Correct. The first error has been fixed.'),
       on_wrong: L("Natija katagi bilan ko'chadigan raqamni ajrating.", 'Раздели цифру ответа и перенос.', 'Separate the answer digit from the carry.'),
     },
@@ -340,18 +334,13 @@ const CONTENT = {
     question: L('Qolgan kitoblar sonini topish uchun qaysi amal kerak?', 'Какое действие нужно, чтобы найти оставшееся количество книг?', 'Which operation finds the number of books remaining?'),
     options: [L('Ayirish', 'Вычитание', 'Subtraction'), L("Qo'shish", 'Сложение', 'Addition'), L('Taqqoslash', 'Сравнение', 'Comparison')],
     correctIndex: 0,
+    solutionOnlyOnSolve: true,
     correctText: L("To'g'ri. Boshlang'ich miqdordan berilgan miqdorni ayiramiz.", 'Верно. Из начального количества вычитаем переданное количество.', 'Correct. Subtract the amount sent from the starting amount.'),
     wrong: [null, L("Qo'shish miqdorni oshiradi. Bu yerda kitoblarning bir qismi chiqib ketgan.", 'Сложение увеличит количество. Здесь часть книг ушла со склада.', 'Addition increases the amount. Here, some books left the warehouse.'), L("Taqqoslash miqdorlarning katta, kichik yoki tengligini bildiradi, lekin aniq qoldiqni hisoblamaydi.", 'Сравнение показывает, какое количество больше, меньше или равно другому, но не вычисляет точный остаток.', 'Comparison shows whether one amount is greater than, less than or equal to another, but it does not calculate the exact remainder.')],
-    steps: [L('Birlar ostiga birlar', 'Единицы под единицами', 'Ones under ones'), '0 − 0 = 0', '3 − 1 = 2', '4 − 2 = 2', '5 − 3 = 2', '1 − 0 = 1'],
     resultText: L('15 430 − 3 210 = 12 220', '15 430 − 3 210 = 12 220', '15,430 − 3,210 = 12,220'),
     solution: { title: Y, steps: [L("Sonlarni birlar xonasi bo'yicha tekislaymiz.", 'Выравниваем числа по разряду единиц.', 'Align the numbers by their ones places.'), L('Birliklardan boshlab yuqoridagi raqamdan pastdagi raqamni ayiramiz.', 'Начиная с единиц, вычитаем нижнюю цифру из верхней.', 'Starting with the ones, subtract the lower digit from the upper digit.'), L('Maydalash talab qilinmaydi. Natija 12 220.', 'Размен не требуется. Результат 12 220.', 'No exchange is needed. The result is 12,220.')]},
     audio: {
       intro: L("Omborda o'n besh ming to'rt yuz o'ttizta kitob bor edi. Uch ming ikki yuz o'ntasi berildi. Qoldiqni topadigan amalni tanlang.", 'На складе было пятнадцать тысяч четыреста тридцать книг. Три тысячи двести десять передали. Выбери действие для нахождения остатка.', 'The warehouse held fifteen thousand four hundred and thirty books. Three thousand two hundred and ten were sent away. Choose the operation that finds how many remain.'),
-      steps: {
-        uz: ["Sonlarni birlar xonasi bo'yicha tekislaymiz.", "Nol birlikdan nol birlikni ayirsak, nol birlik qoladi.", "Uch o'nlikdan bir o'nlikni ayirsak, ikki o'nlik qoladi.", "To'rt yuzlikdan ikki yuzlikni ayirsak, ikki yuzlik qoladi.", "Besh minglikdan uch minglikni ayirsak, ikki minglik qoladi.", "Bir o'n minglikdan nol o'n minglikni ayirsak, bir o'n minglik qoladi. Natija o'n ikki ming ikki yuz yigirma."],
-        ru: ['Выравниваем числа по разряду единиц.', 'Из нуля единиц вычитаем ноль единиц, остаётся ноль.', 'Из трёх десятков вычитаем один десяток, остаются два десятка.', 'Из четырёх сотен вычитаем две сотни, остаются две сотни.', 'Из пяти тысяч вычитаем три тысячи, остаются две тысячи.', 'Из одного десятка тысяч вычитаем ноль десятков тысяч, остаётся один десяток тысяч. Результат: двенадцать тысяч двести двадцать.'],
-        en: ['Align the numbers by their ones places.', 'Zero ones minus zero ones leaves zero ones.', 'Three tens minus one ten leaves two tens.', 'Four hundreds minus two hundreds leaves two hundreds.', 'Five thousands minus three thousands leaves two thousands.', 'One ten-thousand minus zero ten-thousands leaves one ten-thousand. The result is twelve thousand two hundred and twenty.'],
-      },
       on_correct: L("To'g'ri. Qoldiq ayirish bilan topiladi.", 'Верно. Остаток находится вычитанием.', 'Correct. Subtraction finds the amount remaining.'),
       on_wrong: L("Boshlang'ich miqdor kamayganini ko'rsatadigan amalni tanlang.", 'Выбери действие, которое показывает уменьшение.', 'Choose the operation that shows a decrease.'),
     },
@@ -364,19 +353,14 @@ const CONTENT = {
     question: L("1 birlikdan 6 birlikni ayirib bo'lmaydi. Eng yaqin qaysi xonadan maydalaymiz?", 'Из 1 единицы нельзя вычесть 6 единиц. Из какого ближайшего разряда выполним размен?', 'You cannot subtract 6 ones from 1 one. Which is the nearest place we can exchange from?'),
     options: [L("o'nlar xonasidan", 'из разряда десятков', 'the tens place'), L('yuzlar xonasidan', 'из разряда сотен', 'the hundreds place'), L('minglar xonasidan', 'из разряда тысяч', 'the thousands place')],
     correctIndex: 0,
+    solutionOnlyOnSolve: true,
     correctText: L("To'g'ri. Eng yaqin nol bo'lmagan xona o'nlar xonasi.", 'Верно. Ближайший ненулевой разряд — десятки.', 'Correct. The nearest non-zero place is the tens place.'),
     wrong: [null, L("Yuzlarga borish shart emas. O'nlar xonasidagi 4 maydalash uchun yetarli.", 'До сотен идти не нужно. В десятках уже есть 4.', 'There is no need to move to the hundreds. The tens place already contains 4.'), L("Avval birliklarga eng yaqin nol bo'lmagan xonani tekshiring.", 'Сначала проверь ближайший к единицам ненулевой разряд.', 'First check the nearest non-zero place to the ones.')],
     wrongAudio: [null, L("Yuzlarga borish shart emas. O'nlar xonasidagi to'rt maydalash uchun yetarli.", 'До сотен идти не нужно. В десятках уже есть четыре.', 'There is no need to move to the hundreds. The tens place already contains four.'), L("Avval birliklarga eng yaqin nol bo'lmagan xonani tekshiring.", 'Сначала проверь ближайший к единицам ненулевой разряд.', 'First check the nearest non-zero place to the ones.')],
-    states: ['6 | 3 | 2 | 4 | 1', '6 | 3 | 2 | 3 | 11', '6 | 3 | 1 | 13 | 11', '6 | 2 | 11 | 13 | 11', '5 | 12 | 11 | 13 | 11'],
     resultText: L('63 241 − 27 856 = 35 385', '63 241 − 27 856 = 35 385', '63,241 − 27,856 = 35,385'),
     solution: { title: Y, steps: [L("4 o'nlikni 3 ga kamaytirib, 11 birlik hosil qilamiz: 6 | 3 | 2 | 3 | 11.", 'Уменьшаем 4 десятка до 3 и получаем 11 единиц: 6 | 3 | 2 | 3 | 11.', 'Reduce 4 tens to 3 tens and make 11 ones: 6 | 3 | 2 | 3 | 11.'), L("Keyingi har yetishmovchilikda eng yaqin nol bo'lmagan chap xonadan maydalaymiz.", 'При каждой следующей нехватке выполняем размен из ближайшего ненулевого разряда слева.', 'For each later shortage, exchange from the nearest non-zero place on the left.'), L("Yakuniy holat 5 | 12 | 11 | 13 | 11. O'n minglar: 5 − 2 = 3. Natija 35 385.", 'Итоговое состояние: 5 | 12 | 11 | 13 | 11. Десятки тысяч: 5 − 2 = 3. Результат: 35 385.', 'The final state is 5 | 12 | 11 | 13 | 11. Ten-thousands: 5 − 2 = 3. The result is 35,385.')]},
     audio: {
       intro: L("Oltmish uch ming ikki yuz qirq birdan yigirma yetti ming sakkiz yuz ellik oltini ayiramiz. Birliklarga eng yaqin nol bo'lmagan xonani tanlang.", 'Вычитаем двадцать семь тысяч восемьсот пятьдесят шесть из шестидесяти трёх тысяч двухсот сорока одного. Выбери ближайший к единицам ненулевой разряд.', 'Subtract twenty-seven thousand eight hundred and fifty-six from sixty-three thousand two hundred and forty-one. Choose the nearest non-zero place to the ones.'),
-      steps: {
-        uz: ["Boshlang'ich holatda olti o'n minglik, uch minglik, ikki yuzlik, to'rt o'nlik va bir birlik bor.", "To'rt o'nlikdan bir o'nlikni maydalaymiz. Uch o'nlik qoladi, bir birlik o'n bir birlik bo'ladi. O'n bir birlikdan olti birlikni ayirsak, besh birlik qoladi.", "Ikki yuzlikdan bir yuzlikni maydalaymiz. Bir yuzlik qoladi, uch o'nlik o'n uch o'nlik bo'ladi. O'n uch o'nlikdan besh o'nlikni ayirsak, sakkiz o'nlik qoladi.", "Uch minglikdan bir minglikni maydalaymiz. Ikki minglik qoladi, bir yuzlik o'n bir yuzlik bo'ladi. O'n bir yuzlikdan sakkiz yuzlikni ayirsak, uch yuzlik qoladi.", "Olti o'n minglikdan bir o'n minglikni maydalaymiz. Besh o'n minglik qoladi, ikki minglik o'n ikki minglik bo'ladi. O'n ikki minglikdan yetti minglikni ayirsak, besh minglik qoladi. O'n minglar ustunida besh o'n minglikdan ikki o'n minglikni ayirsak, uch o'n minglik qoladi. Natija o'ttiz besh ming uch yuz sakson besh."],
-        ru: ['В исходном состоянии есть шесть десятков тысяч, три тысячи, две сотни, четыре десятка и одна единица.', 'Размениваем один десяток из четырёх. Остаются три десятка, а одна единица становится одиннадцатью единицами. Из одиннадцати единиц вычитаем шесть, остаётся пять.', 'Размениваем одну сотню из двух. Остаётся одна сотня, а три десятка становятся тринадцатью десятками. Из тринадцати десятков вычитаем пять, остаётся восемь.', 'Размениваем одну тысячу из трёх. Остаются две тысячи, а одна сотня становится одиннадцатью сотнями. Из одиннадцати сотен вычитаем восемь, остаётся три.', 'Размениваем один десяток тысяч из шести. Остаются пять десятков тысяч, а две тысячи становятся двенадцатью тысячами. Из двенадцати тысяч вычитаем семь, остаётся пять. В столбце десятков тысяч из пяти вычитаем два, остаётся три. Результат: тридцать пять тысяч триста восемьдесят пять.'],
-        en: ['The starting state has six ten-thousands, three thousands, two hundreds, four tens and one one.', 'Exchange one ten from the four tens. Three tens remain, and one one becomes eleven ones. Eleven ones minus six ones leaves five ones.', 'Exchange one hundred from the two hundreds. One hundred remains, and three tens become thirteen tens. Thirteen tens minus five tens leaves eight tens.', 'Exchange one thousand from the three thousands. Two thousands remain, and one hundred becomes eleven hundreds. Eleven hundreds minus eight hundreds leaves three hundreds.', 'Exchange one ten-thousand from the six ten-thousands. Five ten-thousands remain, and two thousands become twelve thousands. Twelve thousands minus seven thousands leaves five thousands. In the ten-thousands column, five minus two leaves three. The result is thirty-five thousand three hundred and eighty-five.'],
-      },
       on_correct: L("To'g'ri. Eng yaqin nol bo'lmagan xona tanlandi.", 'Верно. Выбран ближайший ненулевой разряд.', 'Correct. The nearest non-zero place has been chosen.'),
       on_wrong: L("Birliklardan chapga qarab birinchi nol bo'lmagan raqamni toping.", 'Двигайся от единиц влево до первой ненулевой цифры.', 'Move left from the ones to the first non-zero digit.'),
     },
@@ -391,15 +375,15 @@ const CONTENT = {
     correctIndex: 0,
     correctText: L("To'g'ri. Chapdagi birinchi nol bo'lmagan raqam 4.", 'Верно. Первая ненулевая цифра слева — 4.', 'Correct. The first non-zero digit on the left is 4.'),
     wrong: [null, L("Nol o'nlikni maydalab bo'lmaydi. Chapga qarab davom eting.", 'Ноль десятков нельзя разменять. Продолжай двигаться влево.', 'Zero tens cannot be exchanged. Continue moving left.'), L("Nol yuzlikni maydalab bo'lmaydi. Birinchi nol bo'lmagan xonani toping.", 'Ноль сотен нельзя разменять. Найди первый ненулевой разряд.', 'Zero hundreds cannot be exchanged. Find the first non-zero place.')],
-    states: ['4 | 0 | 0 | 0 | 5', '3 | 10 | 0 | 0 | 5', '3 | 9 | 10 | 0 | 5', '3 | 9 | 9 | 10 | 5', '3 | 9 | 9 | 9 | 15'],
+    states: ['3 | 10 | 0 | 0 | 5', '3 | 9 | 9 | 10 | 5', '3 | 9 | 9 | 9 | 15'],
     resultText: L('40 005 − 17 268 = 22 737', '40 005 − 17 268 = 22 737', '40,005 − 17,268 = 22,737'),
     solution: { title: Y, steps: [L("4 o'n minglikdan 1 tasini maydalaymiz: 3 o'n minglik va 10 minglik hosil bo'ladi.", 'Размениваем 1 из 4 десятков тысяч: остаются 3 десятка тысяч и появляются 10 тысяч.', 'Exchange 1 of the 4 ten-thousands: 3 ten-thousands remain and 10 thousands are formed.'), L("Minglar xonasidagi 10 minglikdan 1 minglik, keyin 1 yuzlik va 1 o'nlik ketma-ket maydalanadi. Oraliq xonalar 9 ga aylanadi.", 'Из 10 единиц в разряде тысяч размениваем 1 тысячу, затем последовательно 1 сотню и 1 десяток. Промежуточные разряды становятся равны 9.', 'From the 10 units in the thousands place, exchange 1 thousand, then exchange 1 hundred and 1 ten in sequence. The intermediate places become 9.'), L('Ayiramiz: 15 − 8 = 7; 9 − 6 = 3; 9 − 2 = 7; 9 − 7 = 2; 3 − 1 = 2. Natija 22 737.', 'Вычитаем: 15 − 8 = 7; 9 − 6 = 3; 9 − 2 = 7; 9 − 7 = 2; 3 − 1 = 2. Результат: 22 737.', 'Subtract: 15 − 8 = 7; 9 − 6 = 3; 9 − 2 = 7; 9 − 7 = 2; 3 − 1 = 2. The result is 22,737.')]},
     audio: {
       intro: L("Qirq ming beshdan o'n yetti ming ikki yuz oltmish sakkizni ayiramiz. Chapdagi birinchi nol bo'lmagan raqamni tanlang.", 'Вычитаем семнадцать тысяч двести шестьдесят восемь из сорока тысяч пяти. Выбери первую ненулевую цифру слева.', 'Subtract seventeen thousand two hundred and sixty-eight from forty thousand and five. Choose the first non-zero digit on the left.'),
       steps: {
-        uz: ["Boshlang'ich holat: to'rt, nol, nol, nol, besh.", "O'n minglar xonasida uch qoladi, minglar xonasida o'n hosil bo'ladi.", "Minglar xonasidagi o'nta minglikdan bitta minglikni yuzliklarga maydalaymiz. To'qqiz minglik qoladi, yuzlar xonasida o'n hosil bo'ladi.", "Yuzlar xonasidagi o'nta yuzlikdan bitta yuzlikni o'nliklarga maydalaymiz. To'qqiz yuzlik qoladi, o'nlar xonasida o'n hosil bo'ladi.", "O'nlar xonasidagi o'nta o'nlikdan birini birliklarga maydalaymiz. To'qqiz o'nlik va o'n besh birlik hosil bo'ladi. O'n beshdan sakkizni ayirsak yetti; to'qqizdan oltini ayirsak uch; to'qqizdan ikkini ayirsak yetti; to'qqizdan yettini ayirsak ikki; uchdan birni ayirsak ikki qoladi. Natija yigirma ikki ming yetti yuz o'ttiz yetti."],
-        ru: ['Исходное состояние: четыре, ноль, ноль, ноль, пять.', 'В разряде десятков тысяч остаётся три, а в разряде тысяч появляется десять.', 'Из десяти единиц в разряде тысяч одну тысячу размениваем на сотни. Остаются девять тысяч, а в разряде сотен появляется десять.', 'Из десяти единиц в разряде сотен одну сотню размениваем на десятки. Остаются девять сотен, а в разряде десятков появляется десять.', 'Один из десяти десятков размениваем на единицы. Остаются девять десятков и пятнадцать единиц. Пятнадцать минус восемь равно семь; девять минус шесть равно три; девять минус два равно семь; девять минус семь равно два; три минус один равно два. Результат: двадцать две тысячи семьсот тридцать семь.'],
-        en: ['The starting state is four, zero, zero, zero, five.', 'The ten-thousands place becomes three, and the thousands place becomes ten.', 'From the ten units in the thousands place, exchange one thousand for ten hundreds. Nine thousands remain, and the hundreds place becomes ten.', 'From the ten units in the hundreds place, exchange one hundred for ten tens. Nine hundreds remain, and the tens place becomes ten.', 'Exchange one of the ten tens for ones. Nine tens and fifteen ones remain. Fifteen minus eight is seven; nine minus six is three; nine minus two is seven; nine minus seven is two; three minus one is two. The result is twenty-two thousand seven hundred and thirty-seven.'],
+        uz: ["To'rt o'n minglikdan bittasini maydalaymiz. Uch o'n minglik qoladi, minglar xonasida o'n hosil bo'ladi.", "Minglar va yuzlar xonasidan ketma-ket maydalaymiz. Minglar bilan yuzlar to'qqizga aylanadi, o'nlar xonasida o'n hosil bo'ladi.", "Bir o'nlikni birliklarga maydalaymiz. To'qqiz o'nlik va o'n besh birlik hosil bo'ladi. Ustunlar bo'yicha ayirsak, natija yigirma ikki ming yetti yuz o'ttiz yetti."],
+        ru: ['Размениваем один из четырёх десятков тысяч. Остаются три десятка тысяч, а в разряде тысяч появляется десять.', 'Последовательно выполняем размен через тысячи и сотни. Тысячи и сотни становятся девятью, а в разряде десятков появляется десять.', 'Один десяток размениваем на единицы. Остаются девять десятков и пятнадцать единиц. Вычитая по столбцам, получаем двадцать две тысячи семьсот тридцать семь.'],
+        en: ['Exchange one of the four ten-thousands. Three ten-thousands remain, and the thousands place becomes ten.', 'Continue the exchange through the thousands and hundreds. The thousands and hundreds become nine, and the tens place becomes ten.', 'Exchange one ten for ones. Nine tens and fifteen ones remain. Subtracting by columns gives twenty-two thousand seven hundred and thirty-seven.'],
       },
       on_correct: L("To'g'ri. Maydalash to'rt raqamidan boshlanadi.", 'Верно. Размен начинается с цифры четыре.', 'Correct. The exchange begins from the digit four.'),
       on_wrong: L("Nol xona birligini bera olmaydi. Chapga qarab davom eting.", 'Нулевой разряд не может отдать единицу. Продолжай двигаться влево.', 'A zero place cannot provide a unit. Continue moving left.'),
@@ -407,124 +391,79 @@ const CONTENT = {
   },
 
   s10: {
-    eyebrow: L('Qoida', 'Правило', 'Rule'),
-    title: L("Ustun usulidagi qoidani yig'ing", 'Собери правило вычисления столбиком', 'Build the column-method rule'),
-    fragments: [L("Sonlarni birlar xonasi bo'yicha tekislaymiz.", 'Выравниваем числа по разряду единиц.', 'Align the numbers by their ones places.'), L('Hisoblashni birlar ustunidan boshlaymiz.', 'Начинаем вычисление со столбца единиц.', 'Start calculating in the ones column.'), L("Qo'shishda 10 ta kichik xona birligini keyingi xonaning 1 birligiga almashtiramiz.", 'При сложении заменяем 10 единиц одного разряда 1 единицей следующего.', 'In addition, regroup 10 units of one place as 1 unit of the next place.'), L("Ayirishda yuqoridagi raqam yetmasa, eng yaqin nol bo'lmagan chap xonadan maydalaymiz.", 'При вычитании, если верхней цифры недостаточно, выполняем размен из ближайшего ненулевого разряда слева.', 'In subtraction, if the upper digit is too small, exchange from the nearest non-zero place on the left.'), L('Natijani taxmin va teskari amal bilan tekshiramiz.', 'Проверяем результат оценкой и обратным действием.', 'Check the result with an estimate and an inverse operation.')],
-    correctOrder: [0, 1, 2, 3, 4],
-    correctText: L("To'g'ri. Qoida tekislashdan boshlanadi va tekshirish bilan tugaydi.", 'Верно. Правило начинается с выравнивания и заканчивается проверкой.', 'Correct. The rule begins with alignment and ends with checking.'),
-    wrongText: L('Avval yozuvni tayyorlang, keyin hisoblang, oxirida tekshiring.', 'Сначала подготовь запись, затем вычисли и в конце проверь.', 'Set out the calculation first, calculate next, and check at the end.'),
-    solution: { title: Y, steps: [L("1. Xona bo'yicha tekislang.", '1. Выровняй по разрядам.', '1. Align by place value.'), L('2. Birliklardan boshlang.', '2. Начинай с единиц.', '2. Start with the ones.'), L("3. Zarur bo'lsa yiriklashtiring yoki maydalang.", '3. При необходимости выполни укрупнение или размен.', '3. Regroup or exchange when needed.'), L('4. Taxmin va teskari amal bilan tekshiring.', '4. Проверь оценкой и обратным действием.', '4. Check with an estimate and an inverse operation.')]},
+    eyebrow: L("Yo'qolgan raqam", 'Пропавшая цифра', 'Missing digit'),
+    title: L('Natijadagi xonani tiklang', 'Восстанови разряд в ответе', 'Restore the missing place'),
+    expression: L('26 438 + 17 596 = 44 □34', '26 438 + 17 596 = 44 □34', '26,438 + 17,596 = 44,□34'),
+    resultText: L('26 438 + 17 596 = 44 034', '26 438 + 17 596 = 44 034', '26,438 + 17,596 = 44,034'),
+    question: L("Bo'sh katakka qaysi raqam yoziladi?", 'Какую цифру нужно записать в пустую клетку?', 'Which digit belongs in the empty box?'),
+    answer: 0,
+    correctText: L("To'g'ri. 44 034 hosil bo'ldi: nol yuzlar xonasini saqlaydi.", 'Верно. Получилось 44 034: ноль сохраняет разряд сотен.', 'Correct. The result is 44,034: zero preserves the hundreds place.'),
+    wrongText: L("Yuzliklarni tekshiring, keyin minglar xonasiga ko'chirishni hisobga oling. Bo'sh joy natijadagi barcha xonalarni saqlashi kerak.", 'Проверь сотни, затем учти перенос в разряд тысяч. Пропуск должен сохранить все разряды результата.', 'Check the hundreds, then include the carry into the thousands. The missing digit must preserve every place in the result.'),
+    solution: { title: Y, steps: [L("Yuzliklar: 4 + 5 va ko'chgan 1 jami 10 yuzlik bo'ladi.", 'Сотни: 4 + 5 и перенос 1 дают 10 сотен.', 'Hundreds: 4 + 5 plus the carried 1 make 10 hundreds.'), L("Yuzlar xonasiga 0 yoziladi, 1 minglik ko'chadi. Natija 44 034.", 'В разряд сотен записывается 0, а 1 тысяча переносится. Результат: 44 034.', 'Write 0 in the hundreds place and carry 1 thousand. The result is 44,034.')]},
     audio: {
-      uz: ["Qoida qismlarini to'g'ri ketma-ketlikda yig'ing.", "Avval sonlarni birlar xonasi bo'yicha tekislaymiz.", 'Hisoblashni birliklardan boshlaymiz.', "Qo'shishda o'nta kichik xona birligini keyingi xonaning bitta birligiga yiriklashtiramiz.", "Ayirishda raqam yetmasa, eng yaqin nol bo'lmagan chap xonadan maydalaymiz.", 'Oxirida natijani taxmin va teskari amal bilan tekshiramiz.'],
-      ru: ['Собери части правила в верной последовательности.', 'Сначала выравниваем числа по разряду единиц.', 'Начинаем вычисление с единиц.', 'При сложении укрупняем десять единиц разряда в одну единицу следующего разряда.', 'При вычитании, если цифры недостаточно, выполняем размен из ближайшего ненулевого разряда слева.', 'В конце проверяем результат оценкой и обратным действием.'],
-      en: ['Build the rule in the correct order.', 'First, align the numbers by their ones places.', 'Start calculating with the ones.', 'In addition, regroup ten units of a place as one unit of the next place.', 'In subtraction, when the upper digit is too small, exchange from the nearest non-zero place on the left.', 'Finally, check the result with an estimate and an inverse operation.'],
+      intro: L("Yigirma olti ming to'rt yuz o'ttiz sakkizga o'n yetti ming besh yuz to'qson oltini qo'shing. Natijadagi yuzlar xonasi bo'sh. Unga qaysi raqam yoziladi?", 'Сложи двадцать шесть тысяч четыреста тридцать восемь и семнадцать тысяч пятьсот девяносто шесть. Разряд сотен в ответе пуст. Какую цифру нужно записать?', 'Add twenty-six thousand four hundred and thirty-eight and seventeen thousand five hundred and ninety-six. The hundreds place in the answer is empty. Which digit belongs there?'),
+      on_correct: L("To'g'ri. Yuzlar xonasiga nol yoziladi. Natija qirq to'rt ming o'ttiz to'rt.", 'Верно. В разряд сотен записывается ноль. Результат равен сорока четырём тысячам тридцати четырём.', 'Correct. Write zero in the hundreds place. The result is forty-four thousand and thirty-four.'),
+      on_wrong: L("Yuzliklarni hisoblang va minglar xonasiga ko'chgan birlikni qo'shing.", 'Пересчитай сотни и добавь единицу, перенесённую в разряд тысяч.', 'Recalculate the hundreds and include the unit carried into the thousands place.'),
     },
   },
 
   s11: {
-    eyebrow: L('Tezkor tekshiruv', 'Быстрая проверка', 'Rapid check'),
-    title: L("To'rtta mikrotest", 'Четыре микротеста', 'Four micro-tests'),
+    eyebrow: L('Bir qadamli tekshiruv', 'Проверка в один шаг', 'One-step check'),
+    title: L("Nollar zanjiri bilan aniq ayiring", 'Вычти точно через цепочку нулей', 'Subtract exactly through a chain of zeros'),
     rounds: [
-      {
-        id: 'alignment', kind: 'choice', prompt: L("84 215 − 9 730 misoli qaysi yozuvda to'g'ri tekislangan?", 'В какой записи верно выровнено выражение 84 215 − 9 730?', 'Which layout correctly aligns 84,215 − 9,730?'), options: ['− 9 | 7 | 3 | 0 | □', '− □ | 9 | 7 | 3 | 0', '□ | 9 | 7 | 3 | 0'], correctIndex: 1,
-        wrong: [L("Chapdan tekislash bir xil xonalarni turli ustunlarga suradi. Birliklarni o'ng chetda ustma-ust qo'ying.", 'Выравнивание слева сдвигает одинаковые разряды в разные столбцы. Совмести единицы у правого края.', 'Left alignment puts matching places in different columns. Line up the ones at the right edge.'), null, L("Amal belgisi qaysi hisob bajarilishini ko'rsatadi. Uni yozuvdan olib tashlamang.", 'Знак действия показывает, какое вычисление нужно выполнить. Не убирай его из записи.', 'The operation sign shows which calculation to perform. Do not omit it from the layout.')],
-        wrongAudio: [L("Chapdan tekislash bir xil xonalarni turli ustunlarga suradi. Birliklarni o'ng chetda ustma-ust qo'ying.", 'Выравнивание слева сдвигает одинаковые разряды в разные столбцы. Совмести единицы у правого края.', 'Left alignment puts matching places in different columns. Line up the ones at the right edge.'), null, L("Amal belgisi qaysi hisob bajarilishini ko'rsatadi. Uni yozuvdan olib tashlamang.", 'Знак действия показывает, какое вычисление нужно выполнить. Не убирай его из записи.', 'The operation sign shows which calculation to perform. Do not omit it from the layout.')],
-        correctAudio: L("To'g'ri. Bo'sh o'n minglar katagi chapda qoldi, birliklar esa o'ng chetda ustma-ust turibdi.", 'Верно. Пустая клетка десятков тысяч осталась слева, а единицы совмещены у правого края.', 'Correct. The empty ten-thousands box stays on the left, and the ones line up at the right edge.'),
-      },
-      {
-        id: 'carry', kind: 'choice', prompt: L("7 + 5 = 12. Birliklar katagiga nima yoziladi va nima ko'chadi?", '7 + 5 = 12. Что записывается в единицах и что переносится?', '7 + 5 = 12. What is written in the ones column and what is carried?'), options: [L("2 yoziladi, 1 o'nlik ko'chadi", 'Записывается 2, переносится 1 десяток', 'Write 2 and carry 1 ten'), L('12 bitta katakka yoziladi', '12 записывается в одну клетку', 'Write 12 in one box'), L("1 yoziladi, 2 ko'chadi", 'Записывается 1, переносится 2', 'Write 1 and carry 2')], correctIndex: 0,
-        wrong: [null, L("Bir katakda faqat bitta raqam turadi. 12 birlikdan 2 yoziladi, 1 o'nlik ko'chadi.", 'В одной клетке может стоять только одна цифра. Из 12 единиц пишем 2, а 1 десяток переносим.', 'Only one digit belongs in a box. From 12 ones, write 2 and carry 1 ten.'), L("Birlik va o'nlik raqamlarini almashtirmang: 12 birlikdan 2 yoziladi, 1 ko'chadi.", 'Не меняй местами цифры единиц и десятков: из 12 единиц пишем 2 и переносим 1.', 'Do not reverse the ones and tens digits: from 12 ones, write 2 and carry 1.')],
-        wrongAudio: [null, L("Bir katakda faqat bitta raqam turadi. O'n ikki birlikdan ikki yoziladi, bir o'nlik ko'chadi.", 'В одной клетке может стоять только одна цифра. Из двенадцати единиц пишем две, а один десяток переносим.', 'Only one digit belongs in a box. From twelve ones, write two and carry one ten.'), L("Birlik va o'nlik raqamlarini almashtirmang. O'n ikki birlikdan ikki yoziladi, bir ko'chadi.", 'Не меняй местами цифры единиц и десятков. Из двенадцати единиц пишем две и переносим одну.', 'Do not reverse the ones and tens digits. From twelve ones, write two and carry one.')],
-        correctAudio: L("To'g'ri. O'n ikki birlikdan ikki birlik yoziladi va bir o'nlik ko'chiriladi.", 'Верно. Из двенадцати единиц записываем две и переносим один десяток.', 'Correct. From twelve ones, write two ones and carry one ten.'),
-      },
-      {
-        id: 'zeroChain', kind: 'choice', prompt: L("40 005 − 17 268 da ayirishdan oldingi holatni tanlang.", 'Выбери состояние разрядов перед вычитанием в 40 005 − 17 268.', 'Choose the place-value state before subtracting in 40,005 − 17,268.'), options: ['3 | 9 | 9 | 9 | 15', '3 | 9 | 0 | 9 | 15', '4 | 0 | 0 | −1 | 15'], correctIndex: 0,
-        wrong: [null, L("Maydalash o'tgan har bir oraliq nol 9 ga aylanadi. Yuzlar xonasida 0 qolmaydi.", 'Каждый промежуточный ноль, через который проходит размен, становится 9. В сотнях ноль не остаётся.', 'Every intermediate zero crossed by the exchange becomes 9. The hundreds place does not stay zero.'), L("Noldan bevosita birlik olib bo'lmaydi va xona manfiy bo'lib qolmaydi. Birinchi nol bo'lmagan xonadan boshlang.", 'Нельзя взять единицу непосредственно из нуля, и разряд не становится отрицательным. Начни с первого ненулевого разряда.', 'You cannot take a unit directly from zero, and a place does not become negative. Start at the first non-zero place.')],
-        wrongAudio: [null, L("Maydalash o'tgan har bir oraliq nol to'qqizga aylanadi. Yuzlar xonasida nol qolmaydi.", 'Каждый промежуточный ноль, через который проходит размен, становится девятью. В сотнях ноль не остаётся.', 'Every intermediate zero crossed by the exchange becomes nine. The hundreds place does not stay zero.'), L("Noldan bevosita birlik olib bo'lmaydi va xona manfiy bo'lib qolmaydi. Birinchi nol bo'lmagan xonadan boshlang.", 'Нельзя взять единицу непосредственно из нуля, и разряд не становится отрицательным. Начни с первого ненулевого разряда.', 'You cannot take a unit directly from zero, and a place does not become negative. Start at the first non-zero place.')],
-        correctAudio: L("To'g'ri. Oraliq nollarning har biri to'qqizga aylandi, birliklar esa o'n besh bo'ldi.", 'Верно. Каждый промежуточный ноль превратился в девять, а единицы стали пятнадцатью.', 'Correct. Every intermediate zero became nine, and the ones became fifteen.'),
-      },
-      { id: 'numeric', kind: 'number', prompt: L('60 002 − 24 785 ni hisoblang.', 'Вычисли 60 002 − 24 785.', 'Calculate 60,002 − 24,785.'), answer: 35217, correctAudio: L("To'g'ri. Oltmish ming ikkidan yigirma to'rt ming yetti yuz sakson beshni ayirsak, o'ttiz besh ming ikki yuz o'n yetti qoladi.", 'Верно. Шестьдесят тысяч два минус двадцать четыре тысячи семьсот восемьдесят пять равно тридцати пяти тысячам двумстам семнадцати.', 'Correct. Sixty thousand and two minus twenty-four thousand seven hundred and eighty-five equals thirty-five thousand two hundred and seventeen.') },
+      { id: 'numeric', kind: 'number', expression: '60 002 − 24 785', prompt: L('60 002 − 24 785 ni hisoblang.', 'Вычисли 60 002 − 24 785.', 'Calculate 60,002 − 24,785.'), answer: 35217, correctAudio: L("To'g'ri. Oltmish ming ikkidan yigirma to'rt ming yetti yuz sakson beshni ayirsak, o'ttiz besh ming ikki yuz o'n yetti qoladi.", 'Верно. Шестьдесят тысяч два минус двадцать четыре тысячи семьсот восемьдесят пять равно тридцати пяти тысячам двумстам семнадцати.', 'Correct. Sixty thousand and two minus twenty-four thousand seven hundred and eighty-five equals thirty-five thousand two hundred and seventeen.') },
     ],
-    correctText: L("To'g'ri. Mikrotest aniq bajarildi.", 'Верно. Микротест выполнен точно.', 'Correct. The micro-test is accurate.'),
+    resultText: L('60 002 − 24 785 = 35 217', '60 002 − 24 785 = 35 217', '60,002 − 24,785 = 35,217'),
+    completeText: L('Bitta tekshiruv tugadi', 'Одна проверка завершена', 'One check complete'),
+    correctText: L("To'g'ri. Nollar zanjiri saqlandi va aniq natija topildi.", 'Верно. Цепочка нулей сохранена, и точный результат найден.', 'Correct. The chain of zeros was preserved and the exact result was found.'),
     wrong: {
-      alignment: L("Birlar ustuni va amal belgisini tekshiring.", 'Проверь столбец единиц и знак действия.', 'Check the ones column and operation sign.'),
-      carry: L("12 sonining birlik va o'nlik raqamlarini ajrating.", 'Раздели число 12 на цифры единиц и десятков.', 'Separate 12 into its ones and tens digits.'),
-      zeroChain: L("Birinchi nol bo'lmagan xonadan barcha oraliq xonalarni tekshiring.", 'Проверь все промежуточные разряды от первой ненулевой цифры.', 'Check every intermediate place from the first non-zero digit.'),
       numeric: L("Maydalashdan keyingi holat 5 | 9 | 9 | 9 | 12. Keyin ustunlar bo'yicha ayiring.", 'После размена состояние равно 5 | 9 | 9 | 9 | 12. Затем вычитай по столбцам.', 'After exchanging, the state is 5 | 9 | 9 | 9 | 12. Then subtract by columns.'),
     },
-    solution: { title: Y, steps: [L('Birlar birlar ostida turadi.', 'Единицы стоят под единицами.', 'Ones are placed under ones.'), L("12 birlikdan 2 yoziladi, 1 o'nlik ko'chadi.", 'Из 12 единиц пишем 2 и переносим 1 десяток.', 'From 12 ones, write 2 and carry 1 ten.'), L('40 005 uchun holat 3 | 9 | 9 | 9 | 15.', 'Для 40 005 состояние 3 | 9 | 9 | 9 | 15.', 'For 40,005, the state is 3 | 9 | 9 | 9 | 15.'), L('60 002 − 24 785 = 35 217.', '60 002 − 24 785 = 35 217.', '60,002 − 24,785 = 35,217.')]},
+    solution: { title: Y, steps: [L('Maydalashdan keyingi holat 5 | 9 | 9 | 9 | 12.', 'После размена состояние равно 5 | 9 | 9 | 9 | 12.', 'After exchanging, the state is 5 | 9 | 9 | 9 | 12.'), L("Ustunlar bo'yicha ayirsak, 35 217 hosil bo'ladi.", 'Вычитая по столбцам, получаем 35 217.', 'Subtracting by columns gives 35,217.')]},
     audio: {
-      intro: L("To'rtta qisqa tekshiruvni bajaring. Tekislash, ko'chirish, nollar zanjiri va aniq natijani tekshiramiz.", 'Выполни четыре короткие проверки: выравнивание, перенос, цепочку нулей и точный результат.', 'Complete four quick checks: alignment, carrying, the chain of zeros and an exact result.'),
-      on_correct: L("To'g'ri. Bu mikrotest yakunlandi.", 'Верно. Этот микротест завершён.', 'Correct. This micro-test is complete.'),
-      on_wrong: L("Faol savoldagi bitta matematik belgini qayta tekshiring.", 'Ещё раз проверь один математический признак активного вопроса.', 'Check the key mathematical feature in the active question again.'),
+      intro: L("Oltmish ming ikkidan yigirma to'rt ming yetti yuz sakson beshni ayiring. Javobni raqamlar bilan kiriting.", 'Вычти двадцать четыре тысячи семьсот восемьдесят пять из шестидесяти тысяч двух. Введи ответ цифрами.', 'Subtract twenty-four thousand seven hundred and eighty-five from sixty thousand and two. Enter the answer using digits.'),
+      on_correct: L("To'g'ri. Nollar zanjiri saqlandi va natija o'ttiz besh ming ikki yuz o'n yetti bo'ldi.", 'Верно. Цепочка нулей сохранена, и результат равен тридцати пяти тысячам двумстам семнадцати.', 'Correct. The chain of zeros was preserved, and the result is thirty-five thousand two hundred and seventeen.'),
+      on_wrong: L("Maydalashdan keyingi besh, to'qqiz, to'qqiz, to'qqiz, o'n ikki holatini tekshiring.", 'Проверь состояние после размена: пять, девять, девять, девять, двенадцать.', 'Check the state after exchanging: five, nine, nine, nine, twelve.'),
       wrong: { numeric: L("Oltmish ming ikkidan yigirma to'rt ming yetti yuz sakson beshni ayirishda nollar zanjirini to'liq saqlang.", 'При вычитании двадцати четырёх тысяч семисот восьмидесяти пяти из шестидесяти тысяч двух полностью сохрани цепочку нулей.', 'When subtracting twenty-four thousand seven hundred and eighty-five from sixty thousand and two, keep the complete chain of zeros.') },
     },
   },
 
   s12: {
     eyebrow: L('Strategiyani tanlash', 'Выбор стратегии', 'Choose a strategy'),
-    title: L('Taxmin va teskari amal', 'Оценка и обратное действие', 'Estimate and inverse operation'),
-    estimateQuestion: L("28 467 + 15 785 javobining kattaligini qaysi yozuv tekshiradi?", 'Какая запись проверяет величину ответа 28 467 + 15 785?', 'Which expression checks the size of the answer to 28,467 + 15,785?'),
-    estimateOptions: ['28 000 + 16 000 ≈ 44 000', '28 000 − 16 000 ≈ 12 000', '28 000 + 16 000 = 44 252'],
-    estimateCorrectIndex: 0,
-    estimateCorrectText: L("To'g'ri. Taxmin javob 44 ming atrofida bo'lishini ko'rsatadi.", 'Верно. Оценка показывает, что ответ должен быть около 44 тысяч.', 'Correct. The estimate shows that the answer should be about 44 thousand.'),
-    estimateCorrectAudio: L("Taxmin javob qirq to'rt ming atrofida bo'lishini ko'rsatadi.", 'Оценка показывает, что ответ должен быть около сорока четырёх тысяч.', 'The estimate shows that the answer should be about forty-four thousand.'),
-    estimateWrong: [null, L("Asosiy hisobda miqdorlar qo'shilmoqda, ayirilmayapti.", 'В исходном вычислении количества складываются, а не вычитаются.', 'The original calculation adds the amounts; it does not subtract them.'), L("Taxmin aniq javob emas. Yaxlitlangan sonlar faqat kattalikni ko'rsatadi.", 'Оценка не является точным ответом. Округлённые числа показывают только величину.', 'An estimate is not the exact answer. Rounded numbers only show the expected size.')],
-    estimateWrongAudio: [null, L("Asosiy hisobda miqdorlar qo'shilmoqda, ayirilmayapti.", 'В исходном вычислении количества складываются, а не вычитаются.', 'The original calculation adds the amounts; it does not subtract them.'), L("Taxmin aniq javob emas. Yaxlitlangan sonlar faqat kattalikni ko'rsatadi.", 'Оценка не является точным ответом. Округлённые числа показывают только величину.', 'An estimate is not the exact answer. Rounded numbers only show the expected size.')],
-    calculations: [{ id: 'a', text: '28 467 + 15 785 = 44 252' }, { id: 'b', text: '63 241 − 27 856 = 35 385' }, { id: 'c', text: '40 005 − 17 268 = 22 737' }],
-    checks: [{ id: 'b-check', text: '35 385 + 27 856 = 63 241' }, { id: 'c-check', text: '22 737 + 17 268 = 40 005' }, { id: 'a-check', text: '44 252 − 15 785 = 28 467' }],
-    pairs: { a: 'a-check', b: 'b-check', c: 'c-check' },
-    matchingInstruction: L('Har bir aniq hisobni uning teskari amali bilan juftlang.', 'Соедини каждое точное вычисление с его обратной проверкой.', 'Match each exact calculation to its inverse-operation check.'),
-    pairCorrectText: L("To'g'ri. Teskari amal boshlang'ich sonni qaytardi.", 'Верно. Обратное действие вернуло исходное число.', 'Correct. The inverse operation returned the starting number.'),
-    pairWrongText: L("Bu juftlikdagi uchta son bir xil bog'lanishni tuzmaydi.", 'Три числа в этой паре не образуют одну связь.', 'The three numbers in this pair do not form one fact family.'),
-    aria: { selectedLeft: L('Chap kartochka tanlandi', 'Выбрана левая карточка', 'Left card selected'), selectedRight: L("O'ng kartochka tanlandi", 'Выбрана правая карточка', 'Right card selected'), pairConnected: L('Juft chiziq bilan ulandi', 'Пара соединена линией', 'Pair connected with a line'), wrongPair: L('Juft mos kelmadi', 'Пара не совпала', 'Pair does not match') },
+    title: L('Javob kattaligini tekshiring', 'Проверь величину ответа', 'Check the answer size'),
+    question: L("28 467 + 15 785 javobining kattaligini qaysi yozuv tekshiradi?", 'Какая запись проверяет величину ответа 28 467 + 15 785?', 'Which expression checks the size of the answer to 28,467 + 15,785?'),
+    options: [L('28 000 + 16 000 ≈ 44 000', '28 000 + 16 000 ≈ 44 000', '28,000 + 16,000 ≈ 44,000'), L('28 000 − 16 000 ≈ 12 000', '28 000 − 16 000 ≈ 12 000', '28,000 − 16,000 ≈ 12,000'), L('28 000 + 16 000 = 44 252', '28 000 + 16 000 = 44 252', '28,000 + 16,000 = 44,252')],
+    correctIndex: 0,
+    correctText: L("To'g'ri. Taxmin javob 44 ming atrofida bo'lishini ko'rsatadi.", 'Верно. Оценка показывает, что ответ должен быть около 44 тысяч.', 'Correct. The estimate shows that the answer should be about 44 thousand.'),
+    wrong: [null, L("Asosiy hisobda miqdorlar qo'shilmoqda, ayirilmayapti.", 'В исходном вычислении количества складываются, а не вычитаются.', 'The original calculation adds the amounts; it does not subtract them.'), L("Taxmin aniq javob emas. Yaxlitlangan sonlar faqat kattalikni ko'rsatadi.", 'Оценка не является точным ответом. Округлённые числа показывают только величину.', 'An estimate is not the exact answer. Rounded numbers only show the expected size.')],
+    wrongAudio: [null, L("Asosiy hisobda miqdorlar qo'shilmoqda, ayirilmayapti.", 'В исходном вычислении количества складываются, а не вычитаются.', 'The original calculation adds the amounts; it does not subtract them.'), L("Taxmin aniq javob emas. Yaxlitlangan sonlar faqat kattalikni ko'rsatadi.", 'Оценка не является точным ответом. Округлённые числа показывают только величину.', 'An estimate is not the exact answer. Rounded numbers only show the expected size.')],
+    resultText: L('28 000 + 16 000 ≈ 44 000', '28 000 + 16 000 ≈ 44 000', '28,000 + 16,000 ≈ 44,000'),
+    questionFrame: true,
     solution: { title: Y, steps: [L('Taxmin javobning taxminiy kattaligini tekshiradi.', 'Оценка проверяет примерную величину ответа.', 'An estimate checks the approximate size of the answer.'), L("Qo'shishni yig'indidan bir qo'shiluvchini ayirish bilan tekshiramiz.", 'Сложение проверяем вычитанием одного слагаемого из суммы.', 'Check addition by subtracting one addend from the sum.'), L("Ayirishni ayirma va ayriluvchini qo'shish bilan tekshiramiz.", 'Вычитание проверяем сложением разности и вычитаемого.', 'Check subtraction by adding the difference and subtrahend.') ]},
-    audio: { intro: L("Taxmin javob kattaligini, teskari amal aniq hisobni tekshiradi. Avval taxminni tanlang, keyin hisoblarni teskari amallar bilan juftlang.", 'Оценка проверяет величину ответа, а обратное действие проверяет точный расчёт. Сначала выбери оценку, затем соедини вычисления с обратными проверками.', 'An estimate checks the answer size, while an inverse operation checks the exact calculation. Choose the estimate, then match calculations to inverse checks.'), on_correct: L("To'g'ri. Taxmin va teskari amal o'z vazifasida ishlatildi.", 'Верно. Оценка и обратное действие использованы по назначению.', 'Correct. The estimate and inverse operation have each been used correctly.'), on_wrong: L("Taxminiy kattalik bilan aniq tenglikni farqlang.", 'Различай примерную величину и точное равенство.', 'Distinguish an approximate size from an exact equality.') },
+    audio: { intro: L("Taxmin javob kattaligini tekshiradi. Yigirma sakkiz ming to'rt yuz oltmish yetti bilan o'n besh ming yetti yuz sakson besh yig'indisi uchun mos taxminni bitta tanlovda toping.", 'Оценка проверяет величину ответа. Одним выбором найди подходящую оценку суммы двадцати восьми тысяч четырёхсот шестидесяти семи и пятнадцати тысяч семисот восьмидесяти пяти.', 'An estimate checks the answer size. In one choice, find a suitable estimate for the sum of twenty-eight thousand four hundred and sixty-seven and fifteen thousand seven hundred and eighty-five.'), on_correct: L("To'g'ri. Taxmin javob qirq to'rt ming atrofida bo'lishini ko'rsatadi.", 'Верно. Оценка показывает, что ответ должен быть около сорока четырёх тысяч.', 'Correct. The estimate shows that the answer should be about forty-four thousand.'), on_wrong: L("Taxminiy kattalik bilan aniq tenglikni farqlang.", 'Различай примерную величину и точное равенство.', 'Distinguish an approximate size from an exact equality.') },
   },
 
   s13: {
-    eyebrow: L('Kutubxona missiyasi', 'Миссия библиотеки', 'Library mission'),
-    title: L("Jami nechta kitob bo'ldi?", 'Сколько книг стало всего?', 'How many books are there altogether?'),
+    eyebrow: L('Qiziqarli mashq', 'Интересное задание', 'Challenge'),
+    title: L('Kutubxona hisobini tekshiring', 'Проверь расчёт библиотеки', 'Check the library calculation'),
     story: L("Kutubxonada 72 384 ta kitob bor edi. Yana 8 596 ta kitob keldi.", 'В библиотеке было 72 384 книги. Поступило ещё 8 596 книг.', 'The library had 72,384 books. Another 8,596 books arrived.'),
-    stages: [
-      { id: 'operation', kind: 'choice', prompt: L("Qaysi amal miqdorlar bog'lanishini ko'rsatadi?", 'Какое действие показывает связь величин?', 'Which operation represents the relationship between the amounts?'), options: [L("Qo'shish", 'Сложение', 'Addition'), L('Ayirish', 'Вычитание', 'Subtraction'), L("Ko'paytirish", 'Умножение', 'Multiplication')], correctIndex: 0, wrong: [null, L('Ayirish miqdorni kamaytiradi, lekin yangi kitoblar kelganda jami miqdor oshadi.', 'Вычитание уменьшает количество, но после поступления новых книг общее количество растёт.', 'Subtraction decreases an amount, but the total grows when new books arrive.'), L("Bu yerda teng guruhlar yo'q. Boshlang'ich miqdorga kelgan miqdorni qo'shish kerak.", 'Здесь нет равных групп. Нужно прибавить поступившее количество к начальному.', 'There are no equal groups here. Add the arriving amount to the starting amount.')], correctAudio: L("To'g'ri. Kitoblar keldi, shuning uchun qo'shamiz.", 'Верно. Книги поступили, поэтому складываем.', 'Correct. Books arrived, so we add.') },
-      { id: 'estimate', kind: 'choice', prompt: L("Javob taxminan qancha bo'lishi kerak?", 'Каким примерно должен быть ответ?', 'About how large should the answer be?'), options: ['≈ 81 000', '≈ 64 000', '≈ 720 000'], correctIndex: 0, wrong: [null, L("Bu taxmin yangi kitoblarni qo'shish o'rniga ayirgandagi miqdorga yaqin.", 'Эта оценка близка к результату вычитания новых книг вместо сложения.', 'This estimate is close to subtracting the new books instead of adding them.'), L("Bu taxmin boshlang'ich miqdordan deyarli o'n baravar katta. Xonalar sonini saqlang.", 'Эта оценка почти в десять раз больше начального количества. Сохрани число разрядов.', 'This estimate is almost ten times the starting amount. Keep the same order of magnitude.')], correctAudio: L("To'g'ri. Yetmish ikki mingga qariyb to'qqiz ming qo'shilsa, javob sakson bir ming atrofida bo'ladi.", 'Верно. Если к семидесяти двум тысячам прибавить около девяти тысяч, ответ будет около восьмидесяти одной тысячи.', 'Correct. Adding about nine thousand to seventy-two thousand gives an answer near eighty-one thousand.') },
-      { id: 'answer', kind: 'number', prompt: L('Aniq natijani kiriting.', 'Введи точный результат.', 'Enter the exact result.'), answer: 80980, correctAudio: L("To'g'ri. Ustun usulidagi aniq natija sakson ming to'qqiz yuz sakson.", 'Верно. Точный результат вычисления столбиком: восемьдесят тысяч девятьсот восемьдесят.', 'Correct. The exact column-method result is eighty thousand nine hundred and eighty.') },
-      { id: 'check', kind: 'choice', prompt: L('Qaysi teskari amal javobni tekshiradi?', 'Какое обратное действие проверяет ответ?', 'Which inverse operation checks the answer?'), options: ['80 980 − 8 596 = 72 384', '80 980 + 8 596 = 72 384', '72 384 − 8 596 = 80 980'], correctIndex: 0, wrong: [null, L("Yig'indiga yana qo'shiluvchini qo'shish boshlang'ich miqdorni qaytarmaydi. Teskari amal ayirishdir.", 'Повторное прибавление слагаемого к сумме не возвращает начальное количество. Обратное действие — вычитание.', 'Adding the addend to the sum again does not return the starting amount. The inverse operation is subtraction.'), L("Tekshiruv yig'indidan kelgan miqdorni ayirishi kerak. Boshlang'ich miqdordan ayirish boshqa savolni yechadi.", 'Для проверки нужно вычесть поступившее количество из суммы. Вычитание из начального количества решает другую задачу.', 'The check must subtract the arriving amount from the sum. Subtracting it from the starting amount answers a different question.')], correctAudio: L("To'g'ri. Yig'indidan kelgan kitoblar sonini ayirsak, boshlang'ich miqdor qaytdi.", 'Верно. Если из суммы вычесть число поступивших книг, вернётся исходное количество.', 'Correct. Subtracting the arriving books from the total returns the starting amount.') },
+    question: L("Qaysi bitta reja jami sonni topadi va teskari amal bilan tekshiradi?", 'Какой единый план находит общее количество и проверяет его обратным действием?', 'Which single plan finds the total and checks it with an inverse operation?'),
+    options: [
+      L('72 384 + 8 596 = 80 980; 80 980 − 8 596 = 72 384', '72 384 + 8 596 = 80 980; 80 980 − 8 596 = 72 384', '72,384 + 8,596 = 80,980; 80,980 − 8,596 = 72,384'),
+      L('72 384 − 8 596 = 63 788; 63 788 + 8 596 = 72 384', '72 384 − 8 596 = 63 788; 63 788 + 8 596 = 72 384', '72,384 − 8,596 = 63,788; 63,788 + 8,596 = 72,384'),
+      L('72 384 + 8 596 ≈ 80 980', '72 384 + 8 596 ≈ 80 980', '72,384 + 8,596 ≈ 80,980'),
     ],
-    correctText: L("To'g'ri. Amal, taxmin, aniq hisob va tekshiruv bir-biriga mos.", 'Верно. Действие, оценка, точный расчёт и проверка согласуются.', 'Correct. The operation, estimate, exact calculation and check are consistent.'),
-    wrong: { operation: L("Kitoblar keldi, shuning uchun yangi miqdor oshadi.", 'Книги поступили, поэтому новое количество увеличивается.', 'Books arrived, so the new amount increases.'), estimate: L("72 mingga yana 9 mingga yaqin miqdor qo'shiladi.", 'К 72 тысячам добавляется ещё около 9 тысяч.', 'About 9 thousand is added to 72 thousand.'), answer: L("Birliklardan boshlang va ko'chirishlarni qo'shing.", 'Начинай с единиц и учитывай переносы.', 'Start with the ones and include each carry.'), check: L("Qo'shishni yig'indidan bir qo'shiluvchini ayirish bilan tekshiring.", 'Проверь сложение вычитанием одного слагаемого из суммы.', 'Check addition by subtracting one addend from the sum.') },
-    solution: { title: Y, steps: [L("Kitoblar keldi, shuning uchun qo'shamiz.", 'Книги поступили, поэтому складываем.', 'Books arrived, so add.'), L('72 000 + 9 000 ≈ 81 000.', '72 000 + 9 000 ≈ 81 000.', '72,000 + 9,000 ≈ 81,000.'), L('72 384 + 8 596 = 80 980.', '72 384 + 8 596 = 80 980.', '72,384 + 8,596 = 80,980.'), L('80 980 − 8 596 = 72 384.', '80 980 − 8 596 = 72 384.', '80,980 − 8,596 = 72,384.')]},
-    audio: { intro: L("Kutubxonada yetmish ikki ming uch yuz sakson to'rtta kitob bor edi. Yana sakkiz ming besh yuz to'qson oltita kitob keldi. Amalni tanlang, taxmin qiling, hisoblang va tekshiring.", 'В библиотеке было семьдесят две тысячи триста восемьдесят четыре книги. Поступило ещё восемь тысяч пятьсот девяносто шесть. Выбери действие, оцени, вычисли и проверь.', 'The library had seventy-two thousand three hundred and eighty-four books. Another eight thousand five hundred and ninety-six arrived. Choose the operation, estimate, calculate and check.'), on_correct: L("To'g'ri. Kutubxona hisobi to'liq tekshirildi.", 'Верно. Расчёт библиотеки полностью проверен.', 'Correct. The library calculation has been fully checked.'), on_wrong: L("Faol bosqichning vazifasini tekshiring.", 'Проверь назначение текущего шага.', 'Check the purpose of the current step.') },
+    correctIndex: 0,
+    correctText: L("To'g'ri. Qo'shish jami sonni berdi, ayirish esa boshlang'ich sonni qaytardi.", 'Верно. Сложение дало общее количество, а вычитание вернуло исходное число.', 'Correct. Addition found the total, and subtraction returned the starting amount.'),
+    wrong: [null, L("Kitoblar keldi, shuning uchun jami miqdor kamaymaydi. Reja qo'shishdan boshlanishi kerak.", 'Книги поступили, поэтому общее количество не уменьшается. План должен начинаться со сложения.', 'Books arrived, so the total does not decrease. The plan must begin with addition.'), L("Bu yozuv aniq sonlarni taxmin belgisi bilan bog'lagan, ammo teskari tekshiruvni bermagan.", 'Здесь точные числа соединены знаком приближения, но обратной проверки нет.', 'This expression joins exact numbers with an approximation sign but gives no inverse check.')],
+    wrongAudio: [null, L("Kitoblar keldi, shuning uchun jami miqdor kamaymaydi. Reja qo'shishdan boshlanishi kerak.", 'Книги поступили, поэтому общее количество не уменьшается. План должен начинаться со сложения.', 'Books arrived, so the total does not decrease. The plan must begin with addition.'), L("Bu yozuv teskari tekshiruvni bermaydi. Yig'indidan kelgan kitoblar sonini ayirib, boshlang'ich miqdorni qaytaring.", 'Эта запись не даёт обратной проверки. Вычти число поступивших книг из суммы и верни исходное количество.', 'This expression gives no inverse check. Subtract the arriving books from the total to return the starting amount.')],
+    resultText: L('72 384 + 8 596 = 80 980', '72 384 + 8 596 = 80 980', '72,384 + 8,596 = 80,980'),
+    questionFrame: true,
+    solution: { title: Y, steps: [L("Kitoblar keldi, shuning uchun qo'shamiz.", 'Книги поступили, поэтому складываем.', 'Books arrived, so add.'), L('72 384 + 8 596 = 80 980.', '72 384 + 8 596 = 80 980.', '72,384 + 8,596 = 80,980.'), L('80 980 − 8 596 = 72 384.', '80 980 − 8 596 = 72 384.', '80,980 − 8,596 = 72,384.')]},
+    audio: { intro: L("Kutubxonada yetmish ikki ming uch yuz sakson to'rtta kitob bor edi. Yana sakkiz ming besh yuz to'qson oltita kitob keldi. Jami sonni topib, teskari amal bilan tekshiradigan bitta to'liq rejani tanlang.", 'В библиотеке было семьдесят две тысячи триста восемьдесят четыре книги. Поступило ещё восемь тысяч пятьсот девяносто шесть. Выбери один полный план, который находит общее количество и проверяет его обратным действием.', 'The library had seventy-two thousand three hundred and eighty-four books. Another eight thousand five hundred and ninety-six arrived. Choose one complete plan that finds the total and checks it with an inverse operation.'), on_correct: L("To'g'ri. Kutubxona hisobi topildi va teskari amal bilan tekshirildi.", 'Верно. Расчёт библиотеки найден и проверен обратным действием.', 'Correct. The library calculation was found and checked with an inverse operation.'), on_wrong: L("Kitoblar kelganda jami miqdor oshishini va qo'shishning teskarisi ayirish ekanini tekshiring.", 'Проверь, что после поступления книг общее количество растёт, а обратным действием для сложения является вычитание.', 'Check that the total grows when books arrive and that subtraction is the inverse of addition.') },
   },
 
   s14: {
-    eyebrow: L('Yangi vaziyat', 'Новая ситуация', 'New situation'),
-    title: L('Omborda nechta kitob qoldi?', 'Сколько книг осталось на складе?', 'How many books remain in the warehouse?'),
-    story: L('Omborda 72 000 ta kitob bor edi. 18 756 tasi filiallarga yuborildi.', 'На складе было 72 000 книг. В филиалы отправили 18 756 книг.', 'The warehouse held 72,000 books. It sent 18,756 books to the branches.'),
-    stages: [
-      { id: 'operation', kind: 'choice', prompt: L('Qaysi amal qoldiqni topadi?', 'Какое действие найдёт остаток?', 'Which operation finds the amount remaining?'), options: [L('Ayirish', 'Вычитание', 'Subtraction'), L("Qo'shish", 'Сложение', 'Addition'), L("Ko'paytirish", 'Умножение', 'Multiplication')], correctIndex: 0, wrong: [null, L("Qo'shish miqdorni oshiradi, lekin kitoblar ombordan chiqib ketgan.", 'Сложение увеличивает количество, но книги были отправлены со склада.', 'Addition increases an amount, but books have left the warehouse.'), L("Bu yerda teng guruhlar tuzilmayapti. Qolgan miqdor boshlang'ich miqdordan yuborilganini ayirish bilan topiladi.", 'Здесь не образуются равные группы. Остаток находят вычитанием отправленного количества из начального.', 'There are no equal groups here. Find the remainder by subtracting the sent amount from the starting amount.')], correctAudio: L("To'g'ri. Kitoblar yuborildi, shuning uchun ayiramiz.", 'Верно. Книги отправили, поэтому вычитаем.', 'Correct. Books were sent away, so we subtract.') },
-      { id: 'estimate', kind: 'choice', prompt: L('Javob taxminan qancha?', 'Каков примерный ответ?', 'What is the approximate answer?'), options: ['≈ 53 000', '≈ 91 000', '≈ 63 000'], correctIndex: 0, wrong: [null, L("Bu taxmin yuborilgan miqdorni ayirish o'rniga qo'shgandagi natijaga yaqin.", 'Эта оценка близка к результату сложения отправленного количества вместо вычитания.', 'This estimate is close to adding the sent amount instead of subtracting it.'), L("Bu taxmin yuborilgan miqdorning faqat yarmiga yaqin qismini ayirgandek chiqadi. Ayiriluvchi qariyb o'n to'qqiz ming.", 'Такая оценка получается, если вычесть лишь около половины отправленного количества. Вычитаемое близко к девятнадцати тысячам.', 'This estimate is like subtracting only about half the sent amount. The subtrahend is close to nineteen thousand.')], correctAudio: L("To'g'ri. Yetmish ikki mingdan qariyb o'n to'qqiz mingni ayirsak, javob ellik uch ming atrofida.", 'Верно. Семьдесят две тысячи минус около девятнадцати тысяч дают ответ около пятидесяти трёх тысяч.', 'Correct. Seventy-two thousand minus about nineteen thousand gives an answer near fifty-three thousand.') },
-      { id: 'answer', kind: 'number', prompt: L('Aniq qoldiqni kiriting.', 'Введи точный остаток.', 'Enter the exact amount remaining.'), answer: 53244, correctAudio: L("To'g'ri. Nollar zanjiri saqlanganda aniq qoldiq ellik uch ming ikki yuz qirq to'rt.", 'Верно. При полном размене через цепочку нулей точный остаток равен пятидесяти трём тысячам двумстам сорока четырём.', 'Correct. Keeping the full chain of zeros gives an exact remainder of fifty-three thousand two hundred and forty-four.') },
-      { id: 'check', kind: 'choice', prompt: L("Qaysi teskari amal boshlang'ich miqdorni qaytaradi?", 'Какое обратное действие возвращает начальное количество?', 'Which inverse operation returns the starting amount?'), options: ['53 244 + 18 756 = 72 000', '53 244 − 18 756 = 72 000', '72 000 + 18 756 = 53 244'], correctIndex: 0, wrong: [null, L("Ayirishni yana ayirish bilan tekshirmaymiz. Qoldiq va yuborilgan miqdorni qo'shib, boshlang'ich miqdorni qaytaramiz.", 'Вычитание не проверяют повторным вычитанием. Сложи остаток и отправленное количество, чтобы вернуть начальное.', 'Do not check subtraction with another subtraction. Add the remainder and sent amount to return the starting amount.'), L("Yuborilgan miqdorni boshlang'ich miqdorga qo'shish uni yanada oshiradi. Uni qoldiqqa qo'shish kerak.", 'Прибавление отправленного количества к начальному только увеличивает его. Нужно прибавить его к остатку.', 'Adding the sent amount to the starting amount makes it larger. Add it to the remainder instead.')], correctAudio: L("To'g'ri. Ayirma va ayriluvchini qo'shish boshlang'ich yetmish ikki mingni qaytardi.", 'Верно. Сумма разности и вычитаемого вернула исходные семьдесят две тысячи.', 'Correct. Adding the difference and subtrahend returned the original seventy-two thousand.') },
-    ],
-    correctText: L("To'g'ri. Natija taxminga mos va teskari amal 72 000 ni qaytardi.", 'Верно. Результат согласуется с оценкой, а обратное действие вернуло 72 000.', 'Correct. The result agrees with the estimate, and the inverse operation returns 72,000.'),
-    wrong: { operation: L("Kitoblar ombordan chiqarildi, shuning uchun miqdor kamayadi.", 'Книги отправили со склада, поэтому количество уменьшается.', 'Books left the warehouse, so the amount decreases.'), estimate: L('18 756 ni 19 mingga yaxlitlab, 72 mingdan ayiring.', 'Округли 18 756 до 19 тысяч и вычти из 72 тысяч.', 'Round 18,756 to 19 thousand and subtract from 72 thousand.'), answer: L("Avval birliklarga eng yaqin nol bo'lmagan xona — 2 minglikdan maydalang: 7 | 1 | 9 | 9 | 10. Minglar ustunida 1 dan 8 ni ayirish uchun keyin 7 o'n minglikdan maydalang.", 'Сначала выполни размен из ближайшего к единицам ненулевого разряда — из 2 тысяч: 7 | 1 | 9 | 9 | 10. Затем, чтобы вычесть 8 тысяч из 1 тысячи, выполни размен из 7 десятков тысяч.', 'First exchange from the nearest non-zero place to the ones — the 2 thousands: 7 | 1 | 9 | 9 | 10. Then, to subtract 8 thousands from 1 thousand, exchange from the 7 ten-thousands.'), check: L("Ayirishni ayirma va ayriluvchini qo'shish bilan tekshiring.", 'Проверь вычитание сложением разности и вычитаемого.', 'Check subtraction by adding the difference and subtrahend.') },
-    solution: { title: Y, steps: [L('Kitoblar yuborildi, shuning uchun ayiramiz. 72 000 − 19 000 ≈ 53 000.', 'Книги отправили, поэтому вычитаем. 72 000 − 19 000 ≈ 53 000.', 'Books were sent away, so subtract. 72,000 − 19,000 ≈ 53,000.'), L("Birliklar uchun 2 minglikdan 1 minglikni maydalaymiz: 7 | 1 | 9 | 9 | 10.", 'Для единиц размениваем 1 из 2 тысяч: 7 | 1 | 9 | 9 | 10.', 'For the ones, exchange 1 of the 2 thousands: 7 | 1 | 9 | 9 | 10.'), L("Birlar: 10 − 6 = 4; o'nlar: 9 − 5 = 4; yuzlar: 9 − 7 = 2.", 'Единицы: 10 − 6 = 4; десятки: 9 − 5 = 4; сотни: 9 − 7 = 2.', 'Ones: 10 − 6 = 4; tens: 9 − 5 = 4; hundreds: 9 − 7 = 2.'), L("Minglarda 1 − 8 yetmaydi. 7 o'n minglik 6 bo'ladi, 1 minglik 11 minglik bo'ladi: 11 − 8 = 3; 6 − 1 = 5. 72 000 − 18 756 = 53 244; tekshiruv 53 244 + 18 756 = 72 000.", 'В тысячах 1 − 8 выполнить нельзя. 7 десятков тысяч становятся 6, а 1 тысяча превращается в 11 тысяч: 11 − 8 = 3; 6 − 1 = 5. 72 000 − 18 756 = 53 244; проверка: 53 244 + 18 756 = 72 000.', 'In the thousands column, 1 − 8 cannot be done. The 7 ten-thousands become 6, and 1 thousand becomes 11 thousands: 11 − 8 = 3; 6 − 1 = 5. 72,000 − 18,756 = 53,244; check: 53,244 + 18,756 = 72,000.')]},
-    audio: {
-      intro: L("Omborda yetmish ikki mingta kitob bor edi. O'n sakkiz ming yetti yuz ellik oltitasi yuborildi. Qoldiqni taxmin qiling, hisoblang va tekshiring.", 'На складе было семьдесят две тысячи книг. Восемнадцать тысяч семьсот пятьдесят шесть отправили. Оцени остаток, вычисли и проверь.', 'The warehouse held seventy-two thousand books. Eighteen thousand seven hundred and fifty-six were sent away. Estimate the remainder, calculate and check.'),
-      wrong: {
-        operation: L("Kitoblar ombordan chiqarildi, shuning uchun ayirish amalini tanlang.", 'Книги отправили со склада, поэтому выбери вычитание.', 'Books left the warehouse, so choose subtraction.'),
-        estimate: L("O'n sakkiz ming yetti yuz ellik oltini o'n to'qqiz mingga yaxlitlab, yetmish ikki mingdan ayiring.", 'Округли восемнадцать тысяч семьсот пятьдесят шесть до девятнадцати тысяч и вычти из семидесяти двух тысяч.', 'Round eighteen thousand seven hundred and fifty-six to nineteen thousand and subtract from seventy-two thousand.'),
-        answer: L("Avval birliklarga eng yaqin nol bo'lmagan xona, ikki minglikdan maydalang. Keyin minglar ustunida bir minglikdan sakkiz minglikni ayirish uchun yetti o'n minglikdan maydalang.", 'Сначала выполни размен из ближайшего к единицам ненулевого разряда, из двух тысяч. Затем, чтобы вычесть восемь тысяч из одной тысячи, выполни размен из семи десятков тысяч.', 'First exchange from the nearest non-zero place to the ones, the two thousands. Then, to subtract eight thousands from one thousand, exchange from the seven ten-thousands.'),
-        check: L("Ayirishni ayirma va ayriluvchini qo'shish bilan tekshiring.", 'Проверь вычитание сложением разности и вычитаемого.', 'Check subtraction by adding the difference and subtrahend.'),
-      },
-      on_correct: L("To'g'ri. Natija va tekshiruv mos.", 'Верно. Результат и проверка согласуются.', 'Correct. The result and check agree.'),
-      on_wrong: L("Javob ellik uch ming atrofida bo'lishi kerak.", 'Ответ должен быть около пятидесяти трёх тысяч.', 'The answer should be about fifty-three thousand.'),
-    },
-  },
-
-  s15: {
     eyebrow: L('Missiya yakuni', 'Итог миссии', 'Mission complete'),
     title: L('Kutubxona hisobi tiklandi', 'Расчёт библиотеки восстановлен', 'The library calculation is restored'),
     hookClose: L("72 384 ta kitobga 8 596 ta kitob to'g'ri qo'shildi. Tizim jami 80 980 ta kitobni qayd etdi.", 'К 72 384 книгам верно добавлены 8 596 книг. Система зафиксировала 80 980 книг.', 'The 8,596 new books were correctly added to 72,384. The system recorded 80,980 books.'),
@@ -543,7 +482,34 @@ const CONTENT = {
     finishLabel: L('Darsni tugatish', 'Завершить урок', 'Finish lesson'),
     nextLabel: L('Keyingi missiya', 'Следующая миссия', 'Next mission'),
     nextText: L("Ko'p xonali sonni bir xonali songa ustun usulida ko'paytirish.", 'Умножение многозначного числа на однозначное столбиком.', 'Multiplying a multi-digit number by a one-digit number using the column method.'),
-    audio: { intro: L("Kutubxona hisobi tiklandi. Tekislash, qo'shishda ko'chirish, ayirishda maydalash va tekshirish bitta usulga birlashdi. Yakuniy fikrni to'ldiring.", 'Расчёт библиотеки восстановлен. Выравнивание, перенос при сложении, размен при вычитании и проверка объединились в один способ. Заверши итоговую мысль.', 'The library calculation is restored. Alignment, carrying in addition, exchanging in subtraction and checking now form one method. Complete the final reflection.'), on_correct: L("To'g'ri. Endi unvonni olish mumkin.", 'Верно. Теперь можно получить звание.', 'Correct. The title can now be claimed.'), on_wrong: L("Hisoblashdan oldingi ustun yozuvini eslang.", 'Вспомни запись столбиком перед вычислением.', 'Recall the column layout before calculating.'), on_claim: L("Aniq hisob ustasi unvoni olindi. Siz natijani topdingiz va tekshirdingiz.", 'Звание Мастер точных вычислений получено. Вы нашли результат и проверили его.', 'The Master of Exact Calculation title has been earned. You found the result and checked it.') },
+    audio: {
+      intro: L(
+        [
+          "Birinchi qoida: sonlarni birlar xonasi bo'yicha tekislaymiz.",
+          "Qo'shishda o'nta kichik birlikni keyingi xonaning bir birligiga yiriklashtiramiz.",
+          "Ayirishda maydalashni chapdagi eng yaqin nol bo'lmagan xonadan boshlaymiz.",
+          "Boshlang'ich missiya yechildi. Yetmish ikki ming uch yuz sakson to'rt kitobga sakkiz ming besh yuz to'qson olti kitob qo'shilib, sakson ming to'qqiz yuz sakson kitob bo'ldi.",
+          "Keyingi missiyada ko'p xonali sonni bir xonali songa ustun usulida ko'paytiramiz.",
+        ],
+        [
+          'Первое правило: выравниваем числа по разряду единиц.',
+          'При сложении десять меньших единиц укрупняем в одну единицу следующего разряда.',
+          'При вычитании начинаем размен с ближайшего ненулевого разряда слева.',
+          'Стартовая миссия решена. К семидесяти двум тысячам трёмстам восьмидесяти четырём книгам добавили восемь тысяч пятьсот девяносто шесть и получили восемьдесят тысяч девятьсот восемьдесят книг.',
+          'В следующей миссии умножим многозначное число на однозначное столбиком.',
+        ],
+        [
+          'First rule: align the numbers by their ones places.',
+          'In addition, regroup ten smaller units as one unit of the next place.',
+          'In subtraction, begin the exchange at the nearest non-zero place on the left.',
+          'The opening mission is solved. Adding eight thousand five hundred and ninety-six books to seventy-two thousand three hundred and eighty-four gives eighty thousand nine hundred and eighty books.',
+          'In the next mission, we will multiply a multi-digit number by a one-digit number using the column method.',
+        ],
+      ),
+      on_correct: L("To'g'ri. Endi unvonni olish mumkin.", 'Верно. Теперь можно получить звание.', 'Correct. The title can now be claimed.'),
+      on_wrong: L("Hisoblashdan oldingi ustun yozuvini eslang.", 'Вспомни запись столбиком перед вычислением.', 'Recall the column layout before calculating.'),
+      on_claim: L("Aniq hisob ustasi unvoni olindi. Siz natijani topdingiz va tekshirdingiz.", 'Звание Мастер точных вычислений получено. Вы нашли результат и проверили его.', 'The Master of Exact Calculation title has been earned. You found the result and checked it.'),
+    },
   },
 };
 
@@ -791,6 +757,38 @@ function useScreenAudio(c, screen) {
   return useAudio(segments);
 }
 
+function useAudioSegmentReveal(audio, segments, count) {
+  const [visible, setVisible] = useState(0);
+  const reducedMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const showAll = reducedMotion || audio.muted || audio.completed;
+  const activeIndex = segments.findIndex((segment) => segment.id === audio.currentSegment);
+
+  useEffect(() => {
+    if (showAll) {
+      const frame = window.requestAnimationFrame(() => setVisible(count));
+      return () => window.cancelAnimationFrame(frame);
+    }
+    if (activeIndex >= 0) {
+      const frame = window.requestAnimationFrame(() => setVisible(Math.min(count, activeIndex + 1)));
+      return () => window.cancelAnimationFrame(frame);
+    }
+    return undefined;
+  }, [activeIndex, count, showAll]);
+
+  const replay = useCallback(() => {
+    if (!reducedMotion && !audio.muted) setVisible(0);
+    audio.replay();
+  }, [audio, reducedMotion]);
+
+  const toggleMute = useCallback(() => {
+    setVisible(audio.muted ? 0 : count);
+    audio.toggleMute();
+  }, [audio, count]);
+
+  return { visible, replay, toggleMute };
+}
+
 function useCanAnswer(audio) {
   return audio.muted || audio.completed;
 }
@@ -815,6 +813,25 @@ const playSfx = (kind) => {
     sound.volume = 0.6;
     sound.play()?.catch?.(() => {});
   } catch { /* non-blocking */ }
+};
+
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
 };
 
 const reactionCopy = (correct, lang) => (
@@ -868,8 +885,9 @@ const NavBack = ({ onClick, hidden = false }) => (
 
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} disabled={isDisabled} aria-disabled={isDisabled} onClick={onClick}>
       {label || (finish ? B('Darsni yakunlash', 'Завершить урок', 'Finish lesson')[lang] : <NextLabel />)}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -1105,7 +1123,7 @@ const digitsOf = (number, size = 5) => {
   return clean.slice(-size).split('');
 };
 
-function ColumnAlgorithm({ top, bottom, result, operator = '+', active = -1, carries = [], borrow = [], revealed = null, compact = false }) {
+function ColumnAlgorithm({ top, bottom, result, operator = '+', active = -1, carries = [], borrow = [], revealed = null, bottomRevealed = null, compact = false }) {
   const topDigits = digitsOf(top);
   const bottomDigits = digitsOf(bottom);
   const resultDigits = digitsOf(result);
@@ -1114,7 +1132,10 @@ function ColumnAlgorithm({ top, bottom, result, operator = '+', active = -1, car
       <PlaceHeader />
       <div className="carry-row">{[0, 1, 2, 3, 4].map((index) => <span key={index}>{carries[index] ?? borrow[index] ?? ''}</span>)}</div>
       <div className="digit-row top-row">{topDigits.map((digit, index) => <span className={index === active ? 'digit-active' : ''} key={index}>{digit}</span>)}</div>
-      <div className="digit-row bottom-row"><i>{operator}</i>{bottomDigits.map((digit, index) => <span className={index === active ? 'digit-active' : ''} key={index}>{digit}</span>)}</div>
+      <div className="digit-row bottom-row"><i>{operator}</i>{bottomDigits.map((digit, index) => {
+        const isVisible = digit.trim() !== '' && (bottomRevealed === null || bottomRevealed.includes(index));
+        return <span className={`${index === active ? 'digit-active' : ''} ${isVisible ? 'digit-revealed' : 'digit-hidden'}`} aria-hidden={!isVisible} key={index}>{isVisible ? digit : '\u00a0'}</span>;
+      })}</div>
       <div className="column-rule" />
       <div className="digit-row result-row">{resultDigits.map((digit, index) => {
         const isRevealed = digit.trim() !== '' && (revealed === null || revealed.includes(index));
@@ -1135,6 +1156,118 @@ const RegroupModel = ({ step = 0, count = 12, tens = 1, ones = 2 }) => (
     <div className={`regroup-output ${step >= 1 ? 'model-active' : ''}`} aria-hidden={step < 1}>{tens > 0 && <><b>{tens}</b><small aria-hidden="true">10</small></>}{ones > 0 && <><b>{ones}</b><small aria-hidden="true">1</small></>}</div>
   </div>
 );
+
+// Grade 4 Dars07 dagi tasdiqlangan xonaviy qiymat assetlari asosida.
+const ExchangeBatteryDefs = () => (
+  <defs>
+    <linearGradient id="g4D8ExchangeBatteryBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#0E6E96" />
+      <stop offset="22%" stopColor="#43B6E0" />
+      <stop offset="50%" stopColor="#8FE0F4" />
+      <stop offset="74%" stopColor="#2FA0CC" />
+      <stop offset="100%" stopColor="#0A5876" />
+    </linearGradient>
+    <linearGradient id="g4D8ExchangeBatteryCap" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#8FA0AE" />
+      <stop offset="35%" stopColor="#EEF3F7" />
+      <stop offset="65%" stopColor="#C6D2DB" />
+      <stop offset="100%" stopColor="#7E93A2" />
+    </linearGradient>
+    <linearGradient id="g4D8ExchangeBatteryBand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#B23A26" />
+      <stop offset="30%" stopColor="#FF7A5E" />
+      <stop offset="100%" stopColor="#C7401F" />
+    </linearGradient>
+    <linearGradient id="g4D8ExchangeCassetteBody" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stopColor="#4E5E82" />
+      <stop offset="24%" stopColor="#7385AB" />
+      <stop offset="52%" stopColor="#8C9EC4" />
+      <stop offset="76%" stopColor="#63739A" />
+      <stop offset="100%" stopColor="#4E5E82" />
+    </linearGradient>
+  </defs>
+);
+
+const ExchangeBatterySvg = ({ x, unitIndex }) => (
+  <svg
+    className="exchange-battery-svg"
+    x={x}
+    y="37"
+    width="24"
+    height="37"
+    viewBox="0 0 22 34"
+    overflow="visible"
+    aria-hidden="true"
+    data-qa-exchange-battery={unitIndex + 1}
+  >
+    <rect x="8" y="0.6" width="6" height="3.6" rx="1.5" fill="url(#g4D8ExchangeBatteryCap)" stroke="#6E828F" strokeWidth="0.6" />
+    <rect x="9.4" y="0.2" width="3.2" height="1.4" rx="0.7" fill="#F4F8FA" />
+    <rect x="1.4" y="4" width="19.2" height="29.4" rx="4.2" fill="url(#g4D8ExchangeBatteryBody)" stroke="#093F55" strokeWidth="1" />
+    <rect x="1.4" y="4" width="19.2" height="29.4" rx="4.2" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="0.6" />
+    <rect x="1.4" y="12.5" width="19.2" height="9" fill="url(#g4D8ExchangeBatteryBand)" opacity="0.95" />
+    <path d="M12.6 14L8.8 20.4h2.4l-1.4 5.2 4.6-7.2h-2.6z" fill="#FFE9A6" stroke="#D89A18" strokeWidth="0.4" />
+    <rect x="3.4" y="6" width="2.4" height="25" rx="1.2" fill="rgba(255,255,255,0.4)" />
+    <rect x="16.4" y="6" width="1.4" height="25" rx="0.7" fill="rgba(0,0,0,0.18)" />
+  </svg>
+);
+
+const ExchangeCassetteSvg = () => (
+  <svg
+    className="exchange-cassette-svg"
+    x="416"
+    y="10"
+    width="48"
+    height="64"
+    viewBox="0 0 48 66"
+    overflow="visible"
+    aria-hidden="true"
+    data-qa-exchange-cassette="true"
+  >
+    <rect x="1" y="4" width="46" height="61" rx="7" fill="url(#g4D8ExchangeCassetteBody)" stroke="#33415F" strokeWidth="1.4" />
+    <rect x="1" y="4" width="46" height="61" rx="7" fill="none" stroke="rgba(255,255,255,0.14)" strokeWidth="0.7" />
+    <g fill="rgba(0,0,0,0.22)">
+      <rect x="3.4" y="18" width="2" height="30" rx="1" />
+      <rect x="42.6" y="18" width="2" height="30" rx="1" />
+    </g>
+    <g fill="#8494AE">
+      <circle cx="6" cy="9.5" r="1.3" /><circle cx="42" cy="9.5" r="1.3" />
+      <circle cx="6" cy="60" r="1.3" /><circle cx="42" cy="60" r="1.3" />
+    </g>
+    <rect x="17" y="6.6" width="14" height="5.2" rx="2.6" fill="#0C121F" stroke="#2A3550" strokeWidth="0.6" />
+    <circle cx="24" cy="9.2" r="2" fill="#6EF29B" stroke="#10182A" strokeWidth="0.6" />
+    <circle cx="24" cy="9.2" r="4.4" fill="rgba(110,242,155,0.4)" />
+    {Array.from({ length: 10 }, (_, index) => {
+      const column = index % 2;
+      const row = Math.floor(index / 2);
+      return (
+        <g key={index} transform={`translate(${6.5 + column * 19.5} ${16 + row * 9.4})`}>
+          <rect width="15" height="7.4" rx="2.4" fill="#33415F" stroke="#5A6B88" strokeOpacity=".25" strokeWidth="0.5" />
+          <rect x="1" y="1" width="13" height="5.4" rx="1.8" fill="url(#g4D8ExchangeBatteryBody)" stroke="#093F55" strokeWidth="0.4" />
+          <rect x="1.8" y="1.6" width="11.4" height="1.5" rx="0.7" fill="rgba(255,255,255,0.3)" />
+        </g>
+      );
+    })}
+  </svg>
+);
+
+const BatteryCassetteEquation = () => {
+  const t = useT();
+  return (
+    <div
+      className="battery-cassette-equation"
+      role="img"
+      aria-label={t(B('10 ta batareya 1 ta kassetaga teng', '10 батареек равны 1 кассете', 'Ten batteries equal one cassette'))}
+      data-qa-exchange-equation="10-batteries-equals-1-cassette"
+    >
+      <svg viewBox="0 0 520 84" aria-hidden="true" focusable="false">
+        <ExchangeBatteryDefs />
+        {Array.from({ length: 10 }, (_, index) => <ExchangeBatterySvg key={index} x={53 + index * 29} unitIndex={index} />)}
+        <text className="exchange-equation-sign" x="377" y="55" textAnchor="middle" data-qa-exchange-equals="true">=</text>
+        <ExchangeCassetteSvg />
+      </svg>
+    </div>
+  );
+};
 
 const ZeroChainModel = ({ solved = false, state = null }) => {
   const nextState = (state ?? (solved ? '3 | 9 | 9 | 9 | 15' : '')).split('|').map((value) => value.trim()).filter(Boolean);
@@ -1163,19 +1296,20 @@ const makeAnswer = ({ screen, question, options = null, correctIndex = null, cor
   ...extra,
 });
 
-function ChoiceScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, figure, resetOnReturn = false }) {
+function ChoiceScreen({ screen, c, choiceOrdinal = 0, storedAnswer, onAnswer, onNext, onPrev, figure, resetOnReturn = false }) {
   const lang = useLang();
   const t = useT();
   const restored = !resetOnReturn && storedAnswer?.solved === true;
   const [picked, setPicked] = useState(restored ? c.correctIndex : null);
   const [solved, setSolved] = useState(restored);
-  const [wrong, setWrong] = useState(() => new Set());
+  const [wrong, setWrong] = useState(() => new Set(resetOnReturn ? [] : (storedAnswer?.wrongChoices ?? [])));
   const attempts = useRef(resetOnReturn ? 0 : (storedAnswer?.attempts ?? 0));
   const firstTry = useRef(resetOnReturn ? null : (storedAnswer?.firstTry ?? null));
   const firstPicked = useRef(resetOnReturn ? null : (storedAnswer?.studentAnswerIndex ?? null));
   const audio = useScreenAudio(c, screen);
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
     if (!canAnswer || solved || wrong.has(index)) return;
@@ -1205,45 +1339,54 @@ function ChoiceScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, figur
       studentAnswer: t(c.options[firstPicked.current]),
       firstTry: firstTry.current,
       attempts: attempts.current,
+      wrongChoices: [...wrong],
     }));
   };
 
   const message = solved ? t(c.correctText) : (picked !== null ? t(c.wrong?.[picked] ?? c.wrongText) : '');
+  const showSolutionOnly = solved && c.solutionOnlyOnSolve === true;
+  const solutionFrame = <BitAnswerComment formula={t(c.resultText ?? c.expression ?? (screen === 0 ? '72 384 + 8 596' : c.options[c.correctIndex]))}><p>{message}</p>{c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}</BitAnswerComment>;
+  const answerBlock = <>
+    <div className="answer-stage answer-choice-persist">
+      <div className="answer-layer answer-options-layer">
+        <div className={`options-grid ${c.options.length === 3 ? 'options-three' : ''}`}>
+          {optionOrder.map((sourceIndex, displayIndex) => (
+            <button
+              type="button"
+              className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`}
+              disabled={!canAnswer || solved || wrong.has(sourceIndex)}
+              onClick={() => choose(sourceIndex)}
+              data-g4-role={screen === 0 ? 'answer-card' : undefined}
+              data-g4-branch="choice"
+              data-g4-source-index={sourceIndex}
+              data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+              key={sourceIndex}
+            ><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span></button>
+          ))}
+        </div>
+      </div>
+      <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
+        {solved && solutionFrame}
+      </div>
+    </div>
+    <FeedbackBlock show={picked !== null && !solved} correct={false}><p>{message}</p></FeedbackBlock>
+  </>;
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className={`screen-stack choice-screen ${screen === 0 ? 'hook-screen' : ''}`} data-g4-screen={screen === 0 ? 'hook' : undefined}>
-        <Heading c={c} lead={screen === 0 ? (c.lead ?? c.story) : (c.story ?? c.lead)} hook={screen === 0} />
-        {screen === 0 && <h2 className="question-title" data-g4-role="hook-question">{t(c.question)}</h2>}
-        {figure?.({ solved, picked })}
-        {screen !== 0 && <h2 className="question-title">{t(c.question)}</h2>}
-        <div className="answer-stage">
-          <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
-            <div className={`options-grid ${c.options.length === 3 ? 'options-three' : ''}`}>
-              {c.options.map((option, index) => (
-                <button
-                  type="button"
-                  className={`option ${wrong.has(index) ? 'option-wrong' : ''}`}
-                  disabled={!canAnswer || solved || wrong.has(index)}
-                  onClick={() => choose(index)}
-                  data-g4-role={screen === 0 ? 'answer-card' : undefined}
-                  data-g4-branch="choice"
-                  data-g4-correct={index === c.correctIndex ? 'true' : 'false'}
-                  key={index}
-                ><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span></button>
-              ))}
-            </div>
-          </div>
-          <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
-            {solved && <BitAnswerComment formula={t(c.resultText ?? c.expression ?? (screen === 0 ? '72 384 + 8 596' : c.options[c.correctIndex]))}><p>{message}</p>{c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}</BitAnswerComment>}
-          </div>
-        </div>
-        <FeedbackBlock show={picked !== null && !solved} correct={false}><p>{message}</p></FeedbackBlock>
+      <div className={`screen-stack choice-screen ${screen === 0 ? 'hook-screen' : ''} ${showSolutionOnly ? 'choice-solution-only' : ''}`} data-g4-screen={screen === 0 ? 'hook' : undefined} data-qa-step-count="1" data-qa-solution-only={c.solutionOnlyOnSolve ? 'true' : undefined}>
+        {!showSolutionOnly && <>
+          <Heading c={c} lead={screen === 0 ? (c.lead ?? c.story) : (c.story ?? c.lead)} hook={screen === 0} />
+          {screen === 0 && <h2 className="question-title" data-g4-role="hook-question">{t(c.question)}</h2>}
+          {figure?.({ solved, picked })}
+          {screen === 0 ? answerBlock : c.questionFrame ? <section className="choice-question-frame" data-g4-role="visual-frame"><h2 className="question-title">{t(c.question)}</h2>{answerBlock}</section> : <><h2 className="question-title">{t(c.question)}</h2>{answerBlock}</>}
+        </>}
+        {showSolutionOnly && <div className="solution-only-frame" data-qa-solution-only-complete="true">{solutionFrame}</div>}
       </div>
     </Stage>
   );
 }
 
-function GuidedChoiceStepsScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, visual }) {
+function GuidedChoiceStepsScreen({ screen, c, choiceOrdinal, storedAnswer, onAnswer, onNext, onPrev, visual }) {
   const lang = useLang();
   const t = useT();
   const steps = c.steps ?? c.states ?? [];
@@ -1261,6 +1404,7 @@ function GuidedChoiceStepsScreen({ screen, c, storedAnswer, onAnswer, onNext, on
   const canAnswer = useCanAnswer(audio);
   const complete = choiceSolved && revealed.size === steps.length;
   const canAdvance = useAdvanceGate(complete, audio);
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
     if (!canAnswer || choiceSolved || wrong.has(index)) return;
@@ -1311,20 +1455,17 @@ function GuidedChoiceStepsScreen({ screen, c, storedAnswer, onAnswer, onNext, on
   const activeText = activeStep >= 0 ? t(steps[activeStep]) : t(c.correctText);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack guided-choice-screen" data-g4-guided-steps="true" data-qa-guided-choice="true" data-qa-guided-phase={choiceSolved ? 'steps' : 'choice'}>
+      <div className="screen-stack guided-choice-screen" data-g4-guided-steps="true" data-qa-guided-choice="true" data-qa-guided-phase={choiceSolved ? 'steps' : 'choice'} data-qa-step-count={steps.length}>
         <Heading c={c} lead={c.story} />
         {visual?.({ choiceSolved, activeStep, revealed, complete })}
-        {!choiceSolved ? (
-          <>
-            <h2 className="question-title">{t(c.question)}</h2>
-            <div className="answer-stage">
-              <div className="answer-layer answer-options-layer">
-                <div className="options-grid options-three">{c.options.map((option, index) => <button type="button" className={`option ${wrong.has(index) ? 'option-wrong' : ''}`} disabled={!canAnswer || wrong.has(index)} onClick={() => choose(index)} data-g4-branch="choice" data-g4-correct={index === c.correctIndex ? 'true' : 'false'} key={index}><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span></button>)}</div>
-              </div>
-            </div>
-            <FeedbackBlock show={Boolean(wrongMessage)} correct={false}><p>{wrongMessage}</p></FeedbackBlock>
-          </>
-        ) : (
+        <h2 className="question-title">{t(c.question)}</h2>
+        <div className="answer-stage answer-choice-persist">
+          <div className="answer-layer answer-options-layer">
+            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${choiceSolved && sourceIndex === c.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || choiceSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(c.options[sourceIndex])}</span></button>)}</div>
+          </div>
+        </div>
+        {!choiceSolved && <FeedbackBlock show={Boolean(wrongMessage)} correct={false}><p>{wrongMessage}</p></FeedbackBlock>}
+        {choiceSolved && (
           <div className="guided-step-stage" data-qa-guided-step-count={steps.length}>
             <BitCoach text={activeText} mood={complete ? 'nod' : 'point'} />
             <div className={`explanation-timeline timeline-count-${steps.length}`}>{steps.map((step, index) => {
@@ -1339,7 +1480,7 @@ function GuidedChoiceStepsScreen({ screen, c, storedAnswer, onAnswer, onNext, on
   );
 }
 
-function ReasoningRoundsScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, visual }) {
+function ReasoningRoundsScreen({ screen, c, ordinalBase, storedAnswer, onAnswer, onNext, onPrev, visual }) {
   const lang = useLang();
   const t = useT();
   const restored = storedAnswer?.solved === true;
@@ -1354,6 +1495,7 @@ function ReasoningRoundsScreen({ screen, c, storedAnswer, onAnswer, onNext, onPr
   const audio = useScreenAudio(c, screen);
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(completed, audio);
+  const optionOrder = buildOptionOrder(current.options.length, current.correctIndex, LESSON_META.lessonId, ordinalBase + round);
 
   const choose = (index) => {
     if (!canAnswer || roundSolved || wrong.has(index)) return;
@@ -1401,20 +1543,84 @@ function ReasoningRoundsScreen({ screen, c, storedAnswer, onAnswer, onNext, onPr
 
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack reasoning-screen" data-qa-round-console="reasoning" data-qa-round-count={c.rounds.length} data-qa-round={round}>
+      <div className="screen-stack reasoning-screen" data-qa-round-console="reasoning" data-qa-round-count={c.rounds.length} data-qa-round={round} data-qa-step-count={c.rounds.length}>
         <Heading c={c} lead={c.lead} />
         <div className="round-meter"><span>{round + 1} / {c.rounds.length}</span>{c.rounds.map((_, index) => <i className={index <= round ? 'round-active' : ''} key={index} />)}</div>
         {visual?.({ round, roundSolved, current })}
         <h2 className="question-title">{t(current.question ?? current.expression)}</h2>
-        <div className="answer-stage">
-          <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
-            <div className="options-grid options-three">{current.options.map((option, index) => <button type="button" className={`option ${wrong.has(index) ? 'option-wrong' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(index)} onClick={() => choose(index)} data-g4-branch="choice" data-g4-correct={index === current.correctIndex ? 'true' : 'false'} key={index}><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span></button>)}</div>
+        <div className="answer-stage answer-choice-persist">
+          <div className="answer-layer answer-options-layer">
+            <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div>
           </div>
           <div className={`answer-layer answer-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>
             {roundSolved && <BitAnswerComment formula={proof} label={t(current.correctText ?? c.correctText)}>{completed && <span className="sr-only" data-qa-round-complete="true">complete</span>}{completed && c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}{!completed && <button type="button" className="btn btn-secondary" data-qa-round-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi qadam', 'Следующий шаг', 'Next step')[lang]} →</button>}</BitAnswerComment>}
           </div>
         </div>
         <FeedbackBlock show={Boolean(message) && !roundSolved} correct={false}><p>{message}</p></FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function PlacementMapScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
+  const lang = useLang();
+  const t = useT();
+  const restoredItems = storedAnswer?.placedItems ?? (storedAnswer?.solved ? c.steps.map((_, index) => index) : []);
+  const [placed, setPlaced] = useState(() => new Set(restoredItems));
+  const [activeItem, setActiveItem] = useState(() => restoredItems.at(-1) ?? null);
+  const audio = useScreenAudio(c, screen);
+  const canPlace = useCanAnswer(audio);
+  const complete = placed.size === c.steps.length;
+  const canAdvance = useAdvanceGate(complete, audio);
+  const columnByItem = [4, 3, 2, 1];
+  const revealedColumns = [...placed].map((index) => columnByItem[index]);
+
+  const placeDigit = (index) => {
+    if (!canPlace || placed.has(index)) return;
+    const next = new Set([...placed, index]);
+    const solved = next.size === c.steps.length;
+    setPlaced(next);
+    setActiveItem(index);
+    const narration = c.audio?.[lang]?.[index + 1] ?? t(c.steps[index].result ?? c.steps[index].prompt);
+    if (narration) audio.pushOneOff(narration);
+    onAnswer(makeAnswer({
+      screen,
+      question: t(c.lead),
+      correctAnswer: c.steps.map((step) => t(step.prompt)).join(' '),
+      studentAnswer: [...next].map((item) => t(c.steps[item].prompt)).join(' '),
+      firstTry: true,
+      attempts: next.size,
+      solved,
+      placedItems: [...next],
+    }));
+  };
+
+  return (
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
+      <div className="screen-stack placement-map-screen" data-qa-placement-map="true" data-qa-step-count="1">
+        <Heading c={c} lead={c.lead} />
+        <section className="placement-map-frame" data-g4-role="visual-frame" aria-label={t(c.lead)}>
+          <div className="placement-map-model">
+            <PlaceValueGrid number="32415" highlight={activeItem === null ? 4 : columnByItem[activeItem]} />
+            <ColumnAlgorithm top="32415" bottom="6203" result="     " active={activeItem === null ? -1 : columnByItem[activeItem]} bottomRevealed={revealedColumns} />
+          </div>
+          <div className="placement-map-actions" role="group" aria-label={t(c.lead)}>
+            {c.steps.map((step, index) => (
+              <button
+                type="button"
+                className={`${placed.has(index) ? 'placement-item-placed' : ''} ${activeItem === index ? 'placement-item-active' : ''}`}
+                disabled={!canPlace || placed.has(index)}
+                onClick={() => placeDigit(index)}
+                data-qa-placement-item={index}
+                key={step.place}
+              >
+                <span>{placed.has(index) ? '✓' : index + 1}</span>
+                <strong>{t(step.prompt)}</strong>
+              </button>
+            ))}
+          </div>
+        </section>
+        {complete && <BitAnswerComment formula={t(c.doneText)}><span className="sr-only" data-qa-placement-complete="true">complete</span><ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul></BitAnswerComment>}
       </div>
     </Stage>
   );
@@ -1463,22 +1669,24 @@ function ExplanationScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, 
       const placedDigits = sourceDigits.map((digit, index) => index >= 5 - placedCount ? digit : ' ').join('');
       return <div className="model-stack"><PlaceValueGrid number="32415" highlight={4 - activePhase} /><ColumnAlgorithm top="32415" bottom={placedDigits} result="     " active={4 - activePhase} /></div>;
     }
-    const revealedDigits = [...visited].map((index) => 4 - index);
-    const carryValues = ['', '', '', '', ''];
-    if (visited.has(0)) carryValues[3] = '1';
-    if (visited.has(1)) carryValues[2] = '1';
-    if (visited.has(2)) carryValues[1] = '1';
-    if (visited.has(3)) carryValues[0] = '1';
-    const columnTotals = [12, 15, 12, 14, 4];
-    const columnDigits = [2, 5, 2, 4, 4];
-    return <div className="model-stack"><RegroupModel step={visited.size} count={columnTotals[activePhase]} tens={activePhase < 4 ? 1 : 0} ones={columnDigits[activePhase]} /><ColumnAlgorithm top="28467" bottom="15785" result="44252" active={Math.max(0, 4 - activePhase)} carries={carryValues} revealed={revealedDigits} /></div>;
+    const revealPlan = [[4, 3], [4, 3, 2, 1], [4, 3, 2, 1, 0]];
+    const carryPlan = [
+      ['', '', '1', '1', ''],
+      ['1', '1', '1', '1', ''],
+      ['1', '1', '1', '1', ''],
+    ];
+    const activeColumns = [3, 1, 0];
+    const modelTotals = [15, 14, 4];
+    const modelDigits = [5, 4, 4];
+    const visiblePhase = Math.min(activePhase, revealPlan.length - 1);
+    return <div className="model-stack"><RegroupModel step={visited.size} count={modelTotals[visiblePhase]} tens={visiblePhase < 2 ? 1 : 0} ones={modelDigits[visiblePhase]} /><ColumnAlgorithm top="28467" bottom="15785" result="44252" active={activeColumns[visiblePhase]} carries={carryPlan[visiblePhase]} revealed={revealPlan[Math.min(visited.size - 1, revealPlan.length - 1)] ?? []} /></div>;
   };
   const activeText = phase === null
     ? t(c.lead ?? c.instruction ?? c.expression)
     : t(c.steps[phase].action ?? c.steps[phase].result ?? c.steps[phase].prompt);
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack explanation-screen" data-qa-explanation-steps={c.steps.length}>
+      <div className="screen-stack explanation-screen" data-qa-explanation-steps={c.steps.length} data-qa-step-count={c.steps.length}>
         <Heading c={c} lead={c.lead ?? c.instruction} />
         <div className="explanation-layout"><div className="explanation-visual">{renderVisual()}</div><BitCoach text={activeText} mood={phase === null ? 'think' : finished ? 'nod' : 'point'} /></div>
         <div className={`explanation-timeline timeline-count-${c.steps.length}`}>{c.steps.map((step, index) => <button type="button" className={`${index === phase ? 'timeline-active' : ''} ${visited.has(index) ? 'timeline-visited' : ''}`} disabled={!canReveal || (index > visited.size && !visited.has(index))} onClick={() => openStep(index)} data-qa-explanation-step={index} key={index}><span>{visited.has(index) ? '✓' : index + 1}</span><strong>{step.expression ?? t(step.prompt ?? step.result ?? step.action)}</strong></button>)}</div>
@@ -1488,188 +1696,100 @@ function ExplanationScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, 
   );
 }
 
-function ColumnRoundsScreen(props) {
-  const c = props.c;
-  const normalized = useMemo(() => ({
-    ...c,
-    rounds: c.rounds.map((item, roundIndex) => ({
-      ...item,
-      question: item.expression,
-      correctText: c.correctText,
-      correctAudio: L(
-        [c.audio.uz[roundIndex + 1], roundIndex === c.rounds.length - 1 ? c.audio.uz[roundIndex + 2] : null].filter(Boolean).join(' '),
-        [c.audio.ru[roundIndex + 1], roundIndex === c.rounds.length - 1 ? c.audio.ru[roundIndex + 2] : null].filter(Boolean).join(' '),
-        [c.audio.en[roundIndex + 1], roundIndex === c.rounds.length - 1 ? c.audio.en[roundIndex + 2] : null].filter(Boolean).join(' '),
-      ),
-      wrong: [
-        null,
-        L("Bu variant faol ustun yig'indisiga teng emas. Ikkala raqamni qayta qo'shing.", 'Этот вариант не равен сумме активного столбца. Сложи обе цифры ещё раз.', 'This option does not equal the active-column sum. Add both digits again.'),
-        L("Bu variant ustundagi raqamlardan faqat birini takrorlaydi. Ikkala raqam yig'indisi kerak.", 'Этот вариант повторяет только одну цифру столбца. Нужна сумма обеих цифр.', 'This option repeats only one digit from the column. Add both digits.'),
-      ],
-      wrongAudio: [
-        null,
-        L("Bu variant faol ustun yig'indisiga teng emas. Ikkala raqamni qayta qo'shing.", 'Этот вариант не равен сумме активного столбца. Сложи обе цифры ещё раз.', 'This option does not equal the active-column sum. Add both digits again.'),
-        L("Bu variant ustundagi raqamlardan faqat birini takrorlaydi. Ikkala raqam yig'indisi kerak.", 'Этот вариант повторяет только одну цифру столбца. Нужна сумма обеих цифр.', 'This option repeats only one digit from the column. Add both digits.'),
-      ],
-      proof: `${item.expression} = ${item.options[item.correctIndex]}`,
-    })),
-  }), [c]);
-  return <ReasoningRoundsScreen {...props} c={normalized} visual={({ round, roundSolved }) => {
-    const revealed = Array.from({ length: round + (roundSolved ? 1 : 0) }, (_, index) => 4 - index);
-    return <ColumnAlgorithm top="32415" bottom="6203" result="38618" active={4 - round} revealed={revealed} />;
-  }} />;
-}
-
-function BuildPracticeScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
+function MissingDigitScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
   const lang = useLang();
   const t = useT();
-  const target = c.rounds.flatMap((item) => [item.expectedDigit, item.expectedCarry]);
   const restored = storedAnswer?.solved === true;
-  const [round, setRound] = useState(restored ? c.rounds.length - 1 : 0);
-  const [slots, setSlots] = useState(restored ? target : Array(target.length).fill(null));
-  const [selectedSlot, setSelectedSlot] = useState(0);
-  const [roundSolved, setRoundSolved] = useState(restored);
-  const [complete, setComplete] = useState(restored);
-  const [message, setMessage] = useState('');
-  const firstTry = useRef(storedAnswer?.subResults ?? Array(c.rounds.length).fill(null));
-  const attempts = useRef(storedAnswer?.attemptsByRound ?? Array(c.rounds.length).fill(0));
-  const audio = useScreenAudio(c, screen);
-  const canAnswer = useCanAnswer(audio);
-  const canAdvance = useAdvanceGate(complete, audio);
-  const current = c.rounds[round];
-  const digitIndex = round * 2;
-  const carryIndex = digitIndex + 1;
-
-  const selectOrClear = (index) => {
-    if (!canAnswer || roundSolved) return;
-    if (slots[index] !== null) {
-      const next = [...slots];
-      next[index] = null;
-      setSlots(next);
-    }
-    setSelectedSlot(index);
-    setMessage('');
-  };
-  const place = (value) => {
-    if (!canAnswer || roundSolved || ![digitIndex, carryIndex].includes(selectedSlot)) return;
-    const next = [...slots];
-    next[selectedSlot] = value;
-    setSlots(next);
-    setSelectedSlot(selectedSlot === digitIndex ? carryIndex : digitIndex);
-    setMessage('');
-  };
-  const check = () => {
-    if (!canAnswer || roundSolved || slots[digitIndex] === null || slots[carryIndex] === null) return;
-    attempts.current[round] += 1;
-    const digitCorrect = slots[digitIndex] === current.expectedDigit;
-    const carryCorrect = slots[carryIndex] === current.expectedCarry;
-    const correct = digitCorrect && carryCorrect;
-    if (firstTry.current[round] === null) firstTry.current[round] = correct;
-    if (!correct) {
-      const detail = digitCorrect ? c.wrongCarryText : c.wrongDigitText;
-      const narration = digitCorrect ? c.audio?.wrongCarry : c.audio?.wrongDigit;
-      setMessage(t(detail));
-      playSfx('wrong');
-      pushFeedbackAudio(audio, t, lang, false, narration ?? detail);
-      return;
-    }
-    setRoundSolved(true);
-    setMessage('');
-    playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, c.audio?.steps?.[lang]?.[round] ?? c.correctText);
-    if (round === c.rounds.length - 1) {
-      setComplete(true);
-      onAnswer(makeAnswer({
-        screen,
-        question: t(c.title),
-        correctAnswer: target.join(','),
-        studentAnswer: slots.join(','),
-        firstTry: firstTry.current.every(Boolean),
-        attempts: attempts.current.reduce((sum, value) => sum + value, 0),
-        subResults: [...firstTry.current],
-        attemptsByRound: [...attempts.current],
-        slots: [...slots],
-      }));
-    }
-  };
-  const nextRound = () => {
-    if (!roundSolved || complete) return;
-    const nextRoundIndex = round + 1;
-    setRound(nextRoundIndex);
-    setSelectedSlot(nextRoundIndex * 2);
-    setRoundSolved(false);
-    setMessage('');
-  };
-
-  return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className={`screen-stack build-screen ${roundSolved ? 'build-solved' : ''}`} data-qa-build-round-console="true" data-qa-build-round-count={c.rounds.length} data-qa-build-round={round}>
-        <Heading c={c} lead={c.instruction} />
-        <div className="round-meter"><span>{round + 1} / {c.rounds.length}</span>{c.rounds.map((_, index) => <i className={index <= round ? 'round-active' : ''} key={index} />)}</div>
-        <div className="build-board" data-qa-build-round-answer={JSON.stringify([current.expectedDigit, current.expectedCarry])}>
-          <div className="build-model"><ColumnAlgorithm top="63708" bottom="8596" result={complete ? '72304' : '     '} active={4 - round} /><strong>{current.expression}</strong></div>
-          <div className="build-slots">
-            <div className="build-slot-group"><span>{B('Yoziladigan raqam', 'Цифра ответа', 'Answer digit')[lang]}</span><button type="button" className={selectedSlot === digitIndex ? 'slot-selected' : ''} aria-label={`${B('Yoziladigan raqam', 'Цифра ответа', 'Answer digit')[lang]}: ${slots[digitIndex] ?? B("bo'sh", 'пусто', 'empty')[lang]}`} data-qa-build-slot={digitIndex} data-qa-filled={slots[digitIndex] !== null ? 'true' : 'false'} onClick={() => selectOrClear(digitIndex)}>{slots[digitIndex] ?? '·'}</button></div>
-            <div className="build-slot-group carry-slots"><span>{B("Ko'chirish", 'Перенос', 'Carry')[lang]}</span><button type="button" className={selectedSlot === carryIndex ? 'slot-selected' : ''} aria-label={`${B("Ko'chirish", 'Перенос', 'Carry')[lang]}: ${slots[carryIndex] ?? B("bo'sh", 'пусто', 'empty')[lang]}`} data-qa-build-slot={carryIndex} data-qa-filled={slots[carryIndex] !== null ? 'true' : 'false'} onClick={() => selectOrClear(carryIndex)}>{slots[carryIndex] ?? '·'}</button></div>
-          </div>
-          <div className="card-tray">{[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value) => <button type="button" data-qa-build-card={value} disabled={roundSolved} onClick={() => place(value)} key={value}>{value}</button>)}</div>
-          <div className="inline-action"><button type="button" className="btn btn-white-accent" data-qa-build-round-check="true" disabled={roundSolved || slots[digitIndex] === null || slots[carryIndex] === null} onClick={check}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>
-        </div>
-        {roundSolved && <BitAnswerComment formula={complete ? t(c.resultText) : `${current.expression}: ${current.expectedDigit} | ${current.expectedCarry}`} label={t(c.correctText)}>{complete && <span className="sr-only" data-qa-build-round-complete="true">complete</span>}{complete && c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}{!complete && <button type="button" className="btn btn-secondary" data-qa-build-round-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi ustun', 'Следующий столбец', 'Next column')[lang]} →</button>}</BitAnswerComment>}
-        <FeedbackBlock show={Boolean(message)} correct={false}><p>{message}</p></FeedbackBlock>
-      </div>
-    </Stage>
-  );
-}
-
-function RuleBuilderScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
-  const lang = useLang();
-  const t = useT();
-  const fragments = c.fragments.map(t);
-  const restored = storedAnswer?.solved === true;
-  const [built, setBuilt] = useState(restored ? c.correctOrder : []);
-  const [checked, setChecked] = useState(restored);
+  const digits = [1, 2, 3, 4, 5, 6, 7, 8, 9, 0];
+  const restoredPicked = storedAnswer?.studentAnswer != null ? Number(storedAnswer.studentAnswer) : null;
+  const [picked, setPicked] = useState(restored ? c.answer : restoredPicked);
   const [solved, setSolved] = useState(restored);
+  const [wrong, setWrong] = useState(() => new Set(storedAnswer?.wrongChoices ?? []));
   const attempts = useRef(storedAnswer?.attempts ?? 0);
   const firstTry = useRef(storedAnswer?.firstTry ?? null);
+  const firstPicked = useRef(restoredPicked);
   const audio = useScreenAudio(c, screen);
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
-  const add = (index) => {
-    if (!canAnswer || solved || built.includes(index)) return;
-    setBuilt((previous) => [...previous, index]);
-    setChecked(false);
-    const narration = c.audio?.[lang]?.[index + 1];
-    if (narration) audio.pushOneOff(narration);
-  };
-  const remove = (index) => { if (!solved) { setBuilt((previous) => previous.filter((value) => value !== index)); setChecked(false); } };
-  const check = () => {
+  const choose = (digit) => {
+    if (!canAnswer || solved || wrong.has(digit)) return;
+    const correct = digit === c.answer;
     attempts.current += 1;
-    const correct = built.join(',') === c.correctOrder.join(',');
-    if (firstTry.current === null) firstTry.current = correct;
-    setChecked(true);
-    if (!correct) { playSfx('wrong'); pushFeedbackAudio(audio, t, lang, false, c.wrongText); return; }
+    if (firstTry.current === null) {
+      firstTry.current = correct;
+      firstPicked.current = digit;
+    }
+    setPicked(digit);
+    if (!correct) {
+      const wrongChoices = [...wrong, digit];
+      setWrong(new Set(wrongChoices));
+      playSfx('wrong');
+      pushFeedbackAudio(audio, t, lang, false, c.audio?.on_wrong ?? c.wrongText);
+      onAnswer(makeAnswer({
+        screen,
+        question: t(c.question),
+        options: digits.map(String),
+        correctIndex: digits.indexOf(c.answer),
+        correctAnswer: String(c.answer),
+        studentAnswerIndex: digits.indexOf(firstPicked.current),
+        studentAnswer: String(firstPicked.current),
+        firstTry: false,
+        attempts: attempts.current,
+        wrongChoices,
+        solved: false,
+      }));
+      return;
+    }
     setSolved(true);
     playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, c.correctText);
-    onAnswer(makeAnswer({ screen, question: t(c.title), options: fragments, correctAnswer: fragments.join(' '), studentAnswer: built.map((index) => fragments[index]).join(' '), firstTry: firstTry.current, attempts: attempts.current, built: [...built] }));
+    pushFeedbackAudio(audio, t, lang, true, c.audio?.on_correct ?? c.correctText);
+    onAnswer(makeAnswer({
+      screen,
+      question: t(c.question),
+      options: digits.map(String),
+      correctIndex: digits.indexOf(c.answer),
+      correctAnswer: String(c.answer),
+      studentAnswerIndex: digits.indexOf(firstPicked.current),
+      studentAnswer: String(firstPicked.current),
+      firstTry: firstTry.current,
+      attempts: attempts.current,
+      wrongChoices: [...wrong],
+    }));
   };
+  const message = solved ? t(c.correctText) : (picked !== null ? t(c.wrongText) : '');
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack rule-screen"><Heading c={c} />
-        <div className="rule-builder" data-qa-rule-builder="true" data-qa-rule-answer={JSON.stringify(c.correctOrder)}>
-          <div className="rule-built">{built.length === 0 && <span>{B("Qismlarni shu yerga yig'ing", 'Соберите части здесь', 'Build the rule here')[lang]}</span>}{built.map((index, slot) => <button type="button" data-qa-build-slot={slot} data-qa-filled="true" onClick={() => remove(index)} key={index}>{fragments[index]}</button>)}</div>
-          <div className="fragment-tray">{[3, 0, 4, 1, 2].filter((index) => !built.includes(index)).map((index) => <button type="button" className="fragment" data-qa-build-card={index} disabled={!canAnswer} onClick={() => add(index)} key={index}>{fragments[index]}</button>)}</div>
-          <div className="inline-action"><button type="button" className="btn btn-white-accent" data-qa-rule-check="true" disabled={built.length !== 5 || solved} onClick={check}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>
+      <div className="screen-stack missing-digit-screen" data-qa-step-count="1"><Heading c={c} />
+        <div className="single-step-expression-frame" data-g4-role="visual-frame"><div className="rapid-proof" data-qa-missing-digit-expression="true">{t(solved ? c.resultText : c.expression)}</div></div>
+        <h2 className="question-title">{t(c.question)}</h2>
+        <div className="answer-stage">
+          <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
+            <div className="card-tray digit-choice-tray" role="group" aria-label={B('Raqamlar paneli', 'Панель цифр', 'Digit keypad')[lang]}>
+              {digits.map((digit) => (
+                <button
+                  type="button"
+                  className={`${wrong.has(digit) ? 'digit-choice-wrong' : ''} ${solved && digit === c.answer ? 'digit-choice-correct' : ''}`}
+                  disabled={!canAnswer || solved || wrong.has(digit)}
+                  aria-pressed={picked === digit}
+                  data-qa-missing-digit={digit}
+                  data-qa-correct={digit === c.answer ? 'true' : 'false'}
+                  onClick={() => choose(digit)}
+                  key={digit}
+                >{digit}</button>
+              ))}
+            </div>
+          </div>
+          <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
+            {solved && <BitAnswerComment formula={t(c.resultText)}><p>{message}</p>{c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}</BitAnswerComment>}
+          </div>
         </div>
-        {solved && <BitAnswerComment formula={t(c.correctText)}><span className="sr-only" data-qa-rule-complete="true">complete</span>{c.solution?.steps && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}</BitAnswerComment>}
-        <FeedbackBlock show={checked && !solved} correct={false}><p>{t(c.wrongText)}</p></FeedbackBlock>
+        <FeedbackBlock show={picked !== null && !solved} correct={false}><p>{message}</p></FeedbackBlock>
       </div>
     </Stage>
   );
 }
 
-function RapidTestConsoleScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
+function RapidTestConsoleScreen({ screen, c, ordinalBase, storedAnswer, onAnswer, onNext, onPrev }) {
   const lang = useLang();
   const t = useT();
   const restored = storedAnswer?.solved === true;
@@ -1680,7 +1800,7 @@ function RapidTestConsoleScreen({ screen, c, storedAnswer, onAnswer, onNext, onP
   const [completed, setCompleted] = useState(restored);
   const wrongByRound = useRef(initialWrongByRound);
   const [wrong, setWrong] = useState(() => new Set(initialWrongByRound[initialRound] ?? []));
-  const [numeric, setNumeric] = useState(storedAnswer?.numeric ?? (restored ? String(c.rounds[3].answer) : ''));
+  const [numeric, setNumeric] = useState(storedAnswer?.numeric ?? (restored ? String(c.rounds.at(-1)?.answer ?? '') : ''));
   const [message, setMessage] = useState(() => storedAnswer?.feedback ? t(storedAnswer.feedback) : '');
   const firstTry = useRef(storedAnswer?.subResults ?? Array(c.rounds.length).fill(null));
   const attempts = useRef(storedAnswer?.attemptsByRound ?? Array(c.rounds.length).fill(0));
@@ -1689,6 +1809,10 @@ function RapidTestConsoleScreen({ screen, c, storedAnswer, onAnswer, onNext, onP
   const audio = useScreenAudio(c, screen);
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(completed, audio);
+  const currentChoiceOrdinal = ordinalBase + c.rounds.slice(0, round).filter((item) => item.kind === 'choice').length;
+  const optionOrder = current.kind === 'choice'
+    ? buildOptionOrder(current.options.length, current.correctIndex, LESSON_META.lessonId, currentChoiceOrdinal)
+    : [];
 
   const persist = ({
     solved = false,
@@ -1764,209 +1888,24 @@ function RapidTestConsoleScreen({ screen, c, storedAnswer, onAnswer, onNext, onP
     persist({ currentRound: nextRoundIndex, roundSolvedValue: false, feedback: null });
   };
   const proof = current.kind === 'number'
-    ? `60 002 − 24 785 = ${current.answer.toLocaleString('ru-RU')}`
+    ? (c.resultText ? t(c.resultText) : `${current.expression ?? ''} = ${current.answer.toLocaleString('ru-RU')}`.trim())
     : t(current.options[current.correctIndex]);
 
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack rapid-console" data-qa-rapid-console="true" data-qa-score-units="4" data-qa-rapid-first-try={JSON.stringify(qaSnapshot.firstTry)} data-qa-rapid-attempts={JSON.stringify(qaSnapshot.attempts)} data-qa-rapid-wrong={JSON.stringify([...wrong])}><Heading c={c} />
+      <div className="screen-stack rapid-console" data-qa-rapid-console="true" data-qa-step-count="1" data-qa-score-units={c.rounds.length} data-qa-rapid-first-try={JSON.stringify(qaSnapshot.firstTry)} data-qa-rapid-attempts={JSON.stringify(qaSnapshot.attempts)} data-qa-rapid-wrong={JSON.stringify([...wrong])}><Heading c={c} />
         <div className="rapid-panel" data-qa-rapid-round={round}>
-          <div className="quick-test-meter"><span>{B('Birinchi urinish hisoblanadi', 'Считается первая попытка', 'The first attempt counts')[lang]}</span><div>{c.rounds.map((_, index) => <i className={index <= round ? 'quick-meter-active' : ''} key={index} />)}</div><strong>{round + 1} / 4</strong></div>
+          <div className="quick-test-meter"><span>{B('Birinchi urinish hisoblanadi', 'Считается первая попытка', 'The first attempt counts')[lang]}</span><div>{c.rounds.map((_, index) => <i className={index <= round ? 'quick-meter-active' : ''} key={index} />)}</div><strong>{round + 1} / {c.rounds.length}</strong></div>
           <h2 className="question-title">{t(current.prompt)}</h2>
-          {round === 2 ? <ZeroChainModel solved={roundSolved} /> : <div className="rapid-proof">{current.id === 'alignment' ? '84 215 − 9 730' : current.id === 'carry' ? '7 + 5 = 12' : '60 002 − 24 785'}</div>}
-          <div className="answer-stage">
-            <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
-              {current.kind === 'choice' ? <div className="options-grid options-three">{current.options.map((option, index) => <button type="button" className={`option ${wrong.has(index) ? 'option-wrong' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(index)} onClick={() => choose(index)} data-g4-branch="choice" data-g4-correct={index === current.correctIndex ? 'true' : 'false'} data-qa-rapid-option={index} key={index}><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span></button>)}</div> : <div className="numeric-row"><input type="text" inputMode="numeric" value={numeric} onChange={(event) => { setNumeric(event.target.value.replace(/[^0-9 ]/g, '')); setMessage(''); }} aria-label={t(current.prompt)} data-qa-answer={runtimeConfig.previewMode ? String(current.answer) : undefined} /><button type="button" className="btn btn-white-accent" disabled={!numeric.trim()} onClick={submitNumber}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>}
+          {current.id === 'zeroChain' ? <ZeroChainModel solved={roundSolved} /> : <div className="rapid-proof">{current.expression ?? current.id}</div>}
+          <div className={`answer-stage ${current.kind === 'choice' ? 'answer-choice-persist' : ''}`}>
+            <div className={`answer-layer answer-options-layer ${roundSolved && current.kind !== 'choice' ? 'answer-layer-hidden' : ''}`}>
+              {current.kind === 'choice' ? <div className="options-grid options-three">{optionOrder.map((sourceIndex, displayIndex) => <button type="button" className={`option ${wrong.has(sourceIndex) ? 'option-wrong' : ''} ${roundSolved && sourceIndex === current.correctIndex ? 'option-correct' : ''}`} disabled={!canAnswer || roundSolved || wrong.has(sourceIndex)} onClick={() => choose(sourceIndex)} data-g4-branch="choice" data-g4-source-index={sourceIndex} data-g4-correct={sourceIndex === current.correctIndex ? 'true' : 'false'} data-qa-rapid-option={sourceIndex} key={sourceIndex}><span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span><span>{t(current.options[sourceIndex])}</span></button>)}</div> : <div className="numeric-row"><input type="text" inputMode="numeric" value={numeric} onChange={(event) => { setNumeric(event.target.value.replace(/[^0-9 ]/g, '')); setMessage(''); }} aria-label={t(current.prompt)} data-qa-answer={runtimeConfig.previewMode ? String(current.answer) : undefined} /><button type="button" className="btn btn-white-accent" disabled={!numeric.trim()} onClick={submitNumber}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>}
             </div>
-            <div className={`answer-layer answer-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>{roundSolved && <BitAnswerComment formula={proof} label={t(c.correctText)}>{completed && <><ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul><strong className="rapid-complete" data-qa-rapid-complete="true">{B('4 mikrotest tugadi', '4 микротеста завершены', '4 micro-tests complete')[lang]}</strong></>}{!completed && <button type="button" className="btn btn-secondary" data-qa-rapid-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi mikrotest', 'Следующий микротест', 'Next micro-check')[lang]} →</button>}</BitAnswerComment>}</div>
+            <div className={`answer-layer answer-proof-layer ${roundSolved ? 'answer-layer-visible' : ''}`}>{roundSolved && <BitAnswerComment formula={proof} label={t(c.correctText)}>{completed && <><ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul><strong className="rapid-complete" data-qa-rapid-complete="true">{t(c.completeText)}</strong></>}{!completed && <button type="button" className="btn btn-secondary" data-qa-rapid-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextRound}>{B('Keyingi mikrotest', 'Следующий микротест', 'Next micro-check')[lang]} →</button>}</BitAnswerComment>}</div>
           </div>
         </div>
         <FeedbackBlock show={Boolean(message) && !roundSolved} correct={false}><p>{message}</p></FeedbackBlock>
-      </div>
-    </Stage>
-  );
-}
-
-const readPoint = (element, board, side) => {
-  const box = element.getBoundingClientRect();
-  const host = board.getBoundingClientRect();
-  return { x: side === 'left' ? box.right - host.left : box.left - host.left, y: box.top + box.height / 2 - host.top };
-};
-
-function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey }) {
-  const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
-  useLayoutEffect(() => {
-    const board = boardRef.current;
-    if (!board) return undefined;
-    let frame = 0;
-    const measure = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const host = board.getBoundingClientRect();
-        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
-        const lines = allPairs.map((pair) => {
-          const left = board.querySelector(`[data-match-left="${pair.left}"]`);
-          const right = board.querySelector(`[data-match-right="${pair.right}"]`);
-          if (!left || !right) return null;
-          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
-        }).filter(Boolean);
-        setGeometry({ width: host.width, height: host.height, lines });
-      });
-    };
-    measure();
-    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null;
-    observer?.observe(board);
-    board.querySelectorAll('[data-match-left],[data-match-right]').forEach((node) => observer?.observe(node));
-    window.addEventListener('resize', measure);
-    return () => { cancelAnimationFrame(frame); observer?.disconnect(); window.removeEventListener('resize', measure); };
-  }, [boardRef, pairs, wrongPair, localeKey]);
-  return (
-    <svg className="matching-connectors" width={geometry.width} height={geometry.height} viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`} aria-hidden="true">
-      {geometry.lines.map((line, index) => {
-        const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
-        const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
-        return <path key={`${path}-${index}`} className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'} d={path} fill="none" stroke={line.wrong ? T.danger : T.success} strokeWidth="4" strokeLinecap="round" />;
-      })}
-    </svg>
-  );
-}
-
-function MatchingScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) {
-  const boardRef = useRef(null);
-  const lang = useLang();
-  const t = useT();
-  const restored = storedAnswer?.solved === true;
-  const [estimateSolved, setEstimateSolved] = useState(storedAnswer?.estimateSolved ?? restored);
-  const [matchingStarted, setMatchingStarted] = useState(storedAnswer?.matchingStarted ?? restored);
-  const [estimatePicked, setEstimatePicked] = useState(storedAnswer?.estimatePicked ?? (restored ? c.estimateCorrectIndex : null));
-  const [selected, setSelected] = useState(null);
-  const [pairs, setPairs] = useState(storedAnswer?.pairs ?? (restored ? { ...c.pairs } : {}));
-  const [wrongPair, setWrongPair] = useState(null);
-  const [message, setMessage] = useState(() => storedAnswer?.feedback ? t(storedAnswer.feedback) : '');
-  const [lastCorrect, setLastCorrect] = useState(storedAnswer?.lastCorrect ?? (restored ? true : null));
-  const attempts = useRef(storedAnswer?.attempts ?? 0);
-  const firstTry = useRef(storedAnswer?.firstTry ?? null);
-  const timerRef = useRef(null);
-  const audio = useScreenAudio(c, screen);
-  const complete = estimateSolved && matchingStarted && Object.keys(pairs).length === c.calculations.length;
-  const connectorPairs = useMemo(() => Object.entries(pairs).map(([left, right]) => ({ left, right })), [pairs]);
-  const canAnswer = useCanAnswer(audio);
-  const canAdvance = useAdvanceGate(complete, audio);
-  useEffect(() => () => { if (timerRef.current) window.clearTimeout(timerRef.current); }, []);
-
-  const persist = ({
-    solved = false,
-    estimateSolvedValue = estimateSolved,
-    matchingStartedValue = matchingStarted,
-    estimatePickedValue = estimatePicked,
-    pairsValue = pairs,
-    feedback = null,
-    lastCorrectValue = lastCorrect,
-  } = {}) => {
-    onAnswer(makeAnswer({
-      screen,
-      question: t(c.matchingInstruction),
-      correctAnswer: Object.entries(c.pairs).map(([left, right]) => `${left}→${right}`).join(', '),
-      studentAnswer: JSON.stringify(pairsValue),
-      firstTry: firstTry.current === true,
-      attempts: attempts.current,
-      solved,
-      estimateSolved: estimateSolvedValue,
-      matchingStarted: matchingStartedValue,
-      estimatePicked: estimatePickedValue,
-      pairs: pairsValue,
-      feedback,
-      lastCorrect: lastCorrectValue,
-    }));
-  };
-
-  const chooseEstimate = (index) => {
-    if (!canAnswer || estimateSolved) return;
-    attempts.current += 1;
-    const correct = index === c.estimateCorrectIndex;
-    if (firstTry.current === null) firstTry.current = correct;
-    setEstimatePicked(index);
-    if (!correct) {
-      const detail = c.estimateWrong[index];
-      firstTry.current = false;
-      setMessage(t(detail));
-      setLastCorrect(false);
-      persist({ estimatePickedValue: index, feedback: detail, lastCorrectValue: false });
-      playSfx('wrong');
-      pushFeedbackAudio(audio, t, lang, false, c.estimateWrongAudio?.[index] ?? detail);
-      return;
-    }
-    setEstimateSolved(true);
-    setMessage('');
-    setLastCorrect(true);
-    persist({ estimateSolvedValue: true, estimatePickedValue: index, feedback: null, lastCorrectValue: true });
-    playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, c.estimateCorrectAudio ?? c.estimateCorrectText);
-  };
-
-  const match = (rightId) => {
-    if (!selected || pairs[selected] || Object.values(pairs).includes(rightId)) return;
-    attempts.current += 1;
-    const correct = c.pairs[selected] === rightId;
-    if (firstTry.current === null) firstTry.current = correct;
-    if (!correct) {
-      firstTry.current = false;
-      setWrongPair({ left: selected, right: rightId });
-      setLastCorrect(false);
-      setMessage(t(c.pairWrongText));
-      persist({ feedback: c.pairWrongText, lastCorrectValue: false });
-      playSfx('wrong');
-      pushFeedbackAudio(audio, t, lang, false, c.pairWrongText);
-      if (timerRef.current) window.clearTimeout(timerRef.current);
-      timerRef.current = window.setTimeout(() => setWrongPair(null), 1200);
-      return;
-    }
-    const next = { ...pairs, [selected]: rightId };
-    const done = Object.keys(next).length === c.calculations.length;
-    setPairs(next);
-    setSelected(null);
-    setWrongPair(null);
-    setLastCorrect(true);
-    setMessage('');
-    playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, done ? c.pairCorrectText : c.aria.pairConnected);
-    if (done) {
-      persist({ solved: true, pairsValue: next, feedback: null, lastCorrectValue: true });
-    } else persist({ pairsValue: next, feedback: null, lastCorrectValue: true });
-  };
-
-  const startMatching = () => {
-    setMatchingStarted(true);
-    persist({ matchingStartedValue: true, feedback: null, lastCorrectValue: true });
-  };
-
-  const pairLabel = (leftId, rightId) => {
-    const left = c.calculations.find((item) => item.id === leftId)?.text ?? leftId;
-    const right = c.checks.find((item) => item.id === rightId)?.text ?? rightId;
-    return `${left} → ${right}`;
-  };
-
-  return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack matching-screen" data-qa-matching-stage={!estimateSolved ? 'estimate' : !matchingStarted ? 'estimate-solution' : complete ? 'complete' : 'pairs'}><Heading c={c} />
-        {!estimateSolved ? <section className="estimate-stage">
-          <h2 className="question-title">{t(c.estimateQuestion)}</h2>
-          <div className="options-grid options-three">{c.estimateOptions.map((option, index) => <button type="button" className={`option ${estimatePicked === index && index !== c.estimateCorrectIndex ? 'option-wrong' : ''}`} data-g4-branch="choice" data-g4-correct={index === c.estimateCorrectIndex ? 'true' : 'false'} onClick={() => chooseEstimate(index)} key={index}><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{option}</span></button>)}</div>
-          <FeedbackBlock show={Boolean(message)} correct={false}><p>{message}</p></FeedbackBlock>
-        </section> : !matchingStarted ? <BitAnswerComment formula={c.estimateOptions[c.estimateCorrectIndex]} label={t(c.estimateCorrectText)}><button type="button" className="btn btn-secondary" data-qa-matching-start="true" disabled={!audio.muted && audio.isPlaying} onClick={startMatching}>{B('Juftlashni boshlash', 'Начать сопоставление', 'Start matching')[lang]} →</button></BitAnswerComment> : <>
-          <h2 className="question-title">{t(c.matchingInstruction)}</h2>
-          <section className="matching-board" ref={boardRef} data-g4-role="visual-frame" data-g4-mechanic="MatchingBoard" role="group" aria-label={t(c.matchingInstruction)}>
-            <div className="matching-column">{c.calculations.map((item) => <button type="button" className={`match-card ${selected === item.id ? 'match-selected' : ''} ${pairs[item.id] ? 'match-done' : ''}`} aria-pressed={selected === item.id} aria-label={pairs[item.id] ? pairLabel(item.id, pairs[item.id]) : item.text} disabled={Boolean(pairs[item.id])} onClick={() => { setSelected(item.id); setMessage(t(c.aria.selectedLeft)); }} data-match-left={item.id} key={item.id}>{item.text}</button>)}</div>
-            <MatchingLines boardRef={boardRef} pairs={connectorPairs} wrongPair={wrongPair} localeKey={lang} />
-            <div className="matching-column">{c.checks.map((item) => {
-              const leftId = Object.keys(pairs).find((key) => pairs[key] === item.id);
-              return <button type="button" className={`match-card ${leftId ? 'match-done' : ''}`} aria-pressed={Boolean(leftId)} aria-label={leftId ? pairLabel(leftId, item.id) : item.text} disabled={Boolean(leftId)} onClick={() => match(item.id)} data-match-right={item.id} key={item.id}>{item.text}</button>;
-            })}</div>
-          </section>
-          <span className="sr-only" aria-live="polite">{message}{Object.entries(pairs).map(([left, right]) => ` ${pairLabel(left, right)}.`).join('')}</span>
-          {complete && <BitAnswerComment formula={t(c.pairCorrectText)}><ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul></BitAnswerComment>}
-          <FeedbackBlock show={Boolean(message) && lastCorrect === false} correct={false}><p>{message}</p></FeedbackBlock>
-        </>}
       </div>
     </Stage>
   );
@@ -1992,196 +1931,95 @@ function TitleCard({ title, score, earnedLabel, scoreLabel }) {
   return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-medal" data-g4-role="reward-medal">★</div><span>{earnedLabel || B('SIZ OLGAN UNVON', 'ПОЛУЧЕННОЕ ЗВАНИЕ', 'TITLE EARNED')[lang]}</span><h2>{title}</h2><strong>{scoreLabel || B('Birinchi urinishdagi natija', 'Результат с первой попытки', 'First-attempt score')[lang]}: {score}/4</strong><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div></div>;
 }
 
-const CASE_SUCCESS_LABELS = {
-  operation: L("Amal to'g'ri tanlandi.", 'Действие выбрано верно.', 'The operation is correct.'),
-  estimate: L("Taxmin to'g'ri tanlandi.", 'Оценка выбрана верно.', 'The estimate is correct.'),
-  answer: L('Aniq natija topildi.', 'Точный результат найден.', 'The exact result is correct.'),
-  check: L("Teskari amal to'g'ri tanlandi.", 'Обратное действие выбрано верно.', 'The inverse operation is correct.'),
-};
-
-function MultiStageCaseScreen({ screen, c, storedAnswer, onAnswer, onNext, onPrev, visual }) {
+function SummaryScreen({ screen, c, answers, storedAnswer, onAnswer, onNext, onPrev }) {
   const lang = useLang();
   const t = useT();
-  const restored = storedAnswer?.solved === true;
-  const initialStage = Math.min(storedAnswer?.currentStage ?? (restored ? c.stages.length - 1 : 0), c.stages.length - 1);
-  const initialWrongByStage = storedAnswer?.wrongByStage ?? Array.from({ length: c.stages.length }, () => []);
-  const [stageIndex, setStageIndex] = useState(initialStage);
-  const [stageSolved, setStageSolved] = useState(storedAnswer?.stageSolved ?? restored);
-  const [complete, setComplete] = useState(restored);
-  const wrongByStage = useRef(initialWrongByStage);
-  const [wrong, setWrong] = useState(() => new Set(initialWrongByStage[initialStage] ?? []));
-  const [numeric, setNumeric] = useState(storedAnswer?.numeric ?? '');
-  const [message, setMessage] = useState(() => storedAnswer?.feedback ? t(storedAnswer.feedback) : '');
-  const firstTry = useRef(storedAnswer?.subResults ?? Array(c.stages.length).fill(null));
-  const attempts = useRef(storedAnswer?.attemptsByRound ?? Array(c.stages.length).fill(0));
-  const current = c.stages[stageIndex];
   const audio = useScreenAudio(c, screen);
-  const canAnswer = useCanAnswer(audio);
-  const canAdvance = useAdvanceGate(complete, audio);
-
-  const persist = ({
-    solved = false,
-    currentStage = stageIndex,
-    stageSolvedValue = stageSolved,
-    numericValue = numeric,
-    feedback = null,
-  } = {}) => {
+  const segments = useMemo(
+    () => localizedSegments(c.audio.intro, lang, `s${screen}`),
+    [c.audio.intro, lang, screen],
+  );
+  const reveal = useAudioSegmentReveal(audio, segments, 5);
+  const syncedAudio = { ...audio, replay: reveal.replay, toggleMute: reveal.toggleMute };
+  const visible = reveal.visible;
+  const complete = visible >= 5;
+  const score = summarizeScoredAnswers(answers).correct;
+  const emitTitleClaim = useCallback(() => {
+    audio.pushOneOff(t(c.audio.on_claim));
     onAnswer(makeAnswer({
       screen,
-      question: t(c.title),
-      correctAnswer: c.stages.map((item) => item.kind === 'choice' ? t(item.options[item.correctIndex]) : String(item.answer)).join('; '),
-      studentAnswer: solved ? 'case-completed' : 'case-in-progress',
-      firstTry: solved && firstTry.current.every(Boolean),
-      attempts: attempts.current.reduce((sum, value) => sum + value, 0),
-      solved,
-      currentStage,
-      stageSolved: stageSolvedValue,
-      subResults: [...firstTry.current],
-      attemptsByRound: [...attempts.current],
-      wrongByStage: wrongByStage.current.map((items) => [...items]),
-      numeric: numericValue,
-      feedback,
+      question: t(c.claimLabel),
+      options: null,
+      correctIndex: null,
+      correctAnswer: null,
+      studentAnswerIndex: null,
+      studentAnswer: t(c.awardTitle),
+      firstTry: true,
+      attempts: 1,
+      solved: true,
+      titleClaimed: true,
     }));
-  };
-
-  const mark = (correct, wrongDetail = null, wrongNarration = null) => {
-    attempts.current[stageIndex] += 1;
-    if (firstTry.current[stageIndex] === null) firstTry.current[stageIndex] = correct;
-    if (!correct) {
-      const detail = wrongDetail ?? c.wrong[current.id];
-      setMessage(t(detail));
-      persist({ stageSolvedValue: false, feedback: detail });
-      playSfx('wrong');
-      pushFeedbackAudio(audio, t, lang, false, wrongNarration ?? c.audio?.wrong?.[current.id] ?? detail);
-      return;
-    }
-    setStageSolved(true);
-    setMessage('');
-    playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, current.correctAudio ?? c.audio?.on_correct ?? current.correctText ?? c.correctText);
-    if (stageIndex === c.stages.length - 1) {
-      setComplete(true);
-      persist({ solved: true, stageSolvedValue: true, feedback: null });
-    } else persist({ stageSolvedValue: true, feedback: null });
-  };
-  const choose = (index) => {
-    if (!canAnswer || stageSolved || wrong.has(index)) return;
-    const correct = index === current.correctIndex;
-    if (!correct) {
-      const nextWrong = [...new Set([...wrong, index])];
-      wrongByStage.current[stageIndex] = nextWrong;
-      setWrong(new Set(nextWrong));
-    }
-    mark(correct, current.wrong?.[index], current.wrongAudio?.[index]);
-  };
-  const submitNumber = () => {
-    if (!canAnswer || stageSolved || numeric.trim() === '') return;
-    mark(Number(numeric.replace(/\s/g, '')) === current.answer);
-  };
-  const nextStage = () => {
-    if (!stageSolved || complete) return;
-    const nextStageIndex = stageIndex + 1;
-    setStageIndex(nextStageIndex);
-    setStageSolved(false);
-    setWrong(new Set(wrongByStage.current[nextStageIndex] ?? []));
-    setNumeric('');
-    setMessage('');
-    persist({ currentStage: nextStageIndex, stageSolvedValue: false, numericValue: '', feedback: null });
-  };
-  const correctDisplay = current.kind === 'number' ? String(current.answer) : t(current.options[current.correctIndex]);
+  }, [audio, c.audio.on_claim, c.awardTitle, c.claimLabel, onAnswer, screen, t]);
+  const { titleClaimed, canClaimTitle, revealRequested, claimTitle } = useGrade4TitleClaim({
+    storedAnswer,
+    audio: syncedAudio,
+    onClaim: emitTitleClaim,
+  });
+  const takeaways = [
+    ...c.main.slice(0, 3).map(t),
+    ...Array.from({ length: Math.max(0, 3 - c.main.length) }, () => t(c.hookClose)),
+  ].slice(0, 3);
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack case-screen" data-qa-case-console="true" data-qa-case-count={c.stages.length} data-qa-case-stage={stageIndex}><Heading c={c} lead={c.story} />
-        <div className="round-meter"><span>{stageIndex + 1} / {c.stages.length}</span>{c.stages.map((_, index) => <i className={index <= stageIndex ? 'round-active' : ''} key={index} />)}</div>
-        {visual?.({ stageIndex, stageSolved, current })}
-        <h2 className="question-title">{t(current.prompt)}</h2>
-        <div className="answer-stage">
-          <div className={`answer-layer answer-options-layer ${stageSolved ? 'answer-layer-hidden' : ''}`}>{current.kind === 'choice' ? <div className="options-grid options-three">{current.options.map((option, index) => <button type="button" className={`option ${wrong.has(index) ? 'option-wrong' : ''}`} disabled={!canAnswer || stageSolved || wrong.has(index)} onClick={() => choose(index)} data-g4-branch="choice" data-g4-correct={index === current.correctIndex ? 'true' : 'false'} key={index}><span className="option-letter">{String.fromCharCode(65 + index)}</span><span>{t(option)}</span></button>)}</div> : <div className="numeric-row"><input type="text" inputMode="numeric" value={numeric} onChange={(event) => { setNumeric(event.target.value.replace(/[^0-9 ]/g, '')); setMessage(''); }} aria-label={t(current.prompt)} data-qa-answer={runtimeConfig.previewMode ? String(current.answer) : undefined} /><button type="button" className="btn btn-white-accent" disabled={!numeric.trim()} onClick={submitNumber}>{B('Tekshirish', 'Проверить', 'Check')[lang]}</button></div>}</div>
-          <div className={`answer-layer answer-proof-layer ${stageSolved ? 'answer-layer-visible' : ''}`}>{stageSolved && <BitAnswerComment formula={correctDisplay} label={t(current.correctText ?? CASE_SUCCESS_LABELS[current.id] ?? c.correctText)}>{complete && <span className="sr-only" data-qa-case-complete="true">complete</span>}{complete && <ul className="solution-steps">{c.solution.steps.map((step, index) => <li key={index}>{t(step)}</li>)}</ul>}{!complete && <button type="button" className="btn btn-secondary" data-qa-case-next="true" disabled={!audio.muted && audio.isPlaying} onClick={nextStage}>{B('Keyingi bosqich', 'Следующий этап', 'Next stage')[lang]} →</button>}</BitAnswerComment>}</div>
-        </div>
-        <FeedbackBlock show={Boolean(message) && !stageSolved} correct={false}><p>{message}</p></FeedbackBlock>
-      </div>
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={titleClaimed ? { ...syncedAudio, completed: true } : syncedAudio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? onNext : undefined} disabled={!titleClaimed} finish label={t(c.finishLabel)} /></>}>
+      <style>{TITLE_STYLES}</style>
+      <Grade4Finale
+        lang={lang}
+        heading={{ eyebrow: t(c.eyebrow), title: t(c.title), lead: t(c.hookClose) }}
+        takeaways={takeaways}
+        proof={{
+          label: t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'OPENING MISSION SOLUTION' }),
+          value: '80 980',
+          text: t(c.hookClose),
+        }}
+        bridge={{ label: t(c.nextLabel), text: t(c.nextText), terminal: false }}
+        visible={visible}
+        complete={complete}
+        revealSteps={{ proof: 4, bridge: 5 }}
+        canClaimTitle={canClaimTitle}
+        titleClaimed={titleClaimed}
+        onClaimTitle={claimTitle}
+        claimLabel={t(c.claimLabel)}
+        pendingLabel={t({ uz: 'Avval yakuniy xulosani tinglang', ru: 'Сначала дослушайте итог', en: 'Listen to the summary first' })}
+        renderTitleReveal={() => <TitleReveal active={revealRequested} title={t(c.awardTitle)} lang={lang} onDone={() => {}} />}
+        renderTitleCard={() => <TitleCard title={t(c.awardTitle)} score={score} earnedLabel={t(c.earnedLabel)} scoreLabel={t(c.scoreLabel)} canFinish={titleClaimed} />}
+        bitSlot={<BitSVG state="happy" />}
+        medalTier={score >= 4 ? 'gold' : score >= 3 ? 'silver' : 'bronze'}
+      />
     </Stage>
   );
 }
-
-function SummaryScreen({ screen, c, answers, storedAnswer, onAnswer, titleState, setTitleState, onNext, onPrev }) {
-  const lang = useLang();
-  const t = useT();
-  const claimedOnMount = titleState === 'claimed';
-  const [reflection, setReflection] = useState(() => storedAnswer?.reflection ?? (claimedOnMount ? c.reflectionCorrectIndex : null));
-  const [reflectionSolved, setReflectionSolved] = useState(() => storedAnswer?.solved === true || claimedOnMount);
-  const [reflectionMessage, setReflectionMessage] = useState(() => storedAnswer?.feedback ? t(storedAnswer.feedback) : '');
-  const reflectionAttempts = useRef(storedAnswer?.attempts ?? 0);
-  const reflectionFirstTry = useRef(storedAnswer?.firstTry ?? null);
-  const audio = useScreenAudio(c, screen);
-  const finalBeat = audio.muted || audio.completed;
-  const score = answers[11]?.correctCount ?? 0;
-  const claimed = titleState === 'claimed';
-  const revealing = titleState === 'revealing';
-  const finishReveal = useCallback(() => setTitleState('claimed'), [setTitleState]);
-
-  const chooseReflection = (index) => {
-    if (!finalBeat || reflectionSolved) return;
-    setReflection(index);
-    const correct = index === c.reflectionCorrectIndex;
-    reflectionAttempts.current += 1;
-    if (reflectionFirstTry.current === null) reflectionFirstTry.current = correct;
-    if (!correct) {
-      const detail = c.reflectionWrong[index];
-      setReflectionMessage(t(detail));
-      onAnswer(makeAnswer({ screen, question: t(c.reflectionQuestion), options: c.reflectionOptions.map(t), correctIndex: c.reflectionCorrectIndex, correctAnswer: t(c.reflectionOptions[c.reflectionCorrectIndex]), studentAnswerIndex: index, studentAnswer: t(c.reflectionOptions[index]), firstTry: false, attempts: reflectionAttempts.current, solved: false, reflection: index, feedback: detail }));
-      playSfx('wrong');
-      pushFeedbackAudio(audio, t, lang, false, detail);
-      return;
-    }
-    setReflectionSolved(true);
-    setReflectionMessage('');
-    onAnswer(makeAnswer({ screen, question: t(c.reflectionQuestion), options: c.reflectionOptions.map(t), correctIndex: c.reflectionCorrectIndex, correctAnswer: t(c.reflectionOptions[c.reflectionCorrectIndex]), studentAnswerIndex: index, studentAnswer: t(c.reflectionOptions[index]), firstTry: reflectionFirstTry.current, attempts: reflectionAttempts.current, solved: true, reflection: index, feedback: null }));
-    playSfx('correct');
-    pushFeedbackAudio(audio, t, lang, true, c.reflectionCorrectText);
-  };
-  const claim = () => {
-    if (!finalBeat || !reflectionSolved || claimed || revealing) return;
-    audio.pushOneOff(t(c.audio.on_claim));
-    setTitleState('revealing');
-  };
-  return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!claimed} finish label={t(c.finishLabel)} /></>}>
-      <div className="screen-stack summary-screen" data-qa-final-state={titleState}><style>{TITLE_STYLES}</style><TitleReveal active={revealing} title={t(c.awardTitle)} lang={lang} onDone={finishReveal} />
-        <Heading c={c} lead={c.hookClose} />
-        <div className="summary-grid"><section className="summary-payoff" data-g4-role="visual-frame"><BitSVG state={claimed ? 'happy' : 'nod'} /><strong>80 980</strong><span>72 384 + 8 596</span></section><div><strong className="summary-label">{t(c.mainLabel)}</strong><ul>{c.main.map((point, index) => <li key={index}><span>✓</span>{t(point)}</li>)}</ul></div></div>
-        {!claimed && <section className="final-reflection" data-g4-role="reflection"><span>{t(c.reflectionStart)}</span><strong>{t(c.reflectionQuestion)}</strong><div>{c.reflectionOptions.map((option, index) => <button type="button" className={reflection === index ? (reflectionSolved ? 'reflection-correct' : 'reflection-selected') : ''} aria-pressed={reflection === index} disabled={!finalBeat || reflectionSolved} onClick={() => chooseReflection(index)} data-g4-branch="choice" data-g4-correct={index === c.reflectionCorrectIndex ? 'true' : 'false'} key={index}>{t(option)}</button>)}</div></section>}
-        <FeedbackBlock show={Boolean(reflectionMessage)} correct={false}><p>{reflectionMessage}</p></FeedbackBlock>
-        {!claimed && !revealing && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={!finalBeat || !reflectionSolved} onClick={claim}>★ {t(c.claimLabel)}</button>}
-        {claimed && <><TitleCard title={t(c.awardTitle)} score={score} earnedLabel={t(c.earnedLabel)} scoreLabel={t(c.scoreLabel)} /><div className="next-mission"><strong>{t(c.nextLabel)}</strong><span>{t(c.nextText)}</span></div></>}
-      </div>
-    </Stage>
-  );
-}
-
-const Screen0 = (props) => <ChoiceScreen {...props} screen={0} c={CONTENT.s0} resetOnReturn figure={() => <div className="hook-story-frame" data-g4-role="hook-scene visual-frame"><div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div><div className="hook-story-model"><ColumnAlgorithm top="72384" bottom="8596" result="     " compact /></div></div>} />;
-const Screen1 = (props) => <ReasoningRoundsScreen {...props} screen={1} c={CONTENT.s1} visual={({ round, roundSolved }) => <div className="foundation-model">{round === 0 ? <PlaceValueGrid number="4862" highlight={3} /> : round === 1 ? <RegroupModel step={roundSolved ? 1 : 0} count={10} tens={1} ones={0} /> : <PlaceValueGrid number="205" highlight={4} />}</div>} />;
-const Screen2 = (props) => <ExplanationScreen {...props} screen={2} c={CONTENT.s2} visualKind="align" />;
-const Screen3 = (props) => <ColumnRoundsScreen {...props} screen={3} c={CONTENT.s3} />;
+const Screen0 = (props) => <ChoiceScreen {...props} screen={0} c={CONTENT.s0} choiceOrdinal={0} figure={() => <div className="hook-story-frame" data-g4-role="hook-scene visual-frame"><div className="hook-story-grid" aria-hidden="true" /><div className="hook-story-orbit hook-story-orbit-one" aria-hidden="true" /><div className="hook-story-orbit hook-story-orbit-two" aria-hidden="true" /><div className="hook-story-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div><div className="hook-story-model"><ColumnAlgorithm top="72384" bottom="8596" result="     " compact /></div></div>} />;
+const Screen1 = (props) => <ChoiceScreen {...props} screen={1} c={CONTENT.s1} choiceOrdinal={1} figure={() => <div className="foundation-combo-frame" data-g4-role="visual-frame"><PlaceValueGrid number="4862" highlight={3} /><BatteryCassetteEquation /></div>} />;
+const Screen2 = (props) => <PlacementMapScreen {...props} screen={2} c={CONTENT.s2} />;
+const Screen3 = (props) => <ChoiceScreen {...props} screen={3} c={CONTENT.s3} choiceOrdinal={2} figure={({ solved }) => <div className="single-step-column-frame" data-g4-role="visual-frame"><ColumnAlgorithm top="32415" bottom="6203" result={solved ? '38618' : '     '} /></div>} />;
 const Screen4 = (props) => <ExplanationScreen {...props} screen={4} c={CONTENT.s4} visualKind="regroup" />;
-const Screen5 = (props) => <BuildPracticeScreen {...props} screen={5} c={CONTENT.s5} />;
-const Screen6 = (props) => <ReasoningRoundsScreen {...props} screen={6} c={CONTENT.s6} visual={({ current, roundSolved }) => <div className="bit-error-board" data-g4-role="visual-frame"><BitSVG state={roundSolved ? 'point' : 'awkward'} /><div><span>{current.bitWork}</span>{roundSolved && <strong>{current.id === 'write12' ? '12 → 2 + 1↑' : '6 + 8 + 1↑ = 15'}</strong>}</div></div>} />;
-const Screen7 = (props) => <GuidedChoiceStepsScreen {...props} screen={7} c={CONTENT.s7} visual={({ activeStep, complete }) => <ColumnAlgorithm top="15430" bottom="3210" result={complete ? '12220' : '     '} operator="−" active={activeStep < 0 ? -1 : Math.min(4, Math.max(0, 5 - activeStep))} />} />;
-const Screen8 = (props) => <GuidedChoiceStepsScreen {...props} screen={8} c={CONTENT.s8} visual={({ activeStep, complete }) => {
-  const borrow = activeStep >= 0 ? CONTENT.s8.states[activeStep].split('|').map((value) => value.trim()) : [];
-  return <div className="state-reveal"><ColumnAlgorithm top="63241" bottom="27856" result={complete ? '35385' : '     '} operator="−" active={activeStep < 0 ? -1 : Math.max(0, 5 - activeStep)} borrow={borrow} />{activeStep >= 0 && <strong>{CONTENT.s8.states[activeStep]}</strong>}</div>;
+const Screen5 = (props) => <ChoiceScreen {...props} screen={5} c={CONTENT.s5} choiceOrdinal={3} figure={() => <div className="single-step-column-frame" data-g4-role="visual-frame"><ColumnAlgorithm top="63708" bottom="8596" result="     " /></div>} />;
+const Screen6 = (props) => <ReasoningRoundsScreen {...props} screen={6} c={CONTENT.s6} ordinalBase={4} visual={({ current, roundSolved }) => <div className="bit-error-board" data-g4-role="visual-frame"><BitSVG state={roundSolved ? 'point' : 'awkward'} /><div><span>{current.bitWork}</span>{roundSolved && <strong>{current.id === 'write12' ? '12 → 2 + 1↑' : '6 + 8 + 1↑ = 15'}</strong>}</div></div>} />;
+const Screen7 = (props) => <ChoiceScreen {...props} screen={7} c={CONTENT.s7} choiceOrdinal={5} figure={() => <div className="single-step-column-frame" data-g4-role="visual-frame"><ColumnAlgorithm top="15430" bottom="3210" result="     " operator="−" /></div>} />;
+const Screen8 = (props) => <ChoiceScreen {...props} screen={8} c={CONTENT.s8} choiceOrdinal={6} figure={() => <div className="single-step-column-frame" data-g4-role="visual-frame"><ColumnAlgorithm top="63241" bottom="27856" result="     " operator="−" /></div>} />;
+const Screen9 = (props) => <GuidedChoiceStepsScreen {...props} screen={9} c={CONTENT.s9} choiceOrdinal={7} visual={({ activeStep, complete }) => {
+  const borrow = activeStep >= 0 ? CONTENT.s9.states[activeStep].split('|').map((value) => value.trim()) : [];
+  const activeColumns = [0, 2, 4];
+  return <div className="zero-chain-column-frame" data-g4-role="visual-frame"><ColumnAlgorithm top="40005" bottom="17268" result={complete ? '22737' : '     '} operator="−" active={activeStep < 0 ? -1 : activeColumns[activeStep]} borrow={borrow} />{activeStep >= 0 && <strong>{CONTENT.s9.states[activeStep]}</strong>}</div>;
 }} />;
-const Screen9 = (props) => <GuidedChoiceStepsScreen {...props} screen={9} c={CONTENT.s9} visual={({ activeStep, complete }) => <div className="state-reveal"><ZeroChainModel solved={complete} state={activeStep >= 0 ? CONTENT.s9.states[activeStep] : null} />{activeStep >= 0 && <strong>{CONTENT.s9.states[activeStep]}</strong>}</div>} />;
-const Screen10 = (props) => <RuleBuilderScreen {...props} screen={10} c={CONTENT.s10} />;
-const Screen11 = (props) => <RapidTestConsoleScreen {...props} screen={11} c={CONTENT.s11} />;
-const Screen12 = (props) => <MatchingScreen {...props} screen={12} c={CONTENT.s12} />;
-const Screen13 = (props) => <MultiStageCaseScreen {...props} screen={13} c={CONTENT.s13} visual={({ stageIndex, stageSolved }) => <div className="case-model"><span aria-hidden="true">📚</span><strong>{stageIndex === 0 ? '72 384  |  8 596' : stageIndex === 1 ? (stageSolved ? '72 000 + 9 000 ≈ 81 000' : '72 000  |  9 000') : stageIndex === 2 ? '72 384 + 8 596 = ?' : (stageSolved ? '80 980 − 8 596 = 72 384' : '80 980  |  8 596  |  72 384')}</strong></div>} />;
-const Screen14 = (props) => <MultiStageCaseScreen {...props} screen={14} c={CONTENT.s14} visual={({ stageIndex, stageSolved }) => <div className="case-model case-zero">{stageIndex >= 2 ? <ColumnAlgorithm top="72000" bottom="18756" result={stageIndex > 2 || stageSolved ? '53244' : '     '} operator="−" /> : <strong>{stageIndex === 0 ? '72 000  |  18 756' : stageSolved ? '72 000 − 19 000 ≈ 53 000' : '72 000  |  19 000'}</strong>}</div>} />;
-const Screen15 = (props) => <SummaryScreen {...props} screen={15} c={CONTENT.s15} />;
+const Screen10 = (props) => <MissingDigitScreen {...props} screen={10} c={CONTENT.s10} />;
+const Screen11 = (props) => <RapidTestConsoleScreen {...props} screen={11} c={CONTENT.s11} ordinalBase={13} />;
+const Screen12 = (props) => <ChoiceScreen {...props} screen={12} c={CONTENT.s12} choiceOrdinal={8} />;
+const Screen13 = (props) => <ChoiceScreen {...props} screen={13} c={CONTENT.s13} choiceOrdinal={9} />;
+const Screen14 = (props) => <SummaryScreen {...props} screen={14} c={CONTENT.s14} />;
 
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15];
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
 
 export default function Grade4Dars08({
   studentName,
@@ -2199,7 +2037,6 @@ export default function Grade4Dars08({
   configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: previewMode ?? preview });
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [titleState, setTitleState] = useState('unclaimed');
   // eslint-disable-next-line react-hooks/purity -- duration is measured from mount.
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -2215,9 +2052,9 @@ export default function Grade4Dars08({
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
     finishedRef.current = true;
-    const rapid = answers[11];
-    const totalQuestions = rapid?.totalQuestions ?? 4;
-    const correctAnswers = rapid?.correctCount ?? 0;
+    const score = summarizeScoredAnswers(answers);
+    const totalQuestions = score.total;
+    const correctAnswers = score.correct;
     const payload = {
       lessonId: LESSON_META.lessonId,
       lessonTitle: LESSON_META.lessonTitle[lang],
@@ -2230,8 +2067,8 @@ export default function Grade4Dars08({
       finalScore: correctAnswers,
       finalTotal: totalQuestions,
       passed: correctAnswers / totalQuestions >= 0.6,
-      firstTryStats: { total: totalQuestions, firstTryCorrect: rapid?.subResults?.filter(Boolean).length ?? 0 },
-      attemptsTotal: rapid?.attempts ?? 0,
+      firstTryStats: { total: totalQuestions, firstTryCorrect: correctAnswers },
+      attemptsTotal: score.attempts,
       skillTags: LESSON_META.skillTags,
       answers: answers.filter(Boolean),
     };
@@ -2247,29 +2084,42 @@ export default function Grade4Dars08({
       <style>{STYLES}</style>
       <div className="d8-root">
         {preview && <div className="preview-language" aria-label={B("Ko'rib chiqish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{SUPPORTED_LANGS.map((code) => <button type="button" className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)} key={code}>{code.toUpperCase()}</button>)}</div>}
-        <CurrentScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onNext={current === TOTAL_SCREENS - 1 ? finishLesson : next} onPrev={previous} titleState={titleState} setTitleState={setTitleState} />
+        <CurrentScreen key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onNext={current === TOTAL_SCREENS - 1 ? finishLesson : next} onPrev={previous} />
       </div>
     </LangContext.Provider>
   );
 }
 
 const STYLES = `
-html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-root),.lesson-frame:has(.d8-root){width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}html,body{margin:0;padding:0}.d8-root,.d8-root *{box-sizing:border-box}.d8-root{position:fixed;inset:0;overflow:clip;overscroll-behavior:none;contain:strict;isolation:isolate;font-family:'Manrope',system-ui,sans-serif;color:${T.ink};background:radial-gradient(circle at 10% 14%,rgba(22,143,163,.12),transparent 30%),radial-gradient(circle at 90% 84%,rgba(255,91,53,.1),transparent 32%),linear-gradient(145deg,#F7F8F4,#EEF3F1);-webkit-font-smoothing:antialiased}.d8-root h1,.d8-root h2,.d8-root h3,.d8-root p,.d8-root ul{margin:0;padding:0}.d8-root button{font:inherit}.preview-language{position:fixed;top:8px;right:8px;z-index:40;display:flex;gap:3px;padding:3px;border-radius:999px;background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.6)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;font-size:10px;font-weight:900}.preview-language .preview-active{color:#fff;background:${T.accent}}
-.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:rgba(245,245,240,.9);box-shadow:0 0 50px -24px rgba(${T.shadowBase},.28)}.stage-header{flex:0 0 auto;padding-top:6px;padding-bottom:4px;background:rgba(245,245,240,.96);z-index:3}.progress-track{height:6px;margin-bottom:4px;border-radius:999px;overflow:hidden;background:rgba(135,148,157,.22)}.progress-bar{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .55s ease}.stage-chrome,.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center}.stage-chrome{justify-content:space-between;gap:12px}.chrome-title,.chrome-actions,.audio-controls{gap:8px}.chrome-title{min-width:0;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.status-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font:700 12px/1 'JetBrains Mono',monospace}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:#fff;cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
-.stage-content{flex:1 1 auto;min-height:0;position:relative;padding-top:8px;padding-bottom:8px;overflow:clip;display:flex;flex-direction:column;justify-content:center}.stage-nav{flex:0 0 auto;min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:9px;padding-bottom:max(9px,env(safe-area-inset-bottom));background:rgba(245,245,240,.98);box-shadow:0 -12px 28px -25px rgba(${T.shadowBase},.45);z-index:3}.btn{min-height:46px;padding:0 19px;border:0;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;cursor:pointer;transition:transform .5s ease,background .5s ease,box-shadow .5s ease,opacity .5s ease}.btn:disabled{cursor:not-allowed;opacity:.42}.btn-ghost{color:${T.ink};background:transparent}.btn-white-accent{margin-left:auto;color:${T.accent};background:${T.paper};box-shadow:0 8px 22px -6px rgba(255,91,53,.3),0 0 0 1px rgba(255,91,53,.12)}.btn-ready{color:#fff;background:${T.accent}}.btn-secondary{min-height:39px;padding:0 13px;color:${T.cyan};background:${T.cyanSoft}}.screen-stack{width:100%;max-height:100%;display:flex;flex-direction:column;gap:9px}.screen-heading .eyebrow{color:${T.cyan};font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.screen-heading h1{margin-top:3px;color:${T.navy};font:700 clamp(21px,3.1vw,31px)/1.08 'Source Serif 4',serif}.screen-heading p{margin-top:4px;color:${T.ink2};font-size:12px;line-height:1.35}.question-title{color:${T.navy};font:700 clamp(15px,2vw,19px)/1.25 'Source Serif 4',serif}
+html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-root),.lesson-frame:has(.d8-root){width:100%;height:100%;min-height:0!important;overflow:hidden!important;overscroll-behavior:none}html,body{margin:0;padding:0}.d8-root,.d8-root *{box-sizing:border-box}.d8-root{position:fixed;inset:0;overflow:clip;overscroll-behavior:none;contain:strict;isolation:isolate;font-family:'Manrope',system-ui,sans-serif;color:${T.ink};background:radial-gradient(circle at 12% 12%,rgba(22,143,163,.12),transparent 30%),radial-gradient(circle at 88% 80%,rgba(255,91,53,.10),transparent 32%),linear-gradient(145deg,#F7F8F4 0%,#EEF3F1 100%);-webkit-font-smoothing:antialiased}.d8-root h1,.d8-root h2,.d8-root h3,.d8-root p,.d8-root ul{margin:0;padding:0}.d8-root button{font:inherit}.preview-language{position:fixed;top:8px;right:8px;z-index:40;display:flex;gap:3px;padding:3px;border-radius:999px;background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.6)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;font-size:10px;font-weight:900}.preview-language .preview-active{color:#fff;background:${T.accent}}
+.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column}.stage-header{flex:0 0 auto;padding-top:6px;padding-bottom:4px;background:rgba(245,245,240,.96);z-index:3}.progress-track{height:6px;margin-bottom:4px;border-radius:999px;overflow:hidden;background:rgba(135,148,157,.22)}.progress-bar{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .55s ease}.stage-chrome,.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center}.stage-chrome{justify-content:space-between;gap:12px}.chrome-title,.chrome-actions,.audio-controls{gap:8px}.chrome-title{min-width:0;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}.status-dot{width:8px;height:8px;flex:0 0 auto;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font:700 12px/1 'JetBrains Mono',monospace}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:#fff;cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
+.stage-content{flex:1 1 auto;min-height:0;position:relative;padding-top:8px;padding-bottom:8px;overflow:clip;display:flex;flex-direction:column;justify-content:flex-start}.stage-nav{flex:0 0 auto;min-height:68px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:9px;padding-bottom:max(9px,env(safe-area-inset-bottom));background:rgba(245,245,240,.98);box-shadow:0 -12px 28px -25px rgba(${T.shadowBase},.45);z-index:3}.btn{min-height:46px;padding:0 19px;border:0;border-radius:13px;display:inline-flex;align-items:center;justify-content:center;gap:8px;font-weight:800;cursor:pointer;transition:transform .5s ease,background .5s ease,box-shadow .5s ease,opacity .5s ease}.btn:disabled{cursor:not-allowed;opacity:.42}.btn-ghost{color:${T.ink};background:transparent}.btn-white-accent{margin-left:auto;color:${T.accent};background:${T.paper};box-shadow:0 8px 22px -6px rgba(255,91,53,.3),0 0 0 1px rgba(255,91,53,.12)}.btn-ready{color:#fff;background:${T.accent}}.btn-secondary{min-height:39px;padding:0 13px;color:${T.cyan};background:${T.cyanSoft}}.screen-stack{width:100%;max-height:100%;display:flex;flex-direction:column;gap:9px}.screen-heading .eyebrow{color:${T.cyan};font-size:10px;font-weight:900;letter-spacing:.13em;text-transform:uppercase}.screen-heading h1{margin-top:3px;color:${T.navy};font:700 clamp(21px,3.1vw,31px)/1.08 'Source Serif 4',serif}.screen-heading p{margin-top:4px;color:${T.ink2};font-size:12px;line-height:1.35}.question-title{color:${T.navy};font:700 clamp(15px,2vw,19px)/1.25 'Source Serif 4',serif}
 .hook-story-frame{min-height:142px;padding:9px 15px;border-radius:20px;display:grid;grid-template-columns:96px minmax(0,1fr);align-items:center;gap:14px;color:#fff;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 18px 38px -24px rgba(23,59,82,.75);overflow:hidden}.hook-story-bit{width:92px;height:116px;align-self:end}.hook-story-bit .g1-char{width:100%;height:100%}.hook-story-model{min-width:0}.hook-story-frame .column-algorithm{color:#fff;background:rgba(255,255,255,.1)}.hook-story-frame .place-header{color:rgba(255,255,255,.68)}
-.options-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.options-three{grid-template-columns:repeat(3,minmax(0,1fr))}.option{min-height:54px;padding:9px 12px;border:0;border-radius:14px;display:flex;align-items:center;gap:8px;color:${T.ink};background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.45);font-size:13px;font-weight:760;text-align:left;cursor:pointer;transition:transform .5s ease,opacity .5s ease,background .5s ease}.option:hover:not(:disabled){transform:translateY(-2px)}.option:disabled{cursor:default}.option-wrong{color:${T.danger};background:#FCEDE7;box-shadow:inset 4px 0 0 ${T.danger}}.option-letter{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px/1 'JetBrains Mono',monospace}.answer-stage{position:relative;min-height:118px}.answer-layer{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;transition:opacity .55s ease,transform .55s ease}.answer-options-layer{opacity:1}.answer-layer-hidden{opacity:0;visibility:hidden;transform:translateY(-6px)}.answer-proof-layer{opacity:0;visibility:hidden;transform:translateY(8px)}.answer-layer-visible{opacity:1;visibility:visible;transform:none}.bit-answer-comment{min-height:74px;padding:8px 14px;border-radius:16px;display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:12px;color:${T.ink};background:${T.successSoft};box-shadow:inset 4px 0 0 ${T.success}}.bit-answer-comment-figure,.feedback-bit{width:54px;height:68px}.bit-answer-comment .g1-char,.feedback-bit .g1-char{width:100%;height:100%}.bit-answer-comment>div:last-child{display:flex;flex-direction:column;gap:3px}.bit-answer-comment span{color:${T.success};font-size:10px;font-weight:900;letter-spacing:.13em}.bit-answer-comment strong{color:${T.navy};font:800 17px/1.15 'JetBrains Mono',monospace}.bit-answer-comment p,.bit-answer-comment small{color:${T.ink2};font-size:12px;line-height:1.35}.solution-steps{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px;color:${T.ink2};font-size:10px;line-height:1.22}.solution-steps li::before{content:'✓';margin-right:4px;color:${T.success};font-weight:900}.numeric-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.numeric-row input{min-height:52px;width:100%;padding:0 14px;border:0;border-radius:13px;color:${T.navy};background:#fff;box-shadow:0 8px 22px -14px rgba(${T.shadowBase},.45);font:900 21px/1 'JetBrains Mono',monospace}.feedback{height:0;opacity:0;visibility:hidden;transition:height .5s ease,opacity .5s ease}.feedback:not(.feedback-visible){overflow:hidden}.feedback-visible{height:78px;opacity:1;visibility:visible}.feedback-card{height:74px;padding:7px 13px;border-radius:15px;display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:10px}.feedback-correct{background:${T.successSoft};box-shadow:inset 4px 0 0 ${T.success}}.feedback-hint{background:${T.warnSoft};box-shadow:inset 4px 0 0 ${T.warn}}.feedback-copy strong{font-size:10px;letter-spacing:.12em}.feedback-copy p{margin-top:3px;color:${T.ink2};font-size:12px;line-height:1.3}
-.place-header,.digit-row,.carry-row,.place-value-grid>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.place-header span{font-size:8px;font-weight:900;text-align:center;color:${T.ink3}}.column-algorithm,.place-value-grid{min-width:0;padding:9px 12px;border-radius:17px;color:${T.navy};background:#fff;box-shadow:0 12px 30px -22px rgba(${T.shadowBase},.48)}.carry-row{min-height:16px;color:${T.accent};font:900 10px/1 'JetBrains Mono',monospace;text-align:center}.digit-row{position:relative}.digit-row span,.place-value-grid>div span{min-height:32px;border-radius:8px;display:grid;place-items:center;background:rgba(22,143,163,.08);font:800 clamp(18px,3vw,28px)/1 'JetBrains Mono',monospace}.bottom-row{padding-left:0}.bottom-row i{position:absolute;left:-5px;top:6px;font-style:normal;font-weight:900}.column-rule{height:2px;margin:3px 0 4px;background:${T.navy}}.digit-active{color:#fff!important;background:${T.accent}!important;box-shadow:0 0 0 3px rgba(255,91,53,.15)}.result-row span{background:${T.successSoft}}.result-row .digit-hidden{color:transparent;background:rgba(22,143,163,.05)}.model-stack{display:grid;gap:7px}.place-value-grid>div{margin-top:5px}.regroup-model{min-height:74px;padding:8px 14px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:18px;background:${T.cyanSoft}}.unit-cloud{width:96px;display:grid;grid-template-columns:repeat(6,12px);gap:4px}.unit-cloud i{width:11px;height:11px;border-radius:50%;background:${T.cyan}}.regroup-output{display:grid;grid-template-columns:auto auto;gap:2px 7px;align-items:center;opacity:0;transition:opacity .55s ease}.regroup-output.model-active{opacity:1}.regroup-output b{font:900 24px/1 'JetBrains Mono',monospace}.regroup-output small{color:${T.ink2}}
+.options-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.options-three{grid-template-columns:repeat(3,minmax(0,1fr))}.option{min-height:54px;padding:9px 12px;border:0;border-radius:14px;display:flex;align-items:center;gap:8px;color:${T.ink};background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.45);font-size:13px;font-weight:760;text-align:left;cursor:pointer;transition:transform .5s ease,opacity .5s ease,background .5s ease}.option:hover:not(:disabled){transform:translateY(-2px)}.option:disabled{cursor:default}.option-wrong{color:${T.danger};background:#FCEDE7;box-shadow:inset 4px 0 0 ${T.danger}}.option-correct{color:${T.success};background:${T.successSoft};box-shadow:inset 4px 0 0 ${T.success}}.option-correct .option-letter{color:#fff;background:${T.success}}.option-letter{width:26px;height:26px;flex:0 0 26px;border-radius:8px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px/1 'JetBrains Mono',monospace}.answer-stage{position:relative;min-height:118px}.answer-layer{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;transition:opacity .55s ease,transform .55s ease}.answer-options-layer{opacity:1}.answer-layer-hidden{opacity:0;visibility:hidden;transform:translateY(-6px)}.answer-proof-layer{opacity:0;visibility:hidden;transform:translateY(8px)}.answer-layer-visible{opacity:1;visibility:visible;transform:none}.answer-choice-persist:has(>.answer-proof-layer.answer-layer-visible){display:grid;gap:8px;min-height:0}.answer-choice-persist:has(>.answer-proof-layer.answer-layer-visible)>.answer-layer{position:relative;inset:auto}.answer-choice-persist:has(>.answer-proof-layer.answer-layer-visible)>.answer-options-layer{display:flex;opacity:1;visibility:visible;transform:none}.bit-answer-comment{min-height:74px;padding:8px 14px;border-radius:16px;display:grid;grid-template-columns:58px minmax(0,1fr);align-items:center;gap:12px;color:${T.ink};background:${T.successSoft};box-shadow:inset 4px 0 0 ${T.success}}.bit-answer-comment-figure,.feedback-bit{width:54px;height:68px}.bit-answer-comment .g1-char,.feedback-bit .g1-char{width:100%;height:100%}.bit-answer-comment>div:last-child{display:flex;flex-direction:column;gap:3px}.bit-answer-comment span{color:${T.success};font-size:10px;font-weight:900;letter-spacing:.13em}.bit-answer-comment strong{color:${T.navy};font:800 17px/1.15 'JetBrains Mono',monospace}.bit-answer-comment p,.bit-answer-comment small{color:${T.ink2};font-size:12px;line-height:1.35}.solution-steps{list-style:none;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:2px 10px;color:${T.ink2};font-size:10px;line-height:1.22}.solution-steps li::before{content:'✓';margin-right:4px;color:${T.success};font-weight:900}.numeric-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.numeric-row input{min-height:52px;width:100%;padding:0 14px;border:0;border-radius:13px;color:${T.navy};background:#fff;box-shadow:0 8px 22px -14px rgba(${T.shadowBase},.45);font:900 21px/1 'JetBrains Mono',monospace}.feedback{height:0;opacity:0;visibility:hidden;transition:height .5s ease,opacity .5s ease}.feedback:not(.feedback-visible){overflow:hidden}.feedback-visible{height:78px;opacity:1;visibility:visible}.feedback-card{height:74px;padding:7px 13px;border-radius:15px;display:grid;grid-template-columns:54px minmax(0,1fr);align-items:center;gap:10px}.feedback-correct{background:${T.successSoft};box-shadow:inset 4px 0 0 ${T.success}}.feedback-hint{background:${T.warnSoft};box-shadow:inset 4px 0 0 ${T.warn}}.feedback-copy strong{font-size:10px;letter-spacing:.12em}.feedback-copy p{margin-top:3px;color:${T.ink2};font-size:12px;line-height:1.3}
+.place-header,.digit-row,.carry-row,.place-value-grid>div{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px}.place-header span{font-size:8px;font-weight:900;text-align:center;color:${T.ink3}}.column-algorithm,.place-value-grid{min-width:0;padding:9px 12px;border-radius:17px;color:${T.navy};background:#fff;box-shadow:0 12px 30px -22px rgba(${T.shadowBase},.48)}.carry-row{min-height:16px;color:${T.accent};font:900 10px/1 'JetBrains Mono',monospace;text-align:center}.digit-row{position:relative}.digit-row span,.place-value-grid>div:not(.place-header) span{min-height:32px;border-radius:8px;display:grid;place-items:center;background:rgba(22,143,163,.08);font:800 clamp(18px,3vw,28px)/1 'JetBrains Mono',monospace}.bottom-row{padding-left:0}.bottom-row i{position:absolute;left:-5px;top:6px;font-style:normal;font-weight:900}.column-rule{height:2px;margin:3px 0 4px;background:${T.navy}}.digit-active{color:#fff!important;background:${T.accent}!important;box-shadow:0 0 0 3px rgba(255,91,53,.15)}.result-row span{background:${T.successSoft}}.result-row .digit-hidden{color:transparent;background:rgba(22,143,163,.05)}.model-stack{display:grid;gap:7px}.place-value-grid>div:not(.place-header){margin-top:5px}.regroup-model{min-height:74px;padding:8px 14px;border-radius:16px;display:flex;align-items:center;justify-content:center;gap:18px;background:${T.cyanSoft}}.unit-cloud{width:96px;display:grid;grid-template-columns:repeat(6,12px);gap:4px}.unit-cloud i{width:11px;height:11px;border-radius:50%;background:${T.cyan}}.regroup-output{display:grid;grid-template-columns:auto auto;gap:2px 7px;align-items:center;opacity:0;transition:opacity .55s ease}.regroup-output.model-active{opacity:1}.regroup-output b{font:900 24px/1 'JetBrains Mono',monospace}.regroup-output small{color:${T.ink2}}
 .round-meter,.quick-test-meter{display:flex;align-items:center;gap:6px}.round-meter span,.quick-test-meter span{margin-right:auto;color:${T.cyan};font-size:10px;font-weight:900}.round-meter i,.quick-test-meter i{display:inline-block;width:28px;height:5px;margin-left:4px;border-radius:999px;background:rgba(135,148,157,.25)}.round-meter .round-active,.quick-test-meter .quick-meter-active{background:${T.accent};box-shadow:0 0 8px rgba(255,91,53,.35)}.explanation-layout{min-height:205px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(210px,.65fr);gap:12px;align-items:center}.explanation-visual{min-width:0}.bit-coach{min-height:132px;padding:9px 12px;border-radius:17px;display:grid;grid-template-columns:76px minmax(0,1fr);align-items:center;gap:9px;background:${T.cyanSoft}}.bit-coach-figure{width:74px;height:94px}.bit-coach .g1-char{width:100%;height:100%}.bit-coach p{color:${T.ink2};font-size:12px;line-height:1.4;font-weight:720}.explanation-timeline{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.timeline-count-4{grid-template-columns:repeat(4,minmax(0,1fr))}.explanation-timeline button{min-height:48px;padding:6px;border:0;border-radius:12px;color:${T.ink2};background:#fff;display:flex;align-items:center;gap:6px;cursor:pointer}.explanation-timeline button:disabled{opacity:.42}.explanation-timeline span{width:24px;height:24px;flex:0 0 24px;border-radius:50%;display:grid;place-items:center;background:${T.cyanSoft};color:${T.cyan};font-size:10px;font-weight:900}.explanation-timeline strong{font-size:10px}.explanation-timeline .timeline-active,.explanation-timeline .timeline-visited{box-shadow:inset 0 0 0 2px ${T.cyan}}.explanation-result{min-height:74px}.foundation-model,.rapid-proof,.bit-error-board,.case-model{min-height:94px;padding:9px 14px;border-radius:17px;background:${T.cyanSoft}}.bit-error-board{display:grid;grid-template-columns:70px 1fr;align-items:center;gap:12px;background:${T.warnSoft}}.bit-error-board .g1-char{width:66px;height:82px}.bit-error-board div{display:grid;gap:7px}.bit-error-board span{font:900 23px/1 'JetBrains Mono',monospace}.case-model{display:flex;align-items:center;justify-content:center;gap:18px;color:${T.navy}}.case-model>span{font-size:38px}.case-model>strong{font:900 clamp(21px,3vw,30px)/1 'JetBrains Mono',monospace}.case-zero{justify-content:space-between}.case-zero .zero-chain-model{width:60%}
-.zero-chain-model{min-height:94px;padding:9px;border-radius:17px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:${T.navy};color:#fff}.zero-chain-model>div{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.zero-chain-model span{min-height:37px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.11);font:900 19px/1 'JetBrains Mono',monospace}.zero-state-solved span{color:${T.navy};background:${T.lime}}.build-board,.rule-builder,.rapid-panel{padding:11px;border-radius:18px;background:rgba(255,255,255,.76);box-shadow:0 12px 30px -22px rgba(${T.shadowBase},.45)}.build-board{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr);gap:8px 12px}.build-model{display:grid;gap:5px}.build-model>strong{text-align:center;color:${T.navy};font:900 15px/1 'JetBrains Mono',monospace}.build-slots{display:grid;gap:7px}.build-slot-group{display:grid;grid-template-columns:minmax(95px,1fr) 48px;gap:4px;align-items:center}.build-slot-group>span{color:${T.ink3};font-size:9px;font-weight:900}.build-slot-group button,.card-tray button{min-height:44px;border:0;border-radius:8px;background:${T.cyanSoft};color:${T.navy};font:900 15px/1 'JetBrains Mono',monospace;cursor:pointer}.build-slot-group .slot-selected{color:#fff;background:${T.accent};box-shadow:0 0 0 3px rgba(255,91,53,.15)}.card-tray{grid-column:1/-1;display:flex;justify-content:center;gap:7px}.card-tray button{min-width:44px;background:#fff;box-shadow:0 6px 16px -12px rgba(${T.shadowBase},.6)}.inline-action{grid-column:1/-1;display:flex;justify-content:flex-end}.rule-built{min-height:92px;padding:9px;border-radius:14px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;background:${T.cyanSoft}}.rule-built button,.fragment{min-height:44px;padding:7px 10px;border:0;border-radius:10px;background:#fff;color:${T.ink};font-size:11px;font-weight:750;cursor:pointer}.fragment-tray{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}.rapid-proof{display:grid;place-items:center;color:${T.navy};font:900 clamp(21px,3.5vw,33px)/1 'JetBrains Mono',monospace}.rapid-complete{color:${T.success}}
+.zero-chain-model{min-height:94px;padding:9px;border-radius:17px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;background:${T.navy};color:#fff}.zero-chain-model>div{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}.zero-chain-model span{min-height:37px;border-radius:8px;display:grid;place-items:center;background:rgba(255,255,255,.11);font:900 19px/1 'JetBrains Mono',monospace}.zero-state-solved span{color:${T.navy};background:${T.lime}}.build-board,.rapid-panel{padding:11px;border-radius:18px;background:rgba(255,255,255,.76);box-shadow:0 12px 30px -22px rgba(${T.shadowBase},.45)}.build-board{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,.75fr);gap:8px 12px}.build-model{display:grid;gap:5px}.build-model>strong{text-align:center;color:${T.navy};font:900 15px/1 'JetBrains Mono',monospace}.build-slots{display:grid;gap:7px}.build-slot-group{display:grid;grid-template-columns:minmax(95px,1fr) 48px;gap:4px;align-items:center}.build-slot-group>span{color:${T.ink3};font-size:9px;font-weight:900}.build-slot-group button,.card-tray button{min-height:44px;border:0;border-radius:8px;background:${T.cyanSoft};color:${T.navy};font:900 15px/1 'JetBrains Mono',monospace;cursor:pointer}.build-slot-group .slot-selected{color:#fff;background:${T.accent};box-shadow:0 0 0 3px rgba(255,91,53,.15)}.card-tray{grid-column:1/-1;display:flex;justify-content:center;gap:7px}.card-tray button{min-width:44px;background:#fff;box-shadow:0 6px 16px -12px rgba(${T.shadowBase},.6)}.digit-choice-tray{flex-wrap:wrap}.digit-choice-tray .digit-choice-wrong{color:${T.danger};background:#FCEDE7;box-shadow:inset 0 0 0 2px ${T.danger}}.digit-choice-tray .digit-choice-correct{color:${T.success};background:${T.successSoft};box-shadow:inset 0 0 0 2px ${T.success}}.inline-action{grid-column:1/-1;display:flex;justify-content:flex-end}.rapid-proof{display:grid;place-items:center;color:${T.navy};font:900 clamp(21px,3.5vw,33px)/1 'JetBrains Mono',monospace}.rapid-complete{color:${T.success}}
 .matching-board{position:relative;min-height:250px;display:grid;grid-template-columns:minmax(0,1fr) 70px minmax(0,1fr);gap:10px;align-items:center}.matching-column{display:grid;gap:8px}.matching-column:last-child{grid-column:3}.match-card{position:relative;z-index:2;min-height:58px;padding:8px;border:0;border-radius:13px;color:${T.navy};background:#fff;box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.5);font:800 12px/1.25 'JetBrains Mono',monospace;cursor:pointer}.match-selected{box-shadow:0 0 0 3px ${T.accent}}.match-done{color:${T.success};background:${T.successSoft}}.matching-connectors{position:absolute;inset:0;z-index:1;overflow:visible;pointer-events:none}.matching-connector-correct,.matching-connector-wrong{transition:d .55s ease,stroke .55s ease}.summary-grid{display:grid;grid-template-columns:minmax(200px,.7fr) minmax(0,1.3fr);gap:10px}.summary-payoff{min-height:118px;padding:8px;border-radius:17px;display:grid;grid-template-columns:75px 1fr;align-items:center;color:#fff;background:${T.navy}}.summary-payoff .g1-char{grid-row:1/3;width:70px;height:88px}.summary-payoff strong{font:900 27px/1 'JetBrains Mono',monospace}.summary-payoff span{color:rgba(255,255,255,.7);font-size:11px}.summary-label{display:block;margin-bottom:5px;color:${T.cyan};font-size:10px;text-transform:uppercase}.summary-grid ul{list-style:none;display:grid;grid-template-columns:repeat(2,1fr);gap:7px}.summary-grid li{padding:9px;border-radius:13px;display:flex;align-items:flex-start;gap:7px;background:#fff;font-size:11px;line-height:1.3}.summary-grid li span{color:${T.success};font-weight:900}.final-reflection{padding:10px;border-radius:15px;background:${T.cyanSoft}}.final-reflection>span{display:block;margin-bottom:3px;color:${T.ink2};font-size:10px}.final-reflection>strong{font:700 14px/1.2 'Source Serif 4',serif}.final-reflection>div{margin-top:7px;display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.final-reflection button{min-height:44px;padding:6px;border:0;border-radius:10px;background:#fff;color:${T.ink};font-size:10px;font-weight:750;cursor:pointer}.final-reflection .reflection-selected{color:#fff;background:${T.danger}}.final-reflection .reflection-correct{color:#fff;background:${T.success}}.next-mission{display:flex;gap:8px;align-items:center;padding:7px 10px;border-radius:12px;background:${T.cyanSoft};font-size:10px}.next-mission strong{color:${T.cyan}}.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.d8-root button:focus-visible{outline:3px solid ${T.blue};outline-offset:2px}@media(max-width:639.98px){.stage-header{padding-top:5px;padding-bottom:3px}.stage-content{padding-top:5px;padding-bottom:5px}.stage-nav{min-height:58px;padding-top:6px}.screen-stack{gap:6px}.screen-heading h1{font-size:19px}.screen-heading p{font-size:10px;line-height:1.25}.hook-story-frame{min-height:115px;grid-template-columns:72px 1fr;padding:6px 9px;gap:7px}.hook-story-bit{width:70px;height:90px}.options-three{grid-template-columns:1fr}.option{min-height:42px;padding:6px 9px;font-size:11px}.option-letter{width:22px;height:22px;flex-basis:22px}.answer-stage{min-height:68px}.feedback-visible{height:68px}.feedback-card{height:65px}.bit-answer-comment{min-height:65px;grid-template-columns:46px 1fr}.bit-answer-comment-figure,.feedback-bit{width:44px;height:55px}.explanation-layout{min-height:171px;grid-template-columns:1fr 128px;gap:6px}.bit-coach{min-height:110px;padding:5px;grid-template-columns:48px 1fr}.bit-coach-figure{width:46px;height:60px}.bit-coach p{font-size:9px}.digit-row span,.place-value-grid>div span{min-height:26px;font-size:16px}.place-header span{font-size:6px}.explanation-timeline button{min-height:44px;padding:3px;gap:3px}.explanation-timeline span{width:19px;height:19px;flex-basis:19px}.explanation-timeline strong{font-size:8px}.foundation-model,.rapid-proof,.bit-error-board,.case-model,.zero-chain-model{min-height:75px}.build-board{grid-template-columns:1fr}.build-board>.column-algorithm{display:none}.matching-board{min-height:205px;grid-template-columns:1fr 24px 1fr;gap:4px}.match-card{min-height:50px;padding:5px;font-size:9px}.summary-grid{grid-template-columns:1fr}.summary-payoff{min-height:78px}.summary-grid ul{display:none}.final-reflection button{min-height:44px;font-size:8px}.g4-title-card-stage{min-height:86px}.round-meter i,.quick-test-meter i{width:18px}}
-@media(max-height:780px){.stage-header{padding-top:4px;padding-bottom:2px}.stage-content{padding-top:4px;padding-bottom:4px}.stage-nav{min-height:56px;padding-top:5px;padding-bottom:5px}.screen-stack{gap:5px}.screen-heading h1{font-size:19px}.screen-heading p{font-size:10px}.hook-story-frame{min-height:106px}.explanation-layout{min-height:160px}.option{min-height:42px}.answer-stage{min-height:65px}.feedback-visible{height:66px}.feedback-card{height:63px}.matching-board{min-height:205px}.rule-screen .rule-built{min-height:82px}.rule-screen .fragment-tray{margin-top:4px}.summary-grid li{padding:6px}.final-reflection{padding:7px}}
+.d8-root button:focus-visible{outline:3px solid ${T.blue};outline-offset:2px}@media(max-width:639.98px){.stage-header{padding-top:5px;padding-bottom:3px}.stage-content{padding-top:5px;padding-bottom:5px}.stage-nav{min-height:58px;padding-top:6px}.screen-stack{gap:6px}.screen-heading h1{font-size:19px}.screen-heading p{font-size:10px;line-height:1.25}.hook-story-frame{min-height:115px;grid-template-columns:72px 1fr;padding:6px 9px;gap:7px}.hook-story-bit{width:70px;height:90px}.options-three{grid-template-columns:1fr}.option{min-height:42px;padding:6px 9px;font-size:11px}.option-letter{width:22px;height:22px;flex-basis:22px}.answer-stage{min-height:68px}.feedback-visible{height:68px}.feedback-card{height:65px}.bit-answer-comment{min-height:65px;grid-template-columns:46px 1fr}.bit-answer-comment-figure,.feedback-bit{width:44px;height:55px}.explanation-layout{min-height:171px;grid-template-columns:1fr 128px;gap:6px}.bit-coach{min-height:110px;padding:5px;grid-template-columns:48px 1fr}.bit-coach-figure{width:46px;height:60px}.bit-coach p{font-size:9px}.digit-row span,.place-value-grid>div:not(.place-header) span{min-height:26px;font-size:16px}.place-header span{font-size:6px}.explanation-timeline button{min-height:44px;padding:3px;gap:3px}.explanation-timeline span{width:19px;height:19px;flex-basis:19px}.explanation-timeline strong{font-size:8px}.foundation-model,.rapid-proof,.bit-error-board,.case-model,.zero-chain-model{min-height:75px}.build-board{grid-template-columns:1fr}.build-board>.column-algorithm{display:none}.matching-board{min-height:205px;grid-template-columns:1fr 24px 1fr;gap:4px}.match-card{min-height:50px;padding:5px;font-size:9px}.summary-grid{grid-template-columns:1fr}.summary-payoff{min-height:78px}.summary-grid ul{display:none}.final-reflection button{min-height:44px;font-size:8px}.g4-title-card-stage{min-height:86px}.round-meter i,.quick-test-meter i{width:18px}}
+@media(max-height:780px){.stage-header{padding-top:4px;padding-bottom:2px}.stage-content{padding-top:4px;padding-bottom:4px}.stage-nav{min-height:56px;padding-top:5px;padding-bottom:5px}.screen-stack{gap:5px}.screen-heading h1{font-size:19px}.screen-heading p{font-size:10px}.hook-story-frame{min-height:106px}.explanation-layout{min-height:160px}.option{min-height:42px}.answer-stage{min-height:65px}.feedback-visible{height:66px}.feedback-card{height:63px}.matching-board{min-height:205px}.summary-grid li{padding:6px}.final-reflection{padding:7px}}
 @media(max-width:639.98px){.answer-stage{min-height:142px}.card-tray{flex-wrap:wrap;gap:4px}.build-model .column-algorithm{display:none}.build-board{padding:7px;gap:5px}.solution-steps{font-size:9px}.explanation-result .bit-answer-comment{min-height:70px}}
-@media(max-width:639.98px) and (max-height:680px){.build-screen.build-solved .build-slots,.build-screen.build-solved .card-tray,.build-screen.build-solved .inline-action{display:none}.rule-screen .rule-builder{padding:5px}.rule-screen .rule-built,.rule-screen .fragment-tray{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3px}.rule-screen .rule-built{min-height:50px;padding:3px}.rule-screen .rule-built>span{grid-column:1/-1;align-self:center}.rule-screen .fragment-tray{margin-top:3px}.rule-screen .rule-built button,.rule-screen .fragment{min-height:44px;padding:3px 4px;font-size:9px;line-height:1.1}}
+@media(max-width:639.98px) and (max-height:680px){.build-screen.build-solved .build-slots,.build-screen.build-solved .card-tray,.build-screen.build-solved .inline-action{display:none}.choice-screen:not(.hook-screen):has(.feedback-visible)>.screen-heading,.choice-screen:not(.hook-screen):has(.answer-proof-layer.answer-layer-visible)>.screen-heading,.stage-screen-6 .choice-screen:has(.feedback-visible)>.question-title,.stage-screen-2 .choice-screen:has(.answer-proof-layer.answer-layer-visible)>.foundation-combo-frame,:is(.stage-screen-4,.stage-screen-6) .choice-screen:has(.answer-proof-layer.answer-layer-visible)>.single-step-column-frame,:is(.stage-screen-8,.stage-screen-9) .choice-screen:has(.feedback-visible)>.single-step-column-frame{display:none}:is(.stage-screen-8,.stage-screen-9) .choice-screen>.feedback-visible{height:auto;min-height:100px}:is(.stage-screen-8,.stage-screen-9) .choice-screen>.feedback-visible>.feedback-card{height:auto;min-height:96px}}
 @media(min-width:640px) and (max-height:780px){.explanation-result{min-height:79px}.explanation-result .bit-answer-comment{min-height:79px;padding-top:5px;padding-bottom:5px}}
+.battery-cassette-equation{width:100%;height:84px;display:grid;place-items:center}.battery-cassette-equation>svg{display:block;width:min(100%,560px);height:100%;overflow:visible}.exchange-battery-svg,.exchange-cassette-svg{filter:drop-shadow(0 4px 5px rgba(23,59,82,.25))}.exchange-equation-sign{fill:${T.navy};font:900 30px/1 'JetBrains Mono',monospace}
+.placement-map-frame,.single-step-column-frame,.single-step-expression-frame,.zero-chain-column-frame{width:100%;padding:12px;border-radius:20px;color:${T.navy};background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18),0 15px 34px -18px rgba(23,59,82,.28)}
+.foundation-combo-frame{width:100%;padding:10px 12px;border-radius:20px;display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,1.3fr);align-items:center;gap:10px;color:${T.navy};background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18),0 15px 34px -18px rgba(23,59,82,.28)}
+.placement-map-frame{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,.88fr);gap:12px;align-items:stretch}.placement-map-model{min-width:0;display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:8px;align-items:center}.placement-map-actions{display:grid;grid-template-columns:1fr;gap:7px}.placement-map-actions button{min-height:44px;padding:7px 9px;border:0;border-radius:12px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;text-align:left;color:${T.navy};background:#fff;box-shadow:0 8px 20px -16px rgba(${T.shadowBase},.5);cursor:pointer}.placement-map-actions button>span{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 11px/1 'JetBrains Mono',monospace}.placement-map-actions button>strong{font-size:11px;line-height:1.25}.placement-map-actions .placement-item-placed{color:${T.success};background:${T.successSoft}}.placement-map-actions .placement-item-placed>span{background:${T.success}}.placement-map-actions .placement-item-active{box-shadow:inset 0 0 0 2px ${T.success}}
+.bottom-row .digit-hidden{color:transparent;background:rgba(22,143,163,.04)}.single-step-column-frame{display:grid;place-items:center}.single-step-column-frame>.column-algorithm{width:min(560px,100%)}.choice-solution-only{justify-content:center}.solution-only-frame{width:100%;min-height:112px;display:grid;align-items:center}.solution-only-frame>[data-g4-feedback="solution"]{width:100%}
+.zero-chain-column-frame{display:grid;gap:8px;place-items:center}.zero-chain-column-frame>.column-algorithm{width:min(600px,100%);background:#fff}.zero-chain-column-frame>strong{width:100%;padding:7px 10px;border-radius:10px;text-align:center;background:#fff;font:800 12px/1.3 'JetBrains Mono',monospace}
+.stage-screen-5 .explanation-layout{padding:12px;border-radius:20px;color:${T.navy};background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18),0 15px 34px -18px rgba(23,59,82,.28)}.stage-screen-7 .bit-error-board{background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18)}.single-step-expression-frame{display:grid;place-items:center}.single-step-expression-frame .rapid-proof{width:100%}
+.stage-screen-6 .choice-screen .answer-stage{min-height:90px}
+.stage-screen-12 .rapid-panel{color:${T.navy};background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18),0 15px 34px -18px rgba(23,59,82,.28)}
+.choice-question-frame{width:100%;padding:12px;border-radius:20px;color:${T.navy};background:${T.cyanSoft};box-shadow:inset 0 0 0 1px rgba(22,143,163,.18),0 15px 34px -18px rgba(23,59,82,.28)}.choice-question-frame .answer-stage{min-height:190px}.choice-question-frame .options-grid{grid-template-columns:1fr}.choice-question-frame .option{width:100%}.stage-screen-13 .choice-question-frame .question-title{font-size:17px}
+.stage-screen-15 .g4-shared-finale .finale-layout{align-content:start;grid-auto-rows:max-content}.stage-screen-15 .g4-shared-finale :is(.finale-proof,.finale-bridge){height:auto;min-height:0;align-self:start}
+@media(max-width:639.98px){.placement-map-frame{padding:8px;grid-template-columns:1fr;gap:7px}.placement-map-model{grid-template-columns:1fr}.placement-map-model>.place-value-grid{display:none}.placement-map-actions{grid-template-columns:1fr 1fr;gap:5px}.placement-map-actions button{min-height:44px;padding:5px;grid-template-columns:23px minmax(0,1fr);gap:5px}.placement-map-actions button>span{width:23px;height:23px}.placement-map-actions button>strong{font-size:8px}.foundation-combo-frame{padding:7px;grid-template-columns:minmax(118px,.72fr) minmax(0,1.28fr);gap:5px;border-radius:16px}.foundation-combo-frame .place-value-grid{padding:7px}.foundation-combo-frame .battery-cassette-equation{height:66px}.single-step-column-frame,.single-step-expression-frame,.zero-chain-column-frame,.choice-question-frame{padding:8px;border-radius:16px}.stage-screen-5 .explanation-layout{padding:8px;border-radius:16px}.stage-screen-6 .question-title{flex:0 0 auto}.stage-screen-6 .answer-stage{flex:0 0 190px;min-height:190px}.choice-question-frame .answer-stage{min-height:190px}.solution-only-frame{min-height:90px}.stage-screen-13 .choice-question-frame .question-title{font-size:17px}}
 @media(prefers-reduced-motion:reduce){.d8-root *,.d8-root *::before,.d8-root *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
 /* Grade 4 Dars01 local visual contract */
+.d8-root .stage-screen-1 .stage-content{justify-content:flex-start}
 .lesson-frame .preview-language{display:none!important}
 :is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage-content>.screen-stack{transform:none!important}
 @media(max-width:639.98px){:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]){width:100%!important;max-width:100%!important}:is(.lesson-root,.d8-root):has([data-g4-screen="hook"]) .stage{width:100%!important;max-width:100%!important}}
@@ -2291,6 +2141,11 @@ html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-r
 [data-g4-role~="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}
 [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
 [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+.hook-story-frame[data-g4-role~="hook-scene"]::after{content:'';position:absolute;inset:1px;z-index:-1;border:1px solid rgba(144,228,235,.12);border-radius:23px;pointer-events:none}
+.hook-story-frame[data-g4-role~="hook-scene"]>.hook-story-grid{position:absolute;inset:0;z-index:-2;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:30px 30px;pointer-events:none}
+.hook-story-frame[data-g4-role~="hook-scene"]>.hook-story-orbit{position:absolute;z-index:-1;border:1px solid rgba(121,211,218,.15);border-radius:50%;pointer-events:none}
+.hook-story-frame[data-g4-role~="hook-scene"]>.hook-story-orbit-one{width:210px;height:210px;right:-75px;top:-98px}
+.hook-story-frame[data-g4-role~="hook-scene"]>.hook-story-orbit-two{width:145px;height:145px;right:-43px;top:-57px}
 [data-g4-role~="hook-bit"]{position:absolute!important;right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important;display:block!important;z-index:4}
 [data-g4-role~="hook-bit"]>.bit,[data-g4-role~="hook-bit"]>.g1-char,[data-g4-role~="hook-bit"]>svg{width:100%!important;height:100%!important}
 [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;display:grid;grid-template-columns:62px minmax(0,1fr);align-items:center}
@@ -2344,6 +2199,7 @@ html:has(.d8-root),body:has(.d8-root),#root:has(.d8-root),.lesson-page:has(.d8-r
   .d8-root .hook-screen .answer-proof-layer .bit-answer-comment:has(p){min-height:142px}
   .d8-root .hook-screen:has(.answer-proof-layer .bit-answer-comment)>.screen-heading{display:none}
   .d8-root .reasoning-screen:has(>.feedback-visible)>:is(.screen-heading,.round-meter,.foundation-model,.bit-error-board,.question-title){display:none}
+  .d8-root .reasoning-screen:has([data-qa-round-complete])>:is(.screen-heading,.round-meter,.foundation-model,.bit-error-board,.question-title){display:none}
   .d8-root .reasoning-screen>.feedback-visible{height:auto;min-height:92px}
   .d8-root .reasoning-screen>.feedback-visible>.feedback-card{height:auto;min-height:88px}
   .d8-root .explanation-screen:has(>.explanation-result)>:is(.screen-heading,.explanation-layout,.explanation-timeline){display:none}

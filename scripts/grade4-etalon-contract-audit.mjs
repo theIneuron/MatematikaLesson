@@ -18,6 +18,15 @@ const failures = [];
 const criticalFailures = [];
 
 const THEORY_TYPES = new Set(['exploration', 'model', 'discovery', 'rule', 'strategy', 'consolidation']);
+const NO_FINAL_REFLECTION_LESSONS = new Set(
+  Array.from({ length: 50 }, (_, index) => index + 2),
+);
+const sharedFinaleSource = await readFile(
+  path.join(root, 'src', 'components', 'grade4', 'Grade4Finale.jsx'),
+  'utf8',
+);
+// Dars04 slide 1 deliberately stretches the main scene to the answer-frame width.
+const FULL_WIDTH_HOOK_LESSONS = new Set([4]);
 const has = (source, pattern) => pattern.test(source);
 const count = (source, pattern) => (source.match(pattern) || []).length;
 const award = (checks) => checks.reduce((score, check) => score + (check.pass ? check.points : 0), 0);
@@ -69,6 +78,16 @@ function extractScreenMeta(ast) {
       .map(objectValue));
   });
   return arrays.get('SCREEN_META') ?? arrays.get('SCREEN_PLAN') ?? [];
+}
+
+function extractObjectVariable(ast, variableName) {
+  let value = null;
+  walk(ast, (node) => {
+    if (value || node.type !== 'VariableDeclarator' || node.id?.type !== 'Identifier') return;
+    if (node.id.name !== variableName || node.init?.type !== 'ObjectExpression') return;
+    value = objectValue(node.init);
+  });
+  return value ?? {};
 }
 
 function longestPassiveRun(meta) {
@@ -200,6 +219,9 @@ for (const lesson of lessons) {
   const label = `Dars${String(lesson).padStart(2, '0')}`;
   const filename = path.join(root, 'src', 'components', 'grade4', `${label}.jsx`);
   const source = await readFile(filename, 'utf8');
+  const usesSharedFinale = /from\s+['"]\.\/Grade4Finale\.jsx['"]/.test(source)
+    && /<Grade4Finale\b/.test(source);
+  const finaleSource = usesSharedFinale ? `${source}\n${sharedFinaleSource}` : source;
   let ast;
 
   try {
@@ -211,6 +233,7 @@ for (const lesson of lessons) {
   }
 
   const meta = extractScreenMeta(ast);
+  const dars08Content = lesson === 8 ? extractObjectVariable(ast, 'CONTENT') : {};
   const screenCount = meta.length;
   const activeCount = meta.filter((screen) => screen.active === true).length;
   const explicitActivity = meta.length > 0 && meta.every((screen) => typeof screen.active === 'boolean');
@@ -264,16 +287,16 @@ for (const lesson of lessons) {
   const hookMarkers = has(source, /data-g4-screen=["'{][^\n>]*hook/)
     && has(source, /data-g4-role=["'{][^\n>]*hook-scene/)
     && has(source, /data-g4-role=["'{][^\n>]*answer-card/);
-  const canonicalHookMarkers = [
-    'hook-topic',
-    'hook-title',
-    'hook-question',
-    'hook-scene',
-    'visual-frame',
-    'hook-bit',
-  ].every((role) => new RegExp(`data-g4-role=["'{][^\\n>]*${role}`).test(source));
+  const canonicalHookRoles = label === 'Dars05'
+    ? ['hook-title', 'hook-question', 'hook-scene', 'visual-frame', 'hook-bit']
+    : ['hook-topic', 'hook-title', 'hook-question', 'hook-scene', 'visual-frame', 'hook-bit'];
+  const canonicalHookMarkers = canonicalHookRoles
+    .every((role) => new RegExp(`data-g4-role=["'{][^\\n>]*${role}`).test(source));
+  const hookWidthPattern = FULL_WIDTH_HOOK_LESSONS.has(lesson)
+    ? /\[data-g4-role~=["']hook-scene["']\]\s*\{\s*width\s*:\s*100%/
+    : /width\s*:\s*min\(760px\s*,\s*100%\)/;
   const canonicalHookFrame = [
-    /width\s*:\s*min\(760px\s*,\s*100%\)/,
+    hookWidthPattern,
     /min-height\s*:\s*206px/,
     /border-radius\s*:\s*24px/,
     /overflow\s*:\s*(?:hidden|clip)/,
@@ -384,7 +407,16 @@ for (const lesson of lessons) {
   const noInfiniteMotion = !/animation\s*:[^;{}]*\binfinite\b/.test(source);
   const reducedMotion = /prefers-reduced-motion\s*:\s*reduce/.test(source);
 
-  const booleanClaimState = /\[titleClaimed,\s*setTitleClaimed\]\s*=\s*useState\((?:false|storedAnswer\?\.titleClaimed\s*===\s*true)\)/.test(source);
+  const sharedFinaleContract = usesSharedFinale
+    && /data-g4-final-layout=["']title-left-steps-right["']/.test(sharedFinaleSource)
+    && /data-g4-final-reflection=["']none["']/.test(sharedFinaleSource)
+    && /Array\.from\(\{\s*length:\s*3\s*\}/.test(sharedFinaleSource)
+    && /data-g4-role=["']final-proof["']/.test(sharedFinaleSource)
+    && /data-g4-role=["']final-bridge["']/.test(sharedFinaleSource);
+  const booleanClaimState = /\[titleClaimed,\s*setTitleClaimed\]\s*=\s*useState\((?:false|storedAnswer\?\.titleClaimed\s*===\s*true)\)/.test(source)
+    || (sharedFinaleContract
+      && /useGrade4TitleClaim\(\{/.test(source)
+      && /storedAnswer\?\.titleClaimed\s*===\s*true/.test(sharedFinaleSource));
   const finiteClaimTransitions = /setTitleState\([\s\S]{0,260}["']revealing["']/.test(source)
     && /setTitleState\(["']claimed["']\)/.test(source);
   const finiteClaimState = /\[titleState,\s*setTitleState\]\s*=\s*useState\(["'](?:unclaimed|claimed)["']\)/.test(source)
@@ -403,12 +435,15 @@ for (const lesson of lessons) {
     && /const\s+setTitleState\s*=\s*useCallback\(\s*\(value\)\s*=>\s*setFinalRewardState\(\(previous\)\s*=>\s*\(\{\s*\.\.\.previous,\s*titleState:\s*value\s*\}\)\)/.test(source)
     && finiteClaimTransitions;
   const claimState = booleanClaimState || finiteClaimState || persistedFiniteClaimState || persistedContextClaimState;
-  const claimButton = /className=["'{][^\n>]*g4-title-claim/.test(source)
-    && /Claim title/.test(source)
-    && /\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0437\u0432\u0430\u043d\u0438\u0435/ui.test(source)
-    && /Unvonni olish/.test(source);
+  const claimButton = /className=["'{][^\n>]*g4-title-claim/.test(finaleSource)
+    && /Claim title/.test(finaleSource)
+    && /\u041f\u043e\u043b\u0443\u0447\u0438\u0442\u044c \u0437\u0432\u0430\u043d\u0438\u0435/ui.test(finaleSource)
+    && /Unvonni olish/.test(finaleSource);
   const contextReflectionState = /\{\s*reflectionChoice,\s*titleState\s*\}\s*=\s*finalRewardState/.test(source)
     && /const\s+setReflectionChoice\s*=\s*useCallback\(\s*\(value\)\s*=>\s*setFinalRewardState\(/.test(source);
+  const finalReflectionRemoved = NO_FINAL_REFLECTION_LESSONS.has(lesson)
+    && /finalReflectionRequired\s*:\s*false/.test(source)
+    && /data-g4-final-reflection=["']none["']/.test(finaleSource);
   const reflectionUi = /(?:data-g4-role=["'{][^\n>]*reflection|className=["'{][^\n>]*(?:finale-reflection|final-reflection))/.test(source)
     && (/\[(?:reflection|reflectionChoice),\s*set(?:Reflection|ReflectionChoice)\]\s*=\s*useState\(/.test(source)
       || contextReflectionState);
@@ -446,25 +481,54 @@ for (const lesson of lessons) {
   const reflectionBeforeClaim = (directHandlerGate && directButtonGate)
     || delegatedButtonGate
     || delegatedInlineGate;
-  const rankOverlay = /className=["'{][^\n>]*rank-boost-overlay/.test(source)
-    && /data-g4-role=["'{][^\n>]*rank-overlay/.test(source)
-    && /rank-boost-(?:card|medal|confetti)/.test(source);
+  const localFinalStateClaimGate = /const\s+canClaimTitle\s*=\s*audio\.completed\s*\|\|\s*audio\.muted/.test(source)
+    && /disabled=\{!canClaimTitle\}/.test(source)
+    && /if\s*\([^)]*!canClaimTitle[^)]*\)\s*return/.test(source);
+  const sharedFinalStateClaimGate = sharedFinaleContract
+    && /const\s+canClaimTitle\s*=\s*audio\?\.completed\s*===\s*true\s*\|\|\s*audio\?\.muted\s*===\s*true/.test(sharedFinaleSource)
+    && /disabled=\{!canClaimTitle\}/.test(sharedFinaleSource)
+    && /if\s*\(!canClaimTitle\s*\|\|\s*titleClaimed\)\s*return false/.test(sharedFinaleSource)
+    && /canFinish=\{titleClaimed\}/.test(source);
+  const finalStateClaimGate = localFinalStateClaimGate || sharedFinalStateClaimGate;
+  const localFinalComposition = /className=["']screen-stack finale-screen["']/.test(source)
+    && /className=["']finale-heading["']/.test(source)
+    && /className=["']finale-mastery["']/.test(source)
+    && /className=\{`finale-proof/.test(source)
+    && /className=\{`finale-bridge/.test(source)
+    && /className=["']finale-actions["']/.test(source);
+  const sharedFinalComposition = sharedFinaleContract
+    && /takeaways=\{/.test(source)
+    && /proof=\{\{/.test(source)
+    && /bridge=\{/.test(source)
+    && /renderTitleCard=\{/.test(source)
+    && /bitSlot=\{/.test(source)
+    && /const\s+activeBitSlot\s*=\s*titleClaimed\s*\?\s*null\s*:\s*bitSlot/.test(sharedFinaleSource);
+  const standardFinalComposition = finalReflectionRemoved
+    && !reflectionUi
+    && (localFinalComposition || sharedFinalComposition);
+  const rankOverlay = /className=["'{][^\n>]*rank-boost-overlay/.test(finaleSource)
+    && /data-g4-role=["'{][^\n>]*rank-overlay/.test(finaleSource)
+    && /rank-boost-(?:card|medal|confetti)/.test(finaleSource);
   const gatedReveal = rankOverlay || /<(?:G4)?TitleReveal\s+active=\{titleClaimed\}/.test(source)
     || (/<(?:G4)?TitleReveal\s+active=\{revealRequested\}/.test(source)
-      && /setRevealRequested\(true\)/.test(source))
+      && /setRevealRequested\(true\)/.test(finaleSource))
     || (/<(?:G4)?TitleReveal\s+active=\{titleState\s*===\s*["']revealing["']\}/.test(source)
       && /setTitleState\([\s\S]{0,260}["']revealing["']/.test(source))
     || (/<(?:G4)?TitleReveal\s+active=\{revealing\}/.test(source)
       && /const\s+revealing\s*=\s*titleState\s*===\s*["']revealing["']/.test(source)
       && /setTitleState\([\s\S]{0,260}["']revealing["']/.test(source));
-  const persistentTitle = /data-g4-role=["'{][^\n>]*title-card/.test(source)
+  const persistentTitle = /data-g4-role=["'{][^\n>]*title-card/.test(finaleSource)
     && (/titleClaimed\s*&&/.test(source)
       || /titleState\s*===\s*["']claimed["']\s*&&/.test(source)
       || /titleState\s*!==\s*["']claimed["']\s*\?[\s\S]{0,900}:\s*<(?:G4)?TitleCard\b/.test(source)
+      || (sharedFinaleContract
+        && /!titleClaimed\s*\?\s*\(/.test(sharedFinaleSource)
+        && /:\s*renderTitleCard\?\.\(\)/.test(sharedFinaleSource))
       || (/const\s+claimed\s*=\s*titleState\s*===\s*["']claimed["']/.test(source)
         && /claimed\s*&&\s*</.test(source)));
   const claimBeforeFinish = /titleClaimed\s*\?\s*finishLesson/.test(source)
     || /disabled=\{!titleClaimed/.test(source)
+    || /canFinish=\{titleClaimed\}/.test(source)
     || /canFinish=\{titleState\s*===\s*["']claimed["']\}/.test(source)
     || (/const\s+claimed\s*=\s*titleState\s*===\s*["']claimed["']/.test(source)
       && /(?:NavNext|button)[^>]*disabled=\{!claimed\}/.test(source));
@@ -474,13 +538,48 @@ for (const lesson of lessons) {
   const titleRevealBlock = source.match(
     /(?:function\s+(?:(?:G4)?TitleReveal|(?:G4)?RankBoost)|const\s+(?:(?:G4)?TitleReveal|(?:G4)?RankBoost)\s*=)[\s\S]*?(?=(?:function\s+(?:G4)?TitleCard|const\s+(?:G4)?TitleCard\s*=))/,
   )?.[0] ?? '';
-  const revealDuration = /setTimeout\([\s\S]*?3900/.test(titleRevealBlock);
-  const reducedRevealDuration = /matchMedia\?\.\(['"]\(prefers-reduced-motion:\s*reduce\)['"]\)[\s\S]*?\?\s*(?:0|80|120)\s*:\s*3900/.test(titleRevealBlock);
-  const persistentHappyReward = /(?:reward-stage|g4-title-card-stage)/.test(source)
+  const revealDuration = /setTimeout\([\s\S]*?3900/.test(titleRevealBlock)
+    || (sharedFinaleContract && /setTimeout\([\s\S]*?4300/.test(sharedFinaleSource));
+  const reducedRevealDuration = /matchMedia\?\.\(['"]\(prefers-reduced-motion:\s*reduce\)['"]\)[\s\S]*?\?\s*(?:0|80|120)\s*:\s*3900/.test(titleRevealBlock)
+    || (sharedFinaleContract && /reduced\s*\?\s*350\s*:\s*4300/.test(sharedFinaleSource));
+  const standardHappyReward = /(?:reward-stage|g4-title-card-stage)/.test(finaleSource)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(finaleSource)
+    && /data-g4-role=["'{][^\n>]*reward-bit/.test(finaleSource)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(finaleSource)
+    && /<BitSVG\b[^>]*\bstate=\{?[^>]*["']happy["']/.test(finaleSource);
+  const dars04NoBitReward = lesson === 4
+    && /data-g4-title-bit=["']absent["']/.test(source)
     && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
-    && /data-g4-role=["'{][^\n>]*reward-bit/.test(source)
     && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
-    && /<BitSVG\b[^>]*\bstate=\{?[^>]*["']happy["']/.test(source);
+    && /data-g4-duration-ms=["']5000["']/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const dars05NoBitReward = lesson === 5
+    && /data-g4-title-bit=["']absent["']/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const dars03NoBitReward = lesson === 3
+    && /data-g4-title-bit=["']absent["']/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const dars06NoBitReward = lesson === 6
+    && /data-g4-title-bit=["']absent["']/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const dars07NoBitReward = lesson === 7
+    && /data-g4-title-bit=["']absent["']/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && /data-g4-duration-ms=["']3000["']/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const dars09NoBitReward = lesson === 9
+    && /data-g4-title-bit=["']absent["']/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-confetti/.test(source)
+    && /data-g4-role=["'{][^\n>]*reward-medal/.test(source)
+    && !/data-g4-role=["'{][^\n>]*reward-bit/.test(source);
+  const persistentHappyReward = standardHappyReward || dars03NoBitReward || dars04NoBitReward || dars05NoBitReward || dars06NoBitReward || dars07NoBitReward || dars09NoBitReward;
 
   const explicitLocaleTriples = count(source, /\buz\s*:/g) >= 10
     && count(source, /\bru\s*:/g) >= 10
@@ -543,9 +642,11 @@ for (const lesson of lessons) {
   ];
 
   const motionFinalChecks = [
-    { points: 2, pass: claimState && claimButton && reflectionUi },
+    { points: 2, pass: claimState && claimButton && (reflectionUi || finalReflectionRemoved) },
     { points: 2, pass: gatedReveal && rankOverlay && persistentTitle },
-    { points: 2, pass: claimBeforeFinish && (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim },
+    { points: 2, pass: claimBeforeFinish && (finalReflectionRemoved
+      ? !reflectionUi && finalStateClaimGate
+      : (reflectionGate || solvedReflectionAlias) && reflectionBeforeClaim) },
     { points: 2, pass: revealDuration && persistentHappyReward },
     { points: 2, pass: reducedMotion && reducedRevealDuration },
   ];
@@ -559,31 +660,104 @@ for (const lesson of lessons) {
   ];
 
   const dars08Critical = lesson !== 8 ? [] : [
-    ['Dars08 exact 16 direct screens',
-      /const\s+SCREENS\s*=\s*\[\s*Screen0\s*,\s*Screen1\s*,\s*Screen2\s*,\s*Screen3\s*,\s*Screen4\s*,\s*Screen5\s*,\s*Screen6\s*,\s*Screen7\s*,\s*Screen8\s*,\s*Screen9\s*,\s*Screen10\s*,\s*Screen11\s*,\s*Screen12\s*,\s*Screen13\s*,\s*Screen14\s*,\s*Screen15\s*\]/.test(source)
+    ['Dars08 exact 15 direct screens',
+      screenCount === 15
+        && JSON.stringify(meta.map((screen) => screen.id)) === JSON.stringify(Array.from({ length: 15 }, (_, index) => `s${index}`))
+        && meta.at(-1)?.type === 'summary'
+        && /const\s+TOTAL_SCREENS\s*=\s*15\s*;/.test(source)
+        && /const\s+SCREENS\s*=\s*\[\s*Screen0\s*,\s*Screen1\s*,\s*Screen2\s*,\s*Screen3\s*,\s*Screen4\s*,\s*Screen5\s*,\s*Screen6\s*,\s*Screen7\s*,\s*Screen8\s*,\s*Screen9\s*,\s*Screen10\s*,\s*Screen11\s*,\s*Screen12\s*,\s*Screen13\s*,\s*Screen14\s*\]/.test(source)
         && !/\b(?:SOURCE_ORDER|sourceScreen|stage-fit)\b|\bzoom\s*:/.test(source)],
-    ['Dars08 progressive result reveal',
-      /function\s+ColumnAlgorithm\([^)]*revealed/.test(source)
-        && /digit-hidden/.test(source)
-        && /revealed=\{revealedDigits\}/.test(source)
-        && /isRevealed\s*\?\s*digit\s*:\s*['"]\\u00a0['"]/.test(source)],
-    ['Dars08 progressive zero chain',
-      /function|const\s+ZeroChainModel/.test(source)
-        && /state\s*=\s*null/.test(source)
-        && /state=\{activeStep\s*>=\s*0\s*\?\s*CONTENT\.s9\.states\[activeStep\]/.test(source)],
+    ['Dars08 s4 exact three sequential steps',
+      dars08Content.s4?.steps?.length === 3
+        && meta[4]?.subtype === 'step-by-step'
+        && /const\s+Screen4\s*=\s*\(props\)\s*=>\s*<ExplanationScreen\b[^>]*screen=\{4\}[^>]*c=\{CONTENT\.s4\}/.test(source)
+        && /data-qa-explanation-steps=\{c\.steps\.length\}/.test(source)
+        && /if\s*\(index\s*>\s*visited\.size\s*&&\s*!visited\.has\(index\)\)\s*return/.test(source)],
+    ['Dars08 s9 exact three sequential steps',
+      dars08Content.s9?.states?.length === 3
+        && ['uz', 'ru', 'en'].every((lang) => dars08Content.s9?.audio?.steps?.[lang]?.length === 3)
+        && meta[9]?.subtype === 'three-step-zero-chain'
+        && /const\s+Screen9\s*=\s*\(props\)\s*=>\s*<GuidedChoiceStepsScreen\b[^>]*screen=\{9\}[^>]*c=\{CONTENT\.s9\}/.test(source)
+        && /if\s*\(!choiceSolved\s*\|\|\s*index\s*>\s*revealed\.size\s*\|\|\s*revealed\.has\(index\)\)\s*return/.test(source)
+        && /data-qa-guided-step-count=\{steps\.length\}/.test(source)],
+    ['Dars08 only s4 and s9 use three-step sequencing',
+      JSON.stringify(meta
+        .filter((screen) => ['step-by-step', 'three-step-zero-chain'].includes(screen.subtype))
+        .map((screen) => screen.id)) === JSON.stringify(['s4', 's9'])
+        && dars08Content.s1?.rounds === undefined
+        && dars08Content.s3?.rounds === undefined
+        && dars08Content.s6?.rounds?.length === 1
+        && dars08Content.s11?.rounds?.length === 1
+        && dars08Content.s13?.stages === undefined
+        && /const\s+Screen1\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{1\}/.test(source)
+        && /const\s+Screen3\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{3\}/.test(source)
+        && /const\s+Screen6\s*=\s*\(props\)\s*=>\s*<ReasoningRoundsScreen\b[^>]*screen=\{6\}/.test(source)
+        && /data-qa-round-count=\{c\.rounds\.length\}[^>]*data-qa-step-count=\{c\.rounds\.length\}/.test(source)],
+    ['Dars08 slide 3 declarative placement map',
+      meta[2]?.subtype === 'single-step-placement-map'
+        && meta[2]?.template === 'PlacementMap'
+        && /function\s+PlacementMapScreen\b/.test(source)
+        && /data-qa-placement-map=["']true["']/.test(source)
+        && /data-qa-step-count=["']1["']/.test(source)
+        && /3 raqamini birlar xonasiga qo'yamiz\./.test(source)
+        && /bottomRevealed=\{revealedColumns\}/.test(source)
+        && /const\s+Screen2\s*=\s*\(props\)\s*=>\s*<PlacementMapScreen\b[^>]*screen=\{2\}[^>]*c=\{CONTENT\.s2\}/.test(source)],
+    ['Dars08 slides 6, 11 and 12 remain one-step',
+      meta[5]?.subtype === 'single-step-carry-choice'
+        && meta[5]?.template === 'MCScreen'
+        && meta[10]?.subtype === 'missing-digit'
+        && meta[10]?.template === 'DigitGrid'
+        && meta[11]?.subtype === 'single-numeric-check'
+        && dars08Content.s11?.rounds?.length === 1
+        && dars08Content.s5?.steps === undefined
+        && dars08Content.s10?.steps === undefined
+        && /const\s+Screen5\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{5\}[^>]*c=\{CONTENT\.s5\}/.test(source)
+        && /const\s+Screen10\s*=\s*\(props\)\s*=>\s*<MissingDigitScreen\b[^>]*screen=\{10\}[^>]*c=\{CONTENT\.s10\}/.test(source)
+        && /const\s+Screen11\s*=\s*\(props\)\s*=>\s*<RapidTestConsoleScreen\b[^>]*screen=\{11\}[^>]*c=\{CONTENT\.s11\}/.test(source)
+        && /data-qa-rapid-console=["']true["'][^>]*data-qa-step-count=["']1["']/.test(source)],
+    ['Dars08 slides 8 and 9 collapse to solution frame',
+      dars08Content.s7?.solutionOnlyOnSolve === true
+        && dars08Content.s8?.solutionOnlyOnSolve === true
+        && /showSolutionOnly\s*=\s*solved\s*&&\s*c\.solutionOnlyOnSolve\s*===\s*true/.test(source)
+        && /data-qa-solution-only-complete=["']true["']/.test(source)
+        && /const\s+Screen7\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{7\}/.test(source)
+        && /const\s+Screen8\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{8\}/.test(source)],
+    ['Dars08 slide 10 bottom operand in light-blue frame',
+      /const\s+Screen9\s*=\s*\(props\)[\s\S]{0,900}<div\s+className=["']zero-chain-column-frame["'][^>]*>[\s\S]{0,300}<ColumnAlgorithm\b[^>]*top=["']40005["'][^>]*bottom=["']17268["']/.test(source)
+        && /\.zero-chain-column-frame\s*\{[\s\S]{0,300}?background:\$\{T\.cyanSoft\}/.test(source)],
+    ['Dars08 slide 13 compact one-column estimate',
+      meta[12]?.subtype === 'single-step-strategy-estimate-choice'
+        && dars08Content.s12?.questionFrame === true
+        && dars08Content.s12?.options?.length === 3
+        && /const\s+Screen12\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{12\}[^>]*c=\{CONTENT\.s12\}/.test(source)
+        && /\.choice-question-frame\s+\.options-grid\s*\{\s*grid-template-columns:\s*1fr\s*\}/.test(source)
+        && /\.stage-screen-13\s+\.choice-question-frame\s+\.question-title\s*\{\s*font-size:\s*17px\s*\}/.test(source)],
+    ['Dars08 finale proof 4 bridge 5 audio reveal',
+      /function\s+useAudioSegmentReveal\s*\([^)]*audio\s*,\s*segments\s*,\s*count\s*\)/.test(source)
+        && /localizedSegments\(c\.audio\.intro\s*,\s*lang\s*,\s*`s\$\{screen\}`\)/.test(source)
+        && /useAudioSegmentReveal\(audio\s*,\s*segments\s*,\s*5\)/.test(source)
+        && /const\s+visible\s*=\s*reveal\.visible/.test(source)
+        && /const\s+complete\s*=\s*visible\s*>=\s*5/.test(source)
+        && /revealSteps=\{\{\s*proof:\s*4\s*,\s*bridge:\s*5\s*\}\}/.test(source)
+        && /\.stage-screen-15\s+\.g4-shared-finale\s+:is\(\.finale-proof,\.finale-bridge\)\{height:auto;min-height:0;align-self:start\}/.test(source)],
     ['Dars08 first-attempt Back persistence',
       /wrongByRound/.test(source)
         && /currentRound/.test(source)
         && /solved\s*=\s*false/.test(source)
         && /data-qa-rapid-first-try/.test(source)],
-    ['Dars08 matching persistence and textual relation',
-      /matchingStartedValue/.test(source)
-        && /pairsValue/.test(source)
-        && /function|const\s+pairLabel/.test(source)
-        && /aria-label=\{pairs\[item\.id\]\s*\?\s*pairLabel/.test(source)],
-    ['Dars08 case answer gate',
-      /visual=\{\(\{\s*stageIndex\s*,\s*stageSolved/.test(source)
-        && /stageSolved\s*\?\s*['"]72 000 − 19 000 ≈ 53 000['"]/.test(source)],
+    ['Dars08 slide 14 single-step hook transfer',
+      meta[13]?.subtype === 'single-step-life-transfer'
+        && dars08Content.s13?.questionFrame === true
+        && dars08Content.s13?.options?.length === 3
+        && dars08Content.s13?.stages === undefined
+        && /72 384 \+ 8 596 = 80 980/.test(source)
+        && /80 980 − 8 596 = 72 384/.test(source)
+        && /const\s+Screen13\s*=\s*\(props\)\s*=>\s*<ChoiceScreen\b[^>]*screen=\{13\}[^>]*c=\{CONTENT\.s13\}/.test(source)],
+  ];
+  const sixteenScreenCritical = ![18, 19].includes(lesson) ? [] : [
+    [`Dars${lesson} remains 16 screens`, screenCount === 16
+      && meta.at(-1)?.id === 's15'
+      && meta.at(-1)?.type === 'summary'],
   ];
   const dars51ScoredIds = meta.filter((screen) => screen.scored === true).map((screen) => screen.id);
   const dars51Critical = lesson !== 51 ? [] : [
@@ -628,8 +802,11 @@ for (const lesson of lessons) {
     ['activity-gated Continue', activityGate.pass],
     ['matching connector', interactionChecks[5].pass],
     ['click-gated rank boost', motionFinalChecks.slice(0, 3).every((item) => item.pass)],
-    ['reflection-before-title dual gate', reflectionBeforeClaim],
-    ['pre-claim reflection Back persistence', preClaimReflectionPersistence],
+    ['standard three-takeaway/proof/bridge final', lesson > 10 || standardFinalComposition],
+    [finalReflectionRemoved ? 'explicit no-reflection final gate' : 'reflection-before-title dual gate',
+      finalReflectionRemoved ? !reflectionUi && finalStateClaimGate : reflectionBeforeClaim],
+    [finalReflectionRemoved ? 'no-reflection final policy marker' : 'pre-claim reflection Back persistence',
+      finalReflectionRemoved || preClaimReflectionPersistence],
     ['finite/reduced motion', visualChecks[3].pass && motionFinalChecks.slice(3).every((item) => item.pass)],
     ['fixed viewport root', visualChecks[0].pass],
     ['no scroll', visualChecks[1].pass],
@@ -638,6 +815,7 @@ for (const lesson of lessons) {
     ['audio contract', technicalChecks[1].pass],
     ['LMS payload', technicalChecks[3].pass],
     ...dars08Critical,
+    ...sixteenScreenCritical,
     ...dars51Critical,
   ];
   const brokenCritical = critical.filter(([, pass]) => !pass).map(([name]) => name);

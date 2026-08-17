@@ -8,6 +8,8 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay {
@@ -116,7 +118,7 @@ const G4_TITLE_STYLES = `
   width: 100%;
   min-height: 116px;
   margin: 0;
-  padding: 12px 82px 11px 67px;
+  padding: 12px 18px 11px 67px;
   border-radius: 17px;
   display: flex;
   flex-direction: column;
@@ -128,8 +130,6 @@ const G4_TITLE_STYLES = `
   box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
   transform: translateY(-2px);
 }
-.g4-title-card-bit { position: absolute; z-index: 1; right: 3px; bottom: 2px; width: 72px; height: 90px; animation: g4-title-card-bit-float 2.8s ease-in-out 1 both; }
-.g4-title-card-bit .g1-char { width: 100%; height: 100%; }
 .g4-title-card-medal {
   position: absolute;
   z-index: 2;
@@ -188,14 +188,12 @@ const G4_TITLE_STYLES = `
 @keyframes g4-title-reveal-rays { from { transform: translate(-50%,-50%) rotate(0); } to { transform: translate(-50%,-50%) rotate(360deg); } }
 @keyframes g4-title-reveal-confetti-fall { to { transform: translateY(470px) rotate(560deg); } }
 @keyframes g4-title-card-confetti-fall { to { transform: translateY(230px) rotate(460deg); } }
-@keyframes g4-title-card-bit-float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 @media (max-width: 639.98px) {
   .g4-title-reveal-card { min-height: 100dvh; padding: 24px 18px; }
   .g4-title-reveal-medal { width: 88px; height: 88px; border-width: 5px; font-size: 40px; }
   .g4-title-reveal-card h2 { top: calc(50% + 62px); font-size: 29px; }
-  .g4-title-card-stage { min-height: 88px; padding: 9px 59px 8px 51px; border-radius: 14px; }
+  .g4-title-card-stage { min-height: 88px; padding: 9px 12px 8px 51px; border-radius: 14px; }
   .g4-title-card-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
-  .g4-title-card-bit { width: 57px; height: 71px; }
   .g4-title-card-stage h2 { font-size: 14px; }
 }
 .g4-title-claim{width:100%;min-height:76px;padding:10px 16px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;align-items:center;gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);box-shadow:0 22px 42px -25px rgba(14,105,120,.9);text-align:left;cursor:pointer;transition:transform .5s ease,box-shadow .5s ease}.g4-title-claim>span{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px/1.2 'Source Serif 4',Georgia,serif}.g4-title-claim:hover:not(:disabled){transform:translateY(-2px)}.g4-title-claim:disabled{cursor:default;filter:saturate(.55);opacity:.68}
@@ -205,7 +203,6 @@ const G4_TITLE_STYLES = `
   .g4-title-reveal-medal { opacity: 1; transform: translate(-50%,-50%); animation: none; }
   .g4-title-reveal-card h2 { opacity: 1; transform: translateX(-50%); animation: none; }
   .g4-title-reveal-confetti, .g4-title-card-confetti { display: none; }
-  .g4-title-card-bit { animation: none; }
 }
 `;
 
@@ -233,7 +230,7 @@ function G4TitleCard({ title, lang, firstTry, totalScored }) {
     ru: { earned: 'ЗВАНИЕ ПОЛУЧЕНО', firstTry: 'с первой попытки' },
     en: { earned: 'TITLE EARNED', firstTry: 'on the first attempt' },
   })[lang] ?? { earned: 'UNVON OLINDI', firstTry: 'birinchi urinishda' };
-  return <div className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy" /></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
+  return <div className="g4-title-card-stage" data-g4-role="title-card" data-g4-title-bit="absent" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{copy.earned}</span><h2>{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{totalScored}</strong><span>{copy.firstTry}</span></div></div>;
 }
 
 // ============================================================================
@@ -716,6 +713,11 @@ const CONTENT = {
       "uz": "yetti yuz to'rt ming o'n sakkiz; 700 000 + 4 000 + 10 + 8",
       "en": "seven hundred and four thousand and eighteen; 700,000 + 4,000 + 10 + 8",
     },
+    "revealValue": {
+      "ru": "704 тысячи + 18 единиц",
+      "uz": "704minglar +18 birlar",
+      "en": "704 thousands + 18 ones",
+    },
     "correctText": {
       "ru": "Левая тройка читается как семьсот четыре тысячи, правая как восемнадцать. Ненулевые цифры дают четыре разрядных слагаемых.",
       "uz": "Chap uchlik yetti yuz to'rt ming, o'ng uchlik o'n sakkiz deb o'qiladi. Noldan farqli raqamlar to'rtta xona qo'shiluvchisini beradi.",
@@ -1029,19 +1031,28 @@ const CONTENT = {
     "audio": {
       "intro": {
         "ru": [
-          "Сначала читаем число по классам. Затем раскладываем, сравниваем слева направо и выбираем нужную точность округления."
+          "Сначала разделяем число на классы и читаем его по классам.",
+          "Затем называем разряды и раскладываем число.",
+          "После этого сравниваем числа слева направо.",
+          "В конце выбираем разряд округления."
         ],
         "uz": [
-          "Avval sonni sinflar bo'yicha o'qiymiz. Keyin yoyamiz, chapdan taqqoslaymiz va yaxlitlash aniqligini tanlaymiz."
+          "Avval sonni sinflarga ajratamiz va sinflar bo'yicha o'qiymiz.",
+          "Keyin xonalarni aytamiz va sonni yoyamiz.",
+          "So'ng sonlarni chapdan o'ngga taqqoslaymiz.",
+          "Oxirida yaxlitlash xonasini tanlaymiz."
         ],
         "en": [
-          "First read the number by classes. Then expand it, compare it from left to right and round it to the required place."
+          "First, split the number into classes and read it by classes.",
+          "Next, name the places and expand the number.",
+          "Then compare the numbers from left to right.",
+          "Finally, choose the rounding place."
         ],
       },
       "on_correct": {
-        "ru": "Все четыре действия опираются на разряды. Поэтому таблица остаётся общей картой решения.",
-        "uz": "To'rtta harakatning barchasi xonalarga tayanadi. Shuning uchun jadval umumiy yechim xaritasi bo'lib qoladi.",
-        "en": "Correct. All four actions rely on places, so the place-value chart remains the common solution map.",
+        "ru": "Сначала раскрываем структуру числа. Затем используем её для разложения, сравнения и выбора ближайшего круглого числа.",
+        "uz": "Avval sonning tuzilishini ochamiz. Keyin undan yoyish, taqqoslash va eng yaqin yaxlit sonni tanlashda foydalanamiz.",
+        "en": "First reveal the structure of the number. Then use it to expand, compare and choose the nearest round number.",
       }
     }
   },
@@ -1580,14 +1591,14 @@ const CONTENT = {
       "en": "Error Lab",
     },
     "title": {
-      "ru": "Три сдвига, три способа повредить число",
-      "uz": "Uch siljish, sonni buzishning uch usuli",
-      "en": "Three shifts, three ways to damage the number",
+      "ru": "Три ошибки — одна причина: разрядное значение",
+      "uz": "Uch xato — bitta sabab: xona qiymati",
+      "en": "Three errors, one cause: place value",
     },
     "lead": {
-      "ru": "Перестановка цифр, неверное слагаемое и ошибочное округление выглядят по-разному, но все три ошибки возникают, когда не проверяют разрядное значение.",
-      "uz": "Raqamlarni boshqa xonalarga ko'chirish, noto'g'ri qo'shiluvchi va xato yaxlitlash turlicha ko'rinadi, ammo uchala xato ham xona qiymati tekshirilmaganda yuz beradi.",
-      "en": "Reordering digits, using an incorrect addend and rounding incorrectly look different, but all three errors arise when place value is not checked.",
+      "ru": "Найди поломку и восстанови правильную разрядную структуру.",
+      "uz": "Xatoni toping va to'g'ri xona tuzilishini tiklang.",
+      "en": "Find each fault and restore the correct place-value structure.",
     },
     "instruction": {
       "ru": "Как восстановить разрядную структуру в каждом случае?",
@@ -1684,16 +1695,19 @@ const CONTENT = {
     "audio": {
       "intro": {
         "ru": [
-          "Первая ошибка переставляет цифры по разрядам. Вторая сдвигает четвёрку на один разряд влево.",
-          "Третья ошибка неверно читает проверочную цифру и выбирает верхнюю тысячу, хотя остаток меньше пятисот."
+          "Первая ошибка переставляет цифры по разрядам. Возвращаем каждую цифру в свой разряд, а нули сохраняют пустые места.",
+          "Вторая ошибка сдвигает четвёрку на один разряд влево. Сдвиг вправо уменьшает значение в десять раз.",
+          "Третья ошибка неверно читает проверочную цифру. Остаток восемнадцать меньше пятисот, поэтому выбираем нижнюю тысячу."
         ],
         "uz": [
-          "Birinchi xato raqamlarni boshqa xonalarga ko'chiradi. Ikkinchisi to'rtni bir xona chapga siljitadi.",
-          "Uchinchi xato tekshiruvchi raqamni noto'g'ri o'qib, qoldiq besh yuzdan kichik bo'lsa ham yuqori minglikni tanlaydi."
+          "Birinchi xato raqamlarni boshqa xonalarga ko'chiradi. Har bir raqamni o'z xonasiga qaytaramiz, nollar esa bo'sh xonalarni saqlaydi.",
+          "Ikkinchi xato to'rtni bir xona chapga siljitadi. O'ngga bir xona siljish qiymatni o'n marta kamaytiradi.",
+          "Uchinchi xato tekshiruvchi raqamni noto'g'ri o'qiydi. O'n sakkiz qoldiq besh yuzdan kichik, shuning uchun quyi minglikni tanlaymiz."
         ],
         "en": [
-          "The first error moves digits into different places. The second shifts the digit four one place to the left.",
-          "The third error misreads the deciding digit and chooses the upper thousand even though the remainder is less than five hundred."
+          "The first error moves digits into different places. Return each digit to its place while the zeros preserve empty places.",
+          "The second error shifts the digit four one place to the left. Shifting it right reduces the value tenfold.",
+          "The third error misreads the deciding digit. The remainder eighteen is less than five hundred, so choose the lower thousand."
         ],
       },
       "on_correct": {
@@ -1999,19 +2013,34 @@ const CONTENT = {
     "audio": {
       "intro": {
         "ru": [
-          "В каждом классе три разряда. Место цифры определяет её значение и помогает выполнять все изученные действия."
+          "В каждом классе три разряда: сотни, десятки и единицы.",
+          "Один шаг цифры влево увеличивает её значение в десять раз.",
+          "Чтение, разложение, сравнение и округление опираются на разрядные значения."
         ],
         "uz": [
-          "Har bir sinfda uchta xona bor. Raqam o'rni uning qiymatini belgilaydi va barcha o'rganilgan harakatlarga yordam beradi."
+          "Har bir sinfda uchta xona bor: yuzlik, o'nlik va birlik.",
+          "Raqam chapga bir xona siljiganda uning qiymati o'n marta ortadi.",
+          "O'qish, yoyish, taqqoslash va yaxlitlashning barchasi xona qiymatlariga tayanadi."
         ],
         "en": [
-          "There are three places in each class. The place of a digit determines its value and supports every action learned today."
+          "Each class has three places: hundreds, tens and ones.",
+          "Moving a digit one place to the left makes its value ten times greater.",
+          "Reading, expanded form, comparison and rounding all rely on place value."
         ],
       },
       "on_correct": {
-        "ru": "Следующий шаг покажет, чем позиционная запись отличается от непозиционной системы счисления.",
-        "uz": "Keyingi qadam pozitsion yozuv nopozitsion sanoq sistemasidan qanday farq qilishini ko'rsatadi.",
-        "en": "Correct. The next step will show how a positional numeral system differs from a non-positional one.",
+        "ru": [
+          "В позиционной записи значение цифры зависит от её места. Эта связь объединяет все действия урока.",
+          "На следующем уроке сравним позиционные и непозиционные системы счисления."
+        ],
+        "uz": [
+          "Pozitsion yozuvda raqam qiymati uning o'rniga bog'liq. Shu bog'lanish darsdagi barcha harakatlarni birlashtiradi.",
+          "Keyingi darsda pozitsion va nopozitsion sanoq sistemalarini taqqoslaymiz."
+        ],
+        "en": [
+          "In positional notation, a digit's value depends on its place. This link connects every action in the lesson.",
+          "In the next lesson, we will compare positional and non-positional numeral systems."
+        ],
       }
     }
   }
@@ -2030,7 +2059,7 @@ const PRACTICE_CONTENT = {
   p5: makeMicroPractice({ eyebrow: { ru: 'Практика 5', uz: '5-mashq' , en: "Practice 5"}, title: { ru: 'Округляем пакет', uz: 'Paketni yaxlitlaymiz', en: "Rounding the packet" }, lead: { ru: 'Для тысяч решение принимает цифра сотен.', uz: 'Mingliklar uchun qarorni yuzlar xonasidagi raqam beradi.', en: "For the nearest thousand, the hundreds digit makes the decision." }, instruction: { ru: 'Чему равно 306 450 при округлении до тысяч?', uz: '306 450 soni mingliklargacha yaxlitlanganda nechaga teng?', en: "What is 306,450 when rounded to the nearest thousand?" }, options: ['306 000', '307 000', '306 500'], correctIndex: 0, correctText: { ru: 'Цифра сотен 4, поэтому округляем вниз до 306 000.', uz: 'Yuzlar xonasida 4, shuning uchun pastga, 306 000 gacha yaxlitlaymiz.', en: "The hundreds digit is 4, so round down to 306,000." }, wrong: [null, { ru: 'При цифре 4 округляем вниз.', uz: '4 raqamida pastga yaxlitlaymiz.', en: "When the deciding digit is 4, round down." }, { ru: 'Нужно округлить до тысяч, поэтому справа три нуля.', uz: 'Mingliklargacha yaxlitlaymiz, shuning uchun o\'ngda uchta nol bo\'ladi.', en: "Round to the nearest thousand, so the result needs three zeros on the right." }], audioIntro: { ru: 'Округли триста шесть тысяч четыреста пятьдесят до тысяч.', uz: 'Uch yuz olti ming to\'rt yuz ellik sonini mingliklargacha yaxlitlang.', en: "Round three hundred and six thousand four hundred and fifty to the nearest thousand." }, correctAudio: { ru: 'Верно. Четыре сотни оставляют триста шесть тысяч.', uz: 'To\'g\'ri. To\'rt yuzlik uch yuz olti mingni saqlab qoladi.', en: "Correct. A hundreds digit of four rounds the number down to three hundred and six thousand." }, wrongAudio: { ru: 'Проверь цифру сотен и количество нулей справа.', uz: 'Yuzlar xonasidagi raqamni va o\'ngdagi nollar sonini tekshiring.', en: "Check the hundreds digit and the number of zeros on the right." } }),
   p6: makeMicroPractice({
     eyebrow: { ru: 'Городской перенос', uz: 'Shahar vaziyati', en: 'City transfer' },
-    title: { ru: 'Пакет годового табло музея', uz: 'Muzeyning yillik tablo paketi', en: 'Museum annual dashboard packet' },
+    title: { ru: 'Направь музейный пакет', uz: "Muzey paketini yo'naltiring", en: 'Route the museum packet' },
     lead: {
       ru: 'Музей Lumo City зарегистрировал 430 205 посетителей. Архиву нужна точная развёрнутая запись, а общему табло — число, округлённое до сотен.',
       uz: 'Lumo City muzeyi 430 205 nafar tashrifchini qayd etdi. Arxivga aniq yoyiq yozuv, umumiy tabloda esa yuzliklargacha yaxlitlangan son kerak.',
@@ -2078,7 +2107,7 @@ const SCREEN_PLAN = [
   { id: 's11', type: 'rule', subtype: 'integrated-error', template: 'ErrorRepair', goal: 'Explain linked place-value errors', misconceptions: ['zeros optional'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's12', contentKey: 's6', type: 'strategy', subtype: 'integrated-strategy', template: 'RuleBuilder', goal: 'Build and choose the complete integrated workflow', misconceptions: ['partial workflow'], active: true, scored: false, scope: null, resetOnReturn: true },
   { id: 's13', contentKey: 'p6', type: 'case', subtype: 'life-transfer-packet', template: 'MCScreen', goal: 'Transfer the workflow to a complete real-world data packet', misconceptions: ['expansion or rounding shifted'], active: true, scored: true, scope: 'final', resetOnReturn: false },
-  { id: 's14', type: 'summary', subtype: 'positional-bridge', template: 'ReflectionClaim', goal: 'Summarize place structure', misconceptions: ['value independent of position'], active: true, scored: false, scope: null, resetOnReturn: false },
+  { id: 's14', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'title-claim', goal: 'Summarize place structure and claim the title', misconceptions: ['value independent of position'], active: true, scored: false, scope: null, resetOnReturn: false },
 ];
 
 const SCREEN_META = SCREEN_PLAN.map((meta) => ({ ...meta, contentKey: meta.contentKey ?? meta.id }));
@@ -2095,6 +2124,7 @@ const LESSON_META = {
     en: "Lesson 6: Places and number classes",
   },
   skillTags: ['classes_and_places', 'tenfold_shift', 'class_boundary', 'representation_invariant', 'read_write', 'expanded_form', 'comparison', 'rounding', 'integrated_packet', 'solution_lab'],
+  finalReflectionRequired: false,
   notionFlow: NOTION_FLOW,
 };
 
@@ -2435,6 +2465,41 @@ const localizedSegments = (audioValue, lang, prefix) => {
   return values.filter(Boolean).map((text, index) => ({ id: `${prefix}-${index}`, text }));
 };
 
+const stripStepNumber = (text) => String(text ?? '').replace(/^\s*\d+[.)]\s*/, '');
+
+function useAudioSegmentReveal(audio, segments, count) {
+  const [visible, setVisible] = useState(0);
+  const reducedMotion = typeof window !== 'undefined'
+    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  const fallback = reducedMotion || audio.muted || audio.completed;
+  const segmentIds = segments.map((segment) => segment.id);
+  const activeIndex = segmentIds.indexOf(audio.currentSegment);
+
+  useEffect(() => {
+    if (fallback) {
+      const frame = requestAnimationFrame(() => setVisible(count));
+      return () => cancelAnimationFrame(frame);
+    }
+    if (activeIndex >= 0) {
+      const frame = requestAnimationFrame(() => setVisible(Math.min(count, activeIndex + 1)));
+      return () => cancelAnimationFrame(frame);
+    }
+    return undefined;
+  }, [activeIndex, count, fallback]);
+
+  const replay = useCallback(() => {
+    if (!reducedMotion && !audio.muted) setVisible(0);
+    audio.replay();
+  }, [audio, reducedMotion]);
+
+  const toggleMute = useCallback(() => {
+    setVisible(audio.muted ? 0 : count);
+    audio.toggleMute();
+  }, [audio, count]);
+
+  return { visible, replay, toggleMute };
+}
+
 function useCanAnswer(audio) {
   return audio.muted || audio.completed;
 }
@@ -2458,10 +2523,20 @@ const playSfx = (kind) => {
   }
 };
 
-const buildOptionOrder = (length, correctIndex, seed = 0) => {
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
   const natural = Array.from({ length }, (_, index) => index);
   if (length < 2 || !natural.includes(correctIndex)) return natural;
-  const target = Math.abs(seed * 3 + 1) % length;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
   const order = natural.filter((index) => index !== correctIndex);
   order.splice(target, 0, correctIndex);
   return order;
@@ -2669,6 +2744,7 @@ const ScreenTypeLabel = ({ type }) => {
     diagnostic: lang === 'en' ? "Diagnostic" : lang === 'ru' ? 'Диагностика' : 'Diagnostika',
     exploration: lang === 'en' ? "Exploration" : lang === 'ru' ? 'Исследование' : 'Kashfiyot',
     rule: lang === 'en' ? "Rule" : lang === 'ru' ? 'Правило' : 'Qoida',
+    strategy: lang === 'en' ? "Strategy" : lang === 'ru' ? 'Стратегия' : 'Strategiya',
     practice: lang === 'en' ? "Practice" : lang === 'ru' ? 'Практика' : 'Mashq',
     test: lang === 'en' ? "Check" : lang === 'ru' ? 'Проверка' : 'Tekshiruv',
     case: lang === 'en' ? "Problem" : lang === 'ru' ? 'Задача' : 'Vazifa',
@@ -2840,18 +2916,14 @@ const NavBack = ({ onClick, hidden = false }) => {
 
 const NavNext = ({ onClick, disabled, finish = false, label }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled, finish);
   return (
-    <button type="button" className={`btn btn-white-accent ${!disabled ? 'btn-ready' : ''}`} disabled={disabled} onClick={onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} disabled={isDisabled} aria-disabled={isDisabled} onClick={onClick}>
       {label ?? (finish ? (lang === 'en' ? "Finish lesson" : lang === 'ru' ? 'Завершить урок' : 'Darsni yakunlash') : (lang === 'en' ? "Continue" : lang === 'ru' ? 'Дальше' : 'Davom etish'))}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
   );
 };
-
-const THEORY_BIT_STATES = [
-  'awkward', 'present', 'think', 'point', 'idea', 'focus', 'point', 'present',
-  'idea', 'nod', 'focus', 'present', 'think', 'awkward', 'happy',
-];
 
 const formatTheoryResult = (value, t) => {
   const localized = t(value);
@@ -2859,10 +2931,14 @@ const formatTheoryResult = (value, t) => {
   return localized;
 };
 
-const TheoryCallout = ({ screen, result, children, tone = 'cyan' }) => {
+const TheoryCallout = ({ screen, result, children, tone = 'cyan', className = '', ariaHidden }) => {
   const lang = useLang();
   return (
-    <section className={`theory-callout theory-callout-${tone}`} style={{ '--reveal-i': screen % 4 }}>
+    <section
+      className={`theory-callout theory-callout-${tone} ${className}`.trim()}
+      style={{ '--reveal-i': screen % 4 }}
+      aria-hidden={ariaHidden}
+    >
       <div className="theory-callout-mark" aria-hidden="true">{tone === 'warn' ? '!' : '✓'}</div>
       <div className="theory-callout-copy">
         <span>{lang === 'en' ? "EXPLANATION" : lang === 'ru' ? 'ОБЪЯСНЕНИЕ' : 'TUSHUNTIRISH'}</span>
@@ -2904,30 +2980,150 @@ const PacketSolutionLab = ({ screen, content, t }) => {
   );
 };
 
-function useFinaleReveal(count = 4, interval = 500) {
-  const [visible, setVisible] = useState(0);
-  useEffect(() => {
-    const reduced = typeof window !== 'undefined'
-      && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced) {
-      const frame = requestAnimationFrame(() => setVisible(count));
-      return () => cancelAnimationFrame(frame);
-    }
-    const resetFrame = requestAnimationFrame(() => setVisible(0));
-    const timers = Array.from({ length: count }, (_, index) => (
-      window.setTimeout(() => setVisible(index + 1), 300 + index * interval)
-    ));
-    return () => {
-      cancelAnimationFrame(resetFrame);
-      timers.forEach((timer) => window.clearTimeout(timer));
-    };
-  }, [count, interval]);
-  return visible;
-}
+const COMPARISON_ROUNDING_UI = {
+  compare: { uz: '1 · TAQQOSLASH', ru: '1 · СРАВНЕНИЕ', en: '1 · COMPARE' },
+  round: { uz: '2 · YAXLITLASH', ru: '2 · ОКРУГЛЕНИЕ', en: '2 · ROUND' },
+  numberLine: {
+    uz: "704 000 dan 705 000 gacha yaxlitlash kesmasi. 704 018 nuqta 704 500 o'rta nuqtadan chapda va 704 000 ga yaqin.",
+    ru: 'Отрезок округления от 704 000 до 705 000. Точка 704 018 левее середины 704 500 и ближе к 704 000.',
+    en: 'Rounding segment from 704,000 to 705,000. The point 704,018 is left of the midpoint 704,500 and closer to 704,000.',
+  },
+};
 
-const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson, titleClaimed = false, onClaimTitle, reflectionChoice = null, onReflectionChoice }) => {
-  const [revealNow, setRevealNow] = useState(false);
-  const [reflection, setReflection] = useState(reflectionChoice);
+const COMPARISON_ROUNDING_VALUES = Object.freeze({
+  compared: ['704 018', '699 950'],
+  lower: '704 000',
+  value: '704 018',
+  midpoint: '704 500',
+  upper: '705 000',
+  position: '1.8%',
+});
+
+const ComparisonRoundingBoard = ({ content }) => {
+  const t = useT();
+  const values = COMPARISON_ROUNDING_VALUES;
+
+  return (
+    <div className="comparison-main-frame" data-g4-role="visual-frame" aria-label={t(content.instruction)}>
+      <header className="comparison-main-heading">
+        <span>{t(content.model.badge)}</span>
+        <strong>{t(content.instruction)}</strong>
+      </header>
+
+      <div className="comparison-board-grid">
+        <article className="comparison-step-card comparison-step-compare">
+          <span className="comparison-step-label">{t(COMPARISON_ROUNDING_UI.compare)}</span>
+          <div className="comparison-equation" aria-label={`${values.compared[0]} > ${values.compared[1]}`}>
+            <strong aria-hidden="true"><mark>7</mark><span>04 018</span></strong>
+            <i aria-hidden="true">&gt;</i>
+            <strong aria-hidden="true"><mark>6</mark><span>99 950</span></strong>
+          </div>
+          <div className="comparison-first-difference">
+            <span>{t(content.model.rows[1].label)}</span>
+            <strong>{t(content.model.rows[1].value)}</strong>
+          </div>
+        </article>
+
+        <article className="comparison-step-card comparison-step-round">
+          <header className="comparison-rounding-heading">
+            <span className="comparison-step-label">{t(COMPARISON_ROUNDING_UI.round)}</span>
+            <div>
+              <small>{t(content.model.rows[2].label)}</small>
+              <strong>{t(content.model.rows[2].value)}</strong>
+            </div>
+          </header>
+
+          <div className="comparison-rounding-line" role="img" aria-label={t(COMPARISON_ROUNDING_UI.numberLine)}>
+            <span className="comparison-line-point comparison-line-lower" aria-hidden="true"><i /><b>{values.lower}</b></span>
+            <span className="comparison-line-point comparison-line-midpoint" aria-hidden="true"><i /><b>{values.midpoint}</b></span>
+            <span className="comparison-line-point comparison-line-upper" aria-hidden="true"><i /><b>{values.upper}</b></span>
+            <span className="comparison-line-given" style={{ '--comparison-position': values.position }} aria-hidden="true"><b>{values.value}</b><i /></span>
+          </div>
+
+          <div className="comparison-rounding-result">
+            <span>{t(content.model.rows[3].label)}</span>
+            <strong>{values.value} ≈ {t(content.model.rows[3].value)}</strong>
+          </div>
+        </article>
+      </div>
+    </div>
+  );
+};
+
+const REPAIR_FLOW_UI = {
+  wrong: { uz: 'XATO', ru: 'ОШИБКА', en: 'ERROR' },
+  fixed: { uz: "TO'G'RI", ru: 'ВЕРНО', en: 'FIXED' },
+};
+
+const ErrorRepairBoard = ({ screen, content, result, visible = Number.POSITIVE_INFINITY }) => {
+  const t = useT();
+
+  return (
+    <section className="repair-flow">
+      <div className="repair-flow-board" data-g4-role="visual-frame" aria-label={t(content.instruction)}>
+        {content.repairs.map((repair, index) => (
+          <article
+            className={`repair-flow-row audio-reveal-item ${visible >= index + 1 ? 'is-visible' : ''}`}
+            key={`${repair.before}-${index}`}
+            data-g4-reveal-step={index + 1}
+            data-g4-reveal-visible={visible >= index + 1 ? 'true' : 'false'}
+            aria-hidden={visible < index + 1}
+            aria-label={`${t(repair.label)}. ${repair.before}. ${t(repair.text)} ${repair.after}.`}
+          >
+            <span className="repair-flow-index">{String(index + 1).padStart(2, '0')}</span>
+            <div className="repair-flow-value repair-flow-before" aria-hidden="true">
+              <small>{t(REPAIR_FLOW_UI.wrong)}</small>
+              <s>{repair.before}</s>
+            </div>
+            <i className="repair-flow-arrow" aria-hidden="true">→</i>
+            <div className="repair-flow-value repair-flow-after" aria-hidden="true">
+              <small>{t(REPAIR_FLOW_UI.fixed)}</small>
+              <strong>{repair.after}</strong>
+            </div>
+            <b className="repair-flow-label">{t(repair.label)}</b>
+          </article>
+        ))}
+      </div>
+      <TheoryCallout
+        screen={screen}
+        result={result}
+        tone="cyan"
+        className={`audio-reveal-item ${visible >= content.repairs.length + 1 ? 'is-visible' : ''}`}
+        ariaHidden={visible < content.repairs.length + 1}
+      >
+        {t(content.correctText)}
+      </TheoryCallout>
+    </section>
+  );
+};
+
+const MUSEUM_PACKET_UI = {
+  archive: { uz: 'ARXIV · YOYIQ YOZUV', ru: 'АРХИВ · РАЗЛОЖЕНИЕ', en: 'ARCHIVE · EXPANDED' },
+  dashboard: { uz: 'TABLO · YUZLIKKACHA', ru: 'ТАБЛО · ДО СОТЕН', en: 'DASHBOARD · NEAREST HUNDRED' },
+};
+
+const PacketChoiceOption = ({ option }) => {
+  const t = useT();
+  const parts = String(t(option)).split(';').map((part) => part.trim());
+  const roundedMatch = parts[2]?.match(/[0-9][0-9\s,]*$/);
+  const cells = [
+    { key: 'archive', label: MUSEUM_PACKET_UI.archive, value: parts[1] },
+    { key: 'dashboard', label: MUSEUM_PACKET_UI.dashboard, value: roundedMatch?.[0]?.trim() ?? parts[2] },
+  ];
+
+  return (
+    <span className="packet-choice-grid" aria-hidden="true">
+      {cells.map((cell) => (
+        <span className={`packet-choice-cell packet-choice-cell-${cell.key}`} key={cell.key}>
+          <i>{t(cell.label)}</i>
+          <b>{cell.value}</b>
+        </span>
+      ))}
+    </span>
+  );
+};
+
+const FinaleScreen = ({ screen, storedAnswer, answers = [], onAnswer, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
   const c = CONTENT.s14;
@@ -2936,101 +3132,115 @@ const FinaleScreen = ({ screen, answers = [], onPrev, finishLesson, titleClaimed
     ...localizedSegments(c.audio?.on_correct ?? c.correctText, lang, 's14-finale-result'),
   ], [c.audio, c.correctText, lang]);
   const audio = useAudio(segments);
-  const visible = useFinaleReveal(4, 500);
+  const reveal = useAudioSegmentReveal(audio, segments, 5);
+  const syncedAudio = { ...audio, replay: reveal.replay, toggleMute: reveal.toggleMute };
+  const visible = reveal.visible;
   const scoredIndexes = useMemo(
     () => SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null),
     [],
   );
   const firstTry = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
-  const complete = visible >= 4;
   const totalScored = scoredIndexes.length;
-  const reduced = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const finalState = complete || audio.completed || audio.muted || reduced;
-  const rewardTitle = firstTry === totalScored
-    ? { ru: 'Эксперт по числам', uz: 'Sonlar eksperti', en: "Expert on numbers" }
+  const complete = visible >= 5;
+  const rewardTitle = useMemo(() => firstTry === totalScored
+    ? { ru: 'Эксперт по числам', uz: 'Sonlar eksperti', en: 'Expert on numbers' }
     : firstTry >= Math.max(1, totalScored - 1)
-      ? { ru: 'Мастер числовой системы', uz: 'Sonlar tizimi ustasi', en: "Number-system master" }
-      : { ru: 'Исследователь данных', uz: "Ma'lumotlar tadqiqotchisi", en: "Data explorer" };
-  const reflectionCopy = ({
-    uz: { question: "Qaysi ko'nikma sizda eng ishonchli?", options: ["Sonni sinflar bo'yicha o'qish", "Xona qiymatini topish", "Ko'rinishlarni bog'lash"], wait: "Avval bitta xulosani tanlang" },
-    ru: { question: 'Какой навык у тебя самый уверенный?', options: ['Читать число по классам', 'Находить разрядное значение', 'Связывать формы числа'], wait: 'Сначала выбери один вывод' },
-    en: { question: 'Which skill feels most secure?', options: ['Reading by classes', 'Finding place value', 'Connecting number forms'], wait: 'Choose one reflection first' },
-  })[lang];
-  const claimTitle = () => {
-    if (!finalState || reflection === null || titleClaimed) return;
-    onClaimTitle?.();
-    setRevealNow(true);
-  };
-  const chooseReflection = (index) => {
-    if (titleClaimed) return;
-    setReflection(index);
-    onReflectionChoice?.(index);
-  };
+      ? { ru: 'Мастер числовой системы', uz: 'Sonlar tizimi ustasi', en: 'Number-system master' }
+      : { ru: 'Исследователь данных', uz: "Ma'lumotlar tadqiqotchisi", en: 'Data explorer' }, [firstTry, totalScored]);
+  const emitTitleClaim = useCallback(() => {
+    onAnswer?.({
+      stage: null,
+      screenIdx: screen,
+      question: t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' }),
+      options: null,
+      correctIndex: null,
+      correctAnswer: null,
+      studentAnswerIndex: null,
+      studentAnswer: t(rewardTitle),
+      correct: true,
+      firstTry: true,
+      attempts: 1,
+      solved: true,
+      titleClaimed: true,
+    });
+  }, [onAnswer, rewardTitle, screen, t]);
+  const { titleClaimed, canClaimTitle, revealRequested, claimTitle } = useGrade4TitleClaim({
+    storedAnswer,
+    audio: syncedAudio,
+    onClaim: emitTitleClaim,
+  });
 
   return (
-    <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}>
-      <div className="screen-stack finale-screen">
-        <G4TitleReveal active={titleClaimed} playNow={revealNow} title={t(rewardTitle)} lang={lang} />
-        <style>{G4_TITLE_STYLES}</style>
-        <header className="finale-heading">
-          <span>{lang === 'en' ? "FINAL STAGE" : lang === 'ru' ? 'ФИНАЛЬНЫЙ ЭТАП' : 'YAKUNIY BOSQICH'}</span>
-          <h1>{t(c.title)}</h1>
-          <p>{lang === 'en' ? "The 704,018 data pack from the start of the lesson is complete. Classes, places and values are connected, so the Lumo City route is open." : lang === 'ru' ? 'Пакет данных 704 018 из начала урока полностью собран. Классы, разряды и значения связаны — маршрут Lumo City открыт.' : "Dars boshidagi 704 018 ma'lumot paketi to'liq yig'ildi. Sinf, xona va qiymat bog'langani uchun Lumo City yo'nalishi ochildi."}</p>
-        </header>
-        <div className="finale-layout">
-          <div className="finale-main">
-            <div className="finale-mastery">
-              {c.model.steps.map((item, index) => (
-                <article className={`finale-takeaway ${visible >= index + 1 ? 'is-visible' : ''}`} key={t(item)}><span>{String(index + 1).padStart(2, '0')}</span><p>{t(item)}</p></article>
-              ))}
-            </div>
-            <div className={`finale-proof ${visible >= 3 ? 'is-visible' : ''}`}>
-              <span>{lang === 'en' ? "OPENING MISSION SOLUTION" : lang === 'ru' ? 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ' : "BOSHLANG'ICH MISSIYA YECHIMI"}</span><strong>{t(c.model.number)}</strong><p>{t(c.correctText)}</p>
-            </div>
-            <div className={`finale-bridge ${complete ? 'is-visible' : ''}`}><span aria-hidden="true">→</span><div><strong>{lang === 'en' ? "NEXT MISSION" : lang === 'ru' ? 'СЛЕДУЮЩАЯ МИССИЯ' : 'KEYINGI MISSIYA'}</strong><p>{t(c.bridge)}</p></div></div>
-          </div>
-          {!titleClaimed && (
-            <div className="final-reflection" data-g4-mechanic="ReflectionClaim" data-g4-role="reflection">
-              <span>{reflectionCopy.question}</span>
-              <div>{reflectionCopy.options.map((option, index) => <button type="button" key={option} className={reflection === index ? 'reflection-active' : ''} aria-pressed={reflection === index} disabled={titleClaimed} onClick={() => chooseReflection(index)}>{option}</button>)}</div>
-              <button type="button" className="btn-white-accent g4-title-claim" data-g4-role="title-claim" disabled={!finalState || reflection === null} onClick={claimTitle} aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}>
-                <span aria-hidden="true">★</span>
-                <strong>{!finalState
-                  ? t({ uz: "Yakuniy tushuntirishni tinglang", ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })
-                  : reflection === null
-                    ? reflectionCopy.wait
-                    : t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}</strong>
-              </button>
-            </div>
-          )}
-          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} />}
-        </div>
-      </div>
+    <Stage screen={screen} eyebrow={c.eyebrow} audio={titleClaimed ? { ...syncedAudio, completed: true } : syncedAudio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} disabled={!titleClaimed} finish /></>}>
+      <style>{G4_TITLE_STYLES}</style>
+      <Grade4Finale
+        lang={lang}
+        heading={{
+          eyebrow: t({ uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' }),
+          title: t(c.title),
+          lead: t(c.lead),
+        }}
+        takeaways={c.model.steps.slice(0, 3).map(t)}
+        proof={{
+          label: t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'OPENING MISSION SOLUTION' }),
+          value: t(c.model.number),
+          text: t(c.correctText),
+        }}
+        bridge={{
+          label: t({ uz: 'KEYINGI MISSIYA', ru: 'СЛЕДУЮЩАЯ МИССИЯ', en: 'NEXT MISSION' }),
+          text: t(c.bridge),
+          terminal: false,
+        }}
+        visible={visible}
+        complete={complete}
+        revealSteps={{ proof: 4, bridge: 5 }}
+        canClaimTitle={canClaimTitle}
+        titleClaimed={titleClaimed}
+        onClaimTitle={claimTitle}
+        claimLabel={t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' })}
+        pendingLabel={t({ uz: 'Avval yakuniy xulosani tinglang', ru: 'Сначала дослушайте итог', en: 'Listen to the summary first' })}
+        renderTitleReveal={() => <G4TitleReveal active={titleClaimed} playNow={revealRequested} title={t(rewardTitle)} lang={lang} />}
+        renderTitleCard={() => <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTry} totalScored={totalScored} canFinish={titleClaimed} />}
+        bitSlot={null}
+        medalTier={firstTry === totalScored ? 'gold' : firstTry >= Math.max(1, totalScored - 1) ? 'silver' : 'bronze'}
+      />
     </Stage>
   );
 };
-
-const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
+const TheoryScreen = ({ screen, contentKey, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
-  const c = CONTENT[`s${screen}`];
+  const c = CONTENT[contentKey ?? `s${screen}`];
   const meta = SCREEN_META[screen];
   const isFinal = screen === TOTAL_SCREENS - 1;
   const resultSource = c.result ?? c.correctValue ?? c.options?.[c.correctIndex];
   const result = resultSource ? formatTheoryResult(resultSource, t) : '';
+  const isRuleBuilder = meta.template === 'RuleBuilder';
+  const isErrorRepair = meta.template === 'ErrorRepair' && Array.isArray(c.repairs);
   const segments = useMemo(() => [
     ...localizedSegments(c.audio?.intro ?? c.audio, lang, `s${screen}-intro`),
     ...localizedSegments(c.audio?.on_correct, lang, `s${screen}-explanation`),
   ], [c.audio, lang, screen]);
   const audio = useAudio(segments);
+  const revealCount = isErrorRepair
+    ? c.repairs.length + 1
+    : isRuleBuilder
+      ? c.model.steps.length + 1
+      : 0;
+  const audioReveal = useAudioSegmentReveal(audio, segments, revealCount);
+  const syncedAudio = revealCount > 0
+    ? { ...audio, replay: audioReveal.replay, toggleMute: audioReveal.toggleMute }
+    : audio;
   const canContinue = useCanAnswer(audio);
   const isFoundation = meta.template === 'FoundationTheory' || meta.template === 'RecapTheory';
-  const isRule = meta.template === 'RuleReveal';
+  const isRule = ['RuleReveal', 'RuleBuilder'].includes(meta.template);
   const isStrategy = meta.template === 'StrategyTheory';
-  const isError = meta.template === 'ErrorWalkthrough';
+  const isError = ['ErrorWalkthrough', 'ErrorRepair'].includes(meta.template);
   const isPacketLab = meta.template === 'PacketSolutionLab';
   const isSummary = meta.template === 'SummaryTheory';
+  const isRepresentation = meta.template === 'RepresentationBuilder';
+  const isComparison = meta.template === 'CompareScanner';
+  const isWorkedPacket = meta.template === 'RoundingDecision';
 
   const proceed = () => {
     if (isFinal) finishLesson();
@@ -3040,18 +3250,15 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
     <Stage
       screen={screen}
       eyebrow={c.eyebrow}
-      audio={audio}
+      audio={syncedAudio}
       nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={proceed} disabled={!canContinue} finish={isFinal} /></>}
     >
       <div className={`screen-stack theory-screen theory-screen-${meta.template.toLowerCase()}`}>
-        <div className="screen-heading">
+        <div className="screen-heading screen-heading-no-bit">
           <div className="heading-copy">
             <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · KNOWLEDGE LAB' : lang === 'ru' ? 'LUMO CITY · ЛАБОРАТОРИЯ ЗНАНИЙ' : 'LUMO CITY · BILIM LABORATORIYASI'}</span>
             <h1>{t(c.title)}</h1>
             <p>{t(c.lead)}</p>
-          </div>
-          <div className={`bit-coach bit-coach-${THEORY_BIT_STATES[screen]}`} data-g4-role="visual-frame">
-            <BitSVG state={THEORY_BIT_STATES[screen]} />
           </div>
         </div>
 
@@ -3066,9 +3273,9 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
           </div>
         )}
 
-        {!isFoundation && !isSummary && !isPacketLab && <ModelPanel model={c.model} theory />}
+        {!isFoundation && !isSummary && !isPacketLab && !isRule && !isStrategy && !isError && !isRepresentation && !isComparison && !isWorkedPacket && <ModelPanel model={c.model} theory />}
 
-        {!isFoundation && !isRule && !isStrategy && !isError && !isPacketLab && !isSummary && (
+        {!isFoundation && !isRule && !isStrategy && !isError && !isPacketLab && !isSummary && !isRepresentation && !isComparison && !isWorkedPacket && (
           <div className="animated-explanation">
             <div className="theory-focus">
               <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
@@ -3078,13 +3285,62 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
           </div>
         )}
 
+        {isRepresentation && (
+          <section className="representation-walkthrough">
+            <ModelPanel model={c.model} theory />
+            <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
+          </section>
+        )}
+
+        {isComparison && (
+          <section className="comparison-walkthrough">
+            <ComparisonRoundingBoard content={c} />
+            <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
+          </section>
+        )}
+
+        {isWorkedPacket && (
+          <section className="worked-packet-walkthrough">
+            <div className="worked-example-grid worked-packet-grid">
+              {c.model.rows.map((row, index) => (
+                <article className="worked-example" key={`${t(row.label)}-${index}`} style={{ '--reveal-i': index }}>
+                  <div className="worked-index">{String(index + 1).padStart(2, '0')}</div>
+                  <div className="worked-copy">
+                    <span>{lang === 'en' ? 'PACKET STEP' : lang === 'ru' ? 'ШАГ ПАКЕТА' : 'PAKET QADAMI'}</span>
+                    <h2>{t(row.label)}</h2>
+                    <strong>{t(row.value)}</strong>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
+          </section>
+        )}
+
         {isRule && (
           <section className="rule-reveal">
-            <div className="rule-ribbon"><span>1</span><b>{lang === 'en' ? "Split into classes and read" : lang === 'ru' ? 'Раздели на классы и прочитай' : "Sinflarga ajrating va o'qing"}</b></div>
-            <div className="rule-ribbon"><span>2</span><b>{lang === 'en' ? "Expand by place value" : lang === 'ru' ? 'Разложи по разрядным значениям' : 'Xona qiymatlariga yoying'}</b></div>
-            <div className="rule-ribbon"><span>3</span><b>{lang === 'en' ? "Compare from left to right" : lang === 'ru' ? 'Сравни слева направо' : "Chapdan taqqoslang"}</b></div>
-            <div className="rule-ribbon"><span>4</span><b>{lang === 'en' ? "Round to the required place" : lang === 'ru' ? 'Округли до нужной точности' : 'Kerakli aniqlikkacha yaxlitlang'}</b></div>
-            <TheoryCallout screen={screen} result={result}>{t(c.correctText)}</TheoryCallout>
+            {c.model.steps.map((step, index) => {
+              const isVisible = !isRuleBuilder || audioReveal.visible >= index + 1;
+              return (
+                <div
+                  className={`rule-ribbon ${isRuleBuilder ? 'audio-reveal-item' : ''} ${isVisible ? 'is-visible' : ''}`.trim()}
+                  key={`${t(step)}-${index}`}
+                  data-g4-reveal-step={isRuleBuilder ? index + 1 : undefined}
+                  data-g4-reveal-visible={isRuleBuilder ? (isVisible ? 'true' : 'false') : undefined}
+                  aria-hidden={isRuleBuilder ? !isVisible : undefined}
+                >
+                  <span>{index + 1}</span><b>{isRuleBuilder ? stripStepNumber(t(step)) : t(step)}</b>
+                </div>
+              );
+            })}
+            <TheoryCallout
+              screen={screen}
+              result={result}
+              className={isRuleBuilder ? `audio-reveal-item ${audioReveal.visible >= c.model.steps.length + 1 ? 'is-visible' : ''}` : ''}
+              ariaHidden={isRuleBuilder ? audioReveal.visible < c.model.steps.length + 1 : undefined}
+            >
+              {t(c.correctText)}
+            </TheoryCallout>
           </section>
         )}
 
@@ -3103,18 +3359,7 @@ const TheoryScreen = ({ screen, onNext, onPrev, finishLesson }) => {
           </section>
         )}
 
-        {isError && c.repairs && (
-          <section className="multi-error-lab">
-            {c.repairs.map((repair, index) => (
-              <article className="repair-card" key={`${repair.before}-${index}`} style={{ '--reveal-i': index }}>
-                <span>{t(repair.label)}</span>
-                <div><s>{repair.before}</s><i aria-hidden="true">→</i><strong>{repair.after}</strong></div>
-                <p>{t(repair.text)}</p>
-              </article>
-            ))}
-            <TheoryCallout screen={screen} result={result} tone="cyan">{t(c.correctText)}</TheoryCallout>
-          </section>
-        )}
+        {isError && c.repairs && <ErrorRepairBoard screen={screen} content={c} result={result} visible={audioReveal.visible} />}
 
         {isError && !c.repairs && (
           <section className="error-walkthrough">
@@ -3197,12 +3442,11 @@ const WorkedExamplesScreen = ({ screen, onNext, onPrev }) => {
   );
 };
 
-const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
+const ChoiceScreen = ({ screen, contentKey, figure, choiceOrdinal, storedAnswer, onAnswer, onNext, onPrev, finishLesson }) => {
   const lang = useLang();
   const t = useT();
   const c = PRACTICE_CONTENT[contentKey] ?? CONTENT[contentKey ?? `s${screen}`];
-  const resetOnReturn = SCREEN_META[screen].resetOnReturn === true;
-  const restorableAnswer = resetOnReturn ? null : storedAnswer;
+  const restorableAnswer = storedAnswer;
   const restored = restorableAnswer?.solved === true;
   const [picked, setPicked] = useState(restorableAnswer?.studentAnswerIndex ?? null);
   const [solved, setSolved] = useState(restored);
@@ -3216,7 +3460,7 @@ const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNe
   const canAnswer = useCanAnswer(audio);
   const canAdvance = useAdvanceGate(solved, audio);
   const isFinal = screen === TOTAL_SCREENS - 1;
-  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, screen);
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, choiceOrdinal);
 
   const choose = (index) => {
     if (!canAnswer || solved || wrongIndices.has(index)) return;
@@ -3284,8 +3528,9 @@ const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNe
     : picked !== null
       ? `${t(c.wrong?.[picked])} ${retryCopy}`
       : '';
+  const isMuseumPacket = screen === 13 && contentKey === 'p6';
   const answerCards = (
-    <div className="options-grid">
+    <div className={`options-grid ${screen === 13 ? 'options-grid-compact-single' : ''} ${isMuseumPacket ? 'museum-packet-options' : ''}`}>
       {optionOrder.map((sourceIndex, displayIndex) => {
         const option = c.options[sourceIndex];
         const isWrong = wrongIndices.has(sourceIndex);
@@ -3293,16 +3538,18 @@ const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNe
         return (
           <button
             type="button"
-            className={`option ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
+            className={`option ${isMuseumPacket ? 'museum-packet-option' : ''} ${isWrong ? 'option-picked-wrong' : ''} ${isCorrect ? 'option-correct' : ''} ${solved && !isCorrect ? 'option-dismissed' : ''}`}
             key={`${t(option)}-${sourceIndex}`}
             data-g4-role={isHook ? 'answer-card' : undefined}
             data-g4-branch="choice"
+            data-g4-source-index={sourceIndex}
             data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+            aria-label={isMuseumPacket ? `${String.fromCharCode(65 + displayIndex)}. ${t(option)}` : undefined}
             disabled={!canAnswer || solved || isWrong}
             onClick={() => choose(sourceIndex)}
           >
             <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
-            <span>{t(option)}</span>
+            {isMuseumPacket ? <PacketChoiceOption option={option} /> : <span>{t(option)}</span>}
           </button>
         );
       })}
@@ -3321,7 +3568,7 @@ const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNe
       audio={audio}
       nav={<><NavBack onClick={onPrev} hidden={screen === 0} /><NavNext onClick={proceed} disabled={!canAdvance} finish={isFinal} /></>}
     >
-      <div className={`screen-stack ${isHook ? 'etalon-hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
+      <div className={`screen-stack choice-slide-${screen + 1} ${isHook ? 'etalon-hook-screen' : ''}`} data-g4-screen={isHook ? 'hook' : undefined}>
         {isHook ? (
           <>
             <div className="topic-chip" data-g4-role="hook-topic">{t(c.eyebrow)}</div>
@@ -3335,21 +3582,32 @@ const ChoiceScreen = ({ screen, contentKey, figure, storedAnswer, onAnswer, onNe
           </>
         ) : (
           <>
-            <div className="screen-heading">
+            <div className="screen-heading screen-heading-no-bit">
               <div className="heading-copy">
                 <span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · DATA CENTRE' : lang === 'ru' ? 'LUMO CITY · ЦЕНТР ДАННЫХ' : "LUMO CITY · MA'LUMOT MARKAZI"}</span>
                 <h1>{t(c.title)}</h1>
                 <p>{t(c.lead)}</p>
               </div>
-              <div className="bit-coach" data-g4-role="visual-frame"><BitSVG state={solved ? 'nod' : picked !== null ? 'think' : 'present'} /></div>
             </div>
-            <ModelPanel model={c.model} solved={solved} />
-            <section className="question-card" aria-labelledby={`question-${screen}`}>
-              <div className="question-topline">
-                <span>{lang === 'en' ? "YOUR DECISION" : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
-                {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
-              </div>
-              <h2 id={`question-${screen}`}>{t(c.instruction)}</h2>
+            {!isMuseumPacket && <ModelPanel model={c.model} solved={solved} />}
+            <section className={`question-card ${isMuseumPacket ? 'museum-packet-question' : ''}`} aria-labelledby={`question-${screen}`}>
+              {!isMuseumPacket && (
+                <div className="question-topline">
+                  <span>{lang === 'en' ? "YOUR DECISION" : lang === 'ru' ? 'ТВОЁ РЕШЕНИЕ' : 'SIZNING QARORINGIZ'}</span>
+                  {!canAnswer && <small>{lang === 'en' ? "Listen to the full explanation first" : lang === 'ru' ? 'Сначала дослушай объяснение' : 'Avval tushuntirishni tinglang'}</small>}
+                </div>
+              )}
+              <h2 id={`question-${screen}`}>
+                {isMuseumPacket && <span className="museum-question-number">430 205</span>}
+                <span>{t(c.instruction)}</span>
+                {isMuseumPacket && !canAnswer && (
+                  <small className="museum-audio-gate">{t({
+                    uz: 'Avval tushuntirishni tinglang.',
+                    ru: 'Сначала дослушай объяснение.',
+                    en: 'Listen to the explanation first.',
+                  })}</small>
+                )}
+              </h2>
               {answerCards}
               {answerFeedback}
             </section>
@@ -3525,8 +3783,8 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
   };
   return (
     <Stage screen={screen} eyebrow={c.eyebrow} audio={audio} nav={<><NavBack onClick={onPrev} /><NavNext onClick={onNext} disabled={!canAdvance} /></>}>
-      <div className="screen-stack micro-theory-screen" data-g4-mechanic={meta.template}>
-        <div className="screen-heading"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div><div className="bit-coach bit-coach-theory" data-g4-role="visual-frame"><BitSVG state="point" /></div></div>
+      <div className={`screen-stack micro-theory-screen micro-theory-slide-${screen + 1}`} data-g4-mechanic={meta.template}>
+        <div className="screen-heading screen-heading-no-bit"><div className="heading-copy"><span className="lesson-kicker">{lang === 'en' ? 'LUMO CITY · ONE STEP' : lang === 'ru' ? 'LUMO CITY · ОДИН ШАГ' : 'LUMO CITY · BIR QADAM'}</span><h1>{t(c.title)}</h1><p>{t(c.lead)}</p></div></div>
         <section className="micro-theory-card">
           <span>{lang === 'en' ? "OBSERVATION" : lang === 'ru' ? 'НАБЛЮДЕНИЕ' : 'KUZATUV'}</span>
           {example && <strong className="micro-theory-example">{t(example)}</strong>}
@@ -3543,9 +3801,12 @@ const MicroTheoryScreen = ({ screen, contentKey, onNext, onPrev }) => {
               <button type="button" className={step >= 1 ? 'micro-action-active' : ''} disabled={!canInteract || step >= 1} onClick={() => advanceStep(1)}>{meta.template === 'ErrorRepair' ? copy.next : copy.reveal}</button>
             )}
           </div>
-          <div className={`micro-theory-result ${step >= requiredStep ? 'micro-theory-result-visible' : ''}`} data-g4-role="visual-frame" aria-live="polite">
+          <div className={`micro-theory-result ${step >= requiredStep ? 'micro-theory-result-visible' : ''} ${screen === 3 ? 'micro-theory-result-plus-two' : ''}`} data-g4-role="visual-frame" aria-live="polite">
             <BitSVG state={step >= requiredStep ? 'nod' : 'think'} />
-            <p>{step >= requiredStep && explanation ? t(explanation) : copy.waiting}</p>
+            <div className="micro-theory-result-copy">
+              {step >= requiredStep && c.revealValue && <strong className="micro-theory-reveal-value">{t(c.revealValue)}</strong>}
+              <p>{step >= requiredStep && explanation ? t(explanation) : copy.waiting}</p>
+            </div>
           </div>
         </section>
       </div>
@@ -3560,20 +3821,20 @@ const screenFigure = (screen) => {
   return null;
 };
 
-const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" figure={screenFigure(0)} />;
+const Screen0 = (props) => <ChoiceScreen {...props} contentKey="s0" figure={screenFigure(0)} choiceOrdinal={0} />;
 const Screen1 = (props) => <MicroTheoryScreen {...props} contentKey="s3" />;
-const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" />;
+const Screen2 = (props) => <ChoiceScreen {...props} contentKey="p1" choiceOrdinal={0} />;
 const Screen3 = (props) => <MicroTheoryScreen {...props} contentKey="s1" />;
-const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" />;
-const Screen5 = (props) => <MicroTheoryScreen {...props} contentKey="s4" />;
-const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" />;
-const Screen7 = (props) => <MicroTheoryScreen {...props} contentKey="s5" />;
-const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" />;
-const Screen9 = (props) => <MicroTheoryScreen {...props} contentKey="s7" />;
-const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" />;
-const Screen11 = (props) => <MicroTheoryScreen {...props} contentKey="s11" />;
-const Screen12 = (props) => <MicroTheoryScreen {...props} contentKey="s6" />;
-const Screen13 = (props) => <ChoiceScreen {...props} contentKey="p6" />;
+const Screen4 = (props) => <ChoiceScreen {...props} contentKey="p2" choiceOrdinal={1} />;
+const Screen5 = (props) => <TheoryScreen {...props} contentKey="s4" />;
+const Screen6 = (props) => <ChoiceScreen {...props} contentKey="p3" choiceOrdinal={2} />;
+const Screen7 = (props) => <TheoryScreen {...props} contentKey="s5" />;
+const Screen8 = (props) => <ChoiceScreen {...props} contentKey="p4" choiceOrdinal={3} />;
+const Screen9 = (props) => <TheoryScreen {...props} contentKey="s7" />;
+const Screen10 = (props) => <ChoiceScreen {...props} contentKey="p5" choiceOrdinal={4} />;
+const Screen11 = (props) => <TheoryScreen {...props} contentKey="s11" />;
+const Screen12 = (props) => <TheoryScreen {...props} contentKey="s6" />;
+const Screen13 = (props) => <ChoiceScreen {...props} contentKey="p6" choiceOrdinal={5} />;
 const Screen14 = (props) => <FinaleScreen {...props} />;
 
 // Kept as approved visual references while the compact, no-scroll flow is active.
@@ -3599,8 +3860,6 @@ export default function Grade4Dars06({ studentName, lang: langProp, ttsApiBase, 
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [titleClaimed, setTitleClaimed] = useState(false);
-  const [finalReflection, setFinalReflection] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- duration requires a mount timestamp
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -3665,10 +3924,6 @@ export default function Grade4Dars06({ studentName, lang: langProp, ttsApiBase, 
           onNext={next}
           onPrev={previous}
           finishLesson={finishLesson}
-          titleClaimed={titleClaimed}
-          onClaimTitle={() => setTitleClaimed(true)}
-          reflectionChoice={finalReflection}
-          onReflectionChoice={setFinalReflection}
         />
       </div>
     </LangContext.Provider>
@@ -3826,7 +4081,7 @@ html, body { margin: 0; padding: 0; }
   overflow: visible;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .stage-content > .screen-stack { max-height: 100%; transform-origin: top center; }
 .screen-stack.etalon-hook-screen { min-height: 100%; gap: 8px; }
@@ -3911,7 +4166,10 @@ html, body { margin: 0; padding: 0; }
 .micro-theory-result { min-height: 76px; padding: 8px 12px; display: grid; grid-template-columns: 54px minmax(0,1fr); align-items: center; gap: 10px; border-radius: 14px; color: ${T.ink2}; background: #F3F5F2; box-shadow: inset 4px 0 0 ${T.warn}; transition: background .55s ease, box-shadow .55s ease; }
 .micro-theory-result-visible { color: ${T.success}; background: ${T.successSoft}; box-shadow: inset 4px 0 0 ${T.success}; }
 .micro-theory-result .g1-char { width: 52px; height: 65px; }
+.micro-theory-result-copy { min-width: 0; display: grid; gap: 5px; }
+.micro-theory-reveal-value { color: ${T.navy}; font: 850 clamp(20px, 3.4vw, 29px)/1.15 'JetBrains Mono', monospace; overflow-wrap: anywhere; }
 .micro-theory-result p { color: inherit; font-size: 12px; line-height: 1.4; font-weight: 750; }
+.micro-theory-result-plus-two p { font-size: 14px; }
 .stage-nav {
   flex: 0 0 auto;
   min-height: 72px;
@@ -3962,6 +4220,7 @@ html, body { margin: 0; padding: 0; }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 .screen-heading { display: grid; grid-template-columns: minmax(0,1fr) 118px; align-items: center; gap: 20px; }
+.screen-heading-no-bit { grid-template-columns: minmax(0,1fr); }
 .heading-copy { min-width: 0; }
 .lesson-kicker {
   display: inline-block;
@@ -4236,6 +4495,247 @@ html, body { margin: 0; padding: 0; }
   min-height: 0;
 }
 .animated-explanation > .theory-focus { padding: 14px 16px; }
+.representation-walkthrough,
+.worked-packet-walkthrough {
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(240px, .75fr);
+  align-items: stretch;
+  gap: 10px;
+}
+.representation-walkthrough > .model-panel,
+.representation-walkthrough > .theory-callout,
+.worked-packet-walkthrough > .theory-callout {
+  min-height: 0;
+}
+.comparison-walkthrough { display: grid; gap: 10px; }
+.comparison-main-frame {
+  width: 100%;
+  min-width: 0;
+  padding: 13px 14px;
+  display: grid;
+  gap: 9px;
+  border: 1px solid rgba(22,143,163,.18);
+  border-radius: 19px;
+  color: ${T.navy};
+  background:
+    radial-gradient(circle at 84% 16%, rgba(255,255,255,.76), transparent 27%),
+    linear-gradient(145deg, #F2FBFC, ${T.cyanSoft});
+  box-shadow: inset 0 0 0 1px rgba(22,143,163,.05), 0 15px 32px -25px rgba(23,59,82,.42);
+}
+.comparison-main-heading {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+.comparison-main-heading > span,
+.comparison-step-label {
+  color: ${T.cyan};
+  font: 900 9px/1 'JetBrains Mono', monospace;
+  letter-spacing: .11em;
+  text-transform: uppercase;
+}
+.comparison-main-heading > strong {
+  min-width: 0;
+  color: ${T.ink2};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 13px;
+  font-weight: 720;
+  line-height: 1.25;
+  text-align: right;
+}
+.comparison-board-grid {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(220px, .82fr) minmax(0, 1.35fr);
+  align-items: stretch;
+  gap: 10px;
+}
+.comparison-step-card {
+  min-width: 0;
+  min-height: 142px;
+  padding: 11px 12px;
+  border: 1px solid rgba(22,143,163,.11);
+  border-radius: 15px;
+  background: rgba(255,255,255,.82);
+  box-shadow: 0 9px 20px -18px rgba(${T.shadowBase},.38);
+}
+.comparison-step-compare {
+  display: grid;
+  align-content: center;
+  gap: 10px;
+}
+.comparison-equation {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+.comparison-equation > strong {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  color: ${T.navy};
+  font: 850 clamp(17px, 2.25vw, 23px)/1 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.comparison-equation > strong:last-child { justify-content: flex-end; }
+.comparison-equation mark {
+  min-width: 1.15em;
+  margin-right: 2px;
+  padding: 3px 2px;
+  border-radius: 7px;
+  color: ${T.paper};
+  background: ${T.cyan};
+  text-align: center;
+}
+.comparison-equation > i {
+  color: ${T.accent};
+  font: 900 22px/1 'JetBrains Mono', monospace;
+  font-style: normal;
+}
+.comparison-first-difference,
+.comparison-rounding-result {
+  min-width: 0;
+  min-height: 31px;
+  padding: 5px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border-radius: 10px;
+  background: ${T.cyanSoft};
+}
+.comparison-first-difference > span,
+.comparison-rounding-result > span {
+  min-width: 0;
+  color: ${T.ink2};
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.15;
+}
+.comparison-first-difference > strong {
+  flex: 0 0 auto;
+  color: ${T.cyan};
+  font: 900 15px/1 'JetBrains Mono', monospace;
+}
+.comparison-step-round {
+  display: grid;
+  grid-template-rows: auto 72px auto;
+  gap: 4px;
+}
+.comparison-rounding-heading {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 9px;
+}
+.comparison-rounding-heading > div {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 7px;
+}
+.comparison-rounding-heading small {
+  min-width: 0;
+  color: ${T.ink2};
+  font-size: 8px;
+  font-weight: 750;
+  line-height: 1.1;
+  text-align: right;
+}
+.comparison-rounding-heading strong {
+  flex: 0 0 auto;
+  color: ${T.accent};
+  font: 900 12px/1 'JetBrains Mono', monospace;
+}
+.comparison-rounding-line {
+  position: relative;
+  min-width: 0;
+  height: 72px;
+  margin: 32px 48px 0;
+  border-top: 3px solid rgba(23,59,82,.43);
+}
+.comparison-line-point {
+  position: absolute;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  transform: translateX(-50%);
+}
+.comparison-line-point > i {
+  display: block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid ${T.cyan};
+  border-radius: 50%;
+  background: ${T.paper};
+  box-shadow: 0 0 0 2px rgba(22,143,163,.13);
+}
+.comparison-line-point > b {
+  position: absolute;
+  top: 26px;
+  left: 50%;
+  width: max-content;
+  color: ${T.ink2};
+  font: 800 9px/1 'JetBrains Mono', monospace;
+  transform: translateX(-50%);
+}
+.comparison-line-lower { left: 0; }
+.comparison-line-midpoint { left: 50%; }
+.comparison-line-upper { left: 100%; }
+.comparison-line-lower > i { border-color: ${T.success}; background: ${T.lime}; box-shadow: 0 0 0 2px rgba(34,122,83,.15), 0 0 12px rgba(149,201,61,.3); }
+.comparison-line-lower > b { color: ${T.success}; }
+.comparison-line-midpoint > i { width: 3px; height: 18px; margin-left: 8px; border: 0; border-radius: 2px; background: ${T.accent}; box-shadow: none; }
+.comparison-line-given {
+  position: absolute;
+  top: -32px;
+  left: var(--comparison-position);
+  width: 2px;
+  height: 32px;
+  border-radius: 2px;
+  background: ${T.navy};
+}
+.comparison-line-given > b {
+  position: absolute;
+  left: 0;
+  bottom: 10px;
+  width: max-content;
+  padding: 4px 6px;
+  border-radius: 7px;
+  color: ${T.navy};
+  background: ${T.paper};
+  box-shadow: 0 7px 16px -12px rgba(${T.shadowBase},.55);
+  font: 850 9px/1 'JetBrains Mono', monospace;
+  transform: translateX(-10px);
+}
+.comparison-line-given > i {
+  position: absolute;
+  left: 50%;
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+  border: 2px solid ${T.navy};
+  border-radius: 50%;
+  background: ${T.accent};
+  box-shadow: 0 0 0 3px rgba(255,91,53,.14);
+  transform: translateX(-50%);
+}
+.comparison-rounding-result {
+  background: ${T.successSoft};
+}
+.comparison-rounding-result > strong {
+  flex: 0 0 auto;
+  color: ${T.success};
+  font: 900 13px/1 'JetBrains Mono', monospace;
+  white-space: nowrap;
+}
+.worked-packet-grid { align-content: start; }
+.worked-packet-grid .worked-example { min-height: 112px; }
 .theory-callout {
   min-height: 112px;
   padding: 14px 16px 14px 10px;
@@ -4274,6 +4774,22 @@ html, body { margin: 0; padding: 0; }
 .theory-callout-copy > p { color: ${T.ink2}; font-size: 13px; line-height: 1.45; }
 .theory-callout-cyan { border-color: rgba(22,143,163,.16); background: linear-gradient(135deg, ${T.paper}, ${T.cyanSoft}); }
 .theory-callout-cyan .theory-callout-mark { background: ${T.cyan}; }
+.audio-reveal-item {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  filter: blur(2px);
+  pointer-events: none;
+  animation: none !important;
+  transition: opacity .38s ease, transform .42s cubic-bezier(.16,1,.3,1), filter .35s ease;
+}
+.audio-reveal-item.is-visible {
+  opacity: 1;
+  visibility: visible;
+  transform: none;
+  filter: none;
+  pointer-events: auto;
+}
 .rule-reveal {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -4517,6 +5033,7 @@ html, body { margin: 0; padding: 0; }
   box-shadow: inset 0 0 0 2px rgba(34,122,83,.28), 0 8px 20px -12px rgba(34,122,83,.35);
 }
 .options-grid { margin-top: 16px; display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+.options-grid-compact-single { grid-template-columns: 1fr; gap: 7px; margin-top: 10px; }
 .option {
   min-height: 58px;
   padding: 11px 14px;
@@ -4533,6 +5050,8 @@ html, body { margin: 0; padding: 0; }
   box-shadow: inset 0 0 0 1px rgba(135,148,157,.16), 0 6px 16px -10px rgba(${T.shadowBase},.22);
   transition: transform .18s ease, background .18s ease, box-shadow .18s ease, opacity .18s ease;
 }
+.options-grid-compact-single .option { min-height: 46px; padding: 7px 10px; gap: 8px; font-size: 11px; line-height: 1.28; }
+.options-grid-compact-single .option-letter { width: 28px; height: 28px; border-radius: 9px; font-size: 10px; }
 .option:hover:not(:disabled) { transform: translateY(-1px); background: ${T.accentSoft}; box-shadow: inset 0 0 0 1px rgba(255,91,53,.24), 0 10px 20px -12px rgba(255,91,53,.34); }
 .option:disabled { cursor: default; }
 .option-letter { width: 32px; height: 32px; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; border-radius: 10px; background: ${T.paper}; color: ${T.cyan}; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 900; box-shadow: 0 4px 12px -8px rgba(${T.shadowBase},.3); }
@@ -4564,9 +5083,11 @@ html, body { margin: 0; padding: 0; }
 }
 @media (max-width: 760px) {
   .screen-heading { grid-template-columns: minmax(0,1fr) 94px; }
+  .screen-heading.screen-heading-no-bit { grid-template-columns: minmax(0,1fr); }
   .bit-coach { width: 94px; height: 102px; }
   .bit-coach .g1-char { width: 78px; height: 100px; }
-  .foundation-layout, .summary-core { grid-template-columns: 1fr; }
+  .foundation-layout, .summary-core, .representation-walkthrough, .worked-packet-walkthrough { grid-template-columns: 1fr; }
+  .theory-screen-comparescanner .comparison-board-grid { grid-template-columns: minmax(0, 1fr); }
   .foundation-layout > .model-panel, .summary-core .model-panel, .summary-core .theory-callout { min-height: 0; }
   .rule-reveal { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .options-grid { grid-template-columns: 1fr; }
@@ -4609,6 +5130,7 @@ html, body { margin: 0; padding: 0; }
   .etalon-hook-screen .option { min-height: 54px; padding: 7px 8px; font-size: 11px; }
   .micro-action-row button { min-height: 44px; }
   .screen-heading { grid-template-columns: minmax(0,1fr) 76px; gap: 8px; }
+  .screen-heading.screen-heading-no-bit { grid-template-columns: minmax(0,1fr); }
   .heading-copy h1 { font-size: 27px; }
   .heading-copy p { margin-top: 7px; font-size: 13px; line-height: 1.4; }
   .lesson-kicker { margin-bottom: 5px; font-size: 9px; }
@@ -4734,6 +5256,7 @@ html, body { margin: 0; padding: 0; }
   .screen-stack { animation: none !important; transform: none !important; }
   .feedback, .feedback * { transition: none !important; }
   .feedback-visible, .feedback-visible * { opacity: 1 !important; visibility: visible !important; }
+  .audio-reveal-item { filter: none !important; transition: none !important; }
   .finale-takeaway,.finale-proof,.finale-bridge { opacity: 1 !important; transform: none !important; }
   .finale-confetti { display: none; }
 }
@@ -4888,5 +5411,455 @@ html, body { margin: 0; padding: 0; }
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]{position:relative!important;overflow:hidden!important}
 :is(.lesson-root,.d8-root) [data-g4-role~="feedback-bit"]>svg{
   position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important
+}
+/* Dars06 finale: proof and next-mission rows stay at their content height. */
+.lesson-root .g4-shared-finale .finale-layout{
+  align-content:start!important
+}
+.lesson-root .g4-shared-finale .finale-proof,
+.lesson-root .g4-shared-finale .finale-bridge{
+  align-self:start!important;padding-block:6px!important
+}
+/* Dars06 rebuilt theory boards: compact only where the fixed lesson stage needs it. */
+@media(max-width:639.98px){
+  .theory-screen{gap:6px!important}
+  .theory-screen .screen-heading{gap:5px}
+  .theory-screen .heading-copy .lesson-kicker{font-size:8px;line-height:1.1}
+  .theory-screen .heading-copy h1{font-size:20px;line-height:1.05}
+  .theory-screen .heading-copy p{margin-top:2px;font-size:11px!important;line-height:1.2}
+  .theory-screen .theory-callout{grid-template-columns:30px minmax(0,1fr);gap:6px;padding:6px 7px}
+  .theory-screen .theory-callout-mark{width:30px;height:30px;font-size:15px}
+  .theory-screen .theory-callout strong{font-size:11px;line-height:1.15}
+  .theory-screen .theory-callout p{margin-top:1px;font-size:9px;line-height:1.2}
+
+  .theory-screen-comparescanner .comparison-walkthrough{gap:6px}
+  .theory-screen-comparescanner .comparison-main-frame{padding:7px;gap:5px;border-radius:14px}
+  .theory-screen-comparescanner .comparison-main-heading{grid-template-columns:minmax(0,1fr);gap:2px}
+  .theory-screen-comparescanner .comparison-main-heading>span{font-size:7px}
+  .theory-screen-comparescanner .comparison-main-heading>strong{font-size:9px;line-height:1.18;text-align:left}
+  .theory-screen-comparescanner .comparison-board-grid{grid-template-columns:minmax(0,1fr);gap:5px}
+  .theory-screen-comparescanner .comparison-step-card{min-height:0;padding:6px 7px;border-radius:11px}
+  .theory-screen-comparescanner .comparison-step-compare{gap:4px}
+  .theory-screen-comparescanner .comparison-step-label{font-size:7px}
+  .theory-screen-comparescanner .comparison-equation{gap:5px}
+  .theory-screen-comparescanner .comparison-equation>strong{font-size:15px}
+  .theory-screen-comparescanner .comparison-equation mark{padding:2px;border-radius:5px}
+  .theory-screen-comparescanner .comparison-equation>i{font-size:17px}
+  .theory-screen-comparescanner .comparison-first-difference,
+  .theory-screen-comparescanner .comparison-rounding-result{min-height:25px;padding:3px 6px;gap:5px}
+  .theory-screen-comparescanner .comparison-first-difference>span,
+  .theory-screen-comparescanner .comparison-rounding-result>span{font-size:7px}
+  .theory-screen-comparescanner .comparison-first-difference>strong{font-size:11px}
+  .theory-screen-comparescanner .comparison-step-round{grid-template-rows:auto 58px auto;gap:2px}
+  .theory-screen-comparescanner .comparison-rounding-heading{gap:5px}
+  .theory-screen-comparescanner .comparison-rounding-heading>div{gap:4px}
+  .theory-screen-comparescanner .comparison-rounding-heading small{font-size:7px}
+  .theory-screen-comparescanner .comparison-rounding-heading strong{font-size:9px}
+  .theory-screen-comparescanner .comparison-rounding-line{height:58px;margin:27px 38px 0}
+  .theory-screen-comparescanner .comparison-line-point{top:-7px;width:14px;height:14px}
+  .theory-screen-comparescanner .comparison-line-point>i{width:14px;height:14px;border-width:2px}
+  .theory-screen-comparescanner .comparison-line-point>b{top:20px;font-size:9px}
+  .theory-screen-comparescanner .comparison-line-midpoint>i{width:3px;height:14px;margin-left:6px;border:0}
+  .theory-screen-comparescanner .comparison-line-given{top:-27px;height:27px}
+  .theory-screen-comparescanner .comparison-line-given>b{bottom:8px;padding:3px 4px;font-size:9px;transform:translateX(-7px)}
+  .theory-screen-comparescanner .comparison-line-given>i{bottom:-5px;width:10px;height:10px;border-width:2px}
+  .theory-screen-comparescanner .comparison-rounding-result>strong{font-size:9px}
+
+  .theory-screen-roundingdecision .worked-packet-walkthrough{gap:5px}
+  .theory-screen-roundingdecision .worked-packet-grid{gap:4px}
+  .theory-screen-roundingdecision .worked-example{min-height:0;padding:5px;gap:4px}
+  .theory-screen-roundingdecision .worked-index{width:24px;height:24px;font-size:10px}
+  .theory-screen-roundingdecision .worked-copy{gap:3px}
+  .theory-screen-roundingdecision .worked-copy h2{font-size:9px;line-height:1.1}
+  .theory-screen-roundingdecision .worked-copy strong{font-size:10px;line-height:1.15}
+
+  .theory-screen-errorrepair .multi-error-lab{gap:4px}
+  .theory-screen-errorrepair .repair-card{min-height:0;padding:5px;gap:3px}
+  .theory-screen-errorrepair .repair-card>span{font-size:7px;line-height:1.1}
+  .theory-screen-errorrepair .repair-card>div{gap:4px;font-size:11px;line-height:1.1}
+  .theory-screen-errorrepair .repair-card p{font-size:8px;line-height:1.18}
+
+  .theory-screen-rulebuilder .rule-reveal{grid-template-columns:repeat(2,minmax(0,1fr));gap:4px}
+  .theory-screen-rulebuilder .rule-ribbon{min-height:44px;padding:5px;gap:5px}
+  .theory-screen-rulebuilder .rule-ribbon span{width:25px;height:25px;font-size:10px}
+  .theory-screen-rulebuilder .rule-ribbon b{font-size:9px;line-height:1.14}
+  .theory-screen-rulebuilder .rule-reveal>.theory-callout{grid-column:1/-1}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .theory-screen .heading-copy h1{font-size:18px}
+  .theory-screen .heading-copy p{font-size:10px!important;line-height:1.15}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:800px){
+  .etalon-hook-screen .feedback-visible{margin-top:0}
+  .choice-slide-14 .options-grid-compact-single{gap:4px}
+  .choice-slide-14 .options-grid-compact-single .option{min-height:44px;padding-block:6px}
+  .choice-slide-14 .feedback-visible{margin-top:0}
+}
+/* Slide 6: the two explanation frames form one aligned, breathing vertical stack. */
+.theory-screen-representationbuilder .representation-walkthrough{
+  grid-template-columns:minmax(0,1fr);
+  gap:12px;
+}
+.theory-screen-representationbuilder .representation-walkthrough>.model-panel,
+.theory-screen-representationbuilder .representation-walkthrough>.theory-callout{
+  width:100%;
+}
+.theory-screen-representationbuilder .model-panel{
+  display:grid;
+  gap:9px;
+  padding:13px 17px;
+  color:${T.navy};
+  background:linear-gradient(145deg,${T.cyanSoft},${T.paper});
+  box-shadow:0 15px 34px -20px rgba(22,143,163,.48);
+}
+.theory-screen-representationbuilder .model-panel::after{
+  background:rgba(22,143,163,.11);
+}
+.theory-screen-representationbuilder .model-heading{
+  margin-bottom:0;
+  color:${T.cyan};
+  font-size:10px;
+}
+.theory-screen-representationbuilder .model-number{
+  color:${T.navy};
+  font-size:clamp(30px,5vw,40px);
+  line-height:1;
+}
+.theory-screen-representationbuilder .place-table{
+  gap:8px;
+}
+.theory-screen-representationbuilder .place-cell{
+  min-height:58px;
+  padding:6px 4px;
+  justify-content:center;
+  gap:3px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.46);
+}
+.theory-screen-representationbuilder .place-cell span{
+  min-height:18px;
+  color:${T.ink2};
+  font-size:8px;
+}
+.theory-screen-representationbuilder .place-cell strong{
+  color:${T.navy};
+  font-size:22px;
+  line-height:1;
+}
+.theory-screen-representationbuilder .model-rows{
+  grid-template-columns:minmax(0,1fr);
+  gap:7px;
+}
+.theory-screen-representationbuilder .model-rows>div{
+  min-height:42px;
+  padding:6px 12px;
+  display:grid;
+  grid-template-columns:minmax(96px,.22fr) minmax(0,1fr);
+  gap:12px;
+  background:rgba(255,255,255,.82);
+  box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.46);
+}
+.theory-screen-representationbuilder .model-rows span{
+  color:${T.cyan};
+  font-size:10px;
+}
+.theory-screen-representationbuilder .model-rows strong,
+.theory-screen-representationbuilder .model-rows-dense strong{
+  max-width:none;
+  color:${T.navy};
+  font-size:14px;
+  line-height:1.2;
+  text-align:right;
+}
+.theory-screen-representationbuilder .theory-callout{
+  min-height:70px;
+  padding:8px 12px;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:9px;
+}
+.theory-screen-representationbuilder .theory-callout-mark{
+  width:34px;
+  height:34px;
+  border-radius:11px;
+  font-size:16px;
+}
+.theory-screen-representationbuilder .theory-callout-copy{
+  gap:2px;
+}
+.theory-screen-representationbuilder .theory-callout-copy>strong{
+  font-size:14px;
+  line-height:1.15;
+}
+.theory-screen-representationbuilder .theory-callout-copy>p{
+  font-size:11px;
+  line-height:1.25;
+}
+@media(max-width:1100px) and (max-height:800px){
+  .theory-screen-representationbuilder .representation-walkthrough{gap:10px}
+  .theory-screen-representationbuilder .model-panel{gap:7px;padding:10px 14px}
+  .theory-screen-representationbuilder .place-cell{min-height:52px;padding-block:4px}
+  .theory-screen-representationbuilder .model-rows>div{min-height:38px;padding-block:4px}
+  .theory-screen-representationbuilder .theory-callout{min-height:64px;padding-block:6px}
+}
+@media(max-width:639.98px){
+  .theory-screen-representationbuilder .representation-walkthrough{gap:8px}
+  .theory-screen-representationbuilder .model-panel{gap:6px;padding:7px}
+  .theory-screen-representationbuilder .model-heading{font-size:8px}
+  .theory-screen-representationbuilder .model-number{font-size:22px}
+  .theory-screen-representationbuilder .place-table{gap:4px}
+  .theory-screen-representationbuilder .place-cell{min-height:40px;padding:3px 1px}
+  .theory-screen-representationbuilder .place-cell span{min-height:14px;font-size:6px}
+  .theory-screen-representationbuilder .place-cell strong{font-size:15px}
+  .theory-screen-representationbuilder .model-rows{gap:5px}
+  .theory-screen-representationbuilder .model-rows>div{
+    min-height:32px;
+    padding:3px 6px;
+    grid-template-columns:minmax(70px,.25fr) minmax(0,1fr);
+    gap:6px;
+  }
+  .theory-screen-representationbuilder .model-rows span{font-size:8px}
+  .theory-screen-representationbuilder .model-rows strong,
+  .theory-screen-representationbuilder .model-rows-dense strong{font-size:10px;line-height:1.15}
+  .theory-screen-representationbuilder .theory-callout{
+    min-height:0;
+    padding:6px 7px;
+    grid-template-columns:30px minmax(0,1fr);
+    gap:6px;
+  }
+  .theory-screen-representationbuilder .theory-callout-mark{width:30px;height:30px;font-size:15px}
+  .theory-screen-representationbuilder .theory-callout-copy>strong{font-size:11px}
+  .theory-screen-representationbuilder .theory-callout-copy>p{font-size:9px;line-height:1.2}
+}
+
+/* Slide 10: the packet uses the full row; its explanation sits underneath. */
+.theory-screen-roundingdecision .worked-packet-walkthrough{
+  grid-template-columns:minmax(0,1fr);
+  align-items:start;
+  gap:10px;
+}
+.theory-screen-roundingdecision .worked-packet-grid{
+  width:100%;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+.theory-screen-roundingdecision .worked-example{
+  min-height:86px;
+  padding:9px 11px;
+  grid-template-columns:34px minmax(0,1fr);
+  align-items:center;
+  gap:8px;
+}
+.theory-screen-roundingdecision .worked-index{
+  width:34px;
+  height:34px;
+  border-radius:11px;
+  font-size:10px;
+}
+.theory-screen-roundingdecision .worked-copy{gap:3px}
+.theory-screen-roundingdecision .worked-copy>span{font-size:8px}
+.theory-screen-roundingdecision .worked-copy h2{font-size:12px;line-height:1.18}
+.theory-screen-roundingdecision .worked-copy>strong{
+  font-size:clamp(11px,1.55vw,14px);
+  line-height:1.24;
+  overflow-wrap:anywhere;
+}
+.theory-screen-roundingdecision .worked-packet-walkthrough>.theory-callout{
+  width:100%;
+  min-height:78px;
+}
+
+/* Slide 12: one compact diagnostic lane replaces three text-heavy cards. */
+.theory-screen-errorrepair .repair-flow{
+  display:grid;
+  gap:9px;
+}
+.theory-screen-errorrepair .repair-flow-board{
+  padding:11px;
+  display:grid;
+  gap:7px;
+  border-radius:20px;
+  color:${T.navy};
+  background:
+    radial-gradient(circle at 90% 12%,rgba(255,255,255,.74),transparent 25%),
+    linear-gradient(145deg,#F2FBFC,${T.cyanSoft});
+  box-shadow:0 16px 34px -24px rgba(22,143,163,.48);
+}
+.theory-screen-errorrepair .repair-flow-row{
+  min-width:0;
+  min-height:54px;
+  padding:7px 10px;
+  display:grid;
+  grid-template-columns:28px minmax(0,.82fr) 24px minmax(0,.82fr) minmax(150px,1.25fr);
+  align-items:center;
+  gap:8px;
+  border:0;
+  border-radius:12px;
+  background:rgba(255,255,255,.82);
+  box-shadow:inset 0 0 0 1px rgba(22,143,163,.12),0 8px 20px -18px rgba(${T.shadowBase},.30);
+}
+.theory-screen-errorrepair .repair-flow-index{
+  width:28px;
+  height:28px;
+  display:grid;
+  place-items:center;
+  border-radius:9px;
+  color:${T.paper};
+  background:${T.cyan};
+  font:900 9px/1 'JetBrains Mono',monospace;
+}
+.theory-screen-errorrepair .repair-flow-value{
+  min-width:0;
+  display:grid;
+  gap:3px;
+}
+.theory-screen-errorrepair .repair-flow-value small{
+  color:${T.ink3};
+  font:900 7px/1 'JetBrains Mono',monospace;
+  letter-spacing:.1em;
+}
+.theory-screen-errorrepair .repair-flow-value s,
+.theory-screen-errorrepair .repair-flow-value strong{
+  font:900 clamp(13px,1.8vw,16px)/1.1 'JetBrains Mono',monospace;
+  white-space:nowrap;
+}
+.theory-screen-errorrepair .repair-flow-value s{
+  color:${T.warn};
+  text-decoration-color:${T.warn};
+  text-decoration-thickness:2px;
+}
+.theory-screen-errorrepair .repair-flow-value strong{color:${T.success}}
+.theory-screen-errorrepair .repair-flow-arrow{
+  color:${T.accent};
+  font-style:normal;
+  font-size:18px;
+  font-weight:900;
+  text-align:center;
+}
+.theory-screen-errorrepair .repair-flow-label{
+  min-width:0;
+  color:${T.ink2};
+  font-size:10px;
+  line-height:1.25;
+}
+.theory-screen-errorrepair .repair-flow>.theory-callout{
+  width:100%;
+  min-height:76px;
+}
+
+/* Slide 14: approve one structured museum data packet. */
+.choice-slide-14 .museum-packet-question{
+  padding:14px 16px;
+  background:${T.cyanSoft};
+}
+.choice-slide-14 .museum-packet-question>h2{
+  margin-top:0;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:baseline;
+  gap:4px 9px;
+  font-size:clamp(15px,2.2vw,19px);
+  line-height:1.2;
+}
+.choice-slide-14 .museum-question-number{
+  flex:0 0 auto;
+  color:${T.cyan};
+  font:900 clamp(17px,2.4vw,21px)/1 'JetBrains Mono',monospace;
+  white-space:nowrap;
+}
+.choice-slide-14 .museum-packet-question>h2>span:nth-child(2){
+  min-width:240px;
+  flex:1;
+}
+.choice-slide-14 .museum-audio-gate{
+  flex:0 0 100%;
+  color:${T.warn};
+  font-size:9px;
+  font-weight:800;
+  line-height:1.2;
+}
+.choice-slide-14 .museum-packet-options{
+  gap:6px;
+  margin-top:8px;
+}
+.choice-slide-14 .museum-packet-option{
+  min-height:58px;
+  padding:7px 10px;
+  align-items:stretch;
+  gap:9px;
+}
+.choice-slide-14 .museum-packet-option>.option-letter{align-self:center}
+.choice-slide-14 .packet-choice-grid{
+  min-width:0;
+  flex:1;
+  display:grid;
+  grid-template-columns:minmax(0,1.7fr) minmax(110px,.72fr);
+  gap:10px;
+}
+.choice-slide-14 .packet-choice-cell{
+  min-width:0;
+  padding:2px 4px;
+  display:grid;
+  align-content:center;
+  gap:3px;
+}
+.choice-slide-14 .packet-choice-cell+ .packet-choice-cell{
+  padding-left:12px;
+  border-left:1px solid rgba(22,143,163,.15);
+}
+.choice-slide-14 .packet-choice-cell-dashboard i{color:${T.success}}
+.choice-slide-14 .packet-choice-cell i{
+  color:${T.cyan};
+  font:900 8px/1.12 'JetBrains Mono',monospace;
+  font-style:normal;
+  letter-spacing:.05em;
+}
+.choice-slide-14 .packet-choice-cell b{
+  color:${T.navy};
+  font:850 clamp(11px,1.4vw,13px)/1.22 'JetBrains Mono',monospace;
+  overflow-wrap:anywhere;
+}
+
+@media(max-width:639.98px){
+  .theory-screen-roundingdecision .worked-packet-walkthrough{gap:6px}
+  .theory-screen-roundingdecision .worked-packet-grid{grid-template-columns:minmax(0,1fr);gap:4px}
+  .theory-screen-roundingdecision .worked-example{min-height:43px;padding:4px 6px;grid-template-columns:25px minmax(0,1fr);gap:5px}
+  .theory-screen-roundingdecision .worked-index{width:25px;height:25px;border-radius:8px;font-size:9px}
+  .theory-screen-roundingdecision .worked-copy>span{font-size:7px}
+  .theory-screen-roundingdecision .worked-copy h2{font-size:9px;line-height:1.1}
+  .theory-screen-roundingdecision .worked-copy>strong{font-size:10px;line-height:1.15}
+  .theory-screen-roundingdecision .worked-packet-walkthrough>.theory-callout{min-height:0}
+
+  .theory-screen-errorrepair .repair-flow{gap:6px}
+  .theory-screen-errorrepair .repair-flow-board{padding:6px;gap:4px;border-radius:14px}
+  .theory-screen-errorrepair .repair-flow-row{
+    min-height:46px;
+    padding:5px 6px;
+    grid-template-columns:24px minmax(0,1fr) 18px minmax(0,1fr);
+    gap:5px;
+    border-radius:10px;
+  }
+  .theory-screen-errorrepair .repair-flow-index{width:24px;height:24px;border-radius:8px;font-size:8px}
+  .theory-screen-errorrepair .repair-flow-value{gap:2px}
+  .theory-screen-errorrepair .repair-flow-value small{font-size:7px}
+  .theory-screen-errorrepair .repair-flow-value s,
+  .theory-screen-errorrepair .repair-flow-value strong{font-size:12px}
+  .theory-screen-errorrepair .repair-flow-arrow{font-size:14px}
+  .theory-screen-errorrepair .repair-flow-label{grid-column:2/-1;font-size:9px;line-height:1.14}
+  .theory-screen-errorrepair .repair-flow>.theory-callout{min-height:0}
+
+  .choice-slide-14{gap:6px}
+  .choice-slide-14 .museum-packet-question{padding:9px 10px}
+  .choice-slide-14 .museum-packet-question>h2{margin-top:0;gap:3px 7px;font-size:15px;line-height:1.16}
+  .choice-slide-14 .museum-question-number{font-size:17px}
+  .choice-slide-14 .museum-packet-question>h2>span:nth-child(2){min-width:220px}
+  .choice-slide-14 .museum-audio-gate{font-size:8px}
+  .choice-slide-14 .museum-packet-options{margin-top:6px;gap:5px}
+  .choice-slide-14 .museum-packet-option{min-height:56px;padding:5px 7px;gap:6px}
+  .choice-slide-14 .museum-packet-option>.option-letter{width:25px;height:25px;flex-basis:25px;font-size:9px}
+  .choice-slide-14 .packet-choice-grid{grid-template-columns:minmax(0,1.65fr) minmax(82px,.72fr);gap:6px}
+  .choice-slide-14 .packet-choice-cell{padding:2px 3px;gap:2px}
+  .choice-slide-14 .packet-choice-cell+ .packet-choice-cell{padding-left:7px}
+  .choice-slide-14 .packet-choice-cell i{font-size:7px;line-height:1.08}
+  .choice-slide-14 .packet-choice-cell b{font-size:10px;line-height:1.16}
 }
 `;

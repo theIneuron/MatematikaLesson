@@ -8,6 +8,8 @@ import React, {
   useState,
 } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
+import { Grade4Finale, useGrade4TitleClaim } from './Grade4Finale.jsx';
 
 const selectLocale = (lang, values) => values[lang] ?? values.uz;
 
@@ -36,7 +38,12 @@ function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey = 'uz
           const left = board.querySelector(`[data-match-left="${pair.left}"]`);
           const right = board.querySelector(`[data-match-right="${pair.right}"]`);
           if (!left || !right) return null;
-          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
+          return {
+            from: readPoint(left, board, 'left'),
+            to: readPoint(right, board, 'right'),
+            wrong: pair.wrong,
+            status: pair.status,
+          };
         }).filter(Boolean);
         setGeometry({ width: host.width, height: host.height, lines });
       });
@@ -58,7 +65,10 @@ function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey = 'uz
       {geometry.lines.map((line, index) => {
         const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
         const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
-        return <path key={`${path}-${index}`} className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'} d={path} />;
+        const className = line.wrong
+          ? 'matching-connector-wrong'
+          : (line.status === 'pending' ? 'matching-connector-pending' : 'matching-connector-correct');
+        return <path key={`${path}-${index}`} className={className} d={path} />;
       })}
     </svg>
   );
@@ -264,9 +274,9 @@ const G4_TITLE_STYLES = `
 }
 `;
 
-function G4TitleReveal({ active, title, lang, onDismiss }) {
+function G4TitleReveal({ active, title, lang }) {
   const [visible, setVisible] = useState(false); const shownRef = useRef(false);
-  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => { setVisible(false); onDismiss?.(); }, reduced ? 120 : 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active, onDismiss]);
+  useEffect(() => { if (!active || shownRef.current || typeof window === 'undefined') return undefined; let timer; const frame = window.requestAnimationFrame(() => { shownRef.current = true; setVisible(true); const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches; timer = window.setTimeout(() => setVisible(false), reduced ? 120 : 3900); }); return () => { window.cancelAnimationFrame(frame); window.clearTimeout(timer); }; }, [active]);
   if (!visible || typeof document === 'undefined') return null;
   const titleLabel = selectLocale(lang, { uz: 'Unvon', ru: 'Звание', en: 'Title' });
   return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${titleLabel}: ${title}`}><div className="rank-boost-card g4-title-reveal-card"><div className="g4-title-reveal-rays" aria-hidden="true" /><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }} />)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{title}</h2></div></div>, document.body);
@@ -346,18 +356,13 @@ const CONTENT = {
           uz: "Aniq hisob kerak, lekin yigirma uch uch birlik va ikki o'nlikdan tuzilganini hozirdanoq ko'ramiz. Avval ikkala qismni hisobga olamiz.",
           en: 'An exact calculation is needed, but we can already see that twenty-three contains three ones and two tens. First, account for both parts.',
         },
-        {
-          ru: 'Оценка полезна для проверки, но она не завершает вычисление. В числе двадцать три нужно учесть три единицы и два десятка.',
-          uz: "Taxmin tekshirish uchun foydali, ammo hisobni tugatmaydi. Yigirma uchdagi uch birlik va ikki o'nlikni hisobga olish kerak.",
-          en: 'An estimate is useful for checking, but it does not complete the calculation. We must account for the three ones and two tens in twenty-three.',
-        },
       ],
     },
     options: [
       { ru: 'Да, 972 — окончательный ответ.', uz: 'Ha, 972 yakuniy javob.', en: "Yes, 972 is the final answer." },
       { ru: 'Нет, у числа 23 есть ещё одна часть.', uz: "Yo'q, 23 sonining yana bir qismi bor.", en: "No, the number 23 has another part." },
-      { ru: 'Без оценки нельзя понять, закончен ли расчёт.', uz: "Taxminsiz hisob tugaganini bilib bo'lmaydi.", en: "We cannot tell whether it is complete without estimating." },
     ],
+    correctIndex: 1,
     bridge: {
       ru: 'Теперь разберём две части числа 23.',
       uz: 'Endi 23 sonining ikki qismini tekshiramiz.',
@@ -470,29 +475,32 @@ const CONTENT = {
   s4: {
     eyebrow: { ru: 'Строка десятков', uz: "O'nliklar qatori" , en: "Tens row"},
     title: {
-      ru: 'Почему строка десятков сдвигается на один разряд?',
-      uz: "O'nliklar qatori nega bir xona siljiydi?",
-      en: "Why is the tens row shifted one place to the left?",
+      ru: 'Как 648 превращается в 6 480?',
+      uz: "648 qanday qilib 6 480 bo'ladi?",
+      en: 'How does 648 become 6,480?',
     },
     lead: {
-      ru: 'Цифра 2 означает 20.',
-      uz: '2 raqami 20 ni bildiradi.',
-      en: "The digit 2 represents 20.",
+      ru: 'Цифра 2 означает два десятка, поэтому результат сдвигается на один разряд.',
+      uz: "2 raqami ikki o'nlikni bildiradi, shuning uchun natija bir xona chapga siljiydi.",
+      en: 'The digit 2 represents two tens, so the result shifts one place to the left.',
     },
     audio: {
       ru: [
-        'Теперь умножим триста двадцать четыре на двадцать.',
-        'Цифра два в числе двадцать означает два десятка.',
+        'Сначала умножим триста двадцать четыре на два и получим шестьсот сорок восемь.',
+        'Но цифра два означает не две единицы, а два десятка, то есть двадцать.',
+        'Поэтому шестьсот сорок восемь сдвигаем на один разряд влево и получаем шесть тысяч четыреста восемьдесят.',
         'Выбери подходящий результат.',
       ],
       uz: [
-        "Endi uch yuz yigirma to'rtni yigirmaga ko'paytiramiz.",
-        "Yigirma sonidagi ikki raqami ikki o'nlikni bildiradi.",
+        "Avval uch yuz yigirma to'rtni ikkiga ko'paytirib, olti yuz qirq sakkiz olamiz.",
+        "Ammo ikki raqami ikki birlikni emas, ikki o'nlikni, ya'ni yigirmani bildiradi.",
+        "Shuning uchun olti yuz qirq sakkizni bir xona chapga siljitib, olti ming to'rt yuz sakson olamiz.",
         'Mos natijani tanlang.',
       ],
       en: [
-        "Now multiply three hundred and twenty-four by twenty.",
-        "The digit two in twenty represents two tens.",
+        'First multiply three hundred and twenty-four by two to get six hundred and forty-eight.',
+        'But the digit two represents two tens, or twenty, not two ones.',
+        'Therefore, shift six hundred and forty-eight one place to the left to get six thousand four hundred and eighty.',
         "Choose the correct result.",
       ],
     },
@@ -547,33 +555,33 @@ const CONTENT = {
   s6: {
     eyebrow: { ru: 'Запись столбиком', uz: 'Ustun yozuvi', en: "Column method" },
     title: {
-      ru: 'Тот же смысл в компактной записи',
-      uz: "Shu ma'noning ixcham ustun yozuvi",
-      en: "The same idea in a compact layout",
+      ru: 'Соберём две строки в одном столбике',
+      uz: 'Ikki qatorni bitta ustunda joylashtiramiz',
+      en: 'Build both rows in one column',
     },
     lead: {
-      ru: 'Единицы — ноль разрядов; десятки — один разряд.',
-      uz: "Birliklar — 0 xona; o'nliklar — 1 xona.",
-      en: "Ones mean no shift; tens mean a shift of one place.",
+      ru: 'Сдвиньте строку десятков на один разряд и завершите вычисление.',
+      uz: "O'nliklar qatorini bir xona chapga siljiting va hisobni yakunlang.",
+      en: 'Shift the tens row one place to the left and complete the calculation.',
     },
     audio: {
       ru: [
-        'Первая строка показывает умножение на три единицы.',
-        'Вторая строка показывает умножение на два десятка.',
-        'Поэтому вторая строка начинается на один разряд левее.',
-        'После сложения получается семь тысяч четыреста пятьдесят два.',
+        'Первая строка показывает умножение триста двадцати четырёх на три единицы и равна девятистам семидесяти двум.',
+        'Для второй строки сначала умножаем триста двадцать четыре на два и получаем шестьсот сорок восемь.',
+        'Цифра два означает два десятка, поэтому вторую строку нужно сдвинуть на один разряд влево.',
+        'Сдвиньте строку десятков и завершите запись столбиком.',
       ],
       uz: [
-        "Birinchi qator uch birlikka ko'paytirishni ko'rsatadi.",
-        "Ikkinchi qator ikki o'nlikka ko'paytirishni ko'rsatadi.",
-        'Shuning uchun ikkinchi qator bir xona chapdan boshlanadi.',
-        "Qatorlar qo'shilganda yetti ming to'rt yuz ellik ikki chiqadi.",
+        "Birinchi qator uch yuz yigirma to'rtni uch birlikka ko'paytirishni ko'rsatadi va to'qqiz yuz yetmish ikkiga teng.",
+        "Ikkinchi qator uchun avval uch yuz yigirma to'rtni ikkiga ko'paytirib, olti yuz qirq sakkiz olamiz.",
+        "Ikki raqami ikki o'nlikni bildiradi, shuning uchun ikkinchi qatorni bir xona chapga siljitish kerak.",
+        "O'nliklar qatorini siljiting va ustun yozuvini yakunlang.",
       ],
       en: [
-        "The first row shows multiplication by three ones.",
-        "The second row shows multiplication by two tens.",
-        "Therefore, the second row begins one place to the left.",
-        "After adding, the result is seven thousand four hundred and fifty-two.",
+        'The first row shows three hundred and twenty-four multiplied by three ones and equals nine hundred and seventy-two.',
+        'For the second row, first multiply three hundred and twenty-four by two to get six hundred and forty-eight.',
+        'The digit two represents two tens, so the second row must shift one place to the left.',
+        'Shift the tens row and complete the column calculation.',
       ],
     },
   },
@@ -620,30 +628,30 @@ const CONTENT = {
   s8: {
     eyebrow: { ru: 'Связи разрядов', uz: "Xonalar bog'lanishi", en: "Place-value links" },
     title: {
-      ru: 'Соедини разряд множителя со сдвигом строки',
-      uz: "Ko'paytiruvchi xonasini qator siljishi bilan bog'lang",
-      en: "Match each multiplier place to its row shift",
+      ru: 'Откуда начинается каждая строка?',
+      uz: 'Har bir qator qayerdan boshlanadi?',
+      en: 'Where does each row begin?',
     },
     lead: {
-      ru: 'Смотри на место цифры во множителе.',
-      uz: "Raqamning ko'paytiruvchidagi o'rniga qarang.",
-      en: "Look at the place of the digit in the multiplier.",
+      ru: 'Соедини две конкретные строки с их правильным сдвигом.',
+      uz: "Ikki aniq qatorni ularning to'g'ri siljishi bilan bog'lang.",
+      en: 'Match each concrete row to its correct shift.',
     },
     audio: {
       ru: [
-        'Смотри на разряд, который занимает цифра во множителе.',
-        'Свяжи разряд цифры с начальной позицией соответствующей строки.',
-        'Составь подходящие пары.',
+        'Три единицы дают строку девятьсот семьдесят два без сдвига.',
+        'Два десятка дают строку шесть тысяч четыреста восемьдесят со сдвигом на один разряд влево.',
+        'Составь обе пары и проверь ответ.',
       ],
       uz: [
-        "Raqamning ko'paytiruvchida qaysi xonada turganiga qarang.",
-        "Raqam xonasini tegishli qatorning boshlanish joyi bilan bog'lang.",
-        'Mos juftliklarni tuzing.',
+        "Uch birlik to'qqiz yuz yetmish ikki qatorini siljishsiz beradi.",
+        "Ikki o'nlik olti ming to'rt yuz sakson qatorini bir xona chapga siljitib beradi.",
+        'Ikkala juftlikni tuzing va javobni tekshiring.',
       ],
       en: [
-        "Look at the place occupied by each digit in the multiplier.",
-        "Link each digit place to the starting position of its corresponding row.",
-        "Make the correct pairs.",
+        'Three ones produce the row nine hundred and seventy-two with no shift.',
+        'Two tens produce the row six thousand four hundred and eighty shifted one place to the left.',
+        'Build both pairs and check your answer.',
       ],
     },
     feedback: {
@@ -887,18 +895,21 @@ const CONTENT = {
         'Строка единиц не сдвигается.',
         'Строка десятков начинается на один разряд левее.',
         'Неполные произведения складываются, а результат проверяется оценкой.',
+        'На следующем уроке к этому способу добавится строка сотен.',
       ],
       uz: [
         "Ikki xonali ko'paytiruvchi birliklar va o'nliklarga ajraladi.",
         'Birliklar qatori siljimaydi.',
         "O'nliklar qatori bir xona chapdan boshlanadi.",
         "To'liqsiz ko'paytmalar qo'shiladi va natija taxmin bilan tekshiriladi.",
+        "Keyingi darsda bu usulga yuzliklar qatori ham qo'shiladi.",
       ],
       en: [
         "Decompose the two-digit multiplier into ones and tens.",
         "The ones row does not shift.",
         "The tens row begins one place to the left.",
         "Add the partial products and check the result with an estimate.",
+        'In the next lesson, a hundreds row will be added to this method.',
       ],
     },
   },
@@ -915,6 +926,7 @@ const LESSON_META = {
     uz: "10-dars. Ko'p xonali sonni ikki xonali songa ko'paytirish",
     en: "Lesson 10: Multiplying a multi-digit number by a two-digit number",
   },
+  finalReflectionRequired: false,
   skillTags: [
     'two_digit_multiplier',
     'place_value_multiplier',
@@ -943,7 +955,7 @@ const SCREEN_META = [
   { id: 's11', sourceId: 's2', type: 'exploration', goal: 'Connect the distributive model to the column method.', template: 'DistributiveModel', scored: false, active: false, scope: null, misconceptions: ['distribution changes the product'] },
   { id: 's12', sourceId: 's13', type: 'case', subtype: 'life-transfer', goal: 'Transfer the method to a city context.', template: 'TransferChoice', scored: true, active: true, scope: 'final', misconceptions: ['an intermediate product answers the whole problem'] },
   { id: 's13', sourceId: 's6', type: 'exploration', goal: 'Build the complete column layout from its rows.', template: 'ColumnMorph', scored: false, active: true, scope: null, misconceptions: ['the tens row keeps its unshifted value'] },
-  { id: 's14', sourceId: 's14', type: 'summary', goal: 'Reflect on alignment and claim the lesson title.', template: 'Summary', scored: false, active: false, scope: 'final', misconceptions: ['alignment need not be checked'] },
+  { id: 's14', sourceId: 's14', type: 'summary', subtype: 'title-claim', goal: 'Summarize alignment and claim the lesson title.', template: 'TitleClaim', mechanic: 'title-claim', scored: false, active: false, scope: 'final', misconceptions: ['alignment need not be checked'] },
 ];
 
 let runtimeConfig = {
@@ -1151,12 +1163,14 @@ class AudioEngine {
     this.stop(false);
     this.queue = [{ id: 'feedback-' + Date.now(), text }];
     this.index = 0;
+    this.emit({ completed: false, currentSegment: null });
     this.start();
   }
 
   replay() {
     this.stop(false);
     this.index = 0;
+    this.emit({ completed: false, currentSegment: null });
     this.start();
   }
 
@@ -1243,7 +1257,12 @@ function useAudio(segments) {
   return {
     ...state,
     replay: () => getAudioEngine()?.replay(),
-    toggleMute: () => getAudioEngine()?.toggleMute(),
+    toggleMute: () => {
+      const engine = getAudioEngine();
+      const wasMuted = engine?.muted === true;
+      engine?.toggleMute();
+      if (wasMuted && stableSegments?.length) engine?.loadQueue(stableSegments);
+    },
     pushOneOff: (text) => getAudioEngine()?.pushOneOff(text),
   };
 }
@@ -1273,6 +1292,31 @@ function useNarrationBeats(audio, total) {
   return { current, reached };
 }
 
+function useAudioSyncedFinaleReveal(audio, total) {
+  const [visible, setVisible] = useState(() => (audio.muted ? total : 0));
+  const reset = useCallback(() => setVisible(audio.muted ? total : 0), [audio.muted, total]);
+
+  useEffect(() => {
+    let update;
+    if (audio.muted) {
+      update = () => setVisible(total);
+    } else {
+      const match = audio.currentSegment?.match(/-(\d+)$/);
+      if (match) {
+      const next = Math.min(total, Number(match[1]) + 1);
+        update = () => setVisible((current) => (next === 1 ? 1 : Math.max(current, next)));
+      } else if (audio.completed) {
+        update = () => setVisible(total);
+      }
+    }
+    if (!update) return undefined;
+    const timer = window.setTimeout(update, 0);
+    return () => window.clearTimeout(timer);
+  }, [audio.completed, audio.currentSegment, audio.muted, total]);
+
+  return { visible, reset };
+}
+
 const playSfx = (kind) => {
   const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl;
   if (!url || typeof window === 'undefined') return;
@@ -1283,6 +1327,25 @@ const playSfx = (kind) => {
   } catch {
     // Sound effects never block the lesson.
   }
+};
+
+const stableChoiceOffset = (lessonId, length) => {
+  const input = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < input.length; index += 1) {
+    hash ^= input.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length }, (_, index) => index);
+  if (length < 2 || !natural.includes(correctIndex)) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
 };
 
 const AudioIndicator = ({ audio }) => {
@@ -1498,8 +1561,9 @@ const NavBack = ({ onClick, hidden = false }) => (
 
 const NavNext = ({ onClick, disabled = false, finish = false }) => {
   const lang = useLang();
+  const isDisabled = !canUseGrade4TheoryContinue(!disabled && Boolean(onClick), finish);
   return (
-    <button type="button" className="btn btn-white-accent btn-ready" onClick={onClick} disabled={disabled || !onClick}>
+    <button type="button" className={`btn btn-white-accent ${!isDisabled ? 'btn-ready' : ''}`} onClick={onClick} disabled={isDisabled} aria-disabled={isDisabled}>
       {finish ? selectLocale(lang, { uz: 'Darsni yakunlash', ru: 'Завершить урок', en: 'Finish lesson' }) : <NextLabel />}
       <span aria-hidden="true">{finish ? '✓' : '→'}</span>
     </button>
@@ -1517,8 +1581,11 @@ const FeedbackBlock = ({ show, correct, children }) => {
       role="status"
       aria-live="polite"
     >
-      <span className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true"><BitSVG state={correct ? 'nod' : 'awkward'} /></span>
-      <span><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</span>
+      <div className="feedback-bit" data-g4-role="feedback-bit" aria-hidden="true"><BitSVG state={correct ? 'nod' : 'awkward'} /></div>
+      <div className="feedback-content">
+        <strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>
+        <div className="feedback-copy">{children}</div>
+      </div>
     </div>
   );
 };
@@ -1634,7 +1701,12 @@ const LessonScreen = ({
       </>
     )}
   >
-    <div className={screen === 0 ? 'hook-contract-root' : undefined} data-g4-screen={screen === 0 ? 'hook' : undefined}>
+    <div
+      className={screen === 0 ? 'hook-contract-root' : undefined}
+      data-g4-screen={screen === 0 ? 'hook' : undefined}
+      data-qa-d10-screen={screen + 1}
+      data-qa-preserve-solution={SCREEN_META[screen].active ? 'true' : undefined}
+    >
       <ScreenHeading c={c} bit={bit} className={headingClassName} hook={screen === 0} />
       {children}
     </div>
@@ -1767,27 +1839,55 @@ const SensorPanelArray = () => (
   </svg>
 );
 
-const OptionalPrediction = ({ options, selected, onSelect, correctIndex, labels }) => (
-  <div className="prediction-options" role="group" aria-label={labels}>
-    {options.map((option, index) => (
-      <button
-        type="button"
-        key={typeof option === 'string' ? option : index}
-        className={
-          'prediction-chip'
-          + (selected === index ? ' prediction-picked' : '')
-          + (selected !== null && index === correctIndex ? ' prediction-correct' : '')
-        }
-        aria-pressed={selected === index}
-        onClick={() => onSelect(index)}
-      >
-        {option}
-      </button>
-    ))}
-  </div>
-);
+const OptionalPrediction = ({ options, selected, onSelect, correctIndex, choiceOrdinal, labels, ready, storedAnswer }) => {
+  const [wrongAnswers, setWrongAnswers] = useState(() => new Set(
+    Array.isArray(storedAnswer?.wrongAnswerIndexes)
+      ? storedAnswer.wrongAnswerIndexes
+      : (selected !== null && selected !== correctIndex ? [selected] : []),
+  ));
+  const selectedIndex = selected;
+  const solved = selectedIndex === correctIndex;
+  const optionOrder = buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal);
+  const choose = (sourceIndex) => {
+    if (!ready || solved || wrongAnswers.has(sourceIndex)) return;
+    const nextWrongAnswers = sourceIndex === correctIndex
+      ? wrongAnswers
+      : new Set([...wrongAnswers, sourceIndex]);
+    if (sourceIndex !== correctIndex) {
+      setWrongAnswers(nextWrongAnswers);
+    }
+    onSelect(sourceIndex, [...nextWrongAnswers]);
+  };
 
-const explorationAnswer = ({ screen, c, t, index, correctIndex, storedAnswer }) => ({
+  return (
+    <div className="choice-grid prediction-options" role="group" aria-label={labels}>
+      {optionOrder.map((sourceIndex, displayIndex) => (
+        <button
+          type="button"
+          key={sourceIndex}
+          className={
+            'choice-card prediction-chip'
+            + (selectedIndex === sourceIndex ? ' choice-selected' : '')
+            + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+            + (solved && sourceIndex === correctIndex ? ' choice-correct' : '')
+          }
+          data-g4-role="answer-card"
+          data-g4-branch="choice"
+          data-g4-source-index={sourceIndex}
+          data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
+          aria-pressed={selectedIndex === sourceIndex}
+          disabled={!ready || solved || wrongAnswers.has(sourceIndex)}
+          onClick={() => choose(sourceIndex)}
+        >
+          <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
+          <b>{options[sourceIndex]}</b>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const explorationAnswer = ({ screen, c, t, index, correctIndex, storedAnswer, wrongAnswerIndexes = [] }) => ({
   screenIdx: screen,
   screenId: 's' + screen,
   stage: SCREEN_META[screen].scope ?? 'exploration',
@@ -1803,6 +1903,7 @@ const explorationAnswer = ({ screen, c, t, index, correctIndex, storedAnswer }) 
   firstTry: storedAnswer?.firstTry === false ? false : index === correctIndex,
   attempts: (storedAnswer?.attempts ?? 0) + 1,
   solved: index === correctIndex,
+  wrongAnswerIndexes,
 });
 
 const ShiftOnce = ({
@@ -1848,6 +1949,8 @@ const ScoredChoice = ({
   c,
   options,
   correctIndex,
+  choiceOrdinal,
+  shuffleOptions = true,
   storedAnswer,
   onAnswer,
   audio,
@@ -1857,15 +1960,27 @@ const ScoredChoice = ({
   const [selected, setSelected] = useState(storedAnswer?.answer ?? null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
+  const [wrongAnswers, setWrongAnswers] = useState(() => new Set(
+    Array.isArray(storedAnswer?.wrongAnswerIndexes)
+      ? storedAnswer.wrongAnswerIndexes
+      : (storedAnswer && !storedAnswer.correct && Number.isInteger(storedAnswer.answer)
+        ? [storedAnswer.answer]
+        : []),
+  ));
   const initialMessage = storedAnswer?.correct
     ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi.", en: "Correct. The solution is shown below." }
     : (storedAnswer ? c.wrong?.[storedAnswer.answer] : null);
   const [message, setMessage] = useState(initialMessage);
+  const optionOrder = shuffleOptions
+    ? buildOptionOrder(options.length, correctIndex, LESSON_META.lessonId, choiceOrdinal)
+    : options.map((_, index) => index);
+  const ready = Boolean(audio?.completed || audio?.muted);
 
   const choose = (index) => {
-    if (solved) return;
+    if (!ready || solved || wrongAnswers.has(index)) return;
     const nextAttempts = attempts + 1;
     const correct = index === correctIndex;
+    const nextWrongAnswers = correct ? wrongAnswers : new Set([...wrongAnswers, index]);
     const nextMessage = correct
       ? { ru: 'Верно. Решение открыто ниже.', uz: "To'g'ri. Yechim quyida ochildi.", en: "Correct. The solution is shown below." }
       : c.wrong?.[index];
@@ -1873,45 +1988,60 @@ const ScoredChoice = ({
     setAttempts(nextAttempts);
     setSolved(correct);
     setMessage(nextMessage);
+    if (!correct) {
+      setWrongAnswers(nextWrongAnswers);
+    }
     playSfx(correct ? 'correct' : 'wrong');
     audio?.pushOneOff(t(nextMessage));
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
+      stage: SCREEN_META[screen].scope,
       type: SCREEN_META[screen].template,
       answer: index,
+      question: t(c.lead ?? c.title),
+      options: options.map((option) => t(option)),
+      correctIndex,
+      correctAnswer: t(options[correctIndex]),
+      studentAnswerIndex: index,
+      studentAnswer: t(options[index]),
       correct,
-      firstTry: correct && nextAttempts === 1,
+      firstTry: storedAnswer?.firstTry === false ? false : correct && nextAttempts === 1,
       attempts: nextAttempts,
+      solved: correct,
+      wrongAnswerIndexes: [...nextWrongAnswers],
     });
   };
 
   return (
     <>
       <div className="choice-grid">
-        {options.map((option, index) => (
+        {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
-            key={index}
+            key={sourceIndex}
+            data-g4-role="answer-card"
             data-g4-branch="choice"
-            data-g4-correct={index === correctIndex ? 'true' : 'false'}
+            data-g4-source-index={sourceIndex}
+            data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
             className={
               'choice-card'
-              + (selected === index ? ' choice-selected' : '')
-              + (solved && index === correctIndex ? ' choice-correct' : '')
+              + (selected === sourceIndex ? ' choice-selected' : '')
+              + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+              + (solved && sourceIndex === correctIndex ? ' choice-correct' : '')
             }
-            onClick={() => choose(index)}
-            disabled={solved}
+            aria-pressed={selected === sourceIndex}
+            onClick={() => choose(sourceIndex)}
+            disabled={!ready || solved || wrongAnswers.has(sourceIndex)}
           >
-            <span>{String.fromCharCode(65 + index)}</span>
-            <b>{t(option)}</b>
+            <span className="option-letter">{String.fromCharCode(65 + displayIndex)}</span>
+            <b>{t(options[sourceIndex])}</b>
           </button>
         ))}
       </div>
       <FeedbackBlock show={Boolean(message)} correct={solved}>
-        {t(message)}
+        {solved && proof ? proof : t(message)}
       </FeedbackBlock>
-      {solved && proof}
     </>
   );
 };
@@ -1923,24 +2053,43 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
   const { current, reached } = useNarrationBeats(audio, 3);
   const picked = storedAnswer?.studentAnswerIndex ?? null;
   const ready = audio.completed || audio.muted;
+  const correctIndex = c.correctIndex;
+  const [wrongAnswers, setWrongAnswers] = useState(() => new Set(
+    Array.isArray(storedAnswer?.wrongAnswerIndexes)
+      ? storedAnswer.wrongAnswerIndexes
+      : (storedAnswer && !storedAnswer.solved && Number.isInteger(storedAnswer.studentAnswerIndex)
+        ? [storedAnswer.studentAnswerIndex]
+        : []),
+  ));
+  const optionOrder = buildOptionOrder(c.options.length, correctIndex, LESSON_META.lessonId, 0);
   const pick = (index) => {
-    if (!ready) return;
-    playSfx(index === 1 ? 'correct' : 'wrong');
-    const feedbackAudio = index === 1 ? c.audio.on_correct : c.audio.on_wrong[index];
+    if (!ready || picked === correctIndex || wrongAnswers.has(index)) return;
+    const nextWrongAnswers = index === correctIndex
+      ? wrongAnswers
+      : new Set([...wrongAnswers, index]);
+    playSfx(index === correctIndex ? 'correct' : 'wrong');
+    const feedbackAudio = index === correctIndex ? c.audio.on_correct : c.audio.on_wrong[index];
+    if (index !== correctIndex) {
+      setWrongAnswers(nextWrongAnswers);
+    }
     audio.pushOneOff(t(feedbackAudio));
     onAnswer({
       screenIdx: screen,
+      screenId: 's' + screen,
       stage: 'hook',
+      type: SCREEN_META[screen].template,
       question: t(c.lead),
       options: c.options.map((option) => t(option)),
-      correctIndex: 1,
-      correctAnswer: t(c.options[1]),
+      correctIndex,
+      correctAnswer: t(c.options[correctIndex]),
+      answer: index,
       studentAnswerIndex: index,
       studentAnswer: t(c.options[index]),
-      correct: index === 1,
-      firstTry: storedAnswer?.firstTry === false ? false : index === 1,
+      correct: index === correctIndex,
+      firstTry: storedAnswer?.firstTry === false ? false : index === correctIndex,
       attempts: (storedAnswer?.attempts ?? 0) + 1,
-      solved: index === 1,
+      solved: index === correctIndex,
+      wrongAnswerIndexes: [...nextWrongAnswers],
     });
   };
 
@@ -1950,13 +2099,13 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
       c={c}
       audio={audio}
       bit={null}
-      onNext={picked === 1 ? onNext : undefined}
+      onNext={canUseGrade4TheoryContinue(picked === correctIndex, false) ? onNext : undefined}
       onPrev={onPrev}
       finishLesson={finishLesson}
     >
       <div className="hook-screen-stack">
       <div className="hook-scene" data-g4-role="hook-scene visual-frame">
-        <div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : (picked === 1 ? 'nod' : 'awkward')} /></div>
+        <div className="hook-bit" data-g4-role="hook-bit"><BitSVG state={picked === null ? 'think' : (picked === correctIndex ? 'nod' : 'awkward')} /></div>
         <div className="terminal-card">
           <span className="terminal-label">{t({ ru: 'БИТ / ВЫЧИСЛЕНИЕ', uz: 'BIT / HISOB', en: 'BIT / CALCULATION' })}</span>
           <div className="hook-expression">
@@ -1970,25 +2119,31 @@ function HookScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishLess
         </div>
       </div>
       <div className="choice-grid hook-choices">
-        {c.options.map((option, index) => (
+        {optionOrder.map((sourceIndex, displayIndex) => (
           <button
             type="button"
-            className={'choice-card ' + (picked === index ? 'choice-selected' : '')}
-            key={index}
+            className={
+              'choice-card'
+              + (picked === sourceIndex ? ' choice-selected' : '')
+              + (wrongAnswers.has(sourceIndex) ? ' choice-wrong' : '')
+              + (picked === correctIndex && sourceIndex === correctIndex ? ' choice-correct' : '')
+            }
+            key={sourceIndex}
             data-g4-role="answer-card"
             data-g4-branch="choice"
-            data-g4-correct={index === 1 ? 'true' : 'false'}
-            aria-pressed={picked === index}
-            disabled={!ready}
-            onClick={() => pick(index)}
+            data-g4-source-index={sourceIndex}
+            data-g4-correct={sourceIndex === correctIndex ? 'true' : 'false'}
+            aria-pressed={picked === sourceIndex}
+            disabled={!ready || picked === correctIndex || wrongAnswers.has(sourceIndex)}
+            onClick={() => pick(sourceIndex)}
           >
-            <span>{index === 0 ? '✓?' : (index === 1 ? '…' : '≈')}</span>
-            <b>{t(option)}</b>
+            <span className="option-letter hook-option-letter">{String.fromCharCode(65 + displayIndex)}</span>
+            <b>{t(c.options[sourceIndex])}</b>
           </button>
         ))}
       </div>
-      <FeedbackBlock show={picked !== null} correct={picked === 1}>
-        {picked === 1 ? t(c.bridge) : t(c.audio.on_wrong[picked])}
+      <FeedbackBlock show={picked !== null} correct={picked === correctIndex}>
+        {picked === correctIndex ? t(c.bridge) : t(c.audio.on_wrong[picked])}
       </FeedbackBlock>
       </div>
     </LessonScreen>
@@ -2009,7 +2164,14 @@ function DecompositionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, f
       ? { ru: '23 = 20 + 3', uz: '23 = 20 + 3' , en: "23 = 20 + 3"}
       : c.wrong[picked]);
 
-  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 0, storedAnswer }));
+  const pick = (index, wrongAnswerIndexes = storedAnswer?.wrongAnswerIndexes ?? []) => {
+    const feedback = index === 0
+      ? { ru: '23 = 20 + 3', uz: '23 = 20 + 3', en: '23 = 20 + 3' }
+      : c.wrong[index];
+    playSfx(index === 0 ? 'correct' : 'wrong');
+    audio.pushOneOff(t(feedback));
+    onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 0, storedAnswer, wrongAnswerIndexes }));
+  };
 
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 0}>
@@ -2035,7 +2197,10 @@ function DecompositionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, f
         selected={picked}
         onSelect={pick}
         correctIndex={0}
-        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
+        choiceOrdinal={1}
+        ready={audio.completed || audio.muted}
+        storedAnswer={storedAnswer}
+        labels={selectLocale(lang, { uz: 'Javob variantlari', ru: 'Варианты ответа', en: 'Answer options' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 0}>
         {t(message)}
@@ -2132,40 +2297,67 @@ function TensShiftScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finis
   const t = useT();
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
-  const { reached } = useNarrationBeats(audio, 3);
+  const { current, reached } = useNarrationBeats(audio, 4);
   const picked = storedAnswer?.studentAnswerIndex ?? storedAnswer?.answer ?? null;
-  const shouldShift = audio.completed || audio.muted;
   const message = picked === null
     ? null
     : (picked === 1
       ? { ru: 'Верно: 324 × 20 = 6 480.', uz: "To'g'ri: 324 × 20 = 6 480.", en: 'Correct. 324 × 20 = 6 480.' }
       : c.wrong[picked]);
 
-  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer }));
+  const pick = (index, wrongAnswerIndexes = storedAnswer?.wrongAnswerIndexes ?? []) => {
+    const feedback = index === 1
+      ? { ru: 'Верно: 324 × 20 = 6 480.', uz: "To'g'ri: 324 × 20 = 6 480.", en: 'Correct. 324 × 20 = 6 480.' }
+      : c.wrong[index];
+    playSfx(index === 1 ? 'correct' : 'wrong');
+    audio.pushOneOff(t(feedback));
+    onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer, wrongAnswerIndexes }));
+  };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit="point" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 1}>
-      <div className="shift-proof-card math-card">
-        <Formula>324 × 20 = ?</Formula>
-        <p className={'place-caption ' + (reached >= 1 ? 'caption-live' : '')}>
-          {t(c.lead)}
-        </p>
-        <ShiftOnce
-          raw="648"
-          full="6 480"
-          start={shouldShift}
-          caption={t({
-            ru: '324 × 2 = 648; 648 × 10 = 6 480',
-            uz: '324 × 2 = 648; 648 × 10 = 6 480',
-           en: "324 × 2 = 648; 648 × 10 = 6 480"})}
-        />
-      </div>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 1}>
+      <section
+        className="tens-shift-proof math-card"
+        data-g4-role="visual-frame"
+        data-qa-tens-shift-proof="true"
+        data-qa-tens-shift-phase={Math.max(0, reached + 1)}
+      >
+        <div className={'tens-proof-step ' + (reached >= 0 ? 'is-visible ' : '') + (current === 0 ? 'is-active' : '')}>
+          <span>{t({ ru: 'Сначала умножаем на 2', uz: "Avval 2 ga ko'paytiramiz", en: 'First multiply by 2' })}</span>
+          <strong>324 × 2 = 648</strong>
+        </div>
+        <div className={'tens-proof-step ' + (reached >= 1 ? 'is-visible ' : '') + (current === 1 ? 'is-active' : '')}>
+          <span>{t({ ru: 'Но 2 стоит в десятках', uz: "Ammo 2 o'nlar xonasida", en: 'But 2 is in the tens place' })}</span>
+          <strong>20 = 2 × 10</strong>
+        </div>
+        <div className={'place-shift-board ' + (reached >= 2 ? 'is-shifted ' : '') + (current === 2 ? 'is-active' : '')}>
+          <div className="place-shift-head">
+            {[
+              { ru: 'тыс.', uz: 'ming', en: 'th.' },
+              { ru: 'сот.', uz: 'yuz', en: 'h.' },
+              { ru: 'дес.', uz: "o'n", en: 't.' },
+              { ru: 'ед.', uz: 'bir', en: 'o.' },
+            ].map((label) => <span key={label.en}>{t(label)}</span>)}
+          </div>
+          <div className="place-shift-row place-shift-before" aria-label="648">
+            <i /><b>6</b><b>4</b><b>8</b>
+          </div>
+          <div className="place-shift-arrow" aria-hidden="true">↓ × 10</div>
+          <div className="place-shift-row place-shift-after" aria-label="6 480">
+            <b>6</b><b>4</b><b>8</b><b className="place-zero">0</b>
+          </div>
+          <p>{t({ ru: 'Один разряд влево', uz: 'Bir xona chapga', en: 'One place to the left' })}</p>
+        </div>
+      </section>
       <OptionalPrediction
         options={c.options}
         selected={picked}
         onSelect={pick}
         correctIndex={1}
-        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
+        choiceOrdinal={3}
+        ready={audio.completed || audio.muted}
+        storedAnswer={storedAnswer}
+        labels={selectLocale(lang, { uz: 'Javob variantlari', ru: 'Варианты ответа', en: 'Answer options' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 1}>{t(message)}</FeedbackBlock>
     </LessonScreen>
@@ -2208,63 +2400,100 @@ function ColumnMorphScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
   const c = CONTENT.s6;
   const t = useT();
   const audio = useScreenAudio(c.audio, screen);
-  const { reached } = useNarrationBeats(audio, 4);
+  const { current, reached } = useNarrationBeats(audio, 4);
   const shiftDone = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const shiftStarted = shiftDone;
   const ready = audio.completed || audio.muted;
-  const shiftRow = () => onAnswer({
-    screenIdx: screen,
-    screenId: 's' + screen,
-    stage: SCREEN_META[screen].scope ?? 'exploration',
-    type: SCREEN_META[screen].template,
-    question: t(c.lead),
-    options: null,
-    correctIndex: null,
-    correctAnswer: 'one-place-left',
-    answer: 'one-place-left',
-    studentAnswerIndex: null,
-    studentAnswer: 'one-place-left',
-    correct: true,
-    firstTry: storedAnswer?.firstTry !== false,
-    attempts: (storedAnswer?.attempts ?? 0) + 1,
-    solved: true,
-  });
+  const solution = {
+    ru: 'Строка десятков сдвинута на один разряд: 972 + 6 480 = 7 452.',
+    uz: "O'nliklar qatori bir xona chapga siljidi: 972 + 6 480 = 7 452.",
+    en: 'The tens row shifts one place left: 972 + 6,480 = 7,452.',
+  };
+  const shiftRow = () => {
+    if (!ready || shiftDone) return;
+    playSfx('correct');
+    audio.pushOneOff(t(solution));
+    onAnswer({
+      screenIdx: screen,
+      screenId: 's' + screen,
+      stage: SCREEN_META[screen].scope ?? 'exploration',
+      type: SCREEN_META[screen].template,
+      question: t(c.lead),
+      options: null,
+      correctIndex: null,
+      correctAnswer: 'one-place-left',
+      answer: 'one-place-left',
+      studentAnswerIndex: null,
+      studentAnswer: 'one-place-left',
+      correct: true,
+      firstTry: storedAnswer?.firstTry !== false,
+      attempts: (storedAnswer?.attempts ?? 0) + 1,
+      solved: true,
+    });
+  };
+  const placeLabels = [
+    { ru: 'тыс.', uz: 'ming', en: 'th.' },
+    { ru: 'сот.', uz: 'yuz', en: 'h.' },
+    { ru: 'дес.', uz: "o'n", en: 't.' },
+    { ru: 'ед.', uz: 'bir', en: 'o.' },
+  ];
+  const renderDigits = (digits) => digits.map((digit, index) => (
+    digit === null ? <i key={index} /> : <b key={index}>{digit}</b>
+  ));
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={shiftDone ? 'nod' : 'point'} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={shiftDone}>
-      <div className="column-morph math-card">
-        <div className="column-fixed">
-          <div className="column-line"><span /><strong>324</strong></div>
-          <div className="column-line"><span>×</span><strong>23</strong></div>
-          <div className="column-rule" />
-          <div className={'column-line ' + (reached >= 0 ? 'line-visible' : 'line-hidden')}>
-            <span /><strong>972</strong>
-          </div>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={shiftDone}>
+      <section
+        className={'column-build-board math-card ' + (shiftDone ? 'is-complete' : '')}
+        data-g4-role="visual-frame"
+        data-qa-column-board="true"
+        data-qa-column-phase={shiftDone ? 'complete' : (ready ? 'ready' : 'guided')}
+      >
+        <div className="column-build-head" aria-hidden="true">
+          <span />
+          {placeLabels.map((label) => <span key={label.en}>{t(label)}</span>)}
         </div>
-        <ShiftOnce
-          raw="648"
-          full="6 480"
-          start={shiftStarted}
-          compact
-          caption={t({
-            ru: 'Строка десятков начинает запись на один разряд левее',
-            uz: "O'nliklar qatori bir xona chapdan boshlanadi",
-            en: "The tens row begins one place to the left.",
-          })}
-        />
-        <div className="column-fixed column-bottom">
-          <div className="column-rule" />
-          <div className={'column-line column-result ' + ((reached >= 3 || shiftDone) ? 'line-visible' : 'line-hidden')}>
-            <span /><strong>7 452</strong>
-          </div>
+        <div className="column-build-row column-build-source">
+          <span>324</span>{renderDigits([null, 3, 2, 4])}
         </div>
-        <div className="shift-legend">
-          <span>{t({ ru: 'Единицы: 0 разрядов', uz: 'Birliklar: 0 xona', en: "Ones: no shift" })}</span>
-          <span>{t({ ru: 'Десятки: 1 разряд', uz: "O'nliklar: 1 xona", en: "Tens: shift one place" })}</span>
+        <div className="column-build-row column-build-source">
+          <span>× 23</span>{renderDigits([null, null, 2, 3])}
         </div>
-        {!shiftStarted && (
+        <div className="column-build-rule" />
+        <div
+          className={'column-build-row column-build-product ' + (reached >= 0 ? 'is-visible ' : '') + (current === 0 ? 'is-active' : '')}
+          data-qa-column-row="ones"
+          aria-hidden={reached < 0}
+        >
+          <span>{t({ ru: '× 3 единицы', uz: '× 3 birlik', en: '× 3 ones' })}</span>
+          {renderDigits([null, 9, 7, 2])}
+        </div>
+        <div
+          className={'column-build-row column-build-product column-build-tens ' + (reached >= 1 ? 'is-visible ' : '') + (current === 1 || current === 2 ? 'is-active ' : '') + (shiftDone ? 'is-shifted' : '')}
+          data-qa-column-row="tens"
+          data-qa-column-value={shiftDone ? '6480' : '648'}
+          aria-hidden={reached < 1}
+        >
+          <span>{t(shiftDone
+            ? { ru: '× 2 десятка (× 20)', uz: "× 2 o'nlik (× 20)", en: '× 2 tens (× 20)' }
+            : { ru: 'Сначала × 2', uz: 'Avval × 2', en: 'First × 2' })}</span>
+          {renderDigits(shiftDone ? [6, 4, 8, 0] : [null, 6, 4, 8])}
+        </div>
+        <p className={'column-build-hint ' + (reached >= 2 ? 'is-visible ' : '') + (current === 2 ? 'is-active' : '')}>
+          {t({ ru: 'Десятки: сдвиг на один разряд влево', uz: "O'nliklar: bir xona chapga siljiydi", en: 'Tens: shift one place to the left' })}
+        </p>
+        <div className="column-build-rule" />
+        <div
+          className={'column-build-row column-build-total ' + (shiftDone ? 'is-visible' : '')}
+          data-qa-column-row="total"
+          aria-hidden={!shiftDone}
+        >
+          <span>{t({ ru: 'Сумма', uz: "Yig'indi", en: 'Total' })}</span>
+          {renderDigits([7, 4, 5, 2])}
+        </div>
+        {!shiftDone && (
           <button
             type="button"
             className="btn btn-white-accent shift-action"
+            data-qa-column-shift="true"
             disabled={!ready}
             onClick={shiftRow}
           >
@@ -2273,7 +2502,8 @@ function ColumnMorphScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
               : t({ ru: 'Сначала прослушайте объяснение', uz: 'Avval tushuntirishni tinglang', en: 'Listen to the explanation first' })}
           </button>
         )}
-      </div>
+      </section>
+      <FeedbackBlock show={shiftDone} correct>{t(solution)}</FeedbackBlock>
     </LessonScreen>
   );
 }
@@ -2291,7 +2521,14 @@ function ZeroUnitsScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finis
     : (picked === 1
       ? { ru: 'Верно: 1 205 × 30 = 36 150.', uz: "To'g'ri: 1 205 × 30 = 36 150.", en: 'Correct. 1 205 × 30 = 36 150.' }
       : c.wrong[picked]);
-  const pick = (index) => onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer }));
+  const pick = (index, wrongAnswerIndexes = storedAnswer?.wrongAnswerIndexes ?? []) => {
+    const feedback = index === 1
+      ? { ru: 'Верно: 1 205 × 30 = 36 150.', uz: "To'g'ri: 1 205 × 30 = 36 150.", en: 'Correct. 1 205 × 30 = 36 150.' }
+      : c.wrong[index];
+    playSfx(index === 1 ? 'correct' : 'wrong');
+    audio.pushOneOff(t(feedback));
+    onAnswer(explorationAnswer({ screen, c, t, index, correctIndex: 1, storedAnswer, wrongAnswerIndexes }));
+  };
 
   return (
     <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={picked === 1}>
@@ -2319,7 +2556,10 @@ function ZeroUnitsScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finis
         selected={picked}
         onSelect={pick}
         correctIndex={1}
-        labels={selectLocale(lang, { uz: 'Ixtiyoriy taxmin', ru: 'Необязательный прогноз', en: 'Optional prediction' })}
+        choiceOrdinal={4}
+        ready={audio.completed || audio.muted}
+        storedAnswer={storedAnswer}
+        labels={selectLocale(lang, { uz: 'Javob variantlari', ru: 'Варианты ответа', en: 'Answer options' })}
       />
       <FeedbackBlock show={Boolean(message)} correct={picked === 1}>{t(message)}</FeedbackBlock>
     </LessonScreen>
@@ -2332,100 +2572,140 @@ function MatchingScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
   const boardRef = useRef(null);
-  const [pairs, setPairs] = useState(storedAnswer?.answer ?? { units: null, tens: null });
+  const [pairs, setPairs] = useState(() => (
+    storedAnswer?.correct
+      ? { ones: 'ones', tens: 'tens' }
+      : { ones: null, tens: null }
+  ));
   const [activeLeft, setActiveLeft] = useState(null);
-  const [wrongPair, setWrongPair] = useState(null);
   const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
   const [solved, setSolved] = useState(Boolean(storedAnswer?.correct));
   const [feedbackCorrect, setFeedbackCorrect] = useState(Boolean(storedAnswer?.correct));
   const [message, setMessage] = useState(
     storedAnswer?.correct
-      ? { ru: 'Обе пары верны.', uz: "Ikkala juftlik ham to'g'ri.", en: "Both pairs are correct." }
+      ? { ru: 'Обе строки начинаются с правильного разряда.', uz: "Ikkala qator ham to'g'ri xonadan boshlandi.", en: 'Both rows begin in the correct place.' }
       : (storedAnswer ? c.feedback : null),
   );
-
-  useEffect(() => {
-    if (!wrongPair) return undefined;
-    const timer = window.setTimeout(() => setWrongPair(null), 900);
-    return () => window.clearTimeout(timer);
-  }, [wrongPair]);
+  const ready = audio.completed || audio.muted;
+  const correctAnswer = t({
+    ru: '324 × 3 — без сдвига; 324 × 20 — один разряд влево',
+    uz: "324 × 3 — siljishsiz; 324 × 20 — bir xona chapga",
+    en: '324 × 3 — no shift; 324 × 20 — one place left',
+  });
+  const success = {
+    ru: 'Строка единиц остаётся на месте, строка десятков начинается на один разряд левее.',
+    uz: "Birliklar qatori joyida qoladi, o'nliklar qatori bir xona chapdan boshlanadi.",
+    en: 'The ones row stays in place; the tens row begins one place to the left.',
+  };
+  const allPaired = Object.values(pairs).every(Boolean);
 
   const chooseRight = (value) => {
-    if (solved || activeLeft === null) return;
-    const nextAttempts = attempts + 1;
-    setAttempts(nextAttempts);
-    const expected = activeLeft === 'units' ? 0 : 1;
-    if (value !== expected) {
-      setWrongPair({ left: activeLeft, right: value });
-      setMessage(c.feedback);
-      setFeedbackCorrect(false);
-      playSfx('wrong');
-      audio.pushOneOff(t(c.feedback));
-      onAnswer({ screenIdx: screen, screenId: 's' + screen, type: 'Matching', answer: pairs, correct: false, firstTry: false, attempts: nextAttempts, solved: false });
-      return;
-    }
-    const next = { ...pairs, [activeLeft]: value };
-    const done = next.units === 0 && next.tens === 1;
-    const success = { ru: 'Единицы не сдвигаются, десятки сдвигаются на один разряд.', uz: "Birliklar siljimaydi, o'nliklar bir xona siljiydi.", en: 'The ones row does not shift; the tens row shifts one place to the left.' };
-    setPairs(next);
+    if (!ready || solved || activeLeft === null || Object.values(pairs).includes(value)) return;
+    setPairs((currentPairs) => ({ ...currentPairs, [activeLeft]: value }));
     setActiveLeft(null);
-    setFeedbackCorrect(true);
-    setMessage(done ? success : { ru: 'Пара верна. Соедини оставшийся разряд.', uz: "Juftlik to'g'ri. Qolgan xonani ulang.", en: 'That pair is correct. Connect the remaining place.' });
-    setSolved(done);
-    playSfx(done ? 'correct' : 'correct');
-    audio.pushOneOff(t(done ? success : { ru: 'Пара верна. Соедини оставшийся разряд.', uz: "Juftlik to'g'ri. Qolgan xonani ulang.", en: 'That pair is correct. Connect the remaining place.' }));
-    onAnswer({ screenIdx: screen, screenId: 's' + screen, type: 'Matching', answer: next, correct: done, firstTry: done && nextAttempts === 2, attempts: nextAttempts, solved: done });
+    setMessage(null);
   };
 
-  const correctPairs = Object.entries(pairs)
+  const checkMatches = () => {
+    if (!ready || solved || !allPaired) return;
+    const nextAttempts = attempts + 1;
+    const correct = pairs.ones === 'ones' && pairs.tens === 'tens';
+    const attempted = { ...pairs };
+    setAttempts(nextAttempts);
+    setFeedbackCorrect(correct);
+    setMessage(correct ? success : c.feedback);
+    setSolved(correct);
+    if (!correct) {
+      setPairs({ ones: null, tens: null });
+      setActiveLeft(null);
+    }
+    playSfx(correct ? 'correct' : 'wrong');
+    audio.pushOneOff(t(correct ? success : c.feedback));
+    onAnswer({
+      screenIdx: screen,
+      screenId: 's' + screen,
+      stage: SCREEN_META[screen].scope,
+      type: SCREEN_META[screen].template,
+      question: t(c.lead),
+      options: null,
+      correctIndex: null,
+      correctAnswer,
+      answer: correct ? attempted : { ones: null, tens: null },
+      studentAnswerIndex: null,
+      studentAnswer: JSON.stringify(attempted),
+      correct,
+      firstTry: storedAnswer?.firstTry === false ? false : correct && nextAttempts === 1,
+      attempts: nextAttempts,
+      solved: correct,
+    });
+  };
+
+  const connectorPairs = Object.entries(pairs)
     .filter(([, value]) => value !== null)
-    .map(([left, right]) => ({ left, right }));
+    .map(([left, right]) => ({ left, right, status: solved ? 'correct' : 'pending' }));
   const leftItems = [
-    ['units', { ru: 'Цифра единиц', uz: 'Birliklar raqami', en: 'Ones digit' }],
-    ['tens', { ru: 'Цифра десятков', uz: "O'nliklar raqami", en: 'Tens digit' }],
+    ['ones', { kicker: { ru: '3 единицы', uz: '3 birlik', en: '3 ones' }, formula: '324 × 3 = 972' }],
+    ['tens', { kicker: { ru: '2 десятка', uz: "2 o'nlik", en: '2 tens' }, formula: '324 × 20 = 6 480' }],
+  ];
+  const rightItems = [
+    ['tens', { ru: '1 разряд влево', uz: '1 xona chapga', en: '1 place left' }],
+    ['ones', { ru: 'Без сдвига', uz: "Siljish yo'q", en: 'No shift' }],
   ];
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
-      <div
-        className="matching-board matching-board-connectors math-card"
-        data-g4-role="visual-frame"
-        data-matching-solved={solved ? 'true' : undefined}
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={solved}>
+      <section className="place-match-frame math-card" data-g4-role="visual-frame" data-qa-matching-flow="true">
+        <div className="place-match-decomposition"><span>23</span><b>=</b><strong>20 + 3</strong></div>
+        <div
+        className="matching-board matching-board-connectors"
+        data-matching-solved={solved ? 'true' : 'false'}
         ref={boardRef}
         role="group"
-        aria-label={t({ ru: 'Соединение разряда со сдвигом', uz: "Xonani siljish bilan bog'lash", en: 'Match each place to its shift' })}
+        aria-label={t({ ru: 'Соедините каждую строку с её начальным разрядом', uz: "Har bir qatorni boshlanish xonasi bilan bog'lang", en: 'Match each row to its starting place' })}
       >
-        <MatchingLines boardRef={boardRef} pairs={correctPairs} wrongPair={wrongPair} localeKey={lang} />
+        <MatchingLines boardRef={boardRef} pairs={connectorPairs} localeKey={lang} />
         <div className="matching-column matching-column-left">
-          {leftItems.map(([key, label]) => (
+          {leftItems.map(([key, item]) => (
             <button
               type="button"
               key={key}
               className={'match-endpoint ' + (activeLeft === key ? 'match-endpoint-active' : '') + (pairs[key] !== null ? ' match-endpoint-complete' : '')}
               data-match-left={key}
               aria-pressed={activeLeft === key}
-              disabled={solved || pairs[key] !== null}
-              onClick={() => { setActiveLeft(key); setWrongPair(null); }}
+              disabled={!ready || solved || pairs[key] !== null}
+              onClick={() => { setActiveLeft(key); setMessage(null); }}
             >
-              {t(label)}
+              <span>{t(item.kicker)}</span>
+              <strong>{item.formula}</strong>
             </button>
           ))}
         </div>
         <div className="matching-column matching-column-right">
-          {[1, 0].map((value) => (
+          {rightItems.map(([value, label]) => (
             <button
               type="button"
               key={value}
               className={'match-endpoint match-endpoint-right ' + (Object.values(pairs).includes(value) ? 'match-endpoint-complete' : '')}
               data-match-right={value}
-              disabled={solved || Object.values(pairs).includes(value)}
+              aria-pressed={Object.values(pairs).includes(value)}
+              disabled={!ready || solved || Object.values(pairs).includes(value)}
               onClick={() => chooseRight(value)}
             >
-              {value} {t({ ru: value === 0 ? 'разрядов' : 'разряд', uz: 'xona', en: value === 1 ? 'place' : 'places' })}
+              {t(label)}
             </button>
           ))}
         </div>
-      </div>
+        </div>
+        <button
+          type="button"
+          className="btn btn-white-accent matching-check"
+          data-qa-matching-check="true"
+          disabled={!ready || solved || !allPaired}
+          onClick={checkMatches}
+        >
+          {t({ ru: 'Проверить пары', uz: 'Juftliklarni tekshirish', en: 'Check the pairs' })}
+        </button>
+      </section>
       <FeedbackBlock show={Boolean(message)} correct={feedbackCorrect}>{t(message)}</FeedbackBlock>
     </LessonScreen>
   );
@@ -2460,17 +2740,25 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
-      type: 'NumericInput',
+      stage: SCREEN_META[screen].scope,
+      type: SCREEN_META[screen].template,
+      question: t(c.lead),
+      options: null,
+      correctIndex: null,
+      correctAnswer: '3 444',
       answer: value,
+      studentAnswerIndex: null,
+      studentAnswer: String(value),
       correct,
-      firstTry: correct && nextAttempts === 1,
+      firstTry: storedAnswer?.firstTry === false ? false : correct && nextAttempts === 1,
       attempts: nextAttempts,
+      solved: correct,
     });
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="numeric-card math-card">
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={canUseGrade4TheoryContinue(solved, false) ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+      <div className={'numeric-card math-card ' + (solved ? 'numeric-card-correct' : '')}>
         <Formula>984 + 2 460 = ?</Formula>
         <label htmlFor="d10-sum-answer">{t(c.lead)}</label>
         <div className="numeric-entry">
@@ -2492,8 +2780,14 @@ function ConstructionScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fi
           </button>
         </div>
       </div>
-      <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
-      {solved && <Formula tone="success" className="formula-visible">246 × 14 = 3 444</Formula>}
+      <FeedbackBlock show={Boolean(message)} correct={solved}>
+        {solved ? (
+          <div className="solution-inline">
+            <span>{t(message)}</span>
+            <strong>246 × 14 = 3 444</strong>
+          </div>
+        ) : t(message)}
+      </FeedbackBlock>
     </LessonScreen>
   );
 }
@@ -2543,17 +2837,25 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
     onAnswer({
       screenIdx: screen,
       screenId: 's' + screen,
-      type: 'NumericInput',
+      stage: SCREEN_META[screen].scope,
+      type: SCREEN_META[screen].template,
+      question: t(c.lead),
+      options: null,
+      correctIndex: null,
+      correctAnswer: '834',
       answer: value,
+      studentAnswerIndex: null,
+      studentAnswer: String(value),
       correct,
-      firstTry: correct && nextAttempts === 1,
+      firstTry: storedAnswer?.firstTry === false ? false : correct && nextAttempts === 1,
       attempts: nextAttempts,
+      solved: correct,
     });
   };
 
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={solved ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="numeric-card math-card">
+    <LessonScreen screen={screen} c={c} audio={audio} bit={solved ? 'nod' : 'think'} onNext={canUseGrade4TheoryContinue(solved, false) ? onNext : undefined} onPrev={onPrev} finishLesson={finishLesson}>
+      <div className={'numeric-card math-card ' + (solved ? 'numeric-card-correct' : '')}>
         <Formula>417 × 2 = ?</Formula>
         <label htmlFor="d10-answer">{t(c.lead)}</label>
         <div className="numeric-entry">
@@ -2575,18 +2877,19 @@ function NumericScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finishL
           </button>
         </div>
       </div>
-      <FeedbackBlock show={Boolean(message)} correct={solved}>{t(message)}</FeedbackBlock>
+      <FeedbackBlock show={Boolean(message)} correct={solved}>
+        {solved ? (
+          <div className="solution-proof">
+            <span>{t({ ru: 'Строка единиц', uz: 'Birliklar qatori' , en: "Ones row"})}</span>
+            <span>417 × 2 = 834; 417 × 30 = 12 510</span>
+            <strong>417 × 32 = 12 510 + 834 = 13 344</strong>
+          </div>
+        ) : t(message)}
+      </FeedbackBlock>
       {!solved && attempts >= 2 && (
         <div className="hint-rows" aria-live="polite">
           <span>7 × 2 = 14 → 4, +1</span>
           <span>1 × 2 + 1 = 3</span>
-        </div>
-      )}
-      {solved && (
-        <div className="solution-proof">
-          <span>{t({ ru: 'Строка единиц', uz: 'Birliklar qatori' , en: "Ones row"})}</span>
-          <span>417 × 2 = 834; 417 × 30 = 12 510</span>
-          <strong>417 × 32 = 12 510 + 834 = 13 344</strong>
         </div>
       )}
     </LessonScreen>
@@ -2597,13 +2900,14 @@ function StrategyScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   const c = CONTENT.s11;
   const audio = useScreenAudio(c.audio, screen);
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={storedAnswer?.correct === true}>
       <Formula>500 × 24</Formula>
       <ScoredChoice
         screen={screen}
         c={c}
         options={c.options}
         correctIndex={0}
+        choiceOrdinal={2}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
         audio={audio}
@@ -2624,11 +2928,10 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
   const t = useT();
   const audio = useScreenAudio(c.audio, screen);
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={storedAnswer?.correct === true}>
       <div className="error-layout">
         <div className="error-column math-card" data-g4-role="visual-frame" aria-label={t({ ru: 'Вычисление Бита', uz: 'Bitning hisobi', en: "Bit's calculation" })}>
           <pre>{' 1 205\n×   30\n──────\n 3 615'}</pre>
-          <BitSVG state="awkward" />
         </div>
         <div>
           <ScoredChoice
@@ -2636,6 +2939,7 @@ function ErrorRepairScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, fin
             c={c}
             options={c.options}
             correctIndex={0}
+            choiceOrdinal={5}
             storedAnswer={storedAnswer}
             onAnswer={onAnswer}
             audio={audio}
@@ -2656,7 +2960,7 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   const c = CONTENT.s13;
   const audio = useScreenAudio(c.audio, screen);
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
+    <LessonScreen screen={screen} c={c} audio={audio} bit={null} onNext={onNext} onPrev={onPrev} finishLesson={finishLesson} activityDone={storedAnswer?.correct === true}>
       <div className="sensor-scene math-card">
         <SensorPanelArray />
         <Formula>24 × 128</Formula>
@@ -2666,6 +2970,7 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
         c={c}
         options={c.options}
         correctIndex={0}
+        choiceOrdinal={6}
         storedAnswer={storedAnswer}
         onAnswer={onAnswer}
         audio={audio}
@@ -2681,137 +2986,106 @@ function CityCaseScreen({ screen, storedAnswer, onAnswer, onNext, onPrev, finish
   );
 }
 
-function SummaryScreen({ screen, onNext, onPrev, finishLesson, answers = [], titleClaimed = false, revealRequested = false, reflectionChoice = null, onReflectionChoice, onClaimTitle, onTitleRevealDone }) {
+function SummaryScreen({ screen, storedAnswer, onPrev, finishLesson, answers = [], onAnswer }) {
   const c = CONTENT.s14;
   const t = useT();
   const lang = useLang();
   const audio = useScreenAudio(c.audio, screen);
-  const { reached } = useNarrationBeats(audio, 4);
-  const reduced = typeof window !== 'undefined'
-    && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-  const visibleReached = reduced ? 3 : reached;
-  const startShift = visibleReached >= 2 || audio.completed || audio.muted;
-  const finalBeat = reduced || visibleReached >= 3 || audio.completed || audio.muted;
+  const { visible, reset: resetFinaleReveal } = useAudioSyncedFinaleReveal(audio, 5);
+  const complete = visible >= 5 && (audio.completed || audio.muted);
+  const finaleAudio = {
+    ...audio,
+    replay: () => {
+      resetFinaleReveal();
+      audio.replay();
+    },
+  };
   const scoredIndexes = SCREEN_META.reduce((indexes, meta, index) => (meta.scored ? [...indexes, index] : indexes), []);
   const firstTryCount = scoredIndexes.filter((index) => answers[index]?.firstTry === true).length;
   const totalScored = scoredIndexes.length;
   const rewardTitles = {
-    top: { ru: 'Архитектор двух строк', uz: "Ikki qator me'mori", en: "Architect of two rows" },
-    middle: { ru: 'Мастер двух строк', uz: 'Ikki qator ustasi', en: "Master of two rows" },
-    base: { ru: 'Исследователь строк', uz: 'Qatorlar tadqiqotchisi', en: "Partial-product explorer" },
+    top: { ru: 'Архитектор двух строк', uz: "Ikki qator me'mori", en: 'Architect of two rows' },
+    middle: { ru: 'Мастер двух строк', uz: 'Ikki qator ustasi', en: 'Master of two rows' },
+    base: { ru: 'Исследователь строк', uz: 'Qatorlar tadqiqotchisi', en: 'Partial-product explorer' },
   };
   const rewardTitle = firstTryCount === totalScored
     ? rewardTitles.top
     : firstTryCount >= Math.max(1, totalScored - 1)
       ? rewardTitles.middle
       : rewardTitles.base;
-  const reflection = {
-    question: {
-      uz: "Ikki xonali songa ko'paytirishda qaysi tayanchni eslab qolasiz?",
-      ru: 'Какую опору вы запомните для умножения на двузначное число?',
-      en: 'Which idea will you remember for multiplying by a two-digit number?',
-    },
-    options: [
-      { uz: "Qisman ko'paytmalarni yozaman", ru: 'Записывать частичные произведения', en: 'Write the partial products' },
-      { uz: "O'nlik qatorini bir xona siljitaman", ru: 'Сдвигать строку десятков на один разряд', en: 'Shift the tens row one place' },
-      { uz: "Qatorlarni qo'shib tekshiraman", ru: 'Сложить строки и проверить', en: 'Add the rows and check' },
-    ],
-  };
+  const rules = [
+    { ru: '23 = 20 + 3: десятки и единицы', uz: "23 = 20 + 3: o'nlik va birliklar", en: '23 = 20 + 3: tens and ones' },
+    { ru: 'Строка единиц — без сдвига', uz: 'Birliklar qatori — siljishsiz', en: 'Ones row — no shift' },
+    { ru: 'Строка десятков — сдвиг на один разряд', uz: "O'nliklar qatori — bir xona siljiydi", en: 'Tens row — shift one place' },
+    { ru: 'Сложите строки и проверьте результат оценкой', uz: "Qatorlarni qo'shing va natijani taxmin bilan tekshiring", en: 'Add the rows and check the result with an estimate' },
+  ];
+  const emitTitleClaim = useCallback(() => {
+    onAnswer?.({
+      stage: null,
+      screenIdx: screen,
+      question: t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' }),
+      options: null,
+      correctIndex: null,
+      correctAnswer: null,
+      studentAnswerIndex: null,
+      studentAnswer: t(rewardTitle),
+      correct: true,
+      firstTry: true,
+      attempts: 1,
+      solved: true,
+      titleClaimed: true,
+    });
+  }, [onAnswer, rewardTitle, screen, t]);
+  const { titleClaimed, canClaimTitle, revealRequested, claimTitle } = useGrade4TitleClaim({
+    storedAnswer,
+    audio,
+    onClaim: emitTitleClaim,
+  });
+
   return (
-    <LessonScreen screen={screen} c={c} audio={audio} bit={null} headingClassName="finale-heading" onNext={onNext} onPrev={onPrev} finishLesson={finishLesson}>
-      <div className="finale-layout">
-        <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} onDismiss={onTitleRevealDone} />
-        <style>{G4_TITLE_STYLES}</style>
-        <div className="finale-main-grid">
-          <section className="finale-payoff-card math-card">
-            <span className="finale-section-kicker">{t({ ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', uz: "BOSHLANG'ICH MISSIYA YECHIMI", en: "OPENING MISSION SOLUTION" })}</span>
-            <div className="summary-demo">
-              <small>{t({ ru: 'Точное вычисление из начала урока', uz: "Dars boshidagi aniq hisob", en: "Exact calculation from the opening of the lesson" })}</small>
-              <b className="finale-hook-formula">324 × 23</b>
-              <div className="summary-units">972</div>
-              {reduced ? (
-                <div className="summary-reduced-shift">6 480</div>
-              ) : (
-                <ShiftOnce
-                  raw="648"
-                  full="6 480"
-                  start={startShift}
-                  compact
-                />
-              )}
-              <div className="column-rule" />
-              <strong className={'summary-result ' + (finalBeat ? 'summary-result-visible' : '')}>7 452</strong>
-            </div>
-            <p className="finale-payoff-copy">{t({ ru: 'Произведения на три и на двадцать дают точный ответ 7 452.', uz: "Uchga va yigirmaga ko'paytmalar aniq 7 452 javobni beradi.", en: "The partial products for three and twenty add to the exact answer, 7 452." })}</p>
-          </section>
-          <section className="finale-mastery-card">
-            <span className="finale-section-kicker">{t({ ru: 'ОСВОЕННЫЕ ОПОРЫ', uz: "SIZ O'RGANGAN TAYANCHLAR" , en: "KEY IDEAS MASTERED"})}</span>
-            <div className="summary-rules">
-              {[
-                { ru: 'Строка единиц — 0 разрядов', uz: "Birliklar qatori — 0 xona" , en: "Ones row — no shift"},
-                { ru: 'Строка десятков — 1 разряд', uz: "O'nliklar qatori — 1 xona" , en: "Tens row — shift one place"},
-                { ru: 'Сложи неполные произведения', uz: "To'liqsiz ko'paytmalarni qo'shing", en: "Add the partial products" },
-                { ru: 'Проверь результат оценкой', uz: "Natijani taxmin bilan tekshiring", en: "Check the result with an estimate" },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className={'summary-rule ' + (visibleReached >= index ? 'summary-rule-visible' : '')}
-                >
-                  <span>{index + 1}</span><b>{t(item)}</b>
-                </div>
-              ))}
-            </div>
-          </section>
-        </div>
-        {!titleClaimed && (
-          <section className="finale-reflection" data-g4-role="reflection">
-            <h2>{t(reflection.question)}</h2>
-            <div className="reflection-options">
-              {reflection.options.map((option, index) => (
-                <button
-                  type="button"
-                  className={reflectionChoice === index ? 'selected' : ''}
-                  aria-pressed={reflectionChoice === index}
-                  onClick={() => onReflectionChoice(index)}
-                  key={t(option)}
-                >
-                  {t(option)}
-                </button>
-              ))}
-            </div>
-          </section>
-        )}
-        {!titleClaimed && (
-            <button
-              type="button"
-              className="btn-white-accent g4-title-claim"
-              data-g4-role="title-claim"
-              disabled={!(finalBeat && reflectionChoice !== null)}
-              onClick={onClaimTitle}
-              aria-label={t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}
-            >
-              <span aria-hidden="true">★</span>
-              <strong>{(finalBeat && reflectionChoice !== null)
-                ? t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })
-                : t(reflectionChoice === null
-                  ? { uz: 'Avval fikringizni tanlang', ru: 'Сначала выберите свой ответ', en: 'Choose your reflection first' }
-                  : { uz: "Yakuniy tushuntirishni tinglang", ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })}</strong>
-            </button>
-          )}
-          {titleClaimed && <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} />}
-        <div className="next-rail">
-          <span />
-          <p><b>{t({ ru: 'СЛЕДУЮЩАЯ МИССИЯ', uz: "KEYINGI MISSIYA" , en: "NEXT MISSION"})}</b><span>{t({
-            ru: 'Добавится строка сотен.',
-            uz: "Yuzliklar qatori ham qo'shiladi.",
-            en: "Next, a hundreds row will be added.",
-          })}</span></p>
-        </div>
+    <Stage
+      screen={screen}
+      eyebrow={c.eyebrow}
+      audio={titleClaimed ? { ...finaleAudio, completed: true } : finaleAudio}
+      nav={<><NavBack onClick={onPrev} /><NavNext onClick={titleClaimed ? finishLesson : undefined} finish disabled={!titleClaimed} /></>}
+    >
+      <style>{G4_TITLE_STYLES}</style>
+      <div data-qa-d10-finale-visible={visible} data-qa-d10-finale-complete={complete ? 'true' : 'false'}>
+        <Grade4Finale
+        lang={lang}
+        heading={{
+          eyebrow: t({ uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' }),
+          title: t(c.title),
+          lead: t({ uz: "Ikki qator, ularning siljishi va tekshiruvni bitta yakuniy hisobda birlashtiramiz.", ru: 'Соединим две строки, их сдвиг и проверку в одном итоговом вычислении.', en: 'Combine the two rows, their shift and the check in one final calculation.' }),
+        }}
+        takeaways={rules.slice(0, 3).map(t)}
+        proof={{
+          label: t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'OPENING MISSION SOLUTION' }),
+          value: '324 × 23 = 7 452',
+          text: t(rules[3]),
+        }}
+        bridge={{
+          label: t({ uz: 'KEYINGI MISSIYA', ru: 'СЛЕДУЮЩАЯ МИССИЯ', en: 'NEXT MISSION' }),
+          text: t({ uz: "Keyin yuzliklar qatori ham qo'shiladi.", ru: 'Далее добавится строка сотен.', en: 'Next, a hundreds row will be added.' }),
+          terminal: false,
+        }}
+        visible={visible}
+        complete={complete}
+        revealSteps={{ proof: 4, bridge: 5 }}
+        canClaimTitle={canClaimTitle && complete}
+        titleClaimed={titleClaimed}
+        onClaimTitle={claimTitle}
+        claimLabel={t({ uz: 'Unvonni olish', ru: 'Получить звание', en: 'Claim title' })}
+        pendingLabel={t({ uz: 'Yakuniy tushuntirishni tinglang', ru: 'Прослушайте итоговое объяснение', en: 'Listen to the final explanation' })}
+        renderTitleReveal={() => <G4TitleReveal active={revealRequested} title={t(rewardTitle)} lang={lang} />}
+        renderTitleCard={() => <G4TitleCard title={t(rewardTitle)} lang={lang} firstTry={firstTryCount} totalScored={totalScored} canFinish={titleClaimed} />}
+        bitSlot={<BitSVG state="happy" />}
+        medalTier={firstTryCount === totalScored ? 'gold' : firstTryCount >= Math.max(1, totalScored - 1) ? 'silver' : 'bronze'}
+        />
       </div>
-    </LessonScreen>
+    </Stage>
   );
 }
-
 const Screen0 = (props) => <HookScreen {...props} screen={props.screen} />;
 const Screen1 = (props) => <DecompositionScreen {...props} screen={props.screen} />;
 const Screen2 = (props) => <DistributiveScreen {...props} screen={props.screen} />;
@@ -2864,9 +3138,6 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
 
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState([]);
-  const [titleClaimed, setTitleClaimed] = useState(false);
-  const [revealRequested, setRevealRequested] = useState(false);
-  const [reflectionChoice, setReflectionChoice] = useState(null);
   // eslint-disable-next-line react-hooks/purity -- duration starts when the lesson mounts
   const startTimeRef = useRef(Date.now());
   const finishedRef = useRef(false);
@@ -2882,9 +3153,6 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
       return next;
     });
   }, []);
-
-  const claimTitle = useCallback(() => { setTitleClaimed(true); setRevealRequested(true); }, []);
-  const completeTitleReveal = useCallback(() => setRevealRequested(false), []);
 
   const finishLesson = useCallback(() => {
     if (finishedRef.current) return;
@@ -2948,15 +3216,9 @@ export default function Grade4Dars10({ studentName, lang: langProp, ttsApiBase, 
           answers={answers}
           storedAnswer={answers[current]}
           onAnswer={recordAnswer}
-          onNext={canAdvance ? next : undefined}
+          onNext={canUseGrade4TheoryContinue(canAdvance, false) ? next : undefined}
           onPrev={previous}
-          finishLesson={titleClaimed ? finishLesson : undefined}
-          titleClaimed={titleClaimed}
-          revealRequested={revealRequested}
-          reflectionChoice={reflectionChoice}
-          onReflectionChoice={setReflectionChoice}
-          onClaimTitle={claimTitle}
-          onTitleRevealDone={completeTitleReveal}
+          finishLesson={finishLesson}
         />
       </div>
     </LangContext.Provider>
@@ -3103,9 +3365,10 @@ html, body { margin: 0; padding: 0; }
 .stage-scroll {
   min-height: 0;
   flex: 1 1 auto;
-  overflow: visible;
-  padding-top: 18px;
-  padding-bottom: 14px;
+  overflow: clip;
+  overscroll-behavior: contain;
+  padding-top: clamp(8px, 1.4vw, 13px);
+  padding-bottom: 10px;
   position: relative;
 }
 .stage-fit { min-width: 0; transform-origin: top left; }
@@ -3125,15 +3388,15 @@ html, body { margin: 0; padding: 0; }
   border-top: 1px solid rgba(23,59,82,.08);
 }
 .screen-heading {
-  min-height: 148px;
+  min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr) 96px;
   gap: 16px;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: clamp(12px, 2vw, 18px);
 }
 .screen-heading-no-bit {
-  min-height: 112px;
+  min-height: 0;
   grid-template-columns: minmax(0, 1fr);
 }
 .heading-copy { min-width: 0; }
@@ -3146,17 +3409,17 @@ html, body { margin: 0; padding: 0; }
 }
 .title {
   font-family: 'Source Serif 4', Georgia, serif;
-  font-size: clamp(30px, 4.5vw, 46px);
+  font-size: clamp(26px, 4.2vw, 36px);
   font-weight: 650;
-  line-height: 1.06;
-  letter-spacing: -.018em;
+  line-height: 1.08;
+  letter-spacing: -.012em;
 }
 .heading-copy > p:last-child {
   max-width: 660px;
-  margin-top: 11px;
+  margin-top: 8px;
   color: #50616D;
-  font-size: 15px;
-  line-height: 1.52;
+  font-size: clamp(14px, 1.8vw, 16px);
+  line-height: 1.45;
 }
 .bit-coach {
   height: 94px;
@@ -3239,97 +3502,98 @@ html, body { margin: 0; padding: 0; }
 .btn-ready { animation: ready-pulse 2.4s ease-in-out 2; }
 .numeric-check { min-width: 124px; }
 .feedback {
-  display: flex;
-  align-items: flex-start;
-  gap: 11px;
+  min-height: 88px;
   margin-top: 14px;
-  padding: 14px 16px;
-  border-radius: 16px;
-  line-height: 1.46;
+  padding: 8px 15px 8px 9px;
+  border: 1px solid transparent;
+  border-radius: 18px;
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: center;
+  gap: 13px;
+  line-height: 1.42;
   animation: reveal-up .42s both;
 }
-.feedback strong {
-  flex: 0 0 28px;
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  border-radius: 9px;
-  color: #FFFFFF;
+.feedback-bit {
+  width: 62px;
+  height: 76px;
 }
-.feedback-correct { color: #227A53; background: #E7F3EC; }
-.feedback-correct strong { background: #227A53; }
-.feedback-wrong { color: #8A5A0E; background: #FFF5D9; }
-.feedback-wrong strong { background: #A96F13; }
+.feedback-bit .g1-char { width: 100%; height: 100%; }
+.feedback-content {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.feedback-content > strong {
+  color: inherit;
+  font: 700 clamp(15px, 2vw, 18px)/1.22 'Source Serif 4', Georgia, serif;
+}
+.feedback-copy {
+  color: inherit;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.35;
+}
+.feedback-correct { border-color: rgba(34,122,83,.18); color: #227A53; background: linear-gradient(135deg, #FFFFFF, #E7F3EC); }
+.feedback-wrong { border-color: rgba(169,111,19,.20); color: #8A5A0E; background: linear-gradient(135deg, #FFFFFF, #FFF5D9); }
 .choice-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-  gap: 11px;
+  gap: 10px;
   margin-top: 15px;
 }
 .choice-card {
-  min-height: 64px;
+  min-height: 58px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 12px 15px;
-  border: 0;
-  border-radius: 17px;
+  gap: 11px;
+  padding: 12px 14px;
+  border: 1px solid rgba(80,97,109,.10);
+  border-radius: 14px;
   color: #12212C;
-  background: #FFFFFF;
+  background: linear-gradient(145deg, #FFFFFF, #FBFCFA);
   text-align: left;
-  box-shadow: 0 6px 18px rgba(58,53,48,.11), inset 0 0 0 1px rgba(23,59,82,.08);
+  font-weight: 650;
+  box-shadow: 0 10px 24px -17px rgba(58,53,48,.44);
   cursor: pointer;
-  transition: transform .2s, box-shadow .2s, background .2s, opacity .2s;
+  transition: transform .18s ease, box-shadow .18s ease, opacity .18s ease, filter .18s ease;
 }
 .choice-card:not(:disabled):hover {
   transform: translateY(-2px);
-  box-shadow: 0 10px 24px rgba(58,53,48,.14), inset 0 0 0 2px rgba(22,143,163,.24);
+  box-shadow: 0 14px 28px -16px rgba(58,53,48,.5), 0 0 0 3px rgba(22,143,163,.07);
 }
 .choice-card:disabled { cursor: default; }
-.choice-card > span {
-  flex: 0 0 34px;
-  width: 34px;
-  height: 34px;
+.choice-card > .option-letter {
+  flex: 0 0 25px;
+  width: 25px;
+  height: 25px;
   display: grid;
   place-items: center;
-  border-radius: 10px;
-  color: #FFFFFF;
-  background: #173B52;
-  font: 900 12px 'JetBrains Mono', monospace;
+  border-radius: 8px;
+  color: #168FA3;
+  background: #E5F5F6;
+  font: 800 11px/1 'JetBrains Mono', monospace;
 }
-.choice-card > b { font-size: 14px; line-height: 1.35; }
+.choice-card > b { font-size: 14px; font-weight: 650; line-height: 1.35; }
 .choice-selected {
   background: #E5F5F6;
   box-shadow: 0 0 0 2px rgba(22,143,163,.32);
 }
-.choice-selected > span { background: #168FA3; }
+.choice-selected > .option-letter { color: #FFFFFF; background: #168FA3; }
+.choice-wrong { opacity: .28; filter: grayscale(.6); }
 .choice-correct {
+  border-color: rgba(34,122,83,.30);
+  color: #227A53;
   background: #E7F3EC;
-  box-shadow: 0 0 0 2px rgba(34,122,83,.34);
+  box-shadow: 0 0 0 2px rgba(34,122,83,.24), 0 10px 24px -17px rgba(34,122,83,.48);
 }
-.choice-correct > span { background: #227A53; }
+.choice-correct > .option-letter { color: #FFFFFF; background: #227A53; }
 .prediction-options {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 9px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
   margin-top: 15px;
 }
-.prediction-chip {
-  min-width: 116px;
-  min-height: 48px;
-  padding: 9px 14px;
-  border: 0;
-  border-radius: 14px;
-  color: #173B52;
-  background: #FFFFFF;
-  font: 850 16px 'JetBrains Mono', monospace;
-  box-shadow: 0 5px 16px rgba(58,53,48,.11);
-  cursor: pointer;
-}
-.prediction-picked { box-shadow: 0 0 0 2px rgba(22,143,163,.35), 0 7px 18px rgba(58,53,48,.10); }
-.prediction-correct { color: #227A53; background: #E7F3EC; }
+.prediction-chip { min-width: 0; }
 .hook-scene {
   position: relative;
   min-height: 295px;
@@ -3378,7 +3642,10 @@ html, body { margin: 0; padding: 0; }
   color: #FFD08A;
   animation: tens-pulse 1.25s ease-in-out 2;
 }
-.hook-choices { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hook-choices {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
 .decomposition-board { display: grid; justify-items: center; gap: 17px; }
 .number-23 {
   display: flex;
@@ -4253,12 +4520,12 @@ html, body { margin: 0; padding: 0; }
 @media (max-height: 780px) {
   .stage-scroll { padding-top: 8px; padding-bottom: 6px; }
   .stage-footer { min-height: 58px; padding-block: 6px; }
-  .screen-heading { min-height: 82px; margin-bottom: 8px; gap: 9px; }
-  .screen-heading-no-bit { min-height: 72px; }
+  .screen-heading { min-height: 0; margin-bottom: 8px; gap: 9px; }
+  .screen-heading-no-bit { min-height: 0; }
   .bit-coach { height: 76px; }
   .math-card { padding: 10px; }
   .choice-grid, .matching-board, .construction-board { gap: 8px; }
-  .choice-card { min-height: 52px; padding: 8px 10px; }
+  .choice-card { min-height: 58px; padding: 12px 14px; }
   .feedback-block { min-height: 46px; padding-block: 7px; }
   .production-rails { max-height: 130px; }
 }
@@ -4271,13 +4538,13 @@ html, body { margin: 0; padding: 0; }
   .stage-scroll { padding-top: 9px; padding-bottom: 7px; }
   .stage-footer { min-height: 68px; padding-top: 9px; padding-bottom: 10px; }
   .screen-heading {
-    min-height: 125px;
+    min-height: 0;
     grid-template-columns: minmax(0, 1fr) 76px;
     gap: 8px;
     margin-bottom: 13px;
   }
   .screen-heading-no-bit {
-    min-height: 98px;
+    min-height: 0;
     grid-template-columns: minmax(0, 1fr);
   }
   .title { font-size: 28px; }
@@ -4289,9 +4556,9 @@ html, body { margin: 0; padding: 0; }
   .formula { padding: 13px 9px; font-size: 23px; }
   .btn { min-height: 46px; padding: 10px 13px; font-size: 13px; }
   .choice-grid { grid-template-columns: 1fr; gap: 8px; margin-top: 11px; }
-  .choice-card { min-height: 54px; padding: 9px 11px; }
-  .choice-card > span { flex-basis: 30px; width: 30px; height: 30px; }
-  .choice-card > b { font-size: 12px; }
+  .choice-card { min-height: 50px; padding: 10px 12px; }
+  .choice-card > span { flex-basis: 25px; width: 25px; height: 25px; }
+  .choice-card > b { font-size: 14px; }
   .hook-scene {
     min-height: 246px;
     grid-template-columns: 80px minmax(0, 1fr);
@@ -4359,8 +4626,7 @@ html, body { margin: 0; padding: 0; }
   .error-column { min-height: 283px; padding: 9px; }
   .error-column pre { font-size: 17px; }
   .error-column .g1-char { width: 72px; }
-  .error-layout .choice-card { padding: 8px; }
-  .error-layout .choice-card > span { display: none; }
+  .error-layout .choice-card { padding: 10px 12px; }
   .sensor-scene { grid-template-columns: 1fr; gap: 10px; }
   .sensor-panels-svg { max-height: 142px; }
   .screen-heading.finale-heading { min-height: 0; margin-bottom: 8px; padding: 10px 12px; }
@@ -4395,7 +4661,6 @@ html, body { margin: 0; padding: 0; }
 }
 @media (min-width: 640.01px) and (max-height: 780px) {
   .stage-screen-1 .stage-fit { zoom: .95; }
-  .stage-screen-14 .stage-fit { zoom: .9; }
   .stage-screen-15 .stage-fit { zoom: .92; }
 }
 @media (max-width: 640px) and (max-height: 700px) {
@@ -4403,8 +4668,8 @@ html, body { margin: 0; padding: 0; }
   .progress-track { height: 4px; margin-bottom: 4px; }
   .stage-scroll { padding-top: 4px; padding-bottom: 3px; }
   .stage-footer { min-height: 56px; padding-block: 5px; }
-  .screen-heading { min-height: 62px; margin-bottom: 5px; grid-template-columns: minmax(0,1fr) 48px; gap: 5px; }
-  .screen-heading-no-bit { min-height: 54px; grid-template-columns: minmax(0,1fr); }
+  .screen-heading { min-height: 0; margin-bottom: 5px; grid-template-columns: minmax(0,1fr) 48px; gap: 5px; }
+  .screen-heading-no-bit { min-height: 0; grid-template-columns: minmax(0,1fr); }
   .title { font-size: 20px; line-height: 1.05; }
   .heading-copy > p:last-child { margin-top: 3px; font-size: 9px; line-height: 1.2; }
   .lesson-kicker { margin-bottom: 3px !important; font-size: 8px; }
@@ -4417,10 +4682,10 @@ html, body { margin: 0; padding: 0; }
   .stage-screen-1 .hook-expression { margin-top: 5px; font-size: 25px; }
   .stage-screen-1 .hook-line { margin-top: 6px; padding: 6px; font-size: 13px; }
   .stage-screen-1 .terminal-card p { margin-top: 5px; font-size: 9px; line-height: 1.2; }
-  .stage-screen-1 .hook-choices { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 5px; margin-top: 0; }
-  .stage-screen-1 .choice-card { min-height: 44px; padding: 4px 6px; gap: 5px; }
-  .stage-screen-1 .choice-card > span { width: 26px; height: 26px; flex-basis: 26px; }
-  .stage-screen-1 .choice-card > b { font-size: 9px; line-height: 1.15; }
+  .stage-screen-1 .hook-choices { grid-template-columns: 1fr; gap: 5px; margin-top: 0; }
+  .stage-screen-1 .choice-card { min-height: 50px; padding: 10px 12px; gap: 11px; }
+  .stage-screen-1 .choice-card > span { width: 25px; height: 25px; flex-basis: 25px; }
+  .stage-screen-1 .choice-card > b { font-size: 14px; line-height: 1.35; }
   .stage-screen-1 .feedback { min-height: 44px; margin-top: 0; padding: 6px 8px; font-size: 9px; line-height: 1.2; }
 
   .stage-screen-2 .decomposition-board { gap: 5px; padding: 7px; }
@@ -4434,26 +4699,33 @@ html, body { margin: 0; padding: 0; }
 
   .stage-screen-2 .prediction-options,
   .stage-screen-6 .prediction-options,
-  .stage-screen-10 .prediction-options { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; margin-top: 5px; }
+  .stage-screen-10 .prediction-options { display: grid; grid-template-columns: 1fr; gap: 5px; margin-top: 5px; }
   .stage-screen-2 .prediction-chip,
   .stage-screen-6 .prediction-chip,
-  .stage-screen-10 .prediction-chip { min-width: 0; min-height: 44px; padding: 4px; font-size: 10px; line-height: 1.12; }
+  .stage-screen-10 .prediction-chip { min-width: 0; min-height: 50px; padding: 10px 12px; font-size: 14px; line-height: 1.35; }
   .stage-screen-2 .feedback,
   .stage-screen-6 .feedback,
   .stage-screen-10 .feedback,
-  .stage-screen-13 .feedback { min-height: 44px; max-height: 58px; margin-top: 4px; padding: 5px 7px; gap: 5px; font-size: 8px; line-height: 1.16; }
+  .stage-screen-13 .feedback { min-height: 44px; max-height: 58px; margin-top: 0; padding: 5px 7px; gap: 5px; font-size: 8px; line-height: 1.16; }
   .stage-screen-2 .feedback-bit,
   .stage-screen-6 .feedback-bit,
   .stage-screen-10 .feedback-bit,
   .stage-screen-13 .feedback-bit { width: 32px; height: 40px; }
-  .stage-screen-2 .feedback > span:last-child,
-  .stage-screen-6 .feedback > span:last-child,
-  .stage-screen-10 .feedback > span:last-child,
-  .stage-screen-13 .feedback > span:last-child { gap: 2px; }
-  .stage-screen-2 .feedback > span:last-child > strong,
-  .stage-screen-6 .feedback > span:last-child > strong,
-  .stage-screen-10 .feedback > span:last-child > strong,
-  .stage-screen-13 .feedback > span:last-child > strong { font-size: 8px; }
+  .stage-screen-2 .feedback-content,
+  .stage-screen-6 .feedback-content,
+  .stage-screen-10 .feedback-content,
+  .stage-screen-13 .feedback-content { gap: 2px; }
+  .stage-screen-2 .feedback-content > strong,
+  .stage-screen-6 .feedback-content > strong,
+  .stage-screen-10 .feedback-content > strong,
+  .stage-screen-13 .feedback-content > strong { font-size: 8px; }
+  .stage-screen-2 .feedback-copy,
+  .stage-screen-6 .feedback-copy,
+  .stage-screen-10 .feedback-copy,
+  .stage-screen-13 .feedback-copy { font-size: 8px; line-height: 1.16; }
+
+  .stage-screen-3 .solution-proof { margin-top: 0; padding: 10px 14px; gap: 5px; }
+  .stage-screen-3 .solution-proof strong { padding-top: 5px; font-size: 16px; }
 
   .stage-screen-6 .shift-proof-card { gap: 4px; padding: 7px; }
   .stage-screen-6 .shift-proof-card > .formula { padding: 6px; font-size: 18px; }
@@ -4482,10 +4754,10 @@ html, body { margin: 0; padding: 0; }
   .stage-screen-13 .sensor-scene { grid-template-columns: minmax(0,1.2fr) minmax(0,.8fr); gap: 5px; padding: 7px; }
   .stage-screen-13 .sensor-panels-svg { max-height: 90px; }
   .stage-screen-13 .sensor-scene .formula { padding: 7px 3px; font-size: 17px; }
-  .stage-screen-13 .choice-grid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 4px; margin-top: 5px; }
-  .stage-screen-13 .choice-card { min-height: 44px; padding: 4px; gap: 4px; }
-  .stage-screen-13 .choice-card > span { width: 23px; height: 23px; flex-basis: 23px; font-size: 9px; }
-  .stage-screen-13 .choice-card > b { font-size: 9px; line-height: 1.12; }
+  .stage-screen-13 .choice-grid { grid-template-columns: 1fr; gap: 5px; margin-top: 5px; }
+  .stage-screen-13 .choice-card { min-height: 50px; padding: 10px 12px; gap: 11px; }
+  .stage-screen-13 .choice-card > span { width: 25px; height: 25px; flex-basis: 25px; font-size: 11px; }
+  .stage-screen-13 .choice-card > b { font-size: 14px; line-height: 1.35; }
   .stage-screen-13 .solution-proof { margin-top: 4px; padding: 6px; gap: 3px; font-size: 8px; }
   .stage-screen-13 .sensor-proof { margin-top: 4px; }
 
@@ -4603,15 +4875,12 @@ html, body { margin: 0; padding: 0; }
 .lesson-root .stage-screen-15 .stage-fit{zoom:1!important}
 .lesson-root .hook-scene[data-g4-role~="hook-scene"]{grid-template-columns:minmax(0,1fr)!important}
 .lesson-root .hook-scene[data-g4-role~="hook-scene"] .terminal-card{grid-column:1/-1;min-width:0;padding-right:140px}
-.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading{min-height:0!important;display:block;grid-template-columns:1fr;margin-bottom:8px}
-.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading :is(.lesson-kicker,.bit-coach){display:none!important}
-.lesson-root .hook-contract-root:has([data-g4-feedback])>.screen-heading [data-g4-role~="hook-question"]{margin:0}
-.lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack>[data-g4-role~="hook-scene"]{display:none!important}
+.lesson-root .stage-fit>div:has([data-g4-feedback="wrong"])>.screen-heading{min-height:0!important;display:block;grid-template-columns:1fr;margin-bottom:8px}
+.lesson-root .stage-fit>div:has([data-g4-feedback="wrong"])>.screen-heading :is(.lesson-kicker,.title,.bit-coach){display:none!important}
+.lesson-root .stage-fit>div:has([data-g4-feedback="wrong"])>.screen-heading .heading-copy>p:last-child{margin:0}
 .lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack{display:grid;align-content:start;gap:8px}
 .lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-choices{margin-top:0}
 .lesson-root .hook-contract-root:has([data-g4-feedback]) [data-g4-feedback]{margin-top:0!important}
-.lesson-root .stage-fit>div:has(.matching-board[data-matching-solved="true"])>.screen-heading,
-.lesson-root .matching-board[data-matching-solved="true"]{display:none!important}
 @media(max-width:639.98px){
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-title"]{font-size:25px}
   :is(.lesson-root,.d8-root) [data-g4-role~="hook-scene"][data-g4-role~="visual-frame"],
@@ -4630,10 +4899,180 @@ html, body { margin: 0; padding: 0; }
   .lesson-root .stage-screen-1 [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}
   .lesson-root .hook-contract-root:has([data-g4-feedback]) .hook-screen-stack{gap:6px}
   .lesson-root .hook-scene[data-g4-role~="hook-scene"] .terminal-card{padding-right:84px}
-  .lesson-root .error-layout:has([data-g4-feedback]){grid-template-columns:minmax(0,1fr)!important}
-  .lesson-root .error-layout:has([data-g4-feedback])>.error-column{display:none!important}
   .lesson-root .stage-screen-15 .g4-title-card-stage{min-height:calc(88px / var(--g4z,1));padding:calc(9px / var(--g4z,1)) calc(59px / var(--g4z,1)) calc(8px / var(--g4z,1)) calc(51px / var(--g4z,1))}
   .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-bit{width:calc(57px / var(--g4z,1));height:calc(71px / var(--g4z,1))}
   .lesson-root .stage-screen-15 .g4-title-card-stage .g4-title-card-medal{width:calc(34px / var(--g4z,1));height:calc(34px / var(--g4z,1))}
+}
+
+/* Dars10 methodist revisions: slides 6, 7, 11, 14 and answer-state preservation. */
+.tens-shift-proof{
+  display:grid;
+  grid-template-columns:minmax(150px,.72fr) minmax(150px,.72fr) minmax(280px,1.56fr);
+  gap:10px;
+  padding:14px;
+  color:#173B52;
+  background:#E5F5F6;
+}
+.tens-proof-step{
+  min-height:116px;
+  padding:12px;
+  border-radius:14px;
+  display:grid;
+  place-content:center;
+  gap:8px;
+  visibility:hidden;
+  opacity:0;
+  background:rgba(255,255,255,.78);
+  box-shadow:inset 0 0 0 1px rgba(22,143,163,.12);
+  transition:opacity .28s ease,transform .28s ease;
+  transform:translateY(5px);
+}
+.tens-proof-step.is-visible{visibility:visible;opacity:1;transform:none}
+.tens-proof-step.is-active{box-shadow:inset 4px 0 #168FA3,0 8px 18px -14px rgba(23,59,82,.45)}
+.tens-proof-step span{font-size:11px;font-weight:800;line-height:1.3}
+.tens-proof-step strong{font:900 clamp(17px,2vw,23px)/1.15 'JetBrains Mono',monospace}
+.place-shift-board{
+  min-width:0;
+  padding:9px;
+  border-radius:14px;
+  display:grid;
+  grid-template-columns:1fr;
+  gap:5px;
+  visibility:hidden;
+  opacity:0;
+  background:rgba(255,255,255,.86);
+  transition:opacity .28s ease,transform .28s ease;
+  transform:translateY(5px);
+}
+.place-shift-board.is-shifted{visibility:visible;opacity:1;transform:none}
+.place-shift-board.is-active{box-shadow:inset 4px 0 #FF5B35}
+.place-shift-head,.place-shift-row{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.place-shift-head span{color:#50616D;text-align:center;font-size:9px;font-weight:850}
+.place-shift-row>:is(b,i){min-height:31px;border-radius:8px;display:grid;place-items:center;background:#F4F8F8}
+.place-shift-row b{font:900 18px/1 'JetBrains Mono',monospace}
+.place-shift-after{visibility:hidden;opacity:0}
+.place-shift-board.is-shifted .place-shift-after{visibility:visible;opacity:1}
+.place-shift-after b{color:#185D42;background:#E7F3EC}
+.place-shift-after .place-zero{color:#FFFFFF;background:#227A53}
+.place-shift-arrow{color:#FF5B35;text-align:center;font:900 12px/1 'JetBrains Mono',monospace}
+.place-shift-board p{margin:0;color:#173B52;text-align:center;font-size:10px;font-weight:850}
+
+.place-match-frame{
+  padding:12px;
+  display:grid;
+  gap:9px;
+  color:#173B52;
+  background:#E5F5F6;
+}
+.place-match-decomposition{
+  width:min(100%,360px);
+  margin:0 auto;
+  padding:7px 12px;
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:11px;
+  color:#173B52;
+  background:#FFFFFF;
+  font:900 18px/1.1 'JetBrains Mono',monospace;
+}
+.place-match-frame .matching-board-connectors{min-height:160px;gap:clamp(54px,10vw,112px);padding:0;background:transparent;overflow:visible}
+.place-match-frame .matching-column{gap:9px}
+.place-match-frame .match-endpoint{min-height:62px;padding:8px 11px;display:grid;gap:3px}
+.place-match-frame .match-endpoint span{color:#168FA3;font-size:10px;font-weight:850}
+.place-match-frame .match-endpoint strong{font:900 clamp(12px,1.5vw,16px)/1.2 'JetBrains Mono',monospace}
+.place-match-frame .match-endpoint-right{place-content:center;text-align:center;font-size:12px}
+.place-match-frame [data-matching-solved="false"] .match-endpoint-complete{color:#173B52;border-color:#168FA3;background:#E5F5F6;box-shadow:0 0 0 3px rgba(22,143,163,.12)}
+.matching-connector-pending{stroke:#168FA3;stroke-dasharray:8 6}
+.matching-check{width:min(100%,360px);margin:0 auto;justify-content:center}
+
+.column-build-board{
+  width:min(100%,720px);
+  margin:0 auto;
+  padding:13px;
+  display:grid;
+  gap:5px;
+  color:#173B52;
+  background:#E5F5F6;
+}
+.column-build-head,.column-build-row{display:grid;grid-template-columns:minmax(116px,1.45fr) repeat(4,minmax(42px,1fr));gap:5px;align-items:center}
+.column-build-head span{color:#50616D;text-align:center;font-size:9px;font-weight:850}
+.column-build-row>span{min-width:0;padding-right:7px;color:#50616D;text-align:right;font-size:10px;font-weight:850;line-height:1.2}
+.column-build-row>:is(b,i){min-height:36px;border-radius:9px;display:grid;place-items:center;background:rgba(255,255,255,.82)}
+.column-build-row b{font:900 19px/1 'JetBrains Mono',monospace}
+.column-build-source>span{color:#173B52;font:900 15px/1 'JetBrains Mono',monospace}
+.column-build-rule{height:2px;margin-left:calc(116px + 5px);border-radius:99px;background:#173B52}
+.column-build-product,.column-build-total,.column-build-hint{visibility:hidden;opacity:0;transition:opacity .28s ease,transform .28s ease;transform:translateY(4px)}
+.column-build-product.is-visible,.column-build-total.is-visible,.column-build-hint.is-visible{visibility:visible;opacity:1;transform:none}
+.column-build-product.is-active>:is(b,i){box-shadow:inset 0 0 0 2px #168FA3;background:#FFFFFF}
+.column-build-tens.is-shifted b{color:#185D42;background:#E7F3EC}
+.column-build-tens.is-shifted b:last-child{color:#FFFFFF;background:#227A53}
+.column-build-hint{margin:0;padding:5px 9px;border-radius:9px;color:#A64B2D;background:#FFF0EB;text-align:center;font-size:10px;font-weight:850}
+.column-build-hint.is-active{box-shadow:inset 4px 0 #FF5B35}
+.column-build-total b{color:#FFFFFF;background:#168FA3}
+.column-build-total>span{color:#173B52;font-weight:900}
+.column-build-board .shift-action{width:min(100%,430px);margin:4px auto 0;justify-content:center}
+
+.feedback-copy>.solution-proof,.feedback-copy>.repair-proof,.feedback-copy>.solution-inline{
+  margin:0;
+  padding:0;
+  border-radius:0;
+  gap:3px;
+  color:inherit;
+  background:transparent;
+  box-shadow:none;
+  animation:none;
+}
+.feedback-copy>.solution-proof strong,.feedback-copy>.repair-proof strong,.feedback-copy>.solution-inline strong{padding-top:4px;border-top:1px solid rgba(34,122,83,.22);font-size:13px}
+.solution-inline{display:grid;gap:4px}
+.numeric-card-correct input:disabled{opacity:1;color:#185D42;border-color:rgba(34,122,83,.42);background:#E7F3EC;box-shadow:0 0 0 3px rgba(34,122,83,.10)}
+.stage-screen-11 .error-column{min-height:220px}
+
+.stage-screen-15 [data-qa-d10-finale-visible] :is(.finale-takeaway,.finale-proof,.finale-bridge):not(.is-visible){visibility:hidden!important;opacity:0!important;pointer-events:none!important}
+.stage-screen-15 [data-qa-d10-finale-visible] :is(.finale-takeaway,.finale-proof,.finale-bridge).is-visible{visibility:visible!important}
+
+@media(max-width:760px){
+  .tens-shift-proof{grid-template-columns:repeat(2,minmax(0,1fr));padding:9px;gap:6px}
+  .tens-proof-step{min-height:72px;padding:7px;gap:4px}
+  .tens-proof-step span{font-size:9px}
+  .tens-proof-step strong{font-size:15px}
+  .place-shift-board{grid-column:1/-1;padding:6px;gap:3px}
+  .place-shift-row>:is(b,i){min-height:25px}
+  .place-shift-row b{font-size:15px}
+  .place-match-frame{padding:8px;gap:6px}
+  .place-match-decomposition{padding:5px 8px;font-size:15px}
+  .place-match-frame .matching-board-connectors{min-height:142px;gap:46px}
+  .place-match-frame .match-endpoint{min-height:57px;padding:6px;gap:2px}
+  .place-match-frame .match-endpoint strong{font-size:11px}
+  .place-match-frame .match-endpoint-right{font-size:10px}
+  .matching-check{min-height:44px}
+  .column-build-board{padding:8px;gap:3px}
+  .column-build-head,.column-build-row{grid-template-columns:minmax(88px,1.35fr) repeat(4,minmax(0,1fr));gap:3px}
+  .column-build-head span{font-size:7px}
+  .column-build-row>span{padding-right:4px;font-size:8px}
+  .column-build-row>:is(b,i){min-height:28px;border-radius:7px}
+  .column-build-row b{font-size:15px}
+  .column-build-source>span{font-size:12px}
+  .column-build-rule{margin-left:91px}
+  .column-build-hint{padding:4px 6px;font-size:8px}
+  .column-build-board .shift-action{min-height:44px;margin-top:2px;padding:6px;font-size:9px}
+  .stage-screen-11 .error-layout{grid-template-columns:minmax(0,1fr);gap:7px}
+  .stage-screen-11 .error-column{min-height:138px;padding:8px}
+  .stage-screen-11 .error-column pre{font-size:20px}
+}
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stage-screen-1 .hook-contract-root:has([data-g4-feedback="solution"]) .screen-heading{margin-bottom:2px;padding-block:2px}
+  .lesson-root .stage-screen-1 .hook-contract-root:has([data-g4-feedback="solution"]) .lesson-kicker{margin-bottom:1px!important}
+  .lesson-root .stage-screen-1 .hook-contract-root:has([data-g4-feedback="solution"]) .title{font-size:18px;line-height:1.04}
+  .lesson-root .stage-screen-1 .hook-contract-root:has([data-g4-feedback="solution"]) .heading-copy>p:last-child{margin-top:2px;font-size:8px;line-height:1.1}
+  .lesson-root .stage-screen-1 .hook-contract-root:has([data-g4-feedback="solution"]) .hook-scene[data-g4-role~="visual-frame"]{min-height:140px!important}
+  .lesson-root .stage-screen-6 [data-qa-tens-shift-proof]~.prediction-options{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}
+  .lesson-root .stage-screen-6 [data-qa-tens-shift-proof]~.prediction-options .prediction-chip{min-height:44px;padding:6px;gap:5px}
+  .lesson-root .stage-screen-6 [data-qa-tens-shift-proof]~.prediction-options .prediction-chip>b{font-size:11px}
+  .lesson-root .stage-screen-11 .error-layout{gap:4px}
+  .lesson-root .stage-screen-11 .error-column{min-height:130px}
+  .lesson-root .stage-screen-11 .error-layout:has([data-g4-feedback="solution"]) .error-column{min-height:112px}
+  .lesson-root .stage-screen-11 .error-layout:has([data-g4-feedback="solution"]) .error-column pre{font-size:18px}
 }
 `;

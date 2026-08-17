@@ -62,7 +62,7 @@ function inspectDars08AudioCoverage(file, source, ast) {
     fail(file, content, 'Dars08 CONTENT object literal topilmadi');
     return;
   }
-  for (let index = 0; index < 16; index += 1) {
+  for (let index = 0; index < 15; index += 1) {
     const screen = objectProperty(content, `s${index}`)?.value;
     if (screen?.type !== 'ObjectExpression') {
       fail(file, screen, `Dars08 CONTENT.s${index} topilmadi`);
@@ -76,8 +76,8 @@ function inspectDars08AudioCoverage(file, source, ast) {
   }
 
   const rendererNames = [
-    'ChoiceScreen', 'ReasoningRoundsScreen', 'ExplanationScreen', 'BuildPracticeScreen',
-    'RuleBuilderScreen', 'RapidTestConsoleScreen', 'MatchingScreen', 'SummaryScreen',
+    'ChoiceScreen', 'GuidedChoiceStepsScreen', 'ReasoningRoundsScreen', 'PlacementMapScreen',
+    'ExplanationScreen', 'MissingDigitScreen', 'RapidTestConsoleScreen', 'SummaryScreen',
   ];
   if (!/function\s+useScreenAudio\b|const\s+useScreenAudio\s*=/.test(source)) {
     fail(file, null, 'Dars08 canonical useScreenAudio adapteri topilmadi');

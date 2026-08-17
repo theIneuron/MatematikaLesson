@@ -2516,8 +2516,8 @@ const buildOptionOrder = (length, correctIndex, seed = 0) => {
 const BitAnswerComment = ({ formula, label, children }) => {
   const lang = useLang();
   return (
-    <div className="bit-answer-comment" aria-live="polite">
-      <div className="bit-answer-comment-figure">
+    <div className="bit-answer-comment" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback="solution" aria-live="polite">
+      <div className="bit-answer-comment-figure" data-g4-role="feedback-bit">
         <BitSVG state="nod" />
       </div>
       <div className="bit-answer-comment-copy">
@@ -2542,8 +2542,8 @@ const FeedbackBlock = ({ show, correct, reaction, children }) => {
       : (lang === 'en' ? "Think again." : lang === 'ru' ? 'Подумай ещё.' : "Yana o'ylang."));
   return (
     <div className={`feedback ${show ? 'feedback-visible' : ''}`} aria-hidden={!show}>
-      <div className={`feedback-card g4-bit-reaction ${correct ? 'feedback-correct g4-bit-reaction-ok' : 'feedback-hint g4-bit-reaction-hint'}`}>
-        <div className="g4-bit-reaction-figure">
+      <div className={`feedback-card g4-bit-reaction ${correct ? 'feedback-correct g4-bit-reaction-ok' : 'feedback-hint g4-bit-reaction-hint'}`} data-g4-role="feedback-frame" data-g4-feedback={correct ? 'solution' : 'wrong'}>
+        <div className="g4-bit-reaction-figure" data-g4-role="feedback-bit">
           <BitSVG state={correct ? 'nod' : 'awkward'} />
         </div>
         <div className="g4-bit-reaction-copy">
@@ -3291,7 +3291,7 @@ const ChoiceScreen = ({
         <h2 className="question-title">{t(c.question)}</h2>
         {figure?.({ solved, picked })}
         <div className="answer-stage choice-answer-stage">
-          <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
+          <div className="answer-layer answer-options-layer">
             <div className={`options-grid ${options.length === 3 ? 'options-three' : ''}`}>
               {options.map((option, index) => {
                 const isWrong = wrong.has(index);
@@ -3300,8 +3300,11 @@ const ChoiceScreen = ({
                   <button
                     type="button"
                     key={`${option}-${index}`}
-                    className={`option ${isWrong ? 'option-wrong' : ''} ${solved && isCorrect ? 'option-correct-reveal option-answer-confirm' : ''} ${solved && !isCorrect ? 'option-answer-dismiss' : ''}`}
+                    className={`option ${isWrong ? 'option-wrong' : ''} ${solved && isCorrect ? 'option-correct-reveal option-answer-confirm' : ''}`}
                     style={{ '--answer-exit-delay': `${index * 85}ms` }}
+                    data-g4-branch="choice"
+                    data-g4-source-index={optionOrder[index]}
+                    data-g4-correct={isCorrect ? 'true' : 'false'}
                     disabled={!canAnswer || isWrong || solved}
                     onClick={() => pick(index)}
                   >
@@ -3607,14 +3610,17 @@ const ReasoningRoundsScreen = ({
           <h2 className="question-title">{t(current.question)}</h2>
           {renderVisual()}
           <div className="answer-stage reasoning-answer-stage">
-            <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
+            <div className="answer-layer answer-options-layer">
               <div className={`options-grid ${current.options.length === 3 ? 'options-three' : ''}`}>
                 {options.map((option, index) => (
                   <button
                     type="button"
                     key={`${t(option)}-${index}`}
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${roundSolved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''}`}
                     style={{ '--answer-exit-delay': `${index * 85}ms` }}
+                    data-g4-branch="choice"
+                    data-g4-source-index={optionOrder[index]}
+                    data-g4-correct={index === correctIndex ? 'true' : 'false'}
                     disabled={wrong.has(index) || !canAnswer || roundSolved}
                     onClick={() => choose(index)}
                   >
@@ -4697,6 +4703,7 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
   const lang = useLang();
   const t = useT();
   const [step, setStep] = useState(storedAnswer?.solved ? 2 : 0);
+  const [stepSolved, setStepSolved] = useState(storedAnswer?.solved === true);
   const [wrong, setWrong] = useState(() => new Set());
   const [message, setMessage] = useState('');
   const [lastCorrect, setLastCorrect] = useState(storedAnswer?.solved === true);
@@ -4709,6 +4716,7 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
   ));
   const canAnswer = useCanAnswer(audio);
   const solved = step === 2;
+  const phaseSolved = solved || stepSolved;
   const canAdvance = useAdvanceGate(solved, audio);
   const optionsRaw = step === 0 ? c.options : c.followupOptions;
   const sourceCorrectIndex = step === 0 ? c.correctIndex : c.followupCorrectIndex;
@@ -4721,7 +4729,7 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
   const correctIndex = optionOrder.indexOf(sourceCorrectIndex);
 
   const choose = (index) => {
-    if (!canAnswer || solved || wrong.has(index)) return;
+    if (!canAnswer || phaseSolved || wrong.has(index)) return;
     attempts.current += 1;
     const sourceIndex = optionOrder[index];
     const correct = sourceIndex === sourceCorrectIndex;
@@ -4731,12 +4739,12 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
     setReactionSeed(nextReactionSeed);
     if (correct) {
       if (step === 0) {
-        setStep(1);
-        setWrong(new Set());
+        setStepSolved(true);
         setMessage(t(c.audio.on_correct));
         audio.pushOneOff(bitSpeech(t, true, nextReactionSeed, t(c.audio.on_correct)));
       } else {
         setStep(2);
+        setStepSolved(true);
         setMessage(t(c.correctText));
         onAnswer({
           stage: SCREEN_META[screen].scope,
@@ -4764,6 +4772,14 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
     }
   };
 
+  const nextStrategyStep = () => {
+    if (step !== 0 || !stepSolved) return;
+    setStep(1);
+    setStepSolved(false);
+    setWrong(new Set());
+    setMessage('');
+  };
+
   return (
     <Stage
       screen={screen}
@@ -4782,14 +4798,17 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
           <h1 className="title h-title">{t(step === 0 ? c.question : c.followupQuestion)}</h1>
           <StrategyDecomposition step={step} t={t} />
           <div className="answer-stage strategy-answer-stage">
-            <div className={`answer-layer answer-options-layer ${solved ? 'answer-layer-hidden' : ''}`}>
+            <div className="answer-layer answer-options-layer">
               <div className="options-grid options-three">
                 {options.map((option, index) => (
                   <button
                     type="button"
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${solved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${solved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${phaseSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''}`}
                     style={{ '--answer-exit-delay': `${index * 85}ms` }}
-                    disabled={wrong.has(index) || solved}
+                    data-g4-branch="choice"
+                    data-g4-source-index={optionOrder[index]}
+                    data-g4-correct={index === correctIndex ? 'true' : 'false'}
+                    disabled={wrong.has(index) || phaseSolved}
                     key={`${option}-${index}`}
                     onClick={() => choose(index)}
                   >
@@ -4799,20 +4818,25 @@ const StrategyScreen = ({ screen, c, storedAnswer, onAnswer, onNext, onPrev }) =
                 ))}
               </div>
             </div>
-            <div className={`answer-layer answer-proof-layer ${solved ? 'answer-layer-visible' : ''}`}>
-              {solved && (
+            <div className={`answer-layer answer-proof-layer ${phaseSolved ? 'answer-layer-visible' : ''}`}>
+              {phaseSolved && (
                 <BitAnswerComment
-                  formula="482 731 = 482 × 1 000 + 731"
-                  label={t(c.followupOptions[c.followupCorrectIndex])}
+                  formula={step === 0 ? t(c.options[c.correctIndex]) : '482 731 = 482 × 1 000 + 731'}
+                  label={step === 0 ? t(c.audio.on_correct) : t(c.followupOptions[c.followupCorrectIndex])}
                 >
-                  <p>{t(c.correctText)}</p>
+                  <p>{step === 0 ? t(c.audio.on_correct) : t(c.correctText)}</p>
+                  {step === 0 && (
+                    <button type="button" className="btn btn-secondary" onClick={nextStrategyStep}>
+                      {lang === 'en' ? 'Next question' : lang === 'ru' ? 'Следующий вопрос' : 'Keyingi savol'} <span aria-hidden="true">→</span>
+                    </button>
+                  )}
                 </BitAnswerComment>
               )}
             </div>
           </div>
         </div>
         <FeedbackBlock
-          show={Boolean(message) && !solved}
+          show={Boolean(message) && !phaseSolved}
           correct={lastCorrect}
           reaction={reactionSeed !== null ? getBitReaction(lastCorrect, reactionSeed) : null}
         >
@@ -5184,14 +5208,17 @@ const RapidTestConsoleScreen = ({
           <h2 className="question-title">{t(current.question)}</h2>
           <QuickNumberCard key={`quick-${round}`} c={current} solved={roundSolved} />
           <div className="answer-stage rapid-answer-stage" key={`rapid-answer-${round}`}>
-            <div className={`answer-layer answer-options-layer ${roundSolved ? 'answer-layer-hidden' : ''}`}>
+            <div className="answer-layer answer-options-layer">
               <div className={`options-grid ${options.length === 3 ? 'options-three' : ''} ${current.optionLayout === 'single-column' ? 'rapid-options-single-column' : ''}`}>
                 {options.map((option, index) => (
                   <button
                     type="button"
                     key={`${option}-${index}`}
-                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''} ${roundSolved && index !== correctIndex ? 'option-answer-dismiss' : ''}`}
+                    className={`option ${wrong.has(index) ? 'option-wrong' : ''} ${roundSolved && index === correctIndex ? 'option-correct-reveal option-answer-confirm' : ''}`}
                     style={{ '--answer-exit-delay': `${index * 85}ms` }}
+                    data-g4-branch="choice"
+                    data-g4-source-index={optionOrder[index]}
+                    data-g4-correct={index === correctIndex ? 'true' : 'false'}
                     disabled={!canAnswer || wrong.has(index) || roundSolved}
                     onClick={() => choose(index)}
                   >
@@ -6033,6 +6060,21 @@ button { font: inherit; }
   pointer-events: auto;
   transform: translateY(0) scale(1);
   transition-delay: .72s, .66s, 0s;
+}
+.answer-stage:has(> .answer-proof-layer.answer-layer-visible) {
+  min-height: 0;
+  grid-template-rows: auto auto;
+  gap: 8px;
+}
+.answer-stage:has(> .answer-proof-layer.answer-layer-visible) > .answer-options-layer {
+  grid-area: 1 / 1;
+  opacity: 1;
+  visibility: visible;
+  pointer-events: none;
+  transform: none;
+}
+.answer-stage:has(> .answer-proof-layer.answer-layer-visible) > .answer-proof-layer {
+  grid-area: 2 / 1;
 }
 .option-correct-reveal {
   border-color: rgba(34,122,83,.3);
@@ -7150,6 +7192,28 @@ button { font: inherit; }
   font-weight: 900;
 }
 .timeline-step strong { font-size: 10px; line-height: 1.2; }
+.explanation-screen-2 .explanation-timeline {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+.explanation-screen-2 .timeline-step {
+  min-height: 64px;
+  padding: 10px 12px;
+  gap: 10px;
+  border-radius: 14px;
+}
+.explanation-screen-2 .timeline-step > span {
+  width: 30px;
+  height: 30px;
+  flex-basis: 30px;
+  font-size: 11px;
+}
+.explanation-screen-2 .timeline-step strong {
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
 .timeline-active {
   border-color: rgba(255,91,53,.34);
   color: ${T.ink};
@@ -8462,6 +8526,10 @@ button { font: inherit; }
   background: rgba(255,255,255,.93);
   box-shadow: 0 16px 34px -26px rgba(${T.shadowBase},.55);
 }
+.strategy-screen .strategy-phase {
+  display: grid;
+  gap: 20px;
+}
 .strategy-digit-row {
   min-height: 70px;
   display: flex;
@@ -9527,6 +9595,25 @@ button { font: inherit; }
   .timeline-step { min-height: 43px; padding: 5px; gap: 4px; }
   .timeline-step > span { width: 20px; height: 20px; flex-basis: 20px; font-size: 8px; }
   .timeline-step strong { font-size: 8px; line-height: 1.12; }
+  .explanation-screen-2 .explanation-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .explanation-screen-2 .timeline-step {
+    min-height: 64px;
+    padding: 9px 10px;
+    gap: 8px;
+  }
+  .explanation-screen-2 .timeline-step > span {
+    width: 28px;
+    height: 28px;
+    flex-basis: 28px;
+    font-size: 11px;
+  }
+  .explanation-screen-2 .timeline-step strong {
+    font-size: 14px;
+    line-height: 1.2;
+  }
   .explanation-finish-row { grid-template-columns: 1fr auto; gap: 5px; }
   .explanation-result { padding: 7px 8px; font-size: 10px; line-height: 1.25; }
   .explanation-replay { min-height: 36px; padding: 6px 8px; font-size: 10px; }
@@ -9573,6 +9660,7 @@ button { font: inherit; }
   .city-clue strong { font-size: 18px; }
   .city-code-result { min-height: 24px; font-size: 8px; }
   .strategy-decomposition { min-height: 132px; padding: 9px 7px; }
+  .strategy-screen .strategy-phase { gap: 12px; }
   .strategy-digit-row { min-height: 58px; gap: 3px; }
   .strategy-digit-row > span { width: 38px; height: 49px; border-radius: 10px; font-size: 22px; }
   .strategy-boundary { height: 48px; }
