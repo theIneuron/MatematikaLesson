@@ -1438,11 +1438,6 @@ const S15 = {
     readyLabel: L('Tayyorlik', 'Готовность', 'Readiness'),
     predictedLabel: L('Taxmin', 'Прогноз', 'Prediction'),
     mark: 'x ≠ 2',
-    markNote: L(
-      "Yozuv shu taqiq bilan birga yuradi",
-      'Запись идёт вместе с этим запретом',
-      'The record travels with this restriction',
-    ),
     lines: [
       L("Taqiq chiziq ostidan topiladi", 'Запрет ищут под чертой', 'The restriction is under the bar'),
       L("Nol maxrajda qiymatni yo'q qiladi", 'Нуль в знаменателе убирает значение', 'Zero in the denominator removes the value'),
