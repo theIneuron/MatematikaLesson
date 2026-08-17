@@ -289,12 +289,17 @@ for (const size of SIZES) {
     }
     // Сборка записи: кладём число сверху и букву снизу — это и есть ответ.
     if (s.slots) {
+      // Два круга: сначала число снизу (безопасно), потом буква снизу.
       const cells = page.locator('.g8-fs-cell')
       if (await cells.count() >= 2) {
         await tap(cells.nth(0).locator('.g8-fs-btn').first(), at)
-        await page.waitForTimeout(220)
+        await page.waitForTimeout(200)
+        await tap(cells.nth(1).locator('.g8-fs-btn').first(), at)
+        await page.waitForTimeout(1100)
+        await tap(cells.nth(0).locator('.g8-fs-btn').first(), at)
+        await page.waitForTimeout(200)
         await tap(cells.nth(1).locator('.g8-fs-btn').last(), at)
-        await page.waitForTimeout(260)
+        await page.waitForTimeout(300)
       }
     }
     // Граница: тапаем числа, пока записи не разойдутся.

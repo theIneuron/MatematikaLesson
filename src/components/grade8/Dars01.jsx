@@ -538,31 +538,51 @@ const S4 = {
       'Try all four combinations. Which of them can crash the app?'),
   ],
   props: {
-    ask: L(
-      "Kamida bitta sonda yiqiladigan yozuvni yig'ing",
-      'Собери запись, которая упадёт хотя бы на одном числе',
-      'Build a record that crashes on at least one number',
-    ),
+    // ДВА КРУГА: сначала безопасная запись, потом опасная. Буква одна и та
+    // же, разное только МЕСТО — вывод про место ученик делает сам.
+    rounds: [
+      {
+        need: 'num',
+        ask: L(
+          "Har doim sanaladigan yozuvni yig'ing",
+          'Собери запись, которая считается всегда',
+          'Build a record that always computes',
+        ),
+      },
+      {
+        need: 'var',
+        ask: L(
+          "Endi yiqilishi mumkin bo'lgan yozuvni yig'ing",
+          'Теперь собери запись, которая может упасть',
+          'Now build a record that can crash',
+        ),
+      },
+    ],
     topLabel: L('tepada', 'сверху', 'above'),
     botLabel: L('pastda', 'снизу', 'below'),
-    numWord: L('son', 'число', 'a number'),
-    varWord: L('harf', 'буква', 'a letter'),
+    numWord: L('son 7', 'число 7', 'number 7'),
+    varWord: L('harf a', 'буква a', 'letter a'),
     verdicts: {
       safe: L(
-        "Bu yozuv har doim sanaladi: pastda son turibdi, u nolga aylanmaydi.",
-        'Эта запись считается всегда: снизу число, оно нулём не станет.',
-        'This record always computes: below is a number, and it never becomes zero.',
+        "Pastda son turibdi — bu yozuv har doim sanaladi.",
+        'Снизу число — эта запись считается всегда.',
+        'A number below: this record always computes.',
       ),
       risky: L(
-        "Bu yozuv yiqilishi mumkin: pastdagi harf biror sonda nolga aylanadi.",
-        'Эта запись может упасть: буква снизу при каком-то числе обратится в нуль.',
-        'This record can crash: the letter below becomes zero at some number.',
+        "Pastda harf turibdi — bu yozuv biror sonda yiqiladi.",
+        'Снизу буква — эта запись упадёт на каком-то числе.',
+        'A letter below: this record crashes at some number.',
+      ),
+      place: L(
+        "Harf o'sha, joyi boshqa. Xavfni AYNAN JOY hal qiladi: tepada harf zararsiz, pastda taqiq beradi.",
+        'Буква та же, место разное. Опасность решает ИМЕННО МЕСТО: сверху буква безвредна, снизу даёт запрет.',
+        'The same letter, a different place. The PLACE decides the danger: above it is harmless, below it creates a restriction.',
       ),
     },
     after: L(
-      "Topdingiz. Tepada nima turishi ahamiyatsiz — xavf faqat pastdan keladi.",
-      'Нашёл. Что стоит сверху — неважно; опасность приходит только снизу.',
-      'Found it. What stands above does not matter: the danger comes only from below.',
+      "Ikkala yozuv ham yig'ildi",
+      'Обе записи собраны',
+      'Both records are built',
     ),
   },
 }

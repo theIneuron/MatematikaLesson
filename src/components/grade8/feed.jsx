@@ -358,13 +358,21 @@ export function TwoRecords({ nums, left, right, ask, after, onSolved, audio }) {
 // Устройство взято из урока 1 второго класса («Собери 24»): там кнопками
 // растят число в двух колонках, здесь — собирают запись.
 // ============================================================
-export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdicts, after, onSolved, audio }) {
+export function FormulaSlots({
+  topLabel, botLabel, numWord, varWord, rounds, verdicts, after, onSolved, audio,
+}) {
   const t = useT()
   const sfx = useSfx()
   const [top, setTop] = useState(null)
   const [bot, setBot] = useState(null)
+  const [round, setRound] = useState(0)
   const [done, setDone] = useState(false)
 
+  // ДВА КРУГА, а не один. Сначала ученик собирает запись, которая считается
+  // всегда, потом — которая падает. Буква одна и та же, разное только МЕСТО,
+  // и вывод про место он делает сам.
+  // Наглядность из урока 1 второго класса («одни и те же цифры — коды разные»).
+  const cur = rounds[Math.min(round, rounds.length - 1)]
   const risky = bot === 'var'
   const full = top && bot
 
@@ -373,14 +381,21 @@ export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdic
     const nextTop = where === 'top' ? what : top
     const nextBot = where === 'bot' ? what : bot
     if (where === 'top') setTop(what); else setBot(what)
-    if (nextTop && nextBot && nextBot === 'var' && !done) {
-      setDone(true)
+    if (!nextTop || !nextBot) { sfx.playCorrect(); return }
+    if (nextBot === cur.need) {
       sfx.playCorrect()
-      if (audio && after) audio.say(t(after))
-      if (onSolved) onSolved({ correct: true, tries: 1 })
+      if (round + 1 >= rounds.length) {
+        setDone(true)
+        if (audio && after) audio.say(t(after))
+        if (onSolved) onSolved({ correct: true, tries: 1 })
+      } else {
+        // следующий круг: ячейки пустеют, задача меняется
+        setRound(round + 1)
+        setTimeout(() => { setTop(null); setBot(null) }, 900)
+      }
       return
     }
-    sfx.playCorrect()
+    sfx.playWrong()
   }
 
   const cell = (where, val, label) => (
@@ -398,16 +413,17 @@ export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdic
 
   return (
     <>
-      <Ask>{t(ask)}</Ask>
+      <Ask>{t(done ? after : cur.ask)}</Ask>
       <div className="g8-fs">
         {cell('top', top, topLabel)}
         <span className="g8-fs-bar"/>
         {cell('bot', bot, botLabel)}
+        <span className="g8-fs-round">{Math.min(round + 1, rounds.length)} / {rounds.length}</span>
       </div>
       <Slot mh={62}>
-        {full ? (
+        {full && !done ? (
           <Note kind={risky ? 'no' : 'ok'}>{t(risky ? verdicts.risky : verdicts.safe)}</Note>
-        ) : null}
+        ) : done ? <Note kind="ok">{t(verdicts.place)}</Note> : null}
       </Slot>
     </>
   )
@@ -713,6 +729,7 @@ export const FEED_STYLES = `
   font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 16px); font-weight: 600;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
 .lesson-root .g8-fs-btn:hover { color: ${T.ink}; transform: translateY(-1px); }
+.g8-fs-round { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${T.ink3}; }
 .g8-fs-bar { display: block; width: 240px; height: 3px; border-radius: 2px; background: ${T.ink}; }
 .g8-cs { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .g8-cs-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; letter-spacing: .12em;
