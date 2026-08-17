@@ -504,7 +504,7 @@ const S3 = {
 // tanlaydi va joyning ahamiyatini o'zi ko'radi.
 // ============================================================
 const S4 = {
-  eyebrow: L('JOY HAL QILADI', 'МЕСТО РЕШАЕТ', 'THE PLACE DECIDES'),
+  eyebrow: L('BUTUN VA KASR', 'ЦЕЛОЕ И ДРОБНОЕ', 'INTEGRAL AND FRACTIONAL'),
   title: L(
     "Bir xil belgilar, ikki xil yozuv",
     'Одни и те же знаки — записи разные',
@@ -512,9 +512,9 @@ const S4 = {
   ),
   audio: [
     A('mount',
-      "Ikki yozuv. Ikkalasida ham yetti va a bor, faqat tartib boshqa.",
-      'Две записи. В обеих есть семёрка и a, разный только порядок.',
-      'Two records. Both have a seven and an a, only the order differs.'),
+      "Ikki yozuv. Ikkalasida ham yetti va a bor, faqat tartib boshqa. Ikkalasi ham ratsional ifoda deb ataladi.",
+      'Две записи. В обеих есть семёрка и a, разный только порядок. Обе называются рациональными выражениями.',
+      'Two records. Both have a seven and an a, only the order differs. Both are called rational expressions.'),
     A('why',
       "Qaysi biri biror sonda yiqiladi? Chiziqning ostiga qarang.",
       'Какая из них упадёт на каком-то числе? Смотри, что стоит под чертой.',
@@ -542,10 +542,13 @@ const S4 = {
         show: '7 : a',
       },
     ],
+    // ЗДЕСЬ вводятся оба понятия темы. Место выбрано не случайно: ученик
+    // только что сам увидел РАЗНИЦУ между двумя записями, и названия
+    // ложатся на увиденное различие, а не на пустое место.
     after: L(
-      "Ha. Ikkinchisida chiziq ostida a turibdi, va a nolga teng bo'lsa, ilova yiqiladi. Belgilar o'sha, JOY boshqa.",
-      'Да. Во второй под чертой стоит a, и если a равно нулю, приложение упадёт. Знаки те же — место разное.',
-      'Yes. In the second one a stands below the bar, and if a is zero the app crashes. Same symbols, different place.',
+      "Ha. Ikkinchisida chiziq ostida a turibdi, va a nolga teng bo'lsa, ilova yiqiladi. Belgilar o'sha, JOY boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisi BUTUN ifoda, chunki harfga bo'linmaydi. Ikkinchisi KASR ifoda, uni ratsional kasr deb ataymiz.",
+      'Да. Во второй под чертой стоит a, и если a равно нулю, приложение упадёт. Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. Первая целая, потому что на букву не делят. Вторая дробная, её называют рациональной дробью.',
+      'Yes. In the second one a stands below the bar, and if a is zero the app crashes. Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. The first is integral, since nothing is divided by a letter. The second is fractional and is called a rational fraction.',
     ),
   },
 }
@@ -862,9 +865,9 @@ const S8 = {
       title: L('QOIDA', 'ПРАВИЛО', 'RULE'),
       lines: [
         L(
-          "Ratsional kasr: A va B ko'phadlar, B nolga teng emas",
-          'Рациональная дробь: A и B многочлены, B не равно нулю',
-          'A rational fraction: A and B are polynomials, B is not zero',
+          "Kasr ifoda — ratsional kasr: A va B ko'phadlar, B nolga teng emas",
+          'Дробное выражение — рациональная дробь: A и B многочлены, B не равно нулю',
+          'A fractional expression is a rational fraction: A and B polynomials, B not zero',
         ),
         STATEMENTS[0],
         STATEMENTS[1],
@@ -1439,7 +1442,9 @@ const S15 = {
     predictedLabel: L('Taxmin', 'Прогноз', 'Prediction'),
     mark: 'x ≠ 2',
     lines: [
-      L("Taqiq chiziq ostidan topiladi", 'Запрет ищут под чертой', 'The restriction is under the bar'),
+      L("Harf chiziq ostida — ratsional kasr, taqiq ham shu yerda",
+        'Буква под чертой — рациональная дробь, там же и запрет',
+        'A letter under the bar means a rational fraction, and the restriction is there too'),
       L("Nol maxrajda qiymatni yo'q qiladi", 'Нуль в знаменателе убирает значение', 'Zero in the denominator removes the value'),
       L("Javob songa qo'yib tekshiriladi", 'Ответ проверяют подстановкой числа', 'An answer is checked by substituting a number'),
     ],

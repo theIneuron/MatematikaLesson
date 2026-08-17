@@ -1806,4 +1806,13 @@ export const FEED_STYLES = `
   border-radius: 12px; background: transparent; color: ${T.ink3}; font-size: 20px;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.12); align-self: center; }
 .lesson-root .g8-cb-undo:hover { color: ${T.ink}; }
+
+/* Вывод стал на строку длиннее: в нём теперь есть понятие темы.
+   На низком ноутбуке четыре строки не влезали — ужимаем шаг и поля. */
+@media (max-height: 820px) {
+  .g8-tk { gap: 10px; }
+  .g8-tk-list { gap: 7px; }
+  .g8-tk-list li { padding: 9px 16px; font-size: 20px; }
+  .g8-tk-mark { font-size: 46px; }
+}
 `
