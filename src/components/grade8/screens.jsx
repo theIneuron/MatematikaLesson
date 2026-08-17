@@ -30,7 +30,7 @@ import {
   Ask, Btn, L, LangProvider, Lead, Note, STYLES, Stage, Title, UI_TXT,
   configureLesson, tr, useAdvanceGate, useAudio, useMobileZoom, useT,
 } from './core.jsx'
-import { FEED_STYLES, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
+import { FEED_STYLES, Chain, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { PLOT_STYLES } from './plot.jsx'
@@ -229,6 +229,9 @@ export function ScreenBody(props) {
     // СЧЁТЧИКИ: ученик крутит данные, приложение считает и падает на нуле.
     case 'steppers':
       return <Steppers {...p} audio={audio} onSolved={onSolved} />
+    // ЦЕПОЧКА: меняется знаменатель — переезжает запрет.
+    case 'chain':
+      return <Chain {...p} onStep={step} />
     // KADRLAR LENTASI: tepada bitta obyekt, pastda kadrlar (4-sinf naqshi).
     case 'film':
       return <FilmScreen p={p} audio={audio} onSolved={onSolved} step={step} />

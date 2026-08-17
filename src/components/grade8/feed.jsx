@@ -366,12 +366,12 @@ export function FormulaSlots({
   const [top, setTop] = useState(null)
   const [bot, setBot] = useState(null)
   const [round, setRound] = useState(0)
+  const [passed, setPassed] = useState([])
   const [done, setDone] = useState(false)
 
-  // ДВА КРУГА, а не один. Сначала ученик собирает запись, которая считается
-  // всегда, потом — которая падает. Буква одна и та же, разное только МЕСТО,
-  // и вывод про место он делает сам.
-  // Наглядность из урока 1 второго класса («одни и те же цифры — коды разные»).
+  // ЭТАПЫ ВИДНЫ. Раньше круг сменялся молча: ячейки пустели, счётчик менял
+  // цифру, и ученик не понимал, что он прошёл этап. Теперь пройденный этап
+  // остаётся на экране собранной записью с галочкой, а текущий подсвечен.
   const cur = rounds[Math.min(round, rounds.length - 1)]
   const risky = bot === 'var'
   const full = top && bot
@@ -384,26 +384,26 @@ export function FormulaSlots({
     if (!nextTop || !nextBot) { sfx.playCorrect(); return }
     if (nextBot === cur.need) {
       sfx.playCorrect()
+      setPassed((p) => p.concat([{ top: nextTop, bot: nextBot }]))
       if (round + 1 >= rounds.length) {
         setDone(true)
         if (audio && after) audio.say(t(after))
         if (onSolved) onSolved({ correct: true, tries: 1 })
       } else {
-        // следующий круг: ячейки пустеют, задача меняется
         setRound(round + 1)
-        setTimeout(() => { setTop(null); setBot(null) }, 900)
+        setTimeout(() => { setTop(null); setBot(null) }, 950)
       }
       return
     }
     sfx.playWrong()
   }
 
+  const sym = (v) => (v === 'num' ? '7' : v === 'var' ? 'a' : '')
+
   const cell = (where, val, label) => (
     <div className={'g8-fs-cell' + (val ? ' is-full' : '') + (where === 'bot' && val === 'var' ? ' is-risky' : '')}>
       <span className="g8-fs-cap">{t(label)}</span>
-      <span className="g8-fs-val" style={{ fontFamily: MATH_FONT }}>
-        {val === 'num' ? '7' : val === 'var' ? 'a' : ''}
-      </span>
+      <span className="g8-fs-val" style={{ fontFamily: MATH_FONT }}>{sym(val)}</span>
       <span className="g8-fs-btns">
         <button type="button" className="g8-fs-btn" onClick={() => put(where, 'num')}>{t(numWord)}</button>
         <button type="button" className="g8-fs-btn" onClick={() => put(where, 'var')}>{t(varWord)}</button>
@@ -413,13 +413,30 @@ export function FormulaSlots({
 
   return (
     <>
-      <Ask>{t(done ? after : cur.ask)}</Ask>
+      {/* ЛЕСТНИЦА ЭТАПОВ: пройденный этап показывает СОБРАННУЮ запись и
+          галочку, текущий подсвечен, будущий приглушён. */}
+      <div className="g8-fs-steps">
+        {rounds.map((r, i) => (
+          <div key={i} className={'g8-fs-step'
+            + (i < passed.length ? ' is-done' : '')
+            + (i === round && !done ? ' is-now' : '')}>
+            <span className="g8-fs-stepn">{i + 1}</span>
+            <span className="g8-fs-steptx">{t(r.ask)}</span>
+            {passed[i] ? (
+              <span className="g8-fs-stepres" style={{ fontFamily: MATH_FONT }}>
+                {sym(passed[i].top)} : {sym(passed[i].bot)} {'✓'}
+              </span>
+            ) : null}
+          </div>
+        ))}
+      </div>
+
       <div className="g8-fs">
         {cell('top', top, topLabel)}
         <span className="g8-fs-bar"/>
         {cell('bot', bot, botLabel)}
-        <span className="g8-fs-round">{Math.min(round + 1, rounds.length)} / {rounds.length}</span>
       </div>
+
       <Slot mh={62}>
         {full && !done ? (
           <Note kind={risky ? 'no' : 'ok'}>{t(risky ? verdicts.risky : verdicts.safe)}</Note>
@@ -582,6 +599,55 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke
   )
 }
 
+
+// ============================================================
+// `Chain` — ЦЕПОЧКА: ЧТО МЕНЯЕТСЯ ВМЕСТЕ С ЧЕМ.
+//
+// Устройство из урока 1 четвёртого класса («Вспоминаем разряды»): полоса
+// сегментов сверху, звенья цепочки со стрелками, под каждым — его следствие,
+// и вывод строкой внизу. Звенья открываются по очереди под озвучку.
+//
+// Здесь цепочка показывает, что запрет НЕ ЗАКРЕПЛЁН за числом: меняется
+// знаменатель — переезжает и запрет.
+// ============================================================
+export function Chain({ items, conclusion, stepMs = 1800, onStep }) {
+  const t = useT()
+  const [shown, setShown] = useState(0)
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+  useEffect(() => {
+    if (shown >= items.length) return undefined
+    const id = setTimeout(() => {
+      setShown((n) => n + 1)
+      if (stepRef.current) stepRef.current('c' + (shown + 1))
+    }, shown === 0 ? 700 : stepMs)
+    return () => clearTimeout(id)
+  }, [shown, items.length, stepMs])
+
+  return (
+    <div className="g8-ch">
+      <div className="g8-ch-seg">
+        {items.map((it, i) => <i key={i} className={i < shown ? 'is-on' : ''}/>)}
+      </div>
+
+      <div className="g8-ch-row">
+        {items.map((it, i) => (
+          <React.Fragment key={i}>
+            {i > 0 ? <span className={'g8-ch-arrow' + (i < shown ? ' is-on' : '')}>{'→'}</span> : null}
+            <div className={'g8-ch-item' + (i < shown ? ' is-on' : '')}>
+              <span className="g8-ch-cap">{t(it.cap)}</span>
+              <span className="g8-ch-val" style={{ fontFamily: MATH_FONT }}>{it.den}</span>
+              <span className="g8-ch-out" style={{ fontFamily: MATH_FONT }}>{it.ban}</span>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+
+      <div className={'g8-ch-sum' + (shown >= items.length ? ' is-on' : '')}>{t(conclusion)}</div>
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -654,6 +720,29 @@ export const FEED_STYLES = `
 .g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-ch { width: 100%; background: ${T.paper}; border-radius: 18px; padding: 18px 20px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05); }
+.g8-ch-seg { display: flex; gap: 6px; width: 100%; max-width: 420px; }
+.g8-ch-seg i { flex: 1; height: 4px; border-radius: 2px; background: rgba(23,26,29,.12);
+  transition: background .4s ease; }
+.g8-ch-seg i.is-on { background: ${T.accent}; }
+.g8-ch-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-ch-item { display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 116px; padding: 10px 14px; border-radius: 14px; background: ${T.bg};
+  opacity: 0; transform: translateY(8px); transition: opacity .45s ease, transform .45s ease; }
+.g8-ch-item.is-on { opacity: 1; transform: none; }
+.g8-ch-cap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
+  letter-spacing: .1em; text-transform: uppercase; color: ${T.ink3}; }
+.g8-ch-val { font-size: clamp(20px, 2vw, 27px); color: ${T.ink}; }
+.g8-ch-out { font-size: clamp(15px, 1.4vw, 19px); color: ${T.tip}; font-weight: 600; }
+.g8-ch-arrow { font-family: ${MATH_FONT}; font-size: 20px; color: ${T.ink4};
+  opacity: 0; transition: opacity .4s ease; }
+.g8-ch-arrow.is-on { opacity: 1; color: ${T.ink3}; }
+.g8-ch-sum { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 700; color: ${T.accent}; text-align: center;
+  opacity: 0; transition: opacity .5s ease; }
+.g8-ch-sum.is-on { opacity: 1; }
 .g8-st { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
 .g8-st-line { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
 .g8-st-sign { font-family: ${MATH_FONT}; font-size: clamp(24px, 2.4vw, 34px); color: ${T.ink2}; }
@@ -729,7 +818,26 @@ export const FEED_STYLES = `
   font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 16px); font-weight: 600;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
 .lesson-root .g8-fs-btn:hover { color: ${T.ink}; transform: translateY(-1px); }
-.g8-fs-round { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: ${T.ink3}; }
+/* На тесной высоте лестница этапов идёт в одну строку: два коротких блока
+   вместо двух полос (замер: +34 на ноутбуке 615). Смысл сохраняется —
+   пройденный этап зелёный с галочкой, текущий подсвечен. */
+@media (max-height: 680px) {
+  .g8-fs-steps { flex-direction: row; gap: 8px; }
+  .g8-fs-step { padding: 6px 10px; }
+  .g8-fs-steptx { font-size: 12px; }
+  .g8-fs-cell { padding: 6px 12px; gap: 2px; }
+  .g8-fs-val { font-size: 24px; }
+}
+.g8-fs-steps { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-bottom: 4px; }
+.g8-fs-step { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px;
+  background: ${T.paper}; opacity: .45; transition: opacity .3s ease, box-shadow .3s ease; }
+.g8-fs-step.is-now { opacity: 1; box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.35); }
+.g8-fs-step.is-done { opacity: 1; background: ${T.okSoft}; }
+.g8-fs-stepn { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700;
+  color: ${T.ink3}; min-width: 14px; }
+.g8-fs-steptx { flex: 1; font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(13px, 1.2vw, 16px); color: ${T.ink}; }
+.g8-fs-stepres { font-size: clamp(15px, 1.4vw, 19px); color: ${T.ok}; font-weight: 600; }
 .g8-fs-bar { display: block; width: 240px; height: 3px; border-radius: 2px; background: ${T.ink}; }
 .g8-cs { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 100%; }
 .g8-cs-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px; letter-spacing: .12em;

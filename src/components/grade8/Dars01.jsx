@@ -588,57 +588,49 @@ const S4 = {
 }
 
 // ============================================================
+// EKRAN 5. TAQIQ MAXRAJ BILAN BIRGA KO'CHADI. Naqsh 1-sinf 4-darsdan
+// («Xonalarni eslaymiz»): tepada qadamlar chizig'i, zanjir bo'g'inlari
+// strelkalar bilan, har birining ostida oqibati, pastda xulosa satri.
+//
+// Zanjir shuni ko'rsatadi: taqiq SONGA biriktirilmagan. Maxraj o'zgarsa,
+// taqiq ham ko'chadi.
+// ============================================================
 const S5 = {
-  eyebrow: L("JADVALNI TO'LDIRING", 'ЗАПОЛНИ ТАБЛИЦУ', 'FILL THE TABLE'),
+  eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
   title: L(
-    "Boshqa yozuv, boshqa taqiq",
-    'Другая запись — другой запрет',
-    'Another record, another restriction',
+    "Taqiq qayerda yashaydi",
+    'Где живёт запрет',
+    'Where the restriction lives',
   ),
   audio: [
     A('mount',
-      "Yozuv boshqa. Sonlarni birma-bir qo'ying va jadvalni to'ldiring.",
-      'Запись другая. Подставляй числа по очереди и заполняй таблицу.',
-      'The record is different. Substitute the numbers one by one and fill the table.'),
-    A('why',
-      "Taqiq yana bitta sonda bo'ladi, lekin bu safar boshqasida. Uni maxraj belgilaydi.",
-      'Запрет снова будет на одном числе, но в этот раз на другом. Его задаёт знаменатель.',
-      'Again there will be one forbidden number, but a different one this time. The denominator sets it.'),
+      "Uchta yozuv. Ularning maxrajlari har xil, va taqiqlari ham har xil.",
+      'Три записи. Знаменатели у них разные, и запреты тоже разные.',
+      'Three records. Their denominators differ, and so do their restrictions.'),
+    W('c2',
+      "Maxraj uchga siljidi — taqiq ham uchga ko'chdi.",
+      'Знаменатель сдвинулся на три — и запрет переехал на три.',
+      'The denominator shifted by three, and the restriction moved to three.'),
+    W('c3',
+      "Beshga siljidi — taqiq beshda. Taqiq songa emas, MAXRAJGA bog'liq.",
+      'Сдвинулся на пять — запрет на пятёрке. Запрет привязан не к числу, а к ЗНАМЕНАТЕЛЮ.',
+      'Shifted by five, and the restriction is at five. It belongs to the DENOMINATOR, not to a number.'),
   ],
   props: {
-    nums: [1, 2, 3, 4, 5],
-    num: (a) => a + 5,
-    den: (a) => a - 3,
-    varName: 'a',
-    table: true,
-    ask: L(
-      "Har bir sonni qo'ying: jadval sizning natijalaringiz bilan to'ladi",
-      'Подставь каждое число — таблица заполнится твоими результатами',
-      'Substitute each number: the table fills with your own results',
-    ),
-    broke: L(
-      "Uchlikda maxraj nolga aylandi. Taqiq ikkilikda emas, uchlikda: uni maxraj belgilaydi.",
-      'При тройке знаменатель обратился в нуль. Запрет не на двойке, а на тройке: его задаёт знаменатель.',
-      'At three the denominator became zero. The restriction is not at two but at three: the denominator sets it.',
+    items: [
+      { cap: L('maxraj', 'знаменатель', 'denominator'), den: 'a', ban: 'a ≠ 0' },
+      { cap: L('maxraj', 'знаменатель', 'denominator'), den: 'a − 3', ban: 'a ≠ 3' },
+      { cap: L('maxraj', 'знаменатель', 'denominator'), den: 'a − 5', ban: 'a ≠ 5' },
+    ],
+    conclusion: L(
+      "Maxraj o'zgaradi — taqiq ham o'sha yerga ko'chadi",
+      'Меняется знаменатель — туда же переезжает запрет',
+      'The denominator changes and the restriction moves with it',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 6. TAQIQNI IKKI USUL BILAN TOPAMIZ. Naqsh 1-sinf 2-darsdan («345 ni
-// ikki usul bilan»): bitta javob, ikkita yo'l, ikkalasi ham ekranda qoladi.
-//
-// 1-usul: sonlarni birma-bir qo'yish. O'quvchi buni allaqachon uch marta
-// qilgan, va u ishlaydi, lekin uzoq.
-// 2-usul: maxrajni nolga tenglash. Bitta satr, taxmin qilish shart emas.
-//
-// Ekranning mazmuni shundaki, ikkala usul BIR XIL sonni beradi.
-// ============================================================
-// EKRAN 6. IKKI USUL BIR VAQTDA. Naqsh 1-sinf 2-darsdan («345 ni ikki usul
-// bilan»): bitta kartochka, ichida ikkita sarlavhali blok va xulosa.
-//
-// Kadrlar lentasi OLIB TASHLANDI: usullarni faqat bir vaqtda ko'rinib
-// turganda taqqoslash mumkin, navbat bilan ochilsa taqqoslash yo'qoladi.
+
 // ============================================================
 const S6 = {
   eyebrow: L('IKKI USUL', 'ДВА СПОСОБА', 'TWO METHODS'),
@@ -1462,7 +1454,7 @@ export const SCREENS = [
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
   { role: 'explain',  tool: 'steppers',  kind: 'dial',     tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'slots',     kind: 'build',    tag: 'З2',  ...S4 },
-  { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
+  { role: 'explain',  tool: 'chain',     kind: 'move',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
   {
