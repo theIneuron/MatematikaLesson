@@ -70,8 +70,8 @@ const revealNarration = (slide, lang) => {
   return steps.length ? steps : [slideNarration(slide, lang)].filter(Boolean);
 };
 
-// “To‘g‘ri” va “Nega shunday” alohida audio bosqichlaridir. Birinchi izohni
-// bu yerga ham qo‘shish uni “Nega shunday” ichida ikkinchi marta o‘qitardi.
+// “To'g'ri” va “Nega shunday” alohida audio bosqichlaridir. Birinchi izohni
+// bu yerga ham qo'shish uni “Nega shunday” ichida ikkinchi marta o'qitardi.
 const correctText = () => ({
   uz: "Javob to'g'ri.",
   ru: 'Ответ верный.',
@@ -1226,7 +1226,7 @@ function FinalChainScreen({
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
       <NavNext
         disabled={!complete || !audio.canAdvance}
-        label={lang === 'uz' ? 'Natijani ko‘rish' : 'Посмотреть результат'}
+        label={lang === 'uz' ? "Natijani ko'rish" : 'Посмотреть результат'}
         onClick={onNext}
       />
     </>
@@ -1274,7 +1274,7 @@ function FinalChainScreen({
             <p className="body">
               {finalScore >= (lesson.finalPass ?? 2)
                 ? (lang === 'uz' ? `Final bajarildi: ${finalScore}/3.` : `Финал пройден: ${finalScore}/3.`)
-                : (lang === 'uz' ? `Final natijasi: ${finalScore}/3. Qoidalarni qayta ko‘rib chiqing.` : `Результат финала: ${finalScore}/3. Повторите правила.`)}
+                : (lang === 'uz' ? `Final natijasi: ${finalScore}/3. Qoidalarni qayta ko'rib chiqing.` : `Результат финала: ${finalScore}/3. Повторите правила.`)}
             </p>
           </div>
         )}

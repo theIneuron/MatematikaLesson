@@ -1,2707 +1,1467 @@
-import React, { useState, useEffect, useRef, useCallback, useMemo, createContext, useContext } from 'react';
-import './Grade6TheoryTheme.css';
-import { normalizeTtsColons } from './ttsMathColon.js';
-import { useIntroStages } from './Dars01.jsx';
-// УРОК: Умножение десятичных дробей — dec_5_05
-// --- ИЗ infrastructure_v1 (строка-в-строку): общая база + секция math (Frac/Op/QuestionScreen/NumInputScreen) ---
-
 // ============================================================
-// ПАЛИТРА
+// 6 КЛАСС, УРОК 2 «Признаки делимости на 2, 5 и 10»
+// Собран по context/GRADE6_ETALON.md на общем слое ./screens.jsx.
+// Здесь только данные урока, его две сцены и экраны с его математикой.
+//
+// Сюжет блока: школа после уроков. Урок 1 — турнир в спортзале, урок 2 —
+// школьный буфет после турнира. Азиз и Дилноза те же.
 // ============================================================
-const T = {
-  bg: '#F6F4EF',
-  ink: '#0E0E10',
-  ink2: '#494550',
-  ink3: '#8A8883',
-  paper: '#FFFFFF',
-  accent: '#FF4F28',
-  accentSoft: '#FFE8E1',
-  success: '#1F7A4D',
-  successSoft: '#E3F0E8',
-  blue: '#019ACB',
-  shadowBase: '58, 53, 48'
-};
 
-// ============================================================
-// КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
-// Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
-// ============================================================
-let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm' };
-const configureLesson = (cfg) => { ttsConfig = { ...ttsConfig, ...cfg }; };
+// `React` в этом файле не вызывается напрямую, но импорт обязателен: LMS
+// компилирует jsx в КЛАССИЧЕСКОМ режиме (React.createElement).
+// eslint-disable-next-line no-unused-vars
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  T,
+  configureLesson,
+  registerLesson,
+  navLocked,
+  tri,
+  pickL,
+  LangContext,
+  useLang,
+  useT,
+  useMobileZoom,
+  useAudio,
+  getAudioEngine,
+  PREVIEW_START,
+  BASE_STYLES,
+  Stage,
+  Person,
+  NavBack,
+  NavNext,
+  NextLabel,
+  BackLabel,
+  HintBlock,
+  FeedbackBlock,
+  FactCard,
+  FB_SCI,
+  AnimDigits,
+  MethodCard,
+  HookScreen,
+  RevealScreen,
+  RuleScreen,
+  Classify,
+  MultiTask,
+  FinalPanel,
+  SummaryScreen,
+} from './screens.jsx';
 
-// ============================================================
-// TTS-ТЕГИ (язык/тон) — внутри text, в квадратных скобках; на экран НЕ показываются.
-// ============================================================
-// Ekran qulfi klapani: TTS javob bermasa, shu vaqtdan keyin «Davom» ochiladi.
-// 9 s — eng uzun izoh ham boshlanishga ulguradi, lekin bola kutib qolmaydi.
-const NAV_UNLOCK_MS = 9000;
-
-const LANG_TAG = {
-  ru: '[Русское произношение]',
-  uz: "[O'zbekcha tallaffuz]",
-  en: '[English pronunciation]',
-};
-const END_TAG = '[end]';
-// Global TAG_RE da lastIndex saqlanadi, shuning uchun tekshiruv uchun alohida
-// (g bayrog'isiz) nusxa: aks holda ketma-ket .test() chaqiruvlari yolg'on
-// natija berardi.
-const HAS_LANG_TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation)\]/;
-// Ekran tili aniq bo'lsa shuni olamiz; berilmasa alifbodan aniqlanadi.
-const resolveTtsLang = (text, lang) => {
-  if (lang === 'uz' || lang === 'ru' || lang === 'en') return lang;
-  return /[Ѐ-ӿ]/.test(String(text)) ? 'ru' : 'uz';
-};
-const TAG_RE = /\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]/g;
-
-const stripAudioTags = (s) => typeof s === 'string'
-  ? s.replace(/\[(Русское произношение|O'zbekcha tallaffuz|English pronunciation|end)\]\s*/g, '')
-      .replace(/\[[a-zа-яё][^\]]*\]\s*/gi, '')
-      .replace(/\s{2,}/g, ' ').trim()
-  : s;
-
-// Ekrandagi formula o'z ko'rinishida qoladi, TTS esa matematik belgilarni
-// tabiiy so'zlar bilan oladi. Bu ayniqsa "Nega shunday" qatorlari uchun kerak:
-// brauzer/TTS provayderi ":" yoki "·" ni o'zicha, ba'zan noto'g'ri o'qimasin.
-const NUM_WORDS = {
-  uz: {
-    0: 'nol', 1: 'bir', 2: 'ikki', 3: 'uch', 4: "to'rt", 5: 'besh',
-    6: 'olti', 7: 'yetti', 8: 'sakkiz', 9: "to'qqiz", 10: "o'n",
-    20: 'yigirma', 30: "o'ttiz", 40: 'qirq', 50: 'ellik',
-    60: 'oltmish', 70: 'yetmish', 80: 'sakson', 90: "to'qson",
-  },
-  ru: {
-    0: 'ноль', 1: 'один', 2: 'два', 3: 'три', 4: 'четыре', 5: 'пять',
-    6: 'шесть', 7: 'семь', 8: 'восемь', 9: 'девять', 10: 'десять',
-    11: 'одиннадцать', 12: 'двенадцать', 13: 'тринадцать', 14: 'четырнадцать',
-    15: 'пятнадцать', 16: 'шестнадцать', 17: 'семнадцать',
-    18: 'восемнадцать', 19: 'девятнадцать', 20: 'двадцать',
-    30: 'тридцать', 40: 'сорок', 50: 'пятьдесят', 60: 'шестьдесят',
-    70: 'семьдесят', 80: 'восемьдесят', 90: 'девяносто',
-  },
-};
-
-const numberToWords = (value, lang) => {
-  const n = Number(value);
-  const words = NUM_WORDS[lang] || NUM_WORDS.uz;
-  if (!Number.isInteger(n) || n < 0 || n > 999999) return String(value);
-  if (Object.prototype.hasOwnProperty.call(words, n)) return words[n];
-  if (n >= 1000) {
-    const thousands = Math.floor(n / 1000);
-    const rest = n % 1000;
-    const thousandPart = lang === 'ru'
-      ? `${numberToWords(thousands, lang)} тысяч`
-      : `${numberToWords(thousands, lang)} ming`;
-    return rest ? `${thousandPart} ${numberToWords(rest, lang)}` : thousandPart;
-  }
-  if (n < 20 && lang === 'uz') return `${words[10]} ${words[n - 10]}`;
-  if (n < 100) return `${words[Math.floor(n / 10) * 10]} ${words[n % 10]}`.trim();
-  const hundred = lang === 'ru'
-    ? ({ 1: 'сто', 2: 'двести', 3: 'триста', 4: 'четыреста', 5: 'пятьсот', 6: 'шестьсот', 7: 'семьсот', 8: 'восемьсот', 9: 'девятьсот' })[Math.floor(n / 100)]
-    : `${words[Math.floor(n / 100)]} yuz`;
-  const rest = n % 100;
-  return rest ? `${hundred} ${numberToWords(rest, lang)}` : hundred;
-};
-
-const toTtsMath = (text, lang) => {
-  const ops = lang === 'ru'
-    ? { mul: ' умножить на ', div: ' разделить на ', eq: ' равно ', minus: ' минус ', plus: ' плюс ' }
-    : { mul: ' karra ', div: " bo'lingan ", eq: ' teng ', minus: ' minus ', plus: " qo'shuv " };
-  // Ovoz uchun tipografik belgilar normallashtiriladi: uzun tire TTS da
-  // o'qilmay qolardi, tipografik apostroflar esa o'zbek so'zlarini buzardi.
-  // Ekran matni o'zgarmaydi — bu faqat ovoz yo'lidagi tozalash.
-  const typographySafe = String(text || '')
-    .replace(/[‘’ʻʼ]/g, "'")
-    .replace(/\s*—\s*/g, ', ');
-  const pronunciationSafe = lang === 'uz'
-    ? stripAudioTags(typographySafe)
-        .replace(/\bqismga\b/gi, "bo'lakka")
-        .replace(/\bqismda\b/gi, "bo'lakda")
-        .replace(/\bqismni\b/gi, "bo'lakni")
-        .replace(/\bqism\b/gi, "bo'lak")
-    : stripAudioTags(typographySafe);
-  const clean = pronunciationSafe.replace(
-    /\b(\d{1,6})\s*:\s*(\d{1,6})\s*=\s*(\d{1,6})\b/g,
-    (_, a, b, c) => lang === 'ru'
-      ? `${numberToWords(a, lang)} разделить на ${numberToWords(b, lang)} равно ${numberToWords(c, lang)}`
-      : `${numberToWords(a, lang)}ni ${numberToWords(b, lang)}ga bo'lsak, ${numberToWords(c, lang)} chiqadi`
-  );
-  return normalizeTtsColons(clean, { divisionWord: ops.div })
-    .replace(/\s*·\s*/g, ops.mul)
-    .replace(/\s*=\s*/g, ops.eq)
-    .replace(/\s*\+\s*/g, ops.plus)
-    .replace(/\s*[−–]\s*/g, ops.minus)
-    .replace(/\b\d{1,6}\b/g, (m) => numberToWords(m, lang))
-    .replace(/\s{2,}/g, ' ')
-    .trim();
-};
-
-// HTTP TTS v5.2: {base}/api/tts?text=<encoded>&g=m|f — ТОЛЬКО text + g.
-// Язык передаётся МАРКЕРОМ внутри text: [Русское произношение] / [O'zbekcha tallaffuz].
-// Раньше движок маркер не ставил и язык угадывал сервер по алфавиту — ElevenLabs в LMS
-// ошибался и читал узбекскую латиницу русским (иногда английским) произношением.
-// Решение методиста 2026-08-04: маркер обязателен для КАЖДОЙ дорожки, ставит движок.
-function buildTtsUrl(base, text, gender, lang) {
-  const raw = String(text);
-  // Til markeri MAJBURIY: ElevenLabs alifbo bo'yicha tilni xato tanlab,
-  // lotin yozuvidagi o'zbek matnini ruscha yoki inglizcha talaffuzda o'qirdi.
-  // Marker matn boshida turadi; kontentda allaqachon bo'lsa, ikkinchisini
-  // qo'shmaymiz. Kvadrat qavslar (%5B/%5D) ataylab kodlanmaydi.
-  const tag = LANG_TAG[resolveTtsLang(raw, lang)];
-  const body = HAS_LANG_TAG_RE.test(raw)
-    ? raw.slice(0, 1000)
-    : `${tag} ${raw.slice(0, Math.max(0, 1000 - tag.length - 1))}`;
-  const enc = encodeURIComponent(body).replace(/%5B/g, '[').replace(/%5D/g, ']');
-  const g = 'm'; // v5.5-male: erkak ovoz qattiq qulflangan
-  return `${base}/api/tts?text=${enc}&g=${g}`;
-}
-
-function pickPreviewVoice(synth, lang) {
-  const voices = synth.getVoices?.() || [];
-  const prefixes = lang === 'uz'
-    ? ['uz', 'tr', 'az', 'en']
-    : (lang === 'en' ? ['en'] : ['ru']);
-  for (const prefix of prefixes) {
-    const voice = voices.find((item) => String(item.lang || '').toLowerCase().startsWith(prefix));
-    if (voice) return voice;
-  }
-  return null;
-}
-
-// SFX — короткие звуки верно/неверно, URL из ttsConfig (correctSoundUrl/wrongSoundUrl).
-function useSfx() {
-  const correctRef = useRef(null);
-  const wrongRef = useRef(null);
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const { correctSoundUrl, wrongSoundUrl } = ttsConfig;
-    if (correctSoundUrl) { const a = new Audio(correctSoundUrl); a.preload = 'auto'; a.volume = 0.6; correctRef.current = a; }
-    if (wrongSoundUrl)   { const a = new Audio(wrongSoundUrl);   a.preload = 'auto'; a.volume = 0.6; wrongRef.current = a; }
-    return () => {
-      try { correctRef.current && correctRef.current.pause(); } catch (e) {}
-      try { wrongRef.current && wrongRef.current.pause(); } catch (e) {}
-      correctRef.current = null; wrongRef.current = null;
-    };
-  }, []);
-  const play = useCallback((kind) => {
-    const ref = kind === 'correct' ? correctRef : wrongRef;
-    const a = ref.current; if (!a) { playChime(kind === 'correct'); return; }
-    try { a.currentTime = 0; const p = a.play(); if (p && p.catch) p.catch(() => {}); } catch (e) {}
-  }, []);
-  return { playCorrect: () => play('correct'), playWrong: () => play('wrong') };
-}
-
-// Неречевой сигнал (фолбэк SFX в preview / игры закрепления).
-let _chimeCtx = null;
-function playChime(ok) {
-  try {
-    if (typeof window === 'undefined') return;
-    const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
-    _chimeCtx = _chimeCtx || new AC();
-    const ctx = _chimeCtx; if (ctx.state === 'suspended') ctx.resume();
-    const now = ctx.currentTime;
-    const notes = ok ? [660, 880] : [320, 240];
-    notes.forEach((f, i) => {
-      const o = ctx.createOscillator(); const g = ctx.createGain();
-      o.type = 'sine'; o.frequency.value = f;
-      const t0 = now + i * 0.12;
-      g.gain.setValueAtTime(0.0001, t0);
-      g.gain.exponentialRampToValueAtTime(0.16, t0 + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, t0 + 0.18);
-      o.connect(g); g.connect(ctx.destination);
-      o.start(t0); o.stop(t0 + 0.2);
-    });
-  } catch (e) { /* no-op */ }
-}
-
-// AI-проверка открытых ответов — единственный разрешённый fetch (кроме <audio>.src).
-// Возвращает { correct, feedback, transcript? } или бросает.
-async function gradeAnswer({ screenIdx, question, rubric, lang, mode, answerText, audioBlob }) {
-  const endpoint = ttsConfig.aiGradingEndpoint;
-  if (!endpoint) throw new Error('No grading endpoint configured');
-  const lessonId = (typeof LESSON_META !== 'undefined' && LESSON_META.lessonId) || '';
-  let res;
-  if (mode === 'voice') {
-    const fd = new FormData();
-    fd.append('lessonId', lessonId); fd.append('screenIdx', String(screenIdx));
-    fd.append('question', question || ''); fd.append('rubric', rubric || '');
-    fd.append('lang', lang); fd.append('mode', 'voice');
-    if (audioBlob) fd.append('audio', audioBlob, 'answer.webm');
-    res = await fetch(endpoint, { method: 'POST', body: fd });
-  } else {
-    res = await fetch(endpoint, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lessonId, screenIdx, question: question || '', rubric: rubric || '', lang, mode: 'text', answerText: answerText || '' }),
-    });
-  }
-  if (!res.ok) throw new Error(`Grading failed: ${res.status}`);
-  const data = await res.json();
-  if (typeof data.correct !== 'boolean' || typeof data.feedback !== 'string') throw new Error('Malformed grading response');
-  return data;
-}
-
-// ============================================================
-// LANGUAGE CONTEXT + useT
-// ============================================================
-const LangContext = createContext('ru');
-const useLang = () => useContext(LangContext);
-
-const useT = () => {
-  const lang = useLang();
-  return useCallback((node) => {
-    if (node === null || node === undefined) return '';
-    if (typeof node === 'string') return stripAudioTags(node);
-    if (React.isValidElement(node)) return node;
-    if (node[lang] !== undefined) return stripAudioTags(node[lang]);
-    return stripAudioTags(node.ru ?? '');
-  }, [lang]);
-};
-
-// ============================================================
-// useIsMobile (design_system 5.0)
-// ============================================================
-function useIsMobile(breakpoint = 640) {
-  const [isMobile, setIsMobile] = useState(
-    typeof window !== 'undefined' ? window.innerWidth < breakpoint : false
-  );
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const onResize = () => setIsMobile(window.innerWidth < breakpoint);
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-  }, [breakpoint]);
-  return isMobile;
-}
-
-// ============================================================
-// useMobileZoom — mobil yagona masshtab qatlami (etalon kenglik 390px).
-// <640px: butun urok 390px kenglikda joylashadi va real ekranga zoom bilan
-// fotografik masshtablanadi — barcha telefonlarda BIR XIL ko'rinish, QA faqat
-// 390px da. Desktop (>=640px): --g1z=1, hech narsa o'zgarmaydi.
-// Balandlik JS'da o'lchanmaydi: .lesson-root position:fixed + inset:0 —
-// brauzer viewport o'zgarishini (URL-panel) o'zi kuzatadi.
-// ============================================================
-const MOBILE_DESIGN_W = 390;
-function useMobileZoom(breakpoint = 640) {
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    const root = document.documentElement;
-    const apply = () => {
-      const z = window.innerWidth < breakpoint ? window.innerWidth / MOBILE_DESIGN_W : 1;
-      root.style.setProperty('--g1z', String(z));
-    };
-    apply();
-    window.addEventListener('resize', apply);
-    window.addEventListener('orientationchange', apply);
-    return () => {
-      window.removeEventListener('resize', apply);
-      window.removeEventListener('orientationchange', apply);
-      root.style.removeProperty('--g1z');
-    };
-  }, [breakpoint]);
-}
-
-// ============================================================
-// AUDIO ENGINE
-// ============================================================
-class AudioEngine {
-  constructor() {
-    this.queue = [];
-    this.currentIdx = 0;
-    this.isPlaying = false;
-    this.onStateChange = null;
-    this.waitingFor = null;
-    this.currentLang = 'ru';
-    this.gender = 'm';
-    this.autoplayBlocked = false;
-    this.audioEl = null;
-    this.isStarting = false;
-    this.isBusy = false;
-    this.muted = false;
-    this.watchdog = null;
-    this.hasStarted = false;
-    this.advanceTimer = null;
-    this.previewStartTimer = null;
-  }
-
-  ensureEl() {
-    if (this.audioEl || typeof window === 'undefined') return this.audioEl;
-    const el = new Audio();
-    el.crossOrigin = 'anonymous';
-    el.preload = 'auto';
-    this.audioEl = el;
-    return el;
-  }
-
-  setLang(lang) { this.currentLang = lang; }              // только preview Web Speech
-  setGender(g) { this.gender = 'm'; }   // дефолтный пол голоса (v5.2); segment.g переопределяет
-  setMuted(value) { this.muted = !!value; if (this.muted) this.stop(); }
-
-  emit(patch) {
-    if (this.onStateChange) this.onStateChange({
-      isPlaying: this.isPlaying,
-      isBusy: this.isBusy,
-      currentSegment: null,
-      ...patch,
-    });
-  }
-
-  clearWatchdog() {
-    if (this.watchdog) clearTimeout(this.watchdog);
-    this.watchdog = null;
-  }
-
-  clearPreviewStartTimer() {
-    if (this.previewStartTimer) clearTimeout(this.previewStartTimer);
-    this.previewStartTimer = null;
-  }
-
-  // Ba'zi brauzer ovozlari uzun gapda onend bermaydi. Navbat qotib qolmasligi
-  // uchun matn uzunligiga mos yuqori chegara qo'yamiz va keyingi segmentga o'tamiz.
-  armWatchdog(segment) {
-    this.clearWatchdog();
-    const words = String(segment?.text || '').trim().split(/\s+/).filter(Boolean).length;
-    const limit = Math.max(8000, Math.min(45000, words * 900 + 5000));
-    this.watchdog = setTimeout(() => {
-      this.watchdog = null;
-      if (this.audioEl) {
-        try { this.audioEl.pause(); } catch (e) { /* no-op */ }
-      }
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        try { window.speechSynthesis.cancel(); } catch (e) { /* no-op */ }
-      }
-      this.completeSegment(segment);
-    }, limit);
-  }
-
-  completeSegment(segment) {
-    if (!segment || segment._audioCompleted) return;
-    segment._audioCompleted = true;
-    this.clearWatchdog();
-    this.clearPreviewStartTimer();
-    this.isStarting = false;
-    this.isPlaying = false;
-    this.emit({ isPlaying: false, currentSegment: null, lastCompletedSegment: segment.id });
-    this.handleSegmentEnd(segment);
-  }
-
-  loadQueue(segments) {
-    this.stop();
-    this.queue = segments || [];
-    this.currentIdx = 0;
-    this.waitingFor = null;
-    this.isBusy = false;
-    this.hasStarted = false;
-    this.emit({ isPlaying: false, isBusy: false, hasStarted: false, currentSegment: null, lastCompletedSegment: null });
-  }
-
-  playSegment(segment) {
-    if (!segment) return;
-    if (this.muted) return;
-    this.clearWatchdog();
-    segment._audioCompleted = false;
-    this.isStarting = true;
-    this.isBusy = true;
-    this.emit({ isBusy: true, hasStarted: true, currentSegment: segment.id });
-    const base = ttsConfig.ttsApiBase;
-    // Нет текста → пропускаем (логика очереди сохраняется).
-    if (!segment.text) {
-      setTimeout(() => this.completeSegment(segment), 0);
-      return;
-    }
-    // База НЕ пришла от LMS → этап разработки (artifacts). Озвучка через браузерный
-    // Web Speech (preview-стендин, «корявый» голос). На платформе эта ветка мёртвая:
-    // LMS всегда передаёт ttsApiBase, и тогда идёт HTTP-ветка ниже.
-    // speechSynthesis запрещён контрактом в БОЕВОЙ ветке (platform_contract §4);
-    // здесь он допустим как preview-стендин — согласовано с разработчиком платформы (июнь 2026).
-    if (!base) { this.playSegmentPreview(segment); return; }
-    const el = this.ensureEl();
-    if (!el) { setTimeout(() => this.handleSegmentEnd(segment), 0); return; }
-
-    el.onended = () => {
-      this.completeSegment(segment);
-    };
-    el.onerror = () => {
-      this.completeSegment(segment);
-    };
-
-    const gender = segment.g || this.gender;
-    el.src = buildTtsUrl(base, segment.text, gender, segment.lang || this.currentLang);
-    const p = el.play();
-    if (p && typeof p.then === 'function') {
-      p.then(() => {
-        if (segment._audioCompleted) return;
-        this.autoplayBlocked = false;
-        this.isStarting = false;
-        this.isPlaying = true;
-        this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id });
-        this.armWatchdog(segment);
-      }).catch(() => {
-        if (segment._audioCompleted) return;
-        // автоплей заблокирован браузером — ждём первого жеста
-        this.isStarting = false;
-        this.autoplayBlocked = true;
-        this.isPlaying = false;
-        this.emit({ isPlaying: false, isBusy: true, currentSegment: null });
-        this.armWatchdog(segment);
-      });
-    }
-  }
-
-  // PREVIEW-ВЕТКА (только при пустом ttsApiBase, т.е. вне LMS): браузерный Web Speech.
-  // НЕ копировать как боевой транспорт — на платформе всегда идёт HTTP-ветка playSegment.
-  playSegmentPreview(segment) {
-    if (typeof window === 'undefined' || !window.speechSynthesis) {
-      setTimeout(() => this.completeSegment(segment), 0); return;
-    }
-    const synth = window.speechSynthesis;
-    synth.cancel();
-    // тег языка/настроения на экран и в Web Speech не нужен — снимаем
-    const clean = stripAudioTags(String(segment.text));
-    if (!clean) {
-      setTimeout(() => this.completeSegment(segment), 0);
-      return;
-    }
-    const u = new SpeechSynthesisUtterance(clean);
-    const lang = segment.lang || this.currentLang;
-    u.lang = lang === 'uz' ? 'uz-UZ' : (lang === 'en' ? 'en-GB' : 'ru-RU');
-    const voice = pickPreviewVoice(synth, lang);
-    if (voice) u.voice = voice;
-    u.rate = 0.95; u.pitch = 1.0;
-    u.onstart = () => {
-      this.isStarting = false;
-      this.isPlaying = true;
-      this.emit({ isPlaying: true, isBusy: true, currentSegment: segment.id });
-      this.armWatchdog(segment);
-    };
-    u.onend = () => {
-      this.completeSegment(segment);
-    };
-    u.onerror = () => {
-      this.completeSegment(segment);
-    };
-    this.previewUtterance = u;
-    this.armWatchdog(segment);
-    this.clearPreviewStartTimer();
-    this.previewStartTimer = setTimeout(() => {
-      this.previewStartTimer = null;
-      if (segment._audioCompleted || this.muted) return;
-      try { synth.speak(u); } catch (e) { this.completeSegment(segment); }
-    }, 60);
-  }
-
-  // Возобновление после блокировки автоплея (по первому жесту).
-  resumeIfBlocked() {
-    if (!this.autoplayBlocked) return;
-    this.autoplayBlocked = false;
-    this.playSegment(this.queue[this.currentIdx]);
-  }
-
-  handleSegmentEnd(segment) {
-    // Navbatda kutayotgan yangi segment bo'lsa, waits_for'ni KUTMAYMIZ. Aks holda
-    // bola javobni ovoz tugashidan oldin bosganda hodisa allaqachon o'tib ketgan
-    // bo'ladi va dars shu yerda jim qotib qolardi (izoh hech qachon aytilmasdi).
-    const hasQueued = this.currentIdx + 1 < this.queue.length;
-    if (segment && segment.waits_for && !hasQueued) {
-      this.waitingFor = segment.waits_for;
-      this.isBusy = false;
-      this.emit({ isPlaying: false, isBusy: false, currentSegment: null, waitingFor: segment.waits_for });
-    } else {
-      this.waitingFor = null;
-      this.currentIdx++;
-      if (segment?.pauseAfterMs) {
-        if (this.advanceTimer) clearTimeout(this.advanceTimer);
-        this.advanceTimer = setTimeout(() => {
-          this.advanceTimer = null;
-          this.playNext();
-        }, segment.pauseAfterMs);
-      } else {
-        this.playNext();
-      }
-    }
-  }
-
-  playNext() {
-    if (this.currentIdx >= this.queue.length) {
-      this.isStarting = false;
-      this.isBusy = false;
-      this.emit({ isPlaying: false, isBusy: false, currentSegment: null, waitingFor: null });
-      return;
-    }
-    this.playSegment(this.queue[this.currentIdx]);
-  }
-
-  start() {
-    if (this.hasStarted) return;
-    this.hasStarted = true;
-    this.currentIdx = 0;
-    this.waitingFor = null;
-    this.playNext();
-  }
-
-  triggerEvent(eventType, target) {
-    const segment = this.queue[this.currentIdx];
-    const waitRule = this.waitingFor || segment?.waits_for;
-    if (!waitRule) return;
-    const matches = waitRule.type === eventType &&
-                   (waitRule.target === target || !waitRule.target);
-    if (!matches) return;
-
-    if (!this.waitingFor && segment) {
-      segment._audioCompleted = true;
-      this.clearWatchdog();
-      this.clearPreviewStartTimer();
-      if (this.advanceTimer) clearTimeout(this.advanceTimer);
-      this.advanceTimer = null;
-      if (this.audioEl) {
-        try {
-          this.audioEl.onended = null;
-          this.audioEl.onerror = null;
-          this.audioEl.pause();
-        } catch (e) { /* no-op */ }
-      }
-      if (this.previewUtterance) {
-        this.previewUtterance.onstart = null;
-        this.previewUtterance.onend = null;
-        this.previewUtterance.onerror = null;
-        this.previewUtterance = null;
-      }
-      if (typeof window !== 'undefined' && window.speechSynthesis) {
-        try { window.speechSynthesis.cancel(); } catch (e) { /* no-op */ }
-      }
-      this.isStarting = false;
-      this.isPlaying = false;
-      this.isBusy = false;
-      this.hasStarted = true;
-      this.waitingFor = null;
-      this.currentIdx++;
-      this.emit({
-        isPlaying: false,
-        isBusy: false,
-        currentSegment: null,
-        lastCompletedSegment: segment.id,
-        waitingFor: null,
-      });
-      this.playNext();
-      return;
-    }
-
-    this.waitingFor = null;
-    this.currentIdx++;
-    this.playNext();
-  }
-
-  triggerInternalEvent(eventName) {
-    const nextIdx = this.queue.findIndex((s, i) => i >= this.currentIdx && s.trigger === `on_event:${eventName}`);
-    if (nextIdx !== -1) {
-      this.currentIdx = nextIdx;
-      this.waitingFor = null;
-      this.playNext();
-    }
-  }
-
-  // NAVBATGA qo'yadi, joriy gapni UZMAYDI. Ilgari har chaqiruv currentIdx'ni
-  // oxirga otib playNext qilardi — ketma-ket ikki push bo'lsa (masalan qadam matni
-  // + fakt, yoki xulosaning uch qatori) birinchisi ikkinchisi bilan yuvib
-  // yuborilardi. Ovoz "yo'qolib qolishi" va "chala aytilishi" shundan edi.
-  pushOneOff(text, gender, id, pauseAfterMs = 0) {
-    if (!text || this.muted) return null;
-    this._oneOffSeq = (this._oneOffSeq || 0) + 1;
-    const segmentId = id || `oneoff_${this._oneOffSeq}`;
-    this.queue.push({
-      id: segmentId,
-      text: toTtsMath(text, this.currentLang),
-      lang: this.currentLang,
-      trigger: 'manual',
-      waits_for: null,
-      g: gender,
-      pauseAfterMs,
-    });
-    // Ekran endigina ochilib, 300 ms boshlash taymeri hali ishlamagan bo'lishi
-    // mumkin. Feedbackni navbat oxiriga qo'shamiz, lekin introni tashlab ketmaymiz
-    // va taymer keyin navbatni ikkinchi marta boshidan qayta yoqmaydi.
-    if (!this.hasStarted) {
-      this.isBusy = true;
-      this.emit({ isBusy: true, currentSegment: null });
-      return segmentId;
-    }
-    if (this.isPlaying || this.isStarting) return segmentId; // joriy segment tugagach navbat davom etadi
-    this.waitingFor = null;              // yangi gap keldi — kutish bekor
-    this.currentIdx = this.queue.length - 1;
-    this.playNext();
-    return segmentId;
-  }
-
-  interruptFeedbackQueue() {
-    const currentSegment = this.queue[this.currentIdx];
-    if (currentSegment) currentSegment._audioCompleted = true;
-    this.clearWatchdog();
-    this.clearPreviewStartTimer();
-    if (this.advanceTimer) clearTimeout(this.advanceTimer);
-    this.advanceTimer = null;
-    if (this.audioEl) {
-      try {
-        this.audioEl.onended = null;
-        this.audioEl.onerror = null;
-        this.audioEl.pause();
-      } catch (e) { /* no-op */ }
-    }
-    this.audioEl = null;
-    if (this.previewUtterance) {
-      this.previewUtterance.onstart = null;
-      this.previewUtterance.onend = null;
-      this.previewUtterance.onerror = null;
-      this.previewUtterance = null;
-    }
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      try { window.speechSynthesis.cancel(); } catch (e) { /* no-op */ }
-    }
-    this.queue = [];
-    this.currentIdx = 0;
-    this.waitingFor = null;
-    this.isStarting = false;
-    this.isPlaying = false;
-    this.isBusy = false;
-    this.autoplayBlocked = false;
-    this.hasStarted = true;
-    this.emit({
-      isPlaying: false,
-      isBusy: false,
-      currentSegment: null,
-      lastCompletedSegment: null,
-      waitingFor: null,
-    });
-  }
-
-  replay() {
-    if (this.currentIdx > 0) this.currentIdx--;
-    this.waitingFor = null;
-    this.playNext();
-  }
-
-  stop() {
-    this.clearWatchdog();
-    this.clearPreviewStartTimer();
-    if (this.advanceTimer) clearTimeout(this.advanceTimer);
-    this.advanceTimer = null;
-    if (this.audioEl) {
-      try { this.audioEl.pause(); this.audioEl.onended = null; this.audioEl.onerror = null; } catch (e) {}
-    }
-    // preview-ветка: гасим браузерную озвучку
-    if (typeof window !== 'undefined' && window.speechSynthesis) {
-      try { window.speechSynthesis.cancel(); } catch (e) {}
-    }
-    this.isStarting = false;
-    this.isPlaying = false;
-    this.isBusy = false;
-    this.emit({ isPlaying: false, isBusy: false, currentSegment: null, waitingFor: null });
-  }
-}
-
-let audioEngineInstance = null;
-const getAudioEngine = () => {
-  if (typeof window === 'undefined') return null;
-  if (!audioEngineInstance) audioEngineInstance = new AudioEngine();
-  return audioEngineInstance;
-};
-
-function useAudio(segments) {
-  const lang = useLang();
-  // AudioEngine bitta umumiy instans. Slayd almashganda uning mute holati
-  // saqlanib qoladi; yangi hook esa avval uni bilmas edi. Natijada ayrim
-  // slaydlar ovozsiz qolib, tugma esa "ovoz yoqilgan" ko'rinishida turardi.
-  const [state, setState] = useState(() => ({
-    isPlaying: false,
-    isBusy: false,
-    hasStarted: false,
-    currentSegment: null,
-    lastCompletedSegment: null,
-    waitingFor: null,
-    muted: Boolean(getAudioEngine()?.muted),
-  }));
-  const engineRef = useRef(null);
-
-  // Стабилизация segments по содержимому, не по ссылке (без этого cancel-loop, звук молчит)
-  const segmentsKey = segments ? JSON.stringify(segments) : '';
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const stableSegments = useMemo(
-    () => segments?.map((segment) => ({
-      ...segment,
-      lang,
-      text: toTtsMath(segment.text, lang),
-    })),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [segmentsKey, lang],
-  );
-  // Qulf klapani: TTS umuman javob bermasa ham dars o'tib ketishi kerak.
-  const [navTimedOut, setNavTimedOut] = useState(false);
-  useEffect(() => {
-    setNavTimedOut(false);
-    const id = setTimeout(() => setNavTimedOut(true), NAV_UNLOCK_MS);
-    return () => clearTimeout(id);
-  }, [stableSegments]);
-
-  useEffect(() => {
-    const engine = getAudioEngine();
-    if (!engine) return;
-    engineRef.current = engine;
-    engine.setLang(lang);
-    engine.setGender(ttsConfig.voiceGender || 'm');
-    engine.setMuted(state.muted);
-    engine.onStateChange = (s) => setState(prev => ({ ...prev, ...s }));
-    // Возобновление по первому жесту, если браузер заблокировал автоплей.
-    const resume = () => { if (engineRef.current) engineRef.current.resumeIfBlocked(); };
-    window.addEventListener('pointerdown', resume);
-    window.addEventListener('keydown', resume);
-    if (stableSegments && stableSegments.length > 0 && !state.muted) {
-      engine.loadQueue(stableSegments);
-      const timer = setTimeout(() => engine.start(), 300);
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener('pointerdown', resume);
-        window.removeEventListener('keydown', resume);
-        engine.stop();
-      };
-    }
-    return () => {
-      window.removeEventListener('pointerdown', resume);
-      window.removeEventListener('keydown', resume);
-      engine.stop();
-    };
-  // eslint-disable-next-line
-  }, [stableSegments, lang]);
-
-  const triggerEvent = useCallback((type, target) => {
-    if (engineRef.current) engineRef.current.triggerEvent(type, target);
-  }, []);
-  const triggerInternal = useCallback((eventName) => {
-    if (engineRef.current) engineRef.current.triggerInternalEvent(eventName);
-  }, []);
-  const replay = useCallback(() => {
-    if (engineRef.current) engineRef.current.replay();
-  }, []);
-  const interruptFeedback = useCallback(() => {
-    if (engineRef.current) engineRef.current.interruptFeedbackQueue();
-  }, []);
-  const speakLatestFeedback = useCallback((text, id) => {
-    const engine = engineRef.current;
-    if (!engine || !text || engine.muted) return null;
-    engine.interruptFeedbackQueue();
-    return engine.pushOneOff(text, undefined, id);
-  }, []);
-  const toggleMute = useCallback(() => {
-    setState(prev => {
-      const newMuted = !prev.muted;
-      if (engineRef.current) engineRef.current.setMuted(newMuted);
-      return { ...prev, muted: newMuted };
-    });
-  }, []);
-
-  // EKRAN QULFI (metodist qarori 2026-08-04): «Davom» tugmasi ovoz tugamaguncha
-  // ochilmaydi. Ilgari qulf faqat `isBusy` ga tayanardi va ekran ochilgan bilan
-  // TTS yuklanguncha oradagi bir necha yuz millisekundda tugma FAOL bo'lib
-  // turardi — bola izohni eshitmasdan slaydni o'tkazib yuborishi mumkin edi.
-  //
-  // Ikki xavfsizlik klapani bor, aks holda dars butunlay qulflanib qolardi:
-  //   1) ovoz o'chirilgan bo'lsa (muted) qulf ishlamaydi;
-  //   2) TTS javob bermasa, NAV_UNLOCK_MS dan keyin qulf o'zi ochiladi.
-  const canAdvance = state.muted
-    || navTimedOut
-    || (state.hasStarted && !state.isBusy);
-
-  return {
-    ...state,
-    canAdvance,
-    triggerEvent,
-    triggerInternal,
-    replay,
-    interruptFeedback,
-    speakLatestFeedback,
-    toggleMute,
-  };
-}
-
-// Хелпер: построить audio-segments для экрана из CONTENT
-const makeAudioSegments = (screenContent, lang) => {
-  if (Array.isArray(screenContent.audio?.[lang])) {
-    return screenContent.audio[lang].map((text, i) => ({
-      id: `aud_${i}`,
-      text,
-      trigger: i === 0 ? 'on_mount' : (i === 1 ? 'after_previous' : `on_event:step_${i - 1}`),
-      waits_for: i < screenContent.audio[lang].length - 1
-        ? { type: 'button_click', target: 'step' }
-        : { type: 'button_click', target: 'next' }
-    }));
-  }
-  const text = screenContent.audio?.[lang];
-  if (!text) return [];
-  return [{ id: 'aud_0', text, trigger: 'on_mount', waits_for: null }];
-};
-
-// ============================================================
-// БАЗОВЫЕ КОМПОНЕНТЫ
-// ============================================================
-const Op = React.memo(({ children, size = 'mid' }) => {
-  const fontSize = size === 'big' ? 'clamp(25px, 4.7vw, 38px)' :
-                   size === 'mid' ? 'clamp(16px, 3vw, 27px)' :
-                   'clamp(12px, 2.1vw, 18px)';
-  return <span className="mop" style={{ fontSize }}>{children}</span>;
-});
-
-const Frac = React.memo(({ n, d, color, size = 'sm' }) => (
-  <span className={`frac frac-${size}`} style={{ color }}>
-    <span className="n">{n}</span>
-    <span className="bar"/>
-    <span className="d">{d}</span>
-  </span>
-));
-
-// mt: рендерит текст, заменяя «a/b» (и «?/b») настоящей дробью Frac — без слэша.
-// Если дробей нет, возвращает строку как есть. Применяется во всех видимых текстах.
-const FRAC_RE = /(\d+|\?)\/(\d+)/g;
-const mt = (str) => {
-  const s = typeof str === 'string' ? str : String(str ?? '');
-  if (s.indexOf('/') === -1) return s;
-  const out = []; let last = 0; let m; let key = 0;
-  FRAC_RE.lastIndex = 0;
-  while ((m = FRAC_RE.exec(s)) !== null) {
-    if (m.index > last) out.push(s.slice(last, m.index));
-    out.push(<Frac key={`mtf${key}`} n={m[1]} d={m[2]} size="sm"/>);
-    key += 1;
-    last = m.index + m[0].length;
-  }
-  if (last < s.length) out.push(s.slice(last));
-  return out;
-};
-
-const AudioIndicator = ({ audioState }) => {
-  const { isPlaying, muted, replay, toggleMute } = audioState;
-  return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-      <button onClick={toggleMute} title={muted ? 'Sound on' : 'Sound off'}
-        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: muted ? T.ink3 : (isPlaying ? T.accent : T.ink2) }}>
-        {muted ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>
-          </svg>
-        ) : isPlaying ? (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
-          </svg>
-        ) : (
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>
-            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
-          </svg>
-        )}
-      </button>
-      {!muted && (
-        <button onClick={replay} title="Replay"
-          style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center', color: T.ink2 }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-          </svg>
-        </button>
-      )}
-    </div>
-  );
-};
-
-// autoScrollTo — yangi paydo bo'lgan kontentni ko'rinish zonasiga olib keladi.
-// 'nearest' — element ko'rinib turgan bo'lsa sakramaydi; reduced-motion'da silliqsiz.
-const autoScrollTo = (el, block = 'nearest') => {
-  if (!el || typeof el.scrollIntoView !== 'function') return;
-  const reduce = typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block });
-};
-
-// useRevealScroll — active=true bo'lganda (kontent paydo bo'lganda) unga avtoskroll.
-// FeedbackBlock naqshi: double-rAF + kechikish (fade-up animatsiyasi joylashgach).
-function useRevealScroll(active, delay = 350, block = 'nearest') {
-  const ref = useRef(null);
-  useEffect(() => {
-    if (!active) return;
-    let tid;
-    const raf = requestAnimationFrame(() => requestAnimationFrame(() => {
-      tid = setTimeout(() => autoScrollTo(ref.current, block), delay);
-    }));
-    return () => { cancelAnimationFrame(raf); clearTimeout(tid); };
-  }, [active, delay, block]);
-  return ref;
-}
-
-const FeedbackBlock = ({ show, isCorrect, wrongClass, children }) => {
-  const [mounted, setMounted] = useState(show);
-  const [visible, setVisible] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    if (show) {
-      setMounted(true);
-      requestAnimationFrame(() => requestAnimationFrame(() => {
-        setVisible(true);
-        setTimeout(() => {
-          if (ref.current) {
-            ref.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-          }
-        }, 350);
-      }));
-    } else {
-      setVisible(false);
-      const timer = setTimeout(() => setMounted(false), 400);
-      return () => clearTimeout(timer);
-    }
-  }, [show]);
-  if (!mounted) return null;
-  return (
-    <div ref={ref} className={`feedback-block ${visible ? 'visible' : ''}`}>
-      <div className={isCorrect ? 'frame-success' : (wrongClass || 'frame-soft')}>{children}</div>
-    </div>
-  );
-};
-
-// Slider — компонент v15 с track-wrap + track-bg + track-fill + glow
-const Slider = ({ value, min, max, step = 1, onChange, disabled = false }) => {
-  const pct = ((value - min) / (max - min)) * 100;
-  return (
-    <div className="track-wrap">
-      <div className="track-bg"/>
-      <div className="track-fill" style={{ width: `${pct}%` }}/>
-      <input
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        disabled={disabled}
-        onChange={(e) => onChange(Number(e.target.value))}
-        className="slider-input"
-      />
-    </div>
-  );
-};
-
-// Stage — progress + chrome вынесены в отдельный stage-header (sticky, flex-shrink: 0)
-const Stage = ({ children, eyebrow, screen, totalScreens, navContent, audioState }) => {
-  const t = useT();
-  const isMobile = useIsMobile();
-  const padH = isMobile ? 12 : 'clamp(16px, 4vw, 48px)';
-  return (
-    <div className={`stage screen-${screen + 1}`}>
-      <div className="stage-header" style={{ paddingLeft: padH, paddingRight: padH }}>
-        <div className="progress-track">
-          <div className="progress-bar" style={{ width: `${((screen + 1) / totalScreens) * 100}%` }}/>
-        </div>
-        <div className="chrome">
-          <div className="chrome-left eyebrow">
-            <span className="dot"/>
-            <span>{t(eyebrow)}</span>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-            {audioState && <AudioIndicator audioState={audioState}/>}
-            <div className="mono small" style={{ color: T.ink, fontWeight: 700, fontSize: 14 }}>
-              {String(screen + 1).padStart(2, '0')} / {String(totalScreens).padStart(2, '0')}
-            </div>
-          </div>
-        </div>
-      </div>
-      <div className="stage-content" style={{ paddingLeft: padH, paddingRight: padH }}>
-        {children}
-      </div>
-      {navContent && <div className="stage-nav" style={{ paddingLeft: padH, paddingRight: padH }}>{navContent}</div>}
-    </div>
-  );
-};
-
-const NavBack = ({ onPrev, label = 'Назад' }) => (
-  <button className="btn-ghost" onClick={onPrev}
-    style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>
-    {label}
-  </button>
-);
-
-// `disabled` propi ilgari qabul qilinmagan edi: ekranlar uni uzatardi, tugma esa
-// e'tiborsiz qoldirardi — ya'ni ovoz tugashini kutish qulfi umuman ishlamagan.
-// CSS da `.btn-white-accent:disabled` uslubi allaqachon bor edi.
-const NavNext = ({ label, onClick, disabled = false }) => (
-  <button className="btn-white-accent" onClick={onClick} disabled={disabled} aria-disabled={disabled}
-    style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>
-    {label}
-  </button>
-);
-
-const NextLabel = () => {
-  const lang = useLang();
-  return lang === 'uz' ? 'Davom etish' : 'Дальше';
-};
-
-const BackLabel = () => {
-  const lang = useLang();
-  return lang === 'uz' ? 'Orqaga' : 'Назад';
-};
-
-const whyLabel = (lang) => lang === 'uz' ? 'Nega shunday' : 'Почему так';
-const speakMath = (engine, text, lang, id, pauseAfterMs = 0) => {
-  if (!engine || !text) return;
-  engine.pushOneOff(toTtsMath(text, lang), undefined, id, pauseAfterMs);
-};
-
-const audioReached = (audio, phase) => {
-  if (audio.muted) return true;
-  const current = String(audio.currentSegment || '');
-  const completed = String(audio.lastCompletedSegment || '');
-  const ids = `${current} ${completed}`;
-  if (phase === 'whyTitle') return /_(why_title|why|fact)\b/.test(ids);
-  if (phase === 'why') return /_why\b/.test(ids) || /_fact\b/.test(ids);
-  if (phase === 'fact') return /_fact\b/.test(ids) || (!audio.isBusy && /_why\b/.test(completed));
-  return false;
-};
-
-const WHY_TITLE = { ru: 'Почему так', uz: 'Nega shunday' };
-const splitWhyText = (text, lang) => {
-  const withoutLead = String(text || '').replace(
-    lang === 'uz' ? /^(To'g'ri|Aniq)[.,:]?\s*/i : /^(Верно|Точно)[.,:]?\s*/i,
-    ''
-  );
-  return (withoutLead.match(/[^.!?]+[.!?]?/g) || [withoutLead]).map(line => line.trim()).filter(Boolean);
-};
-const makeWhyLines = (content, key = 'correct_text') => ({
-  ru: splitWhyText(content?.[key]?.ru, 'ru'),
-  uz: splitWhyText(content?.[key]?.uz, 'uz'),
-});
-const useAnswerSequence = ({ audio, screen, correctText, whyNode, factAudio, initiallyComplete = false }) => {
-  const t = useT();
-  const lang = useLang();
-  const whyItems = useMemo(() => whyNode?.props?.lines?.[lang] || [], [lang, whyNode]);
-  const prefix = useMemo(() => `post_s${screen}_${lang}`, [lang, screen]);
-  const [restored] = useState(initiallyComplete);
-  const [skipAudio, setSkipAudio] = useState(false);
-  const startedRef = useRef(restored);
-  const start = useCallback(() => {
-    if (startedRef.current) return;
-    startedRef.current = true;
-    if (audio.muted) { setSkipAudio(true); return; }
-    const engine = getAudioEngine();
-    if (!engine) { setSkipAudio(true); return; }
-    engine.interruptFeedbackQueue();
-    engine.pushOneOff(toTtsMath(correctText, lang), undefined, `${prefix}_correct`);
-    if (whyItems.length) {
-      engine.pushOneOff(t(WHY_TITLE), undefined, `${prefix}_why_title`);
-      whyItems.forEach((line, i) => engine.pushOneOff(toTtsMath(line, lang), undefined, `${prefix}_why_${i}`));
-    }
-    if (factAudio) engine.pushOneOff(toTtsMath(factAudio, lang), undefined, `${prefix}_fact`);
-  }, [audio.muted, correctText, factAudio, lang, prefix, t, whyItems]);
-  const activeId = audio.currentSegment?.startsWith(prefix)
-    ? audio.currentSegment
-    : (audio.lastCompletedSegment?.startsWith(prefix) ? audio.lastCompletedSegment : '');
-  const whyMatch = activeId.match(new RegExp(`^${prefix}_why_(\\d+)$`));
-  const showAll = restored || skipAudio;
-  const showWhy = whyItems.length > 0 && (showAll || activeId === `${prefix}_why_title` || !!whyMatch || activeId === `${prefix}_fact`);
-  const visibleWhyLines = showAll || activeId === `${prefix}_fact`
-    ? whyItems.length
-    : (whyMatch ? Math.min(whyItems.length, Number(whyMatch[1]) + 1) : 0);
-  const showFact = !!factAudio && (showAll || activeId === `${prefix}_fact`);
-  return { showWhy, visibleWhyLines, showFact, start };
-};
-
-const useFeedbackTimer = () => {
-  const timerRef = useRef(null);
-  const clearFeedbackTimer = useCallback(() => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = null;
-  }, []);
-  const scheduleFeedback = useCallback((callback) => {
-    clearFeedbackTimer();
-    timerRef.current = setTimeout(() => {
-      timerRef.current = null;
-      callback();
-    }, 300);
-  }, [clearFeedbackTimer]);
-  useEffect(() => () => clearFeedbackTimer(), [clearFeedbackTimer]);
-  return { clearFeedbackTimer, scheduleFeedback };
-};
-
-const WhyCard = ({ lines, visibleCount }) => {
-  const t = useT();
-  const lang = useLang();
-  const items = lines[lang] || [];
-  const n = visibleCount === undefined ? items.length : visibleCount;
-  return (
-    <div className="why">
-      <p className="why-h"><span className="why-dot" aria-hidden="true"/>{t(WHY_TITLE)}</p>
-      <div className="why-list">
-        {items.slice(0, n).map((line, i) => (
-          <div key={i} className="why-row"><span className="why-num">{i + 1}</span><p className="why-tx">{line}</p></div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
-// ============================================================
-// QUESTION SCREEN — универсальный MC-компонент под формат audio: { intro, on_correct, on_wrong }
-// ============================================================
-const QuestionScreen = ({ screen, idx, totalScreens, screenMeta, screenContent, titleNode, question, options, correctIdx, storedAnswer, onAnswer, onNext, onPrev, factOnCorrect, figure }) => {
-  const lang = useLang();
-  const t = useT();
-  const c = screenContent;
-  const sfx = useSfx();
-
-  const audio = useAudio([{
-    id: `s${idx}_intro`,
-    text: c.audio.intro[lang],
-    trigger: 'on_mount',
-    waits_for: { type: 'option_picked' }
-  }]);
-
-  // Веди-до-верного: экран НЕ блокируется на первом ответе.
-  // Неверный гаснет и отключается, остальные активны, «Дальше» — только когда выбран верный.
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);  // текущий показываемый вариант
-  const [wrong, setWrong]   = useState(() => new Set());                // погашенные неверные
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const firstIdxRef = useRef(storedAnswer?.studentAnswerIndex ?? null);
-  const attemptsRef = useRef(storedAnswer?.attempts ?? (wasSolved ? 1 : 0));
-  const introAdvancedRef = useRef(wasSolved);
-  const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
-  const post = useAnswerSequence({ audio, screen: idx, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: wasSolved });
-  const whyRef = useRevealScroll(post.showWhy, 300);
-  const factRef = useRevealScroll(post.showFact, 300);
-  const { clearFeedbackTimer, scheduleFeedback } = useFeedbackTimer();
-
-  const pick = (i) => {
-    if (solved) return;        // после верного — заблокировано
-    if (wrong.has(i)) return;  // уже погашенный неверный — игнор
-    const isCorrect = i === correctIdx;
-    clearFeedbackTimer();
-    if (introAdvancedRef.current) audio.interruptFeedback();
-
-    if (firstTryRef.current === null) {   // фиксируем первую попытку (аналитика)
-      firstTryRef.current = isCorrect;
-      firstIdxRef.current = i;
-    }
-    attemptsRef.current += 1;
-    setPicked(i);
-
-    if (!introAdvancedRef.current) {      // продвинуть intro-очередь один раз
-      introAdvancedRef.current = true;
-      audio.triggerEvent('option_picked');
-    }
-
-    if (isCorrect) {
-      setSolved(true);
-      sfx.playCorrect();
-      post.start();
-      onAnswer({
-        stage: screenMeta?.scope ?? null,
-        screenIdx: idx,
-        question: typeof question === 'string' ? question : null,
-        options: options.map(o => typeof o === 'string' ? o : null),
-        correctIndex: correctIdx,
-        correctAnswer: typeof options[correctIdx] === 'string' ? options[correctIdx] : null,
-        studentAnswerIndex: firstIdxRef.current,                                   // ПЕРВЫЙ выбор
-        studentAnswer: typeof options[firstIdxRef.current] === 'string' ? options[firstIdxRef.current] : null,
-        correct: firstTryRef.current,                                              // верность ПЕРВОЙ попытки
-        firstTry: firstTryRef.current,
-        attempts: attemptsRef.current,
-        solved: true
-      });
-    } else {
-      sfx.playWrong();
-      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
-    }
-
-    if (!isCorrect && !audio.muted) {
-      const wrongVoice = (c[`audio_hint_${i}`] && c[`audio_hint_${i}`][lang]) || (c[`hint_${i}`] && c[`hint_${i}`][lang]) || (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
-      scheduleFeedback(() => {
-        audio.speakLatestFeedback(toTtsMath(wrongVoice, lang), `s${idx}_wrong_${i}`);
-      });
-    }
-  };
-
-  const navContent = (
-    <>
-      <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/>
-    </>
-  );
-
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(16px, 2.6vw, 18px)' }}>
-        {titleNode && <Title node={titleNode}/>}
-        {/* Заголовок (Title) + текст вопроса остаются и после верного ответа — сворачиваются только неверные варианты. */}
-        <div className="fade-up">{question}</div>
-        {figure && <div className="frame fade-up delay-1" style={{ display: 'flex', justifyContent: 'center', padding: 'clamp(12px, 2.4vw, 18px)' }}>{figure(solved)}</div>}
-        {/* После верного: остаётся только верный вариант, неверные плавно (с задержкой) сворачиваются — keep-visible anti-scroll. */}
-        <div className="fade-up delay-1" style={{ display: 'grid', gridTemplateColumns: solved ? '1fr' : 'repeat(2, minmax(0, 1fr))', justifyItems: solved ? 'center' : 'stretch', gap: solved ? 0 : 10 }}>
-          {options.map((opt, i) => {
-            const isWrongPicked = wrong.has(i);
-            const isCorrect = i === correctIdx;
-            const collapse = solved && !isCorrect;        // после верного неверные сворачиваются
-            let cls = 'option';
-            if (collapse) cls += ' g6-option-collapsed';
-            if (solved) {
-              if (isCorrect) cls += ' option-correct';
-              // неверным НЕ добавляем цвет-класс — плавно гаснут через inline opacity
-            } else if (isWrongPicked) {
-              cls += ' option-picked-wrong';
-            }
-            const disabled = solved || isWrongPicked;   // верное решает, погашенный неверный — не кликается; остальные активны
-            return (
-              <button key={i} className={cls} disabled={disabled} onClick={() => pick(i)}
-                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 19px)' : 'clamp(12px, 1.7vw, 12px) clamp(14px, 2.1vw, 19px)', fontSize: 'clamp(15px, 1.8vw, 16px)', minHeight: collapse ? 0 : 'clamp(50px, 7vw, 60px)', maxHeight: collapse ? 0 : 200, opacity: collapse ? 0 : 1, transform: collapse ? 'translateY(-6px) scale(0.97)' : 'none', width: solved && isCorrect ? '100%' : undefined, maxWidth: solved && isCorrect ? 440 : undefined, borderWidth: collapse ? 0 : undefined, overflow: 'hidden', display: 'flex', alignItems: 'center', gap: 12, transitionProperty: 'opacity, max-height, min-height, padding, transform, margin', transitionDuration: '0.6s, 0.75s, 0.75s, 0.5s, 0.6s, 0.75s', transitionTimingFunction: 'cubic-bezier(0.33, 0, 0.2, 1)', transitionDelay: collapse ? `${i * 0.07}s` : '0s' }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>
-                  {solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}
-                </span>
-                <span style={{ flex: 1 }}>{opt}</span>
-              </button>
-            );
-          })}
-        </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}
-          </p>
-          <p className="body" style={{ margin: 0 }}>
-            {mt(solved ? t(c.correct_text) : t(c[`hint_${picked}`] || c[`wrong_${picked}`] || c.wrong_default))}
-          </p>
-        </FeedbackBlock>
-        {solved && post.showWhy && <div ref={whyRef}>{React.cloneElement(whyNode, { visibleCount: post.visibleWhyLines })}</div>}
-        {solved && post.showFact && factOnCorrect && <div ref={factRef}>{factOnCorrect}</div>}
-      </div>
-    </Stage>
-  );
-};
-
-
-// ============================================================
-// --- UROK: div_6_02 — Признаки делимости на 2, 5 и 10 / 2, 5 va 10 ga bo'linish alomatlari ---
-// Infra grade6/Dars01 (baytma-bayt). Mobil naqsh BOSHIDAN ichida (ETALON_6SINF.md §5).
-// Kontekst: do'kondagi narxlar va hisobni teng bo'lish (narxlar ming so'mda).
-// Asosiy g'oya: sonni bo'lmasdan, OXIRGI RAQAMga qarab hukm qilamiz; s8 nega
-// shundayligini ochadi (har bir to'la o'nlik 2, 5, 10 ga doim bo'linadi).
-// ============================================================
 const TOTAL_SCREENS = 15;
+
 const LESSON_META = {
   lessonId: 'div_6_02',
-  lessonTitle: { ru: 'Признаки делимости на 2, 5 и 10', uz: "2, 5 va 10 ga bo'linish alomatlari" }
+  lessonTitle: {
+    ru: 'Признаки делимости на 2, 5 и 10',
+    uz: "2, 5 va 10 ga bo'linish alomatlari",
+    en: 'Divisibility rules for 2, 5 and 10',
+  },
 };
 
 const SCREEN_META = [
-  { id: 's0',  type: 'hook',        template: 'custom',         scored: false, scope: 'hook' },     // 0  (3 narx, RASM)
-  { id: 's2',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 2  (LastDigit, 2 ga)
-  { id: 's3',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 3  (2 ga alomat)
-  { id: 's1',  type: 'warmup',      template: 'QuestionScreen', scored: false, scope: null },       // 1  (8 : 2, ENG OSON, RASM)
-  { id: 's4',  type: 'test',        template: 'QuestionScreen', scored: true,  scope: 'practice' }, // 4  (4 narxdan juftini top, RASM)
-  { id: 's5',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 5  (5 ga + fakt)
-  { id: 's6',  type: 'rule',        template: 'custom',         scored: false, scope: null },       // 6  (5 va 10 ga alomat)
-  { id: 's7',  type: 'test',        template: 'OddOneOut',      scored: true,  scope: 'practice' }, // 7  (rasmsiz)
-  { id: 's8',  type: 'exploration', template: 'custom',         scored: false, scope: null },       // 8  (NEGA oxirgi raqam)
-  { id: 's9',  type: 'test',        template: 'InputScreen',    scored: true,  scope: 'practice' }, // 9  (40 : 5 = 8, RASM + fakt)
-  { id: 's10', type: 'exploration', template: 'custom',         scored: false, scope: null },       // 10 (2 va 5 -> 10)
-  { id: 's11', type: 'test',        template: 'DragMatch',      scored: true,  scope: 'practice' }, // 11 (rasmsiz)
-  { id: 's12', type: 'test',        template: 'Classify',       scored: true,  scope: 'practice' }, // 12 (rasmsiz)
-  { id: 's13', type: 'test',        template: 'InputScreen',    scored: true,  scope: 'final' },    // 13 (rasmsiz + fakt)
-  { id: 's14', type: 'summary',     template: 'custom',         scored: false, scope: null }        // 14
+  { id: 's_hook',    type: 'hook',        template: 'HookScreen',    scored: false, scope: 'hook' },     //  1 bufet: hisobni bo'lish
+  { id: 's_recall',  type: 'exploration', template: 'RevealScreen',  scored: false, scope: null },       //  2 juft va toq sonlar
+  { id: 's_core',    type: 'exploration', template: 'RevealScreen',  scored: false, scope: null },       //  3 oxirgi raqam hal qiladi
+  { id: 's_tool',    type: 'exploration', template: 'custom',        scored: false, scope: null },       //  4 USUL 1: 2 ga bo'linadimi
+  { id: 's_five',    type: 'exploration', template: 'RevealScreen',  scored: false, scope: null },       //  5 USUL 2: 5 ga bo'linish
+  { id: 's_solve',   type: 'exploration', template: 'RevealScreen',  scored: false, scope: null },       //  6 birga yechamiz: 40
+  { id: 's_edge',    type: 'exploration', template: 'RevealScreen',  scored: false, scope: null },       //  7 chegara: 3 ga ishlamaydi
+  { id: 's_rule',    type: 'rule',        template: 'RuleScreen',    scored: false, scope: null },       //  8 QOIDA + xukka qaytish
+  { id: 's_names',   type: 'test',        template: 'MultiTask',     scored: true,  scope: 'practice' }, //  9 nimaga bo'linadi x3
+  { id: 's_two',     type: 'test',        template: 'MultiTask',     scored: true,  scope: 'practice' }, // 10 2 ga bo'linadimi x4
+  { id: 's_bins',    type: 'test',        template: 'Classify',      scored: true,  scope: 'practice' }, // 11 savatlar: 5 ga
+  { id: 's_error',   type: 'test',        template: 'MultiTask',     scored: true,  scope: 'practice' }, // 12 xatoni topish x2
+  { id: 's_task',    type: 'test',        template: 'MultiTask',     scored: true,  scope: 'practice' }, // 13 MASALA: bufet hisobi
+  { id: 's_final',   type: 'test',        template: 'FinalPanel',    scored: true,  scope: 'final' },    // 14 yakuniy test x5
+  { id: 's14',       type: 'summary',     template: 'SummaryScreen', scored: false, scope: null },       // 15 xulosa
 ];
 
+registerLesson({ meta: LESSON_META, screenMeta: SCREEN_META });
+
+// ============================================================
+// КОНТЕНТ
+// ============================================================
 const CONTENT = {
-  s0: {
-    eyebrow: { ru: 'Тема урока', uz: 'Dars mavzusi' },
-    topic: { ru: 'Признаки делимости на 2, 5 и 10', uz: "2, 5 va 10 ga bo'linish alomatlari" },
-    global_q: { ru: 'Как узнать, делится ли число, не деля его?', uz: "Sonni bo'lmasdan turib, bo'linishini qanday bilamiz?" },
-    lead: { ru: 'В магазине три ценника: 24, 35 и 12 тысяч сумов. Двое друзей хотят заплатить поровну. Не за каждый товар это получится.', uz: "Do'konda uchta narx: 24, 35 va 12 ming so'm. Ikki do'st teng bo'lib to'lamoqchi. Har bir narsa uchun ham bu chiqavermaydi." },
-    question: { ru: 'Как думаешь, за какие товары получится заплатить поровну?', uz: "Qaysi narsalar uchun teng to'lash mumkin deb o'ylaysiz?" },
-    opt_yes: { ru: 'Знаю ответ', uz: 'Javobni bilaman' },
-    opt_no: { ru: 'Пока не знаю', uz: 'Hozircha bilmayman' },
-    opt_idk: { ru: 'Хочу разобраться', uz: "O'rganmoqchiman" },
+  s_hook: {
+    eyebrow: { ru: 'Зачем это нужно', uz: 'Bu nimaga kerak', en: 'Why you need this' },
+    title: {
+      ru: 'Счёт в буфете: разделится поровну?',
+      uz: "Bufetdagi hisob: teng bo'linadimi?",
+      en: 'The snack bar bill: will it split evenly?',
+    },
+    lead: {
+      ru: 'После турнира команда зашла в буфет. Общий счёт — 36 тысяч сумов.',
+      uz: "Turnirdan keyin komanda bufetga kirdi. Umumiy hisob — 36 ming so'm.",
+      en: 'After the tournament the team went to the snack bar. The bill is 36 thousand soum.',
+    },
+    voice_a: {
+      ru: 'Азиз: сейчас разделю в столбик.',
+      uz: "Aziz: hozir ustunda bo'lib chiqaman.",
+      en: 'Aziz: let me divide it in a column.',
+    },
+    voice_b: {
+      ru: 'Дилноза: я уже вижу ответ.',
+      uz: "Dilnoza: men javobni allaqachon ko'rib turibman.",
+      en: 'Dilnoza: I can already see the answer.',
+    },
+    ask: {
+      ru: 'Можно узнать, разделится ли счёт поровну, не выполняя деления?',
+      uz: "Bo'lishni bajarmasdan hisob teng bo'linishini bilish mumkinmi?",
+      en: 'Can you tell whether the bill splits evenly without doing the division?',
+    },
+    options: [
+      { ru: 'Нет, надо делить', uz: "Yo'q, bo'lish kerak", en: 'No, you have to divide' },
+      { ru: 'Да, по виду числа', uz: "Ha, sonning ko'rinishidan", en: 'Yes, from the look of the number' },
+    ],
+    gesture: {
+      ru: 'Нажми один из вариантов. Ответ проверим по ходу урока.',
+      uz: "Variantlardan birini bosing. Javobni dars davomida tekshiramiz.",
+      en: 'Tap one of the options. We will check the answer during the lesson.',
+    },
     audio: {
-      intro: { ru: 'В магазине три ценника: двадцать четыре, тридцать пять и двенадцать тысяч сумов. Двое друзей хотят заплатить поровну, но не за каждый товар это получится. Делить каждое число в столбик долго. Сегодня сначала разберём признаки делимости и их правила, а затем применим их к этим ценам.', uz: "Do'konda uchta narx: yigirma to'rt, o'ttiz besh va o'n ikki ming so'm. Ikki do'st teng bo'lib to'lamoqchi, lekin har bir narsa uchun ham bu chiqavermaydi. Har bir sonni ustunda bo'lish uzoq. Bugun avval bo'linish alomatlari va ularning qoidalarini tushunamiz, keyin ularni shu narxlarga qo'llaymiz." },
-      on_correct: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' },
-      on_wrong: { ru: 'Тогда начнём.', uz: 'Unda boshlaymiz.' }
-    }
+      intro: {
+        ru: [
+          'После турнира команда зашла в буфет. Общий счёт тридцать шесть тысяч сумов.',
+          'Азиз собирается делить в столбик, а Дилноза говорит, что уже видит ответ. Как ты думаешь, можно ли узнать, разделится ли счёт поровну, не выполняя деления? Выбери ответ. Проверим его по ходу урока.',
+        ],
+        uz: [
+          "Turnirdan keyin komanda bufetga kirdi. Umumiy hisob o'ttiz olti ming so'm.",
+          "Aziz ustunda bo'lmoqchi, Dilnoza esa javobni allaqachon ko'rib turganini aytadi. Sizningcha, bo'lishni bajarmasdan hisob teng bo'linishini bilish mumkinmi? Javobni tanlang. Uni dars davomida tekshiramiz.",
+        ],
+        en: [
+          'After the tournament the team went to the snack bar. The bill is thirty six thousand soum.',
+          'Aziz is about to divide in a column, and Dilnoza says she can already see the answer. What do you think, can you tell whether the bill splits evenly without doing the division? Choose an answer. We will check it during the lesson.',
+        ],
+      },
+    },
   },
 
-  s1: {
-    eyebrow: { ru: 'Начнём с простого', uz: 'Oddiydan boshlaymiz' },
-    bridge: { ru: 'Сначала самый лёгкий случай.', uz: 'Avval eng oson holat.' },
-    question: { ru: 'Перекус стоит 8 тысяч сумов. Двое друзей платят поровну. Сколько заплатит каждый?', uz: "Gazak 8 ming so'm turadi. Ikki do'st teng to'laydi. Har biri nechadan to'laydi?" },
-    opt0: { ru: '2 тысячи', uz: '2 ming' },
-    opt1: { ru: '3 тысячи', uz: '3 ming' },
-    opt2: { ru: '4 тысячи', uz: '4 ming' },
-    opt3: { ru: '5 тысяч', uz: '5 ming' },
-    correctIndex: 2,
-    correct_text: { ru: 'Верно. 8 : 2 = 4. Каждый платит по 4 тысячи, ничего не осталось.', uz: "To'g'ri. 8 : 2 = 4. Har biri 4 mingdan to'laydi, hech narsa qolmaydi." },
-    wrong_0: { ru: 'По 2 тысячи с двоих — это всего 4 тысячи. А нужно 8.', uz: "Ikki kishidan 2 mingdan — bu jami 4 ming. Kerak esa 8 ming." },
-    wrong_1: { ru: 'По 3 тысячи с двоих — это 6 тысяч. До 8 не хватает.', uz: "Ikki kishidan 3 mingdan — bu 6 ming. 8 gacha yetmaydi." },
-    wrong_3: { ru: 'По 5 тысяч с двоих — это 10 тысяч. Это больше, чем нужно.', uz: "Ikki kishidan 5 mingdan — bu 10 ming. Bu keragidan ko'p." },
-    audio: {
-      intro: { ru: 'Начнём с простого. Перекус стоит восемь тысяч сумов, двое друзей платят поровну. Сколько заплатит каждый? Выбери ответ.', uz: "Oddiydan boshlaymiz. Gazak sakkiz ming so'm turadi, ikki do'st teng to'laydi. Har biri nechadan to'laydi? Javobni tanlang." },
-      on_correct: { ru: 'Верно. Восемь разделилось на два без остатка.', uz: "To'g'ri. Sakkiz ikkiga qoldiqsiz bo'lindi." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
-    }
-  },
-
-  s2: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Смотрим на последнюю цифру', uz: 'Oxirgi raqamga qaraymiz' },
-    bridge: { ru: 'Проверим несколько цен: какие из них делятся на 2 поровну?', uz: "Bir nechta narxni tekshiramiz: qaysilari 2 ga teng bo'linadi?" },
-    audio: {
-      ru: [
-        'Двенадцать тысяч делится на два, по шесть тысяч с каждого. Последняя цифра здесь два.',
-        'Пятнадцать тысяч на два поровну не делится, одна тысяча лишняя. Последняя цифра пять.',
-        'Двадцать четыре делится, по двенадцать. Последняя цифра четыре.',
-        'Тридцать семь не делится. Последняя цифра семь. Заметил закономерность? Всё решает только последняя цифра.'
-      ],
-      uz: [
-        "O'n ikki ming ikkiga bo'linadi, har biriga olti mingdan. Bu yerda oxirgi raqam ikki.",
-        "O'n besh ming ikkiga teng bo'linmaydi, bir ming ortib qoladi. Oxirgi raqam besh.",
-        "Yigirma to'rt bo'linadi, o'n ikkitadan. Oxirgi raqam to'rt.",
-        "O'ttiz yetti bo'linmaydi. Oxirgi raqam yetti. Qonuniyatni payqadingizmi? Hammasini faqat oxirgi raqam hal qiladi."
-      ]
-    }
-  },
-
-  s3: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Признак делимости на 2', uz: "2 ga bo'linish alomati" },
-    rule_1: { ru: 'Число делится на 2 тогда и только тогда, когда его последняя цифра чётная.', uz: "Son 2 ga bo'linadi, agar uning oxirgi raqami juft bo'lsa." },
-    rule_2: { ru: 'Подходящие последние цифры: 0, 2, 4, 6, 8. Такие числа называют чётными.', uz: "Mos keladigan oxirgi raqamlar: 0, 2, 4, 6, 8. Bunday sonlar juft sonlar deyiladi." },
-    audio: { ru: 'Запомним первое правило. Число делится на два тогда и только тогда, когда его последняя цифра чётная. Подходящие последние цифры это ноль, два, четыре, шесть и восемь. Такие числа называют чётными.', uz: "Birinchi qoidani eslab qolamiz. Son ikkiga bo'linadi, agar uning oxirgi raqami juft bo'lsa. Mos keladigan oxirgi raqamlar bu nol, ikki, to'rt, olti va sakkiz. Bunday sonlar juft sonlar deyiladi." }
-  },
-
-  s4: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    bridge: { ru: 'Теперь применим правило.', uz: "Endi qoidani qo'llaymiz." },
-    question: { ru: 'За какой из этих товаров двое смогут заплатить поровну?', uz: "Bu narsalarning qaysi biri uchun ikki kishi teng to'lay oladi?" },
-    opt0: { ru: '35 тысяч', uz: "35 ming" },
-    opt1: { ru: '24 тысячи', uz: "24 ming" },
-    opt2: { ru: '17 тысяч', uz: "17 ming" },
-    opt3: { ru: '51 тысяча', uz: "51 ming" },
-    correctIndex: 1,
-    correct_text: { ru: 'Верно. У числа 24 последняя цифра 4 — она чётная, значит 24 делится на 2. Каждый платит по 12 тысяч.', uz: "To'g'ri. 24 sonining oxirgi raqami 4 — u juft, demak 24 soni 2 ga bo'linadi. Har biri 12 mingdan to'laydi." },
-    wrong_0: { ru: 'Последняя цифра 5 — нечётная. Значит, 35 на 2 поровну не делится.', uz: "Oxirgi raqam 5 — toq. Demak, 35 soni 2 ga teng bo'linmaydi." },
-    wrong_2: { ru: 'Последняя цифра 7 — нечётная. Одна тысяча останется лишней.', uz: "Oxirgi raqam 7 — toq. Bir ming ortib qoladi." },
-    wrong_3: { ru: 'Последняя цифра 1 — нечётная. Смотри именно на последнюю цифру, а не на первую.', uz: "Oxirgi raqam 1 — toq. Birinchi raqamga emas, aynan oxirgisiga qarang." },
-    audio: {
-      intro: { ru: 'Теперь применим правило. За какой из этих товаров двое смогут заплатить поровну? Смотри на последнюю цифру. Выбери ответ.', uz: "Endi qoidani qo'llaymiz. Bu narsalarning qaysi biri uchun ikki kishi teng to'lay oladi? Oxirgi raqamga qarang. Javobni tanlang." },
-      on_correct: { ru: 'Верно. Последняя цифра чётная.', uz: "To'g'ri. Oxirgi raqam juft." },
-      on_wrong: { ru: 'Посмотри разбор справа.', uz: "O'ngdagi tushuntirishga qarang." }
-    }
-  },
-
-  s5: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'А если платят пятеро?', uz: "Agar besh kishi to'lasa-chi?" },
-    bridge: { ru: 'Теперь счёт делят пять друзей. Посмотрим, какие суммы подходят.', uz: "Endi hisobni besh do'st bo'lishadi. Qaysi summalar mos kelishini ko'ramiz." },
-    fact: { ru: 'Ценники часто заканчиваются на 0 или 5 не случайно: такую сумму легко разделить и легко отсчитать сдачу. Поэтому в магазинах почти не встретишь цену вроде 37 тысяч.', uz: "Narxlar ko'pincha 0 yoki 5 bilan tugashi bejiz emas: bunday summani bo'lish ham, qaytimini sanash ham oson. Shuning uchun do'konlarda 37 ming kabi narxni deyarli uchratmaysiz." },
-    fact_audio: { ru: 'Знаешь ли ты? Ценники часто заканчиваются на ноль или пять не случайно. Такую сумму легко разделить и легко отсчитать сдачу. Поэтому в магазинах почти не встретишь цену вроде тридцати семи тысяч.', uz: "Bilasizmi? Narxlar ko'pincha nol yoki besh bilan tugashi bejiz emas. Bunday summani bo'lish ham, qaytimini sanash ham oson. Shuning uchun do'konlarda o'ttiz yetti ming kabi narxni deyarli uchratmaysiz." },
+  // Экран 2 — ВСПОМНИМ. Чётные и нечётные из пятого класса: опора под признак.
+  s_recall: {
+    eyebrow: { ru: 'Вспомним', uz: 'Eslaymiz', en: 'Recall' },
+    title: { ru: 'Чётное и нечётное', uz: 'Juft va toq', en: 'Even and odd' },
+    cap_even: { ru: '6 стульев — все парами', uz: "6 stul — hammasi juft bo'lib", en: '6 chairs, all in pairs' },
+    cap_odd: { ru: '7 стульев — один без пары', uz: "7 stul — bittasi juftsiz", en: '7 chairs, one without a pair' },
+    done: {
+      ru: 'Чётное число делится на 2 без остатка. Нечётное оставляет один лишний.',
+      uz: "Juft son 2 ga qoldiqsiz bo'linadi. Toq sonda esa bittasi ortib qoladi.",
+      en: 'An even number divides by 2 with no remainder. An odd one leaves one over.',
+    },
     audio: {
       ru: [
-        'Пятнадцать тысяч на пятерых это по три тысячи. Последняя цифра пять.',
-        'Двадцать тысяч на пятерых по четыре тысячи. Последняя цифра ноль.',
-        'А вот двадцать три на пятерых поровну не делятся. Значит, для деления на пять подходят только две последние цифры: ноль и пять.'
+        'Это вы уже знаете. Ставим шесть стульев парами. Пар получилось три, лишних нет.',
+        'Теперь семь стульев. Три пары и один стул без пары. Шесть чётное, семь нечётное.',
+        'Запомним. Чётное число делится на два без остатка, нечётное оставляет один лишний.',
       ],
       uz: [
-        "O'n besh ming besh kishiga uch mingdan tushadi. Oxirgi raqam besh.",
-        "Yigirma ming besh kishiga to'rt mingdan. Oxirgi raqam nol.",
-        "Yigirma uch esa besh kishiga teng bo'linmaydi. Demak, beshga bo'linish uchun faqat ikkita oxirgi raqam mos keladi: nol va besh."
-      ]
-    }
+        "Buni siz allaqachon bilasiz. Olti stulni juftlab qo'yamiz. Uchta juft chiqdi, ortiqchasi yo'q.",
+        "Endi yetti stul. Uchta juft va bitta juftsiz stul. Olti juft son, yetti toq son.",
+        "Eslab qolamiz. Juft son ikkiga qoldiqsiz bo'linadi, toq son esa bittasini ortiq qoldiradi.",
+      ],
+      en: [
+        'You already know this. We place six chairs in pairs. Three pairs came out, nothing left over.',
+        'Now seven chairs. Three pairs and one chair without a pair. Six is even, seven is odd.',
+        'Let us remember. An even number divides by two with no remainder, an odd one leaves one over.',
+      ],
+    },
   },
 
-  s6: {
-    eyebrow: { ru: 'Правило', uz: 'Qoida' },
-    title: { ru: 'Признаки делимости на 5 и на 10', uz: "5 va 10 ga bo'linish alomatlari" },
-    rule_1: { ru: 'Число делится на 5, если его последняя цифра 0 или 5.', uz: "Son 5 ga bo'linadi, agar uning oxirgi raqami 0 yoki 5 bo'lsa." },
-    rule_2: { ru: 'Число делится на 10, если его последняя цифра 0. Это самый строгий случай — подходит только ноль.', uz: "Son 10 ga bo'linadi, agar uning oxirgi raqami 0 bo'lsa. Bu eng qattiq holat — faqat nol mos keladi." },
-    audio: { ru: 'Ещё два правила. Число делится на пять, если его последняя цифра ноль или пять. И число делится на десять, если его последняя цифра ноль. Это самый строгий случай, подходит только ноль.', uz: "Yana ikkita qoida. Son beshga bo'linadi, agar uning oxirgi raqami nol yoki besh bo'lsa. Va son o'nga bo'linadi, agar uning oxirgi raqami nol bo'lsa. Bu eng qattiq holat, faqat nol mos keladi." }
+  // Экран 3 — ЯДРО. Решает ОДНА цифра, и это видно на длинном числе.
+  s_core: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    title: { ru: 'Решает последняя цифра', uz: 'Oxirgi raqam hal qiladi', en: 'The last digit decides' },
+    number: '12 345 678',
+    cap_all: { ru: 'Восемь цифр — делить долго', uz: "Sakkiz raqam — bo'lish uzoq", en: 'Eight digits, dividing takes long' },
+    cap_last: { ru: 'Хватает одной', uz: 'Bittasi yetadi', en: 'One is enough' },
+    done: {
+      ru: 'Любое число это десятки плюс последняя цифра. Десятки делятся на 2 всегда, поэтому ответ решает только последняя цифра.',
+      uz: "Har qanday son bu o'nliklar va oxirgi raqam. O'nliklar 2 ga doim bo'linadi, shuning uchun javobni faqat oxirgi raqam hal qiladi.",
+      en: 'Any number is tens plus the last digit. Tens always divide by 2, so only the last digit decides the answer.',
+    },
+    audio: {
+      ru: [
+        'Возьмём длинное число. Двенадцать миллионов триста сорок пять тысяч шестьсот семьдесят восемь. Делить такое в столбик долго.',
+        'Гасим цифры одну за другой. Остаётся восьмёрка, и её достаточно: восемь чётное, значит и всё число делится на два.',
+        'Почему так. Любое число это десятки плюс последняя цифра. Десятки на два делятся всегда, поэтому весь ответ решает последняя цифра.',
+      ],
+      uz: [
+        "Uzun son olamiz. O'n ikki million uch yuz qirq besh ming olti yuz yetmish sakkiz. Bunday sonni ustunda bo'lish uzoq.",
+        "Raqamlarni birin ketin o'chiramiz. Sakkiz qoladi va shuning o'zi yetarli: sakkiz juft, demak butun son ikkiga bo'linadi.",
+        "Nega shunday. Har qanday son bu o'nliklar va oxirgi raqam. O'nliklar ikkiga doim bo'linadi, shuning uchun javobni oxirgi raqam hal qiladi.",
+      ],
+      en: [
+        'Take a long number. Twelve million three hundred forty five thousand six hundred seventy eight. Dividing it in a column takes long.',
+        'We fade the digits one by one. The eight is left, and it is enough: eight is even, so the whole number divides by two.',
+        'Here is why. Any number is tens plus the last digit. Tens always divide by two, so the last digit decides the whole answer.',
+      ],
+    },
   },
 
-  s7: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    question: { ru: 'Найди цену, которую пятеро НЕ смогут разделить поровну', uz: "Besh kishi teng bo'la OLMAYDIGAN narxni toping" },
-    lead: { ru: 'Смотри только на последнюю цифру каждой цены.', uz: "Har bir narxning faqat oxirgi raqamiga qarang." },
+  // Экран 4 — СПОСОБ 1, «показ, потом сам».
+  s_tool: {
+    eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
+    title: { ru: 'Делится ли на 2', uz: "2 ga bo'linadimi", en: 'Does it divide by 2' },
+    demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
+    play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
+    step_num: { ru: 'Число', uz: 'Son', en: 'Number' },
+    step_last: { ru: 'Последняя цифра', uz: 'Oxirgi raqam', en: 'Last digit' },
+    yes: { ru: 'Делится на 2', uz: "2 ga bo'linadi", en: 'Divides by 2' },
+    no: { ru: 'Не делится на 2', uz: "2 ga bo'linmaydi", en: 'Does not divide by 2' },
+    again: { ru: 'Ещё раз', uz: 'Yana', en: 'Again' },
+    to_play: { ru: 'Теперь я сам!', uz: "Endi o'zim!", en: 'Now on my own!' },
+    demo_note: {
+      ru: 'Последняя цифра 6, она чётная. Значит 36 делится на 2.',
+      uz: "Oxirgi raqam 6, u juft. Demak 36 soni 2 ga bo'linadi.",
+      en: 'The last digit is 6 and it is even. So 36 divides by 2.',
+    },
+    play_ask: { ru: 'Делится ли 47 на 2?', uz: "47 soni 2 ga bo'linadimi?", en: 'Does 47 divide by 2?' },
+    play_ok: {
+      ru: 'Верно. Последняя цифра 7, она нечётная: 47 на 2 не делится, один остаётся лишним.',
+      uz: "To'g'ri. Oxirgi raqam 7, u toq: 47 soni 2 ga bo'linmaydi, bittasi ortib qoladi.",
+      en: 'Right. The last digit is 7 and it is odd: 47 does not divide by 2, one is left over.',
+    },
+    play_wrong: {
+      ru: 'Посмотри на последнюю цифру: 7 нечётная. Пары из 47 не собираются, один остаётся.',
+      uz: "Oxirgi raqamga qarang: 7 toq. 47 dan juftlar to'liq yig'ilmaydi, bittasi qoladi.",
+      en: 'Look at the last digit: 7 is odd. Pairs do not come out even from 47, one is left.',
+    },
+    audio: {
+      intro: {
+        ru: 'Способ первый. Смотрим на последнюю цифру и сравниваем её с чётными. Покажу на числе тридцать шесть.',
+        uz: "Birinchi usul. Oxirgi raqamga qaraymiz va uni juft raqamlar bilan solishtiramiz. O'ttiz olti sonida ko'rsataman.",
+        en: 'Method one. Look at the last digit and compare it with the even ones. I will show it on thirty six.',
+      },
+      demo: {
+        ru: 'Последняя цифра шесть. Шесть чётная, значит тридцать шесть делится на два.',
+        uz: "Oxirgi raqam olti. Olti juft, demak o'ttiz olti ikkiga bo'linadi.",
+        en: 'The last digit is six. Six is even, so thirty six divides by two.',
+      },
+      play: {
+        ru: 'Теперь ваша очередь. Число сорок семь. Делится ли оно на два?',
+        uz: "Endi sizning navbatingiz. Son qirq yetti. U ikkiga bo'linadimi?",
+        en: 'Now it is your turn. The number is forty seven. Does it divide by two?',
+      },
+      ok: {
+        ru: 'Верно. Последняя цифра семь, она нечётная, поэтому сорок семь на два не делится.',
+        uz: "To'g'ri. Oxirgi raqam yetti, u toq, shuning uchun qirq yetti ikkiga bo'linmaydi.",
+        en: 'Right. The last digit is seven and it is odd, so forty seven does not divide by two.',
+      },
+      wrong: {
+        ru: 'Посмотрите на последнюю цифру. Семь нечётная, пары не собираются, один остаётся лишним.',
+        uz: "Oxirgi raqamga qarang. Yetti toq, juftlar yig'ilmaydi, bittasi ortib qoladi.",
+        en: 'Look at the last digit. Seven is odd, the pairs do not come out, one is left over.',
+      },
+    },
+  },
+
+  // Экран 5 — СПОСОБ 2: пятёрка.
+  s_five: {
+    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot', en: 'Discovery' },
+    title: { ru: 'А если платят пятеро', uz: "Agar besh kishi to'lasa", en: 'And if five are paying' },
+    cap_row: { ru: 'Цены буфета', uz: 'Bufet narxlari', en: 'Snack bar prices' },
+    done: {
+      ru: 'На 5 делятся числа с последней цифрой 0 или 5. На 10 — только с нулём.',
+      uz: "Oxirgi raqami 0 yoki 5 bo'lgan sonlar 5 ga bo'linadi. 10 ga esa faqat noli borlar.",
+      en: 'Numbers ending in 0 or 5 divide by 5. Only those ending in zero divide by 10.',
+    },
+    audio: {
+      ru: [
+        'Теперь платят пятеро. Смотрим на цены буфета: пятнадцать, двадцать четыре, тридцать, сорок два, сорок пять.',
+        'Загораются те, что делятся на пять. Пятнадцать, тридцать, сорок пять. У всех на конце ноль или пятёрка.',
+        'А на десять делится только тридцать. У десятки требование строже: на конце обязательно ноль.',
+      ],
+      uz: [
+        "Endi besh kishi to'laydi. Bufet narxlariga qaraymiz: o'n besh, yigirma to'rt, o'ttiz, qirq ikki, qirq besh.",
+        "Beshga bo'linadiganlari yonadi. O'n besh, o'ttiz, qirq besh. Hammasining oxirida nol yoki besh turibdi.",
+        "O'nga esa faqat o'ttiz bo'linadi. O'nning talabi qattiqroq: oxirida albatta nol bo'lishi kerak.",
+      ],
+      en: [
+        'Now five people are paying. Look at the snack bar prices: fifteen, twenty four, thirty, forty two, forty five.',
+        'The ones that divide by five light up. Fifteen, thirty, forty five. Each ends in zero or five.',
+        'And only thirty divides by ten. Ten is stricter: the number must end in zero.',
+      ],
+    },
+  },
+
+  // Экран 6 — РЕШАЕМ ВМЕСТЕ: одно число, три вопроса.
+  s_solve: {
+    eyebrow: { ru: 'Решаем вместе', uz: 'Birga yechamiz', en: 'Solving together' },
+    title: { ru: 'Счёт 40 тысяч', uz: "Hisob 40 ming", en: 'A bill of 40 thousand' },
+    lead: {
+      ru: 'Одно число и три вопроса. Ответ на каждый даёт одна и та же цифра.',
+      uz: "Bitta son va uchta savol. Har biriga javobni bitta raqamning o'zi beradi.",
+      en: 'One number and three questions. The same digit answers each of them.',
+    },
+    rows: [
+      { d: 2, ok: true, text: { ru: '40 : 2 = 20 — делится, последняя цифра 0 чётная', uz: "40 : 2 = 20 — bo'linadi, oxirgi raqam 0 juft", en: '40 : 2 = 20, it divides, the last digit 0 is even' } },
+      { d: 5, ok: true, text: { ru: '40 : 5 = 8 — делится, на конце 0', uz: "40 : 5 = 8 — bo'linadi, oxirida 0", en: '40 : 5 = 8, it divides, it ends in 0' } },
+      { d: 10, ok: true, text: { ru: '40 : 10 = 4 — делится, на конце 0', uz: "40 : 10 = 4 — bo'linadi, oxirida 0", en: '40 : 10 = 4, it divides, it ends in 0' } },
+    ],
+    done: {
+      ru: 'Ноль на конце сразу даёт три ответа: число делится и на 2, и на 5, и на 10.',
+      uz: "Oxiridagi nol darrov uchta javob beradi: son 2 ga ham, 5 ga ham, 10 ga ham bo'linadi.",
+      en: 'A zero at the end gives three answers at once: the number divides by 2, by 5 and by 10.',
+    },
+    audio: {
+      ru: [
+        'Решаем вместе. Счёт сорок тысяч, и три вопроса про одно число.',
+        'Делится ли на два? Последняя цифра ноль, ноль чётный. Сорок разделить на два это двадцать.',
+        'Делится ли на пять? На конце ноль, значит да. Сорок разделить на пять это восемь.',
+        'Делится ли на десять? На конце ноль, значит да. Сорок разделить на десять это четыре. Один ноль дал три ответа сразу.',
+      ],
+      uz: [
+        "Birga yechamiz. Hisob qirq ming va bitta son haqida uchta savol.",
+        "Ikkiga bo'linadimi? Oxirgi raqam nol, nol juft. Qirqni ikkiga bo'lsak yigirma.",
+        "Beshga bo'linadimi? Oxirida nol, demak ha. Qirqni beshga bo'lsak sakkiz.",
+        "O'nga bo'linadimi? Oxirida nol, demak ha. Qirqni o'nga bo'lsak to'rt. Bitta nol uchta javobni birdan berdi.",
+      ],
+      en: [
+        'Let us solve it together. The bill is forty thousand, and there are three questions about one number.',
+        'Does it divide by two? The last digit is zero and zero is even. Forty divided by two is twenty.',
+        'Does it divide by five? It ends in zero, so yes. Forty divided by five is eight.',
+        'Does it divide by ten? It ends in zero, so yes. Forty divided by ten is four. One zero gave three answers at once.',
+      ],
+    },
+  },
+
+  // Экран 7 — ГРАНИЦА. Признак по последней цифре НЕ универсален.
+  s_edge: {
+    eyebrow: { ru: 'Где приём не работает', uz: 'Usul qayerda ishlamaydi', en: 'Where the trick stops working' },
+    title: { ru: 'А на 3 так нельзя', uz: "3 ga esa bunday bo'lmaydi", en: 'But not for 3' },
+    trio: ['12', '13', '21'],
+    caps: [
+      { ru: '12 : 3 = 4', uz: '12 : 3 = 4', en: '12 : 3 = 4' },
+      { ru: '13 : 3 — остаток 1', uz: '13 : 3 — qoldiq 1', en: '13 : 3, remainder 1' },
+      { ru: '21 : 3 = 7', uz: '21 : 3 = 7', en: '21 : 3 = 7' },
+    ],
+    done: {
+      ru: 'Концы 2, 3 и 1 — а делятся на 3 первое и третье. Для тройки последняя цифра ответа не даёт: там работает другой признак, его разберём на следующем уроке.',
+      uz: "Oxirlari 2, 3 va 1 — 3 ga esa birinchisi va uchinchisi bo'linadi. Uchlik uchun oxirgi raqam javob bermaydi: u yerda boshqa alomat ishlaydi, uni keyingi darsda ko'ramiz.",
+      en: 'The endings are 2, 3 and 1, yet the first and the third divide by 3. For three the last digit gives no answer: another rule works there, and we will meet it next lesson.',
+    },
+    audio: {
+      ru: [
+        'Важная граница. Возьмём три числа: двенадцать, тринадцать и двадцать один.',
+        'Двенадцать делится на три, тринадцать нет, двадцать один делится. А концы у них два, три и один.',
+        'Значит для тройки последняя цифра ответа не даёт. У тройки свой признак, и мы разберём его на следующем уроке.',
+      ],
+      uz: [
+        "Muhim chegara. Uchta son olamiz: o'n ikki, o'n uch va yigirma bir.",
+        "O'n ikki uchga bo'linadi, o'n uch bo'linmaydi, yigirma bir bo'linadi. Oxirlari esa ikki, uch va bir.",
+        "Demak uchlik uchun oxirgi raqam javob bermaydi. Uchlikning o'z alomati bor, uni keyingi darsda ko'ramiz.",
+      ],
+      en: [
+        'An important limit. Take three numbers: twelve, thirteen and twenty one.',
+        'Twelve divides by three, thirteen does not, twenty one does. And their endings are two, three and one.',
+        'So for three the last digit gives no answer. Three has its own rule, and we will meet it next lesson.',
+      ],
+    },
+  },
+
+  // Экран 8 — ПРАВИЛО и возврат к хуку.
+  s_rule: {
+    eyebrow: { ru: 'Правило', uz: 'Qoida', en: 'Rule' },
+    title: { ru: 'Три признака по последней цифре', uz: "Oxirgi raqam bo'yicha uchta alomat", en: 'Three rules from the last digit' },
+    rule_1: {
+      ru: 'На 2 делятся числа с последней цифрой 0, 2, 4, 6, 8. На 5 — с цифрой 0 или 5. На 10 — только с цифрой 0.',
+      uz: "Oxirgi raqami 0, 2, 4, 6, 8 bo'lgan sonlar 2 ga bo'linadi. 5 ga — oxirgi raqami 0 yoki 5 bo'lganlar. 10 ga — faqat 0 bilan tugaganlar.",
+      en: 'Numbers ending in 0, 2, 4, 6, 8 divide by 2. Ending in 0 or 5 divide by 5. Only those ending in 0 divide by 10.',
+    },
+    rule_2: {
+      ru: 'Счёт из начала урока: 36 оканчивается на 6, значит делится на 2. Дилноза была права — делить не пришлось.',
+      uz: "Dars boshidagi hisob: 36 soni 6 bilan tugaydi, demak 2 ga bo'linadi. Dilnoza haq edi — bo'lish shart bo'lmadi.",
+      en: 'The bill from the start of the lesson: 36 ends in 6, so it divides by 2. Dilnoza was right, no division was needed.',
+    },
+    audio: {
+      ru: 'Запомним правило. На два делятся числа с последней цифрой ноль, два, четыре, шесть, восемь. На пять с цифрой ноль или пять. На десять только с цифрой ноль. И вернёмся к счёту из начала урока. Тридцать шесть оканчивается на шесть, значит делится на два. Дилноза была права, делить не пришлось.',
+      uz: "Qoidani eslab qolamiz. Oxirgi raqami nol, ikki, to'rt, olti, sakkiz bo'lgan sonlar ikkiga bo'linadi. Beshga oxirgi raqami nol yoki besh bo'lganlar. O'nga esa faqat nol bilan tugaganlar. Va dars boshidagi hisobga qaytamiz. O'ttiz olti olti bilan tugaydi, demak ikkiga bo'linadi. Dilnoza haq edi, bo'lish shart bo'lmadi.",
+      en: 'Let us remember the rule. Numbers ending in zero, two, four, six or eight divide by two. Those ending in zero or five divide by five. Only those ending in zero divide by ten. And back to the bill from the start of the lesson. Thirty six ends in six, so it divides by two. Dilnoza was right, no division was needed.',
+    },
+  },
+
+  // Экран 9 — ПРАКТИКА: назови, на что делится.
+  s_names: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    title: { ru: 'На что делится цена', uz: "Narx nimaga bo'linadi", en: 'What the price divides by' },
+    lead: { ru: 'Смотри только на последнюю цифру.', uz: 'Faqat oxirgi raqamga qarang.', en: 'Look only at the last digit.' },
+    counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
-      { num: '15' },
-      { num: '25' },
-      { num: '30' },
-      { num: '42' },
-      { num: '45' }
+      {
+        q: { ru: 'Цена 24 тысячи. На что она делится?', uz: "Narx 24 ming. U nimaga bo'linadi?", en: 'The price is 24 thousand. What does it divide by?' },
+        opts: [
+          { ru: 'Только на 2', uz: 'Faqat 2 ga', en: 'Only by 2' },
+          { ru: 'Только на 5', uz: 'Faqat 5 ga', en: 'Only by 5' },
+          { ru: 'И на 2, и на 5', uz: '2 ga ham, 5 ga ham', en: 'By 2 and by 5' },
+        ],
+        correct: 0,
+        ok: { ru: 'Верно. Последняя цифра 4 — чётная, значит на 2 делится. Пятёрке нужны 0 или 5, поэтому на 5 не делится.', uz: "To'g'ri. Oxirgi raqam 4 — juft, demak 2 ga bo'linadi. Beshlikka 0 yoki 5 kerak, shuning uchun 5 ga bo'linmaydi.", en: 'Right. The last digit 4 is even, so it divides by 2. Five needs 0 or 5, so it does not divide by 5.' },
+        wrong: [
+          null,
+          { ru: 'Пятёрке нужна на конце 0 или 5, а здесь 4. Зато 4 чётная — значит делится на 2.', uz: "Beshlikka oxirida 0 yoki 5 kerak, bu yerda esa 4. Lekin 4 juft — demak 2 ga bo'linadi.", en: 'Five needs 0 or 5 at the end, and here it is 4. But 4 is even, so it divides by 2.' },
+          { ru: 'На 2 — да, цифра 4 чётная. А на 5 нет: пятёрке нужны 0 или 5.', uz: "2 ga — ha, 4 raqami juft. 5 ga esa yo'q: beshlikka 0 yoki 5 kerak.", en: 'By 2 yes, the digit 4 is even. By 5 no: five needs 0 or 5.' },
+        ],
+      },
+      {
+        q: { ru: 'Цена 45 тысяч. На что она делится?', uz: "Narx 45 ming. U nimaga bo'linadi?", en: 'The price is 45 thousand. What does it divide by?' },
+        opts: [
+          { ru: 'Только на 2', uz: 'Faqat 2 ga', en: 'Only by 2' },
+          { ru: 'Только на 5', uz: 'Faqat 5 ga', en: 'Only by 5' },
+          { ru: 'На 5 и на 10', uz: '5 ga va 10 ga', en: 'By 5 and by 10' },
+        ],
+        correct: 1,
+        ok: { ru: 'Верно. На конце 5: делится на 5. Пятёрка нечётная, значит на 2 нет, а десятке нужен ноль.', uz: "To'g'ri. Oxirida 5: 5 ga bo'linadi. Besh toq, demak 2 ga yo'q, o'nlikka esa nol kerak.", en: 'Right. It ends in 5, so it divides by 5. Five is odd, so not by 2, and ten needs a zero.' },
+        wrong: [
+          { ru: 'Последняя цифра 5 — нечётная. Пары не собираются, на 2 не делится.', uz: "Oxirgi raqam 5 — toq. Juftlar yig'ilmaydi, 2 ga bo'linmaydi.", en: 'The last digit 5 is odd. Pairs do not come out, it does not divide by 2.' },
+          null,
+          { ru: 'На 10 делятся только числа с нулём на конце. У 45 на конце пятёрка.', uz: "10 ga faqat oxirida nol bo'lgan sonlar bo'linadi. 45 ning oxirida besh turibdi.", en: 'Only numbers ending in zero divide by 10. 45 ends in five.' },
+        ],
+      },
+      {
+        q: { ru: 'Цена 30 тысяч. На что она делится?', uz: "Narx 30 ming. U nimaga bo'linadi?", en: 'The price is 30 thousand. What does it divide by?' },
+        opts: [
+          { ru: 'Только на 2', uz: 'Faqat 2 ga', en: 'Only by 2' },
+          { ru: 'Только на 5', uz: 'Faqat 5 ga', en: 'Only by 5' },
+          { ru: 'На 2, на 5 и на 10', uz: '2 ga, 5 ga va 10 ga', en: 'By 2, by 5 and by 10' },
+        ],
+        correct: 2,
+        ok: { ru: 'Верно. Ноль на конце подходит всем троим сразу: и двойке, и пятёрке, и десятке.', uz: "To'g'ri. Oxiridagi nol uchalasiga birdan mos keladi: ikkiga ham, beshga ham, o'nga ham.", en: 'Right. A zero at the end suits all three at once: two, five and ten.' },
+        wrong: [
+          { ru: 'На 2 действительно делится, но ноль подходит ещё и пятёрке, и десятке.', uz: "2 ga haqiqatan bo'linadi, lekin nol beshlikka ham, o'nlikka ham mos keladi.", en: 'It really does divide by 2, but zero suits five and ten as well.' },
+          { ru: 'На 5 делится, но ноль чётный — значит и на 2 тоже, и на 10.', uz: "5 ga bo'linadi, lekin nol juft — demak 2 ga ham, 10 ga ham.", en: 'It divides by 5, but zero is even, so by 2 as well, and by 10.' },
+          null,
+        ],
+      },
     ],
-    errorIdx: 3,
-    correct_text: { ru: 'Верно. У 42 последняя цифра 2 — это не 0 и не 5. Остальные цены оканчиваются на 5 или 0, поэтому делятся на 5.', uz: "To'g'ri. 42 sonining oxirgi raqami 2 — bu 0 ham, 5 ham emas. Qolgan narxlar 5 yoki 0 bilan tugaydi, shuning uchun 5 ga bo'linadi." },
-    wrong_0: { ru: '15 оканчивается на 5, значит делится на 5. Ищи ту цену, у которой последняя цифра не 0 и не 5.', uz: "15 soni 5 bilan tugaydi, demak 5 ga bo'linadi. Oxirgi raqami 0 ham, 5 ham bo'lmagan narxni qidiring." },
-    wrong_1: { ru: '25 оканчивается на 5 — делится. Проверь последние цифры остальных.', uz: "25 soni 5 bilan tugaydi — bo'linadi. Qolganlarining oxirgi raqamini tekshiring." },
-    wrong_2: { ru: '30 оканчивается на 0 — делится и на 5, и на 10. Ищи дальше.', uz: "30 soni 0 bilan tugaydi — 5 ga ham, 10 ga ham bo'linadi. Yana qidiring." },
-    wrong_4: { ru: '45 оканчивается на 5 — делится. Осталась одна цена, которая выбивается.', uz: "45 soni 5 bilan tugaydi — bo'linadi. Qatorga tushmaydigan bitta narx qoldi." },
     audio: {
-      intro: { ru: 'Смотри только на последнюю цифру. Найди цену, которую пятеро не смогут разделить поровну.', uz: "Faqat oxirgi raqamga qarang. Besh kishi teng bo'la olmaydigan narxni toping." },
-      on_correct: { ru: 'Верно. Последняя цифра два — это не ноль и не пять.', uz: "To'g'ri. Oxirgi raqam ikki — bu nol ham, besh ham emas." },
-      on_wrong: { ru: 'Эта цена делится на пять. Ищи дальше.', uz: "Bu narx beshga bo'linadi. Yana qidiring." }
-    }
+      intro: {
+        ru: 'Практика. Смотрите только на последнюю цифру и выбирайте, на что делится цена.',
+        uz: "Mashq. Faqat oxirgi raqamga qarang va narx nimaga bo'linishini tanlang.",
+        en: 'Practice. Look only at the last digit and choose what the price divides by.',
+      },
+    },
   },
 
-  s8: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Почему решает последняя цифра', uz: 'Nega oxirgi raqam hal qiladi' },
-    bridge: { ru: 'Разложим сумму на целые десятки и отдельные единицы.', uz: "Summani to'la o'nliklarga va yakka birliklarga ajratamiz." },
-    audio: {
-      ru: [
-        'Возьмём двадцать четыре тысячи. Это два полных десятка и ещё четыре.',
-        'Каждый десяток делится и на два, и на пять, и на десять. Значит, десятки нам мешать не могут, что бы мы ни делили.',
-        'Остаются только единицы, то есть последняя цифра. Именно она и решает. Поэтому правило работает для любого числа, хоть для миллиона.'
-      ],
-      uz: [
-        "Yigirma to'rt mingni olamiz. Bu ikkita to'la o'nlik va yana to'rtta birlik.",
-        "Har bir o'nlik ikkiga ham, beshga ham, o'nga ham bo'linadi. Demak, nimani bo'lsak ham, o'nliklar bizga xalaqit bera olmaydi.",
-        "Faqat birliklar, ya'ni oxirgi raqam qoladi. Aynan o'sha hal qiladi. Shuning uchun bu qoida har qanday son uchun, hatto million uchun ham ishlaydi."
-      ]
-    }
-  },
-
-  s9: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    label: { ru: 'делим счёт', uz: "hisobni bo'lamiz" },
-    context: { ru: 'Общий счёт — 40 тысяч сумов, платят 5 друзей.', uz: "Umumiy hisob — 40 ming so'm, 5 do'st to'laydi." },
-    question: { ru: 'Сколько тысяч заплатит каждый из пятерых?', uz: "Besh kishidan har biri necha ming to'laydi?" },
-    answer: '8',
-    placeholder: { ru: 'число', uz: 'son' },
-    fb_correct: { ru: 'Верно. Последняя цифра 0, значит 40 делится на 5: 40 : 5 = 8. Каждый платит по 8 тысяч.', uz: "To'g'ri. Oxirgi raqam 0, demak 40 soni 5 ga bo'linadi: 40 : 5 = 8. Har biri 8 mingdan to'laydi." },
-    hint: { ru: 'Сначала проверь последнюю цифру: 0 — значит делится. Потом раздели 40 на 5.', uz: "Avval oxirgi raqamni tekshiring: 0 — demak bo'linadi. So'ng 40 ni 5 ga bo'ling." },
-    fact: { ru: 'Признак делимости на 10 — самый быстрый в математике: достаточно взглянуть на одну цифру. Именно поэтому мы так легко считаем десятками.', uz: "10 ga bo'linish alomati matematikadagi eng tez alomat: bitta raqamga qarash kifoya. Aynan shuning uchun biz o'nlab sanashni oson bajaramiz." },
-    fact_audio: { ru: 'Знаешь ли ты? Признак делимости на десять самый быстрый в математике: достаточно взглянуть на одну цифру. Именно поэтому мы так легко считаем десятками.', uz: "Bilasizmi? O'nga bo'linish alomati matematikadagi eng tez alomat: bitta raqamga qarash kifoya. Aynan shuning uchun biz o'nlab sanashni oson bajaramiz." },
-    audio: {
-      intro: { ru: 'Общий счёт сорок тысяч сумов, платят пятеро друзей. Сколько тысяч заплатит каждый? Набери ответ.', uz: "Umumiy hisob qirq ming so'm, besh do'st to'laydi. Har biri necha ming to'laydi? Javobni tering." },
-      on_correct: { ru: 'Верно, по восемь тысяч.', uz: "To'g'ri, sakkiz mingdan." },
-      on_wrong: { ru: 'Посмотри подсказку.', uz: 'Maslahatga qarang.' }
-    }
-  },
-
-  s10: {
-    eyebrow: { ru: 'Открытие', uz: 'Kashfiyot' },
-    title: { ru: 'Когда работают сразу два признака', uz: 'Ikki alomat birga ishlaganda' },
-    bridge: { ru: 'Посмотрим на цену 30 тысяч.', uz: "30 ming so'mlik narxga qaraymiz." },
-    audio: {
-      ru: [
-        'Последняя цифра ноль. Ноль чётный, значит тридцать делится на два.',
-        'Ноль подходит и для пятёрки, значит тридцать делится на пять.',
-        'А число, которое делится и на два, и на пять, обязательно делится на десять. Поэтому цены с нулём на конце делятся сразу на всё это.'
-      ],
-      uz: [
-        "Oxirgi raqam nol. Nol juft, demak o'ttiz soni ikkiga bo'linadi.",
-        "Nol beshga ham mos keladi, demak o'ttiz soni beshga ham bo'linadi.",
-        "Ikkiga ham, beshga ham bo'linadigan son esa albatta o'nga bo'linadi. Shuning uchun oxiri nol bilan tugagan narxlar bularning hammasiga birdan bo'linadi."
-      ]
-    }
-  },
-
-  s11: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    title: { ru: 'На что делится эта цена?', uz: "Bu narx nimalarga bo'linadi?" },
-    lead: { ru: 'Для каждой цены выбери верную строку, ориентируясь на последнюю цифру.', uz: "Har bir narxning oxirgi raqamiga qarab, mos qatorni tanlang." },
-    pairs: [
-      { number: '24', label: { ru: 'тысяч', uz: 'ming' }, reading: { ru: 'только на 2', uz: "faqat 2 ga" } },
-      { number: '45', label: { ru: 'тысяч', uz: 'ming' }, reading: { ru: 'только на 5', uz: "faqat 5 ga" } },
-      { number: '30', label: { ru: 'тысяч', uz: 'ming' }, reading: { ru: 'на 2, на 5 и на 10', uz: "2 ga, 5 ga va 10 ga" } }
+  // Экран 10 — ПРАКТИКА: способ 1 на четырёх числах.
+  s_two: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    title: { ru: 'Делится на 2 или нет', uz: "2 ga bo'linadimi yoki yo'q", en: 'Divides by 2 or not' },
+    lead: { ru: 'Способ первый: закрой все цифры, кроме последней.', uz: "Birinchi usul: oxirgisidan boshqa hamma raqamni yoping.", en: 'Method one: cover every digit but the last.' },
+    counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
+    items: [
+      {
+        q: { ru: 'Число 58. Делится на 2?', uz: "58 soni. 2 ga bo'linadimi?", en: 'The number 58. Does it divide by 2?' },
+        opts: [{ ru: 'Да', uz: 'Ha', en: 'Yes' }, { ru: 'Нет', uz: "Yo'q", en: 'No' }],
+        correct: 0,
+        ok: { ru: 'Верно. Последняя цифра 8 — чётная, 58 : 2 = 29.', uz: "To'g'ri. Oxirgi raqam 8 — juft, 58 : 2 = 29.", en: 'Right. The last digit 8 is even, 58 : 2 = 29.' },
+        wrong: [null, { ru: 'Восьмёрка чётная, значит 58 делится на 2. Первая цифра тут ни при чём.', uz: "Sakkiz juft, demak 58 soni 2 ga bo'linadi. Birinchi raqamning bunga aloqasi yo'q.", en: 'Eight is even, so 58 divides by 2. The first digit has nothing to do with it.' }],
+      },
+      {
+        q: { ru: 'Число 71. Делится на 2?', uz: "71 soni. 2 ga bo'linadimi?", en: 'The number 71. Does it divide by 2?' },
+        opts: [{ ru: 'Да', uz: 'Ha', en: 'Yes' }, { ru: 'Нет', uz: "Yo'q", en: 'No' }],
+        correct: 1,
+        ok: { ru: 'Верно. На конце 1 — нечётная, 71 : 2 = 35 и один в остатке.', uz: "To'g'ri. Oxirida 1 — toq, 71 : 2 = 35, qoldiq bir.", en: 'Right. It ends in 1, which is odd: 71 : 2 = 35 with one left over.' },
+        wrong: [{ ru: 'Смотреть надо на последнюю цифру, а не на первую. В конце 1, она нечётная.', uz: "Birinchi raqamga emas, oxirgisiga qarash kerak. Oxirida 1, u toq.", en: 'Look at the last digit, not the first. It ends in 1, which is odd.' }, null],
+      },
+      {
+        q: { ru: 'Число 90. Делится на 2?', uz: "90 soni. 2 ga bo'linadimi?", en: 'The number 90. Does it divide by 2?' },
+        opts: [{ ru: 'Да', uz: 'Ha', en: 'Yes' }, { ru: 'Нет', uz: "Yo'q", en: 'No' }],
+        correct: 0,
+        ok: { ru: 'Верно. Ноль — чётная цифра, 90 : 2 = 45.', uz: "To'g'ri. Nol — juft raqam, 90 : 2 = 45.", en: 'Right. Zero is an even digit, 90 : 2 = 45.' },
+        wrong: [null, { ru: 'Ноль считается чётным: 90 делится на 2 и даёт 45.', uz: "Nol juft hisoblanadi: 90 soni 2 ga bo'linadi va 45 beradi.", en: 'Zero counts as even: 90 divides by 2 and gives 45.' }],
+      },
+      {
+        q: { ru: 'Число 33. Делится на 2?', uz: "33 soni. 2 ga bo'linadimi?", en: 'The number 33. Does it divide by 2?' },
+        opts: [{ ru: 'Да', uz: 'Ha', en: 'Yes' }, { ru: 'Нет', uz: "Yo'q", en: 'No' }],
+        correct: 1,
+        ok: { ru: 'Верно. Тройка нечётная, пара не собирается: 33 : 2 = 16 и один лишний.', uz: "To'g'ri. Uch toq, juft yig'ilmaydi: 33 : 2 = 16, bittasi ortiqcha.", en: 'Right. Three is odd, no full pairing: 33 : 2 = 16 with one left.' },
+        wrong: [{ ru: 'Обе цифры тройки, но решает только последняя. Три нечётная.', uz: "Ikkala raqam ham uch, lekin faqat oxirgisi hal qiladi. Uch toq.", en: 'Both digits are three, but only the last one decides. Three is odd.' }, null],
+      },
     ],
-    correct_text: { ru: 'Верно. Последняя цифра 4 — только чётность. Цифра 5 — только пятёрка. Цифра 0 — сразу все три признака.', uz: "To'g'ri. Oxirgi raqam 4 — faqat juftlik. 5 raqami — faqat beshlik. 0 raqami — uchala alomat birdan." },
-    hint: { ru: 'Чётные последние цифры: 0, 2, 4, 6, 8. Для пятёрки: 0 и 5. Для десятки: только 0.', uz: "Juft oxirgi raqamlar: 0, 2, 4, 6, 8. Beshlik uchun: 0 va 5. O'nlik uchun: faqat 0." },
     audio: {
-      intro: { ru: 'Для каждой цены выбери верную строку. Нажми на цену, потом выбери строку из списка.', uz: "Har bir narx uchun to'g'ri qatorni tanlang. Narxga bosing, so'ng ro'yxatdan qatorni tanlang." },
-      on_correct: { ru: 'Верно, все строки на местах.', uz: "To'g'ri, barcha qatorlar o'z o'rniga tushdi." },
-      on_wrong: { ru: 'Проверь ещё раз.', uz: 'Yana bir bor tekshiring.' }
-    }
+      intro: {
+        ru: 'Способ первый в работе. Закройте все цифры, кроме последней, и отвечайте.',
+        uz: "Birinchi usul ish boshida. Oxirgisidan boshqa hamma raqamni yopib, javob bering.",
+        en: 'Method one in action. Cover every digit but the last and answer.',
+      },
+    },
   },
 
-  s12: {
-    eyebrow: { ru: 'Практика', uz: 'Mashq' },
-    title: { ru: 'Двое смогут разделить поровну?', uz: "Ikki kishi teng bo'la oladimi?" },
-    lead: { ru: 'Разбери цены на две группы по последней цифре.', uz: "Narxlarni oxirgi raqamiga qarab ikki guruhga ajrating." },
-    bin_a: { ru: 'Делится на 2', uz: "2 ga bo'linadi" },
-    bin_b: { ru: 'Не делится на 2', uz: "2 ga bo'linmaydi" },
+  // Экран 11 — ПРАКТИКА: корзины по признаку пятёрки.
+  s_bins: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    title: { ru: 'Разложи цены по пятёрке', uz: "Narxlarni beshlik bo'yicha ajrating", en: 'Sort the prices by five' },
+    lead: { ru: 'Пятёрке нужны на конце 0 или 5.', uz: "Beshlikka oxirida 0 yoki 5 kerak.", en: 'Five needs a 0 or a 5 at the end.' },
+    bin_a: { ru: 'Делится на 5', uz: "5 ga bo'linadi", en: 'Divides by 5' },
+    bin_b: { ru: 'Не делится на 5', uz: "5 ga bo'linmaydi", en: 'Does not divide by 5' },
     cards: [
-      { label: '18', bin: 'a' },
-      { label: '25', bin: 'b' },
-      { label: '34', bin: 'a' },
-      { label: '47', bin: 'b' },
+      { label: '25', bin: 'a' },
+      { label: '42', bin: 'b' },
       { label: '60', bin: 'a' },
-      { label: '73', bin: 'b' }
+      { label: '75', bin: 'a' },
+      { label: '38', bin: 'b' },
+      { label: '17', bin: 'b' },
     ],
-    hint: { ru: 'Закрой все цифры, кроме последней. Она чётная или нет?', uz: "Oxirgisidan boshqa hamma raqamni yoping. U juftmi yoki yo'qmi?" },
-    correct_text: { ru: 'Точно. 18, 34 и 60 оканчиваются на 8, 4 и 0 — все чётные. А 25, 47 и 73 оканчиваются на 5, 7 и 3 — нечётные.', uz: "Aniq. 18, 34 va 60 sonlari 8, 4 va 0 bilan tugaydi — hammasi juft. 25, 47 va 73 esa 5, 7 va 3 bilan tugaydi — toq." },
+    hint: {
+      ru: 'Закрой все цифры, кроме последней. Это 0 или 5?',
+      uz: "Oxirgisidan boshqa hamma raqamni yoping. U 0 yoki 5 mi?",
+      en: 'Cover every digit but the last. Is it 0 or 5?',
+    },
+    correct_text: {
+      ru: 'Верно. 25, 60 и 75 оканчиваются на 5, 0 и 5. А 42, 38 и 17 — на 2, 8 и 7, пятёрке они не подходят.',
+      uz: "To'g'ri. 25, 60 va 75 oxiri 5, 0 va 5. 42, 38 va 17 esa 2, 8 va 7 bilan tugaydi, beshlikka mos emas.",
+      en: 'Right. 25, 60 and 75 end in 5, 0 and 5. And 42, 38 and 17 end in 2, 8 and 7, which do not suit five.',
+    },
     audio: {
-      intro: { ru: 'Разбери цены на две группы. Делится на два или нет? Смотри только на последнюю цифру.', uz: "Narxlarni ikki guruhga ajrating. Ikkiga bo'linadimi yoki yo'qmi? Faqat oxirgi raqamga qarang." },
-      on_correct: { ru: 'Точно, все на местах.', uz: "Aniq, hammasi o'z o'rniga tushdi." },
-      on_wrong: { ru: 'Не сюда.', uz: 'Bu yerga emas.' }
-    }
+      intro: {
+        ru: 'Разложите цены на две группы. Делится на пять или нет? Смотрите на последнюю цифру.',
+        uz: "Narxlarni ikki guruhga ajrating. Beshga bo'linadimi yoki yo'q? Oxirgi raqamga qarang.",
+        en: 'Sort the prices into two groups. Does it divide by five or not? Look at the last digit.',
+      },
+      on_correct: { ru: 'Точно, все на местах.', uz: "Aniq, hammasi o'z o'rniga tushdi.", en: 'Exactly, everything is in place.' },
+      on_wrong: { ru: 'Не сюда. Посмотри на последнюю цифру.', uz: 'Bu yerga emas. Oxirgi raqamga qarang.', en: 'Not here. Look at the last digit.' },
+    },
   },
 
-  s13: {
-    eyebrow: { ru: 'Итог урока', uz: 'Dars yakuni' },
-    label: { ru: 'финальная задача', uz: 'yakuniy masala' },
-    context: { ru: 'В прайсе магазина все цены от 1 до 50 тысяч.', uz: "Do'kon ro'yxatida barcha narxlar 1 dan 50 minggacha." },
-    question: { ru: 'Сколько из чисел от 1 до 50 делятся на 10?', uz: "1 dan 50 gacha bo'lgan sonlardan nechtasi 10 ga bo'linadi?" },
-    answer: '5',
-    placeholder: { ru: 'число', uz: 'son' },
-    fb_correct: { ru: 'Верно, 5 чисел: 10, 20, 30, 40 и 50. Только у них последняя цифра 0.', uz: "To'g'ri, 5 ta son: 10, 20, 30, 40 va 50. Faqat ularning oxirgi raqami 0." },
-    hint: { ru: 'На 10 делятся только числа с нулём на конце. Перечисли их по порядку до 50.', uz: "10 ga faqat oxiri nol bilan tugagan sonlar bo'linadi. Ularni 50 gacha tartib bilan sanang." },
-    fact: { ru: 'Чисел, кратных 10, ровно в два раза меньше, чем кратных 5, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "10 ga karrali sonlar 5 ga karrali sonlardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
-    fact_audio: { ru: 'Знаешь ли ты? Чисел, кратных десяти, ровно в два раза меньше, чем кратных пяти, и в пять раз меньше, чем чётных. Чем строже признак, тем реже такие числа встречаются.', uz: "Bilasizmi? O'nga karrali sonlar beshga karrali sonlardan roppa-rosa ikki barobar kam, juft sonlardan esa besh barobar kam. Alomat qanchalik qattiq bo'lsa, bunday sonlar shunchalik kam uchraydi." },
+  // Экран 12 — ПРАКТИКА: найди ошибку.
+  s_error: {
+    eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
+    title: { ru: 'Найди ошибку', uz: 'Xatoni toping', en: 'Find the mistake' },
+    lead: { ru: 'Проверь чужое решение так же, как проверял бы своё.', uz: "Birovning yechimini o'zingiznikidek tekshiring.", en: 'Check someone else’s work the way you would check your own.' },
+    counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
+    items: [
+      {
+        q: { ru: 'Азиз выписал числа, которые делятся на 10: 30, 45, 60. Где ошибка?', uz: "Aziz 10 ga bo'linadigan sonlarni yozdi: 30, 45, 60. Xato qayerda?", en: 'Aziz wrote the numbers that divide by 10: 30, 45, 60. Where is the mistake?' },
+        opts: [
+          { ru: 'Ошибки нет', uz: "Xato yo'q", en: 'There is no mistake' },
+          { ru: 'Лишнее число 45', uz: "45 ortiqcha", en: '45 does not belong' },
+          { ru: 'Лишнее число 30', uz: "30 ortiqcha", en: '30 does not belong' },
+        ],
+        correct: 1,
+        ok: { ru: 'Верно. 45 оканчивается на 5, а десятке нужен только 0: 45 : 10 = 4 и 5 в остатке.', uz: "To'g'ri. 45 oxiri 5, o'nlikka esa faqat 0 kerak: 45 : 10 = 4, qoldiq 5.", en: 'Right. 45 ends in 5, and ten needs a 0: 45 : 10 = 4 with 5 left over.' },
+        wrong: [
+          { ru: 'Ошибка есть. Пятёрка на конце подходит только пятёрке, а не десятке.', uz: "Xato bor. Oxiridagi besh faqat beshlikka mos, o'nlikka emas.", en: 'There is a mistake. A five at the end suits five, not ten.' },
+          null,
+          { ru: '30 оканчивается на 0 — оно как раз делится на 10.', uz: "30 oxiri 0 — u aynan 10 ga bo'linadi.", en: '30 ends in 0, and it does divide by 10.' },
+        ],
+      },
+      {
+        q: { ru: 'Дилноза говорит: «74 делится на 2, потому что 7 нечётная». В чём ошибка?', uz: "Dilnoza aytadi: «74 soni 2 ga bo'linadi, chunki 7 toq». Xato nimada?", en: 'Dilnoza says: “74 divides by 2 because 7 is odd.” What is wrong?' },
+        opts: [
+          { ru: 'Ответ верный, объяснение неверное', uz: "Javob to'g'ri, izoh noto'g'ri", en: 'The answer is right, the reason is wrong' },
+          { ru: 'И ответ, и объяснение неверные', uz: "Javob ham, izoh ham noto'g'ri", en: 'Both the answer and the reason are wrong' },
+          { ru: 'Всё верно', uz: "Hammasi to'g'ri", en: 'Everything is right' },
+        ],
+        correct: 0,
+        ok: { ru: 'Верно. 74 действительно делится на 2, но из-за последней цифры 4, а не из-за семёрки.', uz: "To'g'ri. 74 haqiqatan 2 ga bo'linadi, lekin oxirgi raqam 4 tufayli, yetti tufayli emas.", en: 'Right. 74 does divide by 2, but because of the last digit 4, not because of the seven.' },
+        wrong: [
+          null,
+          { ru: 'Ответ как раз верный: 74 : 2 = 37. Неверно только объяснение.', uz: "Javobning o'zi to'g'ri: 74 : 2 = 37. Faqat izoh noto'g'ri.", en: 'The answer itself is right: 74 : 2 = 37. Only the reason is wrong.' },
+          { ru: 'Объяснение неверное: решает последняя цифра, а не первая.', uz: "Izoh noto'g'ri: birinchi emas, oxirgi raqam hal qiladi.", en: 'The reason is wrong: the last digit decides, not the first.' },
+        ],
+      },
+    ],
     audio: {
-      intro: { ru: 'Финальная задача. Сколько из чисел от одного до пятидесяти делятся на десять? Набери ответ.', uz: "Yakuniy masala. Bir dan ellikkacha bo'lgan sonlardan nechtasi o'nga bo'linadi? Javobni tering." },
-      on_correct: { ru: 'Верно, пять чисел.', uz: "To'g'ri, besh ta son." },
-      on_wrong: { ru: 'Посмотри подсказку.', uz: 'Maslahatga qarang.' }
-    }
+      intro: {
+        ru: 'Проверьте чужое решение. Ошибка бывает и в ответе, и в объяснении.',
+        uz: "Birovning yechimini tekshiring. Xato javobda ham, izohda ham bo'lishi mumkin.",
+        en: 'Check someone else’s work. A mistake can be in the answer and in the reason.',
+      },
+    },
   },
 
+  // Экран 13 — ЗАДАЧА из жизни буфета.
+  s_task: {
+    eyebrow: { ru: 'Задача', uz: 'Masala', en: 'Word problem' },
+    title: { ru: 'Счёт на пятерых', uz: 'Besh kishilik hisob', en: 'A bill for five' },
+    lead: { ru: 'В буфете пять счетов. Платят пятеро, каждый вносит поровну.', uz: "Bufetda beshta hisob bor. Besh kishi to'laydi, har biri tengdan.", en: 'There are five bills at the snack bar. Five people pay, each the same.' },
+    counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
+    bills: ['32', '45', '50', '68', '75'],
+    items: [
+      {
+        q: { ru: 'Какие счета пятеро смогут разделить поровну?', uz: "Qaysi hisoblarni besh kishi teng bo'la oladi?", en: 'Which bills can the five split evenly?' },
+        opts: [
+          { ru: '45, 50 и 75', uz: '45, 50 va 75', en: '45, 50 and 75' },
+          { ru: '32, 50 и 68', uz: '32, 50 va 68', en: '32, 50 and 68' },
+          { ru: 'Все пять', uz: 'Beshalasi', en: 'All five' },
+        ],
+        correct: 0,
+        ok: { ru: 'Верно. На 5 делятся 45, 50 и 75 — они оканчиваются на 5, 0 и 5.', uz: "To'g'ri. 5 ga 45, 50 va 75 bo'linadi — ular 5, 0 va 5 bilan tugaydi.", en: 'Right. 45, 50 and 75 divide by 5: they end in 5, 0 and 5.' },
+        wrong: [
+          null,
+          { ru: 'Это чётные числа — они делятся на 2. Пятёрке нужны 0 или 5 на конце.', uz: "Bular juft sonlar — ular 2 ga bo'linadi. Beshlikka oxirida 0 yoki 5 kerak.", en: 'Those are even numbers, they divide by 2. Five needs a 0 or a 5 at the end.' },
+          { ru: '32 и 68 оканчиваются на 2 и 8 — пятёрке они не подходят.', uz: "32 va 68 oxiri 2 va 8 — beshlikka mos emas.", en: '32 and 68 end in 2 and 8, which do not suit five.' },
+        ],
+      },
+      {
+        q: { ru: 'А какой счёт разделят и пятеро, и двое?', uz: "Qaysi hisobni besh kishi ham, ikki kishi ham bo'la oladi?", en: 'And which bill can both five and two split?' },
+        opts: [
+          { ru: '45', uz: '45', en: '45' },
+          { ru: '50', uz: '50', en: '50' },
+          { ru: '75', uz: '75', en: '75' },
+        ],
+        correct: 1,
+        ok: { ru: 'Верно. У 50 на конце ноль: он подходит и пятёрке, и двойке, и десятке.', uz: "To'g'ri. 50 ning oxirida nol: u beshlikka ham, ikkilikka ham, o'nlikka ham mos.", en: 'Right. 50 ends in zero: it suits five, two and ten.' },
+        wrong: [
+          { ru: '45 делится на 5, но пятёрка нечётная — на 2 не делится.', uz: "45 soni 5 ga bo'linadi, lekin besh toq — 2 ga bo'linmaydi.", en: '45 divides by 5, but five is odd, so not by 2.' },
+          null,
+          { ru: '75 делится на 5, но заканчивается нечётной цифрой — на 2 не делится.', uz: "75 soni 5 ga bo'linadi, lekin toq raqam bilan tugaydi — 2 ga bo'linmaydi.", en: '75 divides by 5, but it ends in an odd digit, so not by 2.' },
+        ],
+      },
+    ],
+    audio: {
+      intro: {
+        ru: 'Задача из жизни буфета. Пять счетов, платят пятеро. Смотрите на последнюю цифру каждого счёта.',
+        uz: "Bufet hayotidan masala. Beshta hisob, besh kishi to'laydi. Har bir hisobning oxirgi raqamiga qarang.",
+        en: 'A problem from the snack bar. Five bills, five people paying. Look at the last digit of each bill.',
+      },
+    },
+  },
+
+  // Экран 14 — ФИНАЛЬНЫЙ ТЕСТ.
+  s_final: {
+    eyebrow: { ru: 'Финал', uz: 'Final', en: 'Final' },
+    intro_line: { ru: 'Пять заданий на весь урок.', uz: 'Butun darsga beshta topshiriq.', en: 'Five tasks covering the whole lesson.' },
+    counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
+    items: [
+      {
+        kind: 'num', ans: 5,
+        q: { ru: 'Сколько чисел от 1 до 50 делятся на 10? Набери ответ.', uz: "1 dan 50 gacha nechta son 10 ga bo'linadi? Javobni tering.", en: 'How many numbers from 1 to 50 divide by 10? Type the answer.' },
+        hint: { ru: 'На 10 делятся только числа с нулём на конце: 10, 20, 30, 40, 50.', uz: "10 ga faqat oxiri nol bo'lgan sonlar bo'linadi: 10, 20, 30, 40, 50.", en: 'Only numbers ending in zero divide by 10: 10, 20, 30, 40, 50.' },
+        hint_audio: { ru: 'На десять делятся только числа с нулём на конце. Десять, двадцать, тридцать, сорок, пятьдесят.', uz: "O'nga faqat oxiri nol bo'lgan sonlar bo'linadi. O'n, yigirma, o'ttiz, qirq, ellik.", en: 'Only numbers ending in zero divide by ten. Ten, twenty, thirty, forty, fifty.' },
+      },
+      {
+        kind: 'mc', correctIndex: 2,
+        q: { ru: 'Какое число делится и на 2, и на 5?', uz: "Qaysi son 2 ga ham, 5 ga ham bo'linadi?", en: 'Which number divides by both 2 and 5?' },
+        opts: ['35', '42', '60', '77'],
+        wrong: [
+          { ru: '35 оканчивается на 5: на 5 делится, на 2 нет.', uz: "35 oxiri 5: 5 ga bo'linadi, 2 ga yo'q.", en: '35 ends in 5: it divides by 5, not by 2.' },
+          { ru: '42 чётное, но пятёрке нужен 0 или 5 на конце.', uz: "42 juft, lekin beshlikka oxirida 0 yoki 5 kerak.", en: '42 is even, but five needs a 0 or 5 at the end.' },
+          null,
+          { ru: '77 оканчивается на 7: ни двойке, ни пятёрке не подходит.', uz: "77 oxiri 7: na ikkilikka, na beshlikka mos.", en: '77 ends in 7: it suits neither two nor five.' },
+        ],
+        correct: { ru: 'Верно. У 60 на конце ноль — он подходит и двойке, и пятёрке, и десятке.', uz: "To'g'ri. 60 ning oxirida nol — u ikkilikka ham, beshlikka ham, o'nlikka ham mos.", en: 'Right. 60 ends in zero: it suits two, five and ten.' },
+      },
+      {
+        kind: 'mc', correctIndex: 1,
+        q: { ru: 'Число оканчивается на 0. Что про него точно верно?', uz: "Son 0 bilan tugaydi. U haqida nima aniq to'g'ri?", en: 'A number ends in 0. What is certainly true about it?' },
+        opts: [
+          { ru: 'Делится только на 10', uz: "Faqat 10 ga bo'linadi", en: 'It divides only by 10' },
+          { ru: 'Делится и на 2, и на 5, и на 10', uz: "2 ga ham, 5 ga ham, 10 ga ham bo'linadi", en: 'It divides by 2, by 5 and by 10' },
+          { ru: 'Делится на 3', uz: "3 ga bo'linadi", en: 'It divides by 3' },
+          { ru: 'Ничего сказать нельзя', uz: "Hech narsa deyish mumkin emas", en: 'You cannot tell' },
+        ],
+        wrong: [
+          { ru: 'Ноль подходит и двойке, и пятёрке: 30 делится на все три.', uz: "Nol ikkilikka ham, beshlikka ham mos: 30 uchalasiga bo'linadi.", en: 'Zero suits two and five as well: 30 divides by all three.' },
+          null,
+          { ru: 'Про тройку последняя цифра ничего не говорит: 20 на 3 не делится.', uz: "Oxirgi raqam uchlik haqida hech narsa demaydi: 20 soni 3 ga bo'linmaydi.", en: 'The last digit says nothing about three: 20 does not divide by 3.' },
+          { ru: 'Сказать можно: ноль на конце сразу даёт три признака.', uz: "Deyish mumkin: oxiridagi nol darrov uchta alomat beradi.", en: 'You can tell: a zero at the end gives three rules at once.' },
+        ],
+        correct: { ru: 'Верно. Ноль на конце — самый щедрый случай: сразу три признака.', uz: "To'g'ri. Oxiridagi nol eng saxiy holat: uchta alomat birdan.", en: 'Right. A zero at the end is the most generous case: three rules at once.' },
+      },
+      {
+        kind: 'mc', correctIndex: 3,
+        q: { ru: 'Какое число НЕ делится на 2?', uz: "Qaysi son 2 ga BO'LINMAYDI?", en: 'Which number does NOT divide by 2?' },
+        opts: ['18', '40', '96', '53'],
+        wrong: [
+          { ru: '18 оканчивается на 8 — чётная цифра.', uz: "18 oxiri 8 — juft raqam.", en: '18 ends in 8, an even digit.' },
+          { ru: '40 оканчивается на 0 — ноль чётный.', uz: "40 oxiri 0 — nol juft.", en: '40 ends in 0, and zero is even.' },
+          { ru: '96 оканчивается на 6 — чётная цифра.', uz: "96 oxiri 6 — juft raqam.", en: '96 ends in 6, an even digit.' },
+          null,
+        ],
+        correct: { ru: 'Верно. 53 оканчивается на 3, а тройка нечётная.', uz: "To'g'ri. 53 oxiri 3, uch esa toq.", en: 'Right. 53 ends in 3, and three is odd.' },
+      },
+      {
+        kind: 'mc', correctIndex: 0,
+        q: { ru: 'Признак по последней цифре работает для тройки?', uz: "Oxirgi raqam alomati uchlik uchun ishlaydimi?", en: 'Does the last-digit rule work for three?' },
+        opts: [
+          { ru: 'Нет, у тройки свой признак', uz: "Yo'q, uchlikning o'z alomati bor", en: 'No, three has its own rule' },
+          { ru: 'Да, как для двойки', uz: 'Ha, xuddi ikkilikdagidek', en: 'Yes, just like for two' },
+          { ru: 'Да, если цифра нечётная', uz: "Ha, agar raqam toq bo'lsa", en: 'Yes, if the digit is odd' },
+          { ru: 'Только для чисел до 100', uz: "Faqat 100 gacha bo'lgan sonlar uchun", en: 'Only for numbers under 100' },
+        ],
+        wrong: [
+          null,
+          { ru: '12 и 21 делятся на 3, а концы у них 2 и 1 — совсем разные.', uz: "12 va 21 uchga bo'linadi, oxirlari esa 2 va 1 — butunlay boshqa.", en: '12 and 21 divide by 3, and their endings 2 and 1 are quite different.' },
+          { ru: '13 оканчивается нечётной цифрой, но на 3 не делится.', uz: "13 toq raqam bilan tugaydi, lekin 3 ga bo'linmaydi.", en: '13 ends in an odd digit but does not divide by 3.' },
+          { ru: 'Размер числа тут ни при чём: и для 12, и для 1002 признак по последней цифре не работает.', uz: "Sonning kattaligi bunga aloqador emas: 12 uchun ham, 1002 uchun ham oxirgi raqam alomati ishlamaydi.", en: 'The size makes no difference: the last-digit rule fails for 12 and for 1002 alike.' },
+        ],
+        correct: { ru: 'Верно. Для тройки смотрят на сумму цифр — это следующий урок.', uz: "To'g'ri. Uchlik uchun raqamlar yig'indisiga qaraladi — bu keyingi dars.", en: 'Right. For three you look at the sum of the digits, and that is the next lesson.' },
+      },
+    ],
+    audio: {
+      intro: {
+        ru: 'Финальная проверка. Пять заданий на весь урок. Первое с набором числа, остальные с выбором.',
+        uz: "Yakuniy tekshiruv. Butun darsga beshta topshiriq. Birinchisida son teriladi, qolganlarida tanlanadi.",
+        en: 'The final check. Five tasks covering the whole lesson. The first needs a typed number, the rest are multiple choice.',
+      },
+      on_correct: { ru: 'Верно.', uz: "To'g'ri.", en: 'Right.' },
+      on_wrong: { ru: 'Посмотри разбор.', uz: 'Tushuntirishga qarang.', en: 'Look at the explanation.' },
+    },
+    fact: {
+      ru: 'Признак делимости на 10 — самый быстрый в математике: хватает одной цифры, и неважно, сколько их всего в числе.',
+      uz: "10 ga bo'linish alomati matematikadagi eng tezi: bitta raqam yetadi, sonda ular nechta bo'lishi esa muhim emas.",
+      en: 'The rule for 10 is the fastest in mathematics: one digit is enough, no matter how many the number has.',
+    },
+    fact_audio: {
+      ru: 'Знаешь ли ты? Признак делимости на десять самый быстрый в математике: хватает одной цифры, и неважно, сколько их всего в числе.',
+      uz: "Bilasizmi? O'nga bo'linish alomati matematikadagi eng tezi: bitta raqam yetadi, sonda ular nechta bo'lishi muhim emas.",
+      en: 'Did you know? The rule for ten is the fastest in mathematics: one digit is enough, no matter how many the number has.',
+    },
+  },
+
+  // Экран 15 — ИТОГ.
   s14: {
-    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi" },
-    heading: { ru: 'Делимость на 2, 5 и 10', uz: "2, 5 va 10 ga bo'linish" },
-    score_label: { ru: 'Ваш результат по заданиям:', uz: "Topshiriqlar bo'yicha natijangiz:" },
-    main_label: { ru: 'Главное', uz: 'Asosiysi' },
-    main_1: { ru: 'На 2 делятся числа с последней цифрой 0, 2, 4, 6, 8 — их называют чётными.', uz: "2 ga oxirgi raqami 0, 2, 4, 6, 8 bo'lgan sonlar bo'linadi — ular juft sonlar deyiladi." },
-    main_2: { ru: 'На 5 делятся числа с последней цифрой 0 или 5. На 10 — только с последней цифрой 0.', uz: "5 ga oxirgi raqami 0 yoki 5 bo'lgan sonlar bo'linadi. 10 ga esa faqat oxirgi raqami 0 bo'lganlari." },
-    main_3: { ru: 'Работает это потому, что каждый целый десяток делится и на 2, и на 5, и на 10. Решают только единицы.', uz: "Bu shuning uchun ishlaydiki, har bir to'la o'nlik 2 ga ham, 5 ga ham, 10 ga ham bo'linadi. Faqat birliklar hal qiladi." },
-    hook_close: { ru: 'Теперь ясно: за товар в 24 тысячи двое заплатят поровну, а за 35 тысяч — нет. И делить в столбик для этого не нужно.', uz: "Endi aniq: 24 minglik narsa uchun ikki kishi teng to'laydi, 35 minglik uchun esa yo'q. Buning uchun ustunda bo'lish ham shart emas." },
-    conn_label_refs: { ru: 'Опирается на', uz: 'Nimaga tayanadi' },
-    conn_refs: { ru: 'делители и кратные из прошлого урока', uz: "o'tgan darsdagi bo'luvchi va karrali sonlar" },
-    conn_label_next: { ru: 'Дальше', uz: 'Keyingi' },
-    conn_next: { ru: 'признаки делимости на 3 и 9', uz: "3 va 9 ga bo'linish alomatlari" },
+    eyebrow: { ru: 'Урок пройден', uz: "Dars o'tildi", en: 'Lesson finished' },
+    banner: { ru: 'Математика · Делимость', uz: "Matematika · Bo'linish", en: 'Mathematics · Divisibility' },
+    heading: { ru: 'Признаки делимости', uz: "Bo'linish alomatlari", en: 'Divisibility rules' },
+    main_label: { ru: 'Главное', uz: 'Asosiysi', en: 'The main thing' },
+    brief_1: { ru: 'на 2 → последняя цифра 0, 2, 4, 6, 8', uz: "2 ga → oxirgi raqam 0, 2, 4, 6, 8", en: 'by 2 → last digit 0, 2, 4, 6, 8' },
+    brief_2: { ru: 'на 5 → последняя цифра 0 или 5', uz: "5 ga → oxirgi raqam 0 yoki 5", en: 'by 5 → last digit 0 or 5' },
+    brief_3: { ru: 'на 10 → последняя цифра 0', uz: "10 ga → oxirgi raqam 0", en: 'by 10 → last digit 0' },
+    memo_title: { ru: 'Что помнить', uz: 'Nimani eslash kerak', en: 'What to remember' },
+    memo_q1: { ru: 'Куда смотреть', uz: 'Qayerga qarash kerak', en: 'Where to look' },
+    memo_a1: { ru: 'только на последнюю цифру', uz: 'faqat oxirgi raqamga', en: 'only at the last digit' },
+    memo_q2: { ru: 'Ноль на конце', uz: 'Oxirida nol', en: 'A zero at the end' },
+    memo_a2: { ru: 'сразу три признака: 2, 5 и 10', uz: "uchta alomat birdan: 2, 5 va 10", en: 'three rules at once: 2, 5 and 10' },
+    memo_q3: { ru: 'Тройка', uz: 'Uchlik', en: 'Three' },
+    memo_a3: { ru: 'по последней цифре не проверяется', uz: "oxirgi raqam bo'yicha tekshirilmaydi", en: 'is not checked by the last digit' },
     audio: {
       ru: [
         'Урок пройден. Соберём главное.',
-        'На два делятся числа с последней цифрой ноль, два, четыре, шесть, восемь. На пять с последней цифрой ноль или пять. На десять только с нулём.',
-        'Работает это потому, что каждый целый десяток делится и на два, и на пять, и на десять, поэтому решают только единицы. Дальше разберём признаки делимости на три и девять.'
+        'На два делятся числа с последней цифрой ноль, два, четыре, шесть или восемь. На пять с нулём или пятёркой. На десять только с нулём.',
+        'Счёт из начала урока делится на два, и мы узнали это, не выполняя деления. А для тройки такой приём не работает: этим займёмся на следующем уроке.',
       ],
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
-        "Ikkiga oxirgi raqami nol, ikki, to'rt, olti, sakkiz bo'lgan sonlar bo'linadi. Beshga oxirgi raqami nol yoki besh bo'lganlari. O'nga esa faqat nol bilan tugaganlari.",
-        "Bu shuning uchun ishlaydiki, har bir to'la o'nlik ikkiga ham, beshga ham, o'nga ham bo'linadi, shuning uchun faqat birliklar hal qiladi. Keyin uch va to'qqizga bo'linish alomatlarini ko'rib chiqamiz."
-      ]
-    }
-  }
+        "Oxirgi raqami nol, ikki, to'rt, olti yoki sakkiz bo'lgan sonlar ikkiga bo'linadi. Beshga nol yoki besh bilan tugaganlar. O'nga esa faqat nol bilan.",
+        "Dars boshidagi hisob ikkiga bo'linadi va biz buni bo'lishni bajarmasdan bildik. Uchlik uchun esa bu usul ishlamaydi: u bilan keyingi darsda shug'ullanamiz.",
+      ],
+      en: [
+        'The lesson is done. Let us gather the main points.',
+        'Numbers ending in zero, two, four, six or eight divide by two. Those ending in zero or five divide by five. Only those ending in zero divide by ten.',
+        'The bill from the start of the lesson divides by two, and we found that out without dividing. For three this trick fails, and that is the next lesson.',
+      ],
+    },
+  },
+
+  // Карточка способа — стоит рядом с практикой, потому что способ объяснялся
+  // на экране 4 и к практике успевает забыться.
+  s_methods: {
+    m1_title: { ru: 'Способ. Проверить одно число', uz: "Usul. Bitta sonni tekshirish", en: 'Method. Check one number' },
+    m1_steps: {
+      ru: ['Закрой все цифры, кроме последней', 'Сравни её с нужным списком', 'Совпала — делится, нет — не делится'],
+      uz: ["Oxirgisidan boshqa hamma raqamni yop", "Uni kerakli ro'yxat bilan solishtir", "Mos keldi — bo'linadi, yo'q — bo'linmaydi"],
+      en: ['Cover every digit but the last', 'Compare it with the right list', 'A match means it divides, no match means it does not'],
+    },
+    m1_no: {
+      ru: 'Для 2 список: 0, 2, 4, 6, 8. Для 5: 0 и 5. Для 10: только 0.',
+      uz: "2 uchun ro'yxat: 0, 2, 4, 6, 8. 5 uchun: 0 va 5. 10 uchun: faqat 0.",
+      en: 'For 2 the list is 0, 2, 4, 6, 8. For 5: 0 and 5. For 10: only 0.',
+    },
+  },
 };
 
 // ============================================================
-// SHUFFLE / FORMAT / ANIM HELPERS (div_6_02)
+// СЦЕНЫ УРОКА
+// Хук и итог — одно и то же место: школьный буфет. На хуке вопрос, в итоге
+// ответ. Только фигуры, ни картинок, ни эмодзи.
 // ============================================================
-const shuffleMC = (c, options, correctIdx, order) => {
-  const content = { ...c };
-  order.forEach((oldI, newI) => { content[`wrong_${newI}`] = c[`wrong_${oldI}`]; content[`hint_${newI}`] = c[`hint_${oldI}`]; });
-  return { options: order.map(i => options[i]), correctIdx: order.indexOf(correctIdx), content };
-};
-const fmtNum = (n) => String(n).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
-const shuffleArr = (a) => { const r = [...a]; for (let i = r.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [r[i], r[j]] = [r[j], r[i]]; } return r; };
+const BUF_SHIRTS = ['#7ECBE6', '#F5C77E', '#8FD6B4'];
 
-function useCountUp(target, duration = 1100) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let raf, start = null;
-    const tick = (ts) => {
-      if (start === null) start = ts;
-      const p = Math.min((ts - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - p, 3);
-      setVal(Math.floor(eased * target));
-      if (p < 1) raf = requestAnimationFrame(tick); else setVal(target);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [target, duration]);
-  return val;
-}
-const CountUp = ({ target, duration, style, className }) => {
-  const v = useCountUp(target, duration);
-  return <span className={className} style={style}>{fmtNum(v)}</span>;
-};
+// Стойка буфета, табло со счётом и двое у кассы: Азиз считает столбиком,
+// Дилноза уже смотрит на число. Пропорция кадра общая для класса: 400 к 154.
+// Витрина буфета: самса треугольником, лепёшка кругом, булочка.
+const Samsa = ({ x, y }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path d="M0 12 L9 -6 L18 12 Z" fill="#E0A863" stroke="#C4874A" strokeWidth="0.8"/>
+    <path d="M4 8 h10" stroke="#C4874A" strokeWidth="0.8"/>
+    <circle cx="9" cy="2" r="0.9" fill="#8A5A2B"/>
+    <circle cx="6.4" cy="6" r="0.8" fill="#8A5A2B"/>
+    <circle cx="11.6" cy="6" r="0.8" fill="#8A5A2B"/>
+  </g>
+);
 
-// ============================================================
-// ============================================================
-// NARX + PUL — darsning asosiy vizual modeli.
-// Asosiy g'oya: summani bo'lib ko'rmasdan, OXIRGI RAQAMga qarab hukm qilamiz.
-// Shuning uchun markaziy komponent — LastDigit (oxirgi raqam ajratilgan son).
-// ============================================================
-const CoinIcon = ({ s = 18, tone = 'gold' }) => {
-  const face = tone === 'rest' ? '#FFD8CE' : '#F6C453';
-  const edge = tone === 'rest' ? '#FF4F28' : '#C9922B';
-  return (
-    <svg width={s} height={s} viewBox="0 0 24 24" aria-hidden="true" style={{ display: 'block', flexShrink: 0 }}>
-      <circle cx="12" cy="12" r="10" fill={edge}/>
-      <circle cx="12" cy="12" r="8" fill={face}/>
-      <circle cx="12" cy="12" r="8" fill="none" stroke={edge} strokeWidth="0.9" opacity="0.6"/>
-    </svg>
-  );
-};
-
-// Narx yorlig'i: son + birlik. Do'kondagi narx shaklida.
-const PriceTag = ({ value, unit, tone = 'plain', size = 'md' }) => {
-  const bg = tone === 'ok' ? '#E3F0E8' : (tone === 'no' ? '#FFE8E1' : '#FFFFFF');
-  const fg = tone === 'ok' ? T.success : (tone === 'no' ? T.accent : T.ink);
-  const bd = tone === 'ok' ? T.success : (tone === 'no' ? T.accent : 'rgba(167, 166, 162, 0.4)');
-  const fs = size === 'lg' ? 'clamp(22px, 5vw, 34px)' : 'clamp(15px, 3vw, 21px)';
-  return (
-    <span className="pr-tag" style={{ background: bg, borderColor: bd, color: fg }}>
-      <span className="mono" style={{ fontSize: fs, fontWeight: 700, lineHeight: 1 }}>{value}</span>
-      {unit && <span className="mono" style={{ fontSize: 'clamp(9px, 1.9vw, 11px)', opacity: 0.75 }}>{unit}</span>}
-    </span>
-  );
-};
-
-// Darsning yuragi: son yoziladi, OXIRGI raqam alohida katakda ajratiladi.
-// tone: 'ok' (bo'linadi) / 'no' (bo'linmaydi) / 'plain' (hali hukm yo'q).
-const LastDigit = ({ value, tone = 'plain', size = 'md' }) => {
-  const s = String(value);
-  const head = s.slice(0, -1);
-  const tail = s.slice(-1);
-  const col = tone === 'ok' ? T.success : (tone === 'no' ? T.accent : T.ink2);
-  const bg = tone === 'ok' ? '#E3F0E8' : (tone === 'no' ? '#FFE8E1' : '#F1EFE9');
-  const fs = size === 'lg' ? 'clamp(28px, 6.5vw, 46px)' : 'clamp(20px, 4.6vw, 32px)';
-  return (
-    <span style={{ display: 'inline-flex', alignItems: 'stretch', gap: 3 }}>
-      {head && <span className="mono" style={{ fontSize: fs, fontWeight: 700, color: T.ink, lineHeight: 1.15, padding: '2px 1px' }}>{head}</span>}
-      <span className="ld-cell mono" style={{ fontSize: fs, color: col, background: bg, borderColor: col }}>{tail}</span>
-    </span>
-  );
-};
-
-// Summani `people` kishiga teng bo'lish. Bo'linmasa — qolgan qism aksentda.
-const SplitPay = ({ total, people, unit, restLabel }) => {
-  const per = Math.floor(total / people);
-  const rest = total % people;
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'flex-end', gap: 'clamp(6px, 1.5vw, 10px)' }}>
-      {Array.from({ length: people }).map((_, i) => (
-        <div key={i} className="sp-person" style={{ animationDelay: `${i * 0.06}s` }}>
-          <CoinIcon s={16}/>
-          <span className="mono" style={{ fontSize: 'clamp(13px, 2.6vw, 17px)', fontWeight: 700, color: T.ink }}>{per}</span>
-          {unit && <span className="mono" style={{ fontSize: 'clamp(8px, 1.7vw, 10px)', color: T.ink3 }}>{unit}</span>}
-        </div>
-      ))}
-      {rest > 0 && (
-        <div className="sp-rest">
-          <CoinIcon s={16} tone="rest"/>
-          <span className="mono" style={{ fontSize: 'clamp(13px, 2.6vw, 17px)', fontWeight: 700, color: T.accent }}>{rest}</span>
-          <span className="mono" style={{ fontSize: 'clamp(8px, 1.7vw, 10px)', color: T.accent }}>{restLabel}</span>
-        </div>
-      )}
-    </div>
-  );
-};
-
-// "Nega oxirgi raqam?" ekrani uchun: son = to'la o'nliklar + yakka birliklar.
-// To'la o'nlik doim 2, 5 va 10 ga bo'linadi — demak faqat birliklar hal qiladi.
-const TensOnes = ({ value, dimTens = false }) => {
-  const tens = Math.floor(value / 10);
-  const ones = value % 10;
-  return (
-    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(6px, 1.5vw, 10px)' }}>
-      {Array.from({ length: tens }).map((_, i) => (
-        <span key={i} className="to-ten" style={{ opacity: dimTens ? 0.35 : 1, animationDelay: `${i * 0.07}s` }}>10</span>
-      ))}
-      {ones > 0 && (
-        <span className="to-ones">
-          {Array.from({ length: ones }).map((_, i) => (<CoinIcon key={i} s={15} tone="rest"/>))}
-        </span>
-      )}
-    </div>
-  );
-};
-
-// Bo'luvchilar chiplari — qoida ekranlarida ruxsat etilgan oxirgi raqamlar uchun.
-const DivisorChips = ({ list, active = -1 }) => (
-  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px, 1.4vw, 10px)' }}>
-    {list.map((d, i) => (
-      <span key={i} className="dv-chip" style={{ animationDelay: `${i * 0.07}s`, background: active === i ? T.accentSoft : '#FFFFFF', color: active === i ? T.accent : T.ink, borderColor: active === i ? T.accent : 'rgba(167, 166, 162, 0.35)' }}>{d}</span>
+const Non = ({ x, y }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <circle cx="9" cy="5" r="9" fill="#E8BC7E"/>
+    <circle cx="9" cy="5" r="4.6" fill="#D8A55F"/>
+    <circle cx="9" cy="5" r="1.2" fill="#B67F3E"/>
+    {[0, 60, 120, 180, 240, 300].map((a) => (
+      <circle key={a} cx={9 + 6.6 * Math.cos((a * Math.PI) / 180)} cy={5 + 6.6 * Math.sin((a * Math.PI) / 180)} r="0.8" fill="#B67F3E"/>
     ))}
-  </div>
+  </g>
 );
 
-// Karralar yo'lakchasi: base, 2*base, 3*base ... `active` tagacha yonadi.
-const MultiplesTrack = ({ base, count, active = -1 }) => (
-  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'center', gap: 'clamp(5px, 1.2vw, 9px)' }}>
-    {Array.from({ length: count }).map((_, i) => {
-      const on = i <= active;
-      return (
-        <React.Fragment key={i}>
-          {i > 0 && <span className="mono small" style={{ color: T.ink3 }}>·</span>}
-          <span className="mono" style={{ padding: 'clamp(5px,1.1vw,8px) clamp(9px,1.8vw,13px)', borderRadius: 10, fontSize: 'clamp(14px, 2.6vw, 19px)', fontWeight: 600, background: on ? T.accentSoft : 'transparent', color: on ? T.accent : T.ink3, transition: 'background 0.35s ease, color 0.35s ease' }}>{base * (i + 1)}</span>
-        </React.Fragment>
-      );
-    })}
-    <span className="mono small" style={{ color: T.ink3 }}>…</span>
-  </div>
+const Bulka = ({ x, y }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path d="M0 12 q2 -12 10 -12 q8 0 10 12 Z" fill="#EFC98F"/>
+    <path d="M3 7 q7 -3 14 0" stroke="#D3A45F" strokeWidth="0.9" fill="none"/>
+  </g>
 );
-// Xona katakchalari: bir sinf ichidagi uch raqam to'lganda yashilga o'tadi.
-const PlaceGrid = ({ answer, filled }) => {
-  const digits = String(answer).split('');
-  const n = digits.length;
+
+// Стакан чая. Пар — движение САМОЙ сцены, а не плавающий декор.
+const TeaGlass = ({ x, y, delay = 0 }) => (
+  <g transform={`translate(${x} ${y})`}>
+    <path className="d2-steam" style={{ animationDelay: `${delay}ms` }}
+      d="M6 -6 q3 -5 0 -9 q-3 -4 0 -8" stroke="#C9C7C2" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+    <path className="d2-steam" style={{ animationDelay: `${delay + 700}ms` }}
+      d="M11 -6 q3 -5 0 -9 q-3 -4 0 -8" stroke="#C9C7C2" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+    <path d="M2 -4 h14 l-2 16 h-10 Z" fill="#C97C3A" opacity="0.85"/>
+    <path d="M2 -4 h14 l-0.6 5 h-12.8 Z" fill="#FFFFFF" opacity="0.25"/>
+    <rect x="1" y="-6" width="16" height="3" rx="1.5" fill="#EFE9DD"/>
+  </g>
+);
+
+// ФИГУРА ЧЕЛОВЕКА. У людей ЕСТЬ лицо: глаза и улыбка (правило класса, урок 1
+// рисует детей так же). Без лица фигура читается как манекен.
+//   x, ground — точка, где человек стоит; head — радиус головы, от него
+//   считается всё остальное, поэтому фигура масштабируется одним числом.
+
+const HookScene = () => (
+  <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
+    <defs>
+      <linearGradient id="d2wall" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#F9F4EB"/><stop offset="100%" stopColor="#EFE7D8"/>
+      </linearGradient>
+      <linearGradient id="d2bar" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="#E7C99A"/><stop offset="100%" stopColor="#D2A96F"/>
+      </linearGradient>
+      <linearGradient id="d2glass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stopColor="rgba(255,255,255,0.55)"/><stop offset="100%" stopColor="rgba(220,236,244,0.3)"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="400" height="154" fill="url(#d2wall)"/>
+
+    {/* ВИТРИНА слева: две полки с выпечкой под стеклом. Уже, чем была: людям
+        нужно место, иначе они теряются на фоне буфета. */}
+    <g>
+      <rect x="6" y="20" width="104" height="70" rx="6" fill="#FFFDF7" stroke="#DCCFB6"/>
+      <rect x="10" y="52" width="96" height="3" rx="1.5" fill="#E3D8C2"/>
+      <rect x="10" y="84" width="96" height="4" rx="2" fill="#D9CDB5"/>
+      <Samsa x="16" y="36"/><Samsa x="40" y="36"/>
+      <Non x="66" y="34"/><Non x="88" y="34"/>
+      <Bulka x="16" y="70"/><Bulka x="40" y="70"/>
+      <Non x="66" y="66"/><Non x="88" y="66"/>
+      <rect x="6" y="20" width="104" height="70" rx="6" fill="url(#d2glass)" stroke="#DCCFB6"/>
+      <path d="M22 24 L44 24 L26 86 L14 86 Z" fill="#FFFFFF" opacity="0.18"/>
+    </g>
+
+    {/* ТАБЛО КАССЫ. Только число: слово пришлось бы переводить, а сцена одна
+        на все три языка. Зелёная точка мигает — касса работает. */}
+    <g>
+      <rect x="264" y="10" width="130" height="46" rx="8" fill="#3B3730"/>
+      <rect x="269" y="15" width="120" height="36" rx="5" fill="#2A2723"/>
+      <circle className="d2-blink" cx="279" cy="23" r="2.2" fill="#8FD6B4"/>
+      <text x="332" y="42" textAnchor="middle" fill="#FFFFFF"
+        fontFamily="'JetBrains Mono', monospace" fontSize="21" fontWeight="700">36 000</text>
+      <rect x="298" y="56" width="60" height="6" rx="2" fill="#6A6259"/>
+    </g>
+
+    {/* ЛЮДИ стоят ПЕРЕД стойкой и видны от колен: за стойкой они превращались
+        в головы. Азиз слева с листком в руках, Дилноза правее, очередь дальше. */}
+    <g>
+      <Person x={136} ground={124} head={10} shirt="#7ECBE6" hair="#3E3128"/>
+      <g className="d2-note">
+        <rect x="152" y="82" width="46" height="38" rx="4" fill="#FFFFFF" stroke="#DDD3C0"/>
+        <text x="175" y="97" textAnchor="middle" fill="#8A8883" fontFamily="'JetBrains Mono', monospace" fontSize="11">36 : 2</text>
+        <line x1="158" y1="103" x2="192" y2="103" stroke="#DDD3C0"/>
+        <text x="175" y="115" textAnchor="middle" fill="#C9C7C2" fontFamily="'JetBrains Mono', monospace" fontSize="12">?</text>
+      </g>
+    </g>
+    <g>
+      {/* Дилноза: взгляд короткой дугой к краю табло, поверх цифр не идёт */}
+      <Person x={218} ground={124} head={10} shirt="#F5C77E" hair="#5A4636"/>
+      <path className="d2-look" d="M232 76 q16 -16 30 -22" stroke="#FF4F28" strokeWidth="1.8" strokeDasharray="4 4" fill="none"/>
+      <path className="d2-look" d="M258 50 l10 3 -8 6 z" fill="#FF4F28"/>
+    </g>
+    {/* очередь дальше по залу — фигуры мельче, это даёт глубину */}
+    {[264, 294, 322].map((x, i) => (
+      <Person key={x} x={x} ground={120} head={7.5} shirt={BUF_SHIRTS[i % BUF_SHIRTS.length]}
+        hair={['#4A3A2E', '#5A4636', '#3E3128'][i % 3]} arms={false}/>
+    ))}
+
+    {/* СТОЙКА перед людьми: столешница и фасад */}
+    <rect x="0" y="120" width="400" height="8" fill="#C9A472"/>
+    <rect x="0" y="128" width="400" height="26" fill="url(#d2bar)"/>
+    <rect x="0" y="134" width="400" height="2" fill="rgba(255,255,255,0.35)"/>
+
+    {/* НА СТОЙКЕ: поднос с самсой, монета, чайник и два стакана чая */}
+    <g>
+      <rect x="24" y="112" width="52" height="8" rx="3" fill="#FFFFFF" stroke="#E0D5C0"/>
+      <Samsa x="30" y="102"/><Samsa x="52" y="102"/>
+    </g>
+    <circle className="d2-coin-drop" cx="94" cy="115" r="5" fill="#F5C77E" stroke="#D8A93A"/>
+    <g>
+      <path className="d2-steam" d="M368 102 q3 -6 0 -10 q-3 -5 0 -9" stroke="#C9C7C2" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      <path d="M356 120 q-2 -16 12 -16 q14 0 12 16 Z" fill="#8FD6B4"/>
+      <path d="M380 110 q7 2 2 8" stroke="#6BB894" strokeWidth="2.4" fill="none"/>
+      <rect x="364" y="100" width="8" height="4" rx="2" fill="#6BB894"/>
+    </g>
+    <TeaGlass x="326" y="112"/>
+    <TeaGlass x="344" y="112" delay={400}/>
+  </svg>
+);
+
+// Тот же буфет в итоге: у счёта подсвечена последняя цифра, рядом три ярлыка.
+// Вопрос хука получает видимый ответ: узнать можно, и решает одна цифра.
+const FinalScene = () => (
+  <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
+    <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
+
+    {/* Тот же буфет: слева витрина, справа чайник и стаканы. Место узнаётся,
+        изменился только ответ на табло. */}
+    <g>
+      <rect x="8" y="10" width="84" height="54" rx="5" fill="#FFFDF7" stroke="#DCCFB6"/>
+      <rect x="12" y="36" width="76" height="2.5" rx="1.2" fill="#E3D8C2"/>
+      <Samsa x="16" y="22"/><Samsa x="38" y="22"/>
+      <Non x="62" y="20"/>
+      <Bulka x="18" y="50"/><Bulka x="40" y="50"/>
+      <Non x="62" y="46"/>
+    </g>
+    <g>
+      <path className="d2-steam" d="M356 52 q3 -6 0 -10 q-3 -5 0 -9" stroke="#C9C7C2" strokeWidth="1.2" fill="none" strokeLinecap="round"/>
+      <path d="M346 64 q-2 -14 10 -14 q12 0 10 14 Z" fill="#8FD6B4"/>
+      <path d="M366 56 q6 2 2 7" stroke="#6BB894" strokeWidth="2.2" fill="none"/>
+    </g>
+    <TeaGlass x="318" y="58"/>
+
+    {/* Азиз и Дилноза у стойки: вопрос хука решён, оба довольны */}
+    <Person x={104} ground={66} head={7} shirt="#7ECBE6" hair="#3E3128" arms={false}/>
+    <Person x={124} ground={66} head={7} shirt="#F5C77E" hair="#5A4636" arms={false}/>
+
+    <rect x="0" y="66" width="400" height="26" fill="#E7C99A"/>
+    <rect x="0" y="64" width="400" height="4" fill="#C9A472"/>
+
+    {/* Табло: последняя цифра подсвечена, она и дала ответ */}
+    <rect x="100" y="10" width="152" height="46" rx="8" fill="#3B3730"/>
+    <rect x="105" y="15" width="142" height="36" rx="5" fill="#2A2723"/>
+    <text x="132" y="41" textAnchor="middle" fill="#FFFFFF"
+      fontFamily="'JetBrains Mono', monospace" fontSize="22" fontWeight="700">3</text>
+    <rect className="d2-hit" x="144" y="19" width="26" height="28" rx="5" fill="#FF4F28"/>
+    <text x="157" y="41" textAnchor="middle" fill="#FFFFFF"
+      fontFamily="'JetBrains Mono', monospace" fontSize="22" fontWeight="700">6</text>
+    <text x="212" y="41" textAnchor="middle" fill="#8A8883"
+      fontFamily="'JetBrains Mono', monospace" fontSize="22" fontWeight="700">000</text>
+
+    {/* три ярлыка: двойка горит, пятёрка и десятка погашены */}
+    {[[268, '2', true], [296, '5', false], [326, '10', false]].map(([x, label, on]) => (
+      <g key={label}>
+        <circle cx={x} cy="33" r="13" fill={on ? '#E3F0E8' : '#EFE9DD'} stroke={on ? '#1F7A4D' : '#D9D2C4'}/>
+        <text x={x} y="38" textAnchor="middle" fill={on ? '#1F7A4D' : '#B8B4AD'}
+          fontFamily="'JetBrains Mono', monospace" fontSize="12" fontWeight="700">{label}</text>
+      </g>
+    ))}
+  </svg>
+);
+
+// ============================================================
+// ТЕЛА ЭКРАНОВ-ФИЛЬМОВ
+// ============================================================
+
+// Экран 2 — стулья парами: шесть встают ровно, седьмой остаётся без пары.
+const Chair = ({ odd = false }) => (
+  <span className={'d2-chair' + (odd ? ' d2-chair-odd' : '')} aria-hidden="true"/>
+);
+
+const RecallBody = ({ step }) => {
+  const t = useT();
+  const c = CONTENT.s_recall;
+  const n = step === 0 ? 6 : 7;
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap' }}>
-      {digits.map((d, i) => {
-        const classBreak = (n - i) % 3 === 0 && i !== 0;
+    <div className="rv-col">
+      <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+      <div className="frame fade-up delay-1 d2-stage">
+        <div className="d2-pairs">
+          {Array.from({ length: Math.floor(n / 2) }).map((_, i) => (
+            <span key={i} className="d2-pair"><Chair/><Chair/></span>
+          ))}
+          {n % 2 === 1 && <span className="d2-pair d2-pair-odd"><Chair odd/></span>}
+        </div>
+        <p className="mono d2-cap">{t(step === 0 ? c.cap_even : c.cap_odd)}</p>
+      </div>
+      {step >= 2 && (
+        <div className="frame-success fade-up">
+          <p className="body" style={{ margin: 0 }}>{t(c.done)}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Экран 3 — длинное число: цифры гаснут, остаётся последняя.
+const CoreBody = ({ step }) => {
+  const t = useT();
+  const c = CONTENT.s_core;
+  const digits = c.number.split('');
+  const lastIdx = digits.length - 1;
+  return (
+    <div className="rv-col">
+      <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+      <div className="frame fade-up delay-1 d2-stage">
+        <p className="d2-num">
+          {digits.map((d, i) => (
+            <span key={i} className={'d2-dig' + (step >= 1 && i !== lastIdx ? ' d2-dig-off' : '') + (step >= 1 && i === lastIdx ? ' d2-dig-hit' : '')}>{d}</span>
+          ))}
+        </p>
+        <p className="mono d2-cap">{t(step === 0 ? c.cap_all : c.cap_last)}</p>
+      </div>
+      {step >= 2 && (
+        <div className="frame-success fade-up">
+          <p className="body" style={{ margin: 0 }}>{t(c.done)}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Экран 5 — цены буфета: загораются кратные пяти, потом остаётся кратное десяти.
+const FIVE_ROW = [15, 24, 30, 42, 45];
+const FiveBody = ({ step }) => {
+  const t = useT();
+  const c = CONTENT.s_five;
+  const on = (v) => (step >= 1 && v % 5 === 0);
+  const ten = (v) => (step >= 2 && v % 10 === 0);
+  return (
+    <div className="rv-col">
+      <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+      <div className="frame fade-up delay-1 d2-stage">
+        <p className="eyebrow d2-eyebrow">{t(c.cap_row)}</p>
+        <div className="d2-prices">
+          {FIVE_ROW.map((v) => (
+            <span key={v} className={'d2-price' + (on(v) ? ' d2-price-on' : '') + (ten(v) ? ' d2-price-ten' : '')}>{v}</span>
+          ))}
+        </div>
+      </div>
+      {step >= 2 && (
+        <div className="frame-success fade-up">
+          <p className="body" style={{ margin: 0 }}>{t(c.done)}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// СЧЁТНЫЙ МАТЕРИАЛ. Число на экране должно быть ВИДНО, а не только названо:
+// монеты выкладываются группами по `group`, а те, что в полную группу не вошли,
+// красятся отдельно — остаток виден без слов.
+const CoinGrid = ({ n, group, cols = 10 }) => {
+  const full = Math.floor(n / group) * group;
+  return (
+    // key по группе: при смене размера группы монеты выкладываются заново,
+    // волной слева направо. Так видно САМО перегруппирование.
+    <div className="d2-coins" key={group} style={{ gridTemplateColumns: `repeat(${cols}, 1fr)` }}>
+      {Array.from({ length: n }).map((_, i) => {
+        const extra = i >= full;
+        const band = Math.floor(i / group) % 2;
         return (
-          <React.Fragment key={i}>
-            {classBreak && <span style={{ width: 8 }}/>}
-            <span className={`place-cell ${filled ? 'filled' : ''}`} style={{ transitionDelay: `${i * 0.05}s` }}>{filled ? d : '·'}</span>
-          </React.Fragment>
+          <span key={i} className={'d2-coin' + (extra ? ' d2-coin-extra' : (band ? ' d2-coin-b' : ''))}
+            style={{ animationDelay: `${Math.min(i, 48) * 22}ms` }}/>
         );
       })}
     </div>
   );
 };
 
-// ============================================================
-// FACTCARD — ovozli fakt to'g'ri javobdan keyin (ko'k tema + darsga xos Anim*).
-// ============================================================
-const FB_IT   = { ru: 'Знаешь ли ты? · IT',    uz: "Bilasizmi? · IT" };
-const FB_SCI  = { ru: 'Знаешь ли ты? · Наука', uz: "Bilasizmi? · Fan" };
-const FB_HIST = { ru: 'Знаешь ли ты? · История', uz: "Bilasizmi? · Tarix" };
-const FactCard = ({ text, anim, badge }) => {
+// Экран 6 — решаем вместе: три строки пишутся по очереди и НЕ стираются.
+const SolveBody = ({ step }) => {
   const t = useT();
+  const c = CONTENT.s_solve;
   return (
-    <div className="fact-card fade-up">
-      <div className="fact-anim">{anim}</div>
-      <div className="fact-body">
-        <p className="fact-badge"><span className="fact-dot"/>{t(badge)}</p>
-        <p className="fact-text">{mt(t(text))}</p>
-      </div>
-    </div>
-  );
-};
-const AnimDigits = () => (<div className="fa-dg" aria-hidden="true">{Array.from({ length: 3 }).map((_, g) => (<span key={g} className="fa-dg-grp">{Array.from({ length: 3 }).map((_, d) => (<i key={d}/>))}</span>))}</div>);
-const AnimStars = () => (<div className="fa-st" aria-hidden="true">{Array.from({ length: 9 }).map((_, i) => (<span key={i} style={{ animationDelay: `${i * 0.22}s` }}/>))}</div>);
-const AnimData = () => (<div className="fa-da" aria-hidden="true">{[40, 60, 80, 100].map((h, i) => (<span key={i} style={{ height: `${h}%`, animationDelay: `${i * 0.2}s` }}/>))}</div>);
-
-// ============================================================
-// SHARED SCREEN HELPERS
-// ============================================================
-const Title = ({ node }) => { const t = useT(); return <h2 className="title h-title fade-up" style={{ margin: 0 }}>{mt(t(node))}</h2>; };
-const Floaters = () => (<div className="amb" aria-hidden="true"><span className="amb-o amb-o1"/><span className="amb-o amb-o2"/><span className="amb-o amb-o3"/></div>);
-const StepLine = ({ children, soft }) => (
-  <div className={`fade-up ${soft ? 'frame-tip' : 'frame'}`} style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
-    <p className="body" style={{ margin: 0, color: T.ink }}>{children}</p>
-  </div>
-);
-// Bosqichli izohlar yig'iladi: oldingi qatorlar (so'lg'in) qoladi, yangisi pastdan chiqadi (fade-up).
-const StepLinesAccum = ({ lines, step, className = '' }) => (
-  <div className={`g6-step-lines ${className}`.trim()} style={{ display: 'flex', flexDirection: 'column', gap: 'clamp(8px, 1.5vw, 12px)' }}>
-    {lines.slice(0, step + 1).map((ln, i) => {
-      const isCurrent = i === step;
-      return (
-        <div key={i} className={`${isCurrent ? 'fade-up ' : ''}frame-tip g6-explanation-step`} style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
-          <span className="g6-explanation-lamp" aria-hidden="true">💡</span>
-          <p className="body g6-explanation-text" style={{ margin: 0, color: T.ink2 }}>{ln}</p>
+    <div className="rv-col">
+      <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+      <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
+      <div className="frame fade-up delay-1 d2-stage">
+        <p className="d2-big">40</p>
+        {/* Сорок монет перекрашиваются по группам: сначала парами, потом
+            пятёрками, потом десятками. Ответ «делится» видно, а не только
+            слышно. */}
+        <CoinGrid n={40} group={step === 0 ? 1 : CONTENT.s_solve.rows[Math.min(step, 3) - 1].d}/>
+        <div className="d2-rows">
+          {c.rows.map((r, i) => (
+            <p key={r.d} className={'d2-row' + (step >= i + 1 ? ' d2-row-on' : '')}>
+              <span className="mono d2-row-d">: {r.d}</span>
+              <span className="d2-row-t">{t(r.text)}</span>
+            </p>
+          ))}
         </div>
-      );
-    })}
-  </div>
-);
-const HintBlock = ({ show, children }) => {
-  const lang = useLang();
-  if (!show) return null;
-  return (
-    <div className="frame-tip fade-up" style={{ padding: 'clamp(12px, 2vw, 16px)' }}>
-      <p className="small mono" style={{ margin: 0, marginBottom: 6, fontWeight: 600, color: '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✗</span>{lang === 'uz' ? 'Maslahat' : 'Подсказка'}</p>
-      <p className="body" style={{ margin: 0, color: T.ink }}>{children}</p>
-    </div>
-  );
-};
-const ConnectionsBlock = ({ c }) => {
-  const t = useT();
-  return (
-    <div className="frame-tip fade-up delay-3" style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: 8 }}>
-      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.ink }}>🔗 {t(c.conn_label_refs)}:</span> {t(c.conn_refs)}</p>
-      <p className="small" style={{ margin: 0 }}><span style={{ fontWeight: 700, color: T.accent }}>➡️ {t(c.conn_label_next)}:</span> {t(c.conn_next)}</p>
+      </div>
+      {step >= 3 && (
+        <div className="frame-success fade-up">
+          <p className="body" style={{ margin: 0 }}>{t(c.done)}</p>
+        </div>
+      )}
     </div>
   );
 };
 
-// Bosqichli kashfiyot: bitta ovozli qator + bitta ko'rinadigan izoh (skrollsiz, qatorlar yig'ilmaydi).
-const StepExploration = ({ screen, screenContent, onNext, onPrev, totalScreens, renderBody, factOnLast }) => {
-  const c = screenContent;
+// Экран 7 — граница: концы разные, ответы про тройку не совпадают с ними.
+const EdgeBody = ({ step }) => {
+  const t = useT();
+  const c = CONTENT.s_edge;
+  return (
+    <div className="rv-col">
+      <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+      <div className="frame fade-up delay-1 d2-stage">
+        <div className="d2-trio">
+          {c.trio.map((n, i) => (
+            <span key={n} className={'d2-tri' + (step >= 1 ? (i === 1 ? ' d2-tri-no' : ' d2-tri-yes') : '')}>
+              <b>{n}</b>
+              <i>{step >= 1 ? t(c.caps[i]) : ''}</i>
+            </span>
+          ))}
+        </div>
+      </div>
+      {step >= 2 && (
+        <div className="frame-tip fade-up">
+          <p className="body" style={{ margin: 0 }}>{t(c.done)}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ============================================================
+// ЭКРАН 4 — «сначала показали, потом сам» (приём урока 1 третьего класса).
+// Показ идёт сам: число, последняя цифра, вердикт. Потом очередь ребёнка на
+// другом числе — свободного ввода нет, он выбирает вердикт.
+// ============================================================
+const LastDigitCard = ({ value, lit }) => {
+  const digits = String(value).split('');
+  return (
+    <p className="d2-num d2-num-lg">
+      {digits.map((d, i) => (
+        <span key={i} className={'d2-dig' + (lit && i === digits.length - 1 ? ' d2-dig-hit' : (lit ? ' d2-dig-off' : ''))}>{d}</span>
+      ))}
+    </p>
+  );
+};
+
+const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnswer }) => {
+  const c = CONTENT.s_tool;
   const t = useT();
   const lang = useLang();
-  const lines = c.audio[lang];
-  const last = lines.length - 1;
-  const narration = useMemo(() => {
-    const items = lines.map((line, i) => ({
-      id: `s${screen}_a${i}`,
-      text: toTtsMath(line, lang),
-      trigger: i === 0 ? 'on_mount' : 'after_previous',
-      waits_for: null,
-      pauseAfterMs: i < last ? 650 : 0,
-    }));
-    if (factOnLast && c.fact_audio?.[lang]) {
-      items.push({
-        id: `s${screen}_fact`,
-        text: toTtsMath(c.fact_audio[lang], lang),
-        trigger: 'after_previous',
-        waits_for: null,
+  const audio = useAudio([{ id: 's_tool_intro', text: pickL(c.audio.intro, lang), trigger: 'on_mount', waits_for: null }]);
+  const [phase, setPhase] = useState(storedAnswer ? 'play' : 'demo');
+  const [shown, setShown] = useState(false);
+  const [picked, setPicked] = useState(null);
+  const firstTryRef = useRef(true);
+  const timersRef = useRef([]);
+  const solved = picked === false;   // верный ответ на 47 — «не делится»
+
+  const say = (node, id) => {
+    if (audio.muted || !node) return;
+    const e = getAudioEngine();
+    if (e) e.pushOneOff(pickL(node, lang), undefined, id);
+  };
+
+  // Показ ведётся таймером, а не кликом: ребёнок смотрит.
+  // Показ ведёт таймер: пока `shown` false — монеты лежат вразнобой, потом
+  // ложатся парами и появляется вывод. Кнопка «Ещё раз» сбрасывает `shown`,
+  // и этот же эффект проигрывает показ заново.
+  useEffect(() => {
+    timersRef.current.forEach(clearTimeout);
+    timersRef.current = [];
+    if (phase !== 'demo' || shown) return undefined;
+    timersRef.current.push(setTimeout(() => { setShown(true); say(c.audio.demo, 's_tool_demo'); }, 1600));
+    return () => timersRef.current.forEach(clearTimeout);
+    /* eslint-disable-next-line */
+  }, [phase, shown]);
+
+  const toPlay = () => {
+    setPhase('play');
+    setPicked(null);
+    say(c.audio.play, 's_tool_play');
+  };
+
+  const answer = (yes) => {
+    if (solved) return;
+    setPicked(yes);
+    if (yes) {
+      firstTryRef.current = false;
+      say(c.audio.wrong, 's_tool_wrong');
+      return;
+    }
+    say(c.audio.ok, 's_tool_ok');
+    if (onAnswer) {
+      onAnswer({
+        stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
+        correctAnswer: pickL(c.no, lang), studentAnswer: pickL(c.no, lang),
+        correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
-    return items;
-  }, [c, factOnLast, lang, last, lines, screen]);
-  const audio = useAudio(narration);
-  const [mutedStep, setMutedStep] = useState(0);
-  const currentMatch = String(audio.currentSegment || '').match(new RegExp(`^s${screen}_a(\\d+)$`));
-  const completedMatch = String(audio.lastCompletedSegment || '').match(new RegExp(`^s${screen}_a(\\d+)$`));
-  const factCompleted = audio.lastCompletedSegment === `s${screen}_fact`;
-  const voicedStep = factCompleted
-    ? last
-    : Math.min(Number(currentMatch?.[1] ?? completedMatch?.[1] ?? 0), last);
-  const step = audio.muted ? mutedStep : voicedStep;
-
-  const mutedAdvance = () => {
-    if (step < last) setMutedStep((value) => Math.min(value + 1, last));
-    else onNext();
   };
-  const ready = audio.muted ? step >= last : (step >= last && audio.hasStarted && !audio.isBusy);
+
   const navContent = (
     <>
       <NavBack onPrev={onPrev} label={<BackLabel/>}/>
-      <NavNext disabled={!audio.muted && !ready} label={<NextLabel/>} onClick={audio.muted ? mutedAdvance : onNext}/>
+      <NavNext disabled={navLocked(!solved || !audio.canAdvance)} label={<NextLabel/>} onClick={onNext}/>
     </>
   );
+
   return (
     <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      {renderBody({ t, lang, step, last, audio })}
-    </Stage>
-  );
-};
-
-// Qoida ekrani (s3, s6): ikki qoida qatori (pale-yellow) + misol.
-const RuleScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, exampleNode }) => {
-  const c = screenContent;
-  const t = useT();
-  const lang = useLang();
-  const audio = useAudio([{ id: `s${screen}_a`, text: c.audio[lang], trigger: 'on_mount', waits_for: null }]);
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.3vw, 20px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <h2 className="title h-title fade-up" style={{ position: 'relative', margin: 0 }}>{t(c.title)}</h2>
-        <div className="frame-tip fade-up delay-1" style={{ position: 'relative' }}><p className="body" style={{ margin: 0, color: T.ink }}>{t(c.rule_1)}</p></div>
-        <div className="frame-tip fade-up delay-2" style={{ position: 'relative' }}><p className="body" style={{ margin: 0, color: T.ink }}>{t(c.rule_2)}</p></div>
-        <div className="frame fade-up delay-3" style={{ position: 'relative', textAlign: 'center' }}>
-          {exampleNode || <p className="body" style={{ margin: 0, color: T.ink }}>{t(c.example)}</p>}
+      <div className="rv-col">
+        <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
+        <div className={'d2-banner fade-up delay-1' + (phase === 'play' ? ' d2-banner-play' : '')}>
+          {t(phase === 'demo' ? c.demo_banner : c.play_banner)}
         </div>
-      </div>
-    </Stage>
-  );
-};
 
-// Javob terish ekrani (s9, s13) — keep-visible: savol qoladi, faqat input to'ladi/yashilga o'tadi.
-const InputScreen = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswer, totalScreens, factNode, figureNode }) => {
-  const c = screenContent;
-  const t = useT();
-  const lang = useLang();
-  const sfx = useSfx();
-  const audio = useAudio([{ id: `s${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const norm = (s) => String(s).replace(/[^0-9]/g, '');
-  const solvedInit = storedAnswer !== undefined && norm(storedAnswer.studentAnswer) === norm(c.answer);
-  const [value, setValue] = useState(storedAnswer?.studentAnswer ?? '');
-  const [solved, setSolved] = useState(solvedInit);
-  const [showHint, setShowHint] = useState(storedAnswer !== undefined && !solvedInit);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c, 'fb_correct')}/>, [c]);
-  const post = useAnswerSequence({ audio, screen, correctText: c.fb_correct[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: solvedInit });
-  const whyRef = useRevealScroll(post.showWhy, 300);
-  const factRef = useRevealScroll(post.showFact, 300);
-  const { clearFeedbackTimer, scheduleFeedback } = useFeedbackTimer();
-  const isCorrect = norm(value) === norm(c.answer) && norm(value) !== '';
-
-  const changeValue = (nextValue) => {
-    if (showHint) {
-      clearFeedbackTimer();
-      audio.interruptFeedback();
-    }
-    setValue(nextValue);
-  };
-
-  const submit = () => {
-    if (norm(value) === '' || solved) return;
-    clearFeedbackTimer();
-    audio.interruptFeedback();
-    if (firstTryRef.current === null) firstTryRef.current = isCorrect;
-    audio.triggerEvent('check_pressed');
-    onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.question[lang], options: null, correctIndex: null, correctAnswer: c.answer, studentAnswerIndex: null, studentAnswer: String(value), correct: firstTryRef.current, firstTry: firstTryRef.current });
-    if (isCorrect) { setSolved(true); setShowHint(false); sfx.playCorrect(); post.start(); } else { setShowHint(true); sfx.playWrong(); }
-    if (!isCorrect && !audio.muted) {
-      scheduleFeedback(() => {
-        audio.speakLatestFeedback(toTtsMath(c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang), `s${screen}_wrong`);
-      });
-    }
-  };
-
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 20px)' }}>
-        <div className="fade-up">
-          <p className="eyebrow" style={{ color: T.accent }}>{t(c.eyebrow)} · {t(c.label)}</p>
-          {c.context && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.context)}</p>}
-          <h2 className="title h-sub" style={{ marginTop: 8 }}>{t(c.question)}</h2>
-        </div>
-        {figureNode && <div className="frame fade-up delay-1" style={{ padding: 'clamp(12px, 2.2vw, 18px)' }}>{figureNode}</div>}
-        <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 16, alignItems: 'center' }}>
-          <input type="text" inputMode="numeric" className={`answer-input ${solved ? 'correct' : (showHint ? 'wrong' : '')}`} value={value} placeholder={t(c.placeholder)} onChange={e => changeValue(e.target.value)} disabled={solved} onKeyDown={e => e.key === 'Enter' && submit()} style={{ width: 'min(100%, 320px)' }}/>
-          <PlaceGrid answer={c.answer} filled={solved}/>
-        </div>
-        {!solved && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={!value} onClick={submit} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{t(c.fb_correct)}</p>
-          </FeedbackBlock>
-        )}
-        {solved && post.showWhy && <div ref={whyRef}>{React.cloneElement(whyNode, { visibleCount: post.visibleWhyLines })}</div>}
-        {solved && post.showFact && factNode && <div ref={factRef}>{factNode}</div>}
-        {!solved && <HintBlock show={showHint}>{t(c.hint)}</HintBlock>}
-      </div>
-    </Stage>
-  );
-};
-
-// Xato o'qishni top (s7) — keep-visible: to'g'ri (xato) variant qoladi, qolganlari yig'iladi.
-const OddOneOut = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswer, totalScreens, factNode }) => {
-  const c = screenContent;
-  const t = useT();
-  const lang = useLang();
-  const sfx = useSfx();
-  const correctIdx = c.errorIdx;
-  const audio = useAudio([{ id: `s${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const wasSolved = storedAnswer?.solved === true || storedAnswer?.correct === true;
-  const [solved, setSolved] = useState(wasSolved);
-  const [picked, setPicked] = useState(wasSolved ? correctIdx : null);
-  const [wrong, setWrong] = useState(() => new Set());
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const advancedRef = useRef(wasSolved);
-  const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
-  const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang], initiallyComplete: wasSolved });
-  const whyRef = useRevealScroll(post.showWhy, 300);
-  const factRef = useRevealScroll(post.showFact, 300);
-  const { clearFeedbackTimer, scheduleFeedback } = useFeedbackTimer();
-
-  const pick = (i) => {
-    if (solved || wrong.has(i)) return;
-    const isC = i === correctIdx;
-    clearFeedbackTimer();
-    if (advancedRef.current) audio.interruptFeedback();
-    if (firstTryRef.current === null) firstTryRef.current = isC;
-    setPicked(i);
-    if (!advancedRef.current) { advancedRef.current = true; audio.triggerEvent('option_picked'); }
-    if (isC) {
-      setSolved(true);
-      sfx.playCorrect();
-      post.start();
-      onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.question[lang], options: c.items.map(it => it.num), correctIndex: correctIdx, correctAnswer: c.items[correctIdx].num, studentAnswerIndex: i, studentAnswer: c.items[i].num, correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
-    } else {
-      sfx.playWrong();
-      setWrong(prev => { const n = new Set(prev); n.add(i); return n; });
-    }
-    if (!isC && !audio.muted) {
-      const wrongVoice = (c[`wrong_${i}`] && c[`wrong_${i}`][lang]) || c.audio.on_wrong[lang];
-      scheduleFeedback(() => {
-        audio.speakLatestFeedback(toTtsMath(wrongVoice, lang), `s${screen}_wrong_${i}`);
-      });
-    }
-  };
-
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
-        <div className="fade-up">
-          <h2 className="title h-sub">{t(c.question)}</h2>
-          <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.lead)}</p>
-        </div>
-        <div className="fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {c.items.map((it, i) => {
-            const isCorrect = i === correctIdx;
-            const isWrongPicked = wrong.has(i);
-            const collapse = solved && !isCorrect;
-            let cls = 'option';
-            if (collapse) cls += ' g6-option-collapsed';
-            if (solved && isCorrect) cls += ' option-correct';
-            else if (isWrongPicked) cls += ' option-picked-wrong';
-            return (
-              <button key={i} className={cls} disabled={solved || isWrongPicked} onClick={() => pick(i)}
-                style={{ padding: collapse ? '0 clamp(14px, 2.1vw, 18px)' : 'clamp(11px, 1.7vw, 14px) clamp(14px, 2.1vw, 18px)', maxHeight: collapse ? 0 : 140, opacity: collapse ? 0 : 1, overflow: 'hidden', borderWidth: collapse ? 0 : undefined, display: 'flex', alignItems: 'center', gap: 12, transition: 'opacity 0.5s cubic-bezier(0.33,0,0.2,1), max-height 0.65s cubic-bezier(0.33,0,0.2,1), padding 0.5s cubic-bezier(0.33,0,0.2,1)', transitionDelay: collapse ? `${i * 0.06}s` : '0s' }}>
-                <span className="mono small" style={{ minWidth: 20, color: solved && isCorrect ? T.success : (isWrongPicked ? T.accent : T.ink3) }}>{solved && isCorrect ? '✓' : (isWrongPicked ? '✗' : String.fromCharCode(65 + i))}</span>
-                <span style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, textAlign: 'left' }}>
-                  <span className="display" style={{ fontSize: 'clamp(16px, 2.6vw, 22px)' }}>{it.num}</span>
-                  <span className="small" style={{ color: T.ink2 }}>{t(it.reading)}</span>
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        <FeedbackBlock show={picked !== null} isCorrect={solved} wrongClass="frame-tip">
-          <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: solved ? T.success : '#D8A93A', textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">{solved ? '✓' : '✗'}</span>{solved ? (lang === 'uz' ? "To'g'ri" : 'Верно') : (lang === 'uz' ? 'Maslahat' : 'Подсказка')}</p>
-          <p className="body" style={{ margin: 0 }}>{t(solved ? c.correct_text : (c[`wrong_${picked}`] || c.audio.on_wrong))}</p>
-        </FeedbackBlock>
-        {solved && post.showWhy && <div ref={whyRef}>{React.cloneElement(whyNode, { visibleCount: post.visibleWhyLines })}</div>}
-        {solved && post.showFact && factNode && <div ref={factRef}>{factNode}</div>}
-      </div>
-    </Stage>
-  );
-};
-
-// Tasniflash (s12) — son bittalab chiqadi, bola guruhni bosadi; веди-до-верного; joylanganlar yashil chip.
-const Classify = ({ screen, screenContent, onNext, onPrev, storedAnswer, onAnswer, totalScreens }) => {
-  const c = screenContent;
-  const t = useT();
-  const lang = useLang();
-  const sfx = useSfx();
-  const cards = c.cards;
-  const total = cards.length;
-  const audio = useAudio([{ id: `s${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const wasSolved = storedAnswer?.solved === true;
-  // Tartib HAR seansda RANDOM (Fisher-Yates, useState init — seans ichida o'zgarmaydi, tiklanish buzilmaydi).
-  const [deck] = useState(() => shuffleArr([...Array(total).keys()]));
-  const [pos, setPos] = useState(wasSolved ? total : 0);
-  const [placed, setPlaced] = useState(() => (wasSolved ? cards.map(c2 => c2.bin) : []));
-  const [wrongBin, setWrongBin] = useState(null);
-  const firstTryRef = useRef(storedAnswer ? (storedAnswer.firstTry ?? storedAnswer.correct ?? null) : null);
-  const advancedRef = useRef(wasSolved);
-  const solved = pos >= total;
-  const cardIdx = solved ? -1 : deck[pos];
-  const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
-  const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, initiallyComplete: wasSolved });
-  const whyRef = useRevealScroll(post.showWhy, 300);
-  const { clearFeedbackTimer, scheduleFeedback } = useFeedbackTimer();
-
-  const tap = (bin) => {
-    if (solved) return;
-    const isC = bin === cards[cardIdx].bin;
-    clearFeedbackTimer();
-    if (advancedRef.current) audio.interruptFeedback();
-    if (!advancedRef.current) { advancedRef.current = true; audio.triggerEvent('option_picked'); }
-    if (isC) {
-      setWrongBin(null);
-      const np = [...placed]; np[cardIdx] = bin; setPlaced(np);
-      const nPos = pos + 1; setPos(nPos);
-      if (nPos >= total) {
-        if (firstTryRef.current === null) firstTryRef.current = true;
-        onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'sorted', studentAnswer: JSON.stringify(np), correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true });
-        sfx.playCorrect();
-        post.start();
-      }
-    } else {
-      if (firstTryRef.current === null || firstTryRef.current === true) firstTryRef.current = false;
-      setWrongBin(bin);
-      sfx.playWrong();
-      if (!audio.muted) {
-        scheduleFeedback(() => {
-          audio.speakLatestFeedback(toTtsMath(c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang), `s${screen}_wrong`);
-        });
-      }
-    }
-  };
-
-  const bins = [{ key: 'a', label: c.bin_a }, { key: 'b', label: c.bin_b }];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
-        <div className="fade-up">
-          <h2 className="title h-sub">{t(c.title)}</h2>
-          {!solved && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.lead)}</p>}
-        </div>
-        {!solved && (
-          <div className="frame fade-up delay-1" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, minHeight: 92, justifyContent: 'center' }}>
-            <p className="small mono" style={{ margin: 0, color: T.ink3 }}>{pos + 1} / {total}</p>
-            <div key={pos} className="display fade-up" style={{ fontSize: 'clamp(26px, 5.6vw, 42px)', color: T.ink }}>{cards[cardIdx].label}</div>
-          </div>
-        )}
-        <div className="fade-up delay-2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
-          {bins.map(b => {
-            const chips = placed.map((p, k) => (p === b.key ? cards[k].label : null)).filter(Boolean);
-            const isWrong = wrongBin === b.key;
-            return (
-              <button key={b.key} disabled={solved} onClick={() => tap(b.key)} className="option" style={{ display: 'flex', flexDirection: 'column', gap: 8, alignItems: 'stretch', padding: 'clamp(12px, 2vw, 16px)', borderWidth: isWrong ? 2 : undefined, borderStyle: isWrong ? 'solid' : undefined, borderColor: isWrong ? T.accent : undefined, cursor: solved ? 'default' : 'pointer' }}>
-                <span className="small mono" style={{ color: T.ink2, fontWeight: 700 }}>{t(b.label)}</span>
-                <span style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                  {chips.map((ch, k) => (<span key={k} className="mono small" style={{ padding: '3px 8px', borderRadius: 8, background: '#E3F0E8', color: T.success }}>{ch}</span>))}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-        {wrongBin && !solved && <HintBlock show={true}>{t(c.hint)}</HintBlock>}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
-          </FeedbackBlock>
-        )}
-        {solved && post.showWhy && <div ref={whyRef}>{React.cloneElement(whyNode, { visibleCount: post.visibleWhyLines })}</div>}
-      </div>
-    </Stage>
-  );
-};
-
-// Moslash (s11) — songa bos, ro'yxatdan o'qilishini tanla; keep-visible (savol qoladi); веди-до-верного.
-const DragMatch = ({ screen, screenContent, onAnswer, onNext, onPrev, totalScreens, factNode }) => {
-  const c = screenContent;
-  const t = useT();
-  const lang = useLang();
-  const sfx = useSfx();
-  const isMobile = useIsMobile();
-  const pairs = c.pairs;
-  const n = pairs.length;
-  const audio = useAudio([{ id: `s${screen}_intro`, text: c.audio.intro[lang], trigger: 'on_mount', waits_for: { type: 'check_pressed' } }]);
-  const [order] = useState(() => shuffleArr([...Array(n).keys()]));
-  const [assign, setAssign] = useState(() => Array(n).fill(null));
-  const [activeSlot, setActiveSlot] = useState(null);
-  const [solved, setSolved] = useState(false);
-  const [showHint, setShowHint] = useState(false);
-  const firstTryRef = useRef(null);
-  const whyNode = useMemo(() => <WhyCard lines={makeWhyLines(c)}/>, [c]);
-  const post = useAnswerSequence({ audio, screen, correctText: c.correct_text[lang], whyNode, factAudio: c.fact_audio?.[lang] });
-  const whyRef = useRevealScroll(post.showWhy, 300);
-  const factRef = useRevealScroll(post.showFact, 300);
-  const { clearFeedbackTimer, scheduleFeedback } = useFeedbackTimer();
-  // Slot bosilganda pastda ochiladigan variantlar ro'yxati — tap natijasi, mobilda
-  // ekrandan pastda qolmasligi uchun ko'rinishga olib kelinadi.
-  const optionsRef = useRevealScroll(!solved && activeSlot !== null);
-
-  const allPlaced = assign.every(a => a !== null);
-  const isCorrect = assign.every((a, k) => a === k);
-  const slotOf = (pairIdx) => assign.findIndex(a => a === pairIdx);
-
-  const assignToActive = (pairIdx) => {
-    if (solved || activeSlot === null) return;
-    if (showHint) {
-      clearFeedbackTimer();
-      audio.interruptFeedback();
-    }
-    setAssign(prev => { const nx = prev.map(a => (a === pairIdx ? null : a)); nx[activeSlot] = pairIdx; return nx; });
-    setActiveSlot(null);
-  };
-  const clearSlot = (k, e) => {
-    if (e) e.stopPropagation();
-    if (solved) return;
-    if (showHint) {
-      clearFeedbackTimer();
-      audio.interruptFeedback();
-    }
-    setAssign(prev => { const nx = [...prev]; nx[k] = null; return nx; });
-  };
-
-  const check = () => {
-    if (solved || !allPlaced) return;
-    clearFeedbackTimer();
-    audio.interruptFeedback();
-    if (firstTryRef.current === null) firstTryRef.current = isCorrect;
-    audio.triggerEvent('check_pressed');
-    onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: c.title[lang], options: null, correctIndex: null, correctAnswer: 'match', studentAnswer: JSON.stringify(assign), correct: firstTryRef.current, firstTry: firstTryRef.current });
-    if (isCorrect) { setSolved(true); setShowHint(false); setActiveSlot(null); sfx.playCorrect(); post.start(); } else { setShowHint(true); sfx.playWrong(); }
-    if (!isCorrect && !audio.muted) {
-      scheduleFeedback(() => {
-        audio.speakLatestFeedback(toTtsMath(c.audio.on_wrong[lang] + ' ' + c.hint[lang], lang), `s${screen}_wrong`);
-      });
-    }
-  };
-
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={!solved || !audio.canAdvance} onClick={onNext} label={<NextLabel/>}/></>);
-  const readingFont = isMobile ? 'clamp(12px, 3.4vw, 14px)' : 'clamp(13px, 1.7vw, 15px)';
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div className="g6-match-slide" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2vw, 16px)' }}>
-        <div className="fade-up">
-          <h2 className="title h-sub">{t(c.title)}</h2>
-          {!solved && <p className="small" style={{ marginTop: 6, color: T.ink3 }}>{t(c.lead)}</p>}
-        </div>
-        <div className="fade-up delay-1 g6-match-rows" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {pairs.map((pr, k) => {
-            const placedPair = assign[k];
-            const active = activeSlot === k;
-            return (
-              <div key={k} className="frame" onClick={() => { if (!solved) setActiveSlot(active ? null : k); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 'clamp(10px,1.8vw,14px)', cursor: solved ? 'default' : 'pointer', border: `2px solid ${solved ? T.success : (active ? T.accent : 'transparent')}`, transition: 'border-color 0.25s ease' }}>
-                <div style={{ minWidth: 'clamp(100px, 28vw, 150px)' }}>
-                  <div className="display" style={{ fontSize: 'clamp(18px, 3.6vw, 26px)', color: T.ink }}>{pr.number}</div>
-                  <div className="small mono" style={{ color: T.ink3 }}>{t(pr.label)}</div>
-                </div>
-                <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8 }}>
-                  {placedPair !== null ? (
-                    <>
-                      <span style={{ flex: 1, fontSize: readingFont, lineHeight: 1.3, color: solved ? T.success : T.ink }}>{t(pairs[placedPair].reading)}</span>
-                      {!solved && <button onClick={(e) => clearSlot(k, e)} aria-label={lang === 'uz' ? 'tozalash' : 'очистить'} className="mono" style={{ border: 'none', background: 'transparent', color: T.ink3, cursor: 'pointer', fontSize: 16, lineHeight: 1, padding: 4 }}>×</button>}
-                    </>
-                  ) : (
-                    <span className="small" style={{ color: active ? T.accent : T.ink3 }}>{active ? (lang === 'uz' ? "ro'yxatdan tanlang ↓" : 'выбери из списка ↓') : (lang === 'uz' ? 'tanlash' : 'выбрать')}</span>
-                  )}
-                </div>
+        <div className="frame fade-up delay-1 d2-stage">
+          {phase === 'demo' ? (
+            <>
+              <LastDigitCard value={36} lit={shown}/>
+              {/* Пары видно: 36 монет ложатся ровно, лишних нет. */}
+              <CoinGrid n={36} group={shown ? 2 : 1} cols={12}/>
+              <p className={'body d2-verdict' + (shown ? ' d2-verdict-on' : '')}>{shown ? t(c.demo_note) : ''}</p>
+            </>
+          ) : (
+            <>
+              <LastDigitCard value={47} lit={picked !== null}/>
+              {/* После ответа видно лишнюю монету: пара из 47 не собирается. */}
+              <CoinGrid n={47} group={solved ? 2 : 1} cols={12}/>
+              <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{t(c.play_ask)}</p>
+              <div className="sv-opts">
+                <button className={'option' + (picked === true ? ' option-picked-wrong' : '')}
+                  disabled={solved} onClick={() => answer(true)}>{t(c.yes)}</button>
+                <button className={'option' + (solved ? ' option-correct' : '')}
+                  disabled={solved} onClick={() => answer(false)}>{t(c.no)}</button>
               </div>
-            );
-          })}
-        </div>
-        {!solved && activeSlot !== null && (
-          <div ref={optionsRef} className="fade-up g6-match-options" style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {order.map(pi => {
-              const usedSlot = slotOf(pi);
-              const usedHere = usedSlot === activeSlot;
-              return (
-                <button key={pi} onClick={() => assignToActive(pi)} className="option" style={{ padding: 'clamp(10px,1.8vw,13px) clamp(12px,2vw,16px)', fontSize: readingFont, lineHeight: 1.3, textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, opacity: usedSlot >= 0 && !usedHere ? 0.5 : 1, borderColor: usedHere ? T.accent : undefined }}>
-                  <span className="mono small" style={{ minWidth: 18, color: usedSlot >= 0 ? T.accent : T.ink3 }}>{usedSlot >= 0 ? (usedHere ? '✓' : '•') : ''}</span>
-                  <span style={{ flex: 1 }}>{t(pairs[pi].reading)}</span>
-                </button>
-              );
-            })}
-          </div>
-        )}
-        {!solved && (
-          <div className="fade-up delay-2" style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button className="btn-white-accent" disabled={!allPlaced} onClick={check} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(20px, 2.5vw, 27px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Tekshirish' : 'Проверить'}</button>
-          </div>
-        )}
-        {solved && (
-          <FeedbackBlock show={true} isCorrect={true}>
-            <p className="small mono" style={{ margin: 0, marginBottom: 8, fontWeight: 600, color: T.success, textTransform: 'uppercase', letterSpacing: '0.08em', display: 'flex', alignItems: 'center', gap: 6 }}><span aria-hidden="true">✓</span>{lang === 'uz' ? "To'g'ri" : 'Верно'}</p>
-            <p className="body" style={{ margin: 0 }}>{t(c.correct_text)}</p>
-          </FeedbackBlock>
-        )}
-        {solved && post.showWhy && <div ref={whyRef}>{React.cloneElement(whyNode, { visibleCount: post.visibleWhyLines })}</div>}
-        {solved && post.showFact && factNode && <div ref={factRef}>{factNode}</div>}
-        {!solved && <HintBlock show={showHint}>{t(c.hint)}</HintBlock>}
-      </div>
-    </Stage>
-  );
-};
-
-// ============================================================
-// ЭКРАНЫ
-// Qiyinlik pog'onasi: 8 -> 12/15/24/37 -> 40 -> 50 gacha sanash.
-// Rasmli: s0, s1, s2, s3, s4, s5, s6, s8, s9, s10.
-// Rasmsiz (faqat oxirgi raqamga qarab): s7, s11, s12, s13.
-// ============================================================
-const UNIT = { ru: 'тыс.', uz: 'ming' };
-
-const Screen0 = ({ screen, totalScreens, onAnswer, onNext }) => {
-  const c = CONTENT.s0;
-  const t = useT();
-  const lang = useLang();
-  const audio = useAudio([{ id: 's0_intro', text: `${lang === 'uz' ? `Dars mavzusi: ${c.topic.uz}. ` : `Тема урока: ${c.topic.ru}. `}${c.audio.intro[lang]}`, trigger: 'on_mount', waits_for: { type: 'option_picked' } }]);
-  const [picked, setPicked] = useState(null);
-  const pickedRef = useRef(false);
-  const introReady = audio.muted || (audio.hasStarted && !audio.isBusy);
-  const introStages = useIntroStages({ start: introReady, optionsReady: introReady });
-  const optionsRef = useRevealScroll(introStages.showOptions);
-  const pick = (v) => { if (pickedRef.current) return; pickedRef.current = true; setPicked(v); onAnswer({ stage: 'hook', screenIdx: screen, studentAnswer: v, correct: true }); audio.triggerEvent('option_picked'); setTimeout(onNext, 300); };
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} audioState={audio}>
-      <div className="g6-custom-hook" style={{ position: 'relative', flex: 1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 'clamp(12px, 2.2vw, 18px)', textAlign: 'center' }}>
-        <Floaters/>
-        <p className="eyebrow fade-up" style={{ position: 'relative', color: T.accent }}>{t(c.eyebrow)}</p>
-        <h1 className="display fade-up" style={{ position: 'relative', width: '100%', margin: 0, color: T.ink, fontFamily: "'Source Serif 4', Georgia, serif", fontSize: introStages.compact ? 'clamp(30px, 6vw, 48px)' : 'clamp(38px, 8vw, 64px)', fontWeight: 600, fontVariationSettings: '"opsz" 60', lineHeight: 1.14, textAlign: 'center', transform: introStages.compact ? 'translateY(-7px)' : 'none', transition: 'font-size 1.2s cubic-bezier(.2,.7,.3,1), transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>{t(c.topic)}</h1>
-        <span aria-hidden="true" style={{ position: 'relative', display: 'block', width: 'clamp(64px, 16vw, 104px)', height: 5, margin: 'clamp(4px,1vw,8px) 0', borderRadius: 99, background: T.accent, boxShadow: '0 0 14px rgba(255,79,40,.45)' }}/>
-        <h2 className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '38ch', margin: 0, fontSize: 'clamp(18px, 2.8vw, 21px)', fontWeight: 600, lineHeight: 1.35, textAlign: 'center' }}>{t(c.global_q)}</h2>
-        <p className="body fade-up delay-1" style={{ position: 'relative', maxWidth: '62ch', color: T.ink2, margin: 0, textAlign: 'center' }}>{t(c.lead)}</p>
-        {introStages.showExample && (
-          <>
-          <div className="frame fade-up" style={{ position: 'relative', width: '100%', maxWidth: 760, minHeight: 128, alignSelf: 'center', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'center', gap: 'clamp(8px, 2vw, 14px)', padding: 'clamp(14px, 2.5vw, 18px)', animationDuration: '1.2s' }}>
-            {[24, 35, 12].map(v => (<PriceTag key={v} value={v} unit={t(UNIT)} size="lg"/>))}
-          </div>
-          <div ref={optionsRef} style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center', alignSelf: 'center', gap: 10, width: '100%', maxWidth: 760 }}>
-            <div style={{ minHeight: 30, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <p className="small" style={{ margin: 0, color: '#43855F', fontSize: 'clamp(18px, 2.9vw, 21px)', fontWeight: 500, lineHeight: 1.25, textAlign: 'center', opacity: introStages.showPrompt ? 1 : 0, transition: 'opacity 1.05s ease' }}>{lang === 'uz' ? 'Boshlashga tayyormisiz?' : 'Готовы начать?'}</p>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, width: '100%', maxWidth: 760, opacity: introStages.showOptions ? 1 : 0, visibility: introStages.showOptions ? 'visible' : 'hidden', transform: introStages.showOptions ? 'none' : 'translateY(18px)', transition: 'opacity 1.2s ease, transform 1.2s cubic-bezier(.2,.7,.3,1)' }}>
-              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('know')}>{t(c.opt_yes)}</button>
-              <button className="option" style={{ minHeight: 58, padding: 'clamp(14px, 2.5vw, 18px) clamp(18px, 3vw, 24px)', textAlign: 'center', border: '2px solid #D8D3C8', background: '#FFFFFF', color: '#0E0E10', fontFamily: "'Source Serif 4', Georgia, serif", fontSize: 'clamp(18px, 3.2vw, 22px)', fontWeight: 300, lineHeight: 1.2, boxShadow: '0 10px 24px -8px rgba(58,53,48,.24)' }} disabled={picked !== null} onClick={() => pick('learn')}>{t(c.opt_idk)}</button>
-            </div>
-          </div>
-          </>
-        )}
-      </div>
-    </Stage>
-  );
-};
-
-// s1 — eng oson savol. Javobdan keyin summa ikkiga bo'linib ko'rsatiladi.
-const Screen1 = (props) => {
-  const t = useT();
-  const lang = useLang();
-  const c = CONTENT.s1;
-  const base = [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, c.correctIndex, [3, 1, 0, 2]);
-  const question = (<><p className="small" style={{ color: T.ink3, marginBottom: 8 }}>{t(c.bridge)}</p><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
-  const figure = (solved) => (solved
-    ? <SplitPay total={8} people={2} unit={t(UNIT)} restLabel={lang === 'uz' ? 'ortdi' : 'остаток'}/>
-    : <PriceTag value={8} unit={t(UNIT)} size="lg"/>);
-  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={figure}/>;
-};
-
-// s2 — 2 ga bo'linish: har qadamda bitta narx, oxirgi raqami ajratilgan.
-const S2_CASES = [{ v: 12, ok: true }, { v: 15, ok: false }, { v: 24, ok: true }, { v: 37, ok: false }];
-const Screen2 = (props) => (
-  <StepExploration {...props} screenContent={CONTENT.s2} totalScreens={TOTAL_SCREENS}
-    renderBody={({ t, lang, step }) => {
-      const cs = S2_CASES[Math.min(step, S2_CASES.length - 1)];
-      return (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)' }}>
-          <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s2.title)}</h2>
-          <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s2.bridge)}</p>
-          <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <LastDigit value={cs.v} tone={cs.ok ? 'ok' : 'no'} size="lg"/>
-            <p className="mono small" style={{ margin: 0, color: cs.ok ? T.success : T.accent }}>
-              {cs.ok ? `${cs.v} : 2 = ${cs.v / 2}` : `${cs.v} : 2 = ${Math.floor(cs.v / 2)} + 1`}
-            </p>
-          </div>
-          <StepLinesAccum lines={CONTENT.s2.audio[lang]} step={step}/>
-        </div>
-      );
-    }}/>
-);
-
-const Screen3 = (props) => (<RuleScreen {...props} screenContent={CONTENT.s3} totalScreens={TOTAL_SCREENS} exampleNode={<DivisorChips list={['0', '2', '4', '6', '8']}/>}/>);
-
-// s4 — qoidani qo'llash. Javobdan keyin to'g'ri narx yashil, qolganlari qizil.
-const S4_PRICES = [35, 24, 17, 51];
-const Screen4 = (props) => {
-  const t = useT();
-  const c = CONTENT.s4;
-  const base = [t(c.opt0), t(c.opt1), t(c.opt2), t(c.opt3)];
-  const { options, correctIdx, content } = shuffleMC(c, base, c.correctIndex, [2, 1, 3, 0]);
-  const question = (<><p className="small" style={{ color: T.ink3, marginBottom: 8 }}>{t(c.bridge)}</p><h2 className="title h-sub">{mt(t(c.question))}</h2></>);
-  const figure = (solved) => (
-    <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 'clamp(6px, 1.6vw, 12px)' }}>
-      {S4_PRICES.map(v => (solved
-        ? <LastDigit key={v} value={v} tone={v % 2 === 0 ? 'ok' : 'no'}/>
-        : <PriceTag key={v} value={v} unit={t(UNIT)}/>))}
-    </div>
-  );
-  return <QuestionScreen {...props} idx={props.screen} totalScreens={TOTAL_SCREENS} screenMeta={SCREEN_META[props.screen]} screenContent={content} question={question} options={options} correctIdx={correctIdx} figure={figure}/>;
-};
-
-// s5 — 5 ga bo'linish, oxirida fakt-kartochka.
-const S5_CASES = [{ v: 15, ok: true }, { v: 20, ok: true }, { v: 23, ok: false }];
-const Screen5 = (props) => (
-  <StepExploration {...props} screenContent={CONTENT.s5} totalScreens={TOTAL_SCREENS} factOnLast
-    renderBody={({ t, lang, step, last, audio }) => {
-      const cs = S5_CASES[Math.min(step, S5_CASES.length - 1)];
-      return (
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-          <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s5.title)}</h2>
-          <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s5.bridge)}</p>
-          <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-            <LastDigit value={cs.v} tone={cs.ok ? 'ok' : 'no'} size="lg"/>
-            <MultiplesTrack base={5} count={4} active={cs.ok ? Math.min(step + 1, 3) : 3}/>
-          </div>
-          <StepLinesAccum lines={CONTENT.s5.audio[lang]} step={step}/>
-          {step >= last && audioReached(audio, 'fact') && <FactCard badge={FB_HIST} anim={<AnimStars/>} text={CONTENT.s5.fact}/>}
-        </div>
-      );
-    }}/>
-);
-
-// s6 — 5 va 10 uchun ruxsat etilgan oxirgi raqamlar yonma-yon.
-const Screen6 = (props) => {
-  const lang = useLang();
-  const example = (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <span className="mono small" style={{ color: T.ink2, fontWeight: 700 }}>{lang === 'uz' ? '5 ga:' : 'на 5:'}</span>
-        <DivisorChips list={['0', '5']}/>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
-        <span className="mono small" style={{ color: T.ink2, fontWeight: 700 }}>{lang === 'uz' ? '10 ga:' : 'на 10:'}</span>
-        <DivisorChips list={['0']}/>
-      </div>
-    </div>
-  );
-  return <RuleScreen {...props} screenContent={CONTENT.s6} totalScreens={TOTAL_SCREENS} exampleNode={example}/>;
-};
-
-const Screen7 = (props) => <OddOneOut {...props} screenContent={CONTENT.s7} totalScreens={TOTAL_SCREENS}/>;
-
-// s8 — darsning "nega" ekrani: o'nliklar hech qachon xalaqit bermaydi.
-const Screen8 = (props) => (
-  <StepExploration {...props} screenContent={CONTENT.s8} totalScreens={TOTAL_SCREENS}
-    renderBody={({ t, lang, step }) => (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s8.title)}</h2>
-        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s8.bridge)}</p>
-        <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <TensOnes value={24} dimTens={step >= 1}/>
-          <p className="mono small" style={{ margin: 0, color: T.ink3 }}>24 = 10 + 10 + 4</p>
-          {step >= 2 && (
-            <span className="dv-chip fade-up" style={{ background: T.accentSoft, color: T.accent, borderColor: T.accent }}>
-              {lang === 'uz' ? 'hammasini oxirgi raqam hal qiladi' : 'всё решает последняя цифра'}
-            </span>
+              {picked === true && !solved && <HintBlock show>{t(c.play_wrong)}</HintBlock>}
+              {solved && (
+                <FeedbackBlock show isCorrect>
+                  <p className="body" style={{ margin: 0 }}>{t(c.play_ok)}</p>
+                </FeedbackBlock>
+              )}
+            </>
           )}
         </div>
-        <StepLinesAccum lines={CONTENT.s8.audio[lang]} step={step}/>
-      </div>
-    )}/>
-);
 
-const Screen9 = (props) => {
-  const t = useT();
-  const fig = (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
-      <PriceTag value={40} unit={t(UNIT)} size="lg"/>
-      <div style={{ display: 'flex', gap: 6 }}>{Array.from({ length: 5 }).map((_, i) => (<CoinIcon key={i} s={18}/>))}</div>
-    </div>
-  );
-  return <InputScreen {...props} screenContent={CONTENT.s9} totalScreens={TOTAL_SCREENS} figureNode={fig} factNode={<FactCard badge={FB_SCI} anim={<AnimDigits/>} text={CONTENT.s9.fact}/>}/>;
-};
-
-// s10 — nol bilan tugagan son uchala alomatga birdan mos keladi.
-const Screen10 = (props) => (
-  <StepExploration {...props} screenContent={CONTENT.s10} totalScreens={TOTAL_SCREENS}
-    renderBody={({ t, lang, step }) => (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(12px, 2.2vw, 16px)' }}>
-        <h2 className="title h-title fade-up" style={{ margin: 0 }}>{t(CONTENT.s10.title)}</h2>
-        <p className="body g6-explanation-prompt fade-up delay-1" style={{ color: T.ink2 }}>{t(CONTENT.s10.bridge)}</p>
-        <div className="frame fade-up delay-2" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12 }}>
-          <LastDigit value={30} tone="ok" size="lg"/>
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: 8 }}>
-            {[{ n: 2, at: 0 }, { n: 5, at: 1 }, { n: 10, at: 2 }].map(x => (
-              <span key={x.n} className="dv-chip" style={{ background: step >= x.at ? '#E3F0E8' : '#FFFFFF', color: step >= x.at ? T.success : T.ink3, borderColor: step >= x.at ? T.success : 'rgba(167, 166, 162, 0.35)' }}>
-                {x.n} {lang === 'uz' ? "ga bo'linadi" : '— делится'}
-              </span>
-            ))}
+        {phase === 'demo' && (
+          <div className="d2-acts fade-up">
+            <button className="d2-btn" disabled={!shown} onClick={() => setShown(false)}>{t(c.again)}</button>
+            <button className="d2-btn d2-btn-go" disabled={!shown} onClick={toPlay}>{t(c.to_play)}</button>
           </div>
-        </div>
-        <StepLinesAccum lines={CONTENT.s10.audio[lang]} step={step}/>
-      </div>
-    )}/>
-);
+        )}
 
-const Screen11 = (props) => <DragMatch {...props} screenContent={CONTENT.s11} totalScreens={TOTAL_SCREENS}/>;
-
-const Screen12 = (props) => <Classify {...props} screenContent={CONTENT.s12} totalScreens={TOTAL_SCREENS}/>;
-
-const Screen13 = (props) => <InputScreen {...props} screenContent={CONTENT.s13} totalScreens={TOTAL_SCREENS} factNode={<FactCard badge={FB_SCI} anim={<AnimData/>} text={CONTENT.s13.fact}/>}/>;
-const Screen14 = ({ screen, totalScreens, answers, onReset, onPrev, finishLesson }) => {
-  const c = CONTENT.s14;
-  const t = useT();
-  const lang = useLang();
-  const lines = c.audio[lang];
-  const audio = useAudio([{ id: 's14_a0', text: lines[0], trigger: 'on_mount', waits_for: null }]);
-  const voicedRef = useRef(false);
-  useEffect(() => {
-    if (!audio.muted && !voicedRef.current) { voicedRef.current = true; const e = getAudioEngine(); if (e) lines.slice(1).forEach((l, i) => speakMath(e, l, lang, `s14_a${i + 1}`, 300)); }
-    /* eslint-disable-next-line */
-  }, []);
-  const scoredIdx = SCREEN_META.map((m, i) => (m.scored ? i : -1)).filter(i => i >= 0);
-  const correct = scoredIdx.filter(i => answers[i]?.correct).length;
-  const total = scoredIdx.length;
-  const mains = [c.main_1, c.main_2, c.main_3];
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><button className="btn-ghost" onClick={onReset} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(15px, 2.1vw, 20px)', fontSize: 'clamp(12px, 1.5vw, 14px)', marginLeft: 'auto' }}>{lang === 'uz' ? "Qaytadan o'tish" : 'Пройти заново'}</button><button className="btn" onClick={finishLesson} style={{ padding: 'clamp(10px, 1.7vw, 12px) clamp(18px, 2.6vw, 26px)', fontSize: 'clamp(12px, 1.5vw, 14px)' }}>{lang === 'uz' ? 'Darsni tugatish' : 'Завершить урок'}</button></>);
-  return (
-    <Stage eyebrow={c.eyebrow} screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
-      <div className="g6-final-slide" style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.4vw, 18px)', justifyContent: 'center' }}>
-        <Floaters/>
-        <div className="fade-up" style={{ position: 'relative', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
-          <div>
-            <p className="eyebrow" style={{ color: T.success }}>{t(c.eyebrow)}</p>
-            <h2 className="title" style={{ marginTop: 8, fontSize: 'clamp(30px, 6vw, 50px)', lineHeight: 1.04 }}>{t(c.heading)}</h2>
-          </div>
-        </div>
-        <p className="body fade-up delay-1" style={{ position: 'relative', margin: '-4px 0 0', color: T.ink2, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 9 }}>
-          <span>{t(c.score_label)}</span>
-          <strong className="mono" style={{ color: T.success, fontSize: 'clamp(20px, 3.8vw, 28px)', lineHeight: 1.15 }}>{correct}/{total}</strong>
-        </p>
-        <div className="frame fade-up delay-1" style={{ position: 'relative' }}>
-          <p className="eyebrow" style={{ color: T.ink2, marginBottom: 14 }}>{t(c.main_label)}</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {mains.map((m, i) => (<div key={i} style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}><span className="mono small" style={{ color: T.accent, marginTop: 2 }}>{String(i + 1).padStart(2, '0')}</span><p className="body" style={{ margin: 0 }}>{t(m)}</p></div>))}
-          </div>
-        </div>
-        <div className="frame-success fade-up delay-2" style={{ position: 'relative' }}>
-          <p className="body" style={{ margin: 0 }}>{t(c.hook_close)}</p>
-        </div>
-        <ConnectionsBlock c={c}/>
+        <MethodCard title={CONTENT.s_methods.m1_title} steps={CONTENT.s_methods.m1_steps}
+          note={CONTENT.s_methods.m1_no} active={phase === 'play' ? 2 : (shown ? 1 : 0)}/>
       </div>
     </Stage>
   );
 };
 
 // ============================================================
-const STYLES = `
-html, body { margin: 0; padding: 0; }
-.lesson-root, .lesson-root * { box-sizing: border-box; }
-/* position: fixed + inset: 0 — dars oqimdan chiqib, doim aynan KO'RINADIGAN
-   viewport'ga mixlanadi. Host (LessonPage/LMS) 100vh bilan balandroq bo'lsa ham
-   body-skroll darsga ta'sir qilmaydi, "Davom" tugmasi joyidan siljimaydi.
-   URL-panel ochilib-yopilganda balandlikni brauzer o'zi kuzatadi (JS o'lchovsiz). */
-.lesson-root {
-  font-family: 'Manrope', system-ui, sans-serif;
-  color: #0E0E10;
-  background: #F6F4EF;
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  overscroll-behavior: none;
-  -webkit-font-smoothing: antialiased;
-  font-feature-settings: "ss01","cv11";
-  zoom: var(--g1z, 1);
+// ОБЁРТКИ ЭКРАНОВ (порядок совпадает с SCREEN_META)
+// ============================================================
+const ScreenHook = (props) => (
+  <HookScreen {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_hook} sceneNode={<HookScene/>}/>
+);
+
+const ScreenRecall = (props) => (
+  <RevealScreen {...props} screenContent={CONTENT.s_recall} totalScreens={TOTAL_SCREENS}
+    renderStep={({ step }) => <RecallBody step={step}/>}/>
+);
+
+const ScreenCore = (props) => (
+  <RevealScreen {...props} screenContent={CONTENT.s_core} totalScreens={TOTAL_SCREENS}
+    renderStep={({ step }) => <CoreBody step={step}/>}/>
+);
+
+const ScreenTool = (props) => <ToolScreen {...props} totalScreens={TOTAL_SCREENS}/>;
+
+const ScreenFive = (props) => (
+  <RevealScreen {...props} screenContent={CONTENT.s_five} totalScreens={TOTAL_SCREENS}
+    renderStep={({ step }) => <FiveBody step={step}/>}/>
+);
+
+const ScreenSolve = (props) => (
+  <RevealScreen {...props} screenContent={CONTENT.s_solve} totalScreens={TOTAL_SCREENS}
+    renderStep={({ step }) => <SolveBody step={step}/>}/>
+);
+
+const ScreenEdge = (props) => (
+  <RevealScreen {...props} screenContent={CONTENT.s_edge} totalScreens={TOTAL_SCREENS}
+    renderStep={({ step }) => <EdgeBody step={step}/>}/>
+);
+
+const ScreenRule = (props) => (
+  <RuleScreen {...props} screenContent={CONTENT.s_rule} totalScreens={TOTAL_SCREENS}
+    exampleNode={<LastDigitCard value={36} lit/>}/>
+);
+
+const methodAside = (
+  <MethodCard title={CONTENT.s_methods.m1_title} steps={CONTENT.s_methods.m1_steps} note={CONTENT.s_methods.m1_no}/>
+);
+
+const ScreenNames = (props) => (
+  <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_names} asideNode={methodAside}/>
+);
+
+const ScreenTwo = (props) => (
+  <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_two} asideNode={methodAside}/>
+);
+
+const ScreenBins = (props) => (
+  <Classify {...props} screenContent={CONTENT.s_bins} totalScreens={TOTAL_SCREENS}/>
+);
+
+const ScreenError = (props) => (
+  <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_error}/>
+);
+
+// Пять чеков стоят НАД заданием: их можно пересчитать глазами, а не помнить.
+const BillsRow = () => (
+  <div className="d2-bills">
+    {CONTENT.s_task.bills.map((b) => (
+      <span key={b} className="d2-bill"><b>{b}</b></span>
+    ))}
+  </div>
+);
+
+const ScreenTask = (props) => (
+  <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_task}
+    figureNode={() => <BillsRow/>}/>
+);
+
+const ScreenFinal = (props) => (
+  <FinalPanel {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_final}
+    factNode={<FactCard badge={FB_SCI} anim={<AnimDigits/>} text={CONTENT.s_final.fact}/>}/>
+);
+
+const SummaryCards = () => {
+  const t = useT();
+  const c = CONTENT.s14;
+  return (
+    <div className="frame sm-card">
+      <p className="sm-card-h">{t(c.memo_title)}</p>
+      <div className="mm-grid">
+        {[[c.memo_q1, c.memo_a1], [c.memo_q2, c.memo_a2], [c.memo_q3, c.memo_a3]].map((row, i) => (
+          <span className="mm-row" key={i}>
+            <span className="mm-q">{t(row[0])}</span>
+            <span className="mm-a">{t(row[1])}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const Screen14 = (props) => (
+  <SummaryScreen {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s14}
+    sceneNode={<FinalScene/>} cards={<SummaryCards/>}/>
+);
+
+// ============================================================
+// CSS УРОКА. Базовые правила класса — в BASE_STYLES общего слоя.
+// ВНИМАНИЕ: строка шаблонная, обратная кавычка и обратный слэш внутри неё
+// (даже в комментарии) дают белый экран.
+// ============================================================
+const LESSON_STYLES = `
+.d2-stage { display: flex; flex-direction: column; align-items: center; gap: clamp(8px, 1.6vw, 12px); padding: clamp(12px, 2.4vw, 18px) !important; }
+.d2-cap { margin: 0; color: #8A8883; font-size: clamp(13px, 2vw, 15px); }
+.d2-eyebrow { margin: 0; color: #8A8883; }
+
+/* Экран 2: стулья парами */
+.d2-pairs { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(10px, 2.4vw, 18px); min-height: 84px; align-items: center; }
+.d2-pair { display: inline-flex; gap: 5px; padding: 7px 9px; border-radius: 12px; background: #FFFFFF; border: 1px solid #E9E3D9; }
+.d2-pair-odd { border-color: #FF4F28; background: #FFE8E1; }
+.d2-chair { position: relative; display: inline-block; width: 22px; height: 30px; }
+.d2-chair::before { content: ''; position: absolute; left: 2px; top: 0; width: 18px; height: 15px; border-radius: 5px 5px 0 0; background: #7ECBE6; }
+.d2-chair::after { content: ''; position: absolute; left: 0; bottom: 0; width: 22px; height: 13px; border-radius: 3px; background: #019ACB; }
+.d2-chair-odd::before { background: #FFB59F; }
+.d2-chair-odd::after { background: #FF4F28; }
+
+/* Экран 3 и 4: число с последней цифрой */
+.d2-num { display: flex; gap: clamp(2px, 0.8vw, 5px); margin: 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(22px, 5vw, 34px); font-weight: 700; }
+.d2-num-lg { font-size: clamp(34px, 7vw, 48px); }
+.d2-dig { transition: opacity 420ms linear, color 420ms linear; }
+.d2-dig-off { opacity: 0.22; }
+.d2-dig-hit { color: #FF4F28; }
+.d2-verdict { margin: 0; min-height: 24px; opacity: 0; transition: opacity 420ms linear; text-align: center; }
+.d2-verdict-on { opacity: 1; }
+
+/* Экран 5: цены буфета */
+.d2-prices { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(7px, 1.6vw, 11px); }
+.d2-price { min-width: 54px; padding: 9px 12px; border-radius: 12px; border: 1px solid #E9E3D9; background: #FFFFFF; font-family: 'JetBrains Mono', monospace; font-size: clamp(18px, 3.4vw, 24px); font-weight: 700; color: #B8B4AD; text-align: center; transition: all 420ms linear; }
+.d2-price-on { color: #1F7A4D; border-color: #1F7A4D; background: #E3F0E8; }
+.d2-price-ten { box-shadow: 0 0 0 3px rgba(255, 79, 40, 0.25); }
+
+/* Экран 6: три строки решения */
+.d2-big { margin: 0; font-family: 'JetBrains Mono', monospace; font-size: clamp(30px, 6vw, 42px); font-weight: 700; color: #0E0E10; }
+.d2-rows { display: flex; flex-direction: column; gap: 7px; width: 100%; }
+.d2-row { display: flex; align-items: baseline; gap: 10px; margin: 0; opacity: 0; transform: translateY(6px); transition: opacity 420ms linear, transform 420ms cubic-bezier(0.22, 0.61, 0.36, 1); }
+.d2-row-on { opacity: 1; transform: none; }
+.d2-row-d { flex-shrink: 0; min-width: 44px; font-size: clamp(16px, 3vw, 20px); font-weight: 700; color: #FF4F28; }
+.d2-row-t { font-size: clamp(14px, 2.4vw, 17px); line-height: 1.35; color: #0E0E10; }
+
+/* Экран 7: три числа границы */
+.d2-trio { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(9px, 2vw, 16px); }
+.d2-tri { display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 96px; padding: 11px 13px; border-radius: 14px; border: 1px solid #E9E3D9; background: #FFFFFF; }
+.d2-tri b { font-family: 'JetBrains Mono', monospace; font-size: clamp(24px, 5vw, 32px); }
+.d2-tri i { font-style: normal; font-family: 'JetBrains Mono', monospace; font-size: clamp(11px, 2vw, 13px); color: #8A8883; min-height: 16px; }
+.d2-tri-yes { border-color: #1F7A4D; background: #E3F0E8; }
+.d2-tri-yes i { color: #1F7A4D; }
+.d2-tri-no { border-color: #FF4F28; background: #FFE8E1; }
+.d2-tri-no i { color: #FF4F28; }
+
+/* ДВИЖЕНИЕ СЦЕНЫ. Двигается то, что принадлежит буфету: пар над чаем,
+   лампочка кассы, монета на стойке, листок в руке Азиза, его взгляд.
+   Декор не плавает — это правило класса. */
+.d2-steam { opacity: 0; animation: d2Steam 3200ms ease-in-out infinite; transform-origin: center bottom; }
+@keyframes d2Steam {
+  0% { opacity: 0; transform: translateY(2px) scaleY(0.7); }
+  25% { opacity: 0.75; }
+  70% { opacity: 0.35; transform: translateY(-8px) scaleY(1.1); }
+  100% { opacity: 0; transform: translateY(-13px) scaleY(1.2); }
 }
-/* Mobil yagona masshtab (useMobileZoom): layout doim 390px, zoom real ekranga
-   moslaydi — barcha telefonlarda aynan bir xil ko'rinish. Desktop tegilmaydi. */
-@media (max-width: 639.98px) {
-  .lesson-root { width: 390px; }
-}
-
-.lesson-root h1, .lesson-root h2, .lesson-root h3, .lesson-root h4, .lesson-root h5, .lesson-root h6,
-.lesson-root p, .lesson-root ul, .lesson-root ol { margin: 0; padding: 0; }
-
-.title { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.1; letter-spacing: -0.005em; font-variation-settings: normal; }
-.display { font-family: 'Manrope', system-ui, sans-serif; font-weight: 600; line-height: 1.0; letter-spacing: -0.01em; font-variation-settings: normal; }
-.italic { font-family: 'Manrope', system-ui, sans-serif; font-style: italic; font-weight: 500; font-variation-settings: normal; }
-.mono { font-family: 'JetBrains Mono', monospace; }
-.mop { font-family: 'Manrope', sans-serif; font-weight: 600; color: #0E0E10; display: inline-block; padding: 0 0.06em; }
-
-.frac { display: inline-flex; flex-direction: column; align-items: center; vertical-align: middle; line-height: 1; margin: 0 0.08em; font-family: inherit; font-variation-settings: inherit; font-weight: inherit; }
-.frac .n, .frac .d { padding: 0 0.12em; font: inherit; }
-.frac .bar { height: 0.08em; background: currentColor; width: 100%; margin: 0.08em 0; border-radius: 2px; }
-
-@keyframes fade-in-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-.fade-up { animation: fade-in-up 0.4s ease-out forwards; opacity: 0; }
-.delay-1 { animation-delay: 0.12s; } .delay-2 { animation-delay: 0.24s; }
-.delay-3 { animation-delay: 0.36s; } .delay-4 { animation-delay: 0.48s; }
-
-.feedback-block { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s ease-out, opacity 0.3s ease-out 0.1s, margin-top 0.4s ease-out; margin-top: 0; }
-.feedback-block.visible { max-height: 800px; opacity: 1; margin-top: clamp(14px, 2vw, 20px); }
-
-.btn { font-family: 'Manrope', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; background: #0E0E10; color: #F6F4EF; letter-spacing: 0.01em; border-radius: 12px; border: none; box-shadow: 0 6px 18px -4px rgba(58, 53, 48, 0.32); }
-.btn:hover:not(:disabled) { background: #FF4F28; box-shadow: 0 10px 24px -4px rgba(255, 79, 40, 0.45); }
-.btn:disabled { opacity: 0.4; cursor: not-allowed; box-shadow: none; }
-
-.btn-white-accent { font-family: 'Manrope', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; background: #FFFFFF; color: #FF4F28; letter-spacing: 0.01em; border-radius: 12px; border: none; box-shadow: 0 8px 22px -4px rgba(255, 79, 40, 0.35), 0 0 0 1px rgba(255, 79, 40, 0.12); }
-.btn-white-accent:hover:not(:disabled) { background: #FF4F28; color: #FFFFFF; box-shadow: 0 12px 28px -6px rgba(255, 79, 40, 0.55); }
-.btn-white-accent:disabled { opacity: 0.45; cursor: not-allowed; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.14); }
-
-.btn-ghost { font-family: 'Manrope', sans-serif; font-weight: 600; cursor: pointer; transition: all 0.2s; background: transparent; color: #0E0E10; letter-spacing: 0.01em; border-radius: 12px; border: none; box-shadow: none; }
-.btn-ghost:hover:not(:disabled) { background: #FFFFFF; box-shadow: 0 6px 18px -6px rgba(58, 53, 48, 0.18); }
-.btn-ghost:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.option { background: #FFFFFF; cursor: pointer; transition: all 0.2s; font-family: 'Manrope', system-ui, sans-serif !important; font-weight: 500; text-align: left; border-radius: 12px; width: 100%; border: none; color: #0E0E10; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
-.option:hover:not(:disabled) { background: #FDFBF7; box-shadow: 0 10px 22px -6px rgba(58, 53, 48, 0.22); }
-.option:disabled { cursor: default; }
-.option-correct { background: #E3F0E8 !important; color: #1F7A4D !important; box-shadow: 0 8px 22px -6px rgba(31, 122, 77, 0.32) !important; }
-.option-wrong { background: #FFFFFF !important; color: #A7A6A2 !important; opacity: 0.55 !important; box-shadow: 0 4px 12px -6px rgba(58, 53, 48, 0.08) !important; }
-.option-picked-wrong { background: #FFE8E1 !important; color: #FF4F28 !important; box-shadow: 0 8px 22px -6px rgba(255, 79, 40, 0.38) !important; }
-
-.h-title { font-size: clamp(22px, 4vw, 38px); }
-.h-sub { font-size: clamp(19px, 2.7vw, 22px); }
-.body { font-size: clamp(17px, 2.1vw, 17px); line-height: 1.55; }
-.eyebrow { font-size: clamp(11px, 1.3vw, 11px); letter-spacing: 0.18em; text-transform: uppercase; font-weight: 600; }
-.small { font-size: clamp(15px, 1.7vw, 15px); }
-.frac-display { font-size: clamp(45px, 9vw, 75px); }
-.frac-mid { font-size: clamp(26px, 5vw, 38px); }
-.frac-sm { font-size: clamp(16px, 2.5vw, 20px); }
-
-.stage { max-width: 936px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
-.stage-header { flex-shrink: 0; background: #F6F4EF; padding-top: clamp(12px, 2vw, 18px); padding-bottom: clamp(8px, 1.5vw, 12px); }
-.stage-content { flex: 1; padding-top: clamp(10px, 1.7vw, 16px); padding-bottom: clamp(17px, 3.4vw, 34px); display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
-.stage-nav { flex-shrink: 0; background: #F6F4EF; border-top: 1px solid rgba(167, 166, 162, 0.25); padding-top: clamp(12px, 2vw, 15px); padding-bottom: clamp(12px, 2vw, 15px); display: flex; gap: 12px; }
-
-.chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
-.chrome-left { display: flex; align-items: center; gap: 10px; color: #5A5A60; }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.55); }
-
-.progress-track { height: 6px; background: rgba(167, 166, 162, 0.25); width: 100%; margin-bottom: 12px; border-radius: 99px; overflow: visible; }
-.progress-bar { height: 100%; background: #FF4F28; transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1); border-radius: 99px; box-shadow: 0 0 10px rgba(255, 79, 40, 0.55), 0 0 3px rgba(255, 79, 40, 0.40); }
-
-.track-wrap { position: relative; height: 26px; margin: 18px 0; display: flex; align-items: center; }
-.track-bg { position: absolute; left: 0; right: 0; top: 50%; transform: translateY(-50%); height: 4px; background: rgba(167, 166, 162, 0.30); border-radius: 99px; pointer-events: none; }
-.track-fill { position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 4px; background: #FF4F28; border-radius: 99px; pointer-events: none; box-shadow: 0 0 8px rgba(255, 79, 40, 0.50), 0 0 2px rgba(255, 79, 40, 0.40); transition: width 0.15s ease-out; }
-.slider-input { -webkit-appearance: none; appearance: none; position: relative; width: 100%; height: 24px; background: transparent; outline: none; margin: 0; cursor: grab; z-index: 2; }
-.slider-input::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 24px; height: 24px; background: #FF4F28; border-radius: 50%; cursor: grab; transition: transform 0.1s; border: none; box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55); }
-.slider-input::-moz-range-thumb { width: 24px; height: 24px; background: #FF4F28; border-radius: 50%; cursor: grab; border: none; box-shadow: 0 0 0 4px #F6F4EF, 0 0 12px 0 rgba(255, 79, 40, 0.55); }
-.slider-input::-webkit-slider-thumb:active { cursor: grabbing; transform: scale(1.12); }
-.slider-input:disabled { cursor: not-allowed; }
-.slider-input:disabled::-webkit-slider-thumb { opacity: 0.5; cursor: not-allowed; }
-
-.answer-input { font-family: 'Fraunces', serif; font-size: clamp(22px, 4vw, 27px); font-weight: 400; text-align: center; border-radius: 12px; background: #FFFFFF; padding: 8px 12px; outline: none; border: none; color: #0E0E10; transition: all 0.2s; box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
-.answer-input:focus { box-shadow: 0 10px 22px -6px rgba(255, 79, 40, 0.30), 0 0 0 1px rgba(255, 79, 40, 0.20); }
-.answer-input.correct { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 8px 20px -6px rgba(31, 122, 77, 0.30); }
-.answer-input.wrong { background: #FFE8E1; color: #FF4F28; box-shadow: 0 8px 20px -6px rgba(255, 79, 40, 0.36); }
-
-.frame { background: #FFFFFF; border-radius: 16px; padding: clamp(17px, 3.4vw, 30px); border: none; box-shadow: 0 8px 22px -6px rgba(58, 53, 48, 0.14); }
-.frame-soft { background: #FFE8E1; border-left: 4px solid #FF4F28; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(255, 79, 40, 0.22); }
-.frame-success { background: #E3F0E8; border-left: 4px solid #1F7A4D; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(31, 122, 77, 0.22); }
-.frame-tip { background: #FBF3D6; border-left: 4px solid #D8A93A; border-radius: 12px; padding: clamp(14px, 2.5vw, 20px); box-shadow: 0 6px 16px -6px rgba(180, 138, 30, 0.22); }
-
-/* ===== УРОК-СПЕЦИФИЧНЫЙ CSS (div_6_02) ===== */
-.place-cell { font-family: 'JetBrains Mono', monospace; display: flex; align-items: center; justify-content: center; min-width: clamp(20px, 3.6vw, 30px); height: clamp(28px, 5vw, 40px); border-radius: 8px; background: #FFFFFF; color: #A7A6A2; box-shadow: 0 4px 12px -6px rgba(58,53,48,0.16); transition: all 0.35s; }
-.place-cell.filled { background: #E3F0E8; color: #1F7A4D; box-shadow: 0 6px 16px -6px rgba(31,122,77,0.30); }
-
-@keyframes rg-dot-in { from { opacity: 0; transform: translateY(6px) scale(0.6); } to { opacity: 1; transform: none; } }
-
-/* PriceTag — do'kon narx yorlig'i. */
-.pr-tag { display: inline-flex; flex-direction: column; align-items: center; gap: 2px; padding: clamp(7px,1.5vw,11px) clamp(11px,2.2vw,16px); border-radius: 12px; border: 1.5px solid; animation: rg-dot-in 0.36s ease-out both; box-shadow: 0 5px 14px -8px rgba(58,53,48,0.35); transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease; }
-
-/* LastDigit — darsning yuragi: oxirgi raqam alohida katakda. */
-.ld-cell { display: inline-flex; align-items: center; justify-content: center; min-width: 1.1em; padding: 2px 6px; border-radius: 8px; border: 2px solid; font-weight: 700; line-height: 1.15; transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease; }
-
-/* SplitPay — summani bo'lgandagi ulushlar va ortgan qism. */
-.sp-person { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: clamp(6px,1.3vw,9px) clamp(8px,1.7vw,12px); border-radius: 10px; background: #FFFFFF; border: 1.5px solid rgba(167,166,162,0.35); animation: rg-dot-in 0.36s ease-out both; }
-.sp-rest { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: clamp(6px,1.3vw,9px) clamp(8px,1.7vw,12px); border-radius: 10px; border: 1.5px dashed rgba(255,79,40,0.55); background: rgba(255,79,40,0.06); }
-
-/* TensOnes — to'la o'nliklar va yakka birliklar. */
-.to-ten { display: inline-flex; align-items: center; justify-content: center; min-width: clamp(30px,6.5vw,42px); padding: clamp(6px,1.3vw,9px) 0; border-radius: 9px; background: #E3F0E8; color: #1F7A4D; border: 1.5px solid #1F7A4D; font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: clamp(12px,2.4vw,16px); animation: rg-dot-in 0.36s ease-out both; transition: opacity 0.4s ease; }
-.to-ones { display: inline-flex; gap: 3px; padding: 4px 6px; border-radius: 9px; border: 1.5px dashed rgba(255,79,40,0.55); background: rgba(255,79,40,0.06); }
-
-/* DivisorChips — ruxsat etilgan oxirgi raqamlar / alomat chiplari. */
-.dv-chip { font-family: 'JetBrains Mono', monospace; font-size: clamp(13px, 2.4vw, 17px); font-weight: 600; padding: clamp(6px,1.2vw,9px) clamp(11px,2vw,15px); border-radius: 10px; border: 1.5px solid; animation: rg-dot-in 0.4s ease-out both; transition: background 0.35s ease, color 0.35s ease, border-color 0.35s ease; }
-
-.why { background: #FFFFFF; border-radius: 14px; border-left: 4px solid #019ACB; padding: clamp(12px, 2.2vw, 17px); box-shadow: 0 8px 22px -6px rgba(1, 154, 203, 0.2); margin-top: clamp(10px, 1.8vw, 14px); animation: fade-in-up 0.7s ease-out both; }
-.why-h { display: flex; align-items: center; gap: 8px; margin: 0 0 clamp(8px, 1.6vw, 12px); font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.9vw, 12px); font-weight: 600; letter-spacing: 0.09em; text-transform: uppercase; color: #019ACB; }
-.why-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.6); animation: rv-dot-pulse 1.8s ease-in-out infinite; }
-.why-list { position: relative; display: flex; flex-direction: column; gap: clamp(7px, 1.4vw, 10px); }
-.why-list::before { content: ''; position: absolute; left: 10.5px; top: 12px; bottom: 12px; width: 1px; background: linear-gradient(180deg, rgba(1,154,203,0.55), rgba(1,154,203,0.08)); }
-.why-row { position: relative; display: flex; align-items: flex-start; gap: 10px; animation: why-in 0.7s cubic-bezier(0.2, 0.7, 0.3, 1) both; }
-.why-num { flex-shrink: 0; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #EAF6FB; color: #019ACB; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; margin-top: 1px; }
-.why-tx { margin: 0; font-size: clamp(15px, 2.9vw, 16px); line-height: 1.45; color: #0E0E10; }
-@keyframes why-in { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
-.fact-card { display: flex; gap: clamp(12px, 2.5vw, 18px); align-items: center; background: #EAF6FB; border-left: 4px solid #019ACB; border-radius: 12px; padding: clamp(12px, 2.2vw, 16px); box-shadow: 0 6px 16px -6px rgba(1, 154, 203, 0.22); }
-.fact-anim { flex-shrink: 0; width: clamp(90px, 18vw, 130px); height: clamp(70px, 14vw, 96px); display: flex; align-items: center; justify-content: center; overflow: hidden; }
-.fact-body { flex: 1; }
-.fact-badge { display: flex; align-items: center; gap: 8px; margin: 0 0 4px; font-family: 'JetBrains Mono', monospace; font-size: clamp(10px, 1.2vw, 11px); font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: #019ACB; }
-.fact-dot { width: 7px; height: 7px; border-radius: 50%; background: #019ACB; box-shadow: 0 0 8px rgba(1, 154, 203, 0.55); }
-.fact-text { margin: 0; font-size: clamp(12px, 1.5vw, 13px); line-height: 1.4; color: #0E0E10; }
-.fa-dg { display: flex; gap: 7px; align-items: center; }
-.fa-dg-grp { display: flex; gap: 2px; animation: faDg 2.4s ease-in-out infinite; }
-.fa-dg-grp i { width: 7px; height: clamp(20px, 4vw, 30px); background: #019ACB; opacity: 0.25; border-radius: 2px; }
-.fa-dg-grp:nth-child(1) { animation-delay: 0s; }
-.fa-dg-grp:nth-child(2) { animation-delay: 0.3s; }
-.fa-dg-grp:nth-child(3) { animation-delay: 0.6s; }
-@keyframes faDg { 0%, 100% { opacity: 0.3; } 45% { opacity: 1; } }
-.fa-st { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(6px, 1.4vw, 10px); width: clamp(70px, 14vw, 96px); }
-.fa-st span { width: clamp(8px, 1.8vw, 11px); height: clamp(8px, 1.8vw, 11px); border-radius: 50%; background: #019ACB; box-shadow: 0 0 6px rgba(1, 154, 203, 0.6); animation: faSt 2.2s ease-in-out infinite; }
-@keyframes faSt { 0%, 100% { opacity: 0.2; transform: scale(0.7); } 50% { opacity: 1; transform: scale(1); } }
-.fa-da { display: flex; align-items: flex-end; gap: 5px; height: clamp(56px, 12vw, 80px); }
-.fa-da span { width: clamp(10px, 2.2vw, 14px); background: #019ACB; opacity: 0.3; border-radius: 3px; animation: faDa 2.4s ease-in-out infinite; }
-@keyframes faDa { 0%, 100% { opacity: 0.25; } 50% { opacity: 0.95; } }
-
-.amb { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
-.amb-o { position: absolute; border-radius: 50%; opacity: 0.7; animation: ambFloat 15s ease-in-out infinite; background: radial-gradient(circle at 30% 30%, rgba(255, 79, 40, 0.10), rgba(255, 79, 40, 0.02)); }
-.amb-o1 { width: 90px; height: 90px; left: 5%; top: 10%; animation-delay: 0s; }
-.amb-o2 { width: 130px; height: 130px; right: 3%; bottom: 6%; animation-delay: -5s; background: radial-gradient(circle at 30% 30%, rgba(1, 154, 203, 0.10), rgba(1, 154, 203, 0.02)); }
-.amb-o3 { width: 58px; height: 58px; left: 42%; top: 62%; animation-delay: -9s; }
-@keyframes ambFloat { 0%, 100% { transform: translateY(0) translateX(0); } 33% { transform: translateY(-14px) translateX(8px); } 66% { transform: translateY(8px) translateX(-10px); } }
-
+.d2-blink { animation: d2Blink 2400ms steps(1, end) infinite; }
+@keyframes d2Blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0.25; } }
+.d2-coin-drop { animation: d2Coin 1100ms cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+@keyframes d2Coin { from { transform: translateY(-42px) rotate(-140deg); opacity: 0; } to { transform: none; opacity: 1; } }
+.d2-note { transform-origin: 190px 18px; animation: d2Note 4600ms ease-in-out infinite; }
+@keyframes d2Note { 0%, 100% { transform: rotate(-1.4deg); } 50% { transform: rotate(1.4deg); } }
+.d2-look { animation: d2Look 3000ms ease-in-out infinite; }
+@keyframes d2Look { 0%, 100% { opacity: 0.35; } 45% { opacity: 1; } }
+.d2-hit { animation: d2Hit 2600ms ease-in-out infinite; }
+@keyframes d2Hit { 0%, 100% { opacity: 1; } 50% { opacity: 0.72; } }
 @media (prefers-reduced-motion: reduce) {
-  .lesson-root, .lesson-root *, .lesson-root *::before, .lesson-root *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  .d2-steam, .d2-blink, .d2-coin-drop, .d2-note, .d2-look, .d2-hit { animation: none; opacity: 1; }
+}
+
+/* Счётный материал: монеты группами. Цвет группы чередуется, лишние —
+   оранжевые. При смене группы монеты ПЕРЕСТРАИВАЮТСЯ волной: ребёнок видит
+   само перегруппирование, а не только его результат. */
+.d2-coins { display: grid; gap: clamp(3px, 0.8vw, 6px); width: min(100%, 360px); }
+.d2-coin { aspect-ratio: 1; border-radius: 50%; background: #7ECBE6; animation: d2CoinIn 420ms cubic-bezier(0.22, 0.61, 0.36, 1) both; }
+@keyframes d2CoinIn { from { opacity: 0; transform: scale(0.5); } to { opacity: 1; transform: none; } }
+.d2-coin-b { background: #8FD6B4; }
+.d2-coin-extra { background: #FF4F28; box-shadow: 0 0 0 2px rgba(255, 79, 40, 0.25); }
+@media (prefers-reduced-motion: reduce) { .d2-coin { animation: none; } }
+
+/* Экран 4: баннер очереди и кнопки */
+.d2-btn { height: 40px; padding: 0 18px; border-radius: 12px; border: 1px solid #E9E3D9; background: #FFFFFF; color: #494550; font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(14px, 2.2vw, 16px); font-weight: 600; cursor: pointer; transition: background-color 180ms linear, color 180ms linear; }
+.d2-btn:disabled { opacity: 0.45; cursor: default; }
+.d2-btn-go { border-color: #FF4F28; color: #FF4F28; }
+.d2-btn-go:hover:not(:disabled) { background: #FFE8E1; }
+.d2-banner { align-self: flex-start; display: inline-flex; align-items: center; gap: 8px; font-size: clamp(14px, 2.4vw, 16px); font-weight: 700; color: #494550; background: #FBF3D6; border-radius: 12px; padding: 6px 13px; }
+.d2-banner-play { color: #1F7A4D; background: #E3F0E8; }
+.d2-acts { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* Экран 13: пять чеков */
+.d2-bills { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(7px, 1.6vw, 11px); }
+.d2-bill { min-width: 58px; padding: 8px 11px; border-radius: 10px; border: 1px dashed #C9A472; background: #FFFDF7; text-align: center; }
+.d2-bill b { font-family: 'JetBrains Mono', monospace; font-size: clamp(17px, 3.2vw, 22px); }
+
+@media (max-width: 639.98px) {
+  .d2-num { font-size: clamp(19px, 6vw, 26px); }
+  .d2-tri { min-width: 84px; }
 }
 `;
 
+const STYLES = BASE_STYLES + LESSON_STYLES;
+
 // ============================================================
-// КОРНЕВОЙ КОМПОНЕНТ — default export (platform_contract §1)
+// КОРНЕВОЙ КОМПОНЕНТ
 // ============================================================
 export default function DivisibilityRulesLesson({
   studentName, lang: langProp, ttsApiBase, voiceGender,
@@ -2711,73 +1471,52 @@ export default function DivisibilityRulesLesson({
   const isPreview = (langProp === undefined || langProp === null);
   const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
-  const safeName = studentName || (lang === 'uz' ? "O'quvchi" : 'Ученик');
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
-  const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
+  const safeName = studentName || tri(lang, 'Ученик', "O'quvchi", 'Student');
+  configureLesson({
+    ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '',
+    aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm',
+    // Теория 6 класса не оценивается и не запирает переход (решение методиста).
+    navLock: false,
+  });
 
-  const [current, setCurrent] = useState(0);
+  const [current, setCurrent] = useState(Math.min(PREVIEW_START, TOTAL_SCREENS - 1));
   const [answers, setAnswers] = useState([]);
-  const startTimeRef = useRef(Date.now());
 
-  const recordAnswer = useCallback((screenIdx, data) => {
-    setAnswers(prev => { const nextArr = [...prev]; nextArr[screenIdx] = data; return nextArr; });
-  }, []);
-
-  const reset = useCallback(() => { setAnswers([]); setCurrent(0); startTimeRef.current = Date.now(); }, []);
-
-  const finishLesson = useCallback(() => {
-    const checked = answers.filter(a => a && typeof a.firstTry === 'boolean');
-    const payload = {
-      lessonId: LESSON_META.lessonId,
-      lessonTitle: LESSON_META.lessonTitle,
-      durationSec: Math.floor((Date.now() - startTimeRef.current) / 1000),
-      totalQuestions: null, correctAnswers: null, scorePercent: null,
-      finalScore: null, finalTotal: null, passed: null,
-      firstTryStats: { total: checked.length, firstTryCorrect: checked.filter(a => a.firstTry === true).length },
-      answers: answers.filter(Boolean)
-    };
-    safeOnFinished(payload);
-  }, [answers, safeOnFinished]);
-
-  const screens = [Screen0, Screen2, Screen3, Screen1, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
+  const screens = [ScreenHook, ScreenRecall, ScreenCore, ScreenTool, ScreenFive, ScreenSolve, ScreenEdge,
+    ScreenRule, ScreenNames, ScreenTwo, ScreenBins, ScreenError, ScreenTask, ScreenFinal, Screen14];
   const CurrentScreen = screens[current];
 
-  const navLockRef = useRef(0);
-  const navGuard = () => {
-    const now = Date.now();
-    if (now - navLockRef.current < 350) return false;
-    navLockRef.current = now;
-    return true;
+  const finishLesson = () => {
+    if (!onFinished) return;
+    onFinished({
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle,
+      totalQuestions: null, correctAnswers: null, scorePercent: null,
+      finalScore: null, finalTotal: null, passed: null,
+      answers: answers.filter(Boolean),
+    });
   };
-  const next = () => { if (navGuard()) setCurrent(s => Math.min(s + 1, TOTAL_SCREENS - 1)); };
-  const prev = () => { if (navGuard()) setCurrent(s => Math.max(s - 1, 0)); };
-  const handleAnswer = useCallback((data) => { recordAnswer(current, data); }, [current, recordAnswer]);
 
   return (
     <LangContext.Provider value={lang}>
-      <style>{STYLES}</style>
-      <div className="lesson-root grade6-theory-etalon grade6-dars02">
+      <div className="lesson-root">
+        <style>{STYLES}</style>
         {isPreview && (
-          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {['ru', 'uz'].map(l => (
-              <button key={l} onClick={() => setPreviewLang(l)}
-                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
-                {l.toUpperCase()}
-              </button>
+          <div className="g6-lang-switch">
+            {['ru', 'uz', 'en'].map((l) => (
+              <button key={l} className={'btn-ghost' + (l === lang ? ' is-on' : '')}
+                onClick={() => setPreviewLang(l)}>{l.toUpperCase()}</button>
             ))}
           </div>
         )}
         <CurrentScreen
           screen={current}
-          studentName={safeName}
           totalScreens={TOTAL_SCREENS}
           storedAnswer={answers[current]}
-          answers={answers}
-          onAnswer={handleAnswer}
-          onNext={next}
-          onPrev={prev}
-          onReset={reset}
+          onAnswer={(data) => setAnswers((prev) => { const next = [...prev]; next[current] = data; return next; })}
+          onNext={() => setCurrent((v) => Math.min(v + 1, TOTAL_SCREENS - 1))}
+          onPrev={() => setCurrent((v) => Math.max(v - 1, 0))}
+          onReset={() => { setAnswers([]); setCurrent(0); }}
           finishLesson={finishLesson}
         />
       </div>

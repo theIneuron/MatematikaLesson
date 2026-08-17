@@ -166,7 +166,7 @@ const DARS16 = (() => {
         ["Kasrlarni bitta qulay ko'rinishga keltirib, amalni bajaring.", 'Приведите дроби к удобному виду и выполните действие.'],
         ["Javobni mazmunan tekshiring: u taxminiy natijaga mosmi?", 'Проверьте смысл ответа: согласуется ли он с примерной оценкой?'],
       ),
-      { type: 'steps', items: [L('Ma’lum va noma’lum', 'Дано и неизвестно'), L('Birliklar', 'Единицы'), L('Hisoblash', 'Вычисление'), L('Tekshirish', 'Проверка')] },
+      { type: 'steps', items: [L("Ma'lum va noma'lum", 'Дано и неизвестно'), L('Birliklar', 'Единицы'), L('Hisoblash', 'Вычисление'), L('Tekshirish', 'Проверка')] },
       L('Tushuntirish', 'Объяснение'),
       {
         uz: ["Avval masala shartini diqqat bilan o'qing. Nima ma'lum va nimani topish kerakligini ajrating.", "Endi o'lchov birliklariga qarang. Ularning hammasini bir xil ko'rinishga keltiring.", "Kasrlarni bitta qulay ko'rinishga keltiring va kerakli amalni bajaring.", "Oxirida javobni mazmunan tekshiring. U taxminiy natijaga mos kelishi kerak."],
@@ -718,7 +718,7 @@ const DARS18 = (() => {
         ["Ma'lum ikki hadni o'zaro ko'paytiring.", 'Перемножьте два известных члена.'],
         ["Hosil bo'lgan ko'paytmani noma'lum yonidagi songa bo'ling.", 'Разделите полученное произведение на число рядом с неизвестным.'],
       ),
-      { type: 'steps', items: [L("Ko'paytmalarni tenglashtir", 'Приравняй произведения'), L("Ma'lumlarni ko'paytir", 'Перемножь известные'), L("Noma'lum yonidagi songa bo'l", 'Раздели на множитель при неизвестном')] },
+      { type: 'steps', items: [L("Ko'paytmalarni tenglashtiring", 'Приравняй произведения'), L("Ma'lumlarni ko'paytiring", 'Перемножь известные'), L("Noma'lum yonidagi songa bo'ling", 'Раздели на множитель при неизвестном')] },
       L('Tushuntirish', 'Объяснение'),
       {
         uz: [
@@ -1048,8 +1048,8 @@ const DARS19 = (() => {
       {
         type: 'panels',
         panels: [
-          { title: L("To'g'ri", 'Прямая'), lines: [L('Ko‘p mahsulot', 'Больше товара'), L('Ko‘p xarajat', 'Больше стоимость')], color: 'yellow' },
-          { title: L('Teskari', 'Обратная'), lines: [L('Ko‘p ishchi', 'Больше работников'), L('Kam vaqt', 'Меньше времени')], color: 'blue' },
+          { title: L("To'g'ri", 'Прямая'), lines: [L("Ko'p mahsulot", 'Больше товара'), L("Ko'p xarajat", 'Больше стоимость')], color: 'yellow' },
+          { title: L('Teskari', 'Обратная'), lines: [L("Ko'p ishchi", 'Больше работников'), L('Kam vaqt', 'Меньше времени')], color: 'blue' },
         ],
       },
       L('Tushuntirish', 'Объяснение'),
@@ -1074,7 +1074,7 @@ const DARS19 = (() => {
       ),
       options: [
         L('Bir xil narxda daftar soni va xarajat', 'Число тетрадей и стоимость при одной цене'),
-        L('Bir xil yo‘lda tezlik va vaqt', 'Скорость и время на одном пути'),
+        L("Bir xil yo'lda tezlik va vaqt", 'Скорость и время на одном пути'),
         L('Bir xil tezlikda vaqt va masofa', 'Время и расстояние при одной скорости'),
         L('Bir ishda ishchilar soni va vaqt', 'Число работников и время одной работы'),
       ],
@@ -1093,8 +1093,8 @@ const DARS19 = (() => {
         'Представьте, как изменится вторая величина при увеличении первой, и соедините с подходящим видом.',
       ),
       rows: [
-        { left: L('Litrlar soni va yoqilg‘i narxi', 'Количество литров и стоимость топлива'), correct: L("To'g'ri — xarajat oshadi", 'Прямая — стоимость растёт') },
-        { left: L('Bir yo‘ldagi tezlik va vaqt', 'Скорость и время на одном пути'), correct: L('Teskari — vaqt kamayadi', 'Обратная — время уменьшается') },
+        { left: L("Litrlar soni va yoqilg'i narxi", 'Количество литров и стоимость топлива'), correct: L("To'g'ri — xarajat oshadi", 'Прямая — стоимость растёт') },
+        { left: L("Bir yo'ldagi tezlik va vaqt", 'Скорость и время на одном пути'), correct: L('Teskari — vaqt kamayadi', 'Обратная — время уменьшается') },
         { left: L('Bir xil tezlikdagi vaqt va masofa', 'Время и расстояние при одной скорости'), correct: L("To'g'ri — masofa oshadi", 'Прямая — расстояние растёт') },
       ],
       why: lines(
@@ -1110,7 +1110,7 @@ const DARS19 = (() => {
         ["Birinchi miqdor oshsa, ikkinchisi oshadimi yoki kamayadimi?", 'Если первая величина растёт, вторая растёт или уменьшается?'],
         ["Bir xil marta o'zgarish bormi? Shundan keyin formula yoki proporsiyani tanlang.", 'Есть ли изменение в одинаковое число раз? Только после этого выбирайте формулу или пропорцию.'],
       ),
-      { type: 'steps', items: [L("O'zgarmasni top", 'Найди постоянное'), L("Yo'nalishni aniqlang", 'Определи направление'), L('Formula tanlang', 'Выбери формулу')] },
+      { type: 'steps', items: [L("O'zgarmasni toping", 'Найди постоянное'), L("Yo'nalishni aniqlang", 'Определи направление'), L('Formula tanlang', 'Выбери формулу')] },
       L('Tushuntirish', 'Объяснение'),
       {
         uz: [
@@ -1358,7 +1358,7 @@ const DARS20 = (() => {
         L('1 : 100 000 da 1 cm = 1 km', 'В масштабе 1 : 100 000 один сантиметр равен одному километру'),
         L('1 km = 10 000 cm', '1 километр = 10 000 сантиметров'),
         L('Haqiqiy masofa xaritadagi masofadan katta', 'Реальное расстояние больше расстояния на карте'),
-        L('Xaritadagi masofani topishda haqiqiy masofa masshtab soniga bo‘linadi', 'Для длины на карте реальное расстояние делят на число масштаба'),
+        L("Xaritadagi masofani topishda haqiqiy masofa masshtab soniga bo'linadi", 'Для длины на карте реальное расстояние делят на число масштаба'),
       ],
       correctSet: [0, 2, 3],
       why: lines(
@@ -1670,7 +1670,7 @@ const DARS21 = (() => {
         'Сравните каждый процент с пятидесятью процентами. Меньшие поместите в первую группу, равные или большие — во вторую.',
       ),
       binA: L('50% dan kam', 'Меньше 50%'),
-      binB: L('50% yoki ko‘p', '50% или больше'),
+      binB: L("50% yoki ko'p", '50% или больше'),
       cards: [{ label: '15%', value: true }, { label: '50%', value: false }, { label: '72%', value: false }, { label: '40%', value: true }],
       why: lines(
         ["15% va 40% yarmidan kam.", '15% и 40% меньше половины.'],
@@ -2006,7 +2006,7 @@ const DARS23 = (() => {
         "Bugungi mavzu proporsiyaga oid masalalar. Masalani yechishdan oldin miqdorlar to'g'ri yoki teskari bog'langanini aniqlaymiz. Jadval tuzamiz, birliklarni tekshiramiz, proporsiyani yechamiz va javobni hayotiy ma'no bilan tekshiramiz.",
         'Тема урока — задачи на пропорции. Перед решением определим прямую или обратную связь величин. Составим таблицу, проверим единицы, решим пропорцию и оценим ответ по смыслу.',
       ),
-      { type: 'steps', items: [L('Bog‘lanish', 'Зависимость'), L('Jadval', 'Таблица'), L('Proporsiya', 'Пропорция'), L('Tekshiruv', 'Проверка')] },
+      { type: 'steps', items: [L("Bog'lanish", 'Зависимость'), L('Jadval', 'Таблица'), L('Proporsiya', 'Пропорция'), L('Tekshiruv', 'Проверка')] },
     ),
     question({
       scored: false,
@@ -2034,7 +2034,7 @@ const DARS23 = (() => {
         ["Qiymatlarni bir xil tartibda jadvalga yozib, proporsiya tuzing.", 'Запишите значения в таблицу в одном порядке и составьте пропорцию.'],
         ["Noma'lumni topib, javob yo'nalishini tekshiring.", 'Найдите неизвестное и проверьте направление изменения ответа.'],
       ),
-      { type: 'steps', items: [L('Miqdorlar', 'Величины'), L('Bog‘lanish turi', 'Вид связи'), L('Proporsiya', 'Пропорция'), L('Mazmuniy tekshiruv', 'Проверка смысла')] },
+      { type: 'steps', items: [L('Miqdorlar', 'Величины'), L("Bog'lanish turi", 'Вид связи'), L('Proporsiya', 'Пропорция'), L('Mazmuniy tekshiruv', 'Проверка смысла')] },
       L('Tushuntirish', 'Объяснение'),
       {
         uz: [
@@ -2170,7 +2170,7 @@ const DARS23 = (() => {
         ["Ko'proq ishchi uchun vaqt ko'p chiqsa, teskari bog'lanish hisobga olinmagan.", 'Если для большего числа работников время стало больше, обратная зависимость не учтена.'],
         ["Hisobdan oldin taxminiy yo'nalishni aytish kuchli tekshiruvdir.", 'Предварительное определение направления ответа — полезная проверка.'],
       ),
-      { type: 'panels', panels: [{ title: L("To'g'ri", 'Прямая'), lines: [L('ko‘p → ko‘p', 'больше → больше')], color: 'yellow' }, { title: L('Teskari', 'Обратная'), lines: [L('ko‘p → kam', 'больше → меньше')], color: 'blue' }] },
+      { type: 'panels', panels: [{ title: L("To'g'ri", 'Прямая'), lines: [L("ko'p → ko'p", 'больше → больше')], color: 'yellow' }, { title: L('Teskari', 'Обратная'), lines: [L("ko'p → kam", 'больше → меньше')], color: 'blue' }] },
       L('Tushuntirish', 'Объяснение'),
       {
         uz: [
@@ -2195,7 +2195,7 @@ const DARS23 = (() => {
         L('Bir xil narxda kilogramm va xarajat', 'Килограммы и стоимость при одной цене'),
         L('Bir ishda ishchilar va kunlar', 'Работники и дни одной работы'),
         L('Bir xil tezlikda vaqt va masofa', 'Время и расстояние при одной скорости'),
-        L('Bir yo‘lda tezlik va vaqt', 'Скорость и время на одном пути'),
+        L("Bir yo'lda tezlik va vaqt", 'Скорость и время на одном пути'),
       ],
       correctSet: [0, 2],
       why: lines(
@@ -2293,7 +2293,7 @@ const DARS24 = (() => {
         "Harorat minus uchdan ikki darajaga ko'tarildi. Kattaroq sonlar koordinata chizig'ining o'ng tomonida joylashadi. Yo'nalishni tanlang.",
         'Температура поднялась с минус трёх до двух градусов. Большие числа расположены правее на координатной прямой. Выберите направление.',
       ),
-      options: [L('Chapga', 'Влево'), L("O'ngga", 'Вправо'), L("O'zgarmadi", 'Не изменилась'), L('Aniqlab bo‘lmaydi', 'Нельзя определить')],
+      options: [L('Chapga', 'Влево'), L("O'ngga", 'Вправо'), L("O'zgarmadi", 'Не изменилась'), L("Aniqlab bo'lmaydi", 'Нельзя определить')],
       correct: 1,
       why: lines(
         ["2 soni −3 sonidan katta.", 'Число 2 больше числа −3.'],
@@ -2482,7 +2482,7 @@ const DARS24 = (() => {
       ),
       rows: [
         { left: L('A: noldan 3 birlik chapda', 'A: на 3 единицы левее нуля'), correct: L('A(−3)', 'A(−3)') },
-        { left: L('B: noldan 4 birlik o‘ngda', 'B: на 4 единицы правее нуля'), correct: L('B(4)', 'B(4)') },
+        { left: L("B: noldan 4 birlik o'ngda", 'B: на 4 единицы правее нуля'), correct: L('B(4)', 'B(4)') },
         { left: L('O: sanoq boshi', 'O: начало отсчёта'), correct: L('O(0)', 'O(0)') },
       ],
       why: lines(
@@ -2594,7 +2594,7 @@ const DARS25 = (() => {
         ["Agar a manfiy bo'lsa, |a| = −a, ya'ni qarama-qarshi musbat son olinadi.", 'Если a отрицательно, |a| = −a, то есть берётся противоположное положительное число.'],
         ["Qisqa aytganda, modul sonning ishorasiz masofa qiymatidir.", 'Кратко: модуль — это расстояние без учёта знака числа.'],
       ),
-      { type: 'panels', panels: [{ title: L('a ≥ 0 bo‘lsa', 'Если a ≥ 0'), lines: ['|a| = a'], color: 'yellow' }, { title: L('a < 0 bo‘lsa', 'Если a < 0'), lines: ['|a| = −a'], color: 'blue' }] },
+      { type: 'panels', panels: [{ title: L("a ≥ 0 bo'lsa", 'Если a ≥ 0'), lines: ['|a| = a'], color: 'yellow' }, { title: L("a < 0 bo'lsa", 'Если a < 0'), lines: ['|a| = −a'], color: 'blue' }] },
       {
         uz: ["a musbat yoki nol bo'lsa, modul a teng a.", "a manfiy bo'lsa, modul a teng minus a, ya'ni qarama-qarshi musbat son olinadi.", "Modul sonning ishorasiz masofa qiymatidir."],
         ru: ['Если a положительно или равно нулю, модуль a равен a.', 'Если a отрицательно, модуль a равен минус a, то есть берётся противоположное положительное число.', 'Модуль — расстояние без учёта знака числа.'],
@@ -2729,7 +2729,7 @@ const DARS25 = (() => {
         ["|x| = −3 kabi tenglamaning yechimi yo'q, chunki modul manfiy bo'lmaydi.", 'Уравнение |x| = −3 не имеет решений, потому что модуль не бывает отрицательным.'],
         ["|x| = 0 tenglamaning faqat bitta yechimi bor: x = 0.", 'Уравнение |x| = 0 имеет единственное решение: x = 0.'],
       ),
-      { type: 'cards', items: [{ label: '|x| ≥ 0', color: 'green' }, { label: '|x| = −3 → yechim yo‘q', color: 'yellow' }, '|x| = 0 → x = 0'] },
+      { type: 'cards', items: [{ label: '|x| ≥ 0', color: 'green' }, { label: "|x| = −3 → yechim yo'q", color: 'yellow' }, '|x| = 0 → x = 0'] },
       undefined,
       {
         uz: ["Modul minusni shunchaki o'chirish emas, u masofa tushunchasidir.", "Modul x teng minus uch tenglamaning yechimi yo'q, chunki modul manfiy bo'lmaydi.", "Modul x teng nol tenglamaning faqat x teng nol yechimi bor."],
@@ -2810,7 +2810,7 @@ const DARS26 = (() => {
         ["a soni b dan chapda bo'lsa, a < b deb yozamiz.", 'Если a расположено левее b, записываем a < b.'],
       ),
       { type: 'numberLine', points: [{ at: 18, label: 'a' }, { at: 76, label: 'b' }] },
-      L('Koordinata chizig‘i', 'Координатная прямая'),
+      L("Koordinata chizig'i", 'Координатная прямая'),
       {
         uz: [
           "Taqqoslashning asosiy qoidasi juda oddiy. Koordinata chizig'ida o'ngroqda joylashgan son kattaroq.",

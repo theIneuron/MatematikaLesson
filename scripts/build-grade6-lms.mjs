@@ -19,6 +19,8 @@ const outputDir = path.join(sourceDir, 'lms-grade6-standalone');
 const themePath = path.join(sourceDir, 'Grade6TheoryTheme.css');
 const fractionHostPath = path.join(sourceDir, 'FractionTheoryLesson.jsx');
 const ttsMathColonPath = path.join(sourceDir, 'ttsMathColon.js');
+// Umumiy qatlam: darsning obvyazkasi (Stage, ovoz, tipik ekranlar, bazaviy CSS).
+const screensPath = path.join(sourceDir, 'screens.jsx');
 
 const ENTRY_ID = path.join(rootDir, '.grade6-lms-virtual-entry.jsx');
 const RESOLVED_ENTRY_ID = '\0virtual:grade6-lms-entry';
@@ -63,6 +65,24 @@ function jsonForSource(value) {
     .replace(/\u2029/g, '\\u2029');
 }
 
+// Dars qaysi yo'l bilan yig'ilishini NOMER emas, MANBA hal qiladi: agar dars
+// `screens.jsx` umumiy qatlamidan import qilsa, u avtonom dars (2-sinfdan
+// keyingi yangi shakl), aks holda eski FractionTheoryLesson ma'lumoti.
+// Nomer bo'yicha chegara (<= 7) darslar qayta yig'ilgan sari yolg'on gapiradi.
+const standaloneCache = new Map();
+async function isStandaloneLesson(lessonNumber) {
+  if (standaloneCache.has(lessonNumber)) return standaloneCache.get(lessonNumber);
+  let flag = false;
+  try {
+    const source = await fs.readFile(path.join(sourceDir, lessonFileName(lessonNumber)), 'utf8');
+    flag = source.includes("from './screens.jsx'");
+  } catch {
+    flag = false;
+  }
+  standaloneCache.set(lessonNumber, flag);
+  return flag;
+}
+
 async function readInlineLesson(lessonNumber) {
   const sourcePath = path.join(sourceDir, lessonFileName(lessonNumber));
   const source = await fs.readFile(sourcePath, 'utf8');
@@ -78,17 +98,18 @@ async function readInlineLesson(lessonNumber) {
 }
 
 async function getLessonData(lessonNumber) {
+  if (await isStandaloneLesson(lessonNumber)) return null;
   if (lessonNumber >= 8 && lessonNumber <= 15) return readInlineLesson(lessonNumber);
   if (lessonNumber >= 16 && lessonNumber <= 26) return GRADE6_THEORY_16_26[lessonNumber];
   if (lessonNumber >= 27 && lessonNumber <= 46) return GRADE6_THEORY_27_46[lessonNumber];
   return null;
 }
 
-function makeEntryCode(lessonNumber, lesson) {
+function makeEntryCode(lessonNumber, lesson, standalone) {
   const themeImport = `${toImportPath(themePath)}?inline`;
   const componentName = `LmsStandaloneDars${String(lessonNumber).padStart(2, '0')}`;
 
-  if (lessonNumber <= 7) {
+  if (standalone) {
     const sourcePath = toImportPath(path.join(sourceDir, lessonFileName(lessonNumber)));
     return `
 import { createElement, Fragment } from 'react';
@@ -165,24 +186,55 @@ async function buildGrade5StyleDirectSource(lessonNumber) {
 
   const fileName = lessonFileName(lessonNumber);
   const sourcePath = path.join(sourceDir, fileName);
-  const [source, themeCss, ttsMathColonSource] = await Promise.all([
+  const [source, themeCss, ttsMathColonSource, screensSource] = await Promise.all([
     fs.readFile(sourcePath, 'utf8'),
     fs.readFile(themePath, 'utf8'),
     fs.readFile(ttsMathColonPath, 'utf8'),
+    fs.readFile(screensPath, 'utf8'),
   ]);
 
-  const reactImport = source.match(/^import React[^\r\n]+[\r\n]+/);
+  // `m` bayrog'i shart: 2026-08-15 dan fayl izoh bilan boshlanadi, import esa
+  // pastroqda turadi. Usiz tekshiruv «React import yo'q» deb yiqilardi.
+  const reactImport = source.match(/^import React[^\r\n]+[\r\n]+/m);
   if (!reactImport) throw new Error(`${fileName}: React import topilmadi.`);
+
+  // 2026-08-15: dars obvyazkasi `screens.jsx` ga ko'chdi. LMS fayli LOKAL
+  // importlarni ko'tarmaydi, shuning uchun umumiy qatlam manbasi shu yerda
+  // ichkariga qo'yiladi: importlari va export bloki olib tashlanadi, qolgani
+  // darsdan OLDIN turadi (e'lonlar tartibi muhim emas, hammasi modul darajasida).
+  //
+  // MUHIM: umumiy qatlam React nomlarini (`createContext`, `useMemo` va h.k.)
+  // O'Z importidan oladi. Import olib tashlangach, ular ochiq qoladi va LMS da
+  // «createContext is not defined» chiqadi — dars oq ekran bo'ladi. Shuning
+  // uchun darsda YO'Q nomlar `React` dan alohida ochib beriladi.
+  // (Buni `grade6-lms-theory-check.mjs` ushlaydi, brauzer testi EMAS.)
+  const reactNames = (code) => {
+    const m = code.match(/^import React,\s*\{([^}]*)\}\s*from ['"]react['"]/m);
+    return m ? m[1].split(',').map((s) => s.trim()).filter(Boolean) : [];
+  };
+  const missingReactNames = reactNames(screensSource).filter((n) => !reactNames(source).includes(n));
+  const sharedInline = [
+    missingReactNames.length ? `const { ${missingReactNames.join(', ')} } = React;` : '',
+    screensSource
+      .replace(/^import[^\n]*\n/gm, '')
+      .replace(/\nexport \{[\s\S]*?\n\};\s*$/m, '\n')
+      .trim(),
+  ].filter(Boolean).join('\n\n');
 
   let directSource = source
     .replace(/^import ['"]\.\/Grade6TheoryTheme\.css['"];?[\r\n]+/m, '')
-    .replace(/^import \{ normalizeTtsColons \} from ['"]\.\/ttsMathColon\.js['"];?[\r\n]+/m, '');
+    .replace(/^import \{ normalizeTtsColons \} from ['"]\.\/ttsMathColon\.js['"];?[\r\n]+/m, '')
+    .replace(/^import \{[\s\S]*?\} from ['"]\.\/screens\.jsx['"];?[\r\n]+/m, '');
+  if (directSource.includes("from './screens.jsx'")) {
+    throw new Error(`${fileName}: screens.jsx importi olib tashlanmadi.`);
+  }
 
   const helperSource = ttsMathColonSource
     .replace('export function normalizeTtsColons', 'function normalizeTtsColons')
     .trim();
   const inlineInfrastructure = [
     helperSource,
+    sharedInline,
     `const GRADE6_THEORY_THEME = ${jsonForSource(themeCss)};`,
     `const GRADE6_DARS01_LMS_FONT_FIX = ${jsonForSource(`
 .lesson-root h1:not(.ttl-h1),
@@ -223,7 +275,7 @@ async function buildGrade5StyleDirectSource(lessonNumber) {
 }
 
 async function exposeDirectLessonRoot(code, lessonNumber) {
-  if (lessonNumber > 7) return code;
+  if (!(await isStandaloneLesson(lessonNumber))) return code;
 
   const fileName = lessonFileName(lessonNumber);
   const sourcePath = path.join(sourceDir, fileName);
@@ -298,7 +350,7 @@ async function bundleLesson(lessonNumber) {
   }
 
   const lesson = await getLessonData(lessonNumber);
-  const entryCode = makeEntryCode(lessonNumber, lesson);
+  const entryCode = makeEntryCode(lessonNumber, lesson, await isStandaloneLesson(lessonNumber));
   const result = await build({
     configFile: false,
     root: rootDir,

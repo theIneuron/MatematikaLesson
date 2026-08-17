@@ -33,8 +33,14 @@
 > node scripts/build-grade6-practice-lms.mjs 1-46   # amaliyot (460 fayl)
 > node scripts/build-grade6-lms.mjs --check
 > node scripts/build-grade6-practice-lms.mjs --check
-> node scripts/grade6-practice-lms-check.mjs        # LMS rejimida (klassik JSX) render
+> node scripts/grade6-lms-theory-check.mjs 1-46     # NAZARIY: LMS rejimida render
+> node scripts/grade6-practice-lms-check.mjs        # AMALIYOT: LMS rejimida render
 > ```
+>
+> 2026-08-15 dan dars obvyazkasi `screens.jsx` da yashaydi va LMS fayliga
+> sborshchik tomonidan ICHKARIGA qo'yiladi. Shu joyni faqat
+> `grade6-lms-theory-check.mjs` ushlaydi: brauzer testi MANBANI ochadi, LMS ga
+> esa boshqa fayl ketadi.
 > Ikkala papka ham `.gitignore` da — git da saqlanmaydi, LMS ga qo'lda yuklanadi.
 
 ---
@@ -174,6 +180,18 @@ jimjit ekran yo'q.
 ---
 
 ## 6. EKRAN QULFI (metodist qarori 2026-08-05)
+
+> ⚠ **2026-08-13, metodist qarori: 1-DARSDA QULF O'CHIRILDI.** «Davom» tugmasi
+> 1-darsda hech qachon yopilmaydi — na ovoz, na topshiriq uni ushlab turmaydi.
+> Bayroq `Dars01.jsx` dagi `ttsConfig.navLock` (default `true`), darsning ildizi
+> uni `false` qilib uzatadi, `navLocked()` esa barcha `NavNext disabled` larni
+> o'raydi. `useAudio` TEGILMAGAN, shuning uchun 2-46-darslarda qulf o'z joyida.
+> `configureLesson` har chaqiruvda `navLock` ni `true` ga QAYTARADI: `ttsConfig`
+> shu modulda yashaydi va 2-7-darslar uni shu yerdan oladi, aks holda 1-darsdan
+> keyin ochilgan dars qulfini jimgina yo'qotardi (tekshirilgan: 1-dars -> 2-dars
+> bitta sessiyada, 2-darsda tugma yopiq qoladi).
+>
+> Quyidagi tavsif 2-46-darslar uchun kuchda qoladi.
 
 «Davom» tugmasi ovoz tugamaguncha ochilmaydi.
 

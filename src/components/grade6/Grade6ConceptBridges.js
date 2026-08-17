@@ -16,7 +16,7 @@ const bridge = (titleUz, titleRu, steps, visual, eyebrowUz = 'Chizmadan tushunch
 export const GRADE6_CONCEPT_BRIDGES = {
   // 1-navbat: formula va qoida chizma yoki kuzatuvdan hosil qilinadi.
   frac_6_11: [
-    bridge('Qismning qismini kataklarda ko‘ramiz', 'Видим часть от части на клетках', [
+    bridge("Qismning qismini kataklarda ko'ramiz", 'Видим часть от части на клетках', [
       ["Bog'ni 12 teng katakka ajratamiz. Uning to'rtdan uch qismi 9 ta katak bo'ladi.", 'Разделим сад на 12 равных клеток. Три четверти сада занимают 9 клеток.'],
       ["Shu 9 katakning uchdan ikki qismi 6 ta katak. 6/12 qisqarib 1/2 bo'ladi, demak 3/4 · 2/3 = 1/2.", 'Две трети от этих 9 клеток равны 6 клеткам. Дробь 6/12 сокращается до 1/2, значит 3/4 · 2/3 = 1/2.'],
     ], {
@@ -30,7 +30,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   frac_6_12: [
-    bridge('Bo‘lish — nechta bo‘lak sig‘ishini topish', 'Деление показывает число помещающихся частей', [
+    bridge("Bo'lish — nechta bo'lak sig'ishini topish", 'Деление показывает число помещающихся частей', [
       ["Uch to'rtdan metr tasmani sakkizdan bir metrlik bo'laklarga moslab belgilaymiz. Uch to'rtdan metr — sakkizdan olti metrga teng.", 'Размечаем три четверти метра ленты на части по одной восьмой. Три четверти метра равны шести восьмым.'],
       ["Ranglangan tasmada 6 ta sakkizdan bir bor. Shuning uchun 3/4 : 1/8 = 6; teskari kasrga ko'paytirish ham shu sanoqni beradi.", 'В закрашенной ленте помещаются 6 частей по одной восьмой. Поэтому 3/4 : 1/8 = 6; умножение на обратную дробь даёт тот же результат.'],
     ], {
@@ -38,7 +38,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
       total: 8,
       filled: 6,
       segmentLabel: '1/8 m',
-      caption: L('3/4 m = 6/8 m, demak 6 ta bo‘lak', '3/4 м = 6/8 м, значит 6 частей'),
+      caption: L("3/4 m = 6/8 m, demak 6 ta bo'lak", '3/4 м = 6/8 м, значит 6 частей'),
     }),
   ],
 
@@ -51,25 +51,25 @@ export const GRADE6_CONCEPT_BRIDGES = {
       caption: L('Olma xaridi', 'Покупка яблок'),
       columns: [L('Massa', 'Масса'), L('Hisob', 'Вычисление'), L('Narx', 'Стоимость')],
       rows: [
-        ['2 kg', '12,5 · 2', L('25 ming so‘m', '25 тысяч сумов')],
-        ['0,4 kg', '12,5 · 0,4', L('5 ming so‘m', '5 тысяч сумов')],
-        ['2,4 kg', '25 + 5', L('30 ming so‘m', '30 тысяч сумов')],
+        ['2 kg', '12,5 · 2', L("25 ming so'm", '25 тысяч сумов')],
+        ['0,4 kg', '12,5 · 0,4', L("5 ming so'm", '5 тысяч сумов')],
+        ['2,4 kg', '25 + 5', L("30 ming so'm", '30 тысяч сумов')],
       ],
       highlightRow: 2,
     }),
   ],
 
   proportional_6_19: [
-    bridge('Bir yo‘nalishda o‘zgaradigan miqdorlar', 'Величины меняются в одном направлении', [
+    bridge("Bir yo'nalishda o'zgaradigan miqdorlar", 'Величины меняются в одном направлении', [
       ["Bitta daftar 6 ming so'm. Daftarlar soni 1, 2, 3, 4 marta oshganda jami narx ham xuddi shuncha marta oshadi.", 'Одна тетрадь стоит 6 тысяч сумов. Когда число тетрадей увеличивается в 1, 2, 3, 4 раза, общая стоимость увеличивается во столько же раз.'],
       ["Ikki ustun bir xil yo'nalishda va bir xil marta o'zgargani uchun daftarlar soni bilan narx to'g'ri proporsional.", 'Оба столбца меняются в одном направлении и во столько же раз, поэтому число тетрадей и стоимость прямо пропорциональны.'],
     ], {
       type: 'dataTable',
       caption: L('Daftarlar soni va narxi', 'Количество и стоимость тетрадей'),
       columns: [L('Daftarlar soni', 'Число тетрадей'), '1', '2', '3', '4'],
-      rows: [[L('Narx, ming so‘m', 'Стоимость, тыс. сум'), '6', '12', '18', '24']],
+      rows: [[L("Narx, ming so'm", 'Стоимость, тыс. сум'), '6', '12', '18', '24']],
     }),
-    bridge('Qarama-qarshi yo‘nalishda o‘zgaradigan miqdorlar', 'Величины меняются в противоположных направлениях', [
+    bridge("Qarama-qarshi yo'nalishda o'zgaradigan miqdorlar", 'Величины меняются в противоположных направлениях', [
       ["Bir xil ishni 2 ishchi 12 kunda, 4 ishchi 6 kunda, 8 ishchi 3 kunda bajaradi.", 'Одну работу 2 рабочих выполняют за 12 дней, 4 рабочих — за 6 дней, 8 рабочих — за 3 дня.'],
       ["Ishchilar soni ikki marta oshganda vaqt ikki marta kamaymoqda. Bu teskari proporsionallikdir; har bir ustunda ko'paytma 24 ga teng.", 'При удвоении числа рабочих время уменьшается вдвое. Это обратная пропорциональность; произведение в каждом столбце равно 24.'],
     ], {
@@ -78,7 +78,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
       columns: [L('Ishchilar', 'Рабочие'), '2', '4', '8'],
       rows: [
         [L('Kunlar', 'Дни'), '12', '6', '3'],
-        [L('Ko‘paytma', 'Произведение'), '2·12=24', '4·6=24', '8·3=24'],
+        [L("Ko'paytma", 'Произведение'), '2·12=24', '4·6=24', '8·3=24'],
       ],
       highlightRow: 1,
     }),
@@ -129,24 +129,24 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   grade6_theory_38: [
-    bridge('π sonini o‘lchash orqali topamiz', 'Находим число π измерением', [
+    bridge("π sonini o'lchash orqali topamiz", 'Находим число π измерением', [
       ["Dumaloq buyum chetini ip bilan o'lchab aylana uzunligini, markazidan o'tkazib diametrini topamiz.", 'Измеряем край круглого предмета нитью, чтобы найти длину окружности, а через центр — диаметр.'],
       ["Har bir buyumda aylana uzunligini diametrga bo'lsak taxminan 3,14 chiqadi. Shu o'zgarmas nisbat π soni deyiladi.", 'Для каждого предмета отношение длины окружности к диаметру примерно равно 3,14. Это постоянное отношение называют числом π.'],
     ], {
       type: 'dataTable',
-      caption: L('Dumaloq buyumlarni o‘lchash', 'Измерение круглых предметов'),
+      caption: L("Dumaloq buyumlarni o'lchash", 'Измерение круглых предметов'),
       columns: [L('Buyum', 'Предмет'), L('Diametr d', 'Диаметр d'), L('Aylana uzunligi C', 'Длина C'), 'C:d'],
       rows: [
         [L('Qopqoq', 'Крышка'), '10 cm', '31,4 cm', '3,14'],
         [L('Tarelka', 'Тарелка'), '20 cm', '62,8 cm', '3,14'],
-        [L('G‘ildirak', 'Колесо'), '50 cm', '157 cm', '3,14'],
+        [L("G'ildirak", 'Колесо'), '50 cm', '157 cm', '3,14'],
       ],
       highlightColumn: 3,
     }),
   ],
 
   grade6_theory_39: [
-    bridge('Doirani bo‘laklab qayta joylaymiz', 'Разрезаем круг и перекладываем части', [
+    bridge("Doirani bo'laklab qayta joylaymiz", 'Разрезаем круг и перекладываем части', [
       ["Doirani teng sektorlarga bo'lib, ularni navbat bilan yuqoriga va pastga qaratib joylashtiramiz.", 'Делим круг на равные секторы и укладываем их попеременно вверх и вниз.'],
       ["Hosil bo'lgan shakl parallelogrammga yaqin: balandligi r, asosi esa aylana uzunligining yarmi πr. Demak S=πr·r=πr².", 'Полученная фигура близка к параллелограмму: высота равна r, а основание — половине длины окружности πr. Значит S=πr·r=πr².'],
     ], {
@@ -156,7 +156,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   grade6_theory_42: [
-    bridge('Uchta burchak bir to‘g‘ri burchak emas, to‘g‘ri chiziq hosil qiladi', 'Три угла образуют развёрнутый угол', [
+    bridge("Uchta burchak bir to'g'ri burchak emas, to'g'ri chiziq hosil qiladi", 'Три угла образуют развёрнутый угол', [
       ["Qog'oz uchburchakning uchta burchagini ajratib olamiz va uchlarini bitta nuqtaga tutashtiramiz.", 'Отделяем три угла бумажного треугольника и совмещаем их вершины в одной точке.'],
       ["Ular birgalikda to'g'ri chiziq, ya'ni 180 darajali yoy hosil qiladi. Demak har qanday uchburchak burchaklari yig'indisi 180 daraja.", 'Вместе они образуют развёрнутый угол в 180 градусов. Значит сумма углов любого треугольника равна 180 градусам.'],
     ], {
@@ -167,7 +167,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   grade6_theory_43: [
-    bridge('Nega asos va balandlik ko‘paytmasini ikkiga bo‘lamiz?', 'Почему произведение основания и высоты делим на два?', [
+    bridge("Nega asos va balandlik ko'paytmasini ikkiga bo'lamiz?", 'Почему произведение основания и высоты делим на два?', [
       ["Bir xil ikkita uchburchakni yonma-yon qo'ysak, asosi a va balandligi h bo'lgan parallelogramm hosil bo'ladi.", 'Если сложить два одинаковых треугольника, получится параллелограмм с основанием a и высотой h.'],
       ["Parallelogramm yuzi a·h. Bitta uchburchak uning teng yarmi bo'lgani uchun uchburchak yuzi S=a·h/2.", 'Площадь параллелограмма равна a·h. Один треугольник составляет его половину, поэтому S=a·h/2.'],
     ], {
@@ -193,7 +193,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
 
   // 2-navbat: mavjud hayotiy misol bilan ta'rif yoki algoritm orasidagi bog'lanish kuchaytiriladi.
   frac_6_09: [
-    bridge('Shokolad bo‘laklarini bir xil qilamiz', 'Делаем кусочки шоколада одинаковыми', [
+    bridge("Shokolad bo'laklarini bir xil qilamiz", 'Делаем кусочки шоколада одинаковыми', [
       ["Yarim shokoladni oltita teng bo'lak modelida yozsak, 1/2 = 3/6 bo'ladi. Miqdor o'zgarmaydi, faqat bo'laklar maydalashadi.", 'Если представить половину шоколада шестью равными частями, получим 1/2 = 3/6. Количество не меняется, части становятся мельче.'],
       ["Ikki uchdan ham oltidan to'rtga teng: 2/3 = 4/6. Endi bo'laklar bir xil, shuning uchun 3/6 va 4/6 ni suratlari orqali taqqoslaymiz.", 'Две трети равны четырём шестым: 2/3 = 4/6. Теперь части одинаковы, поэтому сравниваем 3/6 и 4/6 по числителям.'],
     ], {
@@ -206,7 +206,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   decimal_6_15: [
-    bridge('Yaqin sonni sonlar chizig‘ida tanlaymiz', 'Выбираем ближайшее число на числовой прямой', [
+    bridge("Yaqin sonni sonlar chizig'ida tanlaymiz", 'Выбираем ближайшее число на числовой прямой', [
       ["18,746 soni 18,7 bilan 18,8 orasida joylashadi.", 'Число 18,746 расположено между 18,7 и 18,8.'],
       ["18,746 dan 18,7 gacha masofa 0,046, 18,8 gacha esa 0,054. U 18,7 ga yaqinroq, shuning uchun o'ndan birgacha 18,7 deb yaxlitlanadi.", 'Расстояние от 18,746 до 18,7 равно 0,046, а до 18,8 — 0,054. Число ближе к 18,7, поэтому при округлении до десятых получаем 18,7.'],
     ], {
@@ -216,7 +216,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   proportion_6_18: [
-    bridge('Bir dona narx o‘zgarmasa, nisbatlar teng bo‘ladi', 'Если цена одной штуки постоянна, отношения равны', [
+    bridge("Bir dona narx o'zgarmasa, nisbatlar teng bo'ladi", 'Если цена одной штуки постоянна, отношения равны', [
       ["2 ta daftar 12 ming so'm turadi, demak bitta daftar 6 ming so'm.", '2 тетради стоят 12 тысяч сумов, значит одна тетрадь стоит 6 тысяч.'],
       ["5 ta daftar 30 ming so'm turadi. Har ikki ustunda narxni daftarlar soniga bo'lsak 6 chiqadi; shuning uchun 2:5 = 12:30 proporsiya hosil bo'ladi.", '5 тетрадей стоят 30 тысяч сумов. В обоих столбцах стоимость одной тетради равна 6; поэтому получаем пропорцию 2:5 = 12:30.'],
     ], {
@@ -224,7 +224,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
       caption: L('Daftarlar soni va jami narx', 'Количество тетрадей и общая стоимость'),
       columns: [L('Daftarlar', 'Тетради'), '2', '5'],
       rows: [
-        [L('Narx, ming so‘m', 'Стоимость, тыс. сум'), '12', '30'],
+        [L("Narx, ming so'm", 'Стоимость, тыс. сум'), '12', '30'],
         [L('Bir dona narx', 'Цена одной'), '12:2=6', '30:5=6'],
       ],
       highlightRow: 1,
@@ -239,7 +239,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
       type: 'dataTable',
       caption: L('Taksi cheki', 'Чек такси'),
       columns: [L('Masofa x, km', 'Расстояние x, км'), '0', '1', '2', '5', 'x'],
-      rows: [[L('Narx, so‘m', 'Стоимость, сум'), '6000', '8000', '10000', '16000', '6000+2000x']],
+      rows: [[L("Narx, so'm", 'Стоимость, сум'), '6000', '8000', '10000', '16000', '6000+2000x']],
       highlightColumn: 5,
     }),
   ],
@@ -270,7 +270,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   grade6_theory_36: [
-    bridge('Do‘kon cheki narx formulasini beradi', 'Чек магазина даёт формулу стоимости', [
+    bridge("Do'kon cheki narx formulasini beradi", 'Чек магазина даёт формулу стоимости', [
       ["Bir dona daftar 4 ming so'm. Chekda 1, 2 va 3 ta daftar narxi miqdor bilan birlik narx ko'paytmasidan hosil bo'ladi.", 'Одна тетрадь стоит 4 тысячи сумов. В чеке стоимость 1, 2 и 3 тетрадей получается умножением количества на цену одной.'],
       ["Miqdorni n, birlik narxni p desak, jami qiymat C=p·n bo'ladi. Formula jadvaldagi barcha ustunlar uchun ishlaydi.", 'Обозначим количество n, цену одной p, тогда общая стоимость C=p·n. Формула работает для каждого столбца таблицы.'],
     ], {
@@ -280,7 +280,7 @@ export const GRADE6_CONCEPT_BRIDGES = {
       rows: [[L('Jami narx C', 'Общая стоимость C'), '4', '8', '12', '4·n']],
       highlightColumn: 4,
     }),
-    bridge('Ish hajmi ham jadvaldan formulaga o‘tadi', 'Объём работы также переходит из таблицы в формулу', [
+    bridge("Ish hajmi ham jadvaldan formulaga o'tadi", 'Объём работы также переходит из таблицы в формулу', [
       ["Usta har soatda 8 ta detal tayyorlasa, 1, 2 va 3 soatda tayyorlangan detallar soni 8, 16 va 24 bo'ladi.", 'Если мастер делает 8 деталей в час, за 1, 2 и 3 часа он изготовит 8, 16 и 24 детали.'],
       ["Unumdorlikni r, vaqtni t desak, bajarilgan ish A=r·t. Bu narx formulasidagi kabi bir xil miqdorni takroriy qo'shishdan keladi.", 'Обозначим производительность r, время t, тогда работа A=r·t. Как и формула стоимости, она возникает из повторного сложения одной величины.'],
     ], {
@@ -304,14 +304,14 @@ export const GRADE6_CONCEPT_BRIDGES = {
   ],
 
   grade6_theory_40: [
-    bridge('Qog‘ozni buklab simmetriya o‘qini topamiz', 'Находим ось симметрии складыванием бумаги', [
+    bridge("Qog'ozni buklab simmetriya o'qini topamiz", 'Находим ось симметрии складыванием бумаги', [
       ["Shaklni chiziq bo'ylab buklaganimizda chap va o'ng qismlar aynan ustma-ust tushsa, bu chiziq simmetriya o'qi bo'ladi.", 'Если при сгибании фигуры по линии левая и правая части точно совпадают, эта линия является осью симметрии.'],
       ["Mos A va A′ nuqtalar buklanish chizig'idan teng masofada turadi. Ularni tutashtirgan kesma o'qqa perpendikulyar.", 'Соответствующие точки A и A′ находятся на равных расстояниях от линии сгиба. Соединяющий их отрезок перпендикулярен оси.'],
     ], {
       type: 'foldSymmetry',
       left: 'A',
       right: 'A′',
-      caption: L('A dan o‘qqacha masofa = A′ dan o‘qqacha masofa', 'Расстояние от A до оси = расстоянию от A′ до оси'),
+      caption: L("A dan o'qqacha masofa = A′ dan o'qqacha masofa", 'Расстояние от A до оси = расстоянию от A′ до оси'),
     }),
   ],
 
