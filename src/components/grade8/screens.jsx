@@ -225,7 +225,7 @@ export function ScreenBody(props) {
       return <FormulaSlots {...p} audio={audio} onSolved={onSolved} />
     // ДВА СПОСОБА СРАЗУ: сравнивать можно только то, что видно одновременно.
     case 'twoways':
-      return <TwoWays {...p} />
+      return <TwoWays {...p} onStep={step} />
     // KADRLAR LENTASI: tepada bitta obyekt, pastda kadrlar (4-sinf naqshi).
     case 'film':
       return <FilmScreen p={p} audio={audio} onSolved={onSolved} step={step} />

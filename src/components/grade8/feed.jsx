@@ -422,8 +422,31 @@ export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdic
 // сравнивать способы можно только когда они видны ОДНОВРЕМЕННО, а
 // пошаговое открытие показывает их по очереди и сравнение убивает.
 // ============================================================
-export function TwoWays({ blocks }) {
+export function TwoWays({ blocks, stepMs = 1100, onStep }) {
   const t = useT()
+  // ПОСТРОЧНОЕ ОТКРЫТИЕ ПОД ОЗВУЧКУ. Высота карточки при этом ПОЛНАЯ с первой
+  // секунды: строки уже стоят, но невидимы. Иначе карточка растёт, экран
+  // подпрыгивает и нижняя панель уезжает (§11).
+  // Каждая открытая строка шлёт событие onStep — за него цепляются реплики,
+  // объявленные через W(), и звук идёт в ногу с показом.
+  const [shown, setShown] = useState(0)
+  const total = blocks.reduce((n, b) => n + b.rows.length, 0)
+  // Колбэк держим в ref и обновляем В ЭФФЕКТЕ: присваивание при рендере —
+  // ошибка линта react-hooks/refs, и на ней уже спотыкались в 10 классе.
+  const stepRef = useRef(onStep)
+  useEffect(() => { stepRef.current = onStep }, [onStep])
+  useEffect(() => {
+    if (shown >= total) return undefined
+    const id = setTimeout(() => {
+      setShown((n) => n + 1)
+      if (stepRef.current) stepRef.current('w' + (shown + 1))
+    }, shown === 0 ? 600 : stepMs)
+    return () => clearTimeout(id)
+  }, [shown, total, stepMs])
+  // Номер строки считается ЗАРАНЕЕ, а не счётчиком по ходу разметки:
+  // менять переменную во время рендера нельзя.
+  const starts = []
+  blocks.reduce((n, b) => { starts.push(n); return n + b.rows.length }, 0)
   return (
     <div className="g8-tw">
       {blocks.map((b, i) => (
@@ -431,12 +454,15 @@ export function TwoWays({ blocks }) {
           <div className="g8-tw-h">{t(b.name)}</div>
           {b.lead ? <div className="g8-tw-lead">{t(b.lead)}</div> : null}
           <div className="g8-tw-rows" style={{ fontFamily: MATH_FONT }}>
-            {b.rows.map((r, k) => (
-              <div key={k} className={'g8-tw-row' + (r.tone ? ' tone-' + r.tone : '')}>
+            {b.rows.map((r, k) => {
+              const open = starts[i] + k + 1 <= shown
+              return (
+              <div key={k} className={'g8-tw-row' + (r.tone ? ' tone-' + r.tone : '') + (open ? ' is-open' : '')}>
                 <span>{typeof r.text === 'string' ? r.text : t(r.text)}</span>
                 {r.note ? <i className="g8-tw-note">{t(r.note)}</i> : null}
               </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       ))}
@@ -529,7 +555,12 @@ export const FEED_STYLES = `
   color: ${T.ink2}; text-align: center; }
 .g8-tw-rows { display: flex; flex-direction: column; gap: 2px; align-items: center; }
 .g8-tw-row { display: flex; align-items: baseline; gap: 10px;
-  font-size: clamp(16px, 1.6vw, 21px); color: ${T.ink}; }
+  font-size: clamp(16px, 1.6vw, 21px); color: ${T.ink};
+  visibility: hidden; clip-path: inset(0 100% 0 0); }
+/* Строка ПЕЧАТАЕТСЯ: раскрывается слева направо, как будто её набирают.
+   Высота при этом занята с первой секунды — карточка не растёт. */
+.g8-tw-row.is-open { visibility: visible; animation: g8-tw-type 620ms steps(24, end) both; }
+@keyframes g8-tw-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 .g8-tw-row.tone-no span { color: ${T.tip}; }
 .g8-tw-row.tone-ok span { color: ${T.ok}; }
 .g8-tw-note { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px;
