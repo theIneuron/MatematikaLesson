@@ -616,9 +616,9 @@ const S5 = {
       seconds: 5,
       text: L("Endi o'zingiz", 'Теперь ты сам', 'Now it is your turn'),
       done: L(
-        "Uchtasi ham to'g'ri. Taqiqni maxrajdan topish — shu darsning asosiy ko'nikmasi.",
-        'Все три верно. Находить запрет по знаменателю — главный навык этого урока.',
-        'All three correct. Finding the restriction from the denominator is the key skill of this lesson.',
+        "Taqiqni maxrajdan topish — shu darsning asosiy ko'nikmasi.",
+        'Находить запрет по знаменателю — главный навык этого урока.',
+        'Finding the restriction from the denominator is the key skill of this lesson.',
       ),
     },
     quiz: [
@@ -837,7 +837,7 @@ const S7 = {
       },
     ],
     fact: {
-      cap: L('BILASIZMI · AMALIYOT', 'ЗНАЕШЬ ЛИ ТЫ · ПРАКТИКА', 'DID YOU KNOW · PRACTICE'),
+      cap: L('BILASIZMI', 'ЗНАЕШЬ ЛИ ТЫ', 'DID YOU KNOW'),
       text: L(
         "Ma'lumotlar bazalarida maxraj hisobdan OLDIN tekshiriladi: aks holda butun so'rov yiqiladi, bitta qator emas.",
         'В базах данных знаменатель проверяют ДО вычисления: иначе падает весь запрос, а не одна строка.',
@@ -867,13 +867,15 @@ const S8 = {
       'The rule is assembled and the textbook wording opened. Below, the two machines from the first screen are back.'),
   ],
   props: {
+    // ЧЕТЫРЕ коротких куска вместо шести длинных: шесть строк текста ученик
+    // читает как абзац, а не собирает. Лишний неверный оставлен один — его
+    // хватает, чтобы выбор был настоящим (методист, 2026-08-17).
     fragments: [
-      { id: 'f1', label: L('ODZ ni topish uchun', 'Чтобы найти ОДЗ,', 'To find the domain,') },
-      { id: 'f2', label: L('maxrajga qaraladi', 'смотрят на знаменатель', 'look at the denominator') },
-      { id: 'f3', label: L('va shunday sonlar taqiqlanadi', 'и запрещают те числа,', 'and forbid those numbers') },
-      { id: 'f4', label: L('ular maxrajni nolga aylantiradi', 'при которых он равен нулю', 'that make it zero') },
-      { id: 'w1', label: L('suratga qaraladi', 'смотрят на числитель', 'look at the numerator') },
-      { id: 'w2', label: L('ular maxrajni birga aylantiradi', 'при которых он равен единице', 'that make it one') },
+      { id: 'f1', label: L('Maxrajni', 'Знаменатель', 'The denominator') },
+      { id: 'f2', label: L('nolga tenglaymiz', 'приравниваем к нулю', 'is set to zero') },
+      { id: 'f3', label: L('va shu sonni', 'и это число', 'and that number') },
+      { id: 'f4', label: L('taqiqlaymiz', 'запрещаем', 'is forbidden') },
+      { id: 'w1', label: L('Suratni', 'Числитель', 'The numerator') },
     ],
     answer: ['f1', 'f2', 'f3', 'f4'],
     wrongHint: L(

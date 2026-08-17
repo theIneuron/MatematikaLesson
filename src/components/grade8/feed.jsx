@@ -880,7 +880,13 @@ export const FEED_STYLES = `
   column-gap: 12px; row-gap: 3px; width: 100%; align-items: center;
   padding: 11px 15px; border-radius: 14px; background: ${T.graphSoft};
   opacity: 0; transition: opacity .5s ease; }
+.g8-pt-fact { position: relative; overflow: hidden; }
 .g8-pt-fact.is-on { opacity: 1; animation: g8-pt-up 520ms cubic-bezier(.22,.9,.3,1) both; }
+/* Полоса наливается слева направо, как заполняется индикатор запроса. */
+.g8-pt-fact::after { content: ''; position: absolute; left: 0; bottom: 0; height: 3px; width: 100%;
+  background: ${T.graph}; transform: scaleX(0); transform-origin: left center; }
+.g8-pt-fact.is-on::after { animation: g8-pt-bar 2.4s cubic-bezier(.3,.7,.4,1) 400ms both; }
+@keyframes g8-pt-bar { to { transform: scaleX(1); } }
 @keyframes g8-pt-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .g8-pt-dots { grid-row: 1 / span 2; display: flex; gap: 4px; align-items: center; }
 .g8-pt-dots i { width: 7px; height: 7px; border-radius: 50%; background: ${T.graph};
