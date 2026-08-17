@@ -901,7 +901,7 @@ const S9 = {
   ),
   audio: [
     A('mount',
-      "Beshta yozuv. Har biridan keyin yechim ochiladi — qanday yozish kerakligini ko'rasiz.",
+      "Beshta yozuv. Har biridan keyin yechim ochiladi. Unda qanday yozish kerakligini ko'rasiz.",
       'Пять записей. После каждой откроется решение — увидишь, как это записывают.',
       'Five records. After each one the solution opens and you see how it is written.'),
   ],
