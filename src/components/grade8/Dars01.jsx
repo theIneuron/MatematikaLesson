@@ -897,12 +897,7 @@ const S8 = {
       ],
       // METODIST: parag'raf raqami va BET shu yerga yoziladi (§20 p. 12).
       // Darslik skanerlangan PDF, matn chiqarib bo'lmadi — DARS01_SKELET.md §8.
-      source: L(
-        "Algebra, 8-sinf — ratsional ifodalar parag'rafi",
-        'Алгебра, 8 класс — параграф о рациональных выражениях',
-        'Algebra, grade 8 — the section on rational expressions',
-      ),
-      locked: L(
+        locked: L(
         "Qoida to'g'ri yig'ilgandan keyin ochiladi",
         'Правило откроется после верной сборки',
         'The rule opens once assembled correctly',

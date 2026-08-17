@@ -1174,4 +1174,34 @@ export const FEED_STYLES = `
   .lesson-root .g8-rb-chip { min-height: 40px; padding: 0 14px; font-size: 14px; }
   .lesson-root .g8-rb-bag { margin-top: 8px; gap: 8px; }
 }
+
+/* ====================================================================
+   ТРИ КАРТОЧКИ РЕЗУЛЬТАТОВ ОЖИВАЮТ. Они стояли молча, и было непонятно,
+   зачем они здесь. Теперь выезжают по очереди — как три шага, которые
+   ученик прошёл, — и ноль в каждой вспыхивает последним: именно он общий.
+   ==================================================================== */
+.lesson-root .g8-cs-item { animation: g8-cs-in 520ms cubic-bezier(.34,1.4,.64,1) both; }
+.lesson-root .g8-cs-item:nth-child(1) { animation-delay: 250ms; }
+.lesson-root .g8-cs-item:nth-child(2) { animation-delay: 600ms; }
+.lesson-root .g8-cs-item:nth-child(3) { animation-delay: 950ms; }
+@keyframes g8-cs-in { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
+
+.lesson-root .g8-cs-den { animation: g8-cs-zero 700ms cubic-bezier(.34,1.5,.64,1) both; }
+.lesson-root .g8-cs-item:nth-child(1) .g8-cs-den { animation-delay: 900ms; }
+.lesson-root .g8-cs-item:nth-child(2) .g8-cs-den { animation-delay: 1250ms; }
+.lesson-root .g8-cs-item:nth-child(3) .g8-cs-den { animation-delay: 1600ms; }
+@keyframes g8-cs-zero {
+  0%   { opacity: 0; transform: scale(.4); }
+  60%  { opacity: 1; transform: scale(1.25); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* КАРЕТКА в поле сборки: поле ждёт ввода, как строка в редакторе. */
+.lesson-root .g8-rb-empty::after {
+  content: '';
+  display: inline-block; width: 2px; height: 1.05em; margin-left: 7px;
+  background: ${T.accent}; vertical-align: text-bottom;
+  animation: g8-rb-caret 1.05s steps(1, end) infinite;
+}
+@keyframes g8-rb-caret { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
 `
