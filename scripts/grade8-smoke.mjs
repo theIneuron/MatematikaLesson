@@ -411,10 +411,13 @@ for (const size of SIZES) {
       // Отвеченный вопрос СВОРАЧИВАЕТСЯ в строку и исчезает из `.g8-blitz-q`,
       // поэтому берём каждый раз первый открытый, а не список сразу.
       // Вопрос СВОРАЧИВАЕТСЯ сразу после верного ответа, и старая ссылка на
-      // кнопку становится мёртвой. Поэтому каждый клик ищет вариант заново.
+      // кнопку становится мёртвой. Шаг считаем по НОМЕРУ задания: сравнивать
+      // число вариантов нельзя — у следующего вопроса их столько же, и стенд
+      // решал, что ничего не произошло, посреди блица.
       for (let step = 0; step < 24; step += 1) {
-        const nq = await page.locator('.g8-blitz-q').count()
-        if (nq === 0) break
+        const head = page.locator('.g8-blitz-step')
+        if (await head.count() === 0) break
+        const was = await head.first().innerText().catch(() => '')
         const n = await page.locator('.g8-blitz-q .g8-opt').count()
         if (!n) break
         let moved = false
@@ -422,8 +425,9 @@ for (const size of SIZES) {
           const opt = page.locator('.g8-blitz-q .g8-opt').nth(o)
           if (await opt.count() === 0) break
           await opt.click({ force: true, timeout: 2500 }).catch(() => {})
-          await page.waitForTimeout(200)
-          if (await page.locator('.g8-blitz-q .g8-opt').count() !== n) { moved = true; break }
+          await page.waitForTimeout(220)
+          const now = await page.locator('.g8-blitz-step').first().innerText().catch(() => '')
+          if (now !== was) { moved = true; break }
         }
         if (!moved) break
       }

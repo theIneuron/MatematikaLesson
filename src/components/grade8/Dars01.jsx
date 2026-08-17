@@ -17,7 +17,7 @@
 //      chizadi, jadval esa chiziqcha qo'yadi (`PlotVsTable`). 7-sinfda bu
 //      «oddiy va injener kalkulyator».
 //   4. HARAKAT: qo'l va sonning uchishi, chiziqning uzilishi, jadvalning
-//      yacheyka-yacheyka to'lishi, ODZ satrining bir taktda miltillashi.
+//      yacheyka-yacheyka to'lishi, ruhsat etilgan qiymatlar sohasi satrining bir taktda miltillashi.
 //      Boshqa hech narsa harakatlanmaydi.
 //
 // 3-SINFDAN OLINGAN USULLAR: demo-ko'rsatish (`TapBinDemo`), qadamlarning
@@ -59,7 +59,7 @@ export const STATEMENTS = [
     'Divide by a number and it is integral, by a letter and it is fractional',
   ),
   L(
-    "ODZ ni maxraj beradi: maxrajning nollari taqiqlangan",
+    "ruhsat etilgan qiymatlar sohasini maxraj beradi: maxrajning nollari taqiqlangan",
     'ОДЗ задаёт знаменатель: нули знаменателя недопустимы',
     'The denominator sets the domain: its zeros are not admissible',
   ),
@@ -75,7 +75,7 @@ export const STATEMENTS = [
 export const MISS = {
   'З2': {
     what: L(
-      "ODZ topilmadi yoki yo'qoldi",
+      "ruhsat etilgan qiymatlar sohasi topilmadi yoki yo'qoldi",
       'ОДЗ не найдена или потеряна',
       'the domain was not found or was lost',
     ),
@@ -117,7 +117,7 @@ export const MISS = {
 // карточка стоит там, где способ вводится, и рядом с заданием, которое им
 // решается. Не подсказка после ошибки: карточка на экране стоит всегда.
 //
-// Объявлены ДО экранов: экран 6 берёт M_ODZ, а обращение к const выше по
+// Объявлены ДО экранов: экран 6 берёт M_ruhsat etilgan qiymatlar sohasi, а обращение к const выше по
 // файлу падает с «Cannot access before initialization».
 // ============================================================
 const SC_PRICE = L('BIR DONA NARXI', 'ЦЕНА ЗА ШТУКУ', 'PRICE PER ITEM')
@@ -883,7 +883,7 @@ const S8 = {
 }
 
 // ============================================================
-// EKRAN 9. MASHQ 1: ZANJIR. To'rt qisqa yozuv, har birining ODZ si.
+// EKRAN 9. MASHQ 1: ZANJIR. To'rt qisqa yozuv, har birining ruhsat etilgan qiymatlar sohasi si.
 // «Taqiqlangan qiymat yo'q» tugmasi HAMMA topshiriqda turadi.
 // ============================================================
 // EKRAN 9. MASHQ: BESHTA MISOL YENGILDAN OG'IRGA. Har biridan keyin YECHIM
@@ -969,7 +969,7 @@ const S9 = {
 }
 
 // ============================================================
-// EKRAN 10. IKKI SHART BIRDANIGA. Namuna metodistdan: ildizli misolda ODZ
+// EKRAN 10. IKKI SHART BIRDANIGA. Namuna metodistdan: ildizli misolda ruhsat etilgan qiymatlar sohasi
 // SHARTLAR TIZIMI sifatida yoziladi va oraliqlar birlashtiriladi.
 //
 // Ildizlar 2-blokda (9-14 darslar) o'rganiladi, shuning uchun bu yerda
@@ -980,7 +980,7 @@ const S9 = {
 // keyin ikkalasi birga. Javoblar TAYYOR — o'quvchi tanlaydi, va har qadamdan
 // keyin yechim ochiladi (9-ekrandagidek).
 //
-// ODZ satri olib tashlandi: u bo'sh polosa bo'lib turardi va hech narsa
+// ruhsat etilgan qiymatlar sohasi satri olib tashlandi: u bo'sh polosa bo'lib turardi va hech narsa
 // ko'rsatmasdi (metodist, 2026-08-17).
 //
 // Javob ORALIQLAR bilan berilmaydi: sonli oraliqlar 27-darsda, bu yerda
@@ -1003,7 +1003,7 @@ const S10 = {
     solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
-      "Ikki ko'paytuvchi — ikki shart. Ular BIRGA ODZ ni beradi.",
+      "Ikki ko'paytuvchi — ikki shart. Ular BIRGA ruhsat etilgan qiymatlar sohasini beradi.",
       'Два множителя — два условия. Вместе они и дают ОДЗ.',
       'Two factors mean two conditions. Together they give the domain.',
     ),
@@ -1039,7 +1039,7 @@ const S10 = {
       {
         expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
         question: L(
-          "Butun ODZ qanday yoziladi?",
+          "Butun ruhsat etilgan qiymatlar sohasi qanday yoziladi?",
           'Как записывается вся ОДЗ?',
           'How is the whole domain written?',
         ),
@@ -1282,7 +1282,7 @@ const S14 = {
         id: 'q1',
         tag: 'З2',
         ask: L(
-          "Yozuvning qaysi qismi bo'yicha ODZ topiladi?",
+          "Yozuvning qaysi qismi bo'yicha ruhsat etilgan qiymatlar sohasi topiladi?",
           'По какой части записи находят ОДЗ?',
           'Which part of the record gives the domain?',
         ),
@@ -1336,7 +1336,7 @@ const S14 = {
         id: 'q4',
         tag: 'З16',
         ask: L(
-          'ODZ yozildi. Ishni tugallangan qiladigan narsa nima?',
+          'ruhsat etilgan qiymatlar sohasi yozildi. Ishni tugallangan qiladigan narsa nima?',
           'ОДЗ записана. Что делает работу законченной?',
           'The domain is written. What makes the work complete?',
         ),
@@ -1469,11 +1469,6 @@ const S15 = {
       'Факт. В языках программирования деление целого на нуль останавливает программу, а деление дробного даёт Infinity. Поэтому в базах данных знаменатель проверяют ДО вычисления — ровно как в этом уроке.',
       'A fact. In programming languages integer division by zero halts the program while float division yields Infinity. That is why databases check the denominator BEFORE computing, exactly as in this lesson.',
     ),
-    bridge: L(
-      "Keyingisi: 2-dars, ratsional kasrning asosiy xossasi.",
-      'Дальше: урок 2, основное свойство рациональной дроби.',
-      'Next: lesson 2, the main property of a rational fraction.',
-    ),
   },
 }
 
@@ -1553,7 +1548,7 @@ export const SCREENS = [
     props: { ...S14.props,
       scoreLabel: L('birinchi urinishdan', 'с первой попытки', 'on the first try'),
       stepLabel: L('Topshiriq', 'Задание', 'Task') } },
-  { role: 'summary',  tool: 'takeaway',  scene: FinalScene, ...S15 },
+  { role: 'summary',  tool: 'takeaway',  scene: <HookScene/>, ...S15 },
 ]
 
 export default makeLesson({ META, STATEMENTS, MISS, SCREENS })

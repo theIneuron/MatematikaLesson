@@ -1039,6 +1039,12 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
   lines.forEach((ln) => ln.forEach((it) => { if (it.slot !== undefined) want.push(it.slot) }))
   const done = got.length >= want.length
 
+  const undo = () => {
+    if (!got.length) return
+    setGot(got.slice(0, -1))
+    setBad(null)
+  }
+
   const take = (tile) => {
     if (done) return
     if (got.some((g) => g.id === tile.id)) return
@@ -1079,6 +1085,11 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
           </div>
         ))}
       </div>
+      {/* ОТМЕНА (методист, 2026-08-17): пойманное значение можно вернуть
+          на сцену, иначе один промах закрывал сборку без выхода. */}
+      {got.length && !done ? (
+        <button type="button" className="g8-cb-undo" onClick={undo}>{'↶'}</button>
+      ) : null}
       <div className="g8-cb-stage">
         {tiles.map((x, i) => {
           const taken = got.some((g) => g.id === x.id)
@@ -1086,7 +1097,7 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
             <button
               type="button"
               key={x.id}
-              className={'g8-cb-tile'
+              className={'g8-cb-tile g8-cb-c' + (i % 4)
                 + (bad === x.id ? ' is-bad' : '')
                 + (fly === x.id ? ' is-fly' : '')
                 + (taken ? ' is-out' : '')}
@@ -1778,4 +1789,21 @@ export const FEED_STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .g8-tk-mark, .g8-tk-note, .g8-tk-list li, .g8-tk-bridge { opacity: 1; transform: none; }
 }
+
+/* ЦВЕТ ЛЕТЯЩИМ ПЛИТКАМ (методист, 2026-08-17). Одинаково белые плитки
+   на светлом поле сливались; цвет разводит их глазом и делает сцену
+   живой. Цвет НЕ несёт смысла — он не подсказывает нужную плитку,
+   поэтому идёт по кругу от порядка на сцене, а не от значения. */
+.lesson-root .g8-cb-tile.g8-cb-c0 { background: #FFE3D2; color: #8A3B12; }
+.lesson-root .g8-cb-tile.g8-cb-c1 { background: #D9EEDD; color: #1E5B33; }
+.lesson-root .g8-cb-tile.g8-cb-c2 { background: #DCE7FA; color: #22406F; }
+.lesson-root .g8-cb-tile.g8-cb-c3 { background: #FBE6B8; color: #7A5410; }
+.lesson-root .g8-cb-tile { font-weight: 700; box-shadow: 0 3px 10px rgba(23,26,29,.12); }
+.lesson-root .g8-cb-tile:hover { transform: scale(1.06); }
+.g8-cb-stage::after { content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.55), transparent 70%); }
+.lesson-root .g8-cb-undo { border: 0; cursor: pointer; min-width: 46px; min-height: 46px;
+  border-radius: 12px; background: transparent; color: ${T.ink3}; font-size: 20px;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.12); align-self: center; }
+.lesson-root .g8-cb-undo:hover { color: ${T.ink}; }
 `
