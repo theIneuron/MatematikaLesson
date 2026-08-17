@@ -262,10 +262,14 @@ export function CaseStrip({ cases, lead }) {
     <div className="g8-cs">
       {lead ? <span className="g8-cs-lead">{t(lead)}</span> : null}
       <div className="g8-cs-row">
+        {/* Карточка РЕШАЕТСЯ на глазах: сначала запись, потом подстановка,
+            потом счёт знаменателя, и последним ноль. Раньше все три строки
+            стояли готовыми, и было непонятно, откуда взялся ноль. */}
         {cases.map((c, i) => (
           <div key={i} className="g8-cs-item" style={{ fontFamily: MATH_FONT }}>
             <span className="g8-cs-rec">{c.rec}</span>
             <span className="g8-cs-at">{c.at}</span>
+            {c.calc ? <span className="g8-cs-calc">{c.calc}</span> : null}
             <span className="g8-cs-den">{c.den}</span>
           </div>
         ))}
@@ -1204,4 +1208,36 @@ export const FEED_STYLES = `
   animation: g8-rb-caret 1.05s steps(1, end) infinite;
 }
 @keyframes g8-rb-caret { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+
+/* Счёт знаменателя — промежуточный шаг: он показывает, ОТКУДА ноль. */
+.lesson-root .g8-cs-calc { font-size: clamp(14px, 1.3vw, 17px); color: ${T.ink2};
+  animation: g8-cs-step 480ms ease-out both; }
+.lesson-root .g8-cs-item:nth-child(1) .g8-cs-calc { animation-delay: 700ms; }
+.lesson-root .g8-cs-item:nth-child(2) .g8-cs-calc { animation-delay: 1050ms; }
+.lesson-root .g8-cs-item:nth-child(3) .g8-cs-calc { animation-delay: 1400ms; }
+@keyframes g8-cs-step { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
+/* Подстановка появляется ПОСЛЕ записи, а не вместе с ней. */
+.lesson-root .g8-cs-at { animation: g8-cs-step 420ms ease-out both; }
+.lesson-root .g8-cs-item:nth-child(1) .g8-cs-at { animation-delay: 500ms; }
+.lesson-root .g8-cs-item:nth-child(2) .g8-cs-at { animation-delay: 850ms; }
+.lesson-root .g8-cs-item:nth-child(3) .g8-cs-at { animation-delay: 1200ms; }
+
+/* Ноль встаёт последним и с ударением: он общий у всех трёх. */
+.lesson-root .g8-cs-item:nth-child(1) .g8-cs-den { animation-delay: 1150ms; }
+.lesson-root .g8-cs-item:nth-child(2) .g8-cs-den { animation-delay: 1500ms; }
+.lesson-root .g8-cs-item:nth-child(3) .g8-cs-den { animation-delay: 1850ms; }
+
+/* Тёмная рамка внутри строки ответа. Поле рисовало собственную обводку
+   поверх акцентной, и получалась рамка в рамке — методист показывал это
+   дважды. Правило стоит ЗДЕСЬ, потому что этот файл подключается последним
+   и перебивает и core.jsx, и math.jsx. */
+.lesson-root .g8-input,
+.lesson-root .g8-input:focus,
+.lesson-root .g8-input:focus-visible {
+  border: 0;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+}
 `

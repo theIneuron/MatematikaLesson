@@ -1566,9 +1566,9 @@ export const SCREENS = [
       <CaseStrip
         lead={L('SIZ OLGAN NATIJALAR', 'ТВОИ РЕЗУЛЬТАТЫ', 'YOUR OWN RESULTS')}
         cases={[
-          { rec: '600 : k', at: 'k = 0', den: '0' },
-          { rec: '600 : (k − 4)', at: 'k = 4', den: '0' },
-          { rec: '7 : (a − 5)', at: 'a = 5', den: '0' },
+          { rec: '600 : k', at: 'k = 0', calc: '600 : 0', den: '0' },
+          { rec: '600 : (k − 4)', at: 'k = 4', calc: '4 − 4 = 0', den: '0' },
+          { rec: '7 : (a − 5)', at: 'a = 5', calc: '5 − 5 = 0', den: '0' },
         ]}
       />
     ),
