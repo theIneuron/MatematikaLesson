@@ -847,7 +847,12 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
         <Note kind="ok">{t(doneNote)}</Note>
       ) : (
         <>
-          <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>{task.expr}</div>
+          {/* Запись может прийти ГОТОВОЙ ДРОБЬЮ (узел с чертой), а не строкой:
+              «(x + 1) : ((x − 2)(x + 5))» в строку читается как набор скобок,
+              а дробь читается сразу (методист, 2026-08-17). */}
+          <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>
+            {typeof task.expr === 'string' ? task.expr : task.expr}
+          </div>
           <Ask>{t(task.question)}</Ask>
 
           {!open ? (

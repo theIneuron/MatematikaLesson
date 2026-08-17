@@ -976,6 +976,16 @@ const S9 = {
 // ularsiz: usul o'sha — bir nechta shart, har biri alohida, keyin hammasi
 // birga. O'quvchi shartlarni birma-bir yozadi.
 // ============================================================
+// EKRAN 10. IKKI SHART BIRDANIGA. Uchta qadam: har bir ko'paytuvchi alohida,
+// keyin ikkalasi birga. Javoblar TAYYOR — o'quvchi tanlaydi, va har qadamdan
+// keyin yechim ochiladi (9-ekrandagidek).
+//
+// ODZ satri olib tashlandi: u bo'sh polosa bo'lib turardi va hech narsa
+// ko'rsatmasdi (metodist, 2026-08-17).
+//
+// Javob ORALIQLAR bilan berilmaydi: sonli oraliqlar 27-darsda, bu yerda
+// ular hali o'tilmagan.
+// ============================================================
 const S10 = {
   eyebrow: L('IKKI SHART', 'ДВА УСЛОВИЯ', 'TWO CONDITIONS'),
   title: L(
@@ -985,71 +995,62 @@ const S10 = {
   ),
   audio: [
     A('mount',
-      "Bu yozuvda maxraj ikkita ko'paytuvchidan iborat. Har biri alohida nolga aylanishi mumkin.",
-      'В этой записи знаменатель из двух множителей. Каждый может обратиться в нуль отдельно.',
-      'In this record the denominator has two factors. Each can become zero on its own.'),
-    W('f2',
-      "Ikkinchi shart ham kerak: bitta shart butun taqiqni bermaydi.",
-      'Нужно и второе условие: одно условие всего запрета не даёт.',
-      'The second condition is needed too: one condition does not give the whole restriction.'),
+      "Maxraj ikkita ko'paytuvchidan iborat. Har biri alohida nolga aylanishi mumkin.",
+      'Знаменатель из двух множителей. Каждый может обратиться в нуль отдельно.',
+      'The denominator has two factors. Each can become zero on its own.'),
   ],
   props: {
-    show: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
-    fields: [
-      {
-        ask: L(
-          "Birinchi ko'paytuvchi qaysi x da nolga aylanadi?",
-          'При каком x обращается в нуль первый множитель?',
-          'At which x does the first factor become zero?',
-        ),
-        answer: '2',
-        hints: {
-          '-2': L(
-            "Minus ikkida x − 2 minus to'rtga teng.",
-            'При минус двух x − 2 равно минус четырём.',
-            'At minus two, x − 2 equals minus four.',
-          ),
-        },
-      },
-      {
-        ask: L(
-          "Ikkinchi ko'paytuvchi qaysi x da nolga aylanadi?",
-          'При каком x обращается в нуль второй множитель?',
-          'At which x does the second factor become zero?',
-        ),
-        answer: '-5',
-        hints: {
-          '5': L(
-            "Beshda x + 5 o'nga teng, nolga emas.",
-            'При пяти x + 5 равно десяти, а не нулю.',
-            'At five, x + 5 equals ten, not zero.',
-          ),
-        },
-      },
-      {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [2, -5],
-        ask: L(
-          "Ikkala shartni birga yozing",
-          'Запиши оба условия вместе',
-          'Write both conditions together',
-        ),
-        accepts: ['x != 2, x != -5', 'x != -5, x != 2'],
-        hints: {
-          'x != 2': L(
-            "Bitta shart yetmaydi: minus beshda maxraj yana nolga aylanadi.",
-            'Одного условия мало: при минус пяти знаменатель снова обращается в нуль.',
-            'One condition is not enough: at minus five the denominator becomes zero again.',
-          ),
-        },
-      },
-    ],
-    note: L(
+    solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+    nextLabel: L('Keyingisi', 'Дальше', 'Next'),
+    doneNote: L(
       "Ikki ko'paytuvchi — ikki shart. Ular BIRGA ODZ ni beradi.",
       'Два множителя — два условия. Вместе они и дают ОДЗ.',
       'Two factors mean two conditions. Together they give the domain.',
     ),
+    tasks: [
+      {
+        expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        question: L(
+          "Birinchi ko'paytuvchi qaysi x da nolga aylanadi?",
+          'При каком x обращается в нуль первый множитель?',
+          'At which x does the first factor become zero?',
+        ),
+        items: [
+          { id: 'a', right: true, label: 'x = 2' },
+          { id: 'b', label: 'x = −2', hint: L("Minus ikkida x − 2 minus to'rtga teng.", 'При минус двух x − 2 равно минус четырём.', 'At minus two, x − 2 equals minus four.') },
+          { id: 'c', label: 'x = 5', hint: L('Beshda x − 2 uchga teng.', 'При пяти x − 2 равно трём.', 'At five, x − 2 equals three.') },
+        ],
+        solution: ['x − 2 = 0', 'x = 2'],
+      },
+      {
+        expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        question: L(
+          "Ikkinchi ko'paytuvchi qaysi x da nolga aylanadi?",
+          'При каком x обращается в нуль второй множитель?',
+          'At which x does the second factor become zero?',
+        ),
+        items: [
+          { id: 'a', right: true, label: 'x = −5' },
+          { id: 'b', label: 'x = 5', hint: L("Beshda x + 5 o'nga teng, nolga emas.", 'При пяти x + 5 равно десяти, а не нулю.', 'At five, x + 5 equals ten, not zero.') },
+          { id: 'c', label: 'x = −1', hint: L('Minus birda nolga SURAT aylanadi, maxraj emas.', 'При минус единице нулём становится числитель, а не знаменатель.', 'At minus one the numerator becomes zero, not the denominator.') },
+        ],
+        solution: ['x + 5 = 0', 'x = −5'],
+      },
+      {
+        expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        question: L(
+          "Butun ODZ qanday yoziladi?",
+          'Как записывается вся ОДЗ?',
+          'How is the whole domain written?',
+        ),
+        items: [
+          { id: 'a', right: true, label: 'x ≠ 2,  x ≠ −5' },
+          { id: 'b', label: 'x ≠ 2', hint: L("Bitta shart yetmaydi: minus beshda maxraj yana nolga aylanadi.", 'Одного условия мало: при минус пяти знаменатель снова обращается в нуль.', 'One condition is not enough: at minus five the denominator becomes zero again.') },
+          { id: 'c', label: 'x ≠ 2,  x ≠ 5,  x ≠ −1', hint: L("Beshda va minus birda maxraj nolga aylanmaydi — ortiqcha shartlar.", 'При пяти и минус единице знаменатель в нуль не обращается — лишние условия.', 'At five and minus one the denominator is not zero: extra conditions.') },
+        ],
+        solution: ['(x − 2)(x + 5) = 0', 'x = 2   yoki   x = −5', 'x ≠ 2,  x ≠ −5'],
+      },
+    ],
   },
 }
 
@@ -1497,7 +1498,7 @@ export const SCREENS = [
     ...S8,
   },
   { role: 'practice', tool: 'drill',     kind: 'drill',    tag: 'З2',  ...S9 },
-  { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', ...S10 },
+  { role: 'practice', tool: 'drill',     kind: 'guided',   tag: 'З18', ...S10 },
   { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16',   ...S11 },
   { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', ...S12 },
   { role: 'transfer', tool: 'inverse',   tag: 'З2', ...S13 },
