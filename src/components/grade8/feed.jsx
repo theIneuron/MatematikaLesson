@@ -470,6 +470,80 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
   )
 }
 
+
+// ============================================================
+// `Steppers` — УЧЕНИК КРУТИТ ДАННЫЕ, ПРИЛОЖЕНИЕ СЧИТАЕТ.
+//
+// Два столбца со счётчиками: сумма и количество. Ученик меняет их кнопками
+// и сразу видит цену. Уводя количество в ноль, он САМ доводит приложение до
+// отказа — не выбирает готовый ответ и не смотрит показ.
+//
+// Устройство из урока 1 второго класса («Собери 245»): там столбцы разрядов
+// с плюсом и минусом, здесь — поля, из которых складывается формула.
+// ============================================================
+export function Steppers({ cols, calc, resultLabel, ask, broke, onSolved, audio }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [vals, setVals] = useState(cols.map((c) => c.start))
+  const [touched, setTouched] = useState(false)
+  const [found, setFound] = useState(false)
+
+  const out = calc(vals)
+  const dead = out === null || !isFinite(out)
+
+  const bump = (i, d) => {
+    // Новое значение считаем СНАРУЖИ обновления состояния. Побочные действия
+    // внутри updater-функции React выполняет в фазе рендера и предупреждает
+    // «setState во время рендера другого компонента» — поймано прогоном.
+    const c = cols[i]
+    const next = vals.slice()
+    next[i] = Math.min(Math.max(next[i] + d * (c.step || 1), c.min), c.max)
+    setVals(next)
+    setTouched(true)
+    const res = calc(next)
+    if (res === null || !isFinite(res)) {
+      sfx.playWrong()
+      if (!found) {
+        setFound(true)
+        if (audio && broke) audio.say(t(broke))
+        if (onSolved) onSolved({ correct: true, tries: 1 })
+      }
+    } else {
+      sfx.playCorrect()
+    }
+  }
+
+  return (
+    <>
+      <div className="g8-st">
+        <div className="g8-st-cols">
+          {cols.map((c, i) => (
+            <div key={c.id} className={'g8-st-col' + (dead && c.risky ? ' is-dead' : '')}>
+              <span className="g8-st-cap">{t(c.label)}</span>
+              <span className="g8-st-val" style={{ fontFamily: MATH_FONT }}>{fmt(vals[i])}</span>
+              <span className="g8-st-btns">
+                <button type="button" className="g8-st-btn" onClick={() => bump(i, -1)}>{'−'}</button>
+                <button type="button" className="g8-st-btn is-plus" onClick={() => bump(i, 1)}>{'+'}</button>
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <div className={'g8-st-out' + (dead ? ' is-dead' : '')}>
+          <span className="g8-st-outcap">{t(resultLabel)}</span>
+          <span className="g8-st-outval" style={{ fontFamily: MATH_FONT }}>
+            {!touched ? '?' : dead ? 'Error' : fmt(out)}
+          </span>
+        </div>
+      </div>
+
+      <Slot mh={62}>
+        {found && dead ? <Note kind="no">{t(broke)}</Note> : <Ask>{t(ask)}</Ask>}
+      </Slot>
+    </>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -542,6 +616,29 @@ export const FEED_STYLES = `
 .g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-st { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
+.g8-st-cols { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.g8-st-col { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-width: 150px; padding: 12px 16px; border-radius: 16px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); transition: box-shadow .25s ease; }
+.g8-st-col.is-dead { box-shadow: inset 0 0 0 2px rgba(${T.tipRgb},.5); }
+.g8-st-cap { font-family: 'Manrope', system-ui, sans-serif; font-size: 11.5px;
+  letter-spacing: .1em; text-transform: uppercase; color: ${T.ink3}; }
+.g8-st-val { font-size: clamp(28px, 2.8vw, 38px); color: ${T.ink}; }
+.g8-st-col.is-dead .g8-st-val { color: ${T.tip}; }
+.g8-st-btns { display: flex; gap: 8px; }
+.lesson-root .g8-st-btn { border: 0; cursor: pointer; width: 46px; height: 40px; border-radius: 11px;
+  background: ${T.bg}; color: ${T.ink2}; font-size: 20px; font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+.lesson-root .g8-st-btn.is-plus { background: ${T.accent}; color: #fff; box-shadow: none; }
+.lesson-root .g8-st-btn:hover { transform: translateY(-1px); }
+.g8-st-out { display: flex; flex-direction: column; align-items: center; gap: 2px;
+  min-width: 200px; padding: 10px 18px; border-radius: 14px; background: ${T.okSoft}; }
+.g8-st-out.is-dead { background: ${T.tipSoft}; }
+.g8-st-outcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 11px;
+  letter-spacing: .1em; text-transform: uppercase; color: ${T.ink3}; }
+.g8-st-outval { font-size: clamp(26px, 2.6vw, 36px); color: ${T.ok}; }
+.g8-st-out.is-dead .g8-st-outval { color: ${T.tip}; }
 .g8-tw { width: 100%; background: ${T.paper}; border-radius: 16px; padding: 16px 20px;
   display: flex; flex-direction: column; gap: 12px;
   box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05); }

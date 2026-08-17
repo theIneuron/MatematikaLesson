@@ -448,52 +448,61 @@ const S2 = {
 // 13-avgustdagi «ko'rsatish, keyin o'zi» juftligi 3-4 ekranlarda emas, 4-5
 // da qoladi: 4 — o'zi qo'yadi, 5 — boshqa yozuvda takrorlaydi.
 // ============================================================
+// EKRAN 3. MA'LUMOTLARNI O'ZINGIZ QO'YING. Ikki ustun: summa va miqdor,
+// har birida plyus va minus. O'quvchi ularni buraydi va narx qanday
+// o'zgarishini ko'radi. Miqdorni nolga tushirsa, ilova YIQILADI — va buni
+// u O'ZI qiladi, tayyor javobni tanlamaydi.
+//
+// Naqsh 1-sinf 2-darsdan («245 ni yig'ing»): u yerda razryad ustunlari,
+// bu yerda formulani tashkil qiluvchi maydonlar.
+// ============================================================
 const S3 = {
-  eyebrow: L('NARXLAR JADVALI', 'ТАБЛИЦА ЦЕН', 'THE PRICE TABLE'),
+  eyebrow: L("MA'LUMOTLARNI QO'YING", 'ПОДБЕРИ ДАННЫЕ', 'SET THE DATA'),
   title: L(
-    "Jadvalni o'zingiz to'ldiring",
-    'Заполни таблицу сам',
-    'Fill in the table yourself',
+    "Narx qanday hisoblanadi",
+    'Как считается цена',
+    'How the price is computed',
   ),
   audio: [
     A('mount',
-      "Ilovaga sotuv summasi berilgan: olti yuz. Miqdorni siz qo'yasiz.",
-      'Приложению дана сумма продажи: шестьсот. Количество подставляешь ты.',
-      'The app was given the sale total: six hundred. You supply the quantity.'),
+      "Ikki ustun: sotuv summasi va tovar miqdori. Ularni o'zingiz buraysiz.",
+      'Два столбца: сумма продажи и количество товара. Их ты крутишь сам.',
+      'Two columns: the sale total and the quantity. You set them yourself.'),
     A('why',
-      "Har bir sonni qo'ying va natijani jadvalda ko'ring. Bittasida jadval bo'sh qoladi.",
-      'Подставь каждое число и смотри результат в таблице. На одном таблица останется пустой.',
-      'Substitute each number and watch the result in the table. At one of them the table stays empty.'),
+      "Miqdorni kamaytiring va narx qanday o'zgarishini kuzating. Nolgacha tushiring.",
+      'Уменьшай количество и смотри, как меняется цена. Доведи до нуля.',
+      'Decrease the quantity and watch the price change. Bring it down to zero.'),
   ],
   props: {
-    nums: [1, 2, 3, 4, 0],
-    top: ['600'],
-    bot: ['k'],
-    num: () => 600,
-    den: (k) => k,
-    varName: 'k',
-    table: true,
+    cols: [
+      {
+        id: 'sum',
+        label: L('summa', 'сумма', 'total'),
+        start: 600, min: 100, max: 1200, step: 100,
+      },
+      {
+        id: 'k',
+        label: L('miqdor', 'количество', 'quantity'),
+        start: 3, min: 0, max: 8, step: 1,
+        risky: true,
+      },
+    ],
+    calc: (v) => (v[1] === 0 ? null : v[0] / v[1]),
+    resultLabel: L('bir dona narxi', 'цена за штуку', 'price per item'),
     ask: L(
-      "Miqdorni qo'ying: ilova narxni hisoblaydi",
-      'Подставляй количество — приложение посчитает цену',
-      'Substitute the quantity and the app computes the price',
+      "Miqdorni kamaytiring: narx qachon hisoblanmay qoladi?",
+      'Уменьшай количество — когда цена перестанет считаться?',
+      'Decrease the quantity: when does the price stop computing?',
     ),
     broke: L(
-      "Nolda jadval bo'sh qoldi: olti yuzni nolga bo'lib bo'lmaydi.",
-      'На нуле таблица осталась пустой: шестьсот на нуль разделить нельзя.',
-      'At zero the table stayed empty: six hundred cannot be divided by zero.',
+      "Miqdor nol bo'ldi va ilova yiqildi: summani nolga bo'lib bo'lmaydi.",
+      'Количество стало нулём, и приложение упало: сумму нельзя разделить на нуль.',
+      'The quantity became zero and the app crashed: the total cannot be divided by zero.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 4. YOZUVNI O'ZINGIZ YIG'ING. Ikki katak: tepada va pastda. Tugmalar
-// bilan o'quvchi har biriga SON yoki HARF qo'yadi va darhol hukmni ko'radi.
-// To'rtta juftlikni sinab, qoidani O'ZI ochadi: xavfli faqat pastdagi harf,
-// tepada u ahamiyatsiz.
-//
-// Naqsh 1-sinf 2-darsdan («24 ni yig'ing»): u yerda tugmalar bilan sonni
-// o'stiradilar, bu yerda yozuvni yig'adilar.
+
 // ============================================================
 const S4 = {
   eyebrow: L('YOZUVNI YIG\'ING', 'СОБЕРИ ЗАПИСЬ', 'BUILD THE RECORD'),
@@ -1415,7 +1424,7 @@ const FinalScene = (
 export const SCREENS = [
   { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
-  { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S3 },
+  { role: 'explain',  tool: 'steppers',  kind: 'dial',     tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'slots',     kind: 'build',    tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
