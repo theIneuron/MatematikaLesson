@@ -229,9 +229,10 @@ export function ScreenBody(props) {
     // СЧЁТЧИКИ: ученик крутит данные, приложение считает и падает на нуле.
     case 'steppers':
       return <Steppers {...p} audio={audio} onSolved={onSolved} />
-    // ЦЕПОЧКА: меняется знаменатель — переезжает запрет.
-    case 'chain':
-      return <Chain {...p} onStep={step} />
+    // ЦЕПОЧКА ЗАПРЕТОВ. Имя НЕ 'chain': его занимает TaskChain практики, и
+    // столкновение имён отдало девятому экрану чужой прибор (2026-08-17).
+    case 'movechain':
+      return <Chain {...p} onStep={step} onSolved={onSolved} audio={audio} />
     // РАЗБОР ЗАПИСИ ПО ЧАСТЯМ: подсветка едет по формуле, полосы копятся.
     case 'parts':
       return <Parts {...p} onStep={step} />

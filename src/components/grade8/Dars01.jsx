@@ -1558,7 +1558,7 @@ export const SCREENS = [
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
   { role: 'explain',  tool: 'steppers',  kind: 'dial',     tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'pick',      kind: 'place',    tag: 'З2',  ...S4 },
-  { role: 'explain',  tool: 'chain',     kind: 'move',     tag: 'З18', ...S5 },
+  { role: 'explain',  tool: 'movechain', kind: 'move',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'parts',     kind: 'roles',    tag: 'З2',  ...S7 },
   {
