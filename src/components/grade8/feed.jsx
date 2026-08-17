@@ -1345,17 +1345,17 @@ export const FEED_STYLES = `
 .g8-dr-seg i { flex: 1; height: 4px; border-radius: 2px; background: rgba(23,26,29,.12);
   transition: background .35s ease; }
 .g8-dr-seg i.is-on { background: ${T.ok}; }
-.g8-dr-expr { font-size: clamp(24px, 2.4vw, 34px); color: ${T.ink}; padding: 8px 18px;
+.g8-dr-expr { font-size: clamp(28px, 2.8vw, 40px); color: ${T.ink}; padding: 10px 22px;
   border-radius: 14px; background: ${T.paper}; box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); }
 .g8-dr-opts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; }
 .g8-dr-sol { width: 100%; display: flex; flex-direction: column; gap: 6px;
   padding: 12px 16px; border-radius: 0 14px 14px 0; border-left: 4px solid ${T.ok};
   background: ${T.okSoft}; animation: g8-dr-in 420ms cubic-bezier(.22,.9,.3,1) both; }
 @keyframes g8-dr-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.g8-dr-solcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
+.g8-dr-solcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 12.5px;
   letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.ok}; }
-.g8-dr-sollines { display: flex; flex-direction: column; gap: 2px; }
-.g8-dr-solline { font-size: clamp(15px, 1.4vw, 19px); color: ${T.ink}; white-space: pre-wrap;
+.g8-dr-sollines { display: flex; flex-direction: column; gap: 5px; }
+.g8-dr-solline { font-size: clamp(19px, 1.9vw, 26px); color: ${T.ink}; white-space: pre-wrap;
   animation: g8-dr-line 380ms ease-out both; }
 @keyframes g8-dr-line { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
 .lesson-root .g8-dr-next { align-self: flex-end; border: 0; cursor: pointer; border-radius: 11px;
@@ -1363,8 +1363,8 @@ export const FEED_STYLES = `
   font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; font-weight: 700; }
 @media (max-height: 680px) {
   .g8-dr { gap: 7px; }
-  .g8-dr-expr { font-size: 22px; padding: 6px 14px; }
+  .g8-dr-expr { font-size: 26px; padding: 8px 16px; }
   .g8-dr-sol { padding: 8px 12px; }
-  .g8-dr-solline { font-size: 14px; }
+  .g8-dr-solline { font-size: 17px; }
 }
 `
