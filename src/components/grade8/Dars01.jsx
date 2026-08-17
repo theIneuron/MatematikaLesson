@@ -1540,7 +1540,8 @@ export const SCREENS = [
   { role: 'transfer', tool: 'fill',      tag: 'З2', ...S13 },
   { role: 'blitz',    tool: 'blitz',     ...S14,
     props: { ...S14.props,
-      scoreLabel: L('birinchi urinishdan', 'с первой попытки', 'on the first try') } },
+      scoreLabel: L('birinchi urinishdan', 'с первой попытки', 'on the first try'),
+      stepLabel: L('Topshiriq', 'Задание', 'Task') } },
   { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
 ]
 

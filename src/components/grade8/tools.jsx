@@ -904,7 +904,7 @@ export function Boundary({ left, right, odzLeft, odzRight, fig, answer, hints, q
 //     items: [{ id, ask, options:[{id,label,right}], tag, hint }] — aynan 4 ta.
 //     onReady({ first, total, tags }) — 15-ekran shu ma'lumotdan yashaydi.
 // ============================================================
-export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreLabel }) {
+export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreLabel, stepLabel }) {
   const t = useT()
   const sfx = useSfx()
   const canAnswer = useInstructionGate(audio)
@@ -957,9 +957,15 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
           javob berilgani INGICHKA satrga yig'iladi va ekrandan ketmaydi,
           shuning uchun o'quvchi javoblarini yonma-yon ko'radi (§10). */}
       <div className="g8-blitz">
+        <div className="g8-blitz-dots">
+          {items.map((q) => {
+            const st = state[q.id] || {}
+            return <i key={q.id} className={st.picked ? (st.first ? 'is-first' : 'is-done') : ''}/>
+          })}
+        </div>
         {items.map((q, i) => {
           const st = state[q.id] || {}
-          if (!st.picked && i !== at) return null
+          if (i !== at) return null
           if (st.picked) {
             const chosen = q.options.find((o) => o.id === st.picked)
             return (
@@ -973,8 +979,10 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
           }
           return (
             <div className="g8-blitz-q" key={q.id}>
+              {/* ОТДЕЛЬНОЕ ОКНО на вопрос (методист, 2026-08-17): счётчик
+                  сверху, вопрос крупно, работа внутри карточки. */}
+              <div className="g8-blitz-step">{t(stepLabel)} {i + 1} / {items.length}</div>
               <div className="g8-blitz-head">
-                <span className="g8-blitz-n">{i + 1}</span>
                 <span className="g8-blitz-ask">{t(q.ask)}</span>
               </div>
               {q.build && buildView
@@ -2264,5 +2272,27 @@ export const TOOLS_STYLES = `
   .g8-blitz-score { padding: 8px 14px; }
   .g8-blitz-score b { font-size: 24px; }
   .g8-blitz-score span { font-size: 15px; }
+}
+
+/* ОКНО ВОПРОСА (методист, 2026-08-17). Вопрос живёт в своей карточке:
+   счётчик сверху, текст крупно, работа внутри. Отвеченные вопросы больше
+   не висят строками — от них остаётся ряд точек над карточкой. */
+.g8-blitz-dots { display: flex; gap: 8px; justify-content: center; margin-bottom: 10px; }
+.g8-blitz-dots i { width: 30px; height: 5px; border-radius: 3px; background: rgba(23,26,29,.14); }
+.g8-blitz-dots i.is-done { background: ${T.no}; }
+.g8-blitz-dots i.is-first { background: ${T.ok}; }
+.lesson-root .g8-blitz-q { background: ${T.paper}; border-radius: 22px; padding: 20px 26px 22px;
+  box-shadow: 0 6px 26px rgba(23,26,29,.07), inset 0 0 0 1px rgba(23,26,29,.06);
+  max-width: 760px; margin: 0 auto; width: 100%; }
+.g8-blitz-step { text-align: center; font-size: 20px; font-weight: 700; color: ${T.accent};
+  margin-bottom: 8px; }
+.lesson-root .g8-blitz-q .g8-blitz-head { justify-content: center; margin-bottom: 14px; }
+.lesson-root .g8-blitz-q .g8-blitz-ask { font-size: 26px; line-height: 1.25; text-align: center;
+  color: ${T.ink}; }
+@media (max-width: 760px), (max-height: 720px) {
+  .lesson-root .g8-blitz-q { padding: 14px 16px 16px; border-radius: 18px; }
+  .g8-blitz-step { font-size: 17px; }
+  .lesson-root .g8-blitz-q .g8-blitz-ask { font-size: 20px; }
+  .g8-blitz-dots i { width: 22px; }
 }
 `
