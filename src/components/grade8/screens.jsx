@@ -30,7 +30,7 @@ import {
   Ask, Btn, L, LangProvider, Lead, Note, STYLES, Stage, Title, UI_TXT,
   configureLesson, tr, useAdvanceGate, useAudio, useMobileZoom, useT,
 } from './core.jsx'
-import { Drill, FEED_STYLES, FillSolution, Chain, Parts, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
+import { CatchBuild, Drill, FEED_STYLES, FillSolution, Chain, Parts, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { PLOT_STYLES } from './plot.jsx'
@@ -286,7 +286,15 @@ export function ScreenBody(props) {
     case 'inverse':
       return <Inverse {...p} audio={audio} onSolved={onSolved} />
     case 'blitz':
-      return <Blitz {...p} audio={audio} onSolved={onSolved} onReady={onReady} />
+      return (
+        <Blitz
+          {...p}
+          audio={audio}
+          onSolved={onSolved}
+          onReady={onReady}
+          buildView={(q, close) => <CatchBuild {...q.build} onDone={() => close(true)} />}
+        />
+      )
     case 'summary':
       return (
         <SummaryBody

@@ -50,7 +50,7 @@ const SOLVE = [
   { drill: 3 },                                                          // 11 сам: три примера с решением
   { drill: 2 },                                                          // 12 ловушка: две чужие ошибки
   { cells: ['=', '0', '9', '3', '≠', '3'] },                             // 13 заполняем клетки по порядку
-  { blitz: true },                                                       // 14 блиц
+  { blitz: true, tiles: ['60000', 'n', '≠', '0'] },                     // 14 блиц
   {},                                                                    // 15 итог
 ]
 
@@ -410,17 +410,30 @@ for (const size of SIZES) {
     if (s.blitz) {
       // Отвеченный вопрос СВОРАЧИВАЕТСЯ в строку и исчезает из `.g8-blitz-q`,
       // поэтому берём каждый раз первый открытый, а не список сразу.
-      for (let q = 0; q < 4; q += 1) {
-        const open = page.locator('.g8-blitz-q').first()
-        if (await open.count() === 0) break
-        const n = await open.locator('.g8-opt').count()
+      // Вопрос СВОРАЧИВАЕТСЯ сразу после верного ответа, и старая ссылка на
+      // кнопку становится мёртвой. Поэтому каждый клик ищет вариант заново.
+      for (let step = 0; step < 24; step += 1) {
+        const nq = await page.locator('.g8-blitz-q').count()
+        if (nq === 0) break
+        const n = await page.locator('.g8-blitz-q .g8-opt').count()
+        if (!n) break
+        let moved = false
         for (let o = 0; o < n; o += 1) {
-          const before = await page.locator('.g8-blitz-q').count()
-          // Вариант выбирается ПО ИНДЕКСУ: неверный становится disabled, и
-          // `first()` продолжал бы указывать на него.
-          await tap(open.locator('.g8-opt').nth(o), at)
+          const opt = page.locator('.g8-blitz-q .g8-opt').nth(o)
+          if (await opt.count() === 0) break
+          await opt.click({ force: true, timeout: 2500 }).catch(() => {})
           await page.waitForTimeout(200)
-          if (await page.locator('.g8-blitz-q').count() < before) break
+          if (await page.locator('.g8-blitz-q .g8-opt').count() !== n) { moved = true; break }
+        }
+        if (!moved) break
+      }
+      // Пятый вопрос — сборка из летящих плиток: вариантов у него нет.
+      if (s.tiles) {
+        for (const v of s.tiles) {
+          const tile = page.locator('.g8-cb-tile').filter({ hasText: new RegExp('^' + v + '$') }).first()
+          if (await tile.count() === 0) continue
+          await tile.click({ force: true, timeout: 2500 }).catch(() => {})
+          await page.waitForTimeout(260)
         }
       }
     }

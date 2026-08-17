@@ -1262,19 +1262,19 @@ const S13 = {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
   title: L(
-    "To'rt savol",
-    'Четыре вопроса',
-    'Four questions',
+    'Besh savol',
+    'Пять вопросов',
+    'Five questions',
   ),
   audio: [
     A('mount',
-      "To'rt savol bitta panelda. Ular yozuvni emas, belgini so'raydi, ya'ni nimaga qarab ajratasiz.",
-      'Четыре вопроса в одной панели. Они спрашивают не запись, а признак, то есть по чему ты различаешь.',
-      'Four questions in one panel. They ask not for a record but for the sign, that is what you tell things apart by.'),
+      "Savollar birin ketin chiqadi. Ular yozuvni emas, belgini so'raydi, ya'ni nimaga qarab ajratasiz.",
+      'Вопросы выходят один за другим. Они спрашивают не запись, а признак, то есть по чему ты различаешь.',
+      'Questions come one after another. They ask not for a record but for the sign, that is what you tell things apart by.'),
     A('why',
-      "Ball bu yerda yo'q. Birinchi urinishlardan takrorlash kerak bo'lgan narsa yig'iladi.",
-      'Балла здесь нет. Из первых попыток соберётся то, что стоит повторить.',
-      'There is no mark here. Your first attempts will show what is worth another pass.'),
+      "Hisob birinchi urinish bo'yicha yuradi. Birinchi urinishlardan takrorlash kerak bo'lgan narsa yig'iladi.",
+      'Счёт идёт по первой попытке. Из остального соберётся то, что стоит повторить.',
+      'The count goes by the first attempt. The rest shows what is worth another pass.'),
   ],
   props: {
     items: [
@@ -1364,6 +1364,45 @@ const S14 = {
           'Ответ без проверки — это ответ на слово. Подставь число и посмотри сам.',
           'An unchecked answer is an answer on trust. Put a number in and see for yourself.',
         ),
+      },
+      {
+        id: 'q5',
+        tag: 'З2',
+        ask: L(
+          "Hisobni bo'lib to'lash",
+          'Счёт делят на всех',
+          'Splitting the bill',
+        ),
+        builtLabel: L("yig'ildi", 'собрано', 'assembled'),
+        build: {
+          lead: L(
+            "Kafeda hisob 60000 so'm, uni n kishi teng bo'lishadi. Uchib yurgan plitkalardan yozuvni yig'ing.",
+            'В кафе счёт 60000 сум, его делят поровну на n человек. Собери запись из летящих плиток.',
+            'A cafe bill of 60000 is split evenly among n people. Assemble the record from the drifting tiles.',
+          ),
+          lines: [
+            [{ t: 'Har biriga:   ' }, { slot: '60000' }, { t: ' : ' }, { slot: 'n' }],
+            [{ t: 'Shart:   n ' }, { slot: '≠' }, { t: ' ' }, { slot: '0' }],
+          ],
+          tiles: [
+            { id: 't1', v: '60000', x: 8, y: 16 },
+            { id: 't2', v: 'n', x: 62, y: 12 },
+            { id: 't3', v: '≠', x: 34, y: 58 },
+            { id: 't4', v: '0', x: 78, y: 62 },
+            { id: 't5', v: '+', x: 20, y: 66 },
+            { id: 't6', v: '=', x: 50, y: 24 },
+          ],
+          hint: L(
+            "Bitta kishiga tegadigan pul hisobni odam soniga bo'lgandan chiqadi, qo'shgandan emas.",
+            'Доля одного получается делением счёта на число людей, а не сложением.',
+            'One share comes from dividing the bill by the number of people, not from adding.',
+          ),
+          doneNote: L(
+            "Yig'ildi. Odam soni nolga aylanmaydi, shuning uchun shart yozuv bilan birga yuradi.",
+            'Собрано. Людей не бывает ноль, поэтому условие идёт вместе с записью.',
+            'Assembled. There is never zero people, so the condition travels with the record.',
+          ),
+        },
       },
     ],
   },
@@ -1499,7 +1538,9 @@ export const SCREENS = [
   { role: 'practice', tool: 'drill',     kind: 'solo',     tag: 'З16', ...S11 },
   { role: 'practice', tool: 'drill',     kind: 'audit',    tag: 'З16', ...S12 },
   { role: 'transfer', tool: 'fill',      tag: 'З2', ...S13 },
-  { role: 'blitz',    tool: 'blitz',     ...S14 },
+  { role: 'blitz',    tool: 'blitz',     ...S14,
+    props: { ...S14.props,
+      scoreLabel: L('birinchi urinishdan', 'с первой попытки', 'on the first try') } },
   { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
 ]
 

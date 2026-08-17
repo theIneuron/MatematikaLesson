@@ -904,13 +904,17 @@ export function Boundary({ left, right, odzLeft, odzRight, fig, answer, hints, q
 //     items: [{ id, ask, options:[{id,label,right}], tag, hint }] — aynan 4 ta.
 //     onReady({ first, total, tags }) — 15-ekran shu ma'lumotdan yashaydi.
 // ============================================================
-export function Blitz({ items, lead, onSolved, onReady, audio }) {
+export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreLabel }) {
   const t = useT()
   const sfx = useSfx()
   const canAnswer = useInstructionGate(audio)
   const [state, setState] = useState({})   // id -> { picked, first, tries }
   const [note, setNote] = useState(null)
   const done = items.every((q) => state[q.id] && state[q.id].picked)
+  // ПОСЛЕДОВАТЕЛЬНО (методист, 2026-08-17). Вопросы выходят по одному:
+  // все четыре сразу читаются как анкета, а не как блиц.
+  const at = items.findIndex((q) => !(state[q.id] && state[q.id].picked))
+  const scored = items.filter((q) => state[q.id] && state[q.id].first).length
   const reported = useRef(false)
 
   const pick = (q, opt) => {
@@ -931,6 +935,12 @@ export function Blitz({ items, lead, onSolved, onReady, audio }) {
     setState((s) => ({ ...s, [q.id]: { ...prev, picked: opt.id, tries, first: tries === 1 } }))
   }
 
+  const closeBuild = (q, clean) => {
+    const prev = state[q.id] || { tries: 0 }
+    if (prev.picked) return
+    setState((s2) => ({ ...s2, [q.id]: { ...prev, picked: 'built', tries: 1, first: clean } }))
+  }
+
   // Natija BIR MARTA yuboriladi: birinchi urinishlar soni va yopilmagan teglar.
   useEffect(() => {
     if (!done || reported.current) return
@@ -949,13 +959,15 @@ export function Blitz({ items, lead, onSolved, onReady, audio }) {
       <div className="g8-blitz">
         {items.map((q, i) => {
           const st = state[q.id] || {}
+          if (!st.picked && i !== at) return null
           if (st.picked) {
             const chosen = q.options.find((o) => o.id === st.picked)
             return (
               <div className="g8-blitz-done" key={q.id}>
                 <span className="g8-blitz-n">{i + 1}</span>
                 <span className="g8-blitz-ask">{t(q.ask)}</span>
-                <span className="g8-blitz-ans">{t(chosen ? chosen.label : '')}</span>
+                <span className="g8-blitz-ans">{t(chosen ? chosen.label : (q.builtLabel || ''))}</span>
+                <span className={'g8-blitz-dot' + (st.first ? ' is-first' : '')}/>
               </div>
             )
           }
@@ -965,6 +977,9 @@ export function Blitz({ items, lead, onSolved, onReady, audio }) {
                 <span className="g8-blitz-n">{i + 1}</span>
                 <span className="g8-blitz-ask">{t(q.ask)}</span>
               </div>
+              {q.build && buildView
+                ? buildView(q, (clean) => closeBuild(q, clean))
+                : (
               <Choice
                 items={q.options.map((o) => ({ id: o.id, label: t(o.label) }))}
                 picked={null}
@@ -974,9 +989,18 @@ export function Blitz({ items, lead, onSolved, onReady, audio }) {
                 cols={2}
                 dense
               />
+              )}
             </div>
           )
         })}
+        {/* СЧЁТ идёт по ПЕРВОЙ попытке: со второго раза вопрос не
+            засчитывается — иначе перебор вариантов выглядит как знание. */}
+        {done ? (
+          <div className="g8-blitz-score">
+            <b>{scored} / {items.length}</b>
+            <span>{t(scoreLabel)}</span>
+          </div>
+        ) : null}
       </div>
       <Slot mh={46}>
         {note && !done ? <Note kind="no">{t(note)}</Note> : null}
@@ -2224,5 +2248,21 @@ export const TOOLS_STYLES = `
   .g8-blitz-ask { font-size: 12px; line-height: 1.28; }
   .g8-blitz .g8-opt { min-height: 34px; padding: 5px 10px; font-size: 12px; }
   .g8-blitz .g8-choice { gap: 4px; }
+}
+
+/* СЧЁТ БЛИЦА по первой попытке (методист, 2026-08-17). */
+.g8-blitz-score { display: flex; align-items: center; gap: 12px; justify-content: center;
+  padding: 12px 20px; border-radius: 16px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.10); margin-top: 4px; }
+.g8-blitz-score b { font-size: 30px; color: ${T.accent}; }
+.g8-blitz-score span { font-size: 18px; color: ${T.ink2}; }
+.g8-blitz-dot { width: 10px; height: 10px; border-radius: 50%; flex: none;
+  box-shadow: inset 0 0 0 2px rgba(23,26,29,.20); }
+.g8-blitz-dot.is-first { background: ${T.ok}; box-shadow: none; }
+
+@media (max-width: 760px), (max-height: 720px) {
+  .g8-blitz-score { padding: 8px 14px; }
+  .g8-blitz-score b { font-size: 24px; }
+  .g8-blitz-score span { font-size: 15px; }
 }
 `

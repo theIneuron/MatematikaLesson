@@ -1024,6 +1024,87 @@ export function FillSolution({
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
 // ============================================================
+/* ПОЙМАЙ И СОБЕРИ — математика в реальной жизни (методист, 2026-08-17).
+   Плитки со значениями дрейфуют по сцене, ученик ловит их по очереди и
+   собирает запись. Порядок задан: следующая нужная плитка одна, поэтому
+   промах — это не «не туда попал мышкой», а неверный выбор значения. */
+export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [got, setGot] = useState([])
+  const [bad, setBad] = useState(null)
+  const [fly, setFly] = useState(null)
+
+  const want = []
+  lines.forEach((ln) => ln.forEach((it) => { if (it.slot !== undefined) want.push(it.slot) }))
+  const done = got.length >= want.length
+
+  const take = (tile) => {
+    if (done) return
+    if (got.some((g) => g.id === tile.id)) return
+    if (tile.v !== want[got.length]) {
+      setBad(tile.id)
+      sfx.playWrong()
+      setTimeout(() => setBad(null), 460)
+      return
+    }
+    sfx.playCorrect()
+    setFly(tile.id)
+    setGot(got.concat([{ id: tile.id, v: tile.v }]))
+    setTimeout(() => setFly(null), 420)
+    if (got.length + 1 >= want.length && onDone) onDone()
+  }
+
+  // Номер клетки считаем заранее: счётчик, растущий прямо в разметке,
+  // это мутация во время отрисовки — React такое не принимает.
+  const nth = lines.map((ln) => ln.map(() => -1))
+  let c = -1
+  lines.forEach((ln, i) => ln.forEach((it, j) => { if (it.slot !== undefined) { c += 1; nth[i][j] = c } }))
+
+  return (
+    <div className="g8-cb">
+      {lead ? <div className="g8-cb-lead">{t(lead)}</div> : null}
+      <div className="g8-cb-rec">
+        {lines.map((ln, i) => (
+          <div className="g8-cb-line" key={i}>
+            {ln.map((it, j) => {
+              if (it.slot === undefined) return <span className="g8-cb-tx" key={j}>{it.t}</span>
+              const g = got[nth[i][j]]
+              return (
+                <span className={'g8-cb-slot' + (g ? ' is-set' : '')} key={j}>
+                  {g ? g.v : ''}
+                </span>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+      <div className="g8-cb-stage">
+        {tiles.map((x, i) => {
+          const taken = got.some((g) => g.id === x.id)
+          return (
+            <button
+              type="button"
+              key={x.id}
+              className={'g8-cb-tile'
+                + (bad === x.id ? ' is-bad' : '')
+                + (fly === x.id ? ' is-fly' : '')
+                + (taken ? ' is-out' : '')}
+              style={{ left: x.x + '%', top: x.y + '%', animationDelay: (i * 0.7) + 's' }}
+              onClick={() => take(x)}>
+              {x.v}
+            </button>
+          )
+        })}
+      </div>
+      <Slot mh={40}>
+        {done ? <Note kind="ok">{t(doneNote)}</Note>
+          : bad ? <Note kind="no">{t(hint)}</Note> : null}
+      </Slot>
+    </div>
+  )
+}
+
 export const FEED_STYLES = `
 .g8-fd { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%;
   flex: 1 1 auto; justify-content: center; min-height: 0; }
@@ -1575,4 +1656,50 @@ export const FEED_STYLES = `
   border-radius: 12px; background: transparent; color: ${T.ink3}; font-size: 20px;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.12); }
 .lesson-root .g8-fl-undo:hover { color: ${T.ink}; }
+
+/* ПОЙМАЙ И СОБЕРИ. Плитки дрейфуют, поэтому сцена — слой с абсолютными
+   координатами; запись стоит над ней и не съезжает от движения. */
+.g8-cb { display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%; }
+.g8-cb-lead { font-size: 19px; color: ${T.ink2}; text-align: center; max-width: 640px; }
+.g8-cb-rec { display: flex; flex-direction: column; gap: 6px; align-items: center;
+  padding: 12px 20px; border-radius: 16px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.10); }
+.g8-cb-line { display: flex; align-items: center; gap: 6px; font-size: 30px; color: ${T.ink};
+  font-family: ${MATH_FONT}; white-space: pre; width: 100%; }
+.g8-cb-line > .g8-cb-tx:first-child { flex: 1; text-align: right; }
+.g8-cb-slot { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 62px; height: 46px; border-radius: 10px; font-size: 28px;
+  box-shadow: inset 0 0 0 2px rgba(23,26,29,.16); }
+.g8-cb-slot.is-set { box-shadow: inset 0 0 0 2px ${T.accent}; color: ${T.accent};
+  animation: g8-cb-land .38s ease-out both; }
+@keyframes g8-cb-land { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+
+.g8-cb-stage { position: relative; width: 100%; max-width: 720px; height: 150px;
+  border-radius: 18px; background: ${T.paper2}; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
+.lesson-root .g8-cb-tile { position: absolute; border: 0; cursor: pointer;
+  min-width: 60px; min-height: 46px; padding: 0 12px; border-radius: 12px;
+  background: ${T.paper}; color: ${T.ink}; font-size: 24px; font-family: ${MATH_FONT};
+  box-shadow: 0 2px 8px rgba(23,26,29,.14);
+  animation: g8-cb-drift 6s ease-in-out infinite alternate; }
+@keyframes g8-cb-drift {
+  0% { transform: translate(0, 0); }
+  50% { transform: translate(14px, -12px); }
+  100% { transform: translate(-10px, 10px); }
+}
+.lesson-root .g8-cb-tile.is-bad { box-shadow: 0 0 0 2px ${T.no}; animation: g8-cb-shake .42s; }
+@keyframes g8-cb-shake { 25% { margin-left: -7px; } 75% { margin-left: 7px; } }
+.lesson-root .g8-cb-tile.is-out { opacity: 0; pointer-events: none; transition: opacity .3s; }
+@media (prefers-reduced-motion: reduce) { .lesson-root .g8-cb-tile { animation: none; } }
+
+/* ТЕЛЕФОН. Сцена ловли высокая, и вместе с записью и счётом экран 14
+   переставал влезать. На узком экране плитки летают в поле пониже,
+   запись уменьшается, но остаётся выровненной по знаку. */
+@media (max-width: 760px), (max-height: 720px) {
+  .g8-cb-stage { height: 118px; }
+  .g8-cb-line { font-size: 24px; }
+  .g8-cb-slot { min-width: 50px; height: 38px; font-size: 22px; }
+  .lesson-root .g8-cb-tile { min-height: 40px; font-size: 20px; padding: 0 10px; }
+  .g8-cb-lead { font-size: 16px; }
+}
 `
