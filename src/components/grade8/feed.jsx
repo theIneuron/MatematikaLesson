@@ -1131,4 +1131,47 @@ export const FEED_STYLES = `
 @media (max-width: 640px) {
   .g8-fd-btn { min-width: 54px; min-height: 54px; }
 }
+
+/* ====================================================================
+   СБОРКА ПРАВИЛА — ПО ОБРАЗЦУ УРОКА 1 ЧЕТВЁРТОГО КЛАССА.
+   Было: тонкая строка для сборки и мелкие кнопки в ряд — собирать неудобно,
+   и не видно, куда класть. Стало: заметное поле сборки, крупные куски
+   карточками, понятная подпись внутри поля.
+
+   Стили лежат ЗДЕСЬ, а не в tools.jsx: этот файл подключается позже и
+   перебивает его. Префикс .lesson-root обязателен — иначе правило для кнопок
+   внутри урока перебьёт кегль.
+   ==================================================================== */
+.lesson-root .g8-rb-built {
+  min-height: 92px;
+  border-radius: 16px;
+  background: ${T.graphSoft};
+  box-shadow: inset 0 0 0 2px rgba(${T.graphRgb},.28);
+  padding: 14px 16px;
+  align-items: center;
+  gap: 8px;
+}
+.lesson-root .g8-rb-empty { font-size: clamp(13px, 1.2vw, 16px); color: ${T.graph}; font-weight: 600; }
+.lesson-root .g8-rb-bag { gap: 10px; justify-content: center; margin-top: 12px; }
+.lesson-root .g8-rb-chip {
+  font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 600;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 12px;
+  background: ${T.paper};
+  box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.08);
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.lesson-root .g8-rb-chip:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.4); }
+.lesson-root .g8-rb-chip.is-built { background: ${T.graphSoft}; }
+
+/* На тесной высоте поле сборки ниже, куски компактнее: экран правила несёт
+   ещё три карточки результатов сверху (замер: +3 на ноутбуке 615). */
+@media (max-height: 680px) {
+  .lesson-root .g8-rb-built { min-height: 70px; padding: 10px 12px; }
+  .lesson-root .g8-rb-chip { min-height: 40px; padding: 0 14px; font-size: 14px; }
+  .lesson-root .g8-rb-bag { margin-top: 8px; gap: 8px; }
+}
 `
