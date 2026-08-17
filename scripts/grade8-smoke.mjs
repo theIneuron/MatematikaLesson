@@ -280,8 +280,12 @@ for (const size of SIZES) {
     }
     // Счётчики: жмём минус у правого столбца, пока не доведём до нуля.
     if (s.dial !== undefined) {
+      // Сначала обратная задача: доводим количество до четырёх (цена 150),
+      // потом роняем приложение нулём.
+      const plus = page.locator('.g8-st-col').nth(1).locator('.g8-st-btn').last()
       const minus = page.locator('.g8-st-col').nth(1).locator('.g8-st-btn').first()
-      for (let k = 0; k < s.dial + 1; k += 1) { await tap(minus, at); await page.waitForTimeout(180) }
+      await tap(plus, at); await page.waitForTimeout(200)
+      for (let k = 0; k < 6; k += 1) { await tap(minus, at); await page.waitForTimeout(170) }
     }
     // Сборка записи: кладём число сверху и букву снизу — это и есть ответ.
     if (s.slots) {

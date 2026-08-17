@@ -481,12 +481,17 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
 // Устройство из урока 1 второго класса («Собери 245»): там столбцы разрядов
 // с плюсом и минусом, здесь — поля, из которых складывается формула.
 // ============================================================
-export function Steppers({ cols, calc, resultLabel, sign, ask, broke, onSolved, audio }) {
+// `goal` поднимает возраст экрана: вместо «покрути и посмотри» ученик решает
+// ОБРАТНУЮ задачу — подбери количество, при котором цена станет ровно такой.
+// Это уже рассуждение о делителях, а не перебор наугад.
+export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [vals, setVals] = useState(cols.map((c) => c.start))
   const [touched, setTouched] = useState(false)
   const [found, setFound] = useState(false)
+  // `hit` — первая задача решена: цена подобрана. До этого ронять нельзя.
+  const [hit, setHit] = useState(!goal)
 
   const out = calc(vals)
   const dead = out === null || !isFinite(out)
@@ -501,9 +506,15 @@ export function Steppers({ cols, calc, resultLabel, sign, ask, broke, onSolved, 
     setVals(next)
     setTouched(true)
     const res = calc(next)
+    if (goal && !hit && res === goal.value) {
+      setHit(true)
+      sfx.playCorrect()
+      if (audio && goal.after) audio.say(t(goal.after))
+      return
+    }
     if (res === null || !isFinite(res)) {
       sfx.playWrong()
-      if (!found) {
+      if (!found && hit) {
         setFound(true)
         if (audio && broke) audio.say(t(broke))
         if (onSolved) onSolved({ correct: true, tries: 1 })
@@ -547,7 +558,9 @@ export function Steppers({ cols, calc, resultLabel, sign, ask, broke, onSolved, 
       </div>
 
       <Slot mh={62}>
-        {found && dead ? <Note kind="no">{t(broke)}</Note> : <Ask>{t(ask)}</Ask>}
+        {found && dead
+          ? <Note kind="no">{t(broke)}</Note>
+          : <Ask>{t(hit && ask2 ? ask2 : ask)}</Ask>}
       </Slot>
     </>
   )

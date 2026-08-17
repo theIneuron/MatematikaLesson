@@ -489,10 +489,26 @@ const S3 = {
     ],
     calc: (v) => (v[1] === 0 ? null : v[0] / v[1]),
     resultLabel: L('bir dona narxi', 'цена за штуку', 'price per item'),
+    // ДВЕ ЗАДАЧИ, а не «покрути и посмотри». Первая обратная: подобрать
+    // количество под заданную цену — это рассуждение о делителях. Вторая
+    // открывается после неё.
+    goal: {
+      value: 150,
+      after: L(
+        "To'g'ri: olti yuzni yuz ellikka bo'lsak, to'rtta chiqadi.",
+        'Верно: шестьсот разделить на сто пятьдесят — получается четыре.',
+        'Correct: six hundred divided by one hundred fifty gives four.',
+      ),
+    },
     ask: L(
-      "Miqdorni kamaytiring: narx qachon hisoblanmay qoladi?",
-      'Уменьшай количество — когда цена перестанет считаться?',
-      'Decrease the quantity: when does the price stop computing?',
+      "Narx aynan 150 bo'ladigan miqdorni tanlang",
+      'Подбери количество, при котором цена будет ровно 150',
+      'Set the quantity so that the price is exactly 150',
+    ),
+    ask2: L(
+      "Endi ilovani yiqiting: miqdorni nolgacha tushiring",
+      'Теперь урони приложение: доведи количество до нуля',
+      'Now crash the app: bring the quantity down to zero',
     ),
     broke: L(
       "Miqdor nol bo'ldi va ilova yiqildi: summani nolga bo'lib bo'lmaydi.",
