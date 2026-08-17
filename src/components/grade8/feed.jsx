@@ -422,7 +422,7 @@ export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdic
 // сравнивать способы можно только когда они видны ОДНОВРЕМЕННО, а
 // пошаговое открытие показывает их по очереди и сравнение убивает.
 // ============================================================
-export function TwoWays({ blocks, stepMs = 1100, onStep }) {
+export function TwoWays({ blocks, stepMs = 1900, onStep }) {
   const t = useT()
   // ПОСТРОЧНОЕ ОТКРЫТИЕ ПОД ОЗВУЧКУ. Высота карточки при этом ПОЛНАЯ с первой
   // секунды: строки уже стоят, но невидимы. Иначе карточка растёт, экран
@@ -440,7 +440,7 @@ export function TwoWays({ blocks, stepMs = 1100, onStep }) {
     const id = setTimeout(() => {
       setShown((n) => n + 1)
       if (stepRef.current) stepRef.current('w' + (shown + 1))
-    }, shown === 0 ? 600 : stepMs)
+    }, shown === 0 ? 900 : stepMs)
     return () => clearTimeout(id)
   }, [shown, total, stepMs])
   // Номер строки считается ЗАРАНЕЕ, а не счётчиком по ходу разметки:
@@ -554,12 +554,12 @@ export const FEED_STYLES = `
 .g8-tw-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(12.5px, 1.1vw, 15px);
   color: ${T.ink2}; text-align: center; }
 .g8-tw-rows { display: flex; flex-direction: column; gap: 2px; align-items: center; }
-.g8-tw-row { display: flex; align-items: baseline; gap: 10px;
+.g8-tw-row { display: flex; align-items: baseline; gap: 10px; white-space: pre;
   font-size: clamp(16px, 1.6vw, 21px); color: ${T.ink};
   visibility: hidden; clip-path: inset(0 100% 0 0); }
 /* Строка ПЕЧАТАЕТСЯ: раскрывается слева направо, как будто её набирают.
    Высота при этом занята с первой секунды — карточка не растёт. */
-.g8-tw-row.is-open { visibility: visible; animation: g8-tw-type 620ms steps(24, end) both; }
+.g8-tw-row.is-open { visibility: visible; animation: g8-tw-type 1000ms steps(30, end) both; }
 @keyframes g8-tw-type { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
 .g8-tw-row.tone-no span { color: ${T.tip}; }
 .g8-tw-row.tone-ok span { color: ${T.ok}; }

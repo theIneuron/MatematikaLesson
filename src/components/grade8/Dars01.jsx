@@ -621,6 +621,8 @@ const S6 = {
       'One line and the answer is ready. No guessing needed.'),
   ],
   props: {
+    // Темп медленнее: методист сказал, что печатается слишком быстро.
+    stepMs: 1900,
     blocks: [
       {
         name: L('1-USUL — SONLARNI SINAYMIZ', 'СПОСОБ 1 — ПОДСТАВЛЯЕМ ЧИСЛА', 'METHOD 1 — SUBSTITUTE NUMBERS'),
@@ -630,10 +632,10 @@ const S6 = {
           'We substitute each number in turn',
         ),
         rows: [
-          { text: 'k = 1:   600 : (1 − 4) = −200' },
-          { text: 'k = 2:   600 : (2 − 4) = −300' },
-          { text: 'k = 3:   600 : (3 − 4) = −600' },
-          { text: 'k = 4:   600 : (4 − 4) = 600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
+          { text: 'k = 1   →   600 : (1 − 4)   =   −200' },
+          { text: 'k = 2   →   600 : (2 − 4)   =   −300' },
+          { text: 'k = 3   →   600 : (3 − 4)   =   −600' },
+          { text: 'k = 4   →   600 : (4 − 4)   =   600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
         ],
       },
       {
