@@ -1056,161 +1056,129 @@ const S10 = {
 
 
 // ============================================================
+// EKRAN 11. O'ZI. Uchta misol, endi yordamsiz: har birida javob tanlanadi,
+// keyin yechim ochiladi. Murakkabligi 9-ekrandan yuqori — bu yerda maxraj
+// ko'paytuvchilarga ajraladi va kvadrat uchraydi.
+// ============================================================
 const S11 = {
-  eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'WITHOUT THE TOOL'),
+  eyebrow: L('MUSTAQIL', 'САМ', 'ON YOUR OWN'),
   title: L(
-    "Asbob yo'q",
-    'Прибора нет',
-    'No tool',
+    "Endi yordamsiz",
+    'Теперь без помощи',
+    'Now without help',
   ),
   audio: [
     A('mount',
-      "Bu ekranda asbob yo'q. Bosiladigan qismlar ham, tayyor soha satri ham yo'q. Faqat yozuv va ikki maydon.",
-      'На этом экране прибора нет. Ни нажимаемых частей, ни готовой строки области. Только запись и два поля.',
-      'There is no tool on this screen. No tappable parts, no ready domain line. Only the record and two fields.'),
-    A('why',
-      "Xayolda va qoralamada sanang. Imtihonda kalkulyator bo'lmaydi.",
-      'Считай в уме и на черновике. На экзамене калькулятора не будет.',
-      'Count in your head and on the draft. There will be no calculator at the exam.'),
+      "Uchta yozuv. Yordam yo'q, lekin har qadamdan keyin yechim ochiladi.",
+      'Три записи. Помощи нет, но после каждого ответа откроется решение.',
+      'Three records. No help, but after each answer the solution opens.'),
   ],
   props: {
-    show: <Row size="big" align="center">{F('2x + 10', 'x² − 25')}</Row>,
-    result: {
-      ask: L(
-        "x = 1 dagi qiymatni toping. Sonni yozing",
-        'Найди значение при x = 1. Запиши число',
-        'Find the value at x = 1. Type the number',
-      ),
-      answer: '-0.5',
-      accepts: ['-1/2', '12/(-24)'],
-      hints: {
-        '0.5': L(
-          "Belgini tekshiring: pastda bir minus yigirma besh, ya'ni minus yigirma to'rt.",
-          'Проверь знак: снизу один минус двадцать пять, то есть минус двадцать четыре.',
-          'Check the sign: below is one minus twenty five, that is minus twenty four.',
-        ),
-        '-2': L(
-          "Yuqorida ikki marta bir plyus o'n, ya'ni o'n ikki. Pastda minus yigirma to'rt.",
-          'Сверху два раза один плюс десять, то есть двенадцать. Снизу минус двадцать четыре.',
-          'Above is two times one plus ten, that is twelve. Below is minus twenty four.',
-        ),
-      },
-    },
-    odz: {
-      varName: 'x',
-      excluded: [5, -5],
-      ask: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-      accepts: ['x != 5, x != -5', 'x != -5, x != 5'],
-      hints: {
-        'x != 5': L(
-          "Bitta shart yetmaydi. Minus beshni qo'ying: maxraj yana nolga aylanadi.",
-          'Одного условия не хватает. Подставь минус пять: знаменатель снова обращается в нуль.',
-          'One condition is missing. Put minus five: the denominator becomes zero again.',
-        ),
-        'x != 25': L(
-          "Yigirma beshni qo'ying: maxraj olti yuzga yaqin bo'ladi, nol emas. Yigirma besh kvadrat ostida turgan edi.",
-          'Подставь двадцать пять: знаменатель станет около шестисот, а не нуль. Двадцать пять стояло под квадратом.',
-          'Put twenty five: the denominator becomes about six hundred, not zero. Twenty five stood under the square.',
-        ),
-      },
-    },
-    proof: {
-      varName: 'x',
-      from: '(2*x+10)/(x*x-25)',
-      to: '(2*x+10)/((x-5)*(x+5))',
-      ask: L(
-        "O'zingizni tekshiring: o'z sonini ikki yozuvga ham qo'ying",
-        'Проверь себя: поставь своё число в обе записи',
-        'Check yourself: put your own number into both records',
-      ),
-      done: L('tekshirildi:', 'проверено при:', 'checked at:'),
-      hole: L(
-        "Bu sonda ikki yozuvning ham qiymati yo'q: bu aynan taqiqlangan qiymat. Boshqa son oling.",
-        'При этом числе ни одна из записей не считается: это и есть запрещённое значение. Возьми другое число.',
-        'At this number neither record works: this is exactly a forbidden value. Take another number.',
-      ),
-      diff: L(
-        "Qiymatlar ajraldi. Ajratish qiymatlarni o'zgartirmasligi kerak — hisobni qaytadan qarang.",
-        'Значения разошлись. Разложение не должно менять значения — проверь счёт.',
-        'The values diverged. Factorising must not change values, so check the arithmetic.',
-      ),
-    },
-    note: L(
-      "Ajratish qiymatlarni o'zgartirmadi. U faqat taqiqlarni ko'rinadigan qildi.",
-      'Разложение не изменило значений. Оно только сделало запреты видимыми.',
-      'Factorising changed no values. It only made the restrictions visible.',
+    solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+    nextLabel: L('Keyingisi', 'Дальше', 'Next'),
+    doneNote: L(
+      "Uchtasi ham yechildi. Yo'l bitta: maxrajni nolga tenglash.",
+      'Все три разобраны. Путь один: приравнять знаменатель к нулю.',
+      'All three are done. One path: set the denominator to zero.',
     ),
+    tasks: [
+      {
+        expr: <Row size="big" align="center">{F('8', 'x(x − 3)')}</Row>,
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'x ≠ 0,  x ≠ 3' },
+          { id: 'b', label: 'x ≠ 3', hint: L('Nolda x ning o\'zi nolga aylanadi.', 'При нуле сам x обращается в нуль.', 'At zero, x itself becomes zero.') },
+          { id: 'c', label: 'x ≠ 8', hint: L('Sakkiz yuqorida, maxrajga kirmaydi.', 'Восьмёрка сверху, в знаменатель не входит.', 'The eight is above, not in the denominator.') },
+        ],
+        solution: ['x(x − 3) = 0', 'x = 0   yoki   x = 3', 'x ≠ 0,  x ≠ 3'],
+      },
+      {
+        expr: <Row size="big" align="center">{F('x + 2', '(x − 1)(x − 1)')}</Row>,
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'x ≠ 1' },
+          { id: 'b', label: 'x ≠ 1,  x ≠ −1', hint: L('Ikkala ko\'paytuvchi bir xil, shuning uchun shart bitta.', 'Оба множителя одинаковые, поэтому условие одно.', 'Both factors are the same, so there is one condition.') },
+          { id: 'c', label: 'x ≠ −2', hint: L('Minus ikkida SURAT nolga aylanadi, maxraj emas.', 'При минус двух в нуль обращается числитель, а не знаменатель.', 'At minus two the numerator becomes zero, not the denominator.') },
+        ],
+        solution: ['(x − 1)(x − 1) = 0', 'x = 1', 'x ≠ 1'],
+      },
+      {
+        expr: <Row size="big" align="center">{F('5', 'x · x + 4')}</Row>,
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: L("Taqiq yo'q", 'Запрета нет', 'No restriction') },
+          { id: 'b', label: 'x ≠ 0', hint: L("Nolda x · x + 4 to'rtga teng, nolga emas.", 'При нуле x · x + 4 равно четырём, а не нулю.', 'At zero, x · x + 4 equals four, not zero.') },
+          { id: 'c', label: 'x ≠ −4', hint: L("Minus to'rtda x · x + 4 yigirmaga teng.", 'При минус четырёх x · x + 4 равно двадцати.', 'At minus four, x · x + 4 equals twenty.') },
+        ],
+        solution: [
+          'x · x + 4 = 0',
+          L('x · x = −4 — bunday x yo\'q', 'x · x = −4 — такого x нет', 'x · x = −4 has no solution'),
+          L("Taqiq yo'q", 'Запрета нет', 'No restriction'),
+        ],
+      },
+    ],
   },
 }
 
 // ============================================================
-// EKRAN 12. TUZOQ (§2.2.2). Har bir qadam to'g'ri ko'rinadi, javob esa
-// noto'g'ri. Noto'g'ri satrdan KEYINGI satr undan to'g'ri chiqadi, shuning
-// uchun BIRINCHI noto'g'risini izlash kerak. Kontrprimerni O'QUVCHI kiritadi.
+// EKRAN 12. TUZOQ. Boshqa birovning yechimi berilgan, unda BITTA qator
+// noto'g'ri. O'quvchi qaysi qator ekanini tanlaydi, keyin to'g'ri yechim
+// ochiladi. Har bir qadam to'g'ri KO'RINADI — shuning uchun tuzoq.
 // ============================================================
 const S12 = {
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
   title: L(
-    "Birinchi xato qaysi satrda",
-    'В какой строке первая ошибка',
-    'Which line has the first mistake',
+    "Qaysi qator noto'g'ri",
+    'Какая строка неверна',
+    'Which line is wrong',
   ),
   audio: [
     A('mount',
-      "Endi begona yechim. To'rt satrning hammasi to'g'ri ko'rinadi, javob esa noto'g'ri. Birinchi noto'g'ri satrni toping, chunki undan keyingilari undan to'g'ri kelib chiqadi.",
-      'Теперь чужое решение. Все четыре строки выглядят верными, а ответ неверен. Найди первую неверную строку, потому что следующие из неё выводятся верно.',
-      'Now a solution written by someone else. All four lines look right but the answer is wrong. Find the first wrong line, because the ones after it follow from it correctly.'),
-    W('proof',
-      "Satr topildi. Endi buni son bilan isbotlang, so'z bilan emas.",
-      'Строка найдена. Теперь докажи это числом, а не словами.',
-      'The line is found. Now prove it with a number, not with words.'),
+      "Azizning yechimi. Unda bitta qator noto'g'ri, qolganlari to'g'ri.",
+      'Решение Азиза. В нём одна строка неверна, остальные верны.',
+      "Aziz's solution. One line in it is wrong, the rest are correct."),
   ],
   props: {
-    rows: [
-      { id: 'r1', show: <Row size="row" align="center">{'x² − 4x'}</Row> },
-      { id: 'r2', show: <Row size="row" align="center">{'x² − 4x = x(x − 4)'}</Row> },
-      { id: 'r3', show: <Row size="row" align="center">{'x − 4 = 0,   x = 4'}</Row> },
-      { id: 'r4', show: L('ODZ:  x ≠ 4', 'ОДЗ:  x ≠ 4', 'Domain:  x ≠ 4') },
+    solutionLabel: L('TO\'G\'RI YECHIM', 'ВЕРНОЕ РЕШЕНИЕ', 'CORRECT SOLUTION'),
+    nextLabel: L('Keyingisi', 'Дальше', 'Next'),
+    doneNote: L(
+      "Xatoni topish — imtihonda kerak bo'ladigan ko'nikma.",
+      'Находить чужую ошибку — навык, который нужен на контрольной.',
+      "Finding someone else's mistake is a skill you need on a test.",
+    ),
+    tasks: [
+      {
+        expr: <Row size="big" align="center">{F('3', '2x − 8')}</Row>,
+        question: L(
+          "Aziz yozdi: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Qaysi qator noto'g'ri?",
+          'Азиз написал: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Какая строка неверна?',
+          'Aziz wrote: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Which line is wrong?',
+        ),
+        items: [
+          { id: 'a', right: true, label: L('Uchinchi: x = 16', 'Третья: x = 16', 'Third: x = 16') },
+          { id: 'b', label: L('Birinchi: 2x − 8 = 0', 'Первая: 2x − 8 = 0', 'First: 2x − 8 = 0'), hint: L('Birinchi qator to\'g\'ri: maxraj nolga tenglanadi.', 'Первая строка верна: знаменатель приравнивают к нулю.', 'The first line is correct: the denominator is set to zero.') },
+          { id: 'c', label: L('Ikkinchi: 2x = 8', 'Вторая: 2x = 8', 'Second: 2x = 8'), hint: L('Ikkinchi ham to\'g\'ri: sakkiz o\'ng tomonga o\'tdi.', 'Вторая тоже верна: восьмёрка перешла вправо.', 'The second is correct too: the eight moved to the right.') },
+        ],
+        solution: ['2x − 8 = 0', '2x = 8', 'x = 4', 'x ≠ 4'],
+      },
+      {
+        expr: <Row size="big" align="center">{F('x', 'x − 6')}</Row>,
+        question: L(
+          "Dilnoza yozdi: taqiq x ≠ 0, chunki suratda x turibdi. To'g'rimi?",
+          'Дилноза написала: запрет x ≠ 0, потому что в числителе стоит x. Верно?',
+          'Dilnoza wrote: the restriction is x ≠ 0 because x is in the numerator. Correct?',
+        ),
+        items: [
+          { id: 'a', right: true, label: L("Yo'q, taqiq x ≠ 6", 'Нет, запрет x ≠ 6', 'No, the restriction is x ≠ 6') },
+          { id: 'b', label: L('Ha, to\'g\'ri', 'Да, верно', 'Yes, correct'), hint: L('Suratdagi nol qiymatni nol qiladi, taqiq bermaydi.', 'Нуль в числителе делает значение нулём, а не запретом.', 'A zero in the numerator makes the value zero, not a restriction.') },
+          { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng: nol bo\'lingan olti.', 'При нуле значение есть и равно нулю: нуль делить на минус шесть.', 'At zero the value exists and equals zero: zero divided by minus six.') },
+        ],
+        solution: ['x − 6 = 0', 'x = 6', 'x ≠ 6'],
+      },
     ],
-    answerId: 'r3',
-    hints: {
-      r1: L(
-        "Maxraj to'g'ri ko'chirilgan: chiziq ostida aynan shu turadi.",
-        'Знаменатель выписан верно: под чертой стоит именно это.',
-        'The denominator is copied correctly: this is exactly what is under the bar.',
-      ),
-      r2: L(
-        "Ajratish to'g'ri. Ikkini qo'ying: chapda ham, o'ngda ham minus to'rt chiqadi.",
-        'Разложение верное. Подставь два: и слева, и справа получится минус четыре.',
-        'The factorisation is right. Put two: both sides give minus four.',
-      ),
-      r4: L(
-        "Bu satr oldingisidan to'g'ri chiqadi: taqiq bitta bo'lsa, aynan shunday yoziladi. Xato yuqorida.",
-        'Эта строка следует из предыдущей верно: если запрет один, так и записывают. Ошибка выше.',
-        'This line follows from the previous one correctly: with one restriction that is how you write it. The mistake is above.',
-      ),
-    },
-    ask: {
-      varName: 'x',
-      of: '(x+1)/x',
-      label: L('Kontrprimer', 'Контрпример', 'Counterexample'),
-      wrong: L(
-        "Bu sonni javob allaqachon taqiqlagan. Javobga tushmagan sonni toping.",
-        'Это число ответ уже запретил. Найди то, которое в ответ не попало.',
-        'The answer already forbids this number. Find the one that did not get into the answer.',
-      ),
-      note: L(
-        "Nol maxrajni nolga aylantiradi, lekin javobda yo'q. Ya'ni uchinchi satr x ko'paytuvchisini tashlab ketgan.",
-        'Нуль обращает знаменатель в нуль, но в ответе его нет. Значит третья строка потеряла множитель x.',
-        'Zero makes the denominator zero but is missing from the answer. So the third line lost the factor x.',
-      ),
-    },
   },
 }
 
-// ============================================================
-// EKRAN 13. KO'CHIRISH: TESKARI TOPSHIRIQ. Javob ko'p, ikki xossa
-// tekshiriladi: qiymatlar mos keldimi va taqiqlangan sonlar mos keldimi.
 // ============================================================
 const S13 = {
   eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
@@ -1499,8 +1467,8 @@ export const SCREENS = [
   },
   { role: 'practice', tool: 'drill',     kind: 'drill',    tag: 'З2',  ...S9 },
   { role: 'practice', tool: 'drill',     kind: 'guided',   tag: 'З18', ...S10 },
-  { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16',   ...S11 },
-  { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', ...S12 },
+  { role: 'practice', tool: 'drill',     kind: 'solo',     tag: 'З16', ...S11 },
+  { role: 'practice', tool: 'drill',     kind: 'audit',    tag: 'З16', ...S12 },
   { role: 'transfer', tool: 'inverse',   tag: 'З2', ...S13 },
   { role: 'blitz',    tool: 'blitz',     ...S14 },
   { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
