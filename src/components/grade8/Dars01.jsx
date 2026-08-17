@@ -174,33 +174,8 @@ const CodeScene = () => {
 }
 
 
-const M_KIND = {
-  name: L('1-USUL. BUTUNMI YOKI KASR', 'СПОСОБ 1. ЦЕЛОЕ ИЛИ ДРОБНОЕ', 'METHOD 1. INTEGRAL OR FRACTIONAL'),
-  steps: [
-    L("Kasr chizig'ini toping.", 'Найди черту дроби.', 'Find the fraction bar.'),
-    L("Chiziq ostida harf bormi?", 'Посмотри, есть ли под чертой буква.', 'Check whether a letter is below the bar.'),
-    L("Bor — kasr, yo'q — butun.", 'Есть — дробное, нет — целое.', 'If yes it is fractional, if no it is integral.'),
-  ],
-}
 
-const M_ODZ = {
-  name: L('2-USUL. TAQIQNI TOPISH', 'СПОСОБ 2. НАЙТИ ЗАПРЕТ', 'METHOD 2. FIND THE RESTRICTION'),
-  steps: [
-    L('Maxrajni yozib oling.', 'Выпиши знаменатель.', 'Write out the denominator.'),
-    L('Uni nolga tenglang.', 'Приравняй его к нулю.', 'Set it equal to zero.'),
-    L('Yeching — bu taqiqlangan sonlar.', 'Реши — это запрещённые числа.', 'Solve: these are the forbidden numbers.'),
-    L("Shartni «teng emas» bilan yozing.", 'Запиши условие со знаком «не равно».', 'Write the condition with the not-equal sign.'),
-  ],
-}
 
-const M_CHECK = {
-  name: L('3-USUL. SON BILAN TEKSHIRISH', 'СПОСОБ 3. ПРОВЕРИТЬ ЧИСЛОМ', 'METHOD 3. CHECK WITH A NUMBER'),
-  steps: [
-    L("Ruxsat etilgan sonni oling.", 'Возьми разрешённое число.', 'Take an allowed number.'),
-    L('Ikkala yozuvga qo\'ying.', 'Подставь в обе записи.', 'Substitute it into both records.'),
-    L("Qiymatlar ajralsa — yozuvlar teng emas.", 'Значения разошлись — записи не равны.', 'If the values differ, the records are not equal.'),
-  ],
-}
 
 // ============================================================
 // СЦЕНА ХУКА (§6). Два экрана приложения: у одного пользователя цена
@@ -994,79 +969,91 @@ const S9 = {
 }
 
 // ============================================================
+// EKRAN 10. IKKI SHART BIRDANIGA. Namuna metodistdan: ildizli misolda ODZ
+// SHARTLAR TIZIMI sifatida yoziladi va oraliqlar birlashtiriladi.
+//
+// Ildizlar 2-blokda (9-14 darslar) o'rganiladi, shuning uchun bu yerda
+// ularsiz: usul o'sha — bir nechta shart, har biri alohida, keyin hammasi
+// birga. O'quvchi shartlarni birma-bir yozadi.
+// ============================================================
 const S10 = {
-  eyebrow: L("YO'NALTIRILGAN MASHQ", 'НАПРАВЛЯЕМАЯ ПРАКТИКА', 'GUIDED PRACTICE'),
+  eyebrow: L('IKKI SHART', 'ДВА УСЛОВИЯ', 'TWO CONDITIONS'),
   title: L(
-    "Ikki xil nol bir yozuvda",
-    'Два разных нуля в одной записи',
-    'Two kinds of zero in one record',
+    "Bitta yozuv — ikkita taqiq",
+    'Одна запись — два запрета',
+    'One record, two restrictions',
   ),
   audio: [
     A('mount',
-      "Endi topshiriq uzunroq, va qadamlari nomlangan. Oxirida bitta g'alati narsa chiqadi.",
-      'Теперь задание длиннее, и шаги названы. В конце получится одна странная вещь.',
-      'Now the task is longer and the steps are named. At the end one strange thing will come out.'),
+      "Bu yozuvda maxraj ikkita ko'paytuvchidan iborat. Har biri alohida nolga aylanishi mumkin.",
+      'В этой записи знаменатель из двух множителей. Каждый может обратиться в нуль отдельно.',
+      'In this record the denominator has two factors. Each can become zero on its own.'),
     W('f2',
-      "ODZ yozildi. Endi toping, qaysi sonda surat nolga aylanadi.",
-      'ОДЗ записана. Теперь найди, при каком числе обращается в нуль числитель.',
-      'The domain is written. Now find at which number the numerator becomes zero.'),
-    W('f3',
-      "Surat to'rtda nolga aylanadi, lekin to'rt taqiqlangan. Ya'ni bu yozuvning qiymati hech qanday sonda nolga teng emas.",
-      'Числитель обращается в нуль при четырёх, но четыре запрещено. Значит значения нуль у этой записи нет ни при каком числе.',
-      'The numerator becomes zero at four, but four is forbidden. So this record never takes the value zero.'),
+      "Ikkinchi shart ham kerak: bitta shart butun taqiqni bermaydi.",
+      'Нужно и второе условие: одно условие всего запрета не даёт.',
+      'The second condition is needed too: one condition does not give the whole restriction.'),
   ],
   props: {
-    show: <Row size="big" align="center">{F('x − 4', 'x² − 16')}</Row>,
+    show: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
     fields: [
       {
         ask: L(
-          "Maxraj ikki ko'paytuvchiga ajraladi. Birinchisi x − 4. Ikkinchisini yozing",
-          'Знаменатель раскладывается на два множителя. Первый — x − 4. Запиши второй',
-          'The denominator splits into two factors. The first is x − 4. Type the second',
+          "Birinchi ko'paytuvchi qaysi x da nolga aylanadi?",
+          'При каком x обращается в нуль первый множитель?',
+          'At which x does the first factor become zero?',
         ),
-        answer: 'x+4',
-        accepts: ['4+x', '(x+4)'],
+        answer: '2',
         hints: {
-          'x-4': L(
-            "Unda ikki ko'paytuvchi bir xil bo'ladi. Nolni qo'ying: o'n olti chiqadi, boshlang'ich maxrajda esa minus o'n olti.",
-            'Тогда оба множителя совпадут. Подставь нуль: получится шестнадцать, а в исходном знаменателе минус шестнадцать.',
-            'Then both factors coincide. Put zero: you get sixteen, while the original denominator gives minus sixteen.',
+          '-2': L(
+            "Minus ikkida x − 2 minus to'rtga teng.",
+            'При минус двух x − 2 равно минус четырём.',
+            'At minus two, x − 2 equals minus four.',
           ),
         },
       },
       {
         ask: L(
-          "Qaysi x da SURAT nolga aylanadi? Sonni yozing",
-          'При каком x обращается в нуль ЧИСЛИТЕЛЬ? Запиши число',
-          'At which x does the NUMERATOR become zero? Type the number',
+          "Ikkinchi ko'paytuvchi qaysi x da nolga aylanadi?",
+          'При каком x обращается в нуль второй множитель?',
+          'At which x does the second factor become zero?',
         ),
-        answer: '4',
-        accepts: ['8/2', '2+2'],
+        answer: '-5',
         hints: {
-          '-4': L(
-            "Minus to'rt MAXRAJNI nolga aylantiradi. Surat x − 4.",
-            'Минус четыре обращает в нуль ЗНАМЕНАТЕЛЬ. Числитель это x − 4.',
-            'Minus four makes the DENOMINATOR zero. The numerator is x − 4.',
+          '5': L(
+            "Beshda x + 5 o'nga teng, nolga emas.",
+            'При пяти x + 5 равно десяти, а не нулю.',
+            'At five, x + 5 equals ten, not zero.',
           ),
-          '0': L(
-            "Nolni qo'ying: surat minus to'rt bo'ladi, nol emas.",
-            'Подставь нуль: числитель станет минус четыре, а не нуль.',
-            'Put zero: the numerator becomes minus four, not zero.',
+        },
+      },
+      {
+        kind: 'odz',
+        varName: 'x',
+        excluded: [2, -5],
+        ask: L(
+          "Ikkala shartni birga yozing",
+          'Запиши оба условия вместе',
+          'Write both conditions together',
+        ),
+        accepts: ['x != 2, x != -5', 'x != -5, x != 2'],
+        hints: {
+          'x != 2': L(
+            "Bitta shart yetmaydi: minus beshda maxraj yana nolga aylanadi.",
+            'Одного условия мало: при минус пяти знаменатель снова обращается в нуль.',
+            'One condition is not enough: at minus five the denominator becomes zero again.',
           ),
         },
       },
     ],
     note: L(
-      "To'rt suratni nolga aylantiradi, lekin ODZ ga kirmaydi. Shuning uchun bu kasr hech qachon nolga teng emas.",
-      'Четыре обращает в нуль числитель, но не входит в ОДЗ. Поэтому эта дробь не равна нулю никогда.',
-      'Four makes the numerator zero but is not in the domain. So this fraction is never equal to zero.',
+      "Ikki ko'paytuvchi — ikki shart. Ular BIRGA ODZ ni beradi.",
+      'Два множителя — два условия. Вместе они и дают ОДЗ.',
+      'Two factors mean two conditions. Together they give the domain.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 11. MASHQ 3: ASBOBSIZ (§20 p. 5g). Amallar qatori YO'Q, ODZ satri
-// o'zi to'lmaydi, yordam YO'Q. Yozuv, ikki maydon va O'Z SONI.
+
 // ============================================================
 const S11 = {
   eyebrow: L('ASBOBSIZ', 'БЕЗ ПРИБОРА', 'WITHOUT THE TOOL'),
@@ -1511,9 +1498,9 @@ export const SCREENS = [
   },
   { role: 'practice', tool: 'drill',     kind: 'drill',    tag: 'З2',  ...S9 },
   { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', ...S10 },
-  { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16', method: M_ODZ,   ...S11 },
-  { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', method: M_CHECK, ...S12 },
-  { role: 'transfer', tool: 'inverse',   tag: 'З2',        method: M_KIND, ...S13 },
+  { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16',   ...S11 },
+  { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', ...S12 },
+  { role: 'transfer', tool: 'inverse',   tag: 'З2', ...S13 },
   { role: 'blitz',    tool: 'blitz',     ...S14 },
   { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
 ]
