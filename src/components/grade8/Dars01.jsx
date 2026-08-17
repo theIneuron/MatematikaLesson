@@ -911,139 +911,88 @@ const S8 = {
 // EKRAN 9. MASHQ 1: ZANJIR. To'rt qisqa yozuv, har birining ODZ si.
 // «Taqiqlangan qiymat yo'q» tugmasi HAMMA topshiriqda turadi.
 // ============================================================
+// EKRAN 9. MASHQ: BESHTA MISOL YENGILDAN OG'IRGA. Har biridan keyin YECHIM
+// ochiladi — 3-sinf 5-darsidagidek. Yechim HAR DOIM ko'rsatiladi, faqat
+// xatoda emas: to'g'ri javob bergan o'quvchi ham yozuv namunasini ko'rishi
+// kerak. Usul lentasi olib tashlandi: u yechim ko'rsatadigan narsani
+// takrorlardi (metodist, 2026-08-17).
+// ============================================================
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L(
-    "To'rt soha",
-    'Четыре области',
-    'Four domains',
+    "Taqiqni toping",
+    'Найди запрет',
+    'Find the restriction',
   ),
   audio: [
     A('mount',
-      "Qoida yig'ildi. Endi to'rtta qisqa yozuv, va har birining o'z sohasi bor. Ba'zilarida taqiq umuman bo'lmasligi mumkin.",
-      'Правило собрано. Теперь четыре коротких записи, и у каждой своя область. У некоторых запрета может не быть вовсе.',
-      'The rule is assembled. Now four short records, each with its own domain. Some may have no restriction at all.'),
-    W('t2',
-      "Maxrajga butunlay qarang. Agar u ko'paytma bo'lsa, taqiq bittadan ko'p bo'lishi mumkin.",
-      'Смотри на знаменатель целиком. Если он произведение, запретов может быть больше одного.',
-      'Look at the denominator as a whole. If it is a product, there may be more than one restriction.'),
+      "Beshta yozuv. Har biridan keyin yechim ochiladi — qanday yozish kerakligini ko'rasiz.",
+      'Пять записей. После каждой откроется решение — увидишь, как это записывают.',
+      'Five records. After each one the solution opens and you see how it is written.'),
   ],
   props: {
-    items: [
+    solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
+    nextLabel: L('Keyingisi', 'Дальше', 'Next'),
+    doneNote: L(
+      "Beshtasi ham yechildi. Har safar bitta yo'l: maxrajni nolga tenglash.",
+      'Все пять разобраны. Каждый раз один путь: приравнять знаменатель к нулю.',
+      'All five are done. Every time the same path: set the denominator to zero.',
+    ),
+    tasks: [
       {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [-4],
-        none: false,
-        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
-        noneWrong: L(
-          "Bu yerda taqiq bor. Minus to'rtni qo'ying: maxraj nolga aylanadi.",
-          'Здесь запрет есть. Подставь минус четыре: знаменатель обратится в нуль.',
-          'There is a restriction here. Put minus four: the denominator becomes zero.',
-        ),
-        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-        show: <Row size="row" align="center">{F('7', 'x + 4')}</Row>,
-        answer: 'x != -4',
-        accepts: ['x != -4', '-4 != x'],
-        closed: L('7 / (x + 4)   →   x ≠ −4', '7 / (x + 4)   →   x ≠ −4', '7 / (x + 4)   →   x ≠ −4'),
-        hints: {
-          'x != 4': L(
-            "To'rtni qo'ying: maxraj sakkiz bo'ladi, nol emas. Belgiga qarang.",
-            'Подставь четыре: знаменатель станет восемь, а не нуль. Смотри на знак.',
-            'Put four: the denominator becomes eight, not zero. Look at the sign.',
-          ),
-        },
+        expr: '5 : a',
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'a ≠ 0' },
+          { id: 'b', label: 'a ≠ 5', hint: L('Beshlik yuqorida turibdi, u maxrajga kirmaydi.', 'Пятёрка стоит сверху, в знаменатель она не входит.', 'The five is above; it is not in the denominator.') },
+          { id: 'c', label: L("Taqiq yo'q", 'Запрета нет', 'No restriction'), hint: L('Maxrajda harf bor, demak taqiq ham bor.', 'В знаменателе есть буква, значит запрет есть.', 'There is a letter in the denominator, so there is a restriction.') },
+        ],
+        solution: ['a = 0', 'a ≠ 0'],
       },
       {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [3],
-        none: false,
-        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
-        noneWrong: L(
-          "Taqiq bor. Maxrajni nolga tenglashtirib ko'ring.",
-          'Запрет есть. Приравняй знаменатель к нулю и посмотри.',
-          'There is a restriction. Set the denominator equal to zero and look.',
-        ),
-        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-        show: <Row size="row" align="center">{F('x', '2x − 6')}</Row>,
-        answer: 'x != 3',
-        accepts: ['x != 3', '2*x - 6 != 0'],
-        closed: L('x / (2x − 6)   →   x ≠ 3', 'x / (2x − 6)   →   x ≠ 3', 'x / (2x − 6)   →   x ≠ 3'),
-        hints: {
-          'x != 6': L(
-            "Oltini qo'ying: ikki marta olti minus olti, olti chiqadi, nol emas. Ikkilikni ham hisobga oling.",
-            'Подставь шесть: два раза шесть минус шесть, получится шесть, а не нуль. Учти двойку.',
-            'Put six: two times six minus six gives six, not zero. Account for the two.',
-          ),
-          'x != 0': L(
-            "Nol SURATNI nolga aylantiradi. Nolda kasr nolga teng, qiymat bor.",
-            'Нуль обращает в нуль ЧИСЛИТЕЛЬ. При нуле дробь равна нулю, значение есть.',
-            'Zero makes the NUMERATOR zero. At zero the fraction equals zero, the value exists.',
-          ),
-        },
+        expr: '9 : (a − 2)',
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'a ≠ 2' },
+          { id: 'b', label: 'a ≠ 0', hint: L('Nolda a − 2 minus ikkiga teng, bu nol emas.', 'При нуле a − 2 равно минус двум, а это не нуль.', 'At zero a − 2 equals minus two, not zero.') },
+          { id: 'c', label: 'a ≠ 9', hint: L("To'qqiz yuqorida, maxrajga ta'sir qilmaydi.", 'Девятка сверху, на знаменатель не влияет.', 'The nine is above and does not affect the denominator.') },
+        ],
+        solution: ['a − 2 = 0', 'a = 2', 'a ≠ 2'],
       },
       {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [],
-        none: true,
-        noneValue: L("taqiq yo'q", 'запретов нет', 'no restrictions'),
-        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
-        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-        show: <Row size="row" align="center">{F('x − 1', 'x² + 1')}</Row>,
-        answer: 'barcha',
-        accepts: ['barcha', 'любое'],
-        closed: L("(x − 1) / (x² + 1)   →   taqiq yo'q", '(x − 1) / (x² + 1)   →   запретов нет', '(x − 1) / (x² + 1)   →   no restrictions'),
-        hints: {
-          'x != -1': L(
-            "Minus birni qo'ying: kvadrat plyus bir, ikki chiqadi. Kvadrat manfiy bo'lmaydi, shuning uchun pastda hech qachon nol chiqmaydi.",
-            'Подставь минус один: квадрат плюс один, получится два. Квадрат не бывает отрицательным, поэтому внизу нуль не получится никогда.',
-            'Put minus one: a square plus one gives two. A square is never negative, so the bottom never becomes zero.',
-          ),
-          'x != 1': L(
-            "Bir SURATNI nolga aylantiradi. Bunda kasr nolga teng, ya'ni qiymat bor.",
-            'Единица обращает в нуль ЧИСЛИТЕЛЬ. При ней дробь равна нулю, то есть значение есть.',
-            'One makes the NUMERATOR zero. Then the fraction equals zero, so the value exists.',
-          ),
-        },
+        expr: '(a + 1) : 3a',
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'a ≠ 0' },
+          { id: 'b', label: 'a ≠ 3', hint: L('Uchlikda 3a to\'qqizga teng, nolga emas.', 'При тройке 3a равно девяти, а не нулю.', 'At three, 3a equals nine, not zero.') },
+          { id: 'c', label: 'a ≠ −1', hint: L('Minus birda surat nolga aylanadi, maxraj emas.', 'При минус единице нулём становится числитель, а не знаменатель.', 'At minus one the numerator becomes zero, not the denominator.') },
+        ],
+        solution: ['3a = 0', 'a = 0', 'a ≠ 0'],
       },
       {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [0, 5],
-        none: false,
-        noneLabel: L("taqiqlangan qiymat yo'q", 'запрещённых значений нет', 'no forbidden values'),
-        noneWrong: L(
-          "Taqiq bor, hatto ikkita. Maxrajning har bir ko'paytuvchisiga qarang.",
-          'Запрет есть, и даже два. Смотри на каждый множитель знаменателя.',
-          'There are restrictions, two of them. Look at each factor of the denominator.',
-        ),
-        prompt: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-        show: <Row size="row" align="center">{F('3', 'x(x − 5)')}</Row>,
-        answer: 'x != 0, x != 5',
-        accepts: ['x != 0, x != 5', 'x != 5, x != 0'],
-        closed: L('3 / x(x − 5)   →   x ≠ 0,  x ≠ 5', '3 / x(x − 5)   →   x ≠ 0,  x ≠ 5', '3 / x(x − 5)   →   x ≠ 0,  x ≠ 5'),
-        hints: {
-          'x != 5': L(
-            "Bitta shart yetmaydi. Nolni qo'ying: ko'paytmaning birinchi ko'paytuvchisi nol bo'ladi.",
-            'Одного условия не хватает. Подставь нуль: первый множитель произведения станет нулём.',
-            'One condition is missing. Put zero: the first factor of the product becomes zero.',
-          ),
-          'x != 0': L(
-            "Bitta shart yetmaydi. Beshni qo'ying: ikkinchi ko'paytuvchi nol bo'ladi.",
-            'Одного условия не хватает. Подставь пять: второй множитель станет нулём.',
-            'One condition is missing. Put five: the second factor becomes zero.',
-          ),
-        },
+        expr: '7 : (2a − 6)',
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'a ≠ 3' },
+          { id: 'b', label: 'a ≠ 6', hint: L('Oltida 2a − 6 oltiga teng, nolga emas.', 'При шестёрке 2a − 6 равно шести, а не нулю.', 'At six, 2a − 6 equals six, not zero.') },
+          { id: 'c', label: 'a ≠ 2', hint: L('Ikkida 2a − 6 minus ikkiga teng.', 'При двойке 2a − 6 равно минус двум.', 'At two, 2a − 6 equals minus two.') },
+        ],
+        solution: ['2a − 6 = 0', '2a = 6', 'a = 3', 'a ≠ 3'],
+      },
+      {
+        expr: '4 : (a · a)',
+        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        items: [
+          { id: 'a', right: true, label: 'a ≠ 0' },
+          { id: 'b', label: 'a ≠ 2', hint: L("Ikkida a · a to'rtga teng, nolga emas.", 'При двойке a · a равно четырём, а не нулю.', 'At two, a · a equals four, not zero.') },
+          { id: 'c', label: L('a ≠ 0 va a ≠ 4', 'a ≠ 0 и a ≠ 4', 'a ≠ 0 and a ≠ 4'), hint: L("To'rtlikda a · a o'n oltiga teng.", 'При четвёрке a · a равно шестнадцати.', 'At four, a · a equals sixteen.') },
+        ],
+        solution: ['a · a = 0', 'a = 0', 'a ≠ 0'],
       },
     ],
   },
 }
 
-// ============================================================
-// EKRAN 10. MASHQ 2: YO'NALTIRILGAN. Qadamlar nomlangan. Bu yerda З18
-// ochiladi: surat noli ODZ ga TUSHMAYDI.
 // ============================================================
 const S10 = {
   eyebrow: L("YO'NALTIRILGAN MASHQ", 'НАПРАВЛЯЕМАЯ ПРАКТИКА', 'GUIDED PRACTICE'),
@@ -1574,7 +1523,7 @@ export const SCREENS = [
     ),
     ...S8,
   },
-  { role: 'practice', tool: 'chain',     kind: 'chain',    tag: 'З2',  method: M_ODZ,   ...S9 },
+  { role: 'practice', tool: 'drill',     kind: 'drill',    tag: 'З2',  ...S9 },
   { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', method: M_ODZ,   ...S10 },
   { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16', method: M_ODZ,   ...S11 },
   { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', method: M_CHECK, ...S12 },

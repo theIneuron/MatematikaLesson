@@ -45,7 +45,7 @@ const SOLVE = [
   {},                                                                    // 6 два способа: смотрим, действий нет
   {},                                                                    // 7 разбор по частям: смотрим, действий нет
   { chips: ['f1', 'f2', 'f3', 'f4'] },                                  // 8 правило: сборка
-  { fields: ['x != -4', 'x != 3'], none: true, fields2: ['x != 0, x != 5'] }, // 9 цепочка
+  { drill: 5 },                                                          // 9 пять примеров с показом решения
   { fields: ['x+4', 'x != 4, x != -4', '4'] },                           // 10 направляемая
   { fields: ['-0.5', 'x != 5, x != -5', '2'] },                          // 11 без прибора
   { rows: [2], proof: ['0'] },                                           // 12 ловушка
@@ -276,6 +276,17 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Пять примеров подряд: верный вариант первый в данных урока.
+    if (s.drill) {
+      for (let k = 0; k < s.drill; k += 1) {
+        const opts = page.locator('.g8-dr-opts .g8-opt')
+        if (await opts.count() === 0) break
+        await tap(opts.first(), at)
+        await page.waitForTimeout(260)
+        const nx = page.locator('.g8-dr-next')
+        if (await nx.count()) { await tap(nx.first(), at); await page.waitForTimeout(240) }
       }
     }
     // Счётчики: жмём минус у правого столбца, пока не доведём до нуля.

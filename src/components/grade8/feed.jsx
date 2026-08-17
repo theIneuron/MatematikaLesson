@@ -784,6 +784,103 @@ export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
   )
 }
 
+
+// ============================================================
+// `Drill` — ЦЕПОЧКА ПРИМЕРОВ ОТ ЛЁГКОГО К ТРУДНОМУ С ПОКАЗОМ РЕШЕНИЯ.
+//
+// Наглядность из урока 5 третьего класса: ученик отвечает, и под заданием
+// раскрывается блок «РЕШЕНИЕ» — как это решается по шагам. Решение видно
+// ВСЕГДА, а не только при ошибке: тот, кто ответил верно, тоже должен
+// увидеть образец записи.
+//
+// Ленты способа на экране нет: она дублировала то, что показывает решение.
+// ============================================================
+export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, audio }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [at, setAt] = useState(0)
+  const [wrong, setWrong] = useState([])
+  const [open, setOpen] = useState(false)
+  const [note, setNote] = useState(null)
+  const [done, setDone] = useState(false)
+
+  const task = tasks[Math.min(at, tasks.length - 1)]
+
+  const pick = (it) => {
+    if (open) return
+    const src = task.items.find((x) => x.id === it.id)
+    if (src && src.right) {
+      sfx.playCorrect()
+      setNote(null)
+      setWrong([])
+      setOpen(true)
+      return
+    }
+    setWrong((p) => (p.indexOf(it.id) === -1 ? p.concat(it.id) : p))
+    setNote(src && src.hint ? src.hint : null)
+    sfx.playWrong()
+    if (audio && src && src.hint) audio.say(t(src.hint))
+  }
+
+  const next = () => {
+    if (at + 1 >= tasks.length) {
+      setDone(true)
+      if (onSolved) onSolved({ correct: true, tries: 1 })
+      return
+    }
+    setAt(at + 1)
+    setOpen(false)
+    setNote(null)
+    setWrong([])
+  }
+
+  return (
+    <div className="g8-dr">
+      <div className="g8-dr-top">
+        <span className="g8-dr-n">{Math.min(at + 1, tasks.length)} / {tasks.length}</span>
+        <span className="g8-dr-seg">
+          {tasks.map((x, i) => <i key={i} className={i < at || (i === at && open) ? 'is-on' : ''}/>)}
+        </span>
+      </div>
+
+      {done ? (
+        <Note kind="ok">{t(doneNote)}</Note>
+      ) : (
+        <>
+          <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>{task.expr}</div>
+          <Ask>{t(task.question)}</Ask>
+
+          {!open ? (
+            <div className="g8-dr-opts">
+              {task.items.map((it) => (
+                <button key={it.id} type="button"
+                  className={'g8-opt' + (wrong.indexOf(it.id) !== -1 ? ' g8-opt-tip' : '')}
+                  onClick={() => pick(it)}>{t(it.label)}</button>
+              ))}
+            </div>
+          ) : null}
+
+          {note && !open ? <Note kind="no">{t(note)}</Note> : null}
+
+          {open ? (
+            <div className="g8-dr-sol">
+              <span className="g8-dr-solcap">{t(solutionLabel)}</span>
+              <div className="g8-dr-sollines" style={{ fontFamily: MATH_FONT }}>
+                {task.solution.map((ln, i) => (
+                  <div key={i} className="g8-dr-solline" style={{ animationDelay: (i * 260) + 'ms' }}>
+                    {typeof ln === 'string' ? ln : t(ln)}
+                  </div>
+                ))}
+              </div>
+              <button type="button" className="g8-dr-next" onClick={next}>{t(nextLabel)}</button>
+            </div>
+          ) : null}
+        </>
+      )}
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -1239,5 +1336,35 @@ export const FEED_STYLES = `
   outline: none;
   box-shadow: none;
   background: transparent;
+}
+
+.g8-dr { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.g8-dr-top { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 420px; }
+.g8-dr-n { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: ${T.ink3}; }
+.g8-dr-seg { flex: 1; display: flex; gap: 5px; }
+.g8-dr-seg i { flex: 1; height: 4px; border-radius: 2px; background: rgba(23,26,29,.12);
+  transition: background .35s ease; }
+.g8-dr-seg i.is-on { background: ${T.ok}; }
+.g8-dr-expr { font-size: clamp(24px, 2.4vw, 34px); color: ${T.ink}; padding: 8px 18px;
+  border-radius: 14px; background: ${T.paper}; box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); }
+.g8-dr-opts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; }
+.g8-dr-sol { width: 100%; display: flex; flex-direction: column; gap: 6px;
+  padding: 12px 16px; border-radius: 0 14px 14px 0; border-left: 4px solid ${T.ok};
+  background: ${T.okSoft}; animation: g8-dr-in 420ms cubic-bezier(.22,.9,.3,1) both; }
+@keyframes g8-dr-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.g8-dr-solcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
+  letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.ok}; }
+.g8-dr-sollines { display: flex; flex-direction: column; gap: 2px; }
+.g8-dr-solline { font-size: clamp(15px, 1.4vw, 19px); color: ${T.ink}; white-space: pre-wrap;
+  animation: g8-dr-line 380ms ease-out both; }
+@keyframes g8-dr-line { from { opacity: 0; transform: translateX(-8px); } to { opacity: 1; transform: none; } }
+.lesson-root .g8-dr-next { align-self: flex-end; border: 0; cursor: pointer; border-radius: 11px;
+  min-height: 40px; padding: 0 18px; background: ${T.ok}; color: #fff;
+  font-family: 'Manrope', system-ui, sans-serif; font-size: 14px; font-weight: 700; }
+@media (max-height: 680px) {
+  .g8-dr { gap: 7px; }
+  .g8-dr-expr { font-size: 22px; padding: 6px 14px; }
+  .g8-dr-sol { padding: 8px 12px; }
+  .g8-dr-solline { font-size: 14px; }
 }
 `

@@ -30,7 +30,7 @@ import {
   Ask, Btn, L, LangProvider, Lead, Note, STYLES, Stage, Title, UI_TXT,
   configureLesson, tr, useAdvanceGate, useAudio, useMobileZoom, useT,
 } from './core.jsx'
-import { FEED_STYLES, Chain, Parts, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
+import { Drill, FEED_STYLES, Chain, Parts, FeedNumber, FormulaSlots, PickBroken, Steppers, TwoRecords, TwoWays } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { PLOT_STYLES } from './plot.jsx'
@@ -231,6 +231,9 @@ export function ScreenBody(props) {
       return <Steppers {...p} audio={audio} onSolved={onSolved} />
     // ЦЕПОЧКА ЗАПРЕТОВ. Имя НЕ 'chain': его занимает TaskChain практики, и
     // столкновение имён отдало девятому экрану чужой прибор (2026-08-17).
+    // ЦЕПОЧКА ПРИМЕРОВ С ПОКАЗОМ РЕШЕНИЯ ПОСЛЕ КАЖДОГО.
+    case 'drill':
+      return <Drill {...p} audio={audio} onSolved={onSolved} />
     case 'movechain':
       return <Chain {...p} onStep={step} onSolved={onSolved} audio={audio} />
     // РАЗБОР ЗАПИСИ ПО ЧАСТЯМ: подсветка едет по формуле, полосы копятся.
