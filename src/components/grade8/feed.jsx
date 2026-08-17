@@ -1105,6 +1105,51 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
   )
 }
 
+/* КОРОТКИЙ ВЫВОД (методист, 2026-08-17). Финал урока — не сводка с
+   записями и шпаргалкой, а несколько строк, которые выходят одна за
+   другой. Запись, ради которой был урок, стоит первой и рисуется. */
+export function Takeaway({ mark, markNote, lines, bridge, onSolved }) {
+  const t = useT()
+  const [step, setStep] = useState(0)
+  const total = lines.length + 2
+
+  useEffect(() => {
+    if (step >= total) return undefined
+    const id = setTimeout(() => setStep(step + 1), step === 0 ? 500 : 850)
+    return () => clearTimeout(id)
+  }, [step, total])
+
+  const doneRef = useRef(false)
+  useEffect(() => {
+    if (step < total || doneRef.current) return
+    doneRef.current = true
+    if (onSolved) onSolved({ correct: true, tries: 1 })
+  }, [step, total, onSolved])
+
+  return (
+    <div className="g8-tk">
+      <div className={'g8-tk-mark' + (step >= 1 ? ' is-in' : '')}
+        style={{ fontFamily: MATH_FONT }}>
+        {mark}
+      </div>
+      {markNote ? (
+        <div className={'g8-tk-note' + (step >= 1 ? ' is-in' : '')}>{t(markNote)}</div>
+      ) : null}
+      <ul className="g8-tk-list">
+        {lines.map((x, i) => (
+          <li key={i} className={step >= i + 2 ? 'is-in' : ''}>
+            <i/>
+            <span>{t(x)}</span>
+          </li>
+        ))}
+      </ul>
+      {bridge ? (
+        <div className={'g8-tk-bridge' + (step >= total ? ' is-in' : '')}>{t(bridge)}</div>
+      ) : null}
+    </div>
+  )
+}
+
 export const FEED_STYLES = `
 .g8-fd { display: flex; flex-direction: column; align-items: center; gap: 26px; width: 100%;
   flex: 1 1 auto; justify-content: center; min-height: 0; }
@@ -1701,5 +1746,36 @@ export const FEED_STYLES = `
   .g8-cb-slot { min-width: 50px; height: 38px; font-size: 22px; }
   .lesson-root .g8-cb-tile { min-height: 40px; font-size: 20px; padding: 0 10px; }
   .g8-cb-lead { font-size: 16px; }
+}
+
+/* КОРОТКИЙ ВЫВОД. Строки выходят по очереди: вывод читается как речь,
+   а не как список, который надо охватить целиком. */
+.g8-tk { display: flex; flex-direction: column; align-items: center; gap: 14px;
+  width: 100%; max-width: 720px; margin: 0 auto; }
+.g8-tk-mark { font-size: 56px; color: ${T.accent}; letter-spacing: .01em;
+  opacity: 0; transform: translateY(10px) scale(.94); transition: all .5s ease-out; }
+.g8-tk-mark.is-in { opacity: 1; transform: none; }
+.g8-tk-note { font-size: 19px; color: ${T.ink2}; text-align: center;
+  opacity: 0; transition: opacity .5s .15s; }
+.g8-tk-note.is-in { opacity: 1; }
+.g8-tk-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column;
+  gap: 10px; width: 100%; max-width: 620px; }
+.g8-tk-list li { display: flex; align-items: center; gap: 12px; font-size: 22px; color: ${T.ink};
+  padding: 12px 18px; border-radius: 14px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.07);
+  opacity: 0; transform: translateX(-14px); transition: all .45s ease-out; }
+.g8-tk-list li.is-in { opacity: 1; transform: none; }
+.g8-tk-list li i { width: 10px; height: 10px; border-radius: 50%; background: ${T.ok}; flex: none; }
+.g8-tk-bridge { font-size: 18px; color: ${T.ink3}; text-align: center;
+  opacity: 0; transition: opacity .6s; }
+.g8-tk-bridge.is-in { opacity: 1; }
+@media (max-width: 760px), (max-height: 720px) {
+  .g8-tk-mark { font-size: 40px; }
+  .g8-tk-list li { font-size: 18px; padding: 10px 14px; }
+  .g8-tk-note { font-size: 16px; }
+  .g8-tk-bridge { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g8-tk-mark, .g8-tk-note, .g8-tk-list li, .g8-tk-bridge { opacity: 1; transform: none; }
 }
 `

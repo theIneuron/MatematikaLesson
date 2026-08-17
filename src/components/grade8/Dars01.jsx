@@ -1416,15 +1416,15 @@ const S14 = {
 const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L(
-    "Uch tasdiq",
-    'Три утверждения',
-    'Three statements',
+    "Darsdan qolgani",
+    'Что осталось с урока',
+    'What stays with you',
   ),
   audio: [
     A('s0',
-      "Uch tasdiq. Chapda boshdagi taxminingiz va tekshirilgan natija yonma-yon turadi.",
-      'Три утверждения. Слева твой прогноз с начала и проверенный результат стоят рядом.',
-      'Three statements. On the left your prediction and the verified result stand side by side.'),
+      "Darsdan bitta yozuv qoladi: iks ikkiga teng emas. U kasr bilan birga yuradi.",
+      'С урока остаётся одна запись: икс не равен двум. Она идёт вместе с дробью.',
+      'One record stays with you: x is not equal to two. It travels with the fraction.'),
     A('s1',
       "Bugun siz uch qadamni o'rgandingiz. Chiziq ostiga qarash, nolga aylantiruvchi sonni topish va shartni yozish.",
       'Сегодня освоены три шага. Посмотреть под черту, найти число, обращающее её в нуль, и записать условие.',
@@ -1437,6 +1437,17 @@ const S15 = {
   props: {
     readyLabel: L('Tayyorlik', 'Готовность', 'Readiness'),
     predictedLabel: L('Taxmin', 'Прогноз', 'Prediction'),
+    mark: 'x ≠ 2',
+    markNote: L(
+      "Yozuv shu taqiq bilan birga yuradi",
+      'Запись идёт вместе с этим запретом',
+      'The record travels with this restriction',
+    ),
+    lines: [
+      L("Taqiq chiziq ostidan topiladi", 'Запрет ищут под чертой', 'The restriction is under the bar'),
+      L("Nol maxrajda qiymatni yo'q qiladi", 'Нуль в знаменателе убирает значение', 'Zero in the denominator removes the value'),
+      L("Javob songa qo'yib tekshiriladi", 'Ответ проверяют подстановкой числа', 'An answer is checked by substituting a number'),
+    ],
     gotLabel: L('Natija', 'Результат', 'Result'),
     proved: L(
       "jadval haq: ikkilikda qiymat yo'q",
@@ -1542,7 +1553,7 @@ export const SCREENS = [
     props: { ...S14.props,
       scoreLabel: L('birinchi urinishdan', 'с первой попытки', 'on the first try'),
       stepLabel: L('Topshiriq', 'Задание', 'Task') } },
-  { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
+  { role: 'summary',  tool: 'takeaway',  scene: FinalScene, ...S15 },
 ]
 
 export default makeLesson({ META, STATEMENTS, MISS, SCREENS })
