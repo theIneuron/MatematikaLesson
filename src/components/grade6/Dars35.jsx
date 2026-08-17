@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_35',
+  lessonId: 'grade6-35',
   lessonTitle: {
     ru: 'Решение задач с помощью уравнения',
     uz: 'Tenglama yordamida masalalar yechish',

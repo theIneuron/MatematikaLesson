@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_37',
+  lessonId: 'grade6-37',
   lessonTitle: {
     ru: 'Окружность и круг',
     uz: 'Aylana va doira',

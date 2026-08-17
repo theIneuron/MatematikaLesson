@@ -47,7 +47,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_NN',
+  lessonId: 'grade6-NN',
   lessonTitle: { ru: 'Название урока', uz: 'Dars nomi', en: 'Lesson title' },
 };
 

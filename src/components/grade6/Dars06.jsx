@@ -50,7 +50,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_06',
+  lessonId: 'grade6-06',
   lessonTitle: {
     ru: 'Наименьшее общее кратное',
     uz: 'Eng kichik umumiy karrali',

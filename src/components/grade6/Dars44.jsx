@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_44',
+  lessonId: 'grade6-44',
   lessonTitle: {
     ru: 'Объём и единицы измерения',
     uz: "Hajm va o'lchov birliklari",

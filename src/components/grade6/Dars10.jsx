@@ -51,7 +51,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_10',
+  lessonId: 'grade6-10',
   lessonTitle: {
     ru: 'Сложение и вычитание дробей',
     uz: "Kasrlarni qo'shish va ayirish",

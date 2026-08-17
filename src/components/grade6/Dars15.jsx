@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_15',
+  lessonId: 'grade6-15',
   lessonTitle: {
     ru: 'Периодические дроби и округление',
     uz: "Davriy kasrlar va yaxlitlash",

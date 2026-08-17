@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_39',
+  lessonId: 'grade6-39',
   lessonTitle: {
     ru: 'Площадь круга',
     uz: 'Doira yuzi',

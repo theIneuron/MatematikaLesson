@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_46',
+  lessonId: 'grade6-46',
   lessonTitle: {
     ru: 'Итог раздела: геометрия и данные',
     uz: "Bo'lim yakuni: geometriya va ma'lumotlar",

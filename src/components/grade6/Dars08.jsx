@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_08',
+  lessonId: 'grade6-08',
   lessonTitle: {
     ru: 'Сокращение дробей',
     uz: 'Kasrlarni qisqartirish',

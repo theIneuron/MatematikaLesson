@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_19',
+  lessonId: 'grade6-19',
   lessonTitle: {
     ru: 'Прямая и обратная пропорциональность',
     uz: "To'g'ri va teskari proporsional miqdorlar",

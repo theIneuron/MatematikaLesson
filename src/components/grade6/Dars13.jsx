@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_13',
+  lessonId: 'grade6-13',
   lessonTitle: {
     ru: 'Взаимно обратные числа. Число по его части',
     uz: "O'zaro teskari sonlar. Qismiga ko'ra sonni topish",

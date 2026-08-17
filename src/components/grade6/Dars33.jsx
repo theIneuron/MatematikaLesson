@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_33',
+  lessonId: 'grade6-33',
   lessonTitle: {
     ru: 'Приведение подобных слагаемых',
     uz: "O'xshash hadlarni ixchamlash",

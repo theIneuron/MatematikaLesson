@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_36',
+  lessonId: 'grade6-36',
   lessonTitle: {
     ru: 'Экономические задачи и задачи на работу',
     uz: 'Iqtisodiy va ishga oid masalalar',

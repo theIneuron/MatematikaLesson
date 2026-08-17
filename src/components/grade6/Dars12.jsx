@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_12',
+  lessonId: 'grade6-12',
   lessonTitle: {
     ru: 'Деление обыкновенных дробей',
     uz: "Oddiy kasrlarni bo'lish",

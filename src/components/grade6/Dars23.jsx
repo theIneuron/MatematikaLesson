@@ -51,7 +51,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_23',
+  lessonId: 'grade6-23',
   lessonTitle: {
     ru: 'Задачи на пропорцию',
     uz: 'Proporsiyaga oid masalalar',

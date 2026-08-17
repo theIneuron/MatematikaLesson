@@ -53,7 +53,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_31',
+  lessonId: 'grade6-31',
   lessonTitle: {
     ru: 'Буквенные выражения',
     uz: 'Harfli ifodalar',

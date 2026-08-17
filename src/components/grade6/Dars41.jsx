@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_41',
+  lessonId: 'grade6-41',
   lessonTitle: {
     ru: 'Центральная симметрия',
     uz: 'Markaziy simmetriya',

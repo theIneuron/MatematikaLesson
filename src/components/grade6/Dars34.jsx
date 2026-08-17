@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_34',
+  lessonId: 'grade6-34',
   lessonTitle: {
     ru: 'Линейные уравнения',
     uz: 'Chiziqli tenglamalar',

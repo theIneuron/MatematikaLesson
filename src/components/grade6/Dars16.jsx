@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_16',
+  lessonId: 'grade6-16',
   lessonTitle: {
     ru: 'Задачи на дроби и десятичные дроби',
     uz: "Kasrlar va o'nli kasrlarga oid masalalar",

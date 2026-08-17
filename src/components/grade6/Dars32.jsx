@@ -51,7 +51,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_32',
+  lessonId: 'grade6-32',
   lessonTitle: {
     ru: 'Раскрытие скобок',
     uz: 'Qavslarni ochish',

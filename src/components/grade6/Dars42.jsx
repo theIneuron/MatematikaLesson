@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_42',
+  lessonId: 'grade6-42',
   lessonTitle: {
     ru: 'Треугольник: элементы, виды и периметр',
     uz: 'Uchburchak: elementlari, turlari va perimetri',

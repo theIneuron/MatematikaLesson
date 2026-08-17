@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_21',
+  lessonId: 'grade6-21',
   lessonTitle: {
     ru: 'Проценты',
     uz: 'Foizlar',

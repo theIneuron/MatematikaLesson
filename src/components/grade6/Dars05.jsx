@@ -50,7 +50,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_05',
+  lessonId: 'grade6-05',
   lessonTitle: {
     ru: 'Наибольший общий делитель',
     uz: "Eng katta umumiy bo'luvchi",

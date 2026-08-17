@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_27',
+  lessonId: 'grade6-27',
   lessonTitle: {
     ru: 'Сложение рациональных чисел',
     uz: "Ratsional sonlarni qo'shish",

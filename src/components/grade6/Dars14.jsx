@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_14',
+  lessonId: 'grade6-14',
   lessonTitle: {
     ru: 'Умножение и деление десятичных дробей',
     uz: "O'nli kasrlarni ko'paytirish va bo'lish",

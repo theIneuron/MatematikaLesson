@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_43',
+  lessonId: 'grade6-43',
   lessonTitle: {
     ru: 'Площадь треугольника и составных фигур',
     uz: 'Uchburchak va murakkab shakllar yuzi',

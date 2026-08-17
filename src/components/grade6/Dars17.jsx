@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_17',
+  lessonId: 'grade6-17',
   lessonTitle: {
     ru: 'Отношение',
     uz: 'Nisbat',

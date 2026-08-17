@@ -50,7 +50,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_07',
+  lessonId: 'grade6-07',
   lessonTitle: {
     ru: 'Основное свойство дроби',
     uz: 'Kasrning asosiy xossasi',

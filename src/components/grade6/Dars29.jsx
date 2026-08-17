@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_29',
+  lessonId: 'grade6-29',
   lessonTitle: {
     ru: 'Умножение и деление рациональных чисел',
     uz: "Ratsional sonlarni ko'paytirish va bo'lish",

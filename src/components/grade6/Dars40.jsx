@@ -53,7 +53,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_40',
+  lessonId: 'grade6-40',
   lessonTitle: {
     ru: 'Осевая симметрия',
     uz: "O'q simmetriyasi",

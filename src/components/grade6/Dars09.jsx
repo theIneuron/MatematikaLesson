@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_09',
+  lessonId: 'grade6-09',
   lessonTitle: {
     ru: 'Приведение дробей к общему знаменателю',
     uz: 'Kasrlarni umumiy maxrajga keltirish',

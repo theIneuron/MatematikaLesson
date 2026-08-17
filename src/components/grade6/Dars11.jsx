@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_11',
+  lessonId: 'grade6-11',
   lessonTitle: {
     ru: 'Умножение обыкновенных дробей',
     uz: "Oddiy kasrlarni ko'paytirish",

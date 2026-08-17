@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_24',
+  lessonId: 'grade6-24',
   lessonTitle: {
     ru: 'Координатная прямая',
     uz: "Koordinata to'g'ri chizig'i",

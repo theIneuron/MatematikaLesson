@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_20',
+  lessonId: 'grade6-20',
   lessonTitle: {
     ru: 'Масштаб',
     uz: 'Masshtab',

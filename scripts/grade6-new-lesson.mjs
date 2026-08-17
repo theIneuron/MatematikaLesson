@@ -59,7 +59,7 @@ code = code
   .replace('// 6 КЛАСС — ШАБЛОН УРОКА', `// 6 КЛАСС, УРОК ${N}`)
   .replace('// Скопируй этот файл в DarsNN.jsx и заполни. Здесь стоит ВСЁ, что урок обязан',
     '// Заготовка сделана scripts/grade6-new-lesson.mjs. Здесь стоит ВСЁ, что урок обязан')
-  .replace("lessonId: 'div_6_NN'", `lessonId: 'div_6_${pad}'`)
+  .replace("lessonId: 'grade6-NN'", `lessonId: 'grade6-${pad}'`)
   .replace("uz: 'Dars nomi'", `uz: ${JSON.stringify(titleUz)}`)
   .replace('export default function LessonRoot(', `export default function Dars${pad}Lesson(`);
 
@@ -68,7 +68,7 @@ fs.writeFileSync(target, code);
 
 console.log(`\nСоздан ${target}`);
 console.log(`  адрес превью: /6-sinf/matematika/nazariy/${slug}?lang=uz`);
-console.log(`  lessonId: div_6_${pad}`);
+console.log(`  lessonId: grade6-${pad}`);
 console.log(`  название из реестра: ${titleUz}`);
 console.log(`
 Дальше по эталону (context/GRADE6_ETALON.md):

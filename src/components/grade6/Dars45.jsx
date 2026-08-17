@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_45',
+  lessonId: 'grade6-45',
   lessonTitle: {
     ru: 'Работа с данными',
     uz: "Ma'lumotlar bilan ishlash",

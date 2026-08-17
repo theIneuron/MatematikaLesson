@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_30',
+  lessonId: 'grade6-30',
   lessonTitle: {
     ru: 'Координатная плоскость',
     uz: 'Koordinata tekisligi',

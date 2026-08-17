@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_25',
+  lessonId: 'grade6-25',
   lessonTitle: {
     ru: 'Модуль числа',
     uz: 'Sonning moduli',

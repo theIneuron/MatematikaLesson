@@ -51,7 +51,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_03',
+  lessonId: 'grade6-03',
   lessonTitle: {
     ru: 'Признаки делимости на 3 и 9',
     uz: "3 va 9 ga bo'linish alomatlari",

@@ -50,7 +50,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_02',
+  lessonId: 'grade6-02',
   lessonTitle: {
     ru: 'Признаки делимости на 2, 5 и 10',
     uz: "2, 5 va 10 ga bo'linish alomatlari",

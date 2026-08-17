@@ -50,7 +50,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_04',
+  lessonId: 'grade6-04',
   lessonTitle: {
     ru: 'Простые и составные числа',
     uz: 'Tub va murakkab sonlar',

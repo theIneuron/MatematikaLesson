@@ -65,7 +65,7 @@ import {
 } from './screens.jsx';
 
 // ============================================================
-// --- UROK: div_6_01 — Делители и кратные / Bo'luvchilar va karrali sonlar ---
+// --- UROK: grade6-01 — Делители и кратные / Bo'luvchilar va karrali sonlar ---
 // Infra grade5/Dars01 (baytma-bayt: T/AudioEngine/useAudio/Stage/FeedbackBlock/QuestionScreen/mt/
 // useMobileZoom/useRevealScroll/...). Mobil naqsh BOSHIDAN ichida (ETALON_6SINF.md §5).
 // Kontekst: nonlarni teng qatorlarga terish. Qiyinlik pog'onasi 10 -> 36;
@@ -77,7 +77,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_01',
+  lessonId: 'grade6-01',
   lessonTitle: { ru: 'Делители и кратные', uz: "Bo'luvchilar va karrali sonlar", en: 'Divisors and multiples' }
 };
 

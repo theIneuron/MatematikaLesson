@@ -52,7 +52,7 @@ import {
 const TOTAL_SCREENS = 15;
 
 const LESSON_META = {
-  lessonId: 'div_6_38',
+  lessonId: 'grade6-38',
   lessonTitle: {
     ru: 'Длина окружности',
     uz: 'Aylana uzunligi',
