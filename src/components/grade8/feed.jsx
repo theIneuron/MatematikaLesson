@@ -684,7 +684,8 @@ export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
 
       <div className="g8-pt-notes">
         {steps.map((st, i) => (
-          <div key={i} className={'g8-pt-note' + (i < shown ? ' is-on' : '')}>{t(st.text)}</div>
+          <div key={i} className={'g8-pt-note' + (i < shown ? ' is-on' : '')
+            + (i === shown - 1 ? ' is-now' : '')}>{t(st.text)}</div>
         ))}
       </div>
 
@@ -775,18 +776,30 @@ export const FEED_STYLES = `
   font-size: clamp(26px, 2.8vw, 40px); color: ${T.ink}; padding: 12px 20px;
   background: ${T.paper}; border-radius: 16px;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.06); }
-.g8-pt-tk { padding: 2px 6px; border-radius: 8px; transition: background .35s ease, color .35s ease; }
-.g8-pt-tk.is-on { background: ${T.tipSoft}; color: ${T.tip}; }
+.g8-pt-tk { padding: 2px 6px; border-radius: 8px; display: inline-block;
+  transition: background .35s ease, color .35s ease, transform .35s cubic-bezier(.34,1.4,.64,1); }
+/* Подсвеченная часть ПРИПОДНИМАЕТСЯ: движение показывает, о чём речь сейчас,
+   а не только цвет — цвет один и тот же на всех трёх шагах. */
+.g8-pt-tk.is-on { background: ${T.tipSoft}; color: ${T.tip}; transform: translateY(-4px) scale(1.06); }
+
+/* Запись выезжает первой, до полос: сначала объект, потом разговор о нём. */
+.g8-pt-expr { animation: g8-pt-in 520ms cubic-bezier(.22,.9,.3,1) both; }
+@keyframes g8-pt-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
 .g8-pt-notes { display: flex; flex-direction: column; gap: 6px; width: 100%; }
 .g8-pt-note { padding: 9px 14px; border-radius: 0 12px 12px 0; border-left: 4px solid ${T.accent};
   background: ${T.paper}; font-family: 'Manrope', system-ui, sans-serif;
   font-size: clamp(13.5px, 1.25vw, 17px); color: ${T.ink};
   opacity: 0; transform: translateX(-8px); transition: opacity .4s ease, transform .4s ease; }
 .g8-pt-note.is-on { opacity: 1; transform: none; }
+/* Текущая полоса выделена: она про ту часть, что подсвечена сейчас.
+   Прошлые остаются на экране, но уходят на второй план. */
+.g8-pt-note.is-on:not(.is-now) { opacity: .62; border-left-color: ${T.ink4}; }
+.g8-pt-note.is-now { border-left-width: 5px; box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9); }
 .g8-pt-fact { display: flex; flex-direction: column; gap: 3px; width: 100%;
   padding: 11px 15px; border-radius: 14px; background: ${T.graphSoft};
   opacity: 0; transition: opacity .5s ease; }
-.g8-pt-fact.is-on { opacity: 1; }
+.g8-pt-fact.is-on { opacity: 1; animation: g8-pt-up 520ms cubic-bezier(.22,.9,.3,1) both; }
+@keyframes g8-pt-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .g8-pt-factcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
   letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.graph}; }
 .g8-pt-facttx { font-family: 'Manrope', system-ui, sans-serif;
