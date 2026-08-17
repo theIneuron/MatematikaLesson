@@ -481,7 +481,7 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
 // Устройство из урока 1 второго класса («Собери 245»): там столбцы разрядов
 // с плюсом и минусом, здесь — поля, из которых складывается формула.
 // ============================================================
-export function Steppers({ cols, calc, resultLabel, ask, broke, onSolved, audio }) {
+export function Steppers({ cols, calc, resultLabel, sign, ask, broke, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [vals, setVals] = useState(cols.map((c) => c.start))
@@ -515,25 +515,34 @@ export function Steppers({ cols, calc, resultLabel, ask, broke, onSolved, audio 
 
   return (
     <>
+      {/* СТОЛБЦЫ И РЕЗУЛЬТАТ СТОЯТ ОДНОЙ ФОРМУЛОЙ: сумма, знак деления,
+          количество, знак равно, цена. Раньше они лежали в два этажа, и
+          связь между ними на экране НЕ ЧИТАЛАСЬ — ученик крутил два числа,
+          не видя, что это одна запись. */}
       <div className="g8-st">
-        <div className="g8-st-cols">
+        <div className="g8-st-line">
           {cols.map((c, i) => (
-            <div key={c.id} className={'g8-st-col' + (dead && c.risky ? ' is-dead' : '')}>
-              <span className="g8-st-cap">{t(c.label)}</span>
-              <span className="g8-st-val" style={{ fontFamily: MATH_FONT }}>{fmt(vals[i])}</span>
-              <span className="g8-st-btns">
-                <button type="button" className="g8-st-btn" onClick={() => bump(i, -1)}>{'−'}</button>
-                <button type="button" className="g8-st-btn is-plus" onClick={() => bump(i, 1)}>{'+'}</button>
-              </span>
-            </div>
+            <React.Fragment key={c.id}>
+              {i > 0 ? <span className="g8-st-sign">{sign || ':'}</span> : null}
+              <div className={'g8-st-col' + (dead && c.risky ? ' is-dead' : '')}>
+                <span className="g8-st-cap">{t(c.label)}</span>
+                <span className="g8-st-val" style={{ fontFamily: MATH_FONT }}>{fmt(vals[i])}</span>
+                <span className="g8-st-btns">
+                  <button type="button" className="g8-st-btn" onClick={() => bump(i, -1)}>{'−'}</button>
+                  <button type="button" className="g8-st-btn is-plus" onClick={() => bump(i, 1)}>{'+'}</button>
+                </span>
+              </div>
+            </React.Fragment>
           ))}
-        </div>
 
-        <div className={'g8-st-out' + (dead ? ' is-dead' : '')}>
-          <span className="g8-st-outcap">{t(resultLabel)}</span>
-          <span className="g8-st-outval" style={{ fontFamily: MATH_FONT }}>
-            {!touched ? '?' : dead ? 'Error' : fmt(out)}
-          </span>
+          <span className="g8-st-sign">{'='}</span>
+
+          <div className={'g8-st-out' + (dead ? ' is-dead' : '')}>
+            <span className="g8-st-cap">{t(resultLabel)}</span>
+            <span className="g8-st-outval" style={{ fontFamily: MATH_FONT }}>
+              {!touched ? '?' : dead ? 'Error' : fmt(out)}
+            </span>
+          </div>
         </div>
       </div>
 
@@ -617,7 +626,8 @@ export const FEED_STYLES = `
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
 .g8-st { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
-.g8-st-cols { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+.g8-st-line { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
+.g8-st-sign { font-family: ${MATH_FONT}; font-size: clamp(24px, 2.4vw, 34px); color: ${T.ink2}; }
 .g8-st-col { display: flex; flex-direction: column; align-items: center; gap: 6px;
   min-width: 150px; padding: 12px 16px; border-radius: 16px; background: ${T.paper};
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); transition: box-shadow .25s ease; }
@@ -632,8 +642,9 @@ export const FEED_STYLES = `
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
 .lesson-root .g8-st-btn.is-plus { background: ${T.accent}; color: #fff; box-shadow: none; }
 .lesson-root .g8-st-btn:hover { transform: translateY(-1px); }
-.g8-st-out { display: flex; flex-direction: column; align-items: center; gap: 2px;
-  min-width: 200px; padding: 10px 18px; border-radius: 14px; background: ${T.okSoft}; }
+.g8-st-out { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  min-width: 150px; padding: 12px 16px; border-radius: 16px; background: ${T.okSoft};
+  align-self: stretch; justify-content: center; }
 .g8-st-out.is-dead { background: ${T.tipSoft}; }
 .g8-st-outcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 11px;
   letter-spacing: .1em; text-transform: uppercase; color: ${T.ink3}; }
