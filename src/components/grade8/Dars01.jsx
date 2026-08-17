@@ -520,80 +520,62 @@ const S3 = {
 
 
 // ============================================================
+// EKRAN 4. BIR XIL BELGILAR, IKKI XIL YOZUV.
+//
+// Avvalgi variant bo'sh kataklar va tugmalardan iborat edi: yozuv faqat
+// yig'ilgandan keyin paydo bo'lardi, va unga qadar QARAYDIGAN narsa yo'q edi
+// (metodist, 2026-08-17). Endi ikkala yozuv ham darhol ko'rinadi: bir xil
+// yetti va bir xil a, faqat TARTIB boshqa. O'quvchi qaysi biri yiqilishini
+// tanlaydi va joyning ahamiyatini o'zi ko'radi.
+// ============================================================
 const S4 = {
-  eyebrow: L('YOZUVNI YIG\'ING', 'СОБЕРИ ЗАПИСЬ', 'BUILD THE RECORD'),
+  eyebrow: L('JOY HAL QILADI', 'МЕСТО РЕШАЕТ', 'THE PLACE DECIDES'),
   title: L(
-    "Qanday yozuv yiqilishi mumkin",
-    'Какая запись может упасть',
-    'Which record can crash',
+    "Bir xil belgilar, ikki xil yozuv",
+    'Одни и те же знаки — записи разные',
+    'The same symbols, different records',
   ),
   audio: [
     A('mount',
-      "Ikki katak: tepada va pastda. Har biriga son yoki harf qo'ying.",
-      'Две ячейки: сверху и снизу. В каждую поставь число или букву.',
-      'Two cells: above and below. Put a number or a letter into each.'),
+      "Ikki yozuv. Ikkalasida ham yetti va a bor, faqat tartib boshqa.",
+      'Две записи. В обеих есть семёрка и a, разный только порядок.',
+      'Two records. Both have a seven and an a, only the order differs.'),
     A('why',
-      "To'rtta juftlikni sinab ko'ring. Ulardan qaysi biri ilovani yiqitishi mumkin?",
-      'Попробуй все четыре сочетания. Какое из них может уронить приложение?',
-      'Try all four combinations. Which of them can crash the app?'),
+      "Qaysi biri biror sonda yiqiladi? Chiziqning ostiga qarang.",
+      'Какая из них упадёт на каком-то числе? Смотри, что стоит под чертой.',
+      'Which one crashes at some number? Look at what stands below the bar.'),
   ],
   props: {
-    // ДВА КРУГА: сначала безопасная запись, потом опасная. Буква одна и та
-    // же, разное только МЕСТО — вывод про место ученик делает сам.
-    rounds: [
+    ask: L(
+      "Qaysi yozuv biror sonda yiqiladi?",
+      'Какая запись упадёт на каком-то числе?',
+      'Which record crashes at some number?',
+    ),
+    items: [
       {
-        need: 'num',
-        ask: L(
-          "Har doim sanaladigan yozuvni yig'ing",
-          'Собери запись, которая считается всегда',
-          'Build a record that always computes',
+        id: 'safe',
+        show: 'a : 7',
+        hint: L(
+          "Bu yerda a ni yettiga bo'lamiz. Yetti hech qachon nolga aylanmaydi, demak yiqilmaydi.",
+          'Здесь a делят на семь. Семёрка нулём не станет никогда, значит не упадёт.',
+          'Here a is divided by seven. A seven never becomes zero, so it never crashes.',
         ),
       },
       {
-        need: 'var',
-        ask: L(
-          "Endi yiqilishi mumkin bo'lgan yozuvni yig'ing",
-          'Теперь собери запись, которая может упасть',
-          'Now build a record that can crash',
-        ),
+        id: 'risky',
+        right: true,
+        show: '7 : a',
       },
     ],
-    topLabel: L('tepada', 'сверху', 'above'),
-    botLabel: L('pastda', 'снизу', 'below'),
-    numWord: L('son 7', 'число 7', 'number 7'),
-    varWord: L('harf a', 'буква a', 'letter a'),
-    verdicts: {
-      safe: L(
-        "Pastda son turibdi — bu yozuv har doim sanaladi.",
-        'Снизу число — эта запись считается всегда.',
-        'A number below: this record always computes.',
-      ),
-      risky: L(
-        "Pastda harf turibdi — bu yozuv biror sonda yiqiladi.",
-        'Снизу буква — эта запись упадёт на каком-то числе.',
-        'A letter below: this record crashes at some number.',
-      ),
-      place: L(
-        "Harf o'sha, joyi boshqa. Xavfni AYNAN JOY hal qiladi: tepada harf zararsiz, pastda taqiq beradi.",
-        'Буква та же, место разное. Опасность решает ИМЕННО МЕСТО: сверху буква безвредна, снизу даёт запрет.',
-        'The same letter, a different place. The PLACE decides the danger: above it is harmless, below it creates a restriction.',
-      ),
-    },
     after: L(
-      "Ikkala yozuv ham yig'ildi",
-      'Обе записи собраны',
-      'Both records are built',
+      "Ha. Ikkinchisida chiziq ostida a turibdi, va a nolga teng bo'lsa, ilova yiqiladi. Belgilar o'sha, JOY boshqa.",
+      'Да. Во второй под чертой стоит a, и если a равно нулю, приложение упадёт. Знаки те же — место разное.',
+      'Yes. In the second one a stands below the bar, and if a is zero the app crashes. Same symbols, different place.',
     ),
   },
 }
 
-// ============================================================
-// EKRAN 5. TAQIQ MAXRAJ BILAN BIRGA KO'CHADI. Naqsh 1-sinf 4-darsdan
-// («Xonalarni eslaymiz»): tepada qadamlar chizig'i, zanjir bo'g'inlari
-// strelkalar bilan, har birining ostida oqibati, pastda xulosa satri.
-//
-// Zanjir shuni ko'rsatadi: taqiq SONGA biriktirilmagan. Maxraj o'zgarsa,
-// taqiq ham ko'chadi.
+
 // ============================================================
 const S5 = {
   eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
@@ -1453,7 +1435,7 @@ export const SCREENS = [
   { role: 'hook',     tool: 'pick',      scene: <HookScene/>, ...S1 },
   { role: 'support',  tool: 'pick',      scene: <CodeScene/>, ...S2 },
   { role: 'explain',  tool: 'steppers',  kind: 'dial',     tag: 'З18', ...S3 },
-  { role: 'explain',  tool: 'slots',     kind: 'build',    tag: 'З2',  ...S4 },
+  { role: 'explain',  tool: 'pick',      kind: 'place',    tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'chain',     kind: 'move',     tag: 'З18', ...S5 },
   { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
