@@ -898,7 +898,7 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
 // и видит, из чего она складывается.
 // ============================================================
 export function FillSolution({
-  lines, chips, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, onSolved,
+  tasks, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, onSolved,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -910,8 +910,10 @@ export function FillSolution({
   const [filled, setFilled] = useState([])
   const [wrong, setWrong] = useState(null)
   const [press, setPress] = useState(null)
+  // Три примера подряд: после показа ученик решает их сам, сложность растёт.
+  const [ti0, setTi0] = useState(0)
 
-  const cur = phase === 'demo' && demo ? demo : { lines, chips }
+  const cur = phase === 'demo' && demo ? demo : tasks[Math.min(ti0, tasks.length - 1)]
 
   const slots = []
   cur.lines.forEach((ln, li) => ln.forEach((tk, ti) => {
@@ -939,13 +941,20 @@ export function FillSolution({
       setWrong(null)
       const next = filled.concat([c])
       setFilled(next)
-      if (next.length >= slots.length && onSolved) onSolved({ correct: true, tries: 1 })
+      if (next.length >= slots.length) {
+        if (ti0 + 1 < tasks.length) {
+          setTimeout(() => { setTi0(ti0 + 1); setFilled([]) }, 1100)
+        } else if (onSolved) {
+          onSolved({ correct: true, tries: 1 })
+        }
+      }
       return
     }
     setWrong(c)
     sfx.playWrong()
   }
 
+  const undo = () => { if (phase === 'demo' || !filled.length) return; setFilled(filled.slice(0, -1)); setWrong(null) }
   const again = () => { setFilled([]); setWrong(null); setPress(null) }
   const toSelf = () => { setPhase('self'); setFilled([]); setWrong(null); setPress(null) }
 
@@ -957,7 +966,9 @@ export function FillSolution({
 
   return (
     <div className="g8-fl">
-      {phase === 'demo' ? <span className="g8-fl-badge">{t(showLabel)}</span> : null}
+      {phase === 'demo'
+        ? <span className="g8-fl-badge">{t(showLabel)}</span>
+        : <span className="g8-fl-n">{ti0 + 1} / {tasks.length}</span>}
 
       <div className={'g8-fl-lines' + (phase === 'demo' ? ' is-demo' : '')} style={{ fontFamily: MATH_FONT }}>
         {cur.lines.map((ln, li) => (
@@ -982,19 +993,27 @@ export function FillSolution({
           <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(againLabel)}</button>
           <button type="button" className="g8-fl-self" onClick={toSelf}>{t(selfLabel)}{'  →'}</button>
         </div>
-      ) : done ? (
+      ) : done && ti0 + 1 >= tasks.length ? (
         <>
           <Note kind="ok">{t(doneNote)}</Note>
           <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(repeatLabel)}</button>
         </>
       ) : (
+        <div className="g8-fl-row">
         <div className="g8-fl-chips">
           {cur.chips.map((c) => (
             <button key={c} type="button"
               className={'g8-fl-chip' + (wrong === c ? ' is-wrong' : '') + (press === c ? ' is-press' : '')}
               style={{ fontFamily: MATH_FONT }}
-              onClick={() => put(c)}>{c}</button>
+              onClick={() => put(c)}>
+              {c}
+              {press === c ? <i className="g8-fl-hand-ico" aria-hidden="true"/> : null}
+            </button>
           ))}
+        </div>
+        {phase !== 'demo' && filled.length ? (
+          <button type="button" className="g8-fl-undo" onClick={undo}>{'↶'}</button>
+        ) : null}
         </div>
       )}
     </div>
@@ -1530,4 +1549,30 @@ export const FEED_STYLES = `
   .g8-fl-slot { min-width: 38px; height: 38px; }
   .lesson-root .g8-fl-chip { min-height: 44px; min-width: 48px; font-size: 18px; }
 }
+
+/* ВЫРАВНИВАНИЕ ПО ЗНАКУ. Строки стояли по центру, и знаки расходились
+   ступенькой — запись читалась криво. Первая часть строки тянется и
+   прижимается ВПРАВО, поэтому всё, что после неё, начинается с одной
+   вертикали. Сетка в три колонки не годится: в строке бывает четыре части. */
+.g8-fl-line { width: 100%; }
+.g8-fl-line > .g8-fl-tx:first-child { flex: 1; text-align: right; }
+
+/* КАСАНИЕ на показе — расходящееся кольцо, а не фигурка руки: нарисованная
+   кисть в такой мелочи читается кляксой (то же было в 6 классе, там её
+   заменили стикером). Кольцо однозначно говорит «сюда нажали». */
+.g8-fl-hand-ico { position: absolute; inset: -6px; border-radius: 16px; pointer-events: none;
+  box-shadow: 0 0 0 2px ${T.accent}; animation: g8-fl-tap .62s ease-out both; }
+@keyframes g8-fl-tap {
+  0% { transform: scale(.72); opacity: 0; }
+  35% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.18); opacity: 0; }
+}
+.lesson-root .g8-fl-chip { position: relative; }
+
+/* ОТМЕНА: ученик может снять последнюю клетку и поставить другое. */
+.g8-fl-row { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
+.lesson-root .g8-fl-undo { border: 0; cursor: pointer; min-width: 46px; min-height: 46px;
+  border-radius: 12px; background: transparent; color: ${T.ink3}; font-size: 20px;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.12); }
+.lesson-root .g8-fl-undo:hover { color: ${T.ink}; }
 `
