@@ -49,7 +49,7 @@ const SOLVE = [
   { drill: 3 },                                                          // 10 три шага выбором, решение после каждого
   { drill: 3 },                                                          // 11 сам: три примера с решением
   { drill: 2 },                                                          // 12 ловушка: две чужие ошибки
-  { fields: ['(x*x-9)/(x*x-9)'] },                                       // 13 перенос
+  { cells: ['=', '0', '9', '3', '≠', '3'] },                             // 13 заполняем клетки по порядку
   { blitz: true },                                                       // 14 блиц
   {},                                                                    // 15 итог
 ]
@@ -276,6 +276,16 @@ for (const size of SIZES) {
           await page.waitForTimeout(220)
           if (await page.locator('.g8-ts-acts .g8-opt').count() !== n) break
         }
+      }
+    }
+    // Клетки заполняются по порядку: жмём нужную фишку на каждом шаге.
+    // Клетки заполняются по порядку: ищем фишку по тексту и жмём.
+    if (s.cells) {
+      for (const c of s.cells) {
+        const chips = await page.locator('.g8-fl-chip').all()
+        let hit = null
+        for (const ch of chips) { const tx = (await ch.textContent() || '').trim(); if (tx === c) { hit = ch; break } }
+        if (hit) { await tap(hit, at); await page.waitForTimeout(200) }
       }
     }
     // Пять примеров подряд: верный вариант первый в данных урока.

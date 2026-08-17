@@ -886,6 +886,94 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
   )
 }
 
+
+// ============================================================
+// `FillSolution` — УЧЕНИК ЗАПОЛНЯЕТ ЗАПИСЬ ПО КЛЕТКАМ.
+//
+// Устройство из урока 3 пятого класса («разбор в столбик»): пустые клетки
+// закрываются ПО ОДНОЙ, текущая обведена акцентом, заполненные остаются.
+// Внизу «Повторить» — пройти запись заново.
+//
+// Отличие от выбора одного ответа: ученик проходит ВСЮ запись, шаг за шагом,
+// и видит, из чего она складывается.
+// ============================================================
+export function FillSolution({ lines, chips, repeatLabel, doneNote, onSolved }) {
+  const t = useT()
+  const sfx = useSfx()
+  const [filled, setFilled] = useState([])
+  const [wrong, setWrong] = useState(null)
+
+  // Все пустые клетки подряд, в порядке чтения.
+  const slots = []
+  lines.forEach((ln, li) => ln.forEach((tk, ti) => {
+    if (tk && tk.slot) slots.push({ li, ti, v: tk.slot })
+  }))
+  const at = filled.length
+  const done = at >= slots.length
+
+  const put = (c) => {
+    if (done) return
+    if (c === slots[at].v) {
+      sfx.playCorrect()
+      setWrong(null)
+      const next = filled.concat([c])
+      setFilled(next)
+      if (next.length >= slots.length && onSolved) onSolved({ correct: true, tries: 1 })
+      return
+    }
+    setWrong(c)
+    sfx.playWrong()
+  }
+
+  const again = () => { setFilled([]); setWrong(null) }
+
+  // Номера клеток считаются заранее: менять переменную во время разметки
+  // нельзя (ошибка линта, уже ловили в TwoWays).
+  const idxOf = new Map()
+  let c0 = 0
+  lines.forEach((ln, li) => ln.forEach((tk, ti) => {
+    if (tk && tk.slot) { idxOf.set(li + ':' + ti, c0); c0 += 1 }
+  }))
+
+  return (
+    <div className="g8-fl">
+      <div className="g8-fl-lines" style={{ fontFamily: MATH_FONT }}>
+        {lines.map((ln, li) => (
+          <div key={li} className="g8-fl-line">
+            {ln.map((tk, ti) => {
+              if (!tk || !tk.slot) return <span key={ti} className="g8-fl-tx">{tk && tk.t ? tk.t : tk}</span>
+              const idx = idxOf.get(li + ':' + ti)
+              return (
+                <span key={ti} className={'g8-fl-slot'
+                  + (idx < filled.length ? ' is-full' : '')
+                  + (idx === filled.length ? ' is-now' : '')}>
+                  {idx < filled.length ? filled[idx] : ''}
+                </span>
+              )
+            })}
+          </div>
+        ))}
+      </div>
+
+      {done ? (
+        <>
+          <Note kind="ok">{t(doneNote)}</Note>
+          <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(repeatLabel)}</button>
+        </>
+      ) : (
+        <div className="g8-fl-chips">
+          {chips.map((c) => (
+            <button key={c} type="button"
+              className={'g8-fl-chip' + (wrong === c ? ' is-wrong' : '')}
+              style={{ fontFamily: MATH_FONT }}
+              onClick={() => put(c)}>{c}</button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -1371,5 +1459,36 @@ export const FEED_STYLES = `
   .g8-dr-expr { font-size: 26px; padding: 8px 16px; }
   .g8-dr-sol { padding: 8px 12px; }
   .g8-dr-solline { font-size: 17px; }
+}
+
+.g8-fl { width: 100%; display: flex; flex-direction: column; align-items: center; gap: 14px; }
+.g8-fl-lines { display: flex; flex-direction: column; gap: 8px; align-items: center;
+  padding: 16px 22px; border-radius: 16px; background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.07); }
+.g8-fl-line { display: flex; align-items: center; gap: 6px;
+  font-size: clamp(20px, 2vw, 28px); color: ${T.ink}; white-space: pre; }
+.g8-fl-slot { display: inline-flex; align-items: center; justify-content: center;
+  min-width: 44px; height: 44px; border-radius: 10px; background: ${T.bg};
+  box-shadow: inset 0 0 0 1.5px rgba(23,26,29,.12); transition: box-shadow .25s ease; }
+.g8-fl-slot.is-now { box-shadow: inset 0 0 0 2.5px ${T.accent};
+  animation: g8-fl-pulse 1.3s ease-in-out infinite; }
+.g8-fl-slot.is-full { background: ${T.okSoft}; color: ${T.ok};
+  box-shadow: inset 0 0 0 1.5px rgba(${T.okRgb},.4); }
+@keyframes g8-fl-pulse { 0%, 100% { box-shadow: inset 0 0 0 2.5px ${T.accent}; }
+  50% { box-shadow: inset 0 0 0 2.5px rgba(${T.accentRgb},.45); } }
+.g8-fl-chips { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; }
+.lesson-root .g8-fl-chip { border: 0; cursor: pointer; min-width: 56px; min-height: 52px;
+  border-radius: 12px; background: ${T.paper}; color: ${T.ink};
+  font-size: clamp(19px, 1.9vw, 25px);
+  box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.08); }
+.lesson-root .g8-fl-chip:hover { transform: translateY(-2px); }
+.lesson-root .g8-fl-chip.is-wrong { background: ${T.tipSoft}; color: ${T.tip}; }
+.lesson-root .g8-fl-again { border: 0; cursor: pointer; background: transparent; color: ${T.ink3};
+  font-family: 'Manrope', system-ui, sans-serif; font-size: 13.5px; font-weight: 600; }
+@media (max-height: 680px) {
+  .g8-fl-lines { padding: 10px 16px; gap: 5px; }
+  .g8-fl-line { font-size: 19px; }
+  .g8-fl-slot { min-width: 38px; height: 38px; }
+  .lesson-root .g8-fl-chip { min-height: 44px; min-width: 48px; font-size: 18px; }
 }
 `

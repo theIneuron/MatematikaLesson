@@ -1180,55 +1180,44 @@ const S12 = {
 }
 
 // ============================================================
+// EKRAN 13. YOZUVNI KATAKMA-KATAK TO'LDIRING. Naqsh 3-sinf... yo'q: 5-sinf
+// 3-darsidan («ustunga ajratish»): bo'sh kataklar BITTADAN yopiladi, joriy
+// katak aksent bilan chizilgan, to'ldirilganlari qoladi, pastda «Qaytarish».
+//
+// O'quvchi bitta javobni tanlamaydi — u BUTUN yozuvni qadam-baqadam
+// o'tadi va nimadan tashkil topganini ko'radi.
+// ============================================================
 const S13 = {
-  eyebrow: L("KO'CHIRISH", 'ПЕРЕНОС', 'TRANSFER'),
+  eyebrow: L("KATAKMA-KATAK", 'ПО КЛЕТКАМ', 'CELL BY CELL'),
   title: L(
-    "Yozuvni o'zingiz tuzing",
-    'Запись составь сам',
-    'Build the record yourself',
+    "Yechimni o'zingiz to'ldiring",
+    'Заполни решение сам',
+    'Fill in the solution yourself',
   ),
   audio: [
     A('mount',
-      "Oxirgi mazmunli topshiriq, va u teskari. Javob berilgan, yozuvni siz tuzasiz.",
-      'Последнее содержательное задание, и оно обратное. Ответ дан, запись составляешь ты.',
-      'The last substantial task, and it is the inverse one. The answer is given, you build the record.'),
-    A('why',
-      "Javoblar ko'p, va bu normal. Ikki narsa tekshiriladi. Qiymatlar mos keldimi va taqiqlangan sonlar mos keldimi.",
-      'Ответов много, и это нормально. Проверяются две вещи. Совпали значения и совпали запрещённые числа.',
-      'There are many answers, and that is normal. Two things are checked. Whether the values match and whether the forbidden numbers match.'),
+      "Yechim yozilgan, lekin kataklar bo'sh. Ularni birma-bir to'ldiring.",
+      'Решение записано, но клетки пустые. Заполняй их по одной.',
+      'The solution is written but the cells are empty. Fill them one by one.'),
   ],
   props: {
-    varName: 'x',
-    prompt: L(
-      "Shunday kasr ifoda yozing: barcha ruxsat etilgan x da qiymati birga teng, taqiqlangan sonlari esa aynan uch va minus uch",
-      'Запиши дробное выражение: при всех допустимых x его значение равно единице, а запрещённых чисел ровно два — три и минус три',
-      'Write a fractional expression whose value is one for all admissible x and whose forbidden numbers are exactly three and minus three',
+    repeatLabel: L('Qaytarish', 'Повторить', 'Repeat'),
+    doneNote: L(
+      "Yozuv to'ldi. Uchta qadam: maxrajni nolga tenglash, yechish, taqiqni yozish.",
+      'Запись заполнена. Три шага: приравнять знаменатель к нулю, решить, записать запрет.',
+      'The record is filled. Three steps: set the denominator to zero, solve, write the restriction.',
     ),
-    reduceTo: '1',
-    excluded: [3, -3],
-    hints: {
-      '(x-3)/(x-3)': L(
-        "Qiymati birga teng, lekin taqiq bitta. Minus uch ham taqiqlanishi kerak: maxrajga ikkinchi ko'paytuvchi kerak.",
-        'Значение равно единице, но запрет один. Минус три тоже должно быть запрещено: знаменателю нужен второй множитель.',
-        'The value is one but there is only one restriction. Minus three must be forbidden too: the denominator needs a second factor.',
-      ),
-      '1': L(
-        "Birlikning taqiqi yo'q: uni har qanday sonda hisoblash mumkin. Bo'linish kerak, va maxraj uch va minus uchda nolga aylanishi kerak.",
-        'У единицы запретов нет: её можно посчитать при любом числе. Нужно деление, и знаменатель должен обращаться в нуль при трёх и минус трёх.',
-        'One has no restrictions: it works for any number. You need a division whose denominator becomes zero at three and minus three.',
-      ),
-    },
-    note: L(
-      "Qiymat va soha — ikki boshqa narsa. Bir xil qiymatli yozuvlarning sohasi boshqa bo'lishi mumkin.",
-      'Значение и область — две разные вещи. У записей с одинаковым значением область может быть разной.',
-      'Value and domain are two different things. Records with the same value may have different domains.',
-    ),
+    chips: ['3', '0', '≠', '=', '9'],
+    lines: [
+      [{ t: '3x − 9 ' }, { slot: '=' }, { t: ' ' }, { slot: '0' }],
+      [{ t: '3x = ' }, { slot: '9' }],
+      [{ t: 'x = ' }, { slot: '3' }],
+      [{ t: 'x ' }, { slot: '≠' }, { t: ' ' }, { slot: '3' }],
+    ],
   },
 }
 
-// ============================================================
-// EKRAN 14. BLITS. To'rt savol BITTA panelda, BELGI haqida. Ball YO'Q:
-// birinchi urinishlardan tayyorlik darajasi SO'Z bilan yig'iladi (§2.2.5).
+
 // ============================================================
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
@@ -1469,7 +1458,7 @@ export const SCREENS = [
   { role: 'practice', tool: 'drill',     kind: 'guided',   tag: 'З18', ...S10 },
   { role: 'practice', tool: 'drill',     kind: 'solo',     tag: 'З16', ...S11 },
   { role: 'practice', tool: 'drill',     kind: 'audit',    tag: 'З16', ...S12 },
-  { role: 'transfer', tool: 'inverse',   tag: 'З2', ...S13 },
+  { role: 'transfer', tool: 'fill',      tag: 'З2', ...S13 },
   { role: 'blitz',    tool: 'blitz',     ...S14 },
   { role: 'summary',  tool: 'summary',   scene: FinalScene, ...S15 },
 ]
