@@ -195,7 +195,7 @@ export function FeedNumber({
 //
 // Разбор на каждый неверный указывает на признак, а не даёт ответ.
 // ============================================================
-export function PickBroken({ items, ask, after, onSolved, audio }) {
+export function PickBroken({ items, ask, after, afterSay, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [picked, setPicked] = useState(null)
@@ -208,7 +208,7 @@ export function PickBroken({ items, ask, after, onSolved, audio }) {
       setPicked(it.id)
       setNote(after || null)
       sfx.playCorrect()
-      if (audio && after) audio.say(t(after))
+      if (audio && (afterSay || after)) audio.say(t(afterSay || after))
       if (onSolved) onSolved({ correct: true, tries: wrong.length + 1 })
       return
     }
@@ -236,6 +236,7 @@ export function PickBroken({ items, ask, after, onSolved, audio }) {
             {/* `show` бывает записью (строка) и бывает текстом на трёх языках:
                 на опоре это формула, на хуке — вариант ответа словами. */}
             {typeof it.show === 'string' ? it.show : t(it.show)}
+            {picked && it.name ? <b className="g8-pb-name">{t(it.name)}</b> : null}
           </button>
         ))}
       </div>
@@ -1815,4 +1816,25 @@ export const FEED_STYLES = `
   .g8-tk-list li { padding: 9px 16px; font-size: 20px; }
   .g8-tk-mark { font-size: 46px; }
 }
+
+/* ПОНЯТИЕ НАЗЫВАЕТСЯ НА САМОЙ ЗАПИСИ (методист, 2026-08-17). Текст под
+   экраном был длинным абзацем; вместо него подпись выезжает на той
+   записи, о которой речь, а полный разбор уходит в озвучку. */
+.lesson-root .g8-pb-card { position: relative; }
+.g8-pb-name { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+  font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: ${T.accent};
+  white-space: nowrap; animation: g8-pb-name-in .5s .25s ease-out both; }
+@keyframes g8-pb-name-in {
+  0% { opacity: 0; transform: translate(-50%, 10px); }
+  100% { opacity: 1; transform: translate(-50%, 0); }
+}
+
+/* АКЦЕНТ НА ОПРЕДЕЛЕНИИ (методист, 2026-08-17). Первая строка правила —
+   само понятие рациональной дроби, поэтому она выделена цветом и весом.
+   НУМЕРАЦИЯ через счётчик CSS отменена: номер добавляет ширины КАЖДОЙ
+   строке, все четыре начинают переноситься, и правило вырастает на 84
+   пикселя — оно перестаёт влезать на ноутбуке и телефоне. Чтобы номера
+   встали, надо укоротить сами формулировки, а они общие с другими
+   экранами: это решение методиста, не вёрстки. */
+.lesson-root .g8-rule-first { font-weight: 700; color: ${T.accent}; }
 `

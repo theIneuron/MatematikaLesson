@@ -530,6 +530,7 @@ const S4 = {
       {
         id: 'safe',
         show: 'a : 7',
+        name: L('BUTUN IFODA', 'ЦЕЛОЕ ВЫРАЖЕНИЕ', 'INTEGRAL EXPRESSION'),
         hint: L(
           "Bu yerda a ni yettiga bo'lamiz. Yetti hech qachon nolga aylanmaydi, demak yiqilmaydi.",
           'Здесь a делят на семь. Семёрка нулём не станет никогда, значит не упадёт.',
@@ -540,15 +541,23 @@ const S4 = {
         id: 'risky',
         right: true,
         show: '7 : a',
+        name: L('RATSIONAL KASR', 'РАЦИОНАЛЬНАЯ ДРОБЬ', 'RATIONAL FRACTION'),
       },
     ],
     // ЗДЕСЬ вводятся оба понятия темы. Место выбрано не случайно: ученик
     // только что сам увидел РАЗНИЦУ между двумя записями, и названия
     // ложатся на увиденное различие, а не на пустое место.
     after: L(
-      "Ha. Ikkinchisida chiziq ostida a turibdi, va a nolga teng bo'lsa, ilova yiqiladi. Belgilar o'sha, JOY boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisi BUTUN ifoda, chunki harfga bo'linmaydi. Ikkinchisi KASR ifoda, uni ratsional kasr deb ataymiz.",
-      'Да. Во второй под чертой стоит a, и если a равно нулю, приложение упадёт. Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. Первая целая, потому что на букву не делят. Вторая дробная, её называют рациональной дробью.',
-      'Yes. In the second one a stands below the bar, and if a is zero the app crashes. Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. The first is integral, since nothing is divided by a letter. The second is fractional and is called a rational fraction.',
+      "Belgilar o'sha, joy boshqa.",
+      'Знаки те же, место разное.',
+      'Same symbols, different place.',
+    ),
+    // Экранный текст короткий, разбор целиком уходит в озвучку: абзац под
+    // записями ученик не читает, он смотрит на подписи (методист, 2026-08-17).
+    afterSay: L(
+      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nolga teng bo'lsa, ilova yiqiladi.",
+      'Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение упадёт.',
+      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app crashes.',
     ),
   },
 }
@@ -1479,6 +1488,9 @@ const S15 = {
 // ровно то, что объяснил урок. Математическая сцена, без персонажей.
 // ============================================================
 
+// Сцена финала больше не ставится: на итоге стоит сцена первого экрана.
+// Оставлена до решения методиста, чем заканчивать урок.
+// eslint-disable-next-line no-unused-vars
 const FinalScene = (
   <SceneBand kind="final" label={L(
     "Ikkilikda kasr chizig'i uziladi",
