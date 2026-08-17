@@ -909,16 +909,6 @@ const S8 = {
       ),
     },
     // XUKKA QAYTISH: plotter o'chadi, jadval yashil bo'ladi.
-    recall: {
-      left: L('plotter: 4', 'плоттер: 4', 'plotter: 4'),
-      right: L("jadval: qiymat yo'q", 'таблица: значения нет', 'table: no value'),
-      winner: 'right',
-      note: L(
-        "Ikkilikda maxraj nolga aylanadi, ya'ni qiymat yo'q. Plotter nuqtalarni birlashtirgan edi.",
-        'При двойке знаменатель обращается в нуль, значит значения нет. Плоттер просто соединил точки.',
-        'At two the denominator becomes zero, so there is no value. The plotter merely joined the points.',
-      ),
-    },
   },
 }
 
@@ -1581,8 +1571,8 @@ export const SCREENS = [
       <CaseStrip
         lead={L('SIZ OLGAN NATIJALAR', 'ТВОИ РЕЗУЛЬТАТЫ', 'YOUR OWN RESULTS')}
         cases={[
-          { rec: '(x · x − 4) : (x − 2)', at: 'x = 2', den: '0' },
-          { rec: '(a + 5) : (a − 3)', at: 'a = 3', den: '0' },
+          { rec: '600 : k', at: 'k = 0', den: '0' },
+          { rec: '600 : (k − 4)', at: 'k = 4', den: '0' },
           { rec: '7 : (a − 5)', at: 'a = 5', den: '0' },
         ]}
       />
