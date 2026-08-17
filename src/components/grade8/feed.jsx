@@ -413,6 +413,37 @@ export function FormulaSlots({ topLabel, botLabel, numWord, varWord, ask, verdic
   )
 }
 
+
+// ============================================================
+// `TwoWays` — ОДИН ОТВЕТ, ДВА СПОСОБА, ОБА НА ЭКРАНЕ СРАЗУ.
+//
+// Образец — урок 1 второго класса («Разберём 345 двумя способами»): одна
+// карточка, внутри два озаглавленных блока и вывод. Никакой ленты шагов:
+// сравнивать способы можно только когда они видны ОДНОВРЕМЕННО, а
+// пошаговое открытие показывает их по очереди и сравнение убивает.
+// ============================================================
+export function TwoWays({ blocks }) {
+  const t = useT()
+  return (
+    <div className="g8-tw">
+      {blocks.map((b, i) => (
+        <div key={i} className={'g8-tw-b' + (b.tone ? ' is-' + b.tone : '')}>
+          <div className="g8-tw-h">{t(b.name)}</div>
+          {b.lead ? <div className="g8-tw-lead">{t(b.lead)}</div> : null}
+          <div className="g8-tw-rows" style={{ fontFamily: MATH_FONT }}>
+            {b.rows.map((r, k) => (
+              <div key={k} className={'g8-tw-row' + (r.tone ? ' tone-' + r.tone : '')}>
+                <span>{typeof r.text === 'string' ? r.text : t(r.text)}</span>
+                {r.note ? <i className="g8-tw-note">{t(r.note)}</i> : null}
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 // ============================================================
 // CSS. ВНИМАНИЕ: строка шаблонная — обратная кавычка или обратный слэш
 // внутри неё, даже в комментарии, дают белую страницу.
@@ -485,6 +516,35 @@ export const FEED_STYLES = `
 .g8-tr-sign { font-family: ${MATH_FONT}; font-size: clamp(20px, 2vw, 26px); color: ${T.ink3}; }
 .g8-tr-sign.is-gap { color: ${T.tip}; font-weight: 700; }
 .g8-tr-nums { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+.g8-tw { width: 100%; background: ${T.paper}; border-radius: 16px; padding: 16px 20px;
+  display: flex; flex-direction: column; gap: 12px;
+  box-shadow: 0 18px 40px -30px rgba(${T.shadow},.9), inset 0 0 0 1px rgba(23,26,29,.05); }
+.g8-tw-b { display: flex; flex-direction: column; gap: 5px; padding-bottom: 12px;
+  border-bottom: 1px dashed rgba(23,26,29,.14); }
+.g8-tw-b:last-child { border-bottom: 0; padding-bottom: 0; }
+.g8-tw-b.is-sum { background: ${T.tipSoft}; border-radius: 12px; padding: 12px 14px; border-bottom: 0; }
+.g8-tw-h { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 700; letter-spacing: .06em; color: ${T.accent}; text-align: center; }
+.g8-tw-lead { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(12.5px, 1.1vw, 15px);
+  color: ${T.ink2}; text-align: center; }
+.g8-tw-rows { display: flex; flex-direction: column; gap: 2px; align-items: center; }
+.g8-tw-row { display: flex; align-items: baseline; gap: 10px;
+  font-size: clamp(16px, 1.6vw, 21px); color: ${T.ink}; }
+.g8-tw-row.tone-no span { color: ${T.tip}; }
+.g8-tw-row.tone-ok span { color: ${T.ok}; }
+.g8-tw-note { font-family: 'Manrope', system-ui, sans-serif; font-size: 12px;
+  font-style: normal; color: ${T.ink3}; }
+/* Карточка двух способов держит девять строк — на тесной высоте она не
+   влезает (замер: +61 на ноутбуке 615). Там всё плотнее: меньше отступы,
+   мельче строки, подписи блоков в одну линию. */
+@media (max-height: 680px) {
+  .g8-tw { padding: 10px 14px; gap: 7px; }
+  .g8-tw-b { padding-bottom: 7px; gap: 2px; }
+  .g8-tw-b.is-sum { padding: 8px 10px; }
+  .g8-tw-h { font-size: 12px; }
+  .g8-tw-lead { font-size: 11.5px; }
+  .g8-tw-row { font-size: 15px; }
+}
 .g8-fs { display: flex; flex-direction: column; align-items: center; gap: 6px; width: 100%; }
 .g8-fs-cell { display: flex; flex-direction: column; align-items: center; gap: 4px;
   min-width: 260px; padding: 10px 16px; border-radius: 14px; background: ${T.paper};

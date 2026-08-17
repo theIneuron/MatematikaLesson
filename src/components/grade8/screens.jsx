@@ -30,7 +30,7 @@ import {
   Ask, Btn, L, LangProvider, Lead, Note, STYLES, Stage, Title, UI_TXT,
   configureLesson, tr, useAdvanceGate, useAudio, useMobileZoom, useT,
 } from './core.jsx'
-import { FEED_STYLES, FeedNumber, FormulaSlots, PickBroken, TwoRecords } from './feed.jsx'
+import { FEED_STYLES, FeedNumber, FormulaSlots, PickBroken, TwoRecords, TwoWays } from './feed.jsx'
 import { MATH_STYLES } from './math.jsx'
 import { METHOD_STYLES, MethodCard, SolveTogether } from './method.jsx'
 import { PLOT_STYLES } from './plot.jsx'
@@ -223,6 +223,9 @@ export function ScreenBody(props) {
     // СОБЕРИ ЗАПИСЬ: две ячейки и кнопки, правило открывает ученик.
     case 'slots':
       return <FormulaSlots {...p} audio={audio} onSolved={onSolved} />
+    // ДВА СПОСОБА СРАЗУ: сравнивать можно только то, что видно одновременно.
+    case 'twoways':
+      return <TwoWays {...p} />
     // KADRLAR LENTASI: tepada bitta obyekt, pastda kadrlar (4-sinf naqshi).
     case 'film':
       return <FilmScreen p={p} audio={audio} onSolved={onSolved} step={step} />

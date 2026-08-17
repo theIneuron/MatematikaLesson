@@ -589,84 +589,66 @@ const S5 = {
 //
 // Ekranning mazmuni shundaki, ikkala usul BIR XIL sonni beradi.
 // ============================================================
+// EKRAN 6. IKKI USUL BIR VAQTDA. Naqsh 1-sinf 2-darsdan («345 ni ikki usul
+// bilan»): bitta kartochka, ichida ikkita sarlavhali blok va xulosa.
+//
+// Kadrlar lentasi OLIB TASHLANDI: usullarni faqat bir vaqtda ko'rinib
+// turganda taqqoslash mumkin, navbat bilan ochilsa taqqoslash yo'qoladi.
+// ============================================================
 const S6 = {
   eyebrow: L('IKKI USUL', 'ДВА СПОСОБА', 'TWO METHODS'),
   title: L(
-    "Taqiqni ikki usul bilan topamiz",
-    'Найдём запрет двумя способами',
-    'Finding the restriction two ways',
+    "600 : (k − 4) yozuvini ikki usul bilan tekshiramiz",
+    'Проверим 600 : (k − 4) двумя способами',
+    'Checking 600 : (k − 4) two ways',
   ),
   audio: [
     A('mount',
       "Bitta yozuv va ikkita yo'l. Ikkalasi ham bir xil sonni beradi.",
       'Одна запись и два пути. Оба дают одно и то же число.',
       'One record and two ways. Both give the same number.'),
-    W('s4',
-      "Birinchi usul ishlaydi, lekin uzoq: har bir sonni sinab ko'rish kerak.",
-      'Первый способ работает, но он долгий: приходится пробовать каждое число.',
-      'The first method works but it is slow: you have to try every number.'),
-    W('s7',
-      "Ikkinchi usul taxmin qilishni talab qilmaydi. Maxrajni nolga tenglaymiz va yechamiz.",
-      'Второй способ не требует угадывать. Приравниваем знаменатель к нулю и решаем.',
-      'The second method needs no guessing. We set the denominator to zero and solve.'),
+    A('why',
+      "Birinchi usul ishlaydi, lekin uzoq. Ikkinchisi taxmin qilishni talab qilmaydi.",
+      'Первый способ работает, но он долгий. Второй не требует угадывать.',
+      'The first method works but is slow. The second needs no guessing.'),
   ],
   props: {
-    task: L(
-      "600 : (k − 4) yozuvida taqiq qayerda?",
-      'Где запрет у записи 600 : (k − 4)?',
-      'Where is the restriction in 600 : (k − 4)?',
-    ),
-    lines: [
-      { text: '1-usul · СПОСОБ 1 · METHOD 1', note: L('sonlarni sinaymiz', 'пробуем числа', 'we try numbers') },
-      { text: 'k = 1:   600 : (1 − 4) = −200', tone: 'ok' },
-      { text: 'k = 2:   600 : (2 − 4) = −300', tone: 'ok' },
+    blocks: [
       {
-        text: 'k = 3:   600 : (3 − 4) = −600',
-        tone: 'ok',
-        ask: {
-          question: L(
-            "Keyingisi to'rtlik. Nima bo'ladi?",
-            'Дальше четвёрка. Что будет?',
-            'Next comes four. What happens?',
-          ),
-          items: [
-            {
-              id: 'zero',
-              right: true,
-              label: L("Maxraj nol bo'ladi", 'Знаменатель станет нулём', 'The denominator becomes zero'),
-            },
-            {
-              id: 'big',
-              label: L('Juda katta son', 'Очень большое число', 'A very large number'),
-              hint: L(
-                "To'rt minus to'rt nolga teng, va nolga bo'lish mumkin emas.",
-                'Четыре минус четыре это нуль, а на нуль делить нельзя.',
-                'Four minus four is zero, and division by zero is impossible.',
-              ),
-            },
-            {
-              id: 'same',
-              label: L("O'sha −600", 'Те же −600', 'The same −600'),
-              hint: L(
-                "Har bir sonda maxraj o'zgaradi. To'rtlikda u nolga aylanadi.",
-                'При каждом числе знаменатель меняется. При четвёрке он обращается в нуль.',
-                'The denominator changes at every number. At four it becomes zero.',
-              ),
-            },
-          ],
-        },
-      },
-      { text: 'k = 4:   600 : (4 − 4) = 600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
-      { text: '2-usul · СПОСОБ 2 · METHOD 2', note: L('taxminsiz', 'без перебора', 'no guessing') },
-      { text: 'k − 4 = 0' },
-      { text: 'k = 4', tone: 'ok', note: L('bitta satr', 'одна строка', 'one line') },
-      {
-        text: L(
-          "Ikkala usul ham to'rtlikni berdi",
-          'Оба способа дали четвёрку',
-          'Both methods gave four',
+        name: L('1-USUL — SONLARNI SINAYMIZ', 'СПОСОБ 1 — ПОДСТАВЛЯЕМ ЧИСЛА', 'METHOD 1 — SUBSTITUTE NUMBERS'),
+        lead: L(
+          "Har bir sonni navbat bilan qo'yamiz",
+          'Подставляем каждое число по очереди',
+          'We substitute each number in turn',
         ),
-        tone: 'ok',
+        rows: [
+          { text: 'k = 1:   600 : (1 − 4) = −200' },
+          { text: 'k = 2:   600 : (2 − 4) = −300' },
+          { text: 'k = 3:   600 : (3 − 4) = −600' },
+          { text: 'k = 4:   600 : (4 − 4) = 600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
+        ],
+      },
+      {
+        name: L('2-USUL — MAXRAJDAN', 'СПОСОБ 2 — ИЗ ЗНАМЕНАТЕЛЯ', 'METHOD 2 — FROM THE DENOMINATOR'),
+        lead: L(
+          "Maxrajni nolga tenglaymiz va yechamiz",
+          'Приравниваем знаменатель к нулю и решаем',
+          'We set the denominator to zero and solve',
+        ),
+        rows: [
+          { text: 'k − 4 = 0' },
+          { text: 'k = 4', tone: 'ok', note: L('bitta satr', 'одна строка', 'one line') },
+        ],
+      },
+      {
+        tone: 'sum',
+        name: L('IKKALASI HAM TO\'RTLIKNI BERDI', 'ОБА СПОСОБА ДАЛИ ЧЕТВЁРКУ', 'BOTH METHODS GAVE FOUR'),
+        lead: L(
+          "Ikkinchisi taxmin qilishni talab qilmaydi",
+          'Второй не требует перебирать числа',
+          'The second one requires no guessing',
+        ),
+        rows: [{ text: 'k ≠ 4', tone: 'ok' }],
       },
     ],
   },
@@ -1426,7 +1408,7 @@ export const SCREENS = [
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S3 },
   { role: 'explain',  tool: 'slots',     kind: 'build',    tag: 'З2',  ...S4 },
   { role: 'explain',  tool: 'feed',      kind: 'fill',     tag: 'З18', ...S5 },
-  { role: 'explain',  tool: 'solve',     kind: 'solve',    tag: 'З18', ...S6 },
+  { role: 'explain',  tool: 'twoways',   kind: 'ways',     tag: 'З18', ...S6 },
   { role: 'explain',  tool: 'tworec',    kind: 'gap',      tag: 'З2',  ...S7 },
   {
     role: 'rule',
