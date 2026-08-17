@@ -1035,20 +1035,6 @@ const S10 = {
         },
       },
       {
-        kind: 'odz',
-        varName: 'x',
-        excluded: [4, -4],
-        ask: L('ODZ ni yozing', 'Запиши ОДЗ', 'Type the domain'),
-        accepts: ['x != 4, x != -4', 'x != -4, x != 4'],
-        hints: {
-          'x != 4': L(
-            "Bitta shart yetmaydi. Minus to'rtni qo'ying: maxraj yana nolga aylanadi.",
-            'Одного условия не хватает. Подставь минус четыре: знаменатель снова обращается в нуль.',
-            'One condition is missing. Put minus four: the denominator becomes zero again.',
-          ),
-        },
-      },
-      {
         ask: L(
           "Qaysi x da SURAT nolga aylanadi? Sonni yozing",
           'При каком x обращается в нуль ЧИСЛИТЕЛЬ? Запиши число',
@@ -1524,7 +1510,7 @@ export const SCREENS = [
     ...S8,
   },
   { role: 'practice', tool: 'drill',     kind: 'drill',    tag: 'З2',  ...S9 },
-  { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', method: M_ODZ,   ...S10 },
+  { role: 'practice', tool: 'fields',    kind: 'guided',   tag: 'З18', ...S10 },
   { role: 'practice', tool: 'solo',      kind: 'solo',     tag: 'З16', method: M_ODZ,   ...S11 },
   { role: 'practice', tool: 'audit',     kind: 'audit',    tag: 'З16', method: M_CHECK, ...S12 },
   { role: 'transfer', tool: 'inverse',   tag: 'З2',        method: M_KIND, ...S13 },
