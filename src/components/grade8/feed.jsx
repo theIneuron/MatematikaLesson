@@ -897,22 +897,43 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
 // Отличие от выбора одного ответа: ученик проходит ВСЮ запись, шаг за шагом,
 // и видит, из чего она складывается.
 // ============================================================
-export function FillSolution({ lines, chips, repeatLabel, doneNote, onSolved }) {
+export function FillSolution({
+  lines, chips, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, onSolved,
+}) {
   const t = useT()
   const sfx = useSfx()
+  // ПОКАЗ, ПОТОМ САМ. Прибор сначала заполняет запись СВОИМИ руками — ученик
+  // видит, что вообще надо делать на таком экране, — и только потом отдаёт
+  // ход. Без показа первая клетка непонятна: неясно, куда жать и зачем.
+  // Наглядность из урока 1 третьего класса.
+  const [phase, setPhase] = useState(demo ? 'demo' : 'self')
   const [filled, setFilled] = useState([])
   const [wrong, setWrong] = useState(null)
+  const [press, setPress] = useState(null)
 
-  // Все пустые клетки подряд, в порядке чтения.
+  const cur = phase === 'demo' && demo ? demo : { lines, chips }
+
   const slots = []
-  lines.forEach((ln, li) => ln.forEach((tk, ti) => {
+  cur.lines.forEach((ln, li) => ln.forEach((tk, ti) => {
     if (tk && tk.slot) slots.push({ li, ti, v: tk.slot })
   }))
   const at = filled.length
   const done = at >= slots.length
 
+  // Показ идёт сам: фишка «нажимается», потом клетка закрывается.
+  useEffect(() => {
+    if (phase !== 'demo' || done) return undefined
+    const v = slots[at].v
+    const t1 = setTimeout(() => setPress(v), 700)
+    const t2 = setTimeout(() => {
+      setPress(null)
+      setFilled((p) => p.concat([v]))
+    }, 1400)
+    return () => { clearTimeout(t1); clearTimeout(t2) }
+  }, [phase, at, done, slots])
+
   const put = (c) => {
-    if (done) return
+    if (done || phase === 'demo') return
     if (c === slots[at].v) {
       sfx.playCorrect()
       setWrong(null)
@@ -925,20 +946,21 @@ export function FillSolution({ lines, chips, repeatLabel, doneNote, onSolved }) 
     sfx.playWrong()
   }
 
-  const again = () => { setFilled([]); setWrong(null) }
+  const again = () => { setFilled([]); setWrong(null); setPress(null) }
+  const toSelf = () => { setPhase('self'); setFilled([]); setWrong(null); setPress(null) }
 
-  // Номера клеток считаются заранее: менять переменную во время разметки
-  // нельзя (ошибка линта, уже ловили в TwoWays).
   const idxOf = new Map()
   let c0 = 0
-  lines.forEach((ln, li) => ln.forEach((tk, ti) => {
+  cur.lines.forEach((ln, li) => ln.forEach((tk, ti) => {
     if (tk && tk.slot) { idxOf.set(li + ':' + ti, c0); c0 += 1 }
   }))
 
   return (
     <div className="g8-fl">
-      <div className="g8-fl-lines" style={{ fontFamily: MATH_FONT }}>
-        {lines.map((ln, li) => (
+      {phase === 'demo' ? <span className="g8-fl-badge">{t(showLabel)}</span> : null}
+
+      <div className={'g8-fl-lines' + (phase === 'demo' ? ' is-demo' : '')} style={{ fontFamily: MATH_FONT }}>
+        {cur.lines.map((ln, li) => (
           <div key={li} className="g8-fl-line">
             {ln.map((tk, ti) => {
               if (!tk || !tk.slot) return <span key={ti} className="g8-fl-tx">{tk && tk.t ? tk.t : tk}</span>
@@ -955,16 +977,21 @@ export function FillSolution({ lines, chips, repeatLabel, doneNote, onSolved }) 
         ))}
       </div>
 
-      {done ? (
+      {phase === 'demo' && done ? (
+        <div className="g8-fl-hand">
+          <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(againLabel)}</button>
+          <button type="button" className="g8-fl-self" onClick={toSelf}>{t(selfLabel)}{'  →'}</button>
+        </div>
+      ) : done ? (
         <>
           <Note kind="ok">{t(doneNote)}</Note>
           <button type="button" className="g8-fl-again" onClick={again}>{'↻  '}{t(repeatLabel)}</button>
         </>
       ) : (
         <div className="g8-fl-chips">
-          {chips.map((c) => (
+          {cur.chips.map((c) => (
             <button key={c} type="button"
-              className={'g8-fl-chip' + (wrong === c ? ' is-wrong' : '')}
+              className={'g8-fl-chip' + (wrong === c ? ' is-wrong' : '') + (press === c ? ' is-press' : '')}
               style={{ fontFamily: MATH_FONT }}
               onClick={() => put(c)}>{c}</button>
           ))}
@@ -1477,6 +1504,18 @@ export const FEED_STYLES = `
 @keyframes g8-fl-pulse { 0%, 100% { box-shadow: inset 0 0 0 2.5px ${T.accent}; }
   50% { box-shadow: inset 0 0 0 2.5px rgba(${T.accentRgb},.45); } }
 .g8-fl-chips { display: flex; gap: 9px; flex-wrap: wrap; justify-content: center; }
+/* ПОКАЗ: рамка пунктиром, плашка сверху, «нажатая» фишка приподнята. */
+.g8-fl-badge { font-family: 'Manrope', system-ui, sans-serif; font-size: clamp(13px, 1.2vw, 16px);
+  font-weight: 700; color: ${T.graph}; background: ${T.graphSoft};
+  padding: 7px 16px; border-radius: 999px; }
+.g8-fl-lines.is-demo { box-shadow: inset 0 0 0 2px rgba(${T.graphRgb},.3); background: ${T.bg}; }
+.lesson-root .g8-fl-chip.is-press { transform: translateY(-4px) scale(1.06);
+  background: ${T.accentSoft}; color: ${T.accent};
+  box-shadow: inset 0 0 0 2px rgba(${T.accentRgb},.5); }
+.g8-fl-hand { display: flex; gap: 12px; align-items: center; }
+.lesson-root .g8-fl-self { border: 0; cursor: pointer; min-height: 44px; padding: 0 20px;
+  border-radius: 12px; background: ${T.accent}; color: #fff;
+  font-family: 'Manrope', system-ui, sans-serif; font-size: 14.5px; font-weight: 700; }
 .lesson-root .g8-fl-chip { border: 0; cursor: pointer; min-width: 56px; min-height: 52px;
   border-radius: 12px; background: ${T.paper}; color: ${T.ink};
   font-size: clamp(19px, 1.9vw, 25px);

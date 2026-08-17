@@ -281,6 +281,10 @@ for (const size of SIZES) {
     // Клетки заполняются по порядку: жмём нужную фишку на каждом шаге.
     // Клетки заполняются по порядку: ищем фишку по тексту и жмём.
     if (s.cells) {
+      // Сначала ждём показ и жмём «Теперь я сам».
+      await page.waitForTimeout(6500)
+      const self = page.locator('.g8-fl-self')
+      if (await self.count()) { await tap(self.first(), at); await page.waitForTimeout(400) }
       for (const c of s.cells) {
         const chips = await page.locator('.g8-fl-chip').all()
         let hit = null

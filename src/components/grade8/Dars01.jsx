@@ -1207,6 +1207,24 @@ const S13 = {
       'Запись заполнена. Три шага: приравнять знаменатель к нулю, решить, записать запрет.',
       'The record is filled. Three steps: set the denominator to zero, solve, write the restriction.',
     ),
+    showLabel: L(
+      "Qarang — misolda ko'rsataman",
+      'Смотри — покажу на примере',
+      'Watch: I will show you on an example',
+    ),
+    againLabel: L('Yana bir bor', 'Ещё раз', 'Again'),
+    selfLabel: L("Endi o'zim", 'Теперь я сам', 'Now myself'),
+    // ПОКАЗ идёт на СВОЁЙ записи, самостоятельная работа — на другой.
+    // Иначе ученик повторяет по памяти, а не по способу.
+    demo: {
+      chips: ['2', '0', '≠', '=', '8'],
+      lines: [
+        [{ t: '4x − 8 ' }, { slot: '=' }, { t: ' ' }, { slot: '0' }],
+        [{ t: '4x = ' }, { slot: '8' }],
+        [{ t: 'x = ' }, { slot: '2' }],
+        [{ t: 'x ' }, { slot: '≠' }, { t: ' ' }, { slot: '2' }],
+      ],
+    },
     chips: ['3', '0', '≠', '=', '9'],
     lines: [
       [{ t: '3x − 9 ' }, { slot: '=' }, { t: ' ' }, { slot: '0' }],
