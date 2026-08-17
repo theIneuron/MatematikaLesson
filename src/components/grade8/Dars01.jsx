@@ -609,6 +609,98 @@ const S5 = {
       'Меняется знаменатель — туда же переезжает запрет',
       'The denominator changes and the restriction moves with it',
     ),
+    // ПОСЛЕ ПОКАЗА — ХОД УЧЕНИКА. Отсчёт отделяет объяснение от работы,
+    // вопросы идут от лёгкого к трудному: узнать готовый запрет, найти его
+    // самому, отличить безопасный знаменатель.
+    handoff: {
+      seconds: 5,
+      text: L("Endi o'zingiz", 'Теперь ты сам', 'Now it is your turn'),
+      done: L(
+        "Uchtasi ham to'g'ri. Taqiqni maxrajdan topish — shu darsning asosiy ko'nikmasi.",
+        'Все три верно. Находить запрет по знаменателю — главный навык этого урока.',
+        'All three correct. Finding the restriction from the denominator is the key skill of this lesson.',
+      ),
+    },
+    quiz: [
+      {
+        question: L(
+          "a − 7 maxrajda: taqiq qayerda?",
+          'Знаменатель a − 7: где запрет?',
+          'Denominator a − 7: where is the restriction?',
+        ),
+        items: [
+          { id: 'a7', right: true, label: L('a ≠ 7', 'a ≠ 7', 'a ≠ 7') },
+          {
+            id: 'a0', label: L('a ≠ 0', 'a ≠ 0', 'a ≠ 0'),
+            hint: L(
+              "Nolda a − 7 minus yettiga teng, bu nol emas.",
+              'При нуле a − 7 равно минус семи, а это не нуль.',
+              'At zero a − 7 equals minus seven, which is not zero.',
+            ),
+          },
+          {
+            id: 'am7', label: L('a ≠ −7', 'a ≠ −7', 'a ≠ −7'),
+            hint: L(
+              "Minus yettida a − 7 minus o'n to'rtga teng.",
+              'При минус семи a − 7 равно минус четырнадцати.',
+              'At minus seven a − 7 equals minus fourteen.',
+            ),
+          },
+        ],
+      },
+      {
+        question: L(
+          "2a maxrajda: taqiq qayerda?",
+          'Знаменатель 2a: где запрет?',
+          'Denominator 2a: where is the restriction?',
+        ),
+        items: [
+          { id: 'z', right: true, label: L('a ≠ 0', 'a ≠ 0', 'a ≠ 0') },
+          {
+            id: 'two', label: L('a ≠ 2', 'a ≠ 2', 'a ≠ 2'),
+            hint: L(
+              "Ikkilikda 2a to'rtga teng, nolga emas.",
+              'При двойке 2a равно четырём, а не нулю.',
+              'At two, 2a equals four, not zero.',
+            ),
+          },
+          {
+            id: 'half', label: L("Taqiq yo'q", 'Запрета нет', 'No restriction'),
+            hint: L(
+              "Nolda 2a nolga aylanadi, demak taqiq bor.",
+              'При нуле 2a обращается в нуль, значит запрет есть.',
+              'At zero 2a becomes zero, so the restriction exists.',
+            ),
+          },
+        ],
+      },
+      {
+        question: L(
+          "Qaysi maxrajda umuman taqiq yo'q?",
+          'У какого знаменателя запрета нет вовсе?',
+          'Which denominator has no restriction at all?',
+        ),
+        items: [
+          { id: 'num', right: true, label: L('5', '5', '5') },
+          {
+            id: 'lin', label: L('a + 1', 'a + 1', 'a + 1'),
+            hint: L(
+              "Minus birda a + 1 nolga aylanadi.",
+              'При минус единице a + 1 обращается в нуль.',
+              'At minus one, a + 1 becomes zero.',
+            ),
+          },
+          {
+            id: 'sq', label: L('a · a', 'a · a', 'a · a'),
+            hint: L(
+              "Nolda a · a nolga teng.",
+              'При нуле a · a равно нулю.',
+              'At zero, a · a equals zero.',
+            ),
+          },
+        ],
+      },
+    ],
   },
 }
 

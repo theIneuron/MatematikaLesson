@@ -610,11 +610,22 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke
 // Здесь цепочка показывает, что запрет НЕ ЗАКРЕПЛЁН за числом: меняется
 // знаменатель — переезжает и запрет.
 // ============================================================
-export function Chain({ items, conclusion, stepMs = 1800, onStep }) {
+export function Chain({
+  items, conclusion, handoff, quiz, stepMs = 1800, onStep, onSolved, audio,
+}) {
   const t = useT()
+  const sfx = useSfx()
   const [shown, setShown] = useState(0)
+  // ПОСЛЕ ОБЪЯСНЕНИЯ — ПЕРЕДАЧА ХОДА. Отсчёт в пять секунд отделяет показ от
+  // работы: ученик успевает понять, что смотреть кончилось и теперь его
+  // очередь. Без этой паузы вопрос выглядит как продолжение объяснения.
+  const [left, setLeft] = useState(null)
+  const [qi, setQi] = useState(-1)
+  const [wrong, setWrong] = useState([])
+  const [note, setNote] = useState(null)
   const stepRef = useRef(onStep)
   useEffect(() => { stepRef.current = onStep }, [onStep])
+
   useEffect(() => {
     if (shown >= items.length) return undefined
     const id = setTimeout(() => {
@@ -624,27 +635,93 @@ export function Chain({ items, conclusion, stepMs = 1800, onStep }) {
     return () => clearTimeout(id)
   }, [shown, items.length, stepMs])
 
+  // Отсчёт запускается, когда цепочка досказана.
+  // setState синхронно в эффекте — ошибка линта и каскад рендеров. Обе смены
+  // состояния уходят в таймер, даже нулевой (грабля записана в эталоне).
+  useEffect(() => {
+    if (shown < items.length || !handoff || left !== null || qi >= 0) return undefined
+    const id = setTimeout(() => setLeft(handoff.seconds || 5), 0)
+    return () => clearTimeout(id)
+  }, [shown, items.length, handoff, left, qi])
+
+  useEffect(() => {
+    if (left === null) return undefined
+    const id = setTimeout(() => {
+      if (left <= 0) setQi(0); else setLeft(left - 1)
+    }, left <= 0 ? 0 : 1000)
+    return () => clearTimeout(id)
+  }, [left])
+
+  const q = qi >= 0 && quiz ? quiz[Math.min(qi, quiz.length - 1)] : null
+  const finished = quiz ? qi >= quiz.length : false
+
+  const pick = (it) => {
+    const src = q.items.find((x) => x.id === it.id)
+    if (src && src.right) {
+      sfx.playCorrect()
+      setWrong([])
+      setNote(null)
+      if (qi + 1 >= quiz.length) {
+        setQi(quiz.length)
+        if (onSolved) onSolved({ correct: true, tries: 1 })
+      } else {
+        setQi(qi + 1)
+      }
+      return
+    }
+    setWrong((p) => (p.indexOf(it.id) === -1 ? p.concat(it.id) : p))
+    setNote(src && src.hint ? src.hint : null)
+    sfx.playWrong()
+    if (audio && src && src.hint) audio.say(t(src.hint))
+  }
+
   return (
-    <div className="g8-ch">
-      <div className="g8-ch-seg">
-        {items.map((it, i) => <i key={i} className={i < shown ? 'is-on' : ''}/>)}
+    <>
+      <div className="g8-ch">
+        <div className="g8-ch-seg">
+          {items.map((it, i) => <i key={i} className={i < shown ? 'is-on' : ''}/>)}
+        </div>
+
+        <div className="g8-ch-row">
+          {items.map((it, i) => (
+            <React.Fragment key={i}>
+              {i > 0 ? <span className={'g8-ch-arrow' + (i < shown ? ' is-on' : '')}>{'→'}</span> : null}
+              <div className={'g8-ch-item' + (i < shown ? ' is-on' : '')}>
+                <span className="g8-ch-cap">{t(it.cap)}</span>
+                <span className="g8-ch-val" style={{ fontFamily: MATH_FONT }}>{it.den}</span>
+                <span className="g8-ch-out" style={{ fontFamily: MATH_FONT }}>{it.ban}</span>
+              </div>
+            </React.Fragment>
+          ))}
+        </div>
+
+        <div className={'g8-ch-sum' + (shown >= items.length ? ' is-on' : '')}>{t(conclusion)}</div>
       </div>
 
-      <div className="g8-ch-row">
-        {items.map((it, i) => (
-          <React.Fragment key={i}>
-            {i > 0 ? <span className={'g8-ch-arrow' + (i < shown ? ' is-on' : '')}>{'→'}</span> : null}
-            <div className={'g8-ch-item' + (i < shown ? ' is-on' : '')}>
-              <span className="g8-ch-cap">{t(it.cap)}</span>
-              <span className="g8-ch-val" style={{ fontFamily: MATH_FONT }}>{it.den}</span>
-              <span className="g8-ch-out" style={{ fontFamily: MATH_FONT }}>{it.ban}</span>
+      <Slot mh={110}>
+        {left !== null && left > 0 ? (
+          <div className="g8-ch-hand">
+            <span className="g8-ch-handtx">{t(handoff.text)}</span>
+            <span className="g8-ch-timer" style={{ fontFamily: MATH_FONT }}>{left}</span>
+          </div>
+        ) : finished ? (
+          <Note kind="ok">{t(handoff.done)}</Note>
+        ) : q ? (
+          <div className="g8-ch-quiz">
+            <span className="g8-ch-qn">{qi + 1} / {quiz.length}</span>
+            <Ask>{t(q.question)}</Ask>
+            <div className="g8-ch-qopts">
+              {q.items.map((it) => (
+                <button key={it.id} type="button"
+                  className={'g8-opt' + (wrong.indexOf(it.id) !== -1 ? ' g8-opt-tip' : '')}
+                  onClick={() => pick(it)}>{t(it.label)}</button>
+              ))}
             </div>
-          </React.Fragment>
-        ))}
-      </div>
-
-      <div className={'g8-ch-sum' + (shown >= items.length ? ' is-on' : '')}>{t(conclusion)}</div>
-    </div>
+            {note ? <Note kind="no">{t(note)}</Note> : null}
+          </div>
+        ) : null}
+      </Slot>
+    </>
   )
 }
 
@@ -691,6 +768,10 @@ export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
 
       {fact ? (
         <div className={'g8-pt-fact' + (shown >= steps.length ? ' is-on' : '')}>
+          {/* Живой значок: три точки бегут по кругу, как индикатор запроса в
+              базе — ровно про то, о чём факт. Движение здесь уместно, потому
+              что оно НАЗЫВАЕТ предмет, а не украшает карточку. */}
+          <span className="g8-pt-dots" aria-hidden="true"><i/><i/><i/></span>
           <span className="g8-pt-factcap">{t(fact.cap)}</span>
           <span className="g8-pt-facttx">{t(fact.text)}</span>
         </div>
@@ -795,11 +876,21 @@ export const FEED_STYLES = `
    Прошлые остаются на экране, но уходят на второй план. */
 .g8-pt-note.is-on:not(.is-now) { opacity: .62; border-left-color: ${T.ink4}; }
 .g8-pt-note.is-now { border-left-width: 5px; box-shadow: 0 10px 26px -22px rgba(${T.shadow},.9); }
-.g8-pt-fact { display: flex; flex-direction: column; gap: 3px; width: 100%;
+.g8-pt-fact { display: grid; grid-template-columns: auto 1fr; grid-template-rows: auto auto;
+  column-gap: 12px; row-gap: 3px; width: 100%; align-items: center;
   padding: 11px 15px; border-radius: 14px; background: ${T.graphSoft};
   opacity: 0; transition: opacity .5s ease; }
 .g8-pt-fact.is-on { opacity: 1; animation: g8-pt-up 520ms cubic-bezier(.22,.9,.3,1) both; }
 @keyframes g8-pt-up { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+.g8-pt-dots { grid-row: 1 / span 2; display: flex; gap: 4px; align-items: center; }
+.g8-pt-dots i { width: 7px; height: 7px; border-radius: 50%; background: ${T.graph};
+  animation: g8-pt-dot 1.4s ease-in-out infinite; }
+.g8-pt-dots i:nth-child(2) { animation-delay: .18s; }
+.g8-pt-dots i:nth-child(3) { animation-delay: .36s; }
+@keyframes g8-pt-dot {
+  0%, 100% { opacity: .25; transform: translateY(0); }
+  40% { opacity: 1; transform: translateY(-4px); }
+}
 .g8-pt-factcap { font-family: 'Manrope', system-ui, sans-serif; font-size: 10.5px;
   letter-spacing: .14em; text-transform: uppercase; font-weight: 700; color: ${T.graph}; }
 .g8-pt-facttx { font-family: 'Manrope', system-ui, sans-serif;
@@ -832,6 +923,20 @@ export const FEED_STYLES = `
   font-weight: 700; color: ${T.accent}; text-align: center;
   opacity: 0; transition: opacity .5s ease; }
 .g8-ch-sum.is-on { opacity: 1; }
+
+/* ПЕРЕДАЧА ХОДА: крупный отсчёт и одна фраза. Пауза нужна, чтобы ученик
+   понял — показ кончился, дальше он сам. */
+.g8-ch-hand { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  animation: g8-ch-hand 400ms cubic-bezier(.34,1.4,.64,1) both; }
+.g8-ch-handtx { font-family: 'Manrope', system-ui, sans-serif;
+  font-size: clamp(15px, 1.4vw, 19px); font-weight: 700; color: ${T.ink}; }
+.g8-ch-timer { font-size: clamp(30px, 3vw, 42px); color: ${T.accent}; line-height: 1;
+  animation: g8-ch-tick 1s ease-in-out infinite; }
+@keyframes g8-ch-hand { from { opacity: 0; transform: scale(.9); } to { opacity: 1; transform: none; } }
+@keyframes g8-ch-tick { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+.g8-ch-quiz { display: flex; flex-direction: column; align-items: center; gap: 7px; width: 100%; }
+.g8-ch-qn { font-family: 'JetBrains Mono', monospace; font-size: 11.5px; color: ${T.ink3}; }
+.g8-ch-qopts { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; width: 100%; }
 .g8-st { display: flex; flex-direction: column; align-items: center; gap: 14px; width: 100%; }
 .g8-st-line { display: flex; gap: 12px; justify-content: center; align-items: center; flex-wrap: wrap; }
 .g8-st-sign { font-family: ${MATH_FONT}; font-size: clamp(24px, 2.4vw, 34px); color: ${T.ink2}; }
