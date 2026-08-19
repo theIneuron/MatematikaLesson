@@ -1212,7 +1212,7 @@ const ScreenEdge = (props) => (
 const ScreenRule = (props) => (
   <RuleScreen {...props} screenContent={CONTENT.s_rule} totalScreens={TOTAL_SCREENS}
     exampleNode={(
-      <div className="d37-stage">
+      <div className="d37-stage d37-stage-flat">
         <Circ size="xs" showR showD/>
       </div>
     )}/>
@@ -1284,6 +1284,15 @@ const Screen14 = (props) => (
 const LESSON_STYLES = `
 .d37-stage { display: flex; flex-direction: column; align-items: center; gap: clamp(9px, 1.7vw, 14px); padding: clamp(12px, 2.4vw, 18px) !important; }
 .d37-stage-tool { gap: clamp(4px, 0.8vw, 7px) !important; padding: clamp(7px, 1.5vw, 11px) !important; }
+/* Экран правила НА ТЕЛЕФОНЕ. Чертёж лежит внутри рамки, и своя подкладка
+   удваивала отступ: по-русски содержимое уходило под нижнюю панель на 5px
+   (русский текст правила самый длинный в классе). Подкладка снята, а высота
+   чертежа ограничена — без предела он растягивался по ширине рамки и отыгрывал
+   обратно почти всю выигранную высоту. Десктоп не тронут: там места хватало. */
+@media (max-width: 639.98px) {
+  .d37-stage-flat { padding: 0 !important; }
+  .d37-stage-flat svg { max-height: 86px; }
+}
 .d37-stage-tool .d37-line { font-size: clamp(12px, 2vw, 16px); }
 .d37-stage-row { flex-direction: row; align-items: center; justify-content: center; gap: clamp(10px, 2.4vw, 22px); flex-wrap: wrap; }
 .d37-col { display: flex; flex-direction: column; align-items: center; gap: clamp(5px, 1.1vw, 9px); flex: 1 1 200px; min-width: 0; }

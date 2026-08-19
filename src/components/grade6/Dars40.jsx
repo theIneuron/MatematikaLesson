@@ -1198,7 +1198,7 @@ const ScreenEdge = (props) => (
 const ScreenRule = (props) => (
   <RuleScreen {...props} screenContent={CONTENT.s_rule} totalScreens={TOTAL_SCREENS}
     exampleNode={(
-      <div className="d40-stage">
+      <div className="d40-stage d40-stage-flat">
         <Mirror size="xs" dx={3} pair ticks/>
       </div>
     )}/>
@@ -1281,6 +1281,14 @@ const Screen14 = (props) => (
 // ============================================================
 const LESSON_STYLES = `
 .d40-stage { display: flex; flex-direction: column; align-items: center; gap: clamp(9px, 1.7vw, 14px); padding: clamp(12px, 2.4vw, 18px) !important; }
+/* Экран правила НА ТЕЛЕФОНЕ: чертёж лежит внутри рамки, и своя подкладка
+   удваивала отступ — по-русски содержимое уходило под нижнюю панель. Высота
+   чертежа ограничена, иначе он растягивается по ширине и отыгрывает высоту
+   обратно. Десктоп не тронут: там места хватало. */
+@media (max-width: 639.98px) {
+  .d40-stage-flat { padding: 0 !important; }
+  .d40-stage-flat svg { max-height: 88px; }
+}
 .d40-stage-tool { gap: clamp(4px, 0.8vw, 7px) !important; padding: clamp(7px, 1.5vw, 11px) !important; }
 .d40-stage-tool .d40-line { font-size: clamp(12px, 2vw, 16px); }
 .d40-stage-row { flex-direction: row; align-items: center; justify-content: center; gap: clamp(10px, 2.4vw, 22px); flex-wrap: wrap; }

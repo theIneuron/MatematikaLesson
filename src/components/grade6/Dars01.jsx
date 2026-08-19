@@ -2407,7 +2407,7 @@ const FindError = (props) => {
         {!done && <TaskCount node={c.counter} i={task + 1} n={2}/>}
 
         {!done && (
-          <div className="frame fade-up delay-1" style={{ padding: 'clamp(13px, 2.4vw, 20px)' }}>
+          <div className="frame fade-up delay-1 d1-err-frame" style={{ padding: 'clamp(13px, 2.4vw, 20px)' }}>
             <p className="body" style={{ margin: 0, marginBottom: 8 }}>{t(task === 0 ? c.t1_lead : c.t2_lead)}</p>
             {/* Список Азиза — листок из тетради, а не строка чипов
                 (методист 2026-08-14). Экран называется «проверь чужое решение»,
@@ -2417,7 +2417,7 @@ const FindError = (props) => {
                 {list.map((n) => <span key={n} className="fe-chip mono">{n}</span>)}
               </div>
             </div>
-            <p className="body" style={{ margin: '12px 0 10px' }}>{t(task === 0 ? c.t1_q : c.t2_q)}</p>
+            <p className="body d1-err-q" style={{ margin: '12px 0 10px' }}>{t(task === 0 ? c.t1_q : c.t2_q)}</p>
             <div className="sv-opts sv-opts-col">
               {opts.map((label, i) => {
                 const isDead = dead.indexOf(i) >= 0;
@@ -3448,6 +3448,14 @@ const LESSON_STYLES = `
 /* Листок из тетради: линейка полей слева и линованный фон. Чужое решение
    должно выглядеть как чужая запись, иначе экран «найди ошибку» не отличается
    от обычного вопроса с числами. */
+/* Экран «проверь чужое решение» НА ТЕЛЕФОНЕ. По-узбекски столбик из листка,
+   вопроса, четырёх вариантов и карточки способа не влезал: содержимое уходило
+   под нижнюю панель на 7px. Срезаны только отступы рамки и зазор перед
+   вариантами — сам листок и его линейки не тронуты. */
+@media (max-width: 639.98px) {
+  .d1-err-frame { padding: 9px !important; }
+  .d1-err-q { margin: 8px 0 8px !important; }
+}
 .fe-sheet { position: relative; padding: 12px 14px 12px 26px; border-radius: 10px; background: #FEFCF7; border: 1px solid #EAE3D5; background-image: repeating-linear-gradient(to bottom, transparent, transparent 43px, #EEF3F7 43px, #EEF3F7 44px); }
 .fe-sheet::before { content: ''; position: absolute; left: 15px; top: 6px; bottom: 6px; width: 1px; background: #F3C9C2; }
 .fe-list { display: flex; gap: 8px; flex-wrap: wrap; }
