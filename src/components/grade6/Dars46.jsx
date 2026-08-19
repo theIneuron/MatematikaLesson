@@ -730,6 +730,11 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: выставка школьных проектов раздела.
 // ============================================================
+// СЦЕНА ХУКА — выставка школьных проектов. Клумба 6 м, бак 20 см и флажок
+// 3-4-5 в одном кадре в общем масштабе несовместимы, поэтому каждый проект
+// стоит СВОИМ плакатом на подставке: у плаката свой масштаб, и это честно —
+// именно так выставка и выглядит. Подпись под каждым говорит его размер.
+// Движения одного проходом нет: живут только флажки гирлянды.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -740,76 +745,104 @@ const HookScene = () => (
     <rect x="0" y="0" width="400" height="154" fill="url(#d46hall)"/>
 
     {/* Гирлянда флажков над выставкой */}
-    <path d="M8 16 q100 18 196 4 q96 -14 188 8" fill="none" stroke="#C9A472" strokeWidth="1.6"/>
+    <path d="M8 14 q100 18 196 4 q96 -14 188 8" fill="none" stroke="#C9A472" strokeWidth="1.6"/>
     {[0, 1, 2, 3, 4, 5].map((k) => (
-      <path key={k} className="d46-flag" d={`M${34 + k * 62} 20 l14 0 l-7 16 z`}
+      <path key={k} className="d46-flag" d={`M${34 + k * 62} 18 l14 0 l-7 15 z`}
         fill={['#D9603F', '#7ECBE6', '#8FBF7F', '#F5C77E', '#019ACB', '#B99B72'][k]}/>
     ))}
 
-    {/* Проект 1: круглая клумба с бордюром */}
+    <Person x={30} ground={128} head={12} shirt="#F5C77E" hair="#3E3128"/>
+    <Person x={64} ground={128} head={12} shirt="#7ECBE6" hair="#5A4636"/>
+
+    {/* Стол выставки */}
+    <rect x="0" y="128" width="400" height="6" fill="#C9A472"/>
+    <rect x="0" y="134" width="400" height="20" fill="#D2A96F"/>
+
+    {/* Плакат 1: круглая клумба */}
     <g>
-      <circle cx="86" cy="94" r="34" fill="#8FBF7F" stroke="#6FA463" strokeWidth="2"/>
-      <circle className="d46-edge" cx="86" cy="94" r="34" fill="none" stroke="#D9603F" strokeWidth="4"/>
+      <rect x="100" y="50" width="68" height="78" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.6"/>
+      <circle cx="134" cy="82" r="22" fill="#8FBF7F" stroke="#D9603F" strokeWidth="3"/>
       {[0, 1, 2, 3].map((k) => (
-        <circle key={k} cx={86 + 18 * Math.cos(k * 1.6)} cy={94 + 18 * Math.sin(k * 1.6)} r="4" fill="#F5C77E"/>
+        <circle key={k} cx={134 + 12 * Math.cos(k * 1.6)} cy={82 + 12 * Math.sin(k * 1.6)} r="3" fill="#F5C77E"/>
       ))}
-      <path d="M56 94 h60" stroke="#FFFDF7" strokeWidth="1.6" strokeDasharray="4 3"/>
-      <text x="86" y="140" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">d = 6</text>
+      <path d="M112 82 h44" stroke="#FFFDF7" strokeWidth="1.4" strokeDasharray="4 3"/>
+      <text x="134" y="120" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">d = 6 m</text>
     </g>
 
-    {/* Проект 2: треугольный флажок */}
+    {/* Плакат 2: треугольный флажок */}
     <g>
-      <path d="M180 122 L180 62 L232 122 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="2"/>
-      <text x="206" y="140" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">3-4-5</text>
+      <rect x="176" y="50" width="68" height="78" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.6"/>
+      <path d="M190 104 L190 62 L228 104 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.8"/>
+      <text x="210" y="120" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">3-4-5</text>
     </g>
 
-    {/* Проект 3: бак и табличка опроса */}
+    {/* Плакат 3: бак */}
     <g>
-      <rect x="256" y="82" width="44" height="40" rx="3" fill="#DFF0F7" stroke="#8E8578" strokeWidth="2"/>
-      <rect x="259" y="94" width="38" height="26" fill="#8FCBE0"/>
-      <text x="278" y="140" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">20 sm</text>
+      <rect x="252" y="50" width="68" height="78" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.6"/>
+      <path d="M268 70 L304 70 L312 62 L276 62 Z" fill="#EAF6FB" stroke="#8E8578" strokeWidth="1.4"/>
+      <path d="M304 70 L312 62 L312 96 L304 104 Z" fill="#DCEDF5" stroke="#8E8578" strokeWidth="1.4"/>
+      <rect x="268" y="70" width="36" height="34" fill="#8FCBE0" stroke="#8E8578" strokeWidth="1.4"/>
+      <text x="290" y="120" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">20 sm</text>
     </g>
+
+    {/* Плакат 4: таблица опроса */}
     <g>
-      <rect x="316" y="62" width="72" height="60" rx="4" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2"/>
+      <rect x="328" y="50" width="68" height="78" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.6"/>
       {[4, 5, 5, 6, 20].map((v, i) => (
-        <rect key={i} x="322" y={68 + i * 11} width={v === 20 ? 60 : v * 3} height="7" rx="2"
+        <rect key={i} x="336" y={60 + i * 10} width={v * 2.6} height="7" rx="2"
           fill={v === 20 ? '#D9603F' : '#7ECBE6'}/>
       ))}
+      <text x="362" y="120" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">so'rov</text>
     </g>
-
-    <Person x={34} ground={140} head={12} shirt="#F5C77E" hair="#3E3128"/>
-    <rect x="0" y="140" width="400" height="14" fill="#D2A96F"/>
   </svg>
 );
 
-// Итог: три вопроса и три формулы.
+// ФИНАЛ — та же выставка, тот же плакат клумбы. Ответ виден на нём: обведён
+// край, а не заливка, и рядом стоит формула, которой этот край считают.
 const FinalScene = () => {
   const lang = useLang();
-  const rows = [
-    { q: tri(lang, 'по краю', 'chetdan', 'along the edge'), f: 'C = πd', tone: '#019ACB', bg: '#E7F5FA' },
-    { q: tri(lang, 'внутри', 'ichidan', 'inside'), f: 'S = πr²', tone: '#1F7A4D', bg: '#E3F0E8' },
-    { q: tri(lang, 'наполнить', "to'ldirish", 'to fill'), f: 'V = abc', tone: '#8A6A22', bg: '#FBF3D6' },
-  ];
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      {rows.map((r, i) => (
-        <g key={i} transform={`translate(${12 + i * 128}, 18)`}>
-          <rect x="0" y="0" width="118" height="46" rx="8" fill={r.bg} stroke={r.tone} strokeWidth="2"/>
-          <text x="59" y="20" textAnchor="middle" fill="#8A8883"
-            fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">{r.q}</text>
-          <text x="59" y="38" textAnchor="middle" fill={r.tone}
-            fontFamily="'JetBrains Mono', monospace" fontSize="14" fontWeight="700">{r.f}</text>
-        </g>
+      <path d="M8 8 q100 12 196 2 q96 -10 188 6" fill="none" stroke="#C9A472" strokeWidth="1.2"/>
+      {[0, 1, 2, 3, 4, 5].map((k) => (
+        <path key={k} className="d46-flag" d={`M${34 + k * 62} 11 l10 0 l-5 11 z`}
+          fill={['#D9603F', '#7ECBE6', '#8FBF7F', '#F5C77E', '#019ACB', '#B99B72'][k]}/>
       ))}
-      <text x="200" y="82" textAnchor="middle" fill="#8A8883"
+
+      <rect x="0" y="70" width="400" height="5" fill="#C9A472"/>
+      <rect x="0" y="75" width="400" height="17" fill="#D2A96F"/>
+
+      {/* тот же плакат клумбы, теперь с ответом */}
+      <rect x="40" y="26" width="60" height="44" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.4"/>
+      <circle cx="70" cy="46" r="15" fill="#8FBF7F" stroke="#D9603F" strokeWidth="4"/>
+      <path d="M52 22 l6 7 l12 -14" fill="none" stroke="#1F7A4D" strokeWidth="3"
+        strokeLinecap="round" strokeLinejoin="round"/>
+      <text x="70" y="86" textAnchor="middle" fill="#D9603F"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">C = πd</text>
+
+      {/* соседние плакаты остаются на выставке */}
+      <g opacity="0.55">
+        <rect x="116" y="34" width="52" height="36" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.2"/>
+        <path d="M126 62 L126 40 L156 62 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.4"/>
+        <rect x="182" y="34" width="52" height="36" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="1.2"/>
+        <rect x="194" y="46" width="28" height="20" fill="#8FCBE0" stroke="#8E8578" strokeWidth="1.2"/>
+      </g>
+
+      <Person x={264} ground={70} head={9} shirt="#7ECBE6" hair="#5A4636"/>
+
+      <rect x="300" y="28" width="88" height="30" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="344" y="48" textAnchor="middle" fill="#1F7A4D"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'вопрос выбирает формулу, единица её проверяет',
-          'savol formulani tanlaydi, birlik uni tekshiradi',
-          'the question picks the formula, the unit checks it')}
+        {tri(lang, 'по краю', 'chetdan', 'along the edge')}
+      </text>
+      <text x="344" y="86" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
+        {tri(lang, 'вопрос выбирает формулу', 'savol formulani tanlaydi', 'the question picks the formula')}
       </text>
     </svg>
   );
@@ -1252,11 +1285,11 @@ const LESSON_STYLES = `
 .d46-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: флажки покачиваются, бордюр клумбы подсвечивается */
-.d46-flag { animation: d46Flag 3600ms ease-in-out infinite; transform-origin: top center; transform-box: fill-box; }
-@keyframes d46Flag { 0%, 100% { transform: rotate(-6deg); } 50% { transform: rotate(6deg); } }
-.d46-edge { animation: d46Edge 2800ms ease-in-out infinite; }
-@keyframes d46Edge { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .d46-flag, .d46-edge { animation: none; } }
+/* Флажки гирлянды — единственная жизнь сцены, качаются медленно и мелко.
+   Мигание бордюра снято: оно подсвечивало правильный ответ прямо на хуке. */
+.d46-flag { animation: d46Flag 6200ms ease-in-out infinite; transform-origin: top center; transform-box: fill-box; }
+@keyframes d46Flag { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
+@media (prefers-reduced-motion: reduce) { .d46-flag { animation: none; } }
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

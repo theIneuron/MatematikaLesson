@@ -722,6 +722,17 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: кабинет биологии, аквариум наполняют водой.
 // ============================================================
+// СЦЕНА ХУКА — кабинет биологии. Стандарт методиста 2026-08-19:
+//   1. предметы соотносятся между собой по-настоящему. Аквариум 40 на 25 см
+//      нарисован в пропорции 1,6 (152 на 95 единиц, 3,8 единицы на сантиметр),
+//      глубина 20 см показана не подписью, а третьим измерением коробки;
+//      лейка ровно вполовину длины аквариума — это её настоящий размер;
+//   2. фигуры детей стоят целиком, и это единственная условность масштаба:
+//      честный рост ребёнка в этом кадре был бы втрое выше самого кадра
+//      (решение методиста);
+//   3. движение: главное происходит ОДИН раз — лейка наклоняется и
+//      возвращается. Дальше остаётся только микрожизнь: медленный дрейф рыбки,
+//      мелкая рябь и два пузырька со дна. Уровень воды не анимируется.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -731,6 +742,9 @@ const HookScene = () => (
       <linearGradient id="d44water" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#8FCBE0"/><stop offset="100%" stopColor="#4F9EBB"/>
       </linearGradient>
+      <clipPath id="d44tankIn">
+        <rect x="135" y="34" width="146" height="89"/>
+      </clipPath>
     </defs>
     <rect x="0" y="0" width="400" height="154" fill="url(#d44wall)"/>
 
@@ -743,61 +757,141 @@ const HookScene = () => (
       <path d="M78 30 q-10 -14 -2 -20 q8 8 2 20" fill="#8FBF7F"/>
     </g>
 
-    {/* Аквариум с водой и рыбкой */}
-    <g>
-      <rect x="128" y="42" width="180" height="84" rx="4" fill="#DFF0F7" stroke="#8E8578" strokeWidth="3"/>
-      <rect x="132" y="62" width="172" height="60" fill="url(#d44water)"/>
-      <path className="d44-wave" d="M132 64 q22 -6 44 0 q22 6 44 0 q22 -6 44 0 q22 6 40 0"
-        fill="none" stroke="#FFFDF7" strokeWidth="2" opacity="0.6"/>
-      <g className="d44-fish">
-        <ellipse cx="0" cy="0" rx="12" ry="7" fill="#F5C77E"/>
-        <path d="M12 0 l9 -6 v12 z" fill="#F5C77E"/>
-        <circle cx="-5" cy="-2" r="1.6" fill="#3B3730"/>
-      </g>
-      {/* мерные подписи */}
-      <text x="218" y="138" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">40</text>
-      <text x="318" y="86" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">25</text>
-      <text x="150" y="56" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
-    </g>
-
-    {/* Лейка, из которой льют */}
-    <g className="d44-jug">
-      <rect x="-14" y="-12" width="26" height="20" rx="4" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.6"/>
-      <path d="M12 -6 l12 -6" stroke="#4F9EBB" strokeWidth="3" strokeLinecap="round"/>
-    </g>
-
-    <Person x={362} ground={126} head={13} shirt="#8FBF7F" hair="#3E3128"/>
+    {/* Пол и тень аквариума на нём: коробка стоит, а не висит */}
     <rect x="0" y="126" width="400" height="28" fill="#D2A96F"/>
+    <ellipse cx="228" cy="128" rx="98" ry="5" fill="rgba(90, 62, 34, 0.18)"/>
+
+    {/* АКВАРИУМ. Передняя грань 40 на 25 см, к ней пристроены верх и правый
+        бок — так видно третье измерение, 20 см в глубину. */}
+    <g>
+      <path d="M132 31 L284 31 L318 9 L166 9 Z" fill="#EAF6FB" stroke="#8E8578" strokeWidth="2.2"/>
+      <path d="M284 31 L318 9 L318 104 L284 126 Z" fill="#DCEDF5" stroke="#8E8578" strokeWidth="2.2"/>
+
+      {/* вода налита на две трети: уровень 60, задняя кромка выше на глубину */}
+      <path d="M135 60 L281 60 L315 38 L169 38 Z" fill="#A8D8E9"/>
+      <path d="M281 60 L315 38 L315 101 L281 123 Z" fill="#5FA6C4"/>
+      <rect x="135" y="60" width="146" height="63" fill="url(#d44water)"/>
+
+      {/* грунт на дне */}
+      <g clipPath="url(#d44tankIn)">
+        <rect x="135" y="116" width="146" height="7" fill="#C9A472"/>
+        <path d="M281 116 L315 94 L315 101 L281 123 Z" fill="#B08A57"/>
+      </g>
+
+      <path className="d44-wave" d="M137 62 q18 -4 36 0 q18 4 36 0 q18 -4 36 0 q18 4 30 0"
+        fill="none" stroke="#FFFDF7" strokeWidth="1.8" opacity="0.55"/>
+
+      <g clipPath="url(#d44tankIn)">
+        <g className="d44-fish">
+          <ellipse cx="0" cy="0" rx="11" ry="6.5" fill="#F5C77E"/>
+          <path d="M11 0 l8 -5.5 v11 z" fill="#F5C77E"/>
+          <circle cx="-4.5" cy="-1.8" r="1.5" fill="#3B3730"/>
+        </g>
+        <circle className="d44-bub1" cx="186" cy="118" r="2.4" fill="#FFFFFF" opacity="0.7"/>
+        <circle className="d44-bub2" cx="243" cy="119" r="1.8" fill="#FFFFFF" opacity="0.6"/>
+      </g>
+
+      {/* передняя грань стекла поверх воды: блик и рамка */}
+      <path d="M141 118 L141 40 L168 40" fill="none" stroke="#FFFFFF" strokeWidth="3" opacity="0.35"/>
+      <rect x="132" y="31" width="152" height="95" rx="3" fill="none" stroke="#8E8578" strokeWidth="3"/>
+    </g>
+
+    {/* ЛЕЙКА. Длина 19 см при аквариуме 40 см — настоящее соотношение.
+        Наклоняется один раз и возвращается: главное движение сцены. */}
+    <g className="d44-jug">
+      <path d="M-30 -14 q10 -12 20 -1" fill="none" stroke="#4F9EBB" strokeWidth="3" strokeLinecap="round"/>
+      <rect x="-34" y="-13" width="34" height="25" rx="6" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.8"/>
+      <path d="M-34 -4 l-17 9" stroke="#4F9EBB" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M-51 5 l-5 3" stroke="#4F9EBB" strokeWidth="5" strokeLinecap="round"/>
+    </g>
+
+    {/* Спорят двое, значит на сцене двое: Санжар слева у полки, Мадина справа
+        у аквариума (эталон §5: сказано «участники» — стоят участники). */}
+    <Person x={96} ground={126} head={13} shirt="#7ECBE6" hair="#5A4636"/>
+    <Person x={362} ground={126} head={13} shirt="#8FBF7F" hair="#3E3128"/>
+
+    {/* Три измерения подписаны там, где они и есть: длина под передней гранью,
+        высота сбоку от неё, глубина вдоль верхнего ребра. */}
+    <text x="208" y="147" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">40</text>
+    <text x="324" y="84" fill="#8A8883"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">25</text>
+    <text x="185" y="23" textAnchor="middle" fill="#8A8883"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
   </svg>
 );
 
 // Итог: кубик 10 на 10 на 10 равен литру.
+// ФИНАЛ ВОЗВРАЩАЕТ МЕСТО (эталон §5, пилот 2026-08-19). Было: три плашки
+// «10 = 1000 sm³ = 1 litr» — верная запись, но кабинет биологии, аквариум и
+// человек с урока исчезали, и спор Санжара с Мадиной оставался без развязки на
+// картинке. Стало: тот же кабинет и тот же аквариум, только полный, рядом та,
+// чей ответ оказался верным, и на нём стоит ответ спора. Единицы никуда не
+// делись: под ответом мелкой строкой те же двадцать тысяч кубических
+// сантиметров, из-за которых Санжар и ошибся.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
+      <defs>
+        <linearGradient id="d44wfin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#8FCBE0"/><stop offset="100%" stopColor="#4F9EBB"/>
+        </linearGradient>
+        <clipPath id="d44finIn">
+          <rect x="123" y="21" width="84" height="50"/>
+        </clipPath>
+      </defs>
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <g>
-        <path d="M40 70 h48 v-40 h-48 z" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
-        <path d="M40 30 l14 -12 h48 l-14 12 z" fill="#A9CFBA" stroke="#1F7A4D" strokeWidth="2"/>
-        <path d="M88 70 l14 -12 v-40 l-14 12 z" fill="#C3DFCE" stroke="#1F7A4D" strokeWidth="2"/>
-        <text x="64" y="54" textAnchor="middle" fill="#1F7A4D"
-          fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">10</text>
+
+      {/* та же полка с банками и растением, что в хуке */}
+      <g opacity="0.9">
+        <rect x="10" y="34" width="60" height="4" rx="2" fill="#C9A472"/>
+        <rect x="16" y="16" width="13" height="18" rx="2.5" fill="#E7F5FA" stroke="#B6DCEA" strokeWidth="1.2"/>
+        <rect x="34" y="12" width="13" height="22" rx="2.5" fill="#E7F5FA" stroke="#B6DCEA" strokeWidth="1.2"/>
+        <rect x="52" y="22" width="14" height="12" rx="2.5" fill="#D98A5A"/>
+        <path d="M59 22 q-7 -10 -1.5 -14 q5.5 6 1.5 14" fill="#8FBF7F"/>
       </g>
-      <text x="130" y="52" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">=</text>
-      <rect x="152" y="24" width="96" height="42" rx="8" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2"/>
-      <text x="200" y="50" textAnchor="middle" fill="#019ACB"
-        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">1000 sm³</text>
-      <text x="266" y="52" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">=</text>
-      <rect x="284" y="24" width="92" height="42" rx="8" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="2"/>
-      <text x="330" y="50" textAnchor="middle" fill="#8A6A22"
+
+      <rect x="0" y="74" width="400" height="18" fill="#D2A96F"/>
+      <ellipse cx="175" cy="76" rx="60" ry="3.5" fill="rgba(90, 62, 34, 0.18)"/>
+
+      {/* ТОТ ЖЕ АКВАРИУМ, что в хуке: те же пропорции 40 на 25 и та же глубина,
+          только теперь налит доверху — вода стоит вровень с кромкой. */}
+      <g>
+        <path d="M120 18 L210 18 L230 5 L140 5 Z" fill="#EAF6FB" stroke="#8E8578" strokeWidth="1.8"/>
+        <path d="M210 18 L230 5 L230 61 L210 74 Z" fill="#DCEDF5" stroke="#8E8578" strokeWidth="1.8"/>
+
+        <path d="M123 21 L207 21 L227 8 L143 8 Z" fill="#A8D8E9"/>
+        <path d="M207 21 L227 8 L227 58 L207 71 Z" fill="#5FA6C4"/>
+        <rect x="123" y="21" width="84" height="50" fill="url(#d44wfin)"/>
+
+        <g clipPath="url(#d44finIn)">
+          <rect x="123" y="66" width="84" height="5" fill="#C9A472"/>
+          <g className="d44-fish-fin">
+            <ellipse cx="0" cy="0" rx="9" ry="5.5" fill="#F5C77E"/>
+            <path d="M9 0 l7 -4.5 v9 z" fill="#F5C77E"/>
+            <circle cx="-3.6" cy="-1.5" r="1.3" fill="#3B3730"/>
+          </g>
+          <circle className="d44-bub-fin" cx="168" cy="66" r="2" fill="#FFFFFF" opacity="0.65"/>
+        </g>
+
+        <path className="d44-wave" d="M125 24 q14 -3 28 0 q14 3 28 0 q14 -3 24 0"
+          fill="none" stroke="#FFFDF7" strokeWidth="1.6" opacity="0.55"/>
+        <path d="M128 68 L128 26 L146 26" fill="none" stroke="#FFFFFF" strokeWidth="2.4" opacity="0.35"/>
+        <rect x="120" y="18" width="90" height="56" rx="2.5" fill="none" stroke="#8E8578" strokeWidth="2.4"/>
+      </g>
+
+      {/* Мадина у аквариума: спор закончился её ответом */}
+      <Person x={262} ground={74} head={9} shirt="#8FBF7F" hair="#3E3128"/>
+
+      <rect x="300" y="18" width="88" height="30" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="344" y="38" textAnchor="middle" fill="#1F7A4D"
         fontFamily="'JetBrains Mono', monospace" fontSize="15" fontWeight="700">
-        {tri(lang, '1 литр', '1 litr', '1 litre')}
+        {tri(lang, '20 л', '20 litr', '20 L')}
+      </text>
+      <text x="344" y="62" textAnchor="middle" fill="#8A8883"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">
+        {tri(lang, '20 000 см³', '20 000 sm³', '20 000 cm³')}
       </text>
     </svg>
   );
@@ -1266,25 +1360,69 @@ const LESSON_STYLES = `
 .d44-btn-go { border-color: #FF4F28; color: #FF4F28; }
 .d44-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
-/* Движение сцены: рыбка плавает, вода колышется, лейка наклоняется */
-.d44-fish { animation: d44Fish 8000ms ease-in-out infinite; }
+/* ДВИЖЕНИЕ СЦЕНЫ. Правило методиста 2026-08-19: главное движение проходит
+   ОДИН раз, дальше сцена только тихо живёт. Поэтому лейка наклоняется и
+   возвращается однократно (iteration-count 1), а рыбка, рябь и пузырьки идут
+   медленно и мелко — их видно, только если смотреть на них.
+   Рыбка нарисована головой ВЛЕВО (глаз на минус четыре, хвост на плюс
+   одиннадцать), поэтому вправо она плывёт отзеркаленной. */
+.d44-fish { animation: d44Fish 17000ms ease-in-out infinite; }
 @keyframes d44Fish {
-  0%, 100% { transform: translate(170px, 84px) scaleX(1); }
-  48% { transform: translate(272px, 100px) scaleX(1); }
-  52% { transform: translate(272px, 100px) scaleX(-1); }
-  96% { transform: translate(170px, 84px) scaleX(-1); }
+  0%, 100% { transform: translate(176px, 88px) scaleX(-1); }
+  46% { transform: translate(244px, 96px) scaleX(-1); }
+  50% { transform: translate(248px, 95px) scaleX(1); }
+  96% { transform: translate(176px, 88px) scaleX(1); }
 }
-.d44-wave { animation: d44Wave 4200ms ease-in-out infinite; }
-@keyframes d44Wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(9px); } }
-.d44-jug { animation: d44Jug 5200ms ease-in-out infinite; transform-origin: 330px 44px; }
+/* Пузырьки идут со дна вверх и гаснут у поверхности: всплывают, а не висят. */
+.d44-bub1 { animation: d44Bub1 7200ms ease-in 900ms infinite; }
+@keyframes d44Bub1 {
+  0% { transform: translateY(0); opacity: 0; }
+  12% { opacity: 0.7; }
+  85% { opacity: 0.55; }
+  100% { transform: translateY(-56px); opacity: 0; }
+}
+.d44-bub2 { animation: d44Bub2 9000ms ease-in 3400ms infinite; }
+@keyframes d44Bub2 {
+  0% { transform: translateY(0); opacity: 0; }
+  15% { opacity: 0.6; }
+  85% { opacity: 0.45; }
+  100% { transform: translateY(-58px); opacity: 0; }
+}
+.d44-wave { animation: d44Wave 6400ms ease-in-out infinite; }
+@keyframes d44Wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(6px); } }
+/* Рыбка финала плавает по своим координатам: кадр финала 400 на 92, а d44Fish
+   написан под кадр хука 400 на 154 и вынес бы её за стекло. */
+.d44-fish-fin { animation: d44FishFin 19000ms ease-in-out infinite; }
+@keyframes d44FishFin {
+  0%, 100% { transform: translate(150px, 44px) scaleX(-1); }
+  46% { transform: translate(196px, 50px) scaleX(-1); }
+  50% { transform: translate(199px, 49px) scaleX(1); }
+  96% { transform: translate(150px, 44px) scaleX(1); }
+}
+.d44-bub-fin { animation: d44BubFin 8600ms ease-in 1600ms infinite; }
+@keyframes d44BubFin {
+  0% { transform: translateY(0); opacity: 0; }
+  14% { opacity: 0.6; }
+  85% { opacity: 0.45; }
+  100% { transform: translateY(-42px); opacity: 0; }
+}
+/* Лейка: единственное крупное движение сцены, ровно один проход. */
+/* transform-origin здесь ОБЯЗАН быть нулевым: keyframes уже переносят группу
+   на её место, а origin в пикселях сдвинул бы точку вращения второй раз —
+   предмет при повороте улетает от своего места (проверено 2026-08-19). */
+.d44-jug { animation: d44Jug 3200ms cubic-bezier(0.35, 0, 0.25, 1) 900ms 1 both; transform-origin: 0 0; }
 @keyframes d44Jug {
-  0%, 100% { transform: translate(330px, 44px) rotate(-6deg); }
-  50% { transform: translate(330px, 44px) rotate(22deg); }
+  0% { transform: translate(272px, 22px) rotate(0deg); }
+  38% { transform: translate(272px, 22px) rotate(15deg); }
+  68% { transform: translate(272px, 22px) rotate(15deg); }
+  100% { transform: translate(272px, 22px) rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .d44-fish { animation: none; transform: translate(220px, 92px); }
+  .d44-fish { animation: none; transform: translate(210px, 92px) scaleX(-1); }
+  .d44-fish-fin { animation: none; transform: translate(172px, 47px) scaleX(-1); }
+  .d44-bub1, .d44-bub2, .d44-bub-fin { animation: none; opacity: 0; }
   .d44-wave { animation: none; }
-  .d44-jug { animation: none; transform: translate(330px, 44px); }
+  .d44-jug { animation: none; transform: translate(272px, 22px); }
 }
 `;
 

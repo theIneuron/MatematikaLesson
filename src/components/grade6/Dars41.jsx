@@ -776,19 +776,26 @@ const HookScene = () => (
       <rect x="52" y="54" width="16" height="14" rx="2" fill="#7ECBE6"/>
       <rect x="38" y="78" width="18" height="22" rx="2" fill="#B08A55"/>
       <rect x="352" y="60" width="7" height="40" fill="#8B6A45"/>
-      <circle cx="356" cy="52" r="18" fill="#8FBF7F"/>
+      <circle className="d41-tree" cx="356" cy="52" r="18" fill="#8FBF7F"/>
     </g>
     <rect x="0" y="100" width="400" height="54" fill="#C6BFAF"/>
 
     {/* Карусель: круглая платформа, вращается */}
     <g>
       <ellipse cx="212" cy="112" rx="86" ry="22" fill="#B4A48C"/>
-      <g className="d41-spin">
-        <ellipse cx="0" cy="0" rx="82" ry="20" fill="#D9B989" stroke="#B08A55" strokeWidth="2"/>
-        <path d="M-82 0 h164 M0 -20 v40" stroke="#B08A55" strokeWidth="1.6"/>
-        {/* скошенный четырёхугольник и домик на платформе */}
-        <path d="M-62 -6 l22 -10 l26 6 l-22 10 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.6"/>
-        <path d="M26 -2 l18 -12 l18 12 l-6 10 h-24 z" fill="#F5C77E" stroke="#C9A472" strokeWidth="1.6"/>
+      {/* Круглая платформа, видимая под углом, при повороте силуэта НЕ меняет —
+          едут фигуры на ней. Поэтому платформа стоит, а группа с фигурами
+          поворачивается внутри сплюснутой системы координат: 20 к 82 — то же
+          сжатие, что и у самой платформы, поэтому фигуры едут точно по ней. */}
+      <ellipse cx="212" cy="108" rx="82" ry="20" fill="#D9B989" stroke="#B08A55" strokeWidth="2"/>
+      <path d="M130 108 h164 M212 88 v40" stroke="#B08A55" strokeWidth="1.6"/>
+      <g transform="translate(212, 108) scale(1, 0.244)">
+        <g className="d41-spin">
+          <path d="M-62 -25 l22 -41 l26 25 l-22 41 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.6"
+            vectorEffect="non-scaling-stroke"/>
+          <path d="M26 -8 l18 -49 l18 49 l-6 41 h-24 z" fill="#F5C77E" stroke="#C9A472" strokeWidth="1.6"
+            vectorEffect="non-scaling-stroke"/>
+        </g>
       </g>
       <circle cx="212" cy="108" r="4.4" fill="#3B3730"/>
       <text x="212" y="146" textAnchor="middle" fill="#8A8883"
@@ -1271,12 +1278,23 @@ const LESSON_STYLES = `
 .d41-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: карусель делает пол-оборота и замирает */
-.d41-spin { animation: d41Spin 7000ms ease-in-out infinite; }
+/* Пол-оборота — ровно один раз: карусель поворачивается на 180 градусов и
+   остаётся так. Перенос и сжатие делает внешняя группа, здесь только поворот,
+   поэтому transform-origin нулевой. */
+.d41-spin { animation: d41Spin 3400ms cubic-bezier(0.3, 0, 0.2, 1) 1000ms 1 both; transform-origin: 0 0; }
 @keyframes d41Spin {
-  0%, 20% { transform: translate(212px, 108px) rotate(0deg); }
-  60%, 100% { transform: translate(212px, 108px) rotate(180deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(180deg); }
 }
-@media (prefers-reduced-motion: reduce) { .d41-spin { animation: none; transform: translate(212px, 108px); } }
+.d41-tree { animation: d41Tree 8200ms ease-in-out infinite; transform-origin: 356px 70px; }
+@keyframes d41Tree {
+  0%, 100% { transform: rotate(-1.2deg); }
+  50% { transform: rotate(1.2deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d41-spin { animation: none; transform: rotate(180deg); }
+  .d41-tree { animation: none; }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

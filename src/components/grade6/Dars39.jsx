@@ -735,6 +735,14 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: школьная пекарня, круглые лепёшки на противне.
 // ============================================================
+// СЦЕНА ХУКА — школьная пекарня. Главное здесь пропорция самих лепёшек, потому
+// что о ней и спорят. Масштаб 2,6 единицы на сантиметр: маленькая 20 см это
+// радиус 26, большая 40 см — радиус 52, ровно вдвое. Раньше большая была
+// радиусом 44, то есть вдвое больший поперечник выглядел как в 1,7 раза, и
+// сцена спорила с условием задачи.
+// Под каждой лепёшкой размерная линия: видно, что 40 это ровно две двадцатки.
+// Движения одного проходом здесь нет — пекарня стоит. Живёт жар в печи и пар
+// над горячими лепёшками.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -747,67 +755,94 @@ const HookScene = () => (
     </defs>
     <rect x="0" y="0" width="400" height="154" fill="url(#d39wall)"/>
 
-    {/* Печь с дверцей и жаром внутри */}
+    {/* Печь с жаром внутри */}
     <g>
-      <rect x="12" y="34" width="96" height="86" rx="6" fill="#B4A48C" stroke="#8E8578" strokeWidth="2"/>
-      <rect x="22" y="46" width="76" height="46" rx="4" fill="#3B3730"/>
-      <ellipse className="d39-heat" cx="60" cy="76" rx="30" ry="14" fill="#F5C77E" opacity="0.5"/>
-      <rect x="34" y="100" width="52" height="8" rx="3" fill="#8E8578"/>
-      <circle cx="96" cy="104" r="4" fill="#D9603F"/>
+      <rect x="10" y="30" width="100" height="96" rx="6" fill="#B4A48C" stroke="#8E8578" strokeWidth="2"/>
+      <rect x="20" y="42" width="80" height="50" rx="4" fill="#3B3730"/>
+      <ellipse className="d39-heat" cx="60" cy="72" rx="32" ry="15" fill="#F5C77E" opacity="0.5"/>
+      <rect x="30" y="100" width="60" height="8" rx="3" fill="#8E8578"/>
+      <circle cx="98" cy="110" r="4" fill="#D9603F"/>
     </g>
 
-    {/* Противень с двумя лепёшками */}
-    <rect x="128" y="96" width="256" height="30" rx="6" fill="#A8A192"/>
-    <rect x="134" y="100" width="244" height="20" rx="4" fill="#8E8578"/>
+    <rect x="0" y="126" width="400" height="28" fill="#D2A96F"/>
+    <Person x={128} ground={126} head={12} shirt="#7ECBE6" hair="#3E3128"/>
+    <Person x={376} ground={126} head={12} shirt="#8FBF7F" hair="#5A4636"/>
+
+    {/* Противень */}
+    <rect x="120" y="96" width="270" height="30" rx="6" fill="#A8A192"/>
+    <rect x="126" y="100" width="258" height="20" rx="4" fill="#8E8578"/>
+
+    {/* Пар над горячими лепёшками */}
+    <path className="d39-steam-a" d="M176 52 q4 -8 0 -14 q-4 -6 0 -12"
+      fill="none" stroke="#C9C7C2" strokeWidth="1.6" strokeLinecap="round"/>
+    <path className="d39-steam-b" d="M358 40 q4 -8 0 -14 q-4 -6 0 -12"
+      fill="none" stroke="#C9C7C2" strokeWidth="1.6" strokeLinecap="round"/>
+
+    {/* Лепёшки: 20 см и 40 см в одном масштабе */}
     <g>
-      <circle cx="188" cy="88" r="26" fill="url(#d39non)" stroke="#A87A2E" strokeWidth="2"/>
-      <circle cx="188" cy="88" r="14" fill="none" stroke="#A87A2E" strokeWidth="1.6" opacity="0.7"/>
+      <circle cx="176" cy="84" r="26" fill="url(#d39non)" stroke="#A87A2E" strokeWidth="2"/>
+      <circle cx="176" cy="84" r="14" fill="none" stroke="#A87A2E" strokeWidth="1.6" opacity="0.7"/>
       {[0, 1, 2, 3, 4, 5].map((k) => (
-        <circle key={k} cx={188 + 18 * Math.cos(k)} cy={88 + 18 * Math.sin(k)} r="1.6" fill="#6B4B12"/>
+        <circle key={k} cx={176 + 18 * Math.cos(k)} cy={84 + 18 * Math.sin(k)} r="1.6" fill="#6B4B12"/>
       ))}
-      <text x="188" y="140" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
     </g>
     <g>
-      <circle cx="308" cy="76" r="44" fill="url(#d39non)" stroke="#A87A2E" strokeWidth="2.4"/>
-      <circle cx="308" cy="76" r="24" fill="none" stroke="#A87A2E" strokeWidth="1.8" opacity="0.7"/>
-      {[0, 1, 2, 3, 4, 5, 6, 7].map((k) => (
-        <circle key={k} cx={308 + 32 * Math.cos(k * 0.8)} cy={76 + 32 * Math.sin(k * 0.8)} r="1.8" fill="#6B4B12"/>
+      <circle cx="300" cy="62" r="52" fill="url(#d39non)" stroke="#A87A2E" strokeWidth="2.4"/>
+      <circle cx="300" cy="62" r="28" fill="none" stroke="#A87A2E" strokeWidth="1.8" opacity="0.7"/>
+      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((k) => (
+        <circle key={k} cx={300 + 38 * Math.cos(k * 0.63)} cy={62 + 38 * Math.sin(k * 0.63)} r="1.8" fill="#6B4B12"/>
       ))}
-      <text x="308" y="140" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">40</text>
     </g>
 
-    <Person x={120} ground={132} head={12} shirt="#7ECBE6" hair="#3E3128"/>
-    <Person x={378} ground={132} head={12} shirt="#8FBF7F" hair="#5A4636"/>
-    <rect x="0" y="132" width="400" height="22" fill="#D2A96F"/>
+    {/* Размерные линии: 40 это ровно две двадцатки */}
+    <g stroke="#8A8883" strokeWidth="1.4" fill="none">
+      <path d="M150 136 h52 M150 133 v6 M202 133 v6"/>
+      <path d="M248 136 h104 M248 133 v6 M352 133 v6"/>
+    </g>
+    <text x="176" y="150" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
+    <text x="300" y="150" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">40</text>
   </svg>
 );
 
-// Итог: маленький круг четыре раза укладывается в большой.
+// ФИНАЛ — та же пекарня и тот же противень. Ответ спора стоит на месте: под
+// лепёшками их площади, а между ними множитель. Вдвое шире — вчетверо больше.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
+      <defs>
+        <radialGradient id="d39nonFin" cx="0.4" cy="0.35" r="0.75">
+          <stop offset="0%" stopColor="#EFC98E"/><stop offset="100%" stopColor="#C9963F"/>
+        </radialGradient>
+      </defs>
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      {/* Число площади стоит ВНУТРИ лепёшки, а не под ней: подпись «1256» на
-          82-й строке налезала на низ большой окружности (QA 2026-08-19, замер:
-          наложение 17 px). Высоту кадра трогать нельзя — 400 на 92 это общий
-          размер финала во всём классе, поэтому переехала подпись. */}
-      <circle cx="58" cy="44" r="18" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2"/>
-      <text x="58" y="48" textAnchor="middle" fill="#5A4636"
-        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">314</text>
-      <text x="108" y="50" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">· 4 =</text>
-      <circle cx="216" cy="44" r="36" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2.4"/>
-      <text x="216" y="49" textAnchor="middle" fill="#5A4636"
-        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">1256</text>
+      <rect x="0" y="74" width="400" height="18" fill="#D2A96F"/>
+
+      {/* тот же противень */}
+      <rect x="34" y="58" width="250" height="16" rx="4" fill="#A8A192"/>
+      <rect x="38" y="61" width="242" height="10" rx="3" fill="#8E8578"/>
+
+      {/* те же две лепёшки в том же соотношении: радиусы 13 и 26 */}
+      <circle cx="86" cy="48" r="13" fill="url(#d39nonFin)" stroke="#A87A2E" strokeWidth="1.6"/>
+      <circle cx="196" cy="35" r="26" fill="url(#d39nonFin)" stroke="#A87A2E" strokeWidth="2"/>
+
+      <text x="86" y="86" textAnchor="middle" fill="#8A8883"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">314</text>
+      <text x="196" y="86" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">1256</text>
+      <text x="139" y="52" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="15" fontWeight="700">· 4</text>
+
+      <Person x={248} ground={74} head={9} shirt="#8FBF7F" hair="#5A4636"/>
+
       <text x="330" y="40" textAnchor="middle" fill="#1F7A4D"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
         {tri(lang, 'вдвое шире', 'ikki barobar keng', 'twice as wide')}
       </text>
-      <text x="330" y="58" textAnchor="middle" fill="#1F7A4D"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
+      <text x="330" y="56" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
         {tri(lang, 'вчетверо больше', "to'rt barobar katta", 'four times bigger')}
       </text>
     </svg>
@@ -1276,9 +1311,21 @@ const LESSON_STYLES = `
 .d39-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: жар в печи дышит */
-.d39-heat { animation: d39Heat 3400ms ease-in-out infinite; }
-@keyframes d39Heat { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.65; } }
-@media (prefers-reduced-motion: reduce) { .d39-heat { animation: none; } }
+/* Микрожизнь пекарни: жар в печи дышит, над горячими лепёшками поднимается
+   пар. Крупного движения на сцене нет — печь и противень стоят. */
+.d39-heat { animation: d39Heat 4600ms ease-in-out infinite; }
+@keyframes d39Heat { 0%, 100% { opacity: 0.3; } 50% { opacity: 0.62; } }
+.d39-steam-a { opacity: 0; animation: d39Steam 5200ms ease-in-out infinite; }
+.d39-steam-b { opacity: 0; animation: d39Steam 5200ms ease-in-out 2100ms infinite; }
+@keyframes d39Steam {
+  0% { opacity: 0; transform: translateY(4px); }
+  35% { opacity: 0.55; }
+  100% { opacity: 0; transform: translateY(-16px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d39-heat { animation: none; }
+  .d39-steam-a, .d39-steam-b { animation: none; opacity: 0; }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

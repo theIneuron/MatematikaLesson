@@ -744,6 +744,12 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: кружок вышивки, сюзане на пяльцах.
 // ============================================================
+// СЦЕНА ХУКА — кружок вышивки. Салфетка натянута на раму и стоит на столе:
+// раньше прямоугольник висел в воздухе, а стола под ним не было.
+// Четыре линии сгиба нарисованы ОДИНАКОВО: сцена показывает, что пробуют, но
+// не подсказывает, какие из них подойдут — это и есть вопрос экрана.
+// Движение одно и один раз: правая половина складывается на левую и
+// возвращается. Дальше живёт только игла со стежком.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -755,61 +761,100 @@ const HookScene = () => (
 
     {/* Готовое сюзане на стене: зеркальный орнамент */}
     <g>
-      <rect x="10" y="16" width="104" height="96" rx="4" fill="#F4EEDF" stroke="#C9A472" strokeWidth="2"/>
-      <path d="M62 16 v96" stroke="#D9603F" strokeWidth="1.4" strokeDasharray="5 4"/>
+      <rect x="10" y="10" width="88" height="82" rx="4" fill="#F4EEDF" stroke="#C9A472" strokeWidth="2"/>
+      <path d="M54 10 v82" stroke="#C9A472" strokeWidth="1.2" strokeDasharray="5 4"/>
       {[0, 1, 2].map((k) => (
         <g key={k}>
-          <circle cx={40} cy={38 + k * 28} r="9" fill="#D9603F" opacity="0.8"/>
-          <circle cx={84} cy={38 + k * 28} r="9" fill="#D9603F" opacity="0.8"/>
-          <path d={`M40 ${38 + k * 28} h-14`} stroke="#3F5B4A" strokeWidth="2"/>
-          <path d={`M84 ${38 + k * 28} h14`} stroke="#3F5B4A" strokeWidth="2"/>
+          <circle cx={36} cy={28 + k * 24} r="7.5" fill="#D9603F" opacity="0.8"/>
+          <circle cx={72} cy={28 + k * 24} r="7.5" fill="#D9603F" opacity="0.8"/>
+          <path d={`M36 ${28 + k * 24} h-12`} stroke="#3F5B4A" strokeWidth="1.8"/>
+          <path d={`M72 ${28 + k * 24} h12`} stroke="#3F5B4A" strokeWidth="1.8"/>
         </g>
       ))}
     </g>
 
-    {/* Салфетка на столе: прямоугольник, вдоль и поперёк пунктиром */}
+    <rect x="0" y="124" width="400" height="30" fill="#D2A96F"/>
+    <Person x={344} ground={124} head={13} shirt="#7ECBE6" hair="#3E3128"/>
+    <Person x={380} ground={124} head={13} shirt="#8FBF7F" hair="#5A4636"/>
+
+    {/* Стол */}
+    <rect x="118" y="112" width="214" height="7" rx="2" fill="#C9A472"/>
+    <rect x="118" y="119" width="214" height="5" fill="#B08A57"/>
+
+    {/* Рама с натянутой салфеткой */}
     <g>
-      <rect x="152" y="34" width="164" height="80" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2.4"/>
-      <path className="d40-fold" d="M234 34 v80" stroke="#019ACB" strokeWidth="2.4" strokeDasharray="6 4"/>
-      <path d="M152 74 h164" stroke="#019ACB" strokeWidth="2" strokeDasharray="6 4" opacity="0.6"/>
-      <path d="M152 34 L316 114 M316 34 L152 114" stroke="#D9603F" strokeWidth="1.6" strokeDasharray="4 5" opacity="0.5"/>
-      {[0, 1].map((k) => (
-        <g key={k}>
-          <path d={`M${186 + k * 96} 60 q10 -12 20 0 q-10 10 -20 0`} fill="#8FBF7F"/>
-          <circle cx={196 + k * 96} cy="88" r="6" fill="#F5C77E"/>
-        </g>
-      ))}
+      <rect x="132" y="28" width="186" height="86" rx="4" fill="#C9A472"/>
+      <rect x="140" y="36" width="170" height="70" rx="2" fill="#FFFDF7" stroke="#E4D9C6" strokeWidth="1.4"/>
+
+      {/* левая половина узора */}
+      <g>
+        <path d="M172 58 q10 -12 20 0 q-10 10 -20 0" fill="#8FBF7F"/>
+        <circle cx="182" cy="86" r="6" fill="#F5C77E"/>
+      </g>
+      {/* правая половина складывается на левую */}
+      <g className="d40-fold">
+        <path d="M258 58 q10 -12 20 0 q-10 10 -20 0" fill="#8FBF7F"/>
+        <circle cx="268" cy="86" r="6" fill="#F5C77E"/>
+      </g>
+
+      {/* четыре линии сгиба, которые пробуют: все одинаковые */}
+      <g stroke="#8A8883" strokeWidth="1.6" strokeDasharray="6 4" opacity="0.75">
+        <path d="M225 36 v70"/>
+        <path d="M140 71 h170"/>
+        <path d="M140 36 L310 106"/>
+        <path d="M310 36 L140 106"/>
+      </g>
     </g>
 
-    {/* Иголка с нитью, движется как при стежке */}
+    {/* Игла со стежком: единственная фоновая жизнь */}
     <g className="d40-needle">
-      <path d="M0 0 l16 -16" stroke="#8E8578" strokeWidth="2" strokeLinecap="round"/>
+      <path d="M0 0 l14 -14" stroke="#8E8578" strokeWidth="2" strokeLinecap="round"/>
       <path d="M0 0 q-8 6 -14 4" fill="none" stroke="#D9603F" strokeWidth="1.6"/>
     </g>
-
-    <Person x={352} ground={124} head={13} shirt="#7ECBE6" hair="#3E3128"/>
-    <Person x={382} ground={124} head={13} shirt="#8FBF7F" hair="#5A4636"/>
-    <rect x="0" y="124" width="400" height="30" fill="#D2A96F"/>
   </svg>
 );
 
-// Итог: фигура и её отражение через ось.
+// ФИНАЛ — та же рама на том же столе. Ответ виден предметом: две линии, по
+// которым половинки совпали, зелёные; две диагонали перечёркнуты — по ним не
+// совпало. Рядом счёт: осей две.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <path d="M200 8 v76" stroke="#D9603F" strokeWidth="2.4" strokeDasharray="6 4"/>
-      <path d="M200 46 L150 20 L128 46 L150 72 z" fill="#A9CFBA" stroke="#1F7A4D" strokeWidth="2"/>
-      <path d="M200 46 L250 20 L272 46 L250 72 z" fill="#A9CFBA" stroke="#1F7A4D" strokeWidth="2"/>
-      <path d="M150 20 h100" stroke="#8A8883" strokeWidth="1.2" strokeDasharray="3 3"/>
-      <text x="330" y="42" textAnchor="middle" fill="#1F7A4D"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'то же расстояние', "o'sha masofa", 'same distance')}
-      </text>
-      <text x="330" y="60" textAnchor="middle" fill="#1F7A4D"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'другая сторона', 'boshqa tomon', 'other side')}
+      <rect x="0" y="74" width="400" height="18" fill="#D2A96F"/>
+      <rect x="26" y="66" width="180" height="5" rx="2" fill="#C9A472"/>
+      <rect x="26" y="71" width="180" height="3" fill="#B08A57"/>
+
+      <g>
+        <rect x="36" y="10" width="160" height="58" rx="3" fill="#C9A472"/>
+        <rect x="42" y="16" width="148" height="46" rx="2" fill="#FFFDF7" stroke="#E4D9C6" strokeWidth="1.2"/>
+        <g>
+          <path d="M74 32 q8 -10 16 0 q-8 8 -16 0" fill="#8FBF7F"/>
+          <path d="M142 32 q8 -10 16 0 q-8 8 -16 0" fill="#8FBF7F"/>
+          <circle cx="82" cy="50" r="5" fill="#F5C77E"/>
+          <circle cx="150" cy="50" r="5" fill="#F5C77E"/>
+        </g>
+        {/* две настоящие оси */}
+        <g stroke="#1F7A4D" strokeWidth="2" strokeDasharray="6 4">
+          <path d="M116 16 v46"/>
+          <path d="M42 39 h148"/>
+        </g>
+        {/* две диагонали, которые не подошли */}
+        <g stroke="#C9C7C2" strokeWidth="1.4" strokeDasharray="4 5">
+          <path d="M42 16 L190 62"/>
+          <path d="M190 16 L42 62"/>
+        </g>
+      </g>
+
+      <Person x={238} ground={74} head={9} shirt="#8FBF7F" hair="#5A4636"/>
+
+      <rect x="278" y="20" width="104" height="34" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="330" y="43" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="17" fontWeight="700">2</text>
+      <text x="330" y="70" textAnchor="middle" fill="#8A8883"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
+        {tri(lang, 'оси симметрии', "simmetriya o'qlari", 'axes of symmetry')}
       </text>
     </svg>
   );
@@ -1283,11 +1328,27 @@ const LESSON_STYLES = `
 .d40-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: линия сгиба мигает, иголка делает стежок */
-.d40-fold { animation: d40Fold 3200ms ease-in-out infinite; }
-@keyframes d40Fold { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-.d40-needle { animation: d40Needle 2600ms ease-in-out infinite; }
-@keyframes d40Needle { 0%, 100% { transform: translate(196px, 72px); } 50% { transform: translate(206px, 62px); } }
-@media (prefers-reduced-motion: reduce) { .d40-fold { animation: none; } .d40-needle { animation: none; transform: translate(200px, 68px); } }
+/* Складывание — одно движение за проход: правая половина узора поворачивается
+   вокруг вертикальной линии сгиба (225) на левую и возвращается. Это настоящий
+   сгиб: зеркальное отражение относительно оси, а не сдвиг.
+   В keyframes НЕТ переноса, поэтому transform-origin здесь указывать МОЖНО и
+   нужно — это и есть линия сгиба. */
+.d40-fold { animation: d40Fold 4200ms ease-in-out 900ms 1 both; transform-origin: 225px 71px; }
+@keyframes d40Fold {
+  0% { transform: scaleX(1); }
+  38% { transform: scaleX(-1); }
+  68% { transform: scaleX(-1); }
+  100% { transform: scaleX(1); }
+}
+.d40-needle { animation: d40Needle 3400ms ease-in-out infinite; transform-origin: 0 0; }
+@keyframes d40Needle {
+  0%, 100% { transform: translate(300px, 96px); }
+  50% { transform: translate(310px, 86px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d40-fold { animation: none; }
+  .d40-needle { animation: none; transform: translate(304px, 92px); }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

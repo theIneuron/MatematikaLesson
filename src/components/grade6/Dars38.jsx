@@ -732,6 +732,14 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: измерительный уголок в кабинете труда.
 // ============================================================
+// СЦЕНА ХУКА — школьная дорожка. Стандарт сцены (методист 2026-08-19).
+// Здесь физика совпала с темой урока, поэтому она посчитана, а не нарисована на
+// глаз: масштаб 1,2 единицы на сантиметр, колесо 20 см это 24 единицы, дека
+// 60 см это 72, руль 90 см от земли. За ОДИН оборот самокат уезжает ровно на
+// длину окружности: 3,14159 на 24 = 75,4 единицы — именно столько между метками
+// на дорожке. Колесо не проскальзывает, как и в жизни.
+// Движение одно и один раз: самокат прокатывается и останавливается. Дальше
+// живёт только флажок на крыльце.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -741,67 +749,90 @@ const HookScene = () => (
     </defs>
     <rect x="0" y="0" width="400" height="154" fill="url(#d38wall)"/>
 
-    {/* Школьное крыльцо и дорожка */}
+    {/* Школьное крыльцо */}
+    <g opacity="0.92">
+      <rect x="10" y="44" width="76" height="74" rx="4" fill="#E4D9C6" stroke="#C9A472" strokeWidth="2"/>
+      <rect x="26" y="76" width="20" height="42" rx="2" fill="#B08A55"/>
+      <rect x="56" y="58" width="18" height="16" rx="2" fill="#7ECBE6"/>
+      <g className="d38-flag">
+        <path d="M0 0 v-26" stroke="#8E8578" strokeWidth="1.6"/>
+        <path d="M0 -26 l18 6 l-18 6 z" fill="#D9603F"/>
+      </g>
+    </g>
+
+    {/* Дорожка */}
     <rect x="0" y="118" width="400" height="36" fill="#C6BFAF"/>
     <path d="M0 118 h400" stroke="#A8A192" strokeWidth="2"/>
-    <g opacity="0.9">
-      <rect x="14" y="46" width="74" height="72" rx="4" fill="#E4D9C6" stroke="#C9A472" strokeWidth="2"/>
-      <rect x="30" y="76" width="20" height="42" rx="2" fill="#B08A55"/>
-      <rect x="58" y="58" width="18" height="16" rx="2" fill="#7ECBE6"/>
-    </g>
 
-    {/* След от колеса на дорожке: один оборот */}
-    <path d="M150 138 h124" stroke="#8E8578" strokeWidth="2.4" strokeDasharray="7 5"/>
-    <path d="M150 132 v12 M274 132 v12" stroke="#8E8578" strokeWidth="2.4"/>
-    <text x="212" y="152" textAnchor="middle" fill="#8A8883"
+    {/* Метки одного оборота: расстояние между ними равно длине окружности */}
+    <path d="M120 136 h75.4" stroke="#8E8578" strokeWidth="2.2" strokeDasharray="7 5"/>
+    <path d="M120 130 v12 M195.4 130 v12" stroke="#8E8578" strokeWidth="2.4"/>
+    <text x="158" y="149" textAnchor="middle" fill="#6B5A3E"
       fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">1 aylanish</text>
 
-    {/* Самокат: колесо катится по дорожке */}
+    {/* САМОКАТ. Заднее колесо в начале координат группы, переднее в 72 единицах
+        впереди — это 60 см деки. Оба колеса крутятся ровно на один оборот. */}
     <g className="d38-roll">
-      <circle cx="0" cy="0" r="20" fill="none" stroke="#3B3730" strokeWidth="4"/>
-      <circle cx="0" cy="0" r="3.4" fill="#3B3730"/>
-      <path className="d38-spoke" d="M0 -20 v40 M-20 0 h40" stroke="#7B7367" strokeWidth="2"/>
-    </g>
-    <g>
-      <circle cx="306" cy="118" r="20" fill="none" stroke="#3B3730" strokeWidth="4"/>
-      <path d="M306 98 L306 60 h-52" stroke="#019ACB" strokeWidth="5" strokeLinecap="round"/>
-      <path d="M170 118 h136" stroke="#019ACB" strokeWidth="5" strokeLinecap="round"/>
-      <path d="M254 60 h-16" stroke="#3B3730" strokeWidth="4" strokeLinecap="round"/>
+      <path d="M-6 4 h84 l-5 5 h-74 z" fill="#019ACB"/>
+      <path d="M72 2 v-98" stroke="#019ACB" strokeWidth="5" strokeLinecap="round"/>
+      <path d="M56 -96 h32" stroke="#3B3730" strokeWidth="4.4" strokeLinecap="round"/>
+      {/* Переднее колесо стоит в своей группе с переносом: если положить перенос
+          в CSS, анимация вращения его перебьёт и оба колеса сойдутся в одно. */}
+      <g className="d38-wheel-a">
+        <circle cx="0" cy="0" r="12" fill="none" stroke="#3B3730" strokeWidth="3.4"/>
+        <path d="M0 -12 v24 M-12 0 h24" stroke="#7B7367" strokeWidth="1.8"/>
+      </g>
+      <g transform="translate(72, 0)">
+        <g className="d38-wheel-b">
+          <circle cx="0" cy="0" r="12" fill="none" stroke="#3B3730" strokeWidth="3.4"/>
+          <path d="M0 -12 v24 M-12 0 h24" stroke="#7B7367" strokeWidth="1.8"/>
+        </g>
+      </g>
+      <path d="M-12 -20 h24" stroke="#D9603F" strokeWidth="1.6"/>
+      <path d="M-12 -23 v6 M12 -23 v6" stroke="#D9603F" strokeWidth="1.6"/>
+      <text x="0" y="-27" textAnchor="middle" fill="#D9603F"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">20</text>
     </g>
 
-    {/* Табличка с диаметром */}
-    <g>
-      <rect x="292" y="14" width="94" height="32" rx="5" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2"/>
-      <text x="339" y="35" textAnchor="middle" fill="#D9603F"
-        fontFamily="'JetBrains Mono', monospace" fontSize="14" fontWeight="700">d = 20</text>
-    </g>
-
-    <Person x={122} ground={118} head={13} shirt="#7ECBE6" hair="#3E3128"/>
-    <Person x={94} ground={118} head={13} shirt="#F5C77E" hair="#5A4636"/>
+    <Person x={318} ground={118} head={13} shirt="#F5C77E" hair="#5A4636"/>
+    <Person x={362} ground={118} head={13} shirt="#7ECBE6" hair="#3E3128"/>
   </svg>
 );
 
-// Итог: окружность разворачивается в три диаметра с хвостиком.
+// ФИНАЛ — та же дорожка и те же метки, но теперь отрезок подписан: за один
+// оборот колесо диаметром 20 см проходит 62,8 см. Ответ спора виден на месте.
 const FinalScene = () => {
-  const lang = useLang();
-  const d = 76;
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <circle cx="46" cy="42" r={d / 2} fill="none" stroke="#019ACB" strokeWidth="3.4"/>
-      <path d={`M${46 - d / 2} 42 h${d}`} stroke="#D9603F" strokeWidth="2.4"/>
-      {[0, 1, 2].map((k) => (
-        <g key={k}>
-          <rect x={106 + k * d} y="34" width={d - 3} height="16" rx="3" fill="#E7F5FA" stroke="#019ACB" strokeWidth="1.6"/>
-          <text x={106 + k * d + d / 2} y="46" textAnchor="middle" fill="#019ACB"
-            fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">d</text>
-        </g>
-      ))}
-      <rect x={106 + 3 * d} y="34" width={d * 0.14} height="16" rx="3" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="1.6"/>
-      <text x="200" y="76" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'три диаметра и ещё немного', "uchta diametr va yana ozgina", 'three diameters and a bit more')}
-      </text>
+      <g opacity="0.9">
+        <rect x="10" y="26" width="52" height="48" rx="3" fill="#E4D9C6" stroke="#C9A472" strokeWidth="1.8"/>
+        <rect x="22" y="50" width="14" height="24" rx="2" fill="#B08A55"/>
+      </g>
+      <rect x="0" y="74" width="400" height="18" fill="#C6BFAF"/>
+      <path d="M0 74 h400" stroke="#A8A192" strokeWidth="1.6"/>
+
+      {/* тот же отрезок в один оборот, теперь с ответом */}
+      <path d="M96 84 h75.4" stroke="#1F7A4D" strokeWidth="2.4"/>
+      <path d="M96 79 v10 M171.4 79 v10" stroke="#1F7A4D" strokeWidth="2.4"/>
+      <text x="116" y="62" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="14" fontWeight="700">62,8 sm</text>
+
+      {/* колесо доехало до второй метки */}
+      <g>
+        <circle cx="171" cy="62" r="12" fill="none" stroke="#3B3730" strokeWidth="3.4"/>
+        <path d="M171 50 v24 M159 62 h24" stroke="#7B7367" strokeWidth="1.8"/>
+        <path d="M159 42 h24" stroke="#D9603F" strokeWidth="1.4"/>
+        <path d="M159 39 v6 M183 39 v6" stroke="#D9603F" strokeWidth="1.4"/>
+        <text x="171" y="35" textAnchor="middle" fill="#D9603F"
+          fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">20</text>
+      </g>
+
+      <Person x={238} ground={74} head={9} shirt="#F5C77E" hair="#5A4636"/>
+
+      <rect x="272" y="26" width="116" height="30" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="330" y="46" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="14" fontWeight="700">C = 3,14 · d</text>
     </svg>
   );
 };
@@ -1248,9 +1279,26 @@ const LESSON_STYLES = `
 .d38-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: колесо катится по дорожке и крутится */
-.d38-roll { animation: d38Roll 6000ms linear infinite; }
-@keyframes d38Roll { from { transform: translate(150px, 118px) rotate(0deg); } to { transform: translate(274px, 118px) rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .d38-roll { animation: none; transform: translate(212px, 118px); } }
+/* Самокат едет ОДИН раз и останавливается. Перенос группы и вращение колёс
+   разведены: группа только едет, колёса крутятся каждое вокруг своей оси.
+   За один оборот проезжается ровно длина окружности — 75,4 единицы. */
+.d38-roll { animation: d38Roll 4200ms cubic-bezier(0.25, 0.55, 0.2, 1) 700ms 1 both; }
+@keyframes d38Roll {
+  from { transform: translate(120px, 106px); }
+  to { transform: translate(195.4px, 106px); }
+}
+.d38-wheel-a, .d38-wheel-b { animation: d38Wheel 4200ms cubic-bezier(0.25, 0.55, 0.2, 1) 700ms 1 both; transform-origin: 0 0; }
+@keyframes d38Wheel { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.d38-flag { animation: d38Flag 6800ms ease-in-out infinite; transform-origin: 0 0; transform: translate(48px, 44px); }
+@keyframes d38Flag {
+  0%, 100% { transform: translate(48px, 44px) rotate(-1.4deg); }
+  50% { transform: translate(48px, 44px) rotate(1.4deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d38-roll { animation: none; transform: translate(195.4px, 106px); }
+  .d38-wheel-a, .d38-wheel-b { animation: none; }
+  .d38-flag { animation: none; }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

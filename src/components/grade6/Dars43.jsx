@@ -750,20 +750,25 @@ const HookScene = () => (
     <rect x="0" y="118" width="400" height="36" fill="#D2A96F"/>
     <rect x="0" y="114" width="400" height="6" fill="#C9A472"/>
 
+    {/* Оба паруса в одном масштабе: 8 единиц на сантиметр, поэтому основание
+        8 см это 64 единицы, а высота 5 см — ровно 40. Раньше высота была 46,
+        то есть паруса спорили с условием задачи.
+        У скошенного паруса основание продлено пунктиром: высота падает ЗА
+        основание, и это видно, а не сказано словами. */}
     <g>
-      {/* прямой парус */}
-      <path d="M118 112 L182 112 L118 66 z" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2.2"/>
-      <path d="M118 112 v-46" stroke="#D9603F" strokeWidth="1.8" strokeDasharray="4 3"/>
-      <text x="150" y="126" textAnchor="middle" fill="#8A8883"
+      <path d="M118 112 L182 112 L118 72 z" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2.2"/>
+      <path d="M118 112 v-40" stroke="#D9603F" strokeWidth="1.8" strokeDasharray="4 3"/>
+      <text x="150" y="128" textAnchor="middle" fill="#6B5A3E"
         fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">8</text>
-      <text x="108" y="90" textAnchor="middle" fill="#D9603F"
+      <text x="108" y="94" textAnchor="middle" fill="#D9603F"
         fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">5</text>
-      {/* скошенный парус */}
-      <path d="M222 112 L286 112 L316 66 z" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="2.2"/>
-      <path d="M316 112 v-46" stroke="#D9603F" strokeWidth="1.8" strokeDasharray="4 3"/>
-      <text x="254" y="126" textAnchor="middle" fill="#8A8883"
+
+      <path d="M222 112 L286 112 L316 72 z" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="2.2"/>
+      <path d="M286 112 h34" stroke="#8A6A22" strokeWidth="1.2" strokeDasharray="4 4"/>
+      <path d="M316 112 v-40" stroke="#D9603F" strokeWidth="1.8" strokeDasharray="4 3"/>
+      <text x="254" y="128" textAnchor="middle" fill="#6B5A3E"
         fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">8</text>
-      <text x="328" y="90" textAnchor="middle" fill="#D9603F"
+      <text x="330" y="94" textAnchor="middle" fill="#D9603F"
         fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">5</text>
     </g>
 
@@ -773,25 +778,41 @@ const HookScene = () => (
 );
 
 // Итог: два треугольника складываются в прямоугольник.
+// ФИНАЛ — тот же стол и те же два паруса. Ответ виден предметом: у обоих
+// основание 8 и высота 5, и площадь одна и та же. Наклон ничего не меняет.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <path d="M30 70 L110 70 L30 22 z" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2.2"/>
-      <path d="M150 22 L230 22 L230 70 z" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="2.2"/>
-      <text x="130" y="52" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">+</text>
-      <text x="248" y="52" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">=</text>
-      <rect x="266" y="22" width="80" height="48" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2.2"/>
-      <text x="306" y="52" textAnchor="middle" fill="#1F7A4D"
-        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">a · h</text>
-      <text x="200" y="86" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'треугольник — половина: a · h : 2',
-          "uchburchak — yarmi: a · h : 2",
-          'a triangle is half: a · h : 2')}
+      <g className="d43-fly-fin">
+        <path d="M0 0 L9 -12 L18 0 L9 14 z" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.2"/>
+      </g>
+      <rect x="0" y="66" width="400" height="5" fill="#C9A472"/>
+      <rect x="0" y="71" width="400" height="21" fill="#D2A96F"/>
+
+      {/* те же паруса, тот же масштаб: основание 48, высота 30 */}
+      <path d="M40 66 L88 66 L40 36 z" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2"/>
+      <path d="M40 66 v-30" stroke="#D9603F" strokeWidth="1.4" strokeDasharray="4 3"/>
+      <path d="M132 66 L180 66 L204 36 z" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="2"/>
+      <path d="M180 66 h24" stroke="#8A6A22" strokeWidth="1" strokeDasharray="4 4"/>
+      <path d="M204 66 v-30" stroke="#D9603F" strokeWidth="1.4" strokeDasharray="4 3"/>
+
+      <text x="64" y="84" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
+      <text x="168" y="84" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">20</text>
+      <text x="112" y="52" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="15" fontWeight="700">=</text>
+
+      <Person x={246} ground={66} head={9} shirt="#F5C77E" hair="#5A4636"/>
+
+      <rect x="284" y="24" width="104" height="30" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="336" y="44" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">a · h : 2</text>
+      <text x="336" y="84" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
+        {tri(lang, 'наклон не меняет', "qiyalik o'zgartirmaydi", 'the slant changes nothing')}
       </text>
     </svg>
   );
@@ -1236,12 +1257,22 @@ const LESSON_STYLES = `
 .d43-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: змей качается в небе */
-.d43-fly { animation: d43Fly 5200ms ease-in-out infinite; }
+/* Змей в небе — фоновая жизнь: качается медленно и мелко, крупного движения на
+   сцене нет. Перенос внутри keyframes, поэтому transform-origin не задаём. */
+.d43-fly { animation: d43Fly 7600ms ease-in-out infinite; }
 @keyframes d43Fly {
-  0%, 100% { transform: translate(300px, 44px) rotate(-8deg); }
-  50% { transform: translate(320px, 32px) rotate(8deg); }
+  0%, 100% { transform: translate(304px, 42px) rotate(-6deg); }
+  50% { transform: translate(316px, 34px) rotate(6deg); }
 }
-@media (prefers-reduced-motion: reduce) { .d43-fly { animation: none; transform: translate(310px, 38px); } }
+.d43-fly-fin { animation: d43FlyFin 8200ms ease-in-out infinite; }
+@keyframes d43FlyFin {
+  0%, 100% { transform: translate(300px, 24px) rotate(-6deg); }
+  50% { transform: translate(310px, 18px) rotate(6deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d43-fly { animation: none; transform: translate(310px, 38px); }
+  .d43-fly-fin { animation: none; transform: translate(305px, 21px); }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

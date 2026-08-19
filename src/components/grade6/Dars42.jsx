@@ -740,6 +740,12 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: кружок моделирования, палочки и узлы на столе.
 // ============================================================
+// СЦЕНА ХУКА — кружок моделирования. Палочки в честном масштабе: 20 единиц на
+// сантиметр, поэтому 10 см это 200 единиц, 4 см — 80, 3 см — 60.
+// Короткие палочки закреплены на концах длинной и поворачиваются НА ШАРНИРЕ, а
+// не ездят вбок: так их и пробуют свести. Движение одно и один раз — обе
+// опускаются навстречу и замирают, не дойдя. Сцена показывает попытку, но не
+// объявляет итог: ответ ребёнок даёт сам.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -749,59 +755,85 @@ const HookScene = () => (
     </defs>
     <rect x="0" y="0" width="400" height="154" fill="url(#d42wall)"/>
 
-    {/* Готовые модели на полке: мост из треугольников */}
+    {/* Готовая модель на полке: мост из треугольников */}
     <g opacity="0.9">
-      <rect x="10" y="52" width="110" height="5" rx="2.5" fill="#C9A472"/>
-      <path d="M16 52 L34 24 L52 52 L70 24 L88 52 L106 24 L114 52"
-        fill="none" stroke="#8FBF7F" strokeWidth="2.6"/>
-      <path d="M16 24 h98" stroke="#8FBF7F" strokeWidth="2.2"/>
+      <rect x="10" y="40" width="110" height="5" rx="2.5" fill="#C9A472"/>
+      <path d="M16 40 L34 14 L52 40 L70 14 L88 40 L106 14 L114 40"
+        fill="none" stroke="#8FBF7F" strokeWidth="2.4"/>
+      <path d="M16 14 h98" stroke="#8FBF7F" strokeWidth="2"/>
     </g>
 
-    {/* Стол с палочками: три и четыре сомкнуть не удаётся */}
-    <rect x="0" y="112" width="400" height="42" fill="#D2A96F"/>
-    <rect x="0" y="108" width="400" height="6" fill="#C9A472"/>
+    <Person x={52} ground={104} head={13} shirt="#7ECBE6" hair="#3E3128"/>
+    <Person x={96} ground={104} head={13} shirt="#F5C77E" hair="#5A4636"/>
 
-    <g>
-      {/* длинная палочка 10 */}
-      <rect x="150" y="94" width="200" height="8" rx="4" fill="#B99B72" stroke="#8B7350" strokeWidth="1.4"/>
-      <text x="250" y="90" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">10</text>
-      {/* короткая 3 слева, короткая 4 справа: между ними просвет */}
-      <g className="d42-try">
-        <rect x="150" y="94" width="60" height="8" rx="4" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.4"
-          transform="rotate(-42 154 98)"/>
+    {/* Стол: столешница закрывает ноги, как и должно быть */}
+    <rect x="0" y="104" width="400" height="7" fill="#C9A472"/>
+    <rect x="0" y="111" width="400" height="43" fill="#D2A96F"/>
+
+    {/* Палочка 10 см лежит на столе */}
+    <rect x="150" y="97" width="200" height="8" rx="4" fill="#B99B72" stroke="#8B7350" strokeWidth="1.4"/>
+    <text x="250" y="122" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">10</text>
+
+    {/* Короткая 3 см на левом шарнире */}
+    <g transform="translate(150, 101)">
+      <g className="d42-arm-a">
+        <rect x="0" y="-4" width="60" height="8" rx="4" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.4"/>
       </g>
-      <rect x="270" y="94" width="80" height="8" rx="4" fill="#F5C77E" stroke="#C9A472" strokeWidth="1.4"
-        transform="rotate(48 346 98)"/>
-      <text x="176" y="58" textAnchor="middle" fill="#019ACB"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">3</text>
-      <text x="330" y="52" textAnchor="middle" fill="#8A6A22"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">4</text>
-      {/* просвет между концами */}
-      <path className="d42-gap" d="M216 56 h56" stroke="#D9603F" strokeWidth="2" strokeDasharray="4 4"/>
     </g>
+    {/* Короткая 4 см на правом шарнире */}
+    <g transform="translate(350, 101)">
+      <g className="d42-arm-b">
+        <rect x="-80" y="-4" width="80" height="8" rx="4" fill="#F5C77E" stroke="#C9A472" strokeWidth="1.4"/>
+      </g>
+    </g>
+    <circle cx="150" cy="101" r="3.2" fill="#3B3730"/>
+    <circle cx="350" cy="101" r="3.2" fill="#3B3730"/>
 
-    <Person x={52} ground={112} head={13} shirt="#7ECBE6" hair="#3E3128"/>
-    <Person x={96} ground={112} head={13} shirt="#F5C77E" hair="#5A4636"/>
+    <text x="176" y="52" textAnchor="middle" fill="#019ACB"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">3</text>
+    <text x="330" y="48" textAnchor="middle" fill="#8A6A22"
+      fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">4</text>
   </svg>
 );
 
-// Итог: три угла складываются в прямую.
+// ФИНАЛ — тот же стол. Палочки положили как получится: 3 и 4 встык дают 7, и до
+// конца десятки не хватает ровно 3 см. Просвет подписан, ответ виден предметом.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <path d="M40 34 L116 34 L74 74 z" fill="#E7F5FA" stroke="#019ACB" strokeWidth="2.2"/>
-      <path d="M150 58 h200" stroke="#8E8578" strokeWidth="2.4"/>
-      <path d="M150 58 L186 26 L214 58 z" fill="#A9CFBA" stroke="#1F7A4D" strokeWidth="1.8"/>
-      <path d="M214 58 L246 30 L282 58 z" fill="#FBF3D6" stroke="#8A6A22" strokeWidth="1.8"/>
-      <path d="M282 58 L318 34 L350 58 z" fill="#FFF1EC" stroke="#D9603F" strokeWidth="1.8"/>
-      <text x="250" y="82" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'три угла дают прямую: 180 градусов',
-          "uch burchak to'g'ri chiziq beradi: 180 daraja",
-          'three angles make a straight line: 180 degrees')}
+      <rect x="0" y="66" width="400" height="5" fill="#C9A472"/>
+      <rect x="0" y="71" width="400" height="21" fill="#D2A96F"/>
+
+      {/* та же десятка: 20 единиц на сантиметр, как в хуке */}
+      <rect x="60" y="52" width="200" height="7" rx="3.5" fill="#B99B72" stroke="#8B7350" strokeWidth="1.2"/>
+      <text x="160" y="82" textAnchor="middle" fill="#6B5A3E"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">10</text>
+
+      {/* 3 и 4 встык над ней */}
+      <rect x="60" y="32" width="60" height="7" rx="3.5" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.2"/>
+      <rect x="120" y="32" width="80" height="7" rx="3.5" fill="#F5C77E" stroke="#C9A472" strokeWidth="1.2"/>
+      <text x="90" y="27" textAnchor="middle" fill="#019ACB"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">3</text>
+      <text x="160" y="27" textAnchor="middle" fill="#8A6A22"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">4</text>
+
+      {/* чего не хватает */}
+      <path d="M200 35 h60" stroke="#D9603F" strokeWidth="2" strokeDasharray="5 4"/>
+      <path d="M200 30 v10 M260 30 v10" stroke="#D9603F" strokeWidth="2"/>
+      <text x="230" y="22" textAnchor="middle" fill="#D9603F"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">3</text>
+
+      <Person x={296} ground={66} head={9} shirt="#F5C77E" hair="#5A4636"/>
+
+      <rect x="318" y="26" width="72" height="28" rx="8" fill="#FFF1EC" stroke="#D9603F" strokeWidth="2"/>
+      <text x="354" y="45" textAnchor="middle" fill="#D9603F"
+        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">3 + 4 &lt; 10</text>
+      <text x="354" y="82" textAnchor="middle" fill="#8A8883"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
+        {tri(lang, 'не замкнётся', 'yasalmaydi', 'will not close')}
       </text>
     </svg>
   );
@@ -1258,11 +1290,23 @@ const LESSON_STYLES = `
 .d42-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: короткую палочку пробуют дотянуть, просвет мигает */
-.d42-try { animation: d42Try 3600ms ease-in-out infinite; }
-@keyframes d42Try { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(10px); } }
-.d42-gap { animation: d42Gap 2400ms ease-in-out infinite; }
-@keyframes d42Gap { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .d42-try, .d42-gap { animation: none; } }
+/* Попытка сомкнуть палочки — одно движение за проход. Каждая короткая палочка
+   поворачивается вокруг СВОЕГО шарнира на конце длинной и останавливается, не
+   дойдя до другой. Перенос делает внешняя группа, здесь только поворот. */
+.d42-arm-a { animation: d42ArmA 3600ms cubic-bezier(0.3, 0, 0.25, 1) 800ms 1 both; transform-origin: 0 0; }
+@keyframes d42ArmA {
+  from { transform: rotate(-62deg); }
+  to { transform: rotate(-26deg); }
+}
+.d42-arm-b { animation: d42ArmB 3600ms cubic-bezier(0.3, 0, 0.25, 1) 800ms 1 both; transform-origin: 0 0; }
+@keyframes d42ArmB {
+  from { transform: rotate(58deg); }
+  to { transform: rotate(24deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d42-arm-a { animation: none; transform: rotate(-26deg); }
+  .d42-arm-b { animation: none; transform: rotate(24deg); }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

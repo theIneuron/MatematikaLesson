@@ -756,20 +756,24 @@ const HookScene = () => (
     {/* Таблица результатов на доске */}
     <g>
       <rect x="128" y="18" width="248" height="104" rx="5" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2.4"/>
+      {/* Столбики в ЧЕСТНОМ масштабе: шесть единиц на книгу. Раньше двадцать
+          восемь книг рисовались столбиком в 120 единиц, то есть в 3,3 раза
+          длиннее четвёрки вместо семи — диаграмма врала ровно про то, о чём
+          урок. Теперь 28 это 168 единиц, и перекос видно глазом. */}
       {[2, 3, 3, 4, 28].map((v, i) => (
         <g key={i}>
-          <rect x="138" y={26 + i * 18} width="90" height="14" rx="3" fill="#F4F1EA"/>
-          {[0, 1, 2].map((k) => (
-            <rect key={k} x={144 + k * 26} y={31 + i * 18} width="20" height="3" rx="1.5" fill="#C3B49A"/>
+          <rect x="136" y={26 + i * 18} width="58" height="14" rx="3" fill="#F4F1EA"/>
+          {[0, 1].map((k) => (
+            <rect key={k} x={141 + k * 26} y={31 + i * 18} width="20" height="3" rx="1.5" fill="#C3B49A"/>
           ))}
-          <rect x="236" y={26 + i * 18} width={v === 28 ? 120 : v * 9} height="14" rx="3"
+          <rect x="200" y={26 + i * 18} width={v * 6} height="14" rx="3"
             fill={v === 28 ? '#D9603F' : '#7ECBE6'} opacity={v === 28 ? 1 : 0.85}/>
-          <text x={v === 28 ? 352 : 240 + v * 9} y={37 + i * 18} textAnchor={v === 28 ? 'end' : 'start'}
+          <text x={v === 28 ? 362 : 204 + v * 6} y={37 + i * 18} textAnchor={v === 28 ? 'end' : 'start'}
             fill={v === 28 ? '#FFFDF7' : '#4F9EBB'}
             fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">{v}</text>
         </g>
       ))}
-      <rect className="d45-mark" x="234" y={26 + 4 * 18 - 2} width="124" height="18" rx="4"
+      <rect className="d45-mark" x="197" y={26 + 4 * 18 - 2} width="174" height="18" rx="4"
         fill="none" stroke="#8A6A22" strokeWidth="2"/>
     </g>
 
@@ -780,31 +784,45 @@ const HookScene = () => (
 );
 
 // Итог: три числа об одном наборе.
+// ФИНАЛ — тот же читательский уголок и та же таблица. Ответ виден на ней:
+// медиана стоит там, где живёт обычный ученик, а среднее утащено вправо одним
+// большим значением. Спор закрывается картинкой, а не строкой.
 const FinalScene = () => {
   const lang = useLang();
-  const cells = [
-    { v: '3', l: tri(lang, 'мода', 'moda', 'mode'), tone: '#1F7A4D', bg: '#E3F0E8' },
-    { v: '3', l: tri(lang, 'медиана', 'mediana', 'median'), tone: '#019ACB', bg: '#E7F5FA' },
-    { v: '8', l: tri(lang, 'среднее', "o'rtacha", 'mean'), tone: '#D9603F', bg: '#FFF1EC' },
-    { v: '26', l: tri(lang, 'размах', 'kenglik', 'range'), tone: '#8A6A22', bg: '#FBF3D6' },
-  ];
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      {cells.map((c, i) => (
-        <g key={i} transform={`translate(${14 + i * 94}, 16)`}>
-          <rect x="0" y="0" width="82" height="44" rx="8" fill={c.bg} stroke={c.tone} strokeWidth="2"/>
-          <text x="41" y="30" textAnchor="middle" fill={c.tone}
-            fontFamily="'JetBrains Mono', monospace" fontSize="19" fontWeight="700">{c.v}</text>
-          <text x="41" y="60" textAnchor="middle" fill="#8A8883"
-            fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">{c.l}</text>
+      <rect x="0" y="74" width="400" height="18" fill="#D2A96F"/>
+
+      <rect x="18" y="6" width="236" height="66" rx="4" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2"/>
+      {[2, 3, 3, 4, 28].map((v, i) => (
+        <g key={i}>
+          <rect x="26" y={12 + i * 11} width="14" height="8" rx="2" fill="#F4F1EA"/>
+          <rect x="44" y={12 + i * 11} width={v * 6} height="8" rx="2"
+            fill={v === 28 ? '#D9603F' : '#7ECBE6'} opacity={v === 28 ? 1 : 0.85}/>
         </g>
       ))}
-      <text x="200" y="86" textAnchor="middle" fill="#8A8883"
+      {/* медиана: там, где обычный ученик */}
+      <path d="M62 8 v62" stroke="#1F7A4D" strokeWidth="2" strokeDasharray="5 4"/>
+      <text x="62" y="84" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">3</text>
+      {/* среднее: утащено одним большим значением */}
+      <path d="M92 8 v62" stroke="#D9603F" strokeWidth="2" strokeDasharray="5 4"/>
+      <text x="92" y="84" textAnchor="middle" fill="#D9603F"
+        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">8</text>
+
+      <Person x={286} ground={74} head={9} shirt="#8FBF7F" hair="#5A4636"/>
+
+      <text x="196" y="84" textAnchor="middle" fill="#1F7A4D"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
-        {tri(lang, 'один набор, четыре разных ответа',
-          "bitta to'plam, to'rt xil javob",
-          'one set, four different answers')}
+        {tri(lang, 'медиана', 'mediana', 'median')}
+      </text>
+      <rect x="316" y="20" width="72" height="28" rx="8" fill="#E3F0E8" stroke="#1F7A4D" strokeWidth="2"/>
+      <text x="352" y="39" textAnchor="middle" fill="#1F7A4D"
+        fontFamily="'JetBrains Mono', monospace" fontSize="15" fontWeight="700">3</text>
+      <text x="352" y="64" textAnchor="middle" fill="#8A8883"
+        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">
+        {tri(lang, 'обычный ученик', "oddiy o'quvchi", 'a typical pupil')}
       </text>
     </svg>
   );
@@ -1220,9 +1238,11 @@ const LESSON_STYLES = `
 .d45-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: рамка на выделяющейся строке мигает */
-.d45-mark { animation: d45Mark 2600ms ease-in-out infinite; }
-@keyframes d45Mark { 0%, 100% { opacity: 0.3; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .d45-mark { animation: none; } }
+/* Рамка вокруг выпадающего значения появляется ОДИН раз и остаётся: раньше она
+   мигала без конца и тянула взгляд сильнее самой таблицы. */
+.d45-mark { opacity: 0; animation: d45Mark 1400ms ease-out 1200ms 1 forwards; }
+@keyframes d45Mark { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .d45-mark { animation: none; opacity: 1; } }
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;

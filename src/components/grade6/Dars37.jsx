@@ -753,6 +753,16 @@ const CONTENT = {
 // ============================================================
 // СЦЕНЫ УРОКА: кружок керамики, гончарный круг.
 // ============================================================
+// СЦЕНА ХУКА — гончарная мастерская. Стандарт сцены (методист 2026-08-19):
+//   1. предметы соотносятся между собой по-настоящему: тарелка на верстаке,
+//      тарелка на круге и тарелки на полке одного размера — 24 см, это 52
+//      единицы кадра; головка круга чуть шире тарелки, как и бывает;
+//   2. фигуры детей целиком — единственная принятая условность масштаба;
+//   3. движение: главное происходит один раз — круг раскручивается и сам
+//      останавливается, как настоящий гончарный круг с выбегом. Дальше живёт
+//      только лампа над ним, качается еле заметно.
+// Спор виден предметами: у Фарруха тарелка закрашена целиком, у Нилуфар
+// покрашен только ободок. Кто прав, сцена НЕ говорит — это вопрос экрана.
 const HookScene = () => (
   <svg className="hk-bg" viewBox="0 0 400 154" aria-hidden="true">
     <defs>
@@ -762,61 +772,101 @@ const HookScene = () => (
     </defs>
     <rect x="0" y="0" width="400" height="154" fill="url(#d37wall)"/>
 
-    {/* Полка с готовой посудой */}
-    <g opacity="0.9">
-      <rect x="12" y="52" width="92" height="5" rx="2.5" fill="#C9A472"/>
-      <circle cx="30" cy="42" r="10" fill="#D9603F" stroke="#B24A2C" strokeWidth="1.6"/>
-      <circle cx="58" cy="42" r="10" fill="#7ECBE6" stroke="#4F9EBB" strokeWidth="1.6"/>
-      <circle cx="86" cy="42" r="10" fill="#8FBF7F" stroke="#6FA463" strokeWidth="1.6"/>
+    {/* Полка с готовой посудой: тарелки стоят на ребре, как их и ставят */}
+    <g opacity="0.92">
+      <rect x="8" y="44" width="92" height="5" rx="2.5" fill="#C9A472"/>
+      <circle cx="34" cy="26" r="18" fill="#E4D9C6" stroke="#C9A472" strokeWidth="2"/>
+      <circle cx="76" cy="26" r="18" fill="#F4EEDF" stroke="#D9603F" strokeWidth="3.5"/>
     </g>
 
-    {/* Гончарный круг: тарелка вращается */}
+    {/* Лампа над кругом: единственная фоновая жизнь, качается медленно */}
+    <g className="d37-lamp">
+      <path d="M0 0 v16" stroke="#8E8578" strokeWidth="1.6"/>
+      <path d="M-13 16 h26 l-6 10 h-14 z" fill="#C9A472" stroke="#8E8578" strokeWidth="1.4"/>
+    </g>
+
+    <rect x="0" y="124" width="400" height="30" fill="#D2A96F"/>
+
+    {/* Дети стоят ЗА верстаком: ноги закрывает столешница, как в жизни */}
+    <Person x={70} ground={104} head={12} shirt="#7ECBE6" hair="#3E3128"/>
+    <Person x={130} ground={104} head={12} shirt="#8FBF7F" hair="#5A4636"/>
+
+    {/* Гончарный круг с тарелкой в работе */}
     <g>
-      <rect x="176" y="104" width="48" height="30" rx="4" fill="#7B7367"/>
-      <rect x="164" y="98" width="72" height="8" rx="4" fill="#8E8578"/>
-      <g className="d37-spin">
-        <ellipse cx="0" cy="0" rx="46" ry="15" fill="#E4D9C6" stroke="#C9A472" strokeWidth="2"/>
-        <ellipse cx="0" cy="-2" rx="34" ry="10" fill="#F4EEDF"/>
-        <path d="M-46 0 a46 15 0 0 0 92 0" fill="none" stroke="#D9603F" strokeWidth="3"/>
+      <rect x="232" y="98" width="40" height="26" rx="3" fill="#7B7367"/>
+      <rect x="222" y="94" width="60" height="7" rx="3.5" fill="#8E8578"/>
+      <ellipse cx="252" cy="126" rx="34" ry="4" fill="rgba(90, 62, 34, 0.16)"/>
+      {/* Плоский диск, видимый под углом, при вращении силуэта НЕ меняет:
+          крутится рисунок на нём, а не сама тарелка. Поэтому тарелка стоит, а
+          по ней ходит мазок — орбита сплюснута тем же множителем, что и сама
+          тарелка (8.5 на 26), так что мазок идёт точно по её краю. */}
+      <ellipse cx="252" cy="91" rx="26" ry="8.5" fill="#E4D9C6" stroke="#C9A472" strokeWidth="2"/>
+      <ellipse cx="252" cy="89.5" rx="18" ry="5.5" fill="#F4EEDF"/>
+      <g transform="translate(252, 91) scale(1, 0.327)">
+        <g className="d37-spin">
+          <circle cx="21" cy="0" r="3.4" fill="#D9603F"/>
+        </g>
       </g>
     </g>
 
-    {/* Две тарелки на столе: закрашены по-разному */}
+    {/* Верстак с двумя тарелками */}
     <g>
-      <circle cx="86" cy="112" r="26" fill="#D9603F" stroke="#B24A2C" strokeWidth="2"/>
-      <text x="86" y="150" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">Farrux</text>
+      <rect x="24" y="100" width="152" height="8" rx="2" fill="#C9A472"/>
+      <rect x="24" y="108" width="152" height="6" fill="#B08A57"/>
+      <rect x="32" y="114" width="10" height="10" fill="#B08A57"/>
+      <rect x="158" y="114" width="10" height="10" fill="#B08A57"/>
     </g>
-    <g>
-      <circle cx="330" cy="112" r="26" fill="#F4EEDF" stroke="#D9603F" strokeWidth="5"/>
-      <text x="330" y="150" textAnchor="middle" fill="#8A8883"
-        fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">Nilufar</text>
-    </g>
+    <ellipse cx="70" cy="96" rx="26" ry="9" fill="#D9603F" stroke="#B24A2C" strokeWidth="2"/>
+    <ellipse cx="130" cy="96" rx="26" ry="9" fill="#F4EEDF" stroke="#D9603F" strokeWidth="5"/>
 
-    {/* Мастер за кругом */}
-    <Person x={266} ground={104} head={12} shirt="#8FBF7F" hair="#5A4636"/>
-    <Person x={140} ground={104} head={12} shirt="#7ECBE6" hair="#3E3128"/>
+    <text x="70" y="138" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">Farrux</text>
+    <text x="130" y="138" textAnchor="middle" fill="#6B5A3E"
+      fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">Nilufar</text>
   </svg>
 );
 
-// Итог: линия и заливка рядом.
+// ФИНАЛ — та же мастерская, тот же верстак, те же две тарелки. Изменилось одно:
+// у тарелки Нилуфар стоит галочка, и обе тарелки подписаны своими словами.
+// Вопрос хука «кто выполнил задание» получает ответ предметом, а не строкой.
 const FinalScene = () => {
   const lang = useLang();
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
-      <circle cx="112" cy="42" r="28" fill="none" stroke="#019ACB" strokeWidth="4"/>
-      <text x="112" y="84" textAnchor="middle" fill="#019ACB"
+      <rect x="0" y="74" width="400" height="18" fill="#D2A96F"/>
+
+      {/* гончарный круг в глубине: место то же */}
+      <g opacity="0.85">
+        <rect x="338" y="52" width="30" height="22" rx="3" fill="#7B7367"/>
+        <rect x="330" y="48" width="46" height="6" rx="3" fill="#8E8578"/>
+        <ellipse cx="353" cy="46" rx="21" ry="7" fill="#E4D9C6" stroke="#C9A472" strokeWidth="1.6"/>
+      </g>
+
+      <Person x={288} ground={74} head={9} shirt="#8FBF7F" hair="#5A4636"/>
+
+      {/* верстак с теми же тарелками */}
+      <g>
+        <rect x="26" y="56" width="216" height="7" rx="2" fill="#C9A472"/>
+        <rect x="26" y="63" width="216" height="5" fill="#B08A57"/>
+        <rect x="34" y="68" width="9" height="6" fill="#B08A57"/>
+        <rect x="225" y="68" width="9" height="6" fill="#B08A57"/>
+      </g>
+      <ellipse cx="86" cy="53" rx="24" ry="8" fill="#F4EEDF" stroke="#D9603F" strokeWidth="5"/>
+      <ellipse cx="182" cy="53" rx="24" ry="8" fill="#D9603F" stroke="#B24A2C" strokeWidth="2"/>
+
+      {/* задание выполнила Нилуфар: покрашена именно линия */}
+      <path d="M74 30 l7 8 l14 -17" fill="none" stroke="#1F7A4D" strokeWidth="4"
+        strokeLinecap="round" strokeLinejoin="round"/>
+
+      <text x="86" y="86" textAnchor="middle" fill="#1F7A4D"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'окружность', 'aylana', 'circle')}
+        {tri(lang, 'окружность — линия', 'aylana — chiziq', 'circle is a line')}
       </text>
-      <circle cx="288" cy="42" r="28" fill="#A9CFBA" stroke="#1F7A4D" strokeWidth="4"/>
-      <text x="288" y="84" textAnchor="middle" fill="#1F7A4D"
+      <text x="182" y="86" textAnchor="middle" fill="#8A8883"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
-        {tri(lang, 'круг', 'doira', 'disc')}
+        {tri(lang, 'круг — фигура', 'doira — shakl', 'disc is a shape')}
       </text>
-      <text x="200" y="46" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="15" fontWeight="700">+</text>
     </svg>
   );
 };
@@ -1261,9 +1311,25 @@ const LESSON_STYLES = `
 .d37-btn-go:hover:not(:disabled) { background: #FFE8E1; }
 
 /* Движение сцены: гончарный круг вращается */
-.d37-spin { animation: d37Spin 5200ms linear infinite; transform-origin: 200px 96px; }
-@keyframes d37Spin { from { transform: translate(200px, 96px) rotate(0deg); } to { transform: translate(200px, 96px) rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .d37-spin { animation: none; transform: translate(200px, 96px); } }
+/* Гончарный круг: одно движение за проход. Раскручивается и сам замедляется до
+   остановки — у настоящего круга есть выбег. Дальше сцена живёт только лампой. */
+/* transform-origin здесь ОБЯЗАН быть нулевым: keyframes уже переносят группу
+   на её место, а origin в пикселях сдвинул бы точку вращения второй раз —
+   предмет при повороте улетает от своего места (проверено 2026-08-19). */
+.d37-spin { animation: d37Spin 5200ms cubic-bezier(0.12, 0.62, 0.18, 1) 500ms 1 both; transform-origin: 0 0; }
+@keyframes d37Spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(1080deg); }
+}
+.d37-lamp { animation: d37Lamp 7400ms ease-in-out infinite; transform-origin: 0 0; }
+@keyframes d37Lamp {
+  0%, 100% { transform: translate(252px, 8px) rotate(-1.6deg); }
+  50% { transform: translate(252px, 8px) rotate(1.6deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .d37-spin { animation: none; }
+  .d37-lamp { animation: none; transform: translate(252px, 8px); }
+}
 `;
 
 const STYLES = BASE_STYLES + LESSON_STYLES;
