@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'The order of factors does not matter, but the unit is always cubic: we count cubes, so the unit is cubic.',
     },
     play_ask: { ru: 'Коробка 7 на 2, высота 3. Объём?', uz: 'Quti 7 ga 2, balandligi 3. Hajmi?', en: 'A box 7 by 2, height 3. Volume?' },
-    play_opts: ['42 см³', '12 см³', '14 см³'],
+    play_opts: [
+          { ru: '42 см³', uz: '42 sm³', en: '42 cm³' },
+          { ru: '12 см³', uz: '12 sm³', en: '12 cm³' },
+          { ru: '14 см³', uz: '14 sm³', en: '14 cm³' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 7 · 2 = 14 в слое, три слоя дают 42 см³.',
@@ -360,7 +364,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Коробка 5 на 3, высота 4. Объём?', uz: 'Quti 5 ga 3, balandligi 4. Hajmi?', en: 'A box 5 by 3, height 4. Volume?' },
-        opts: ['60 см³', '12 см³', '15 см³'],
+        opts: [
+          { ru: '60 см³', uz: '60 sm³', en: '60 cm³' },
+          { ru: '12 см³', uz: '12 sm³', en: '12 cm³' },
+          { ru: '15 см³', uz: '15 sm³', en: '15 cm³' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 5 · 3 · 4 = 60 см³.', uz: "To'g'ri. 5 · 3 · 4 = 60 sm³.", en: 'Right. 5 · 3 · 4 = 60 cm³.' },
         wrong: [
@@ -371,7 +379,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Куб со стороной 3 см. Объём?', uz: 'Tomoni 3 sm kub. Hajmi?', en: 'A cube of side 3 cm. Volume?' },
-        opts: ['27 см³', '9 см³', '12 см³'],
+        opts: [
+          { ru: '27 см³', uz: '27 sm³', en: '27 cm³' },
+          { ru: '9 см³', uz: '9 sm³', en: '9 cm³' },
+          { ru: '12 см³', uz: '12 sm³', en: '12 cm³' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3 · 3 · 3 = 27 см³.', uz: "To'g'ri. 3 · 3 · 3 = 27 sm³.", en: 'Right. 3 · 3 · 3 = 27 cm³.' },
         wrong: [
@@ -382,7 +394,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Коробка 10 на 10, высота 10. Объём?', uz: 'Quti 10 ga 10, balandligi 10. Hajmi?', en: 'A box 10 by 10, height 10. Volume?' },
-        opts: ['1000 см³', '100 см³', '30 см³'],
+        opts: [
+          { ru: '1000 см³', uz: '1000 sm³', en: '1000 cm³' },
+          { ru: '100 см³', uz: '100 sm³', en: '100 cm³' },
+          { ru: '30 см³', uz: '30 sm³', en: '30 cm³' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Это кубический дециметр, то есть литр.', uz: "To'g'ri. Bu kub detsimetr, ya'ni litr.", en: 'Right. That is a cubic decimetre, a litre.' },
         wrong: [
@@ -420,7 +436,11 @@ const CONTENT = {
       },
       {
         q: { ru: '5000 см³ — сколько это литров?', uz: '5000 sm³ necha litr?', en: '5000 cm³ is how many litres?' },
-        opts: ['5 л', '50 л', '500 л'],
+        opts: [
+          { ru: '5 л', uz: '5 l', en: '5 L' },
+          { ru: '50 л', uz: '50 l', en: '50 L' },
+          { ru: '500 л', uz: '500 l', en: '500 L' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 5000 : 1000 = 5 литров.', uz: "To'g'ri. 5000 : 1000 = 5 litr.", en: 'Right. 5000 : 1000 = 5 litres.' },
         wrong: [
@@ -431,7 +451,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Бак 30 на 20 см, высота 50 см. Сколько литров?', uz: 'Bak 30 ga 20 sm, balandligi 50 sm. Necha litr?', en: 'A tank 30 by 20 cm, 50 tall. Litres?' },
-        opts: ['30 л', '30 000 л', '300 л'],
+        opts: [
+          { ru: '30 л', uz: '30 l', en: '30 L' },
+          { ru: '30 000 л', uz: '30 000 l', en: '30,000 L' },
+          { ru: '300 л', uz: '300 l', en: '300 L' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 30 000 см³ это 30 литров.', uz: "To'g'ri. 30 000 sm³ bu 30 litr.", en: 'Right. 30 000 cm³ is 30 litres.' },
         wrong: [
@@ -554,7 +578,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Сколько литров войдёт в аквариум?', uz: "Akvariumga necha litr sig'adi?", en: 'How many litres fit in the tank?' },
-        opts: ['20 л', '20 000 л', '2 л'],
+        opts: [
+          { ru: '20 л', uz: '20 l', en: '20 L' },
+          { ru: '20 000 л', uz: '20 000 l', en: '20,000 L' },
+          { ru: '2 л', uz: '2 l', en: '2 L' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 20 000 см³ это 20 литров.', uz: "To'g'ri. 20 000 sm³ bu 20 litr.", en: 'Right. 20 000 cm³ is 20 litres.' },
         wrong: [
@@ -598,7 +626,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Коробка 4 на 5, высота 6. Объём?', uz: 'Quti 4 ga 5, balandligi 6. Hajmi?', en: 'A box 4 by 5, height 6. Volume?' },
-        opts: ['15 см³', '20 см³', '120 см³', '30 см³'],
+        opts_i18n: [
+          { ru: '15 см³', uz: '15 sm³', en: '15 cm³' },
+          { ru: '20 см³', uz: '20 sm³', en: '20 cm³' },
+          { ru: '120 см³', uz: '120 sm³', en: '120 cm³' },
+          { ru: '30 см³', uz: '30 sm³', en: '30 cm³' },
+        ],
         wrong: [
           { ru: 'Это сумма измерений.', uz: "Bu o'lchovlar yig'indisi.", en: 'That is a sum of measurements.' },
           { ru: 'Это только один слой.', uz: 'Bu faqat bitta qavat.', en: 'That is one layer only.' },
@@ -610,7 +643,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: '7000 см³ — сколько это литров?', uz: '7000 sm³ necha litr?', en: '7000 cm³ is how many litres?' },
-        opts: ['70 л', '7 л', '700 л', '7000 л'],
+        opts_i18n: [
+          { ru: '70 л', uz: '70 l', en: '70 L' },
+          { ru: '7 л', uz: '7 l', en: '7 L' },
+          { ru: '700 л', uz: '700 l', en: '700 L' },
+          { ru: '7000 л', uz: '7000 l', en: '7000 L' },
+        ],
         wrong: [
           { ru: 'Делить нужно на 1000, а не на 100.', uz: "1000 ga bo'lish kerak, 100 ga emas.", en: 'Divide by 1000, not 100.' },
           null,
@@ -639,7 +677,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'Аквариум 40 на 20 на 25 см. Сколько литров?', uz: 'Akvarium 40 ga 20 ga 25 sm. Necha litr?', en: 'A tank 40 by 20 by 25 cm. Litres?' },
-        opts: ['20 л', '20 000 л', '200 л', '2000 л'],
+        opts_i18n: [
+          { ru: '20 л', uz: '20 l', en: '20 L' },
+          { ru: '20 000 л', uz: '20 000 l', en: '20,000 L' },
+          { ru: '200 л', uz: '200 l', en: '200 L' },
+          { ru: '2000 л', uz: '2000 l', en: '2000 L' },
+        ],
         wrong: [
           null,
           { ru: 'Это кубические сантиметры, а не литры.', uz: 'Bu kub santimetr, litr emas.', en: 'Those are cubic centimetres, not litres.' },
@@ -1131,7 +1174,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1166,10 +1209,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

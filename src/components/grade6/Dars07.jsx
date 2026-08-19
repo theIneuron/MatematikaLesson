@@ -543,7 +543,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Какую часть пиццы взял Азиз?', uz: 'Aziz pitsaning qaysi qismini oldi?', en: 'What part of the pizza did Aziz take?' },
-        opts: ['1/4', '1/3', '3/12 и 1/4 — разные'],
+        opts: [
+          '1/4',
+          '1/3',
+          { ru: '3/12 и 1/4 — разные', uz: '3/12 va 1/4 — har xil', en: '3/12 and 1/4 are different' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3/12 сокращается на 3: получается 1/4.', uz: "To'g'ri. 3/12 ni 3 ga qisqartiramiz: 1/4 chiqadi.", en: 'Right. 3/12 reduces by 3 to 1/4.' },
         wrong: [

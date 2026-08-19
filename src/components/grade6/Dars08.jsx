@@ -475,9 +475,9 @@ const CONTENT = {
       { label: '9/16', bin: 'b' },
     ],
     hint: {
-      ru: 'Проверь признаки: делятся ли оба числа на 2, на 3, на 5.',
-      uz: "Alomatlarni tekshiring: ikkala son 2 ga, 3 ga, 5 ga bo'linadimi.",
-      en: 'Check the signs: do both numbers divide by 2, by 3, by 5.',
+      ru: 'Проверь признаки: делятся ли оба числа на 2, на 3, на 5?',
+      uz: "Alomatlarni tekshiring: ikkala son 2 ga, 3 ga, 5 ga bo'linadimi?",
+      en: 'Check the signs: do both numbers divide by 2, by 3, by 5?',
     },
     correct_text: {
       ru: 'Верно. 9/12 сокращается на 3, 14/35 на 7, 22/33 на 11. А у 5/8, 7/10 и 9/16 общих делителей нет.',
@@ -549,7 +549,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Какая часть класса сдала работу?', uz: 'Sinfning qaysi qismi ish topshirdi?', en: 'What part of the class handed in the work?' },
-        opts: ['3/4', '2/3', '27/36 сократить нельзя'],
+        opts: [
+          '3/4',
+          '2/3',
+          { ru: '27/36 сократить нельзя', uz: '27/36 qisqarmaydi', en: '27/36 cannot be reduced' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. НОД(27, 36) = 9, получается 3/4.', uz: "To'g'ri. EKUB(27, 36) = 9, 3/4 chiqadi.", en: 'Right. GCD(27, 36) = 9, giving 3/4.' },
         wrong: [
@@ -560,7 +564,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Какая часть класса ещё не сдала?', uz: 'Sinfning qaysi qismi hali topshirmadi?', en: 'What part of the class has not handed in yet?' },
-        opts: ['1/4', '1/3', '9/36 сократить нельзя'],
+        opts: [
+          '1/4',
+          '1/3',
+          { ru: '9/36 сократить нельзя', uz: '9/36 qisqarmaydi', en: '9/36 cannot be reduced' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Не сдали 9 из 36, а 9/36 сокращается на 9: получается 1/4.', uz: "To'g'ri. 36 dan 9 tasi topshirmadi, 9/36 esa 9 ga qisqaradi: 1/4 chiqadi.", en: 'Right. Nine of 36 have not, and 9/36 reduces by 9 to 1/4.' },
         wrong: [
@@ -639,7 +647,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'В корзине 16 яблок, 12 из них красные. Какая часть красная?', uz: 'Savatda 16 olma bor, 12 tasi qizil. Qaysi qismi qizil?', en: 'A basket has 16 apples and 12 are red. What part is red?' },
-        opts: ['3/4', '2/3', '4/5', '12/16 сократить нельзя'],
+        opts_i18n: [
+          { ru: '3/4', uz: '3/4', en: '3/4' },
+          { ru: '2/3', uz: '2/3', en: '2/3' },
+          { ru: '4/5', uz: '4/5', en: '4/5' },
+          { ru: '12/16 сократить нельзя', uz: '12/16 qisqarmaydi', en: '12/16 cannot be reduced' },
+        ],
         wrong: [
           null,
           { ru: '2/3 от 16 не даёт целого числа яблок.', uz: "16 ning 2/3 qismi butun olma bermaydi.", en: 'Two thirds of 16 is not a whole number of apples.' },

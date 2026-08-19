@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'The diameter is given directly, so use the formula with the diameter. The answer is in metres: a length.',
     },
     play_ask: { ru: 'Та же клумба. Сколько травы нужно, если r = 3 м?', uz: "Xuddi shu gulzor. r = 3 m bo'lsa, qancha o't kerak?", en: 'The same bed. How much grass if r = 3 m?' },
-    play_opts: ['28,26 м²', '18,84 м²', '9 м²'],
+    play_opts: [
+          { ru: '28,26 м²', uz: '28,26 m²', en: '28.26 m²' },
+          { ru: '18,84 м²', uz: '18,84 m²', en: '18.84 m²' },
+          { ru: '9 м²', uz: '9 m²', en: '9 m²' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 3 · 3 = 9, потом 3,14 · 9 = 28,26 м².',
@@ -421,7 +425,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Диаметр клумбы 10 м. Длина бордюра?', uz: 'Gulzor diametri 10 m. Bordyur uzunligi?', en: 'A bed 10 m across. Border length?' },
-        opts: ['31,4 м', '78,5 м', '15,7 м'],
+        opts: [
+          { ru: '31,4 м', uz: '31,4 m', en: '31.4 m' },
+          { ru: '78,5 м', uz: '78,5 m', en: '78.5 m' },
+          { ru: '15,7 м', uz: '15,7 m', en: '15.7 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3,14 · 10 = 31,4 м.', uz: "To'g'ri. 3,14 · 10 = 31,4 m.", en: 'Right. 3.14 · 10 = 31.4 m.' },
         wrong: [
@@ -443,7 +451,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Бак 20 на 20 на 20 см. Сколько литров?', uz: 'Bak 20 ga 20 ga 20 sm. Necha litr?', en: 'A 20 by 20 by 20 cm tank. Litres?' },
-        opts: ['8 л', '8000 л', '60 л'],
+        opts: [
+          { ru: '8 л', uz: '8 l', en: '8 L' },
+          { ru: '8000 л', uz: '8000 l', en: '8000 L' },
+          { ru: '60 л', uz: '60 l', en: '60 L' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 8000 см³, то есть 8 литров.', uz: "To'g'ri. 8000 sm³, ya'ni 8 litr.", en: 'Right. 8000 cm³, that is 8 litres.' },
         wrong: [
@@ -562,7 +574,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Сколько метров бордюра нужно для клумбы?', uz: 'Gulzorga necha metr bordyur kerak?', en: 'How many metres of border?' },
-        opts: ['18,84 м', '28,26 м', '9,42 м'],
+        opts: [
+          { ru: '18,84 м', uz: '18,84 m', en: '18.84 m' },
+          { ru: '28,26 м', uz: '28,26 m', en: '28.26 m' },
+          { ru: '9,42 м', uz: '9,42 m', en: '9.42 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3,14 · 6 = 18,84 м.', uz: "To'g'ri. 3,14 · 6 = 18,84 m.", en: 'Right. 3.14 · 6 = 18.84 m.' },
         wrong: [
@@ -573,7 +589,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Сколько ткани на флажок с основанием 4 и высотой 3?', uz: 'Asosi 4, balandligi 3 flajokka qancha mato?', en: 'Cloth for a flag, base 4, height 3?' },
-        opts: ['6 дм²', '12 дм²', '12 дм'],
+        opts: [
+          { ru: '6 дм²', uz: '6 dm²', en: '6 dm²' },
+          { ru: '12 дм²', uz: '12 dm²', en: '12 dm²' },
+          { ru: '12 дм', uz: '12 dm', en: '12 dm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 4 · 3 : 2 = 6 дм².', uz: "To'g'ri. 4 · 3 : 2 = 6 dm².", en: 'Right. 4 · 3 : 2 = 6 dm².' },
         wrong: [
@@ -606,7 +626,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Что нужно для травы внутри круглой клумбы?', uz: "Dumaloq gulzor ichidagi o't uchun nima kerak?", en: 'What is needed for grass inside a round bed?' },
-        opts: ['C = πd', 'V = abc', 'S = πr²', 'P = сумма сторон'],
+        opts_i18n: [
+          { ru: 'C = πd', uz: 'C = πd', en: 'C = πd' },
+          { ru: 'V = a · b · c', uz: 'V = a · b · c', en: 'V = a · b · c' },
+          { ru: 'S = πr²', uz: 'S = πr²', en: 'S = πr²' },
+          { ru: 'P = сумма сторон', uz: "P = tomonlar yig'indisi", en: 'P = sum of the sides' },
+        ],
         wrong: [
           { ru: 'Это длина по краю.', uz: 'Bu chetdan uzunlik.', en: 'That is the edge length.' },
           { ru: 'Это объём, он для наполнения.', uz: "Bu hajm, u to'ldirish uchun.", en: 'That is volume, for filling.' },
@@ -618,7 +643,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Сколько осей симметрии у прямоугольника?', uz: "To'g'ri to'rtburchakning nechta simmetriya o'qi bor?", en: 'How many symmetry axes has a rectangle?' },
-        opts: ['4', '2', '1', 'бесконечно много'],
+        opts_i18n: [
+          { ru: '4', uz: '4', en: '4' },
+          { ru: '2', uz: '2', en: '2' },
+          { ru: '1', uz: '1', en: '1' },
+          { ru: 'бесконечно много', uz: "cheksiz ko'p", en: 'infinitely many' },
+        ],
         wrong: [
           { ru: 'Четыре у квадрата.', uz: "To'rtta kvadratda.", en: 'Four belongs to a square.' },
           null,
@@ -630,7 +660,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 3,
         q: { ru: 'Куб 10 на 10 на 10 см. Сколько это литров?', uz: 'Kub 10 ga 10 ga 10 sm. Bu necha litr?', en: 'A 10 by 10 by 10 cm cube. How many litres?' },
-        opts: ['10 л', '100 л', '1000 л', '1 л'],
+        opts_i18n: [
+          { ru: '10 л', uz: '10 l', en: '10 L' },
+          { ru: '100 л', uz: '100 l', en: '100 L' },
+          { ru: '1000 л', uz: '1000 l', en: '1000 L' },
+          { ru: '1 л', uz: '1 l', en: '1 L' },
+        ],
         wrong: [
           { ru: 'Десять это длина ребра.', uz: "O'n bu qirra uzunligi.", en: 'Ten is the edge length.' },
           { ru: 'Сто это площадь грани.', uz: 'Yuz bu yoq yuzasi.', en: 'A hundred is a face area.' },
@@ -1072,7 +1107,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1107,10 +1142,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

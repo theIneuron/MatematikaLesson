@@ -579,7 +579,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Путь от родника до моста на карте 5 см. Сколько это на местности?', uz: "Buloqdan ko'prikkacha xaritada 5 sm. Joyida bu qancha?", en: 'The spring to the bridge is 5 cm on the map. How far on the ground?' },
-        opts: ['15 км', '8 км', '5 км'],
+        opts: [
+          { ru: '15 км', uz: '15 km', en: '15 km' },
+          { ru: '8 км', uz: '8 km', en: '8 km' },
+          { ru: '5 км', uz: '5 km', en: '5 km' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 1 : 3 = 5 : x, x = 15 км.', uz: "To'g'ri. 1 : 3 = 5 : x, x = 15 km.", en: 'Right. 1 : 3 = 5 : x, so x = 15 km.' },
         wrong: [
@@ -641,7 +645,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'На карте 1 : 100 000 отрезок 3 см. Сколько это на местности?', uz: "1 : 100 000 xaritada kesma 3 sm. Joyida bu qancha?", en: 'On a 1 : 100,000 map a segment is 3 cm. How long is it in reality?' },
-        opts: ['3 км', '300 м', '30 км', '100 км'],
+        opts_i18n: [
+          { ru: '3 км', uz: '3 km', en: '3 km' },
+          { ru: '300 м', uz: '300 m', en: '300 m' },
+          { ru: '30 км', uz: '30 km', en: '30 km' },
+          { ru: '100 км', uz: '100 km', en: '100 km' },
+        ],
         wrong: [
           null,
           { ru: '300 метров вышло бы при масштабе 1 : 10 000.', uz: '300 metr 1 : 10 000 masshtabda chiqardi.', en: 'Three hundred metres would come from a 1 : 10,000 scale.' },
@@ -906,7 +915,7 @@ const SolveBody = ({ step }) => {
       <p className="small fade-up delay-1" style={{ margin: 0, color: T.ink3 }}>{t(c.lead)}</p>
       <div className="frame fade-up delay-1 d18-stage">
         <span className="d18-table">
-          <span className="d18-trow"><b>шт</b><i>5</i><i>8</i></span>
+          <span className="d18-trow"><b>{t({ ru: 'шт', uz: 'dona', en: 'pcs' })}</b><i>5</i><i>8</i></span>
           <span className="d18-trow"><b>sum</b><i>12500</i><i className={step >= 2 ? 'ok' : 'q'}>{step >= 2 ? '20000' : '?'}</i></span>
         </span>
         {c.steps.map((s, i) => <Line key={i} node={t(s)} on={step >= i}/>)}

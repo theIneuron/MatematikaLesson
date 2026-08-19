@@ -415,7 +415,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: '2 принтера печатают тираж за 9 часов. За сколько 3 принтера?', uz: "2 printer nashrni 9 soatda bosadi. 3 printer necha soatda?", en: 'Two printers do a run in 9 hours. How long for three?' },
-        opts: ['6 часов', '13,5 часа', '4,5 часа'],
+        opts: [
+          { ru: '6 часов', uz: '6 soat', en: '6 hours' },
+          { ru: '13,5 часа', uz: '13,5 soat', en: '13.5 hours' },
+          { ru: '4,5 часа', uz: '4,5 soat', en: '4.5 hours' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 2 · 9 = 18, значит 3 · x = 18 и x = 6.', uz: "To'g'ri. 2 · 9 = 18, demak 3 · x = 18 va x = 6.", en: 'Right. 2 · 9 = 18, so 3 · x = 18 and x = 6.' },
         wrong: [
@@ -426,7 +430,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Бумаги хватает на 12 дней при 5 листах в день. На сколько дней при 6 листах?', uz: "Qog'oz kuniga 5 varaqdan 12 kunga yetadi. Kuniga 6 varaqdan necha kunga yetadi?", en: 'Paper lasts 12 days at 5 sheets a day. How long at 6?' },
-        opts: ['10 дней', '14 дней', '15 дней'],
+        opts: [
+          { ru: '10 дней', uz: '10 kun', en: '10 days' },
+          { ru: '14 дней', uz: '14 kun', en: '14 days' },
+          { ru: '15 дней', uz: '15 kun', en: '15 days' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Всего 60 листов, при 6 в день это 10 дней.', uz: "To'g'ri. Jami 60 varaq, kuniga 6 tadan bu 10 kun.", en: 'Right. Sixty sheets in total, at six a day that is ten days.' },
         wrong: [
@@ -437,7 +445,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Дорогу проходят за 3 часа со скоростью 60 км/ч. За сколько при 90 км/ч?', uz: "Yo'l 60 km soat tezlikda 3 soatda bosiladi. 90 km soatda necha soatda?", en: 'A road takes 3 hours at 60 km per hour. How long at 90?' },
-        opts: ['2 часа', '4,5 часа', '1,5 часа'],
+        opts: [
+          { ru: '2 часа', uz: '2 soat', en: '2 hours' },
+          { ru: '4,5 часа', uz: '4,5 soat', en: '4.5 hours' },
+          { ru: '1,5 часа', uz: '1,5 soat', en: '1.5 hours' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Путь 180 км, при 90 км в час это 2 часа.', uz: "To'g'ri. Yo'l 180 km, soatiga 90 km bilan bu 2 soat.", en: 'Right. The road is 180 km and at 90 per hour that is two hours.' },
         wrong: [
@@ -604,7 +616,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: '6 маляров красят зал за 4 часа. За сколько 8 маляров?', uz: "6 bo'yoqchi zalni 4 soatda bo'yaydi. 8 bo'yoqchi necha soatda?", en: 'Six painters do a hall in 4 hours. How long for eight?' },
-        opts: ['5,3 часа', '3 часа', '6 часов', '2 часа'],
+        opts_i18n: [
+          { ru: '5,3 часа', uz: '5,3 soat', en: '5.3 hours' },
+          { ru: '3 часа', uz: '3 soat', en: '3 hours' },
+          { ru: '6 часов', uz: '6 soat', en: '6 hours' },
+          { ru: '2 часа', uz: '2 soat', en: '2 hours' },
+        ],
         wrong: [
           { ru: 'Маляров больше, значит времени меньше.', uz: "Bo'yoqchi ko'p, demak vaqt kam.", en: 'More painters mean less time.' },
           null,
@@ -616,7 +633,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Машина тратит 8 л на 100 км. Сколько на 350 км?', uz: "Mashina 100 km ga 8 l sarflaydi. 350 km ga qancha?", en: 'A car uses 8 l per 100 km. How much for 350 km?' },
-        opts: ['24 л', '16 л', '28 л', '35 л'],
+        opts_i18n: [
+          { ru: '24 л', uz: '24 l', en: '24 L' },
+          { ru: '16 л', uz: '16 l', en: '16 L' },
+          { ru: '28 л', uz: '28 l', en: '28 L' },
+          { ru: '35 л', uz: '35 l', en: '35 L' },
+        ],
         wrong: [
           { ru: 'Это на 300 км.', uz: 'Bu 300 km ga.', en: 'That is for 300 km.' },
           { ru: 'Это на 200 км.', uz: 'Bu 200 km ga.', en: 'That is for 200 km.' },

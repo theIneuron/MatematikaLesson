@@ -558,7 +558,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Что покажут весы?', uz: 'Tarozi nechani ko\'rsatadi?', en: 'What do the scales show?' },
-        opts: ['5 кг', '4,25 кг', '0,5 кг'],
+        opts: [
+          { ru: '5 кг', uz: '5 kg', en: '5 kg' },
+          { ru: '4,25 кг', uz: '4,25 kg', en: '4.25 kg' },
+          { ru: '0,5 кг', uz: '0,5 kg', en: '0.5 kg' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 1,25 · 4 = 5.', uz: "To'g'ri. 1,25 · 4 = 5.", en: 'Right. 1.25 · 4 = 5.' },
         wrong: [

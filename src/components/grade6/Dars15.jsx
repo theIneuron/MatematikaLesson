@@ -582,7 +582,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Сколько написать на ценнике, округлив до десятых?', uz: "Narx yorlig'iga o'ndanlargacha yaxlitlab nima yoziladi?", en: 'What goes on the label, rounded to tenths?' },
-        opts: ['3,3 л', '3,4 л', '3 л'],
+        opts: [
+          { ru: '3,3 л', uz: '3,3 l', en: '3.3 L' },
+          { ru: '3,4 л', uz: '3,4 l', en: '3.4 L' },
+          { ru: '3 л', uz: '3 l', en: '3 L' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Следующая цифра 3, она меньше 5, значит 3,3 литра.', uz: "To'g'ri. Keyingi raqam 3, u 5 dan kichik, demak 3,3 litr.", en: 'Right. The next digit is 3, less than 5, so 3.3 litres.' },
         wrong: [

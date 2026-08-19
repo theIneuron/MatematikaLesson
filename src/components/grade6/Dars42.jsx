@@ -409,7 +409,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Стороны 7, 7 и 10 см. Периметр?', uz: 'Tomonlar 7, 7 va 10 sm. Perimetr?', en: 'Sides 7, 7 and 10 cm. Perimeter?' },
-        opts: ['24 см', '17 см', '490 см'],
+        opts: [
+          { ru: '24 см', uz: '24 sm', en: '24 cm' },
+          { ru: '17 см', uz: '17 sm', en: '17 cm' },
+          { ru: '490 см', uz: '490 sm', en: '490 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 7 + 7 + 10 = 24 см.', uz: "To'g'ri. 7 + 7 + 10 = 24 sm.", en: 'Right. 7 + 7 + 10 = 24 cm.' },
         wrong: [
@@ -450,7 +454,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Сколько тупых углов может быть в треугольнике?', uz: "Uchburchakda nechta o'tmas burchak bo'lishi mumkin?", en: 'How many obtuse angles can a triangle have?' },
-        opts: ['один', 'два', 'три'],
+        opts: [
+          { ru: 'один', uz: 'bitta', en: 'one' },
+          { ru: 'два', uz: 'ikkita', en: 'two' },
+          { ru: 'три', uz: 'uchta', en: 'three' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Два тупых дали бы больше 180°.', uz: "To'g'ri. Ikki o'tmas 180° dan ko'p berardi.", en: 'Right. Two obtuse would exceed 180°.' },
         wrong: [
@@ -573,7 +581,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Периметр треугольника из 5, 6 и 9?', uz: '5, 6 va 9 dan uchburchakning perimetri?', en: 'The perimeter of 5, 6 and 9?' },
-        opts: ['20 см', '11 см', '270 см'],
+        opts: [
+          { ru: '20 см', uz: '20 sm', en: '20 cm' },
+          { ru: '11 см', uz: '11 sm', en: '11 cm' },
+          { ru: '270 см', uz: '270 sm', en: '270 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 5 + 6 + 9 = 20 см.', uz: "To'g'ri. 5 + 6 + 9 = 20 sm.", en: 'Right. 5 + 6 + 9 = 20 cm.' },
         wrong: [
@@ -606,7 +618,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Чему равна сумма углов треугольника?', uz: "Uchburchak burchaklari yig'indisi nechaga teng?", en: 'What do the angles of a triangle add to?' },
-        opts: ['90°', '360°', '180°', 'зависит от формы'],
+        opts_i18n: [
+          { ru: '90°', uz: '90°', en: '90°' },
+          { ru: '360°', uz: '360°', en: '360°' },
+          { ru: '180°', uz: '180°', en: '180°' },
+          { ru: 'зависит от формы', uz: "shaklga bog'liq", en: 'depends on the shape' },
+        ],
         wrong: [
           { ru: 'Девяносто это один прямой угол.', uz: "To'qson bu bitta to'g'ri burchak.", en: 'Ninety is one right angle.' },
           { ru: 'Триста шестьдесят это полный оборот.', uz: "Uch yuz oltmish bu to'liq aylanish.", en: 'Three hundred sixty is a full turn.' },

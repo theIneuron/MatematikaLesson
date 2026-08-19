@@ -499,9 +499,9 @@ const CONTENT = {
       { label: '154', bin: 'b' },
     ],
     hint: {
-      ru: 'Сложи цифры и проверь сумму: делится она на 3 или нет.',
-      uz: "Raqamlarni qo'shing va yig'indini tekshiring: u 3 ga bo'linadimi yoki yo'q.",
-      en: 'Add the digits and check the sum: does it divide by 3 or not.',
+      ru: 'Сложи цифры и проверь сумму: делится она на 3 или нет?',
+      uz: "Raqamlarni qo'shing va yig'indini tekshiring: u 3 ga bo'linadimi yoki yo'q?",
+      en: 'Add the digits and check the sum: does it divide by 3 or not?',
     },
     correct_text: {
       ru: 'Верно. Суммы 6, 9 и 9 делятся на 3, а суммы 7, 11 и 10 — нет.',

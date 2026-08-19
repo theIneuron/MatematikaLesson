@@ -481,7 +481,7 @@ const CONTENT = {
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
     title: { ru: 'Есть ли ось симметрии?', uz: "Simmetriya o'qi bormi?", en: 'Does it have an axis?' },
-    lead: { ru: 'Проверяй складыванием: совпало или нет.', uz: "Buklab tekshiring: mos tushdimi yoki yo'q.", en: 'Test by folding: match or no match.' },
+    lead: { ru: 'Проверяй складыванием: совпало или нет?', uz: "Buklab tekshiring: mos tushdimi yoki yo'q?", en: 'Test by folding: match or no match?' },
     bin_a: { ru: 'Ось есть', uz: "O'q bor", en: 'Has an axis' },
     bin_b: { ru: 'Оси нет', uz: "O'q yo'q", en: 'No axis' },
     cards: [
@@ -627,7 +627,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Сколько осей симметрии у прямоугольника?', uz: "To'g'ri to'rtburchakning nechta o'qi bor?", en: 'How many axes has a rectangle?' },
-        opts: ['4', '2', '1', 'бесконечно много'],
+        opts_i18n: [
+          { ru: '4', uz: '4', en: '4' },
+          { ru: '2', uz: '2', en: '2' },
+          { ru: '1', uz: '1', en: '1' },
+          { ru: 'бесконечно много', uz: "cheksiz ko'p", en: 'infinitely many' },
+        ],
         wrong: [
           { ru: 'Четыре у квадрата: там все стороны равны.', uz: "To'rtta kvadratda: unda barcha tomonlar teng.", en: 'Four belongs to a square with equal sides.' },
           null,

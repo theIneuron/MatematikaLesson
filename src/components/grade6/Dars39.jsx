@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'Order matters: first multiply the radius by itself, only then by π.',
     },
     play_ask: { ru: 'Радиус 5 см. Чему равна площадь круга?', uz: 'Radius 5 sm. Doira yuzi nechaga teng?', en: 'Radius 5 cm. What is the area?' },
-    play_opts: ['78,5 см²', '31,4 см²', '15,7 см²'],
+    play_opts: [
+          { ru: '78,5 см²', uz: '78,5 sm²', en: '78.5 cm²' },
+          { ru: '31,4 см²', uz: '31,4 sm²', en: '31.4 cm²' },
+          { ru: '15,7 см²', uz: '15,7 sm²', en: '15.7 cm²' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 5 · 5 = 25, потом 3,14 · 25 = 78,5 см².',
@@ -360,7 +364,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Радиус 3 см. Площадь круга?', uz: 'Radius 3 sm. Doira yuzi?', en: 'Radius 3 cm. Area?' },
-        opts: ['28,26 см²', '18,84 см²', '9,42 см²'],
+        opts: [
+          { ru: '28,26 см²', uz: '28,26 sm²', en: '28.26 cm²' },
+          { ru: '18,84 см²', uz: '18,84 sm²', en: '18.84 cm²' },
+          { ru: '9,42 см²', uz: '9,42 sm²', en: '9.42 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3 · 3 = 9, потом 3,14 · 9 = 28,26.', uz: "To'g'ri. 3 · 3 = 9, keyin 3,14 · 9 = 28,26.", en: 'Right. 3 · 3 = 9, then 3.14 · 9 = 28.26.' },
         wrong: [
@@ -371,7 +379,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Радиус 6 см. Площадь круга?', uz: 'Radius 6 sm. Doira yuzi?', en: 'Radius 6 cm. Area?' },
-        opts: ['113,04 см²', '37,68 см²', '18,84 см²'],
+        opts: [
+          { ru: '113,04 см²', uz: '113,04 sm²', en: '113.04 cm²' },
+          { ru: '37,68 см²', uz: '37,68 sm²', en: '37.68 cm²' },
+          { ru: '18,84 см²', uz: '18,84 sm²', en: '18.84 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 6 · 6 = 36, потом 3,14 · 36 = 113,04.', uz: "To'g'ri. 6 · 6 = 36, keyin 3,14 · 36 = 113,04.", en: 'Right. 6 · 6 = 36, then 3.14 · 36 = 113.04.' },
         wrong: [
@@ -382,7 +394,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Диаметр 8 см. Площадь круга?', uz: 'Diametr 8 sm. Doira yuzi?', en: 'Diameter 8 cm. Area?' },
-        opts: ['50,24 см²', '200,96 см²', '25,12 см²'],
+        opts: [
+          { ru: '50,24 см²', uz: '50,24 sm²', en: '50.24 cm²' },
+          { ru: '200,96 см²', uz: '200,96 sm²', en: '200.96 cm²' },
+          { ru: '25,12 см²', uz: '25,12 sm²', en: '25.12 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Радиус 4, значит 3,14 · 16 = 50,24.', uz: "To'g'ri. Radius 4, demak 3,14 · 16 = 50,24.", en: 'Right. The radius is 4, so 3.14 · 16 = 50.24.' },
         wrong: [
@@ -409,7 +425,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Полукруглая клумба, радиус 10 м. Площадь?', uz: 'Yarim doira gulzor, radiusi 10 m. Yuzi?', en: 'A semicircular bed, radius 10 m. Area?' },
-        opts: ['157 м²', '314 м²', '31,4 м²'],
+        opts: [
+          { ru: '157 м²', uz: '157 m²', en: '157 m²' },
+          { ru: '314 м²', uz: '314 m²', en: '314 m²' },
+          { ru: '31,4 м²', uz: '31,4 m²', en: '31.4 m²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Весь круг 314, половина 157 м².', uz: "To'g'ri. Butun doira 314, yarmi 157 m².", en: 'Right. The full disc is 314, half is 157 m².' },
         wrong: [
@@ -562,7 +582,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Чему равна площадь маленькой лепёшки?', uz: 'Kichik nonning yuzi nechaga teng?', en: 'What is the area of the small one?' },
-        opts: ['314 см²', '62,8 см²', '31,4 см²'],
+        opts: [
+          { ru: '314 см²', uz: '314 sm²', en: '314 cm²' },
+          { ru: '62,8 см²', uz: '62,8 sm²', en: '62.8 cm²' },
+          { ru: '31,4 см²', uz: '31,4 sm²', en: '31.4 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3,14 · 100 = 314 см².', uz: "To'g'ri. 3,14 · 100 = 314 sm².", en: 'Right. 3.14 · 100 = 314 cm².' },
         wrong: [
@@ -573,7 +597,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'На маленькую ушло 20 г кунжута. Сколько на большую?', uz: 'Kichigiga 20 g kunjut ketdi. Kattasiga qancha?', en: '20 g of sesame for the small one. For the big one?' },
-        opts: ['80 г', '40 г', '20 г'],
+        opts: [
+          { ru: '80 г', uz: '80 g', en: '80 g' },
+          { ru: '40 г', uz: '40 g', en: '40 g' },
+          { ru: '20 г', uz: '20 g', en: '20 g' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Площадь вчетверо больше, значит и кунжута вчетверо.', uz: "To'g'ri. Yuza to'rt barobar katta, demak kunjut ham to'rt barobar.", en: 'Right. Four times the area means four times the sesame.' },
         wrong: [
@@ -606,7 +634,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Радиус 2 см. Площадь круга?', uz: 'Radius 2 sm. Doira yuzi?', en: 'Radius 2 cm. Area?' },
-        opts: ['6,28 см²', '3,14 см²', '12,56 см²', '4 см²'],
+        opts_i18n: [
+          { ru: '6,28 см²', uz: '6,28 sm²', en: '6.28 cm²' },
+          { ru: '3,14 см²', uz: '3,14 sm²', en: '3.14 cm²' },
+          { ru: '12,56 см²', uz: '12,56 sm²', en: '12.56 cm²' },
+          { ru: '4 см²', uz: '4 sm²', en: '4 cm²' },
+        ],
         wrong: [
           { ru: 'Это длина окружности, а нужна площадь.', uz: 'Bu aylana uzunligi, yuza kerak esa.', en: 'That is the circumference, not the area.' },
           { ru: 'Так вышло бы при радиусе 1.', uz: "Radius 1 bo'lganda shunday chiqardi.", en: 'That would be a radius of one.' },
@@ -1082,7 +1115,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1117,10 +1150,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

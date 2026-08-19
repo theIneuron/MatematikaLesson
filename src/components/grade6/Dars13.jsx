@@ -556,7 +556,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Какая длина всей дороги?', uz: "Butun yo'l uzunligi qancha?", en: 'How long is the whole route?' },
-        opts: ['1500 м', '240 м', '3000 м'],
+        opts: [
+          { ru: '1500 м', uz: '1500 m', en: '1500 m' },
+          { ru: '240 м', uz: '240 m', en: '240 m' },
+          { ru: '3000 м', uz: '3000 m', en: '3000 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 600 : 2/5 = 600 · 5/2 = 1500 метров.', uz: "To'g'ri. 600 : 2/5 = 600 · 5/2 = 1500 metr.", en: 'Right. 600 ÷ 2/5 = 600 · 5/2 = 1500 metres.' },
         wrong: [
@@ -567,7 +571,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Сколько метров ему осталось?', uz: 'Unga necha metr qoldi?', en: 'How many metres are left?' },
-        opts: ['900 м', '600 м', '1500 м'],
+        opts: [
+          { ru: '900 м', uz: '900 m', en: '900 m' },
+          { ru: '600 м', uz: '600 m', en: '600 m' },
+          { ru: '1500 м', uz: '1500 m', en: '1500 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Осталось 3/5 дороги: 1500 − 600 = 900 метров.', uz: "To'g'ri. Yo'lning 3/5 qismi qoldi: 1500 − 600 = 900 metr.", en: 'Right. Three fifths remain: 1500 − 600 = 900 metres.' },
         wrong: [

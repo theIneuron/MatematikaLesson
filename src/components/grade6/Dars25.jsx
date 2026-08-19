@@ -383,7 +383,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Модуль 0', uz: '0 ning moduli', en: 'The absolute value of 0' },
-        opts: ['0', '1', 'нет ответа'],
+        opts: [
+          '0',
+          '1',
+          { ru: 'нет ответа', uz: "javob yo'q", en: 'no answer' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Ноль стоит в начале отсчёта, расстояние равно нулю.', uz: "To'g'ri. Nol sanoq boshida turadi, masofa nolga teng.", en: 'Right. Zero sits at the origin, so the distance is zero.' },
         wrong: [
@@ -410,7 +414,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Модуль числа равен 6. Какие это числа?', uz: 'Sonning moduli 6 ga teng. Bular qaysi sonlar?', en: 'The absolute value is 6. Which numbers are they?' },
-        opts: ['6 и −6', 'только 6', 'только −6'],
+        opts: [
+          { ru: '6 и −6', uz: '6 va −6', en: '6 and −6' },
+          { ru: 'только 6', uz: 'faqat 6', en: 'only 6' },
+          { ru: 'только −6', uz: 'faqat −6', en: 'only −6' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Обе точки стоят в 6 шагах от нуля.', uz: "To'g'ri. Ikkala nuqta ham noldan 6 qadamda.", en: 'Right. Both points are 6 steps from zero.' },
         wrong: [
@@ -432,7 +440,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Модуль числа равен 0. Какое это число?', uz: 'Sonning moduli 0 ga teng. Bu qaysi son?', en: 'The absolute value is 0. Which number is it?' },
-        opts: ['0', '0 и −0', 'любое'],
+        opts: [
+          '0',
+          { ru: '0 и −0', uz: '0 va −0', en: '0 and −0' },
+          { ru: 'любое', uz: 'istalgan son', en: 'any number' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Только ноль стоит в начале отсчёта.', uz: "To'g'ri. Faqat nol sanoq boshida turadi.", en: 'Right. Only zero sits at the origin.' },
         wrong: [
@@ -566,7 +578,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Какая температура была дальше от нуля?', uz: 'Qaysi harorat noldan uzoqroq edi?', en: 'Which temperature was further from zero?' },
-        opts: ['Утренняя', 'Дневная', 'Одинаково'],
+        opts: [
+          { ru: 'Утренняя', uz: 'Ertalabki', en: 'The morning one' },
+          { ru: 'Дневная', uz: 'Kunduzgi', en: 'The daytime one' },
+          { ru: 'Одинаково', uz: 'Bir xil', en: 'The same' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Модуль −7 равен 7, а модуль 5 равен 5.', uz: "To'g'ri. −7 ning moduli 7, 5 ning moduli 5.", en: 'Right. The absolute value of −7 is 7 and of 5 is 5.' },
         wrong: [
@@ -611,7 +627,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Модуль числа равен 4. Сколько таких чисел?', uz: 'Sonning moduli 4 ga teng. Bunday son nechta?', en: 'The absolute value is 4. How many such numbers?' },
-        opts: ['Одно', 'Два', 'Ни одного', 'Бесконечно много'],
+        opts_i18n: [
+          { ru: 'Одно', uz: 'Bitta', en: 'One' },
+          { ru: 'Два', uz: 'Ikkita', en: 'Two' },
+          { ru: 'Ни одного', uz: "Bittasi ham yo'q", en: 'None' },
+          { ru: 'Бесконечно много', uz: "Cheksiz ko'p", en: 'Infinitely many' },
+        ],
         wrong: [
           { ru: 'Точек на таком расстоянии от нуля две.', uz: 'Noldan shunday masofada ikkita nuqta bor.', en: 'There are two points at that distance from zero.' },
           null,

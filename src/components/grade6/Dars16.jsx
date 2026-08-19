@@ -170,17 +170,17 @@ const CONTENT = {
     },
     audio: {
       ru: [
-        'В задаче на дроби всегда начинают с одного вопроса: что дано, целое или часть.',
+        'В задаче на дроби всегда начинают с одного вопроса: что дано, целое или часть?',
         'Здесь известна вся цена, двенадцать тысяч пятьсот, а скидка это её часть. Значит умножаем: двенадцать тысяч пятьсот умножить на одну пятую две тысячи пятьсот.',
         'Но вопрос был не о скидке, а о том, сколько платить. Вычитаем скидку из цены и получаем десять тысяч. Права была Дилноза.',
       ],
       uz: [
-        "Kasrga oid masalada har doim bitta savoldan boshlanadi: nima berilgan, butunmi yoki qism.",
+        "Kasrga oid masalada har doim bitta savoldan boshlanadi: nima berilgan, butunmi yoki qism?",
         "Bu yerda butun narx ma'lum, o'n ikki ming besh yuz, chegirma esa uning qismi. Demak ko'paytiramiz: o'n ikki ming besh yuz karra beshdan bir ikki ming besh yuz.",
         "Lekin savol chegirma haqida emas, qancha to'lash haqida edi. Chegirmani narxdan ayiramiz va o'n ming chiqadi. Dilnoza haq edi.",
       ],
       en: [
-        'A fraction problem always starts with one question: is the whole given or a part.',
+        'A fraction problem always starts with one question: is the whole given or a part?',
         'Here the full price is known, twelve thousand five hundred, and the discount is a part of it. So we multiply: twelve thousand five hundred times one fifth is two thousand five hundred.',
         'But the question was not about the discount, it was about what to pay. Subtract the discount from the price and get ten thousand. Dilnoza was right.',
       ],
@@ -635,7 +635,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'В бутылке 1,5 л сока. Выпили 2/3. Сколько осталось?', uz: "Shishada 1,5 l sharbat bor. 2/3 qismi ichildi. Qancha qoldi?", en: 'A bottle holds 1.5 l of juice and 2/3 was drunk. How much is left?' },
-        opts: ['0,5 л', '1 л', '0,75 л', '2,25 л'],
+        opts_i18n: [
+          { ru: '0,5 л', uz: '0,5 l', en: '0.5 L' },
+          { ru: '1 л', uz: '1 l', en: '1 L' },
+          { ru: '0,75 л', uz: '0,75 l', en: '0.75 L' },
+          { ru: '2,25 л', uz: '2,25 l', en: '2.25 L' },
+        ],
         wrong: [
           null,
           { ru: 'Один литр — это выпитая часть, а спрашивают об остатке.', uz: "Bir litr bu ichilgan qism, savol esa qolgani haqida.", en: 'One litre is what was drunk; the question is about the rest.' },

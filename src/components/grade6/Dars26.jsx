@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'A short rule: of two negatives the one with the smaller absolute value is greater.',
     },
     play_ask: { ru: 'Что больше: −5 или −2?', uz: 'Qaysi biri katta: −5 yoki −2?', en: 'Which is greater: −5 or −2?' },
-    play_opts: ['−5', '−2', 'равны'],
+    play_opts: [
+          '−5',
+          '−2',
+          { ru: 'равны', uz: 'teng', en: 'equal' },
+        ],
     play_correct: 1,
     play_ok: {
       ru: 'Верно. У −2 модуль меньше, значит оно ближе к нулю и правее.',
@@ -360,7 +364,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: '−4 или −9?', uz: '−4 yoki −9?', en: '−4 or −9?' },
-        opts: ['−4', '−9', 'равны'],
+        opts: [
+          '−4',
+          '−9',
+          { ru: 'равны', uz: 'teng', en: 'equal' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. У −4 модуль меньше, оно ближе к нулю.', uz: "To'g'ri. −4 ning moduli kichik, u nolga yaqinroq.", en: 'Right. −4 has the smaller absolute value and sits closer to zero.' },
         wrong: [
@@ -371,7 +379,11 @@ const CONTENT = {
       },
       {
         q: { ru: '0 или −1?', uz: '0 yoki −1?', en: '0 or −1?' },
-        opts: ['0', '−1', 'равны'],
+        opts: [
+          '0',
+          '−1',
+          { ru: 'равны', uz: 'teng', en: 'equal' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Ноль правее любого отрицательного числа.', uz: "To'g'ri. Nol har qanday manfiy sondan o'ngda.", en: 'Right. Zero stands right of any negative number.' },
         wrong: [
@@ -382,7 +394,11 @@ const CONTENT = {
       },
       {
         q: { ru: '−0,3 или −0,8?', uz: '−0,3 yoki −0,8?', en: '−0.3 or −0.8?' },
-        opts: ['−0,3', '−0,8', 'равны'],
+        opts: [
+          '−0,3',
+          '−0,8',
+          { ru: 'равны', uz: 'teng', en: 'equal' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. −0,3 ближе к нулю, значит больше.', uz: "To'g'ri. −0,3 nolga yaqinroq, demak kattaroq.", en: 'Right. −0.3 is closer to zero, so it is greater.' },
         wrong: [
@@ -598,7 +614,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Что больше: −15 или −20?', uz: 'Qaysi biri katta: −15 yoki −20?', en: 'Which is greater: −15 or −20?' },
-        opts: ['−20', '−15', 'равны', 'нельзя сравнить'],
+        opts_i18n: [
+          { ru: '−20', uz: '−20', en: '−20' },
+          { ru: '−15', uz: '−15', en: '−15' },
+          { ru: 'равны', uz: 'teng', en: 'equal' },
+          { ru: 'нельзя сравнить', uz: "solishtirib bo'lmaydi", en: 'cannot compare' },
+        ],
         wrong: [
           { ru: 'У −20 модуль больше, значит само число меньше.', uz: "−20 ning moduli katta, demak sonning o'zi kichik.", en: '−20 has a bigger absolute value, so the number is smaller.' },
           null,
@@ -1006,7 +1027,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1040,10 +1061,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

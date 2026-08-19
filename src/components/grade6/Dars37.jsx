@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'The radius is one segment, the diameter two of them in a row. So the diameter is always twice the radius.',
     },
     play_ask: { ru: 'Радиус тарелки 7 см. Чему равен диаметр?', uz: "Tarelka radiusi 7 sm. Diametri nechaga teng?", en: 'The radius is 7 cm. What is the diameter?' },
-    play_opts: ['14 см', '3,5 см', '7 см'],
+    play_opts: [
+          { ru: '14 см', uz: '14 sm', en: '14 cm' },
+          { ru: '3,5 см', uz: '3,5 sm', en: '3.5 cm' },
+          { ru: '7 см', uz: '7 sm', en: '7 cm' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 7 · 2 = 14 см.',
@@ -360,7 +364,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Радиус 9 см. Диаметр?', uz: 'Radius 9 sm. Diametr?', en: 'Radius 9 cm. Diameter?' },
-        opts: ['18 см', '4,5 см', '9 см'],
+        opts: [
+          { ru: '18 см', uz: '18 sm', en: '18 cm' },
+          { ru: '4,5 см', uz: '4,5 sm', en: '4.5 cm' },
+          { ru: '9 см', uz: '9 sm', en: '9 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 9 · 2 = 18 см.', uz: "To'g'ri. 9 · 2 = 18 sm.", en: 'Right. 9 · 2 = 18 cm.' },
         wrong: [
@@ -371,7 +379,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Диаметр 30 см. Радиус?', uz: 'Diametr 30 sm. Radius?', en: 'Diameter 30 cm. Radius?' },
-        opts: ['15 см', '60 см', '30 см'],
+        opts: [
+          { ru: '15 см', uz: '15 sm', en: '15 cm' },
+          { ru: '60 см', uz: '60 sm', en: '60 cm' },
+          { ru: '30 см', uz: '30 sm', en: '30 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 30 : 2 = 15 см.', uz: "To'g'ri. 30 : 2 = 15 sm.", en: 'Right. 30 : 2 = 15 cm.' },
         wrong: [
@@ -382,7 +394,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Тарелка шириной 24 см. Радиус?', uz: 'Tarelka eni 24 sm. Radius?', en: 'A plate 24 cm wide. Radius?' },
-        opts: ['12 см', '24 см', '48 см'],
+        opts: [
+          { ru: '12 см', uz: '12 sm', en: '12 cm' },
+          { ru: '24 см', uz: '24 sm', en: '24 cm' },
+          { ru: '48 см', uz: '48 sm', en: '48 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Ширина — это диаметр, значит радиус 12 см.', uz: "To'g'ri. En bu diametr, demak radius 12 sm.", en: 'Right. The width is the diameter, so the radius is 12 cm.' },
         wrong: [
@@ -484,12 +500,12 @@ const CONTENT = {
     bin_a: { ru: 'Внутри круга', uz: 'Doira ichida', en: 'Inside the disc' },
     bin_b: { ru: 'Вне круга', uz: 'Doira tashqarisida', en: 'Outside the disc' },
     cards: [
-      { label: '3 см', bin: 'a' },
-      { label: '1 см', bin: 'a' },
-      { label: '4 см', bin: 'a' },
-      { label: '6 см', bin: 'b' },
-      { label: '8 см', bin: 'b' },
-      { label: '12 см', bin: 'b' },
+      { label: { ru: '3 см', uz: '3 sm', en: '3 cm' }, bin: 'a' },
+      { label: { ru: '1 см', uz: '1 sm', en: '1 cm' }, bin: 'a' },
+      { label: { ru: '4 см', uz: '4 sm', en: '4 cm' }, bin: 'a' },
+      { label: { ru: '6 см', uz: '6 sm', en: '6 cm' }, bin: 'b' },
+      { label: { ru: '8 см', uz: '8 sm', en: '8 cm' }, bin: 'b' },
+      { label: { ru: '12 см', uz: '12 sm', en: '12 cm' }, bin: 'b' },
     ],
     hint: {
       ru: 'Меньше 5 — внутри, больше 5 — снаружи.',
@@ -566,7 +582,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Чему равен радиус тарелки?', uz: 'Tarelka radiusi nechaga teng?', en: 'What is the radius of the plate?' },
-        opts: ['12 см', '24 см', '48 см'],
+        opts: [
+          { ru: '12 см', uz: '12 sm', en: '12 cm' },
+          { ru: '24 см', uz: '24 sm', en: '24 cm' },
+          { ru: '48 см', uz: '48 sm', en: '48 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Ширина это диаметр: 24 : 2 = 12 см.', uz: "To'g'ri. En bu diametr: 24 : 2 = 12 sm.", en: 'Right. The width is the diameter: 24 : 2 = 12 cm.' },
         wrong: [
@@ -945,7 +965,7 @@ const RecallBody = ({ step }) => {
           <i className="d37-dot"/>
           <b/>
           <i className="d37-dot d37-dot-b"/>
-          <em>7 см</em>
+          <em>{tri(lang, '7 см', '7 sm', '7 cm')}</em>
         </span>
         <span className={'d37-chips d37-fade' + (step >= 1 ? ' d37-on' : '')}>
           <i className="d37-chip-l">{tri(lang, 'расстояние не бывает отрицательным', "masofa manfiy bo'lmaydi", 'distance is never negative')}</i>
@@ -1097,7 +1117,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1132,10 +1152,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

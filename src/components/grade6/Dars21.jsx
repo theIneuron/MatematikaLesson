@@ -632,7 +632,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'Как записать 60% обыкновенной дробью?', uz: '60% ni oddiy kasr bilan qanday yoziladi?', en: 'How is 60% written as a common fraction?' },
-        opts: ['3/5', '6/10 нельзя сократить', '1/6', '60/10'],
+        opts_i18n: [
+          { ru: '3/5', uz: '3/5', en: '3/5' },
+          { ru: '6/10 нельзя сократить', uz: '6/10 qisqarmaydi', en: '6/10 cannot be reduced' },
+          { ru: '1/6', uz: '1/6', en: '1/6' },
+          { ru: '60/10', uz: '60/10', en: '60/10' },
+        ],
         wrong: [
           null,
           { ru: '6/10 сокращается на 2 и даёт 3/5.', uz: '6/10 ikkiga qisqarib 3/5 beradi.', en: '6/10 reduces by 2 to 3/5.' },

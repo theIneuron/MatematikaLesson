@@ -201,7 +201,11 @@ const CONTENT = {
       en: 'A circumference is always a bit more than three diameters. That is a handy eyeball check.',
     },
     play_ask: { ru: 'Диаметр 5 см. Чему равна длина окружности?', uz: 'Diametr 5 sm. Aylana uzunligi nechaga teng?', en: 'The diameter is 5 cm. What is the circumference?' },
-    play_opts: ['15,7 см', '8,14 см', '1,59 см'],
+    play_opts: [
+          { ru: '15,7 см', uz: '15,7 sm', en: '15.7 cm' },
+          { ru: '8,14 см', uz: '8,14 sm', en: '8.14 cm' },
+          { ru: '1,59 см', uz: '1,59 sm', en: '1.59 cm' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 3,14 · 5 = 15,7 см, это чуть больше трёх диаметров.',
@@ -365,7 +369,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Диаметр 4 см. Длина окружности?', uz: 'Diametr 4 sm. Aylana uzunligi?', en: 'Diameter 4 cm. Circumference?' },
-        opts: ['12,56 см', '7,14 см', '1,27 см'],
+        opts: [
+          { ru: '12,56 см', uz: '12,56 sm', en: '12.56 cm' },
+          { ru: '7,14 см', uz: '7,14 sm', en: '7.14 cm' },
+          { ru: '1,27 см', uz: '1,27 sm', en: '1.27 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3,14 · 4 = 12,56 см.', uz: "To'g'ri. 3,14 · 4 = 12,56 sm.", en: 'Right. 3.14 · 4 = 12.56 cm.' },
         wrong: [
@@ -376,7 +384,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Радиус 10 см. Длина окружности?', uz: 'Radius 10 sm. Aylana uzunligi?', en: 'Radius 10 cm. Circumference?' },
-        opts: ['62,8 см', '31,4 см', '20 см'],
+        opts: [
+          { ru: '62,8 см', uz: '62,8 sm', en: '62.8 cm' },
+          { ru: '31,4 см', uz: '31,4 sm', en: '31.4 cm' },
+          { ru: '20 см', uz: '20 sm', en: '20 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Диаметр 20, значит 3,14 · 20 = 62,8 см.', uz: "To'g'ri. Diametr 20, demak 3,14 · 20 = 62,8 sm.", en: 'Right. The diameter is 20, so 3.14 · 20 = 62.8 cm.' },
         wrong: [
@@ -387,7 +399,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Диаметр колеса 50 см. Путь за один оборот?', uz: "G'ildirak diametri 50 sm. Bir aylanishdagi yo'l?", en: 'A 50 cm wheel. Distance in one turn?' },
-        opts: ['157 см', '50 см', '25 см'],
+        opts: [
+          { ru: '157 см', uz: '157 sm', en: '157 cm' },
+          { ru: '50 см', uz: '50 sm', en: '50 cm' },
+          { ru: '25 см', uz: '25 sm', en: '25 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3,14 · 50 = 157 см.', uz: "To'g'ri. 3,14 · 50 = 157 sm.", en: 'Right. 3.14 · 50 = 157 cm.' },
         wrong: [
@@ -414,7 +430,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Длина окружности 62,8 см. Диаметр?', uz: 'Aylana uzunligi 62,8 sm. Diametr?', en: 'Circumference 62.8 cm. Diameter?' },
-        opts: ['20 см', '197 см', '10 см'],
+        opts: [
+          { ru: '20 см', uz: '20 sm', en: '20 cm' },
+          { ru: '197 см', uz: '197 sm', en: '197 cm' },
+          { ru: '10 см', uz: '10 sm', en: '10 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 62,8 : 3,14 = 20 см.', uz: "To'g'ri. 62,8 : 3,14 = 20 sm.", en: 'Right. 62.8 : 3.14 = 20 cm.' },
         wrong: [
@@ -425,7 +445,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Длина окружности 31,4 см. Радиус?', uz: 'Aylana uzunligi 31,4 sm. Radius?', en: 'Circumference 31.4 cm. Radius?' },
-        opts: ['5 см', '10 см', '15,7 см'],
+        opts: [
+          { ru: '5 см', uz: '5 sm', en: '5 cm' },
+          { ru: '10 см', uz: '10 sm', en: '10 cm' },
+          { ru: '15,7 см', uz: '15,7 sm', en: '15.7 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Диаметр 10, значит радиус 5 см.', uz: "To'g'ri. Diametr 10, demak radius 5 sm.", en: 'Right. The diameter is 10, so the radius is 5 cm.' },
         wrong: [
@@ -436,7 +460,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Полукруглая арка, диаметр 6 м. Длина дуги?', uz: 'Yarim doira ravoq, diametri 6 m. Yoy uzunligi?', en: 'A semicircular arch, diameter 6 m. Arc length?' },
-        opts: ['9,42 м', '18,84 м', '3 м'],
+        opts: [
+          { ru: '9,42 м', uz: '9,42 m', en: '9.42 m' },
+          { ru: '18,84 м', uz: '18,84 m', en: '18.84 m' },
+          { ru: '3 м', uz: '3 m', en: '3 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Вся окружность 18,84, половина 9,42 м.', uz: "To'g'ri. Butun aylana 18,84, yarmi 9,42 m.", en: 'Right. The full circle is 18.84, half is 9.42 m.' },
         wrong: [
@@ -603,7 +631,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Радиус 4 см. Длина окружности?', uz: 'Radius 4 sm. Aylana uzunligi?', en: 'Radius 4 cm. Circumference?' },
-        opts: ['12,56 см', '6,28 см', '25,12 см', '8 см'],
+        opts_i18n: [
+          { ru: '12,56 см', uz: '12,56 sm', en: '12.56 cm' },
+          { ru: '6,28 см', uz: '6,28 sm', en: '6.28 cm' },
+          { ru: '25,12 см', uz: '25,12 sm', en: '25.12 cm' },
+          { ru: '8 см', uz: '8 sm', en: '8 cm' },
+        ],
         wrong: [
           { ru: 'Радиус подставили вместо диаметра.', uz: "Diametr o'rniga radius qo'yilgan.", en: 'The radius was used instead of the diameter.' },
           { ru: 'Так вышло бы при радиусе 1.', uz: "Radius 1 bo'lganda shunday chiqardi.", en: 'That would be a radius of one.' },
@@ -615,7 +648,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Длина окружности 94,2 см. Диаметр?', uz: 'Aylana uzunligi 94,2 sm. Diametr?', en: 'Circumference 94.2 cm. Diameter?' },
-        opts: ['15 см', '30 см', '296 см', '47,1 см'],
+        opts_i18n: [
+          { ru: '15 см', uz: '15 sm', en: '15 cm' },
+          { ru: '30 см', uz: '30 sm', en: '30 cm' },
+          { ru: '296 см', uz: '296 sm', en: '296 cm' },
+          { ru: '47,1 см', uz: '47,1 sm', en: '47.1 cm' },
+        ],
         wrong: [
           { ru: 'Это радиус, а спрашивали диаметр.', uz: "Bu radius, so'ralgani esa diametr.", en: 'That is the radius, but the diameter was asked.' },
           null,
@@ -1057,7 +1095,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1090,10 +1128,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

@@ -470,12 +470,12 @@ const CONTENT = {
     bin_a: { ru: 'Взаимно простые', uz: "O'zaro tub", en: 'Coprime' },
     bin_b: { ru: 'Есть общий делитель', uz: "Umumiy bo'luvchi bor", en: 'Have a common divisor' },
     cards: [
-      { label: '8 и 15', bin: 'a' },
-      { label: '12 и 18', bin: 'b' },
-      { label: '9 и 16', bin: 'a' },
-      { label: '10 и 25', bin: 'b' },
-      { label: '7 и 12', bin: 'a' },
-      { label: '14 и 21', bin: 'b' },
+      { label: { ru: '8 и 15', uz: '8 va 15', en: '8 and 15' }, bin: 'a' },
+      { label: { ru: '12 и 18', uz: '12 va 18', en: '12 and 18' }, bin: 'b' },
+      { label: { ru: '9 и 16', uz: '9 va 16', en: '9 and 16' }, bin: 'a' },
+      { label: { ru: '10 и 25', uz: '10 va 25', en: '10 and 25' }, bin: 'b' },
+      { label: { ru: '7 и 12', uz: '7 va 12', en: '7 and 12' }, bin: 'a' },
+      { label: { ru: '14 и 21', uz: '14 va 21', en: '14 and 21' }, bin: 'b' },
     ],
     hint: {
       ru: 'Ищи общий делитель: 2, 3, 5, 7. Нашёлся — значит не взаимно простые.',
@@ -601,7 +601,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Какая пара — взаимно простые числа?', uz: "Qaysi juftlik o'zaro tub sonlar?", en: 'Which pair is coprime?' },
-        opts: ['6 и 9', '10 и 15', '9 и 16', '12 и 20'],
+        opts_i18n: [
+          { ru: '6 и 9', uz: '6 va 9', en: '6 and 9' },
+          { ru: '10 и 15', uz: '10 va 15', en: '10 and 15' },
+          { ru: '9 и 16', uz: '9 va 16', en: '9 and 16' },
+          { ru: '12 и 20', uz: '12 va 20', en: '12 and 20' },
+        ],
         wrong: [
           { ru: 'У 6 и 9 общий делитель 3.', uz: "6 va 9 da umumiy bo'luvchi 3.", en: '6 and 9 share the divisor 3.' },
           { ru: 'У 10 и 15 общий делитель 5.', uz: "10 va 15 da umumiy bo'luvchi 5.", en: '10 and 15 share the divisor 5.' },

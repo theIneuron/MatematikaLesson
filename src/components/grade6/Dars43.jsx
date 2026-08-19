@@ -196,7 +196,11 @@ const CONTENT = {
       en: 'First the rectangle, then divide by two. The height must be perpendicular to the base.',
     },
     play_ask: { ru: 'Основание 6, высота 4. Площадь треугольника?', uz: 'Asos 6, balandlik 4. Uchburchak yuzi?', en: 'Base 6, height 4. Area of the triangle?' },
-    play_opts: ['12 см²', '24 см²', '10 см²'],
+    play_opts: [
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '24 см²', uz: '24 sm²', en: '24 cm²' },
+          { ru: '10 см²', uz: '10 sm²', en: '10 cm²' },
+        ],
     play_correct: 0,
     play_ok: {
       ru: 'Верно. 6 · 4 = 24, потом 24 : 2 = 12 см².',
@@ -360,7 +364,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Основание 10, высота 6. Площадь?', uz: 'Asos 10, balandlik 6. Yuza?', en: 'Base 10, height 6. Area?' },
-        opts: ['30 см²', '60 см²', '16 см²'],
+        opts: [
+          { ru: '30 см²', uz: '30 sm²', en: '30 cm²' },
+          { ru: '60 см²', uz: '60 sm²', en: '60 cm²' },
+          { ru: '16 см²', uz: '16 sm²', en: '16 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 10 · 6 = 60, потом 60 : 2 = 30.', uz: "To'g'ri. 10 · 6 = 60, keyin 60 : 2 = 30.", en: 'Right. 10 · 6 = 60, then 60 : 2 = 30.' },
         wrong: [
@@ -371,7 +379,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Основание 7, высота 4. Площадь?', uz: 'Asos 7, balandlik 4. Yuza?', en: 'Base 7, height 4. Area?' },
-        opts: ['14 см²', '28 см²', '11 см²'],
+        opts: [
+          { ru: '14 см²', uz: '14 sm²', en: '14 cm²' },
+          { ru: '28 см²', uz: '28 sm²', en: '28 cm²' },
+          { ru: '11 см²', uz: '11 sm²', en: '11 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 7 · 4 = 28, половина 14.', uz: "To'g'ri. 7 · 4 = 28, yarmi 14.", en: 'Right. 7 · 4 = 28, half is 14.' },
         wrong: [
@@ -409,7 +421,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Два треугольника: 6 · 4 : 2 и 6 · 2 : 2. Вместе?', uz: 'Ikki uchburchak: 6 · 4 : 2 va 6 · 2 : 2. Birga?', en: 'Two triangles: 6 · 4 : 2 and 6 · 2 : 2. Together?' },
-        opts: ['18 см²', '12 см²', '36 см²'],
+        opts: [
+          { ru: '18 см²', uz: '18 sm²', en: '18 cm²' },
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '36 см²', uz: '36 sm²', en: '36 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 12 + 6 = 18 см².', uz: "To'g'ri. 12 + 6 = 18 sm².", en: 'Right. 12 + 6 = 18 cm².' },
         wrong: [
@@ -420,7 +436,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Прямоугольник 10 на 6, из него вырезали треугольник 10 на 6 : 2. Что осталось?', uz: "10 ga 6 to'rtburchakdan 10 ga 6 : 2 uchburchak qirqib olindi. Nima qoldi?", en: 'From a 10 by 6 rectangle a triangle 10 by 6 : 2 was cut. What remains?' },
-        opts: ['30 см²', '60 см²', '15 см²'],
+        opts: [
+          { ru: '30 см²', uz: '30 sm²', en: '30 cm²' },
+          { ru: '60 см²', uz: '60 sm²', en: '60 cm²' },
+          { ru: '15 см²', uz: '15 sm²', en: '15 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 60 − 30 = 30 см².', uz: "To'g'ri. 60 − 30 = 30 sm².", en: 'Right. 60 − 30 = 30 cm².' },
         wrong: [
@@ -431,7 +451,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Два треугольника: основание 8 и высота 3 у каждого. Вместе?', uz: 'Ikki uchburchak: har birining asosi 8, balandligi 3. Birga?', en: 'Two triangles, each base 8 height 3. Together?' },
-        opts: ['24 см²', '12 см²', '48 см²'],
+        opts: [
+          { ru: '24 см²', uz: '24 sm²', en: '24 cm²' },
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '48 см²', uz: '48 sm²', en: '48 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. По 12 каждый, вместе 24 см².', uz: "To'g'ri. Har biri 12, birga 24 sm².", en: 'Right. Twelve each, twenty four together.' },
         wrong: [
@@ -554,7 +578,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Верхний треугольник: высота 4. Его площадь?', uz: 'Yuqori uchburchak: balandligi 4. Uning yuzi?', en: 'Top triangle, height 4. Its area?' },
-        opts: ['12 см²', '24 см²', '10 см²'],
+        opts: [
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '24 см²', uz: '24 sm²', en: '24 cm²' },
+          { ru: '10 см²', uz: '10 sm²', en: '10 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 6 · 4 : 2 = 12 см².', uz: "To'g'ri. 6 · 4 : 2 = 12 sm².", en: 'Right. 6 · 4 : 2 = 12 cm².' },
         wrong: [
@@ -565,7 +593,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Нижний треугольник: высота 2. Сколько бумаги на весь змей?', uz: "Pastki uchburchak: balandligi 2. Butun varrakka qancha qog'oz?", en: 'Bottom triangle, height 2. Paper for the whole kite?' },
-        opts: ['18 см²', '12 см²', '30 см²'],
+        opts_i18n: [
+          { ru: '18 см²', uz: '18 sm²', en: '18 cm²' },
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '30 см²', uz: '30 sm²', en: '30 cm²' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 12 + 6 = 18 см².', uz: "To'g'ri. 12 + 6 = 18 sm².", en: 'Right. 12 + 6 = 18 cm².' },
         wrong: [
@@ -598,7 +630,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Основание 12, высота 5. Площадь треугольника?', uz: 'Asos 12, balandlik 5. Uchburchak yuzi?', en: 'Base 12, height 5. Area?' },
-        opts: ['60 см²', '17 см²', '30 см²', '120 см²'],
+        opts_i18n: [
+          { ru: '60 см²', uz: '60 sm²', en: '60 cm²' },
+          { ru: '17 см²', uz: '17 sm²', en: '17 cm²' },
+          { ru: '30 см²', uz: '30 sm²', en: '30 cm²' },
+          { ru: '120 см²', uz: '120 sm²', en: '120 cm²' },
+        ],
         wrong: [
           { ru: 'Это прямоугольник, треугольник вдвое меньше.', uz: "Bu to'rtburchak, uchburchak ikki barobar kichik.", en: 'That is the rectangle; the triangle is half.' },
           { ru: 'Это сумма, а площадь считают умножением.', uz: "Bu yig'indi, yuza ko'paytirish bilan topiladi.", en: 'That is a sum; area comes from multiplying.' },
@@ -644,7 +681,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 0,
         q: { ru: 'Змей: треугольники 6 на 4 и 6 на 2. Сколько бумаги?', uz: "Varrak: 6 ga 4 va 6 ga 2 uchburchaklar. Qancha qog'oz?", en: 'Kite: triangles 6 by 4 and 6 by 2. How much paper?' },
-        opts: ['18 см²', '36 см²', '12 см²', '9 см²'],
+        opts_i18n: [
+          { ru: '18 см²', uz: '18 sm²', en: '18 cm²' },
+          { ru: '36 см²', uz: '36 sm²', en: '36 cm²' },
+          { ru: '12 см²', uz: '12 sm²', en: '12 cm²' },
+          { ru: '9 см²', uz: '9 sm²', en: '9 cm²' },
+        ],
         wrong: [
           null,
           { ru: 'Про деление на два забыли в обеих частях.', uz: "Ikkala qismda ikkiga bo'lish unutilgan.", en: 'The halving was skipped in both parts.' },
@@ -1049,7 +1091,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1084,10 +1126,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

@@ -444,7 +444,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'В отношении 5 : 1 первое число во сколько раз больше?', uz: "5 : 1 nisbatda birinchi son necha barobar katta?", en: 'In the ratio 5 : 1, how many times is the first bigger?' },
-        opts: ['в 4 раза', 'в 5 раз', 'в 6 раз'],
+        opts: [
+          { ru: 'в 4 раза', uz: '4 barobar', en: '4 times' },
+          { ru: 'в 5 раз', uz: '5 barobar', en: '5 times' },
+          { ru: 'в 6 раз', uz: '6 barobar', en: '6 times' },
+        ],
         correct: 1,
         ok: { ru: 'Верно. 5 : 1 = 5, значит в пять раз.', uz: "To'g'ri. 5 : 1 = 5, demak besh barobar.", en: 'Right. 5 ÷ 1 = 5, so five times.' },
         wrong: [
@@ -608,7 +612,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Ленту 24 см разрезали в отношении 1 : 3. Какой кусок меньше?', uz: '24 sm tasma 1 : 3 nisbatda kesildi. Qaysi bo\'lak kichik?', en: 'A 24 cm tape is cut 1 : 3. How long is the shorter piece?' },
-        opts: ['8 см', '6 см', '12 см', '4 см'],
+        opts_i18n: [
+          { ru: '8 см', uz: '8 sm', en: '8 cm' },
+          { ru: '6 см', uz: '6 sm', en: '6 cm' },
+          { ru: '12 см', uz: '12 sm', en: '12 cm' },
+          { ru: '4 см', uz: '4 sm', en: '4 cm' },
+        ],
         wrong: [
           { ru: '8 см вышло бы при отношении 1 : 2.', uz: '8 sm 1 : 2 nisbatda chiqardi.', en: 'Eight would come from the ratio 1 : 2.' },
           null,
@@ -892,7 +901,7 @@ const WholeBody = ({ step }) => {
         {c.lines.map((l, i) => <Line key={i} node={t(l)} on={step >= i}/>)}
         <span className={'d17-pairline d17-fade' + (step >= 2 ? ' d17-on' : '')}>
           <Frac n="2" d="5" size="mid"/>
-          <span className="d17-op d17-on">и</span>
+          <span className="d17-op d17-on">{t({ ru: 'и', uz: 'va', en: 'and' })}</span>
           <Frac n="3" d="5" size="mid"/>
         </span>
       </div>

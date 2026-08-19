@@ -200,7 +200,11 @@ const CONTENT = {
       en: 'The order is: multiply by the scale number first, then convert centimetres to metres.',
     },
     play_ask: { ru: 'Модель автобуса 12 см, масштаб 1 : 100. Какова длина автобуса?', uz: 'Avtobus modeli 12 sm, masshtab 1 : 100. Avtobus uzunligi qancha?', en: 'A bus model is 12 cm at 1 : 100. How long is the bus?' },
-    play_opts: ['1,2 м', '12 м', '120 м'],
+    play_opts: [
+          { ru: '1,2 м', uz: '1,2 m', en: '1.2 m' },
+          { ru: '12 м', uz: '12 m', en: '12 m' },
+          { ru: '120 м', uz: '120 m', en: '120 m' },
+        ],
     play_correct: 1,
     play_ok: {
       ru: 'Верно. 12 · 100 = 1200 см, а это 12 метров.',
@@ -364,7 +368,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Модель 8 см, масштаб 1 : 25. Настоящая длина?', uz: 'Model 8 sm, masshtab 1 : 25. Haqiqiy uzunlik?', en: 'A model of 8 cm at 1 : 25. The real length?' },
-        opts: ['2 м', '200 м', '0,32 м'],
+        opts: [
+          { ru: '2 м', uz: '2 m', en: '2 m' },
+          { ru: '200 м', uz: '200 m', en: '200 m' },
+          { ru: '0,32 м', uz: '0,32 m', en: '0.32 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 8 · 25 = 200 см, а это 2 метра.', uz: "To'g'ri. 8 · 25 = 200 sm, bu esa 2 metr.", en: 'Right. 8 · 25 = 200 cm, that is 2 metres.' },
         wrong: [
@@ -375,7 +383,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'На карте 3 см, масштаб 1 : 100 000. Сколько километров?', uz: 'Xaritada 3 sm, masshtab 1 : 100 000. Necha kilometr?', en: 'On a map 3 cm at 1 : 100,000. How many kilometres?' },
-        opts: ['3 км', '30 км', '300 м'],
+        opts: [
+          { ru: '3 км', uz: '3 km', en: '3 km' },
+          { ru: '30 км', uz: '30 km', en: '30 km' },
+          { ru: '300 м', uz: '300 m', en: '300 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. При таком масштабе 1 см равен 1 км.', uz: "To'g'ri. Bunday masshtabda 1 sm 1 km ga teng.", en: 'Right. At this scale 1 cm equals 1 km.' },
         wrong: [
@@ -386,7 +398,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Деталь на чертеже 5 см, масштаб 2 : 1. Настоящий размер?', uz: 'Chizmada detal 5 sm, masshtab 2 : 1. Haqiqiy o\'lcham?', en: 'A part is 5 cm at 2 : 1. The real size?' },
-        opts: ['2,5 см', '10 см', '5 см'],
+        opts: [
+          { ru: '2,5 см', uz: '2,5 sm', en: '2.5 cm' },
+          { ru: '10 см', uz: '10 sm', en: '10 cm' },
+          { ru: '5 см', uz: '5 sm', en: '5 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Масштаб 2 : 1 увеличивает, значит настоящая деталь вдвое меньше.', uz: "To'g'ri. 2 : 1 masshtab kattalashtiradi, demak haqiqiy detal ikki barobar kichik.", en: 'Right. A 2 : 1 scale enlarges, so the real part is half the drawing.' },
         wrong: [
@@ -413,7 +429,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Реальная длина 12 м, масштаб 1 : 100. На макете?', uz: 'Haqiqiy uzunlik 12 m, masshtab 1 : 100. Maketda?', en: 'A real length of 12 m at 1 : 100. On the model?' },
-        opts: ['12 см', '1,2 см', '120 см'],
+        opts: [
+          { ru: '12 см', uz: '12 sm', en: '12 cm' },
+          { ru: '1,2 см', uz: '1,2 sm', en: '1.2 cm' },
+          { ru: '120 см', uz: '120 sm', en: '120 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 12 м = 1200 см, делим на 100: 12 см.', uz: "To'g'ri. 12 m = 1200 sm, 100 ga bo'lamiz: 12 sm.", en: 'Right. 12 m = 1,200 cm divided by 100 gives 12 cm.' },
         wrong: [
@@ -424,7 +444,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Стадион 90 м, масштаб 1 : 1000. На плане?', uz: 'Stadion 90 m, masshtab 1 : 1000. Rejada?', en: 'A stadium of 90 m at 1 : 1000. On the plan?' },
-        opts: ['9 см', '90 см', '0,9 см'],
+        opts: [
+          { ru: '9 см', uz: '9 sm', en: '9 cm' },
+          { ru: '90 см', uz: '90 sm', en: '90 cm' },
+          { ru: '0,9 см', uz: '0,9 sm', en: '0.9 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 90 м = 9000 см, делим на 1000: 9 см.', uz: "To'g'ri. 90 m = 9000 sm, 1000 ga bo'lamiz: 9 sm.", en: 'Right. 90 m = 9,000 cm divided by 1,000 gives 9 cm.' },
         wrong: [
@@ -435,7 +459,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Комната 6 м, масштаб 1 : 50. На чертеже?', uz: 'Xona 6 m, masshtab 1 : 50. Chizmada?', en: 'A room of 6 m at 1 : 50. On the drawing?' },
-        opts: ['12 см', '6 см', '30 см'],
+        opts: [
+          { ru: '12 см', uz: '12 sm', en: '12 cm' },
+          { ru: '6 см', uz: '6 sm', en: '6 cm' },
+          { ru: '30 см', uz: '30 sm', en: '30 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 6 м = 600 см, делим на 50: 12 см.', uz: "To'g'ri. 6 m = 600 sm, 50 ga bo'lamiz: 12 sm.", en: 'Right. 6 m = 600 cm divided by 50 gives 12 cm.' },
         wrong: [
@@ -554,7 +582,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Какой длины настоящее здание?', uz: 'Haqiqiy bino qanday uzunlikda?', en: 'How long is the real building?' },
-        opts: ['40 м', '4 м', '400 м'],
+        opts: [
+          { ru: '40 м', uz: '40 m', en: '40 m' },
+          { ru: '4 м', uz: '4 m', en: '4 m' },
+          { ru: '400 м', uz: '400 m', en: '400 m' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 40 · 100 = 4000 см = 40 м.', uz: "To'g'ri. 40 · 100 = 4000 sm = 40 m.", en: 'Right. 40 · 100 = 4,000 cm = 40 m.' },
         wrong: [
@@ -565,7 +597,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Какой длины дорожка на макете?', uz: "Maketda yo'lak qanday uzunlikda?", en: 'How long is the track on the model?' },
-        opts: ['60 см', '6 см', '600 см'],
+        opts_i18n: [
+          { ru: '60 см', uz: '60 sm', en: '60 cm' },
+          { ru: '6 см', uz: '6 sm', en: '6 cm' },
+          { ru: '600 см', uz: '600 sm', en: '600 cm' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 60 м = 6000 см, делим на 100: 60 см.', uz: "To'g'ri. 60 m = 6000 sm, 100 ga bo'lamiz: 60 sm.", en: 'Right. 60 m = 6,000 cm divided by 100 gives 60 cm.' },
         wrong: [
@@ -598,7 +634,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 2,
         q: { ru: 'Модель самолёта 30 см, масштаб 1 : 200. Длина самолёта?', uz: 'Samolyot modeli 30 sm, masshtab 1 : 200. Samolyot uzunligi?', en: 'A plane model is 30 cm at 1 : 200. The real length?' },
-        opts: ['6 м', '600 м', '60 м', '0,6 м'],
+        opts_i18n: [
+          { ru: '6 м', uz: '6 m', en: '6 m' },
+          { ru: '600 м', uz: '600 m', en: '600 m' },
+          { ru: '60 м', uz: '60 m', en: '60 m' },
+          { ru: '0,6 м', uz: '0,6 m', en: '0.6 m' },
+        ],
         wrong: [
           { ru: 'Единицы перевели раньше умножения.', uz: "Birlik ko'paytirishdan oldin o'zgartirilgan.", en: 'Units converted before multiplying.' },
           { ru: 'Слишком много: 6000 см это 60 м.', uz: "Juda ko'p: 6000 sm bu 60 m.", en: 'Too much: 6,000 cm is 60 m.' },
@@ -627,7 +668,12 @@ const CONTENT = {
       {
         kind: 'mc', correctIndex: 1,
         q: { ru: 'Комната 8 м. Каким будет план в масштабе 1 : 200?', uz: 'Xona 8 m. 1 : 200 masshtabdagi reja qanday?', en: 'A room is 8 m. What is it on a 1 : 200 plan?' },
-        opts: ['8 см', '4 см', '40 см', '0,4 см'],
+        opts_i18n: [
+          { ru: '8 см', uz: '8 sm', en: '8 cm' },
+          { ru: '4 см', uz: '4 sm', en: '4 cm' },
+          { ru: '40 см', uz: '40 sm', en: '40 cm' },
+          { ru: '0,4 см', uz: '0,4 sm', en: '0.4 cm' },
+        ],
         wrong: [
           { ru: 'Забыли разделить на масштаб.', uz: "Masshtabga bo'lish unutilgan.", en: 'The division by the scale was skipped.' },
           null,
@@ -977,7 +1023,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
     if (onAnswer) {
       onAnswer({
         stage: null, screenIdx: screen, question: pickL(c.play_ask, lang),
-        correctAnswer: c.play_opts[c.play_correct], studentAnswer: c.play_opts[i],
+        correctAnswer: t(c.play_opts[c.play_correct]), studentAnswer: t(c.play_opts[i]),
         correct: firstTryRef.current, firstTry: firstTryRef.current, solved: true,
       });
     }
@@ -1010,10 +1056,10 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
               <p className="body" style={{ margin: '0 0 10px', fontWeight: 600 }}>{mt(t(c.play_ask))}</p>
               <div className="sv-opts">
                 {c.play_opts.map((o, i) => (
-                  <button key={o} className={'option'
+                  <button key={i} className={'option'
                     + (solved && i === c.play_correct ? ' option-correct' : '')
                     + (!solved && picked === i ? ' option-picked-wrong' : '')}
-                  disabled={solved} onClick={() => answer(i)}>{o}</button>
+                  disabled={solved} onClick={() => answer(i)}>{mt(t(o))}</button>
                 ))}
               </div>
               {picked !== null && !solved && <HintBlock show>{mt(t(c.play_wrong[picked] || c.play_ok))}</HintBlock>}

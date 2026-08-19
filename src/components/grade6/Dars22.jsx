@@ -558,7 +558,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'Какой стал результат?', uz: 'Natija qanday bo\'ldi?', en: 'What is the new time?' },
-        opts: ['54 с', '50 с', '66 с'],
+        opts: [
+          { ru: '54 с', uz: '54 s', en: '54 s' },
+          { ru: '50 с', uz: '50 s', en: '50 s' },
+          { ru: '66 с', uz: '66 s', en: '66 s' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 60 · 0,9 = 54 секунды.', uz: "To'g'ri. 60 · 0,9 = 54 soniya.", en: 'Right. 60 · 0.9 = 54 seconds.' },
         wrong: [
@@ -569,7 +573,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Дилноза бежала за 50 секунд и улучшила на 10%. Её результат?', uz: "Dilnoza 50 soniyada yugurardi va 10% ga yaxshiladi. Uning natijasi?", en: 'Dilnoza ran 50 seconds and improved by 10%. Her time?' },
-        opts: ['45 с', '40 с', '54 с'],
+        opts: [
+          { ru: '45 с', uz: '45 s', en: '45 s' },
+          { ru: '40 с', uz: '40 s', en: '40 s' },
+          { ru: '54 с', uz: '54 s', en: '54 s' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 50 · 0,9 = 45 секунд. Проценты у каждого от своего результата.', uz: "To'g'ri. 50 · 0,9 = 45 soniya. Foiz har kimda o'z natijasidan.", en: 'Right. 50 · 0.9 = 45 seconds. Each percent comes from that person’s own time.' },
         wrong: [

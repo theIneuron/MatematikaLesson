@@ -580,9 +580,9 @@ const CONTENT = {
       { number: '16', label: { ru: 'делители', uz: "bo'luvchilari", en: 'divisors' }, reading: { ru: '1, 2, 4, 8, 16', uz: '1, 2, 4, 8, 16', en: '1, 2, 4, 8, 16' } }
     ],
     correct_text: { ru: 'Верно. Обрати внимание: у 16 делителей нечётное количество, потому что 16 = 4 · 4.', uz: "To'g'ri. E'tibor bering: 16 da bo'luvchilar soni toq, chunki 16 = 4 · 4.", en: 'Correct. Notice that 16 has an odd number of divisors, because 16 = 4 · 4.' },
-    hint: { ru: 'Проверяй по порядку: делится ли число на 1, на 2, на 3, на 4 и так далее.', uz: "Tartib bilan tekshiring: son 1 ga, 2 ga, 3 ga, 4 ga va hokazo bo'linadimi.", en: 'Check in order: does the number divide by 1, by 2, by 3, by 4 and so on.' },
+    hint: { ru: 'Проверяй по порядку: делится ли число на 1, на 2, на 3, на 4 и так далее?', uz: "Tartib bilan tekshiring: son 1 ga, 2 ga, 3 ga, 4 ga va hokazo bo'linadimi?", en: 'Check in order: does the number divide by 1, by 2, by 3, by 4 and so on?' },
     // hint ekranda raqam bilan turadi, ovozga esa audio_hint ketadi (DragMatch/Classify).
-    audio_hint: { ru: 'Проверяй по порядку. Делится ли число на один, на два, на три, на четыре и так далее.', uz: "Tartib bilan tekshiring. Son birga, ikkiga, uchga, to'rtga va hokazo bo'linadimi.", en: 'Check in order. Does the number divide by one, by two, by three, by four and so on.' },
+    audio_hint: { ru: 'Проверяй по порядку. Делится ли число на один, на два, на три, на четыре и так далее?', uz: "Tartib bilan tekshiring. Son birga, ikkiga, uchga, to'rtga va hokazo bo'linadimi?", en: 'Check in order. Does the number divide by one, by two, by three, by four and so on?' },
     why: {
       ru: [
         '10 = 1 · 10 = 2 · 5 — две пары, значит 4 делителя.',

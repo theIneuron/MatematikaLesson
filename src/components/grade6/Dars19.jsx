@@ -376,7 +376,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'За 3 часа автобус проходит 180 км. Сколько за 5 часов?', uz: "3 soatda avtobus 180 km yuradi. 5 soatda qancha?", en: 'A bus covers 180 km in 3 hours. How far in 5 hours?' },
-        opts: ['300 км', '108 км', '240 км'],
+        opts: [
+          { ru: '300 км', uz: '300 km', en: '300 km' },
+          { ru: '108 км', uz: '108 km', en: '108 km' },
+          { ru: '240 км', uz: '240 km', en: '240 km' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. За час 60 км, за 5 часов 300 км.', uz: "To'g'ri. Bir soatda 60 km, 5 soatda 300 km.", en: 'Right. Sixty km per hour makes 300 km in five.' },
         wrong: [
@@ -387,7 +391,11 @@ const CONTENT = {
       },
       {
         q: { ru: '6 тетрадей весят 900 г. Сколько весят 4 тетради?', uz: "6 ta daftar 900 g. 4 ta daftar qancha?", en: 'Six notebooks weigh 900 g. What do four weigh?' },
-        opts: ['600 г', '1350 г', '150 г'],
+        opts: [
+          { ru: '600 г', uz: '600 g', en: '600 g' },
+          { ru: '1350 г', uz: '1350 g', en: '1350 g' },
+          { ru: '150 г', uz: '150 g', en: '150 g' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Одна тетрадь 150 г, четыре — 600 г.', uz: "To'g'ri. Bitta daftar 150 g, to'rttasi 600 g.", en: 'Right. One notebook is 150 g, four make 600 g.' },
         wrong: [
@@ -414,7 +422,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: '3 насоса наполняют бак за 8 часов. За сколько 4 насоса?', uz: "3 nasos bakni 8 soatda to'ldiradi. 4 nasos necha soatda?", en: 'Three pumps fill a tank in 8 hours. How long for four?' },
-        opts: ['6 часов', '10 часов', '12 часов'],
+        opts: [
+          { ru: '6 часов', uz: '6 soat', en: '6 hours' },
+          { ru: '10 часов', uz: '10 soat', en: '10 hours' },
+          { ru: '12 часов', uz: '12 soat', en: '12 hours' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 3 · 8 = 24, значит 4 · x = 24 и x = 6.', uz: "To'g'ri. 3 · 8 = 24, demak 4 · x = 24 va x = 6.", en: 'Right. 3 · 8 = 24, so 4 · x = 24 and x = 6.' },
         wrong: [
@@ -425,7 +437,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Еды хватает 6 туристам на 10 дней. На сколько дней хватит 12 туристам?', uz: "Oziq-ovqat 6 sayyohga 10 kunga yetadi. 12 sayyohga necha kunga yetadi?", en: 'Food lasts 6 hikers 10 days. How long for 12 hikers?' },
-        opts: ['5 дней', '20 дней', '15 дней'],
+        opts: [
+          { ru: '5 дней', uz: '5 kun', en: '5 days' },
+          { ru: '20 дней', uz: '20 kun', en: '20 days' },
+          { ru: '15 дней', uz: '15 kun', en: '15 days' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 6 · 10 = 60, значит 12 · x = 60 и x = 5.', uz: "To'g'ri. 6 · 10 = 60, demak 12 · x = 60 va x = 5.", en: 'Right. 6 · 10 = 60, so 12 · x = 60 and x = 5.' },
         wrong: [
@@ -436,7 +452,11 @@ const CONTENT = {
       },
       {
         q: { ru: 'Машина едет 4 часа со скоростью 60 км/ч. Сколько часов на той же дороге при 80 км/ч?', uz: "Mashina 60 km soat tezlikda 4 soat yuradi. 80 km soat tezlikda o'sha yo'lda necha soat?", en: 'A car drives 4 hours at 60 km per hour. How long on the same road at 80?' },
-        opts: ['3 часа', '5 часов', '6 часов'],
+        opts: [
+          { ru: '3 часа', uz: '3 soat', en: '3 hours' },
+          { ru: '5 часов', uz: '5 soat', en: '5 hours' },
+          { ru: '6 часов', uz: '6 soat', en: '6 hours' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. Путь 240 км, при 80 км в час это 3 часа.', uz: "To'g'ri. Yo'l 240 km, soatiga 80 km bilan bu 3 soat.", en: 'Right. The road is 240 km and at 80 per hour that is 3 hours.' },
         wrong: [
@@ -559,7 +579,11 @@ const CONTENT = {
     items: [
       {
         q: { ru: 'За сколько часов покрасят четверо?', uz: "To'rt kishi necha soatda bo'yaydi?", en: 'How long do four painters need?' },
-        opts: ['3 часа', '12 часов', '8 часов'],
+        opts: [
+          { ru: '3 часа', uz: '3 soat', en: '3 hours' },
+          { ru: '12 часов', uz: '12 soat', en: '12 hours' },
+          { ru: '8 часов', uz: '8 soat', en: '8 hours' },
+        ],
         correct: 0,
         ok: { ru: 'Верно. 2 · 6 = 12, значит 4 · x = 12 и x = 3.', uz: "To'g'ri. 2 · 6 = 12, demak 4 · x = 12 va x = 3.", en: 'Right. 2 · 6 = 12, so 4 · x = 12 and x = 3.' },
         wrong: [
@@ -724,7 +748,7 @@ const CONTENT = {
     m1_steps: {
       ru: ['Спроси: вторая величина вырастет или уменьшится?', 'Прямая — пиши пропорцию, обратная — считай произведение', 'Проверь ответ здравым смыслом'],
       uz: ["So'rang: ikkinchi kattalik oshadimi yoki kamayadimi?", "To'g'ri bo'lsa proporsiya yozing, teskari bo'lsa ko'paytmani hisoblang", "Javobni sog'lom fikr bilan tekshiring"],
-      en: ['Ask whether the second quantity grows or shrinks', 'Direct: write a proportion. Inverse: use the product', 'Check the answer against common sense'],
+      en: ['Ask: does the second quantity grow or shrink?', 'Direct: write a proportion. Inverse: use the product', 'Check the answer against common sense'],
     },
     m1_no: {
       ru: 'Есть пары величин, которые не связаны ни прямо, ни обратно: рост и возраст, отметка и номер парты.',

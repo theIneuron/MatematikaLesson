@@ -2714,6 +2714,12 @@ const MultiTask = (props) => {
 // Смешанный тип: одно с набором числа, четыре с выбором. Оценки нет,
 // но разбор есть на каждый неверный вариант.
 // Урок даёт `content` (узел s_final с items) и необязательный `factNode`.
+//
+// Длина числового ответа. Предел был ТРИ цифры, и задание урока 44 «сколько
+// кубических сантиметров в литре» с ответом 1000 стало недостижимым: поле
+// принимало «100» и не пускало дальше. Предел поднят до четырёх — этого хватает
+// всем ответам класса, а поле остаётся узким и цифру не приходится искать.
+const MAX_NUM_LEN = 4;
 const FinalPanel = (props) => {
   const { screen, totalScreens, content, factNode = null, onNext, onPrev } = props;
   const c = content;
@@ -2811,11 +2817,11 @@ const FinalPanel = (props) => {
                   <div className="fn-pad">
                     {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((d) => (
                       <button key={d} className="fn-key mono" disabled={ok}
-                        onClick={() => { setNumBad(false); setTyped((v) => (v.length < 3 ? v + d : v)); }}>{d}</button>
+                        onClick={() => { setNumBad(false); setTyped((v) => (v.length < MAX_NUM_LEN ? v + d : v)); }}>{d}</button>
                     ))}
                     <button className="fn-key fn-go" disabled={ok || typed === ''} onClick={submitNum}>&#10003;</button>
                     <button className="fn-key mono" disabled={ok}
-                      onClick={() => { setNumBad(false); setTyped((v) => (v.length < 3 ? v + '0' : v)); }}>0</button>
+                      onClick={() => { setNumBad(false); setTyped((v) => (v.length < MAX_NUM_LEN ? v + '0' : v)); }}>0</button>
                     <button className="fn-key fn-del" disabled={ok || typed === ''}
                       onClick={() => { setNumBad(false); setTyped((v) => v.slice(0, -1)); }}>&#9003;</button>
                   </div>
