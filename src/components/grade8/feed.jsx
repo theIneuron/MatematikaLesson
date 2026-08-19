@@ -522,7 +522,9 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
 // `goal` поднимает возраст экрана: вместо «покрути и посмотри» ученик решает
 // ОБРАТНУЮ задачу — подбери количество, при котором цена станет ровно такой.
 // Это уже рассуждение о делителях, а не перебор наугад.
-export function Steppers({ cols, calc, resultLabel, sign, goal, goals, ask, ask2, broke, onSolved, audio }) {
+export function Steppers({
+  cols, calc, resultLabel, sign, goal, goals, ask, ask2, broke, stepLabel, onSolved, audio,
+}) {
   const t = useT()
   const sfx = useSfx()
   const [vals, setVals] = useState(cols.map((c) => c.start))
@@ -571,6 +573,24 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, goals, ask, ask2
 
   return (
     <>
+      <Slot mh={70}>
+        {found && dead
+          ? <Note kind="no">{t(broke)}</Note>
+          : (
+            // key по номеру задачи: при смене вопроса блок пересобирается и
+            // анимация проигрывается заново. Без этого текст подменялся молча
+            // и ученик не замечал, что вопрос уже другой (методист).
+            <div className="g8-st-task" key={hit ? 'last' : gi}>
+              {!hit && list.length > 1 ? (
+                <span className="g8-st-n">
+                  {stepLabel ? t(stepLabel) + ' ' : ''}{gi + 1} / {list.length}
+                </span>
+              ) : null}
+              <Ask>{t(hit && ask2 ? ask2 : (list.length && list[gi].ask) || ask)}</Ask>
+            </div>
+          )}
+      </Slot>
+
       {/* СТОЛБЦЫ И РЕЗУЛЬТАТ СТОЯТ ОДНОЙ ФОРМУЛОЙ: сумма, знак деления,
           количество, знак равно, цена. Раньше они лежали в два этажа, и
           связь между ними на экране НЕ ЧИТАЛАСЬ — ученик крутил два числа,
@@ -602,18 +622,7 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, goals, ask, ask2
         </div>
       </div>
 
-      <Slot mh={62}>
-        {found && dead
-          ? <Note kind="no">{t(broke)}</Note>
-          : (
-            <div className="g8-st-task">
-              {!hit && list.length > 1
-                ? <span className="g8-st-n">{gi + 1} / {list.length}</span>
-                : null}
-              <Ask>{t(hit && ask2 ? ask2 : (list.length && list[gi].ask) || ask)}</Ask>
-            </div>
-          )}
-      </Slot>
+
     </>
   )
 }
@@ -1852,7 +1861,25 @@ export const FEED_STYLES = `
    экранами: это решение методиста, не вёрстки. */
 .lesson-root .g8-rule-first { font-weight: 700; color: ${T.accent}; }
 
-/* Счётчик задач у столбцов: ученик видит, сколько целей осталось. */
-.g8-st-task { display: flex; flex-direction: column; align-items: center; gap: 4px; }
-.g8-st-n { font-size: 15px; letter-spacing: .08em; color: ${T.ink3}; }
+/* ВОПРОС СТОИТ ПЕРВЫМ, сразу под заголовком, и при смене задачи заметно
+   выезжает: раньше текст подменялся молча, и ученик не понимал, что вопрос
+   уже другой (методист, 2026-08-17). */
+.g8-st-task { display: flex; flex-direction: column; align-items: center; gap: 6px;
+  margin-bottom: 14px; animation: g8-st-task-in .5s ease-out both; }
+@keyframes g8-st-task-in {
+  0% { opacity: 0; transform: translateY(-12px); }
+  60% { opacity: 1; }
+  100% { opacity: 1; transform: none; }
+}
+.g8-st-n { font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 700; color: ${T.accent}; padding: 4px 14px; border-radius: 999px;
+  background: rgba(199,90,44,.10); animation: g8-st-n-in .6s .1s ease-out both; }
+@keyframes g8-st-n-in {
+  0% { opacity: 0; transform: scale(.8); }
+  55% { transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g8-st-task, .g8-st-n { animation: none; }
+}
 `
