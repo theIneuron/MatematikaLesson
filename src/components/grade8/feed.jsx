@@ -820,7 +820,7 @@ export function Chain({
 //
 // Ученик видит не новую тему, а РОЛИ в записи, которую он уже трогал.
 // ============================================================
-export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
+export function Parts({ tokens, frac, steps, fact, stepMs = 2600, onStep }) {
   const t = useT()
   const [shown, setShown] = useState(0)
   const stepRef = useRef(onStep)
@@ -838,8 +838,25 @@ export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
 
   return (
     <div className="g8-pt">
+      {/* Запись бывает СТРОКОЙ и бывает ДРОБЬЮ. Разбор по частям идёт и там
+          и там: подсвечивается тот кусок, о котором сейчас речь. Дробь через
+          двоеточие читается как деление, а не как запись (методист). */}
       <div className="g8-pt-expr" style={{ fontFamily: MATH_FONT }}>
-        {tokens.map((tk, i) => (
+        {frac ? (
+          <span className="g8-pt-frac">
+            <span className="g8-pt-fr-n">
+              {frac.num.map((tk, i) => (
+                <span key={i} className={'g8-pt-tk' + (tk.id && tk.id === focus ? ' is-on' : '')}>{tk.t}</span>
+              ))}
+            </span>
+            <span className="g8-pt-fr-bar"/>
+            <span className="g8-pt-fr-d">
+              {frac.den.map((tk, i) => (
+                <span key={i} className={'g8-pt-tk' + (tk.id && tk.id === focus ? ' is-on' : '')}>{tk.t}</span>
+              ))}
+            </span>
+          </span>
+        ) : tokens.map((tk, i) => (
           <span key={i} className={'g8-pt-tk' + (tk.id && tk.id === focus ? ' is-on' : '')}>{tk.t}</span>
         ))}
       </div>
@@ -1127,22 +1144,30 @@ export function FillSolution({
    Плитки со значениями дрейфуют по сцене, ученик ловит их по очереди и
    собирает запись. Порядок задан: следующая нужная плитка одна, поэтому
    промах — это не «не туда попал мышкой», а неверный выбор значения. */
+// Подпись клетки: по ней ученик понимает, что клетку можно освободить.
+const UNDO_HINT = L('Bekor qilish uchun bosing', 'Нажми, чтобы освободить', 'Tap to clear')
+
 export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
   const t = useT()
   const sfx = useSfx()
   const [got, setGot] = useState([])
   const [bad, setBad] = useState(null)
-  const [fly, setFly] = useState(null)
 
+  // Клетки нумеруем ЗАРАНЕЕ и с заходом внутрь дроби: счётчик, растущий
+  // прямо в разметке, это мутация во время отрисовки, React такое не берёт.
   const want = []
-  lines.forEach((ln) => ln.forEach((it) => { if (it.slot !== undefined) want.push(it.slot) }))
+  const idx = lines.map((ln) => ln.map((it) => {
+    if (it.slot !== undefined) { want.push(it.slot); return want.length - 1 }
+    if (it.frac) {
+      return it.frac.map((side) => side.map((x) => {
+        if (x.slot === undefined) return -1
+        want.push(x.slot)
+        return want.length - 1
+      }))
+    }
+    return -1
+  }))
   const done = got.length >= want.length
-
-  const undo = () => {
-    if (!got.length) return
-    setGot(got.slice(0, -1))
-    setBad(null)
-  }
 
   const take = (tile) => {
     if (done) return
@@ -1154,17 +1179,57 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
       return
     }
     sfx.playCorrect()
-    setFly(tile.id)
     setGot(got.concat([{ id: tile.id, v: tile.v }]))
-    setTimeout(() => setFly(null), 420)
     if (got.length + 1 >= want.length && onDone) onDone()
   }
 
-  // Номер клетки считаем заранее: счётчик, растущий прямо в разметке,
-  // это мутация во время отрисовки — React такое не принимает.
-  const nth = lines.map((ln) => ln.map(() => -1))
-  let c = -1
-  lines.forEach((ln, i) => ln.forEach((it, j) => { if (it.slot !== undefined) { c += 1; nth[i][j] = c } }))
+  // ОТМЕНА ПО КЛЕТКЕ (методист, 2026-08-17). Кнопка снимала только последнюю
+  // фишку, и ученик не мог поменять то, что положил раньше. Теперь он жмёт
+  // ту самую клетку: она и всё, что после неё, освобождается, а фишки
+  // возвращаются на сцену. Порядок сборки при этом сохраняется.
+  const clearFrom = (k) => {
+    if (k >= got.length) return
+    setGot(got.slice(0, k))
+    setBad(null)
+  }
+
+  const slotView = (k, key) => {
+    const g = got[k]
+    return (
+      <button
+        type="button"
+        key={key}
+        className={'g8-cb-slot' + (g ? ' is-set' : '')}
+        onClick={() => clearFrom(k)}
+        disabled={!g}
+        title={g ? t(UNDO_HINT) : undefined}>
+        {g ? g.v : ''}
+      </button>
+    )
+  }
+
+  const itemView = (it, i, j) => {
+    if (it.slot !== undefined) return slotView(idx[i][j], 'i' + j)
+    if (it.frac) {
+      const [num, den] = it.frac
+      return (
+        <span className="g8-cb-frac" key={'f' + j}>
+          <span className="g8-cb-fr-n">
+            {num.map((x, k) => (x.slot === undefined
+              ? <span className="g8-cb-tx" key={'n' + k}>{x.t}</span>
+              : slotView(idx[i][j][0][k], 'n' + k)))}
+          </span>
+          <span className="g8-cb-fr-bar"/>
+          <span className="g8-cb-fr-d">
+            {den.map((x, k) => (x.slot === undefined
+              ? <span className="g8-cb-tx" key={'d' + k}>{x.t}</span>
+              : slotView(idx[i][j][1][k], 'd' + k)))}
+          </span>
+        </span>
+      )
+    }
+    return <span className="g8-cb-tx" key={'t' + j}>{it.t}</span>
+  }
 
   return (
     <div className="g8-cb">
@@ -1172,23 +1237,10 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
       <div className="g8-cb-rec">
         {lines.map((ln, i) => (
           <div className="g8-cb-line" key={i}>
-            {ln.map((it, j) => {
-              if (it.slot === undefined) return <span className="g8-cb-tx" key={j}>{it.t}</span>
-              const g = got[nth[i][j]]
-              return (
-                <span className={'g8-cb-slot' + (g ? ' is-set' : '')} key={j}>
-                  {g ? g.v : ''}
-                </span>
-              )
-            })}
+            {ln.map((it, j) => itemView(it, i, j))}
           </div>
         ))}
       </div>
-      {/* ОТМЕНА (методист, 2026-08-17): пойманное значение можно вернуть
-          на сцену, иначе один промах закрывал сборку без выхода. */}
-      {got.length && !done ? (
-        <button type="button" className="g8-cb-undo" onClick={undo}>{'↶'}</button>
-      ) : null}
       <div className="g8-cb-stage">
         {tiles.map((x, i) => {
           const taken = got.some((g) => g.id === x.id)
@@ -1198,7 +1250,6 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
               key={x.id}
               className={'g8-cb-tile g8-cb-c' + (i % 4)
                 + (bad === x.id ? ' is-bad' : '')
-                + (fly === x.id ? ' is-fly' : '')
                 + (taken ? ' is-out' : '')}
               style={{ left: x.x + '%', top: x.y + '%', animationDelay: (i * 0.7) + 's' }}
               onClick={() => take(x)}>
@@ -1214,6 +1265,7 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
     </div>
   )
 }
+
 
 /* КОРОТКИЙ ВЫВОД (методист, 2026-08-17). Финал урока — не сводка с
    записями и шпаргалкой, а несколько строк, которые выходят одна за
@@ -1901,10 +1953,18 @@ export const FEED_STYLES = `
 .lesson-root .g8-cb-tile:hover { transform: scale(1.06); }
 .g8-cb-stage::after { content: ''; position: absolute; inset: 0; pointer-events: none;
   background: radial-gradient(120% 90% at 50% 0%, rgba(255,255,255,.55), transparent 70%); }
-.lesson-root .g8-cb-undo { border: 0; cursor: pointer; min-width: 46px; min-height: 46px;
-  border-radius: 12px; background: transparent; color: ${T.ink3}; font-size: 20px;
-  box-shadow: inset 0 0 0 1px rgba(23,26,29,.12); align-self: center; }
-.lesson-root .g8-cb-undo:hover { color: ${T.ink}; }
+/* Клетка — КНОПКА: заполненную можно освободить тапом по ней. Пустая
+   ничего не делает и не выглядит нажимаемой. */
+.lesson-root .g8-cb-slot { border: 0; background: transparent; cursor: default; font-family: inherit; }
+.lesson-root .g8-cb-slot.is-set { cursor: pointer; }
+.lesson-root .g8-cb-slot.is-set:hover { box-shadow: inset 0 0 0 2px ${T.no}; color: ${T.no}; }
+
+/* ЗАПИСЬ ДРОБЬЮ, а не через двоеточие: доля от счёта это дробь, и она
+   обязана выглядеть дробью (методист, 2026-08-17). */
+.g8-cb-frac { display: inline-flex; flex-direction: column; align-items: center;
+  vertical-align: middle; margin: 0 4px; }
+.g8-cb-fr-n, .g8-cb-fr-d { display: flex; align-items: center; gap: 4px; padding: 2px 6px; }
+.g8-cb-fr-bar { display: block; width: 100%; height: 2px; background: currentColor; margin: 3px 0; }
 
 /* Вывод стал на строку длиннее: в нём теперь есть понятие темы.
    На низком ноутбуке четыре строки не влезали — ужимаем шаг и поля. */
@@ -2022,4 +2082,10 @@ export const FEED_STYLES = `
 }
 
 }
+
+/* Разбор по частям НА ДРОБИ: числитель, черта, знаменатель, и подсветка
+   работает внутри каждого этажа. */
+.g8-pt-frac { display: inline-flex; flex-direction: column; align-items: center; }
+.g8-pt-fr-n, .g8-pt-fr-d { display: flex; align-items: center; padding: 2px 10px; }
+.g8-pt-fr-bar { display: block; width: 100%; height: 2px; background: currentColor; margin: 4px 0; }
 `

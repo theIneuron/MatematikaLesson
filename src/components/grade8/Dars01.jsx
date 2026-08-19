@@ -876,12 +876,12 @@ const S7 = {
       'The shift sets exactly at which number the fraction is undefined.'),
   ],
   props: {
-    tokens: [
-      { t: '600', id: 'sum' },
-      { t: '  :  ' },
-      { t: '(k', id: 'den' },
-      { t: ' − 4)', id: 'shift' },
-    ],
+    // Запись — ДРОБЬ, а не строка с двоеточием. Скобки при этом не нужны:
+    // черта сама показывает, что делится всё, что стоит под ней.
+    frac: {
+      num: [{ t: '600', id: 'sum' }],
+      den: [{ t: 'k', id: 'den' }, { t: ' − 4', id: 'shift' }],
+    },
     steps: [
       {
         focus: 'sum',
@@ -1017,7 +1017,7 @@ const S9 = {
     ),
     tasks: [
       {
-        expr: '5 : a',
+        expr: <Row size="big" align="center">{F('5', 'a')}</Row>,
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1027,7 +1027,7 @@ const S9 = {
         solution: ['a = 0', 'a ≠ 0'],
       },
       {
-        expr: '9 : (a − 2)',
+        expr: <Row size="big" align="center">{F('9', 'a − 2')}</Row>,
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 2' },
@@ -1037,7 +1037,7 @@ const S9 = {
         solution: ['a − 2 = 0', 'a = 2', 'a ≠ 2'],
       },
       {
-        expr: '(a + 1) : 3a',
+        expr: <Row size="big" align="center">{F('a + 1', '3a')}</Row>,
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1047,7 +1047,7 @@ const S9 = {
         solution: ['3a = 0', 'a = 0', 'a ≠ 0'],
       },
       {
-        expr: '7 : (2a − 6)',
+        expr: <Row size="big" align="center">{F('7', '2a − 6')}</Row>,
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 3' },
@@ -1057,7 +1057,7 @@ const S9 = {
         solution: ['2a − 6 = 0', '2a = 6', 'a = 3', 'a ≠ 3'],
       },
       {
-        expr: '4 : (a · a)',
+        expr: <Row size="big" align="center">{F('4', 'a · a')}</Row>,
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1457,7 +1457,7 @@ const S14 = {
         id: 'q4',
         tag: 'З16',
         ask: L(
-          'ruhsat etilgan qiymatlar sohasi yozildi. Ishni tugallangan qiladigan narsa nima?',
+          "Ruhsat etilgan qiymatlar yozildi. Ishni tugallangan qiladigan narsa nima?",
           'Допустимые значения найдены. Что делает работу законченной?',
           'The domain is written. What makes the work complete?',
         ),
@@ -1501,9 +1501,11 @@ const S14 = {
             'В кафе счёт 60000 сум, его делят поровну на n человек. Собери запись из летящих плиток.',
             'A cafe bill of 60000 is split evenly among n people. Assemble the record from the drifting tiles.',
           ),
+          // Доля от счёта — ДРОБЬ, а не деление через двоеточие: ученик
+          // собирает ровно ту запись, которую потом увидит в учебнике.
           lines: [
-            [{ t: 'Har biriga:   ' }, { slot: '60000' }, { t: ' : ' }, { slot: 'n' }],
-            [{ t: 'Shart:   n ' }, { slot: '≠' }, { t: ' ' }, { slot: '0' }],
+            [{ t: 'Har biriga:  ' }, { frac: [[{ slot: '60000' }], [{ slot: 'n' }]] }],
+            [{ t: 'Shart:  n ' }, { slot: '≠' }, { t: ' ' }, { slot: '0' }],
           ],
           tiles: [
             { id: 't1', v: '60000', x: 8, y: 16 },
@@ -1537,9 +1539,9 @@ const S14 = {
 const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L(
-    "Xulosa, yozuv va uning ruhsat etilgan qiymatlari",
-    'Вывод, запись и её допустимые значения',
-    'Conclusion, the record and its admissible values',
+    "Xulosa va ifodaning ruhsat etilgan qiymatlari",
+    'Вывод и допустимые значения выражения',
+    'Conclusion and the admissible values of the expression',
   ),
   audio: [
     A('s0',
