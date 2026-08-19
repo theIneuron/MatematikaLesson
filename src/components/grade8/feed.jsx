@@ -201,6 +201,22 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
   const [picked, setPicked] = useState(null)
   const [wrong, setWrong] = useState([])
   const [note, setNote] = useState(null)
+  // ТАБЛИЦА СМЕНЯЕТ КАРТОЧКИ. На экране 2 сверху стоит сцена, под ней четыре
+  // карточки — вертикали на таблицу уже нет. Записи в таблице те же самые,
+  // поэтому карточки уступают ей место через секунду после ответа: секунда
+  // нужна, чтобы ученик увидел, что его выбор засчитан.
+  const [swap, setSwap] = useState(false)
+  useEffect(() => {
+    if (!picked || !proof) return undefined
+    const id = setTimeout(() => setSwap(true), 950)
+    return () => clearTimeout(id)
+  }, [picked, proof])
+
+  const cell = (x) => (
+    x === undefined || x === null || typeof x === 'string' || typeof x === 'number'
+      ? x
+      : React.isValidElement(x) ? x : t(x)
+  )
 
   const pick = (it) => {
     if (picked) return
@@ -223,7 +239,9 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
       <Ask>{t(ask)}</Ask>
       {/* Место под подпись резервируется СРАЗУ, до ответа: иначе подпись
           выезжает на знаменатель, а карточка дёргается по высоте. */}
-      <div className={'g8-pb' + (items.some((x) => x.name) ? ' has-names' : '')}>
+      <div
+        className={'g8-pb' + (items.some((x) => x.name) ? ' has-names' : '')}
+        style={swap ? { display: 'none' } : undefined}>
         {items.map((it) => (
           <button
             key={it.id}
@@ -250,12 +268,15 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
           запись считается, эта нет. Урок сам требует проверять ответ числом,
           значит и здесь надо не объявить, а подставить. Строки открываются по
           одной, последняя — та, где значения уже нет. */}
-      {picked && proof ? (
-        <div className="g8-pf">
+      {/* Ячейка приходит в трёх видах: строкой, узлом дроби и текстом на трёх
+          языках. Объект, отданный React напрямую, роняет весь прибор - экран 2
+          так и упал, карточки исчезали после верного ответа. */}
+      {swap && proof ? (
+        <div className={'g8-pf' + (proof.wide ? ' is-wide' : '')}>
           <div className="g8-pf-row is-head">
-            <span>{proof.varLabel}</span>
-            <span>{proof.leftLabel}</span>
-            <span>{proof.rightLabel}</span>
+            <span>{cell(proof.varLabel)}</span>
+            <span>{cell(proof.leftLabel)}</span>
+            <span>{cell(proof.rightLabel)}</span>
           </div>
           {proof.rows.map((r, i) => (
             <div
@@ -263,9 +284,9 @@ export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio
               key={i}
               style={{ animationDelay: (0.3 + i * 0.6) + 's' }}
             >
-              <span>{r.v}</span>
-              <span>{r.left}</span>
-              <span>{r.dead ? t(proof.noValue) : r.right}</span>
+              <span>{cell(r.v)}</span>
+              <span>{cell(r.left)}</span>
+              <span>{r.dead ? t(proof.noValue) : cell(r.right)}</span>
             </div>
           ))}
         </div>
@@ -1969,6 +1990,15 @@ export const FEED_STYLES = `
 .g8-pf-row.is-head > span { min-height: 58px; }
 /* Дробь в ячейке мельче: иначе ряд с ней выше соседних и таблица кривая. */
 .g8-pf .g8-frac-n, .g8-pf .g8-frac-d { font-size: 17px; }
+/* Широкий вариант: в первой колонке стоит ЗАПИСЬ, а не одно число, поэтому
+   ей нужно больше места (экран 2). */
+.g8-pf.is-wide { max-width: 620px; }
+.g8-pf.is-wide .g8-pf-row { grid-template-columns: 1.5fr 1fr 1fr; }
+/* Широкая таблица стоит там, где сверху уже есть сцена, поэтому ряды ниже. */
+.g8-pf.is-wide .g8-pf-row, .g8-pf.is-wide .g8-pf-row > span { min-height: 44px; }
+.g8-pf.is-wide .g8-pf-row.is-head, .g8-pf.is-wide .g8-pf-row.is-head > span { min-height: 40px; }
+.g8-pf.is-wide .g8-pf-row { font-size: 20px; }
+.g8-pf.is-wide .g8-frac-n, .g8-pf.is-wide .g8-frac-d { font-size: 15px; }
 .g8-pf-row.is-dead { background: rgba(178,58,45,.07); }
 .g8-pf-row.is-dead > span:last-child { color: ${T.no}; font-size: 16px; font-family: inherit;
   letter-spacing: .01em; }
