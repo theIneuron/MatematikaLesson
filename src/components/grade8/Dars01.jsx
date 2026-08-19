@@ -296,13 +296,13 @@ const S1 = {
   ),
   audio: [
     A('mount',
-      "Mashinaga yozuv berilgan. Istalgan sonni bosing, u hisoblab, natijani chiqaradi.",
-      'Машине дали запись. Нажми любое число, она посчитает и покажет результат.',
-      'The machine was given a record. Tap any number and it will compute and show the result.'),
+      "Ikki telefon yonma yon turibdi. Bittasida ilova narxni hisobladi, ikkinchisida hisoblay olmadi.",
+      'Два телефона рядом. На одном приложение посчитало цену, на другом не смогло.',
+      'Two phones side by side. On one the app computed the price, on the other it could not.'),
     A('why',
-      "Sonlarni birma-bir sinab ko'ring. Ular orasida bittasi bor, unda mashina to'xtaydi.",
-      'Попробуй числа по очереди. Среди них есть одно, на котором машина остановится.',
-      'Try the numbers one by one. Among them there is one that stops the machine.'),
+      "Farqni ekranlarga kiritilgan sonlardan qidiring.",
+      'Разницу ищи в числах, которые введены на экранах.',
+      'Look for the difference in the numbers entered on the screens.'),
   ],
   props: {
     // ХУК = ТОЛЬКО ПРОГНОЗ (§5). Одно действие на экране: ученик отвечает и
@@ -571,9 +571,9 @@ const S4 = {
 const S5 = {
   eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
   title: L(
-    "Maxrajning noli taqiqni beradi",
-    'Нуль знаменателя задаёт запрет',
-    'The zero of the denominator sets the restriction',
+    "Taqiq maxrajga bog'langan",
+    'Запрет привязан к знаменателю',
+    'The restriction is tied to the denominator',
   ),
   audio: [
     A('mount',
@@ -1156,9 +1156,9 @@ const S11 = {
 const S12 = {
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
   title: L(
-    "Yechimni qadamma qadam tekshirish",
-    'Проверка решения по шагам',
-    'Checking a solution step by step',
+    "Yechimdagi bitta xato qator",
+    'Ошибка в одной строке решения',
+    'One wrong line in a solution',
   ),
   audio: [
     A('mount',
