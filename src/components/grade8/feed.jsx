@@ -744,8 +744,9 @@ export function Chain({
     const src = q.items.find((x) => x.id === it.id)
     if (src && src.right) {
       sfx.playCorrect()
+      if (audio && q.ok) audio.say(t(q.ok))
       setWrong([])
-      setNote(null)
+      setNote(q.ok || null)
       if (qi + 1 >= quiz.length) {
         setQi(quiz.length)
         if (onSolved) onSolved({ correct: true, tries: 1 })
@@ -909,7 +910,10 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
     const src = task.items.find((x) => x.id === it.id)
     if (src && src.right) {
       sfx.playCorrect()
-      setNote(null)
+      // Разбор звучит и на ВЕРНЫЙ ответ: иначе объяснение достаётся только
+      // тому, кто ошибся (методист, 2026-08-17).
+      setNote(task.ok || null)
+      if (audio && task.ok) audio.say(t(task.ok))
       setWrong([])
       setOpen(true)
       return
@@ -970,7 +974,10 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
             </div>
           ) : null}
 
-          {note && !open ? <Note kind="no">{t(note)}</Note> : null}
+          {/* Разбор виден и после ВЕРНОГО ответа: раньше блок прятался, как
+              только открывалось решение, и объяснение доставалось только
+              тому, кто ошибся (методист, 2026-08-17). */}
+          {note ? <Note kind={open ? 'ok' : 'no'}>{t(note)}</Note> : null}
 
           {open ? (
             <div className="g8-dr-sol">

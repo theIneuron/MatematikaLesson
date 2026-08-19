@@ -695,6 +695,11 @@ const S5 = {
     },
     quiz: [
       {
+        ok: L(
+          "Ha. a − 7 yettida nolga aylanadi, shuning uchun kasr aynan yettida aniqlanmaydi.",
+          'Да. a − 7 обращается в нуль при семи, поэтому дробь не определена именно при семи.',
+          'Yes. a − 7 becomes zero at seven, so the fraction is undefined exactly at seven.',
+        ),
         question: L(
           "Maxraj a − 7. Kasr qaysi a da aniqlanmagan?",
           'Знаменатель a − 7. При каком a дробь не определена?',
@@ -721,6 +726,11 @@ const S5 = {
         ],
       },
       {
+        ok: L(
+          "Ha. 2a nolga faqat nolda aylanadi, ikki ko'paytuvchi buni o'zgartirmaydi.",
+          'Да. 2a обращается в нуль только при нуле, множитель два этого не меняет.',
+          'Yes. 2a becomes zero only at zero, the factor two does not change that.',
+        ),
         question: L(
           "Maxraj 2a. Kasr qaysi a da aniqlanmagan?",
           'Знаменатель 2a. При каком a дробь не определена?',
@@ -747,6 +757,11 @@ const S5 = {
         ],
       },
       {
+        ok: L(
+          "Ha. Beshlik son, u hech qachon nolga aylanmaydi, shuning uchun kasr har doim aniqlangan.",
+          'Да. Пятёрка это число, оно нулём не станет никогда, поэтому дробь определена всегда.',
+          'Yes. Five is a number, it never becomes zero, so the fraction is always defined.',
+        ),
         question: L(
           "Qaysi maxrajda kasr har qanday a da aniqlangan?",
           'У какого знаменателя дробь определена при любом a?',
@@ -1018,6 +1033,11 @@ const S9 = {
     tasks: [
       {
         expr: <Row size="big" align="center">{F('5', 'a')}</Row>,
+        ok: L(
+          "Ha. Maxrajda yolg'iz a turibdi, u nolda nolga aylanadi.",
+          'Да. В знаменателе стоит одна a, она обращается в нуль при нуле.',
+          'Yes. The denominator is just a, and it becomes zero at zero.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1028,6 +1048,11 @@ const S9 = {
       },
       {
         expr: <Row size="big" align="center">{F('9', 'a − 2')}</Row>,
+        ok: L(
+          "Ha. a − 2 ikkida nolga aylanadi. Suratdagi to'qqiz bunga ta'sir qilmaydi.",
+          'Да. a − 2 обращается в нуль при двух. Девятка в числителе на это не влияет.',
+          'Yes. a − 2 becomes zero at two. The nine in the numerator does not affect it.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 2' },
@@ -1038,6 +1063,11 @@ const S9 = {
       },
       {
         expr: <Row size="big" align="center">{F('a + 1', '3a')}</Row>,
+        ok: L(
+          "Ha. Maxraj 3a, u nolda nolga aylanadi. Suratdagi a + 1 hisobga olinmaydi.",
+          'Да. Знаменатель 3a обращается в нуль при нуле. Числитель a + 1 здесь не считается.',
+          'Yes. The denominator 3a becomes zero at zero. The numerator a + 1 does not count here.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1048,6 +1078,11 @@ const S9 = {
       },
       {
         expr: <Row size="big" align="center">{F('7', '2a − 6')}</Row>,
+        ok: L(
+          "Ha. 2a − 6 nolga aylanishi uchun a uchga teng bo'lishi kerak.",
+          'Да. Чтобы 2a − 6 обратилось в нуль, a должно равняться трём.',
+          'Yes. For 2a − 6 to become zero, a must equal three.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 3' },
@@ -1058,6 +1093,11 @@ const S9 = {
       },
       {
         expr: <Row size="big" align="center">{F('4', 'a · a')}</Row>,
+        ok: L(
+          "Ha. a ni a ga ko'paytirsak, natija faqat nolda nol bo'ladi.",
+          'Да. Произведение a на a равно нулю только при нуле.',
+          'Yes. The product of a and a is zero only at zero.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
@@ -1117,6 +1157,11 @@ const S10 = {
     tasks: [
       {
         expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        ok: L(
+          "Ha. x − 2 ikkida nolga aylanadi, shuning uchun butun ko'paytma ham nol bo'ladi.",
+          'Да. x − 2 обращается в нуль при двух, значит и всё произведение станет нулём.',
+          'Yes. x − 2 becomes zero at two, so the whole product becomes zero as well.',
+        ),
         question: L(
           "Birinchi ko'paytuvchi qaysi x da nolga aylanadi?",
           'При каком x обращается в нуль первый множитель?',
@@ -1131,6 +1176,11 @@ const S10 = {
       },
       {
         expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        ok: L(
+          "Ha. x + 5 minus beshda nolga aylanadi. Qo'shish belgisi ildizni minusga o'giradi.",
+          'Да. x + 5 обращается в нуль при минус пяти. Знак плюса переводит корень в минус.',
+          'Yes. x + 5 becomes zero at minus five. The plus sign turns the root negative.',
+        ),
         question: L(
           "Ikkinchi ko'paytuvchi qaysi x da nolga aylanadi?",
           'При каком x обращается в нуль второй множитель?',
@@ -1145,6 +1195,11 @@ const S10 = {
       },
       {
         expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
+        ok: L(
+          "Ha. Ikkala ko'paytuvchi ham nol bo'lmasligi kerak, shuning uchun ikkita shart yoziladi.",
+          'Да. Ни один множитель не должен быть нулём, поэтому условий записывают два.',
+          'Yes. Neither factor may be zero, so two conditions are written.',
+        ),
         question: L(
           "Butun ruhsat etilgan qiymatlar sohasi qanday yoziladi?",
           'Как записать все допустимые значения?',
@@ -1196,6 +1251,11 @@ const S11 = {
     tasks: [
       {
         expr: <Row size="big" align="center">{F('8', 'x(x − 3)')}</Row>,
+        ok: L(
+          "Ha. Maxrajda ikkita ko'paytuvchi bor, ikkalasi ham nolga aylanadi, nolda va uchda.",
+          'Да. В знаменателе два множителя, и оба обращаются в нуль, при нуле и при трёх.',
+          'Yes. The denominator has two factors, and both become zero, at zero and at three.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'x ≠ 0,  x ≠ 3' },
@@ -1206,6 +1266,11 @@ const S11 = {
       },
       {
         expr: <Row size="big" align="center">{F('x + 2', '(x − 1)(x − 1)')}</Row>,
+        ok: L(
+          "Ha. Ikkala ko'paytuvchi bir xil, shuning uchun shart ham bitta, x birga teng emas.",
+          'Да. Оба множителя одинаковые, поэтому и условие одно, x не равен единице.',
+          'Yes. Both factors are the same, so there is only one condition, x is not equal to one.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'x ≠ 1' },
@@ -1216,6 +1281,11 @@ const S11 = {
       },
       {
         expr: <Row size="big" align="center">{F('5', 'x · x + 4')}</Row>,
+        ok: L(
+          "Ha. x ni x ga ko'paytirsak manfiy chiqmaydi, ustiga to'rt qo'shiladi, demak maxraj nol bo'lmaydi.",
+          'Да. Произведение x на x не бывает отрицательным, а сверху добавляют четыре, значит знаменатель нулём не станет.',
+          'Yes. The product of x and x is never negative, and four is added, so the denominator never becomes zero.',
+        ),
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value') },
