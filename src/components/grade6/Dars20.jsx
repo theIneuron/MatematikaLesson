@@ -710,7 +710,7 @@ const CONTENT = {
   },
 
   s_methods: {
-    m1_title: { ru: 'Способ. Умножай, потом переводи', uz: "Usul. Ko'paytir, keyin o'tkaz", en: 'Method. Multiply, then convert' },
+    m1_title: { ru: 'Способ. Умножай, потом переводи', uz: "Usul. Ko'paytiring, keyin o'tkazing", en: 'Method. Multiply, then convert' },
     m1_steps: {
       ru: ['Определи направление: с макета или на макет', 'Умножь или раздели на число масштаба', 'Переведи единицы в самом конце'],
       uz: ["Yo'nalishni aniqlang: maketdanmi yoki maketgami", "Masshtab soniga ko'paytiring yoki bo'ling", "Birliklarni eng oxirida o'zgartiring"],

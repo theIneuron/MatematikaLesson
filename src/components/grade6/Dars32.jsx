@@ -215,7 +215,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Множитель три идёт к каждому слагаемому скобки. Сначала три умножить на икс, это три икс. Потом три умножить на четыре, это двенадцать. Получилось три икс плюс двенадцать.',
-        uz: "Uch ko'paytuvchi qavsdagi har bir qo'shiluvchiga boradi. Avval uch kara iks, bu uch iks. Keyin uch kara to'rt, bu o'n ikki. Uch iks qo'shuv o'n ikki chiqdi.",
+        uz: "Uch ko'paytuvchi qavsdagi har bir qo'shiluvchiga boradi. Avval uch karra iks, bu uch iks. Keyin uch karra to'rt, bu o'n ikki. Uch iks qo'shuv o'n ikki chiqdi.",
         en: 'The factor three reaches every term in the bracket. First three times x is three x. Then three times four is twelve. That gives three x plus twelve.',
       },
       play: {
@@ -257,7 +257,7 @@ const CONTENT = {
       ],
       uz: [
         "Endi qiyin hol: qavs oldida minus turibdi, ko'paytuvchi esa yo'qdek.",
-        "Aslida u bor va bu minus bir. Har bir qo'shiluvchini ko'paytiramiz: minus bir kara a minus a beradi, minus bir kara minus besh plyus besh beradi.",
+        "Aslida u bor va bu minus bir. Har bir qo'shiluvchini ko'paytiramiz: minus bir karra a minus a beradi, minus bir karra minus besh plyus besh beradi.",
         "Minus a qo'shuv besh chiqdi. Ikkala qo'shiluvchining ham ishorasi o'zgardi. Qavs oldida plyus bo'lsa, ko'paytuvchi birga teng va hech nima o'zgarmaydi.",
       ],
       en: [
@@ -290,8 +290,8 @@ const CONTENT = {
       ],
       uz: [
         "Birga yechamiz. Minus uch, qavs, ikki igrek minus besh yozuvidagi qavslarni ochamiz.",
-        "Birinchi qo'shiluvchi: minus uch kara ikki igrek. Uch va ikki modullari oltini beradi, ishoralar har xil, demak minus olti igrek.",
-        "Ikkinchisi: minus uch kara minus besh. Ishoralar bir xil, demak plyus o'n besh. Javob minus olti igrek qo'shuv o'n besh. Qo'yib tekshiramiz: igrek birga teng bo'lganda dastlabkisi ham, javob ham to'qqiz beradi.",
+        "Birinchi qo'shiluvchi: minus uch karra ikki igrek. Uch va ikki modullari oltini beradi, ishoralar har xil, demak minus olti igrek.",
+        "Ikkinchisi: minus uch karra minus besh. Ishoralar bir xil, demak plyus o'n besh. Javob minus olti igrek qo'shuv o'n besh. Qo'yib tekshiramiz: igrek birga teng bo'lganda dastlabkisi ham, javob ham to'qqiz beradi.",
       ],
       en: [
         'Let us solve it together. Open the brackets in minus three, bracket, two y minus five.',
@@ -672,7 +672,7 @@ const CONTENT = {
     },
     fact_audio: {
       ru: 'Знаешь ли ты? Раскрытие скобок ты уже делал много лет, просто не называл это так. Когда столбиком умножают двадцать три на четыре, на самом деле считают четыре на двадцать плюс четыре на три. Тот же закон стоит за устным счётом: семь на девяносто восемь удобно считать как семьсот минус четырнадцать.',
-      uz: "Bilasizmi? Qavslarni ochishni siz ko'p yillardan beri qilib kelyapsiz, shunchaki bunday atamagansiz. Ustunda yigirma uchni to'rtga ko'paytirganda aslida to'rt kara yigirma qo'shuv to'rt kara uch hisoblanadi. Xuddi shu qonun og'zaki hisobda ham turadi: yetti kara to'qson sakkizni yetti yuz minus o'n to'rt deb hisoblash qulay.",
+      uz: "Bilasizmi? Qavslarni ochishni siz ko'p yillardan beri qilib kelyapsiz, shunchaki bunday atamagansiz. Ustunda yigirma uchni to'rtga ko'paytirganda aslida to'rt karra yigirma qo'shuv to'rt karra uch hisoblanadi. Xuddi shu qonun og'zaki hisobda ham turadi: yetti karra to'qson sakkizni yetti yuz minus o'n to'rt deb hisoblash qulay.",
       en: 'Did you know? You have been opening brackets for years without calling it that. Multiplying twenty three by four in a column really computes four times twenty plus four times three. The same law powers mental arithmetic: seven times ninety eight is easiest as seven hundred minus fourteen.',
     },
   },

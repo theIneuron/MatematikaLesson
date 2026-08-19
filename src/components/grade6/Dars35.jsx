@@ -795,12 +795,14 @@ const HookScene = () => (
 // Итог: план из пяти шагов, последний подсвечен.
 const FinalScene = () => {
   const lang = useLang();
+  // Узбекская сторона — на siz: голая основа (belgila, tuz, yech) читается как
+  // обращение на «сен». Русская остаётся на «ты» по решению методиста.
   const steps = [
-    tri(lang, 'обозначь', 'belgila', 'name it'),
-    tri(lang, 'вырази', 'ifodala', 'express'),
-    tri(lang, 'составь', 'tuz', 'build'),
-    tri(lang, 'реши', 'yech', 'solve'),
-    tri(lang, 'вернись', 'qayt', 'return'),
+    tri(lang, 'обозначь', 'belgilang', 'name it'),
+    tri(lang, 'вырази', 'ifodalang', 'express'),
+    tri(lang, 'составь', 'tuzing', 'build'),
+    tri(lang, 'реши', 'yeching', 'solve'),
+    tri(lang, 'вернись', 'qayting', 'return'),
   ];
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">

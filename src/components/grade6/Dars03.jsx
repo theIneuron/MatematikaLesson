@@ -89,7 +89,10 @@ const CONTENT = {
     },
     lead: {
       ru: 'На ярмарке 117 значков раскладывают в наборы по 3 — все наборы полные.',
-      uz: "Yarmarkada 117 nishon 3 tadan to'plamlarga terilmoqda — hammasi to'la.",
+      // «hammasi to'la» oxirida turganda «to'la» buyruq shakli kabi o'qilardi
+      // (QA 2026-08-19). Bu yerda u sifat: to'plamlar to'liq bo'lishi kerak.
+      // Shu darsning ovozi allaqachon shunday aytadi, matn ham unga moslandi.
+      uz: "Yarmarkada 117 nishon 3 tadan to'plamlarga terilmoqda — hammasi to'la bo'lishi kerak.",
       en: 'At the fair 117 badges go into sets of 3, and every set must be full.',
     },
     voice_a: {

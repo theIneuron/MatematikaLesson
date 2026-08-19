@@ -110,7 +110,7 @@ const CONTENT = {
         ],
         uz: [
           "Maktab darvozasi yonida velosiped prokati ishlaydi. Lavhada yozilgan: bir soat besh ming so'm. Diyora velosipedni bir necha soatga oladi, bu son te harfi bilan belgilangan.",
-          "Aziz narxni besh ming qo'shuv te deb yozdi, Diyora esa besh ming kara te deb yozdi. Qaysi yozuv narxni beradi? Javobni tanlang. Uni dars davomida tekshiramiz.",
+          "Aziz narxni besh ming qo'shuv te deb yozdi, Diyora esa besh ming karra te deb yozdi. Qaysi yozuv narxni beradi? Javobni tanlang. Uni dars davomida tekshiramiz.",
         ],
         en: [
           'A bike rental works by the school gate. The sign says one hour is five thousand soums. Diyora rents a bike for a number of hours, written as the letter t.',
@@ -135,7 +135,7 @@ const CONTENT = {
         'Но такая запись годится ровно для трёх часов. Для двух её придётся писать заново, и для четырёх тоже.',
       ],
       uz: [
-        "Boshlang'ich sinfni eslaymiz. Besh ming kara uch yozuvi sonli ifoda, o'n besh ming esa uning qiymati.",
+        "Boshlang'ich sinfni eslaymiz. Besh ming karra uch yozuvi sonli ifoda, o'n besh ming esa uning qiymati.",
         "Qiymatni topish uchun amallarni bajarish kifoya.",
         "Ammo bunday yozuv aynan uch soat uchun yaraydi. Ikki soat uchun uni qaytadan yozish kerak, to'rt uchun ham shunday.",
       ],
@@ -174,7 +174,7 @@ const CONTENT = {
       ],
       uz: [
         "Ustunga qaraymiz. Ikki soat o'n ming, uch soat o'n besh ming, to'rt soat yigirma ming. Besh ming takrorlanadi, faqat soatlar soni o'zgaradi.",
-        "Shu sonning o'rniga te harfini qo'yamiz. Barcha hollarga bitta yozuv chiqdi: besh ming kara te.",
+        "Shu sonning o'rniga te harfini qo'yamiz. Barcha hollarga bitta yozuv chiqdi: besh ming karra te.",
         "Azizni tekshiramiz. Te uchga teng bo'lganda uning yozuvi besh ming uch so'm beradi. Bunday narx bo'lishi mumkin emas: uch soat o'n besh ming turadi. Diyora haq edi.",
       ],
       en: [
@@ -225,7 +225,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Между числом и буквой стоит умножение, но знак не пишут. Число перед буквой называют коэффициентом, а саму букву переменной. Подставим вместо тэ четвёрку: пять тысяч умножить на четыре это двадцать тысяч.',
-        uz: "Son bilan harf orasida ko'paytirish turadi, lekin belgi yozilmaydi. Harf oldidagi sonni koeffitsiyent, harfning o'zini o'zgaruvchi deb atashadi. Te o'rniga to'rtni qo'yamiz: besh ming kara to'rt bu yigirma ming.",
+        uz: "Son bilan harf orasida ko'paytirish turadi, lekin belgi yozilmaydi. Harf oldidagi sonni koeffitsiyent, harfning o'zini o'zgaruvchi deb atashadi. Te o'rniga to'rtni qo'yamiz: besh ming karra to'rt bu yigirma ming.",
         en: 'Between the number and the letter there is multiplication, but the sign is not written. The number before the letter is the coefficient, the letter is the variable. Substitute four for t: five thousand times four is twenty thousand.',
       },
       play: {
@@ -235,7 +235,7 @@ const CONTENT = {
       },
       ok: {
         ru: 'Верно. Семь умножить на шесть это сорок два.',
-        uz: "To'g'ri. Yetti kara olti bu qirq ikki.",
+        uz: "To'g'ri. Yetti karra olti bu qirq ikki.",
         en: 'Right. Seven times six is forty two.',
       },
       wrong: {
@@ -301,8 +301,8 @@ const CONTENT = {
       ],
       uz: [
         "Birga yechamiz. Uch iks qo'shuv yetti ifodasining qiymatini topamiz.",
-        "Avval iks to'rtga teng bo'lganda. Uch kara to'rt o'n ikki, qo'shuv yetti o'n to'qqiz.",
-        "Endi iks minus ikkiga teng bo'lganda. Manfiy sonni qavs ichida qo'yamiz: uch kara minus ikki bu minus olti, minus olti qo'shuv yetti esa bir. Yigirma yettinchi va yigirma to'qqizinchi darslardagi ishoralar qoidasi asqotdi.",
+        "Avval iks to'rtga teng bo'lganda. Uch karra to'rt o'n ikki, qo'shuv yetti o'n to'qqiz.",
+        "Endi iks minus ikkiga teng bo'lganda. Manfiy sonni qavs ichida qo'yamiz: uch karra minus ikki bu minus olti, minus olti qo'shuv yetti esa bir. Yigirma yettinchi va yigirma to'qqizinchi darslardagi ishoralar qoidasi asqotdi.",
       ],
       en: [
         'Let us solve it together. Find the value of three x plus seven.',
@@ -331,7 +331,7 @@ const CONTENT = {
       ],
       uz: [
         "Darsning asosiy xatosi. Besh a ni ko'rib, uchni qo'yishadi va raqamni yonma-yon yozib ellik uch deb yozishadi.",
-        "Ammo son bilan harf orasida ko'paytirish turadi. Besh kara uch bu o'n besh.",
+        "Ammo son bilan harf orasida ko'paytirish turadi. Besh karra uch bu o'n besh.",
         "Ikki iborani farqlang. Besh marta ko'p bu besh a. Besh ga ko'p esa a qo'shuv besh. Bular har xil ifodalar va qiymatlari ham har xil.",
       ],
       en: [
@@ -607,7 +607,7 @@ const CONTENT = {
         kind: 'num', ans: 23,
         q: { ru: 'Найди 4y + 3 при y = 5. Набери ответ.', uz: 'y = 5 da 4y + 3 ni toping. Javobni tering.', en: 'Find 4y + 3 when y = 5. Type the answer.' },
         hint: { ru: 'Сначала 4 · 5, потом прибавь 3.', uz: "Avval 4 · 5, keyin 3 ni qo'shing.", en: 'First 4 · 5, then add 3.' },
-        hint_audio: { ru: 'Сначала выполните умножение четыре на пять, а потом прибавьте три.', uz: "Avval to'rt kara besh ko'paytirishni bajaring, keyin uchni qo'shing.", en: 'First multiply four by five, then add three.' },
+        hint_audio: { ru: 'Сначала выполните умножение четыре на пять, а потом прибавьте три.', uz: "Avval to'rt karra besh ko'paytirishni bajaring, keyin uchni qo'shing.", en: 'First multiply four by five, then add three.' },
       },
       {
         kind: 'mc', correctIndex: 2,

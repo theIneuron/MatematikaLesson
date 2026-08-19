@@ -134,7 +134,7 @@ const CONTENT = {
         'Работает и наоборот. Если знаем стоимость и цену, делением находим количество. Если знаем стоимость и количество, находим цену.',
       ],
       uz: [
-        "Tanish uchlikni eslaymiz. Narx kara miqdor qiymatni beradi.",
+        "Tanish uchlikni eslaymiz. Narx karra miqdor qiymatni beradi.",
         "Sumka o'ttiz ming turadi, to'rttasi olindi: bir yuz yigirma ming.",
         "Teskarisi ham ishlaydi. Qiymat va narx ma'lum bo'lsa, bo'lish bilan miqdor topiladi. Qiymat va miqdor ma'lum bo'lsa, narx topiladi.",
       ],
@@ -167,8 +167,8 @@ const CONTENT = {
       ],
       uz: [
         "Endi ishga qaraymiz. Usta bir soatda nechta sumka tikishini unumdorlik deb atashadi.",
-        "Unumdorlik soatiga uchta sumka bo'lsa, besh soatda o'n beshta sumka chiqadi. Unumdorlik kara vaqt ishni beradi.",
-        "O'tgan satr bilan solishtiring: narx kara miqdor qiymatni beradi. Bu bitta uchlikning o'zi, faqat kattaliklar boshqacha ataladi. Demak bo'lish ham xuddi shunday ishlaydi.",
+        "Unumdorlik soatiga uchta sumka bo'lsa, besh soatda o'n beshta sumka chiqadi. Unumdorlik karra vaqt ishni beradi.",
+        "O'tgan satr bilan solishtiring: narx karra miqdor qiymatni beradi. Bu bitta uchlikning o'zi, faqat kattaliklar boshqacha ataladi. Demak bo'lish ham xuddi shunday ishlaydi.",
       ],
       en: [
         'Now look at work. How many bags a maker sews in one hour is called the rate.',
@@ -216,7 +216,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Известны производительность и время, а найти надо работу. Работа стоит в тройке посередине, значит умножаем: пять на три пятнадцать сумок.',
-        uz: "Unumdorlik va vaqt ma'lum, topish kerak bo'lgani ish. Ish uchlikda o'rtada turadi, demak ko'paytiramiz: besh kara uch o'n beshta sumka.",
+        uz: "Unumdorlik va vaqt ma'lum, topish kerak bo'lgani ish. Ish uchlikda o'rtada turadi, demak ko'paytiramiz: besh karra uch o'n beshta sumka.",
         en: 'The rate and the time are known and the work is wanted. Work sits in the middle of the trio, so multiply: five times three is fifteen bags.',
       },
       play: {
@@ -347,7 +347,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Цена умножить на количество даёт стоимость, и точно так же производительность умножить на время даёт работу. Среднюю величину тройки находят умножением, крайнюю делением. При совместной работе складывают производительности, а не времена, поэтому вместе всегда быстрее. Скидку считают от старой цены, а стоимость уже от новой. Вернёмся в мастерскую. Вместе заказ сошьют за четыре часа. Права была Мадина.',
-      uz: "Qoidani eslab qolamiz. Narx kara miqdor qiymatni beradi, xuddi shunday unumdorlik kara vaqt ishni beradi. Uchlikning o'rtadagi kattaligi ko'paytirish, chetdagisi bo'lish bilan topiladi. Birgalikda ishlaganda unumdorliklar qo'shiladi, vaqtlar emas, shuning uchun birga har doim tezroq. Chegirma eski narxdan, qiymat esa yangi narxdan hisoblanadi. Ustaxonaga qaytamiz. Buyurtmani birga to'rt soatda tikishadi. Madina haq edi.",
+      uz: "Qoidani eslab qolamiz. Narx karra miqdor qiymatni beradi, xuddi shunday unumdorlik karra vaqt ishni beradi. Uchlikning o'rtadagi kattaligi ko'paytirish, chetdagisi bo'lish bilan topiladi. Birgalikda ishlaganda unumdorliklar qo'shiladi, vaqtlar emas, shuning uchun birga har doim tezroq. Chegirma eski narxdan, qiymat esa yangi narxdan hisoblanadi. Ustaxonaga qaytamiz. Buyurtmani birga to'rt soatda tikishadi. Madina haq edi.",
       en: 'Let us remember the rule. Price times amount gives cost, and likewise rate times time gives work. The middle quantity of the trio comes from multiplying, an outer one from dividing. For joint work the rates add, not the times, so together is always faster. A discount comes off the old price and the cost from the new one. Back to the workshop. Together the order takes four hours. Madina was right.',
     },
   },
@@ -714,7 +714,7 @@ const CONTENT = {
       ],
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
-        "Narx kara miqdor qiymatni beradi, xuddi shunday unumdorlik kara vaqt ishni beradi. Uchlikning o'rtadagi kattaligi ko'paytirish, chetdagisi bo'lish bilan topiladi. Birgalikda ishlaganda unumdorliklar qo'shiladi, vaqtlar emas.",
+        "Narx karra miqdor qiymatni beradi, xuddi shunday unumdorlik karra vaqt ishni beradi. Uchlikning o'rtadagi kattaligi ko'paytirish, chetdagisi bo'lish bilan topiladi. Birgalikda ishlaganda unumdorliklar qo'shiladi, vaqtlar emas.",
         "Ustaxona: buyurtmani birga to'rt soatda tikishadi.",
       ],
       en: [

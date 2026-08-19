@@ -173,7 +173,7 @@ const CONTENT = {
       uz: [
         "Har xil o'lchamdagi uchta bankani olamiz. Har birini roppa-rosa bir marta ip bilan o'raymiz, ipni yozib chizg'ich bilan o'lchaymiz.",
         "Endi har bir bankada ip uzunligini diametrga bo'lamiz. Birinchisi: o'n ikki butun olti bo'linsin to'rtga. Ikkinchisi: yigirma ikki bo'linsin yettiga. Uchinchisi: o'ttiz bir butun to'rt bo'linsin o'nga. Har safar taxminan uch butun o'ndan bir chiqadi.",
-        "Banka o'lchami muhim emas, nisbat har doim bir xil. Bu son yunon pi harfi bilan belgilangan va taxminan uch butun yuzdan o'n to'rt deb olinadi. Demak aylana uzunligi pi kara diametrga teng.",
+        "Banka o'lchami muhim emas, nisbat har doim bir xil. Bu son yunon pi harfi bilan belgilangan va taxminan uch butun yuzdan o'n to'rt deb olinadi. Demak aylana uzunligi pi karra diametrga teng.",
       ],
       en: [
         'Take three jars of different sizes. Wrap each with string exactly once, straighten the string and measure it with a ruler.',
@@ -221,7 +221,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Длина окружности равна пи умножить на диаметр. Пи берём равным трём целым четырнадцати сотым. Умножаем на десять и получаем тридцать один и четыре десятых сантиметра. Проверим на глаз: три диаметра это тридцать, а у нас чуть больше. Сходится.',
-        uz: "Aylana uzunligi pi kara diametrga teng. Pi ni uch butun yuzdan o'n to'rt deb olamiz. O'nga ko'paytiramiz va o'ttiz bir butun o'ndan to'rt santimetr olamiz. Ko'z bilan tekshiramiz: uchta diametr o'ttiz, bizda esa sal ko'p. To'g'ri keldi.",
+        uz: "Aylana uzunligi pi karra diametrga teng. Pi ni uch butun yuzdan o'n to'rt deb olamiz. O'nga ko'paytiramiz va o'ttiz bir butun o'ndan to'rt santimetr olamiz. Ko'z bilan tekshiramiz: uchta diametr o'ttiz, bizda esa sal ko'p. To'g'ri keldi.",
         en: 'The circumference is pi times the diameter. Take pi as three point one four. Multiply by ten and get thirty one point four centimetres. Eyeball check: three diameters make thirty and ours is a bit more. It fits.',
       },
       play: {
@@ -231,7 +231,7 @@ const CONTENT = {
       },
       ok: {
         ru: 'Верно. Три целых четырнадцать сотых умножить на пять это пятнадцать и семь десятых.',
-        uz: "To'g'ri. Uch butun yuzdan o'n to'rt kara besh o'n besh butun o'ndan yetti.",
+        uz: "To'g'ri. Uch butun yuzdan o'n to'rt karra besh o'n besh butun o'ndan yetti.",
         en: 'Right. Three point one four times five is fifteen point seven.',
       },
       wrong: {
@@ -262,8 +262,8 @@ const CONTENT = {
         'Работает и обратный ход. Если известна длина, диаметр находят делением: длину разделить на пи. Так по обхвату дерева узнают его толщину, не спиливая.',
       ],
       uz: [
-        "Ko'pincha diametr emas, radius ma'lum bo'ladi. Ammo diametr ikkita radius, demak aylana uzunligi pi kara ikki er, ya'ni ikki pi er ga teng.",
-        "Masalan, radius uch santimetr. Ikki kara uch butun yuzdan o'n to'rt kara uch o'n sakkiz butun yuzdan sakson to'rt santimetr.",
+        "Ko'pincha diametr emas, radius ma'lum bo'ladi. Ammo diametr ikkita radius, demak aylana uzunligi pi karra ikki er, ya'ni ikki pi er ga teng.",
+        "Masalan, radius uch santimetr. Ikki karra uch butun yuzdan o'n to'rt karra uch o'n sakkiz butun yuzdan sakson to'rt santimetr.",
         "Teskari yo'l ham ishlaydi. Uzunlik ma'lum bo'lsa, diametr bo'lish bilan topiladi: uzunlikni pi ga bo'lamiz. Daraxtning yo'g'onligi ham kesmasdan, aylanasi orqali shunday bilinadi.",
       ],
       en: [
@@ -296,7 +296,7 @@ const CONTENT = {
       ],
       uz: [
         "Birga yechamiz. G'ildirak diametri yigirma santimetr, g'ildirak o'n marta aylandi.",
-        "Bir aylanishda g'ildirak aynan o'z aylana uzunligicha yuradi: uch butun yuzdan o'n to'rt kara yigirma oltmish ikki butun o'ndan sakkiz santimetr.",
+        "Bir aylanishda g'ildirak aynan o'z aylana uzunligicha yuradi: uch butun yuzdan o'n to'rt karra yigirma oltmish ikki butun o'ndan sakkiz santimetr.",
         "O'n aylanishda yo'l o'n barobar ko'p: olti yuz yigirma sakkiz santimetr, ya'ni olti metru yigirma sakkiz santimetr. Otabek aylana uzunligi o'rniga diametrni aytdi. Aziza haq edi.",
       ],
       en: [
@@ -352,7 +352,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Отношение длины окружности к её диаметру одинаково у всех кругов, каким бы ни был их размер. Это число обозначают греческой буквой пи и берут равным примерно трём целым четырнадцати сотым. Отсюда длина окружности равна пи умножить на диаметр или два пи умножить на радиус. Если известна длина, диаметр находят делением на пи. За один оборот колесо проезжает свою длину окружности. Вернёмся к самокату. Три целых четырнадцать сотых умножить на двадцать это шестьдесят два и восемь десятых сантиметра. Права была Азиза.',
-      uz: "Qoidani eslab qolamiz. Aylana uzunligining diametriga nisbati o'lchamidan qat'i nazar barcha doiralarda bir xil. Bu son yunon pi harfi bilan belgilanadi va taxminan uch butun yuzdan o'n to'rt deb olinadi. Bundan aylana uzunligi pi kara diametr yoki ikki pi kara radiusga teng. Uzunlik ma'lum bo'lsa, diametr pi ga bo'lish bilan topiladi. Bir aylanishda g'ildirak o'z aylana uzunligicha yuradi. Samokatga qaytamiz. Uch butun yuzdan o'n to'rt kara yigirma oltmish ikki butun o'ndan sakkiz santimetr. Aziza haq edi.",
+      uz: "Qoidani eslab qolamiz. Aylana uzunligining diametriga nisbati o'lchamidan qat'i nazar barcha doiralarda bir xil. Bu son yunon pi harfi bilan belgilanadi va taxminan uch butun yuzdan o'n to'rt deb olinadi. Bundan aylana uzunligi pi karra diametr yoki ikki pi karra radiusga teng. Uzunlik ma'lum bo'lsa, diametr pi ga bo'lish bilan topiladi. Bir aylanishda g'ildirak o'z aylana uzunligicha yuradi. Samokatga qaytamiz. Uch butun yuzdan o'n to'rt karra yigirma oltmish ikki butun o'ndan sakkiz santimetr. Aziza haq edi.",
       en: 'Let us remember the rule. The ratio of a circumference to its diameter is the same for every circle whatever its size. That number is written with the Greek letter pi and taken as about three point one four. So the circumference is pi times the diameter, or two pi times the radius. If the length is known, the diameter comes from dividing by pi. In one turn a wheel covers its own circumference. Back to the scooter. Three point one four times twenty is sixty two point eight centimetres. Aziza was right.',
     },
   },
@@ -598,7 +598,7 @@ const CONTENT = {
         kind: 'num', ans: 314,
         q: { ru: 'Диаметр колеса 100 см. Найди длину окружности в см.', uz: "G'ildirak diametri 100 sm. Aylana uzunligini sm da toping.", en: 'A wheel is 100 cm across. Find its circumference in cm.' },
         hint: { ru: 'Умножь 3,14 на 100.', uz: "3,14 ni 100 ga ko'paytiring.", en: 'Multiply 3.14 by 100.' },
-        hint_audio: { ru: 'Длина окружности это пи умножить на диаметр, то есть три целых четырнадцать сотых умножить на сто.', uz: "Aylana uzunligi pi kara diametr, ya'ni uch butun yuzdan o'n to'rt kara yuz.", en: 'The circumference is pi times the diameter, that is three point one four times one hundred.' },
+        hint_audio: { ru: 'Длина окружности это пи умножить на диаметр, то есть три целых четырнадцать сотых умножить на сто.', uz: "Aylana uzunligi pi karra diametr, ya'ni uch butun yuzdan o'n to'rt karra yuz.", en: 'The circumference is pi times the diameter, that is three point one four times one hundred.' },
       },
       {
         kind: 'mc', correctIndex: 2,
@@ -703,7 +703,7 @@ const CONTENT = {
       ],
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
-        "Aylana uzunligining diametrga nisbati barcha doiralarda bir xil, bu pi soni, taxminan uch butun yuzdan o'n to'rt. Uzunlik pi kara diametr yoki ikki pi kara radiusga teng. Uzunlik ma'lum bo'lsa, diametr pi ga bo'lish bilan topiladi.",
+        "Aylana uzunligining diametrga nisbati barcha doiralarda bir xil, bu pi soni, taxminan uch butun yuzdan o'n to'rt. Uzunlik pi karra diametr yoki ikki pi karra radiusga teng. Uzunlik ma'lum bo'lsa, diametr pi ga bo'lish bilan topiladi.",
         "Samokat: diametri yigirma santimetr bo'lgan g'ildirak bir aylanishda oltmish ikki butun o'ndan sakkiz santimetr yuradi.",
       ],
       en: [

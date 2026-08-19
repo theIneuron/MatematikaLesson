@@ -216,7 +216,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Бордюр идёт по краю, значит нужна длина окружности. Диаметр дан, берём формулу пи умножить на диаметр: три целых четырнадцать сотых умножить на шесть это восемнадцать и восемьдесят четыре сотых метра. Единица метры, и это правильно: длину меряют в метрах.',
-        uz: "Bordyur chetidan boradi, demak aylana uzunligi kerak. Diametr berilgan, pi kara diametr formulasini olamiz: uch butun yuzdan o'n to'rt kara olti o'n sakkiz butun yuzdan sakson to'rt metr. Birlik metr va bu to'g'ri: uzunlik metrda o'lchanadi.",
+        uz: "Bordyur chetidan boradi, demak aylana uzunligi kerak. Diametr berilgan, pi karra diametr formulasini olamiz: uch butun yuzdan o'n to'rt karra olti o'n sakkiz butun yuzdan sakson to'rt metr. Birlik metr va bu to'g'ri: uzunlik metrda o'lchanadi.",
         en: 'The border runs along the edge, so we need the circumference. The diameter is given, so use pi times the diameter: three point one four times six is eighteen point eight four metres. The unit is metres, which is right: length is measured in metres.',
       },
       play: {
@@ -292,7 +292,7 @@ const CONTENT = {
       uz: [
         "Birga yechamiz. Ko'rgazmada tomonlari uch, to'rt va besh detsimetr bo'lgan uchburchak flajok bor.",
         "Avval jiyak: u chetidan boradi, demak bu perimetr. Tomonlarni qo'shamiz: uch qo'shuv to'rt qo'shuv besh o'n ikki detsimetr.",
-        "Endi mato: u ichida, demak bu yuza. Asos to'rt, balandlik uch: to'rt kara uch o'n ikki, ikkiga bo'lamiz, olti kvadrat detsimetr chiqadi. Birliklarga e'tibor bering: jiyakda detsimetr, matoda kvadrat detsimetr.",
+        "Endi mato: u ichida, demak bu yuza. Asos to'rt, balandlik uch: to'rt karra uch o'n ikki, ikkiga bo'lamiz, olti kvadrat detsimetr chiqadi. Birliklarga e'tibor bering: jiyakda detsimetr, matoda kvadrat detsimetr.",
       ],
       en: [
         'Let us solve it together. The fair has a triangular flag with sides three, four and five decimetres.',
@@ -347,7 +347,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Соберём весь раздел. По краю фигуры считают длину: длина окружности это пи умножить на диаметр, а периметр это сумма сторон. Внутри фигуры считают площадь: у круга пи умножить на радиус в квадрате, у треугольника основание на высоту и разделить на два. Если фигуру наполняют, считают объём: произведение трёх измерений, и один кубический дециметр это литр. Симметрию проверяют складыванием и поворотом на пол-оборота. Данные описывают модой, медианой, средним и размахом. Вернёмся к клумбе. Бордюр идёт по краю, значит нужна длина окружности. Права была Зумрад.',
-      uz: "Butun bo'limni yig'amiz. Shakl chetidan uzunlik hisoblanadi: aylana uzunligi pi kara diametr, perimetr esa tomonlar yig'indisi. Shakl ichidan yuza hisoblanadi: doirada pi kara radius kvadrat, uchburchakda asos kara balandlik bo'linsin ikkiga. Shakl to'ldirilsa, hajm hisoblanadi: uch o'lchov ko'paytmasi, bir kub detsimetr esa litr. Simmetriya buklash va yarim aylantirish bilan tekshiriladi. Ma'lumotlar moda, mediana, o'rtacha va kenglik bilan tasvirlanadi. Gulzorga qaytamiz. Bordyur chetidan boradi, demak aylana uzunligi kerak. Zumrad haq edi.",
+      uz: "Butun bo'limni yig'amiz. Shakl chetidan uzunlik hisoblanadi: aylana uzunligi pi karra diametr, perimetr esa tomonlar yig'indisi. Shakl ichidan yuza hisoblanadi: doirada pi karra radius kvadrat, uchburchakda asos karra balandlik bo'linsin ikkiga. Shakl to'ldirilsa, hajm hisoblanadi: uch o'lchov ko'paytmasi, bir kub detsimetr esa litr. Simmetriya buklash va yarim aylantirish bilan tekshiriladi. Ma'lumotlar moda, mediana, o'rtacha va kenglik bilan tasvirlanadi. Gulzorga qaytamiz. Bordyur chetidan boradi, demak aylana uzunligi kerak. Zumrad haq edi.",
       en: 'Let us gather the whole section. Along the edge you compute length: the circumference is pi times the diameter and the perimeter is the sum of the sides. Inside you compute area: for a disc pi times the radius squared, for a triangle base times height divided by two. If a shape is filled, you compute volume: the product of three measurements, and one cubic decimetre is a litre. Symmetry is tested by folding and by a half turn. Data is described by mode, median, mean and range. Back to the bed. The border runs along the edge, so we need the circumference. Zumrad was right.',
     },
   },
@@ -701,7 +701,7 @@ const CONTENT = {
       ],
       uz: [
         "Bo'lim o'tildi, u bilan birga oltinchi sinf kursi ham. Asosiysini yig'amiz.",
-        "Biror narsa chetdan borsa, uzunlik hisoblanadi: aylana uzunligi pi kara diametr, perimetr tomonlar yig'indisi. Biror narsa shaklni ichidan qoplasa, yuza hisoblanadi. To'ldirsa, hajm hisoblanadi va bir kub detsimetr litr bo'ladi.",
+        "Biror narsa chetdan borsa, uzunlik hisoblanadi: aylana uzunligi pi karra diametr, perimetr tomonlar yig'indisi. Biror narsa shaklni ichidan qoplasa, yuza hisoblanadi. To'ldirsa, hajm hisoblanadi va bir kub detsimetr litr bo'ladi.",
         "Simmetriyani buklash va burish bilan tekshiramiz, ma'lumotlarni esa moda, mediana, o'rtacha va kenglik bilan tasvirlaymiz. Javobdagi birlik doim formula to'g'ri olinganini aytib turadi.",
       ],
       en: [

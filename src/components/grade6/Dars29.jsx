@@ -134,7 +134,7 @@ const CONTENT = {
         'А теперь главный вопрос сегодняшнего урока: что будет, если слагаемое отрицательное?',
       ],
       uz: [
-        "Boshlang'ich sinfni eslaymiz. Besh qo'shuv besh qo'shuv besh bu uch marta besh, ya'ni uch kara besh.",
+        "Boshlang'ich sinfni eslaymiz. Besh qo'shuv besh qo'shuv besh bu uch marta besh, ya'ni uch karra besh.",
         "Ko'paytirish bir xil qo'shiluvchilarning qisqa yozuvi.",
         "Endi bugungi darsning asosiy savoli: qo'shiluvchi manfiy bo'lsa nima bo'ladi?",
       ],
@@ -167,7 +167,7 @@ const CONTENT = {
       ],
       uz: [
         "Model har daqiqada uch metr pastga tushadi. To'rt daqiqada bu minus uch qo'shuv minus uch qo'shuv minus uch qo'shuv minus uch.",
-        "Qisqacha: minus uch kara to'rt. To'rtta bir xil pastga qadam.",
+        "Qisqacha: minus uch karra to'rt. To'rtta bir xil pastga qadam.",
         "Minus o'n ikki chiqdi, ya'ni chuqurlik o'n ikki metr. Ishoralar har xil bo'lganda ko'paytma manfiy.",
       ],
       en: [
@@ -211,7 +211,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Покажу порядок работы на примере минус четыре умножить на шесть.',
-        uz: "Ish tartibini minus to'rt kara olti misolida ko'rsataman.",
+        uz: "Ish tartibini minus to'rt karra olti misolida ko'rsataman.",
         en: 'I will show the working order on minus four times six.',
       },
       demo: {
@@ -221,12 +221,12 @@ const CONTENT = {
       },
       play: {
         ru: 'Теперь ваша очередь. Сколько будет минус пять умножить на три?',
-        uz: 'Endi sizning navbatingiz. Minus besh kara uch nechaga teng?',
+        uz: 'Endi sizning navbatingiz. Minus besh karra uch nechaga teng?',
         en: 'Now it is your turn. What is minus five times three?',
       },
       ok: {
         ru: 'Верно. Пять на три пятнадцать, знаки разные, поэтому минус.',
-        uz: "To'g'ri. Besh kara uch o'n besh, ishoralar har xil, shuning uchun minus.",
+        uz: "To'g'ri. Besh karra uch o'n besh, ishoralar har xil, shuning uchun minus.",
         en: 'Right. Five times three is fifteen, the signs differ, so minus.',
       },
       wrong: {
@@ -260,9 +260,9 @@ const CONTENT = {
         'Вернёмся к батискафу. Две минуты назад это минус две минуты, скорость минус три метра в минуту. Минус три на минус два это плюс шесть, значит модель была на шесть метров выше, чем сейчас. Глубина была шесть метров. Права была Нигора.',
       ],
       uz: [
-        "Ikkala ko'paytuvchi ham manfiy bo'lsa nima bo'ladi? Narvonga qaraymiz. Minus uch kara ikki bu minus olti. Minus uch kara bir bu minus uch. Minus uch kara nol bu nol.",
-        "Har safar natija uchga o'sadi. Narvonni davom ettiramiz: minus uch kara minus bir uchni beradi, minus uch kara minus ikki oltini beradi.",
-        "Batiskafga qaytamiz. Ikki daqiqa oldin bu minus ikki daqiqa, tezlik esa daqiqasiga minus uch metr. Minus uch kara minus ikki plyus olti, demak model hozirgidan olti metr yuqorida edi. Chuqurlik olti metr edi. Nigora haq edi.",
+        "Ikkala ko'paytuvchi ham manfiy bo'lsa nima bo'ladi? Narvonga qaraymiz. Minus uch karra ikki bu minus olti. Minus uch karra bir bu minus uch. Minus uch karra nol bu nol.",
+        "Har safar natija uchga o'sadi. Narvonni davom ettiramiz: minus uch karra minus bir uchni beradi, minus uch karra minus ikki oltini beradi.",
+        "Batiskafga qaytamiz. Ikki daqiqa oldin bu minus ikki daqiqa, tezlik esa daqiqasiga minus uch metr. Minus uch karra minus ikki plyus olti, demak model hozirgidan olti metr yuqorida edi. Chuqurlik olti metr edi. Nigora haq edi.",
       ],
       en: [
         'What if both factors are negative? Look at the ladder. Minus three times two is minus six. Minus three times one is minus three. Minus three times zero is zero.',
@@ -295,7 +295,7 @@ const CONTENT = {
       uz: [
         "Birga yechamiz. Minus o'ttiz olti bo'linsin minus to'rtga va ko'paytirilsin minus ikkiga.",
         "Birinchi qadam: o'ttiz olti va to'rt modullari to'qqizni beradi. Bo'linuvchi va bo'luvchi ishoralari bir xil, demak bo'linma musbat. To'qqiz.",
-        "Ikkinchi qadam: to'qqiz kara ikki o'n sakkiz, ishoralar har xil, demak minus o'n sakkiz. Birinchi qadamni ko'paytirish bilan tekshiramiz: to'qqiz kara minus to'rt bu minus o'ttiz olti. To'g'ri keldi.",
+        "Ikkinchi qadam: to'qqiz karra ikki o'n sakkiz, ishoralar har xil, demak minus o'n sakkiz. Birinchi qadamni ko'paytirish bilan tekshiramiz: to'qqiz karra minus to'rt bu minus o'ttiz olti. To'g'ri keldi.",
       ],
       en: [
         'Let us solve it together. Minus thirty six divided by minus four and multiplied by minus two.',
@@ -324,7 +324,7 @@ const CONTENT = {
       ],
       uz: [
         "Bu darsning eng ko'p uchraydigan xatosi. O'quvchi minus minusga plyus beradi deb yodlab oladi va buni qo'shishga ko'chiradi. Minus uch qo'shuv minus uchni olti deb yozadi.",
-        "Lekin bular boshqa amallar. Qo'shishda ikkala qadam ham chapga boradi, javob minus olti. Minus uch kara minus uch ko'paytmasi esa haqiqatan to'qqizni beradi.",
+        "Lekin bular boshqa amallar. Qo'shishda ikkala qadam ham chapga boradi, javob minus olti. Minus uch karra minus uch ko'paytmasi esa haqiqatan to'qqizni beradi.",
         "Yana biri: hech qanday ishorada nolga bo'lib bo'lmaydi. Bunday bo'linma mavjud emas.",
       ],
       en: [
@@ -350,7 +350,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Сначала работаем с модулями: перемножаем их или делим. Потом ставим знак. Если знаки множителей одинаковые, ответ положительный. Если разные, отрицательный. Для деления правило то же самое. На ноль делить нельзя. Вернёмся к батискафу. Минус три умножить на минус два это шесть: две минуты назад модель была на глубине шесть метров. Права была Нигора.',
-      uz: "Qoidani eslab qolamiz. Avval modullar bilan ishlaymiz: ularni ko'paytiramiz yoki bo'lamiz. Keyin ishora qo'yamiz. Ko'paytuvchilar ishorasi bir xil bo'lsa, javob musbat. Har xil bo'lsa, manfiy. Bo'lish uchun qoida ham o'sha. Nolga bo'lib bo'lmaydi. Batiskafga qaytamiz. Minus uch kara minus ikki bu olti: ikki daqiqa oldin model olti metr chuqurlikda edi. Nigora haq edi.",
+      uz: "Qoidani eslab qolamiz. Avval modullar bilan ishlaymiz: ularni ko'paytiramiz yoki bo'lamiz. Keyin ishora qo'yamiz. Ko'paytuvchilar ishorasi bir xil bo'lsa, javob musbat. Har xil bo'lsa, manfiy. Bo'lish uchun qoida ham o'sha. Nolga bo'lib bo'lmaydi. Batiskafga qaytamiz. Minus uch karra minus ikki bu olti: ikki daqiqa oldin model olti metr chuqurlikda edi. Nigora haq edi.",
       en: 'Let us remember the rule. First work with the absolute values: multiply or divide them. Then set the sign. Equal signs give a positive answer, different signs a negative one. Division follows the same rule. Never divide by zero. Back to the bathyscaphe. Minus three times minus two is six: two minutes ago the model was six metres deep. Nigora was right.',
     },
   },
@@ -547,7 +547,7 @@ const CONTENT = {
         ok: { ru: 'Верно. Проверка умножением: 5 · (−4) = −20.', uz: "To'g'ri. Ko'paytirish bilan tekshiruv: 5 · (−4) = −20.", en: 'Right. Check by multiplying: 5 · (−4) = −20.' },
         wrong: [
           null,
-          { ru: 'Минус пять на минус четыре дало бы двадцать, а не минус двадцать.', uz: "Minus besh kara minus to'rt yigirmani berardi, minus yigirmani emas.", en: 'Minus five times minus four would give twenty, not minus twenty.' },
+          { ru: 'Минус пять на минус четыре дало бы двадцать, а не минус двадцать.', uz: "Minus besh karra minus to'rt yigirmani berardi, minus yigirmani emas.", en: 'Minus five times minus four would give twenty, not minus twenty.' },
           { ru: 'Это вычитание, а здесь деление.', uz: "Bu ayirish, bu yerda esa bo'lish.", en: 'That is subtraction, but here we divide.' },
         ],
       },
@@ -714,7 +714,7 @@ const CONTENT = {
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
         "Avval modullar bilan ishlaymiz: ularni ko'paytiramiz yoki bo'lamiz. Keyin ishora qo'yamiz. Bir xil ishoralar plyus, har xillari minus beradi. Ko'paytirish va bo'lish uchun qoida bitta, nolga bo'lib esa bo'lmaydi.",
-        "Batiskaf: minus uch kara minus ikki bu olti metr.",
+        "Batiskaf: minus uch karra minus ikki bu olti metr.",
       ],
       en: [
         'The lesson is done. Let us gather the main points.',

@@ -135,7 +135,7 @@ const CONTENT = {
       ],
       uz: [
         "Yuzani eslaymiz. U kvadratchalar bilan o'lchanadi: shakl ichiga nechta kvadrat santimetr joylashadi.",
-        "To'g'ri to'rtburchakning yuzi tomonlar ko'paytmasiga teng. Kvadratning ikkala tomoni bir xil, shuning uchun yuzi a kara a ga teng. Bunday ko'paytmani sonning kvadrati deb atashadi.",
+        "To'g'ri to'rtburchakning yuzi tomonlar ko'paytmasiga teng. Kvadratning ikkala tomoni bir xil, shuning uchun yuzi a karra a ga teng. Bunday ko'paytmani sonning kvadrati deb atashadi.",
         "Masalan, besh sonining kvadrati yigirma besh, o'n sonining kvadrati esa yuz. Bugun bu asqotadi.",
       ],
       en: [
@@ -156,7 +156,7 @@ const CONTENT = {
     ],
     done: {
       ru: 'Круг занимает примерно 3,14 квадрата со стороной r. Отсюда площадь равна π умножить на r в квадрате.',
-      uz: "Doira tomoni r bo'lgan taxminan 3,14 ta kvadratni egallaydi. Bundan yuza π kara r kvadratga teng.",
+      uz: "Doira tomoni r bo'lgan taxminan 3,14 ta kvadratni egallaydi. Bundan yuza π karra r kvadratga teng.",
       en: 'A disc takes up about 3.14 squares of side r. Hence the area is π times r squared.',
     },
     audio: {
@@ -168,7 +168,7 @@ const CONTENT = {
       uz: [
         "Doirani katakli maydonga qo'yamiz va burchakda tomoni radiusga teng kvadrat quramiz.",
         "Endi doiraga bunday kvadratlardan nechtasi sig'ishiga qaraymiz. Bir, ikki, uch va yana kichik bir bo'lak. Kataklarni uzoq sanash mumkin, lekin har safar taxminan uch butun yuzdan o'n to'rt kvadrat chiqadi.",
-        "Bu yana o'sha pi soni, o'tgan darsdagi. Demak doira yuzi pi kara radius kvadratga teng.",
+        "Bu yana o'sha pi soni, o'tgan darsdagi. Demak doira yuzi pi karra radius kvadratga teng.",
       ],
       en: [
         'Put the disc on squared paper and build a square in the corner with the side equal to the radius.',
@@ -216,7 +216,7 @@ const CONTENT = {
       },
       demo: {
         ru: 'Сначала строим квадрат радиуса: десять умножить на десять это сто. Это площадь одного квадратика со стороной радиус. Теперь умножаем на пи: три целых четырнадцать сотых умножить на сто это триста четырнадцать квадратных сантиметров. Порядок важен: сначала квадрат, потом пи.',
-        uz: "Avval radius kvadratini quramiz: o'n kara o'n yuz. Bu tomoni radiusga teng bitta kvadratchaning yuzi. Endi pi ga ko'paytiramiz: uch butun yuzdan o'n to'rt kara yuz uch yuz o'n to'rt kvadrat santimetr. Tartib muhim: avval kvadrat, keyin pi.",
+        uz: "Avval radius kvadratini quramiz: o'n karra o'n yuz. Bu tomoni radiusga teng bitta kvadratchaning yuzi. Endi pi ga ko'paytiramiz: uch butun yuzdan o'n to'rt karra yuz uch yuz o'n to'rt kvadrat santimetr. Tartib muhim: avval kvadrat, keyin pi.",
         en: 'First build the radius square: ten times ten is one hundred. That is the area of one square with side equal to the radius. Now multiply by pi: three point one four times one hundred is three hundred fourteen square centimetres. Order matters: square first, then pi.',
       },
       play: {
@@ -226,7 +226,7 @@ const CONTENT = {
       },
       ok: {
         ru: 'Верно. Пять на пять двадцать пять, потом умножаем на пи.',
-        uz: "To'g'ri. Besh kara besh yigirma besh, keyin pi ga ko'paytiramiz.",
+        uz: "To'g'ri. Besh karra besh yigirma besh, keyin pi ga ko'paytiramiz.",
         en: 'Right. Five times five is twenty five, then multiply by pi.',
       },
       wrong: {
@@ -290,7 +290,7 @@ const CONTENT = {
         'Делим: тысяча двести пятьдесят шесть на триста четырнадцать это ровно четыре. Ширина выросла вдвое, а площадь вчетверо, потому что радиус входит в формулу дважды. Права была Дилноза.',
       ],
       uz: [
-        "Birga yechamiz. Kichik nonning eni yigirma, demak radiusi o'n. Yuzi uch butun yuzdan o'n to'rt kara yuz, ya'ni uch yuz o'n to'rt kvadrat santimetr.",
+        "Birga yechamiz. Kichik nonning eni yigirma, demak radiusi o'n. Yuzi uch butun yuzdan o'n to'rt karra yuz, ya'ni uch yuz o'n to'rt kvadrat santimetr.",
         "Kattasining eni qirq, radiusi yigirma. Yigirmaning kvadrati to'rt yuz, pi ga ko'paytiramiz va bir ming ikki yuz ellik olti chiqadi.",
         "Bo'lamiz: bir ming ikki yuz ellik oltini uch yuz o'n to'rtga bo'lsak roppa-rosa to'rt. En ikki barobar oshdi, yuza esa to'rt barobar, chunki radius formulaga ikki marta kiradi. Dilnoza haq edi.",
       ],
@@ -337,7 +337,7 @@ const CONTENT = {
     title: { ru: 'Площадь круга', uz: 'Doira yuzi', en: 'The area of a disc' },
     rule_1: {
       ru: 'Площадь круга равна π умножить на радиус в квадрате: S = πr². Сначала радиус умножают сам на себя, потом на π. Ответ получается в квадратных единицах.',
-      uz: "Doira yuzi π kara radius kvadratga teng: S = πr². Avval radius o'ziga, keyin π ga ko'paytiriladi. Javob kvadrat birliklarda chiqadi.",
+      uz: "Doira yuzi π karra radius kvadratga teng: S = πr². Avval radius o'ziga, keyin π ga ko'paytiriladi. Javob kvadrat birliklarda chiqadi.",
       en: 'The area of a disc is π times the radius squared: S = πr². Multiply the radius by itself first, then by π. The answer comes in square units.',
     },
     rule_2: {
@@ -347,7 +347,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Площадь круга равна пи умножить на радиус в квадрате. Сначала радиус умножают сам на себя, и только потом на пи. Ответ выходит в квадратных единицах, и это отличает площадь от длины окружности. Если дан диаметр, сначала находят радиус. При удвоении радиуса площадь растёт вчетверо, потому что радиус входит в формулу дважды. Вернёмся к лепёшкам. Сорок сантиметров вместо двадцати дают вчетверо больше площади. Права была Дилноза.',
-      uz: "Qoidani eslab qolamiz. Doira yuzi pi kara radius kvadratga teng. Avval radius o'ziga, keyingina pi ga ko'paytiriladi. Javob kvadrat birliklarda chiqadi va bu yuzani aylana uzunligidan farqlaydi. Diametr berilgan bo'lsa, avval radius topiladi. Radius ikki barobar oshsa, yuza to'rt barobar o'sadi, chunki radius formulaga ikki marta kiradi. Nonlarga qaytamiz. Yigirma o'rniga qirq santimetr to'rt barobar ko'p yuza beradi. Dilnoza haq edi.",
+      uz: "Qoidani eslab qolamiz. Doira yuzi pi karra radius kvadratga teng. Avval radius o'ziga, keyingina pi ga ko'paytiriladi. Javob kvadrat birliklarda chiqadi va bu yuzani aylana uzunligidan farqlaydi. Diametr berilgan bo'lsa, avval radius topiladi. Radius ikki barobar oshsa, yuza to'rt barobar o'sadi, chunki radius formulaga ikki marta kiradi. Nonlarga qaytamiz. Yigirma o'rniga qirq santimetr to'rt barobar ko'p yuza beradi. Dilnoza haq edi.",
       en: 'Let us remember the rule. The area of a disc is pi times the radius squared. Multiply the radius by itself first, only then by pi. The answer comes in square units, and that is what separates area from circumference. If the diameter is given, find the radius first. Doubling the radius quadruples the area, because the radius enters the formula twice. Back to the flatbreads. Forty centimetres instead of twenty gives four times the area. Dilnoza was right.',
     },
   },
@@ -706,7 +706,7 @@ const CONTENT = {
       ],
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
-        "Doira yuzi pi kara radius kvadratga teng. Avval radius o'ziga, keyingina pi ga ko'paytiriladi, javob esa kvadrat birliklarda chiqadi. Diametr berilgan bo'lsa, avval radius topiladi.",
+        "Doira yuzi pi karra radius kvadratga teng. Avval radius o'ziga, keyingina pi ga ko'paytiriladi, javob esa kvadrat birliklarda chiqadi. Diametr berilgan bo'lsa, avval radius topiladi.",
         "Nonlar: ikki barobar keng bo'lsa, yuzi to'rt barobar katta.",
       ],
       en: [

@@ -750,7 +750,7 @@ const CONTENT = {
     m1_title: { ru: 'Способ. Проверить одно число', uz: "Usul. Bitta sonni tekshirish", en: 'Method. Check one number' },
     m1_steps: {
       ru: ['Закрой все цифры, кроме последней', 'Сравни её с нужным списком', 'Совпала — делится, нет — не делится'],
-      uz: ["Oxirgisidan boshqa hamma raqamni yop", "Uni kerakli ro'yxat bilan solishtir", "Mos keldi — bo'linadi, yo'q — bo'linmaydi"],
+      uz: ["Oxirgisidan boshqa hamma raqamni yoping", "Uni kerakli ro'yxat bilan solishtiring", "Mos keldi — bo'linadi, yo'q — bo'linmaydi"],
       en: ['Cover every digit but the last', 'Compare it with the right list', 'A match means it divides, no match means it does not'],
     },
     m1_no: {

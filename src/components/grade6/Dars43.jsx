@@ -134,8 +134,8 @@ const CONTENT = {
         'А как найти площадь треугольника? Хитрость в том, чтобы свести его к знакомому прямоугольнику.',
       ],
       uz: [
-        "To'rtburchak yuzini eslaymiz. U ikki tomonning ko'paytmasiga teng: qatordagi kataklar soni kara qatorlar soni.",
-        "Masalan, sakkiz kara besh qirq katak.",
+        "To'rtburchak yuzini eslaymiz. U ikki tomonning ko'paytmasiga teng: qatordagi kataklar soni karra qatorlar soni.",
+        "Masalan, sakkiz karra besh qirq katak.",
         "Uchburchak yuzini qanday topamiz? Hiylasi shunda: uni tanish to'rtburchakka keltirish kerak.",
       ],
       en: [
@@ -168,7 +168,7 @@ const CONTENT = {
       uz: [
         "Uchburchakni olib, xuddi shunday ikkinchisini qirqib olamiz. Uni o'girib, birinchisiga qo'shamiz.",
         "To'rtburchak hosil bo'ldi. Uning tomonlari uchburchakning asosi va shu asosga tushirilgan balandlik.",
-        "To'rtburchak yuzi asos kara balandlikka teng, uchburchak esa roppa-rosa yarmini egallaydi. Demak uchburchak yuzi asos kara balandlik bo'linsin ikkiga.",
+        "To'rtburchak yuzi asos karra balandlikka teng, uchburchak esa roppa-rosa yarmini egallaydi. Demak uchburchak yuzi asos karra balandlik bo'linsin ikkiga.",
       ],
       en: [
         'Take a triangle and cut out a second one exactly like it. Flip it over and attach it to the first.',
@@ -226,7 +226,7 @@ const CONTENT = {
       },
       ok: {
         ru: 'Верно. Шесть на четыре двадцать четыре, половина это двенадцать.',
-        uz: "To'g'ri. Olti kara to'rt yigirma to'rt, yarmi o'n ikki.",
+        uz: "To'g'ri. Olti karra to'rt yigirma to'rt, yarmi o'n ikki.",
         en: 'Right. Six times four is twenty four and half of that is twelve.',
       },
       wrong: {
@@ -291,7 +291,7 @@ const CONTENT = {
       ],
       uz: [
         "Birga yechamiz. Varrak umumiy asosi olti santimetr bo'lgan ikki uchburchakdan iborat. Yuqorisining balandligi to'rt, pastkisining ikki.",
-        "Yuqorisini hisoblaymiz: olti kara to'rt yigirma to'rt, ikkiga bo'lamiz, o'n ikki chiqadi. Pastkisi: olti kara ikki o'n ikki, ikkiga bo'lamiz, olti chiqadi.",
+        "Yuqorisini hisoblaymiz: olti karra to'rt yigirma to'rt, ikkiga bo'lamiz, o'n ikki chiqadi. Pastkisi: olti karra ikki o'n ikki, ikkiga bo'lamiz, olti chiqadi.",
         "Qismlarni qo'shamiz: o'n ikki qo'shuv olti bu o'n sakkiz kvadrat santimetr. Barcha murakkab shakllar bilan shunday ishlanadi: oddiy qismlarga bo'lib qo'shish. Ba'zan esa shaklni to'rtburchak bilan o'rab, ortiqcha burchaklarni ayirish qulayroq.",
       ],
       en: [
@@ -337,7 +337,7 @@ const CONTENT = {
     title: { ru: 'Половина прямоугольника', uz: "To'rtburchakning yarmi", en: 'Half a rectangle' },
     rule_1: {
       ru: 'Площадь треугольника равна основанию, умноженному на высоту, делённому на два: S = ah : 2. Высота — перпендикуляр от вершины к основанию.',
-      uz: "Uchburchak yuzi asos kara balandlik bo'linsin ikkiga: S = ah : 2. Balandlik — uchdan asosga tushirilgan perpendikular.",
+      uz: "Uchburchak yuzi asos karra balandlik bo'linsin ikkiga: S = ah : 2. Balandlik — uchdan asosga tushirilgan perpendikular.",
       en: 'The area of a triangle is base times height divided by two: S = ah : 2. The height is the perpendicular from the apex to the base.',
     },
     rule_2: {
@@ -347,7 +347,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Площадь треугольника равна основанию, умноженному на высоту и делённому на два, потому что два одинаковых треугольника складываются в прямоугольник. Высота это перпендикуляр от вершины к основанию, а не наклонная сторона. При одном основании и одной высоте площадь не зависит от наклона. Составные фигуры разбивают на простые части и складывают площади, а иногда обводят прямоугольником и вычитают лишнее. Вернёмся к змею. У обоих парусов основание и высота одинаковые, значит и бумаги уйдёт одинаково. Права была Лола.',
-      uz: "Qoidani eslab qolamiz. Uchburchak yuzi asos kara balandlik bo'linsin ikkiga, chunki ikkita bir xil uchburchak to'rtburchakka yig'iladi. Balandlik uchdan asosga tushirilgan perpendikular, qiya tomon emas. Bir xil asos va balandlikda yuza qiyalikka bog'liq emas. Murakkab shakllar oddiy qismlarga bo'linib yuzalari qo'shiladi, ba'zan to'rtburchak bilan o'rab ortiqchasi ayiriladi. Varrakka qaytamiz. Ikkala yelkanning asosi va balandligi bir xil, demak qog'oz ham bir xil ketadi. Lola haq edi.",
+      uz: "Qoidani eslab qolamiz. Uchburchak yuzi asos karra balandlik bo'linsin ikkiga, chunki ikkita bir xil uchburchak to'rtburchakka yig'iladi. Balandlik uchdan asosga tushirilgan perpendikular, qiya tomon emas. Bir xil asos va balandlikda yuza qiyalikka bog'liq emas. Murakkab shakllar oddiy qismlarga bo'linib yuzalari qo'shiladi, ba'zan to'rtburchak bilan o'rab ortiqchasi ayiriladi. Varrakka qaytamiz. Ikkala yelkanning asosi va balandligi bir xil, demak qog'oz ham bir xil ketadi. Lola haq edi.",
       en: 'Let us remember the rule. The area of a triangle is base times height divided by two, because two identical triangles make a rectangle. The height is the perpendicular from the apex to the base, not a slanted side. With the same base and height the area does not depend on the lean. Compound shapes are cut into simple parts and added, or boxed in and the extra subtracted. Back to the kite. Both sails share base and height, so they take the same paper. Lola was right.',
     },
   },
@@ -698,7 +698,7 @@ const CONTENT = {
       ],
       uz: [
         "Dars o'tildi. Asosiysini yig'amiz.",
-        "Uchburchak yuzi asos kara balandlik bo'linsin ikkiga, chunki ikkita bir xil uchburchak to'rtburchakka yig'iladi. Balandlik asosga to'g'ri burchak ostida boradi, shaklning qiyaligi esa yuzani o'zgartirmaydi. Murakkab shakllar qismlarga bo'linadi yoki to'rtburchak bilan o'ralib ortiqchasi ayiriladi.",
+        "Uchburchak yuzi asos karra balandlik bo'linsin ikkiga, chunki ikkita bir xil uchburchak to'rtburchakka yig'iladi. Balandlik asosga to'g'ri burchak ostida boradi, shaklning qiyaligi esa yuzani o'zgartirmaydi. Murakkab shakllar qismlarga bo'linadi yoki to'rtburchak bilan o'ralib ortiqchasi ayiriladi.",
         "Varrak: ikkala yelkanga qog'oz bir xil ketadi.",
       ],
       en: [

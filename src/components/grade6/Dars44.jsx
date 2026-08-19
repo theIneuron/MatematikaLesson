@@ -166,9 +166,9 @@ const CONTENT = {
         'Всего кубиков двадцать умножить на три, то есть шестьдесят. Значит объём равен произведению длины, ширины и высоты. У куба все три измерения одинаковые, поэтому объём это сторона, умноженная сама на себя трижды.',
       ],
       uz: [
-        "Besh kara to'rt santimetr, balandligi uch qutini olamiz. Tubini kubchalar bilan to'ldiramiz: qatorda beshta, qator to'rtta, demak qavatda yigirmata kubcha.",
+        "Besh karra to'rt santimetr, balandligi uch qutini olamiz. Tubini kubchalar bilan to'ldiramiz: qatorda beshta, qator to'rtta, demak qavatda yigirmata kubcha.",
         "Endi xuddi shunday ikkinchi qavatni, keyin uchinchisini qo'yamiz. Qavatlar balandlik qancha bo'lsa shuncha, ya'ni uchta.",
-        "Jami kubchalar yigirma kara uch, ya'ni oltmish. Demak hajm uzunlik, kenglik va balandlik ko'paytmasiga teng. Kubda uchala o'lchov bir xil, shuning uchun hajm tomonni o'ziga uch marta ko'paytirish.",
+        "Jami kubchalar yigirma karra uch, ya'ni oltmish. Demak hajm uzunlik, kenglik va balandlik ko'paytmasiga teng. Kubda uchala o'lchov bir xil, shuning uchun hajm tomonni o'ziga uch marta ko'paytirish.",
       ],
       en: [
         'Take a box five by four centimetres and three tall. Cover the bottom with cubes: five in a row, four rows, so twenty cubes in a layer.',
@@ -211,17 +211,17 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Покажу расчёт. Коробка шесть на три сантиметра, высотой два.',
-        uz: "Hisobni ko'rsataman. Quti olti kara uch santimetr, balandligi ikki.",
+        uz: "Hisobni ko'rsataman. Quti olti karra uch santimetr, balandligi ikki.",
         en: 'I will show the calculation. A box six by three centimetres, two tall.',
       },
       demo: {
         ru: 'Считаем дно: шесть на три это восемнадцать кубиков в слое. Высота два, значит слоёв тоже два. Восемнадцать умножить на два это тридцать шесть кубических сантиметров.',
-        uz: "Tubini hisoblaymiz: olti kara uch qavatda o'n sakkiz kubcha. Balandlik ikki, demak qavatlar ham ikkita. O'n sakkiz kara ikki o'ttiz olti kub santimetr.",
+        uz: "Tubini hisoblaymiz: olti karra uch qavatda o'n sakkiz kubcha. Balandlik ikki, demak qavatlar ham ikkita. O'n sakkiz karra ikki o'ttiz olti kub santimetr.",
         en: 'Count the bottom: six by three is eighteen cubes per layer. The height is two, so there are two layers. Eighteen times two is thirty six cubic centimetres.',
       },
       play: {
         ru: 'Теперь ваша очередь. Коробка семь на два сантиметра, высотой три. Чему равен объём?',
-        uz: 'Endi sizning navbatingiz. Quti yetti kara ikki santimetr, balandligi uch. Hajmi nechaga teng?',
+        uz: 'Endi sizning navbatingiz. Quti yetti karra ikki santimetr, balandligi uch. Hajmi nechaga teng?',
         en: 'Now it is your turn. A box seven by two centimetres, three tall. What is the volume?',
       },
       ok: {
@@ -258,7 +258,7 @@ const CONTENT = {
       ],
       uz: [
         "Tomoni bir detsimetr, ya'ni o'n santimetr kubchani olamiz. Uning hajmi bir kub detsimetr.",
-        "Unda nechta kub santimetr bor? O'n kara o'n kara o'n, ya'ni ming. O'n ham, yuz ham emas, aynan ming: o'lchov uchta va har biri o'n barobar oshdi.",
+        "Unda nechta kub santimetr bor? O'n karra o'n karra o'n, ya'ni ming. O'n ham, yuz ham emas, aynan ming: o'lchov uchta va har biri o'n barobar oshdi.",
         "Eng foydalisi: bir kub detsimetr roppa-rosa bir litr. Litr shunday o'ylab topilgan. Demak kub santimetrdan litrga mingga bo'lib o'tiladi.",
       ],
       en: [
@@ -290,8 +290,8 @@ const CONTENT = {
         'А в одном литре тысяча кубических сантиметров. Делим двадцать тысяч на тысячу и получаем двадцать литров. Права была Мадина: число посчитано верно, ошибка была в единице.',
       ],
       uz: [
-        "Birga yechamiz. Akvarium tubi qirq kara yigirma, bu sakkiz yuz kvadrat santimetr. Balandlik yigirma besh, demak qavatlar yigirma beshta.",
-        "Sakkiz yuz kara yigirma besh yigirma ming kub santimetr. Sanjar shu sonni aytdi, lekin uni litr deb atadi.",
+        "Birga yechamiz. Akvarium tubi qirq karra yigirma, bu sakkiz yuz kvadrat santimetr. Balandlik yigirma besh, demak qavatlar yigirma beshta.",
+        "Sakkiz yuz karra yigirma besh yigirma ming kub santimetr. Sanjar shu sonni aytdi, lekin uni litr deb atadi.",
         "Bir litrda esa ming kub santimetr bor. Yigirma mingni mingga bo'lib, yigirma litr olamiz. Madina haq edi: son to'g'ri hisoblangan, xato birlikda edi.",
       ],
       en: [
@@ -321,7 +321,7 @@ const CONTENT = {
       ],
       uz: [
         "Darsning asosiy xatosi birliklarda. Bir detsimetrda o'n santimetr bor va kub detsimetrda ham o'n kub santimetr bordek tuyuladi.",
-        "Ammo o'n kara o'n kara o'n kubcha mingta kichik kubchani o'z ichiga oladi. O'lchov uchta va har biri o'n barobar oshdi: o'n kara o'n kara o'n.",
+        "Ammo o'n karra o'n karra o'n kubcha mingta kichik kubchani o'z ichiga oladi. O'lchov uchta va har biri o'n barobar oshdi: o'n karra o'n karra o'n.",
         "Ikkinchi xato shundan: to'g'ri son hisoblangan, lekin noto'g'ri birlik bilan atalgan. Yigirma ming bu kub santimetr, litrda esa yigirma bo'ladi. Birlikni doim son bilan birga aytib chiqing.",
       ],
       en: [
@@ -347,7 +347,7 @@ const CONTENT = {
     },
     audio: {
       ru: 'Запомним правило. Объём прямоугольной коробки равен произведению длины, ширины и высоты, потому что в одном слое умещается длина на ширину кубиков, а слоёв столько, какова высота. У куба все три измерения равны. Единица объёма всегда кубическая. Один кубический дециметр это тысяча кубических сантиметров и ровно один литр. Вернёмся к аквариуму. Двадцать тысяч кубических сантиметров это двадцать литров. Права была Мадина.',
-      uz: "Qoidani eslab qolamiz. To'g'ri burchakli qutining hajmi uzunlik, kenglik va balandlik ko'paytmasiga teng, chunki bir qavatga uzunlik kara kenglik kubcha joylashadi, qavatlar esa balandlik qancha bo'lsa shuncha. Kubda uchala o'lchov teng. Hajm birligi doim kub. Bir kub detsimetr ming kub santimetr va roppa-rosa bir litr. Akvariumga qaytamiz. Yigirma ming kub santimetr bu yigirma litr. Madina haq edi.",
+      uz: "Qoidani eslab qolamiz. To'g'ri burchakli qutining hajmi uzunlik, kenglik va balandlik ko'paytmasiga teng, chunki bir qavatga uzunlik karra kenglik kubcha joylashadi, qavatlar esa balandlik qancha bo'lsa shuncha. Kubda uchala o'lchov teng. Hajm birligi doim kub. Bir kub detsimetr ming kub santimetr va roppa-rosa bir litr. Akvariumga qaytamiz. Yigirma ming kub santimetr bu yigirma litr. Madina haq edi.",
       en: 'Let us remember the rule. The volume of a rectangular box is length times width times height, because one layer holds length by width cubes and there are as many layers as the height. A cube has three equal measurements. The unit of volume is always cubic. One cubic decimetre is a thousand cubic centimetres and exactly one litre. Back to the tank. Twenty thousand cubic centimetres is twenty litres. Madina was right.',
     },
   },
@@ -578,7 +578,7 @@ const CONTENT = {
     audio: {
       intro: {
         ru: 'Задача про аквариум. Он сорок на двадцать сантиметров, высотой двадцать пять, а лейка вмещает пять литров.',
-        uz: "Akvarium haqida masala. U qirq kara yigirma santimetr, balandligi yigirma besh, chelak esa besh litr suv oladi.",
+        uz: "Akvarium haqida masala. U qirq karra yigirma santimetr, balandligi yigirma besh, chelak esa besh litr suv oladi.",
         en: 'A tank problem. It is forty by twenty centimetres, twenty five tall, and the jug holds five litres.',
       },
     },
@@ -593,7 +593,7 @@ const CONTENT = {
         kind: 'num', ans: 1000,
         q: { ru: 'Сколько кубических сантиметров в одном литре?', uz: 'Bir litrda nechta kub santimetr bor?', en: 'How many cubic centimetres in one litre?' },
         hint: { ru: 'Это кубик 10 на 10 на 10.', uz: 'Bu 10 ga 10 ga 10 kubcha.', en: 'It is a 10 by 10 by 10 cube.' },
-        hint_audio: { ru: 'Литр это кубик со стороной десять сантиметров, значит перемножьте десять на десять на десять.', uz: "Litr tomoni o'n santimetr kubcha, demak o'n kara o'n kara o'nni ko'paytiring.", en: 'A litre is a cube of side ten centimetres, so multiply ten by ten by ten.' },
+        hint_audio: { ru: 'Литр это кубик со стороной десять сантиметров, значит перемножьте десять на десять на десять.', uz: "Litr tomoni o'n santimetr kubcha, demak o'n karra o'n karra o'nni ko'paytiring.", en: 'A litre is a cube of side ten centimetres, so multiply ten by ten by ten.' },
       },
       {
         kind: 'mc', correctIndex: 2,
@@ -708,7 +708,7 @@ const CONTENT = {
     m1_title: { ru: 'Способ. Слой и высота', uz: 'Usul. Qavat va balandlik', en: 'Method. Layer and height' },
     m1_steps: {
       ru: ['Посчитай кубики в одном слое: длина на ширину', 'Умножь на высоту: столько слоёв', 'Назови единицу: кубическая, а в литрах делим на 1000'],
-      uz: ['Bir qavatdagi kubchalarni sanang: uzunlik kara kenglik', "Balandlikka ko'paytiring: qavatlar shuncha", "Birlikni ayting: kub, litrda esa 1000 ga bo'lamiz"],
+      uz: ['Bir qavatdagi kubchalarni sanang: uzunlik karra kenglik', "Balandlikka ko'paytiring: qavatlar shuncha", "Birlikni ayting: kub, litrda esa 1000 ga bo'lamiz"],
       en: ['Count cubes in one layer: length by width', 'Multiply by the height: that many layers', 'Name the unit: cubic, and for litres divide by 1000'],
     },
     m1_no: {

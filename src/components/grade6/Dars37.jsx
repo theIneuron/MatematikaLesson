@@ -226,7 +226,7 @@ const CONTENT = {
       },
       ok: {
         ru: 'Верно. Семь умножить на два это четырнадцать сантиметров.',
-        uz: "To'g'ri. Yetti kara ikki o'n to'rt santimetr.",
+        uz: "To'g'ri. Yetti karra ikki o'n to'rt santimetr.",
         en: 'Right. Seven times two is fourteen centimetres.',
       },
       wrong: {
