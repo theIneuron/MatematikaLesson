@@ -399,7 +399,7 @@ const S2 = {
         show: 'a · a + a',
         hint: L(
           "Bu yerda bo'lish umuman yo'q, faqat ko'paytirish va qo'shish.",
-          'Здесь деления нет вовсе — только умножение и сложение.',
+          'Здесь деления нет вовсе, только умножение и сложение.',
           'There is no division here at all, only multiplication and addition.',
         ),
       },
@@ -1021,7 +1021,7 @@ const S9 = {
         question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
-          { id: 'b', label: 'a ≠ 5', hint: L('Beshlik yuqorida turibdi, u maxrajga kirmaydi.', 'Пятёрка стоит сверху, в знаменатель она не входит.', 'The five is above; it is not in the denominator.') },
+          { id: 'b', label: 'a ≠ 5', hint: L('Beshlik suratda turibdi, maxrajga kirmaydi.', 'Пятёрка стоит в числителе, в знаменатель не входит.', 'The five is above; it is not in the denominator.') },
           { id: 'c', label: L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value'), hint: L('Maxrajda harf bor, demak taqiq ham bor.', 'В знаменателе есть буква, значит запрет есть.', 'There is a letter in the denominator, so there is a restriction.') },
         ],
         solution: ['a = 0', 'a ≠ 0'],
@@ -1032,7 +1032,7 @@ const S9 = {
         items: [
           { id: 'a', right: true, label: 'a ≠ 2' },
           { id: 'b', label: 'a ≠ 0', hint: L('Nolda a − 2 minus ikkiga teng, bu nol emas.', 'При нуле a − 2 равно минус двум, а это не нуль.', 'At zero a − 2 equals minus two, not zero.') },
-          { id: 'c', label: 'a ≠ 9', hint: L("To'qqiz yuqorida, maxrajga ta'sir qilmaydi.", 'Девятка сверху, на знаменатель не влияет.', 'The nine is above and does not affect the denominator.') },
+          { id: 'c', label: 'a ≠ 9', hint: L("To'qqiz suratda, maxrajga ta'sir qilmaydi.", 'Девятка в числителе, на знаменатель не влияет.', 'The nine is above and does not affect the denominator.') },
         ],
         solution: ['a − 2 = 0', 'a = 2', 'a ≠ 2'],
       },
@@ -1152,8 +1152,8 @@ const S10 = {
         ),
         items: [
           { id: 'a', right: true, label: 'x ≠ 2,  x ≠ −5' },
-          { id: 'b', label: 'x ≠ 2', hint: L("Bitta shart yetmaydi: minus beshda maxraj yana nolga aylanadi.", 'Одного условия мало: при минус пяти знаменатель снова обращается в нуль.', 'One condition is not enough: at minus five the denominator becomes zero again.') },
-          { id: 'c', label: 'x ≠ 2,  x ≠ 5,  x ≠ −1', hint: L("Beshda va minus birda maxraj nolga aylanmaydi — ortiqcha shartlar.", 'При пяти и минус единице знаменатель в нуль не обращается — лишние условия.', 'At five and minus one the denominator is not zero: extra conditions.') },
+          { id: 'b', label: 'x ≠ 2', hint: L("Bitta shart yetmaydi, minus beshda maxraj yana nolga aylanadi.", 'Одного условия мало, при минус пяти знаменатель снова обращается в нуль.', 'One condition is not enough, at minus five the denominator becomes zero again.') },
+          { id: 'c', label: 'x ≠ 2,  x ≠ 5,  x ≠ −1', hint: L("Beshda va minus birda maxraj nolga aylanmaydi, ortiqcha shartlar.", 'При пяти и минус единице знаменатель в нуль не обращается, лишние условия.', 'At five and minus one the denominator is not zero, extra conditions.') },
         ],
         solution: ['(x − 2)(x + 5) = 0', 'x = 2   yoki   x = −5', 'x ≠ 2,  x ≠ −5'],
       },
@@ -1200,7 +1200,7 @@ const S11 = {
         items: [
           { id: 'a', right: true, label: 'x ≠ 0,  x ≠ 3' },
           { id: 'b', label: 'x ≠ 3', hint: L('Nolda x ning o\'zi nolga aylanadi.', 'При нуле сам x обращается в нуль.', 'At zero, x itself becomes zero.') },
-          { id: 'c', label: 'x ≠ 8', hint: L('Sakkiz yuqorida, maxrajga kirmaydi.', 'Восьмёрка сверху, в знаменатель не входит.', 'The eight is above, not in the denominator.') },
+          { id: 'c', label: 'x ≠ 8', hint: L('Sakkiz suratda, maxrajga kirmaydi.', 'Восьмёрка в числителе, в знаменатель не входит.', 'The eight is above, not in the denominator.') },
         ],
         solution: ['x(x − 3) = 0', 'x = 0   yoki   x = 3', 'x ≠ 0,  x ≠ 3'],
       },
@@ -1273,8 +1273,8 @@ const S12 = {
         ),
         items: [
           { id: 'a', right: true, label: L('Uchinchi: x = 16', 'Третья: x = 16', 'Third: x = 16') },
-          { id: 'b', label: L('Birinchi: 2x − 8 = 0', 'Первая: 2x − 8 = 0', 'First: 2x − 8 = 0'), hint: L('Birinchi qator to\'g\'ri: maxraj nolga tenglanadi.', 'Первая строка верна: знаменатель приравнивают к нулю.', 'The first line is correct: the denominator is set to zero.') },
-          { id: 'c', label: L('Ikkinchi: 2x = 8', 'Вторая: 2x = 8', 'Second: 2x = 8'), hint: L('Ikkinchi ham to\'g\'ri: sakkiz o\'ng tomonga o\'tdi.', 'Вторая тоже верна: восьмёрка перешла вправо.', 'The second is correct too: the eight moved to the right.') },
+          { id: 'b', label: L('Birinchi: 2x − 8 = 0', 'Первая: 2x − 8 = 0', 'First: 2x − 8 = 0'), hint: L('Birinchi qator to\'g\'ri, maxraj nolga tenglanadi.', 'Первая строка верна, знаменатель приравнивают к нулю.', 'The first line is correct, the denominator is set to zero.') },
+          { id: 'c', label: L('Ikkinchi: 2x = 8', 'Вторая: 2x = 8', 'Second: 2x = 8'), hint: L('Ikkinchi ham to\'g\'ri, sakkiz o\'ng tomonga o\'tdi.', 'Вторая тоже верна, восьмёрка перешла вправо.', 'The second is correct too, the eight moved to the right.') },
         ],
         solution: ['2x − 8 = 0', '2x = 8', 'x = 4', 'x ≠ 4'],
       },
@@ -1288,7 +1288,7 @@ const S12 = {
         items: [
           { id: 'a', right: true, label: L("Yo'q, x ≠ 6", 'Нет, x ≠ 6', 'No, it is x ≠ 6') },
           { id: 'b', label: L('Ha, to\'g\'ri', 'Да, верно', 'Yes, correct'), hint: L('Suratdagi nol qiymatni nol qiladi, aniqlanmasligini bermaydi.', 'Нуль в числителе делает значение нулём, а не запретом.', 'A zero in the numerator makes the value zero, not a restriction.') },
-          { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng: nol bo\'lingan olti.', 'При нуле значение есть и равно нулю: нуль делить на минус шесть.', 'At zero the value exists and equals zero: zero divided by minus six.') },
+          { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng, nol bo\'lingan olti.', 'При нуле значение есть и равно нулю: нуль делить на минус шесть.', 'At zero the value exists and equals zero: zero divided by minus six.') },
         ],
         solution: ['x − 6 = 0', 'x = 6', 'x ≠ 6'],
       },
@@ -1401,6 +1401,11 @@ const S14 = {
     items: [
       {
         id: 'q1',
+        ok: L(
+          "To'g'ri. Faqat maxraj nolga aylanib qiymatni yo'q qiladi.",
+          'Верно. Только знаменатель, обратившись в нуль, убирает значение.',
+          'Correct. Only the denominator can become zero and remove the value.',
+        ),
         tag: 'З2',
         ask: L(
           "Ruhsat etilgan qiymatlarni topish uchun nimaga qaraladi?",
@@ -1412,13 +1417,18 @@ const S14 = {
           { id: 'den', right: true, label: L('maxraj', 'знаменатель', 'the denominator') },
         ],
         hint: L(
-          "Qiymat bo'lmasligi bo'lish mumkin bo'lmaganda yuz beradi. Bo'linadigan narsa chiziq ostida turadi.",
-          'Значения нет тогда, когда делить нельзя. Делят на то, что стоит под чертой.',
-          'A value is missing when division is impossible. You divide by what is under the bar.',
+          "Qiymat bo'lish mumkin bo'lmaganda yo'qoladi. Bo'linadigan narsa esa maxrajda turadi.",
+          'Значения нет тогда, когда делить нельзя. Делят на знаменатель.',
+          'A value is missing when division is impossible. You divide by the denominator.',
         ),
       },
       {
         id: 'q2',
+        ok: L(
+          "To'g'ri. Songa bo'linadi, uchlik nol bo'lmaydi, demak ifoda butun.",
+          'Верно. Делят на число, тройка нулём не станет, значит выражение целое.',
+          'Correct. You divide by a number, a three never becomes zero, so the expression is integral.',
+        ),
         tag: 'З19',
         ask: L(
           "2x + 6 ni 3 ga bo'lish — butun ifodami yoki kasrmi?",
@@ -1430,13 +1440,18 @@ const S14 = {
           { id: 'frac', label: L('kasr', 'дробное', 'fractional') },
         ],
         hint: L(
-          "Uchga, ya'ni songa bo'linadi. Istalgan x ni qo'ying: qiymat doim bor.",
-          'Делят на три, то есть на число. Подставь любой x: значение есть всегда.',
-          'You divide by three, that is by a number. Put any x: the value always exists.',
+          "Uchga, ya'ni songa bo'linadi. Istalgan x ni qo'ying, qiymat doim bor.",
+          'Делят на три, то есть на число. Подставь любой x, значение есть всегда.',
+          'You divide by three, that is by a number. Put any x, the value always exists.',
         ),
       },
       {
         id: 'q3',
+        ok: L(
+          "To'g'ri. Suratdagi nol qiymatni nol qiladi, maxrajdagi nol esa yo'q qiladi.",
+          'Верно. Нуль в числителе делает значение нулём, а нуль в знаменателе его убирает.',
+          'Correct. A zero in the numerator makes the value zero, a zero in the denominator removes it.',
+        ),
         tag: 'З18',
         ask: L(
           "Nolni x − 1 ga bo'lish, x = 5 da. Qiymat bormi?",
@@ -1448,13 +1463,18 @@ const S14 = {
           { id: 'no', label: L("yo'q", 'нет значения', 'no value') },
         ],
         hint: L(
-          "Yuqoridagi nol — mumkin: yuqorida nol, pastda to'rt. Mumkin bo'lmagani — nol pastda turgani.",
-          'Нуль сверху — можно: сверху нуль, снизу четыре. Нельзя, когда нуль снизу.',
-          'Zero above is fine: zero above, four below. What is impossible is zero below.',
+          "Suratdagi nol mumkin, u qiymatni nol qiladi. Mumkin bo'lmagani, nol maxrajda turgani.",
+          'Нуль в числителе можно, он делает значение нулём. Нельзя, когда нуль в знаменателе.',
+          'A zero in the numerator is fine, it makes the value zero. What is impossible is a zero in the denominator.',
         ),
       },
       {
         id: 'q4',
+        ok: L(
+          "To'g'ri. Javob songa qo'yib tekshiriladi.",
+          'Верно. Ответ проверяют подстановкой числа.',
+          'Correct. An answer is checked by substituting a number.',
+        ),
         tag: 'З16',
         ask: L(
           "Ruhsat etilgan qiymatlar yozildi. Ishni tugallangan qiladigan narsa nima?",
@@ -1481,8 +1501,8 @@ const S14 = {
           },
         ],
         hint: L(
-          "Tekshirilmagan javob — so'zga ishonish. Sonni qo'ying va o'zingiz ko'ring.",
-          'Ответ без проверки — это ответ на слово. Подставь число и посмотри сам.',
+          "Tekshirilmagan javob, so'zga ishonish. Sonni qo'ying va o'zingiz ko'ring.",
+          'Ответ без проверки, это ответ на слово. Подставь число и посмотри сам.',
           'An unchecked answer is an answer on trust. Put a number in and see for yourself.',
         ),
       },

@@ -910,10 +910,16 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
   const canAnswer = useInstructionGate(audio)
   const [state, setState] = useState({})   // id -> { picked, first, tries }
   const [note, setNote] = useState(null)
+  // ПАУЗА НА РАЗБОР. Ответив, ученик две секунды видит СВОЙ вопрос с
+  // разбором, и только потом приходит следующий. Без этого разбор висел
+  // уже над другим вопросом и занимал место на экране, которого нет.
+  const [hold, setHold] = useState(null)
   const done = items.every((q) => state[q.id] && state[q.id].picked)
   // ПОСЛЕДОВАТЕЛЬНО (методист, 2026-08-17). Вопросы выходят по одному:
   // все четыре сразу читаются как анкета, а не как блиц.
-  const at = items.findIndex((q) => !(state[q.id] && state[q.id].picked))
+  const openAt = items.findIndex((q) => !(state[q.id] && state[q.id].picked))
+  const holdAt = hold ? items.findIndex((q) => q.id === hold) : -1
+  const at = holdAt >= 0 ? holdAt : openAt
   const scored = items.filter((q) => state[q.id] && state[q.id].first).length
   const reported = useRef(false)
 
@@ -931,8 +937,18 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
     }
     const tries = prev.tries + 1
     sfx.playCorrect()
-    setNote(null)
-    setState((s) => ({ ...s, [q.id]: { ...prev, picked: opt.id, tries, first: tries === 1 } }))
+    // РАЗБОР НА ВЕРНЫЙ ОТВЕТ. Раньше объяснение получал только тот, кто
+    // ошибся: ответивший сразу уходил дальше, так и не услышав, ПОЧЕМУ
+    // это верно (методист, 2026-08-17).
+    setNote(q.ok || null)
+    setState((s2) => ({ ...s2, [q.id]: { ...prev, picked: opt.id, tries, first: tries === 1 } }))
+    if (audio && q.ok) audio.say(t(q.ok))
+    if (q.ok) {
+      setHold(q.id)
+      setTimeout(() => { setHold(null); setNote(null) }, 2200)
+    } else {
+      setNote(null)
+    }
   }
 
   const closeBuild = (q, clean) => {
@@ -966,7 +982,9 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
         {items.map((q, i) => {
           const st = state[q.id] || {}
           if (i !== at) return null
-          if (st.picked) {
+          // Придержанный вопрос показываем ОТКРЫТЫМ, с зелёным вариантом:
+          // ученик видит, что он выбрал, и читает разбор под этим же выбором.
+          if (st.picked && hold !== q.id) {
             const chosen = q.options.find((o) => o.id === st.picked)
             return (
               <div className="g8-blitz-done" key={q.id}>
@@ -990,7 +1008,7 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
                 : (
               <Choice
                 items={q.options.map((o) => ({ id: o.id, label: t(o.label) }))}
-                picked={null}
+                picked={st.picked || null}
                 wrong={st.wrong || []}
                 onPick={(opt) => pick(q, opt)}
                 disabled={!canAnswer}
@@ -1011,7 +1029,11 @@ export function Blitz({ items, lead, onSolved, onReady, audio, buildView, scoreL
         ) : null}
       </div>
       <Slot mh={46}>
-        {note && !done ? <Note kind="no">{t(note)}</Note> : null}
+        {note && !done ? (
+          <Note kind={items.some((q) => state[q.id] && state[q.id].picked && q.ok === note) ? 'ok' : 'no'}>
+            {t(note)}
+          </Note>
+        ) : null}
       </Slot>
     </>
   )
