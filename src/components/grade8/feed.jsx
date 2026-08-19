@@ -932,13 +932,16 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, on
         <Note kind="ok">{t(doneNote)}</Note>
       ) : (
         <>
+          {/* ВОПРОС ПЕРВЫМ, до записи (методист, 2026-08-17). Ученик должен
+              знать, что ищет, ДО того как посмотрел на дробь: иначе он сначала
+              разглядывает запись, а потом ищет глазами, о чём его спросили. */}
+          <Ask>{t(task.question)}</Ask>
           {/* Запись может прийти ГОТОВОЙ ДРОБЬЮ (узел с чертой), а не строкой:
               «(x + 1) : ((x − 2)(x + 5))» в строку читается как набор скобок,
               а дробь читается сразу (методист, 2026-08-17). */}
           <div className="g8-dr-expr" style={{ fontFamily: MATH_FONT }}>
             {typeof task.expr === 'string' ? task.expr : task.expr}
           </div>
-          <Ask>{t(task.question)}</Ask>
 
           {!open ? (
             <div className="g8-dr-opts">

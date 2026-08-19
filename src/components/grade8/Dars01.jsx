@@ -59,8 +59,8 @@ export const STATEMENTS = [
     'Divide by a number and it is integral, by a letter and it is fractional',
   ),
   L(
-    "ruhsat etilgan qiymatlar sohasini maxraj beradi: maxrajning nollari taqiqlangan",
-    'ОДЗ задаёт знаменатель: нули знаменателя недопустимы',
+    "ruhsat etilgan qiymatlarni maxraj beradi, uning nollari mumkin emas",
+    'допустимые значения задаёт знаменатель, его нули недопустимы',
     'The denominator sets the domain: its zeros are not admissible',
   ),
   L(
@@ -75,8 +75,8 @@ export const STATEMENTS = [
 export const MISS = {
   'З2': {
     what: L(
-      "ruhsat etilgan qiymatlar sohasi topilmadi yoki yo'qoldi",
-      'ОДЗ не найдена или потеряна',
+      "ruhsat etilgan qiymatlar topilmadi yoki yo'qoldi",
+      'допустимые значения не найдены или потеряны',
       'the domain was not found or was lost',
     ),
     wrong: '(x*x-4)/(x-2)',
@@ -650,25 +650,25 @@ const S4 = {
 
 // ============================================================
 const S5 = {
-  eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
+  eyebrow: L('QAYERDA ANIQLANMAGAN', 'ГДЕ НЕ ОПРЕДЕЛЕНА', 'WHERE IT IS UNDEFINED'),
   title: L(
-    "Taqiq maxrajga bog'langan",
-    'Запрет привязан к знаменателю',
-    'The restriction is tied to the denominator',
+    "Kasr qayerda aniqlanmasligini maxraj hal qiladi",
+    'Где дробь не определена, решает знаменатель',
+    'The denominator decides where the fraction is undefined',
   ),
   audio: [
     A('mount',
-      "Uchta yozuv. Ularning maxrajlari har xil, va taqiqlari ham har xil.",
-      'Три записи. Знаменатели у них разные, и запреты тоже разные.',
-      'Three records. Their denominators differ, and so do their restrictions.'),
+      "Uchta yozuv. Maxrajlari har xil, demak ular har xil qiymatlarda aniqlanmaydi.",
+      'Три записи. Знаменатели разные, значит и не определены они при разных значениях.',
+      'Three records. The denominators differ, so they are undefined at different values.'),
     W('c2',
-      "Maxraj uchga siljidi, taqiq ham uchga ko'chdi.",
-      'Знаменатель сдвинулся на три, и запрет переехал на три.',
-      'The denominator shifted by three, and the restriction moved to three.'),
+      "Maxraj uchga siljidi, kasr endi uchda aniqlanmaydi.",
+      'Знаменатель сдвинулся на три, и дробь теперь не определена при трёх.',
+      'The denominator shifted by three, and now the fraction is undefined at three.'),
     W('c3',
-      "Beshga siljidi, taqiq beshda. Taqiq songa emas, MAXRAJGA bog'liq.",
-      'Сдвинулся на пять, запрет на пятёрке. Запрет привязан не к числу, а к ЗНАМЕНАТЕЛЮ.',
-      'Shifted by five, and the restriction is at five. It belongs to the DENOMINATOR, not to a number.'),
+      "Beshga siljidi, endi kasr beshda aniqlanmaydi. Bu songa emas, MAXRAJGA bog'liq.",
+      'Сдвинулся на пять, и дробь не определена при пяти. Это зависит не от числа, а от ЗНАМЕНАТЕЛЯ.',
+      'Shifted by five, and now it is undefined at five. That depends on the DENOMINATOR, not on a number.'),
   ],
   props: {
     items: [
@@ -677,9 +677,9 @@ const S5 = {
       { cap: L('maxraj', 'знаменатель', 'denominator'), den: 'a − 5', ban: 'a ≠ 5' },
     ],
     conclusion: L(
-      "Maxraj o'zgaradi — taqiq ham o'sha yerga ko'chadi",
-      'Меняется знаменатель — туда же переезжает запрет',
-      'The denominator changes and the restriction moves with it',
+      "Maxraj o'zgaradi — aniqlanmaydigan qiymat ham o'zgaradi",
+      'Меняется знаменатель — меняется и значение, при котором дробь не определена',
+      'The denominator changes and so does the value where it is undefined',
     ),
     // ПОСЛЕ ПОКАЗА — ХОД УЧЕНИКА. Отсчёт отделяет объяснение от работы,
     // вопросы идут от лёгкого к трудному: узнать готовый запрет, найти его
@@ -688,17 +688,17 @@ const S5 = {
       seconds: 5,
       text: L("Endi o'zingiz", 'Теперь ты сам', 'Now it is your turn'),
       done: L(
-        "Taqiqni maxrajdan topish — shu darsning asosiy ko'nikmasi.",
-        'Находить запрет по знаменателю — главный навык этого урока.',
-        'Finding the restriction from the denominator is the key skill of this lesson.',
+        "Kasr qayerda aniqlanmasligini maxrajdan topish — shu darsning asosiy ko'nikmasi.",
+        'Находить по знаменателю, где дробь не определена, — главный навык этого урока.',
+        'Finding from the denominator where the fraction is undefined is the key skill of this lesson.',
       ),
     },
     quiz: [
       {
         question: L(
-          "a − 7 maxrajda: taqiq qayerda?",
-          'Знаменатель a − 7: где запрет?',
-          'Denominator a − 7: where is the restriction?',
+          "Maxraj a − 7. Kasr qaysi a da aniqlanmagan?",
+          'Знаменатель a − 7. При каком a дробь не определена?',
+          'Denominator a − 7. At which a is the fraction undefined?',
         ),
         items: [
           { id: 'a7', right: true, label: L('a ≠ 7', 'a ≠ 7', 'a ≠ 7') },
@@ -722,9 +722,9 @@ const S5 = {
       },
       {
         question: L(
-          "2a maxrajda: taqiq qayerda?",
-          'Знаменатель 2a: где запрет?',
-          'Denominator 2a: where is the restriction?',
+          "Maxraj 2a. Kasr qaysi a da aniqlanmagan?",
+          'Знаменатель 2a. При каком a дробь не определена?',
+          'Denominator 2a. At which a is the fraction undefined?',
         ),
         items: [
           { id: 'z', right: true, label: L('a ≠ 0', 'a ≠ 0', 'a ≠ 0') },
@@ -737,20 +737,20 @@ const S5 = {
             ),
           },
           {
-            id: 'half', label: L("Taqiq yo'q", 'Запрета нет', 'No restriction'),
+            id: 'half', label: L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value'),
             hint: L(
-              "Nolda 2a nolga aylanadi, demak taqiq bor.",
-              'При нуле 2a обращается в нуль, значит запрет есть.',
-              'At zero 2a becomes zero, so the restriction exists.',
+              "Nolda 2a nolga aylanadi, demak kasr nolda aniqlanmaydi.",
+              'При нуле 2a обращается в нуль, значит там дробь не определена.',
+              'At zero 2a becomes zero, so the fraction is undefined there.',
             ),
           },
         ],
       },
       {
         question: L(
-          "Qaysi maxrajda umuman taqiq yo'q?",
-          'У какого знаменателя запрета нет вовсе?',
-          'Which denominator has no restriction at all?',
+          "Qaysi maxrajda kasr har qanday a da aniqlangan?",
+          'У какого знаменателя дробь определена при любом a?',
+          'With which denominator is the fraction defined at every a?',
         ),
         items: [
           { id: 'num', right: true, label: L('5', '5', '5') },
@@ -871,9 +871,9 @@ const S7 = {
       'Знаменатель решает всё, посчитается цена или нет, зависит только от него.',
       'The denominator decides everything, whether the price computes depends only on it.'),
     W('p3',
-      "Siljish esa taqiq qayerda turishini belgilaydi.",
-      'А сдвиг задаёт, где именно стоит запрет.',
-      'The shift sets exactly where the restriction stands.'),
+      "Siljish esa kasr qaysi sonda aniqlanmasligini belgilaydi.",
+      'А сдвиг задаёт, при каком именно числе дробь не определена.',
+      'The shift sets exactly at which number the fraction is undefined.'),
   ],
   props: {
     tokens: [
@@ -902,9 +902,9 @@ const S7 = {
       {
         focus: 'shift',
         text: L(
-          "Minus to'rt — siljish. U tufayli taqiq nolda emas, to'rtlikda turadi.",
-          'Минус четыре — сдвиг. Из-за него запрет не на нуле, а на четвёрке.',
-          'Minus four is the shift. Because of it the restriction sits at four, not at zero.',
+          "Minus to'rt — siljish. U tufayli kasr nolda emas, to'rtda aniqlanmaydi.",
+          'Минус четыре — сдвиг. Из-за него дробь не определена не при нуле, а при четырёх.',
+          'Minus four is the shift. Because of it the fraction is undefined at four, not at zero.',
         ),
       },
     ],
@@ -946,14 +946,14 @@ const S8 = {
       { id: 'f1', label: L('Maxrajni', 'Знаменатель', 'The denominator') },
       { id: 'f2', label: L('nolga tenglaymiz', 'приравниваем к нулю', 'is set to zero') },
       { id: 'f3', label: L('va shu sonni', 'и это число', 'and that number') },
-      { id: 'f4', label: L('taqiqlaymiz', 'запрещаем', 'is forbidden') },
+      { id: 'f4', label: L('chiqarib tashlaymiz', 'исключаем', 'is excluded') },
       { id: 'w1', label: L('Suratni', 'Числитель', 'The numerator') },
     ],
     answer: ['f1', 'f2', 'f3', 'f4'],
     wrongHint: L(
-      "Bunday yig'ilmadi. Darsda taqiq HAR SAFAR bir joydan keldi: chiziq ostidan, va aynan nolda.",
-      'Так не складывается. В уроке запрет КАЖДЫЙ раз приходил из одного места: из-под черты, и именно при нуле.',
-      'That does not fit. In the lesson the restriction came from one place every time: from below the bar, and exactly at zero.',
+      "Bunday yig'ilmadi. Darsda javob HAR SAFAR bir joydan keldi, chiziq ostidan, va aynan nolda.",
+      'Так не складывается. В уроке ответ КАЖДЫЙ раз приходил из одного места, из-под черты, и именно при нуле.',
+      'That does not fit. In the lesson the answer came from one place every time, from below the bar, and exactly at zero.',
     ),
     card: {
       title: L('QOIDA', 'ПРАВИЛО', 'RULE'),
@@ -1018,17 +1018,17 @@ const S9 = {
     tasks: [
       {
         expr: '5 : a',
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
           { id: 'b', label: 'a ≠ 5', hint: L('Beshlik yuqorida turibdi, u maxrajga kirmaydi.', 'Пятёрка стоит сверху, в знаменатель она не входит.', 'The five is above; it is not in the denominator.') },
-          { id: 'c', label: L("Taqiq yo'q", 'Запрета нет', 'No restriction'), hint: L('Maxrajda harf bor, demak taqiq ham bor.', 'В знаменателе есть буква, значит запрет есть.', 'There is a letter in the denominator, so there is a restriction.') },
+          { id: 'c', label: L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value'), hint: L('Maxrajda harf bor, demak taqiq ham bor.', 'В знаменателе есть буква, значит запрет есть.', 'There is a letter in the denominator, so there is a restriction.') },
         ],
         solution: ['a = 0', 'a ≠ 0'],
       },
       {
         expr: '9 : (a − 2)',
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 2' },
           { id: 'b', label: 'a ≠ 0', hint: L('Nolda a − 2 minus ikkiga teng, bu nol emas.', 'При нуле a − 2 равно минус двум, а это не нуль.', 'At zero a − 2 equals minus two, not zero.') },
@@ -1038,7 +1038,7 @@ const S9 = {
       },
       {
         expr: '(a + 1) : 3a',
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
           { id: 'b', label: 'a ≠ 3', hint: L('Uchlikda 3a to\'qqizga teng, nolga emas.', 'При тройке 3a равно девяти, а не нулю.', 'At three, 3a equals nine, not zero.') },
@@ -1048,7 +1048,7 @@ const S9 = {
       },
       {
         expr: '7 : (2a − 6)',
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 3' },
           { id: 'b', label: 'a ≠ 6', hint: L('Oltida 2a − 6 oltiga teng, nolga emas.', 'При шестёрке 2a − 6 равно шести, а не нулю.', 'At six, 2a − 6 equals six, not zero.') },
@@ -1058,7 +1058,7 @@ const S9 = {
       },
       {
         expr: '4 : (a · a)',
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'a ≠ 0' },
           { id: 'b', label: 'a ≠ 2', hint: L("Ikkida a · a to'rtga teng, nolga emas.", 'При двойке a · a равно четырём, а не нулю.', 'At two, a · a equals four, not zero.') },
@@ -1101,9 +1101,9 @@ const S10 = {
       'Знаменатель из двух множителей. Каждый может обратиться в нуль отдельно.',
       'The denominator has two factors. Each can become zero on its own.'),
     A('why',
-      "Ko'paytma nolga aylanishi uchun bitta ko'paytuvchining nol bo'lishi yetarli. Shuning uchun bu yerda taqiq bitta emas, ikkita.",
-      'Чтобы произведение стало нулём, достаточно одного нулевого множителя. Поэтому запретов здесь не один, а два.',
-      'For a product to become zero, one zero factor is enough. That is why there are two restrictions here, not one.'),
+      "Ko'paytma nolga aylanishi uchun bitta ko'paytuvchining nol bo'lishi yetarli. Shuning uchun kasr bitta emas, ikkita qiymatda aniqlanmaydi.",
+      'Чтобы произведение стало нулём, достаточно одного нулевого множителя. Поэтому дробь не определена не при одном значении, а при двух.',
+      'For a product to become zero, one zero factor is enough. That is why the fraction is undefined at two values, not one.'),
   ],
   props: {
     stepLabel: L('Topshiriq', 'Задание', 'Task'),
@@ -1111,7 +1111,7 @@ const S10 = {
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
       "Ikki ko'paytuvchi — ikki shart. Ular BIRGA ruhsat etilgan qiymatlar sohasini beradi.",
-      'Два множителя — два условия. Вместе они и дают ОДЗ.',
+      'Два множителя — два условия. Вместе они и дают допустимые значения.',
       'Two factors mean two conditions. Together they give the domain.',
     ),
     tasks: [
@@ -1147,7 +1147,7 @@ const S10 = {
         expr: <Row size="big" align="center">{F('x + 1', '(x − 2)(x + 5)')}</Row>,
         question: L(
           "Butun ruhsat etilgan qiymatlar sohasi qanday yoziladi?",
-          'Как записывается вся ОДЗ?',
+          'Как записать все допустимые значения?',
           'How is the whole domain written?',
         ),
         items: [
@@ -1180,9 +1180,9 @@ const S11 = {
       'Три записи. Помощи нет, но после каждого ответа откроется решение.',
       'Three records. No help, but after each answer the solution opens.'),
     A('why',
-      "Tartib doim bir xil. Avval maxrajga qaraysiz, keyin uni nolga aylantiradigan sonni topasiz, oxirida shu sonni taqiqlaysiz.",
-      'Порядок всегда один. Сначала смотришь на знаменатель, потом ищешь число, обращающее его в нуль, и в конце запрещаешь это число.',
-      'The order is always the same. First look at the denominator, then find the number that turns it into zero, and finally forbid that number.'),
+      "Tartib doim bir xil. Avval maxrajga qaraysiz, keyin uni nolga aylantiradigan sonni topasiz, oxirida shu sonni chiqarib tashlaysiz.",
+      'Порядок всегда один. Сначала смотришь на знаменатель, потом ищешь число, обращающее его в нуль, и в конце исключаешь это число.',
+      'The order is always the same. First look at the denominator, then find the number that turns it into zero, and finally exclude that number.'),
   ],
   props: {
     stepLabel: L('Topshiriq', 'Задание', 'Task'),
@@ -1196,7 +1196,7 @@ const S11 = {
     tasks: [
       {
         expr: <Row size="big" align="center">{F('8', 'x(x − 3)')}</Row>,
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'x ≠ 0,  x ≠ 3' },
           { id: 'b', label: 'x ≠ 3', hint: L('Nolda x ning o\'zi nolga aylanadi.', 'При нуле сам x обращается в нуль.', 'At zero, x itself becomes zero.') },
@@ -1206,7 +1206,7 @@ const S11 = {
       },
       {
         expr: <Row size="big" align="center">{F('x + 2', '(x − 1)(x − 1)')}</Row>,
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
           { id: 'a', right: true, label: 'x ≠ 1' },
           { id: 'b', label: 'x ≠ 1,  x ≠ −1', hint: L('Ikkala ko\'paytuvchi bir xil, shuning uchun shart bitta.', 'Оба множителя одинаковые, поэтому условие одно.', 'Both factors are the same, so there is one condition.') },
@@ -1216,16 +1216,16 @@ const S11 = {
       },
       {
         expr: <Row size="big" align="center">{F('5', 'x · x + 4')}</Row>,
-        question: L('Taqiq qayerda?', 'Где запрет?', 'Where is the restriction?'),
+        question: L('Kasr qaysi qiymatda aniqlanmagan?', 'При каком значении дробь не определена?', 'At which value is the fraction undefined?'),
         items: [
-          { id: 'a', right: true, label: L("Taqiq yo'q", 'Запрета нет', 'No restriction') },
+          { id: 'a', right: true, label: L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value') },
           { id: 'b', label: 'x ≠ 0', hint: L("Nolda x · x + 4 to'rtga teng, nolga emas.", 'При нуле x · x + 4 равно четырём, а не нулю.', 'At zero, x · x + 4 equals four, not zero.') },
           { id: 'c', label: 'x ≠ −4', hint: L("Minus to'rtda x · x + 4 yigirmaga teng.", 'При минус четырёх x · x + 4 равно двадцати.', 'At minus four, x · x + 4 equals twenty.') },
         ],
         solution: [
           'x · x + 4 = 0',
           L('x · x = −4 — bunday x yo\'q', 'x · x = −4 — такого x нет', 'x · x = −4 has no solution'),
-          L("Taqiq yo'q", 'Запрета нет', 'No restriction'),
+          L('Har qanday qiymatda aniqlangan', 'Определена при любом значении', 'Defined at every value'),
         ],
       },
     ],
@@ -1250,9 +1250,9 @@ const S12 = {
       'Решение Азиза. В нём одна строка неверна, остальные верны.',
       "Aziz's solution. One line in it is wrong, the rest are correct."),
     A('why',
-      "Qisqartirish taqiqni bekor qilmaydi. Taqiq dastlabki yozuvdan olinadi, chunki qiymat aynan o'sha yerda yo'qoladi.",
-      'Сокращение не отменяет запрет. Запрет берут из исходной записи, потому что значение теряется именно там.',
-      'Cancelling does not remove the restriction. It is taken from the original record, because the value is lost exactly there.'),
+      "Qisqartirish buni bekor qilmaydi. Shart dastlabki yozuvdan olinadi, chunki qiymat aynan o'sha yerda yo'qoladi.",
+      'Сокращение этого не отменяет. Условие берут из исходной записи, потому что значение теряется именно там.',
+      'Cancelling does not remove it. The condition is taken from the original record, because the value is lost exactly there.'),
   ],
   props: {
     stepLabel: L('Topshiriq', 'Задание', 'Task'),
@@ -1281,13 +1281,13 @@ const S12 = {
       {
         expr: <Row size="big" align="center">{F('x', 'x − 6')}</Row>,
         question: L(
-          "Dilnoza yozdi: taqiq x ≠ 0, chunki suratda x turibdi. To'g'rimi?",
-          'Дилноза написала: запрет x ≠ 0, потому что в числителе стоит x. Верно?',
-          'Dilnoza wrote: the restriction is x ≠ 0 because x is in the numerator. Correct?',
+          "Dilnoza yozdi: x ≠ 0, chunki suratda x turibdi. To'g'rimi?",
+          'Дилноза написала: x ≠ 0, потому что в числителе стоит x. Верно?',
+          'Dilnoza wrote x is not equal to zero because x is in the numerator. Correct?',
         ),
         items: [
-          { id: 'a', right: true, label: L("Yo'q, taqiq x ≠ 6", 'Нет, запрет x ≠ 6', 'No, the restriction is x ≠ 6') },
-          { id: 'b', label: L('Ha, to\'g\'ri', 'Да, верно', 'Yes, correct'), hint: L('Suratdagi nol qiymatni nol qiladi, taqiq bermaydi.', 'Нуль в числителе делает значение нулём, а не запретом.', 'A zero in the numerator makes the value zero, not a restriction.') },
+          { id: 'a', right: true, label: L("Yo'q, x ≠ 6", 'Нет, x ≠ 6', 'No, it is x ≠ 6') },
+          { id: 'b', label: L('Ha, to\'g\'ri', 'Да, верно', 'Yes, correct'), hint: L('Suratdagi nol qiymatni nol qiladi, aniqlanmasligini bermaydi.', 'Нуль в числителе делает значение нулём, а не запретом.', 'A zero in the numerator makes the value zero, not a restriction.') },
           { id: 'c', label: L('Ikkalasi ham: x ≠ 0 va x ≠ 6', 'Оба: x ≠ 0 и x ≠ 6', 'Both: x ≠ 0 and x ≠ 6'), hint: L('Nolda qiymat bor va u nolga teng: nol bo\'lingan olti.', 'При нуле значение есть и равно нулю: нуль делить на минус шесть.', 'At zero the value exists and equals zero: zero divided by minus six.') },
         ],
         solution: ['x − 6 = 0', 'x = 6', 'x ≠ 6'],
@@ -1317,16 +1317,16 @@ const S13 = {
       'Решение записано, но клетки пустые. Заполняй их по одной.',
       'The solution is written but the cells are empty. Fill them one by one.'),
     A('why',
-      "Yechim uch qadamdan iborat. Maxrajni nolga tenglaysiz, tenglamani yechasiz va topilgan sonni taqiqlaysiz.",
-      'Решение состоит из трёх шагов. Приравниваешь знаменатель к нулю, решаешь уравнение и запрещаешь найденное число.',
-      'The solution has three steps. Set the denominator to zero, solve the equation, and forbid the number you found.'),
+      "Yechim uch qadamdan iborat. Maxrajni nolga tenglaysiz, tenglamani yechasiz va topilgan sonni chiqarib tashlaysiz.",
+      'Решение состоит из трёх шагов. Приравниваешь знаменатель к нулю, решаешь уравнение и исключаешь найденное число.',
+      'The solution has three steps. Set the denominator to zero, solve the equation, and exclude the number you found.'),
   ],
   props: {
     repeatLabel: L('Qaytarish', 'Повторить', 'Repeat'),
     doneNote: L(
-      "Yozuv to'ldi. Uchta qadam: maxrajni nolga tenglash, yechish, taqiqni yozish.",
-      'Запись заполнена. Три шага: приравнять знаменатель к нулю, решить, записать запрет.',
-      'The record is filled. Three steps: set the denominator to zero, solve, write the restriction.',
+      "Yozuv to'ldi. Uchta qadam, maxrajni nolga tenglash, yechish, shartni yozish.",
+      'Запись заполнена. Три шага, приравнять знаменатель к нулю, решить, записать условие.',
+      'The record is filled. Three steps, set the denominator to zero, solve, write the condition.',
     ),
     showLabel: L(
       "Qarang — misolda ko'rsataman",
@@ -1403,9 +1403,9 @@ const S14 = {
         id: 'q1',
         tag: 'З2',
         ask: L(
-          "Yozuvning qaysi qismi bo'yicha ruhsat etilgan qiymatlar sohasi topiladi?",
-          'По какой части записи находят ОДЗ?',
-          'Which part of the record gives the domain?',
+          "Ruhsat etilgan qiymatlarni topish uchun nimaga qaraladi?",
+          'Что смотрят, чтобы найти допустимые значения?',
+          'What do you look at to find the admissible values?',
         ),
         options: [
           { id: 'num', label: L('surat', 'числитель', 'the numerator') },
@@ -1458,7 +1458,7 @@ const S14 = {
         tag: 'З16',
         ask: L(
           'ruhsat etilgan qiymatlar sohasi yozildi. Ishni tugallangan qiladigan narsa nima?',
-          'ОДЗ записана. Что делает работу законченной?',
+          'Допустимые значения найдены. Что делает работу законченной?',
           'The domain is written. What makes the work complete?',
         ),
         options: [
@@ -1537,9 +1537,9 @@ const S14 = {
 const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L(
-    "Xulosa, yozuv va uning taqig'i",
-    'Вывод, запись и её запрет',
-    'Conclusion, the record and its restriction',
+    "Xulosa, yozuv va uning ruhsat etilgan qiymatlari",
+    'Вывод, запись и её допустимые значения',
+    'Conclusion, the record and its admissible values',
   ),
   audio: [
     A('s0',
@@ -1560,9 +1560,9 @@ const S15 = {
     predictedLabel: L('Taxmin', 'Прогноз', 'Prediction'),
     mark: 'x ≠ 2',
     lines: [
-      L("Harf chiziq ostida — ratsional kasr, taqiq ham shu yerda",
-        'Буква под чертой — рациональная дробь, там же и запрет',
-        'A letter under the bar means a rational fraction, and the restriction is there too'),
+      L("Harf chiziq ostida — ratsional kasr, maxraj nolda esa aniqlanmagan",
+        'Буква под чертой — рациональная дробь; при нуле знаменателя она не определена',
+        'A letter under the bar means a rational fraction, undefined where the denominator is zero'),
       L("Nol maxrajda qiymatni yo'q qiladi", 'Нуль в знаменателе убирает значение', 'Zero in the denominator removes the value'),
       L("Javob songa qo'yib tekshiriladi", 'Ответ проверяют подстановкой числа', 'An answer is checked by substituting a number'),
     ],
@@ -1578,7 +1578,7 @@ const S15 = {
     screenRef: L('3-ekran', 'экран 3', 'screen 3'),
     // Uchta satr, to'rtta emas: ekran VERTIKAL (metodist, 2026-08-13).
     can: [
-      L("Taqiqni chiziq ostidan topaman", 'Нахожу запрет под чертой', 'I find the restriction below the bar'),
+      L("Chiziq ostidan aniqlanmaydigan qiymatni topaman", 'Нахожу под чертой значение, где дробь не определена', 'I find below the bar the value where the fraction is undefined'),
       L("Butun va kasrni farqlayman", 'Различаю целое и дробное', 'I tell integral from fractional'),
       L("Javobni son bilan tekshiraman", 'Проверяю ответ числом', 'I check the answer with a number'),
     ],
