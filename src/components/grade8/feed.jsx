@@ -523,7 +523,7 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
 // ОБРАТНУЮ задачу — подбери количество, при котором цена станет ровно такой.
 // Это уже рассуждение о делителях, а не перебор наугад.
 export function Steppers({
-  cols, calc, resultLabel, sign, goal, goals, ask, ask2, broke, stepLabel, onSolved, audio,
+  cols, calc, resultLabel, sign, goal, goals, ask, ask2, broke, stepLabel, zeroNote, onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -557,10 +557,15 @@ export function Steppers({
       else setGi(gi + 1)
       sfx.playCorrect()
       if (audio && list[gi].after) audio.say(t(list[gi].after))
+      // Следом звучит СЛЕДУЮЩИЙ вопрос: смену задачи ученик должен и
+      // услышать, а не только увидеть (методист, 2026-08-17).
+      if (audio && !last && list[gi + 1].ask) audio.say(t(list[gi + 1].ask))
+      else if (audio && last && ask2) audio.say(t(ask2))
       return
     }
     if (res === null || !isFinite(res)) {
       sfx.playWrong()
+      if (!hit && audio && zeroNote) audio.say(t(zeroNote))
       if (!found && hit) {
         setFound(true)
         if (audio && broke) audio.say(t(broke))
@@ -819,7 +824,7 @@ export function Parts({ tokens, steps, fact, stepMs = 2600, onStep }) {
 //
 // Ленты способа на экране нет: она дублировала то, что показывает решение.
 // ============================================================
-export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, audio }) {
+export function Drill({ tasks, solutionLabel, nextLabel, doneNote, stepLabel, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [at, setAt] = useState(0)
@@ -856,12 +861,16 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
     setOpen(false)
     setNote(null)
     setWrong([])
+    const nq = tasks[at + 1] && tasks[at + 1].question
+    if (audio && nq) audio.say(t(nq))
   }
 
   return (
     <div className="g8-dr">
-      <div className="g8-dr-top">
-        <span className="g8-dr-n">{Math.min(at + 1, tasks.length)} / {tasks.length}</span>
+      <div className="g8-dr-top" key={at}>
+        <span className="g8-dr-n">
+          {stepLabel ? t(stepLabel) + ' ' : ''}{Math.min(at + 1, tasks.length)} / {tasks.length}
+        </span>
         <span className="g8-dr-seg">
           {tasks.map((x, i) => <i key={i} className={i < at || (i === at && open) ? 'is-on' : ''}/>)}
         </span>
@@ -922,7 +931,8 @@ export function Drill({ tasks, solutionLabel, nextLabel, doneNote, onSolved, aud
 // и видит, из чего она складывается.
 // ============================================================
 export function FillSolution({
-  tasks, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, onSolved,
+  tasks, demo, showLabel, againLabel, selfLabel, repeatLabel, doneNote, stepLabel, nextSay,
+  onSolved, audio,
 }) {
   const t = useT()
   const sfx = useSfx()
@@ -967,7 +977,13 @@ export function FillSolution({
       setFilled(next)
       if (next.length >= slots.length) {
         if (ti0 + 1 < tasks.length) {
-          setTimeout(() => { setTi0(ti0 + 1); setFilled([]) }, 1100)
+          setTimeout(() => {
+            setTi0(ti0 + 1)
+            setFilled([])
+            // Переход к следующему примеру ПРОИЗНОСИТСЯ: смену ученик должен
+            // услышать, а не заметить по цифре (методист, 2026-08-17).
+            if (audio && nextSay) audio.say(t(nextSay))
+          }, 1100)
         } else if (onSolved) {
           onSolved({ correct: true, tries: 1 })
         }
@@ -992,7 +1008,11 @@ export function FillSolution({
     <div className="g8-fl">
       {phase === 'demo'
         ? <span className="g8-fl-badge">{t(showLabel)}</span>
-        : <span className="g8-fl-n">{ti0 + 1} / {tasks.length}</span>}
+        : (
+          <span className="g8-fl-n" key={ti0}>
+            {stepLabel ? t(stepLabel) + ' ' : ''}{ti0 + 1} / {tasks.length}
+          </span>
+        )}
 
       <div className={'g8-fl-lines' + (phase === 'demo' ? ' is-demo' : '')} style={{ fontFamily: MATH_FONT }}>
         {cur.lines.map((ln, li) => (
@@ -1882,4 +1902,17 @@ export const FEED_STYLES = `
 @media (prefers-reduced-motion: reduce) {
   .g8-st-task, .g8-st-n { animation: none; }
 }
+
+/* Смена задачи в практике видна так же, как на экране 3: метка выезжает
+   и читается как «вопрос номер такой то», а не как мелкая дробь в углу. */
+.lesson-root .g8-dr-n { font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 700; color: ${T.accent}; padding: 4px 14px; border-radius: 999px;
+  background: rgba(199,90,44,.10); }
+.g8-dr-top { animation: g8-st-task-in .5s ease-out both; }
+.lesson-root .g8-fl-n { font-size: 15px; letter-spacing: .08em; text-transform: uppercase;
+  font-weight: 700; color: ${T.accent}; padding: 4px 14px; border-radius: 999px;
+  background: rgba(199,90,44,.10); }
+@media (prefers-reduced-motion: reduce) { .g8-dr-top { animation: none; } }
+
+.g8-fl-n { animation: g8-st-task-in .5s ease-out both; }
 `

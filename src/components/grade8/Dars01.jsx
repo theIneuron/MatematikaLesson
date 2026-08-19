@@ -469,6 +469,13 @@ const S3 = {
     calc: (v) => (v[1] === 0 ? null : v[0] / v[1]),
     resultLabel: L('bir dona narxi', 'цена за штуку', 'price per item'),
     stepLabel: L('Savol', 'Вопрос', 'Question'),
+    // Ноль в количестве до того, как задачи решены: приборы молчали, и
+    // ученик не понимал, почему вместо цены встало слово Error.
+    zeroNote: L(
+      "Miqdor nol bo'ldi, narx esa yo'q. Nolga bo'lish mumkin emas, hozircha miqdorni qaytaring.",
+      'Количество стало нулём, и цены нет. На нуль делить нельзя, пока верни количество обратно.',
+      'The quantity became zero and there is no price. Division by zero is impossible, bring the quantity back for now.',
+    ),
     // ДВЕ ЗАДАЧИ, а не «покрути и посмотри». Первая обратная: подобрать
     // количество под заданную цену — это рассуждение о делителях. Вторая
     // открывается после неё.
@@ -965,6 +972,7 @@ const S9 = {
       'Zero cannot be a divisor. No number multiplied by zero gives another number. That is why zero in the denominator removes the value.'),
   ],
   props: {
+    stepLabel: L('Topshiriq', 'Задание', 'Task'),
     solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
@@ -1063,6 +1071,7 @@ const S10 = {
       'For a product to become zero, one zero factor is enough. That is why there are two restrictions here, not one.'),
   ],
   props: {
+    stepLabel: L('Topshiriq', 'Задание', 'Task'),
     solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
@@ -1141,6 +1150,7 @@ const S11 = {
       'The order is always the same. First look at the denominator, then find the number that turns it into zero, and finally forbid that number.'),
   ],
   props: {
+    stepLabel: L('Topshiriq', 'Задание', 'Task'),
     solutionLabel: L('YECHIM', 'РЕШЕНИЕ', 'SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
@@ -1210,6 +1220,7 @@ const S12 = {
       'Cancelling does not remove the restriction. It is taken from the original record, because the value is lost exactly there.'),
   ],
   props: {
+    stepLabel: L('Topshiriq', 'Задание', 'Task'),
     solutionLabel: L('TO\'G\'RI YECHIM', 'ВЕРНОЕ РЕШЕНИЕ', 'CORRECT SOLUTION'),
     nextLabel: L('Keyingisi', 'Дальше', 'Next'),
     doneNote: L(
