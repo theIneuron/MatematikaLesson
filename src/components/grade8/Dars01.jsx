@@ -290,9 +290,9 @@ const HookScene = () => {
 const S1 = {
   eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
   title: L(
-    "Bitta sonda hisob to'xtadi",
-    'На одном числе счёт остановился',
-    'At one number the calculation stopped',
+    "Bajarilmagan bo'lish",
+    'Деление, которое не выполнилось',
+    'A division that did not happen',
   ),
   audio: [
     A('mount',
@@ -350,9 +350,9 @@ const S1 = {
 const S2 = {
   eyebrow: L('TAYANCH', 'ОПОРА', 'PRIOR KNOWLEDGE'),
   title: L(
-    "Qaysi yozuv har doim ham sanalmaydi",
-    'Какая запись считается не всегда',
-    'Which record does not always compute',
+    "Har doim aniqlanmaydigan ifoda",
+    'Выражение, определённое не всегда',
+    'An expression not always defined',
   ),
   audio: [
     A('mount',
@@ -434,9 +434,9 @@ const S2 = {
 const S3 = {
   eyebrow: L("MA'LUMOTLARNI QO'YING", 'ПОДБЕРИ ДАННЫЕ', 'SET THE DATA'),
   title: L(
-    "Narx qanday hisoblanadi",
-    'Как считается цена',
-    'How the price is computed',
+    "Summa va miqdor bo'linmasi",
+    'Частное суммы и количества',
+    'The quotient of total and quantity',
   ),
   audio: [
     A('mount',
@@ -510,9 +510,9 @@ const S3 = {
 const S4 = {
   eyebrow: L('BUTUN VA KASR', 'ЦЕЛОЕ И ДРОБНОЕ', 'INTEGRAL AND FRACTIONAL'),
   title: L(
-    "Bir xil belgilar, ikki xil yozuv",
-    'Одни и те же знаки — записи разные',
-    'The same symbols, different records',
+    "Butun ifoda va kasr ifoda",
+    'Целое выражение и дробное выражение',
+    'Integral and fractional expressions',
   ),
   audio: [
     A('mount',
@@ -571,9 +571,9 @@ const S4 = {
 const S5 = {
   eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
   title: L(
-    "Taqiq maxrajga ergashadi",
-    'Запрет идёт за знаменателем',
-    'The restriction follows the denominator',
+    "Maxrajning noli taqiqni beradi",
+    'Нуль знаменателя задаёт запрет',
+    'The zero of the denominator sets the restriction',
   ),
   audio: [
     A('mount',
@@ -700,9 +700,9 @@ const S5 = {
 const S6 = {
   eyebrow: L('IKKI USUL', 'ДВА СПОСОБА', 'TWO METHODS'),
   title: L(
-    "Taqiqni topishning ikki usuli",
-    'Два способа найти запрет',
-    'Two ways to find the restriction',
+    "Maxraj nolini topishning ikki usuli",
+    'Два способа найти нуль знаменателя',
+    'Two ways to find the zero of the denominator',
   ),
   audio: [
     A('mount',
@@ -776,9 +776,9 @@ const S6 = {
 const S7 = {
   eyebrow: L('QISMLARGA AJRATAMIZ', 'РАЗБИРАЕМ ПО ЧАСТЯМ', 'BREAKING IT DOWN'),
   title: L(
-    "Yozuvning har bir qismi nima qiladi",
-    'Что делает каждая часть записи',
-    'What each part of the record does',
+    "Surat, maxraj va siljish",
+    'Числитель, знаменатель и сдвиг',
+    'Numerator, denominator and shift',
   ),
   audio: [
     A('mount',
@@ -843,9 +843,9 @@ const S7 = {
 const S8 = {
   eyebrow: L('QOIDA', 'ПРАВИЛО', 'THE RULE'),
   title: L(
-    "Qoidani yig'ing",
-    'Собери правило',
-    'Assemble the rule',
+    "Ruhsat etilgan qiymatlar qoidasi",
+    'Правило допустимых значений',
+    'The rule of admissible values',
   ),
   audio: [
     A('mount',
@@ -911,9 +911,9 @@ const S8 = {
 const S9 = {
   eyebrow: L('MASHQ', 'ПРАКТИКА', 'PRACTICE'),
   title: L(
-    "Taqiqni toping",
-    'Найди запрет',
-    'Find the restriction',
+    "Maxrajning nolini toping",
+    'Найди нуль знаменателя',
+    'Find the zero of the denominator',
   ),
   audio: [
     A('mount',
@@ -1009,9 +1009,9 @@ const S9 = {
 const S10 = {
   eyebrow: L('IKKI SHART', 'ДВА УСЛОВИЯ', 'TWO CONDITIONS'),
   title: L(
-    "Bitta yozuv — ikkita taqiq",
-    'Одна запись — два запрета',
-    'One record, two restrictions',
+    "Maxrajdagi ko'paytma, ikkita nol",
+    'Произведение в знаменателе, два нуля',
+    'A product in the denominator, two zeros',
   ),
   audio: [
     A('mount',
@@ -1087,9 +1087,9 @@ const S10 = {
 const S11 = {
   eyebrow: L('MUSTAQIL', 'САМ', 'ON YOUR OWN'),
   title: L(
-    "Endi yozuv murakkabroq",
-    'Теперь запись сложнее',
-    'Now the record is harder',
+    "Ruhsat etilgan qiymatlar, yordamsiz",
+    'Допустимые значения без подсказки',
+    'Admissible values, no hints',
   ),
   audio: [
     A('mount',
@@ -1156,9 +1156,9 @@ const S11 = {
 const S12 = {
   eyebrow: L('TUZOQ', 'ЛОВУШКА', 'THE TRAP'),
   title: L(
-    "Qaysi qator noto'g'ri",
-    'Какая строка неверна',
-    'Which line is wrong',
+    "Yechimni qadamma qadam tekshirish",
+    'Проверка решения по шагам',
+    'Checking a solution step by step',
   ),
   audio: [
     A('mount',
@@ -1222,9 +1222,9 @@ const S12 = {
 const S13 = {
   eyebrow: L("KATAKMA-KATAK", 'ПО КЛЕТКАМ', 'CELL BY CELL'),
   title: L(
-    "Yechimni o'zingiz to'ldiring",
-    'Заполни решение сам',
-    'Fill in the solution yourself',
+    "Yechimni qadamlar bilan yozing",
+    'Запиши решение по шагам',
+    'Write the solution step by step',
   ),
   audio: [
     A('mount',
@@ -1298,9 +1298,9 @@ const S13 = {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
   title: L(
-    "Yozuv haqida besh savol",
-    'Пять вопросов о записи',
-    'Five questions about the record',
+    "Blits, qoidani mustahkamlaymiz",
+    'Блиц, закрепляем правило',
+    'Blitz, reinforcing the rule',
   ),
   audio: [
     A('mount',
@@ -1452,9 +1452,9 @@ const S14 = {
 const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L(
-    "Yozuv va uning taqig'i",
-    'Запись и её запрет',
-    'The record and its restriction',
+    "Xulosa, yozuv va uning taqig'i",
+    'Вывод, запись и её запрет',
+    'Conclusion, the record and its restriction',
   ),
   audio: [
     A('s0',
