@@ -290,9 +290,9 @@ const HookScene = () => {
 const S1 = {
   eyebrow: L('RATSIONAL IFODALAR', 'РАЦИОНАЛЬНЫЕ ВЫРАЖЕНИЯ', 'RATIONAL EXPRESSIONS'),
   title: L(
-    'Ilovani tuzatish kerak',
-    'Приложение надо починить',
-    'The app needs fixing',
+    "Bitta sonda hisob to'xtadi",
+    'На одном числе счёт остановился',
+    'At one number the calculation stopped',
   ),
   audio: [
     A('mount',
@@ -571,9 +571,9 @@ const S4 = {
 const S5 = {
   eyebrow: L("TAQIQ KO'CHADI", 'ЗАПРЕТ ПЕРЕЕЗЖАЕТ', 'THE RESTRICTION MOVES'),
   title: L(
-    "Taqiq qayerda yashaydi",
-    'Где живёт запрет',
-    'Where the restriction lives',
+    "Taqiq maxrajga ergashadi",
+    'Запрет идёт за знаменателем',
+    'The restriction follows the denominator',
   ),
   audio: [
     A('mount',
@@ -700,9 +700,9 @@ const S5 = {
 const S6 = {
   eyebrow: L('IKKI USUL', 'ДВА СПОСОБА', 'TWO METHODS'),
   title: L(
-    "600 : (k − 4) yozuvini ikki usul bilan tekshiramiz",
-    'Проверим 600 : (k − 4) двумя способами',
-    'Checking 600 : (k − 4) two ways',
+    "Taqiqni topishning ikki usuli",
+    'Два способа найти запрет',
+    'Two ways to find the restriction',
   ),
   audio: [
     A('mount',
@@ -1087,9 +1087,9 @@ const S10 = {
 const S11 = {
   eyebrow: L('MUSTAQIL', 'САМ', 'ON YOUR OWN'),
   title: L(
-    "Endi yordamsiz",
-    'Теперь без помощи',
-    'Now without help',
+    "Endi yozuv murakkabroq",
+    'Теперь запись сложнее',
+    'Now the record is harder',
   ),
   audio: [
     A('mount',
@@ -1298,9 +1298,9 @@ const S13 = {
 const S14 = {
   eyebrow: L('BLITS', 'БЛИЦ', 'BLITZ'),
   title: L(
-    'Besh savol',
-    'Пять вопросов',
-    'Five questions',
+    "Yozuv haqida besh savol",
+    'Пять вопросов о записи',
+    'Five questions about the record',
   ),
   audio: [
     A('mount',
@@ -1452,9 +1452,9 @@ const S14 = {
 const S15 = {
   eyebrow: L('YAKUN', 'ИТОГ', 'SUMMARY'),
   title: L(
-    "Darsdan qolgani",
-    'Что осталось с урока',
-    'What stays with you',
+    "Yozuv va uning taqig'i",
+    'Запись и её запрет',
+    'The record and its restriction',
   ),
   audio: [
     A('s0',
