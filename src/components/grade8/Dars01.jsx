@@ -310,30 +310,30 @@ const S1 = {
     // место. Раньше на хуке было два действия подряд, и это нарушало
     // правило «один вопрос на экране».
     ask: L(
-      "Dilnozada ilova nega yiqildi?",
-      'Почему приложение упало у Дилнозы?',
-      'Why did the app crash for Dilnoza?',
+      "Dilnozada ilova nega xato berdi?",
+      'Почему приложение выдало ошибку у Дилнозы?',
+      'Why did the app show an error for Dilnoza?',
     ),
     items: [
       {
         id: 'phone',
-        show: L('Telefoni buzuq', 'Сломан телефон', 'Her phone is broken'),
+        show: L('Telefoni buzilgan', 'Сломан телефон', 'Her phone is broken'),
         hint: L(
-          "Dastur ikkalasida bitta. Buzuq telefon boshqa sonlarda ham yiqilardi.",
+          "Dastur ikkalasida bir xil. Telefon buzilgan bo'lsa, boshqa sonlarda ham xato berardi.",
           'Программа у обоих одна. Сломанный телефон падал бы и на других числах.',
-          'Both have the same program. A broken phone would crash on other numbers too.',
+          'Both have the same program. A broken phone would show an error on other numbers too.',
         ),
       },
       {
         id: 'data',
         right: true,
-        show: L("Ma'lumotlari boshqa", 'Другие данные', 'Her data is different'),
+        show: L('U boshqa son kiritgan', 'Она ввела другое число', 'She entered a different number'),
       },
     ],
     after: L(
-      "Ha. Ekranga qarang: miqdor nolga teng. Sababni dars davomida topamiz.",
-      'Да. Посмотри на экран: количество равно нулю. Причину найдём по ходу урока.',
-      'Yes. Look at the screen: the quantity is zero. We will find the reason during the lesson.',
+      "Ha. Ekranga qarang, miqdor nolga teng. Sababni dars davomida topamiz.",
+      'Да. Посмотри на экран, количество равно нулю. Причину найдём по ходу урока.',
+      'Yes. Look at the screen, the quantity is zero. We will find the reason during the lesson.',
     ),
   },
 }
@@ -485,14 +485,14 @@ const S3 = {
       'Set the quantity so that the price is exactly 150',
     ),
     ask2: L(
-      "Endi ilovani yiqiting: miqdorni nolgacha tushiring",
-      'Теперь урони приложение: доведи количество до нуля',
-      'Now crash the app: bring the quantity down to zero',
+      "Endi miqdorni nolgacha tushiring va nima bo'lishini ko'ring",
+      'Теперь доведи количество до нуля и посмотри, что будет',
+      'Now make the app fail. Bring the quantity down to zero',
     ),
     broke: L(
-      "Miqdor nol bo'ldi va ilova yiqildi: summani nolga bo'lib bo'lmaydi.",
-      'Количество стало нулём, и приложение упало: сумму нельзя разделить на нуль.',
-      'The quantity became zero and the app crashed: the total cannot be divided by zero.',
+      "Miqdor nol bo'ldi va ilova xato berdi. Summani nolga bo'lib bo'lmaydi.",
+      'Количество стало нулём, и приложение выдало ошибку. Сумму нельзя разделить на нуль.',
+      'The quantity became zero and the app showed an error. A total cannot be divided by zero.',
     ),
   },
 }
@@ -520,15 +520,15 @@ const S4 = {
       'Две записи. В обеих есть семёрка и a, разный только порядок. Обе называются рациональными выражениями.',
       'Two records. Both have a seven and an a, only the order differs. Both are called rational expressions.'),
     A('why',
-      "Qaysi biri biror sonda yiqiladi? Chiziqning ostiga qarang.",
+      "Qaysi biri biror sonda xato beradi? Chiziqning ostiga qarang.",
       'Какая из них упадёт на каком-то числе? Смотри, что стоит под чертой.',
-      'Which one crashes at some number? Look at what stands below the bar.'),
+      'Which one shows an error at some number? Look at what stands below the bar.'),
   ],
   props: {
     ask: L(
-      "Qaysi yozuv biror sonda yiqiladi?",
+      "Qaysi yozuv biror sonda xato beradi?",
       'Какая запись упадёт на каком-то числе?',
-      'Which record crashes at some number?',
+      'Which record shows an error at some number?',
     ),
     items: [
       {
@@ -536,9 +536,9 @@ const S4 = {
         show: 'a : 7',
         name: L('BUTUN IFODA', 'ЦЕЛОЕ ВЫРАЖЕНИЕ', 'INTEGRAL EXPRESSION'),
         hint: L(
-          "Bu yerda a ni yettiga bo'lamiz. Yetti hech qachon nolga aylanmaydi, demak yiqilmaydi.",
+          "Bu yerda a yettiga bo'linadi. Yetti hech qachon nol bo'lmaydi, demak xato ham chiqmaydi.",
           'Здесь a делят на семь. Семёрка нулём не станет никогда, значит не упадёт.',
-          'Here a is divided by seven. A seven never becomes zero, so it never crashes.',
+          'Here a is divided by seven. A seven never becomes zero, so no error appears.',
         ),
       },
       {
@@ -559,9 +559,9 @@ const S4 = {
     // Экранный текст короткий, разбор целиком уходит в озвучку: абзац под
     // записями ученик не читает, он смотрит на подписи (методист, 2026-08-17).
     afterSay: L(
-      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nolga teng bo'lsa, ilova yiqiladi.",
+      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nol bo'lsa, ilova xato beradi.",
       'Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение упадёт.',
-      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app crashes.',
+      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app shows an error.',
     ),
   },
 }
@@ -710,9 +710,9 @@ const S6 = {
       'Одна запись и два пути. Оба дают одно и то же число.',
       'One record and two ways. Both give the same number.'),
     W('w4',
-      "To'rtlikda maxraj nolga aylandi va ilova yiqildi. Birinchi usul ishladi, lekin uzoq.",
+      "To'rtda maxraj nol bo'ldi va ilova xato berdi. Birinchi usul ishladi, lekin uzoq.",
       'На четвёрке знаменатель обратился в нуль и приложение упало. Первый способ сработал, но он долгий.',
-      'At four the denominator became zero and the app crashed. The first method worked, but it is slow.'),
+      'At four the denominator became zero and the app showed an error. The first method worked, but it is slow.'),
     W('w6',
       "Ikkinchi usul qisqa, maxrajni nolga tenglaymiz.",
       'Второй способ короткий, приравниваем знаменатель к нулю.',
@@ -737,7 +737,7 @@ const S6 = {
           { text: 'k = 1   →   600 : (1 − 4)   =   −200' },
           { text: 'k = 2   →   600 : (2 − 4)   =   −300' },
           { text: 'k = 3   →   600 : (3 − 4)   =   −600' },
-          { text: 'k = 4   →   600 : (4 − 4)   =   600 : 0', tone: 'no', note: L('yiqildi', 'упало', 'crashed') },
+          { text: 'k = 4   →   600 : (4 − 4)   =   600 : 0', tone: 'no', note: L('xato', 'ошибка', 'error') },
         ],
       },
       {
@@ -830,7 +830,7 @@ const S7 = {
     fact: {
       cap: L('BILASIZMI', 'ЗНАЕШЬ ЛИ ТЫ', 'DID YOU KNOW'),
       text: L(
-        "Ma'lumotlar bazalarida maxraj hisobdan OLDIN tekshiriladi: aks holda butun so'rov yiqiladi, bitta qator emas.",
+        "Ma'lumotlar bazalarida maxraj hisobdan OLDIN tekshiriladi: aks holda butun so'rov to'xtaydi, bitta qator emas.",
         'В базах данных знаменатель проверяют ДО вычисления: иначе падает весь запрос, а не одна строка.',
         'In databases the denominator is checked BEFORE computing: otherwise the whole query fails, not one row.',
       ),
