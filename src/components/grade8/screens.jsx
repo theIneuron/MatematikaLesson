@@ -292,7 +292,9 @@ export function ScreenBody(props) {
           audio={audio}
           onSolved={onSolved}
           onReady={onReady}
-          buildView={(q, close) => <CatchBuild {...q.build} onDone={() => close(true)} />}
+          buildView={(q, close) => (
+            <CatchBuild {...q.build} audio={audio} onDone={(clean) => close(clean !== false)} />
+          )}
         />
       )
     case 'takeaway':

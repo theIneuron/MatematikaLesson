@@ -1147,11 +1147,15 @@ export function FillSolution({
 // Подпись клетки: по ней ученик понимает, что клетку можно освободить.
 const UNDO_HINT = L('Bekor qilish uchun bosing', 'Нажми, чтобы освободить', 'Tap to clear')
 
-export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
+export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [got, setGot] = useState([])
-  const [bad, setBad] = useState(null)
+  const [err, setErr] = useState(false)
+  const [ok, setOk] = useState(false)
+  // Была ли хоть одна неверная сборка: по этому блиц решает, засчитать ли
+  // задание с первой попытки.
+  const missed = useRef(false)
 
   // Клетки нумеруем ЗАРАНЕЕ и с заходом внутрь дроби: счётчик, растущий
   // прямо в разметке, это мутация во время отрисовки, React такое не берёт.
@@ -1167,20 +1171,32 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
     }
     return -1
   }))
-  const done = got.length >= want.length
 
+  // ФИШКА СТАВИТСЯ ЛЮБАЯ (методист, 2026-08-17). Раньше неверная просто
+  // отскакивала: прибор не пускал ученика ошибиться, а значит и подумать.
+  // Теперь он собирает запись как считает нужным, а проверяется она ЦЕЛИКОМ,
+  // когда заполнена последняя клетка. Ошибся — клетки с несовпадением
+  // краснеют, и он меняет их сам: отмена по клетке для этого и сделана.
   const take = (tile) => {
-    if (done) return
+    if (ok) return
     if (got.some((g) => g.id === tile.id)) return
-    if (tile.v !== want[got.length]) {
-      setBad(tile.id)
-      sfx.playWrong()
-      setTimeout(() => setBad(null), 460)
+    const next = got.concat([{ id: tile.id, v: tile.v }])
+    setGot(next)
+    setErr(false)
+    if (next.length < want.length) return
+    const good = next.every((g, i) => g.v === want[i])
+    if (good) {
+      setOk(true)
+      sfx.playCorrect()
+      // Пауза перед закрытием: без неё вопрос сворачивался в тот же кадр, и
+      // ученик не успевал увидеть ни зелёные клетки, ни разбор.
+      if (onDone) setTimeout(() => onDone(!missed.current), 1600)
       return
     }
-    sfx.playCorrect()
-    setGot(got.concat([{ id: tile.id, v: tile.v }]))
-    if (got.length + 1 >= want.length && onDone) onDone()
+    missed.current = true
+    setErr(true)
+    sfx.playWrong()
+    if (audio && hint) audio.say(t(hint))
   }
 
   // ОТМЕНА ПО КЛЕТКЕ (методист, 2026-08-17). Кнопка снимала только последнюю
@@ -1188,9 +1204,9 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
   // ту самую клетку: она и всё, что после неё, освобождается, а фишки
   // возвращаются на сцену. Порядок сборки при этом сохраняется.
   const clearFrom = (k) => {
-    if (k >= got.length) return
+    if (ok || k >= got.length) return
     setGot(got.slice(0, k))
-    setBad(null)
+    setErr(false)
   }
 
   const slotView = (k, key) => {
@@ -1199,9 +1215,12 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
       <button
         type="button"
         key={key}
-        className={'g8-cb-slot' + (g ? ' is-set' : '')}
+        className={'g8-cb-slot'
+          + (g ? ' is-set' : '')
+          + (err && g && g.v !== want[k] ? ' is-wrong' : '')
+          + (ok ? ' is-ok' : '')}
         onClick={() => clearFrom(k)}
-        disabled={!g}
+        disabled={!g || ok}
         title={g ? t(UNDO_HINT) : undefined}>
         {g ? g.v : ''}
       </button>
@@ -1248,9 +1267,7 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
             <button
               type="button"
               key={x.id}
-              className={'g8-cb-tile g8-cb-c' + (i % 4)
-                + (bad === x.id ? ' is-bad' : '')
-                + (taken ? ' is-out' : '')}
+              className={'g8-cb-tile g8-cb-c' + (i % 4) + (taken ? ' is-out' : '')}
               style={{ left: x.x + '%', top: x.y + '%', animationDelay: (i * 0.7) + 's' }}
               onClick={() => take(x)}>
               {x.v}
@@ -1258,9 +1275,9 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone }) {
           )
         })}
       </div>
-      <Slot mh={40}>
-        {done ? <Note kind="ok">{t(doneNote)}</Note>
-          : bad ? <Note kind="no">{t(hint)}</Note> : null}
+      <Slot mh={44}>
+        {ok ? <Note kind="ok">{t(doneNote)}</Note>
+          : err ? <Note kind="no">{t(hint)}</Note> : null}
       </Slot>
     </div>
   )
@@ -1958,6 +1975,11 @@ export const FEED_STYLES = `
 .lesson-root .g8-cb-slot { border: 0; background: transparent; cursor: default; font-family: inherit; }
 .lesson-root .g8-cb-slot.is-set { cursor: pointer; }
 .lesson-root .g8-cb-slot.is-set:hover { box-shadow: inset 0 0 0 2px ${T.no}; color: ${T.no}; }
+/* Проверка ЦЕЛОЙ записи: краснеют только те клетки, где значение не то.
+   Ученик видит, что менять, но не видит, на что менять. */
+.lesson-root .g8-cb-slot.is-wrong { box-shadow: inset 0 0 0 2px ${T.no}; color: ${T.no};
+  animation: g8-cb-shake .42s; }
+.lesson-root .g8-cb-slot.is-ok { box-shadow: inset 0 0 0 2px ${T.ok}; color: ${T.ok}; }
 
 /* ЗАПИСЬ ДРОБЬЮ, а не через двоеточие: доля от счёта это дробь, и она
    обязана выглядеть дробью (методист, 2026-08-17). */
