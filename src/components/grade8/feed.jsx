@@ -1994,9 +1994,13 @@ export const FEED_STYLES = `
    ей нужно больше места (экран 2). */
 .g8-pf.is-wide { max-width: 620px; }
 .g8-pf.is-wide .g8-pf-row { grid-template-columns: 1.5fr 1fr 1fr; }
-/* Широкая таблица стоит там, где сверху уже есть сцена, поэтому ряды ниже. */
-.g8-pf.is-wide .g8-pf-row, .g8-pf.is-wide .g8-pf-row > span { min-height: 44px; }
-.g8-pf.is-wide .g8-pf-row.is-head, .g8-pf.is-wide .g8-pf-row.is-head > span { min-height: 40px; }
+/* Широкая таблица стоит там, где сверху уже есть сцена, поэтому ряды ниже.
+   СЦЕНА ПРЯЧЕТСЯ, когда таблица открылась: её записи переехали в таблицу, и
+   держать их на экране дважды незачем — освободившейся вертикали хватает на
+   все четыре строки. */
+.g8-stack:has(.g8-pf.is-wide) .g8-scene { display: none; }
+.g8-pf.is-wide .g8-pf-row, .g8-pf.is-wide .g8-pf-row > span { min-height: 42px; }
+.g8-pf.is-wide .g8-pf-row.is-head, .g8-pf.is-wide .g8-pf-row.is-head > span { min-height: 38px; }
 .g8-pf.is-wide .g8-pf-row { font-size: 20px; }
 .g8-pf.is-wide .g8-frac-n, .g8-pf.is-wide .g8-frac-d { font-size: 15px; }
 .g8-pf-row.is-dead { background: rgba(178,58,45,.07); }
