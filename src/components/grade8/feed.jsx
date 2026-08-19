@@ -195,7 +195,7 @@ export function FeedNumber({
 //
 // Разбор на каждый неверный указывает на признак, а не даёт ответ.
 // ============================================================
-export function PickBroken({ items, ask, after, afterSay, onSolved, audio }) {
+export function PickBroken({ items, ask, after, afterSay, proof, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [picked, setPicked] = useState(null)
@@ -246,6 +246,31 @@ export function PickBroken({ items, ask, after, afterSay, onSolved, audio }) {
           </button>
         ))}
       </div>
+      {/* ПОДСТАНОВКА (методист, 2026-08-17). Раньше вывод ОБЪЯВЛЯЛСЯ: эта
+          запись считается, эта нет. Урок сам требует проверять ответ числом,
+          значит и здесь надо не объявить, а подставить. Строки открываются по
+          одной, последняя — та, где значения уже нет. */}
+      {picked && proof ? (
+        <div className="g8-pf">
+          <div className="g8-pf-row is-head">
+            <span>{proof.varLabel}</span>
+            <span>{proof.leftLabel}</span>
+            <span>{proof.rightLabel}</span>
+          </div>
+          {proof.rows.map((r, i) => (
+            <div
+              className={'g8-pf-row' + (r.dead ? ' is-dead' : '')}
+              key={i}
+              style={{ animationDelay: (0.3 + i * 0.6) + 's' }}
+            >
+              <span>{r.v}</span>
+              <span>{r.left}</span>
+              <span>{r.dead ? t(proof.noValue) : r.right}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       <Slot mh={64}>
         <Note kind={picked ? 'ok' : 'no'}>{note ? t(note) : null}</Note>
       </Slot>
@@ -1922,4 +1947,29 @@ export const FEED_STYLES = `
 @media (prefers-reduced-motion: reduce) { .g8-dr-top { animation: none; } }
 
 .g8-fl-n { animation: g8-st-task-in .5s ease-out both; }
+
+/* ПОДСТАНОВКА: три строки значений вместо утверждения. Колонки ровные,
+   поэтому глаз сравнивает два столбца, а не читает текст. */
+.g8-pf { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 520px;
+  margin: 10px auto 0; }
+.g8-pf-row { display: grid; grid-template-columns: 1fr 1.4fr 1.4fr; align-items: center;
+  gap: 8px; padding: 7px 14px; border-radius: 12px; background: ${T.paper};
+  font-size: 22px; font-family: ${MATH_FONT}; color: ${T.ink}; text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(23,26,29,.06);
+  animation: g8-pf-in .45s ease-out both; }
+/* БЕЗ uppercase: заглавная A и строчная a в математике разные буквы, а
+   в шапке стоят те же записи, что и в карточках. */
+.g8-pf-row.is-head { background: transparent; box-shadow: none; font-size: 20px;
+  color: ${T.ink3}; animation: none; }
+.g8-pf-row.is-dead { box-shadow: inset 0 0 0 2px ${T.no}; }
+.g8-pf-row.is-dead span:last-child { color: ${T.no}; font-size: 17px; font-family: inherit; }
+@keyframes g8-pf-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: none; } }
+@media (max-width: 760px), (max-height: 820px) {
+  .g8-pf { gap: 3px; margin-top: 6px; }
+  .g8-pf-row { font-size: 18px; padding: 4px 10px; }
+  .g8-pf-row.is-head { font-size: 17px; }
+  .g8-pf-row.is-dead span:last-child { font-size: 14px; }
+  .lesson-root .g8-pb.has-names .g8-pb-card { padding-bottom: 32px; }
+  .g8-pb-name { font-size: 13px; bottom: 8px; }
+}
 `
