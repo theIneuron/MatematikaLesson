@@ -1507,13 +1507,16 @@ const S14 = {
             [{ t: 'Har biriga:  ' }, { frac: [[{ slot: '60000' }], [{ slot: 'n' }]] }],
             [{ t: 'Shart:  n ' }, { slot: '≠' }, { t: ' ' }, { slot: '0' }],
           ],
+          // Координаты в процентах от высоты поля. Поле стало ниже, чтобы
+          // под ним поместился разбор, поэтому нижний ряд поднят: иначе
+          // фишка вылезает за край и стенд считает поле режущим.
           tiles: [
-            { id: 't1', v: '60000', x: 8, y: 16 },
-            { id: 't2', v: 'n', x: 62, y: 12 },
-            { id: 't3', v: '≠', x: 34, y: 58 },
-            { id: 't4', v: '0', x: 78, y: 62 },
-            { id: 't5', v: '+', x: 20, y: 66 },
-            { id: 't6', v: '=', x: 50, y: 24 },
+            { id: 't1', v: '60000', x: 8, y: 8 },
+            { id: 't2', v: 'n', x: 62, y: 6 },
+            { id: 't3', v: '≠', x: 34, y: 46 },
+            { id: 't4', v: '0', x: 78, y: 48 },
+            { id: 't5', v: '+', x: 20, y: 50 },
+            { id: 't6', v: '=', x: 50, y: 12 },
           ],
           hint: L(
             "Bitta kishiga tegadigan pul hisobni odam soniga bo'lgandan chiqadi, qo'shgandan emas.",
@@ -1521,9 +1524,9 @@ const S14 = {
             'One share comes from dividing the bill by the number of people, not from adding.',
           ),
           doneNote: L(
-            "Yig'ildi. Odam soni nolga aylanmaydi, shuning uchun shart yozuv bilan birga yuradi.",
-            'Собрано. Людей не бывает ноль, поэтому условие идёт вместе с записью.',
-            'Assembled. There is never zero people, so the condition travels with the record.',
+            "Yig'ildi. Odam soni nol bo'lmaydi, shuning uchun shart yozuv bilan yuradi.",
+            'Собрано. Людей не бывает ноль, поэтому условие идёт с записью.',
+            'Assembled. People are never zero, so the condition travels with the record.',
           ),
         },
       },

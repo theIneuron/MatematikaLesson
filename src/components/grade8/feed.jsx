@@ -1252,7 +1252,9 @@ export function CatchBuild({ lead, lines, tiles, hint, doneNote, onDone, audio }
 
   return (
     <div className="g8-cb">
-      {lead ? <div className="g8-cb-lead">{t(lead)}</div> : null}
+      {/* Условие уходит, когда появился разбор: два текста подряд не нужны,
+          а вертикаль на экране 14 занята полем ловли (стенд ловил обрезку). */}
+      {lead && !ok && !err ? <div className="g8-cb-lead">{t(lead)}</div> : null}
       <div className="g8-cb-rec">
         {lines.map((ln, i) => (
           <div className="g8-cb-line" key={i}>
@@ -1898,7 +1900,7 @@ export const FEED_STYLES = `
   animation: g8-cb-land .38s ease-out both; }
 @keyframes g8-cb-land { 0% { transform: scale(.6); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-.g8-cb-stage { position: relative; width: 100%; max-width: 720px; height: 150px;
+.g8-cb-stage { position: relative; width: 100%; max-width: 720px; height: 116px;
   border-radius: 18px; background: ${T.paper2}; overflow: hidden;
   box-shadow: inset 0 0 0 1px rgba(23,26,29,.08); }
 .lesson-root .g8-cb-tile { position: absolute; border: 0; cursor: pointer;
@@ -1908,8 +1910,8 @@ export const FEED_STYLES = `
   animation: g8-cb-drift 6s ease-in-out infinite alternate; }
 @keyframes g8-cb-drift {
   0% { transform: translate(0, 0); }
-  50% { transform: translate(14px, -12px); }
-  100% { transform: translate(-10px, 10px); }
+  50% { transform: translate(14px, -8px); }
+  100% { transform: translate(-10px, 6px); }
 }
 .lesson-root .g8-cb-tile.is-bad { box-shadow: 0 0 0 2px ${T.no}; animation: g8-cb-shake .42s; }
 @keyframes g8-cb-shake { 25% { margin-left: -7px; } 75% { margin-left: 7px; } }
@@ -1919,8 +1921,9 @@ export const FEED_STYLES = `
 /* ТЕЛЕФОН. Сцена ловли высокая, и вместе с записью и счётом экран 14
    переставал влезать. На узком экране плитки летают в поле пониже,
    запись уменьшается, но остаётся выровненной по знаку. */
-@media (max-width: 760px), (max-height: 720px) {
-  .g8-cb-stage { height: 118px; }
+@media (max-width: 760px), (max-height: 820px) {
+  .g8-cb-stage { height: 88px; }
+  .g8-cb-rec { padding: 8px 14px; }
   .g8-cb-line { font-size: 24px; }
   .g8-cb-slot { min-width: 50px; height: 38px; font-size: 22px; }
   .lesson-root .g8-cb-tile { min-height: 40px; font-size: 20px; padding: 0 10px; }
