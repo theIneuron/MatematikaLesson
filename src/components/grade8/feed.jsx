@@ -522,14 +522,19 @@ export function TwoWays({ blocks, stepMs = 1900, onStep }) {
 // `goal` поднимает возраст экрана: вместо «покрути и посмотри» ученик решает
 // ОБРАТНУЮ задачу — подбери количество, при котором цена станет ровно такой.
 // Это уже рассуждение о делителях, а не перебор наугад.
-export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke, onSolved, audio }) {
+export function Steppers({ cols, calc, resultLabel, sign, goal, goals, ask, ask2, broke, onSolved, audio }) {
   const t = useT()
   const sfx = useSfx()
   const [vals, setVals] = useState(cols.map((c) => c.start))
   const [touched, setTouched] = useState(false)
   const [found, setFound] = useState(false)
-  // `hit` — первая задача решена: цена подобрана. До этого ронять нельзя.
-  const [hit, setHit] = useState(!goal)
+  // ЦЕПОЧКА ЦЕЛЕЙ (методист, 2026-08-17). Одной цели мало: ответ находился
+  // с первого нажатия. Цели идут по возрастанию, и вторую с третьей нельзя
+  // взять одним столбцом — приходится менять и сумму, и количество.
+  const list = goals && goals.length ? goals : (goal ? [goal] : [])
+  const [gi, setGi] = useState(0)
+  // `hit` — все цели взяты: цена подобрана. До этого ронять нельзя.
+  const [hit, setHit] = useState(!list.length)
 
   const out = calc(vals)
   const dead = out === null || !isFinite(out)
@@ -544,10 +549,12 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke
     setVals(next)
     setTouched(true)
     const res = calc(next)
-    if (goal && !hit && res === goal.value) {
-      setHit(true)
+    if (list.length && !hit && res === list[gi].value) {
+      const last = gi + 1 >= list.length
+      if (last) setHit(true)
+      else setGi(gi + 1)
       sfx.playCorrect()
-      if (audio && goal.after) audio.say(t(goal.after))
+      if (audio && list[gi].after) audio.say(t(list[gi].after))
       return
     }
     if (res === null || !isFinite(res)) {
@@ -598,7 +605,14 @@ export function Steppers({ cols, calc, resultLabel, sign, goal, ask, ask2, broke
       <Slot mh={62}>
         {found && dead
           ? <Note kind="no">{t(broke)}</Note>
-          : <Ask>{t(hit && ask2 ? ask2 : ask)}</Ask>}
+          : (
+            <div className="g8-st-task">
+              {!hit && list.length > 1
+                ? <span className="g8-st-n">{gi + 1} / {list.length}</span>
+                : null}
+              <Ask>{t(hit && ask2 ? ask2 : (list.length && list[gi].ask) || ask)}</Ask>
+            </div>
+          )}
       </Slot>
     </>
   )
@@ -1837,4 +1851,8 @@ export const FEED_STYLES = `
    встали, надо укоротить сами формулировки, а они общие с другими
    экранами: это решение методиста, не вёрстки. */
 .lesson-root .g8-rule-first { font-weight: 700; color: ${T.accent}; }
+
+/* Счётчик задач у столбцов: ученик видит, сколько целей осталось. */
+.g8-st-task { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.g8-st-n { font-size: 15px; letter-spacing: .08em; color: ${T.ink3}; }
 `

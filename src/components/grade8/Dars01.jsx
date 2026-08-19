@@ -471,14 +471,52 @@ const S3 = {
     // ДВЕ ЗАДАЧИ, а не «покрути и посмотри». Первая обратная: подобрать
     // количество под заданную цену — это рассуждение о делителях. Вторая
     // открывается после неё.
-    goal: {
-      value: 150,
-      after: L(
-        "To'g'ri: olti yuzni yuz ellikka bo'lsak, to'rtta chiqadi.",
-        'Верно: шестьсот разделить на сто пятьдесят — получается четыре.',
-        'Correct: six hundred divided by one hundred fifty gives four.',
-      ),
-    },
+    // ТРИ ЦЕЛИ ПО ВОЗРАСТАНИЮ (методист, 2026-08-17). Одна цель бралась с
+    // первого нажатия. Сто пятьдесят берётся количеством, двести пятьдесят
+    // суммой шестьсот НЕ БЕРЁТСЯ ни при каком целом количестве, а сто
+    // семьдесят пять требует ровно семьсот и четыре. Ученик вынужден
+    // рассуждать о делимости, а не жать кнопку.
+    goals: [
+      {
+        value: 150,
+        ask: L(
+          "Narx aynan 150 bo'ladigan miqdorni tanlang",
+          'Подбери количество, при котором цена будет ровно 150',
+          'Set the quantity so that the price is exactly 150',
+        ),
+        after: L(
+          "To'g'ri. Olti yuzni yuz ellikka bo'lsak, to'rtta chiqadi.",
+          'Верно. Шестьсот разделить на сто пятьдесят, получается четыре.',
+          'Correct. Six hundred divided by one hundred fifty gives four.',
+        ),
+      },
+      {
+        value: 250,
+        ask: L(
+          "Endi narx 250 bo'lsin. Faqat miqdor bilan chiqmaydi",
+          'Теперь цена 250. Одним количеством не выйдет',
+          'Now make the price 250. The quantity alone will not do it',
+        ),
+        after: L(
+          "Ha. Olti yuzni bo'lib ikki yuz ellik chiqmaydi, shuning uchun summa ham o'zgardi.",
+          'Да. Из шестисот двести пятьдесят не получается, поэтому изменилась и сумма.',
+          'Yes. Six hundred cannot give two hundred fifty, so the total had to change as well.',
+        ),
+      },
+      {
+        value: 175,
+        ask: L(
+          "Oxirgisi, narx 175. Summani ham, miqdorni ham tanlang",
+          'Последнее, цена 175. Подбери и сумму, и количество',
+          'Last one, the price is 175. Choose both the total and the quantity',
+        ),
+        after: L(
+          "Yetti yuz va to'rtta. Bo'linma butun chiqadigan juftlikni topdingiz.",
+          'Семьсот и четыре. Ты нашёл пару, при которой частное выходит целым.',
+          'Seven hundred and four. You found the pair whose quotient comes out whole.',
+        ),
+      },
+    ],
     ask: L(
       "Narx aynan 150 bo'ladigan miqdorni tanlang",
       'Подбери количество, при котором цена будет ровно 150',
