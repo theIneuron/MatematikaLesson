@@ -147,10 +147,57 @@ async function run(lang, w, h) {
   return errors;
 }
 
+// ---------------------------------------------------------------------------
+// ПРЕВЬЮ БЕЗ ?lang= — так урок открывают со страницы списка.
+// Все проверки выше идут с языком в адресе, а тогда переключатель RU/UZ/EN не
+// рендерится (`isPreview` ложно) — и весь превью-слой для теста невидим. Именно
+// так мимо smoke прошла обрезанная нижняя панель: класс рисовал переключатель
+// блоком В ПОТОКЕ, он опускал сцену на 24 px, и кнопка «Davom etish» уходила за
+// нижний край (нашёл методист глазами 2026-08-19, тест молчал).
+// Здесь два замера: панель целиком в кадре и переключатель не накрывает
+// кнопки звука и повтора в шапке урока.
+// ---------------------------------------------------------------------------
+async function previewChrome(w, h) {
+  const browser = await chromium.launch();
+  const page = await browser.newPage({ viewport: { width: w, height: h } });
+  console.log(`\n[превью без lang] ${w}x${h}`);
+  await page.goto(`${BASE}/6-sinf/matematika/nazariy/${lesson.slug}`, { waitUntil: 'networkidle' });
+  await page.waitForSelector('.stage-nav', { timeout: 12000 }).catch(() => {});
+  await page.waitForTimeout(2200);
+  const m = await page.evaluate(() => {
+    const nav = document.querySelector('.stage-nav');
+    const sw = document.querySelector('.g6-lang-switch');
+    const header = document.querySelector('.stage-header');
+    const box = (el) => { const b = el.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom }; };
+    const hit = (a, b) => !(a.r <= b.l || b.r <= a.l || a.b <= b.t || b.b <= a.t);
+    const s = sw ? box(sw) : null;
+    const covered = s && header
+      ? [...header.querySelectorAll('button')].filter((el) => hit(s, box(el)))
+        .map((el) => el.getAttribute('title') || 'кнопка')
+      : [];
+    return {
+      vh: window.innerHeight,
+      navBottom: nav ? Math.round(box(nav).b) : null,
+      hasSwitch: !!sw,
+      switchTop: s ? Math.round(s.t) : null,
+      switchBottom: s ? Math.round(s.b) : null,
+      covered,
+    };
+  });
+  if (m.navBottom === null) fail('превью: нижней панели нет на экране');
+  else if (m.navBottom > m.vh + 1) fail(`превью: нижняя панель обрезана на ${m.navBottom - m.vh}px (экран ${m.vh})`);
+  else note(`нижняя панель в кадре (до ${m.navBottom} при ${m.vh})`);
+  if (!m.hasSwitch) note('переключателя языка нет — урок открылся не в режиме превью');
+  else if (m.covered.length) fail(`превью: переключатель языка накрывает ${m.covered.join(', ')}`);
+  else note(`переключатель ${m.switchTop}..${m.switchBottom} — шапку урока не накрывает`);
+  await browser.close();
+}
+
 const all = [];
 for (const lang of LANGS) {
   for (const [w, h] of SIZES) all.push(...(await run(lang, w, h)));
 }
+for (const [w, h] of SIZES) await previewChrome(w, h);
 // В превью нет адреса TTS — запрос озвучки даёт 404. Это не дефект урока.
 const real = all.filter((e) => !/favicon|net::ERR_|Web Speech|speechSynthesis|Failed to load resource/i.test(e));
 console.log('\n=== ИТОГ ===');

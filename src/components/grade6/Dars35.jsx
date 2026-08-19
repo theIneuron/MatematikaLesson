@@ -428,7 +428,7 @@ const CONTENT = {
         ],
       },
       {
-        q: { ru: 'Груш и яблок 30, яблонь на 4 больше. Сколько груш?', uz: "Nok va olma 30 ta, olma 4 ta ko'p. Nok nechta?", en: '30 pears and apples, 4 more apples. How many pears?' },
+        q: { ru: 'Груш и яблок 30, яблок на 4 больше. Сколько груш?', uz: "Nok va olma 30 ta, olma 4 ta ko'p. Nok nechta?", en: '30 pears and apples, 4 more apples. How many pears?' },
         opts: ['13', '17', '15'],
         correct: 0,
         ok: { ru: 'Верно. 2x + 4 = 30, значит x = 13.', uz: "To'g'ri. 2x + 4 = 30, demak x = 13.", en: 'Right. 2x + 4 = 30, so x = 13.' },
@@ -535,11 +535,11 @@ const CONTENT = {
         ],
       },
       {
-        q: { ru: 'Севара: «x = 13 груш, значит яблонь тоже 13». Проверь.', uz: "Sevara: «x = 13 ta nok, demak olma ham 13 ta». Tekshiring.", en: 'Sevara: “x = 13 pears, so 13 apples too.” Check it.' },
+        q: { ru: 'Севара: «x = 13 груш, значит яблок тоже 13». Проверь.', uz: "Sevara: «x = 13 ta nok, demak olma ham 13 ta». Tekshiring.", en: 'Sevara: “x = 13 pears, so 13 apples too.” Check it.' },
         opts: [
-          { ru: 'Нет: яблонь на 4 больше, значит 17', uz: "Yo'q: olma 4 ta ko'p, demak 17 ta", en: 'No: 4 more apples, so 17' },
+          { ru: 'Нет: яблок на 4 больше, значит 17', uz: "Yo'q: olma 4 ta ko'p, demak 17 ta", en: 'No: 4 more apples, so 17' },
           { ru: 'Да, верно', uz: "Ha, to'g'ri", en: 'Yes, correct' },
-          { ru: 'Нет, яблонь 9', uz: "Yo'q, olma 9 ta", en: 'No, 9 apples' },
+          { ru: 'Нет, яблок 9', uz: "Yo'q, olma 9 ta", en: 'No, 9 apples' },
         ],
         correct: 0,
         ok: { ru: 'Верно. 13 + 17 = 30, разница 4.', uz: "To'g'ri. 13 + 17 = 30, farqi 4.", en: 'Right. 13 + 17 = 30 with a difference of 4.' },

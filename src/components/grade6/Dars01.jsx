@@ -3595,16 +3595,13 @@ export default function DivisibilityLesson({
       <style>{STYLES}</style>
       <div className="lesson-root grade6-dars01">
         {isPreview && (
-          <div style={{ position: 'fixed', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 4, background: '#FFFFFF', borderRadius: 99, padding: 4, boxShadow: '0 4px 12px -4px rgba(58, 53, 48, 0.25)' }}>
-            {/* 2026-08-13: dars uch tilli bo'ladi. Yangi ekranlar (xuk va 06)
-                allaqachon `en` bilan; qolgan ekranlar hozircha `ru` ga tushadi
-                (useT zaxirasi) — ular alohida o'tishda tarjima qilinadi. */}
+          /* Переключатель берётся из общего слоя (класс `g6-lang-switch`), как в
+             остальных сорока пяти уроках: свой inline-стиль держал его на 10-й
+             точке и накрывал кнопку звука урока. */
+          <div className="g6-lang-switch">
             {['ru', 'uz', 'en'].map(l => (
-              <button key={l} onClick={() => setPreviewLang(l)}
-                style={{ border: 'none', cursor: 'pointer', borderRadius: 99, padding: '4px 12px', fontFamily: "'JetBrains Mono', monospace", fontSize: 12, fontWeight: 600,
-                         background: previewLang === l ? '#FF4F28' : 'transparent', color: previewLang === l ? '#FFFFFF' : '#5A5A60' }}>
-                {l.toUpperCase()}
-              </button>
+              <button key={l} className={'btn-ghost' + (previewLang === l ? ' is-on' : '')}
+                onClick={() => setPreviewLang(l)}>{l.toUpperCase()}</button>
             ))}
           </div>
         )}

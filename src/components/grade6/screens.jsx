@@ -3419,8 +3419,14 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
    Переключатель живёт только в превью (isPreview), в LMS его нет: там язык
    приходит пропом. Размеры и цвета — те же, что у урока 1, чтобы класс выглядел
    одинаково. */
-.g6-lang-switch { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 4px; background: #FFFFFF; border-radius: 99px; padding: 4px; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.25); }
-.g6-lang-switch .btn-ghost { padding: 4px 12px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #5A5A60; }
+/* Высота полосы ограничена сверху НЕ вкусом: верхняя панель урока начинается на
+   30-й точке (полоса прогресса 12..18 плюс 12 отступа), а в ней справа стоят
+   кнопка звука и повтор. Пилюля в 33 px, приколотая на 10-й точке, накрывала их
+   верхнюю половину — ребёнок и методист не могли выключить звук с первого раза
+   (замерено 2026-08-19: переключатель 10..43, кнопка звука 30..56). Теперь
+   3..26 — панель урока свободна. */
+.g6-lang-switch { position: fixed; top: 3px; right: 10px; z-index: 1000; display: flex; gap: 4px; background: #FFFFFF; border-radius: 99px; padding: 3px; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.25); }
+.g6-lang-switch .btn-ghost { padding: 2px 10px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-size: 11px; line-height: 1.3; font-weight: 600; color: #5A5A60; }
 .g6-lang-switch .btn-ghost:hover:not(:disabled) { background: #FFE8E1; color: #FF4F28; box-shadow: none; }
 .g6-lang-switch .btn-ghost.is-on, .g6-lang-switch .btn-ghost.is-on:hover:not(:disabled) { background: #FF4F28; color: #FFFFFF; box-shadow: none; }
 `;
