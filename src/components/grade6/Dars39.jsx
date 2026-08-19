@@ -790,14 +790,18 @@ const FinalScene = () => {
   return (
     <svg className="fin-bg" viewBox="0 0 400 92" aria-hidden="true">
       <rect x="0" y="0" width="400" height="92" fill="#F9F4EB"/>
+      {/* Число площади стоит ВНУТРИ лепёшки, а не под ней: подпись «1256» на
+          82-й строке налезала на низ большой окружности (QA 2026-08-19, замер:
+          наложение 17 px). Высоту кадра трогать нельзя — 400 на 92 это общий
+          размер финала во всём классе, поэтому переехала подпись. */}
       <circle cx="58" cy="44" r="18" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2"/>
-      <text x="58" y="82" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">314</text>
+      <text x="58" y="48" textAnchor="middle" fill="#5A4636"
+        fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">314</text>
       <text x="108" y="50" textAnchor="middle" fill="#8A8883"
         fontFamily="'JetBrains Mono', monospace" fontSize="16" fontWeight="700">· 4 =</text>
       <circle cx="216" cy="44" r="36" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2.4"/>
-      <text x="216" y="82" textAnchor="middle" fill="#8A8883"
-        fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">1256</text>
+      <text x="216" y="49" textAnchor="middle" fill="#5A4636"
+        fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">1256</text>
       <text x="330" y="40" textAnchor="middle" fill="#1F7A4D"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="11" fontWeight="700">
         {tri(lang, 'вдвое шире', 'ikki barobar keng', 'twice as wide')}
@@ -1162,15 +1166,18 @@ const ScreenError = (props) => (
 );
 
 // Задача: две лепёшки рядом.
+// Кадр выше на 14 единиц, и обе подписи стоят на ОДНОЙ строке: «r = 20» лежала
+// на низу большой лепёшки (QA 2026-08-19, замер: наложение 3 px), а подписи на
+// разной высоте читались как случайные.
 const TaskFig = ({ idx }) => (
   <div className="d39-task-fig">
-    <svg viewBox="0 0 260 108" aria-hidden="true">
+    <svg viewBox="0 0 260 122" aria-hidden="true">
       <circle cx="56" cy="54" r="24" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2"/>
-      <text x="56" y="98" textAnchor="middle" fill="#8A8883"
+      <text x="56" y="114" textAnchor="middle" fill="#8A8883"
         fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">r = 10</text>
       <g opacity={idx >= 1 ? 1 : 0.35}>
         <circle cx="172" cy="50" r="44" fill="#F5C77E" stroke="#A87A2E" strokeWidth="2.4"/>
-        <text x="172" y="102" textAnchor="middle" fill="#8A8883"
+        <text x="172" y="114" textAnchor="middle" fill="#8A8883"
           fontFamily="'JetBrains Mono', monospace" fontSize="11" fontWeight="700">r = 20</text>
       </g>
     </svg>

@@ -1174,7 +1174,7 @@ const ScreenError = (props) => (
 // Задача: половина узора и её отражение.
 const TaskFig = ({ idx }) => (
   <div className="d40-task-fig">
-    <svg viewBox="0 0 260 104" aria-hidden="true">
+    <svg viewBox="0 0 260 114" aria-hidden="true">
       <rect x="18" y="14" width="224" height="76" rx="3" fill="#FFFDF7" stroke="#C9A472" strokeWidth="2"/>
       <path d="M130 10 v84" stroke="#D9603F" strokeWidth="2.4" strokeDasharray="6 4"/>
       {[0, 1, 2].map((k) => (
@@ -1185,9 +1185,9 @@ const TaskFig = ({ idx }) => (
           </g>
         </g>
       ))}
-      <text x="64" y="100" textAnchor="middle" fill="#8A8883"
+      <text x="64" y="110" textAnchor="middle" fill="#8A8883"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="9" fontWeight="700">6 cm</text>
-      <text x="196" y="100" textAnchor="middle" fill="#8A8883"
+      <text x="196" y="110" textAnchor="middle" fill="#8A8883"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="9" fontWeight="700">6 cm</text>
     </svg>
   </div>

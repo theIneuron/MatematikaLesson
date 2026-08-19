@@ -795,14 +795,17 @@ const FinalScene = () => (
     <g>
       {[0, 1].map((i) => <rect key={'a' + i} x={30 + i * 26} y="16" width="22" height="26" rx="3" fill="#7ECBE6"/>)}
       {[0, 1, 2].map((i) => <rect key={'b' + i} x={86 + i * 26} y="16" width="22" height="26" rx="3" fill="#F5C77E"/>)}
-      <circle cx="100" cy="66" r="16" fill="#8FBF7F" stroke="#1F7A4D" strokeWidth="2"/>
+      {/* Клякса поднята и уменьшена: подпись «2 : 3» в 88-й строке налезала на
+          её низ (QA-прогон 2026-08-19, замер: наложение 12 px). Высота кадра
+          финала общая для класса, поэтому подвинулась фигура. */}
+      <circle cx="100" cy="58" r="13" fill="#8FBF7F" stroke="#1F7A4D" strokeWidth="2"/>
     </g>
     <text x="200" y="52" textAnchor="middle" fill="#1F7A4D"
       fontFamily="'JetBrains Mono', monospace" fontSize="18" fontWeight="700">=</text>
     <g>
       {[0, 1, 2, 3].map((i) => <rect key={'c' + i} x={232 + i * 15} y="16" width="12" height="26" rx="2" fill="#7ECBE6"/>)}
       {[0, 1, 2, 3, 4, 5].map((i) => <rect key={'d' + i} x={296 + i * 15} y="16" width="12" height="26" rx="2" fill="#F5C77E"/>)}
-      <circle cx="300" cy="66" r="16" fill="#8FBF7F" stroke="#1F7A4D" strokeWidth="2"/>
+      <circle cx="300" cy="58" r="13" fill="#8FBF7F" stroke="#1F7A4D" strokeWidth="2"/>
     </g>
     <g fill="#8A8883" fontFamily="'JetBrains Mono', monospace" fontSize="12" fontWeight="700">
       <text x="100" y="88" textAnchor="middle">2 : 3</text>

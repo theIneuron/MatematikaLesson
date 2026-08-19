@@ -1166,9 +1166,11 @@ const ScreenError = (props) => (
 );
 
 // Задача: тарелка с узором по краю.
+// Чертёж задачи был в размере xs (172 px) и терялся в рамке: методист попросил
+// крупнее на 80..100 px (QA 2026-08-19). Размер mid — 250 px, плюс 78.
 const TaskFig = ({ idx }) => (
   <div className="d37-task-fig">
-    <Circ size="xs" showD={idx < 1} showR={idx >= 1}
+    <Circ size="mid" showD={idx < 1} showR={idx >= 1}
       points={idx >= 1 ? [{ d: 8, a: -0.7, name: '10', tone: '#1F7A4D' }] : []}/>
   </div>
 );

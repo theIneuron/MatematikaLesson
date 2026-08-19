@@ -810,10 +810,15 @@ const HookScene = () => (
 );
 
 // Итог: две точки с одинаковыми числами в разном порядке.
+// Точка (−1; 2) стояла во второй строке кадра: и сама точка, и её подпись
+// вылезали за верх и обрезались (QA 2026-08-19, замер: круг на 8 px, подпись на
+// 10 px). Высота кадра финала общая для класса — 400 на 92, поэтому уменьшена
+// клетка (22 -> 18) и центр опущен на две единицы: теперь обе точки с подписями
+// внутри, а до нижней надписи остаётся двенадцать единиц.
 const FinalScene = () => {
   const lang = useLang();
-  const c = 22;
-  const cx = 200; const cy = 46;
+  const c = 18;
+  const cx = 200; const cy = 44;
   const px = (v) => cx + v * c;
   const py = (v) => cy - v * c;
   return (
@@ -901,7 +906,9 @@ const Plane = ({ points = [], leg = 0, quads = false, size = 'mid' }) => {
         <path d={`M${cx} ${py(-4)} v${-(8 * c + 8)}`} stroke="#8E8578" strokeWidth="2" markerEnd="url(#d30ax)"/>
         <text x={px(7) + 4} y={cy + 18} fill="#8A8883"
           fontFamily="'JetBrains Mono', monospace" fontSize="12" fontWeight="700">x</text>
-        <text x={cx + 8} y={py(4) - 4} fill="#8A8883"
+        {/* Подпись оси стояла в четвёртой строке над последней клеткой и её
+            срезала рамка кадра (замер: 2 px). Опущена под наконечник стрелки. */}
+        <text x={cx + 8} y={py(4) + 8} fill="#8A8883"
           fontFamily="'JetBrains Mono', monospace" fontSize="12" fontWeight="700">y</text>
         <text x={cx - 8} y={cy + 14} textAnchor="end" fill="#8A8883"
           fontFamily="'JetBrains Mono', monospace" fontSize="10" fontWeight="700">0</text>
@@ -1139,7 +1146,7 @@ const ToolScreen = ({ screen, totalScreens, onNext, onPrev, onAnswer, storedAnsw
         <div className="frame fade-up delay-1 d30-stage d30-stage-tool d30-stage-row">
           {phase === 'demo' ? (
             <>
-              <Plane size="xs" leg={shown >= 1 ? (shown >= 2 ? 2 : 1) : 0}
+              <Plane size="sm" leg={shown >= 1 ? (shown >= 2 ? 2 : 1) : 0}
                 points={shown >= 2 ? [{ x: -4, y: 1, name: '(−4; 1)' }] : []}/>
               <span className="d30-col">
                 {c.demo_lines.map((l, i) => <Line key={i} node={t(l)} on={shown >= i}/>)}
@@ -1212,7 +1219,7 @@ const ScreenRule = (props) => (
   <RuleScreen {...props} screenContent={CONTENT.s_rule} totalScreens={TOTAL_SCREENS}
     exampleNode={(
       <div className="d30-stage">
-        <Plane size="xs" leg={2} points={[{ x: 2, y: -3, name: '(2; −3)' }]}/>
+        <Plane size="sm" leg={2} points={[{ x: 2, y: -3, name: '(2; −3)' }]}/>
       </div>
     )}/>
 );
@@ -1232,7 +1239,7 @@ const ScreenRead = (props) => (
   <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_read}
     figureNode={(it, idx) => (
       <div className="d30-task-fig">
-        <Plane size="xs" points={[READ_POINTS[idx] || READ_POINTS[0]]}/>
+        <Plane size="sm" points={[READ_POINTS[idx] || READ_POINTS[0]]}/>
       </div>
     )}/>
 );
@@ -1258,7 +1265,7 @@ const ScreenTask = (props) => (
   <MultiTask {...props} totalScreens={TOTAL_SCREENS} content={CONTENT.s_task}
     figureNode={() => (
       <div className="d30-task-fig">
-        <Plane size="xs" points={YARD}/>
+        <Plane size="sm" points={YARD}/>
       </div>
     )}/>
 );

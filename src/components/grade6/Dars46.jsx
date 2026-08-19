@@ -821,13 +821,17 @@ const FinalScene = () => {
 // Прибор урока: круг, у которого подсвечивается край или заливка.
 const BedFig = ({ mode = 'edge', size = 'mid' }) => (
   <span className={'d46-bed-box d46-bed-' + size}>
-    <svg viewBox="0 0 240 150" aria-hidden="true">
+    {/* Кадр выше окружности на 20 единиц: подпись с формулой стояла в 146-й,
+        а низ обводки в 137-й — они соприкасались, и знак читался приклеенным к
+        линии (QA 2026-08-19, замер: зазор минус один пиксель). Теперь между
+        ними 16 единиц, это 11..16 px в зависимости от размера фигуры. */}
+    <svg viewBox="0 0 240 170" aria-hidden="true">
       <circle cx="112" cy="76" r="58" fill={mode === 'area' ? '#A9CFBA' : '#F4F1EA'}
         stroke={mode === 'edge' ? '#D9603F' : '#1F7A4D'} strokeWidth={mode === 'edge' ? 6 : 2.4}/>
       <path d="M54 76 h116" stroke="#8A8883" strokeWidth="2" strokeDasharray="5 4"/>
       <text x="112" y="70" textAnchor="middle" fill="#8A8883"
         fontFamily="'JetBrains Mono', monospace" fontSize="12" fontWeight="700">d</text>
-      <text x="112" y="146" textAnchor="middle" fill={mode === 'edge' ? '#D9603F' : '#1F7A4D'}
+      <text x="112" y="163" textAnchor="middle" fill={mode === 'edge' ? '#D9603F' : '#1F7A4D'}
         fontFamily="'JetBrains Mono', monospace" fontSize="13" fontWeight="700">
         {mode === 'edge' ? 'C = πd' : 'S = πr²'}
       </text>

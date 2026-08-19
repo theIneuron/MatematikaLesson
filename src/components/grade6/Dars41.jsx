@@ -1173,7 +1173,7 @@ const ScreenError = (props) => (
 // Задача: карусель сверху, двое напротив.
 const TaskFig = ({ idx }) => (
   <div className="d41-task-fig">
-    <svg viewBox="0 0 240 120" aria-hidden="true">
+    <svg viewBox="0 0 240 134" aria-hidden="true">
       <circle cx="120" cy="60" r="48" fill="#F4EEDF" stroke="#C9A472" strokeWidth="2.4"/>
       <circle cx="120" cy="60" r="4.4" fill="#D9603F"/>
       <text x="120" y="52" textAnchor="middle" fill="#D9603F"
@@ -1181,7 +1181,7 @@ const TaskFig = ({ idx }) => (
       <circle cx={idx >= 1 ? 168 : 72} cy="60" r="8" fill="#019ACB"/>
       <circle cx={idx >= 1 ? 72 : 168} cy="60" r="8" fill="#8FBF7F"/>
       <path d="M72 60 h96" stroke="#8A8883" strokeWidth="1.4" strokeDasharray="4 4"/>
-      <text x="120" y="112" textAnchor="middle" fill="#8A8883"
+      <text x="120" y="126" textAnchor="middle" fill="#8A8883"
         fontFamily="'Manrope', system-ui, sans-serif" fontSize="10" fontWeight="700">2 m</text>
     </svg>
   </div>
