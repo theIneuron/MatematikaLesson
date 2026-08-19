@@ -1948,28 +1948,41 @@ export const FEED_STYLES = `
 
 .g8-fl-n { animation: g8-st-task-in .5s ease-out both; }
 
-/* ПОДСТАНОВКА: три строки значений вместо утверждения. Колонки ровные,
-   поэтому глаз сравнивает два столбца, а не читает текст. */
-.g8-pf { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 520px;
-  margin: 10px auto 0; }
-.g8-pf-row { display: grid; grid-template-columns: 1fr 1.4fr 1.4fr; align-items: center;
-  gap: 8px; padding: 7px 14px; border-radius: 12px; background: ${T.paper};
-  font-size: 22px; font-family: ${MATH_FONT}; color: ${T.ink}; text-align: center;
-  box-shadow: inset 0 0 0 1px rgba(23,26,29,.06);
+/* ПОДСТАНОВКА — НАСТОЯЩАЯ ТАБЛИЦА (методист, 2026-08-17). Строки-таблетки
+   расходились по высоте: строка с дробью раздувалась вдвое, и колонки не
+   читались как колонки. Теперь это одна карточка с линиями, ряды равной
+   высоты, шапка приклеена к телу. Дроби внутри идут малым кеглем, поэтому
+   ряд с дробью не выше остальных. */
+.g8-pf { width: 100%; max-width: 560px; margin: 12px auto 0; border-radius: 16px;
+  overflow: hidden; background: ${T.paper};
+  box-shadow: 0 2px 14px rgba(23,26,29,.06), inset 0 0 0 1px rgba(23,26,29,.10); }
+.g8-pf-row { display: grid; grid-template-columns: 0.8fr 1.1fr 1.1fr; align-items: center;
+  min-height: 54px; padding: 0 10px; font-size: 22px; font-family: ${MATH_FONT};
+  color: ${T.ink}; text-align: center;
+  border-top: 1px solid rgba(23,26,29,.08);
   animation: g8-pf-in .45s ease-out both; }
-/* БЕЗ uppercase: заглавная A и строчная a в математике разные буквы, а
-   в шапке стоят те же записи, что и в карточках. */
-.g8-pf-row.is-head { background: transparent; box-shadow: none; font-size: 20px;
-  color: ${T.ink3}; animation: none; }
-.g8-pf-row.is-dead { box-shadow: inset 0 0 0 2px ${T.no}; }
-.g8-pf-row.is-dead span:last-child { color: ${T.no}; font-size: 17px; font-family: inherit; }
+.g8-pf-row > span { display: flex; align-items: center; justify-content: center;
+  min-height: 54px; }
+.g8-pf-row > span + span { box-shadow: inset 1px 0 0 rgba(23,26,29,.06); }
+.g8-pf-row.is-head { border-top: 0; min-height: 58px; background: rgba(23,26,29,.035);
+  color: ${T.ink2}; animation: none; border-bottom: 1px solid rgba(23,26,29,.12); }
+.g8-pf-row.is-head > span { min-height: 58px; }
+/* Дробь в ячейке мельче: иначе ряд с ней выше соседних и таблица кривая. */
+.g8-pf .g8-frac-n, .g8-pf .g8-frac-d { font-size: 17px; }
+.g8-pf-row.is-dead { background: rgba(178,58,45,.07); }
+.g8-pf-row.is-dead > span:last-child { color: ${T.no}; font-size: 16px; font-family: inherit;
+  letter-spacing: .01em; }
 @keyframes g8-pf-in { 0% { opacity: 0; transform: translateY(-6px); } 100% { opacity: 1; transform: none; } }
 @media (max-width: 760px), (max-height: 820px) {
-  .g8-pf { gap: 3px; margin-top: 6px; }
-  .g8-pf-row { font-size: 18px; padding: 4px 10px; }
-  .g8-pf-row.is-head { font-size: 17px; }
-  .g8-pf-row.is-dead span:last-child { font-size: 14px; }
+  .g8-pf { margin-top: 8px; max-width: 480px; }
+  .g8-pf-row, .g8-pf-row > span { min-height: 44px; }
+  .g8-pf-row.is-head, .g8-pf-row.is-head > span { min-height: 46px; }
+  .g8-pf-row { font-size: 18px; }
+  .g8-pf .g8-frac-n, .g8-pf .g8-frac-d { font-size: 14px; }
+  .g8-pf-row.is-dead > span:last-child { font-size: 14px; }
   .lesson-root .g8-pb.has-names .g8-pb-card { padding-bottom: 32px; }
   .g8-pb-name { font-size: 13px; bottom: 8px; }
+}
+
 }
 `
