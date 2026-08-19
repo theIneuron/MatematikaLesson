@@ -3402,6 +3402,20 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
 @media (max-width: 639.98px) {
   .sv-opts .option { min-width: 0; }
 }
+/* ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКА ПРЕВЬЮ (.g6-lang-switch).
+   Правила у класса не было вообще: сорок пять уроков рисовали его блоком В
+   ПОТОКЕ, он занимал 24 px сверху и на столько же опускал сцену. Нижняя панель
+   с кнопкой Davom etish уходила за нижний край и обрезалась (замерено
+   2026-08-19: nav 718..792 при экране 768). Урок 1 держал этот переключатель
+   своим inline-стилем position: fixed, поэтому у него панель стояла на месте —
+   отсюда и разница, которую увидел QA.
+   Переключатель живёт только в превью (isPreview), в LMS его нет: там язык
+   приходит пропом. Размеры и цвета — те же, что у урока 1, чтобы класс выглядел
+   одинаково. */
+.g6-lang-switch { position: fixed; top: 10px; right: 10px; z-index: 1000; display: flex; gap: 4px; background: #FFFFFF; border-radius: 99px; padding: 4px; box-shadow: 0 4px 12px -4px rgba(58, 53, 48, 0.25); }
+.g6-lang-switch .btn-ghost { padding: 4px 12px; border-radius: 99px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 600; color: #5A5A60; }
+.g6-lang-switch .btn-ghost:hover:not(:disabled) { background: #FFE8E1; color: #FF4F28; box-shadow: none; }
+.g6-lang-switch .btn-ghost.is-on, .g6-lang-switch .btn-ghost.is-on:hover:not(:disabled) { background: #FF4F28; color: #FFFFFF; box-shadow: none; }
 `;
 
 export {
