@@ -310,18 +310,18 @@ const S1 = {
     // место. Раньше на хуке было два действия подряд, и это нарушало
     // правило «один вопрос на экране».
     ask: L(
-      "Dilnozada ilova nega xato berdi?",
-      'Почему приложение выдало ошибку у Дилнозы?',
-      'Why did the app show an error for Dilnoza?',
+      "Dilnozada ilova nega hisoblay olmadi?",
+      'Почему приложение не смогло посчитать у Дилнозы?',
+      'Why could the app not compute for Dilnoza?',
     ),
     items: [
       {
         id: 'phone',
         show: L('Telefoni buzilgan', 'Сломан телефон', 'Her phone is broken'),
         hint: L(
-          "Dastur ikkalasida bir xil. Telefon buzilgan bo'lsa, boshqa sonlarda ham xato berardi.",
-          'Программа у обоих одна. Сломанный телефон падал бы и на других числах.',
-          'Both have the same program. A broken phone would show an error on other numbers too.',
+          "Dastur ikkalasida bir xil. Telefon buzilgan bo'lsa, boshqa sonlarda ham hisoblay olmasdi.",
+          'Программа у обоих одна. Со сломанным телефоном не считалось бы и на других числах.',
+          'Both have the same program. A broken phone would fail on other numbers too.',
         ),
       },
       {
@@ -490,9 +490,9 @@ const S3 = {
       'Now make the app fail. Bring the quantity down to zero',
     ),
     broke: L(
-      "Miqdor nol bo'ldi va ilova xato berdi. Summani nolga bo'lib bo'lmaydi.",
-      'Количество стало нулём, и приложение выдало ошибку. Сумму нельзя разделить на нуль.',
-      'The quantity became zero and the app showed an error. A total cannot be divided by zero.',
+      "Miqdor nol bo'ldi va ilova hisoblay olmadi. Summani nolga bo'lib bo'lmaydi.",
+      'Количество стало нулём, и приложение не смогло посчитать. Сумму нельзя разделить на нуль.',
+      'The quantity became zero and the app could not compute. A total cannot be divided by zero.',
     ),
   },
 }
@@ -520,15 +520,15 @@ const S4 = {
       'Две записи. В обеих есть семёрка и a, разный только порядок. Обе называются рациональными выражениями.',
       'Two records. Both have a seven and an a, only the order differs. Both are called rational expressions.'),
     A('why',
-      "Qaysi biri biror sonda xato beradi? Chiziqning ostiga qarang.",
-      'Какая из них упадёт на каком-то числе? Смотри, что стоит под чертой.',
-      'Which one shows an error at some number? Look at what stands below the bar.'),
+      "Qaysi biri biror sonda hisoblanmay qoladi? Chiziqning ostiga qarang.",
+      'Какая из них не посчитается на каком-то числе? Смотри, что стоит под чертой.',
+      'Which one stops computing at some number? Look at what stands below the bar.'),
   ],
   props: {
     ask: L(
-      "Qaysi yozuv biror sonda xato beradi?",
-      'Какая запись упадёт на каком-то числе?',
-      'Which record shows an error at some number?',
+      "Qaysi yozuv biror sonda hisoblanmay qoladi?",
+      'Какая запись не посчитается на каком-то числе?',
+      'Which record stops computing at some number?',
     ),
     items: [
       {
@@ -536,9 +536,9 @@ const S4 = {
         show: 'a : 7',
         name: L('BUTUN IFODA', 'ЦЕЛОЕ ВЫРАЖЕНИЕ', 'INTEGRAL EXPRESSION'),
         hint: L(
-          "Bu yerda a yettiga bo'linadi. Yetti hech qachon nol bo'lmaydi, demak xato ham chiqmaydi.",
-          'Здесь a делят на семь. Семёрка нулём не станет никогда, значит не упадёт.',
-          'Here a is divided by seven. A seven never becomes zero, so no error appears.',
+          "Bu yerda a yettiga bo'linadi. Yetti hech qachon nol bo'lmaydi, demak har doim hisoblanadi.",
+          'Здесь a делят на семь. Семёрка нулём не станет никогда, значит считается всегда.',
+          'Here a is divided by seven. A seven never becomes zero, so it always computes.',
         ),
       },
       {
@@ -559,9 +559,9 @@ const S4 = {
     // Экранный текст короткий, разбор целиком уходит в озвучку: абзац под
     // записями ученик не читает, он смотрит на подписи (методист, 2026-08-17).
     afterSay: L(
-      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nol bo'lsa, ilova xato beradi.",
-      'Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение упадёт.',
-      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app shows an error.',
+      "Belgilar o'sha, joy boshqa. Ikkala yozuv ham ratsional ifoda: harflar va sonlar amal belgilari bilan. Birinchisida harfga bo'linmaydi, shuning uchun u butun ifoda. Ikkinchisida chiziq ostida harf turibdi, shuning uchun u kasr ifoda, uni ratsional kasr deb ataymiz. Va a nol bo'lsa, ilova hisoblay olmaydi.",
+      'Знаки те же, место разное. Обе записи — рациональные выражения: буквы и числа со знаками действий. В первой на букву не делят, поэтому она целое выражение. Во второй под чертой стоит буква, поэтому она дробное выражение, его называют рациональной дробью. И если a равно нулю, приложение не посчитает.',
+      'Same symbols, different place. Both records are rational expressions: letters and numbers with operation signs. In the first nothing is divided by a letter, so it is an integral expression. In the second a letter stands below the bar, so it is a fractional expression, called a rational fraction. And if a is zero, the app cannot compute.',
     ),
   },
 }
@@ -710,9 +710,9 @@ const S6 = {
       'Одна запись и два пути. Оба дают одно и то же число.',
       'One record and two ways. Both give the same number.'),
     W('w4',
-      "To'rtda maxraj nol bo'ldi va ilova xato berdi. Birinchi usul ishladi, lekin uzoq.",
-      'На четвёрке знаменатель обратился в нуль и приложение упало. Первый способ сработал, но он долгий.',
-      'At four the denominator became zero and the app showed an error. The first method worked, but it is slow.'),
+      "To'rtda maxraj nol bo'ldi va ilova hisoblay olmadi. Birinchi usul ishladi, lekin uzoq.",
+      'На четвёрке знаменатель обратился в нуль и приложение не посчитало. Первый способ сработал, но он долгий.',
+      'At four the denominator became zero and the app could not compute. The first method worked, but it is slow.'),
     W('w6',
       "Ikkinchi usul qisqa, maxrajni nolga tenglaymiz.",
       'Второй способ короткий, приравниваем знаменатель к нулю.',
