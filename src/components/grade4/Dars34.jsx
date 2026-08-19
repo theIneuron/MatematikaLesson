@@ -1,1279 +1,800 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
-// 4-sinf · Dars 34 · Burchaklarni yasash
-// 15 ekran · boshqariladigan audio · har bir mazmunli harakat yakunlangach navigatsiya ochiladi.
+// ============================================================================
+// 4-SINF · Dars 34 · Burchaklarni yasash
+//
+// SYUJET. Arxitektura byurosining transportir stoli. Buyurtmada 60° pandus,
+// Bit esa markazni uchga qo'ymay chizadi va 44° chiqadi.
+//
+// YADRO. Transportirning uch qismi ishlaydi: markaz burchak uchida, asos
+// chizig'i birinchi tomonda, shkala esa noli o'sha tomonda turganidan
+// o'qiladi. Javob burchak turi bilan tekshiriladi.
+//
+// XATO MODELLARI. Markazni uchga qo'ymaslik · asos chizig'ini tomonga
+// moslamaslik · ikkita shkaladan noto'g'risini o'qish (60 va 120) · javobni
+// tur bilan tekshirmaslik · qadamlar tartibini buzish.
+//
+// ESLATMA. 4-sinf darsligida transportir yo'q; dars RUz dasturi va reja
+// bo'yicha (metodist qarori) olib boriladi.
+// Vizual kontrakt: ETALON_4SINF.md va Dars01.
+// ============================================================================
+
 const T = {
   bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
   navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+// Har ekrandagi ovoz segmentlari soni.
+const FRAME_COUNTS = [4, 3, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3, 2, 2, 5];
 const TOTAL_SCREENS = FRAME_COUNTS.length;
+
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'hypothesis-choice', goal: 'diagnose-scale-choice', mechanic: 'hypothesis-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['ray-length', 'decoration-over-scale'] },
-  { id: 's1', type: 'exploration', template: 'guided-model', goal: 'identify-protractor-parts', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's2', type: 'exploration', template: 'guided-compare', goal: 'choose-zero-scale', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['opposite-zero'] },
-  { id: 's3', type: 'exploration', template: 'guided-construction', goal: 'construct-first-ray', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['ray-before-vertex'] },
-  { id: 's4', type: 'exploration', template: 'guided-construction', goal: 'mark-and-draw-second-ray', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['mark-before-scale-choice'] },
-  { id: 's5', type: 'exploration', template: 'guided-compare', goal: 'construct-obtuse-angle', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['acute-obtuse-scale-swap'] },
-  { id: 's6', type: 'rule', template: 'guided-verification', goal: 'verify-construction', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['visual-estimate-only'] },
-  { id: 's7', type: 'rule', template: 'guided-rule', goal: 'formulate-construction-algorithm', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's8', type: 'test', template: 'choice-retry', goal: 'place-protractor-centre', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['centre-on-ray-end', 'centre-on-scale'] },
-  { id: 's9', type: 'test', template: 'choice-retry', goal: 'read-correct-scale', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['opposite-scale', 'straight-angle-default'] },
-  { id: 's10', type: 'test', template: 'choice-retry', goal: 'classify-constructed-angle', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['obtuse-as-acute', 'obtuse-as-right'] },
-  { id: 's11', type: 'strategy', template: 'strategy-choice', goal: 'order-construction-steps', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['mark-before-centre', 'missing-first-ray'] },
-  { id: 's12', type: 'error', template: 'error-repair', goal: 'analyse-zero-scale-error', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['repeat-opposite-zero', 'move-centre-unnecessarily'] },
-  { id: 's13', type: 'case', template: 'life-transfer', goal: 'transfer-construction-to-street-turn', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['supplementary-angle', 'reflex-angle'] },
-  { id: 's14', type: 'summary', template: 'guided-reflection', goal: 'reflect-on-verification-strategy', mechanic: 'guided-reveal-and-reflection', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's0', type: 'hook', template: 'mission-console', goal: 'predict-the-construction-error', mechanic: 'prediction-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['centre-off-vertex'] },
+  { id: 's1', type: 'exploration', template: 'protractor-setup', goal: 'set-the-protractor', mechanic: 'tap-steps', active: true, assessed: false, scored: false, scope: null, misconceptions: ['centre-off-vertex'] },
+  { id: 's2', type: 'test', template: 'choice', goal: 'place-the-centre', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['centre-off-vertex'] },
+  { id: 's3', type: 'model', template: 'three-step-track', goal: 'run-the-construction-order', mechanic: 'tap-steps', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's4', type: 'test', template: 'value-builder', goal: 'set-centre-and-scale', mechanic: 'tile-build', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-scale-side'] },
+  { id: 's5', type: 'exploration', template: 'scale-switch', goal: 'compare-the-two-scales', mechanic: 'tap-to-switch', active: true, assessed: false, scored: false, scope: null, misconceptions: ['wrong-scale-side'] },
+  { id: 's6', type: 'test', template: 'choice', goal: 'choose-the-scale-by-zero', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['always-outer-scale'] },
+  { id: 's7', type: 'error', template: 'row-repair', goal: 'repair-the-broken-step', mechanic: 'tap-the-row', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-scale-side'] },
+  { id: 's8', type: 'exploration', template: 'estimate-band', goal: 'use-the-type-as-a-check', mechanic: 'tap-the-band', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's9', type: 'test', template: 'choice', goal: 'read-the-correct-number', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['read-the-other-scale'] },
+  { id: 's10', type: 'rule', template: 'rule-builder', goal: 'formulate-the-method', mechanic: 'order-parts', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's11', type: 'test', template: 'rapid-console', goal: 'read-three-angles', mechanic: 'tile-rounds', active: true, assessed: true, scored: true, scoreUnits: 3, scope: 'module-mikro', misconceptions: ['read-the-other-scale'] },
+  { id: 's12', type: 'strategy', template: 'route-compare', goal: 'choose-an-independent-check', mechanic: 'route-choice', active: true, assessed: false, scored: false, scope: null, misconceptions: ['repeat-the-same-path'] },
+  { id: 's13', type: 'case', template: 'choice', goal: 'build-the-roof-angle', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['wrong-scale-side'] },
+  { id: 's14', type: 'case', template: 'choice', goal: 'transfer-to-the-next-step', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['step-order-broken'] },
+  { id: 's15', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', goal: 'consolidate-and-bridge', mechanic: 'TitleClaim', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
 ];
+
 const bi = (uz, ru, en) => ({ uz, ru, en });
-const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
-const LESSON_KIND = "protractor";
-const LESSON_META = { lessonId: "geometry-4-34-v1", slug: "dars34-burchaklarni-yasash", lessonTitle: {"uz":"Burchaklarni yasash","ru":"Построение углов","en":"Constructing angles"}, skillTags: ["protractor-centre","zero-scale","angle-construction","construction-check"] };
-const REFLECTION = {
-  question: bi("Burchakni aniq yasashda sizga qaysi tekshiruv ko'proq yordam berdi?", 'Какая проверка больше всего помогла тебе точно построить угол?', 'Which check helped you construct an angle accurately?'),
-  options: [
-    bi("Markazni burchak uchiga moslash", 'Совместить центр с вершиной угла', 'Align the centre with the angle vertex'),
-    bi("Birinchi nur yonidagi nolni tanlash", 'Выбрать ноль рядом с первым лучом', 'Choose the zero beside the first ray'),
-    bi("Yakuniy burchakni qayta o'lchash", 'Повторно измерить готовый угол', 'Measure the finished angle again'),
-  ],
-};
-const CONTENT = {
-  "s0": {
-    "eyebrow": {
-      "uz": "Muammo",
-      "ru": "Проблема",
-      "en": "Problem"
-    },
-    "title": {
-      "uz": "60° yoki 120°?",
-      "ru": "60° или 120°?",
-      "en": "60° or 120°?"
-    },
-    "scene": "protractor-hook",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "Transportirda bitta belgi",
-        "ru": "Одна отметка на транспортире",
-        "en": "One mark on the protractor"
-      },
-      {
-        "uz": "60° va 120° yaltiraydi",
-        "ru": "Подсвечены 60° и 120°",
-        "en": "60° and 120° glow"
-      },
-      {
-        "uz": "Qaysi shkalani o'qiymiz?",
-        "ru": "Какую шкалу читать?",
-        "en": "Which scale should we read?"
-      }
-    ],
-    "question": {
-      "uz": "Bitning asosiy xatosi qayerda?",
-      "ru": "В чём главная ошибка Бита?",
-      "en": "What is Bit's main mistake?"
-    },
-    "options": [
-      {
-        "uz": "Noto'g'ri shkalani o'qidi",
-        "ru": "Прочитал неверную шкалу",
-        "en": "He read the wrong scale"
-      },
-      {
-        "uz": "Tomonni juda uzun chizdi",
-        "ru": "Нарисовал слишком длинную сторону",
-        "en": "He drew an arm that was too long"
-      },
-      {
-        "uz": "Qalam rangini almashtirdi",
-        "ru": "Сменил цвет карандаша",
-        "en": "He changed pencil colour"
-      }
-    ],
-    "neutral": {
-      "uz": "Taxmin saqlandi. Transportirning markazi va nolli shkalasini tekshiramiz.",
-      "ru": "Гипотеза сохранена. Проверим центр транспортира и нулевую шкалу.",
-      "en": "Estimate saved. We will check the protractor centre and zero scale."
-    },
-    "wrong": [
-      {
-        "uz": "Bu taxmin asosiy sababga qaraydi. Birinchi nur qaysi noldan boshlanishini tekshiramiz.",
-        "ru": "Эта гипотеза указывает на главную причину. Проверим, от какого нуля начинается первый луч.",
-        "en": "This estimate points to the main cause. We will check which zero the first ray starts from."
-      },
-      {
-        "uz": "Nur uzunligi burchak o'lchamini o'zgartirmaydi. Markaz va nolli shkalani tekshiramiz.",
-        "ru": "Длина луча не изменяет величину угла. Проверим центр и нулевую шкалу.",
-        "en": "Ray length does not change the angle size. We will check the centre and zero scale."
-      },
-      {
-        "uz": "Qalam rangi o'lchovga ta'sir qilmaydi. Qaysi noldan boshlanganini tekshiramiz.",
-        "ru": "Цвет карандаша не влияет на измерение. Проверим, от какого нуля начали отсчёт.",
-        "en": "Pencil colour does not affect the measurement. We will check which zero was used."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Transportirda bitta belgi ko'rinadi.",
-          "Oltmish va bir yuz yigirma daraja yozuvlari yaltiraydi.",
-          "Qaysi shkalani o'qiymiz."
-        ],
-        "ru": [
-          "На транспортире видна одна отметка.",
-          "Подсвечиваются значения шестьдесят и сто двадцать градусов.",
-          "Какую шкалу прочитаем?"
-        ],
-        "en": [
-          "One mark is visible on the protractor.",
-          "The sixty and one hundred and twenty degree labels glow.",
-          "Which scale should we read?"
-        ]
-      }
-    }
-  },
-  "s1": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Transportir qismlari",
-      "ru": "Части транспортира",
-      "en": "Parts of a protractor"
-    },
-    "scene": "protractor-parts",
-    "frames": [
-      {
-        "uz": "Markaz",
-        "ru": "Центр",
-        "en": "Centre"
-      },
-      {
-        "uz": "Asosiy chiziq",
-        "ru": "Базовая линия",
-        "en": "Baseline"
-      },
-      {
-        "uz": "Ichki shkala",
-        "ru": "Внутренняя шкала",
-        "en": "Inner scale"
-      },
-      {
-        "uz": "Tashqi shkala",
-        "ru": "Внешняя шкала",
-        "en": "Outer scale"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Transportirning markazi uchni asosiy chizig'i birinchi nurni shkala esa o'lchovni boshqaradi. Markaz.",
-          "Asosiy chiziq",
-          "Ichki shkala.",
-          "Tashqi shkala."
-        ],
-        "ru": [
-          "Центр транспортира совмещают с вершиной базовую линию с лучом а меру читают по шкале. Центр.",
-          "Базовая линия",
-          "Внутренняя шкала.",
-          "Внешняя шкала."
-        ],
-        "en": [
-          "The centre aligns with the vertex the baseline with the first ray and the scale gives the measure. Centre.",
-          "Baseline",
-          "Inner scale.",
-          "Outer scale."
-        ]
-      }
-    }
-  },
-  "s2": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Nol qayerdan boshlanadi?",
-      "ru": "Где начинается ноль?",
-      "en": "Where does zero begin?"
-    },
-    "scene": "protractor-zero",
-    "frames": [
-      {
-        "uz": "Birinchi nur o'ngga qaragan",
-        "ru": "Первый луч направлен вправо",
-        "en": "The first ray points right"
-      },
-      {
-        "uz": "O'ng tomondagi 0° yaltiraydi",
-        "ru": "Подсвечен 0° справа",
-        "en": "The 0° on the right glows"
-      },
-      {
-        "uz": "Shu 0° dan o'qing",
-        "ru": "Читайте от этого 0°",
-        "en": "Read from this 0°"
-      },
-      {
-        "uz": "75°",
-        "ru": "75°",
-        "en": "75°"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Nur o'ngga qarasa o'ng tomondagi noldan boshlangan shkala o'qiladi. Birinchi nur o'ngga qaragan.",
-          "O'ng tomondagi nol daraja yaltiraydi",
-          "Shu nol darajadan o'qing.",
-          "Yetmish besh daraja."
-        ],
-        "ru": [
-          "Если луч направлен вправо читают шкалу начинающуюся с нуля справа. Первый луч направлен вправо.",
-          "Подсвечен ноль градусов справа",
-          "Читайте от этого ноль градусов.",
-          "Семьдесят пять градусов."
-        ],
-        "en": [
-          "When the ray points right read the scale that starts at zero on the right. The first ray points right.",
-          "The zero degrees on the right glows",
-          "Read from this zero degrees.",
-          "Seventy five degrees."
-        ]
-      }
-    }
-  },
-  "s3": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Birinchi nur",
-      "ru": "Первый луч",
-      "en": "The first ray"
-    },
-    "scene": "protractor-start",
-    "frames": [
-      {
-        "uz": "A - burchak uchi",
-        "ru": "A - вершина угла",
-        "en": "A is the vertex"
-      },
-      {
-        "uz": "Birinchi nurni chizing",
-        "ru": "Начертите первый луч",
-        "en": "Draw the first ray"
-      },
-      {
-        "uz": "Markazni A ga qo'ying",
-        "ru": "Поместите центр в точку A",
-        "en": "Place the centre on A"
-      },
-      {
-        "uz": "Asosiy chiziq nurni qoplasin",
-        "ru": "Совместите базовую линию с лучом",
-        "en": "Align the baseline with the ray"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Aniq yasash uchun markaz burchak uchiga asosiy chiziq esa birinchi nur ustiga tushishi kerak. A degani burchak uchi.",
-          "Birinchi nurni chizing",
-          "Markazni A ga qo'ying.",
-          "Asosiy chiziq nurni qoplasin."
-        ],
-        "ru": [
-          "Для точного построения центр должен быть на вершине а базовая линия на первом луче. A обозначает вершину угла.",
-          "Начертите первый луч",
-          "Поместите центр в точку A.",
-          "Совместите базовую линию с лучом."
-        ],
-        "en": [
-          "For an accurate construction place the centre on the vertex and the baseline on the first ray. A is the vertex.",
-          "Draw the first ray",
-          "Place the centre on A.",
-          "Align the baseline with the ray."
-        ]
-      }
-    }
-  },
-  "s4": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Belgi va ikkinchi nur",
-      "ru": "Отметка и второй луч",
-      "en": "Mark and second ray"
-    },
-    "scene": "protractor-mark",
-    "frames": [
-      {
-        "uz": "70° ni toping",
-        "ru": "Найдите 70°",
-        "en": "Find 70°"
-      },
-      {
-        "uz": "Belgi qo'ying",
-        "ru": "Поставьте отметку",
-        "en": "Make a mark"
-      },
-      {
-        "uz": "Transportirni oling",
-        "ru": "Уберите транспортир",
-        "en": "Remove the protractor"
-      },
-      {
-        "uz": "A dan belgi orqali ikkinchi nurni o'tkazing",
-        "ru": "Проведите второй луч из A через отметку",
-        "en": "Draw the second ray from A through the mark"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Kerakli o'lchov topilgach belgi qo'yiladi va uchdan shu belgi orqali ikkinchi nur chiziladi. Yetmish darajani toping.",
-          "Belgi qo'ying",
-          "Transportirni oling.",
-          "A dan belgi orqali ikkinchi nurni o'tkazing."
-        ],
-        "ru": [
-          "Найдя нужную меру ставят отметку и проводят через неё второй луч от вершины. Найдите семьдесят градусов.",
-          "Поставьте отметку",
-          "Уберите транспортир.",
-          "Проведите второй луч из A через отметку."
-        ],
-        "en": [
-          "After finding the required measure mark it and draw the second ray from the vertex through the mark. Find seventy degrees.",
-          "Make a mark",
-          "Remove the protractor.",
-          "Draw the second ray from A through the mark."
-        ]
-      }
-    }
-  },
-  "s5": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "O'tmas burchak",
-      "ru": "Тупой угол",
-      "en": "An obtuse angle"
-    },
-    "scene": "protractor-obtuse",
-    "frames": [
-      {
-        "uz": "120°",
-        "ru": "120°",
-        "en": "120°"
-      },
-      {
-        "uz": "To'g'ri shkalani tanlang",
-        "ru": "Выберите правильную шкалу",
-        "en": "Choose the correct scale"
-      },
-      {
-        "uz": "Belgi qo'ying",
-        "ru": "Поставьте отметку",
-        "en": "Make a mark"
-      },
-      {
-        "uz": "120° - o'tmas burchak",
-        "ru": "120° - тупой угол",
-        "en": "120° is an obtuse angle"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "O'tmas burchak yasashda to'qsondan oshadigan shkala qiymati tanlanadi. Bir yuz yigirma daraja.",
-          "To'g'ri shkalani tanlang",
-          "Belgi qo'ying.",
-          "Bir yuz yigirma daraja degani o'tmas burchak."
-        ],
-        "ru": [
-          "Для построения тупого угла выбирают значение шкалы больше девяноста градусов. Сто двадцать градусов.",
-          "Выберите правильную шкалу",
-          "Поставьте отметку.",
-          "Сто двадцать градусов означает тупой угол."
-        ],
-        "en": [
-          "To construct an obtuse angle choose a scale value greater than ninety degrees. One hundred and twenty degrees.",
-          "Choose the correct scale",
-          "Make a mark.",
-          "One hundred and twenty degrees is an obtuse angle."
-        ]
-      }
-    }
-  },
-  "s6": {
-    "eyebrow": {
-      "uz": "Qoida",
-      "ru": "Правило",
-      "en": "Rule"
-    },
-    "title": {
-      "uz": "Tekshiruv",
-      "ru": "Проверка",
-      "en": "Check"
-    },
-    "scene": "protractor-check",
-    "frames": [
-      {
-        "uz": "Transportirni qayta qo'ying",
-        "ru": "Снова приложите транспортир",
-        "en": "Replace the protractor"
-      },
-      {
-        "uz": "Markaz burchak uchidami?",
-        "ru": "Центр находится на вершине?",
-        "en": "Is the centre on the vertex?"
-      },
-      {
-        "uz": "Nol birinchi nurdami?",
-        "ru": "Ноль находится на первом луче?",
-        "en": "Is zero on the first ray?"
-      },
-      {
-        "uz": "O'lchov: 70°",
-        "ru": "Измерение: 70°",
-        "en": "Measure: 70°"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Qayta o'lchash markaz nol va ikkinchi nur to'g'ri joylashganini tekshiradi. Transportirni qayta qo'ying.",
-          "Markaz burchak uchidami",
-          "Nol birinchi nurdami.",
-          "O'lchov yetmish daraja."
-        ],
-        "ru": [
-          "Повторное измерение проверяет положение центра нуля и второго луча. Снова приложите транспортир.",
-          "Центр находится на вершине",
-          "Ноль находится на первом луче.",
-          "Измерение семьдесят градусов."
-        ],
-        "en": [
-          "Measuring again checks the centre zero and second ray positions. Replace the protractor.",
-          "Is the centre on the vertex",
-          "Is zero on the first ray.",
-          "Measure seventy degrees."
-        ]
-      }
-    }
-  },
-  "s7": {
-    "eyebrow": {
-      "uz": "Qoida",
-      "ru": "Правило",
-      "en": "Rule"
-    },
-    "title": {
-      "uz": "Yasash algoritmi",
-      "ru": "Алгоритм построения",
-      "en": "Construction algorithm"
-    },
-    "scene": "protractor-rule",
-    "frames": [
-      {
-        "uz": "Uch va birinchi nur",
-        "ru": "Вершина и первый луч",
-        "en": "Vertex and first ray"
-      },
-      {
-        "uz": "Markazni moslang",
-        "ru": "Совместите центр",
-        "en": "Align the centre"
-      },
-      {
-        "uz": "To'g'ri noldan boshlang",
-        "ru": "Начните от правильного нуля",
-        "en": "Start at the correct zero"
-      },
-      {
-        "uz": "Belgi qo'ying",
-        "ru": "Поставьте отметку",
-        "en": "Make the mark"
-      },
-      {
-        "uz": "Ikkinchi nur chizildi; tekshiruv: 60°",
-        "ru": "Второй луч проведён; проверка: 60°",
-        "en": "Second ray drawn; check: 60°"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Yasash tartibi o'zgarmaydi nur markaz to'g'ri nol belgi ikkinchi nur va tekshiruv. Uch va birinchi nur.",
-          "Markazni moslang",
-          "To'g'ri noldan boshlang.",
-          "Belgi qo'ying.",
-          "Belgidan ikkinchi nurni o'tkazing. Qayta o'lchash oltmish darajani tasdiqlaydi."
-        ],
-        "ru": [
-          "Порядок построения неизменен луч центр правильный ноль отметка второй луч и проверка. Вершина и первый луч.",
-          "Совместите центр",
-          "Начните от правильного нуля.",
-          "Поставьте отметку.",
-          "Проведите второй луч через отметку. Повторное измерение подтверждает шестьдесят градусов."
-        ],
-        "en": [
-          "The construction order stays the same ray centre correct zero mark second ray and check. Vertex and first ray.",
-          "Align the centre",
-          "Start at the correct zero.",
-          "Make the mark.",
-          "Draw the second ray through the mark. Measuring again confirms sixty degrees."
-        ]
-      }
-    }
-  },
-  "s8": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Markaz qayerda?",
-      "ru": "Где должен быть центр?",
-      "en": "Where should the centre be?"
-    },
-    "scene": "protractor-centre",
-    "frames": [
-      {
-        "uz": "Transportir markazi",
-        "ru": "Центр транспортира",
-        "en": "The protractor centre"
-      },
-      {
-        "uz": "Qayerga qo'yiladi?",
-        "ru": "Куда его поместить?",
-        "en": "Where should it be placed?"
-      }
-    ],
-    "question": {
-      "uz": "Markaz qayerga qo'yiladi?",
-      "ru": "Куда помещают центр?",
-      "en": "Where is the centre placed?"
-    },
-    "options": [
-      {
-        "uz": "Burchak uchiga",
-        "ru": "На вершину угла",
-        "en": "On the vertex"
-      },
-      {
-        "uz": "Nur oxiriga",
-        "ru": "На конец луча",
-        "en": "On the end of the ray"
-      },
-      {
-        "uz": "Shkala o'rtasiga",
-        "ru": "На середину шкалы",
-        "en": "In the middle of the scale"
-      }
-    ],
-    "correctIndex": 0,
-    "closedSet": true,
-    "proof": {
-      "uz": "Transportir markazi burchak uchida turadi",
-      "ru": "Центр транспортира находится на вершине угла",
-      "en": "The protractor centre sits on the vertex"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Transportir markazi burchak uchida turadi.",
-        "ru": "Верно. Центр транспортира находится на вершине угла.",
-        "en": "Correct. The protractor centre sits on the vertex."
-      },
-      {
-        "uz": "Yana bir qarang: Transportir markazi nur oxiriga emas, burchak uchiga qo'yiladi.",
-        "ru": "Посмотрите ещё раз: Центр транспортира ставят не на конец луча, а на вершину угла.",
-        "en": "Look again: Place the protractor centre at the angle's vertex, not at the end of the ray."
-      },
-      {
-        "uz": "Yana bir qarang: Shkala o'rtasi markaz belgisi emas. Transportirning markaz belgisi burchak uchiga moslanadi.",
-        "ru": "Посмотрите ещё раз: Середина шкалы не является отметкой центра. Отметку центра совмещают с вершиной угла.",
-        "en": "Look again: The middle of the scale is not the centre mark. Align the protractor's centre mark with the vertex."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Transportirning markazi ko'rsatilgan.",
-          "Uni qayerga qo'yish kerak?"
-        ],
-        "ru": [
-          "Центр транспортира отмечен.",
-          "Куда его нужно поместить?"
-        ],
-        "en": [
-          "The protractor centre is marked.",
-          "Where should it be placed?"
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Transportir markazi burchak uchida turadi.",
-        "ru": "Верно. Центр транспортира находится на вершине угла.",
-        "en": "Correct. The protractor centre sits on the vertex."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Transportir markazi burchak uchida turadi.",
-          "ru": "Верно. Центр транспортира находится на вершине угла.",
-          "en": "Correct. The protractor centre sits on the vertex."
-        },
-        {
-          "uz": "Yana bir qarang: Transportir markazi nur oxiriga emas, burchak uchiga qo'yiladi.",
-          "ru": "Посмотрите ещё раз: Центр транспортира ставят не на конец луча, а на вершину угла.",
-          "en": "Look again: Place the protractor centre at the angle's vertex, not at the end of the ray."
-        },
-        {
-          "uz": "Yana bir qarang: Shkala o'rtasi markaz belgisi emas. Transportirning markaz belgisi burchak uchiga moslanadi.",
-          "ru": "Посмотрите ещё раз: Середина шкалы не является отметкой центра. Отметку центра совмещают с вершиной угла.",
-          "en": "Look again: The middle of the scale is not the centre mark. Align the protractor's centre mark with the vertex."
-        }
-      ]
-    }
-  },
-  "s9": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Qaysi 70°?",
-      "ru": "Какие 70°?",
-      "en": "Which 70° mark?"
-    },
-    "scene": "protractor-zero",
-    "frames": [
-      {
-        "uz": "Birinchi nur o'ngga",
-        "ru": "Первый луч направлен вправо",
-        "en": "The first ray points right"
-      },
-      {
-        "uz": "Bitta belgi: 70° yoki 110°",
-        "ru": "Одна отметка: 70° или 110°",
-        "en": "One mark: 70° or 110°"
-      }
-    ],
-    "question": {
-      "uz": "Qaysi o'lchovni tanlaysiz?",
-      "ru": "Какое измерение выбрать?",
-      "en": "Which measure should you choose?"
-    },
-    "options": [
-      {
-        "uz": "70°",
-        "ru": "70°",
-        "en": "70°"
-      },
-      {
-        "uz": "110°",
-        "ru": "110°",
-        "en": "110°"
-      },
-      {
-        "uz": "180°",
-        "ru": "180°",
-        "en": "180°"
-      }
-    ],
-    "correctIndex": 0,
-    "closedSet": true,
-    "proof": {
-      "uz": "O'ngga qaragan nurda o'ngdagi noldan 70° o'qiladi",
-      "ru": "Для луча вправо читают 70° от нуля справа",
-      "en": "For a right-pointing ray, read 70° from the zero on the right"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. O'ngga qaragan nurda o'ngdagi noldan yetmish daraja o'qiladi.",
-        "ru": "Верно. Для луча вправо читают семьдесят градусов от нуля справа.",
-        "en": "Correct. For a right pointing ray read seventy degrees from the zero on the right."
-      },
-      {
-        "uz": "Yana bir qarang: Bir yuz o'n daraja qarama-qarshi noldan o'qilgan. Nur o'ngga qaragani uchun o'ngdagi noldan yetmish darajani o'qing.",
-        "ru": "Посмотрите ещё раз: Сто десять градусов прочитаны от противоположного нуля. Луч направлен вправо, поэтому от правого нуля читают семьдесят градусов.",
-        "en": "Look again: One hundred and ten degrees comes from the opposite zero. Because the ray points right, read seventy degrees from the right-hand zero."
-      },
-      {
-        "uz": "Yana bir qarang: Bir yuz sakson daraja transportir asosining boshqa uchida. Kerakli belgi o'ngdagi noldan yetmish daraja masofada.",
-        "ru": "Посмотрите ещё раз: Сто восемьдесят градусов находятся у другого конца основания. Нужная отметка расположена на семьдесят градусов от правого нуля.",
-        "en": "Look again: One hundred and eighty degrees is at the other end of the baseline. The required mark is seventy degrees from the right-hand zero."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Boshlang'ich nur o'ngga qaragan.",
-          "Bitta belgi yetmish va bir yuz o'n gradus deb yozilgan. Mos o'lchovni tanlang."
-        ],
-        "ru": [
-          "Начальный луч направлен вправо.",
-          "Одна отметка подписана как семьдесят и сто десять градусов. Выберите подходящее измерение."
-        ],
-        "en": [
-          "The first ray points right.",
-          "One mark is labelled seventy and one hundred and ten degrees. Choose the matching measure."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. O'ngga qaragan nurda o'ngdagi noldan yetmish daraja o'qiladi.",
-        "ru": "Верно. Для луча вправо читают семьдесят градусов от нуля справа.",
-        "en": "Correct. For a right pointing ray read seventy degrees from the zero on the right."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. O'ngga qaragan nurda o'ngdagi noldan yetmish daraja o'qiladi.",
-          "ru": "Верно. Для луча вправо читают семьдесят градусов от нуля справа.",
-          "en": "Correct. For a right pointing ray read seventy degrees from the zero on the right."
-        },
-        {
-          "uz": "Yana bir qarang: Bir yuz o'n daraja qarama-qarshi noldan o'qilgan. Nur o'ngga qaragani uchun o'ngdagi noldan yetmish darajani o'qing.",
-          "ru": "Посмотрите ещё раз: Сто десять градусов прочитаны от противоположного нуля. Луч направлен вправо, поэтому от правого нуля читают семьдесят градусов.",
-          "en": "Look again: One hundred and ten degrees comes from the opposite zero. Because the ray points right, read seventy degrees from the right-hand zero."
-        },
-        {
-          "uz": "Yana bir qarang: Bir yuz sakson daraja transportir asosining boshqa uchida. Kerakli belgi o'ngdagi noldan yetmish daraja masofada.",
-          "ru": "Посмотрите ещё раз: Сто восемьдесят градусов находятся у другого конца основания. Нужная отметка расположена на семьдесят градусов от правого нуля.",
-          "en": "Look again: One hundred and eighty degrees is at the other end of the baseline. The required mark is seventy degrees from the right-hand zero."
-        }
-      ]
-    }
-  },
-  "s10": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "115° qanday bo'ladi?",
-      "ru": "Каким будет 115°?",
-      "en": "What type will 115° be?"
-    },
-    "scene": "protractor-obtuse",
-    "frames": [
-      {
-        "uz": "115°",
-        "ru": "115°",
-        "en": "115°"
-      },
-      {
-        "uz": "Burchak turini tanlang",
-        "ru": "Выберите вид угла",
-        "en": "Choose the angle type"
-      }
-    ],
-    "question": {
-      "uz": "115° qanday burchak?",
-      "ru": "Какой угол равен 115°?",
-      "en": "What type of angle is 115°?"
-    },
-    "options": [
-      {
-        "uz": "O'tkir",
-        "ru": "Острый",
-        "en": "Acute"
-      },
-      {
-        "uz": "To'g'ri",
-        "ru": "Прямой",
-        "en": "Right"
-      },
-      {
-        "uz": "O'tmas",
-        "ru": "Тупой",
-        "en": "Obtuse"
-      }
-    ],
-    "correctIndex": 2,
-    "closedSet": true,
-    "proof": {
-      "uz": "115° - o'tmas burchak",
-      "ru": "115° - тупой угол",
-      "en": "115° is an obtuse angle"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: O'tkir burchak to'qson darajadan kichik. Bir yuz o'n besh daraja esa to'qson darajadan katta.",
-        "ru": "Посмотрите ещё раз: Острый угол меньше девяноста градусов. Угол в сто пятнадцать градусов больше.",
-        "en": "Look again: An acute angle is less than ninety degrees. An angle of one hundred and fifteen degrees is greater."
-      },
-      {
-        "uz": "Yana bir qarang: To'g'ri burchak aynan to'qson daraja. Bir yuz o'n besh daraja undan yigirma besh daraja katta.",
-        "ru": "Посмотрите ещё раз: Прямой угол равен девяноста градусам. Угол в сто пятнадцать градусов больше него на двадцать пять.",
-        "en": "Look again: A right angle is exactly ninety degrees. An angle of one hundred and fifteen degrees is twenty five degrees greater."
-      },
-      {
-        "uz": "To'g'ri. Bir yuz o'n besh daraja degani o'tmas burchak.",
-        "ru": "Верно. Сто пятнадцать градусов означает тупой угол.",
-        "en": "Correct. One hundred and fifteen degrees is an obtuse angle."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Burchak bir yuz o'n besh gradus.",
-          "Burchak turini tanlang."
-        ],
-        "ru": [
-          "Угол равен ста пятнадцати градусам.",
-          "Выберите вид угла."
-        ],
-        "en": [
-          "The angle measures one hundred and fifteen degrees.",
-          "Choose the angle type."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Bir yuz o'n besh daraja degani o'tmas burchak.",
-        "ru": "Верно. Сто пятнадцать градусов означает тупой угол.",
-        "en": "Correct. One hundred and fifteen degrees is an obtuse angle."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: O'tkir burchak to'qson darajadan kichik. Bir yuz o'n besh daraja esa to'qson darajadan katta.",
-          "ru": "Посмотрите ещё раз: Острый угол меньше девяноста градусов. Угол в сто пятнадцать градусов больше.",
-          "en": "Look again: An acute angle is less than ninety degrees. An angle of one hundred and fifteen degrees is greater."
-        },
-        {
-          "uz": "Yana bir qarang: To'g'ri burchak aynan to'qson daraja. Bir yuz o'n besh daraja undan yigirma besh daraja katta.",
-          "ru": "Посмотрите ещё раз: Прямой угол равен девяноста градусам. Угол в сто пятнадцать градусов больше него на двадцать пять.",
-          "en": "Look again: A right angle is exactly ninety degrees. An angle of one hundred and fifteen degrees is twenty five degrees greater."
-        },
-        {
-          "uz": "To'g'ri. Bir yuz o'n besh daraja degani o'tmas burchak.",
-          "ru": "Верно. Сто пятнадцать градусов означает тупой угол.",
-          "en": "Correct. One hundred and fifteen degrees is an obtuse angle."
-        }
-      ]
-    }
-  },
-  "s11": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "To'g'ri tartib",
-      "ru": "Правильный порядок",
-      "en": "Correct order"
-    },
-    "scene": "protractor-order",
-    "frames": [
-      {
-        "uz": "Belgi; nur; markaz; ikkinchi nur",
-        "ru": "Отметка; луч; центр; второй луч",
-        "en": "Mark; ray; centre; second ray"
-      },
-      {
-        "uz": "To'g'ri tartibni tanlang",
-        "ru": "Выберите правильный порядок",
-        "en": "Choose the correct order"
-      }
-    ],
-    "question": {
-      "uz": "To'g'ri tartib qaysi?",
-      "ru": "Какой порядок правильный?",
-      "en": "Which order is correct?"
-    },
-    "options": [
-      {
-        "uz": "Nur → markaz → belgi → ikkinchi nur",
-        "ru": "Луч → центр → отметка → второй луч",
-        "en": "Ray → centre → mark → second ray"
-      },
-      {
-        "uz": "Belgi → nur → markaz → ikkinchi nur",
-        "ru": "Отметка → луч → центр → второй луч",
-        "en": "Mark → ray → centre → second ray"
-      },
-      {
-        "uz": "Markaz → belgi → ikkinchi nur → nur",
-        "ru": "Центр → отметка → второй луч → луч",
-        "en": "Centre → mark → second ray → ray"
-      }
-    ],
-    "correctIndex": 0,
-    "closedSet": true,
-    "proof": {
-      "uz": "Avval nur, so'ng markaz, belgi va ikkinchi nur",
-      "ru": "Сначала луч, затем центр, отметка и второй луч",
-      "en": "First the ray, then the centre, mark and second ray"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Avval nur so'ng markaz belgi va ikkinchi nur.",
-        "ru": "Верно. Сначала луч затем центр отметка и второй луч.",
-        "en": "Correct. First the ray then the centre mark and second ray."
-      },
-      {
-        "uz": "Yana bir qarang: Belgi qo'yishdan oldin boshlang'ich nur chizilib, transportir markazi burchak uchiga moslanishi kerak.",
-        "ru": "Посмотрите ещё раз: До отметки нужно начертить начальный луч и совместить центр транспортира с вершиной угла.",
-        "en": "Look again: Before making the mark, draw the initial ray and align the protractor centre with the vertex."
-      },
-      {
-        "uz": "Yana bir qarang: Boshlang'ich nur bo'lmasa markaz va nolni moslab bo'lmaydi. Ikkinchi nur belgidan keyin chiziladi.",
-        "ru": "Посмотрите ещё раз: Без начального луча нельзя совместить центр и ноль. Второй луч проводят только после отметки.",
-        "en": "Look again: Without the initial ray, the centre and zero cannot be aligned. Draw the second ray only after making the mark."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Kartalarda belgi, nur, markaz va ikkinchi nur bor.",
-          "To'g'ri tartibni tanlang."
-        ],
-        "ru": [
-          "На карточках есть отметка, луч, центр и второй луч.",
-          "Выберите правильный порядок."
-        ],
-        "en": [
-          "The cards show a mark, a ray, the centre and the second ray.",
-          "Choose the correct order."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Avval nur so'ng markaz belgi va ikkinchi nur.",
-        "ru": "Верно. Сначала луч затем центр отметка и второй луч.",
-        "en": "Correct. First the ray then the centre mark and second ray."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Avval nur so'ng markaz belgi va ikkinchi nur.",
-          "ru": "Верно. Сначала луч затем центр отметка и второй луч.",
-          "en": "Correct. First the ray then the centre mark and second ray."
-        },
-        {
-          "uz": "Yana bir qarang: Belgi qo'yishdan oldin boshlang'ich nur chizilib, transportir markazi burchak uchiga moslanishi kerak.",
-          "ru": "Посмотрите ещё раз: До отметки нужно начертить начальный луч и совместить центр транспортира с вершиной угла.",
-          "en": "Look again: Before making the mark, draw the initial ray and align the protractor centre with the vertex."
-        },
-        {
-          "uz": "Yana bir qarang: Boshlang'ich nur bo'lmasa markaz va nolni moslab bo'lmaydi. Ikkinchi nur belgidan keyin chiziladi.",
-          "ru": "Посмотрите ещё раз: Без начального луча нельзя совместить центр и ноль. Второй луч проводят только после отметки.",
-          "en": "Look again: Without the initial ray, the centre and zero cannot be aligned. Draw the second ray only after making the mark."
-        }
-      ]
-    }
-  },
-  "s12": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Bit noto'g'ri nolni oldi",
-      "ru": "Бит начал не с того нуля",
-      "en": "Bit used the wrong zero"
-    },
-    "scene": "protractor-error",
-    "frames": [
-      {
-        "uz": "Bit 50° o'rniga 130° oldi",
-        "ru": "Бит получил 130° вместо 50°",
-        "en": "Bit got 130° instead of 50°"
-      },
-      {
-        "uz": "Bitning xatosini toping",
-        "ru": "Найдите ошибку Бита",
-        "en": "Find Bit's mistake"
-      }
-    ],
-    "question": {
-      "uz": "Bitning xatosini qanday tuzatamiz?",
-      "ru": "Как исправить ошибку Бита?",
-      "en": "How do we correct Bit's mistake?"
-    },
-    "options": [
-      {
-        "uz": "Birinchi nur yonidagi noldan boshlash",
-        "ru": "Начать от нуля рядом с первым лучом",
-        "en": "Start from the zero beside the first ray"
-      },
-      {
-        "uz": "Qarama-qarshi noldan boshlash",
-        "ru": "Начать от противоположного нуля",
-        "en": "Start from the opposite zero"
-      },
-      {
-        "uz": "Markazni ko'chirish",
-        "ru": "Сдвинуть центр",
-        "en": "Move the centre"
-      }
-    ],
-    "correctIndex": 0,
-    "closedSet": true,
-    "proof": {
-      "uz": "Boshlang'ich nur yonidagi nol tanlanadi",
-      "ru": "Выбирают ноль рядом с начальным лучом",
-      "en": "Use the zero beside the initial ray"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. Boshlang'ich nur yonidagi nol tanlanadi.",
-        "ru": "Верно. Выбирают ноль рядом с начальным лучом.",
-        "en": "Correct. Use the zero beside the initial ray."
-      },
-      {
-        "uz": "Yana bir qarang: Qarama-qarshi noldan o'qish ellik daraja o'rniga bir yuz o'ttiz darajani beradi. Boshlang'ich nur yonidagi noldan boshlang.",
-        "ru": "Посмотрите ещё раз: Отсчёт от противоположного нуля даёт сто тридцать градусов вместо пятидесяти. Начинайте от нуля возле начального луча.",
-        "en": "Look again: Reading from the opposite zero gives one hundred and thirty degrees instead of fifty. Start from the zero beside the initial ray."
-      },
-      {
-        "uz": "Yana bir qarang: Markaz allaqachon burchak uchida turishi kerak. Xato markazda emas, qarama-qarshi noldan o'qishda.",
-        "ru": "Посмотрите ещё раз: Центр уже должен находиться на вершине. Ошибка не в центре, а в отсчёте от противоположного нуля.",
-        "en": "Look again: The centre should already be on the vertex. The error is reading from the opposite zero, not the centre position."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Bit ellik gradus o'rniga bir yuz o'ttiz gradus oldi.",
-          "Bitning xatosini toping."
-        ],
-        "ru": [
-          "Бит получил сто тридцать градусов вместо пятидесяти.",
-          "Найдите ошибку Бита."
-        ],
-        "en": [
-          "Bit obtained one hundred and thirty degrees instead of fifty degrees.",
-          "Find Bit's mistake."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Boshlang'ich nur yonidagi nol tanlanadi.",
-        "ru": "Верно. Выбирают ноль рядом с начальным лучом.",
-        "en": "Correct. Use the zero beside the initial ray."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. Boshlang'ich nur yonidagi nol tanlanadi.",
-          "ru": "Верно. Выбирают ноль рядом с начальным лучом.",
-          "en": "Correct. Use the zero beside the initial ray."
-        },
-        {
-          "uz": "Yana bir qarang: Qarama-qarshi noldan o'qish ellik daraja o'rniga bir yuz o'ttiz darajani beradi. Boshlang'ich nur yonidagi noldan boshlang.",
-          "ru": "Посмотрите ещё раз: Отсчёт от противоположного нуля даёт сто тридцать градусов вместо пятидесяти. Начинайте от нуля возле начального луча.",
-          "en": "Look again: Reading from the opposite zero gives one hundred and thirty degrees instead of fifty. Start from the zero beside the initial ray."
-        },
-        {
-          "uz": "Yana bir qarang: Markaz allaqachon burchak uchida turishi kerak. Xato markazda emas, qarama-qarshi noldan o'qishda.",
-          "ru": "Посмотрите ещё раз: Центр уже должен находиться на вершине. Ошибка не в центре, а в отсчёте от противоположного нуля.",
-          "en": "Look again: The centre should already be on the vertex. The error is reading from the opposite zero, not the centre position."
-        }
-      ]
-    }
-  },
-  "s13": {
-    "eyebrow": {
-      "uz": "Shahar vazifasi",
-      "ru": "Городская задача",
-      "en": "City task"
-    },
-    "title": {
-      "uz": "135° ko'cha burilishi",
-      "ru": "Уличный поворот 135°",
-      "en": "A 135° street turn"
-    },
-    "scene": "protractor-case",
-    "frames": [
-      {
-        "uz": "Birinchi nurni chizing",
-        "ru": "Начертите первый луч",
-        "en": "Draw the first ray"
-      },
-      {
-        "uz": "135° ga belgi qo'ying",
-        "ru": "Поставьте отметку на 135°",
-        "en": "Make a mark at 135°"
-      },
-      {
-        "uz": "Qaysi belgi 135° ni ko'rsatadi?",
-        "ru": "Какая отметка показывает 135°?",
-        "en": "Which mark shows 135°?"
-      }
-    ],
-    "question": {
-      "uz": "Qaysi belgi to'g'ri?",
-      "ru": "Какая отметка верна?",
-      "en": "Which mark is correct?"
-    },
-    "options": [
-      {
-        "uz": "45°",
-        "ru": "45°",
-        "en": "45°"
-      },
-      {
-        "uz": "135°",
-        "ru": "135°",
-        "en": "135°"
-      },
-      {
-        "uz": "225°",
-        "ru": "225°",
-        "en": "225°"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "Belgi 135° ni ko'rsatadi va bu o'tmas burchak",
-      "ru": "Отметка показывает 135°, это тупой угол",
-      "en": "The mark shows 135°, which is obtuse"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Qirq besh daraja qarama-qarshi shkaladagi kichik qiymat. Kerakli belgi bir yuz o'ttiz besh darajali o'tmas burchakni ko'rsatadi.",
-        "ru": "Посмотрите ещё раз: Сорок пять градусов являются меньшим значением на противоположной шкале. Нужная отметка показывает тупой угол в сто тридцать пять градусов.",
-        "en": "Look again: Forty five degrees is the smaller reading on the opposite scale. The required mark shows a one-hundred-and-thirty-five-degree obtuse angle."
-      },
-      {
-        "uz": "To'g'ri. Belgi bir yuz o'ttiz besh darajani ko'rsatadi va bu o'tmas burchak.",
-        "ru": "Верно. Отметка показывает сто тридцать пять градусов это тупой угол.",
-        "en": "Correct. The mark shows one hundred and thirty five degrees which is obtuse."
-      },
-      {
-        "uz": "Yana bir qarang: Transportirning yarim doira shkalasi noldan bir yuz sakson darajagacha. Ikki yuz yigirma besh daraja bu chegaradan tashqarida.",
-        "ru": "Посмотрите ещё раз: Полукруглая шкала транспортира идёт от нуля до ста восьмидесяти градусов. Двести двадцать пять градусов находятся за её пределами.",
-        "en": "Look again: A semicircular protractor runs from zero to one hundred and eighty degrees. Two hundred and twenty five degrees lies outside that scale."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Boshlang'ich nurni chizing.",
-          "Maqsad bir yuz o'ttiz besh gradus.",
-          "To'g'ri belgini tanlang."
-        ],
-        "ru": [
-          "Проведите начальный луч.",
-          "Нужно построить сто тридцать пять градусов.",
-          "Выберите правильную отметку."
-        ],
-        "en": [
-          "Draw the first ray.",
-          "The target is one hundred and thirty five degrees.",
-          "Choose the correct mark."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Belgi bir yuz o'ttiz besh darajani ko'rsatadi va bu o'tmas burchak.",
-        "ru": "Верно. Отметка показывает сто тридцать пять градусов это тупой угол.",
-        "en": "Correct. The mark shows one hundred and thirty five degrees which is obtuse."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Qirq besh daraja qarama-qarshi shkaladagi kichik qiymat. Kerakli belgi bir yuz o'ttiz besh darajali o'tmas burchakni ko'rsatadi.",
-          "ru": "Посмотрите ещё раз: Сорок пять градусов являются меньшим значением на противоположной шкале. Нужная отметка показывает тупой угол в сто тридцать пять градусов.",
-          "en": "Look again: Forty five degrees is the smaller reading on the opposite scale. The required mark shows a one-hundred-and-thirty-five-degree obtuse angle."
-        },
-        {
-          "uz": "To'g'ri. Belgi bir yuz o'ttiz besh darajani ko'rsatadi va bu o'tmas burchak.",
-          "ru": "Верно. Отметка показывает сто тридцать пять градусов это тупой угол.",
-          "en": "Correct. The mark shows one hundred and thirty five degrees which is obtuse."
-        },
-        {
-          "uz": "Yana bir qarang: Transportirning yarim doira shkalasi noldan bir yuz sakson darajagacha. Ikki yuz yigirma besh daraja bu chegaradan tashqarida.",
-          "ru": "Посмотрите ещё раз: Полукруглая шкала транспортира идёт от нуля до ста восьмидесяти градусов. Двести двадцать пять градусов находятся за её пределами.",
-          "en": "Look again: A semicircular protractor runs from zero to one hundred and eighty degrees. Two hundred and twenty five degrees lies outside that scale."
-        }
-      ]
-    }
-  },
-  "s14": {
-    "eyebrow": {
-      "uz": "Yakun",
-      "ru": "Итог",
-      "en": "Summary"
-    },
-    "title": {
-      "uz": "Aniq burchak quruvchisi",
-      "ru": "Мастер точных углов",
-      "en": "Precise angle builder"
-    },
-    "scene": "protractor-final",
-    "frames": [
-      {
-        "uz": "Birinchi nur",
-        "ru": "Первый луч",
-        "en": "First ray"
-      },
-      {
-        "uz": "Markaz",
-        "ru": "Центр",
-        "en": "Centre"
-      },
-      {
-        "uz": "To'g'ri shkala",
-        "ru": "Правильная шкала",
-        "en": "Correct scale"
-      },
-      {
-        "uz": "Belgi va ikkinchi nur",
-        "ru": "Отметка и второй луч",
-        "en": "Mark and second ray"
-      },
-      {
-        "uz": "Qayta o'lchang",
-        "ru": "Измерьте снова",
-        "en": "Measure again"
-      }
-    ],
-    "rewardTitle": {
-      "uz": "Aniq burchak quruvchisi",
-      "ru": "Точный построитель углов",
-      "en": "Precise angle constructor"
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Transportir bilan aniqlik joylashtirish shkala tanlash va qayta tekshirishga bog'liq. Birinchi nur.",
-          "Markaz",
-          "To'g'ri shkala.",
-          "Belgi va ikkinchi nur.",
-          "Qayta o'lchang."
-        ],
-        "ru": [
-          "Точность работы с транспортиром зависит от размещения выбора шкалы и повторной проверки. Первый луч.",
-          "Центр",
-          "Правильная шкала.",
-          "Отметка и второй луч.",
-          "Измерьте снова."
-        ],
-        "en": [
-          "Accuracy with a protractor depends on placement scale choice and a final check. First ray.",
-          "Centre",
-          "Correct scale.",
-          "Mark and second ray.",
-          "Measure again."
-        ]
-      }
-    }
+
+const stableChoiceOffset = (lessonId, length) => {
+  const key = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < key.length; index += 1) {
+    hash ^= key.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
+  return (hash >>> 0) % length;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const order = Array.from({ length }, (_, index) => index);
+  if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return order;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  order.splice(correctIndex, 1);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
+// Variant tartibi ekranma-ekran suriladi: to'g'ri javob bir joyda qotib qolmaydi.
+const ANSWER_ORDINAL_BY_SCREEN = Object.freeze({ 2: 0, 6: 1, 9: 2, 13: 3, 14: 4 });
+
+const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
+const STEP_LABEL = bi('Keyingi qadam', 'Следующий шаг', 'Next step');
+const CHECK_LABEL = bi('Tekshirish', 'Проверить', 'Check');
+
+const LESSON_META = {
+  lessonId: 'geometry-4-34-v1',
+  slug: 'dars34-burchaklarni-yasash',
+  lessonTitle: {
+    uz: "Burchaklarni yasash",
+    ru: 'Построение углов',
+    en: 'Constructing angles',
+  },
+  skillTags: ['protractor-centre', 'base-line-alignment', 'scale-choice', 'type-as-check'],
+  finalReflectionRequired: false,
+};
+
+const CONTENT = {
+  s0: {
+    eyebrow: { uz: "Missiya", ru: "Миссия", en: "Mission" },
+    topic: { uz: "Dars mavzusi: Burchaklarni yasash", ru: "Тема урока: Построение углов", en: "Lesson topic: Constructing angles" },
+    title: { uz: "Egri pandus", ru: "Кривой пандус", en: "The crooked ramp" },
+    question: { uz: "Bit qayerda xato qildi?", ru: "Где Бит ошибся?", en: "Where did Bit go wrong?" },
+    neutral: true,
+    nodeName: { uz: "ARXITEKTURA BYUROSI · TRANSPORTIR STOLI", ru: "АРХИТЕКТУРНОЕ БЮРО · СТОЛ ТРАНСПОРТИРА", en: "ARCHITECTURE BUREAU · PROTRACTOR DESK" },
+    stateBad: { uz: "PANDUS QABUL QILINMADI", ru: "ПАНДУС НЕ ПРИНЯТ", en: "THE RAMP WAS REJECTED" },
+    orderLabel: { uz: "buyurtma", ru: "заказ", en: "order" },
+    orderValue: { uz: "60° pandus", ru: "пандус 60°", en: "a 60° ramp" },
+    botLabel: { uz: "Bit chizgan", ru: "Бит начертил", en: "Bit drew" },
+    botValue: { uz: "44°", ru: "44°", en: "44°" },
+    options: [
+      { uz: "Markazni burchak uchiga qo'ymagan", ru: "Не поставил центр в вершину угла", en: "He did not put the centre on the vertex" },
+      { uz: "Shkalani noto'g'ri o'qigan", ru: "Неверно прочитал шкалу", en: "He read the scale wrongly" },
+      { uz: "Chizg'ichni ishlatmagan", ru: "Не пользовался линейкой", en: "He did not use a ruler" },
+      { uz: "Pandusni juda uzun chizgan", ru: "Начертил пандус слишком длинным", en: "He drew the ramp too long" },
+    ],
+    feedback: {
+      uz: "Taxminingiz yozib olindi. Endi transportirni birga o'rnatamiz.",
+      ru: "Твоё предположение записано. Теперь вместе установим транспортир.",
+      en: "Your prediction is saved. Now we will set the protractor together.",
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Byuroda transportir stolidamiz. Bugun burchakni o'zimiz yasaymiz.",
+          "Buyurtmada oltmish gradusli pandus so'ralgan.",
+          "Bit transportirni qo'ydi va chizdi, lekin tekshiruvda qirq to'rt gradus chiqdi.",
+          "Sizningcha, u qayerda xato qildi.",
+        ],
+        ru: [
+          "Мы за столом транспортира в бюро. Сегодня угол строим сами.",
+          "В заказе просили пандус в шестьдесят градусов.",
+          "Бит приложил транспортир и начертил, но при проверке вышло сорок четыре градуса.",
+          "Как думаешь, где он ошибся.",
+        ],
+        en: [
+          "We are at the protractor desk in the bureau. Today we construct an angle ourselves.",
+          "The order asked for a ramp of sixty degrees.",
+          "Bit placed the protractor and drew, but the check showed forty four degrees.",
+          "Where do you think he went wrong.",
+        ],
+      },
+    },
+  },
+
+  s1: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Transportirni o'rnatamiz", ru: "Устанавливаем транспортир", en: "Setting the protractor" },
+    lead: { uz: "Qadamlarni bosib bajaring", ru: "Выполняй шаги нажатием", en: "Tap to carry out the steps" },
+    target: 60,
+    steps: [
+      { uz: "Markazni burchak uchiga qo'yamiz", ru: "Ставим центр в вершину угла", en: "Put the centre on the vertex" },
+      { uz: "Asos chizig'ini birinchi tomonga moslaymiz", ru: "Совмещаем базовую линию с первой стороной", en: "Line the base up with the first side" },
+      { uz: "Kerakli gradusni belgilab, ikkinchi tomonni chizamiz", ru: "Отмечаем нужный градус и чертим вторую сторону", en: "Mark the needed degree and draw the second side" },
+    ],
+    tapHint: { uz: "Keyingi qadam", ru: "Следующий шаг", en: "Next step" },
+    doneLabel: { uz: "Burchak yasaldi", ru: "Угол построен", en: "The angle is built" },
+    doneValue: { uz: "60°", ru: "60°", en: "60°" },
+    audio: {
+      intro: {
+        uz: [
+          "Transportirning uchta muhim qismi bor. Birinchisi markaz, u burchak uchiga qo'yiladi.",
+          "Ikkinchisi asos chizig'i. U burchakning birinchi tomoni ustiga tushishi kerak.",
+          "Uchinchisi shkala. Kerakli gradusni belgilaymiz va uchdan shu belgigacha ikkinchi tomonni chizamiz.",
+        ],
+        ru: [
+          "У транспортира три важные части. Первая это центр, он ставится в вершину угла.",
+          "Вторая это базовая линия. Она должна лечь на первую сторону угла.",
+          "Третья это шкала. Отмечаем нужный градус и от вершины до метки чертим вторую сторону.",
+        ],
+        en: [
+          "A protractor has three important parts. The first is the centre, it goes on the vertex.",
+          "The second is the base line. It must lie along the first side of the angle.",
+          "The third is the scale. We mark the needed degree and draw the second side from the vertex to the mark.",
+        ],
+      },
+    },
+  },
+
+  s2: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Birinchi qadam", ru: "Первый шаг", en: "The first step" },
+    task: { uz: "Transportir markazi", ru: "Центр транспортира", en: "The protractor centre" },
+    taskNote: { uz: "Yasash tartibi", ru: "Порядок построения", en: "Construction order" },
+    figDegree: 60,
+    question: { uz: "Transportir markazi qayerga qo'yiladi?", ru: "Куда ставится центр транспортира?", en: "Where is the centre of the protractor placed?" },
+    correctIndex: 0,
+    options: [
+      { uz: "Burchak uchiga", ru: "В вершину угла", en: "On the vertex of the angle" },
+      { uz: "Tomonning oxiriga", ru: "На конец стороны", en: "At the end of a side" },
+      { uz: "Chizmaning o'rtasiga", ru: "В середину чертежа", en: "In the middle of the drawing" },
+      { uz: "Shkalaning nolga", ru: "На ноль шкалы", en: "On the zero of the scale" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. Markaz aynan uchda tursa, shkala to'g'ri o'qiladi.", ru: "Верно. Когда центр точно в вершине, шкала читается правильно.", en: "Right. When the centre sits exactly on the vertex the scale reads correctly." },
+      { uz: "Tomon oxiri emas. Ikkala tomon uchdan chiqadi.", ru: "Не конец стороны. Обе стороны выходят из вершины.", en: "Not the end of a side. Both sides start from the vertex." },
+      { uz: "Chizmaning o'rtasi burchakka bog'liq emas.", ru: "Середина чертежа не связана с углом.", en: "The middle of the drawing has nothing to do with the angle." },
+      { uz: "Nol shkalada, markaz esa asbob o'rtasida turadi.", ru: "Ноль на шкале, а центр стоит в середине прибора.", en: "The zero is on the scale, the centre sits in the middle of the tool." },
+    ],
+    proof: { uz: "markaz → burchak uchi", ru: "центр → вершина угла", en: "centre → vertex of the angle" },
+    audio: {
+      intro: {
+        uz: [
+          "Yasashning birinchi qadamini tekshiramiz.",
+          "Transportir markazi qayerga qo'yilishini tanlang.",
+        ],
+        ru: [
+          "Проверим первый шаг построения.",
+          "Выбери, куда ставится центр транспортира.",
+        ],
+        en: [
+          "Let us check the first step of the construction.",
+          "Choose where the centre of the protractor is placed.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Bitning xatosi ham shu yerda edi.", ru: "Верно. Ошибка Бита была именно здесь.", en: "Right. Bit's mistake was exactly here." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Ikkala tomon bitta nuqtadan chiqadi. O'sha nuqtani qidiring.", ru: "Обе стороны выходят из одной точки. Найди её.", en: "Both sides start from one point. Find that point." },
+        { uz: "Transportir chizmaga emas, burchakka qo'yiladi.", ru: "Транспортир прикладывают к углу, а не к чертежу.", en: "The protractor is placed on the angle, not on the drawing." },
+        { uz: "Nol va markaz turli narsalar. Markaz asbob o'rtasida.", ru: "Ноль и центр это разные вещи. Центр в середине прибора.", en: "The zero and the centre are different things. The centre is in the middle of the tool." },
+      ],
+    },
+  },
+
+  s3: {
+    eyebrow: { uz: "Model", ru: "Модель", en: "Model" },
+    title: { uz: "Yasashning uch qadami", ru: "Три шага построения", en: "Three steps of the construction" },
+    lead: { uz: "Har qadamni bosib oching", ru: "Открывай каждый шаг нажатием", en: "Tap to open each step" },
+    leftLabel: { uz: "Harakat", ru: "Действие", en: "Action" },
+    rightLabel: { uz: "Tekshiruv", ru: "Проверка", en: "Check" },
+    rows: [
+      {
+        step: { uz: "1-qadam. Markazni uchga qo'yamiz", ru: "Шаг 1. Ставим центр в вершину", en: "Step 1. Put the centre on the vertex" },
+        left: { uz: "markaz → uch", ru: "центр → вершина", en: "centre → vertex" },
+        right: { uz: "markaz uchdan siljimasin", ru: "центр не должен сойти с вершины", en: "the centre must not slip off the vertex" },
+      },
+      {
+        step: { uz: "2-qadam. Asos chizig'ini tomonga moslaymiz", ru: "Шаг 2. Совмещаем базовую линию со стороной", en: "Step 2. Line the base up with the side" },
+        left: { uz: "asos chizig'i → birinchi tomon", ru: "базовая линия → первая сторона", en: "base line → first side" },
+        right: { uz: "shu tomonda nol turishi kerak", ru: "на этой стороне должен стоять ноль", en: "the zero must sit on that side" },
+      },
+      {
+        step: { uz: "3-qadam. Gradusni belgilaymiz", ru: "Шаг 3. Отмечаем градус", en: "Step 3. Mark the degree" },
+        left: { uz: "belgi → 60°", ru: "метка → 60°", en: "mark → 60°" },
+        right: { uz: "uchdan belgigacha chiziq", ru: "линия от вершины до метки", en: "a line from the vertex to the mark" },
+      },
+    ],
+    ruleNote: { uz: "Nol qaysi tomonda bo'lsa, shkala ham o'shandan o'qiladi", ru: "С какой стороны ноль, с той шкалы и читают", en: "The scale is read from the side where the zero sits" },
+    audio: {
+      intro: {
+        uz: [
+          "Yasashni uch qadamga bo'lamiz. Birinchisi markazni uchga qo'yish.",
+          "Ikkinchisi asos chizig'ini birinchi tomonga moslash. Shunda nol o'sha tomonda turadi.",
+          "Uchinchisi kerakli gradusni belgilash va uchdan belgigacha chiziq o'tkazish.",
+        ],
+        ru: [
+          "Построение делим на три шага. Первый это поставить центр в вершину.",
+          "Второй это совместить базовую линию с первой стороной. Тогда ноль окажется на этой стороне.",
+          "Третий это отметить нужный градус и провести линию от вершины до метки.",
+        ],
+        en: [
+          "We split the construction into three steps. The first is to put the centre on the vertex.",
+          "The second is to line the base up with the first side. Then the zero sits on that side.",
+          "The third is to mark the needed degree and draw a line from the vertex to the mark.",
+        ],
+      },
+    },
+  },
+
+  s4: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Yasash kartasi", ru: "Карта построения", en: "The construction card" },
+    task: { uz: "70° burchak yasash", ru: "построить угол 70°", en: "construct a 70° angle" },
+    taskNote: { uz: "Zinapoya loyihasi", ru: "Проект лестницы", en: "Stairway plan" },
+    figDegree: 70,
+    question: { uz: "Javobni yig'ing", ru: "Собери ответ", en: "Build the answer" },
+    slots: [
+      { key: "centre", label: { uz: "markaz", ru: "центр", en: "centre" }, answer: 1, tiles: [0, 1, 2] },
+      { key: "scale", label: { uz: "shkala", ru: "шкала", en: "scale" }, answer: 0, tiles: [0, 1, 2] },
+    ],
+    tileNames: [
+      [
+        { uz: "tomon oxirida", ru: "на конце стороны", en: "at the end of a side" },
+        { uz: "burchak uchida", ru: "в вершине угла", en: "on the vertex" },
+        { uz: "shkala nolida", ru: "на нуле шкалы", en: "on the zero of the scale" },
+      ],
+      [
+        { uz: "noli tomonda turgan", ru: "у которой ноль на стороне", en: "the one with zero on the side" },
+        { uz: "har qanday", ru: "любая", en: "any of them" },
+        { uz: "faqat tashqi", ru: "только внешняя", en: "only the outer one" },
+      ],
+    ],
+    okText: { uz: "To'g'ri. Markaz uchda, nol esa birinchi tomonda turadi.", ru: "Верно. Центр в вершине, а ноль на первой стороне.", en: "Right. The centre is on the vertex and the zero is on the first side." },
+    wrongT: { uz: "Markaz joyi boshqacha. Ikkala tomon qayerdan chiqadi?", ru: "Место центра другое. Откуда выходят обе стороны?", en: "The centre goes elsewhere. Where do both sides start from?" },
+    wrongQ: { uz: "Shkala boshqacha. Nol qaysi tomonda bo'lsa, o'sha shkala o'qiladi.", ru: "Шкала другая. Читают ту, у которой ноль на стороне.", en: "The scale is different. You read the one whose zero sits on the side." },
+    proof: { uz: "markaz → uch · nol → birinchi tomon", ru: "центр → вершина · ноль → первая сторона", en: "centre → vertex · zero → first side" },
+    audio: {
+      intro: {
+        uz: [
+          "Zinapoya loyihasi uchun yetmish gradusli burchak kerak.",
+          "Markaz qayerga qo'yilishini va qaysi shkala o'qilishini tanlang.",
+        ],
+        ru: [
+          "Для проекта лестницы нужен угол в семьдесят градусов.",
+          "Выбери, куда ставится центр и какая шкала читается.",
+        ],
+        en: [
+          "The stairway plan needs an angle of seventy degrees.",
+          "Choose where the centre goes and which scale is read.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Ikkala shart bajarilsa, burchak aniq chiqadi.", ru: "Верно. Когда оба условия выполнены, угол выходит точным.", en: "Right. When both conditions hold the angle comes out exact." },
+      on_wrong: { uz: "Markaz uchda, nol esa birinchi tomonda bo'lishi kerak.", ru: "Центр должен быть в вершине, а ноль на первой стороне.", en: "The centre must be on the vertex and the zero on the first side." },
+    },
+  },
+
+  s5: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Ikkita shkala", ru: "Две шкалы", en: "Two scales" },
+    lead: { uz: "Shkalani almashtirib ko'ring", ru: "Переключай шкалу", en: "Switch the scale" },
+    source: { uz: "Transportir stoli", ru: "Стол транспортира", en: "Protractor desk" },
+    degree: 60,
+    inner: { uz: "ichki shkala", ru: "внутренняя шкала", en: "inner scale" },
+    outer: { uz: "tashqi shkala", ru: "внешняя шкала", en: "outer scale" },
+    innerRead: { uz: "60°", ru: "60°", en: "60°" },
+    outerRead: { uz: "120°", ru: "120°", en: "120°" },
+    switchLabel: { uz: "Shkalani almashtirish", ru: "Переключить шкалу", en: "Switch the scale" },
+    doneLabel: { uz: "Nol qaysi tomonda, shkala ham o'sha", ru: "С какой стороны ноль, та шкала и нужна", en: "The scale is the one whose zero is on the side" },
+    doneValue: { uz: "to'g'ri o'qish: 60°", ru: "верное чтение: 60°", en: "correct reading: 60°" },
+    audio: {
+      intro: {
+        uz: [
+          "Transportirda ikkita shkala bor va ular qarama-qarshi yo'nalishda boradi.",
+          "Bitta chiziq bir shkalada oltmish, ikkinchisida bir yuz yigirma deb o'qiladi.",
+          "To'g'risini tanlash oson. Asos tomonida nol turgan shkalani o'qiymiz.",
+        ],
+        ru: [
+          "На транспортире две шкалы и они идут навстречу друг другу.",
+          "Одна и та же линия на одной шкале читается как шестьдесят, а на другой как сто двадцать.",
+          "Выбрать верную просто. Читаем ту шкалу, у которой ноль стоит на базовой стороне.",
+        ],
+        en: [
+          "A protractor has two scales and they run towards each other.",
+          "The same line reads as sixty on one scale and as one hundred twenty on the other.",
+          "Choosing the right one is easy. We read the scale whose zero sits on the base side.",
+        ],
+      },
+    },
+  },
+
+  s6: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Qaysi shkala", ru: "Какая шкала", en: "Which scale" },
+    task: { uz: "asos chizig'i o'ngga qaragan", ru: "базовая линия смотрит вправо", en: "the base line points to the right" },
+    taskNote: { uz: "O'qish qoidasi", ru: "Правило чтения", en: "Reading rule" },
+    question: { uz: "Qaysi shkaladan o'qiymiz?", ru: "С какой шкалы читаем?", en: "Which scale do we read?" },
+    correctIndex: 0,
+    options: [
+      { uz: "Noli o'ng tomonda turgan shkaladan", ru: "С той, у которой ноль справа", en: "The one whose zero is on the right" },
+      { uz: "Har doim tashqi shkaladan", ru: "Всегда с внешней шкалы", en: "Always the outer scale" },
+      { uz: "Har doim ichki shkaladan", ru: "Всегда с внутренней шкалы", en: "Always the inner scale" },
+      { uz: "Katta sonli shkaladan", ru: "С той, где число больше", en: "The one with the bigger number" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. Nol qaysi tomonda bo'lsa, hisob ham o'shandan boshlanadi.", ru: "Верно. С какой стороны ноль, оттуда и начинается отсчёт.", en: "Right. The count starts from the side where the zero sits." },
+      { uz: "Tashqi shkala har doim to'g'ri emas. Bu asos tomonga bog'liq.", ru: "Внешняя шкала верна не всегда. Это зависит от базовой стороны.", en: "The outer scale is not always right. It depends on the base side." },
+      { uz: "Ichki shkala ham har doim to'g'ri emas. Nolga qarang.", ru: "Внутренняя тоже не всегда верна. Смотри на ноль.", en: "The inner one is not always right either. Look at the zero." },
+      { uz: "Katta son to'g'ri javob degani emas. Bu tuzoq.", ru: "Большее число не значит верное. Это ловушка.", en: "A bigger number does not mean it is right. That is the trap." },
+    ],
+    proof: { uz: "nol → asos tomonda → o'sha shkala", ru: "ноль → на базовой стороне → эта шкала", en: "zero → on the base side → that scale" },
+    audio: {
+      intro: {
+        uz: [
+          "Asos chizig'i o'ng tomonga qaragan.",
+          "Ikkita shkaladan qaysi biri kerakligini tanlang.",
+        ],
+        ru: [
+          "Базовая линия смотрит вправо.",
+          "Выбери, какая из двух шкал нужна.",
+        ],
+        en: [
+          "The base line points to the right.",
+          "Choose which of the two scales is needed.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Hisob noldan boshlanadi.", ru: "Верно. Отсчёт начинается с нуля.", en: "Right. The count starts from the zero." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Shkala nomiga emas, nol qayerdaligiga qarang.", ru: "Смотри не на название шкалы, а на то, где ноль.", en: "Look not at the name of the scale but at where the zero is." },
+        { uz: "Shkala nomiga emas, nol qayerdaligiga qarang.", ru: "Смотри не на название шкалы, а на то, где ноль.", en: "Look not at the name of the scale but at where the zero is." },
+        { uz: "Sonning kattaligi qoida emas. Nol qayerda turibdi?", ru: "Величина числа не правило. Где стоит ноль?", en: "The size of the number is not a rule. Where does the zero sit?" },
+      ],
+    },
+  },
+
+  s7: {
+    eyebrow: { uz: "Xatoni topish", ru: "Разбор ошибки", en: "Spot the error" },
+    title: { uz: "Bitning yasashi", ru: "Построение Бита", en: "Bit's construction" },
+    lead: { uz: "Xato boshlangan qatorni bosing", ru: "Нажми на строку, где началась ошибка", en: "Tap the row where the error starts" },
+    source: { uz: "Pandus chizmasi", ru: "Чертёж пандуса", en: "Ramp drawing" },
+    answerIndex: 2,
+    rows: [
+      { uz: "Markaz burchak uchiga qo'yildi", ru: "Центр поставлен в вершину угла", en: "The centre is placed on the vertex" },
+      { uz: "Asos chizig'i chap tomonga moslandi", ru: "Базовая линия совмещена с левой стороной", en: "The base line is lined up with the left side" },
+      { uz: "Noli o'ngda turgan shkaladan o'qildi", ru: "Прочитано со шкалы, у которой ноль справа", en: "It was read from the scale whose zero is on the right" },
+      { uz: "Javob: 120°", ru: "Ответ: 120°", en: "Answer: 120°" },
+    ],
+    rowFeedback: [
+      { uz: "Bu qator to'g'ri. Markaz joyida.", ru: "Эта строка верная. Центр на месте.", en: "This row is correct. The centre is in place." },
+      { uz: "Bu ham to'g'ri. Asos chizig'i tomonga moslangan.", ru: "И это верно. Базовая линия совмещена со стороной.", en: "This is correct too. The base line is lined up with the side." },
+      { uz: "Aynan shu yerda. Asos chapda edi, demak noli chapda turgan shkala kerak.", ru: "Именно здесь. Основание было слева, значит нужна шкала с нулём слева.", en: "Exactly here. The base was on the left, so the scale with zero on the left is needed." },
+      { uz: "Bu javob, ya'ni xatoning natijasi. Xato yuqoriroqda boshlangan.", ru: "Это ответ, то есть последствие ошибки. Ошибка началась выше.", en: "This is the answer, the consequence of the error. The error started higher up." },
+    ],
+    fixLabel: { uz: "To'g'ri yo'l", ru: "Верный путь", en: "The correct way" },
+    fix: { uz: "asos chapda → noli chapda → 60°", ru: "основание слева → ноль слева → 60°", en: "base on the left → zero on the left → 60°" },
+    audio: {
+      intro: {
+        uz: [
+          "Bit pandusni qayta yasadi. Qadamlari to'g'ri boshlandi, javob esa yana xato.",
+          "Qaysi qatorda xato boshlanganini toping va bosing.",
+        ],
+        ru: [
+          "Бит построил пандус заново. Шаги начались верно, а ответ снова неверный.",
+          "Найди строку, где началась ошибка, и нажми на неё.",
+        ],
+        en: [
+          "Bit built the ramp again. The steps started correctly but the answer is wrong again.",
+          "Find the row where the error starts and tap it.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Shkala asos tomondagi nolga qarab tanlanadi.", ru: "Верно. Шкала выбирается по нулю на базовой стороне.", en: "Right. The scale is chosen by the zero on the base side." },
+      on_wrong: { uz: "Har bir qatorni ketma-ket o'qing. Birinchi buzilgan qadamni qidiring.", ru: "Читай строки по порядку. Ищи первый сломанный шаг.", en: "Read the rows in order. Look for the first broken step." },
+    },
+  },
+
+  s8: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Avval tur, keyin son", ru: "Сначала вид, потом число", en: "First the type, then the number" },
+    lead: { uz: "Burchak qaysi zonada ekanini tanlang", ru: "Выбери, в какой зоне находится угол", en: "Choose the zone the angle falls into" },
+    task: { uz: "Chizmadagi burchak", ru: "Угол на чертеже", en: "The angle on the drawing" },
+    figDegree: 125,
+    bands: [
+      { uz: "o'tkir, 90° dan kichik", ru: "острый, меньше 90°", en: "acute, smaller than 90°" },
+      { uz: "o'tmas, 90° dan katta", ru: "тупой, больше 90°", en: "obtuse, bigger than 90°" },
+      { uz: "yoyiq, roppa-rosa 180°", ru: "развёрнутый, ровно 180°", en: "straight, exactly 180°" },
+    ],
+    answerIndex: 1,
+    bandFeedback: [
+      { uz: "Yo'q. Burchak to'g'ri burchakdan kengroq ochilgan.", ru: "Нет. Угол раскрыт шире прямого.", en: "No. The angle opens wider than the right angle." },
+      { uz: "Ha. Demak shkaladan 90° dan katta son o'qilishi kerak.", ru: "Да. Значит со шкалы нужно прочитать число больше 90°.", en: "Yes. So the number read from the scale must be bigger than 90°." },
+      { uz: "Yo'q. Tomonlar hali bitta chiziqqa yetmagan.", ru: "Нет. Стороны ещё не вышли на одну линию.", en: "No. The sides have not reached one line yet." },
+    ],
+    exact: { uz: "125°", ru: "125°", en: "125°" },
+    exactLabel: { uz: "Tur o'qishni tekshiradi", ru: "Вид проверяет чтение", en: "The type checks the reading" },
+    audio: {
+      intro: {
+        uz: [
+          "Shkalani o'qishdan oldin burchak turini aniqlaymiz. Bu ikki shkaladan to'g'risini tanlashga yordam beradi.",
+          "Burchak to'g'ri burchak bilan solishtiring va zonani tanlang.",
+          "O'tmas burchak uchun javob to'qsondan katta bo'lishi kerak. O'qish bir yuz yigirma besh gradus berdi.",
+        ],
+        ru: [
+          "Перед чтением шкалы определяем вид угла. Это помогает выбрать верную из двух шкал.",
+          "Сравни угол с прямым и выбери зону.",
+          "Для тупого угла ответ должен быть больше девяноста. Чтение дало сто двадцать пять градусов.",
+        ],
+        en: [
+          "Before reading the scale we decide the type of the angle. That helps to pick the right one of the two scales.",
+          "Compare the angle with the right angle and choose the zone.",
+          "For an obtuse angle the answer must be bigger than ninety. The reading gave one hundred twenty five degrees.",
+        ],
+      },
+    },
+  },
+
+  s9: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "To'g'ri o'qish", ru: "Верное чтение", en: "The correct reading" },
+    task: { uz: "o'tmas burchak, ikki shkala", ru: "тупой угол, две шкалы", en: "an obtuse angle, two scales" },
+    taskNote: { uz: "tur: o'tmas", ru: "вид: тупой", en: "type: obtuse" },
+    figDegree: 125,
+    question: { uz: "Shkaladan qaysi son o'qiladi?", ru: "Какое число читается со шкалы?", en: "Which number is read from the scale?" },
+    correctIndex: 0,
+    options: [
+      { uz: "125°", ru: "125°", en: "125°" },
+      { uz: "55°", ru: "55°", en: "55°" },
+      { uz: "145°", ru: "145°", en: "145°" },
+      { uz: "90°", ru: "90°", en: "90°" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. O'tmas burchak uchun son 90° dan katta bo'lishi kerak.", ru: "Верно. Для тупого угла число должно быть больше 90°.", en: "Right. For an obtuse angle the number must be bigger than 90°." },
+      { uz: "Bu ikkinchi shkalaning soni. U o'tkir burchakka to'g'ri kelardi.", ru: "Это число второй шкалы. Оно подошло бы острому углу.", en: "That is the number of the other scale. It would suit an acute angle." },
+      { uz: "Bu boshqa chiziqning soni. Belgiga diqqat bilan qarang.", ru: "Это число другой линии. Посмотри на метку внимательнее.", en: "That is the number of another line. Look at the mark more carefully." },
+      { uz: "Bu to'g'ri burchak. Chizmadagi burchak undan kengroq.", ru: "Это прямой угол. Угол на чертеже шире него.", en: "That is the right angle. The angle on the drawing is wider." },
+    ],
+    proof: { uz: "o'tmas → 90° dan katta → 125°", ru: "тупой → больше 90° → 125°", en: "obtuse → bigger than 90° → 125°" },
+    audio: {
+      intro: {
+        uz: [
+          "Tur aniqlandi, endi shkalani o'qiymiz.",
+          "Ikki sondan qaysi biri o'tmas burchakka to'g'ri keladi.",
+        ],
+        ru: [
+          "Вид определён, теперь читаем шкалу.",
+          "Какое из двух чисел подходит тупому углу.",
+        ],
+        en: [
+          "The type is decided, now we read the scale.",
+          "Which of the two numbers suits an obtuse angle.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Tur o'qishni tekshirib berdi.", ru: "Верно. Вид проверил чтение.", en: "Right. The type checked the reading." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Bu son to'g'ri burchakdan kichik. Burchak esa kengroq.", ru: "Это число меньше прямого угла. А угол шире.", en: "That number is smaller than the right angle. The angle is wider." },
+        { uz: "Belgi boshqa chiziqda turibdi. Qaytadan qarang.", ru: "Метка стоит на другой линии. Посмотри ещё раз.", en: "The mark sits on another line. Look again." },
+        { uz: "To'g'ri burchak chegara edi. Burchak undan oshgan.", ru: "Прямой угол был границей. Угол её перешёл.", en: "The right angle was the border. The angle went past it." },
+      ],
+    },
+  },
+
+  s10: {
+    eyebrow: { uz: "Qoida", ru: "Правило", en: "Rule" },
+    title: { uz: "Yasash qoidasi", ru: "Правило построения", en: "The construction rule" },
+    lead: { uz: "Qadamlarni tartib bilan bosing", ru: "Нажимай шаги по порядку", en: "Tap the steps in order" },
+    parts: [
+      { uz: "Markazni burchak uchiga qo'yamiz", ru: "Ставим центр в вершину угла", en: "Put the centre on the vertex" },
+      { uz: "Asos chizig'ini birinchi tomonga moslaymiz", ru: "Совмещаем базовую линию с первой стороной", en: "Line the base up with the first side" },
+      { uz: "Noli o'sha tomonda turgan shkalani o'qiymiz", ru: "Читаем шкалу, у которой ноль на этой стороне", en: "Read the scale whose zero is on that side" },
+      { uz: "Burchak turi bilan javobni tekshiramiz", ru: "Проверяем ответ по виду угла", en: "Check the answer against the type of the angle" },
+    ],
+    slotLabel: { uz: "Qoida", ru: "Правило", en: "Rule" },
+    bankLabel: { uz: "Qadamlar", ru: "Шаги", en: "Steps" },
+    resetLabel: { uz: "Qayta tuzish", ru: "Собрать заново", en: "Start again" },
+    memo: { uz: "markaz → asos → nol → tekshiruv", ru: "центр → основание → ноль → проверка", en: "centre → base → zero → check" },
+    okText: { uz: "Qoida yig'ildi", ru: "Правило собрано", en: "The rule is assembled" },
+    wrongText: { uz: "Tartib buzildi. Avval markaz, keyin asos chizig'i.", ru: "Порядок нарушен. Сначала центр, потом базовая линия.", en: "The order is broken. First the centre, then the base line." },
+    audio: {
+      intro: {
+        uz: [
+          "Bugungi usulni bitta qoidaga yig'amiz.",
+          "To'rtta qadam bor va ularning tartibi muhim. Qadamlarni ketma-ket bosing.",
+          "Oxirgi qadam tekshiruv. U ikki shkala tuzog'idan saqlaydi.",
+        ],
+        ru: [
+          "Соберём сегодняшний способ в одно правило.",
+          "Шагов четыре и их порядок важен. Нажимай шаги по очереди.",
+          "Последний шаг это проверка. Она спасает от ловушки двух шкал.",
+        ],
+        en: [
+          "Let us gather today's method into one rule.",
+          "There are four steps and their order matters. Tap the steps one after another.",
+          "The last step is the check. It saves you from the trap of the two scales.",
+        ],
+      },
+    },
+  },
+
+  s11: {
+    eyebrow: { uz: "Tekshiruv", ru: "Проверка", en: "Check" },
+    title: { uz: "Uchta tez o'qish", ru: "Три быстрых чтения", en: "Three quick readings" },
+    source: { uz: "Byuro jurnali", ru: "Журнал бюро", en: "Bureau log" },
+    rounds: [
+      {
+        prompt: { uz: "O'tkir burchak, shkalada 30 va 150 turibdi", ru: "Острый угол, на шкале стоят 30 и 150", en: "An acute angle, the scale shows 30 and 150" },
+        tiles: [
+          { uz: "30°", ru: "30°", en: "30°" },
+          { uz: "150°", ru: "150°", en: "150°" },
+          { uz: "180°", ru: "180°", en: "180°" },
+        ],
+        answer: 0,
+        ok: { uz: "O'tkir burchak 90° dan kichik.", ru: "Острый угол меньше 90°.", en: "An acute angle is smaller than 90°." },
+        no: { uz: "Turga qarang: o'tkir burchak tor bo'ladi.", ru: "Посмотри на вид: острый угол узкий.", en: "Look at the type: an acute angle is narrow." },
+      },
+      {
+        prompt: { uz: "To'g'ri burchak, shkalada 90 turibdi", ru: "Прямой угол, на шкале стоит 90", en: "A right angle, the scale shows 90" },
+        tiles: [
+          { uz: "45°", ru: "45°", en: "45°" },
+          { uz: "90°", ru: "90°", en: "90°" },
+          { uz: "135°", ru: "135°", en: "135°" },
+        ],
+        answer: 1,
+        ok: { uz: "To'g'ri burchakda ikkala shkala ham bir xil son beradi.", ru: "У прямого угла обе шкалы дают одно и то же число.", en: "For a right angle both scales give the same number." },
+        no: { uz: "To'g'ri burchak shkalaning o'rtasida turadi.", ru: "Прямой угол стоит посередине шкалы.", en: "The right angle sits in the middle of the scale." },
+      },
+      {
+        prompt: { uz: "O'tmas burchak, shkalada 40 va 140 turibdi", ru: "Тупой угол, на шкале стоят 40 и 140", en: "An obtuse angle, the scale shows 40 and 140" },
+        tiles: [
+          { uz: "40°", ru: "40°", en: "40°" },
+          { uz: "90°", ru: "90°", en: "90°" },
+          { uz: "140°", ru: "140°", en: "140°" },
+        ],
+        answer: 2,
+        ok: { uz: "O'tmas burchak 90° dan katta.", ru: "Тупой угол больше 90°.", en: "An obtuse angle is bigger than 90°." },
+        no: { uz: "Turga qarang: o'tmas burchak keng ochilgan.", ru: "Посмотри на вид: тупой угол раскрыт широко.", en: "Look at the type: an obtuse angle opens wide." },
+      },
+    ],
+    counter: { uz: "savol", ru: "вопрос", en: "question" },
+    doneText: { uz: "Uch o'qish ham to'g'ri", ru: "Все три чтения верны", en: "All three readings are correct" },
+    audio: {
+      intro: {
+        uz: [
+          "Byuro jurnalida uchta o'qish qoldi.",
+          "Har birida turga qarab to'g'ri sonni tanlang.",
+        ],
+        ru: [
+          "В журнале бюро осталось три чтения.",
+          "В каждом выбери верное число по виду угла.",
+        ],
+        en: [
+          "Three readings are left in the bureau log.",
+          "In each one choose the right number by the type of the angle.",
+        ],
+      },
+    },
+  },
+
+  s12: {
+    eyebrow: { uz: "Strategiya", ru: "Стратегия", en: "Strategy" },
+    title: { uz: "Qaysi tekshiruv qulayroq", ru: "Какая проверка удобнее", en: "Which check is more convenient" },
+    lead: { uz: "Yasalgan burchakni tekshirish kerak", ru: "Построенный угол нужно проверить", en: "The built angle has to be checked" },
+    source: { uz: "Byuro amaliyoti", ru: "Практика бюро", en: "Bureau practice" },
+    routes: [
+      {
+        name: { uz: "Tur bo'yicha tekshirish", ru: "Проверка по виду", en: "Checking by the type" },
+        lines: [
+          { uz: "burchak o'tkirmi yoki o'tmasmi", ru: "угол острый или тупой", en: "is the angle acute or obtuse" },
+          { uz: "son 90° ning qaysi tomonida", ru: "число по какую сторону от 90°", en: "which side of 90° the number is on" },
+          { uz: "bir qarashda ko'rinadi", ru: "видно с одного взгляда", en: "it is seen at a glance" },
+        ],
+      },
+      {
+        name: { uz: "Qayta o'lchash", ru: "Повторное измерение", en: "Measuring again" },
+        lines: [
+          { uz: "transportirni qaytadan qo'yamiz", ru: "снова прикладываем транспортир", en: "we place the protractor again" },
+          { uz: "shkalani yana o'qiymiz", ru: "снова читаем шкалу", en: "we read the scale again" },
+          { uz: "xuddi shu xato takrorlanishi mumkin", ru: "та же ошибка может повториться", en: "the same mistake can repeat" },
+        ],
+      },
+    ],
+    answerIndex: 0,
+    routeFeedback: [
+      { uz: "Ha. Tur bo'yicha tekshiruv boshqa yo'l bilan boradi, shuning uchun xatoni ushlaydi.", ru: "Да. Проверка по виду идёт другим путём, поэтому ловит ошибку.", en: "Yes. Checking by the type goes another way, so it catches the mistake." },
+      { uz: "Bu ham tekshiruv, lekin bir xil yo'l takrorlanadi va xato ham takrorlanishi mumkin.", ru: "Это тоже проверка, но путь повторяется и ошибка может повториться вместе с ним.", en: "This is a check too, but the same path repeats and the mistake can repeat with it." },
+    ],
+    note: { uz: "Yaxshi tekshiruv boshqa yo'l bilan boradi", ru: "Хорошая проверка идёт другим путём", en: "A good check goes by a different route" },
+    audio: {
+      intro: {
+        uz: [
+          "Yasalgan burchakni ikki yo'l bilan tekshirish mumkin.",
+          "Chapda turga qarab tekshiramiz. O'ngda transportir bilan qayta o'lchaymiz.",
+          "Qaysi biri xatoni ishonchliroq ushlaydi. Kartani bosing.",
+        ],
+        ru: [
+          "Построенный угол можно проверить двумя способами.",
+          "Слева проверяем по виду. Справа измеряем транспортиром заново.",
+          "Какой способ надёжнее ловит ошибку. Нажми на карточку.",
+        ],
+        en: [
+          "The built angle can be checked in two ways.",
+          "On the left we check by the type. On the right we measure again with the protractor.",
+          "Which one catches the mistake more reliably. Tap a card.",
+        ],
+      },
+    },
+  },
+
+  s13: {
+    eyebrow: { uz: "Hayotiy vazifa", ru: "Задача из жизни", en: "Real-life task" },
+    title: { uz: "Tom burchagi", ru: "Угол крыши", en: "The roof angle" },
+    task: { uz: "kerak: 135° · asos chizig'i chapda", ru: "нужно: 135° · базовая линия слева", en: "needed: 135° · base line on the left" },
+    taskNote: { uz: "Tom loyihasi", ru: "Проект крыши", en: "Roof plan" },
+    figDegree: 135,
+    question: { uz: "Qaysi belgini tanlaymiz?", ru: "Какую метку выбираем?", en: "Which mark do we choose?" },
+    correctIndex: 0,
+    options: [
+      { uz: "Noli chapda turgan shkalada 135", ru: "135 на шкале с нулём слева", en: "135 on the scale with zero on the left" },
+      { uz: "Noli o'ngda turgan shkalada 135", ru: "135 на шкале с нулём справа", en: "135 on the scale with zero on the right" },
+      { uz: "Istalgan shkalada 45", ru: "45 на любой шкале", en: "45 on either scale" },
+      { uz: "Ikkala shkalada ham 135", ru: "135 на обеих шкалах", en: "135 on both scales" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. Asos chapda, demak hisob chapdagi noldan boshlanadi.", ru: "Верно. Основание слева, значит отсчёт начинается с нуля слева.", en: "Right. The base is on the left, so the count starts from the zero on the left." },
+      { uz: "Nol boshqa tomonda. Bunda 45° chiqib qoladi.", ru: "Ноль с другой стороны. Так выйдет 45°.", en: "The zero is on the other side. That would give 45°." },
+      { uz: "45° o'tkir burchak. Tom uchun esa o'tmas kerak.", ru: "45° это острый угол. А для крыши нужен тупой.", en: "45° is an acute angle. The roof needs an obtuse one." },
+      { uz: "Ikkala shkalada bir xil son faqat 90° da bo'ladi.", ru: "Одинаковое число на обеих шкалах бывает только у 90°.", en: "The same number on both scales happens only at 90°." },
+    ],
+    proof: { uz: "asos chapda → nol chapda → 135°", ru: "основание слева → ноль слева → 135°", en: "base on the left → zero on the left → 135°" },
+    audio: {
+      intro: {
+        uz: [
+          "Tom loyihasi uchun bir yuz o'ttiz besh gradusli burchak kerak. Asos chizig'i chap tomonda.",
+          "Qaysi shkaladagi belgini tanlashni ayting.",
+        ],
+        ru: [
+          "Для проекта крыши нужен угол в сто тридцать пять градусов. Базовая линия слева.",
+          "Скажи, метку на какой шкале выбрать.",
+        ],
+        en: [
+          "The roof plan needs an angle of one hundred thirty five degrees. The base line is on the left.",
+          "Say which scale the mark should be taken from.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Tom burchagi o'tmas, javob ham to'qsondan katta.", ru: "Верно. Угол крыши тупой, и ответ больше девяноста.", en: "Right. The roof angle is obtuse and the answer is bigger than ninety." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Nol asos tomonda turishi kerak. Asos qayerda edi?", ru: "Ноль должен стоять на базовой стороне. Где было основание?", en: "The zero must sit on the base side. Where was the base?" },
+        { uz: "Turga qarang. Tom burchagi keng ochilgan.", ru: "Посмотри на вид. Угол крыши раскрыт широко.", en: "Look at the type. The roof angle opens wide." },
+        { uz: "Ikki shkala bir xil sonni faqat o'rtada beradi.", ru: "Две шкалы дают одинаковое число только посередине.", en: "The two scales give the same number only in the middle." },
+      ],
+    },
+  },
+
+  s14: {
+    eyebrow: { uz: "Yangi holat", ru: "Новый случай", en: "New case" },
+    title: { uz: "Keyingi qadam", ru: "Следующий шаг", en: "The next step" },
+    task: { uz: "markaz uchga qo'yildi", ru: "центр поставлен в вершину", en: "the centre is placed on the vertex" },
+    taskNote: { uz: "Yasash boshlandi", ru: "Построение начато", en: "The construction has started" },
+    figDegree: 60,
+    question: { uz: "Endi nima qilamiz?", ru: "Что делаем дальше?", en: "What do we do next?" },
+    correctIndex: 0,
+    options: [
+      { uz: "Asos chizig'ini birinchi tomonga moslaymiz", ru: "Совмещаем базовую линию с первой стороной", en: "Line the base up with the first side" },
+      { uz: "Darrov gradusni belgilaymiz", ru: "Сразу отмечаем градус", en: "Mark the degree straight away" },
+      { uz: "Ikkinchi tomonni chizamiz", ru: "Чертим вторую сторону", en: "Draw the second side" },
+      { uz: "Transportirni olib qo'yamiz", ru: "Убираем транспортир", en: "Take the protractor away" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. Asos moslanmasa, nol tomonda turmaydi va o'qish xato bo'ladi.", ru: "Верно. Если основание не совмещено, ноль не встанет на сторону и чтение будет неверным.", en: "Right. If the base is not lined up the zero will not sit on the side and the reading will be wrong." },
+      { uz: "Erta. Avval nol birinchi tomonda turishi kerak.", ru: "Рано. Сначала ноль должен встать на первую сторону.", en: "Too early. First the zero must sit on the first side." },
+      { uz: "Bu oxirgi qadam. Undan oldin belgi qo'yiladi.", ru: "Это последний шаг. До него ставят метку.", en: "That is the last step. Before it the mark is placed." },
+      { uz: "Transportir hali kerak. Belgi qo'yilmagan.", ru: "Транспортир ещё нужен. Метка не поставлена.", en: "The protractor is still needed. The mark has not been placed." },
+    ],
+    proof: { uz: "markaz → asos → belgi → chiziq", ru: "центр → основание → метка → линия", en: "centre → base → mark → line" },
+    audio: {
+      intro: {
+        uz: [
+          "Yasash boshlandi: markaz burchak uchida turibdi.",
+          "Qoidaga ko'ra keyingi qadam qaysi biri ekanini tanlang.",
+        ],
+        ru: [
+          "Построение начато: центр стоит в вершине угла.",
+          "Выбери, какой шаг идёт следующим по правилу.",
+        ],
+        en: [
+          "The construction has started: the centre sits on the vertex.",
+          "Choose which step comes next according to the rule.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Tartib buzilmasa, burchak aniq chiqadi.", ru: "Верно. Если порядок не нарушен, угол выходит точным.", en: "Right. If the order is kept the angle comes out exact." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Belgidan oldin asos moslanadi. Qoidani eslang.", ru: "Перед меткой совмещают основание. Вспомни правило.", en: "Before the mark the base is lined up. Remember the rule." },
+        { uz: "Chiziq eng oxirida o'tkaziladi.", ru: "Линию проводят в самом конце.", en: "The line is drawn at the very end." },
+        { uz: "Asbob hali ishlatiladi. Ish tugamagan.", ru: "Прибор ещё в работе. Дело не закончено.", en: "The tool is still in use. The job is not finished." },
+      ],
+    },
+  },
+
+  s15: {
+    eyebrow: { uz: "Yakun", ru: "Итог", en: "Summary" },
+    title: { uz: "Pandus tasdiqlandi", ru: "Пандус утверждён", en: "The ramp is approved" },
+    rewardTitle: { uz: "Transportir ustasi", ru: "Мастер транспортира", en: "Protractor master" },
+    lead: {
+      uz: "Bugungi usul bitta xaritaga yig'ildi.",
+      ru: "Сегодняшний способ собрался в одну карту.",
+      en: "Today's method now fits on one map.",
+    },
+    frames: [
+      { uz: "Markaz burchak uchida, asos chizig'i tomonda", ru: "Центр в вершине, базовая линия на стороне", en: "The centre on the vertex, the base line on the side" },
+      { uz: "Noli asos tomonda turgan shkala o'qiladi", ru: "Читают шкалу, у которой ноль на базовой стороне", en: "Read the scale whose zero is on the base side" },
+      { uz: "Javobni burchak turi bilan tekshiramiz", ru: "Проверяем ответ по виду угла", en: "Check the answer against the type of the angle" },
+      { uz: "Bit markazni uchga qo'ymagan edi", ru: "Бит не поставил центр в вершину", en: "Bit had not put the centre on the vertex" },
+      { uz: "Keyingi missiya: uchburchak turlari", ru: "Следующая миссия: виды треугольников", en: "Next mission: types of triangles" },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Pandus tasdiqlandi. Bugun burchakni transportir bilan yasashni o'rgandingiz.",
+          "Markaz burchak uchida, asos chizig'i esa birinchi tomonda turadi.",
+          "Shkala noli qaysi tomonda bo'lsa, o'sha shkaladan o'qiladi.",
+          "Javob burchak turi bilan tekshiriladi. Bitning xatosi ham shundan topildi.",
+          "Keyingi missiyada uchburchaklar kutmoqda. Ularni qanday ajratamiz.",
+        ],
+        ru: [
+          "Пандус утверждён. Сегодня главной темой было построение угла транспортиром.",
+          "Центр стоит в вершине угла, а базовая линия на первой стороне.",
+          "Читают ту шкалу, у которой ноль стоит на базовой стороне.",
+          "Ответ проверяют по виду угла. Так и нашлась ошибка Бита.",
+          "В следующей миссии ждут треугольники. Как их различают.",
+        ],
+        en: [
+          "The ramp is approved. Today you learned to construct an angle with a protractor.",
+          "The centre sits on the vertex and the base line lies along the first side.",
+          "The scale that is read is the one whose zero sits on the base side.",
+          "The answer is checked against the type of the angle. That is how Bit's mistake was found.",
+          "The next mission holds triangles. How are they told apart.",
+        ],
+      },
+    },
+  },
 };
 
 let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
@@ -1463,8 +984,8 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
-const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canAdvance && canFinish && isAudioReady(audio); const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly)); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div><div className="caption-slot" aria-live="polite">{showCaption ? <div className="caption">{audio.caption}</div> : <span aria-hidden="true"/>}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
+const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), model: bi('Model', 'Модель', 'Model'), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
+const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canUseGrade4TheoryContinue(canAdvance && canFinish && isAudioReady(audio), finish); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
 const Heading = ({ c, state = 'present', showBit = false, hook = false }) => { const t = useT(); return <div className={'heading ' + (showBit && !hook ? '' : 'heading-solo')}><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{showBit && !hook && <BitSVG state={state}/>}</div>; };
 
 const G4TitleReveal = ({ active, title, onComplete }) => {
@@ -1477,69 +998,1442 @@ const G4TitleCard = ({ title, answers = [] }) => {
   const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
   return <aside className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
 };
-function MeasureScene({ scene, frame, p }) {
-  if (scene === 'measure-time') { const angle = -90 + p * 240; const rad = angle * Math.PI / 180; return <svg viewBox="0 0 300 170"><circle className="tv-soft" cx="150" cy="82" r="58"/><circle className="tv-outline" cx="150" cy="82" r="58"/><path className="tv-ray" d="M150 82V43"/><path className="tv-ray tv-accent" d={`M150 82L${150 + 43 * Math.cos(rad)} ${82 + 43 * Math.sin(rad)}`}/><circle className="tv-pulse" cx="150" cy="82" r="7"/><path className="tv-carry" d={frame > 1 ? 'M205 47c20 10 23 31 6 44' : 'M205 47c8 4 12 10 13 16'}/></svg>; }
-  if (scene === 'measure-sub') return <svg viewBox="0 0 300 170"><path className="tv-grid" d="M35 132H265"/><rect className="tv-mass" x="48" y={50 + 38 * p} width="204" height={72 - 38 * p} rx="8"/><path className="tv-path" d="M42 132H258"/><circle className="tv-pulse" cx={245 - 140 * p} cy="132" r="8"/></svg>;
-  if (scene === 'measure-repeat') { const active = Math.ceil(4 * p); return <svg viewBox="0 0 300 170">{Array.from({length:4},(_,i)=><g key={i} style={{opacity:i<active?1:.18,transform:`translateY(${i<active?0:8}px)`}}><rect className="tv-soft" x={28+i*66} y="58" width="53" height="36" rx="10"/><path className="tv-path" d={`M34 ${76+i%2}H${74+i*66}`}/></g>)}<path className="tv-grid" d="M28 123H272"/></svg>; }
-  if (['measure-map','measure-rule','measure-final'].includes(scene)) { const total = scene === 'measure-final' ? 5 : 4; const active = Math.ceil(total * p); return <svg viewBox="0 0 300 170">{Array.from({length:total},(_,i)=><g key={i} style={{opacity:i<active?1:.16}}><rect className={i===active-1?'tv-card active':'tv-card'} x={18+i*(264/total)} y={48+(i%2)*12} width={44} height="58" rx="9"/><path className="tv-grid" d={`M${27+i*(264/total)} ${68+(i%2)*12}h26 M${27+i*(264/total)} ${81+(i%2)*12}h20`}/></g>)}<path className="tv-arrow" d="M32 132H268"/></svg>; }
-  if (['measure-standard','measure-bit'].includes(scene)) return <svg viewBox="0 0 300 170"><rect className="tv-mass" x="43" y="72" width={95 + 55*p} height="48" rx="12"/><rect className="tv-soft" x="172" y="72" width={80 - 34*p} height="48" rx="12"/><path className="tv-carry" d={frame>0?'M185 53c-18-17-48-17-66 0':'M185 53h-24'}/><circle className="tv-pulse" cx={frame>0?119:185} cy="53" r="8"/></svg>;
-  const joined = frame >= 2 || scene === 'measure-payoff'; const leftEnd=92+56*p; const rightStart=204-56*p; return <svg viewBox="0 0 300 170"><path className="tv-grid" d="M28 128H272 M48 118V138 M98 118V138 M148 118V138 M198 118V138 M248 118V138"/><path className="tv-cable a" d={joined?'M34 72H148':`M34 58H${leftEnd}`}/><path className="tv-cable b" d={joined?'M148 72H264':`M${rightStart} 88H264`}/><circle className="tv-pulse" cx={joined?148:(leftEnd+rightStart)/2} cy={joined?72:74} r="9"/><path className="tv-carry" d={frame>2?'M174 42c18 4 31 16 34 31':frame>0?'M174 42c10 2 19 7 24 15':'M174 42h24'}/></svg>;
-}
-function VolumeScene({ scene, frame, p }) {
-  if (scene === 'volume-litre') return <svg viewBox="0 0 300 175"><path className="tv-container" d="M82 35h136l-12 116H94z"/><rect className="tv-water" x="96" y={143-92*p} width="108" height={92*p} rx="5"/><path className="tv-grid" d="M96 88H204 M150 42V145"/></svg>;
-  if (scene === 'volume-dimensions') return <svg viewBox="0 0 300 175"><path className="tv-line" d="M42 120H252"/><rect className="tv-area" x="82" y="58" width="132" height="74" style={{opacity:frame>0?1:.12}}/><path className="tv-cube-wire" d="M105 121V55l70-28 70 36v65l-70 28z M105 55l70 37 70-29 M175 92v64" style={{opacity:frame>1?1:.12}}/>{frame>2&&<circle className="tv-pulse" cx="175" cy="92" r="9"/>}</svg>;
-  if (scene === 'volume-choice') return <svg viewBox="0 0 300 175">{[18,28,42,58].map((size,i)=><g key={size} style={{opacity:i<=frame?1:.2}}><rect className="tv-soft" x={26+i*66} y={128-size} width={size} height={size} rx="6"/><path className="tv-cube-edge" d={`M${26+i*66} ${128-size}l10-8h${size}l-10 8`}/></g>)}</svg>;
-  if (scene === 'volume-unit') return <svg viewBox="0 0 300 175"><path className="tv-cube-wire" d="M78 70l72-38 72 38v72l-72 32-72-32z M78 70l72 38 72-38 M150 108v66"/><path className="tv-accent" d={frame===0?'M78 142h72':frame===1?'M78 70l72 38':frame===2?'M150 108v66':'M78 70l72-38'}/></svg>;
-  if (scene === 'volume-bit') return <svg viewBox="0 0 300 175"><path className="tv-cube-wire" d="M70 68l72-34 72 34v70l-72 33-72-33z M70 68l72 35 72-35 M142 103v68"/><path className="tv-accent" d={frame===0?'M70 138H214':'M142 103V171'}/><circle className="tv-pulse" cx="142" cy={frame===0?138:103} r="8"/></svg>;
-  const total = scene === 'volume-dm' ? 30 : 24; const active = Math.max(1,Math.ceil(total*p)); return <div className="tv-layer-wrap">{Array.from({length:total},(_,i)=><i key={i} className={i<active?'active':''} style={{transform:`translateY(${-Math.floor(i/12)*4}px)`}}/> )}</div>;
-}
-const ANGLE_DEGREES = { 'angle-acute':35,'angle-right':90,'angle-obtuse':125,'angle-straight':180,'angle-case':110,'angle-payoff':125,'angle-equal':55,'angle-hook':55 };
-function AngleScene({ scene, frame, p }) {
-  if (['angle-scale','angle-final'].includes(scene)) return <svg viewBox="0 0 300 175"><path className="tv-scale acute" d="M30 130A120 120 0 0 1 150 10"/><path className="tv-scale obtuse" d="M150 10A120 120 0 0 1 270 130"/><circle className="tv-pulse" cx={30+240*p} cy="130" r="9"/><path className="tv-grid" d="M30 130H270 M150 10V130"/></svg>;
-  if (scene === 'angle-parts') return <svg viewBox="0 0 300 175"><path className="tv-ray" d="M145 125H260" style={{opacity:frame>0?1:.22}}/><path className="tv-ray" d="M145 125L82 43" style={{opacity:frame>1?1:.22}}/><circle className="tv-pulse" cx="145" cy="125" r={frame===0?12:7}/><path className="tv-arc" d="M185 125A40 40 0 0 0 121 93" style={{opacity:frame>2?1:.2}}/></svg>;
-  const degree = ANGLE_DEGREES[scene] || 60; const equalOpening=['angle-hook','angle-equal'].includes(scene); const shown = equalOpening?degree:degree*Math.max(.18,p); const rad=shown*Math.PI/180; const x=145+96*Math.cos(rad); const y=125-96*Math.sin(rad); if (equalOpening) { const short=48+14*p; const long=58+38*p; return <svg viewBox="0 0 300 175"><g transform="translate(-55 0)"><path className="tv-ray" d={`M145 125h${short}`}/><path className="tv-ray" d={`M145 125L${145+short*Math.cos(rad)} ${125-short*Math.sin(rad)}`}/></g><g transform="translate(80 0)"><path className="tv-ray" d={`M145 125h${long}`}/><path className="tv-ray" d={`M145 125L${145+long*Math.cos(rad)} ${125-long*Math.sin(rad)}`}/></g></svg>; } return <svg viewBox="0 0 300 175"><path className="tv-ray" d="M145 125H260"/><path className="tv-ray" d={`M145 125L${x} ${y}`}/><path className="tv-arc" d={`M185 125A40 40 0 0 0 ${145+40*Math.cos(rad)} ${125-40*Math.sin(rad)}`}/><circle className="tv-pulse" cx="145" cy="125" r="7"/></svg>;
-}
-const PROTRACTOR_DEGREES = {'protractor-hook':()=>60,'protractor-zero':(_frame,screen)=>screen===2?75:70,'protractor-start':()=>70,'protractor-mark':()=>70,'protractor-obtuse':(_frame,screen)=>screen===10?115:120,'protractor-check':()=>70,'protractor-rule':()=>60,'protractor-centre':()=>70,'protractor-order':()=>70,'protractor-error':frame=>frame>0?50:130,'protractor-case':()=>135,'protractor-final':()=>70,'protractor-parts':()=>90};
-function ProtractorScene({ scene, frame, p, screen }) { const degree=(PROTRACTOR_DEGREES[scene]||(()=>70))(frame,screen); const rad=degree*Math.PI/180; const x=145+96*Math.cos(rad); const y=125-96*Math.sin(rad); return <svg viewBox="0 0 300 175"><path className="tv-protractor" d="M45 125A100 100 0 0 1 245 125"/><path className="tv-grid" d="M45 125H245 M145 25V125"/><path className="tv-ray" d="M145 125H260"/><circle className="tv-pulse" cx="145" cy="125" r={frame===0?10:6}/>{frame>0&&<circle className="tv-mark" cx={x} cy={y} r="7"/>}{frame>1&&<path className="tv-ray" d={`M145 125L${x} ${y}`}/>}<path className="tv-arc" d={`M185 125A40 40 0 0 0 ${145+40*Math.cos(rad*p)} ${125-40*Math.sin(rad*p)}`} style={{opacity:frame>1?1:.25}}/></svg>; }
-function TriangleScene({ scene, frame, p }) { const variant=scene.includes('equal')?'equal':scene.includes('iso')||scene.includes('hook')||scene.includes('case')||scene.includes('payoff')?'iso':scene.includes('right')?'right':scene.includes('angles')?'angles':'scalene'; if(variant==='angles') return <svg viewBox="0 0 300 175"><polygon className="tv-shape" points="20,140 78,54 136,140" style={{opacity:frame>=0?1:.15}}/><polygon className="tv-shape" points="98,140 98,54 182,140" style={{opacity:frame>0?1:.15}}/><polygon className="tv-shape" points="164,140 211,82 282,140" style={{opacity:frame>1?1:.15}}/>{frame>2&&<circle className="tv-pulse" cx="150" cy="86" r="10"/>}</svg>; const points=variant==='right'?'65,140 65,40 245,140':variant==='equal'?'55,140 150,28 245,140':variant==='iso'?'45,140 150,42 255,140':'38,140 122,35 264,140'; const rotate=scene==='triangle-rotate'?90*p:0; const early=scene==='triangle-case'?0:1; return <svg viewBox="0 0 300 175"><g style={{transformOrigin:'150px 95px',transform:`rotate(${rotate}deg)`,transition:'transform .6s ease'}}><polygon className="tv-shape" points={points}/><path className="tv-path" d="M86 94l12 8" style={{opacity:frame>=early?1:.16}}/><path className="tv-path" d="M202 102l12-8" style={{opacity:frame>early?1:.16}}/>{variant==='equal'&&<path className="tv-path" d="M142 140v-14" style={{opacity:frame>early+1?1:.16}}/>}{(variant==='right'||scene.includes('case')||scene.includes('hook')||scene.includes('payoff'))&&<path className="tv-right" d="M65 120h20v20" style={{opacity:frame>0?1:.16}}/>}{frame>3&&<circle className="tv-pulse" cx="150" cy="78" r="10"/>}</g></svg>; }
-function QuadScene({ scene, frame, p }) { if(['quad-hook','quad-compare','quad-final'].includes(scene)) return <svg viewBox="0 0 300 175"><rect className="tv-shape" x="20" y="54" width="145" height="82"/><rect className="tv-shape accent" x={145-30*p} y={40-8*p} width="105" height="105"/><path className="tv-right" d="M20 72h18V54 M232 40v18h18"/></svg>; if(scene==='quad-rhombus') return <svg viewBox="0 0 300 175"><polygon className="tv-shape" points="150,24 260,88 150,152 40,88"/><path className="tv-path" d="M88 58l10 12 M202 70l10-12 M88 118l10-12 M202 106l10 12" style={{opacity:frame>0?1:.18}}/></svg>; const square=['quad-square','quad-rotated','quad-case','quad-payoff'].includes(scene); const rotate=scene==='quad-rotated'?45*p:0; const marks=Math.min(4,frame+1); return <svg viewBox="0 0 300 175"><g style={{transformOrigin:'150px 88px',transform:`rotate(${rotate}deg)`,transition:'transform .6s ease'}}><rect className="tv-shape" x={square?90:44} y={square?28:48} width={square?120:212} height={square?120:92}/>{marks>0&&<path className="tv-right" d={square?'M90 48h20V28':'M44 68h20V48'}/>} {marks>1&&<path className="tv-right" d={square?'M190 28v20h20':'M236 48v20h20'}/>} {marks>2&&<path className="tv-right" d={square?'M210 128h-20v20':'M256 120h-20v20'}/>} {marks>3&&<path className="tv-right" d={square?'M110 148v-20H90':'M64 140v-20H44'}/>}</g>{frame>3&&<circle className="tv-pulse" cx="150" cy="88" r="10"/>}</svg>; }
-function PerimeterScene({ scene, frame, p, screen }) { if(scene==='perimeter-compare') return <svg viewBox="0 0 300 180"><rect className="tv-border" x="20" y="45" width="120" height="58" style={{strokeDashoffset:420*(1-p)}}/><rect className="tv-border" x="160" y="33" width="100" height="82" style={{strokeDashoffset:420*(1-p)}}/><g className="tv-cells"><rect className="tv-cell" x="165" y="38" width="90" height="72" style={{opacity:frame > 0 ? .55 : .08}}/></g></svg>; const dims=screen===0||screen===7?[8,5]:screen===8||screen===9?[7,4]:screen===10?[6,6]:screen===12?[7,5]:screen===13?[10,6]:[6,4]; const cols=Math.min(10,dims[0]); const rows=Math.min(6,dims[1]); const cells=cols*rows; const area=scene.includes('area')||scene==='perimeter-case'||scene==='perimeter-hook'||scene==='perimeter-payoff'||scene==='perimeter-meaning'||scene==='perimeter-final'; const border=!scene.includes('area')||scene==='perimeter-case'||scene==='perimeter-hook'||scene==='perimeter-payoff'||scene==='perimeter-meaning'||scene==='perimeter-final'; return <svg viewBox="0 0 300 180">{area&&Array.from({length:cells},(_,i)=>{const col=i%cols,row=Math.floor(i/cols);return <rect className="tv-cell" key={i} x={58+col*184/cols} y={38+row*99/rows} width={184/cols-1} height={99/rows-1} style={{opacity:i < Math.ceil(cells*p) ? .62 : .08}}/>})}{border&&<rect className="tv-border" x="55" y="35" width="190" height="105" style={{strokeDashoffset:590*(1-p)}}/>}{scene==='perimeter-case'&&<rect className="tv-pool" x="132" y="82" width="46" height="31"/>}</svg>; }
-function LessonVisual({ scene, frame, screen }) { const t=useT(); const c=CONTENT[`s${screen}`]; const safeFrame=Math.min(frame,c.frames.length-1); const label=t(c.frames[safeFrame]); const p=(safeFrame+1)/FRAME_COUNTS[screen]; let visual; if(LESSON_KIND==='measure') visual=<MeasureScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='volume') visual=<VolumeScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='angle') visual=<AngleScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='protractor') visual=<ProtractorScene scene={scene} frame={safeFrame} p={p} screen={screen}/>; else if(LESSON_KIND==='triangle') visual=<TriangleScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='quadrilateral') visual=<QuadScene scene={scene} frame={safeFrame} p={p}/>; else visual=<PerimeterScene scene={scene} frame={safeFrame} p={p} screen={screen}/>; return <div className={`conversion-visual topic-visual ${LESSON_KIND}-visual scene-${scene}`} data-g4-role="visual-frame" aria-label={label}>{visual}<strong>{label}</strong></div>; }
-const RevealFrames = ({ frames, frame }) => { const t = useT(); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
-const GuidedFramePanel = ({ frames, step, onAdvance, audioReady }) => { const t = useT(); const complete = step >= frames.length - 1; return <div className="guided-panel" aria-live="polite"><div className="guided-progress" aria-label={`${step + 1} / ${frames.length}`}>{frames.map((_, index) => <i className={index <= step ? 'active' : ''} key={index}/>)}</div><div className="guided-frame"><b>{step + 1}</b><span>{t(frames[step])}</span></div><div className="guided-action">{complete ? <span className="guided-complete">✓ {t(bi('Bosqichlar tugadi', 'Шаги завершены', 'Steps complete'))}</span> : <button type="button" className="btn-white-accent step-button" disabled={!audioReady} onClick={onAdvance}>{t(bi('Keyingi qadam', 'Следующий шаг', 'Next step'))} →</button>}</div></div>; };
-function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const answerReady = isAudioReady(audio); const choose = (index) => { if (!answerReady) return; const nextAttempts = attempts + 1; setPicked(index); setAttempts(nextAttempts); audio.pushOneOff(t(c.wrong[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts, wrongChoices: [] }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} state="think" showBit hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="model-card hook-card" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><LessonVisual scene={c.scene} frame={audio.frame} screen={screen}/><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><RevealFrames frames={c.frames} frame={audio.frame}/><section className="question hook-question" data-g4-role="answer-card" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => <button type="button" data-g4-role="answer-card" className={'option ' + (picked === index ? 'picked' : '')} disabled={!answerReady} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div><div className="feedback-slot hook-feedback-slot">{picked !== null && <div className="feedback open neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic"><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod"/></span><b>◆</b><p>{t(c.wrong[picked])}</p></div>}</div></section></div></Stage>; }
-function InfoScreen({ screen, onPrev, onNext }) { const c = CONTENT[`s${screen}`]; const [step, setStep] = useState(0); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); audio.speakStep(nextStep); }; const bitState = screen === 7 ? 'happy' : ['focus', 'point', 'idea'][(screen - 1) % 3]; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={complete}><div className="stack info-stack"><Heading c={c} state={bitState} showBit/><section className="model-card guided-card"><LessonVisual scene={c.scene} frame={step} screen={screen}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section></div></Stage>; }
-function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const revealed = picked !== null; const correct = picked === c.correctIndex; const canAnswer = isAudioReady(audio); const baseBitState = screen === 12 ? 'awkward' : screen === 13 ? 'point' : 'focus'; const bitState = revealed ? (correct ? 'happy' : 'awkward') : baseBitState; const choose = (index) => { if (!canAnswer || correct || wrongChoices.includes(index)) return; const ok = index === c.correctIndex; const nextAttempts = attempts + 1; const nextWrongChoices = ok ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; const showProof = correct || (!correct && wrongChoices.length >= 2); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}><div className="stack question-stack"><Heading c={c} state={bitState} showBit/><section className="test-layout"><div className="test-model"><LessonVisual scene={c.scene} frame={audio.frame} screen={screen}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = index === c.correctIndex && correct ? 'right' : wrongChoices.includes(index) ? 'bad' : ''; return <button type="button" className={'option ' + cls} disabled={!canAnswer || correct || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot question-feedback-slot">{revealed && <div className="feedback-stack"><div className={'feedback open ' + (correct ? 'correct' : 'wrong')} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"}/></span><p data-g4-role={correct ? 'bit-answer-comment' : undefined}>{correct && <b className="proof-label">{t(SOLUTION_LABEL)}</b>}{t(correct ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div>{showProof && <div className="proof"><b className="proof-label">{t(SOLUTION_LABEL)}</b><span>{t(c.proof)}</span></div>}</div>}</div></div></section></div></Stage>; }
-const Screen0 = (props) => <HookScreen {...props}/>;
-const Screen1 = (props) => <InfoScreen {...props}/>;
-const Screen2 = (props) => <InfoScreen {...props}/>;
-const Screen3 = (props) => <InfoScreen {...props}/>;
-const Screen4 = (props) => <InfoScreen {...props}/>;
-const Screen5 = (props) => <InfoScreen {...props}/>;
-const Screen6 = (props) => <InfoScreen {...props}/>;
-const Screen7 = (props) => <InfoScreen {...props}/>;
-const Screen8 = (props) => <QuestionScreen {...props}/>;
-const Screen9 = (props) => <QuestionScreen {...props}/>;
-const Screen10 = (props) => <QuestionScreen {...props}/>;
-const Screen11 = (props) => <QuestionScreen {...props}/>;
-const Screen12 = (props) => <QuestionScreen {...props}/>;
-const Screen13 = (props) => <QuestionScreen {...props}/>;
-function Screen14({ screen, answers, onPrev, finishLesson, finalState, onFinalState }) {
-  const t = useT(); const c = CONTENT.s14; const storedAnswer = finalState; const [step, setStep] = useState(storedAnswer.step); const [reflection, setReflection] = useState(storedAnswer.reflection); const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true); const [revealRequested, setRevealRequested] = useState(false); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const titleState = titleClaimed ? 'claimed' : 'unclaimed';
-  const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); onFinalState((previous) => ({ ...previous, step: nextStep })); audio.speakStep(nextStep); };
-  const chooseReflection = (index) => { setReflection(index); onFinalState((previous) => ({ ...previous, reflection: index })); };
-  const claimTitle = () => { if (reflection === null) return; if (!complete || !audioReady || titleClaimed || revealRequested) return; setRevealRequested(true); };
-  const completeReveal = useCallback(() => { setRevealRequested(false); setTitleClaimed(true); onFinalState((previous) => ({ ...previous, titleClaimed: true })); }, [onFinalState]);
-  const finish = () => { if (reflection === null || !titleClaimed) return; finishLesson(); };
-return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} canAdvance={complete && reflection !== null} canFinish={titleState === 'claimed'} finish><div className="stack summary-stack"><Heading c={c} state={titleState === 'claimed' ? 'happy' : 'idea'} showBit/>{!complete ? <section className="model-card summary-card guided-card"><LessonVisual scene={c.scene} frame={step} screen={screen}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section> : <div className="summary-complete"><section className="reflection-card final-reflection" data-g4-role="reflection" aria-live="polite"><h2>{t(REFLECTION.question)}</h2><div className="reflection-options">{REFLECTION.options.map((option, index) => <button type="button" className={'option ' + (reflection === index ? 'picked' : '')} disabled={!audioReady || revealRequested} onClick={() => chooseReflection(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div></section><G4TitleReveal active={revealRequested} title={c.rewardTitle} onComplete={completeReveal}/>{titleState !== 'claimed' ? <section className="title-claim-card"><span>★</span><h2>{t(c.rewardTitle)}</h2><button type="button" className="btn-white-accent g4-title-claim" data-g4-role="title-claim" disabled={reflection === null || revealRequested || !audioReady} onClick={claimTitle}>{t(bi('Unvonni olish', 'Получить звание', 'Claim title'))}</button></section> : null}{titleState === 'claimed' && <G4TitleCard title={c.rewardTitle} answers={answers}/>}</div>}</div></Stage>;
-}
-const TOPIC_STYLES = `
-.topic-visual{overflow:hidden;text-align:center}.topic-visual svg{width:min(100%,330px);height:min(175px,100%);overflow:visible}.topic-visual strong{max-width:360px;color:${T.navy};font-size:12px;line-height:1.35}.topic-visual text{fill:${T.navy};font:900 14px 'JetBrains Mono',monospace}.tv-grid{fill:none;stroke:${T.ink3};stroke-width:2;opacity:.35}.tv-soft{fill:${T.cyanSoft};transition:.6s ease}.tv-outline,.tv-line{fill:none;stroke:${T.navy};stroke-width:4}.tv-path,.tv-ray,.tv-arc,.tv-accent,.tv-arrow,.tv-carry,.tv-cube-edge{fill:none;stroke:${T.cyan};stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.tv-accent,.tv-carry{stroke:${T.accent};stroke-width:5}.tv-arrow{stroke-width:4;marker-end:none}.tv-path{stroke-dasharray:10 7;animation:topicDash 3s linear 2}.tv-pulse{fill:${T.accent};transform-box:fill-box;transform-origin:center;animation:topicPulse 1.7s ease-in-out 2}.tv-cable{fill:none;stroke:${T.cyan};stroke-width:18;stroke-linecap:round;transition:.55s}.tv-cable.b{stroke:${T.lime}}.tv-mass{fill:${T.cyan};opacity:.78;transition:.55s}.tv-card{fill:${T.paper};stroke:${T.ink3};stroke-width:3;transition:.4s}.tv-card.active{fill:${T.successSoft};stroke:${T.lime}}.tv-container{fill:rgba(22,143,163,.06);stroke:${T.navy};stroke-width:5}.tv-water{fill:rgba(22,143,163,.62);transition:.6s}.tv-cube-wire{fill:rgba(22,143,163,.08);stroke:${T.navy};stroke-width:4;stroke-linejoin:round}.tv-layer-wrap{width:208px;display:grid;grid-template-columns:repeat(6,1fr);gap:5px;transform:skewY(-5deg)}.tv-layer-wrap i{aspect-ratio:1;border-radius:6px;background:#DDE7E6;opacity:.14;transform:scale(.72);transition:.42s}.tv-layer-wrap i.active{opacity:1;transform:scale(1);background:linear-gradient(145deg,${T.cyan},${T.navy});box-shadow:3px 4px 0 rgba(23,59,82,.16)}.tv-protractor{fill:rgba(22,143,163,.09);stroke:${T.cyan};stroke-width:3}.tv-mark{fill:${T.accent};stroke:#fff;stroke-width:3}.tv-arc{stroke:${T.accent};stroke-width:4}.tv-scale{fill:none;stroke-width:18;stroke-linecap:round}.tv-scale.acute{stroke:${T.lime}}.tv-scale.obtuse{stroke:${T.accent}}.tv-shape{fill:rgba(22,143,163,.11);stroke:${T.navy};stroke-width:5;stroke-linejoin:round;transition:.55s}.tv-shape.accent{fill:rgba(149,201,61,.2);stroke:${T.lime}}.tv-right{fill:none;stroke:${T.accent};stroke-width:4}.tv-area{fill:rgba(22,143,163,.12)}.tv-cell{fill:rgba(149,201,61,.58);stroke:#fff;stroke-width:1;transition:opacity .4s}.tv-border{fill:none;stroke:${T.accent};stroke-width:7;stroke-dasharray:590;transition:stroke-dashoffset .55s}.tv-pool{fill:${T.cyan};stroke:#fff;stroke-width:3}.muted{opacity:.2}@keyframes topicDash{to{stroke-dashoffset:-34}}@keyframes topicPulse{50%{transform:scale(1.28);opacity:.62}}@media(max-width:639.98px){.topic-visual svg{height:min(122px,100%)}.topic-visual strong{font-size:10px}.tv-layer-wrap{width:155px}}@media(max-height:700px){.topic-visual svg{height:min(108px,100%)}}@media(prefers-reduced-motion:reduce){.topic-visual *{animation:none!important;transition:none!important}.tv-border{stroke-dashoffset:0!important}}
-`;
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
-export default function Grade4Dars34({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang; configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [finalState, setFinalState] = useState({ step: 0, reflection: null, titleClaimed: false }); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars34 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
 
-const G4_TITLE_STYLES = `
+const TOPIC_STYLES = `
+/* Har blok o'z kontenti balandligida turadi va ekran markaziga tortiladi:
+   kichik matn ostida katta bo'sh freym qolmaydi. */
+.split-layout,.task-layout,.track-layout,.build-layout,.relation-layout,
+.repair-layout,.band-layout,.rule-layout,.rapid-layout,.route-layout{
+  align-self:start;height:auto;max-height:100%;margin-inline:auto}
+
+.panel-label{display:block;color:${T.cyan};font:900 10px/1.1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase}
+.task-expression{display:block;color:${T.navy};font:900 clamp(20px,2.9vw,28px)/1.18 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.task-expression.small{font-size:clamp(17px,2.3vw,21px)}
+.mini-frame{min-width:0;padding:16px 20px;display:grid;align-content:start;gap:11px;overflow:hidden;border-radius:19px;background:linear-gradient(150deg,#FFFFFF,${T.cyanSoft});box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.task-proof{padding:9px 12px;border-radius:12px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:9px;background:${T.successSoft};box-shadow:inset 4px 0 ${T.success};animation:soft-rise .38s ease both}
+.task-proof>b{color:${T.success};font:900 9px 'JetBrains Mono',monospace;letter-spacing:.1em}
+.task-proof>span{color:${T.navy};font:800 14px/1.25 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.options-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Yechim freymi: chapda Bit, o'ngda YECHIM yorlig'i, formula va izoh. */
+/* Yechim figurasi — etalon Dars01 o'lchovi */
+.solution-bit{width:51px;height:64px;flex:0 0 51px;display:block;overflow:hidden;animation:solution-hop .6s ease .18s both}
+.solution-bit>.g1-char,.solution-bit>svg{width:100%;height:100%;display:block}
+.solution-formula{display:block;margin:3px 0 4px;color:${T.navy};font:900 15px/1.2 'JetBrains Mono',monospace;font-style:normal;overflow-wrap:anywhere}
+.solution-text{display:block;color:${T.ink2};font-size:14px;line-height:1.36}
+/* Bit yo'q freymlar bir ustunli bo'ladi, chap tomonda bo'sh joy qolmaydi. */
+.lesson-root .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="wrong"],
+.lesson-root .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="diagnostic"]{grid-template-columns:minmax(0,1fr)!important;min-height:64px!important;padding:11px 14px!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="diagnostic"]{grid-template-columns:minmax(0,1fr)!important;min-height:56px!important}
+.check-wide{width:100%;min-height:46px}
+.tiny-action{align-self:start;padding:5px 9px;border:0;border-radius:9px;color:${T.ink2};background:#EFF2EF;cursor:pointer;font-size:11px;font-weight:800}
+
+/* --- xuk: tungi dispetcherlik konsoli ------------------------------------ */
+.dispatch-visual{width:100%;height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;color:#E7F7F8;overflow:hidden}
+.dispatch-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'JetBrains Mono',monospace}
+.dispatch-node{display:flex;align-items:center;gap:6px;color:#8FD8E2;font-size:9px;font-weight:900;letter-spacing:.1em}
+.dispatch-node>i{width:7px;height:7px;border-radius:50%;background:${T.lime};box-shadow:0 0 9px rgba(149,201,61,.8)}
+.dispatch-state{padding:4px 8px;border:1px solid rgba(255,183,107,.3);border-radius:999px;color:#FFD29E;background:rgba(169,111,19,.2);font-size:8px;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+.dispatch-body{min-height:0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:center;gap:12px}
+.cable-pair{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+.cable-card{min-width:0;padding:10px 11px;border-radius:13px;display:grid;gap:6px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(144,228,235,.16)}
+.cable-card>span{color:#9FC4CE;font-size:9px;font-weight:800;letter-spacing:.04em}
+.cable-card>strong{color:#FFFFFF;font:900 clamp(15px,2vw,19px)/1.1 'JetBrains Mono',monospace;white-space:nowrap}
+.cable-line{height:6px;border-radius:999px;background:linear-gradient(90deg,${T.cyan},#7FD6DE)}
+.cable-line.b{background:linear-gradient(90deg,${T.lime},#CDE98C)}
+.cable-plus{color:#8FD8E2;font:900 19px 'JetBrains Mono',monospace}
+.order-card{position:relative;min-width:0;padding:11px 12px;border-radius:14px;display:grid;gap:6px;background:rgba(255,91,53,.14);box-shadow:inset 0 0 0 1px rgba(255,145,110,.34)}
+.order-card>span{color:#FFC3AE;font-size:9px;font-weight:800}
+.order-card>strong{color:#FFFFFF;font:900 clamp(16px,2.2vw,21px)/1.1 'JetBrains Mono',monospace;white-space:nowrap;text-decoration:line-through;text-decoration-color:rgba(255,145,110,.85)}
+.order-flag{position:absolute;right:10px;top:10px;width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.9)}
+.is-resolved .order-card>strong{text-decoration:none;opacity:.55}
+
+/* --- ikki panelli tushuntirish ekrani (umumiy) --------------------------- */
+.split-layout{width:min(800px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;overflow:hidden}
+.split-model{min-width:0;padding:16px;display:grid;align-content:start;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.split-done{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr) auto;align-items:center;gap:9px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .4s ease both}
+.split-done>span{color:${T.ink2};font-size:12px;font-weight:800}
+.split-done>strong{color:${T.navy};font:900 15px 'JetBrains Mono',monospace;white-space:nowrap}
+.split-steps{min-width:0;padding:16px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.step-list{margin:0;padding:0;display:grid;align-content:center;gap:10px;list-style:none}
+.step-list>li{min-height:58px;padding:11px 13px;border-radius:14px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px;background:#F5F7F5;opacity:.34;transition:opacity .35s ease,background .35s ease}
+.step-list>li>b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.step-list>li>span{color:${T.ink};font-size:14px;font-weight:750;line-height:1.28}
+.step-list>li.is-active{opacity:1;background:${T.cyanSoft}}
+.step-list>li.is-active>b{background:${T.cyan}}
+.step-list>li.is-done{opacity:1;background:${T.successSoft}}
+.step-list>li.is-done>b{background:${T.success}}
+
+/* --- tanlov ekranlari: ikki qator, model tepada ---------------------------- */
+.task-layout{width:min(720px,100%);display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden}
+.task-model{min-width:0;display:grid;gap:10px;overflow:hidden}
+.task-layout>.question{height:auto;padding:14px 16px;display:grid;grid-template-rows:auto auto auto;align-content:start;gap:10px}
+.task-layout>.question>h2{font:800 clamp(16px,2.2vw,19px)/1.28 'Manrope',sans-serif}
+.task-layout .option{min-height:54px}
+/* --- 34-darsning chizmalari ------------------------------------------------ */
+.prot-svg{width:100%;max-width:250px;height:auto}
+.prot-dial{fill:rgba(22,143,163,.08);stroke:${T.cyan};stroke-width:3}
+.prot-tick{fill:none;stroke:${T.ink3};stroke-width:2}
+.prot-base{fill:none;stroke:#D8E2DF;stroke-width:5;stroke-linecap:round;transition:stroke .35s ease}
+.prot-base.is-set{stroke:${T.navy}}
+.prot-ray{fill:none;stroke:${T.navy};stroke-width:5;stroke-linecap:round}
+.prot-mark{fill:${T.accent};stroke:#fff;stroke-width:2}
+.prot-centre{fill:#D8E2DF;transition:fill .35s ease}
+.prot-centre.is-set{fill:${T.accent}}
+.prot-read{font:900 13px 'JetBrains Mono',monospace;text-anchor:middle}
+.prot-read.inner{fill:${T.accent}}
+.prot-read.outer{fill:${T.ink3}}
+.prot-zero{font:900 10px 'JetBrains Mono',monospace;fill:${T.ink3};text-anchor:middle}
+.tone-dark .prot-dial{fill:rgba(144,228,235,.09);stroke:#8FD8E2}
+.tone-dark .prot-tick{stroke:rgba(207,239,242,.5)}
+.tone-dark .prot-base,.tone-dark .prot-ray{stroke:#CFEFF2}
+.tone-dark .prot-mark{fill:#FFC3AE;stroke:#0B2232}
+.tone-dark .prot-centre.is-set{fill:#FFC3AE}
+.tone-dark .prot-read.inner{fill:#FFC3AE}
+.tone-dark .prot-read.outer,.tone-dark .prot-zero{fill:rgba(207,239,242,.66)}
+
+.desk-body{grid-template-columns:minmax(0,1.25fr) minmax(0,1fr)!important;align-items:center}
+.desk-figure{display:grid;place-items:center}
+.desk-figure>svg{max-width:210px}
+.desk-cards{min-width:0;display:grid;gap:7px}
+.desk-cards>.cable-card,.desk-cards>.order-card{padding:7px 10px;gap:3px}
+.desk-cards>.cable-card>strong,.desk-cards>.order-card>strong{font-size:clamp(14px,1.9vw,18px)}
+
+.prot-frame{padding:8px;border-radius:15px;display:grid;place-items:center;background:${T.cyanSoft}}
+.prot-frame.small{padding:5px;background:#FFFFFF}
+.prot-frame.small .prot-svg{max-width:186px}
+
+.switch-layout{align-self:start;height:auto;max-height:100%;margin-inline:auto;width:min(760px,100%);padding:16px;display:grid;grid-template-rows:auto auto auto;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.switch-head{display:grid;gap:6px}
+.switch-figure{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);align-items:center;gap:14px}
+.switch-reads{display:grid;gap:8px}
+.switch-reads>b{padding:9px 11px;border-radius:13px;display:grid;gap:2px;background:#F5F7F5;color:${T.ink3};font-size:12px;font-weight:800;transition:.3s}
+.switch-reads>b>em{color:${T.ink3};font:900 19px 'JetBrains Mono',monospace;font-style:normal}
+.switch-reads>b.is-live{background:${T.cyanSoft};color:${T.cyan}}
+.switch-reads>b.is-live>em{color:${T.navy}}
+
+.zero-strip{height:26px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:8px}
+.zero-strip>span{height:5px;border-radius:999px;background:${T.navy}}
+.zero-strip>i{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font:900 12px 'JetBrains Mono',monospace;font-style:normal}
+.zero-strip>i.on{color:#fff;background:${T.accent}}
+.zero-strip>i.off{color:${T.ink3};background:#EDF0ED}
+
+@media(max-width:639.98px){
+  .desk-body{grid-template-columns:1fr!important;gap:5px}
+  .desk-figure>svg{max-width:150px}
+  .desk-cards>.cable-card,.desk-cards>.order-card{padding:5px 7px}
+  .desk-cards>.cable-card>strong,.desk-cards>.order-card>strong{font-size:13px}
+  .prot-frame{padding:5px}
+  .prot-frame.small .prot-svg{max-width:150px}
+  .lesson-root .split-layout{grid-template-rows:auto auto;align-content:start}
+  .lesson-root .split-model{padding:8px;gap:8px}
+  .split-model .prot-svg{max-width:170px}
+  .lesson-root .step-list>li{min-height:36px;padding:5px 7px}
+  .switch-layout{padding:10px;border-radius:14px;gap:8px}
+  .switch-figure{grid-template-columns:1fr;gap:8px}
+  .switch-reads>b{padding:6px 9px}
+  .switch-reads>b>em{font-size:16px}
+}
+/* --- s3: uch qadam, ikki teng freym -------------------------------------- */
+.track-layout{width:min(800px,100%);display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden}
+.track-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.track-frame{min-width:0;padding:15px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.track-frame.is-accent{background:linear-gradient(150deg,#FFFFFF,${T.cyanSoft})}
+.track-frame>p{min-height:52px;padding:11px 13px;border-radius:12px;display:flex;align-items:center;color:${T.navy};background:#F5F7F5;font:800 14px/1.3 'JetBrains Mono',monospace;white-space:pre-line;opacity:0;transform:translateY(6px);transition:opacity .38s ease,transform .38s ease;overflow-wrap:anywhere}
+.track-frame>p.show{opacity:1;transform:none}
+.track-frame.is-accent>p.show{background:#FFFFFF}
+.track-steps{min-height:52px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+.track-step-now{min-width:0;padding:10px 12px;border-radius:13px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:9px;background:${T.cyanSoft}}
+.track-step-now>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 11px 'JetBrains Mono',monospace}
+.track-step-now>span{color:${T.ink};font-size:13px;font-weight:800;line-height:1.2}
+.track-rule{min-height:72px;padding:7px 13px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;color:${T.success};background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);max-width:340px}
+
+/* --- s4: javobni yig'ish -------------------------------------------------- */
+.build-layout{width:min(780px,100%);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:12px;overflow:hidden}
+.unit-hint{justify-self:start;padding:5px 11px;border-radius:999px;color:${T.navy};background:#FFFFFF;font:900 12px 'JetBrains Mono',monospace}
+.build-panel{min-width:0;padding:15px;display:grid;align-content:start;gap:11px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.build-panel>h2{color:${T.ink};font:800 clamp(15px,2vw,18px)/1.25 'Manrope',sans-serif}
+.build-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.build-slot{min-height:70px;padding:8px;border-radius:15px;display:grid;justify-items:center;align-content:center;gap:2px;background:#F5F7F5;box-shadow:inset 0 0 0 2px #E1E7E4;transition:.3s}
+.build-slot.is-filled{background:${T.cyanSoft};box-shadow:inset 0 0 0 2px ${T.cyan}}
+.build-slot>b{color:${T.navy};font:900 28px/1 'JetBrains Mono',monospace}
+.build-slot>span{color:${T.cyan};font:900 12px 'JetBrains Mono',monospace}
+.build-slot>em{color:${T.ink3};font-size:9px;font-style:normal;font-weight:800}
+.build-tiles{display:grid;gap:8px}
+.tile-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{min-height:46px;padding:6px;border:0;border-radius:12px;color:${T.navy};background:#F5F7F5;cursor:pointer;font:900 15px 'JetBrains Mono',monospace;transition:.22s}
+.tile:hover:not(:disabled){transform:translateY(-2px);background:#EDF3F1}
+.tile.picked{color:#fff;background:${T.cyan}}
+.tile.right{color:#fff;background:${T.success}}
+.tile.bad{color:${T.warn};background:${T.warnSoft}}
+.tile.wide{min-height:50px;font-size:16px}
+.build-feedback-slot{min-height:88px}
+
+/* --- s7: xato qatorini topish --------------------------------------------- */
+.repair-layout{width:min(740px,100%);display:grid;grid-template-rows:auto auto;gap:11px;overflow:hidden}
+.repair-sheet{padding:16px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.96);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.repair-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.repair-lead{color:${T.ink2};font-size:12px;font-weight:800}
+.repair-row{min-height:48px;padding:11px 14px;border:0;border-radius:13px;display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:11px;background:#F5F7F5;cursor:pointer;text-align:left;transition:.25s}
+.repair-row:hover:not(:disabled){transform:translateX(3px);background:#EDF3F1}
+.repair-row>b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 10px 'JetBrains Mono',monospace}
+.repair-row>span{color:${T.navy};font:800 14px/1.25 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.repair-row.is-found{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}
+.repair-row.is-found>b{color:#fff;background:${T.warn}}
+.repair-row.is-ruled{opacity:.42}
+.repair-fix{padding:10px 12px;border-radius:12px;display:grid;gap:3px;background:${T.successSoft};box-shadow:inset 4px 0 ${T.success};animation:soft-rise .4s ease both}
+.repair-fix>b{color:${T.success};font:900 9px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
+.repair-fix>span{color:${T.navy};font:900 14px 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.repair-feedback-slot{min-height:88px}
+
+/* --- s8: taxmin oralig'i --------------------------------------------------- */
+.band-layout{width:min(680px,100%);padding:16px;display:grid;grid-template-rows:auto auto auto;gap:13px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.band-task{display:grid;gap:6px;justify-items:center;text-align:center}
+.band-task>p{color:${T.ink2};font-size:12px;font-weight:800}
+.band-line{display:grid;gap:12px}
+.band-track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.band{min-height:66px;border:0;border-radius:16px;color:${T.navy};background:#F5F7F5;cursor:pointer;font:900 clamp(16px,2.2vw,19px) 'JetBrains Mono',monospace;box-shadow:inset 0 0 0 2px #E4EAE7;transition:.25s}
+.band:hover:not(:disabled){transform:translateY(-3px);background:${T.cyanSoft}}
+.band.is-right{color:#fff;background:${T.success};box-shadow:inset 0 0 0 2px ${T.success}}
+.band.is-wrong{color:${T.warn};background:${T.warnSoft};box-shadow:inset 0 0 0 2px ${T.warn}}
+.band-exact{justify-self:center;padding:7px 15px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .42s ease both}
+.band-exact>span{color:${T.ink2};font-size:12px;font-weight:800}
+.band-exact>strong{color:${T.navy};font:900 15px 'JetBrains Mono',monospace}
+.band-note{min-height:38px}
+.band-note>p{padding:9px 12px;border-radius:11px;font-size:12px;font-weight:800;line-height:1.3}
+.band-note>p.is-right{color:${T.success};background:${T.successSoft}}
+.band-note>p.is-wrong{color:${T.warn};background:${T.warnSoft}}
+
+/* --- s10: qoidani yig'ish -------------------------------------------------- */
+.rule-layout{width:min(820px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;overflow:hidden}
+.rule-slots,.rule-bank{min-width:0;padding:15px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.rule-slot{min-height:52px;padding:10px 12px;border-radius:13px;display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:9px;background:#F5F7F5;transition:.3s}
+.rule-slot>b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.rule-slot>span{color:${T.ink};font-size:12px;font-weight:800;line-height:1.22}
+.rule-slot.is-right{background:${T.successSoft}}
+.rule-slot.is-right>b{background:${T.success}}
+.rule-slot.is-wrong{background:${T.warnSoft}}
+.rule-slot.is-wrong>b{background:${T.warn}}
+.rule-bank-list{display:grid;gap:8px}
+.rule-bank-list>button{min-height:52px;padding:10px 12px;border:0;border-radius:12px;color:${T.navy};background:#F5F7F5;cursor:pointer;text-align:left;font-size:12px;font-weight:800;line-height:1.22;transition:.22s}
+.rule-bank-list>button:hover:not(:disabled){transform:translateY(-2px);background:${T.cyanSoft}}
+.rule-bank-list>button:disabled{color:${T.ink3};background:#F1F4F2;text-decoration:line-through;cursor:default}
+.rule-status{min-height:52px}
+.rule-memo{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .4s ease both}
+.rule-memo>div{min-width:0;display:grid;gap:3px}
+.rule-memo b{color:${T.success};font-size:11px;font-weight:900}
+.rule-memo span{color:${T.navy};font:900 12px 'JetBrains Mono',monospace}
+.rule-warn{padding:9px 12px;border-radius:11px;color:${T.warn};background:${T.warnSoft};font-size:11px;font-weight:800}
+
+/* --- s11: uchta tez savol -------------------------------------------------- */
+.rapid-layout{width:min(700px,100%);padding:16px;display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.rapid-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px}
+.rapid-dots{display:flex;gap:5px}
+.rapid-dots>i{width:34px;height:6px;border-radius:999px;background:#E1E7E4}
+.rapid-dots>i.is-now{background:${T.cyan}}
+.rapid-dots>i.is-done{background:${T.success}}
+.rapid-count{color:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.rapid-body{display:grid;grid-template-rows:auto auto auto;gap:11px;overflow:hidden}
+.rapid-prompt{color:${T.navy};font:800 clamp(17px,2.4vw,21px)/1.25 'Manrope',sans-serif}
+.rapid-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.rapid-feedback-slot{min-height:88px}
+.rapid-done{display:grid;gap:11px;overflow:hidden}
+.rapid-done-head{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr) auto;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5)}
+.rapid-done-head>span{color:${T.ink2};font-size:13px;font-weight:800}
+.rapid-done-head>strong{color:${T.navy};font:900 17px 'JetBrains Mono',monospace}
+.rapid-log{margin:0;padding:0;display:grid;gap:8px;list-style:none}
+.rapid-log>li{min-height:48px;padding:10px 13px;border-radius:13px;display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:11px;background:#F5F7F5}
+.rapid-log>li>i{width:20px;height:20px;border-radius:7px;display:grid;place-items:center;color:#fff;background:${T.success};font:900 9px 'JetBrains Mono',monospace;font-style:normal}
+.rapid-log>li>span{color:${T.ink2};font-size:12px;font-weight:750;line-height:1.2}
+.rapid-log>li>em{color:${T.navy};font:900 15px 'JetBrains Mono',monospace;font-style:normal;white-space:nowrap}
+
+/* --- s12: ikki yo'lni solishtirish ------------------------------------------ */
+.route-layout{width:min(720px,100%);display:grid;grid-template-rows:auto auto auto;gap:12px;overflow:hidden}
+.route-head{display:grid;justify-items:center;gap:5px;text-align:center}
+.route-pair{display:grid;grid-template-columns:1fr 1fr;gap:13px;overflow:hidden}
+.route-card{min-width:0;padding:15px;border:0;border-radius:18px;display:grid;align-content:start;gap:9px;background:rgba(255,255,255,.96);cursor:pointer;text-align:left;box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.55);transition:.25s}
+.route-card:hover:not(:disabled){transform:translateY(-3px)}
+.route-name{color:${T.cyan};font:900 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.route-card>em{padding:10px 12px;border-radius:11px;color:${T.navy};background:#F5F7F5;font:800 13px/1.25 'JetBrains Mono',monospace;font-style:normal;overflow-wrap:anywhere}
+.route-card.is-best{background:${T.successSoft};box-shadow:inset 0 0 0 2px ${T.success}}
+.route-card.is-best>em{background:#FFFFFF}
+.route-card.is-other{background:${T.cyanSoft};box-shadow:inset 0 0 0 2px ${T.cyan}}
+.route-card.is-other>em{background:#FFFFFF}
+.route-note{min-height:48px}
+.route-note>p{padding:10px 13px;border-radius:12px;font-size:12px;font-weight:800;line-height:1.3}
+.route-note>p.route-hint{color:${T.ink2};background:#FFFFFF}
+.route-verdict{min-height:72px;padding:7px 13px 7px 6px;border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;box-shadow:0 12px 26px -20px rgba(34,122,83,.4);animation:soft-rise .4s ease both}
+.route-verdict>span{font-size:13px;font-weight:750;line-height:1.35}
+.route-verdict.is-right{border:1px solid rgba(34,122,83,.18);color:${T.success};background:linear-gradient(135deg,#FFFFFF,${T.successSoft})}
+.route-verdict.is-other{border:1px solid rgba(22,143,163,.2);color:${T.cyan};background:linear-gradient(135deg,#FFFFFF,${T.cyanSoft})}
+
+
+/* --- TIPOGRAFIKA: asosiy matndan boshqa hamma yozuv guruh bo'yicha bir xil --- */
+/* 1. Ikkilamchi matn (izoh, tavsif, holat) — Manrope, 13 px */
+.lesson-root :is(.relation-lead,.relation-note,.relation-text>span,.relation-text>b,
+.step-list>li>span,.rule-slot>span,.rule-memo>b,.rule-warn,
+.band-task>p,.band-note>p,.route-note>p,
+.repair-lead,.track-step-now>span,.track-rule,
+.bird-row>span,.rapid-log>li>span,.rapid-done-head>span,
+.split-done>span,.band-exact>span,.cable-card>span,.order-card>span,
+.build-slot>em,.unit-hot>em,.solution-text,.bird-row.is-unknown>i>em),
+.lesson-root .options .option,.lesson-root .options .option>span,
+.lesson-root .route-verdict>span,.lesson-root .relation-pick>button,
+.lesson-root .rule-bank-list>button{
+  font-family:'Manrope',system-ui,sans-serif;font-size:15px;font-weight:750;line-height:1.35;letter-spacing:0;text-transform:none}
+/* 2. Micro-yorliq (bo'lim nomi) — JetBrains Mono, 10 px */
+.lesson-root :is(.panel-label,.route-name,.proof-label,.rapid-count,.window-scale){
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;line-height:1.1;letter-spacing:.13em;text-transform:uppercase}
+/* 3. Hisob yozuvi (formula, qator, natija) — JetBrains Mono, 14 px */
+.lesson-root :is(.track-frame>p,.repair-row>span,.route-card>em,.solution-formula){
+  font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;line-height:1.3;letter-spacing:0}
+/* 4. Yirik son va o'lchov qiymatlari — shrift bitta, o'lcham roli bo'yicha */
+.lesson-root :is(.task-expression,.tile,.band,.unit-col>span,.unit-col>strong,.unit-rest,
+.unit-chunk,.unit-hot,.unit-carry,.build-slot>b,.build-slot>span,.bird-row>b,
+.relation-result>strong,.relation-base>b,.rapid-log>li>em,.store-total,.rule-memo>span,
+.cable-card>strong,.order-card>strong,.split-done>strong,.band-exact>strong,
+.rapid-done-head>strong,.window-bar>i>em,.store-bar>i>em,.repair-row>b,.rule-slot>b,
+.step-list>li>b,.track-step-now>b,.rapid-log>li>i){
+  font-family:'JetBrains Mono',monospace}
+/* Konsol yorliqlari o'zaro bir xil o'lchamda */
+.lesson-root :is(.dispatch-node,.dispatch-state){font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.08em}
+@media(max-width:639.98px){
+  .lesson-root :is(.relation-lead,.relation-note,.relation-text>span,.relation-text>b,
+  .step-list>li>span,.rule-slot>span,.rule-memo>b,.rule-warn,
+  .band-task>p,.band-note>p,.route-note>p,
+  .repair-lead,.track-step-now>span,.track-rule,
+  .bird-row>span,.rapid-log>li>span,.rapid-done-head>span,
+  .split-done>span,.band-exact>span,.cable-card>span,.order-card>span,
+  .build-slot>em,.unit-hot>em,.solution-text,.bird-row.is-unknown>i>em),
+  .lesson-root .options .option,.lesson-root .options .option>span,
+  .lesson-root .route-verdict>span,.lesson-root .relation-pick>button,
+  .lesson-root .rule-bank-list>button{font-size:13px;line-height:1.3}
+  .lesson-root :is(.track-frame>p,.repair-row>span,.route-card>em,.solution-formula){font-size:12px}
+  .lesson-root :is(.panel-label,.route-name,.proof-label,.rapid-count,.window-scale){font-size:9px}
+}
+/* --- Yakuniy slayd: kompozitsiya va tokenlar etalon Dars01 dan ---------- */
+.finale-screen{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}
+.finale-heading{width:min(840px,100%);margin:0 auto;padding:12px 16px;border:1px solid rgba(255,91,53,.17);border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 48%),rgba(255,255,255,.9);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}
+.finale-heading>span{display:flex;align-items:center;gap:7px;color:${T.accent};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.12em}
+.finale-heading>span>i{font-size:8px;font-style:normal}
+.finale-heading h1{margin-top:3px;color:${T.navy};font-family:'Source Serif 4',Georgia,serif;font-size:clamp(21px,3vw,28px);line-height:1.08}
+.finale-heading p{margin-top:3px;color:${T.ink2};line-height:1.32}
+.finale-body{width:min(840px,100%);min-height:0;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start;gap:12px;overflow:hidden}
+.finale-column{min-width:0;display:grid;align-content:start;gap:9px}
+.finale-mastery{display:grid;gap:7px}
+.finale-mastery>span{min-width:0;padding:9px 11px;border:1px solid rgba(22,143,163,.11);border-radius:12px;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:9px;color:${T.ink2};background:rgba(255,255,255,.85);opacity:.28;transition:opacity .4s ease}
+.finale-mastery>span.is-open{opacity:1}
+.finale-mastery>span>i{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace;font-style:normal}
+.finale-proof,.finale-bridge{padding:10px 12px;border-radius:13px;display:grid;gap:3px;opacity:0;transform:translateY(6px);transition:opacity .42s ease,transform .42s ease}
+.finale-proof.is-open,.finale-bridge.is-open{opacity:1;transform:none}
+.finale-proof{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}
+.finale-proof>b{color:${T.success};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.11em}
+.finale-proof>span{color:${T.navy};font:900 14px 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.finale-bridge{grid-template-columns:26px minmax(0,1fr);align-items:center;column-gap:9px;background:${T.accentSoft};box-shadow:inset 4px 0 ${T.accent}}
+.finale-bridge>i{grid-row:1/3;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.accent};font-style:normal;font-weight:900}
+.finale-bridge>b{color:${T.accent};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.11em}
+.finale-bridge>span{color:${T.navy};font-weight:800}
+.finale-actions{min-width:0;display:grid;align-content:start;gap:9px}
+.reward-stage{position:relative;width:100%;min-height:116px;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFFFFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 24px 50px -30px rgba(14,33,44,.8)}
+.reward-locked{filter:saturate(.72)}
+.reward-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px}
+.reward-bit>.g1-char,.reward-bit>svg{width:100%;height:100%;display:block}
+.reward-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;margin-top:-22px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px}
+.reward-kicker{color:#A8EAF0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;letter-spacing:.13em}
+.reward-stage h2{color:#FFFFFF;font-family:'Source Serif 4',Georgia,serif;font-size:clamp(16px,2.2vw,21px);line-height:1.05}
+.reward-score{align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)}
+.reward-score>strong{color:#FFE284;font-family:'JetBrains Mono',monospace}
+.reward-score>span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-claim{min-height:50px;padding:0 18px;border:0;border-radius:15px;color:#fff;background:${T.accent};cursor:pointer;font-family:'Manrope',system-ui,sans-serif;font-size:15px;font-weight:900;box-shadow:0 14px 28px -18px rgba(255,91,53,.9);transition:.25s}
+.g4-title-claim:disabled{color:${T.ink3};background:#EDF0ED;box-shadow:none;cursor:default}
+.finale-pending{color:${T.ink3};font-size:11px;font-weight:800;text-align:center}
+@media(max-width:639.98px){
+  .finale-screen{gap:8px}
+  .finale-body{grid-template-columns:1fr;gap:7px}
+  .finale-column,.finale-actions{gap:6px}
+  .finale-heading{padding:8px 10px;border-radius:14px}
+  .finale-heading h1{font-size:19px}
+  .finale-heading p{font-size:11px;line-height:1.28;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .finale-mastery{gap:5px}
+  .finale-mastery>span{padding:5px 8px;grid-template-columns:19px minmax(0,1fr);gap:7px;border-radius:10px}
+  .finale-mastery>span>i{width:19px;height:19px;font-size:9px}
+  .finale-mastery>span>p{font-size:12px;line-height:1.25}
+  .finale-proof,.finale-bridge{padding:6px 9px;border-radius:11px}
+  .finale-proof>span{font-size:12px}
+  .finale-bridge>span{font-size:12px}
+  .finale-bridge>i{width:22px;height:22px}
+  .finale-bridge{grid-template-columns:22px minmax(0,1fr)}
+  .reward-stage{min-height:82px;padding:7px 58px 7px 50px;border-radius:14px}
+  .reward-stage h2{font-size:15px}
+  .reward-kicker{font-size:9px}
+  .reward-score{margin-top:3px;padding:3px 7px}
+  .reward-medal{left:8px;width:34px;height:34px;margin-top:-17px;border-width:2px;font-size:14px}
+  .reward-bit{width:52px;height:65px}
+  .g4-title-claim{min-height:44px;font-size:13px}
+}
+@keyframes carry-in{from{opacity:0;transform:translateY(-9px) scale(.86)}to{opacity:1;transform:none}}
+@keyframes soft-rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes solution-hop{0%{transform:translateY(0)}42%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+/* Xuk ekrani (flex ustun): to'rt variant bitta qatorda, izoh ixcham */
+.hook-stack>.question{align-content:start;padding:10px 12px;grid-template-rows:auto auto}
+.hook-stack .hook-feedback-slot{min-height:0}
+.hook-stack .options-four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.hook-stack .options-four .option{min-height:52px;grid-template-columns:1fr;justify-items:center;align-content:center;gap:3px;text-align:center;font-size:15px}
+.hook-stack .options-four .option>b{display:none}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"]{min-height:72px!important;grid-template-columns:54px minmax(0,1fr)!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]{width:54px!important;height:66px!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}
+
+@media(max-width:639.98px){
+  .split-layout,.build-layout,.rule-layout{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .split-model,.split-steps,.relation-layout,.band-layout,.rapid-layout,.repair-sheet,.rule-slots,.rule-bank,.build-panel{padding:10px;border-radius:14px}
+  .mini-frame{padding:11px 12px;border-radius:14px;gap:8px}
+  .task-expression{font-size:18px}
+  .task-layout>.question{padding:10px 11px}
+  .unit-col{min-height:96px}
+  .unit-col>strong{font-size:30px}
+  .step-list{gap:6px}
+  .step-list>li{min-height:44px;padding:7px 9px;grid-template-columns:22px minmax(0,1fr);gap:8px}
+  .step-list>li>b{width:21px;height:21px;font-size:9px}
+  .step-list>li>span{font-size:12px}
+  .track-pair{grid-template-columns:1fr;gap:7px}
+  .track-frame{padding:9px;border-radius:13px;gap:6px}
+  .track-frame>p{min-height:0;padding:6px 8px;font-size:11px}
+  .track-steps{grid-template-columns:1fr;gap:7px}
+  .track-rule{max-width:none;padding:7px 9px;font-size:11px}
+  .build-slots{gap:7px}
+  .build-slot{min-height:56px}
+  .build-slot>b{font-size:22px}
+  .tile{min-height:44px;font-size:13px}
+  .relation-row{grid-template-columns:1fr;gap:8px;padding:9px 10px}
+  .relation-pick>button{min-width:0;flex:1;font-size:11px}
+  .band{min-height:54px;font-size:14px}
+  .route-pair{grid-template-columns:1fr;gap:8px}
+  .route-card{padding:10px;border-radius:14px;gap:6px}
+  .route-card>em{padding:6px 8px;font-size:11px}
+  .rapid-tiles{grid-template-columns:1fr;gap:6px}
+  .rapid-prompt{font-size:15px}
+  .rapid-log>li{min-height:40px;padding:7px 9px;gap:8px}
+  .rapid-log>li>span{font-size:11px}
+  .rapid-log>li>em{font-size:13px}
+  .solution-bit{width:44px;height:55px;flex:0 0 44px}
+  :is(.split-done,.track-rule,.rule-memo,.rapid-done-head,.route-verdict){grid-template-columns:44px minmax(0,1fr)}
+  .split-done,.rapid-done-head{grid-template-columns:44px minmax(0,1fr) auto}
+  .track-rule,.route-verdict{min-height:62px}
+  .rule-status{min-height:0}
+  .rule-memo{padding:7px 9px;gap:2px}
+  .rule-memo>b,.rule-memo>span{font-size:10px}
+  .rule-slot{min-height:44px;padding:7px 9px}
+  .rule-bank-list>button{min-height:44px;padding:8px 9px;font-size:11px}
+  .dispatch-body{grid-template-columns:1fr;gap:6px}
+  .cable-card{padding:6px 7px;gap:3px}
+  .cable-card>strong{font-size:13px}
+  .order-card{padding:7px 8px}
+  .order-card>strong{font-size:14px}
+  .repair-row{min-height:42px;padding:8px 10px}
+  .repair-row>span{font-size:12px}
+  .lesson-root .hook-stack>.question .options-four{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .hook-stack .options-four .option{min-height:46px;font-size:13px}
+}
+@media(max-height:700px){
+  .unit-col{min-height:110px}
+  .band{min-height:58px}
+  .build-slot{min-height:60px}
+  .step-list>li{min-height:48px}
+  .route-card{padding:11px}
+  .repair-row{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .unit-carry,.unit-chunk,.split-done,.band-exact,.rule-memo,.route-verdict,.solution-bit{animation:none}
+  .track-frame>p{transition:none}
+}
+@media(max-width:639.98px){
+  .finale-heading h1{font-size:18px}
+  .finale-heading p{-webkit-line-clamp:1}
+  .finale-mastery>span>p{font-size:11px;line-height:1.22}
+  .finale-mastery>span{min-height:0}
+  .finale-proof>b,.finale-bridge>b{font-size:8px}
+}
+`;
+
+// ---------------------------------------------------------------------------
+// DARSGA XOS CHIZMALAR VA MEXANIKALAR
+// ---------------------------------------------------------------------------
+
+// Transportir chizmasi. `stage` — o'rnatish bosqichi: 0 markaz, 1 asos,
+// 2 belgi va ikkinchi tomon. `both` — ikkala shkalaning soni ko'rsatiladi.
+const ProtractorSvg = ({ degree = 60, stage = 2, both = false, offCentre = false, tone = 'light' }) => {
+  const cx = 110;
+  const cy = 96;
+  const r = 76;
+  const point = (deg, radius) => [
+    cx + radius * Math.cos((deg * Math.PI) / 180),
+    cy - radius * Math.sin((deg * Math.PI) / 180),
+  ];
+  const [mx, my] = point(degree, r + 8);
+  const [tx, ty] = point(degree, r - 16);
+  const [ox, oy] = point(180 - degree, r - 16);
+  const shift = offCentre ? 16 : 0;
+  return (
+    <svg className={`prot-svg tone-${tone}`} viewBox="0 0 220 120" aria-hidden="true">
+      <path className="prot-dial" d={`M${cx - r} ${cy}A${r} ${r} 0 0 1 ${cx + r} ${cy}`} />
+      {[0, 30, 60, 90, 120, 150, 180].map((deg) => {
+        const [x1, y1] = point(deg, r);
+        const [x2, y2] = point(deg, r - 11);
+        return <path key={deg} className="prot-tick" d={`M${x1} ${y1}L${x2} ${y2}`} />;
+      })}
+      <path className={`prot-base ${stage >= 1 ? 'is-set' : ''}`} d={`M${cx - shift} ${cy}H${cx + r + 14}`} />
+      {stage >= 2 && <path className="prot-ray" d={`M${cx - shift} ${cy}L${mx - shift} ${my}`} />}
+      {stage >= 2 && <circle className="prot-mark" cx={mx} cy={my} r="5" />}
+      {stage >= 2 && <text className="prot-read inner" x={tx} y={ty}>{degree}</text>}
+      {stage >= 2 && both && <text className="prot-read outer" x={ox} y={oy}>{180 - degree}</text>}
+      <circle className={`prot-centre ${stage >= 0 ? 'is-set' : ''}`} cx={cx - shift} cy={cy} r="6" />
+      <text className="prot-zero left" x={cx - r - 4} y={cy + 15}>0</text>
+      <text className="prot-zero right" x={cx + r - 6} y={cy + 15}>0</text>
+    </svg>
+  );
+};
+
+// Xuk sahnasi: transportir stoli, buyurtma va Bitning chizmasi.
+const HookScene = ({ c, resolved }) => {
+  const t = useT();
+  return (
+    <div className={`dispatch-visual ${resolved ? 'is-resolved' : ''}`}>
+      <div className="dispatch-head">
+        <span className="dispatch-node"><i />{t(c.nodeName)}</span>
+        <span className="dispatch-state">{t(c.stateBad)}</span>
+      </div>
+      <div className="dispatch-body desk-body">
+        <div className="desk-figure"><ProtractorSvg degree={44} stage={2} offCentre tone="dark" /></div>
+        <div className="desk-cards">
+          <div className="cable-card">
+            <span>{t(c.orderLabel)}</span>
+            <strong>{t(c.orderValue)}</strong>
+          </div>
+          <div className="order-card">
+            <span>{t(c.botLabel)}</span>
+            <strong>{t(c.botValue)}</strong>
+            <i className="order-flag" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// s1 — transportirni uch qadamda o'rnatish.
+function ProtractorSetupScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s1;
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const advance = () => {
+    if (!ready || step > 1) return;
+    const next = step + 1;
+    setStep(next);
+    audio.speakStep(next);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={step === 2}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="split-layout">
+          <div className="split-model">
+            <span className="panel-label">{t(c.lead)}</span>
+            <div className="prot-frame" data-g4-role="visual-frame">
+              <ProtractorSvg degree={c.target} stage={step} />
+            </div>
+            {step < 2
+              ? <button type="button" className="btn-white-accent step-button" disabled={!ready} onClick={advance}>{t(c.tapHint)} →</button>
+              : (
+                <div className="split-done">
+                  <SolutionBit />
+                  <span>{t(c.doneLabel)}</span>
+                  <strong>{t(c.doneValue)}</strong>
+                </div>
+              )}
+          </div>
+          <div className="split-steps">
+            <StepList steps={c.steps} step={step} />
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+// s5 — ikkita shkalani almashtirib solishtirish.
+function ScaleSwitchScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s5;
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const outer = step === 1;
+  const flip = () => {
+    if (!ready || step > 1) return;
+    const next = step + 1;
+    setStep(next);
+    audio.speakStep(Math.min(next, 2));
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={step === 2}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="switch-layout">
+          <div className="switch-head">
+            <span className="panel-label">{t(c.source)}</span>
+            <p className="relation-lead">{t(c.lead)}</p>
+          </div>
+          <div className="switch-figure" data-g4-role="visual-frame">
+            <ProtractorSvg degree={c.degree} stage={2} both />
+            <div className="switch-reads">
+              <b className={!outer && step !== 2 ? 'is-live' : step === 2 ? 'is-live' : ''}>{t(c.inner)}<em>{t(c.innerRead)}</em></b>
+              <b className={outer ? 'is-live' : ''}>{t(c.outer)}<em>{t(c.outerRead)}</em></b>
+            </div>
+          </div>
+          {step < 2
+            ? <button type="button" className="btn-white-accent step-button" disabled={!ready} onClick={flip}>{t(c.switchLabel)} →</button>
+            : (
+              <div className="split-done">
+                <SolutionBit />
+                <span>{t(c.doneLabel)}</span>
+                <strong>{t(c.doneValue)}</strong>
+              </div>
+            )}
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+// Tanlov ekranlaridagi chizmalar.
+const ProtractorCard = ({ c, both = false }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.taskNote)}</span>
+      <div className="prot-frame small">
+        <ProtractorSvg degree={c.figDegree} stage={2} both={both} />
+      </div>
+      <strong className="task-expression small">{t(c.task)}</strong>
+    </div>
+  );
+};
+
+const ZeroSideCard = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.taskNote)}</span>
+      <strong className="task-expression small">{t(c.task)}</strong>
+      <div className="zero-strip"><i className="off">0</i><span /><i className="on">0</i></div>
+    </div>
+  );
+};
+
+// Yechim freymidagi Bit. O'lchov va jest etalon Dars01 dagidek.
+const SolutionBit = () => (
+  <span className="solution-bit"><BitSVG state="nod" /></span>
+);
+
+// Bosqichlar ro'yxati: ochilgan qadam yonadi, qolganlari kutadi.
+const StepList = ({ steps, step }) => {
+  const t = useT();
+  return (
+    <ol className="step-list">
+      {steps.map((item, index) => (
+        <li key={index} className={index < step ? 'is-done' : index === step ? 'is-active' : ''}>
+          <b>{index + 1}</b>
+          <span>{t(item)}</span>
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useNarration(c.audio, screen);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const canAnswer = isAudioReady(audio);
+  const choose = (index) => {
+    if (!canAnswer || picked !== null) return;
+    const nextAttempts = attempts + 1;
+    setPicked(index);
+    setAttempts(nextAttempts);
+    audio.pushOneOff(t(c.feedback));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), options: c.options.map((option) => t(option)),
+      correctIndex: null, correctAnswer: null,
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}>
+      <div className="stack hook-stack" data-g4-screen="hook">
+        <Heading c={c} hook />
+        <h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2>
+        <section className="model-card hook-card" data-g4-role="hook-scene">
+          <div className="hook-scene-visual" data-g4-role="visual-frame">
+            <HookScene c={c} resolved={picked !== null} />
+            <div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div>
+          </div>
+        </section>
+        <section className="question hook-question" data-g4-role="answer-card" aria-live="polite">
+          <h2>{t(c.question)}</h2>
+          <div className="options options-four">
+            {c.options.map((option, index) => (
+              <button
+                type="button" key={index} data-g4-role="answer-card"
+                className={`option ${picked === index ? 'picked' : ''}`}
+                disabled={!canAnswer || picked !== null}
+                onClick={() => choose(index)}
+              >
+                <b>{String.fromCharCode(65 + index)}</b>
+                <span>{t(option)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="feedback-slot hook-feedback-slot">
+            {picked !== null && (
+              <div className="feedback neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic">
+                <p>{t(c.feedback)}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+// Umumiy tanlov ekrani. Chapdagi chizma har ekranda boshqacha: uni `visual`
+// propi beradi, shuning uchun beshta tanlov ekrani bir xil ko'rinmaydi.
+function ChoiceScreen({ screen, storedAnswer, onAnswer, onPrev, onNext, visual }) {
+  const t = useT();
+  const c = CONTENT[`s${screen}`];
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const answerOrdinal = ANSWER_ORDINAL_BY_SCREEN[screen];
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, answerOrdinal);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []);
+  const correct = picked === c.correctIndex;
+  const choose = (index) => {
+    if (!canAnswer || correct || wrongChoices.includes(index)) return;
+    const ok = index === c.correctIndex;
+    const nextAttempts = attempts + 1;
+    const nextWrong = ok ? wrongChoices : [...wrongChoices, index];
+    setPicked(index);
+    setAttempts(nextAttempts);
+    setWrongChoices(nextWrong);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong[index]));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), options: c.options.map((option) => t(option)),
+      correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, wrongChoices: nextWrong, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="task-layout">
+          <div className="task-model">
+            {visual}
+          </div>
+          <div className="question" aria-live="polite">
+            <h2>{t(c.question)}</h2>
+            <div className="options options-four">
+              {optionOrder.map((sourceIndex, displayIndex) => {
+                const state = sourceIndex === c.correctIndex && correct ? 'right'
+                  : wrongChoices.includes(sourceIndex) ? 'bad' : '';
+                return (
+                  <button
+                    type="button" key={sourceIndex}
+                    data-g4-source-index={sourceIndex}
+                    data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+                    className={`option ${state}`}
+                    disabled={!canAnswer || correct || wrongChoices.includes(sourceIndex)}
+                    onClick={() => choose(sourceIndex)}
+                  >
+                    <b>{String.fromCharCode(65 + displayIndex)}</b>
+                    <span>{t(c.options[sourceIndex])}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="feedback-slot question-feedback-slot">
+              {picked !== null && (correct ? (
+                <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                  <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"} /></span>
+                  <p data-g4-role="bit-answer-comment">
+                    <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                    <em className="solution-formula">{t(c.proof)}</em>
+                    <span className="solution-text">{t(c.feedback[picked])}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                  <p>{t(c.feedback[picked])}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function ThreeStepScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s3;
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const last = c.rows.length - 1;
+  const advance = () => {
+    if (!ready || step >= last) return;
+    const next = step + 1;
+    setStep(next);
+    audio.speakStep(next);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={step >= last}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="track-layout">
+          <div className="track-pair">
+            <div className="track-frame">
+              <span className="panel-label">{t(c.leftLabel)}</span>
+              {c.rows.map((row, index) => (
+                <p key={index} className={index <= step ? 'show' : ''}>{t(row.left)}</p>
+              ))}
+            </div>
+            <div className="track-frame is-accent">
+              <span className="panel-label">{t(c.rightLabel)}</span>
+              {c.rows.map((row, index) => (
+                <p key={index} className={index <= step ? 'show' : ''}>{t(row.right)}</p>
+              ))}
+            </div>
+          </div>
+          <div className="track-steps">
+            <div className="track-step-now"><b>{step + 1}</b><span>{t(c.rows[step].step)}</span></div>
+            {step < last
+              ? <button type="button" className="btn-white-accent step-button" disabled={!ready} onClick={advance}>{t(STEP_LABEL)} →</button>
+              : <div className="track-rule"><SolutionBit /><span>{t(c.ruleNote)}</span></div>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function TileBuildScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s4;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const [values, setValues] = useState(storedAnswer?.correct ? c.slots.map((slot) => slot.answer) : [null, null]);
+  const [checked, setChecked] = useState(storedAnswer?.correct === true);
+  const [message, setMessage] = useState(null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const solved = checked && values.every((value, index) => value === c.slots[index].answer);
+  const filled = values.every((value) => value !== null);
+  const pick = (slotIndex, value) => {
+    if (!canAnswer || solved) return;
+    setValues((previous) => previous.map((item, index) => (index === slotIndex ? value : item)));
+    setMessage(null);
+    setChecked(false);
+  };
+  const check = () => {
+    if (!filled || !canAnswer || solved) return;
+    const ok = values.every((value, index) => value === c.slots[index].answer);
+    const nextAttempts = attempts + 1;
+    setAttempts(nextAttempts);
+    setChecked(true);
+    const text = ok ? c.okText : values[0] !== c.slots[0].answer ? c.wrongT : c.wrongQ;
+    setMessage(text);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), correctAnswer: c.slots.map((slot) => slot.answer).join(' '),
+      studentAnswer: values.join(' '), correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="build-layout">
+          <div className="mini-frame" data-g4-role="visual-frame">
+            <span className="panel-label">{t(c.taskNote)}</span>
+            <strong className="task-expression">{t(c.task)}</strong>
+          </div>
+          <div className="build-panel" aria-live="polite">
+            <h2>{t(c.question)}</h2>
+            <div className="build-slots">
+              {c.slots.map((slot, slotIndex) => (
+                <div key={slot.key} className={`build-slot ${values[slotIndex] !== null ? 'is-filled' : ''}`}>
+                  <b>{values[slotIndex] === null ? '?' : ((c.unitNames && slotIndex === 1) || c.tileNames ? '✓' : values[slotIndex])}</b>
+                  <span>{c.tileNames ? (values[slotIndex] === null ? '' : t(c.tileNames[slotIndex][values[slotIndex]])) : c.unitNames ? (values[slotIndex] === null ? '' : t(c.unitNames[values[slotIndex]])) : t(slotIndex === 0 ? c.unitT : c.unitQ)}</span>
+                  <em>{t(slot.label)}</em>
+                </div>
+              ))}
+            </div>
+            <div className="build-tiles">
+              {c.slots.map((slot, slotIndex) => (
+                <div key={slot.key} className="tile-row">
+                  {slot.tiles.map((tile) => (
+                    <button
+                      type="button" key={tile}
+                      className={`tile ${values[slotIndex] === tile ? 'picked' : ''}`}
+                      disabled={!canAnswer || solved}
+                      onClick={() => pick(slotIndex, tile)}
+                    >
+                      {c.tileNames ? t(c.tileNames[slotIndex][tile]) : c.unitNames ? t(c.unitNames[tile]) : `${tile} ${t(slotIndex === 0 ? c.unitT : c.unitQ)}`}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <button type="button" className="btn-white-accent check-wide" disabled={!filled || !canAnswer || solved} onClick={check}>
+              {t(CHECK_LABEL)}
+            </button>
+            <div className="feedback-slot build-feedback-slot">
+              {message && (solved ? (
+                <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                  <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                  <p data-g4-role="bit-answer-comment">
+                    <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                    <em className="solution-formula">{t(c.proof)}</em>
+                    <span className="solution-text">{t(message)}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                  <p>{t(message)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RowRepairScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s7;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [wrongRows, setWrongRows] = useState(storedAnswer?.wrongChoices ?? []);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const correct = picked === c.answerIndex;
+  const tap = (index) => {
+    if (!canAnswer || correct || wrongRows.includes(index)) return;
+    const ok = index === c.answerIndex;
+    const nextAttempts = attempts + 1;
+    const nextWrong = ok ? wrongRows : [...wrongRows, index];
+    setPicked(index);
+    setAttempts(nextAttempts);
+    setWrongRows(nextWrong);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.lead), correctAnswer: t(c.rows[c.answerIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.rows[index]),
+      correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, wrongChoices: nextWrong, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="repair-layout">
+          <div className="repair-sheet" aria-live="polite">
+            <div className="repair-head">
+              <span className="panel-label">{t(c.source)}</span>
+              <span className="repair-lead">{t(c.lead)}</span>
+            </div>
+            {c.rows.map((row, index) => (
+              <button
+                type="button" key={index}
+                className={`repair-row ${index === c.answerIndex && correct ? 'is-found' : ''} ${wrongRows.includes(index) ? 'is-ruled' : ''}`}
+                disabled={!canAnswer || correct || wrongRows.includes(index)}
+                onClick={() => tap(index)}
+              >
+                <b>{index + 1}</b>
+                <span>{t(row)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="feedback-slot repair-feedback-slot">
+            {picked !== null && (correct ? (
+              <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                <p data-g4-role="bit-answer-comment">
+                  <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                  <em className="solution-formula">{t(c.fix)}</em>
+                  <span className="solution-text">{t(c.rowFeedback[picked])}</span>
+                </p>
+              </div>
+            ) : (
+              <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                <p>{t(c.rowFeedback[picked])}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function EstimateBandScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s8;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.answerIndex;
+  const step = solved ? 2 : picked !== null ? 1 : 0;
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const tap = (index) => {
+    if (!ready || solved) return;
+    setPicked(index);
+    audio.speakStep(index === c.answerIndex ? 2 : 1);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="band-layout">
+          <div className="band-task">
+            <strong className="task-expression">{t(c.task)}</strong>
+            <p>{t(c.lead)}</p>
+          </div>
+          <div className="band-line" data-g4-role="visual-frame">
+            <div className="band-track">
+              {c.bands.map((band, index) => (
+                <button
+                  type="button" key={index}
+                  className={`band ${picked === index ? (index === c.answerIndex ? 'is-right' : 'is-wrong') : ''}`}
+                  disabled={!ready || solved}
+                  onClick={() => tap(index)}
+                >
+                  {t(band)}
+                </button>
+              ))}
+            </div>
+            {solved && <div className="band-exact"><SolutionBit /><span>{t(c.exactLabel)}</span><strong>{t(c.exact)}</strong></div>}
+          </div>
+          <div className="band-note" aria-live="polite">
+            {picked !== null && <p className={solved ? 'is-right' : 'is-wrong'}>{t(c.bandFeedback[picked])}</p>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RuleBuilderScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s10;
+  const audio = useNarration(c.audio, screen);
+  const ready = isAudioReady(audio);
+  const [order, setOrder] = useState([]);
+  const [failed, setFailed] = useState(false);
+  const size = c.parts.length;
+  const solved = order.length === size && order.every((value, index) => value === index);
+  const choose = (index) => {
+    if (!ready || solved || order.includes(index)) return;
+    const next = [...order, index];
+    setOrder(next);
+    setFailed(next.some((value, place) => value !== place));
+  };
+  const reset = () => { setOrder([]); setFailed(false); };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rule-layout">
+          <div className="rule-slots">
+            <span className="panel-label">{t(c.slotLabel)}</span>
+            {Array.from({ length: size }, (_, place) => {
+              const index = order[place];
+              return (
+                <div key={place} className={`rule-slot ${index === undefined ? 'is-empty' : index === place ? 'is-right' : 'is-wrong'}`}>
+                  <b>{place + 1}</b>
+                  <span>{index === undefined ? '' : t(c.parts[index])}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="rule-bank">
+            <span className="panel-label">{t(c.bankLabel)}</span>
+            <div className="rule-bank-list">
+              {c.parts.map((part, index) => (
+                <button type="button" key={index} disabled={!ready || order.includes(index) || solved} onClick={() => choose(index)}>
+                  {t(part)}
+                </button>
+              ))}
+            </div>
+            {order.length > 0 && !solved && (
+              <button type="button" className="tiny-action" onClick={reset}>{t(c.resetLabel)}</button>
+            )}
+            <div className="rule-status" aria-live="polite">
+              {solved && <div className="rule-memo"><SolutionBit /><div><b>{t(c.okText)}</b><span>{t(c.memo)}</span></div></div>}
+              {!solved && failed && <p className="rule-warn">{t(c.wrongText)}</p>}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RapidConsoleScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s11;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  // Ekranga qaytilganda yopilgan raundlar qayta so'ralmaydi (etalon: storedAnswer).
+  const restored = storedAnswer?.solved === true;
+  const [round, setRound] = useState(restored ? c.rounds.length : 0);
+  const [picked, setPicked] = useState(null);
+  const [correctCount, setCorrectCount] = useState(restored ? c.rounds.length : 0);
+  const [cleanCount, setCleanCount] = useState(0);
+  const [tries, setTries] = useState(0);
+  const done = round >= c.rounds.length;
+  const current = c.rounds[Math.min(round, c.rounds.length - 1)];
+  const solvedRound = picked === current.answer;
+  const tap = (index) => {
+    if (!canAnswer || done || solvedRound) return;
+    const ok = index === current.answer;
+    setPicked(index);
+    setTries((value) => value + 1);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? current.ok : current.no));
+    if (!ok) return;
+    const nextCorrect = correctCount + 1;
+    const clean = cleanCount + (tries === 0 ? 1 : 0);
+    setCorrectCount(nextCorrect);
+    setCleanCount(clean);
+    window.setTimeout(() => { setRound((value) => value + 1); setPicked(null); setTries(0); }, 900);
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.title), correctAnswer: String(nextCorrect), studentAnswer: String(nextCorrect),
+      correct: nextCorrect === c.rounds.length,
+      firstTry: clean === c.rounds.length,
+      attempts: tries + 1, solved: nextCorrect === c.rounds.length,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={done}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rapid-layout">
+          <div className="rapid-head">
+            <span className="panel-label">{t(c.source)}</span>
+            <div className="rapid-dots">
+              {c.rounds.map((_, index) => <i key={index} className={index < round ? 'is-done' : index === round ? 'is-now' : ''} />)}
+            </div>
+            <span className="rapid-count">{Math.min(round + 1, c.rounds.length)} / {c.rounds.length} {t(c.counter)}</span>
+          </div>
+          {done ? (
+            <div className="rapid-done">
+              <div className="rapid-done-head"><SolutionBit /><span>{t(c.doneText)}</span><strong>{correctCount} / {c.rounds.length}</strong></div>
+              <ul className="rapid-log">
+                {c.rounds.map((item, index) => (
+                  <li key={index}><i>{index + 1}</i><span>{t(item.prompt)}</span><em>{t(item.tiles[item.answer])}</em></li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="rapid-body" aria-live="polite">
+              <strong className="rapid-prompt">{t(current.prompt)}</strong>
+              <div className="rapid-tiles">
+                {current.tiles.map((tile, index) => (
+                  <button
+                    type="button" key={index}
+                    className={`tile wide ${picked === index ? (index === current.answer ? 'right' : 'bad') : ''}`}
+                    disabled={!canAnswer || solvedRound}
+                    onClick={() => tap(index)}
+                  >
+                    {t(tile)}
+                  </button>
+                ))}
+              </div>
+              <div className="feedback-slot rapid-feedback-slot">
+                {picked !== null && (solvedRound ? (
+                  <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                    <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                    <p data-g4-role="bit-answer-comment">
+                      <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                      <span className="solution-text">{t(current.ok)}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                    <p>{t(current.no)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RouteCompareScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s12;
+  const [picked, setPicked] = useState(null);
+  const step = picked === null ? 0 : 2;
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const choose = (index) => {
+    if (!ready || picked !== null) return;
+    setPicked(index);
+    audio.pushOneOff(t(c.routeFeedback[index]));
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="route-layout">
+          <div className="route-head">
+            <strong className="task-expression">{t(c.lead)}</strong>
+            <span className="panel-label">{t(c.source)}</span>
+          </div>
+          <div className="route-pair">
+            {c.routes.map((route, index) => (
+              <button
+                type="button" key={index}
+                className={`route-card ${picked === index ? (index === c.answerIndex ? 'is-best' : 'is-other') : ''}`}
+                disabled={!ready || picked !== null}
+                onClick={() => choose(index)}
+              >
+                <span className="route-name">{t(route.name)}</span>
+                {route.lines.map((line, lineIndex) => <em key={lineIndex}>{t(line)}</em>)}
+              </button>
+            ))}
+          </div>
+          <div className="route-note" aria-live="polite">
+            {picked === null
+              ? <p className="route-hint">{t(c.note)}</p>
+              : <div className={`route-verdict ${picked === c.answerIndex ? 'is-right' : 'is-other'}`}><SolutionBit /><span>{t(c.routeFeedback[picked])}</span></div>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+const FINAL_STAGE = bi('YAKUNIY BOSQICH', 'ФИНАЛЬНЫЙ ЭТАП', 'FINAL STAGE');
+const PROOF_LABEL = bi("BOSHLANG'ICH MISSIYA YECHIMI", 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', 'STARTING MISSION SOLVED');
+const BRIDGE_LABEL = bi('KEYINGI MISSIYA', 'СЛЕДУЮЩАЯ МИССИЯ', 'NEXT MISSION');
+const REWARD_WAIT = bi('MUKOFOT KUTILMOQDA', 'НАГРАДА ЖДЁТ', 'THE REWARD AWAITS');
+const REWARD_OPEN = bi('Unvonni oching', 'Открой звание', 'Unlock your title');
+const FIRST_TRY_LABEL = bi('birinchi urinishda', 'с первой попытки', 'on the first attempt');
+const CLAIM_LABEL = bi('Unvonni olish', 'Получить звание', 'Claim title');
+const PENDING_LABEL = bi('Avval yakuniy xulosani tinglang', 'Сначала дослушайте итог', 'Listen to the summary first');
+
+function FinaleScreen({ screen, answers, onAnswer, onPrev, finishLesson, finalState, onFinalState }) {
+  const t = useT();
+  const c = CONTENT.s15;
+  const storedAnswer = finalState;
+  const audio = useNarration(c.audio, screen);
+  const reduced = usePrefersReducedMotion();
+  const visible = audio.frame + 1;
+  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const canClaimTitle = audio.completed || audio.muted;
+  const scored = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+  const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
+  useEffect(() => {
+    if (!revealRequested) return undefined;
+    const timer = window.setTimeout(() => setRevealRequested(false), reduced ? 350 : 4300);
+    return () => window.clearTimeout(timer);
+  }, [reduced, revealRequested]);
+  const claimTitle = () => {
+    if (!canClaimTitle || titleClaimed) return;
+    setTitleClaimed(true);
+    setRevealRequested(true);
+    onFinalState((previous) => ({ ...previous, titleClaimed: true }));
+    onAnswer({
+      screenIdx: screen, stage: null, question: t(CLAIM_LABEL),
+      options: [t(c.rewardTitle)], correctIndex: 0, correctAnswer: t(c.rewardTitle),
+      studentAnswerIndex: 0, studentAnswer: t(c.rewardTitle),
+      correct: true, firstTry: true, attempts: 1, solved: true, titleClaimed: true,
+    });
+  };
+  return (
+    <Stage
+      screen={screen} audio={titleClaimed ? { ...audio, completed: true } : audio}
+      onPrev={onPrev} onNext={titleClaimed ? finishLesson : undefined}
+      canAdvance canFinish={titleClaimed} finish
+    >
+      <div className="screen-stack finale-screen">
+        <div className="finale-heading">
+          <span><i aria-hidden="true">◆</i>{t(FINAL_STAGE)}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t(c.lead)}</p>
+        </div>
+        <div className="finale-body">
+          <div className="finale-column">
+            <div className="finale-mastery">
+              {c.frames.slice(0, 3).map((item, index) => (
+                <span key={index} className={index < visible ? 'is-open' : ''}><i>{index + 1}</i><p>{t(item)}</p></span>
+              ))}
+            </div>
+            <div className={`finale-proof ${visible >= 4 ? 'is-open' : ''}`}>
+              <b>{t(PROOF_LABEL)}</b>
+              <span>{t(c.frames[3])}</span>
+            </div>
+            <div className={`finale-bridge ${visible >= 5 ? 'is-open' : ''}`}>
+              <i aria-hidden="true">→</i>
+              <b>{t(BRIDGE_LABEL)}</b>
+              <span>{t(c.frames[4])}</span>
+            </div>
+          </div>
+          <div className="finale-actions" data-g4-final-reflection="none">
+            {titleClaimed
+              ? <G4TitleCard title={c.rewardTitle} answers={answers} />
+              : (
+                <div className="reward-stage reward-stage-compact reward-locked">
+                  <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state="present" /></div>
+                  <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">🔒</div>
+                  <span className="reward-kicker">{t(REWARD_WAIT)}</span>
+                  <h2>{t(REWARD_OPEN)}</h2>
+                  <div className="reward-score"><strong>{firstTryCorrect}/{scored.length}</strong><span>{t(FIRST_TRY_LABEL)}</span></div>
+                </div>
+              )}
+            {!titleClaimed && (
+              <button type="button" className="g4-title-claim" disabled={!canClaimTitle} onClick={claimTitle}>
+                {t(CLAIM_LABEL)}
+              </button>
+            )}
+            {!titleClaimed && !canClaimTitle && <small className="finale-pending">{t(PENDING_LABEL)}</small>}
+          </div>
+        </div>
+        {titleClaimed && <G4TitleReveal active={revealRequested} title={c.rewardTitle} />}
+      </div>
+    </Stage>
+  );
+}
+
+const Screen0 = (props) => <HookScreen {...props} />;
+const Screen1 = (props) => <ProtractorSetupScreen {...props} />;
+const Screen2 = (props) => <ChoiceScreen {...props} visual={<ProtractorCard c={CONTENT.s2} />} />;
+const Screen3 = (props) => <ThreeStepScreen {...props} />;
+const Screen4 = (props) => <TileBuildScreen {...props} />;
+const Screen5 = (props) => <ScaleSwitchScreen {...props} />;
+const Screen6 = (props) => <ChoiceScreen {...props} visual={<ZeroSideCard c={CONTENT.s6} />} />;
+const Screen7 = (props) => <RowRepairScreen {...props} />;
+const Screen8 = (props) => <EstimateBandScreen {...props} />;
+const Screen9 = (props) => <ChoiceScreen {...props} visual={<ProtractorCard c={CONTENT.s9} both />} />;
+const Screen10 = (props) => <RuleBuilderScreen {...props} />;
+const Screen11 = (props) => <RapidConsoleScreen {...props} />;
+const Screen12 = (props) => <RouteCompareScreen {...props} />;
+const Screen13 = (props) => <ChoiceScreen {...props} visual={<ProtractorCard c={CONTENT.s13} both />} />;
+const Screen14 = (props) => <ChoiceScreen {...props} visual={<ProtractorCard c={CONTENT.s14} />} />;
+const Screen15 = (props) => <FinaleScreen {...props} />;
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15];
+
+export default function Grade4Dars34({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
+  const initialLang = normalizeLang(langProp);
+  const [previewLang, setPreviewLang] = useState(initialLang);
+  const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang;
+  configureLesson({
+    ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f',
+    correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview,
+  });
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [finalState, setFinalState] = useState({ titleClaimed: false });
+  const [startedAt] = useState(() => Date.now());
+  const finished = useRef(false);
+  const recordAnswer = useCallback((answer) => setAnswers((previous) => {
+    const next = [...previous];
+    const old = previous[answer.screenIdx];
+    next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry };
+    return next;
+  }), []);
+  const finishLesson = useCallback(() => {
+    if (finished.current) return;
+    finished.current = true;
+    const scored = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+    const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
+    const payload = {
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle[lang],
+      studentName: studentName || null,
+      durationSec: Math.floor((Date.now() - startedAt) / 1000),
+      totalQuestions: scored.length,
+      correctAnswers: firstTryCorrect,
+      scorePercent: Math.round(firstTryCorrect / scored.length * 100),
+      finalScore: firstTryCorrect,
+      finalTotal: scored.length,
+      passed: firstTryCorrect / scored.length >= 0.6,
+      firstTryStats: { total: scored.length, firstTryCorrect },
+      attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0),
+      skillTags: LESSON_META.skillTags,
+      answers: answers.filter(Boolean),
+    };
+    if (onFinished) onFinished(payload);
+    else console.log('[Grade4 Dars34 preview]', payload);
+  }, [answers, lang, onFinished, startedAt, studentName]);
+  const Current = SCREENS[current];
+  return (
+    <LangContext.Provider value={lang}>
+      <style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES}</style>
+      <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
+        {showPreviewControls && (
+          <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>
+            {['uz', 'ru', 'en'].map((code) => (
+              <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
+                {code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+        <Current
+          key={current} screen={current} storedAnswer={answers[current]} answers={answers}
+          onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState}
+          onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
+          onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))}
+          finishLesson={finishLesson}
+        />
+      </div>
+    </LangContext.Provider>
+  );
+}const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay{
   position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
   background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.9s ease both
@@ -1607,7 +2501,7 @@ const G4_TITLE_STYLES = `
 @keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
 @keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
 @keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){
+@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr);padding-top:5px;padding-bottom:6px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}
   .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
   .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
   .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
@@ -1616,7 +2510,12 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit{width:57px;height:71px}
   .g4-title-card-stage h2{font-size:14px}
 }
-@media(prefers-reduced-motion:reduce){
+@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr)}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
+.summary-complete>.title-claim-card{grid-column:auto}.summary-complete>[data-g4-role="title-card"]{height:100%;min-height:0}
+@media(max-width:639.98px){.summary-complete{grid-template-rows:minmax(0,1fr) 88px}.summary-complete>.title-claim-card,.summary-complete>[data-g4-role="title-card"]{height:88px;min-height:0}.title-claim-card{padding:6px 7px;grid-template-columns:30px minmax(0,1fr) auto;place-items:center;align-content:center;gap:6px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:13px;line-height:1.1}.title-claim-card .g4-title-claim{min-width:96px;min-height:44px;padding:0 7px}}
+@media(max-height:700px){.summary-complete{grid-template-rows:minmax(0,1fr) 82px}}
+@media(max-width:639.98px) and (max-height:700px){.summary-complete>.title-claim-card,.summary-complete>[data-g4-role="title-card"]{height:82px}}
+@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}
   .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
   .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
   .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
@@ -1718,15 +2617,11 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
 const STYLES = `${G4_TITLE_STYLES}
 .feedback-bit{width:25px;height:31px}.proof-label{margin-right:7px;color:${T.lime}}.title-claim-card{grid-column:1/-1;height:100%;display:grid;place-items:center;align-content:center;gap:12px;border-radius:20px;background:#fff;text-align:center;overflow:hidden}.title-claim-card>span{font-size:48px;color:#FFCE49}
 .stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{min-height:0;padding-top:9px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:38px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:32px;height:32px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{min-height:0;padding-top:7px;padding-bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) 40px;overflow:hidden}.stage-body{min-height:0;overflow:hidden}.caption-slot{height:40px;min-height:40px;padding-top:4px;overflow:hidden}.caption{height:36px;margin:0;padding:7px 11px;border-radius:12px;overflow:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled,.btn-ghost:disabled,.option:disabled{cursor:not-allowed;opacity:.48;transform:none}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.hook-stack{grid-template-rows:auto minmax(0,.82fr) minmax(0,1.18fr)}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px;overflow:hidden}.heading.heading-solo{justify-content:flex-start}.heading>div{min-width:0}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(24px,4vw,36px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.9fr) minmax(300px,1.1fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:44px;padding:7px 10px;border-radius:13px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;opacity:.12;transform:translateY(7px);overflow:hidden;background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(16px,2.5vw,21px)/1.22 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:14px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:7px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;color:#FFF;background:${T.navy};overflow:hidden;text-align:center;font:900 12px/1.2 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
+html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{min-height:0;padding-top:9px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:46px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:44px;height:44px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
+.stage-content{min-height:0;padding-top:7px;padding-bottom:8px;display:grid;grid-template-rows:minmax(0,1fr);overflow:hidden}.stage-body{min-height:0;overflow:hidden}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;overflow:hidden;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;overflow:hidden;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
 .conversion-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
-.summary-complete>.title-claim-card{grid-column:auto}
-@media(max-width:639.98px){.summary-complete{grid-template-rows:minmax(0,1fr) 88px}.title-claim-card{height:88px;padding:6px 7px;grid-template-columns:30px minmax(0,1fr) auto;place-items:center;align-content:center;gap:6px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:13px;line-height:1.1}.title-claim-card .g4-title-claim{min-width:96px;min-height:44px;padding:0 7px}}
-@media(max-height:700px){.summary-complete{grid-template-rows:minmax(0,1fr) 82px}}
-@media(max-width:639.98px) and (max-height:700px){.title-claim-card{height:82px}}
+@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr);padding-top:5px;padding-bottom:6px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
+@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr)}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}}
 .stage-hook .hook-card{overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
 @media(max-width:639.98px){.stage-hook .hook-card{border-radius:18px}}

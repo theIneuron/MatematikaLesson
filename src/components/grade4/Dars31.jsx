@@ -1,1263 +1,821 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { canUseGrade4TheoryContinue } from './theoryNavigation.js';
 
-// 4-sinf · Dars 31 · Kattaliklarga doir masalalar
-// 15 ekran · boshqariladigan audio · har bir mazmunli harakat yakunlangach navigatsiya ochiladi.
+// ============================================================================
+// 4-SINF · Dars 31 · Kattaliklarga doir masalalar
+//
+// SYUJET. O'lchov xizmatining tungi ta'mirlash dispetcherligi. Oyna 23:40 dan
+// 02:10 gacha ochiq: shu vaqt ichida kabel ulanadi, yuk ortiladi va smena
+// yopiladi. Har uch vazifa bitta usulni talab qiladi.
+//
+// YADRO. Bit ikki g'altakni qo'shadi: 3 m 45 cm va 2 m 80 cm. U "5 m 125 cm"
+// deb yozadi. Son to'g'ri, yozuv tugallanmagan: 125 cm ichida yana bir butun
+// metr bor. To'g'ri javob 6 m 25 cm.
+//
+// USUL (uch qadam + tekshiruv): bitta birlikka keltir, amalni bajar, javobni
+// o'qishga qulay birlikka qaytar, javob mantiqiymi deb tekshir.
+//
+// EKRAN RITMI (metodist talabi): qisqa tushuntirish, darrov misol, yana
+// tushuntirish, yana misol. Uzun ketma-ket tushuntirish bloklari yo'q.
+//
+// XATO MODELLARI. Tugallanmagan yozuv (5 m 125 cm) · sonni aylantirib birlikni
+// unutish · katta birlikdan noto'g'ri qarz olish · amalni "jami" kalit so'ziga
+// qarab tanlash · javobning mantiqiyligini tekshirmaslik.
+//
+// Vizual kontrakt: ETALON_4SINF.md va Dars01 (xuk freymi, tipografika,
+// obratnaya svyaz geometriyasi, yakun). Mavzuga xos chizmalar shu darsniki.
+// ============================================================================
+
 const T = {
   bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
   navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
+
+// Har ekrandagi ovoz segmentlari soni. useNarration shu son bo'yicha oxirgi
+// kadrni aniqlaydi, shuning uchun CONTENT.audio.intro uzunligi bilan mos.
+const FRAME_COUNTS = [4, 3, 2, 3, 2, 3, 2, 2, 3, 2, 3, 2, 3, 2, 2, 5];
 const TOTAL_SCREENS = FRAME_COUNTS.length;
+
 const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'hypothesis-choice', goal: 'diagnose-prior-model', mechanic: 'hypothesis-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['surface-feature-choice'] },
-  { id: 's1', type: 'exploration', template: 'guided-model', goal: 'inspect-first-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's2', type: 'exploration', template: 'guided-compare', goal: 'compare-representations', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['representation-swap'] },
-  { id: 's3', type: 'exploration', template: 'guided-construction', goal: 'build-mathematical-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['construction-order'] },
-  { id: 's4', type: 'exploration', template: 'guided-second-model', goal: 'connect-second-representation', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's5', type: 'exploration', template: 'guided-pattern', goal: 'discover-pattern', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['visual-guess'] },
-  { id: 's6', type: 'rule', template: 'guided-verification', goal: 'verify-discovery', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['unchecked-result'] },
-  { id: 's7', type: 'rule', template: 'guided-rule', goal: 'formulate-rule', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's8', type: 'test', template: 'choice-retry', goal: 'apply-model', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-operation'] },
-  { id: 's9', type: 'test', template: 'choice-retry', goal: 'apply-representation', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-representation'] },
-  { id: 's10', type: 'test', template: 'choice-retry', goal: 'independent-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['calculation-slip'] },
-  { id: 's11', type: 'strategy', template: 'strategy-choice', goal: 'choose-strategy', mechanic: 'strategy-choice', active: true, assessed: false, scored: false, scope: null, misconceptions: ['strategy-without-check'] },
-  { id: 's12', type: 'error', template: 'error-repair', goal: 'repair-typical-error', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['repeat-typical-error'] },
-  { id: 's13', type: 'case', template: 'life-transfer', goal: 'transfer-to-life-context', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['context-data-mismatch'] },
-  { id: 's14', type: 'summary', template: 'guided-reflection', goal: 'reflect-and-bridge', mechanic: 'guided-reveal-and-reflection', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's0', type: 'hook', template: 'mission-console', goal: 'predict-total-length', mechanic: 'prediction-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['unfinished-record'] },
+  { id: 's1', type: 'exploration', template: 'unit-split', goal: 'find-the-hidden-whole-unit', mechanic: 'tap-to-split', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's2', type: 'test', template: 'choice', goal: 'finish-the-record', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['unfinished-record'] },
+  { id: 's3', type: 'model', template: 'three-step-track', goal: 'run-the-three-step-method', mechanic: 'tap-steps', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's4', type: 'test', template: 'value-builder', goal: 'apply-method-to-mass', mechanic: 'tile-build', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['gram-overflow'] },
+  { id: 's5', type: 'exploration', template: 'relation-bars', goal: 'choose-operation-from-relation', mechanic: 'tap-to-assign', active: true, assessed: false, scored: false, scope: null, misconceptions: ['keyword-operation'] },
+  { id: 's6', type: 'test', template: 'choice', goal: 'select-operation-and-answer', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['keyword-operation'] },
+  { id: 's7', type: 'error', template: 'row-repair', goal: 'repair-the-broken-step', mechanic: 'tap-the-row', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['borrow-in-wrong-unit'] },
+  { id: 's8', type: 'exploration', template: 'estimate-band', goal: 'estimate-before-calculating', mechanic: 'tap-the-band', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's9', type: 'test', template: 'choice', goal: 'reject-unreasonable-answer', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['unreasonable-answer'] },
+  { id: 's10', type: 'rule', template: 'rule-builder', goal: 'formulate-the-method', mechanic: 'order-parts', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
+  { id: 's11', type: 'test', template: 'rapid-console', goal: 'convert-three-quantities', mechanic: 'tile-rounds', active: true, assessed: true, scored: true, scoreUnits: 3, scope: 'module-mikro', misconceptions: ['mixed-unit-slip'] },
+  { id: 's12', type: 'strategy', template: 'route-compare', goal: 'compare-two-valid-routes', mechanic: 'route-choice', active: true, assessed: false, scored: false, scope: null, misconceptions: ['strategy-without-check'] },
+  { id: 's13', type: 'case', template: 'choice', goal: 'fit-the-jobs-into-the-window', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['unfinished-record'] },
+  { id: 's14', type: 'case', template: 'choice', goal: 'transfer-to-inverse-task', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['inverse-operation'] },
+  { id: 's15', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', goal: 'consolidate-and-bridge', mechanic: 'TitleClaim', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
 ];
+
 const bi = (uz, ru, en) => ({ uz, ru, en });
-const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
-const HOOK_FEEDBACK = bi("Tanlovingizni model bilan solishtiring. Keyingi ekranda sababni tekshirasiz.", 'Сравните свой выбор с моделью. На следующем экране вы проверите причину.', 'Compare your choice with the model. You will check the reason on the next screen.');
-const REFLECTION = {
-  question: bi("Bu mavzuda sizga qaysi usul ko'proq yordam berdi?", 'Какой способ больше всего помог вам в этой теме?', 'Which method helped you most in this topic?'),
-  options: [
-    bi("Modelni bosqichma-bosqich tekshirish", 'Проверять модель шаг за шагом', 'Checking the model step by step'),
-    bi("Ikki tasvirni solishtirish", 'Сравнивать два представления', 'Comparing two representations'),
-    bi("Javobni boshqa usul bilan tekshirish", 'Проверять ответ другим способом', 'Checking the answer another way'),
-  ],
-};
-const LESSON_KIND = "measure";
-const LESSON_META = { lessonId: "measure-4-31-v1", slug: "dars31-kattaliklarga-doir-masalalar", lessonTitle: {"uz":"Kattaliklarga doir masalalar","ru":"Задачи с величинами","en":"Problems with measurements"}, skillTags: ["measure-model","mixed-units","operation-choice","reasonableness-check"] };
-const CONTENT = {
-  "s0": {
-    "eyebrow": {
-      "uz": "Muammo",
-      "ru": "Проблема",
-      "en": "Problem"
-    },
-    "title": {
-      "uz": "Yashirin metr",
-      "ru": "Скрытый метр",
-      "en": "The hidden metre"
-    },
-    "scene": "measure-hook",
-    "closedSet": true,
-    "frames": [
-      {
-        "uz": "3 m 45 cm + 2 m 80 cm",
-        "ru": "3 м 45 см + 2 м 80 см",
-        "en": "3 m 45 cm + 2 m 80 cm"
-      },
-      {
-        "uz": "5 m 125 cm",
-        "ru": "5 м 125 см",
-        "en": "5 m 125 cm"
-      },
-      {
-        "uz": "Bu yakuniy yozuvmi?",
-        "ru": "Это окончательная запись?",
-        "en": "Is this the final notation?"
-      }
-    ],
-    "question": {
-      "uz": "Ikki kabel birga qancha uzun?",
-      "ru": "Какова общая длина двух кабелей?",
-      "en": "What is the total length of the two cables?"
-    },
-    "options": [
-      {
-        "uz": "5 m 125 cm",
-        "ru": "5 м 125 см",
-        "en": "5 m 125 cm"
-      },
-      {
-        "uz": "6 m 25 cm",
-        "ru": "6 м 25 см",
-        "en": "6 m 25 cm"
-      },
-      {
-        "uz": "6 m 125 cm",
-        "ru": "6 м 125 см",
-        "en": "6 m 125 cm"
-      }
-    ],
-    "neutral": {
-      "uz": "Taxmin saqlandi. Endi birliklarni bir xil ko'rinishga keltiramiz.",
-      "ru": "Гипотеза сохранена. Теперь приведём единицы к одному виду.",
-      "en": "Estimate saved. Now we will express the units in one form."
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "Ikki kabelning uzunliklarini qo'shamiz: uch metr qirq besh santimetr va ikki metr sakson santimetr.",
-          "Dastlabki yozuv besh metr bir yuz yigirma besh santimetr.",
-          "Bu yakuniy yozuvmi."
-        ],
-        "ru": [
-          "Складываем длины двух кабелей: три метра сорок пять сантиметров и два метра восемьдесят сантиметров.",
-          "Предварительная запись: пять метров сто двадцать пять сантиметров.",
-          "Это окончательная запись?"
-        ],
-        "en": [
-          "We add the lengths of two cables: three metres forty five centimetres and two metres eighty centimetres.",
-          "The preliminary notation is five metres one hundred and twenty five centimetres.",
-          "Is this the final notation?"
-        ]
-      }
-    }
-  },
-  "s1": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Masala xaritasi",
-      "ru": "Карта задачи",
-      "en": "Problem map"
-    },
-    "scene": "measure-map",
-    "frames": [
-      {
-        "uz": "Ma'lum",
-        "ru": "Известно",
-        "en": "Known"
-      },
-      {
-        "uz": "Topish kerak",
-        "ru": "Нужно найти",
-        "en": "Find"
-      },
-      {
-        "uz": "Birlik",
-        "ru": "Единица",
-        "en": "Unit"
-      },
-      {
-        "uz": "Bog'lanish",
-        "ru": "Связь",
-        "en": "Relationship"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Masalada sonning o'zi yetmaydi kattalik birlik va savol orasidagi aloqani topish zarur. Ma'lum.",
-          "Topish kerak",
-          "Birlik.",
-          "Bog'lanish."
-        ],
-        "ru": [
-          "В задаче недостаточно увидеть числа нужно связать величину единицу и вопрос. Известно.",
-          "Нужно найти",
-          "Единица.",
-          "Связь."
-        ],
-        "en": [
-          "Numbers alone are not enough connect the measure its unit and the question. Known.",
-          "Find",
-          "Unit.",
-          "Relationship."
-        ]
-      }
-    }
-  },
-  "s2": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Qismlar birlashsa",
-      "ru": "Когда части объединяются",
-      "en": "When parts combine"
-    },
-    "scene": "measure-add",
-    "frames": [
-      {
-        "uz": "qism 1 + qism 2 = butun",
-        "ru": "часть 1 + часть 2 = целое",
-        "en": "part 1 + part 2 = whole"
-      },
-      {
-        "uz": "3 m 45 cm = 345 cm",
-        "ru": "3 м 45 см = 345 см",
-        "en": "3 m 45 cm = 345 cm"
-      },
-      {
-        "uz": "2 m 80 cm = 280 cm",
-        "ru": "2 м 80 см = 280 см",
-        "en": "2 m 80 cm = 280 cm"
-      },
-      {
-        "uz": "345 + 280 = 625 cm",
-        "ru": "345 + 280 = 625 см",
-        "en": "345 + 280 = 625 cm"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Qismlar bir butunni hosil qilgani uchun ularni avval bir xil birlikda qo'shamiz. Qism bir qo'shuv qism ikki teng butun.",
-          "Uch metr qirq besh santimetr teng uch yuz qirq besh santimetr.",
-          "Ikki metr sakson santimetr teng ikki yuz sakson santimetr.",
-          "Uch yuz qirq besh qo'shuv ikki yuz sakson teng olti yuz yigirma besh santimetr."
-        ],
-        "ru": [
-          "Части образуют целое поэтому сначала выражаем их в одной единице и складываем. Часть один плюс часть два равно целое.",
-          "Три метра сорок пять сантиметров равны трёмстам сорока пяти сантиметрам.",
-          "Два метра восемьдесят сантиметров равны двумстам восьмидесяти сантиметрам.",
-          "Триста сорок пять плюс двести восемьдесят равно шестьсот двадцать пять сантиметров."
-        ],
-        "en": [
-          "The parts form a whole so first express them in one unit and add. Part one plus part two equals whole.",
-          "Three metres forty five centimetres equals three hundred and forty five centimetres.",
-          "Two metres eighty centimetres equals two hundred and eighty centimetres.",
-          "Three hundred and forty five plus two hundred and eighty equals six hundred and twenty five centimetres."
-        ]
-      }
-    }
-  },
-  "s3": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Butundan qism ajralsa",
-      "ru": "Когда часть убирают",
-      "en": "When a part is removed"
-    },
-    "scene": "measure-sub",
-    "frames": [
-      {
-        "uz": "butun - ishlatilgan = qolgan",
-        "ru": "целое - использовано = осталось",
-        "en": "whole - used = remaining"
-      },
-      {
-        "uz": "2 t 300 kg = 2300 kg",
-        "ru": "2 т 300 кг = 2300 кг",
-        "en": "2 t 300 kg = 2300 kg"
-      },
-      {
-        "uz": "2300 - 750 = 1550 kg",
-        "ru": "2300 - 750 = 1550 кг",
-        "en": "2300 - 750 = 1550 kg"
-      },
-      {
-        "uz": "1550 kg = 1 t 550 kg",
-        "ru": "1550 кг = 1 т 550 кг",
-        "en": "1550 kg = 1 t 550 kg"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Qolgan miqdorni topishda ishlatilgan qism butundan ayiriladi va birliklar tenglashtiriladi. Butun ayiruv ishlatilgan teng qolgan.",
-          "Ikki tonna uch yuz kilogramm teng ikki ming uch yuz kilogramm.",
-          "Ikki ming uch yuz ayiruv yetti yuz ellik teng bir ming besh yuz ellik kilogramm.",
-          "Bir ming besh yuz ellik kilogramm teng bir tonna besh yuz ellik kilogramm."
-        ],
-        "ru": [
-          "Чтобы найти остаток использованную часть вычитают из целого после выравнивания единиц. Целое минус использовано равно осталось.",
-          "Две тонны триста килограммов равны двум тысячам трёмстам килограммам.",
-          "Две тысячи триста минус семьсот пятьдесят равно одна тысяча пятьсот пятьдесят килограммов.",
-          "Одна тысяча пятьсот пятьдесят килограммов равна одной тонне пятистам пятидесяти килограммам."
-        ],
-        "en": [
-          "To find what remains subtract the used part from the whole after aligning the units. Whole minus used equals remaining.",
-          "Two tonnes three hundred kilograms equals two thousand three hundred kilograms.",
-          "Two thousand three hundred minus seven hundred and fifty equals one thousand five hundred and fifty kilograms.",
-          "One thousand five hundred and fifty kilograms equals one tonne five hundred and fifty kilograms."
-        ]
-      }
-    }
-  },
-  "s4": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Vaqt chegarasidan o'tish",
-      "ru": "Переход через час",
-      "en": "Crossing an hour boundary"
-    },
-    "scene": "measure-time",
-    "frames": [
-      {
-        "uz": "1 h 45 min + 35 min",
-        "ru": "1 ч 45 мин + 35 мин",
-        "en": "1 h 45 min + 35 min"
-      },
-      {
-        "uz": "45 + 35 = 80 min",
-        "ru": "45 + 35 = 80 мин",
-        "en": "45 + 35 = 80 min"
-      },
-      {
-        "uz": "80 min = 1 h 20 min",
-        "ru": "80 мин = 1 ч 20 мин",
-        "en": "80 min = 1 h 20 min"
-      },
-      {
-        "uz": "Javob: 2 h 20 min",
-        "ru": "Ответ: 2 ч 20 мин",
-        "en": "Answer: 2 h 20 min"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Oltmish minut yangi soat hosil qiladi shuning uchun ortiqcha minutlarni qayta guruhlaymiz. Bir soat qirq besh minut qo'shuv o'ttiz besh minut.",
-          "Qirq besh qo'shuv o'ttiz besh teng sakson minut",
-          "Sakson minut teng bir soat yigirma minut.",
-          "Javob ikki soat yigirma minut."
-        ],
-        "ru": [
-          "Шестьдесят минут образуют новый час поэтому лишние минуты нужно перегруппировать. Один час сорок пять минут плюс тридцать пять минут.",
-          "Сорок пять плюс тридцать пять равно восемьдесят минут",
-          "Восемьдесят минут составляют один час двадцать минут.",
-          "Ответ два часа двадцать минут."
-        ],
-        "en": [
-          "Sixty minutes make a new hour so regroup any extra minutes. One hour forty five minutes plus thirty five minutes.",
-          "Forty five plus thirty five equals eighty minutes",
-          "Eighty minutes is equivalent to one hour and twenty minutes.",
-          "Answer two hours twenty minutes."
-        ]
-      }
-    }
-  },
-  "s5": {
-    "eyebrow": {
-      "uz": "Tadqiqot",
-      "ru": "Исследование",
-      "en": "Explore"
-    },
-    "title": {
-      "uz": "Bir xil qismlar takrorlansa",
-      "ru": "Когда равные части повторяются",
-      "en": "When equal parts repeat"
-    },
-    "scene": "measure-repeat",
-    "frames": [
-      {
-        "uz": "Bitta qism: 1 m 25 cm",
-        "ru": "Одна часть: 1 м 25 см",
-        "en": "One piece: 1 m 25 cm"
-      },
-      {
-        "uz": "4 ta bir xil qism",
-        "ru": "4 одинаковые части",
-        "en": "4 equal pieces"
-      },
-      {
-        "uz": "125 × 4 = 500 cm",
-        "ru": "125 × 4 = 500 см",
-        "en": "125 × 4 = 500 cm"
-      },
-      {
-        "uz": "500 cm = 5 m",
-        "ru": "500 см = 5 м",
-        "en": "500 cm = 5 m"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Bir xil uzunlik bir necha marta takrorlansa avval bitta qismini qulay birlikka keltirib ko'paytiramiz. Bitta qism bir metr yigirma besh santimetr.",
-          "To'rtta bir xil qism",
-          "Bir yuz yigirma besh ko'paytirilsin to'rt teng besh yuz santimetr.",
-          "Besh yuz santimetr teng besh metr."
-        ],
-        "ru": [
-          "Если одинаковая длина повторяется сначала переводим одну часть в удобную единицу и умножаем. Одна часть один метр двадцать пять сантиметров.",
-          "Четыре одинаковые части",
-          "Сто двадцать пять умножить на четыре равно пятьсот сантиметров.",
-          "Пятьсот сантиметров равно пять метров."
-        ],
-        "en": [
-          "When an equal length repeats convert one piece to a convenient unit and multiply. One piece one metre twenty five centimetres.",
-          "Four equal pieces",
-          "One hundred and twenty five multiplied by four equals five hundred centimetres.",
-          "Five hundred centimetres equals five metres."
-        ]
-      }
-    }
-  },
-  "s6": {
-    "eyebrow": {
-      "uz": "Qoida",
-      "ru": "Правило",
-      "en": "Rule"
-    },
-    "title": {
-      "uz": "Yechish algoritmi",
-      "ru": "Алгоритм решения",
-      "en": "Solving algorithm"
-    },
-    "scene": "measure-rule",
-    "frames": [
-      {
-        "uz": "Savolni toping",
-        "ru": "Найдите вопрос",
-        "en": "Identify the question"
-      },
-      {
-        "uz": "Bir xil birliklarga keltiring",
-        "ru": "Приведите к одинаковым единицам",
-        "en": "Convert to the same units"
-      },
-      {
-        "uz": "Model va amalni tanlang",
-        "ru": "Выберите модель и действие",
-        "en": "Choose the model and operation"
-      },
-      {
-        "uz": "Hisoblang, yozing va tekshiring",
-        "ru": "Вычислите, запишите и проверьте",
-        "en": "Calculate, write and check"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Yechim ishonchli bo'lishi uchun savol birlik model hisob va tekshiruv izchil bajariladi. Savolni toping.",
-          "Bir xil birliklarga keltiring",
-          "Model va amalni tanlang.",
-          "Hisoblang yozing va tekshiring."
-        ],
-        "ru": [
-          "Надёжное решение последовательно проходит вопрос единицу модель вычисление и проверку. Найдите вопрос.",
-          "Приведите к одинаковым единицам",
-          "Выберите модель и действие.",
-          "Вычислите запишите и проверьте."
-        ],
-        "en": [
-          "A reliable solution follows the question unit model calculation and check in order. Identify the question.",
-          "Convert to the same units",
-          "Choose the model and operation.",
-          "Calculate write and check."
-        ]
-      }
-    }
-  },
-  "s7": {
-    "eyebrow": {
-      "uz": "Qoida",
-      "ru": "Правило",
-      "en": "Rule"
-    },
-    "title": {
-      "uz": "Kabel hisobi tuzatildi",
-      "ru": "Расчёт кабеля исправлен",
-      "en": "The cable calculation is fixed"
-    },
-    "scene": "measure-payoff",
-    "frames": [
-      {
-        "uz": "3 m 45 cm = 345 cm",
-        "ru": "3 м 45 см = 345 см",
-        "en": "3 m 45 cm = 345 cm"
-      },
-      {
-        "uz": "2 m 80 cm = 280 cm",
-        "ru": "2 м 80 см = 280 см",
-        "en": "2 m 80 cm = 280 cm"
-      },
-      {
-        "uz": "345 cm + 280 cm = 625 cm",
-        "ru": "345 см + 280 см = 625 см",
-        "en": "345 cm + 280 cm = 625 cm"
-      },
-      {
-        "uz": "625 cm = 6 m 25 cm",
-        "ru": "625 см = 6 м 25 см",
-        "en": "625 cm = 6 m 25 cm"
-      },
-      {
-        "uz": "Mantiqan: 6 m dan biroz uzun",
-        "ru": "Разумно: немного больше 6 м",
-        "en": "Sensible: just over 6 m"
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Uch metr qirq besh santimetr teng uch yuz qirq besh santimetr.",
-          "Ikki metr sakson santimetr teng ikki yuz sakson santimetr.",
-          "Uch yuz qirq besh qo'shuv ikki yuz sakson teng olti yuz yigirma besh santimetr.",
-          "Olti yuz yigirma besh santimetr teng olti metr yigirma besh santimetr.",
-          "Natija mantiqan olti metrdan biroz uzun."
-        ],
-        "ru": [
-          "Три метра сорок пять сантиметров равны трёмстам сорока пяти сантиметрам.",
-          "Два метра восемьдесят сантиметров равны двумстам восьмидесяти сантиметрам.",
-          "Триста сорок пять плюс двести восемьдесят равно шестьсот двадцать пять сантиметров.",
-          "Шестьсот двадцать пять сантиметров равны шести метрам двадцати пяти сантиметрам.",
-          "Разумно немного больше шести метров."
-        ],
-        "en": [
-          "Three metres forty five centimetres equals three hundred and forty five centimetres.",
-          "Two metres eighty centimetres equals two hundred and eighty centimetres.",
-          "Three hundred and forty five plus two hundred and eighty equals six hundred and twenty five centimetres.",
-          "Six hundred and twenty five centimetres equals six metres twenty five centimetres.",
-          "Sensible just over six metres."
-        ]
-      }
-    }
-  },
-  "s8": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Uzunliklar yig'indisi",
-      "ru": "Сумма длин",
-      "en": "Adding lengths"
-    },
-    "scene": "measure-add",
-    "frames": [
-      {
-        "uz": "3 km 250 m + 750 m",
-        "ru": "3 км 250 м + 750 м",
-        "en": "3 km 250 m + 750 m"
-      },
-      {
-        "uz": "Natijani standart ko'rinishda yozing",
-        "ru": "Запишите результат в стандартном виде",
-        "en": "Write the result in standard form"
-      }
-    ],
-    "question": {
-      "uz": "Yig'indi qancha?",
-      "ru": "Чему равна сумма?",
-      "en": "What is the total?"
-    },
-    "options": [
-      {
-        "uz": "3 km 1000 m",
-        "ru": "3 км 1000 м",
-        "en": "3 km 1000 m"
-      },
-      {
-        "uz": "4 km",
-        "ru": "4 км",
-        "en": "4 km"
-      },
-      {
-        "uz": "4 km 250 m",
-        "ru": "4 км 250 м",
-        "en": "4 km 250 m"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "3 km 250 m + 750 m = 4 km",
-      "ru": "3 км 250 м + 750 м = 4 км",
-      "en": "3 km 250 m + 750 m = 4 km"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Uch kilometr va bir ming metr to'rt kilometrga teng, lekin bu standart yozuv emas. Ming metr yana bir kilometr bo'ladi.",
-        "ru": "Посмотрите ещё раз: Три километра и одна тысяча метров равны четырём километрам, но запись нестандартна. Тысяча метров составляет ещё один километр.",
-        "en": "Look again: Three kilometres and one thousand metres equal four kilometres, but this is not standard form. One thousand metres is another kilometre."
-      },
-      {
-        "uz": "To'g'ri. Uch kilometr ikki yuz ellik metr qo'shuv yetti yuz ellik metr teng to'rt kilometr.",
-        "ru": "Верно. Три километра двести пятьдесят метров плюс семьсот пятьдесят метров равно четыре километра.",
-        "en": "Correct. Three kilometres two hundred and fifty metres plus seven hundred and fifty metres equals four kilometres."
-      },
-      {
-        "uz": "Yana bir qarang: Yetti yuz ellik metr ikki yuz ellik metrni ming metrgacha to'ldiradi. Ortiqcha ikki yuz ellik metr qolmaydi.",
-        "ru": "Посмотрите ещё раз: Семьсот пятьдесят метров дополняют двести пятьдесят метров до тысячи. Лишних двухсот пятидесяти метров не остаётся.",
-        "en": "Look again: Seven hundred and fifty metres completes two hundred and fifty metres to make one thousand. No extra two hundred and fifty metres remains."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Uch kilometr ikki yuz ellik metrga yetti yuz ellik metr qo'shiladi.",
-          "Javobning standart ko'rinishini tanlang."
-        ],
-        "ru": [
-          "К трём километрам двумстам пятидесяти метрам прибавляют семьсот пятьдесят метров.",
-          "Выберите стандартную запись ответа."
-        ],
-        "en": [
-          "Add seven hundred and fifty metres to three kilometres two hundred and fifty metres.",
-          "Choose the answer in standard form."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Uch kilometr ikki yuz ellik metr qo'shuv yetti yuz ellik metr teng to'rt kilometr.",
-        "ru": "Верно. Три километра двести пятьдесят метров плюс семьсот пятьдесят метров равно четыре километра.",
-        "en": "Correct. Three kilometres two hundred and fifty metres plus seven hundred and fifty metres equals four kilometres."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Uch kilometr va bir ming metr to'rt kilometrga teng, lekin bu standart yozuv emas. Ming metr yana bir kilometr bo'ladi.",
-          "ru": "Посмотрите ещё раз: Три километра и одна тысяча метров равны четырём километрам, но запись нестандартна. Тысяча метров составляет ещё один километр.",
-          "en": "Look again: Three kilometres and one thousand metres equal four kilometres, but this is not standard form. One thousand metres is another kilometre."
-        },
-        {
-          "uz": "To'g'ri. Uch kilometr ikki yuz ellik metr qo'shuv yetti yuz ellik metr teng to'rt kilometr.",
-          "ru": "Верно. Три километра двести пятьдесят метров плюс семьсот пятьдесят метров равно четыре километра.",
-          "en": "Correct. Three kilometres two hundred and fifty metres plus seven hundred and fifty metres equals four kilometres."
-        },
-        {
-          "uz": "Yana bir qarang: Yetti yuz ellik metr ikki yuz ellik metrni ming metrgacha to'ldiradi. Ortiqcha ikki yuz ellik metr qolmaydi.",
-          "ru": "Посмотрите ещё раз: Семьсот пятьдесят метров дополняют двести пятьдесят метров до тысячи. Лишних двухсот пятидесяти метров не остаётся.",
-          "en": "Look again: Seven hundred and fifty metres completes two hundred and fifty metres to make one thousand. No extra two hundred and fifty metres remains."
-        }
-      ]
-    }
-  },
-  "s9": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Qolgan massa",
-      "ru": "Оставшаяся масса",
-      "en": "Remaining mass"
-    },
-    "scene": "measure-sub",
-    "frames": [
-      {
-        "uz": "2 t 300 kg - 750 kg",
-        "ru": "2 т 300 кг - 750 кг",
-        "en": "2 t 300 kg - 750 kg"
-      },
-      {
-        "uz": "Qolgan massani toping",
-        "ru": "Найдите оставшуюся массу",
-        "en": "Find the remaining mass"
-      }
-    ],
-    "question": {
-      "uz": "Qancha massa qoldi?",
-      "ru": "Какая масса осталась?",
-      "en": "How much mass remains?"
-    },
-    "options": [
-      {
-        "uz": "1 t 450 kg",
-        "ru": "1 т 450 кг",
-        "en": "1 t 450 kg"
-      },
-      {
-        "uz": "1 t 550 kg",
-        "ru": "1 т 550 кг",
-        "en": "1 t 550 kg"
-      },
-      {
-        "uz": "2 t 50 kg",
-        "ru": "2 т 50 кг",
-        "en": "2 t 50 kg"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "2300 - 750 = 1550 kg = 1 t 550 kg",
-      "ru": "2300 - 750 = 1550 кг = 1 т 550 кг",
-      "en": "2300 - 750 = 1550 kg = 1 t 550 kg"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Yuzlikdan o'tishda xato bor. Ikki ming uch yuzdan yetti yuz ellik ayirilsa, bir ming besh yuz ellik kilogramm qoladi.",
-        "ru": "Посмотрите ещё раз: Ошибка возникла при переходе через сотню. После вычитания семисот пятидесяти из двух тысяч трёхсот остаётся одна тысяча пятьсот пятьдесят килограммов.",
-        "en": "Look again: The regrouping across the hundreds is incorrect. Subtracting seven hundred and fifty from two thousand three hundred leaves one thousand five hundred and fifty kilograms."
-      },
-      {
-        "uz": "To'g'ri. Ikki ming uch yuz ayiruv yetti yuz ellik teng bir ming besh yuz ellik kilogramm teng bir tonna besh yuz ellik kilogramm.",
-        "ru": "Верно. Две тысячи триста минус семьсот пятьдесят равно одна тысяча пятьсот пятьдесят килограммов равно одна тонна пятьсот пятьдесят килограммов.",
-        "en": "Correct. Two thousand three hundred minus seven hundred and fifty equals one thousand five hundred and fifty kilograms equals one tonne five hundred and fifty kilograms."
-      },
-      {
-        "uz": "Yana bir qarang: Ikki tonna o'zgarishsiz qolmaydi. Ayirishdan keyin bir ming besh yuz ellik kilogramm, ya'ni bir tonna besh yuz ellik kilogramm qoladi.",
-        "ru": "Посмотрите ещё раз: Две тонны не сохраняются без изменения. После вычитания остаётся одна тонна пятьсот пятьдесят килограммов.",
-        "en": "Look again: The two tonnes do not remain unchanged. After the subtraction, one tonne five hundred and fifty kilograms remains."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Ikki tonna uch yuz kilogrammdan yetti yuz ellik kilogramm olindi.",
-          "Qolgan massani toping."
-        ],
-        "ru": [
-          "Из двух тонн трёхсот килограммов вычли семьсот пятьдесят килограммов.",
-          "Найдите оставшуюся массу."
-        ],
-        "en": [
-          "Seven hundred and fifty kilograms is removed from two tonnes three hundred kilograms.",
-          "Find the remaining mass."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Ikki ming uch yuz ayiruv yetti yuz ellik teng bir ming besh yuz ellik kilogramm teng bir tonna besh yuz ellik kilogramm.",
-        "ru": "Верно. Две тысячи триста минус семьсот пятьдесят равно одна тысяча пятьсот пятьдесят килограммов равно одна тонна пятьсот пятьдесят килограммов.",
-        "en": "Correct. Two thousand three hundred minus seven hundred and fifty equals one thousand five hundred and fifty kilograms equals one tonne five hundred and fifty kilograms."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Yuzlikdan o'tishda xato bor. Ikki ming uch yuzdan yetti yuz ellik ayirilsa, bir ming besh yuz ellik kilogramm qoladi.",
-          "ru": "Посмотрите ещё раз: Ошибка возникла при переходе через сотню. После вычитания семисот пятидесяти из двух тысяч трёхсот остаётся одна тысяча пятьсот пятьдесят килограммов.",
-          "en": "Look again: The regrouping across the hundreds is incorrect. Subtracting seven hundred and fifty from two thousand three hundred leaves one thousand five hundred and fifty kilograms."
-        },
-        {
-          "uz": "To'g'ri. Ikki ming uch yuz ayiruv yetti yuz ellik teng bir ming besh yuz ellik kilogramm teng bir tonna besh yuz ellik kilogramm.",
-          "ru": "Верно. Две тысячи триста минус семьсот пятьдесят равно одна тысяча пятьсот пятьдесят килограммов равно одна тонна пятьсот пятьдесят килограммов.",
-          "en": "Correct. Two thousand three hundred minus seven hundred and fifty equals one thousand five hundred and fifty kilograms equals one tonne five hundred and fifty kilograms."
-        },
-        {
-          "uz": "Yana bir qarang: Ikki tonna o'zgarishsiz qolmaydi. Ayirishdan keyin bir ming besh yuz ellik kilogramm, ya'ni bir tonna besh yuz ellik kilogramm qoladi.",
-          "ru": "Посмотрите ещё раз: Две тонны не сохраняются без изменения. После вычитания остаётся одна тонна пятьсот пятьдесят килограммов.",
-          "en": "Look again: The two tonnes do not remain unchanged. After the subtraction, one tonne five hundred and fifty kilograms remains."
-        }
-      ]
-    }
-  },
-  "s10": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Tadbir davomiyligi",
-      "ru": "Продолжительность события",
-      "en": "Event duration"
-    },
-    "scene": "measure-time",
-    "frames": [
-      {
-        "uz": "1 h 45 min + 35 min",
-        "ru": "1 ч 45 мин + 35 мин",
-        "en": "1 h 45 min + 35 min"
-      },
-      {
-        "uz": "Jami vaqtning standart yozuvini tanlang",
-        "ru": "Выберите стандартную запись общей продолжительности",
-        "en": "Choose the total duration in standard form"
-      }
-    ],
-    "question": {
-      "uz": "Jami vaqtning standart yozuvini tanlang.",
-      "ru": "Выберите стандартную запись общей продолжительности.",
-      "en": "Choose the total duration in standard form."
-    },
-    "options": [
-      {
-        "uz": "1 h 80 min",
-        "ru": "1 ч 80 мин",
-        "en": "1 h 80 min"
-      },
-      {
-        "uz": "2 h 20 min",
-        "ru": "2 ч 20 мин",
-        "en": "2 h 20 min"
-      },
-      {
-        "uz": "2 h 10 min",
-        "ru": "2 ч 10 мин",
-        "en": "2 h 10 min"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "1 h 45 min + 35 min = 2 h 20 min",
-      "ru": "1 ч 45 мин + 35 мин = 2 ч 20 мин",
-      "en": "1 h 45 min + 35 min = 2 h 20 min"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Bir soat sakson minut qiymatan teng, lekin standart yozuv emas. Sakson minut bir soat yigirma minutga teng.",
-        "ru": "Посмотрите ещё раз: Один час восемьдесят минут равен по величине, но запись нестандартна. Восемьдесят минут равны одному часу двадцати минутам.",
-        "en": "Look again: One hour eighty minutes has the same value, but it is not standard form. Eighty minutes is equivalent to one hour and twenty minutes."
-      },
-      {
-        "uz": "To'g'ri. Bir soat qirq besh minut qo'shuv o'ttiz besh minut teng ikki soat yigirma minut.",
-        "ru": "Верно. Один час сорок пять минут плюс тридцать пять минут равно два часа двадцать минут.",
-        "en": "Correct. One hour forty five minutes plus thirty five minutes equals two hours twenty minutes."
-      },
-      {
-        "uz": "Yana bir qarang: Qirq besh minut bilan o'ttiz besh minut yig'indisi yetmish minut emas, sakson minut.",
-        "ru": "Посмотрите ещё раз: Сумма сорока пяти и тридцати пяти минут равна не семидесяти, а восьмидесяти минутам.",
-        "en": "Look again: The sum of forty five minutes and thirty five minutes is eighty minutes, not seventy minutes."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Tadbir bir soat qirq besh minut davom etdi, keyin yana o'ttiz besh minut davom etdi.",
-          "Jami vaqtning standart yozuvini tanlang."
-        ],
-        "ru": [
-          "Событие длилось один час сорок пять минут, затем ещё тридцать пять минут.",
-          "Выберите стандартную запись общей продолжительности."
-        ],
-        "en": [
-          "An event lasts one hour forty five minutes, then continues for thirty five more minutes.",
-          "Choose the total duration in standard form."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Bir soat qirq besh minut qo'shuv o'ttiz besh minut teng ikki soat yigirma minut.",
-        "ru": "Верно. Один час сорок пять минут плюс тридцать пять минут равно два часа двадцать минут.",
-        "en": "Correct. One hour forty five minutes plus thirty five minutes equals two hours twenty minutes."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Bir soat sakson minut qiymatan teng, lekin standart yozuv emas. Sakson minut bir soat yigirma minutga teng.",
-          "ru": "Посмотрите ещё раз: Один час восемьдесят минут равен по величине, но запись нестандартна. Восемьдесят минут равны одному часу двадцати минутам.",
-          "en": "Look again: One hour eighty minutes has the same value, but it is not standard form. Eighty minutes is equivalent to one hour and twenty minutes."
-        },
-        {
-          "uz": "To'g'ri. Bir soat qirq besh minut qo'shuv o'ttiz besh minut teng ikki soat yigirma minut.",
-          "ru": "Верно. Один час сорок пять минут плюс тридцать пять минут равно два часа двадцать минут.",
-          "en": "Correct. One hour forty five minutes plus thirty five minutes equals two hours twenty minutes."
-        },
-        {
-          "uz": "Yana bir qarang: Qirq besh minut bilan o'ttiz besh minut yig'indisi yetmish minut emas, sakson minut.",
-          "ru": "Посмотрите ещё раз: Сумма сорока пяти и тридцати пяти минут равна не семидесяти, а восьмидесяти минутам.",
-          "en": "Look again: The sum of forty five minutes and thirty five minutes is eighty minutes, not seventy minutes."
-        }
-      ]
-    }
-  },
-  "s11": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Standart yozuv",
-      "ru": "Стандартная запись",
-      "en": "Standard form"
-    },
-    "scene": "measure-standard",
-    "frames": [
-      {
-        "uz": "4 kg 80 g + 920 g",
-        "ru": "4 кг 80 г + 920 г",
-        "en": "4 kg 80 g + 920 g"
-      },
-      {
-        "uz": "Standart ko'rinishni tanlang",
-        "ru": "Выберите стандартную запись",
-        "en": "Choose the standard notation"
-      }
-    ],
-    "question": {
-      "uz": "Standart yozuvni tanlang.",
-      "ru": "Выберите стандартную запись.",
-      "en": "Choose the standard notation."
-    },
-    "options": [
-      {
-        "uz": "4 kg 1000 g",
-        "ru": "4 кг 1000 г",
-        "en": "4 kg 1000 g"
-      },
-      {
-        "uz": "5 kg",
-        "ru": "5 кг",
-        "en": "5 kg"
-      },
-      {
-        "uz": "5 kg 80 g",
-        "ru": "5 кг 80 г",
-        "en": "5 kg 80 g"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "4 kg 80 g + 920 g = 5 kg",
-      "ru": "4 кг 80 г + 920 г = 5 кг",
-      "en": "4 kg 80 g + 920 g = 5 kg"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: To'rt kilogramm bir ming gramm qiymatan teng, lekin standart yozuv emas. Bir ming gramm yana bir kilogramm bo'ladi.",
-        "ru": "Посмотрите ещё раз: Четыре килограмма одна тысяча граммов равны по величине, но запись нестандартна. Тысяча граммов составляет ещё один килограмм.",
-        "en": "Look again: Four kilograms one thousand grams has the same value, but it is not standard form. One thousand grams is another kilogram."
-      },
-      {
-        "uz": "To'g'ri. To'rt kilogramm sakson gramm qo'shuv to'qqiz yuz yigirma gramm teng besh kilogramm.",
-        "ru": "Верно. Четыре килограмма восемьдесят граммов плюс девятьсот двадцать граммов равно пять килограммов.",
-        "en": "Correct. Four kilograms eighty grams plus nine hundred and twenty grams equals five kilograms."
-      },
-      {
-        "uz": "Yana bir qarang: Sakson gramm bilan to'qqiz yuz yigirma gramm yig'indisi aynan bir ming gramm. Ortiqcha sakson gramm qolmaydi.",
-        "ru": "Посмотрите ещё раз: Сумма восьмидесяти и девятисот двадцати граммов равна ровно тысяче граммов. Лишних восьмидесяти граммов не остаётся.",
-        "en": "Look again: Eighty grams plus nine hundred and twenty grams is exactly one thousand grams. No extra eighty grams remains."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "To'rt kilogramm sakson grammga to'qqiz yuz yigirma gramm qo'shiladi.",
-          "Standart yozuvni tanlang."
-        ],
-        "ru": [
-          "К четырём килограммам восьмидесяти граммам прибавляют девятьсот двадцать граммов.",
-          "Выберите стандартную запись."
-        ],
-        "en": [
-          "Add nine hundred and twenty grams to four kilograms eighty grams.",
-          "Choose the standard notation."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. To'rt kilogramm sakson gramm qo'shuv to'qqiz yuz yigirma gramm teng besh kilogramm.",
-        "ru": "Верно. Четыре килограмма восемьдесят граммов плюс девятьсот двадцать граммов равно пять килограммов.",
-        "en": "Correct. Four kilograms eighty grams plus nine hundred and twenty grams equals five kilograms."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: To'rt kilogramm bir ming gramm qiymatan teng, lekin standart yozuv emas. Bir ming gramm yana bir kilogramm bo'ladi.",
-          "ru": "Посмотрите ещё раз: Четыре килограмма одна тысяча граммов равны по величине, но запись нестандартна. Тысяча граммов составляет ещё один килограмм.",
-          "en": "Look again: Four kilograms one thousand grams has the same value, but it is not standard form. One thousand grams is another kilogram."
-        },
-        {
-          "uz": "To'g'ri. To'rt kilogramm sakson gramm qo'shuv to'qqiz yuz yigirma gramm teng besh kilogramm.",
-          "ru": "Верно. Четыре килограмма восемьдесят граммов плюс девятьсот двадцать граммов равно пять килограммов.",
-          "en": "Correct. Four kilograms eighty grams plus nine hundred and twenty grams equals five kilograms."
-        },
-        {
-          "uz": "Yana bir qarang: Sakson gramm bilan to'qqiz yuz yigirma gramm yig'indisi aynan bir ming gramm. Ortiqcha sakson gramm qolmaydi.",
-          "ru": "Посмотрите ещё раз: Сумма восьмидесяти и девятисот двадцати граммов равна ровно тысяче граммов. Лишних восьмидесяти граммов не остаётся.",
-          "en": "Look again: Eighty grams plus nine hundred and twenty grams is exactly one thousand grams. No extra eighty grams remains."
-        }
-      ]
-    }
-  },
-  "s12": {
-    "eyebrow": {
-      "uz": "Mashq",
-      "ru": "Задание",
-      "en": "Task"
-    },
-    "title": {
-      "uz": "Bitning ortiqcha birligi",
-      "ru": "Лишняя единица Бита",
-      "en": "Bit's unconverted unit"
-    },
-    "scene": "measure-bit",
-    "frames": [
-      {
-        "uz": "Bit: 4 kg 1000 g",
-        "ru": "Бит: 4 кг 1000 г",
-        "en": "Bit: 4 kg 1000 g"
-      },
-      {
-        "uz": "Bit yozuvini to'g'rilang",
-        "ru": "Исправьте запись Бита",
-        "en": "Correct Bit's notation"
-      }
-    ],
-    "question": {
-      "uz": "Bit yozuvini to'g'rilang.",
-      "ru": "Исправьте запись Бита.",
-      "en": "Correct Bit's notation."
-    },
-    "options": [
-      {
-        "uz": "5 kg",
-        "ru": "5 кг",
-        "en": "5 kg"
-      },
-      {
-        "uz": "4 kg 100 g",
-        "ru": "4 кг 100 г",
-        "en": "4 kg 100 g"
-      },
-      {
-        "uz": "4 kg 10 g",
-        "ru": "4 кг 10 г",
-        "en": "4 kg 10 g"
-      }
-    ],
-    "correctIndex": 0,
-    "closedSet": true,
-    "proof": {
-      "uz": "4 kg 1000 g = 5 kg",
-      "ru": "4 кг 1000 г = 5 кг",
-      "en": "4 kg 1000 g = 5 kg"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "To'g'ri. To'rt kilogramm bir ming gramm teng besh kilogramm.",
-        "ru": "Верно. Четыре килограмма одна тысяча граммов равно пять килограммов.",
-        "en": "Correct. Four kilograms one thousand grams equals five kilograms."
-      },
-      {
-        "uz": "Yana bir qarang: Bu yozuv bir ming grammni bir yuz gramm deb olgan. Aslida bir ming gramm bir kilogrammga teng.",
-        "ru": "Посмотрите ещё раз: В этой записи тысяча граммов принята за сто граммов. На самом деле тысяча граммов равна одному килограмму.",
-        "en": "Look again: This treats one thousand grams as one hundred grams. In fact, one thousand grams equals one kilogram."
-      },
-      {
-        "uz": "Yana bir qarang: Bu yozuv bir ming grammni o'n gramm deb olgan. Aslida bir ming gramm bir kilogrammga teng.",
-        "ru": "Посмотрите ещё раз: В этой записи тысяча граммов принята за десять граммов. На самом деле тысяча граммов равна одному килограмму.",
-        "en": "Look again: This treats one thousand grams as ten grams. In fact, one thousand grams equals one kilogram."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Bit to'rt kilogramm bir ming gramm deb yozdi.",
-          "Bit yozuvini to'g'rilang."
-        ],
-        "ru": [
-          "Бит записал четыре килограмма одну тысячу граммов.",
-          "Исправьте запись Бита."
-        ],
-        "en": [
-          "Bit wrote four kilograms one thousand grams.",
-          "Correct Bit's notation."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. To'rt kilogramm bir ming gramm teng besh kilogramm.",
-        "ru": "Верно. Четыре килограмма одна тысяча граммов равно пять килограммов.",
-        "en": "Correct. Four kilograms one thousand grams equals five kilograms."
-      },
-      "on_wrong": [
-        {
-          "uz": "To'g'ri. To'rt kilogramm bir ming gramm teng besh kilogramm.",
-          "ru": "Верно. Четыре килограмма одна тысяча граммов равно пять килограммов.",
-          "en": "Correct. Four kilograms one thousand grams equals five kilograms."
-        },
-        {
-          "uz": "Yana bir qarang: Bu yozuv bir ming grammni bir yuz gramm deb olgan. Aslida bir ming gramm bir kilogrammga teng.",
-          "ru": "Посмотрите ещё раз: В этой записи тысяча граммов принята за сто граммов. На самом деле тысяча граммов равна одному килограмму.",
-          "en": "Look again: This treats one thousand grams as one hundred grams. In fact, one thousand grams equals one kilogram."
-        },
-        {
-          "uz": "Yana bir qarang: Bu yozuv bir ming grammni o'n gramm deb olgan. Aslida bir ming gramm bir kilogrammga teng.",
-          "ru": "Посмотрите ещё раз: В этой записи тысяча граммов принята за десять граммов. На самом деле тысяча граммов равна одному килограмму.",
-          "en": "Look again: This treats one thousand grams as ten grams. In fact, one thousand grams equals one kilogram."
-        }
-      ]
-    }
-  },
-  "s13": {
-    "eyebrow": {
-      "uz": "Shahar vazifasi",
-      "ru": "Городская задача",
-      "en": "City task"
-    },
-    "title": {
-      "uz": "Ta'mirlash kabeli",
-      "ru": "Кабель для ремонта",
-      "en": "Repair cable"
-    },
-    "scene": "measure-case",
-    "frames": [
-      {
-        "uz": "1 m 75 cm; 2 m 40 cm; 85 cm",
-        "ru": "1 м 75 см; 2 м 40 см; 85 см",
-        "en": "1 m 75 cm; 2 m 40 cm; 85 cm"
-      },
-      {
-        "uz": "175 + 240 + 85 = ? cm",
-        "ru": "175 + 240 + 85 = ? см",
-        "en": "175 + 240 + 85 = ? cm"
-      },
-      {
-        "uz": "Jami kabel uzunligini toping",
-        "ru": "Найдите общую длину кабеля",
-        "en": "Find the total cable length"
-      }
-    ],
-    "question": {
-      "uz": "Jami kabel uzunligi qancha?",
-      "ru": "Какова общая длина кабеля?",
-      "en": "What is the total cable length?"
-    },
-    "options": [
-      {
-        "uz": "4 m",
-        "ru": "4 м",
-        "en": "4 m"
-      },
-      {
-        "uz": "5 m",
-        "ru": "5 м",
-        "en": "5 m"
-      },
-      {
-        "uz": "5 m 85 cm",
-        "ru": "5 м 85 см",
-        "en": "5 m 85 cm"
-      }
-    ],
-    "correctIndex": 1,
-    "closedSet": true,
-    "proof": {
-      "uz": "175 + 240 + 85 = 500 cm = 5 m",
-      "ru": "175 + 240 + 85 = 500 см = 5 м",
-      "en": "175 + 240 + 85 = 500 cm = 5 m"
-    },
-    "feedbackAudio": [
-      {
-        "uz": "Yana bir qarang: Uchala bo'lak to'liq qo'shilmagan. Bir yuz yetmish besh, ikki yuz qirq va sakson besh santimetr jami besh yuz santimetr.",
-        "ru": "Посмотрите ещё раз: Учтены не все три отрезка. Сто семьдесят пять, двести сорок и восемьдесят пять сантиметров дают пятьсот сантиметров.",
-        "en": "Look again: Not all three pieces were included. One hundred and seventy five, two hundred and forty, and eighty five centimetres total five hundred centimetres."
-      },
-      {
-        "uz": "To'g'ri. Bir yuz yetmish besh qo'shuv ikki yuz qirq qo'shuv sakson besh teng besh yuz santimetr teng besh metr.",
-        "ru": "Верно. Сто семьдесят пять плюс двести сорок плюс восемьдесят пять равно пятьсот сантиметров равно пять метров.",
-        "en": "Correct. One hundred and seventy five plus two hundred and forty plus eighty five equals five hundred centimetres equals five metres."
-      },
-      {
-        "uz": "Yana bir qarang: Sakson besh santimetr jami besh yuz santimetr ichida allaqachon bor. Uni yana qoldirish shu bo'lakni ikki marta sanaydi.",
-        "ru": "Посмотрите ещё раз: Восемьдесят пять сантиметров уже входят в общие пятьсот сантиметров. Если оставить их снова, этот отрезок будет посчитан дважды.",
-        "en": "Look again: The eighty five centimetres is already included in the five hundred centimetre total. Keeping it again counts that piece twice."
-      }
-    ],
-    "audio": {
-      "intro": {
-        "uz": [
-          "Kabel bo'laklari bir metr yetmish besh santimetr, ikki metr qirq santimetr va sakson besh santimetr.",
-          "Bir yuz yetmish besh, ikki yuz qirq va sakson besh santimetr yig'indisini toping.",
-          "Jami kabel uzunligini toping."
-        ],
-        "ru": [
-          "Отрезки кабеля имеют длину один метр семьдесят пять сантиметров, два метра сорок сантиметров и восемьдесят пять сантиметров.",
-          "Найдите сумму ста семидесяти пяти, двухсот сорока и восьмидесяти пяти сантиметров.",
-          "Найдите общую длину кабеля."
-        ],
-        "en": [
-          "The cable pieces measure one metre seventy five centimetres, two metres forty centimetres, and eighty five centimetres.",
-          "Find the sum of one hundred and seventy five, two hundred and forty, and eighty five centimetres.",
-          "Find the total cable length."
-        ]
-      },
-      "on_correct": {
-        "uz": "To'g'ri. Bir yuz yetmish besh qo'shuv ikki yuz qirq qo'shuv sakson besh teng besh yuz santimetr teng besh metr.",
-        "ru": "Верно. Сто семьдесят пять плюс двести сорок плюс восемьдесят пять равно пятьсот сантиметров равно пять метров.",
-        "en": "Correct. One hundred and seventy five plus two hundred and forty plus eighty five equals five hundred centimetres equals five metres."
-      },
-      "on_wrong": [
-        {
-          "uz": "Yana bir qarang: Uchala bo'lak to'liq qo'shilmagan. Bir yuz yetmish besh, ikki yuz qirq va sakson besh santimetr jami besh yuz santimetr.",
-          "ru": "Посмотрите ещё раз: Учтены не все три отрезка. Сто семьдесят пять, двести сорок и восемьдесят пять сантиметров дают пятьсот сантиметров.",
-          "en": "Look again: Not all three pieces were included. One hundred and seventy five, two hundred and forty, and eighty five centimetres total five hundred centimetres."
-        },
-        {
-          "uz": "To'g'ri. Bir yuz yetmish besh qo'shuv ikki yuz qirq qo'shuv sakson besh teng besh yuz santimetr teng besh metr.",
-          "ru": "Верно. Сто семьдесят пять плюс двести сорок плюс восемьдесят пять равно пятьсот сантиметров равно пять метров.",
-          "en": "Correct. One hundred and seventy five plus two hundred and forty plus eighty five equals five hundred centimetres equals five metres."
-        },
-        {
-          "uz": "Yana bir qarang: Sakson besh santimetr jami besh yuz santimetr ichida allaqachon bor. Uni yana qoldirish shu bo'lakni ikki marta sanaydi.",
-          "ru": "Посмотрите ещё раз: Восемьдесят пять сантиметров уже входят в общие пятьсот сантиметров. Если оставить их снова, этот отрезок будет посчитан дважды.",
-          "en": "Look again: The eighty five centimetres is already included in the five hundred centimetre total. Keeping it again counts that piece twice."
-        }
-      ]
-    }
-  },
-  "s14": {
-    "eyebrow": {
-      "uz": "Yakun",
-      "ru": "Итог",
-      "en": "Summary"
-    },
-    "title": {
-      "uz": "O'lchash masalalari navigatori",
-      "ru": "Навигатор задач с величинами",
-      "en": "Measurement problem navigator"
-    },
-    "scene": "measure-final",
-    "frames": [
-      {
-        "uz": "Savol",
-        "ru": "Вопрос",
-        "en": "Question"
-      },
-      {
-        "uz": "Umumiy birlik",
-        "ru": "Общая единица",
-        "en": "Common unit"
-      },
-      {
-        "uz": "Model va amal",
-        "ru": "Модель и действие",
-        "en": "Model and operation"
-      },
-      {
-        "uz": "Standart javob",
-        "ru": "Стандартный ответ",
-        "en": "Standard answer"
-      },
-      {
-        "uz": "Keyingi mavzu: hajm",
-        "ru": "Следующая тема: объём",
-        "en": "Next topic: volume"
-      }
-    ],
-    "rewardTitle": {
-      "uz": "Kattaliklar masalasi eksperti",
-      "ru": "Эксперт по задачам с величинами",
-      "en": "Measures problem expert"
-    },
-    "audio": {
-      "intro": {
-        "uz": [
-          "O'lchash masalalarida miqdor o'zgarmaydi faqat uni ifodalash va amallar ketma ketligi boshqariladi. Savol.",
-          "Umumiy birlik",
-          "Model va amal.",
-          "Standart javob.",
-          "Keyingi mavzu hajm."
-        ],
-        "ru": [
-          "В задачах с величинами количество сохраняется меняются только запись и порядок действий. Вопрос.",
-          "Общая единица",
-          "Модель и действие.",
-          "Стандартный ответ.",
-          "Следующая тема объём."
-        ],
-        "en": [
-          "In measurement problems the quantity is preserved only its notation and the operation sequence change. Question.",
-          "Common unit",
-          "Model and operation.",
-          "Standard answer.",
-          "Next topic volume."
-        ]
-      }
-    }
+
+const stableChoiceOffset = (lessonId, length) => {
+  const key = `${lessonId}:${length}`;
+  let hash = 2166136261;
+  for (let index = 0; index < key.length; index += 1) {
+    hash ^= key.charCodeAt(index);
+    hash = Math.imul(hash, 16777619);
   }
+  return (hash >>> 0) % length;
+};
+
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const order = Array.from({ length }, (_, index) => index);
+  if (!Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return order;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  order.splice(correctIndex, 1);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
+// Variant tartibi ekranma-ekran suriladi: to'g'ri javob bir joyda qotib qolmaydi.
+const ANSWER_ORDINAL_BY_SCREEN = Object.freeze({ 2: 0, 6: 1, 9: 2, 13: 3, 14: 4 });
+
+const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
+const STEP_LABEL = bi('Keyingi qadam', 'Следующий шаг', 'Next step');
+const CHECK_LABEL = bi('Tekshirish', 'Проверить', 'Check');
+
+const LESSON_META = {
+  lessonId: 'measure-4-31-v1',
+  slug: 'dars31-kattaliklarga-doir-masalalar',
+  lessonTitle: {
+    uz: "Kattaliklarga doir masalalar",
+    ru: 'Задачи с величинами',
+    en: 'Problems with quantities',
+  },
+  skillTags: ['single-unit-conversion', 'regrouping-in-quantities', 'operation-choice', 'reasonableness-check'],
+  finalReflectionRequired: false,
+};
+
+// ---------------------------------------------------------------------------
+// KONTENT. Sonlar shu darsning o'zi uchun tanlangan: hammasi 4-sinf doirasida,
+// aralash birlikli qo'shish va ayirish, qarz olish, birlikni qaytarish.
+// Usul manbasi metodik jihatdan darslik bilan bir xil (bir xil o'lchov
+// birligiga keltirish), lekin misollar ko'chirilmagan.
+// ---------------------------------------------------------------------------
+const CONTENT = {
+  s0: {
+    eyebrow: { uz: "Missiya", ru: "Миссия", en: "Mission" },
+    topic: { uz: "Dars mavzusi: Kattaliklarga doir masalalar", ru: "Тема урока: Задачи с величинами", en: "Lesson topic: Problems with quantities" },
+    title: { uz: "Tungi buyurtma", ru: "Ночной заказ", en: "The night order" },
+    question: { uz: "Ikki bo'lakda jami qancha kabel bor?", ru: "Сколько всего кабеля в двух отрезках?", en: "How much cable is there in the two pieces together?" },
+    neutral: true,
+    coilA: { uz: "48 m 60 cm", ru: "48 м 60 см", en: "48 m 60 cm" },
+    coilB: { uz: "25 m 70 cm", ru: "25 м 70 см", en: "25 m 70 cm" },
+    botOrder: { uz: "73 m 130 cm", ru: "73 м 130 см", en: "73 m 130 cm" },
+    nodeName: { uz: "TUNGI TA'MIRLASH · OYNA 23:40 – 02:10", ru: "НОЧНОЙ РЕМОНТ · ОКНО 23:40 – 02:10", en: "NIGHT REPAIR · WINDOW 23:40 – 02:10" },
+    stateBad: { uz: "ZAVOD BUYURTMANI QAYTARDI", ru: "ЗАВОД ВЕРНУЛ ЗАКАЗ", en: "THE FACTORY RETURNED THE ORDER" },
+    labelA: { uz: "birinchi bo'lak", ru: "первый отрезок", en: "first piece" },
+    labelB: { uz: "ikkinchi bo'lak", ru: "второй отрезок", en: "second piece" },
+    labelOrder: { uz: "Bit yuborgan buyurtma", ru: "заказ, отправленный Битом", en: "the order Bit sent" },
+    options: [
+      { uz: "74 m 30 cm", ru: "74 м 30 см", en: "74 m 30 cm" },
+      { uz: "73 m 130 cm", ru: "73 м 130 см", en: "73 m 130 cm" },
+      { uz: "73 m 30 cm", ru: "73 м 30 см", en: "73 m 30 cm" },
+      { uz: "74 m 130 cm", ru: "74 м 130 см", en: "74 m 130 cm" },
+    ],
+    feedback: {
+      uz: "Taxminingiz yozib olindi. Endi Bitning yozuvini birga tekshiramiz.",
+      ru: "Твоё предположение записано. Теперь вместе проверим запись Бита.",
+      en: "Your prediction is saved. Now we will check the record together.",
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Tungi ta'mirlash dispetcherligidamiz. Oyna ochiq, brigada kabel kutmoqda.",
+          "Birinchi bo'lak qirq sakkiz metr oltmish santimetr, ikkinchisi yigirma besh metr yetmish santimetr.",
+          "Bit metrni metrga, santimetrni santimetrga qo'shdi va zavodga buyurtma yubordi. Zavod buyurtmani qaytardi.",
+          "Hisoblashdan oldin taxmin qiling, ikki bo'lakda jami qancha kabel bor.",
+        ],
+        ru: [
+          "Мы в ночной диспетчерской ремонта. Окно открыто, бригада ждёт кабель.",
+          "Первый отрезок сорок восемь метров шестьдесят сантиметров, второй двадцать пять метров семьдесят сантиметров.",
+          "Бит сложил метры с метрами, сантиметры с сантиметрами и отправил заказ. Завод заказ вернул.",
+          "Прежде чем считать, предположи, сколько кабеля в двух отрезках вместе.",
+        ],
+        en: [
+          "We are in the night repair control room. The window is open and the crew is waiting for cable.",
+          "The first piece is forty eight metres sixty centimetres, the second is twenty five metres seventy centimetres.",
+          "Bit added metres to metres and centimetres to centimetres, then sent the order. The factory returned it.",
+          "Before you calculate, predict how much cable the two pieces hold together.",
+        ],
+      },
+    },
+  },
+
+  s1: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Yashiringan metr", ru: "Спрятанный метр", en: "The hidden metre" },
+    lead: { uz: "Santimetr ustunidagi sonni bosing", ru: "Нажми на число в столбце сантиметров", en: "Tap the number in the centimetre column" },
+    startM: "73",
+    startC: "130",
+    finalM: "74",
+    finalC: "30",
+    steps: [
+      { uz: "Bit ikki ustunni alohida qo'shdi", ru: "Бит сложил два столбца по отдельности", en: "Bit added the two columns separately" },
+      { uz: "130 cm ichida bir butun metr bor", ru: "В 130 см есть один целый метр", en: "130 cm contains one whole metre" },
+      { uz: "Metr o'z ustuniga o'tadi: 74 m 30 cm", ru: "Метр переходит в свой столбец: 74 м 30 см", en: "The metre moves to its own column: 74 m 30 cm" },
+    ],
+    tapHint: { uz: "130 cm ni bosing", ru: "Нажми 130 см", en: "Tap 130 cm" },
+    doneLabel: { uz: "Yozuv tugallandi", ru: "Запись завершена", en: "The record is finished" },
+    audio: {
+      intro: {
+        uz: [
+          "Bitning xatosi qayerda ekanini ko'ramiz. U metrni metrga, santimetrni santimetrga qo'shdi.",
+          "Santimetr ustunida bir yuz o'ttiz chiqdi. Bir yuz santimetr bu bir butun metr, demak u yerda metr yashiringan.",
+          "Yashiringan metrni o'z ustuniga o'tkazamiz. O'ttiz santimetr qoladi, javob esa yetmish to'rt metr o'ttiz santimetr.",
+        ],
+        ru: [
+          "Посмотрим, где ошибка Бита. Он сложил метры с метрами, а сантиметры с сантиметрами.",
+          "В столбце сантиметров вышло сто тридцать. Сто сантиметров это один целый метр, значит там спрятан метр.",
+          "Переносим спрятанный метр в его столбец. Остаётся тридцать сантиметров, а ответ семьдесят четыре метра тридцать сантиметров.",
+        ],
+        en: [
+          "Let us see where Bit went wrong. He added metres to metres and centimetres to centimetres.",
+          "The centimetre column gave one hundred thirty. One hundred centimetres is one whole metre, so a metre is hidden there.",
+          "We move the hidden metre into its own column. Thirty centimetres are left and the answer is seventy four metres thirty centimetres.",
+        ],
+      },
+    },
+  },
+
+  s2: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Ikkinchi buyurtma", ru: "Второй заказ", en: "The second order" },
+    task: { uz: "152 m 55 cm + 36 m 65 cm", ru: "152 м 55 см + 36 м 65 см", en: "152 m 55 cm + 36 m 65 cm" },
+    taskNote: { uz: "Ikkinchi uchastka", ru: "Второй участок", en: "Second section" },
+    question: { uz: "Qaysi yozuv tugallangan javob?", ru: "Какая запись является завершённым ответом?", en: "Which record is the finished answer?" },
+    correctIndex: 0,
+    options: [
+      { uz: "189 m 20 cm", ru: "189 м 20 см", en: "189 m 20 cm" },
+      { uz: "188 m 120 cm", ru: "188 м 120 см", en: "188 m 120 cm" },
+      { uz: "189 m 120 cm", ru: "189 м 120 см", en: "189 m 120 cm" },
+      { uz: "188 m 20 cm", ru: "188 м 20 см", en: "188 m 20 cm" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. 55 va 65 dan 120 cm chiqdi, undagi butun metr metrlar ustuniga o'tdi.", ru: "Верно. Из 55 и 65 вышло 120 см, целый метр перешёл в столбец метров.", en: "Right. 55 and 65 gave 120 cm, and the whole metre moved into the metre column." },
+      { uz: "Santimetr to'g'ri qo'shildi, lekin 120 cm ichidagi butun metr o'z joyiga ko'chmagan.", ru: "Сантиметры сложены верно, но целый метр внутри 120 см не перенесён на своё место.", en: "The centimetres are added correctly, but the whole metre inside 120 cm has not moved to its place." },
+      { uz: "Metr ustuniga bir metr qo'shilgan, ammo santimetrdan o'sha metr olib tashlanmagan.", ru: "К метрам метр прибавлен, но из сантиметров он не убран.", en: "One metre was added to the metres, but it was not taken away from the centimetres." },
+      { uz: "Santimetr to'g'ri, metr esa kam. Butun metrni qo'shishni unutmang.", ru: "Сантиметры верные, а метров мало. Не забудь прибавить целый метр.", en: "The centimetres are right, but there are too few metres. Do not forget the whole metre." },
+    ],
+    proof: { uz: "15 255 + 3 665 = 18 920 → 189 m 20 cm", ru: "15 255 + 3 665 = 18 920 → 189 м 20 см", en: "15 255 + 3 665 = 18 920 → 189 m 20 cm" },
+    audio: {
+      intro: {
+        uz: [
+          "Zavodga ikkinchi buyurtma ketmoqda. Ikki uchastkani qo'shing.",
+          "Santimetrlarni qo'shganda yuzdan katta son chiqadi. Tugallangan yozuvni tanlang.",
+        ],
+        ru: [
+          "На завод уходит второй заказ. Сложи два участка.",
+          "При сложении сантиметров получается число больше ста. Выбери завершённую запись.",
+        ],
+        en: [
+          "A second order is going to the factory. Add the two sections.",
+          "Adding the centimetres gives a number larger than one hundred. Choose the finished record.",
+        ],
+      },
+      on_correct: {
+        uz: "To'g'ri. Yuz santimetr metrga aylanib, o'z ustuniga ko'chdi.",
+        ru: "Верно. Сто сантиметров стали метром и перешли в свой столбец.",
+        en: "Right. One hundred centimetres became a metre and moved into its own column.",
+      },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Santimetr ustunida yuzdan katta son qoldi. Undan butun metrni ajrating.", ru: "В столбце сантиметров осталось число больше ста. Выдели из него целый метр.", en: "The centimetre column still holds more than one hundred. Take the whole metre out of it." },
+        { uz: "Bir metr ikki marta hisoblandi. U santimetrdan olinishi kerak edi.", ru: "Один метр посчитан дважды. Его нужно было взять из сантиметров.", en: "One metre was counted twice. It had to be taken from the centimetres." },
+        { uz: "Metr yetishmayapti. Santimetrdagi butun metrni qo'shing.", ru: "Не хватает метра. Прибавь целый метр из сантиметров.", en: "One metre is missing. Add the whole metre from the centimetres." },
+      ],
+    },
+  },
+
+  s3: {
+    eyebrow: { uz: "Model", ru: "Модель", en: "Model" },
+    title: { uz: "Uch qadamli yo'l", ru: "Путь в три шага", en: "The three-step way" },
+    lead: { uz: "Har qadamni bosib oching", ru: "Открывай каждый шаг нажатием", en: "Tap to open each step" },
+    leftLabel: { uz: "Aralash yozuv", ru: "Смешанная запись", en: "Mixed record" },
+    rightLabel: { uz: "Bitta birlik", ru: "Одна единица", en: "One unit" },
+    rows: [
+      {
+        step: { uz: "1-qadam. Bir xil birlikka keltiramiz", ru: "Шаг 1. Приводим к одной единице", en: "Step 1. Bring to one unit" },
+        left: { uz: "48 m 60 cm\n25 m 70 cm", ru: "48 м 60 см\n25 м 70 см", en: "48 m 60 cm\n25 m 70 cm" },
+        right: { uz: "4 860 cm\n2 570 cm", ru: "4 860 см\n2 570 см", en: "4 860 cm\n2 570 cm" },
+      },
+      {
+        step: { uz: "2-qadam. Sonlar kabi qo'shamiz", ru: "Шаг 2. Складываем как числа", en: "Step 2. Add them like numbers" },
+        left: { uz: "ustun shaklida", ru: "столбиком", en: "in a column" },
+        right: { uz: "4 860 + 2 570 = 7 430", ru: "4 860 + 2 570 = 7 430", en: "4 860 + 2 570 = 7 430" },
+      },
+      {
+        step: { uz: "3-qadam. O'qishga qulay birlikka qaytaramiz", ru: "Шаг 3. Возвращаем к удобной единице", en: "Step 3. Return to the convenient unit" },
+        left: { uz: "74 m 30 cm", ru: "74 м 30 см", en: "74 m 30 cm" },
+        right: { uz: "7 430 cm", ru: "7 430 см", en: "7 430 cm" },
+      },
+    ],
+    ruleNote: { uz: "Kattaliklarning qiymati bir xil o'lchov birligida ifodalanadi", ru: "Значения величин выражают в одной и той же единице измерения", en: "The values of quantities are expressed in one and the same unit" },
+    audio: {
+      intro: {
+        uz: [
+          "Endi boshqa yo'lni ko'ramiz. Avval ikkala kattalikni bitta birlikka keltiramiz.",
+          "Endi ular oddiy sonlar. Ularni ustun shaklida qo'shamiz va yetti ming to'rt yuz o'ttiz chiqadi.",
+          "Oxirgi qadam. Santimetrni metr va santimetrga qaytaramiz, javob yetmish to'rt metr o'ttiz santimetr.",
+        ],
+        ru: [
+          "Теперь посмотрим другой путь. Сначала приводим обе величины к одной единице.",
+          "Теперь это обычные числа. Складываем их столбиком и получаем семь тысяч четыреста тридцать.",
+          "Последний шаг. Возвращаем сантиметры к метрам и сантиметрам, ответ семьдесят четыре метра тридцать сантиметров.",
+        ],
+        en: [
+          "Now we look at another way. First we bring both quantities to one unit.",
+          "Now they are ordinary numbers. We add them in a column and get seven thousand four hundred thirty.",
+          "The last step. We turn the centimetres back into metres and centimetres, and the answer is seventy four metres thirty centimetres.",
+        ],
+      },
+    },
+  },
+
+  s4: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Yuk tarozida", ru: "Груз на весах", en: "The load on the scales" },
+    task: { uz: "8 t 2 q − 3 t 6 q", ru: "8 т 2 ц − 3 т 6 ц", en: "8 t 2 q − 3 t 6 q" },
+    taskNote: { uz: "Yuk hisoboti", ru: "Отчёт по грузу", en: "Load report" },
+    question: { uz: "Javobni yig'ing", ru: "Собери ответ", en: "Build the answer" },
+    slots: [
+      { key: "t", label: { uz: "tonna", ru: "тонны", en: "tonnes" }, answer: 4, tiles: [5, 4, 6] },
+      { key: "q", label: { uz: "sentner", ru: "центнеры", en: "centners" }, answer: 6, tiles: [4, 6, 16] },
+    ],
+    unitT: { uz: "t", ru: "т", en: "t" },
+    unitQ: { uz: "q", ru: "ц", en: "q" },
+    okText: { uz: "To'g'ri. 82 q dan 36 q ni ayirdik va 46 q qoldi, ya'ni 4 t 6 q.", ru: "Верно. Из 82 ц вычли 36 ц, осталось 46 ц, то есть 4 т 6 ц.", en: "Right. We took 36 q from 82 q and 46 q were left, that is 4 t 6 q." },
+    wrongT: { uz: "Tonnalar soni boshqacha. 2 q dan 6 q ni ayirib bo'lmaydi, tonnadan qarz olinadi.", ru: "Число тонн другое. Из 2 ц нельзя вычесть 6 ц, заём берётся у тонны.", en: "The number of tonnes is different. You cannot take 6 q from 2 q, so you borrow from a tonne." },
+    wrongQ: { uz: "Sentnerlar soni boshqacha. Bitta tonna o'nta sentner beradi.", ru: "Число центнеров другое. Одна тонна даёт десять центнеров.", en: "The number of centners is different. One tonne gives ten centners." },
+    proof: { uz: "82 q − 36 q = 46 q → 4 t 6 q", ru: "82 ц − 36 ц = 46 ц → 4 т 6 ц", en: "82 q − 36 q = 46 q → 4 t 6 q" },
+    audio: {
+      intro: {
+        uz: [
+          "Yuk mashinasini yengillashtirish kerak. Bir qism yuk tushiriladi.",
+          "Bir tonnada o'nta sentner bor. Ikkala massani sentnerga keltiring, ayiring va javobni yig'ing.",
+        ],
+        ru: [
+          "Машину нужно облегчить. Часть груза снимают.",
+          "В одной тонне десять центнеров. Приведи обе массы к центнерам, вычти и собери ответ.",
+        ],
+        en: [
+          "The truck has to be made lighter. Part of the load is taken off.",
+          "One tonne holds ten centners. Bring both masses to centners, subtract and build the answer.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Bitta tonna sentnerga almashtirildi va qarz olindi.", ru: "Верно. Одна тонна обменяна на центнеры, заём взят.", en: "Right. One tonne was exchanged for centners and the borrow was taken." },
+      on_wrong: { uz: "Ikkala massani sentnerga keltiring, keyin ayiring.", ru: "Приведи обе массы к центнерам, а потом вычитай.", en: "Bring both masses to centners first, then subtract." },
+    },
+  },
+
+  s5: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Amalni nima tanlaydi", ru: "Что выбирает действие", en: "What chooses the operation" },
+    lead: { uz: "Har qatorga o'z amalini bosing", ru: "Назначь каждой строке своё действие", en: "Give each row its own operation" },
+    source: { uz: "Ombor tarozisi", ru: "Весы склада", en: "Store scales" },
+    baseLabel: { uz: "Birinchi quti", ru: "Первый ящик", en: "First crate" },
+    baseValue: { uz: "6 kg 400 g", ru: "6 кг 400 г", en: "6 kg 400 g" },
+    bars: [
+      {
+        who: { uz: "Ikkinchi quti", ru: "Второй ящик", en: "Second crate" },
+        phrase: { uz: "birinchisidan 2 kg 750 g yengil", ru: "на 2 кг 750 г легче первого", en: "2 kg 750 g lighter than the first" },
+        sign: "minus", pct: 32,
+        result: { uz: "3 kg 650 g", ru: "3 кг 650 г", en: "3 kg 650 g" },
+      },
+      {
+        who: { uz: "Uchinchi quti", ru: "Третий ящик", en: "Third crate" },
+        phrase: { uz: "birinchi va ikkinchisi birgalikdagidan 1 kg 500 g og'ir", ru: "на 1 кг 500 г тяжелее первого и второго вместе", en: "1 kg 500 g heavier than the first and second together" },
+        sign: "plus", pct: 100,
+        result: { uz: "11 kg 550 g", ru: "11 кг 550 г", en: "11 kg 550 g" },
+      },
+    ],
+    signMinus: { uz: "ayirish", ru: "вычитание", en: "subtraction" },
+    signPlus: { uz: "qo'shish", ru: "сложение", en: "addition" },
+    keywordTrap: { uz: "«birgalikda» so'zi bor, lekin amalni bog'lanish tanlaydi", ru: "слово «вместе» есть, но действие выбирает связь величин", en: "the word together appears, but the relation chooses the operation" },
+    audio: {
+      intro: {
+        uz: [
+          "Uchta quti tarozida. Amalni kalit so'z emas, kattaliklar orasidagi bog'lanish tanlaydi.",
+          "Ikkinchi quti birinchisidan yengil. Yengil degani kamroq, demak bu yerda ayirish.",
+          "Uchinchi quti esa ikkovining birgalikdagi massasidan og'ir. Og'ir degani ko'proq, demak avval qo'shamiz, keyin yana qo'shamiz.",
+        ],
+        ru: [
+          "Три ящика на весах. Действие выбирает не ключевое слово, а связь между величинами.",
+          "Второй ящик легче первого. Легче значит меньше, поэтому здесь вычитание.",
+          "А третий ящик тяжелее их общей массы. Тяжелее значит больше, поэтому сначала складываем, потом прибавляем ещё раз.",
+        ],
+        en: [
+          "Three crates are on the scales. The operation is chosen by the relation between the quantities, not by a key word.",
+          "The second crate is lighter than the first. Lighter means less, so here we subtract.",
+          "The third crate is heavier than the two of them together. Heavier means more, so first we add, then we add once again.",
+        ],
+      },
+    },
+  },
+
+  s6: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Uchinchi quti", ru: "Третий ящик", en: "The third crate" },
+    task: { uz: "6 kg 400 g + 3 kg 650 g = 10 kg 50 g", ru: "6 кг 400 г + 3 кг 650 г = 10 кг 50 г", en: "6 kg 400 g + 3 kg 650 g = 10 kg 50 g" },
+    taskNote: { uz: "Birinchi va ikkinchi quti birgalikda", ru: "Первый и второй ящик вместе", en: "The first and the second crate together" },
+    question: {
+      uz: "Uchinchi quti ikkovining birgalikdagi massasidan 1 kg 500 g og'ir. Uning massasi qancha?",
+      ru: "Третий ящик на 1 кг 500 г тяжелее их общей массы. Какова его масса?",
+      en: "The third crate is 1 kg 500 g heavier than their combined mass. What is its mass?",
+    },
+    sumLabel: { uz: "Birgalikda", ru: "Вместе", en: "Together" },
+    thirdLabel: { uz: "Uchinchi quti", ru: "Третий ящик", en: "Third crate" },
+    thirdPhrase: { uz: "1 kg 500 g og'ir", ru: "на 1 кг 500 г тяжелее", en: "1 kg 500 g heavier" },
+    correctIndex: 0,
+    options: [
+      { uz: "11 kg 550 g", ru: "11 кг 550 г", en: "11 kg 550 g" },
+      { uz: "10 kg 50 g", ru: "10 кг 50 г", en: "10 kg 50 g" },
+      { uz: "8 kg 550 g", ru: "8 кг 550 г", en: "8 kg 550 g" },
+      { uz: "11 kg 50 g", ru: "11 кг 50 г", en: "11 kg 50 g" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. 10 050 g ga 1 500 g qo'shildi va 11 550 g chiqdi.", ru: "Верно. К 10 050 г прибавили 1 500 г и вышло 11 550 г.", en: "Right. We added 1 500 g to 10 050 g and got 11 550 g." },
+      { uz: "Bu oraliq javob, ya'ni birinchi va ikkinchi quti. Uchinchisi ulardan og'irroq.", ru: "Это промежуточный ответ, первый и второй ящик. Третий тяжелее их.", en: "That is the middle answer, the first and second crate. The third is heavier than they are." },
+      { uz: "Bu yerda ayirilgan. Uchinchi quti og'irroq, demak qo'shish kerak.", ru: "Здесь вычли. Третий ящик тяжелее, значит нужно сложить.", en: "This one subtracted. The third crate is heavier, so you have to add." },
+      { uz: "Kilogramm to'g'ri, gramm yetishmayapti. 50 va 500 ni qo'shing.", ru: "Килограммы верные, граммов не хватает. Сложи 50 и 500.", en: "The kilograms are right but the grams are short. Add 50 and 500." },
+    ],
+    proof: { uz: "10 050 g + 1 500 g = 11 550 g → 11 kg 550 g", ru: "10 050 г + 1 500 г = 11 550 г → 11 кг 550 г", en: "10 050 g + 1 500 g = 11 550 g → 11 kg 550 g" },
+    audio: {
+      intro: {
+        uz: [
+          "Birinchi va ikkinchi quti birgalikda o'n kilogramm ellik gramm.",
+          "Uchinchisi shundan bir kilogramm besh yuz gramm og'ir. Uning massasini toping.",
+        ],
+        ru: [
+          "Первый и второй ящик вместе весят десять килограммов пятьдесят граммов.",
+          "Третий тяжелее их на один килограмм пятьсот граммов. Найди его массу.",
+        ],
+        en: [
+          "The first and the second crate together weigh ten kilograms fifty grams.",
+          "The third one is one kilogram five hundred grams heavier. Find its mass.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Oraliq javobda to'xtamadingiz va savolga javob berdingiz.", ru: "Верно. Ответ дан на сам вопрос, а не на промежуточный результат.", en: "Right. You did not stop at the middle answer and answered the question itself." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Bu oraliq natija. Masala uchinchi quti haqida so'raydi.", ru: "Это промежуточный результат. Вопрос про третий ящик.", en: "That is the middle result. The question is about the third crate." },
+        { uz: "Og'irroq degani ko'proq. Amalni almashtirib yubordingiz.", ru: "Тяжелее значит больше. Здесь действие поменялось местами.", en: "Heavier means more. The operation was swapped here." },
+        { uz: "Grammlarni sanang. Ellik va besh yuz birga besh yuz ellik beradi.", ru: "Посчитай граммы. Пятьдесят и пятьсот вместе дают пятьсот пятьдесят.", en: "Count the grams. Fifty and five hundred together give five hundred fifty." },
+      ],
+    },
+  },
+
+  s7: {
+    eyebrow: { uz: "Xatoni topish", ru: "Разбор ошибки", en: "Spot the error" },
+    title: { uz: "Bitning hisobi", ru: "Расчёт Бита", en: "Bit's calculation" },
+    lead: { uz: "Xato boshlangan qatorni bosing", ru: "Нажми на строку, где началась ошибка", en: "Tap the row where the error starts" },
+    source: { uz: "Yuk qoldig'i", ru: "Остаток груза", en: "Remaining load" },
+    answerIndex: 1,
+    rows: [
+      { uz: "15 t 300 kg − 6 t 700 kg", ru: "15 т 300 кг − 6 т 700 кг", en: "15 t 300 kg − 6 t 700 kg" },
+      { uz: "300 − 700 bo'lmaydi, shuning uchun 700 − 300 = 400", ru: "300 − 700 не выходит, поэтому 700 − 300 = 400", en: "300 − 700 does not work, so 700 − 300 = 400" },
+      { uz: "15 − 6 = 9", ru: "15 − 6 = 9", en: "15 − 6 = 9" },
+      { uz: "Javob: 9 t 400 kg", ru: "Ответ: 9 т 400 кг", en: "Answer: 9 t 400 kg" },
+    ],
+    rowFeedback: [
+      { uz: "Bu qator to'g'ri. Masala shu yozuvdan boshlanadi.", ru: "Эта строка верная. С этой записи задача и начинается.", en: "This row is correct. The task starts from this record." },
+      { uz: "Aynan shu yerda. Kichikdan kattani ayirib bo'lmaganda o'rin almashtirilmaydi, tonnadan bir tonna qarz olinadi.", ru: "Именно здесь. Когда из меньшего не вычесть большее, местами не меняют, а берут заём у тонны.", en: "Exactly here. When the smaller cannot take the bigger, you do not swap them, you borrow one tonne." },
+      { uz: "Bu qator hozircha to'g'ri ko'rinadi. Xato undan oldin boshlangan va shu sababli tonna soni ham o'zgaradi.", ru: "Эта строка пока выглядит верной. Ошибка началась раньше, из-за неё изменится и число тонн.", en: "This row still looks correct. The error started earlier and because of it the number of tonnes changes too." },
+      { uz: "Bu javob, ya'ni xatoning natijasi. Xato yuqoriroqda boshlangan.", ru: "Это ответ, то есть последствие ошибки. Ошибка началась выше.", en: "This is the answer, the consequence of the error. The error started higher up." },
+    ],
+    fixLabel: { uz: "To'g'ri yo'l", ru: "Верный путь", en: "The correct way" },
+    fix: { uz: "15 300 kg − 6 700 kg = 8 600 kg → 8 t 600 kg", ru: "15 300 кг − 6 700 кг = 8 600 кг → 8 т 600 кг", en: "15 300 kg − 6 700 kg = 8 600 kg → 8 t 600 kg" },
+    audio: {
+      intro: {
+        uz: [
+          "Bit qolgan yukni hisobladi. Yozuvlari chiroyli, javobi esa xato.",
+          "Qaysi qatorda xato boshlanganini toping va bosing.",
+        ],
+        ru: [
+          "Бит посчитал оставшийся груз. Записи аккуратные, а ответ неверный.",
+          "Найди строку, где началась ошибка, и нажми на неё.",
+        ],
+        en: [
+          "Bit calculated the remaining load. The records look neat but the answer is wrong.",
+          "Find the row where the error starts and tap it.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Kichik sondan katta sonni ayirish uchun katta birlikdan qarz olinadi.", ru: "Верно. Чтобы вычесть большее из меньшего, берут заём у старшей единицы.", en: "Right. To take a bigger number from a smaller one, you borrow from the larger unit." },
+      on_wrong: { uz: "Har bir qatorni ketma-ket o'qing. Birinchi buzilgan qadamni qidiring.", ru: "Читай строки по порядку. Ищи первый сломанный шаг.", en: "Read the rows in order. Look for the first broken step." },
+    },
+  },
+
+  s8: {
+    eyebrow: { uz: "Kashfiyot", ru: "Исследование", en: "Discovery" },
+    title: { uz: "Avval taxmin, keyin hisob", ru: "Сначала оценка, потом расчёт", en: "Estimate first, then calculate" },
+    lead: { uz: "Javob qaysi oraliqda bo'lishini tanlang", ru: "Выбери, в каком промежутке будет ответ", en: "Choose the range the answer falls into" },
+    task: { uz: "3 m 40 cm + 2 m 85 cm + 1 m 95 cm", ru: "3 м 40 см + 2 м 85 см + 1 м 95 см", en: "3 m 40 cm + 2 m 85 cm + 1 m 95 cm" },
+    bands: [
+      { uz: "5 – 6 m", ru: "5 – 6 м", en: "5 – 6 m" },
+      { uz: "8 – 9 m", ru: "8 – 9 м", en: "8 – 9 m" },
+      { uz: "12 – 13 m", ru: "12 – 13 м", en: "12 – 13 m" },
+    ],
+    answerIndex: 1,
+    bandFeedback: [
+      { uz: "Kam. Faqat butun metrlar oltita, santimetrlar esa yana qo'shiladi.", ru: "Мало. Одних целых метров шесть, а сантиметры ещё прибавятся.", en: "Too little. The whole metres alone are six and the centimetres still add up." },
+      { uz: "Ha. Butun metrlar oltita, santimetrlar esa yana ikki metrga yaqin.", ru: "Да. Целых метров шесть, а сантиметры дают ещё почти два метра.", en: "Yes. There are six whole metres and the centimetres add almost two more." },
+      { uz: "Ko'p. Uchala bo'lak ham to'rt metrdan qisqa.", ru: "Много. Все три отрезка короче четырёх метров.", en: "Too much. All three pieces are shorter than four metres." },
+    ],
+    exact: { uz: "820 cm = 8 m 20 cm", ru: "820 см = 8 м 20 см", en: "820 cm = 8 m 20 cm" },
+    exactLabel: { uz: "Aniq javob taxmin ichiga tushdi", ru: "Точный ответ попал в оценку", en: "The exact answer landed inside the estimate" },
+    audio: {
+      intro: {
+        uz: [
+          "Uzun hisobdan oldin javobni baholaymiz. Bu keyin xatoni darrov ko'rsatadi.",
+          "Butun metrlar uch, ikki va bir. Santimetrlar esa yana ikki metrga yaqin. Oraliqni tanlang.",
+          "Aniq hisob sakkiz yuz yigirma santimetr berdi, ya'ni sakkiz metr yigirma santimetr. Taxmin to'g'ri chiqdi.",
+        ],
+        ru: [
+          "Перед длинным расчётом оцениваем ответ. Потом это сразу покажет ошибку.",
+          "Целых метров три, два и один. А сантиметры дают ещё почти два метра. Выбери промежуток.",
+          "Точный расчёт дал восемьсот двадцать сантиметров, то есть восемь метров двадцать сантиметров. Оценка подтвердилась.",
+        ],
+        en: [
+          "Before a long calculation we estimate the answer. Later that shows a mistake at once.",
+          "The whole metres are three, two and one. The centimetres add almost two more metres. Choose the range.",
+          "The exact calculation gave eight hundred twenty centimetres, that is eight metres twenty centimetres. The estimate held.",
+        ],
+      },
+    },
+  },
+
+  s9: {
+    eyebrow: { uz: "Mashq", ru: "Задание", en: "Task" },
+    title: { uz: "Uch bo'lak birga", ru: "Три отрезка вместе", en: "Three pieces together" },
+    task: { uz: "3 m 40 cm + 2 m 85 cm + 1 m 95 cm", ru: "3 м 40 см + 2 м 85 см + 1 м 95 см", en: "3 m 40 cm + 2 m 85 cm + 1 m 95 cm" },
+    question: { uz: "Uch bo'lakning umumiy uzunligi qancha?", ru: "Какова общая длина трёх отрезков?", en: "What is the total length of the three pieces?" },
+    correctIndex: 0,
+    options: [
+      { uz: "8 m 20 cm", ru: "8 м 20 см", en: "8 m 20 cm" },
+      { uz: "6 m 220 cm", ru: "6 м 220 см", en: "6 m 220 cm" },
+      { uz: "7 m 20 cm", ru: "7 м 20 см", en: "7 m 20 cm" },
+      { uz: "8 m 220 cm", ru: "8 м 220 см", en: "8 m 220 cm" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. 820 cm ichida sakkizta butun metr va yana 20 cm bor.", ru: "Верно. В 820 см помещаются восемь целых метров и ещё 20 см.", en: "Right. 820 cm holds eight whole metres and 20 cm more." },
+      { uz: "Uzunlik to'g'ri, yozuv tugallanmagan. 220 cm ichida yana ikki metr bor.", ru: "Длина верная, а запись не завершена. В 220 см есть ещё два метра.", en: "The length is right but the record is unfinished. 220 cm holds two more metres." },
+      { uz: "Bir metr yo'qolgan. Taxmin sakkizga yaqin edi.", ru: "Потерялся один метр. Оценка была ближе к восьми.", en: "One metre went missing. The estimate was closer to eight." },
+      { uz: "Metrlar to'g'ri, ammo santimetrdagi ikki metr ikki marta hisoblangan.", ru: "Метры верные, но два метра из сантиметров посчитаны дважды.", en: "The metres are right, but two metres from the centimetres are counted twice." },
+    ],
+    proof: { uz: "340 + 285 + 195 = 820 → 8 m 20 cm", ru: "340 + 285 + 195 = 820 → 8 м 20 см", en: "340 + 285 + 195 = 820 → 8 m 20 cm" },
+    audio: {
+      intro: {
+        uz: [
+          "Taxmin tayyor. Endi aniq javobni toping.",
+          "Uchala bo'lakni santimetrga keltiring va qo'shing. Javobni taxmin bilan solishtiring.",
+        ],
+        ru: [
+          "Оценка есть. Теперь найди точный ответ.",
+          "Приведи все три отрезка к сантиметрам и сложи. Сравни ответ с оценкой.",
+        ],
+        en: [
+          "The estimate is ready. Now find the exact answer.",
+          "Bring all three pieces to centimetres and add them. Compare the answer with the estimate.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Javob taxmin ichiga tushdi, demak hisob ishonchli.", ru: "Верно. Ответ попал в оценку, значит расчёт надёжный.", en: "Right. The answer landed inside the estimate, so the calculation is trustworthy." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Santimetr yuzdan katta qolmasin. Undagi butun metrlarni ajrating.", ru: "Сантиметры не должны оставаться больше ста. Выдели из них целые метры.", en: "The centimetres must not stay above one hundred. Take the whole metres out of them." },
+        { uz: "Javobni taxmin bilan solishtiring. Yetti metr oraliqdan tashqarida.", ru: "Сравни ответ с оценкой. Семь метров вне промежутка.", en: "Compare the answer with the estimate. Seven metres is outside the range." },
+        { uz: "Bir xil metr ikki joyda turibdi. Faqat bitta joyda qolsin.", ru: "Одни и те же метры стоят в двух местах. Оставь их только в одном.", en: "The same metres appear in two places. Leave them in one place only." },
+      ],
+    },
+  },
+
+  s10: {
+    eyebrow: { uz: "Qoida", ru: "Правило", en: "Rule" },
+    title: { uz: "Dispetcher qoidasi", ru: "Правило диспетчера", en: "The dispatcher's rule" },
+    lead: { uz: "Qadamlarni tartib bilan bosing", ru: "Нажимай шаги по порядку", en: "Tap the steps in order" },
+    parts: [
+      { uz: "Bir xil o'lchov birligiga keltiramiz", ru: "Приводим к одной единице измерения", en: "Bring to one unit of measurement" },
+      { uz: "Amalni sonlar bilan bajarilgani kabi bajaramiz", ru: "Выполняем действие как с числами", en: "Carry out the operation as with numbers" },
+      { uz: "Natijani o'qishga qulay birlikka qaytaramiz", ru: "Возвращаем результат к удобной единице", en: "Return the result to the convenient unit" },
+      { uz: "Javob taxminga to'g'ri kelishini tekshiramiz", ru: "Проверяем, сходится ли ответ с оценкой", en: "Check that the answer matches the estimate" },
+    ],
+    slotLabel: { uz: "Qoida", ru: "Правило", en: "Rule" },
+    bankLabel: { uz: "Qadamlar", ru: "Шаги", en: "Steps" },
+    resetLabel: { uz: "Qayta tuzish", ru: "Собрать заново", en: "Start again" },
+    memo: { uz: "Bir birlik → amal → qaytarish → tekshirish", ru: "Одна единица → действие → возврат → проверка", en: "One unit → operation → return → check" },
+    okText: { uz: "Qoida yig'ildi", ru: "Правило собрано", en: "The rule is assembled" },
+    wrongText: { uz: "Tartib buzildi. Avval birlik, keyin amal, keyin qaytarish.", ru: "Порядок нарушен. Сначала единица, потом действие, потом возврат.", en: "The order is broken. First the unit, then the operation, then the return." },
+    audio: {
+      intro: {
+        uz: [
+          "Bugungi usulni bitta qoidaga yig'amiz.",
+          "To'rtta qadam bor va ularning tartibi muhim. Qadamlarni ketma-ket bosing.",
+          "Shu qoida uzunlikka ham, massaga ham, vaqtga ham bir xil ishlaydi.",
+        ],
+        ru: [
+          "Соберём сегодняшний способ в одно правило.",
+          "Шагов четыре и их порядок важен. Нажимай шаги по очереди.",
+          "Это правило одинаково работает и для длины, и для массы, и для времени.",
+        ],
+        en: [
+          "Let us gather today's method into one rule.",
+          "There are four steps and their order matters. Tap the steps one after another.",
+          "The rule works the same way for length, for mass and for time.",
+        ],
+      },
+    },
+  },
+
+  s11: {
+    eyebrow: { uz: "Tekshiruv", ru: "Проверка", en: "Check" },
+    title: { uz: "Uchta tez savol", ru: "Три быстрых вопроса", en: "Three quick questions" },
+    source: { uz: "Dispetcher jurnali", ru: "Журнал диспетчера", en: "Dispatcher log" },
+    rounds: [
+      {
+        prompt: { uz: "85 min ni soat va minutda ifodalang", ru: "Вырази 85 мин в часах и минутах", en: "Express 85 min in hours and minutes" },
+        tiles: [
+          { uz: "1 h 25 min", ru: "1 ч 25 мин", en: "1 h 25 min" },
+          { uz: "8 h 5 min", ru: "8 ч 5 мин", en: "8 h 5 min" },
+          { uz: "1 h 35 min", ru: "1 ч 35 мин", en: "1 h 35 min" },
+        ],
+        answer: 0,
+        ok: { uz: "60 min bitta soat, qolgani 25 min.", ru: "60 мин это один час, остаётся 25 мин.", en: "60 min is one hour and 25 min are left." },
+        no: { uz: "Bir soatda 60 daqiqa. Ortiqchasini sanang.", ru: "В одном часе 60 минут. Посчитай остаток.", en: "One hour holds 60 minutes. Count what is left." },
+      },
+      {
+        prompt: { uz: "150 min ni soat va minutda ifodalang", ru: "Вырази 150 мин в часах и минутах", en: "Express 150 min in hours and minutes" },
+        tiles: [
+          { uz: "1 h 50 min", ru: "1 ч 50 мин", en: "1 h 50 min" },
+          { uz: "2 h 30 min", ru: "2 ч 30 мин", en: "2 h 30 min" },
+          { uz: "15 h", ru: "15 ч", en: "15 h" },
+        ],
+        answer: 1,
+        ok: { uz: "Ikki soat 120 min, qolgani 30 min.", ru: "Два часа это 120 мин, остаётся 30 мин.", en: "Two hours are 120 min and 30 min are left." },
+        no: { uz: "Bitta soat yetmaydi. Ikkita soat necha daqiqa?", ru: "Одного часа мало. Сколько минут в двух часах?", en: "One hour is not enough. How many minutes are in two hours?" },
+      },
+      {
+        prompt: { uz: "3 060 g ni kilogramm va grammda ifodalang", ru: "Вырази 3 060 г в килограммах и граммах", en: "Express 3 060 g in kilograms and grams" },
+        tiles: [
+          { uz: "30 kg 60 g", ru: "30 кг 60 г", en: "30 kg 60 g" },
+          { uz: "3 kg 600 g", ru: "3 кг 600 г", en: "3 kg 600 g" },
+          { uz: "3 kg 60 g", ru: "3 кг 60 г", en: "3 kg 60 g" },
+        ],
+        answer: 2,
+        ok: { uz: "Har ming gramm bitta kilogramm. Uch ming va yana 60 g.", ru: "Каждая тысяча граммов это килограмм. Три тысячи и ещё 60 г.", en: "Every thousand grams is one kilogram. Three thousand and 60 g more." },
+        no: { uz: "Nollarni sanang. Bir kilogrammda ming gramm bor.", ru: "Посчитай нули. В одном килограмме тысяча граммов.", en: "Count the zeros. One kilogram holds a thousand grams." },
+      },
+    ],
+    counter: { uz: "savol", ru: "вопрос", en: "question" },
+    doneText: { uz: "Uch savol ham yopildi", ru: "Все три вопроса закрыты", en: "All three questions are closed" },
+    audio: {
+      intro: {
+        uz: [
+          "Dispetcher jurnalida uchta yozuv qoldi.",
+          "Har birini ikki birlikda ifodalang. Javobni bosing.",
+        ],
+        ru: [
+          "В журнале диспетчера осталось три записи.",
+          "Вырази каждую в двух единицах. Нажми ответ.",
+        ],
+        en: [
+          "Three records are left in the dispatcher's log.",
+          "Express each one in two units. Tap the answer.",
+        ],
+      },
+    },
+  },
+
+  s12: {
+    eyebrow: { uz: "Strategiya", ru: "Стратегия", en: "Strategy" },
+    title: { uz: "Qaysi yo'l qulayroq", ru: "Какой путь удобнее", en: "Which way is more convenient" },
+    lead: { uz: "2 h 25 min · 4 — ikki yo'l ham to'g'ri", ru: "2 ч 25 мин · 4 — оба пути верны", en: "2 h 25 min · 4 — both ways are correct" },
+    source: { uz: "To'rtta smena", ru: "Четыре смены", en: "Four shifts" },
+    routes: [
+      {
+        name: { uz: "Bitta birlikka keltirib", ru: "Приведя к одной единице", en: "By bringing to one unit" },
+        lines: [
+          { uz: "2 h 25 min = 145 min", ru: "2 ч 25 мин = 145 мин", en: "2 h 25 min = 145 min" },
+          { uz: "145 · 4 = 580", ru: "145 · 4 = 580", en: "145 · 4 = 580" },
+          { uz: "580 min = 9 h 40 min", ru: "580 мин = 9 ч 40 мин", en: "580 min = 9 h 40 min" },
+        ],
+      },
+      {
+        name: { uz: "Bo'laklab", ru: "По частям", en: "Part by part" },
+        lines: [
+          { uz: "2 h · 4 = 8 h", ru: "2 ч · 4 = 8 ч", en: "2 h · 4 = 8 h" },
+          { uz: "25 min · 4 = 100 min = 1 h 40 min", ru: "25 мин · 4 = 100 мин = 1 ч 40 мин", en: "25 min · 4 = 100 min = 1 h 40 min" },
+          { uz: "8 h + 1 h 40 min = 9 h 40 min", ru: "8 ч + 1 ч 40 мин = 9 ч 40 мин", en: "8 h + 1 h 40 min = 9 h 40 min" },
+        ],
+      },
+    ],
+    answerIndex: 1,
+    routeFeedback: [
+      { uz: "Bu yo'l ham to'g'ri javob beradi, lekin 580 daqiqani soatga qaytarish uzoqroq. Massada esa aynan shu yo'l qulay.", ru: "Этот путь тоже даёт верный ответ, но возвращать 580 минут в часы дольше. Зато для массы удобен именно он.", en: "This way also gives the correct answer, but turning 580 minutes back into hours takes longer. For mass, however, this is the handy one." },
+      { uz: "Ha. Vaqtda bo'laklab ishlash qulay, chunki katta songa o'tish shart emas.", ru: "Да. Со временем удобнее по частям, потому что не нужно переходить к большому числу.", en: "Yes. With time it is easier part by part, because you do not have to go through a big number." },
+    ],
+    note: { uz: "Massada esa: 5 t 250 kg · 3 = 5 250 kg · 3 = 15 750 kg = 15 t 750 kg", ru: "А для массы: 5 т 250 кг · 3 = 5 250 кг · 3 = 15 750 кг = 15 т 750 кг", en: "And for mass: 5 t 250 kg · 3 = 5 250 kg · 3 = 15 750 kg = 15 t 750 kg" },
+    audio: {
+      intro: {
+        uz: [
+          "Ba'zan bitta masalani ikki yo'l bilan yechish mumkin. Ikkalasi ham to'g'ri.",
+          "Chapda hammasini daqiqaga aylantiramiz. O'ngda soat va daqiqani alohida ko'paytiramiz.",
+          "Shu misolda qaysi biri qulayroq deb o'ylaysiz. Kartani bosing.",
+        ],
+        ru: [
+          "Иногда одну задачу можно решить двумя путями. Оба верны.",
+          "Слева переводим всё в минуты. Справа умножаем часы и минуты по отдельности.",
+          "Как думаешь, какой путь удобнее именно здесь. Нажми на карточку.",
+        ],
+        en: [
+          "Sometimes one task can be solved in two ways. Both are correct.",
+          "On the left we turn everything into minutes. On the right we multiply the hours and the minutes separately.",
+          "Which one do you think is handier here. Tap a card.",
+        ],
+      },
+    },
+  },
+
+  s13: {
+    eyebrow: { uz: "Hayotiy vazifa", ru: "Задача из жизни", en: "Real-life task" },
+    title: { uz: "Oyna yopilmoqda", ru: "Окно закрывается", en: "The window is closing" },
+    task: { uz: "oyna: 2 h 30 min · ishlar: 45 min, 1 h 10 min, 25 min", ru: "окно: 2 ч 30 мин · работы: 45 мин, 1 ч 10 мин, 25 мин", en: "window: 2 h 30 min · jobs: 45 min, 1 h 10 min, 25 min" },
+    question: { uz: "Ishlar jami qancha vaqt oladi va oynaga sig'adimi?", ru: "Сколько времени займут работы и уместятся ли они в окно?", en: "How long will the jobs take and do they fit into the window?" },
+    correctIndex: 0,
+    options: [
+      { uz: "2 h 20 min, sig'adi", ru: "2 ч 20 мин, умещаются", en: "2 h 20 min, they fit" },
+      { uz: "1 h 80 min, sig'adi", ru: "1 ч 80 мин, умещаются", en: "1 h 80 min, they fit" },
+      { uz: "2 h 40 min, sig'maydi", ru: "2 ч 40 мин, не умещаются", en: "2 h 40 min, they do not fit" },
+      { uz: "2 h 20 min, sig'maydi", ru: "2 ч 20 мин, не умещаются", en: "2 h 20 min, they do not fit" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. 140 min bu 2 h 20 min, oynada esa 150 min bor. 10 min zaxira qoladi.", ru: "Верно. 140 мин это 2 ч 20 мин, а в окне 150 мин. Остаётся 10 мин запаса.", en: "Right. 140 min is 2 h 20 min and the window holds 150 min. 10 min are left over." },
+      { uz: "Vaqt to'g'ri, yozuv tugallanmagan. 80 min ichida yana bir butun soat bor.", ru: "Время верное, а запись не завершена. В 80 мин есть ещё целый час.", en: "The time is right but the record is unfinished. 80 min holds one more whole hour." },
+      { uz: "Yig'indi katta chiqdi. 45 va 25 birga bir soat emas, atigi 70 min beradi.", ru: "Сумма получилась больше. 45 и 25 вместе дают не час, а 70 мин.", en: "The sum came out too big. 45 and 25 together give 70 min, not an hour." },
+      { uz: "Vaqt to'g'ri. Endi solishtiring, 2 h 20 min oynadagi 2 h 30 min dan kam.", ru: "Время верное. Теперь сравни, 2 ч 20 мин меньше, чем 2 ч 30 мин окна.", en: "The time is right. Now compare, 2 h 20 min is less than the 2 h 30 min of the window." },
+    ],
+    proof: { uz: "45 + 70 + 25 = 140 min = 2 h 20 min · zaxira 10 min", ru: "45 + 70 + 25 = 140 мин = 2 ч 20 мин · запас 10 мин", en: "45 + 70 + 25 = 140 min = 2 h 20 min · 10 min spare" },
+    audio: {
+      intro: {
+        uz: [
+          "Smena oxiri. Tungi oyna ikki yarim soat davom etadi.",
+          "Uch ishga qirq besh daqiqa, bir soat o'n daqiqa va yigirma besh daqiqa ketadi. Jami qancha va sig'adimi.",
+        ],
+        ru: [
+          "Конец смены. Ночное окно длится два с половиной часа.",
+          "На три работы уходит сорок пять минут, час десять и двадцать пять минут. Сколько всего и умещаются ли они.",
+        ],
+        en: [
+          "The end of the shift. The night window lasts two and a half hours.",
+          "The three jobs take forty five minutes, one hour ten minutes and twenty five minutes. How much in total and do they fit.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Brigada oynaga ulgurdi va bir oz zaxira ham qoldi.", ru: "Верно. Бригада успела в окно, и запас тоже остался.", en: "Right. The crew fitted into the window and some spare time was left." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Daqiqalar oltmishdan oshsa, ular soatga aylanadi.", ru: "Если минут больше шестидесяти, они превращаются в час.", en: "When the minutes pass sixty, they turn into an hour." },
+        { uz: "Uch sonni qaytadan qo'shing. Avval daqiqalarni jamlang.", ru: "Сложи три числа заново. Сначала собери минуты.", en: "Add the three numbers again. Collect the minutes first." },
+        { uz: "Ikki vaqtni solishtiring. Qaysi biri katta.", ru: "Сравни два времени. Какое из них больше.", en: "Compare the two times. Which one is larger." },
+      ],
+    },
+  },
+
+  s14: {
+    eyebrow: { uz: "Yangi holat", ru: "Новый случай", en: "New case" },
+    title: { uz: "Ombor hisoboti", ru: "Отчёт склада", en: "The store report" },
+    task: { uz: "boshida 12 m 50 cm · oxirida 7 m 70 cm qoldi", ru: "было 12 м 50 см · осталось 7 м 70 см", en: "at the start 12 m 50 cm · at the end 7 m 70 cm left" },
+    question: { uz: "Smena davomida qancha kabel ishlatildi?", ru: "Сколько кабеля израсходовали за смену?", en: "How much cable was used during the shift?" },
+    correctIndex: 0,
+    options: [
+      { uz: "4 m 80 cm", ru: "4 м 80 см", en: "4 m 80 cm" },
+      { uz: "5 m 20 cm", ru: "5 м 20 см", en: "5 m 20 cm" },
+      { uz: "4 m 20 cm", ru: "4 м 20 см", en: "4 m 20 cm" },
+      { uz: "5 m 80 cm", ru: "5 м 80 см", en: "5 m 80 cm" },
+    ],
+    feedback: [
+      { uz: "To'g'ri. 1 250 dan 770 ni ayirdik va 480 cm qoldi, ya'ni 4 m 80 cm.", ru: "Верно. Из 1 250 вычли 770 и осталось 480 см, то есть 4 м 80 см.", en: "Right. We took 770 from 1 250 and 480 cm were left, that is 4 m 80 cm." },
+      { uz: "Bir metr ortiqcha. Tekshiring: 7 m 70 cm ga javobingizni qo'shsa, 12 m 50 cm chiqishi kerak.", ru: "Один метр лишний. Проверь: если к 7 м 70 см прибавить твой ответ, должно выйти 12 м 50 см.", en: "One metre too many. Check it: adding your answer to 7 m 70 cm must give 12 m 50 cm." },
+      { uz: "Santimetrda kichikdan katta ayirilgan. 50 dan 70 ni ayirish uchun metrdan qarz olinadi.", ru: "В сантиметрах из меньшего вычли большее. Чтобы из 50 вычесть 70, берут заём у метра.", en: "In the centimetres the bigger was taken from the smaller. To take 70 from 50 you borrow from a metre." },
+      { uz: "Ikkala xona ham surildi. Avval santimetrni, keyin metrni hisoblang.", ru: "Сдвинулись оба разряда. Посчитай сначала сантиметры, потом метры.", en: "Both places slipped. Count the centimetres first, then the metres." },
+    ],
+    proof: { uz: "1 250 cm − 770 cm = 480 cm → 4 m 80 cm", ru: "1 250 см − 770 см = 480 см → 4 м 80 см", en: "1 250 cm − 770 cm = 480 cm → 4 m 80 cm" },
+    audio: {
+      intro: {
+        uz: [
+          "Ombor hisoboti yopilmoqda. Boshida o'n ikki metr ellik santimetr kabel bor edi.",
+          "Oxirida yetti metr yetmish santimetr qoldi. Qancha ishlatilganini toping va javobni teskari amal bilan tekshiring.",
+        ],
+        ru: [
+          "Отчёт склада закрывается. В начале было двенадцать метров пятьдесят сантиметров кабеля.",
+          "В конце осталось семь метров семьдесят сантиметров. Найди, сколько израсходовали, и проверь обратным действием.",
+        ],
+        en: [
+          "The store report is closing. At the start there were twelve metres fifty centimetres of cable.",
+          "At the end seven metres seventy centimetres were left. Find how much was used and check it with the inverse operation.",
+        ],
+      },
+      on_correct: { uz: "To'g'ri. Teskari amal ham shuni tasdiqlaydi.", ru: "Верно. Обратное действие это подтверждает.", en: "Right. The inverse operation confirms it." },
+      on_wrong: [
+        { uz: "To'g'ri javob.", ru: "Верный ответ.", en: "The correct answer." },
+        { uz: "Javobingizni qoldiqqa qo'shib ko'ring. Boshlang'ich son chiqmaydi.", ru: "Прибавь свой ответ к остатку. Начальное число не выходит.", en: "Add your answer to what is left. The starting number does not come out." },
+        { uz: "Santimetrda qarz kerak. Bir metrni yuz santimetrga almashtiring.", ru: "В сантиметрах нужен заём. Обменяй один метр на сто сантиметров.", en: "The centimetres need a borrow. Exchange one metre for one hundred centimetres." },
+        { uz: "Ikkala birlikni alohida tekshiring, keyin teskari amal bilan sinang.", ru: "Проверь каждую единицу отдельно, потом проверь обратным действием.", en: "Check each unit separately, then test it with the inverse operation." },
+      ],
+    },
+  },
+
+  s15: {
+    eyebrow: { uz: "Yakun", ru: "Итог", en: "Summary" },
+    title: { uz: "Smena yopildi", ru: "Смена закрыта", en: "The shift is closed" },
+    rewardTitle: { uz: "Miqdorlar dispetcheri", ru: "Диспетчер величин", en: "Quantity dispatcher" },
+    lead: {
+      uz: "Bugungi usul bitta xaritaga yig'ildi.",
+      ru: "Сегодняшний способ собрался в одну карту.",
+      en: "Today's method now fits on one map.",
+    },
+    frames: [
+      { uz: "Bir xil o'lchov birligiga keltiramiz", ru: "Приводим к одной единице измерения", en: "Bring to one unit of measurement" },
+      { uz: "Amalni sonlar kabi bajaramiz va qaytaramiz", ru: "Выполняем действие как с числами и возвращаем", en: "Do the operation as with numbers and return" },
+      { uz: "Amalni kalit so'z emas, bog'lanish tanlaydi", ru: "Действие выбирает связь величин, а не ключевое слово", en: "The relation chooses the operation, not a key word" },
+      { uz: "48 m 60 cm + 25 m 70 cm = 74 m 30 cm", ru: "48 м 60 см + 25 м 70 см = 74 м 30 см", en: "48 m 60 cm + 25 m 70 cm = 74 m 30 cm" },
+      { uz: "Keyingi missiya: hajm birliklari", ru: "Следующая миссия: единицы объёма", en: "Next mission: units of volume" },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Tungi oyna yopildi va brigada ishni tugatdi. Bugun kattaliklar bilan ishlashni o'rgandingiz.",
+          "Birinchi qadam doim bitta. Qiymatlarni bir xil o'lchov birligiga keltiramiz.",
+          "Keyin amalni oddiy sonlar kabi bajaramiz va natijani o'qishga qulay birlikka qaytaramiz.",
+          "Amalni kalit so'z emas, kattaliklar orasidagi bog'lanish tanlaydi. Boshlang'ich buyurtma ham shu bilan yopildi.",
+          "Keyingi missiyada hajm birliklari kutmoqda. Idishga qancha suv sig'ishini qanday bilamiz.",
+        ],
+        ru: [
+          "Ночное окно закрыто, бригада закончила работу. Сегодня главной темой были величины.",
+          "Первый шаг всегда один. Приводим значения к одной и той же единице измерения.",
+          "Потом выполняем действие как с обычными числами и возвращаем результат к удобной единице.",
+          "Действие выбирает не ключевое слово, а связь между величинами. Этим закрылся и стартовый заказ.",
+          "В следующей миссии ждут единицы объёма. Как узнать, сколько воды помещается в сосуд.",
+        ],
+        en: [
+          "The night window is closed and the crew has finished. Today you learned to work with quantities.",
+          "The first step is always the same. Bring the values to one and the same unit of measurement.",
+          "Then do the operation as with ordinary numbers and return the result to a convenient unit.",
+          "The operation is chosen by the relation between the quantities, not by a key word. That also closed the starting order.",
+          "The next mission holds the units of volume. How do we tell how much water a vessel takes.",
+        ],
+      },
+    },
+  },
 };
 
 let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
@@ -1447,8 +1005,8 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   );
 };
 const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
-const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canAdvance && canFinish && isAudioReady(audio); const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly)); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div><div className="caption-slot" aria-live="polite">{showCaption ? <div className="caption">{audio.caption}</div> : <span aria-hidden="true"/>}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
+const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), model: bi('Model', 'Модель', 'Model'), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
+const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canUseGrade4TheoryContinue(canAdvance && canFinish && isAudioReady(audio), finish); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
 const Heading = ({ c, state = 'present', showBit = false, hook = false }) => { const t = useT(); return <div className={'heading ' + (showBit && !hook ? '' : 'heading-solo')}><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{showBit && !hook && <BitSVG state={state}/>}</div>; };
 
 const G4TitleReveal = ({ active, title, onComplete }) => {
@@ -1461,68 +1019,1514 @@ const G4TitleCard = ({ title, answers = [] }) => {
   const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
   return <aside className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
 };
-function MeasureScene({ scene, frame, p }) {
-  if (scene === 'measure-time') { const angle = -90 + p * 240; const rad = angle * Math.PI / 180; return <svg viewBox="0 0 300 170"><circle className="tv-soft" cx="150" cy="82" r="58"/><circle className="tv-outline" cx="150" cy="82" r="58"/><path className="tv-ray" d="M150 82V43"/><path className="tv-ray tv-accent" d={`M150 82L${150 + 43 * Math.cos(rad)} ${82 + 43 * Math.sin(rad)}`}/><circle className="tv-pulse" cx="150" cy="82" r="7"/><path className="tv-carry" d={frame > 1 ? 'M205 47c20 10 23 31 6 44' : 'M205 47c8 4 12 10 13 16'}/></svg>; }
-  if (scene === 'measure-sub') return <svg viewBox="0 0 300 170"><path className="tv-grid" d="M35 132H265"/><rect className="tv-mass" x="48" y={50 + 38 * p} width="204" height={72 - 38 * p} rx="8"/><path className="tv-path" d="M42 132H258"/><circle className="tv-pulse" cx={245 - 140 * p} cy="132" r="8"/></svg>;
-  if (scene === 'measure-repeat') { const active = Math.ceil(4 * p); return <svg viewBox="0 0 300 170">{Array.from({length:4},(_,i)=><g key={i} style={{opacity:i<active?1:.18,transform:`translateY(${i<active?0:8}px)`}}><rect className="tv-soft" x={28+i*66} y="58" width="53" height="36" rx="10"/><path className="tv-path" d={`M34 ${76+i%2}H${74+i*66}`}/></g>)}<path className="tv-grid" d="M28 123H272"/></svg>; }
-  if (['measure-map','measure-rule','measure-final'].includes(scene)) { const total = scene === 'measure-final' ? 5 : 4; const active = Math.ceil(total * p); return <svg viewBox="0 0 300 170">{Array.from({length:total},(_,i)=><g key={i} style={{opacity:i<active?1:.16}}><rect className={i===active-1?'tv-card active':'tv-card'} x={18+i*(264/total)} y={48+(i%2)*12} width={44} height="58" rx="9"/><path className="tv-grid" d={`M${27+i*(264/total)} ${68+(i%2)*12}h26 M${27+i*(264/total)} ${81+(i%2)*12}h20`}/></g>)}<path className="tv-arrow" d="M32 132H268"/></svg>; }
-  if (['measure-standard','measure-bit'].includes(scene)) return <svg viewBox="0 0 300 170"><rect className="tv-mass" x="43" y="72" width={95 + 55*p} height="48" rx="12"/><rect className="tv-soft" x="172" y="72" width={80 - 34*p} height="48" rx="12"/><path className="tv-carry" d={frame>0?'M185 53c-18-17-48-17-66 0':'M185 53h-24'}/><circle className="tv-pulse" cx={frame>0?119:185} cy="53" r="8"/></svg>;
-  const joined = frame >= 2 || scene === 'measure-payoff'; const leftEnd=92+56*p; const rightStart=204-56*p; return <svg viewBox="0 0 300 170"><path className="tv-grid" d="M28 128H272 M48 118V138 M98 118V138 M148 118V138 M198 118V138 M248 118V138"/><path className="tv-cable a" d={joined?'M34 72H148':`M34 58H${leftEnd}`}/><path className="tv-cable b" d={joined?'M148 72H264':`M${rightStart} 88H264`}/><circle className="tv-pulse" cx={joined?148:(leftEnd+rightStart)/2} cy={joined?72:74} r="9"/><path className="tv-carry" d={frame>2?'M174 42c18 4 31 16 34 31':frame>0?'M174 42c10 2 19 7 24 15':'M174 42h24'}/></svg>;
-}
-function VolumeScene({ scene, frame, p }) {
-  if (scene === 'volume-litre') return <svg viewBox="0 0 300 175"><path className="tv-container" d="M82 35h136l-12 116H94z"/><rect className="tv-water" x="96" y={143-92*p} width="108" height={92*p} rx="5"/><path className="tv-grid" d="M96 88H204 M150 42V145"/></svg>;
-  if (scene === 'volume-dimensions') return <svg viewBox="0 0 300 175"><path className="tv-line" d="M42 120H252"/><rect className="tv-area" x="82" y="58" width="132" height="74" style={{opacity:frame>0?1:.12}}/><path className="tv-cube-wire" d="M105 121V55l70-28 70 36v65l-70 28z M105 55l70 37 70-29 M175 92v64" style={{opacity:frame>1?1:.12}}/>{frame>2&&<circle className="tv-pulse" cx="175" cy="92" r="9"/>}</svg>;
-  if (scene === 'volume-choice') return <svg viewBox="0 0 300 175">{[18,28,42,58].map((size,i)=><g key={size} style={{opacity:i<=frame?1:.2}}><rect className="tv-soft" x={26+i*66} y={128-size} width={size} height={size} rx="6"/><path className="tv-cube-edge" d={`M${26+i*66} ${128-size}l10-8h${size}l-10 8`}/></g>)}</svg>;
-  if (scene === 'volume-unit') return <svg viewBox="0 0 300 175"><path className="tv-cube-wire" d="M78 70l72-38 72 38v72l-72 32-72-32z M78 70l72 38 72-38 M150 108v66"/><path className="tv-accent" d={frame===0?'M78 142h72':frame===1?'M78 70l72 38':frame===2?'M150 108v66':'M78 70l72-38'}/></svg>;
-  if (scene === 'volume-bit') return <svg viewBox="0 0 300 175"><path className="tv-cube-wire" d="M70 68l72-34 72 34v70l-72 33-72-33z M70 68l72 35 72-35 M142 103v68"/><path className="tv-accent" d={frame===0?'M70 138H214':'M142 103V171'}/><circle className="tv-pulse" cx="142" cy={frame===0?138:103} r="8"/></svg>;
-  const total = scene === 'volume-dm' ? 30 : 24; const active = Math.max(1,Math.ceil(total*p)); return <div className="tv-layer-wrap">{Array.from({length:total},(_,i)=><i key={i} className={i<active?'active':''} style={{transform:`translateY(${-Math.floor(i/12)*4}px)`}}/> )}</div>;
-}
-const ANGLE_DEGREES = { 'angle-acute':35,'angle-right':90,'angle-obtuse':125,'angle-straight':180,'angle-case':110,'angle-payoff':125,'angle-equal':55,'angle-hook':55 };
-function AngleScene({ scene, frame, p }) {
-  if (['angle-scale','angle-final'].includes(scene)) return <svg viewBox="0 0 300 175"><path className="tv-scale acute" d="M30 130A120 120 0 0 1 150 10"/><path className="tv-scale obtuse" d="M150 10A120 120 0 0 1 270 130"/><circle className="tv-pulse" cx={30+240*p} cy="130" r="9"/><path className="tv-grid" d="M30 130H270 M150 10V130"/></svg>;
-  if (scene === 'angle-parts') return <svg viewBox="0 0 300 175"><path className="tv-ray" d="M145 125H260" style={{opacity:frame>0?1:.22}}/><path className="tv-ray" d="M145 125L82 43" style={{opacity:frame>1?1:.22}}/><circle className="tv-pulse" cx="145" cy="125" r={frame===0?12:7}/><path className="tv-arc" d="M185 125A40 40 0 0 0 121 93" style={{opacity:frame>2?1:.2}}/></svg>;
-  const degree = ANGLE_DEGREES[scene] || 60; const equalOpening=['angle-hook','angle-equal'].includes(scene); const shown = equalOpening?degree:degree*Math.max(.18,p); const rad=shown*Math.PI/180; const x=145+96*Math.cos(rad); const y=125-96*Math.sin(rad); if (equalOpening) { const short=48+14*p; const long=58+38*p; return <svg viewBox="0 0 300 175"><g transform="translate(-55 0)"><path className="tv-ray" d={`M145 125h${short}`}/><path className="tv-ray" d={`M145 125L${145+short*Math.cos(rad)} ${125-short*Math.sin(rad)}`}/></g><g transform="translate(80 0)"><path className="tv-ray" d={`M145 125h${long}`}/><path className="tv-ray" d={`M145 125L${145+long*Math.cos(rad)} ${125-long*Math.sin(rad)}`}/></g></svg>; } return <svg viewBox="0 0 300 175"><path className="tv-ray" d="M145 125H260"/><path className="tv-ray" d={`M145 125L${x} ${y}`}/><path className="tv-arc" d={`M185 125A40 40 0 0 0 ${145+40*Math.cos(rad)} ${125-40*Math.sin(rad)}`}/><circle className="tv-pulse" cx="145" cy="125" r="7"/></svg>;
-}
-const PROTRACTOR_DEGREES = {'protractor-hook':frame=>frame>0?120:60,'protractor-zero':()=>70,'protractor-start':()=>70,'protractor-mark':()=>70,'protractor-obtuse':()=>120,'protractor-check':()=>70,'protractor-rule':()=>70,'protractor-centre':()=>70,'protractor-order':()=>70,'protractor-error':frame=>frame>0?50:130,'protractor-case':()=>135,'protractor-final':()=>70,'protractor-parts':()=>90};
-function ProtractorScene({ scene, frame, p }) { const degree=(PROTRACTOR_DEGREES[scene]||(()=>70))(frame); const rad=degree*Math.PI/180; const x=145+96*Math.cos(rad); const y=125-96*Math.sin(rad); return <svg viewBox="0 0 300 175"><path className="tv-protractor" d="M45 125A100 100 0 0 1 245 125"/><path className="tv-grid" d="M45 125H245 M145 25V125"/><path className="tv-ray" d="M145 125H260"/><circle className="tv-pulse" cx="145" cy="125" r={frame===0?10:6}/>{frame>0&&<circle className="tv-mark" cx={x} cy={y} r="7"/>}{frame>1&&<path className="tv-ray" d={`M145 125L${x} ${y}`}/>}<path className="tv-arc" d={`M185 125A40 40 0 0 0 ${145+40*Math.cos(rad*p)} ${125-40*Math.sin(rad*p)}`} style={{opacity:frame>1?1:.25}}/></svg>; }
-function TriangleScene({ scene, frame, p }) { const variant=scene.includes('equal')?'equal':scene.includes('iso')||scene.includes('hook')||scene.includes('case')||scene.includes('payoff')?'iso':scene.includes('right')?'right':scene.includes('angles')?'angles':'scalene'; if(variant==='angles') return <svg viewBox="0 0 300 175"><polygon className="tv-shape" points="20,140 78,54 136,140" style={{opacity:frame>=0?1:.15}}/><polygon className="tv-shape" points="98,140 98,54 182,140" style={{opacity:frame>0?1:.15}}/><polygon className="tv-shape" points="164,140 211,82 282,140" style={{opacity:frame>1?1:.15}}/>{frame>2&&<circle className="tv-pulse" cx="150" cy="86" r="10"/>}</svg>; const points=variant==='right'?'65,140 65,40 245,140':variant==='equal'?'55,140 150,28 245,140':variant==='iso'?'45,140 150,42 255,140':'38,140 122,35 264,140'; const rotate=scene==='triangle-rotate'?90*p:0; const early=scene==='triangle-case'?0:1; return <svg viewBox="0 0 300 175"><g style={{transformOrigin:'150px 95px',transform:`rotate(${rotate}deg)`,transition:'transform .6s ease'}}><polygon className="tv-shape" points={points}/><path className="tv-path" d="M86 94l12 8" style={{opacity:frame>=early?1:.16}}/><path className="tv-path" d="M202 102l12-8" style={{opacity:frame>early?1:.16}}/>{variant==='equal'&&<path className="tv-path" d="M142 140v-14" style={{opacity:frame>early+1?1:.16}}/>}{(variant==='right'||scene.includes('case')||scene.includes('hook')||scene.includes('payoff'))&&<path className="tv-right" d="M65 120h20v20" style={{opacity:frame>0?1:.16}}/>}{frame>3&&<circle className="tv-pulse" cx="150" cy="78" r="10"/>}</g></svg>; }
-function QuadScene({ scene, frame, p }) { if(['quad-hook','quad-compare','quad-final'].includes(scene)) return <svg viewBox="0 0 300 175"><rect className="tv-shape" x="20" y="54" width="145" height="82"/><rect className="tv-shape accent" x={145-30*p} y={40-8*p} width="105" height="105"/><path className="tv-right" d="M20 72h18V54 M232 40v18h18"/></svg>; if(scene==='quad-rhombus') return <svg viewBox="0 0 300 175"><polygon className="tv-shape" points="150,24 260,88 150,152 40,88"/><path className="tv-path" d="M88 58l10 12 M202 70l10-12 M88 118l10-12 M202 106l10 12" style={{opacity:frame>0?1:.18}}/></svg>; const square=['quad-square','quad-rotated','quad-case','quad-payoff'].includes(scene); const rotate=scene==='quad-rotated'?45*p:0; const marks=Math.min(4,frame+1); return <svg viewBox="0 0 300 175"><g style={{transformOrigin:'150px 88px',transform:`rotate(${rotate}deg)`,transition:'transform .6s ease'}}><rect className="tv-shape" x={square?90:44} y={square?28:48} width={square?120:212} height={square?120:92}/>{marks>0&&<path className="tv-right" d={square?'M90 48h20V28':'M44 68h20V48'}/>} {marks>1&&<path className="tv-right" d={square?'M190 28v20h20':'M236 48v20h20'}/>} {marks>2&&<path className="tv-right" d={square?'M210 128h-20v20':'M256 120h-20v20'}/>} {marks>3&&<path className="tv-right" d={square?'M110 148v-20H90':'M64 140v-20H44'}/>}</g>{frame>3&&<circle className="tv-pulse" cx="150" cy="88" r="10"/>}</svg>; }
-function PerimeterScene({ scene, frame, p, screen }) { if(scene==='perimeter-compare') return <svg viewBox="0 0 300 180"><rect className="tv-border" x="20" y="45" width="120" height="58" style={{strokeDashoffset:420*(1-p)}}/><rect className="tv-border" x="160" y="33" width="100" height="82" style={{strokeDashoffset:420*(1-p)}}/><g className="tv-cells"><rect className="tv-cell" x="165" y="38" width="90" height="72" style={{opacity:frame > 0 ? .55 : .08}}/></g></svg>; const dims=screen===0||screen===7?[8,5]:screen===8||screen===9?[7,4]:screen===10?[6,6]:screen===12?[7,5]:screen===13?[10,6]:[6,4]; const cols=Math.min(10,dims[0]); const rows=Math.min(6,dims[1]); const cells=cols*rows; const area=scene.includes('area')||scene==='perimeter-case'||scene==='perimeter-hook'||scene==='perimeter-payoff'||scene==='perimeter-meaning'||scene==='perimeter-final'; const border=!scene.includes('area')||scene==='perimeter-case'||scene==='perimeter-hook'||scene==='perimeter-payoff'||scene==='perimeter-meaning'||scene==='perimeter-final'; return <svg viewBox="0 0 300 180">{area&&Array.from({length:cells},(_,i)=>{const col=i%cols,row=Math.floor(i/cols);return <rect className="tv-cell" key={i} x={58+col*184/cols} y={38+row*99/rows} width={184/cols-1} height={99/rows-1} style={{opacity:i < Math.ceil(cells*p) ? .62 : .08}}/>})}{border&&<rect className="tv-border" x="55" y="35" width="190" height="105" style={{strokeDashoffset:590*(1-p)}}/>}{scene==='perimeter-case'&&<rect className="tv-pool" x="132" y="82" width="46" height="31"/>}</svg>; }
-function LessonVisual({ scene, frame, screen }) { const t=useT(); const c=CONTENT[`s${screen}`]; const safeFrame=Math.min(frame,c.frames.length-1); const label=t(c.frames[safeFrame]); const p=(safeFrame+1)/FRAME_COUNTS[screen]; let visual; if(LESSON_KIND==='measure') visual=<MeasureScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='volume') visual=<VolumeScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='angle') visual=<AngleScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='protractor') visual=<ProtractorScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='triangle') visual=<TriangleScene scene={scene} frame={safeFrame} p={p}/>; else if(LESSON_KIND==='quadrilateral') visual=<QuadScene scene={scene} frame={safeFrame} p={p}/>; else visual=<PerimeterScene scene={scene} frame={safeFrame} p={p} screen={screen}/>; return <div className={`conversion-visual topic-visual ${LESSON_KIND}-visual scene-${scene}`} data-g4-role="visual-frame" aria-label={label}>{visual}<strong>{label}</strong></div>; }
-const RevealFrames = ({ frames, frame }) => { const t = useT(); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
-const GuidedFramePanel = ({ frames, step, onAdvance, audioReady }) => { const t = useT(); const complete = step >= frames.length - 1; return <div className="guided-panel" aria-live="polite"><div className="guided-progress" aria-label={`${step + 1} / ${frames.length}`}>{frames.map((_, index) => <i className={index <= step ? 'active' : ''} key={index}/>)}</div><div className="guided-frame"><b>{step + 1}</b><span>{t(frames[step])}</span></div><div className="guided-action">{complete ? <span className="guided-complete">✓ {t(bi('Bosqichlar tugadi', 'Шаги завершены', 'Steps complete'))}</span> : <button type="button" className="btn-white-accent step-button" disabled={!audioReady} onClick={onAdvance}>{t(bi('Keyingi qadam', 'Следующий шаг', 'Next step'))} →</button>}</div></div>; };
-function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const answerReady = isAudioReady(audio); const choose = (index) => { if (!answerReady) return; const nextAttempts = attempts + 1; setPicked(index); setAttempts(nextAttempts); audio.pushOneOff(t(HOOK_FEEDBACK)); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts, wrongChoices: [] }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} state="think" showBit hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="model-card hook-card" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><LessonVisual scene={c.scene} frame={audio.frame} screen={screen}/><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><RevealFrames frames={c.frames} frame={audio.frame}/><section className="question hook-question" data-g4-role="answer-card" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => <button type="button" data-g4-role="answer-card" className={'option ' + (picked === index ? 'picked' : '')} disabled={!answerReady} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div><div className="feedback-slot hook-feedback-slot">{picked !== null && <div className="feedback open neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic"><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod"/></span><b>◆</b><p>{t(HOOK_FEEDBACK)}</p></div>}</div></section></div></Stage>; }
-function InfoScreen({ screen, onPrev, onNext }) { const c = CONTENT[`s${screen}`]; const [step, setStep] = useState(0); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); audio.speakStep(nextStep); }; const bitState = screen === 7 ? 'happy' : ['focus', 'point', 'idea'][(screen - 1) % 3]; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={complete}><div className="stack info-stack"><Heading c={c} state={bitState} showBit/><section className="model-card guided-card"><LessonVisual scene={c.scene} frame={step} screen={screen}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section></div></Stage>; }
-function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const openChoice = SCREEN_META[screen].type === 'strategy'; const revealed = picked !== null; const correct = openChoice ? revealed : picked === c.correctIndex; const canAnswer = isAudioReady(audio); const baseBitState = screen === 12 ? 'awkward' : screen === 13 ? 'point' : 'focus'; const bitState = revealed ? (correct ? 'nod' : 'awkward') : baseBitState; const choose = (index) => { if (!canAnswer || correct || wrongChoices.includes(index)) return; const ok = openChoice || index === c.correctIndex; const nextAttempts = attempts + 1; const nextWrongChoices = ok ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.audio.on_correct : c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; const showProof = !openChoice && (correct || (!correct && wrongChoices.length >= 2)); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}><div className="stack question-stack"><Heading c={c} state={bitState} showBit/><section className="test-layout"><div className="test-model"><LessonVisual scene={c.scene} frame={audio.frame} screen={screen}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = openChoice && picked === index ? 'picked' : index === c.correctIndex && correct ? 'right' : wrongChoices.includes(index) ? 'bad' : ''; return <button type="button" className={'option ' + cls} disabled={!canAnswer || correct || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot question-feedback-slot">{revealed && <div className="feedback-stack"><div className={'feedback open ' + (correct ? 'correct' : 'wrong')} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"}/></span><p data-g4-role={correct ? 'bit-answer-comment' : undefined}>{correct && <b className="proof-label">{t(SOLUTION_LABEL)}</b>}{t(correct ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div>{showProof && <div className="proof"><b className="proof-label">{t(SOLUTION_LABEL)}</b><span>{t(c.proof)}</span></div>}</div>}</div></div></section></div></Stage>; }
-const Screen0 = (props) => <HookScreen {...props}/>;
-const Screen1 = (props) => <InfoScreen {...props}/>;
-const Screen2 = (props) => <InfoScreen {...props}/>;
-const Screen3 = (props) => <InfoScreen {...props}/>;
-const Screen4 = (props) => <InfoScreen {...props}/>;
-const Screen5 = (props) => <InfoScreen {...props}/>;
-const Screen6 = (props) => <InfoScreen {...props}/>;
-const Screen7 = (props) => <InfoScreen {...props}/>;
-const Screen8 = (props) => <QuestionScreen {...props}/>;
-const Screen9 = (props) => <QuestionScreen {...props}/>;
-const Screen10 = (props) => <QuestionScreen {...props}/>;
-const Screen11 = (props) => <QuestionScreen {...props}/>;
-const Screen12 = (props) => <QuestionScreen {...props}/>;
-const Screen13 = (props) => <QuestionScreen {...props}/>;
-function Screen14({ screen, answers, onPrev, finishLesson, finalState, onFinalState }) {
-  const t = useT(); const c = CONTENT.s14; const storedAnswer = finalState; const [step, setStep] = useState(storedAnswer.step); const [reflection, setReflection] = useState(storedAnswer.reflection); const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true); const [revealRequested, setRevealRequested] = useState(false); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const titleState = titleClaimed ? 'claimed' : 'unclaimed'; const claimed = titleClaimed;
-  const completeReveal = useCallback(() => { setRevealRequested(false); setTitleClaimed(true); onFinalState((previous) => ({ ...previous, titleClaimed: true })); }, [onFinalState]);
-  const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); onFinalState((previous) => ({ ...previous, step: nextStep })); audio.speakStep(nextStep); };
-  const chooseReflection = (index) => { setReflection(index); onFinalState((previous) => ({ ...previous, reflection: index })); };
-  const claimTitle = () => { if (reflection === null) return; if (!complete || !audioReady || titleClaimed || revealRequested) return; setRevealRequested(true); };
-  const finish = () => { if (reflection === null || !titleClaimed) return; finishLesson(); };
-return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} canAdvance={complete && reflection !== null} canFinish={titleState === 'claimed'} finish><div className="stack summary-stack"><Heading c={c} state={claimed ? 'happy' : 'idea'} showBit/>{!complete ? <section className="model-card summary-card guided-card"><LessonVisual scene={c.scene} frame={step} screen={screen}/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section> : <div className="summary-complete"><section className="reflection-card final-reflection" data-g4-role="reflection" aria-live="polite"><h2>{t(REFLECTION.question)}</h2><div className="reflection-options">{REFLECTION.options.map((option, index) => <button type="button" className={'option ' + (reflection === index ? 'picked' : '')} disabled={!audioReady || revealRequested} onClick={() => chooseReflection(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div></section><G4TitleReveal active={revealRequested} title={c.rewardTitle} onComplete={completeReveal}/>{titleState !== 'claimed' ? <section className="title-claim-card"><span>★</span><h2>{t(c.rewardTitle)}</h2><button type="button" className="btn-white-accent g4-title-claim" data-g4-role="title-claim" disabled={reflection === null || revealRequested || !audioReady} onClick={claimTitle}>{t(bi('Unvonni olish', 'Получить звание', 'Claim title'))}</button></section> : null}{titleState === 'claimed' && <G4TitleCard title={c.rewardTitle} answers={answers}/>}</div>}</div></Stage>;
-}
-const TOPIC_STYLES = `
-.topic-visual{overflow:hidden;text-align:center}.topic-visual svg{width:min(100%,330px);height:175px;overflow:visible}.topic-visual strong{max-width:360px;color:${T.navy};font-size:12px;line-height:1.35}.topic-visual text{fill:${T.navy};font:900 14px 'JetBrains Mono',monospace}.tv-grid{fill:none;stroke:${T.ink3};stroke-width:2;opacity:.35}.tv-soft{fill:${T.cyanSoft};transition:.6s ease}.tv-outline,.tv-line{fill:none;stroke:${T.navy};stroke-width:4}.tv-path,.tv-ray,.tv-arc,.tv-accent,.tv-arrow,.tv-carry,.tv-cube-edge{fill:none;stroke:${T.cyan};stroke-width:7;stroke-linecap:round;stroke-linejoin:round}.tv-accent,.tv-carry{stroke:${T.accent};stroke-width:5}.tv-arrow{stroke-width:4;marker-end:none}.tv-path{stroke-dasharray:10 7;animation:topicDash 3s linear 2}.tv-pulse{fill:${T.accent};transform-box:fill-box;transform-origin:center;animation:topicPulse 1.7s ease-in-out 2}.tv-cable{fill:none;stroke:${T.cyan};stroke-width:18;stroke-linecap:round;transition:.55s}.tv-cable.b{stroke:${T.lime}}.tv-mass{fill:${T.cyan};opacity:.78;transition:.55s}.tv-card{fill:${T.paper};stroke:${T.ink3};stroke-width:3;transition:.4s}.tv-card.active{fill:${T.successSoft};stroke:${T.lime}}.tv-container{fill:rgba(22,143,163,.06);stroke:${T.navy};stroke-width:5}.tv-water{fill:rgba(22,143,163,.62);transition:.6s}.tv-cube-wire{fill:rgba(22,143,163,.08);stroke:${T.navy};stroke-width:4;stroke-linejoin:round}.tv-layer-wrap{width:208px;display:grid;grid-template-columns:repeat(6,1fr);gap:5px;transform:skewY(-5deg)}.tv-layer-wrap i{aspect-ratio:1;border-radius:6px;background:#DDE7E6;opacity:.14;transform:scale(.72);transition:.42s}.tv-layer-wrap i.active{opacity:1;transform:scale(1);background:linear-gradient(145deg,${T.cyan},${T.navy});box-shadow:3px 4px 0 rgba(23,59,82,.16)}.tv-protractor{fill:rgba(22,143,163,.09);stroke:${T.cyan};stroke-width:3}.tv-mark{fill:${T.accent};stroke:#fff;stroke-width:3}.tv-arc{stroke:${T.accent};stroke-width:4}.tv-scale{fill:none;stroke-width:18;stroke-linecap:round}.tv-scale.acute{stroke:${T.lime}}.tv-scale.obtuse{stroke:${T.accent}}.tv-shape{fill:rgba(22,143,163,.11);stroke:${T.navy};stroke-width:5;stroke-linejoin:round;transition:.55s}.tv-shape.accent{fill:rgba(149,201,61,.2);stroke:${T.lime}}.tv-right{fill:none;stroke:${T.accent};stroke-width:4}.tv-area{fill:rgba(22,143,163,.12)}.tv-cell{fill:rgba(149,201,61,.58);stroke:#fff;stroke-width:1;transition:opacity .4s}.tv-border{fill:none;stroke:${T.accent};stroke-width:7;stroke-dasharray:590;transition:stroke-dashoffset .55s}.tv-pool{fill:${T.cyan};stroke:#fff;stroke-width:3}.muted{opacity:.2}@keyframes topicDash{to{stroke-dashoffset:-34}}@keyframes topicPulse{50%{transform:scale(1.28);opacity:.62}}@media(max-width:639.98px){.topic-visual svg{height:145px}.topic-visual strong{font-size:11px}.tv-layer-wrap{width:165px}}@media(prefers-reduced-motion:reduce){.topic-visual *{animation:none!important;transition:none!important}.tv-border{stroke-dashoffset:0!important}}
-`;
-const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
-export default function Grade4Dars31({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang; configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [finalState, setFinalState] = useState({ step: 0, reflection: null, titleClaimed: false }); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars31 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
 
+// ---------------------------------------------------------------------------
+// DARSNING O'Z CSS'i. Umumiy Stage, xuk freymi, obratnaya svyaz va yakun
+// STYLES va G4_ETALON_OVERRIDES dan keladi. Har blok kontenti balandligida
+// turadi va markazga tortiladi: skroll yo'q, quruq katta freym ham yo'q.
+// ---------------------------------------------------------------------------
+const TOPIC_STYLES = `
+/* Har blok o'z kontenti balandligida turadi va ekran markaziga tortiladi:
+   kichik matn ostida katta bo'sh freym qolmaydi. */
+.split-layout,.task-layout,.track-layout,.build-layout,.relation-layout,
+.repair-layout,.band-layout,.rule-layout,.rapid-layout,.route-layout{
+  align-self:start;height:auto;max-height:100%;margin-inline:auto}
+
+.panel-label{display:block;color:${T.cyan};font:900 10px/1.1 'JetBrains Mono',monospace;letter-spacing:.13em;text-transform:uppercase}
+.task-expression{display:block;color:${T.navy};font:900 clamp(20px,2.9vw,28px)/1.18 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.task-expression.small{font-size:clamp(17px,2.3vw,21px)}
+.mini-frame{min-width:0;padding:16px 20px;display:grid;align-content:start;gap:11px;overflow:hidden;border-radius:19px;background:linear-gradient(150deg,#FFFFFF,${T.cyanSoft});box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.task-proof{padding:9px 12px;border-radius:12px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:9px;background:${T.successSoft};box-shadow:inset 4px 0 ${T.success};animation:soft-rise .38s ease both}
+.task-proof>b{color:${T.success};font:900 9px 'JetBrains Mono',monospace;letter-spacing:.1em}
+.task-proof>span{color:${T.navy};font:800 14px/1.25 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.options-four{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* Yechim freymi: chapda Bit, o'ngda YECHIM yorlig'i, formula va izoh. */
+/* Yechim figurasi — etalon Dars01 o'lchovi */
+.solution-bit{width:51px;height:64px;flex:0 0 51px;display:block;overflow:hidden;animation:solution-hop .6s ease .18s both}
+.solution-bit>.g1-char,.solution-bit>svg{width:100%;height:100%;display:block}
+.solution-formula{display:block;margin:3px 0 4px;color:${T.navy};font:900 15px/1.2 'JetBrains Mono',monospace;font-style:normal;overflow-wrap:anywhere}
+.solution-text{display:block;color:${T.ink2};font-size:14px;line-height:1.36}
+/* Bit yo'q freymlar bir ustunli bo'ladi, chap tomonda bo'sh joy qolmaydi. */
+.lesson-root .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="wrong"],
+.lesson-root .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="diagnostic"]{grid-template-columns:minmax(0,1fr)!important;min-height:64px!important;padding:11px 14px!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"][data-g4-feedback="diagnostic"]{grid-template-columns:minmax(0,1fr)!important;min-height:56px!important}
+.check-wide{width:100%;min-height:46px}
+.tiny-action{align-self:start;padding:5px 9px;border:0;border-radius:9px;color:${T.ink2};background:#EFF2EF;cursor:pointer;font-size:11px;font-weight:800}
+
+/* --- xuk: tungi dispetcherlik konsoli ------------------------------------ */
+.dispatch-visual{width:100%;height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:8px;color:#E7F7F8;overflow:hidden}
+.dispatch-head{display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'JetBrains Mono',monospace}
+.dispatch-node{display:flex;align-items:center;gap:6px;color:#8FD8E2;font-size:9px;font-weight:900;letter-spacing:.1em}
+.dispatch-node>i{width:7px;height:7px;border-radius:50%;background:${T.lime};box-shadow:0 0 9px rgba(149,201,61,.8)}
+.dispatch-state{padding:4px 8px;border:1px solid rgba(255,183,107,.3);border-radius:999px;color:#FFD29E;background:rgba(169,111,19,.2);font-size:8px;font-weight:900;letter-spacing:.06em;white-space:nowrap}
+.dispatch-body{min-height:0;display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);align-items:center;gap:12px}
+.cable-pair{min-width:0;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;gap:8px}
+.cable-card{min-width:0;padding:10px 11px;border-radius:13px;display:grid;gap:6px;background:rgba(255,255,255,.07);box-shadow:inset 0 0 0 1px rgba(144,228,235,.16)}
+.cable-card>span{color:#9FC4CE;font-size:9px;font-weight:800;letter-spacing:.04em}
+.cable-card>strong{color:#FFFFFF;font:900 clamp(15px,2vw,19px)/1.1 'JetBrains Mono',monospace;white-space:nowrap}
+.cable-line{height:6px;border-radius:999px;background:linear-gradient(90deg,${T.cyan},#7FD6DE)}
+.cable-line.b{background:linear-gradient(90deg,${T.lime},#CDE98C)}
+.cable-plus{color:#8FD8E2;font:900 19px 'JetBrains Mono',monospace}
+.order-card{position:relative;min-width:0;padding:11px 12px;border-radius:14px;display:grid;gap:6px;background:rgba(255,91,53,.14);box-shadow:inset 0 0 0 1px rgba(255,145,110,.34)}
+.order-card>span{color:#FFC3AE;font-size:9px;font-weight:800}
+.order-card>strong{color:#FFFFFF;font:900 clamp(16px,2.2vw,21px)/1.1 'JetBrains Mono',monospace;white-space:nowrap;text-decoration:line-through;text-decoration-color:rgba(255,145,110,.85)}
+.order-flag{position:absolute;right:10px;top:10px;width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.9)}
+.is-resolved .order-card>strong{text-decoration:none;opacity:.55}
+
+/* --- s1: yashiringan metr ------------------------------------------------ */
+.split-layout{width:min(800px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;overflow:hidden}
+.split-model{min-width:0;padding:16px;display:grid;align-content:start;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.unit-columns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.unit-col{position:relative;min-width:0;min-height:124px;padding:11px;border-radius:16px;display:grid;align-content:center;justify-items:center;gap:6px;background:${T.cyanSoft};transition:background .4s ease}
+.unit-col>span{color:${T.cyan};font:900 10px 'JetBrains Mono',monospace;letter-spacing:.12em;text-transform:uppercase}
+.unit-col>strong{color:${T.navy};font:900 clamp(32px,5vw,44px)/1 'JetBrains Mono',monospace}
+.unit-col.is-lifted{background:${T.successSoft}}
+.unit-carry{position:absolute;top:8px;right:10px;padding:2px 7px;border-radius:999px;color:#fff;background:${T.success};font:900 10px 'JetBrains Mono',monospace;font-style:normal;animation:carry-in .45s cubic-bezier(.2,.9,.3,1) both}
+.unit-hot{padding:6px 14px;border:0;border-radius:13px;display:grid;justify-items:center;gap:3px;color:${T.navy};background:#FFFFFF;cursor:pointer;box-shadow:0 0 0 2px ${T.accent},0 10px 20px -14px rgba(255,91,53,.9);font:900 clamp(30px,4.6vw,40px)/1 'JetBrains Mono',monospace}
+.unit-hot>em{color:${T.accent};font:900 9px 'Manrope',sans-serif;font-style:normal;letter-spacing:.04em}
+.unit-hot:hover:not(:disabled){transform:translateY(-2px)}
+.unit-split{display:grid;justify-items:center;gap:6px}
+.unit-chunk{padding:5px 13px;border:0;border-radius:11px;color:#fff;background:${T.accent};cursor:pointer;font:900 22px 'JetBrains Mono',monospace;animation:carry-in .4s ease both}
+.unit-rest{color:${T.navy};font:900 26px 'JetBrains Mono',monospace}
+.split-done{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr) auto;align-items:center;gap:9px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .4s ease both}
+.split-done>span{color:${T.ink2};font-size:12px;font-weight:800}
+.split-done>strong{color:${T.navy};font:900 15px 'JetBrains Mono',monospace;white-space:nowrap}
+.split-steps{min-width:0;padding:16px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.step-list{margin:0;padding:0;display:grid;align-content:center;gap:10px;list-style:none}
+.step-list>li{min-height:58px;padding:11px 13px;border-radius:14px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:10px;background:#F5F7F5;opacity:.34;transition:opacity .35s ease,background .35s ease}
+.step-list>li>b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.step-list>li>span{color:${T.ink};font-size:14px;font-weight:750;line-height:1.28}
+.step-list>li.is-active{opacity:1;background:${T.cyanSoft}}
+.step-list>li.is-active>b{background:${T.cyan}}
+.step-list>li.is-done{opacity:1;background:${T.successSoft}}
+.step-list>li.is-done>b{background:${T.success}}
+
+/* --- tanlov ekranlari: ikki qator, model tepada ---------------------------- */
+.task-layout{width:min(720px,100%);display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden}
+.task-model{min-width:0;display:grid;gap:10px;overflow:hidden}
+.task-layout>.question{height:auto;padding:14px 16px;display:grid;grid-template-rows:auto auto auto;align-content:start;gap:10px}
+.task-layout>.question>h2{font:800 clamp(16px,2.2vw,19px)/1.28 'Manrope',sans-serif}
+.task-layout .option{min-height:54px}
+.carry-hint{display:flex;align-items:center;gap:9px;color:${T.accent};font:900 13px 'JetBrains Mono',monospace}
+.carry-hint>i{font-style:normal;color:${T.navy}}
+.carry-hint>em{padding:3px 8px;border-radius:999px;background:${T.accentSoft};font-style:normal;font-size:11px}
+.bird-bars{display:grid;gap:9px}
+.bird-row{display:grid;grid-template-columns:minmax(74px,auto) minmax(0,1fr) auto;align-items:center;gap:10px}
+.bird-row>span{color:${T.ink2};font-size:12px;font-weight:850}
+.bird-row>i{height:15px;border-radius:999px;background:${T.cyan};transition:width .5s ease}
+.bird-row>i.b{background:${T.lime}}
+.bird-row>i.c{background:${T.accent}}
+.bird-row>b{color:${T.navy};font:900 13px 'JetBrains Mono',monospace;white-space:nowrap}
+.bird-row.is-sum>span{color:${T.accent}}
+.bird-row.is-unknown>i{position:relative;height:30px;border:2px dashed ${T.accent};background:${T.accentSoft};display:grid;place-items:center}
+.bird-row.is-unknown>i>em{color:${T.accent};font-style:normal;white-space:nowrap}
+.bird-row.is-unknown>b{color:${T.accent};font-size:16px}
+.estimate-chip{justify-self:start;padding:6px 13px;border-radius:999px;color:${T.cyan};background:#FFFFFF;font:900 13px 'JetBrains Mono',monospace}
+.window-bar{height:30px;display:flex;gap:2px;overflow:hidden;border-radius:10px;background:#FFFFFF}
+.window-bar>i{position:relative;display:grid;place-items:center}
+.window-bar>i>em{color:#fff;font:900 10px 'JetBrains Mono',monospace;font-style:normal}
+.window-bar>i.a{background:${T.cyan}}
+.window-bar>i.b{background:${T.navy}}
+.window-bar>i.c{background:${T.lime}}
+.window-bar>i.free{background:repeating-linear-gradient(135deg,#E3EAE8,#E3EAE8 4px,#F5F7F5 4px,#F5F7F5 8px)}
+.window-scale{display:flex;justify-content:space-between;color:${T.ink3};font:800 10px 'JetBrains Mono',monospace}
+.store-bar{height:34px;display:flex;gap:3px;overflow:hidden;border-radius:10px}
+.store-bar>i{display:grid;place-items:center}
+.store-bar>i>em{font:900 12px 'JetBrains Mono',monospace;font-style:normal}
+.store-bar>i.used{flex:0 0 38%;background:${T.accentSoft};box-shadow:inset 0 0 0 2px ${T.accent}}
+.store-bar>i.used>em{color:${T.accent};font-size:16px}
+.store-bar>i.left{flex:1;background:${T.cyan}}
+.store-bar>i.left>em{color:#fff}
+.store-total{justify-self:center;color:${T.navy};font:900 14px 'JetBrains Mono',monospace}
+
+/* --- s3: uch qadam, ikki teng freym -------------------------------------- */
+.track-layout{width:min(800px,100%);display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden}
+.track-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px;overflow:hidden}
+.track-frame{min-width:0;padding:15px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:18px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.track-frame.is-accent{background:linear-gradient(150deg,#FFFFFF,${T.cyanSoft})}
+.track-frame>p{min-height:52px;padding:11px 13px;border-radius:12px;display:flex;align-items:center;color:${T.navy};background:#F5F7F5;font:800 14px/1.3 'JetBrains Mono',monospace;white-space:pre-line;opacity:0;transform:translateY(6px);transition:opacity .38s ease,transform .38s ease;overflow-wrap:anywhere}
+.track-frame>p.show{opacity:1;transform:none}
+.track-frame.is-accent>p.show{background:#FFFFFF}
+.track-steps{min-height:52px;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px}
+.track-step-now{min-width:0;padding:10px 12px;border-radius:13px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:9px;background:${T.cyanSoft}}
+.track-step-now>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 11px 'JetBrains Mono',monospace}
+.track-step-now>span{color:${T.ink};font-size:13px;font-weight:800;line-height:1.2}
+.track-rule{min-height:72px;padding:7px 13px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;color:${T.success};background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);max-width:340px}
+
+/* --- s4: javobni yig'ish -------------------------------------------------- */
+.build-layout{width:min(780px,100%);display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);align-items:start;gap:12px;overflow:hidden}
+.unit-hint{justify-self:start;padding:5px 11px;border-radius:999px;color:${T.navy};background:#FFFFFF;font:900 12px 'JetBrains Mono',monospace}
+.build-panel{min-width:0;padding:15px;display:grid;align-content:start;gap:11px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.build-panel>h2{color:${T.ink};font:800 clamp(15px,2vw,18px)/1.25 'Manrope',sans-serif}
+.build-slots{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.build-slot{min-height:70px;padding:8px;border-radius:15px;display:grid;justify-items:center;align-content:center;gap:2px;background:#F5F7F5;box-shadow:inset 0 0 0 2px #E1E7E4;transition:.3s}
+.build-slot.is-filled{background:${T.cyanSoft};box-shadow:inset 0 0 0 2px ${T.cyan}}
+.build-slot>b{color:${T.navy};font:900 28px/1 'JetBrains Mono',monospace}
+.build-slot>span{color:${T.cyan};font:900 12px 'JetBrains Mono',monospace}
+.build-slot>em{color:${T.ink3};font-size:9px;font-style:normal;font-weight:800}
+.build-tiles{display:grid;gap:8px}
+.tile-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tile{min-height:46px;padding:6px;border:0;border-radius:12px;color:${T.navy};background:#F5F7F5;cursor:pointer;font:900 15px 'JetBrains Mono',monospace;transition:.22s}
+.tile:hover:not(:disabled){transform:translateY(-2px);background:#EDF3F1}
+.tile.picked{color:#fff;background:${T.cyan}}
+.tile.right{color:#fff;background:${T.success}}
+.tile.bad{color:${T.warn};background:${T.warnSoft}}
+.tile.wide{min-height:50px;font-size:16px}
+.build-feedback-slot{min-height:88px}
+
+/* --- s5: bog'lanish tasmalari --------------------------------------------- */
+.relation-layout{width:min(820px,100%);padding:16px;display:grid;grid-template-rows:auto auto auto;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.relation-head{display:grid;gap:8px}
+.relation-base{display:grid;grid-template-columns:minmax(90px,auto) minmax(0,1fr) auto;align-items:center;gap:10px}
+.relation-base>span{color:${T.ink2};font-size:12px;font-weight:850}
+.relation-base>i{height:15px;border-radius:999px;overflow:hidden;background:#E4EAE7}
+.relation-base>i>em{display:block;height:100%;border-radius:999px;background:${T.cyan}}
+.relation-base>b{color:${T.navy};font:900 13px 'JetBrains Mono',monospace}
+.relation-lead{color:${T.ink2};font-size:12px;font-weight:750}
+.relation-rows{display:grid;grid-template-rows:auto auto;gap:11px;overflow:hidden}
+.relation-row{padding:12px 14px;border-radius:16px;display:grid;grid-template-columns:minmax(0,1fr) minmax(80px,.7fr) auto;align-items:center;gap:12px;background:#F5F7F5;transition:background .35s ease}
+.relation-row.is-done{background:${T.successSoft}}
+.relation-text{min-width:0;display:grid;gap:3px}
+.relation-text>b{color:${T.navy};font-size:14px;font-weight:900}
+.relation-text>span{color:${T.ink2};font-size:12px;line-height:1.25}
+.relation-bar{height:14px;border-radius:999px;overflow:hidden;background:#E4EAE7}
+.relation-bar>i{display:block;height:100%;border-radius:999px;background:${T.cyan};transition:width .55s cubic-bezier(.2,.9,.3,1)}
+.relation-bar>i.plus{background:${T.success}}
+.relation-bar>i.minus{background:${T.lime}}
+.relation-pick{display:flex;gap:7px}
+.relation-pick>button{min-width:100px;min-height:44px;padding:0 12px;border:0;border-radius:12px;color:${T.navy};background:#FFFFFF;cursor:pointer;font-size:12px;font-weight:850;box-shadow:0 8px 18px -14px rgba(${T.shadowBase},.6)}
+.relation-pick>button:hover:not(:disabled){color:#fff;background:${T.cyan}}
+.relation-result{display:flex;align-items:center;gap:9px}
+.relation-result>i{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;font:900 17px 'JetBrains Mono',monospace;font-style:normal}
+.relation-result>i.minus{background:${T.accent}}
+.relation-result>i.plus{background:${T.success}}
+.relation-result>strong{color:${T.navy};font:900 15px 'JetBrains Mono',monospace}
+.relation-note{color:${T.warn};font-size:11px;font-weight:800}
+
+/* --- s7: xato qatorini topish --------------------------------------------- */
+.repair-layout{width:min(740px,100%);display:grid;grid-template-rows:auto auto;gap:11px;overflow:hidden}
+.repair-sheet{padding:16px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.96);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.repair-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.repair-lead{color:${T.ink2};font-size:12px;font-weight:800}
+.repair-row{min-height:48px;padding:11px 14px;border:0;border-radius:13px;display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:11px;background:#F5F7F5;cursor:pointer;text-align:left;transition:.25s}
+.repair-row:hover:not(:disabled){transform:translateX(3px);background:#EDF3F1}
+.repair-row>b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 10px 'JetBrains Mono',monospace}
+.repair-row>span{color:${T.navy};font:800 14px/1.25 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.repair-row.is-found{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}
+.repair-row.is-found>b{color:#fff;background:${T.warn}}
+.repair-row.is-ruled{opacity:.42}
+.repair-fix{padding:10px 12px;border-radius:12px;display:grid;gap:3px;background:${T.successSoft};box-shadow:inset 4px 0 ${T.success};animation:soft-rise .4s ease both}
+.repair-fix>b{color:${T.success};font:900 9px 'JetBrains Mono',monospace;letter-spacing:.1em;text-transform:uppercase}
+.repair-fix>span{color:${T.navy};font:900 14px 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.repair-feedback-slot{min-height:88px}
+
+/* --- s8: taxmin oralig'i --------------------------------------------------- */
+.band-layout{width:min(680px,100%);padding:16px;display:grid;grid-template-rows:auto auto auto;gap:13px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.band-task{display:grid;gap:6px;justify-items:center;text-align:center}
+.band-task>p{color:${T.ink2};font-size:12px;font-weight:800}
+.band-line{display:grid;gap:12px}
+.band-track{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.band{min-height:66px;border:0;border-radius:16px;color:${T.navy};background:#F5F7F5;cursor:pointer;font:900 clamp(16px,2.2vw,19px) 'JetBrains Mono',monospace;box-shadow:inset 0 0 0 2px #E4EAE7;transition:.25s}
+.band:hover:not(:disabled){transform:translateY(-3px);background:${T.cyanSoft}}
+.band.is-right{color:#fff;background:${T.success};box-shadow:inset 0 0 0 2px ${T.success}}
+.band.is-wrong{color:${T.warn};background:${T.warnSoft};box-shadow:inset 0 0 0 2px ${T.warn}}
+.band-exact{justify-self:center;padding:7px 15px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:flex;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .42s ease both}
+.band-exact>span{color:${T.ink2};font-size:12px;font-weight:800}
+.band-exact>strong{color:${T.navy};font:900 15px 'JetBrains Mono',monospace}
+.band-note{min-height:38px}
+.band-note>p{padding:9px 12px;border-radius:11px;font-size:12px;font-weight:800;line-height:1.3}
+.band-note>p.is-right{color:${T.success};background:${T.successSoft}}
+.band-note>p.is-wrong{color:${T.warn};background:${T.warnSoft}}
+
+/* --- s10: qoidani yig'ish -------------------------------------------------- */
+.rule-layout{width:min(820px,100%);display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;overflow:hidden}
+.rule-slots,.rule-bank{min-width:0;padding:15px;display:grid;align-content:start;gap:9px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.rule-slot{min-height:52px;padding:10px 12px;border-radius:13px;display:grid;grid-template-columns:26px minmax(0,1fr);align-items:center;gap:9px;background:#F5F7F5;transition:.3s}
+.rule-slot>b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.rule-slot>span{color:${T.ink};font-size:12px;font-weight:800;line-height:1.22}
+.rule-slot.is-right{background:${T.successSoft}}
+.rule-slot.is-right>b{background:${T.success}}
+.rule-slot.is-wrong{background:${T.warnSoft}}
+.rule-slot.is-wrong>b{background:${T.warn}}
+.rule-bank-list{display:grid;gap:8px}
+.rule-bank-list>button{min-height:52px;padding:10px 12px;border:0;border-radius:12px;color:${T.navy};background:#F5F7F5;cursor:pointer;text-align:left;font-size:12px;font-weight:800;line-height:1.22;transition:.22s}
+.rule-bank-list>button:hover:not(:disabled){transform:translateY(-2px);background:${T.cyanSoft}}
+.rule-bank-list>button:disabled{color:${T.ink3};background:#F1F4F2;text-decoration:line-through;cursor:default}
+.rule-status{min-height:52px}
+.rule-memo{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5);animation:soft-rise .4s ease both}
+.rule-memo>div{min-width:0;display:grid;gap:3px}
+.rule-memo b{color:${T.success};font-size:11px;font-weight:900}
+.rule-memo span{color:${T.navy};font:900 12px 'JetBrains Mono',monospace}
+.rule-warn{padding:9px 12px;border-radius:11px;color:${T.warn};background:${T.warnSoft};font-size:11px;font-weight:800}
+
+/* --- s11: uchta tez savol -------------------------------------------------- */
+.rapid-layout{width:min(700px,100%);padding:16px;display:grid;grid-template-rows:auto auto;gap:12px;overflow:hidden;border-radius:19px;background:rgba(255,255,255,.95);box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.5)}
+.rapid-head{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px}
+.rapid-dots{display:flex;gap:5px}
+.rapid-dots>i{width:34px;height:6px;border-radius:999px;background:#E1E7E4}
+.rapid-dots>i.is-now{background:${T.cyan}}
+.rapid-dots>i.is-done{background:${T.success}}
+.rapid-count{color:${T.ink3};font:900 10px 'JetBrains Mono',monospace}
+.rapid-body{display:grid;grid-template-rows:auto auto auto;gap:11px;overflow:hidden}
+.rapid-prompt{color:${T.navy};font:800 clamp(17px,2.4vw,21px)/1.25 'Manrope',sans-serif}
+.rapid-tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+.rapid-feedback-slot{min-height:88px}
+.rapid-done{display:grid;gap:11px;overflow:hidden}
+.rapid-done-head{padding:7px 12px 7px 6px;border:1px solid rgba(34,122,83,.18);border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr) auto;align-items:center;gap:10px;background:linear-gradient(135deg,#FFFFFF,${T.successSoft});box-shadow:0 12px 26px -20px rgba(34,122,83,.5)}
+.rapid-done-head>span{color:${T.ink2};font-size:13px;font-weight:800}
+.rapid-done-head>strong{color:${T.navy};font:900 17px 'JetBrains Mono',monospace}
+.rapid-log{margin:0;padding:0;display:grid;gap:8px;list-style:none}
+.rapid-log>li{min-height:48px;padding:10px 13px;border-radius:13px;display:grid;grid-template-columns:22px minmax(0,1fr) auto;align-items:center;gap:11px;background:#F5F7F5}
+.rapid-log>li>i{width:20px;height:20px;border-radius:7px;display:grid;place-items:center;color:#fff;background:${T.success};font:900 9px 'JetBrains Mono',monospace;font-style:normal}
+.rapid-log>li>span{color:${T.ink2};font-size:12px;font-weight:750;line-height:1.2}
+.rapid-log>li>em{color:${T.navy};font:900 15px 'JetBrains Mono',monospace;font-style:normal;white-space:nowrap}
+
+/* --- s12: ikki yo'lni solishtirish ------------------------------------------ */
+.route-layout{width:min(720px,100%);display:grid;grid-template-rows:auto auto auto;gap:12px;overflow:hidden}
+.route-head{display:grid;justify-items:center;gap:5px;text-align:center}
+.route-pair{display:grid;grid-template-columns:1fr 1fr;gap:13px;overflow:hidden}
+.route-card{min-width:0;padding:15px;border:0;border-radius:18px;display:grid;align-content:start;gap:9px;background:rgba(255,255,255,.96);cursor:pointer;text-align:left;box-shadow:0 14px 30px -26px rgba(${T.shadowBase},.55);transition:.25s}
+.route-card:hover:not(:disabled){transform:translateY(-3px)}
+.route-name{color:${T.cyan};font:900 11px 'JetBrains Mono',monospace;letter-spacing:.06em;text-transform:uppercase}
+.route-card>em{padding:10px 12px;border-radius:11px;color:${T.navy};background:#F5F7F5;font:800 13px/1.25 'JetBrains Mono',monospace;font-style:normal;overflow-wrap:anywhere}
+.route-card.is-best{background:${T.successSoft};box-shadow:inset 0 0 0 2px ${T.success}}
+.route-card.is-best>em{background:#FFFFFF}
+.route-card.is-other{background:${T.cyanSoft};box-shadow:inset 0 0 0 2px ${T.cyan}}
+.route-card.is-other>em{background:#FFFFFF}
+.route-note{min-height:48px}
+.route-note>p{padding:10px 13px;border-radius:12px;font-size:12px;font-weight:800;line-height:1.3}
+.route-note>p.route-hint{color:${T.ink2};background:#FFFFFF}
+.route-verdict{min-height:72px;padding:7px 13px 7px 6px;border-radius:15px;display:grid;grid-template-columns:51px minmax(0,1fr);align-items:center;gap:9px;box-shadow:0 12px 26px -20px rgba(34,122,83,.4);animation:soft-rise .4s ease both}
+.route-verdict>span{font-size:13px;font-weight:750;line-height:1.35}
+.route-verdict.is-right{border:1px solid rgba(34,122,83,.18);color:${T.success};background:linear-gradient(135deg,#FFFFFF,${T.successSoft})}
+.route-verdict.is-other{border:1px solid rgba(22,143,163,.2);color:${T.cyan};background:linear-gradient(135deg,#FFFFFF,${T.cyanSoft})}
+
+
+/* --- TIPOGRAFIKA: asosiy matndan boshqa hamma yozuv guruh bo'yicha bir xil --- */
+/* 1. Ikkilamchi matn (izoh, tavsif, holat) — Manrope, 13 px */
+.lesson-root :is(.relation-lead,.relation-note,.relation-text>span,.relation-text>b,
+.step-list>li>span,.rule-slot>span,.rule-memo>b,.rule-warn,
+.band-task>p,.band-note>p,.route-note>p,
+.repair-lead,.track-step-now>span,.track-rule,
+.bird-row>span,.rapid-log>li>span,.rapid-done-head>span,
+.split-done>span,.band-exact>span,.cable-card>span,.order-card>span,
+.build-slot>em,.unit-hot>em,.solution-text,.bird-row.is-unknown>i>em),
+.lesson-root .options .option,.lesson-root .options .option>span,
+.lesson-root .route-verdict>span,.lesson-root .relation-pick>button,
+.lesson-root .rule-bank-list>button{
+  font-family:'Manrope',system-ui,sans-serif;font-size:15px;font-weight:750;line-height:1.35;letter-spacing:0;text-transform:none}
+/* 2. Micro-yorliq (bo'lim nomi) — JetBrains Mono, 10 px */
+.lesson-root :is(.panel-label,.route-name,.proof-label,.rapid-count,.window-scale){
+  font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;line-height:1.1;letter-spacing:.13em;text-transform:uppercase}
+/* 3. Hisob yozuvi (formula, qator, natija) — JetBrains Mono, 14 px */
+.lesson-root :is(.track-frame>p,.repair-row>span,.route-card>em,.solution-formula){
+  font-family:'JetBrains Mono',monospace;font-size:14px;font-weight:800;line-height:1.3;letter-spacing:0}
+/* 4. Yirik son va o'lchov qiymatlari — shrift bitta, o'lcham roli bo'yicha */
+.lesson-root :is(.task-expression,.tile,.band,.unit-col>span,.unit-col>strong,.unit-rest,
+.unit-chunk,.unit-hot,.unit-carry,.build-slot>b,.build-slot>span,.bird-row>b,
+.relation-result>strong,.relation-base>b,.rapid-log>li>em,.store-total,.rule-memo>span,
+.cable-card>strong,.order-card>strong,.split-done>strong,.band-exact>strong,
+.rapid-done-head>strong,.window-bar>i>em,.store-bar>i>em,.repair-row>b,.rule-slot>b,
+.step-list>li>b,.track-step-now>b,.rapid-log>li>i){
+  font-family:'JetBrains Mono',monospace}
+/* Konsol yorliqlari o'zaro bir xil o'lchamda */
+.lesson-root :is(.dispatch-node,.dispatch-state){font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.08em}
+@media(max-width:639.98px){
+  .lesson-root :is(.relation-lead,.relation-note,.relation-text>span,.relation-text>b,
+  .step-list>li>span,.rule-slot>span,.rule-memo>b,.rule-warn,
+  .band-task>p,.band-note>p,.route-note>p,
+  .repair-lead,.track-step-now>span,.track-rule,
+  .bird-row>span,.rapid-log>li>span,.rapid-done-head>span,
+  .split-done>span,.band-exact>span,.cable-card>span,.order-card>span,
+  .build-slot>em,.unit-hot>em,.solution-text,.bird-row.is-unknown>i>em),
+  .lesson-root .options .option,.lesson-root .options .option>span,
+  .lesson-root .route-verdict>span,.lesson-root .relation-pick>button,
+  .lesson-root .rule-bank-list>button{font-size:13px;line-height:1.3}
+  .lesson-root :is(.track-frame>p,.repair-row>span,.route-card>em,.solution-formula){font-size:12px}
+  .lesson-root :is(.panel-label,.route-name,.proof-label,.rapid-count,.window-scale){font-size:9px}
+}
+/* --- Yakuniy slayd: kompozitsiya va tokenlar etalon Dars01 dan ---------- */
+.finale-screen{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:12px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}
+.finale-heading{width:min(840px,100%);margin:0 auto;padding:12px 16px;border:1px solid rgba(255,91,53,.17);border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 48%),rgba(255,255,255,.9);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}
+.finale-heading>span{display:flex;align-items:center;gap:7px;color:${T.accent};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.12em}
+.finale-heading>span>i{font-size:8px;font-style:normal}
+.finale-heading h1{margin-top:3px;color:${T.navy};font-family:'Source Serif 4',Georgia,serif;font-size:clamp(21px,3vw,28px);line-height:1.08}
+.finale-heading p{margin-top:3px;color:${T.ink2};line-height:1.32}
+.finale-body{width:min(840px,100%);min-height:0;margin:0 auto;display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);align-items:start;gap:12px;overflow:hidden}
+.finale-column{min-width:0;display:grid;align-content:start;gap:9px}
+.finale-mastery{display:grid;gap:7px}
+.finale-mastery>span{min-width:0;padding:9px 11px;border:1px solid rgba(22,143,163,.11);border-radius:12px;display:grid;grid-template-columns:24px minmax(0,1fr);align-items:center;gap:9px;color:${T.ink2};background:rgba(255,255,255,.85);opacity:.28;transition:opacity .4s ease}
+.finale-mastery>span.is-open{opacity:1}
+.finale-mastery>span>i{width:23px;height:23px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace;font-style:normal}
+.finale-proof,.finale-bridge{padding:10px 12px;border-radius:13px;display:grid;gap:3px;opacity:0;transform:translateY(6px);transition:opacity .42s ease,transform .42s ease}
+.finale-proof.is-open,.finale-bridge.is-open{opacity:1;transform:none}
+.finale-proof{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}
+.finale-proof>b{color:${T.success};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.11em}
+.finale-proof>span{color:${T.navy};font:900 14px 'JetBrains Mono',monospace;overflow-wrap:anywhere}
+.finale-bridge{grid-template-columns:26px minmax(0,1fr);align-items:center;column-gap:9px;background:${T.accentSoft};box-shadow:inset 4px 0 ${T.accent}}
+.finale-bridge>i{grid-row:1/3;width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.accent};font-style:normal;font-weight:900}
+.finale-bridge>b{color:${T.accent};font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:900;letter-spacing:.11em}
+.finale-bridge>span{color:${T.navy};font-weight:800}
+.finale-actions{min-width:0;display:grid;align-content:start;gap:9px}
+.reward-stage{position:relative;width:100%;min-height:116px;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFFFFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 24px 50px -30px rgba(14,33,44,.8)}
+.reward-locked{filter:saturate(.72)}
+.reward-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px}
+.reward-bit>.g1-char,.reward-bit>svg{width:100%;height:100%;display:block}
+.reward-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;margin-top:-22px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px}
+.reward-kicker{color:#A8EAF0;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:900;letter-spacing:.13em}
+.reward-stage h2{color:#FFFFFF;font-family:'Source Serif 4',Georgia,serif;font-size:clamp(16px,2.2vw,21px);line-height:1.05}
+.reward-score{align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)}
+.reward-score>strong{color:#FFE284;font-family:'JetBrains Mono',monospace}
+.reward-score>span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-claim{min-height:50px;padding:0 18px;border:0;border-radius:15px;color:#fff;background:${T.accent};cursor:pointer;font-family:'Manrope',system-ui,sans-serif;font-size:15px;font-weight:900;box-shadow:0 14px 28px -18px rgba(255,91,53,.9);transition:.25s}
+.g4-title-claim:disabled{color:${T.ink3};background:#EDF0ED;box-shadow:none;cursor:default}
+.finale-pending{color:${T.ink3};font-size:11px;font-weight:800;text-align:center}
+@media(max-width:639.98px){
+  .finale-screen{gap:8px}
+  .finale-body{grid-template-columns:1fr;gap:7px}
+  .finale-column,.finale-actions{gap:6px}
+  .finale-heading{padding:8px 10px;border-radius:14px}
+  .finale-heading h1{font-size:19px}
+  .finale-heading p{font-size:11px;line-height:1.28;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+  .finale-mastery{gap:5px}
+  .finale-mastery>span{padding:5px 8px;grid-template-columns:19px minmax(0,1fr);gap:7px;border-radius:10px}
+  .finale-mastery>span>i{width:19px;height:19px;font-size:9px}
+  .finale-mastery>span>p{font-size:12px;line-height:1.25}
+  .finale-proof,.finale-bridge{padding:6px 9px;border-radius:11px}
+  .finale-proof>span{font-size:12px}
+  .finale-bridge>span{font-size:12px}
+  .finale-bridge>i{width:22px;height:22px}
+  .finale-bridge{grid-template-columns:22px minmax(0,1fr)}
+  .reward-stage{min-height:82px;padding:7px 58px 7px 50px;border-radius:14px}
+  .reward-stage h2{font-size:15px}
+  .reward-kicker{font-size:9px}
+  .reward-score{margin-top:3px;padding:3px 7px}
+  .reward-medal{left:8px;width:34px;height:34px;margin-top:-17px;border-width:2px;font-size:14px}
+  .reward-bit{width:52px;height:65px}
+  .g4-title-claim{min-height:44px;font-size:13px}
+}
+@media(max-width:639.98px){
+  .finale-heading h1{font-size:18px}
+  .finale-heading p{-webkit-line-clamp:1}
+  .finale-mastery>span>p{font-size:11px;line-height:1.22}
+  .finale-mastery>span{min-height:0}
+  .finale-proof>b,.finale-bridge>b{font-size:8px}
+}
+@keyframes carry-in{from{opacity:0;transform:translateY(-9px) scale(.86)}to{opacity:1;transform:none}}
+@keyframes soft-rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+@keyframes solution-hop{0%{transform:translateY(0)}42%{transform:translateY(-6px)}100%{transform:translateY(0)}}
+
+/* Xuk ekrani (flex ustun): to'rt variant bitta qatorda, izoh ixcham */
+.hook-stack>.question{align-content:start;padding:10px 12px;grid-template-rows:auto auto}
+.hook-stack .hook-feedback-slot{min-height:0}
+.hook-stack .options-four{grid-template-columns:repeat(4,minmax(0,1fr))}
+.hook-stack .options-four .option{min-height:52px;grid-template-columns:1fr;justify-items:center;align-content:center;gap:3px;text-align:center;font-size:15px}
+.hook-stack .options-four .option>b{display:none}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"]{min-height:72px!important;grid-template-columns:54px minmax(0,1fr)!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]{width:54px!important;height:66px!important}
+.lesson-root .hook-stack .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}
+
+@media(max-width:639.98px){
+  .split-layout,.build-layout,.rule-layout{grid-template-columns:1fr;grid-template-rows:auto auto}
+  .split-model,.split-steps,.relation-layout,.band-layout,.rapid-layout,.repair-sheet,.rule-slots,.rule-bank,.build-panel{padding:10px;border-radius:14px}
+  .mini-frame{padding:11px 12px;border-radius:14px;gap:8px}
+  .task-expression{font-size:18px}
+  .task-layout>.question{padding:10px 11px}
+  .unit-col{min-height:96px}
+  .unit-col>strong{font-size:30px}
+  .step-list{gap:6px}
+  .step-list>li{min-height:44px;padding:7px 9px;grid-template-columns:22px minmax(0,1fr);gap:8px}
+  .step-list>li>b{width:21px;height:21px;font-size:9px}
+  .step-list>li>span{font-size:12px}
+  .track-pair{grid-template-columns:1fr;gap:7px}
+  .track-frame{padding:9px;border-radius:13px;gap:6px}
+  .track-frame>p{min-height:0;padding:6px 8px;font-size:11px}
+  .track-steps{grid-template-columns:1fr;gap:7px}
+  .track-rule{max-width:none;padding:7px 9px;font-size:11px}
+  .build-slots{gap:7px}
+  .build-slot{min-height:56px}
+  .build-slot>b{font-size:22px}
+  .tile{min-height:44px;font-size:13px}
+  .relation-row{grid-template-columns:1fr;gap:8px;padding:9px 10px}
+  .relation-pick>button{min-width:0;flex:1;font-size:11px}
+  .band{min-height:54px;font-size:14px}
+  .route-pair{grid-template-columns:1fr;gap:8px}
+  .route-card{padding:10px;border-radius:14px;gap:6px}
+  .route-card>em{padding:6px 8px;font-size:11px}
+  .rapid-tiles{grid-template-columns:1fr;gap:6px}
+  .rapid-prompt{font-size:15px}
+  .rapid-log>li{min-height:40px;padding:7px 9px;gap:8px}
+  .rapid-log>li>span{font-size:11px}
+  .rapid-log>li>em{font-size:13px}
+  .solution-bit{width:44px;height:55px;flex:0 0 44px}
+  :is(.split-done,.track-rule,.rule-memo,.rapid-done-head,.route-verdict){grid-template-columns:44px minmax(0,1fr)}
+  .split-done,.rapid-done-head{grid-template-columns:44px minmax(0,1fr) auto}
+  .track-rule,.route-verdict{min-height:62px}
+  .rule-status{min-height:0}
+  .rule-memo{padding:7px 9px;gap:2px}
+  .rule-memo>b,.rule-memo>span{font-size:10px}
+  .rule-slot{min-height:44px;padding:7px 9px}
+  .rule-bank-list>button{min-height:44px;padding:8px 9px;font-size:11px}
+  .dispatch-body{grid-template-columns:1fr;gap:6px}
+  .cable-card{padding:6px 7px;gap:3px}
+  .cable-card>strong{font-size:13px}
+  .order-card{padding:7px 8px}
+  .order-card>strong{font-size:14px}
+  .repair-row{min-height:42px;padding:8px 10px}
+  .repair-row>span{font-size:12px}
+  .lesson-root .hook-stack>.question .options-four{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .hook-stack .options-four .option{min-height:46px;font-size:13px}
+}
+@media(max-height:700px){
+  .unit-col{min-height:110px}
+  .band{min-height:58px}
+  .build-slot{min-height:60px}
+  .step-list>li{min-height:48px}
+  .route-card{padding:11px}
+  .repair-row{min-height:44px}
+}
+@media(prefers-reduced-motion:reduce){
+  .unit-carry,.unit-chunk,.split-done,.band-exact,.rule-memo,.route-verdict,.solution-bit{animation:none}
+  .track-frame>p{transition:none}
+}
+`;
+// ---------------------------------------------------------------------------
+// DARSGA XOS CHIZMALAR VA EKRANLAR
+// Har ekranning o'z tuzilishi bor: bitta umumiy "chapda rasm, o'ngda qadamlar"
+// qolipi ishlatilmaydi.
+// ---------------------------------------------------------------------------
+
+// Xuk sahnasi: tungi dispetcherlik konsoli. Etalon Dars01 dagi to'q ko'k
+// freym ichida turadi, shuning uchun o'z foni yo'q.
+const DispatchConsole = ({ c, resolved }) => {
+  const t = useT();
+  return (
+    <div className={`dispatch-visual ${resolved ? 'is-resolved' : ''}`}>
+      <div className="dispatch-head">
+        <span className="dispatch-node"><i />{t(c.nodeName)}</span>
+        <span className="dispatch-state">{t(c.stateBad)}</span>
+      </div>
+      <div className="dispatch-body">
+        <div className="cable-pair">
+          <div className="cable-card">
+            <span>{t(c.labelA)}</span>
+            <strong>{t(c.coilA)}</strong>
+            <i className="cable-line a" />
+          </div>
+          <b className="cable-plus">+</b>
+          <div className="cable-card">
+            <span>{t(c.labelB)}</span>
+            <strong>{t(c.coilB)}</strong>
+            <i className="cable-line b" />
+          </div>
+        </div>
+        <div className="order-card">
+          <span>{t(c.labelOrder)}</span>
+          <strong>{t(c.botOrder)}</strong>
+          <i className="order-flag" />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Ustunli yozuv: metr va santimetr ustunlari. `carry` bo'lsa santimetrdan
+// bir butun metr ajralib, metr ustuniga ko'chadi.
+const UnitColumns = ({ big, small, unitBig, unitSmall, step, onSplit, splitLabel }) => {
+  const t = useT();
+  return (
+    <div className="unit-columns" data-g4-role="visual-frame">
+      <div className={`unit-col ${step > 1 ? 'is-lifted' : ''}`}>
+        <span>{t(unitBig)}</span>
+        <strong>{step > 1 ? big.after : big.before}</strong>
+        {step === 2 && <i className="unit-carry">+1</i>}
+      </div>
+      <div className="unit-col">
+        <span>{t(unitSmall)}</span>
+        {step === 0 && (
+          <button type="button" className="unit-hot" onClick={onSplit}>
+            {small.before}
+            <em>{t(splitLabel)}</em>
+          </button>
+        )}
+        {step === 1 && (
+          <div className="unit-split">
+            <button type="button" className="unit-chunk" onClick={onSplit}>100</button>
+            <span className="unit-rest">{small.after}</span>
+          </div>
+        )}
+        {step === 2 && <strong>{small.after}</strong>}
+      </div>
+    </div>
+  );
+};
+
+// Yechim freymidagi Bit. O'lchov va jest etalon Dars01 dagidek.
+const SolutionBit = () => (
+  <span className="solution-bit"><BitSVG state="nod" /></span>
+);
+
+// Bosqichlar ro'yxati: ochilgan qadam yonadi, qolganlari kutadi.
+const StepList = ({ steps, step }) => {
+  const t = useT();
+  return (
+    <ol className="step-list">
+      {steps.map((item, index) => (
+        <li key={index} className={index < step ? 'is-done' : index === step ? 'is-active' : ''}>
+          <b>{index + 1}</b>
+          <span>{t(item)}</span>
+        </li>
+      ))}
+    </ol>
+  );
+};
+
+function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useNarration(c.audio, screen);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const canAnswer = isAudioReady(audio);
+  const choose = (index) => {
+    if (!canAnswer || picked !== null) return;
+    const nextAttempts = attempts + 1;
+    setPicked(index);
+    setAttempts(nextAttempts);
+    audio.pushOneOff(t(c.feedback));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), options: c.options.map((option) => t(option)),
+      correctIndex: null, correctAnswer: null,
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}>
+      <div className="stack hook-stack" data-g4-screen="hook">
+        <Heading c={c} hook />
+        <h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2>
+        <section className="model-card hook-card" data-g4-role="hook-scene">
+          <div className="hook-scene-visual" data-g4-role="visual-frame">
+            <DispatchConsole c={c} resolved={picked !== null} />
+            <div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div>
+          </div>
+        </section>
+        <section className="question hook-question" data-g4-role="answer-card" aria-live="polite">
+          <h2>{t(c.question)}</h2>
+          <div className="options options-four">
+            {c.options.map((option, index) => (
+              <button
+                type="button" key={index} data-g4-role="answer-card"
+                className={`option ${picked === index ? 'picked' : ''}`}
+                disabled={!canAnswer || picked !== null}
+                onClick={() => choose(index)}
+              >
+                <b>{String.fromCharCode(65 + index)}</b>
+                <span>{t(option)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="feedback-slot hook-feedback-slot">
+            {picked !== null && (
+              <div className="feedback neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic">
+                <p>{t(c.feedback)}</p>
+              </div>
+            )}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function HiddenUnitScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s1;
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const split = () => {
+    if (!ready || step > 1) return;
+    const next = step + 1;
+    setStep(next);
+    audio.speakStep(next);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={step === 2}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="split-layout">
+          <div className="split-model">
+            <span className="panel-label">{t(c.lead)}</span>
+            <UnitColumns
+              big={{ before: c.startM, after: c.finalM }}
+              small={{ before: c.startC, after: c.finalC }}
+              unitBig={{ uz: 'm', ru: 'м', en: 'm' }}
+              unitSmall={{ uz: 'cm', ru: 'см', en: 'cm' }}
+              step={step} onSplit={split} splitLabel={c.tapHint}
+            />
+            {step === 2 && (
+              <div className="split-done">
+                <SolutionBit />
+                <span>{t(c.doneLabel)}</span>
+                <strong>{c.finalM} m {c.finalC} cm</strong>
+              </div>
+            )}
+          </div>
+          <div className="split-steps">
+            <StepList steps={c.steps} step={step} />
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+// Umumiy tanlov ekrani. Chapdagi chizma har ekranda boshqacha: uni `visual`
+// propi beradi, shuning uchun beshta tanlov ekrani bir xil ko'rinmaydi.
+function ChoiceScreen({ screen, storedAnswer, onAnswer, onPrev, onNext, visual }) {
+  const t = useT();
+  const c = CONTENT[`s${screen}`];
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const answerOrdinal = ANSWER_ORDINAL_BY_SCREEN[screen];
+  const optionOrder = buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, answerOrdinal);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []);
+  const correct = picked === c.correctIndex;
+  const choose = (index) => {
+    if (!canAnswer || correct || wrongChoices.includes(index)) return;
+    const ok = index === c.correctIndex;
+    const nextAttempts = attempts + 1;
+    const nextWrong = ok ? wrongChoices : [...wrongChoices, index];
+    setPicked(index);
+    setAttempts(nextAttempts);
+    setWrongChoices(nextWrong);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong[index]));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), options: c.options.map((option) => t(option)),
+      correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, wrongChoices: nextWrong, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="task-layout">
+          <div className="task-model">
+            {visual}
+          </div>
+          <div className="question" aria-live="polite">
+            <h2>{t(c.question)}</h2>
+            <div className="options options-four">
+              {optionOrder.map((sourceIndex, displayIndex) => {
+                const state = sourceIndex === c.correctIndex && correct ? 'right'
+                  : wrongChoices.includes(sourceIndex) ? 'bad' : '';
+                return (
+                  <button
+                    type="button" key={sourceIndex}
+                    data-g4-source-index={sourceIndex}
+                    data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+                    className={`option ${state}`}
+                    disabled={!canAnswer || correct || wrongChoices.includes(sourceIndex)}
+                    onClick={() => choose(sourceIndex)}
+                  >
+                    <b>{String.fromCharCode(65 + displayIndex)}</b>
+                    <span>{t(c.options[sourceIndex])}</span>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="feedback-slot question-feedback-slot">
+              {picked !== null && (correct ? (
+                <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                  <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"} /></span>
+                  <p data-g4-role="bit-answer-comment">
+                    <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                    <em className="solution-formula">{t(c.proof)}</em>
+                    <span className="solution-text">{t(c.feedback[picked])}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                  <p>{t(c.feedback[picked])}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+// s2 — ustunli qo'shish chizmasi.
+const ColumnSum = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.taskNote)}</span>
+      <strong className="task-expression">{t(c.task)}</strong>
+    </div>
+  );
+};
+
+// s6 — uch qushning massa tasmasi.
+const BirdBars = ({ c }) => {
+  const t = useT();
+  const s5 = CONTENT.s5;
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.taskNote)}</span>
+      <div className="bird-bars">
+        <div className="bird-row"><span>{t(s5.baseLabel)}</span><i style={{ width: '64%' }} /><b>{t(s5.baseValue)}</b></div>
+        <div className="bird-row"><span>{t(s5.bars[0].who)}</span><i className="b" style={{ width: '36%' }} /><b>{t(s5.bars[0].result)}</b></div>
+        <div className="bird-row is-sum"><span>{t(c.sumLabel)}</span><i className="c" style={{ width: '100%' }} /><b>{t(c.task).split('=')[1]}</b></div>
+        <div className="bird-row is-unknown"><span>{t(c.thirdLabel)}</span><i className="q"><em>{t(c.thirdPhrase)}</em></i><b>?</b></div>
+      </div>
+    </div>
+  );
+};
+
+// s9 — taxmin oralig'i eslatmasi.
+const EstimateRecall = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <strong className="task-expression small">{t(c.task)}</strong>
+    </div>
+  );
+};
+
+// s13 — tungi oyna shkalasi.
+const WindowBar = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.task)}</span>
+      <div className="window-bar">
+        <i className="job a" style={{ width: '30%' }}><em>45</em></i>
+        <i className="job b" style={{ width: '46.7%' }}><em>70</em></i>
+        <i className="job c" style={{ width: '16.6%' }}><em>25</em></i>
+        <i className="job free" style={{ width: '6.7%' }} />
+      </div>
+      <div className="window-scale"><span>0</span><span>150 min</span></div>
+    </div>
+  );
+};
+
+// s14 — ombor hisoboti tasmasi.
+const StoreBar = ({ c }) => {
+  const t = useT();
+  return (
+    <div className="mini-frame" data-g4-role="visual-frame">
+      <span className="panel-label">{t(c.task)}</span>
+      <div className="store-bar">
+        <i className="used"><em>?</em></i>
+        <i className="left"><em>7 m 70 cm</em></i>
+      </div>
+      <div className="store-total">12 m 50 cm</div>
+    </div>
+  );
+};
+
+function ThreeStepScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s3;
+  const [step, setStep] = useState(0);
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const last = c.rows.length - 1;
+  const advance = () => {
+    if (!ready || step >= last) return;
+    const next = step + 1;
+    setStep(next);
+    audio.speakStep(next);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={step >= last}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="track-layout">
+          <div className="track-pair">
+            <div className="track-frame">
+              <span className="panel-label">{t(c.leftLabel)}</span>
+              {c.rows.map((row, index) => (
+                <p key={index} className={index <= step ? 'show' : ''}>{t(row.left)}</p>
+              ))}
+            </div>
+            <div className="track-frame is-accent">
+              <span className="panel-label">{t(c.rightLabel)}</span>
+              {c.rows.map((row, index) => (
+                <p key={index} className={index <= step ? 'show' : ''}>{t(row.right)}</p>
+              ))}
+            </div>
+          </div>
+          <div className="track-steps">
+            <div className="track-step-now"><b>{step + 1}</b><span>{t(c.rows[step].step)}</span></div>
+            {step < last
+              ? <button type="button" className="btn-white-accent step-button" disabled={!ready} onClick={advance}>{t(STEP_LABEL)} →</button>
+              : <div className="track-rule"><SolutionBit /><span>{t(c.ruleNote)}</span></div>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function TileBuildScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s4;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const [values, setValues] = useState(storedAnswer?.correct ? c.slots.map((slot) => slot.answer) : [null, null]);
+  const [checked, setChecked] = useState(storedAnswer?.correct === true);
+  const [message, setMessage] = useState(null);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const solved = checked && values.every((value, index) => value === c.slots[index].answer);
+  const filled = values.every((value) => value !== null);
+  const pick = (slotIndex, value) => {
+    if (!canAnswer || solved) return;
+    setValues((previous) => previous.map((item, index) => (index === slotIndex ? value : item)));
+    setMessage(null);
+    setChecked(false);
+  };
+  const check = () => {
+    if (!filled || !canAnswer || solved) return;
+    const ok = values.every((value, index) => value === c.slots[index].answer);
+    const nextAttempts = attempts + 1;
+    setAttempts(nextAttempts);
+    setChecked(true);
+    const text = ok ? c.okText : values[0] !== c.slots[0].answer ? c.wrongT : c.wrongQ;
+    setMessage(text);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.question), correctAnswer: c.slots.map((slot) => slot.answer).join(' '),
+      studentAnswer: values.join(' '), correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="build-layout">
+          <div className="mini-frame" data-g4-role="visual-frame">
+            <span className="panel-label">{t(c.taskNote)}</span>
+            <strong className="task-expression">{t(c.task)}</strong>
+          </div>
+          <div className="build-panel" aria-live="polite">
+            <h2>{t(c.question)}</h2>
+            <div className="build-slots">
+              {c.slots.map((slot, slotIndex) => (
+                <div key={slot.key} className={`build-slot ${values[slotIndex] !== null ? 'is-filled' : ''}`}>
+                  <b>{values[slotIndex] === null ? '?' : values[slotIndex]}</b>
+                  <span>{t(slotIndex === 0 ? c.unitT : c.unitQ)}</span>
+                  <em>{t(slot.label)}</em>
+                </div>
+              ))}
+            </div>
+            <div className="build-tiles">
+              {c.slots.map((slot, slotIndex) => (
+                <div key={slot.key} className="tile-row">
+                  {slot.tiles.map((tile) => (
+                    <button
+                      type="button" key={tile}
+                      className={`tile ${values[slotIndex] === tile ? 'picked' : ''}`}
+                      disabled={!canAnswer || solved}
+                      onClick={() => pick(slotIndex, tile)}
+                    >
+                      {tile} {t(slotIndex === 0 ? c.unitT : c.unitQ)}
+                    </button>
+                  ))}
+                </div>
+              ))}
+            </div>
+            <button type="button" className="btn-white-accent check-wide" disabled={!filled || !canAnswer || solved} onClick={check}>
+              {t(CHECK_LABEL)}
+            </button>
+            <div className="feedback-slot build-feedback-slot">
+              {message && (solved ? (
+                <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                  <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                  <p data-g4-role="bit-answer-comment">
+                    <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                    <em className="solution-formula">{t(c.proof)}</em>
+                    <span className="solution-text">{t(message)}</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                  <p>{t(message)}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RelationBarsScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s5;
+  const [solvedBars, setSolvedBars] = useState([]);
+  const step = solvedBars.length;
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const assign = (barIndex, sign) => {
+    if (!ready || solvedBars.includes(barIndex) || sign !== c.bars[barIndex].sign) return;
+    const next = [...solvedBars, barIndex];
+    setSolvedBars(next);
+    audio.speakStep(next.length);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solvedBars.length === c.bars.length}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="relation-layout">
+          <div className="relation-head">
+            <span className="panel-label">{t(c.source)}</span>
+            <div className="relation-base"><span>{t(c.baseLabel)}</span><i><em style={{ width: '51%' }} /></i><b>{t(c.baseValue)}</b></div>
+            <p className="relation-lead">{t(c.lead)}</p>
+          </div>
+          <div className="relation-rows">
+            {c.bars.map((bar, index) => {
+              const done = solvedBars.includes(index);
+              return (
+                <div key={index} className={`relation-row ${done ? 'is-done' : ''}`}>
+                  <div className="relation-text"><b>{t(bar.who)}</b><span>{t(bar.phrase)}</span></div>
+                  <div className="relation-bar"><i className={bar.sign} style={{ width: done ? bar.pct + '%' : '0%' }} /></div>
+                  {done ? (
+                    <div className="relation-result">
+                      <i className={bar.sign === 'plus' ? 'plus' : 'minus'}>{bar.sign === 'plus' ? '+' : '−'}</i>
+                      <strong>{t(bar.result)}</strong>
+                    </div>
+                  ) : (
+                    <div className="relation-pick">
+                      <button type="button" disabled={!ready} onClick={() => assign(index, 'minus')}>− {t(c.signMinus)}</button>
+                      <button type="button" disabled={!ready} onClick={() => assign(index, 'plus')}>+ {t(c.signPlus)}</button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+          <p className="relation-note">{t(c.keywordTrap)}</p>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RowRepairScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s7;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [wrongRows, setWrongRows] = useState(storedAnswer?.wrongChoices ?? []);
+  const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0);
+  const correct = picked === c.answerIndex;
+  const tap = (index) => {
+    if (!canAnswer || correct || wrongRows.includes(index)) return;
+    const ok = index === c.answerIndex;
+    const nextAttempts = attempts + 1;
+    const nextWrong = ok ? wrongRows : [...wrongRows, index];
+    setPicked(index);
+    setAttempts(nextAttempts);
+    setWrongRows(nextWrong);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong));
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.lead), correctAnswer: t(c.rows[c.answerIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.rows[index]),
+      correct: ok,
+      firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok,
+      attempts: nextAttempts, wrongChoices: nextWrong, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="repair-layout">
+          <div className="repair-sheet" aria-live="polite">
+            <div className="repair-head">
+              <span className="panel-label">{t(c.source)}</span>
+              <span className="repair-lead">{t(c.lead)}</span>
+            </div>
+            {c.rows.map((row, index) => (
+              <button
+                type="button" key={index}
+                className={`repair-row ${index === c.answerIndex && correct ? 'is-found' : ''} ${wrongRows.includes(index) ? 'is-ruled' : ''}`}
+                disabled={!canAnswer || correct || wrongRows.includes(index)}
+                onClick={() => tap(index)}
+              >
+                <b>{index + 1}</b>
+                <span>{t(row)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="feedback-slot repair-feedback-slot">
+            {picked !== null && (correct ? (
+              <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                <p data-g4-role="bit-answer-comment">
+                  <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                  <em className="solution-formula">{t(c.fix)}</em>
+                  <span className="solution-text">{t(c.rowFeedback[picked])}</span>
+                </p>
+              </div>
+            ) : (
+              <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                <p>{t(c.rowFeedback[picked])}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function EstimateBandScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s8;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.answerIndex;
+  const step = solved ? 2 : picked !== null ? 1 : 0;
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const tap = (index) => {
+    if (!ready || solved) return;
+    setPicked(index);
+    audio.speakStep(index === c.answerIndex ? 2 : 1);
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="band-layout">
+          <div className="band-task">
+            <strong className="task-expression">{t(c.task)}</strong>
+            <p>{t(c.lead)}</p>
+          </div>
+          <div className="band-line" data-g4-role="visual-frame">
+            <div className="band-track">
+              {c.bands.map((band, index) => (
+                <button
+                  type="button" key={index}
+                  className={`band ${picked === index ? (index === c.answerIndex ? 'is-right' : 'is-wrong') : ''}`}
+                  disabled={!ready || solved}
+                  onClick={() => tap(index)}
+                >
+                  {t(band)}
+                </button>
+              ))}
+            </div>
+            {solved && <div className="band-exact"><SolutionBit /><span>{t(c.exactLabel)}</span><strong>{t(c.exact)}</strong></div>}
+          </div>
+          <div className="band-note" aria-live="polite">
+            {picked !== null && <p className={solved ? 'is-right' : 'is-wrong'}>{t(c.bandFeedback[picked])}</p>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RuleBuilderScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s10;
+  const audio = useNarration(c.audio, screen);
+  const ready = isAudioReady(audio);
+  const [order, setOrder] = useState([]);
+  const [failed, setFailed] = useState(false);
+  const size = c.parts.length;
+  const solved = order.length === size && order.every((value, index) => value === index);
+  const choose = (index) => {
+    if (!ready || solved || order.includes(index)) return;
+    const next = [...order, index];
+    setOrder(next);
+    setFailed(next.some((value, place) => value !== place));
+  };
+  const reset = () => { setOrder([]); setFailed(false); };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={solved}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rule-layout">
+          <div className="rule-slots">
+            <span className="panel-label">{t(c.slotLabel)}</span>
+            {Array.from({ length: size }, (_, place) => {
+              const index = order[place];
+              return (
+                <div key={place} className={`rule-slot ${index === undefined ? 'is-empty' : index === place ? 'is-right' : 'is-wrong'}`}>
+                  <b>{place + 1}</b>
+                  <span>{index === undefined ? '' : t(c.parts[index])}</span>
+                </div>
+              );
+            })}
+          </div>
+          <div className="rule-bank">
+            <span className="panel-label">{t(c.bankLabel)}</span>
+            <div className="rule-bank-list">
+              {c.parts.map((part, index) => (
+                <button type="button" key={index} disabled={!ready || order.includes(index) || solved} onClick={() => choose(index)}>
+                  {t(part)}
+                </button>
+              ))}
+            </div>
+            {order.length > 0 && !solved && (
+              <button type="button" className="tiny-action" onClick={reset}>{t(c.resetLabel)}</button>
+            )}
+            <div className="rule-status" aria-live="polite">
+              {solved && <div className="rule-memo"><SolutionBit /><div><b>{t(c.okText)}</b><span>{t(c.memo)}</span></div></div>}
+              {!solved && failed && <p className="rule-warn">{t(c.wrongText)}</p>}
+            </div>
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RapidConsoleScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s11;
+  const audio = useNarration(c.audio, screen);
+  const canAnswer = isAudioReady(audio);
+  // Ekranga qaytilganda yopilgan raundlar qayta so'ralmaydi (etalon: storedAnswer).
+  const restored = storedAnswer?.solved === true;
+  const [round, setRound] = useState(restored ? c.rounds.length : 0);
+  const [picked, setPicked] = useState(null);
+  const [correctCount, setCorrectCount] = useState(restored ? c.rounds.length : 0);
+  const [cleanCount, setCleanCount] = useState(0);
+  const [tries, setTries] = useState(0);
+  const done = round >= c.rounds.length;
+  const current = c.rounds[Math.min(round, c.rounds.length - 1)];
+  const solvedRound = picked === current.answer;
+  const tap = (index) => {
+    if (!canAnswer || done || solvedRound) return;
+    const ok = index === current.answer;
+    setPicked(index);
+    setTries((value) => value + 1);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? current.ok : current.no));
+    if (!ok) return;
+    const nextCorrect = correctCount + 1;
+    const clean = cleanCount + (tries === 0 ? 1 : 0);
+    setCorrectCount(nextCorrect);
+    setCleanCount(clean);
+    window.setTimeout(() => { setRound((value) => value + 1); setPicked(null); setTries(0); }, 900);
+    onAnswer({
+      stage: SCREEN_META[screen].scope, screenIdx: screen,
+      question: t(c.title), correctAnswer: String(nextCorrect), studentAnswer: String(nextCorrect),
+      correct: nextCorrect === c.rounds.length,
+      firstTry: clean === c.rounds.length,
+      attempts: tries + 1, solved: nextCorrect === c.rounds.length,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={done}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rapid-layout">
+          <div className="rapid-head">
+            <span className="panel-label">{t(c.source)}</span>
+            <div className="rapid-dots">
+              {c.rounds.map((_, index) => <i key={index} className={index < round ? 'is-done' : index === round ? 'is-now' : ''} />)}
+            </div>
+            <span className="rapid-count">{Math.min(round + 1, c.rounds.length)} / {c.rounds.length} {t(c.counter)}</span>
+          </div>
+          {done ? (
+            <div className="rapid-done">
+              <div className="rapid-done-head"><SolutionBit /><span>{t(c.doneText)}</span><strong>{correctCount} / {c.rounds.length}</strong></div>
+              <ul className="rapid-log">
+                {c.rounds.map((item, index) => (
+                  <li key={index}><i>{index + 1}</i><span>{t(item.prompt)}</span><em>{t(item.tiles[item.answer])}</em></li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="rapid-body" aria-live="polite">
+              <strong className="rapid-prompt">{t(current.prompt)}</strong>
+              <div className="rapid-tiles">
+                {current.tiles.map((tile, index) => (
+                  <button
+                    type="button" key={index}
+                    className={`tile wide ${picked === index ? (index === current.answer ? 'right' : 'bad') : ''}`}
+                    disabled={!canAnswer || solvedRound}
+                    onClick={() => tap(index)}
+                  >
+                    {t(tile)}
+                  </button>
+                ))}
+              </div>
+              <div className="feedback-slot rapid-feedback-slot">
+                {picked !== null && (solvedRound ? (
+                  <div className="feedback open correct" data-g4-role="feedback-frame bit-answer-comment" data-g4-feedback={'solution'}>
+                    <span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod" /></span>
+                    <p data-g4-role="bit-answer-comment">
+                      <b className="proof-label">{t(SOLUTION_LABEL)}</b>
+                      <span className="solution-text">{t(current.ok)}</span>
+                    </p>
+                  </div>
+                ) : (
+                  <div className="feedback open wrong" data-g4-role="feedback-frame" data-g4-feedback={'wrong'}>
+                    <p>{t(current.no)}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function RouteCompareScreen({ screen, onPrev, onNext }) {
+  const t = useT();
+  const c = CONTENT.s12;
+  const [picked, setPicked] = useState(null);
+  const step = picked === null ? 0 : 2;
+  const audio = useGuidedNarration(c.audio, screen, step);
+  const ready = isAudioReady(audio);
+  const choose = (index) => {
+    if (!ready || picked !== null) return;
+    setPicked(index);
+    audio.pushOneOff(t(c.routeFeedback[index]));
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="route-layout">
+          <div className="route-head">
+            <strong className="task-expression">{t(c.lead)}</strong>
+            <span className="panel-label">{t(c.source)}</span>
+          </div>
+          <div className="route-pair">
+            {c.routes.map((route, index) => (
+              <button
+                type="button" key={index}
+                className={`route-card ${picked === index ? (index === c.answerIndex ? 'is-best' : 'is-other') : ''}`}
+                disabled={!ready || picked !== null}
+                onClick={() => choose(index)}
+              >
+                <span className="route-name">{t(route.name)}</span>
+                {route.lines.map((line, lineIndex) => <em key={lineIndex}>{t(line)}</em>)}
+              </button>
+            ))}
+          </div>
+          <div className="route-note" aria-live="polite">
+            {picked === null
+              ? <p className="route-hint">{t(c.note)}</p>
+              : <div className={`route-verdict ${picked === c.answerIndex ? 'is-right' : 'is-other'}`}><SolutionBit /><span>{t(c.routeFeedback[picked])}</span></div>}
+          </div>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+const FINAL_STAGE = bi('YAKUNIY BOSQICH', 'ФИНАЛЬНЫЙ ЭТАП', 'FINAL STAGE');
+const PROOF_LABEL = bi("BOSHLANG'ICH MISSIYA YECHIMI", 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', 'STARTING MISSION SOLVED');
+const BRIDGE_LABEL = bi('KEYINGI MISSIYA', 'СЛЕДУЮЩАЯ МИССИЯ', 'NEXT MISSION');
+const REWARD_WAIT = bi('MUKOFOT KUTILMOQDA', 'НАГРАДА ЖДЁТ', 'THE REWARD AWAITS');
+const REWARD_OPEN = bi('Unvonni oching', 'Открой звание', 'Unlock your title');
+const FIRST_TRY_LABEL = bi('birinchi urinishda', 'с первой попытки', 'on the first attempt');
+const CLAIM_LABEL = bi('Unvonni olish', 'Получить звание', 'Claim title');
+const PENDING_LABEL = bi('Avval yakuniy xulosani tinglang', 'Сначала дослушайте итог', 'Listen to the summary first');
+
+function FinaleScreen({ screen, answers, onAnswer, onPrev, finishLesson, finalState, onFinalState }) {
+  const t = useT();
+  const c = CONTENT.s15;
+  const storedAnswer = finalState;
+  const audio = useNarration(c.audio, screen);
+  const reduced = usePrefersReducedMotion();
+  const visible = audio.frame + 1;
+  const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const canClaimTitle = audio.completed || audio.muted;
+  const scored = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+  const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
+  useEffect(() => {
+    if (!revealRequested) return undefined;
+    const timer = window.setTimeout(() => setRevealRequested(false), reduced ? 350 : 4300);
+    return () => window.clearTimeout(timer);
+  }, [reduced, revealRequested]);
+  const claimTitle = () => {
+    if (!canClaimTitle || titleClaimed) return;
+    setTitleClaimed(true);
+    setRevealRequested(true);
+    onFinalState((previous) => ({ ...previous, titleClaimed: true }));
+    onAnswer({
+      screenIdx: screen, stage: null, question: t(CLAIM_LABEL),
+      options: [t(c.rewardTitle)], correctIndex: 0, correctAnswer: t(c.rewardTitle),
+      studentAnswerIndex: 0, studentAnswer: t(c.rewardTitle),
+      correct: true, firstTry: true, attempts: 1, solved: true, titleClaimed: true,
+    });
+  };
+  return (
+    <Stage
+      screen={screen} audio={titleClaimed ? { ...audio, completed: true } : audio}
+      onPrev={onPrev} onNext={titleClaimed ? finishLesson : undefined}
+      canAdvance canFinish={titleClaimed} finish
+    >
+      <div className="screen-stack finale-screen">
+        <div className="finale-heading">
+          <span><i aria-hidden="true">◆</i>{t(FINAL_STAGE)}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t(c.lead)}</p>
+        </div>
+        <div className="finale-body">
+          <div className="finale-column">
+            <div className="finale-mastery">
+              {c.frames.slice(0, 3).map((item, index) => (
+                <span key={index} className={index < visible ? 'is-open' : ''}><i>{index + 1}</i><p>{t(item)}</p></span>
+              ))}
+            </div>
+            <div className={`finale-proof ${visible >= 4 ? 'is-open' : ''}`}>
+              <b>{t(PROOF_LABEL)}</b>
+              <span>{t(c.frames[3])}</span>
+            </div>
+            <div className={`finale-bridge ${visible >= 5 ? 'is-open' : ''}`}>
+              <i aria-hidden="true">→</i>
+              <b>{t(BRIDGE_LABEL)}</b>
+              <span>{t(c.frames[4])}</span>
+            </div>
+          </div>
+          <div className="finale-actions" data-g4-final-reflection="none">
+            {titleClaimed
+              ? <G4TitleCard title={c.rewardTitle} answers={answers} />
+              : (
+                <div className="reward-stage reward-stage-compact reward-locked">
+                  <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state="present" /></div>
+                  <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">🔒</div>
+                  <span className="reward-kicker">{t(REWARD_WAIT)}</span>
+                  <h2>{t(REWARD_OPEN)}</h2>
+                  <div className="reward-score"><strong>{firstTryCorrect}/{scored.length}</strong><span>{t(FIRST_TRY_LABEL)}</span></div>
+                </div>
+              )}
+            {!titleClaimed && (
+              <button type="button" className="g4-title-claim" disabled={!canClaimTitle} onClick={claimTitle}>
+                {t(CLAIM_LABEL)}
+              </button>
+            )}
+            {!titleClaimed && !canClaimTitle && <small className="finale-pending">{t(PENDING_LABEL)}</small>}
+          </div>
+        </div>
+        {titleClaimed && <G4TitleReveal active={revealRequested} title={c.rewardTitle} />}
+      </div>
+    </Stage>
+  );
+}
+
+const Screen0 = (props) => <HookScreen {...props} />;
+const Screen1 = (props) => <HiddenUnitScreen {...props} />;
+const Screen2 = (props) => <ChoiceScreen {...props} visual={<ColumnSum c={CONTENT.s2} />} />;
+const Screen3 = (props) => <ThreeStepScreen {...props} />;
+const Screen4 = (props) => <TileBuildScreen {...props} />;
+const Screen5 = (props) => <RelationBarsScreen {...props} />;
+const Screen6 = (props) => <ChoiceScreen {...props} visual={<BirdBars c={CONTENT.s6} />} />;
+const Screen7 = (props) => <RowRepairScreen {...props} />;
+const Screen8 = (props) => <EstimateBandScreen {...props} />;
+const Screen9 = (props) => <ChoiceScreen {...props} visual={<EstimateRecall c={CONTENT.s9} />} />;
+const Screen10 = (props) => <RuleBuilderScreen {...props} />;
+const Screen11 = (props) => <RapidConsoleScreen {...props} />;
+const Screen12 = (props) => <RouteCompareScreen {...props} />;
+const Screen13 = (props) => <ChoiceScreen {...props} visual={<WindowBar c={CONTENT.s13} />} />;
+const Screen14 = (props) => <ChoiceScreen {...props} visual={<StoreBar c={CONTENT.s14} />} />;
+const Screen15 = (props) => <FinaleScreen {...props} />;
+const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15];
+
+export default function Grade4Dars31({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
+  const initialLang = normalizeLang(langProp);
+  const [previewLang, setPreviewLang] = useState(initialLang);
+  const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang;
+  configureLesson({
+    ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f',
+    correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview,
+  });
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  const [finalState, setFinalState] = useState({ titleClaimed: false });
+  const [startedAt] = useState(() => Date.now());
+  const finished = useRef(false);
+  const recordAnswer = useCallback((answer) => setAnswers((previous) => {
+    const next = [...previous];
+    const old = previous[answer.screenIdx];
+    next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry };
+    return next;
+  }), []);
+  const finishLesson = useCallback(() => {
+    if (finished.current) return;
+    finished.current = true;
+    const scored = SCREEN_META.map((meta, index) => (meta.scored ? index : null)).filter((index) => index !== null);
+    const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length;
+    const payload = {
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle[lang],
+      studentName: studentName || null,
+      durationSec: Math.floor((Date.now() - startedAt) / 1000),
+      totalQuestions: scored.length,
+      correctAnswers: firstTryCorrect,
+      scorePercent: Math.round(firstTryCorrect / scored.length * 100),
+      finalScore: firstTryCorrect,
+      finalTotal: scored.length,
+      passed: firstTryCorrect / scored.length >= 0.6,
+      firstTryStats: { total: scored.length, firstTryCorrect },
+      attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0),
+      skillTags: LESSON_META.skillTags,
+      answers: answers.filter(Boolean),
+    };
+    if (onFinished) onFinished(payload);
+    else console.log('[Grade4 Dars31 preview]', payload);
+  }, [answers, lang, onFinished, startedAt, studentName]);
+  const Current = SCREENS[current];
+  return (
+    <LangContext.Provider value={lang}>
+      <style>{STYLES + TOPIC_STYLES + G4_ETALON_OVERRIDES}</style>
+      <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
+        {showPreviewControls && (
+          <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>
+            {['uz', 'ru', 'en'].map((code) => (
+              <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>
+                {code.toUpperCase()}
+              </button>
+            ))}
+          </div>
+        )}
+        <Current
+          key={current} screen={current} storedAnswer={answers[current]} answers={answers}
+          onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState}
+          onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
+          onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))}
+          finishLesson={finishLesson}
+        />
+      </div>
+    </LangContext.Provider>
+  );
+}
 const G4_TITLE_STYLES = `
 .g4-title-reveal-overlay{
   position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
@@ -1591,7 +2595,7 @@ const G4_TITLE_STYLES = `
 @keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
 @keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
 @keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}
+@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr);padding-top:5px;padding-bottom:6px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}
   .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
   .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
   .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
@@ -1600,7 +2604,7 @@ const G4_TITLE_STYLES = `
   .g4-title-card-bit{width:57px;height:71px}
   .g4-title-card-stage h2{font-size:14px}
 }
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
+@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr)}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
 .summary-complete>.title-claim-card{grid-column:auto}.summary-complete>[data-g4-role="title-card"]{height:100%;min-height:0}
 @media(max-width:639.98px){.summary-complete{grid-template-rows:minmax(0,1fr) 88px}.summary-complete>.title-claim-card,.summary-complete>[data-g4-role="title-card"]{height:88px;min-height:0}.title-claim-card{padding:6px 7px;grid-template-columns:30px minmax(0,1fr) auto;place-items:center;align-content:center;gap:6px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:13px;line-height:1.1}.title-claim-card .g4-title-claim{min-width:96px;min-height:44px;padding:0 7px}}
 @media(max-height:700px){.summary-complete{grid-template-rows:minmax(0,1fr) 82px}}
@@ -1708,10 +2712,10 @@ const STYLES = `${G4_TITLE_STYLES}
 .feedback-bit{width:25px;height:31px}.proof-label{margin-right:7px;color:${T.lime}}.title-claim-card{grid-column:1/-1;height:100%;display:grid;place-items:center;align-content:center;gap:12px;border-radius:20px;background:#fff;text-align:center;overflow:hidden}.title-claim-card>span{font-size:48px;color:#FFCE49}
 .stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
 html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{min-height:0;padding-top:9px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:46px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:44px;height:44px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{min-height:0;padding-top:7px;padding-bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) 40px;overflow:hidden}.stage-body{min-height:0;overflow:hidden}.caption-slot{height:40px;min-height:40px;padding-top:4px;overflow:hidden}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;overflow:hidden;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;overflow:hidden;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.caption{height:36px;margin:0;padding:7px 11px;border-radius:12px;overflow:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
+.stage-content{min-height:0;padding-top:7px;padding-bottom:8px;display:grid;grid-template-rows:minmax(0,1fr);overflow:hidden}.stage-body{min-height:0;overflow:hidden}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading.heading-solo{justify-content:flex-start}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;overflow:hidden;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;overflow:hidden;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
 .conversion-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
+@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr);padding-top:5px;padding-bottom:6px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
+@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr)}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
 @media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}}
 .stage-hook .hook-card{overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
 @media(max-width:639.98px){.stage-hook .hook-card{border-radius:18px}}
