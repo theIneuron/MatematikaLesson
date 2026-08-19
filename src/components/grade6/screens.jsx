@@ -1857,17 +1857,13 @@ const HookScreen = ({ screen, totalScreens, content, sceneNode, onAnswer, onNext
       <div className="hk">
         <h2 className="title h-sub fade-up" style={{ margin: 0 }}>{t(c.title)}</h2>
         <p className="body fade-up delay-1" style={{ margin: 0 }}>{t(c.lead)}</p>
-        <div className="hk-voices fade-up delay-1">
-          <div className="hk-voice">
-            <span className="hk-who">A</span>
-            <p className="small" style={{ margin: 0 }}>{t(c.voice_a)}</p>
-          </div>
-          <div className="hk-voice">
-            <span className="hk-who hk-who-b">D</span>
-            <p className="small" style={{ margin: 0 }}>{t(c.voice_b)}</p>
-          </div>
-        </div>
-
+        {/* Блок из двух реплик героев СНЯТ (решение методиста 2026-08-19): он
+            занимал 48 px на рабочем столе и 93 px на телефоне, и из-за него хук
+            уходил в скролл на невысоких окнах (замер: 1366x700 — 40 px скролла,
+            390x740 — 9 px). Спор героев остаётся на сцене, где они нарисованы, в
+            озвучке, где названы оба мнения, и в двух вариантах прогноза.
+            Узлы `voice_a` и `voice_b` в контенте уроков не удалены: озвучка хука
+            опирается на них по смыслу, и вернуть блок можно одной строкой. */}
         {/* Сцена урока стоит на экране всё время, пока экран открыт: она больше
             не подменяется разбором. Люди и предметы рисуются ВНУТРИ сцены — так
             их можно расставить в перспективе; отдельный ряд фигурок поверх
@@ -3293,10 +3289,8 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
    строка принятия не влезали в экран и появлялся скролл. Сцену не уменьшаем —
    она главная, срезаны только пустоты между блоками. */
 .hk { display: flex; flex-direction: column; gap: clamp(7px, 1vw, 9px); }
-.hk-voices { display: flex; gap: 9px; flex-wrap: wrap; }
-.hk-voice { flex: 1 1 210px; display: flex; gap: 9px; align-items: flex-start; background: #FFFFFF; border-radius: 13px; padding: clamp(8px, 1.3vw, 11px); box-shadow: 0 6px 16px -6px rgba(58, 53, 48, 0.14); }
-.hk-who { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: #FFE8E1; color: #FF4F28; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; }
-.hk-who-b { background: #E3F0E8; color: #1F7A4D; }
+/* Правила .hk-voices, .hk-voice, .hk-who удалены вместе с блоком реплик:
+   мёртвый CSS уезжает в каждый из 46 файлов LMS и выглядит рабочим. */
 /* Сцена ЗАЛИВАЕТ рамку и имеет ту же ширину, что заголовок, вопрос и кнопки.
    Так сделано в хуках 1 и 2 класса: разной ширины блоков там нет. */
 .hk-frame { padding: clamp(5px, 0.7vw, 7px) !important; }

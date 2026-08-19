@@ -3188,21 +3188,14 @@ const Screen14 = (props) => (
 
 const SummaryCards = () => {
   const t = useT();
-  const c = CONTENT.s14;
   const m = CONTENT.s_methods;
   return (
     <>
-      <div className="frame sm-card">
-        <p className="sm-card-h">{t(c.read_label)}</p>
-        <div className="sm-read-row">
-          <span className="sm-read-eq mono">12 : 3 = 4</span>
-          <span className="sm-read-side">
-            <span className="sm-read-a">{t(c.read_a)}</span>
-            <span className="sm-read-b">{t(c.read_b)}</span>
-          </span>
-        </div>
-      </div>
-
+      {/* Карточка «два прочтения одного примера» СНЯТА (решение методиста
+          2026-08-19): она занимала около сотни пикселей, и итог уходил в скролл
+          на невысоких окнах (замер: 1366x700 — 38 px скролла). Сама мысль
+          осталась на экране: она в карточке «Главное» и в памятке способов.
+          Узлы `read_label`, `read_a`, `read_b` в контенте не удалены. */}
       <div className="frame sm-card">
         <p className="sm-card-h">{t(m.memo_title)}</p>
         <div className="mm-grid">
