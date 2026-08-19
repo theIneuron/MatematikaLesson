@@ -312,7 +312,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Умножение не всегда увеличивает', uz: "Ko'paytirish har doim kattalashtirmaydi", en: 'Multiplying does not always increase' },
     lines: [
       { ru: '6 · 3 = 18, стало больше', uz: '6 · 3 = 18, kattalashdi', en: '6 · 3 = 18, it grew' },

@@ -313,7 +313,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Рядом — значит умножить', uz: "Yonma-yon — ko'paytirish demak", en: 'Side by side means multiply' },
     bad_line: { ru: 'ошибка: 5a при a = 3 это 53', uz: 'xato: a = 3 da 5a bu 53', en: 'mistake: 5a at a = 3 is 53' },
     good_line: { ru: 'верно: 5a = 5 · 3 = 15', uz: "to'g'ri: 5a = 5 · 3 = 15", en: 'right: 5a = 5 · 3 = 15' },

@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок здесь важен', uz: 'Bu yerda tartib muhim', en: 'Order matters here' },
     bad_line: { ru: 'ошибка: 5 − 9 = 4, переставили числа', uz: "xato: 5 − 9 = 4, sonlar o'rni almashtirilgan", en: 'mistake: 5 − 9 = 4, the numbers were swapped' },
     good_line: { ru: 'верно: 5 − 9 = 5 + (−9) = −4', uz: "to'g'ri: 5 − 9 = 5 + (−9) = −4", en: 'right: 5 − 9 = 5 + (−9) = −4' },

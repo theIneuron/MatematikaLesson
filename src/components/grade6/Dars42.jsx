@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Не любые три числа', uz: 'Har qanday uch son emas', en: 'Not any three numbers' },
     bad_line: { ru: 'ошибка: палочек три, значит треугольник будет', uz: "xato: tayoqcha uchta, demak uchburchak bo'ladi", en: 'mistake: three sticks means a triangle' },
     good_line: { ru: 'верно: 3 + 4 = 7 меньше 10, не замкнётся', uz: "to'g'ri: 3 + 4 = 7 dan 10 katta, tutashmaydi", en: 'right: 3 + 4 = 7 is less than 10, no closing' },
@@ -471,7 +471,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Соберётся ли треугольник', uz: 'Uchburchak yasaladimi', en: 'Will a triangle close' },
+    title: { ru: 'Соберётся ли треугольник?', uz: 'Uchburchak yasaladimi?', en: 'Will a triangle close?' },
     lead: { ru: 'Сравни самую длинную сторону с суммой двух других.', uz: "Eng uzun tomonni boshqa ikkitasining yig'indisi bilan solishtiring.", en: 'Compare the longest side with the sum of the other two.' },
     bin_a: { ru: 'Соберётся', uz: 'Yasaladi', en: 'It closes' },
     bin_b: { ru: 'Не соберётся', uz: 'Yasalmaydi', en: 'It does not' },

@@ -200,7 +200,7 @@ const CONTENT = {
   // Экран 4 — СПОСОБ 1, «показ, потом сам».
   s_tool: {
     eyebrow: { ru: 'Смотри и повтори', uz: 'Qarang va takrorlang', en: 'Watch, then try' },
-    title: { ru: 'Делится ли на 2', uz: "2 ga bo'linadimi", en: 'Does it divide by 2' },
+    title: { ru: 'Делится ли на 2?', uz: "2 ga bo'linadimi?", en: 'Does it divide by 2?' },
     demo_banner: { ru: 'Смотри — покажу на примере', uz: "Qarang — misolda ko'rsataman", en: 'Watch — I will show an example' },
     play_banner: { ru: 'Теперь твоя очередь', uz: 'Endi navbat sizniki', en: 'Now it is your turn' },
     step_num: { ru: 'Число', uz: 'Son', en: 'Number' },

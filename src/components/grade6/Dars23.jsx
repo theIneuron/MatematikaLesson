@@ -309,7 +309,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Единицы и проверка', uz: 'Birliklar va tekshiruv', en: 'Units and the check' },
     unit_line: { ru: 'ошибка: 2 минуты и 1 час в одной пропорции', uz: 'xato: bitta proporsiyada 2 daqiqa va 1 soat', en: 'mistake: 2 minutes and 1 hour in one proportion' },
     fix_line: { ru: 'верно: 2 минуты и 60 минут', uz: "to'g'ri: 2 daqiqa va 60 daqiqa", en: 'right: 2 minutes and 60 minutes' },

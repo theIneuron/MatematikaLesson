@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Длина или площадь', uz: 'Uzunlikmi yoki yuza', en: 'Length or area' },
     bad_line: { ru: 'ошибка: S = 2πr, это длина окружности', uz: 'xato: S = 2πr, bu aylana uzunligi', en: 'mistake: S = 2πr, that is the circumference' },
     good_line: { ru: 'верно: S = πr², в ответе квадратные единицы', uz: "to'g'ri: S = πr², javobda kvadrat birliklar", en: 'right: S = πr², the answer is in square units' },

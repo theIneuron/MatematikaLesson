@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Знак второго слагаемого', uz: "Ikkinchi qo'shiluvchining ishorasi", en: 'The sign of the second addend' },
     zero_line: { ru: '7 + (−7) = 0: противоположные гасят друг друга', uz: "7 + (−7) = 0: qarama-qarshilar bir-birini so'ndiradi", en: '7 + (−7) = 0: opposites cancel out' },
     bad_line: { ru: 'ошибка: 5 + (−8) = 3, знак потерян', uz: "xato: 5 + (−8) = 3, ishora yo'qolgan", en: 'mistake: 5 + (−8) = 3 with the sign lost' },

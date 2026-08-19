@@ -312,7 +312,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Ответили не на тот вопрос', uz: 'Boshqa savolga javob berildi', en: 'Answering the wrong question' },
     bad_line: { ru: 'ошибка: нашли x = 16 и написали в ответ 24', uz: 'xato: x = 16 topilgan, javobga 24 yozilgan', en: 'mistake: found x = 16 but wrote 24' },
     good_line: { ru: 'верно: спрашивали про детские, значит 16', uz: "to'g'ri: bolalarniki so'ralgan, demak 16", en: 'right: the question was about children, so 16' },
@@ -480,7 +480,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Подходит ли уравнение', uz: 'Tenglama mos keladimi', en: 'Does the equation fit' },
+    title: { ru: 'Подходит ли уравнение?', uz: 'Tenglama mos keladimi?', en: 'Does the equation fit?' },
     lead: { ru: 'Условие одно: двух чисел вместе 30, второе на 4 больше первого. Первое — x.', uz: "Shart bitta: ikki sonning yig'indisi 30, ikkinchisi birinchisidan 4 ta ko'p. Birinchisi — x.", en: 'One text: two numbers add to 30, the second is 4 more. The first is x.' },
     bin_a: { ru: 'Подходит', uz: 'Mos keladi', en: 'Fits' },
     bin_b: { ru: 'Не подходит', uz: 'Mos kelmaydi', en: 'Does not fit' },

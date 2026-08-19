@@ -305,7 +305,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Умножить вместо деления', uz: "Bo'lish o'rniga ko'paytirish", en: 'Multiplying instead of dividing' },
     bad_line: { ru: '600 · 2/5 = 240 м', uz: '600 · 2/5 = 240 m', en: '600 · 2/5 = 240 m' },
     good_line: { ru: '600 : 2/5 = 1500 м', uz: '600 : 2/5 = 1500 m', en: '600 ÷ 2/5 = 1500 m' },

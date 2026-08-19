@@ -308,7 +308,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Радиус вместо диаметра', uz: "Diametr o'rniga radius", en: 'Radius in place of diameter' },
     bad_line: { ru: 'ошибка: r = 5, пишут C = 3,14 · 5 = 15,7', uz: 'xato: r = 5, C = 3,14 · 5 = 15,7 deb yoziladi', en: 'mistake: r = 5 giving C = 3.14 · 5 = 15.7' },
     good_line: { ru: 'верно: C = 2 · 3,14 · 5 = 31,4', uz: "to'g'ri: C = 2 · 3,14 · 5 = 31,4", en: 'right: C = 2 · 3.14 · 5 = 31.4' },

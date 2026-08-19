@@ -306,7 +306,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Правило знаков не про сложение', uz: "Ishoralar qoidasi qo'shishga tegishli emas", en: 'The sign rule is not about addition' },
     bad_line: { ru: 'ошибка: −3 + (−3) = 6, «минус на минус»', uz: "xato: −3 + (−3) = 6, «minus minusga»", en: 'mistake: −3 + (−3) = 6, “minus times minus”' },
     good_line: { ru: 'верно: −3 + (−3) = −6, а (−3) · (−3) = 9', uz: "to'g'ri: −3 + (−3) = −6, (−3) · (−3) = 9 esa boshqa", en: 'right: −3 + (−3) = −6, while (−3) · (−3) = 9' },

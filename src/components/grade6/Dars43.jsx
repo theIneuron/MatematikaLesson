@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Про двойку и про высоту', uz: 'Ikki va balandlik haqida', en: 'About the two and the height' },
     bad_line: { ru: 'ошибка: 8 · 5 = 40, забыли разделить на 2', uz: "xato: 8 · 5 = 40, 2 ga bo'lish unutilgan", en: 'mistake: 8 · 5 = 40, forgot to halve' },
     good_line: { ru: 'верно: 40 : 2 = 20 см²', uz: "to'g'ri: 40 : 2 = 20 sm²", en: 'right: 40 : 2 = 20 cm²' },

@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Времена не складываются', uz: "Vaqtlar qo'shilmaydi", en: 'Times do not add' },
     bad_line: { ru: 'ошибка: 6 и 12 часов, вместе 9 или 18', uz: 'xato: 6 va 12 soat, birga 9 yoki 18', en: 'mistake: 6 and 12 hours giving 9 or 18' },
     good_line: { ru: 'верно: складываем 2 и 1 сумку в час, выходит 4 часа', uz: "to'g'ri: soatiga 2 va 1 ta sumkani qo'shamiz, 4 soat chiqadi", en: 'right: add 2 and 1 bags an hour, giving 4 hours' },

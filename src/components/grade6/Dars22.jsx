@@ -307,7 +307,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Два изменения подряд', uz: "Ketma-ket ikki o'zgarish", en: 'Two changes in a row' },
     up_line: { ru: '100 · 1,1 = 110 — рост на 10%', uz: "100 · 1,1 = 110 — 10% ga o'sish", en: '100 · 1.1 = 110 is a 10% rise' },
     down_line: { ru: '110 · 0,9 = 99 — падение на 10%', uz: '110 · 0,9 = 99 — 10% ga tushish', en: '110 · 0.9 = 99 is a 10% fall' },

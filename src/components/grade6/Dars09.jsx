@@ -298,7 +298,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Произведение тоже общее, но крупное', uz: "Ko'paytma ham umumiy, lekin katta", en: 'The product works too, but it is bigger' },
     lcm_line: { ru: 'НОК(6, 8) = 24 → 5/6 = 20/24', uz: 'EKUK(6, 8) = 24 → 5/6 = 20/24', en: 'LCM(6, 8) = 24 → 5/6 = 20/24' },
     prod_line: { ru: '6 · 8 = 48 → 5/6 = 40/48', uz: '6 · 8 = 48 → 5/6 = 40/48', en: '6 · 8 = 48 → 5/6 = 40/48' },

@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Три ошибки раздела', uz: "Bo'limning uch xatosi", en: 'Three mistakes of the section' },
     bad_line: { ru: 'ошибка: 2πr вместо πr² и наоборот', uz: "xato: πr² o'rniga 2πr va teskarisi", en: 'mistake: 2πr instead of πr² and back' },
     good_line: { ru: 'ошибка: диаметр подставили вместо радиуса', uz: "xato: radius o'rniga diametr qo'yilgan", en: 'mistake: the diameter used as the radius' },

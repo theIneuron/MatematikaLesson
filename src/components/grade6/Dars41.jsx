@@ -307,7 +307,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Меняются оба знака', uz: "Ikkala ishora o'zgaradi", en: 'Both signs change' },
     bad_line: { ru: 'ошибка: (4; 3) через центр даёт (−4; 3)', uz: 'xato: (4; 3) markaz orqali (−4; 3) beradi', en: 'mistake: (4; 3) through the centre gives (−4; 3)' },
     good_line: { ru: 'верно: (−4; −3), знаки меняют оба числа', uz: "to'g'ri: (−4; −3), ikkala son ishorasini o'zgartiradi", en: 'right: (−4; −3), both numbers flip' },
@@ -358,7 +358,7 @@ const CONTENT = {
 
   s_has: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Есть ли центр', uz: 'Markaz bormi', en: 'Does it have a centre' },
+    title: { ru: 'Есть ли центр?', uz: 'Markaz bormi?', en: 'Does it have a centre?' },
     lead: { ru: 'Мысленно поверни фигуру на пол-оборота.', uz: 'Shaklni xayolan yarim aylantiring.', en: 'Turn the shape half a turn in your head.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [
@@ -487,7 +487,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Есть ли центр симметрии', uz: 'Simmetriya markazi bormi', en: 'Does it have a centre' },
+    title: { ru: 'Есть ли центр симметрии?', uz: 'Simmetriya markazi bormi?', en: 'Does it have a centre?' },
     lead: { ru: 'Проверяй поворотом на пол-оборота.', uz: 'Yarim aylantirib tekshiring.', en: 'Test with a half turn.' },
     bin_a: { ru: 'Центр есть', uz: 'Markaz bor', en: 'Has a centre' },
     bin_b: { ru: 'Центра нет', uz: "Markaz yo'q", en: 'No centre' },

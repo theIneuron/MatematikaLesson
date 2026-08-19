@@ -311,7 +311,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Часть — всегда от какого-то целого', uz: 'Qism har doim qaysidir butundan', en: 'A part always belongs to some whole' },
     bad_line: { ru: 'ошибка: 40 · 1/2 = 20 свободных', uz: "xato: 40 · 1/2 = 20 bo'sh joy", en: 'mistake: 40 · 1/2 = 20 free seats' },
     good_line: { ru: 'верно: 16 · 1/2 = 8, целое здесь 16', uz: "to'g'ri: 16 · 1/2 = 8, bu yerda butun 16", en: 'right: 16 · 1/2 = 8, the whole here is 16' },

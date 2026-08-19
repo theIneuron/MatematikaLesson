@@ -307,7 +307,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Пара — это не набор чисел', uz: "Juftlik — sonlar to'plami emas", en: 'A pair is not just two numbers' },
     bad_line: { ru: 'ошибка: (2; −3) и (−3; 2) — «одно и то же»', uz: "xato: (2; −3) va (−3; 2) — «bir xil»", en: 'mistake: (2; −3) and (−3; 2) are “the same”' },
     good_line: { ru: 'верно: это разные точки в разных четвертях', uz: "to'g'ri: bular har xil chorakdagi turli nuqtalar", en: 'right: different points in different quarters' },

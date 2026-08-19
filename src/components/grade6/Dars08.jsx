@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Когда сокращать уже нельзя', uz: 'Qachon qisqartirib bo\'lmaydi', en: 'When you must stop' },
     good: { n: 5, d: 6 },
     bad: { n: 7, d: 9 },

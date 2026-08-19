@@ -308,7 +308,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Запятая едет по разрядам', uz: 'Vergul xonalar bo\'ylab suriladi', en: 'The comma moves across places' },
     rows: [
       { ru: '3,7 · 10 = 37', uz: '3,7 · 10 = 37', en: '3.7 · 10 = 37' },

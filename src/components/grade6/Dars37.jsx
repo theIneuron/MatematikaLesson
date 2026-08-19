@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Радиус или диаметр', uz: 'Radius yoki diametr', en: 'Radius or diameter' },
     bad_line: { ru: 'ошибка: ширина тарелки 24 см, значит радиус 24', uz: 'xato: tarelka eni 24 sm, demak radius 24', en: 'mistake: the plate is 24 cm wide so the radius is 24' },
     good_line: { ru: 'верно: 24 — это диаметр, радиус 12', uz: "to'g'ri: 24 bu diametr, radius 12", en: 'right: 24 is the diameter, the radius is 12' },

@@ -307,7 +307,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Единицы и направление масштаба', uz: 'Birliklar va masshtab yo\'nalishi', en: 'Units and the direction of a scale' },
     bad_line: { ru: 'ошибка: 40 см · 100 = 40 м', uz: 'xato: 40 sm · 100 = 40 m', en: 'mistake: 40 cm · 100 = 40 m' },
     good_line: { ru: 'верно: 40 см · 100 = 4000 см = 40 м', uz: "to'g'ri: 40 sm · 100 = 4000 sm = 40 m", en: 'right: 40 cm · 100 = 4,000 cm = 40 m' },
@@ -712,9 +712,9 @@ const CONTENT = {
   s_methods: {
     m1_title: { ru: 'Способ. Умножай, потом переводи', uz: "Usul. Ko'paytiring, keyin o'tkazing", en: 'Method. Multiply, then convert' },
     m1_steps: {
-      ru: ['Определи направление: с макета или на макет', 'Умножь или раздели на число масштаба', 'Переведи единицы в самом конце'],
-      uz: ["Yo'nalishni aniqlang: maketdanmi yoki maketgami", "Masshtab soniga ko'paytiring yoki bo'ling", "Birliklarni eng oxirida o'zgartiring"],
-      en: ['Decide the direction: from the model or to it', 'Multiply or divide by the scale number', 'Convert the units at the very end'],
+      ru: ['Определи направление: с макета или на макет?', 'Умножь или раздели на число масштаба', 'Переведи единицы в самом конце'],
+      uz: ["Yo'nalishni aniqlang: maketdanmi yoki maketgami?", "Masshtab soniga ko'paytiring yoki bo'ling", "Birliklarni eng oxirida o'zgartiring"],
+      en: ['Decide the direction: from the model or to it?', 'Multiply or divide by the scale number', 'Convert the units at the very end'],
     },
     m1_no: {
       ru: 'Запись 1 : n уменьшает, n : 1 увеличивает. В школьных задачах чаще встречается первая.',

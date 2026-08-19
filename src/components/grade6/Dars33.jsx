@@ -304,7 +304,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Буква никуда не девается', uz: 'Harf hech qayerga ketmaydi', en: 'The letter does not vanish' },
     bad_line: { ru: 'ошибка: 5x + 3x = 8', uz: 'xato: 5x + 3x = 8', en: 'mistake: 5x + 3x = 8' },
     good_line: { ru: 'верно: 5x + 3x = 8x', uz: "to'g'ri: 5x + 3x = 8x", en: 'right: 5x + 3x = 8x' },

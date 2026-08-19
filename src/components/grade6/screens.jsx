@@ -3014,6 +3014,13 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
 .stage-header { flex-shrink: 0; background: #F6F4EF; padding-top: clamp(12px, 2vw, 18px); padding-bottom: clamp(8px, 1.5vw, 12px); }
 .stage-content { flex: 1; padding-top: clamp(10px, 1.7vw, 16px); padding-bottom: clamp(17px, 3.4vw, 34px); display: flex; flex-direction: column; overflow-y: auto; overflow-x: hidden; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
 .stage-nav { flex-shrink: 0; background: #F6F4EF; border-top: 1px solid rgba(167, 166, 162, 0.25); padding-top: clamp(12px, 2vw, 15px); padding-bottom: clamp(12px, 2vw, 15px); display: flex; gap: 12px; }
+/* На телефоне кнопки стояли в 12 px от нижнего края и читались как приклеенные
+   ко краю экрана (QA 2026-08-19). Отступ удвоен: полоса панели остаётся во всю
+   ширину, поднимаются только кнопки. Высоту забираем у содержимого, и это
+   проверено — на 390x844 ни один экран класса не уходит в скролл. */
+@media (max-width: 639.98px) {
+  .stage-nav { padding-bottom: 24px; }
+}
 .chrome { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0; }
 .chrome-left { display: flex; align-items: center; gap: 10px; color: #5A5A60; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #FF4F28; box-shadow: 0 0 8px rgba(255, 79, 40, 0.55); }

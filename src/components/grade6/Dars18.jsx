@@ -309,7 +309,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок величин и проверка', uz: 'Kattaliklar tartibi va tekshiruv', en: 'Order of quantities and the check' },
     bad_line: { ru: 'ошибка: 5 : 12 500 = x : 8', uz: 'xato: 5 : 12 500 = x : 8', en: 'mistake: 5 : 12,500 = x : 8' },
     good_line: { ru: 'верно: 5 : 12 500 = 8 : x', uz: "to'g'ri: 5 : 12 500 = 8 : x", en: 'right: 5 : 12,500 = 8 : x' },
@@ -360,7 +360,7 @@ const CONTENT = {
 
   s_check: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Верна ли пропорция', uz: 'Proporsiya to\'g\'rimi', en: 'Is the proportion true' },
+    title: { ru: 'Верна ли пропорция?', uz: "Proporsiya to'g'rimi?", en: 'Is the proportion true?' },
     lead: { ru: 'Перемножь крайние и средние — числа должны совпасть.', uz: "Chetkilar va o'rtadagilarni ko'paytiring — sonlar mos kelishi kerak.", en: 'Multiply the outer and inner terms: the numbers must match.' },
     counter: { ru: 'Задание {i} из {n}', uz: '{n} topshiriqdan {i}-si', en: 'Task {i} of {n}' },
     items: [

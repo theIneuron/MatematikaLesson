@@ -304,7 +304,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Модуль не убирает минус везде', uz: 'Modul har joyda minusni yo\'qotmaydi', en: 'Absolute value does not erase every minus' },
     bad_line: { ru: 'ошибка: минус модуль −3 равен 3', uz: 'xato: minus modul −3 teng 3', en: 'mistake: minus the absolute value of −3 equals 3' },
     good_line: { ru: 'верно: модуль −3 равен 3, а минус перед ним даёт −3', uz: "to'g'ri: −3 ning moduli 3, oldidagi minus esa −3 beradi", en: 'right: the absolute value is 3 and the minus in front gives −3' },
@@ -468,7 +468,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Модуль равен самому числу или нет', uz: "Modul sonning o'ziga tengmi", en: 'Does the absolute value equal the number' },
+    title: { ru: 'Модуль равен самому числу или нет?', uz: "Modul sonning o'ziga tengmi?", en: 'Does the absolute value equal the number?' },
     lead: { ru: 'У положительных и нуля модуль совпадает с числом.', uz: "Musbat sonlar va nolda modul son bilan mos keladi.", en: 'For positives and zero the absolute value matches the number.' },
     bin_a: { ru: 'Равен числу', uz: 'Songa teng', en: 'Equals the number' },
     bin_b: { ru: 'Равен противоположному', uz: 'Qarama-qarshisiga teng', en: 'Equals its opposite' },

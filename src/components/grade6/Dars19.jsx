@@ -308,7 +308,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Сначала тип связи, потом счёт', uz: "Avval bog'lanish turi, keyin hisob", en: 'The kind of link first, the arithmetic second' },
     bad_line: { ru: 'ошибка: 2 : 6 = 4 : x при обратной связи', uz: "xato: teskari bog'lanishda 2 : 6 = 4 : x", en: 'mistake: 2 : 6 = 4 : x for an inverse link' },
     good_line: { ru: 'верно: 2 · 6 = 4 · x', uz: "to'g'ri: 2 · 6 = 4 · x", en: 'right: 2 · 6 = 4 · x' },
@@ -722,8 +722,8 @@ const CONTENT = {
   s_methods: {
     m1_title: { ru: 'Способ. Сначала тип связи', uz: "Usul. Avval bog'lanish turi", en: 'Method. The kind of link first' },
     m1_steps: {
-      ru: ['Спроси: вторая величина вырастет или уменьшится', 'Прямая — пиши пропорцию, обратная — считай произведение', 'Проверь ответ здравым смыслом'],
-      uz: ["So'rang: ikkinchi kattalik oshadimi yoki kamayadimi", "To'g'ri bo'lsa proporsiya yozing, teskari bo'lsa ko'paytmani hisoblang", "Javobni sog'lom fikr bilan tekshiring"],
+      ru: ['Спроси: вторая величина вырастет или уменьшится?', 'Прямая — пиши пропорцию, обратная — считай произведение', 'Проверь ответ здравым смыслом'],
+      uz: ["So'rang: ikkinchi kattalik oshadimi yoki kamayadimi?", "To'g'ri bo'lsa proporsiya yozing, teskari bo'lsa ko'paytmani hisoblang", "Javobni sog'lom fikr bilan tekshiring"],
       en: ['Ask whether the second quantity grows or shrinks', 'Direct: write a proportion. Inverse: use the product', 'Check the answer against common sense'],
     },
     m1_no: {

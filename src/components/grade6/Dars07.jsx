@@ -297,7 +297,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Делить надо ОБА числа', uz: "IKKALA sonni ham bo'lish kerak", en: 'BOTH numbers must change' },
     good: { from: { n: 2, d: 4 }, to: { n: 1, d: 2 } },
     bad: { from: { n: 2, d: 4 }, to: { n: 1, d: 4 } },

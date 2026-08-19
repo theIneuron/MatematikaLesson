@@ -308,7 +308,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Диагональ не всегда ось', uz: "Diagonal har doim o'q emas", en: 'A diagonal is not always an axis' },
     bad_line: { ru: 'ошибка: у прямоугольника 4 оси, как у квадрата', uz: "xato: to'g'ri to'rtburchakda kvadratdek 4 o'q", en: 'mistake: a rectangle has 4 axes like a square' },
     good_line: { ru: 'верно: по диагонали половинки не совпадают, осей 2', uz: "to'g'ri: diagonal bo'ylab yarmilar mos tushmaydi, o'q 2 ta", en: 'right: the halves do not match along a diagonal, so 2' },
@@ -480,7 +480,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Есть ли ось симметрии', uz: "Simmetriya o'qi bormi", en: 'Does it have an axis' },
+    title: { ru: 'Есть ли ось симметрии?', uz: "Simmetriya o'qi bormi?", en: 'Does it have an axis?' },
     lead: { ru: 'Проверяй складыванием: совпало или нет.', uz: "Buklab tekshiring: mos tushdimi yoki yo'q.", en: 'Test by folding: match or no match.' },
     bin_a: { ru: 'Ось есть', uz: "O'q bor", en: 'Has an axis' },
     bin_b: { ru: 'Оси нет', uz: "O'q yo'q", en: 'No axis' },

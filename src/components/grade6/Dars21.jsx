@@ -308,7 +308,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Процент всегда от какого-то целого', uz: 'Foiz doim qaysidir butundan', en: 'A percent always belongs to a whole' },
     bad_line: { ru: 'ошибка: 25% от 200 = 25 человек', uz: "xato: 200 ning 25% i = 25 kishi", en: 'mistake: 25% of 200 = 25 people' },
     good_line: { ru: 'верно: 200 · 0,25 = 50 человек', uz: "to'g'ri: 200 · 0,25 = 50 kishi", en: 'right: 200 · 0.25 = 50 people' },

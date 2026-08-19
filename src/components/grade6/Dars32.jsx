@@ -302,7 +302,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Никого не пропускаем', uz: 'Hech kimni tashlab ketmaymiz', en: 'Nobody gets skipped' },
     bad_line: { ru: 'ошибка: −(a − 5) = −a − 5', uz: 'xato: −(a − 5) = −a − 5', en: 'mistake: −(a − 5) = −a − 5' },
     good_line: { ru: 'верно: −(a − 5) = −a + 5', uz: "to'g'ri: −(a − 5) = −a + 5", en: 'right: −(a − 5) = −a + 5' },
@@ -466,7 +466,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Поменяются ли знаки', uz: "Ishoralar o'zgaradimi", en: 'Will the signs flip' },
+    title: { ru: 'Поменяются ли знаки?', uz: "Ishoralar o'zgaradimi?", en: 'Will the signs flip?' },
     lead: { ru: 'Смотри только на множитель перед скобкой.', uz: "Faqat qavs oldidagi ko'paytuvchiga qarang.", en: 'Look only at the factor before the bracket.' },
     bin_a: { ru: 'Знаки меняются', uz: "Ishoralar o'zgaradi", en: 'The signs flip' },
     bin_b: { ru: 'Знаки сохраняются', uz: 'Ishoralar saqlanadi', en: 'The signs stay' },

@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Переворачивают только делитель', uz: "Faqat bo'luvchi ag'dariladi", en: 'Only the divisor gets flipped' },
     bad_line: { ru: '4/5 : 2/3 = 5/4 · 3/2', uz: '4/5 : 2/3 = 5/4 · 3/2', en: '4/5 ÷ 2/3 = 5/4 · 3/2' },
     good_line: { ru: '4/5 : 2/3 = 4/5 · 3/2 = 6/5', uz: '4/5 : 2/3 = 4/5 · 3/2 = 6/5', en: '4/5 ÷ 2/3 = 4/5 · 3/2 = 6/5' },

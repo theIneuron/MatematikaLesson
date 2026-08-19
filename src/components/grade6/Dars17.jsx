@@ -305,7 +305,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок и способ сравнения', uz: 'Tartib va solishtirish usuli', en: 'Order and the way of comparing' },
     order_line: { ru: '2 : 3 и 3 : 2 — разные отношения', uz: "2 : 3 va 3 : 2 — har xil nisbatlar", en: '2 : 3 and 3 : 2 are different ratios' },
     diff_line: { ru: 'отношение — это деление, а не вычитание', uz: "nisbat bu bo'lish, ayirish emas", en: 'a ratio is division, not subtraction' },

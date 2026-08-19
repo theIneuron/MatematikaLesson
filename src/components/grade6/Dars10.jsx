@@ -301,7 +301,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Знаменатели не складывают', uz: "Maxrajlar qo'shilmaydi", en: 'Denominators are never added' },
     bad_line: { ru: '1/2 + 1/3 = 2/5', uz: '1/2 + 1/3 = 2/5', en: '1/2 + 1/3 = 2/5' },
     good_line: { ru: '1/2 + 1/3 = 3/6 + 2/6 = 5/6', uz: '1/2 + 1/3 = 3/6 + 2/6 = 5/6', en: '1/2 + 1/3 = 3/6 + 2/6 = 5/6' },

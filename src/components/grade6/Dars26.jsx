@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Модуль больше — число меньше', uz: 'Modul katta — son kichik', en: 'Bigger absolute value, smaller number' },
     bad_line: { ru: 'ошибка: −10 больше −2, ведь 10 больше 2', uz: 'xato: −10 soni −2 dan katta, axir 10 soni 2 dan katta', en: 'mistake: −10 beats −2 because 10 beats 2' },
     good_line: { ru: 'верно: −10 левее, значит −10 меньше', uz: "to'g'ri: −10 chaproqda, demak −10 kichik", en: 'right: −10 sits further left, so it is smaller' },

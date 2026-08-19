@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Медиана требует порядка', uz: 'Mediana tartib talab qiladi', en: 'The median needs order' },
     bad_line: { ru: 'ошибка: в ряду 3, 9, 5 медиана 9', uz: 'xato: 3, 9, 5 qatorida mediana 9', en: 'mistake: in 3, 9, 5 the median is 9' },
     good_line: { ru: 'верно: 3, 5, 9 — медиана 5', uz: "to'g'ri: 3, 5, 9 — mediana 5", en: 'right: 3, 5, 9 gives median 5' },

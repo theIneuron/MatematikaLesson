@@ -312,7 +312,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Округляем один раз', uz: 'Bir marta yaxlitlaymiz', en: 'Round only once' },
     bad_line: { ru: '2,449 → 2,45 → 2,5', uz: '2,449 → 2,45 → 2,5', en: '2.449 → 2.45 → 2.5' },
     good_line: { ru: '2,449 → до десятых сразу: 2,4', uz: "2,449 → o'ndanlargacha darrov: 2,4", en: '2.449 → straight to tenths: 2.4' },

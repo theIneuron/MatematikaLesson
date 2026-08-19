@@ -306,7 +306,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Порядок и единичный отрезок', uz: 'Tartib va birlik kesma', en: 'Order and the unit segment' },
     order_line: { ru: '−5 стоит левее −2, значит −5 меньше', uz: '−5 soni −2 dan chapda, demak −5 kichik', en: '−5 is left of −2, so −5 is smaller' },
     bad_line: { ru: 'ошибка: «−5 больше −2, ведь 5 больше 2»', uz: 'xato: «−5 soni −2 dan katta, axir 5 soni 2 dan katta»', en: 'mistake: “−5 is more than −2 because 5 is more than 2”' },

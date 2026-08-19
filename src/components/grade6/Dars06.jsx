@@ -459,7 +459,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Кратно и 4, и 6?', uz: "4 ga ham, 6 ga ham karralimi?", en: 'A multiple of both 4 and 6?' },
+    title: { ru: 'Кратно и 4, и 6', uz: "4 ga ham, 6 ga ham karralimi", en: 'A multiple of both 4 and 6' },
     lead: { ru: 'Число должно делиться на оба сразу.', uz: "Son ikkalasiga birdan bo'linishi kerak.", en: 'The number must divide by both at once.' },
     bin_a: { ru: 'Кратно обоим', uz: 'Ikkalasiga karrali', en: 'Multiple of both' },
     bin_b: { ru: 'Не кратно', uz: 'Karrali emas', en: 'Not a multiple' },

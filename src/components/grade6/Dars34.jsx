@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Одна чаша не считается', uz: "Bitta tovoq hisobga o'tmaydi", en: 'One pan is not enough' },
     bad_line: { ru: 'ошибка: x + 3 = 10, значит x = 13', uz: 'xato: x + 3 = 10, demak x = 13', en: 'mistake: x + 3 = 10 so x = 13' },
     good_line: { ru: 'верно: снимаем 3 с обеих частей, x = 7', uz: "to'g'ri: ikkala tomondan 3 olamiz, x = 7", en: 'right: take 3 off both sides, x = 7' },
@@ -463,7 +463,7 @@ const CONTENT = {
 
   s_bins: {
     eyebrow: { ru: 'Практика', uz: 'Mashq', en: 'Practice' },
-    title: { ru: 'Подходит ли x = 4', uz: "x = 4 to'g'ri keladimi", en: 'Does x = 4 fit' },
+    title: { ru: 'Подходит ли x = 4?', uz: "x = 4 to'g'ri keladimi?", en: 'Does x = 4 fit?' },
     lead: { ru: 'Подставь четвёрку и сравни части.', uz: "To'rtni qo'ying va tomonlarni solishtiring.", en: 'Substitute four and compare the sides.' },
     bin_a: { ru: 'x = 4 подходит', uz: "x = 4 to'g'ri keladi", en: 'x = 4 fits' },
     bin_b: { ru: 'x = 4 не подходит', uz: "x = 4 to'g'ri kelmaydi", en: 'x = 4 does not fit' },

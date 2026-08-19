@@ -303,7 +303,7 @@ const CONTENT = {
   },
 
   s_edge: {
-    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilishadi', en: 'Where mistakes happen' },
+    eyebrow: { ru: 'Где ошибаются', uz: 'Qayerda xato qilinadi', en: 'Where mistakes happen' },
     title: { ru: 'Не десять, а тысяча', uz: "O'n emas, ming", en: 'Not ten but a thousand' },
     bad_line: { ru: 'ошибка: 1 дм³ = 10 см³', uz: 'xato: 1 dm³ = 10 sm³', en: 'mistake: 1 dm³ = 10 cm³' },
     good_line: { ru: 'верно: 1 дм³ = 1000 см³ = 1 литр', uz: "to'g'ri: 1 dm³ = 1000 sm³ = 1 litr", en: 'right: 1 dm³ = 1000 cm³ = 1 litre' },
