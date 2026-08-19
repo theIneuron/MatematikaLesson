@@ -31,7 +31,7 @@
 // ============================================================================
 // eslint-disable-next-line no-unused-vars
 import React from 'react'
-import { L, MATH_FONT, Row, T, useT } from './core.jsx'
+import { Frac, L, MATH_FONT, Row, T, useT } from './core.jsx'
 import { CaseStrip } from './feed.jsx'
 import { SceneBand } from './method.jsx'
 import { A, W, makeLesson } from './screens.jsx'
@@ -579,7 +579,7 @@ const S4 = {
     items: [
       {
         id: 'safe',
-        show: 'a : 7',
+        show: <Frac num="a" den="7"/>,
         name: L('BUTUN IFODA', 'ЦЕЛОЕ ВЫРАЖЕНИЕ', 'INTEGRAL EXPRESSION'),
         hint: L(
           "Bu yerda a yettiga bo'linadi. Yetti hech qachon nol bo'lmaydi, demak har doim hisoblanadi.",
@@ -590,7 +590,7 @@ const S4 = {
       {
         id: 'risky',
         right: true,
-        show: '7 : a',
+        show: <Frac num="7" den="a"/>,
         name: L('RATSIONAL KASR', 'РАЦИОНАЛЬНАЯ ДРОБЬ', 'RATIONAL FRACTION'),
       },
     ],

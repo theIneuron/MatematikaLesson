@@ -221,7 +221,9 @@ export function PickBroken({ items, ask, after, afterSay, onSolved, audio }) {
   return (
     <>
       <Ask>{t(ask)}</Ask>
-      <div className="g8-pb">
+      {/* Место под подпись резервируется СРАЗУ, до ответа: иначе подпись
+          выезжает на знаменатель, а карточка дёргается по высоте. */}
+      <div className={'g8-pb' + (items.some((x) => x.name) ? ' has-names' : '')}>
         {items.map((it) => (
           <button
             key={it.id}
@@ -233,9 +235,13 @@ export function PickBroken({ items, ask, after, afterSay, onSolved, audio }) {
             disabled={!!picked}
             onClick={() => pick(it)}
           >
-            {/* `show` бывает записью (строка) и бывает текстом на трёх языках:
-                на опоре это формула, на хуке — вариант ответа словами. */}
-            {typeof it.show === 'string' ? it.show : t(it.show)}
+            {/* `show` приходит в трёх видах: строкой, текстом на трёх языках
+                и ГОТОВОЙ ДРОБЬЮ (узел с чертой). Дробь через двоеточие
+                читается как деление, а не как запись, поэтому там, где речь
+                о дроби, приходит узел (методист, 2026-08-17). */}
+            {typeof it.show === 'string'
+              ? it.show
+              : React.isValidElement(it.show) ? it.show : t(it.show)}
             {picked && it.name ? <b className="g8-pb-name">{t(it.name)}</b> : null}
           </button>
         ))}
@@ -1864,7 +1870,8 @@ export const FEED_STYLES = `
    экраном был длинным абзацем; вместо него подпись выезжает на той
    записи, о которой речь, а полный разбор уходит в озвучку. */
 .lesson-root .g8-pb-card { position: relative; }
-.g8-pb-name { position: absolute; left: 50%; bottom: 8px; transform: translateX(-50%);
+.lesson-root .g8-pb.has-names .g8-pb-card { padding-bottom: 42px; }
+.g8-pb-name { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
   font-size: 15px; letter-spacing: .06em; text-transform: uppercase; color: ${T.accent};
   white-space: nowrap; animation: g8-pb-name-in .5s .25s ease-out both; }
 @keyframes g8-pb-name-in {
