@@ -1336,6 +1336,11 @@ const S12 = {
     tasks: [
       {
         expr: <Row size="big" align="center">{F('3', '2x − 8')}</Row>,
+        ok: L(
+          "Ha. 2x = 8 dan x = 4 chiqadi, o'n olti emas. Ikkiga bo'linadi, ko'paytirilmaydi.",
+          'Да. Из 2x = 8 выходит x = 4, а не шестнадцать. На два делят, а не умножают.',
+          'Yes. From 2x = 8 you get x = 4, not sixteen. You divide by two, not multiply.',
+        ),
         question: L(
           "Aziz yozdi: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Qaysi qator noto'g'ri?",
           'Азиз написал: 2x − 8 = 0 → 2x = 8 → x = 16 → x ≠ 16. Какая строка неверна?',
@@ -1350,6 +1355,11 @@ const S12 = {
       },
       {
         expr: <Row size="big" align="center">{F('x', 'x − 6')}</Row>,
+        ok: L(
+          "Ha. Surat aniqlanishga ta'sir qilmaydi. Qarash kerak bo'lgan joy maxraj, ya'ni x − 6.",
+          'Да. Числитель на определённость не влияет. Смотреть надо на знаменатель, то есть на x − 6.',
+          'Yes. The numerator does not affect definedness. What matters is the denominator, that is x − 6.',
+        ),
         question: L(
           "Dilnoza yozdi: x ≠ 0, chunki suratda x turibdi. To'g'rimi?",
           'Дилноза написала: x ≠ 0, потому что в числителе стоит x. Верно?',
