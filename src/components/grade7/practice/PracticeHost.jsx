@@ -52,6 +52,7 @@ function beep(ok) {
 const UI = {
   uz: { check: 'Tekshirish', retry: 'Qayta urinish', correct: "To'g'ri", wrong: 'Maslahat' },
   ru: { check: 'Проверить', retry: 'Заново', correct: 'Верно', wrong: 'Подсказка' },
+  en: { check: 'Check', retry: 'Try again', correct: 'Correct', wrong: 'Hint' },
 };
 
 export default function PracticeHost({ Question, lang: langProp = 'uz', onLangChange, onReset, title, showLanguageSwitch = true }) {

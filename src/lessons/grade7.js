@@ -183,4 +183,12 @@ export const grade7Amaliy = [
     desc: "10 topshiriq: amallar tartibi, qavs, o'nli va oddiy kasrlar, manfiy sonlar, harfli ifodalar. O'nta xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars01/Dars01Practice.jsx')),
   },
+  {
+    // 2-DARS AMALIYOTI. Umumiy qatlam ustida yig'ilgan: mexanikalar
+    // `practice/kit.jsx` da, topshiriq fayllarida faqat ma'lumot.
+    slug: 'dars02-amaliyot-ozgaruvchili-ifodalar',
+    title: "Dars 2. Amaliyot: o'zgaruvchili ifodalar",
+    desc: "10 topshiriq: yashiringan ko'paytirish, manfiy son qo'yish, ikki o'zgaruvchi, bir harf ikki joyda, vaziyatdan yozuvga va nolga bo'lish chegarasi. Yetti xil mexanika, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/practice/dars02/Dars02Practice.jsx')),
+  },
 ]
