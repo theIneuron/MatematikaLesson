@@ -45,12 +45,12 @@ const T = {
 // КОНФИГ УРОКА (props от LMS) — модульный, ставится корневым компонентом.
 // Движок/SFX/AI читают отсюда; экраны не нужно перепровязывать.
 // ============================================================
-// navLock: «Davom» tugmasini qulflash. Sinf kontraktida (OVOZ_KONTRAKTI_6SINF §6,
-// metodist qarori 2026-08-05) qulf YOQILGAN. Metodist 2026-08-13 da 1-dars uchun
-// uni O'CHIRISHNI so'radi. Bayroq konfigda turadi, chunki qulf QO'SHILGAN
-// komponentlar (QuestionScreen, RevealScreen, PickDivisors, DragMatch, Classify)
-// shu fayldan 2-7-darslarga ham import qilinadi: kodda o'chirilsa, ular ham
-// qulfini yo'qotardi. Default `true` — qolgan darslar tegilmagan.
+// navLock: «Davom» tugmasini qulflash. Metodist qarori 2026-08-20: qulf YOQILGAN
+// BUTUN SINFDA — tugma slayd ovozi to'liq aytilgandan keyin ochiladi. Ilgari
+// 46 darsning hammasi `navLock: false` uzatardi (2026-08-13 dagi 1-dars qarori
+// shablon orqali hamma darsga tarqalgan edi), ya'ni qulf amalda ishlamasdi.
+// Ikki klapan saqlanadi: ovoz o'chirilgan bo'lsa qulf yo'q, TTS javob bermasa
+// esa NAV_UNLOCK_MS dan keyin o'zi ochiladi.
 let ttsConfig = { ttsApiBase: '', correctSoundUrl: '', wrongSoundUrl: '', aiGradingEndpoint: '', studentName: '', voiceGender: 'm', navLock: true };
 
 // navLock HAR safar `true` ga qaytariladi va faqat chaqiruvchi uni o'chirishi
@@ -70,6 +70,11 @@ const navLocked = (cond) => (ttsConfig.navLock === false ? false : cond);
 // Ekran qulfi klapani: TTS javob bermasa, shu vaqtdan keyin «Davom» ochiladi.
 // 9 s — eng uzun izoh ham boshlanishga ulguradi, lekin bola kutib qolmaydi.
 const NAV_UNLOCK_MS = 9000;
+// Сторож зависшей озвучки: реплика слайда нигде не длиннее минуты, поэтому
+// после этого срока замок открывается в любом случае.
+const NAV_STUCK_MS = 75000;
+// Тот же сторож для кадров показа: кадр ждёт свою реплику, но не дольше.
+const STEP_STUCK_MS = 45000;
 
 const LANG_TAG = {
   ru: '[Русское произношение]',
@@ -978,12 +983,20 @@ function useAudio(segments) {
     [segmentsKey, lang],
   );
   // Qulf klapani: TTS umuman javob bermasa ham dars o'tib ketishi kerak.
+  // MUHIM: taymer faqat ovoz BOSHLANMAGAN holatda ishlaydi. Ilgari u har doim
+  // ishlardi va uzun izohli slaydda qulf to'qqizinchi soniyada ochilardi — bola
+  // tushuntirishni eshitmasdan o'tib ketishi mumkin edi (metodist 2026-08-20).
   const [navTimedOut, setNavTimedOut] = useState(false);
   useEffect(() => {
-    setNavTimedOut(false);
-    const id = setTimeout(() => setNavTimedOut(true), NAV_UNLOCK_MS);
-    return () => clearTimeout(id);
-  }, [stableSegments]);
+    // Сброс через таймер: setState прямо в теле эффекта ловится линтом класса.
+    const reset = setTimeout(() => setNavTimedOut(false), 0);
+    // Короткий клапан: ОЗВУЧКА НЕ НАЧАЛАСЬ — значит TTS не ответил.
+    const quick = state.hasStarted ? null : setTimeout(() => setNavTimedOut(true), NAV_UNLOCK_MS);
+    // Длинный сторож: озвучка началась и не кончается. Так бывает при обрыве
+    // сети: без него урок с включённым замком встал бы насмерть.
+    const stuck = setTimeout(() => setNavTimedOut(true), NAV_STUCK_MS);
+    return () => { clearTimeout(reset); if (quick) clearTimeout(quick); clearTimeout(stuck); };
+  }, [stableSegments, state.hasStarted]);
 
   useEffect(() => {
     const engine = getAudioEngine();
@@ -1770,7 +1783,15 @@ const RevealScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, ren
   // Ovoz umuman boshlanmasa (mute / TTS yo'q) — stepMs bo'yicha o'tamiz.
   useEffect(() => {
     if (step >= last) return undefined;
-    if (audio.isBusy) { voicedRef.current = true; return undefined; }
+    // Звук идёт — ждём его. Но не бесконечно: если реплика зависла (обрыв сети,
+    // молчащий движок), кадр всё равно сменится, иначе с включённым замком урок
+    // встанет насмерть. Обычный ход этим сторожем не задевается: он длиннее
+    // самой длинной реплики.
+    if (audio.isBusy) {
+      voicedRef.current = true;
+      const guard = setTimeout(advance, STEP_STUCK_MS);
+      return () => clearTimeout(guard);
+    }
     const tid = setTimeout(advance, voicedRef.current ? 700 : stepMs(lines[step]));
     return () => clearTimeout(tid);
     /* eslint-disable-next-line */
@@ -2186,7 +2207,9 @@ const RuleScreen = ({ screen, screenContent, onNext, onPrev, totalScreens, examp
   const t = useT();
   const lang = useLang();
   const audio = useAudio([{ id: `s${screen}_a`, text: pickL(c.audio, lang), trigger: 'on_mount', waits_for: null }]);
-  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext onClick={onNext} label={<NextLabel/>}/></>);
+  // Экран правила тоже ждёт озвучку: без этого он был единственным, где кнопка
+  // открыта сразу (решение методиста 2026-08-20 — замок на КАЖДОМ слайде).
+  const navContent = (<><NavBack onPrev={onPrev} label={<BackLabel/>}/><NavNext disabled={navLocked(!audio.canAdvance)} onClick={onNext} label={<NextLabel/>}/></>);
   return (
     <Stage screen={screen} totalScreens={totalScreens} navContent={navContent} audioState={audio}>
       <div style={{ position: 'relative', flex: 1, display: 'flex', flexDirection: 'column', gap: 'clamp(14px, 2.3vw, 20px)', justifyContent: 'center' }}>

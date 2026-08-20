@@ -181,17 +181,18 @@ jimjit ekran yo'q.
 
 ## 6. EKRAN QULFI (metodist qarori 2026-08-05)
 
-> ⚠ **2026-08-13, metodist qarori: 1-DARSDA QULF O'CHIRILDI.** «Davom» tugmasi
-> 1-darsda hech qachon yopilmaydi — na ovoz, na topshiriq uni ushlab turmaydi.
-> Bayroq `Dars01.jsx` dagi `ttsConfig.navLock` (default `true`), darsning ildizi
-> uni `false` qilib uzatadi, `navLocked()` esa barcha `NavNext disabled` larni
-> o'raydi. `useAudio` TEGILMAGAN, shuning uchun 2-46-darslarda qulf o'z joyida.
-> `configureLesson` har chaqiruvda `navLock` ni `true` ga QAYTARADI: `ttsConfig`
-> shu modulda yashaydi va 2-7-darslar uni shu yerdan oladi, aks holda 1-darsdan
-> keyin ochilgan dars qulfini jimgina yo'qotardi (tekshirilgan: 1-dars -> 2-dars
-> bitta sessiyada, 2-darsda tugma yopiq qoladi).
+> ⚠ **2026-08-20, metodist qarori: QULF BUTUN SINFDA YOQILDI.** «Davom» tugmasi
+> slayd ovozi TO'LIQ aytilgandan keyin ochiladi.
+> 2026-08-13 da qulf 1-dars uchun o'chirilgan edi, lekin `navLock: false` shablon
+> orqali 46 darsning HAMMASIGA tarqalgan edi — ya'ni qulf amalda hech qayerda
+> ishlamasdi. Endi darslar `navLock` ni umuman uzatmaydi, qatlamdagi standart
+> qiymat `true`.
 >
-> Quyidagi tavsif 2-46-darslar uchun kuchda qoladi.
+> Klapan ham to'g'rilandi: NAV_UNLOCK_MS taymeri ilgari HAR DOIM ishlardi va uzun
+> izohli slaydda qulf to'qqizinchi soniyada ochilardi. Endi taymer faqat ovoz
+> BOSHLANMAGAN holatda ishlaydi — ya'ni TTS javob bermasa. Ovoz o'chirilgan
+> bo'lsa qulf yo'q: dars ovozsiz ham to'liq o'tiladi (tekshirilgan brauzerda:
+> ovoz bilan tugma 35-soniyada, ovozsiz 15-soniyada ochildi).
 
 «Davom» tugmasi ovoz tugamaguncha ochilmaydi.
 

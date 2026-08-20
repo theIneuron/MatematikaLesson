@@ -3524,9 +3524,7 @@ export default function DivisibilityLesson({
   const [previewLang, setPreviewLang] = useState('uz');
   const lang = langProp || previewLang;
   const safeName = studentName || (tri(lang, 'Ученик', "O'quvchi", 'Student'));
-  // navLock: false — metodist qarori 2026-08-13: 1-darsda slayd o'tishi
-  // qulflanmaydi. Boshqa darslar bu qiymatni uzatmaydi, ularda qulf o'z joyida.
-  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm', navLock: false });
+  configureLesson({ ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm' });
   const safeOnFinished = onFinished || ((payload) => { console.log('[Preview] onFinished payload:', payload); });
 
   // PREVIEW_START nolga teng, agar URL da `?screen=` bo'lmasa — LMS da shunday.

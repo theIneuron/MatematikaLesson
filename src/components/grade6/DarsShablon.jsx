@@ -188,8 +188,6 @@ export default function LessonRoot({
   configureLesson({
     ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '',
     aiGradingEndpoint: aiGradingEndpoint || '', studentName: studentName || '', voiceGender: voiceGender || 'm',
-    // Теория 6 класса не оценивается и не запирает переход (решение методиста).
-    navLock: false,
   });
   const [current, setCurrent] = useState(Math.min(PREVIEW_START, TOTAL_SCREENS - 1));
   const [answers, setAnswers] = useState([]);

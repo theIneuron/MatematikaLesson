@@ -1460,8 +1460,6 @@ export default function DivisibilityRulesLesson({
   configureLesson({
     ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '',
     aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm',
-    // Теория 6 класса не оценивается и не запирает переход (решение методиста).
-    navLock: false,
   });
 
   const [current, setCurrent] = useState(Math.min(PREVIEW_START, TOTAL_SCREENS - 1));

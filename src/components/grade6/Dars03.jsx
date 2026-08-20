@@ -1353,7 +1353,6 @@ export default function DigitSumRulesLesson({
   configureLesson({
     ttsApiBase: ttsApiBase || '', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '',
     aiGradingEndpoint: aiGradingEndpoint || '', studentName: safeName, voiceGender: voiceGender || 'm',
-    navLock: false,
   });
 
   const [current, setCurrent] = useState(Math.min(PREVIEW_START, TOTAL_SCREENS - 1));
