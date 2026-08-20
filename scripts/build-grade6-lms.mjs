@@ -17,7 +17,6 @@ const sourceDir = path.join(rootDir, 'src', 'components', 'grade6');
 // Собранные файлы лежат рядом с уроками класса (перенесены из корня 2026-08-12).
 const outputDir = path.join(sourceDir, 'lms-grade6-standalone');
 const themePath = path.join(sourceDir, 'Grade6TheoryTheme.css');
-const fractionHostPath = path.join(sourceDir, 'FractionTheoryLesson.jsx');
 const ttsMathColonPath = path.join(sourceDir, 'ttsMathColon.js');
 // Umumiy qatlam: darsning obvyazkasi (Stage, ovoz, tipik ekranlar, bazaviy CSS).
 const screensPath = path.join(sourceDir, 'screens.jsx');
@@ -127,22 +126,13 @@ export default function ${componentName}(props) {
 `;
   }
 
-  return `
-import { createElement, Fragment } from 'react';
-import FractionTheoryLesson from ${JSON.stringify(toImportPath(fractionHostPath))};
-import grade6Css from ${JSON.stringify(themeImport)};
-
-const LESSON = ${jsonForSource(lesson)};
-
-export default function ${componentName}(props) {
-  return createElement(
-    Fragment,
-    null,
-    createElement('style', { 'data-grade6-lms-theme': ${JSON.stringify(lessonNumber)} }, grade6Css),
-    createElement(FractionTheoryLesson, { lesson: LESSON, ...props }),
-  );
-}
-`;
+  // Старая форма урока (движок FractionTheoryLesson) удалена 2026-08-20: все 46
+  // уроков класса собраны на общем слое и импортируют screens.jsx. Если урок
+  // сюда всё-таки дошёл, значит он потерял этот импорт — молча собрать его не из
+  // чего, поэтому падаем с внятным текстом, а не с «файл не найден».
+  throw new Error(`${lessonFileName(lessonNumber)} не импортирует ./screens.jsx. `
+    + 'Старый движок FractionTheoryLesson удалён, собирать урок не из чего: '
+    + 'верните импорт общего слоя.');
 }
 
 function makeBundlePlugin({ entryCode, lesson }) {
