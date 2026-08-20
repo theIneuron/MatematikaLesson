@@ -8,17 +8,22 @@ const ROOT = globalThis.nodeRepl?.cwd ?? process.cwd();
 const GRADE4_DIR = path.join(ROOT, 'src/components/grade4');
 const FRAME_VECTOR = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
 // Metodist qarori 2026-08-19: 21-30 darslar qaytadan quriladi (tushuntirish ->
-// misol ritmi, bosib ochiladigan qadamlar, etalon yakuniy slaydi). Ularda eski
-// 15 slaydli qolip va avtomatik frame vektori amal qilmaydi, shuning uchun
-// qolipga bogliq tekshiruvlar otkazib yuboriladi; ornida qolipdan mustaqil
-// tekshiruv ishlaydi va toliq kontraktni grade4-etalon-contract-audit.mjs
-// tekshiradi. Qolgan hamma tekshiruv (ovoz tozaligi, skroll, a11y, importlar)
-// bu darslarga ham baravar qollanadi.
-const REBUILT_LESSONS = new Set([22]);
+// misol ritmi, bosib ochiladigan qadamlar). Ularda eski 15 slaydli qolip va
+// avtomatik frame vektori amal qilmaydi, shuning uchun qolipga bogliq
+// tekshiruvlar otkazib yuboriladi; ornida qolipdan mustaqil tekshiruv ishlaydi
+// va toliq kontraktni grade4-etalon-contract-audit.mjs tekshiradi. Qolgan hamma
+// tekshiruv (ovoz tozaligi, skroll, a11y, importlar) bu darslarga ham baravar.
+const REBUILT_LESSONS = new Set([22, 23, 24, 25, 26, 27, 28, 29]);
 const QUESTION_SCREENS = [8, 9, 10, 11, 12, 13];
 const scoredScreensFor = (lesson) => lesson >= 28
   ? [8, 9, 10, 12, 13]
   : QUESTION_SCREENS;
+// Dars30 bu ro'yxatdan chiqarildi (metodist qarori 2026-08-20): u umumiy
+// `src/components/grade4/kit/` qobig'i ustida qaytadan qurildi va 16 ekranli
+// kontraktda ishlaydi. Bu skript esa yakka fayl ichidagi 15 slaydli qolipni
+// tekshiradi: u kit darsida infratuzilmani "yo'q" deb hisoblab, xato beradi.
+// Dars30 ni `scripts/grade4-kit-lesson-guard.mjs Dars30` tekshiradi (11-20 va
+// 41-51 darslar bilan bir xil zanjirda).
 const EXPECTED = {
   22: 'dars22-sonning-kasr-qismini-topish',
   23: 'dars23-kasrli-masalalar',
@@ -28,7 +33,6 @@ const EXPECTED = {
   27: 'dars27-massa-birliklari',
   28: 'dars28-vaqt-birliklari',
   29: 'dars29-yuza-birliklari',
-  30: 'dars30-kattalik-birliklarini-aylantirish',
 };
 
 const failures = [];
@@ -127,8 +131,7 @@ function expectedOptionCount(lesson, screen) {
 
 // Qolipdan mustaqil tekshiruv: variantli har bir blokda har bir variantga
 // korinadigan izoh va TTS-toza izoh bolishi shart, correctIndex esa haqiqiy
-// variantga ishora qilishi kerak. Xuk (bashorat) bloki chetlab otiladi: unda
-// togri javob yoq, bitta neytral izoh bor.
+// variantga ishora qilishi kerak.
 function validateRebuiltContent(lesson, content) {
   if (!content || content.__parseError) {
     fail(lesson, "CONTENT parse bolmadi" + (content?.__parseError ? ": " + content.__parseError : ""));
@@ -138,6 +141,9 @@ function validateRebuiltContent(lesson, content) {
   if (!screens.length) fail(lesson, "CONTENT ekranlari topilmadi");
   const blocks = [];
   for (const [key, item] of screens) {
+    // Xuk (bashorat) bloki chetlab otiladi: unda togri javob yoq, bitta
+    // neytral izoh bor - shuning uchun correctIndex va per-option izoh talab
+    // qilinmaydi.
     const neutralBlock = item?.neutral !== undefined && item?.correctIndex === undefined;
     if (Array.isArray(item?.options) && !neutralBlock) blocks.push([key, item]);
     for (const [nestedKey, nested] of Object.entries(item ?? {})) {
@@ -269,7 +275,24 @@ for (const [lessonText, slug] of Object.entries(EXPECTED)) {
   if (/\bdraggable=|onDragStart=|onDrop=/.test(source)) fail(lesson, 'majburiy drag topildi');
   if (/\bFREE_NAV\b/.test(source)) fail(lesson, 'FREE_NAV flagi topildi');
   if (/<img\b|https?:\/\/[^'"`)]+\.(?:png|jpe?g|webp|gif)/i.test(source)) fail(lesson, 'tashqi raster rasm topildi');
-  if (/from\s+['"]\.\//.test(source)) fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi');
+  // Umumiy 4-sinf modullari ruxsat etilgan: ular LMS uchun build vaqtida
+  // bitta bundle'ga yig'iladi, har bir darsga nusxalash esa CLAUDE.md §5 ni
+  // buzardi va bitta bagni o'nlab faylda tuzatishga majbur qilardi.
+  // Metodist qarori 2026-08-18. Boshqa har qanday relative import — xato.
+  const SHARED_GRADE4_MODULES = new Set([
+    './theoryNavigation.js',
+    './Grade4Finale.jsx',
+    './mobileZoom.js',
+    './modelSteps.jsx',
+    './supportHint.jsx',
+    './grade4GeometryFrameStyles.js',
+  ]);
+  const foreignImports = [...source.matchAll(/from\s+['"](\.[^'"]+)['"]/g)]
+    .map((match) => match[1])
+    .filter((specifier) => !SHARED_GRADE4_MODULES.has(specifier));
+  if (foreignImports.length) {
+    fail(lesson, 'LMS single-file kontraktini buzuvchi relative import topildi: ' + foreignImports.join(', '));
+  }
   if (/\boverflow(?:-[xy])?\s*:\s*(?:auto|scroll)\b/i.test(source) || /\boverflow(?:X|Y)?\s*:\s*["'](?:auto|scroll)["']/i.test(source)) fail(lesson, 'scroll beruvchi overflow qoidasi qolgan');
   if (/\b(?:scrollTo|scrollIntoView)(?:\?\.)?\s*\(/.test(source)) fail(lesson, 'scrollTo/scrollIntoView chaqiruvi qolgan');
   if (/scrollbar-(?:gutter|width|color)|::-webkit-scrollbar/i.test(source)) fail(lesson, 'scrollbar CSS qolgan');
@@ -287,7 +310,14 @@ for (const [lessonText, slug] of Object.entries(EXPECTED)) {
   if (!/audio\.pushOneOff\([^;\n]*feedbackAudio|const spoken = c\.feedbackAudio/.test(source)) fail(lesson, 'TTS-safe per-option feedback ishlatilmagan');
 
   if (lesson === 24 && /taqqoslash|сравнен|yaxlit|округл|qo'shish|ayirish|сложен|вычитан/i.test(source)) fail(lesson, "o'nli kasr mavzu chegarasidan tashqari amal/taqqoslash topildi");
-  if (lesson === 25 && /[∪∩]|kesishma|пересечени[ея]/i.test(source)) fail(lesson, "formal to'plam amali yoki termin topildi");
+  // Metodist qarori 2026-08-20: qayta qurilgan 25-darsda darslikdan bir qadam
+  // yuqori bitta kesishma ekrani bor (ikki mustaqil belgi bo'yicha to'rt zona),
+  // shuning uchun kesishma so'zi taqiqdan chiqadi. Formal belgilar esa 4-sinf
+  // uchun baribir taqiqlangan.
+  if (lesson === 25) {
+    const forbiddenSetTerms = REBUILT_LESSONS.has(25) ? /[∪∩]/ : /[∪∩]|kesishma|пересечени[ея]/i;
+    if (forbiddenSetTerms.test(source)) fail(lesson, "formal to'plam amali yoki termin topildi");
+  }
   if (lesson === 29 && /\b(?:ar|gektar)\b|\b(?:ар|гектар)\b/i.test(source)) fail(lesson, 'ar/gektar mavzudan tashqari topildi');
   if (lesson === 30 && !/Universal ×10 yo'q|Универсального ×10 нет/.test(source)) fail(lesson, "universal ×10 rad etilishi aniq ko'rsatilmagan");
 }

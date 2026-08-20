@@ -1,147 +1,1058 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 
-// 4-sinf · Dars 29 · Yuza birliklari
-// 15 ekran · 50 asosiy audio beat · barcha interaction ixtiyoriy, navigatsiya ochiq.
+// 4-SINF · 29-DARS · Yuza birliklari (area-4-29-v2)
+// ---------------------------------------------------------------------------
+// SYUJET: Taqsimot markazining OMBOR POLI. Polni plitka bilan qoplash uchun
+//   yuza kerak: tanga mayda kvadratda, daftar varag'i santimetr kvadratda,
+//   ombor poli metr kvadratda, viloyat kilometr kvadratda. Hisob varaqasida
+//   bitta birlik bo'lishi kerak, Bit esa yuzani uzunlik qoidasi bilan
+//   aylantiradi va bir kvadrat detsimetrni o'n kvadrat santimetr deb yozadi.
+// YADRO: yuza birliklari orasida 100 turadi, chunki kvadratning tomoni 10
+//   marta oshsa, yuzasi 10 ni 10 ga ko'paytirgancha, ya'ni 100 marta oshadi.
+//   Uzunlikda 10 turgan joyda yuzada 100 turadi.
+// DARSLIK ASOSI (4-sinf darsligi): 182-bet - tomoni bir detsimetr bo'lgan
+//   kvadratning yuzasi bir kvadrat detsimetr va dm kvadrat yozuvi; 183-bet
+//   1-topshiriq - tomoni bir metr bo'lgan kvadrat va xonaning yuzasi (uzunligi
+//   to'rt metr, kengligi uch metr); 184-bet 6-topshiriq - viloyat yuzasi
+//   kilometr kvadratda; 185-bet - palletka bilan yuzani sanash.
+// RITM: s2 tushuntirish, s3 misol, s4 tushuntirish, s5 misol, s6 saralash,
+//   s7 qoida, keyin xato ustida ish, hayotiy holat, moslashtirish, uch savol,
+//   taqqoslash va yakuniy topshiriq.
+// FRAME: s0 - to'q ko'k kanonik sahna, qolgan hamma ekran och ko'k ramkada.
+// BIT: faqat s0, s8 (o'z xatosi) va s14 da hamda javob izohida.
+// MEXANIKA: 26, 27 va 28-darslar bilan umumiy blok (birliklar zanjiri,
+//   munosabatlar jadvali, saralash maydoni, taqqoslash kartalari, raqam
+//   paneli, hisob qatori). Darsning o'z modeli - birlik kvadratlar to'ri.
+// MAVZU CHEGARASI: faqat mm kvadrat, cm kvadrat, dm kvadrat, m kvadrat va
+//   km kvadrat. Yer maydoni uchun ishlatiladigan katta birliklar bu darsda
+//   yo'q: ular keyingi sinflarda beriladi.
+// Misconception: M1 yuzaga uzunlik qoidasini qo'llash (yuz o'rniga o'n);
+//   M2 tomonni yuza deb hisoblash; M3 birlikni obyektga qaramay tanlash;
+//   M4 metr kvadratni yuz santimetr kvadrat deb hisoblash.
+// ---------------------------------------------------------------------------
+
 const T = {
   bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
   accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
   navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
   warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
 };
-const FRAME_COUNTS = [3, 4, 4, 4, 4, 4, 4, 5, 2, 2, 2, 2, 2, 3, 5];
-const TOTAL_SCREENS = FRAME_COUNTS.length;
-const LESSON_META = { lessonId: 'measure-4-29-v1', slug: 'dars29-yuza-birliklari', lessonTitle: { uz: 'Yuza birliklari', ru: 'Единицы площади', en: 'Area units' }, skillTags: ['area-units', 'square-units', 'scale-factor', 'measurement-choice'] };
-const SCREEN_META = [
-  { id: 's0', type: 'hook', template: 'hypothesis-choice', goal: 'diagnose-prior-model', mechanic: 'hypothesis-choice', active: true, assessed: false, scored: false, scope: 'hook', misconceptions: ['surface-feature-choice'] },
-  { id: 's1', type: 'exploration', template: 'guided-model', goal: 'inspect-first-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's2', type: 'exploration', template: 'guided-compare', goal: 'compare-representations', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['representation-swap'] },
-  { id: 's3', type: 'exploration', template: 'guided-construction', goal: 'build-mathematical-model', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['construction-order'] },
-  { id: 's4', type: 'exploration', template: 'guided-second-model', goal: 'connect-second-representation', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's5', type: 'exploration', template: 'guided-pattern', goal: 'discover-pattern', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['visual-guess'] },
-  { id: 's6', type: 'rule', template: 'guided-verification', goal: 'verify-discovery', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: ['unchecked-result'] },
-  { id: 's7', type: 'rule', template: 'guided-rule', goal: 'formulate-rule', mechanic: 'guided-reveal', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-  { id: 's8', type: 'test', template: 'choice-retry', goal: 'apply-model', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-operation'] },
-  { id: 's9', type: 'test', template: 'choice-retry', goal: 'apply-representation', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['wrong-representation'] },
-  { id: 's10', type: 'test', template: 'choice-retry', goal: 'independent-application', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['calculation-slip'] },
-  { id: 's11', type: 'strategy', template: 'strategy-choice', goal: 'choose-strategy', mechanic: 'strategy-choice', active: true, assessed: false, scored: false, scope: null, misconceptions: ['strategy-without-check'] },
-  { id: 's12', type: 'error', template: 'error-repair', goal: 'repair-typical-error', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'module-mikro', misconceptions: ['repeat-typical-error'] },
-  { id: 's13', type: 'case', template: 'life-transfer', goal: 'transfer-to-life-context', mechanic: 'choice-retry', active: true, assessed: true, scored: true, scope: 'final', misconceptions: ['context-data-mismatch'] },
-  { id: 's14', type: 'summary', template: 'guided-reflection', goal: 'reflect-and-bridge', mechanic: 'guided-reveal-and-reflection', active: true, assessed: false, scored: false, scope: null, misconceptions: [] },
-];
+
+// Uch tilli qiymat. Uch argument ham majburiy: bo'sh qolsa bola boshqa tildagi
+// matnni ko'radi.
 const bi = (uz, ru, en) => ({ uz, ru, en });
-const SOLUTION_LABEL = bi('YECHIM', 'РЕШЕНИЕ', 'SOLUTION');
-const REWARD_TITLE = bi("Yuza birliklari ustasi", 'Мастер единиц площади', "Area units expert");
-const REFLECTION = {
-  question: bi("Bu mavzuda sizga qaysi usul ko'proq yordam berdi?", 'Какой способ больше всего помог вам в этой теме?', 'Which method helped you most in this topic?'),
-  options: [
-    bi("Modelni bosqichma-bosqich tekshirish", 'Проверять модель шаг за шагом', 'Checking the model step by step'),
-    bi("Ikki tasvirni solishtirish", 'Сравнивать два представления', 'Comparing two representations'),
-    bi("Javobni boshqa usul bilan tekshirish", 'Проверять ответ другим способом', 'Checking the answer another way'),
-  ],
+
+const stableChoiceOffset = (lessonId, length) => {
+  let hash = 2166136261;
+  for (const char of `${lessonId}:${length}`) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return length > 0 ? (hash >>> 0) % length : 0;
 };
+
+// To'g'ri javob har ekranda boshqa pozitsiyada turadi, lekin tartib barqaror:
+// orqaga qaytganda variantlar joyidan sakramaydi.
+const buildOptionOrder = (length, correctIndex, lessonId, ordinal = 0) => {
+  const natural = Array.from({ length: Math.max(0, length) }, (_, index) => index);
+  if (length < 2 || !Number.isInteger(correctIndex) || correctIndex < 0 || correctIndex >= length) return natural;
+  const target = (stableChoiceOffset(lessonId, length) + ordinal * (length - 1)) % length;
+  const order = natural.filter((index) => index !== correctIndex);
+  order.splice(target, 0, correctIndex);
+  return order;
+};
+
+// Har ekranning kirish ovozidagi segment soni. Baholanadigan ekranlarda
+// kirish segmentlari va on_correct birga hisoblanadi.
+const FRAME_COUNTS = [3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 5];
+// FRAME_COUNTS.length bilan bir xil bo'lishi shart (auditlar shu literalni o'qiydi).
+const TOTAL_SCREENS = 15;
+
+const LESSON_META = {
+  lessonId: 'area-4-29-v2',
+  slug: 'dars29-yuza-birliklari',
+  lessonTitle: bi('29-dars. Yuza birliklari', 'Урок 29. Единицы площади', 'Lesson 29. Units of area'),
+  skillTags: ['area_units', 'unit_square', 'area_relations', 'unit_choice', 'area_conversion', 'area_compare'],
+  finalReflectionRequired: true,
+};
+
+const SCREEN_META = [
+  { id: 's0', type: 'hook', subtype: 'story-prediction', template: 'HookPredict', mechanic: 'HookPredict', goal: 'Predict how many square centimetres one square decimetre holds', misconceptions: ['length rule applied to area'], active: true, scored: false, scope: 'hook', resetOnReturn: true },
+  { id: 's1', type: 'diagnostic', subtype: 'prior-knowledge', template: 'InlineCheckScreen', mechanic: 'InlineCheckScreen', goal: 'Recall the side relation between a decimetre and a centimetre', misconceptions: ['side confused with the area'], active: true, scored: false, scope: null },
+  { id: 's2', type: 'exploration', subtype: 'unit-square-grid', template: 'StepReveal', mechanic: 'StepReveal', goal: 'Count the unit squares inside one square decimetre', misconceptions: ['only one row counted'], active: true, scored: false, scope: null },
+  { id: 's3', type: 'test', subtype: 'dm2-to-cm2', template: 'TapNumPadScreen', mechanic: 'TapNumPadScreen', goal: 'Convert square decimetres into square centimetres', misconceptions: ['multiplied by ten instead of a hundred'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's4', type: 'exploration', subtype: 'unit-ladder', template: 'StepReveal', mechanic: 'StepReveal', goal: 'See a hundred on every step of the area chain', misconceptions: ['ten used on the area chain'], active: true, scored: false, scope: null },
+  { id: 's5', type: 'test', subtype: 'm2-to-dm2', template: 'TapNumPadScreen', mechanic: 'TapNumPadScreen', goal: 'Convert square metres into square decimetres', misconceptions: ['wrong factor used'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's6', type: 'test', subtype: 'unit-choice', template: 'SortBoard', mechanic: 'SortBoard', goal: 'Choose the area unit that fits each surface', misconceptions: ['unit chosen without the size of the surface'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's7', type: 'rule', subtype: 'textbook-method', template: 'RuleScreen', mechanic: 'RuleScreen', goal: 'Read the table of area units', misconceptions: ['relations mixed up'], active: true, scored: false, scope: null },
+  { id: 's8', type: 'error', subtype: 'misconception-repair', template: 'ErrorRepair', mechanic: 'ErrorRepair', goal: 'Repair the record where the length rule was used for area', misconceptions: ['length rule applied to area'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's9', type: 'case', subtype: 'life-context', template: 'TapNumPadScreen', mechanic: 'TapNumPadScreen', goal: 'Find the area of a rectangular room in square metres', misconceptions: ['perimeter found instead of the area'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's10', type: 'matching', subtype: 'unit-pair-link', template: 'MatchingBoard', mechanic: 'MatchingBoard', goal: 'Link each area unit with the number of smaller units inside it', misconceptions: ['matching by the first digit'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's11', type: 'test', subtype: 'three-rounds', template: 'RoundsScreen', mechanic: 'RoundsScreen', goal: 'Convert areas in three directions', misconceptions: ['multiplied instead of divided', 'wrong factor used'], active: true, scored: true, scoreUnits: 3, scope: 'module-mikro' },
+  { id: 's12', type: 'strategy', subtype: 'compare-areas', template: 'CompareCards', mechanic: 'CompareCards', goal: 'Compare two areas written in different units', misconceptions: ['compared by the digits only'], active: true, scored: true, scoreUnits: 1, scope: 'module-mikro' },
+  { id: 's13', type: 'test', subtype: 'final-diagnostic', template: 'FinalRounds', mechanic: 'FinalRounds', goal: 'Convert areas and choose the unit in new cases', misconceptions: ['no check of the factor'], active: true, scored: true, scoreUnits: 3, scope: 'final' },
+  { id: 's14', type: 'summary', subtype: 'title-claim', template: 'TitleClaim', mechanic: 'TitleClaim', goal: 'Consolidate the area relations and bridge to mixed unit conversion', misconceptions: ['partial result check'], active: true, scored: false, scope: null },
+];
+
+const TOPIC_KICKER = bi('Yuza birliklari', 'Единицы площади', 'Units of area');
+const UNIT_CM2 = bi('cm²', 'см²', 'cm²');
+const UNIT_DM2 = bi('dm²', 'дм²', 'dm²');
+const UNIT_M2 = bi('m²', 'м²', 'm²');
+const LOG_MEASURE = bi('Yuza', 'Площадь', 'Area'),
+  LOG_RECORD = bi('Hisob varaqasi', 'Расчётный лист', 'Calculation sheet');
+const LADDER_UNITS = [
+  { key: 'mm²', factor: '' },
+  { key: 'cm²', factor: '100' },
+  { key: 'dm²', factor: '100' },
+  { key: 'm²', factor: '100' },
+];
+
+
+// ---------------------------------------------------------------------------
+// KONTENT. Ekranda ko'rinadigan matnda raqam va belgi bo'lishi mumkin; ovozga
+// ketadigan har bir maydon (audio..., feedbackAudio) faqat so'z bilan yoziladi.
+// ---------------------------------------------------------------------------
 const CONTENT = {
   s0: {
-    eyebrow: bi('Quyosh paneli', 'Солнечная панель', "Solar panel"), title: bi("Tomoni 1 dm bo'lgan kvadrat nechta cm²?", 'Сколько см² в квадрате со стороной 1 дм?', "How many cm² are in a square with a side length of 1 dm?"), scene: 'panel', closedSet: true,
-    frames: [bi('Tomon: 1 dm', 'Сторона: 1 дм', "Side: 1 dm"), bi('1 dm = 10 cm', '1 дм = 10 см', "1 dm = 10 cm"), bi('1 dm²: 10, 100 yoki 1 000 cm²?', '1 дм²: 10, 100 или 1 000 см²?', "1 dm²: 10, 100 or 1 000 cm²?")],
-    question: bi("Bit 10 cm² dedi. Sizning taxminingiz?", 'Бит сказал 10 см². Какова твоя гипотеза?', "Bit said 10 cm². What is your estimate?"), options: [bi('10 cm²', '10 см²', "10 cm²"), bi('100 cm²', '100 см²', "100 cm²"), bi('1 000 cm²', '1 000 см²', "1 000 cm²")], neutral: bi("Taxmin saqlandi. Kvadrat birliklarni kataklar bilan tekshiramiz.", 'Гипотеза сохранена. Проверим квадратные единицы по клеткам.', "Estimate saved. We will check the square units using a grid."),
-    audio: { intro: { uz: ["Quyosh panelining har bir tomoni bir detsimetr.", "Bit bir detsimetr o'n santimetr bo'lgani uchun yuza ham o'n kvadrat santimetr dedi.", "Panelga nechta santimetrli kvadrat sig'ishini taxmin qiling. Javobni keyin katakli modelda tekshiramiz."], ru: ['Каждая сторона солнечной панели равна одному дециметру.', 'Бит решил, что раз один дециметр равен десяти сантиметрам, то площадь равна десяти квадратным сантиметрам.', 'Предположи, сколько сантиметровых квадратов поместится на панели. Позже проверим ответ на клетчатой модели.'], en: ["Each side of the solar panel is one decimetre.","Bit said the area was ten square centimetres because one decimetre equals ten centimetres.","Estimate how many squares with sides of one centimetre fit on the panel. We will check the answer later using a grid model."] } },
+    eyebrow: bi('Ombor poli', 'Пол склада', 'The warehouse floor'),
+    title: bi('Bit yuzani uzunlik qoidasi bilan aylantirdi', 'Бит перевёл площадь по правилу длины', 'Bit converted the area with the length rule'),
+    question: bi('1 dm² nechta cm²?', 'Сколько см² в 1 дм²?', 'How many cm² are in 1 dm²?'),
+    options: [
+      bi('100 cm²', '100 см²', '100 cm²'),
+      bi('10 cm²', '10 см²', '10 cm²'),
+      bi('Hali aniq emas', 'Пока не ясно', 'Not clear yet'),
+    ],
+    neutral: bi("Taxmin saqlandi. Endi kvadratni birlik kvadratlarga bo'lib sanaymiz.", 'Гипотеза сохранена. Теперь разделим квадрат на единичные квадраты и посчитаем.', 'Your prediction is saved. Now we will split the square into unit squares and count.'),
+    audio: {
+      intro: {
+        uz: [
+          'Ombor poli plitka bilan qoplanadi. Hisob varaqasida yuza bitta birlikda yozilishi kerak.',
+          "Bit bir kvadrat detsimetrni o'n kvadrat santimetr deb yozdi: uzunlik qoidasini ishlatdi.",
+          'Bir kvadrat detsimetrda nechta kvadrat santimetr bor? Taxminingizni tanlang.',
+        ],
+        ru: [
+          'Пол склада покрывают плиткой. В расчётном листе площадь пишут в одной единице.',
+          'Бит записал один квадратный дециметр как десять квадратных сантиметров: он взял правило длины.',
+          'Сколько квадратных сантиметров в одном квадратном дециметре? Выбери свою гипотезу.',
+        ],
+        en: [
+          'The warehouse floor is being tiled. In the calculation sheet the area is written in one unit.',
+          'Bit wrote one square decimetre as ten square centimetres: he used the length rule.',
+          'How many square centimetres are in one square decimetre? Choose your prediction.',
+        ],
+      },
+    },
   },
+
   s1: {
-    eyebrow: bi('Uzunlik va yuza', 'Длина и площадь', "Length and area"), title: bi("Chiziq boshqa, sirt boshqa", 'Линия и поверхность измеряются по-разному', "A line and a surface are measured differently"), scene: 'dimension',
-    frames: [bi('Kesma uzunligi: 5 cm', 'Длина отрезка: 5 см', "Line segment length: 5 cm"), bi("Tomoni 1 cm bo'lgan kvadrat", 'Квадрат со стороной 1 см', "A square with a side length of 1 cm"), bi('Uning yuzasi: 1 cm²', 'Его площадь: 1 см²', "Its area: 1 cm²"), bi('cm — uzunlik; cm² — yuza', 'см — длина; см² — площадь', "cm — length; cm² — area")],
-    audio: { uz: ["Besh santimetrli kesma bitta yo'nalishdagi uzunlikni bildiradi.", "Endi tomoni bir santimetr bo'lgan kvadratni ko'ramiz.", "Bu kvadratning yuzasi bir kvadrat santimetr.", "Santimetr uzunlik birligi, kvadrat santimetr esa yuza birligi. Ularni aralashtirmang."], ru: ['Отрезок длиной пять сантиметров показывает длину в одном направлении.', 'Теперь рассмотрим квадрат со стороной один сантиметр.', 'Площадь этого квадрата равна одному квадратному сантиметру.', 'Сантиметр является единицей длины, а квадратный сантиметр единицей площади. Не смешивай их.'], en: ["A line segment five centimetres long shows length in one direction.","Now look at a square with sides of one centimetre.","The area of this square is one square centimetre.","A centimetre is a unit of length, while a square centimetre is a unit of area. Do not mix them up."] },
+    eyebrow: bi('Tayanch bilim', 'Опорное знание', 'Prior knowledge'),
+    title: bi('Kvadratning tomoni', 'Сторона квадрата', 'The side of the square'),
+    prompt: bi("Tomoni 1 dm bo'lgan kvadratning tomoni necha santimetr?", 'Сколько сантиметров в стороне квадрата со стороной 1 дм?', 'How many centimetres long is the side of a square with side 1 dm?'),
+    chips: [
+      bi('10 cm', '10 см', '10 cm'),
+      bi('100 cm', '100 см', '100 cm'),
+      bi('1 cm', '1 см', '1 cm'),
+    ],
+    correctIndex: 0,
+    note: {
+      right: bi("To'g'ri. Tomoni 10 cm. Yuza esa tomonlarni ko'paytirib topiladi.", 'Верно. Сторона 10 см. А площадь находят умножением сторон.', 'Correct. The side is 10 cm. The area is found by multiplying the sides.'),
+      wrong: bi('Uzunlik zanjirida detsimetr bilan santimetr orasida 10 turadi.', 'В цепочке длины между дециметром и сантиметром стоит 10.', 'In the length chain between a decimetre and a centimetre stands 10.'),
+    },
+    audio: {
+      intro: {
+        uz: [
+          'Yuzani hisoblashdan oldin tomonni eslaymiz.',
+          "Tomoni bir detsimetr bo'lgan kvadratning tomoni necha santimetr? Javobni tanlang.",
+        ],
+        ru: [
+          'Прежде чем считать площадь, вспомним сторону.',
+          'Сколько сантиметров в стороне квадрата со стороной один дециметр? Выбери ответ.',
+        ],
+        en: [
+          'Before finding the area, let us recall the side.',
+          'How many centimetres long is the side of a square with side one decimetre? Choose the answer.',
+        ],
+      },
+    },
   },
+
   s2: {
-    eyebrow: bi('Birlik kvadrat', 'Единичный квадрат', "Unit square"), title: bi("Bir kvadrat birlik nimani bildiradi?", 'Что означает одна квадратная единица?', "What does one square unit mean?"), scene: 'unit',
-    frames: [bi('1 mm × 1 mm = 1 mm²', '1 мм × 1 мм = 1 мм²', "1 mm × 1 mm = 1 mm²"), bi('1 cm × 1 cm = 1 cm²', '1 см × 1 см = 1 см²', "1 cm × 1 cm = 1 cm²"), bi('Birlik nomi tomon birligidan olinadi', 'Название берется от единицы стороны', "The unit name comes from the side's unit"), bi("Yuza — nechta birlik kvadrat sig'ishi", 'Площадь — сколько единичных квадратов помещается', "Area — how many unit squares fit")],
-    audio: { uz: ["Bir millimetrni bir millimetrga ko'paytirib, bir kvadrat millimetr yuzani olamiz.", "Bir santimetrni bir santimetrga ko'paytirib, bir kvadrat santimetr yuzani olamiz.", "Kvadrat birlikning nomi uning tomoni qaysi birlikda o'lchanganidan keladi.", "Yuzani topish sirtga nechta shunday birlik kvadrat sig'ishini aniqlashdir."], ru: ['Один миллиметр умножаем на один миллиметр и получаем один квадратный миллиметр площади.', 'Один сантиметр умножаем на один сантиметр и получаем один квадратный сантиметр площади.', 'Название квадратной единицы зависит от единицы, которой измерена ее сторона.', 'Найти площадь означает определить, сколько таких единичных квадратов помещается на поверхности.'], en: ["One millimetre times one millimetre gives an area of one square millimetre.","One centimetre times one centimetre gives an area of one square centimetre.","The name of a square unit comes from the unit used to measure its side.","Finding an area means working out how many such unit squares fit on the surface."] },
+    eyebrow: bi('Tushuntirish', 'Объяснение', 'Explanation'),
+    title: bi('Birlik kvadratlarni sanaymiz', 'Считаем единичные квадраты', 'We count the unit squares'),
+    lead: bi("Bosib boring: kvadrat birlik kvadratlarga bo'linadi va ular sanaladi.", 'Нажимай: квадрат делится на единичные квадраты, и мы их считаем.', 'Tap to move on: the square splits into unit squares and we count them.'),
+    steps: [
+      {
+        chip: bi('Tomoni 10 cm', 'Сторона 10 см', 'Side 10 cm'),
+        caption: bi("Tomoni 1 dm bo'lgan kvadratning tomoni 10 cm.", 'У квадрата со стороной 1 дм сторона равна 10 см.', 'A square with side 1 dm has a side of 10 cm.'),
+      },
+      {
+        chip: bi('Bitta qator: 10', 'Один ряд: 10', 'One row: 10'),
+        caption: bi("Birinchi qatorga 10 ta kvadrat santimetr sig'adi.", 'В первый ряд входит 10 квадратных сантиметров.', 'The first row holds 10 square centimetres.'),
+      },
+      {
+        chip: bi('10 qator: 100', '10 рядов: 100', '10 rows: 100'),
+        caption: bi('Bunday qator 10 ta: 10 · 10 = 100 cm². Demak 1 dm² = 100 cm².', 'Таких рядов 10: 10 · 10 = 100 см². Значит 1 дм² = 100 см².', 'There are 10 such rows: 10 · 10 = 100 cm². So 1 dm² = 100 cm².'),
+      },
+    ],
+    done: bi('Tomon 10 marta oshsa, yuza 100 marta oshadi.', 'Если сторона больше в 10 раз, площадь больше в 100 раз.', 'When the side grows ten times, the area grows a hundred times.'),
+    audio: {
+      intro: {
+        uz: [
+          'Bitta kvadrat detsimetrga qaraymiz.',
+          'Har qadamni ochish uchun tugmani bosing.',
+          "Kvadrat birlik kvadratlarga bo'linadi.",
+        ],
+        ru: [
+          'Посмотрим на один квадратный дециметр.',
+          'Чтобы открыть каждый шаг, нажимай кнопку.',
+          'Квадрат делится на единичные квадраты.',
+        ],
+        en: [
+          'Let us look at one square decimetre.',
+          'Tap the button to open each step.',
+          'The square splits into unit squares.',
+        ],
+      },
+      steps: {
+        uz: [
+          "Kvadratning tomoni o'n santimetr.",
+          "Birinchi qatorga o'nta kvadrat santimetr sig'adi.",
+          "Bunday qator o'nta. O'nni o'nga ko'paytirsak yuz chiqadi. Demak bir kvadrat detsimetr yuz kvadrat santimetr.",
+        ],
+        ru: [
+          'Сторона квадрата десять сантиметров.',
+          'В первый ряд входит десять квадратных сантиметров.',
+          'Таких рядов десять. Десять умножить на десять это сто. Значит один квадратный дециметр это сто квадратных сантиметров.',
+        ],
+        en: [
+          'The side of the square is ten centimetres.',
+          'The first row holds ten square centimetres.',
+          'There are ten such rows. Ten times ten is one hundred. So one square decimetre is one hundred square centimetres.',
+        ],
+      },
+    },
   },
+
   s3: {
-    eyebrow: bi("Kattalashtirib ko'ramiz", 'Рассмотрим крупнее', "Let's zoom in"), title: bi('1 cm² ichida nechta mm²?', 'Сколько мм² внутри 1 см²?', "How many mm² are in 1 cm²?"), scene: 'zoom-mm',
-    frames: [bi('1 cm = 10 mm', '1 см = 10 мм', "1 cm = 10 mm"), bi('Har qatorda 10 ta mm²', 'В каждом ряду 10 мм²', "10 mm² in each row"), bi('Shunday 10 ta qator', 'Таких рядов 10', "10 such rows"), bi('1 cm² = 100 mm²', '1 см² = 100 мм²', "1 cm² = 100 mm²")],
-    audio: { uz: ["Bir santimetrli tomon o'nta millimetrga bo'linadi.", "Kvadratning har bir qatorida o'nta kvadrat millimetr joylashadi.", "Bunday qatorlarning o'zi ham o'nta.", "O'nni o'nga ko'paytiramiz. Bir kvadrat santimetr yuz kvadrat millimetrga teng."], ru: ['Сторона длиной один сантиметр делится на десять миллиметров.', 'В каждом ряду квадрата помещается десять квадратных миллиметров.', 'Таких рядов тоже десять.', 'Умножаем десять на десять. Один квадратный сантиметр равен ста квадратным миллиметрам.'], en: ["A side one centimetre long is divided into ten millimetres.","Each row of the square contains ten square millimetres.","There are also ten such rows.","Multiply ten by ten. One square centimetre equals one hundred square millimetres."] },
+    eyebrow: bi('Amaliyot', 'Практика', 'Practice'),
+    title: bi('Kvadrat detsimetrni aylantiramiz', 'Переводим квадратные дециметры', 'We convert square decimetres'),
+    lead: bi('Hisob varaqasiga 3 dm² ni kvadrat santimetrda yozish kerak.', 'В расчётный лист нужно записать 3 дм² в квадратных сантиметрах.', 'The calculation sheet needs 3 dm² written in square centimetres.'),
+    question: bi('3 dm² nechta cm²?', 'Сколько см² в 3 дм²?', 'How many cm² are in 3 dm²?'),
+    answer: 300,
+    from: 'dm²',
+    to: 'cm²',
+    hint: bi("Bitta dm² da 100 cm² bor, demak 3 ni 100 ga ko'paytiring.", 'В одном дм² сто см², значит умножь 3 на 100.', 'One dm² holds 100 cm², so multiply 3 by 100.'),
+    proof: bi('3 · 100 = 300 cm²', '3 · 100 = 300 см²', '3 · 100 = 300 cm²'),
+    audio: {
+      intro: {
+        uz: [
+          "Hisob varaqasining birinchi qatorini o'zingiz to'ldirasiz.",
+          'Uch kvadrat detsimetrni kvadrat santimetrda yozish kerak.',
+          'Zanjirga qarab hisoblang va javobni teringiz.',
+        ],
+        ru: [
+          'Первую строку расчётного листа заполнишь сам.',
+          'Нужно записать три квадратных дециметра в квадратных сантиметрах.',
+          'Посчитай по цепочке и набери ответ.',
+        ],
+        en: [
+          'You will fill the first row of the calculation sheet yourself.',
+          'Three square decimetres must be written in square centimetres.',
+          'Work it out using the chain and enter the answer.',
+        ],
+      },
+      on_correct: bi("To'g'ri. Uch kvadrat detsimetr uch yuz kvadrat santimetr bo'ladi.", 'Верно. Три квадратных дециметра это триста квадратных сантиметров.', 'Correct. Three square decimetres is three hundred square centimetres.'),
+      on_wrong: bi("Yuza zanjirida yuz turadi, o'n emas.", 'В цепочке площади стоит сто, а не десять.', 'In the area chain stands a hundred, not ten.'),
+    },
   },
+
   s4: {
-    eyebrow: bi('Detsimetrli model', 'Дециметровая модель', "Decimetre model"), title: bi('1 dm² ichida yuzta cm² bor', 'В 1 дм² сто см²', "There are one hundred cm² in 1 dm²"), scene: 'zoom-cm',
-    frames: [bi('1 dm = 10 cm', '1 дм = 10 см', "1 dm = 10 cm"), bi('Bir qatorda 10 cm²', 'В одном ряду 10 см²', "10 cm² in one row"), bi('Shunday 10 qator', 'Таких рядов 10', "10 such rows"), bi('1 dm² = 100 cm²', '1 дм² = 100 см²', "1 dm² = 100 cm²")],
-    audio: { uz: ["Bir detsimetrning har bir tomonida o'nta santimetr bor.", "Kvadratning bitta qatorida o'nta kvadrat santimetr joylashadi.", "Bunday qatorlarning o'zi ham o'nta.", "Jami yuzta kvadrat santimetr. Demak, bir kvadrat detsimetr yuz kvadrat santimetr."], ru: ['В каждой стороне одного дециметра десять сантиметров.', 'В одном ряду квадрата помещается десять квадратных сантиметров.', 'Таких рядов тоже десять.', 'Всего сто квадратных сантиметров. Значит, один квадратный дециметр равен ста квадратным сантиметрам.'], en: ["Each side of one decimetre contains ten centimetres.","One row of the square contains ten square centimetres.","There are also ten such rows.","That makes one hundred square centimetres. So one square decimetre equals one hundred square centimetres."] },
+    eyebrow: bi('Kashfiyot', 'Открытие', 'Discovery'),
+    title: bi('Yuza zanjirida har qadamda yuz turadi', 'В цепочке площади на каждом шаге сто', 'The area chain has a hundred on every step'),
+    lead: bi('Bosib boring: mm², cm², dm² va m² orasida bir xil son turadi.', 'Нажимай: между мм², см², дм² и м² стоит одно и то же число.', 'Tap to move on: the same number stands between mm², cm², dm² and m².'),
+    steps: [
+      {
+        chip: bi('1 cm² = 100 mm²', '1 см² = 100 мм²', '1 cm² = 100 mm²'),
+        caption: bi("Tomoni 1 cm bo'lgan kvadratda 10 · 10 = 100 ta mm² bor.", 'В квадрате со стороной 1 см находится 10 · 10 = 100 мм².', 'A square with side 1 cm holds 10 · 10 = 100 mm².'),
+      },
+      {
+        chip: bi('1 dm² = 100 cm²', '1 дм² = 100 см²', '1 dm² = 100 cm²'),
+        caption: bi('Keyingi qadamda ham 100 turadi: kvadrat 10 qator, har qatorda 10.', 'На следующем шаге тоже сто: квадрат из 10 рядов по 10.', 'The next step is a hundred as well: the square has 10 rows of 10.'),
+      },
+      {
+        chip: bi('1 m² = 100 dm²', '1 м² = 100 дм²', '1 m² = 100 dm²'),
+        caption: bi('Metr kvadratda 100 ta dm² bor. Uzunlikda 10 turgan joyda yuzada 100 turadi.', 'В квадратном метре 100 дм². Там, где в длине стоит 10, в площади стоит 100.', 'A square metre holds 100 dm². Where length uses 10, area uses 100.'),
+      },
+    ],
+    done: bi('Yuza birliklari orasida har doim 100 turadi.', 'Между единицами площади всегда стоит 100.', 'Between the units of area always stands 100.'),
+    audio: {
+      intro: {
+        uz: [
+          "Endi butun zanjirni ko'ramiz.",
+          'Har qadamni ochish uchun tugmani bosing.',
+          "Uzunlik zanjirida o'n turardi, yuzada esa boshqacha.",
+        ],
+        ru: [
+          'Теперь посмотрим на всю цепочку.',
+          'Чтобы открыть каждый шаг, нажимай кнопку.',
+          'В цепочке длины стояло десять, а в площади иначе.',
+        ],
+        en: [
+          'Now let us look at the whole chain.',
+          'Tap the button to open each step.',
+          'The length chain used ten, but area is different.',
+        ],
+      },
+      steps: {
+        uz: [
+          "Tomoni bir santimetr bo'lgan kvadratda yuz kvadrat millimetr bor.",
+          "Keyingi qadamda ham yuz turadi: o'n qator, har qatorda o'nta.",
+          'Kvadrat metrda yuz kvadrat detsimetr bor. Demak yuza zanjirida har doim yuz turadi.',
+        ],
+        ru: [
+          'В квадрате со стороной один сантиметр сто квадратных миллиметров.',
+          'На следующем шаге тоже сто: десять рядов по десять.',
+          'В квадратном метре сто квадратных дециметров. Значит в цепочке площади всегда стоит сто.',
+        ],
+        en: [
+          'A square with side one centimetre holds one hundred square millimetres.',
+          'The next step is a hundred as well: ten rows of ten.',
+          'A square metre holds one hundred square decimetres. So the area chain always uses a hundred.',
+        ],
+      },
+    },
   },
+
   s5: {
-    eyebrow: bi('Metrli kvadrat', 'Квадратный метр', "Square metre"), title: bi("Tomon o'n marta, yuza yuz marta", 'Сторона в десять раз, площадь в сто раз', "Side ten times as long, area one hundred times as large"), scene: 'meter',
-    frames: [bi('Tomoni 1 m → yuza 1 m²', 'Сторона 1 м → площадь 1 м²', "Side 1 m → area 1 m²"), bi('1 m = 10 dm', '1 м = 10 дм', "1 m = 10 dm"), bi('1 m² = 100 dm²', '1 м² = 100 дм²', "1 m² = 100 dm²"), bi('1 m² = 10 000 cm²', '1 м² = 10 000 см²', "1 m² = 10 000 cm²")],
-    audio: { uz: ["Tomoni bir metr bo'lgan kvadratning yuzasi bir kvadrat metr.", "Bir metr o'n detsimetrga teng.", "Kvadratning har tomonida o'nta detsimetr bor. O'nni o'nga ko'paytirib, yuz kvadrat detsimetr olamiz.", "Santimetrda har tomon yuzta bo'ladi. Yuzni yuzga ko'paytirib, o'n ming kvadrat santimetr olamiz."], ru: ['Площадь квадрата со стороной один метр равна одному квадратному метру.', 'Один метр равен десяти дециметрам.', 'В каждой стороне квадрата десять дециметров. Десять умножаем на десять и получаем сто квадратных дециметров.', 'В сантиметрах каждая сторона равна ста. Сто умножаем на сто и получаем десять тысяч квадратных сантиметров.'], en: ["The area of a square with sides of one metre is one square metre.","One metre equals ten decimetres.","Each side of the square contains ten decimetres. Multiply ten by ten to get one hundred square decimetres.","In centimetres, each side is one hundred. Multiply one hundred by one hundred to get ten thousand square centimetres."] },
+    eyebrow: bi('Amaliyot', 'Практика', 'Practice'),
+    title: bi('Kvadrat metrni aylantiramiz', 'Переводим квадратные метры', 'We convert square metres'),
+    lead: bi('Hisob varaqasida 2 m² turadi. Uni kvadrat detsimetrda yozish kerak.', 'В расчётном листе стоит 2 м². Нужно записать это в квадратных дециметрах.', 'The calculation sheet holds 2 m². It must be written in square decimetres.'),
+    question: bi('2 m² nechta dm²?', 'Сколько дм² в 2 м²?', 'How many dm² are in 2 m²?'),
+    answer: 200,
+    from: 'm²',
+    to: 'dm²',
+    hint: bi("Bitta m² da 100 dm² bor, demak 2 ni 100 ga ko'paytiring.", 'В одном м² сто дм², значит умножь 2 на 100.', 'One m² holds 100 dm², so multiply 2 by 100.'),
+    proof: bi('2 · 100 = 200 dm²', '2 · 100 = 200 дм²', '2 · 100 = 200 dm²'),
+    audio: {
+      intro: {
+        uz: [
+          'Hisob varaqasining ikkinchi qatori.',
+          'Ikki kvadrat metrni kvadrat detsimetrda yozish kerak.',
+          'Zanjirga qarab hisoblang va javobni teringiz.',
+        ],
+        ru: [
+          'Вторая строка расчётного листа.',
+          'Нужно записать два квадратных метра в квадратных дециметрах.',
+          'Посчитай по цепочке и набери ответ.',
+        ],
+        en: [
+          'The second row of the calculation sheet.',
+          'Two square metres must be written in square decimetres.',
+          'Work it out using the chain and enter the answer.',
+        ],
+      },
+      on_correct: bi("To'g'ri. Ikki kvadrat metr ikki yuz kvadrat detsimetr bo'ladi.", 'Верно. Два квадратных метра это двести квадратных дециметров.', 'Correct. Two square metres is two hundred square decimetres.'),
+      on_wrong: bi('Yuza zanjirida har qadamda yuz turadi.', 'В цепочке площади на каждом шаге стоит сто.', 'In the area chain every step uses a hundred.'),
+    },
   },
+
   s6: {
-    eyebrow: bi('Masshtabni tanlash', 'Выбор масштаба', "Choosing the scale"), title: bi('Sirtga mos birlik va katta hudud', 'Единица по размеру поверхности', "Choose a unit to suit the surface"), scene: 'choice',
-    frames: [bi('Mayda detal → mm² yoki cm²', 'Мелкая деталь → мм² или см²', "Small object → mm² or cm²"), bi('Stol yoki xona → dm² yoki m²', 'Стол или комната → дм² или м²', "Table or room → dm² or m²"), bi('Shahar hududi → km²', 'Территория города → км²', "City area → km²"), bi('1 km² = 1 000 000 m²', '1 км² = 1 000 000 м²', "1 km² = 1 000 000 m²")],
-    audio: { uz: ["Mayda detal yuzasi uchun kvadrat millimetr yoki kvadrat santimetr mos.", "Stol yoki xona kabi sirtlar uchun kvadrat detsimetr yoki kvadrat metr qulay.", "Shahar kabi katta hududlar kvadrat kilometrda ifodalanadi.", "Bir kvadrat kilometr bir million kvadrat metrga teng."], ru: ['Для площади мелкой детали подходит квадратный миллиметр или квадратный сантиметр.', 'Для стола или комнаты удобен квадратный дециметр или квадратный метр.', 'Большие территории, например город, выражают в квадратных километрах.', 'Один квадратный километр равен одному миллиону квадратных метров.'], en: ["A square millimetre or square centimetre is suitable for the area of a small object.","A square decimetre or square metre is convenient for surfaces such as a table or a room.","Large areas such as cities are measured in square kilometres.","One square kilometre equals one million square metres."] },
+    eyebrow: bi('Saralash', 'Сортировка', 'Sorting'),
+    title: bi("Har sathga o'z birligi", 'Каждой поверхности своя единица', 'Each surface has its own unit'),
+    lead: bi('Kartani bosing, keyin mos birlik ustunini bosing.', 'Нажми карточку, затем столбец нужной единицы.', 'Tap a card, then the column of the matching unit.'),
+    buckets: [
+      { label: bi('mm²', 'мм²', 'mm²'), caption: bi('juda kichik', 'совсем малое', 'very small') },
+      { label: bi('cm²', 'см²', 'cm²'), caption: bi('daftar sathi', 'на тетради', 'notebook sized') },
+      { label: bi('m²', 'м²', 'm²'), caption: bi('xona va pol', 'комната и пол', 'room and floor') },
+      { label: bi('km²', 'км²', 'km²'), caption: bi('shahar va viloyat', 'город и область', 'town and region') },
+    ],
+    items: [
+      {
+        text: bi('tanga sathi', 'поверхность монеты', 'the surface of a coin'),
+        bucket: 0,
+        wrongNote: bi("Tanga juda kichik: uning yuzasi kvadrat millimetrda o'lchanadi.", 'Монета очень маленькая: её площадь измеряют в квадратных миллиметрах.', 'A coin is very small: its area is measured in square millimetres.'),
+      },
+      {
+        text: bi("daftar varag'i", 'лист тетради', 'a notebook page'),
+        bucket: 1,
+        wrongNote: bi("Daftar varag'i qo'lga sig'adi: yuzasi kvadrat santimetrda o'lchanadi.", 'Лист тетради в руке: его площадь измеряют в квадратных сантиметрах.', 'A notebook page fits in your hand: its area is measured in square centimetres.'),
+      },
+      {
+        text: bi('sinf poli', 'пол класса', 'the classroom floor'),
+        bucket: 2,
+        wrongNote: bi("Pol yuzasi kvadrat metrda o'lchanadi: kvadrat santimetr juda kichik.", 'Площадь пола измеряют в квадратных метрах: квадратный сантиметр слишком мал.', 'A floor is measured in square metres: a square centimetre is too small.'),
+      },
+      {
+        text: bi('viloyat yuzasi', 'площадь области', 'the area of a region'),
+        bucket: 3,
+        wrongNote: bi("Viloyat juda katta: yuzasi kvadrat kilometrda o'lchanadi.", 'Область очень большая: её площадь измеряют в квадратных километрах.', 'A region is very large: its area is measured in square kilometres.'),
+      },
+    ],
+    doneNote: bi("Har sath o'z birligini oldi: birlik sathning kattaligiga qarab tanlanadi.", 'Каждая поверхность получила свою единицу: единицу выбирают по размеру поверхности.', 'Every surface got its unit: the unit is chosen by the size of the surface.'),
+    audio: {
+      intro: {
+        uz: [
+          "To'rt sath va to'rt birlik ustuni bor.",
+          'Birlik sathning kattaligiga qarab tanlanadi.',
+          'Kartani bosing, keyin mos ustunni bosing.',
+        ],
+        ru: [
+          'Есть четыре поверхности и четыре столбца единиц.',
+          'Единицу выбирают по размеру поверхности.',
+          'Нажми карточку, потом нужный столбец.',
+        ],
+        en: [
+          'There are four surfaces and four unit columns.',
+          'The unit is chosen by the size of the surface.',
+          'Tap a card, then the matching column.',
+        ],
+      },
+      on_correct: bi('Hamma karta joyiga tushdi. Endi birlikni sathga qarab tanlaysiz.', 'Все карточки на месте. Теперь ты выбираешь единицу по поверхности.', 'Every card is in place. Now you choose the unit by the surface.'),
+      on_wrong: bi("Sath qanchalik katta ekanini o'ylang: tangami yoki viloyatmi.", 'Подумай, насколько велика поверхность: монета или область.', 'Think how large the surface is: a coin or a region.'),
+    },
   },
+
   s7: {
-    eyebrow: bi('Munosabatlar xaritasi', 'Карта соотношений', "Map of relationships"), title: bi("Kvadrat birliklar orasidagi yo'l", 'Путь между квадратными единицами', "The path between square units"), scene: 'relations',
-    frames: [bi('1 cm² = 100 mm²', '1 см² = 100 мм²', "1 cm² = 100 mm²"), bi('1 dm² = 100 cm²', '1 дм² = 100 см²', "1 dm² = 100 cm²"), bi('1 m² = 100 dm² = 10 000 cm²', '1 м² = 100 дм² = 10 000 см²', "1 m² = 100 dm² = 10 000 cm²"), bi('1 km² = 1 000 000 m²', '1 км² = 1 000 000 м²', "1 km² = 1 000 000 m²"), bi('Katta → kichik: × · kichik → katta: ÷', 'Крупная → мелкая: × · мелкая → крупная: ÷', "Larger → smaller: × · smaller → larger: ÷")],
-    audio: { uz: ["Bir kvadrat santimetr yuz kvadrat millimetrga teng.", "Bir kvadrat detsimetr yuz kvadrat santimetrga teng.", "Bir kvadrat metr yuz kvadrat detsimetr yoki o'n ming kvadrat santimetr.", "Bir kvadrat kilometr bir million kvadrat metrga teng.", "Katta birlikdan kichik birlikka o'tishda tegishli omilga ko'paytiring. Kichikdan kattaga o'tishda shu omilga bo'ling."], ru: ['Один квадратный сантиметр равен ста квадратным миллиметрам.', 'Один квадратный дециметр равен ста квадратным сантиметрам.', 'Один квадратный метр равен ста квадратным дециметрам или десяти тысячам квадратных сантиметров.', 'Один квадратный километр равен одному миллиону квадратных метров.', 'При переходе от крупной единицы к мелкой умножай на нужный множитель. При переходе от мелкой к крупной дели на него.'], en: ["One square centimetre equals one hundred square millimetres.","One square decimetre equals one hundred square centimetres.","One square metre equals one hundred square decimetres or ten thousand square centimetres.","One square kilometre equals one million square metres.","When changing from a larger unit to a smaller unit, multiply by the correct factor. When changing from a smaller unit to a larger unit, divide by that factor."] },
+    eyebrow: bi('Qoida', 'Правило', 'Rule'),
+    title: bi('Yuza birliklari jadvali', 'Таблица единиц площади', 'The table of area units'),
+    rule: bi("Yuza birliklari orasida 100 turadi, chunki kvadratning tomoni 10 marta oshganda yuzasi 10 ni 10 ga ko'paytirgancha oshadi.", 'Между единицами площади стоит 100, потому что при увеличении стороны в 10 раз площадь растёт в 10 умножить на 10 раз.', 'Between the units of area stands 100, because when the side grows ten times the area grows ten times ten.'),
+    lines: [
+      bi("Kichik birlikka o'tishda 100 ga ko'paytiriladi.", 'При переходе к меньшей единице умножают на 100.', 'Moving to a smaller unit we multiply by 100.'),
+      bi("Katta birlikka o'tishda 100 ga bo'linadi.", 'При переходе к большей единице делят на 100.', 'Moving to a larger unit we divide by 100.'),
+    ],
+    tableRows: ['1 cm² = 100 mm²', '1 dm² = 100 cm²', '1 m² = 100 dm²', '1 m² = 10000 cm²'],
+    formula: bi('uzunlikda 10, yuzada 100', 'в длине 10, в площади 100', 'length uses 10, area uses 100'),
+    ruleSource: bi('4-sinf darsligi, 182-183-betlar', 'Учебник 4 класса, стр. 182-183', 'Grade 4 textbook, pp. 182-183'),
+    check: {
+      prompt: bi("Kvadrat detsimetrni kvadrat santimetrga aylantirganda nechaga ko'paytiriladi?", 'На сколько умножают, переводя квадратные дециметры в квадратные сантиметры?', 'What do we multiply by when turning square decimetres into square centimetres?'),
+      chips: [
+        bi('100 ga', 'на 100', 'by 100'),
+        bi('10 ga', 'на 10', 'by 10'),
+        bi('1000 ga', 'на 1000', 'by 1000'),
+      ],
+      correctIndex: 0,
+      note: {
+        right: bi("To'g'ri. Kvadratda 10 qator bor va har qatorda 10 ta birlik kvadrat.", 'Верно. В квадрате 10 рядов и в каждом ряду 10 единичных квадратов.', 'Correct. The square has 10 rows and each row holds 10 unit squares.'),
+        wrong: bi("10 uzunlik uchun. Yuzada tomon ham bo'yiga, ham eniga oshadi.", '10 нужно для длины. В площади сторона растёт и в длину, и в ширину.', '10 is for length. For area the side grows in both directions.'),
+      },
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Darslikdagi qoidani o'qiymiz.",
+          "Jadvalda to'rt qator bor: kvadrat santimetr, kvadrat detsimetr va kvadrat metr.",
+          "Qoidani o'qib, savolga javob bering.",
+        ],
+        ru: [
+          'Прочитаем правило из учебника.',
+          'В таблице четыре строки: квадратный сантиметр, квадратный дециметр и квадратный метр.',
+          'Прочитай правило и ответь на вопрос.',
+        ],
+        en: [
+          'Let us read the rule from the textbook.',
+          'The table has four rows: square centimetre, square decimetre and square metre.',
+          'Read the rule and answer the question.',
+        ],
+      },
+    },
   },
+
+
   s8: {
-    eyebrow: bi('Mashq 1/6', 'Задание 1/6', "Task 1/6"), title: bi('cm² dan mm² ga', 'Из см² в мм²', "cm² to mm²"), scene: 'zoom-mm', closedSet: true, frames: [bi('3 cm² = ? mm²', '3 см² = ? мм²', "3 cm² = ? mm²"), bi('Har bir cm² ichida 100 mm²', 'В каждом см² по 100 мм²', "Each cm² contains 100 mm²")], question: bi('3 cm² necha mm²?', 'Сколько мм² в 3 см²?', "How many mm² are in 3 cm²?"), options: [bi('30 mm²', '30 мм²', "30 mm²"), bi('300 mm²', '300 мм²', "300 mm²"), bi('3000 mm²', '3000 мм²', "3000 mm²")], correctIndex: 1, proof: bi('3 × 100 = 300 mm²', '3 × 100 = 300 мм²', "3 × 100 = 300 mm²"),
-    audio: { intro: { uz: ["Uch kvadrat santimetrni kvadrat millimetrga aylantiring.", "Har bir kvadrat santimetr ichidagi yuzta birlik kvadratni hisobga oling."], ru: ['Переведи три квадратных сантиметра в квадратные миллиметры.', 'Учти сто единичных квадратов внутри каждого квадратного сантиметра.'], en: ["Convert three square centimetres to square millimetres.","Remember the one hundred unit squares inside each square centimetre."] }, on_correct: bi("To'g'ri. Uchta yuzlik guruh jami uch yuz kvadrat millimetr.", 'Верно. Три группы по сто дают триста квадратных миллиметров.', "Correct. Three groups of one hundred make three hundred square millimetres."), on_wrong: [bi("Bu natija tomon uchun mos, yuza uchun emas. Faktor yuz.", 'Этот результат подходит для стороны, но не для площади. Множитель равен ста.', "This result fits a side length, not an area. The factor is one hundred."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu yerda yana bir ortiqcha nol qo'shilgan.", 'Здесь добавлен один лишний ноль.', "One extra zero has been added here.")] }, feedbackAudio: [bi("Bu natija tomon uchun mos. Yuza uchun yuzga ko'paytiring.", 'Этот результат подходит для стороны. Для площади умножь на сто.', "This result fits a side length. For area, multiply by one hundred."), bi("To'g'ri. Uch kvadrat santimetr uch yuz kvadrat millimetr.", 'Верно. Три квадратных сантиметра равны тремстам квадратным миллиметрам.', "Correct. Three square centimetres equal three hundred square millimetres."), bi("Bu yerda ortiqcha nol bor.", 'Здесь добавлен лишний ноль.', "There is an extra zero here.")],
+    eyebrow: bi('Xato ustida ish', 'Работа над ошибкой', 'Working on a mistake'),
+    title: bi("Bit uzunlik qoidasini yuzaga qo'lladi", 'Бит применил правило длины к площади', 'Bit applied the length rule to area'),
+    errorTop: bi('Plitka 1 dm²', 'Плитка 1 дм²', 'A tile of 1 dm²'),
+    errorBottom: bi('= 10 cm²', '= 10 см²', '= 10 cm²'),
+    question: bi('Bit qayerda xato qildi?', 'В чём ошибка Бита?', 'Where did Bit go wrong?'),
+    options: [
+      bi('Kvadratda 10 qator bor, har qatorda 10 ta: 100 cm²', 'В квадрате 10 рядов по 10: 100 см²', 'The square has 10 rows of 10: 100 cm²'),
+      bi("1 dm² ni 10 ga bo'lish kerak edi", '1 дм² нужно было разделить на 10', '1 dm² had to be divided by 10'),
+      bi("Xato yo'q, 1 dm² = 10 cm²", 'Ошибки нет, 1 дм² = 10 см²', 'There is no mistake, 1 dm² = 10 cm²'),
+    ],
+    correctIndex: 0,
+    feedback: [
+      bi("To'g'ri. 10 cm² faqat bitta qator. Butun kvadratda 10 · 10 = 100 cm² bor.", 'Верно. 10 см² это только один ряд. Во всём квадрате 10 · 10 = 100 см².', 'Correct. 10 cm² is only one row. The whole square holds 10 · 10 = 100 cm².'),
+      bi("Bo'lish katta birlikka o'tganda kerak. cm² dm² dan kichik, demak ko'paytiriladi.", 'Деление нужно при переходе к большей единице. см² меньше дм², значит умножают.', 'Division is for moving to a larger unit. A cm² is smaller than a dm², so we multiply.'),
+      bi("10 cm² bu bitta qator: kvadratning faqat o'ndan bir qismi.", '10 см² это один ряд: только десятая часть квадрата.', '10 cm² is one row: only a tenth of the square.'),
+    ],
+    feedbackAudio: [
+      bi("To'g'ri. O'n kvadrat santimetr faqat bitta qator, butun kvadratda yuz kvadrat santimetr bor.", 'Верно. Десять квадратных сантиметров это только один ряд, а во всём квадрате сто.', 'Correct. Ten square centimetres is only one row, while the whole square holds one hundred.'),
+      bi("Bo'lish katta birlikka o'tganda kerak.", 'Деление нужно при переходе к большей единице.', 'Division is for moving to a larger unit.'),
+      bi("O'n kvadrat santimetr kvadratning o'ndan bir qismi.", 'Десять квадратных сантиметров это десятая часть квадрата.', 'Ten square centimetres is a tenth of the square.'),
+    ],
+    proof: bi('1 dm² = 10 · 10 = 100 cm²', '1 дм² = 10 · 10 = 100 см²', '1 dm² = 10 · 10 = 100 cm²'),
+    audio: {
+      intro: {
+        uz: [
+          "Bit hisob varaqasining birinchi qatorini o'zi yozdi.",
+          "U bir kvadrat detsimetrni o'n kvadrat santimetr deb yozib qo'ydi.",
+          'Yozuvni tekshiring va xato qayerda ekanini toping.',
+        ],
+        ru: [
+          'Бит сам записал первую строку расчётного листа.',
+          'Он записал один квадратный дециметр как десять квадратных сантиметров.',
+          'Проверь запись и найди, где ошибка.',
+        ],
+        en: [
+          'Bit wrote the first row of the calculation sheet himself.',
+          'He wrote one square decimetre as ten square centimetres.',
+          'Check the record and find where the mistake is.',
+        ],
+      },
+    },
   },
+
   s9: {
-    eyebrow: bi('Mashq 2/6', 'Задание 2/6', "Task 2/6"), title: bi('dm² dan cm² ga', 'Из дм² в см²', "dm² to cm²"), scene: 'zoom-cm', closedSet: true, frames: [bi('7 dm² = ? cm²', '7 дм² = ? см²', "7 dm² = ? cm²"), bi('Har bir dm² ichida 100 cm²', 'В каждом дм² по 100 см²', "Each dm² contains 100 cm²")], question: bi('7 dm² necha cm²?', 'Сколько см² в 7 дм²?', "How many cm² are in 7 dm²?"), options: [bi('70 cm²', '70 см²', "70 cm²"), bi('7000 cm²', '7000 см²', "7000 cm²"), bi('700 cm²', '700 см²', "700 cm²")], correctIndex: 2, proof: bi('7 × 100 = 700 cm²', '7 × 100 = 700 см²', "7 × 100 = 700 cm²"),
-    audio: { intro: { uz: ["Yetti kvadrat detsimetrni kvadrat santimetrda yozing.", "Har bir kvadrat detsimetr ichidagi yuzta kvadrat santimetrni hisobga oling."], ru: ['Запиши семь квадратных дециметров в квадратных сантиметрах.', 'Учти сто квадратных сантиметров внутри каждого квадратного дециметра.'], en: ["Write seven square decimetres in square centimetres.","Remember the one hundred square centimetres inside each square decimetre."] }, on_correct: bi("To'g'ri. Yettita yuzlik guruh yetti yuz kvadrat santimetr.", 'Верно. Семь групп по сто дают семьсот квадратных сантиметров.', "Correct. Seven groups of one hundred make seven hundred square centimetres."), on_wrong: [bi("Yetmish chiziqli tomon omiliga mos. Yuzada yuzlik omil kerak.", 'Семьдесят соответствует линейному множителю. Для площади нужен множитель сто.', "Seventy uses the factor for a side length. Area needs a factor of one hundred."), bi("Bu javobda bitta ortiqcha nol bor.", 'В этом ответе один лишний ноль.', "This answer has one extra zero."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again.")] }, feedbackAudio: [bi("Bu tomon omili. Yuza uchun yuzga ko'paytiring.", 'Это множитель для стороны. Для площади умножь на сто.', "This is the factor for a side length. For area, multiply by one hundred."), bi("Bu javobda ortiqcha nol bor.", 'В этом ответе лишний ноль.', "This answer has an extra zero."), bi("To'g'ri. Yetti kvadrat detsimetr yetti yuz kvadrat santimetr.", 'Верно. Семь квадратных дециметров равны семистам квадратным сантиметрам.', "Correct. Seven square decimetres equal seven hundred square centimetres.")],
+    eyebrow: bi('Hayotiy holat', 'Жизненная ситуация', 'A real case'),
+    title: bi('Xonaning yuzasi', 'Площадь комнаты', 'The area of the room'),
+    lead: bi('Xonaning uzunligi 4 m, kengligi 3 m. Polni plitka bilan qoplash kerak.', 'Длина комнаты 4 м, ширина 3 м. Пол нужно покрыть плиткой.', 'The room is 4 m long and 3 m wide. The floor must be tiled.'),
+    question: bi('Xonaning yuzasi necha m²?', 'Сколько м² площадь комнаты?', 'What is the area of the room in m²?'),
+    answer: 12,
+    from: 'm²',
+    to: 'dm²',
+    hint: bi("Yuza tomonlarni ko'paytirib topiladi: uzunlik va kenglik.", 'Площадь находят умножением сторон: длины и ширины.', 'The area is found by multiplying the sides: length and width.'),
+    proof: bi('4 · 3 = 12 m²', '4 · 3 = 12 м²', '4 · 3 = 12 m²'),
+    audio: {
+      intro: {
+        uz: [
+          'Ombor yonidagi xonani ham qoplash kerak.',
+          "Xonaning uzunligi to'rt metr, kengligi uch metr.",
+          'Yuzani hisoblab, javobni teringiz.',
+        ],
+        ru: [
+          'Рядом со складом нужно покрыть и комнату.',
+          'Длина комнаты четыре метра, ширина три метра.',
+          'Посчитай площадь и набери ответ.',
+        ],
+        en: [
+          'The room next to the warehouse must be tiled too.',
+          'The room is four metres long and three metres wide.',
+          'Work out the area and enter the answer.',
+        ],
+      },
+      on_correct: bi("To'g'ri. To'rtni uchga ko'paytirsak o'n ikki kvadrat metr chiqadi.", 'Верно. Четыре умножить на три это двенадцать квадратных метров.', 'Correct. Four times three is twelve square metres.'),
+      on_wrong: bi("Yuza uchun tomonlar ko'paytiriladi, qo'shilmaydi.", 'Для площади стороны умножают, а не складывают.', 'For the area the sides are multiplied, not added.'),
+    },
   },
+
   s10: {
-    eyebrow: bi('Mashq 3/6', 'Задание 3/6', "Task 3/6"), title: bi('m² dan dm² ga', 'Из м² в дм²', "m² to dm²"), scene: 'meter', closedSet: true, frames: [bi('2 m² = ? dm²', '2 м² = ? дм²', "2 m² = ? dm²"), bi('10 × 10 = 100', '10 × 10 = 100', "10 × 10 = 100")], question: bi('2 m² necha dm²?', 'Сколько дм² в 2 м²?', "How many dm² are in 2 m²?"), options: [bi('20 dm²', '20 дм²', "20 dm²"), bi('200 dm²', '200 дм²', "200 dm²"), bi('2000 dm²', '2000 дм²', "2000 dm²")], correctIndex: 1, proof: bi('2 × 100 = 200 dm²', '2 × 100 = 200 дм²', "2 × 100 = 200 dm²"),
-    audio: { intro: { uz: ["Ikki kvadrat metrni kvadrat detsimetrga aylantiring.", "Yuzada tomon omili ikki yo'nalishda ishlashini tekshiring."], ru: ['Переведи два квадратных метра в квадратные дециметры.', 'Проверь, что множитель стороны действует в площади в двух направлениях.'], en: ["Convert two square metres to square decimetres.","Check that the factor for a side acts in two directions for area."] }, on_correct: bi("To'g'ri. Ikkita yuzlik guruh ikki yuz kvadrat detsimetr.", 'Верно. Две группы по сто дают двести квадратных дециметров.', "Correct. Two groups of one hundred make two hundred square decimetres."), on_wrong: [bi("Yigirma faqat bitta o'lchamni o'n marta o'zgartiradi. Yuza ikki o'lchamli.", 'Двадцать меняет только одно измерение в десять раз. Площадь двумерна.', "Twenty changes only one dimension by a factor of ten. Area has two dimensions."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu javobda ortiqcha nol bor.", 'В этом ответе лишний ноль.', "This answer has an extra zero.")] }, feedbackAudio: [bi("Yuza ikki o'lchamli. O'nni o'nga ko'paytiring.", 'Площадь двумерна. Умножь десять на десять.', "Area has two dimensions. Multiply ten by ten."), bi("To'g'ri. Ikki kvadrat metr ikki yuz kvadrat detsimetr.", 'Верно. Два квадратных метра равны двумстам квадратным дециметрам.', "Correct. Two square metres equal two hundred square decimetres."), bi("Bu javobda ortiqcha nol bor.", 'В этом ответе лишний ноль.', "This answer has an extra zero.")],
+    eyebrow: bi('Moslashtirish', 'Сопоставление', 'Matching'),
+    title: bi("Birlikni ichidagi kichik birliklar soni bilan bog'lang", 'Свяжи единицу с числом малых единиц внутри', 'Link each unit with the number of smaller units inside'),
+    prompt: bi("Chapdan birlikni, o'ngdan sonini tanlang. Uchta juftlik bor.", 'Выбери единицу слева и число справа. Всего три пары.', 'Pick a unit on the left and the number on the right.'),
+    left: [
+      { id: 'l1', label: bi('1 dm²', '1 дм²', '1 dm²') },
+      { id: 'l2', label: bi('1 m²', '1 м²', '1 m²') },
+      { id: 'l3', label: bi('1 cm²', '1 см²', '1 cm²') },
+    ],
+    right: [
+      { id: 'r1', pair: 'l3', value: '100', caption: bi('mm²', 'мм²', 'mm²') },
+      { id: 'r2', pair: 'l1', value: '100', caption: bi('cm²', 'см²', 'cm²') },
+      { id: 'r3', pair: 'l2', value: '100', caption: bi('dm²', 'дм²', 'dm²') },
+    ],
+    doneNote: bi('Uch juftlikda ham son bir xil: 100. Faqat birliklar almashadi.', 'Во всех трёх парах число одинаковое: 100. Меняются только единицы.', 'In all three pairs the number is the same: 100. Only the units change.'),
+    wrongNote: bi('Bu juftlik mos emas. Qaysi birlik ichida qaysi birlik borligini tekshiring.', 'Эта пара не подходит. Проверь, какая единица внутри какой.', 'This pair does not match. Check which unit sits inside which.'),
+    audio: {
+      intro: {
+        uz: [
+          'Uchta birlik va uchta yozuv bor.',
+          'Har birlikda ichidagi kichik birliklar soni bir xil, lekin birliklar boshqacha.',
+          "Chapdan birlikni, keyin o'ngdan sonni bosing.",
+        ],
+        ru: [
+          'Есть три единицы и три записи.',
+          'В каждой единице число малых единиц одинаковое, но сами единицы разные.',
+          'Нажми единицу слева, потом число справа.',
+        ],
+        en: [
+          'There are three units and three records.',
+          'The count of smaller units is the same everywhere, but the units differ.',
+          'Tap a unit on the left, then the number on the right.',
+        ],
+      },
+      on_correct: bi('Uch juftlik ham joyida. Yuza zanjirida har qadamda yuz turadi.', 'Все три пары на месте. В цепочке площади на каждом шаге сто.', 'All three pairs are in place. The area chain uses a hundred on every step.'),
+      on_wrong: bi('Bu juftlik mos emas. Birliklarni tekshiring.', 'Эта пара не подходит. Проверь единицы.', 'This pair does not match. Check the units.'),
+    },
   },
+
   s11: {
-    eyebrow: bi('Mashq 4/6', 'Задание 4/6', "Task 4/6"), title: bi('Mos birlikni tanlang', 'Выбери подходящую единицу', "Choose the suitable unit"), scene: 'city', closedSet: true, frames: [bi('Shahar hududi', 'Территория города', "City area"), bi('Juda katta sirt uchun birlik tanlang', 'Выбери единицу для очень большой поверхности', "Choose a unit for a very large surface")], question: bi("Shahar hududini qaysi birlikda o'lchash qulay?", 'В какой единице удобно измерять территорию города?', "Which unit is suitable for measuring the area of a city?"), options: [bi('mm²', 'мм²', "mm²"), bi('m²', 'м²', "m²"), bi('km²', 'км²', "km²")], correctIndex: 2, proof: bi('Katta hudud → km²', 'Большая территория → км²', "Large area → km²"),
-    audio: { intro: { uz: ["Shahar hududi uchun qulay yuza birligini tanlang.", "Birlikning kattaligi o'lchanayotgan juda katta sirtga mos bo'lishini tekshiring."], ru: ['Выбери удобную единицу площади для территории города.', 'Проверь, что размер единицы соответствует очень большой измеряемой поверхности.'], en: ["Choose a convenient unit of area for a city.","Check that the size of the unit suits the very large surface being measured."] }, on_correct: bi("To'g'ri. Juda katta hududlar kvadrat kilometrda ifodalanadi.", 'Верно. Очень большие территории выражают в квадратных километрах.', "Correct. Very large areas are measured in square kilometres."), on_wrong: [bi("Kvadrat millimetr juda kichik detallar uchun.", 'Квадратный миллиметр подходит для очень маленьких деталей.', "Square millimetres are suitable for very small objects."), bi("Kvadrat metr xona kabi sirtlar uchun qulay, ammo shahar uchun juda mayda.", 'Квадратный метр удобен для комнаты, но слишком мелок для города.', "Square metres are suitable for surfaces such as rooms, but are too small a unit for a city."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again.")] }, feedbackAudio: [bi("Kvadrat millimetr juda kichik detallar uchun.", 'Квадратный миллиметр подходит для очень маленьких деталей.', "Square millimetres are suitable for very small objects."), bi("Kvadrat metr shahar uchun juda mayda birlik.", 'Квадратный метр слишком мелкая единица для города.', "A square metre is too small a unit for a city."), bi("To'g'ri. Shahar hududi kvadrat kilometrda o'lchanadi.", 'Верно. Территорию города измеряют в квадратных километрах.', "Correct. A city's area is measured in square kilometres.")],
+    eyebrow: bi('Uch savol', 'Три вопроса', 'Three questions'),
+    title: bi('Aylantirishni tanlang', 'Выбери перевод', 'Choose the conversion'),
+    rounds: [
+      {
+        question: bi('5 dm² nechta cm²?', 'Сколько см² в 5 дм²?', 'How many cm² are in 5 dm²?'),
+        options: [
+          bi('500 cm²', '500 см²', '500 cm²'),
+          bi('50 cm²', '50 см²', '50 cm²'),
+          bi('5000 cm²', '5000 см²', '5000 cm²'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. 5 · 100 = 500 cm².", 'Верно. 5 · 100 = 500 см².', 'Correct. 5 · 100 = 500 cm².'),
+          bi("50 cm² faqat 10 ga ko'paytirishdan chiqadi, yuzada esa 100 kerak.", '50 см² получается умножением на 10, а в площади нужно 100.', '50 cm² comes from multiplying by 10, but area needs 100.'),
+          bi("5000 cm² bu 50 dm² bo'ladi: bitta nol ortiqcha.", '5000 см² это 50 дм²: один нуль лишний.', '5000 cm² is 50 dm²: one zero too many.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Beshni yuzga ko'paytirsak besh yuz chiqadi.", 'Верно. Пять умножить на сто это пятьсот.', 'Correct. Five times a hundred is five hundred.'),
+          bi("Ellik o'nga ko'paytirishdan chiqadi, yuzada yuz kerak.", 'Пятьдесят получается умножением на десять, а в площади нужно сто.', 'Fifty comes from multiplying by ten, but area needs a hundred.'),
+          bi("Besh ming kvadrat santimetr ellik kvadrat detsimetr bo'ladi.", 'Пять тысяч квадратных сантиметров это пятьдесят квадратных дециметров.', 'Five thousand square centimetres is fifty square decimetres.'),
+        ],
+        proof: bi('5 · 100 = 500 cm²', '5 · 100 = 500 см²', '5 · 100 = 500 cm²'),
+      },
+      {
+        question: bi('300 cm² nechta dm²?', 'Сколько дм² в 300 см²?', 'How many dm² are in 300 cm²?'),
+        options: [
+          bi('3 dm²', '3 дм²', '3 dm²'),
+          bi('30 dm²', '30 дм²', '30 dm²'),
+          bi('300 dm²', '300 дм²', '300 dm²'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Katta birlikka o'tamiz: 300 : 100 = 3 dm².", 'Верно. Переходим к большей единице: 300 : 100 = 3 дм².', 'Correct. We move to a larger unit: 300 : 100 = 3 dm².'),
+          bi("30 dm² bu 3000 cm² bo'ladi: 100 ga bo'lish kerak, 10 ga emas.", '30 дм² это 3000 см²: нужно делить на 100, а не на 10.', '30 dm² is 3000 cm²: we must divide by 100, not by 10.'),
+          bi("Katta birlikka o'tganda son kichrayadi, ko'paymaydi.", 'При переходе к большей единице число уменьшается, а не растёт.', 'Moving to a larger unit the number shrinks, it does not grow.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Uch yuzni yuzga bo'lsak uch chiqadi.", 'Верно. Триста разделить на сто это три.', 'Correct. Three hundred divided by a hundred is three.'),
+          bi("O'ttiz kvadrat detsimetr uch ming kvadrat santimetr bo'ladi.", 'Тридцать квадратных дециметров это три тысячи квадратных сантиметров.', 'Thirty square decimetres is three thousand square centimetres.'),
+          bi("Katta birlikka o'tganda son kichrayadi.", 'При переходе к большей единице число уменьшается.', 'Moving to a larger unit the number shrinks.'),
+        ],
+        proof: bi('300 : 100 = 3 dm²', '300 : 100 = 3 дм²', '300 : 100 = 3 dm²'),
+      },
+      {
+        question: bi('1 m² nechta cm²?', 'Сколько см² в 1 м²?', 'How many cm² are in 1 m²?'),
+        options: [
+          bi('10000 cm²', '10000 см²', '10000 cm²'),
+          bi('100 cm²', '100 см²', '100 cm²'),
+          bi('1000 cm²', '1000 см²', '1000 cm²'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. 1 m² = 100 dm², har dm² da 100 cm²: 100 · 100 = 10000.", 'Верно. 1 м² = 100 дм², в каждом дм² сто см²: 100 · 100 = 10000.', 'Correct. 1 m² = 100 dm² and each dm² holds 100 cm²: 100 · 100 = 10000.'),
+          bi('100 cm² bu bitta dm² ga teng, butun metr kvadrat esa ancha katta.', '100 см² это один дм², а весь квадратный метр гораздо больше.', '100 cm² is one dm², while a whole square metre is far larger.'),
+          bi("1000 cm² ikki qadamning natijasi emas: ikki marta 100 ga ko'paytirish kerak.", '1000 см² не результат двух шагов: нужно умножить на 100 дважды.', '1000 cm² is not the result of two steps: we multiply by 100 twice.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Yuzni yuzga ko'paytirsak o'n ming chiqadi.", 'Верно. Сто умножить на сто это десять тысяч.', 'Correct. A hundred times a hundred is ten thousand.'),
+          bi('Yuz kvadrat santimetr bitta kvadrat detsimetrga teng.', 'Сто квадратных сантиметров это один квадратный дециметр.', 'A hundred square centimetres is one square decimetre.'),
+          bi("Ikki marta yuzga ko'paytirish kerak.", 'Нужно умножить на сто дважды.', 'We must multiply by a hundred twice.'),
+        ],
+        proof: bi('100 · 100 = 10000 cm²', '100 · 100 = 10000 см²', '100 · 100 = 10000 cm²'),
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          'Uchta savolda aylantirishni tanlaysiz.',
+          "Har safar yo'nalishni tekshiring: kichik birlikkami yoki kattagami.",
+          "Har savolda bitta to'g'ri javob bor.",
+        ],
+        ru: [
+          'В трёх вопросах выберешь перевод.',
+          'Каждый раз проверяй направление: к меньшей единице или к большей.',
+          'В каждом вопросе один верный ответ.',
+        ],
+        en: [
+          'In three questions you will choose the conversion.',
+          'Each time check the direction: towards a smaller unit or a larger one.',
+          'Each question has one correct answer.',
+        ],
+      },
+    },
   },
+
   s12: {
-    eyebrow: bi('Mashq 5/6', 'Задание 5/6', "Task 5/6"), title: bi('Bitning xatosi', 'Ошибка Бита', "Bit's mistake"), scene: 'panel', closedSet: true, frames: [bi('Bit: 1 dm² = 10 cm²', 'Бит: 1 дм² = 10 см²', "Bit: 1 dm² = 10 cm²"), bi('10 qator va 10 ustunni tekshiring', 'Проверь 10 рядов и 10 столбцов', "Check 10 rows and 10 columns")], question: bi('Bit nimani unutdi?', 'Что забыл Бит?', "What did Bit forget?"), options: [bi("U faqat bir yo'nalishdagi 10 ni oldi", 'Он учел 10 только в одном направлении', "He used 10 in only one direction"), bi('1 dm = 100 cm', '1 дм = 100 см', "1 dm = 100 cm"), bi("Kvadratlarda birlik bo'lmaydi", 'У квадратов нет единиц', "Squares do not have units")], correctIndex: 0, proof: bi('10 × 10 = 100, demak 1 dm² = 100 cm²', '10 × 10 = 100, значит 1 дм² = 100 см²', "10 × 10 = 100, so 1 dm² = 100 cm²"),
-    audio: { intro: { uz: ["Bit bir kvadrat detsimetrni o'n kvadrat santimetr deb yozdi. Uning aniq xatosini toping.", "O'nta qator bilan o'nta ustunni modelda alohida tekshiring."], ru: ['Бит записал один квадратный дециметр как десять квадратных сантиметров. Найди его точную ошибку.', 'Отдельно проверь по модели десять рядов и десять столбцов.'], en: ["Bit wrote one square decimetre as ten square centimetres. Find his exact mistake.","Use the model to check ten rows and ten columns separately."] }, on_correct: bi("To'g'ri. Bit faqat bitta yo'nalishdagi o'nta bo'lakni sanadi. O'nta qator va o'nta ustun yuzta katak beradi.", 'Верно. Бит посчитал десять частей только в одном направлении. Десять рядов и десять столбцов дают сто клеток.', "Correct. Bit counted ten parts in only one direction. Ten rows and ten columns make one hundred squares."), on_wrong: [bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bir detsimetr yuz emas, o'n santimetr.", 'Один дециметр равен не ста, а десяти сантиметрам.', "One decimetre is ten centimetres, not one hundred."), bi("Kvadrat birlik yuza o'lchovini bildiradi, shuning uchun birlik albatta yoziladi.", 'Квадратная единица измеряет площадь, поэтому единицу обязательно записывают.', "A square unit measures area, so the unit must be written.")] }, feedbackAudio: [bi("To'g'ri. Bit faqat bir yo'nalishdagi o'nni olgan.", 'Верно. Бит учел десять только в одном направлении.', "Correct. Bit used ten in only one direction."), bi("Bir detsimetr o'n santimetrga teng, yuzga emas.", 'Один дециметр равен десяти сантиметрам, а не ста.', "One decimetre equals ten centimetres, not one hundred."), bi("Kvadrat birlik yuza o'lchovini bildiradi va yozilishi shart.", 'Квадратная единица измеряет площадь, ее нужно указывать.', "A square unit measures area and must be written.")],
+    eyebrow: bi('Strategiya', 'Стратегия', 'Strategy'),
+    title: bi('Ikki yuzani taqqoslaymiz', 'Сравниваем две площади', 'We compare two areas'),
+    lead: bi('Ikki yozuv turli birlikda. Kattaroq yuzani bosing.', 'Две записи в разных единицах. Нажми большую площадь.', 'The two records use different units. Tap the larger area.'),
+    question: bi('Qaysi yuza kattaroq?', 'Какая площадь больше?', 'Which area is larger?'),
+    cards: [
+      { value: bi('1 m²', '1 м²', '1 m²'), note: bi('bitta kvadrat metr', 'один квадратный метр', 'one square metre') },
+      { value: bi('100 cm²', '100 см²', '100 cm²'), note: bi('yuz kvadrat santimetr', 'сто квадратных сантиметров', 'a hundred square centimetres') },
+    ],
+    correctIndex: 0,
+    feedback: [
+      bi("To'g'ri. 1 m² = 10000 cm², bu 100 cm² dan ancha katta.", 'Верно. 1 м² = 10000 см², это гораздо больше 100 см².', 'Correct. 1 m² = 10000 cm², far more than 100 cm².'),
+      bi("100 cm² bu faqat bitta dm², ya'ni kaft kattaligida. 1 m² esa ancha katta.", '100 см² это только один дм², размером с ладонь. А 1 м² гораздо больше.', '100 cm² is only one dm², about the size of a palm. A m² is far larger.'),
+    ],
+    feedbackAudio: [
+      bi("To'g'ri. Bir kvadrat metr o'n ming kvadrat santimetrga teng.", 'Верно. Один квадратный метр это десять тысяч квадратных сантиметров.', 'Correct. One square metre is ten thousand square centimetres.'),
+      bi("Yuz kvadrat santimetr faqat bitta kvadrat detsimetr, ya'ni kaft kattaligida.", 'Сто квадратных сантиметров это только один квадратный дециметр, размером с ладонь.', 'A hundred square centimetres is only one square decimetre, about the size of a palm.'),
+    ],
+    proof: bi('1 m² = 10000 cm², 10000 > 100.', '1 м² = 10000 см², 10000 > 100.', '1 m² = 10000 cm², 10000 > 100.'),
+    audio: {
+      intro: {
+        uz: [
+          'Ikki yozuvni taqqoslaymiz.',
+          'Birinchisi kvadrat metrda, ikkinchisi kvadrat santimetrda.',
+          'Ikkisini bitta birlikka keltirib, kattaroq yuzani bosing.',
+        ],
+        ru: [
+          'Сравним две записи.',
+          'Первая в квадратных метрах, вторая в квадратных сантиметрах.',
+          'Приведи обе к одной единице и нажми большую площадь.',
+        ],
+        en: [
+          'Let us compare two records.',
+          'The first uses square metres, the second square centimetres.',
+          'Bring both to one unit and tap the larger area.',
+        ],
+      },
+    },
   },
+
   s13: {
-    eyebrow: bi('Mashq 6/6', 'Задание 6/6', "Task 6/6"), title: bi('Panel yuzasi', 'Площадь панели', "Panel area"), scene: 'panel-case', closedSet: true, frames: [bi('Tomonlar: 2 m va 3 m', 'Стороны: 2 м и 3 м', "Sides: 2 m and 3 m"), bi('2 × 3 = 6 m²', '2 × 3 = 6 м²', "2 × 3 = 6 m²"), bi('Har m² = 100 dm²', 'Каждый м² = 100 дм²', "Each m² = 100 dm²")], question: bi('Panel yuzasi necha dm²?', 'Какова площадь панели в дм²?', "What is the panel's area in dm²?"), options: [bi('60 dm²', '60 дм²', "60 dm²"), bi('600 dm²', '600 дм²', "600 dm²"), bi('6000 dm²', '6000 дм²', "6000 dm²")], correctIndex: 1, proof: bi('2 × 3 = 6 m²; 6 × 100 = 600 dm²', '2 × 3 = 6 м²; 6 × 100 = 600 дм²', "2 × 3 = 6 m²; 6 × 100 = 600 dm²"),
-    audio: { intro: { uz: ["Panelning tomonlari ikki metr va uch metr. Avval uning yuzasini kvadrat metrda toping.", "Keyin har bir kvadrat metrni yuzta kvadrat detsimetrga almashtiring.", "Ikki bosqichdagi birliklarni tekshirib, kvadrat detsimetrdagi javobni tanlang."], ru: ['Стороны панели равны двум и трем метрам. Сначала найди ее площадь в квадратных метрах.', 'Затем замени каждый квадратный метр ста квадратными дециметрами.', 'Проверь единицы на обоих шагах и выбери ответ в квадратных дециметрах.'], en: ["The sides of the panel are two metres and three metres. First find its area in square metres.","Then replace each square metre with one hundred square decimetres.","Check the units in both steps and choose the answer in square decimetres."] }, on_correct: bi("To'g'ri. Panel olti kvadrat metr, bu olti yuz kvadrat detsimetr.", 'Верно. Площадь панели шесть квадратных метров, или шестьсот квадратных дециметров.', "Correct. The panel's area is six square metres, or six hundred square decimetres."), on_wrong: [bi("Bu javob yuzani faqat o'n marta oshirgan. Faktor yuz.", 'Этот ответ увеличивает площадь только в десять раз. Нужен множитель сто.', "This answer multiplies the area by only ten. The factor is one hundred."), bi("Javobni yana tekshiring.", 'Еще раз проверь ответ.', "Check your answer again."), bi("Bu javobda bir ortiqcha nol bor.", 'В этом ответе один лишний ноль.', "This answer has one extra zero.")] }, feedbackAudio: [bi("Yuzani o'n emas, yuz marta oshiring.", 'Увеличь число площади не в десять, а в сто раз.', "Multiply the area by one hundred, not ten."), bi("To'g'ri. Panel yuzasi olti yuz kvadrat detsimetr.", 'Верно. Площадь панели равна шестистам квадратным дециметрам.', "Correct. The panel's area is six hundred square decimetres."), bi("Bu javobda ortiqcha nol bor.", 'В этом ответе лишний ноль.', "This answer has an extra zero.")],
+    eyebrow: bi('Yakuniy topshiriq', 'Итоговое задание', 'Final task'),
+    title: bi('Hisob varaqasini yakunlaymiz', 'Завершаем расчётный лист', 'We finish the calculation sheet'),
+    fact: bi("Hisob varaqasi to'ldirildi: har qator bitta birlikda yozildi.", 'Расчётный лист заполнен: каждая строка записана в одной единице.', 'The calculation sheet is complete: every row is written in one unit.'),
+    items: [
+      {
+        kind: 'num',
+        question: bi('7 dm² nechta cm²?', 'Сколько см² в 7 дм²?', 'How many cm² are in 7 dm²?'),
+        answer: 700,
+        hint: bi('Har dm² da 100 cm² bor.', 'В каждом дм² сто см².', 'Each dm² holds 100 cm².'),
+        proof: bi('7 · 100 = 700 cm²', '7 · 100 = 700 см²', '7 · 100 = 700 cm²'),
+        audio: {
+          on_correct: bi("To'g'ri. Yetti kvadrat detsimetr yetti yuz kvadrat santimetr.", 'Верно. Семь квадратных дециметров это семьсот квадратных сантиметров.', 'Correct. Seven square decimetres is seven hundred square centimetres.'),
+          on_wrong: bi('Yuza zanjirida yuz turadi.', 'В цепочке площади стоит сто.', 'The area chain uses a hundred.'),
+        },
+      },
+      {
+        kind: 'mc',
+        question: bi('Sinf 6 m uzunlikda va 5 m kenglikda. Yuzasi qancha?', 'Класс длиной 6 м и шириной 5 м. Какова площадь?', 'A classroom is 6 m long and 5 m wide. What is its area?'),
+        options: [
+          bi('30 m²', '30 м²', '30 m²'),
+          bi('11 m²', '11 м²', '11 m²'),
+          bi('22 m²', '22 м²', '22 m²'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Yuza tomonlarni ko'paytirib topiladi: 6 · 5 = 30 m².", 'Верно. Площадь находят умножением сторон: 6 · 5 = 30 м².', 'Correct. The area is found by multiplying the sides: 6 · 5 = 30 m².'),
+          bi("11 bu tomonlar yig'indisi, yuza emas.", '11 это сумма сторон, а не площадь.', '11 is the sum of the sides, not the area.'),
+          bi("22 bu perimetr, ya'ni chetlar uzunligi.", '22 это периметр, то есть длина границы.', '22 is the perimeter, the length around the room.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Oltini beshga ko'paytirsak o'ttiz kvadrat metr chiqadi.", 'Верно. Шесть умножить на пять это тридцать квадратных метров.', 'Correct. Six times five is thirty square metres.'),
+          bi("O'n bir tomonlar yig'indisi.", 'Одиннадцать это сумма сторон.', 'Eleven is the sum of the sides.'),
+          bi("Yigirma ikki perimetr bo'ladi.", 'Двадцать два это периметр.', 'Twenty-two is the perimeter.'),
+        ],
+        proof: bi('6 · 5 = 30 m²', '6 · 5 = 30 м²', '6 · 5 = 30 m²'),
+        audio: {
+          on_correct: bi("To'g'ri javob tanlandi.", 'Выбран верный ответ.', 'The right answer is chosen.'),
+          on_wrong: bi("Yuza uchun tomonlar ko'paytiriladi.", 'Для площади стороны умножают.', 'For the area the sides are multiplied.'),
+        },
+      },
+      {
+        kind: 'mc',
+        question: bi('Viloyat yuzasi qaysi birlikda yoziladi?', 'В какой единице записывают площадь области?', 'In which unit is the area of a region written?'),
+        options: [
+          bi('km²', 'км²', 'km²'),
+          bi('m²', 'м²', 'm²'),
+          bi('cm²', 'см²', 'cm²'),
+        ],
+        correctIndex: 0,
+        feedback: [
+          bi("To'g'ri. Viloyat juda katta, shuning uchun kvadrat kilometr ishlatiladi.", 'Верно. Область очень большая, поэтому используют квадратные километры.', 'Correct. A region is very large, so square kilometres are used.'),
+          bi('m² xona va pol uchun qulay, viloyat uchun juda kichik.', 'м² удобен для комнаты и пола, для области он слишком мал.', 'A m² suits a room or a floor, but it is far too small for a region.'),
+          bi("cm² daftar varag'i uchun. Viloyat uchun bu son juda katta chiqadi.", 'см² подходит для листа тетради. Для области число выйдет слишком большим.', 'A cm² suits a notebook page. For a region the number would be enormous.'),
+        ],
+        feedbackAudio: [
+          bi("To'g'ri. Viloyat yuzasi kvadrat kilometrda yoziladi.", 'Верно. Площадь области записывают в квадратных километрах.', 'Correct. The area of a region is written in square kilometres.'),
+          bi('Kvadrat metr xona uchun qulay.', 'Квадратный метр удобен для комнаты.', 'A square metre suits a room.'),
+          bi("Kvadrat santimetr daftar varag'i uchun.", 'Квадратный сантиметр подходит для листа тетради.', 'A square centimetre suits a notebook page.'),
+        ],
+        proof: bi('Viloyat yuzasi km² da yoziladi.', 'Площадь области записывают в км².', 'The area of a region is written in km².'),
+        audio: {
+          on_correct: bi("To'g'ri birlik tanlandi.", 'Выбрана верная единица.', 'The right unit is chosen.'),
+          on_wrong: bi("Sathning kattaligini o'ylang.", 'Подумай о размере поверхности.', 'Think about the size of the surface.'),
+        },
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          'Yakuniy topshiriqda uch qator bor.',
+          'Birinchisida javobni terasiz, keyingilarida javobni tanlaysiz.',
+          'Har javobdan keyin tekshirish yozuvi chiqadi.',
+        ],
+        ru: [
+          'В итоговом задании три строки.',
+          'В первой наберёшь ответ, в остальных выберешь ответ.',
+          'После каждого ответа появится проверка.',
+        ],
+        en: [
+          'The final task has three rows.',
+          'In the first you enter the answer, in the others you choose it.',
+          'A check appears after every answer.',
+        ],
+      },
+    },
   },
+
   s14: {
-    eyebrow: bi('Yakun', 'Итог', "Summary"), title: bi("Yuza kvadrat birliklarda o'lchanadi", 'Площадь измеряется квадратными единицами', "Area is measured in square units"), scene: 'final',
-    frames: [bi('Tomoni 1 mm → 1 mm²; tomoni 1 cm → 1 cm²', 'Сторона 1 мм → 1 мм²; сторона 1 см → 1 см²', "Side 1 mm → 1 mm²; side 1 cm → 1 cm²"), bi('1 cm² = 100 mm²; 1 dm² = 100 cm²', '1 см² = 100 мм²; 1 дм² = 100 см²', "1 cm² = 100 mm²; 1 dm² = 100 cm²"), bi('1 m² = 100 dm² = 10 000 cm²', '1 м² = 100 дм² = 10 000 см²', "1 m² = 100 dm² = 10 000 cm²"), bi('1 km² = 1 000 000 m²', '1 км² = 1 000 000 м²', "1 km² = 1 000 000 m²"), bi('1 dm² = 100 cm² — panel tuzatildi', '1 дм² = 100 см² — панель исправлена', "1 dm² = 100 cm² — panel corrected")],
-    audio: { uz: ["Tomoni bir millimetr bo'lgan kvadrat bir kvadrat millimetr, tomoni bir santimetr bo'lgan kvadrat bir kvadrat santimetr yuzaga ega.", "Bir kvadrat santimetr yuz kvadrat millimetr, bir kvadrat detsimetr yuz kvadrat santimetr.", "Bir kvadrat metr yuz kvadrat detsimetr yoki o'n ming kvadrat santimetrga teng.", "Bir kvadrat kilometr bir million kvadrat metrga teng.", "Panel tuzatildi. Bir kvadrat detsimetr yuz kvadrat santimetr. Endi turli kattalik birliklarini birga aylantirishga tayyormiz."], ru: ['Квадрат со стороной один миллиметр имеет площадь один квадратный миллиметр, а квадрат со стороной один сантиметр имеет площадь один квадратный сантиметр.', 'Один квадратный сантиметр равен ста квадратным миллиметрам, а один квадратный дециметр равен ста квадратным сантиметрам.', 'Один квадратный метр равен ста квадратным дециметрам или десяти тысячам квадратных сантиметров.', 'Один квадратный километр равен одному миллиону квадратных метров.', 'Панель исправлена. Один квадратный дециметр равен ста квадратным сантиметрам. Теперь мы готовы преобразовывать единицы разных величин вместе.'], en: ["A square with sides of one millimetre has an area of one square millimetre. A square with sides of one centimetre has an area of one square centimetre.","One square centimetre equals one hundred square millimetres. One square decimetre equals one hundred square centimetres.","One square metre equals one hundred square decimetres or ten thousand square centimetres.","One square kilometre equals one million square metres.","The panel is corrected. One square decimetre equals one hundred square centimetres. Now we are ready to convert different kinds of measurement together."] },
+    eyebrow: bi('Missiya mukofoti', 'Награда миссии', 'Mission reward'),
+    title: bi('Unvongacha bitta savol', 'Один вопрос до звания', 'One question before your title'),
+    lead: bi("Yuza zanjirining sonini ko'rsating.", 'Покажи число цепочки площади.', 'Show the number of the area chain.'),
+    question: bi('Yuza birliklari orasida qanday son turadi?', 'Какое число стоит между единицами площади?', 'Which number stands between the units of area?'),
+    stem: bi('Yuza birliklari orasida...', 'Между единицами площади...', 'Between the units of area...'),
+    options: [
+      bi('100 turadi', 'стоит 100', '100 stands'),
+      bi('10 turadi', 'стоит 10', '10 stands'),
+      bi('1000 turadi', 'стоит 1000', '1000 stands'),
+    ],
+    correctIndex: 0,
+    feedback: [
+      bi("To'g'ri. Kvadratda 10 qator va har qatorda 10 ta birlik kvadrat bor: 100.", 'Верно. В квадрате 10 рядов и в каждом по 10 единичных квадратов: 100.', 'Correct. The square has 10 rows of 10 unit squares: 100.'),
+      bi("10 uzunlik zanjirida turadi. Yuzada tomon ikki yo'nalishda oshadi.", '10 стоит в цепочке длины. В площади сторона растёт в двух направлениях.', '10 belongs to the length chain. For area the side grows in two directions.'),
+      bi('1000 massa zanjirida uchraydi, yuzada esa 100 turadi.', '1000 встречается в цепочке массы, а в площади стоит 100.', '1000 appears in the mass chain, while area uses 100.'),
+    ],
+    feedbackAudio: [
+      bi("To'g'ri. O'n qator, har qatorda o'nta: yuz.", 'Верно. Десять рядов по десять: сто.', 'Correct. Ten rows of ten: a hundred.'),
+      bi("O'n uzunlik zanjirida turadi.", 'Десять стоит в цепочке длины.', 'Ten belongs to the length chain.'),
+      bi('Ming massa zanjirida uchraydi.', 'Тысяча встречается в цепочке массы.', 'A thousand appears in the mass chain.'),
+    ],
+    resolution: bi("Yuza birliklari orasida 100 turadi, chunki tomon ham bo'yiga, ham eniga 10 marta oshadi.", 'Между единицами площади стоит 100, потому что сторона растёт в 10 раз и в длину, и в ширину.', 'Between the units of area stands 100, because the side grows ten times in both directions.'),
+    proof: bi('1 dm² = 100 cm²', '1 дм² = 100 см²', '1 dm² = 100 cm²'),
+    rulesLabel: bi('Qoida', 'Правило', 'Rule'),
+    rules: [
+      bi('1 cm² = 100 mm², 1 dm² = 100 cm², 1 m² = 100 dm².', '1 см² = 100 мм², 1 дм² = 100 см², 1 м² = 100 дм².', '1 cm² = 100 mm², 1 dm² = 100 cm², 1 m² = 100 dm².'),
+      bi("Kichik birlikka o'tishda 100 ga ko'paytiriladi, katta birlikka o'tishda 100 ga bo'linadi.", 'К меньшей единице умножают на 100, к большей делят на 100.', 'To a smaller unit we multiply by 100, to a larger unit we divide by 100.'),
+      bi("To'g'ri to'rtburchakning yuzasi tomonlarni ko'paytirib topiladi.", 'Площадь прямоугольника находят умножением сторон.', 'The area of a rectangle is found by multiplying the sides.'),
+    ],
+    award: bi("Yuza o'lchovchisi", 'Замерщик площади', 'Area surveyor'),
+    audio: {
+      intro: {
+        uz: [
+          "Hisob varaqasi to'ldirildi. Missiya bajarildi.",
+          "Yuza birliklari orasida yuz turadi, chunki tomon ikki yo'nalishda o'n marta oshadi.",
+          "Kichik birlikka o'tganda yuzga ko'paytiriladi, katta birlikka o'tganda yuzga bo'linadi.",
+          'Keyingi darsda uzunlik, massa, vaqt va yuza birliklarini birga aylantiramiz.',
+          'Unvongacha bitta savol qoldi. Javobni tanlang.',
+        ],
+        ru: [
+          'Расчётный лист заполнен. Миссия выполнена.',
+          'Между единицами площади стоит сто, потому что сторона растёт в десять раз в двух направлениях.',
+          'При переходе к меньшей единице умножают на сто, при переходе к большей делят на сто.',
+          'На следующем уроке будем переводить единицы длины, массы, времени и площади вместе.',
+          'До звания остался один вопрос. Выбери ответ.',
+        ],
+        en: [
+          'The calculation sheet is complete. The mission is done.',
+          'Between the units of area stands a hundred, because the side grows ten times in two directions.',
+          'Moving to a smaller unit we multiply by a hundred, moving to a larger unit we divide by a hundred.',
+          'In the next lesson we will convert units of length, mass, time and area together.',
+          'One question is left before your title. Choose the answer.',
+        ],
+      },
+    },
   },
 };
 
+// ---------------------------------------------------------------------------
+// Navigatsiya gate. Qiymat src/components/grade4/theoryNavigation.js dagi
+// GRADE4_THEORY_CONTINUE_UNLOCKED bilan bir xil ushlanadi: dars LMS uchun
+// bitta fayl bo'lishi kerak, shuning uchun helper ichkarida turadi.
+// true - ko'rib chiqish rejimi: "Davom etish" har ekranda ochiq.
+// false - o'quv rejimi: tugma faqat mazmunli harakatdan keyin ochiladi.
+// ---------------------------------------------------------------------------
+const GRADE4_THEORY_CONTINUE_UNLOCKED = true;
+function canUseGrade4TheoryContinue(gatePassed, finish = false) {
+  return (!finish && GRADE4_THEORY_CONTINUE_UNLOCKED) || Boolean(gatePassed);
+}
+
+// ---------------------------------------------------------------------------
+// Mobil masshtab qatlami (ETALON_4SINF §10). <640px da layout 390px etalon
+// kenglikda qoladi va real ekranga eng kichik masshtab bilan sig'adi, shuning
+// uchun barcha telefonlarda bir xil ko'rinish chiqadi. Hook dars ichida turadi:
+// LMS uchun dars bitta fayl bo'lishi kerak.
+// ---------------------------------------------------------------------------
+const GRADE4_MOBILE_DESIGN_W = 390;
+const GRADE4_MOBILE_DESIGN_H = 760;
+const GRADE4_MOBILE_BREAKPOINT = 640;
+function useGrade4MobileZoom({
+  designWidth = GRADE4_MOBILE_DESIGN_W,
+  designHeight = GRADE4_MOBILE_DESIGN_H,
+  breakpoint = GRADE4_MOBILE_BREAKPOINT,
+  fitHeight = true,
+} = {}) {
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const root = document.documentElement;
+    const update = () => {
+      const widthScale = window.innerWidth / designWidth;
+      const heightScale = window.innerHeight / designHeight;
+      const zoom = window.innerWidth < breakpoint
+        ? (fitHeight ? Math.min(widthScale, heightScale, 1) : widthScale)
+        : 1;
+      root.style.setProperty('--g4z', String(zoom));
+    };
+    update();
+    window.addEventListener('resize', update);
+    window.addEventListener('orientationchange', update);
+    return () => {
+      window.removeEventListener('resize', update);
+      window.removeEventListener('orientationchange', update);
+      root.style.removeProperty('--g4z');
+    };
+  }, [breakpoint, designHeight, designWidth, fitHeight]);
+}
+
 let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
 const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
-const normalizeLang = (value) => ['uz', 'ru', 'en'].includes(value) ? value : 'uz';
+const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
+const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
+const LANGUAGE_LABELS = { uz: 'Til', ru: 'Язык', en: 'Language' };
+const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
 const LangContext = createContext('uz');
 const useLang = () => useContext(LangContext);
-const useT = () => { const lang = useLang(); return useCallback((value) => { if (value == null) return ''; if (React.isValidElement(value)) return value; if (typeof value === 'string' || typeof value === 'number') return String(value); return value[lang] ?? value.uz ?? ''; }, [lang]); };
-function useIsMobile(breakpoint = 640) { const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false); useEffect(() => { if (typeof window === 'undefined') return undefined; const update = () => setMobile(window.innerWidth < breakpoint); window.addEventListener('resize', update); return () => window.removeEventListener('resize', update); }, [breakpoint]); return mobile; }
-function usePrefersReducedMotion() { const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches); useEffect(() => { if (typeof window === 'undefined' || !window.matchMedia) return undefined; const media = window.matchMedia('(prefers-reduced-motion: reduce)'); const update = () => setReduced(media.matches); media.addEventListener?.('change', update); return () => media.removeEventListener?.('change', update); }, []); return reduced; }
+const useT = () => {
+  const lang = useLang();
+  return useCallback((value) => {
+    if (value == null) return '';
+    if (React.isValidElement(value)) return value;
+    if (typeof value === 'string' || typeof value === 'number') return String(value);
+    return value[lang] ?? '';
+  }, [lang]);
+};
+
+function useIsMobile(breakpoint = 640) {
+  const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false);
+  useEffect(() => {
+    if (typeof window === 'undefined') return undefined;
+    const update = () => setMobile(window.innerWidth < breakpoint);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [breakpoint]);
+  return mobile;
+}
+
+function usePrefersReducedMotion() {
+  const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const update = () => setReduced(media.matches);
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+  return reduced;
+}
+
 const buildTtsUrl = (base, text, gender) => base + '/api/tts?text=' + encodeURIComponent(String(text).slice(0, 1000)) + '&g=' + (gender === 'm' ? 'm' : 'f');
+
+const visualBeatMs = (text) => {
+  const words = String(text ?? '').trim().split(/\s+/).filter(Boolean).length;
+  return Math.min(9000, Math.max(2600, 900 + words * 320));
+};
+
 class AudioEngine {
   constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
   emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
   setLang(lang) { this.lang = lang; }
-  stop() { if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer); this.timer = null; if (this.audio) { this.audio.pause(); this.audio.src = ''; } if (typeof window !== 'undefined' && window.speechSynthesis) window.speechSynthesis.cancel(); this.previewUtterance = null; }
-  load(queue) { this.stop(); this.queue = queue; this.index = 0; this.emit({ isPlaying: false, completed: false, currentSegment: null }); }
-  start() { if (!this.queue.length) { this.emit({ completed: true }); return; } this.play(); }
-  timed(item) { const ms = Math.max(1500, Math.min(6500, String(item.text).split(/\s+/).length * 330)); this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: true }); this.timer = window.setTimeout(() => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }, ms); }
-  play() { const item = this.queue[this.index]; if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; } if (this.muted || !runtimeConfig.ttsApiBase) { if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); const utterance = new SpeechSynthesisUtterance(String(item.text)); utterance.lang = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' }[this.lang] || 'uz-UZ'; utterance.rate = 0.94; utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false }); utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); }; utterance.onerror = () => this.timed(item); this.previewUtterance = utterance; this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50); return; } catch { /* deterministic timer fallback */ } } this.timed(item); return; } if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; } this.audio.onended = () => { this.index += 1; this.play(); }; this.audio.onerror = () => this.timed(item); this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender); this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item)); }
-  toggleMute() { this.muted = !this.muted; this.stop(); this.emit({ isPlaying: false, completed: this.muted, currentSegment: null, muted: this.muted, visualOnly: true }); }
-  pushOneOff(text) { if (!text) return; this.stop(); this.queue = [{ id: 'feedback-' + Date.now(), text }]; this.index = 0; this.play(); }
+  stop() {
+    if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer);
+    this.timer = null;
+    if (this.audio) { this.audio.pause(); this.audio.onended = null; this.audio.onerror = null; }
+    if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; this.previewUtterance = null; }
+    if (typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch { /* preview only */ } }
+  }
+  load(queue) { this.stop(); this.queue = queue || []; this.index = 0; this.emit({ completed: false, currentSegment: null }); }
+  start() { this.play(); }
+  timed(item, duration = null) {
+    if (this.timer) window.clearTimeout(this.timer);
+    if (this.audio) { this.audio.onended = null; this.audio.onerror = null; }
+    this.emit({ isPlaying: false, completed: false, currentSegment: item.id, visualOnly: true });
+    this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? visualBeatMs(item.text));
+  }
+  play() {
+    const item = this.queue[this.index];
+    if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; }
+    if (this.muted || !runtimeConfig.ttsApiBase) {
+      if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) {
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(String(item.text));
+          utterance.lang = SPEECH_LOCALES[this.lang] ?? SPEECH_LOCALES.uz;
+          utterance.rate = 0.94;
+          utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false });
+          utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); };
+          utterance.onerror = () => this.timed(item);
+          this.previewUtterance = utterance;
+          this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item); } }, 50);
+          return;
+        } catch { /* deterministic timer fallback */ }
+      }
+      this.timed(item);
+      return;
+    }
+    if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; }
+    this.audio.onended = () => { this.index += 1; this.play(); };
+    this.audio.onerror = () => this.timed(item);
+    this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender);
+    this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item));
+  }
+  toggleMute() { this.muted = !this.muted; this.stop(); this.index = 0; this.emit({ muted: this.muted }); this.start(); }
+  pushOneOff(text) { this.load([{ id: 'feedback-' + Date.now(), text }]); this.start(); }
 }
-let audioEngineInstance = null;
-const getAudioEngine = () => { if (!audioEngineInstance) audioEngineInstance = new AudioEngine(); return audioEngineInstance; };
-function useAudio(segments) { const lang = useLang(); const stableKey = useMemo(() => JSON.stringify(segments), [segments]); const stableSegments = useMemo(() => JSON.parse(stableKey), [stableKey]); const [state, setState] = useState({ isPlaying: false, completed: false, currentSegment: null, muted: false, visualOnly: false }); useEffect(() => { const engine = getAudioEngine(); engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments); const timer = window.setTimeout(() => engine.start(), 120); return () => { window.clearTimeout(timer); engine.stop(); }; }, [lang, stableSegments]); return { ...state, replay: () => { const engine = getAudioEngine(); engine.load(stableSegments); engine.start(); }, toggleMute: () => getAudioEngine().toggleMute(), pushOneOff: (text) => getAudioEngine().pushOneOff(text) }; }
-function useNarration(value, screen) { const lang = useLang(); const reduced = usePrefersReducedMotion(); const segments = useMemo(() => { const source = value?.intro ?? value; const texts = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: 's' + screen + '-beat-' + index, text })); }, [lang, screen, value]); const audio = useAudio(segments); const active = segments.findIndex((segment) => segment.id === audio.currentSegment); const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1); const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true; const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0; return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' }; }
-function useGuidedNarration(value, screen, step) { const lang = useLang(); const texts = useMemo(() => { const source = value?.intro ?? value; const localized = source?.[lang] ?? source?.uz ?? []; return (Array.isArray(localized) ? localized : [localized]).filter(Boolean); }, [lang, value]); const intro = useMemo(() => texts.length ? [{ id: 's' + screen + '-beat-0', text: texts[0] }] : [], [screen, texts]); const audio = useAudio(intro); const speakStep = useCallback((index) => { const text = texts[index]; if (text) audio.pushOneOff(text); }, [audio, texts]); return { ...audio, frame: step, caption: texts[step] ?? '', speakStep }; }
-const isAudioReady = (audio) => !audio || audio.muted || audio.visualOnly || audio.completed;
-const playSfx = (kind) => { const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl; if (!url || typeof window === 'undefined') return; try { new Audio(url).play().catch(() => {}); } catch { /* optional */ } };
 
+let audioEngineInstance = null;
+const getAudioEngine = () => {
+  if (typeof window === 'undefined') return null;
+  if (!audioEngineInstance) audioEngineInstance = new AudioEngine();
+  return audioEngineInstance;
+};
+
+function useAudio(segments) {
+  const lang = useLang();
+  const [state, setState] = useState({ muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
+  /* eslint-disable react-hooks/refs -- stable audio queue */
+  const segmentsRef = useRef(segments);
+  const segmentsKey = JSON.stringify(segments || []);
+  const prevKeyRef = useRef(segmentsKey);
+  if (prevKeyRef.current !== segmentsKey) { segmentsRef.current = segments; prevKeyRef.current = segmentsKey; }
+  const stableSegments = segmentsRef.current;
+  /* eslint-enable react-hooks/refs */
+  useEffect(() => {
+    const engine = getAudioEngine();
+    if (!engine) return undefined;
+    engine.setLang(lang);
+    engine.listener = (next) => setState((previous) => ({ ...previous, ...next }));
+    engine.load(stableSegments);
+    const timer = window.setTimeout(() => engine.start(), 220);
+    return () => { window.clearTimeout(timer); engine.stop(); engine.listener = null; };
+  }, [lang, stableSegments]);
+  return {
+    ...state,
+    replay: () => { const engine = getAudioEngine(); engine?.load(stableSegments); engine?.start(); },
+    toggleMute: () => getAudioEngine()?.toggleMute(),
+    pushOneOff: (text) => getAudioEngine()?.pushOneOff(text),
+  };
+}
+
+function useNarration(value, screen) {
+  const lang = useLang();
+  const reduced = usePrefersReducedMotion();
+  const segments = useMemo(() => {
+    const source = value?.intro ?? value;
+    const texts = source?.[lang] ?? [];
+    return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: 's' + screen + '-beat-' + index, text }));
+  }, [lang, screen, value]);
+  const audio = useAudio(segments);
+  const active = segments.findIndex((segment) => segment.id === audio.currentSegment);
+  const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1);
+  const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true;
+  // Ovoz o'chirilgan bo'lsa kadr darhol oxirgi holatga o'tadi. Aks holda bola
+  // ovozsiz rejimda ekrandagi matnni ko'rmay qolardi: kadr jimjit taymer bilan
+  // sekin surilardi (2026-08-19 da topilgan nuqson).
+  const frame = reduced || audio.muted || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
+  return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' };
+}
+
+const playSfx = (kind) => {
+  const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl;
+  if (!url || typeof window === 'undefined') return;
+  try { new Audio(url).play().catch(() => {}); } catch { /* optional */ }
+};
 const BitSVG = ({ state = 'present', className = '' }) => {
   const isWave = state === 'wave';
   const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
@@ -151,11 +1062,11 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   return (
   <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
     <defs>
-      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="g421bbody" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#E2ECF2" />
         <stop offset="100%" stopColor="#B6C7D2" />
       </linearGradient>
-      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
+      <linearGradient id="g421bhead" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stopColor="#EBF2F6" />
         <stop offset="100%" stopColor="#C4D3DC" />
       </linearGradient>
@@ -168,7 +1079,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
     </g>
     <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
     <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g421bbody)" stroke="#A9BCC8" strokeWidth="2" />
     <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
     {(state === 'happy' || isWave) && (
       <g className={isWave ? 'bit-double-wave' : ''}>
@@ -246,7 +1157,7 @@ const BitSVG = ({ state = 'present', className = '' }) => {
         </g>
       </g>
     )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
+    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g421bhead)" stroke="#A9BCC8" strokeWidth="2" />
     <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
     <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
     <g className="g1-eyes" fill="#5BD6F2">
@@ -299,161 +1210,1414 @@ const BitSVG = ({ state = 'present', className = '' }) => {
   </svg>
   );
 };
-const AudioIndicator = ({ audio }) => { const t = useT(); const muteLabel = t(audio.muted ? bi("Ovozni yoqish", 'Включить звук', 'Turn sound on') : bi("Ovozni o'chirish", 'Выключить звук', 'Turn sound off')); const replayLabel = t(bi('Qayta eshitish', 'Повторить', 'Replay')); return <div className="audio-indicator"><button type="button" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>{audio.muted ? '🔇' : '🔊'}</button><span className={audio.isPlaying ? 'audio-wave playing' : 'audio-wave'}><i/><i/><i/></span>{!audio.muted && <button type="button" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>↻</button>}</div>; };
-const ScreenTypeLabel = ({ type }) => { const t = useT(); const labels = { hook: bi('Taxmin', 'Гипотеза', "Estimate"), exploration: bi('Tadqiqot', 'Исследование', "Explore"), rule: bi('Qoida', 'Правило', "Rule"), strategy: bi('Strategiya', 'Стратегия', 'Strategy'), error: bi('Xatoni tuzatish', 'Исправление ошибки', 'Error repair'), test: bi('Mashq', 'Задание', "Task"), case: bi('Vaziyat', 'Ситуация', "Situation"), summary: bi('Yakun', 'Итог', "Summary") }; return <span className="screen-type">{t(labels[type])}</span>; };
-const Stage = ({ screen, audio, onPrev, onNext, canAdvance = true, canFinish = true, finish = false, children }) => { const t = useT(); const mobile = useIsMobile(); const meta = SCREEN_META[screen]; const c = CONTENT[`s${screen}`]; const pad = mobile ? 12 : 24; const ready = canAdvance && canFinish && isAudioReady(audio); const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly)); return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}</div><div className="caption-slot" aria-live="polite">{showCaption ? <div className="caption">{audio.caption}</div> : <span aria-hidden="true"/>}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t(bi('Orqaga', 'Назад', "Back"))}</button>}<button type="button" className="btn-white-accent" disabled={!ready} aria-disabled={!ready} onClick={onNext}>{finish ? t(bi('Darsni yakunlash', 'Завершить урок', "Finish lesson")) : t(bi('Davom etish', 'Продолжить', "Continue"))} →</button></footer></main>; };
-const Heading = ({ c, state = 'present', showBit = false, hook = false }) => { const t = useT(); return <div className={'heading ' + (showBit && !hook ? '' : 'heading-solo')}><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{showBit && !hook && <BitSVG state={state}/>}</div>; };
+const AudioIndicator = ({ audio }) => {
+  const lang = useLang();
+  const labels = {
+    uz: { unmute: "Ovozni yoqish", mute: "Ovozni o'chirish", replay: 'Qayta eshitish' },
+    ru: { unmute: 'Включить звук', mute: 'Выключить звук', replay: 'Повторить' },
+    en: { unmute: 'Turn sound on', mute: 'Turn sound off', replay: 'Replay' },
+  }[lang];
+  const muteLabel = audio.muted
+    ? labels.unmute
+    : labels.mute;
+  const replayLabel = labels.replay;
+  return (
+    <div className="audio-controls">
+      <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
+        {audio.muted ? '🔇' : (audio.isPlaying ? '🔊' : '🔉')}
+      </button>
+      {!audio.muted && (
+        <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>
+          ↻
+        </button>
+      )}
+    </div>
+  );
+};
 
-const G4TitleReveal = ({ active, title, onComplete }) => {
-  const t = useT();
-  useEffect(() => { if (!active) return undefined; const timer = window.setTimeout(() => onComplete?.(), window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 80 : 3900); return () => window.clearTimeout(timer); }, [active, onComplete]);
-  if (!active || typeof document === 'undefined') return null;
-  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={`${t(bi('Unvon olindi', 'Звание получено', 'Title earned'))}: ${t(title)}`}><div className="rank-boost-card g4-title-reveal-card"><div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true"/><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ '--g4-title-i': index, '--g4-title-delay': `${(index % 7) * -0.21}s` }}/>)}</div><div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div><h2>{t(title)}</h2></div></div>, document.body);
+const ScreenTypeLabel = ({ type }) => {
+  const lang = useLang();
+  const labels = {
+    uz: { hook: 'Missiya', diagnostic: 'Diagnostika', model: 'Model', exploration: 'Tadqiqot', discovery: 'Kashfiyot', rule: 'Qoida', strategy: 'Strategiya', consolidation: 'Mustahkamlash', practice: 'Mashq', test: 'Tekshiruv', error: 'Xato tahlili', matching: 'Moslashtirish', case: 'Vazifa', summary: 'Yakun' },
+    ru: { hook: 'Миссия', diagnostic: 'Диагностика', model: 'Модель', exploration: 'Исследование', discovery: 'Открытие', rule: 'Правило', strategy: 'Стратегия', consolidation: 'Закрепление', practice: 'Практика', test: 'Проверка', error: 'Разбор ошибки', matching: 'Сопоставление', case: 'Задача', summary: 'Итог' },
+    en: { hook: 'Mission', diagnostic: 'Diagnostic', model: 'Model', exploration: 'Exploration', discovery: 'Discovery', rule: 'Rule', strategy: 'Strategy', consolidation: 'Consolidation', practice: 'Practice', test: 'Check', error: 'Error analysis', matching: 'Matching', case: 'Problem', summary: 'Summary' },
+  }[lang];
+  return <span className="screen-type">{labels[type] ?? type}</span>;
 };
-const G4TitleCard = ({ title, answers = [] }) => {
-  const t = useT(); const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null); const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  return <aside className="g4-title-card-stage" data-g4-role="title-card" role="status" aria-live="polite" aria-atomic="true"><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal" aria-hidden="true">★</div><span className="g4-title-card-kicker">{t(bi('UNVON OLINDI', 'ЗВАНИЕ ПОЛУЧЕНО', 'TITLE EARNED'))}</span><h2>{t(title)}</h2><div className="g4-title-card-score"><strong>{firstTry}/{scored.length}</strong><span>{t(bi('birinchi urinishda', 'с первой попытки', 'on the first attempt'))}</span></div></aside>;
-};
-const Grid = ({ side = 10, frame = 0, label = '10 × 10' }) => <div className="area-demo"><div className="square-grid" style={{ '--side': side }}>{Array.from({ length: Math.min(side * side, 100) }, (_, index) => <i className={index < Math.min(100, (frame + 1) * 25) ? 'active' : ''} key={index}/>)}</div><strong>{label}</strong></div>;
-function AreaVisual({ scene, frame, solved = false }) {
+
+const FeedbackBlock = ({ show, correct, children, proof = null }) => {
   const t = useT();
-  if (['panel', 'zoom-cm', 'panel-case'].includes(scene)) {
-    const label = scene === 'panel-case' ? t(bi('2 m × 3 m', '2 м × 3 м', "2 m × 3 m")) : '10 × 10';
-    const value = scene === 'zoom-cm'
-      ? (solved || frame >= 2 ? t(bi('100 cm²', '100 см²', "100 cm²")) : t(bi('1 dm²', '1 дм²', "1 dm²")))
-      : solved
-      ? (scene === 'panel-case' ? t(bi('6 m² → 600 dm²', '6 м² → 600 дм²', "6 m² → 600 dm²")) : t(bi('100 cm²', '100 см²', "100 cm²")))
-      : (scene === 'panel-case' ? t(bi('? dm²', '? дм²', "? dm²")) : t(bi('? cm²', '? см²', "? cm²")));
-    return <div className="area-visual"><Grid frame={frame} label={label}/><span className="area-pill">{value}</span></div>;
-  }
-  if (scene === 'dimension') return <div className="area-visual dimension"><div className="line-unit">{t(bi('5 cm', '5 см', "5 cm"))}</div><div className="one-square">{t(bi('1 cm²', '1 см²', "1 cm²"))}</div></div>;
-  if (scene === 'unit') return <div className="area-visual units"><div className="tiny-square">{t(bi('1 mm²', '1 мм²', "1 mm²"))}</div><div className="one-square">{t(bi('1 cm²', '1 см²', "1 cm²"))}</div></div>;
-  if (scene === 'zoom-mm') return <div className="area-visual"><Grid frame={frame} label={t(bi('1 cm² = 100 mm²', '1 см² = 100 мм²', "1 cm² = 100 mm²"))}/></div>;
-  if (scene === 'meter') return <div className="area-visual scale-cards"><span>{t(bi('1 m²', '1 м²', "1 m²"))}</span><b>{t(bi('100 dm²', '100 дм²', "100 dm²"))}</b><strong>{t(bi('10 000 cm²', '10 000 см²', "10 000 cm²"))}</strong></div>;
-  if (scene === 'kilometer' || scene === 'city') return <div className="area-visual city-map"><div className="city-blocks">{Array.from({ length: 16 }, (_, index) => <i className={index <= frame * 4 + 3 ? 'active' : ''} key={index}/>)}</div><strong>{scene === 'city' && !solved ? t(bi('Mos birlikni tanlang', 'Выбери подходящую единицу', "Choose the suitable unit")) : t(bi('1 km² = 1 000 000 m²', '1 км² = 1 000 000 м²', "1 km² = 1 000 000 m²"))}</strong></div>;
-  if (scene === 'relations') return <div className="area-visual relation-list">{['10 × 10 → 100', '10 × 10 → 100', '100 × 100 → 10 000', '1000 × 1000 → 1 000 000'].map((item, index) => <span className={index <= frame ? 'active' : ''} key={index}>{item}</span>)}</div>;
-  if (scene === 'choice') return <div className="area-visual choice-row">{t(bi(['detal', 'stol · xona', 'shahar', 'million m²'], ['деталь', 'стол · комната', 'город', 'миллион м²'], ["object","table · room","city","million m²"])).map((unit, index) => <span className={index <= frame ? 'active' : ''} key={unit}>{unit}</span>)}</div>;
-  if (scene === 'final') return <div className="area-visual choice-row">{t(bi(['mm²', 'cm²', 'dm²', 'm²', 'km²'], ['мм²', 'см²', 'дм²', 'м²', 'км²'], ["mm²","cm²","dm²","m²","km²"])).map((unit, index) => <span className={index <= frame ? 'active' : ''} key={unit}>{unit}</span>)}</div>;
-  return <div className="area-visual"><Grid frame={frame}/><span>{t(bi('birlik kvadratlar', 'единичные квадраты', "unit squares"))}</span></div>;
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!show) { const frameId = requestAnimationFrame(() => setOpen(false)); return () => cancelAnimationFrame(frameId); }
+    let second = 0;
+    const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); });
+    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
+  }, [show]);
+  return <div data-g4-role={show ? (correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame') : undefined} data-g4-feedback={show ? (correct ? 'solution' : 'wrong') : undefined} role={show ? 'status' : undefined} aria-hidden={!show} className={`feedback feedback-slot ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p data-g4-role={show && correct ? 'bit-answer-comment' : undefined}>{show && correct && <b className="proof-label">{t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' })}</b>}<span>{show ? children : ''}</span>{show && proof && <strong className="feedback-proof">{proof}</strong>}</p></div>;
+};
+
+const Stage = ({ screen, audio, onPrev, onNext, nextDisabled: originalNextDisabled = false, finish = false, children }) => {
+  const originalGatePassed = !originalNextDisabled && Boolean(onNext);
+  const nextDisabled = !canUseGrade4TheoryContinue(originalGatePassed, finish);
+  const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = CONTENT[`s${screen}`]; const meta = SCREEN_META[screen];
+  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" role="progressbar" aria-valuemin={1} aria-valuemax={TOTAL_SCREENS} aria-valuenow={screen + 1} aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}>{children}<div className={`caption-slot ${audio?.caption && (audio.muted || audio.visualOnly) ? 'is-visible' : ''}`} aria-live="polite"><span>{audio?.caption && (audio.muted || audio.visualOnly) ? audio.caption : ''}</span></div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад', en: 'Back' })}</button>}<button type="button" className="btn-white-accent" disabled={nextDisabled || !onNext} onClick={onNext}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок', en: 'Finish lesson' }) : t({ uz: "Davom etish", ru: 'Продолжить', en: 'Continue' })} →</button></footer></main>;
+};
+
+const InlineCheck = ({ prompt, options, correctIndex, picked, onPick, disabled, note }) => {
+  const t = useT();
+  const done = picked === correctIndex;
+  return <div className="inline-check" data-g4-role="inline-check">
+    <span className="inline-check-prompt">{t(prompt)}</span>
+    <div className="inline-check-row">{options.map((option, index) => <button type="button" key={index} className={'inline-chip' + (picked === index ? (index === correctIndex ? ' is-right' : ' is-bad') : '')} disabled={disabled || done} onClick={() => onPick(index)}>{t(option)}</button>)}</div>
+    <span className="inline-check-note" role="status">{picked === null ? '' : t(done ? note.right : note.wrong)}</span>
+  </div>;
+};
+
+const FactCard = ({ show, text }) => {
+  const t = useT();
+  return <div className={'fact-card ' + (show ? 'show' : '')} data-g4-role="fact-card"><b>{t({ uz: 'FAKT', ru: 'ФАКТ', en: 'FACT' })}</b><p>{t(text)}</p></div>;
+};
+
+// Kicker doim dars mavzusini ko'rsatadi: ilgari u Stage yuqorisidagi yorliqni
+// so'zma-so'z takrorlar edi va ekranda bir xil matn ikki marta turardi.
+const Heading = ({ c, bit, hook = false, kicker = null }) => { const t = useT(); return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(kicker ?? TOPIC_KICKER)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{bit && !hook && <BitSVG state={bit}/>}</div>; };
+
+// wrongSet - allaqachon tanlangan noto'g'ri variantlar. Ular joyida qoladi
+// (keep-visible), lekin xiralashadi va qayta bosilmaydi: bola bir xil xatoni
+// takrorlab urinmaydi, to'g'ri javobga yo'naltiriladi.
+const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false, disabled = false, order = null, wrongSet = null }) => {
+  const t = useT();
+  const sourceOrder = order ?? values.map((_, index) => index);
+  return <div className="options">{sourceOrder.map((sourceIndex, displayIndex) => { const value = values[sourceIndex]; const isWrong = !neutral && (wrongSet ? wrongSet.has(sourceIndex) : picked === sourceIndex && picked !== correctIndex); return <button type="button" data-g4-role="answer-card" data-g4-source-index={order ? sourceIndex : undefined} data-g4-correct={order ? (sourceIndex === correctIndex ? 'true' : 'false') : undefined} key={sourceIndex + '-' + t(value)} className={'option ' + (picked === sourceIndex ? 'picked ' : '') + (!neutral && solved && sourceIndex === correctIndex ? 'right ' : '') + (isWrong ? 'bad' : '')} disabled={disabled || (!neutral && solved) || isWrong} onClick={() => onPick(sourceIndex)}><b>{String.fromCharCode(65 + displayIndex)}</b><span>{t(value)}</span></button>; })}</div>;
+};
+
+
+const readPoint = (element, board, side) => {
+  const box = element.getBoundingClientRect();
+  const host = board.getBoundingClientRect();
+  return {
+    x: side === 'left' ? box.right - host.left : box.left - host.left,
+    y: box.top + box.height / 2 - host.top,
+  };
+};
+
+function MatchingLines({ boardRef, pairs = [], wrongPair = null, localeKey = 'uz' }) {
+  const [geometry, setGeometry] = useState({ width: 0, height: 0, lines: [] });
+
+  useLayoutEffect(() => {
+    const board = boardRef.current;
+    if (!board) return undefined;
+
+    let frame = 0;
+    const measure = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(() => {
+        const host = board.getBoundingClientRect();
+        const allPairs = wrongPair ? [...pairs, { ...wrongPair, wrong: true }] : pairs;
+        const lines = allPairs.map((pair) => {
+          const left = board.querySelector(`[data-match-left="${pair.left}"]`);
+          const right = board.querySelector(`[data-match-right="${pair.right}"]`);
+          if (!left || !right) return null;
+          return { from: readPoint(left, board, 'left'), to: readPoint(right, board, 'right'), wrong: pair.wrong };
+        }).filter(Boolean);
+        setGeometry({ width: host.width, height: host.height, lines });
+      });
+    };
+
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(board);
+    board.querySelectorAll('[data-match-left],[data-match-right]').forEach((node) => observer.observe(node));
+    window.addEventListener('resize', measure);
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [boardRef, pairs, wrongPair, localeKey]);
+
+  return (
+    <svg
+      className="matching-connectors"
+      width={geometry.width}
+      height={geometry.height}
+      viewBox={`0 0 ${geometry.width || 1} ${geometry.height || 1}`}
+      aria-hidden="true"
+      style={{ position: 'absolute', inset: 0, zIndex: 1, overflow: 'visible', pointerEvents: 'none' }}
+    >
+      {geometry.lines.map((line, index) => {
+        const bend = Math.max(24, (line.to.x - line.from.x) * 0.42);
+        const path = `M ${line.from.x} ${line.from.y} C ${line.from.x + bend} ${line.from.y}, ${line.to.x - bend} ${line.to.y}, ${line.to.x} ${line.to.y}`;
+        return (
+          <path
+            key={`${path}-${index}`}
+            className={line.wrong ? 'matching-connector-wrong' : 'matching-connector-correct'}
+            d={path}
+            fill="none"
+            stroke={line.wrong ? '#B85C32' : '#227A53'}
+            strokeWidth="4"
+            strokeLinecap="round"
+            style={{ filter: `drop-shadow(0 2px 3px ${line.wrong ? 'rgba(184,92,50,.28)' : 'rgba(34,122,83,.28)'})`, transition: 'd .55s ease, stroke .55s ease' }}
+          />
+        );
+      })}
+    </svg>
+  );
 }
-const RevealFrames = ({ frames, frame }) => { const t = useT(); return <div className="reveal-grid">{frames.map((item, index) => <div className={index <= frame ? 'reveal-card show' : 'reveal-card'} key={index}><b>{index + 1}</b><span>{t(item)}</span></div>)}</div>; };
-const GuidedFramePanel = ({ frames, step, onAdvance, audioReady }) => { const t = useT(); const complete = step >= frames.length - 1; return <div className="guided-panel" aria-live="polite"><div className="guided-progress" aria-label={`${step + 1} / ${frames.length}`}>{frames.map((_, index) => <i className={index <= step ? 'active' : ''} key={index}/>)}</div><div className="guided-frame"><b>{step + 1}</b><span>{t(frames[step])}</span></div><div className="guided-action">{complete ? <span className="guided-complete">✓ {t(bi('Bosqichlar tugadi', 'Шаги завершены', 'Steps complete'))}</span> : <button type="button" className="btn-white-accent step-button" disabled={!audioReady} onClick={onAdvance}>{t(bi('Keyingi qadam', 'Следующий шаг', 'Next step'))} →</button>}</div></div>; };
-function HookScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const answerReady = isAudioReady(audio); const choose = (index) => { if (!answerReady) return; const nextAttempts = attempts + 1; setPicked(index); setAttempts(nextAttempts); audio.pushOneOff(t(c.neutral)); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: storedAnswer?.firstTry ?? true, attempts: nextAttempts, wrongChoices: [] }); }; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={picked !== null}><div className="stack hook-stack" data-g4-screen="hook"><Heading c={c} state="think" showBit hook/><h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2><section className="model-card hook-card" data-g4-role="hook-scene"><div className="hook-scene-visual" data-g4-role="visual-frame"><AreaVisual scene={c.scene} frame={audio.frame} screen={screen}/><div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></div></div></section><RevealFrames frames={c.frames} frame={audio.frame}/><section className="question hook-question" data-g4-role="answer-card" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => <button type="button" data-g4-role="answer-card" className={'option ' + (picked === index ? 'picked' : '')} disabled={!answerReady} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div><div className="feedback-slot hook-feedback-slot">{picked !== null && <div className="feedback open neutral" data-g4-role="feedback-frame" data-g4-feedback="diagnostic"><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state="nod"/></span><b>◆</b><p>{t(c.neutral)}</p></div>}</div></section></div></Stage>; }
-function InfoScreen({ screen, onPrev, onNext }) { const c = CONTENT[`s${screen}`]; const [step, setStep] = useState(0); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio); const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); audio.speakStep(nextStep); }; const bitState = screen === 7 ? 'happy' : ['focus', 'point', 'idea'][(screen - 1) % 3]; return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={complete}><div className="stack info-stack"><Heading c={c} state={bitState} showBit/><section className="model-card guided-card"><AreaVisual scene={c.scene} frame={step} screen={screen} solved/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section></div></Stage>; }
-function QuestionScreen({ screen, storedAnswer, onAnswer, onPrev, onNext }) { const t = useT(); const c = CONTENT[`s${screen}`]; const audio = useNarration(c.audio, screen); const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [attempts, setAttempts] = useState(storedAnswer?.attempts ?? 0); const [wrongChoices, setWrongChoices] = useState(storedAnswer?.wrongChoices ?? []); const openChoice = SCREEN_META[screen].type === 'strategy'; const revealed = picked !== null; const correct = openChoice ? revealed : picked === c.correctIndex; const canAnswer = isAudioReady(audio); const baseBitState = screen === 12 ? 'awkward' : screen === 13 ? 'point' : 'focus'; const bitState = revealed ? (correct ? 'nod' : 'awkward') : baseBitState; const choose = (index) => { if (!canAnswer || correct || wrongChoices.includes(index)) return; const ok = openChoice || index === c.correctIndex; const nextAttempts = attempts + 1; const nextWrongChoices = ok ? wrongChoices : [...wrongChoices, index]; setPicked(index); setAttempts(nextAttempts); setWrongChoices(nextWrongChoices); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.audio.on_correct : c.feedbackAudio[index])); onAnswer({ stage: SCREEN_META[screen].scope, screenIdx: screen, question: t(c.question), options: c.options.map((option) => t(option)), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: storedAnswer?.firstTry === false ? false : nextAttempts === 1 && ok, attempts: nextAttempts, wrongChoices: nextWrongChoices }); }; const showProof = !openChoice && (correct || (!correct && wrongChoices.length >= 2)); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} canAdvance={correct}><div className="stack question-stack"><Heading c={c} state={bitState} showBit/><section className="test-layout"><div className="test-model"><AreaVisual scene={c.scene} frame={audio.frame} screen={screen} solved={revealed}/><RevealFrames frames={c.frames} frame={audio.frame}/></div><div className="question" aria-live="polite"><h2>{t(c.question)}</h2><div className="options">{c.options.map((option, index) => { const cls = openChoice && picked === index ? 'picked' : index === c.correctIndex && correct ? 'right' : wrongChoices.includes(index) ? 'bad' : ''; return <button type="button" className={'option ' + cls} disabled={!canAnswer || correct || wrongChoices.includes(index)} onClick={() => choose(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>; })}</div><div className="feedback-slot question-feedback-slot">{revealed && <div className="feedback-stack"><div className={'feedback open ' + (correct ? 'correct' : 'wrong')} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? "nod" : "awkward"}/></span><p data-g4-role={correct ? 'bit-answer-comment' : undefined}>{correct && <b className="proof-label">{t(SOLUTION_LABEL)}</b>}{t(correct ? c.audio.on_correct : c.audio.on_wrong[picked])}</p></div>{showProof && <div className="proof"><b className="proof-label">{t(SOLUTION_LABEL)}</b><span>{t(c.proof)}</span></div>}</div>}</div></div></section></div></Stage>; }
-const Screen0 = (props) => <HookScreen {...props}/>;
-const Screen1 = (props) => <InfoScreen {...props}/>;
-const Screen2 = (props) => <InfoScreen {...props}/>;
-const Screen3 = (props) => <InfoScreen {...props}/>;
-const Screen4 = (props) => <InfoScreen {...props}/>;
-const Screen5 = (props) => <InfoScreen {...props}/>;
-const Screen6 = (props) => <InfoScreen {...props}/>;
-const Screen7 = (props) => <InfoScreen {...props}/>;
-const Screen8 = (props) => <QuestionScreen {...props}/>;
-const Screen9 = (props) => <QuestionScreen {...props}/>;
-const Screen10 = (props) => <QuestionScreen {...props}/>;
-const Screen11 = (props) => <QuestionScreen {...props}/>;
-const Screen12 = (props) => <QuestionScreen {...props}/>;
-const Screen13 = (props) => <QuestionScreen {...props}/>;
-function Screen14({ screen, answers, onPrev, finishLesson, finalState, onFinalState }) {
-  const t = useT(); const c = CONTENT.s14; const storedAnswer = finalState; const [step, setStep] = useState(storedAnswer.step); const [reflection, setReflection] = useState(storedAnswer.reflection); const [titleClaimed, setTitleClaimed] = useState(storedAnswer?.titleClaimed === true); const [revealRequested, setRevealRequested] = useState(false); const audio = useGuidedNarration(c.audio, screen, step); const complete = step >= c.frames.length - 1; const audioReady = isAudioReady(audio);
-  const completeReveal = useCallback(() => { setRevealRequested(false); setTitleClaimed(true); onFinalState((previous) => ({ ...previous, titleClaimed: true })); }, [onFinalState]);
-  const advance = () => { if (complete || !audioReady) return; const nextStep = step + 1; setStep(nextStep); onFinalState((previous) => ({ ...previous, step: nextStep })); audio.speakStep(nextStep); };
-  const chooseReflection = (index) => { setReflection(index); onFinalState((previous) => ({ ...previous, reflection: index })); };
-  const claimTitle = () => { if (reflection === null) return; if (!complete || !audioReady || titleClaimed || revealRequested) return; setRevealRequested(true); };
-  const finish = () => { if (reflection === null || !titleClaimed) return; finishLesson(); };
-  const titleState = titleClaimed ? 'claimed' : 'unclaimed';
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} canAdvance={complete && reflection !== null} canFinish={titleState === 'claimed'} finish><div className="stack summary-stack"><Heading c={c} state={titleClaimed ? 'happy' : 'idea'} showBit/>{!complete ? <section className="model-card summary-card guided-card"><AreaVisual scene={c.scene} frame={step} screen={screen} solved/><GuidedFramePanel frames={c.frames} step={step} onAdvance={advance} audioReady={audioReady}/></section> : <div className="summary-complete"><section className="reflection-card final-reflection" data-g4-role="reflection" aria-live="polite"><h2>{t(REFLECTION.question)}</h2><div className="reflection-options">{REFLECTION.options.map((option, index) => <button type="button" className={'option ' + (reflection === index ? 'picked' : '')} disabled={!audioReady || revealRequested} onClick={() => chooseReflection(index)} key={index}><b>{String.fromCharCode(65 + index)}</b><span>{t(option)}</span></button>)}</div></section><G4TitleReveal active={revealRequested} title={REWARD_TITLE} onComplete={completeReveal}/>{!titleClaimed ? <section className="title-claim-card"><span>★</span><h2>{t(REWARD_TITLE)}</h2><button type="button" className="btn-white-accent g4-title-claim" data-g4-role="title-claim" disabled={reflection === null || revealRequested || !audioReady} onClick={claimTitle}>{t(bi('Unvonni olish', 'Получить звание', 'Claim title'))}</button></section> : null}{titleClaimed && <G4TitleCard title={REWARD_TITLE} answers={answers}/>}</div>}</div></Stage>;
+
+
+// ---------------------------------------------------------------------------
+// QADAMLI OCHILISH. Tushuntirish ovoz bilan o'zi surilmaydi: bola tugmani
+// bosadi, qadam ochiladi va aynan shu qadam ovozlanadi. Ovoz o'chirilganda
+// ham butun tushuntirish ko'rinadi - kadr yo'qolib qolmaydi.
+// ---------------------------------------------------------------------------
+function useStepReveal(content, screen, total) {
+  const lang = useLang();
+  const audio = useNarration(content.audio, screen);
+  const [step, setStep] = useState(0);
+  const ready = audio.muted || audio.completed;
+  const advance = () => {
+    if (!ready || step >= total) return;
+    const next = step + 1;
+    setStep(next);
+    const spoken = content.audio.steps?.[lang]?.[next - 1];
+    if (spoken) audio.pushOneOff(spoken);
+  };
+  return { audio, step, advance, ready, done: step >= total };
 }
+
+// Ochilgan qadamlar tepada ixcham chip bo'lib yig'iladi, faol qadamning izohi
+// to'liq ko'rinadi. Shu tufayli ekranda ko'p tushuntirish sig'adi va skroll
+// paydo bo'lmaydi.
+const StepPanel = ({ steps, step, children, done, doneText, onAdvance, ready }) => {
+  const t = useT();
+  const active = step > 0 ? steps[step - 1] : null;
+  return (
+    <section className="step-panel" data-g4-role="visual-frame">
+      <div className="step-model">{children}</div>
+      <div className="step-chips">
+        {steps.map((item, index) => (
+          <span key={index} className={'step-chip' + (index < step ? ' is-done' : '') + (index === step - 1 ? ' is-active' : '')}>
+            <b aria-hidden="true">{index < step ? '✓' : index + 1}</b>
+            <span>{t(item.chip)}</span>
+          </span>
+        ))}
+      </div>
+      <p className="step-caption" role="status" aria-live="polite">{active ? t(active.caption) : ''}</p>
+      <div className="step-actions">
+        {!done && (
+          <button type="button" className="btn-step" disabled={!ready} onClick={onAdvance}>
+            {t(step === 0
+              ? { uz: 'Boshlash', ru: 'Начать', en: 'Start' }
+              : { uz: 'Keyingi qadam', ru: 'Следующий шаг', en: 'Next step' })}
+          </button>
+        )}
+        {done && <span className="step-done">{t(doneText)}</span>}
+      </div>
+    </section>
+  );
+};
+
+
+// Klaviatura yo'q: son raqam plitalarini bosib teriladi, keyin tekshiriladi.
+const TapNumPad = ({ value, onDigit, onBack, onCheck, disabled, state, unit = '' }) => {
+  const t = useT();
+  return (
+    <div className="tap-pad">
+      <div className={'tap-display mono' + (state ? ' is-' + state : '')} role="status" aria-live="polite">
+        <span>{value === '' ? '?' : value}</span>
+        {unit && <small>{t(unit)}</small>}
+      </div>
+      <div className="tap-keys" role="group" aria-label={t({ uz: 'Raqamlar', ru: 'Цифры', en: 'Digits' })}>
+        {Array.from({ length: 10 }, (_, digit) => (
+          <button type="button" key={digit} className="tap-key" disabled={disabled} onClick={() => onDigit(String(digit))}>{digit}</button>
+        ))}
+        <button type="button" className="tap-key tap-back" disabled={disabled} onClick={onBack} aria-label={t({ uz: 'Oxirgi raqamni olib tashlash', ru: 'Удалить последнюю цифру', en: 'Delete the last digit' })}>&larr;</button>
+        <button type="button" className="tap-key tap-check" disabled={disabled || value === ''} onClick={onCheck}>
+          {t({ uz: 'Tekshirish', ru: 'Проверить', en: 'Check' })}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// Raqam terish ekranlari uchun umumiy tana (s3, s5, s12 va yakuniy topshiriqlar).
+function useTapAnswer({ screen, answer, onAnswer, question, ready, audio, correctAudio, wrongAudio, storedAnswer }) {
+  const t = useT();
+  const [value, setValue] = useState('');
+  const [state, setState] = useState(null);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const push = (digit) => { if (!ready || solved || value.length >= 4) return; setState(null); setValue((previous) => previous + digit); };
+  const back = () => { if (!ready || solved) return; setState(null); setValue((previous) => previous.slice(0, -1)); };
+  const check = () => {
+    if (!ready || solved || value === '') return;
+    attempts.current += 1;
+    const ok = Number(value) === answer;
+    if (!ok) clean.current = false;
+    setState(ok ? 'ok' : 'bad');
+    setSolved(ok);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? correctAudio : wrongAudio));
+    if (!ok) setTimeout(() => { setValue(''); setState(null); }, 1400);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(question),
+      options: [], correctIndex: answer, correctAnswer: String(answer),
+      studentAnswerIndex: null, studentAnswer: value,
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok,
+    });
+  };
+  return { value: solved ? String(answer) : value, state, solved, push, back, check };
+}
+
+
+// ---------------------------------------------------------------------------
+// BIRLIKLAR DARSLARI UCHUN UMUMIY MEXANIKA (26 va 27-darslar). Bu bloklar
+// 21-25 darslarda ishlangan naqshlardan olindi: bosish orqali ishlaydi, drag
+// yo'q, har element 44px dan kichik emas. Har dars faqat o'z modelini (chizg'ich
+// yoki tarozi) qo'shadi.
+// ---------------------------------------------------------------------------
+
+// Birliklar zanjiri: qo'shni birliklar orasidagi ko'paytiruvchi ko'rinadi.
+// from va to berilsa, shu oraliq yonib turadi - bola qancha qadam borligini
+// ko'z bilan sanaydi.
+const UnitLadder = ({ units, from = null, to = null, compact = false }) => {
+  const fromIndex = units.findIndex((unit) => unit.key === from);
+  const toIndex = units.findIndex((unit) => unit.key === to);
+  const low = Math.min(fromIndex, toIndex);
+  const high = Math.max(fromIndex, toIndex);
+  const inRange = (index) => fromIndex >= 0 && toIndex >= 0 && index >= low && index <= high;
+  return (
+    <div className={'ladder' + (compact ? ' compact' : '')}>
+      {units.map((unit, index) => (
+        <React.Fragment key={unit.key}>
+          {index > 0 && (
+            <span className={'ladder-arrow mono' + (inRange(index) && inRange(index - 1) ? ' is-on' : '')}>
+              {unit.factor}
+            </span>
+          )}
+          <span className={'ladder-unit mono' + (inRange(index) ? ' is-on' : '')}>{unit.key}</span>
+        </React.Fragment>
+      ))}
+    </div>
+  );
+};
+
+// Munosabatlar jadvali: har qator bitta tenglik, biri ajratib ko'rsatiladi.
+const UnitTable = ({ rows, highlight = null }) => (
+  <div className="utable" role="table">
+    {rows.map((row, index) => (
+      <div key={index} className={'urow mono' + (index === highlight ? ' is-now' : '')} role="row">
+        <span role="cell">{row}</span>
+      </div>
+    ))}
+  </div>
+);
+
+// Obyektni mos birlik ustuniga joylash. Bosish orqali: avval karta, keyin
+// ustun. Karta joyiga tushgach ustun nomi kartada qoladi.
+const SortBoard = ({ items, buckets, placed, active, wrongItem, onPick, onPlace, disabled, solved }) => {
+  const t = useT();
+  return (
+    <section className="sortb" data-g4-role="visual-frame">
+      <div className="sortb-cards">
+        {items.map((item, index) => (
+          <button
+            type="button"
+            key={index}
+            className={'sortb-card' + (active === index ? ' is-active' : '') + (placed[index] !== undefined ? ' is-done' : '') + (wrongItem === index ? ' is-wrong' : '')}
+            disabled={disabled || placed[index] !== undefined || solved}
+            onClick={() => onPick(index)}
+          >
+            <span>{t(item.text)}</span>
+            {placed[index] !== undefined && <small className="sortb-tag mono">{t(buckets[placed[index]].label)}</small>}
+          </button>
+        ))}
+      </div>
+      <div className="sortb-buckets">
+        {buckets.map((bucket, index) => (
+          <button
+            type="button"
+            key={index}
+            className={'sortb-bucket' + (active !== null ? ' is-open' : '')}
+            disabled={disabled || active === null || solved}
+            onClick={() => onPlace(index)}
+          >
+            <b className="mono">{t(bucket.label)}</b>
+            <small>{t(bucket.caption)}</small>
+            <span className="sortb-count mono">{placed.filter((value) => value === index).length}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+// Ikki qiymatni taqqoslash: ramkalar o'lchami bir xil va markazda turadi.
+const CompareCards = ({ left, right, picked, onPick, correctIndex, disabled, tried = null }) => {
+  const t = useT();
+  const cards = [left, right];
+  return (
+    <div className="cmpcards">
+      {cards.map((card, index) => (
+        <button
+          type="button"
+          key={index}
+          className={'cmpcard' + (picked === index ? ' is-picked' : '') + (picked !== null && index === correctIndex ? ' is-best' : '') + (tried && tried.has(index) ? ' is-out' : '')}
+          disabled={disabled || picked !== null || Boolean(tried && tried.has(index))}
+          onClick={() => onPick(index)}
+        >
+          <span className="cmpcard-value mono">{t(card.value)}</span>
+          <span className="cmpcard-note">{t(card.note)}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+// Jurnal qatori: chapda o'lchov, o'ngda bitta birlikdagi yozuv.
+const RecordRow = ({ leftLabel, leftValue, rightLabel, rightValue = null, faded = true }) => {
+  const t = useT();
+  return (
+    <div className="recrow" data-g4-role="recrow">
+      <div className="recrow-cell">
+        <small>{t(leftLabel)}</small>
+        <b className="mono">{t(leftValue)}</b>
+      </div>
+      <div className={'recrow-cell' + (faded ? ' is-faded' : '')}>
+        <small>{t(rightLabel)}</small>
+        <b className="mono">{rightValue === null ? '?' : t(rightValue)}</b>
+      </div>
+    </div>
+  );
+};
+
+const ErrorCard = ({ top, bottom }) => (
+  <div className="error-card" data-g4-role="visual-frame">
+    <div className="error-record">
+      <span className="mono">{top}</span>
+      <b className="mono">{bottom}</b>
+    </div>
+    <span className="error-mark" aria-hidden="true">✗</span>
+  </div>
+);
+
+// Saralash ekranining umumiy tanasi: 26 va 27-darslarda bir xil ishlaydi.
+function useSortAnswer({ screen, content, onAnswer, ready, audio, storedAnswer }) {
+  const t = useT();
+  const [placed, setPlaced] = useState(storedAnswer?.placed ?? content.items.map(() => undefined));
+  const [active, setActive] = useState(null);
+  const [wrongItem, setWrongItem] = useState(null);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const reported = useRef(storedAnswer?.solved === true);
+  const solved = placed.every((value) => value !== undefined);
+  const place = (bucket) => {
+    if (!ready || solved || active === null) return;
+    attempts.current += 1;
+    const item = content.items[active];
+    if (bucket === item.bucket) {
+      setPlaced((previous) => previous.map((value, index) => (index === active ? bucket : value)));
+      setActive(null);
+      setWrongItem(null);
+      playSfx('correct');
+    } else {
+      clean.current = false;
+      setWrongItem(active);
+      playSfx('wrong');
+      audio.pushOneOff(t(item.wrongNote));
+    }
+  };
+  useEffect(() => {
+    if (!solved || reported.current) return;
+    reported.current = true;
+    setWrongItem(null);
+    audio.pushOneOff(t(content.audio.on_correct));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(content.title),
+      options: content.items.map((item) => t(item.text)), correctIndex: null,
+      correctAnswer: t(content.doneNote), studentAnswerIndex: null, studentAnswer: t(content.doneNote),
+      correct: true, firstTry: clean.current, attempts: attempts.current, solved: true, placed,
+    });
+  }, [solved, placed, audio, content, onAnswer, screen, t]);
+  return { placed, active, wrongItem, solved, setActive, place };
+}
+
+
+// ---------------------------------------------------------------------------
+// DARSNING O'Z MODELI: birlik kvadratlar to'ri. Kvadratning tomoni o'nta
+// bo'lakka bo'linadi, ichida esa yuzta birlik kvadrat paydo bo'ladi - shu
+// tufayli bola yuzda o'n emas, yuz turishini ko'z bilan ko'radi.
+// ---------------------------------------------------------------------------
+const SquareGrid = ({ filled = 0, side = false, label = null, compact = false }) => {
+  const t = useT();
+  const cells = Array.from({ length: 100 }, (_, index) => (
+    <i key={index} className={'grid-cell' + (index < filled ? ' is-on' : '')} />
+  ));
+  return (
+    <div className={'sqgrid' + (compact ? ' compact' : '')}>
+      <div className="sqgrid-frame">
+        <div className="sqgrid-cells">{cells}</div>
+        {side && <span className="sqgrid-side mono">10</span>}
+      </div>
+      {label && <span className="sqgrid-label mono">{t(label)}</span>}
+    </div>
+  );
+};
+
+// ---------------------------------------------------------------------------
+// EKRANLAR
+// ---------------------------------------------------------------------------
+
+function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
+  const t = useT();
+  const c = CONTENT.s0;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const frame = audio.frame;
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const pick = (index) => {
+    if (!ready || picked !== null) return;
+    setPicked(index);
+    audio.pushOneOff(t(c.neutral));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question),
+      options: c.options.map(t), correctIndex: null, correctAnswer: null,
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: true, firstTry: true, attempts: 1, solved: true,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onNext={onNext} nextDisabled={picked === null || !ready}>
+      <div className="stack hook-stack" data-g4-screen="hook">
+        <Heading c={c} hook />
+        <h2 className="hook-question-prompt" data-g4-role="hook-question">{t(c.question)}</h2>
+        <section className="hook-scene-adapter" data-g4-role="hook-scene">
+          <div className="hook-scene-visual" data-g4-role="visual-frame">
+            <section className="hook-model">
+              <RecordRow
+                leftLabel={LOG_MEASURE}
+                leftValue={bi('1 dm²', '1 дм²', '1 dm²')}
+                rightLabel={LOG_RECORD}
+                rightValue={null}
+              />
+              {frame >= 1 && <UnitLadder units={LADDER_UNITS} from="cm²" to="dm²" compact />}
+              <div className={'hook-record mono' + (frame >= 2 ? ' show' : '')}>
+                1 dm² = <b>10 cm²</b> ?
+              </div>
+            </section>
+            <div className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think" /></div>
+          </div>
+        </section>
+        <section className="question" data-g4-role="answer-card">
+          <Options values={c.options} picked={picked} onPick={pick} neutral disabled={!ready || picked !== null} />
+          <FeedbackBlock show={picked !== null} correct>{t(c.neutral)}</FeedbackBlock>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen1({ screen, onNext, onPrev }) {
+  const c = CONTENT.s1;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.correctIndex;
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="model-card" data-g4-role="visual-frame">
+          <SquareGrid filled={0} side label={bi('tomoni 10 cm', 'сторона 10 см', 'side 10 cm')} />
+        </section>
+        <InlineCheck
+          prompt={c.prompt}
+          options={c.chips}
+          correctIndex={c.correctIndex}
+          picked={picked}
+          onPick={(index) => { if (ready) setPicked(index); }}
+          disabled={!ready}
+          note={c.note}
+        />
+      </div>
+    </Stage>
+  );
+}
+
+function Screen2({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s2;
+  const { audio, step, advance, ready, done } = useStepReveal(c, screen, 3);
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <StepPanel steps={c.steps} step={step} done={done} doneText={c.done} onAdvance={advance} ready={ready}>
+          <div className="stack-model">
+            <SquareGrid filled={step >= 3 ? 100 : step >= 2 ? 10 : 0} side={step >= 1} compact />
+            {step >= 3 && <UnitTable rows={['1 dm² = 100 cm²']} highlight={0} />}
+          </div>
+        </StepPanel>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen3({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s3;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const pad = useTapAnswer({
+    screen, answer: c.answer, onAnswer, question: c.question, ready, audio,
+    correctAudio: c.audio.on_correct, wrongAudio: c.audio.on_wrong, storedAnswer,
+  });
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!pad.solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="model-card" data-g4-role="visual-frame">
+          <RecordRow
+            leftLabel={LOG_MEASURE}
+            leftValue={bi('3 dm²', '3 дм²', '3 dm²')}
+            rightLabel={LOG_RECORD}
+            rightValue={pad.solved ? bi('300 cm²', '300 см²', '300 cm²') : null}
+            faded={!pad.solved}
+          />
+          <UnitLadder units={LADDER_UNITS} from={c.to} to={c.from} />
+          <h2 className="case-question">{t(c.question)}</h2>
+        </section>
+        <TapNumPad value={pad.value} onDigit={pad.push} onBack={pad.back} onCheck={pad.check} disabled={!ready || pad.solved} state={pad.state} unit={UNIT_CM2} />
+        <FeedbackBlock show={pad.state !== null} correct={pad.solved} proof={pad.solved ? t(c.proof) : null}>
+          {pad.solved || pad.state === null ? '' : t(c.hint)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen4({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s4;
+  const { audio, step, advance, ready, done } = useStepReveal(c, screen, 3);
+  const from = step >= 3 ? 'dm²' : 'mm²';
+  const to = step >= 3 ? 'm²' : step >= 2 ? 'dm²' : 'cm²';
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <StepPanel steps={c.steps} step={step} done={done} doneText={c.done} onAdvance={advance} ready={ready}>
+          <div className="stack-model">
+            <UnitLadder units={LADDER_UNITS} from={step >= 1 ? from : null} to={step >= 1 ? to : null} />
+            {step >= 3 && <UnitTable rows={['1 m² = 100 dm²']} highlight={0} />}
+          </div>
+        </StepPanel>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen5({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s5;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const pad = useTapAnswer({
+    screen, answer: c.answer, onAnswer, question: c.question, ready, audio,
+    correctAudio: c.audio.on_correct, wrongAudio: c.audio.on_wrong, storedAnswer,
+  });
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!pad.solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="model-card" data-g4-role="visual-frame">
+          <RecordRow
+            leftLabel={LOG_MEASURE}
+            leftValue={bi('2 m²', '2 м²', '2 m²')}
+            rightLabel={LOG_RECORD}
+            rightValue={pad.solved ? bi('200 dm²', '200 дм²', '200 dm²') : null}
+            faded={!pad.solved}
+          />
+          <UnitTable rows={['1 m² = 100 dm²']} highlight={0} />
+          <h2 className="case-question">{t(c.question)}</h2>
+        </section>
+        <TapNumPad value={pad.value} onDigit={pad.push} onBack={pad.back} onCheck={pad.check} disabled={!ready || pad.solved} state={pad.state} unit={UNIT_DM2} />
+        <FeedbackBlock show={pad.state !== null} correct={pad.solved} proof={pad.solved ? t(c.proof) : null}>
+          {pad.solved || pad.state === null ? '' : t(c.hint)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen6({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s6;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const sort = useSortAnswer({ screen, content: c, onAnswer, ready, audio, storedAnswer });
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!sort.solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <SortBoard
+          items={c.items}
+          buckets={c.buckets}
+          placed={sort.placed}
+          active={sort.active}
+          wrongItem={sort.wrongItem}
+          onPick={sort.setActive}
+          onPlace={sort.place}
+          disabled={!ready}
+          solved={sort.solved}
+        />
+        <FeedbackBlock show={sort.solved || sort.wrongItem !== null} correct={sort.solved}>
+          {sort.solved ? t(c.doneNote) : (sort.wrongItem === null ? '' : t(c.items[sort.wrongItem].wrongNote))}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen7({ screen, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s7;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const frame = audio.frame;
+  const [picked, setPicked] = useState(null);
+  const solved = picked === c.check.correctIndex;
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <section className="rule-frame">
+          <span className="rule-badge">{t({ uz: 'QOIDA', ru: 'ПРАВИЛО', en: 'RULE' })}</span>
+          <p className="rule-text show">{t(c.rule)}</p>
+          <div className="rule-lines">
+            {c.lines.map((line, index) => (
+              <span key={index} className={'rule-line' + (frame >= 1 ? ' show' : '')}>{t(line)}</span>
+            ))}
+          </div>
+          <strong className={'rule-formula' + (frame >= 2 ? ' show' : '')}>{t(c.formula)}</strong>
+          <small className="rule-source">{t(c.ruleSource)}</small>
+        </section>
+        <UnitTable rows={c.tableRows} highlight={2} />
+        <InlineCheck
+          prompt={c.check.prompt}
+          options={c.check.chips}
+          correctIndex={c.check.correctIndex}
+          picked={picked}
+          onPick={(index) => { if (ready) setPicked(index); }}
+          disabled={!ready}
+          note={c.check.note}
+        />
+      </div>
+    </Stage>
+  );
+}
+
+function Screen8(props) {
+  const c = CONTENT.s8;
+  const t = useT();
+  return <ChoiceBody {...props} c={c} ordinal={0} bit="hint" compact model={<ErrorCard top={t(c.errorTop)} bottom={t(c.errorBottom)} />} />;
+}
+
+function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s9;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const pad = useTapAnswer({
+    screen, answer: c.answer, onAnswer, question: c.question, ready, audio,
+    correctAudio: c.audio.on_correct, wrongAudio: c.audio.on_wrong, storedAnswer,
+  });
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!pad.solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <section className="model-card" data-g4-role="visual-frame">
+          <UnitTable rows={['4 · 3 = ?']} highlight={0} />
+          <SquareGrid filled={12} compact />
+          <h2 className="case-question">{t(c.question)}</h2>
+        </section>
+        <TapNumPad value={pad.value} onDigit={pad.push} onBack={pad.back} onCheck={pad.check} disabled={!ready || pad.solved} state={pad.state} unit={UNIT_M2} />
+        <FeedbackBlock show={pad.state !== null} correct={pad.solved} proof={pad.solved ? t(c.proof) : null}>
+          {pad.solved || pad.state === null ? '' : t(c.hint)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen10({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const lang = useLang();
+  const c = CONTENT.s10;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const boardRef = useRef(null);
+  const [activeLeft, setActiveLeft] = useState(null);
+  const [pairs, setPairs] = useState(storedAnswer?.pairs ?? []);
+  const [wrongPair, setWrongPair] = useState(null);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const solved = pairs.length === c.left.length;
+  const reported = useRef(storedAnswer?.solved === true);
+  const takenLeft = new Set(pairs.map((pair) => pair.left));
+  const takenRight = new Set(pairs.map((pair) => pair.right));
+  const pickRight = (rightId) => {
+    if (!ready || solved || activeLeft === null || takenRight.has(rightId)) return;
+    attempts.current += 1;
+    const target = c.right.find((item) => item.id === rightId);
+    if (target && target.pair === activeLeft) {
+      setPairs((previous) => [...previous, { left: activeLeft, right: rightId }]);
+      setActiveLeft(null);
+      setWrongPair(null);
+      playSfx('correct');
+    } else {
+      clean.current = false;
+      setWrongPair({ left: activeLeft, right: rightId });
+      playSfx('wrong');
+      audio.pushOneOff(t(c.audio.on_wrong));
+    }
+  };
+  useEffect(() => {
+    if (!solved || reported.current) return;
+    reported.current = true;
+    setWrongPair(null);
+    audio.pushOneOff(t(c.audio.on_correct));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.title),
+      options: c.left.map((item) => t(item.label)), correctIndex: null,
+      correctAnswer: t(c.doneNote), studentAnswerIndex: null, studentAnswer: t(c.doneNote),
+      correct: true, firstTry: clean.current, attempts: attempts.current, solved: true, pairs,
+    });
+  }, [solved, pairs, audio, c, onAnswer, screen, t]);
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.prompt)}</p>
+        <section className="matching-board" ref={boardRef}>
+          <MatchingLines boardRef={boardRef} pairs={pairs} wrongPair={wrongPair} localeKey={lang} />
+          <div className="matching-column">
+            {c.left.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                data-match-left={item.id}
+                className={'match-card' + (activeLeft === item.id ? ' is-active' : '') + (takenLeft.has(item.id) ? ' is-done' : '')}
+                disabled={!ready || takenLeft.has(item.id) || solved}
+                onClick={() => setActiveLeft(item.id)}
+              >
+                <span className="mono">{t(item.label)}</span>
+              </button>
+            ))}
+          </div>
+          <div className="matching-column">
+            {c.right.map((item) => (
+              <button
+                type="button"
+                key={item.id}
+                data-match-right={item.id}
+                className={'match-card' + (takenRight.has(item.id) ? ' is-done' : '')}
+                disabled={!ready || takenRight.has(item.id) || solved}
+                onClick={() => pickRight(item.id)}
+              >
+                <span className="mono match-value">{item.value}</span>
+                <span className="match-caption">{t(item.caption)}</span>
+              </button>
+            ))}
+          </div>
+        </section>
+        <FeedbackBlock show={solved || wrongPair !== null} correct={solved}>
+          {solved ? t(c.doneNote) : t(c.wrongNote)}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen11({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s11;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const total = c.rounds.length;
+  const [index, setIndex] = useState(storedAnswer?.roundIndex ?? 0);
+  const [picked, setPicked] = useState(null);
+  const [solvedRound, setSolvedRound] = useState(false);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
+  const [firstTryCount, setFirstTryCount] = useState(storedAnswer?.firstTryCount ?? 0);
+  const attempts = useRef(0);
+  const done = index >= total - 1 && solvedRound;
+  const round = c.rounds[Math.min(index, total - 1)];
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const roundOrder0 = useMemo(() => buildOptionOrder(c.rounds[0].options.length, c.rounds[0].correctIndex, LESSON_META.lessonId, 1), []);
+  const roundOrder1 = useMemo(() => buildOptionOrder(c.rounds[1].options.length, c.rounds[1].correctIndex, LESSON_META.lessonId, 2), []);
+  const roundOrder2 = useMemo(() => buildOptionOrder(c.rounds[2].options.length, c.rounds[2].correctIndex, LESSON_META.lessonId, 3), []);
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const roundOrders = [roundOrder0, roundOrder1, roundOrder2];
+  const order = roundOrders[Math.min(index, total - 1)];
+  const pick = (option) => {
+    if (!ready || solvedRound || wrongSet.has(option)) return;
+    attempts.current += 1;
+    const ok = option === round.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    setPicked(option);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(round.feedbackAudio[option]));
+    if (!ok) return;
+    setSolvedRound(true);
+    const nextCorrect = correctCount + 1;
+    const nextFirstTry = firstTryCount + (attempts.current === 1 ? 1 : 0);
+    setCorrectCount(nextCorrect);
+    setFirstTryCount(nextFirstTry);
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(round.question),
+      options: round.options.map(t), correctIndex: round.correctIndex, correctAnswer: t(round.options[round.correctIndex]),
+      studentAnswerIndex: option, studentAnswer: t(round.options[option]),
+      correct: nextCorrect === total, firstTry: nextFirstTry === total,
+      attempts: attempts.current, solved: nextCorrect === total,
+      roundIndex: index, correctCount: nextCorrect, firstTryCount: nextFirstTry,
+    });
+  };
+  const nextRound = () => {
+    if (index >= total - 1) return;
+    setIndex((value) => value + 1);
+    setPicked(null);
+    setSolvedRound(false);
+    setWrongSet(new Set());
+    attempts.current = 0;
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <span className="round-meter">{t({ uz: 'Savol', ru: 'Вопрос', en: 'Question' })} {Math.min(index + 1, total)} / {total}</span>
+        <section className="question round-question">
+          <h2 className="mono">{t(round.question)}</h2>
+          <Options values={round.options} picked={picked} onPick={pick} correctIndex={round.correctIndex} solved={solvedRound} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <FeedbackBlock show={picked !== null} correct={solvedRound} proof={solvedRound ? t(round.proof) : null}>
+            {picked === null ? '' : t(round.feedback[picked])}
+          </FeedbackBlock>
+          {solvedRound && index < total - 1 && (
+            <button type="button" className="btn-step" onClick={nextRound}>
+              {t({ uz: 'Keyingi savol', ru: 'Следующий вопрос', en: 'Next question' })}
+            </button>
+          )}
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen12({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s12;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const [picked, setPicked] = useState(storedAnswer?.correct === true ? c.correctIndex : null);
+  const [tried, setTried] = useState(() => new Set());
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const pick = (index) => {
+    if (!ready || solved || tried.has(index)) return;
+    attempts.current += 1;
+    const ok = index === c.correctIndex;
+    if (!ok) { clean.current = false; setTried((previous) => new Set([...previous, index])); }
+    setPicked(index);
+    setSolved(ok);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(c.feedbackAudio[index]));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question),
+      options: c.cards.map((card) => t(card.value)), correctIndex: c.correctIndex,
+      correctAnswer: t(c.cards[c.correctIndex].value),
+      studentAnswerIndex: index, studentAnswer: t(c.cards[index].value),
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <p className="lead-line">{t(c.lead)}</p>
+        <h2 className="case-question">{t(c.question)}</h2>
+        <CompareCards
+          left={c.cards[0]}
+          right={c.cards[1]}
+          picked={solved ? c.correctIndex : null}
+          tried={tried}
+          onPick={pick}
+          correctIndex={c.correctIndex}
+          disabled={!ready || solved}
+        />
+        <FeedbackBlock show={picked !== null} correct={solved} proof={solved ? t(c.proof) : null}>
+          {picked === null ? '' : t(c.feedback[picked])}
+        </FeedbackBlock>
+      </div>
+    </Stage>
+  );
+}
+
+function Screen13({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
+  const t = useT();
+  const c = CONTENT.s13;
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const total = c.items.length;
+  const [index, setIndex] = useState(storedAnswer?.itemIndex ?? 0);
+  const [picked, setPicked] = useState(null);
+  const [solvedItem, setSolvedItem] = useState(false);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const [value, setValue] = useState('');
+  const [padState, setPadState] = useState(null);
+  const [correctCount, setCorrectCount] = useState(storedAnswer?.correctCount ?? 0);
+  const [firstTryCount, setFirstTryCount] = useState(storedAnswer?.firstTryCount ?? 0);
+  const attempts = useRef(0);
+  const item = c.items[Math.min(index, total - 1)];
+  const done = index >= total - 1 && solvedItem;
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const mcOrder1 = useMemo(() => buildOptionOrder(c.items[1].options.length, c.items[1].correctIndex, LESSON_META.lessonId, 4), []);
+  const mcOrder2 = useMemo(() => buildOptionOrder(c.items[2].options.length, c.items[2].correctIndex, LESSON_META.lessonId, 5), []);
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const order = index === 1 ? mcOrder1 : mcOrder2;
+  const register = (ok, studentAnswer, correctAnswer) => {
+    const nextCorrect = correctCount + (ok ? 1 : 0);
+    const nextFirstTry = firstTryCount + (ok && attempts.current === 1 ? 1 : 0);
+    if (ok) { setCorrectCount(nextCorrect); setFirstTryCount(nextFirstTry); setSolvedItem(true); }
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(item.question),
+      options: item.options ? item.options.map(t) : [], correctIndex: item.options ? item.correctIndex : item.answer,
+      correctAnswer, studentAnswerIndex: null, studentAnswer,
+      correct: nextCorrect === total, firstTry: nextFirstTry === total,
+      attempts: attempts.current, solved: nextCorrect === total,
+      itemIndex: index, correctCount: nextCorrect, firstTryCount: nextFirstTry,
+    });
+  };
+  const checkNumber = () => {
+    if (!ready || solvedItem || value === '') return;
+    attempts.current += 1;
+    const ok = Number(value) === item.answer;
+    setPadState(ok ? 'ok' : 'bad');
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(ok ? item.audio.on_correct : item.audio.on_wrong));
+    if (!ok) setTimeout(() => { setValue(''); setPadState(null); }, 1400);
+    register(ok, value, String(item.answer));
+  };
+  const pickOption = (option) => {
+    if (!ready || solvedItem || wrongSet.has(option)) return;
+    attempts.current += 1;
+    const ok = option === item.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, option]));
+    setPicked(option);
+    playSfx(ok ? 'correct' : 'wrong');
+    // Har bir variantning o'z izohi aytiladi; umumiy on_wrong faqat zaxira.
+    audio.pushOneOff(t(item.feedbackAudio?.[option] ?? (ok ? item.audio.on_correct : item.audio.on_wrong)));
+    register(ok, t(item.options[option]), t(item.options[item.correctIndex]));
+  };
+  const nextItem = () => {
+    if (index >= total - 1) return;
+    setIndex((current) => current + 1);
+    setPicked(null);
+    setSolvedItem(false);
+    setWrongSet(new Set());
+    setValue('');
+    setPadState(null);
+    attempts.current = 0;
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!done || !ready}>
+      <div className="stack">
+        <Heading c={c} />
+        <span className="round-meter">{t({ uz: 'Topshiriq', ru: 'Задание', en: 'Task' })} {Math.min(index + 1, total)} / {total}</span>
+        <section className="question round-question">
+          <h2 className="mono">{t(item.question)}</h2>
+          {item.kind === 'num'
+            ? (
+              <TapNumPad
+                value={solvedItem ? String(item.answer) : value}
+                onDigit={(digit) => { if (ready && !solvedItem && value.length < 4) { setPadState(null); setValue((previous) => previous + digit); } }}
+                onBack={() => { if (ready && !solvedItem) { setPadState(null); setValue((previous) => previous.slice(0, -1)); } }}
+                onCheck={checkNumber}
+                disabled={!ready || solvedItem}
+                state={padState}
+                unit={UNIT_CM2}
+              />
+            )
+            : <Options values={item.options} picked={picked} onPick={pickOption} correctIndex={item.correctIndex} solved={solvedItem} disabled={!ready} order={order} wrongSet={wrongSet} />}
+          <FeedbackBlock show={item.kind === 'num' ? padState !== null : picked !== null} correct={solvedItem} proof={solvedItem ? t(item.proof) : null}>
+            {item.kind === 'num'
+              ? (solvedItem || padState === null ? '' : t(item.hint))
+              : (picked === null ? '' : t(item.feedback[picked]))}
+          </FeedbackBlock>
+          {solvedItem && index < total - 1 && (
+            <button type="button" className="btn-step" onClick={nextItem}>
+              {t({ uz: 'Keyingi topshiriq', ru: 'Следующее задание', en: 'Next task' })}
+            </button>
+          )}
+        </section>
+        <FactCard show={done} text={c.fact} />
+      </div>
+    </Stage>
+  );
+}
+
+// Variantli ekranlar uchun umumiy tana. Model har ekranda boshqa.
+function ChoiceBody({ screen, c, ordinal, storedAnswer, onAnswer, onNext, onPrev, model = null, bit = null, compact = false }) {
+  const t = useT();
+  const audio = useNarration(c.audio, screen);
+  const ready = audio.muted || audio.completed;
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, ordinal),
+    [c.correctIndex, c.options.length, ordinal],
+  );
+  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null);
+  const [solved, setSolved] = useState(storedAnswer?.correct === true);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const clean = useRef(storedAnswer?.firstTry ?? true);
+  const pick = (index) => {
+    if (!ready || solved || wrongSet.has(index)) return;
+    attempts.current += 1;
+    const ok = index === c.correctIndex;
+    if (!ok) { clean.current = false; setWrongSet((previous) => new Set([...previous, index])); }
+    setPicked(index);
+    setSolved(ok);
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(c.feedbackAudio[index]));
+    onAnswer({
+      screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question),
+      options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: index, studentAnswer: t(c.options[index]),
+      correct: ok, firstTry: ok && clean.current && attempts.current === 1,
+      attempts: attempts.current, solved: ok,
+    });
+  };
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext} nextDisabled={!solved || !ready}>
+      <div className="stack">
+        <Heading c={c} bit={bit} />
+        {model && <section className={'model-card' + (compact ? ' compact' : '')} data-g4-role="visual-frame">{model}</section>}
+        <section className="question">
+          <h2>{t(c.question)}</h2>
+          <Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved} disabled={!ready} order={order} wrongSet={wrongSet} />
+          <FeedbackBlock show={picked !== null} correct={solved} proof={solved && c.proof ? t(c.proof) : null}>
+            {picked === null ? '' : t(c.feedback[picked])}
+          </FeedbackBlock>
+        </section>
+      </div>
+    </Stage>
+  );
+}
+
+
+// ---------------------------------------------------------------------------
+// YAKUNIY EKRAN — etalon Dars01 tuzilishi (metodist talabi 2026-08-19).
+// Tarkibi: yakuniy bosqich sarlavhasi -> yakuniy savol kartasi (uch variant) ->
+// yopilib turadigan qoida ro'yxati -> mukofot paneli (yopiq holatdan ochiladi).
+// Unvon faqat yakuniy savolga to'g'ri javob berilgandan keyin ochiladi, dars ham
+// shundan keyin yakunlanadi. Javob storedAnswer orqali saqlanadi: orqaga qaytib
+// qaytganda tanlov joyida qoladi.
+// ---------------------------------------------------------------------------
+function G4TitleReveal({ active, title, onComplete }) {
+  const t = useT();
+  const [visible, setVisible] = useState(false);
+  const wasActiveRef = useRef(active);
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  useEffect(() => {
+    const wasActive = wasActiveRef.current;
+    wasActiveRef.current = active;
+    if (!active || wasActive || typeof window === 'undefined') return undefined;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const frame = window.requestAnimationFrame(() => setVisible(true));
+    const timer = window.setTimeout(() => { setVisible(false); onCompleteRef.current?.(); }, reduced ? 120 : 3900);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [active]);
+  if (!visible || typeof document === 'undefined') return null;
+  return createPortal(
+    <div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive" aria-atomic="true">
+      <div className="rank-boost-card g4-title-reveal-card">
+        <div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true" />
+        <div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, index) => <i key={index} />)}
+        </div>
+        <div className="rank-boost-medal g4-title-reveal-medal" aria-hidden="true">★</div>
+        <h2 className="g4-title-reveal-title">{t(title)}</h2>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+// Mukofot paneli: yakuniy savolga to'g'ri javob berilgunicha yopiq turadi.
+const G4TitleCard = ({ title, solved, firstTry, total }) => {
+  const t = useT();
+  return (
+    <div className={`reward-stage reward-stage-compact ${solved ? 'reward-unlocked' : 'reward-locked'}`} data-g4-role="title-card">
+      {solved && (
+        <div className="reward-confetti" data-g4-role="reward-confetti" aria-hidden="true">
+          {Array.from({ length: 12 }, (_, index) => <i key={index} />)}
+        </div>
+      )}
+      <div className="reward-bit" data-g4-role="reward-bit"><BitSVG state={solved ? 'happy' : 'present'} /></div>
+      <div className="reward-medal" data-g4-role="reward-medal" aria-hidden="true">{solved ? '★' : '○'}</div>
+      <span className="reward-kicker">
+        {t(solved
+          ? { uz: 'UNVON OLINDI', ru: 'ЗВАНИЕ ПОЛУЧЕНО', en: 'TITLE EARNED' }
+          : { uz: 'MUKOFOT KUTILMOQDA', ru: 'НАГРАДА ЖДЁТ', en: 'THE REWARD AWAITS' })}
+      </span>
+      <h2>{t(solved ? title : { uz: 'Unvonni oching', ru: 'Открой звание', en: 'Unlock your title' })}</h2>
+      <div className="reward-score">
+        <strong>{firstTry}/{total}</strong>
+        <span>{t({ uz: 'birinchi urinishda', ru: 'с первой попытки', en: 'on the first attempt' })}</span>
+      </div>
+    </div>
+  );
+};
+
+const EtalonFinalScreen = ({ screen, c, answers, storedAnswer, onAnswer, onPrev, finishLesson }) => {
+  const t = useT();
+  const audio = useNarration(c.audio, screen);
+  /* eslint-disable react-hooks/exhaustive-deps -- CONTENT modul konstantasi: tartib bir marta hisoblanadi */
+  const order = useMemo(
+    () => buildOptionOrder(c.options.length, c.correctIndex, LESSON_META.lessonId, 9),
+    [],
+  );
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const [reflection, setReflection] = useState(storedAnswer?.reflection ?? null);
+  const [wrongSet, setWrongSet] = useState(() => new Set());
+  const attempts = useRef(storedAnswer?.attempts ?? 0);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const [revealRequested, setRevealRequested] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const solved = reflection === c.correctIndex;
+  const scored = SCREEN_META
+    .map((meta, index) => (meta.scored ? { index, units: meta.scoreUnits ?? 1 } : null))
+    .filter(Boolean);
+  const totalUnits = scored.reduce((sum, item) => sum + item.units, 0);
+  const firstTryUnits = scored.reduce((sum, item) => {
+    const answer = answers?.[item.index];
+    if (!answer) return sum;
+    if (typeof answer.firstTryCount === 'number') return sum + Math.min(answer.firstTryCount, item.units);
+    return sum + (answer.firstTry === true ? item.units : 0);
+  }, 0);
+
+  const chooseReflection = (sourceIndex) => {
+    if (solved || wrongSet.has(sourceIndex) || !(audio.muted || audio.completed)) return;
+    setReflection(sourceIndex);
+    const ok = sourceIndex === c.correctIndex;
+    if (!ok) setWrongSet((previous) => new Set([...previous, sourceIndex]));
+    attempts.current += 1;
+    playSfx(ok ? 'correct' : 'wrong');
+    audio.pushOneOff(t(c.feedbackAudio[sourceIndex]));
+    if (ok) setRevealRequested(true);
+    onAnswer({
+      screenIdx: screen,
+      stage: SCREEN_META[screen].scope,
+      question: t(c.question),
+      options: order.map((index) => t(c.options[index])),
+      correctIndex: order.indexOf(c.correctIndex),
+      correctAnswer: t(c.options[c.correctIndex]),
+      studentAnswerIndex: order.indexOf(sourceIndex),
+      studentAnswer: t(c.options[sourceIndex]),
+      correct: ok,
+      firstTry: ok && attempts.current === 1,
+      attempts: attempts.current,
+      solved: ok,
+      reflection: sourceIndex,
+    });
+  };
+
+  const finish = () => {
+    if (!solved || finished || revealRequested) return;
+    setFinished(true);
+    finishLesson();
+  };
+
+  return (
+    <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finish} nextDisabled={!solved || finished || revealRequested} canFinish={solved} finish>
+      <div className="screen-stack summary-stack">
+        <G4TitleReveal active={revealRequested} title={c.award} onComplete={() => setRevealRequested(false)} />
+        <div className="final-mission-heading">
+          <span><i aria-hidden="true">◆</i> {t({ uz: 'YAKUNIY BOSQICH', ru: 'ФИНАЛЬНЫЙ ЭТАП', en: 'FINAL STAGE' })}</span>
+          <h1>{t(c.title)}</h1>
+          <p>{t(c.lead)}</p>
+        </div>
+        <div className="summary-action-layout summary-final-layout">
+          <div className="summary-card reflection-card final-question-card">
+            <span className="summary-question-kicker">
+              <i aria-hidden="true">◇</i>
+              {t({ uz: 'YAKUNIY SAVOL', ru: 'ФИНАЛЬНЫЙ ВОПРОС', en: 'FINAL QUESTION' })}
+              <b>{t({ uz: '1 QADAM', ru: '1 ШАГ', en: '1 STEP' })}</b>
+            </span>
+            <h2 className="summary-question">{t(c.question)}</h2>
+            <p className="summary-question-stem">{t(c.stem)}</p>
+            <div className={`reflection-options ${solved ? 'reflection-options-solved' : ''}`} data-g4-role="reflection-options">
+              {order.map((sourceIndex, displayIndex) => (
+                <button
+                  type="button"
+                  key={t(c.options[sourceIndex])}
+                  data-g4-role="answer-card"
+                  data-g4-source-index={sourceIndex}
+                  data-g4-correct={sourceIndex === c.correctIndex ? 'true' : 'false'}
+                  className={`reflection-option ${wrongSet.has(sourceIndex) ? 'reflection-wrong' : ''} ${solved && sourceIndex === c.correctIndex ? 'option-answer-confirm' : ''} ${solved && sourceIndex !== c.correctIndex ? 'option-answer-dismiss' : ''}`}
+                  disabled={solved || wrongSet.has(sourceIndex)}
+                  onClick={() => chooseReflection(sourceIndex)}
+                >
+                  <span>{String.fromCharCode(65 + displayIndex)}</span>
+                  {t(c.options[sourceIndex])}
+                </button>
+              ))}
+            </div>
+            {solved && (
+              <div className="reflection-resolution">
+                <FeedbackBlock show correct proof={t(c.proof)}>{t(c.resolution)}</FeedbackBlock>
+              </div>
+            )}
+            <FeedbackBlock show={reflection !== null && !solved} correct={false}>
+              {reflection === null || solved ? '' : t(c.feedback[reflection])}
+            </FeedbackBlock>
+          </div>
+          <div className="summary-support-column">
+            <div className={`summary-rules-disclosure ${rulesOpen ? 'summary-rules-open' : ''}`}>
+              <button type="button" className="summary-rules-toggle" aria-expanded={rulesOpen} onClick={() => setRulesOpen((open) => !open)}>
+                <span aria-hidden="true">3 &rarr; |</span>
+                <div>
+                  <strong>{t(c.rulesLabel)}</strong>
+                  <small>
+                    {t(rulesOpen
+                      ? { uz: 'Qoidalarni yopish', ru: 'Скрыть правила', en: 'Hide the rules' }
+                      : { uz: 'Eslab olish uchun bosing', ru: 'Нажми, чтобы вспомнить', en: 'Press to remember' })}
+                  </small>
+                </div>
+                <i aria-hidden="true">&#8964;</i>
+              </button>
+              <div className="summary-rules-panel" aria-hidden={!rulesOpen}>
+                <div className="summary-rule-items">
+                  {c.rules.map((item, index) => (
+                    <span key={t(item)}>
+                      <i>{index + 1}</i>
+                      <p>{t(item)}</p>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <G4TitleCard title={c.award} solved={solved} firstTry={firstTryUnits} total={totalUnits} />
+          </div>
+        </div>
+      </div>
+    </Stage>
+  );
+};
+
+const Screen14 = (props) => <EtalonFinalScreen {...props} c={CONTENT.s14} />;
+
+
 const SCREENS = [Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7, Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14];
-export default function Grade4Dars29({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) { const showPreviewControls = langProp === undefined || langProp === null; const preview = previewMode ?? showPreviewControls; const initialLang = normalizeLang(langProp); const [previewLang, setPreviewLang] = useState(initialLang); const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang; configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview }); const [current, setCurrent] = useState(0); const [answers, setAnswers] = useState([]); const [finalState, setFinalState] = useState({ step: 0, reflection: null, titleClaimed: false }); const [startedAt] = useState(() => Date.now()); const finished = useRef(false); const recordAnswer = useCallback((answer) => setAnswers((previous) => { const next = [...previous]; const old = previous[answer.screenIdx]; next[answer.screenIdx] = { ...answer, firstTry: old ? old.firstTry : answer.firstTry }; return next; }), []); const finishLesson = useCallback(() => { if (finished.current) return; finished.current = true; const scored = SCREEN_META.map((meta, index) => meta.scored ? index : null).filter((index) => index !== null); const firstTryCorrect = scored.filter((index) => answers[index]?.firstTry === true).length; const payload = { lessonId: LESSON_META.lessonId, lessonTitle: LESSON_META.lessonTitle[lang], studentName: studentName || null, durationSec: Math.floor((Date.now() - startedAt) / 1000), totalQuestions: scored.length, correctAnswers: firstTryCorrect, scorePercent: Math.round(firstTryCorrect / scored.length * 100), finalScore: firstTryCorrect, finalTotal: scored.length, passed: firstTryCorrect / scored.length >= 0.6, firstTryStats: { total: scored.length, firstTryCorrect }, attemptsTotal: scored.reduce((sum, index) => sum + (answers[index]?.attempts ?? 0), 0), skillTags: LESSON_META.skillTags, answers: answers.filter(Boolean) }; if (onFinished) onFinished(payload); else console.log('[Grade4 Dars29 preview]', payload); }, [answers, lang, onFinished, startedAt, studentName]); const Current = SCREENS[current]; return <LangContext.Provider value={lang}><style>{STYLES + G4_ETALON_OVERRIDES}</style><div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>{showPreviewControls && <div className="preview-language" aria-label={bi("Ko'rish tili", 'Язык предпросмотра', 'Preview language')[lang]}>{['uz', 'ru', 'en'].map((code) => <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} finalState={finalState} onFinalState={setFinalState} onPrev={() => setCurrent((value) => Math.max(0, value - 1))} onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))} finishLesson={finishLesson}/></div></LangContext.Provider>; }
 
-const G4_TITLE_STYLES = `
-.g4-title-reveal-overlay{
-  position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;
-  background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-overlay-life 3.9s ease both
+export default function Grade4Dars29({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
+  useGrade4MobileZoom();
+  const showPreviewControls = langProp === undefined || langProp === null;
+  const preview = previewMode ?? showPreviewControls;
+  const initialLang = normalizeLang(langProp);
+  const [previewLang, setPreviewLang] = useState(initialLang);
+  const lang = showPreviewControls ? normalizeLang(previewLang) : initialLang;
+  configureLesson({ ttsApiBase: ttsApiBase || '', voiceGender: voiceGender || 'f', correctSoundUrl: correctSoundUrl || '', wrongSoundUrl: wrongSoundUrl || '', previewMode: preview });
+  const [current, setCurrent] = useState(0);
+  const [answers, setAnswers] = useState([]);
+  // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
+  const started = useRef(Date.now());
+  const finished = useRef(false);
+  const recordAnswer = useCallback((answer) => setAnswers((previous) => {
+    const next = [...previous];
+    const old = previous[answer.screenIdx];
+    next[answer.screenIdx] = { ...answer, firstTry: old?.firstTry === false ? false : answer.firstTry };
+    return next;
+  }), []);
+  const finishLesson = useCallback(() => {
+    if (finished.current) return;
+    finished.current = true;
+    const scoredScreens = SCREEN_META
+      .map((meta, index) => (meta.scored ? { index, units: meta.scoreUnits ?? 1 } : null))
+      .filter(Boolean);
+    const totalUnits = scoredScreens.reduce((sum, item) => sum + item.units, 0);
+    const solvedUnits = scoredScreens.reduce((sum, item) => {
+      const answer = answers[item.index];
+      if (!answer) return sum;
+      if (typeof answer.correctCount === 'number') return sum + Math.min(answer.correctCount, item.units);
+      return sum + (answer.correct === true || answer.solved === true ? item.units : 0);
+    }, 0);
+    const firstTryUnits = scoredScreens.reduce((sum, item) => {
+      const answer = answers[item.index];
+      if (!answer) return sum;
+      if (typeof answer.firstTryCount === 'number') return sum + Math.min(answer.firstTryCount, item.units);
+      return sum + (answer.firstTry === true ? item.units : 0);
+    }, 0);
+    const payload = {
+      lessonId: LESSON_META.lessonId,
+      lessonTitle: LESSON_META.lessonTitle[lang],
+      studentName: studentName || null,
+      durationSec: Math.floor((Date.now() - started.current) / 1000),
+      totalQuestions: totalUnits,
+      correctAnswers: solvedUnits,
+      scorePercent: totalUnits ? Math.round(solvedUnits / totalUnits * 100) : 0,
+      finalScore: solvedUnits,
+      finalTotal: totalUnits,
+      passed: totalUnits ? solvedUnits / totalUnits >= 0.6 : false,
+      firstTryStats: { total: totalUnits, firstTryCorrect: firstTryUnits },
+      attemptsTotal: scoredScreens.reduce((sum, item) => sum + (answers[item.index]?.attempts ?? 0), 0),
+      skillTags: LESSON_META.skillTags,
+      answers: answers.filter(Boolean),
+    };
+    if (onFinished) onFinished(payload); else console.log('[Grade4 Dars29 preview]', payload);
+  }, [answers, lang, onFinished, studentName]);
+  const Current = SCREENS[current];
+  return (
+    <LangContext.Provider value={lang}>
+      <style>{STYLES + G4_ETALON_OVERRIDES + LESSON_STYLES}</style>
+      <div className={'lesson-root ' + (preview ? 'lesson-root-preview' : '')}>
+        {showPreviewControls && (
+          <div className="preview-language" aria-label={LANGUAGE_LABELS[lang]}>
+            {SUPPORTED_LANGS.map((code) => (
+              <button type="button" key={code} className={previewLang === code ? 'preview-active' : ''} onClick={() => setPreviewLang(code)}>{code.toUpperCase()}</button>
+            ))}
+          </div>
+        )}
+        <Current
+          key={current}
+          screen={current}
+          storedAnswer={answers[current]}
+          answers={answers}
+          onAnswer={recordAnswer}
+          onPrev={() => setCurrent((value) => Math.max(0, value - 1))}
+          onNext={() => setCurrent((value) => Math.min(TOTAL_SCREENS - 1, value + 1))}
+          finishLesson={finishLesson}
+        />
+      </div>
+    </LangContext.Provider>
+  );
 }
-.g4-title-reveal-card{
-  position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;
-  background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)
-}
-.g4-title-reveal-card::after{
-  content:"";position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;
-  background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%);pointer-events:none
-}
-.g4-title-reveal-rays{
-  position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;
-  background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);
-  transform:translate(-50%,-50%);
-  animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-spin 26s linear .8s 1 both
-}
-.g4-title-reveal-medal{
-  position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;margin:0;border:6px solid rgba(255,255,255,.72);border-radius:50%;
-  display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);
-  box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);
-  font-size:52px;transform:translate(-50%,-50%);animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both
-}
-.g4-title-reveal-card h2{
-  position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0;
-  font-family:'Source Serif 4',Georgia,serif;font-size:clamp(34px,5vw,58px);line-height:1.02;text-shadow:0 4px 24px rgba(0,0,0,.72);
-  transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both
-}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-reveal-confetti i{
-  position:absolute;top:-20px;left:calc(3% + var(--g4-title-i) * 5.35%);width:8px;height:14px;border-radius:2px;background:#FFE284;
-  animation:g4-title-reveal-confetti-fall 2.4s linear var(--g4-title-delay) 2 both
-}
-.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-.g4-title-card-stage{
-  position:relative;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;
-  display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;
-  background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);
-  box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)
-}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}
-.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-medal{
-  position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;
-  display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);
-  box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px
-}
-.g4-title-card-kicker{color:#A8EAF0;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.13em}
-.g4-title-card-stage h2{max-width:590px;margin:0;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif}
-.g4-title-card-score{
-  align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10)
-}
-.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}
-.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-confetti-fall 2.4s linear 2 both}
-.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}
-.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-@keyframes g4-title-reveal-overlay-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}
-@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}
-@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
-@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}
-@keyframes g4-title-reveal-rays-spin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
-@keyframes g4-title-reveal-confetti-fall{to{transform:translateY(470px) rotate(560deg)}}
-@keyframes g4-title-card-confetti-fall{to{transform:translateY(230px) rotate(460deg)}}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-@media(max-width:639.98px){
-  .g4-title-reveal-card{min-height:100dvh;padding:24px 18px}
-  .g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}
-  .g4-title-reveal-card h2{top:calc(50% + 62px);font-size:29px}
-  .g4-title-card-stage{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}
-  .g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}
-  .g4-title-card-bit{width:57px;height:71px}
-  .g4-title-card-stage h2{font-size:14px}
-}
-@media(prefers-reduced-motion:reduce){
-  .g4-title-reveal-overlay,.g4-title-reveal-overlay *,.g4-title-card-stage,.g4-title-card-stage *{animation:none!important;transition:none!important}
-  .g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}
-  .g4-title-reveal-rays{opacity:.28!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-medal{opacity:1!important;transform:translate(-50%,-50%)!important}
-  .g4-title-reveal-card h2{opacity:1!important;transform:translateX(-50%)!important}
-  .g4-title-card-stage{transform:none!important}
-}
-`;
 
 const G4_ETALON_OVERRIDES = `
 /* Local Dars01 visual contract. Content, narration and scoring stay lesson-owned. */
@@ -476,17 +2640,6 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
 .stage-hook .hook-card{padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important}
 .hook-scene-visual{width:100%!important;max-width:100%!important;height:100%;min-height:130px;padding:14px 112px 14px 16px;box-sizing:border-box}
 .hook-scene-visual>[data-g4-role~="visual-frame"]{height:100%;padding:0;background:transparent!important;border:0!important;border-radius:0!important;box-shadow:none!important;contain:layout paint}
-.hook-scene-visual>.time-visual,.hook-scene-visual>.area-visual,.hook-scene-visual>.conversion-visual{width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;padding:4px!important;gap:4px!important;overflow:hidden!important}
-.hook-scene-visual>.topic-visual{display:grid!important;grid-template-rows:minmax(0,1fr) auto!important;align-content:stretch!important;place-items:center!important}
-.hook-scene-visual>.topic-visual>svg{width:min(100%,330px)!important;height:100%!important;min-height:0!important;max-height:100%!important}
-.hook-scene-visual>.topic-visual>strong{max-width:100%!important;color:#DDF5F4!important;font-size:10px!important;line-height:1.12!important}
-.hook-scene-visual .area-demo{height:100%;min-height:0;gap:3px}
-.hook-scene-visual .square-grid{width:min(128px,100%)!important;height:min(128px,100%)!important}
-.hook-scene-visual .area-demo strong,.hook-scene-visual .area-pill{padding:3px 7px!important;font-size:10px!important}
-.hook-scene-visual .relation-cards{height:100%;min-height:0;gap:4px!important}
-.hook-scene-visual .relation-cards span{min-height:0;padding:5px 4px!important;font-size:10px!important;line-height:1.08!important}
-.hook-scene-visual .console-screen{padding:7px 14px!important;font-size:20px!important}
-.hook-scene-visual .tv-layer-wrap{max-height:100%;width:min(174px,100%);gap:4px}
 .hook-frame-bit{position:absolute;right:42px;bottom:-4px;z-index:4;width:88px;height:110px;overflow:hidden;pointer-events:none}
 .hook-frame-bit>.g1-char,.hook-frame-bit>.bit,.hook-frame-bit>svg{width:100%;height:100%;display:block}
 [data-g4-role~="visual-frame"] img,[data-g4-role~="visual-frame"] picture,[data-g4-role~="visual-frame"] video,[data-g4-role~="visual-frame"] canvas,[data-g4-role~="visual-frame"] svg{display:block;max-width:100%!important;max-height:100%!important;object-fit:contain;overflow:hidden!important}
@@ -498,34 +2651,12 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
 .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:51px!important;height:64px!important}
 .lesson-root .feedback[data-g4-feedback="wrong"]{height:auto!important;min-height:88px!important;border-radius:18px!important;background:linear-gradient(135deg,#FFFFFF,#FFF5D9)!important;box-shadow:inset 5px 0 #A96F13,0 13px 26px -23px rgba(169,111,19,.72)!important}
 .lesson-root .feedback[data-g4-role~="feedback-frame"] p{min-width:0;margin:0;font-family:'Manrope',system-ui,sans-serif!important;font-size:15px!important;line-height:1.42!important;text-align:left}
-.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}
+.rank-boost-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.rank-boost-overlay .g4-title-reveal-title{font-size:58px!important}
 [data-g4-role="title-card"]{position:relative;isolation:isolate;max-width:100%;overflow:hidden}
 [data-g4-role="title-claim"]{font-family:'Manrope',system-ui,sans-serif}
 .hook-scene-visual{width:min(760px,100%)!important;margin-inline:auto!important}
 .lesson-frame .preview-language{display:none!important}
-.hook-stack>.reveal-grid{flex:0 0 auto!important;width:100%;min-height:0!important;padding:4px;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;align-content:stretch!important;gap:5px!important;overflow:visible!important;border-radius:14px;background:rgba(255,255,255,.9)}
-.hook-stack>.reveal-grid>.reveal-card{min-width:0;min-height:38px!important;height:auto!important;padding:4px 6px!important;border-radius:10px!important;grid-template-columns:22px minmax(0,1fr)!important;gap:4px!important;overflow:visible!important}
-.hook-stack>.reveal-grid>.reveal-card>b{width:22px!important;height:22px!important}
-.hook-stack>.reveal-grid>.reveal-card>span{min-width:0;font-size:10px;line-height:1.12;overflow-wrap:anywhere}
-.hook-stack>.question .feedback-slot:empty{display:none}
-.hook-stack>.question:has(.feedback.open) .options{display:none!important}
 @media(max-width:639.98px){
-  .hook-stack{gap:5px!important}
-  .hook-stack>.question{padding:4px!important;border-radius:12px!important}
-  .hook-stack>.question .options{gap:4px!important}
-  .hook-stack>.question .option{min-height:42px!important;padding:3px!important;font-size:14px!important;line-height:1.08!important}
-  .hook-scene-visual>.time-visual,.hook-scene-visual>.area-visual,.hook-scene-visual>.conversion-visual{padding:2px!important;gap:2px!important}
-  .hook-scene-visual>.topic-visual>strong{font-size:9px!important;line-height:1.05!important}
-  .hook-scene-visual .square-grid{width:min(102px,100%)!important;height:min(102px,100%)!important}
-  .hook-scene-visual .area-demo strong,.hook-scene-visual .area-pill{padding:2px 5px!important;font-size:9px!important}
-  .hook-scene-visual .relation-cards{gap:3px!important}
-  .hook-scene-visual .relation-cards span{padding:3px!important;font-size:9px!important}
-  .hook-scene-visual .console-screen{padding:5px 10px!important;font-size:18px!important}
-  .hook-scene-visual .tv-layer-wrap{width:min(146px,100%);gap:3px}
-  .hook-stack>.reveal-grid{padding:2px;gap:2px!important;border-radius:10px}
-  .hook-stack>.reveal-grid>.reveal-card{min-height:32px!important;padding:3px!important;grid-template-columns:18px minmax(0,1fr)!important;gap:3px!important}
-  .hook-stack>.reveal-grid>.reveal-card>b{width:18px!important;height:18px!important;font-size:8px!important}
-  .hook-stack>.reveal-grid>.reveal-card>span{font-size:9px;line-height:1.08}
   .lesson-root h1,.lesson-root [data-g4-role="hook-title"] h1{font-size:clamp(22px,6.2vw,28px)!important}
   .lesson-root [data-g4-role="hook-title"]{font-size:25px!important}
   .lesson-root .question h2,.lesson-root .hook-question-prompt{font-size:17px!important}
@@ -539,29 +2670,1568 @@ html:has(.lesson-root),body:has(.lesson-root),.lesson-root,.lesson-root button,.
   .lesson-root .feedback[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-role~="feedback-frame"]>.feedback-bit{width:54px!important;height:68px!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]{height:auto!important;min-height:68px!important;border-radius:15px!important;grid-template-columns:47px minmax(0,1fr)!important}
   .lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"] [data-g4-role="feedback-bit"],.lesson-root .feedback[data-g4-feedback="solution"][data-g4-role~="bit-answer-comment"]>.feedback-bit{width:47px!important;height:59px!important}
-  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}
+  .lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important}.rank-boost-overlay .g4-title-reveal-title{font-size:29px!important}
 }
+.hook-scene-visual>.hook-model{height:100%!important;padding:5px!important;gap:3px!important;transform:scale(.9);transform-origin:center}
+.hook-scene-visual>.hook-model .tank-model{gap:3px!important}
+.hook-scene-visual>.hook-model .tank-shell{width:190px!important;height:92px!important;padding:7px!important;border-width:3px!important;border-radius:0 0 18px 18px!important}
+.hook-scene-visual>.hook-model .tank-spout{width:32px!important;height:10px!important;left:-27px!important;border-width:3px!important}
+.hook-scene-visual>.hook-model .tank-handle{width:34px!important;height:45px!important;right:-24px!important;top:18px!important;border-width:7px!important}
+.hook-scene-visual>.hook-model .model-label{padding:4px 8px!important;font-size:12px!important}
 @media(prefers-reduced-motion:reduce){.rank-boost-overlay,.rank-boost-overlay * ,[data-g4-role="title-card"],[data-g4-role="title-card"] *{animation:none!important;transition:none!important}.rank-boost-overlay{opacity:1}.g4-title-reveal-confetti,.g4-title-card-confetti{display:none!important}}
+.lesson-root [class*="formula"],.lesson-root [class*="equation"]{font-family:'JetBrains Mono',monospace!important}
+.hook-stack>.question[data-g4-role="answer-card"]{display:contents!important}
+.lesson-root [data-g4-role="title-card"]{width:100%!important;min-height:116px!important;height:auto!important;margin:0!important;padding:12px 82px 11px 67px!important;border-radius:17px!important;display:flex!important;flex-direction:column!important;justify-content:center!important;gap:4px!important;color:#FFF!important;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978)!important;box-shadow:0 28px 58px -27px rgba(22,143,163,.8)!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:72px!important;height:90px!important}
+.lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:44px!important;height:44px!important}
+@media(max-width:639.98px){
+  .lesson-root [data-g4-role="title-card"]{min-height:88px!important;padding:9px 59px 8px 51px!important;border-radius:14px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-bit"]{width:57px!important;height:71px!important}
+  .lesson-root [data-g4-role="title-card"] [data-g4-role="reward-medal"]{width:34px!important;height:34px!important}
+}
+
+/* MOBIL O'QIY OLISH (etalon shkalasi) :: boshi */
+/* --- Platforma chrome'i uchun xavfsiz zona.
+   Ilgari 52px edi: "Darslar ro'yxati" pilli 52px, til pilli 60px da tugaydi,
+   shuning uchun progress bar ularning ostiga tushib qolardi.
+   Etalon Dars01 da 70px. --- */
+@media(max-width:1100px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:74px!important}
+}
+
+/* Mobil yagona masshtab (useMobileZoom, MOBIL_DESKTOP_MOSLASH.md):
+   layout doim 390px etalon kenglikda, zoom real ekranga moslaydi.
+   Etalon Dars01 bilan bir xil. */
+@media(max-width:639.98px){
+  .lesson-root{width:390px!important}
+}
+
+@media(max-width:639.98px){
+  /* Sarlavha: min-height 40px h1 ni kesardi. Balandlik kontentga qarab. */
+  .lesson-root .heading,.lesson-root .stage-hook .heading{min-height:0!important;height:auto!important;align-items:flex-start!important}
+  .lesson-root .heading h1,.lesson-root .stage-hook .heading h1{font-size:20px!important;line-height:1.2!important}
+  .lesson-root .heading>div>span,.lesson-root [data-g4-role="hook-topic"]{font-size:12px!important;line-height:1.2!important}
+  .lesson-root .chrome-title>span:last-child{font-size:12px!important}
+  .lesson-root .screen-count{font-size:12px!important}
+
+  /* Javoblar: etalon Dars01 - ustunma-ustun, 15-16px. 3 ustun 9px o'rniga. */
+  .lesson-root .options,.lesson-root .hook-stack>.question .options,.lesson-root .stage-hook .hook-question .options,.lesson-root .stage-hook .options{grid-template-columns:1fr!important;gap:6px!important}
+  .lesson-root .option,.lesson-root .hook-stack>.question .option,.lesson-root .stage-hook .hook-question .option,.lesson-root .stage-hook .option{min-height:48px!important;padding:8px 10px!important;border-radius:13px!important;font-size:15px!important;line-height:1.24!important;grid-template-columns:26px minmax(0,1fr)!important;justify-items:start!important;text-align:left!important}
+  .lesson-root .option>b{width:24px!important;height:24px!important;font-size:12px!important}
+
+  /* Izoh va subtitr: bular bolaning o'qiydigan matni. */
+  .lesson-root .feedback p,.lesson-root .feedback[data-g4-role~="feedback-frame"] p{font-size:14px!important;line-height:1.32!important}
+  .lesson-root .feedback.feedback-slot{height:auto!important;min-height:60px!important;padding:6px 8px!important;grid-template-columns:36px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .feedback-bit{width:34px!important;height:43px!important}
+  .lesson-root .caption-slot{min-height:32px!important;padding:5px 9px!important;font-size:12px!important;line-height:1.26!important}
+
+  /* Navigatsiya. */
+  .lesson-root .btn-white-accent,.lesson-root .btn-ghost{min-height:46px!important;font-size:14px!important}
+  .lesson-root .stage-nav{min-height:58px!important}
+
+  /* Model yorliqlari va holat chiplari. */
+  .lesson-root .model-label{padding:5px 9px!important;font-size:13px!important}
+  .lesson-root .boundary-grid .model-label{padding:4px 7px!important;font-size:12px!important}
+  .lesson-root .state-note{font-size:12px!important;line-height:1.24!important}
+  .lesson-root .formula-card{font-size:15px!important}
+  .lesson-root .result-chip{font-size:17px!important}
+
+  .lesson-root .stage-content{padding-top:5px!important;padding-bottom:5px!important}
+  .lesson-root .stack{gap:6px!important}
+
+  /* Ochilmagan chiplar (formula-card, result-chip, state-note) boshlang'ich
+     holatda translateY(7px) bilan pastga suriladi va model-card ning
+     overflow:hidden chegarasidan chiqib qirqilardi. Pastdan bo'shliq beramiz. */
+  .lesson-root .model-card{padding:7px 7px 12px!important;gap:5px!important;align-content:center!important}
+  .lesson-root .attempt-model{padding-bottom:10px!important}
+  .lesson-root .hook-frame-bit{bottom:0!important}
+
+  /* Yakun ekrani umumiy Grade4Finale modulida yashaydi va u 8-10px qatlamga
+     tushadi. Modul 40 ta darsda ishlaganligi uchun uni global o'zgartirmaymiz -
+     shkalani faqat shu dars ichida ko'taramiz. */
+  .lesson-root .g4-shared-finale .finale-takeaway p{font-size:13px!important;line-height:1.28!important}
+  .lesson-root .g4-shared-finale .finale-takeaway{min-height:44px!important;padding:6px 8px!important;grid-template-columns:24px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .g4-shared-finale .finale-takeaway>span{width:26px!important;height:26px!important;font-size:12px!important}
+  .lesson-root .g4-shared-finale .finale-heading>span,.lesson-root .g4-shared-finale .finale-proof>span,.lesson-root .g4-shared-finale .finale-bridge>div>strong{font-size:12px!important;line-height:1.2!important}
+  .lesson-root .g4-shared-finale .finale-proof>strong{font-size:14px!important}
+  .lesson-root .g4-shared-finale .finale-layout,.lesson-root .g4-shared-finale .finale-main,.lesson-root .g4-shared-finale .finale-mastery{gap:5px!important}
+  /* Ochilmagan finale-proof/bridge translateY(7-8px) bilan pastga suriladi va
+     finale-layout ning overflow:hidden chegarasidan chiqib qirqilardi. */
+  .lesson-root .g4-shared-finale .finale-layout{padding-bottom:9px!important}
+  .lesson-root .g4-shared-finale .finale-proof,.lesson-root .g4-shared-finale .finale-bridge{padding:6px 8px!important}
+  .lesson-root .g4-shared-finale .finale-proof p,.lesson-root .g4-shared-finale .finale-bridge p{font-size:12px!important;line-height:1.28!important}
+  .lesson-root .g4-shared-finale .finale-heading h1{font-size:19px!important}
+  .lesson-root [data-g4-role="title-claim"]{font-size:14px!important}
+}
+
+/* Past telefon (masalan 360x640): joy vizual balandliklardan olinadi,
+   shrift kamaymaydi. */
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stack{gap:4px!important}
+  .lesson-root .heading h1,.lesson-root .stage-hook .heading h1{font-size:18px!important}
+  .lesson-root .option,.lesson-root .stage-hook .option{min-height:44px!important;padding:6px 9px!important;font-size:14px!important}
+  .lesson-root .caption-slot{min-height:28px!important;padding:4px 8px!important}
+  .lesson-root .stage-nav{min-height:52px!important}
+  .lesson-root .btn-white-accent,.lesson-root .btn-ghost{min-height:44px!important}
+  .lesson-root [data-g4-role="hook-scene"]{height:132px!important;min-height:132px!important;flex:0 0 132px!important}
+  .lesson-root [data-g4-screen="hook"] [data-g4-role~="visual-frame"],.lesson-root .stage-hook [data-g4-role="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:132px!important}
+  .lesson-root .hook-scene-visual{min-height:96px!important;padding:6px 66px 6px 9px!important}
+  .lesson-root .hook-frame-bit{width:56px!important;height:70px!important}
+}
+
+@media(max-width:639.98px){
+  /* Bak modeli: jo'mrak va tutqich qobiqdan tashqariga chiqadi, ota-element
+     esa overflow:hidden - mobil ekranda ular qirqilardi (300>254).
+     Konteynerga ichki bo'shliq beramiz. DIQQAT: faqat hook'dan tashqaridagi
+     modellarga, chunki hook bakining o'z (kichik) o'lchamlari bor. */
+  .lesson-root .model-card .tank-model,.lesson-root .attempt-model .tank-model{width:100%!important;padding-inline:46px!important;box-sizing:border-box!important}
+  .lesson-root .model-card .tank-shell,.lesson-root .attempt-model .tank-shell{width:100%!important;max-width:172px!important;height:132px!important;padding:8px!important;border-width:4px!important}
+  .lesson-root .model-card .tank-spout,.lesson-root .attempt-model .tank-spout{width:40px!important;height:12px!important;left:-34px!important;border-width:4px!important}
+  .lesson-root .model-card .tank-handle,.lesson-root .attempt-model .tank-handle{width:38px!important;height:50px!important;right:-27px!important;top:26px!important;border-width:7px!important}
+
+  /* Hook baki: mavjud kichik o'lchamlar saqlanadi, faqat sig'adigan qilinadi. */
+  .lesson-root .hook-scene-visual>.hook-model .tank-model{width:100%!important;padding-inline:30px!important;box-sizing:border-box!important;gap:4px!important}
+  .lesson-root .hook-scene-visual>.hook-model .tank-shell{width:100%!important;max-width:158px!important;height:86px!important}
+  .lesson-root .hook-scene-visual>.hook-model .model-label{font-size:12px!important;padding:3px 7px!important}
+  .lesson-root .hook-frame-bit{bottom:0!important}
+
+  /* Holat chiplari 4 ustunda 11px edi; 2 ustun 12px o'qishga qulay. */
+  .lesson-root .state-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:5px!important}
+  .lesson-root .state-grid span{min-height:40px!important;padding:6px!important;font-size:12px!important;line-height:1.18!important}
+
+  .lesson-root .fraction-bar{height:58px!important}
+  .lesson-root .boundary-grid{grid-template-columns:1fr!important;gap:5px!important;padding:6px!important}
+  .lesson-root .boundary-grid>.state-note{grid-column:1!important}
+  .lesson-root .boundary-grid .fraction-bar{height:42px!important}
+  .lesson-root .model-choices{grid-template-columns:1fr!important;gap:6px!important}
+  /* DIQQAT: bu ekranda variantlar <button class="model-choice">, shuning uchun
+     bazadagi ".model-choices>div" qoidalari umuman ishlamaydi (o'lik CSS).
+     To'g'ri klassga murojaat: nishon va matn birinchi qatorda, model ikkinchi. */
+  .lesson-root .model-choice{min-height:0!important;padding:8px 10px!important;grid-template-columns:26px minmax(0,1fr)!important;grid-template-areas:"badge text" "model model"!important;gap:6px 8px!important;align-items:center!important}
+  .lesson-root .model-choice>b{grid-area:badge!important;width:24px!important;height:24px!important;font-size:12px!important}
+  .lesson-root .model-choice>span{grid-area:text!important;font-size:14px!important;line-height:1.22!important}
+  .lesson-root .model-choice .fraction-model{grid-area:model!important;width:100%!important}
+  .lesson-root .rule-line{padding:9px!important;font-size:16px!important}
+  .lesson-root .wrong-formula{padding:8px!important;font-size:16px!important}
+  .lesson-root .marker-control{font-size:12px!important;padding:8px 10px!important}
+  .lesson-root .strategy-replay,.lesson-root .tiny-action{min-height:44px!important;font-size:13px!important}
+  .lesson-root .bit-error{padding:9px!important;font-size:16px!important}
+  .lesson-root .hospital-model{padding:9px!important}
+  .lesson-root .hospital-model>span{width:32px!important;height:32px!important;font-size:20px!important}
+  .lesson-root .number-line{height:126px!important;padding-inline:11%!important}
+  .lesson-root .nl-dot{width:40px!important;height:32px!important;font-size:12px!important}
+
+  /* Chegara modelidagi amal belgisi: mobilda grid 1 ustunga tushadi va
+     rotate(90deg) butun qatorni aylantirib, uni ~300px balandlikka
+     cho'zib yuborardi. Belgini kichik kvadratga qamab qo'yamiz. */
+  .lesson-root .rule-boundary-models{grid-template-columns:1fr!important;gap:6px!important;padding:9px!important}
+  .lesson-root .rule-boundary-models>div{padding:7px!important;grid-template-columns:38px minmax(0,1fr)!important;gap:7px!important}
+  .lesson-root .rule-boundary-models>strong{width:30px!important;height:30px!important;justify-self:center!important;display:grid!important;place-items:center!important;transform:none!important;font-size:20px!important}
+}
+
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .model-card .tank-shell,.lesson-root .attempt-model .tank-shell{height:112px!important}
+  .lesson-root .hook-scene-visual>.hook-model .tank-shell{max-width:134px!important;height:72px!important}
+  .lesson-root .fraction-bar{height:48px!important}
+  .lesson-root .state-grid span{min-height:36px!important}
+  .lesson-root .number-line{height:112px!important}
+  .lesson-root .rule-boundary-models{padding:5px!important;gap:3px!important}
+  .lesson-root .rule-boundary-models>div{padding:4px!important;grid-template-columns:30px minmax(0,1fr)!important;gap:5px!important}
+  .lesson-root .rule-boundary-models>strong{width:22px!important;height:22px!important;font-size:15px!important}
+  .lesson-root .rule-boundary-models .frac{font-size:13px!important}
+  .lesson-root .rule-boundary-models .fraction-bar{height:22px!important}
+  .lesson-root .model-choice .fraction-bar{height:28px!important}
+  .lesson-root .model-choice{padding:6px 8px!important;gap:4px 6px!important}
+  .lesson-root .hospital-model{padding:6px!important;gap:8px!important}
+  .lesson-root .hospital-model>span{width:26px!important;height:26px!important;font-size:16px!important}
+  .lesson-root .hospital-model .tank-model.compact .tank-shell{width:120px!important;height:64px!important}
+}
+/* MOBIL O'QIY OLISH (etalon shkalasi) :: oxiri */
+
+/* ICHKI TEKSHIRUV VA FACTCARD :: boshi */
+/* Ichki tekshiruv (haqiqiy matematik harakat) va FactCard. Ranglar etalon
+   palitrasidan: cyan #168FA3, cyanSoft #E5F5F6, navy #173B52, lime #95C93D,
+   success #227A53, warn #A96F13 / #FFF5D9, accent #FF5B35. */
+.lesson-root .inline-check{display:grid;gap:6px;justify-items:center;padding:9px 11px;border-radius:15px;background:#E5F5F6;box-shadow:inset 3px 0 #168FA3}
+.lesson-root .inline-check-prompt{color:#173B52;font-size:13px;font-weight:850;text-align:center}
+.lesson-root .inline-check-row{display:flex;flex-wrap:wrap;gap:7px;justify-content:center}
+.lesson-root .inline-chip{min-height:44px;min-width:66px;padding:6px 14px;border:0;border-radius:12px;color:#173B52;background:#FFF;cursor:pointer;box-shadow:0 10px 20px -18px rgba(58,53,48,.6);font:900 15px 'JetBrains Mono',monospace}
+.lesson-root .inline-chip:focus-visible{outline:3px solid #FF5B35;outline-offset:2px}
+.lesson-root .inline-chip.is-right{color:#FFF;background:#227A53}
+.lesson-root .inline-chip.is-bad{color:#A96F13;background:#FFF5D9}
+.lesson-root .inline-chip:disabled{cursor:default}
+.lesson-root .inline-check-note{min-height:15px;color:#227A53;font-size:12px;font-weight:800;text-align:center}
+
+.lesson-root .fact-card{padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:10px;opacity:.12;transform:translateY(6px);background:linear-gradient(135deg,#FFFFFF,#E5F5F6);box-shadow:inset 3px 0 #95C93D;transition:.4s ease}
+.lesson-root .fact-card.show{opacity:1;transform:none}
+.lesson-root .fact-card>b{color:#168FA3;font:900 10px 'JetBrains Mono',monospace;letter-spacing:.1em}
+.lesson-root .fact-card p{color:#173B52;font-size:13px;line-height:1.34}
+
+/* Sonlar nuridagi erkin belgi: ilgari o'qdan uzilib, hech narsaga
+   ulanmagan holda suzib turardi. Endi o'qqa ulagich chiziq bilan bog'lanadi. */
+.lesson-root .marker-note{min-height:15px;color:#227A53;font-size:12px;font-weight:800}
+.lesson-root .nl-dot.free{top:76px}
+.lesson-root .nl-dot.free::before{content:"";position:absolute;left:50%;top:-20px;width:2px;height:20px;background:#173B52;transform:translateX(-50%)}
+
+@media(max-width:639.98px){
+  .lesson-root .inline-check{padding:7px 9px!important;gap:5px!important}
+  .lesson-root .inline-check-prompt{font-size:13px!important}
+  .lesson-root .inline-chip{min-height:44px!important;min-width:58px!important;padding:5px 11px!important;font-size:15px!important}
+  .lesson-root .inline-check-note{font-size:12px!important}
+  .lesson-root .fact-card{padding:7px 9px!important;gap:8px!important}
+  .lesson-root .fact-card p{font-size:12px!important;line-height:1.28!important}
+}
+/* ICHKI TEKSHIRUV VA FACTCARD :: oxiri */
+
+/* OCHILMAGAN CHIPLAR SIG'IMI :: boshi */
+@media(max-width:639.98px){
+  .lesson-root .frame-note:not(.show),.lesson-root .formula-card:not(.show),.lesson-root .result-chip:not(.show),.lesson-root .state-note:not(.show),.lesson-root .rule-line:not(.show),.lesson-root .wrong-formula:not(.show),.lesson-root .fact-card:not(.show),.lesson-root .state-grid span:not(.show),.lesson-root .boundary-grid>div:not(.show){transform:none!important}
+  .lesson-root .g4-shared-finale .finale-takeaway:not(.is-visible),.lesson-root .g4-shared-finale .finale-proof:not(.is-visible),.lesson-root .g4-shared-finale .finale-bridge:not(.is-visible){transform:none!important}
+
+  /* strategy-slot ichidagi feedback position:absolute + inset:0 bo'lib,
+     translateY(7px) bilan slot chegarasidan chiqadi. Fade qoladi. */
+  .lesson-root .strategy-slot .feedback{transform:none!important}
+
+  /* FactCard yorlig'i 10px edi. */
+  .lesson-root .fact-card>b{font-size:12px!important}
+}
+
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .stage-hook .group-cell{min-height:26px!important}
+  .lesson-root .stage-hook .frame-note{padding:4px 5px!important}
+}
+/* OCHILMAGAN CHIPLAR SIG'IMI :: oxiri */
+
+/* PLANSHET MASSHTAB QATLAMI :: boshi */
+/* Desktop va planshetda ham ochilmagan bloklar translateY bilan pastga
+   surilib, yakun ekrani va hook sahnasi chegarasidan chiqadi (yakun 7px,
+   Bit oyoqlari 2-3px). Mobilda bu allaqachon tuzatilgan. */
+.lesson-root .hook-frame-bit{bottom:0}
+.lesson-root .g4-shared-finale .finale-layout{padding-bottom:9px}
+.lesson-root .g4-shared-finale .finale-takeaway:not(.is-visible),.lesson-root .g4-shared-finale .finale-proof:not(.is-visible),.lesson-root .g4-shared-finale .finale-bridge:not(.is-visible){transform:none}
+.lesson-root .hook-scene-visual{padding-top:10px;padding-bottom:10px}
+
+@media(min-width:640px) and (max-height:870px){ .lesson-root{zoom:.96} }
+@media(min-width:640px) and (max-height:830px){ .lesson-root{zoom:.92} }
+@media(min-width:640px) and (max-height:790px){ .lesson-root{zoom:.87} }
+@media(min-width:640px) and (max-height:750px){ .lesson-root{zoom:.83} }
+@media(min-width:640px) and (max-height:700px){ .lesson-root{zoom:.77} }
+@media(min-width:640px) and (max-height:650px){ .lesson-root{zoom:.72} }
+
+/* Masshtab kichrayganda mikro yorliqlar vizual jihatdan yana kichrayadi,
+   shuning uchun ularning shrifti ko'tariladi: .96-.83 masshtabda 12-13px
+   asl 10-11px bilan bir xil ko'rinishni beradi. */
+@media(min-width:640px) and (max-height:870px){
+  .lesson-root .screen-type{font-size:12px}
+  .lesson-root .heading>div>span,.lesson-root [data-g4-role="hook-topic"]{font-size:13px}
+  .lesson-root .chrome-title>span:last-child{font-size:12px}
+  .lesson-root .state-grid span{font-size:13px}
+  .lesson-root .nl-dot{font-size:13px}
+  .lesson-root .fact-card>b{font-size:12px}
+  .lesson-root .option>b{font-size:12px}
+  .lesson-root .model-choice>b{font-size:12px}
+  .lesson-root .frame-note{font-size:13px}
+  .lesson-root .frame-note>b{font-size:12px}
+  .lesson-root .group-cell small,.lesson-root .group-cell b{font-size:13px}
+  .lesson-root .g4-shared-finale .finale-heading>span,.lesson-root .g4-shared-finale .finale-proof>span,.lesson-root .g4-shared-finale .finale-bridge>div>strong{font-size:12px}
+  .lesson-root .g4-shared-finale .finale-takeaway>span{font-size:12px}
+}
+/* PLANSHET MASSHTAB QATLAMI :: oxiri */
+
+/* MASSHTABLANGAN BANDDA XAVFSIZ ZONA :: boshi */
+@media(min-width:640px) and (max-width:1100px) and (max-height:870px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:74px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:830px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:78px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:790px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:82px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:750px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:86px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:700px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:92px!important}
+}
+@media(min-width:640px) and (max-width:1100px) and (max-height:650px){
+  .lesson-root-preview .stage-header,.lesson-frame .lesson-root-preview .stage-header{padding-top:98px!important}
+}
+/* MASSHTABLANGAN BANDDA XAVFSIZ ZONA :: oxiri */
+
+/* OXIRGI SIG'IM TUZATISHLARI :: boshi */
+/* Unvon tugmasi bosilganda translateY(-2px) bilan ko'tariladi va
+   finale-layout ning yuqori chegarasidan chiqib qirqilardi. */
+.lesson-root .g4-shared-finale .finale-layout{padding-top:3px}
+
+/* Planshetda model ekrani ichki tekshiruv qo'shilgach 6-7px
+   sig'masdi: bo'shliqlar hisobidan yechamiz, shrift tegilmaydi. */
+@media(min-width:640px) and (max-width:1100px) and (max-height:870px){
+  .lesson-root .inline-check{padding:7px 10px;gap:5px}
+  .lesson-root .model-card{padding-bottom:12px}
+  .lesson-root .stack{row-gap:8px}
+}
+
+/* Kichik telefonda ruscha matn uzunroq: model kartasiga zapas. */
+@media(max-width:639.98px) and (max-height:700px){
+  .lesson-root .model-card{padding-bottom:14px!important}
+  .lesson-root .fraction-bar{height:44px!important}
+  .lesson-root .inline-check{gap:4px!important}
+}
+/* OXIRGI SIG'IM TUZATISHLARI :: oxiri */
 `;
 
-const STYLES = `${G4_TITLE_STYLES}
-.stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-@media(max-width:639.98px){.stage-hook .hook-card{border-radius:18px}}
+const STYLES = `
+.stage-hook .hook-model{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
+@media(max-width:639.98px){.stage-hook .hook-model{border-radius:18px}}
+.g4-title-card-placeholder{width:100%;min-height:116px}
+.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
+.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
+.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
+.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
+.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
+.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.9s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
+.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
+.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
+@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
+@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
+@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
 html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}
-.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;min-height:100dvh;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{flex:0 0 auto;padding-top:14px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:54px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:38px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:31px;height:31px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow:hidden}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover{color:#fff;background:${T.accent}}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{display:grid;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{display:grid;grid-template-columns:minmax(250px,.85fr) minmax(300px,1.15fr);align-items:center;gap:18px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{display:grid;gap:8px}.reveal-card{min-height:48px;padding:9px 12px;border-radius:14px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:9px;opacity:.12;transform:translateY(7px);background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.option{min-height:58px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover{transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:11px 14px;border-radius:13px;color:#FFF;background:${T.navy};text-align:center;font:900 15px 'JetBrains Mono',monospace}.test-layout{display:grid;grid-template-columns:.85fr 1.15fr;gap:14px}.test-model{display:grid;align-content:center;gap:12px}.caption{position:relative;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;z-index:3}
-.area-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.area-demo{display:grid;justify-items:center;gap:7px}.square-grid{--side:10;width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(var(--side),1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.square-grid i{border-radius:2px;background:#DDE7E6;transition:.38s}.square-grid i.active{background:${T.cyan}}.area-demo strong,.area-pill{padding:7px 11px;border-radius:10px;color:#FFF;background:${T.navy};font:900 12px 'JetBrains Mono',monospace}.dimension{grid-template-columns:1fr 1fr}.line-unit{width:130px;border-top:5px solid ${T.accent};padding-top:8px;text-align:center;font:900 15px 'JetBrains Mono',monospace}.one-square,.tiny-square{width:110px;height:110px;display:grid;place-items:center;border:5px solid ${T.cyan};border-radius:12px;background:#FFF;font:900 14px 'JetBrains Mono',monospace}.tiny-square{width:58px;height:58px;border-width:3px}.units{grid-template-columns:1fr 1fr}.scale-cards{grid-template-columns:repeat(3,1fr)}.scale-cards span,.scale-cards b,.scale-cards strong{padding:20px 10px;border-radius:15px;text-align:center;background:#FFF}.scale-cards b{color:#FFF;background:${T.cyan}}.scale-cards strong{color:#FFF;background:${T.navy}}.city-blocks{width:190px;display:grid;grid-template-columns:repeat(4,1fr);gap:5px}.city-blocks i{height:34px;border-radius:8px;background:#DDE7E6;transition:.35s}.city-blocks i.active{background:${T.lime}}.city-map strong{font:900 12px 'JetBrains Mono',monospace}.choice-row{grid-template-columns:repeat(5,1fr)}.choice-row span{padding:15px 8px;border-radius:13px;opacity:.25;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.choice-row span.active{opacity:1;color:#FFF;background:${T.cyan}}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.test-layout{grid-template-columns:1fr}.model-card,.question,.test-model{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.area-visual{min-height:170px}.square-grid{width:116px;height:116px}.reveal-card{min-height:43px}.test-model .reveal-grid{display:none}}
-.feedback-bit{width:25px;height:31px}.proof-label{margin-right:7px;color:${T.lime}}.title-claim-card{grid-column:1/-1;height:100%;display:grid;place-items:center;align-content:center;gap:12px;border-radius:20px;background:#fff;text-align:center;overflow:hidden}.title-claim-card>span{font-size:48px;color:#FFCE49}
-.stage-hook .hook-card{position:relative;isolation:isolate;overflow:hidden;border:1px solid rgba(144,228,235,.12);border-radius:24px;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root p{margin:0}.lesson-root button{font:inherit}.lesson-root{position:fixed;inset:0;width:100%;height:100dvh;min-height:0;overflow:hidden;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden;background:rgba(245,245,240,.92);box-shadow:0 0 50px -34px rgba(${T.shadowBase},.45)}.stage-header{min-height:0;padding-top:9px;background:rgba(245,245,240,.96);backdrop-filter:blur(10px);z-index:5}.progress-track{height:7px;border-radius:999px;overflow:hidden;background:#DDE5E3}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.lime});transition:width .45s ease}.progress-bar{box-shadow:0 0 15px rgba(22,143,163,.34)}.stage-chrome{min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:12px}.chrome-title,.chrome-actions{display:flex;align-items:center;gap:9px}.chrome-title{color:${T.navy};font-size:12px;font-weight:900}.status-dot{width:9px;height:9px;border-radius:50%;background:${T.accent};box-shadow:0 0 0 5px rgba(255,91,53,.1)}.screen-type,.screen-count{padding:5px 9px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:900}.screen-count{color:${T.ink2};background:#FFF}.audio-indicator{height:46px;padding:3px 6px;border-radius:13px;display:flex;align-items:center;gap:4px;background:#FFF;box-shadow:0 9px 20px -17px rgba(${T.shadowBase},.6)}.audio-indicator button{width:44px;height:44px;border:0;border-radius:9px;background:transparent;cursor:pointer}.audio-wave{height:20px;display:flex;align-items:center;gap:2px}.audio-wave i{width:3px;height:6px;border-radius:4px;background:${T.cyan};transition:.25s}.audio-wave.playing i:nth-child(1){height:12px}.audio-wave.playing i:nth-child(2){height:18px}.audio-wave.playing i:nth-child(3){height:9px}
-.stage-content{min-height:0;padding-top:7px;padding-bottom:4px;display:grid;grid-template-rows:minmax(0,1fr) 40px;overflow:hidden}.stage-body{min-height:0;overflow:hidden}.caption-slot{height:40px;min-height:40px;padding-top:4px;overflow:hidden}.caption{height:36px;margin:0;padding:7px 11px;border-radius:12px;overflow:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:11px;line-height:1.2;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}.stage-nav{min-height:62px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled,.btn-ghost:disabled,.option:disabled{cursor:not-allowed;opacity:.48;transform:none}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff}.stack{height:100%;min-height:0;display:grid;grid-template-rows:auto minmax(0,1fr);gap:10px;overflow:hidden;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.hook-stack{grid-template-rows:auto minmax(0,.82fr) minmax(0,1.18fr)}.heading{height:68px;min-height:0;display:flex;align-items:center;justify-content:space-between;gap:16px;overflow:hidden}.heading.heading-solo{justify-content:flex-start}.heading>div{min-width:0}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(24px,4vw,36px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:62px;height:76px;flex:0 0 auto;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.model-card,.question,.test-model{min-height:0;padding:14px;border-radius:20px;overflow:hidden;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.model-card{height:100%;display:grid;grid-template-columns:minmax(250px,.9fr) minmax(300px,1.1fr);align-items:stretch;gap:14px}.hook-card{background:linear-gradient(135deg,${T.cyanSoft},#FFF)}.summary-card{background:linear-gradient(135deg,#FFF,${T.successSoft})}.reveal-grid{min-height:0;display:grid;align-content:center;gap:7px;overflow:hidden}.reveal-card{min-height:44px;padding:7px 10px;border-radius:13px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;opacity:.12;transform:translateY(7px);overflow:hidden;background:#F8F8F4;transition:.38s ease}.reveal-card.show{opacity:1;transform:none}.reveal-card>b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 10px 'JetBrains Mono',monospace}.reveal-card:last-child.show{background:${T.cyanSoft}}.question{height:100%;display:grid;grid-template-rows:auto auto minmax(92px,1fr);align-content:start;gap:9px}.question h2{font:720 clamp(16px,2.5vw,21px)/1.22 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.option{min-height:50px;padding:8px;border:0;border-radius:14px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:7px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;transition:.25s}.option:hover:not(:disabled){transform:translateY(-2px)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback-slot{min-height:0;overflow:hidden}.feedback-stack{height:100%;display:grid;align-content:start;gap:6px;overflow:hidden}.feedback{padding:8px 10px;border-radius:13px;display:grid;grid-template-columns:25px 1fr;align-items:start;gap:7px;font-size:12px;line-height:1.22}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback.neutral{background:${T.cyanSoft};box-shadow:inset 4px 0 ${T.cyan}}.proof{padding:7px 10px;border-radius:11px;color:#FFF;background:${T.navy};overflow:hidden;text-align:center;font:900 12px/1.2 'JetBrains Mono',monospace}.test-layout{height:100%;min-height:0;display:grid;grid-template-columns:.86fr 1.14fr;gap:10px;overflow:hidden}.test-model{display:grid;grid-template-rows:minmax(0,1fr) auto;align-content:stretch;gap:8px}.question-feedback-slot{min-height:92px}.hook-feedback-slot{min-height:58px}.guided-panel{min-height:0;display:grid;grid-template-rows:10px minmax(72px,1fr) 50px;gap:10px;overflow:hidden}.guided-progress{display:flex;align-items:center;gap:6px}.guided-progress i{height:6px;flex:1;border-radius:999px;background:#DDE5E3}.guided-progress i.active{background:${T.cyan}}.guided-frame{min-height:72px;padding:12px;border-radius:16px;display:grid;grid-template-columns:34px 1fr;align-items:center;gap:10px;overflow:hidden;background:#F8F8F4;font-weight:850}.guided-frame>b{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#FFF;background:${T.cyan};font:900 12px 'JetBrains Mono',monospace}.guided-action{display:flex;align-items:center;justify-content:flex-end;min-height:50px}.step-button{min-width:150px}.guided-complete{padding:10px 12px;border-radius:12px;color:${T.success};background:${T.successSoft};font-size:12px;font-weight:900}.summary-complete{height:100%;min-height:0;display:grid;grid-template-columns:.9fr 1.1fr;gap:10px;overflow:hidden}.summary-complete .g4-title-card-stage{height:100%;min-height:0}.reflection-card{min-height:0;padding:14px;border-radius:20px;display:grid;grid-template-rows:auto minmax(0,1fr);gap:9px;overflow:hidden;background:#FFF;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.reflection-card h2{font:720 18px/1.22 'Source Serif 4',Georgia,serif}.reflection-options{min-height:0;display:grid;grid-template-rows:repeat(3,minmax(44px,1fr));gap:7px;overflow:hidden}
-.conversion-visual,.time-visual,.area-visual{min-height:210px;padding:14px;border-radius:20px;display:grid;place-items:center;gap:12px;background:linear-gradient(145deg,${T.cyanSoft},#FFF)}.relation-cards{width:100%;display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.relation-cards span{padding:12px 8px;border-radius:13px;opacity:.18;background:#FFF;text-align:center;font:900 12px 'JetBrains Mono',monospace;transition:.35s}.relation-cards span.active{opacity:1;color:#FFF;background:${T.cyan}}.console-screen{padding:13px 24px;border-radius:14px;color:#FFF;background:${T.navy};font:900 25px 'JetBrains Mono',monospace}.cross{position:absolute;color:${T.accent};font-size:84px;font-weight:900;opacity:0;transform:scale(.6) rotate(-15deg);transition:.4s}.cross.show{opacity:.85;transform:scale(1) rotate(-15deg)}.console{position:relative}.tape-line{width:260px;height:28px;padding:4px;border-radius:10px;background:#FFF}.tape-line i{height:100%;display:block;border-radius:7px;background:${T.cyan};transition:.5s}.tape strong{font:900 18px 'JetBrains Mono',monospace}.area-grid>div{width:150px;height:150px;padding:3px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px;border:3px solid ${T.navy};border-radius:12px;background:#FFF}.area-grid i{border-radius:2px;background:#DDE7E6;transition:.35s}.area-grid i.active{background:${T.cyan}}.area-grid strong{font:900 14px 'JetBrains Mono',monospace}.algorithm{align-content:center}.algorithm span{width:min(380px,100%);padding:10px 14px;border-radius:12px;opacity:.16;background:#FFF;text-align:center;font:900 13px 'JetBrains Mono',monospace;transition:.35s}.algorithm span.active{opacity:1}.algorithm span:last-child.active{color:#FFF;background:${T.success}}.manifest{grid-template-columns:repeat(2,1fr)}.manifest span{padding:20px 12px;border-radius:15px;opacity:.2;background:#FFF;text-align:center;font-weight:900;transition:.35s}.manifest span.active{opacity:1;color:#FFF;background:${T.navy}}.direction>div{display:flex;align-items:center;gap:14px}.direction b{padding:15px;border-radius:13px;background:#FFF}.direction span{color:${T.accent};font-size:30px}.direction small{font-weight:900}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{min-width:44px;min-height:44px;padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:${T.accent}}button:focus-visible,input:focus-visible{outline:3px solid rgba(22,143,163,.48);outline-offset:3px}@keyframes page-in{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
-@media(max-width:639.98px){.lesson-root-preview .stage-header{padding-top:52px}.screen-type{display:none}.stage{width:min(390px,100%)}.stage-header{padding-top:6px}.stage-chrome{min-height:46px}.chrome-title{max-width:92px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:9px}.chrome-actions{gap:4px}.screen-count{padding:4px 6px;font-size:9px}.audio-indicator{height:46px;padding:1px 3px}.audio-indicator button{width:44px;height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 38px;padding-top:5px;padding-bottom:2px}.caption-slot{height:38px;min-height:38px;padding-top:3px}.caption{height:35px;padding:6px 9px;font-size:10px}.stage-nav{min-height:58px}.btn-white-accent,.btn-ghost{min-width:108px;min-height:48px;padding:0 10px;font-size:12px}.stack{gap:7px}.heading{height:56px;gap:8px}.heading h1{font-size:clamp(20px,6vw,24px)}.heading .g1-char{width:48px;height:60px}.model-card,.question,.test-model,.reflection-card{padding:8px;border-radius:15px}.model-card{grid-template-columns:minmax(126px,.86fr) minmax(156px,1.14fr);gap:7px}.hook-stack{grid-template-rows:auto minmax(0,.78fr) minmax(0,1.22fr)}.hook-question{grid-template-rows:auto auto minmax(52px,1fr)}.hook-question .options{grid-template-columns:repeat(3,minmax(0,1fr))}.hook-question .option{grid-template-columns:1fr;justify-items:center;align-content:center;text-align:center}.hook-question .option>b{display:none}.question h2{font-size:14px;line-height:1.16}.options{grid-template-columns:1fr;gap:5px}.option{min-height:44px;padding:5px 6px;border-radius:11px;grid-template-columns:24px 1fr;gap:5px;font-size:11px;line-height:1.15}.option>b{width:24px;height:24px}.feedback{padding:6px 7px;grid-template-columns:20px 1fr;gap:5px;font-size:10px}.proof{padding:5px 7px;font-size:9px}.test-layout{grid-template-columns:minmax(118px,.78fr) minmax(170px,1.22fr);gap:7px}.test-model{padding:6px}.test-model .reveal-grid{display:none}.question-feedback-slot{min-height:84px}.hook-feedback-slot{min-height:52px}.conversion-visual,.time-visual,.area-visual{height:100%;min-height:0;padding:6px;border-radius:13px;gap:6px}.guided-panel{grid-template-rows:8px minmax(58px,1fr) 46px;gap:7px}.guided-frame{min-height:58px;padding:8px;border-radius:13px;grid-template-columns:29px 1fr;gap:7px;font-size:11px}.guided-frame>b{width:29px;height:29px}.guided-action{min-height:46px}.step-button{min-width:124px}.guided-complete{padding:8px;font-size:10px}.summary-complete{grid-template-columns:1fr;grid-template-rows:88px minmax(0,1fr);gap:7px}.summary-complete .g4-title-card-stage{min-height:88px}.reflection-card h2{font-size:14px}.reflection-options{gap:5px}.preview-language{top:7px;left:50%;right:auto;transform:translateX(-50%)}}
-@media(max-height:700px){.stage-header{padding-top:4px}.stage-chrome{min-height:44px}.stage-content{grid-template-rows:minmax(0,1fr) 34px}.caption-slot{height:34px;min-height:34px}.caption{height:31px;padding:5px 8px}.stage-nav{min-height:56px}.heading{height:52px}.heading .g1-char{width:44px;height:55px}.stack{gap:6px}.model-card,.question,.test-model,.reflection-card{padding:7px}.question-feedback-slot{min-height:78px}.hook-feedback-slot{min-height:48px}.guided-panel{grid-template-rows:7px minmax(52px,1fr) 44px;gap:5px}.guided-action{min-height:44px}.step-button{min-height:44px}.summary-complete{grid-template-rows:82px minmax(0,1fr)}}
-.summary-complete>.title-claim-card{grid-column:auto}.summary-complete>[data-g4-role="title-card"]{height:100%;min-height:0}
-@media(max-width:639.98px){.summary-complete{grid-template-rows:minmax(0,1fr) 88px}.summary-complete>.title-claim-card,.summary-complete>[data-g4-role="title-card"]{height:88px;min-height:0}.title-claim-card{padding:6px 7px;grid-template-columns:30px minmax(0,1fr) auto;place-items:center;align-content:center;gap:6px;text-align:left}.title-claim-card>span{font-size:28px}.title-claim-card h2{font-size:13px;line-height:1.1}.title-claim-card .g4-title-claim{min-width:96px;min-height:44px;padding:0 7px}}
-@media(max-height:700px){.summary-complete{grid-template-rows:minmax(0,1fr) 82px}}
-@media(max-width:639.98px) and (max-height:700px){.summary-complete>.title-claim-card,.summary-complete>[data-g4-role="title-card"]{height:82px}}
-@media(prefers-reduced-motion:reduce){.lesson-root *{animation:none!important;transition:none!important}}
+.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root h3,.lesson-root h4,.lesson-root h5,.lesson-root h6,.lesson-root p,.lesson-root ul,.lesson-root ol{margin:0}.lesson-root button,.lesson-root input{font:inherit}
+.lesson-root{position:fixed;inset:0;width:100%;height:100%;min-height:0;overflow:hidden;zoom:var(--g4z,1);color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}
+.stage{width:min(936px,100%);height:100%;margin:0 auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex-shrink:0;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{width:100%;height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome{min-width:0;display:flex;justify-content:space-between;align-items:center;gap:12px}.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center;gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chrome-actions{flex:none}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}.icon-btn{width:44px;height:44px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:rgba(255,255,255,.75);cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
+.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:16px;overflow:hidden}.stage-nav{flex:0 0 auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:50px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled{opacity:.42;cursor:not-allowed}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff;box-shadow:0 10px 20px -16px rgba(${T.shadowBase},.5)}.compact{min-width:118px}.stack{height:100%;min-height:0;overflow:hidden;display:grid;align-content:start;gap:14px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:78px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif}.heading .g1-char{width:78px;height:98px;flex:0 0 auto;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.question,.model-card,.duel,.why-grid,.compare-card,.rule-card,.boundary,.summary-grid{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.question{display:grid;gap:13px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.option{min-height:62px;padding:10px;border:0;border-radius:16px;display:grid;grid-template-columns:28px 1fr;align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;box-shadow:0 10px 22px -20px rgba(${T.shadowBase},.46)}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{padding:12px 14px;border-radius:15px;display:grid;grid-template-columns:28px 1fr;gap:9px;align-items:start;opacity:0;transform:translateY(7px)}.feedback.open{opacity:1;transform:none;transition:.3s ease}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback>b{font-size:18px}.feedback p{font-size:13px;line-height:1.45}.caption{position:static;bottom:4px;margin-top:12px;padding:9px 13px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;line-height:1.4;z-index:3}
+.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;animation:proof-in .35s ease both}.frac{display:inline-flex;min-width:25px;flex-direction:column;align-items:center;vertical-align:middle;color:inherit;font:800 1em/1 'JetBrains Mono',monospace}.frac i{width:100%;height:2px;margin:2px 0;border-radius:2px;background:currentColor}.frac-lg{font-size:1.35em}.hook-model,.whole-card,.rule-card,.finale-payoff{padding:18px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}
+.lesson-root button:focus-visible,.lesson-root input:focus-visible,.lesson-root input[type='range']:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}
+.hook-model{display:grid;place-items:center;gap:12px;background:linear-gradient(135deg,#E5F5F6,#FFF)}.fraction-model{width:min(620px,94%);margin:0 auto;display:grid;gap:10px}.fraction-bar{height:112px;display:grid;overflow:hidden;border-radius:18px;background:#F4F5F1;box-shadow:inset 0 0 0 3px rgba(23,59,82,.16)}.fraction-bar i{min-width:0;border-right:2px solid rgba(23,59,82,.18);background:#F4F5F1;transition:background .45s ease,transform .45s ease}.fraction-bar i:last-child{border-right:0}.fraction-bar i.cyan{background:#46B8C5}.fraction-bar i.lime{background:#95C93D}.fraction-bar i.removed{background:repeating-linear-gradient(135deg,rgba(255,91,53,.12),rgba(255,91,53,.12) 7px,rgba(255,91,53,.42) 7px,rgba(255,91,53,.42) 14px)}.fraction-bar i.merged{background:linear-gradient(135deg,#168FA3,#95C93D)}.fraction-bar.whole i{border-right:0}.fraction-model.compact .fraction-bar{height:48px;border-radius:11px}.model-label{justify-self:center;padding:8px 13px;border-radius:12px;color:#173B52;background:#E5F5F6;font:900 16px "JetBrains Mono",monospace}.state-note,.formula-card,.result-chip{padding:12px 15px;border-radius:14px;opacity:.12;transform:translateY(7px);transition:.4s ease;text-align:center}.state-note{color:#227A53;background:#E7F3EC;font-size:13px;font-weight:850}.formula-card{color:#FFF;background:#173B52;font:900 17px "JetBrains Mono",monospace}.result-chip{justify-self:center;color:#FFF;background:#FF5B35;font:900 20px "JetBrains Mono",monospace}.show{opacity:1!important;transform:none!important}.tokens{display:flex;align-items:center;justify-content:center;gap:8px;color:#50616D;font-size:12px;font-weight:800}.tokens i{width:28px;height:28px;border-radius:9px;background:#95C93D;animation:token-pop .4s ease both}.tokens i:nth-child(2){animation-delay:.1s}.tokens i:nth-child(3){animation-delay:.2s}.rule-card,.whole-card{display:grid;gap:12px}.rule-line{padding:13px;border-radius:14px;opacity:.12;transform:translateY(6px);color:#173B52;background:#E5F5F6;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.rule-line.accent{color:#FFF;background:#173B52}.wrong-formula{padding:12px;position:relative;opacity:.12;color:#A96F13;background:#FFF5D9;text-align:center;font:900 18px "JetBrains Mono",monospace;transition:.4s ease}.wrong-formula::after{content:"";position:absolute;left:28%;right:28%;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.tank-model{width:min(560px,96%);margin:0 auto;display:grid;place-items:center;gap:10px}.tank-shell{width:min(360px,82%);height:210px;position:relative;padding:16px 16px 14px;border:5px solid ${T.navy};border-top:0;border-radius:0 0 34px 34px;background:rgba(255,255,255,.72);filter:drop-shadow(0 14px 16px rgba(${T.shadowBase},.13))}.tank-body{height:100%;overflow:hidden;border-radius:6px 6px 22px 22px;display:flex;flex-direction:column-reverse;background:#F4F5F1}.tank-body i{min-height:0;flex:1;border-top:2px solid rgba(23,59,82,.18);transition:background .38s ease,opacity .38s ease,transform .38s ease}.tank-body i:first-child{border-top:0}.tank-body i.tank-fill{background:linear-gradient(90deg,#46B8C5,${T.cyan})}.tank-body i.tank-outline{box-shadow:inset 0 0 0 3px ${T.lime}}.tank-body i.tank-removed{background:repeating-linear-gradient(135deg,rgba(255,91,53,.16),rgba(255,91,53,.16) 8px,rgba(255,91,53,.48) 8px,rgba(255,91,53,.48) 16px);animation:tank-out .42s ease both}.tank-shell.undivided .tank-body i{border-top-color:transparent}.tank-spout{width:76px;height:19px;position:absolute;left:-63px;top:-4px;border:5px solid ${T.navy};border-right:0;border-radius:13px 0 0 13px;background:#fff}.tank-handle{width:70px;height:90px;position:absolute;right:-46px;top:44px;border:12px solid ${T.navy};border-left:0;border-radius:0 38px 38px 0}.tank-model.compact .tank-shell{width:190px;height:92px;padding:7px;border-width:3px;border-radius:0 0 18px 18px}.tank-model.compact .tank-spout{width:32px;height:10px;left:-27px;border-width:3px}.tank-model.compact .tank-handle{width:34px;height:45px;right:-24px;top:18px;border-width:7px}.state-grid{margin-top:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.state-grid span{min-height:52px;padding:9px;border-radius:13px;display:grid;place-items:center;opacity:.12;transform:translateY(6px);color:${T.navy};background:${T.cyanSoft};text-align:center;font-size:11px;font-weight:850;transition:.38s ease}.boundary-grid{padding:18px;border-radius:22px;display:grid;grid-template-columns:1fr 1fr;gap:12px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.boundary-grid>div{padding:10px;border-radius:16px;opacity:.12;transform:translateY(6px);background:#F8F8F4;transition:.4s ease}.boundary-grid>.state-note{grid-column:1/-1}.hospital-model{padding:14px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:14px;background:${T.cyanSoft}}.hospital-model>span{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;color:#fff;background:${T.accent};font:900 27px 'JetBrains Mono',monospace}.nl-arrow.back{border-right:0;border-left:3px solid ${T.accent};border-radius:14px 0 0 0}.nl-arrow.back::after{right:auto;left:-5px;border-left:0;border-right:8px solid ${T.accent}}.number-line{height:150px;position:relative;padding:54px 7% 0}.nl-track{height:4px;position:relative;border-radius:4px;background:#173B52}.nl-tick{width:2px;height:18px;position:absolute;top:-7px;background:#87949D}.nl-tick span{position:absolute;top:20px;left:50%;transform:translateX(-50%);font:800 12px "JetBrains Mono",monospace}.nl-dot{width:44px;height:38px;position:absolute;top:27px;transform:translateX(-50%);border-radius:12px;display:grid;place-items:center;color:#FFF;font:900 11px "JetBrains Mono",monospace;z-index:2;animation:dot-pop .35s ease both}.nl-dot.cyan{background:#168FA3}.nl-dot.lime{background:#95C93D}.nl-arrow{height:22px;position:absolute;top:84px;border-top:3px solid #FF5B35;border-right:3px solid #FF5B35;border-radius:0 14px 0 0;animation:arrow-grow .45s ease both}.nl-arrow::after{content:"";position:absolute;right:-5px;top:-7px;border-left:8px solid #FF5B35;border-top:5px solid transparent;border-bottom:5px solid transparent}.model-choices{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.model-choices>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:26px 1fr;align-items:center;gap:6px;background:#FFF;box-shadow:0 12px 24px -20px rgba(58,53,48,.6)}.model-choices>div>b{width:25px;height:25px;border-radius:8px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 10px "JetBrains Mono",monospace}.bit-error{padding:14px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:12px;color:#A96F13;background:#FFF5D9;font:900 19px "JetBrains Mono",monospace}.bit-error b{position:relative}.bit-error b::after{content:"";position:absolute;left:-5px;right:-5px;top:50%;height:3px;transform:rotate(-8deg);background:#FF5B35}.energy-model{display:grid;grid-template-columns:1fr 32px 1fr;align-items:center;gap:8px}.energy-model>div{padding:10px;border-radius:15px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px;background:#FFF}.energy-model>div>span{font-size:23px}.energy-model>strong{text-align:center;color:#FF5B35;font-size:23px}.finale-heading{padding:11px 15px;border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 52%),rgba(255,255,255,.92);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}.finale-heading>span{color:#FF5B35;font:900 9px "JetBrains Mono",monospace;letter-spacing:.12em}.finale-heading h1{margin-top:4px!important;color:#173B52;font:750 clamp(21px,3vw,28px)/1.08 "Source Serif 4",Georgia,serif}.finale-heading p{margin-top:4px!important;color:#50616D;font-size:11px}.finale-main{display:grid;grid-template-columns:minmax(270px,.9fr) minmax(310px,1.1fr);gap:10px}.finale-payoff{display:grid;align-content:center;gap:8px}.finale-payoff>small{color:#168FA3;font-size:9px;font-weight:900;letter-spacing:.09em}.finale-answer{padding:8px 10px;border-radius:11px;opacity:.14;transform:translateY(5px);color:#227A53;background:#E7F3EC;text-align:center;font:900 13px "JetBrains Mono",monospace;transition:.42s ease}.finale-takeaways{display:grid;gap:6px}.finale-takeaway{min-height:42px;padding:7px 10px;border-radius:12px;display:grid;grid-template-columns:27px 1fr;align-items:center;gap:8px;opacity:.14;transform:translateY(6px);background:#F8F8F4;transition:.42s ease}.finale-takeaway.show{background:#E5F5F6}.finale-takeaway>b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#FFF;background:#168FA3;font:900 9px "JetBrains Mono",monospace}.finale-takeaway span{display:grid;gap:2px;font-size:11px;font-weight:800}.finale-takeaway small{color:#168FA3;font-size:8px;text-transform:uppercase}.finale-takeaway strong{color:#173B52;font-family:"JetBrains Mono",monospace}.finale-bottom{display:grid;grid-template-columns:1.2fr .8fr;gap:10px}.finale-bridge{padding:12px 15px;border-radius:16px;display:grid;align-content:center;gap:4px;opacity:.14;transform:translateY(6px);color:#FFF;background:#173B52;transition:.42s ease}.finale-bridge small{color:#98E1E5;font-size:9px;font-weight:900;letter-spacing:.1em}.finale-bridge strong{font:750 15px "Source Serif 4",Georgia,serif}.finale-reward{min-height:100px;position:relative;overflow:hidden;padding:12px 70px 11px 52px;border-radius:17px;display:grid;align-content:center;color:#FFF;background:linear-gradient(135deg,#234B62,#173B52)}.finale-reward>div:nth-child(2){display:grid;gap:3px}.finale-reward small{color:#98E1E5;font-size:8px;font-weight:900}.finale-reward strong{font:750 14px "Source Serif 4",Georgia,serif}.finale-reward b{color:#FFE284;font:900 11px "JetBrains Mono",monospace}.finale-reward>.g1-char{position:absolute;right:2px;bottom:-5px;width:67px;height:84px}.finale-medal{position:absolute;left:10px;top:50%;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#173B52;background:#95C93D}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFF;background:#FF5B35}.tiny-action{min-height:46px;padding:8px 12px;border:0;border-radius:13px;justify-self:end;color:${T.accent};background:${T.accentSoft};cursor:pointer;box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.5);font-size:12px;font-weight:800}.marker-control{width:min(620px,94%);padding:10px 13px;border-radius:14px;display:grid;gap:7px;color:${T.navy};background:${T.cyanSoft};font:850 12px 'Manrope',sans-serif}.free-marker{width:100%;min-height:44px;margin:0;accent-color:${T.accent};cursor:pointer}.nl-dot.free{top:102px;background:${T.navy};animation-duration:.4s}.attempt-model{border-radius:20px;transition:box-shadow .32s ease,background .32s ease}.attempt-highlight{box-shadow:0 0 0 3px rgba(22,143,163,.38),0 14px 26px -20px rgba(22,143,163,.8)!important;background:rgba(229,245,246,.72)!important}.attempt-cue{padding:9px 12px;border-radius:12px;color:${T.cyan};background:${T.cyanSoft};font-size:12px;font-weight:850;animation:attempt-cue-in .3s ease both}.stack{animation-duration:.5s}.caption{animation:caption-in .32s ease both}.formula-card{transition-duration:.32s!important}.result-chip{transition-duration:.22s!important}
+@keyframes tank-out{from{opacity:0;transform:translateY(-10px)}}@keyframes caption-in{from{opacity:0;transform:translateY(5px)}}@keyframes attempt-cue-in{from{opacity:0;transform:translateY(5px)}}@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes proof-in{from{opacity:0;transform:translateY(5px)}}@keyframes token-pop{from{opacity:0;transform:scale(.45)}}@keyframes dot-pop{from{opacity:0;transform:translateX(-50%) scale(.55)}}@keyframes arrow-grow{from{transform:scaleX(0);transform-origin:left}}@keyframes pulse{to{transform:scale(1.07)}}
+@media(max-width:639.98px){.stage-header{padding-top:58px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading{min-height:72px}.heading h1{font-size:26px}.heading .g1-char{width:65px;height:80px}.model-card,.hook-model,.whole-card,.rule-card,.question{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.fraction-bar{height:82px}.tank-shell{width:min(292px,78%);height:168px}.state-grid{grid-template-columns:1fr 1fr}.boundary-grid{grid-template-columns:1fr}.boundary-grid>.state-note{grid-column:1}.hospital-model{padding-inline:7px}.model-choices{grid-template-columns:1fr}.energy-model{grid-template-columns:1fr}.energy-model>strong{transform:rotate(90deg)}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.finale-main,.finale-bottom{grid-template-columns:1fr}.finale-main,.finale-bottom{gap:8px}.finale-takeaway{min-height:36px}.number-line{height:135px;padding-inline:9%}}
+.g4-title-claim{width:100%;min-height:100px;padding:13px 18px;border:0;border-radius:17px;display:grid;grid-template-columns:42px 1fr;grid-template-rows:auto auto;align-items:center;column-gap:12px;color:#fff;background:linear-gradient(135deg,#0E6978,#173B52);cursor:pointer;text-align:left;box-shadow:0 22px 42px -25px rgba(14,105,120,.9)}.g4-title-claim>span{grid-row:1/3;width:40px;height:40px;border-radius:50%;display:grid;place-items:center;color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);font-size:19px}.g4-title-claim>strong{font:750 16px 'Source Serif 4',Georgia,serif}.g4-title-claim>small{color:#A8EAF0;font-size:11px;font-weight:800}
+.feedback{min-height:76px!important;padding:11px 15px 11px 10px!important;grid-template-columns:52px 1fr!important;align-items:center!important;gap:11px!important}.feedback.correct{background:linear-gradient(135deg,#DDF2E6,#F7FFF9)!important;box-shadow:inset 5px 0 ${T.success},0 13px 26px -23px rgba(34,122,83,.75)!important}.feedback.wrong{background:linear-gradient(135deg,#FFF0BE,#FFF9E8)!important;box-shadow:inset 5px 0 ${T.warn},0 13px 26px -23px rgba(169,111,19,.72)!important}.feedback-bit{width:50px;height:62px;display:block;overflow:visible}.feedback-bit .g1-char,.feedback-bit .bit,.feedback-bit>svg{width:100%;height:100%}.feedback p{display:grid;gap:7px;font-size:15px!important;line-height:1.48!important}.feedback-proof{padding-top:7px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 15px/1.35 'JetBrains Mono',monospace}
+.model-choices{grid-template-columns:1fr!important;gap:11px!important}.model-choice{width:100%;min-height:100px;padding:11px 13px;border:0;border-radius:16px;display:grid;grid-template-columns:32px minmax(140px,.8fr) minmax(250px,1.2fr);align-items:center;gap:11px;color:${T.ink};background:#fff;cursor:pointer;text-align:left;box-shadow:0 12px 24px -20px rgba(58,53,48,.6)}.model-choice>b{width:30px;height:30px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 11px 'JetBrains Mono',monospace}.model-choice>span{font-size:14px;font-weight:850}.model-choice .fraction-model{width:100%}.model-choice.picked{background:${T.accentSoft};box-shadow:inset 0 0 0 3px rgba(255,91,53,.25)}.model-choice.right{background:${T.successSoft};box-shadow:inset 0 0 0 3px rgba(34,122,83,.3)}.model-choice.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 3px rgba(169,111,19,.26)}.model-choice:disabled{cursor:default}
+.rule-boundary-models{padding:13px;border-radius:19px;display:grid;grid-template-columns:1fr 34px 1fr;align-items:center;gap:10px;background:${T.cyanSoft}}.rule-boundary-models>div{padding:10px;border-radius:14px;display:grid;grid-template-columns:44px 1fr;align-items:center;gap:9px;background:#fff}.rule-boundary-models>strong{text-align:center;color:${T.accent};font:900 24px 'JetBrains Mono',monospace}.rule-boundary-models .frac{font-size:18px}.tank-body i.tank-removed{opacity:.58}
+@media(max-width:639.98px){.g4-title-claim{min-height:88px}.feedback{grid-template-columns:44px 1fr!important}.feedback-bit{width:43px;height:54px}.feedback p{font-size:14px!important}.model-choice{min-height:126px;grid-template-columns:30px 1fr}.model-choice>.fraction-model{grid-column:1/-1}.rule-boundary-models{grid-template-columns:1fr}.rule-boundary-models>strong{transform:rotate(90deg)}}
+@media(prefers-reduced-motion:reduce){.lesson-root *,.lesson-root *::before,.lesson-root *::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}.state-note,.formula-card,.result-chip,.rule-line,.wrong-formula,.finale-answer,.finale-takeaway,.finale-bridge{opacity:1!important;transform:none!important}}
+.caption-slot{flex:none;min-height:38px;padding:6px 10px;border-radius:11px;display:flex;align-items:center;visibility:hidden;color:#fff;background:rgba(23,59,82,.94);font-size:10px;line-height:1.22}.caption-slot.is-visible{visibility:visible}.feedback.feedback-slot{height:76px;min-height:76px;overflow:hidden;visibility:hidden;opacity:0;animation:none}.feedback.feedback-slot.open{visibility:visible;opacity:1}.feedback-bit{width:48px;height:58px;display:block}.feedback-bit .g1-char,.feedback-bit>svg{width:100%;height:100%}.feedback-proof{display:block;margin-top:4px;padding-top:4px;border-top:1px solid rgba(34,122,83,.2);color:${T.success};font:900 12px/1.2 'JetBrains Mono',monospace}.feedback-proof small{display:block;font-size:8px;letter-spacing:.1em}.lesson-root{height:100%!important;min-height:0!important;overflow:hidden!important}.stage-content{display:flex;flex-direction:column;gap:4px;overflow:hidden!important}.stage-content>.stack{flex:1;min-height:0}.btn-white-accent:disabled{cursor:not-allowed;opacity:.46}
+@media(max-width:639.98px){.stage-header{padding-top:11px!important;padding-bottom:4px!important}.lesson-root-preview .stage-header{padding-top:52px!important}.progress-track{height:4px!important;margin-bottom:5px!important}.stage-content{padding-top:3px!important;padding-bottom:3px!important}.stage-nav{min-height:52px!important}.stack{gap:4px!important}.heading{min-height:40px!important}.heading h1{font-size:17px!important}.heading .g1-char{width:38px!important;height:48px!important}.question,.model-card,.visual-card,.hook-model,.whole-card,.rule-card,.beat-list{padding:5px!important;border-radius:11px!important}.boundary-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:4px!important;padding:5px!important;border-radius:11px!important}.boundary-grid>div{padding:4px!important;border-radius:9px!important}.boundary-grid>.state-note{grid-column:1/-1!important}.boundary-grid .fraction-model{gap:3px!important}.boundary-grid .fraction-bar{height:44px!important;border-radius:9px!important}.boundary-grid .model-label{padding:4px 6px!important;border-radius:8px!important;font-size:9px!important}.options{gap:3px!important}.option{min-height:44px!important;padding:4px!important;border-radius:9px!important;font-size:9px!important}.feedback.feedback-slot{height:54px;min-height:54px!important;padding:4px 6px!important;grid-template-columns:32px 1fr!important;gap:4px!important}.feedback-bit{width:31px;height:39px}.feedback p{font-size:9px!important;line-height:1.16!important}.caption-slot{min-height:28px;padding:3px 7px;font-size:8px}.beat-list{gap:3px!important}.beat{min-height:29px!important;padding:3px!important;font-size:8px!important}.btn-white-accent,.btn-ghost{min-height:44px!important;min-width:104px!important;padding:0 8px!important;font-size:11px!important}.finale-main,.finale-bottom{grid-template-columns:1fr 1fr!important;gap:4px!important}}
+.strategy-replay{min-height:44px;padding:7px 12px;border:0;border-radius:11px;justify-self:center;color:${T.cyan};background:${T.cyanSoft};cursor:pointer;font-size:11px;font-weight:850}.strategy-replay:disabled{cursor:not-allowed;opacity:.46}
+@media(min-width:640px) and (max-width:1100px) and (max-height:800px){.stage-discovery .stack{grid-template-columns:minmax(0,1fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) auto;align-content:stretch;column-gap:12px;row-gap:8px}.stage-discovery .heading{grid-column:1/-1;min-height:64px}.stage-discovery .heading h1{font-size:29px}.stage-discovery .heading .g1-char{width:60px;height:75px}.stage-discovery .model-card{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);align-items:center;gap:10px;padding:12px}.stage-discovery .tank-model{width:100%}.stage-discovery .tank-shell{width:min(300px,80%);height:174px}.stage-discovery .formula-card,.stage-discovery .state-note,.stage-discovery .result-chip{min-height:44px;display:grid;place-items:center}.stage-discovery .strategy-replay{grid-column:1/-1}}
+.final-reflection{padding:6px 8px;border-radius:12px;display:grid;gap:5px;background:rgba(255,255,255,.9)}.final-reflection>strong{font:750 12px/1.2 'Source Serif 4',Georgia,serif}.final-reflection>div{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.final-reflection button{min-height:44px;padding:4px;border:0;border-radius:9px;display:grid;grid-template-columns:20px 1fr;align-items:center;gap:3px;color:${T.navy};background:${T.cyanSoft};cursor:pointer;text-align:left;font-size:8px;font-weight:850}.final-reflection button>span{width:19px;height:19px;border-radius:6px;display:grid;place-items:center;color:#fff;background:${T.cyan}}.final-reflection button.is-selected{color:#fff;background:${T.cyan}}.final-reflection button:disabled{cursor:default}.g4-title-claim:disabled{cursor:not-allowed;opacity:.46}
+`;
+
+// ---------------------------------------------------------------------------
+// 21-DARS USLUBLARI. s0 dan boshqa hamma ekranda ramka och ko'k (T.cyanSoft).
+// Balandlik dvh bilan chegaralangan: joy kamayganda model kichrayadi, matn
+// esa qirqilmaydi - shuning uchun skroll ham, yo'qolgan element ham yo'q.
+// Takrorlanuvchi (cheksiz) animatsiya yo'q; reduced-motion hammasini o'chiradi.
+
+const LESSON_STYLES = `
+.lesson-root .mono { font-family: 'JetBrains Mono', monospace; font-weight: 800; }
+/* Asosiy model ramkasi ekran balandligining bir qismini egallaydi: shunda
+   pastda katta bo'sh joy qolmaydi, lekin dvh chegarasi tufayli sig'maslik ham
+   yuz bermaydi. */
+.lesson-root .stack > .model-card { min-height: clamp(128px, 24dvh, 236px); }
+/* Kontent yuqoridan boshlanadi (metodist talabi 2026-08-19): sarlavha va
+   ramkalar ekranning yuqori qismidan yoziladi, markazga surilmaydi. */
+.lesson-root .stage-content > .stack { align-content: start; }
+.lesson-root .stack > .model-card.compact { min-height: 0; }
+/* Model kartasi ichidagi yorliq va natija qatori ham markazda turadi. */
+.lesson-root .stack > .model-card { justify-items: center; }
+/* Tanlangan noto'g'ri variant joyida qoladi, lekin xiralashadi va bosilmaydi. */
+.lesson-root .option.bad { opacity: .6; cursor: default; }
+.lesson-root .option:disabled { cursor: default; }
+/* To'rt variant 2x2 setkada (uch variant bir qatorda qoladi). */
+.lesson-root .options:has(> :nth-child(4)) { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.lesson-root .lead-line {
+  margin: 0;
+  color: ${T.ink2};
+  font-size: clamp(13px, 1.7vw, 15px);
+  line-height: 1.36;
+  font-weight: 650;
+}
+
+/* --- Qadamli tushuntirish paneli ------------------------------------------ */
+.step-panel {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: clamp(228px, 44dvh, 392px);
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr) auto auto auto;
+  gap: clamp(6px, 1.1dvh, 12px);
+  padding: clamp(9px, 1.4dvh, 14px);
+  border: 1px solid rgba(22,143,163,.22);
+  border-radius: 18px;
+  background: ${T.cyanSoft};
+  box-shadow: 0 14px 30px -26px rgba(${T.shadowBase},.5);
+}
+.step-model {
+  min-height: 0;
+  max-height: clamp(118px, 32dvh, 286px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.step-model > * { width: 100%; }
+.step-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.step-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  padding: 4px 10px 4px 5px;
+  border-radius: 999px;
+  color: ${T.ink3};
+  background: rgba(255,255,255,.66);
+  font-size: 11px;
+  font-weight: 800;
+  transition: color .3s ease, background .3s ease;
+}
+.step-chip b {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #FFFFFF;
+  background: ${T.ink3};
+  font-size: 10px;
+}
+.step-chip.is-done { color: ${T.ink}; background: #FFFFFF; }
+.step-chip.is-done b { background: ${T.success}; }
+.step-chip.is-active { box-shadow: 0 0 0 2px rgba(22,143,163,.35); }
+.step-caption {
+  margin: 0;
+  min-height: 40px;
+  color: ${T.ink};
+  font-size: clamp(13px, 1.8vw, 15px);
+  line-height: 1.36;
+  font-weight: 700;
+}
+.step-actions { display: flex; align-items: center; gap: 10px; }
+.btn-step {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 13px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .25s ease, transform .25s ease;
+}
+.btn-step:hover:not(:disabled) { background: ${T.navy}; transform: translateY(-1px); }
+.btn-step:disabled { opacity: .45; cursor: default; }
+.btn-step:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.step-done {
+  color: ${T.success};
+  font-size: clamp(12px, 1.6vw, 14px);
+  font-weight: 800;
+  line-height: 1.32;
+}
+
+/* --- Quvvat zaxirasi modeli ----------------------------------------------- */
+.model-note { color: ${T.cyan}; font-size: clamp(16px, 2.4vw, 21px); }
+.stack-model { display: grid; gap: 8px; justify-items: center; width: 100%; }
+
+/* --- Yozuvning qadamlab yig'ilishi ---------------------------------------- */
+.record-steps { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+
+/* --- Komil yozuvlari (bir amal / ikki amal) ------------------------------- */
+
+/* --- Raqam terish paneli (klaviatura yo'q) -------------------------------- */
+.tap-pad { display: grid; gap: 8px; justify-items: center; width: 100%; }
+.tap-keys {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 5px;
+  width: min(430px, 100%);
+}
+.tap-key {
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(22,143,163,.3);
+  border-radius: 11px;
+  color: ${T.ink};
+  background: #FFFFFF;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background .22s ease;
+}
+.tap-key:hover:not(:disabled) { background: ${T.cyanSoft}; }
+.tap-key:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.tap-key:disabled { opacity: .5; cursor: default; }
+.tap-back { color: ${T.ink2}; }
+.tap-check {
+  grid-column: span 2;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  border-color: ${T.cyan};
+  font-family: inherit;
+  font-size: 13px;
+}
+.tap-check:hover:not(:disabled) { background: ${T.navy}; }
+.match-value { color: ${T.cyan}; font-size: clamp(16px, 2.4vw, 21px); }
+
+
+/* --- Bit xatosi ----------------------------------------------------------- */
+.error-card {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: clamp(10px, 1.6dvh, 16px);
+  border: 1px solid rgba(169,111,19,.28);
+  border-radius: 18px;
+  background: ${T.warnSoft};
+}
+.error-record { display: grid; gap: 3px; justify-items: center; }
+.error-record span { color: ${T.ink2}; font-size: clamp(15px, 2.2vw, 19px); }
+.error-record b { color: #B85C32; font-size: clamp(19px, 3vw, 26px); }
+.error-mark { color: #B85C32; font-size: 22px; font-weight: 900; }
+
+/* --- Jadval --------------------------------------------------------------- */
+.task-table { width: min(430px, 100%); display: grid; gap: 3px; }
+.task-row { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+.task-row span {
+  padding: 6px 5px;
+  border-radius: 9px;
+  background: #FFFFFF;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+}
+.task-head span { color: ${T.ink2}; background: rgba(255,255,255,.6); font-size: 10px; font-weight: 800; }
+.task-chip {
+  padding: 3px 11px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: #FFFFFF;
+  font-size: 14px;
+}
+.remaining-line { color: ${T.ink2}; font-size: 13px; font-weight: 700; }
+.remaining-line b { color: ${T.cyan}; font-size: 15px; }
+
+/* --- Ikki yo'l: ramkalar bir xil o'lchamda, markazda --------------------- */
+
+/* --- Moslashtirish: ikki ustun bir xil o'lchamda, markazda ---------------- */
+/* Ikkala ustun bir xil kenglikda, kartalar bir xil balandlikda (grid qatorlari
+   teng) va butun taxta markazda - metodist sharti 5. */
+.matching-board {
+  position: relative;
+  isolation: isolate;
+  width: min(620px, 100%);
+  margin-inline: auto;
+  min-height: clamp(206px, 40dvh, 340px);
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(28px, 6vw, 56px);
+}
+.matching-column {
+  display: grid;
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 9px;
+  align-content: stretch;
+}
+.match-card {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  min-height: 62px;
+  padding: 9px;
+  border: 1px solid rgba(22,143,163,.26);
+  border-radius: 14px;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 5px;
+  color: ${T.ink};
+  background: ${T.cyanSoft};
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background .25s ease, border-color .25s ease;
+}
+.match-card:hover:not(:disabled) { background: #FFFFFF; }
+.match-card:focus-visible { outline: 3px solid ${T.accent}; outline-offset: 2px; }
+.match-card.is-active { border-color: ${T.accent}; background: #FFFFFF; box-shadow: 0 0 0 2px rgba(255,91,53,.28); }
+.match-card.is-done { border-color: ${T.success}; background: ${T.successSoft}; cursor: default; }
+.match-caption { color: ${T.cyan}; font-size: 13px; }
+.match-card .fraction-model { width: 100%; }
+
+/* --- Qoida ramkasi -------------------------------------------------------- */
+.rule-frame {
+  position: relative;
+  min-width: 0;
+  min-height: clamp(168px, 30dvh, 264px);
+  align-content: center;
+  overflow: hidden;
+  display: grid;
+  gap: 7px;
+  padding: clamp(10px, 1.5dvh, 15px);
+  border: 1px solid rgba(22,143,163,.24);
+  border-left: 4px solid ${T.accent};
+  border-radius: 16px;
+  background: ${T.cyanSoft};
+}
+.rule-badge {
+  justify-self: start;
+  padding: 2px 10px;
+  border-radius: 999px;
+  color: #FFFFFF;
+  background: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+.rule-text {
+  margin: 0;
+  color: ${T.ink};
+  font-size: clamp(13px, 1.9vw, 16px);
+  line-height: 1.38;
+  font-weight: 750;
+  opacity: .25;
+  transition: opacity .5s ease;
+}
+.rule-text.show { opacity: 1; }
+.rule-lines { display: flex; flex-wrap: wrap; gap: 6px; }
+.rule-lines .rule-line { padding: 5px 11px; border-radius: 999px; background: #FFFFFF; font: 800 12px 'Manrope', system-ui, sans-serif; color: ${T.ink2}; }
+.rule-formula {
+  justify-self: center;
+  color: ${T.cyan};
+  font-size: clamp(17px, 2.6vw, 22px);
+  opacity: .25;
+  transition: opacity .5s ease;
+}
+.rule-formula.show { opacity: 1; }
+.rule-source { color: ${T.ink3}; font-size: 10px; font-weight: 700; }
+
+/* --- Xuk yozuvi va mayda joylar ------------------------------------------ */
+.hook-record {
+  margin-top: 7px;
+  color: #EAF9FB;
+  font-size: clamp(14px, 2.1vw, 18px);
+  opacity: 0;
+  transition: opacity .6s ease;
+}
+.hook-record.show { opacity: 1; }
+.hook-record b { color: #FF9F80; }
+.round-meter {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 800;
+}
+.round-question { display: grid; gap: 9px; }
+.round-question > h2 { color: ${T.ink}; font-size: clamp(18px, 2.8vw, 24px); }
+.strategy-question, .case-question {
+  margin: 0;
+  color: ${T.ink};
+  font-size: clamp(15px, 2.2vw, 18px);
+  line-height: 1.3;
+  font-weight: 800;
+}
+
+@media (max-width: 639.98px) {
+  .step-panel { padding: 8px; gap: 6px; }
+  .step-caption { min-height: 34px; font-size: 12.5px; }
+  .step-chip { font-size: 10px; }
+  .tap-keys { gap: 4px; }
+  .tap-key { font-size: 14px; }
+  .route-cards { grid-template-columns: 1fr; gap: 7px; }
+  .route-card { min-height: 74px; }
+  .matching-board { gap: 22px; }
+  .match-card { min-height: 54px; font-size: 12.5px; }
+  .komil-grid { grid-template-columns: 1fr; gap: 7px; }
+  .energy-blocks { padding: 5px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .step-chip, .btn-step, .route-card, .match-card, .tap-key,
+  .rule-text, .rule-formula, .hook-record, .energy-block, .komil-case { transition: none !important; }
+}
+
+/* --- Yakuniy slayd (etalon Dars01 tuzilishi) ---------------------------- */
+.option-answer-dismiss {
+  animation: answer-option-dismiss .46s cubic-bezier(.4,0,.7,1) var(--answer-exit-delay, 0ms) both;
+}
+.option-answer-confirm {
+  animation: answer-option-confirm .62s cubic-bezier(.16,1,.3,1) .08s both;
+}
+@keyframes answer-option-dismiss {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(.96); }
+}
+@keyframes answer-option-confirm {
+  0% { transform: translateY(0) scale(1); box-shadow: 0 10px 24px -17px rgba(${T.shadowBase},.44); }
+  45% { transform: translateY(-7px) scale(1.025); box-shadow: 0 0 0 6px rgba(34,122,83,.10); }
+  100% { transform: translateY(-3px) scale(1); box-shadow: 0 12px 26px -17px rgba(34,122,83,.45); }
+}
+
+.summary-stack { gap: 12px; }
+.reward-stage {
+  position: relative;
+  width: min(840px, 100%);
+  min-height: 154px;
+  margin: 0 auto;
+  padding: 16px 145px 15px 108px;
+  border-radius: 25px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 6px;
+  overflow: hidden;
+  color: #FFFFFF;
+  background:
+    radial-gradient(circle at 82% 20%, rgba(255,194,60,.26), transparent 30%),
+    linear-gradient(135deg, #173B52, #0E6978);
+  box-shadow: 0 24px 50px -30px rgba(14,33,44,.8);
+  transition: transform .5s ease, box-shadow .5s ease;
+}
+.reward-locked { filter: saturate(.72); }
+.reward-unlocked {
+  transform: translateY(-2px);
+  box-shadow: 0 28px 58px -27px rgba(22,143,163,.8);
+}
+.reward-bit {
+  position: absolute;
+  right: 24px;
+  bottom: 7px;
+  width: 92px;
+  height: 115px;
+}
+.reward-bit .g1-char { width: 100%; height: 100%; }
+.reward-unlocked .reward-bit { animation: g4bitfloat 2.8s ease-in-out 4; }
+.reward-medal {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  width: 66px;
+  height: 66px;
+  border: 4px solid rgba(255,255,255,.58);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #5A3A00;
+  background: linear-gradient(145deg, #FFE284, #FFC23C);
+  box-shadow: 0 0 0 8px rgba(255,255,255,.08), 0 15px 30px -15px rgba(0,0,0,.6);
+  font-size: 30px;
+}
+.reward-kicker {
+  color: #A8EAF0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .13em;
+}
+.reward-stage h1 {
+  max-width: 590px;
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 30px);
+  line-height: 1.05;
+}
+.reward-stage > p {
+  max-width: 580px;
+  color: rgba(255,255,255,.78);
+  font-size: 12px;
+  line-height: 1.4;
+}
+.reward-score {
+  align-self: flex-start;
+  margin-top: 5px;
+  padding: 5px 9px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(255,255,255,.10);
+}
+.reward-score strong { color: #FFE284; font-family: 'JetBrains Mono', monospace; }
+.reward-score span { color: rgba(255,255,255,.72); font-size: 9px; }
+.reward-confetti { position: absolute; inset: 0; pointer-events: none; }
+.reward-confetti i {
+  position: absolute;
+  top: -16px;
+  width: 7px;
+  height: 12px;
+  border-radius: 2px;
+  animation: reward-confetti 2.4s linear 3;
+}
+.reward-confetti i:nth-child(4n+1) { background: #FFC23C; }
+.reward-confetti i:nth-child(4n+2) { background: #FF5B35; }
+.reward-confetti i:nth-child(4n+3) { background: #77E1EA; }
+.reward-confetti i:nth-child(4n) { background: #95C93D; }
+.reward-confetti i:nth-child(1) { left: 8%; animation-delay: -.3s; }
+.reward-confetti i:nth-child(2) { left: 17%; animation-delay: -1.1s; }
+.reward-confetti i:nth-child(3) { left: 29%; animation-delay: -.7s; }
+.reward-confetti i:nth-child(4) { left: 41%; animation-delay: -1.7s; }
+.reward-confetti i:nth-child(5) { left: 52%; animation-delay: -.2s; }
+.reward-confetti i:nth-child(6) { left: 63%; animation-delay: -1.3s; }
+.reward-confetti i:nth-child(7) { left: 73%; animation-delay: -.8s; }
+.reward-confetti i:nth-child(8) { left: 84%; animation-delay: -1.9s; }
+.reward-confetti i:nth-child(9) { left: 12%; animation-delay: -2s; }
+.reward-confetti i:nth-child(10) { left: 36%; animation-delay: -1.4s; }
+.reward-confetti i:nth-child(11) { left: 68%; animation-delay: -.5s; }
+.reward-confetti i:nth-child(12) { left: 91%; animation-delay: -1.6s; }
+@keyframes reward-confetti {
+  to { transform: translateY(230px) rotate(460deg); }
+}
+
+.summary-action-layout {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  align-items: stretch;
+}
+
+.summary-rule-items {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-auto-rows: 1fr;
+  gap: 6px;
+}
+.summary-rule-items > span {
+  min-width: 0;
+  padding: 7px;
+  border: 1px solid rgba(22,143,163,.11);
+  border-radius: 11px;
+  display: grid;
+  grid-template-columns: 22px 1fr;
+  align-items: center;
+  gap: 6px;
+  color: ${T.ink2};
+  background: rgba(255,255,255,.82);
+}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback {
+  flex-shrink: 0;
+}
+.reflection-resolution {
+  display: grid;
+  gap: 7px;
+}
+.summary-card h2 { margin-bottom: 8px; font-size: 14px; }
+.summary-card ul { padding-left: 17px; display: grid; gap: 5px; color: ${T.ink2}; font-size: 12px; line-height: 1.35; }
+.summary-question-kicker {
+  margin-bottom: 4px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+.summary-card .summary-question {
+  margin-bottom: 4px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.18;
+}
+.summary-question-stem {
+  margin-bottom: 7px !important;
+  color: ${T.ink2};
+  font-size: 10px;
+  line-height: 1.3;
+}
+.reflection-options {
+  max-height: 180px;
+  display: grid;
+  gap: 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition:
+    max-height .75s cubic-bezier(.22,.8,.3,1) .48s,
+    opacity .28s ease .52s,
+    margin .75s cubic-bezier(.22,.8,.3,1) .48s;
+}
+.reflection-options-solved {
+  max-height: 0;
+  margin-block: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.reflection-option {
+  min-height: 34px;
+  padding: 7px 9px;
+  border: 0;
+  border-radius: 10px;
+  color: ${T.ink};
+  background: #F4F7F5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 700;
+}
+.reflection-option > span {
+  width: 21px;
+  height: 21px;
+  flex: 0 0 21px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+}
+.reflection-correct { color: ${T.success}; background: ${T.successSoft}; }
+.reflection-wrong { color: ${T.warn}; background: ${T.warnSoft}; }
+.reflection-solved {
+  min-height: 42px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  color: ${T.success};
+  background: ${T.successSoft};
+  font-size: 11px;
+  font-weight: 800;
+}
+.reflection-card .feedback-card {
+  min-height: 62px;
+  padding: 5px 10px 5px 6px;
+}
+.reflection-card .g4-bit-reaction-figure {
+  width: 44px;
+  height: 54px;
+  flex-basis: 44px;
+}
+.reflection-card .g4-bit-reaction-copy { font-size: 14px; }
+.final-mission-heading {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  padding: 12px 16px;
+  border: 1px solid rgba(255,91,53,.17);
+  border-radius: 17px;
+  background:
+    linear-gradient(100deg, rgba(255,91,53,.09), transparent 48%),
+    rgba(255,255,255,.9);
+  box-shadow: 0 13px 28px -24px rgba(255,91,53,.72);
+}
+.final-mission-heading > span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: ${T.accent};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.final-mission-heading > span i {
+  font-size: 8px;
+  animation: final-marker-pulse 1.5s ease-in-out 3;
+}
+.final-mission-heading h1 {
+  margin-top: 3px;
+  color: ${T.navy};
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(21px, 3vw, 28px);
+  line-height: 1.08;
+}
+.final-mission-heading p {
+  margin-top: 3px;
+  color: ${T.ink2};
+  font-size: 11px;
+  line-height: 1.32;
+}
+@keyframes final-marker-pulse {
+  50% { opacity: .45; transform: scale(.8); }
+}
+.summary-final-layout {
+  width: min(840px, 100%);
+  margin: 0 auto;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+.summary-card {
+  min-width: 0;
+  height: 100%;
+  padding: 13px;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 26px -21px rgba(${T.shadowBase},.5);
+}
+.reflection-card > .summary-question-kicker,
+.reflection-card > .summary-question,
+.reflection-card > .summary-question-stem,
+.reflection-card > .reflection-options,
+.reflection-card > .reflection-resolution,
+.reflection-card > .feedback {
+  flex-shrink: 0;
+}
+.final-question-card {
+  height: auto;
+  border: 2px solid rgba(255,91,53,.22);
+  box-shadow:
+    inset 0 4px 0 rgba(255,91,53,.88),
+    0 18px 38px -28px rgba(255,91,53,.7);
+}
+.final-question-card .summary-question-kicker {
+  min-height: 25px;
+  margin-bottom: 8px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #FFFFFF;
+  background: linear-gradient(90deg, ${T.accent}, #FF7658);
+}
+.final-question-card .summary-question-kicker > b {
+  margin-left: auto;
+  padding: 3px 6px;
+  border-radius: 999px;
+  color: #7D250F;
+  background: rgba(255,255,255,.76);
+  font-size: 7px;
+  letter-spacing: .08em;
+}
+.final-question-card .summary-question {
+  font-size: clamp(17px, 2.4vw, 22px);
+  line-height: 1.18;
+}
+.summary-support-column {
+  min-width: 0;
+  display: grid;
+  gap: 9px;
+}
+.summary-rules-disclosure {
+  min-width: 0;
+  border: 1px solid rgba(22,143,163,.2);
+  border-radius: 16px;
+  overflow: hidden;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 14px 30px -24px rgba(22,143,163,.72);
+}
+.summary-rules-toggle {
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 0;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 9px;
+  color: ${T.ink};
+  background:
+    linear-gradient(135deg, rgba(230,247,250,.8), transparent 62%),
+    #FFFFFF;
+  cursor: pointer;
+  text-align: left;
+}
+.summary-rules-toggle > span {
+  min-width: 55px;
+  padding: 7px 8px;
+  border-radius: 10px;
+  color: #FFFFFF;
+  background: ${T.cyan};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 900;
+  text-align: center;
+}
+.summary-rules-toggle > div { min-width: 0; display: grid; gap: 2px; }
+.summary-rules-toggle strong { font-size: 13px; line-height: 1.2; }
+.summary-rules-toggle small { color: ${T.cyan}; font-size: 9px; font-weight: 800; }
+.summary-rules-toggle > i {
+  color: ${T.cyan};
+  font-size: 24px;
+  font-style: normal;
+  transform: rotate(0);
+  transition: transform .55s cubic-bezier(.16,1,.3,1);
+}
+.summary-rules-open .summary-rules-toggle > i { transform: rotate(180deg); }
+.summary-rules-panel {
+  max-height: 0;
+  padding: 0 9px;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(-7px);
+  transition:
+    max-height .65s cubic-bezier(.22,.8,.3,1),
+    padding .65s cubic-bezier(.22,.8,.3,1),
+    opacity .4s ease,
+    transform .55s ease;
+}
+.summary-rules-open .summary-rules-panel {
+  max-height: 260px;
+  padding: 0 9px 9px;
+  opacity: 1;
+  transform: translateY(0);
+}
+.summary-rules-panel .summary-rule-items > span {
+  padding: 6px;
+  grid-template-columns: 20px 1fr;
+  gap: 5px;
+}
+.summary-rules-panel .summary-rule-items > span > i {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: ${T.cyan};
+  background: ${T.cyanSoft};
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  font-style: normal;
+}
+.summary-rules-panel .summary-rule-items p { font-size: 9px; line-height: 1.22; }
+.reward-stage-compact {
+  width: 100%;
+  min-height: 116px;
+  margin: 0;
+  padding: 12px 82px 11px 67px;
+  border-radius: 17px;
+  gap: 4px;
+}
+.reward-stage-compact .reward-medal {
+  left: 11px;
+  width: 44px;
+  height: 44px;
+  border-width: 3px;
+  font-size: 19px;
+}
+.reward-stage-compact .reward-bit {
+  right: 3px;
+  bottom: 2px;
+  width: 72px;
+  height: 90px;
+}
+.reward-stage-compact h2 {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: clamp(16px, 2.2vw, 21px);
+  line-height: 1.05;
+}
+
+/* Yakuniy slaydning mobil o'lchamlari (etalon Dars01 bilan bir xil) */
+@media (max-width: 639.98px) {
+  .summary-action-layout {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    align-items: start;
+    gap: 6px;
+  }
+  .summary-card { height: auto; }
+  .summary-rule-items { gap: 4px; }
+  .summary-rule-items > span { padding: 4px; grid-template-columns: 18px 1fr; gap: 4px; }
+  .summary-card { padding: 8px; }
+  .summary-card h2 { margin-bottom: 5px; font-size: 12px; }
+  .summary-question-kicker { font-size: 7px; }
+  .summary-card .summary-question { margin-bottom: 3px; font-size: 12px; }
+  .summary-question-stem { margin-bottom: 4px !important; font-size: 8px; }
+  .reflection-options { grid-template-columns: 1fr; gap: 4px; }
+  .reflection-option { min-height: 30px; padding: 4px 6px; font-size: 9px; }
+  .reflection-option > span { width: 18px; height: 18px; flex-basis: 18px; font-size: 7px; }
+  .final-mission-heading { padding: 8px 10px; border-radius: 13px; }
+  .final-mission-heading > span { font-size: 7px; }
+  .final-mission-heading h1 { margin-top: 2px; font-size: 18px; }
+  .final-mission-heading p { font-size: 8px; line-height: 1.25; }
+  .summary-final-layout { grid-template-columns: 1fr; gap: 6px; }
+  .final-question-card { padding: 9px; }
+  .final-question-card .summary-question-kicker { min-height: 23px; margin-bottom: 6px; font-size: 7px; }
+  .final-question-card .summary-question { margin-bottom: 4px; font-size: 17px; line-height: 1.16; }
+  .final-question-card .summary-question-stem { font-size: 9px; }
+  .summary-support-column { gap: 6px; }
+  .summary-rules-toggle { min-height: 52px; padding: 6px 8px; gap: 7px; }
+  .summary-rules-toggle > span { min-width: 48px; padding: 6px; font-size: 9px; }
+  .summary-rules-toggle strong { font-size: 11px; }
+  .summary-rules-toggle small { font-size: 7px; }
+  .summary-rules-toggle > i { font-size: 20px; }
+  .summary-rules-open .summary-rules-panel { max-height: 210px; padding: 0 7px 7px; }
+  .summary-rules-panel .summary-rule-items > span { padding: 4px; grid-template-columns: 18px 1fr; }
+  .summary-rules-panel .summary-rule-items > span > i { width: 18px; height: 18px; font-size: 7px; }
+  .summary-rules-panel .summary-rule-items p { font-size: 7px; }
+  .reward-stage-compact {
+    min-height: 88px;
+    padding: 9px 59px 8px 51px;
+    border-radius: 14px;
+  }
+  .reward-stage-compact .reward-medal { left: 8px; width: 34px; height: 34px; font-size: 14px; }
+  .reward-stage-compact .reward-bit { width: 57px; height: 71px; }
+  .reward-stage-compact h2 { margin: 0; font-size: 14px; }
+}
+
+/* Yakuniy slayd 360x640 da ham to'liq sig'adi: savol va variantlar bir pog'ona
+   kichrayadi, mukofot paneli ixchamlashadi. */
+@media (max-width: 639.98px) {
+  .summary-stack { gap: 5px; }
+  .final-mission-heading { padding: 6px 9px; }
+  .final-mission-heading h1 { font-size: 15px; }
+  .final-mission-heading p { font-size: 8px; }
+  .final-question-card { padding: 8px; }
+  .final-question-card .summary-question { margin-bottom: 3px; font-size: 13px; line-height: 1.18; }
+  .final-question-card .summary-question-kicker { min-height: 19px; margin-bottom: 4px; }
+  .reflection-options { gap: 3px; }
+  .reflection-option { min-height: 26px; padding: 3px 6px; font-size: 8.5px; }
+  .summary-support-column { gap: 5px; }
+  .summary-rules-toggle { min-height: 40px; padding: 5px 7px; }
+  .reward-stage-compact { min-height: 74px; padding: 7px 52px 6px 46px; }
+  .reward-stage-compact h2 { font-size: 12px; }
+  .reward-stage-compact .reward-bit { width: 48px; height: 60px; }
+  .reward-stage-compact .reward-medal { width: 28px; height: 28px; font-size: 12px; }
+}
+
+/* Eng kichik ekran (360x640) uchun yakuniy pog'ona: 13 px yetishmasligi
+   yopiladi, matn o'lchamlari o'zgarmaydi. */
+@media (max-width: 400px) {
+  .summary-stack { gap: 4px; }
+  .final-mission-heading { padding: 5px 8px; }
+  .reflection-option { min-height: 24px; }
+  .summary-rules-toggle { min-height: 36px; }
+  .reward-stage-compact { min-height: 66px; padding: 6px 50px 5px 44px; }
+}
+
+/* Javobdan keyingi yechim ramkasi mobilda ixchamlashadi: aks holda yakuniy
+   slayd 360 px da 11 px ga sig'may qolardi. */
+@media (max-width: 639.98px) {
+  .reflection-resolution .feedback { min-height: 58px !important; padding: 6px 10px 6px 7px !important; }
+  .reflection-resolution .feedback-bit { width: 42px !important; height: 52px !important; }
+  .reflection-resolution .feedback p { font-size: 9px !important; line-height: 1.28 !important; }
+  .reflection-resolution .proof-label { font-size: 7px !important; }
+  .reflection-resolution .feedback-proof { font-size: 9px !important; }
+}
+
+/* Yakuniy savoldagi izoh ramkasi mobilda ixcham: xato javobdan keyin ham slayd
+   sig'adi. Kanonik 88 px o'lchami boshqa ekranlarda o'zgarmaydi. */
+@media (max-width: 639.98px) {
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] {
+    min-height: 56px !important;
+    padding: 5px 9px 5px 6px !important;
+    grid-template-columns: 40px minmax(0, 1fr) !important;
+  }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .feedback-bit { width: 40px !important; height: 50px !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] p { font-size: 8.5px !important; line-height: 1.26 !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .proof-label { font-size: 7px !important; }
+  .lesson-root .reflection-card .feedback[data-g4-role~="feedback-frame"] .feedback-proof { font-size: 8.5px !important; }
+}
+
+/* 360 px da yakuniy slaydning yordamchi qatori yashiriladi: variantlar to'liq
+   gap bo'lgani uchun yakuniy savolning kirish qatori ma'no yo'qotmaydi. */
+@media (max-width: 400px) {
+  .final-question-card .summary-question-stem { display: none; }
+  .final-mission-heading p { font-size: 7.5px; line-height: 1.2; }
+  .summary-question-kicker > b { font-size: 6.5px; }
+}
+
+/* --- Yakuniy savol ramkasi: etalon o'lchamlari (override qatlamidan ustun) --- */
+.lesson-root .final-question-card .summary-question { font-size: clamp(17px, 2.4vw, 22px); line-height: 1.18; }
+.lesson-root .reflection-card .reflection-option { font-size: 11px; font-weight: 700; }
+.lesson-root .reflection-card .reflection-option > span { font-size: 9px; }
+/* Javob berilmaganda izoh sloti joy egallamaydi: etalonda ham balandligi nol. */
+.lesson-root .reflection-card > .feedback:not(.open) { min-height: 0 !important; height: 0; padding: 0 !important; overflow: hidden; }
+@media (max-width: 639.98px) {
+  .lesson-root .final-question-card .summary-question { font-size: 13px; line-height: 1.18; }
+  .lesson-root .reflection-card .reflection-option { font-size: 8.5px; }
+  .lesson-root .reflection-card .reflection-option > span { font-size: 7px; }
+}
+
+/* --- "Davom etish" tugmasi: yumshoq hover ------------------------------- */
+.lesson-root .stage-nav .btn-white-accent:hover:not(:disabled) {
+  color: ${T.accent};
+  background: ${T.accentSoft};
+  box-shadow: 0 12px 26px -18px rgba(255,91,53,.55), inset 0 0 0 1px rgba(255,91,53,.28);
+  transform: translateY(-1px);
+}
+.lesson-root .stage-nav .btn-white-accent:active:not(:disabled) {
+  background: ${T.accentSoft};
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------------------
+   BIRLIKLAR DARSLARI UCHUN UMUMIY QATLAM (26 va 27-darslar): birliklar
+   zanjiri, munosabatlar jadvali, saralash maydoni, taqqoslash kartalari va
+   jurnal qatori.
+   ------------------------------------------------------------------------- */
+.ladder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+.ladder-unit {
+  display: grid;
+  place-items: center;
+  min-width: 50px;
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 800;
+  color: ${T.ink2};
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1.5px rgba(${T.shadowBase}, .16);
+  transition: background .24s ease, color .24s ease, box-shadow .24s ease;
+}
+.ladder-unit.is-on {
+  color: ${T.paper};
+  background: linear-gradient(160deg, #1E7285 0%, #10505F 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .2), 0 8px 16px -12px rgba(16, 80, 95, .85);
+}
+.ladder-arrow {
+  font-size: 12px;
+  font-weight: 800;
+  color: ${T.ink3};
+  padding: 0 1px;
+  transition: color .24s ease;
+}
+.ladder-arrow.is-on { color: ${T.accent}; }
+.ladder.compact .ladder-unit { min-width: 44px; min-height: 34px; font-size: 14px; }
+
+.utable {
+  display: grid;
+  gap: 5px;
+  width: min(360px, 100%);
+  margin: 0 auto;
+}
+.urow {
+  padding: 7px 12px;
+  border-radius: 12px;
+  background: ${T.paper};
+  font-size: 15px;
+  font-weight: 800;
+  color: ${T.ink};
+  text-align: center;
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .12);
+}
+.urow.is-now {
+  background: ${T.cyanSoft};
+  box-shadow: inset 0 0 0 2px rgba(22, 143, 163, .4);
+}
+
+.sortb {
+  display: grid;
+  gap: 10px;
+  width: min(560px, 100%);
+  margin: 0 auto;
+  padding: 12px;
+  border-radius: 18px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14), 0 12px 26px -22px rgba(${T.shadowBase}, .5);
+}
+.sortb-cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+}
+.sortb-card {
+  display: grid;
+  gap: 2px;
+  min-height: 52px;
+  padding: 7px 9px;
+  border: none;
+  border-radius: 13px;
+  background: ${T.bg};
+  color: ${T.ink};
+  font: 600 12px/1.25 'Manrope', system-ui, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14);
+  transition: box-shadow .2s ease, opacity .2s ease;
+}
+.sortb-card.is-active { background: ${T.cyanSoft}; box-shadow: inset 0 0 0 2px ${T.cyan}; }
+.sortb-card.is-wrong { background: ${T.accentSoft}; box-shadow: inset 0 0 0 2px ${T.accent}; }
+.sortb-card.is-done { opacity: .64; cursor: default; }
+.sortb-tag {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: .03em;
+  color: ${T.cyan};
+}
+.sortb-buckets {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 7px;
+}
+.sortb-bucket {
+  position: relative;
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  align-content: center;
+  min-height: 62px;
+  padding: 7px 5px;
+  border: none;
+  border-radius: 14px;
+  background: repeating-linear-gradient(135deg, #FBFBF8 0 7px, #F2F4F1 7px 14px);
+  cursor: pointer;
+  box-shadow: inset 0 0 0 2px rgba(${T.shadowBase}, .14);
+  transition: box-shadow .2s ease;
+}
+.sortb-bucket.is-open { box-shadow: inset 0 0 0 2px rgba(22, 143, 163, .55); }
+.sortb-bucket:disabled { cursor: default; }
+.sortb-bucket b { font-size: 15px; color: ${T.ink}; }
+.sortb-bucket small { font-size: 9.5px; line-height: 1.2; text-align: center; color: ${T.ink2}; }
+.sortb-count {
+  position: absolute;
+  top: 4px;
+  right: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: ${T.cyan};
+}
+
+.cmpcards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: min(460px, 100%);
+  margin: 0 auto;
+}
+.cmpcard {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  align-content: center;
+  min-height: 88px;
+  padding: 10px 12px;
+  border: none;
+  border-radius: 16px;
+  background: ${T.paper};
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .16), 0 10px 22px -18px rgba(${T.shadowBase}, .55);
+  transition: box-shadow .22s ease, transform .22s ease;
+}
+.cmpcard:hover:not(:disabled) { transform: translateY(-1px); }
+.cmpcard.is-picked { background: ${T.accentSoft}; box-shadow: inset 0 0 0 2px rgba(255, 91, 53, .4); }
+.cmpcard.is-best { background: ${T.successSoft}; box-shadow: inset 0 0 0 2px rgba(34, 122, 83, .42); }
+.cmpcard.is-out { opacity: .45; }
+.cmpcard:disabled { cursor: default; }
+.cmpcard-value { font-size: 20px; font-weight: 800; color: ${T.ink}; }
+.cmpcard-note { font-size: 11.5px; color: ${T.ink2}; text-align: center; }
+
+.recrow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  width: min(500px, 100%);
+  margin: 0 auto;
+}
+.recrow-cell {
+  display: grid;
+  gap: 3px;
+  justify-items: center;
+  padding: 9px 10px;
+  border-radius: 14px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .14), 0 8px 18px -16px rgba(${T.shadowBase}, .5);
+}
+.recrow-cell small {
+  font-size: 11px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: ${T.ink3};
+}
+.recrow-cell b { font-size: 19px; color: ${T.ink}; }
+.recrow-cell.is-faded {
+  background: repeating-linear-gradient(135deg, #FBFBF8 0 7px, #F1F1EC 7px 14px);
+}
+.recrow-cell.is-faded b { color: ${T.ink3}; }
+.hook-scene-visual .ladder-unit { background: rgba(255, 255, 255, .92); }
+.hook-scene-visual .ladder-arrow { color: #A9DCE6; }
+
+@media (max-width: 640px) {
+  .ladder-unit { min-width: 42px; min-height: 34px; font-size: 13.5px; padding: 0 5px; }
+  .ladder-arrow { font-size: 10.5px; }
+  .urow { font-size: 13px; padding: 6px 9px; }
+  .sortb-card { font-size: 11px; min-height: 48px; }
+  .sortb-buckets { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sortb-bucket b { font-size: 13.5px; }
+  .cmpcard { min-height: 78px; }
+  .cmpcard-value { font-size: 17px; }
+  .recrow-cell b { font-size: 17px; }
+}
+
+/* -------------------------------------------------------------------------
+   29-DARSNING O'Z MODELI: birlik kvadratlar to'ri. Kvadrat o'nta qatorga va
+   har qator o'nta katakka bo'linadi, bo'yalgan kataklar sanaladi.
+   ------------------------------------------------------------------------- */
+.sqgrid {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+  width: 100%;
+  padding-bottom: 16px;
+}
+.sqgrid-frame {
+  position: relative;
+  padding: 5px;
+  border-radius: 10px;
+  background: ${T.paper};
+  box-shadow: inset 0 0 0 3px rgba(22, 143, 163, .38), 0 12px 24px -20px rgba(${T.shadowBase}, .8);
+}
+.sqgrid-cells {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 1px;
+  width: 148px;
+  height: 148px;
+}
+.sqgrid.compact .sqgrid-cells { width: 128px; height: 128px; }
+.grid-cell {
+  border-radius: 2px;
+  background: #F1F5F6;
+  box-shadow: inset 0 0 0 1px rgba(${T.shadowBase}, .1);
+  transition: background .2s ease;
+}
+.grid-cell.is-on {
+  background: linear-gradient(160deg, #2E93A8 0%, #14707F 100%);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .22);
+}
+.sqgrid-side {
+  position: absolute;
+  left: 50%;
+  bottom: -20px;
+  transform: translateX(-50%);
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: ${T.cyanSoft};
+  font-size: 12px;
+  font-weight: 800;
+  color: ${T.cyan};
+}
+.sqgrid-label {
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  color: ${T.cyan};
+}
+.hook-scene-visual .sqgrid-frame { box-shadow: inset 0 0 0 3px rgba(255, 255, 255, .4); }
+.hook-scene-visual .sqgrid-label { color: #BFE7EE; }
+
+@media (max-width: 640px) {
+  .sqgrid-cells { width: 118px; height: 118px; }
+  .sqgrid.compact .sqgrid-cells { width: 104px; height: 104px; }
+  .sqgrid-side { font-size: 10.5px; bottom: -18px; }
+}
 `;

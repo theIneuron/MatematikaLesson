@@ -6,6 +6,7 @@ import { parse } from '@babel/parser';
 
 const ROOT = globalThis.nodeRepl?.cwd ?? process.cwd();
 const LESSON_DIR = path.join(ROOT, 'src/components/grade4');
+import { withTheoryShellSource } from './lib/grade4-theory-shell-source.mjs';
 const DEFAULT_LESSONS = Array.from({ length: 15 }, (_, index) => String(index + 2).padStart(2, '0'));
 const requestedLessons = process.argv.slice(2)
   .map((value) => value.match(/(?:Dars)?(\d{1,2})$/i)?.[1])
@@ -277,7 +278,7 @@ for (const lesson of LESSONS) {
   const filename = path.join(LESSON_DIR, `Dars${lesson}.jsx`);
   let source;
   try {
-    source = await readFile(filename, 'utf8');
+    source = await withTheoryShellSource(await readFile(filename, 'utf8'), LESSON_DIR);
   } catch (error) {
     fail(lesson, `fayl o'qilmadi: ${error.message}`);
     continue;
