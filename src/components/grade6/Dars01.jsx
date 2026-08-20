@@ -3390,6 +3390,13 @@ const LESSON_STYLES = `
 .tl-go { height: 44px; padding: 0 18px; border-radius: 12px; border: 1px solid #e9e3d9; background: #FFFFFF; color: #FF4F28; font-family: 'Manrope', system-ui, sans-serif; font-size: 17px; font-weight: 600; cursor: pointer; transition: background-color 180ms linear, color 180ms linear; }
 .tl-go:disabled { color: #A7A6A2; background: #faf7f1; cursor: default; }
 .tl-scene { height: 156px; border: 1px solid transparent; border-radius: 12px; overflow: hidden; transition: border-color 440ms linear; }
+/* Низкое окно: сцена показа ниже. Экран 4 самый плотный в уроке — заголовок,
+   лента, сцена, вывод, карточка способа и две кнопки; при 1280 на 680 он уходил
+   под нижнюю панель. Сцена рисуется по месту, поэтому теряет только воздух. */
+@media (min-width: 640px) and (max-height: 700px) {
+  .tl-scene { height: 126px !important; }
+  .tl-ctl { gap: 6px; }
+}
 .tl-scene-ok { border-color: #1F7A4D; }
 .tl-scene-no { border-color: #FF4F28; }
 .tl-empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 0 20px; font-size: 15px; color: #8A8883; transition: opacity 180ms linear; }

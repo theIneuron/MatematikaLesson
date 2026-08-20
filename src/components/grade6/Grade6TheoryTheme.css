@@ -1531,6 +1531,64 @@
   }
 }
 
+/* Juda past oyna (metodist 1280x680 da ishlaydi). 800px rejimi u yerda yetmasdi:
+   kontent pastki panel ostiga kirib ketardi, 100% masshtabda skroll bor edi,
+   90% da yo'q edi. Shu bosqich yana bir pog'ona zichroq: tipografika va havo,
+   matn esa to'liq qoladi. */
+@media (min-width: 640px) and (max-height: 700px) {
+  .lesson-root {
+    --g6-task-question-size: clamp(20px, 3vw, 25px);
+    --g6-task-text-size: clamp(16px, 2.2vw, 18px);
+    --g6-task-option-size: clamp(16px, 2vw, 18px);
+    --g6-task-number-size: clamp(18px, 2.9vw, 22px);
+    --g6-task-help-size: clamp(13px, 1.8vw, 15px);
+  }
+
+  .lesson-root .stage-content {
+    padding-top: 3px !important;
+    padding-bottom: 3px !important;
+  }
+
+  .lesson-root .stage-content > *,
+  .lesson-root .g6-hook,
+  .lesson-root .fth-summary,
+  .lesson-root .fth-final-chain {
+    gap: clamp(4px, 0.85vh, 8px) !important;
+  }
+
+  .lesson-root .frame,
+  .lesson-root .frame-soft,
+  .lesson-root .frame-success,
+  .lesson-root .frame-tip,
+  .lesson-root .frame-warn,
+  .lesson-root .why,
+  .lesson-root .fact-card,
+  .lesson-root .rv-block,
+  .lesson-root .fth-panel,
+  .lesson-root .fth-final-card {
+    padding: clamp(5px, 0.9vh, 8px) !important;
+  }
+
+  .lesson-root .option {
+    min-height: 38px;
+    padding-block: 7px;
+  }
+
+  .lesson-root .stage-nav {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+  }
+
+  /* Кнопки действий внутри слайда («Yana», «Endi o'zim!») — не варианты ответа
+     и не клавиатура: на низком окне они ниже на шесть пикселей. */
+  .lesson-root .stage-content button:not(.option):not(.fn-key):not(.btn-ghost):not(.pd-num) {
+    min-height: 34px;
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+}
+
+
 @media (max-height: 680px) {
   .lesson-root {
     --g6-task-question-size: clamp(20px, 3vw, 25px);

@@ -731,9 +731,9 @@ const CONTENT = {
   s_methods: {
     m1_title: { ru: 'Способ. Сначала тип связи', uz: "Usul. Avval bog'lanish turi", en: 'Method. The kind of link first' },
     m1_steps: {
-      ru: ['Спроси: вторая величина вырастет или уменьшится', 'Прямая — пиши пропорцию, обратная — считай произведение', 'Проверь ответ здравым смыслом'],
-      uz: ["So'rang: ikkinchi kattalik oshadimi yoki kamayadimi", "To'g'ri bo'lsa proporsiya yozing, teskari bo'lsa ko'paytmani hisoblang", "Javobni sog'lom fikr bilan tekshiring"],
-      en: ['Ask whether the second quantity grows or shrinks', 'Direct: write a proportion. Inverse: use the product', 'Check the answer against common sense'],
+      ru: ['Спроси: вторая величина вырастет или уменьшится?', 'Прямая — пиши пропорцию, обратная — считай произведение', 'Проверь ответ здравым смыслом'],
+      uz: ["So'rang: ikkinchi kattalik oshadimi yoki kamayadimi?", "To'g'ri bo'lsa proporsiya yozing, teskari bo'lsa ko'paytmani hisoblang", "Javobni sog'lom fikr bilan tekshiring"],
+      en: ['Ask: does the second quantity grow or shrink?', 'Direct: write a proportion. Inverse: use the product', 'Check the answer against common sense'],
     },
     m1_no: {
       ru: 'Есть пары величин, которые не связаны ни прямо, ни обратно: рост и возраст, отметка и номер парты.',

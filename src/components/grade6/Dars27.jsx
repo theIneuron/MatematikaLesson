@@ -1209,6 +1209,12 @@ const Screen14 = (props) => (
 // ============================================================
 const LESSON_STYLES = `
 .d27-stage { display: flex; flex-direction: column; align-items: center; gap: clamp(9px, 1.7vw, 14px); padding: clamp(12px, 2.4vw, 18px) !important; }
+/* Низкое окно: у экрана показа ужимаются зазоры внутри рамки, а числовая
+   прямая рисуется ниже — она масштабируется по viewBox и ничего не теряет. */
+@media (min-width: 640px) and (max-height: 700px) {
+  .d27-stage { gap: 6px !important; padding: 8px !important; }
+  .d27-line-box svg { max-height: 112px; }
+}
 .d27-stage-tool { gap: clamp(4px, 0.8vw, 7px) !important; padding: clamp(7px, 1.5vw, 11px) !important; }
 .d27-stage-tool .d27-line { font-size: clamp(12px, 2vw, 16px); }
 

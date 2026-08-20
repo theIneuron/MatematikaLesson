@@ -151,7 +151,7 @@ const CONTENT = {
   s_core: {
     title: { ru: 'План решения из трёх шагов', uz: 'Uch qadamli yechim rejasi', en: 'A three step plan' },
     steps: [
-      { ru: 'Что дано: целое или часть', uz: 'Nima berilgan: butunmi yoki qism', en: 'What is given: the whole or a part' },
+      { ru: 'Что дано: целое или часть?', uz: 'Nima berilgan: butunmi yoki qism?', en: 'What is given: the whole or a part?' },
       { ru: 'Выбираем действие: умножить или разделить', uz: "Amalni tanlaymiz: ko'paytirish yoki bo'lish", en: 'Choose the action: multiply or divide' },
       { ru: 'Прикидываем ответ и проверяем', uz: 'Javobni chamalaymiz va tekshiramiz', en: 'Estimate the answer and check' },
     ],
@@ -683,7 +683,7 @@ const CONTENT = {
     brief_3: { ru: 'после шага целое может смениться', uz: "qadamdan keyin butun o'zgarishi mumkin", en: 'after a step the whole may change' },
     memo_title: { ru: 'Что помнить', uz: 'Nimani eslash kerak', en: 'What to remember' },
     memo_q1: { ru: 'Первый вопрос', uz: 'Birinchi savol', en: 'First question' },
-    memo_a1: { ru: 'что дано: целое или часть', uz: 'nima berilgan: butunmi yoki qism', en: 'is the whole or a part given' },
+    memo_a1: { ru: 'что дано: целое или часть?', uz: 'nima berilgan: butunmi yoki qism?', en: 'is the whole or a part given?' },
     memo_q2: { ru: 'Скидка', uz: 'Chegirma', en: 'Discount' },
     memo_a2: { ru: 'найди часть и вычти её из цены', uz: 'qismni toping va narxdan ayiring', en: 'find the part and subtract it' },
     memo_q3: { ru: 'Проверка', uz: 'Tekshiruv', en: 'Check' },

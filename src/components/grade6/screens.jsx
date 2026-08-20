@@ -3353,6 +3353,25 @@ const BASE_STYLES = `html, body { margin: 0; padding: 0; }
 .fn-del { color: #8A8883; font-size: 19px; }
 .fn-go { background: #1F7A4D; border-color: #1F7A4D; color: #FFFFFF; }
 .fn-go:disabled { background: #faf7f1; border-color: #D8D2C6; color: #A7A6A2; }
+/* ===== НИЗКОЕ ОКНО: КАРТОЧКА СПОСОБА И ВАРИАНТЫ =====
+   Остальную плотность низкого окна держит Grade6TheoryTheme.css — там режим
+   max-height живёт с самого начала и правила там сильнее. Здесь только то,
+   чего в теме нет: карточка способа стоит на каждом экране практики и на
+   низком окне съедала 130 пикселей. Текст остаётся целиком, ужимается воздух. */
+@media (min-width: 640px) and (max-height: 780px) {
+  .mc-card { padding: 8px 12px; }
+  .mc-h { margin-bottom: 3px; }
+  .mc-list { gap: 2px; }
+  .mc-list li { font-size: 13.5px; line-height: 17px; }
+  .mc-note { margin-top: 4px; font-size: 12.5px; line-height: 15px; }
+  .sv-opts .option { padding-top: 9px !important; padding-bottom: 9px !important; }
+}
+@media (min-width: 640px) and (max-height: 700px) {
+  .mc-card { padding: 6px 11px; }
+  .mc-list li { font-size: 13px; line-height: 16px; }
+  .sv-opts .option { padding-top: 7px !important; padding-bottom: 7px !important; }
+}
+
 /* ===== ПАМЯТКА В ИТОГЕ (mm = memo) ===== */
 .mm-grid { display: grid; grid-template-columns: auto 1fr; gap: 7px 14px; align-items: baseline; }
 .mm-row { display: contents; }
