@@ -99,6 +99,12 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',
   },
+  'dars17-bir-had-darajasi': {
+    right: ['25a2', '−8x9', '2a2', '4a2 : 2a5'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
   'dars06-oxshash-hadlar': {
     right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
     noGap: /Пробелов нет/i,
