@@ -135,11 +135,20 @@ const audit = (file) => {
   const say = (c, m) => (c ? null : bad.push(m))
 
   // --- 1. O'N BESH EKRAN va ROLLAR ---
-  const total = (raw.match(/const TOTAL = (\d+)/) || [])[1]
-  say(total === '15', `TOTAL = ${total}, 15 bo'lishi kerak (§4.1)`)
-  const screensArr = (src.match(/const SCREENS = \[([\s\S]*?)\]/) || [])[1] || ''
+  // IKKI SHAKL. 1-15 darslar obvyazkani o'z ichida saqlaydi:
+  //   const TOTAL = 15 ... const SCREENS = [Screen1, ...]
+  // 16-darsdan boshlab obvyazka `core.jsx` da (`createLesson`), darsda esa:
+  //   export default createLesson({ ... screens: [Screen1, ...] })
+  // Tekshiruv IKKALASINI ham biladi, aks holda u yangi shaklni «ekran yo'q»
+  // deb yolg'on gapiradi.
+  const screensArr =
+    (src.match(/const SCREENS = \[([\s\S]*?)\]/) || [])[1] ||
+    (src.match(/screens:\s*\[([\s\S]*?)\]/) || [])[1] || ''
   const listed = (screensArr.match(/Screen\d+/g) || []).length
-  say(listed === 15, `SCREENS massivida ${listed} ta ekran, 15 bo'lishi kerak`)
+  const totalRaw = (raw.match(/const TOTAL = (\d+)/) || [])[1]
+  const total = totalRaw || String(listed)
+  say(total === '15', `ekranlar soni ${total}, 15 bo'lishi kerak (§4.1)`)
+  say(listed === 15, `ekranlar ro'yxatida ${listed} ta, 15 bo'lishi kerak`)
   for (let n = 1; n <= 15; n += 1) {
     say(screenFn(src, n) !== '', `Screen${n} komponenti yo'q`)
   }

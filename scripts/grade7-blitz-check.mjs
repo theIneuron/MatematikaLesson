@@ -93,6 +93,12 @@ const LESSONS = {
     ring: false,
     readySel: '.g7-readyline',
   },
+  'dars16-bir-hadlarni-kopaytirish': {
+    right: ['10a3', '−12x3', '10ab', '4x3'],
+    noGap: /Пробелов нет/i,
+    ring: false,
+    readySel: '.g7-readyline',
+  },
   'dars06-oxshash-hadlar': {
     right: ['9a', '6b', 'Нет, буквы разные', 'Складывают'],
     noGap: /Пробелов нет/i,

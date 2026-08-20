@@ -119,6 +119,12 @@ export const UI_TXT = {
   zoneGiven: L('Berilgan', 'Дано', 'Given'),
 
   right: L("To'g'ri", 'Верно', 'Correct'),
+
+  // NAVIGATSIYA. Ilgari har dars faylida qaytarilardi (`const UI = {...}`).
+  next: L('Davom etish', 'Продолжить', 'Continue'),
+  back: L('Orqaga', 'Назад', 'Back'),
+  finish: L('Darsni yakunlash', 'Завершить урок', 'Finish the lesson'),
+  saved: L('Natija saqlandi', 'Результат сохранён', 'Result saved'),
   yourGuess: L('Taxminingiz', 'Твоя догадка', 'Your guess'),
   sound: L('Ovoz', 'Звук', 'Sound'),
   replay: L('Qayta', 'Повторить', 'Replay'),
@@ -932,6 +938,165 @@ export const HackNote = ({ title, children, bottom, tone }) => {
       <span className="g7-fb-body">{children}</span>
     </div>
   )
+}
+
+// ============================================================
+// DARS OBVYAZKASI: BITTA JOYDA. `LessonFrame` va `createLesson`.
+//
+// NEGA. Har darsda `Frame` (40 satr) va ildiz komponent (78 satr) bir xil
+// yozilgan edi -- 15 faylda 140 satrdan. Bu CLAUDE.md §5 ning buzilishi:
+// umumiy kod ko'chirilmaydi, umumiy modulga chiqariladi. Amaliy narxi ham
+// bor: bitta nuqsonni 15 joyda tuzatishga to'g'ri kelardi, va bu loyihada
+// allaqachon bo'lgan.
+//
+// NIMA QOLADI DARSDA. Faqat MA'LUMOT: ekranlar mazmuni, misollar, razborlar,
+// ovoz. Ya'ni metodik ish. Obvyazka esa bu yerda.
+//
+// Metodist savoli (2026-08-20): «bitta skelet olib faqat matnni almashtirsa
+// bo'ladimi». Javob: OBVYAZKA -- ha, shu modul aynan shuning uchun. Lekin
+// xuk, farqlash, tuzoq va chegaraviy holat -- matn emas, MATEMATIKA: ular
+// har darsda qaytadan topiladi.
+// ============================================================
+const LessonMetaContext = createContext({ block: null, total: 15 })
+
+export function LessonFrame({ meta, screen, audio, solved, onPrev, onNext, onFinish, finished, children }) {
+  const t = useT()
+  const { block, total } = useContext(LessonMetaContext)
+  const canNext = useAdvanceGate(solved, audio)
+  const last = screen === total - 1
+  const nav = {
+    back: meta.noBack ? null : (
+      <Btn tone="ghost" onClick={onPrev} disabled={screen === 0}>{t(UI_TXT.back)}</Btn>
+    ),
+    next: last ? (
+      <Btn tone="accent" onClick={onFinish} disabled={finished}>
+        {t(finished ? UI_TXT.saved : UI_TXT.finish)}
+      </Btn>
+    ) : (
+      <Btn onClick={onNext} disabled={!canNext} ready={canNext}>{t(UI_TXT.next)}</Btn>
+    ),
+  }
+  return (
+    <Stage
+      eyebrow={t(meta.eyebrow)}
+      block={block ? { ...block, label: t(block.label) } : undefined}
+      screen={screen}
+      total={total}
+      audio={audio}
+      nav={nav}
+      field={meta.field}
+      noNotes={meta.noNotes}
+    >
+      {meta.method ? <Tag tone="accent">{t(meta.method)}</Tag> : null}
+      {meta.ownTitle ? null : <Title>{t(meta.title)}</Title>}
+      {children}
+      {meta.reward && solved ? (
+        <HackNote tone="ok" bottom title={t(meta.reward.title)}>{t(meta.reward.text)}</HackNote>
+      ) : null}
+      {meta.hack && solved ? <HackNote bottom>{t(meta.hack)}</HackNote> : null}
+      {meta.bonus && solved ? (
+        <HackNote bottom title={t(meta.bonus.title)}>{t(meta.bonus.text)}</HackNote>
+      ) : null}
+    </Stage>
+  )
+}
+
+// `tags` -- darsning teg lug'ati: yakun ekrani kamchilik satrini shundan
+// yig'adi. Faqat lug'atda BOR teglar hisobga olinadi, ya'ni tasodifiy satr
+// yakunga chiqib ketmaydi.
+export const collectLessonTags = (answers, dict) => {
+  const out = []
+  ;(answers || []).forEach((a) => {
+    ;((a && a.tags) || []).forEach((tag) => {
+      if (dict[tag] && out.indexOf(tag) === -1) out.push(tag)
+    })
+  })
+  return out
+}
+
+export const levelFromFirstTry = (firstTry, total) => {
+  if (firstTry === null || firstTry === undefined) return 'none'
+  if (firstTry >= total) return 'closed'
+  if (firstTry === total - 1) return 'one'
+  return 'back'
+}
+
+export function createLesson({ id, title, no, block, screens, tags, ruleScreen = 7 }) {
+  const total = screens.length
+  return function Lesson({ studentName, lang: langProp, ttsApiBase, voiceGender, aiGradingEndpoint, onFinished }) {
+    const initial = langProp === 'uz' || langProp === 'ru' || langProp === 'en' ? langProp : 'uz'
+    const [lang, setLang] = useState(initial)
+    useEffect(() => {
+      if (langProp === 'uz' || langProp === 'ru' || langProp === 'en') setLang(langProp)
+    }, [langProp])
+    configureLesson({
+      ttsApiBase: ttsApiBase || '',
+      aiGradingEndpoint: aiGradingEndpoint || '',
+      studentName: studentName || '',
+      voiceGender: voiceGender || 'm',
+      lessonId: id,
+      lessonNo: no,
+      freeNav: true,
+    })
+    useMobileZoom()
+
+    const [screen, setScreen] = useState(0)
+    const [answers, setAnswers] = useState([])
+    const [finished, setFinished] = useState(false)
+    const startedAt = useRef(Date.now())
+
+    const onAnswer = useCallback((payload) => { setAnswers((prev) => prev.concat(payload)) }, [])
+    const next = useCallback(() => setScreen((s) => Math.min(s + 1, total - 1)), [])
+    const prev = useCallback(() => setScreen((s) => Math.max(s - 1, 0)), [])
+
+    const finish = useCallback(() => {
+      setFinished(true)
+      const blitz = answers.find((a) => a && a.role === 'blitz')
+      const qTotal = blitz ? blitz.total : 0
+      const firstTry = blitz ? blitz.firstTry : 0
+      const payload = {
+        lessonId: id,
+        lessonTitle: tr(title, lang),
+        lang,
+        completed: true,
+        durationSec: Math.floor((Date.now() - startedAt.current) / 1000),
+        totalQuestions: qTotal,
+        correctAnswers: firstTry,
+        firstTryStats: { total: qTotal, firstTryCorrect: firstTry },
+        level: blitz ? blitz.level : 'none',
+        tags: collectLessonTags(answers, tags),
+        freeNav: getFreeNav(),
+        answers,
+      }
+      if (onFinished) onFinished(payload)
+      else console.log('[' + id + '] onFinished', payload)
+    }, [answers, lang, onFinished])
+
+    const Current = screens[screen]
+    const meta = useMemo(() => ({ block, total }), [])
+
+    return (
+      <LangProvider value={lang}>
+        <LangSetProvider value={setLang}>
+          <LessonMetaContext.Provider value={meta}>
+            <style>{STYLES}</style>
+            <div className={'lesson-root' + (screen === ruleScreen ? ' is-rule' : '')} lang={lang}>
+              <Current
+                screen={screen}
+                lang={lang}
+                answers={answers}
+                onAnswer={onAnswer}
+                onNext={next}
+                onPrev={prev}
+                onFinish={finish}
+                finished={finished}
+              />
+            </div>
+          </LessonMetaContext.Provider>
+        </LangSetProvider>
+      </LangProvider>
+    )
+  }
 }
 
 export const Eyebrow = ({ children, right }) => (
