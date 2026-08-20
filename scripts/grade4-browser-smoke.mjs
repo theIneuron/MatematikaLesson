@@ -73,9 +73,10 @@ const EXPECTED_ANSWER_ORDER_GROUPS = new Map([
   ['Dars17.jsx', 8], ['Dars18.jsx', 4], ['Dars19.jsx', 5], ['Dars20.jsx', 5], ['Dars21.jsx', 8],
   ['Dars22.jsx', 7], ['Dars23.jsx', 5], ['Dars24.jsx', 5], ['Dars25.jsx', 5], ['Dars26.jsx', 4],
   ['Dars27.jsx', 4], ['Dars28.jsx', 6], ['Dars29.jsx', 5], ['Dars30.jsx', 5],
-  ...Array.from({ length: 4 }, (_, index) => [`Dars${String(index + 31).padStart(2, '0')}.jsx`, 5]),
-  ['Dars35.jsx', 6],
-  ...Array.from({ length: 6 }, (_, index) => [`Dars${String(index + 36).padStart(2, '0')}.jsx`, 5]),
+  ...Array.from({ length: 4 }, (_, index) => [`Dars${String(index + 31).padStart(2, '0')}.jsx`, 6]),
+  ['Dars35.jsx', 7],
+  ...Array.from({ length: 5 }, (_, index) => [`Dars${String(index + 36).padStart(2, '0')}.jsx`, 6]),
+  ['Dars41.jsx', 5],
   ...Array.from({ length: 10 }, (_, index) => [`Dars${String(index + 42).padStart(2, '0')}.jsx`, 6]),
 ]);
 const REQUIRE_ALL_ANSWER_LABELS = new Set(['Dars10.jsx']);
