@@ -137,6 +137,15 @@ export const grade7Nazariy = [
     desc: "Sonlar ko'paytiriladi, harflar sanaladi, koeffitsiyent oldinda. −b ning koeffitsiyenti minus bir. 15 slayd, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/Dars15.jsx')),
   },
+  {
+    // BIRINCHI DARS OBVYAZKASIZ. `Frame` va ildiz komponent `core.jsx` ga
+    // chiqarildi (`LessonFrame`, `createLesson`): ular 15 faylda bir xil
+    // yozilgan edi. Bu darsda faqat MA'LUMOT bor.
+    slug: 'dars16-bir-hadlarni-kopaytirish',
+    title: "Dars 16. Bir hadlarni ko'paytirish",
+    desc: "Koeffitsiyentlar ko'paytiriladi, bir xil harflarning ko'rsatkichlari qo'shiladi. 15 slayd, UZ/RU/EN.",
+    Component: lazy(() => import('../components/grade7/Dars16.jsx')),
+  },
 ]
 
 // 7-sinf AMALIY mashg'ulotlari. Har nazariy darsga 10 tekshiriladigan
@@ -149,31 +158,22 @@ export const grade7Nazariy = [
 //
 // 7-SINFNING FARQI. Boshqa sinflarda amaliyot UMUMIY shakllardan yig'iladi
 // (variant tanlash, kiritish, moslashtirish). Bu yerda unday QILINMAYDI:
-// etalon §1.1 tayyor javobni tanlashni cheklaydi, va o'nta variantli
-// topshiriq aynan o'sha rad etilgan prototip bo'lib chiqardi. Shuning uchun
-// amaliyot NAZARIYANING asboblaridan yig'iladi -- o'quvchi tartibni qo'yadi,
-// belgini qo'yadi, qavsni qo'yadi, yozuvni qayta yozadi yoki YIG'ADI
+// etalon §1.1 tayyor javobni tanlashni cheklaydi. Shuning uchun har
+// topshiriqda o'quvchi O'ZI biror narsa qiladi: tartibni qo'yadi, uyani
+// to'ldiradi, qatorni tuzatadi, yozuvni yig'adi, zonaga joylashtiradi
 // (PODXOD_7SINF.md §9).
 //
-// PILOT -- 1-dars. Yangi asbob `BuildValue` shu yerda birinchi marta
-// ishlatiladi: qiymat berilgan, yozuvni o'quvchi yig'adi, o'lchagich esa
-// uning O'Z yozuvining qiymatini ko'rsatadi.
+// 1-DARS AMALIYOTI. 2026-08-20 da to'liq qayta yig'ildi: tuzilma, uslub va
+// jsx-question kontrakti 5-sinf amaliyotidan olindi (5-sinfning O'ZIGA
+// tegilmadi), matematikasi esa 7-sinfning. Ilgari shu darsda boshqa to'plam
+// turgan edi -- metodist uni olib tashlashga qaror qildi.
+// Uch topshiriq (03, 04, 08) harfli ifodalar ustida: bu metodistning
+// topshirigi, garchi rejada harfli ifodalar 2-dars bo'lsa ham.
 export const grade7Amaliy = [
   {
     slug: 'dars01-amaliyot-sonli-ifodalar',
     title: 'Dars 1. Amaliyot: sonli ifodalar',
-    desc: "10 topshiriq: amallar tartibi, bir bosqich ichida chapdan o'ngga, qavs, birinchi xato qator va qiymatdan yozuvga qaytish. Olti xil mexanika, UZ/RU/EN.",
+    desc: "10 topshiriq: amallar tartibi, qavs, o'nli va oddiy kasrlar, manfiy sonlar, harfli ifodalar. O'nta xil mexanika, UZ/RU/EN.",
     Component: lazy(() => import('../components/grade7/practice/dars01/Dars01Practice.jsx')),
-  },
-  {
-    // 5-SINF AMALIYOTINING NUSXASI, matematikasi 7-sinfga o'tkazilmoqda
-    // (metodist topshirigi 2026-08-20). Fayllar
-    // `src/components/grade5/practice/dars01/` dan ko'chirildi; 5-sinfning
-    // O'ZIGA tegilmadi. Tuzilma, uslub va jsx-question kontrakti o'sha-o'sha,
-    // o'zgaradigani -- matematika va uch til.
-    slug: 'dars01-amaliyot-5sinf-nusxa',
-    title: "Dars 1. Amaliyot: nusxa (7-sinfga o'tkazilmoqda)",
-    desc: "5-sinf amaliyotining tuzilishi, matematikasi 7-sinfning: sonli ifodalar.",
-    Component: lazy(() => import('../components/grade7/practice/g5-dars01/Dars01Practice.jsx')),
   },
 ]
