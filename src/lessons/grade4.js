@@ -71,19 +71,19 @@ export const grade4Nazariy = [
   {
     slug: 'dars12-kop-xonali-sonni-bir-xonali-songa-bolish',
     title: "Dars 12. Ko'p xonali sonni bir xonali songa bo'lish",
-    desc: "Birinchi to'liqsiz bo'linuvchini topish, yozma bo'lish siklini bajarish, bo'linmadagi nolni saqlash va natijani teskari amal bilan tekshirish.",
+    desc: "Birinchi to'liqsiz bo'linuvchini topish, bo'linmadagi raqamlar sonini oldindan aniqlash, qadam siklini bajarish va bo'linmadagi nolni saqlash.",
     Component: lazy(() => import('../components/grade4/Dars12.jsx')),
   },
   {
     slug: 'dars13-kop-xonali-sonni-ikki-xonali-songa-bolish',
     title: "Dars 13. Ko'p xonali sonni ikki xonali songa bo'lish",
-    desc: "Bo'linma raqamini yaqin ko'paytmalar orqali tanlash, sinov raqamini tuzatish va natijani teskari ko'paytirish bilan tekshirish.",
+    desc: "Bo'luvchini yaxlitlab sinash raqamini topish, uni ko'paytirish bilan tekshirish va katta chiqsa bittaga kamaytirish.",
     Component: lazy(() => import('../components/grade4/Dars13.jsx')),
   },
   {
     slug: 'dars14-harakat-masalalari',
     title: 'Dars 14. Harakatga doir masalalar',
-    desc: "Masofa, tezlik va vaqtni o'zgarmas yo'l modelida bog'lash, noma'lum kattalikni aniqlash va mos amalni tanlash.",
+    desc: "Tezlik, vaqt va masofani jadvalda bog'lash, uchta qoidani ajratish va javob birligini to'g'ri yozish.",
     Component: lazy(() => import('../components/grade4/Dars14.jsx')),
   },
   {
@@ -101,7 +101,7 @@ export const grade4Nazariy = [
   {
     slug: 'dars17-shkalalar',
     title: 'Dars 17. Shkalalar',
-    desc: "Shkaladagi bo'linma qiymatini topish, belgilar va oraliqlarni farqlash hamda noldan boshlanmaydigan gorizontal va vertikal shkalalarni o'qish.",
+    desc: "Sonlar nuri va birlik kesma, bir bo'linma qiymatini farq orqali topish hamda chizg'ich, termometr, soat va spidometrni bir qoida bilan o'qish.",
     Component: lazy(() => import('../components/grade4/Dars17.jsx')),
   },
   {

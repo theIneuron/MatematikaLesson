@@ -1,846 +1,1480 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+// ============================================================================
+// 4-SINF · Dars 15 · O'rtacha arifmetik qiymatni topish
+//
+// Manba: N. U. Bikbayeva, "Matematika. 4-sinf", 5-nashr 2020, 51-53-betlar.
+//   51-bet: Anvar va Ulug'bek beshtadan uloqtirdi; Anvar 9, 14, 9, 15, 13;
+//           Ulug'bek 10, 15, 11, 10, 9. "O'rtacha arifmetikni topish uchun
+//           sonlar yig'indisini topib, uni qo'shiluvchilar soniga bo'lish kerak";
+//   52-bet: 28, 36, 19, 41 va 136, 140, 147; Rayhona to'rtta imtihon
+//           224, 200, 270, 230; oshxonada yetti kunda 250, 160, 80 kg sabzavot;
+//   53-bet: 57 va 65 sonlarining o'rtachasini sonlar nurida belgilash;
+//           12, 17, 18, 20, 28 sonlarining o'rtacha arifmetigi.
+//
+// Syujet: Lumo City sport arenasi (SYUJET_4SINF.md, 2-blok — muhandislik va
+// transport markazi bilan bir shahar, lekin o'z joyi).
+// Baholanadigan oltita ekran: s2, s4, s6, s8, s10, s13.
+//
+// Yangi mexanika: LevelPick — bola ustunlarni qaysi balandlikda tenglashtirish
+// kerakligini o'zi qo'yadi. O'rtacha qiymat shu tarzda formuladan oldin
+// ma'noga ega bo'ladi.
+// ============================================================================
+import {
+  ChoiceScreen, FitSvg, KIT_STYLES, LevelFigure, LevelPick, NumPadScreen,
+  RevealScreen, ScaleFigure, SlotScreen, SummaryScreen, T, TableFill,
+  TheoryLessonRoot, assertScreenTypeLabels, useT,
+} from './kit/index.js';
 
-// 4-SINF · 15-DARS · O'rtacha arifmetik
-// Approved frame vector: 3,5,4,3,4,3,3,4,2,2,2,2,2,3,5.
-
-const T = {
-  bg: '#F5F5F0', ink: '#12212C', ink2: '#50616D', ink3: '#87949D', paper: '#FFFFFF',
-  accent: '#FF5B35', accentSoft: '#FFF0EA', cyan: '#168FA3', cyanSoft: '#E5F5F6',
-  navy: '#173B52', lime: '#95C93D', success: '#227A53', successSoft: '#E7F3EC',
-  warn: '#A96F13', warnSoft: '#FFF5D9', shadowBase: '58, 53, 48',
-};
-
-const TOTAL_SCREENS = 15;
-const BASE_FRAME_COUNTS = [3, 5, 4, 3, 4, 3, 3, 4, 2, 2, 2, 2, 2, 3, 5];
-const SCREEN_FLOW = [0, 1, 8, 2, 9, 3, 10, 4, 11, 6, 12, 7, 13, 5, 14];
-const FRAME_COUNTS = SCREEN_FLOW.map((sourceIndex) => BASE_FRAME_COUNTS[sourceIndex]);
-const SUPPORTED_LANGS = ['uz', 'ru', 'en'];
-const normalizeLang = (value) => SUPPORTED_LANGS.includes(value) ? value : 'uz';
-const SPEECH_LOCALES = { uz: 'uz-UZ', ru: 'ru-RU', en: 'en-GB' };
 const LESSON_META = {
-  lessonId: 'num-4-15-v1',
+  lessonId: 'average-4-15-v2',
   slug: 'dars15-ortacha-arifmetik',
-  lessonTitle: { uz: "15-dars. O'rtacha arifmetik", ru: 'Урок 15. Среднее арифметическое', en: 'Lesson 15. Arithmetic mean' },
-  skillTags: ['arithmetic_mean', 'equalization', 'sum', 'value_count', 'comparison'],
+  lessonTitle: {
+    uz: "15-dars. O'rtacha arifmetik qiymatni topish",
+    ru: 'Урок 15. Нахождение среднего арифметического',
+    en: 'Lesson 15. Finding the arithmetic mean',
+  },
+  skillTags: ['average', 'sum', 'division', 'fair_comparison', 'estimation'],
 };
 
 const SCREEN_META = [
-  { id: 's0', type: 'hook', goal: 'Predict a fair comparison strategy', template: 'DiagnosticChoice', mechanic: 'diagnostic-choice', active: true, scored: false, scope: 'hook', misconceptions: ['use only the largest result'], resetOnReturn: true },
-  { id: 's1', type: 'model', goal: 'Observe equalisation of five results', template: 'BarReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'concept', misconceptions: [] },
-  { id: 's2', type: 'guided-practice', goal: 'Identify the mean from ordered data', template: 'ChoiceRetry', mechanic: 'choice-retry', active: true, scored: true, scope: 'module-mikro', misconceptions: ['choose the middle value automatically'] },
-  { id: 's3', type: 'discovery', goal: 'Discover sum then divide by count', template: 'FormulaReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'concept', misconceptions: [] },
-  { id: 's4', type: 'guided-practice', goal: 'Construct the correct operation order', template: 'OrderConstruction', mechanic: 'place-construction', active: true, scored: true, scope: 'module-mikro', misconceptions: ['divide by an incorrect count'] },
-  { id: 's5', type: 'model', goal: 'Explain why every value is included', template: 'ComparisonReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'concept', misconceptions: [] },
-  { id: 's6', type: 'independent-practice', goal: 'Compute an arithmetic mean', template: 'NumericRetry', mechanic: 'numeric-retry', active: true, scored: true, scope: 'module-mikro', misconceptions: ['forget the final division'] },
-  { id: 's7', type: 'model', goal: 'Compare two means using a second representation', template: 'BarReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'concept', misconceptions: [] },
-  { id: 's8', type: 'strategy', goal: 'Select a comparison strategy', template: 'StrategyChoice', mechanic: 'choice-retry', active: true, scored: true, scope: 'module-mikro', misconceptions: ['compare totals with different counts'] },
-  { id: 's9', type: 'rule', goal: 'State the arithmetic-mean rule after discovery', template: 'RuleReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'concept', misconceptions: [] },
-  { id: 's10', type: 'error-analysis', goal: 'Repair division by the wrong number of values', template: 'ErrorRepair', mechanic: 'choice-retry', active: true, scored: true, scope: 'module-mikro', misconceptions: ['divide by number of distinct values'] },
-  { id: 's11', type: 'transfer', goal: 'Transfer the mean to a number-line model', template: 'BoundaryReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'transfer', misconceptions: [] },
-  { id: 's12', type: 'life-case', goal: 'Find a mean in a passenger context', template: 'LifeChoice', mechanic: 'choice-retry', active: true, scored: true, scope: 'final', misconceptions: ['use only one group'] },
-  { id: 's13', type: 'comparison', goal: 'Compare the original datasets by their means', template: 'ComparisonReveal', mechanic: 'model-reveal', active: true, scored: false, scope: 'transfer', misconceptions: [] },
-  { id: 's14', type: 'summary', goal: 'Reflect on equalisation and bridge to formulae', template: 'ReflectionChoice', mechanic: 'reflection-choice', active: true, scored: false, scope: 'reflection', misconceptions: [] },
+  { id: 's0', type: 'hook', scored: false, scope: 'hook' },
+  { id: 's1', type: 'exploration', scored: false, scope: null },
+  { id: 's2', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's3', type: 'exploration', scored: false, scope: null },
+  { id: 's4', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's5', type: 'exploration', scored: false, scope: null },
+  { id: 's6', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's7', type: 'exploration', scored: false, scope: null },
+  { id: 's8', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's9', type: 'exploration', scored: false, scope: null },
+  { id: 's10', type: 'practice', scored: true, scope: 'module-mikro' },
+  { id: 's11', type: 'rule', scored: false, scope: null },
+  { id: 's12', type: 'strategy', scored: false, scope: null },
+  { id: 's13', type: 'error-analysis', scored: true, scope: 'module-mikro' },
+  { id: 's14', type: 'life-case', scored: false, scope: 'final' },
+  { id: 's15', type: 'summary', scored: false, scope: null },
 ];
+
+const TOTAL_SCREENS = SCREEN_META.length;
+assertScreenTypeLabels(SCREEN_META, LESSON_META.lessonId);
+
+const FRAME_COUNTS = [5, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 4, 3, 3, 3, 3];
+
+const NUM = (value) => ({ uz: String(value), ru: String(value), en: String(value) });
+const METR = { uz: 'm', ru: 'м', en: 'm' };
+
+const ANVAR = [9, 14, 9, 15, 13].map((value, index) => ({ label: String(index + 1), value }));
+const ULUGBEK = [10, 15, 11, 10, 9].map((value, index) => ({ label: String(index + 1), value }));
 
 const CONTENT = {
+  // -------------------------------------------------------------------------
   s0: {
-    eyebrow: { uz: "Sport maydoni", ru: 'Спортивная площадка', en: 'Sports field' },
-    title: { uz: "Faqat eng yaxshi natija yetarlimi?", ru: 'Достаточно ли лучшего результата?', en: 'Is the best result enough?' },
-    question: { uz: "Barcha urinishlarni qanday adolatli taqqoslaymiz?", ru: 'Как честно сравнить все попытки?', en: 'How can we compare all the attempts fairly?' },
+    eyebrow: { uz: 'Arena musobaqasi', ru: 'Соревнование на арене', en: 'The arena contest' },
+    title: {
+      uz: 'Ikkalasi ham g\'olibman deyapti',
+      ru: 'Оба говорят, что победили',
+      en: 'Both of them claim the win',
+    },
+    question: {
+      uz: 'Beshtadan uloqtirish natijasini adolatli taqqoslash uchun nima qilamiz?',
+      ru: 'Как честно сравнить по пять бросков?',
+      en: 'How do we fairly compare five throws each?',
+    },
     options: [
-      { uz: "Faqat 15 metrni olamiz", ru: 'Берём только 15 метров', en: 'Use only the 15-metre result' },
-      { uz: "Barcha natijalarni bitta teng qiymatga keltiramiz", ru: 'Уравниваем все результаты до одного значения', en: 'Redistribute all the results into one equal value' },
-      { uz: "Faqat oxirgi urinishni olamiz", ru: 'Берём только последнюю попытку', en: 'Use only the final attempt' },
-    ],
-    neutral: { uz: "Eng katta natija ikkalasida ham bir xil. Barcha urinishlarni hisobga oladigan usul kerak.", ru: 'Лучший результат у обоих одинаков. Нужен способ учесть все попытки.', en: 'Their best results are the same. We need a method that takes every attempt into account.' },
-    audio: { intro: {
-      uz: ["Salom, do'stim! Bugun o'rtacha arifmetikni topishni o'rganamiz. Anvar besh marta uloqtirdi.", "Ulug'bek ham besh marta uloqtirdi.", "Eng katta natija ikkalasida ham bir xil. Barcha urinishlarni hisobga oladigan usul kerak."],
-      ru: ['Привет, друг! Сегодня мы научимся находить среднее арифметическое. Анвар выполнил пять бросков.', 'Улугбек тоже выполнил пять бросков.', 'Лучший результат у обоих одинаков. Нужен способ учесть все попытки.'],
-      en: ["Hey, buddy! Today we'll learn how to find the arithmetic mean. Anvar made five throws.", 'Ulugbek also made five throws.', 'Their best results are the same. We need a method that takes every attempt into account.'],
-    }, on_correct: { uz: "Taxmin saqlandi.", ru: 'Гипотеза сохранена.', en: 'Your estimate has been saved.' }, on_wrong: { uz: "Taxmin saqlandi.", ru: 'Гипотеза сохранена.', en: 'Your estimate has been saved.' } },
-  },
-  s1: {
-    eyebrow: { uz: "Tenglashtirish", ru: 'Выравнивание', en: 'Equalising' },
-    title: { uz: "Anvarning natijalarini tenglashtiramiz", ru: 'Выравниваем результаты Анвара', en: "Equalise Anvar's results" },
-    audio: {
-      uz: ["Anvarning beshta natijasi bir xil emas.", "Barcha natijalarni qo'shsak, oltmish metr chiqadi.", "Endi jami natijani beshta urinishga teng taqsimlaymiz.", "Har bir ustunga o'n ikki metrdan to'g'ri keladi.", "Tenglashtirilgan qiymat Anvarning o'rtacha natijasidir."],
-      ru: ['Пять результатов Анвара различаются.', 'Сумма всех результатов равна шестидесяти метрам.', 'Теперь поровну распределим общий результат между пятью попытками.', 'На каждый столбец приходится по двенадцать метров.', 'Выровненное значение является средним результатом Анвара.'],
-      en: ["Anvar's five results are not all the same.", 'The sum of all the results is sixty metres.', 'Now we redistribute the total equally across the five attempts.', 'Each column receives twelve metres.', "The equalised value is Anvar's mean result."],
-    },
-  },
-  s2: {
-    eyebrow: { uz: "Matematik yozuv", ru: 'Математическая запись', en: 'Mathematical expression' },
-    title: { uz: "Qo'shamiz va soniga bo'lamiz", ru: 'Складываем и делим на количество', en: 'Add and divide by how many values there are' },
-    audio: {
-      uz: ["To'qqiz, o'n to'rt, to'qqiz, o'n besh va o'n uch qiymatlarini qo'shamiz.", "Ularning yig'indisi oltmishga teng.", "Ro'yxatda beshta qiymat bor, shuning uchun oltmishni beshga bo'lamiz.", "Oltmishni beshga bo'lsak, o'rtacha arifmetik o'n ikki chiqadi."],
-      ru: ['Складываем девять, четырнадцать, девять, пятнадцать и тринадцать.', 'Их сумма равна шестидесяти.', 'В списке пять значений, поэтому шестьдесят делим на пять.', 'Шестьдесят разделить на пять равно двенадцати. Это среднее арифметическое.'],
-      en: ['We add nine, fourteen, nine, fifteen and thirteen.', 'Their sum is sixty.', 'There are five values in the list, so we divide sixty by five.', 'Sixty divided by five is twelve. This is the arithmetic mean.'],
-    },
-  },
-  s3: {
-    eyebrow: { uz: "Bo'luvchi", ru: 'Делитель', en: 'Divisor' },
-    title: { uz: "Nega aynan 5 ga bo'lamiz?", ru: 'Почему делим именно на 5?', en: 'Why do we divide by 5?' },
-    audio: {
-      uz: ["Bo'luvchi eng katta son emas, qiymatlar sonidir.", "To'rtga bo'lish bitta urinishni hisobdan chiqarib yuboradi.", "Beshta qiymat bo'lsa, yig'indini beshga bo'lamiz."],
-      ru: ['Делитель не является самым большим числом, это количество значений.', 'Деление на четыре исключит из расчёта одну попытку.', 'Если значений пять, сумму делим на пять.'],
-      en: ['The divisor is not the greatest number. It is the number of values.', 'Dividing by four would leave one attempt out of the calculation.', 'When there are five values, we divide the sum by five.'],
-    },
-  },
-  s4: {
-    eyebrow: { uz: "Ikkinchi ishtirokchi", ru: 'Второй участник', en: 'The second participant' },
-    title: { uz: "Ulug'bekning o'rtacha natijasi", ru: 'Средний результат Улугбека', en: "Ulugbek's mean result" },
-    audio: {
-      uz: ["Ulug'bekning barcha natijalarini qo'shamiz.", "Yig'indi ellik besh metr.", "Ellik beshni beshta qiymatga teng taqsimlaymiz.", "Ulug'bekning o'rtacha natijasi o'n bir metr."],
-      ru: ['Складываем все результаты Улугбека.', 'Сумма равна пятидесяти пяти метрам.', 'Поровну распределяем пятьдесят пять между пятью значениями.', 'Средний результат Улугбека равен одиннадцати метрам.'],
-      en: ["We add all of Ulugbek's results.", 'The sum is fifty-five metres.', 'We redistribute fifty-five equally across five values.', "Ulugbek's mean result is eleven metres."],
-    },
-  },
-  s5: {
-    eyebrow: { uz: "Adolatli taqqoslash", ru: 'Честное сравнение', en: 'A fair comparison' },
-    title: { uz: "O'rtacha natijalarni taqqoslaymiz", ru: 'Сравниваем средние результаты', en: 'Compare the mean results' },
-    audio: {
-      uz: ["Endi ikkala ishtirokchining barcha urinishlari hisobga olindi.", "Anvarning o'rtacha natijasi bir metrga yuqori.", "O'rtacha natija bo'yicha Anvar g'olib."],
-      ru: ['Теперь учтены все попытки обоих участников.', 'Средний результат Анвара на один метр выше.', 'По среднему результату побеждает Анвар.'],
-      en: ['Now every attempt by both participants has been taken into account.', "Anvar's mean result is one metre higher.", 'Anvar wins based on the mean result.'],
-    },
-  },
-  s6: {
-    eyebrow: { uz: "Qoida", ru: 'Правило', en: 'Rule' },
-    title: { uz: "O'rtacha arifmetik", ru: 'Среднее арифметическое', en: 'Arithmetic mean' },
-    audio: {
-      uz: ["Birinchi navbatda barcha sonlarni qo'shamiz.", "Keyin nechta qiymat borligini sanaymiz.", "Yig'indini qiymatlar soniga bo'lib, o'rtacha arifmetikni topamiz."],
-      ru: ['Сначала складываем все числа.', 'Затем считаем количество значений.', 'Делим сумму на количество значений и находим среднее арифметическое.'],
-      en: ['First, we add all the numbers.', 'Then we count how many values there are.', 'We divide the sum by the number of values to find the arithmetic mean.'],
-    },
-  },
-  s7: {
-    eyebrow: { uz: "Muhim chegara holat", ru: 'Важный граничный случай', en: 'An important special case' },
-    title: { uz: "O'rtacha ro'yxatda bo'lmasligi mumkin", ru: 'Среднего может не быть в списке', en: 'The mean may not be in the list' },
-    audio: {
-      uz: ["Uch, besh va o'n qiymatlarini olaylik.", "Ularning yig'indisi o'n sakkiz.", "O'n sakkizni uchga bo'lsak, olti chiqadi.", "Olti dastlabki ro'yxatda yo'q, lekin u tenglashtirilgan o'rtacha qiymatdir."],
-      ru: ['Возьмём значения три, пять и десять.', 'Их сумма равна восемнадцати.', 'Восемнадцать разделить на три равно шести.', 'Шести нет в исходном списке, но это выровненное среднее значение.'],
-      en: ['Take the values three, five and ten.', 'Their sum is eighteen.', 'Eighteen divided by three is six.', 'Six is not in the original list, but it is the equalised mean value.'],
-    },
-  },
-  s8: {
-    eyebrow: { uz: "Mashq · 1/6", ru: 'Тренировка · 1/6' , en: "Practice · 1/6"},
-    title: { uz: "To'g'ri yozuvni tanlang", ru: 'Выбери верную запись', en: 'Choose the correct expression' },
-    question: { uz: "12, 17, 18, 20 va 28 sonlarining o'rtacha arifmetigini qaysi yozuv topadi?", ru: 'Какая запись находит среднее арифметическое чисел 12, 17, 18, 20 и 28?', en: 'Which expression finds the arithmetic mean of 12, 17, 18, 20 and 28?' },
-    options: [
-      { uz: "(12 + 17 + 18 + 20 + 28) : 5 = 19", ru: '(12 + 17 + 18 + 20 + 28) : 5 = 19' , en: "(12 + 17 + 18 + 20 + 28) : 5 = 19"},
-      { uz: "(12 + 17 + 18 + 20 + 28) : 4", ru: '(12 + 17 + 18 + 20 + 28) : 4' , en: "(12 + 17 + 18 + 20 + 28) : 4"},
-      { uz: "28 − 12 = 16", ru: '28 − 12 = 16' , en: "28 − 12 = 16"},
+      {
+        uz: "Beshta natijani birlashtirib, teng bo'lib chiqamiz",
+        ru: 'Соберём пять результатов вместе и разделим поровну',
+        en: 'Put the five results together and share them out evenly',
+      },
+      {
+        uz: 'Faqat eng uzoq uloqtirishni olamiz',
+        ru: 'Возьмём только самый дальний бросок',
+        en: 'Take only the longest throw',
+      },
+      {
+        uz: 'Faqat oxirgi uloqtirishni olamiz',
+        ru: 'Возьмём только последний бросок',
+        en: 'Take only the last throw',
+      },
     ],
     correctIndex: 0,
-    feedback: [
-      { uz: "To'g'ri. Yig'indi beshta qiymat soniga bo'lindi.", ru: 'Верно. Сумма разделена на количество пяти значений.', en: 'Correct. The sum is divided by the number of values, which is five.' },
-      { uz: "Ro'yxatda to'rtta emas, beshta qiymat bor. Bo'luvchi besh bo'lishi kerak.", ru: 'В списке не четыре, а пять значений. Делитель должен быть равен пяти.', en: 'There are five values in the list, not four. The divisor must be five.' },
-      { uz: "Ayirma oraliq kengligini ko'rsatadi, o'rtacha qiymatni emas. Barcha sonlar yig'indisi kerak.", ru: 'Разность показывает ширину диапазона, а не среднее значение. Нужна сумма всех чисел.', en: 'The difference shows the width of the range, not the mean. You need the sum of all the numbers.' },
+    correctText: {
+      uz: "To'g'ri. Beshta natijani birlashtirib teng bo'lsak, har bir uloqtirishga to'g'ri keladigan qiymat chiqadi. Butun musobaqa shu bitta songa sig'adi.",
+      ru: 'Верно. Если собрать пять результатов и разделить поровну, получится значение, приходящееся на один бросок. Всё соревнование помещается в одно число.',
+      en: 'Correct. Putting the five results together and sharing them evenly gives the value for one throw. The whole contest fits into one number.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Eng uzoq uloqtirish bir marta bo'lgan omad bo'lishi mumkin. Ikkalasining eng uzogi ham o'n besh metr, demak bu farqni ko'rsatmaydi.",
+        ru: 'Самый дальний бросок может оказаться разовой удачей. У обоих он равен пятнадцати метрам, значит разницы он не покажет.',
+        en: 'The longest throw may be a one-off piece of luck. Both have fifteen metres, so it shows no difference at all.',
+      },
+      {
+        uz: "Oxirgi uloqtirish ham bitta natija. Bola charchagan yoki aksincha ilhomlangan bo'lishi mumkin, qolgan to'rttasi esa hisobga olinmay qoladi.",
+        ru: 'Последний бросок это тоже один результат. Спортсмен мог устать или, наоборот, собраться, а остальные четыре просто выпадут из счёта.',
+        en: 'The last throw is just one result too. The athlete may be tired or freshly focused, and the other four drop out of the count.',
+      },
     ],
-    audio: { intro: { uz: ["O'n ikki, o'n yetti, o'n sakkiz, yigirma va yigirma sakkiz sonlarining o'rtacha arifmetigini topadigan yozuvni tanlang.", "Avval beshta sonni qo'shib, yig'indini qiymatlar soni bo'lgan beshga bo'lish kerak."], ru: ['Выбери запись для среднего арифметического чисел двенадцать, семнадцать, восемнадцать, двадцать и двадцать восемь.', 'Сначала нужно сложить пять чисел. Затем сумму нужно разделить на пять, потому что значений пять.'], en: ['Choose the expression that finds the arithmetic mean of twelve, seventeen, eighteen, twenty and twenty-eight.', 'First add the five numbers, then divide the sum by five because there are five values.'] }, on_correct: { uz: "To'g'ri. Yig'indi beshta qiymat soniga bo'lindi.", ru: 'Верно. Сумма разделена на количество пяти значений.', en: 'Correct. The sum is divided by the number of values, which is five.' }, on_wrong: { uz: "Qiymatlar sonini qayta sanang.", ru: 'Ещё раз посчитай количество значений.', en: 'Count the number of values again.' } },
-  },
-  s9: {
-    eyebrow: { uz: "Mashq · 2/6", ru: 'Тренировка · 2/6' , en: "Practice · 2/6"},
-    title: { uz: "Amallar tartibini tuzing", ru: 'Составь порядок действий', en: 'Put the steps in order' },
-    question: { uz: "O'rtacha arifmetikni topish tartibini tuzing.", ru: 'Составь порядок нахождения среднего арифметического.', en: 'Put the steps for finding the arithmetic mean in order.' },
-    cards: [
-      { uz: "Barcha sonlarni qo'shing", ru: 'Сложи все числа', en: 'Add all the numbers' },
-      { uz: "Qiymatlar sonini sanang", ru: 'Посчитай количество значений', en: 'Count the number of values' },
-      { uz: "Yig'indini qiymatlar soniga bo'ling", ru: 'Раздели сумму на количество значений', en: 'Divide the sum by the number of values' },
-    ],
-    audio: { intro: { uz: ["O'rtacha arifmetikni topish tartibini tuzing.", "Avval yig'indi, keyin qiymatlar soni, so'ng bo'lish kerak."], ru: ['Составь порядок нахождения среднего арифметического.', 'Сначала нужна сумма, затем количество значений, потом деление.'], en: ['Put the steps for finding the arithmetic mean in order.', 'First find the sum, then count the values, and finally divide.'] }, on_correct: { uz: "To'g'ri tartib tuzildi.", ru: 'Верный порядок составлен.', en: 'The steps are in the correct order.' }, on_wrong: { uz: "Avval yig'indini topish kerak.", ru: 'Сначала нужно найти сумму.', en: 'First, find the sum.' } },
-  },
-  s10: {
-    eyebrow: { uz: "Mashq · 3/6", ru: 'Тренировка · 3/6' , en: "Practice · 3/6"},
-    title: { uz: "Mustaqil hisob", ru: 'Самостоятельное вычисление' , en: "Independent calculation"},
-    question: { uz: "28, 36, 19 va 41 sonlarining o'rtacha arifmetigi nechaga teng?", ru: 'Чему равно среднее арифметическое чисел 28, 36, 19 и 41?', en: 'What is the arithmetic mean of 28, 36, 19 and 41?' },
-    answer: '31',
-    audio: { intro: { uz: ["Yigirma sakkiz, o'ttiz olti, o'n to'qqiz va qirq bir sonlarining o'rtacha arifmetigini toping.", "Ularning yig'indisi bir yuz yigirma to'rt, qiymatlar soni esa to'rtta.", "Bir yuz yigirma to'rtni to'rtga bo'lib javobni kiriting."], ru: ['Найди среднее арифметическое чисел двадцать восемь, тридцать шесть, девятнадцать и сорок один.', 'Их сумма равна ста двадцати четырём, а значений четыре.', 'Раздели сто двадцать четыре на четыре и введи ответ.'], en: ['Find the arithmetic mean of twenty-eight, thirty-six, nineteen and forty-one.', 'Their sum is one hundred and twenty-four, and there are four values.', 'Divide one hundred and twenty-four by four and enter the answer.'] }, on_correct: { uz: "To'g'ri. Bir yuz yigirma to'rtni to'rtga bo'lsak, o'ttiz bir chiqadi.", ru: 'Верно. Сто двадцать четыре разделить на четыре равно тридцати одному.', en: 'Correct. One hundred and twenty-four divided by four is thirty-one.' }, on_wrong: { uz: "Yig'indi bir yuz yigirma to'rt, qiymatlar soni to'rtta.", ru: 'Сумма равна ста двадцати четырём, значений четыре.', en: 'The sum is one hundred and twenty-four, and there are four values.' } },
-  },
-  s11: {
-    eyebrow: { uz: "Mashq · 4/6", ru: 'Тренировка · 4/6' , en: "Practice · 4/6"},
-    title: { uz: "Sonlar orasidagi o'rtacha nuqta", ru: 'Средняя точка между числами', en: 'The midpoint between two numbers' },
-    question: { uz: "57 va 65 sonlarining o'rtacha arifmetigi nechaga teng?", ru: 'Чему равно среднее арифметическое чисел 57 и 65?', en: 'What is the arithmetic mean of 57 and 65?' },
-    options: ['59', '61', '63'], correctIndex: 1,
-    feedback: [
-      { uz: "Ellik to'qqiz 57 dan ikki, 65 dan olti uzoqda. Masofalar teng emas.", ru: 'Пятьдесят девять находится на расстоянии двух от 57 и шести от 65. Расстояния не равны.', en: 'Fifty-nine is two away from 57 and six away from 65. The distances are not equal.' },
-      { uz: "To'g'ri. Oltmish bir ikkala sondan to'rt birlik uzoqda.", ru: 'Верно. Шестьдесят один находится на расстоянии четырёх от обоих чисел.', en: 'Correct. Sixty-one is four units away from both numbers.' },
-      { uz: "Oltmish uch 57 dan olti, 65 dan ikki uzoqda. Masofalar teng emas.", ru: 'Шестьдесят три находится на расстоянии шести от 57 и двух от 65. Расстояния не равны.', en: 'Sixty-three is six away from 57 and two away from 65. The distances are not equal.' },
-    ],
-    audio: { intro: { uz: ["Ellik yetti va oltmish beshning o'rtacha arifmetigini toping.", "Ikki sonning o'rtachasi ularning orasidagi teng masofali nuqtadir."], ru: ['Найди среднее арифметическое пятидесяти семи и шестидесяти пяти.', 'Среднее двух чисел является равноудалённой точкой между ними.'], en: ['Find the arithmetic mean of fifty-seven and sixty-five.', 'The mean of two numbers is the point that is equally far from both of them.'] }, on_correct: { uz: "To'g'ri. Oltmish bir teng masofali nuqta.", ru: 'Верно. Шестьдесят один является равноудалённой точкой.', en: 'Correct. Sixty-one is the point that is equally far from both numbers.' }, on_wrong: { uz: "Ikki songacha bo'lgan masofalarni solishtiring.", ru: 'Сравни расстояния до обоих чисел.', en: 'Compare the distances to both numbers.' } },
-  },
-  s12: {
-    eyebrow: { uz: "Mashq · 5/6", ru: 'Тренировка · 5/6' , en: "Practice · 5/6"},
-    title: { uz: "Bitning xatosini tuzating", ru: 'Исправь ошибку Бита' , en: "Correct Bit's mistake"},
-    question: { uz: "To'rtta natijaning o'rtacha arifmetigini qaysi hisob topadi?", ru: 'Какое вычисление находит среднее арифметическое четырёх результатов?', en: 'Which calculation finds the arithmetic mean of four results?' },
-    options: ['924 : 4 = 231', '924 : 3 = 308', '924 : 924 = 1'], correctIndex: 0,
-    feedback: [
-      { uz: "To'g'ri. To'rtta natija bor, shuning uchun yig'indi to'rtga bo'linadi.", ru: 'Верно. Результатов четыре, поэтому сумма делится на четыре.', en: 'Correct. There are four results, so the sum is divided by four.' },
-      { uz: "Uchga bo'lish bitta natijani hisobdan chiqaradi. Qiymatlar soni to'rtta.", ru: 'Деление на три исключает один результат. Значений четыре.', en: 'Dividing by three leaves out one result. There are four values.' },
-      { uz: "Yig'indini o'ziga bo'lish o'rtachani bermaydi. Bo'luvchi qiymatlar soni bo'lishi kerak.", ru: 'Деление суммы на саму себя не даёт среднего. Делитель должен быть количеством значений.', en: 'Dividing the sum by itself does not give the mean. The divisor must be the number of values.' },
-    ],
-    audio: { intro: { uz: ["Bit to'rtta natija bo'lsa ham, yig'indini uchga bo'ldi.", "Qiymatlar sonini qayta sanang."], ru: ['Бит разделил сумму на три, хотя результатов четыре.', 'Ещё раз пересчитай количество значений.'], en: ['Bit divided the sum by three even though there are four results.', 'Count the number of values again.'] }, on_correct: { uz: "To'g'ri. To'rtta natija hisobga olindi.", ru: 'Верно. Учтены все четыре результата.', en: 'Correct. All four results have been included.' }, on_wrong: { uz: "Bo'luvchi qiymatlar soniga teng bo'lishi kerak.", ru: 'Делитель должен быть равен количеству значений.', en: 'The divisor must equal the number of values.' } },
-  },
-  s13: {
-    eyebrow: { uz: "Mashq · 6/6", ru: 'Тренировка · 6/6' , en: "Practice · 6/6"},
-    title: { uz: "Yo'lovchilarning o'rtacha soni", ru: 'Среднее число пассажиров', en: 'Mean number of passengers' },
-    question: { uz: "Bir kundagi o'rtacha yo'lovchilar soni nechta?", ru: 'Каково среднее число пассажиров за один день?', en: 'What is the mean number of passengers per day?' },
-    options: ['141', '423', '140'], correctIndex: 0,
-    feedback: [
-      { uz: "To'g'ri. To'rt yuz yigirma uchni uch kunga bo'lsak, bir yuz qirq bir chiqadi.", ru: 'Верно. Четыреста двадцать три разделить на три дня равно ста сорока одному.', en: 'Correct. Four hundred and twenty-three divided by three days is one hundred and forty-one.' },
-      { uz: "To'rt yuz yigirma uch uch kunlik jami, bir kunlik o'rtacha emas. Uni uchga bo'lish kerak.", ru: 'Четыреста двадцать три — итог за три дня, а не среднее за день. Его нужно разделить на три.', en: 'Four hundred and twenty-three is the total for three days, not the mean for one day. Divide it by three.' },
-      { uz: "Bir yuz qirq ro'yxatdagi qiymat, lekin uch kunning tenglashtirilgan o'rtachasi emas.", ru: 'Сто сорок есть в списке, но это не выровненное среднее трёх дней.', en: 'One hundred and forty is in the list, but it is not the equalised mean for the three days.' },
-    ],
-    audio: { intro: { uz: ["Uch kunda bir yuz o'ttiz olti, bir yuz qirq va bir yuz qirq yettita yo'lovchi qayd etildi.", "Uch kunlik jami to'rt yuz yigirma uch.", "Bir kundagi o'rtacha sonni toping."], ru: ['За три дня зарегистрировали сто тридцать шесть, сто сорок и сто сорок семь пассажиров.', 'Общее количество за три дня равно четырёмстам двадцати трём.', 'Найди среднее количество за один день.'], en: ['The passenger counts for three days were one hundred and thirty-six, one hundred and forty, and one hundred and forty-seven.', 'The total for the three days is four hundred and twenty-three.', 'Find the mean number for one day.'] }, on_correct: { uz: "To'g'ri. Bir kunlik o'rtacha bir yuz qirq bir.", ru: 'Верно. Среднее за один день равно ста сорока одному.', en: 'Correct. The mean for one day is one hundred and forty-one.' }, on_wrong: { uz: "Uch kunlik yig'indini uchga bo'ling.", ru: 'Раздели сумму за три дня на три.', en: 'Divide the total for the three days by three.' } },
-  },
-  s14: {
-    eyebrow: { uz: "Yakun", ru: 'Итог' , en: "Summary"},
-    title: { uz: "O'rtacha arifmetik nimani bildiradi?", ru: 'Что показывает среднее арифметическое?', en: 'What does the arithmetic mean represent?' },
+    bitFeedback: true,
     audio: {
-      uz: ["O'rtacha arifmetik bir nechta qiymatni bitta tenglashtirilgan qiymat bilan ifodalaydi.", "Barcha qiymatlarni qo'shamiz.", "Nechta qiymat borligini sanaymiz.", "Yig'indini qiymatlar soniga bo'lamiz.", "Keyingi darsda takrorlanadigan matematik bog'lanishlarni harflar yordamida qisqa yozishni o'rganamiz."],
-      ru: ['Среднее арифметическое выражает несколько значений одним выровненным значением.', 'Складываем все значения.', 'Считаем количество значений.', 'Делим сумму на количество значений.', 'На следующем уроке научимся кратко записывать повторяющиеся математические связи с помощью букв.'],
-      en: ['The arithmetic mean represents several values with one equalised value.', 'We add all the values.', 'We count how many values there are.', 'We divide the sum by the number of values.', 'In the next lesson, we will learn to use letters to write repeated mathematical relationships concisely.'],
+      intro: {
+        uz: [
+          'Salom! Bugun biz Lumo City sport arenasidamiz.',
+          "Anvar va Ulug'bek yog'och brusokni kim uzoqroqqa uloqtirishini aniqlashmoqchi. Har biri besh marta uloqtirdi.",
+          "Anvarning natijalari to'qqiz, o'n to'rt, to'qqiz, o'n besh va o'n uch metr.",
+          "Ulug'bekning natijalari o'n, o'n besh, o'n bir, o'n va to'qqiz metr.",
+          'Ikkalasi ham men yutdim deyapti. Sizningcha, adolatli taqqoslash uchun nima qilish kerak?',
+        ],
+        ru: [
+          'Привет! Сегодня мы на спортивной арене Lumo City.',
+          'Анвар и Улугбек выясняют, кто дальше бросит деревянный брусок. Каждый бросил по пять раз.',
+          'Результаты Анвара девять, четырнадцать, девять, пятнадцать и тринадцать метров.',
+          'Результаты Улугбека десять, пятнадцать, одиннадцать, десять и девять метров.',
+          'Оба говорят, что победили. Как ты думаешь, что нужно сделать для честного сравнения?',
+        ],
+        en: [
+          'Hello! Today we are at the Lumo City sports arena.',
+          'Anvar and Ulugbek want to find out who throws the wooden block further. Each of them threw five times.',
+          'Anvar got nine, fourteen, nine, fifteen and thirteen metres.',
+          'Ulugbek got ten, fifteen, eleven, ten and nine metres.',
+          'Both of them claim the win. What do you think we should do to compare them fairly?',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s1: {
+    eyebrow: { uz: 'Tenglashtirish', ru: 'Выравнивание', en: 'Levelling' },
+    title: {
+      uz: 'Baland ustundan ortiqcha past ustunga quyiladi',
+      ru: 'Излишек высокого столбика переливается в низкий',
+      en: 'The excess of a tall bar pours into a short one',
+    },
+    lead: {
+      uz: 'Anvarning beshta natijasi beshta ustun. Ular bir balandlikka keltiriladi.',
+      ru: 'Пять результатов Анвара это пять столбиков. Их приводят к одной высоте.',
+      en: "Anvar's five results are five bars. They are brought to a single height.",
+    },
+    note: {
+      uz: "Tenglashgan balandlik o'n ikki metr. Bu Anvarning o'rtacha natijasi.",
+      ru: 'Выровненная высота двенадцать метров. Это средний результат Анвара.',
+      en: "The levelled height is twelve metres. That is Anvar's average result.",
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Anvarning beshta natijasini ustun qilib chizdik. Ular har xil balandlikda.",
+          "Endi tasavvur qiling, ustunlar suv solingan idishlar va ular pastdan bir-biriga ulangan. Suv o'zi tenglashadi.",
+          "Baland ustunlardagi ortiqcha suv past ustunlarga quyiladi va hammasi bir sathga keladi.",
+          "Bu sath o'n ikki metr. Anvar har safar o'n ikki metrga uloqtirgandek natija chiqadi.",
+        ],
+        ru: [
+          'Мы нарисовали пять результатов Анвара столбиками. Они разной высоты.',
+          'Теперь представь, что столбики это сосуды с водой, соединённые снизу. Вода выравнивается сама.',
+          'Излишек из высоких столбиков переливается в низкие, и всё приходит к одному уровню.',
+          'Этот уровень равен двенадцати метрам. Получается так, будто Анвар каждый раз бросал на двенадцать метров.',
+        ],
+        en: [
+          "We drew Anvar's five results as bars. They have different heights.",
+          'Now imagine the bars are vessels of water joined at the bottom. Water levels itself.',
+          'The excess from the tall bars pours into the short ones, and everything comes to one level.',
+          'That level is twelve metres. It comes out as if Anvar threw twelve metres every time.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s2: {
+    eyebrow: { uz: "Ulug'bek natijalari", ru: 'Результаты Улугбека', en: "Ulugbek's results" },
+    title: {
+      uz: "Ulug'bekning ustunlarini tenglashtiring",
+      ru: 'Выровняй столбики Улугбека',
+      en: "Level Ulugbek's bars",
+    },
+    question: {
+      uz: 'Chiziqni qaysi balandlikka qo\'yamiz?',
+      ru: 'На какую высоту поставим линию?',
+      en: 'At what height do we place the line?',
+    },
+    bars: ULUGBEK.map((bar) => ({ label: NUM(bar.label), value: bar.value })),
+    ticks: [9, 10, 11, 12, 13, 14, 15],
+    correctLevel: 11,
+    unit: METR,
+    tooHigh: {
+      uz: "Chiziq baland qo'yildi. Baland ustunlardagi ortiqcha past ustunlarni to'ldirishga yetmayapti, punktir bo'shliq qolyapti.",
+      ru: 'Линия поставлена высоко. Излишка высоких столбиков не хватает, чтобы заполнить низкие, пунктирная пустота остаётся.',
+      en: 'The line is too high. The excess of the tall bars is not enough to fill the short ones, and a dashed gap remains.',
+    },
+    tooLow: {
+      uz: "Chiziq past qo'yildi. Baland ustunlarda ortiqcha qism ortib qolyapti, uni quyadigan joy yo'q.",
+      ru: 'Линия поставлена низко. У высоких столбиков излишек остаётся лишним, его некуда перелить.',
+      en: 'The line is too low. The tall bars still have excess left over, and there is nowhere to pour it.',
+    },
+    correctText: {
+      uz: "To'g'ri. O'n bir metrda ortiqcha qism bo'shliqni aynan to'ldiradi. Ulug'bekning o'rtacha natijasi o'n bir metr, Anvarniki o'n ikki. Demak Anvar g'olib.",
+      ru: 'Верно. На одиннадцати метрах излишек точно заполняет пустоту. Средний результат Улугбека одиннадцать метров, у Анвара двенадцать. Значит побеждает Анвар.',
+      en: 'Correct. At eleven metres the excess fills the gap exactly. Ulugbek averages eleven metres and Anvar twelve, so Anvar is the winner.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Endi Ulug'bekning ustunlari. O'n, o'n besh, o'n bir, o'n va to'qqiz metr.",
+          "Shkaladan balandlikni tanlang. Chiziq o'sha yerga ko'chadi va ortiqcha bilan bo'shliq ko'rinadi.",
+          "Ortiqcha qism bo'shliqni aynan to'ldiradigan balandlikni toping.",
+        ],
+        ru: [
+          'Теперь столбики Улугбека. Десять, пятнадцать, одиннадцать, десять и девять метров.',
+          'Выбери высоту на шкале. Линия перейдёт туда, и станут видны излишек и пустота.',
+          'Найди высоту, на которой излишек точно заполняет пустоту.',
+        ],
+        en: [
+          "Now Ulugbek's bars. Ten, fifteen, eleven, ten and nine metres.",
+          'Choose a height on the scale. The line moves there and the excess and the gap become visible.',
+          'Find the height at which the excess fills the gap exactly.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s3: {
+    eyebrow: { uz: 'Ikkinchi yo\'l', ru: 'Второй способ', en: 'The second way' },
+    title: {
+      uz: 'Chizmasiz ham topsa bo\'ladi',
+      ru: 'Можно найти и без чертежа',
+      en: 'It can be found without a drawing',
+    },
+    lead: {
+      uz: "Ustunlarni qo'shib, keyin teng bo'lish yetarli.",
+      ru: 'Достаточно сложить столбики, а потом разделить поровну.',
+      en: 'It is enough to add the bars up and then share them evenly.',
+    },
+    note: {
+      uz: "Yig'indini qo'shiluvchilar soniga bo'lamiz. Bu o'rtacha arifmetik qiymat.",
+      ru: 'Сумму делим на число слагаемых. Это среднее арифметическое значение.',
+      en: 'We divide the sum by the number of addends. This is the arithmetic mean.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Chizma ma'noni ko'rsatdi, endi hisobga o'tamiz.",
+          "Anvarning beshta natijasini qo'shamiz. To'qqiz qo'shildi o'n to'rt, qo'shildi to'qqiz, qo'shildi o'n besh, qo'shildi o'n uch. Yig'indi oltmish metr.",
+          "Endi oltmishni beshga bo'lamiz, chunki natijalar beshta edi. O'n ikki chiqadi.",
+          "Qoida shunday. O'rtacha arifmetikni topish uchun avval sonlar yig'indisini topamiz, so'ng uni qo'shiluvchilar soniga bo'lamiz.",
+        ],
+        ru: [
+          'Чертёж показал смысл, теперь перейдём к вычислению.',
+          'Складываем пять результатов Анвара. Девять плюс четырнадцать, плюс девять, плюс пятнадцать, плюс тринадцать. Сумма шестьдесят метров.',
+          'Теперь делим шестьдесят на пять, потому что результатов было пять. Получается двенадцать.',
+          'Правило такое. Чтобы найти среднее арифметическое, сначала находим сумму чисел, а потом делим её на число слагаемых.',
+        ],
+        en: [
+          'The drawing showed the meaning; now we move to the calculation.',
+          "We add Anvar's five results. Nine plus fourteen, plus nine, plus fifteen, plus thirteen. The sum is sixty metres.",
+          'Now we divide sixty by five, because there were five results. That gives twelve.',
+          'The rule is this. To find the arithmetic mean, first find the sum of the numbers, then divide it by the number of addends.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s4: {
+    eyebrow: { uz: 'Hisob mashqi', ru: 'Упражнение на счёт', en: 'A counting exercise' },
+    title: {
+      uz: "To'rtta sonning o'rtacha arifmetigi",
+      ru: 'Среднее арифметическое четырёх чисел',
+      en: 'The arithmetic mean of four numbers',
+    },
+    question: {
+      uz: "28, 36, 19, 41 sonlarining o'rtacha arifmetigini tering.",
+      ru: 'Набери среднее арифметическое чисел 28, 36, 19, 41.',
+      en: 'Type the arithmetic mean of the numbers 28, 36, 19, 41.',
+    },
+    answer: '31',
+    wrong: {
+      uz: "Hozircha mos emas. Avval to'rttasini qo'shing, keyin yig'indini to'rtga bo'ling.",
+      ru: 'Пока не сходится. Сначала сложи четыре числа, потом раздели сумму на четыре.',
+      en: 'Not right yet. First add the four numbers, then divide the sum by four.',
+    },
+    hintAfter: {
+      uz: "Yig'indi bir yuz yigirma to'rt. Endi uni to'rtga bo'ling.",
+      ru: 'Сумма сто двадцать четыре. Теперь раздели её на четыре.',
+      en: 'The sum is one hundred twenty four. Now divide it by four.',
+    },
+    correctText: {
+      uz: "To'g'ri. Yig'indi bir yuz yigirma to'rt, sonlar to'rtta, bo'linma o'ttiz bir.",
+      ru: 'Верно. Сумма сто двадцать четыре, чисел четыре, частное тридцать один.',
+      en: 'Correct. The sum is one hundred twenty four, there are four numbers, and the quotient is thirty one.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Arena tablosida to'rtta son chiqdi. Yigirma sakkiz, o'ttiz olti, o'n to'qqiz va qirq bir.",
+          "Ularning o'rtacha arifmetigini toping va raqamlarni o'zingiz tering.",
+          "Ikki qadam esingizda bo'lsin. Avval yig'indi, keyin bo'lish.",
+        ],
+        ru: [
+          'На табло арены появились четыре числа. Двадцать восемь, тридцать шесть, девятнадцать и сорок один.',
+          'Найди их среднее арифметическое и набери цифры сам.',
+          'Помни про два шага. Сначала сумма, потом деление.',
+        ],
+        en: [
+          'Four numbers appeared on the arena board. Twenty eight, thirty six, nineteen and forty one.',
+          'Find their arithmetic mean and type the digits yourself.',
+          'Remember the two steps. First the sum, then the division.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s5: {
+    eyebrow: { uz: "Bo'luvchi qayerdan olinadi", ru: 'Откуда берётся делитель', en: 'Where the divisor comes from' },
+    title: {
+      uz: "Bo'luvchi — sonlarning soni",
+      ru: 'Делитель это количество чисел',
+      en: 'The divisor is how many numbers there are',
+    },
+    lead: {
+      uz: "Beshta son bo'lsa beshga, uchta son bo'lsa uchga bo'lamiz.",
+      ru: 'Пять чисел делим на пять, три числа делим на три.',
+      en: 'Five numbers are divided by five, three numbers by three.',
+    },
+    note: {
+      uz: "136, 140, 147 uchun yig'indi 423, sonlar uchta, o'rtacha 141.",
+      ru: 'Для 136, 140, 147 сумма 423, чисел три, среднее 141.',
+      en: 'For 136, 140, 147 the sum is 423, there are three numbers, and the mean is 141.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Ko'p bola shu yerda adashadi. Ular yig'indini topib, keyin nechaga bo'lishni unutib qo'yishadi.",
+          "Bo'luvchi har doim bitta joydan olinadi. Bu sonlarning soni.",
+          "Mana uchta son. Bir yuz o'ttiz olti, bir yuz qirq va bir yuz qirq yetti. Yig'indi to'rt yuz yigirma uch.",
+          "Sonlar uchta, demak uchga bo'lamiz. Bir yuz qirq bir chiqadi.",
+        ],
+        ru: [
+          'Многие ошибаются именно здесь. Находят сумму, а потом забывают, на что делить.',
+          'Делитель всегда берётся из одного места. Это количество чисел.',
+          'Вот три числа. Сто тридцать шесть, сто сорок и сто сорок семь. Сумма четыреста двадцать три.',
+          'Чисел три, значит делим на три. Получается сто сорок один.',
+        ],
+        en: [
+          'Many learners slip exactly here. They find the sum and then forget what to divide by.',
+          'The divisor always comes from one place. It is how many numbers there are.',
+          'Here are three numbers. One hundred thirty six, one hundred forty and one hundred forty seven. The sum is four hundred twenty three.',
+          'There are three numbers, so we divide by three. That gives one hundred forty one.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s6: {
+    eyebrow: { uz: 'Arena jadvali', ru: 'Таблица арены', en: 'The arena table' },
+    title: {
+      uz: "Jadvalning bo'sh katagini to'ldiring",
+      ru: 'Заполни пустую клетку таблицы',
+      en: 'Fill the empty cell of the table',
+    },
+    question: {
+      uz: "Uchta sonning o'rtacha arifmetigi qaysi?",
+      ru: 'Какое среднее арифметическое у трёх чисел?',
+      en: 'Which value is the arithmetic mean of the three numbers?',
+    },
+    columns: [
+      { uz: 'Sonlar', ru: 'Числа', en: 'Numbers' },
+      { uz: "Yig'indi", ru: 'Сумма', en: 'Sum' },
+      { uz: "O'rtacha", ru: 'Среднее', en: 'Mean' },
+    ],
+    rows: [
+      [NUM('136, 140, 147'), NUM('423'), null],
+    ],
+    chips: [NUM('141'), NUM('423'), NUM('147')],
+    correctChip: 0,
+    correctText: {
+      uz: "To'g'ri. To'rt yuz yigirma uchni uchga bo'ldingiz va bir yuz qirq bir chiqdi. Bu son uchtasining o'rtasida turibdi.",
+      ru: 'Верно. Ты разделил четыреста двадцать три на три и получил сто сорок один. Это число стоит посередине трёх.',
+      en: 'Correct. You divided four hundred twenty three by three and got one hundred forty one. That number sits in the middle of the three.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "To'rt yuz yigirma uch — bu yig'indi, o'rtacha emas. Uni yana sonlar soniga bo'lish kerak.",
+        ru: 'Четыреста двадцать три это сумма, а не среднее. Её ещё нужно разделить на количество чисел.',
+        en: 'Four hundred twenty three is the sum, not the mean. It still has to be divided by how many numbers there are.',
+      },
+      {
+        uz: "Bir yuz qirq yetti — bu eng katta son. O'rtacha eng kattasidan kichik bo'lishi kerak.",
+        ru: 'Сто сорок семь это самое большое число. Среднее должно быть меньше самого большого.',
+        en: 'One hundred forty seven is the largest number. The mean has to be smaller than the largest.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Arena jadvalida bitta katak bo'sh qoldi.",
+          "Sonlar va yig'indi allaqachon yozilgan. O'rtacha qiymatni topish qoldi.",
+          'Pastdagi qiymatlardan mosini tanlang.',
+        ],
+        ru: [
+          'В таблице арены осталась одна пустая клетка.',
+          'Числа и сумма уже записаны. Осталось найти среднее значение.',
+          'Выбери подходящее значение из тех, что внизу.',
+        ],
+        en: [
+          'One cell in the arena table is still empty.',
+          'The numbers and the sum are already written. Only the mean is missing.',
+          'Choose the matching value from the ones below.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s7: {
+    eyebrow: { uz: 'Tekshirish', ru: 'Проверка', en: 'The check' },
+    title: {
+      uz: "O'rtacha × soni = yig'indi",
+      ru: 'Среднее × количество = сумма',
+      en: 'Mean × count = sum',
+    },
+    lead: {
+      uz: "Javob to'g'ri chiqqanini teskari amal bilan tekshiramiz.",
+      ru: 'Правильность ответа проверяем обратным действием.',
+      en: 'We check the answer with the inverse operation.',
+    },
+    note: {
+      uz: "12 × 5 = 60 — Anvarning yig'indisi qaytib keldi, demak o'rtacha to'g'ri.",
+      ru: '12 × 5 = 60 — сумма Анвара вернулась, значит среднее верное.',
+      en: "12 × 5 = 60 — Anvar's sum came back, so the mean is right.",
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Har qanday javobni tekshirish mumkin, o'rtacha ham bundan mustasno emas.",
+          "Agar o'rtacha to'g'ri bo'lsa, uni sonlar soniga ko'paytirganda dastlabki yig'indi qaytadi.",
+          "Anvarda o'rtacha o'n ikki, natijalar beshta. O'n ikkini beshga ko'paytiramiz, oltmish chiqadi.",
+          "Yig'indi ham oltmish edi. Javob mustahkam.",
+        ],
+        ru: [
+          'Любой ответ можно проверить, среднее не исключение.',
+          'Если среднее найдено верно, то при умножении на количество чисел вернётся исходная сумма.',
+          'У Анвара среднее двенадцать, результатов пять. Умножаем двенадцать на пять, получаем шестьдесят.',
+          'Сумма тоже была шестьдесят. Ответ надёжный.',
+        ],
+        en: [
+          'Any answer can be checked, and the mean is no exception.',
+          'If the mean is right, multiplying it by the count brings back the original sum.',
+          'Anvar has a mean of twelve and five results. Twelve times five is sixty.',
+          'The sum was sixty as well. The answer holds.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s8: {
+    eyebrow: { uz: 'Imtihon ballari', ru: 'Баллы экзаменов', en: 'Exam scores' },
+    title: {
+      uz: "Rayhonaning o'rtacha bali",
+      ru: 'Средний балл Райханы',
+      en: "Rayhona's average score",
+    },
+    question: {
+      uz: "224, 200, 270, 230 ballarning o'rtachasini tering.",
+      ru: 'Набери среднее из баллов 224, 200, 270, 230.',
+      en: 'Type the mean of the scores 224, 200, 270, 230.',
+    },
+    answer: '231',
+    unit: { uz: 'ball', ru: 'балл', en: 'points' },
+    wrong: {
+      uz: "Hozircha mos emas. To'rtta balni qo'shing, keyin to'rtga bo'ling.",
+      ru: 'Пока не сходится. Сложи четыре балла, потом раздели на четыре.',
+      en: 'Not right yet. Add the four scores, then divide by four.',
+    },
+    hintAfter: {
+      uz: "Yig'indi to'qqiz yuz yigirma to'rt. Endi uni to'rtga bo'ling.",
+      ru: 'Сумма девятьсот двадцать четыре. Теперь раздели её на четыре.',
+      en: 'The sum is nine hundred twenty four. Now divide it by four.',
+    },
+    correctText: {
+      uz: "To'g'ri. Ikki yuz o'ttiz bir. Tekshiramiz: ikki yuz o'ttiz birni to'rtga ko'paytirsak, to'qqiz yuz yigirma to'rt qaytadi.",
+      ru: 'Верно. Двести тридцать один. Проверим: двести тридцать один умножить на четыре даёт девятьсот двадцать четыре.',
+      en: 'Correct. Two hundred thirty one. Check it: two hundred thirty one times four gives nine hundred twenty four.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Rayhona mutaxassislik bo'yicha to'rtta imtihon topshirdi.",
+          "Ballari ikki yuz yigirma to'rt, ikki yuz, ikki yuz yetmish va ikki yuz o'ttiz.",
+          "O'rtacha balni toping va raqamlarni tering. Javobni teskari amal bilan tekshirishni unutmang.",
+        ],
+        ru: [
+          'Райхана сдала четыре экзамена по специальности.',
+          'Её баллы двести двадцать четыре, двести, двести семьдесят и двести тридцать.',
+          'Найди средний балл и набери цифры. Не забудь проверить ответ обратным действием.',
+        ],
+        en: [
+          'Rayhona took four exams in her speciality.',
+          'Her scores are two hundred twenty four, two hundred, two hundred seventy and two hundred thirty.',
+          'Find the average score and type the digits. Do not forget to check with the inverse operation.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s9: {
+    eyebrow: { uz: 'Nazorat belgisi', ru: 'Контрольный признак', en: 'A control sign' },
+    title: {
+      uz: "O'rtacha har doim eng kichik bilan eng katta orasida",
+      ru: 'Среднее всегда между наименьшим и наибольшим',
+      en: 'The mean always lies between the smallest and the largest',
+    },
+    lead: {
+      uz: '57 va 65 sonlarini nurda belgilaymiz, o\'rtachasi aynan o\'rtada turadi.',
+      ru: 'Отметим на луче числа 57 и 65, среднее окажется точно посередине.',
+      en: 'Mark 57 and 65 on the ray; the mean stands exactly in the middle.',
+    },
+    note: {
+      uz: "Javob nurdagi ikkita nuqtadan tashqariga chiqsa, xato qidirish kerak.",
+      ru: 'Если ответ выходит за две точки на луче, надо искать ошибку.',
+      en: 'If the answer falls outside the two points on the ray, look for a mistake.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "O'rtacha qiymatni tez tekshiradigan oddiy belgi bor.",
+          "Ellik yetti va oltmish besh sonlarini sonlar nurida belgilaymiz.",
+          "Ularning yig'indisi bir yuz yigirma ikki, ikkiga bo'lsak oltmish bir chiqadi.",
+          "Oltmish bir aynan o'rtada turibdi. O'rtacha hech qachon eng kichikdan kichik yoki eng kattadan katta bo'lolmaydi.",
+        ],
+        ru: [
+          'Есть простой признак, который быстро проверяет среднее значение.',
+          'Отметим на числовом луче числа пятьдесят семь и шестьдесят пять.',
+          'Их сумма сто двадцать два, делим на два и получаем шестьдесят один.',
+          'Шестьдесят один стоит точно посередине. Среднее никогда не бывает меньше наименьшего или больше наибольшего.',
+        ],
+        en: [
+          'There is a simple sign that checks the mean very quickly.',
+          'Mark fifty seven and sixty five on the number ray.',
+          'Their sum is one hundred twenty two; divided by two it gives sixty one.',
+          'Sixty one stands exactly in the middle. The mean is never below the smallest or above the largest.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s10: {
+    eyebrow: { uz: 'Nurdagi joy', ru: 'Место на луче', en: 'A place on the ray' },
+    title: {
+      uz: "426 va 432 sonlarining o'rtachasi",
+      ru: 'Среднее чисел 426 и 432',
+      en: 'The mean of 426 and 432',
+    },
+    question: {
+      uz: "O'rtacha qiymat qaysi nuqtada turadi?",
+      ru: 'В какой точке стоит среднее значение?',
+      en: 'At which point does the mean stand?',
+    },
+    slots: [
+      { label: NUM('424'), caption: { uz: 'chapda', ru: 'слева', en: 'on the left' } },
+      { label: NUM('429'), caption: { uz: "o'rtada", ru: 'посередине', en: 'in the middle' } },
+      { label: NUM('434'), caption: { uz: "o'ngda", ru: 'справа', en: 'on the right' } },
+    ],
+    correctSlot: 1,
+    correctText: {
+      uz: "To'g'ri. Yig'indi sakkiz yuz ellik sakkiz, ikkiga bo'lsak to'rt yuz yigirma to'qqiz. U ikkala son orasida turibdi.",
+      ru: 'Верно. Сумма восемьсот пятьдесят восемь, делим на два и получаем четыреста двадцать девять. Оно стоит между двумя числами.',
+      en: 'Correct. The sum is eight hundred fifty eight; divided by two it gives four hundred twenty nine, which sits between the two numbers.',
+    },
+    wrong: [
+      {
+        uz: "424 ikkala sondan ham kichik. O'rtacha eng kichigidan chapda tura olmaydi.",
+        ru: '424 меньше обоих чисел. Среднее не может стоять левее наименьшего.',
+        en: '424 is smaller than both numbers. The mean cannot stand to the left of the smallest.',
+      },
+      null,
+      {
+        uz: "434 ikkala sondan ham katta. O'rtacha eng kattasidan o'ngda tura olmaydi.",
+        ru: '434 больше обоих чисел. Среднее не может стоять правее наибольшего.',
+        en: '434 is larger than both numbers. The mean cannot stand to the right of the largest.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Nurda ikkita son belgilangan. To'rt yuz yigirma olti va to'rt yuz o'ttiz ikki.",
+          "Ularning o'rtacha arifmetigi qaysi nuqtaga tushishini toping.",
+          'Avval joyni taxmin qiling, keyin hisoblab tekshiring.',
+        ],
+        ru: [
+          'На луче отмечены два числа. Четыреста двадцать шесть и четыреста тридцать два.',
+          'Найди, в какую точку попадёт их среднее арифметическое.',
+          'Сначала прикинь место, потом проверь вычислением.',
+        ],
+        en: [
+          'Two numbers are marked on the ray. Four hundred twenty six and four hundred thirty two.',
+          'Find which point their arithmetic mean lands on.',
+          'Estimate the place first, then check it by calculating.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s11: {
+    eyebrow: { uz: "O'rtacha arifmetik", ru: 'Среднее арифметическое', en: 'The arithmetic mean' },
+    title: {
+      uz: 'Ikki qadamlik qoida',
+      ru: 'Правило из двух шагов',
+      en: 'A two-step rule',
+    },
+    lead: {
+      uz: "Bu qoida sonlar nechta bo'lishidan qat'i nazar ishlaydi.",
+      ru: 'Это правило работает при любом количестве чисел.',
+      en: 'The rule works for any quantity of numbers.',
+    },
+    note: {
+      uz: "Javobni tekshirish: o'rtacha × sonlar soni = yig'indi.",
+      ru: 'Проверка ответа: среднее × количество чисел = сумма.',
+      en: 'Checking the answer: mean × count of numbers = sum.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Bugungi qoidani bir joyga yig'amiz.",
+          "Birinchi qadam. Barcha sonlarni qo'shib, yig'indini topamiz.",
+          "Ikkinchi qadam. Yig'indini qo'shiluvchilar soniga bo'lamiz.",
+          "Uchinchi harakat majburiy emas, lekin foydali. Javobni sonlar soniga ko'paytirib, yig'indi qaytganini tekshiramiz.",
+        ],
+        ru: [
+          'Соберём сегодняшнее правило в одно место.',
+          'Первый шаг. Складываем все числа и находим сумму.',
+          'Второй шаг. Делим сумму на число слагаемых.',
+          'Третье действие необязательно, но полезно. Умножаем ответ на количество чисел и проверяем, вернулась ли сумма.',
+        ],
+        en: [
+          "Let us gather today's rule in one place.",
+          'Step one. Add all the numbers and find the sum.',
+          'Step two. Divide the sum by the number of addends.',
+          'The third action is optional but useful. Multiply the answer by the count and check that the sum comes back.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s12: {
+    eyebrow: { uz: 'Qadamlar tartibi', ru: 'Порядок шагов', en: 'The order of steps' },
+    title: {
+      uz: 'Qaysi tartib ishlaydi?',
+      ru: 'Какой порядок работает?',
+      en: 'Which order works?',
+    },
+    question: {
+      uz: "O'rtacha arifmetikni topishda qadamlar qanday ketadi?",
+      ru: 'В каком порядке идут шаги при нахождении среднего арифметического?',
+      en: 'In what order do the steps go when finding the arithmetic mean?',
+    },
+    options: [
+      {
+        uz: "Qo'shaman, sonlarni sanayman, bo'laman",
+        ru: 'Складываю, считаю количество чисел, делю',
+        en: 'I add, I count the numbers, I divide',
+      },
+      {
+        uz: "Bo'laman, qo'shaman, sonlarni sanayman",
+        ru: 'Делю, складываю, считаю количество чисел',
+        en: 'I divide, I add, I count the numbers',
+      },
+      {
+        uz: "Eng kattasini olaman, eng kichigini ayiraman",
+        ru: 'Беру наибольшее, вычитаю наименьшее',
+        en: 'I take the largest and subtract the smallest',
+      },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Avval yig'indi kerak, keyin bo'luvchi kerak, shundan so'ng bo'lish mumkin.",
+      ru: 'Верно. Сначала нужна сумма, потом нужен делитель, и только тогда можно делить.',
+      en: 'Correct. The sum comes first, then the divisor, and only then the division.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Bo'lish birinchi bo'la olmaydi. Bo'linuvchi hali yo'q, chunki yig'indi topilmagan.",
+        ru: 'Деление не может быть первым. Делимого ещё нет, потому что сумма не найдена.',
+        en: 'Division cannot come first. There is no dividend yet, because the sum has not been found.',
+      },
+      {
+        uz: "Eng katta bilan eng kichigining farqi — bu tarqoqlik, o'rtacha emas. O'rtachaga barcha sonlar kerak.",
+        ru: 'Разность наибольшего и наименьшего это разброс, а не среднее. Для среднего нужны все числа.',
+        en: 'The difference between the largest and the smallest is the spread, not the mean. The mean needs every number.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Ra'no qadamlarni kartochkalarga yozdi, lekin ular aralashib ketdi.",
+          "Uchta tartib bor, faqat bittasi ishlaydi.",
+          "To'g'ri tartibni tanlang.",
+        ],
+        ru: [
+          'Рано записала шаги на карточках, но они перемешались.',
+          'Есть три порядка, работает только один.',
+          'Выбери верный порядок.',
+        ],
+        en: [
+          "Rano wrote the steps on cards, but they got mixed up.",
+          'There are three orders, and only one of them works.',
+          'Choose the right order.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s13: {
+    eyebrow: { uz: 'Bit hisobi', ru: 'Расчёт Bit', en: "Bit's calculation" },
+    title: {
+      uz: "Bit to'rtga bo'ldi. Nega bu xato?",
+      ru: 'Bit разделил на четыре. Почему это ошибка?',
+      en: 'Bit divided by four. Why is that wrong?',
+    },
+    question: {
+      uz: 'Bit qayerda adashdi?',
+      ru: 'Где ошибся Bit?',
+      en: 'Where did Bit go wrong?',
+    },
+    options: [
+      {
+        uz: "Sonlar beshta edi, u esa qo'shuv belgilarini sanab, to'rtga bo'ldi",
+        ru: 'Чисел было пять, а он посчитал знаки плюс и разделил на четыре',
+        en: 'There were five numbers, but he counted the plus signs and divided by four',
+      },
+      {
+        uz: "Yig'indini noto'g'ri hisobladi",
+        ru: 'Он неверно посчитал сумму',
+        en: 'He worked out the sum incorrectly',
+      },
+      {
+        uz: "Bo'lish o'rniga ko'paytirish kerak edi",
+        ru: 'Вместо деления нужно было умножить',
+        en: 'He should have multiplied instead of dividing',
+      },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Beshta son orasida to'rtta qo'shuv belgisi bor, lekin bo'luvchi belgilar soni emas, sonlar soni. To'qson beshni beshga bo'lsak, o'n to'qqiz chiqadi.",
+      ru: 'Верно. Между пятью числами четыре знака плюс, но делитель это количество чисел, а не знаков. Девяносто пять разделить на пять даёт девятнадцать.',
+      en: 'Correct. Five numbers have four plus signs between them, but the divisor is the count of numbers, not of signs. Ninety five divided by five is nineteen.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "Yig'indi to'g'ri. O'n ikki, o'n yetti, o'n sakkiz, yigirma va yigirma sakkiz — jami to'qson besh. Xato keyingi qadamda.",
+        ru: 'Сумма верная. Двенадцать, семнадцать, восемнадцать, двадцать и двадцать восемь дают девяносто пять. Ошибка на следующем шаге.',
+        en: 'The sum is right. Twelve, seventeen, eighteen, twenty and twenty eight give ninety five. The mistake is in the next step.',
+      },
+      {
+        uz: "Amal to'g'ri tanlangan, o'rtacha aynan bo'lish bilan topiladi. Bit bo'luvchini noto'g'ri oldi.",
+        ru: 'Действие выбрано верно, среднее находят именно делением. Bit неверно взял делитель.',
+        en: 'The operation is right; the mean is found by division. Bit took the wrong divisor.',
+      },
+    ],
+    bitFeedback: true,
+    audio: {
+      intro: {
+        uz: [
+          "Bit beshta sonning o'rtachasini hisobladi. O'n ikki, o'n yetti, o'n sakkiz, yigirma va yigirma sakkiz.",
+          "Yig'indini to'g'ri topdi, to'qson besh. Keyin uni to'rtga bo'ldi.",
+          'Bit qayerda adashganini toping.',
+        ],
+        ru: [
+          'Bit посчитал среднее пяти чисел. Двенадцать, семнадцать, восемнадцать, двадцать и двадцать восемь.',
+          'Сумму он нашёл верно, девяносто пять. А потом разделил её на четыре.',
+          'Найди, где Bit ошибся.',
+        ],
+        en: [
+          'Bit worked out the mean of five numbers. Twelve, seventeen, eighteen, twenty and twenty eight.',
+          'He found the sum correctly, ninety five. Then he divided it by four.',
+          'Find where Bit went wrong.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s14: {
+    eyebrow: { uz: 'Arena oshxonasi', ru: 'Кухня арены', en: 'The arena kitchen' },
+    title: {
+      uz: 'Kuniga qancha sabzavot ketgan?',
+      ru: 'Сколько овощей уходило в день?',
+      en: 'How many vegetables were used per day?',
+    },
+    question: {
+      uz: "Yetti kunda 250 kg kartoshka, 160 kg karam va 80 kg boshqa sabzavot sarflandi. Kuniga o'rtacha qancha?",
+      ru: 'За семь дней израсходовали 250 кг картофеля, 160 кг капусты и 80 кг других овощей. Сколько в среднем за день?',
+      en: 'In seven days 250 kg of potatoes, 160 kg of cabbage and 80 kg of other vegetables were used. How much per day on average?',
+    },
+    options: [
+      { uz: '70 kg', ru: '70 кг', en: '70 kg' },
+      { uz: '490 kg', ru: '490 кг', en: '490 kg' },
+      { uz: '245 kg', ru: '245 кг', en: '245 kg' },
+    ],
+    correctIndex: 0,
+    correctText: {
+      uz: "To'g'ri. Avval hamma sabzavotni qo'shdingiz, to'rt yuz to'qson kilogramm chiqdi. Keyin yetti kunga bo'ldingiz, yetmish kilogramm.",
+      ru: 'Верно. Сначала складываем все овощи, выходит четыреста девяносто килограммов. Потом делим на семь дней, семьдесят килограммов.',
+      en: 'Correct. First you added all the vegetables and got four hundred ninety kilograms. Then you divided by seven days, giving seventy kilograms.',
+    },
+    wrong: [
+      null,
+      {
+        uz: "To'rt yuz to'qson — bu butun hafta uchun. Bir kunniki kerak, demak bo'lish qadami qolib ketgan.",
+        ru: 'Четыреста девяносто это на всю неделю. Нужен один день, значит шаг деления пропущен.',
+        en: 'Four hundred ninety is for the whole week. We need one day, so the division step is missing.',
+      },
+      {
+        uz: "Ikkiga bo'lingan. Lekin kun yettita, sabzavot turi emas, kun soni bo'luvchi bo'ladi.",
+        ru: 'Разделили на два. Но дней семь, и делителем становится число дней, а не число видов овощей.',
+        en: 'That is a division by two. But there are seven days, and the divisor is the number of days, not the number of vegetable kinds.',
+      },
+    ],
+    audio: {
+      intro: {
+        uz: [
+          "Musobaqa tugadi, endi arena oshxonasi hisobot beryapti.",
+          "Yetti kun davomida ikki yuz ellik kilogramm kartoshka, bir yuz oltmish kilogramm karam va sakson kilogramm boshqa sabzavot sarflangan. Har kuni tengdan.",
+          "Kuniga o'rtacha qancha sabzavot ketganini toping.",
+        ],
+        ru: [
+          'Соревнование закончилось, и кухня арены сдаёт отчёт.',
+          'За семь дней израсходовали двести пятьдесят килограммов картофеля, сто шестьдесят килограммов капусты и восемьдесят килограммов других овощей. Каждый день поровну.',
+          'Найди, сколько овощей в среднем уходило за день.',
+        ],
+        en: [
+          'The contest is over and the arena kitchen is filing its report.',
+          'Over seven days it used two hundred fifty kilograms of potatoes, one hundred sixty kilograms of cabbage and eighty kilograms of other vegetables, evenly on every day.',
+          'Find how many vegetables were used per day on average.',
+        ],
+      },
+    },
+  },
+
+  // -------------------------------------------------------------------------
+  s15: {
+    eyebrow: { uz: 'Missiya mukofoti', ru: 'Награда за миссию', en: 'Mission award' },
+    stageLabel: { uz: 'Yakuniy bosqich', ru: 'Финальный этап', en: 'Final stage' },
+    headTitle: {
+      uz: 'Unvongacha bitta savol',
+      ru: 'Один вопрос до звания',
+      en: 'One question before your title',
+    },
+    headLead: {
+      uz: "O'rtacha arifmetikni topish qoidasini ayting va unvonni oling.",
+      ru: 'Назови правило нахождения среднего арифметического и получи звание.',
+      en: 'Name the rule for finding the arithmetic mean and claim your title.',
+    },
+    questionKicker: { uz: 'Yakuniy savol', ru: 'Финальный вопрос', en: 'Final question' },
+    stepLabel: { uz: '1 qadam', ru: '1 шаг', en: '1 step' },
+    reflectionQuestion: {
+      uz: "O'rtacha arifmetikni qanday topamiz?",
+      ru: 'Как находим среднее арифметическое?',
+      en: 'How do we find the arithmetic mean?',
+    },
+    reflectionStart: {
+      uz: "O'rtacha arifmetikni topish uchun men…",
+      ru: 'Чтобы найти среднее арифметическое, я…',
+      en: 'To find the arithmetic mean I…',
+    },
+    reflectionOptions: [
+      {
+        uz: "yig'indini qo'shiluvchilar soniga bo'laman",
+        ru: 'делю сумму на число слагаемых',
+        en: 'divide the sum by the number of addends',
+      },
+      {
+        uz: 'eng katta sonni olaman',
+        ru: 'беру самое большое число',
+        en: 'take the largest number',
+      },
+      {
+        uz: "yig'indini ikkiga bo'laman",
+        ru: 'делю сумму на два',
+        en: 'divide the sum by two',
+      },
+    ],
+    reflectionCorrectIndex: 0,
+    reflectionCorrect: {
+      uz: "To'g'ri. Yig'indi va qo'shiluvchilar soni — ikki qadamli qoidaning ikki qismi.",
+      ru: 'Верно. Сумма и число слагаемых это две части правила из двух шагов.',
+      en: 'Correct. The sum and the number of addends are the two parts of the two-step rule.',
+    },
+    reflectionWrong: {
+      uz: "Eng katta son butun musobaqani ko'rsatmaydi, ikkiga bo'lish esa faqat ikkita son bo'lgandagina to'g'ri. Bo'luvchi har doim sonlarning soni.",
+      ru: 'Самое большое число не показывает всё соревнование, а деление на два верно только для двух чисел. Делитель это всегда количество чисел.',
+      en: 'The largest number does not show the whole contest, and dividing by two is right only for two numbers. The divisor is always the count of numbers.',
+    },
+    rewardAnnounce: { uz: 'Unvon olindi:', ru: 'Звание получено:', en: 'Title earned:' },
+    awards: [
+      { min: 5, title: { uz: 'Arena bosh hakami', ru: 'Главный судья арены', en: 'Chief arena judge' } },
+      { min: 3, title: { uz: 'Natijalar hisobchisi', ru: 'Счётчик результатов', en: 'Results counter' } },
+      { min: 0, title: { uz: 'Arena kuzatuvchisi', ru: 'Наблюдатель арены', en: 'Arena observer' } },
+    ],
+    mainLabel: { uz: 'Qoida', ru: 'Правило', en: 'Rule' },
+    main: [
+      {
+        uz: "1. Barcha sonlarni qo'shamiz va yig'indini topamiz.",
+        ru: '1. Складываем все числа и находим сумму.',
+        en: '1. Add all the numbers and find the sum.',
+      },
+      {
+        uz: "2. Yig'indini qo'shiluvchilar soniga bo'lamiz.",
+        ru: '2. Делим сумму на число слагаемых.',
+        en: '2. Divide the sum by the number of addends.',
+      },
+      {
+        uz: "Tekshirish: o'rtacha × sonlar soni = yig'indi.",
+        ru: 'Проверка: среднее × количество чисел = сумма.',
+        en: 'Check: mean × count of numbers = sum.',
+      },
+      {
+        uz: "O'rtacha har doim eng kichik va eng katta son orasida turadi.",
+        ru: 'Среднее всегда лежит между наименьшим и наибольшим числом.',
+        en: 'The mean always lies between the smallest and the largest number.',
+      },
+    ],
+    nextLabel: { uz: 'Keyingi missiya', ru: 'Следующая миссия', en: 'Next mission' },
+    nextText: {
+      uz: 'Bir marta yozilgan va har safar ishlaydigan qoida: formulalar.',
+      ru: 'Правило, записанное один раз и работающее всегда: формулы.',
+      en: 'A rule written once that works every time: formulas.',
+    },
+    audio: {
+      intro: {
+        uz: [
+          "Missiya bajarildi. Arena tablosida adolatli natija paydo bo'ldi.",
+          "Bugun siz butun natijalar to'plamini bitta songa siqishni va uni tekshirishni o'rgandingiz.",
+          'Unvonni ochish uchun bitta savol qoldi.',
+        ],
+        ru: [
+          'Миссия выполнена. На табло арены появился честный результат.',
+          'Сегодня ты умеешь сжимать целый набор результатов в одно число и проверять его.',
+          'До звания остался один вопрос.',
+        ],
+        en: [
+          'Mission complete. A fair result has appeared on the arena board.',
+          'Today you can compress a whole set of results into one number and check it.',
+          'One question stands between you and the title.',
+        ],
+      },
     },
   },
 };
-const ORDERED_CONTENT = SCREEN_FLOW.map((sourceIndex) => CONTENT[`s${sourceIndex}`]);
 
-let runtimeConfig = { ttsApiBase: '', voiceGender: 'f', correctSoundUrl: '', wrongSoundUrl: '', previewMode: false };
-const configureLesson = (next) => { runtimeConfig = { ...runtimeConfig, ...next }; };
-const LangContext = createContext('uz');
-const ActivityContext = createContext({ activityState: {}, markActivity: () => {}, finalRewardState: { reflectionChoice: null, titleState: 'unclaimed' }, setFinalRewardState: () => {} });
-const useLang = () => useContext(LangContext);
-const useT = () => {
-  const lang = useLang();
-  return useCallback((value) => {
-    if (value == null) return '';
-    if (React.isValidElement(value)) return value;
-    if (typeof value === 'string' || typeof value === 'number') return String(value);
-    return value[lang] ?? value.uz ?? '';
-  }, [lang]);
-};
+// ===========================================================================
+// CHIZMALAR
+// ===========================================================================
 
-function useIsMobile(breakpoint = 640) {
-  const [mobile, setMobile] = useState(typeof window !== 'undefined' ? window.innerWidth < breakpoint : false);
-  useEffect(() => {
-    if (typeof window === 'undefined') return undefined;
-    const update = () => setMobile(window.innerWidth < breakpoint);
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, [breakpoint]);
-  return mobile;
-}
-
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReduced(media.matches);
-    media.addEventListener?.('change', update);
-    return () => media.removeEventListener?.('change', update);
-  }, []);
-  return reduced;
-}
-
-const buildTtsUrl = (base, text, gender) => `${base}/api/tts?text=${encodeURIComponent(String(text).slice(0, 1000))}&g=${gender === 'm' ? 'm' : 'f'}`;
-
-class AudioEngine {
-  constructor() { this.queue = []; this.index = 0; this.audio = null; this.previewUtterance = null; this.timer = null; this.lang = 'uz'; this.muted = false; this.listener = null; }
-  emit(extra = {}) { this.listener?.({ muted: this.muted, ...extra }); }
-  setLang(lang) { this.lang = lang; }
-  stop() {
-    if (this.timer && typeof window !== 'undefined') window.clearTimeout(this.timer);
-    this.timer = null;
-    if (this.audio) { this.audio.pause(); this.audio.onended = null; this.audio.onerror = null; }
-    if (this.previewUtterance) { this.previewUtterance.onstart = null; this.previewUtterance.onend = null; this.previewUtterance.onerror = null; this.previewUtterance = null; }
-    if (typeof window !== 'undefined' && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch { /* preview only */ } }
-  }
-  load(queue) { this.stop(); this.queue = queue || []; this.index = 0; this.emit({ completed: false, currentSegment: null }); }
-  start() { this.play(); }
-  timed(item, duration = null) {
-    if (this.timer) window.clearTimeout(this.timer);
-    if (this.audio) { this.audio.onended = null; this.audio.onerror = null; }
-    this.emit({ isPlaying: false, completed: false, currentSegment: item.id, visualOnly: true });
-    this.timer = window.setTimeout(() => { this.index += 1; this.play(); }, duration ?? 900);
-  }
-  play() {
-    const item = this.queue[this.index];
-    if (!item) { this.emit({ isPlaying: false, completed: true, currentSegment: null, visualOnly: this.muted || !runtimeConfig.ttsApiBase }); return; }
-    if (this.muted || !runtimeConfig.ttsApiBase) {
-      if (!this.muted && runtimeConfig.previewMode && typeof window !== 'undefined' && window.speechSynthesis) {
-        try {
-          window.speechSynthesis.cancel();
-          const utterance = new SpeechSynthesisUtterance(String(item.text));
-          utterance.lang = SPEECH_LOCALES[this.lang] ?? SPEECH_LOCALES.uz; utterance.rate = 0.94;
-          utterance.onstart = () => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false });
-          utterance.onend = () => { this.emit({ isPlaying: false, currentSegment: null }); this.index += 1; this.play(); };
-          utterance.onerror = () => this.timed(item, 900);
-          this.previewUtterance = utterance;
-          this.timer = window.setTimeout(() => { try { window.speechSynthesis.speak(utterance); } catch { this.timed(item, 900); } }, 50);
-          return;
-        } catch { /* deterministic timer fallback */ }
-      }
-      this.timed(item); return;
-    }
-    if (!this.audio) { this.audio = new Audio(); this.audio.crossOrigin = 'anonymous'; }
-    this.audio.onended = () => { this.index += 1; this.play(); };
-    this.audio.onerror = () => this.timed(item, 900);
-    this.audio.src = buildTtsUrl(runtimeConfig.ttsApiBase, item.text, runtimeConfig.voiceGender);
-    this.audio.play().then(() => this.emit({ isPlaying: true, completed: false, currentSegment: item.id, visualOnly: false })).catch(() => this.timed(item, 900));
-  }
-  toggleMute() { this.muted = !this.muted; this.stop(); this.index = 0; this.emit({ muted: this.muted }); this.start(); }
-  pushOneOff(text) { this.load([{ id: `feedback-${Date.now()}`, text }]); this.start(); }
-}
-
-let audioEngineInstance = null;
-const getAudioEngine = () => {
-  if (typeof window === 'undefined') return null;
-  if (!audioEngineInstance) audioEngineInstance = new AudioEngine();
-  return audioEngineInstance;
-};
-
-function useAudio(segments) {
-  const lang = useLang();
-  const [state, setState] = useState({ muted: audioEngineInstance?.muted ?? false, completed: false, currentSegment: null, visualOnly: !runtimeConfig.ttsApiBase });
-  /* eslint-disable react-hooks/refs -- stable audio queue */
-  const segmentsRef = useRef(segments);
-  const segmentsKey = JSON.stringify(segments || []);
-  const prevKeyRef = useRef(segmentsKey);
-  if (prevKeyRef.current !== segmentsKey) { segmentsRef.current = segments; prevKeyRef.current = segmentsKey; }
-  const stableSegments = segmentsRef.current;
-  /* eslint-enable react-hooks/refs */
-  useEffect(() => {
-    const engine = getAudioEngine(); if (!engine) return undefined;
-    engine.setLang(lang); engine.listener = (next) => setState((previous) => ({ ...previous, ...next })); engine.load(stableSegments);
-    const timer = window.setTimeout(() => engine.start(), 220);
-    return () => { window.clearTimeout(timer); engine.stop(); engine.listener = null; };
-  }, [lang, stableSegments]);
-  return { ...state, replay: () => { const engine = getAudioEngine(); engine?.load(stableSegments); engine?.start(); }, toggleMute: () => getAudioEngine()?.toggleMute(), pushOneOff: (text) => getAudioEngine()?.pushOneOff(text) };
-}
-
-function useNarration(value, screen) {
-  const lang = useLang(); const reduced = usePrefersReducedMotion();
-  const segments = useMemo(() => {
-    const source = value?.intro ?? value;
-    const texts = source?.[lang] ?? [];
-    return (Array.isArray(texts) ? texts : [texts]).filter(Boolean).map((text, index) => ({ id: `s${screen}-beat-${index}`, text }));
-  }, [lang, screen, value]);
-  const audio = useAudio(segments);
-  const active = segments.findIndex((segment) => segment.id === audio.currentSegment);
-  const finalFrame = Math.max(0, FRAME_COUNTS[screen] - 1);
-  const feedbackPlaying = audio.currentSegment?.startsWith('feedback-') === true;
-  const frame = reduced || feedbackPlaying || audio.completed ? finalFrame : active >= 0 ? active : 0;
-  return { ...audio, frame, caption: active >= 0 ? segments[active].text : '' };
-}
-
-const playSfx = (kind) => {
-  const url = kind === 'correct' ? runtimeConfig.correctSoundUrl : runtimeConfig.wrongSoundUrl;
-  if (!url || typeof window === 'undefined') return;
-  try { new Audio(url).play().catch(() => {}); } catch { /* optional */ }
-};
-
-const BitSVG = ({ state = 'present', className = '' }) => {
-  const isWave = state === 'wave';
-  const isHappy = state === 'happy' || isWave || state === 'idea' || state === 'nod';
-  const isThinking = state === 'hint' || state === 'think';
-  const isAwkward = state === 'awkward';
-
-  return (
-  <svg className={`g1-char g1-char-bit g1-char-state-${state} ${className}`} viewBox="0 0 120 150" aria-hidden="true">
-    <defs>
-      <linearGradient id="g4bbody" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#E2ECF2" />
-        <stop offset="100%" stopColor="#B6C7D2" />
-      </linearGradient>
-      <linearGradient id="g4bhead" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stopColor="#EBF2F6" />
-        <stop offset="100%" stopColor="#C4D3DC" />
-      </linearGradient>
-    </defs>
-    <ellipse cx="60" cy="140" rx="30" ry="5" fill="rgba(58,53,48,0.13)" />
-    <g className="g1-bit-ant">
-      <path d="M60 30 V14" stroke="#9FB3BF" strokeWidth="4" strokeLinecap="round" />
-      <circle cx="60" cy="11" r="6" fill="#FF4F28" />
-      <circle cx="58" cy="9" r="2" fill="#FFB9A6" />
-    </g>
-    <rect x="44" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="64" y="118" width="12" height="16" rx="5" fill="#9FB3BF" />
-    <rect x="34" y="60" width="52" height="62" rx="18" fill="url(#g4bbody)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="44" y="104" width="32" height="10" rx="5" fill="#A9BCC8" opacity="0.5" />
-    {(state === 'happy' || isWave) && (
-      <g className={isWave ? 'bit-double-wave' : ''}>
-        <g className="bit-wave-left">
-          <path d="M36 74 C 26 66 22 56 22 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="22" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-        <g className="bit-wave-right">
-          <path d="M84 74 C 94 66 98 56 98 48" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="47" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'present' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="g1-bit-wave">
-          <path d="M84 74 C 96 66 100 54 98 44" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="98" cy="43" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-think-hand">
-          <path d="M84 76 C 92 74 92 66 84 61" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="83" cy="60" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {isAwkward && (
-      <g className="bit-awkward-hands">
-        <path d="M36 76 C 39 88 46 96 54 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="54" cy="99" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 81 88 74 96 66 99" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="66" cy="99" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'point' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-point-arm">
-          <path d="M84 76 C 94 72 101 67 108 62" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="109" cy="61" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    {state === 'idea' && (
-      <g>
-        <path d="M36 76 C 29 82 27 91 30 101" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="102" r="5" fill="#B6C7D2" />
-        <path d="M84 76 C 92 68 95 58 94 50" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="94" cy="49" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-hands">
-        <path d="M36 77 C 41 88 47 93 53 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="53" cy="94" r="5" fill="#B6C7D2" />
-        <path d="M84 77 C 79 88 73 93 67 94" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="67" cy="94" r="5" fill="#B6C7D2" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g>
-        <path d="M36 76 C 28 84 26 94 30 102" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-        <circle cx="30" cy="103" r="5" fill="#B6C7D2" />
-        <g className="bit-nod-hand">
-          <path d="M84 75 C 93 70 99 62 99 54" stroke="#9FB3BF" strokeWidth="7" strokeLinecap="round" fill="none" />
-          <circle cx="99" cy="53" r="5" fill="#B6C7D2" />
-        </g>
-      </g>
-    )}
-    <rect x="28" y="28" width="64" height="46" rx="16" fill="url(#g4bhead)" stroke="#A9BCC8" strokeWidth="2" />
-    <rect x="36" y="36" width="48" height="30" rx="10" fill="#16242C" />
-    <path d="M40 40 h18 a4 4 0 0 1 -4 8 h-14 Z" fill="rgba(255,255,255,0.08)" />
-    <g className="g1-eyes" fill="#5BD6F2">
-      {isAwkward
-        ? <><ellipse cx="50" cy="53" rx="4.8" ry="3.2" /><ellipse cx="70" cy="53" rx="4.8" ry="3.2" /></>
-        : isThinking
-        ? <><circle cx="50" cy="50" r="4.5" /><circle cx="70" cy="49" r="5.5" /></>
-        : <><circle cx="50" cy="50" r="5" /><circle cx="70" cy="50" r="5" /></>}
-    </g>
-    {isHappy && <path d="M50 58 Q60 65 70 58" stroke="#5BD6F2" strokeWidth="2.6" fill="none" strokeLinecap="round" />}
-    {(state === 'present' || state === 'point' || state === 'focus') && <path d="M52 58 h16" stroke="#5BD6F2" strokeWidth="2.6" strokeLinecap="round" />}
-    {isThinking && <circle cx="60" cy="59" r="2.4" fill="#5BD6F2" />}
-    {isAwkward && (
-      <g className="bit-awkward-face">
-        <path d="M53 62 Q60 57 67 62" stroke="#5BD6F2" strokeWidth="2.4" fill="none" strokeLinecap="round" />
-        <circle cx="43" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-        <circle cx="77" cy="59" r="4" fill="#FF9B8A" opacity=".5" />
-      </g>
-    )}
-    {isThinking && (
-      <g>
-        <circle cx="99" cy="38" r="9" fill="#FFC23C" />
-        <text x="99" y="42.5" textAnchor="middle" fontSize="12" fontWeight="800" fill="#5A3A00">?</text>
-      </g>
-    )}
-    {state === 'point' && (
-      <g className="bit-point-target">
-        <circle cx="110" cy="61" r="8" fill="none" stroke="#FF5B35" strokeWidth="2" />
-        <circle cx="110" cy="61" r="2" fill="#FF5B35" />
-      </g>
-    )}
-    {state === 'idea' && (
-      <g className="bit-idea-bulb">
-        <circle cx="99" cy="36" r="9" fill="#FFC23C" />
-        <path d="M95 36 Q99 31 103 36 M97 42 h4" stroke="#7A5200" strokeWidth="1.6" fill="none" strokeLinecap="round" />
-      </g>
-    )}
-    {state === 'focus' && (
-      <g className="bit-focus-scan">
-        <path d="M43 45 h34" stroke="#95C93D" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="80" cy="45" r="3" fill="#95C93D" />
-      </g>
-    )}
-    {state === 'nod' && (
-      <g className="bit-nod-check">
-        <circle cx="99" cy="38" r="9" fill="#95C93D" />
-        <path d="M95 38 l3 3 6-7" stroke="#FFFFFF" strokeWidth="2.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-      </g>
-    )}
-  </svg>
-  );
-};
-
-const AudioIndicator = ({ audio }) => {
+// s0, s14 — arena sahnasi.
+//
+// Maydon syujetni ushlab turadi, sonlar esa pastdagi tabloda turadi: beshta
+// natijani maydonning o'ziga yozib bo'lmaydi, chunki 13, 14, 15 metr bir-biriga
+// juda yaqin va yozuvlar ustma-ust tushadi.
+const ArenaScene = ({ mode = 'hook', solved = false }) => {
   const t = useT();
-  const muteLabel = audio.muted
-    ? t({ uz: "Ovozni yoqish", ru: 'Включить звук', en: 'Turn sound on' })
-    : t({ uz: "Ovozni o'chirish", ru: 'Выключить звук', en: 'Turn sound off' });
-  const replayLabel = t({ uz: "Qayta eshitish", ru: 'Повторить', en: 'Replay' });
+  const x = (metres) => 150 + (metres / 16) * 300;
+  const rows = [
+    { name: 'Anvar', tone: T.cyan, values: [9, 14, 9, 15, 13], y: 348 },
+    { name: "Ulug'bek", tone: T.accent, values: [10, 15, 11, 10, 9], y: 400 },
+  ];
+
   return (
-    <div className="audio-controls">
-      <button type="button" className="icon-btn" onClick={audio.toggleMute} aria-label={muteLabel} title={muteLabel}>
-        {audio.muted ? '🔇' : (audio.isPlaying ? '🔊' : '🔉')}
-      </button>
-      {!audio.muted && (
-        <button type="button" className="icon-btn" onClick={audio.replay} aria-label={replayLabel} title={replayLabel}>
-          ↻
-        </button>
+    <FitSvg viewBox="0 0 520 464">
+      <defs>
+        <linearGradient id="d15-sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#DCEFF3" />
+          <stop offset="1" stopColor="#F4FAF9" />
+        </linearGradient>
+        <linearGradient id="d15-turf" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8ECBA0" />
+          <stop offset="1" stopColor="#5FAF7E" />
+        </linearGradient>
+      </defs>
+
+      <rect x="0" y="0" width="520" height="464" rx="22" fill="url(#d15-sky)" />
+
+      {/* tribuna */}
+      <path d="M0 112 L520 112 L520 170 L0 170 Z" fill="#E3EDF0" />
+      {Array.from({ length: 26 }, (_, index) => (
+        <rect key={index} x={6 + index * 20} y="118" width="14" height="12" rx="3" fill={index % 3 === 0 ? '#B9D6DE' : '#CFE2E7'} />
+      ))}
+      {Array.from({ length: 26 }, (_, index) => (
+        <rect key={`b-${index}`} x={6 + index * 20} y="136" width="14" height="12" rx="3" fill={index % 4 === 1 ? '#A8CCD6' : '#C6DDE3'} />
+      ))}
+      <rect x="0" y="152" width="520" height="18" fill="#D3E4E8" />
+
+      {/* maydon */}
+      <path d="M0 170 L520 170 L520 330 L0 330 Z" fill="url(#d15-turf)" />
+      {Array.from({ length: 5 }, (_, index) => (
+        <rect key={`s-${index}`} x="0" y={176 + index * 32} width="520" height="16" fill="rgba(255,255,255,.06)" />
+      ))}
+
+      {mode === 'hook' && [0, 4, 8, 12, 16].map((metres) => (
+        <g key={metres}>
+          <line x1={x(metres)} y1="186" x2={x(metres)} y2="296" stroke="rgba(255,255,255,.55)" strokeWidth={metres === 0 ? 4 : 2} />
+          <text x={x(metres)} y="316" textAnchor="middle" fill="#2F6B4E" fontSize="14" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            {metres}
+          </text>
+        </g>
+      ))}
+      {mode === 'hook' && (
+        <text x="474" y="316" textAnchor="middle" fill="#2F6B4E" fontSize="13" fontWeight="700" fontFamily="Manrope, sans-serif">
+          {t(METR)}
+        </text>
       )}
-    </div>
+
+      {/* uloqtiruvchilar */}
+      {mode === 'hook' && [{ cx: 62, tone: T.cyan }, { cx: 110, tone: T.accent }].map((who) => (
+        <g key={who.cx}>
+          <ellipse cx={who.cx} cy="298" rx="19" ry="6" fill="rgba(23,59,82,.16)" />
+          <path d={`M${who.cx - 9} ${who.cx === 62 ? 262 : 262} l4 34 M${who.cx + 3} 262 l4 34`} stroke="#2E4A5C" strokeWidth="6" strokeLinecap="round" />
+          <path d={`M${who.cx - 12} 226 q12 -9 24 0 l5 40 q-17 7 -34 0 z`} fill={who.tone} />
+          <circle cx={who.cx} cy="212" r="12" fill="#F3C79B" />
+          <path d={`M${who.cx - 12} 206 q12 -13 24 0 q-12 -5 -24 0 z`} fill="#3B2A21" />
+          <path d={`M${who.cx + 10} 234 q16 -14 26 -24`} stroke={who.tone} strokeWidth="5.5" strokeLinecap="round" fill="none" />
+          <rect x={who.cx + 32} y="200" width="17" height="11" rx="3" fill="#C08B4E" stroke="#93673A" strokeWidth="1.4" />
+        </g>
+      ))}
+
+      {/* uloqtirish belgilari maydonda — sonlarsiz, faqat joyi */}
+      {mode === 'hook' && rows.map((row, rowIndex) => (
+        row.values.map((value, index) => (
+          <g key={`${rowIndex}-${index}`}>
+            <line
+              x1={x(value)}
+              y1={rowIndex === 0 ? 240 : 284}
+              x2={x(value)}
+              y2={rowIndex === 0 ? 214 : 258}
+              stroke={row.tone}
+              strokeWidth="2.2"
+            />
+            <path d={`M${x(value)} ${rowIndex === 0 ? 214 : 258} l14 6 l-14 6 z`} fill={row.tone} />
+            <circle cx={x(value)} cy={rowIndex === 0 ? 240 : 284} r="3.4" fill={row.tone} />
+          </g>
+        ))
+      ))}
+
+      {/* tablo */}
+      {mode === 'hook' && (
+        <g>
+          <rect x="14" y="336" width="492" height="118" rx="16" fill="rgba(255,255,255,.95)" stroke="rgba(23,59,82,.12)" strokeWidth="1.6" />
+          {rows.map((row) => (
+            <g key={row.name}>
+              <rect x={26} y={row.y} width={92} height={38} rx="11" fill={row.tone === T.cyan ? T.cyanSoft : T.accentSoft} />
+              <text x={72} y={row.y + 25} textAnchor="middle" fill={row.tone} fontSize="14" fontWeight="800" fontFamily="Manrope, sans-serif">
+                {row.name}
+              </text>
+              {row.values.map((value, index) => (
+                <g key={index}>
+                  <rect x={130 + index * 74} y={row.y} width={62} height={38} rx="11" fill="#FFFFFF" stroke={row.tone} strokeWidth="1.8" />
+                  <text
+                    x={161 + index * 74}
+                    y={row.y + 26}
+                    textAnchor="middle"
+                    fill={T.ink}
+                    fontSize="17"
+                    fontWeight="800"
+                    fontFamily="JetBrains Mono, monospace"
+                  >
+                    {value}
+                  </text>
+                </g>
+              ))}
+            </g>
+          ))}
+        </g>
+      )}
+
+      {mode === 'final' && (
+        <g>
+          <rect x="66" y="196" width="388" height="212" rx="20" fill="rgba(255,255,255,.95)" stroke={solved ? T.success : 'rgba(23,59,82,.14)'} strokeWidth="2.4" />
+          <text x="260" y="236" textAnchor="middle" fill={T.ink2} fontSize="16" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'Arena oshxonasi, 7 kun', ru: 'Кухня арены, 7 дней', en: 'Arena kitchen, 7 days' })}
+          </text>
+          <text x="260" y="284" textAnchor="middle" fill={T.ink} fontSize="23" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            250 + 160 + 80
+          </text>
+          <text x="260" y="336" textAnchor="middle" fill={solved ? T.success : T.ink3} fontSize="26" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            {solved ? '490 : 7 = 70' : '490 : 7 = ?'}
+          </text>
+          <text x="260" y="372" textAnchor="middle" fill={T.ink3} fontSize="14" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t({ uz: 'kg, bir kunga', ru: 'кг за один день', en: 'kg for one day' })}
+          </text>
+        </g>
+      )}
+    </FitSvg>
   );
 };
 
-const ScreenTypeLabel = ({ type }) => {
+// s3, s5, s7 — yig'indi va bo'lish yo'lagi.
+const SumStrip = ({ frame = 0, numbers, sum, count, average, unit = '', reverse = false }) => {
   const t = useT();
-  const labels = {
-    hook: { uz: "Missiya", ru: 'Миссия', en: 'Mission' },
-    diagnostic: { uz: "Diagnostika", ru: 'Диагностика', en: 'Diagnostic' },
-    exploration: { uz: "Kashfiyot", ru: 'Исследование', en: 'Explore' },
-    rule: { uz: "Qoida", ru: 'Правило', en: 'Rule' },
-    practice: { uz: "Mashq", ru: 'Практика', en: 'Practice' },
-    test: { uz: "Tekshiruv", ru: 'Проверка', en: 'Check' },
-    case: { uz: "Vazifa", ru: 'Задача', en: 'Problem' },
-    summary: { uz: "Yakun", ru: 'Итог', en: 'Summary' },
-  };
-  return <span className="screen-type">{labels[type] ? t(labels[type]) : type}</span>;
+  const slot = 420 / numbers.length;
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      <g opacity={frame >= 1 ? 1 : 0.28} style={{ transition: 'opacity .4s' }}>
+        {numbers.map((value, index) => (
+          <g key={index}>
+            <rect
+              x={50 + index * slot + 4}
+              y="28"
+              width={slot - 12}
+              height="44"
+              rx="12"
+              fill="#FFFFFF"
+              stroke={T.cyan}
+              strokeWidth="1.8"
+            />
+            <text
+              x={50 + index * slot + slot / 2 - 2}
+              y="57"
+              textAnchor="middle"
+              fill={T.ink}
+              fontSize="17"
+              fontWeight="800"
+              fontFamily="JetBrains Mono, monospace"
+            >
+              {value}
+            </text>
+          </g>
+        ))}
+      </g>
+      <g opacity={frame >= 2 ? 1 : 0.28} style={{ transition: 'opacity .4s' }}>
+        <path d="M260 78 l-8 -10 h16 z" fill={T.ink3} transform="rotate(180 260 73)" />
+        <rect x="150" y="88" width="220" height="46" rx="13" fill={T.cyanSoft} />
+        <text x="260" y="119" textAnchor="middle" fill={T.cyan} fontSize="20" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+          {sum}
+        </text>
+        <text x="382" y="117" fill={T.ink3} fontSize="12.5" fontWeight="700" fontFamily="Manrope, sans-serif">
+          {t({ uz: "yig'indi", ru: 'сумма', en: 'sum' })}
+        </text>
+      </g>
+      <g opacity={frame >= 3 ? 1 : 0.28} style={{ transition: 'opacity .4s' }}>
+        <rect x="150" y="146" width="220" height="46" rx="13" fill="#FFFFFF" stroke={T.ink3} strokeWidth="1.6" />
+        <text x="260" y="177" textAnchor="middle" fill={T.ink} fontSize="19" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+          {reverse ? `${average} × ${count}` : `${sum} : ${count}`}
+        </text>
+        <text x="382" y="175" fill={T.ink3} fontSize="12.5" fontWeight="700" fontFamily="Manrope, sans-serif">
+          {reverse
+            ? t({ uz: 'tekshirish', ru: 'проверка', en: 'check' })
+            : t({ uz: 'sonlar soni', ru: 'количество чисел', en: 'count of numbers' })}
+        </text>
+        <rect x="150" y="200" width="220" height="26" rx="9" fill={T.successSoft} />
+        <text x="260" y="219" textAnchor="middle" fill={T.success} fontSize="17" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+          {reverse ? sum : `${average} ${unit}`}
+        </text>
+      </g>
+    </FitSvg>
+  );
 };
 
-const FeedbackBlock = ({ show, correct, children }) => {
+// s6 uchun kichik ishora: uchta son va ularning yig'indisi.
+const TableHint = ({ solved = false }) => (
+  <FitSvg viewBox="0 0 520 74" className="table-hint">
+    <text x="260" y="34" textAnchor="middle" fill={T.ink3} fontSize="15" fontWeight="700" fontFamily="JetBrains Mono, monospace">
+      136 + 140 + 147 = 423
+    </text>
+    <text
+      x="260"
+      y="62"
+      textAnchor="middle"
+      fill={solved ? T.success : T.ink3}
+      fontSize="16"
+      fontWeight="800"
+      fontFamily="JetBrains Mono, monospace"
+    >
+      {solved ? '423 : 3 = 141' : '423 : 3 = ?'}
+    </text>
+  </FitSvg>
+);
+
+// s9, s10 — sonlar nuri.
+const RayFigure = ({ frame = 0, mode = 's9', picked = null, solved = false }) => {
   const t = useT();
-  const [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (!show) { const frame = requestAnimationFrame(() => setOpen(false)); return () => cancelAnimationFrame(frame); }
-    let second = 0; const first = requestAnimationFrame(() => { second = requestAnimationFrame(() => setOpen(true)); });
-    return () => { cancelAnimationFrame(first); cancelAnimationFrame(second); };
-  }, [show]);
-  return <div role="status" aria-hidden={!show} data-g4-role={correct ? 'feedback-frame bit-answer-comment' : 'feedback-frame'} data-g4-feedback={correct ? 'solution' : 'wrong'} className={`feedback ${correct ? 'correct' : 'wrong'} ${open ? 'open' : ''}`}><span className="feedback-bit" data-g4-role="feedback-bit"><BitSVG state={correct ? 'nod' : 'awkward'}/></span><p>{show && <><strong>{correct ? t({ uz: 'YECHIM', ru: 'РЕШЕНИЕ', en: 'SOLUTION' }) : t({ uz: "YANA O'YLANG", ru: 'ПРОВЕРЬТЕ СПОСОБ', en: 'CHECK THE METHOD' })}</strong>{children}</>}</p></div>;
+  if (mode === 's9') {
+    return (
+      <ScaleFigure
+        min={56}
+        max={68}
+        majorEvery={4}
+        minorPerMajor={4}
+        accentPair={frame >= 1 ? [57, 65] : null}
+        highlight={frame >= 3 ? 61 : null}
+        caption={frame >= 2 ? '57 + 65 = 122,  122 : 2 = 61' : null}
+      />
+    );
+  }
+  const shown = solved ? 429 : picked === null ? null : [424, 429, 434][picked];
+  return (
+    <ScaleFigure
+      min={424}
+      max={436}
+      majorEvery={4}
+      minorPerMajor={4}
+      accentPair={[426, 432]}
+      highlight={solved ? 429 : null}
+      pointer={shown !== null && !solved ? shown : null}
+      caption={solved
+        ? '426 + 432 = 858,  858 : 2 = 429'
+        : t({ uz: 'Ikkita son orasidagi joyni toping', ru: 'Найди место между двумя числами', en: 'Find the place between the two numbers' })}
+    />
+  );
 };
 
-const ContractActivity = ({ screen, value, onComplete }) => {
-  const t = useT(); const meta = SCREEN_META[screen];
-  if (meta.template === 'ReflectionChoice') return null;
-  if (!meta.template.includes('Reveal')) return null;
-  return <div className="activity-slot"><button type="button" className={value !== undefined ? 'selected' : ''} onClick={() => onComplete(screen, true)}>{value !== undefined ? t({ uz: "Model tekshirildi", ru: 'Модель проверена', en: 'Model checked' }) : t({ uz: "Modelni tekshirish", ru: 'Проверить модель', en: 'Check the model' })}</button></div>;
-};
-
-const Stage = ({ screen, audio, onPrev, onNext, finish = false, activityDone, children }) => {
-  const t = useT(); const mobile = useIsMobile(); const pad = mobile ? 14 : 48; const c = ORDERED_CONTENT[screen]; const meta = SCREEN_META[screen]; const { activityState, markActivity } = useContext(ActivityContext);
-  const storedActivity = Object.prototype.hasOwnProperty.call(activityState, screen); const activityReady = !meta.active || activityDone === true || storedActivity; const audioReady = !audio || audio.muted || audio.visualOnly || audio.completed; const canAdvance = activityReady && audioReady;
-  useEffect(() => { if (activityDone === true && !storedActivity) markActivity(screen, true); }, [activityDone, markActivity, screen, storedActivity]);
-  const showCaption = Boolean(audio?.caption && (audio.muted || audio.visualOnly));
-  return <main className={`stage stage-${meta.type}`}><header className="stage-header" style={{ paddingLeft: pad, paddingRight: pad }}><div className="progress-track" aria-label={`${screen + 1} / ${TOTAL_SCREENS}`}><div className="progress-fill progress-bar" style={{ width: `${(screen + 1) / TOTAL_SCREENS * 100}%` }}/></div><div className="stage-chrome"><div className="chrome-title"><span className="status-dot"/><span>{t(c.eyebrow)}</span></div><div className="chrome-actions"><ScreenTypeLabel type={meta.type}/>{audio && <AudioIndicator audio={audio}/>}<span className="screen-count">{String(screen + 1).padStart(2, '0')} / {TOTAL_SCREENS}</span></div></div></header><section className="stage-content" style={{ paddingLeft: pad, paddingRight: pad }}><div className="stage-body">{children}<ContractActivity screen={screen} value={activityState[screen]} onComplete={markActivity}/></div><div className={`caption caption-slot ${showCaption ? 'visible' : ''}`} aria-hidden={!showCaption}>{showCaption ? audio.caption : ''}</div></section><footer className="stage-nav" style={{ paddingLeft: pad, paddingRight: pad }}>{screen === 0 ? <span/> : <button type="button" className="btn-ghost" onClick={onPrev}>← {t({ uz: "Orqaga", ru: 'Назад' , en: "Back"})}</button>}<button type="button" className="btn-white-accent" onClick={onNext} disabled={!canAdvance}>{finish ? t({ uz: "Darsni yakunlash", ru: 'Завершить урок' , en: "Finish lesson"}) : t({ uz: "Davom etish", ru: 'Продолжить' , en: "Continue"})} →</button></footer></main>;
-};
-
-const Heading = ({ c }) => { const t = useT(); const hook = c === CONTENT.s0; return <div className="heading"><div><span data-g4-role={hook ? 'hook-topic' : undefined}>{t(c.eyebrow)}</span><h1 data-g4-role={hook ? 'hook-title' : undefined}>{t(c.title)}</h1></div>{!hook && <BitSVG state="happy" className="primary-happy-bit"/>}</div>; };
-const Options = ({ values, picked, onPick, correctIndex, solved, neutral = false }) => { const t = useT(); return <div className="options">{values.map((value, index) => <button type="button" key={`${index}-${t(value)}`} data-g4-role="answer-card" className={`option ${picked === index ? 'picked' : ''} ${!neutral && solved && index === correctIndex ? 'right' : ''} ${!neutral && picked === index && picked !== correctIndex ? 'bad' : ''}`} onClick={() => onPick(index)}><b>{String.fromCharCode(65 + index)}</b><span>{t(value)}</span></button>)}</div>; };
-
-const ResultBars = ({ values, target = null, frame = 0, name }) => {
-  const equalized = target !== null && frame >= 3;
-  return <div className="bars-wrap"><div className="bars-title">{name}</div><div className="bars">{values.map((value, index) => <div className="bar-col" key={`${value}-${index}`}><div className={`bar ${equalized ? 'equalized' : ''}`} style={{ height: `${(equalized ? target : value) * 8}px` }}><b>{equalized ? target : value}</b></div></div>)}</div>{target !== null && frame >= 2 && <div className="target-line" style={{ bottom: `${target * 8 + 30}px` }}><span>{target} m</span></div>}</div>;
-};
-
-const FormulaFlow = ({ items, frame }) => <div className="formula-flow">{items.map((item, index) => <React.Fragment key={item}><div className={`formula-chip ${frame >= index ? 'show' : ''}`}>{item}</div>{index < items.length - 1 && <i className={frame >= index + 1 ? 'show' : ''}>→</i>}</React.Fragment>)}</div>;
-
-function ChoiceExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, visual = null }) {
-  const t = useT(); const c = ORDERED_CONTENT[screen]; const audio = useNarration(c.audio, screen);
-  const [picked, setPicked] = useState(storedAnswer?.studentAnswerIndex ?? null); const [solved, setSolved] = useState(storedAnswer?.correct === true); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true);
-  const pick = (index) => { if (solved) return; attempts.current += 1; const ok = index === c.correctIndex; if (!ok) clean.current = false; setPicked(index); setSolved(ok); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(ok ? c.audio.on_correct : c.audio.on_wrong)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), options: c.options.map(t), correctIndex: c.correctIndex, correctAnswer: t(c.options[c.correctIndex]), studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok }); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c} bit={screen === 12 ? 'awkward' : null}/>{visual}<section className="question"><h2>{t(c.question)}</h2><Options values={c.options} picked={picked} onPick={pick} correctIndex={c.correctIndex} solved={solved}/><FeedbackBlock show={picked !== null} correct={solved}>{picked !== null ? t(c.feedback[picked]) : ''}</FeedbackBlock></section></div></Stage>;
-}
-
-function NumericExercise({ screen, storedAnswer, onAnswer, onNext, onPrev, proof }) {
-  const t = useT(); const c = ORDERED_CONTENT[screen]; const audio = useNarration(c.audio, screen); const [value, setValue] = useState(storedAnswer?.studentAnswer ?? ''); const [solved, setSolved] = useState(storedAnswer?.correct === true); const [message, setMessage] = useState(null); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true);
-  const submit = () => { const answer = String(value).replace(/\D/g, ''); if (!answer || solved) return; attempts.current += 1; const ok = answer === c.answer; if (!ok) clean.current = false; setSolved(ok); const text = ok ? c.audio.on_correct : c.audio.on_wrong; setMessage(text); playSfx(ok ? 'correct' : 'wrong'); audio.pushOneOff(t(text)); onAnswer({ screenIdx: screen, stage: SCREEN_META[screen].scope, question: t(c.question), correctAnswer: c.answer, studentAnswer: answer, correct: ok, firstTry: ok && clean.current && attempts.current === 1, attempts: attempts.current, solved: ok }); };
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="question"><h2>{t(c.question)}</h2><div className="input-row"><input className={`answer-input ${message ? solved ? 'is-correct' : 'is-wrong' : ''}`} inputMode="numeric" placeholder="0" value={value} disabled={solved} onChange={(event) => { setValue(event.target.value.replace(/\D/g, '').slice(0, 5)); setMessage(null); }} onKeyDown={(event) => event.key === 'Enter' && submit()}/><button type="button" className="btn-white-accent compact" onClick={submit} disabled={!value || solved}>{t({ uz: "Tekshirish", ru: 'Проверить' , en: "Check"})}</button></div><FeedbackBlock show={message !== null} correct={solved}>{message ? t(message) : ''}</FeedbackBlock>{solved && <div className="proof">{proof}</div>}</section></div></Stage>;
-}
-
-function Screen0({ screen, storedAnswer, onAnswer, onNext }) {
-  const t = useT(); const c = CONTENT.s0; const audio = useNarration(c.audio, screen); const picked = storedAnswer?.studentAnswerIndex ?? null;
-  const pick = (index) => onAnswer({ screenIdx: screen, stage: 'hook', question: t(c.question), options: c.options.map(t), correctIndex: null, correctAnswer: null, studentAnswerIndex: index, studentAnswer: t(c.options[index]), correct: true, firstTry: true, attempts: (storedAnswer?.attempts ?? 0) + 1, solved: true });
-  return <Stage screen={screen} audio={audio} onNext={onNext} activityDone={picked !== null}><div className="stack" data-g4-screen="hook"><Heading c={c}/><h2 className="hook-question-title" data-g4-role="hook-question">{t(c.question)}</h2><div className="hook-scene-shell" data-g4-role="hook-scene"><section className="duel" data-g4-role="visual-frame"><span className="hook-frame-bit" data-g4-role="hook-bit"><BitSVG state="think"/></span><ResultBars values={[9,14,9,15,13]} name="Anvar"/><ResultBars values={[10,15,11,10,9]} name="Ulug'bek"/><div className="best"><span>15 m</span><b>=</b><span>15 m</span></div></section></div><section className="question"><Options values={c.options} picked={picked} onPick={pick} neutral/><FeedbackBlock show={picked !== null} correct>{t(c.neutral)}</FeedbackBlock></section></div></Stage>;
-}
-
-function Screen1({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s1; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="model-card"><ResultBars values={[9,14,9,15,13]} target={12} frame={audio.frame} name="Anvar"/><div className={`sum-badge ${audio.frame >= 1 ? 'show' : ''}`}>9 + 14 + 9 + 15 + 13 = 60 m</div><div className={`mean-badge ${audio.frame >= 4 ? 'show' : ''}`}>{t({ uz: "O'rtacha: 12 m", ru: 'Среднее: 12 м', en: 'Mean: 12 m' })}</div></section></div></Stage>;
-}
-
-function Screen2({ screen, onNext, onPrev }) { const c = CONTENT.s2; const audio = useNarration(c.audio, screen); return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="model-card"><FormulaFlow frame={audio.frame} items={['9 + 14 + 9 + 15 + 13', '60', '5', '60 : 5 = 12']}/></section></div></Stage>; }
-
-function Screen3({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s3; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="why-grid"><div className={audio.frame >= 0 ? 'active' : ''}><s>60 : 4</s><small>{t({ uz: "1 urinish yo'qoldi", ru: '1 попытка потеряна', en: '1 attempt left out' })}</small></div><div className={audio.frame >= 2 ? 'active correct-tile' : ''}><b>60 : 5 = 12</b><small>{t({ uz: "5 ta qiymat", ru: '5 значений', en: '5 values' })}</small></div></section></div></Stage>;
-}
-
-function Screen4({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s4; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="model-card"><ResultBars values={[10,15,11,10,9]} target={11} frame={Math.min(3, audio.frame)} name="Ulug'bek"/><div className={`sum-badge ${audio.frame >= 1 ? 'show' : ''}`}>10 + 15 + 11 + 10 + 9 = 55 m</div><div className={`mean-badge ${audio.frame >= 3 ? 'show' : ''}`}>{t({ uz: "O'rtacha: 11 m", ru: 'Среднее: 11 м', en: 'Mean: 11 m' })}</div></section></div></Stage>;
-}
-
-function Screen5({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s5; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="compare-card"><div className={audio.frame >= 0 ? 'show' : ''}><span>Anvar</span><b>12 m</b></div><i>−</i><div className={audio.frame >= 0 ? 'show' : ''}><span>Ulug'bek</span><b>11 m</b></div><strong className={audio.frame >= 1 ? 'show' : ''}>1 m</strong><p className={audio.frame >= 2 ? 'show' : ''}>{t({ uz: "O'rtacha natija bo'yicha Anvar g'olib", ru: 'По среднему результату побеждает Анвар', en: 'Anvar wins based on the mean result' })}</p></section></div></Stage>;
-}
-
-function Screen6({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s6; const audio = useNarration(c.audio, screen); const rules = [{ uz: "Barcha sonlarni qo'shing", ru: 'Сложи все числа', en: 'Add all the numbers' }, { uz: "Qiymatlar sonini sanang", ru: 'Посчитай значения', en: 'Count the values' }, { uz: "Yig'indini qiymatlar soniga bo'ling", ru: 'Раздели сумму на количество', en: 'Divide the sum by the number of values' }];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="rule-card"><div className="rule-formula">{t({ uz: "O'rtacha arifmetik = sonlar yig'indisi : qiymatlar soni", ru: 'Среднее арифметическое = сумма чисел : количество значений', en: 'Arithmetic mean = sum of the numbers ÷ number of values' })}</div><div className="rule-steps">{rules.map((rule,index)=><div className={audio.frame >= index ? 'show active' : ''} key={t(rule)}><b>{index+1}</b><span>{t(rule)}</span></div>)}</div></section></div></Stage>;
-}
-
-function Screen7({ screen, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s7; const audio = useNarration(c.audio, screen);
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="boundary"><div className="number-line"><span style={{left:'5%'}}>3</span><span style={{left:'28%'}}>5</span><b className={audio.frame >= 2 ? 'show' : ''} style={{left:'40%'}}>6</b><span style={{left:'90%'}}>10</span></div><FormulaFlow frame={audio.frame} items={['3 + 5 + 10', '18', '18 : 3', '6']}/><p className={audio.frame >= 3 ? 'show' : ''}>{t({ uz: "6 soni dastlabki ro'yxatda yo'q", ru: 'Числа 6 нет в исходном списке', en: '6 is not in the original list' })}</p></section></div></Stage>;
-}
-
-function Screen8(props) { return <ChoiceExercise {...props} visual={<div className="data-row"><span>12</span><span>17</span><span>18</span><span>20</span><span>28</span></div>}/>; }
-
-function Screen9({ screen, storedAnswer, onAnswer, onNext, onPrev }) {
-  const t = useT(); const c = CONTENT.s9; const audio = useNarration(c.audio, screen); const [order, setOrder] = useState(storedAnswer?.correct ? [0,1,2] : []); const [message, setMessage] = useState(null); const attempts = useRef(storedAnswer?.attempts ?? 0); const clean = useRef(storedAnswer?.firstTry ?? true); const solved = order.length === 3 && order.every((value,index)=>value===index);
-  const choose = (index) => { if (solved || order.includes(index)) return; const next=[...order,index]; setOrder(next); if(next.length===3){ attempts.current+=1; const ok=next.every((value,place)=>value===place); if(!ok) clean.current=false; const text=ok?c.audio.on_correct:c.audio.on_wrong; setMessage(text); playSfx(ok?'correct':'wrong'); audio.pushOneOff(t(text)); onAnswer({screenIdx:screen,stage:SCREEN_META[screen].scope,question:t(c.question),correctAnswer:'0,1,2',studentAnswer:next.join(','),correct:ok,firstTry:ok&&clean.current&&attempts.current===1,attempts:attempts.current,solved:ok}); } };
-  const reset=()=>{if(!solved){setOrder([]);setMessage(null);}};
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={onNext}><div className="stack"><Heading c={c}/><section className="question"><h2>{t(c.question)}</h2><div className="order-area"><div className="order-result">{order.map((index,place)=><div key={`${index}-${place}`}><b>{place+1}</b>{t(c.cards[index])}</div>)}</div><div className="card-bank">{c.cards.map((card,index)=><button type="button" key={t(card)} onClick={()=>choose(index)} disabled={order.includes(index)||solved}>{t(card)}</button>)}</div>{order.length>0&&!solved&&<button type="button" className="tiny-action" onClick={reset}>{t({uz:"Qayta tuzish",ru:'Собрать заново',en:'Start again'})}</button>}</div><FeedbackBlock show={message!==null} correct={solved}>{message?t(message):''}</FeedbackBlock></section></div></Stage>;
-}
-
-function Screen10(props) { return <NumericExercise {...props} proof="28 + 36 + 19 + 41 = 124; 124 : 4 = 31"/>; }
-function Screen11(props) { return <ChoiceExercise {...props} visual={<div className="line-choice"><span>57</span><i/><b>61</b><i/><span>65</span></div>}/>; }
-function Screen12(props) { return <ChoiceExercise {...props} visual={<div className="bit-error"><span>224</span><span>200</span><span>270</span><span>230</span><b>924 : <s>3</s> = 308</b></div>}/>; }
-function Screen13(props) { return <ChoiceExercise {...props} visual={<div className="passengers"><div><span>1</span><b>136</b></div><div><span>2</span><b>140</b></div><div><span>3</span><b>147</b></div><strong>423 : 3 = ?</strong></div>}/>; }
-
-function G4FinalTitleReward({ finalFrameReached, completed = false, muted = false, title, firstTry, total }) {
+// s11 — qoida kartasi.
+const RuleCard = ({ frame = 0 }) => {
   const t = useT();
-  const [reducedMotion, setReducedMotion] = useState(typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
-  const [unlocked, setUnlocked] = useState(false);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const revealedRef = useRef(false);
-  const frameRef = useRef(null);
-  const timerRef = useRef(null);
+  const rows = [
+    {
+      on: frame >= 1,
+      text: { uz: "1. Sonlarni qo'shamiz", ru: '1. Складываем числа', en: '1. Add the numbers' },
+      formula: 'a + b + c',
+      tone: T.cyan,
+    },
+    {
+      on: frame >= 2,
+      text: { uz: "2. Sonlar sonini sanaymiz", ru: '2. Считаем количество чисел', en: '2. Count the numbers' },
+      formula: 'n',
+      tone: T.navy,
+    },
+    {
+      on: frame >= 3,
+      text: { uz: "3. Yig'indini shu songa bo'lamiz", ru: '3. Делим сумму на это число', en: '3. Divide the sum by that count' },
+      formula: '(a + b + c) : n',
+      tone: T.success,
+    },
+  ];
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      {rows.map((row, index) => (
+        <g key={index} opacity={row.on ? 1 : 0.28} style={{ transition: 'opacity .4s' }}>
+          <rect x="42" y={18 + index * 68} width="436" height="56" rx="14" fill="#FFFFFF" stroke={row.tone} strokeWidth="2" />
+          <text x="64" y={44 + index * 68} fill={T.ink2} fontSize="14" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t(row.text)}
+          </text>
+          <text x="64" y={64 + index * 68} fill={row.tone} fontSize="17" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            {row.formula}
+          </text>
+        </g>
+      ))}
+    </FitSvg>
+  );
+};
 
-  useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
-    const media = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const update = () => setReducedMotion(media.matches);
-    media.addEventListener?.('change', update);
-    return () => media.removeEventListener?.('change', update);
-  }, []);
+// s12 — qadamlar kartochkalari.
+const StepsFigure = ({ solved = false }) => {
+  const t = useT();
+  const cards = [
+    { text: { uz: "Qo'shaman", ru: 'Складываю', en: 'I add' }, tone: T.cyan },
+    { text: { uz: 'Sanayman', ru: 'Считаю', en: 'I count' }, tone: T.navy },
+    { text: { uz: "Bo'laman", ru: 'Делю', en: 'I divide' }, tone: T.success },
+  ];
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      {cards.map((card, index) => (
+        <g key={index} opacity={solved ? 1 : 0.55} style={{ transition: 'opacity .4s' }}>
+          <rect
+            x={44 + index * 148}
+            y="72"
+            width="128"
+            height="88"
+            rx="16"
+            fill={solved ? '#FFFFFF' : '#F6F9F8'}
+            stroke={solved ? card.tone : T.ink3}
+            strokeWidth={solved ? 2.4 : 1.6}
+          />
+          <text x={108 + index * 148} y="112" textAnchor="middle" fill={solved ? card.tone : T.ink3} fontSize="26" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            {index + 1}
+          </text>
+          <text x={108 + index * 148} y="140" textAnchor="middle" fill={T.ink2} fontSize="14" fontWeight="700" fontFamily="Manrope, sans-serif">
+            {t(card.text)}
+          </text>
+        </g>
+      ))}
+      {solved && [0, 1].map((index) => (
+        <path key={index} d={`M${176 + index * 148} 116 l14 0 M${186 + index * 148} 110 l6 6 l-6 6`} stroke={T.ink3} strokeWidth="2" fill="none" strokeLinecap="round" />
+      ))}
+    </FitSvg>
+  );
+};
 
-  const ready = finalFrameReached || completed || muted || reducedMotion;
-  useEffect(() => {
-    if (!ready || revealedRef.current || typeof window === 'undefined') return;
-    revealedRef.current = true;
-    frameRef.current = window.requestAnimationFrame(() => {
-      frameRef.current = null;
-      setUnlocked(true);
-      setShowOverlay(true);
-      timerRef.current = window.setTimeout(() => {
-        timerRef.current = null;
-        setShowOverlay(false);
-      }, 3900);
-    });
-  }, [ready]);
+// s13 — Bit ning hisobi.
+const BitCountFigure = ({ solved = false }) => {
+  const t = useT();
+  const numbers = [12, 17, 18, 20, 28];
+  return (
+    <FitSvg viewBox="0 0 520 232">
+      <text x="260" y="34" textAnchor="middle" fill={T.ink2} fontSize="14" fontWeight="700" fontFamily="Manrope, sans-serif">
+        {t({ uz: 'Bit hisobi', ru: 'Расчёт Bit', en: "Bit's calculation" })}
+      </text>
+      {numbers.map((value, index) => (
+        <g key={value}>
+          <rect x={50 + index * 84} y="52" width="62" height="40" rx="11" fill="#FFFFFF" stroke={solved ? T.success : T.ink3} strokeWidth="1.8" />
+          <text x={81 + index * 84} y="79" textAnchor="middle" fill={T.ink} fontSize="17" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+            {value}
+          </text>
+          {solved && (
+            <text x={81 + index * 84} y="112" textAnchor="middle" fill={T.success} fontSize="13" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+              {index + 1}
+            </text>
+          )}
+          {index < numbers.length - 1 && (
+            <text
+              x={123 + index * 84}
+              y="79"
+              textAnchor="middle"
+              fill={solved ? T.accent : T.ink3}
+              fontSize="17"
+              fontWeight="800"
+              fontFamily="JetBrains Mono, monospace"
+            >
+              +
+            </text>
+          )}
+        </g>
+      ))}
+      <rect x="118" y="128" width="284" height="44" rx="13" fill={solved ? 'rgba(255,91,53,.10)' : '#FFF6F3'} stroke={T.accent} strokeWidth="2" />
+      <text x="260" y="157" textAnchor="middle" fill={T.accent} fontSize="19" fontWeight="800" fontFamily="JetBrains Mono, monospace">
+        95 : 4
+      </text>
+      <rect
+        x="118"
+        y="180"
+        width="284"
+        height="44"
+        rx="13"
+        fill={solved ? T.successSoft : 'rgba(23,59,82,.04)'}
+        stroke={solved ? T.success : T.ink3}
+        strokeWidth={solved ? 2.2 : 1.4}
+        strokeDasharray={solved ? '' : '5 5'}
+      />
+      <text
+        x="260"
+        y="209"
+        textAnchor="middle"
+        fill={solved ? T.success : T.ink3}
+        fontSize="19"
+        fontWeight="800"
+        fontFamily="JetBrains Mono, monospace"
+      >
+        {solved ? '95 : 5 = 19' : '95 : ?'}
+      </text>
+    </FitSvg>
+  );
+};
 
-  useEffect(() => () => {
-    if (frameRef.current !== null) window.cancelAnimationFrame(frameRef.current);
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-  }, []);
-
-  const localizedTitle = t(title);
-  const ariaLabel = t({ uz: `Unvon: ${localizedTitle}`, ru: `Звание: ${localizedTitle}`, en: `Title: ${localizedTitle}` });
-  return <>
-    {showOverlay && typeof document !== 'undefined' && createPortal(
-      <div className="g4-title-reveal-overlay" role="status" aria-live="assertive" aria-atomic="true" aria-label={ariaLabel}>
-        <div className="g4-title-reveal-card">
-          <div className="g4-title-reveal-rays" aria-hidden="true" />
-          <div className="g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 18 }, (_, index) => <i key={index} style={{ left: `${3 + index * 5.35}%`, animationDelay: `${(index % 7) * -0.21}s` }} />)}</div>
-          <div className="g4-title-reveal-medal" aria-hidden="true">★</div>
-          <h2 className="g4-title-reveal-title">{localizedTitle}</h2>
-        </div>
-      </div>,
-      document.body,
+// ===========================================================================
+// EKRANLAR
+// ===========================================================================
+const Screen0 = (props) => (
+  <ChoiceScreen {...props} plain ratio="28 / 25" ordinal={0} figure={() => <ArenaScene />} />
+);
+const Screen1 = (props) => (
+  <RevealScreen
+    {...props}
+    figure={({ frame }) => (
+      <LevelFigure bars={ANVAR} level={frame === 2 ? 12 : null} target={12} settled={frame >= 3} unit="m" />
     )}
-    {unlocked ? <aside className="g4-title-card g4-title-card-compact" role="status" aria-live="polite" aria-atomic="true">
-      <div className="g4-title-card-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index} />)}</div>
-      <div className="g4-title-card-bit"><BitSVG state="happy" /></div>
-      <div className="g4-title-card-medal" aria-hidden="true">★</div>
-      <span className="g4-title-card-kicker">{t({ uz: "UNVON OLINDI", ru: 'ЗВАНИЕ ПОЛУЧЕНО' , en: "TITLE EARNED"})}</span>
-      <h2 className="g4-title-card-title">{localizedTitle}</h2>
-      <div className="g4-title-card-score"><strong>{firstTry}/{total}</strong><span>{t({ uz: "birinchi urinishda", ru: 'с первой попытки', en: 'on the first attempt' })}</span></div>
-    </aside> : <div className="g4-title-card-placeholder" aria-hidden="true" />}
-  </>;
-}
+  />
+);
+const Screen2 = (props) => <LevelPick {...props} />;
+const Screen3 = (props) => (
+  <RevealScreen
+    {...props}
+    figure={({ frame }) => (
+      <SumStrip frame={frame} numbers={[9, 14, 9, 15, 13]} sum={60} count={5} average={12} unit="m" />
+    )}
+  />
+);
+const Screen4 = (props) => (
+  <NumPadScreen
+    {...props}
+    figure={({ solved }) => (
+      <SumStrip frame={solved ? 3 : 2} numbers={[28, 36, 19, 41]} sum={124} count={4} average={31} />
+    )}
+  />
+);
+const Screen5 = (props) => (
+  <RevealScreen
+    {...props}
+    figure={({ frame }) => (
+      <SumStrip frame={frame} numbers={[136, 140, 147]} sum={423} count={3} average={141} />
+    )}
+  />
+);
+const Screen6 = (props) => <TableFill {...props} figure={({ solved }) => <TableHint solved={solved} />} />;
+const Screen7 = (props) => (
+  <RevealScreen
+    {...props}
+    figure={({ frame }) => (
+      <SumStrip frame={frame} numbers={[9, 14, 9, 15, 13]} sum={60} count={5} average={12} unit="m" reverse />
+    )}
+  />
+);
+const Screen8 = (props) => (
+  <NumPadScreen
+    {...props}
+    figure={({ solved }) => (
+      <SumStrip frame={solved ? 3 : 2} numbers={[224, 200, 270, 230]} sum={924} count={4} average={231} />
+    )}
+  />
+);
+const Screen9 = (props) => (
+  <RevealScreen {...props} ratio="520 / 150" figure={({ frame }) => <RayFigure frame={frame} />} />
+);
+const Screen10 = (props) => (
+  <SlotScreen
+    {...props}
+    ratio="520 / 150"
+    figure={({ picked, solved }) => <RayFigure mode="s10" picked={picked} solved={solved} />}
+  />
+);
+const Screen11 = (props) => <RevealScreen {...props} figure={({ frame }) => <RuleCard frame={frame} />} />;
+const Screen12 = (props) => (
+  <ChoiceScreen {...props} ordinal={3} stack figure={({ solved }) => <StepsFigure solved={solved} />} />
+);
+const Screen13 = (props) => (
+  <ChoiceScreen {...props} ordinal={4} stack figure={({ solved }) => <BitCountFigure solved={solved} />} />
+);
+const Screen14 = (props) => (
+  <ChoiceScreen {...props} plain ratio="28 / 25" ordinal={5} figure={({ solved }) => <ArenaScene mode="final" solved={solved} />} />
+);
+const Screen15 = (props) => <SummaryScreen {...props} />;
 
-function G4TitleReveal({ active, title, onComplete }) {
-  useEffect(() => {
-    if (!active || typeof window === 'undefined') return undefined;
-    const timer = window.setTimeout(onComplete, window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 120 : 3900);
-    return () => window.clearTimeout(timer);
-  }, [active, onComplete]);
-  if (!active) return null;
-  return createPortal(<div className="rank-boost-overlay g4-title-reveal-overlay" data-g4-role="rank-overlay" role="status" aria-live="assertive"><div className="rank-boost-card g4-title-reveal-card"><div className="rank-boost-rays g4-title-reveal-rays" aria-hidden="true"/><div className="rank-boost-confetti g4-title-reveal-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="rank-boost-medal g4-title-reveal-medal">★</div><h2 className="g4-title-reveal-title">{title}</h2></div></div>, document.body);
-}
-
-function G4TitleCard({ title, firstTry, total, canFinish }) {
-  return <aside className="g4-title-card g4-title-card-stage" data-g4-role="title-card" data-can-finish={canFinish}><div className="g4-title-card-confetti" data-g4-role="reward-confetti" aria-hidden="true">{Array.from({ length: 12 }, (_, index) => <i key={index}/>)}</div><div className="g4-title-card-bit" data-g4-role="reward-bit"><BitSVG state="happy"/></div><div className="g4-title-card-medal" data-g4-role="reward-medal">★</div><span className="g4-title-card-kicker">TITLE EARNED</span><h2 className="g4-title-card-title">{title}</h2><div className="g4-title-card-score"><strong>{firstTry}/{total}</strong></div></aside>;
-}
-
-function ContractFinalReward({ title, firstTry, total }) {
-  const t = useT(); const { markActivity, finalRewardState, setFinalRewardState } = useContext(ActivityContext); const { reflectionChoice, titleState } = finalRewardState;
-  const setReflectionChoice = useCallback((value) => setFinalRewardState((previous) => ({ ...previous, reflectionChoice: value })), [setFinalRewardState]);
-  const setTitleState = useCallback((value) => setFinalRewardState((previous) => ({ ...previous, titleState: value })), [setFinalRewardState]);
-  const legacyContract = Boolean(G4FinalTitleReward);
-  const choices = [{ uz: "Tushuntira olaman", ru: 'Могу объяснить', en: 'I can explain it' }, { uz: "Yana mashq qilaman", ru: 'Ещё потренируюсь', en: 'I will practise again' }];
-  const claimTitle = () => { if (reflectionChoice === null) return; setTitleState('revealing'); };
-  const completeReveal = useCallback(() => { setTitleState('claimed'); markActivity(14, reflectionChoice); }, [markActivity, reflectionChoice, setTitleState]);
-  const localizedTitle = t(title);
-  return <div className="contract-final-reward" data-legacy-contract={legacyContract}>{titleState !== 'claimed' && <div className="final-reflection" data-g4-role="reflection">{choices.map((choice, index) => <button type="button" key={t(choice)} className={reflectionChoice === index ? 'selected' : ''} onClick={() => setReflectionChoice(index)}>{t(choice)}</button>)}</div>}{titleState === 'unclaimed' && <button type="button" className="g4-title-claim" data-g4-role="title-claim" disabled={reflectionChoice === null} onClick={claimTitle}><span>★</span><strong>{t({ uz: "Unvonni olish", ru: 'Получить звание', en: 'Claim title' })}</strong></button>}<G4TitleReveal active={titleState === 'revealing'} title={localizedTitle} onComplete={completeReveal}/>{titleState === 'claimed' && <G4TitleCard title={localizedTitle} firstTry={firstTry} total={total} canFinish={titleState === 'claimed'}/>}</div>;
-}
-
-const FINAL_AWARDS = [
-  { ru: 'Архитектор среднего', uz: "O'rtacha qiymat me'mori", en: 'Mean Architect' },
-  { ru: 'Мастер выравнивания', uz: 'Tenglashtirish ustasi', en: 'Equalising Master' },
-  { ru: 'Исследователь среднего', uz: "O'rtacha tadqiqotchisi", en: 'Mean Explorer' },
+const SCREENS = [
+  Screen0, Screen1, Screen2, Screen3, Screen4, Screen5, Screen6, Screen7,
+  Screen8, Screen9, Screen10, Screen11, Screen12, Screen13, Screen14, Screen15,
 ];
 
-const FinaleReward = ({ answers = [] }) => {
-  const scored = SCREEN_META.map((item, index) => item.scored ? index : null).filter((index) => index !== null);
-  const total = scored.length;
-  const firstTry = scored.filter((index) => answers[index]?.firstTry === true).length;
-  const award = firstTry === total ? FINAL_AWARDS[0] : firstTry >= Math.max(1, total - 1) ? FINAL_AWARDS[1] : FINAL_AWARDS[2];
-  return <ContractFinalReward title={award} firstTry={firstTry} total={total} />;
-};
-
-function Screen14({ screen, answers, onPrev, finishLesson }) {
-  const t = useT(); const c = CONTENT.s14; const audio = useNarration(c.audio, screen); const frame = audio.frame; const complete = frame >= 4;
-  const rules = [
-    { uz: "Bir nechta qiymatni bitta tenglashtirilgan qiymat bilan ifodalaymiz", ru: 'Несколько значений выражаем одним выровненным значением', en: 'Represent several values with one equalised value' },
-    { uz: "Barcha qiymatlarni qo'shamiz", ru: 'Складываем все значения', en: 'Add all the values' },
-    { uz: "Qiymatlar sonini sanaymiz", ru: 'Считаем количество значений', en: 'Count the number of values' },
-    { uz: "Yig'indini qiymatlar soniga bo'lamiz", ru: 'Делим сумму на количество значений', en: 'Divide the sum by the number of values' },
-  ];
-  return <Stage screen={screen} audio={audio} onPrev={onPrev} onNext={finishLesson} finish><div className="stack"><section className="finale-heading"><span>◆ {t({ uz: "YAKUNIY BOSQICH", ru: 'ФИНАЛЬНЫЙ ЭТАП' , en: "FINAL STAGE"})}</span><h1>{t(c.title)}</h1><p>{t({ uz: "Boshlang'ich uloqtirishlar missiyasini tenglashtirilgan natijalar bilan yakunlaymiz.", ru: 'Завершаем стартовую миссию с бросками выровненными результатами.', en: 'We complete the starting throwing mission with equalised results.' })}</p></section><section className="finale-main"><div className="finale-payoff finale-bars"><small>{t({ uz: "BOSHLANG'ICH MISSIYA YECHIMI", ru: 'РЕШЕНИЕ СТАРТОВОЙ МИССИИ', en: 'STARTING MISSION SOLUTION' })}</small><ResultBars values={[9,14,9,15,13]} target={12} frame={frame} name="Anvar"/><div className={`finale-mean-formula ${frame >= 1 ? 'show' : ''}`}>(9 + 14 + 9 + 15 + 13) : 5 = {t({ uz: "12 m", ru: '12 м', en: '12 m' })}</div><div className={`finale-comparison ${frame >= 3 ? 'show' : ''}`}><span>Anvar <b>{t({ uz: "12 m", ru: '12 м', en: '12 m' })}</b></span><span>Ulug'bek <b>{t({ uz: "11 m", ru: '11 м', en: '11 m' })}</b></span><strong>{t({ uz: "Anvar +1 m", ru: 'Анвар +1 м', en: 'Anvar +1 m' })}</strong></div></div><div className="finale-takeaways">{rules.map((rule, index) => <div className={`finale-takeaway ${frame >= index ? 'show' : ''}`} key={t(rule)}><b>{index + 1}</b><span>{t(rule)}</span></div>)}</div></section><section className="finale-bottom"><div className={`finale-bridge ${complete ? 'show' : ''}`}><small>{t({ uz: "KEYINGI MAVZU", ru: 'СЛЕДУЮЩАЯ ТЕМА' , en: "NEXT TOPIC"})}</small><strong>{t({ uz: "Takrorlanadigan matematik bog'lanishlarni harflar bilan yozish", ru: 'Запись повторяющихся математических связей с помощью букв', en: 'Using letters to write repeated mathematical relationships' })}</strong></div><FinaleReward answers={answers} complete={complete} audio={audio}/></section></div></Stage>;
+export default function Grade4Dars15(props) {
+  return (
+    <TheoryLessonRoot
+      {...props}
+      lessonMeta={LESSON_META}
+      screenMeta={SCREEN_META}
+      totalScreens={TOTAL_SCREENS}
+      frameCounts={FRAME_COUNTS}
+      content={CONTENT}
+      screens={SCREENS}
+      styles={KIT_STYLES}
+    />
+  );
 }
-
-const BASE_SCREENS=[Screen0,Screen1,Screen2,Screen3,Screen4,Screen5,Screen6,Screen7,Screen8,Screen9,Screen10,Screen11,Screen12,Screen13,Screen14];
-const SCREENS=SCREEN_FLOW.map((sourceIndex)=>BASE_SCREENS[sourceIndex]);
-
-export default function Grade4Dars15({ studentName, lang: langProp, ttsApiBase, voiceGender, correctSoundUrl, wrongSoundUrl, onFinished, previewMode }) {
-  const showPreviewControls=langProp===undefined||langProp===null; const preview=previewMode??showPreviewControls; const [previewLang,setPreviewLang]=useState(normalizeLang(langProp)); const lang=showPreviewControls?previewLang:normalizeLang(langProp);
-  configureLesson({ttsApiBase:ttsApiBase||'',voiceGender:voiceGender||'f',correctSoundUrl:correctSoundUrl||'',wrongSoundUrl:wrongSoundUrl||'',previewMode:preview});
-  const [current,setCurrent]=useState(0); const [answers,setAnswers]=useState([]); const [activityState,setActivityState]=useState({}); const [finalRewardState,setFinalRewardState]=useState({reflectionChoice:null,titleState:'unclaimed'});
-  // eslint-disable-next-line react-hooks/purity -- lesson duration starts when this component mounts
-  const started=useRef(Date.now()); const finished=useRef(false);
-  const markActivity=useCallback((screen,value=true)=>setActivityState((previous)=>Object.prototype.hasOwnProperty.call(previous,screen)&&previous[screen]===value?previous:{...previous,[screen]:value}),[]);
-  const recordAnswer=useCallback((answer)=>{setAnswers((previous)=>{const next=[...previous];const old=previous[answer.screenIdx];next[answer.screenIdx]={...answer,firstTry:old?.firstTry===false?false:answer.firstTry};return next;});if(!SCREEN_META[answer.screenIdx].scored||answer.correct)markActivity(answer.screenIdx,answer.studentAnswerIndex??true);},[markActivity]);
-  const finishLesson=useCallback(()=>{if(finished.current)return;finished.current=true;const scored=SCREEN_META.map((meta,index)=>meta.scored?index:null).filter((index)=>index!==null);const firstTryCorrect=scored.filter((index)=>answers[index]?.firstTry===true).length;const payload={lessonId:LESSON_META.lessonId,lessonTitle:LESSON_META.lessonTitle[lang],studentName:studentName||null,durationSec:Math.floor((Date.now()-started.current)/1000),totalQuestions:scored.length,correctAnswers:firstTryCorrect,scorePercent:Math.round(firstTryCorrect/scored.length*100),finalScore:firstTryCorrect,finalTotal:scored.length,passed:firstTryCorrect/scored.length>=0.6,firstTryStats:{total:scored.length,firstTryCorrect},attemptsTotal:scored.reduce((sum,index)=>sum+(answers[index]?.attempts??0),0),skillTags:LESSON_META.skillTags,answers:answers.filter(Boolean)};if(onFinished)onFinished(payload);else console.log('[Grade4 Dars15 preview]',payload);},[answers,lang,onFinished,studentName]);
-  const Current=SCREENS[current];
-  return <LangContext.Provider value={lang}><ActivityContext.Provider value={{activityState,markActivity,finalRewardState,setFinalRewardState}}><style>{STYLES}</style><div className={`lesson-root ${preview?'lesson-root-preview':''}`}>{showPreviewControls&&<div className="preview-language" aria-label={{ uz: 'Dars tili', ru: 'Язык урока', en: 'Lesson language' }[lang]}>{SUPPORTED_LANGS.map((code)=><button type="button" key={code} className={previewLang===code?'preview-active':''} onClick={()=>setPreviewLang(code)}>{code.toUpperCase()}</button>)}</div>}<Current key={current} screen={current} storedAnswer={answers[current]} answers={answers} onAnswer={recordAnswer} onPrev={()=>setCurrent((value)=>Math.max(0,value-1))} onNext={()=>setCurrent((value)=>Math.min(TOTAL_SCREENS-1,value+1))} finishLesson={finishLesson}/></div></ActivityContext.Provider></LangContext.Provider>;
-}
-
-const STYLES=`
-.lesson-frame .preview-language{display:none!important}
-@media(max-width:639.98px){.lesson-root [data-g4-role~="hook-scene"],.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px!important;border-radius:18px!important}}
-.g4-title-card-placeholder{width:100%;min-height:116px}
-.g4-title-card{position:relative;isolation:isolate;width:100%;min-height:116px;margin:0;padding:12px 82px 11px 67px;border-radius:17px;display:flex;flex-direction:column;justify-content:center;gap:4px;overflow:hidden;color:#FFF;background:radial-gradient(circle at 82% 20%,rgba(255,194,60,.26),transparent 30%),linear-gradient(135deg,#173B52,#0E6978);box-shadow:0 28px 58px -27px rgba(22,143,163,.8);transform:translateY(-2px)}
-.g4-title-card-medal{position:absolute;left:11px;top:50%;width:44px;height:44px;border:3px solid rgba(255,255,255,.58);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:#5A3A00;background:linear-gradient(145deg,#FFE284,#FFC23C);box-shadow:0 0 0 8px rgba(255,255,255,.08),0 15px 30px -15px rgba(0,0,0,.6);font-size:19px;z-index:2}
-.g4-title-card-bit{position:absolute;right:3px;bottom:2px;width:72px;height:90px;z-index:2;animation:g4-title-card-bit-float 2.8s ease-in-out 1 both}.g4-title-card-bit>svg,.g4-title-card-bit .bit,.g4-title-card-bit .g1-char{width:100%;height:100%}
-.g4-title-card-kicker{position:relative;color:#A8EAF0;font:900 10px/1.2 'JetBrains Mono',monospace;letter-spacing:.13em;z-index:2}.g4-title-card-title{position:relative;margin:0!important;font:750 clamp(16px,2.2vw,21px)/1.05 'Source Serif 4',Georgia,serif;z-index:2}.g4-title-card-score{position:relative;align-self:flex-start;margin-top:5px;padding:5px 9px;border-radius:10px;display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.10);z-index:2}.g4-title-card-score strong{color:#FFE284;font-family:'JetBrains Mono',monospace}.g4-title-card-score span{color:rgba(255,255,255,.72);font-size:9px}
-.g4-title-card-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-card-confetti i{position:absolute;top:-16px;width:7px;height:12px;border-radius:2px;animation:g4-title-card-fall 2.4s linear 2 both}.g4-title-card-confetti i:nth-child(4n+1){background:#FFC23C}.g4-title-card-confetti i:nth-child(4n+2){background:#FF5B35}.g4-title-card-confetti i:nth-child(4n+3){background:#77E1EA}.g4-title-card-confetti i:nth-child(4n){background:#95C93D}.g4-title-card-confetti i:nth-child(1){left:8%;animation-delay:-.3s}.g4-title-card-confetti i:nth-child(2){left:17%;animation-delay:-1.1s}.g4-title-card-confetti i:nth-child(3){left:29%;animation-delay:-.7s}.g4-title-card-confetti i:nth-child(4){left:41%;animation-delay:-1.7s}.g4-title-card-confetti i:nth-child(5){left:52%;animation-delay:-.2s}.g4-title-card-confetti i:nth-child(6){left:63%;animation-delay:-1.3s}.g4-title-card-confetti i:nth-child(7){left:73%;animation-delay:-.8s}.g4-title-card-confetti i:nth-child(8){left:84%;animation-delay:-1.9s}.g4-title-card-confetti i:nth-child(9){left:12%;animation-delay:-2s}.g4-title-card-confetti i:nth-child(10){left:36%;animation-delay:-1.4s}.g4-title-card-confetti i:nth-child(11){left:68%;animation-delay:-.5s}.g4-title-card-confetti i:nth-child(12){left:91%;animation-delay:-1.6s}
-.g4-title-reveal-overlay{position:fixed;inset:0;z-index:120;padding:0;display:grid;place-items:center;overflow:hidden;overscroll-behavior:contain;pointer-events:none;background:rgba(8,13,24,.64);backdrop-filter:blur(2px) saturate(.78);animation:g4-title-reveal-life 3.8s ease both}.g4-title-reveal-card{position:relative;isolation:isolate;width:100%;min-height:100dvh;padding:36px 24px;border:0;border-radius:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;overflow:hidden;color:#FFF;text-align:center;background:radial-gradient(circle at 50% 50%,rgba(255,214,80,.17),transparent 31%)}.g4-title-reveal-card::after{content:'';position:absolute;z-index:0;top:50%;left:50%;width:min(440px,82vw);height:min(440px,82vw);border-radius:50%;background:radial-gradient(circle,rgba(255,222,105,.17),transparent 68%);transform:translate(-50%,-50%)}
-.g4-title-reveal-rays{position:absolute;z-index:0;top:50%;left:50%;width:160vmax;height:160vmax;border-radius:50%;opacity:.28;background:repeating-conic-gradient(from -4deg,rgba(255,218,91,.88) 0 8deg,transparent 8deg 20deg);transform:translate(-50%,-50%);animation:g4-title-reveal-rays-in .8s cubic-bezier(.16,1,.3,1) both,g4-title-reveal-rays-turn 26s linear .8s 1 both}.g4-title-reveal-medal{position:absolute;top:50%;left:50%;z-index:2;width:112px;height:112px;border:6px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;color:#653C00;background:linear-gradient(145deg,#FFF2A0,#FFC13B);box-shadow:0 0 0 13px rgba(255,255,255,.09),0 0 54px 10px rgba(255,204,63,.38),0 22px 38px -18px rgba(0,0,0,.7);font-size:52px;animation:g4-title-reveal-medal-in 1s cubic-bezier(.16,1,.3,1) .15s both}.g4-title-reveal-title{position:absolute;top:calc(50% + 82px);left:50%;z-index:2;width:min(680px,calc(100vw - 48px));margin:0!important;font:750 clamp(34px,5vw,58px)/1.02 'Source Serif 4',Georgia,serif;text-shadow:0 4px 24px rgba(0,0,0,.72);transform:translateX(-50%);animation:g4-title-reveal-title-in .7s ease .52s both}
-.g4-title-reveal-confetti{position:absolute;inset:0;pointer-events:none}.g4-title-reveal-confetti i{position:absolute;top:-20px;width:8px;height:14px;border-radius:2px;background:#FFE284;animation:g4-title-reveal-fall 2.4s linear 2 both}.g4-title-reveal-confetti i:nth-child(3n+2){background:#FF7050}.g4-title-reveal-confetti i:nth-child(3n){background:#77E1EA}
-@keyframes g4-title-card-bit-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}@keyframes g4-title-card-fall{to{transform:translateY(230px) rotate(460deg)}}@keyframes g4-title-reveal-life{0%{opacity:0}12%,84%{opacity:1}100%{opacity:0}}@keyframes g4-title-reveal-medal-in{from{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-25deg)}to{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}}@keyframes g4-title-reveal-title-in{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}@keyframes g4-title-reveal-rays-in{from{opacity:0;transform:translate(-50%,-50%) scale(.5)}to{opacity:.28;transform:translate(-50%,-50%) scale(1)}}@keyframes g4-title-reveal-rays-turn{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes g4-title-reveal-fall{to{transform:translateY(470px) rotate(560deg)}}
-@media(max-width:639.98px){.g4-title-card-placeholder{min-height:88px}.g4-title-card{min-height:88px;padding:9px 59px 8px 51px;border-radius:14px}.g4-title-card-medal{left:8px;width:34px;height:34px;font-size:14px}.g4-title-card-bit{width:57px;height:71px}.g4-title-card-title{font-size:14px}.g4-title-reveal-card{min-height:100dvh;padding:24px 18px}.g4-title-reveal-medal{width:88px;height:88px;border-width:5px;font-size:40px}.g4-title-reveal-title{top:calc(50% + 62px);font-size:29px}}
-.contract-final-reward{width:100%;min-width:0;min-height:116px;display:grid;align-content:center;gap:6px}.final-reflection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.final-reflection button,.g4-title-claim{min-width:44px;min-height:44px;padding:5px 7px;border:0;border-radius:11px;cursor:pointer;color:${T.navy};background:${T.cyanSoft};font-size:9px;font-weight:900;line-height:1.2}.final-reflection button.selected{color:#fff;background:${T.success}}.g4-title-claim{width:100%;display:flex;align-items:center;justify-content:center;gap:7px;color:#fff;background:${T.accent}}.g4-title-claim:disabled{opacity:.42;cursor:not-allowed}
-@media(prefers-reduced-motion:reduce){.g4-title-card,.g4-title-card-bit,.g4-title-reveal-overlay,.g4-title-reveal-rays,.g4-title-reveal-medal,.g4-title-reveal-title{animation:none!important}.g4-title-card{opacity:1;transform:none!important}.g4-title-card-confetti,.g4-title-reveal-confetti{display:none}.g4-title-reveal-overlay{opacity:1}.g4-title-reveal-rays{opacity:.28;transform:translate(-50%,-50%)}.g4-title-reveal-medal{opacity:1;transform:translate(-50%,-50%)}.g4-title-reveal-title{opacity:1;transform:translateX(-50%)}}
-html:has(.lesson-root),body:has(.lesson-root),#root:has(.lesson-root),.lesson-page:has(.lesson-root),.lesson-frame:has(.lesson-root){width:100%;height:100%;min-height:0!important;margin:0;overflow:hidden!important;overscroll-behavior:none}
-.lesson-root,.lesson-root *{box-sizing:border-box}.lesson-root h1,.lesson-root h2,.lesson-root h3,.lesson-root h4,.lesson-root h5,.lesson-root h6,.lesson-root p,.lesson-root ul,.lesson-root ol{margin:0}.lesson-root button,.lesson-root input{font:inherit}.lesson-root button:focus-visible,.lesson-root input:focus-visible{outline:3px solid ${T.cyan};outline-offset:3px}
-.lesson-root{position:fixed;inset:0;width:100%;min-height:100dvh;color:${T.ink};background:radial-gradient(circle at 88% 9%,rgba(22,143,163,.11),transparent 25%),linear-gradient(145deg,#F7F8F4,#EEF3F1);font-family:'Manrope',system-ui,sans-serif}
-.stage{width:min(936px,100%);height:100dvh;margin:0 auto;display:flex;flex-direction:column;overflow:hidden}.stage-header{flex-shrink:0;padding-top:10px;padding-bottom:8px;background:rgba(247,248,244,.88);backdrop-filter:blur(14px);z-index:5}.progress-track{width:100%;height:6px;margin-bottom:10px;border-radius:999px;background:rgba(80,97,109,.16);overflow:hidden}.progress-fill{height:100%;border-radius:inherit;background:linear-gradient(90deg,${T.cyan},${T.accent});box-shadow:0 0 12px rgba(255,91,53,.42);transition:width .45s ease}.stage-chrome{min-width:0;display:flex;justify-content:space-between;align-items:center;gap:12px}.chrome-title,.chrome-actions,.audio-controls{display:flex;align-items:center;gap:9px}.chrome-title{min-width:0;overflow:hidden;color:${T.ink2};font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}.chrome-title>span:last-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.chrome-actions{flex:none}.status-dot{width:8px;height:8px;flex:none;border-radius:50%;background:${T.accent};box-shadow:0 0 10px rgba(255,91,53,.65)}.screen-type{padding:4px 8px;border-radius:999px;color:${T.cyan};background:${T.cyanSoft};font-size:10px;font-weight:800}.screen-count{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700}.icon-btn{width:32px;height:32px;padding:0;border:0;border-radius:10px;color:${T.ink2};background:rgba(255,255,255,.75);cursor:pointer;box-shadow:0 4px 12px -7px rgba(${T.shadowBase},.3)}
-.stage-content{flex:1 1 auto;min-height:0;padding-top:10px;padding-bottom:12px;overflow:visible}.stage-nav{flex:0 0 auto;min-height:64px;display:flex;align-items:center;justify-content:space-between;gap:12px;background:rgba(245,245,240,.95)}.btn-white-accent,.btn-ghost{min-width:128px;min-height:48px;padding:0 18px;border:0;border-radius:15px;cursor:pointer;font-weight:900}.btn-white-accent{color:${T.accent};background:#fff;box-shadow:0 12px 24px -17px rgba(255,91,53,.8)}.btn-white-accent:hover:not(:disabled){color:#fff;background:${T.accent}}.btn-white-accent:disabled{opacity:.42;cursor:not-allowed}.btn-ghost{color:${T.ink2};background:transparent}.btn-ghost:hover{background:#fff;box-shadow:0 10px 20px -16px rgba(${T.shadowBase},.5)}.compact{min-width:118px}.stack{display:grid;gap:12px;animation:page-in .45s cubic-bezier(.16,1,.3,1) both}.heading{min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}.heading>div{min-width:0}.heading>div>span{color:${T.cyan};font-size:11px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}.heading h1{margin-top:4px!important;font:750 clamp(25px,4vw,38px)/1.06 'Source Serif 4',Georgia,serif;overflow-wrap:anywhere}.heading .g1-char{width:68px;height:84px;flex:0 0 auto;overflow:visible;filter:drop-shadow(0 9px 11px rgba(23,59,82,.2))}.question,.model-card,.duel,.why-grid,.compare-card,.rule-card,.boundary,.summary-grid{padding:16px;border-radius:22px;background:rgba(255,255,255,.9);box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.48)}.question{display:grid;gap:10px}.question h2{font:720 clamp(17px,2.5vw,22px)/1.25 'Source Serif 4',Georgia,serif}.options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}.option{min-width:0;min-height:58px;padding:9px;border:0;border-radius:16px;display:grid;grid-template-columns:28px minmax(0,1fr);align-items:center;gap:8px;color:${T.ink};background:#F8F8F4;text-align:left;cursor:pointer;box-shadow:0 10px 22px -20px rgba(${T.shadowBase},.46)}.option span{min-width:0;overflow-wrap:anywhere}.option>b{width:27px;height:27px;border-radius:9px;display:grid;place-items:center;color:${T.cyan};background:${T.cyanSoft};font:900 11px 'JetBrains Mono',monospace}.option.picked{transform:translateY(-2px);background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.27)}.option.right{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.25)}.option.bad{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.25)}.feedback{min-height:54px;padding:9px 12px;border-radius:15px;visibility:hidden;display:grid;grid-template-columns:28px minmax(0,1fr);gap:9px;align-items:start;opacity:0;transform:translateY(6px)}.feedback.open{visibility:visible;opacity:1;transform:none;transition:.3s ease}.feedback.correct{background:${T.successSoft};box-shadow:inset 4px 0 ${T.success}}.feedback.wrong{background:${T.warnSoft};box-shadow:inset 4px 0 ${T.warn}}.feedback>b{font-size:18px}.feedback p{min-width:0;font-size:13px;line-height:1.4;overflow-wrap:anywhere}.caption{position:static;margin-top:10px;padding:8px 12px;border-radius:13px;color:#fff;background:rgba(23,59,82,.94);font-size:12px;line-height:1.4;z-index:3}.stage-summary .stage-content{position:relative}.summary-happy-bit{position:absolute;right:14px;top:4px;width:58px;height:72px;z-index:2}.stage-summary .finale-heading{padding-right:78px}
-.duel{display:grid;grid-template-columns:1fr 1fr;gap:12px;position:relative}.duel .best{grid-column:1/-1;display:flex;justify-content:center;align-items:center;gap:14px;color:${T.navy};font:900 18px 'JetBrains Mono',monospace}.duel .best b{color:${T.accent}}.bars-wrap{min-height:190px;position:relative;padding:12px 8px 8px}.bars-title{text-align:center;color:${T.navy};font-weight:900}.bars{height:150px;display:flex;align-items:flex-end;justify-content:center;gap:7px;border-bottom:2px solid rgba(23,59,82,.18)}.bar-col{width:min(42px,16%);height:140px;display:flex;align-items:flex-end}.bar{width:100%;min-height:22px;border-radius:10px 10px 4px 4px;display:grid;place-items:start center;padding-top:5px;color:#fff;background:linear-gradient(180deg,${T.cyan},${T.navy});transition:height .9s cubic-bezier(.16,1,.3,1)}.bar.equalized{background:linear-gradient(180deg,${T.lime},${T.success})}.bar b{font:900 11px 'JetBrains Mono',monospace}.target-line{position:absolute;left:7%;right:7%;height:2px;background:${T.accent};transition:.5s ease}.target-line span{position:absolute;right:0;bottom:5px;color:${T.accent};font:900 11px 'JetBrains Mono',monospace}.sum-badge.show,.mean-badge.show,.bridge.show,.show{opacity:1!important;transform:none!important}.sum-badge,.mean-badge{margin-top:8px;padding:10px 13px;border-radius:13px;opacity:.12;color:${T.navy};background:${T.cyanSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace;transition:.4s ease}.mean-badge{color:${T.success};background:${T.successSoft}}.formula-flow{min-height:190px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap}.formula-chip{padding:13px 15px;border-radius:15px;opacity:.12;transform:translateY(8px);color:${T.navy};background:${T.cyanSoft};font:900 clamp(15px,2.3vw,20px) 'JetBrains Mono',monospace;transition:.45s ease}.formula-flow i{opacity:.12;color:${T.accent};font:900 22px 'JetBrains Mono',monospace;font-style:normal;transition:.35s ease}.why-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.why-grid>div{min-height:170px;padding:18px;border-radius:18px;display:grid;place-items:center;gap:8px;opacity:.32;background:#F8F8F4}.why-grid>div.active{opacity:1}.why-grid s,.why-grid b{font:900 25px 'JetBrains Mono',monospace}.why-grid s{color:${T.warn}}.why-grid small{color:${T.ink2}}.why-grid .correct-tile{background:${T.successSoft};color:${T.success}}.compare-card{min-height:230px;display:grid;grid-template-columns:1fr 30px 1fr;align-items:center;gap:10px;text-align:center}.compare-card>div{padding:18px;border-radius:18px;display:grid;gap:8px;opacity:.12;background:${T.cyanSoft}}.compare-card span{color:${T.ink2};font-weight:800}.compare-card b{color:${T.navy};font:900 28px 'JetBrains Mono',monospace}.compare-card i{color:${T.accent};font-style:normal;font-weight:900}.compare-card>strong,.compare-card>p{grid-column:1/-1;opacity:.12}.compare-card>strong{color:${T.success};font:900 22px 'JetBrains Mono',monospace}.compare-card>p{font-weight:850}.rule-card{display:grid;gap:14px}.rule-formula{padding:16px;border-radius:16px;color:#fff;background:${T.navy};text-align:center;font:800 clamp(14px,2.3vw,19px) 'JetBrains Mono',monospace}.rule-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.rule-steps>div{min-height:90px;padding:11px;border-radius:15px;display:grid;grid-template-columns:30px 1fr;align-items:center;gap:8px;opacity:.18;background:#F8F8F4}.rule-steps>div.active{background:${T.accentSoft};box-shadow:inset 0 0 0 2px rgba(255,91,53,.2)}.rule-steps b{width:28px;height:28px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.accent};font:900 11px 'JetBrains Mono',monospace}.rule-steps span{font-size:12px;font-weight:800;line-height:1.35}.boundary{display:grid;gap:18px}.number-line{height:80px;position:relative;margin:15px 4%;border-top:4px solid ${T.navy}}.number-line span,.number-line b{position:absolute;top:-19px;transform:translateX(-50%);width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:#fff;box-shadow:0 8px 18px -12px rgba(${T.shadowBase},.6);font:900 13px 'JetBrains Mono',monospace}.number-line b{opacity:.12;color:#fff;background:${T.accent}}.boundary>p{opacity:.12;color:${T.success};text-align:center;font-weight:850}.data-row{padding:14px;display:flex;justify-content:center;gap:8px}.data-row span{padding:12px 14px;border-radius:13px;color:${T.navy};background:${T.cyanSoft};font:900 17px 'JetBrains Mono',monospace}.input-row{display:flex;gap:10px}.answer-input{min-width:0;min-height:54px;flex:1;padding:10px 16px;border:0;border-radius:15px;outline:0;color:${T.navy};background:#F8F8F4;box-shadow:inset 0 0 0 2px rgba(135,148,157,.2);font:900 20px 'JetBrains Mono',monospace}.answer-input:focus{box-shadow:0 0 0 4px rgba(22,143,163,.14)}.answer-input.is-correct{background:${T.successSoft};box-shadow:inset 0 0 0 2px rgba(34,122,83,.3)}.answer-input.is-wrong{background:${T.warnSoft};box-shadow:inset 0 0 0 2px rgba(169,111,19,.3)}.proof{padding:12px;border-radius:14px;color:${T.success};background:${T.successSoft};text-align:center;font:900 15px 'JetBrains Mono',monospace}.order-area{display:grid;gap:11px}.order-result{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;min-height:76px}.order-result>div{padding:10px;border-radius:14px;display:grid;grid-template-columns:25px 1fr;align-items:center;gap:7px;background:${T.cyanSoft};font-size:11px;font-weight:800}.order-result b{width:24px;height:24px;border-radius:8px;display:grid;place-items:center;color:#fff;background:${T.cyan}}.card-bank{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}.card-bank button,.tiny-action{min-height:46px;padding:8px 12px;border:0;border-radius:13px;cursor:pointer;background:#F8F8F4;box-shadow:0 8px 18px -16px rgba(${T.shadowBase},.5);font-size:12px;font-weight:800}.card-bank button:disabled{opacity:.35}.tiny-action{justify-self:end;color:${T.accent};background:${T.accentSoft}}.line-choice{padding:22px;display:flex;align-items:center;justify-content:center;gap:0}.line-choice span,.line-choice b{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;color:${T.navy};background:${T.cyanSoft};font:900 15px 'JetBrains Mono',monospace}.line-choice b{color:#fff;background:${T.accent}}.line-choice i{width:90px;height:4px;background:linear-gradient(90deg,${T.cyan},${T.accent})}.bit-error{padding:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.bit-error span{padding:9px;border-radius:12px;background:${T.cyanSoft};text-align:center;font:900 14px 'JetBrains Mono',monospace}.bit-error b{grid-column:1/-1;padding:12px;border-radius:13px;color:${T.warn};background:${T.warnSoft};text-align:center;font:900 17px 'JetBrains Mono',monospace}.passengers{padding:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.passengers>div{padding:12px;border-radius:15px;display:grid;gap:6px;text-align:center;background:${T.cyanSoft}}.passengers span{color:${T.ink3};font-size:11px}.passengers b{color:${T.navy};font:900 18px 'JetBrains Mono',monospace}.passengers strong{grid-column:1/-1;padding:11px;border-radius:13px;color:#fff;background:${T.navy};text-align:center;font:900 16px 'JetBrains Mono',monospace}.summary-grid{display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:12px}.summary-formula{padding:16px;border-radius:16px;color:#fff;background:${T.navy};font:900 clamp(15px,2.4vw,20px) 'JetBrains Mono',monospace;text-align:center}.summary-rules{grid-template-columns:repeat(4,1fr)}.bridge{padding:13px 16px;border-radius:16px;display:grid;gap:4px;opacity:.15;color:#fff;background:${T.navy}}.bridge span{color:#9DE3E7;font-size:10px;font-weight:900;letter-spacing:.08em}.bridge strong{font:750 16px 'Source Serif 4',Georgia,serif}.preview-language{position:fixed;top:9px;right:9px;z-index:30;display:flex;gap:3px;padding:3px;border-radius:999px;background:rgba(255,255,255,.94);box-shadow:0 8px 20px -14px rgba(${T.shadowBase},.6)}.preview-language button{padding:4px 9px;border:0;border-radius:999px;color:${T.ink2};background:transparent;cursor:pointer;font-size:10px;font-weight:900}.preview-language .preview-active{color:#FFFFFF;background:${T.accent}}.g1-bit-ant{transform-origin:60px 28px;animation:antenna 2.1s ease-in-out 2}.g1-bit-wave,.bit-wave-left,.bit-wave-right,.bit-think-hand,.bit-point-arm,.bit-nod-hand{transform-origin:84px 76px;animation:think 1.7s ease-in-out 2}.bit-double-wave,.bit-awkward-hands,.bit-focus-hands{transform-origin:center;animation:happy 1.2s ease-in-out 2 alternate}.bit-idea-bulb,.bit-point-target,.bit-focus-scan,.bit-nod-check{animation:pulse 1.35s ease-in-out 2 alternate}
-.finale-heading{min-width:0;padding:11px 15px;border-radius:17px;background:linear-gradient(100deg,rgba(255,91,53,.09),transparent 52%),rgba(255,255,255,.92);box-shadow:0 13px 28px -24px rgba(255,91,53,.72)}.finale-heading>span{display:flex;align-items:center;gap:6px;color:${T.accent};font:900 9px/1.2 'JetBrains Mono',monospace;letter-spacing:.12em}.finale-heading h1{margin-top:4px!important;color:${T.navy};font:750 clamp(21px,3vw,28px)/1.08 'Source Serif 4',Georgia,serif}.finale-heading p{margin-top:4px!important;color:${T.ink2};font-size:11px;line-height:1.35}
-.finale-main{min-width:0;display:grid;grid-template-columns:minmax(260px,.92fr) minmax(300px,1.08fr);align-items:stretch;gap:10px}.finale-payoff{min-width:0;padding:11px 13px;border-radius:18px;display:grid;align-content:center;gap:7px;background:#fff;box-shadow:0 18px 34px -28px rgba(${T.shadowBase},.5)}.finale-payoff>small{color:${T.cyan};font-size:9px;font-weight:900;letter-spacing:.09em}.finale-bars .bars-wrap{min-height:148px;padding:0 4px}.finale-bars .bars{height:128px}.finale-bars .bar-col{height:122px}.finale-bars .bars-title{font-size:11px}.finale-mean-formula{min-width:0;padding:7px 9px;border-radius:11px;opacity:.14;transform:translateY(5px);color:${T.navy};background:${T.cyanSoft};text-align:center;font:900 10px/1.25 'JetBrains Mono',monospace;transition:.42s ease}.finale-comparison{min-width:0;display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:5px;opacity:.14;transform:translateY(5px);transition:.42s ease}.finale-comparison span,.finale-comparison strong{min-width:0;padding:6px;border-radius:9px;text-align:center;font:850 9px/1.2 'JetBrains Mono',monospace}.finale-comparison span{color:${T.ink2};background:#F8F8F4}.finale-comparison span b{color:${T.navy}}.finale-comparison strong{color:${T.success};background:${T.successSoft}}
-.finale-takeaways{min-width:0;display:grid;gap:6px}.finale-takeaway{min-width:0;min-height:40px;padding:7px 10px;border-radius:12px;display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:8px;opacity:.14;transform:translateY(6px);background:#F8F8F4;transition:opacity .42s ease,transform .42s ease,background .42s ease}.finale-takeaway.show{opacity:1;transform:none;background:${T.cyanSoft}}.finale-takeaway b{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;color:#fff;background:${T.cyan};font:900 9px/1 'JetBrains Mono',monospace}.finale-takeaway span{min-width:0;color:${T.ink2};font-size:11px;font-weight:800;line-height:1.3;overflow-wrap:anywhere}
-.finale-bottom{min-width:0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(270px,.8fr);gap:10px}.finale-bridge{min-width:0;padding:12px 15px;border-radius:16px;display:grid;align-content:center;gap:4px;opacity:.14;transform:translateY(6px);color:#fff;background:${T.navy};transition:.42s ease}.finale-bridge.show{opacity:1;transform:none}.finale-bridge small{color:#98E1E5;font-size:9px;font-weight:900;letter-spacing:.1em}.finale-bridge strong{font:750 15px/1.3 'Source Serif 4',Georgia,serif}
-.finale-reward{min-width:0;min-height:100px;position:relative;overflow:hidden;padding:12px 72px 11px 58px;border-radius:17px;display:grid;align-content:center;color:#fff;background:linear-gradient(135deg,#234B62,${T.navy});box-shadow:0 17px 34px -27px rgba(${T.shadowBase},.74);transition:filter .45s ease,box-shadow .45s ease}.finale-reward:not(.complete){filter:saturate(.72)}.finale-reward.complete{box-shadow:0 17px 36px -22px rgba(149,201,61,.72)}.finale-medal{position:absolute;left:11px;top:50%;width:38px;height:38px;border:3px solid rgba(255,255,255,.72);border-radius:50%;display:grid;place-items:center;transform:translateY(-50%);color:${T.navy};background:${T.lime};font-size:17px;font-weight:900}.finale-reward-copy{min-width:0;display:grid;gap:3px}.finale-reward-copy>small{color:#98E1E5;font-size:8px;font-weight:900;letter-spacing:.09em}.finale-reward-copy>strong{font:750 15px/1.15 'Source Serif 4',Georgia,serif}.finale-status{min-width:0;display:flex;align-items:center;gap:6px}.finale-status b{flex:none;color:#FFE284;font:900 11px/1 'JetBrains Mono',monospace}.finale-status span{min-width:0;color:rgba(255,255,255,.72);font-size:8px;line-height:1.2}.finale-reward-bit{position:absolute;right:2px;bottom:-4px;width:68px;height:86px}.finale-reward-bit .g1-char{width:100%;height:100%}.finale-reward.complete .finale-reward-bit{animation:happy 2.8s ease-in-out 2 alternate}.finale-confetti{position:absolute;inset:0;pointer-events:none}.finale-confetti i{position:absolute;top:-12px;width:5px;height:9px;border-radius:2px;background:#FFC23C;animation:finaleFall 2.8s linear 2}.finale-confetti i:nth-child(2n){background:${T.accent}}.finale-confetti i:nth-child(3n){background:#77E1EA}.finale-confetti i:nth-child(1){left:9%;animation-delay:-.2s}.finale-confetti i:nth-child(2){left:22%;animation-delay:-1.1s}.finale-confetti i:nth-child(3){left:35%;animation-delay:-.7s}.finale-confetti i:nth-child(4){left:48%;animation-delay:-1.8s}.finale-confetti i:nth-child(5){left:61%;animation-delay:-.4s}.finale-confetti i:nth-child(6){left:73%;animation-delay:-1.4s}.finale-confetti i:nth-child(7){left:84%;animation-delay:-.9s}.finale-confetti i:nth-child(8){left:93%;animation-delay:-2s}@keyframes finaleFall{to{transform:translateY(118px) rotate(180deg)}}
-@keyframes page-in{from{opacity:0;transform:translateY(10px)}}@keyframes antenna{50%{transform:rotate(5deg)}}@keyframes think{50%{transform:rotate(-5deg) translateY(-2px)}}@keyframes happy{to{transform:translateY(-3px)}}@keyframes pulse{to{transform:scale(1.06)}}
-.stage-hook .duel{background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%)}
-.stage-hook .duel .bars-title,.stage-hook .duel .best{color:#EAF9FB}
-@media(max-width:639.98px){.stage-header{padding-top:60px}.screen-type{display:none}.stage{width:min(390px,100%)}.heading{min-height:68px}.heading h1{font-size:26px}.heading .g1-char{width:66px;height:82px}.question,.model-card,.duel,.why-grid,.compare-card,.rule-card,.boundary,.summary-grid{padding:13px;border-radius:18px}.options{grid-template-columns:1fr}.option{min-height:52px}.duel,.summary-grid{grid-template-columns:1fr}.bars-wrap{min-height:166px}.bars{height:126px}.bar-col{height:118px}.bar{transform:scaleY(.82);transform-origin:bottom}.why-grid{grid-template-columns:1fr}.compare-card{grid-template-columns:1fr 24px 1fr}.rule-steps,.summary-rules{grid-template-columns:1fr}.rule-steps>div{min-height:55px}.formula-flow{min-height:145px}.order-result{grid-template-columns:1fr}.input-row{flex-direction:column}.stage-nav{min-height:68px}.btn-white-accent,.btn-ghost{min-width:112px;padding:0 12px}.passengers{grid-template-columns:1fr 1fr 1fr}}
-@media(max-width:639.98px){.stage-hook .stack{gap:10px}.stage-hook .duel{grid-template-columns:1fr 1fr;gap:8px}.stage-hook .duel .bars-wrap{min-height:125px;padding:2px 2px 0}.stage-hook .duel .bars{height:106px;gap:4px}.stage-hook .duel .bar-col{height:100px}.stage-hook .duel .best{gap:8px;font-size:14px}}
-@media(prefers-reduced-motion:reduce){.lesson-root *,.lesson-root *::before,.lesson-root *::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}.formula-chip,.formula-flow i,.sum-badge,.mean-badge,.compare-card>div,.compare-card>strong,.compare-card>p,.boundary>p,.number-line b,.bridge{opacity:1!important;transform:none!important}}
-@media(max-width:639.98px){.finale-heading{padding:9px 11px}.finale-heading h1{font-size:21px}.finale-heading p{font-size:9px}.finale-main,.finale-bottom{grid-template-columns:1fr}.finale-payoff{padding:9px 11px}.finale-bars .bars-wrap{min-height:135px}.finale-bars .bars{height:115px}.finale-bars .bar-col{height:110px}.finale-comparison{grid-template-columns:1fr 1fr}.finale-comparison strong{grid-column:1/-1}.finale-takeaway{min-height:38px;padding:6px 8px}.finale-reward{min-height:92px;padding:10px 62px 9px 51px}.finale-medal{left:9px;width:34px;height:34px}.finale-reward-bit{width:58px;height:74px}.finale-reward-copy>strong{font-size:14px}}
-@media(max-width:639.98px){.stage-summary .stack{gap:9px}.stage-summary .finale-heading{padding:7px 9px}.stage-summary .finale-heading p{font-size:8.5px;line-height:1.25}.stage-summary .finale-main,.stage-summary .finale-bottom{gap:8px}.stage-summary .finale-payoff{padding:7px 9px;gap:5px}.stage-summary .finale-bars .bars-wrap{min-height:105px}.stage-summary .finale-bars .bars{height:88px}.stage-summary .finale-bars .bar-col{height:84px}.stage-summary .finale-bars .bar{transform:scaleY(.68)}.stage-summary .finale-mean-formula{padding:5px 7px}.stage-summary .finale-comparison{gap:4px}.stage-summary .finale-comparison span,.stage-summary .finale-comparison strong{padding:4px}.stage-summary .finale-takeaways{gap:4px}.stage-summary .finale-takeaway{min-height:34px;padding:4px 7px;grid-template-columns:25px minmax(0,1fr);gap:6px}.stage-summary .finale-takeaway b{width:24px;height:24px}.stage-summary .finale-takeaway span{font-size:10px;line-height:1.22}.stage-summary .finale-bridge{padding:8px 11px}.stage-summary .finale-bridge strong{font-size:13px}.stage-summary .finale-reward{min-height:80px;padding:8px 56px 7px 47px}.stage-summary .finale-medal{left:8px;width:30px;height:30px}.stage-summary .finale-reward-bit{width:52px;height:66px}.stage-summary .finale-reward-copy>strong{font-size:13px}.stage-summary .finale-status span{font-size:7.5px}}
-@media(max-width:639.98px){.stage-content{padding-top:7px;padding-bottom:7px}.heading{min-height:60px}.heading .g1-char{width:54px;height:68px}.stack{gap:8px}.input-row{flex-direction:row}.feedback{min-height:50px;padding:7px 9px}.stage-nav{min-height:58px}.stage-summary .finale-heading{padding-right:68px}.summary-happy-bit{right:9px;width:52px;height:66px}}
-@media(prefers-reduced-motion:reduce){.finale-takeaway,.finale-mean-formula,.finale-comparison,.finale-bridge{opacity:1!important;transform:none!important}}
-.stage-content{position:relative;overflow:hidden!important;padding-bottom:54px!important}.stage-body{height:100%;min-height:0;overflow:visible}.caption.caption-slot{position:absolute;left:clamp(14px,5vw,48px);right:clamp(14px,5vw,48px);bottom:5px;width:auto;max-width:none;min-height:40px;margin:0;display:grid;place-items:center;visibility:hidden;opacity:0;pointer-events:none}.caption.caption-slot.visible{visibility:visible;opacity:1}.activity-slot{min-height:48px;margin-top:7px;display:flex;align-items:center;justify-content:center;gap:6px}.activity-slot button{min-height:44px;padding:7px 12px;border:0;border-radius:13px;color:${T.cyan};background:${T.cyanSoft};font-weight:900;cursor:pointer}.activity-slot button.selected{color:#fff;background:${T.success}}.finale-reflection{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.finale-reflection button{min-width:0;font-size:11px}.btn-white-accent:disabled{opacity:.42;cursor:not-allowed;transform:none}.lesson-root,.stage,.stage-content{overflow:hidden;overscroll-behavior:none}.stage-body{overscroll-behavior:none}@media(max-width:390px){.caption.caption-slot{left:14px;right:14px}.finale-reflection button{padding:5px 6px;font-size:9px}}@media(max-height:700px){.stage-header{padding-top:7px;padding-bottom:5px}.stage-content{padding-top:5px!important}.stack{gap:7px}.heading{min-height:54px}.heading h1{font-size:23px}.heading .g1-char{width:50px;height:62px}.activity-slot{margin-top:4px}.stage-nav{min-height:56px}.stage-hook .heading{min-height:46px}.stage-hook .heading .g1-char{width:42px;height:52px}.stage-hook .bars-wrap{min-height:88px;padding-block:2px}.stage-hook .bars{height:72px}.stage-hook .bar-col{height:68px}.stage-hook .best{gap:6px;font-size:12px}.stage-hook .question{padding:8px;gap:5px}.stage-hook .question h2{font-size:15px}.stage-hook .options{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.stage-hook .option{min-height:64px;padding:6px;grid-template-columns:22px minmax(0,1fr);gap:4px;font-size:11px}.stage-hook .option>b{width:22px;height:22px}.stage-hook .feedback{min-height:44px;padding:5px 7px}.why-grid{grid-template-columns:1fr 1fr}.why-grid>div{min-height:120px;padding:10px}}
-.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
-@media(min-width:640px){.stage-hook .stack{grid-template-columns:minmax(0,1fr) minmax(310px,1fr);gap:10px;align-items:start}.stage-hook .heading{grid-column:1/-1;min-height:66px}.stage-hook .duel{align-self:stretch}.stage-hook .bars-wrap{min-height:135px;padding-block:5px}.stage-hook .bars{height:104px}.stage-hook .bar-col{height:98px}.stage-hook .question{align-self:stretch}.stage-hook .option{min-height:50px}.stage-hook .feedback{min-height:48px;padding:6px 8px}}
-@media(min-width:640px) and (max-width:1100px){.stage-hook .heading{min-height:58px}.stage-hook .heading h1{font-size:28px}.stage-hook .heading .g1-char{width:54px;height:66px}.stage-hook .bars-wrap{min-height:118px}.stage-hook .bars{height:90px}.stage-hook .bar-col{height:84px}}
-@media(min-width:361px) and (max-width:639px){.stage-summary .stack{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:7px}.stage-summary .finale-heading{grid-column:1/-1}.stage-summary .finale-main,.stage-summary .finale-bottom{grid-template-columns:1fr;gap:6px}.stage-summary .finale-bars .bars-wrap{min-height:92px}.stage-summary .finale-bars .bars{height:74px}.stage-summary .finale-bars .bar-col{height:70px}.stage-summary .finale-takeaway{min-height:32px}.stage-summary .finale-bridge{padding:7px 9px}.stage-summary .contract-final-reward{min-height:96px}}
-@media(min-width:361px) and (max-width:639px){.stage-summary .stage-content{padding-top:3px!important}.stage-summary .stack{gap:4px}.stage-summary .finale-heading{padding:5px 8px}.stage-summary .finale-heading p{font-size:8px}.stage-summary .finale-main,.stage-summary .finale-bottom{gap:4px}.stage-summary .finale-payoff{padding:5px 7px;gap:3px}.stage-summary .finale-bars .bars-wrap{min-height:78px}.stage-summary .finale-bars .bars{height:62px}.stage-summary .finale-bars .bar-col{height:58px}.stage-summary .finale-mean-formula,.stage-summary .finale-comparison span,.stage-summary .finale-comparison strong{padding:3px 4px}.stage-summary .finale-takeaway{min-height:28px;padding:3px 5px}.stage-summary .finale-takeaway span{font-size:8.5px}.stage-summary .finale-bridge{padding:5px 7px}.stage-summary .finale-bridge strong{font-size:11px}.stage-summary .contract-final-reward{min-height:88px}.stage-summary .final-reflection button,.stage-summary .g4-title-claim{min-height:44px}}
-.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;clip-path:inset(50%)!important;white-space:nowrap!important;border:0!important}
-@media(max-width:390px) and (max-height:700px){
-  .heading{position:relative}.heading>div{width:100%;padding-right:44px}.heading>.g1-char{position:absolute;right:0;top:50%;transform:translateY(-50%)}
-  .question{padding:8px!important;gap:5px}.question h2{font-size:15px}.options{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px}.option{min-height:60px;padding:5px;grid-template-columns:20px minmax(0,1fr);gap:4px;font-size:11px;line-height:1.25}.option>b{width:20px;height:20px}.feedback{min-height:50px;padding:5px 7px}.feedback p{font-size:11.5px;line-height:1.3}.feedback-bit{width:28px;height:34px;display:block}.feedback-bit .g1-char{width:28px;height:34px}
-  .stage-hook .duel{padding:7px!important;grid-template-columns:1fr 1fr!important;grid-template-rows:72px 16px;align-items:start;gap:6px}.stage-hook .duel .bars-wrap{height:72px;min-height:0!important;padding:0!important;contain:size}.stage-hook .duel .bars{height:48px!important}.stage-hook .duel .bar-col{height:44px!important}.stage-hook .duel .bar{transform:scaleY(.36)!important}.stage-hook .duel .bar b{transform:scaleY(2.777)}.stage-hook .duel .best{font-size:12px}.stage-hook .option{min-height:64px!important;padding:4px!important;grid-template-columns:18px minmax(0,1fr)!important;gap:3px!important}.stage-hook .option>b{width:18px!important;height:18px!important}.stage-hook .feedback{height:64px;min-height:64px!important}.stage-hook .feedback p{font-size:11px}
-  .model-card{padding:8px!important}.model-card .bars-wrap{height:108px;min-height:0!important;padding:1px 3px!important;contain:size}.model-card .bars{height:82px!important}.model-card .bar-col{height:78px!important}.model-card .bar{transform:scaleY(.55)!important}.model-card .bar b{transform:scaleY(1.818)}.model-card .target-line{bottom:69px!important}.sum-badge,.mean-badge{margin-top:4px;padding:6px 8px;font-size:12px}
-  .data-row{padding:7px;gap:4px}.data-row span{padding:8px 7px;font-size:14px}.formula-flow{min-height:76px!important;gap:5px}.formula-chip{padding:8px 9px;font-size:13px}.formula-flow i{font-size:17px}.why-grid>div{min-height:92px!important;padding:8px}.compare-card{min-height:140px;padding:9px!important;gap:5px}.compare-card>div{padding:9px}.compare-card b{font-size:22px}.rule-card{padding:9px!important;gap:7px}.rule-formula{padding:9px;font-size:12px}.rule-steps{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px}.rule-steps>div{min-height:72px;padding:6px;grid-template-columns:23px minmax(0,1fr);gap:4px}.rule-steps b{width:22px;height:22px}.rule-steps span{font-size:10.5px;line-height:1.25}.boundary{padding:9px!important;gap:7px}.number-line{height:48px;margin:10px 4%}.boundary>p{font-size:12px}
-  .order-area{gap:6px}.order-result{grid-template-columns:repeat(3,minmax(0,1fr))!important;min-height:58px;gap:4px}.order-result>div{padding:6px;grid-template-columns:20px minmax(0,1fr);gap:4px;font-size:10px}.order-result b{width:20px;height:20px}.card-bank{gap:5px}.card-bank button,.tiny-action{min-height:44px;padding:6px 8px;font-size:10.5px}.input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px}.input-row .compact{min-width:96px;padding-inline:9px}.answer-input{min-height:50px;padding:8px 10px}.proof{padding:8px;font-size:12px}
-  .line-choice{padding:8px}.line-choice span,.line-choice b{width:44px;height:44px}.line-choice i{width:auto;min-width:0;flex:1}.bit-error{padding:7px;gap:4px}.bit-error span{padding:6px;font-size:12px}.bit-error b{padding:8px;font-size:13px}.passengers{padding:7px;gap:5px}.passengers>div{padding:7px}.passengers b{font-size:15px}.passengers strong{padding:7px;font-size:13px}
-  .stage-summary .stack{gap:6px}.stage-summary .finale-heading{padding:6px 8px 6px!important}.stage-summary .finale-heading h1{font-size:18px}.stage-summary .finale-heading p{font-size:8.5px}.stage-summary .finale-main{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;gap:6px}.stage-summary .finale-bottom{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)!important;gap:6px}.stage-summary .finale-payoff{padding:6px!important;gap:4px}.stage-summary .finale-bars .bars-wrap{height:72px;min-height:0!important;padding:0;contain:size}.stage-summary .finale-bars .bars{height:52px!important}.stage-summary .finale-bars .bar-col{height:48px!important}.stage-summary .finale-bars .bar{transform:scaleY(.4)!important}.stage-summary .finale-bars .bar b{transform:scaleY(2.5)}.stage-summary .finale-mean-formula{font-size:9px}.stage-summary .finale-comparison{font-size:9px}.stage-summary .finale-takeaway{min-height:40px;padding:4px 5px;grid-template-columns:22px minmax(0,1fr);gap:4px}.stage-summary .finale-takeaway b{width:22px;height:22px}.stage-summary .finale-takeaway span{font-size:9px}.stage-summary .finale-bridge{padding:7px 8px}.stage-summary .finale-bridge strong{font-size:11px}.contract-final-reward{min-height:100px;gap:4px}.final-reflection{grid-template-columns:repeat(2,minmax(0,1fr))}.final-reflection button,.g4-title-claim{min-height:44px;font-size:9px}
-}
-.hook-scene-shell{min-width:0;max-width:100%;height:100%;overflow:hidden;border-radius:24px}[data-g4-role="visual-frame"]{position:relative;isolation:isolate;max-width:100%;height:100%;overflow:hidden;color:#EAF9FB;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}[data-g4-role="visual-frame"] :is(img,svg,canvas,video){display:block;max-width:100%;max-height:100%}[data-g4-role="visual-frame"] :is(img,video){width:100%;height:100%;object-fit:contain}.hook-frame-bit{position:absolute;right:5px;bottom:-7px;z-index:4;width:70px;height:88px;display:block;overflow:hidden}.hook-frame-bit>.g1-char,.hook-frame-bit>svg{width:100%;height:100%}.feedback-bit{width:46px;height:58px;display:block;align-self:end;overflow:hidden}.feedback-bit>.g1-char,.feedback-bit>svg{width:100%;height:100%}
-[data-g4-role="hook-title"],[data-g4-role="hook-question"]{width:100%;text-align:left}[data-g4-role="hook-title"]{font:650 clamp(26px,4.2vw,36px)/1.08 'Source Serif 4',Georgia,serif;letter-spacing:-.012em}[data-g4-role="hook-question"]{font:750 clamp(17px,2.5vw,21px)/1.3 Manrope,system-ui,sans-serif}
-@media(max-width:639.98px){.hook-scene-shell{border-radius:18px}.hook-frame-bit{right:3px;bottom:-5px;width:58px;height:73px}[data-g4-role="hook-title"]{font-size:25px}}
-.lesson-root{font-family:'Manrope',system-ui,sans-serif}.lesson-root h1{font-family:'Source Serif 4',Georgia,serif}.lesson-root .question h2{font-family:'Manrope',system-ui,sans-serif}.screen-count,[class*="formula"],[class*="equation"],[class*="proof-label"]{font-family:'JetBrains Mono',monospace}.lead,.heading>div>span{font-size:clamp(14px,1.8vw,16px)}
-[data-g4-role="hook-scene"]{width:min(760px, 100%);min-width:0;margin-inline:auto}[data-g4-role="visual-frame"]{position:relative;isolation:isolate;width:100%;min-width:0;min-height:206px;border-radius:24px;overflow:hidden;background:radial-gradient(circle at 87% 24%,rgba(121,211,218,.16),transparent 24%),radial-gradient(circle at 9% 88%,rgba(149,201,61,.11),transparent 25%),linear-gradient(145deg,rgba(22,143,163,.25),transparent 48%),linear-gradient(135deg,#153B50,#0B2232 72%);box-shadow:0 22px 50px -30px rgba(14,33,44,.75)}[data-g4-role="hook-bit"]{right:42px!important;bottom:-4px!important;width:88px!important;height:110px!important}[data-g4-role="hook-bit"]>.g1-char,[data-g4-role="hook-bit"]>svg{width:100%!important;height:100%!important}
-[data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]{width:62px;height:76px}[data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;background:linear-gradient(135deg,#FFFFFF,#E7F3EC);box-shadow:inset 4px 0 #227A53}[data-g4-feedback="solution"] [data-g4-role="feedback-bit"]{width:51px;height:64px}[data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9);box-shadow:inset 4px 0 #A96F13}[data-g4-role~="bit-answer-comment"] p{font:700 clamp(15px,2vw,18px)/1.35 'Source Serif 4',Georgia,serif}
-@media(max-width:639.98px){[data-g4-role="visual-frame"]{min-height:164px;border-radius:18px}[data-g4-role="hook-bit"]{right:12px!important;bottom:-7px!important;width:68px!important;height:85px!important}[data-g4-role~="feedback-frame"] [data-g4-role="feedback-bit"]{width:54px;height:68px}[data-g4-feedback="solution"] [data-g4-role="feedback-bit"]{width:47px;height:59px}}
-.lesson-root [data-g4-role~="hook-title"]{font-size:clamp(26px,4.2vw,36px);font-family:'Source Serif 4',Georgia,serif}
-.lesson-root [data-g4-role~="hook-question"]{font-size:clamp(17px,2.5vw,21px);font-family:'Manrope',system-ui,sans-serif}
-.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{width:100%;min-height:206px;border-radius:24px;overflow:hidden}
-.lesson-root [data-g4-role~="feedback-frame"]{min-height:88px;padding:8px 15px 8px 9px;border-radius:18px;grid-template-columns:62px minmax(0,1fr)}
-.lesson-root [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:62px;height:76px}
-.lesson-root [data-g4-feedback="solution"]{min-height:72px;padding:7px 12px 7px 6px;border-radius:15px;grid-template-columns:51px minmax(0,1fr);background:linear-gradient(135deg,#FFFFFF,#E7F3EC)}
-.lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:51px;height:64px}
-.lesson-root [data-g4-feedback="wrong"]{background:linear-gradient(135deg,#FFFFFF,#FFF5D9)}
-.lesson-root .summary-happy-bit[data-g4-role~="visual-frame"]{position:absolute;isolation:isolate;min-width:0;max-width:100%;overflow:hidden}
-@media(max-width:639.98px){.lesson-root [data-g4-role~="hook-title"]{font-size:25px}.lesson-root [data-g4-role~="hook-scene"]>[data-g4-role~="visual-frame"]{min-height:164px;border-radius:18px}.lesson-root [data-g4-role~="feedback-frame"] [data-g4-role~="feedback-bit"]{width:54px;height:68px}.lesson-root [data-g4-feedback="solution"]{min-height:68px}.lesson-root [data-g4-feedback="solution"] [data-g4-role~="feedback-bit"]{width:47px;height:59px}}
-.lesson-root .stage-hook .hook-layout{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto auto!important;align-content:start!important;gap:10px!important}
-.lesson-root .stage-hook .hook-layout>.heading,.lesson-root .stage-hook .hook-layout>[data-g4-role~="hook-question"],.lesson-root .stage-hook .hook-layout>[data-g4-role~="hook-scene"],.lesson-root .stage-hook .hook-layout>.question{grid-column:1!important;position:relative!important;inset:auto!important;width:100%!important;margin:0!important}
-.lesson-root [data-g4-screen="hook"]{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-template-rows:auto auto auto auto!important;align-content:start!important;gap:10px!important}
-.lesson-root [data-g4-screen="hook"]>.heading,.lesson-root [data-g4-screen="hook"]>[data-g4-role~="hook-question"],.lesson-root [data-g4-screen="hook"]>.question{grid-column:1!important;position:relative!important;inset:auto!important;width:100%!important;margin:0!important}
-.lesson-root [data-g4-screen="hook"]>[data-g4-role~="hook-scene"]{grid-column:1!important;position:relative!important;inset:auto!important;width:min(760px,100%)!important;margin:0 auto!important}
-.lesson-root .stage-hook .feedback[aria-hidden="true"]{display:none!important}
-.lesson-root .stage-hook .question:has(.feedback[aria-hidden="false"]) .options{display:none!important}
-@media(max-width:639.98px){.lesson-root .stage-hook .hook-layout,.lesson-root [data-g4-screen="hook"]{gap:6px!important}.lesson-root .stage-hook .heading{min-height:52px!important}.lesson-root .stage-hook [data-g4-role~="hook-title"]{font-size:25px!important}.lesson-root .stage-hook .question{padding:7px!important;gap:6px!important}.lesson-root .stage-hook .option{min-height:44px!important}}
-`;
